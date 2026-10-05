@@ -241,12 +241,32 @@ class Quasimatrix:
         return Quasimatrix([fn(c) for c in self.cols], self.domain)
 
     def _zip(self, other, fn) -> "Quasimatrix":
-        if isinstance(other, Quasimatrix):
-            if len(other.cols) != len(self.cols):
-                raise ValueError("column counts differ")
-            return Quasimatrix(
-                [fn(a, b) for a, b in zip(self.cols, other.cols)],
-                self.domain)
+        """Pair scalar columns, with source singleton-column expansion.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/plus.m, @chebfun/minus.m,
+            @chebfun/times.m, @chebfun/dimCheck.m, @chebfun/cheb2cell.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, (Quasimatrix, Chebfun)):
+            if isinstance(other, Quasimatrix):
+                other_cols = other.cols
+            elif other.n_columns == 1:
+                # Preserve scalar stored pointValues; column extraction is
+                # needed only for a genuinely array-valued operand.
+                other_cols = [other]
+            else:
+                other_cols = other.mat2cell()
+            if self.cols[0].is_transposed != other_cols[0].is_transposed:
+                raise ValueError("Matrix dimensions must agree: one input is transposed.")
+            n_left, n_right = len(self.cols), len(other_cols)
+            if n_left != n_right and n_left != 1 and n_right != 1:
+                raise ValueError("column counts must agree or be singleton")
+            cols = [fn(self.cols[0 if n_left == 1 else i],
+                       other_cols[0 if n_right == 1 else i])
+                    for i in range(max(n_left, n_right))]
+            return Quasimatrix(cols, self.domain)
         return Quasimatrix([fn(c, other) for c in self.cols],
                            self.domain)
 

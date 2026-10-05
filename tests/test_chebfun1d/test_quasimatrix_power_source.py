@@ -45,9 +45,13 @@ def _matrix_inf_norm(values):
     return float(np.linalg.norm(arr, ord=np.inf))
 
 
-def _q_minus_array_norm(q, f, x):
-    """Evaluate a Quasimatrix-minus-array-Chebfun comparison at sample x."""
-    return _matrix_inf_norm(np.asarray(q(jnp.asarray(x))) - np.asarray(f(jnp.asarray(x))))
+def _q_minus_array_norm(q, f, x, *, reverse=False):
+    """Form the source function difference before evaluation and norm."""
+    difference = f - q if reverse else q - f
+    values = np.asarray(difference(jnp.asarray(x)))
+    # Mixed containers must retain one scalar function per output column.
+    assert values.shape == (len(x), f.n_columns)
+    return _matrix_inf_norm(values)
 
 
 def _array3(x):
@@ -132,7 +136,7 @@ class TestQuasimatrixPowerSourceCases:
         g = x ** x
         gq = xq ** xq
         sample = _source_sample(6178, domain=(0.1, 2.0))
-        err = _q_minus_array_norm(gq, g, sample)
+        err = _q_minus_array_norm(gq, g, sample, reverse=True)
 
         # Preserve pass(21)'s h and tolerance from pass(20), not a recomputed
         # norm estimate of the Quasimatrix result.
