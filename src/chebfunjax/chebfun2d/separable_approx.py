@@ -735,7 +735,7 @@ class SeparableApprox(eqx.Module):
         return cls(
             cols=cols_list,
             rows=rows_list,
-            pivots=jnp.asarray(1.0 / pivot_vals, dtype=jnp.float64),
+            pivots=jnp.asarray(1.0 / pivot_vals),
             domain=(xa, xb, ya, yb),
             pivot_locations=tuple(
                 (float(x_pts[pivot_pos[j, 1]]), float(y_pts[pivot_pos[j, 0]]))

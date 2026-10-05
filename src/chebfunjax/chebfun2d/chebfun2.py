@@ -283,7 +283,7 @@ class Chebfun2(eqx.Module):
         MATLAB source : @chebfun2/chebfun2.m ('coeffs' flag)
         Chebfun commit: 7574c77
         """
-        V = cls.coeffs2vals(jnp.asarray(C, dtype=jnp.float64))
+        V = cls.coeffs2vals(jnp.asarray(C))
         return cls.from_values(jnp.asarray(V), domain=domain, **kwargs)
 
     @classmethod
