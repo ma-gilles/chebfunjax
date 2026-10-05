@@ -7580,7 +7580,8 @@ class Chebop:
         from chebfunjax.operators.krylov import pcg as _pcg
         return _pcg(self, f, tol=tol, maxit=maxit)
 
-    def minres(self, f, tol: float = 1e-10, maxit: int = 100):
+    def minres(self, f, tol: float | None = None, maxit: int | None = None,
+               full_output: bool = False, *, R1=None, R2=None, u0=None):
         """Function-space MINRES solve (MATLAB minres(N, f)).
 
         Provenance
@@ -7589,7 +7590,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         from chebfunjax.operators.krylov import minres as _minres
-        return _minres(self, f, tol=tol, maxit=maxit)
+        return _minres(self, f, tol=tol, maxit=maxit, full_output=full_output,
+                       R1=R1, R2=R2, u0=u0)
 
     def gmres(self, f, tol: float = 1e-10, maxit: int = 60):
         """Function-space GMRES solve (MATLAB gmres(N, f)).

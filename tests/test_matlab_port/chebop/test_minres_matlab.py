@@ -1,8 +1,8 @@
-"""Port of MATLAB Chebfun tests/chebop/test_minres.m (Fable 5).
+"""Exact five-assertion translation of MATLAB test_minres.m.
 
 Provenance
 ----------
-MATLAB source : tests/chebop/test_minres.m
+MATLAB source: tests/chebop/test_minres.m
 Chebfun commit: 7574c77
 """
 
@@ -16,34 +16,73 @@ from chebfunjax.operators.chebop import Chebop
 
 jax.config.update("jax_enable_x64", True)
 
-TOL = 1e2 * 1e-8   # 1e2 * cheboppref bvpTol
+# @cheboppref/cheboppref.m factory defaults; the MATLAB test sets tol to
+# 100*pref.bvpTol and MINRES uses pref.maxIter unless maxit is supplied.
+_SOURCE_BVP_TOL = 5e-13
+_SOURCE_DEFAULT_MAXIT = 25
+_SOURCE_ASSERTION_TOL = 100 * _SOURCE_BVP_TOL
 
 
-def _n(f, d=(-1.0, 1.0)):
-    xs = jnp.linspace(d[0] + 1e-9, d[1] - 1e-9, 33)
-    return float(jnp.max(jnp.abs(jnp.asarray(f(xs)))))
+def _operator(a, c):
+    """Build -(a(x)u')' + c(x)u on MATLAB's default domain [-1, 1]."""
+    return Chebop(
+        lambda x, u: -((a(x) * u.diff()).diff()) + c(x) * u,
+        domain=(-1.0, 1.0),
+    )
 
 
-def _mkop(a, c, dom=(-1.0, 1.0), b=None):
-    if b is None:
-        op = lambda x, u: (-1.0) * (a(x) * u.diff()).diff() + c(x) * u
-    else:
-        op = lambda x, u: ((-1.0) * (a(x) * u.diff()).diff()
-                           + b(x) * u.diff() + c(x) * u)
-    return Chebop(op, domain=dom)
+def _source_pair(a, c, rhs, left=0.0, right=0.0, maxit=_SOURCE_DEFAULT_MAXIT):
+    op = _operator(a, c)
+    op.lbc = left
+    op.rbc = right
+    f = cj.chebfun(rhs, domain=(-1.0, 1.0))
+    reference = op.solve(f)
+    # Python's current defaults are tol=1e-10/maxit=100; pass the MATLAB
+    # factory preferences explicitly so the source call semantics are tested.
+    actual = op.minres(f, tol=_SOURCE_BVP_TOL, maxit=maxit)
+    return reference, actual
 
 
-class TestChebopMinres:
-    def test_all_matlab_assertions(self):
-        cases = [
-            (lambda x: 1.0 + 0 * x, lambda x: 0 * x),
-            (lambda x: 2 + (jnp.pi * x).cos(), lambda x: -10 * x),
-            (lambda x: 2 + (jnp.pi * x).cos(), lambda x: 1 - 10 * x ** 2),
-        ]
-        f = cj.chebfun(lambda x: 1 - 3 * x ** 2)
-        for a, c in cases:
-            N = _mkop(a, c)
-            N.bc = 0.0
-            u = N.solve(f)
-            v = N.minres(f)
-            assert _n(u - v) < TOL
+def _assert_source_l2(reference, actual):
+    # MATLAB norm(chebfun,2) is the continuous L2 norm, not a sampled max norm.
+    assert float((reference - actual).norm(2)) < _SOURCE_ASSERTION_TOL
+
+
+def test_minres_source_case_1_constant_diffusion_zero_potential():
+    a = lambda x: 1.0 + 0.0 * x
+    c = lambda x: 0.0 * x
+    f = lambda x: 1.0 - 3.0 * x**2
+    u, v = _source_pair(a, c, f)
+    _assert_source_l2(u, v)
+
+
+def test_minres_source_case_2_variable_diffusion_linear_potential():
+    a = lambda x: 2.0 + (jnp.pi * x).cos()
+    c = lambda x: -10.0 * x
+    f = lambda x: 1.0 - 3.0 * x**2
+    u, v = _source_pair(a, c, f)
+    _assert_source_l2(u, v)
+
+
+def test_minres_source_case_3_variable_diffusion_quadratic_potential():
+    a = lambda x: 2.0 + (jnp.pi * x).cos()
+    c = lambda x: 1.0 - 10.0 * x**2
+    f = lambda x: 1.0 - 3.0 * x**2
+    u, v = _source_pair(a, c, f)
+    _assert_source_l2(u, v)
+
+
+def test_minres_source_case_4_nonzero_mean_rhs():
+    a = lambda x: 2.0 + (jnp.pi * x).cos()
+    c = lambda x: 1.0 + 10.0 * x**2
+    f = lambda x: 1.0 - 2.0 * x**2
+    u, v = _source_pair(a, c, f)
+    _assert_source_l2(u, v)
+
+
+def test_minres_source_case_5_nonzero_dirichlet_data_maxit_40():
+    a = lambda x: 2.0 + (jnp.pi * x).cos()
+    c = lambda x: 1.0 - 100.0 * x**2
+    f = lambda x: 1.0 - 2.0 * x**2
+    u, v = _source_pair(a, c, f, left=1.0, right=-1.0, maxit=40)
+    _assert_source_l2(u, v)

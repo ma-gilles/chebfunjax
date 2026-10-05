@@ -137,18 +137,251 @@ def pcg(N, f, tol: float = 1e-10, maxit: int = 100, full_output: bool = False):
     return sol
 
 
-def minres(N, f, tol: float = 1e-10, maxit: int = 100, full_output: bool = False):
-    """MINRES on chebfuns for the preconditioned self-adjoint operator
-    (implemented via the Lanczos-based residual minimization over the
-    Krylov space; equivalent to MATLAB @chebop/minres.m).
+def _minres_empty(value):
+    """Concrete MATLAB empty input adapter for eager MINRES setup."""
+    return (value is None or isinstance(value, (list, tuple)) and len(value) == 0
+            or getattr(value, "size", None) == 0
+            or hasattr(value, "isempty") and value.isempty())
+
+
+def _minres_basic_correction(A, rhs):
+    """Basic column-pivoted QR correction for source MINRES A\\b.
+
+    A source-equivalent basic solution keeps non-pivot coordinates zero;
+    minimum-norm SVD least squares can change the correction polynomial.
+    Rank choices near the numerical threshold need a matched MATLAB fixture.
+    """
+    from jax.scipy.linalg import qr, solve_triangular
+
+    Q, R, permutation = qr(A, mode="economic", pivoting=True)
+    diagonal = jnp.abs(jnp.diag(R))
+    threshold = max(A.shape)*jnp.finfo(A.dtype).eps*diagonal[0]
+    rank = int(jnp.sum(diagonal > threshold))
+    coeffs = jnp.zeros(A.shape[1], dtype=A.dtype)
+    if rank:
+        basic = solve_triangular(R[:rank, :rank], (Q.T.conj()@rhs)[:rank])
+        coeffs = coeffs.at[permutation[:rank]].set(basic)
+    return coeffs
+
+
+def _setup_minres(N, f, tol):
+    """Source MINRES divergence coefficients and range/Dirichlet correction."""
+    from numbers import Real
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
+    dom = f.domain
+    x = Chebfun.identity(dom)
+    if not N._is_linear():
+        raise ValueError('CHEBFUN:CHEBOP:pcg:nonlinear: MINRES supports only linear CHEBOP instances.')
+    if N.linop().blocks[0][0].order != 2:
+        raise ValueError('CHEBFUN:CHEBOP:pcg:DiffOrder: MINRES supports only second-order ODEs.')
+    bcs = []
+    for side in ('left', 'right'):
+        value = getattr(N, 'lbc' if side == 'left' else 'rbc')
+        if value is None:
+            value = 0.
+        if not isinstance(value, Real):
+            raise ValueError('CHEBFUN:CHEBOP:pcg:' + side + 'bc: Currently, we require Dirichlet boundary conditions. Please supply N.' + ('lbc' if side == 'left' else 'rbc') + ' = double.')
+        bcs.append(value)
+    one = 1 + 0*x
+    c = N.feval(one)
+    halfx2 = x*x/2
+    a = -N.feval(halfx2) - (-N.feval(x) + c*x)*x + c*halfx2
+
+    def L(v):
+        return -(a*v.diff()).diff() + c*v
+
+    def R1(v):
+        return v.cumsum()
+
+    def R2(v):
+        return v.sum() - v.cumsum()
+
+    def Pi(v):
+        return v - v.sum()/(dom.b-dom.a)
+
+    def T(v):
+        return Pi(R2(L(R1(v))))
+
+    R2f = R2(f)
+    PiR2f = Pi(R2f)
+    if _norm2(R2f-PiR2f) > tol or any(abs(bc) > tol for bc in bcs):
+        basis = [x**j for j in range(5)]
+        ends = jnp.asarray([dom.a, dom.b])
+        A = jnp.stack([jnp.concatenate((R1(R2(L(bj)))(ends), bj(ends)))
+                       for bj in basis], axis=1)
+        rhs = jnp.concatenate((R1(R2f)(ends), jnp.asarray(bcs)))
+        coeffs = _minres_basic_correction(A, rhs)
+        z = sum((bj*coeffs[j] for j,bj in enumerate(basis)), 0*f)
+        g = Pi(R2f-R2(L(z)))
+    else:
+        g, z = PiR2f, 0*f
+    return T, R1, Pi, g, z
+
+
+def minres(N, f, tol: float | None = None, maxit: int | None = None,
+           full_output: bool = False, *, R1=None, R2=None, u0=None):
+    """Source function-space MINRES with Lanczos and plane rotations.
+
+    Numerical vectors remain adaptive Chebfuns. ``full_output`` returns the
+    solution, flag, relative residual, iteration and a JAX residual vector.
+    Only the source indefinite-integral preconditioners are supported.
+    The outer adaptive iteration uses eager scalar control flow.
 
     Provenance
     ----------
-    MATLAB source : @chebop/minres.m
+    MATLAB source : @chebop/minres.m, @chebfun/normest.m
     Chebfun commit: 7574c77
     """
-    return _arnoldi_solve(N, f, tol, maxit, full_output)
+    import warnings
 
+    from chebfunjax.chebpref import ChebopPref
+
+    prefs = ChebopPref()
+    tol = prefs.bvpTol if _minres_empty(tol) else tol
+    maxit = prefs.maxIter if _minres_empty(maxit) else maxit
+    eps = float(jnp.finfo(jnp.float64).eps)
+    warned = tol <= eps or tol >= 1
+    if warned:
+        warnings.warn('CHEBFUN:CHEBOP:pcg: tolerance must lie between eps and 1.',
+                      RuntimeWarning, stacklevel=2)
+        tol = max(eps, min(tol, 1-eps))
+    if not _minres_empty(R1) or not _minres_empty(R2):
+        raise ValueError('chebop:pcg:OnlyDefaultPreconditionerAllowed')
+    T, R1, Pi, g, z = _setup_minres(N, f, tol)
+    u0 = None if _minres_empty(u0) else u0
+    u = 0*f if u0 is None else u0
+    if u0 is not None:
+        from chebfunjax.chebfun1d.chebfun import _hscale
+        ends_f = jnp.asarray([f.domain.a, f.domain.b])
+        ends_u = jnp.asarray([u0.domain.a, u0.domain.b])
+        error = jnp.abs(ends_f-ends_u)
+        threshold = 1e-15*max(_hscale(f), _hscale(u0))
+        if not bool(jnp.all((error < threshold) | jnp.isnan(error))):
+            raise ValueError('chebop:pcg:WrongInitGuessDomain')
+    Tu = 0*f if u0 is None else T(u)
+    n2f = _norm2(f)
+    tolg = tol*sum(float(piece.tech.normest()) for piece in g.funs)
+    r = g-Tu
+    normr = _norm2(r)
+    normr_act = normr
+    resvec = [normr]
+
+    def output(v, flag, relres, iteration):
+        return (v, flag, relres, iteration, jnp.asarray(resvec)) if full_output else v
+
+    def relative(value):
+        # MATLAB permits the zero-rhs 0/0 NaN diagnostic.
+        return float(jnp.asarray(value)/jnp.asarray(n2f))
+
+    if normr <= tolg:
+        # Literal source early-return branch omits the polynomial correction z.
+        return output(R1(Pi(u)), 0, relative(normr), 0)
+    flag, iteration = 1, 0
+    umin, imin, normrmin = u, 0, normr
+    vold = r
+    beta1 = _ip(vold, vold)
+    if beta1 <= 0:
+        return output(R1(Pi(u)), 5, relative(normr), 0)
+    beta1 = float(jnp.sqrt(beta1))
+    snprod = beta1
+    vv = vold/beta1
+    v = T(vv)
+    Amvv = v
+    alpha = _ip(vv, v)
+    v = v-(alpha/beta1)*vold
+    numer, denom = _ip(vv, v), _ip(vv, vv)
+    v = v-(numer/denom)*vv
+    volder, vold, betaold = vold, v, beta1
+    beta = _ip(v, v)
+    if beta < 0:
+        return output(R1(Pi(u)), 5, relative(normr), 0)
+    iteration = 1
+    beta = float(jnp.sqrt(beta))
+    gammabar, epsilon, deltabar = alpha, 0., beta
+    gamma = float(jnp.hypot(gammabar, beta))
+    if gamma == 0 or not bool(jnp.isfinite(gamma)):
+        return output(R1(Pi(u)), 4, relative(normr), 0)
+    mold = Amold = 0*f
+    m, Am = vv/gamma, Amvv/gamma
+    cs, sn = gammabar/gamma, beta/gamma
+    u = u+snprod*cs*m
+    snprod *= sn
+    normr = abs(snprod)
+    resvec.append(normr)
+    if normr <= tolg:
+        # The source also uses the estimated residual and omits z here.
+        return output(R1(Pi(u)), 0, relative(normr), 1)
+    stag, moresteps = 0, 0
+    maxmsteps = min(len(f)//50, 5, len(f)-maxit)
+    ii = 1
+    for ii in range(2, maxit+1):
+        if beta == 0:
+            flag = 4
+            break
+        vv = v/beta
+        v = T(vv)
+        Amolder, Amold, Am = Amold, Am, v
+        v = v-(beta/betaold)*volder
+        alpha = _ip(vv, v)
+        v = v-(alpha/beta)*vold
+        volder, vold, betaold = vold, v, beta
+        beta = _ip(v, v)
+        if beta < 0:
+            flag = 5
+            break
+        beta = float(jnp.sqrt(beta))
+        delta = cs*deltabar+sn*alpha
+        molder, mold = mold, m
+        m = vv-delta*mold-epsilon*molder
+        Am = Am-delta*Amold-epsilon*Amolder
+        gammabar = sn*deltabar-cs*alpha
+        epsilon, deltabar = sn*beta, -cs*beta
+        gamma = float(jnp.hypot(gammabar, beta))
+        if gamma == 0 or not bool(jnp.isfinite(gamma)):
+            flag = 4
+            break
+        m, Am = m/gamma, Am/gamma
+        cs, sn = gammabar/gamma, beta/gamma
+        if snprod*cs == 0 or abs(snprod*cs)*_norm2(m) < eps*_norm2(u):
+            stag += 1
+        else:
+            stag = 0
+        u = u+snprod*cs*m
+        snprod *= sn
+        normr = abs(snprod)
+        resvec.append(normr)
+        if normr <= tolg or stag >= 3 or moresteps:
+            normr_act = _norm2(g-T(u))
+            resvec[-1] = normr_act
+            if normr_act <= tolg:
+                flag, iteration = 0, ii
+                break
+            if stag >= 3 and moresteps == 0:
+                stag = 0
+            moresteps += 1
+            if moresteps >= maxmsteps:
+                if not warned:
+                    warnings.warn('tooSmallTolerance', RuntimeWarning, stacklevel=2)
+                flag, iteration = 3, ii
+                break
+        if normr < normrmin:
+            normrmin, umin, imin = normr, u, ii
+        if stag >= 3:
+            flag = 3
+            break
+    if flag == 0:
+        relres = relative(normr_act)
+    else:
+        r_comp_norm = _norm2(g-T(u))
+        # Retain the source's minimum-iterate selection, including its
+        # comparison with normr_act and residual from the final iterate.
+        if r_comp_norm <= normr_act:
+            u, iteration, relres = umin, imin, relative(r_comp_norm)
+        else:
+            iteration, relres = ii, relative(normr_act)
+    return output(R1(u)+z, flag, relres, iteration)
 
 def gmres(N, f, tol: float = 1e-10, maxit: int = 60, full_output: bool = False):
     """GMRES on chebfuns for the preconditioned operator (MATLAB

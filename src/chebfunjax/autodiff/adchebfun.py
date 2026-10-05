@@ -462,7 +462,7 @@ class ADChebfun:
 def linearize_op(
     op: Callable,
     u0,
-    domain: tuple[float, float] | None = None,
+    domain: tuple[float, ...] | None = None,
 ) -> OperatorBlock:
     """Compute the Fréchet-derivative OperatorBlock of ``op`` at ``u0``.
 
@@ -480,8 +480,9 @@ def linearize_op(
         and :class:`ADChebfun` arguments.
     u0 : Chebfun
         The linearization point.
-    domain : (float, float) or None
-        Physical domain.  If ``None``, inferred from ``u0.domain``.
+    domain : tuple of float or None
+        Physical domain, including optional interior breakpoints. If ``None``,
+        inferred from ``u0.domain``.
 
     Returns
     -------
@@ -510,10 +511,9 @@ def linearize_op(
     # Infer domain
     if domain is None:
         bpts = u0.domain.breakpoints
-        domain = (float(bpts[0]), float(bpts[-1]))
+        domain = tuple(float(point) for point in bpts)
 
     # Build the identity (x) Chebfun
-    a, b = domain
     from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
     x_fun = _chebfun(lambda x: x, domain=domain, n=2)
 
@@ -541,7 +541,7 @@ def linearize_op(
 def detect_linearity(
     op: Callable,
     u0,
-    domain: tuple[float, float] | None = None,
+    domain: tuple[float, ...] | None = None,
 ) -> bool:
     """Test whether ``op`` is linear.
 
@@ -554,8 +554,8 @@ def detect_linearity(
         The operator to test.
     u0 : Chebfun
         The test point (for nonlinear operators the answer may depend on this).
-    domain : (float, float) or None
-        Physical domain.
+    domain : tuple of float or None
+        Physical domain, including optional interior breakpoints.
 
     Returns
     -------
@@ -574,15 +574,14 @@ def detect_linearity(
 
     Provenance
     ----------
-    MATLAB source : @adchebfun/isLinear.m, @chebop/isLinear.m
+    MATLAB source : @adchebfun/adchebfun.m, @chebop/islinear.m, @chebop/linearize.m
     Chebfun commit: 7574c77
     """
 
     if domain is None:
         bpts = u0.domain.breakpoints
-        domain = (float(bpts[0]), float(bpts[-1]))
+        domain = tuple(float(point) for point in bpts)
 
-    a, b = domain
     from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
     x_fun = _chebfun(lambda x: x, domain=domain, n=2)
 
