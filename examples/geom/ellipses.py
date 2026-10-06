@@ -1,7 +1,7 @@
 """An ellipse rolling around another ellipse.
 
 Translation of geom/Ellipses.m by Nick Trefethen
-(December 2015): two ellipses parametrized by arc length via ODEs;
+(October 2011): two ellipses parametrized by arc length via ODEs;
 one rolls without slipping around the other, and the center of
 contact traces the curve w.
 
@@ -15,7 +15,10 @@ import os
 import sys
 import time
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
+
+# uses-numpy: host plotting arrays and formatted reporting; native ODE callbacks use JAX.
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -53,23 +56,23 @@ def run():
     tic = time.time()
     L1 = 3
     L2 = 2
-    theta1 = lambda z1: np.arctan2(z1.imag, z1.real / L1)  # noqa: E731
-    theta2 = lambda z2: np.arctan2(z2.imag, z2.real / L2)  # noqa: E731
+    theta1 = lambda z1: jnp.arctan2(z1.imag, z1.real / L1)  # noqa: E731
+    theta2 = lambda z2: jnp.arctan2(z2.imag, z2.real / L2)  # noqa: E731
 
     def ode1(t, z1):
         th = theta1(z1)
-        return ((-L1 * np.sin(th) + 1j * np.cos(th))
-                / np.sqrt(L1**2 * np.sin(th)**2 + np.cos(th)**2))
+        return ((-L1 * jnp.sin(th) + 1j * jnp.cos(th))
+                / jnp.sqrt(L1**2 * jnp.sin(th)**2 + jnp.cos(th)**2))
 
     def ode2(t, z2):
         th = theta2(z2)
-        return ((L2 * np.sin(th) - 1j * np.cos(th))
-                / np.sqrt(L2**2 * np.sin(th)**2 + np.cos(th)**2))
+        return ((L2 * jnp.sin(th) - 1j * jnp.cos(th))
+                / jnp.sqrt(L2**2 * jnp.sin(th)**2 + jnp.cos(th)**2))
 
     tmax = 7.5
     opts = dict(atol=1e-13, rtol=1e-13)
-    z1 = ode113(ode1, (0, tmax), np.array([L1 / 2 + 0j]), **opts)
-    z2 = ode113(ode2, (0, tmax), np.array([-L2 / 2 + 0j]), **opts)
+    z1 = ode113(ode1, (0, tmax), L1 / 2, **opts)
+    z2 = ode113(ode2, (0, tmax), -L2 / 2, **opts)
 
     w = z1 - z2 * z1.diff() / z2.diff()
     fig, ax = _axes()
