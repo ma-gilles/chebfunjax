@@ -1,3 +1,4 @@
+# uses-numpy: Host plotting coordinates and independent demonstration reference values.
 """Operations on the sphere: differentiation, integration, rotation.
 
 Demonstrates spherefun calculus and the Helmholtz decomposition,

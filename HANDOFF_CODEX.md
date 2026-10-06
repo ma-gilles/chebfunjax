@@ -15,28 +15,33 @@ Use `gh-cli`, explicit staging, GPT-6 commit trailer and full Ruff gates.
 CPU only; heavy local examples/tests serial. At most two helpers: cheap routine
 work plus Astra medium numerical review as explicitly requested by the user.
 
-P93 main checkpoint `0e63464415bea89dd9a2cf312826a8730299eba3` contains
-93 published packages. P87 repaired Pixi editable metadata; locked installation
-succeeds without external package upgrades. P88 bounded source scheduler,
-P90 raw detector and P91 one-pass bounded merge have qualified focused gates.
-P92 preserves zero-time blocks and periodic real/complex derivative state.
-P93 constructs sphere solver output from the source northern grid: 31 CPU
-cases pass, including the original multistep/convergence tests.
+P100 main checkpoint `b72e323cb46570c5f4268a6a2726d4aea2e86c27` contains
+source axis sum/default and scalar sum2, plus source mean dispatch. Its frozen
+CPU gate passes41 cases, including both actual MATLAB sum2 assertions at
+1000eps and migrated scalar callers. Two extra sphere demonstration scripts
+run alone and pass57.15s/27.81s; their constructor warnings remain recorded.
+Empty sum returns numeric [], sum2 zero and mean an empty Chebfun; these
+methods now bypass the older blanket empty wrapper. Generic complex axis
+channels, array globaltol and empty mean2's unassigned MATLAB output are open.
 
-This P94 Fejer package preserves inverse-DFT scaling under JIT using a general
-JAX binary64 integer quotient. All 18 original quadpts assertions pass with
-unchanged bounds; the 61-case qualification and 25-case confirmation have no
-failures/errors/skips. The formerly failing strict-sum xfail is removed only
-after those passes. No weight normalization or MATLAB FFT bit-identity claim.
-Matched CPU warm medians at n=100000 are 16.416ms versus 3.433ms previously
-(4.781x); timing and raw source comparisons are preserved in shared scratch.
+P97 stable realatanh passes9 CPU cases including original source trig bound.
+P98 JAX compensated extrapolation passes72, including strict x*exp(x) bound;
+same-input MATLAB BLAS has the old dot error, so this is an independently
+verified accuracy improvement, not a MATLAB reduction-bit identity claim.
+P99 real sphere mean passes18 cases; P100 strengthens empty result types
+that its old isempty-only tests did not distinguish. Each package is pushed
+normally with immutable qualified source/input/test evidence in shared scratch.
+
+P94 Fejer preserves inverse-DFT scaling under JIT through general JAX binary64
+integer division. Original18quadpts bounds pass; no normalization/FFT bit
+identity claim. At n100000 matched warm CPU16.416ms versus3.433ms before
+(4.781x), a recorded cost that remains part of performance qualification.
 Overlapping focused gate counts are not additive or full-suite acceptance.
 
-CI remains unresolved. As of exact-SHA snapshot 2026-10-06T13:01:41Z, P92 had
-8 successful shards, one failure and three running; P93 had five successful
-and seven running. Atanh's strict source error bound, left-infinite x*exp(x)
-evaluation and a stale singular-feval strict xfail need fresh diagnosis.
-Operator-2 completed successfully at P92 and P93. No full green-CI claim.
+CI remains unresolved. Exact P97/P98 snapshots had no completed failures but
+were still running. P99 run37475171045 likewise has lint/code-quality passes,
+other jobs running or queued. No terminal full-green latest CI claim.
+Earlier atanh/unbounded-diff/staleSingfunxfail failures now pass local gates.
 
 All322 cached pages match ordered prose/equations/tables and2403 input blocks.
 Eleven output-count differences and one AtmosphericTemperature image gap
@@ -47,8 +52,8 @@ unqualified. P89 Resampling ran and generated six600x270 images, but inverse
 breakpoint count and pixels still differ. The protected original twelve
 interrupted scripts have not all received an exact-byte commit/revert disposition.
 
-Next work: remaining CI correctness failures; sphere axis mean/source plotting
-and AtmosphericTemperature; actual detector seven-assertion qualification;
+Next work: remaining CI correctness failures; serial AtmosphericTemperature
+source computations/page/figures; actual detector seven-assertion qualification;
 singular/unbounded merge assertions12/13; full function/test/page/figure/RNG
 and performance parity. Detector candidate passed138/139: C1 fails due to
 backend callback rounding and a genuine source zero-slope rejection. Its

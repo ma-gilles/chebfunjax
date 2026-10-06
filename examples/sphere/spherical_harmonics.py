@@ -1,3 +1,4 @@
+# uses-numpy: Host plotting coordinates and independent demonstration reference values.
 """Spherical harmonics and Spherefun.
 
 Demonstrates spherical harmonic approximation and spherefun operations,
