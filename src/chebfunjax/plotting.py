@@ -3390,6 +3390,101 @@ def _cheb_cols(obj):
     return None
 
 
+def _source_singfun_eligible(piece):
+    """Static eligibility for bounded, real, scalar Singfun plot data.
+
+    MATLAB source: Chebfun commit 7574c77680d7e82b79626300bf255498271a72df,
+    ``@singfun/plotData.m``. This predicate intentionally leaves complex and
+    array-valued singular functions on the existing rendering adapter path.
+    """
+    from chebfunjax.fun.singfun import Singfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    if not isinstance(piece.tech, Singfun):
+        return False
+    smooth = piece.tech.smoothPart
+    if not isinstance(smooth, (Chebtech1, Chebtech2)):
+        return False
+    if smooth.coeffs.ndim != 1 or jnp.iscomplexobj(smooth.coeffs):
+        return False
+    return bool(np.isfinite(float(piece.interval[0]))
+                and np.isfinite(float(piece.interval[1])))
+
+
+def _source_singfun_plot_data(piece):
+    """Build MATLAB line and representation-point data for one finite piece.
+
+    The smooth part supplies both Chebyshev grids and values. Singfun
+    endpoint factors are applied in reference coordinates, then x is mapped
+    using the literal linear ``For`` arithmetic used by ``@bndfun``.
+
+    Return ``(xLine, yLine, xPoints, yPoints)`` as host arrays for Matplotlib,
+    or ``None`` outside the bounded real scalar scope described above.
+    Numerical interpolation, exponent scaling, and coordinate mapping use
+    JAX; NumPy is used only for finite interval metadata and rendering arrays.
+
+    Provenance
+    ----------
+    MATLAB source : @singfun/plotData.m, @chebtech/plotData.m,
+        @bndfun/plotData.m, @mapping/mapping.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Copyright 2017 by The University of Oxford and The Chebfun Developers.
+    """
+    from chebfunjax.tech.chebtech import Chebtech1
+
+    if not _source_singfun_eligible(piece):
+        return None
+    tech = piece.tech
+    smooth = tech.smoothPart
+    kind = 1 if isinstance(smooth, Chebtech1) else 2
+    n = int(smooth.coeffs.shape[0])
+    n_line = min(max(501, int(np.floor(4 * np.pi * n + 0.5))), 65537)
+    line_nodes = chebpts(n_line, kind=kind)
+    point_nodes = chebpts(n, kind=kind)
+    alpha, beta = tech.exponents
+
+    line_y = smooth.prolong(n_line).values
+    point_y = smooth.values
+    # Keep MATLAB's elementwise multiplication order from scaleData.
+    if alpha != 0.0:
+        line_y = line_y * (1.0 + line_nodes) ** alpha
+        point_y = point_y * (1.0 + point_nodes) ** alpha
+    if beta != 0.0:
+        line_y = line_y * (1.0 - line_nodes) ** beta
+        point_y = point_y * (1.0 - point_nodes) ** beta
+
+    a, b = map(float, piece.interval)
+    line_x = b * (line_nodes + 1.0) / 2.0 + a * (1.0 - line_nodes) / 2.0
+    point_x = b * (point_nodes + 1.0) / 2.0 + a * (1.0 - point_nodes) / 2.0
+    return tuple(np.asarray(v) for v in (line_x, line_y, point_x, point_y))
+
+
+def _singfun_source_axis_limits(piece):
+    """Source axis-limit contribution for a finite bounded real Singfun.
+
+    ``@bndfun/plotData.m`` overwrites the endpoint-adjusted Singfun xLim with
+    the full physical interval. Negative-exponent yLim uses ``@singfun``'s
+    sample standard deviation on the scaled source yLine, via ``_sing_ylim``.
+    Return ``None`` where this renderer has not qualified empty or unsupported
+    singular representations.
+    """
+    data = _source_singfun_plot_data(piece)
+    if data is None:
+        return None
+    _x_line, y_line, _x_points, _y_points = data
+    alpha, beta = piece.tech.exponents
+    if alpha < 0.0 or beta < 0.0:
+        y_lim = _sing_ylim(y_line, (alpha, beta))
+        if y_lim is None:
+            return None
+        return (tuple(map(float, piece.interval)), y_lim, False)
+    finite = np.asarray(y_line)[np.isfinite(y_line)]
+    if finite.size == 0:
+        return None
+    y_lim = (float(np.min(finite)), float(np.max(finite)))
+    return (tuple(map(float, piece.interval)), y_lim, True)
+
+
 def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
     """Sample a (possibly piecewise / unbounded / singular) Chebfun.
 
@@ -3407,12 +3502,20 @@ def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
         @mapping/mapping.m (linear ForHandle)
     Chebfun commit: 7574c77
     """
+    from chebfunjax.fun.singfun import Singfun
     from chebfunjax.fun.unbndfun import Unbndfun
     from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
     out = []
     for p in f.funs:
         a, b = float(p.interval[0]), float(p.interval[1])
+        if (_source_grid and interval is None and np.isfinite(a) and np.isfinite(b)
+                and isinstance(p.tech, Singfun)):
+            data = _source_singfun_plot_data(p)
+            if data is not None:
+                x_line, y_line, _x_points, _y_points = data
+                out.append((x_line, y_line))
+                continue
         if (_source_grid and interval is None and np.isfinite(a) and np.isfinite(b)
                 and not isinstance(p, Unbndfun)
                 and isinstance(p.tech, (Chebtech1, Chebtech2))):
@@ -3477,11 +3580,21 @@ def _source_point_pieces(f):
     Provenance: Chebfun source commit 7574c77, ``@chebfun/plotData.m`` and
     ``@chebtech/plotData.m``.
     """
+    from chebfunjax.fun.singfun import Singfun
     from chebfunjax.tech.chebtech import Chebtech1
 
     pieces = []
     for piece in f.funs:
         tech = piece.tech
+        if isinstance(tech, Singfun):
+            data = _source_singfun_plot_data(piece)
+            if data is None:
+                # Keep the pre-existing point adapter for unsupported
+                # singular representations rather than claiming source data.
+                continue
+            _x_line, _y_line, x_points, y_points = data
+            pieces.append((x_points, y_points))
+            continue
         kind = 1 if isinstance(tech, Chebtech1) else 2
         n = int(tech.coeffs.shape[0])
         nodes = chebpts(n, kind=kind)
@@ -3677,12 +3790,25 @@ def _function_lims(f, numpts=2001, interval=None):
         wlo, whi = a0, a0 + window
     else:
         wlo, whi = a0, b0
+    from chebfunjax.fun.singfun import Singfun
+
     for p in f.funs:
         a, b = float(p.interval[0]), float(p.interval[1])
         a = wlo if not np.isfinite(a) else max(a, wlo)
         b = whi if not np.isfinite(b) else min(b, whi)
         if b <= a:
             continue
+        if interval is None and isinstance(p.tech, Singfun):
+            source_limits = _singfun_source_axis_limits(p)
+            if source_limits is not None:
+                sx, sy, source_default = source_limits
+                xlim[0] = min(xlim[0], sx[0])
+                xlim[1] = max(xlim[1], sx[1])
+                if np.isfinite(sy[0]) and np.isfinite(sy[1]):
+                    ylim[0] = min(ylim[0], sy[0])
+                    ylim[1] = max(ylim[1], sy[1])
+                default_ylim = default_ylim and source_default
+                continue
         exps = getattr(p.tech, "exponents", None)
         pad = 1e-8 * max(1.0, abs(b - a))
         x = np.linspace(a + pad, b - pad, 1001)
@@ -3826,8 +3952,15 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
         # before any new data lands on the axes -- the hold-union must
         # not see the raw values of curves plotted by this very call
         # (a blow-up's ~1e6 samples would swamp the union).
-        entry_lims = (tuple(ax.get_xlim()), tuple(ax.get_ylim()),
-                      not ax.get_autoscaley_on())
+        # Python's supplied-axes API infers held state from existing data
+        # or manually configured limits. Empty automatic axes have no held
+        # curves: their default [0,1] limits must not enter the source union.
+        if (ax.has_data() or not ax.get_autoscalex_on()
+                or not ax.get_autoscaley_on()):
+            entry_lims = (tuple(ax.get_xlim()), tuple(ax.get_ylim()),
+                          not ax.get_autoscaley_on())
+        else:
+            entry_lims = None
 
     agg_x = [np.inf, -np.inf]
     agg_y = [np.inf, -np.inf]
@@ -3864,13 +3997,16 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                     if pieces:
                         xs, ys = _join_plot_pieces(pieces)
                         from chebfunjax.chebfun1d.chebfun import _Piece
+                        from chebfunjax.fun.singfun import Singfun
                         from chebfunjax.fun.unbndfun import Unbndfun
                         from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
                         source_markers = _marker_requested(fmt, kw) and all(
                             isinstance(piece, _Piece)
                             and not isinstance(piece, Unbndfun)
-                            and isinstance(piece.tech, (Chebtech1, Chebtech2))
+                            and (isinstance(piece.tech, (Chebtech1, Chebtech2))
+                                 or (isinstance(piece.tech, Singfun)
+                                     and _source_singfun_eligible(piece)))
                             and np.isfinite(piece.interval[0])
                             and np.isfinite(piece.interval[1])
                             for piece in f.funs
