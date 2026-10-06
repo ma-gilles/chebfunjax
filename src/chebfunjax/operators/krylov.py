@@ -97,44 +97,195 @@ def _ip(u, v):
     return float(jnp.asarray(u.inner(v)))
 
 
-def pcg(N, f, tol: float = 1e-10, maxit: int = 100, full_output: bool = False):
-    """Preconditioned conjugate gradients on chebfuns (MATLAB pcg).
+def _prepare_pcg_operator(N, f):
+    """Validate source PCG operator before processing options."""
+    from numbers import Real
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
+    if not N._is_linear():
+        raise ValueError('CHEBFUN:CHEBOP:pcg:nonlinear: PCG supports only linear CHEBOP instances.')
+    if N.linop().blocks[0][0].order != 2:
+        raise ValueError('CHEBFUN:CHEBOP:pcg:DiffOrder: PCG supports only second-order ODEs.')
+    n2f = _norm2(f)
+    dom = f.domain
+    bcs = []
+    for side in ('left', 'right'):
+        value = getattr(N, 'lbc' if side == 'left' else 'rbc')
+        if value is None:
+            value = 0.
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise ValueError('CHEBFUN:CHEBOP:pcg:' + side + 'bc: PCG only supports Dirichlet boundary conditions. Please supply N.' + ('lbc' if side == 'left' else 'rbc') + ' = double.')
+        bcs.append(value)
+    if N._op_nargs() not in (1, 2):
+        raise ValueError("chebop:pcg:DiffOpNargin")
+    return dom, Chebfun.identity(dom), bcs, n2f
+
+
+def _setup_pcg(N, f, tol, R2, u0, prepared):
+    """Source PCG divergence operator and absolute-tolerance range correction."""
+    import warnings
+
+    dom, x, bcs, _ = prepared
+    if _minres_empty(R2):
+        def R2(v):
+            return v.sum() - v.cumsum()
+
+    def apply(value):
+        return N.op(value) if N._op_nargs() == 1 else N.op(x, value)
+
+    c = apply(1 + 0*x)
+    if c.min()[1] < -tol:
+        warnings.warn('Chebfun:chebop:pcg:Eigenvalues: Does the differential operator have nonnegative eigenvalues?', RuntimeWarning, stacklevel=3)
+    halfx2 = x*x/2
+    a = -apply(halfx2) - (-apply(x) + c*x)*x + c*halfx2
+    if a.min()[1] < -tol:
+        warnings.warn('Chebfun:chebop:pcg:elliptic: Is the differential operator uniformly elliptic?', RuntimeWarning, stacklevel=3)
+
+    def L(v):
+        return -(a*v.diff()).diff() + c*v
+
+    def R1(v):
+        return v.cumsum()
+
+    def Pi(v):
+        return v - v.sum()/(dom.b-dom.a)
+
+    def T(v):
+        return Pi(R2(L(R1(v))))
+
+    if _minres_empty(u0):
+        u = 0*f
+        Tu = u
+    else:
+        from chebfunjax.chebfun1d.chebfun import _hscale
+        ends_f = jnp.asarray([f.domain.a, f.domain.b])
+        ends_u = jnp.asarray([u0.domain.a, u0.domain.b])
+        error = jnp.abs(ends_f-ends_u)
+        threshold = 1e-15*max(_hscale(f), _hscale(u0))
+        if not bool(jnp.all((error < threshold) | jnp.isnan(error))):
+            raise ValueError('chebop:pcg:WrongInitGuessDomain')
+        u = u0
+        Tu = T(u)
+    R2f = R2(f)
+    PiR2f = Pi(R2f)
+    if _norm2(R2f-PiR2f) > tol or any(abs(bc) > tol for bc in bcs):
+        basis = [x**j for j in range(5)]
+        ends = jnp.asarray([dom.a, dom.b])
+        A = jnp.stack([jnp.concatenate((R1(R2(L(bj)))(ends), bj(ends))) for bj in basis], axis=1)
+        rhs = jnp.concatenate((R1(R2f)(ends), jnp.asarray(bcs)))
+        coeffs = _minres_basic_correction(A, rhs)
+        z = sum((bj*coeffs[j] for j,bj in enumerate(basis)), 0*f)
+        g = Pi(R2f-R2(L(z)))
+    else:
+        g, z = PiR2f, 0*f
+    return T, R1, Pi, g, z, u, Tu
+
+
+def pcg(N, f, tol: float | None = None, maxit: int | None = None,
+        R1=None, R2=None, u0=None, *, full_output: bool = False):
+    """Source PCG recurrence on adaptive Chebfuns with actual residual checks.
 
     Provenance
     ----------
     MATLAB source : @chebop/pcg.m
     Chebfun commit: 7574c77
     """
-    T, R1, Pi, g, z = _setup(N, f)
-    u = 0.0 * f
-    r = g - T(u)
-    p = r
-    g_norm = max(_norm2(g), 1e-30)
-    tolf = tol * g_norm
-    rho = _ip(r, r)
-    resvec = [float(np.sqrt(rho))]
-    it = 0
+    import warnings
+
+    from chebfunjax.chebpref import ChebopPref
+
+    prepared = _prepare_pcg_operator(N, f)
+    n2f = prepared[3]
+    prefs = ChebopPref()
+    tol = prefs.bvpTol if _minres_empty(tol) else tol
+    maxit = prefs.maxIter if _minres_empty(maxit) else maxit
+    eps = jnp.finfo(jnp.float64).eps
+    warned = tol <= eps or tol >= 1
+    if warned:
+        warnings.warn('CHEBFUN:CHEBOP:pcg: tolerance must lie between eps and 1.', RuntimeWarning, stacklevel=2)
+        tol = max(eps, min(tol, 1-eps))
+    if not _minres_empty(R1):
+        raise ValueError('chebop:pcg:OnlyDefaultPreconditionerAllowed')
+    T, R1, Pi, g, z, u, Tu = _setup_pcg(N, f, tol, R2, u0, prepared)
     flag = 1
-    for _ in range(maxit):
-        if np.sqrt(rho) <= tolf:
-            flag = 0
-            break
+    umin, imin = u, 0
+    tolf = tol*_norm2(g)
+    r = g - Tu
+    p = r
+    normr = _norm2(r)
+    normr_act = normr
+    if normr <= tolf:
+        sol = R1(Pi(u))
+        relres = jnp.asarray(normr)/n2f
+        return (sol, 0, relres, 0, jnp.asarray([normr])) if full_output else sol
+    resvec = jnp.zeros(maxit+1).at[0].set(normr)
+    normrmin = normr
+    stag = moresteps = 0
+    rho = jnp.asarray(r.inner(r))
+    iteration = ii = 0
+    for ii in range(1, maxit+1):
         Lp = T(p)
-        alpha = rho / _ip(p, Lp)
-        u = (u + alpha * p).simplify()
-        r = (r - alpha * Lp).simplify()
-        rho_new = _ip(r, r)
-        p = (r + (rho_new / rho) * p).simplify()
+        alpha = rho/jnp.asarray(p.inner(Lp))
+        u = u + alpha*p
+        r = r - alpha*Lp
+        rho_new = jnp.asarray(r.inner(r))
+        beta = rho_new/rho
+        p = r + beta*p
         rho = rho_new
-        it += 1
-        resvec.append(float(np.sqrt(rho)))
+        if rho == 0 or jnp.isinf(rho):
+            flag = 4
+            normr_act = float(jnp.sqrt(rho))
+            break
+        if jnp.isinf(alpha):
+            flag = 4
+            break
+        if beta == 0 or jnp.isinf(beta):
+            flag = 4
+            break
+        if _norm2(p)*abs(alpha) < eps*_norm2(u):
+            stag += 1
+        else:
+            stag = 0
+        normr = float(jnp.sqrt(rho))
+        normr_act = normr
+        resvec = resvec.at[ii].set(normr)
+        if normr <= tolf or stag >= 3 or moresteps:
+            r = g - T(u)
+            normr_act = _norm2(r)
+            resvec = resvec.at[ii].set(normr_act)
+            if normr_act <= tolf:
+                flag = 0
+                iteration = ii
+                break
+            if stag >= 3 and moresteps == 0:
+                stag = 0
+            moresteps += 1
+            if moresteps >= 5:
+                if not warned:
+                    warnings.warn('The tolerance is probably too small.', RuntimeWarning, stacklevel=2)
+                flag = 3
+                iteration = ii
+                break
+        if normr_act < normrmin:
+            normrmin, umin, imin = normr_act, u, ii
+        if stag >= 3:
+            flag = 3
+            break
+    if flag == 0:
+        relres = jnp.asarray(normr_act)/n2f
     else:
-        flag = 0 if np.sqrt(rho) <= tolf else 1
-    sol = z + R1(Pi(u))
-    if full_output:
-        # MATLAB [u, flag, relres, iter, resvec] = pcg(...)
-        return sol, flag, resvec[-1] / g_norm, it, np.asarray(resvec)
-    return sol
+        r_comp = g - T(umin)
+        norm_comp = _norm2(r_comp)
+        if norm_comp <= normr_act:
+            u, iteration = umin, imin
+            relres = jnp.asarray(norm_comp)/n2f
+        else:
+            iteration = ii
+            relres = jnp.asarray(normr_act)/n2f
+    sol = R1(u) + z
+    resvec = resvec[:ii+1] if flag <= 1 or flag == 3 else resvec[:ii]
+    return (sol, flag, relres, iteration, resvec) if full_output else sol
 
 
 def _minres_empty(value):

@@ -7570,8 +7570,9 @@ class Chebop:
                 "PREF.DISCRETIZATION should be VALUES or COEFFS.")
         return out
 
-    def pcg(self, f, tol: float = 1e-10, maxit: int = 100):
-        """Function-space preconditioned CG solve (MATLAB pcg(N, f)).
+    def pcg(self, f, tol: float | None = None, maxit: int | None = None,
+            R1=None, R2=None, u0=None, *, full_output: bool = False):
+        """Function-space PCG with source preferences and optional inputs.
 
         Provenance
         ----------
@@ -7579,7 +7580,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         from chebfunjax.operators.krylov import pcg as _pcg
-        return _pcg(self, f, tol=tol, maxit=maxit)
+        return _pcg(self, f, tol=tol, maxit=maxit, R1=R1, R2=R2, u0=u0,
+                    full_output=full_output)
 
     def minres(self, f, tol: float | None = None, maxit: int | None = None,
                full_output: bool = False, *, R1=None, R2=None, u0=None):
