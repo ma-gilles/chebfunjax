@@ -3577,13 +3577,14 @@ class Chebop:
         """Differential order of each of the ``m`` unknowns.
 
         Probes the operator with one :class:`_SysOrderSniffer` per variable
-        and reads back the highest ``diff`` order applied to each.  The order
+        and reads back the accumulated differential order of each.  The order
         ``k_j`` fixes how many continuity conditions (derivatives 0..k_j-1)
         variable ``j`` needs at every interior breakpoint.
 
         Provenance
         ----------
-        MATLAB source : @linop/getDiffOrder.m
+        MATLAB source : @chebmatrix/chebmatrix.m (getDiffOrder),
+            @operatorBlock/operatorBlock.m, @linop/deriveContinuity.m
         Chebfun commit: 7574c77
         """
 
@@ -8359,11 +8360,12 @@ class _EqOrderSniffer:
 class _SysOrderSniffer:
     """Per-variable differential-order sniffer for system operators.
 
-    Each unknown variable is given a sniffer carrying its index; the
-    highest ``diff`` order applied to it is recorded in a shared mutable
-    ``orders`` list.  Arithmetic propagates the set of variable indices an
-    expression depends on, so ``diff`` applied to a compound expression is
-    recorded against every contributing variable.  Elementwise callables
+    Each expression carries a differential order for every unknown it
+    depends on. Differentiation increases those orders, and arithmetic
+    takes their componentwise maximum. The highest accumulated orders are
+    recorded in a shared mutable ``orders`` list; expression proxies are
+    immutable so differentiating one branch does not alter another branch.
+    Elementwise callables
     (``sin``, ``cos``, ``exp``, ...) are absorbed via ``__getattr__`` and
     leave the recorded order unchanged.
 
@@ -8373,24 +8375,30 @@ class _SysOrderSniffer:
 
     Provenance
     ----------
-    MATLAB source : @chebop/getDiffOrder.m, @linop/diffOrder
+    MATLAB source : @operatorBlock/operatorBlock.m,
+        @chebmatrix/chebmatrix.m (getDiffOrder), @linop/deriveContinuity.m,
+        @treeVar/treeVar.m, @treeVar/bivariate.m
     Chebfun commit: 7574c77
     """
 
-    def __init__(self, orders, idx=()):
+    def __init__(self, orders, idx=(), depths=None):
         object.__setattr__(self, "orders", orders)
         object.__setattr__(self, "idx", frozenset(idx))
+        object.__setattr__(self, "_depths", (
+            {i: 0 for i in self.idx} if depths is None else dict(depths)))
 
     def diff(self, k: int = 1):
-        for i in self.idx:
-            self.orders[i] = max(self.orders[i], int(k))
-        return self
+        depths = {i: depth + int(k) for i, depth in self._depths.items()}
+        for i, depth in depths.items():
+            self.orders[i] = max(self.orders[i], depth)
+        return _SysOrderSniffer(self.orders, self.idx, depths)
 
     def _combine(self, o):
-        idx = set(self.idx)
+        depths = dict(self._depths)
         if isinstance(o, _SysOrderSniffer):
-            idx |= o.idx
-        return _SysOrderSniffer(self.orders, idx)
+            for i, depth in o._depths.items():
+                depths[i] = max(depths.get(i, 0), depth)
+        return _SysOrderSniffer(self.orders, depths, depths)
 
     def __add__(self, o):
         return self._combine(o)
