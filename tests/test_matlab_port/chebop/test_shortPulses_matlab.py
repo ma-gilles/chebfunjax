@@ -1,13 +1,8 @@
 """Port of MATLAB Chebfun tests/chebop/test_shortPulses.m (Fable 5).
 
-pass(3) deviation, documented: MATLAB's third assertion checks that with
-``ivpRestartSolver = false`` the marcher MISSES the short pulse (the
-MATLAB source itself calls this "a MATLAB fault" from #1512 and warns
-the assertion will start failing once the solver detects short pulses
-correctly).  scipy's LSODA resolves the pulse even without restarting
-(measured: ``norm(uNoRestart - uShortPulse) ~ 1e-6``), i.e. chebfunjax
-exhibits the CORRECT behavior the MATLAB comment anticipates, so the
-port asserts that instead of the fault.
+Literal pass(3) compares the no-pulse solution with restart-off output.
+Fresh pinned MATLAB confirms this predicate. Integrator differences are
+reported as failures, not repaired by reversing the assertion operands.
 
 Provenance
 ----------
@@ -37,21 +32,20 @@ class TestChebopShortPulses:
         # %% Long pulses
         long_pulse = 20.0 * (t > 1.0) * (t < 1.2)
         u_long = L.solve(long_pulse)
-        assert np.allclose(u_long.domain.breakpoints,
+        assert np.array_equal(u_long.domain.breakpoints,
                            (0.0, 1.0, 1.2, 2.0))          # pass(1)
         assert float((u_no_pulse - u_long).norm(2)) > 0.1
 
         # %% Short pulses
         short_pulse = 20.0 * (t > 1.0) * (t < 1.05)
         u_short = L.solve(short_pulse)
-        assert np.allclose(u_short.domain.breakpoints,
+        assert np.array_equal(u_short.domain.breakpoints,
                            (0.0, 1.0, 1.05, 2.0))         # pass(2)
         assert float((u_no_pulse - u_short).norm(2)) > 0.1
 
-        # %% Restarting off: see module docstring for the documented
-        # deviation from MATLAB's fault-assertion.
+        # %% Literal source restart-off predicate (the marcher misses the pulse).
         L.ivp_restart_solver = False
         u_no_restart = L.solve(short_pulse)
-        assert np.allclose(u_short.domain.breakpoints,
+        assert np.array_equal(u_short.domain.breakpoints,
                            (0.0, 1.0, 1.05, 2.0))         # pass(3)
-        assert float((u_short - u_no_restart).norm(2)) < 1e-4
+        assert float((u_no_pulse - u_no_restart).norm(2)) < 1e-10

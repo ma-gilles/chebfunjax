@@ -14,12 +14,15 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import jax.numpy as jnp
 import numpy as np
 
 __all__ = ["fred", "volt", "fred_eigs", "volt_eigs"]
+
+if TYPE_CHECKING:
+    from chebfunjax.chebfun1d.chebfun import Chebfun
 
 
 # ===========================================================================
@@ -94,7 +97,14 @@ def fred(K: Callable, f, *, n: int = 128) -> "Chebfun":
     True
     """
     from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun_factory
+    from chebfunjax.operators.chebop import _FourierProxy
     from chebfunjax.utils.quadrature import legpts
+
+    # Source @trigcolloc/fred.m assembles a weighted kernel action at the
+    # discretization's functionPoints; it does not fit a proxy as a Chebfun.
+    # Chebfun commit: 7574c77.
+    if isinstance(f, _FourierProxy):
+        return f.fred(K)
 
     a = float(f.domain.a)
     b = float(f.domain.b)

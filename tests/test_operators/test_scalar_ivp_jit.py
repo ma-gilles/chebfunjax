@@ -80,6 +80,7 @@ def test_direct_marcher_qualifies_compiled_and_eager_forcing(
 
     monkeypatch.setattr(chebop_module, "_compile_ivp_rhs", record)
     problem = Chebop(lambda t, u: u.diff()-u, domain=(0.0, 1.0))
+    problem.ivp_method = "LSODA"  # This test observes the explicit SciPy adapter.
     problem.lbc = 1.0
     # The direct method prevents the public collocation fallback masking
     # either a trace failure or an incorrect compiled callback.

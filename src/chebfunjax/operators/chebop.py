@@ -58,8 +58,9 @@ IVP_RELTOL = 100.0 * _MACHEPS
 # ``Chebop.ivp_method`` is the equivalent knob; these are the MATLAB
 # names it accepts, mapped onto the closest scipy integrator, plus any
 # raw scipy method name.  SciPy has no variable-order Adams method, so
-# ode113 maps to DOP853 -- the same choice chebfunjax's own ode113
-# makes.  The default stays LSODA: it detects stiffness and switches to
+# These mappings belong to the remaining SciPy adapters. Supported scalar
+# ode113 problems use the native Adams solver in solve_ivp instead. The
+# adapter default stays LSODA: it detects stiffness and switches to
 # BDF, so a stiff problem cannot grind an explicit method to a halt.
 IVP_METHODS = {
     "ode113": "DOP853",   # MATLAB: variable-order Adams-Bashforth-Moulton
@@ -424,7 +425,13 @@ class _TrigX:
 
     @staticmethod
     def _plain(o):
-        return isinstance(o, (int, float, complex)) or hasattr(o, "dtype")
+        # A proxy's method forwarding may expose a callable named dtype;
+        # it is not an array dtype. Preserve reflected proxy arithmetic.
+        # Source expression: tests/chebop/test_intops.m, pass(8).
+        # Chebfun commit: 7574c77.
+        dtype = getattr(o, "dtype", None)
+        return (isinstance(o, (int, float, complex))
+                or (dtype is not None and not callable(dtype)))
 
     def _bin(self, o, fwd, refl_name):
         if isinstance(o, _TrigX):
@@ -1414,9 +1421,13 @@ class Chebop:
                 isinstance(v, complex) and v.imag != 0 for v in _bcraw)
             if not _cplx:
                 try:
-                    _sol = self.solve_ivp(f)
+                    _sol = self.solve_ivp(f, ivp_solver=ivp_solver)
+                    if getattr(self, "_ivp_backend_used", None) == "native_ode113":
+                        return _sol
                     return self._polish_marched_scalar(_sol, f)
                 except Exception:
+                    if getattr(self, "_ivp_backend_used", None) == "native_ode113":
+                        raise
                     pass
             # solve_ivp works in float64 throughout, so a COMPLEX scalar
             # IVP (ode-nonlin/TwoElectrons writes the plane as a single
@@ -2241,7 +2252,7 @@ class Chebop:
         from chebfunjax.operators.chebop_altdisc import linearize_about
         try:
             u = sol[0] if not hasattr(sol, "funs") else sol
-            if len(self.domain) > 2:
+            if len(self.domain) > 2 or len(u.funs) > 1:
                 return sol
             a0, b0 = float(self.domain[0]), float(self.domain[-1])
             xs = jnp.linspace(a0, b0, 257)[1:-1]
@@ -4459,27 +4470,42 @@ class Chebop:
                 use_cache=False)
             return _np.asarray(lin[0])
 
+        def finite(a):
+            # Newly added validation uses JAX; the existing host solver remains.
+            return bool(jnp.all(jnp.isfinite(jnp.asarray(a))))
+
         R = residual(U)
+        # MATLAB @chebop/linearize.m:286-325 includes every general
+        # constraint residual and Frechet row. Our existing full-residual
+        # finite-difference fallback includes these rows; the monomial
+        # fast matrix does not. Chebfun commit: 7574c77.
+        # Finite validation is an adapter safety check, not a new source
+        # tolerance or a claim of literal MATLAB Newton iteration parity.
+        if not (finite(U) and finite(R)):
+            raise FloatingPointError("chebop piecewise: nonfinite initial state or residual")
         Rn = R
         for _it in range(max_iter):
             nrm = _np.max(_np.abs(R))
             if nrm < 1e-12:
                 break
             J = None
-            try:
-                J = _fast_jacobian(U)
-                # Directional sanity check against the true residual.
-                rng_j = _np.random.RandomState(1)
-                w_t = rng_j.randn(m * Pn)
-                h_t = 1e-6 * max(1.0, float(_np.max(_np.abs(U))))
-                d_true = (residual(U + h_t * w_t) - R) / h_t
-                d_lin = J @ w_t
-                scl = max(1.0, float(_np.max(_np.abs(d_true))))
-                if (float(_np.max(_np.abs(d_lin - d_true)))
-                        > 1e-3 * scl):
+            if not g_slots:
+                try:
+                    J = _fast_jacobian(U)
+                    # Directional sanity check against the true residual.
+                    rng_j = _np.random.RandomState(1)
+                    w_t = rng_j.randn(m * Pn)
+                    h_t = 1e-6 * max(1.0, float(_np.max(_np.abs(U))))
+                    d_true = (residual(U + h_t * w_t) - R) / h_t
+                    d_lin = J @ w_t
+                    scl = max(1.0, float(_np.max(_np.abs(d_true))))
+                    if (not (finite(J)
+                             and finite(d_true)
+                             and finite(d_lin))
+                            or float(_np.max(_np.abs(d_lin - d_true))) > 1e-3 * scl):
+                        J = None
+                except Exception:
                     J = None
-            except Exception:
-                J = None
             if J is not None:
                 self._pw_fastjac_used = True
             else:
@@ -4489,18 +4515,28 @@ class Chebop:
                     Up = U.copy()
                     Up[jc] += h
                     J[:, jc] = (residual(Up) - R) / h
+            if not finite(J):
+                raise FloatingPointError("chebop piecewise: nonfinite residual Jacobian")
             try:
                 step = _np.linalg.solve(J, R)
             except _np.linalg.LinAlgError:
                 break
+            if not finite(step):
+                raise FloatingPointError("chebop piecewise: nonfinite Newton step")
             lam = 1.0
             for _d in range(40):
                 Rn = residual(U - lam * step)
-                if _np.max(_np.abs(Rn)) < nrm or lam < 1e-6:
+                if (finite(Rn)
+                        and (_np.max(_np.abs(Rn)) < nrm or lam < 1e-6)):
                     break
                 lam *= 0.5
+            else:
+                raise FloatingPointError("chebop piecewise: no finite line-search candidate")
             new_nrm = _np.max(_np.abs(Rn))
-            U = U - lam * step
+            next_U = U - lam * step
+            if not finite(next_U):
+                raise FloatingPointError("chebop piecewise: nonfinite accepted state")
+            U = next_U
             R = Rn
             # Stagnation: the damped step no longer reduces the residual --
             # we have reached the finite-difference/conditioning floor (a
@@ -5613,16 +5649,17 @@ class Chebop:
         return linop.solve(rhs, n=n, n_min=n_min, n_max=n_max, tol=tol)
 
     def solve_ivp(self, f=0.0, rtol: float | None = None,
-                  atol: float | None = None):
+                  atol: float | None = None, *, ivp_solver: str | None = None):
         """Solve an initial-value problem by time marching (task #24).
 
         Applicable when all boundary conditions sit at one endpoint.  The
         operator is assumed affine in its highest derivative (true for
         essentially all ODEs): the k-th derivative is extracted as
         ``u^{(k)} = (f - L|_{u^{(k)}=0}) / (L|_{u^{(k)}=1} - L|_{u^{(k)}=0})``
-        and the resulting first-order system is integrated with
-        ``scipy.integrate.solve_ivp`` (Dormand--Prince).  Returns the
-        solution ``u`` as a Chebfun.  Implemented by Claude Opus 4.8.
+        and the resulting first-order system is integrated with native
+        ode113 for supported real scalar problems. Explicit SciPy methods
+        and the remaining higher-order/event adapters use solve_ivp.
+        Returns the solution ``u`` as a Chebfun.
 
         ``rtol``/``atol`` default to MATLAB's ``cheboppref`` factory
         values ``ivpRelTol = 100*eps`` and ``ivpAbsTol = 1e5*eps``; the
@@ -5636,6 +5673,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
 
+        # Reset before extraction so an earlier solve cannot affect fallback.
+        self._ivp_backend_used = None
         if rtol is None:
             rtol = getattr(self, "ivp_reltol", IVP_RELTOL)
         if atol is None:
@@ -5735,9 +5774,43 @@ class Chebop:
             except Exception:
                 pass
         bps = sorted(v for v in bset if min(a, b) < v < max(a, b))
+        # Source @chebfun/constructODEsol.m retains full tspan for odesol
+        # even when restartSolver=False. Marching and fit partitions differ.
+        # Chebfun commit: 7574c77.
+        problem_bps = list(bps)
         if not getattr(self, "ivp_restart_solver", True):
             bps = []
         seg_edges = [x0] + (bps if left else bps[::-1]) + [x1]
+
+        # Native source route for the supported finite scalar IVP contract.
+        # Source @chebop/solveivp.m passes the complete problem domain and
+        # restart preference to @chebfun/ode113 -> constructODEsol -> odesol.
+        # Chebfun commit: 7574c77. Other scipy call sites remain unchanged.
+        selected = ivp_solver if ivp_solver is not None else getattr(self, "ivp_method", None)
+        explicit_method = selected is not None
+        native_name = str(selected).strip().lower().lstrip("@").split(".")[-1]
+        if len(ic) == 1 and selected is None and events is None:
+            from chebfunjax.chebpref import ChebopPref
+            selected = ChebopPref().ivpSolver
+            native_name = str(selected).strip().lower().lstrip("@").split(".")[-1]
+        if len(ic) == 1 and native_name == "ode113":
+            from chebfunjax.chebfun1d.chebfun import ode113
+            from chebfunjax.chebpref import ChebopPref
+            # Set before invocation: source failures must propagate through
+            # solve(), never silently select collocation or another marcher.
+            self._ivp_backend_used = "native_ode113"
+            if events is not None:
+                raise NotImplementedError("native scalar ode113 events are not implemented")
+            span = [x0] + (problem_bps if left else problem_bps[::-1]) + [x1]
+            options = {"RelTol": rtol, "AbsTol": atol,
+                       "restartSolver": getattr(self, "ivp_restart_solver", True),
+                       "happinessCheck": ChebopPref().happinessCheck}
+            solution = ode113(rhs_array, span, jnp.asarray(ic), options, backend="native")
+            return solution.extract_columns(0)
+        # Default event/higher-order routes retain their existing adapters;
+        # explicitly named SciPy methods retain their own selection.
+        scipy_method = _ivp_method(selected if explicit_method else None)
+        self._ivp_backend_used = "scipy_" + scipy_method
 
         # LSODA switches between stiff/non-stiff automatically, so a
         # stiff problem cannot grind RK45 into a CI timeout.
@@ -5746,8 +5819,7 @@ class Chebop:
         ev_status = 0
         for s0, s1 in zip(seg_edges[:-1], seg_edges[1:]):
             sol = _solve_ivp(rhs, [s0, s1], y_cur, dense_output=True,
-                             method=_ivp_method(
-                                 getattr(self, "ivp_method", None)),
+                             method=scipy_method,
                              rtol=rtol, atol=atol, events=events)
             if not sol.success:
                 raise RuntimeError(f"solve_ivp failed: {sol.message}")
@@ -5813,13 +5885,13 @@ class Chebop:
             if blew_up:
                 march_lo = min(x0, t_end)
                 march_hi = max(x0, t_end)
-                inner_edges = [v for v in bps
+                inner_edges = [v for v in problem_bps
                                if march_lo < v < march_hi]
                 if not left:
                     inner_edges.reverse()
                 fit_edges = [x0] + inner_edges + [t_end]
             else:
-                fit_edges = list(seg_edges)
+                fit_edges = [x0] + (problem_bps if left else problem_bps[::-1]) + [x1]
 
             def dense_values(segment):
                 def evaluate(x):
@@ -8079,7 +8151,7 @@ class _TrigVals:
         raise TypeError("evaluation unsupported on the grid proxy")
 
     def _c(self, o):
-        return o.v if isinstance(o, _TrigVals) else o
+        return o.v if isinstance(o, (_TrigVals, _TrigX)) else o
 
     def __add__(self, o):
         return self._w(self.v + self._c(o))
@@ -8144,6 +8216,21 @@ class _FourierProxy:
         import numpy as _np
         d = _fourier_diffmat(self.n, self.length, order)
         return self._wrap(_np.asarray(d) @ self.mat)
+
+    def fred(self, kernel):
+        """Assemble the source periodic quadrature action on this proxy.
+
+        Provenance
+        ----------
+        MATLAB source : @trigcolloc/fred.m, @trigcolloc/functionPoints.m
+        Chebfun commit: 7574c77
+        """
+        if self.grid is None:
+            raise ValueError("periodic Fredholm assembly requires the physical grid")
+        x = jnp.asarray(self.grid)
+        X, Y = jnp.meshgrid(x, x, indexing="ij")
+        weighted_kernel = jnp.asarray(kernel(X, Y)) * (self.length / self.n)
+        return self._wrap(weighted_kernel @ jnp.asarray(self.mat))
 
     def __add__(self, other):
         if isinstance(other, _FourierProxy):

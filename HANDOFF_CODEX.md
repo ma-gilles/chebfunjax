@@ -2,45 +2,56 @@
 
 ## Qualified CPU package (2026-10-06; takes precedence below)
 
-The next Fourier correction passes **129 focused CPU tests** in 68.323s and
-**617 broad regression tests** across 69 file paths in 702.947s. No failures,
-errors or skips; all 1,664 Python files and 8,514 outer inputs stayed stable,
-with no surviving owned processes. These are overlapping gates, not a claim
-of 746 unique tests or full-suite parity.
+P113 operator correction is qualified on CPU: **16 focused tests** pass in
+362.941s, followed by **110 passed, one existing skip** across 27 broader
+regression files in 893.536s. No failures or errors; all 1,668 Python files
+and 15,248 outer inputs stayed stable, with no surviving owned processes.
+The gates overlap; these are not 126 unique tests or full-suite parity.
 
-Adaptive periodic construction now follows source relative sample testing,
-nested sample reuse and column happiness decisions. Global PI-based trigpts
-and fixed technology normalized grids remain distinct; 14 actual MATLAB
-sizes pass exact binary64 eager/JIT grid controls. Multiplication follows
-source prolong length, FFT product, simplify and positivity order. All 23
-original MATLAB multiplication assertions pass on captured primitive RNG
-query inputs. Existing stronger endpoint positivity tests remain unchanged.
-Source dimension-error identification is retained through Python ValueError.
-Stored-value, per-column realness and conjugation adapters remain incomplete.
+General scaled-jump constraints now use the complete residual Jacobian and
+reject nonfinite Newton candidates. The original jump predicate and an
+independent analytic solution with all four constraints pass at 1e-10.
+Supported real scalar IVPs select the actual native113 default; failures
+propagate. Restarted pulse representations retain their breaks; restart-off
+behavior matches the original MATLAB no-pulse comparison at 1e-10. All
+three source domain checks use exact equality. Explicit LSODA controls
+retain the previous adapter agreement bound without changing assertions.
 
-Final numeric archive SHA256:
-`d3e75c796a894c4ef5244785577c09b09cd2ad6ddfcad581e5f150aa8c68ae9b`.
-The earlier 380-pass/one-failure regression and baseline comparison are
-preserved; the corrected product passes the final broad gate.
+All ten original integral-operator clauses are restored, including the
+source L2/infinity norms and periodic Fredholm weighted-kernel assembly.
+The earlier sampled-max Volterra port was incorrect; its source L2 error
+2.608e-11 passes unchanged 1e-10. Source case5 assigns a numeric expression
+to a logical pass vector, with no accuracy bound. Fresh MATLAB confirms
+its 0.528 total is an interior value term, not an equation/left-BC error;
+equation L2 residuals are 5.743e-14 MATLAB and 2.064e-13 Python.
 
-P111 CI had two failing operator shards and a core coverage cancellation at
-90 minutes. Core CI now uses three disjoint file shards and a final combined
-coverage job that retains the existing **79%** requirement. Actual collection
-proves all **5,841** core test items occur exactly once (1,918/1,974/1,949),
-without changing assertions, markers, two workers or the 600s test timeout.
-Collection proves membership only; CI runtime balance and aggregate coverage
-remain unverified until this exact publication completes CI.
+Final broader full-source archive SHA256:
+`21af4521bfb724a2e9f4124a7d4577b6c496aa7eaddc52daad5e5f0f9102381e`.
+Focused archive:
+`414aac85b60004fc2d4c367212d3c4c05a7dcf940212d5e23b46af3dcf301393`.
+Fresh case5 MATLAB archive:
+`f1e67683224ba371b8048d57b3d3061b79a07a0e2089ee08bb8e15e2cca7e13b`.
+After archiving, a TYPE_CHECKING-only Chebfun import resolves two preexisting
+F821 annotations in integral.py; every function/class AST remains identical.
+This amendment is checked statically, not relabelled as the earlier run.
 
-Fresh pinned MATLAB passes the original Volterra, scaled-jump and short-pulse
-tests. Python operator failures remain open. The MATLAB restart-off pulse
-assertion compares against the no-pulse solution; the current Python port
-expects the opposite behavior. Preserve that distinction during diagnosis.
+P112 d2906a406c2fc6ca129f409cb91c21cfbcc2a25a is pushed. Its three core
+CI shards and final combined **79%** coverage gate passed. Operator-b/c
+failed only the known integral, jump and pulse cases addressed here; techs
+and the new publication's CI remain unresolved. Prior periodic package:
+129 focused and 617 broader CPU cases passed, with all 23 original MATLAB
+multiplication predicates checked on captured primitive RNG inputs.
 
-Full MATLAB 7574c77 and all 322 page/figure parity remain **active and
-incomplete**. The original twelve home script edits remain protected and
-unverified. CPU only, heavy runs serial, at most two helpers. Use shared
-`publication_checkout/`, ordinary SSH push, explicit staging and GPT-6 trailer.
-See the parent `CURRENT_GOAL_STATUS.md` for immutable evidence and next work.
+Next: qualify the complete ten-clause boundary-condition port, replacing an
+incomplete loose port and its stale Neumann-string skip. One 65,537-point
+unhappy-constructor warning in intops remains unlocalized. General BC AD,
+public IVP operator-break routing, remaining options, full integral APIs,
+all MATLAB functions/tests, twelve protected script edits and all 322 page/
+output/figure/performance parity remain **active and incomplete**.
+
+Use shared publication_checkout, ordinary SSH push, explicit staging and
+GPT-6 trailer. CPU only; heavy runs serial; at most two helpers. See parent
+CURRENT_GOAL_STATUS.md for immutable evidence and the next gaps.
 
 ## Latest shared checkout status (2026-10-06; takes precedence below)
 

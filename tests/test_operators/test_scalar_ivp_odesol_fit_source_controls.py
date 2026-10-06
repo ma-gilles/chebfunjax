@@ -68,6 +68,7 @@ def test_restarted_fit_uses_ordered_callbacks_histories_and_checker(
         lambda t, u: u.diff() - u,
         domain=(0.0, 0.5, 1.0),
     )
+    problem.ivp_method = "LSODA"  # This test observes the explicit SciPy adapter.
     problem.ivp_restart_solver = True
     if reverse:
         problem.rbc = math.e
@@ -108,6 +109,7 @@ def test_single_dense_fit_records_callback_point_values_and_tolerances(
         monkeypatch):
     solver_results, fit_calls = _capture_solver_and_odesol(monkeypatch)
     problem = Chebop(lambda t, u: u.diff() - u, domain=(0.0, 1.0))
+    problem.ivp_method = "LSODA"  # This test observes the explicit SciPy adapter.
     problem.ivp_restart_solver = False
     problem.lbc = 1.0
 
@@ -131,6 +133,7 @@ def test_single_dense_fit_records_callback_point_values_and_tolerances(
 def test_terminal_event_fits_clipped_history_before_nan_padding(monkeypatch):
     solver_results, fit_calls = _capture_solver_and_odesol(monkeypatch)
     problem = Chebop(lambda t, u: u.diff() - u, domain=(0.0, 1.5))
+    problem.ivp_method = "LSODA"  # This test observes the explicit SciPy adapter.
     problem.ivp_restart_solver = False
     problem.lbc = 1.0
     problem.maxnorm = 2.0
@@ -158,6 +161,7 @@ def test_terminal_event_fits_clipped_history_before_nan_padding(monkeypatch):
 def test_reverse_terminal_event_fits_clipped_history_before_nan_padding(monkeypatch):
     solver_results, fit_calls = _capture_solver_and_odesol(monkeypatch)
     problem = Chebop(lambda t, u: u.diff() + u, domain=(0.0, 1.5))
+    problem.ivp_method = "LSODA"  # This test observes the explicit SciPy adapter.
     problem.ivp_restart_solver = False
     problem.rbc = 1.0
     problem.maxnorm = 2.0
