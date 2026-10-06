@@ -1,147 +1,162 @@
-"""Resampling random variables.
+"""Sampling from probability distributions by inverting their CDFs.
 
-Translation of stats/ResamplingRandomVariables.m by Toby
-Driscoll (December 2011): transforming uniform samples into samples
-of the von Mises and logit-normal distributions by inverting the
-cumulative distribution function.
+Translation of stats/ResamplingRandomVariables.m by Toby Driscoll
+(December 2011). The Chebfun computations use the public ChebfunJAX
+constructor, sum, cumsum, restrict, inv and plotting APIs. NumPy's
+MT19937 stream is retained as a deterministic Python sampling adapter;
+MATLAB rand stream equivalence is not established.
 
 Original: https://www.chebfun.org/examples/stats/ResamplingRandomVariables.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
+import os
+import sys
+
+import jax.numpy as jnp
 import matplotlib
 
 matplotlib.use("Agg")
-import os
-import sys
-import warnings
-
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
+
+# uses-numpy: deterministic RNG and MATLAB histogram/display host adapters; inverse math uses Chebfuns.
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'stats')
-
-FIG = [0]
+_IMG = os.path.join(_HERE, "..", "..", "docs", "images", "stats")
+_FIG = 0
 
 
 def _save(fig):
-    FIG[0] += 1
+    global _FIG
+    _FIG += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"ResamplingRandomVariables_{FIG[0]:02d}.png"))
+        _IMG, f"ResamplingRandomVariables_{_FIG:02d}.png"), size=(600, 270))
     plt.close(fig)
 
 
-def _dense_inverse(cdf, a, b, n=20000):
-    """Monotone dense-grid inverse of a cdf chebfun on [a, b]."""
-    xg = np.linspace(a, b, n)
-    ug = np.asarray(cdf(xg))
-    ug, idx = np.unique(ug, return_index=True)
-    xg = xg[idx]
-    return lambda u: np.interp(np.asarray(u), ug, xg)
+def _hist36(values):
+    """MATLAB hist(x,36): 36 equally spaced bin centers spanning data."""
+    values = np.asarray(values, dtype=float).reshape(-1)
+    centers = np.linspace(float(np.min(values)), float(np.max(values)), 36)
+    width = centers[1] - centers[0]
+    edges = np.concatenate((
+        [centers[0] - width / 2],
+        (centers[:-1] + centers[1:]) / 2,
+        [centers[-1] + width / 2],
+    ))
+    counts, _ = np.histogram(values, bins=edges)
+    counts = counts / np.sum(counts * width)
+    return counts, centers, width
+
+
+def _plot_histogram(values, density, xlim=None):
+    counts, centers, width = _hist36(values)
+    fig, ax = plt.subplots()
+    # MATLAB bar's default width occupies 0.8 of each bin spacing.
+    ax.bar(centers, counts, width=0.8 * width, color="#352A86")
+    matlab_plot(density, "r", ax=ax, lw=1.6)
+    if xlim is not None:
+        ax.set_xlim(*xlim)
+    else:
+        ax.autoscale(tight=True)
+    return fig
+
+
+def _plot_columns(*columns, ylim=None):
+    fig, ax = plt.subplots()
+    # A list of scalar Chebfuns is the Python quasimatrix representation.
+    matlab_plot(cj.cell2quasi(list(columns)), ax=ax, lw=1.6)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    return fig, ax
+
+
+def _ans_vec(values, name="ans"):
+    print(f"{name} =")
+    for value in values:
+        print(f"{float(value):20.15f}")
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
-    rs = np.random.RandomState(5489)
+    rng = np.random.RandomState(5489)  # Python MT19937 adapter; not MATLAB-stream parity.
 
-    # von Mises distribution
+    # von Mises distribution. MATLAB source: f / sum(f).
     kappa = 1.5
-    f = cj.chebfun(lambda x: jnp.exp(kappa * jnp.cos(x)),
-                   domain=(-np.pi, np.pi))
-    density = f * (1.0 / float(f.sum()))
+    f = cj.chebfun(
+        lambda x: jnp.exp(kappa * jnp.cos(x)),
+        domain=(-np.pi, np.pi), splitting=False)
+    density = f / f.sum()
     cdf = density.cumsum()
-    xs = np.linspace(-np.pi, np.pi, 800)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(xs, np.asarray(density(xs)), lw=1.6, label="density")
-    ax.plot(xs, np.asarray(cdf(xs)), lw=1.6, label="distribution")
-    ax.axis([-np.pi, np.pi, 0, 1])
-    ax.legend(loc="upper left")
-    ax.set_title("von Mises distribution", fontsize=12)
-    ax.grid(True)
-    _save(fig)
 
-    cdfinv = _dense_inverse(cdf, -np.pi, np.pi)
-    us = np.linspace(1e-4, 1 - 1e-4, 500)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(us, cdfinv(us), lw=1.6)
-    ax.set_title("Inverse of von Mises distribution", fontsize=12)
-    ax.grid(True)
-    _save(fig)
-
-    u = rs.rand(10**4)
-    x = cdfinv(u)
-    count, bins = np.histogram(x, 36)
-    centers = (bins[:-1] + bins[1:]) / 2
-    countn = count / np.sum(count * (centers[1] - centers[0]))
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.bar(centers, countn, width=centers[1] - centers[0],
-           color=(0.3, 0.5, 0.8), edgecolor='k', lw=0.3)
-    ax.plot(xs, np.asarray(density(xs)), 'r', lw=1.6)
+    fig, ax = _plot_columns(density, cdf, ylim=(0, 1))
     ax.set_xlim(-np.pi, np.pi)
-    ax.set_title("Sampled points and the original density",
-                 fontsize=12)
+    ax.set_title("von Mises distribution", fontsize=12)
+    ax.legend(["density", "distribution"], loc="upper left")
     _save(fig)
 
-    # logit-normal distribution
+    cdfinv = cdf.inv()
+    fig, ax = plt.subplots()
+    matlab_plot(cdfinv, ax=ax, lw=1.6)
+    ax.set_title("Inverse of von Mises distribution", fontsize=12)
+    _save(fig)
+
+    u = rng.rand(10**4)
+    x = np.asarray(cdfinv(jnp.asarray(u)))
+    fig = _plot_histogram(x, density)
+    fig.axes[0].set_title(
+        "Sampled points and the orignal density", fontsize=12)
+    _save(fig)
+
+    # Logit-normal density and CDF. The source constructs on [0,1] and
+    # relies on the endpoint limit; no epsilon-trimmed surrogate is used.
     sig = 1.11
 
-    def ln_op(x):
-        return (jnp.exp(-(jnp.log(x / (1 - x)))**2 / (2 * sig**2))
+    def logit_normal_density(x):
+        return (jnp.exp(-(jnp.log(x / (1 - x))) ** 2 / (2 * sig**2))
                 / (x * (1 - x)))
 
-    eps_ = 1e-8
-    density2 = cj.chebfun(ln_op, domain=(eps_, 1 - eps_))
-    density2 = density2 * (1.0 / float(density2.sum()))
+    density2 = cj.chebfun(
+        logit_normal_density, domain=(0.0, 1.0), splitting=False)
+    density2 = density2 / density2.sum()
     cdf2 = density2.cumsum()
-    xs2 = np.linspace(eps_, 1 - eps_, 900)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(xs2, np.asarray(density2(xs2)), lw=1.6, label="density")
-    ax.plot(xs2, np.asarray(cdf2(xs2)), lw=1.6,
-            label="distribution")
-    ax.legend(loc="upper left")
+
+    fig, ax = _plot_columns(density2, cdf2)
     ax.set_title("logit-normal distribution", fontsize=12)
-    ax.grid(True)
+    ax.legend(["density", "distribution"], loc="upper left")
     _save(fig)
 
-    # invert on [0.5, 1-1e-3], using symmetry for the lower half
-    cdfinv2 = _dense_inverse(cdf2, 0.5, 1 - 1e-3, n=40000)
-    us2 = np.linspace(float(cdf2(0.5)), float(cdf2(1 - 1e-3)), 500)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(us2, cdfinv2(us2), lw=1.6)
-    ax.set_title("Inverse of the logit-normal distribution",
-                 fontsize=12)
-    ax.grid(True)
+    # MATLAB cdf{a,b} calls restrict then simplify (@chebfun/subsref.m).
+    # Preserve that source operation using the public ChebfunJAX APIs.
+    cdfinv2 = (cdf2.restrict(0.5, 1 - 1e-3).simplify()
+               .inv(splitting=True))
+    fig, ax = plt.subplots()
+    matlab_plot(cdfinv2, ax=ax, lw=1.6)
+    ax.set_title("Inverse of the logit-normal distribution", fontsize=12)
     _save(fig)
 
-    u = rs.rand(10**4)
+    u = rng.rand(10**4)
     flag = u < 0.5
     u[flag] = 1 - u[flag]
-    x = cdfinv2(u)
-    x[flag] = 1 - x[flag]
-    count, bins = np.histogram(x, 36)
-    centers = (bins[:-1] + bins[1:]) / 2
-    countn = count / np.sum(count * (centers[1] - centers[0]))
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.bar(centers, countn, width=centers[1] - centers[0],
-           color=(0.3, 0.5, 0.8), edgecolor='k', lw=0.3)
-    ax.plot(xs2, np.asarray(density2(xs2)), 'r', lw=1.6)
-    ax.set_xlim(0, 1)
-    ax.set_title("Sampled points and the original density",
-                 fontsize=12)
+    x = cdfinv2(jnp.asarray(u))
+    x = jnp.where(jnp.asarray(flag), 1 - x, x)
+    fig = _plot_histogram(x, density2)
+    fig.axes[0].set_title(
+        "Sampled points and the orignal density", fontsize=12)
     _save(fig)
 
-    missing = 1 - float(cdf2(1 - 1e-3))
+    # MATLAB cdfinv.ends.' prints the complete breakpoint vector.
+    ends = np.asarray(cdfinv2.domain.breakpoints, dtype=float)
+    _ans_vec(ends)
+    missing = 1.0 - float(ends[-1])
     print("missing =")
     print(f"     {missing:.15e}")
 
