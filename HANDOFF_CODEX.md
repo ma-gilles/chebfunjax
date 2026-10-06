@@ -57,6 +57,25 @@ stay byte-identical; the last gate freezes1650Python files including the
 new query test. Full-line complex behavior, unsupported/periodic adapters,
 generic constructor policies and full suite/page/CI parity remain open.
 
+The exact-computed-repeat residue correction passes151CPU checks in94.851s
+on final publication bytes, zero failures/skips/errors;1652Python files and
+selected inputs stay stable. It computes the first Laurent coefficient by
+JAX synthetic deflation/Taylor division, preserving denominator scaling,
+and copies A1 across exact-equal groups as the source wrappers do. Ordinary
+simple/no-pole behavior and six-versus-seven-output trig definitions remain
+qualified. Twenty-two new analytic cases include real/complex/improper/
+triple/physical scaling, actual zero-root wrapper reachability and separation
+of nearby distinct poles. Clean baseline22failures are19missinghelper imports
+and3existing unsupported wrapper operations, recorded separately. Fresh
+MATLAB source/builtin probe passes70.116s and confirms A1 equations. It also
+records TYPE2mu0 division and complex trig-conjugate source limitations;
+those diagnostics are not substituted as analytic acceptance answers.
+Builtin near-root clustering, regrouped physical poles and high-degree basis
+conditioning remain open. Installed R2025b builtin has two grouping stages;
+no guessed threshold is added. V1numeric151pass evidence and failed I001lint
+are preserved; only importorder/provenance docs changed, AST/symbol proof
+matches, and finalV2 rerun passes. Full residue/API/CI parity is not claimed.
+
 Exact MATLAB rng(1);randn(60) primitive input capture passes71.568s with
 independent reseeding/state/bit checks. All3600column-major binary64 values
 match raw MAT and JSON independently; generator twister/transform Ziggurat.

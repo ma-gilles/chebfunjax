@@ -344,8 +344,9 @@ def ratinterp(
         All roots of the denominator on the domain-mapped complex plane.
         Near-real complex roots are retained, matching ``roots(q, 'all')``.
     residues : JAX array
-        Simple-pole residues computed as p(z)/q'(z). Repeated-pole partial
-        fractions remain unsupported.
+        Simple-pole residues computed as p(z)/q'(z). Exact repeated-root
+        groups return the source wrapper's copied first Laurent coefficient.
+        Near-multiple clustering remains unsupported.
 
     Notes
     -----
@@ -530,11 +531,20 @@ def ratinterp(
         poles = mid + hd * poles_ref
 
         roots = poles_ref
-        # MATLAB delegates to residue(p, q); this derivative quotient covers
-        # simple poles. Repeated-pole partial fractions remain unsupported.
+        # MATLAB delegates to residue(p,q) then copies the first residue
+        # across exact repeated poles. Numerical near-clustering is unported.
         numerator = jnp.asarray(a_coeffs)
         denominator = jnp.asarray(b_coeffs)
-        if xi_type == "TYPE0":
+        exact_repeated = _has_exact_duplicate_roots(roots)
+        if exact_repeated:
+            if xi_type == "TYPE0":
+                p_poly, q_poly = numerator[::-1], denominator[::-1]
+            else:
+                p_poly = _chebyshev_to_descending_polynomial(numerator)
+                q_poly = _chebyshev_to_descending_polynomial(denominator)
+            # The coefficient of (x-pole)^-1 scales by the domain half-width.
+            residues = hd * _source_residues_at_exact_roots(p_poly, q_poly, roots)
+        elif xi_type == "TYPE0":
             derivative = jnp.arange(1, denominator.shape[0]) * denominator[1:]
             residues = hd * jnp.polyval(numerator[::-1], roots) / jnp.polyval(
                 derivative[::-1], roots
@@ -2169,25 +2179,123 @@ def _trigrat_matlab_complex_sort_order(values):
 
 def _trigrat_source_poly_residues(ac, bc):
     # @trigtech/poly returns coefficient arrays unchanged; polynomial residue
-    # consumes them as descending-power vectors. Full repeated-pole residue
-    # expansion is intentionally unported. Exact duplicate roots are rejected;
-    # near-multiple roots also remain outside this simple-pole implementation.
+    # consumes them as descending-power vectors. Exact repeated-root groups
+    # use Taylor division for the source wrapper's copied first residue.
+    # Builtin residue near-multiple clustering remains unqualified.
     p = _trigrat_trim_leading_polynomial_zeros(ac)
     q = _trigrat_trim_leading_polynomial_zeros(bc)
     if q.size <= 1:
         dtype = jnp.result_type(p.dtype, q.dtype, jnp.complex128)
         return jnp.empty((0,), dtype=dtype), jnp.empty((0,), dtype=dtype)
     poles = jnp.roots(q, strip_zeros=False)
-    if poles.size > 1:
-        diffs = jnp.abs(poles[:, None] - poles[None, :])
-        close = (diffs == 0) & (~jnp.eye(poles.size, dtype=bool))
-        if bool(jnp.any(close)):
-            raise NotImplementedError("repeated-pole residue expansion is not yet ported")
-    qd = _trigrat_poly_derivative(q)
-    residues = jnp.polyval(p, poles) / jnp.polyval(qd, poles)
+    if _has_exact_duplicate_roots(poles):
+        residues = _source_residues_at_exact_roots(p, q, poles)
+    else:
+        qd = _trigrat_poly_derivative(q)
+        residues = jnp.polyval(p, poles) / jnp.polyval(qd, poles)
     order = _trigrat_matlab_complex_sort_order(poles)
     poles, residues = poles[order], residues[order]
     if poles.size > 1:
         duplicate = poles[1:] == poles[:-1]
         residues = residues.at[1:].set(jnp.where(duplicate, residues[:-1], residues[1:]))
     return poles, residues
+
+
+def _has_exact_duplicate_roots(poles):
+    """Construction-time classification; no tolerance clustering is inferred."""
+    poles = jnp.asarray(poles)
+    if poles.size < 2:
+        return False
+    # Exact lexicographic ordering groups equal values without an N-by-N
+    # comparison mask on the ordinary all-simple-root path. No values move
+    # numerically and no near-root tolerance enters this classification.
+    order = jnp.lexsort((jnp.imag(poles), jnp.real(poles)))
+    ordered = poles[order]
+    return bool(jnp.any(ordered[1:] == ordered[:-1]))
+
+
+def _polynomial_taylor_prefix(coeffs, point, count):
+    """First count Taylor coefficients of a descending-power polynomial."""
+    coeffs = jnp.asarray(coeffs)
+    terms = jnp.zeros(count, dtype=jnp.result_type(coeffs, point))
+    for coefficient in coeffs:
+        terms = point * terms + jnp.concatenate((jnp.zeros_like(terms[:1]), terms[:-1]))
+        terms = terms.at[0].add(coefficient)
+    return terms
+
+
+def _deflate_polynomial_at_root(coeffs, point):
+    """Synthetic division by x-point; ignore the computed-root remainder."""
+    current = coeffs[0]
+    quotient = [current]
+    for coefficient in coeffs[1:-1]:
+        current = coefficient + point * current
+        quotient.append(current)
+    return jnp.stack(quotient)
+
+
+def _source_residues_at_exact_roots(numerator, denominator, poles):
+    """First Laurent coefficient, repeated across each exact-equal root group.
+
+    Provenance
+    ----------
+    Chebfun 7574c77 @chebfun/residue.m defines ascending pole-power residues;
+    ratinterp.m:98-109 and trigratinterp.m:91-102 then sequentially copy the
+    first coefficient across each equal sorted group. This helper computes
+    that final wrapper quantity directly by Taylor division after synthetic
+    deflation. It is not a full replacement for MATLAB builtin residue:
+    classification uses ONLY exact equality of supplied computed roots.
+    MATLAB builtin near-multiple clustering remains unqualified.
+
+    Host group metadata is data dependent. Polynomial arithmetic is JAX.
+    Input polynomials use descending powers, with leading zeros removed.
+    The return order matches supplied poles; callers own source sorting.
+    """
+    p = jnp.ravel(jnp.asarray(numerator, dtype=jnp.complex128))
+    q = jnp.ravel(jnp.asarray(denominator, dtype=jnp.complex128))
+    poles = jnp.ravel(jnp.asarray(poles, dtype=jnp.complex128))
+    result = jnp.zeros_like(poles)
+    visited = set()
+    for index in range(poles.size):
+        if index in visited:
+            continue
+        group = [j for j in range(poles.size) if bool(poles[j] == poles[index])]
+        visited.update(group)
+        point = poles[index]
+        multiplicity = len(group)
+        reduced = q
+        for _ in range(multiplicity):
+            reduced = _deflate_polynomial_at_root(reduced, point)
+        pt = _polynomial_taylor_prefix(p, point, multiplicity)
+        qt = _polynomial_taylor_prefix(reduced, point, multiplicity)
+        series = []
+        for degree in range(multiplicity):
+            correction = jnp.asarray(0.0, dtype=pt.dtype)
+            for k in range(1, degree + 1):
+                correction = correction + qt[k] * series[degree-k]
+            series.append((pt[degree] - correction) / qt[0])
+        # p/q = (p/reduced)/(x-point)^multiplicity. The coefficient of
+        # (x-point)^-1 is Taylor coefficient multiplicity-1.
+        result = result.at[jnp.asarray(group)].set(series[-1])
+    return result
+
+
+def _chebyshev_to_descending_polynomial(coeffs):
+    """JAX basis conversion for the polynomial residue adapter.
+
+    Provenance: Chebfun 7574c77 @chebfun/residue.m delegates poly(p), poly(q)
+    to polynomial residue. T[k+1]=2*x*T[k]-T[k-1] gives that basis change.
+    """
+    c = jnp.ravel(jnp.asarray(coeffs))
+    if c.size == 0:
+        return c
+    previous = jnp.zeros_like(c).at[0].set(1)
+    result = c[0] * previous
+    if c.size > 1:
+        current = jnp.zeros_like(c).at[1].set(1)
+        result = result + c[1] * current
+        for k in range(2, c.size):
+            following = 2*jnp.concatenate((jnp.zeros_like(current[:1]), current[:-1])) - previous
+            result = result + c[k]*following
+            previous, current = current, following
+    return result[::-1]
