@@ -1,3 +1,4 @@
+# uses-numpy: Independent reference fixtures and numeric assertions in tests.
 """Tests for Spherefun — low-rank function approximation on the unit sphere.
 
 JAX contract:
@@ -380,11 +381,11 @@ class TestSphericalCalculus:
         assert all(isinstance(x, Spherefun) for x in g)
 
     def test_mean(self):
-        """mean() of a nonzero-degree harmonic is ~0; of a constant is it."""
+        """mean2() of a nonzero-degree harmonic is ~0; of a constant is it."""
         Y42 = Spherefun.sphharm(4, 2)
-        assert abs(float(Y42.mean())) < 1e-8
+        assert abs(float(Y42.mean2())) < 1e-8
         c = Spherefun.from_function(lambda lam, th: jnp.full_like(lam, 2.5))
-        npt.assert_allclose(float(c.mean()), 2.5, atol=1e-8)
+        npt.assert_allclose(float(c.mean2()), 2.5, atol=1e-8)
 
 
 class TestConstructorMixedOrder:

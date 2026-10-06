@@ -1,3 +1,4 @@
+# uses-numpy: Independent reference fixtures and numeric assertions in tests.
 """MATLAB golden-reference parity for Spherefun calculus.
 
 Directly cross-validates chebfunjax's Spherefun.laplacian / diff (Opus
@@ -87,5 +88,5 @@ class TestSpherefunPoissonVsMatlab:
         u = Spherefun.poisson(f, const=0.0, lmax=8)
         npt.assert_allclose(np.asarray(u(lam, th)), ref["u_vals"],
                             rtol=1e-9, atol=1e-10)
-        npt.assert_allclose(float(u.mean()), float(ref["u_mean"]),
+        npt.assert_allclose(float(u.mean2()), float(ref["u_mean"]),
                             atol=1e-10)

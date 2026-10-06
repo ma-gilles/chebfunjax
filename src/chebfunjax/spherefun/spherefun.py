@@ -31,7 +31,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import equinox as eqx
 import jax
@@ -46,6 +46,9 @@ from chebfunjax.tech.trigtech import (
     trig_vals2coeffs,
 )
 from chebfunjax.utils.misc import standard_chop
+
+if TYPE_CHECKING:
+    from chebfunjax.spherefunv.spherefunv import Spherefunv
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -2780,9 +2783,103 @@ class Spherefun(eqx.Module):
             out.append(_np.column_stack([x, y, zz]))
         return out
 
-    def mean(self) -> jax.Array:
-        """Mean value of the function over the unit sphere: sum / (4 pi)."""
-        return self.sum() / (4 * jnp.pi)
+    def mean(self, dim: int = 1):
+        """Mean along one Spherefun coordinate, matching MATLAB mean(f,dim).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/mean.m, @spherefun/sum.m
+        Chebfun commit: 7574c77
+        MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df:
+        ``@spherefun/mean.m`` forwards to ``sum(f,dim)`` and divides by
+        ``pi`` for dim 1 or ``2*pi`` for dim 2. ``@spherefun/sum.m`` builds
+        the result from the low-rank ``cols``, ``rows`` and ``pivots``;
+        dim 1 returns a transposed periodic Chebfun on [-pi,pi], while dim 2
+        restricts the colatitude result to [0,pi]. Empty input is returned
+        before dimension validation. The source scalar surface mean is
+        ``mean2``; use this class's :meth:`mean2` for that operation.
+
+        Source files: ``@spherefun/mean.m``, ``@spherefun/sum.m``,
+        ``@spherefun/sum2.m``, ``@spherefun/mean2.m``. The pinned MATLAB
+        tree has no dedicated ``tests/spherefun/test_mean.m`` or
+        ``test_sum.m``; source behavior is recorded in the accompanying
+        R2025b oracle report.
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
+        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
+
+        # Match MATLAB mean.m: empty is returned before dim validation.
+        if self.isempty():
+            return Chebfun.empty()
+        if dim not in (1, 2):
+            # MATLAB sum(f, dim) raises first, before mean.m's own later
+            # invalid-dimension branch.
+            raise ValueError(
+                "CHEBFUN:SPHEREFUN:sum:unknown: Undefined function "
+                "'sum' for that dimension")
+
+        if not self.cols:
+            if dim == 1:
+                return _chebfun(
+                    0.0, domain=(-float(jnp.pi), float(jnp.pi))).T
+            return _chebfun(0.0, domain=(0.0, float(jnp.pi)))
+
+        # MATLAB cdr returns D=diag(1./pivots), replacing infinite reciprocal
+        # entries (zero pivots) by zero. Keep reciprocal weights complex-safe.
+        inverse_pivots = 1.0 / self.pivots
+        inverse_pivots = jnp.where(
+            jnp.isinf(jnp.abs(inverse_pivots)), 0.0, inverse_pivots)
+        real_input = (
+            all(c.is_real and r.is_real
+                for c, r in zip(self.cols, self.rows))
+            and not jnp.iscomplexobj(self.pivots)
+        )
+
+        if dim == 1:
+            # Literal @spherefun/sum.m algorithm:
+            # [a,~]=trigcoeffs(cols); k=(0:size(a,1)-1)';
+            # intFactor=2./(1-k(1:2:end).^2);
+            # intCols=sum(a(1:2:end,:).*intFactor).
+            # Two-output @chebfun/trigcoeffs returns cosine coefficients,
+            # not the centered complex Fourier vector from one output.
+            ncols = max(col.n for col in self.cols)
+            columns_real = all(col.is_real for col in self.cols)
+            int_cols = []
+            for col in self.cols:
+                a = _sphere_mean_cosine_coefficients(
+                    col, ncols, known_real=columns_real)
+                k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
+                int_factor = 2.0 / (1.0 - k**2)
+                factor_shape = (int_factor.size,) + (1,) * (a.ndim - 1)
+                int_cols.append(jnp.sum(
+                    a[::2] * int_factor.reshape(factor_shape), axis=0))
+            weights = [int_cols[j] * inverse_pivots[j]
+                       for j in range(len(int_cols))]
+            if real_input:
+                weights = [jnp.real(weight) for weight in weights]
+            combined = _sum_trigtech_factors(self.rows, weights)
+            combined = combined.simplify()  # source globaltol simplify
+            piece = _Piece(tech=combined,
+                           interval=(-float(jnp.pi), float(jnp.pi)))
+            curve = Chebfun(funs=[piece], domain=Domain(
+                (-float(jnp.pi), float(jnp.pi))))
+            curve = Chebfun._as_transposed(curve, True)
+            return curve / jnp.pi
+
+        # @spherefun/sum.m contracts ``cols * (D*sum(rows).')`` then
+        # simplifies and restricts to [0,pi].  Since lambda's Trigtech
+        # coordinate is normalized by pi, sum(row)/(2*pi) is its DC mode.
+        weights = [jnp.pi * row.sum() * inverse_pivots[j]
+                   for j, row in enumerate(self.rows)]
+        if real_input:
+            weights = [jnp.real(weight) for weight in weights]
+        combined = _sum_trigtech_factors(self.cols, weights)
+        combined = combined.simplify()  # source globaltol simplify
+        restricted = combined.restrict(0.0, 1.0)
+        piece = _Piece(tech=restricted, interval=(0.0, float(jnp.pi)))
+        curve = Chebfun(funs=[piece], domain=Domain(
+            (0.0, float(jnp.pi))))
+        return curve / (2.0 * jnp.pi)
 
     @classmethod
     def sphharm(cls, l: int, m: int) -> "Spherefun":
@@ -4291,3 +4388,57 @@ def _sphere_fourier_operators(m: int, n: int):
     en[floorm - 1] = 0.0
     en[floorm + 1] = 0.0
     return DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm
+
+
+def _sum_trigtech_factors(factors, weights):
+    """Combine low-rank factors by exact source-style coefficient arithmetic.
+
+    Provenance: MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df,
+    ``@spherefun/sum.m`` forms the weighted sum of its separated row/column
+    factors before applying the result technology's simplification. This
+    helper performs that same factor combination without sampling.
+    """
+    if not factors:
+        return Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128),
+                                    is_real=True)
+    out = factors[0] * weights[0]
+    for factor, weight in zip(factors[1:], weights[1:]):
+        out = out + factor * weight
+    return out
+
+
+def _sphere_mean_cosine_coefficients(col, n, *, known_real):
+    """Two-output MATLAB trigcoeffs cosine array, frequency on axis zero.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/sum.m, @chebfun/trigcoeffs.m
+    Chebfun commit: 7574c77
+    MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df:
+    ``@chebfun/trigcoeffs.m`` with two outputs maps centered exponential
+    coefficients to cosine ``A`` and sine ``B`` arrays; ``@trigtech/prolong.m``
+    aligns the coefficient count and splits an old even Nyquist coefficient
+    when prolonging. The ``sum(f,1)`` implementation in
+    ``@spherefun/sum.m`` uses ``A(1:2:end,:)`` and weights
+    ``2./(1-k(1:2:end).^2)``. This helper returns that two-output cosine
+    array with frequency on axis zero; it keeps the source's unsplit even
+    Nyquist slot once and preserves trailing coefficient columns.
+
+    Source files: ``@chebfun/trigcoeffs.m``, ``@trigtech/prolong.m``,
+    ``@spherefun/sum.m``. Oracle and source hashes are in the V5 evidence
+    manifest.
+    """
+    c = col.prolong(n).coeffs
+    if n == 0:
+        return c
+    zero = n // 2
+    if n % 2:
+        k = jnp.arange(1, zero + 1)
+        a = jnp.concatenate((c[zero:zero+1], c[zero-k] + c[zero+k]), axis=0)
+    else:
+        k = jnp.arange(1, zero)
+        # Existing even-length slot is the entire cosine Nyquist term.
+        # Prolong already splits Nyquist when expanding to a larger length;
+        # do not split or double it again here.
+        a = jnp.concatenate((c[zero:zero+1], c[zero-k] + c[zero+k], c[:1]), axis=0)
+    return jnp.real(a) if known_real else a
