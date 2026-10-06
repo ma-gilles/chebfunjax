@@ -17,6 +17,8 @@ import sys
 import warnings
 
 import matplotlib.pyplot as plt
+
+# uses-numpy: host plotting arrays and formatted reporting; native ODE callbacks use JAX.
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -69,7 +71,7 @@ def run():
     warnings.filterwarnings("ignore")
 
     def fun(t, u):
-        return np.array([10 * (u[1] - u[0]),
+        return jnp.array([10 * (u[1] - u[0]),
                          28 * u[0] - u[1] - u[0] * u[2],
                          u[0] * u[1] - (8 / 3) * u[2]])
 
