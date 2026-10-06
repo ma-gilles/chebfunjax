@@ -11482,131 +11482,157 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                                  refinement_function, max_length))
 
 
-def _detect_edge_matlab(f, a: float, b: float,
-                        vscale: "float | None" = None,
-                        hscale: "float | None" = None) -> "float | None":
-    """Faithful port of MATLAB @fun/detectEdge (detectedgeMain).
+def _edge_sample_rows(f, x):
+    """Normalize Python callback shapes without combining function columns."""
+    x = jnp.asarray(x, dtype=jnp.float64)
+    y = jnp.asarray(f(x))
+    if not jnp.issubdtype(y.dtype, jnp.complexfloating):
+        y = y.astype(jnp.float64)
+    count = x.size
+    if y.ndim == 0:
+        # Scalar-returning Python callbacks represent a constant column.
+        return jnp.broadcast_to(y, (count, 1))
+    if y.ndim == 1:
+        if count == 1:
+            return y.reshape((1, -1))
+        if y.size == count:
+            return y.reshape((count, 1))
+    elif y.ndim == 2 and y.shape[0] == count:
+        return y
+    raise ValueError("Edge detection requires one sample row per input point.")
 
-    Tests finite differences of orders 1..4 on successively refined
-    brackets; the derivative order whose maximum keeps growing locates
-    the edge, and a first-derivative blowup switches to the findJump
-    bisection.  Returns None when no derivative growth is detected
-    (caller should bisect), matching MATLAB's empty return.
 
-    The achievable localisation is order-adaptive: a jump in the k-th
-    derivative is found to O(w) where the neighbouring pieces' deviation
-    is O(w^k) -- exactly the accuracy needed for machine-precision
-    pieces (e.g. spline knots land ~1e-5 off, and the cubic pieces are
-    still resolved to 1e-15).
+def _edge_eps(x):
+    """Positive binary64 MATLAB eps(x), including negative and subnormal x.
+
+    Python's scalar IEEE ulp avoids device flush-to-zero during subtraction
+    of adjacent subnormals; all sampled arrays and reductions remain JAX.
+    """
+    x = float(x)
+    return math.ulp(x) if math.isfinite(x) else math.nan
+
+
+def _edge_find_max_der(f, a, b, num_ders, grid_size):
+    """Bounded identity-map findMaxDer from @fun/detectEdge.m:271-312."""
+    na = jnp.full((num_ders,), a, dtype=jnp.float64)
+    nb = jnp.full((num_ders,), b, dtype=jnp.float64)
+    max_der = jnp.zeros((num_ders,), dtype=jnp.float64)
+    dx = (b - a) / (grid_size - 1)
+    x = jnp.concatenate((a + jnp.arange(grid_size - 1, dtype=jnp.float64) * dx,
+                         jnp.asarray([b], dtype=jnp.float64)))
+    dy = _edge_sample_rows(f, x)
+    for order in range(num_ders):
+        dy = jnp.diff(dy, axis=0)
+        x = (x[:-1] + x[1:]) / 2
+        # MATLAB max omits NaNs but preserves an all-NaN result. Preserve
+        # infinities and reduce columns only after differencing sample rows.
+        dydh = jnp.nanmax(jnp.abs(dy), axis=1)
+        maximum = jnp.nanmax(dydh)
+        # abs() makes all non-NaN entries nonnegative. Replacing NaNs by
+        # -inf for the index yields the first finite/infinite tied maximum.
+        ind = int(jnp.argmax(jnp.where(jnp.isnan(dydh), -jnp.inf, dydh)))
+        max_der = max_der.at[order].set(maximum)
+        if ind > 0:
+            na = na.at[order].set(x[ind - 1])
+        if ind < x.size - 2:
+            nb = nb.at[order].set(x[ind + 1])
+    if dx ** num_ders <= _edge_eps(0.0):
+        max_der = jnp.inf + max_der
+    else:
+        max_der = max_der / jnp.asarray(
+            [dx ** order for order in range(1, num_ders + 1)],
+            dtype=jnp.float64)
+    return na, nb, max_der
+
+
+def _find_jump(f, a, b, vscale, hscale):
+    """Literal bounded findJump, with MATLAB all/any column conditions.
 
     Provenance
     ----------
-    MATLAB source : @fun/detectEdge.m (detectedgeMain, findMaxDer,
-        findJump)
+    MATLAB source : @fun/detectEdge.m (findJump)
     Chebfun commit: 7574c77
     """
-    import numpy as _np
+    eps = float(jnp.finfo(jnp.float64).eps)
+    y = _edge_sample_rows(f, jnp.asarray([a, b], dtype=jnp.float64))
+    ya, yb = y[0], y[1]
+    # The source divides the complete denominator by two, even for the
+    # identity derivative. Preserve that expression, not an inferred slope.
+    max_der = jnp.abs(ya - yb) / ((b - a) / 2)
+    if bool(jnp.all(max_der < 1e-5 * vscale / hscale)):
+        return None
+    cont = 0
+    e1 = (b + a) / 2
+    e0 = e1 + 1
+    while ((cont < 2 or bool(jnp.any(max_der == jnp.inf))) and e0 != e1):
+        c = (a + b) / 2
+        yc = _edge_sample_rows(f, jnp.asarray(c, dtype=jnp.float64))[0]
+        dyl = jnp.nanmax(jnp.abs(yc - ya))
+        dyr = jnp.nanmax(jnp.abs(yb - yc))
+        previous = max_der
+        if bool(dyl > dyr):
+            b, yb = c, yc
+            max_der = dyl / (b - a)
+        else:
+            a, ya = c, yc
+            max_der = dyr / (b - a)
+        e0 = e1
+        e1 = (a + b) / 2
+        if bool(jnp.all(max_der < previous * 1.5)):
+            cont += 1
+    if (e0 - e1) <= 2 * _edge_eps(e0):
+        yright = _edge_sample_rows(
+            f, jnp.asarray(b + _edge_eps(b), dtype=jnp.float64))[0]
+        if bool(jnp.all(jnp.abs(yright - yb) > eps * 100 * vscale)):
+            return b
+        return a
+    return None
 
-    eps = _np.finfo(float).eps
+
+def _detect_edge_matlab(f, a: float, b: float,
+                        vscale: "float | None" = None,
+                        hscale: "float | None" = None) -> "float | None":
+    """Bounded smooth detectedgeMain with JAX sample arrays and reductions.
+
+    Return a raw edge or None, retaining the existing helper API. The
+    constructor supplies global scales and handles source endpoint move-in
+    and empty-edge midpoint fallback. Optional omitted scales are a Python
+    compatibility adapter; they are not part of source constructorSplit.
+    This branch has identity mapping, no exponents and blowup detection off.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m (detectedgeMain, findMaxDer, findJump)
+    Chebfun commit: 7574c77
+    """
+    a, b = float(a), float(b)
     if hscale is None:
         hscale = max(abs(a), abs(b), 1.0)
-
-    def op(x):
-        # keep complex values complex: MATLAB detectEdge measures
-        # |ya - yb| of the raw (possibly complex) samples, so an edge
-        # visible only in the imaginary part is still detected
-        y = _np.asarray(f(jnp.asarray(_np.atleast_1d(_np.asarray(x,
-                        dtype=_np.float64))))).ravel()
-        if not _np.iscomplexobj(y):
-            y = y.astype(_np.float64)
-        return _np.where(_np.isfinite(y), y, 0.0)
-
-    def find_max_der(da, db, num_ders, grid_size):
-        na = _np.full(num_ders, da, dtype=_np.float64)
-        nb = _np.full(num_ders, db, dtype=_np.float64)
-        max_der = _np.zeros(num_ders)
-        dx = (db - da) / (grid_size - 1)
-        x = _np.concatenate([da + _np.arange(grid_size - 1) * dx, [db]])
-        y = op(x)
-        dy = y.copy()
-        xx = x.copy()
-        for j in range(num_ders):
-            dy = _np.diff(dy)
-            xx = 0.5 * (xx[:-1] + xx[1:])
-            absdy = _np.abs(dy)
-            if absdy.size == 0:
-                break
-            ind = int(_np.argmax(absdy))
-            max_der[j] = absdy[ind]
-            if ind > 0:
-                na[j] = xx[ind - 1]
-            if ind < len(xx) - 2:
-                nb[j] = xx[ind + 1]
-        if dx ** num_ders <= 5e-324:          # eps(0)
-            max_der = max_der + _np.inf
-        else:
-            max_der = max_der / dx ** _np.arange(1, num_ders + 1)
-        return na, nb, max_der
-
-    def find_jump(ja, jb):
-        ya = op(ja)[0]
-        yb = op(jb)[0]
-        max_der = abs(ya - yb) / (jb - ja)
-        if max_der < 1e-5 * vsc / hscale:
-            return None
-        cont = 0
-        aa, bb = ja, jb
-        e1 = 0.5 * (aa + bb)
-        e0 = e1 + 1.0
-        while ((cont < 2) or (max_der == _np.inf)) and (e0 != e1):
-            c = 0.5 * (aa + bb)
-            yc = op(c)[0]
-            dyl = abs(yc - ya)
-            dyr = abs(yb - yc)
-            maxd1 = max_der
-            if dyl > dyr:
-                bb, yb = c, yc
-                max_der = dyl / (bb - aa)
-            else:
-                aa, ya = c, yc
-                max_der = dyr / (bb - aa)
-            e0 = e1
-            e1 = 0.5 * (aa + bb)
-            if max_der < maxd1 * 1.5:
-                cont += 1
-        if (e0 - e1) <= 2 * _np.spacing(e0):
-            yright = op(bb + _np.spacing(bb))[0]
-            if abs(yright - yb) > eps * 100 * vsc:
-                return bb
-            return aa
-        return None
-
-    num = 4
-    grid1, grid234 = 50, 15
-    na, nb, max_der = find_max_der(a, b, num, grid1)
+    hscale = float(hscale)
     if vscale is None:
-        vsc = float(_np.max(_np.abs(op(_np.linspace(a, b, grid1)))))
-        vsc = max(vsc, _np.finfo(float).tiny)
+        values = _edge_sample_rows(f, jnp.linspace(a, b, 50))
+        vscale = float(jnp.nanmax(jnp.abs(values)))
     else:
-        vsc = max(float(vscale), _np.finfo(float).tiny)
-    ends = (float(na[num - 1]), float(nb[num - 1]))
-    while (max_der[num - 1] != _np.inf
-           and not _np.isnan(max_der[num - 1])
-           and (ends[1] - ends[0]) > eps * hscale):
-        max_der_prev = max_der[:num]
-        na, nb, max_der = find_max_der(ends[0], ends[1], num, grid234)
-        ks = _np.arange(1, num + 1)
-        crit = ((max_der > (5.5 - ks) * max_der_prev)
-                & (max_der > 10 * vsc / hscale ** ks))
-        idxs = _np.where(crit)[0]
-        if idxs.size == 0:
+        vscale = float(jnp.nanmax(jnp.asarray(vscale)))
+    eps = float(jnp.finfo(jnp.float64).eps)
+    num = 4
+    na, nb, max_der = _edge_find_max_der(f, a, b, num, 50)
+    left, right = float(na[num - 1]), float(nb[num - 1])
+    while (bool(max_der[num - 1] != jnp.inf)
+           and not bool(jnp.isnan(max_der[num - 1]))
+           and right - left > eps * hscale):
+        previous = max_der[:num]
+        na, nb, max_der = _edge_find_max_der(f, left, right, num, 15)
+        orders = jnp.arange(1, num + 1, dtype=jnp.float64)
+        grows = ((max_der > (5.5 - orders) * previous)
+                 & (max_der > 10 * vscale / hscale ** orders))
+        if not bool(jnp.any(grows)):
             return None
-        num = int(idxs[0]) + 1
-        if num == 1 and (ends[1] - ends[0]) < 1e-3 * hscale:
-            return find_jump(ends[0], ends[1])
-        ends = (float(na[num - 1]), float(nb[num - 1]))
-    return 0.5 * (ends[0] + ends[1])
-
+        num = int(jnp.argmax(grows)) + 1
+        if num == 1 and right - left < 1e-3 * hscale:
+            return _find_jump(f, left, right, vscale, hscale)
+        left, right = float(na[num - 1]), float(nb[num - 1])
+    return (left + right) / 2
 
 def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
     """Cheap finite-difference singularity locator for splitting (Fable 5).
