@@ -1,9 +1,8 @@
 """Port of MATLAB Chebfun tests/bndfun/test_feval.m (Opus 4.8).
 
-Self-validating: every evaluation is checked against the analytic exact at
-the SAME tolerance MATLAB uses.  Test points are our own deterministic grid
-over the domain (the assertion ``error < tol`` holds at any point, so
-MATLAB's RNG stream is not needed).
+Every evaluation is checked against the analytic reference with the original
+MATLAB bound. Points use a deterministic grid rather than the source RNG
+stream; these passes do not establish equivalence of the sampling fixtures.
 
 Provenance
 ----------
@@ -15,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -29,8 +27,6 @@ X = jnp.asarray(XR)
 
 
 def _bf(f, n=None):
-    # xfail cases pass a small fixed n so a non-converging (array-valued /
-    # singular) build stays fast; the assertion still fails as it should.
     return Bndfun.from_function(f, DOM, n=n)
 
 
@@ -101,15 +97,6 @@ class TestBndfunFeval:
         assert fx.shape == (2, 3, 2)
         assert _ninf(fx - f_exact) < 1e2 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="Singfun near-endpoint eval precision: (x-a)^-0.5 sin(x) with "
-        "exponents=(-0.5,0) now BUILDS (Bndfun exponents support) and sum()/"
-        "cumsum() pass, but feval at the point closest to the singular "
-        "endpoint (x=-1.991, |f|~9.6) has error ~8.9e-13 vs MATLAB's "
-        "1e2*vscale*eps ~= 2.1e-13 bound -- a ~4x gap in the Singfun weight "
-        "evaluation near y=-1 (owned by the Singfun/tech layer).",
-        strict=True,
-    )
     def test_singular_function(self):
         pow_ = -0.5
 
