@@ -8030,8 +8030,12 @@ def _commonize_system(outs):
                 if t.coeffs.shape[0] < mlen and hasattr(t, "prolong"):
                     t = t.prolong(mlen)
                 funs.append(_Piece(tech=t, interval=u.funs[k].interval))
-            new.append(Chebfun(funs=funs, domain=u.domain,
-                               deltas=getattr(u, "deltas", ())))
+            component = Chebfun(funs=funs, domain=u.domain,
+                                deltas=getattr(u, "deltas", ()))
+            # Prolongation changes coefficient storage, not breakpoint data.
+            if u._point_values is not None:
+                object.__setattr__(component, "_point_values", u._point_values)
+            new.append(component)
         return new
     except Exception:
         return outs

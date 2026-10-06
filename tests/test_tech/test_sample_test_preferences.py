@@ -12,6 +12,7 @@ subset; this file adds no ODE adapter dependency.
 import jax.numpy as jnp
 import numpy as np
 
+import chebfunjax.tech.chebtech as chebtech_module
 from chebfunjax.chebfun1d.chebfun import _Piece, chebfun
 from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
@@ -45,13 +46,42 @@ def test_chebfun_constructor_uses_sample_test_preference():
     finally:
         ChebfunPref.setDefaults("factory")
 
-def test_splitting_constructor_threads_sample_test_to_locator_and_pieces():
-    counts = []
+def _watch_sample_test_calls(monkeypatch):
+    """Record only the canonical probe passed by happinessCheck/sampleTest."""
+    calls = []
+    original = chebtech_module._happiness_check_impl
+
+    def spy(tech_cls, kind, coeffs, values, op, tol, vscale, hscale, check,
+            sample_test=True):
+        # Observe actual calls even if a future defect ignores the flag.
+        if op is not None:
+            original_op = op
+
+            def tracked_op(x):
+                arr = np.asarray(x)
+                if arr.shape == (2,) and np.array_equal(arr, _SAMPLE_POINTS):
+                    calls.append(arr.copy())
+                return original_op(x)
+
+            op = tracked_op
+        return original(
+            tech_cls, kind, coeffs, values, op, tol, vscale, hscale, check,
+            sample_test,
+        )
+
+    monkeypatch.setattr(chebtech_module, "_happiness_check_impl", spy)
+    return calls
+
+
+def test_splitting_constructor_threads_sample_test_to_locator_and_pieces(
+        monkeypatch):
+    counts = _watch_sample_test_calls(monkeypatch)
+    callback_pairs = []
 
     def op(x):
         arr = np.asarray(x)
         if arr.shape == (2,):
-            counts.append(arr.copy())
+            callback_pairs.append(arr.copy())
         return jnp.sign(x)
 
     ChebfunPref.setDefaults("sampleTest", False)
@@ -59,6 +89,10 @@ def test_splitting_constructor_threads_sample_test_to_locator_and_pieces():
         chebfun(op, domain=(-1.0, 1.0), splitting=True,
                 max_length=129, split_length=32, split_max_length=256)
         assert counts == []
+        # Edge detection legitimately queries a two-endpoint bracket even
+        # with sampleTest off. Keep that independent constructor behavior.
+        assert any(not np.array_equal(pair, _SAMPLE_POINTS)
+                   for pair in callback_pairs)
     finally:
         ChebfunPref.setDefaults("factory")
 

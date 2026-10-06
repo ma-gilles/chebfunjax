@@ -2939,6 +2939,13 @@ class Chebfun(eqx.Module):
             if not (hasattr(other, "dtype")
                     and getattr(other, "ndim", None) == 0):
                 return NotImplemented
+        # The Python Chebfun API accepts scalar integers, including typed
+        # zero-dimensional scalars. Adapt them as MATLAB double literals at
+        # this boundary; explicit non-scalar arrays and Chebtech dtype/class
+        # diagnostics retain their own source dispatch.
+        if (getattr(other, "ndim", None) == 0 and hasattr(other, "dtype")
+                and jnp.issubdtype(other.dtype, jnp.integer)):
+            other = jnp.asarray(other, dtype=jnp.float64)
         new_funs = [
             piece._apply_unary(piece.tech * other)
             for piece in self.funs
@@ -5228,6 +5235,10 @@ class Chebfun(eqx.Module):
             new_funs.append(_Piece(tech=t, interval=piece.interval))
         out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        # Source simplify modifies FUNs while retaining pointValues.
+        # Preserve stored discontinuous values as representation metadata.
+        if self._point_values is not None:
+            object.__setattr__(out, "_point_values", self._point_values)
         return self._attach_deltas(out, getattr(self, "deltas", ()))
 
     def cumsum(self, k: float = 1) -> Chebfun:

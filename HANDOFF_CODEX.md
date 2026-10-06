@@ -11,6 +11,21 @@ Use gh-cli, explicit staging, GPT-6 trailer and full Ruff gates. CPU only;
 heavy examples/tests serial; at most two helpers, Astra medium for numerical
 review as requested and cheap routine execution. Freeze qualification inputs.
 
+P105 535fef0e89a44c7bcdbee8f94d15e2bc354e846f is pushed. Combined48
+coast/source-grid colorbar cases pass37.971s; archive verified. New API retains
+corrected C and a shared norm snapshot. V1 new exact-edge assertion failed
+because Matplotlib inverse normalization differs oneULP from fresh MATLAB
+CLim; gamma2 operation bound documented, production unchanged.
+
+Exact P105 CPU baseline reproduced all4historicalCI failures and3independent
+metadata failures. New scoped corrections preserve existing pointValues through
+simplify/common coefficient padding, adapt accepted typed0Dinteger scalars at
+the public Chebfun boundary (lower-tech dtype diagnostics unchanged), and
+observe actual sampleTest calls separately from detector bracket endpoints.
+Original numerical bounds remain unchanged. Oscillatory singular cube remains
+a genuine strict accuracy failure; source-RNG/evaluator decomposition queued.
+No full latest-main green CI or atmospheric/pixel parity claim.
+
 P104 8e0155ec666a4aa05db0196b0076664ff7d3c9c1 is pushed with the62-case
 short-sum/channel and camera qualification below. New CPU exp diagnostic13
 selected inputs/12paths/threeflagsettings found identical output bits; HIGHEST
