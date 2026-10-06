@@ -423,7 +423,8 @@ def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Arr
     MATLAB source : @trigtech/horner.m
     Chebfun commit: 7574c77
     """
-    x = jnp.asarray(x, dtype=jnp.float64)
+    x = jnp.asarray(x)
+    x = x.astype(jnp.complex128 if jnp.iscomplexobj(x) else jnp.float64)
     scalar_input = x.ndim == 0
     x_1d = jnp.atleast_1d(x)
 
@@ -509,8 +510,11 @@ def _trig_eval_real(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
 
     # Horner recurrence: start from the highest-frequency pair and work down
     # Initialize with the highest-k term (index n_h-1)
-    co = jnp.broadcast_to(a[n_h - 1], out_shape)
-    si = jnp.broadcast_to(b[n_h - 1], out_shape)
+    # Source real-coefficient Horner still returns complex values when x
+    # is complex. Initialize loop carries in that dtype before multiplication.
+    carry_dtype = jnp.result_type(a.dtype, x.dtype)
+    co = jnp.broadcast_to(a[n_h - 1].astype(carry_dtype), out_shape)
+    si = jnp.broadcast_to(b[n_h - 1].astype(carry_dtype), out_shape)
 
     def body(j, state):
         co_, si_ = state
@@ -538,8 +542,7 @@ def _trig_eval_complex(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
     n = coeffs_cx.shape[0]
     # Array-valued: trailing singleton point axis broadcasts against
     # per-column coefficients.
-    xE = x.astype(jnp.float64).reshape(
-        x.shape + (1,) * (coeffs_cx.ndim - 1))
+    xE = x.reshape(x.shape + (1,) * (coeffs_cx.ndim - 1))
     out_shape = x.shape + coeffs_cx.shape[1:]
     z = jnp.exp(1j * jnp.pi * xE)
 
@@ -1380,6 +1383,24 @@ def _trig_minandmax_scalar(f) -> tuple:
 # ============================================================================
 
 
+
+def _trig_nonadaptive_real_flag(values: jax.Array) -> bool:
+    """Source3eps realness with an explicit static-metadata tracing adapter."""
+    values = jnp.asarray(values)
+    if values.shape[0] == 0:
+        return True
+    vscale = jnp.max(jnp.abs(values), axis=0)
+    flags = jnp.max(jnp.abs(jnp.imag(values)), axis=0) <= (
+        3*jnp.finfo(jnp.float64).eps*vscale
+    )
+    flag = jnp.all(flags)
+    if isinstance(flag, jax.core.Tracer):
+        # Finite real-dtype values have no imaginary component. Complex
+        # traced data retain phase; explicit is_real in from_coeffs can
+        # provide a known real-representation contract without inspecting data.
+        return not jnp.iscomplexobj(values)
+    return bool(flag)
+
 class Trigtech(eqx.Module):
     """Trigonometric interpolant for smooth periodic functions on [-1, 1].
 
@@ -1460,51 +1481,24 @@ class Trigtech(eqx.Module):
         is_real: bool | None = None,
         ishappy: bool = True,
     ) -> "Trigtech":
-        """Construct a Trigtech from Fourier coefficients.
+        """Construct from Fourier coefficients using source realness threshold.
 
-        Parameters
+        Eager inference tests source-grid values against3eps*vscale. Under
+        JAX tracing, value-dependent static metadata is unavailable, so default
+        inference conservatively retains complex arithmetic. Callers with a
+        known real representation can provide explicit ``is_real=True``;
+        real-valued differentiation objectives should state that contract.
+
+        Provenance
         ----------
-        coeffs : array_like, shape (N,) real or complex
-            Fourier coefficients in descending-wavenumber order.
-        is_real : bool or None
-            If None, inferred: True if coeffs is real-dtype.
-        ishappy : bool, default True
-
-        Returns
-        -------
-        Trigtech
+        MATLAB source : @trigtech/populate.m (nonadaptive construction),
+                        @trigtech/vscale.m
+        Chebfun commit: 7574c77
         """
         coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
-        if coeffs.size == 0:
-            return cls(
-                coeffs=coeffs,
-                is_real=True if is_real is None else bool(is_real),
-                ishappy=ishappy,
-            )
         if is_real is None:
-            # A real-valued function has conjugate-symmetric Fourier
-            # coefficients: c_{-k} = conj(c_k). The previous hardcoded
-            # True made every complex trig function evaluate to its real
-            # part after any coefficient-space rebuild (e.g. diff).
-            n = coeffs.shape[0]
-            if n % 2 == 1:
-                sym_err = jnp.max(jnp.abs(coeffs - jnp.conj(coeffs[::-1])))
-            else:
-                # even length: modes [-n/2, ..., n/2-1]; the unpaired
-                # -n/2 (Nyquist) mode must itself be real.
-                sym_err = jnp.maximum(
-                    jnp.max(jnp.abs(coeffs[1:] - jnp.conj(coeffs[1:][::-1]))),
-                    jnp.abs(jnp.imag(coeffs[0])),
-                )
-            scale = jnp.maximum(jnp.max(jnp.abs(coeffs)), 1e-300)
-            flag = sym_err <= 1e-13 * scale
-            if isinstance(flag, jax.core.Tracer):
-                # Under jit tracing the value is unavailable; keep the
-                # legacy default (real). Library-internal rebuilds that
-                # need accurate inference (piece diff/cumsum) run eagerly.
-                is_real = True
-            else:
-                is_real = bool(flag)
+            values = _trig_coeffs2vals_impl(coeffs)
+            is_real = _trig_nonadaptive_real_flag(values)
         return cls(coeffs=coeffs, is_real=bool(is_real), ishappy=ishappy)
 
     @classmethod
@@ -1514,22 +1508,22 @@ class Trigtech(eqx.Module):
         *,
         ishappy: bool = True,
     ) -> "Trigtech":
-        """Construct a Trigtech from values at equispaced trigonometric points.
+        """Construct from source-grid values with literal3eps classification.
 
-        Parameters
+        Eager realness follows nonadaptive MATLAB populate. Traced complex
+        input retains complex arithmetic because realness is static metadata.
+        The pure JAX FFT preserves input dtype for source symmetry handling.
+
+        Provenance
         ----------
-        values : array_like, shape (N,) real or complex
-            Function values at N equispaced points x_k = -1 + 2k/N.
-        ishappy : bool, default True
-
-        Returns
-        -------
-        Trigtech
+        MATLAB source : @trigtech/populate.m, @trigtech/vals2coeffs.m,
+                        @trigtech/vscale.m
+        Chebfun commit: 7574c77
         """
         values = jnp.atleast_1d(jnp.asarray(values))
-        is_real = jnp.isrealobj(values)
-        c = trig_vals2coeffs(values.astype(jnp.complex128))
-        return cls(coeffs=c, is_real=bool(is_real), ishappy=ishappy)
+        is_real = _trig_nonadaptive_real_flag(values)
+        coeffs = _trig_vals2coeffs_impl(values)
+        return cls(coeffs=coeffs, is_real=is_real, ishappy=ishappy)
 
     @classmethod
     def from_function(
@@ -1682,7 +1676,8 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/feval.m, @trigtech/horner.m
         Chebfun commit: 7574c77
         """
-        if not isinstance(x, jax.core.Tracer) and \
+        if not jnp.iscomplexobj(jnp.asarray(x)) and \
+                not isinstance(x, jax.core.Tracer) and \
                 not isinstance(self.coeffs, jax.core.Tracer) and \
                 self.coeffs.shape[0] <= 1024:
             # The numpy Horner mirror loops once per coefficient in
@@ -1695,7 +1690,8 @@ class Trigtech(eqx.Module):
 
     @eqx.filter_jit
     def _call_traced(self, x: jax.Array) -> jax.Array:
-        x = jnp.asarray(x, dtype=jnp.float64)
+        x = jnp.asarray(x)
+        x = x.astype(jnp.complex128 if jnp.iscomplexobj(x) else jnp.float64)
         return _trig_eval(self.coeffs, x, is_real=self.is_real)
 
     # ------------------------------------------------------------------

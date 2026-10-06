@@ -10337,15 +10337,17 @@ def _chebfun_build(
     # semantics -- no pieces; most operations are undefined on it).
     is_empty_arg = (
         f is None
-        or (hasattr(f, "__len__") and not callable(f) and len(f) == 0)
+        or (hasattr(f, "__len__") and not callable(f)
+            and getattr(f, "ndim", 1) != 0 and len(f) == 0)
         or (n is not None and n == 0)
     )
     if is_empty_arg:
         return Chebfun(funs=[], domain=dom)
 
-    if isinstance(f, (int, float)) or (
-        hasattr(f, "__float__") and not callable(f)
-        and getattr(f, "ndim", 0) == 0
+    if not trig and (
+        isinstance(f, (int, float))
+        or (hasattr(f, "__float__") and not callable(f)
+            and getattr(f, "ndim", 0) == 0 and not jnp.iscomplexobj(f))
     ):
         if _adaptive_override:
             raise ValueError(
@@ -10361,11 +10363,19 @@ def _chebfun_build(
     except Exception:
         arr = None
     if arr is not None:
-        if arr.ndim == 0:
+        # Scalar trig inputs continue to the source-specific Trigtech branch.
+        if arr.ndim == 0 and not trig:
             if _adaptive_override:
                 raise ValueError(
                     "sample_test/refinement_function overrides do not apply "
                     "to scalar constant input")
+            if jnp.iscomplexobj(arr):
+                c = arr.astype(jnp.complex128)
+
+                def _complex_constant(x):
+                    return jnp.full_like(x, c, dtype=jnp.complex128)
+
+                return Chebfun.from_function(_complex_constant, dom, n=n)
             c = float(arr)
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
         if arr.ndim in (1, 2) and not callable(f) and not coeffs \
