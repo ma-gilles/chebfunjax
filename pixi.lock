@@ -494,7 +494,7 @@ packages:
 - pypi: ./
   name: chebfunjax
   version: 0.1.0
-  sha256: 1d93444f1b44ea344e397e14a8ec07bf0b5fe71aca456116c666e46cae34fe82
+  sha256: 95f79ae45be4eebbf0885891020e9e206dc4b80f6dd0b1f9cd10d77c5fae957c
   requires_dist:
   - jax>=0.4.20
   - jaxlib>=0.4.20
@@ -502,6 +502,7 @@ packages:
   - numpy>=1.24
   - scipy>=1.11
   - matplotlib>=3.5
+  - mpmath>=1.4.1,<2 ; extra == 'test'
   - pytest>=7.0 ; extra == 'test'
   - pytest-xdist ; extra == 'test'
   - pytest-cov ; extra == 'test'
