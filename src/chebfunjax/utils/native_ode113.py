@@ -414,7 +414,12 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
     if float(rtol) < 100 * jnp.finfo(jnp.float64).eps:
         warnings.warn("RelTol increased to native100*eps floor", stacklevel=2)
         rtol = jnp.asarray(100 * jnp.finfo(jnp.float64).eps)
-    atol = jnp.atleast_1d(jnp.asarray(opt("AbsTol", 1e-6), dtype=jnp.float64))
+    atol = jnp.asarray(opt("AbsTol", 1e-6), dtype=jnp.float64)
+    # odearguments checks length(atol)==neq before column-major atol(:).
+    # Retain that source length guard rather than accepting any reshaped matrix.
+    if atol.size != 1 and max(atol.shape) != y.size:
+        raise ValueError("AbsTol must be scalar or one per component")
+    atol = atol.reshape(-1, order="F")
     norm_control = opt("NormControl", "off")
     if isinstance(norm_control, str):
         if norm_control.lower() not in ("on", "off"):
