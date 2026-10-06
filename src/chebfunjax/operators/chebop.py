@@ -7596,8 +7596,10 @@ class Chebop:
         return _minres(self, f, tol=tol, maxit=maxit, full_output=full_output,
                        R1=R1, R2=R2, u0=u0)
 
-    def gmres(self, f, tol: float = 1e-10, maxit: int = 60):
-        """Function-space GMRES solve (MATLAB gmres(N, f)).
+    def gmres(self, f, restart=None, tol: float | None = None,
+              maxit: int | None = None, R1=None, R2=None, u0=None,
+              *, full_output: bool = False):
+        """Function-space GMRES with source restart and optional inputs.
 
         Provenance
         ----------
@@ -7605,7 +7607,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         from chebfunjax.operators.krylov import gmres as _gmres
-        return _gmres(self, f, tol=tol, maxit=maxit)
+        return _gmres(self, f, restart=restart, tol=tol, maxit=maxit,
+                      R1=R1, R2=R2, u0=u0, full_output=full_output)
 
     def eye(self) -> "Chebop":
         """Identity operator on the same domain (MATLAB eye(N)).

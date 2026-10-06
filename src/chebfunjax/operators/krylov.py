@@ -1,12 +1,11 @@
-"""Function-space Krylov solvers for self-adjoint second-order chebops.
+"""Function-space Krylov solvers for second-order Chebop problems.
 
-MATLAB Chebfun's @chebop/pcg.m, minres.m, and gmres.m run Krylov
-iterations directly on chebfuns: the operator
-``L(u) = -(a(x) u')' + c(x) u`` with Dirichlet conditions is
-preconditioned by the indefinite integral ``R1 = cumsum`` and its
-adjoint ``R2 = sum - cumsum``, giving the bounded, self-adjoint
-``T = Pi R2 L R1`` (``Pi`` projects out the mean).  The iterations use
-L2 inner products of chebfuns; the solution is ``z + R1(Pi(v))``.
+PCG and MINRES use the self-adjoint divergence operator
+L(u)=-(a*u')'+c*u. GMRES also retains the nonsymmetric b*u' term.
+The source iterations act on adaptive Chebfuns with continuous inner products;
+indefinite-integral preconditioners and polynomial boundary/range correction
+replace sampled-grid matrix approximations. Final exits follow each source
+solver's output and residual conventions.
 
 Provenance
 ----------
@@ -18,75 +17,12 @@ Original authors: Copyright 2017 by The University of Oxford
 
 from __future__ import annotations
 
+import warnings
+from numbers import Real
+from typing import Any
+
+import jax
 import jax.numpy as jnp
-import numpy as np  # uses-numpy: Arnoldi orthogonalization on fixed value grids (host-side, non-JIT)
-
-
-def _setup(N, f):
-    """Extract a, c, the preconditioned operator T, and the shifted
-    right-hand side g (with polynomial correction z when f is not in
-    the preconditioned space or the BCs are inhomogeneous)."""
-    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
-    from chebfunjax.domain import Domain
-
-    dom = tuple(float(v) for v in N.domain)
-    a0, b0 = dom[0], dom[-1]
-    x = Chebfun.identity(Domain(N.domain))
-    one = chebfun(lambda t: 1.0 + 0.0 * t, domain=(a0, b0))
-
-    def L_of(u):
-        return N.feval(u)
-
-    # Data-mine the coefficients (MATLAB gmres.m, non-divergence form):
-    # c = L(1); (b - a') = L(x) - c x; a = -L(x^2/2) + (b-a') x + c x^2/2.
-    c = L_of(one)
-    bminusa = L_of(x) - c * x
-    a = (-1.0) * L_of(x ** 2 / 2) + bminusa * x + c * (x ** 2 / 2)
-    b = bminusa + a.diff()
-
-    def Lc(v):
-        return ((-1.0) * (a * v.diff()).diff() + b * v.diff()
-                + c * v)
-
-    def R1(v):
-        return v.cumsum()
-
-    def R2(v):
-        return float(v.sum()) - v.cumsum()
-
-    def Pi(g):
-        return g - float(g.sum()) / (b0 - a0)
-
-    def T(v):
-        return Pi(R2(Lc(R1(v))))
-
-    lbc = float(N.lbc) if isinstance(N.lbc, (int, float)) else 0.0
-    rbc = float(N.rbc) if isinstance(N.rbc, (int, float)) else 0.0
-
-    R2f = R2(f)
-    PiR2f = Pi(R2f)
-    tolz = 1e-12 * max(1.0, _norm2(f))
-    if (_norm2(R2f - PiR2f) > tolz or abs(lbc) > tolz
-            or abs(rbc) > tolz):
-        # Correct with a low-degree polynomial z (MATLAB basis x.^(0:4)).
-        basis = [x ** j for j in range(5)]
-        A = np.zeros((4, 5))
-        ends = jnp.asarray([a0, b0])
-        for j, bj in enumerate(basis):
-            w = R1(R2(Lc(bj)))
-            A[0:2, j] = np.asarray(w(ends))
-            A[2:4, j] = np.asarray(bj(ends))
-        rhs = np.concatenate([np.asarray(R1(R2f)(ends)),
-                              [lbc, rbc]])
-        coef = np.linalg.lstsq(A, rhs, rcond=None)[0]
-        z = basis[0] * float(coef[0])
-        for j in range(1, 5):
-            z = z + basis[j] * float(coef[j])
-        g = Pi(R2f - R2(Lc(z)))
-    else:
-        g = PiR2f
-        z = 0.0 * f
-    return T, R1, Pi, g, z
 
 
 def _norm2(u):
@@ -543,93 +479,452 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
             iteration, relres = ii, relative(normr_act)
     return output(R1(u)+z, flag, relres, iteration)
 
-def gmres(N, f, tol: float = 1e-10, maxit: int = 60, full_output: bool = False):
-    """GMRES on chebfuns for the preconditioned operator (MATLAB
-    @chebop/gmres.m).
+
+
+
+
+def _gmres_is_empty(value: Any) -> bool:
+    """Eager adapter for MATLAB isempty on optional Python arguments."""
+    if value is None:
+        return True
+    if isinstance(value, (list, tuple)) and not value:
+        return True
+    if getattr(value, "size", None) == 0:
+        return True
+    return bool(getattr(value, "isempty", lambda: False)())
+
+
+def _gmres_norm(u) -> float:
+    """Continuous Chebfun L2 norm, converted to a host control scalar."""
+    return float(jnp.sqrt(jnp.abs(jnp.asarray(u.inner(u)))))
+
+
+def _gmres_ip(u, v):
+    """MATLAB ``Q(:,k)'*v`` inner product (conjugates the first argument)."""
+    return jnp.asarray(u.inner(v))
+
+
+def _gmres_endpoint_values(f, endpoints):
+    values = jnp.asarray(f(jnp.asarray(endpoints, dtype=jnp.float64)))
+    return jnp.reshape(values, (-1,))
+
+
+def _gmres_domain_pair(f):
+    domain = f.domain.breakpoints
+    if len(domain) < 2:
+        raise ValueError("GMRES requires a nonempty interval domain.")
+    return domain[0], domain[-1]
+
+
+def _gmres_same_domain(f, u0) -> bool:
+    """MATLAB domainCheck endpoint comparison with its relative hscale."""
+    from chebfunjax.chebfun1d.chebfun import _hscale
+
+    try:
+        ends_f = jnp.asarray([f.domain.a, f.domain.b], dtype=jnp.float64)
+        ends_u = jnp.asarray([u0.domain.a, u0.domain.b], dtype=jnp.float64)
+        error = jnp.abs(ends_f - ends_u)
+        threshold = 1e-15 * max(_hscale(f), _hscale(u0))
+        # MATLAB domainCheck accepts NaN endpoint differences (notably Inf-Inf).
+        return bool(jnp.all((error < threshold) | jnp.isnan(error)))
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
+def _gmres_add_scaled(basis, coefficients):
+    """Form a function-space linear combination without sampled vectors."""
+    out = 0.0 * basis[0]
+    for j, coefficient in enumerate(coefficients):
+        out = out + coefficient * basis[j]
+    return out
+
+
+def _gmres_warning(message):
+    warnings.warn(message, RuntimeWarning, stacklevel=3)
+
+
+def _gmres_apply_source_op(N, x, value, nargs):
+    """Apply a one- or two-argument operator on the RHS domain."""
+    if nargs == 1:
+        return N.op(value)
+    if nargs == 2:
+        return N.op(x, value)
+    raise ValueError("chebop:pcg:DiffOpNargin")
+
+
+def _prepare_gmres_operator(N, f, *, validate=True):
+    """Validate and mine the source divergence-form second-order operator.
+
+    The coefficient identities are copied from ``@chebop/gmres.m``. In
+    particular ``b*diff(v)`` is retained, so nonsymmetric source operators
+    are not silently converted to self-adjoint form.
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
+    if validate and not N._is_linear():
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:nonlinear: GMRES supports only linear CHEBOP instances."
+        )
+    if validate and N.linop().blocks[0][0].order != 2:
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:DiffOrder: GMRES supports only second-order ODEs."
+        )
+    if validate and f is None:
+        raise ValueError("CHEBFUN:CHEBOP:gmres:NotEnoughInputs")
+
+    a0, b0 = _gmres_domain_pair(f)
+    x = Chebfun.identity(f.domain)
+    one = 1.0 + 0.0 * x
+    # Source accepts L(u) and L(x,u), and mines on domain(f), not domain(N).
+    nargs = N._op_nargs()
+    if nargs not in (1, 2):
+        raise ValueError("chebop:pcg:DiffOpNargin")
+
+    def source_op(value):
+        return _gmres_apply_source_op(N, x, value, nargs)
+
+    c = source_op(one)
+    b_minus_a = source_op(x) - c * x
+    a = -source_op(x**2 / 2.0) + b_minus_a * x + c * x**2 / 2.0
+    b = b_minus_a + a.diff()
+
+    def lhat(v):
+        return -(a * v.diff()).diff() + b * v.diff() + c * v
+
+    return x, lhat, (a0, b0)
+
+
+def _gmres_source(
+    N,
+    f,
+    restart=None,
+    tol=None,
+    maxit=None,
+    R1=None,
+    R2=None,
+    u0=None,
+    *,
+    full_output=False,
+):
+    """Source-shaped GMRES kernel; numerical qualification is pending.
+
+    Parameters follow MATLAB ``gmres(N,f,restart,tol,maxit,R1,R2,u0)``.
+    ``full_output`` is a Python keyword adapter for MATLAB's multiple returns.
+    The returned ``iteration`` is always represented by a two-entry integer
+    JAX array when that output is assigned by the source.
+    """
+    from chebfunjax.chebpref import ChebopPref
+    from chebfunjax.operators.krylov import _minres_basic_correction
+
+    # Match source validation order: linearity/order checks precede missing f.
+    if not N._is_linear():
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:nonlinear: GMRES supports only linear CHEBOP instances."
+        )
+    if N.linop().blocks[0][0].order != 2:
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:DiffOrder: GMRES supports only second-order ODEs."
+        )
+    if f is None:
+        raise ValueError("CHEBFUN:CHEBOP:gmres:NotEnoughInputs")
+
+    n2f = _gmres_norm(f)
+    # MATLAB accepts only numeric scalar Dirichlet endpoint data here.
+    left_bc, right_bc = getattr(N, "lbc", None), getattr(N, "rbc", None)
+    if _gmres_is_empty(left_bc):
+        left_bc = 0.0
+    elif not isinstance(left_bc, Real) or isinstance(left_bc, bool):
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:leftbc: GMRES only supports Dirichlet boundary "
+            "conditions. Please supply N.lbc = double."
+        )
+    if _gmres_is_empty(right_bc):
+        right_bc = 0.0
+    elif not isinstance(right_bc, Real) or isinstance(right_bc, bool):
+        # Preserve the pinned source's literal (left-boundary) wording.
+        raise ValueError(
+            "CHEBFUN:CHEBOP:pcg:rightbc: GMRES only supports Dirichlet boundary "
+            "conditions. Please supply N.lbc = double."
+        )
+    left_bc, right_bc = float(left_bc), float(right_bc)
+
+    # MATLAB callback arity handling and operator coefficient mining occur
+    # before tolerance/restart/preconditioner option processing.
+    x, lhat, (a0, b0) = _prepare_gmres_operator(N, f, validate=False)
+
+    # MATLAB uses nargin, so None/list empties stand in for omitted parameters.
+    restarted = not _gmres_is_empty(restart)
+    pref = ChebopPref()
+    if _gmres_is_empty(tol):
+        tol = float(pref.bvpTol)
+    else:
+        tol = float(tol)
+    warned = False
+    eps = float(jnp.finfo(jnp.float64).eps)
+    if tol < eps:
+        _gmres_warning("CHEBFUN:CHEBOP:gmres:tooSmallTolerance")
+        warned = True
+        tol = eps
+    elif tol >= 1.0:
+        _gmres_warning("CHEBFUN:CHEBOP:gmres:tooBigTolerance")
+        warned = True
+        tol = 1.0 - eps
+    if _gmres_is_empty(maxit):
+        maxit = int(pref.maxIter)
+    maxit = int(maxit)
+    if restarted:
+        outer, inner = maxit, int(restart)
+    else:
+        outer, inner = 1, maxit
+    if not _gmres_is_empty(R1):
+        raise ValueError("chebop:gmres:OnlyDefaultPreconditionerAllowed")
+    if not _gmres_is_empty(R2):
+        raise ValueError("chebop:gmres:OnlyDefaultPreconditionerAllowed")
+
+    def r1(v):
+        return v.cumsum()
+
+    def r2(v):
+        return v.sum() - v.cumsum()
+
+    def pi(v):
+        return v - v.mean()
+
+    def apply_t(v):
+        return pi(r2(lhat(r1(v))))
+
+    if not _gmres_is_empty(u0):
+        if not _gmres_same_domain(f, u0):
+            raise ValueError("chebop:pcg:WrongInitGuessDomain")
+        u = u0
+        tu = apply_t(u)
+    else:
+        u = 0.0 * f
+        tu = u
+
+    # This helper is called with a Python signature, so only positional source
+    # arity can be handled by its wrapper. It intentionally does not invent a
+    # test for source nargin > 8.
+    R2f = r2(f)
+    PiR2f = pi(R2f)
+    if (
+        _gmres_norm(R2f - PiR2f) > tol
+        or abs(left_bc) > tol
+        or abs(right_bc) > tol
+    ):
+        basis = [x**j for j in range(5)]
+        endpoints = jnp.asarray([a0, b0], dtype=jnp.float64)
+        matrix_rows = []
+        for basis_j in basis:
+            top = _gmres_endpoint_values(r1(r2(lhat(basis_j))), endpoints)
+            bottom = _gmres_endpoint_values(basis_j, endpoints)
+            matrix_rows.append(jnp.concatenate((top, bottom)))
+        matrix = jnp.stack(matrix_rows, axis=1)
+        rhs = jnp.concatenate(
+            (_gmres_endpoint_values(r1(R2f), endpoints),
+             jnp.asarray([left_bc, right_bc], dtype=jnp.float64))
+        )
+        z_coeff = _minres_basic_correction(matrix, rhs)
+        z = _gmres_add_scaled(basis, z_coeff)
+        g = pi(R2f - r2(lhat(z)))
+    else:
+        g = PiR2f
+        z = 0.0 * f
+
+    flag = 1
+    umin = u
+    imin = jnp.asarray(0, dtype=jnp.int32)
+    jmin = jnp.asarray(0, dtype=jnp.int32)
+    tolg = tol * _gmres_norm(g)
+    stag = 0
+    moresteps = 0
+    maxmsteps = 5
+    maxstagsteps = 3
+    minupdated = False
+
+    r = g - tu
+    normr = _gmres_norm(r)
+    normr_act = normr
+    if normr <= tolg:
+        # Source's first exit omits ITER and returns scalar RESVEC. The tuple
+        # adapter uses [0,0] and a one-entry residual array for stable Python.
+        flag = 0
+        # Keep source 0/0 behavior for a homogeneous zero RHS. Python-float
+        # division would raise instead of returning NaN.
+        relres = jnp.asarray(normr, dtype=jnp.float64) / jnp.asarray(
+            n2f, dtype=jnp.float64
+        )
+        resvec = jnp.asarray([normr], dtype=jnp.float64)
+        sol = r1(pi(u)) + z
+        result = (sol, flag, relres, jnp.asarray([0, 0]), resvec)
+        return result if full_output else sol
+
+    normr = _gmres_norm(r)
+    n2g = _gmres_norm(g)
+    tolg = tol * n2g
+    if normr <= tolg:
+        # Deliberately source-shaped: this second exit does not undo R1/add z.
+        flag = 0
+        relres = normr / n2g
+        result = (u, flag, relres, jnp.asarray([0, 0]),
+                  jnp.asarray([n2g], dtype=jnp.float64))
+        return result if full_output else u
+
+    resvec = jnp.zeros(inner * outer + 1, dtype=jnp.float64)
+    resvec = resvec.at[0].set(normr)
+    normrmin = normr
+    resvec_index = 1
+    iter_out = 0
+    iter_in = 0
+    for outiter in range(1, outer + 1):
+        qtb = jnp.asarray([_gmres_norm(r)], dtype=jnp.float64)
+        Q = [r / qtb[0]]
+        H = jnp.zeros((inner + 1, inner), dtype=jnp.float64)
+        P = None
+        R = None
+        cycle_last = 0
+        for initer in range(1, inner + 1):
+            q = Q[initer - 1]
+            v = apply_t(q)
+            for k in range(1, initer + 1):
+                hki = _gmres_ip(Q[k - 1], v)
+                H = H.at[k - 1, initer - 1].set(jnp.real(hki))
+                v = v - hki * Q[k - 1]
+            beta_v = _gmres_norm(v)
+            H = H.at[initer, initer - 1].set(beta_v)
+            qtb = jnp.concatenate((qtb, jnp.zeros((1,), dtype=qtb.dtype)))
+            Qnew, Rfull = jnp.linalg.qr(H[:initer + 1, :initer], mode="complete")
+            P, R = Qnew, Rfull
+            # Literal source divides even in a breakdown column.
+            Q.append(v / beta_v)
+            normr = float(jnp.abs(P[0, initer] * qtb[0]))
+            resvec = resvec.at[resvec_index].set(normr)
+            resvec_index += 1
+            normr_act = normr
+            cycle_last = initer
+            iter_out, iter_in = outiter, initer
+
+            if normr <= tolg or stag >= maxstagsteps or moresteps:
+                triangular_rhs = P[:, :initer].conj().T @ qtb
+                y = jax.scipy.linalg.solve_triangular(
+                    R[:initer, :initer], triangular_rhs[:initer], lower=False
+                )
+                additive = _gmres_add_scaled(Q[:initer], y)
+                if _gmres_norm(additive) < eps * _gmres_norm(u):
+                    stag += 1
+                else:
+                    stag = 0
+                um = u + additive
+                r = g - apply_t(um)
+                normr_act = _gmres_norm(r)
+                resvec = resvec.at[resvec_index - 1].set(normr_act)
+                if normr_act <= normrmin:
+                    normrmin = normr_act
+                    imin = jnp.asarray(outiter, dtype=jnp.int32)
+                    jmin = jnp.asarray(initer, dtype=jnp.int32)
+                    umin = um
+                    minupdated = True
+                if normr_act <= tolg:
+                    u = um
+                    flag = 0
+                    break
+                if stag >= maxstagsteps and moresteps == 0:
+                    stag = 0
+                moresteps += 1
+                if moresteps >= maxmsteps:
+                    if not warned:
+                        _gmres_warning("chebop:gmres:tooSmallTolerance")
+                    flag = 3
+                    break
+
+            if normr_act <= normrmin:
+                normrmin = normr_act
+                imin = jnp.asarray(outiter, dtype=jnp.int32)
+                jmin = jnp.asarray(initer, dtype=jnp.int32)
+                minupdated = True
+            if stag >= maxstagsteps:
+                flag = 3
+                break
+
+        if flag != 0:
+            idx = int(jmin) if minupdated else cycle_last
+            idx = max(1, idx)
+            triangular_rhs = P[:, :idx].conj().T @ qtb
+            y = jax.scipy.linalg.solve_triangular(
+                R[:idx, :idx], triangular_rhs[:idx], lower=False
+            )
+            additive = _gmres_add_scaled(Q[:idx], y)
+            u = u + additive
+            umin = u
+            r = g - apply_t(u)
+            normr_act = _gmres_norm(r)
+
+        if normr_act <= normrmin:
+            umin = u
+            normrmin = normr_act
+            imin = jnp.asarray(outiter, dtype=jnp.int32)
+            jmin = jnp.asarray(cycle_last, dtype=jnp.int32)
+        if flag == 3:
+            break
+        if normr_act <= tolg:
+            flag = 0
+            iter_out, iter_in = outiter, cycle_last
+            break
+        minupdated = False
+
+    if flag == 0:
+        relres = normr_act / n2g
+        iteration = jnp.asarray([iter_out, iter_in], dtype=jnp.int32)
+    else:
+        u = umin
+        iteration = jnp.asarray([imin, jmin], dtype=jnp.int32)
+        relres = normr_act / n2g
+    sol = r1(u) + z
+    resvec = resvec[:resvec_index]
+    result = (sol, flag, relres, iteration, resvec)
+    return result if full_output else sol
+
+
+def gmres(
+    N,
+    f,
+    restart=None,
+    tol=None,
+    maxit=None,
+    R1=None,
+    R2=None,
+    u0=None,
+    *,
+    full_output: bool = False,
+):
+    """Source-shaped scalar Chebop GMRES entry point.
 
     Provenance
     ----------
     MATLAB source : @chebop/gmres.m
     Chebfun commit: 7574c77
+
+    Omitted ``tol`` and ``maxit`` use the current ``ChebopPref`` values.
+    ``full_output`` is the Python keyword adapter for MATLAB's multiple return
+    values; ``iteration`` remains the source two-entry outer/inner pair.
     """
-    return _arnoldi_solve(N, f, tol, maxit, full_output)
+    return _gmres_source(
+        N,
+        f,
+        restart=restart,
+        tol=tol,
+        maxit=maxit,
+        R1=R1,
+        R2=R2,
+        u0=u0,
+        full_output=full_output,
+    )
 
 
 def _arnoldi_solve(N, f, tol, maxit, full_output=False):
-    """GMRES/MINRES in function space, discretized on a fixed fine
-    Clenshaw-Curtis grid: the Krylov vectors live as value arrays (so
-    orthogonalization is cheap numpy work) while each operator
-    application T = Pi R2 L R1 runs through the chebfun calculus.
-    Keeping the Q basis as chebfuns made the k-term Gram-Schmidt walk
-    ever-growing representations (a 30-minute iteration by k ~ 20).
+    """Private legacy call adapter to source function-space JAX GMRES.
+
+    Existing MINRES regression guards monkeypatch this name to reject an
+    accidental Arnoldi fallback. Numerical work uses the source GMRES path.
     """
-    from chebfunjax.utils.quadrature import chebpts, chebweights
-
-    T, R1, Pi, g, z = _setup(N, f)
-    dom = tuple(float(v) for v in N.domain)
-    a0, b0 = dom[0], dom[-1]
-    n = 1024
-    xg = np.array(chebpts(n))
-    wq = np.array(chebweights(n)) * (b0 - a0) / 2.0
-    xs = a0 + (b0 - a0) * (xg + 1.0) / 2.0
-    xj = jnp.asarray(xs)
-
-    def to_vals(u):
-        return np.asarray(u(xj), dtype=float)
-
-    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-    from chebfunjax.domain import Domain
-    from chebfunjax.tech.chebtech import Chebtech2
-
-    def to_fun(v):
-        # Direct Chebyshev fit + assembly: routing through the adaptive
-        # constructor re-sampled the polynomial hundreds of times per
-        # Krylov iteration (~12 s/iter -> GMRES minutes per case).
-        c = np.polynomial.chebyshev.chebfit(xg, v, min(n - 1, 260))
-        tol_c = 1e-14 * max(1.0, float(np.max(np.abs(c))))
-        keep = np.nonzero(np.abs(c) > tol_c)[0]
-        c = c[: (keep[-1] + 1)] if keep.size else c[:1]
-        tech = Chebtech2.from_coeffs(jnp.asarray(c, dtype=jnp.float64))
-        return Chebfun(funs=[_Piece(tech=tech, interval=(a0, b0))],
-                       domain=Domain((a0, b0)))
-
-    def ip(u, v):
-        return float(np.sum(wq * u * v))
-
-    gv = to_vals(g)
-    beta = float(np.sqrt(ip(gv, gv)))
-    if beta == 0.0:
-        sol = z + 0.0 * f
-        return (sol, 0, 0.0, 0, np.zeros(1)) if full_output else sol
-    Q = [gv / beta]
-    H = np.zeros((maxit + 1, maxit))
-    tolf = tol * beta
-    k_used = 0
-    resvec = [beta]
-    flag = 1
-    for k in range(maxit):
-        w = to_vals(T(to_fun(Q[k]).simplify()))
-        for j in range(k + 1):
-            H[j, k] = ip(Q[j], w)
-            w = w - H[j, k] * Q[j]
-        H[k + 1, k] = float(np.sqrt(max(ip(w, w), 0.0)))
-        k_used = k + 1
-        e1 = np.zeros(k + 2)
-        e1[0] = beta
-        y, _, _, _ = np.linalg.lstsq(H[:k + 2, :k + 1], e1, rcond=None)
-        resid = float(np.linalg.norm(H[:k + 2, :k + 1] @ y - e1))
-        resvec.append(resid)
-        if resid <= tolf or H[k + 1, k] < 1e-14 * beta:
-            flag = 0
-            break
-        Q.append(w / H[k + 1, k])
-    e1 = np.zeros(k_used + 1)
-    e1[0] = beta
-    y, _, _, _ = np.linalg.lstsq(H[:k_used + 1, :k_used], e1, rcond=None)
-    uv = sum(float(y[j]) * Q[j] for j in range(k_used))
-    u = to_fun(uv).simplify()
-    sol = z + R1(Pi(u))
-    if full_output:
-        # MATLAB [u, flag, relres, iter, resvec] = gmres/minres(...)
-        return sol, flag, resvec[-1] / beta, k_used, np.asarray(resvec)
-    return sol
+    return gmres(N, f, tol=tol, maxit=maxit, full_output=full_output)
