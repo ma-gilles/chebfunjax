@@ -1239,9 +1239,22 @@ def contour_sphere(
     sphere_color : tuple, optional (default: off-white)
     cmap : colormap, optional (default: parula)
 
+    Standard Matplotlib line properties in ``kw`` override defaults on
+    the 3D contour lines, including lines selected with ``fmt``.
+
     Returns
     -------
     fig, ax
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/contour.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    The source extracts LineWidth, LineStyle and Color from the temporary
+    contour object and passes them to plot3 for each intrinsic contour.
+    This adapter forwards Python line properties to each 3D artist.
     """
     # MATLAB convention: contour(f, [v v]) draws the single level v.
     if not np.isscalar(levels):
@@ -1310,14 +1323,17 @@ def contour_sphere(
             clr = next((ch for ch in fmt if ch in "bgrcmykw"), "k")
             lstyle = next((ls for ls in ("--", "-.", ":", "-")
                            if ls in fmt), "-")
-            ax.plot(xv, yv, zv, color=clr, linestyle=lstyle, linewidth=1.0)
+            line_options = {"color": clr, "linestyle": lstyle,
+                            "linewidth": 1.0, **kw}
+            ax.plot(xv, yv, zv, **line_options)
             continue
         if len(level_list) > 1:
             idx = np.argmin(np.abs(lev_val - level_list))
             clr = clrmap[idx, :3]
         else:
             clr = 'k'
-        ax.plot(xv, yv, zv, color=clr, linewidth=1.0)
+        line_options = {"color": clr, "linewidth": 1.0, **kw}
+        ax.plot(xv, yv, zv, **line_options)
 
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
