@@ -37,6 +37,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
 from matplotlib.colors import LightSource, Normalize
+from mpl_toolkits.mplot3d.art3d import Line3D
 
 from chebfunjax.utils.quadrature import chebpts, trigpts
 
@@ -276,10 +277,12 @@ def _matlab_facecolors(
     shade_data: np.ndarray | None = None,
     *,
     apply_lighting: bool = False,
+    norm: Normalize | None = None,
 ) -> np.ndarray:
     """Map scalar values to RGBA facecolors, optionally with headlight shading."""
     cmap_obj = _coerce_cmap(cmap)
-    norm = _normalize_values(values)
+    if norm is None:
+        norm = _normalize_values(values)
     rgba = cmap_obj(norm(values))
     if apply_lighting and shade_data is not None:
         ls = LightSource(azdeg=315, altdeg=45)
@@ -308,7 +311,7 @@ def _draw_sphere_background(
     xs = scale * np.outer(np.cos(u), np.sin(v))
     ys = scale * np.outer(np.sin(u), np.sin(v))
     zs = scale * np.outer(np.ones_like(u), np.cos(v))
-    ax.plot_surface(
+    surface = ax.plot_surface(
         xs,
         ys,
         zs,
@@ -318,6 +321,7 @@ def _draw_sphere_background(
         shade=False,
         alpha=alpha,
     )
+    surface._chebfun_sphere_radius = scale
 
 
 def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
@@ -1010,8 +1014,9 @@ def plot_sphere(
     n_grid_th: int = 12,
     n_lam: int = None,  # backward-compat alias for n_pts
     n_theta: int = None,  # backward-compat (ignored; grid is uniform)
+    return_mappable: bool = False,
     **kw,
-) -> tuple[plt.Figure, Any]:
+) -> tuple[plt.Figure, Any] | tuple[plt.Figure, Any, Any]:
     """Plot a Spherefun on the unit sphere (MATLAB Chebfun style).
 
     Faithful translation of @spherefun/surf.m from MATLAB Chebfun.
@@ -1034,9 +1039,14 @@ def plot_sphere(
     n_grid_lam, n_grid_th : int
         Number of grid lines in lon/lat directions.
 
+    return_mappable : bool
+        If True, return (fig, ax, mappable) for a colorbar of the corrected
+        plotting grid. The mappable is a snapshot: its set_clim, set_cmap,
+        and set_array methods do not recolor the existing surface.
+
     Returns
     -------
-    fig, ax
+    fig, ax, optionally mappable
 
     Provenance
     ----------
@@ -1045,6 +1055,8 @@ def plot_sphere(
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
     Retain the theta-by-longitude tensor grid during factor evaluation.
+    Source surf retains corrected C as surface color data. The optional
+    Matplotlib scalar mappable exposes that same grid and color scale.
     """
     import jax.numpy as jnp
 
@@ -1100,13 +1112,17 @@ def plot_sphere(
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
                                  figsize=(6.1, 2.75), fill_canvas=False)
 
+        color_norm = _normalize_values(C)
         facecolors = _matlab_facecolors(
             C,
             cmap_obj,
             shade_data=zz,
             apply_lighting=(projection.lower() == "bumpy"),
+            norm=color_norm,
         )
-        ax.plot_surface(xx, yy, zz, facecolors=facecolors, **default_opts, **kw)
+        surface = ax.plot_surface(xx, yy, zz, facecolors=facecolors, **default_opts, **kw)
+        if projection.lower() == "sphere":
+            surface._chebfun_sphere_radius = 1.0
 
         if grid:
             # Lines of longitude
@@ -1138,7 +1154,7 @@ def plot_sphere(
         else:
             fig = ax.get_figure()
 
-        ax.pcolormesh(xh, yh, C, cmap=cmap_obj, shading='auto', **kw)
+        mesh = ax.pcolormesh(xh, yh, C, cmap=cmap_obj, shading='auto', **kw)
 
         if grid:
             xg, yg = _sph2map(projection, llgl, ttgl)
@@ -1155,6 +1171,19 @@ def plot_sphere(
         ax.set_title(title, fontsize=10, pad=0)
     fig.set_facecolor("white")
     fig.tight_layout(pad=0.5)
+    if return_mappable:
+        from copy import copy
+
+        from matplotlib.cm import ScalarMappable
+
+        if projection.lower() not in ("sphere", "bumpy"):
+            # Preserve pcolormesh normalization/custom norms, but detach the
+            # snapshot so set_clim does not change the existing map artist.
+            color_norm = copy(mesh.norm)
+            cmap_obj = mesh.cmap
+        mappable = ScalarMappable(norm=color_norm, cmap=cmap_obj)
+        mappable.set_array(C)
+        return fig, ax, mappable
     return fig, ax
 
 
@@ -4629,7 +4658,11 @@ def plot_earth(ax, linespec: str = "k-", **kw):
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data",
                         "CoastData.mat")
     coast = np.asarray(loadmat(path)["coast"], dtype=float)
-    return ax.plot(coast[:, 0], coast[:, 1], coast[:, 2], linespec, **kw)
+    lines = ax.plot(coast[:, 0], coast[:, 1], coast[:, 2], linespec, **kw)
+    for line in lines:
+        line.__class__ = _SphereCoastLine
+        line._coast_auto_zorder = "zorder" not in kw
+    return lines
 
 
 def matlab_view(ax, azimuth, elevation):
@@ -4647,3 +4680,126 @@ def matlab_view(ax, azimuth, elevation):
     """
     ax.view_init(elev=float(elevation), azim=float(azimuth) - 90.0)
     return ax
+
+
+def _sphere_visible_vertices(points, projection, radius):
+    """Test open sphere intersection along the point-to-camera ray segment.
+
+    Matplotlib's get_proj matrices include world scaling and camera roll.
+    Inverse column 2 is the perspective eye in homogeneous coordinates; for
+    orthographic matrices its negative spatial part points toward the eye.
+    Clamping the closest-point parameter includes interior starting points.
+    Boundary comparisons use outward arithmetic bounds instead of a fitted
+    epsilon. This remains analytic sphere geometry, not a mesh depth buffer.
+    """
+    points = jnp.asarray(points, dtype=jnp.float64)
+    eye_h = jnp.linalg.inv(jnp.asarray(projection))[:, 2]
+    if bool(eye_h[3] == 0):
+        ray = jnp.broadcast_to(-eye_h[:3], points.shape)
+        maximum = jnp.inf
+    else:
+        ray = eye_h[:3] / eye_h[3] - points
+        maximum = 1.0
+    norm2 = jnp.sum(ray * ray, axis=1)
+    parameter = -jnp.sum(points * ray, axis=1) / jnp.where(norm2 > 0, norm2, 1.0)
+    parameter = jnp.clip(parameter, 0.0, maximum)
+    distance_upper = _sphere_ray_distance2_upper(points, ray, parameter)
+    # Definite open-ball intersection only. An overlap between arithmetic
+    # enclosures is a boundary ambiguity, so retain the source vertex.
+    radius = jnp.asarray(radius, dtype=points.dtype)
+    radius_lower = jnp.nextafter(radius * radius, -jnp.inf)
+    occluded = distance_upper < radius_lower
+    finite = jnp.all(jnp.isfinite(points), axis=1) & (norm2 > 0)
+    return finite & ~occluded
+
+
+
+def _sphere_ray_distance2_upper(points, ray, parameter):
+    """Outward binary64 bound for ||points + parameter*ray|| squared.
+
+    Each correctly rounded multiply/add lies between adjacent floats around
+    its computed result. Propagate those intervals through the affine point,
+    square their largest absolute endpoints, then bound the three products
+    and two additions with gamma_5=5u/(1-5u). No camera uncertainty or
+    polygonal-surface approximation is hidden in this arithmetic bound.
+    """
+    parameter = parameter[:, None]
+    product = parameter * ray
+    lower = jnp.nextafter(points + jnp.nextafter(product, -jnp.inf), -jnp.inf)
+    upper = jnp.nextafter(points + jnp.nextafter(product, jnp.inf), jnp.inf)
+    # Multiplication by zero and addition of signed zero are exact for our
+    # finite real points/rays. Avoid charging an unnecessary affine error.
+    lower = jnp.where(parameter == 0, points, lower)
+    upper = jnp.where(parameter == 0, points, upper)
+    extent = jnp.maximum(jnp.abs(lower), jnp.abs(upper))
+    squared = extent * extent
+    total = (squared[:, 0] + squared[:, 1]) + squared[:, 2]
+    # Five operations: three products and two nonnegative additions. The
+    # conservative gamma_5 relative forward bound remains valid if the
+    # compiler fuses operations (which reduces their number). Round gamma
+    # upward, its complementary denominator downward, and the result upward.
+    unit_roundoff = jnp.finfo(points.dtype).eps / 2
+    gamma = jnp.nextafter(5 * unit_roundoff / (1 - 5 * unit_roundoff), jnp.inf)
+    denominator = jnp.nextafter(1 - gamma, -jnp.inf)
+    return jnp.nextafter(total / denominator, jnp.inf)
+
+def _coast_opaque_spheres(ax):
+    """Return live opaque sphere artists registered by sphere plot helpers.
+
+    Unregistered, removed, hidden, or transparent artists do not introduce a
+    fictitious occluder. Reading Matplotlib RGBA buffers is host interop; the
+    alpha reduction uses JAX. General mesh occlusion is outside this adapter.
+    """
+    if ax is None:
+        return []
+    out = []
+    for artist in ax.collections:
+        radius = getattr(artist, '_chebfun_sphere_radius', None)
+        if radius is None or not artist.get_visible():
+            continue
+        alpha = artist.get_alpha()
+        if alpha is not None and not bool(jnp.all(jnp.asarray(alpha) == 1.0)):
+            continue
+        rgba = jnp.asarray(artist.get_facecolor())
+        if rgba.size == 0 or not bool(jnp.all(rgba[..., 3] == 1.0)):
+            continue
+        out.append((artist, radius))
+    return out
+
+
+class _SphereCoastLine(Line3D):
+    """Retain source coastline data while masking a known opaque sphere.
+
+    Source: @spherefun/plotEarth.m, Chebfun 7574c77, draws the stored polyline
+    without radial changes. This renderer adapter does not alter the asset.
+    """
+
+    def set_zorder(self, level):
+        self._coast_auto_zorder = False
+        return super().set_zorder(level)
+
+    def get_zorder(self):
+        level = super().get_zorder()
+        if (getattr(self, '_coast_auto_zorder', False)
+                and self.axes is not None and self.axes.computed_zorder):
+            # Follow only the owning sphere surfaces. An unrelated collection
+            # must not force the line over the entire scene.
+            for artist, _ in _coast_opaque_spheres(self.axes):
+                level = max(level, artist.get_zorder() + 0.1)
+        return level
+
+    def draw(self, renderer):
+        spheres = _coast_opaque_spheres(self.axes)
+        if not spheres or not self.get_visible():
+            return super().draw(renderer)
+        original = self.get_data_3d()
+        points = jnp.stack([jnp.asarray(part) for part in original], axis=1)
+        # Registered surfaces are concentric; their union is the largest ball.
+        radius = max(radius for _, radius in spheres)
+        visible = _sphere_visible_vertices(points, self.axes.M, radius)
+        displayed = np.asarray(jnp.where(visible[:, None], points, jnp.nan))
+        self._verts3d = tuple(displayed[:, k] for k in range(3))
+        try:
+            super().draw(renderer)
+        finally:
+            self._verts3d = original

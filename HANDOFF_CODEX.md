@@ -11,6 +11,24 @@ Use gh-cli, explicit staging, GPT-6 trailer and full Ruff gates. CPU only;
 heavy examples/tests serial; at most two helpers, Astra medium for numerical
 review as requested and cheap routine execution. Freeze qualification inputs.
 
+P104 8e0155ec666a4aa05db0196b0076664ff7d3c9c1 is pushed with the62-case
+short-sum/channel and camera qualification below. New CPU exp diagnostic13
+selected inputs/12paths/threeflagsettings found identical output bits; HIGHEST
+requested in HLO did not repair one-ulp errors. C1 remains open.
+
+A coastline renderer correction passed41focused CPU cases in30.062s;
+new general colorbar adapter is under combined frozen qualification: actual registered
+opaque sphere artists govern masking; hidden/removed/transparent artists and
+user zorder are respected. Conservative JAX ray arithmetic retains ambiguous
+front boundary points without moving CoastData. P104 actual-artist baseline
+two true rendering failures and one harness import error in first gate;
+corrected-import isolated baseline and complete candidate gates are recorded. This is analytic sphere
+visibility, not exact faceted-mesh depth; near-limb segments, source framing,
+full pixel parity remain open. The opt-in scalar mappable uses the exact
+corrected plotted tensor C and same normalization; it is documented as a
+snapshot, preserving explicit/bumpy surface colors. Baseline7API controls fail
+before this adapter. Constant CLim/face interpolation/custom norms remain open.
+
 P103 ab9b4feaf51c1db30f1128c035ab7ec9d17ad541 is pushed. It replaces dense
 adaptive sphere output with literal northern-grid construction using JAX FFTs
 and preserves tensor plotting arguments. Frozen29small plus11solver cases pass,
