@@ -25,6 +25,7 @@ import jax.numpy as jnp
 
 from chebfunjax.domain import Domain, _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.utils.elementary import _atanh_log1p_real
 
 if TYPE_CHECKING:
     from chebfunjax.chebfun1d.linalg import Quasimatrix
@@ -9476,13 +9477,13 @@ _EXTRA_ELEMENTWISE = {
     "coth": lambda x: 1.0 / jnp.tanh(x),
     "asinh": jnp.arcsinh,
     "acosh": jnp.arccosh,
-    "atanh": jnp.arctanh,
+    "atanh": _atanh_log1p_real,
     "asec": lambda x: jnp.arccos(1.0 / x),
     "acsc": lambda x: jnp.arcsin(1.0 / x),
     "acot": lambda x: jnp.arctan(1.0 / x),
     "asech": lambda x: jnp.arccosh(1.0 / x),
     "acsch": lambda x: jnp.arcsinh(1.0 / x),
-    "acoth": lambda x: jnp.arctanh(1.0 / x),
+    "acoth": lambda x: _atanh_log1p_real(1.0 / x),
     "sind": lambda x: jnp.sin(_DEG2RAD * x),
     "cosd": lambda x: jnp.cos(_DEG2RAD * x),
     "tand": lambda x: jnp.tan(_DEG2RAD * x),
