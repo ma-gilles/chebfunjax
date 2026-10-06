@@ -550,11 +550,12 @@ plot = plot_1d
 def plotcoeffs(
     f,
     ax: Optional[plt.Axes] = None,
-    title: str = "Chebyshev coefficients",
-    color: str = CHEBFUN_BLUE,
+    title: Optional[str] = None,
+    color: Optional[Any] = None,
     envelope: bool = True,
     loglog: bool = False,
     fmt: Optional[str] = None,
+    source: bool = False,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Semilogy plot of |Chebyshev coefficients| of *f*.
@@ -575,11 +576,34 @@ def plotcoeffs(
         Colour of the dots.
     envelope : bool, optional
         If ``True`` (default) overlay a running-max envelope line.
+    source : bool, optional
+        If ``True``, use MATLAB Chebfun's tech-dispatched plotcoeffs policy.
+        The legacy renderer remains the default. Source calls recognize
+        ``hold=True`` to preserve supplied axes artists and held limits;
+        the MATLAB default (hold off) clears the supplied axes. Default
+        colors map the graphics root to Matplotlib rcParams. Backend y-axis
+        autoscaling, ticks and pixel rendering remain Matplotlib adapters.
+        The source developer-only barplot option is not implemented.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plotcoeffs.m, @classicfun/plotcoeffs.m,
+                    @singfun/plotcoeffs.m, @chebtech/plotcoeffs.m,
+                    @trigtech/plotcoeffs.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 
     Returns
     -------
     fig, ax
     """
+    if source:
+        return _plotcoeffs_source(
+            f, ax=ax, title=title, color=color, loglog=loglog, fmt=fmt, **kw
+        )
+    if title is None:
+        title = "Chebyshev coefficients"
+    if color is None:
+        color = CHEBFUN_BLUE
     if ax is None:
         fig, ax = plt.subplots(figsize=(6, 3.5))
     else:
@@ -616,6 +640,161 @@ def plotcoeffs(
 
     _apply_style(ax, title=title, xlabel="degree $n$", ylabel="$|a_n|$")
     ax.set_ylim(bottom=max(coeffs.min() * 0.1, 1e-18))
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+def _plotcoeffs_source(f, ax=None, title=None, color=None,
+                       loglog=False, fmt=None, **kw):
+    """Opt-in MATLAB tech-dispatched policy; coefficient math stays in JAX."""
+    from itertools import cycle
+
+    from chebfunjax.fun.singfun import Singfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+    from chebfunjax.tech.trigtech import Trigtech
+
+    if kw.pop("barplot", False):
+        raise NotImplementedError(
+            "source=True does not port MATLAB's developer-only barplot option"
+        )
+    # Explicit adapter for MATLAB ishold: off by default; on retains artists.
+    hold_state = bool(kw.pop("hold", False))
+    markersize_arg = kw.pop("markersize", None)
+    color_codes = "bgrcmykw"
+    # @chebfun/plotcoeffs scans only the first format string when len < 4.
+    # Keep duplicates, as regexp in the MATLAB wrapper counts each occurrence.
+    fmt_colors = ([char for char in fmt if char in color_codes]
+                  if fmt is not None and len(fmt) < 4 else [])
+    if len(fmt_colors) > 1:
+        raise ValueError("source plotcoeffs accepts at most one format color")
+    fmt_color = fmt_colors[0] if fmt_colors else None
+    if (fmt is not None and len(fmt) >= 4
+            and any(char in color_codes for char in fmt)):
+        raise NotImplementedError(
+            "source color parsing for format strings of length four or more is unsupported"
+        )
+    plot_fmt = fmt or "."
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.get_figure()
+    if not hold_state:
+        ax.clear()
+        # MATLAB's default coefficient x-axis is tight. Map that renderer
+        # behavior explicitly rather than retaining Matplotlib's 5% margins.
+        ax.margins(x=0.0)
+    piece_held = hold_state
+    if getattr(f, "isempty", lambda: False)():
+        ax.plot([])
+        return fig, ax
+    cols = _cheb_cols(f)
+    if cols is None:
+        raise TypeError("source=True expects a Chebfun or quasimatrix")
+
+    # MATLAB queries root ColorOrder per call. Active Matplotlib rc cycle is
+    # the documented renderer mapping; no MATLAB RGB snapshot is hard-coded.
+    palette = mpl.rcParams["axes.prop_cycle"].by_key().get("color", [])
+    if not palette:
+        raise RuntimeError("source plotcoeffs requires an active Matplotlib color cycle")
+    colors = cycle(palette)
+    global_dom = cols[0].domain.breakpoints
+    last_kind = None
+    for matrix_col in cols:
+        ncols = int(matrix_col.n_columns)
+        for component in range(ncols):
+            # MATLAB mat2cell separates array-valued columns before dispatch.
+            col = (matrix_col.extract_columns(component)
+                   if ncols > 1 else matrix_col)
+            # A short first line-spec color wins over later Color options.
+            if fmt_color is not None:
+                draw_color = fmt_color
+            elif color is not None:
+                draw_color = color
+            else:
+                draw_color = next(colors)
+            for piece in col.funs:
+                tech = piece.tech
+                # @singfun/plotcoeffs forwards to smoothPart.
+                if isinstance(tech, Singfun):
+                    tech = tech.smoothPart
+                coeffs = jnp.abs(jnp.asarray(tech.coeffs))
+                if coeffs.ndim == 2 and coeffs.shape[1] == 1:
+                    coeffs = coeffs[:, 0]
+                if coeffs.ndim != 1:
+                    raise TypeError("source plotcoeffs requires an extracted scalar column")
+                n = int(coeffs.shape[0])
+                if isinstance(tech, Trigtech):
+                    last_kind = "fourier"
+                    modes = jnp.arange(n, dtype=jnp.float64) - (n // 2)
+                    if loglog:
+                        # Source cPos, NaN, reversed cNeg; zero repeats and
+                        # even Nyquist remains in cNeg.
+                        split = n // 2
+                        cpos = coeffs[split:]
+                        cneg = coeffs[split::-1]
+                        indices = jnp.concatenate((
+                            jnp.arange(1, cpos.shape[0] + 1, dtype=jnp.float64),
+                            jnp.asarray([jnp.nan]),
+                            jnp.arange(1, cneg.shape[0] + 1, dtype=jnp.float64),
+                        ))
+                        values = jnp.concatenate((cpos, jnp.asarray([jnp.nan]), cneg))
+                        x = indices * (2.0 * jnp.pi) / (global_dom[-1] - global_dom[0])
+                        xlabel = "|Normalized wave number|+1"
+                    else:
+                        x = modes * (2.0 * jnp.pi) / (global_dom[-1] - global_dom[0])
+                        values = coeffs
+                        xlabel = "Wave number"
+                    if float(tech.vscale) == 0.0:
+                        values = values + jnp.finfo(jnp.float64).eps
+                elif isinstance(tech, (Chebtech1, Chebtech2)):
+                    last_kind = "chebyshev"
+                    x = jnp.arange(n, dtype=jnp.float64)
+                    values = coeffs
+                    xlabel = "Degree of Chebyshev polynomial"
+                    if float(tech.vscale) == 0.0:
+                        values = values + jnp.finfo(jnp.float64).eps
+                else:
+                    raise TypeError(f"source=True does not support {type(tech).__name__}")
+                marker_size = (markersize_arg if markersize_arg is not None else
+                               float(jnp.asarray(2.5, dtype=jnp.float64)
+                                     + jnp.asarray(50.0, dtype=jnp.float64)
+                                     / jnp.sqrt(jnp.asarray(n + 8, dtype=jnp.float64))))
+                draw_kwargs = dict(kw)
+                if draw_color is not None:
+                    draw_kwargs["color"] = draw_color
+                # NumPy conversion is only the Matplotlib host-rendering boundary.
+                # MATLAB semilogy preserves existing scales while hold is on.
+                plotter = ax.plot if piece_held else ax.semilogy
+                plotter(np.asarray(x), np.asarray(values), plot_fmt,
+                        markersize=marker_size, **draw_kwargs)
+                # Each source tech updates limits before columnPlotCoeffs sets
+                # hold on for the next piece. Later pieces inherit manual limits.
+                if last_kind == "chebyshev":
+                    if loglog:
+                        ax.set_xscale("log")
+                    if not piece_held and not loglog:
+                        ax.set_xlim((-1.0, 1.0) if n == 1 else (0.0, float(n)))
+                    else:
+                        left, right = ax.get_xlim()
+                        ax.set_xlim(min(left, 0.0), max(right, float(n)))
+                elif not loglog and not piece_held:
+                    extent = max(1.0, -float(x[0]))
+                    ax.set_xlim(-extent, extent)
+                piece_held = True
+    if last_kind is None:
+        ax.plot([])
+        return fig, ax
+    default_title = ("Fourier coefficients" if last_kind == "fourier"
+                     else "Chebyshev coefficients")
+    ax.set_title(default_title if title is None else title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel("Magnitude of coefficient")
+    ax.grid(True)
+    if loglog:
+        # The outer @chebfun wrapper applies shared logarithmic x scale.
+        ax.set_xscale("log")
     fig.set_facecolor("white")
     fig.tight_layout()
     return fig, ax

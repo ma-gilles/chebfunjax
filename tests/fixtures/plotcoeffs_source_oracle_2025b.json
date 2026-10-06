@@ -1,0 +1,553 @@
+{
+  "provenance": {
+    "matlab_source": [
+      "@chebfun/plotcoeffs.m",
+      "@classicfun/plotcoeffs.m",
+      "@chebtech/plotcoeffs.m",
+      "@trigtech/plotcoeffs.m"
+    ],
+    "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "raw_mat_sha256": "3d248e9cf4e6b96bc08c7e656b6d4cc58258a0a9ffc5302339515c5873691eb8",
+    "raw_json_sha256": "3836aea75c8c38c51ed2cb19b29fe0b3a4aca5f3f70f3c04a540c7355e16bd62",
+    "capture_driver_sha256": "9e6c17965396a09700cf8a258c2dfb315deda133e9825114e090fa1abcd8fee1",
+    "capture_receipt_sha256": "d3e1e3c6c96e0cb8e6154b2d541c3a3b45f57b7d0a6f8a145a4a2f79cddee7c9",
+    "scope": "Actual line data and explicit source axis policies; backend auto Y limits and pixels unqualified. Default source colors reflect R2025b root state, renderer maps to its root color order."
+  },
+  "cases": [
+    {
+      "name": "cheb_coeffs",
+      "lines": [
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            1,
+            0.5,
+            0.125
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        0,
+        3
+      ],
+      "ylim": [
+        0.125,
+        1
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "trig_even",
+      "lines": [
+        {
+          "x": [
+            -2,
+            -1,
+            0,
+            1
+          ],
+          "y": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 16.933756729740644,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        -2,
+        2
+      ],
+      "ylim": [
+        1,
+        4
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "Wave number",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "trig_odd",
+      "lines": [
+        {
+          "x": [
+            -1.5707963267948966,
+            -0.7853981633974483,
+            0,
+            0.7853981633974483,
+            1.5707963267948966
+          ],
+          "y": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 16.367504905630728,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "ylim": [
+        1,
+        5.000000000000001
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "Wave number",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "trig_even_loglog",
+      "lines": [
+        {
+          "x": [
+            1,
+            2,
+            null,
+            1,
+            2,
+            3
+          ],
+          "y": [
+            3,
+            4,
+            null,
+            3,
+            2,
+            1
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 16.933756729740644,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "log",
+      "yscale": "log",
+      "xlim": [
+        1,
+        3
+      ],
+      "ylim": [
+        1,
+        4
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "|Normalized wave number|+1",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "trig_odd_loglog",
+      "lines": [
+        {
+          "x": [
+            0.7853981633974483,
+            1.5707963267948966,
+            2.356194490192345,
+            null,
+            0.7853981633974483,
+            1.5707963267948966,
+            2.356194490192345
+          ],
+          "y": [
+            3,
+            4,
+            5,
+            null,
+            3,
+            2,
+            1
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 16.367504905630728,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "log",
+      "yscale": "log",
+      "xlim": [
+        0.7853981633974483,
+        2.356194490192345
+      ],
+      "ylim": [
+        1,
+        5.000000000000001
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "|Normalized wave number|+1",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "zero_cheb",
+      "lines": [
+        {
+          "x": 0,
+          "y": 2.220446049250313e-16,
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 19.166666666666668,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        9.999999999999999e-18,
+        2.220446049250313e-15
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "zero_trig",
+      "lines": [
+        {
+          "x": 0,
+          "y": 2.220446049250313e-16,
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 19.166666666666668,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        9.999999999999999e-18,
+        2.220446049250313e-15
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "Wave number",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "piecewise",
+      "lines": [
+        {
+          "x": [
+            0,
+            1
+          ],
+          "y": [
+            0.5,
+            0.5
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 18.311388300841898,
+          "linestyle": "none"
+        },
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            0.375,
+            0.5,
+            0.125
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        0,
+        3
+      ],
+      "ylim": [
+        0.125,
+        0.5
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "columns",
+      "lines": [
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            0,
+            1,
+            0
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        },
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            0.5,
+            0,
+            0.5
+          ],
+          "color": [
+            0.866,
+            0.329,
+            0
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        0,
+        3
+      ],
+      "ylim": [
+        0.5,
+        1
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "quasimatrix",
+      "lines": [
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            0,
+            1,
+            0
+          ],
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        },
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            0.5,
+            0,
+            0.5
+          ],
+          "color": [
+            0.866,
+            0.329,
+            0
+          ],
+          "marker": ".",
+          "markersize": 17.575567228888183,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        0,
+        3
+      ],
+      "ylim": [
+        0.5,
+        1
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "constant_trig",
+      "lines": [
+        {
+          "x": 0,
+          "y": 2,
+          "color": [
+            0.066,
+            0.443,
+            0.745
+          ],
+          "marker": ".",
+          "markersize": 19.166666666666668,
+          "linestyle": "none"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        0.1,
+        20
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Fourier coefficients",
+      "xlabel": "Wave number",
+      "ylabel": "Magnitude of coefficient"
+    },
+    {
+      "name": "style_override",
+      "lines": [
+        {
+          "x": [
+            0,
+            1,
+            2
+          ],
+          "y": [
+            1,
+            0.5,
+            0.125
+          ],
+          "color": [
+            0.1,
+            0.2,
+            0.3
+          ],
+          "marker": ".",
+          "markersize": 7,
+          "linestyle": "--"
+        }
+      ],
+      "xscale": "linear",
+      "yscale": "log",
+      "xlim": [
+        0,
+        3
+      ],
+      "ylim": [
+        0.125,
+        1
+      ],
+      "xgrid": "on",
+      "ygrid": "on",
+      "title": "Chebyshev coefficients",
+      "xlabel": "Degree of Chebyshev polynomial",
+      "ylabel": "Magnitude of coefficient"
+    }
+  ]
+}

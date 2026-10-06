@@ -76,6 +76,34 @@ no guessed threshold is added. V1numeric151pass evidence and failed I001lint
 are preserved; only importorder/provenance docs changed, AST/symbol proof
 matches, and finalV2 rerun passes. Full residue/API/CI parity is not claimed.
 
+The opt-in source coefficient plotting policy passes27CPU checks in34.818s,
+zero failures/errors/skips, all1654Python and frozen input hashes stable.
+Fresh pinned MATLAB12literal cases captured71.064s verify coefficient line
+values, Fourier global-domain normalization, marker formula, labels/grid and
+explicit X limits. Source hold defaults off (clears supplied axes); hold=True
+keeps artists and axis scales. Each tech updates limits before the next piece
+inherits held/manual limits. Arrays separate columns before zero-scale checks;
+Singfun forwards its smooth part. New coefficient/marker arithmetic is JAX,
+conversion to NumPy occurs at drawing. Original11source smoke assertions,
+legacy data/envelope/default colors and existing adapters pass. Clean baseline
+12failures are missing-API availability evidence, not12numericbugs. Default
+palette maps the graphics root to Matplotlib rcParams; explicitNone defaults,
+autoYlimits/ticks/pixels/barplot/long-format adapters remain scoped limits.
+One endpoint-discontinuous constructor used by the color control emitted an
+unhappy65537-point warning; this is not constructor acceptance and requires
+separate source diagnosis. Full page/figure/CI parity remains unfinished.
+
+A matched single-CPU current ComplexArcLength inverse diagnosis completed:
+MATLAB1.570572/0.869868s and JAX23.139/0.745728s first-after-setup/warm.
+Same100interior-target inverse values differ at most2.22e-15; JAX roundtrip
+3.05e-15. Single observations, not fullpage or repeated performance claims;
+the old800x report predates current Brent. The outerMATgroup monitor missed
+GNUtimeout's worker group, so its18MiB reading is invalid; inner GNUtime
+reports1308832KiB. Preserve evidence and fix future descendant supervision.
+RegulaFalsi/Illinois source-policy correction is drafted, not qualified.
+NonsmoothFOV freshsource/input-replay candidate still needs actual execution
+and14reference-sized figure/page audits after the plotting dependency.
+
 Exact MATLAB rng(1);randn(60) primitive input capture passes71.568s with
 independent reseeding/state/bit checks. All3600column-major binary64 values
 match raw MAT and JSON independently; generator twister/transform Ziggurat.
