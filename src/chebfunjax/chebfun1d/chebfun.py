@@ -9860,6 +9860,8 @@ def _source_find_blowup_bounded(op, a, b, vscale):
     Keeps endpoint caches, third-point endpoint brackets and strict reject
     test. Sampled math is JAX; scalar eps uses existing IEEE _edge_eps.
     """
+    from chebfunjax.utils._binary64_grid import locator_source_grid
+
     def sample(points):
         rows = _edge_sample_rows(op, points)
         if rows.shape[1] != 1:
@@ -9871,7 +9873,7 @@ def _source_find_blowup_bounded(op, a, b, vscale):
         return jnp.nanmax(values), index
 
     def zoom(left, right, left_value, right_value, size):
-        grid = jnp.linspace(left, right, size)
+        grid = locator_source_grid(left, right, size)
         vals = jnp.concatenate((jnp.asarray([left_value]), sample(grid[1:-1]),
                                 jnp.asarray([right_value])))
         _, index = first_max(vals)
@@ -9889,7 +9891,7 @@ def _source_find_blowup_bounded(op, a, b, vscale):
     while b-a > 50*_edge_eps(a):
         a, b, ya, yb = zoom(a, b, ya, yb, 15)
     while b-a >= 4*_edge_eps(a):
-        grid = jnp.linspace(a, b, 4)
+        grid = locator_source_grid(a, b, 4)
         values = jnp.concatenate((jnp.asarray([ya]), sample(grid[1:-1]), jnp.asarray([yb])))
         if bool(values[1] > values[2]):
             b, yb = float(grid[2]), values[2]
@@ -10520,9 +10522,12 @@ def _chebfun_build(
                 funs[k:k + 1] = [left, right]
                 pairs[k:k + 1] = [(el, mid_l), (mid_r, er)]
                 stypes[k:k + 1] = [(stl, str_k), (stl, str_k)]
-        bps = [funs[0].interval[0]] + [p.interval[1] for p in funs]
-        return Chebfun(funs=funs, domain=Domain(tuple(float(v)
-                                                      for v in bps)))
+        return _finalize_bounded_singular(
+            funs, dom_vals, f,
+            split_length=160 if split_length is None else int(split_length),
+            tol=_tol, turbo=turbo, check=str(_CP().happinessCheck),
+            sample_test=_sample_test, min_samples=min_samples,
+            refinement_function=refinement_function)
 
     # --- Preferences (task #11): eps -> chop tolerance, max_length ->
     #     maximum adaptive length (2**maxpow2 + 1). ---
@@ -11585,6 +11590,32 @@ def _merge_limit_row(piece, right):
         signs = jnp.where(jnp.arange(coeffs.shape[0]) % 2, -1, 1)
         coeffs = coeffs * (signs if coeffs.ndim == 1 else signs[:, None])
     return jnp.atleast_1d(jnp.sum(coeffs, axis=0))
+
+
+def _finalize_bounded_singular(funs, given, op, *, split_length=160,
+                               tol=None, turbo=False, check="standard",
+                               sample_test=True, min_samples=None,
+                               refinement_function=None):
+    """Capture callback point values and merge only introduced boundaries.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/chebfun.m (outer construction finalization),
+        @chebfun/getValuesAtBreakpoints.m, @chebfun/merge.m
+    Chebfun commit: 7574c77
+    Uses existing bounded Singfun merge and limit-row adapters.
+    """
+    ends = [funs[0].interval[0]] + [piece.interval[1] for piece in funs]
+    out = Chebfun(funs=list(funs), domain=Domain(tuple(ends)))
+    object.__setattr__(out, "_point_values",
+                       _source_breakpoint_values(funs, ends, op))
+    introduced = [x for x in ends[1:-1] if x not in given]
+    if introduced:
+        out = out.merge(index=introduced, max_length=split_length,
+                        splitting=True, tol=tol, turbo=turbo, check=check,
+                        sample_test=sample_test, min_samples=min_samples,
+                        refinement_function=refinement_function)
+    return out
 
 
 def _source_breakpoint_values(funs, ends, op=None):

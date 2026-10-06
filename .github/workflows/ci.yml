@@ -164,7 +164,21 @@ jobs:
               tests/test_matlab_port/diskfunv
               tests/test_matlab_port/ballfun
               tests/test_matlab_port/ballfunv
-          - name: operators
+          # The chebop shard reached only57% before the90-minute cap.
+          # Three disjoint file partitions keep every assertion and timeout.
+          - name: operators-a
+            part: 0
+            parts: 3
+            paths: >-
+              tests/test_matlab_port/chebop
+          - name: operators-b
+            part: 1
+            parts: 3
+            paths: >-
+              tests/test_matlab_port/chebop
+          - name: operators-c
+            part: 2
+            parts: 3
             paths: >-
               tests/test_matlab_port/chebop
           - name: operators-2
@@ -190,8 +204,10 @@ jobs:
           pixi-version: latest
       - name: Run MATLAB test-suite ports
         run: >-
-          pixi run python -m pytest ${{ matrix.shard.paths }}
-          -q --tb=short --timeout=900 -p no:cacheprovider
+          pixi run python scripts/run_port_shard.py
+          --part ${{ matrix.shard.part || 0 }}
+          --parts ${{ matrix.shard.parts || 1 }}
+          -- ${{ matrix.shard.paths }}
       - name: Check shard covers no stray directories
         if: matrix.shard.name == 'chebfun'
         run: python scripts/check_port_shards.py

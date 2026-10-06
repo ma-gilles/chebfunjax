@@ -2,6 +2,37 @@
 
 ## Latest shared checkout status (2026-10-06; takes precedence below)
 
+The next bounded singular/Gamma correction is qualified:72focused CPU cases
+pass64.531s and131unchanged prior regressions pass302.101s, no failures,
+errors or skips; all1659Python files and frozen inputs stable. Exact tiny
+locator grids preserve gradual-underflow/signedzero with JAX integer
+arithmetic;51controls include actual MATLAB bit comparisons. Singular
+outer construction captures callback pointValues and merges introduced
+breaks only, preserving given boundaries and existing merge preferences.
+
+Gamma port inputs now match fresh MATLAB's +Inf at finite nonpositive
+integers (both signedzeros), while retaining SciPy off-pole bytes. Original
+nineGamma assertion ASTs/bounds are unchanged; six actual primitive pole
+controls, two off-pole controls and independent analytic values pass. This
+is a test-input compatibility adapter, not a general library Gamma primitive
+or universal finite/complex equivalence claim. Fresh pinned MATLAB gives
+fivehappy pieces and NaN/Inf/14.043323986892394 integrals; rawMAT/JSON/input
+words and source hashes were independently verified. Original SciPy callback
+caused spurious tiny panels and scale pollution; failed21/9piece versions
+remain preserved. Source callback and constructor counts are not inputs.
+
+Focusedfullsource archiveSHA
+81a66aeaf6f7158e1946b5d44ca0e2363a5271c983af6cce0a32462419c14e5f;
+regressionarchiveSHA
+d6eb2c18e1fad1b052fa718d7bfd8551e7f0df83c326d440451bb62cb088c9ef.
+A threeway operator CI partition covers all99testfiles exactly once33/33/33,
+retains assertions/900s test timeout; runtime balance remains unqualified.
+CI on this new commit, Gamma page's callback update/standalone run, all322
+page/figure parity, C1 and wider singular policies remain open. NonsmoothFOV
+V12 ran226.769s/all14figures600x253, but cropped labels/outputcounts/pixels
+are unaccepted; rendering-only V13 and observational audit await cleanhead.
+Fullgoal remains active; CURRENT_GOAL_STATUS.md points to current evidence.
+
 Full MATLAB7574c77 and322-page parity remains active and incomplete. Work in
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout`.
 Read `CURRENT_GOAL_STATUS.md` in its parent for current evidence and next gaps.

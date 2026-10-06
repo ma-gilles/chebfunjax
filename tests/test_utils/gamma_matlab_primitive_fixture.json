@@ -1,0 +1,76 @@
+{
+  "audited_fixture_sha256": "bb1965e5b311cf9d77df2aa213602d796a5241938f32148310f7c5aa90430e5b",
+  "capture_json_sha256": "1c1c4cbaccf3187ab8ff0bfcb7bafed17df9f334e08ab18e38682bd88549f455",
+  "capture_mat_sha256": "d6d990284d93576d73a2e0a5ae93a0e587c127426acb7282e956932d1cb861f0",
+  "input_fixture_sha256": "a7fab6ab4c62e9d24bf7b0721055fc73eb01567281561849160556576cb58fe5",
+  "source_commit_M": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "built-in (/usr/licensed/matlab-R2025b/toolbox/matlab/specfun/gamma)",
+  "release": "25.2.0.3055257 (R2025b) Update 2",
+  "inputs": [
+    {
+      "label": "-4",
+      "input_hex": "c010000000000000"
+    },
+    {
+      "label": "-3",
+      "input_hex": "c008000000000000"
+    },
+    {
+      "label": "-2",
+      "input_hex": "c000000000000000"
+    },
+    {
+      "label": "-1",
+      "input_hex": "bff0000000000000"
+    },
+    {
+      "label": "-0",
+      "input_hex": "8000000000000000"
+    },
+    {
+      "label": "+0",
+      "input_hex": "0000000000000000"
+    },
+    {
+      "label": "0.25",
+      "input_hex": "3fd0000000000000"
+    }
+  ],
+  "expected": [
+    {
+      "label": "-4",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "-3",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "-2",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "-1",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "-0",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "+0",
+      "output_hex": "7ff0000000000000",
+      "classification": "+Inf"
+    },
+    {
+      "label": "0.25",
+      "output_hex": "400d013fc47eeeea",
+      "classification": "finite"
+    }
+  ]
+}
