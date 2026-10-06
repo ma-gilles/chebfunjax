@@ -3319,8 +3319,23 @@ class Chebfun(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
-        new_funs = [piece._apply_fun(op) for piece in self.funs]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        if not self.funs:
+            return self
+        # @chebfun/compose.m transforms stored pointValues separately from
+        # smooth one-sided limits, and forces extrapolation for numInts > 1.
+        point_values = op(self.point_values)
+        extrapolate = len(self.funs) > 1
+        new_funs = []
+        for piece in self.funs:
+            if isinstance(piece, _Piece) and isinstance(piece.tech, Chebtech2):
+                new_funs.append(piece._apply_fun(op, extrapolate=extrapolate))
+            else:
+                # Other representation adapters retain their existing path;
+                # their endpoint preference dispatch remains a separate gap.
+                new_funs.append(piece._apply_fun(op))
+        result = Chebfun(funs=new_funs, domain=self.domain)
+        result = result.set_point_values(point_values)
+        return Chebfun._as_transposed(result, self.is_transposed)
 
     # ------------------------------------------------------------------
     # Special functions (thin wrappers around _apply_fun)
