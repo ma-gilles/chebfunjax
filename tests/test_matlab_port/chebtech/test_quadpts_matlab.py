@@ -9,12 +9,10 @@ Fejér-first-rule weights (sum = 2, exact for polynomials on the plain
 ``dx`` integral), so the kind=1 exactness / weight-value assertions pass at
 the MATLAB tolerance alongside kind=2 (Clenshaw-Curtis).
 
-One residual gap (xfailed): ``test_sum_equals_2`` at kind=1 uses n=10, where
-the current CPU ``jnp.sum`` gives ``abs(sum-2) == 2*eps`` and fails the
-original strict ``< 2*eps`` bound. A compensated Python sum returning 2 does
-not establish MATLAB's weight or reduction result. Raw MATLAB FFT weights
-and their source sum still need verification; no unavoidable rounding cause
-or weight-generation correctness is inferred from this expected failure.
+The original strict n=10 sum bound is retained for both kinds. General JAX
+binary64 division now preserves inverse-DFT scaling in eager and JIT modes;
+all 18 original assertions passed with the original inputs and bounds.
+This does not claim bitwise identity with MATLAB's internal FFT backend.
 
 Provenance
 ----------
@@ -37,18 +35,9 @@ def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
-_UNRESOLVED_SUM = (
-    "kind=1 Fejer-I n=10 CPU sum fails the original strict < 2*eps bound; "
-    "fresh MATLAB raw FFT weights and source sum remain unverified"
-)
-
 # Both kinds now integrate polynomials exactly (kind=1 = Fejér-1).
 KIND_EXACT = [1, 2]
-# Preserve the original unresolved strict bound and make no causal claim.
-KIND_SUM = [
-    pytest.param(1, marks=pytest.mark.xfail(reason=_UNRESOLVED_SUM, strict=False)),
-    2,
-]
+KIND_SUM = [1, 2]
 # Assertions that hold for both kinds (symmetry, w.x=0, w.x^3=0, empties):
 KIND_BOTH = [1, 2]
 

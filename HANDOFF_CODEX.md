@@ -15,44 +15,46 @@ Use `gh-cli`, explicit staging, GPT-6 commit trailer and full Ruff gates.
 CPU only; heavy local examples/tests serial. At most two helpers: cheap routine
 work plus Astra medium numerical review as explicitly requested by the user.
 
-P91 parent main checkpoint `c068b83fa363b421c22028c07631663b3a88db09` contains
-91 published packages. P87 fixes generated Pixi editable metadata without
-external package upgrades; locked installation succeeds. P88 source scheduler
-passed145 CPU cases; P90 bounded JAX detector passed162; P91 one-pass bounded
-merge and original callback breakpoint values passed178, retaining original
-MATLAB numerical bounds. These gates overlap and are not added.
+P93 main checkpoint `0e63464415bea89dd9a2cf312826a8730299eba3` contains
+93 published packages. P87 repaired Pixi editable metadata; locked installation
+succeeds without external package upgrades. P88 bounded source scheduler,
+P90 raw detector and P91 one-pass bounded merge have qualified focused gates.
+P92 preserves zero-time blocks and periodic real/complex derivative state.
+P93 constructs sphere solver output from the source northern grid: 31 CPU
+cases pass, including the original multistep/convergence tests.
 
-This P92 state-preservation package passed70 CPU tests with no failures,
-errors or skips, including unchanged original MATLAB expm/periodicBVP tests.
-Zero-time operator propagation preserves initial blocks without resampling;
-physical periodic derivatives preserve known real/complex state. Full Ruff,
-F821 and diff gates precede publication. Exact-byte receipts and tested trees
-are under the shared root, named `ci_state_p92_*`; publication receipt records
-the resulting commit, ordinary push, bundle and full archive verification.
+This P94 Fejer package preserves inverse-DFT scaling under JIT using a general
+JAX binary64 integer quotient. All 18 original quadpts assertions pass with
+unchanged bounds; the 61-case qualification and 25-case confirmation have no
+failures/errors/skips. The formerly failing strict-sum xfail is removed only
+after those passes. No weight normalization or MATLAB FFT bit-identity claim.
+Matched CPU warm medians at n=100000 are 16.416ms versus 3.433ms previously
+(4.781x); timing and raw source comparisons are preserved in shared scratch.
+Overlapping focused gate counts are not additive or full-suite acceptance.
 
-CI remains unresolved. Exact prior run logs expose sphere multistep error
-3.801e-9 against1e-10 and an extracted-column norm2.298e-16 againsteps2.220e-16.
-P92 addresses the separate zero-time length mismatch and periodic derivative
-cast failure; no latest green CI or full-suite acceptance is claimed. P91 CI
-run37460494400 is executing; its documentation deployment succeeded. Monitor
-exact commit SHAs and completed-job REST logs rather than historical green runs.
+CI remains unresolved. As of exact-SHA snapshot 2026-10-06T13:01:41Z, P92 had
+8 successful shards, one failure and three running; P93 had five successful
+and seven running. Atanh's strict source error bound, left-infinite x*exp(x)
+evaluation and a stale singular-feval strict xfail need fresh diagnosis.
+Operator-2 completed successfully at P92 and P93. No full green-CI claim.
 
-Fresh cached-text audit covers all322 current pages: ordered prose, equations,
-tables and2403 input blocks match. Eleven output-count differences and one
-AtmosphericTemperature image-slot gap remain; calculations/stdout/pixels are
-excluded. P89 Resampling restricts THEN simplifies per MATLAB curly indexing;
-its actual CPU run/page/six600x270 images are published, but13 inverse endpoints
-versus freshMAT12 and all six image pixel mismatches remain. Earlier claims that
-the old script was source-faithful are withdrawn. Exact twelve-original-script
-disposition remains open; see parent `handoff_twelve_exact_disposition_p89_update_20261006.md`.
+All322 cached pages match ordered prose/equations/tables and2403 input blocks.
+Eleven output-count differences and one AtmosphericTemperature image gap
+remain. Official retrieval recovered445 missing reference PNGs; all1305
+reference slots are available. Of current figures,154 have wrong dimensions;
+1150 can be compared without resizing. Calculations/stdout/pixels/RNG remain
+unqualified. P89 Resampling ran and generated six600x270 images, but inverse
+breakpoint count and pixels still differ. The protected original twelve
+interrupted scripts have not all received an exact-byte commit/revert disposition.
 
-Next work: source sphere output representation and strict column-evaluation
-roundoff; actual seven-assertion public detector/blowup port; singular/unbounded
-merge assertions12,13; full function/test/page/figure/RNG/performance parity.
-Fresh Fejer-I source weights pass the strict n10 sum; exact-input diagnostic
-isolates the JAX inverseFFT stage, with no accepted production repair yet.
-Do not truncate columns, normalize weights, widen bounds or target cached counts.
-Source drafts, baselines and fresh MATLAB oracles are preserved in shared scratch.
+Next work: remaining CI correctness failures; sphere axis mean/source plotting
+and AtmosphericTemperature; actual detector seven-assertion qualification;
+singular/unbounded merge assertions12/13; full function/test/page/figure/RNG
+and performance parity. Detector candidate passed138/139: C1 fails due to
+backend callback rounding and a genuine source zero-slope rejection. Its
+five paths are shelved outside the checkout, with exact failed evidence.
+Do not widen bounds, normalize weights, invent detector cutoffs or resize
+cached figures. Qualified trees, baselines and MATLAB oracles are preserved.
 
 This document takes over from the Claude session that ran the parity
 campaign from 2026-07 to 2026-09. `HANDOFF.md` (2026-07) is older and partly

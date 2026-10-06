@@ -13,6 +13,8 @@ from math import isinf
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
+
 
 def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
     """Chebyshev points of the first or second kind on [-1, 1].
@@ -193,7 +195,12 @@ def _fejer_first_weights(n: int) -> jnp.ndarray:
 
     # Rotation (weight) vector for the half-integer 1st-kind angles.
     v = jnp.exp(1j * jnp.arange(n, dtype=jnp.float64) * jnp.pi / n)
-    return jnp.real(jnp.fft.ifft(c * v))
+    # The source complex inverse DFT is conj(fft(conj(z)))/n. Software
+    # IEEE division preserves its 1/n scale when JIT would replace division
+    # with a reciprocal multiply and introduce an extra rounding. No weight
+    # normalization is imposed; FFT butterfly arithmetic stays in JAX.
+    transformed = jnp.conj(jnp.fft.fft(jnp.conj(c * v)))
+    return _divide_binary64_by_positive_integer(jnp.real(transformed), n)
 
 
 def _clenshaw_curtis_weights(n: int) -> jnp.ndarray:
