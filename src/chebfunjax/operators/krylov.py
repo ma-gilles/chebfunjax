@@ -164,14 +164,12 @@ def _minres_basic_correction(A, rhs):
     return coeffs
 
 
-def _setup_minres(N, f, tol):
-    """Source MINRES divergence coefficients and range/Dirichlet correction."""
+def _prepare_minres_operator(N, f):
+    """Validate source MINRES operator and mine divergence coefficients."""
     from numbers import Real
 
     from chebfunjax.chebfun1d.chebfun import Chebfun
 
-    dom = f.domain
-    x = Chebfun.identity(dom)
     if not N._is_linear():
         raise ValueError('CHEBFUN:CHEBOP:pcg:nonlinear: MINRES supports only linear CHEBOP instances.')
     if N.linop().blocks[0][0].order != 2:
@@ -184,6 +182,8 @@ def _setup_minres(N, f, tol):
         if not isinstance(value, Real):
             raise ValueError('CHEBFUN:CHEBOP:pcg:' + side + 'bc: Currently, we require Dirichlet boundary conditions. Please supply N.' + ('lbc' if side == 'left' else 'rbc') + ' = double.')
         bcs.append(value)
+    dom = f.domain
+    x = Chebfun.identity(dom)
     one = 1 + 0*x
     c = N.feval(one)
     halfx2 = x*x/2
@@ -191,6 +191,14 @@ def _setup_minres(N, f, tol):
 
     def L(v):
         return -(a*v.diff()).diff() + c*v
+
+    return dom, x, L, bcs
+
+
+def _setup_minres(N, f, tol, *, prepared=None):
+    """Source MINRES range and Dirichlet correction after option validation."""
+    dom, x, L, bcs = (_prepare_minres_operator(N, f)
+                       if prepared is None else prepared)
 
     def R1(v):
         return v.cumsum()
@@ -238,6 +246,7 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
 
     from chebfunjax.chebpref import ChebopPref
 
+    prepared = _prepare_minres_operator(N, f)
     prefs = ChebopPref()
     tol = prefs.bvpTol if _minres_empty(tol) else tol
     maxit = prefs.maxIter if _minres_empty(maxit) else maxit
@@ -249,7 +258,7 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
         tol = max(eps, min(tol, 1-eps))
     if not _minres_empty(R1) or not _minres_empty(R2):
         raise ValueError('chebop:pcg:OnlyDefaultPreconditionerAllowed')
-    T, R1, Pi, g, z = _setup_minres(N, f, tol)
+    T, R1, Pi, g, z = _setup_minres(N, f, tol, prepared=prepared)
     u0 = None if _minres_empty(u0) else u0
     u = 0*f if u0 is None else u0
     if u0 is not None:
