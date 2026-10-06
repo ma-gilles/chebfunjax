@@ -24,8 +24,6 @@ Algorithm: H. Montanelli and Y. Nakatsukasa, "Fourth-order
 
 from __future__ import annotations
 
-import warnings
-
 import jax.numpy as jnp
 import numpy as np
 import scipy.sparse as sp
@@ -331,57 +329,61 @@ def _dfs_grid(N):
     return np.meshgrid(lam, th)  # ll[i,j]=lam_j, tt[i,j]=th_i
 
 
-def _make_output_spherefun(Cfinal, N):
-    """Build the real-valued output Spherefun from the final
-    Fourier-Fourier coefficient matrix.
+def _sphere_output_coeffs2vals_axis0(coeffs):
+    """JAX port of MATLAB 7574c77 @trigtech/coeffs2vals.m, axis zero.
 
-    The 2-D trig interpolant ``u(lam,theta) = Re sum_{p,q} C[p,q]
-    e^{i kp theta} e^{i kq lam}`` is band-limited to N modes; taking its
-    real part reproduces @spinoperator/reshapeData.m + spherefun(...,
-    'trig').  The evaluator is pure NumPy so the adaptive Spherefun
-    constructor samples it without JAX tracing/compilation.  A relaxed
-    tolerance keeps the pivoting from chasing the ~1e-13 non-BMC roundoff
-    left by the time-stepping (far below any tested accuracy).
+    Provenance
+    ----------
+    MATLAB source: @trigtech/coeffs2vals.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Original: Copyright 2017 by The University of Oxford and
+    The Chebfun Developers.
     """
-    kp = np.arange(-N // 2, N // 2).astype(float)
-    C = np.asarray(Cfinal, dtype=complex)
+    coeffs = jnp.asarray(coeffs)
+    n = coeffs.shape[0]
+    if n <= 1:
+        return coeffs
+    modes = jnp.arange(-(n // 2), (n + 1) // 2)
+    signs = jnp.where(modes % 2 == 0, 1.0, -1.0)
+    adjusted = coeffs * signs.reshape((n,) + (1,) * (coeffs.ndim - 1))
+    is_hermitian = jnp.max(jnp.abs(jnp.imag(adjusted)), axis=0) == 0
+    is_skew = jnp.max(jnp.abs(jnp.real(adjusted)), axis=0) == 0
+    values = jnp.fft.ifft(jnp.fft.ifftshift(n * adjusted, axes=0), axis=0)
+    extended = jnp.concatenate((values, values[:1]), axis=0)
+    reflected = jnp.flip(jnp.conj(extended), axis=0)
+    hermitian = ((extended + reflected) / 2)[:-1]
+    skew = ((extended - reflected) / 2)[:-1]
+    values = jnp.where(is_hermitian, hermitian, values)
+    return jnp.where(is_skew, skew, values)
 
-    def ev(lam, theta):
-        lam = np.asarray(lam, dtype=float)
-        theta = np.asarray(theta, dtype=float)
-        # Fast separable path for meshgrid inputs (theta constant along
-        # rows, lam constant along columns), which the Spherefun
-        # constructor's phase one always supplies: value = Ath @ C @
-        # Alam.T, O(npts * N) instead of O(npts * N^2).
-        if (lam.ndim == 2 and theta.ndim == 2 and lam.shape == theta.shape
-                and bool(np.all(lam == lam[0:1, :]))
-                and bool(np.all(theta == theta[:, 0:1]))):
-            ath = np.exp(1j * theta[:, 0][:, None] * kp[None, :])
-            alam = np.exp(1j * lam[0, :][:, None] * kp[None, :])
-            return np.real(ath @ C @ alam.T)
-        # General per-point path (phase-two slices are small 1-D lines).
-        shape = np.broadcast_shapes(lam.shape, theta.shape)
-        lamf = np.broadcast_to(lam, shape).reshape(-1)
-        thf = np.broadcast_to(theta, shape).reshape(-1)
-        ath = np.exp(1j * thf[:, None] * kp[None, :])
-        alam = np.exp(1j * lamf[:, None] * kp[None, :])
-        vals = np.einsum("np,pq,nq->n", ath, C, alam)
-        return np.real(vals).reshape(shape)
 
-    # The field is an exact degree-N/2 trig polynomial, so its slices
-    # resolve on any grid >= N (coefficients vanish beyond the band).
-    # Cap the constructor grid at ~2N -- enough to capture the full band
-    # exactly -- and silence the "not resolved" note that fires when the
-    # solution is grid-limited (its Nyquist-edge coefficients sit at a
-    # finite floor, exactly as in MATLAB's fixed-grid spherefun(vals,
-    # 'trig'), which does no adaptive refinement at all).
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message=".*slices not resolved.*",
-            category=RuntimeWarning,
-        )
-        return Spherefun.from_function(ev, tol=1e-9, max_sample=2 * N)
+def _sphere_output_coeffs2vals2(coeffs):
+    """Source @spinopsphere/getCoeffs2ValsTransform.m: two axis-zero FFTs.
+
+    Provenance
+    ----------
+    MATLAB source: @spinopsphere/getCoeffs2ValsTransform.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Original: Copyright 2017 by The University of Oxford and
+    The Chebfun Developers.
+    """
+    values = _sphere_output_coeffs2vals_axis0(coeffs)
+    return _sphere_output_coeffs2vals_axis0(values.T).T
+
+
+def _make_output_spherefun(Cfinal, N):
+    """Source solvepde/reshapeData: real northern DFS grid, numeric constructor.
+
+    Provenance
+    ----------
+    MATLAB source: @spinoperator/solvepde.m; @spinopsphere/reshapeData.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Original: Copyright 2017 by The University of Oxford and
+    The Chebfun Developers.
+    """
+    values = _sphere_output_coeffs2vals2(Cfinal)
+    northern = jnp.concatenate((values[N // 2:, :], values[:1, :]), axis=0)
+    return Spherefun.from_values(jnp.real(northern))
 
 
 def spinsphere(S: Spinopsphere, N: int, dt: float, *args, **kwargs):
