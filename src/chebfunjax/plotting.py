@@ -3109,61 +3109,134 @@ def plotregion(
     ax=None,
     title: str = "Region of analyticity",
     color: str = CHEBFUN_BLUE,
-    n_pts: int = 300,
+    n_pts: int = 101,
+    *,
+    eps: float | None = None,
     **kw,
 ):
-    """Plot the Bernstein ellipse showing the region of analyticity.
+    """Plot the Bernstein ellipse region for a bounded smooth Chebfun.
+
+    For Chebtech1/2 pieces, the radius follows MATLAB Chebfun's
+    ``exp(abs(log(userEps))/length(u))`` after simplifying each piece.
+    ``eps=None`` uses binary64 machine epsilon. The public default is 101 points, matching MATLAB ``plotregion``.
 
     Parameters
     ----------
     f : Chebfun
+        Scalar-valued Chebfun on a finite domain.
     ax : optional
-    title : str
-    color : str
+        Matplotlib axes.
+    title, color : str
+        Axes title and ellipse color.
     n_pts : int
+        Number of points used to draw each ellipse (default 101).
+    eps : float or None
+        User tolerance used in the Bernstein-ellipse radius.
 
     Returns
     -------
     fig, ax
 
+    Notes
+    -----
+    This source-shaped branch covers bounded scalar Chebtech1/2 pieces only.
+    Trigtech and Singfun have distinct MATLAB ``plotregionData`` methods;
+    unbounded and array-valued inputs are outside this adapter. Omitting eps
+    preserves the legacy heuristic for those unsupported representations.
+
     Provenance
     ----------
-    Inspired by MATLAB Chebfun plotregion. See https://www.chebfun.org/
+    MATLAB sources: ``@chebtech/plotregionData.m``,
+    ``@classicfun/plotregionData.m``, ``@chebfun/plotregion.m``.
+    Chebfun commit: 7574c77.
     """
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    if eps is not None and (
+        not np.isscalar(eps) or not np.isfinite(float(eps)) or float(eps) <= 0.0
+    ):
+        raise ValueError("eps must be a finite positive scalar")
+
     if ax is None:
         fig, ax = plt.subplots(figsize=(5, 5))
     else:
         fig = ax.get_figure()
 
-    coeffs = np.abs(np.array(f.coeffs))
-    n = len(coeffs)
-
-    if n < 4:
-        rho = 2.0
-    else:
-        tail = coeffs[max(n // 2, 1):]
-        if np.max(tail) > 1e-16:
-            avg_log = np.mean(np.log(np.maximum(tail, 1e-16)))
-            rho = max(np.exp(-avg_log / max(len(tail), 1)), 1.01)
+    pieces = getattr(f, "funs", ())
+    source_supported = bool(pieces) and all(
+        isinstance(piece.tech, (Chebtech1, Chebtech2))
+        and piece.tech.coeffs.ndim == 1
+        and np.isfinite(piece.interval[0])
+        and np.isfinite(piece.interval[1])
+        for piece in pieces
+    )
+    if source_supported:
+        smooth = f.simplify()
+        eps_value = jnp.finfo(jnp.float64).eps if eps is None else jnp.asarray(eps, dtype=jnp.float64)
+        unit_parameter = jnp.linspace(0.0, 1.0, n_pts, dtype=jnp.float64)
+        circle = jnp.exp(2j * jnp.pi * unit_parameter)
+        x_parts = []
+        y_parts = []
+        x_lims = []
+        y_lims = []
+        for piece in smooth.funs:
+            n = int(piece.tech.n)
+            if n <= 0:
+                continue
+            rho = jnp.exp(jnp.abs(jnp.log(eps_value)) / n)
+            boundary = 0.5 * (rho * circle + 1.0 / (rho * circle))
+            a, b = piece.interval
+            midpoint = 0.5 * (a + b)
+            halfwidth = 0.5 * (b - a)
+            x_parts.append(midpoint + halfwidth * jnp.real(boundary))
+            y_parts.append(halfwidth * jnp.imag(boundary))
+            major = 1.1 * (rho + 1.0 / rho)
+            minor = 1.1 * (rho - 1.0 / rho)
+            x_lims.append(jnp.asarray([midpoint - halfwidth * major, midpoint + halfwidth * major]))
+            y_lims.append(jnp.asarray([-halfwidth * minor, halfwidth * minor]))
+        if not x_parts:
+            ax.plot([], color=color, linewidth=1.8, **kw)
         else:
+            # Conversion is confined to Matplotlib's rendering boundary.
+            for x_part, y_part in zip(x_parts, y_parts):
+                x_host = np.asarray(x_part)
+                y_host = np.asarray(y_part)
+                ax.plot(x_host, y_host, color=color, linewidth=1.8, **kw)
+                ax.fill_between(x_host, y_host, alpha=0.08, color=color)
+            xlim = jnp.stack(x_lims)
+            ylim = jnp.stack(y_lims)
+            ax.set_xlim(float(jnp.min(xlim)), float(jnp.max(xlim)))
+            ax.set_ylim(float(jnp.min(ylim)), float(jnp.max(ylim)))
+    else:
+        if eps is not None:
+            raise NotImplementedError(
+                "explicit eps is currently supported only for finite scalar "
+                "Chebtech1/2 pieces"
+            )
+        coeffs = np.abs(np.array(f.coeffs))
+        n = len(coeffs)
+        if n < 4:
             rho = 2.0
-    rho = min(max(rho, 1.01), 100.0)
+        else:
+            tail = coeffs[max(n // 2, 1):]
+            if np.max(tail) > 1e-16:
+                avg_log = np.mean(np.log(np.maximum(tail, 1e-16)))
+                rho = max(np.exp(-avg_log / max(len(tail), 1)), 1.01)
+            else:
+                rho = 2.0
+        rho = min(max(rho, 1.01), 100.0)
+        theta = np.linspace(0, 2 * np.pi, n_pts)
+        z = rho * np.exp(1j * theta)
+        boundary = 0.5 * (z + 1.0 / z)
+        a = float(f.domain.a)
+        b = float(f.domain.b)
+        x_host = 0.5 * (b - a) * np.real(boundary) + 0.5 * (a + b)
+        y_host = np.imag(boundary)
+        ax.plot(x_host, y_host, color=color, linewidth=1.8, **kw)
+        ax.fill_between(x_host, y_host, alpha=0.08, color=color)
 
-    theta = np.linspace(0, 2 * np.pi, n_pts)
-    z = rho * np.exp(1j * theta)
-    w = 0.5 * (z + 1.0 / z)
-    x_ell = np.real(w)
-    y_ell = np.imag(w)
-
-    a = float(f.domain.a)
-    b = float(f.domain.b)
-    x_phys = 0.5 * (b - a) * x_ell + 0.5 * (a + b)
-
-    ax.plot(x_phys, y_ell, color=color, linewidth=1.8, **kw)
     ax.axhline(0, color="gray", linewidth=0.5, alpha=0.5)
-    ax.fill_between(x_phys, y_ell, alpha=0.08, color=color)
     ax.set_aspect("equal")
-
     _apply_style(ax, title=title, xlabel="Re(z)", ylabel="Im(z)")
     fig.set_facecolor("white")
     fig.tight_layout()
