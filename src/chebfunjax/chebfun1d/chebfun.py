@@ -4453,32 +4453,49 @@ class Chebfun(eqx.Module):
         """Running minimum (MATLAB cummin)."""
         return self._cummax_or_min(False)
 
-    def join(self, other: "Chebfun", *rest: "Chebfun") -> "Chebfun":
-        """Concatenate chebfuns end to end (MATLAB join).
+    def join(self, *others: "Chebfun") -> "Chebfun":
+        """Join pieces with source interval-length accumulation and orientation.
 
-        The domain of each subsequent chebfun is translated to begin
-        where the previous one ends; function values are unchanged.
+        Every interval after the first begins at its predecessor's right
+        endpoint; its right endpoint adds its original interval length.
+        Equal column counts and transposition states are required.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/join.m
+        MATLAB source : @chebfun/join.m (columnJoin and array-valued branch)
         Chebfun commit: 7574c77
         """
-        out = self
-        for g in (other, *rest):
-            shift = float(out.domain.b) - float(g.domain.a)
-            shifted = [
-                _Piece(tech=p.tech,
-                       interval=(p.interval[0] + shift,
-                                 p.interval[1] + shift))
-                for p in g.funs]
-            bps = tuple(
-                [float(v) for v in out.domain.breakpoints]
-                + [float(v) + shift
-                   for v in list(g.domain.breakpoints)[1:]])
-            out = Chebfun(funs=list(out.funs) + shifted,
-                          domain=Domain(bps))
-        return out
+        from chebfunjax.fun.unbndfun import Unbndfun
+
+        if not others:
+            return self
+        inputs = (self, *others)
+        if any(f.is_transposed != self.is_transposed for f in inputs):
+            raise ValueError("All inputs to join must have the same transposition state")
+        counts = {f.n_columns for f in inputs}
+        if len(counts) > 1:
+            raise ValueError("join: Matrix dimensions must agree")
+        funs = [piece for f in inputs for piece in f.funs]
+        if not funs:
+            return Chebfun._as_transposed(Chebfun.empty(), self.is_transposed)
+        pieces = [funs[0]]
+        for piece in funs[1:]:
+            left = pieces[-1].interval[1]
+            right = left + (piece.interval[1]-piece.interval[0])
+            interval = (left, right)
+            if isinstance(piece, _Piece):
+                remapped = _Piece(tech=piece.tech, interval=interval)
+            elif isinstance(piece, Unbndfun):
+                # Retain the nonlinear map, including its singular onefun.
+                remapped = Unbndfun.from_chebtech(piece.onefun, Domain(interval))
+            elif hasattr(piece, "change_map"):
+                remapped = piece.change_map(interval)
+            else:
+                raise NotImplementedError(
+                    f"join cannot remap {type(piece).__name__}")
+            pieces.append(remapped)
+        domain = Domain((pieces[0].interval[0],) + tuple(p.interval[1] for p in pieces))
+        return Chebfun._as_transposed(Chebfun(funs=pieces, domain=domain), self.is_transposed)
 
     def inv(self, pref=None, *, algorithm="brent", eps=None,
             splitting=None, monocheck=False, rangecheck=False) -> "Chebfun":
