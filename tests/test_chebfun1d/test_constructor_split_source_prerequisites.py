@@ -106,6 +106,11 @@ def test_tiny_getfun_samples_once_and_builds_one_coefficient_row(monkeypatch, sh
         seen.append(x)
         if shape == "scalar":
             return values[0]
+        # The outer constructor separately evaluates all breakpoints.
+        # MATLAB indexed assignment requires one row per endpoint; a
+        # constant 1x2 row cannot fill its 2x2 pointValues matrix.
+        if jnp.ndim(x) != 0:
+            return jnp.broadcast_to(values, (jnp.size(x), values.size))
         if shape == "flat":
             return values
         return values[None, :]
@@ -117,8 +122,10 @@ def test_tiny_getfun_samples_once_and_builds_one_coefficient_row(monkeypatch, sh
     left, right = 1.0, 1.0 + 2.0e-14
     result = module._construct_with_splitting(callback, left, right, maxpow2=8)
 
-    assert len(seen) == 1
+    # Source getFun samples once; outer chebfun then captures pointValues.
+    assert len(seen) == 2
     assert float(seen[0]) == (left + right) / 2
+    assert bool(jnp.array_equal(seen[1], jnp.array([left, right])))
     assert len(result.funs) == 1
     piece = result.funs[0]
     assert piece.n == 1
@@ -126,6 +133,9 @@ def test_tiny_getfun_samples_once_and_builds_one_coefficient_row(monkeypatch, sh
     expected = values[:1] if shape == "scalar" else values[None, :]
     assert piece.tech.coeffs.shape == expected.shape
     assert bool(jnp.array_equal(piece.tech.coeffs, expected))
+    expected_points = (jnp.full((2,), values[0]) if shape == "scalar"
+                       else jnp.broadcast_to(values, (2, 2)))
+    assert bool(jnp.array_equal(result._point_values, expected_points))
 
 
 def test_public_unhappy_panels_share_widest_queue_scale_and_actual_budget(monkeypatch):

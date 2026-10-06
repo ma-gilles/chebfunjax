@@ -1988,7 +1988,11 @@ class Chebfun(eqx.Module):
                                          min_samples=min_samples,
                                          max_length=max_length)
             funs.append(piece)
-        return cls(funs=funs, domain=domain)
+        out = cls(funs=funs, domain=domain)
+        if all(math.isfinite(x) for x in domain.breakpoints):
+            object.__setattr__(out, "_point_values",
+                               _source_breakpoint_values(funs, domain.breakpoints, f))
+        return out
 
     @classmethod
     def from_coeffs(
@@ -4232,6 +4236,109 @@ class Chebfun(eqx.Module):
         return jnp.sqrt(self.var())
 
     def merge(self, index=None, *, maxpow2: int | None = None,
+              tol: float | None = None, sample_test: bool = True,
+              min_samples: int | None = None,
+              refinement_function: str | Callable | None = None,
+              max_length: int | None = None, splitting: bool | None = None,
+              turbo: bool = False, check: str = "standard") -> "Chebfun":
+        """Remove bounded smooth breakpoints in one source-ordered pass.
+
+        Python index values remain breakpoint LOCATIONS, preserving this public
+        API. Source breakpoint indices are resolved internally by exact equality.
+        Singular, unbounded and periodic pieces retain the existing adapter.
+        Raw max_length and explicit splitting carry constructor preferences;
+        legacy maxpow2 still implies splitting when splitting is omitted.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/merge.m, @fun/merge.m
+        Chebfun commit: 7574c77
+        """
+        import warnings
+
+        from chebfunjax.tech.chebtech import Chebtech1
+
+        if len(self.funs) < 2:
+            return self
+        if any(not isinstance(p.tech, (Chebtech1, Chebtech2))
+               or not all(math.isfinite(t) for t in p.interval) for p in self.funs):
+            # Retain the existing representation adapter until source singular,
+            # unbounded and periodic FUN merge is ported and qualified.
+            if max_length is not None or splitting is not None or turbo or check != "standard":
+                raise NotImplementedError(
+                    "Source merge preferences require bounded smooth pieces.")
+            return self._merge_representation_adapter(
+                index, maxpow2=maxpow2, tol=tol, sample_test=sample_test,
+                min_samples=min_samples, refinement_function=refinement_function)
+        old_ends = tuple(float(x) for x in self.domain.breakpoints)
+        if index is None or isinstance(index, str) and index.lower() == "all":
+            selected = list(range(1, len(old_ends) - 1))
+        else:
+            allowed = {float(x) for x in index}
+            selected = [k for k in range(1, len(old_ends) - 1)
+                        if old_ends[k] in allowed]
+        if not selected:
+            return self
+        cap = (2 ** (16 if maxpow2 is None else int(maxpow2)) + 1
+               if max_length is None else int(max_length))
+        if cap < 1:
+            raise ValueError("max_length must be a positive integer")
+        splitting = maxpow2 is not None if splitting is None else bool(splitting)
+        eps = float(jnp.finfo(jnp.float64).eps)
+        tolerance = jnp.maximum(eps, jnp.asarray(eps if tol is None else tol))
+        vs = jnp.asarray(self.vscale, dtype=jnp.float64)
+        hs = max(abs(old_ends[0]), abs(old_ends[-1]))
+        old_funs = tuple(self.funs)
+        explicit = getattr(self, "_point_values", None)
+        point_values = (_source_breakpoint_values(old_funs, old_ends)
+                        if explicit is None else jnp.asarray(explicit))
+        old_values = point_values[:, None] if point_values.ndim == 1 else point_values
+        funs = list(old_funs)
+        ends = list(old_ends)
+        retained_rows = list(range(len(old_ends)))
+        for k in selected:
+            j = ends.index(old_ends[k])
+            left, right = funs[j - 1], funs[j]
+            if left.n + right.n >= 1.2 * cap:
+                continue
+            # Original point values and original one-sided limits are invariant
+            # throughout the pass, even when earlier current neighbors changed.
+            limits = jnp.stack((_merge_limit_row(old_funs[k - 1], True),
+                                _merge_limit_row(old_funs[k], False)))
+            differences = old_values[k][None, :] - limits
+            # MATLAB matrix norm(...,inf) is max row SUM, not max entry.
+            jumps = jnp.max(jnp.sum(jnp.abs(differences), axis=1)) / vs
+            if (bool(jnp.all(jumps >= 1e3 * tolerance))
+                    or bool(jnp.any(jnp.isinf(jnp.concatenate(
+                        (old_values[k][None, :], limits), axis=0))))):
+                continue
+            a, b = left.interval[0], right.interval[1]
+            if abs(left.interval[1] - right.interval[0]) > hs * float(jnp.max(tolerance)):
+                raise ValueError("F and G must be on consecutive domains.")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                trial = _Piece.from_function(
+                    lambda x: _merge_pair_values(x, left, right), a, b,
+                    maxpow2=16 if maxpow2 is None else int(maxpow2),
+                    max_length=cap, tol=tolerance, extrapolate=splitting,
+                    vscale=float(vs), hscale=hs / (b - a),
+                    sample_test=sample_test, min_samples=min_samples,
+                    refinement_function=refinement_function, turbo=turbo, check=check)
+            if not trial.ishappy:
+                continue
+            funs[j - 1:j + 1] = [trial]
+            del ends[j]
+            del retained_rows[j]
+        if len(funs) == len(old_funs):
+            return self
+        result = Chebfun(funs=funs, domain=Domain(tuple(ends)), deltas=self.deltas)
+        kept = point_values[jnp.asarray(retained_rows, dtype=jnp.int32)]
+        object.__setattr__(result, "_point_values", kept)
+        if self.is_transposed:
+            object.__setattr__(result, "_is_transposed", True)
+        return result
+
+    def _merge_representation_adapter(self, index=None, *, maxpow2: int | None = None,
               tol: float | None = None, sample_test: bool = True,
               min_samples: int | None = None,
               refinement_function: str | Callable | None = None) -> "Chebfun":
@@ -11379,6 +11486,63 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
     return Chebfun(funs=funs, domain=Domain(tuple(domain)))
 
 
+def _merge_limit_row(piece, right):
+    """Source Chebtech lval/rval, as a single row of function columns."""
+    coeffs = jnp.asarray(piece.tech.coeffs)
+    if not right:
+        signs = jnp.where(jnp.arange(coeffs.shape[0]) % 2, -1, 1)
+        coeffs = coeffs * (signs if coeffs.ndim == 1 else signs[:, None])
+    return jnp.atleast_1d(jnp.sum(coeffs, axis=0))
+
+
+def _source_breakpoint_values(funs, ends, op=None):
+    """Bounded smooth getValuesAtBreakpoints; evaluate OP once when supplied.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/getValuesAtBreakpoints.m
+    Chebfun commit: 7574c77
+    """
+    rows = [_merge_limit_row(funs[0], False)]
+    rows.extend((_merge_limit_row(p, True) + _merge_limit_row(q, False)) / 2
+                for p, q in zip(funs[:-1], funs[1:]))
+    rows.append(_merge_limit_row(funs[-1], True))
+    fallback = jnp.stack(rows)
+    if op is None:
+        values = fallback
+    else:
+        values = jnp.asarray(op(jnp.asarray(ends, dtype=jnp.float64)))
+        if values.ndim == 0:
+            values = jnp.broadcast_to(values, fallback.shape)
+        elif values.ndim == 1:
+            values = values[:, None]
+        if values.shape != fallback.shape:
+            raise ValueError("Callback must return one row per breakpoint.")
+        values = jnp.where(jnp.isnan(values), fallback, values)
+    return values[:, 0] if funs[0].tech.coeffs.ndim == 1 else values
+
+
+def _merge_pair_values(x, left, right):
+    """@fun/merge.m myFun: current neighbors, right wins at shared end."""
+    x = jnp.asarray(x)
+    flat = x.reshape((-1,))
+    multi = left.tech.coeffs.ndim == 2
+    columns = left.tech.coeffs.shape[1] if multi else 1
+    dtype = jnp.result_type(x, left.tech.coeffs, right.tech.coeffs)
+    values = jnp.zeros((flat.size, columns), dtype=dtype)
+    # MATLAB relational comparisons on complex arguments use real parts.
+    mask_left = jnp.real(flat) <= left.interval[1]
+    mask_right = jnp.real(flat) >= right.interval[0]
+    if bool(jnp.any(mask_left)):
+        sampled = jnp.asarray(left(flat[mask_left])).reshape((-1, columns))
+        values = values.at[mask_left].set(sampled)
+    if bool(jnp.any(mask_right)):
+        sampled = jnp.asarray(right(flat[mask_right])).reshape((-1, columns))
+        values = values.at[mask_right].set(sampled)
+    return values.reshape(x.shape + ((columns,) if multi else ()))
+
+
+
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
                        min_w: "float | None" = None,
@@ -11702,8 +11866,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
 
     Fit supplied intervals in order, then split the first widest unhappy
     interval. Shared scale changes only after happy fits. The actual total
-    length is checked after inserting both fitted children. The existing merge
-    adapter subsequently removes only breaks introduced by this constructor.
+    length is checked after inserting both fitted children. Source merge
+    subsequently considers only breaks introduced by this constructor.
     Singfun, unbounded and first-kind construction have separate adapters.
 
     Provenance
@@ -11788,17 +11952,17 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
 
     ends = [funs[0].interval[0]] + [piece.interval[1] for piece in funs]
     out = Chebfun(funs=funs, domain=Domain(tuple(ends)))
+    # Outer chebfun constructor captures the original callback at all final
+    # breaks before source merge; only NaNs fall back to one-sided limits.
+    object.__setattr__(out, "_point_values",
+                       _source_breakpoint_values(funs, ends, f))
     introduced = [x for x in ends[1:-1] if x not in given]
     if introduced:
-        # The retained merge adapter is qualified separately from the source
-        # scheduler. Its legacy power cap still rounds raw splitLength.
-        merge_pow2 = max(4, int(math.floor(math.log2(
-            max(raw_split_length - 1, 2)))))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            out = out.merge(index=introduced, maxpow2=merge_pow2,
-                            tol=tol, sample_test=sample_test,
-                            min_samples=min_samples,
+            out = out.merge(index=introduced, max_length=raw_split_length,
+                            splitting=True, tol=tol, turbo=turbo, check=check,
+                            sample_test=sample_test, min_samples=min_samples,
                             refinement_function=refinement_function)
     return out
 
