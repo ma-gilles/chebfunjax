@@ -1,45 +1,58 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Latest shared checkout status (2026-10-05; takes precedence below)
+## Latest shared checkout status (2026-10-06; takes precedence below)
 
-Full MATLAB7574c77 and322-page parity is still incomplete. The active owned,
-shared-ACL checkout is
+Full MATLAB7574c77 and322-page parity remains incomplete and active. Work in
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout`.
-Read `CURRENT_GOAL_STATUS.md` in that checkout's parent for the current evidence,
-next gap and external blockers. The older evidence root is preserved read-only;
-the original home checkout and its unfinished edits are protected.
+Read `CURRENT_GOAL_STATUS.md` in its parent for current evidence and next gaps.
+The original home checkout and twelve interrupted scripts remain protected;
+all writes, environments, receipts and outputs belong under shared scratch.
 
-Source checkpoint `f9a855bcb21d26e61b312a7bf5dbec3f7cef0c23` contains59 locally
-committed packages. P59 fixes stored breakpoint/delta realness, whole-object
-complex plot routing and both-coordinate NaN separators. Its25 new controls and
-49 regressions pass serially on pinned JAX0.11 CPU/x64 /Matplotlib3.10.8;
-no failures, errors, skips or expected failures. Actual25-case baseline12fail/
-13pass was frozen before repair; tests and bounds stayed unchanged. Every source/
-test byte, committed Git blob and all1,634 archive payloads were rechecked:
-`isreal_plot_p59_parent_committed_archive_review_20261005.json`. The full archive
-`goal_checkpoint_isreal_plot_f9a855bc_20261004.zip` has SHA256
-`7c083b5309fc16940561dad802ab746f922f891fbd40b5c6b0a20b41592c2b00`.
-Bundle `isreal_plot_f9a855bc.bundle` preserves the complete59-commit prefix.
+Ordinary non-force pushes now work in the normal execution context. Licensed
+MATLAB R2025b also runs normally on CPU. Earlier SSH/startup restrictions in
+historical notes are resolved; do not bypass SSH/configuration/licensing rules.
+Use `gh-cli`, explicit staging, GPT-6 commit trailer and full Ruff gates.
+CPU only; heavy local examples/tests serial. At most two helpers: cheap routine
+work plus Astra medium numerical review as explicitly requested by the user.
 
-Ordinary push fails before connection/key selection: this execution context maps
-only UID230216; the system SSH include owner appears unmapped65534 and SSH rejects
-`/etc/ssh/ssh_config.d/20-hostbased.conf`. Correct executable and remote were
-verified. No remote publication or fresh green CI is claimed. Publication needs
-a supported normal execution context; use the parent
-`PUBLICATION_CONTEXT_HANDOFF_20261005.md`, inspect upstream and integrate without
-force-pushing in a separate shared checkout. Do not modify the active CPU tree.
-Fresh licensed MATLAB stage exports and reference image retrieval remain open.
+P91 parent main checkpoint `c068b83fa363b421c22028c07631663b3a88db09` contains
+91 published packages. P87 fixes generated Pixi editable metadata without
+external package upgrades; locked installation succeeds. P88 source scheduler
+passed145 CPU cases; P90 bounded JAX detector passed162; P91 one-pass bounded
+merge and original callback breakpoint values passed178, retaining original
+MATLAB numerical bounds. These gates overlap and are not added.
 
-Next source gap: exact per-denominator-FUN zero division checks before roots,
-domain and orientation handling. No actual baseline for that repair has run.
-P59 does not fix legacy `plot_1d`/public plotting alias, complex delta rendering
-or constructor realification. Full function/assertion parity, known numerical
-bugs and performance matching, exact decisions for all twelve root scripts,
-322-page prose/output and figure parity remain unresolved. Cached Markdown audit:
-1,958 numeric deviations; figures445 missing references,63 size differences,
-797 same-sized pixel differences without an accepted threshold. These are cached
-inventories, not fresh qualification of every current example.
+This P92 state-preservation package passed70 CPU tests with no failures,
+errors or skips, including unchanged original MATLAB expm/periodicBVP tests.
+Zero-time operator propagation preserves initial blocks without resampling;
+physical periodic derivatives preserve known real/complex state. Full Ruff,
+F821 and diff gates precede publication. Exact-byte receipts and tested trees
+are under the shared root, named `ci_state_p92_*`; publication receipt records
+the resulting commit, ordinary push, bundle and full archive verification.
 
+CI remains unresolved. Exact prior run logs expose sphere multistep error
+3.801e-9 against1e-10 and an extracted-column norm2.298e-16 againsteps2.220e-16.
+P92 addresses the separate zero-time length mismatch and periodic derivative
+cast failure; no latest green CI or full-suite acceptance is claimed. P91 CI
+run37460494400 is executing; its documentation deployment succeeded. Monitor
+exact commit SHAs and completed-job REST logs rather than historical green runs.
+
+Fresh cached-text audit covers all322 current pages: ordered prose, equations,
+tables and2403 input blocks match. Eleven output-count differences and one
+AtmosphericTemperature image-slot gap remain; calculations/stdout/pixels are
+excluded. P89 Resampling restricts THEN simplifies per MATLAB curly indexing;
+its actual CPU run/page/six600x270 images are published, but13 inverse endpoints
+versus freshMAT12 and all six image pixel mismatches remain. Earlier claims that
+the old script was source-faithful are withdrawn. Exact twelve-original-script
+disposition remains open; see parent `handoff_twelve_exact_disposition_p89_update_20261006.md`.
+
+Next work: source sphere output representation and strict column-evaluation
+roundoff; actual seven-assertion public detector/blowup port; singular/unbounded
+merge assertions12,13; full function/test/page/figure/RNG/performance parity.
+Fresh Fejer-I source weights pass the strict n10 sum; exact-input diagnostic
+isolates the JAX inverseFFT stage, with no accepted production repair yet.
+Do not truncate columns, normalize weights, widen bounds or target cached counts.
+Source drafts, baselines and fresh MATLAB oracles are preserved in shared scratch.
 
 This document takes over from the Claude session that ran the parity
 campaign from 2026-07 to 2026-09. `HANDOFF.md` (2026-07) is older and partly

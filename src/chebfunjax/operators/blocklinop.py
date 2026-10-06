@@ -710,6 +710,17 @@ class BlockLinop:
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        # @linop/expm.m appends the original u0 blocks at t=0 before
+        # propagation, conversion or simplify; resampling changes lengths
+        # and isolated point values even when the resulting curve is close.
+        if t == 0 and discretization in (
+                "chebcolloc2", "chebcolloc1", "ultraS", "trigcolloc"):
+            entries = self._normalize_rhs(u0)
+            use_dom = self._merged_domain(entries) if dom is None else tuple(dom)
+            if not all(math.isfinite(float(x)) for x in use_dom):
+                raise ValueError("Operator exponential requires a bounded domain.")
+            return ChebMatrix([[u] for u in entries], domain=use_dom)
+
         if discretization != "chebcolloc2":
             return self._expm_altdisc(t, u0, n, discretization)
 

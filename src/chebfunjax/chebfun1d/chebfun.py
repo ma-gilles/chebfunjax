@@ -539,7 +539,14 @@ class _Piece(eqx.Module):
         # Chebtech2 must rebuild as Chebtech2), which also keeps trig
         # pieces from reinterpreting Fourier coefficients as Chebyshev.
         scaled_coeffs = tech_der.coeffs * jnp.float64(scale)
-        new_tech = type(tech_der).from_coeffs(scaled_coeffs)
+        from chebfunjax.tech.trigtech import Trigtech
+        if isinstance(tech_der, Trigtech):
+            # MATLAB @trigtech/diff.m retains isReal and realifies values
+            # for derivative columns that are known to represent reals.
+            new_tech = type(tech_der).from_coeffs(
+                scaled_coeffs, is_real=tech_der.is_real)
+        else:
+            new_tech = type(tech_der).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
 
     def cumsum(self) -> _Piece:
