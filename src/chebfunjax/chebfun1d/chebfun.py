@@ -2572,6 +2572,19 @@ class Chebfun(eqx.Module):
         a, b = self.domain.a, self.domain.b
         return f"<Chebfun [{a}, {b}], length {len(self)}>"
 
+    @staticmethod
+    def odesol(sol, domain, options=None, *, return_time=False):
+        """Convert dense ODE output; see :func:`chebfunjax.odesol`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/odesol.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.ode_solution import odesol
+        return odesol(sol, domain, options, return_time=return_time)
+
+
     # ------------------------------------------------------------------
     # Arithmetic operators
     # ------------------------------------------------------------------
@@ -11194,6 +11207,7 @@ chebfun.__doc__ = (chebfun.__doc__ or "") + "\n\n" + (
 # in the API design doc.
 chebfun.from_coeffs = Chebfun.from_coeffs  # type: ignore[attr-defined]
 chebfun.from_values = Chebfun.from_values  # type: ignore[attr-defined]
+chebfun.odesol = Chebfun.odesol             # type: ignore[attr-defined]
 chebfun.identity = Chebfun.identity        # type: ignore[attr-defined]
 
 
@@ -11718,13 +11732,23 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               split_max_length: "int | None" = None,
                               sample_test: bool = True,
                               check: str = "standard",
-                              refinement_function: str | Callable | None = None):
+                              refinement_function: str | Callable | None = None,
+                              *, vscale: float = 0.0,
+                              hscale: float | None = None):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
     jump the piece captures the one-sided limit (not the ambiguous value
     exactly at the breakpoint, e.g. sign(0)=0).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/constructor.m, @bndfun/bndfun.m
+    Chebfun commit: 7574c77
     """
+    # Preserve the legacy default while honoring the whole-domain scale
+    # explicitly supplied by ODESOL, including domains smaller than one.
+    hscale_g = max(abs(a), abs(b), 1.0) if hscale is None else float(hscale)
     if turbo:
         # MATLAB 'turbo' (techPrefs.useTurbo) with splitting on: the
         # subdivision is decided at ordinary accuracy and every final
@@ -11734,7 +11758,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
             f, a, b, maxpow2, tol=tol, turbo=False,
             min_samples=min_samples, split_length=split_length,
             split_max_length=split_max_length, sample_test=sample_test,
-            check=check, refinement_function=refinement_function)
+            check=check, refinement_function=refinement_function,
+            vscale=vscale, hscale=hscale_g)
         funs = []
         for pc in plain.funs:
             pa, pb = float(pc.interval[0]), float(pc.interval[1])
@@ -11742,12 +11767,13 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                 # extrapolate: like the plain pieces, never sample the
                 # ambiguous breakpoint value itself (sign(0) = 0).
                 funs.append(_Piece.from_function(f, pa, pb, turbo=True,
+                                                 tol=tol,
                                                  extrapolate=True,
                                                  sample_test=sample_test,
                                                  min_samples=min_samples,
                                                  check=check,
-                                                 hscale=max(abs(a), abs(b), 1.0)
-                                                 / (pb - pa),
+                                                 vscale=vscale,
+                                                 hscale=hscale_g / (pb - pa),
                                                  refinement_function=refinement_function))
             except Exception:
                 funs.append(pc)
@@ -11772,13 +11798,14 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         except Exception:
             _ys0 = _np0.asarray([])
     _ys0 = _ys0[_np0.isfinite(_ys0)] if _ys0.size else _ys0
-    vscale_g = float(_np0.max(_ys0)) if _ys0.size else 0.0
+    sampled_scale = float(_np0.max(_ys0)) if _ys0.size else 0.0
+    vscale_g = float(jnp.maximum(jnp.max(jnp.asarray(vscale)), sampled_scale))
     _budget = {"used": 2 ** split_pow2 + 1,
                "max": (6000 if split_max_length is None
                        else int(split_max_length))}
     brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2,
                               tol=tol, vscale=vscale_g, budget=_budget,
-                              hscale=max(abs(a), abs(b), 1.0), check=check,
+                              hscale=hscale_g, check=check,
                               sample_test=sample_test,
                               min_samples=min_samples,
                               refinement_function=refinement_function)
@@ -11841,8 +11868,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                                            extrapolate=_xtrap,
                                            vscale=vscale_g,
                                            check=check,
-                                           hscale=max(abs(a), abs(b), 1.0)
-                                           / (bi - ai),
+                                           hscale=hscale_g / (bi - ai),
                                            sample_test=sample_test,
                                            min_samples=min_samples,
                                            **({} if refinement_function is None else {
@@ -11868,7 +11894,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                   for pc in funs]
         k = int(_np.argmax(_np.asarray(widths)))
         a_k, b_k = funs[k].interval
-        edge = _detect_edge_matlab(f, a_k, b_k)
+        edge = _detect_edge_matlab(f, a_k, b_k,
+                                   vscale=vscale_g, hscale=hscale_g)
         okw = 4 * _np.spacing(max(abs(a_k), abs(b_k), 1e-300))
         if (edge is None or not (a_k < edge < b_k)
                 or edge - a_k < okw or b_k - edge < okw):
@@ -11884,7 +11911,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                     turbo=turbo, start_pow2=_sp2, extrapolate=True,
                     vscale=vscale_g, sample_test=sample_test,
                     check=check,
-                    hscale=max(abs(a_k), abs(b_k), 1.0) / (bb - aa),
+                    hscale=hscale_g / (bb - aa),
                     min_samples=min_samples,
                     refinement_function=refinement_function))
         funs[k:k + 1] = halves
@@ -11893,12 +11920,12 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     # wildly unbounded (observed 1e48 on the SOR spectral-radius kink),
     # poisoning min/max candidate evaluation.  Replace it with the
     # bounded interpolant of a few interior samples.
-    hscale = max(abs(float(cleaned[0])), abs(float(cleaned[-1])), 1.0)
+    sliver_hscale = hscale_g
     for k, pc in enumerate(funs):
         if not _sad(pc):
             continue
         a_k, b_k = pc.interval
-        if (b_k - a_k) >= 1e-8 * hscale:
+        if (b_k - a_k) >= 1e-8 * sliver_hscale:
             continue
         import numpy as _np
         # A merely UNRESOLVED sliver (sqrt(1-x) on [1-1e-14, 1]) keeps

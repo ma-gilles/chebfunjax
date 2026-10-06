@@ -71,6 +71,7 @@ from chebfunjax.utils.fasttransforms import (  # noqa: E402
 )
 from chebfunjax.utils.misc import isSubset  # noqa: E402
 from chebfunjax.utils.nufft import nufft2  # noqa: E402
+from chebfunjax.utils.ode_solution import odesol  # noqa: E402
 from chebfunjax.utils.polynomials import (  # noqa: E402
     hermpoly_chebfun as hermpoly,
 )
@@ -248,6 +249,7 @@ def pdeSolve(pdefun, t, u0, **kwargs):
 __all__ = [
     "Chebfun",
     "chebfun",
+    "odesol",
     "Chebfun2",
     "chebfun2",
     # Special functions

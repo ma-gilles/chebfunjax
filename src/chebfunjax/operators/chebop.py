@@ -43,6 +43,8 @@ from chebfunjax.operators.blocks import (
 from chebfunjax.operators.linop import Linop
 from chebfunjax.utils.quadrature import chebpts
 
+# uses-numpy: SciPy solver boundaries and inherited host assembly pending JAX migration.
+
 # MATLAB @cheboppref factory defaults for the IVP time-marcher
 # (cheboppref.m: ivpAbsTol = 1e5*eps, ivpRelTol = 100*eps).  These set
 # the noise floor of a marched solution, so they are visible in any
@@ -2497,41 +2499,6 @@ class Chebop:
         a_eff = float(min(t0, t_stop))
         b_eff = float(max(t0, t_stop))
 
-        # Build each component as a PIECEWISE chebfun on the solver's
-        # own time mesh (MATLAB @chebfun/constructODEsol).  A single
-        # global polynomial is accurate only relative to its global
-        # vscale, so a trajectory spanning many orders of magnitude
-        # (e.g. two Lorenz orbits separating from 1e-9) evaluates to
-        # cancellation noise early on; local pieces keep local accuracy.
-        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-
-        ts = _np.asarray(sol.t, dtype=float)
-        if ts[0] > ts[-1]:
-            ts = ts[::-1]
-        ts = _np.unique(_np.clip(ts, min(a, b), max(a, b)))
-        # Group solver steps into pieces (a piece per step would give
-        # thousands of tiny funs); ~16 steps per piece keeps each fun
-        # low-degree while bounding their number.
-        step = max(1, int(_np.ceil(ts.size / 256.0)), 8)
-        idx = list(range(0, ts.size - 1, step))
-        breaks = [a_eff] + [float(ts[i]) for i in idx[1:]] + [b_eff]
-        breaks = sorted(set(breaks))
-        span = abs(float(b) - float(a))
-        breaks = [breaks[0]] + [
-            v for k, v in enumerate(breaks[1:], 1)
-            if v - breaks[k - 1] > 1e-13 * span]
-        if breaks[-1] != b_eff:
-            breaks[-1] = b_eff
-
-        def _component(i):
-            def _ev(t, _i=i):
-                tt = _np.atleast_1d(_np.asarray(t, dtype=float))
-                vals = sol.sol(tt)[_i]
-                return jnp.asarray(
-                    vals.reshape(_np.shape(t)) if _np.ndim(t) else vals[0],
-                    dtype=jnp.float64)
-            return _ev
-
         def _pad_nan_sys(comp):
             if not blew_up:
                 return comp
@@ -2549,45 +2516,39 @@ class Chebop:
                 bps = (float(a),) + bps
             return Chebfun(funs=funs, domain=Domain(bps))
 
-        try:
-            out = []
-            for i in range(m):
-                ev = _component(i)
-                funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
-                        for k in range(len(breaks) - 1)]
-                # MATLAB's ODE-based IVP solution reproduces the initial
-                # state exactly; the dense interpolant of the marched
-                # piece carries ~atol noise, so pin the endpoint value by
-                # shifting that piece's constant coefficient.
-                try:
-                    fwd = t1 >= t0
-                    kp = 0 if fwd else -1
-                    pc = funs[kp]
-                    d = float(_np.asarray(pc.tech(jnp.asarray(
-                        -1.0 if fwd else 1.0)))) - float(y0[i])
-                    if _np.isfinite(d) and d != 0.0:
-                        cf = jnp.asarray(pc.tech.coeffs)
-                        cf = cf.at[0].add(-d)
-                        funs[kp] = _Piece(tech=type(pc.tech).from_coeffs(cf),
-                                          interval=pc.interval)
-                except Exception:
-                    pass
-                out.append(_pad_nan_sys(Chebfun(
-                    funs=funs, domain=Domain(tuple(breaks)))))
-            return SystemSolution(
-                out if blew_up else _commonize_system(out))
-        except Exception:
-            # Fall back to a single global representation.
-            nn = int(min(8193, max(257, 4 * sol.t.size)))
-            kk = _np.arange(nn)
-            xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
-            xp = a + (b - a) * (xg + 1.0) / 2.0
-            Y = sol.sol(xp)
-            return SystemSolution([
-                _chebfun_from_values(
-                    jnp.asarray(Y[i]), self.domain).simplify()
-                for i in range(m)
-            ])
+        # Fit the actual coupled dense solver output once, as MATLAB
+        # @chebfun/odesol.m does. This shares the state-derived tolerance,
+        # domain breaks, and happiness checker across all components.
+        from chebfunjax.chebpref import ChebopPref
+        from chebfunjax.utils.ode_solution import _odesol_from_dense
+
+        def dense_values(t):
+            values = jnp.asarray(sol.sol(t))
+            if values.ndim == 1:
+                return values[None, :]
+            return values.T
+
+        domain_breaks = tuple(float(v) for v in self.domain)
+        if blew_up:
+            inner_edges = [v for v in domain_breaks[1:-1]
+                           if min(t0, t_stop) < v < max(t0, t_stop)]
+            if t1 < t0:
+                inner_edges.reverse()
+            fit_domain = (t0, *inner_edges, t_stop)
+        else:
+            fit_domain = (domain_breaks if t1 >= t0
+                          else tuple(reversed(domain_breaks)))
+
+        array_solution = _odesol_from_dense(
+            dense_values, fit_domain, jnp.asarray(sol.y),
+            getattr(self, "ivp_reltol", IVP_RELTOL),
+            getattr(self, "ivp_abstol", IVP_ABSTOL),
+            check=ChebopPref().happinessCheck,
+        )
+        components = [array_solution.extract_columns(i) for i in range(m)]
+        if blew_up:
+            components = [_pad_nan_sys(component) for component in components]
+        return SystemSolution(components)
 
     def eigs_generalized(self, B: "Chebop", k: int = 6,
                          n: int = 96, sort: str = "SM",
@@ -5838,6 +5799,45 @@ class Chebop:
                 out[sel] = s_sol.sol(xq)[j]
             return jnp.asarray(out.reshape(_np.shape(x)) if _np.ndim(x)
                                else out[0], dtype=jnp.float64)
+
+        if len(ic) == 1:
+            # Match @chebfun/odesol.m's representation fit from the actual
+            # solver dense output and its complete state history. A single
+            # SciPy interpolant corresponds to MATLAB's single SOL struct;
+            # restarted segments correspond to its cell array of deval
+            # callbacks. The helper sorts/reverses descending final-value
+            # domains together with the callbacks.
+            from chebfunjax.chebpref import ChebopPref
+            from chebfunjax.utils.ode_solution import _odesol_from_dense
+
+            if blew_up:
+                march_lo = min(x0, t_end)
+                march_hi = max(x0, t_end)
+                inner_edges = [v for v in bps
+                               if march_lo < v < march_hi]
+                if not left:
+                    inner_edges.reverse()
+                fit_edges = [x0] + inner_edges + [t_end]
+            else:
+                fit_edges = list(seg_edges)
+
+            def dense_values(segment):
+                def evaluate(x):
+                    values = jnp.asarray(segment.sol(x))
+                    if values.ndim == 1:
+                        return values[None, :]
+                    return values.T
+                return evaluate
+
+            callbacks = [dense_values(segment) for segment in segs]
+            interpolants = callbacks[0] if len(callbacks) == 1 else callbacks
+            states = jnp.concatenate(
+                [jnp.asarray(segment.y) for segment in segs], axis=1)
+            array_solution = _odesol_from_dense(
+                interpolants, tuple(fit_edges), states, rtol, atol,
+                check=ChebopPref().happinessCheck,
+            )
+            return _pad_nan(array_solution.extract_columns(0))
 
         # Build the trajectory as repeated ANTIDERIVATIVES of the
         # marched highest-derivative state component, with the initial
