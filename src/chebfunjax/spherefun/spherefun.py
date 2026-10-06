@@ -1402,71 +1402,132 @@ class Spherefun(eqx.Module):
     # ------------------------------------------------------------------
 
     def sum2(self) -> jax.Array:
-        """MATLAB-parity alias for :meth:`sum` (surface integral).
+        """Surface integral using the source plus-factor contraction.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/sum2.m
+        MATLAB source : @spherefun/sum2.m, @separableApprox/cdr.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        Cosine coefficients use two-output @chebfun/trigcoeffs.m, including
+        its even Nyquist slot. Factors are aligned before integration.
         """
-        return self.sum()
+        if self.isempty() or not self.idx_plus:
+            return jnp.asarray(0.0, dtype=jnp.float64)
+        indices = list(self.idx_plus)
+        columns = [self.cols[j] for j in indices]
+        rows = [self.rows[j] for j in indices]
+        inverse = 1.0 / self.pivots[jnp.asarray(indices)]
+        inverse = jnp.where(jnp.isinf(jnp.abs(inverse)), 0.0, inverse)
+        ncols = max(col.n for col in columns)
+        known_real = all(col.is_real for col in columns)
+        int_columns = []
+        for col in columns:
+            a = _sphere_mean_cosine_coefficients(col, ncols, known_real=known_real)
+            k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
+            factor = 2.0 / (1.0 - k**2)
+            factor = factor.reshape((factor.size,) + (1,) * (a.ndim - 1))
+            int_columns.append(jnp.sum(a[::2] * factor, axis=0))
+        int_cols = jnp.stack(int_columns)
+        # Raw technologies integrate over [-1,1]; source rows own [-pi,pi].
+        int_rows = jnp.stack([jnp.pi * row.sum() for row in rows])
+        # Literal source operation order: sum(d .* intRows .* intCols).
+        return jnp.sum((inverse * int_rows) * int_cols, axis=0)
 
-    def sum(self) -> jax.Array:
-        """Definite integral of the Spherefun over the unit sphere.
+    def sum(self, dim: int = 1):
+        """Integrate one coordinate, returning a Chebfun in the other.
 
-        Computes ∫∫ f(lam, theta) sin(theta) d(theta) d(lam)
-        over the full sphere (lam in [-pi, pi], theta in [0, pi]).
-
-        Only the "plus" terms contribute (minus terms integrate to zero).
-
-        The integral of each plus term factorises as:
-            (1/d_j) * (∫_0^pi c_j(theta) sin(theta) d(theta)) * (∫_{-pi}^{pi} row_j(lam) d(lam))
-
-        The latitude integral uses the cosine series trick (fast Fourier method):
-            ∫_0^pi col(theta) sin(theta) d(theta) = Σ_{k even} a_k * 2/(1 - k^2)
-        where a_k are the cosine coefficients of col.
-
-        Returns
-        -------
-        jax.Array, scalar
-            Definite integral ∫∫_S f sin(theta) d(theta) d(lam).
-
-        Notes
-        -----
-        For the full sphere of radius 1: ∫∫ 1 * sin(theta) d(theta) d(lam) = 4π.
+        Dimension 1 uses the source even-cosine latitude weights and returns
+        a row Chebfun on [-pi,pi]. Dimension 2 integrates longitude and
+        returns a column Chebfun on [0,pi]. Empty input returns numeric [].
+        Real scalar-valued Spherefun factors are the qualified API scope;
+        generic complex constructor/axis representation remains unqualified.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/sum2.m
+        MATLAB source : @spherefun/sum.m
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
-        if len(self.idx_plus) == 0:
-            return jnp.array(0.0, dtype=jnp.float64)
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
+        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
 
-        result = jnp.array(0.0, dtype=jnp.float64)
+        # MATLAB sum.m returns numeric [] before dimension validation.
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        if dim not in (1, 2):
+            # MATLAB sum(f, dim) raises first, before mean.m's own later
+            # invalid-dimension branch.
+            raise ValueError(
+                "CHEBFUN:SPHEREFUN:sum:unknown: Undefined function "
+                "'sum' for that dimension")
 
-        for j in self.idx_plus:
-            # Integrate row over [-pi, pi]:
-            # row_j is a Trigtech on [-1, 1] with th_ref = lam/pi
-            # d(lam) = pi * d(lam_ref)
-            # ∫_{-pi}^{pi} row_j(lam) d(lam) = pi * 2 * c_0
-            row_coeffs = self.rows[j].coeffs
-            n_row = row_coeffs.shape[0]
-            c0_idx_row = n_row // 2
-            int_row = jnp.pi * 2.0 * jnp.real(row_coeffs[c0_idx_row])
+        if not self.cols:
+            if dim == 1:
+                return _chebfun(
+                    0.0, domain=(-float(jnp.pi), float(jnp.pi))).T
+            return _chebfun(0.0, domain=(0.0, float(jnp.pi)))
 
-            # Integrate col * sin(theta) over [0, pi]:
-            # col is a Trigtech on [-1, 1] with th_ref = theta/pi (for theta in [0, pi])
-            # We use the cosine series identity (MATLAB sum2.m fast code):
-            # col(theta) = Σ_k a_k cos(k * theta)   (even in theta, so cosine series)
-            # ∫_0^pi col(theta) sin(theta) d(theta) = Σ_k a_k 2/(1 - k^2) for even k
-            int_col = _integrate_trigtech_times_sin(self.cols[j])
+        # MATLAB cdr returns D=diag(1./pivots), replacing infinite reciprocal
+        # entries (zero pivots) by zero. Keep reciprocal weights complex-safe.
+        inverse_pivots = 1.0 / self.pivots
+        inverse_pivots = jnp.where(
+            jnp.isinf(jnp.abs(inverse_pivots)), 0.0, inverse_pivots)
+        real_input = (
+            all(c.is_real and r.is_real
+                for c, r in zip(self.cols, self.rows))
+            and not jnp.iscomplexobj(self.pivots)
+        )
 
-            result = result + (1.0 / self.pivots[j]) * int_col * int_row
+        if dim == 1:
+            # Literal @spherefun/sum.m algorithm:
+            # [a,~]=trigcoeffs(cols); k=(0:size(a,1)-1)';
+            # intFactor=2./(1-k(1:2:end).^2);
+            # intCols=sum(a(1:2:end,:).*intFactor).
+            # Two-output @chebfun/trigcoeffs returns cosine coefficients,
+            # not the centered complex Fourier vector from one output.
+            ncols = max(col.n for col in self.cols)
+            columns_real = all(col.is_real for col in self.cols)
+            int_cols = []
+            for col in self.cols:
+                a = _sphere_mean_cosine_coefficients(
+                    col, ncols, known_real=columns_real)
+                k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
+                int_factor = 2.0 / (1.0 - k**2)
+                factor_shape = (int_factor.size,) + (1,) * (a.ndim - 1)
+                int_cols.append(jnp.sum(
+                    a[::2] * int_factor.reshape(factor_shape), axis=0))
+            weights = [int_cols[j] * inverse_pivots[j]
+                       for j in range(len(int_cols))]
+            if real_input:
+                weights = [jnp.real(weight) for weight in weights]
+            combined = _sum_trigtech_factors(self.rows, weights)
+            combined = combined.simplify()  # source globaltol simplify
+            piece = _Piece(tech=combined,
+                           interval=(-float(jnp.pi), float(jnp.pi)))
+            curve = Chebfun(funs=[piece], domain=Domain(
+                (-float(jnp.pi), float(jnp.pi))))
+            curve = Chebfun._as_transposed(curve, True)
+            return curve
 
-        return result
+        # @spherefun/sum.m contracts ``cols * (D*sum(rows).')`` then
+        # simplifies and restricts to [0,pi]. Raw Trigtech rows integrate
+        # on [-1,1], so multiply their integrals by pi for physical longitude.
+        weights = [jnp.pi * row.sum() * inverse_pivots[j]
+                   for j, row in enumerate(self.rows)]
+        if real_input:
+            weights = [jnp.real(weight) for weight in weights]
+        combined = _sum_trigtech_factors(self.cols, weights)
+        combined = combined.simplify()  # source globaltol simplify
+        restricted = combined.restrict(0.0, 1.0)
+        piece = _Piece(tech=restricted, interval=(0.0, float(jnp.pi)))
+        curve = Chebfun(funs=[piece], domain=Domain(
+            (0.0, float(jnp.pi))))
+        return curve
+
+
 
     # ------------------------------------------------------------------
     # Properties
@@ -2784,102 +2845,25 @@ class Spherefun(eqx.Module):
         return out
 
     def mean(self, dim: int = 1):
-        """Mean along one Spherefun coordinate, matching MATLAB mean(f,dim).
+        """Axis mean: sum(f,1)/pi or sum(f,2)/(2*pi).
 
         Provenance
         ----------
-        MATLAB source : @spherefun/mean.m, @spherefun/sum.m
+        MATLAB source : @spherefun/mean.m
         Chebfun commit: 7574c77
-        MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df:
-        ``@spherefun/mean.m`` forwards to ``sum(f,dim)`` and divides by
-        ``pi`` for dim 1 or ``2*pi`` for dim 2. ``@spherefun/sum.m`` builds
-        the result from the low-rank ``cols``, ``rows`` and ``pivots``;
-        dim 1 returns a transposed periodic Chebfun on [-pi,pi], while dim 2
-        restricts the colatitude result to [0,pi]. Empty input is returned
-        before dimension validation. The source scalar surface mean is
-        ``mean2``; use this class's :meth:`mean2` for that operation.
-
-        Source files: ``@spherefun/mean.m``, ``@spherefun/sum.m``,
-        ``@spherefun/sum2.m``, ``@spherefun/mean2.m``. The pinned MATLAB
-        tree has no dedicated ``tests/spherefun/test_mean.m`` or
-        ``test_sum.m``; source behavior is recorded in the accompanying
-        R2025b oracle report.
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        Empty mean returns an empty Chebfun before dimension validation.
+        Use mean2() for the scalar surface average.
         """
-        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
-        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
-
-        # Match MATLAB mean.m: empty is returned before dim validation.
+        from chebfunjax.chebfun1d.chebfun import Chebfun
         if self.isempty():
             return Chebfun.empty()
-        if dim not in (1, 2):
-            # MATLAB sum(f, dim) raises first, before mean.m's own later
-            # invalid-dimension branch.
-            raise ValueError(
-                "CHEBFUN:SPHEREFUN:sum:unknown: Undefined function "
-                "'sum' for that dimension")
-
-        if not self.cols:
-            if dim == 1:
-                return _chebfun(
-                    0.0, domain=(-float(jnp.pi), float(jnp.pi))).T
-            return _chebfun(0.0, domain=(0.0, float(jnp.pi)))
-
-        # MATLAB cdr returns D=diag(1./pivots), replacing infinite reciprocal
-        # entries (zero pivots) by zero. Keep reciprocal weights complex-safe.
-        inverse_pivots = 1.0 / self.pivots
-        inverse_pivots = jnp.where(
-            jnp.isinf(jnp.abs(inverse_pivots)), 0.0, inverse_pivots)
-        real_input = (
-            all(c.is_real and r.is_real
-                for c, r in zip(self.cols, self.rows))
-            and not jnp.iscomplexobj(self.pivots)
-        )
-
+        integrated = self.sum(dim)
         if dim == 1:
-            # Literal @spherefun/sum.m algorithm:
-            # [a,~]=trigcoeffs(cols); k=(0:size(a,1)-1)';
-            # intFactor=2./(1-k(1:2:end).^2);
-            # intCols=sum(a(1:2:end,:).*intFactor).
-            # Two-output @chebfun/trigcoeffs returns cosine coefficients,
-            # not the centered complex Fourier vector from one output.
-            ncols = max(col.n for col in self.cols)
-            columns_real = all(col.is_real for col in self.cols)
-            int_cols = []
-            for col in self.cols:
-                a = _sphere_mean_cosine_coefficients(
-                    col, ncols, known_real=columns_real)
-                k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
-                int_factor = 2.0 / (1.0 - k**2)
-                factor_shape = (int_factor.size,) + (1,) * (a.ndim - 1)
-                int_cols.append(jnp.sum(
-                    a[::2] * int_factor.reshape(factor_shape), axis=0))
-            weights = [int_cols[j] * inverse_pivots[j]
-                       for j in range(len(int_cols))]
-            if real_input:
-                weights = [jnp.real(weight) for weight in weights]
-            combined = _sum_trigtech_factors(self.rows, weights)
-            combined = combined.simplify()  # source globaltol simplify
-            piece = _Piece(tech=combined,
-                           interval=(-float(jnp.pi), float(jnp.pi)))
-            curve = Chebfun(funs=[piece], domain=Domain(
-                (-float(jnp.pi), float(jnp.pi))))
-            curve = Chebfun._as_transposed(curve, True)
-            return curve / jnp.pi
+            return integrated / jnp.pi
+        return integrated / (2.0 * jnp.pi)
 
-        # @spherefun/sum.m contracts ``cols * (D*sum(rows).')`` then
-        # simplifies and restricts to [0,pi].  Since lambda's Trigtech
-        # coordinate is normalized by pi, sum(row)/(2*pi) is its DC mode.
-        weights = [jnp.pi * row.sum() * inverse_pivots[j]
-                   for j, row in enumerate(self.rows)]
-        if real_input:
-            weights = [jnp.real(weight) for weight in weights]
-        combined = _sum_trigtech_factors(self.cols, weights)
-        combined = combined.simplify()  # source globaltol simplify
-        restricted = combined.restrict(0.0, 1.0)
-        piece = _Piece(tech=restricted, interval=(0.0, float(jnp.pi)))
-        curve = Chebfun(funs=[piece], domain=Domain(
-            (0.0, float(jnp.pi))))
-        return curve / (2.0 * jnp.pi)
 
     @classmethod
     def sphharm(cls, l: int, m: int) -> "Spherefun":
@@ -3353,91 +3337,7 @@ class Spherefun(eqx.Module):
 # ============================================================================
 
 
-def _integrate_trigtech_times_sin(col: Trigtech) -> jax.Array:
-    """Compute ∫_0^pi col(theta) sin(theta) d(theta).
 
-    The column Trigtech is defined on [-1, 1] with argument t = theta/pi.
-    The function col(theta) is an even function of theta (for t in [-1,1]).
-    It has the cosine expansion: col(theta) = Σ_{k>=0} a_k cos(k*theta).
-
-    Using the identity:
-        ∫_0^pi cos(k*theta) sin(theta) d(theta) = 2/(1 - k^2)  if k even (k>=0)
-                                                  = 0             if k odd
-
-    For k=1 the formula is singular: ∫_0^pi cos(theta) sin(theta) d(theta) = 0.
-    For k=0: ∫_0^pi sin(theta) d(theta) = 2.
-
-    Fast computation: extract cosine coefficients from the Trigtech (which
-    uses complex Fourier coefficients in descending order), then multiply
-    by the integration factors.
-
-    Follows MATLAB @spherefun/sum2.m (fast code path).
-
-    Parameters
-    ----------
-    col : Trigtech
-        Column slice; defined on [-1, 1] with t = theta/pi.
-        Assumed to be an even function (cosine series in theta).
-
-    Returns
-    -------
-    jax.Array, scalar
-        ∫_0^pi col(theta) sin(theta) d(theta)
-
-    Provenance
-    ----------
-    MATLAB source : @spherefun/sum2.m
-    Chebfun commit: 7574c77
-    """
-    coeffs = col.coeffs  # complex, descending wavenumber order, length N
-    n = coeffs.shape[0]
-    c0_idx = n // 2
-
-    # Extract one-sided cosine coefficients (even part):
-    # For an even function: c_k = c_{-k} (Hermitian symmetry).
-    # The real cosine coefficients are a_k = 2 * Re(c_k) for k > 0, a_0 = Re(c_0).
-    # But we use the MATLAB approach: extract trigcoeffs (one-sided cosine, a).
-    # trigcoeffs(cols) gives [a0; a1; a2; ...] in MATLAB (cosine coefficients).
-    #
-    # In our Trigtech, c0_idx = n//2 holds c_0.
-    # For a real even function: coeffs[c0_idx - k] = conj(coeffs[c0_idx + k]).
-    # Re(c_k) for k >= 0 are the one-sided cosine coefficients (up to factor 2 for k>0).
-    #
-    # MATLAB formula: k = (0:m-1)'; intFactor = 2/(1 - k(1:2:end)^2)
-    # They work with the one-sided (length m) cosine coefficient vector.
-    # m = size(a, 1) = (N+1)/2 or so.
-    #
-    # Here we construct the one-sided coefficients from c0_idx onwards.
-    # One-sided: a[k] = Re(coeffs[c0_idx + k]) for k = 0, 1, ..., c0_idx
-    # (for even N we have fewer modes)
-
-    half = c0_idx  # number of positive modes
-    # a[0] = Re(c_0), a[k] = Re(c_k) for k = 1..half (but the Fourier series is in pi*k*t)
-    # Since t = theta/pi, f(theta) = Σ_k c_k exp(i*pi*k*t) = Σ_k c_k exp(i*k*theta)
-    # So the wavenumbers are integers (after accounting for t = theta/pi).
-    # For even function: a_k (cosine coeff) = 2*Re(c_k) for k>0, Re(c_0) for k=0.
-    a_re = jnp.real(coeffs[c0_idx:])  # length half+1: a_0, a_1, ..., a_half
-    # Actual cosine amplitudes: a[0] = a_re[0], a[k] = 2*a_re[k] for k>=1
-    # But MATLAB uses trigcoeffs which gives the one-sided form directly.
-    # Let's match MATLAB: a = [Re(c_0); 2*Re(c_1); 2*Re(c_2); ...]
-    k_vals = jnp.arange(half + 1, dtype=jnp.float64)  # 0, 1, ..., half
-    factor_k = jnp.where(k_vals == 0, 1.0, 2.0)
-    a = factor_k * a_re  # shape (half+1,)
-
-    # Integration factors: 2/(1-k^2) for k even, 0 for k odd
-    # a has m = half+1 entries; MATLAB uses k(1:2:end) which are k=0,2,4,...
-    # intFactor = 2/(1 - k^2) for k = 0, 2, 4, ...
-    # k=0: 2/1 = 2; k=2: 2/(1-4)=-2/3; k=4: 2/(1-16)=-2/15; etc.
-    k_even = k_vals[::2]  # 0, 2, 4, ...
-    k_even_sq = k_even**2
-    int_factor = 2.0 / (1.0 - k_even_sq)
-    a_even = a[::2]  # cosine coeffs at even wavenumbers
-
-    # Integral = Σ_{k even} a_k * int_factor_k
-    # = Σ a_even * int_factor (element-wise)
-    int_col = jnp.dot(a_even, int_factor)
-
-    return int_col
 
 
 # ============================================================================
@@ -4076,7 +3976,7 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'norm', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------

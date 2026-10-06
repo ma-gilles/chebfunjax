@@ -1,3 +1,4 @@
+# uses-numpy: Independent reference fixtures and numerical assertions in tests.
 """MATLAB golden-reference parity tests for the spherefun module.
 
 chebfunjax Spherefun is spherical-native (f(lam, theta), lam in [-pi,pi]
@@ -47,7 +48,7 @@ class TestSpherefunVsMatlab:
 
     def test_sum(self, i):
         f = Spherefun.from_function(_FUNS[i])
-        npt.assert_allclose(float(f.sum()), float(_REF[f"f{i}_sum"]),
+        npt.assert_allclose(float(f.sum2()), float(_REF[f"f{i}_sum"]),
                             rtol=RTOL, atol=1e-12)
 
     def test_rank(self, i):

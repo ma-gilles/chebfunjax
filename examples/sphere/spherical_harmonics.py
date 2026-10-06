@@ -41,7 +41,7 @@ def run():
     print(f"  Rank: {f_const.rank}")
 
     # Integral of 1 over S^2 = 4*pi
-    integral_const = float(f_const.sum())
+    integral_const = float(f_const.sum2())
     print(f"  Integral = {integral_const:.8f}  (exact: {4*np.pi:.8f})")
     assert abs(integral_const - 4*np.pi) < 0.01
 
@@ -51,7 +51,7 @@ def run():
     print(f"  Rank: {f_Y11.rank}")
 
     # Integral should be 0
-    integral_Y11 = float(f_Y11.sum())
+    integral_Y11 = float(f_Y11.sum2())
     print(f"  Integral = {integral_Y11:.2e}  (expected: ~0)")
     assert abs(integral_Y11) < 0.1
 

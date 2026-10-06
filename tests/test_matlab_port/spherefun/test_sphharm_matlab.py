@@ -24,7 +24,7 @@ class TestSpherefunSphharm:
             # normalization: integral of Y^2 = 1
             sq = Spherefun.from_function(
                 lambda lam, th, Y=Y1: Y(lam, th) ** 2)
-            assert abs(float(sq.sum()) - 1.0) < TOL
+            assert abs(float(sq.sum2()) - 1.0) < TOL
 
     def test_laplace_eigenfunction(self):
         Y = Spherefun.sphharm(4, 2)

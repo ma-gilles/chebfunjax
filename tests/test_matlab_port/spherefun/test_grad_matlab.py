@@ -24,4 +24,4 @@ class TestSpherefunGrad:
         e = Spherefun.from_function(
             lambda lam, th: gx(lam, th) ** 2 + gy(lam, th) ** 2
             + gz(lam, th) ** 2)
-        assert abs(float(e.sum()) - l * (l + 1)) < 1e3 * TOL
+        assert abs(float(e.sum2()) - l * (l + 1)) < 1e3 * TOL

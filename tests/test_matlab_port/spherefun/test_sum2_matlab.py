@@ -1,3 +1,4 @@
+# uses-numpy: Independent reference fixtures and numerical assertions in tests.
 """Port of MATLAB Chebfun tests/spherefun/test_sum2.m (Fable 5).
 
 Provenance
@@ -20,8 +21,8 @@ class TestSpherefunSum2:
     def test_surface_area(self):
         one = Spherefun.from_function(
             lambda lam, th: jnp.ones_like(th))
-        assert abs(float(one.sum()) - 4 * np.pi) < 100 * TOL
+        assert abs(float(one.sum2()) - 4 * np.pi) < 100 * TOL
 
     def test_odd_harmonic_integrates_to_zero(self):
         f = Spherefun.from_function(lambda lam, th: jnp.cos(th))
-        assert abs(float(f.sum())) < 100 * TOL
+        assert abs(float(f.sum2())) < 100 * TOL

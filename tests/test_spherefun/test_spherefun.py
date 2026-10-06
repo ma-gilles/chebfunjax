@@ -161,7 +161,7 @@ class TestEvaluation:
 
 
 class TestIntegration:
-    """Tests for Spherefun.sum() — integral over the unit sphere."""
+    """Tests for Spherefun.sum2() — integral over the unit sphere."""
 
     def test_constant_integral_4pi(self):
         """Integral of 1 over the unit sphere equals 4*pi.
@@ -171,14 +171,14 @@ class TestIntegration:
             = 2*pi * 2 = 4*pi.
         """
         f = Spherefun.from_function(lambda lam, th: jnp.ones_like(lam))
-        integral = f.sum()
+        integral = f.sum2()
         npt.assert_allclose(float(integral), 4.0 * np.pi, rtol=1e-8, atol=1e-8)
 
     def test_constant_c_integral(self):
         """Integral of constant c equals c * 4*pi."""
         c = 2.5
         f = Spherefun.from_function(lambda lam, th: jnp.full_like(lam, c))
-        integral = f.sum()
+        integral = f.sum2()
         npt.assert_allclose(float(integral), c * 4.0 * np.pi, rtol=1e-8, atol=1e-8)
 
     def test_spherical_harmonic_Y00_integral(self):
@@ -188,7 +188,7 @@ class TestIntegration:
         """
         norm = 1.0 / np.sqrt(4.0 * np.pi)
         f = Spherefun.from_function(lambda lam, th: jnp.full_like(lam, norm))
-        integral = f.sum()
+        integral = f.sum2()
         expected = np.sqrt(4.0 * np.pi)
         npt.assert_allclose(float(integral), expected, rtol=1e-8, atol=1e-8)
 
@@ -199,7 +199,7 @@ class TestIntegration:
         (Integral of x over the sphere in Cartesian form = 0 by symmetry.)
         """
         f = Spherefun.from_function(lambda lam, th: jnp.cos(th))
-        integral = f.sum()
+        integral = f.sum2()
         npt.assert_allclose(float(integral), 0.0, atol=1e-8)
 
     def test_spherical_harmonic_orthogonality(self):
@@ -215,7 +215,7 @@ class TestIntegration:
         Spherefun.from_function(lambda lam, th: jnp.full_like(lam, norm_10) * jnp.cos(th))
         # ∫∫ (Y_1^0)^2 dS should equal 1
         g = Spherefun.from_function(lambda lam, th: (norm_10 * jnp.cos(th)) ** 2)
-        integral = g.sum()
+        integral = g.sum2()
         npt.assert_allclose(float(integral), 1.0, rtol=1e-8, atol=1e-7)
 
     def test_Y10_times_1_is_zero(self):
@@ -225,7 +225,7 @@ class TestIntegration:
         """
         norm_10 = np.sqrt(3.0 / (4.0 * np.pi))
         f = Spherefun.from_function(lambda lam, th: jnp.full_like(lam, norm_10) * jnp.cos(th))
-        integral = f.sum()
+        integral = f.sum2()
         npt.assert_allclose(float(integral), 0.0, atol=1e-8)
 
     def test_sin2_theta_integral(self):
@@ -236,7 +236,7 @@ class TestIntegration:
             = 2*pi * 4/3 = 8*pi/3.
         """
         f = Spherefun.from_function(lambda lam, th: jnp.sin(th) ** 2)
-        integral = f.sum()
+        integral = f.sum2()
         expected = 8.0 * np.pi / 3.0
         npt.assert_allclose(float(integral), expected, rtol=1e-7, atol=1e-7)
 

@@ -37,12 +37,12 @@ def run():
 
     # --- Integral of a smooth function over S^2 ---
     f1 = Spherefun.from_function(lambda lam, th: jnp.cos(th))
-    integral_cos_th = float(f1.sum())
+    integral_cos_th = float(f1.sum2())
     print(f"\nIntegral of cos(th) over S^2: {integral_cos_th:.2e}  (expected: 0)")
     assert abs(integral_cos_th) < 0.01
 
     f2 = Spherefun.from_function(lambda lam, th: jnp.cos(th)**2)
-    integral_cos2 = float(f2.sum())
+    integral_cos2 = float(f2.sum2())
     exact_cos2 = 4 * np.pi / 3
     print(f"Integral of cos^2(th) = {integral_cos2:.8f}  (exact: {exact_cos2:.8f})")
     assert abs(integral_cos2 - exact_cos2) < 0.01

@@ -1,3 +1,4 @@
+# uses-numpy: Independent reference fixtures and numerical assertions in tests.
 """Core-suite tests for the spherical-harmonic-basis surface gradient (Fable 5).
 
 These back the harmonic-basis gradient that replaced the value-space
@@ -101,7 +102,7 @@ class TestHarmonicGradient:
         l, m = 3, 2
         fx, fy, fz = Spherefun.sphharm(l, m).grad()
         e = fx * fx + fy * fy + fz * fz
-        assert abs(float(e.sum()) - l * (l + 1)) < 1e-8
+        assert abs(float(e.sum2()) - l * (l + 1)) < 1e-8
 
     def test_general_gradient_is_tangential(self):
         f = Spherefun.from_function(

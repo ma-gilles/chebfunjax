@@ -1,8 +1,9 @@
 """Port of MATLAB Chebfun tests/spherefun/test_emptyObjects.m (Fable 5).
 
 FIXED: empty Spherefun with empty propagation through the command set
-added in the Fable 5 audit (the MATLAB test asserts every listed
-command tolerates the empty object).
+added in the Fable 5 audit. The MATLAB test uses try/catch to require
+no error; it does not require every result to be a Spherefun. This selection
+still omits some of the original command list.
 
 Provenance
 ----------
@@ -18,6 +19,8 @@ from chebfunjax.spherefun.spherefun import Spherefun
 class TestSpherefunEmptyobjects:
     def test_all_commands_tolerate_empty(self):
         f = Spherefun.empty()
-        results = [f + f, f * 2, f ** 2, -f, f.sum2(), f.norm(), f.laplacian(), f.cos()]
+        results = [f + f, f * 2, f ** 2, -f, f.norm(), f.laplacian(), f.cos()]
+        # @spherefun/sum2.m returns scalar zero when idxPlus is empty.
+        assert float(f.sum2()) == 0.0
         for r in results:
             assert hasattr(r, "isempty") and r.isempty()
