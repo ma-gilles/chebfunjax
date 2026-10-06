@@ -50,7 +50,11 @@ def test_sum2_even_nyquist_and_common_length():
 def test_sum2_plus_selection_and_cdr_zero_reciprocal():
     f = factors([[1.], [1.], [1.]], pivots=[0., 2., 1.], plus=(0, 1))
     # Source cdr zero reciprocal is replaced by zero; non-plus excluded.
-    assert abs(float(f.sum2())-2*np.pi) < 8*np.finfo(float).eps*np.pi
+    # MATLAB7574c77 default SUM reduces the single frequency row [2,2]
+    # across both plus factors to4 before broadcasting against [0,1/2].
+    # Fresh public CDR probe gives4*pi; the old2*pi reference wrongly
+    # integrated these factors independently. Keep the original bound.
+    assert abs(float(f.sum2())-4*np.pi) < 8*np.finfo(float).eps*np.pi
     assert float(factors([[1.]], plus=()).sum2()) == 0.
 
 

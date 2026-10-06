@@ -2,64 +2,56 @@
 
 ## Latest shared checkout status (2026-10-06; takes precedence below)
 
-Full MATLAB7574c77 and322-page parity remains incomplete and active. Work in
+Full MATLAB7574c77 and322-page parity remains active and incomplete. Work in
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout`.
 Read `CURRENT_GOAL_STATUS.md` in its parent for current evidence and next gaps.
 The original home checkout and twelve interrupted scripts remain protected;
-all writes, environments, receipts and outputs belong under shared scratch.
+write only under shared scratch. Normal SSH push and licensed CPU MATLAB work.
+Use gh-cli, explicit staging, GPT-6 trailer and full Ruff gates. CPU only;
+heavy examples/tests serial; at most two helpers, Astra medium for numerical
+review as requested and cheap routine execution. Freeze qualification inputs.
 
-Ordinary non-force pushes now work in the normal execution context. Licensed
-MATLAB R2025b also runs normally on CPU. Earlier SSH/startup restrictions in
-historical notes are resolved; do not bypass SSH/configuration/licensing rules.
-Use `gh-cli`, explicit staging, GPT-6 commit trailer and full Ruff gates.
-CPU only; heavy local examples/tests serial. At most two helpers: cheap routine
-work plus Astra medium numerical review as explicitly requested by the user.
+P103 ab9b4feaf51c1db30f1128c035ab7ec9d17ad541 is pushed. It replaces dense
+adaptive sphere output with literal northern-grid construction using JAX FFTs
+and preserves tensor plotting arguments. Frozen29small plus11solver cases pass,
+including fresh5MATLAB API outputs, Poisson, four Helmholtz grids and source
+Spinsphere trajectory. The existing host from_values constructor remains open.
+Bounded warm constructors improved36.55/38.94ms to31.80/33.90ms, while cold
+costs increased3.64/1.24s to4.91/5.53s; no full Atmospheric timing claim.
 
-P100 main checkpoint `b72e323cb46570c5f4268a6a2726d4aea2e86c27` contains
-source axis sum/default and scalar sum2, plus source mean dispatch. Its frozen
-CPU gate passes41 cases, including both actual MATLAB sum2 assertions at
-1000eps and migrated scalar callers. Two extra sphere demonstration scripts
-run alone and pass57.15s/27.81s; their constructor warnings remain recorded.
-Empty sum returns numeric [], sum2 zero and mean an empty Chebfun; these
-methods now bypass the older blanket empty wrapper. Generic complex axis
-channels, array globaltol and empty mean2's unassigned MATLAB output are open.
+The next source short-array sum/channel correction passed62frozen CPU cases,
+including7independent short-real controls,14camera controls and retainedP100
+source/regression cases. Fresh MATLAB5public CDR fixtures pass68.909s. Source
+SUM without a dimension can reduce across factors; scalar-times-D then retains
+multiple channels. An earlier independent zero-pivot expected2pi was wrong:
+MATLAB gives4pi, now corrected with the original bound. Source quirks retained.
+Camera helper converts source azimuth50 to Matplotlib-40 and preserves projection
+and layout. Coast clipping/framing/full pixel parity remain unqualified.
+Generic complex addition, MATLAB query reshaping and full per-channel policy
+remain open. Source-body/import-set proofs cover formatting-only post-gate edits.
 
-P97 stable realatanh passes9 CPU cases including original source trig bound.
-P98 JAX compensated extrapolation passes72, including strict x*exp(x) bound;
-same-input MATLAB BLAS has the old dot error, so this is an independently
-verified accuracy improvement, not a MATLAB reduction-bit identity claim.
-P99 real sphere mean passes18 cases; P100 strengthens empty result types
-that its old isempty-only tests did not distinguish. Each package is pushed
-normally with immutable qualified source/input/test evidence in shared scratch.
+AtmosphericTemperature V11 failed signal9 after1093s/four of ten figures at
+407GiB peakRSS; immutable failure archive is preserved. Rank185 and three
+scalars computed, with final digit differences. Next rerun needs verified
+rendering fixes and a fresh frozen full execution, page/stdout/figure audit.
+MATLAB graphics metadata captured in96.799s, actual source/properties stable;
+its software WebGL PNGs are nearly black and unusable as visual references.
+Official cached1305figure slots remain available. No arbitrary95%viewport
+fitting or source asset substitution is accepted.
 
-P94 Fejer preserves inverse-DFT scaling under JIT through general JAX binary64
-integer division. Original18quadpts bounds pass; no normalization/FFT bit
-identity claim. At n100000 matched warm CPU16.416ms versus3.433ms before
-(4.781x), a recorded cost that remains part of performance qualification.
-Overlapping focused gate counts are not additive or full-suite acceptance.
+P97 stable realatanh9passes, P98 compensated extrapolation72passes, P94Fejer
+original18bounds pass; Fejer warm n100000 cost4.781x remains recorded. Focused
+passes overlap; no full-suite or universal MATLAB rounding identity claim.
+CI P98–P103 snapshots remain in progress, completed checks have no failures,
+docs allsuccess. Latest fullgreen is not verified. C1 detector remains open:
+a JAX exp one-ulp bump triggers the literal source zero-slope rejection; no
+cutoff/tolerance/xfail change justified. All322orderedprose/2403inputs match,
+11output-count gaps and154figure-size mismatches remain; computations/pixels/RNG
+and exact-byte disposition of the12protected originals are unfinished.
 
-CI remains unresolved. Exact P97/P98 snapshots had no completed failures but
-were still running. P99 run37475171045 likewise has lint/code-quality passes,
-other jobs running or queued. No terminal full-green latest CI claim.
-Earlier atanh/unbounded-diff/staleSingfunxfail failures now pass local gates.
-
-All322 cached pages match ordered prose/equations/tables and2403 input blocks.
-Eleven output-count differences and one AtmosphericTemperature image gap
-remain. Official retrieval recovered445 missing reference PNGs; all1305
-reference slots are available. Of current figures,154 have wrong dimensions;
-1150 can be compared without resizing. Calculations/stdout/pixels/RNG remain
-unqualified. P89 Resampling ran and generated six600x270 images, but inverse
-breakpoint count and pixels still differ. The protected original twelve
-interrupted scripts have not all received an exact-byte commit/revert disposition.
-
-Next work: remaining CI correctness failures; serial AtmosphericTemperature
-source computations/page/figures; actual detector seven-assertion qualification;
-singular/unbounded merge assertions12/13; full function/test/page/figure/RNG
-and performance parity. Detector candidate passed138/139: C1 fails due to
-backend callback rounding and a genuine source zero-slope rejection. Its
-five paths are shelved outside the checkout, with exact failed evidence.
-Do not widen bounds, normalize weights, invent detector cutoffs or resize
-cached figures. Qualified trees, baselines and MATLAB oracles are preserved.
+Next: full Atmospheric run/figures, detector backend accuracy, source merge12/13,
+repeated-residue correctness, full functions/tests/JAX/RNG/performance and CI.
+Drafts and failed/unrun revisions are preserved; no external blocker.
 
 This document takes over from the Claude session that ran the parity
 campaign from 2026-07 to 2026-09. `HANDOFF.md` (2026-07) is older and partly

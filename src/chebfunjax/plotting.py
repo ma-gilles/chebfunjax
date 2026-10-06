@@ -4630,3 +4630,20 @@ def plot_earth(ax, linespec: str = "k-", **kw):
                         "CoastData.mat")
     coast = np.asarray(loadmat(path)["coast"], dtype=float)
     return ax.plot(coast[:, 0], coast[:, 1], coast[:, 2], linespec, **kw)
+
+
+def matlab_view(ax, azimuth, elevation):
+    """Set MATLAB view angles on an existing Matplotlib 3-D axes.
+
+    MATLAB measures azimuth from negative y; Matplotlib measures it from
+    positive x. Projection, zoom and figure layout retain their current values.
+
+    Provenance
+    ----------
+    MATLAB source : view (MathWorks camera convention), @spherefun/surf.m
+    Chebfun commit: 7574c77
+    Source example: sphere/AtmosphericTemperature.m, view([50 0]) and
+    view([50 5]). This is an angle adapter, not a renderer or framing model.
+    """
+    ax.view_init(elev=float(elevation), azim=float(azimuth) - 90.0)
+    return ax

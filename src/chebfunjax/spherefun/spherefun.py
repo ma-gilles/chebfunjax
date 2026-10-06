@@ -1424,16 +1424,7 @@ class Spherefun(eqx.Module):
         rows = [self.rows[j] for j in indices]
         inverse = 1.0 / self.pivots[jnp.asarray(indices)]
         inverse = jnp.where(jnp.isinf(jnp.abs(inverse)), 0.0, inverse)
-        ncols = max(col.n for col in columns)
-        known_real = all(col.is_real for col in columns)
-        int_columns = []
-        for col in columns:
-            a = _sphere_mean_cosine_coefficients(col, ncols, known_real=known_real)
-            k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
-            factor = 2.0 / (1.0 - k**2)
-            factor = factor.reshape((factor.size,) + (1,) * (a.ndim - 1))
-            int_columns.append(jnp.sum(a[::2] * factor, axis=0))
-        int_cols = jnp.stack(int_columns)
+        int_cols = _sphere_source_int_columns(columns).reshape(-1)
         # Raw technologies integrate over [-1,1]; source rows own [-pi,pi].
         int_rows = jnp.stack([jnp.pi * row.sum() for row in rows])
         # Literal source operation order: sum(d .* intRows .* intCols).
@@ -1492,23 +1483,14 @@ class Spherefun(eqx.Module):
             # intCols=sum(a(1:2:end,:).*intFactor).
             # Two-output @chebfun/trigcoeffs returns cosine coefficients,
             # not the centered complex Fourier vector from one output.
-            ncols = max(col.n for col in self.cols)
-            columns_real = all(col.is_real for col in self.cols)
-            int_cols = []
-            for col in self.cols:
-                a = _sphere_mean_cosine_coefficients(
-                    col, ncols, known_real=columns_real)
-                k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
-                int_factor = 2.0 / (1.0 - k**2)
-                factor_shape = (int_factor.size,) + (1,) * (a.ndim - 1)
-                int_cols.append(jnp.sum(
-                    a[::2] * int_factor.reshape(factor_shape), axis=0))
-            weights = [int_cols[j] * inverse_pivots[j]
-                       for j in range(len(int_cols))]
-            if real_input:
-                weights = [jnp.real(weight) for weight in weights]
-            combined = _sum_trigtech_factors(self.rows, weights)
-            combined = combined.simplify()  # source globaltol simplify
+            int_cols = _sphere_source_int_columns(self.cols)
+            if int_cols.shape[1] == 1:
+                # A scalar times D is a full diagonal matrix in MATLAB.
+                matrix = int_cols[0, 0] * jnp.diag(inverse_pivots)
+            else:
+                matrix = (int_cols * inverse_pivots[None, :]).T
+            combined = _sphere_source_factor_matrix(self.rows, matrix)
+            combined = _sphere_source_global_simplify(combined)
             piece = _Piece(tech=combined,
                            interval=(-float(jnp.pi), float(jnp.pi)))
             curve = Chebfun(funs=[piece], domain=Domain(
@@ -4346,3 +4328,56 @@ def _sphere_mean_cosine_coefficients(col, n, *, known_real):
         # do not split or double it again here.
         a = jnp.concatenate((c[zero:zero+1], c[zero-k] + c[zero+k], c[:1]), axis=0)
     return jnp.real(a) if known_real else a
+
+def _sphere_source_int_columns(columns):
+    """Integrate the source cosine matrix with MATLAB default SUM dimension.
+
+    Provenance
+    ----------
+    MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df,
+    @spherefun/{sum,sum2}.m and two-output @chebfun/trigcoeffs.m.
+    A single selected frequency row and several factors reduce across factors;
+    this intentionally retains the source's representation-dependent channels.
+    """
+    n = max(col.n for col in columns)
+    known_real = all(col.is_real for col in columns)
+    a = jnp.stack([_sphere_mean_cosine_coefficients(
+        col, n, known_real=known_real).reshape(-1) for col in columns], axis=1)
+    k = jnp.arange(0, a.shape[0], 2, dtype=jnp.float64)
+    weighted = a[::2] * (2.0 / (1.0 - k**2))[:, None]
+    axis = 1 if weighted.shape[0] == 1 and weighted.shape[1] > 1 else 0
+    return jnp.sum(weighted, axis=axis, keepdims=True)
+
+
+def _sphere_source_factor_matrix(factors, matrix):
+    """Multiply a trig Chebfun quasimatrix by a numeric matrix.
+
+    Provenance
+    ----------
+    MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df,
+    @spherefun/sum.m and @chebfun/mtimes.m. One output is stored as a scalar
+    technology; multiple outputs retain a coefficient column per channel.
+    """
+    n = max(t.n for t in factors)
+    c = jnp.stack([t.prolong(n).coeffs.reshape(-1) for t in factors], axis=1)
+    result = c @ matrix
+    if result.shape[1] == 1:
+        result = result[:, 0]
+    return Trigtech.from_coeffs(result)
+
+
+def _sphere_source_global_simplify(tech):
+    """Apply global vertical scale when simplifying output channels.
+
+    Provenance
+    ----------
+    MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df,
+    @spherefun/sum.m and @chebfun/simplify.m ('globaltol').
+    """
+    if tech.coeffs.ndim == 1:
+        return tech.simplify()
+    from chebfunjax.tech.trigtech import _trig_coeffs2vals_impl
+    scales = jnp.max(jnp.abs(_trig_coeffs2vals_impl(tech.coeffs)), axis=0)
+    global_scale = jnp.max(scales)
+    tol = _EPS * global_scale / scales
+    return tech.simplify(tol)
