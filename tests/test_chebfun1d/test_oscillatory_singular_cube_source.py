@@ -1,9 +1,10 @@
 """Source23 oscillatory singular cube, qualified separately on CPU.
 
 The sampling
-expression and original bounds are copied from the pinned MATLAB test. NumPy
-RandomState/MT19937 seed 6178 is only a reproducible Python adapter; it is not
-claimed to match MATLAB's ``seedRNG`` stream.
+expression and original bounds are copied from the pinned MATLAB test. The
+existing NumPy RandomState/MT19937 adapter is retained. Its first100 sites
+are checked bit for bit against a fresh pinned MATLAB ``seedRNG(6178)`` run.
+This qualifies these sites, not the remaining random streams.
 
 Provenance
 ----------
@@ -14,6 +15,9 @@ Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 """
 
 from __future__ import annotations
+
+import json
+from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
@@ -57,3 +61,12 @@ def test_source_pass23_split_oscillatory_singfun_cube():
     assert _max_abs_error(result(x), exact) < 1e2 * EPS * _max_abs_exact(exact)
 
 
+
+def test_source_pass23_adapter_sites_match_captured_matlab_binary64():
+    fixture_path = Path(__file__).with_name("test_power_singular_sites_6178.json")
+    fixture = json.loads(fixture_path.read_text())
+    assert fixture["matlab_source_commit"] == "7574c77680d7e82b79626300bf255498271a72df"
+    expected = np.asarray([int(value, 16) for value in fixture["hex_values"]], dtype=np.uint64)
+    actual = _source_singular_samples()
+    assert actual.shape == expected.shape == (100,)
+    assert np.array_equal(actual.view(np.uint64), expected)

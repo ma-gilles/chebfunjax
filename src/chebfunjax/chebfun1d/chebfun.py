@@ -9835,6 +9835,57 @@ def _cast_tech_pair(a, b):
     return a, b
 
 
+def _source_find_blowup_bounded(op, a, b, vscale):
+    """Literal scalar bounded findBlowup/zoomIn called after derivative growth.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m (findBlowup, zoomIn)
+    Chebfun commit: 7574c77
+    Keeps endpoint caches, third-point endpoint brackets and strict reject
+    test. Sampled math is JAX; scalar eps uses existing IEEE _edge_eps.
+    """
+    def sample(points):
+        rows = _edge_sample_rows(op, points)
+        if rows.shape[1] != 1:
+            raise ValueError("bounded singular blowup locator requires scalar samples")
+        return jnp.abs(rows[:, 0])
+
+    def first_max(values):
+        index = int(jnp.argmax(jnp.where(jnp.isnan(values), -jnp.inf, values)))
+        return jnp.nanmax(values), index
+
+    def zoom(left, right, left_value, right_value, size):
+        grid = jnp.linspace(left, right, size)
+        vals = jnp.concatenate((jnp.asarray([left_value]), sample(grid[1:-1]),
+                                jnp.asarray([right_value])))
+        _, index = first_max(vals)
+        if index == 0:
+            return left, float(grid[2]), left_value, vals[2]
+        if index == size-1:
+            return float(grid[-3]), right, vals[-3], right_value
+        return float(grid[index-1]), float(grid[index+1]), vals[index-1], vals[index+1]
+
+    grid = jnp.asarray([a, b], dtype=jnp.float64)
+    values = sample(grid)
+    ya, yb = values[0], values[1]
+    while b-a > 1e7*_edge_eps(a):
+        a, b, ya, yb = zoom(a, b, ya, yb, 50)
+    while b-a > 50*_edge_eps(a):
+        a, b, ya, yb = zoom(a, b, ya, yb, 15)
+    while b-a >= 4*_edge_eps(a):
+        grid = jnp.linspace(a, b, 4)
+        values = jnp.concatenate((jnp.asarray([ya]), sample(grid[1:-1]), jnp.asarray([yb])))
+        if bool(values[1] > values[2]):
+            b, yb = float(grid[2]), values[2]
+        else:
+            a, ya = float(grid[1]), values[1]
+    maximum, index = first_max(values)
+    if bool(maximum < 1e5*vscale):
+        return None
+    return float(grid[index])
+
+
 def _find_blowup(op, a: float, b: float, vscale: float):
     """Locate a blow-up point of ``op`` in ``(a, b)`` by function values.
 
@@ -10344,6 +10395,10 @@ def _chebfun_build(
         pairs = _parse_exps(exps, n_int)
         stypes = _parse_singtype(singType, n_int, blowup)
         exps_given = exps is not None
+        _source_edge_blowup = (bool(blowup)
+                               or (singType is not None and len(singType) > 0)
+                               or any(value is None or float(value) != 0.0
+                                      for pair in pairs for value in pair))
 
         def _happy(p):
             sp = getattr(p.tech, "smoothPart", p.tech)
@@ -10405,29 +10460,14 @@ def _chebfun_build(
                                    * (_b - xx) ** _e[1]))
                 else:
                     comp = f
-                # Preserve the existing local scale for the blow-up locator;
-                # the source derivative-growth test below receives the
-                # constructor's running global vscale.
-                xs = jnp.linspace(a_, b_, 130)[1:-1]
-                ys = jnp.abs(jnp.asarray(comp(xs)))
-                vsc = float(jnp.nanmedian(
-                    jnp.where(jnp.isfinite(ys), ys, jnp.nan)))
-                if not math.isfinite(vsc):
-                    vsc = 1.0
                 def _edge_ok(e, _a=a_, _b=b_):
                     return (e is not None and _a < e < _b
                             and e - _a >= 4 * math.ulp(max(abs(_a), 1e-300))
                             and _b - e >= 4 * math.ulp(max(abs(_b), 1e-300)))
 
-                # Preference order: detected blow-up point, then a
-                # derivative edge, then plain bisection (MATLAB's
-                # detectEdge midpoint fallback).  A spurious edge from
-                # one detector (e.g. a steep-oscillation gradient
-                # landing at an endpoint) falls through to the next.
-                # @fun/detectEdge.m: an edge within 1e-14*hscale of a
-                # finite endpoint is moved diff(dom)/100 inside it, so a
-                # known endpoint singularity is never stranded in a
-                # sliver-adjacent exponent-free piece.
+                # Supplied nonzero exponents enable source pref.blowup.
+                # detectEdge checks blowup inside derivative refinement using
+                # the constructor's global vscale, not a median prepass.
                 _htol = 1e-14 * _hscale
 
                 def _snap(e, _a=a_, _b=b_, _h=_htol):
@@ -10438,10 +10478,9 @@ def _chebfun_build(
                     if abs(_b - e) <= _h:
                         return _b - (_b - _a) / 100
                     return e
-                edge = _snap(_find_blowup(comp, a_, b_, max(vsc, 1e-300)))
-                if not _edge_ok(edge):
-                    edge = _snap(_detect_edge_matlab(
-                        comp, a_, b_, vscale=_vscale, hscale=_hscale))
+                edge = _snap(_detect_edge_matlab(
+                    comp, a_, b_, vscale=_vscale, hscale=_hscale,
+                    blowup=_source_edge_blowup))
                 if not _edge_ok(edge):
                     edge = 0.5 * (a_ + b_)
                 if not _edge_ok(edge):
@@ -11789,14 +11828,17 @@ def _find_jump(f, a, b, vscale, hscale):
 
 def _detect_edge_matlab(f, a: float, b: float,
                         vscale: "float | None" = None,
-                        hscale: "float | None" = None) -> "float | None":
+                        hscale: "float | None" = None,
+                        blowup: bool = False) -> "float | None":
     """Bounded smooth detectedgeMain with JAX sample arrays and reductions.
 
     Return a raw edge or None, retaining the existing helper API. The
     constructor supplies global scales and handles source endpoint move-in
     and empty-edge midpoint fallback. Optional omitted scales are a Python
     compatibility adapter; they are not part of source constructorSplit.
-    This branch has identity mapping, no exponents and blowup detection off.
+    The caller compensates exponents before entering this identity-map
+    branch. Ordinary callers retain blowup=False; singular construction
+    explicitly enables the source nested function-value check.
 
     Provenance
     ----------
@@ -11814,6 +11856,7 @@ def _detect_edge_matlab(f, a: float, b: float,
         vscale = float(jnp.nanmax(jnp.asarray(vscale)))
     eps = float(jnp.finfo(jnp.float64).eps)
     num = 4
+    check_blowup = bool(blowup)
     na, nb, max_der = _edge_find_max_der(f, a, b, num, 50)
     left, right = float(na[num - 1]), float(nb[num - 1])
     while (bool(max_der[num - 1] != jnp.inf)
@@ -11830,6 +11873,13 @@ def _detect_edge_matlab(f, a: float, b: float,
         if num == 1 and right - left < 1e-3 * hscale:
             return _find_jump(f, left, right, vscale, hscale)
         left, right = float(na[num - 1]), float(nb[num - 1])
+        if check_blowup and bool(jnp.all(jnp.abs(jnp.asarray(
+                f(jnp.asarray((left+right)/2)))) > 1e2*vscale)):
+            blowup_point = _source_find_blowup_bounded(f, left, right, vscale)
+            if blowup_point is None:
+                check_blowup = False
+            else:
+                return blowup_point
     return (left + right) / 2
 
 def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:

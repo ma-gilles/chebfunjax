@@ -17,14 +17,27 @@ corrected C and a shared norm snapshot. V1 new exact-edge assertion failed
 because Matplotlib inverse normalization differs oneULP from fresh MATLAB
 CLim; gamma2 operation bound documented, production unchanged.
 
-Exact P105 CPU baseline reproduced all4historicalCI failures and3independent
-metadata failures. New scoped corrections preserve existing pointValues through
-simplify/common coefficient padding, adapt accepted typed0Dinteger scalars at
-the public Chebfun boundary (lower-tech dtype diagnostics unchanged), and
-observe actual sampleTest calls separately from detector bracket endpoints.
-Original numerical bounds remain unchanged. Oscillatory singular cube remains
-a genuine strict accuracy failure; source-RNG/evaluator decomposition queued.
-No full latest-main green CI or atmospheric/pixel parity claim.
+P106 fc686d969375741547bb785126278bb663f2863b is pushed:117CPU checks pass,
+including originalIVP1e-14/exactsyntax equality, metadata/typedscalar/source
+sampleTest controls. Fresh MATLAB6IVP assertions and pointValues preservation
+pass68.684s. Existing pointValues survive simplify/common padding; accepted
+integer0Dscalars adapt atChebfunboundary; lowertech diagnostics remain. Exact
+P105 baseline reproduced all4historicalCI failures and3metadata failures.
+
+The next bounded singular source correction passed114CPU checks in218.757s,
+including the original strict oscillatorycube, sourceconstructor13/15/16/17,
+sourcepowers32-38/sqrt24, Singfun, complex and ordinarydetector controls.
+All1643qualifiedPython files and selected inputs stayed unchanged. Fresh
+MATLAB originalpass23 passes88.690s; its100seed6178sites are bit-identical to
+our existingadapter, now checked against an exacthexfixture without replacing
+samples. Sourceedgeprobe passes69.562s: blowupTrue/globalvscale0 chooses a
+finitepeak whileFalse orscale1 bisects. Candidate selects the same first
+bracket/edge within1ULP. Literal nestedblowup/globalvscale and third-point
+endpointzoom replace the median-scale wholeinterval prepass. New math isJAX;
+all original numericalbounds unchanged. No fullpartition/rounding guarantee.
+Legacy dead NumPylocator cleanup, nondefaultcaps/tinyinterval/budget/merge
+semantics and C1 remain open. Full latest-main greenCI and Atmospheric/pixel
+parity are unverified; P106basicchecks/docs pass, numericalCI remainsactive.
 
 P104 8e0155ec666a4aa05db0196b0076664ff7d3c9c1 is pushed with the62-case
 short-sum/channel and camera qualification below. New CPU exp diagnostic13
