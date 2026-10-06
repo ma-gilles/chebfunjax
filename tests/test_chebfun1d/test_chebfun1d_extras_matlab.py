@@ -16,7 +16,7 @@ except two documented exceptions:
   instead of MATLAB's Legendre-series L2 projection); the library bug is
   fixed and the test now pins the MATLAB values directly.
 * ``ode45`` / ``ode113`` wrap scipy ``solve_ivp`` with adaptive step
-  control (rtol 1e-6), so their output is an *approximation* of the exact
+  control (explicit rtol 1e-6), so their output is an *approximation* of the exact
   solution, not a 1e-12 identity.  The reference is the analytic solution
   and the test checks solver accuracy (rtol 1e-5) — a Gate-3
   implementation-dependent metric, documented rather than pinned at 1e-12.
@@ -216,7 +216,7 @@ class TestQuasimatrixLinalg:
 # ode45 / ode113 — accuracy of an IVP solve (documented Gate-3 metric)
 # ---------------------------------------------------------------------------
 
-# scipy solve_ivp adaptive step control (rtol 1e-6) => NOT a 1e-12 pin; the
+# scipy solve_ivp adaptive step control (explicit rtol 1e-6) => NOT a 1e-12 pin; the
 # reference is the analytic solution and we check solver accuracy only.
 _ODE_RTOL = 1e-5
 _ODE_ATOL = 1e-6
@@ -229,11 +229,15 @@ class TestODEAccuracy:
         return np.array([float(sol(jnp.float64(t))) for t in tt])
 
     def test_ode45_decay(self):
-        sol = ode45(lambda t, y: -y, (0.0, 2.0), jnp.array([1.0]))
+        # MATLAB source defaults RelTol=1e-3; this supplemental analytic gate
+        # retains its prior requested accuracy rtol=1e-6, atol=1e-8 explicitly.
+        sol = ode45(lambda t, y: -y, (0.0, 2.0), jnp.array([1.0]),
+                    rtol=1e-6, atol=1e-8)
         npt.assert_allclose(self._eval(sol), _REF["ode_exact"],
                             rtol=_ODE_RTOL, atol=_ODE_ATOL)
 
     def test_ode113_decay(self):
-        sol = ode113(lambda t, y: -y, (0.0, 2.0), jnp.array([1.0]))
+        sol = ode113(lambda t, y: -y, (0.0, 2.0), jnp.array([1.0]),
+                     rtol=1e-6, atol=1e-8)
         npt.assert_allclose(self._eval(sol), _REF["ode_exact"],
                             rtol=_ODE_RTOL, atol=_ODE_ATOL)

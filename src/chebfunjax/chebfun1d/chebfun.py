@@ -149,7 +149,8 @@ class _Piece(eqx.Module):
         a, b = float(a), float(b)
         # Wrap f to map from reference [-1, 1] into [a, b]
         def f_ref(t: jax.Array) -> jax.Array:
-            x = 0.5 * (b - a) * t + 0.5 * (a + b)
+            # Literal @mapping/mapping.m linear.For preserves both endpoints.
+            x = b * (t + 1) / 2 + a * (1 - t) / 2
             return f(x)
 
         tech_options = {}
@@ -2584,6 +2585,19 @@ class Chebfun(eqx.Module):
         from chebfunjax.utils.ode_solution import odesol
         return odesol(sol, domain, options, return_time=return_time)
 
+
+    @staticmethod
+    def constructODEsol(solver, odefun, tspan, y0, *solver_args, return_time=False):
+        """Run source ODE construction around a supplied dense-output solver.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/constructODEsol.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.construct_ode_solution import constructODEsol
+        return constructODEsol(solver, odefun, tspan, y0, *solver_args,
+                               return_time=return_time)
 
     # ------------------------------------------------------------------
     # Arithmetic operators
@@ -11224,6 +11238,7 @@ chebfun.__doc__ = (chebfun.__doc__ or "") + "\n\n" + (
 # in the API design doc.
 chebfun.from_coeffs = Chebfun.from_coeffs  # type: ignore[attr-defined]
 chebfun.from_values = Chebfun.from_values  # type: ignore[attr-defined]
+chebfun.constructODEsol = Chebfun.constructODEsol  # type: ignore[attr-defined]
 chebfun.odesol = Chebfun.odesol             # type: ignore[attr-defined]
 chebfun.identity = Chebfun.identity        # type: ignore[attr-defined]
 
@@ -11234,164 +11249,68 @@ chebfun.identity = Chebfun.identity        # type: ignore[attr-defined]
 # uses-numpy: scipy.integrate.solve_ivp uses NumPy arrays internally
 
 
-def ode45(
-    odefun: "Callable[[float, jax.Array], jax.Array]",
-    tspan: "tuple[float, float]",
-    y0: "jax.Array",
-    *,
-    rtol: float = 1e-6,
-    atol: float = 1e-8,
-    dense_n: int | None = None,
-    **kwargs,
-) -> "Chebfun":
-    """Solve a non-stiff IVP y' = f(t, y) and return a Chebfun.
+def ode45(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
+          dense_n=None, return_time=False, backend=None, **kwargs):
+    """Solve an IVP and fit its dense output through source ODESOL.
 
-    Wraps ``scipy.integrate.solve_ivp`` with the ``RK45`` method (the
-    Python equivalent of MATLAB's ``ode45``) and interpolates the dense
-    solution output onto a piecewise Chebfun with one piece per adaptive
-    step.
+    ``tspan`` may contain restart breakpoints. Systems return one array-valued
+    Chebfun; columns are accessible as ``y[k]`` or ``y[:, k]``. Set return_time
+    for ``(t, y)``. ``options`` accepts RelTol, AbsTol, restartSolver,
+    happinessCheck and Events, plus the supported solver options documented
+    in ``_ode_solve``. Keyword rtol/atol override their option fields.
 
-    Parameters
-    ----------
-    odefun : callable(t, y) -> array_like
-        Right-hand side of the ODE.  ``t`` is a scalar float; ``y`` is a
-        1-D NumPy array.  Must be broadcastable to ``y0.shape``.
-    tspan : (float, float)
-        Integration interval ``(t0, tf)``.
-    y0 : array_like, shape (d,) or scalar
-        Initial state.  A scalar ``y0`` is treated as a 1-D vector of
-        length 1.
-    rtol : float, default 1e-6
-        Relative tolerance passed to the solver.
-    atol : float, default 1e-8
-        Absolute tolerance passed to the solver.
-    dense_n : int or None
-        Number of uniform evaluation points used to build the Chebfun from
-        the dense output.  Default: ``max(32, 4 * nsteps)``.
-    **kwargs
-        Additional keyword arguments forwarded to ``scipy.integrate.solve_ivp``
-        (e.g. ``max_step``, ``events``).
-
-    Returns
-    -------
-    sol : Chebfun
-        Piecewise Chebfun on ``tspan``.  For a scalar ODE (d=1) this is a
-        scalar Chebfun.  For a system (d>1) each component is a separate
-        piece stored in a separate call; users should index components
-        manually via ``sol(t)[k]``.
-
-    Examples
-    --------
-    >>> from chebfunjax.chebfun1d.chebfun import ode45
-    >>> import jax.numpy as jnp
-    >>> # y' = y,  y(0) = 1  =>  y = exp(t)  on [0, 1]
-    >>> sol = ode45(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
-    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-4
-    True
-
-    Notes
-    -----
-    The adaptive solver chooses its own internal step sequence; the Chebfun
-    is built by evaluating the dense (continuous) extension of the solution
-    at ``dense_n`` uniformly spaced points and fitting a Chebfun to those
-    values.  This decouples the ODE step-size from the Chebfun degree.
+    The inherited integration boundary uses SciPy RK45, with omitted solver
+    tolerances 1e-3/1e-6. Chebfun fitting uses the separate source ODESOL
+    options/fallbacks. Native MATLAB integration and output sampling remain
+    unported. The dense_n argument is retained but unused: fitting is adaptive.
 
     Provenance
     ----------
     MATLAB source : @chebfun/ode45.m, @chebfun/constructODEsol.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    ode113 : Adams-Bashforth-Moulton integrator (MATLAB ode113 analogue)
     """
-    return _ode_solve("RK45", odefun, tspan, y0,
-                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+    return _ode_solve('RK45', odefun, tspan, y0, options,
+                      rtol=rtol, atol=atol, dense_n=dense_n,
+                      return_time=return_time, backend=backend, **kwargs)
 
 
-def ode113(
-    odefun: "Callable[[float, jax.Array], jax.Array]",
-    tspan: "tuple[float, float]",
-    y0: "jax.Array",
-    *,
-    rtol: float = 1e-6,
-    atol: float = 1e-8,
-    dense_n: int | None = None,
-    **kwargs,
-) -> "Chebfun":
-    """Solve a non-stiff IVP y' = f(t, y) and return a Chebfun.
 
-    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` method (a
-    high-order explicit Runge-Kutta method, the closest Python analogue
-    of MATLAB's variable-order Adams ``ode113``) and interpolates the
-    dense output onto a Chebfun.
+def ode113(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
+           dense_n=None, return_time=False, backend=None, **kwargs):
+    """Solve and construct through ODESOL; see :func:`ode45` for options.
 
-    Parameters
-    ----------
-    odefun : callable(t, y) -> array_like
-        Right-hand side of the ODE.
-    tspan : (float, float)
-        Integration interval ``(t0, tf)``.
-    y0 : array_like, shape (d,) or scalar
-        Initial state.
-    rtol : float, default 1e-6
-        Relative tolerance.
-    atol : float, default 1e-8
-        Absolute tolerance.
-    dense_n : int or None
-        Number of uniform evaluation points for Chebfun construction.
-    **kwargs
-        Forwarded to ``scipy.integrate.solve_ivp``.
-
-    Returns
-    -------
-    sol : Chebfun
-        Piecewise Chebfun on ``tspan``.
-
-    Examples
-    --------
-    >>> from chebfunjax.chebfun1d.chebfun import ode113
-    >>> import jax.numpy as jnp
-    >>> sol = ode113(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
-    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-4
-    True
-
-    Notes
-    -----
-    The Dopri8/DOP853 method uses a fixed 8th-order scheme with a 5th-order
-    error estimate.  It is well-suited for smooth, non-stiff problems.
+    The default backend uses the native JAX method for finite float64/complex128
+    problems and the supported solver options. Unsupported native options raise;
+    backend="scipy" explicitly selects the inherited DOP853 compatibility path.
+    Events, mass matrices and broader native options remain unfinished.
 
     Provenance
     ----------
     MATLAB source : @chebfun/ode113.m, @chebfun/constructODEsol.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    ode45 : Dormand-Prince RK45 integrator (MATLAB ode45 analogue)
     """
-    return _ode_solve("DOP853", odefun, tspan, y0,
-                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+    return _ode_solve('ode113', odefun, tspan, y0, options,
+                      rtol=rtol, atol=atol, dense_n=dense_n,
+                      return_time=return_time, backend=backend, **kwargs)
 
 
-def ode15s(odefun, tspan, y0, *, rtol: float = 1e-3, atol: float = 1e-6,
-           dense_n: int | None = None, **kwargs) -> "Chebfun":
-    """Solve a (possibly stiff) IVP and return a Chebfun (MATLAB
-    ``chebfun.ode15s``): SciPy's variable-order ``BDF`` method, the
-    analogue of MATLAB's NDF-based ode15s.  Default tolerances follow
-    MATLAB's ``odeset`` (RelTol 1e-3, AbsTol 1e-6).
+
+def ode15s(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
+           dense_n=None, return_time=False, backend=None, **kwargs):
+    """Solve and construct through ODESOL; see :func:`ode45` for options.
+
+    The inherited SciPy BDF integration boundary does not implement native
+    MATLAB's NDF method. Native algorithm parity remains open.
 
     Provenance
     ----------
     MATLAB source : @chebfun/ode15s.m, @chebfun/constructODEsol.m
     Chebfun commit: 7574c77
     """
-    return _ode_solve("BDF", odefun, tspan, y0,
-                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+    return _ode_solve('BDF', odefun, tspan, y0, options,
+                      rtol=rtol, atol=atol, dense_n=dense_n,
+                      return_time=return_time, backend=backend, **kwargs)
+
 
 
 # ---------------------------------------------------------------------------
@@ -12023,105 +11942,183 @@ def _integer_step(f: "Chebfun", op, half_offset: bool = False):
     return Chebfun(funs=funs, domain=Domain(tuple(float(x) for x in domain)))
 
 
-def _ode_solve(
-    method: str,
-    odefun,
-    tspan: "tuple[float, float]",
-    y0,
-    *,
-    rtol: float,
-    atol: float,
-    dense_n: int | None,
-    **kwargs,
-) -> "Chebfun":
-    """Integrate an IVP and return a Chebfun (shared implementation).
+def _ode_solve(method, odefun, tspan, y0, options=None, *, rtol=None,
+               atol=None, dense_n=None, return_time=False, backend=None, **kwargs):
+    """Select a solver backend and preserve source ODE construction routing.
 
-    Parameters
-    ----------
-    method : str
-        ``solve_ivp`` method string (``'RK45'`` or ``'DOP853'``).
-    odefun, tspan, y0, rtol, atol, dense_n, **kwargs
-        As documented in :func:`ode45` / :func:`ode113`.
+    ODESET mappings: InitialStep/MaxStep/Jacobian/JPattern/Vectorized map to
+    first_step/max_step/jac/jac_sparsity/vectorized. Nonempty unsupported fields
+    raise NotImplementedError. Events accepts MATLAB's triple-valued callback;
+    the existing Python events keyword accepts scalar SciPy event callbacks.
+    Both routes return source-shaped ie/xe for constructODEsol. Dynamic event
+    terminal/direction metadata is unsupported and rejected explicitly.
+    dense_n is an unused legacy argument, not a fixed fitting-grid contract.
 
-    Returns
-    -------
-    Chebfun
+    Native integration, step/output selection, MATLAB exception IDs and
+    remaining native ODESET options require further ports. Array conversion
+    here belongs to the pre-existing SciPy boundary; representation numerics
+    are provided by JAX ODESOL/constructODEsol.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/constructODEsol.m
+    MATLAB source : @chebfun/constructODEsol.m, @chebfun/odesol.m
     Chebfun commit: 7574c77
     """
-    # uses-numpy: scipy.integrate.solve_ivp uses NumPy internally
+    from chebfunjax.utils.construct_ode_solution import constructODEsol
+
+    del dense_n
+    opts = {} if options is None else dict(options)
+
+    def empty(value):
+        if value is None:
+            return True
+        if isinstance(value, (list, tuple, dict, str, bytes)):
+            return len(value) == 0
+        return getattr(value, 'size', None) == 0
+
+    for name in ('restartSolver', 'happinessCheck', 'Events'):
+        if name in kwargs:
+            if name in opts:
+                raise TypeError(f'{name} supplied twice')
+            opts[name] = kwargs.pop(name)
+    if rtol is not None:
+        opts['RelTol'] = rtol
+    if atol is not None:
+        opts['AbsTol'] = atol
+    if 'events' in kwargs and not empty(opts.get('Events')):
+        raise TypeError('specify Events or events, not both')
+    python_events = kwargs.get('events')
+    if python_events is not None:
+        opts['Events'] = python_events
+    native_methods = {'ode113', 'ode78', 'ode89'}
+    native_selected = method in native_methods and backend != 'scipy'
+    if backend not in (None, 'native', 'scipy'):
+        raise ValueError('backend must be native or scipy')
+    if backend == 'native' and method not in native_methods:
+        raise NotImplementedError(f'native backend for {method} is not implemented')
+    if native_selected:
+        supported = {'RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'MinStep', 'NormControl'}
+        for name, value in opts.items():
+            if name not in supported | {'restartSolver', 'happinessCheck'} and not empty(value):
+                raise NotImplementedError(f'native {method} option {name} is not yet implemented')
+        # Legacy Python aliases map to the same native source options; never
+        # forward unrelated SciPy keywords or silently select a different method.
+        for alias, name in {'first_step': 'InitialStep', 'max_step': 'MaxStep'}.items():
+            if alias in kwargs:
+                if not empty(opts.get(name)):
+                    raise TypeError(f'{name} and {alias} supplied together')
+                opts[name] = kwargs.pop(alias)
+        if kwargs:
+            raise NotImplementedError(f'native {method} keywords {sorted(kwargs)} are not implemented')
+        from chebfunjax.utils.native_ode113 import native_ode113
+        from chebfunjax.utils.native_rk import native_rk
+
+        def native_solver(fun, span, initial, fitting_options):
+            native_options = {name: value for name, value in fitting_options.items()
+                              if name in supported}
+            if method == 'ode113':
+                solved = native_ode113(fun, span, initial, native_options)
+            else:
+                solved = native_rk(method, fun, span, initial, native_options)
+            # ODESOL sees the full fitting options, separately from native ODESET.
+            solved['extdata']['options'] = dict(fitting_options)
+            return solved
+
+        return constructODEsol(native_solver, odefun, tspan, y0, opts,
+                               return_time=return_time)
+
+    # uses-numpy: host conversion at the inherited, explicitly selected SciPy boundary.
     import numpy as _np
-    from scipy.integrate import solve_ivp  # type: ignore[import]
+    from scipy.integrate import solve_ivp
 
-    t0, tf = float(tspan[0]), float(tspan[1])
+    if method in native_methods:
+        method = 'DOP853'
+    mappings = {'InitialStep':'first_step', 'MaxStep':'max_step',
+                'Jacobian':'jac', 'JPattern':'jac_sparsity', 'Vectorized':'vectorized'}
+    known = {'RelTol', 'AbsTol', 'restartSolver', 'happinessCheck', 'Events', *mappings}
+    for name, value in opts.items():
+        if name not in known and not empty(value):
+            raise NotImplementedError(f'MATLAB ODE option {name} is not yet implemented')
+    for name, target in mappings.items():
+        value = opts.get(name)
+        if not empty(value):
+            if target in kwargs:
+                raise TypeError(f'{name} and {target} supplied together')
+            if name == 'Vectorized':
+                if isinstance(value, str):
+                    if value.lower() not in ('on', 'off'):
+                        raise ValueError('Vectorized must be on, off or boolean')
+                    value = value.lower() == 'on'
+                else:
+                    value = bool(value)
+            kwargs[target] = value
+    solver_rtol = 1e-3 if empty(opts.get('RelTol')) else opts['RelTol']
+    solver_atol = 1e-6 if empty(opts.get('AbsTol')) else opts['AbsTol']
 
-    # Normalise the initial state to a 1-D NumPy vector, PRESERVING a
-    # complex dtype: planar problems are naturally posed in the complex
-    # plane (Orbits.m starts at -1+1i), and casting to float64 here
-    # silently dropped the imaginary part, sending the trajectory into
-    # the singularity at the origin.
-    y0_np = _np.atleast_1d(_np.asarray(y0))
-    if not _np.iscomplexobj(y0_np):
-        y0_np = y0_np.astype(_np.float64)
-    scalar_out = y0_np.ndim == 1 and y0_np.shape[0] == 1
-    _cplx = bool(_np.iscomplexobj(y0_np))
+    def solver(fun, span, initial, fitting_options):
+        initial = _np.atleast_1d(_np.asarray(initial))
+        # Native MATLAB infers complex dynamics even from real initial data.
+        # SciPy requires complex y0 before constructing its solver storage.
+        probe = _np.asarray(fun(float(span[0]), jnp.asarray(initial)))
+        complex_state = _np.iscomplexobj(initial) or _np.iscomplexobj(probe)
+        initial = initial.astype(_np.complex128 if complex_state else _np.float64)
 
-    # Wrap odefun so it always receives/returns NumPy arrays
-    def _rhs(t, y):
-        result = odefun(float(t), jnp.asarray(y))
-        out = _np.atleast_1d(_np.asarray(result))
-        return out if _cplx else out.astype(_np.float64)
+        def rhs(t, y):
+            result = fun(float(t), jnp.asarray(y))
+            return _np.atleast_1d(_np.asarray(result))
 
-    # Call scipy solver with dense_output=True for interpolation
-    sol = solve_ivp(
-        _rhs,
-        [t0, tf],
-        y0_np,
-        method=method,
-        dense_output=True,
-        rtol=rtol,
-        atol=atol,
-        **kwargs,
-    )
+        solver_kwargs = dict(kwargs)
+        # Native ODESET default applies separately to each restarted span.
+        # https://www.mathworks.com/help/matlab/ref/odeset.html#namevaluepairarguments
+        solver_kwargs.setdefault('max_step', 0.1*abs(span[-1]-span[0]))
+        matlab_events = fitting_options.get('Events')
+        if python_events is None and not empty(matlab_events):
+            if not callable(matlab_events):
+                raise TypeError('Events must be a MATLAB triple-valued callback')
 
-    if not sol.success:
-        raise RuntimeError(
-            f"ODE solver ({method}) failed: {sol.message}"
-        )
+            def event_data(t, y):
+                data = matlab_events(float(t), jnp.asarray(y))
+                if not isinstance(data, (tuple, list)) or len(data) != 3:
+                    raise ValueError('Events must return (value, isterminal, direction)')
+                values = jnp.atleast_1d(jnp.asarray(data[0]))
+                terminal = jnp.broadcast_to(jnp.asarray(data[1]), values.shape)
+                direction = jnp.broadcast_to(jnp.asarray(data[2]), values.shape)
+                return values, terminal, direction
 
-    if scalar_out:
-        # Scalar ODE — build a single-component Chebfun by fitting the
-        # dense output via the adaptive chebfun factory.
-        # The dense solution ``sol.sol`` is a continuous interpolant from
-        # solve_ivp; we pass it directly as the function to approximate.
-        # A complex state (u' = i*u) must keep its imaginary part.
-        _sdt = jnp.complex128 if _cplx else jnp.float64
-        return chebfun(
-            lambda t: jnp.asarray(sol.sol(  # type: ignore[union-attr]
-                _np.atleast_1d(_np.asarray(t, dtype=_np.float64))
-            )[0], dtype=_sdt),
-            domain=(t0, tf),
-        )
-    else:
-        # Vector ODE — one Chebfun per component.  MATLAB returns a
-        # quasimatrix whose columns are indexed ``uv(:, k)``; here the
-        # return value is a list indexed ``uv[k]``.  Components may be
-        # complex (planar orbits are naturally posed in the complex
-        # plane), so the dtype follows the solution.
-        def _component(k):
-            def _ev(t, _k=k):
-                tt = _np.atleast_1d(_np.asarray(t, dtype=_np.float64))
-                vals = sol.sol(tt)[_k]          # type: ignore[union-attr]
-                out = (vals.reshape(_np.shape(t)) if _np.ndim(t)
-                       else vals[0])
-                return jnp.asarray(out)
-            return _ev
+            values, terminal, direction = event_data(span[0], initial)
+            event_functions = []
+            for index in range(values.size):
+                stop, sign = bool(terminal[index]), float(direction[index])
 
-        return [chebfun(_component(k), domain=(t0, tf))
-                for k in range(y0_np.shape[0])]
+                def event(t, y, index=index, stop=stop, sign=sign):
+                    values, terminal, direction = event_data(t, y)
+                    if bool(terminal[index]) != stop or float(direction[index]) != sign:
+                        raise NotImplementedError('dynamic Events metadata is not implemented')
+                    return float(values[index])
+
+                event.terminal = stop
+                event.direction = sign
+                event_functions.append(event)
+            solver_kwargs['events'] = event_functions
+        solved = solve_ivp(rhs, [span[0], span[-1]], initial, method=method,
+                           dense_output=True, rtol=solver_rtol, atol=solver_atol,
+                           **solver_kwargs)
+        if not solved.success:
+            raise RuntimeError(f'ODE solver ({method}) failed: {solved.message}')
+
+        def dense(x):
+            return jnp.asarray(solved.sol(_np.atleast_1d(_np.asarray(x, dtype=float))))
+
+        event_records = [(float(t), index+1)
+                         for index, times in enumerate(solved.t_events or [])
+                         for t in times]
+        event_records.sort(reverse=span[0] > span[-1])
+        return {'y': jnp.asarray(solved.y), 'sol':dense,
+                'extdata':{'options':dict(fitting_options)},
+                'ie':jnp.asarray([i for _,i in event_records]),
+                'xe':jnp.asarray([t for t,_ in event_records])}
+
+    return constructODEsol(solver, odefun, tspan, y0, opts, return_time=return_time)
 
 
 # ============================================================================
@@ -12129,140 +12126,44 @@ def _ode_solve(
 # ============================================================================
 
 
-def ode78(
-    odefun: "Callable[[float, jax.Array], jax.Array]",
-    tspan: "tuple[float, float]",
-    y0: "jax.Array",
-    *,
-    rtol: float = 1e-8,
-    atol: float = 1e-10,
-    dense_n: int | None = None,
-    **kwargs,
-) -> "Chebfun":
-    """Solve a non-stiff IVP using a 7(8)-order Runge-Kutta method.
+def ode78(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
+          dense_n=None, return_time=False, backend=None, **kwargs):
+    """Solve and construct through ODESOL; see :func:`ode45` for options.
 
-    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` (8th-order
-    Dormand-Prince) method — the closest available Python analogue of
-    MATLAB's ``ode78`` — and interpolates the dense output onto a Chebfun.
-
-    Parameters
-    ----------
-    odefun : callable(t, y) -> array_like
-        Right-hand side of the ODE.
-    tspan : (float, float)
-        Integration interval ``(t0, tf)``.
-    y0 : array_like, shape (d,) or scalar
-        Initial state.
-    rtol : float, default 1e-8
-        Relative tolerance (tighter than ode45/ode113 defaults).
-    atol : float, default 1e-10
-        Absolute tolerance.
-    dense_n : int or None
-        Number of uniform evaluation points for Chebfun construction.
-    **kwargs
-        Forwarded to ``scipy.integrate.solve_ivp``.
-
-    Returns
-    -------
-    sol : Chebfun
-        Piecewise Chebfun on ``tspan``.
-
-    Examples
-    --------
-    >>> from chebfunjax.chebfun1d.chebfun import ode78
-    >>> import jax.numpy as jnp
-    >>> sol = ode78(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
-    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-6
-    True
-
-    Notes
-    -----
-    MATLAB's ``ode78`` uses a specific 7(8)-order pair by Fehlberg.  Python's
-    SciPy does not provide this exact method; ``DOP853`` is an 8th-order
-    Dormand-Prince scheme that offers equivalent or better accuracy.
+    The default backend uses the native JAX method for finite float64/complex128
+    problems and the supported solver options. Unsupported native options raise;
+    backend="scipy" explicitly selects the inherited DOP853 compatibility path.
+    Events, mass matrices and broader native options remain unfinished.
 
     Provenance
     ----------
     MATLAB source : @chebfun/ode78.m, @chebfun/constructODEsol.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    ode45 : Dormand-Prince RK45
-    ode89 : Verner 8(9) integrator
-    ode113 : Adams/DOP853 integrator
     """
-    return _ode_solve("DOP853", odefun, tspan, y0,
-                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+    return _ode_solve('ode78', odefun, tspan, y0, options,
+                      rtol=rtol, atol=atol, dense_n=dense_n,
+                      return_time=return_time, backend=backend, **kwargs)
 
 
-def ode89(
-    odefun: "Callable[[float, jax.Array], jax.Array]",
-    tspan: "tuple[float, float]",
-    y0: "jax.Array",
-    *,
-    rtol: float = 1e-10,
-    atol: float = 1e-12,
-    dense_n: int | None = None,
-    **kwargs,
-) -> "Chebfun":
-    """Solve a non-stiff IVP using an 8(9)-order Runge-Kutta method.
 
-    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` method at
-    very tight tolerances — the closest available Python analogue of
-    MATLAB's ``ode89`` (Verner 8(9) method).
+def ode89(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
+          dense_n=None, return_time=False, backend=None, **kwargs):
+    """Solve and construct through ODESOL; see :func:`ode45` for options.
 
-    Parameters
-    ----------
-    odefun : callable(t, y) -> array_like
-        Right-hand side of the ODE.
-    tspan : (float, float)
-        Integration interval ``(t0, tf)``.
-    y0 : array_like, shape (d,) or scalar
-        Initial state.
-    rtol : float, default 1e-10
-        Relative tolerance (tighter than ode78).
-    atol : float, default 1e-12
-        Absolute tolerance.
-    dense_n : int or None
-        Number of uniform evaluation points for Chebfun construction.
-    **kwargs
-        Forwarded to ``scipy.integrate.solve_ivp``.
-
-    Returns
-    -------
-    sol : Chebfun
-        Piecewise Chebfun on ``tspan``.
-
-    Examples
-    --------
-    >>> from chebfunjax.chebfun1d.chebfun import ode89
-    >>> import jax.numpy as jnp
-    >>> sol = ode89(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
-    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-8
-    True
-
-    Notes
-    -----
-    MATLAB's ``ode89`` uses the Verner 8(9) pair.  SciPy does not expose
-    this specific pair; we use DOP853 (Dormand-Prince 8th-order) with
-    very tight tolerances as the closest analogue.
+    The default backend uses the native JAX method for finite float64/complex128
+    problems and the supported solver options. Unsupported native options raise;
+    backend="scipy" explicitly selects the inherited DOP853 compatibility path.
+    Events, mass matrices and broader native options remain unfinished.
 
     Provenance
     ----------
     MATLAB source : @chebfun/ode89.m, @chebfun/constructODEsol.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    ode45, ode78, ode113
     """
-    return _ode_solve("DOP853", odefun, tspan, y0,
-                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+    return _ode_solve('ode89', odefun, tspan, y0, options,
+                      rtol=rtol, atol=atol, dense_n=dense_n,
+                      return_time=return_time, backend=backend, **kwargs)
+
 
 
 # ============================================================================
@@ -12671,3 +12572,16 @@ def quantumstates(
             f = -f
         out_funs.append(f)
     return jnp.asarray(lam, dtype=jnp.float64), out_funs
+
+
+# MATLAB static methods and Python factory aliases share public wrapper routing.
+Chebfun.ode45 = staticmethod(ode45)  # type: ignore[attr-defined]
+chebfun.ode45 = ode45  # type: ignore[attr-defined]
+Chebfun.ode113 = staticmethod(ode113)  # type: ignore[attr-defined]
+chebfun.ode113 = ode113  # type: ignore[attr-defined]
+Chebfun.ode15s = staticmethod(ode15s)  # type: ignore[attr-defined]
+chebfun.ode15s = ode15s  # type: ignore[attr-defined]
+Chebfun.ode78 = staticmethod(ode78)  # type: ignore[attr-defined]
+chebfun.ode78 = ode78  # type: ignore[attr-defined]
+Chebfun.ode89 = staticmethod(ode89)  # type: ignore[attr-defined]
+chebfun.ode89 = ode89  # type: ignore[attr-defined]

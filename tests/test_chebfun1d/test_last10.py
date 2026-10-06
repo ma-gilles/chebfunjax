@@ -501,7 +501,10 @@ class TestOde78Ode89:
 
     def test_ode78_exp_growth(self):
         """ode78: y' = y, y(0) = 1 ⟹ y(t) = exp(t)."""
-        sol = ode78(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+        # Source native defaults RelTol=1e-3/AbsTol=1e-6; this supplemental
+        # precision control retains old Python 1e-8/1e-10 explicitly.
+        sol = ode78(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]),
+                    rtol=1e-8, atol=1e-10)
         t_test = jnp.float64(1.0)
         got = float(sol(t_test))
         expected = float(jnp.exp(t_test))
@@ -511,7 +514,7 @@ class TestOde78Ode89:
         """ode78: y'' = -y (via first-order system) with scalar wrapper."""
         # Scalar: y' = sin(t)'= cos(t); test scalar IVP y' = cos(t)
         sol = ode78(lambda t, y: jnp.cos(jnp.array(t)), (0.0, 2.0),
-                    jnp.array([0.0]))
+                    jnp.array([0.0]), rtol=1e-8, atol=1e-10)
         t_test = jnp.float64(1.5)
         got = float(sol(t_test))
         expected = float(jnp.sin(t_test))
@@ -519,14 +522,17 @@ class TestOde78Ode89:
 
     def test_ode89_exp_growth(self):
         """ode89: y' = y, y(0) = 1 ⟹ y(t) = exp(t) to high precision."""
-        sol = ode89(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+        # Keep old Python 1e-10/1e-12 for this supplemental precision bound;
+        # the default native-options assertions live in test_ivp_matlab.py.
+        sol = ode89(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]),
+                    rtol=1e-10, atol=1e-12)
         t_test = jnp.float64(1.0)
         got = float(sol(t_test))
         expected = float(jnp.exp(t_test))
         npt.assert_allclose(got, expected, rtol=1e-8)
 
     def test_ode89_tighter_than_ode45(self):
-        """ode89 should achieve higher accuracy than ode45 at default tolerances."""
+        """Compare inherited RK45/DOP853 endpoint accuracy at default tolerances."""
         from chebfunjax.chebfun1d.chebfun import ode45
         y0 = jnp.array([1.0])
         sol45 = ode45(lambda t, y: y, (0.0, 2.0), y0)
@@ -535,7 +541,7 @@ class TestOde78Ode89:
         exact = float(jnp.exp(t_test))
         err45 = abs(float(sol45(t_test)) - exact)
         err89 = abs(float(sol89(t_test)) - exact)
-        # ode89 tighter tolerances → err89 <= err45 * 100 (conservative)
+        # Supplemental endpoint comparison; native MATLAB methods remain unported.
         assert err89 <= err45 * 100 + 1e-14, (
             f"ode89 error {err89:.2e} should not greatly exceed ode45 error {err45:.2e}"
         )

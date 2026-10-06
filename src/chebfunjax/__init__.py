@@ -8,13 +8,18 @@ import jax
 jax.config.update("jax_enable_x64", True)
 
 # Public API
-from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402
+from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402  # noqa: E402
     Chebfun,
     cell2quasi,
     chebfun,
     complex_fun,
     getValuesAtBreakpoints,
     kron,
+    ode15s,
+    ode45,
+    ode78,
+    ode89,
+    ode113,
     overlap,
     wronskian,
 )
@@ -61,6 +66,7 @@ from chebfunjax.plotting import (  # noqa: E402
 
 # Random functions
 from chebfunjax.utils.cfpade import cf, chebpade  # noqa: E402
+from chebfunjax.utils.construct_ode_solution import constructODEsol  # noqa: E402
 from chebfunjax.utils.fasttransforms import (  # noqa: E402
     dct,
     dlt,
@@ -228,16 +234,8 @@ def quantumstates(V: Chebfun, n: int = 10, h: float = 0.1):
     return _qs(V, n, h)
 
 
-def ode78(odefun, tspan, y0, **kwargs):
-    """7(8)-order ODE integrator.  See :func:`chebfunjax.chebfun1d.chebfun.ode78`."""
-    from chebfunjax.chebfun1d.chebfun import ode78 as _ode78
-    return _ode78(odefun, tspan, y0, **kwargs)
 
 
-def ode89(odefun, tspan, y0, **kwargs):
-    """8(9)-order ODE integrator.  See :func:`chebfunjax.chebfun1d.chebfun.ode89`."""
-    from chebfunjax.chebfun1d.chebfun import ode89 as _ode89
-    return _ode89(odefun, tspan, y0, **kwargs)
 
 
 def pdeSolve(pdefun, t, u0, **kwargs):
@@ -250,6 +248,10 @@ __all__ = [
     "Chebfun",
     "chebfun",
     "odesol",
+    "constructODEsol",
+    "ode45",
+    "ode113",
+    "ode15s",
     "Chebfun2",
     "chebfun2",
     # Special functions
