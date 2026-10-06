@@ -1037,6 +1037,14 @@ def plot_sphere(
     Returns
     -------
     fig, ax
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/surf.m, @spherefun/fevalm.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Retain the theta-by-longitude tensor grid during factor evaluation.
     """
     import jax.numpy as jnp
 
@@ -1054,9 +1062,9 @@ def plot_sphere(
 
     # --- MATLAB: C = fevalm(f, l, t) ---
     ll, tt = np.meshgrid(l, t)  # both (n_pts, n_pts)
-    C = np.array(
-        fs(jnp.array(ll.ravel()), jnp.array(tt.ravel()))
-    ).reshape(ll.shape)
+    # @spherefun/fevalm uses this tensor grid; preserve its two axes so
+    # Spherefun evaluates each one-dimensional factor only once per node.
+    C = np.array(fs(jnp.asarray(ll), jnp.asarray(tt)))
 
     # --- MATLAB: correction for near-constant functions ---
     if np.linalg.norm(C - C[0, 0], ord=np.inf) < 1e-10:
@@ -1272,9 +1280,9 @@ def contour_sphere(
     l = np.linspace(-np.pi, np.pi, n_pts)
     t = np.linspace(0.0, np.pi, n_pts)
     ll, tt = np.meshgrid(l, t)
-    C = np.array(
-        fs(jnp.array(ll.ravel()), jnp.array(tt.ravel()))
-    ).reshape(ll.shape)
+    # @spherefun/fevalm uses this tensor grid; preserve its two axes so
+    # Spherefun evaluates each one-dimensional factor only once per node.
+    C = np.array(fs(jnp.asarray(ll), jnp.asarray(tt)))
 
     # Get contour lines using a temporary 2D contour call
     fig_tmp, ax_tmp = plt.subplots()

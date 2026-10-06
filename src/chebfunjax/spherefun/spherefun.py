@@ -905,29 +905,33 @@ class Spherefun(eqx.Module):
 
     @staticmethod
     def coeffs2spherefun(X) -> "Spherefun":
-        """Build a Spherefun from a 2-D Fourier coefficient matrix
-        (MATLAB ``spherefun.coeffs2spherefun``).
+        """Construct from the source real northern Fourier grid.
+
+        Odd mode counts are padded on the negative-frequency side to even
+        counts. Two column-wise inverse transforms form the doubled grid;
+        its northern half plus the wrapped pole row supplies from_values.
+        Source real projection is explicit, including unpaired Nyquist data.
 
         Provenance
         ----------
         MATLAB source : @spherefun/coeffs2spherefun.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
         """
+        from chebfunjax.tech.trigtech import _trig_coeffs2vals_impl
+
         X = jnp.asarray(X)
-        mth, nlam = X.shape
-        kth = jnp.arange(mth) - mth // 2
-        klam = jnp.arange(nlam) - nlam // 2
-
-        def f(lam, th):
-            Eth = jnp.exp(1j * jnp.tensordot(
-                jnp.asarray(th), kth, axes=0))
-            El = jnp.exp(1j * jnp.tensordot(
-                jnp.asarray(lam), klam, axes=0))
-            return jnp.real(jnp.einsum("...j,jk,...k->...",
-                                       Eth, X.astype(jnp.complex128),
-                                       El))
-
-        return Spherefun.from_function(f)
+        m, n = X.shape
+        if n % 2:
+            X = jnp.concatenate((jnp.zeros((m, 1), dtype=X.dtype), X), axis=1)
+            n += 1
+        if m % 2:
+            X = jnp.concatenate((jnp.zeros((1, n), dtype=X.dtype), X), axis=0)
+            m += 1
+        values = _trig_coeffs2vals_impl(_trig_coeffs2vals_impl(X).T).T
+        northern = jnp.concatenate((values[m // 2:, :], values[:1, :]), axis=0)
+        return Spherefun.from_values(jnp.real(northern))
 
     @staticmethod
     def coeffs2vals(X):
