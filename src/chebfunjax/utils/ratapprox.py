@@ -9,6 +9,8 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import warnings
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -999,181 +1001,164 @@ def trigratinterp(
     NN: int | None = None,
     xi=None,
     tol: float = 1e-14,
-    domain: tuple[float, float] = (-1.0, 1.0),
+    domain: tuple[float, float] | None = None,
+    *,
+    outputs: int | None = None,
 ):
-    r"""Robust trigonometric rational interpolation or least-squares.
+    """Compute a trigonometric rational fit with JAX numerical kernels.
 
-    Computes a type-(mu, nu) trigonometric rational approximant to a function
-    or periodic data, where both numerator and denominator are trigonometric
-    polynomials of degree ``m`` and ``n``, respectively.
+    With ``outputs=None``, preserve the existing Python seven-tuple
+    ``(r, ac, bc, mu, nu, poles, residues)``. With explicit ``outputs=k``,
+    return the MATLAB output prefix ``(p, q, r, mu, nu, poles, residues)[:k]``.
+    The legacy form also preserves omitted-NN inference for numeric vectors;
+    explicit MATLAB outputs use the source minimum-NN default.
+    MATLAB's six-output branch uses roots of the simplified denominator in
+    physical x; its seven-output branch computes polynomial ``residue(p,q)``
+    on the unreversed Fourier coefficient vectors. Explicit outputs 1--5 do
+    not compute pole data. Repeated-pole residue behavior remains unsupported.
 
-    Parameters
-    ----------
-    f : callable or array_like
-        Function handle or vector of function values at the nodes.
-        If callable, it is sampled at ``NN`` equidistant points on ``domain``.
-    m : int
-        Desired numerator degree (trig polynomial of degree m has 2m+1 terms).
-    n : int
-        Desired denominator degree.
-    NN : int or None, optional
-        Number of nodes.  Defaults to ``2*(m+n)+1`` (minimum for interpolation).
-        Must be >= ``2*(m+n)+1``.
-    xi : array_like, str, or None, optional
-        Nodes.  Defaults to ``NN`` equidistant points on ``domain``.
-        Can also be ``'equi'`` or ``'equidistant'`` for the same default.
-    tol : float, optional
-        Relative tolerance for robustification.  Default: 1e-14.
-    domain : (float, float), optional
-        Physical domain.  Default: ``(-1, 1)``.
-
-    Returns
-    -------
-    r_handle : callable
-        Function handle for the trigonometric rational approximant.
-    a : np.ndarray
-        Numerator Fourier coefficients (length 2*mu+1).
-    b : np.ndarray
-        Denominator Fourier coefficients (length 2*nu+1), normalized b[0]=1.
-    mu : int
-        Exact numerator degree.
-    nu : int
-        Exact denominator degree.
-    poles : np.ndarray
-        Poles in the complex plane.
-    residues : np.ndarray
-        Residues at those poles.
-
-    Notes
-    -----
-    Developer notes from MATLAB Chebfun (trigratinterp.m):
-
-    The algorithm is described in the DPhil thesis of Mohsin Javed.  It uses
-    a DFT-based approach to assemble the linear system for the Fourier
-    coefficients of the numerator and denominator, and robustifies via SVD.
-
-    References
-    ----------
-    .. [1] M. Javed, "Algorithms for Trigonometric Polynomial and Rational
-       Approximation", DPhil thesis, Oxford, 2016.
-
-    Examples
-    --------
-    Type-(5, 5) approximant to 1/(sin(pi*x) - 0.2):
-
-    >>> r_fn, a, b, mu, nu, poles, res = trigratinterp(
-    ...     lambda x: 1.0 / (np.sin(np.pi * x) - 0.2), 5, 5)
-    >>> abs(r_fn(0.5) - 1.0/(np.sin(np.pi*0.5) - 0.2)) < 1e-6
-    True
+    The fitting call is eager, not JIT-compatible: source robustification can
+    change coefficient-array lengths. The returned evaluator supports JAX
+    arrays, including complex arguments.
 
     Provenance
     ----------
-    MATLAB source : trigratinterp.m
+    MATLAB source : trigratinterp.m, @trigtech/roots.m,
+                    @trigtech/poly.m, @chebfun/residue.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-    Algorithm: [1] M. Javed, DPhil thesis, Oxford, 2016.
-
-    See Also
-    --------
-    ratinterp, padeapprox, aaa
     """
+    legacy_tuple = outputs is None
+    if not legacy_tuple:
+        outputs = _trigrat_nonnegative_integer(outputs, "outputs")
+        if outputs < 1 or outputs > 7:
+            raise ValueError("outputs must be between 1 and 7")
+    m = _trigrat_nonnegative_integer(m, "m")
+    n = _trigrat_nonnegative_integer(n, "n")
+    f_domain = getattr(f, "domain", None)
+    if domain is None:
+        if f_domain is not None and hasattr(f_domain, "breakpoints"):
+            domain = (f_domain.breakpoints[0], f_domain.breakpoints[-1])
+        else:
+            domain = (-1.0, 1.0)
+    if len(domain) != 2:
+        raise ValueError("domain must have exactly two endpoints")
     a_dom, b_dom = float(domain[0]), float(domain[1])
+    if f_domain is not None and hasattr(f_domain, "breakpoints"):
+        if (a_dom, b_dom) != (f_domain.breakpoints[0], f_domain.breakpoints[-1]):
+            raise ValueError("F has different domain from the one passed")
+    if not b_dom > a_dom:
+        raise ValueError("domain endpoints must be strictly increasing")
     period = b_dom - a_dom
 
-    # ------------------------------------------------------------------
-    # 1.  Determine number of nodes
-    # ------------------------------------------------------------------
-    min_NN = 2 * (m + n) + 1
-    # If f is a data vector and NN is not explicitly given, infer from length
-    if NN is None and not callable(f) and not isinstance(f, (str,)):
+    minimum = 2 * (m + n) + 1
+    # Existing Python seven-tuple API infers NN from a data vector when
+    # omitted. Explicit MATLAB outputs retain the source minimum NN default.
+    # This is an API adapter; numerical fitting below follows one source path.
+    if legacy_tuple and NN is None and not callable(f) and not isinstance(f, str):
         try:
             NN = len(f)
         except TypeError:
             pass
-    if NN is None:
-        NN = min_NN
-    if NN < min_NN:
-        raise ValueError(
-            f"trigratinterp: NN={NN} must be >= 2*(m+n)+1 = {min_NN}."
+    nn_is_empty = (
+        NN is not None and not isinstance(NN, str) and jnp.asarray(NN).size == 0
+    )
+    if NN is None or nn_is_empty:
+        NN = minimum
+    NN = _trigrat_nonnegative_integer(NN, "NN")
+    if NN % 2 == 0:
+        warnings.warn(
+            "Number of points should be odd.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    if NN < minimum:
+        raise ValueError(f"NN must be >= 2*(M+N)+1 = {minimum}")
+
+    xi_is_empty = xi is not None and not isinstance(xi, str) and jnp.asarray(xi).size == 0
+    if xi is None or xi_is_empty or (isinstance(xi, str) and xi.lower().startswith("equi")):
+        nodes = a_dom + period * jnp.arange(NN, dtype=jnp.float64) / NN
+        xi_type = "equi"
+    elif isinstance(xi, str):
+        raise ValueError(f"unrecognized xi type {xi!r}")
+    else:
+        xi_array = jnp.asarray(xi)
+        if jnp.issubdtype(xi_array.dtype, jnp.complexfloating):
+            # MATLAB isreal tests complex storage, even for zero imaginary
+            # values; reject before any conversion to a real array.
+            raise ValueError("input vector XI must be real")
+        if xi_array.ndim > 2 or (xi_array.ndim == 2 and min(xi_array.shape) != 1):
+            raise ValueError("xi must be a row or column vector")
+        nodes = jnp.ravel(xi_array.astype(jnp.float64))
+        NN = int(nodes.size)
+        xi_type = "arbi"
+    if nodes.size == 0:
+        raise ValueError("xi must not be empty")
+    if bool(jnp.any((nodes < a_dom) | (nodes > b_dom))):
+        raise ValueError("input nodes must lie within the domain")
+
+    if nodes.size % 2 == 0:
+        warnings.warn(
+            "Input vector XI does not have odd number of points.",
+            RuntimeWarning,
+            stacklevel=2,
         )
 
-    # ------------------------------------------------------------------
-    # 2.  Generate nodes
-    # ------------------------------------------------------------------
-    if xi is None or (isinstance(xi, str) and xi.upper().startswith("EQUI")):
-        # Equidistant points on [a_dom, b_dom)
-        th = a_dom + period * np.arange(NN) / NN
-    elif isinstance(xi, np.ndarray) or hasattr(xi, "__len__"):
-        th = np.asarray(xi, dtype=float).ravel()
-        NN = len(th)
-    else:
-        raise ValueError(f"trigratinterp: unrecognized xi type '{xi}'.")
+    if float(tol) < 0:
+        raise ValueError("tol must be a positive number")
 
-    # ------------------------------------------------------------------
-    # 3.  Sample f
-    # ------------------------------------------------------------------
+    order = jnp.argsort(nodes)
+    nodes = nodes[order]
     if callable(f):
-        fvals = np.asarray(f(th), dtype=complex).ravel()
+        # Source sorts xi before sampling a function handle.
+        values = jnp.ravel(jnp.asarray(f(nodes)))
     else:
-        fvals = np.asarray(f, dtype=complex).ravel()
-        if len(fvals) != NN:
-            raise ValueError(
-                f"trigratinterp: f has {len(fvals)} values but NN={NN}."
-            )
+        # Literal parseInputs quirk: numeric fk is not permuted when xi is
+        # sorted above. Preserve the supplied value order.
+        values = jnp.ravel(jnp.asarray(f))
+    if values.size != NN:
+        raise ValueError(f"f has {values.size} values but NN={NN}")
+    if not jnp.issubdtype(values.dtype, jnp.complexfloating):
+        values = values.astype(jnp.float64)
+    else:
+        values = values.astype(jnp.complex128)
+    th = 2.0 * (nodes - 0.5 * (a_dom + b_dom)) / period
+    if float(jnp.min(th)) == -1.0 and float(jnp.max(th)) == 1.0:
+        raise ValueError("periodic interval cannot include both endpoints")
 
-    ts = tol * np.linalg.norm(fvals, np.inf)
+    ts = float(tol) * float(jnp.max(jnp.abs(values)))
+    f_even, f_odd = _trigrat_check_symmetries(values, th, xi_type, ts)
+    interpolation = NN == minimum
+    ac, bc = _trigrat_fit_coefficients(
+        values, m, n, th, f_even, f_odd,
+        robustness=bool(tol != 0), interpolation=interpolation, threshold=ts,
+    )
+    mu = _trigrat_degree(ac)
+    nu = _trigrat_degree(bc)
 
-    # ------------------------------------------------------------------
-    # 4.  Check symmetries (even/odd in Fourier sense)
-    # ------------------------------------------------------------------
-    fEven, fOdd = _trig_check_symmetries(fvals, ts)
-
-    # ------------------------------------------------------------------
-    # 5.  Run the trig rational interpolation algorithm
-    # ------------------------------------------------------------------
-    # MATLAB trigratinterp.m: nodes sorted and mapped to the standard
-    # period [-1, 1]; the linear algebra (SVD of [P, -D*Q] in the
-    # sine/cosine basis) is the same for equispaced and arbitrary nodes.
-    order = np.argsort(th)
-    th_s = 2.0 * (th[order] - 0.5 * (a_dom + b_dom)) / period
-    fvals = fvals[order]
-    interpolation_flag = (NN == 2 * (m + n) + 1)
-    ac, bc, _sv = _trig_rat_interp_svd(
-        fvals, m, n, th_s, tol > 0, interpolation_flag, ts)
-
-    mu = (len(ac) - 1) // 2
-    nu = (len(bc) - 1) // 2
-
-    # ------------------------------------------------------------------
-    # 6.  Build function handle
-    # ------------------------------------------------------------------
-    r_handle = _construct_trig_rat_approx(ac, bc, a_dom, b_dom, ts)
-
-    # Normalize if pure polynomial (n=0 case)
+    # MATLAB constructs p/q and captures r before its output-only
+    # normalization for n==0 or constant denominator.
+    p, q, r = _trigrat_make_approximation(ac, bc, a_dom, b_dom)
     if n == 0 or nu == 0:
-        # MATLAB: p = p./q; q = q./q -- normalise the constant denominator
-        # to one (the ratio r is unchanged).
-        q0 = complex(bc[(len(bc) - 1) // 2]) if len(bc) else 1.0
-        if q0 != 0:
-            ac = ac / q0
-            bc = bc / q0
-            r_handle = _construct_trig_rat_approx(ac, bc, a_dom, b_dom, ts)
+        # Preserve source Chebfun division and its domain/piece semantics,
+        # including its error behavior even when only r is requested.
+        p, q = p / q, q / q
 
-    # ------------------------------------------------------------------
-    # 7.  Poles and residues
-    # ------------------------------------------------------------------
-    poles = np.array([])
-    residues = np.array([])
-    if nu > 0:
-        try:
-            poles = _find_trig_poles(bc, a_dom, b_dom)
-            t_eps = max(tol, 1e-7)
-            residues = t_eps * (r_handle(poles + t_eps) - r_handle(poles - t_eps)) / 2.0
-        except Exception:
-            pass
+    if not legacy_tuple and outputs == 1:
+        return r
 
-    return r_handle, ac, bc, mu, nu, poles, residues
+    out_ac, out_bc = p.coeffs, q.coeffs
+    if legacy_tuple:
+        poles, residues = _trigrat_source_poly_residues(out_ac, out_bc)
+        return r, out_ac, out_bc, mu, nu, poles, residues
+
+    base = (p, q, r, mu, nu)
+    if outputs <= 5:
+        return base[:outputs]
+    if outputs == 6:
+        poles = _trigrat_source_x_roots(out_bc, a_dom, b_dom)
+        return base + (poles,)
+    poles, residues = _trigrat_source_poly_residues(out_ac, out_bc)
+    return base + (poles, residues)
 
 
 # ---------------------------------------------------------------------------
@@ -1946,3 +1931,263 @@ def _build_trigpade_from_cfunc(
         return np.real(result) if np.allclose(np.imag(_p), 0) else result
 
     return p_all, q_all, r_handle
+
+
+# Source-faithful trigonometric rational interpolation helpers.
+
+def _trigrat_nonnegative_integer(value, name):
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be a nonnegative integer")
+    ivalue = int(value)
+    if ivalue != value or ivalue < 0:
+        raise ValueError(f"{name} must be a nonnegative integer")
+    return ivalue
+
+
+def _trigrat_check_symmetries(f, xi, xi_type, tol):
+    """MATLAB checkSymmetries indexing; flags are later reset by source code."""
+    n = int(xi.size)
+    if n == 0:
+        # Empty source comparisons have infinity norm zero.
+        return tol > 0, tol > 0
+    if n == 1:
+        if xi_type.startswith("equi") or float(xi[0]) in (-1.0, 1.0):
+            # These source branches compare empty vectors.
+            return tol > 0, tol > 0
+        if abs(2.0 * float(xi[0])) >= tol:
+            return False, False
+        return True, float(abs(2.0 * f[0])) < tol
+    if xi_type.startswith("equi"):
+        if n % 2:
+            mid = n // 2
+            fl, fr = f[1:mid + 1], f[n - 1:mid:-1]
+        else:
+            mid = n // 2
+            fl, fr = f[1:mid + 1], f[n - 1:mid - 1:-1]
+    else:
+        order = jnp.argsort(xi)
+        x, f = xi[order], f[order]
+        if float(x[0]) == -1.0:
+            if n % 2:
+                mid = n // 2
+                xl, xr = x[1:mid + 1], x[n - 1:mid:-1]
+                fl, fr = f[1:mid + 1], f[n - 1:mid:-1]
+            else:
+                mid = n // 2
+                xl, xr = x[1:mid + 1], x[n - 1:mid - 1:-1]
+                fl, fr = f[1:mid + 1], f[n - 1:mid - 1:-1]
+        elif float(x[-1]) == 1.0:
+            if n % 2:
+                mid = n // 2
+                xl, xr = x[:mid], x[n - 2:mid - 1:-1]
+                fl, fr = f[:mid], f[n - 2:mid - 1:-1]
+            else:
+                mid = n // 2
+                xl, xr = x[:mid], x[n - 2:mid - 2:-1]
+                fl, fr = f[:mid], f[n - 2:mid - 2:-1]
+        else:
+            if n % 2:
+                mid = (n + 1) // 2
+                xl, xr = x[:mid], x[n - 1:mid - 2:-1]
+                fl, fr = f[:mid], f[n - 1:mid - 2:-1]
+            else:
+                mid = n // 2
+                xl, xr = x[:mid], x[n - 1:mid - 1:-1]
+                fl, fr = f[:mid], f[n - 1:mid - 1:-1]
+        if xl.size == 0 or float(jnp.max(jnp.abs(xl + xr))) >= tol:
+            return False, False
+    if fl.size == 0:
+        return tol > 0, False
+    return (
+        float(jnp.max(jnp.abs(fl - fr))) < tol,
+        float(jnp.max(jnp.abs(fl + fr))) < tol,
+    )
+
+
+def _trigrat_construct_matrices(th, m, n):
+    # MATLAB first allocates 2*m+1 columns, then P(:,1)=1 expands an
+    # N-by-0 array to N-by-1 when m == -0.5 after empty-tail chopping.
+    # The same assignment/expansion occurs independently for Q and n.
+    p_count, q_count = max(1, int(2 * m + 1)), max(1, int(2 * n + 1))
+    P = jnp.zeros((th.size, p_count), dtype=jnp.float64)
+    Q = jnp.zeros((th.size, q_count), dtype=jnp.float64)
+    P = P.at[:, 0].set(1.0)
+    Q = Q.at[:, 0].set(1.0)
+    for j in range(1, int(m) + 1):
+        theta = jnp.pi * j * th
+        P = P.at[:, 2 * j - 1].set(jnp.sin(theta))
+        P = P.at[:, 2 * j].set(jnp.cos(theta))
+    for j in range(1, int(n) + 1):
+        theta = jnp.pi * j * th
+        Q = Q.at[:, 2 * j - 1].set(jnp.sin(theta))
+        Q = Q.at[:, 2 * j].set(jnp.cos(theta))
+    return P, Q
+
+
+def _trigrat_sincos_to_exponential(a):
+    a = jnp.ravel(a)
+    tmp = (a[2::2] - 1j * a[1::2]) / 2.0
+    # MATLAB uses a(1) when assembling the constant exponential coefficient;
+    # keep the corresponding IndexError when source slicing produced empty a.
+    center = a[0]
+    return jnp.concatenate((jnp.conj(tmp[::-1]), jnp.asarray([center]), tmp))
+
+
+def _trigrat_chop_coeffs(a, threshold):
+    a = jnp.ravel(a)
+    size = int(a.size)
+    if size <= 1:
+        return a
+    if size % 2 == 0:
+        raise ValueError("trigratinterp coefficients must have odd length")
+    mid = size // 2
+    sym_tail = (jnp.abs(a[mid:]) + jnp.abs(a[mid::-1])) / 2.0
+    kept = jnp.where(sym_tail > threshold, jnp.arange(mid + 1), -1)
+    idx = int(jnp.max(kept))
+    if idx < 0:
+        # MATLAB's empty find index yields an empty colon slice here.
+        return a[:0]
+    return a[mid - idx:mid + idx + 1]
+
+
+def _trigrat_fit_coefficients(fk, m, n, th, f_even, f_odd, *, robustness,
+                      interpolation, threshold):
+    # Source trig_rat_interp.m explicitly resets the symmetry flags here.
+    f_even = False  # noqa: F841 -- source resets both symmetry flags here.
+    f_odd = False  # noqa: F841 -- source resets both symmetry flags here.
+    while True:
+        pmat, qmat = _trigrat_construct_matrices(th, m, n)
+        sys = jnp.concatenate((pmat, -fk[:, None] * qmat), axis=1)
+        scale = 1.0 / jnp.maximum(jnp.abs(fk), 1.0)
+        sys = scale[:, None] * sys
+        _u, singular, vh = jnp.linalg.svd(sys, full_matrices=True)
+        V = jnp.conj(vh.T)
+        v = V[:, -1]
+        # MATLAB getCoeffs splits at 2*m+1, not at the dynamically expanded
+        # P width. After an empty chop this is zero; int() is the Python slice
+        # adapter for MATLAB's integral or half-integral width expression.
+        p_width = int(2 * m + 1)
+        ac = _trigrat_chop_coeffs(
+            _trigrat_sincos_to_exponential(v[:p_width]), threshold)
+        bc = _trigrat_chop_coeffs(
+            _trigrat_sincos_to_exponential(v[p_width:]), threshold)
+        m = min((ac.size - 1) / 2, m)
+        above = jnp.where(jnp.abs(singular) > threshold, jnp.arange(singular.size) + 1, 0)
+        n_big = int(jnp.max(above))
+        n_small = int(singular.size) - n_big
+        if n_small < 2 or not robustness:
+            break
+        reduction = n_small // 2
+        n_new = n - reduction
+        if n_new < 0:
+            # Source retains n and loops; guard against an infinite loop as a
+            # documented defensive adapter if this malformed rank pattern occurs.
+            break
+        n = n_new
+    return ac, bc
+
+
+def _trigrat_degree(coeffs):
+    """MATLAB degree convention: `(length(coeffs)-1)/2`, including -0.5."""
+    return (int(jnp.asarray(coeffs).size) - 1) / 2
+
+
+def _trigrat_make_approximation(ac, bc, a_dom, b_dom):
+    """Build the source p/q Chebfuns once and capture their quotient in r."""
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    p = chebfun(ac, coeffs=True, trig=True)
+    q = chebfun(bc, coeffs=True, trig=True)
+    if (a_dom, b_dom) != (-1.0, 1.0):
+        p = p.new_domain((a_dom, b_dom))
+        q = q.new_domain((a_dom, b_dom))
+
+    def evaluate(x):
+        x = jnp.asarray(x)
+        return p(x) / q(x)
+
+    return p, q, evaluate
+
+
+def _trigrat_eval_fourier(coeffs, xi):
+    coeffs = jnp.asarray(coeffs)
+    if coeffs.size == 0:
+        return jnp.zeros_like(jnp.asarray(xi), dtype=jnp.complex128)
+    degree = (coeffs.size - 1) // 2
+    k = jnp.arange(-degree, degree + 1)
+    phase = jnp.exp(1j * jnp.pi * jnp.asarray(xi)[..., None] * k)
+    return jnp.sum(phase * coeffs, axis=-1)
+
+
+def _trigrat_trim_leading_polynomial_zeros(coeffs):
+    """Eager shape adapter for MATLAB roots/residue leading-zero trimming."""
+    coeffs = jnp.ravel(jnp.asarray(coeffs, dtype=jnp.complex128))
+    if coeffs.size == 0:
+        return coeffs
+    nz = jnp.abs(coeffs) != 0
+    if not bool(jnp.any(nz)):
+        return coeffs[:0]
+    first = int(jnp.argmax(nz))
+    return coeffs[first:]
+
+
+def _trigrat_source_x_roots(bc, a_dom, b_dom):
+    # MATLAB @trigtech/roots.m returns [] immediately for an empty Trigtech.
+    if jnp.asarray(bc).size == 0:
+        return jnp.empty((0,), dtype=jnp.complex128)
+    # MATLAB roots(q,'all') first simplifies each Trigtech column, then reverses
+    # coeffs for polynomial roots and maps -i*log(z)/pi to the physical domain.
+    # Reuse the current public constructor/simplifier; its realness metadata is
+    # a separate dependency and is not claimed qualified by this candidate.
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    q = chebfun(bc, coeffs=True, trig=True, domain=(a_dom, b_dom))
+    q_piece = q.funs[0]
+    q_tech = getattr(q_piece, "tech", q_piece).simplify()
+    poly = _trigrat_trim_leading_polynomial_zeros(
+        jnp.ravel(q_tech.coeffs)[::-1])
+    if poly.size <= 1:
+        return jnp.empty((0,), dtype=jnp.complex128)
+    z = jnp.roots(poly, strip_zeros=False)
+    x_ref = -1j * jnp.log(z) / jnp.pi
+    return 0.5 * (a_dom + b_dom) + 0.5 * (b_dom - a_dom) * x_ref
+
+
+def _trigrat_poly_derivative(coeffs):
+    coeffs = jnp.asarray(coeffs, dtype=jnp.complex128)
+    degree = coeffs.size - 1
+    return coeffs[:-1] * jnp.arange(degree, 0, -1, dtype=jnp.float64)
+
+
+def _trigrat_matlab_complex_sort_order(values):
+    """MATLAB sort order for complex values: magnitude, then phase (-pi,pi]."""
+    values = jnp.asarray(values, dtype=jnp.complex128)
+    phase = jnp.angle(values)
+    phase = jnp.where(phase <= -jnp.pi, phase + 2.0 * jnp.pi, phase)
+    return jnp.lexsort((phase, jnp.abs(values)))
+
+
+def _trigrat_source_poly_residues(ac, bc):
+    # @trigtech/poly returns coefficient arrays unchanged; polynomial residue
+    # consumes them as descending-power vectors. Full repeated-pole residue
+    # expansion is intentionally unported. Exact duplicate roots are rejected;
+    # near-multiple roots also remain outside this simple-pole implementation.
+    p = _trigrat_trim_leading_polynomial_zeros(ac)
+    q = _trigrat_trim_leading_polynomial_zeros(bc)
+    if q.size <= 1:
+        dtype = jnp.result_type(p.dtype, q.dtype, jnp.complex128)
+        return jnp.empty((0,), dtype=dtype), jnp.empty((0,), dtype=dtype)
+    poles = jnp.roots(q, strip_zeros=False)
+    if poles.size > 1:
+        diffs = jnp.abs(poles[:, None] - poles[None, :])
+        close = (diffs == 0) & (~jnp.eye(poles.size, dtype=bool))
+        if bool(jnp.any(close)):
+            raise NotImplementedError("repeated-pole residue expansion is not yet ported")
+    qd = _trigrat_poly_derivative(q)
+    residues = jnp.polyval(p, poles) / jnp.polyval(qd, poles)
+    order = _trigrat_matlab_complex_sort_order(poles)
+    poles, residues = poles[order], residues[order]
+    if poles.size > 1:
+        duplicate = poles[1:] == poles[:-1]
+        residues = residues.at[1:].set(jnp.where(duplicate, residues[:-1], residues[1:]))
+    return poles, residues
