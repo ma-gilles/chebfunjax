@@ -61,8 +61,7 @@ def _inverse_right(x: jax.Array, a: float) -> jax.Array:
     MATLAB source : @mapping/mapping.m ``unbounded`` static method (b==inf branch)
     Chebfun commit: 7574c77
     """
-    u = x - a
-    return (u - _SCALE_SEMI) / (u + _SCALE_SEMI)
+    return (-_SCALE_SEMI + x - a) / (_SCALE_SEMI + x - a)
 
 
 def _derivative_right(y: jax.Array) -> jax.Array:
@@ -108,8 +107,7 @@ def _inverse_left(x: jax.Array, b: float) -> jax.Array:
     MATLAB source : @mapping/mapping.m ``unbounded`` static method (a==-inf branch)
     Chebfun commit: 7574c77
     """
-    u = x - b
-    return (_SCALE_SEMI + u) / (_SCALE_SEMI - u)
+    return (_SCALE_SEMI + x - b) / (_SCALE_SEMI - x + b)
 
 
 def _derivative_left(y: jax.Array) -> jax.Array:
@@ -519,7 +517,8 @@ class Unbndfun(eqx.Module):
         MATLAB source : @unbndfun/feval.m
         Chebfun commit: 7574c77
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        x = jnp.asarray(x)
+        x = x.astype(jnp.result_type(x, jnp.float64))
         # domain.a and domain.b are Python floats (static=True on domain),
         # so they are concrete constants at trace time — safe to use as scalars.
         a: float = self.domain.a
@@ -633,7 +632,8 @@ class Unbndfun(eqx.Module):
         -----
         JIT-safe.
         """
-        y = jnp.asarray(y, dtype=jnp.float64)
+        y = jnp.asarray(y)
+        y = y.astype(jnp.result_type(y, jnp.float64))
         a = float(self.domain.a)
         b = float(self.domain.b)
         if self.mapping_type == "right_inf":

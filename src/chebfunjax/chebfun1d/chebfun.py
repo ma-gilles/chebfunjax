@@ -4230,14 +4230,26 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         import numpy as _np
-        r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()
+        r_all = jnp.asarray(self.roots(nojump=True, nozerofun=True))
+        r = _np.asarray(r_all, dtype=float).ravel()
         a, b = float(self.domain.a), float(self.domain.b)
         eps_ = float(_np.finfo(float).eps)
         gap = max(tol, 100 * eps_ * max(abs(a), abs(b), 1.0))
         r = r[(r > a + gap) & (r < b - gap)]
         if len(r) == 0:
             return self
-        return self.addBreaks(r)
+        out = self.addBreaks(r)
+        if tuple(out.domain.breakpoints) != tuple(self.domain.breakpoints):
+            # Source addBreaksAtRoots sets pointValues=0 at original roots,
+            # only after an actual new breakpoint was introduced.
+            ends = jnp.asarray(out.domain.breakpoints)
+            values = _source_breakpoint_values(out.funs, out.domain.breakpoints, op=self)
+            values2 = values[:, None] if values.ndim == 1 else values
+            roots2 = r_all[:, None] if r_all.ndim == 1 else r_all
+            at_root = jnp.any(ends[:, None, None] == roots2[None, :, :], axis=1)
+            values2 = jnp.where(at_root, 0.0, values2)
+            object.__setattr__(out, '_point_values', values2[:, 0] if values.ndim == 1 else values2)
+        return out
 
     def var(self) -> jax.Array:
         """Variance over the domain: mean(|f - mean(f)|^2)
@@ -4271,11 +4283,11 @@ class Chebfun(eqx.Module):
               refinement_function: str | Callable | None = None,
               max_length: int | None = None, splitting: bool | None = None,
               turbo: bool = False, check: str = "standard") -> "Chebfun":
-        """Remove bounded smooth breakpoints in one source-ordered pass.
+        """Remove supported smooth or singular breakpoints in one source-ordered pass.
 
         Python index values remain breakpoint LOCATIONS, preserving this public
         API. Source breakpoint indices are resolved internally by exact equality.
-        Singular, unbounded and periodic pieces retain the existing adapter.
+        Periodic pieces retain the existing adapter.
         Raw max_length and explicit splitting carry constructor preferences;
         legacy maxpow2 still implies splitting when splitting is omitted.
 
@@ -4286,17 +4298,19 @@ class Chebfun(eqx.Module):
         """
         import warnings
 
+        from chebfunjax.fun.singfun import Singfun
         from chebfunjax.tech.chebtech import Chebtech1
 
         if len(self.funs) < 2:
             return self
-        if any(not isinstance(p.tech, (Chebtech1, Chebtech2))
-               or not all(math.isfinite(t) for t in p.interval) for p in self.funs):
-            # Retain the existing representation adapter until source singular,
-            # unbounded and periodic FUN merge is ported and qualified.
+        from chebfunjax.fun.unbndfun import Unbndfun
+        if any(not isinstance(p.tech, (Chebtech1, Chebtech2, Singfun))
+               or (not all(math.isfinite(t) for t in p.interval)
+                   and not isinstance(p, Unbndfun)) for p in self.funs):
+            # Periodic and unsupported representation adapters remain separate.
             if max_length is not None or splitting is not None or turbo or check != "standard":
                 raise NotImplementedError(
-                    "Source merge preferences require bounded smooth pieces.")
+                    "Source merge preferences require smooth or singular polynomial technologies.")
             return self._merge_representation_adapter(
                 index, maxpow2=maxpow2, tol=tol, sample_test=sample_test,
                 min_samples=min_samples, refinement_function=refinement_function)
@@ -4318,6 +4332,8 @@ class Chebfun(eqx.Module):
         tolerance = jnp.maximum(eps, jnp.asarray(eps if tol is None else tol))
         vs = jnp.asarray(self.vscale, dtype=jnp.float64)
         hs = max(abs(old_ends[0]), abs(old_ends[-1]))
+        if math.isinf(hs):
+            hs = 1.0  # @chebfun/hscale.m, including bounded intermediate trials.
         old_funs = tuple(self.funs)
         explicit = getattr(self, "_point_values", None)
         point_values = (_source_breakpoint_values(old_funs, old_ends)
@@ -4342,18 +4358,17 @@ class Chebfun(eqx.Module):
                     or bool(jnp.any(jnp.isinf(jnp.concatenate(
                         (old_values[k][None, :], limits), axis=0))))):
                 continue
-            a, b = left.interval[0], right.interval[1]
             if abs(left.interval[1] - right.interval[0]) > hs * float(jnp.max(tolerance)):
                 raise ValueError("F and G must be on consecutive domains.")
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                trial = _Piece.from_function(
-                    lambda x: _merge_pair_values(x, left, right), a, b,
+                trial = _merge_fun_source(
+                    left, right,
                     maxpow2=16 if maxpow2 is None else int(maxpow2),
-                    max_length=cap, tol=tolerance, extrapolate=splitting,
-                    vscale=float(vs), hscale=hs / (b - a),
-                    sample_test=sample_test, min_samples=min_samples,
-                    refinement_function=refinement_function, turbo=turbo, check=check)
+                    max_length=cap, tol=tolerance, splitting=splitting,
+                    vscale=float(vs), hscale=hs, sample_test=sample_test,
+                    min_samples=min_samples, refinement_function=refinement_function,
+                    turbo=turbo, check=check)
             if not trial.ishappy:
                 continue
             funs[j - 1:j + 1] = [trial]
@@ -11561,6 +11576,10 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
 
 def _merge_limit_row(piece, right):
     """Source Chebtech lval/rval, as a single row of function columns."""
+    from chebfunjax.fun.singfun import Singfun
+    if isinstance(piece.tech, Singfun):
+        # classicfun/get delegates lval/rval to the full singular onefun.
+        return jnp.atleast_1d(piece.tech(jnp.asarray(1.0 if right else -1.0)))
     coeffs = jnp.asarray(piece.tech.coeffs)
     if not right:
         signs = jnp.where(jnp.arange(coeffs.shape[0]) % 2, -1, 1)
@@ -12736,3 +12755,131 @@ Chebfun.ode78 = staticmethod(ode78)  # type: ignore[attr-defined]
 chebfun.ode78 = ode78  # type: ignore[attr-defined]
 Chebfun.ode89 = staticmethod(ode89)  # type: ignore[attr-defined]
 chebfun.ode89 = ode89  # type: ignore[attr-defined]
+
+
+def _merge_bounded_fun_source(left, right, *, maxpow2, max_length, tol,
+                              splitting, vscale, hscale, sample_test,
+                              min_samples, refinement_function, turbo, check):
+    """Bounded FUN.merge with source outer exponents and construction prefs.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/merge.m, @bndfun/bndfun.m, @onefun/onefun.m,
+        @singfun/singfun.m, @singfun/constructSmoothPart.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.
+    Proactive blowup detection is disabled; only stored outer exponents are
+    retained. Factory smooth tech is Chebtech2, as in existing merge API.
+    """
+    from chebfunjax.fun.singfun import Singfun
+
+    a, b = left.interval[0], right.interval[1]
+    ea = left.tech.exponents[0] if isinstance(left.tech, Singfun) else 0.0
+    eb = right.tech.exponents[1] if isinstance(right.tech, Singfun) else 0.0
+    if ea == 0.0 and eb == 0.0:
+        return _Piece.from_function(
+            lambda x: _merge_pair_values(x, left, right), a, b,
+            maxpow2=maxpow2, max_length=max_length, tol=tol,
+            extrapolate=splitting, vscale=vscale, hscale=hscale/(b-a),
+            sample_test=sample_test, min_samples=min_samples,
+            refinement_function=refinement_function, turbo=turbo, check=check)
+
+    def mapped(t):
+        x = t if (a, b) == (-1.0, 1.0) else b*(t+1)/2+a*(1-t)/2
+        return _merge_pair_values(x, left, right)
+
+    # Source SINGFUN rejects array-valued operators before sampling refinement.
+    if jnp.asarray(mapped(jnp.asarray(0.0))).size > 1:
+        raise ValueError('SINGFUN does not support array-valued construction.')
+
+    def smooth(t):
+        values = mapped(t)
+        if ea and eb:
+            return values / ((1+t)**ea * (1-t)**eb)
+        if ea:
+            return values / (1+t)**ea
+        return values / (1-t)**eb
+
+    options = dict(maxpow2=maxpow2, max_length=max_length,
+                   tol=jnp.maximum(jnp.asarray(tol), 1e-14),
+                   extrapolate=splitting or ea < 0 or eb < 0,
+                   vscale=vscale, hscale=hscale/(b-a), sample_test=sample_test,
+                   min_samples=min_samples, turbo=turbo, check=check)
+    if refinement_function is not None:
+        options['refinement_function'] = refinement_function
+    smooth_part = Chebtech2.from_function(smooth, **options)
+    return _Piece(Singfun(smooth_part, (ea, eb)), (a, b))
+
+
+def _merge_fun_source(left, right, **options):
+    """Dispatch source FUN.merge by the new union domain's representation.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/merge.m, @unbndfun/unbndfun.m,
+        @unbndfun/feval.m, @onefun/onefun.m, @singfun/singfun.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.
+    Unbounded trials retain global hscale unchanged and construct through
+    a fresh union-owned map. No unhappy-smooth-to-Singfun retry is applied.
+    """
+    from chebfunjax.fun.singfun import Singfun, _find_sing_exponents
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    a, b = left.interval[0], right.interval[1]
+    if math.isfinite(a) and math.isfinite(b):
+        return _merge_bounded_fun_source(left, right, **options)
+    frame = Unbndfun.from_chebtech(
+        Chebtech2.from_coeffs(jnp.asarray([0.])), Domain((a, b)))
+
+    def mapped(t):
+        return _merge_pair_values(frame.forward_map(t), left, right)
+
+    left_sing = isinstance(left.tech, Singfun)
+    right_sing = isinstance(right.tech, Singfun)
+    exponents = None
+    if left_sing or right_sing:
+        exponents = (left.tech.exponents[0] if left_sing else 0.,
+                     right.tech.exponents[1] if right_sing else 0.)
+        # Source classicfun/get returns stored exponents; unbndfun negates
+        # supplied entries at infinite ends, even when they came from onefun.
+        exponents = tuple(-e if math.isinf(endpoint) else e
+                          for e, endpoint in zip(exponents, (a, b)))
+    else:
+        # Literal source detection: Inf enables singular detection; NaN alone
+        # does not. Preserve both endpoint callback evaluations and their order.
+        lval = mapped(jnp.asarray(-1.))
+        rval = mapped(jnp.asarray(1.))
+        if bool(jnp.any(jnp.isinf(lval))) or bool(jnp.any(jnp.isinf(rval))):
+            exponents = _find_sing_exponents(mapped)
+
+    ea, eb = (0., 0.) if exponents is None else exponents
+    fit_op = mapped
+    fit_tol = options['tol']
+    extrapolate = options['splitting']
+    if exponents is not None:
+        if jnp.asarray(mapped(jnp.asarray(0.))).size > 1:
+            raise ValueError('SINGFUN does not support array-valued construction.')
+    if ea or eb:
+        fit_tol = jnp.maximum(jnp.asarray(fit_tol), 1e-14)
+        extrapolate = extrapolate or ea < 0 or eb < 0
+        def smooth(t):
+            values = mapped(t)
+            if ea and eb:
+                return values / ((1+t)**ea * (1-t)**eb)
+            if ea:
+                return values / (1+t)**ea
+            return values / (1-t)**eb
+        fit_op = smooth
+    fit_options = dict(maxpow2=options['maxpow2'], max_length=options['max_length'],
+        tol=fit_tol, extrapolate=extrapolate, vscale=options['vscale'],
+        hscale=options['hscale'], sample_test=options['sample_test'],
+        min_samples=options['min_samples'], turbo=options['turbo'], check=options['check'])
+    if options['refinement_function'] is not None:
+        fit_options['refinement_function'] = options['refinement_function']
+    onefun = Chebtech2.from_function(fit_op, **fit_options)
+    if ea or eb:
+        onefun = Singfun(onefun, (ea, eb))
+    return frame.with_tech(onefun)

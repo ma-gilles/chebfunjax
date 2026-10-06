@@ -39,6 +39,31 @@ Legacy dead NumPylocator cleanup, nondefaultcaps/tinyinterval/budget/merge
 semantics and C1 remain open. Full latest-main greenCI and Atmospheric/pixel
 parity are unverified; P106basicchecks/docs pass, numericalCI remainsactive.
 
+The source singular/unbounded merge correction is qualified: 15 focused
+checks pass in 91.303s, 331 existing regression checks in 422.262s, and two
+independent public complex-query controls in 4.874s. No failures or skips;
+all frozen inputs are stable. Original source assertions12/13 and their
+captured MATLAB RNG sites/bounds are unchanged. The clean baseline exposes
+an unbounded error0.7662 and unsupported singular breakpoint removal; a
+missing new helper is reported separately. Source12 alone admits a no-op,
+so actual analytic breakpoint removal is also required and passes.
+Literal outer exponents/full endpoint limits, fresh union-owned maps,
+global unbounded hscale1 (including bounded intermediate trials), Inf-only
+discovery and source exponent negation are retained. New math is JAX;
+root metadata is zeroed only after new breaks. Unbounded queries preserve
+complex coordinates, checked eagerly/JIT on both semi-infinite domains.
+The unchanged pinned MATLAB merge test passes14/14. Earlier qualified files
+stay byte-identical; the last gate freezes1650Python files including the
+new query test. Full-line complex behavior, unsupported/periodic adapters,
+generic constructor policies and full suite/page/CI parity remain open.
+
+Exact MATLAB rng(1);randn(60) primitive input capture passes71.568s with
+independent reseeding/state/bit checks. All3600column-major binary64 values
+match raw MAT and JSON independently; generator twister/transform Ziggurat.
+It contains no FOV answers or coefficients. NonsmoothFOV source sequence
+and primitive replay drafts are not yet executed or accepted; a general
+MATLAB-compatible normal generator remains unfinished.
+
 P104 8e0155ec666a4aa05db0196b0076664ff7d3c9c1 is pushed with the62-case
 short-sum/channel and camera qualification below. New CPU exp diagnostic13
 selected inputs/12paths/threeflagsettings found identical output bits; HIGHEST
@@ -95,7 +120,7 @@ cutoff/tolerance/xfail change justified. All322orderedprose/2403inputs match,
 11output-count gaps and154figure-size mismatches remain; computations/pixels/RNG
 and exact-byte disposition of the12protected originals are unfinished.
 
-Next: full Atmospheric run/figures, detector backend accuracy, source merge12/13,
+Next: full Atmospheric run/figures, detector backend accuracy, remaining merge policies,
 repeated-residue correctness, full functions/tests/JAX/RNG/performance and CI.
 Drafts and failed/unrun revisions are preserved; no external blocker.
 

@@ -234,9 +234,11 @@ class Singfun(eqx.Module):
         def smooth_f(x: jax.Array) -> jax.Array:
             """Extract the smooth factor s(x) = f(x) / weight(x)."""
             val = f(x)
-            if a != 0.0:
+            if a != 0.0 and b != 0.0:
+                val = val / ((1.0 + x) ** a * (1.0 - x) ** b)
+            elif a != 0.0:
                 val = val / (1.0 + x) ** a
-            if b != 0.0:
+            elif b != 0.0:
                 val = val / (1.0 - x) ** b
             return val
 
@@ -349,7 +351,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/feval.m
         Chebfun commit: 7574c77
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        x = jnp.asarray(x)
+        x = x.astype(jnp.result_type(x, jnp.float64))
         val = self.smoothPart(x)
         a, b = self.exponents
         if a != 0.0:
