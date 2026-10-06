@@ -152,6 +152,9 @@ class _Piece(eqx.Module):
         a, b = float(a), float(b)
         # Wrap f to map from reference [-1, 1] into [a, b]
         def f_ref(t: jax.Array) -> jax.Array:
+            # @bndfun/bndfun.m skips the map on the reference interval.
+            if a == -1.0 and b == 1.0:
+                return f(t)
             # Literal @mapping/mapping.m linear.For preserves both endpoints.
             x = b * (t + 1) / 2 + a * (1 - t) / 2
             return f(x)
@@ -10601,29 +10604,15 @@ def _chebfun_build(
 
     if callable(f):
         if splitting and n is None:
-            if len(dom_seq) > 2:
-                # User breakpoints are kept (MATLAB constructs each
-                # given interval separately under splitting).
-                _funs = []
-                for _a, _b in zip(dom_seq[:-1], dom_seq[1:]):
-                    _funs.extend(_construct_with_splitting(
-                        f, float(_a), float(_b), _maxpow2, tol=_tol,
-                        turbo=turbo, min_samples=min_samples,
-                        split_length=split_length,
-                        split_max_length=split_max_length,
-                        sample_test=_sample_test,
-                        refinement_function=refinement_function).funs)
-                _bps = [float(_funs[0].interval[0])] + [
-                    float(pc.interval[1]) for pc in _funs]
-                return Chebfun(funs=_funs, domain=Domain(tuple(_bps)))
-            return _construct_with_splitting(f, float(dom_seq[0]),
-                                             float(dom_seq[-1]),
-                                             _maxpow2, tol=_tol, turbo=turbo,
-                                             min_samples=min_samples,
-                                             split_length=split_length,
-                                             split_max_length=split_max_length,
-                                             sample_test=_sample_test,
-                                             refinement_function=refinement_function)
+            # Source constructorSplit owns one queue and shared scale over
+            # every supplied smooth interval, retaining user breakpoints.
+            return _construct_with_splitting(
+                f, float(dom_seq[0]), float(dom_seq[-1]), _maxpow2,
+                tol=_tol, turbo=turbo, min_samples=min_samples,
+                split_length=split_length, split_max_length=split_max_length,
+                sample_test=_sample_test,
+                refinement_function=refinement_function,
+                breakpoints=tuple(float(x) for x in dom_seq))
         # MATLAB 'minSamples': the first adaptive grid has at least that
         # many points (a narrow spike missed by the 17-point grid is
         # caught by the 33-point one).
@@ -11681,243 +11670,111 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               check: str = "standard",
                               refinement_function: str | Callable | None = None,
                               *, vscale: float = 0.0,
-                              hscale: float | None = None):
-    """Build a piecewise Chebfun with source raw splitLength sampling.
+                              hscale: float | None = None,
+                              breakpoints: tuple[float, ...] | None = None):
+    """Build bounded smooth pieces with the source constructorSplit loop.
 
-    Physical interval endpoints stay fixed. Every split-mode fit extrapolates
-    the endpoints, including a smooth whole interval requiring no subdivision.
-    Recursive breakpoint discovery and subsequent repair remain an adapter to
-    MATLAB's global constructorSplit scheduling.
+    Fit supplied intervals in order, then split the first widest unhappy
+    interval. Shared scale changes only after happy fits. The actual total
+    length is checked after inserting both fitted children. The existing merge
+    adapter subsequently removes only breaks introduced by this constructor.
+    Singfun, unbounded and first-kind construction have separate adapters.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/constructor.m, @bndfun/bndfun.m,
-        @chebtech2/refine.m
+    MATLAB source : @chebfun/constructor.m (constructorSplit and getFun),
+        @fun/detectEdge.m, @bndfun/bndfun.m, @chebfun/chebfun.m
     Chebfun commit: 7574c77
     """
-    # Preserve the legacy default while honoring the whole-domain scale
-    # explicitly supplied by ODESOL, including domains smaller than one.
-    hscale_g = max(abs(a), abs(b), 1.0) if hscale is None else float(hscale)
-    if turbo:
-        # MATLAB 'turbo' (techPrefs.useTurbo) with splitting on: the
-        # subdivision is decided at ordinary accuracy and every final
-        # piece is then rebuilt with the turbo (double-length)
-        # coefficients on its own interval.
-        plain = _construct_with_splitting(
-            f, a, b, maxpow2, tol=tol, turbo=False,
-            min_samples=min_samples, split_length=split_length,
-            split_max_length=split_max_length, sample_test=sample_test,
-            check=check, refinement_function=refinement_function,
-            vscale=vscale, hscale=hscale_g)
-        funs = []
-        for pc in plain.funs:
-            pa, pb = float(pc.interval[0]), float(pc.interval[1])
-            try:
-                # extrapolate: like the plain pieces, never sample the
-                # ambiguous breakpoint value itself (sign(0) = 0).
-                funs.append(_Piece.from_function(f, pa, pb, turbo=True,
-                                                 tol=tol,
-                                                 extrapolate=True,
-                                                 sample_test=sample_test,
-                                                 min_samples=min_samples,
-                                                 max_length=(160 if split_length is None
-                                                             else int(split_length)),
-                                                 check=check,
-                                                 vscale=vscale,
-                                                 hscale=hscale_g / (pb - pa),
-                                                 refinement_function=refinement_function))
-            except Exception:
-                funs.append(pc)
-        return Chebfun(funs=funs, domain=plain.domain)
-    import math as _math0
-    import warnings as _warnings
-    # Keep the legacy pending-piece estimate separate from the raw cap.
-    # Default nested refinement reaches129, while oversized minSamples first
-    # clips to the exact raw160. Completed fits update their budget estimates.
+    import warnings
+
+    given = ((float(a), float(b)) if breakpoints is None
+             else tuple(float(x) for x in breakpoints))
+    hscale_g = max(abs(x) for x in given) if hscale is None else float(hscale)
+    vscale_g = float(jnp.max(jnp.asarray(vscale)))
     raw_split_length = 160 if split_length is None else int(split_length)
     if raw_split_length < 1:
         raise ValueError("split_length must be a positive integer")
-    split_pow2 = max(4, int(_math0.floor(_math0.log2(
-        max(raw_split_length - 1, 2)))))
-    # MATLAB @chebfun/constructor.m keeps a running GLOBAL vscale and
-    # hands it to every piece (data.vscale): a sliver next to a
-    # singularity (sqrt(1-x) near 1, values ~1e-5) is then resolved to
-    # eps * 1, not eps * 1e-5 -- the latter is below the rounding of
-    # 1 - x and can never be reached, so the recursion split forever.
-    import numpy as _np0
-    _xs0 = _np0.linspace(a, b, 67)[1:-1]
-    with _np0.errstate(all="ignore"):
-        try:
-            _ys0 = _np0.abs(_np0.asarray(f(jnp.asarray(_xs0)))).astype(float)
-        except Exception:
-            _ys0 = _np0.asarray([])
-    _ys0 = _ys0[_np0.isfinite(_ys0)] if _ys0.size else _ys0
-    sampled_scale = float(_np0.max(_ys0)) if _ys0.size else 0.0
-    vscale_g = float(jnp.maximum(jnp.max(jnp.asarray(vscale)), sampled_scale))
-    _budget = {"used": 2 ** split_pow2 + 1,
-               "max": (6000 if split_max_length is None
-                       else int(split_max_length))}
-    brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2,
-                              tol=tol, vscale=vscale_g, budget=_budget,
-                              hscale=hscale_g, check=check,
-                              sample_test=sample_test,
-                              min_samples=min_samples,
-                              refinement_function=refinement_function,
-                              max_length=raw_split_length)
-    # Always keep the true domain endpoints a and b; merge only INTERIOR
-    # breakpoints, and drop any interior point that lands within the merge
-    # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
-    # rounding step inside b could displace b itself, yielding a domain like
-    # [-1, -1e-12] instead of [-1, 0]).
-    interior = sorted(float(x) for x in brks if a < float(x) < b)
-    cleaned = [float(a)]
-    for x in interior:
-        if x - cleaned[-1] > 1e-11 and (b - x) > 1e-11:
-            cleaned.append(x)
-    cleaned.append(float(b))
+    total_limit = 6000 if split_max_length is None else int(split_max_length)
+
+    def get_fun(left, right):
+        nonlocal vscale_g
+        # Source getFun treats a sufficiently small physical interval as a
+        # constant sampled once at its midpoint, instead of adapting it.
+        if right - left < 4e-14 * hscale_g:
+            value = jnp.asarray(f((left + right) / 2))
+            if value.ndim == 0:
+                coeffs = value.reshape((1,))
+            elif value.ndim == 1:
+                coeffs = value.reshape((1, -1))
+            elif value.ndim == 2 and value.shape[0] == 1:
+                coeffs = value
+            else:
+                raise ValueError(
+                    "A scalar callback input must return a scalar or one row.")
+            piece = _Piece(
+                tech=Chebtech2.from_coeffs(coeffs), interval=(left, right))
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                piece = _Piece.from_function(
+                    f, left, right, maxpow2=maxpow2, tol=tol, turbo=turbo,
+                    extrapolate=True, vscale=vscale_g,
+                    hscale=hscale_g / (right - left),
+                    sample_test=sample_test, check=check,
+                    min_samples=min_samples, max_length=raw_split_length,
+                    refinement_function=refinement_function)
+        if piece.ishappy:
+            vscale_g = float(jnp.maximum(vscale_g, jnp.max(piece.vscale)))
+        return piece
 
     funs = []
-    for i in range(len(cleaned) - 1):
-        ai, bi = cleaned[i], cleaned[i + 1]
-        # Map on the TRUE interval; nudge only the SAMPLE POINTS inward
-        # at interior breakpoints so a jump's ambiguous midpoint value
-        # (e.g. sign(0)=0) is never sampled.  (Previously the whole map
-        # was built on a shrunk interval, distorting every piece's
-        # geometry by ~1e-11 relative -- sum(|x-0.3|) came out
-        # 1.0900000000109 instead of 1.09.)
-        # The nudge must exceed the edge locator's precision (~1e-11
-        # relative) or a piece can straddle the true jump and cascade
-        # into bisection; the value error it induces is O(1e-11 * |f'|)
-        # at two samples only (geometry is exact).  Sharper edge
-        # refinement is a ledgered improvement.
-        # A piece touching an interior breakpoint must not sample the
-        # ambiguous jump value there (sign(0) = 0): MATLAB's constructor
-        # evaluates only the interior nodes and EXTRAPOLATES the endpoint
-        # values (pref.extrapolate).  Nudging the sample points inward
-        # instead (an earlier approach) mis-assigned the values to the
-        # unnudged nodes and left every such piece with an O(1e-11 |f'|)
-        # endpoint error (|x| evaluated to 9e-13 at 0).
-        # constructorSplit extrapolates endpoints on every FUN, including
-        # a happy whole interval that did not need subdivision.
-        _xtrap = True
+    for left, right in zip(given[:-1], given[1:]):
+        funs.append(get_fun(left, right))
+        # constructorSplit resets an infinite initial scale after each fit.
+        if math.isinf(vscale_g):
+            vscale_g = 0.0
 
-        def f_ref(t, _a=ai, _b=bi):
-            x = 0.5 * (_b - _a) * t + 0.5 * (_a + _b)
-            return f(x)
-
-        # The raw split cap controls actual Tech sampling. The power and
-        # initial power remain legacy adapters; they cannot round away raw160.
-        piece_maxpow2 = min(maxpow2, split_pow2)
-        # MATLAB 'minSamples': floor the INITIAL adaptive grid so narrow
-        # features inside a piece are not chopped away prematurely.
-        import math as _math
-        _sp2 = (max(4, int(_math.ceil(_math.log2(max(min_samples - 1, 2)))))
-                if min_samples else 4)
-        piece_maxpow2 = max(piece_maxpow2, _sp2)
-        with _warnings.catch_warnings():
-            _warnings.simplefilter("ignore")
-            tech = Chebtech2.from_function(f_ref, maxpow2=piece_maxpow2,
-                                           start_pow2=_sp2,
-                                           tol=tol, turbo=turbo,
-                                           extrapolate=_xtrap,
-                                           vscale=vscale_g,
-                                           check=check,
-                                           hscale=hscale_g / (bi - ai),
-                                           sample_test=sample_test,
-                                           min_samples=min_samples,
-                                           max_length=raw_split_length,
-                                           **({} if refinement_function is None else {
-                                               "refinement_function": refinement_function}))
-        funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
-
-    # MATLAB's constructor keeps splitting any still-sad piece (at a
-    # detected edge, else bisection) until it resolves or the total
-    # budget is exhausted -- without this, narrow smooth spikes are
-    # silently accepted unresolved (quad/SpikeIntegral).
-    def _sad(pc):
-        return not bool(getattr(pc.tech, "ishappy", True))
-
-    SPLIT_MAX_LENGTH = (6000 if split_max_length is None
-                        else int(split_max_length))
-    guard = 0
-    while (any(_sad(pc) for pc in funs)
-           and sum(pc.n for pc in funs) < SPLIT_MAX_LENGTH
-           and guard < 200):
-        guard += 1
-        import numpy as _np
-        widths = [(pc.interval[1] - pc.interval[0]) if _sad(pc) else 0.0
-                  for pc in funs]
-        k = int(_np.argmax(_np.asarray(widths)))
-        a_k, b_k = funs[k].interval
-        edge = _detect_edge_matlab(f, a_k, b_k,
+    while any(not piece.ishappy for piece in funs):
+        # Python max retains the first tied maximum, as MATLAB max does.
+        widths = [(piece.interval[1] - piece.interval[0])
+                  if not piece.ishappy else 0.0 for piece in funs]
+        k = max(range(len(funs)), key=widths.__getitem__)
+        left, right = funs[k].interval
+        edge = _detect_edge_matlab(f, left, right,
                                    vscale=vscale_g, hscale=hscale_g)
-        okw = 4 * _np.spacing(max(abs(a_k), abs(b_k), 1e-300))
-        if (edge is None or not (a_k < edge < b_k)
-                or edge - a_k < okw or b_k - edge < okw):
-            edge = 0.5 * (a_k + b_k)
-        if not (a_k + okw < edge < b_k - okw):
+        if edge is None:
+            edge = (left + right) / 2
+        else:
+            htol = 1e-14 * hscale_g
+            if abs(left - edge) <= htol:
+                edge = left + (right - left) / 100
+            elif abs(right - edge) <= htol:
+                edge = right - (right - left) / 100
+        child_left = get_fun(left, edge)
+        child_right = get_fun(edge, right)
+        funs[k:k + 1] = [child_left, child_right]
+        length = sum(piece.n for piece in funs)
+        if length > total_limit:
+            warnings.warn(f"Function not resolved using {length} pts.",
+                          UserWarning, stacklevel=2)
             break
-        halves = []
-        for aa, bb in ((a_k, edge), (edge, b_k)):
-            with _warnings.catch_warnings():
-                _warnings.simplefilter("ignore")
-                halves.append(_Piece.from_function(
-                    f, aa, bb, maxpow2=piece_maxpow2, tol=tol,
-                    turbo=turbo, start_pow2=_sp2, extrapolate=True,
-                    vscale=vscale_g, sample_test=sample_test,
-                    check=check,
-                    hscale=hscale_g / (bb - aa),
-                    min_samples=min_samples,
-                    max_length=raw_split_length,
-                    refinement_function=refinement_function))
-        funs[k:k + 1] = halves
-    # A still-sad piece narrower than the edge locator's resolution is
-    # an unresolvable-kink sliver; its adaptive coefficients can be
-    # wildly unbounded (observed 1e48 on the SOR spectral-radius kink),
-    # poisoning min/max candidate evaluation.  Replace it with the
-    # bounded interpolant of a few interior samples.
-    sliver_hscale = hscale_g
-    for k, pc in enumerate(funs):
-        if not _sad(pc):
-            continue
-        a_k, b_k = pc.interval
-        if (b_k - a_k) >= 1e-8 * sliver_hscale:
-            continue
-        import numpy as _np
-        # A merely UNRESOLVED sliver (sqrt(1-x) on [1-1e-14, 1]) keeps
-        # its full-length interpolant, as MATLAB does (accepted with a
-        # 'notResolved' warning); only a sliver whose adaptive
-        # coefficients blew up (the noise-kink case) is replaced.
-        _cs = _np.asarray(pc.tech.coeffs)
-        if _np.all(_np.isfinite(_cs)) and \
-                float(_np.max(_np.abs(_cs))) <= 1e2 * max(vscale_g, 1.0):
-            continue
-        tq = _np.cos(_np.pi * _np.arange(8, dtype=float) / 7)[::-1]
-        xq = 0.5 * (b_k - a_k) * (0.98 * tq) + 0.5 * (a_k + b_k)
-        with _warnings.catch_warnings():
-            _warnings.simplefilter("ignore")
-            vals = _np.asarray(f(jnp.asarray(xq)))
-        vals = _np.where(_np.isfinite(vals), vals, 0.0)
-        funs[k] = _Piece(
-            tech=Chebtech2.from_values(jnp.asarray(vals)),
-            interval=(a_k, b_k))
-    bps2 = [funs[0].interval[0]] + [pc.interval[1] for pc in funs]
-    out = Chebfun(funs=funs, domain=Domain(tuple(float(v)
-                                                 for v in bps2)))
-    # MATLAB @chebfun/chebfun.m: "Remove unnecessary breaks (but not
-    # those that were given)" -- merge the breakpoints splitting
-    # introduced, capped at splitLength (a jump sitting exactly on a
-    # piece endpoint is detected AT that endpoint and moved inward by
-    # w/100; the merge removes that spurious neighbour again).
-    if len(out.funs) > 1:
-        with _warnings.catch_warnings():
-            _warnings.simplefilter("ignore")
-            out = out.merge(index=bps2[1:-1], maxpow2=split_pow2,
+
+    ends = [funs[0].interval[0]] + [piece.interval[1] for piece in funs]
+    out = Chebfun(funs=funs, domain=Domain(tuple(ends)))
+    introduced = [x for x in ends[1:-1] if x not in given]
+    if introduced:
+        # The retained merge adapter is qualified separately from the source
+        # scheduler. Its legacy power cap still rounds raw splitLength.
+        merge_pow2 = max(4, int(math.floor(math.log2(
+            max(raw_split_length - 1, 2)))))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            out = out.merge(index=introduced, maxpow2=merge_pow2,
                             tol=tol, sample_test=sample_test,
                             min_samples=min_samples,
                             refinement_function=refinement_function)
     return out
-
 
 def _integer_step(f: "Chebfun", op, half_offset: bool = False):
     """Piecewise-constant floor/ceil/round of a Chebfun (Opus 4.8, #14).

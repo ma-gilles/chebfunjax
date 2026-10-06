@@ -2297,6 +2297,9 @@ class Chebtech2(eqx.Module):
                 refinement_function=refinement_function, max_length=max_length,
                 min_samples=min_samples, hscale=hscale,
                 use_turbo=True, fixed_length=n)
+            # Source constructors turbocharge only happy representations.
+            if not plain.ishappy:
+                return plain
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
@@ -4411,6 +4414,9 @@ class Chebtech1(eqx.Module):
                 refinement_function=refinement_function, max_length=max_length,
                 min_samples=min_samples, tol=tol, vscale=vscale, hscale=hscale,
                 use_turbo=True, fixed_length=n)
+            # Source constructors turbocharge only happy representations.
+            if not plain.ishappy:
+                return plain
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
