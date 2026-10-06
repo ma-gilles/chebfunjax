@@ -67,6 +67,40 @@ IVP_METHODS = {
 IVP_METHOD_DEFAULT = "LSODA"
 
 
+def _compile_ivp_rhs(rhs, x0, y0):
+    """Compile a pure array RHS when its initial evaluation is compatible.
+
+    Python/NumPy callbacks can still be used by the existing eager marcher.
+    Choose the callback before marching; a later evaluation error propagates.
+    The comparison guards against a materially different fused evaluation.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/solveivp.m (pointwise operator extraction)
+    Chebfun commit: 7574c77
+    JAX implementation : compilation of the same extracted first-order RHS.
+    """
+    import jax
+
+    x0 = jnp.asarray(x0, dtype=jnp.float64)
+    y0 = jnp.asarray(y0, dtype=jnp.float64)
+    expected = rhs(x0, y0)
+    compiled = jax.jit(rhs)
+    try:
+        actual = compiled(x0, y0)
+        actual.block_until_ready()
+    except (TypeError, ValueError, AttributeError):
+        # Tracer conversion/control-flow errors derive from these classes.
+        # An eager evaluation already succeeded above; retain that callback.
+        return rhs
+    bound = 32*jnp.finfo(jnp.float64).eps*jnp.maximum(1.0, jnp.abs(expected))
+    compatible = (actual.shape == y0.shape
+                  and bool(jnp.all(jnp.isfinite(actual)))
+                  and bool(jnp.all(jnp.abs(actual-expected) <= bound)))
+    return compiled if compatible else rhs
+
+
+
 def _ivp_method(name) -> str:
     """Resolve a MATLAB ``ivpSolver`` name to a scipy integrator."""
     if name is None:
@@ -5657,10 +5691,13 @@ class Chebop:
         def L(x, u):
             return self.op(x, u) if nargs == 2 else self.op(u)
 
-        def fval(x):
-            if callable(f):
-                return float(_np.asarray(f(jnp.asarray(x))))
-            return float(f)
+        def fval_array(x):
+            value = jnp.asarray(f(jnp.asarray(x)) if callable(f) else f)
+            # Preserve the real scalar contract of the former float(...)
+            # extraction; do not silently discard complex forcing in SciPy.
+            if value.size != 1 or jnp.iscomplexobj(value):
+                raise TypeError("scalar IVP forcing must be a real scalar")
+            return value.reshape(())
 
         # initial conditions and marching direction
         left = self._lbc_raw is not None
@@ -5671,7 +5708,7 @@ class Chebop:
                 f"IVP requires exactly {k} initial conditions")
         x0, x1 = (a, b) if left else (b, a)
 
-        def _op_at(x, y, s):
+        def _op_at_array(x, y, s):
             tower = [jnp.asarray(v) for v in list(y) + [s]]
             try:
                 r = L(jnp.asarray(x), _IVPProxy(tower, x=x))
@@ -5681,7 +5718,13 @@ class Chebop:
                 r = L(_TrigX(jnp.asarray(x)), _IVPProxy(tower, x=x))
             if isinstance(r, _TrigX):
                 r = r.v
-            return float(_np.asarray(r))
+            value = jnp.asarray(r)
+            if value.size != 1 or jnp.iscomplexobj(value):
+                raise TypeError("scalar IVP operator must return a real scalar")
+            return value.reshape(())
+
+        def _op_at(x, y, s):
+            return float(_np.asarray(_op_at_array(x, y, s)))
 
         # Verify the operator is affine in the highest derivative before
         # trusting the extraction (Fable 5 audit: e.g. (u'')^2 would
@@ -5695,11 +5738,17 @@ class Chebop:
             raise ValueError(
                 "operator is not affine in its highest derivative")
 
+        def rhs_array(x, y):
+            lower = _op_at_array(x, y, 0.0)
+            ak = _op_at_array(x, y, 1.0) - lower
+            ukk = (fval_array(x) - lower) / ak
+            return jnp.concatenate((y[1:], jnp.atleast_1d(ukk)))
+
+        evaluate_rhs = _compile_ivp_rhs(rhs_array, x0, ic)
+
         def rhs(x, y):
-            lower = _op_at(x, y, 0.0)
-            ak = _op_at(x, y, 1.0) - lower
-            ukk = (fval(x) - lower) / ak
-            return list(y[1:]) + [ukk]
+            # Host conversion only at the existing SciPy adapter boundary.
+            return _np.asarray(evaluate_rhs(jnp.asarray(x), jnp.asarray(y)))
 
         # Blowup guard (MATLAB N.maxnorm -> odeset Events): terminate
         # the march when |u| reaches the requested norm.

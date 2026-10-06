@@ -1,6 +1,7 @@
-"""Port of MATLAB Chebfun tests/chebop/test_ivp.m (Fable 5).
+"""Port of MATLAB Chebfun tests/chebop/test_ivp.m.
 
-u' - u = 1 - x, u(-1) = exp(-1) - 1  ->  u = exp(x) + x.
+Restore the original Chebfun L2 norm assertion and literal tolerance 1e-10.
+The prior port used a 40-point maximum error at 1e-8.
 
 Provenance
 ----------
@@ -10,22 +11,20 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-import numpy as np
+from math import exp
 
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-TOL = 1e-8
+TOL = 1e-10
 
 
 class TestChebopIvp:
     def test_linear_ivp_exact_solution(self):
-        A = Chebop(lambda x, u: u.diff() - u)
-        A.lbc = float(np.exp(-1) - 1)
-        rhs = cj.chebfun(lambda x: 1 - x)
-        u = A.solve(rhs)
-        xs = jnp.asarray(np.linspace(-0.95, 0.95, 40))
-        exact = jnp.exp(xs) + xs
-        err = jnp.abs(u(xs) - exact)
-        assert float(jnp.max(err)) < TOL
+        domain = (-1.0, 1.0)
+        x = cj.chebfun(lambda t: t, domain=domain)
+        problem = Chebop(lambda t, u: u.diff() - u, domain=domain)
+        problem.lbc = exp(-1.0) - 1.0
+        solution = problem.solve(1.0 - x)
+        error = solution - (x.exp() + x)
+        assert float(error.norm(2)) < TOL
