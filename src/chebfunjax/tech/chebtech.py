@@ -729,87 +729,90 @@ def _happiness_check_impl(
     return ishappy, cutoff
 
 
-def _extrapolate_values(
-    values: jax.Array,
-    x: jax.Array,
-    w: jax.Array,
-):
-    """Barycentric extrapolation of NaN/Inf sample rows (MATLAB extrapolate.m).
+@jax.jit
+def _compensated_sum_axis0(values):
+    """Neumaier sum along sample axis, independently for complex components.
 
-    Replaces every row of ``values`` that contains a NaN or Inf (in any
-    column) by the value of the barycentric interpolant built from the finite
-    rows.  Rows with only finite entries are left bit-for-bit unchanged, so a
-    clean sample is returned identically.  Uses NumPy internally (data-dependent
-    masks make this unsuitable for tracing); it is a construction-time helper,
-    not a JIT hot path.
+    Numerical implementation of addition, not a claim about MATLAB BLAS.
+    Products, if present in values, have already been rounded; this is not
+    an exact dot-product algorithm. Requires binary64 for binary64 accuracy.
+    No barrier or compiler-specific reassociation control is used: eager/JIT
+    independent contracts cover both eager and compiled consumers.
 
-    Parameters
+    Provenance
     ----------
-    values : jax.Array, shape (n,) or (n, m)
-        Sampled function values (possibly containing NaN/Inf).
-    x : jax.Array, shape (n,)
-        The Chebyshev points at which ``values`` were sampled.
-    w : jax.Array, shape (n,)
-        The barycentric weights for the ``n``-point grid.
+    MATLAB source : @chebtech/extrapolate.m (barycentric reduction consumer)
+    Chebfun commit: 7574c77
+    Independent Neumaier compensated summation numerical adaptation.
+    MATLAB replay on identical samples shares the former NumPy dot error;
+    this does not claim restoration of MATLAB BLAS reduction arithmetic.
+    """
+    values = jnp.asarray(values)
+    if jnp.iscomplexobj(values):
+        real = _compensated_sum_axis0(jnp.real(values))
+        imag = _compensated_sum_axis0(jnp.imag(values))
+        return jax.lax.complex(real, imag)
 
-    Returns
-    -------
-    new_values : jax.Array
-        ``values`` with masked rows replaced (same shape/dtype as input).
-    mask_nan : numpy.ndarray, shape (n,)
-        Column vector flagging rows that held a NaN.
-    mask_inf : numpy.ndarray, shape (n,)
-        Column vector flagging rows that held an Inf.
+    def step(state, term):
+        total, correction = state
+        updated = total + term
+        residual = jnp.where(
+            jnp.abs(total) >= jnp.abs(term),
+            (total - updated) + term,
+            (term - updated) + total,
+        )
+        return (updated, correction + residual), None
+
+    zero = jnp.zeros(values.shape[1:], dtype=values.dtype)
+    (total, correction), _ = jax.lax.scan(step, (zero, zero), values)
+    compensated = total + correction
+    # Error-free transforms require finite intermediates. Retain ordinary
+    # reduction semantics for infinities/NaNs or overflowing accumulations.
+    return jnp.where(jnp.isfinite(compensated), compensated, jnp.sum(values, axis=0))
+
+
+def _extrapolate_values(values, x, w):
+    """Replace nonfinite sample rows by their barycentric interpolants.
 
     Provenance
     ----------
     MATLAB source : @chebtech/extrapolate.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-    """
-    import numpy as _np
+    Original authors: Copyright 2017 by The University of Oxford and The
+    Chebfun Developers. Modified weights, row masks, and interpolation ratio
+    follow the source. Compensated reductions are a numerical adaptation,
+    independently qualified, not an assertion about MATLAB internals.
 
-    v = _np.asarray(values)
+    Data-dependent construction routine; host boolean decisions are allowed.
+    All sample, weight and replacement arithmetic stays in JAX.
+    """
+    v = jnp.asarray(values)
     was_1d = v.ndim == 1
     if was_1d:
         v = v[:, None]
-    xr = _np.asarray(x).reshape(-1)
-    wr = _np.asarray(w).reshape(-1)
-    n, m = v.shape
-
-    mask_nan = _np.any(_np.isnan(v), axis=1)
-    mask_inf = _np.any(_np.isinf(v), axis=1)
+    xr = jnp.asarray(x).reshape(-1)
+    wr = jnp.asarray(w).reshape(-1)
+    mask_nan = jnp.any(jnp.isnan(v), axis=1)
+    mask_inf = jnp.any(jnp.isinf(v), axis=1)
     mask = mask_nan | mask_inf
-
-    if _np.any(mask):
+    if bool(jnp.any(mask)):
         good = ~mask
         xgood = xr[good]
         if xgood.size == 0:
-            raise ValueError(
-                "CHEBFUN:CHEBTECH:extrapolate:nansInfs: "
-                "Too many NaNs/Infs to handle."
-            )
+            raise ValueError('CHEBFUN:CHEBTECH:extrapolate:nansInfs: Too many NaNs/Infs to handle.')
         xbad = xr[mask]
-
-        # Modified barycentric weights for the good points (MATLAB loop):
-        # w_k <- w_k * prod_j (xgood_k - xbad_j).
-        wmod = wr[good].astype(_np.float64).copy()
-        for xb in xbad:
-            wmod = wmod * (xgood - xb)
-
-        vgood = v[good, :]
-        newvals = _np.zeros((xbad.size, m), dtype=v.dtype)
+        wmod = wr[good].astype(jnp.float64)
         for k in range(xbad.size):
-            # Barycentric formula of the second kind at the bad point.
+            wmod = wmod * (xgood - xbad[k])
+        vgood = v[good, :]
+        replacements = []
+        for k in range(xbad.size):
             w2 = wmod / (xbad[k] - xgood)
-            newvals[k, :] = (w2 @ vgood) / _np.sum(w2)
-
-        v = v.copy()
-        v[mask, :] = newvals
-
-    out = v[:, 0] if was_1d else v
-    return jnp.asarray(out), mask_nan, mask_inf
+            numerator = _compensated_sum_axis0(w2[:, None] * vgood)
+            denominator = _compensated_sum_axis0(w2)
+            replacements.append(numerator / denominator)
+        v = v.at[mask].set(jnp.stack(replacements).astype(v.dtype))
+    return (v[:, 0] if was_1d else v), mask_nan, mask_inf
 
 
 def _sample_extrapolate(
