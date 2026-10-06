@@ -18,6 +18,8 @@ import warnings
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+
+# uses-numpy: host plotting arrays and formatted reporting; native ODE callbacks use JAX.
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -109,7 +111,7 @@ def run():
     a = 6.32591398 / (2 * np.pi)     # scaling factor to give period 2pi
 
     def fun(t, u):
-        return a * np.array([
+        return a * jnp.array([
             u[3], u[4], u[5],
             ((u[1] - u[0]) / abs(u[1] - u[0]) ** 3
              + (u[2] - u[0]) / abs(u[2] - u[0]) ** 3),

@@ -68,7 +68,7 @@ v = u(:,3)
 v =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,      13]      314     complex values
+[       0,      13]      415     complex values
 vertical scale = 1.1
 ```
 
@@ -99,7 +99,7 @@ max(abs(rh(linspace(0,4*pi,100)) - v(linspace(0,4*pi,100))))
 
 ```text
 ans =
-     4.862342669632491e-10
+     4.859053661592988e-10
 ```
 
 ## Analysis of Singularities
@@ -112,14 +112,14 @@ poles
 
 ```text
 poles =
-  2.092570920546209 - 0.539609377394787i
-  2.905666313550595 + 1.939406712644067i
-  4.188723686254765 - 0.551329210447226i
-  5.233719115245835 + 0.551709444215918i
-  7.332669101295847 + 0.551706215495063i
-  8.377645864077575 - 0.551342052456708i
-  9.646039132041848 + 1.937659805836405i
- 10.473785828863722 - 0.539652909815184i
+  2.092587694719901 - 0.539634303612716i
+  2.912620119913508 + 1.939058982833960i
+  4.188725872591013 - 0.551336319657008i
+  5.233710456912989 + 0.551707280056816i
+  7.332660227865999 + 0.551707257109169i
+  8.377644821226600 - 0.551336336168766i
+  9.653752540866988 + 1.939062237534320i
+ 10.473782862057893 - 0.539634393888065i
 ```
 
 A straightforward analysis considering the symmetries of the system (communicated to me by Viswanath) shows that if the solution that $v$ is approximating has any complex singularities, the real parts may only take the values $(\pi/3)[1,2,4,5]~(\mbox{mod}\ 2\pi)$.
@@ -130,14 +130,14 @@ real(poles)*3/pi
 
 ```text
 ans =
-   1.998258034651722
-   2.774706940663093
-   3.999936479481308
-   4.997833607675494
-   7.002183201170639
-   8.000062504447913
-   9.211288854733894
-  10.001728725297033
+   1.998274052807678
+   2.781347336598863
+   3.999938567278634
+   4.997825339576666
+   7.002174727669304
+   8.000061508598588
+   9.218654617589552
+  10.001725892206156
 ```
 
 We have found poles with real parts approximately $(\pi/3)[2,4,5,7,8,10]$, which agrees with the analysis. We do appear to have missed one singularity at $\pi/3$ and $11\pi/3$, but it is typical to expect only the singularities near the centre of the interval to be found. We have also found two additional poles. A plot shows that these are further from the real line.
@@ -203,7 +203,7 @@ This is a demonstration of the phenomenon of spurious poles or "Froissart double
 1. Private communication with Divakar Viswanath, July 2011
 2. A. Chenciner and R. Montgomery. A remarkable periodic solution of the three-body problem in the case of equal masses. *Annals of Mathematics- Second Series*, 152(3):881-902, 2000.
 3. P. Gonnet, R. Pachon, and L.N. Trefethen. Robust rational interpolation and least-squares. *Electronic Transactions on Numerical Analysis*, 38:146-167, 2011.
-4. Chebfun Example [approx/RationalInterp](../approx/RationalInterp.md)
+4. Chebfun Example [approx/RationalInterp](https://www.chebfun.org/examples/approx/RationalInterp.html)
 5. [http://en.wikipedia.org/wiki/Three_body_problem](http://en.wikipedia.org/wiki/Three_body_problem)
 
 ---
