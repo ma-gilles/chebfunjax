@@ -1110,11 +1110,8 @@ def trigpts(n: int, interval: tuple[float, float] | None = None,
         return (jnp.array([], dtype=jnp.float64),
                 jnp.array([], dtype=jnp.float64))
 
-    # Equispaced points in [-1, 1) (matching MATLAB's linspace(-pi,pi,n+1)/pi)
-    x = jnp.linspace(-1.0, 1.0, n + 1, dtype=jnp.float64)
-    # Enforce symmetry: x = (x - x[::-1]) / 2
-    x = (x - x[::-1]) / 2.0
-    x = x[:-1]  # Remove last point (it is +1, which is excluded)
+    from chebfunjax.utils._trigpts import global_trigpts_nodes, map_global_nodes
+    x = global_trigpts_nodes(n)
 
     # Trapezoidal weights: 2/n on [-1, 1)
     w = jnp.full(n, 2.0 / n, dtype=jnp.float64)
@@ -1122,7 +1119,7 @@ def trigpts(n: int, interval: tuple[float, float] | None = None,
     if interval is not None:
         a, b = interval
         dab = b - a
-        x = dab * x / 2.0 + (a + b) / 2.0
+        x = map_global_nodes(x, a, b)
         w = w * dab / 2.0
 
     return x, w

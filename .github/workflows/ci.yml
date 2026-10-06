@@ -88,19 +88,54 @@ jobs:
           print(f'OK: {len(needed)} golden refs verified ({len(refs)} committed).')
           "
 
-  test:
-    name: Tests + Coverage
+  core-tests:
+    name: Core tests (${{ matrix.part }})
     runs-on: ubuntu-latest
-    # Core suite (excl. the MATLAB port tree, which has its own job
-    # below -- running both in one job overwhelmed hosted runners).
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2]
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: latest
-      - name: Run core tests with coverage
-        run: pixi run test-ci
+      - name: Run core shard with coverage
+        run: pixi run python scripts/run_core_shard.py --part ${{ matrix.part }}
+      - name: Save shard coverage and inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-coverage-${{ matrix.part }}
+          path: |
+            .coverage.core-${{ matrix.part }}
+            core-manifest-${{ matrix.part }}.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+  test:
+    name: Tests + Coverage
+    needs: core-tests
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all core shards to pass
+        env:
+          SHARD_RESULT: ${{ needs.core-tests.result }}
+        run: test "$SHARD_RESULT" = success
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: core-coverage-*
+          path: core-coverage
+          merge-multiple: true
+      - name: Verify complete inventory and apply aggregate coverage gate
+        run: pixi run python scripts/run_core_shard.py --verify-and-combine core-coverage
 
   # The port tree is sharded: one job exceeded the GitHub runner's
   # memory (JAX's in-process jit cache grows monotonically across

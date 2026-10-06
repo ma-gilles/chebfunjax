@@ -1,5 +1,47 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Qualified CPU package (2026-10-06; takes precedence below)
+
+The next Fourier correction passes **129 focused CPU tests** in 68.323s and
+**617 broad regression tests** across 69 file paths in 702.947s. No failures,
+errors or skips; all 1,664 Python files and 8,514 outer inputs stayed stable,
+with no surviving owned processes. These are overlapping gates, not a claim
+of 746 unique tests or full-suite parity.
+
+Adaptive periodic construction now follows source relative sample testing,
+nested sample reuse and column happiness decisions. Global PI-based trigpts
+and fixed technology normalized grids remain distinct; 14 actual MATLAB
+sizes pass exact binary64 eager/JIT grid controls. Multiplication follows
+source prolong length, FFT product, simplify and positivity order. All 23
+original MATLAB multiplication assertions pass on captured primitive RNG
+query inputs. Existing stronger endpoint positivity tests remain unchanged.
+Source dimension-error identification is retained through Python ValueError.
+Stored-value, per-column realness and conjugation adapters remain incomplete.
+
+Final numeric archive SHA256:
+`d3e75c796a894c4ef5244785577c09b09cd2ad6ddfcad581e5f150aa8c68ae9b`.
+The earlier 380-pass/one-failure regression and baseline comparison are
+preserved; the corrected product passes the final broad gate.
+
+P111 CI had two failing operator shards and a core coverage cancellation at
+90 minutes. Core CI now uses three disjoint file shards and a final combined
+coverage job that retains the existing **79%** requirement. Actual collection
+proves all **5,841** core test items occur exactly once (1,918/1,974/1,949),
+without changing assertions, markers, two workers or the 600s test timeout.
+Collection proves membership only; CI runtime balance and aggregate coverage
+remain unverified until this exact publication completes CI.
+
+Fresh pinned MATLAB passes the original Volterra, scaled-jump and short-pulse
+tests. Python operator failures remain open. The MATLAB restart-off pulse
+assertion compares against the no-pulse solution; the current Python port
+expects the opposite behavior. Preserve that distinction during diagnosis.
+
+Full MATLAB 7574c77 and all 322 page/figure parity remain **active and
+incomplete**. The original twelve home script edits remain protected and
+unverified. CPU only, heavy runs serial, at most two helpers. Use shared
+`publication_checkout/`, ordinary SSH push, explicit staging and GPT-6 trailer.
+See the parent `CURRENT_GOAL_STATUS.md` for immutable evidence and next work.
+
 ## Latest shared checkout status (2026-10-06; takes precedence below)
 
 The next bounded singular/Gamma correction is qualified:72focused CPU cases

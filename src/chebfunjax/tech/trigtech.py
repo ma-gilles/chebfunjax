@@ -344,16 +344,15 @@ def trigpts(n: int) -> jax.Array:
     jax.Array, shape (n,) float64
         Equispaced points on [-1, 1).
 
-    Notes
-    -----
-    Symmetry is enforced exactly, ``x = (x - flip(x))/2``, as in MATLAB
-    trigpts.m -- downstream bit-exact symmetry detection (Hermitian /
-    skew-Hermitian value tests in vals2coeffs) depends on sampled values
-    of even/odd functions being exactly palindromic.
+    Provenance
+    ----------
+    MATLAB source : @trigtech/trigpts.m; R2025b linspace.m symmetric branch
+    Chebfun commit: 7574c77
+    The static technology API uses normalized linspace points directly.
+    Adaptive refinement instead calls the global PI-based trigpts API.
     """
-    x = jnp.linspace(-1.0, 1.0, n + 1, dtype=jnp.float64)
-    x = (x - x[::-1]) / 2.0
-    return x[:-1]
+    from chebfunjax.utils._trigpts import static_trigpts_nodes
+    return static_trigpts_nodes(n)
 
 
 # ============================================================================
@@ -375,7 +374,7 @@ def _sample_as_trig_dtype(f, x):
     return raw.astype(jnp.complex128), is_real
 
 
-def _sample_callable_trig_grid(f, n):
+def _sample_callable_trig_grid(f, n, *, source_global=False):
     """Apply source callable-grid endpoint averaging, preserving columns.
 
     Provenance
@@ -383,11 +382,14 @@ def _sample_callable_trig_grid(f, n):
     MATLAB source : @trigtech/refine.m, refineResampling
     Chebfun commit: 7574c77
 
-    Fixed-n construction is a Python size adapter using the same callable
-    endpoint convention. User-supplied values and off-grid probes do not
+    Fixed-n uses static normalized technology points; adaptive refinement
+    opts into global PI-based source points. Both average endpoints once.
+    User-supplied values and off-grid probes do not
     pass through this helper.
     """
-    points = jnp.concatenate((trigpts(n), jnp.ones((1,), dtype=jnp.float64)))
+    from chebfunjax.utils._trigpts import global_trigpts_nodes
+    nodes = global_trigpts_nodes(n) if source_global else trigpts(n)
+    points = jnp.concatenate((nodes, jnp.ones((1,), dtype=jnp.float64)))
     values, is_real = _sample_as_trig_dtype(f, points)
     values = values.at[0].set(0.5 * (values[0] + values[-1]))
     return values[:-1], is_real
@@ -1091,13 +1093,61 @@ def _chop_cutoff_to_ncoeffs(chop_cutoff: int, n_full: int) -> int:
     int
         Number of Fourier coefficients to retain (odd preferred).
     """
-    if chop_cutoff <= 1:
-        return 1
-    # Reverse the kron expansion: (cutoff - 1) / 2 pairs after the first element
-    paired_idx = (chop_cutoff + 1) // 2  # = ceil(chop_cutoff / 2)
-    # paired_idx modes (including constant) -> n_keep = 2*paired_idx - 1 (odd, centered)
-    n_keep = max(1, 2 * paired_idx - 1)
-    return min(n_keep, n_full)
+    # standardChop returns a count, not a zero-based array index.
+    # Source standardCheck rounds that count UP to odd before prolongation.
+    return min(2 * (chop_cutoff // 2) + 1, n_full)
+
+
+def _trig_cutoff_decision(raw_cutoff: int, sample_count: int) -> tuple[bool, int]:
+    """Return source happiness and retained count for one expanded cutoff.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/standardCheck.m
+    Chebfun commit: 7574c77
+    Compare against original sample count, not expanded envelope length.
+    """
+    return raw_cutoff < sample_count, 2 * (raw_cutoff // 2) + 1
+
+
+def _trig_standard_check(coeffs, values, tol, vscale):
+    """Literal per-column source standardCheck on raw Fourier coefficients.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/standardCheck.m
+    Chebfun commit: 7574c77
+    Distinct from simplify's absolute-value FFT round-trip and signed pairing.
+    """
+    columns = coeffs[:, None] if coeffs.ndim == 1 else coeffs
+    samples = values[:, None] if values.ndim == 1 else values
+    n, m = columns.shape
+    # For one row MATLAB any() reduces along columns (the first
+    # nonsingleton dimension). For multirow data the if condition requires
+    # every column's any-result to be true.
+    nan_mask = jnp.isnan(columns)
+    source_nan = (jnp.any(nan_mask) if n == 1
+                  else jnp.all(jnp.any(nan_mask, axis=0)))
+    if bool(source_nan):
+        raise ValueError("Trigtech standardCheck: function returned NaN")
+    tolerance_input = jnp.asarray(tol)
+    tolerances = jnp.ravel(tolerance_input)
+    if (tolerances.size != m
+            or (tolerance_input.ndim > 1 and tolerance_input.shape[-1] != m)):
+        tolerances = jnp.full((m,), jnp.max(tolerances))
+    local = jnp.max(jnp.abs(samples), axis=0)
+    scales = jnp.maximum(jnp.asarray(vscale), local)
+    scaled = tolerances * scales / local
+    happy = True
+    retained = 1
+    for column in range(m):
+        paired = _trig_abs_coeffs_for_chop(columns[:, column])
+        raw = standard_chop(paired, float(scaled[column]))
+        happy, keep = _trig_cutoff_decision(raw, n)
+        retained = max(retained, keep)
+        if not happy:
+            break
+    return happy, retained
 
 
 def _trig_source_pairs_for_chop(coeffs: jax.Array) -> jax.Array:
@@ -1594,49 +1644,42 @@ class Trigtech(eqx.Module):
     ) -> "Trigtech":
         """Adaptive construction — Python loop, NOT JIT-safe.
 
-        Evaluates f on grids of 2^k points for k = start_pow2, ..., maxpow2.
+        Refines nested grids of 2^k points, evaluating only new nodes.
+        The first grid alone averages the two endpoint samples.
         Note: start_pow2=4 gives n=16, producing a chop array of length 17,
         which is the minimum required by standard_chop.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/populate.m, @trigtech/refine.m
+        Chebfun commit: 7574c77
         """
+        from chebfunjax.utils._trigpts import global_trigpts_nodes
+
         vscale = 0.0
         c = None
+        values = None
+        is_real = True
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k
-            x = trigpts(n)
-            values, is_real = _sample_callable_trig_grid(f, n)
+            if values is None:
+                values, is_real = _sample_callable_trig_grid(f, n, source_global=True)
+            else:
+                # Source refineNested preserves old even-indexed samples;
+                # only new odd-indexed nodes are evaluated after doubling.
+                fresh, fresh_real = _sample_as_trig_dtype(f, global_trigpts_nodes(n)[1::2])
+                interleaved = jnp.empty((n,) + values.shape[1:], dtype=values.dtype)
+                values = interleaved.at[::2].set(values).at[1::2].set(fresh)
+                is_real = is_real and fresh_real
             c = trig_vals2coeffs(values)
-            vscale = max(vscale, float(jnp.max(jnp.abs(values))))
-
-            # Check happiness using paired coefficient magnitudes
-            # (per-column max cutoff for array-valued sampling)
-            cutoff, chop_len = _trig_chop_cutoff(c)
-            ishappy = cutoff < chop_len
-
+            finite_values = jnp.where(jnp.isfinite(values), values, 0)
+            vscale = jnp.maximum(vscale, jnp.max(jnp.abs(finite_values), axis=0))
+            # populate checks the full interpolant, then prolongs only after
+            # source standardCheck AND the two-point sampleTest are happy.
+            ishappy, n_keep = cls.happiness_check(c, values, op=f, vscale=vscale)
             if ishappy:
-                # Map cutoff back to number of Fourier modes
-                n_keep = _chop_cutoff_to_ncoeffs(cutoff, n)
-                # Ensure odd (symmetric spectrum)
-                if n_keep % 2 == 0:
-                    n_keep = max(1, n_keep - 1)
                 c_keep = _trig_prolong_coeffs(c, n_keep)
-                candidate = cls(coeffs=c_keep, is_real=is_real,
-                                ishappy=True)
-                # Sample test: guard against coarse-grid aliasing (a
-                # sparse high-frequency spectrum can alias to a
-                # low-frequency one on the current grid and chop early).
-                # Evaluate f and the candidate at the grid MIDPOINTS
-                # (off-grid); if they disagree, the grid is too coarse.
-                # Fix by Claude Opus 4.8.
-                # Irrational fraction of the grid spacing (2/n) so the
-                # test points never coincide with an aliasing pattern.
-                x_test = x + (2.0 / n) * 0.414213562373095
-                f_test, _ = _sample_as_trig_dtype(f, x_test)
-                cand_test = candidate(x_test)
-                tol_abs = 1e6 * _EPS * max(vscale, 1.0)
-                err = float(jnp.max(jnp.abs(
-                    jnp.asarray(cand_test) - jnp.asarray(f_test))))
-                if err <= tol_abs:
-                    return candidate
+                return cls(coeffs=c_keep, is_real=is_real, ishappy=True)
 
         # Did not converge
         warnings.warn(
@@ -1644,9 +1687,11 @@ class Trigtech(eqx.Module):
             f"{2**maxpow2} points. Returning unhappy representation.",
             stacklevel=2,
         )
-        values, is_real = _sample_callable_trig_grid(f, 2**maxpow2)
-        c_final = trig_vals2coeffs(values)
-        return cls(coeffs=c_final, is_real=is_real, ishappy=False)
+        if c is None:
+            # Preserve the existing adapter for an explicit cap below start.
+            values, is_real = _sample_callable_trig_grid(f, 2**maxpow2)
+            c = trig_vals2coeffs(values)
+        return cls(coeffs=c, is_real=is_real, ishappy=False)
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -2199,31 +2244,43 @@ class Trigtech(eqx.Module):
         coeffs: jax.Array,
         values: jax.Array,
         op: Callable | None = None,
-        tol: float | None = None,
-        vscale: float = 0.0,
+        tol: float | jax.Array | None = None,
+        vscale: float | jax.Array = 0.0,
     ) -> tuple[bool, int]:
-        """Standard happiness check for trigonometric adaptive construction.
+        """Source standard happiness check for Fourier interpolation.
 
-        Optionally performs a sample test (MATLAB ``pref.sampleTest``):
-        evaluates the operator ``op`` and the trigonometric interpolant at two
-        off-grid points and, if they disagree by more than
-        ``sqrt(max(tol, eps)) * vscale``, declares the representation unhappy
-        and reverts the cutoff to the full length.  This rejects the
-        aliasing-fooled "happy" case that the coefficient chop alone misses.
+        Coefficient checking uses per-column running/local scale and returns
+        a source odd retained count. When ``op`` is supplied, the FULL
+        interpolant is compared at the two source points before any chop.
+        Its threshold is ``sqrt(max(tol, eps))*max(local_column_scales)``;
+        a larger historical ``vscale`` does not loosen this sample test.
+        Sample rejection returns ``(False, original_sample_count)``.
 
         Parameters
         ----------
-        coeffs : jax.Array, shape (N,) complex
-        values : jax.Array, shape (N,)
-        op : callable or None, optional
-            Original function handle for the sample test.  When ``None`` the
-            sample test is skipped (MATLAB ``pref.sampleTest = 0``).
-        tol : float or None
-        vscale : float, default 0.0
+        coeffs : jax.Array, shape (N,) or (N, M)
+        values : jax.Array, same sample/column shape as coeffs
+        op : callable or None
+            None skips source sampleTest. Otherwise op accepts an array
+            of two canonical sample points and preserves output columns.
+        tol : float, jax.Array, or None
+            None selects binary64 epsilon. A one-dimensional array is
+            interpreted as a MATLAB row tolerance. StandardCheck accepts
+            one entry per column; otherwise it broadcasts the maximum.
+            For an explicit two-dimensional tolerance, MATLAB's final
+            dimension rule is used: an (M,1) column tolerance for M>1
+            broadcasts its maximum during coefficient checking. Source
+            sampleTest retains the original tolerance shape/broadcasting.
+        vscale : float or one-dimensional jax.Array
+            Running scale, scalar or one entry per function column.
+            Two-dimensional scale arrays are outside this API contract.
 
         Returns
         -------
-        (ishappy, cutoff) : (bool, int)
+        ishappy : bool
+        cutoff : int
+            Source odd count after coefficient checking, including an
+            unhappy coefficient result; sample rejection returns N.
 
         Provenance
         ----------
@@ -2231,36 +2288,24 @@ class Trigtech(eqx.Module):
             @trigtech/sampleTest.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-
         if tol is None:
             tol = _EPS
-
         n = coeffs.shape[0]
-        vscale_local = float(jnp.max(jnp.abs(values)))
-        vscale = max(vscale, vscale_local)
-
-        if vscale_local > 0:
-            scaled_tol = tol * max(1.0, vscale / vscale_local)
-        else:
-            scaled_tol = tol
-
-        cutoff, chop_len = _trig_chop_cutoff(coeffs, scaled_tol)
-        ishappy = cutoff < chop_len
-
-        # Sample test (MATLAB @trigtech/sampleTest.m): compare the full
-        # interpolant against the operator at two fixed off-grid points.
+        local = jnp.max(jnp.abs(values), axis=0)
+        effective_scale = jnp.maximum(jnp.asarray(vscale), local)
+        ishappy, cutoff = _trig_standard_check(coeffs, values, tol, effective_scale)
         if ishappy and op is not None:
-            xeval = jnp.array(
-                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
-            )
+            xeval = jnp.array([-0.357998918959666, 0.036785641195074],
+                             dtype=jnp.float64)
             v_fun = _trig_eval(coeffs, xeval, is_real=False)
             v_op = jnp.asarray(op(xeval), dtype=jnp.complex128)
-            err = float(jnp.max(jnp.abs(v_op - v_fun)))
-            sample_tol = _np.sqrt(max(_EPS, tol)) * vscale
-            if err > sample_tol:
+            errors = jnp.max(jnp.abs(v_op - v_fun), axis=0)
+            # Source sampleTest uses THIS interpolant's scale, not the
+            # possibly larger constructor running/global scale.
+            sample_tol = jnp.sqrt(jnp.maximum(_EPS, jnp.asarray(tol))) * jnp.max(local)
+            if not bool(jnp.all(errors <= sample_tol)):
                 ishappy = False
-                cutoff = n  # revert to size(f.values, 1)
+                cutoff = n
         return ishappy, cutoff
 
     # ------------------------------------------------------------------
@@ -2345,79 +2390,102 @@ class Trigtech(eqx.Module):
         return self
 
     def __mul__(self, other) -> "Trigtech":
-        """Pointwise multiplication via physical-space grid.
+        """Multiply using the source prolong, simplify, positivity sequence.
 
         Provenance
         ----------
-        MATLAB source : @chebtech/times.m (analogous)
+        MATLAB source : @trigtech/times.m, @trigtech/isequal.m,
+                        @trigtech/conj.m
+        Chebfun commit: 7574c77
+
+        Equality uses coefficients and reconstructed values. The adapter has
+        no independent stored value array and retains its global real flag.
+        Construction and value-dependent branch selection remain eager.
         """
-        if self.isempty() or (isinstance(other, Trigtech)
-                              and other.isempty()):
-            # MATLAB @trigtech/times.m: empty argument -> empty result.
+        if self.isempty():
             return Trigtech.empty()
-        if isinstance(other, Trigtech):
-            # Multiply in physical space to avoid aliasing
-            n = self.n + other.n
-            if n % 2 == 0:
-                n += 1
-            # MATLAB @trigtech/times.m: prolong both to the n-point grid
-            # and multiply the values.  Zero-padding the coefficients and
-            # an FFT (host fast path) replaces the former jitted Horner
-            # evaluation at trigpts(n), which compiled once per length
-            # pair (1869 XLA compiles in one spherefunv Helmholtz
-            # decomposition -- 40 s and a runner-killing memory growth).
-            same_shape = self.coeffs.shape == other.coeffs.shape
-            pos = same_shape and self.is_real and bool(
-                jnp.array_equal(self.coeffs, other.coeffs))
-            if pos:
-                # f .* f with real f: exact grid evaluation keeps the
-                # squared values (and the interpolant at f's roots)
-                # nonnegative to the last bit.
-                x = trigpts(n)
-                fv = _trig_eval(self.coeffs, x, self.is_real)
-                gv = fv
+        if not isinstance(other, Trigtech):
+            scalar = jnp.asarray(other)
+            if scalar.size == 0:
+                return Trigtech.empty()
+            if scalar.ndim > 2 or (scalar.ndim == 2 and scalar.shape[0] != 1):
+                raise ValueError("Trigtech times requires a scalar or row vector")
+            row = scalar.reshape(-1)
+            is_real = self.is_real and jnp.isrealobj(scalar)
+            if row.size == 1:
+                # Source scalar path scales coefficients directly.
+                coeffs = self.coeffs * row[0]
             else:
-                fv = trig_coeffs2vals(_trig_prolong_coeffs(self.coeffs, n))
-                gv = trig_coeffs2vals(_trig_prolong_coeffs(other.coeffs, n))
-                if self.is_real:
-                    fv = jnp.real(fv)
-                if other.is_real:
-                    gv = jnp.real(gv)
-            new_is_real = self.is_real and other.is_real
-            # scalar-column * array-valued broadcasts via a trailing
-            # column axis (MATLAB @chebtech/times.m semantics)
-            if fv.ndim != gv.ndim:
-                if fv.ndim == 1:
-                    fv = fv[:, None]
-                if gv.ndim == 1:
-                    gv = gv[:, None]
-            pv = fv * gv
-            c = trig_vals2coeffs(pv.astype(jnp.complex128))
-            h = Trigtech(coeffs=c, is_real=new_is_real,
-                         ishappy=self.ishappy and other.ishappy)
-            # MATLAB @trigtech/times.m: when the product is known
-            # nonnegative in advance (f.*f with real f, or f.*conj(f)),
-            # simplification roundoff may break positivity — enforce it
-            # by clamping the values through |.|.
-            # f .* conj(f): for the symmetric odd-length layout the
-            # conjugate's coefficients are the reversed conjugates
-            # (even lengths carry an unpaired Nyquist mode — skip).
-            pos = pos or (same_shape and self.coeffs.shape[0] % 2 == 1
-                          and bool(jnp.array_equal(
-                              jnp.conj(self.coeffs[::-1]), other.coeffs)))
-            if pos:
-                hv = jnp.abs(trig_coeffs2vals(h.coeffs))
-                h = Trigtech(
-                    coeffs=trig_vals2coeffs(hv.astype(jnp.complex128)),
-                    is_real=True, ishappy=h.ishappy)
-            return h
+                values = self.values
+                ncols = 1 if values.ndim == 1 else values.shape[1]
+                if ncols not in (1, row.size):
+                    raise ValueError("Trigtech times: matrix dimensions must agree")
+                if values.ndim == 1:
+                    values = values[:, None]
+                coeffs = trig_vals2coeffs(values * row[None, :])
+            return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=self.ishappy)
+        if other.isempty():
+            return Trigtech.empty()
+        if self.n == 1:
+            # Source constant-tech paths use values and the numeric branch.
+            return other * self.values.reshape(-1)
+        if other.n == 1:
+            return self * other.values.reshape(-1)
+
+        def columns(a):
+            return a[:, None] if a.ndim == 1 else a
+
+        fc, gc = columns(self.coeffs), columns(other.coeffs)
+        fv, gv = columns(self.values), columns(other.values)
+        fm, gm = fc.shape[1], gc.shape[1]
+        if fm != gm and fm != 1 and gm != 1:
+            raise ValueError(
+                "CHEBFUN:TRIGTECH:times:dim2: matrix dimensions must agree")
+        n = self.n + other.n - 1
+        fnew = columns(self.prolong(n).values)
+        if fm != gm:
+            if fm == 1:
+                fnew = jnp.broadcast_to(fnew, (n, gm))
+            else:
+                # Source broadcasts g before the equality checks.
+                gc = jnp.broadcast_to(gc, (other.n, fm))
+                gv = jnp.broadcast_to(gv, (other.n, fm))
+
+        same = fc.shape == gc.shape and bool(
+            jnp.array_equal(fc, gc) & jnp.array_equal(fv, gv))
+        pos = False
+        if same:
+            values = fnew ** 2
+            pos = self.is_real
         else:
-            s = jnp.asarray(other, dtype=jnp.complex128)
-            return Trigtech(
-                coeffs=self.coeffs * s,
-                is_real=self.is_real and jnp.isrealobj(jnp.asarray(other)),
-                ishappy=self.ishappy,
-            )
+            # Follow the source relational operation through the public
+            # conjugation adapter. Its representation limitations remain
+            # separate from this multiplication policy.
+            conjugate = self.conj()
+            conjugates = fc.shape == gc.shape and bool(
+                jnp.array_equal(columns(conjugate.coeffs), gc)
+                & jnp.array_equal(columns(conjugate.values), gv))
+            if conjugates:
+                values = jnp.conj(fnew) * fnew
+                pos = True
+            else:
+                gnew = columns(other.prolong(n).values)
+                values = fnew * gnew
+        # Preserve the public scalar-valued shape convention.
+        if self.coeffs.ndim == other.coeffs.ndim == 1:
+            values = values[:, 0]
+        h = Trigtech(
+            coeffs=trig_vals2coeffs(values),
+            is_real=self.is_real and other.is_real,
+            ishappy=self.ishappy and other.ishappy,
+        ).simplify()
+        if pos:
+            # Source enforces grid positivity after simplification. This is
+            # not a guarantee on rounded Horner evaluations at other points.
+            values = jnp.abs(trig_coeffs2vals(h.coeffs))
+            h = Trigtech(
+                coeffs=trig_vals2coeffs(values), is_real=True, ishappy=h.ishappy)
+        return h
 
     def __rmul__(self, other) -> "Trigtech":
         return self.__mul__(other)
