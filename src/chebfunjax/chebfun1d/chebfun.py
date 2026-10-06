@@ -125,6 +125,7 @@ class _Piece(eqx.Module):
         sample_test: bool = True,
         refinement_function: str | Callable | None = None,
         min_samples: int | None = None,
+        max_length: int | None = None,
         check: str = "standard",
         hscale: float = 1.0,
     ) -> _Piece:
@@ -139,7 +140,9 @@ class _Piece(eqx.Module):
         n : int or None
             Fixed degree (None = adaptive).
         maxpow2 : int, default 16
-            Max adaptive grid power (``max_length = 2**maxpow2 + 1``).
+            Legacy adaptive grid power, used when max_length is omitted.
+        max_length : int or None
+            Raw source grid cap, including an oversized initial min_samples.
         tol : float or None
             Construction tolerance (``eps``); None uses machine epsilon.
         turbo : bool, default False
@@ -160,6 +163,7 @@ class _Piece(eqx.Module):
             f_ref, n=n, maxpow2=maxpow2, tol=tol, start_pow2=start_pow2,
             turbo=turbo, extrapolate=extrapolate, vscale=vscale,
             sample_test=sample_test, min_samples=min_samples,
+            max_length=max_length,
             check=check, hscale=hscale, **tech_options)
         return cls(tech=tech, interval=(a, b))
 
@@ -1929,6 +1933,7 @@ class Chebfun(eqx.Module):
         sample_test: bool = True,
         refinement_function: str | Callable | None = None,
         min_samples: int | None = None,
+        max_length: int | None = None,
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -1952,6 +1957,8 @@ class Chebfun(eqx.Module):
             Adaptive refinement method forwarded to each piece.
         min_samples : int, optional
             Minimum initial adaptive grid size.
+        max_length : int or None
+            Raw maximum adaptive grid length, forwarded without rounding.
 
         Returns
         -------
@@ -1975,7 +1982,8 @@ class Chebfun(eqx.Module):
                                          start_pow2=start_pow2,
                                          sample_test=sample_test,
                                          refinement_function=refinement_function,
-                                         min_samples=min_samples)
+                                         min_samples=min_samples,
+                                         max_length=max_length)
             funs.append(piece)
         return cls(funs=funs, domain=domain)
 
@@ -10050,6 +10058,10 @@ def _chebfun_build(
                         _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n,
                     sample_test=_sample_test,
                     min_samples=min_samples,
+                    # constructorSplit overrides the ordinary tech cap.
+                    max_length=((160 if split_length is None else int(split_length))
+                                if splitting else
+                                (None if max_length is None else int(max_length))),
                     **({} if refinement_function is None else {
                         "refinement_function": refinement_function}))
             else:
@@ -10624,7 +10636,9 @@ def _chebfun_build(
                                      start_pow2=_sp2,
                                      sample_test=_sample_test,
                                      refinement_function=refinement_function,
-                                     min_samples=min_samples)
+                                     min_samples=min_samples,
+                                     max_length=(None if max_length is None
+                                                 else int(max_length)))
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "
@@ -11386,27 +11400,22 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        check: str = "standard",
                        sample_test: bool = True,
                        min_samples: int | None = None,
-                       refinement_function: str | Callable | None = None
+                       refinement_function: str | Callable | None = None,
+                       max_length: int | None = None,
                        ) -> list:
-    """Recursively find interior breakpoints for splitting-on (Opus 4.8).
+    """Recursively find breakpoints using the effective raw Tech grid cap.
 
-    Detection is capped at 2^12 points: a piece containing a
-    singularity does not resolve below that length, so it is flagged
-    unhappy and split, instead of being accepted as a ~10k-coefficient
-    grind that straddles the edge.  The final smooth pieces are still
-    built at the caller's full ``maxpow2``.
+    Grid clipping and endpoint extrapolation follow the source. Breakpoint
+    discovery still uses Python's recursive order; MATLAB's global widest-sad
+    interval scheduling requires a separate port.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/constructor.m, @chebtech2/refine.m
+    Chebfun commit: 7574c77
     """
     import warnings as _warnings
-    # MATLAB splitting caps each FUN at pref.splitPrefs.splitLength (= 257,
-    # i.e. 2**8 + 1): a piece that is not resolved by 257 points is declared
-    # sad and split, rather than ground up to 2**16 + 1 = 65537 points.  The
-    # previous cap of 2**12 = 4097 made an endpoint branch-point singularity
-    # (e.g. sqrt(4-(x-1)^2), which is ~2*sqrt(1+x) at x=-1) thrash: every
-    # detection and edge-bisection construction ran to thousands of points and
-    # the recursion hung for minutes.  MATLAB source: @chebfunpref splitLength.
-    # MATLAB data.hscale = norm(dom, inf) of the WHOLE construction domain,
-    # threaded unchanged through every split (detectEdge's thresholds and
-    # the 1e-14*hscale endpoint rule use it).
+    # The whole-domain scale is threaded unchanged through discovery.
     if hscale is None:
         hscale = max(abs(a), abs(b), 1.0)
     if min_w is None:
@@ -11428,21 +11437,23 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                                  hscale=hscale / (b - a),
                                  sample_test=sample_test,
                                  min_samples=min_samples,
+                                 max_length=max_length,
                                  refinement_function=refinement_function)
     if budget is not None:
-        # MATLAB constructor.m: splitting stops once the total length of
-        # all current pieces (a sad piece counting splitLength) reaches
-        # splitMaxLength; the remaining sad pieces are accepted
-        # unresolved (with a warning).  ``used`` tracks that total: a
-        # happy piece replaces its splitLength estimate by its length,
-        # a split adds one more splitLength piece.
+        # This recursive adapter bounds discovery with pending-piece
+        # estimates. Each completed fit replaces its estimate by actual length.
+        # MATLAB checks actual total length after both children in its global
+        # scheduling loop; that broader scheduling contract remains open.
         _sl = 2 ** split_pow2 + 1
-        if p.ishappy:
-            budget["used"] += int(p.n) - _sl
-        elif budget["used"] >= budget["max"]:
-            return []
-        else:
-            budget["used"] += _sl
+        # Replace the pending estimate by the actual completed fit. A raw
+        # clipped grid can be160 while the pending estimate is129.
+        budget["used"] += int(p.n) - _sl
+        if not p.ishappy:
+            if budget["used"] >= budget["max"]:
+                return []
+            # Replace this parent by two pending child estimates. Global
+            # source scheduling and its after-pair budget check remain open.
+            budget["used"] += 2 * _sl - int(p.n)
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
     # Locate the singularity with the MATLAB detectEdge derivative-growth
@@ -11474,12 +11485,12 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
                                min_w, split_pow2, tol, vscale, budget, hscale,
                                check, sample_test, min_samples,
-                               refinement_function)
+                               refinement_function, max_length)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
                                  min_w, split_pow2, tol, vscale, budget, hscale,
                                  check, sample_test, min_samples,
-                                 refinement_function))
+                                 refinement_function, max_length))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -11671,15 +11682,17 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               refinement_function: str | Callable | None = None,
                               *, vscale: float = 0.0,
                               hscale: float | None = None):
-    """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
+    """Build a piecewise Chebfun with source raw splitLength sampling.
 
-    Each piece is constructed on a slightly-shrunk interval so that at a
-    jump the piece captures the one-sided limit (not the ambiguous value
-    exactly at the breakpoint, e.g. sign(0)=0).
+    Physical interval endpoints stay fixed. Every split-mode fit extrapolates
+    the endpoints, including a smooth whole interval requiring no subdivision.
+    Recursive breakpoint discovery and subsequent repair remain an adapter to
+    MATLAB's global constructorSplit scheduling.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/constructor.m, @bndfun/bndfun.m
+    MATLAB source : @chebfun/constructor.m, @bndfun/bndfun.m,
+        @chebtech2/refine.m
     Chebfun commit: 7574c77
     """
     # Preserve the legacy default while honoring the whole-domain scale
@@ -11707,6 +11720,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                                                  extrapolate=True,
                                                  sample_test=sample_test,
                                                  min_samples=min_samples,
+                                                 max_length=(160 if split_length is None
+                                                             else int(split_length)),
                                                  check=check,
                                                  vscale=vscale,
                                                  hscale=hscale_g / (pb - pa),
@@ -11716,11 +11731,14 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         return Chebfun(funs=funs, domain=plain.domain)
     import math as _math0
     import warnings as _warnings
-    # Largest nested grid 2^k + 1 not exceeding splitLength (MATLAB
-    # @chebtech2/refine.m gives up when 2n - 1 > maxLength): 129 for 160.
-    split_pow2 = (7 if split_length is None
-                  else max(4, int(_math0.floor(_math0.log2(
-                      max(int(split_length) - 1, 2))))))
+    # Keep the legacy pending-piece estimate separate from the raw cap.
+    # Default nested refinement reaches129, while oversized minSamples first
+    # clips to the exact raw160. Completed fits update their budget estimates.
+    raw_split_length = 160 if split_length is None else int(split_length)
+    if raw_split_length < 1:
+        raise ValueError("split_length must be a positive integer")
+    split_pow2 = max(4, int(_math0.floor(_math0.log2(
+        max(raw_split_length - 1, 2)))))
     # MATLAB @chebfun/constructor.m keeps a running GLOBAL vscale and
     # hands it to every piece (data.vscale): a sliver next to a
     # singularity (sqrt(1-x) near 1, values ~1e-5) is then resolved to
@@ -11744,7 +11762,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               hscale=hscale_g, check=check,
                               sample_test=sample_test,
                               min_samples=min_samples,
-                              refinement_function=refinement_function)
+                              refinement_function=refinement_function,
+                              max_length=raw_split_length)
     # Always keep the true domain endpoints a and b; merge only INTERIOR
     # breakpoints, and drop any interior point that lands within the merge
     # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
@@ -11778,17 +11797,16 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         # instead (an earlier approach) mis-assigned the values to the
         # unnudged nodes and left every such piece with an O(1e-11 |f'|)
         # endpoint error (|x| evaluated to 9e-13 at 0).
-        _xtrap = (i > 0) or (i < len(cleaned) - 2)
+        # constructorSplit extrapolates endpoints on every FUN, including
+        # a happy whole interval that did not need subdivision.
+        _xtrap = True
 
         def f_ref(t, _a=ai, _b=bi):
             x = 0.5 * (_b - _a) * t + 0.5 * (_a + _b)
             return f(x)
 
-        # Splitting-mode pieces are capped at MATLAB's splitLength (2**8 + 1
-        # = 257): the recursion has already subdivided until each piece either
-        # resolves within that budget or is a minimal-width singular piece that
-        # is accepted unresolved.  Building at the caller's full maxpow2 (2**16)
-        # would re-grind the near-singular pieces to 65537 points.
+        # The raw split cap controls actual Tech sampling. The power and
+        # initial power remain legacy adapters; they cannot round away raw160.
         piece_maxpow2 = min(maxpow2, split_pow2)
         # MATLAB 'minSamples': floor the INITIAL adaptive grid so narrow
         # features inside a piece are not chopped away prematurely.
@@ -11807,6 +11825,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                                            hscale=hscale_g / (bi - ai),
                                            sample_test=sample_test,
                                            min_samples=min_samples,
+                                           max_length=raw_split_length,
                                            **({} if refinement_function is None else {
                                                "refinement_function": refinement_function}))
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
@@ -11849,6 +11868,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                     check=check,
                     hscale=hscale_g / (bb - aa),
                     min_samples=min_samples,
+                    max_length=raw_split_length,
                     refinement_function=refinement_function))
         funs[k:k + 1] = halves
     # A still-sad piece narrower than the edge locator's resolution is
