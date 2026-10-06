@@ -18,7 +18,6 @@ Original authors: Copyright 2017 by The University of Oxford
 from __future__ import annotations
 
 import warnings
-from numbers import Real
 from typing import Any
 
 import jax
@@ -30,13 +29,35 @@ def _norm2(u):
 
 
 def _ip(u, v):
-    return float(jnp.asarray(u.inner(v)))
+    """Return the full JAX inner product without discarding complex phase."""
+    return jnp.asarray(u.inner(v))
+
+
+def _is_double_scalar(value):
+    """Accept scalar numeric values corresponding to MATLAB double data.
+
+    MATLAB ``isa(x, 'double')`` accepts complex doubles but excludes logicals.
+    The zero-dimensional JAX-array case is a Python adapter for scalar-valued
+    callbacks; nonscalar arrays and boolean arrays remain invalid.
+    """
+    from numbers import Number
+
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, Number):
+        return True
+    try:
+        array = jnp.asarray(value)
+    except (TypeError, ValueError):
+        return False
+    return array.ndim == 0 and (
+        jnp.issubdtype(array.dtype, jnp.floating)
+        or jnp.issubdtype(array.dtype, jnp.complexfloating)
+    )
 
 
 def _prepare_pcg_operator(N, f):
     """Validate source PCG operator before processing options."""
-    from numbers import Real
-
     from chebfunjax.chebfun1d.chebfun import Chebfun
 
     if not N._is_linear():
@@ -50,7 +71,7 @@ def _prepare_pcg_operator(N, f):
         value = getattr(N, 'lbc' if side == 'left' else 'rbc')
         if value is None:
             value = 0.
-        if isinstance(value, bool) or not isinstance(value, Real):
+        if not _is_double_scalar(value):
             raise ValueError('CHEBFUN:CHEBOP:pcg:' + side + 'bc: PCG only supports Dirichlet boundary conditions. Please supply N.' + ('lbc' if side == 'left' else 'rbc') + ' = double.')
         bcs.append(value)
     if N._op_nargs() not in (1, 2):
@@ -158,14 +179,14 @@ def pcg(N, f, tol: float | None = None, maxit: int | None = None,
     resvec = jnp.zeros(maxit+1).at[0].set(normr)
     normrmin = normr
     stag = moresteps = 0
-    rho = jnp.asarray(r.inner(r))
+    rho = jnp.real(jnp.asarray(r.inner(r)))
     iteration = ii = 0
     for ii in range(1, maxit+1):
         Lp = T(p)
         alpha = rho/jnp.asarray(p.inner(Lp))
         u = u + alpha*p
         r = r - alpha*Lp
-        rho_new = jnp.asarray(r.inner(r))
+        rho_new = jnp.real(jnp.asarray(r.inner(r)))
         beta = rho_new/rho
         p = r + beta*p
         rho = rho_new
@@ -242,9 +263,9 @@ def _minres_basic_correction(A, rhs):
 
     Q, R, permutation = qr(A, mode="economic", pivoting=True)
     diagonal = jnp.abs(jnp.diag(R))
-    threshold = max(A.shape)*jnp.finfo(A.dtype).eps*diagonal[0]
+    threshold = max(A.shape)*jnp.finfo(jnp.real(A).dtype).eps*diagonal[0]
     rank = int(jnp.sum(diagonal > threshold))
-    coeffs = jnp.zeros(A.shape[1], dtype=A.dtype)
+    coeffs = jnp.zeros(A.shape[1], dtype=jnp.result_type(A.dtype, rhs.dtype))
     if rank:
         basic = solve_triangular(R[:rank, :rank], (Q.T.conj()@rhs)[:rank])
         coeffs = coeffs.at[permutation[:rank]].set(basic)
@@ -253,8 +274,6 @@ def _minres_basic_correction(A, rhs):
 
 def _prepare_minres_operator(N, f):
     """Validate source MINRES operator and mine divergence coefficients."""
-    from numbers import Real
-
     from chebfunjax.chebfun1d.chebfun import Chebfun
 
     if not N._is_linear():
@@ -266,7 +285,7 @@ def _prepare_minres_operator(N, f):
         value = getattr(N, 'lbc' if side == 'left' else 'rbc')
         if value is None:
             value = 0.
-        if not isinstance(value, Real):
+        if not _is_double_scalar(value):
             raise ValueError('CHEBFUN:CHEBOP:pcg:' + side + 'bc: Currently, we require Dirichlet boundary conditions. Please supply N.' + ('lbc' if side == 'left' else 'rbc') + ' = double.')
         bcs.append(value)
     dom = f.domain
@@ -377,7 +396,7 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
     flag, iteration = 1, 0
     umin, imin, normrmin = u, 0, normr
     vold = r
-    beta1 = _ip(vold, vold)
+    beta1 = jnp.real(_ip(vold, vold))
     if beta1 <= 0:
         return output(R1(Pi(u)), 5, relative(normr), 0)
     beta1 = float(jnp.sqrt(beta1))
@@ -387,16 +406,16 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
     Amvv = v
     alpha = _ip(vv, v)
     v = v-(alpha/beta1)*vold
-    numer, denom = _ip(vv, v), _ip(vv, vv)
+    numer, denom = _ip(vv, v), jnp.real(_ip(vv, vv))
     v = v-(numer/denom)*vv
     volder, vold, betaold = vold, v, beta1
-    beta = _ip(v, v)
+    beta = jnp.real(_ip(v, v))
     if beta < 0:
         return output(R1(Pi(u)), 5, relative(normr), 0)
     iteration = 1
     beta = float(jnp.sqrt(beta))
     gammabar, epsilon, deltabar = alpha, 0., beta
-    gamma = float(jnp.hypot(gammabar, beta))
+    gamma = jnp.sqrt(gammabar*gammabar + beta*beta)
     if gamma == 0 or not bool(jnp.isfinite(gamma)):
         return output(R1(Pi(u)), 4, relative(normr), 0)
     mold = Amold = 0*f
@@ -423,7 +442,7 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
         alpha = _ip(vv, v)
         v = v-(alpha/beta)*vold
         volder, vold, betaold = vold, v, beta
-        beta = _ip(v, v)
+        beta = jnp.real(_ip(v, v))
         if beta < 0:
             flag = 5
             break
@@ -434,7 +453,7 @@ def minres(N, f, tol: float | None = None, maxit: int | None = None,
         Am = Am-delta*Amold-epsilon*Amolder
         gammabar = sn*deltabar-cs*alpha
         epsilon, deltabar = sn*beta, -cs*beta
-        gamma = float(jnp.hypot(gammabar, beta))
+        gamma = jnp.sqrt(gammabar*gammabar + beta*beta)
         if gamma == 0 or not bool(jnp.isfinite(gamma)):
             flag = 4
             break
@@ -633,20 +652,19 @@ def _gmres_source(
     left_bc, right_bc = getattr(N, "lbc", None), getattr(N, "rbc", None)
     if _gmres_is_empty(left_bc):
         left_bc = 0.0
-    elif not isinstance(left_bc, Real) or isinstance(left_bc, bool):
+    elif not _is_double_scalar(left_bc):
         raise ValueError(
             "CHEBFUN:CHEBOP:pcg:leftbc: GMRES only supports Dirichlet boundary "
             "conditions. Please supply N.lbc = double."
         )
     if _gmres_is_empty(right_bc):
         right_bc = 0.0
-    elif not isinstance(right_bc, Real) or isinstance(right_bc, bool):
+    elif not _is_double_scalar(right_bc):
         # Preserve the pinned source's literal (left-boundary) wording.
         raise ValueError(
             "CHEBFUN:CHEBOP:pcg:rightbc: GMRES only supports Dirichlet boundary "
             "conditions. Please supply N.lbc = double."
         )
-    left_bc, right_bc = float(left_bc), float(right_bc)
 
     # MATLAB callback arity handling and operator coefficient mining occur
     # before tolerance/restart/preconditioner option processing.
@@ -722,7 +740,7 @@ def _gmres_source(
         matrix = jnp.stack(matrix_rows, axis=1)
         rhs = jnp.concatenate(
             (_gmres_endpoint_values(r1(R2f), endpoints),
-             jnp.asarray([left_bc, right_bc], dtype=jnp.float64))
+             jnp.asarray([left_bc, right_bc]))
         )
         z_coeff = _minres_basic_correction(matrix, rhs)
         z = _gmres_add_scaled(basis, z_coeff)
@@ -788,7 +806,8 @@ def _gmres_source(
             v = apply_t(q)
             for k in range(1, initer + 1):
                 hki = _gmres_ip(Q[k - 1], v)
-                H = H.at[k - 1, initer - 1].set(jnp.real(hki))
+                H = H.astype(jnp.result_type(H.dtype, hki.dtype))
+                H = H.at[k - 1, initer - 1].set(hki)
                 v = v - hki * Q[k - 1]
             beta_v = _gmres_norm(v)
             H = H.at[initer, initer - 1].set(beta_v)
