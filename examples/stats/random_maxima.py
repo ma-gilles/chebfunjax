@@ -1,7 +1,7 @@
 """How many local maxima does a random function have?
 
 Translation of stats/RandomMaxima.m by Nick Trefethen
-(March 2017): counting local maxima of band-limited random functions
+(February 2017): counting local maxima of band-limited random functions
 — the count grows linearly with the interval length.
 
 randn draws are not bit-reproducible vs MATLAB; the counts are our
@@ -20,6 +20,8 @@ import warnings
 
 import jax
 import matplotlib.pyplot as plt
+
+# uses-numpy: Matplotlib display grids and host conversion of public Chebfun results.
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -36,14 +38,14 @@ FIG = [0]
 
 
 def _local_maxima(f):
-    """Positions/values of local maxima (interior maxima of f)."""
-    df = f.diff()
-    r = np.asarray(df.roots(nojump=True))
-    d2 = df.diff()
-    keep = np.asarray(d2(r)) < 0
-    pos = r[keep]
-    val = np.asarray(f(pos))
-    return val, pos
+    """Return values/positions from the source local-maxima API.
+
+    MATLAB max(f, 'local') returns (values, positions); this Python API
+    returns (positions, values), so reorder its tuple here. The public
+    implementation includes domain endpoints, matching the source example.
+    """
+    pos, val = f.max("local")
+    return np.asarray(val), np.asarray(pos)
 
 
 def _panel(f, dom, ms=10, lw=1.6):
@@ -58,7 +60,7 @@ def _panel(f, dom, ms=10, lw=1.6):
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"RandomMaxima_{FIG[0]:02d}.png"))
+        _IMG, f"RandomMaxima_{FIG[0]:02d}.png"), size=(600, 268))
     plt.close(fig)
     return len(val)
 
@@ -85,7 +87,7 @@ def run():
     FIG[0] += 1
     fig, ax = plt.subplots(figsize=(7.2, 6.6))
     ax.loglog(Lvec, Lvec, '-r', lw=2)
-    ax.loglog(Lvec, np.maximum(nmax, 0.8), '.', ms=16)
+    ax.loglog(Lvec, nmax, '.', ms=16)
     ax.grid(True)
     ax.axis([0.8, 1300, 0.8, 1300])
     ax.set_xlabel("length of interval", fontsize=13)
@@ -93,9 +95,8 @@ def run():
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"RandomMaxima_{FIG[0]:02d}.png"))
+        _IMG, f"RandomMaxima_{FIG[0]:02d}.png"), size=(600, 268))
     plt.close(fig)
-    print("counts:", nmax)
     print("time_in_seconds =")
     print(f"    {time.time()-t0:.4f}")
 
