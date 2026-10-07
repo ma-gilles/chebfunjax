@@ -27,11 +27,10 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.operators._spin2_public import Spin2SolutionMatrix
 from chebfunjax.operators.spinopsphere import FuncHandle, func2str
-from chebfunjax.spin.solver2d import spin2 as _core_spin2
-from chebfunjax.spin.spinop2 import SpinOp2 as _CoreSpinOp2
 
-__all__ = ["Spinop2", "spin2", "func2str", "FuncHandle"]
+__all__ = ["Spinop2", "spin2", "Spin2SolutionMatrix", "func2str", "FuncHandle"]
 
 
 # ---------------------------------------------------------------------------
@@ -380,59 +379,27 @@ def _make_trig_interp(V, domain_pairs):
 # ---------------------------------------------------------------------------
 
 
-def spin2(S: Spinop2, N: int, dt: float, *args, **kwargs):
-    """Solve the 2D periodic PDE specified by ``S`` with ``N`` grid
-    points per direction and time-step ``dt`` (MATLAB
-    ``spin2(S, N, dt, 'plot', 'off')``); returns the solution at
-    ``tspan(end)`` as a callable periodic trig interpolant ``u(x, y)``.
+def spin2(S: Spinop2, N: int, dt: float, *args, return_times=False, **kwargs):
+    """Solve a source-shaped 2D periodic problem and return Chebfun2 output.
 
-    The heavy lifting is the golden-ref-tested ETDRK4 solver in
-    :func:`chebfunjax.spin.solver2d.spin2`; this wrapper adapts the
-    :class:`Spinop2` constructor surface to it and wraps the returned
-    value grid in a trigonometric interpolant.  Plotting arguments
-    (``'plot', 'off'``) are accepted and ignored.
+    Multiple requested times or variables return Spin2SolutionMatrix, whose
+    rows are variables and columns are saved times. ``return_times=True`` is
+    the Python spelling of MATLAB's two-output public call. In particular,
+    a two-endpoint solve returns the final function and times ``[0, tf]``.
+    Unmatched requested times block subsequent collection, as in the source.
+    Preference objects and name/value pairs control scheme, M and dealias.
+    Graphics remain unimplemented; plot options are accepted without drawing.
+    Construction and time stepping are eager host-controlled JAX operations;
+    the inherited Chebfun2 numeric constructor still has NumPy internals.
 
     Provenance
     ----------
-    MATLAB source : spin2.m, @spinoperator/solvepde.m,
-        @expinteg/{computeCoeffs,oneStep}.m
+    MATLAB source : spin2.m, @spinoperator/solvepde.m
     Chebfun commit: 7574c77
-    Algorithm: Kassam & Trefethen, SISC 26 (2005); Montanelli &
-        Bootland, 2D/3D exponential integrators.
     """
-    if S._lin_coeffs is None:
-        raise ValueError(
-            "Spinop2 has no numerics (construct from a preset, e.g. "
-            "Spinop2('GL'), or set the linear/nonlinear parts).")
-    if S.init is None:
-        raise ValueError("Spinop2 has no initial condition (set S.init).")
+    from chebfunjax.operators._spin2_public import solve_public
 
-    core = _CoreSpinOp2(
-        lin_coeffs=S._lin_coeffs,
-        nonlin_vals=S._nonlin_vals,
-        n_vars=S._n_vars,
-        domain=tuple(float(v) for v in S.domain),
-        tspan=tuple(float(v) for v in S.tspan),
-        u0=S.init,
-        is_real=bool(S._is_real) and _init_is_real(S.init, S.domain),
-    )
-    from chebfunjax.operators.spinop import _parse_scheme
-    # MATLAB spinpref2 defaults: dealias 'off'; chebfunjax's ETDRK4 path
-    # dealiases by default (stability of the stiff presets) -- pass
-    # dealias=False for MATLAB's default behaviour.
-    _da = kwargs.get("dealias", True)
-    _al = list(args)
-    for i in range(len(_al) - 1):
-        if isinstance(_al[i], str) and _al[i].lower() == "dealias":
-            _da = str(_al[i + 1]).lower() in ("on", "true", "1")
-    _xx, _yy, _t, u_final = _core_spin2(core, N, dt, dealias=bool(_da),
-                                        scheme=_parse_scheme(args, kwargs, None))
-    ax, bx, ay, by = core.domain
-    if isinstance(u_final, (list, tuple)):
-        # MATLAB returns the chebmatrix [u; v]: a vector of interpolants.
-        return _TrigInterpVector([_make_trig_interp(v, [(ax, bx), (ay, by)])
-                                  for v in u_final])
-    return _make_trig_interp(u_final, [(ax, bx), (ay, by)])
+    return solve_public(S, N, dt, args, kwargs, return_times=return_times)
 
 
 class _TrigInterpVector:

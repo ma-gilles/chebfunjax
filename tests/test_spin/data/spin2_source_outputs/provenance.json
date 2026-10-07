@@ -1,0 +1,16 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab": "R2025b",
+  "capture": "spin2_output_semantics_v1_matlab_cpu_20261007",
+  "fixture_role": "Expected outputs only; all constructor inputs stated independently in test code. JSON null function size reflects source Inf dimensions.",
+  "files": {
+    "final_public_one.json": "33fd7f2f55b1651306920dc2065934a3225eff33dfbeaf5fe2f31118c30ee9ab",
+    "final_public_two.json": "09557d60aeda3b1391ce312b2106529911f29cdf40b9944ed8194cea62d3042d",
+    "aligned_scalar_pairs.json": "b054873d6bdabb200abd8496b30f081fd8eea842a5f9b79df7b696bc355303b7",
+    "aligned_scalar_object.json": "796617b3e5f09f988037cb5c32a14c5ef435c50c11a53349320d23849c6ecc71",
+    "aligned_system.json": "19cbb3304538687be652e9a8a868ca19947a495bad3bcf9b2f41ead9a8e4613d",
+    "unaligned_scalar.json": "afb22fc587f9d135ed081cf637c5afeba9121de7053dda715b1cd9d524d6faad",
+    "multistep_aligned.json": "3b759067a0be7e16f96fc992ff10fcd19745b053a74d11012591c36550f549c0",
+    "multistep_early.json": "71a4a8f37eb71b0b16aed3564b1e085cf4da48293f6568eb8624bdafe0de26f4"
+  }
+}

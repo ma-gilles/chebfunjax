@@ -1,5 +1,40 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Spin2 public outputs, preferences and requested times (2026-10-07)
+
+The public operators.spinop2.spin2 route now returns actual Chebfun2 objects and
+an explicitly bounded variables-by-times function-matrix adapter. It forwards
+SpinPref2/name-value preferences, preserves persistent multistep history and
+collects requested times with the source cursor rules. Source default dealiasing
+is off; enabled dealiasing changes saved outputs, not next-step history.
+The source rectangular-domain Fourier symbol uses the x width for both axes;
+this literal behavior is retained and covered rather than silently corrected.
+
+CPU qualification:27 passed in49.85s with stable inputs, exact collection/JUnit/
+runtime origins and no survivors. Sixteen cases compare eight actual MATLAB
+captures in both JIT modes; further controls cover preferences, masking and the
+source symbol. Unchanged nonlinear Gray-Scott ETDRK4/ABNorsett4 reference tests,
+three custom-operator tests and the surface interpolation test also pass.
+MATLAB capture confirms that a missed requested time blocks subsequent collection
+and public spin2 rejects three outputs while direct solvepde supports three.
+Requested times are collected without interpolation or interval restarts.
+
+New stepping and time/output-selection arithmetic is JAX. The inherited
+Chebfun2.from_values numeric constructor still uses NumPy ACA/Trigtech paths;
+therefore the entire public route is not yet JAX-only. Full Chebmatrix algebra,
+graphics, named-call defaults, system initial-input surface, source random streams
+and broader solver/performance qualification remain open. The legacy low-level
+array spin2 and other dimensional solvers are unchanged.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive spin2_public27_source_reference_v1_20261007.zip SHA256
+1efbfa267419dc0024badcbd5672b6aea276cd59d6da15e6452b989f34449f94
+includes the actual MATLAB capture and qualified Python run with their separate
+guards/environments; its archival input union is not a combined-runtime claim.
+It requires corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+Latest-main green CI and full library/test/page/figure parity remain unresolved.
+
 ## Shared JAX randnfun construction (2026-10-07)
 
 The source-shaped top-level, utils.random and chebfun1d.randfuns entry points now
