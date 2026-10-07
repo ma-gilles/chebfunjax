@@ -34,15 +34,24 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
-from typing import Callable, Sequence
+from typing import TYPE_CHECKING, Callable, Sequence
 
 import jax.numpy as jnp
 import numpy as np
 from scipy.linalg import eig
 
+if TYPE_CHECKING:
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
 from chebfunjax.utils.interpolation import bary, bary_weights
+from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts_ab
-from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
+from chebfunjax.utils.transforms import (
+    _coeffs2vals_jax,
+    _vals2coeffs_jax,
+    coeffs2vals,
+    vals2coeffs,
+)
 
 __all__ = [
     "minimax",
@@ -255,6 +264,7 @@ def minimax(
                 support=jnp.array([]), wN=jnp.array([]), wD=jnp.array([]),
                 poles=jnp.array([]), zeros=jnp.array([]),
                 domain=(a_, b_), success=True,
+                polynomial_coeffs=poly.coeffs,
             )
         return _minimax_rational(
             f, n, denom_deg, domain=domain, tol=tol, max_iter=max_iter,
@@ -955,6 +965,9 @@ class MinimaxRationalResult:
         Approximation domain ``(a, b)``.
     success : bool
         Whether a valid (sign-consistent) trial interpolant was produced.
+    polynomial_coeffs : jnp.ndarray or None
+        Original Chebyshev coefficients for the rational=True, denom=0
+        polynomial wrapper branch; otherwise None.
     """
 
     r: Callable
@@ -971,6 +984,134 @@ class MinimaxRationalResult:
     zeros: jnp.ndarray
     domain: tuple[float, float]
     success: bool
+
+    polynomial_coeffs: jnp.ndarray | None = None
+
+    def as_chebfuns(self):
+        """Return numerator and denominator Chebfuns in source order.
+
+        This convenience output is not the stable evaluator; use ``r`` for
+        numerical evaluation. Rational conversion follows the source sample
+        construction and can be numerically ill-conditioned.
+
+        Provenance
+        ----------
+        MATLAB source : minimax.m (rational outputs and trial conversion)
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        return _rational_chebfun_pair(self)
+
+
+def _rational_chebfun_pair(
+    result: MinimaxRationalResult,
+) -> tuple[Chebfun, Chebfun]:
+    """Build the source-style p/q convenience pair from a minimax result.
+
+    MATLAB `minimax.m` samples `node*N` and `node*D` at `m+n+1`
+    Chebyshev points, where `node=prod(x-support)`, `N=sum(wN/(x-support))`,
+    and `D=-sum(wD/(x-support))`. At exact support collisions it substitutes
+    the product excluding that support, multiplied by the corresponding
+    weight, to avoid `0*Inf`. The source then calls `simplify` on both.
+
+    Python stores the target-restored scale on wN only; wD is unscaled. Using
+    these stored arrays directly preserves the returned stable evaluator r.
+    The resulting quotient may be ill-conditioned; this pair is for source
+    compatibility and visualization, not robust evaluation.
+
+    Provenance
+    ----------
+    MATLAB source : computeTrialFunctionRational and minimax (minimax.m)
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.utils.quadrature import chebpts_ab
+
+    a, b = result.domain
+    domain = (a, b)
+    one = jnp.asarray([1.0], dtype=jnp.float64)
+    zero = jnp.asarray([0.0], dtype=jnp.float64)
+    if result.n == 0:
+        if result.polynomial_coeffs is None:
+            raise ValueError("polynomial rational result is missing coefficients")
+        p_coeffs = _jax_simplify_cheb_coeffs(result.polynomial_coeffs)
+        p = Chebfun.from_coeffs(p_coeffs, domain)
+        q = Chebfun.from_coeffs(one, domain)
+        return p, q
+
+    support = jnp.asarray(result.support, dtype=jnp.float64)
+    if support.size == 0:
+        if not result.success:
+            raise ValueError("rational result has no valid barycentric representation")
+        # MATLAB's odd degree reduction and zero-target branches return p=0,
+        # q=1 directly without a barycentric support set.
+        return (
+            Chebfun.from_coeffs(zero, domain),
+            Chebfun.from_coeffs(one, domain),
+        )
+    if not result.success:
+        raise ValueError("rational result has no valid barycentric representation")
+
+    w_n = jnp.asarray(result.wN, dtype=jnp.float64)
+    w_d = jnp.asarray(result.wD, dtype=jnp.float64)
+    x = jnp.asarray(chebpts_ab(result.m + result.n + 1, a, b), dtype=jnp.float64)
+    delta = x[:, None] - support[None, :]
+    equal = delta == 0
+    safe_delta = jnp.where(equal, 1.0, delta)
+    node = jnp.prod(delta, axis=1)
+    numerator = jnp.sum(w_n[None, :] / safe_delta, axis=1)
+    denominator = -jnp.sum(w_d[None, :] / safe_delta, axis=1)
+    p_values = node * numerator
+    q_values = node * denominator
+    support_indices = jnp.arange(support.shape[0])[None, :]
+    for idx in range(support.shape[0]):
+        hit = equal[:, idx]
+        node_without = jnp.prod(
+            jnp.where(support_indices == idx, 1.0, delta), axis=1
+        )
+        p_values = jnp.where(hit, node_without * w_n[idx], p_values)
+        q_values = jnp.where(hit, -node_without * w_d[idx], q_values)
+    p_coeffs = _jax_chebfun_coeffs_from_values(p_values)
+    q_coeffs = _jax_chebfun_coeffs_from_values(q_values)
+    return (
+        Chebfun.from_coeffs(p_coeffs, domain),
+        Chebfun.from_coeffs(q_coeffs, domain),
+    )
+
+
+def _jax_chebfun_coeffs_from_values(values: jnp.ndarray) -> jnp.ndarray:
+    """JAX-only Chebtech2 values construction and source simplify pass.
+
+    This mirrors ``Chebtech2.from_values`` followed by ``Chebtech2.simplify``
+    using unconditional JAX transforms so concrete NumPy mirrors are bypassed,
+    including when ``jax.disable_jit(True)`` is active.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech2/vals2coeffs.m, @chebtech/simplify.m,
+        standardChop.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    values = jnp.asarray(values, dtype=jnp.float64)
+    return _jax_simplify_cheb_coeffs(_vals2coeffs_jax(values))
+
+
+def _jax_simplify_cheb_coeffs(coeffs: jnp.ndarray) -> jnp.ndarray:
+    """Apply source Chebtech2 simplification cutoff to original coefficients.
+
+    The roundtrip is used only to determine the chop index; returned entries
+    are sliced from the input coefficients, as in the MATLAB source.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/simplify.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    old_length = coeffs.shape[0]
+    padded_length = max(17, int(jnp.floor(old_length * 1.25 + 5.5)))
+    padded = jnp.pad(coeffs, (0, padded_length - old_length))
+    roundtrip = _vals2coeffs_jax(_coeffs2vals_jax(padded))
+    cutoff = min(standard_chop(roundtrip), old_length)
+    return coeffs[:cutoff]
 
 
 def _chebpts1p(nn: int, a: float, b: float) -> np.ndarray:

@@ -24,6 +24,68 @@ from scipy.special import gammaln
 # Chebyshev values <-> coefficients (DCT-I based)
 # ===========================================================================
 
+def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
+    """Unconditional JAX Chebyshev values-to-coefficients transform.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech2/vals2coeffs.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Algorithm: existing JAX DCT-I traced body; no NumPy dispatch.
+    """
+    n = values.shape[0]
+    if n <= 1:
+        return values
+    tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
+    if jnp.iscomplexobj(values):
+        coeffs_general = jnp.fft.ifft(tmp, axis=0)
+        coeffs_imag = 1j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
+        purely_imag = jnp.all(jnp.real(values) == 0)
+        coeffs = jnp.where(purely_imag, coeffs_imag, coeffs_general)
+    else:
+        coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
+    coeffs = coeffs[:n]
+    coeffs = coeffs.at[1:n - 1].multiply(2.0)
+    vflip = values[::-1]
+    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
+    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
+    k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
+    sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
+    sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
+    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
+    coeffs = coeffs + jax.lax.stop_gradient(delta)
+    return coeffs
+
+
+def _coeffs2vals_jax(coeffs: jnp.ndarray) -> jnp.ndarray:
+    """Unconditional JAX Chebyshev coefficients-to-values transform.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech2/coeffs2vals.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Algorithm: existing JAX DCT-I traced body; no NumPy dispatch.
+    """
+    n = coeffs.shape[0]
+    if n <= 1:
+        return coeffs
+    c = coeffs.at[1:n - 1].multiply(0.5)
+    tmp = jnp.concatenate([c, c[n - 2:0:-1]])
+    if jnp.iscomplexobj(coeffs):
+        values = jnp.fft.fft(tmp, axis=0)
+    else:
+        values = jnp.real(jnp.fft.fft(tmp, axis=0))
+    values = values[n - 1::-1]
+    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0, initial=0.0) == 0
+    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0, initial=0.0) == 0
+    vflip = values[::-1]
+    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
+    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
+    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
+    values = values + jax.lax.stop_gradient(delta)
+    return values
+
+
 def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     """Convert values at 2nd-kind Chebyshev points to Chebyshev coefficients.
 
@@ -72,50 +134,7 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
         if np.all(np.isfinite(v)):
             return jnp.asarray(_vals2coeffs_np(v))
 
-    # Mirror the values to fake a DCT-I using an FFT:
-    # [v_{n-1}, v_{n-2}, ..., v_1, v_0, v_1, ..., v_{n-2}]
-    tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
-
-    # MATLAB @chebtech2/vals2coeffs.m splits into three cases: real data gives
-    # real coefficients; purely imaginary data gives coefficients computed as
-    # ``1i*real(ifft(imag(tmp)))`` so the real part is *exactly* zero; general
-    # complex data keeps the plain ``ifft(tmp)``. The dtype check is a
-    # trace-time constant; the purely-imaginary selection is data dependent so
-    # it is done branch-free with ``jnp.where`` (JIT-safe). axis=0 keeps
-    # array-valued (n, m) inputs column-wise correct.
-    if jnp.iscomplexobj(values):
-        coeffs_general = jnp.fft.ifft(tmp, axis=0)
-        # Purely imaginary branch: exact zero real part, no eps residual.
-        coeffs_imag = 1j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
-        purely_imag = jnp.all(jnp.real(values) == 0)
-        coeffs = jnp.where(purely_imag, coeffs_imag, coeffs_general)
-    else:
-        coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
-
-    # Truncate to first n entries
-    coeffs = coeffs[:n]
-
-    # Scale interior coefficients by 2
-    coeffs = coeffs.at[1:n - 1].multiply(2.0)
-
-    # Enforce symmetries exactly (MATLAB @chebtech2/vals2coeffs.m):
-    # exactly even values -> odd coefficients exactly zero; exactly odd
-    # values -> even coefficients exactly zero.  Branch-free, JIT-safe.
-    # The correction goes through stop_gradient: it changes forward
-    # values by < eps but must not project autodiff gradients onto the
-    # symmetry manifold.
-    vflip = values[::-1]
-    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
-    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
-    k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
-    sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
-    sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
-    # Guard non-finite entries: inf - inf would turn them into NaN.
-    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
-    coeffs = coeffs + jax.lax.stop_gradient(delta)
-
-    return coeffs
-
+    return _vals2coeffs_jax(values)
 
 def _vals2coeffs_np(values: np.ndarray) -> np.ndarray:
     """numpy mirror of :func:`vals2coeffs` (kept in lockstep; finite
@@ -203,40 +222,7 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
         if np.all(np.isfinite(c_np)):
             return jnp.asarray(_coeffs2vals_np(c_np))
 
-    # Scale interior coefficients by 1/2
-    c = coeffs.at[1:n - 1].multiply(0.5)
-
-    # Mirror the coefficients: [c_0, c_1, ..., c_{n-1}, c_{n-2}, ..., c_1]
-    tmp = jnp.concatenate([c, c[n - 2:0:-1]])
-
-    # MATLAB @chebtech2/coeffs2vals.m: keep complex values complex.
-    # dtype check is trace-time constant (JIT-safe).
-    if jnp.iscomplexobj(coeffs):
-        values = jnp.fft.fft(tmp, axis=0)
-    else:
-        values = jnp.real(jnp.fft.fft(tmp, axis=0))
-
-    # Reverse and truncate: values at points cos(0), cos(pi/(n-1)), ..., cos(pi)
-    # = [x=1, ..., x=-1] which is descending order
-    values = values[n - 1::-1]
-
-    # Enforce symmetries exactly (MATLAB @chebtech2/coeffs2vals.m):
-    # odd coefficients exactly zero -> values exactly even; even
-    # coefficients exactly zero -> values exactly odd.  Branch-free;
-    # the correction goes through stop_gradient (see vals2coeffs).
-    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0,
-                      initial=0.0) == 0
-    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0,
-                     initial=0.0) == 0
-    vflip = values[::-1]
-    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
-    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
-    # Guard non-finite entries: inf - inf would turn them into NaN.
-    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
-    values = values + jax.lax.stop_gradient(delta)
-
-    return values
-
+    return _coeffs2vals_jax(coeffs)
 
 # ===========================================================================
 # Chebyshev <-> Legendre (direct O(n^2) method)

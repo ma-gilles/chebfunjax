@@ -1,5 +1,29 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Rational minimax numerator/denominator outputs (2026-10-07)
+
+MinimaxRationalResult.as_chebfuns() now returns source numerator/denominator
+Chebfuns. Conversion follows physical-domain sampling, denominator sign,
+numerator-only stored scaling, exact support collisions and source simplify
+cutoff applied to original coefficients. Polynomial and zero/odd branches are
+covered. New arithmetic uses unconditional JAX transforms even with JIT disabled;
+legacy solver NumPy dispatch remains an unresolved migration.
+
+Exact candidate CPU gate: 62 passed, no failures/errors/skips/xfails, 74.32s pytest.
+This includes11 new conversion controls and51 adjacent minimax/transform checks.
+Runtime origins and input hashes passed, no surviving owned processes;
+supervisor149.592s, sampled summed peak1,723,908KiB. Existing convergence and
+unused CUDA-plugin warnings were preserved. Independent review confirms exact
+collection paths/nodeids, candidate bytes and source bounds. The unchanged new
+test file is published under misc rather than scratch utils so existing CI
+shards include it; both inherit the same port-tree conftest.
+Evidence: minimax_rational_pair_v2_reference_20261007.zip SHA
+c429ced70a0bfd018ae19c6683246c32702e9fb1840b35aa110a9e58c21c8a43,
+requires preserved full base/receipt below. This pair may be ill-conditioned;
+use result.r for stable evaluation. CF initialization, CDF retries, source
+messages and full BestApprox page parity remain unresolved. New CI pending.
+
+
 ## Keyhole source computation and observed plot defaults (2026-10-07)
 
 KeyholeContour now constructs the joined complex Chebfun with the source's
