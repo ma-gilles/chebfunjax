@@ -14,7 +14,8 @@ formulas.  This validates that the chebfunjax wrapper composes the scalar
 spherefun ops correctly; it does not test MATLAB @spherefunv.
 
 Convention: spherical-native f(lam, theta), lam in [-pi,pi], theta in [0,pi].
-Spherefunv.norm() returns the POINTWISE magnitude sqrt(f^2+g^2) as a Spherefun.
+The pointwise magnitude extension is ``Spherefunv.magnitude()``; MATLAB
+``Spherefunv.norm()`` is a global scalar Frobenius norm.
 """
 
 from pathlib import Path
@@ -76,7 +77,7 @@ class TestSpherefunvVsMatlab:
                             rtol=RTOL, atol=1e-12)
 
     def test_norm_pointwise(self):
-        # Spherefunv.norm() returns the pointwise magnitude field sqrt(f^2+g^2).
+        # Pointwise magnitude is a separate Python extension to MATLAB norm.
         n = _N().magnitude()
         npt.assert_allclose(np.asarray(n(_LAM, _TH)), _REF["norm_eval"],
                             rtol=RTOL, atol=1e-12)

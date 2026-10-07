@@ -19,7 +19,8 @@ from chebfunjax.spherefun.spherefun import Spherefun
 class TestSpherefunEmptyobjects:
     def test_all_commands_tolerate_empty(self):
         f = Spherefun.empty()
-        results = [f + f, f * 2, f ** 2, -f, f.norm(), f.laplacian(), f.cos()]
+        assert f.norm().shape == (0,)
+        results = [f + f, f * 2, f ** 2, -f, f.laplacian(), f.cos()]
         # @spherefun/sum2.m returns scalar zero when idxPlus is empty.
         assert float(f.sum2()) == 0.0
         for r in results:

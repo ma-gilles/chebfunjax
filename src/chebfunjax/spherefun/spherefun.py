@@ -40,9 +40,7 @@ import numpy as np
 
 from chebfunjax.tech.trigtech import (
     Trigtech,
-    _chop_cutoff_to_ncoeffs,
     _trig_abs_coeffs_for_chop,
-    _trig_prolong_coeffs,
     trig_vals2coeffs,
 )
 from chebfunjax.utils.misc import standard_chop
@@ -271,7 +269,10 @@ def _phase_one_sphere(
         idxp = int(np.argmax(np.abs(Fp))) if maxp_val > 0 else 0
         idxm = int(np.argmax(np.abs(Fm))) if maxm_val > 0 else 0
 
-    is_happy = max(maxp_val, maxm_val) <= tol
+    # Source PhaseOne overrides residual convergence at the rank budget.
+    # MATLAB source : @spherefun/constructor.m (PhaseOne)
+    # Chebfun commit: 7574c77
+    is_happy = (max(maxp_val, maxm_val) <= tol) and (rank_count < width)
 
     if len(pivot_indices) == 0:
         pivot_indices = np.array([[0, 0]], dtype=int)
@@ -642,36 +643,10 @@ def _phase_two_sphere(
             r = rows_minus[kk, :]
             rows_full[:, gidx] = np.concatenate([-r, r])
 
-    # Build Trigtech objects for cols and rows
-    cols_list = []
-    rows_list = []
-    # MATLAB simplify(g, pseudoLevel): chop relative to the GLOBAL scale.
-    vs_cols = float(np.max(np.abs(cols_full))) if cols_full.size else 0.0
-    vs_rows = float(np.max(np.abs(rows_full))) if rows_full.size else 0.0
-    for j in range(total):
-        # Column: trigtech on doubled theta domain (length 2*m points)
-        cv = jnp.asarray(cols_full[:, j], dtype=jnp.float64)
-        cc = trig_vals2coeffs(cv.astype(jnp.complex128))
-        cv_scale = float(jnp.max(jnp.abs(cv)))
-        if cv_scale > 0:
-            chop_in = _trig_abs_coeffs_for_chop(cc)
-            chop_rel = max(_EPS, _EPS * vs_cols / cv_scale)
-            cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
-            n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), cc.shape[0])
-            cc = _trig_prolong_coeffs(cc, n_keep)
-        cols_list.append(Trigtech.from_coeffs(cc, is_real=True))
-
-        # Row: trigtech on lam domain (length 2*n points)
-        rv = jnp.asarray(rows_full[:, j], dtype=jnp.float64)
-        rc = trig_vals2coeffs(rv.astype(jnp.complex128))
-        rv_scale = float(jnp.max(jnp.abs(rv)))
-        if rv_scale > 0:
-            chop_in = _trig_abs_coeffs_for_chop(rc)
-            chop_rel = max(_EPS, _EPS * vs_rows / rv_scale)
-            cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
-            n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), rc.shape[0])
-            rc = _trig_prolong_coeffs(rc, n_keep)
-        rows_list.append(Trigtech.from_coeffs(rc, is_real=True))
+    # Source PhaseTwo returns full matrices; outer simplify owns common chopping.
+    from chebfunjax.spherefun._bmci import factors_from_values
+    cols_list = factors_from_values(cols_full)
+    rows_list = factors_from_values(rows_full)
 
     return (cols_list, rows_list, pivots_raw, idx_plus_raw,
             idx_minus_raw, locs_raw)
@@ -1218,11 +1193,19 @@ class Spherefun(eqx.Module):
                   pivot_locations=locs, nonzero_poles=bool(pole_kept))
 
     def simplify(self, tol: float | None = None) -> "Spherefun":
-        """Chop the column and row slices (MATLAB ``simplify``)."""
+        """Simplify column and row factors with source common-matrix cutoffs.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/simplify.m, @chebfun/simplify.m,
+            @trigtech/simplify.m
+        Chebfun commit: 7574c77
+        """
         if self.isempty() or len(self.cols) == 0:
             return self
-        cols = _simplify_global_sphere(list(self.cols), tol)
-        rows = _simplify_global_sphere(list(self.rows), tol)
+        from chebfunjax.spherefun._bmci import simplify_factors
+        cols = simplify_factors(list(self.cols), tol)
+        rows = simplify_factors(list(self.rows), tol)
         return Spherefun(cols=cols, rows=rows, pivots=self.pivots,
                          idx_plus=self.idx_plus, idx_minus=self.idx_minus,
                          pivot_locations=self.pivot_locations,
@@ -1962,30 +1945,8 @@ class Spherefun(eqx.Module):
         MATLAB source : @spherefun/projectOntoBMCI.m
         Chebfun commit: 7574c77
         """
-        cols = list(self.cols)
-        rows = list(self.rows)
-        plus = list(self.idx_plus)
-        minus = list(self.idx_minus)
-        # Each slice is projected at its own length (padding every slice
-        # to the longest one would re-expand chopped slices).
-        for jj, i in enumerate(plus):
-            X = _stack_trig_coeffs([cols[i]])
-            if self.nonzero_poles and jj == 0:
-                X = _bmc1_even_cols(X, True)
-            else:
-                X = _bmc1_even_cols(X, False)
-            cols[i] = _trigtech_from_coeffs_real(X[:, 0])
-            R = _zero_trig_modes(_stack_trig_coeffs([rows[i]]), odd=True)
-            rows[i] = _trigtech_from_coeffs_real(R[:, 0])
-        for i in minus:
-            X = _bmc1_odd_cols(_stack_trig_coeffs([cols[i]]))
-            cols[i] = _trigtech_from_coeffs_real(X[:, 0])
-            R = _zero_trig_modes(_stack_trig_coeffs([rows[i]]), odd=False)
-            rows[i] = _trigtech_from_coeffs_real(R[:, 0])
-        return Spherefun(cols=cols, rows=rows, pivots=self.pivots,
-                         idx_plus=self.idx_plus, idx_minus=self.idx_minus,
-                         pivot_locations=self.pivot_locations,
-                         nonzero_poles=self.nonzero_poles)
+        from chebfunjax.spherefun._bmci import project
+        return project(self)
 
     def with_parity_indices(self, idx_plus, idx_minus) -> "Spherefun":
         """Copy with the BMC parity index sets replaced (MATLAB
@@ -2230,44 +2191,57 @@ class Spherefun(eqx.Module):
         raise ValueError("CHEBFUN:SEPARABLEAPPROX:size:outputs")
 
     def norm(self, p=2) -> jax.Array:
-        """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5).
-        ``p`` may be ``2`` or ``'fro'`` (identical for a spherefun, as
-        in MATLAB); other norms are not implemented.
+        """Return the source scalar sphere norm (empty input returns []).
 
-        Computed by direct Clenshaw-Curtis(theta, weight sin theta) x
-        trapezoid(lambda) quadrature of f^2 at the resolution of the
-        representation (spectrally exact for the finite series) -- the
-        previous adaptive re-approximation of f^2 handed the
-        constructor pure rounding noise whenever f was a structurally
-        cancelling difference (norm(f - g) checks).
+        Supports 2/'fro', positive infinity/'inf'/'max', and real even
+        integer powers through sum2(f**p). Norm selection is host metadata,
+        not a traced argument. The existing SVD still uses NumPy internally;
+        this method's reduction and new arithmetic use JAX.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/norm.m
+        Chebfun commit: 7574c77
         """
-        if isinstance(p, str) and p.lower() in ("inf", "max"):
-            Y, _X = self.minandmax2()
-            return jnp.max(jnp.abs(jnp.asarray(Y)))
-        if not (p == 2 or (isinstance(p, str) and p.lower() == "fro")):
-            raise NotImplementedError(
-                "CHEBFUN:SPHEREFUN:norm: only the 2/'fro'/'inf' norms are "
-                "implemented")
-        if self.isempty() or len(self.cols) == 0:
-            return jnp.asarray(0.0, dtype=jnp.float64)
-        # MATLAB @spherefun/norm.m: sqrt(sum(svd(f).^2)) with the
-        # sin(theta)-weighted (surface) SVD.
-        s = np.asarray(self.svd())
-        return jnp.asarray(np.sqrt(np.sum(s ** 2)), dtype=jnp.float64)
-        from chebfunjax.utils.quadrature import chebpts, chebweights
-        m, n = self.length()
-        nth = 2 * n + 16
-        mlam = 2 * m + 16
-        x = np.array(chebpts(nth))
-        w = np.array(chebweights(nth))
-        th = (x + 1.0) * (np.pi / 2.0)
-        w_th = w * (np.pi / 2.0)
-        lam = np.linspace(-np.pi, np.pi, mlam, endpoint=False)
-        V = np.asarray(self.fevalm(jnp.asarray(lam), jnp.asarray(th)),
-                       dtype=float)
-        val = float(np.sum((V ** 2) * (np.sin(th) * w_th)[:, None])
-                    * (2.0 * np.pi / mlam))
-        return jnp.sqrt(jnp.abs(jnp.asarray(val, dtype=jnp.float64)))
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        if isinstance(p, str):
+            if p == "fro":
+                return jnp.sqrt(jnp.sum(jnp.asarray(self.svd()) ** 2))
+            if p in ("inf", "max"):
+                values, _locations = self.minandmax2()
+                return jnp.max(jnp.abs(jnp.asarray(values)))
+            if p in ("-inf", "min"):
+                raise ValueError("CHEBFUN:SPHEREFUN:norm:norm: unsupported norm")
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:unknown: Unknown norm")
+        try:
+            order = jnp.asarray(p)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:unknown: Unknown norm") from exc
+        if order.ndim != 0 or not jnp.issubdtype(order.dtype, jnp.number):
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:unknown: Unknown norm")
+        if jnp.issubdtype(order.dtype, jnp.complexfloating):
+            if bool(jnp.imag(order) != 0):
+                raise ValueError("CHEBFUN:SPHEREFUN:norm:unknown: Unknown norm")
+            order = jnp.real(order)
+        value = float(order)
+        if value == 1:
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:norm: L1 unsupported")
+        if value == 2:
+            return jnp.sqrt(jnp.sum(jnp.asarray(self.svd()) ** 2))
+        if value == float("inf"):
+            values, _locations = self.minandmax2()
+            return jnp.max(jnp.abs(jnp.asarray(values)))
+        if value == -float("inf") or not bool(jnp.isfinite(order)):
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:norm: unsupported norm")
+        rounded = round(value)
+        if abs(rounded - value) >= float(jnp.finfo(jnp.float64).eps):
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:norm: unsupported norm")
+        powered = self ** rounded
+        if rounded % 2:
+            raise ValueError("CHEBFUN:SPHEREFUN:norm:norm: p must be even")
+        reciprocal = jnp.asarray(1.0) / jnp.asarray(rounded, dtype=jnp.float64)
+        return jnp.asarray(powered.sum2()) ** reciprocal
 
     def _reapprox(self, op2) -> "Spherefun":
         return Spherefun.from_function(
@@ -3962,7 +3936,7 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'norm', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------

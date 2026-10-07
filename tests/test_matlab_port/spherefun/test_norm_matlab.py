@@ -29,7 +29,7 @@ class TestSpherefunNorm:
         s = np.asarray(f.svd())
         assert abs(np.sum(s ** 2) - float(f.norm()) ** 2) < tol              # pass(2)
         f = sph_xyz(lambda x, y, z: x + y + z)
-        assert abs(float(f.norm("inf")) - np.sqrt(3)) < tol                  # pass(3)
+        assert abs(float(f.norm(jnp.inf)) - np.sqrt(3)) < tol                  # pass(3)
 
     def test_norm_of_cos_theta(self):
         f = Spherefun.from_function(lambda lam, th: jnp.cos(th))

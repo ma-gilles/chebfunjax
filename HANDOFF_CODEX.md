@@ -1,5 +1,47 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere projection, refinement and norms (2026-10-07; verified local gate)
+
+JAX BMC-I projection now applies source common coefficient simplification before
+parity projection and handles the even Nyquist coefficient. PhaseOne rejects a
+rank that exhausts its sampling budget, forcing the source grid refinement; this
+repairs the reproduced partition regression without deleting small odd factors.
+Scalar norm dispatch restores numeric infinity/even powers and numeric empty[];
+Spherefunv norm is the source global component norm, with pointwise magnitude
+kept as a separately labelled extension. Scalar/vector port CI runs in separate
+processes; core shards discover all independent controls.
+
+Local CPU qualification: **159 unique tests passed**, with no failures, errors
+or skips: scalar101 in1024.47s, vector41 in1785.78s, and BMCI17 in36.67s
+(pytest times). Exact collections/JUnit/runtime origins reconcile; guarded inputs
+were unchanged and no owned processes survived. Vector peak sampled summed RSS
+was7,696,348KiB. Its14warnings include unresolved/high-rank constructor controls,
+pointwise magnitude and plotting; passing assertions do not establish global
+resolution of those fields or visual acceptance. Full configured repository Ruff,
+explicit F821 and NumPy/provenance presence policies passed on the publication
+candidate. Fresh CI on this commit is still required; preceding P120 CI failed
+its sphere rank timeout.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive `sphere159_pass_reference_v1_20261007.zip`, SHA256
+`1037b00cd7791d21bbf6d9c685cb4db32dedb6cf1223fbdd9c782aef9a03f74a`,
+verified52,528payloads. This reference archive requires the full base
+`corrected_runtime_union_v3_full_source_20261006.zip`, SHA256
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+The union guard is archival only; original per-process guards/receipts and prior
+failed/censored run pointers are preserved. See
+`sphere159_archive_prepared_v1_20261007/terminal_review.json`.
+Focused evidence already established37 BMCI checks,25 norm checks and7 rank-budget
+checks, with original partition/rank regressions unchanged. The failed/censored
+full102 attempt and its reference-input mutation incident remain preserved; they
+are not accepted as a pass. One instrumented rank comparison observed about11.88x
+faster constructor work; this is not repeated MATLAB performance qualification.
+
+Scope remains incomplete: legacy NumPy SVD/constructor paths, literal source
+addition/partition/Helmholtz test gaps, all-page numerical/visual acceptance and
+other library issues remain open. Localization's pinned MATLAB103/103 lengths
+versus Python112/112 is a separate confirmed ACA refinement gap under diagnosis.
+
 ## Rational minimax numerator/denominator outputs (2026-10-07)
 
 MinimaxRationalResult.as_chebfuns() now returns source numerator/denominator

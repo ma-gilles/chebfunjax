@@ -189,9 +189,13 @@ jobs:
           # The split also limits per-process JAX jit-cache growth, which
           # has caused silent 30-minute XLA compile stalls late in long
           # shards (pytest-timeout cannot interrupt a C-level compile).
-          - name: sphere
+          # Separate processes bound JAX cache growth; keep all port tests.
+          # Independent sphere controls remain in the exhaustive core shards.
+          - name: sphere-scalar
             paths: >-
               tests/test_matlab_port/spherefun
+          - name: sphere-vector
+            paths: >-
               tests/test_matlab_port/spherefunv
           - name: disk-ball
             paths: >-

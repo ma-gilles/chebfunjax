@@ -218,10 +218,11 @@ class Spherefunv(eqx.Module):
         """
         if self.isempty():
             return jnp.zeros((0,), dtype=jnp.float64)
-        v = 0.0
-        for c in self.components:
-            v += float(c.norm()) ** 2
-        return jnp.asarray(v ** 0.5, dtype=jnp.float64)
+        component_norms = jnp.stack(tuple(
+            jnp.asarray(c.norm(), dtype=jnp.float64)
+            for c in self.components
+        ))
+        return jnp.sqrt(jnp.sum(component_norms ** 2))
 
     def magnitude(self) -> Spherefun:
         """Pointwise magnitude ``sqrt(F1^2 + F2^2 + F3^2)`` as a
