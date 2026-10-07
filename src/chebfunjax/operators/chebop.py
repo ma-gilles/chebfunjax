@@ -925,9 +925,9 @@ class Chebop:
         self,
         f=0.0,
         n: int | None = None,
-        n_min: int = 8,
-        n_max: int = 2048,
-        tol: float = 1e-10,
+        n_min: int = 32,
+        n_max: int = 4096,
+        tol: float = 5e-13,
         max_iter: int = 15,
         newton_tol: float = 5e-13,
         discretization: str | None = None,
@@ -1194,9 +1194,9 @@ class Chebop:
         f=0.0,
         ivp_solver: str | None = None,
         n: int | None = None,
-        n_min: int = 8,
-        n_max: int = 2048,
-        tol: float = 1e-10,
+        n_min: int = 32,
+        n_max: int = 4096,
+        tol: float = 5e-13,
         max_iter: int = 15,
         newton_tol: float = 5e-13,
     ):
@@ -1212,11 +1212,11 @@ class Chebop:
             If callable, called at the collocation points.
         n : int or None
             Fixed discretization size (``None`` = adaptive).
-        n_min : int, default 8
+        n_min : int, default 32
             Minimum size for adaptive loop.
-        n_max : int, default 2048
+        n_max : int, default 4096
             Maximum size for adaptive loop.
-        tol : float, default 1e-10
+        tol : float, default 5e-13
             Convergence tolerance for the adaptive size loop.
         max_iter : int, default 15
             Maximum Newton iterations (for nonlinear problems).
@@ -6210,8 +6210,12 @@ class Chebop:
             m0 = self._sniff_order(_Cf.identity(Domain(domain)), max_order)
         except Exception:
             m0 = None
-        return OperatorBlock(_op_fn, order=(m0 if m0 is not None else 2),
-                             domain=domain)
+        block = OperatorBlock(_op_fn, order=(m0 if m0 is not None else 2),
+                              domain=domain)
+        # Keep the historical fallback order for legacy consumers, but do not
+        # mistake it for source differential-order metadata in adaptive Linop.
+        block._source_order_known = m0 is not None
+        return block
 
     def _sniff_order(self, x_fun, max_order: int):
         """Highest derivative order the operator applies to ``u``.
@@ -7986,6 +7990,13 @@ def _derivative_eval_at(
     Returns
     -------
     FunctionalBlock
+
+    Provenance
+    ----------
+    MATLAB source : @operatorBlock/operatorBlock.m (diff method),
+        @functionalBlock/functionalBlock.m (feval and mtimes methods),
+        @linBlock/linBlock.m (toFunction method)
+    Chebfun commit: 7574c77
     """
     from chebfunjax.operators.blocks import D as diff_op
     from chebfunjax.operators.blocks import eval_at as eval_fb
@@ -8000,7 +8011,11 @@ def _derivative_eval_at(
         # Composed row: E @ D
         return E_row @ D_mat                            # (n,)
 
-    fb = FunctionalBlock(_fn, domain=domain)
+    # Function-space counterpart of eval(x) * diff(order), as in
+    # MATLAB @functionalBlock/functionalBlock.m and @operatorBlock/operatorBlock.m (diff method).
+    fb = FunctionalBlock(
+        _fn, domain=domain, apply_fn=lambda u: u.diff(order)(x),
+        _coordinate_fn=(eval_fb(x, dom) * diff_op(dom, order))._coordinate_fn)
     fb.loc = float(x)
     return fb
 

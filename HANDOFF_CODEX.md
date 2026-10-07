@@ -1,5 +1,59 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Adaptive scalar and complex boundary repair (2026-10-06; takes precedence below)
+
+The cohesive operator candidate passed a CPU union of **333 tests**, with one
+existing strict Carrier expected failure, zero unexpected failures/errors and
+nine warnings. Original source assertions and bounds are retained. Actual pytest
+module origins and native library paths were checked at start and finish against
+prebound runtime files; all 63,913 declared inputs remained stable and no owned
+process survived. Pytest took 1500.72s; peak sampled summed RSS was 5,936,288 KiB.
+This establishes the tested package, not complete library or example parity.
+
+Verified full-source/runtime evidence archive SHA256:
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+The runtime bindings correct an earlier environment-origin gap. Older archived
+runs are not retroactively claimed to have complete actual-runtime bindings.
+
+Adaptive scalar solves follow source defaults 32/4096/5e-13, order-adjusted
+Cheb2-to-Cheb1 projection, boundary-first scaled assembly and source output
+chopping. Supported operator trees use discrete Chebyshev coordinates, retaining
+finite-grid multiplication, interpolation and tree composition. This is a
+floating-point representation adaptation, not MATLAB nodal roundoff identity.
+Unknown capabilities retain the nodal path. Domain and point-value checks guard
+dispatch. Complex boundary/forcing promotion also affects fixed-size solves;
+eigenvalue routing is unchanged. Chebtech1 singleton conversion retains complex
+values. All ten original boundary-condition clauses pass at their source bounds.
+
+Twelve serial CPU observations at base dimensions 32/64/128 measured one first
+call after setup and three warm calls per fresh process. Coordinate cubic warm
+medians were 0.175–0.188s versus nodal 0.032–0.033s; variable-composition medians
+were 0.130–0.138s versus 0.013s. Every coordinate chopped query/equation/boundary
+check passed at 1e-10. Nodal cubic results failed query/boundary checks; both
+variable-composition paths passed. Unchopped cubic residuals failed even on the
+coordinate path, so source output chopping remains essential to these results.
+These are shared-host observations, not a statistical performance qualification,
+a MATLAB timing comparison or evidence for dimension 4096. The coordinate path
+has measured small-size overhead; optimization remains open.
+Performance evidence archive SHA256:
+`033df87baea338dd70c7dfce489ee3ee0ca687f06e78a37f33a63b3d38f5579f`.
+
+Configured repository lint, changed-file F821, whitespace, provenance, NumPy
+import rules and required golden-reference presence passed. Exact publication CI
+must be checked after pushing; the preceding main commit ecbb324 had green CI.
+
+Carrier damping, general session preferences, whole-block construction JIT/AD,
+high-dimension 4096 memory/time, constructor warnings and full library/test
+parity remain open. No new page or figure is qualified by this package. All 322
+pages still require full prose/computation/output/figure acceptance; the twelve
+original interrupted edits retain their documented unresolved disposition.
+Separate rational-evaluator and plotting drafts remain uninstalled.
+
+Use shared scratch, CPU only, serial heavy runs, at most two helpers, explicit
+staging, ordinary SSH push and the GPT-6 trailer. Current evidence and next work
+are in parent CURRENT_GOAL_STATUS.md.
+
+
 ## Initial-guess source repair (2026-10-06; takes precedence below)
 
 A narrow correction on published P113 is CPU-qualified: **17 passed**, no

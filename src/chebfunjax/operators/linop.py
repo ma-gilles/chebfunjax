@@ -7,20 +7,11 @@ Provides :class:`Linop`, a high-level wrapper around an :class:`OperatorBlock`
 - ``solve(f, n)``    — solve the BVP ``L*u = f`` with the attached BCs
 - ``eigs(n, k)``     — compute the *k* most-resolved eigenvalues of *L*
 
-The discretization strategy follows MATLAB Chebfun's ``@chebcolloc2``:
-
-1. Assemble the ``n x n`` operator matrix.
-2. Replace the last ``n_bc`` rows (one per BC) with the barycentric-row
-   vectors from the :class:`FunctionalBlock` evaluations.
-3. Replace the corresponding RHS entries with the BC values.
-4. Solve via ``jnp.linalg.solve``.
-5. Interpret the ``n`` solution values as function values at the ``n``
-   Chebyshev-2 points and wrap them in a :class:`~chebfunjax.chebfun1d.Chebfun`.
-
-For ``eigs``, the constrained rows are similarly imposed on the *left* of the
-eigenproblem: the BC rows replace the last ``n_bc`` rows of the operator matrix
-and the corresponding rows of the RHS identity are zeroed out.  The eigenvalues
-coming from the BC rows are artificially large and are discarded.
+Adaptive scalar solves with reliable differential order and matching constraints
+use source dimension adjustment, boundary-first rectangular collocation, scaled
+LU and projected first-kind output with source convergence checking. Fixed-size
+solves retain their rectangular adapter. The matrix() adapter uses row replacement;
+eigs() has its own rectangular generalized eigenproblem assembly.
 
 Translated from MATLAB Chebfun classes ``@linop`` and ``@linopConstraint``
 (commit 7574c77).
@@ -31,9 +22,13 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
+import jax
 import jax.numpy as jnp
+
+if TYPE_CHECKING:
+    from chebfunjax.chebfun1d.chebfun import Chebfun
 
 from chebfunjax.domain import Domain
 from chebfunjax.operators.blocks import (
@@ -69,6 +64,80 @@ def _chebfun_call(f, x):
     return jnp.full_like(x, float(f), dtype=jnp.float64)
 
 
+def _source_dimension_values(n_min, n_max):
+    """@valsDiscretization.dimensionValues, including nonpower bounds."""
+    if n_min < 1 or n_min > n_max:
+        raise ValueError('Require 1 <= n_min <= n_max')
+    lo, hi = float(jnp.log2(float(n_min))), float(jnp.log2(float(n_max)))
+    def colon(start, step, stop):
+        return [start + step*k for k in range(max(0, int((stop-start)/step)+1))]
+    if hi <= 9:
+        powers = colon(lo, 1, hi)
+    elif lo >= 9:
+        powers = colon(lo, .5, hi)
+    else:
+        powers = colon(lo, 1, 9) + colon(9.5, .5, hi)
+    return [int(jnp.floor(jnp.exp2(power)+.5)) for power in powers]
+
+
+
+def _source_vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
+    """JAX-only branch of utils.transforms; source @chebtech2/vals2coeffs.m."""
+    n = values.shape[0]
+    if n <= 1:
+        return values
+    tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
+    if jnp.iscomplexobj(values):
+        coeffs_general = jnp.fft.ifft(tmp, axis=0)
+        coeffs_real = jnp.real(jnp.fft.ifft(jnp.real(tmp), axis=0))
+        coeffs_imag = 1j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
+        purely_real = jnp.all(jnp.imag(values) == 0)
+        purely_imag = jnp.all(jnp.real(values) == 0)
+        coeffs = jnp.where(purely_real, coeffs_real,
+                           jnp.where(purely_imag, coeffs_imag, coeffs_general))
+    else:
+        coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
+    coeffs = coeffs[:n]
+    coeffs = coeffs.at[1:n - 1].multiply(2.0)
+    vflip = values[::-1]
+    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
+    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
+    k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
+    sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
+    sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
+    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
+    coeffs = coeffs + jax.lax.stop_gradient(delta)
+    return coeffs
+
+
+def _source_coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
+    """JAX-only branch of utils.transforms; source @chebtech2/coeffs2vals.m."""
+    n = coeffs.shape[0]
+    if n <= 1:
+        return coeffs
+    c = coeffs.at[1:n - 1].multiply(0.5)
+    tmp = jnp.concatenate([c, c[n - 2:0:-1]])
+    if jnp.iscomplexobj(coeffs):
+        values_general = jnp.fft.fft(tmp, axis=0)
+        values_real = jnp.real(jnp.fft.fft(jnp.real(tmp), axis=0))
+        values_imag = 1j * jnp.real(jnp.fft.fft(jnp.imag(tmp), axis=0))
+        purely_real = jnp.all(jnp.imag(coeffs) == 0)
+        purely_imag = jnp.all(jnp.real(coeffs) == 0)
+        values = jnp.where(purely_real, values_real,
+                           jnp.where(purely_imag, values_imag, values_general))
+    else:
+        values = jnp.real(jnp.fft.fft(tmp, axis=0))
+    values = values[n - 1::-1]
+    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0, initial=0.0) == 0
+    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0, initial=0.0) == 0
+    vflip = values[::-1]
+    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
+    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
+    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
+    values = values + jax.lax.stop_gradient(delta)
+    return values
+
+
 # ===========================================================================
 # Linop
 # ===========================================================================
@@ -98,7 +167,7 @@ class Linop:
         operator matrix.
     domain : (float, float), default (-1, 1)
         Physical domain ``[a, b]``.
-    bc_values : list of float, optional
+    bc_values : list of float or complex, optional
         Right-hand-side values for the boundary conditions (default: all 0).
 
     Examples
@@ -120,10 +189,10 @@ class Linop:
     The ``solve`` method calls ``jnp.linalg.solve`` which is JIT-safe given
     fixed *n*.
 
-    Boundary conditions are imposed by replacing the *last* ``n_bc`` rows of
-    the operator matrix.  This follows the standard Chebfun convention (the
-    operator rows at the outermost Chebyshev points, which coincide with the
-    physical boundary, are the natural rows to replace).
+    Supported adaptive solves use boundary-first rectangular collocation.
+    Explicit fixed-size solves and the matrix/eigenvalue adapters keep their
+    existing discretization contracts. Public n_min/n_max/tol override source
+    factory preferences; omitted arguments use MATLAB factory defaults.
 
     Provenance
     ----------
@@ -142,7 +211,7 @@ class Linop:
         L: OperatorBlock,
         bcs: Sequence[FunctionalBlock] | None = None,
         domain: tuple[float, float] = (-1.0, 1.0),
-        bc_values: Sequence[float] | None = None,
+        bc_values: Sequence[float | complex] | None = None,
     ) -> None:
         if not isinstance(L, OperatorBlock):
             raise TypeError(
@@ -152,7 +221,9 @@ class Linop:
         self.bcs: list[FunctionalBlock] = list(bcs) if bcs is not None else []
         self.domain = tuple(float(v) for v in domain)
         if bc_values is not None:
-            self.bc_values: list[float] = [float(v) for v in bc_values]
+            self.bc_values: list[float | complex] = [
+                complex(v) if jnp.iscomplexobj(v) else float(v)
+                for v in bc_values]
         else:
             self.bc_values = [0.0] * len(self.bcs)
         if len(self.bc_values) != len(self.bcs):
@@ -197,9 +268,9 @@ class Linop:
         self,
         f,
         n: int | None = None,
-        n_min: int = 8,
+        n_min: int = 32,
         n_max: int = 4096,
-        tol: float = 1e-10,
+        tol: float = 5e-13,
     ):
         """Solve the BVP ``L*u = f`` with the attached boundary conditions.
 
@@ -214,11 +285,11 @@ class Linop:
             If scalar, treated as a constant function.
         n : int or None
             Fixed discretization size.  If given, no adaptive loop is used.
-        n_min : int, default 8
+        n_min : int, default 32
             Minimum discretization size for the adaptive loop.
-        n_max : int, default 2048
+        n_max : int, default 4096
             Maximum discretization size for the adaptive loop.
-        tol : float, default 1e-10
+        tol : float, default 5e-13
             Coefficient decay tolerance for convergence check.
 
         Returns
@@ -246,7 +317,11 @@ class Linop:
             u_vals = self._solve_at(n, f)
             return _chebfun_from_values(u_vals, self.domain)
 
-        # Adaptive loop: powers of 2 + 1 (Chebyshev-2 convention)
+        if self._source_adaptive_eligible():
+            return self._solve_source_adaptive(f, n_min, n_max, tol)
+
+        # Legacy adapter for unknown order or unsupported constraint layouts.
+        # These routes are not claimed as source scalar adaptive parity.
         sizes = [n_min]
         cur = n_min
         while cur < n_max:
@@ -267,6 +342,94 @@ class Linop:
             stacklevel=2,
         )
         return _chebfun_from_values(u_vals, self.domain)
+
+    def _source_adaptive_eligible(self):
+        """Single function/interval, reliable order and square constraints."""
+        order = self.L.order
+        return (len(self.domain) == 2
+                and getattr(self.L, '_source_order_known', True)
+                and isinstance(order, int)
+                and len(self.bcs) == max(order, 0))
+
+    def _source_projected_solve(self, dimension, f):
+        """Source extractBlock/reduce/matrix/mldivide for one function."""
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+        from chebfunjax.utils.interpolation import barymat
+        adjustment = max(self.L.order, 0)
+        nin = dimension + adjustment
+        disc = ChebColloc2Disc(nin, self.domain)
+        a, b = self.domain
+        t_in, t_out = chebpts(nin, kind=2), chebpts(dimension, kind=1)
+        x_in = b*(t_in+1)/2 + a*(1-t_in)/2
+        x_out = b*(t_out+1)/2 + a*(1-t_out)/2
+        projection = barymat(x_out, x_in, Chebtech2.barywts(nin),
+                             Chebtech1.angles(dimension),
+                             Chebtech2.angles(nin), True)
+        # Explicit discrete-algebra capabilities only. Unknown/custom blocks
+        # retain nodal assembly. No order threshold or coeff_list inference.
+        from chebfunjax.operators._coordinates import eligible
+        coordinates = eligible(self)
+        if coordinates:
+            operator = _source_coeffs2vals(self.L._coordinate_fn(nin))
+            rows = (jnp.stack([bc._coordinate_fn(nin) for bc in self.bcs])
+                    if self.bcs else jnp.zeros((0, nin)))
+        else:
+            operator = self.L.matrix(disc)
+            rows = (jnp.stack([bc.matrix(disc) for bc in self.bcs])
+                    if self.bcs else jnp.zeros((0, nin)))
+        if operator.shape != (nin, nin):
+            raise ValueError('Source adaptive Linop requires one function-valued square block')
+        rhs_values = jnp.asarray(f(x_out) if callable(f) else f)
+        rhs_values = jnp.broadcast_to(rhs_values, (dimension,))
+        dtype = jnp.result_type(operator, rows, rhs_values,
+                                jnp.asarray(self.bc_values), jnp.float64)
+        matrix = jnp.concatenate([rows, projection @ operator]).astype(dtype)
+        rhs = jnp.concatenate([jnp.asarray(self.bc_values, dtype=dtype),
+                               rhs_values.astype(dtype)])
+        scales = 1/jnp.maximum(1, jnp.max(jnp.abs(matrix), axis=1))
+        values = jnp.linalg.solve(scales[:, None]*matrix, scales*rhs)
+        if not bool(jnp.all(jnp.isfinite(values))):
+            raise FloatingPointError('Nonfinite source adaptive Linop solution')
+        return projection @ (_source_coeffs2vals(values) if coordinates else values)
+
+    def _solve_source_adaptive(self, f, n_min, n_max, tol):
+        """Source dimensionValues/testConvergence/standardCheck, scalar scope."""
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.utils.misc import standard_chop
+        sizes = _source_dimension_values(n_min, n_max)
+        if not (0 < tol < 1):
+            raise ValueError('Adaptive Linop tolerance must lie in (0,1)')
+        vscale = 0.0
+        for dimension in sizes:
+            projected = self._source_projected_solve(dimension, f)
+            first_coeffs = Chebtech1.vals2coeffs(projected)
+            # testConvergence first constructs the entire toFunctionOut result.
+            all_values = _source_coeffs2vals(first_coeffs)
+            coeffs = _source_vals2coeffs(all_values)
+            if not bool(jnp.all(jnp.isfinite(coeffs))):
+                raise FloatingPointError('Nonfinite source adaptive Linop coefficients')
+            # returnTech is chebtech2; vscale and standardCheck use its grid.
+            check_values = _source_coeffs2vals(coeffs)
+            intrinsic = float(jnp.max(jnp.abs(check_values)))
+            vscale = max(vscale, intrinsic)
+            # Zero function has cutoff1; avoid undefined 0/0 scale arithmetic.
+            effective_tol = tol * max(1.0, vscale/intrinsic) if intrinsic else tol
+            cutoff = standard_chop(coeffs, effective_tol)
+            happy = cutoff < len(coeffs)
+            if happy:
+                break
+        if not happy:
+            warnings.warn(
+                f'Linop.solve: adaptive loop reached n_max={n_max} without '
+                f'convergence (tol={tol}). Returning best available solution.',
+                stacklevel=2)
+        # Final toFunctionOut applies cutoff to original first-kind coefficients.
+        final_values = _source_coeffs2vals(first_coeffs[:cutoff])
+        final_coeffs = _source_vals2coeffs(final_values)
+        # Public from_coeffs currently narrows complex; the piece path does not.
+        piece = _Piece.from_coeffs(final_coeffs, *self.domain)
+        return Chebfun(funs=[piece], domain=Domain(self.domain))
 
     def _rect_projection(self, n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
         """Rectangularization operator for the Driscoll-Hale scheme.
@@ -318,8 +481,9 @@ class Linop:
             a, b = self.domain
             t_ref = chebpts(n, kind=2)
             x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
-            rhs = (jnp.asarray(f(x_pts)) if callable(f)
-                   else jnp.full(n, float(f), dtype=jnp.float64))
+            rhs = jnp.asarray(f(x_pts) if callable(f) else f)
+            rhs = jnp.broadcast_to(rhs, (n,)).astype(
+                jnp.result_type(rhs, A_op, jnp.float64))
             if jnp.iscomplexobj(A_op) and not jnp.iscomplexobj(rhs):
                 rhs = rhs.astype(jnp.complex128)
             return jnp.linalg.solve(A_op, rhs)
@@ -331,17 +495,17 @@ class Linop:
             if not jnp.iscomplexobj(rhs_op):
                 rhs_op = rhs_op.astype(jnp.float64)
         else:
-            rhs_op = jnp.full(n - n_bc, float(f), dtype=jnp.float64)
+            value = jnp.asarray(f)
+            rhs_op = jnp.broadcast_to(value, (n - n_bc,)).astype(
+                jnp.result_type(value, jnp.float64))
         bc_rows = jnp.stack([bc.matrix(disc) for bc in self.bcs])
-        bc_dtype = (jnp.complex128 if jnp.iscomplexobj(rows[0])
-                    else jnp.float64)
+        bc_dtype = jnp.result_type(
+            rows[0], bc_rows, rhs_op, jnp.asarray(self.bc_values), jnp.float64)
         A = jnp.concatenate(
             [rows[0], bc_rows.astype(bc_dtype)], axis=0)
         rhs = jnp.concatenate([
             rhs_op.astype(bc_dtype),
-            jnp.asarray([complex(v) if bc_dtype == jnp.complex128
-                         else float(v) for v in self.bc_values],
-                        dtype=bc_dtype),
+            jnp.asarray(self.bc_values, dtype=bc_dtype),
         ])
         return jnp.linalg.solve(A, rhs)
 

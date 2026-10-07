@@ -4113,7 +4113,8 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     """
     n = values.shape[0]
     if n <= 1:
-        return values.astype(jnp.float64)
+        # Source trivial transform is the identity, including complex values.
+        return _as_fun_dtype(values)
 
     # Weight vector: w = 2 * exp(i * k * pi / (2*n)), k = 0..n-1
     # (trailing singleton axes broadcast over array-valued columns)
