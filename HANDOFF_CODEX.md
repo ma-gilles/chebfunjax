@@ -1,5 +1,41 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere real addition, CDR and default singular values (2026-10-07)
+
+Real Spherefun addition now follows source pole extraction, parity grouping and
+continuous QR/small-SVD compression. Structural negation and partition/combine
+preserve source factor metadata and pole flags. CDR evaluation masks only infinite
+reciprocal magnitudes, including zero/overflowing pivots; NaNs remain unchanged.
+The sampled scale/iszero paths use that same mask while source raw reciprocal
+checks and compression retain their original ordering. Default singular values
+use JAX weighted column QR and source row QR/inner-product branches, including
+complex pivots and the source nonconjugating transpose.
+
+Combined CPU gate: **69 passed**, no failures/errors/skips,242.17s pytest,
+peak sampled summed RSS4,708,516KiB. Exact collection/JUnit/runtime origins and
+unchanged source/runtime inputs reconcile; no owned processes survived. Separate
+46-case addition/CDR and23-case SVD gates also passed; earlier zero-pivot failure
+and observer-binding failures remain archived. Full configured repository Ruff,
+F821 and NumPy/provenance presence policies passed before publication. Existing
+core CI discovers every new independent control automatically.
+
+Qualification covers the selected real-addition/CDR/default-SVD behavior, not
+full Spherefun parity. Complex addition and singular-function U/V retain legacy
+paths. The public stored-factor rank property still differs from MATLAB spectral
+rank; source plus clause4 presently uses that property and is not yet spectral-rank
+qualification. Its source numerical-rank migration is a separate pending gate.
+Variable-rank host dispatch is explicit; no whole-addition JIT guarantee is made.
+Literal partition/plus bounds are retained; deterministic query adapters do not
+establish MATLAB random-stream equivalence. Other legacy NumPy consumers remain.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive `sphere_addition_svd_combined69_reference_v1_20261007.zip`, SHA256
+`567be0b61c0cc57b71abfae81bf18e2b15e1f5c3000b02c147c9d73747c4e5be`,
+verified52,432payloads with pointers to the separate and prior-failure archives.
+It requires full base `corrected_runtime_union_v3_full_source_20261006.zip`, SHA256
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+Green CI on this commit and complete library/test/page/figure/speed parity remain open.
+
 ## Chebfun2 ACA rank budget and Localization output (2026-10-07)
 
 Complete ACA now forces source grid refinement when the rank reaches its sampling

@@ -873,9 +873,8 @@ class Spherefun(eqx.Module):
         else:
             U = jnp.stack([_alias_trigtech(c, int(n)) for c in cc], axis=1)
             R = jnp.stack([_alias_trigtech(r, int(m)) for r in rr], axis=1)
-        d = jnp.where(jnp.abs(self.pivots) > 0,
-                      1.0 / jnp.where(self.pivots == 0, 1.0,
-                                      self.pivots), 0.0)
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        d = inverse_pivots(self.pivots)
         return U @ jnp.diag(d.astype(U.dtype)) @ R.T
 
     @staticmethod
@@ -951,9 +950,8 @@ class Spherefun(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
-        d = jnp.where(jnp.abs(self.pivots) > 0,
-                      1.0 / jnp.where(self.pivots == 0, 1.0,
-                                      self.pivots), 0.0)
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        d = inverse_pivots(self.pivots)
         return list(self.cols), jnp.diag(d), list(self.rows)
 
     # ------------------------------------------------------------------
@@ -1276,7 +1274,8 @@ class Spherefun(eqx.Module):
                        for c in self.cols], axis=1)          # (nc, r)
         Rr = np.stack([np.asarray(_alias_trigtech(r.coeffs, nr))
                        for r in self.rows], axis=1)          # (nr, r)
-        piv = 1.0 / np.asarray(self.pivots)
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        piv = np.asarray(inverse_pivots(self.pivots))
 
         # Tensor-grid detection: the adaptive constructor samples on
         # meshgrids (lam varying along one axis, theta along the other).
@@ -1344,11 +1343,13 @@ class Spherefun(eqx.Module):
         # For colatitude theta in [0, pi], t = theta/pi in [0, 1].
         th_ref = theta / jnp.pi
 
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        weights = inverse_pivots(self.pivots)
         result = jnp.zeros_like(jnp.broadcast_arrays(lam, theta)[0], dtype=jnp.float64)
         for j in range(len(self.cols)):
             cj_val = self.cols[j](th_ref)
             rj_val = self.rows[j](lam_ref)
-            result = result + (1.0 / self.pivots[j]) * cj_val * rj_val
+            result = result + weights[j] * cj_val * rj_val
 
         return result
 
@@ -1583,9 +1584,10 @@ class Spherefun(eqx.Module):
                 np.asarray(r.coeffs)[:, None], lam / np.pi,
                 is_real=r.is_real))).ravel()
              for r in self.rows])
-        D = np.diag(1.0 / np.asarray(self.pivots, dtype=float))
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        D = jnp.diag(inverse_pivots(self.pivots))
         return (jnp.asarray(U, dtype=jnp.float64),
-                jnp.asarray(D, dtype=jnp.float64),
+                jnp.asarray(D),
                 jnp.asarray(V, dtype=jnp.float64))
 
     def mean2(self) -> jax.Array:
@@ -1668,7 +1670,7 @@ class Spherefun(eqx.Module):
         """
         if not isinstance(g, Spherefun) or not isinstance(h, Spherefun):
             raise TypeError(
-                "Spherefun.combine: inputs must be Spherefun objects.")
+                "CHEBFUN:SPHEREFUN:combine:unknown: inputs must be Spherefun objects.")
         if g.isempty() or len(g.cols) == 0:
             return h
         if h.isempty() or len(h.cols) == 0:
@@ -1676,19 +1678,24 @@ class Spherefun(eqx.Module):
         if (len(g.idx_plus) > 0 and len(g.idx_minus) > 0) or \
                 (len(h.idx_plus) > 0 and len(h.idx_minus) > 0):
             raise ValueError(
-                "Spherefun.combine: inputs must have a single parity; "
+                "CHEBFUN:SPHEREFUN:combine:parity: inputs must have a single parity; "
                 "use g + h instead.")
-        ng = len(g.cols)
-        cols = list(g.cols) + list(h.cols)
-        rows = list(g.rows) + list(h.rows)
-        piv = jnp.concatenate([jnp.asarray(g.pivots),
-                               jnp.asarray(h.pivots)])
-        idx_p = tuple(g.idx_plus) + tuple(i + ng for i in h.idx_plus)
-        idx_m = tuple(g.idx_minus) + tuple(i + ng for i in h.idx_minus)
+        # Source order is plus terms first, even when arguments are reversed.
+        terms = [(g, i) for i in g.idx_plus] + [(h, i) for i in h.idx_plus]
+        num_plus = len(terms)
+        terms += [(g, i) for i in g.idx_minus] + [(h, i) for i in h.idx_minus]
+        cols = [f.cols[i] for f, i in terms]
+        rows = [f.rows[i] for f, i in terms]
+        piv = jnp.stack([f.pivots[i] for f, i in terms])
+        # MATLAB concatenates locations in argument order, without reordering.
         locs = tuple(g.pivot_locations) + tuple(h.pivot_locations)
-        return Spherefun(cols=cols, rows=rows, pivots=piv,
-                         idx_plus=idx_p, idx_minus=idx_m,
-                         pivot_locations=locs)
+        return Spherefun(
+            cols=cols, rows=rows, pivots=piv,
+            idx_plus=tuple(range(num_plus)),
+            idx_minus=tuple(range(num_plus, len(terms))),
+            pivot_locations=locs,
+            nonzero_poles=bool(g.nonzero_poles or h.nonzero_poles),
+        )
 
     # ------------------------------------------------------------------
     # Representation
@@ -1801,26 +1808,24 @@ class Spherefun(eqx.Module):
         if self.isempty():
             return Spherefun.empty(), Spherefun.empty()
 
-        def _sub(idx):
-            idx = list(idx)
+        def _sub(idx, even):
             if not idx:
-                # MATLAB returns an EMPTY spherefun for a missing
-                # parity, not a rank-1 zero function.
                 return Spherefun.empty()
+            # Some Python algebraic constructors have no location metadata.
+            # Preserve absence; when present, use the literal source subset.
+            locs = tuple(self.pivot_locations[i] for i in idx) \
+                if self.pivot_locations else ()
             return Spherefun(
                 cols=[self.cols[i] for i in idx],
                 rows=[self.rows[i] for i in idx],
-                pivots=jnp.asarray(
-                    [float(self.pivots[i]) for i in idx]),
-                idx_plus=tuple(range(len(idx)))
-                if idx == list(self.idx_plus) else (),
-                idx_minus=() if idx == list(self.idx_plus)
-                else tuple(range(len(idx))),
-                nonzero_poles=bool(self.nonzero_poles and len(self.idx_plus) > 0
-                                   and int(self.idx_plus[0]) in [int(v) for v in idx]),
+                pivots=jnp.take(self.pivots, jnp.asarray(idx, dtype=jnp.int32)),
+                idx_plus=tuple(range(len(idx))) if even else (),
+                idx_minus=() if even else tuple(range(len(idx))),
+                pivot_locations=locs,
+                nonzero_poles=bool(self.nonzero_poles) if even else False,
             )
 
-        return _sub(self.idx_plus), _sub(self.idx_minus)
+        return _sub(self.idx_plus, True), _sub(self.idx_minus, False)
 
     def rotate(self, phi: float = 0.0, theta: float = 0.0,
                psi: float = 0.0, method: str = "nufft") -> "Spherefun":
@@ -2019,9 +2024,13 @@ class Spherefun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @separableApprox/svd.m
+        MATLAB source : @spherefun/svd.m
         Chebfun commit: 7574c77
         """
+        if not return_uv:
+            from chebfunjax.spherefun._svd import singular_values
+
+            return singular_values(self)
         if self.isempty() or len(self.cols) == 0:
             return jnp.zeros((0,), dtype=jnp.float64)
         piv = np.asarray(self.pivots, dtype=float)
@@ -2492,6 +2501,18 @@ class Spherefun(eqx.Module):
         return h.projectOntoBMCI()
 
     def __add__(self, other):
+        """Source factor arithmetic; complex addition retains the legacy route.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/plus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun._plus import eligible, plus
+        if eligible(self) and (isinstance(other, Spherefun) and eligible(other)
+                               or not isinstance(other, Spherefun)
+                               and jnp.ndim(other) == 0 and not jnp.iscomplexobj(other)):
+            return plus(self, other)
         if isinstance(other, Spherefun):
             if other._is_exact_zero() or other.iszero():
                 return self
@@ -2507,6 +2528,16 @@ class Spherefun(eqx.Module):
     __radd__ = __add__
 
     def __sub__(self, other):
+        """Source factor arithmetic; complex addition retains the legacy route.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minus.m, @spherefun/plus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun._plus import eligible, negate, plus
+        if isinstance(other, Spherefun) and eligible(self) and eligible(other):
+            return plus(self, negate(other))
         if isinstance(other, Spherefun):
             if other._is_exact_zero():
                 return self
@@ -2516,6 +2547,16 @@ class Spherefun(eqx.Module):
         return self._binary(other, lambda a, b: a - b)
 
     def __rsub__(self, other):
+        """Source factor arithmetic; complex addition retains the legacy route.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minus.m, @spherefun/plus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun._plus import eligible, negate, plus
+        if eligible(self) and jnp.ndim(other) == 0 and not jnp.iscomplexobj(other):
+            return plus(negate(self), other)
         return self._binary(other, lambda a, b: b - a)
 
     def __mul__(self, other):
@@ -2557,7 +2598,15 @@ class Spherefun(eqx.Module):
         return self._binary(other, lambda a, b: a / b)
 
     def __neg__(self):
-        return self._reapprox(lambda v: -v)
+        """Source factor arithmetic; complex addition retains the legacy route.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/uminus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun._plus import negate
+        return negate(self)
 
     def __pow__(self, p):
         if isinstance(p, Spherefun):
@@ -3936,7 +3985,7 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Spherefun, ['__mul__', '__rmul__', '__truediv__', '__pow__', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------
