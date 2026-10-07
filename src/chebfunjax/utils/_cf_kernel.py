@@ -198,26 +198,31 @@ def _top_abs_eigs_lobpcg_candidate(H, k: int, v0, *, max_iterations: int = 100):
 
 
 def _chebpade_clenshaw_lord_jax(coeffs, m: int, n: int):
-    """Source Clenshaw-Lord Chebyshev-Pade branch for sufficient coefficients."""
+    """Source Clenshaw-Lord branch, including epsilon-normal padding."""
     if m < 0 or n < 0:
         raise UnsupportedCFBranch("source Cheb-Pade received a negative reduced degree")
     c = jnp.asarray(coeffs)
     required = m + 2 * n + 1
     if c.shape[0] < required:
-        raise UnsupportedCFBranch(
-            "source Cheb-Pade requires MATLAB's seeded epsilon padding")
+        from chebfunjax.utils._cf_padding import _epsilon_pad
+
+        c = _epsilon_pad(c, required)
     c = c.at[0].multiply(2.0)
-    top_idx = jnp.abs(jnp.arange(m - n + 1, m + 1))
-    bot_idx = jnp.arange(m, m + n)
-    rhs_idx = jnp.arange(m + 1, m + n + 1)
-    top = c[top_idx]
-    bot = c[bot_idx]
-    rhs = c[rhs_idx]
-    # MATLAB hankel(top, bot): first column is top, last row is bot.
-    sums = jnp.arange(n)[:, None] + jnp.arange(n)[None, :]
-    hankel = jnp.where(sums < n, top[jnp.minimum(sums, n - 1)],
-                       bot[jnp.clip(sums - n + 1, 0, n - 1)])
-    beta = jnp.concatenate((-jnp.linalg.solve(hankel, rhs), jnp.ones((1,), c.dtype)))[::-1]
+    if n > 0:
+        top_idx = jnp.abs(jnp.arange(m - n + 1, m + 1))
+        bot_idx = jnp.arange(m, m + n)
+        rhs_idx = jnp.arange(m + 1, m + n + 1)
+        top = c[top_idx]
+        bot = c[bot_idx]
+        rhs = c[rhs_idx]
+        # MATLAB hankel(top, bot): first column is top, last row is bot.
+        sums = jnp.arange(n)[:, None] + jnp.arange(n)[None, :]
+        hankel = jnp.where(sums < n, top[jnp.minimum(sums, n - 1)],
+                           bot[jnp.clip(sums - n + 1, 0, n - 1)])
+        beta = jnp.concatenate((-jnp.linalg.solve(hankel, rhs),
+                                jnp.ones((1,), c.dtype)))[::-1]
+    else:
+        beta = jnp.ones((1,), c.dtype)
     degree = max(m, n)
     c = c.at[0].multiply(0.5)
     alpha_full = jnp.convolve(c[:degree + 1], beta)
@@ -321,11 +326,11 @@ def cf_rational_small_jax(
 
     The kernel handles real single-column input, source symmetry adjustment,
     polynomial degree reduction, selected repeated-block transitions, and
-    Clenshaw-Lord fallback when supplied coefficients suffice. Dense eigensolve
+    Clenshaw-Lord fallback with epsilon-normal coefficient padding. Dense eigensolve
     is used for Hankel dimension <=1024; larger matrices use the unqualified
     lifted LOBPCG route. Missing branches raise ``UnsupportedCFBranch``,
-    including insufficient coefficients for the random-padding Cheb-Pade
-    fallback and degenerate reciprocal construction.
+    including degenerate reciprocal construction. Padding shares the advancing
+    JAX normal stream with randnfun; MATLAB RNG bits are not reproduced.
 
     Provenance
     ----------

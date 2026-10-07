@@ -100,6 +100,22 @@ def _sphere_row_pts(n: int) -> np.ndarray:
 # ============================================================================
 
 
+def _all_binary64_zeros(values):
+    """Recognize only signed binary64 zeros without CPU floating-point FTZ.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/constructor.m (PhaseOne exact-zero branch)
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Bit classification implements exact zero input, not a magnitude tolerance.
+    It does not establish subnormal parity of the later nonzero constructor.
+    """
+    values = jnp.asarray(values, dtype=jnp.float64)
+    bits = jax.lax.bitcast_convert_type(values, jnp.uint64)
+    magnitude_bits = bits & jnp.uint64(0x7FFFFFFFFFFFFFFF)
+    return jnp.all(magnitude_bits == 0)
+
+
 def _get_tol_sphere(
     F: np.ndarray, hx: float, hy: float, pseudo_level: float
 ) -> tuple[float, float]:
@@ -980,7 +996,9 @@ class Spherefun(eqx.Module):
             f(lam, theta) -> array_like.  Vectorised over 1D arrays.
             lam in [-pi, pi], theta in [0, pi].
         tol : float, optional
-            Target relative tolerance. Default is machine epsilon.
+            Source cheb2eps preference, clamped below by machine epsilon.
+            It determines the grid-dependent construction tolerance, which
+            also controls PhaseTwo, the small-pivot check and simplification.
         max_rank : int, optional
             Maximum allowed rank. Default 512.
         max_sample : int, optional
@@ -1014,7 +1032,8 @@ class Spherefun(eqx.Module):
         alpha = 100.0
         min_sample = 4
         factor = 8.0
-        pseudo_level = _EPS
+        # Source parseInputs clamps the explicit eps preference to factory eps.
+        pseudo_level = float(jnp.maximum(_EPS, tol))
 
         is_happy = False
         failure = False
@@ -1092,7 +1111,7 @@ class Spherefun(eqx.Module):
             # this as convergence only after THREE successive strikes so a
             # single spurious tiny pivot from coarse-grid evaluation noise
             # cannot stop the loop (mirrors the diskfun constructor).
-            if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) < 1e4 * tol:
+            if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) < 1e4 * tol_abs:
                 strike += 1
 
             if happy_rank:
@@ -1162,7 +1181,7 @@ class Spherefun(eqx.Module):
                 RuntimeWarning, stacklevel=2)
         # MATLAB @spherefun/constructor.m: simplify, then project onto the
         # exact BMC-I symmetry.
-        return result.simplify()._prune_zero_terms().projectOntoBMCI()
+        return result.simplify(tol_abs)._prune_zero_terms().projectOntoBMCI()
 
     def _prune_zero_terms(self) -> "Spherefun":
         """Drop CDR terms whose column or row simplified to exactly zero
@@ -1938,6 +1957,25 @@ class Spherefun(eqx.Module):
             raise ValueError("SPHEREFUN:CONSTRUCTOR:VALUES: When "
                              "constructing from values the number of "
                              "columns must be even.")
+        # Source PhaseOne rejects missing latitude samples. Check before
+        # getTol: MATLAB empty derivative reductions reach that source error,
+        # whereas NumPy max on an empty derivative array raises too early.
+        if n <= 1:
+            raise ValueError("CHEBFUN:SPHEREFUN:constructor:poleSamples")
+        # Source PhaseOne's exact-zero branch preserves the ORIGINAL sample
+        # dimensions (not doubled latitude length). The numeric constructor
+        # returns after projection, without the callable branch's simplify.
+        # The two-pole-row special case precedes this branch in MATLAB.
+        if n > 2 and bool(_all_binary64_zeros(F)):
+            return cls(
+                cols=[Trigtech(coeffs=jnp.zeros(n, dtype=jnp.complex128),
+                               is_real=True, ishappy=True)],
+                rows=[Trigtech(coeffs=jnp.zeros(m, dtype=jnp.complex128),
+                               is_real=True, ishappy=True)],
+                pivots=jnp.asarray([jnp.inf]), idx_plus=(0,), idx_minus=(),
+                pivot_locations=((-float(jnp.pi), 0.0),),
+                nonzero_poles=False,
+            ).projectOntoBMCI()
         if tol is None:
             tol = _get_tol_sphere(F, 2 * np.pi / m, np.pi / max(n - 1, 1),
                                   _EPS)[0]

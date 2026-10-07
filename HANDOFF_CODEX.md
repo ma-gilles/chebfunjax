@@ -1,5 +1,41 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere constructor tolerance and CF padding (2026-10-07)
+
+Spherefun callable construction now propagates the source grid-dependent
+absolute tolerance into the small-pivot check and final simplification. Numeric
+zero samples preserve source factor dimensions; missing pole samples raise the
+source identifier. The exact-zero classifier uses JAX binary64 bits so CPU
+flush-to-zero cannot mistake a nonzero subnormal for zero. General nonzero
+subnormal construction parity is not established.
+
+Qualification: 53 constructor checks, 128 combined sphere regressions and five
+sphere-vector regressions passed in three separate CPU cohorts. Seven literal
+constructor clauses (1, 2, 8, 9, 16, 26, 30) are published with unchanged bodies,
+inputs and bounds. The full 30-clause draft remains preserved in the evidence
+packet; the other 23 clauses and their missing public overloads remain open.
+The publication subset is checked by AST against the qualified selected cases.
+
+The JAX CF Clenshaw-Lord fallback now pads short coefficient vectors with
+source epsilon-scaled real normal draws before c0 scaling, and handles n=0.
+Padding shares randnfun's advancing default stream; explicit keys/seeds bypass
+that stream. This does not reproduce MATLAB RNG bits. Forty checks passed,
+including six matched-draw comparisons from three actual MATLAB public captures,
+15 stream/branch controls and the preceding 19 CF/minimax checks. Public CF
+reachability of insufficient padding, full ChebPade migration, large Hankel
+qualification and the separate strict coefficient diagnostic remain open.
+
+All four Python cohorts had stable inputs, exact collection/JUnit reconciliation
+and no surviving processes. Their 226 passes are not a combined runtime claim.
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive constructor_cf226_reference_v1_20261007.zip SHA256
+34f5c9796827eb866c51a7637204dc695f6cc93e5bca6679fb4d122037074afb
+requires corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+Publication copy/subset evidence: constructor_cf_publication_review_p130_20261007.
+Latest-main green CI and full function/test/page/figure/speed parity remain open.
+
+
 ## Spin2 public outputs, preferences and requested times (2026-10-07)
 
 The public operators.spinop2.spin2 route now returns actual Chebfun2 objects and
