@@ -117,7 +117,7 @@ try:
                                                breaks[i], breaks[i + 1]))
     h = Chebfun(funs=piece_list, domain=Domain(tuple(breaks)))
     fig, ax = plt.subplots()
-    plot_pieces(h, ax, color=CHEBFUN_BLUE)   # min is continuous: no jumps
+    cj.plot(h, ax=ax, color=CHEBFUN_BLUE)   # min is continuous: no jumps
     ax.set_ylim([-1, 1])
     _apply_style(ax)
     _save(fig, 2)
@@ -226,8 +226,8 @@ try:
     g_pw = f_pw.cumsum()
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    plot_pieces(f_pw, ax1, color=CHEBFUN_BLUE)
-    plot_pieces(g_pw, ax2, color=MAGENTA)   # cumsum is continuous: no jumps
+    cj.plot(f_pw, ax=ax1, color=CHEBFUN_BLUE)
+    cj.plot(g_pw, ax=ax2, color=MAGENTA)   # cumsum is continuous: no jumps
     _apply_style(ax1)
     _apply_style(ax2)
     ax1.set_xticks([0, 2, 4, 6])
@@ -309,7 +309,7 @@ try:
     ]
     f_pw = Chebfun(funs=piece_list, domain=Domain((0.0, 1.0, 2.0, 3.0, 4.0)))
     fig, ax = plt.subplots()
-    plot_pieces(f_pw, ax, color=CHEBFUN_BLUE)
+    cj.plot(f_pw, ax=ax, color=CHEBFUN_BLUE)
     _apply_style(ax)
     _save(fig, 10)
 except Exception as e:
@@ -326,7 +326,7 @@ except Exception as e:
 try:
     fprime_pw = f_pw.diff()
     fig, ax = plt.subplots()
-    plot_pieces(fprime_pw, ax, color='r')
+    cj.plot(fprime_pw, ax=ax, color='r')
 
     # Delta impulses = jumps of the original f at its interior breakpoints.
     bp = [0.0, 1.0, 2.0, 3.0, 4.0]

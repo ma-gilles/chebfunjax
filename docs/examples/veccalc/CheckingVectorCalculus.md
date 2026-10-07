@@ -46,7 +46,7 @@ abs(v-ends)                                  % gradient theorem
 
 ```text
 ans =
-     1.110223024625157e-16
+     7.771561172376096e-16
 ```
 
 Another consequence of the gradient theorem is that the integral of $\mathrm{grad}(f)$ over any closed curve is zero. For example, here is an exotic closed curve, which we plot superimposed on the vector field $\mathrm{grad}(f)$.
@@ -69,7 +69,7 @@ v = integral(F,C)
 
 ```text
 v =
-    -7.658402030891214e-16
+    1.150584857721115e-15
 ```
 
 ## Curl of the gradient
@@ -82,7 +82,7 @@ norm(curl(grad(f)))
 
 ```text
 ans =
-     2.510093227154464e-15
+     2.047447252784797e-15
 ```
 
 ## More information

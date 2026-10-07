@@ -32,6 +32,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+from chebfunjax.tech.chebtech import Chebtech2
 
 # ============================================================================
 # Main class
@@ -322,20 +323,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/quiver3.m
         Chebfun commit: 7574c77
         """
-        import matplotlib.pyplot as plt
-        import numpy as _onp
-        dom = self.components[0].domain
-        xs = _onp.linspace(float(dom[0]), float(dom[1]), 12)
-        ys = _onp.linspace(float(dom[2]), float(dom[3]), 12)
-        X, Y = _onp.meshgrid(xs, ys)
-        Xj, Yj = jnp.asarray(X), jnp.asarray(Y)
-        U = _onp.asarray(self.components[0](Xj, Yj))
-        V = _onp.asarray(self.components[1](Xj, Yj))
-        W = (_onp.asarray(self.components[2](Xj, Yj))
-             if len(self.components) > 2 else _onp.zeros_like(U))
-        fig = plt.figure()
-        ax = fig.add_subplot(projection="3d")
-        ax.quiver(X, Y, _onp.zeros_like(X), U, V, W, length=0.1)
+        from chebfunjax.plotting import quiver_3d
+        _, ax = quiver_3d(self, **kwargs)
         return ax
 
     # ------------------------------------------------------------------

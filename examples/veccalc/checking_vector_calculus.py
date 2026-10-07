@@ -34,20 +34,21 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'veccalc')
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
+    # -- Introduction: two source construction forms -----------------
+    F = Chebfun2v.from_functions(lambda x, y: jnp.sin(x),
+                                 lambda x, y: jnp.sin(y))
+    f = chebfun2(lambda x, y: jnp.sin(x))
+    g = chebfun2(lambda x, y: jnp.sin(y))
+    G = Chebfun2v(components=[f.approx, g.approx])
+
     # -- Parallelogram law -------------------------------------------
     F = Chebfun2v.from_functions(lambda x, y: jnp.cos(x * y),
                                  lambda x, y: jnp.sin(x * y))
     G = Chebfun2v.from_functions(lambda x, y: x + y,
                                  lambda x, y: 1 + x + y)
     nF, nG = float(F.norm()), float(G.norm())
-    FpG = Chebfun2v(components=[
-        (Chebfun2(approx=a) + Chebfun2(approx=b)).approx
-        for a, b in zip(F.components, G.components)])
-    FmG = Chebfun2v(components=[
-        (Chebfun2(approx=a) - Chebfun2(approx=b)).approx
-        for a, b in zip(F.components, G.components)])
     lhs = 2 * nF ** 2 + 2 * nG ** 2
-    rhs = float(FpG.norm()) ** 2 + float(FmG.norm()) ** 2
+    rhs = float((F + G).norm()) ** 2 + float((F - G).norm()) ** 2
     print("ans =")
     print(f"     {abs(lhs - rhs):.15e}")
 
@@ -65,39 +66,30 @@ def run():
     # -- Closed curve: integral of a gradient field is zero ----------
     circ = lambda p: cj.chebfun(
         lambda x: jnp.exp(2j * p * np.pi * x + 0.8j), domain=[-1.0, 1.0])
-    C = (circ(1) + circ(3) * (1 / 1.5) + circ(8) * (1 / 3.5)) * 0.5
+    C = (circ(1) + circ(3) / 1.5 + circ(8) / 3.5) / 2
     v = float(np.real(np.asarray(F.integral(C))))
     print("v =")
     print(f"    {v:.15e}")
 
-    xs = np.linspace(-1, 1, 600)
-    cv = np.asarray(C(jnp.asarray(xs)))
     fig, ax = plt.subplots(figsize=(6.0, 4.0))
-    xq = np.linspace(-1, 1, 12)
-    Xq, Yq = np.meshgrid(xq, xq)
-    U = np.asarray(Chebfun2(approx=F.components[0])(
-        jnp.asarray(Xq.ravel()), jnp.asarray(Yq.ravel()))).reshape(Xq.shape)
-    V = np.asarray(Chebfun2(approx=F.components[1])(
-        jnp.asarray(Xq.ravel()), jnp.asarray(Yq.ravel()))).reshape(Xq.shape)
-    ax.quiver(Xq, Yq, U, V, color="b")
-    ax.plot(np.real(cv), np.imag(cv), "r", lw=1.2)
-    ax.set_aspect("equal")
+    fig, ax = F.quiver(ax=ax, n_pts=12, autoscale_factor=0.5)
+    fig, ax = C.plot(ax=ax, color="r")
+    # MATLAB's default axes rectangle for the source 600-by-400 figure.
+    # Both plotting helpers apply tight_layout; restore the source rectangle.
+    ax.set_position((0.13, 0.11, 0.775, 0.815))
+    ax.set_aspect("equal", adjustable="box")
     ax.set_axis_off()
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "CheckingVectorCalculus_01.png"))
+    _savefig(fig, os.path.join(_IMG, "CheckingVectorCalculus_01.png"),
+             size=(600, 400))
     plt.close(fig)
 
     # -- curl(grad f) = 0 --------------------------------------------
-    cg = F.curl()
-    xs2 = np.linspace(-0.95, 0.95, 30)
-    vals = np.asarray(Chebfun2(approx=cg.approx if hasattr(cg, "approx")
-                               else cg)(jnp.asarray(xs2),
-                                        jnp.asarray(xs2))) \
-        if not isinstance(cg, Chebfun2) else np.asarray(
-            cg(jnp.asarray(xs2), jnp.asarray(xs2)))
+    # MATLAB norm(curl(grad(f))) is the continuous Frobenius/L2 norm.
+    # The two-component Python curl returns a scalar SeparableApprox.
+    cg = Chebfun2(approx=f.gradient().curl())
     print("ans =")
-    print(f"     {float(np.max(np.abs(vals))):.15e}")
+    print(f"     {float(cg.norm()):.15e}")
     return True
 
 

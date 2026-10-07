@@ -1,5 +1,48 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Quiver source scaling and vector calculus page (2026-10-07; takes precedence below)
+
+Two- and three-component planar quiver plots now share JAX scaling and open-head
+geometry from MATLAB's readable compatibility routine. The source default factor
+is .9; zero disables autoscaling; a one-point grid uses the upper endpoint.
+Three-component quiver preserves the source wrapper's consumed-numpts behavior
+and uses 20 points, while direct quiver3 honors its own count. Explicit native
+Matplotlib scaling options retain their separate interpretation. Twelve actual
+R2025b preflush ScaleFactor records support the arithmetic; this does not prove
+opaque renderer or pixel equivalence. Surface-coordinate overloads remain open.
+
+CPU qualification: 40 scientific tests passed, zero failures/errors/skips,
+including 35 new source/geometry/API controls and five adjacent plotting checks.
+Runtime origins and input stability passed; no owned processes survived. The
+controller exited 4 because pytest omitted the filename prefix for two external
+scratch cases. That result is preserved. A separate verifier and independent
+review establish those cases from exact bound source/parameters, module origin,
+command selection, nodeids and JUnit; no test was changed or repeated to hide it.
+Supervisor wall 243.99s; peak sampled summed RSS 1,449,064 KiB.
+Test evidence layer: d230d6189362cf7fcb9bb121b974a2f953bccf72d5c89afe5c957e6b147fde9b.
+
+CheckingVectorCalculus now uses source constructors, vector arithmetic/divisions,
+library quiver and curve plotting, and continuous Frobenius/L2 norm instead of a
+maximum over 30 diagonal samples. Its isolated CPU run passed and produced the
+source 600x400 figure. Actual final norm: 2.047447252784797e-15. An independent
+x-y control gives L2 1.6329931618554523 despite nearly zero diagonal samples.
+Actual stdout and image are published, not copied reference results. Runtime
+origins/input stability passed; no survivors; wall 195.63s, peak 2,165,904 KiB.
+Page evidence layer: ea4eb3425769997d42e450e6474f52539d94138f7b0e12ab74197e1070e0b11a.
+Small reference-image position/stroke differences and roundoff-output differences
+remain; full page/figure parity is not claimed.
+
+Five undefined guide02 plot_pieces calls now use the public plotting library;
+missing Chebfun2/Chebtech2 annotation imports are fixed. Full configured Ruff,
+global F821, whitespace, provenance and NumPy policy checks pass. New publication
+CI requires verification. Full library/test/page/performance parity is incomplete.
+
+Both evidence layers require preserved full base
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7
+and receipt d3880112810f60a7945e1625dc9030de254bf1e6686111c755d8e050363dc826.
+They are not self-contained. Current backlog: parent CURRENT_GOAL_STATUS.md.
+
+
 ## TYPE2 rational source evaluation (2026-10-07; takes precedence below)
 
 The TYPE2 nonconstant-denominator handle now follows pinned `ratinterp.m`

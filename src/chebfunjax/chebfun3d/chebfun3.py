@@ -33,7 +33,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import equinox as eqx
 import jax
@@ -43,6 +43,9 @@ import numpy as np
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.transforms import vals2coeffs
+
+if TYPE_CHECKING:
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)

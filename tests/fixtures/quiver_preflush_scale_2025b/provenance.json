@@ -1,0 +1,22 @@
+{
+  "scope": "Expected-only preflush numeric/property records, not rendered geometry",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "archives": {
+    "quiver_metadata_v2_full_source_20261007.zip": "8a9336eaf7b3561e8099207033567c2962f93d559aae80dd093926a305a2e8b3",
+    "quiver_metadata_disambiguating_v1_full_source_20261007.zip": "fd9d67126564a251a92e892169e1492b0bcf268f4157ca97616ff8ba82f67266"
+  },
+  "fixture_sha256": {
+    "disambiguating_1.json": "67e3f3435bc2893f75dbf31199596b074301eae3d08ab4b298aeaf8804600cdd",
+    "disambiguating_2.json": "728a98c4dcbc9373b4cb5d55ddaaf5dd6a4ce1bd22dcf48057d910646472fe60",
+    "disambiguating_3.json": "3874d6d34e35d22bd231ea989c1792c32c46f8af96968d20b412f1d150c7d3a0",
+    "disambiguating_4.json": "ea92e9e57bc009bd2ffe3965a32514909fd42401a5f1417314c1561fe39fa091",
+    "disambiguating_5.json": "f988f2cde5e2daa06a45e289572781a1ace0419578ea3801c8285a136d437d8e",
+    "disambiguating_6.json": "6f424b2a1b4c1bf0462df40a4ea52cb9fffb78ae9bc5432fb9b6742c8b5dc027",
+    "initial_1.json": "99f09885b744f21a243a1396faee94c00d362ac1100dea7501b4704982f4aa66",
+    "initial_2.json": "929cd81e2ca9cc3b6e71f515602f279bdea2878a3b1ea40f40c793e4ce199bf7",
+    "initial_3.json": "bf9a5f10083033bec58bae4aebd960536c75a047f6b3bc5ca859234acfbb2374",
+    "initial_4.json": "b605562d3eaf2ef54bba57578e9436b5d6560b6c26f1eb5ed9e8d3261ab0123b",
+    "initial_5.json": "c89bdda18493fe4a112f6b1a96e36d56b04573d5581deee9245094c37c70dbda",
+    "initial_6.json": "feb6656d6a9bca3f42140e07669feddeb386d6ef92b0db0495102da86e16682f"
+  }
+}

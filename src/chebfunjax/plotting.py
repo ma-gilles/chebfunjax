@@ -1715,72 +1715,215 @@ def _bisect_tri(x: np.ndarray, tri: np.ndarray):
 # ---------------------------------------------------------------------------
 
 
-def quiver_2d(
-    f2,
-    g2=None,
-    ax=None,
-    title: str = "",
-    n_pts: int = 10,
-    **kw,
-) -> tuple[plt.Figure, plt.Axes]:
-    """2D quiver plot of a Chebfun2 gradient or a Chebfun2v vector field.
+def _quiver_source_scale(x, y, u, v, autoscale_factor, z=None, w=None):
+    """JAX preflush ScaleFactor, supported by twelve R2025b observations.
 
-    If *f2* is a Chebfun2v (or two Chebfun2 components are given as f2, g2),
-    plots the velocity field (f2, g2) using matplotlib quiver.
-
-    Faithful translation of @separableApprox/quiver.m and @chebfun2v/quiver.m.
-
-    Parameters
-    ----------
-    f2 : Chebfun2v, or first Chebfun2 component
-    g2 : Chebfun2, optional
-        Second component (if f2 is a Chebfun2).
-    ax : Axes, optional
-    title : str
-    n_pts : int
-        Number of arrows per axis direction.
-
-    Returns
-    -------
-    fig, ax
+    Provenance: @chebfun2v/quiver.m and quiver3.m, Chebfun commit
+    7574c77680d7e82b79626300bf255498271a72df; installed R2025b
+    createLinesForQuiverStruct.m:44-84. Not rendered geometry evidence.
     """
+    x, y, u, v = (jnp.asarray(a) for a in (x, y, u, v))
+    m, n = x.shape
+    if min(m, n) == 1:
+        m = n = jnp.sqrt(x.size)
+    dx = (jnp.max(x) - jnp.min(x)) / n
+    dy = (jnp.max(y) - jnp.min(y)) / m
+    spacing_squared = dx * dx + dy * dy
+    length_squared = u * u + v * v
+    if z is not None:
+        z, w = jnp.asarray(z), jnp.asarray(w)
+        dz = (jnp.max(z) - jnp.min(z)) / jnp.maximum(m, n)
+        spacing_squared = spacing_squared + dz * dz
+        length_squared = length_squared + w * w
+    safe_spacing = jnp.where(spacing_squared > 0, spacing_squared, 1.)
+    max_length = jnp.max(jnp.sqrt(length_squared / safe_spacing))
+    max_length = jnp.where(spacing_squared > 0, max_length, 0.)
+    factor = jnp.asarray(autoscale_factor)
+    scale = factor / jnp.where(max_length > 0, max_length, 1.)
+    return jnp.where(factor == 0, jnp.ones_like(scale), scale)
 
-    # Determine components
+
+def _quiver_options(autoscale_factor, kw, *, three=False):
+    # Explicit native geometry/scaling retains the Matplotlib interpretation.
+    native = ({"length", "normalize", "pivot", "arrow_length_ratio"} if three else
+              {"scale", "scale_units", "angles", "pivot", "width", "headwidth",
+               "headlength", "headaxislength", "minshaft", "minlength", "units"})
+    explicit = native.intersection(kw)
+    if autoscale_factor is not None and explicit:
+        raise ValueError("Source quiver scaling conflicts with: " + ", ".join(sorted(explicit)))
+    source = not explicit
+    factor = .9 if autoscale_factor is None else autoscale_factor
+    if source:
+        factor = jnp.asarray(factor)
+        if (factor.ndim != 0 or jnp.iscomplexobj(factor)
+                or not bool(jnp.isfinite(factor)) or bool(factor < 0)):
+            raise ValueError("autoscale_factor must be a finite nonnegative real scalar")
+    return source, factor
+
+
+def _quiver_grid(f, n_pts):
+    if isinstance(n_pts, bool) or not isinstance(n_pts, int) or n_pts < 1:
+        raise ValueError("n_pts must be a positive integer")
+    x0, x1, y0, y1 = f.domain
+    # MATLAB linspace(a,b,1) returns b, unlike NumPy/JAX linspace.
+    xs = jnp.asarray([x1]) if n_pts == 1 else jnp.linspace(x0, x1, n_pts)
+    ys = jnp.asarray([y1]) if n_pts == 1 else jnp.linspace(y0, y1, n_pts)
+    return jnp.meshgrid(xs, ys, indexing="xy")
+
+
+def _quiver_finite_data(*arrays):
+    data = tuple(jnp.asarray(a) for a in arrays)
+    if any(jnp.iscomplexobj(a) or not bool(jnp.all(jnp.isfinite(a))) for a in data):
+        raise NotImplementedError("Source quiver requires finite real grid and field data")
+    if any(a.shape != data[0].shape for a in data):
+        raise ValueError("Source quiver grid and component shapes must match")
+    return data
+
+
+def _quiver_line_options(ax, kw):
+    # Normalize aliases before injecting defaults (do not create alias conflicts).
+    from matplotlib import cbook
+    from matplotlib.collections import LineCollection
+
+    if "colors" in kw:
+        if "color" in kw:
+            raise TypeError("Specify only one of colors and color")
+        kw = dict(kw)
+        kw["color"] = kw.pop("colors")
+    kw = cbook.normalize_kwargs(kw, LineCollection)
+    if "edgecolor" not in kw and "color" not in kw:
+        kw["color"] = ax._get_lines.get_next_color()
+    kw.setdefault("linewidth", .5)
+    return kw
+
+
+def _quiver_head_options(kw):
+    size = jnp.asarray(kw.pop("max_head_size", .2))
+    if (size.ndim != 0 or jnp.iscomplexobj(size)
+            or not bool(jnp.isfinite(size)) or bool(size < 0)):
+        raise ValueError("max_head_size must be a finite nonnegative real scalar")
+    show = kw.pop("show_arrow_head", True)
+    if not isinstance(show, bool):
+        raise ValueError("show_arrow_head must be a Python boolean")
+    return size, show
+
+
+def quiver_2d(f2, g2=None, ax=None, title: str = "", n_pts: int = 10,
+              autoscale_factor: float | None = None, **kw):
+    """Plot a two- or three-component field, returning ``(fig, ax)``.
+
+    Default scaling is MATLAB's .9; ``autoscale_factor=0`` disables fitting.
+    Explicit native Matplotlib scaling/arrow keywords select native rendering
+    when autoscale_factor is omitted; mixing both interfaces raises ValueError.
+    Source 2D heads are open LineCollections from readable MATLAB compatibility
+    geometry, not a claim of opaque R2025b renderer equivalence. LineCollection
+    properties are forwarded. Native polygon-only properties require native mode.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2v/quiver.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Source removes numpts before a
+    three-component dispatch, which therefore samples 20 by 20 even if n_pts was
+    supplied here. Direct quiver3 honors its own n_pts. Scalar Chebfun2 callers
+    pass two gradient components through their existing wrapper.
+    """
+    from chebfunjax._quiver_geometry import quiver_line_geometry
     from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+
     if isinstance(f2, Chebfun2v):
-        F1, F2 = f2.components[0], f2.components[1]
-        try:
-            x0, x1, y0, y1 = f2.domain
-        except Exception:
-            x0, x1, y0, y1 = -1.0, 1.0, -1.0, 1.0
+        if f2.n_components == 3:
+            return quiver_3d(f2, ax=ax, title=title, n_pts=20,
+                             autoscale_factor=autoscale_factor, **kw)
+        f1, f2 = f2.components
     else:
         if g2 is None:
-            raise ValueError("quiver_2d requires either a Chebfun2v or two Chebfun2 arguments.")
-        F1, F2 = f2, g2
-        try:
-            x0, x1, y0, y1 = F1.domain
-        except Exception:
-            x0, x1, y0, y1 = -1.0, 1.0, -1.0, 1.0
-
-    xs = np.linspace(float(x0), float(x1), n_pts)
-    ys = np.linspace(float(y0), float(y1), n_pts)
-    XX, YY = np.meshgrid(xs, ys, indexing="xy")
-
-    UU = _eval_2d_vectorized(F1, XX, YY)
-    VV = _eval_2d_vectorized(F2, XX, YY)
-
+            raise ValueError("quiver_2d requires a vector field or two components")
+        f1, f2 = f2, g2
+    source, factor = _quiver_options(autoscale_factor, kw)
+    x, y = _quiver_grid(f1, n_pts)
+    u = _eval_2d_vectorized(f1, x, y)
+    v = _eval_2d_vectorized(f2, x, y)
     if ax is None:
         fig, ax = plt.subplots(figsize=(6.1, 2.75))
     else:
         fig = ax.get_figure()
+    if source:
+        from matplotlib.collections import LineCollection
 
-    ax.quiver(XX, YY, UU, VV, **kw)
-    ax.set_xlim(float(x0) * 1.1, float(x1) * 1.1)
-    ax.set_ylim(float(y0) * 1.1, float(y1) * 1.1)
-    ax.set_aspect('equal')
+        x, y, u, v = _quiver_finite_data(x, y, u, v)
+        scale = _quiver_source_scale(x, y, u, v, factor)
+        max_head_size, show_head = _quiver_head_options(kw)
+        shafts, heads, _ = quiver_line_geometry(x, y, u*scale, v*scale, max_head_size)
+        opts = _quiver_line_options(ax, kw)
+        # numpy conversions only transfer finished geometry to Matplotlib.
+        ax.add_collection(LineCollection(np.asarray(shafts), **opts))
+        opts = dict(opts, label="_nolegend_")
+        opts["visible"] = opts.get("visible", True) and show_head
+        ax.add_collection(LineCollection(np.asarray(heads), **opts))
+    else:
+        ax.quiver(np.asarray(x), np.asarray(y), u, v, **kw)
+    x0, x1, y0, y1 = f1.domain
+    ax.set_xlim(float(x0)*1.1, float(x1)*1.1)
+    ax.set_ylim(float(y0)*1.1, float(y1)*1.1)
+    if not source:
+        ax.set_aspect("equal")
     _apply_style(ax, title=title)
     fig.set_facecolor("white")
-    fig.tight_layout(pad=0.5)
+    fig.tight_layout(pad=.5)
+    return fig, ax
+
+
+def quiver_3d(f, ax=None, title: str = "", n_pts: int = 20,
+              autoscale_factor: float | None = None, **kw):
+    """Source planar sampling, preflush scale and compatibility open heads.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2v/quiver3.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Two components dispatch to
+    quiver after numpts removal, hence 10 by 10. Only the field-only planar
+    signature is implemented; source surface-coordinate overloads are not.
+    Returns (fig, ax); Chebfun2v.quiver3 preserves its historical Axes return.
+    """
+    if f.n_components == 2:
+        return quiver_2d(f, ax=ax, title=title, n_pts=10,
+                         autoscale_factor=autoscale_factor, **kw)
+    source, factor = _quiver_options(autoscale_factor, kw, three=True)
+    x, y = _quiver_grid(f, n_pts)
+    z = jnp.zeros_like(x)
+    u, v, w = (_eval_2d_vectorized(c, x, y) for c in f.components)
+    if source:
+        x, y, z, u, v, w = _quiver_finite_data(x, y, z, u, v, w)
+        scale = _quiver_source_scale(x, y, u, v, factor, z, w)
+        u, v, w = u*scale, v*scale, w*scale
+    if ax is None:
+        fig = plt.figure(figsize=(6.1, 2.75))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+        if getattr(ax, "name", None) != "3d":
+            raise ValueError("Three-component quiver requires a 3D axes")
+    kw = _quiver_line_options(ax, kw)
+    if source:
+        from mpl_toolkits.mplot3d.art3d import Line3DCollection
+
+        from chebfunjax._quiver_geometry import quiver_line_geometry
+
+        max_head_size, show_head = _quiver_head_options(kw)
+        shafts, heads, _ = quiver_line_geometry(x, y, u, v, max_head_size, z, w)
+        ax.add_collection3d(Line3DCollection(np.asarray(shafts), **kw))
+        head_kw = dict(kw, label="_nolegend_")
+        head_kw["visible"] = head_kw.get("visible", True) and show_head
+        ax.add_collection3d(Line3DCollection(np.asarray(heads), **head_kw))
+        # Matplotlib collections do not update 3D limits automatically.
+        ax.auto_scale_xyz(*(np.asarray(shafts[..., i]).ravel() for i in range(3)))
+    else:
+        ax.quiver(*(np.asarray(a) for a in (x, y, z, u, v, w)), **kw)
+    if title:
+        ax.set_title(title)
+    fig.tight_layout(pad=.5)
     return fig, ax
 
 
