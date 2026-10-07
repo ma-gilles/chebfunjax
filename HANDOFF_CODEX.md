@@ -1,5 +1,39 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Numeric Chebfun2 construction uses JAX (2026-10-07)
+
+The public numeric from_values path now uses source-ordered JAX ACA and factor
+transforms: column-major pivot ties, selected-diagonal stopping norm, numeric
+rank cap, row division before outer product, source factor lengths, source grids,
+and real zero storage in the no-pivot branch. It reuses shared Chebtech2
+extrapolation for missing rows. Scalar recursion preserves the source default
+Chebyshev technology, including a requested trig scalar input. Default numeric
+chopping is off to preserve source nonadaptive factor lengths; explicit chop=True
+remains a Python adapter. Adaptive callable construction is unchanged.
+
+CPU qualification:77 constructor checks and27 unchanged spin consumers passed
+in separate fresh processes (117.50s and74.86s). These include32 actual MATLAB
+public constructor captures in both JIT modes and the existing constructor
+aggregate. Exact collection/JUnit/runtime checks passed, inputs stayed stable,
+and no descendants survived. The preceding failed gate is preserved:63pass,
+12fail, caused by empty fixture decoding and complex no-pivot zero storage;
+the correction keeps original assertions and fixture bytes unchanged.
+
+This is eager construction with JAX arithmetic, not an outer-jit API. Inherited
+host evaluation and adaptive paths still contain NumPy. General complex/extreme
+scalar behavior, complex Inf/NaN precedence, MATLAB RNG identity, full consumer
+coverage and full source parity remain open. Captured comparisons use explicitly
+additional64eps rounding diagnostics; original MATLAB bounds were not widened.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive chebfun2_numeric104_source_reference_v3_20261007.zip SHA256
+6d4cfa2da49a9ca83736206058d1f48efcc0299d622a88d84811f244d3dd92ed
+requires corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+The separately developed complex-infinity predicate is excluded from this
+qualification and publication. Latest-main green CI is still required.
+
+
 ## Sphere constructor tolerance and CF padding (2026-10-07)
 
 Spherefun callable construction now propagates the source grid-dependent

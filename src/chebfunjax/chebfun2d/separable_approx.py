@@ -665,7 +665,7 @@ class SeparableApprox(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
         techs: tuple = ("cheb", "cheb"),
-        chop: bool = True,
+        chop: bool = False,
     ) -> "SeparableApprox":
         """Construct from a matrix of values on a 2nd-kind Chebyshev grid.
 
@@ -673,9 +673,13 @@ class SeparableApprox(eqx.Module):
         ``size(A, 2)`` 2nd-kind Chebyshev points across the x-domain and ``y``
         the ``size(A, 1)`` points across the y-domain.  A single GE with
         complete pivoting (no adaptive resolution -- the matrix IS the grid)
-        gives the low-rank column/row value slices, which become Chebtech2
-        objects via ``vals2coeffs``.  Mirrors ``constructFromDouble`` in
+        gives the low-rank column/row value slices, which become source technology
+        objects via whole-matrix transforms; numeric lengths are retained.  Mirrors ``constructFromDouble`` in
         @chebfun2/constructor.m.
+
+        Numeric input retains source grid lengths by default. Explicit
+        ``chop=True`` retains the historical Python Chebyshev-only adapter.
+        Numeric scalars reset technology to Chebtech2 as in source recursion.
 
         Provenance
         ----------
@@ -684,70 +688,18 @@ class SeparableApprox(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
-        from chebfunjax.utils.transforms import vals2coeffs
+        from chebfunjax.chebfun2d._numeric_constructor import numeric_cdr, scalar_cdr
 
-        A = np.asarray(A, dtype=(np.complex128 if np.iscomplexobj(A)
-                                 else np.float64))
-        if A.ndim != 2:
-            raise ValueError(
-                f"SeparableApprox.from_values: A must be a 2-D matrix, got "
-                f"shape {A.shape}.")
-        xa, xb, ya, yb = (float(v) for v in domain)
-        ny, nx = A.shape
-        tech_x, tech_y = techs
-        x_pts = (np.array(_chebpts_phys(nx, xa, xb)) if tech_x == "cheb"
-                 else _trigpts_phys(nx, xa, xb))
-        y_pts = (np.array(_chebpts_phys(ny, ya, yb)) if tech_y == "cheb"
-                 else _trigpts_phys(ny, ya, yb))
-
-        # Zero matrix -> zero Chebfun2.
-        if float(np.max(np.abs(A))) == 0.0:
-            zero = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
-            return cls(cols=[zero], rows=[zero],
-                       pivots=jnp.array([1.0], dtype=jnp.float64),
-                       domain=(xa, xb, ya, yb), techs=techs)
-
-        abs_tol = _get_tol(x_pts, y_pts, A, (xa, xb, ya, yb), tol)
-
-        # GE with complete pivoting.  factor=1 => allow up to full rank
-        # (MATLAB passes factor=0 for numeric data, i.e. no rank throttle).
-        pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, _ = _complete_aca(
-            A, abs_tol, factor=1)
-        if row_vals_mat.ndim == 1:
-            row_vals_mat = row_vals_mat[np.newaxis, :]
-        r = len(pivot_vals)
-
-        def _mk(vals, tech):
-            is_c = np.iscomplexobj(vals)
-            v = jnp.asarray(vals, dtype=jnp.complex128 if is_c else jnp.float64)
-            if tech == "trig":
-                from chebfunjax.tech.trigtech import Trigtech
-
-                return Trigtech.from_values(v)
-            if is_c:
-                c = vals2coeffs(jnp.real(v)) + 1j * vals2coeffs(jnp.imag(v))
-            else:
-                c = vals2coeffs(v)
-            if chop and float(jnp.max(jnp.abs(v))) > 0:
-                c = c[:standard_chop(c, tol)]
-            return Chebtech2.from_coeffs(c)
-
-        cols_list, rows_list = [], []
-        for j in range(r):
-            cols_list.append(_mk(col_vals_mat[:, j], tech_y))
-            rows_list.append(_mk(row_vals_mat[j, :], tech_x))
-
-        return cls(
-            cols=cols_list,
-            rows=rows_list,
-            pivots=jnp.asarray(1.0 / pivot_vals),
-            domain=(xa, xb, ya, yb),
-            pivot_locations=tuple(
-                (float(x_pts[pivot_pos[j, 1]]), float(y_pts[pivot_pos[j, 0]]))
-                for j in range(r)
-            ),
-            techs=techs,
-        )
+        values = jnp.asarray(A)
+        values = values.astype(jnp.complex128 if jnp.iscomplexobj(values) else jnp.float64)
+        dom = tuple(float(v) for v in domain)
+        if values.size == 0:
+            return cls(cols=[], rows=[], pivots=jnp.empty((0,)), domain=dom, techs=techs)
+        if values.size == 1:
+            return cls(**scalar_cdr(values, dom))
+        if values.ndim != 2:
+            raise ValueError("SeparableApprox.from_values: A must be a 2-D matrix")
+        return cls(**numeric_cdr(values, dom, tol, techs, chop=chop))
 
     @classmethod
     def _construct_once(

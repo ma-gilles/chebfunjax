@@ -293,7 +293,7 @@ class Chebfun2(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: Optional[float] = None,
         trig: bool = False,
-        chop: bool = True,
+        chop: bool = False,
     ) -> "Chebfun2":
         """Construct a Chebfun2 from a matrix of values on a Chebyshev grid.
 
@@ -304,18 +304,25 @@ class Chebfun2(eqx.Module):
         values are data on a uniform grid over ``[xa, xb) x [ya, yb)``
         and the result is the bivariate trigonometric interpolant.
 
+        Numeric input retains source grid lengths by default. Explicit
+        ``chop=True`` retains the historical Python Chebyshev-only adapter.
+        Numeric scalars reset technology to Chebtech2 as in source recursion.
+
         Provenance
         ----------
         MATLAB source : @chebfun2/chebfun2.m, @chebfun2/constructor.m
             (constructFromDouble)
         Chebfun commit: 7574c77
         """
+        values = jnp.asarray(A)
+        if values.size == 0:
+            return cls.empty()
         kwargs: dict = dict(domain=domain)
         if tol is not None:
             kwargs["tol"] = tol
         if trig:
             kwargs["techs"] = ("trig", "trig")
-        return cls(approx=SeparableApprox.from_values(A, chop=chop, **kwargs))
+        return cls(approx=SeparableApprox.from_values(values, chop=chop, **kwargs))
 
     @classmethod
     def from_padua(
