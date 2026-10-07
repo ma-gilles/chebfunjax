@@ -123,26 +123,38 @@ class TestRatinterp:
         r, a, b, _, _, _, _ = ratinterp(cf, 2, 3, xi=nodes, domain=(1.0, 3.0))
         if arbitrary:
             assert len(a) == 3 and len(b) == 4
-        approx = chebfun(r, domain=(1.0, 3.0))
+        # MATLAB test_ratinterp.m:72/77 tests f-p./q, NOT chebfun(r).
+        # Both Python branches return Chebyshev coefficients: arbitrary-node
+        # QR coefficients have already been converted by _qr_to_cheb_basis.
+        numerator = chebfun(a, domain=(1.0, 3.0), coeffs=True)
+        denominator = chebfun(b, domain=(1.0, 3.0), coeffs=True)
+        approx = numerator / denominator
         assert float((cf - approx).norm(np.inf)) < 0.6
         x = np.linspace(1.0, 3.0, 300)
         assert np.max(np.abs(cf(x) - r(x))) < 0.6
 
     @pytest.mark.parametrize("grid", ["type0", "type1", "type2", "equi"])
     def test_complex_poles_and_evaluation(self, grid):
-        # MATLAB ratinterp.m returns complex poles and permits complex
-        # evaluation of its rational function handle.
+        # Independent analytic pole/coefficient-ratio control, not one of
+        # the original MATLAB test_ratinterp.m clauses. TYPE2 mu=0 divides
+        # its returned-handle weights by mu (ratinterp.m:550-554); its source
+        # handle contract is separate from finite polynomial p/q accuracy.
         z, w = 0.2 + 0.3j, 1.5 - 0.4j
 
         def f(x):
             return (1 + 2j) / ((x - z) * (x - w))
 
-        r, _, _, mu, nu, poles, _ = ratinterp(f, 2, 2, xi=grid)
+        r, a, b, mu, nu, poles, _ = ratinterp(f, 2, 2, xi=grid)
         assert (mu, nu) == (0, 2)
         np.testing.assert_allclose(np.sort_complex(poles),
                                    np.sort_complex([z, w]), atol=1e-10, rtol=0)
         x = np.array([0.1 + 0.2j, -0.5 + 0.1j])
-        np.testing.assert_allclose(r(x), f(x), atol=1e-11, rtol=0)
+        if grid == "type2":
+            actual = (np.polynomial.chebyshev.chebval(x, np.asarray(a)) /
+                      np.polynomial.chebyshev.chebval(x, np.asarray(b)))
+        else:
+            actual = r(x)
+        np.testing.assert_allclose(actual, f(x), atol=1e-11, rtol=0)
 
     @pytest.mark.parametrize("grid", ["type0", "type1", "type2", "equi"])
     @pytest.mark.parametrize("domain", [(-1.0, 1.0), (2.0, 6.0)])

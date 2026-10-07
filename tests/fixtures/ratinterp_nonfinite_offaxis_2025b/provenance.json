@@ -1,0 +1,22 @@
+{
+  "scope": "actual R2025b source stages and primitives; expected-only public outputs; explicit arithmetic replay only",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "archive_status": "verified full-source archives; expected-only captures",
+  "sha256": {
+    "all_stages.json": "455ad48d1311578614365914773780ac5a8b671d70a69fdd8bd7b6330fb8fba8",
+    "complex_primitives.json": "312422b0759615a131e6cffc8027ec71e6a51fa789e9f64f28484df6c1314555",
+    "type2_public.json": "6fd38397ccc8008448a692ad410260a125841d809e4d0828d4531c5a15f23d85",
+    "default_high_degree_public.json": "b59dcbf76e7d867d6c61f0c6feba3b235704b97189e7b55f918697087c7b58c6"
+  },
+  "matlab_release": "R2025b",
+  "archives": {
+    "all_stages.json": "ed461a70817206b26614020e4d3ca613b6f58430932b31ce509c3c030b40078f",
+    "complex_primitives.json": "ed461a70817206b26614020e4d3ca613b6f58430932b31ce509c3c030b40078f",
+    "type2_public.json": "3f6fffdba8be9cb7722cafe72a4c4841c3fc2aff993fe19cc0fed9a569280c7c",
+    "default_high_degree_public.json": "3f6fffdba8be9cb7722cafe72a4c4841c3fc2aff993fe19cc0fed9a569280c7c"
+  },
+  "capture_drivers": {
+    "ratinterp_type2_all_stages_matlab_prepare_v1_20261007/capture_all_stages.m": "06ebde685f04499ed6393cfa149eafe80a69b64c9410ae9f00ac3dad3203bb88",
+    "ratinterp_public_complex_mu0nu2_source_prepare_v1_20261006/capture_public_complex.m": "6f5b33aaca5443f81c48a037930f3839c467f195c3165009485634b29d89c70c"
+  }
+}

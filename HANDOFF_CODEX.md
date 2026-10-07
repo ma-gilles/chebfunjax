@@ -1,5 +1,47 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## TYPE2 rational source evaluation (2026-10-07; takes precedence below)
+
+The TYPE2 nonconstant-denominator handle now follows pinned `ratinterp.m`
+first-kind barycentric evaluation on Chebyshev second-kind nodes. It preserves
+source node bypasses, singleton weight behavior, complex component arithmetic
+and observed nonfinite outputs. New evaluator math is JAX-only; the existing
+fitting implementation is unchanged and is not claimed fully migrated to JAX.
+
+Four fresh serial CPU processes passed **197 tests**, with zero failures, errors
+or skips (45 source controls, 27 MATLAB ports, 80 rational utilities, 45
+trigonometric utilities). Actual runtime origins were checked at each group's
+start/end; all bound inputs stayed stable and no owned processes survived.
+Supervisor wall time was 409.96s; peak sampled summed RSS was 3,844,880 KiB.
+Configured full Ruff, changed-file F821, whitespace, provenance, NumPy import
+policy and required golden-reference presence passed.
+
+The nonsmooth MATLAB test now restores the original `f-p/q` norm. Three added
+Python analytic checks retain their original accuracy bounds on polynomial
+ratios, while separate source controls test returned-handle behavior. Actual
+MATLAB R2025b public calls confirm complex TYPE2 mu=0 returns NaN components
+and the high-degree real mu=0 case returns negative infinity; these outcomes
+are preserved rather than replaced by the ideal finite rational function.
+Source observations and fixture bytes were independently reviewed.
+
+Nonfinite complex adaptation is bounded to the observed scalar off-axis cases;
+axis/zero/nonfinite factors and general BLAS bit identity remain unqualified.
+Query JVP/VJP controls pass at finite continuous points; construction remains
+eager, and traced invalid inputs have an explicit NaN convention. Sequential
+real denominator accumulation preserves the observed cancellation control but
+has no general MATLAB reduction or performance-equivalence claim.
+
+Verified evidence reference layer SHA256:
+`1ca454634549ebb1e9497915784416b825ad3cd35151ad6f6d0eb8312f50bc76`.
+It is **not self-contained**: retain full base
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`
+and receipt `d3880112810f60a7945e1625dc9030de254bf1e6686111c755d8e050363dc826`.
+Actual MATLAB source archive hashes are recorded in the fixture provenance.
+New publication CI still requires verification. Full library/test, example,
+figure and performance parity remain incomplete; current backlog and evidence
+are in the parent shared scratch `CURRENT_GOAL_STATUS.md`.
+
+
 ## Coefficient-input complex dtype repair (2026-10-06; takes precedence below)
 
 `Chebfun.from_coeffs` no longer forces coefficients to float64 and discards their

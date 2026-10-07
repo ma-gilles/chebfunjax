@@ -213,9 +213,13 @@ class TestRatInterp:
         def f(x):
             return 1.0 / (x - 0.3)
         # Use a generous approximation that captures the pole structure
-        r_fn, _, _, mu, nu, _, _ = ratinterp(f, 8, 4)
+        r_fn, a, b, mu, nu, _, _ = ratinterp(f, 8, 4)
         x_test = np.linspace(-0.9, 0.2, 15)  # avoid x near 0.3
-        npt.assert_allclose(r_fn(x_test), f(x_test), rtol=1e-5)
+        # Actual MATLAB public capture has mu=0,nu=1 and nonfinite r.
+        # Retain this independent accuracy bound for the polynomial ratio.
+        actual = (np.polynomial.chebyshev.chebval(x_test, np.asarray(a)) /
+                  np.polynomial.chebyshev.chebval(x_test, np.asarray(b)))
+        npt.assert_allclose(actual, f(x_test), rtol=1e-5)
 
 
 # ============================================================================

@@ -1,0 +1,12 @@
+{
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_release": "R2025b",
+  "scope": "copied source singleton helpers; not public fit",
+  "source_archive_sha256": "a194eab80cf03e35785665034e014d1d507aaa10320be3b9e0d9386891bcbae0",
+  "files": {
+    "explicit_zero_imag.json": "5496be3d5190d7d6af122acb820865ae138073f0b10487cbdba5b160a3b7b042",
+    "genuine_complex.json": "d86c48a4bebae2631a096a5fc757e7a188c2338ced0675ffcb848feab5f8e6b7",
+    "pure_imaginary.json": "0005a68826767d4e6bf1a547b443ea72aea759b420836c575f97b39501763320",
+    "tiny_imaginary.json": "6df31bf84e61b5872e101747efe6f18e0abb6f38b2c98e8f34cc6fe5c88f384c"
+  }
+}

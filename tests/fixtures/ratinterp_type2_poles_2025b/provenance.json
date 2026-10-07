@@ -1,0 +1,17 @@
+{
+  "ready": true,
+  "archive_sha256": "f0151eb25303268344ca78058c3597c3fc7e0eab87f31c9761f72933bde5b728",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_release": "R2025b",
+  "scope": "copied helpers, expected-only",
+  "files": {
+    "pure_imag_query1.json": "350b240b85c82eb9eeefcedb132bcab055f96e7503d1edd959cf036c9c46eeaa",
+    "pure_imag_query2.json": "2837521d2eeea1945364c1d48cbf0f27a2d0a4444f3bfcd614cc7d5cc3eeea0f",
+    "explicit_real_query2.json": "36da6dc47bf58dba9657812d0166b11378b63cb21d3f2267d548a6735d663ed4",
+    "explicit_real_query1.json": "c5fbc96b2f7f2da1e8be4814ee53f22251ff58dfb7cae583bd748f1ee425fb93",
+    "explicit_zero_query1.json": "f3a4b13f97281983c8d4c163c74ad9309c13134347c51e781f53022b345b9244",
+    "genuine_query1.json": "92150d078ff4bc9b6ca032a611169d38c8474feca6b50409b9c1d651967ea661",
+    "explicit_zero_query2.json": "b20f5595e40b00de8b1913e4cd91e093a6327e47d7f8be97a57774cb281a12aa",
+    "genuine_query2.json": "6fa4c7c52641db2073920e6ed25a84122d0de870b0daade8e0705c162f6c7988"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "matlab_release": "R2025b",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture_scope": "copied source local helpers; expected outputs only",
+  "archive_sha256": "b0fd61e4b4e6d1b9e8612f92aac8f958417ad92f782d2d9bd8d5b19199df94c5",
+  "fixture_sha256": {
+    "complex_scalar.json": "90b7ec4afb3f0f98c5533f3ab66cf89cfc37a385b41605e6f19d7ce40a64f963",
+    "complex_matrix.json": "0aeeb1e154b9aa12080d1b3f45e3b1c84fe0d8e0f5328c44d3afbc2d4b8fabbc",
+    "complex_vector.json": "edcd7fec9e01d091d9d80a462003844bf9b7a67c60fb60f677ae49beaf9c1317"
+  }
+}

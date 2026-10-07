@@ -935,6 +935,11 @@ def _construct_rat_approx(xi_type, R_qr, a, b, mu, nu, a_dom, b_dom):
     a = jnp.asarray(a)
     b = jnp.asarray(b)
 
+    if xi_type.upper() == "TYPE2" and nu > 0:
+        from chebfunjax.utils._ratbary import _source_type2_rational_handle
+
+        return _source_type2_rational_handle(a, b, (a_dom, b_dom))
+
     if xi_type.upper().startswith("TYPE"):
         ch = xi_type[4]
         if ch == "0":  # Roots of unity — monomial polynomial in reference x

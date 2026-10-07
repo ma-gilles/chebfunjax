@@ -120,7 +120,7 @@ def test_source_all_poles_retains_small_nonzero_imaginary_part(grid):
     # literal MATLAB check then marks both parities and drops the denominator.
     # Use eight samples to test the intended complex-pole contract. Keep the
     # original 100EPS accuracy bound unchanged.
-    r, _, _, mu, nu, poles, _ = ratinterp(f, 0, 1, NN=8, xi=grid)
+    r, a, b, mu, nu, poles, _ = ratinterp(f, 0, 1, NN=8, xi=grid)
     assert (mu, nu) == (0, 1)
     pole = np.asarray(poles).reshape(-1)[0]
     bound = 100 * np.finfo(float).eps
@@ -130,7 +130,17 @@ def test_source_all_poles_retains_small_nonzero_imaginary_part(grid):
     x = 0.35 + 0.25j
     expected = 1.0 / (x - (0.2 + 1e-12j))
     scale = max(1.0, abs(expected))
-    np.testing.assert_allclose(r(x), expected, atol=100 * np.finfo(float).eps * scale, rtol=0)
+    if grid == "type2":
+        # Source TYPE2 mu=0 returned r divides its weights by mu and is not
+        # the idealized finite p/q evaluator. Preserve this numerical bound
+        # as a polynomial-ratio check; literal returned-handle node/nonfinite
+        # behavior is tested separately against pinned source diagnostics.
+        from chebfunjax.utils.ratapprox import _eval_cheb_poly
+
+        actual = _eval_cheb_poly(a, x) / _eval_cheb_poly(b, x)
+    else:
+        actual = r(x)
+    np.testing.assert_allclose(actual, expected, atol=100 * np.finfo(float).eps * scale, rtol=0)
 
 
 @pytest.mark.parametrize("odd", [False, True])
