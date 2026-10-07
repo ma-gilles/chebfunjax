@@ -5,8 +5,10 @@ These follow the MATLAB argument conventions: positional numbers are
 ``lambda`` (wavelength) then ``n`` (number of columns), a vector is the
 domain, and the strings ``'big'``/``'norm'``, ``'trig'`` and
 ``'complex'`` are flags.  Random numbers come from NumPy's global
-generator (``numpy.random.seed(k)`` plays the role of MATLAB's
+generator for the legacy non-randnfun helpers (``numpy.random.seed(k)``
+plays the role of MATLAB's
 ``rng(k)``; the streams differ, so only statistics are reproducible).
+The randnfun entry point now uses the shared JAX engine and key/seed API.
 
 Provenance
 ----------
@@ -34,34 +36,6 @@ def _randn_matlab(rows: int, cols: int) -> np.ndarray:
     return np.random.randn(cols, rows).T
 
 
-def _parse_randnfun(args):
-    lam, n, dom = None, None, None
-    makebig = trig = cmplx = False
-    for v in args:
-        if isinstance(v, str):
-            key = v.lower()
-            if key[:1] in ("n", "b"):
-                makebig = True
-            elif key[:1] == "t":
-                trig = True
-            elif key[:1] == "c":
-                cmplx = True
-            else:
-                raise ValueError("CHEBFUN:randnfun: Unrecognized string "
-                                 "input")
-        elif np.ndim(v) > 0 and np.size(v) > 1:
-            dom = [float(t) for t in np.ravel(np.asarray(v, dtype=float))]
-        elif lam is None:
-            lam = float(v)
-        else:
-            n = int(v)
-    if lam is None:
-        lam = 1.0
-    if n is None:
-        n = 1
-    if dom is None:
-        dom = [-1.0, 1.0]
-    return lam, n, dom, makebig, trig, cmplx
 
 
 def _to_chebfun_matrix(c, dom, trig):
@@ -70,58 +44,19 @@ def _to_chebfun_matrix(c, dom, trig):
                    domain=(dom[0], dom[-1]), trig=trig, coeffs=True)
 
 
-def randnfun(*args):
-    """Smooth random function(s) (MATLAB ``randnfun``): a finite
-    Fourier-Wiener series with wavelength parameter ``lambda`` on the
-    domain, restricted from a periodic function on a slightly larger
-    interval in the non-periodic case.  Flags: ``'trig'`` (periodic),
-    ``'big'``/``'norm'`` (white-noise scaling ``1/sqrt(L)``),
-    ``'complex'``.  ``lambda = inf`` gives a random constant.
+def randnfun(*args, **kwargs):
+    """Construct the source-shaped random Chebfun through the shared JAX engine.
+
+    NumPy global seeding no longer controls this route. Use key= or seed= for
+    explicit JAX reproducibility; default calls advance a private JAX stream.
 
     Provenance
     ----------
     MATLAB source : randnfun.m
-    Chebfun commit: 7574c77
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    lam, n, dom, makebig, trig, cmplx = _parse_randnfun(args)
-    L = dom[-1] - dom[0]
-    if trig:
-        m = int(math.floor(L / lam))
-        c = _randn_matlab(2 * n, 2 * m + 1)                 # real, var 1
-        ii = list(range(2 * m, -1, -2)) + list(range(1, 2 * m + 1, 2))
-        c = c[:, ii].T
-        c = (c[:, :n] + 1j * c[:, n:2 * n]) / math.sqrt(2)   # complex, var 1
-        if not cmplx:
-            c = (c + np.conj(c[::-1, :])) / math.sqrt(2)     # real, var 1
-        if makebig:
-            c = c / math.sqrt(L)
-        else:
-            c = c / math.sqrt(2 * m + 1)
-        return _to_chebfun_matrix(c, dom, True)
-    # Non-periodic: periodic case on a larger interval, then restrict.
-    dx = max(0.2, 2 * lam / L)
-    dom2 = [dom[0], dom[0] + (1 + dx) * L]
-    m = int(round(L / lam)) if math.isfinite(lam) else 0
-    if not math.isfinite(lam):
-        c = float(np.random.randn())
-        if cmplx:
-            c = (c + 1j * float(np.random.randn())) / math.sqrt(2)
-        if makebig:
-            c = c / math.sqrt(dom2[1] - dom2[0])
-        cols = [chebfun(lambda x, _c=c: jnp.full_like(x, _c, dtype=(
-            jnp.complex128 if cmplx else jnp.float64)), domain=tuple(dom))
-            for _ in range(n)]
-        if n == 1:
-            return cols[0]
-        return chebfun(lambda x, _cs=cols: jnp.stack(
-            [g(x) for g in _cs], axis=-1), domain=tuple(dom))
-    flags = ["trig"] + (["big"] if makebig else []) + (
-        ["complex"] if cmplx else [])
-    f = randnfun(lam, n, dom2, *flags)
-    x = jnp.asarray(chebpts_ab(5 * m + 20, dom[0], dom[-1]))
-    vals = jnp.asarray(f(x))
-    g = chebfun(vals, domain=(dom[0], dom[-1]))
-    return g.simplify(1e-13)
+    from chebfunjax.utils._randnfun import randnfun as source_randnfun
+    return source_randnfun(*args, **kwargs)
 
 
 def _parse_smoothie(args):

@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Shared JAX randnfun construction (2026-10-07)
+
+The source-shaped top-level, utils.random and chebfun1d.randfuns entry points now
+share one JAX engine, including periodic/nonperiodic normalization, full-coefficient
+endpoint values, common-column chopping, NaN defaults and zero-count/Inf ordering.
+Explicit keys/seeds are repeatable; no-key calls advance an entropy-seeded stream.
+The explicitly legacy utils.randnfun convenience defaults are retained.
+NumPy random.seed no longer controls the production randnfun stream.
+
+CPU qualification:49 passed in249.84s, stable inputs, exact collection/JUnit/runtime
+origins and no survivors. This covers44 construction/API controls (both JIT modes),
+the original23 predicates as one aggregate, three convenience tests and an actual
+inpainting consumer. The aggregate deliberately injects its historical primitive
+normal draws; its assertions are unchanged. It does not establish MATLAB RNG-stream
+identity. Separate public tests exercise actual JAX key/seed/default behavior.
+
+Historical random example pages still need stream migration and actual reruns.
+Malformed-input identifiers, empty-domain metadata and MATLAB normal-transform
+identity remain open; returned-object consumers retain their existing backends.
+No whole-construction JIT or full random-example parity claim is made.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive randnfun_public49_reference_v4_20261007.zip SHA256
+9bb8ff45b583971dfd92215e8571dd182a13676334c99b9f7d98ed706b368b70
+requires corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+Fresh CI and the full library/test/page/figure/performance goal remain unresolved.
+
 ## CF public source behavior and minimax consumer (2026-10-07)
 
 CF public source package: 18 literal/API tests and separate exact minimax clause2 consumer passed, guards stable/no survivors. All eight pinned MATLAB test_cf clauses retain original inputs/norms/bounds; public orientation, complex warning, endpoint and p/q contracts covered. New methods contain no oracle answer arrays or source eigenpair substitutions.

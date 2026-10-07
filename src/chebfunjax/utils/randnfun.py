@@ -1,78 +1,26 @@
-"""Smooth random functions (randnfun / randnfuntrig).
+"""Compatibility interface: the historical periodic JAX-key convenience API.
 
-A finite Fourier--Wiener series: a band-limited random function with a
-prescribed wavelength ``lam``, normalized to roughly unit amplitude.
-Deterministic given a JAX PRNG ``key``.
-
-Translated (spirit of) MATLAB Chebfun ``randnfun.m`` (commit 7574c77).
-Original: Copyright 2017 by The University of Oxford and The Chebfun
-Developers.  Added by Claude Opus 4.8.
+The default wavelength .2 and implicit periodic option are retained here only.
+Use chebfunjax.randnfun for MATLAB defaults (lambda1, nonperiodic, [-1,1]).
+All three interfaces share construction equations and normalization.
 
 Provenance
 ----------
-MATLAB source : randnfun.m (periodic / trig branch)
-Chebfun commit: 7574c77
+MATLAB source : randnfun.m (explicit trig option)
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 """
-
 from __future__ import annotations
 
-import jax
-import jax.numpy as jnp
 
-__all__ = ["randnfun"]
+def randnfun(lam=0.2, domain=(-1.0, 1.0), *, key=None, seed=None,
+             big=False, cmplx=False):
+    """Periodic compatibility wrapper; no fixed default realization.
 
-
-def randnfun(lam: float = 0.2, domain=(-1.0, 1.0), *, key=None,
-             big: bool = False, cmplx: bool = False):
-    """Smooth random (band-limited) periodic function.
-
-    Parameters
+    Provenance
     ----------
-    lam : float, default 0.2
-        Approximate wavelength of the random oscillations.
-    domain : (float, float), default (-1, 1)
-        Interval.
-    key : jax PRNGKey, optional
-        Randomness source.  If None, a fixed key is used (deterministic).
-    big : bool, default False
-        MATLAB 'big': normalize by 1/sqrt(L) instead of unit pointwise
-        variance, the Fourier-Wiener scaling for random-walk integrals.
-    cmplx : bool, default False
-        MATLAB 'complex': complex-valued random function.
-
-    Returns
-    -------
-    Chebfun (periodic / trig).
+    MATLAB source : randnfun.m (explicit trig option)
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun
-
-    a, b = float(domain[0]), float(domain[1])
-    length = b - a
-    m = max(1, int(jnp.floor(length / lam)))
-    if key is None:
-        key = jax.random.PRNGKey(0)
-    k1, k2, k3, k4 = jax.random.split(key, 4)
-    # real Fourier coefficients for cos/sin modes 1..m plus a mean term,
-    # normalized so E[f^2] ~ 1 (or by 1/sqrt(L) for 'big').
-    acoef = jax.random.normal(k1, (m + 1,), dtype=jnp.float64)
-    bcoef = jax.random.normal(k2, (m,), dtype=jnp.float64)
-    if cmplx:
-        acoef = (acoef + 1j * jax.random.normal(
-            k3, (m + 1,), dtype=jnp.float64)) / jnp.sqrt(2.0)
-        bcoef = (bcoef + 1j * jax.random.normal(
-            k4, (m,), dtype=jnp.float64)) / jnp.sqrt(2.0)
-    scale = (1.0 / jnp.sqrt(length) if big
-             else 1.0 / jnp.sqrt(m + 0.5))
-    acoef = acoef * scale
-    bcoef = bcoef * scale
-    ks = jnp.arange(1, m + 1, dtype=jnp.float64)
-
-    def f(x):
-        theta = 2.0 * jnp.pi * (jnp.asarray(x) - a) / length
-        out = acoef[0] / jnp.sqrt(2.0)
-        out = out + jnp.sum(
-            acoef[1:] * jnp.cos(ks * theta[..., None])
-            + bcoef * jnp.sin(ks * theta[..., None]), axis=-1)
-        return out
-
-    return chebfun(f, domain=(a, b), trig=True)
+    from chebfunjax.utils._randnfun import randnfun as source_randnfun
+    return source_randnfun(lam, domain, 'trig', key=key, seed=seed,
+                          big=big, cmplx=cmplx)

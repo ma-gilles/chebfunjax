@@ -1,14 +1,13 @@
-"""Port of MATLAB Chebfun tests/misc/test_randnfun.m (Fable 5).
+"""Original23 source predicates on a deliberately injected normal stream.
 
-MATLAB's ``rng(k)`` is ``numpy.random.seed(...)`` here, with MATLAB's
-``rng(0)`` mapped to the Mersenne-Twister seed 5489 it corresponds to
-(the normal streams still differ, so the assertions are the statistical
-ones MATLAB makes).  Array-valued outputs (``n > 1`` columns) are array-valued
-Chebfuns; ``cov(A)`` is the column covariance via a Quasimatrix.
+The test-only fixture retains the historical NumPy stream and all existing
+assertions/bounds. It qualifies deterministic source construction for matched
+primitive draws, not MATLAB normal-stream identity. Public key/seed and advancing
+default behavior are tested separately. Production never reads np.random.seed.
 
 Provenance
 ----------
-MATLAB source : tests/misc/test_randnfun.m
+MATLAB source : tests/misc/test_randnfun.m, randnfun.m
 Chebfun commit: 7574c77
 """
 
@@ -17,6 +16,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.chebfun1d.linalg import Quasimatrix
 from chebfunjax.chebfun1d.randfuns import randnfun
@@ -34,6 +34,15 @@ def _n(f):
 
 
 class TestMiscRandnfun:
+    @pytest.fixture(autouse=True)
+    def _injected_legacy_test_stream(self, monkeypatch):
+        # Diagnostic construction qualification only: preserve this test's
+        # historical NumPy seed/draw stream. Production does not use NumPy RNG.
+        from chebfunjax.utils import _randnfun
+        monkeypatch.setattr(_randnfun, '_normal_draw',
+                            lambda key, rows, columns:
+                            jnp.asarray(np.random.randn(columns, rows).T))
+
     def test_all_matlab_assertions(self):
         np.random.seed(5489)
         f = randnfun(.01)
