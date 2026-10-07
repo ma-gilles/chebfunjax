@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Localization page and reference-size figures (2026-10-07)
+
+The standalone Localization script now follows the recovered 2016 publisher
+geometry: both figures are610x276 at5630 pixels/metre, with source line/marker
+sizes, axes/ticks and unclipped boundary markers. All six printed-output blocks
+match the cached chebfun.org page exactly. The two plotted pivot arrays match
+MATLAB source captures bit-for-bit (field cases2/4, ranks14/17).
+
+The final CPU page run and independent artifact audit passed:60.58s, sampled
+summed RSS1,095,976KiB, stable runtime inputs and no surviving processes.
+Generated Markdown is unchanged. Renderer-specific antialiasing differs from
+MATLAB; scientific data, artists, labels, layout and reference sizes were checked.
+The publication script changes only two checkpoint metadata keys after the run
+(`source_head` to `qualification_baseline_head`); normalized AST comparison
+confirms numerical and plot code is unchanged. The old home-checkout edits are
+preserved; this verified script and freshly generated figures supersede its
+Localization candidate in shared main.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Full-closure archive `localization_v8_reference_v2_20261007.zip`, SHA256
+`bd210fc74055297900aa8a1d25dc4975c2c482471d6624780f78329165c063d7`,
+contains53,379 payloads and requires verified full base
+`corrected_runtime_union_v3_full_source_20261006.zip`, SHA256
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+The earlier246-payload V1 archive is partial-scope and is not the full closure.
+Other pages, literal source tests, performance and latest-main green CI remain
+open; P124 sphere-vector CI had40passes and one900s Helmholtz timeout.
+
 ## Sphere rank-one multiplication regression repair (2026-10-07)
 
 Rank-one multiplication now follows pinned spherefun/times.m: masked CDR scaling
