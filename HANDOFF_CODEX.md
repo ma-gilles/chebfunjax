@@ -1,5 +1,46 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Initial-guess source repair (2026-10-06; takes precedence below)
+
+A narrow correction on published P113 is CPU-qualified: **17 passed**, no
+failures, errors or skips, 135.802s driver. This covers all seven original
+`tests/chebop/test_linearize_init_fails.m` clauses, eight independent error
+boundary controls and two valid coupled-system regressions. All 19,989 frozen
+inputs stayed unchanged; no owned process survived. Six constructor warnings
+remain. These tests establish this package, not full-suite parity.
+
+The old clause1 sampled maximum was an incorrect port. The original uses
+continuous L2 at the unchanged 1e-10 bound. Fresh pinned MATLAB passes all
+seven source clauses: clause1 L2 is1.552e-11, while the same sampled maximum
+1.196e-10 also fails on MATLAB. Source clause6 keeps the chebmatrix Frobenius
+norm and original 1e-8 bound. Missing clauses3/6/7 are restored.
+
+The system solver translates only the two exact source domain error
+identifiers during initial operator evaluation. Boundary callbacks, unrelated
+errors and later finite-difference probes retain their errors. MATLAB maps
+these IDs on each linearize invocation; later FD/AD equivalence is unqualified.
+
+Full-source qualification archive SHA256:
+`3b32dab30306c7b259248865473e9410b1a1ef32f885f17373d1b33c44ed29f8`.
+A separate 16-case candidate gate, including the actual CI mirror, passed;
+its archive is `0ffd5c23112c20fd09a0f59f0bea33aa4d39b403410ebc3cbb8eabacc6682f5a`.
+The fresh MATLAB observer exits1 during later metadata/JSON capture; its
+seven-clause source result and partial numeric captures are preserved in
+`bcba6925728f7f1c98d14d61881ef27d1957edf54fd96a144c64ac0a45a1a747`.
+Do not label that observer a completed batch pass.
+
+This publication excludes the unqualified adaptive/complex operator candidate.
+Its default cubic accuracy failure remains open, as does one variable-coefficient
+equation residual in a same-dimension coefficient diagnostic. Original BC10 and
+23 complex functional controls pass separately; full candidate acceptance is
+pending. P113 CI failed only the duplicate incorrect port assertion; the new
+publication's CI is pending. All library/test, 322-page/prose/output/figure and
+performance parity remains active and incomplete.
+
+Use shared scratch, CPU only, serial heavy tests, at most two helpers,
+explicit staging, ordinary SSH push and the GPT-6 trailer. Current evidence
+and next steps are in parent `CURRENT_GOAL_STATUS.md`.
+
 ## Qualified CPU package (2026-10-06; takes precedence below)
 
 P113 operator correction is qualified on CPU: **16 focused tests** pass in

@@ -3176,9 +3176,30 @@ class Chebop:
                 g_slots.append((i % m) * n + off_l)
                 off_l += 1
 
-        def residual(U):
+        def residual(U, *, initial_operator_evaluation=False):
             us = to_funs(U)
-            out = self._call_op(x_fun, us)
+            try:
+                out = self._call_op(x_fun, us)
+            except ValueError as exc:
+                # MATLAB @chebop/linearize.m:144-163 translates these IDs
+                # during operator evaluation on each linearize invocation.
+                # This FD system adapter covers its initial evaluation only;
+                # it does not claim later FD/AD linearization equivalence.
+                # BC callbacks and unrelated errors remain outside this scope.
+                identifiers = (
+                    "CHEBFUN:CHEBTECH:extrapolate:nansInfs",
+                    "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun",
+                )
+                message = str(exc)
+                source_initial_failure = any(
+                    message == ident or message.startswith(ident + ":")
+                    for ident in identifiers)
+                if initial_operator_evaluation and source_initial_failure:
+                    raise ValueError(
+                        "CHEBFUN:CHEBOP:linearize:invalidInitialGuess: "
+                        "the operator cannot be evaluated at the initial "
+                        "guess; supply N.init.") from exc
+                raise
             if not isinstance(out, (list, tuple)):
                 out = [out]
             # An unknown scalar PARAMETER is a trailing argument for
@@ -3243,7 +3264,7 @@ class Chebop:
         # plots it against the iteration number.  Only the scalar solver
         # recorded it, so a SYSTEM came back with an empty history.
         sys_delta: list[float] = []
-        R = residual(U)
+        R = residual(U, initial_operator_evaluation=True)
         for _it in range(max_iter):
             nrm = _np.max(_np.abs(R))
             if nrm < 1e-11:
