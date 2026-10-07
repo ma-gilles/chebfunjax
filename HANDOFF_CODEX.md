@@ -1,5 +1,35 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Hermite gradual-underflow and source normalization (2026-10-07)
+
+Hermite asymptotic weights and barycentric factors retain representable tiny
+binary64 values through the source separately rounded normalization stages.
+JAX bit-level arithmetic handles gradual underflow; mapped division explicitly
+broadcasts before rounding, with an explicit JVP rule. Source odd-center
+behavior is preserved rather than replaced by an exact-zero assertion.
+
+The installed-library test package passed 80 CPU cases (64.32s), including
+18 unchanged MATLAB-port cases, exact rounding controls, mapped division and
+public normalization. Collection, JUnit and runtime-origin checks agree; input
+hashes were stable and no owned processes survived. Four source-equivalent
+high-degree runs (default and ASY at n=10,000 and 100,000) passed finite/order/
+symmetry and original second-moment checks, with no captured MATLAB nonzero
+weights or barycentric values lost. Default and ASY outputs match at each size.
+
+Maximum absolute differences from captured MATLAB at n=100,000 are
+2.984e-13 for nodes, 8.344e-16 for weights and 9.637e-14 for barycentric values.
+These are numerical comparisons, not bitwise MATLAB parity. Timings are
+unpaired, and the first high-degree arm overlapped other work; no isolated
+speed claim is made. Subnormal automatic differentiation remains unqualified.
+
+Evidence in the shared 20261005 root: hermite_v9_root_resume_cpu_20261007,
+hermite_high_n_integrated_v8_cpu_20261007 and
+hermite_v9_combined_archive_context_20261007_2xt6bmcg. Verified archive
+hermite80_highn_reference_v9_20261007.zip SHA256
+e7b735b0e1cdd17cf4ce6a0750b9a537ede4369c2b5c3f00a607586d1fb5fe58
+requires the full-source base archive identified below. Full library/example
+parity and latest-main green CI remain open.
+
 ## Numeric constructor complex infinity follow-up (2026-10-07)
 
 The JAX numeric constructor now preserves MATLAB magnitude infinity precedence

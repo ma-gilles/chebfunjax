@@ -1,0 +1,30 @@
+{
+  "original_inventory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_publication_inventory_20261007_alni3rja/inventory.json",
+  "fixtures": [
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_gradual_full_prepare_v8_20261007/tests/fixture.npz",
+      "sha256": "8a58693763843bc4f6395cd73c7ac4b7811b565d54142a3acb535510245b0fe2"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_gradual_full_prepare_v8_20261007/tests/source_public_normalization.json",
+      "sha256": "4eab857dcb6894a5e6ff18c286df0a52cad3ca49db6cf258cbc2a16e97aa2be9"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_gradual_full_v8_tests_cpu_20261007/artifacts/source_barycentric_fixture.npz",
+      "sha256": "8a58693763843bc4f6395cd73c7ac4b7811b565d54142a3acb535510245b0fe2"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_gradual_full_v8_tests_cpu_20261007/artifacts/source_barycentric_fixture.json",
+      "sha256": "6f9bc20d0d71053bda188a713e71d47e202d24d5cac34e4b141d546aca804650"
+    }
+  ],
+  "barycentric_provenance": {
+    "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_tail_stage_matlab_v1_cpu_20261007/artifacts/stages.mat",
+    "sha256": "62a691ea3d3ae0a0452cc5194ecb68f73e0effe3f894bb153ba9b73a2feee1d0",
+    "normalizer": "exact maximum magnitude-word selection from captured raw_v",
+    "exp_numerator_captured": false,
+    "scope": "n10000 even reflection and normalization only"
+  },
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Expected-only captured MATLAB fixtures; no reconstruction or altered tolerance."
+}

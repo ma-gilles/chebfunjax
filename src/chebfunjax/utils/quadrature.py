@@ -77,7 +77,14 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
 
 
 def chebpts_ab(n: int, a: float, b: float, kind: int = 2) -> jnp.ndarray:
-    """Chebyshev points on the interval [a, b]."""
+    """Chebyshev points on the interval [a, b].
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    """
     x = chebpts(n, kind)
     return 0.5 * ((b - a) * x + (b + a))
 
@@ -142,25 +149,31 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
 def gauss_cheb_weights(n: int) -> jnp.ndarray:
     """Gauss-Chebyshev (1st-kind) quadrature weights ``w_k = pi/n``.
 
-    These integrate ``f(x) / sqrt(1 - x^2)`` over [-1, 1] exactly for
-    polynomials ``f`` of degree ``<= 2n - 1`` on the 1st-kind Chebyshev
-    nodes.  This is the classical Gauss-Chebyshev rule and is distinct from
-    Fejér's first rule (:func:`chebweights` with ``kind=1``), which targets
-    the plain ``dx`` integral.
+These integrate ``f(x) / sqrt(1 - x^2)`` over [-1, 1] exactly for
+polynomials ``f`` of degree ``<= 2n - 1`` on the 1st-kind Chebyshev
+nodes.  This is the classical Gauss-Chebyshev rule and is distinct from
+Fejér's first rule (:func:`chebweights` with ``kind=1``), which targets
+the plain ``dx`` integral.
 
-    Parameters
+Parameters
+----------
+n : int
+    Number of points.
+
+Returns
+-------
+w : jnp.ndarray, shape (n,)
+    All entries equal to ``pi / n`` (empty for ``n == 0``).
+
+See Also
+--------
+chebpts, chebweights
+
+    Provenance
     ----------
-    n : int
-        Number of points.
-
-    Returns
-    -------
-    w : jnp.ndarray, shape (n,)
-        All entries equal to ``pi / n`` (empty for ``n == 0``).
-
-    See Also
-    --------
-    chebpts, chebweights
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
     """
     if n == 0:
         return jnp.array([], dtype=jnp.float64)
@@ -1404,7 +1417,14 @@ def legpts(
 
 def jacpts(n: int, a: float, b: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
     """See ``_jacpts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
+normalized barycentric weights (MATLAB's third output).
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    """
     out = _jacpts_core(n, a, b, interval)
     if not bary:
         return out
@@ -1501,9 +1521,21 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
         v = jnp.sqrt(w / jnp.max(w)) * jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
 
     # MATLAB normalizes each method's weights, then applies the prob scaling.
-    w = (jnp.sqrt(jnp.pi) / jnp.sum(w)) * w
+    # Preserve both source normalization stages. The ASY representation keeps
+    # tiny weights as binary64 bits, so this second multiplication must also
+    # preserve gradual underflow (hermpts.m:169-174, Chebfun 7574c77).
+    asy_route = n > 1 and (method == 'asy' or (method == 'default' and n >= 200))
+    if asy_route:
+        from chebfunjax.utils._gradual import gradual_positive_multiply
+        w = gradual_positive_multiply(w, jnp.sqrt(jnp.pi) / jnp.sum(w))
+    else:
+        w = (jnp.sqrt(jnp.pi) / jnp.sum(w)) * w
     if kind == 'prob':
-        x, w = x * jnp.sqrt(2.0), w * jnp.sqrt(2.0)
+        x = x * jnp.sqrt(2.0)
+        if asy_route:
+            w = gradual_positive_multiply(w, jnp.sqrt(2.0))
+        else:
+            w = w * jnp.sqrt(2.0)
     return (x, w, v) if bary else (x, w)
 
 def lagpts(n: int, alpha: float = 0.0,
@@ -1580,7 +1612,14 @@ def lagpts(n: int, alpha: float = 0.0,
 
 def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
     """See ``_ultrapts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
+normalized barycentric weights (MATLAB's third output).
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    """
     out = _ultrapts_core(n, lam, interval)
     if not bary:
         return out
@@ -1590,7 +1629,14 @@ def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *,
 
 def radaupts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
     """See ``_radaupts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
+normalized barycentric weights (MATLAB's third output).
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    """
     out = _radaupts_core(n, alp, bet)
     if not bary:
         return out
@@ -1600,7 +1646,14 @@ def radaupts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
 
 def lobpts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
     """See ``_lobpts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
+normalized barycentric weights (MATLAB's third output).
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    """
     out = _lobpts_core(n, alp, bet)
     if not bary:
         return out

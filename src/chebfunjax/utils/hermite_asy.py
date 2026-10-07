@@ -19,6 +19,16 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
+from chebfunjax.utils._gradual import (
+    gradual_exp_negative,
+    gradual_positive_divide,
+    gradual_positive_multiply,
+)
+from chebfunjax.utils._signed_gradual import (
+    flip_sign_bits,
+    source_barycentric_half,
+    source_barycentric_normalize,
+)
 from chebfunjax.utils.airy import _airy_negative
 from chebfunjax.utils.hermite_rec import _initial_guesses
 
@@ -158,8 +168,8 @@ def _hermpts_asy(n: int):
     t0 = jnp.cos(theta)
     x_half = jnp.sqrt(musq) * t0
     ders = x_half * val + jnp.sqrt(2.0) * dval
-    w_half = jnp.exp(-(x_half**2)) / ders**2
-    v_half = jnp.exp(-(x_half**2) / 2.0) / ders
+    w_half = gradual_positive_divide(gradual_exp_negative(-(x_half**2)), ders**2)
+    v_half = source_barycentric_half(x_half, ders)
 
     if n % 2:
         x = jnp.concatenate((-x_half[::-1], x_half[1:]))
@@ -168,8 +178,8 @@ def _hermpts_asy(n: int):
     else:
         x = jnp.concatenate((-x_half[::-1], x_half))
         w = jnp.concatenate((w_half[::-1], w_half))
-        v = jnp.concatenate((v_half[::-1], -v_half))
+        v = jnp.concatenate((v_half[::-1], flip_sign_bits(v_half)))
 
-    w = w * (jnp.sqrt(jnp.pi) / jnp.sum(w))
-    v = v / jnp.max(jnp.abs(v))
+    w = gradual_positive_multiply(w, jnp.sqrt(jnp.pi) / jnp.sum(w))
+    v = source_barycentric_normalize(v)
     return x, w, v
