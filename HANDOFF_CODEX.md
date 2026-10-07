@@ -1,5 +1,26 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## CF public source behavior and minimax consumer (2026-10-07)
+
+CF public source package: 18 literal/API tests and separate exact minimax clause2 consumer passed, guards stable/no survivors. All eight pinned MATLAB test_cf clauses retain original inputs/norms/bounds; public orientation, complex warning, endpoint and p/q contracts covered. New methods contain no oracle answer arrays or source eigenpair substitutions.
+
+The additional strict16 coefficient-golden diagnostic remains15passed/1failed (exp(4,3)); its assertions, fixtures and bound are unchanged. It is not a pinned MATLAB source assertion. Same-input eigenswap isolates the coefficient discrepancy mainly to the eigenvector; high-precision diagnosis does not justify degrading the native eigenpair. Exact Fraction certificate bounds the stored native/source rational ratios uniformly by <2.496002668e-15 on[-1,1], not general exp error or floating public evaluation. Functional/public acceptance is documented separately from unresolved coefficient matching.
+
+Large Hankel>1024 LOBPCG route is enabled by existing dispatch but remains unqualified; documentation now says so. Other explicit unsupported branches, non-Chebyshev/preferences and historical BestApprox page scope remain open. No full-CF parity or performance claim. Consumer preserves exp(sin(exp(x))),degree7,continuousL2<0.0003; it is one clause, not the full minimax aggregate.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+CF18 archive: cf_public18_literal_api_reference_v2_20261007.zip SHA256
+5b0fbad8496d40907e389b37fc5f1e7a54e231afc877032d6dc0d4630a29e93f.
+Consumer and publication archive: cf_consumer_publication_reference_v1_20261007.zip
+SHA256 3f9a0bcc9b6c0041db8a38c0ee084ba4bcbf2ce7ae143e6f6d6c3bf288ab2505.
+Both require full base corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+Publication removes stale prototype wording in two docstrings; normalized AST
+comparison confirms unchanged executable code. The amendment and explicit
+unsupported-branch audit are in cf_publication_doc_amendment_v1_20261007.
+Missing random-padding Cheb-Pade fallback and large-degree solver qualification
+remain concrete follow-up work. Full parity and fresh CI are not established.
+
 ## Sphere numerical rank, singular functions and compilation reuse (2026-10-07)
 
 Spherefun now exposes source spectral rank as numerical_rank(tol), retaining the

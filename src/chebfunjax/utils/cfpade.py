@@ -73,33 +73,8 @@ def cf(f, m: int, n: int = 0, M: int | None = None):
     MATLAB source : @chebfun/cf.m
     Chebfun commit: 7574c77
     """
-    dom = (float(f.domain.a), float(f.domain.b))
-    if np.isinf(dom).any():
-        raise ValueError("cf does not support unbounded domains")
-
-    if len(f.funs) > 1:
-        if M is None:
-            raise ValueError("piecewise chebfuns require the M argument")
-        a = _resample(f, M + 1)
-    else:
-        a = _coeffs(f)
-    if M is None:
-        M = len(a) - 1
-    if M >= len(a):
-        a = np.concatenate([a, np.zeros(M + 1 - len(a))])
-    a = a[: M + 1]
-
-    if np.iscomplexobj(a):
-        a = np.real(a)
-
-    # Trivial case
-    if m >= M:
-        q = _from_coeffs([1.0], dom)
-        return f, q, (lambda x: f(x)), 0.0
-
-    if n == 0:
-        return _polynomial_cf(f, a, m, M, dom)
-    return _rational_cf(f, a[::-1].copy(), m, n, M, dom)
+    from chebfunjax.utils._cf_public import cf as source_cf
+    return source_cf(f, m, n, M)
 
 
 def _polynomial_cf(f, a, m, M, dom):
