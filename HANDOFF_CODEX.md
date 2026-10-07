@@ -1,5 +1,39 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere rank-one multiplication regression repair (2026-10-07)
+
+Rank-one multiplication now follows pinned spherefun/times.m: masked CDR scaling
+is distributed into column/row factors, right-operand pivots and locations survive,
+pole flags are ANDed, and parity switches when the left plus group is empty.
+The previous helper dropped pole metadata; literal addition then projected valid
+polar terms away. Exact P123 curl and arithmetic CI failures were reproduced,
+along with six independent metadata failures, before the repair.
+
+CPU qualification: **90 passed in464.08s**, no errors/skips, peak sampled summed
+RSS5,569,740KiB. This includes the unchanged prior69 addition/CDR/default-SVD cases,
+two exact failing CI tests, six metadata controls, twelve source CDR scaling controls,
+and all three literal MATLAB multiplication clauses. Collection/JUnit/runtime
+origins reconcile; source/runtime inputs stayed unchanged and no processes survived.
+Full configured Ruff, F821 and repository NumPy/provenance presence policies pass.
+The new scaling arithmetic is JAX; inherited Trigtech NumPy transform delegation
+remains unresolved and is being replaced in a separate, unqualified draft.
+
+Five additional P123 sphere-vector CI failures (Helmholtz, tangent/normal and three
+vorticity cases) are under a separate serial gate on these exact library bytes.
+Their cause and resolution are not yet established by the90-case result. Fresh
+CI on this commit is required. A source coverage audit also found weakened or
+missing vector assertions, including an unconditional `or True`; those gaps remain
+open and passing existing tests does not establish full source parity.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Verified archive `sphere_rank1_times_repair90_reference_v1_20261007.zip`, SHA256
+`93445de8152450882afa3aedf4a46798ea048c38c6d5c2f9d9842af595bb78bd`.
+Failed baseline archive `sphere_p123_product_regression8_failure_reference_v1_20261007.zip`,
+SHA256 `797a2ebd1caaa196c7ae6c4f38841483bbce5b6b636a25140ccc3cb8220b4dc6`.
+Both require full base `corrected_runtime_union_v3_full_source_20261006.zip`, SHA256
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+Full library/test/page/figure/performance parity and latest-main green CI remain open.
+
 ## Sphere real addition, CDR and default singular values (2026-10-07)
 
 Real Spherefun addition now follows source pole extraction, parity grouping and

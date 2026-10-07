@@ -3630,30 +3630,36 @@ def _spherefun_sph_coeffs(f: "Spherefun", lmax: int) -> dict:
 
 
 def _spherefun_mul_rank1(f1: "Spherefun", g: "Spherefun") -> "Spherefun":
-    """Exact product with a rank-1 factor (MATLAB
-    @separableApprox/times.m rank-1 branch): multiply f1's single
-    column/row slice into every slice of ``g`` with exact dealiased
-    Trigtech products; pivots multiply (evaluation is
-    ``sum_j (1/p_j) c_j r_j``, so ``1/p_h = (1/p_f)(1/p_g)``).  The
-    BMC parity classes compose: a 'plus' (even/pi-periodic) factor
-    preserves g's classes; a 'minus' factor swaps them.
+    """Source rank-one product, retaining the right operand representation.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/times.m, @separableApprox/cdr.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+
+    Source starts h=g, scales the rank-one C/R factors using masked CDR D,
+    then multiplies each factor into g. Existing Trigtech multiplication
+    owns its simplify step; do not simplify the resulting factors again.
     """
-    cf = f1.cols[0]
-    rf = f1.rows[0]
-    new_cols = [(cf * c).simplify() for c in g.cols]
-    new_rows = [(rf * r).simplify() for r in g.rows]
-    p_h = np.asarray(f1.pivots)[0] * np.asarray(g.pivots)
-    f_minus = len(f1.idx_minus) > 0
-    if f_minus:
-        idx_plus = tuple(g.idx_minus)
-        idx_minus = tuple(g.idx_plus)
+    from chebfunjax.spherefun._cdr import inverse_pivots
+
+    diagonal = inverse_pivots(f1.pivots)[0]
+    column_scale = jnp.sqrt(jnp.abs(diagonal))
+    row_scale = jnp.sign(diagonal) * column_scale
+    cf = f1.cols[0] * column_scale
+    rf = f1.rows[0] * row_scale
+    new_cols = [cf * c for c in g.cols]
+    new_rows = [rf * r for r in g.rows]
+    if not f1.idx_plus:
+        idx_plus, idx_minus = g.idx_minus, g.idx_plus
     else:
-        idx_plus = tuple(g.idx_plus)
-        idx_minus = tuple(g.idx_minus)
+        idx_plus, idx_minus = g.idx_plus, g.idx_minus
     return Spherefun(
-        cols=new_cols, rows=new_rows,
-        pivots=jnp.asarray(p_h),
-        idx_plus=idx_plus, idx_minus=idx_minus)
+        cols=new_cols, rows=new_rows, pivots=g.pivots,
+        idx_plus=idx_plus, idx_minus=idx_minus,
+        pivot_locations=g.pivot_locations,
+        nonzero_poles=bool(f1.nonzero_poles and g.nonzero_poles),
+    )
 
 
 def _spherefun_onediff(f: "Spherefun", dim: int) -> "Spherefun":
