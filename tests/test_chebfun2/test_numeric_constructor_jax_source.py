@@ -117,6 +117,25 @@ def test_scalar_source_rejects_nonfinite_before_ge(disabled):
 
 
 @pytest.mark.parametrize("disabled", [False, True])
+def test_complex_infinity_precedence_and_scalar_zero(disabled):
+    # Source CDR magnitude test: infinity dominates a NaN in the other
+    # component; a NaN without an infinite component is not masked.
+    inputs = jnp.asarray([complex(float("inf"), float("nan")),
+                          complex(float("nan"), -float("inf")),
+                          complex(float("nan"), 1.), complex(2., 3.),
+                          complex(np.finfo(float).max, np.finfo(float).max)])
+    with jax.disable_jit(disabled):
+        flags = numeric._source_inf_magnitude(inputs)
+        zero = Chebfun2.from_values(jnp.asarray([[0j]]))
+        for z in inputs[jnp.asarray([0, 1, 4])]:
+            with pytest.raises(ValueError, match="CHEBFUN:CHEBFUN2:constructor:inf"):
+                Chebfun2.from_values(z[None, None])
+        with pytest.raises(ValueError, match="CHEBFUN:CHEBFUN2:constructor:nan"):
+            Chebfun2.from_values(inputs[2:3, None])
+    np.testing.assert_array_equal(flags, [True, True, False, False, True])
+    np.testing.assert_array_equal(zero.approx.pivots, [0.])
+
+@pytest.mark.parametrize("disabled", [False, True])
 def test_complex_zero_aca_uses_source_real_storage(disabled):
     # Source completeACA uses zeros(...), not zeros(..., 'like', A).
     with jax.disable_jit(disabled):

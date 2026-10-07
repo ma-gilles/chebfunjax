@@ -18,6 +18,20 @@ from chebfunjax.utils.quadrature import chebpts
 from chebfunjax.utils.transforms import _vals2coeffs_jax
 
 
+def _source_inf_magnitude(value):
+    """MATLAB magnitude infinity precedence for complex Inf/NaN components.
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/cdr.m, @chebfun2/constructor.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    Source tests abs(d)==Inf; either infinite component dominates NaN in
+    MATLAB magnitude. JAX complex abs may instead propagate NaN.
+    """
+    return (jnp.isinf(jnp.abs(value)) | jnp.isinf(jnp.real(value))
+            | jnp.isinf(jnp.imag(value)))
+
+
 def numeric_points(n, interval, tech):
     """Use global source grids for numeric factor data.
 
@@ -154,7 +168,7 @@ def numeric_cdr(values, domain, tolerance, techs, chop=False):
     _, absolute = numeric_tolerances(x, y, values, domain, tolerance)
     pivots, positions, rows, cols, _ = numeric_aca(values, absolute)
     inverse = 1/pivots
-    inverse = jnp.where(jnp.isinf(jnp.abs(inverse)), 0, inverse)
+    inverse = jnp.where(_source_inf_magnitude(inverse), 0, inverse)
     locations = tuple((float(x[col]), float(y[row])) for row, col in positions)
     return dict(cols=numeric_factors(cols, techs[1], tolerance, chop),
                 rows=numeric_factors(rows.T, techs[0], tolerance, chop), pivots=inverse,
@@ -188,12 +202,12 @@ def scalar_cdr(value, domain):
     numeric scalar trig input therefore returns default Chebtech2 factors.
     """
     value = jnp.asarray(value).reshape(())
-    if bool(jnp.isinf(jnp.abs(value))):
+    if bool(_source_inf_magnitude(value)):
         raise ValueError("CHEBFUN:CHEBFUN2:constructor:inf")
     if bool(jnp.isnan(value)):
         raise ValueError("CHEBFUN:CHEBFUN2:constructor:nan")
     factor = Chebtech2.from_coeffs(value[None])
     inverse = 1/value
-    inverse = jnp.where(jnp.isinf(jnp.abs(inverse)), 0, inverse)
+    inverse = jnp.where(_source_inf_magnitude(inverse), 0, inverse)
     return dict(cols=[factor], rows=[factor], pivots=inverse[None],
                 domain=domain, techs=("cheb", "cheb"))

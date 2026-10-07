@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Numeric constructor complex infinity follow-up (2026-10-07)
+
+The JAX numeric constructor now preserves MATLAB magnitude infinity precedence
+when one complex component is infinite and the other is NaN. The predicate also
+retains magnitude overflow from finite components. Scalar rejection and inverse
+CDR weight masking share this predicate; NaN without infinity stays unmasked.
+
+Qualification: 77 constructor cases and 27 unchanged spin consumers passed on
+the exact V4 numerical source. Two original direct zero-factor storage controls
+were retained and separately passed against that source, giving 79 constructor
+cases in the published module. Inputs were stable, runtime origin checks passed,
+and supervisors reported no survivors. Test bounds and captured fixtures are
+unchanged. These are separate correctness cohorts, not performance measurements.
+
+Evidence under the shared 20261005 root: root_operator_chebfun2_constructor77_v1_cpu_20261007,
+root_operator_chebfun2_spin27_v1_cpu_20261007,
+constructor_restored2_root_resume_cpu_20261007, and
+helmholtz_remaining_root_resume_review_20261007/terminal4.json.
+The combined archive context is chebfun2_v5_combined_archive_context_20261007_2rcsdyjs.
+Verified archive: chebfun2_numeric106_source_reference_v5_20261007.zip, SHA256
+ab9b7cfb2ea6f5b8096e44f8ee319191a45b3236a1c8d833e4d1ee6d13b7a643.
+It requires the same full-source base archive identified below.
+Broader complex/extreme scalar parity, full API coverage and latest-main green
+CI remain unresolved. This section supersedes the complex-infinity exclusion
+in the historical baseline entry below.
+
 ## Numeric Chebfun2 construction uses JAX (2026-10-07)
 
 The public numeric from_values path now uses source-ordered JAX ACA and factor
