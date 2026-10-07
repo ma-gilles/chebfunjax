@@ -1505,8 +1505,37 @@ class Spherefun(eqx.Module):
 
     @property
     def rank(self) -> int:
-        """Total number of terms in the low-rank decomposition."""
+        """Stored factor count, retained for Python compatibility.
+
+        This is representation length (MATLAB length(f)), not tolerance-based
+        MATLAB rank(f). Use numerical_rank(tol) for the latter.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/length.m
+        Chebfun commit: 7574c77
+        """
         return len(self.cols)
+
+    def numerical_rank(self, tol=None):
+        """Return literal source spectral rank with relative tolerance.
+
+        Omitted/None tolerance means zero. A zero spectrum returns scalar0;
+        empty input or a nonzero spectrum with no ratio greater than tol
+        returns an empty array, exactly as source find(...,1,'last').
+        This host wrapper has dynamic scalar/empty output shape and is not
+        JIT-compatible. Real scalar tolerances, including NaN/Inf/negative,
+        follow source comparisons; complex/nonscalar tolerances are rejected
+        only after the source empty and zero-spectrum early returns.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/rank.m, @separableApprox/rank.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun._rank import numerical_rank
+
+        return numerical_rank(self, tol)
 
     def length(self) -> tuple[int, int]:  # noqa: D401
         """(m, n): angular (lambda, rows) and colatitude (theta, cols)
@@ -2031,22 +2060,9 @@ class Spherefun(eqx.Module):
             from chebfunjax.spherefun._svd import singular_values
 
             return singular_values(self)
-        if self.isempty() or len(self.cols) == 0:
-            return jnp.zeros((0,), dtype=jnp.float64)
-        piv = np.asarray(self.pivots, dtype=float)
-        if not np.any(np.isfinite(piv)) or np.all(1.0 / piv == 0):
-            return jnp.asarray([0.0], dtype=jnp.float64)
-        s, Uv, xc, Vv, xr = self._svd_block(range(len(self.cols)),
-                                            weighted=True)
-        if not return_uv:
-            return jnp.asarray(s, dtype=jnp.float64)
-        from chebfunjax.chebfun1d.chebfun import chebfun
-        from chebfunjax.chebfun1d.linalg import Quasimatrix
-        Ufuns = [chebfun(lambda t, _j=j: jnp.asarray(np.interp(
-            np.asarray(t), xc, Uv[:, _j])), domain=(0.0, np.pi))
-            for j in range(Uv.shape[1])]
-        return (Quasimatrix(Ufuns, Ufuns[0].domain), jnp.asarray(s),
-                _trig_quasimatrix(Vv))
+        from chebfunjax.spherefun._svd_uv import singular_functions
+
+        return singular_functions(self)
 
     def BMCsvd(self, return_uv: bool = False):
         """Singular values respecting the BMC-I block structure: the SVD

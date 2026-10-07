@@ -1,5 +1,40 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere numerical rank, singular functions and compilation reuse (2026-10-07)
+
+Spherefun now exposes source spectral rank as numerical_rank(tol), retaining the
+Python rank property as stored factor count. Singular-function SVD uses JAX
+weighted QR and the source transform sequence; the default values-only path is
+unchanged. Complex longitude outputs preserve MATLAB's convention and do not
+promise arbitrary complex U*S*V' reconstruction. Persistent JAX staging of the
+existing real Horner and sample FFT kernels reuses compiled functions without
+changing sampling, aliasing, shapes or zero predicates.
+
+CPU qualification:128 combined rank/SVD/arithmetic/cache tests passed; the five
+unchanged sphere-vector regressions separately passed in946.29s total. Helmholtz
+was810.255s on this machine. This is not a paired performance comparison or proof
+of the CI900s limit on CI hardware. Both runs reconcile exact collection/JUnit,
+runtime origins, stable inputs and no surviving processes. The separately
+qualified literal vectorRelations replacement restores all three source clauses,
+continuous norms and original bounds, removing weakened assertions.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archives:
+- sphere_union128_reference_v3_20261007.zip SHA256
+  b4e2c1c083eb2a5867c15ec015010cc635b5a910d4a4a63664f479e07efccf65
+- sphere_union_vector5_reference_v1_20261007.zip SHA256
+  0a514cbdaf520e5ffff0b235143b2d745232e263508ca4db14c0db4161135119
+- sphere_vector_relations_literal_reference_v1_20261007.zip SHA256
+  29da0cea3e72a9806abc4fdee89ad21b3cbef1879262fc16bac7a87276339570
+All require corrected_runtime_union_v3_full_source_20261006.zip SHA256
+1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7.
+
+Full source-clause coverage, literal Helmholtz coverage, constructor overloads,
+legacy NumPy consumers, BMCsvd, other pages/figures and latest-main green CI remain
+open. The earlier iszero-only vector run's bytecode guard failure remains a failed
+gate; this fresh combined run passed its complete guard. No unrun Rotate changes
+or constructor drafts are included here.
+
 ## Localization page and reference-size figures (2026-10-07)
 
 The standalone Localization script now follows the recovered 2016 publisher

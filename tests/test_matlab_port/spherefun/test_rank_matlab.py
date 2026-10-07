@@ -40,6 +40,6 @@ class TestSpherefunRank:
              * jnp.cos(50 * z * x * y + 1),),
         ]:
             f = _sph(fc)
-            k = f.rank
+            k = len(f)  # Source tests length(f), not rank(f).
             m, n = f.length()
             assert k <= min(m, n)

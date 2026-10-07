@@ -36,12 +36,12 @@ def test_source_eight_plus_clauses():
     g = Spherefun.from_function(f1) + Spherefun.from_function(f2)
     assert abs(g(theta, lam) - (f1(theta, lam) + f2(theta, lam))) < tol  # 2
     f = Spherefun.from_function(cart(lambda x, y, z: x * x + y * y + z * z))
-    rank = f.rank
+    rank = f.numerical_rank()
     g = f
     for _ in range(10):
         g = g + f
     assert (g - 11 * f).norm(jnp.inf) < g.vscale() * tol  # 3
-    assert g.rank - rank == 0  # 4
+    assert g.numerical_rank() - rank == 0  # 4
     f = Spherefun.from_function(cart(lambda x, y, z: jnp.sin(x * y * z)))
     g = 2 * f
     assert (g - f - f).norm(jnp.inf) < tol  # 5

@@ -7,11 +7,13 @@ MATLAB source : @spherefun/plus.m, @spherefun/extractPole.m,
 Chebfun commit: 7574c77
 """
 
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.spherefun._cdr import inverse_pivots
 from chebfunjax.tech.trigtech import (
     _trig_coeffs2vals_impl,
+    _trig_eval,
     _trig_prolong_coeffs,
     _trig_vals2coeffs_impl,
 )
@@ -104,6 +106,21 @@ def _stack(techs):
     return jnp.stack([_trig_prolong_coeffs(t.coeffs, size) for t in techs], axis=1)
 
 
+@jax.jit
+def _real_sample_values(coefficients):
+    """Persistently stage the unchanged real part of the source FFT transform.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/coeffs2vals.m, @spherefun/sample.m
+    Chebfun commit: 7574c77
+    Shape/dtype define the compilation cache; coefficient values remain dynamic.
+    Disabled JIT executes the same pure JAX transform. Sampling and aliasing stay
+    in the caller, with their original sequential arithmetic.
+    """
+    return jnp.real(_trig_coeffs2vals_impl(coefficients))
+
+
 def _sample(techs, m):
     # Source sample aliases when its vscale sampling cap is below stored length.
     # The existing generic alias helper uses NumPy; this bounded matrix port
@@ -136,7 +153,7 @@ def _sample(techs, m):
                 a = a.at[-k + m2].add(c[-j + n2])
             a = a.at[0].add(a[-1])[:-1]
         c = a
-    return jnp.real(_trig_coeffs2vals_impl(c))
+    return _real_sample_values(c)
 
 
 def _scale(f):
@@ -151,18 +168,31 @@ def _scale(f):
     return jnp.max(jnp.abs((cv @ jnp.diag(inverse_pivots(f.pivots))) @ rv.T))
 
 
+@jax.jit
+def _real_factor_values(coefficients, points):
+    """Persistent JAX staging boundary for unchanged real Horner evaluation.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/horner.m, @separableApprox/iszero.m
+    Chebfun commit: 7574c77
+    No padding, coefficient regrouping or change to the source zero predicate.
+    The wrapper caches one executable per input shape/dtype; disabled JIT still
+    executes the same JAX kernel. This is not whole-Spherefun JIT support.
+    """
+    return _trig_eval(coefficients, points, is_real=True)
+
+
 def _iszero(f):
     if f.isempty() or not f.cols:
         return True
     if bool(jnp.max(jnp.abs(1 / f.pivots)) == 0):
         return True
-    from chebfunjax.tech.trigtech import _trig_eval
-
     # Source iszero uses 10x10 physical endpoint-inclusive samples, exact >0.
     lam = jnp.linspace(-1.0, 1.0, 10)
     th = jnp.linspace(0.0, 1.0, 10)
-    c = jnp.stack([_trig_eval(t.coeffs, th, is_real=True) for t in f.cols], axis=1)
-    r = jnp.stack([_trig_eval(t.coeffs, lam, is_real=True) for t in f.rows], axis=1)
+    c = jnp.stack([_real_factor_values(t.coeffs, th) for t in f.cols], axis=1)
+    r = jnp.stack([_real_factor_values(t.coeffs, lam) for t in f.rows], axis=1)
     if bool(
         jnp.max(jnp.abs((c @ jnp.diag(inverse_pivots(f.pivots))) @ r.T)) > 0
     ):
