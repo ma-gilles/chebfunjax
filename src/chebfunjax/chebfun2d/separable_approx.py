@@ -232,6 +232,11 @@ def _complete_aca(
             False,
         )
 
+    # Source completeACA forces refinement at the rank budget even when
+    # the final residual is already below tolerance.
+    if z_rows >= width / factor:
+        ifail = True
+
     pivot_vals = np.array(pivot_vals)
     pivot_pos = np.array(pivot_pos, dtype=int)
     # Stack: row_vals shape (r, nx), col_vals shape (ny, r)

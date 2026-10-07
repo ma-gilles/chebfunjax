@@ -96,9 +96,9 @@ r = rank(g), [m,n] = length(g)
 r =
     17
 m =
-   112
+   103
 n =
-   112
+   103
 ```
 
 Here is the analogous picture:

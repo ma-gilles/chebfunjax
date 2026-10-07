@@ -4,6 +4,12 @@ Provenance
 ----------
 MATLAB source : tests/chebfun2/test_constructor.m
 Chebfun commit: 7574c77
+
+Python API adaptations: default factory preferences are used; the source
+explicit tech preference is expressed by trig=True (then default Chebtech2).
+Source length of a quasimatrix is max(len(column)); Python len(quasimatrix)
+is column count. Clause 13 reconstructs the whole array-valued callback jointly.
+Arbitrary caller-supplied MATLAB preference objects are not covered by this port.
 """
 
 from __future__ import annotations
@@ -42,7 +48,7 @@ class TestChebfun2Constructor:
 
         f = lambda x, y: 1.0 / (1 + 25 * x ** 2 * y ** 2)  # noqa: E731
         ffch = chebfun2(lambda x, y: f(x, y), domain=(-2, 2, -2, 2))
-        xx = np.linspace(-2, 2, 50)
+        xx = np.linspace(-2, 2, 100)  # source linspace(-2,2) default count
         XX, YY = np.meshgrid(xx, xx)
         err = np.max(np.abs(np.asarray(f(jnp.asarray(XX), jnp.asarray(YY)))
                             - np.asarray(ffch(jnp.asarray(XX), jnp.asarray(YY)))))
@@ -51,6 +57,8 @@ class TestChebfun2Constructor:
         f = chebfun2(lambda x, y: 1, vectorize=True)
         g = chebfun2(1)
         assert float((f - g).norm()) < tol                               # pass(8)
+        f = chebfun2(lambda x, y: 1, vectorize=True)
+        g = chebfun2(1)
         assert float((f - g).norm()) < tol                               # pass(9)
 
         f = chebfun2(lambda x, y: jnp.sin(np.pi * x) * jnp.cos(np.pi * y), trig=True)  # p.tech = @trigtech
@@ -63,8 +71,13 @@ class TestChebfun2Constructor:
 
         f = chebfun(lambda x: 1.0 / (1 + 25 * x ** 2))
         f2 = chebfun2(lambda x, y: 1.0 / (1 + 25 * x ** 2))
-        assert len(f2.rows.cols[0]) < len(f) + 20                        # pass(12)
+        assert max(len(col) for col in f2.rows.cols) < len(f) + 20        # pass(12)
 
         f = chebfun2(lambda x, y: jnp.cos(np.pi * x * y))
-        frows = chebfun(f.rows.cols[0])                                  # chebfun(f.rows)
-        assert abs(len(frows) - len(f.rows.cols[0])) < 10                # pass(13)
+        rows = f.rows
+        # Source chebfun(rows) reconstructs the WHOLE array-valued operator.
+        # Python Quasimatrix.__len__ counts columns; source length(rows)
+        # instead returns the maximum length of its existing columns.
+        frows = chebfun(rows)
+        row_length = max(len(col) for col in rows.cols)
+        assert abs(len(frows) - row_length) < 10                        # pass(13)

@@ -1,5 +1,37 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebfun2 ACA rank budget and Localization output (2026-10-07)
+
+Complete ACA now forces source grid refinement when the rank reaches its sampling
+budget, including when the final residual is already small. This corrects the
+Localization final field lengths from112/112 to the MATLAB/reference103/103.
+The constructor port also restores whole-row quasimatrix reconstruction, the
+source100-point query grid and repeated construction clause; bounds are unchanged.
+
+CPU evidence:5 focused rank-budget controls and all4 actual example fields passed;
+a separate8-test constructor/regression gate passed in130.15s with no skips/errors.
+Collections, JUnit, runtime origins and unchanged inputs reconcile; no owned
+processes survived. The first regression run's7pass/1failure is preserved: its
+ported clause13 incorrectly reconstructed just one scalar row. The corrected test
+uses MATLAB's whole array-valued operand. Arbitrary MATLAB preference-object API
+syntax remains unqualified.
+
+Actual example stdout matches all6 cached HTML output blocks exactly. Markdown
+changes only the two final lengths. Both candidate images are610x276, but residual
+rendering differences remain; this package does not establish figure parity or
+complete disposition of the original12 interrupted scripts. Existing image/style
+work remains under separate review.
+
+Evidence root: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Archive `localization_aca_regression8_with_failure_page_reference_v1_20261007.zip`,
+SHA256 `4e923795b37e7c5e713ac7f892e12194d922196d8c36e908a91d7609306f4403`;
+verified72,339payloads including prior failure and full page evidence. Prior5-control
+and4-field evidence: `localization_aca_rank_budget_pass_reference_v1_20261007.zip`,
+SHA256 `53fa9e831fac70b035f1494f26cae94949ada8e57e6704f540ebbaf113f80667`.
+Both require full base `corrected_runtime_union_v3_full_source_20261006.zip`, SHA256
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`.
+Full library/test/page/speed parity and green CI on this new commit remain open.
+
 ## Sphere projection, refinement and norms (2026-10-07; verified local gate)
 
 JAX BMC-I projection now applies source common coefficient simplification before
