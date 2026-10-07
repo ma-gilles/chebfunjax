@@ -53,7 +53,7 @@ I = sum(f(z)*diff(z))
 
 ```text
 I =
-  -0.000000000000001 + 5.674755637702228i
+  0.000000000000002 + 5.674755637702230i
 ```
 
 For the function we chose above, one can compute this integral exactly.
@@ -75,7 +75,7 @@ error = abs(I - Iexact)
 
 ```text
 error =
-     4.539650895000687e-15
+     6.498891186147061e-15
 ```
 
 ---

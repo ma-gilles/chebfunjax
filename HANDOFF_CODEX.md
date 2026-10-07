@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Keyhole source computation and observed plot defaults (2026-10-07)
+
+KeyholeContour now constructs the joined complex Chebfun with the source's
+separate complex powers, then integrates `log(z)*tanh(z)*diff(z)` through library
+operations. It replaces the separate hand-derived segment derivatives. The
+source-observed MATLAB line widths are 0.5 points; the reference blue is retained.
+Actual isolated CPU output: I = 2e-15 + 5.674755637702230i, absolute error
+6.498891186147061e-15. The actual stdout and 510x388 figure are published.
+
+Run passed with source/runtime origins verified, stable inputs and no survivors;
+wall153.545s, sampled summed peak1,986,756KiB. Evidence layer
+697ba91949f8760ccc4334df6134f6a49f0334819d183fa35965863dff2796fa
+requires the preserved full base archive/receipt named below. Actual MATLAB
+metadata is in explain_v1_matlab_source_evidence_20261007.zip (SHA
+ace59b5ada86dca8e47ccd19e4dde655bb06db4c250982a5b1047ea379718d54).
+Reference/source-runtime color, raster stroke, axis and roundoff differences
+remain documented; this is source-computation progress, not full pixel parity.
+New publication CI needs verification. Full goal remains incomplete.
+
+
 ## Quiver source scaling and vector calculus page (2026-10-07; takes precedence below)
 
 Two- and three-component planar quiver plots now share JAX scaling and open-head
