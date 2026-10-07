@@ -1,5 +1,40 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Coefficient-input complex dtype repair (2026-10-06; takes precedence below)
+
+`Chebfun.from_coeffs` no longer forces coefficients to float64 and discards their
+imaginary parts. Existing downstream dtype promotion preserves float64 for real
+inputs and complex128 for complex inputs. This matches the public coefficient
+constructor and pinned MATLAB coefficient-input semantics.
+
+Isolated CPU evidence: **17 tests passed**, covering real/complex vectors,
+singletons, one/multiple columns, JIT enabled/disabled execution and integer
+promotion. Exact coefficient checks and independent degree-two polynomial
+values pass without changing bounds. Pytest took 27.65s; sampled peak summed RSS
+was 889,616 KiB. Runtime start/end checks passed; all 49,524 inputs stayed stable
+and no owned processes survived.
+
+The frozen driver incorrectly expected 33 cases and therefore exited 1 after
+pytest passed all 17. This bookkeeping error is preserved in the evidence. A
+separate verifier checks the actual 2*4*2+1 parametrization and all 17 JUnit names;
+no scientific test was altered or rerun to hide the failure. This is narrow
+scientific qualification, not a claim that the old driver or full core suite passed.
+
+Evidence reference layer SHA256:
+`4ce1b12814da193c68ce008a23b7e724f1558b4826e185c2c7cf42da03d7ab30`.
+It is **not self-contained**: reconstruction requires the verified full base
+`1e7c77153df60503d57a940869e2922174db86f7b55ab633d16a6225be2d90a7`
+and its receipt SHA `d3880112810f60a7945e1625dc9030de254bf1e6686111c755d8e050363dc826`.
+All logical payloads remain required. New publication CI must still be checked.
+
+The separate rational evaluator remains unqualified and excluded from this
+publication. Its source-backed nonsmooth test correction and complex arithmetic
+controls are in progress; a reverse-mode undefined-node derivative failure was
+found and archived. Full library/test, 322-page/figure and performance parity
+remain incomplete. Current work and exact evidence are in CURRENT_GOAL_STATUS.md
+in the parent shared scratch directory.
+
+
 ## Adaptive scalar and complex boundary repair (2026-10-06; takes precedence below)
 
 The cohesive operator candidate passed a CPU union of **333 tests**, with one

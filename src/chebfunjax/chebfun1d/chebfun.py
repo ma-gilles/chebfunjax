@@ -2041,7 +2041,8 @@ class Chebfun(eqx.Module):
                 f"but domain has {domain.n_intervals} intervals. "
                 f"Construct pieces individually and combine."
             )
-        coeffs = jnp.asarray(coeffs, dtype=jnp.float64)
+        # Chebtech2.from_coeffs promotes real/complex data without narrowing.
+        coeffs = jnp.asarray(coeffs)
         piece = _Piece.from_coeffs(coeffs, domain.a, domain.b)
         return cls(funs=[piece], domain=domain)
 
