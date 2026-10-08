@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## General-alpha Laguerre RH implementation (2026-10-08)
+
+The final affected CPU gate passed 42 cases: general-alpha rule moments,
+selected nodes/weights, independent Bessel controls, source-expression tables,
+subnormal weights/barycentric/interval controls, and source Newton failure.
+Earlier 46-case integration also passed, including unchanged MATLAB and
+half-alpha controls. Inputs stable, exact runtime origins checked, no owned
+process survivors. Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laguerre_general42_v5_cpu_20261008/`.
+General RH dispatch now covers the qualified default alpha range through 10;
+explicit RH uses source stopping/error guards. Alpha 20.3 at n=3000 reaches
+the source nine-iteration failure, also reproduced by independently interpreted
+pinned expressions. Do not relax it or claim all finite alpha succeeds.
+Subnormal source arithmetic stages are retained. New runtime numerical kernels
+use JAX; fixed scalar Gauss128 tables replace runtime Python quadrature.
+The coefficient tables are shared with the existing half-alpha driver.
+Source-expression fixtures are interpreted references, not fresh MATLAB captures.
+Default alpha above 10 retains the previous fallback and remains parity work;
+arbitrary-order/argument special-function accuracy and isolated performance
+remain unqualified. Hermite LAG documentation now reflects its implementation.
+
 ## Persistent sphere QR compilation (2026-10-08)
 
 CPU correctness gate: 141 passed in 1193.52 s pytest / 1211.62 s supervised

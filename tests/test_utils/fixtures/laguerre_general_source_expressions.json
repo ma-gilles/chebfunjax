@@ -1,0 +1,1288 @@
+{
+  "scope": "Independent host interpretation of literal MATLAB scalar expressions, scipy special functions; NOT fresh MATLAB output.",
+  "source_sha256": "de429e146df41e4b26fc183ed958876600072d39f6d980654eb2dd2635151cb9",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scipy_version": "1.11.4",
+  "cases": [
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 100.0,
+      "expected": 0.6822521753286586
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 4000.0,
+      "expected": 1.9630747645475457
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 100.0,
+      "expected": 0.6821358053358703
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 4000.0,
+      "expected": 1.9630672195323213
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 100.0,
+      "expected": 0.6821358053745191
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 4000.0,
+      "expected": 1.9630672195333592
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 100.0,
+      "expected": 0.6821358053745188
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 4000.0,
+      "expected": 1.9630672195333592
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 100.0,
+      "expected": 11.999890188017956
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 4000.0,
+      "expected": 1.5657036229898833
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 100.0,
+      "expected": 11.999462863921934
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 4000.0,
+      "expected": 1.5655535407054189
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 100.0,
+      "expected": 11.999462864221858
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 4000.0,
+      "expected": 1.565553540711628
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 100.0,
+      "expected": 11.999462864221856
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 4000.0,
+      "expected": 1.565553540711628
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 100.0,
+      "expected": -57.87048066362457
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 4000.0,
+      "expected": -2.7578170476626984
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 100.0,
+      "expected": -57.79355976257909
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 4000.0,
+      "expected": -2.7584486643224393
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 100.0,
+      "expected": -57.793559769200016
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 4000.0,
+      "expected": -2.758448664311402
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 100.0,
+      "expected": -57.79355976920001
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 4000.0,
+      "expected": -2.758448664311402
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 100.0,
+      "expected": -788.6150411813492
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 4000.0,
+      "expected": -7.979103553985401
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 100.0,
+      "expected": -788.7503967313064
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 4000.0,
+      "expected": -7.981901836578587
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 100.0,
+      "expected": -788.7503967587432
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 4000.0,
+      "expected": -7.981901836573376
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 100.0,
+      "expected": -788.7503967587432
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 4000.0,
+      "expected": -7.981901836573375
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 100.0,
+      "expected": 417670.68548799306
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 4000.0,
+      "expected": 34.8553910169822
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 100.0,
+      "expected": 429279.8263632992
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 4000.0,
+      "expected": 34.918252184695376
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 100.0,
+      "expected": 429279.6512663946
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 4000.0,
+      "expected": 34.91825216339033
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 100.0,
+      "expected": 429279.6512665024
+    },
+    {
+      "branch": "asyBulk",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 4000.0,
+      "expected": 34.91825216339033
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 0.005,
+      "expected": -0.10130953979464712
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 2.0,
+      "expected": -0.22754741138127907
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 40.0,
+      "expected": -0.05170865456936467
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 0.005,
+      "expected": -0.10131058291441924
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 2.0,
+      "expected": -0.22754968017398283
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 40.0,
+      "expected": -0.05170962432664281
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 0.005,
+      "expected": -0.10131058291441618
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 2.0,
+      "expected": -0.22754968017397734
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 40.0,
+      "expected": -0.051709624326632134
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 0.005,
+      "expected": -0.10131058291441618
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 2.0,
+      "expected": -0.22754968017397734
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 40.0,
+      "expected": -0.051709624326632134
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 0.005,
+      "expected": 698.7933227635241
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 2.0,
+      "expected": -62.66770092708676
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 40.0,
+      "expected": 19.493999319175217
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 0.005,
+      "expected": 698.8354578233618
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 2.0,
+      "expected": -62.67145243869885
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 40.0,
+      "expected": 19.495181601297496
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 0.005,
+      "expected": 698.8354578233144
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 2.0,
+      "expected": -62.67145243869471
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 40.0,
+      "expected": 19.49518160129613
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 0.005,
+      "expected": 698.8354578233144
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 2.0,
+      "expected": -62.67145243869471
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 40.0,
+      "expected": 19.49518160129613
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 0.005,
+      "expected": 328337.0070295724
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 2.0,
+      "expected": 1220.923208932946
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 40.0,
+      "expected": 54.791014012548615
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 0.005,
+      "expected": 328427.6393890677
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 2.0,
+      "expected": 1221.2902702435083
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 40.0,
+      "expected": 54.797229513334976
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 0.005,
+      "expected": 328427.63938894117
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 2.0,
+      "expected": 1221.2902702429785
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 40.0,
+      "expected": 54.79722951333149
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 0.005,
+      "expected": 328427.63938894117
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 2.0,
+      "expected": 1221.2902702429785
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 40.0,
+      "expected": 54.79722951333149
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 0.005,
+      "expected": -116173445.05957218
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 2.0,
+      "expected": 102520.5101116205
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 40.0,
+      "expected": -1950.1288408767878
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 0.005,
+      "expected": -116234857.31657732
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 2.0,
+      "expected": 102574.89319767753
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 40.0,
+      "expected": -1951.227978858916
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 0.005,
+      "expected": -116234857.31694771
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 2.0,
+      "expected": 102574.89319800652
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 40.0,
+      "expected": -1951.22797886589
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 0.005,
+      "expected": -116234857.31694771
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 2.0,
+      "expected": 102574.89319800652
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 40.0,
+      "expected": -1951.22797886589
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 0.005,
+      "expected": 5.83625017216319e+17
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 2.0,
+      "expected": -16782073460.060371
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 40.0,
+      "expected": 9872970.373926843
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 0.005,
+      "expected": 5.851042344793193e+17
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 2.0,
+      "expected": -16822367567.767918
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 40.0,
+      "expected": 9896006.961847655
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 0.005,
+      "expected": 5.851042369958758e+17
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 2.0,
+      "expected": -16822367627.019352
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 40.0,
+      "expected": 9896006.992115716
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 0.005,
+      "expected": 5.85104236995876e+17
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 2.0,
+      "expected": -16822367627.019354
+    },
+    {
+      "branch": "asyBessel",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 40.0,
+      "expected": 9896006.992115716
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 11200.0,
+      "expected": 3.5046095644654143
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 11800.0,
+      "expected": -0.23081837801999594
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 1,
+      "y": 11900.0,
+      "expected": -4.241853330532372
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 11200.0,
+      "expected": 3.504641220020578
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 11800.0,
+      "expected": -0.23081353155313655
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 3,
+      "y": 11900.0,
+      "expected": -4.241882549067045
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 11200.0,
+      "expected": 3.5046412200203574
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 11800.0,
+      "expected": -0.2308135315531752
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 5,
+      "y": 11900.0,
+      "expected": -4.241882549066855
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 11200.0,
+      "expected": 3.5046412200203574
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 11800.0,
+      "expected": -0.2308135315531752
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": -0.7,
+      "T": 7,
+      "y": 11900.0,
+      "expected": -4.241882549066855
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 11200.0,
+      "expected": 3.0399875847925557
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 11800.0,
+      "expected": -0.9539416825843889
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 1,
+      "y": 11900.0,
+      "expected": -4.687341203609683
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 11200.0,
+      "expected": 3.039956626342858
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 11800.0,
+      "expected": -0.9539423506028508
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 3,
+      "y": 11900.0,
+      "expected": -4.687308746727991
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 11200.0,
+      "expected": 3.039956626342794
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 11800.0,
+      "expected": -0.9539423506028752
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 5,
+      "y": 11900.0,
+      "expected": -4.68730874672795
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 11200.0,
+      "expected": 3.039956626342794
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 11800.0,
+      "expected": -0.9539423506028752
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 0.3,
+      "T": 7,
+      "y": 11900.0,
+      "expected": -4.68730874672795
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 11200.0,
+      "expected": 2.3250363505150236
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 11800.0,
+      "expected": -1.6731528112501364
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 1,
+      "y": 11900.0,
+      "expected": -5.097183250379997
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 11200.0,
+      "expected": 2.3247278744949167
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 11800.0,
+      "expected": -1.6731841088781758
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 3,
+      "y": 11900.0,
+      "expected": -5.0968974545807155
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 11200.0,
+      "expected": 2.3247278744950792
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 11800.0,
+      "expected": -1.673184108878156
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 5,
+      "y": 11900.0,
+      "expected": -5.0968974545808505
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 11200.0,
+      "expected": 2.3247278744950792
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 11800.0,
+      "expected": -1.673184108878156
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 1.3,
+      "T": 7,
+      "y": 11900.0,
+      "expected": -5.0968974545808505
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 11200.0,
+      "expected": 1.6926588199047308
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 11800.0,
+      "expected": -2.1677090974300843
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 1,
+      "y": 11900.0,
+      "expected": -5.360847028628849
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 11200.0,
+      "expected": 1.6916713897377327
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 11800.0,
+      "expected": -2.167745667830488
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 3,
+      "y": 11900.0,
+      "expected": -5.3598783294396055
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 11200.0,
+      "expected": 1.691671389737251
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 11800.0,
+      "expected": -2.1677456678304687
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 5,
+      "y": 11900.0,
+      "expected": -5.359878329439133
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 11200.0,
+      "expected": 1.691671389737251
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 11800.0,
+      "expected": -2.1677456678304687
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 2.0,
+      "T": 7,
+      "y": 11900.0,
+      "expected": -5.359878329439133
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 11200.0,
+      "expected": -1.7587878586445502
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 11800.0,
+      "expected": -4.099263573112186
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 1,
+      "y": 11900.0,
+      "expected": -6.245270783943142
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 11200.0,
+      "expected": -1.7697833931878024
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 11800.0,
+      "expected": -4.095587535244695
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 3,
+      "y": 11900.0,
+      "expected": -6.2285558951681494
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 11200.0,
+      "expected": -1.7697833938493324
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 11800.0,
+      "expected": -4.095587535151189
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 5,
+      "y": 11900.0,
+      "expected": -6.228555894463796
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 11200.0,
+      "expected": -1.7697833938493324
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 11800.0,
+      "expected": -4.095587535151189
+    },
+    {
+      "branch": "asyAiry",
+      "n": 3000.0,
+      "alpha": 5.0,
+      "T": 7,
+      "y": 11900.0,
+      "expected": -6.228555894463796
+    }
+  ]
+}

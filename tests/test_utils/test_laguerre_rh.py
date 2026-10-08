@@ -71,10 +71,14 @@ def test_rh_interval_mapping_preserves_source_bary_order(rule3000, interval):
     npt.assert_array_equal(mapped_v, v)
 
 
-def test_explicit_generalized_rh_stays_explicitly_unported():
-    with pytest.raises(NotImplementedError, match='RH variant is not yet supported'):
-        # Half parameters are ported; other alpha remain outside this bounded wrapper.
-        lagpts(3000, 1.5, method='RH')
+def test_explicit_generalized_rh_has_gamma_moments():
+    # General source RH is now implemented: replace the prior capability error
+    # with the same predeclared2e-9 moment envelope used by existing RH controls.
+    x, w = map(np.asarray, lagpts(3000, 1.5, method='RH'))
+    assert np.isfinite(x).all() and np.isfinite(w).all()
+    assert np.all(x > 0) and np.all(np.diff(x) > 0) and np.all(w >= 0)
+    npt.assert_allclose([w @ x**k for k in range(5)],
+                       [math.gamma(2.5+k) for k in range(5)], rtol=2e-9, atol=0)
 
 
 def test_n10000_rh_has_finite_ordered_nodes_and_gamma_moments():

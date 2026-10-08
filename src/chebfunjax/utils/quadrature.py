@@ -715,8 +715,8 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    GLR requires alpha=0. RH requires concrete alpha in {0,-1/2,+1/2} and n>=3000.
-    Other RH variants, EXP, and underflow-truncated RECW/RHW are unported.
+    GLR requires alpha=0. RH requires concrete alpha in (-1,10] and n>=3000.
+    EXP, and underflow-truncated RECW/RHW are unported.
     """
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
@@ -733,21 +733,32 @@ def _lagpts_core(n: int, alpha: float = 0.0,
         from chebfunjax.utils.laguerre_glr import _laguerre_glr
         x, w = _laguerre_glr(n)
     elif method == 'rh':
-        if n < 3000 or isinstance(alpha, jax.core.Tracer) or alpha not in (0, -0.5, 0.5):
+        if n < 3000 or isinstance(alpha, jax.core.Tracer):
             raise NotImplementedError("lagpts: this source RH variant is not yet supported")
         if alpha == 0:
             from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
             x, w = _laguerre_rh_alpha0(n)
-        else:
+        elif alpha in (-0.5, 0.5):
             from chebfunjax.utils.laguerre_rh_half import _laguerre_rh_half
             x, w = _laguerre_rh_half(n, alpha)
+        else:
+            from chebfunjax.utils.laguerre_rh_general import _laguerre_rh_general
+            if alpha*alpha/n > 1:
+                warnings.warn('lagpts: a large alpha may lead to inaccurate results',
+                              UserWarning, stacklevel=2)
+            x, w = _laguerre_rh_general(n, alpha)
     elif method == 'gw':
         x, w = _lagpts_gw(n, alpha)
     else:
         raise ValueError(f"_lagpts_core: unsupported method {method!r}")
 
     import jax.scipy.special as jsp
-    w = (jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)) * w
+    normalizer = jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)
+    if method == 'rh' and alpha not in (0, -0.5, 0.5):
+        from chebfunjax.utils._gradual import gradual_positive_multiply
+        w = gradual_positive_multiply(w, normalizer)
+    else:
+        w = normalizer * w
 
     if interval is not None:
         a_int, b_int = interval
@@ -1443,14 +1454,13 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
     ``hermpts(42, 'prob', 'REC')`` select the same rule.
 
     The default follows MATLAB ``hermpts``: GW for n <= 20, REC for
-    21 <= n < 200, and ASY for n >= 200. Explicit GW, REC, GLR, and ASY
+    21 <= n < 200, and ASY for n >= 200. Explicit GW, REC, GLR, ASY, and LAG
     methods are supported. The Python result vectors are one-dimensional,
     adapting MATLAB's column ``x`` and ``v`` and row ``w`` outputs to this
     package's existing convention.
 
-    Explicit REC/ASY at n=2..20 remain unsupported because the pinned source's
-    initial-guess expansion has not been verified in that range. LAG is not
-    yet supported for n>1 and raises ``NotImplementedError`` if requested.
+    Explicit REC/ASY at n=2..20 raise ``ValueError``; both implementations
+    require n>=21 beyond the wrapper's n=0 and n=1 cases.
 
     Provenance
     ----------
@@ -1543,10 +1553,12 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    This implementation supports REC/GW/GLR and bounded alpha=0,+/-1/2 RH, defaulting to REC
-    for n<300, GW for 300<=n<1000, GLR for 1000<=n<3000 when alpha=0, and
-    RH for n>=3000 with concrete alpha in {0,-1/2,+1/2}, and GW otherwise. MATLAB uses RH
-    for all alpha from n=3000; other alpha and small explicit RH are unported.
+    Supports REC/GW/GLR and source RH for static alpha in (-1,10] and n>=3000.
+    Default selection is REC below300, GW below1000, alpha0 GLR below3000
+    (GW for other alpha), then RH for alpha in (-1,10]. Higher static alpha
+    retains the prior default GW path while explicit general RH is under qualification.
+    General-alpha RH uses a JAX Bessel adapter;
+    small explicit RH, RHW, EXP and the singular alpha=-1 case remain unsupported.
     Dynamic alpha at the GLR/RH default thresholds retains the GW path because
     source method selection is static in this Python/JAX API. Explicit GLR
     requires concrete alpha=0. The Python API returns 1D vectors in place of MATLAB's
@@ -1577,7 +1589,7 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rec'
         elif 1000 <= n < 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
             method = 'glr'
-        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and alpha in (0, -0.5, 0.5):
+        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and -1 < alpha <= 10:
             method = 'rh'
         else:
             method = 'gw'
@@ -1599,15 +1611,29 @@ def lagpts(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: interval must be semi-infinite")
 
     x, w = _lagpts_core(n, alpha, None, method)
+    gradual_rh = method == 'rh' and alpha not in (0, -0.5, 0.5)
+    if gradual_rh:
+        from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
+        from chebfunjax.utils.laguerre_rh_general import (
+            _source_positive_product,
+            _source_positive_sqrt,
+        )
     if bary:
         # MATLAB computes these before affine mapping of a semi-infinite domain.
-        v = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0) * jnp.sqrt(w * x)
+        magnitude = (_source_positive_sqrt(gradual_positive_multiply(w, x))
+                     if gradual_rh else jnp.sqrt(w * x))
+        v = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0) * magnitude
         v = v / jnp.max(jnp.abs(v))
     if interval is not None:
         if isinf(interval[1]):
-            x, w = x + interval[0], w * jnp.exp(-interval[0])
+            scale = (gradual_exp_negative(-interval[0]) if gradual_rh
+                     else jnp.exp(-interval[0]))
+            x = x + interval[0]
         else:
-            x, w = -x + interval[1], w * jnp.exp(interval[1])
+            scale = (gradual_exp_negative(interval[1]) if gradual_rh
+                     else jnp.exp(interval[1]))
+            x = -x + interval[1]
+        w = _source_positive_product(w, scale) if gradual_rh else w * scale
     return (x, w, v) if bary else (x, w)
 
 def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *, bary: bool = False):

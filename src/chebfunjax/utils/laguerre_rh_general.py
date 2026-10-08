@@ -1,22 +1,12 @@
-"""JAX bounded half-integer Laguerre RH full rules for n>=3000.
-
-This transcribes the source general-alpha bulk, Bessel and Airy correction
-tables, region selector, starting guesses and Newton/weight loop for outer
-alpha=-1/2,+1/2 (internal derivative orders also include3/2). Negative
-Newton trials use the source principal complex continuation. Exact half-order
-mathematical Bessel roots provide seeds; they differ from source Piessens
-first-six rounded approximations. General alpha, small RH and RHW are unported.
+"""Source general-alpha Laguerre RH driver; bounded CPU candidate.
 
 Provenance
 ----------
-MATLAB source: lagpts.m407-530 (newton/selector),676-790,910-1021,1142-1293
-(general-alpha corrections); besselroots.m(seed motivation).
-Chebfun commit:7574c77680d7e82b79626300bf255498271a72df.
-The Besselphase uses equivalent asin identity to avoid hard-edge cancellation.
+MATLAB source: lagpts.m407-530; besselroots.m.
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+General special-function adapter requires qualification; no GW fallback.
+Source initial guesses, Newton stopping and convergence guards are unchanged.
 """
-
-from __future__ import annotations
-
 import math
 from functools import partial
 
@@ -25,8 +15,11 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
-from chebfunjax.utils.bessel_half import _bessel_j_half, _bessel_roots_half
-from chebfunjax.utils.bessel_half_complex import _bessel_j_half_complex
+from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
+from chebfunjax.utils._signed_gradual import flip_sign_bits, gradual_signed_divide
+from chebfunjax.utils.bessel_general import _bessel_j_general, _bessel_j_general_complex
+from chebfunjax.utils.bessel_roots_general import _bessel_roots_general
+from chebfunjax.utils.laguerre_rh import _poly_asy_rh_alpha01
 from chebfunjax.utils.laguerre_rh_expansions import (
     _asyairy_general,
     _asybessel_general,
@@ -34,24 +27,13 @@ from chebfunjax.utils.laguerre_rh_expansions import (
 )
 
 
-def _check_alpha(alpha: float) -> None:
-    if alpha not in (-0.5, 0.5, 1.5):
-        raise ValueError("this scratch transcription supports alpha=-0.5, 0.5, 1.5")
-
-
-
-
-
-
-
-
-def _rh_initial_guesses_half(n, alpha):
-    """Source RH starting nodes with exact half-order mathematical Bessel seeds."""
+def _rh_initial_guesses_general(n, alpha):
+    """Source RH starting nodes with source Piessens/McMahon Bessel seeds."""
     mn = n
     itric = math.floor(3.6 * n**0.188 + 0.5)
     igatt = math.floor(mn + 1.31 * n**0.4 - n + 0.5)
     nu = 4.0 * n + 2.0 * alpha + 2.0
-    roots = _bessel_roots_half(alpha, itric)
+    roots = _bessel_roots_general(alpha, itric)
     bes = roots**2
     den = 4.0 * n + 2.0 * alpha + 2.0
     bes = bes / den * (1.0 + (bes + 2.0 * (alpha**2 - 1.0)) / den**2 / 3.0)
@@ -70,8 +52,8 @@ def _rh_initial_guesses_half(n, alpha):
     zeros = jnp.zeros((mn-itric-max(igatt,0),), dtype=jnp.float64)
     return jnp.concatenate((bes, zeros, air)), itric, igatt
 
-def _rh_factors_half(n, alpha):
-    """Literal source normalization factors for half-integer alpha."""
+def _rh_factors_general(n, alpha):
+    """Literal source normalization factors for general alpha."""
     facts = []
     for a, k in ((alpha, 1.0), (alpha+1.0, 2.0)):
         m = n - k + 1.0
@@ -87,14 +69,16 @@ def _rh_factors_half(n, alpha):
     factorw = -(1.0-1.0/(n+1.0))**(n+1.0+alpha/2.0)*(1.0-1.0/n)**(1.0+alpha/2.0)*jnp.exp(1.0+2.0*jnp.log(2.0))*4.0**(1.0+alpha)*jnp.pi*n**alpha*jnp.sqrt(facts[0]*facts[1])*(1.0+1.0/n)**(alpha/2.0)
     return factorx, factorw
 
-def _poly_asy_rh_half(np, y, alpha, T):
-    """Source region selector with static supported half-integer alpha."""
+def _poly_asy_rh_general(np, y, alpha, T):
+    """Source region selector with static real alpha."""
+    if alpha in (0, 1):
+        return _poly_asy_rh_alpha01(np, y, alpha, T)
     def near_zero(value):
         return lax.cond(
             value < 0.0,
-            lambda yy: _asybessel_general(np, yy, alpha, T, _bessel_j_half_complex,
+            lambda yy: _asybessel_general(np, yy, alpha, T, _bessel_j_general_complex,
                                           complex_trial=True),
-            lambda yy: _asybessel_general(np, yy, alpha, T, _bessel_j_half), value)
+            lambda yy: _asybessel_general(np, yy, alpha, T, _bessel_j_general), value)
     def far_or_bulk(value):
         return lax.cond(value > 3.7*(np+alpha),
                         lambda yy: _asyairy_general(np, yy, alpha, T),
@@ -103,13 +87,13 @@ def _poly_asy_rh_half(np, y, alpha, T):
 
 
 @partial(jax.jit, static_argnames=("n", "alpha"))
-def _laguerre_rh_half(n, alpha):
-    """Source full RH rule for static alpha=+-1/2 and n>=3000."""
-    if n < 3000 or alpha not in (-0.5, 0.5):
-        raise ValueError("bounded half RH requires n>=3000 and alpha=+-1/2")
-    x0, _itric, _igatt = _rh_initial_guesses_half(n, alpha)
+def _laguerre_rh_general(n, alpha):
+    """Source full RH rule for static real alpha and n>=3000."""
+    if n < 3000 or not math.isfinite(alpha) or alpha <= -1:
+        raise ValueError("general RH requires n>=3000 and finite alpha>-1")
+    x0, _itric, _igatt = _rh_initial_guesses_general(n, alpha)
     weights0 = jnp.zeros((n,), dtype=jnp.float64)
-    factorx, factorw = _rh_factors_half(n, alpha)
+    factorx, factorw = _rh_factors_general(n, alpha)
     T = math.ceil(34.0 / math.log(n))
     eps = jnp.finfo(jnp.float64).eps
     extrapolation = jnp.asarray([7., -21., 35., -35., 21., -7., 1.],
@@ -132,8 +116,8 @@ def _laguerre_rh_half(n, alpha):
 
         def newton_step(ns):
             xcur, _step, old_value, old_x, count, _stalled = ns
-            value = _poly_asy_rh_half(n, xcur, alpha, T)
-            derivative_poly = _poly_asy_rh_half(n-1, xcur, alpha+1.0, T)
+            value = _poly_asy_rh_general(n, xcur, alpha, T)
+            derivative_poly = _poly_asy_rh_general(n-1, xcur, alpha+1.0, T)
             step = value / (derivative_poly * factorx - value / 2.0)
             stalled = jnp.abs(value) >= jnp.abs(old_value) * (1.0 - 500.0 * eps)
             next_x = jnp.where(stalled, old_x, xcur - step)
@@ -148,17 +132,67 @@ def _laguerre_rh_half(n, alpha):
         x = x.at[k].set(xk)
 
         def compute_weight(_):
-            left = _poly_asy_rh_half(n-1, xk, alpha+1.0, T)
-            right = _poly_asy_rh_half(n+1, xk, alpha, T)
-            return jnp.exp(-xk) * factorw / (left * right)
+            left = _poly_asy_rh_general(n-1, xk, alpha+1.0, T)
+            right = _poly_asy_rh_general(n+1, xk, alpha, T)
+            return _source_rh_weight(xk, factorw, left, right)
 
         wk = lax.cond(no_underflow, compute_weight,
                       lambda _: jnp.asarray(0.0, jnp.float64), operand=None)
         weights = weights.at[k].set(wk)
-        starts_underflow = no_underflow & (wk == 0.0) & (k > 0) & (weights[k-1] > 0.0)
+        starts_underflow = no_underflow & (k > 0) & _source_starts_underflow(wk, weights[k-1])
         no_underflow = no_underflow & ~starts_underflow
         return x, weights, no_underflow
 
     x, weights, _no_underflow = lax.fori_loop(
         0, n, node, (x0, weights0, jnp.asarray(True)))
     return x, weights
+
+
+def _source_rh_weight(x, factorw, left, right):
+    """Source exp, multiply, denominator product, then divide; retain subnormals.
+
+    MATLAB source: lagpts.m493-500, Chebfun7574c77680d7e82b79626300bf255498271a72df.
+    factorw is strictly negative in the supported alpha range. Bitwise underflow
+    decisions in the driver avoid CPU comparisons flushing a nonzero subnormal.
+    Each source arithmetic stage rounds separately; libm bit identity is not claimed.
+    """
+    numerator = flip_sign_bits(gradual_positive_multiply(
+        gradual_exp_negative(-x), -factorw))
+    denominator = lax.optimization_barrier(left * right)
+    return gradual_signed_divide(numerator, denominator)
+
+
+def _source_positive_sqrt(value):
+    """Decode positive binary64 subnormals before the source square root.
+
+    MATLAB source: lagpts.m156; Chebfun7574c77680d7e82b79626300bf255498271a72df.
+    Square roots of positive subnormals are normal binary64 numbers.
+    """
+    from chebfunjax.utils._gradual import _positive_parts
+    mantissa, exponent = _positive_parts(value)
+    odd = exponent % 2
+    decoded = jnp.ldexp(jnp.sqrt(jnp.ldexp(mantissa, odd)), (exponent - odd) // 2)
+    return jnp.where(value >= jnp.finfo(jnp.float64).tiny, jnp.sqrt(value), decoded)
+
+
+def _source_positive_product(left, right):
+    """Commutative source binary64 product with a possibly tiny operand."""
+    left, right = jnp.broadcast_arrays(left, right)
+    left_bits = lax.bitcast_convert_type(left, jnp.uint64)
+    right_bits = lax.bitcast_convert_type(right, jnp.uint64)
+    swap = right_bits < left_bits
+    small, large = jnp.where(swap, right, left), jnp.where(swap, left, right)
+    result = gradual_positive_multiply(small, large)
+    # IEEE positive nonzero times infinity remains infinity, including tiny inputs.
+    nonzero = lax.bitcast_convert_type(small, jnp.uint64) != 0
+    return jnp.where(jnp.isinf(large) & nonzero, jnp.inf, result)
+
+
+def _source_starts_underflow(current, previous):
+    """Source current==0 and previous>0 without flushing binary64 subnormals."""
+    magnitude = jnp.uint64(0x7fffffffffffffff)
+    current_bits = lax.bitcast_convert_type(current, jnp.uint64)
+    previous_bits = lax.bitcast_convert_type(previous, jnp.uint64)
+    current_zero = (current_bits & magnitude) == 0
+    previous_positive = (previous_bits > 0) & (previous_bits <= magnitude) & ~jnp.isnan(previous)
+    return current_zero & previous_positive
