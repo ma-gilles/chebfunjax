@@ -1,74 +1,60 @@
-"""Port of MATLAB Chebfun tests/diskfun/test_helmholtz.m (Fable 5).
+"""All ten source predicates from diskfun/test_helmholtz.m, Chebfun7574c77.
 
-FIXED: Diskfun.helmholtz (and bc support in Diskfun.poisson) added in
-the Fable 5 audit.
-
-Provenance
-----------
-MATLAB source : tests/diskfun/test_helmholtz.m
-Chebfun commit: 7574c77
+Preserves disk L2 norms, source grids and tolerances. No xfail/sampling
+substitute. Function arguments use Python theta/radius convention.
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
 from chebfunjax.diskfun.diskfun import Diskfun
 
-TOL = 2e3 * np.finfo(float).eps
-THS = jnp.asarray(np.linspace(-np.pi, np.pi, 13))
-RS = jnp.asarray(np.linspace(0.0, 1.0, 9))
-TT, RR = jnp.meshgrid(THS, RS, indexing="ij")
+TOL = 2e3*jnp.finfo(jnp.float64).eps
 
 
-def _nrm(u, ex):
-    return float(jnp.max(jnp.abs(u(TT, RR) - ex(TT, RR))))
+def test_source_1_2_poisson_equality():
+    exact = Diskfun.from_function(lambda t,r: jnp.exp(-r*jnp.cos(t)-r**2*jnp.sin(2*t)))
+    rhs = exact.laplacian()
+    bc = lambda t: jnp.exp(-jnp.cos(t)-jnp.sin(2*t))
+    u = Diskfun.poisson(rhs, bc, m=100)
+    v = Diskfun.helmholtz(rhs, 0., bc, m=100)
+    assert float((v-exact).norm()) < 2e4*TOL
+    assert float((v-u).norm()) < 2e4*TOL
 
 
-class TestDiskfunHelmholtz:
-    def test_k0_matches_poisson(self):
-        # pass(1)-(2)
-        def tru(t, r):
-            return jnp.exp(-r * jnp.cos(t) - r ** 2 * jnp.sin(2 * t))
+@pytest.mark.parametrize('k', [.05, .25, 1., float(jnp.pi), 7.])
+def test_source_3_to_7_wavenumbers(k):
+    def value(t,r):
+        x,y = r*jnp.cos(t),r*jnp.sin(t)
+        return jnp.cos(5*(x+y)-.2)+jnp.sin(3*x*y)
+    exact = Diskfun.from_function(value)
+    rhs = exact.laplacian()+k*k*exact
+    actual = Diskfun.helmholtz(rhs,k,lambda t:exact(t,jnp.ones_like(t)),m=257,n=256)
+    error = float((exact-actual).norm())
+    print('source wavenumber',k,'error',error,'bound',float(5e4*TOL))
+    assert error < 5e4*TOL
 
-        truD = Diskfun.from_function(tru)
-        rhs = truD.laplacian()
 
-        def bc(t):
-            return jnp.exp(-jnp.cos(t) - jnp.sin(2 * t))
+def test_source_8_coefficient_rhs():
+    k=jnp.sqrt(2.)
+    exact=Diskfun.from_function(lambda t,r:jnp.cos(r**5*jnp.sin(5*t))-r**2)
+    rhs=(exact.laplacian()+k*k*exact).coeffs2()
+    actual=Diskfun.helmholtz(rhs,k,lambda t:exact(t,jnp.ones_like(t)),m=100)
+    assert float((actual-exact).norm()) < TOL
 
-        u = Diskfun.poisson(rhs, bc, m=100)
-        v = Diskfun.helmholtz(rhs, 0.0, bc, m=100)
-        assert _nrm(v, tru) < 2e4 * TOL
-        assert _nrm(v, u) < 2e4 * TOL
 
-    def test_various_k(self):
-        # pass(3)-(7)
-        def utru(t, r):
-            x = r * jnp.cos(t)
-            y = r * jnp.sin(t)
-            return jnp.cos(5 * (x + y) - 0.2) + jnp.sin(3 * x * y)
+def test_source_9_callable_rhs():
+    rhs=lambda t,r:3*jnp.cos(r*jnp.cos(t))+jnp.cos(r*jnp.sin(t))
+    exact=Diskfun.from_function(rhs)/3
+    actual=Diskfun.helmholtz(rhs,2.,lambda t:exact(t,jnp.ones_like(t)),m=100)
+    assert float((actual-exact).norm()) < TOL
 
-        uD = Diskfun.from_function(utru)
-        for K in (0.05, 0.25, 1.0, np.pi, 7.0):
-            f = uD.laplacian() + uD * (K * K)
 
-            def bc(t):
-                return utru(t, jnp.ones_like(t))
-
-            u = Diskfun.helmholtz(f, K, bc, m=257, n=256)   # MATLAB: helmholtz(f, k, bc, 257, 256)
-            # MATLAB: norm(utru - u) is the L2 (svd-based) norm of the difference.
-            err = float((uD - u).norm())
-            if K == 7.0 and not err < 5e4 * TOL:
-                # KNOWN GAP (2026-09-03): MATLAB R2025b lands at 1.8e-9 here;
-                # chebfunjax's second derivative (lap of the rank-21 field)
-                # carries ~1e-6 noise terms that the solve damps only to
-                # ~3.8e-8 (independent of m, n and of RHS aliasing).
-                pytest.xfail(f"k=7 Helmholtz error {err:.2e} vs {5e4 * TOL:.2e}; "
-                             "MATLAB 1.8e-9 (open accuracy gap)")
-            assert err < 5e4 * TOL, K
+def test_source_10_laplacian_eigenfunction():
+    lam=5.52007811028631**2
+    k=jnp.sqrt(lam+1)
+    rhs=Diskfun.harmonic(0,2)
+    actual=Diskfun.helmholtz(rhs,k,lambda t:0*t,m=100)
+    assert float((actual-rhs).norm()) < TOL
 
 
 class TestHelmholtzComplexK:

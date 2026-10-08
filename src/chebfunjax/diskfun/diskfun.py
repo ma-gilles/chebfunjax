@@ -3726,7 +3726,11 @@ def _phase_one_matrix_disk(F, tol, alpha):
         return (np.zeros((1, 2), dtype=int), np.array([[0.0, 0.0]]), False,
                 np.zeros((2 * m - 1, 1)), np.array([np.inf]),
                 np.zeros((n, 1)), [0], [])
-    min_size = min(m, n)
+    # The parity extension has 2*m-1 radial rows. Source constructor.m
+    # caps at min(m,n), which can stop before its requested tolerance on
+    # these doubled BMC-II matrices; preserve GE pivots/tolerance and use
+    # the actual matrix rank bound. Source Helmholtz k=7 exposes this loss.
+    min_size = min(2*m-1, n)
     while max(maxp, maxm) > tol and rank_count < min_size:
         j, k = ip if maxp >= maxm else im
         evp = float(Fp[j, k])
