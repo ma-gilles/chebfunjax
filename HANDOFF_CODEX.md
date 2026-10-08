@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest accepted packages (2026-10-08, local 6e62af23)
+
+Full parity remains incomplete. These additions supersede the table below:
+
+- `6e62af23`: all 36 original Chebfun sum predicates restored; 114 CPU tests
+  pass in 240.31 s pytest / 287.54 s supervised, peak 3.79 GiB. Variable
+  limits, dimensions/orientation, unbounded array columns, and source singular
+  multiplication cancellation/simplification are covered. Root rehashed 2,954
+  observed runtime files and verified all seven payload files byte-identical
+  to the qualified snapshot. See `chebfun_sum_root_acceptance_20261008.json`.
+- `5b6ca0bf`: supported diffmat error identifiers/messages and breakpoint
+  warning restored; ten focused checks pass. Numerical paths are AST-identical
+  to the previous qualified implementation. See
+  `diffmat_diagnostics_root_acceptance_20261008.json`.
+
+Evidence files are under the shared directory given below. Full lint/F821,
+NumPy/provenance policy and diff checks pass. These are local commits; remote
+publication, exact-head CI and fresh MATLAB remain blocked as documented below.
+No full-suite or complete API parity is inferred from focused gates.
+
+Three worker slots are occupied: periodic solver's 41 original predicates;
+BestApprox/minimax initialization and page figures; ultraspherical quadrature's
+40 original predicates and missing REC/ASY methods. Root review found a minimax
+Python-versus-MATLAB rounding mismatch and failed-trial status discrepancy;
+those are being corrected before acceptance. The periodic worker holds the
+serial heavy lane; BestApprox page is queued next. Small bounded tests and
+source work proceed concurrently on separate CPU sets.
+
 ## Latest CPU qualification (2026-10-08, local b3b0258d)
 
 Full parity remains incomplete. This checkpoint supersedes earlier counts.
