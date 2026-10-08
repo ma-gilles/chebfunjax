@@ -352,21 +352,21 @@ def _parse_diffmat(n, args, p, domain, kind):
         if isinstance(value, str):
             if value == 'rect':
                 if 'periodic' in grids:
-                    raise ValueError('Rectangular Fourier differentiation matrices are not supported')
+                    raise ValueError('CHEBFUN:diffmat:wrongInput: Rectangular Fourier differentiation matrices are not supported.')
                 if not rectangular_size:
                     m = ncols-p
             elif value in ('periodic', 'trig'):
                 if m != ncols:
-                    raise ValueError('Rectangular Fourier differentiation matrices are not supported')
+                    raise ValueError('CHEBFUN:diffmat:wrongInput: Rectangular Fourier differentiation matrices are not supported.')
                 grids = ['periodic', 'periodic']
             elif value in ('chebkind1', 'chebkind2', 'leg'):
                 grids.append(value)
                 if len(grids) > 2:
-                    raise ValueError('Too many inputs for grid type')
+                    raise ValueError('CHEBFUN:diffmat:unknown: Too many inputs for grid type.')
             elif value in ('dirichlet', 'neumann', 'sum'):
                 boundaries.append([value])
             else:
-                raise ValueError(f'Unknown diffmat input {value!r}')
+                raise ValueError(f'CHEBFUN:diffmat:unknown: Unknown input {value}')
         elif isinstance(value, (tuple, list)):
             if not value or all(isinstance(v, str) for v in value):
                 boundaries.append(list(value))
@@ -380,24 +380,28 @@ def _parse_diffmat(n, args, p, domain, kind):
         else:
             p = int(value)
         if len(boundaries) > 2:
-            raise ValueError('Too many boundary conditions; group conditions for each endpoint')
+            if isinstance(value, str):
+                raise ValueError('CHEBFUN:diffmat:unknown: Too many inputs for boundary condition. '
+                                 'Use curly brackets to group left and right boundary conditions, '
+                                 'if multiple boundary conditions are considered at one boundary.')
+            raise ValueError('CHEBFUN:diffmat:unknown: Unrecognized boundary condition.')
     if p < 0:
-        raise ValueError(f'Differentiation order p must be non-negative, got p={p}')
+        raise ValueError('CHEBFUN:diffmat:wrongInput: The order of differentiation matrix must be non-negative.')
     if not grids:
         grids = [f'chebkind{kind}']
     if len(grids) == 1:
         grids *= 2
     if len(domain) > 2:
         import warnings
-        warnings.warn('DIFFMAT does not support domains with breakpoints', stacklevel=3)
+        warnings.warn('CHEBFUN:diffmat:noBreaks: DIFFMAT does not support domains with breakpoints.', stacklevel=3)
         domain = (domain[0], domain[-1])
     left = boundaries[0] if boundaries else []
     right = boundaries[1] if len(boundaries) > 1 else []
     if left or right:
         if len(left)+len(right) != p:
-            raise ValueError('The number of boundary conditions must match differentiation order p')
+            raise ValueError('CHEBFUN:diffmat:wrongBC: The number of boundary conditions must match differentiation order p.')
         if any(v not in ('dirichlet', 'neumann', 'sum') for v in left+right):
-            raise ValueError('Unknown type of boundary conditions')
+            raise ValueError('CHEBFUN:diffmat:wrongBC: Unknown type of boundary conditions.')
     return m, ncols, p, domain, grids[0], grids[1], left, right
 
 
