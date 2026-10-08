@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Scalar zero-curve source correction (2026-10-08)
+
+125 CPU checks passed: 19 existing roots regressions, 79 numeric constructor
+checks, and 27 spin checks, all with unchanged bounds. Restores source grid,
+duplicate removal, endpoint snapping, six-step refinement, and last accepted
+curve semantics. Reuses JAX paired Clenshaw for field slice evaluation; this
+fixes the crossing-curve regression without changing contour connectivity.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trott_root_acceptance_20261008.json`.
+All reviewed hashes match, no surviving owned processes. Legacy skimage and
+SciPy contour/spline adapters remain; full JAX-only and visual parity are open.
+Corrected page rendering is a separate pending audit. No speed claim.
+
 ## Helmholtz source wrapper and literal tests (2026-10-08)
 
 CPU gate: 9 passed (five wrapper controls and all four pinned MATLAB test

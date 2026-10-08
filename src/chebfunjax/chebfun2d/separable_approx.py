@@ -1105,8 +1105,7 @@ class SeparableApprox(eqx.Module):
     @staticmethod
     def _slice_vals_np(funs, t):
         """Values of all 1D slices at reference points ``t`` -> (r, m)."""
-        import numpy.polynomial.chebyshev as _ncheb
-
+        from chebfunjax.tech.chebtech import _clenshaw
         from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
 
         if all(isinstance(fn, Trigtech) for fn in funs):
@@ -1123,8 +1122,11 @@ class SeparableApprox(eqx.Module):
         C = np.zeros((nmax, len(funs)), dtype=dtype)
         for j, cj in enumerate(coeffs):
             C[: cj.shape[0], j] = cj
-        # chebval result shape = c.shape[1:] + x.shape = (r, m)
-        return _ncheb.chebval(t, C, tensor=True)
+        # MATLAB chebtech/feval dispatches to its paired Clenshaw for
+        # these slice grids. Reuse the library source recurrence rather
+        # than maintaining a second NumPy polynomial evaluator. Its
+        # multi-column result is (m, r), so transpose for this CDR adapter.
+        return np.asarray(_clenshaw(jnp.asarray(C), jnp.asarray(t))).T
 
     @eqx.filter_jit
     def _call_traced(self, x: jax.Array, y: jax.Array) -> jax.Array:
