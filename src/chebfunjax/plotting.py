@@ -88,7 +88,7 @@ def chebfun_style():
     mpl.rcParams.update(CHEBFUN_RC)
 
 
-def save_chebfun_figure(fig, path, size=(600, 270)):
+def save_chebfun_figure(fig, path, size=(600, 270), dpi=100.0):
     """Save *fig* at an exact pixel size matching chebfun.org renders.
 
     The figures published on chebfun.org use fixed canvas sizes
@@ -105,10 +105,11 @@ def save_chebfun_figure(fig, path, size=(600, 270)):
     size : tuple of int
         Target (width, height) in pixels. Defaults to the chebfun.org
         example figure size; pass ``(610, 258)`` for Guide figures.
+    dpi : float
+        Export DPI; defaults to 100.0 to preserve existing callers.
     """
     w, h = size
-    dpi = 100.0
-    # +1e-6 px: the canvas is int(inches * dpi) and 2.53 * 100 = 252.999...
+    # Small offset protects the requested integer canvas from binary rounding.
     fig.set_size_inches((w + 1e-6) / dpi, (h + 1e-6) / dpi)
     # rc 'savefig.bbox: tight' would rescale the canvas even when
     # bbox_inches is not passed — force it off for the exact-size export.
@@ -5125,3 +5126,41 @@ class _SphereCoastLine(Line3D):
             super().draw(renderer)
         finally:
             self._verts3d = original
+
+
+def curve_plot_data(curve, *, max_length: int = 65537):
+    """Return source line coordinates for a bounded complex Chebfun curve.
+
+    Each smooth Chebyshev piece is prolonged on its own source-sized grid;
+    leading NaNs separate pieces. The values parametrize the complex plane,
+    as in MATLAB ``plotData(real(curve), imag(curve))``. No graphics objects
+    are created. This helper returns line coordinates only, not source jump,
+    marker, singular-function, or delta metadata.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/plotData.m; @chebfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import Chebtech2
+    from chebfunjax.utils.transforms import _coeffs2vals_jax
+
+    if max_length < 1:
+        raise ValueError("max_length must be positive")
+    xparts, yparts = [], []
+    for piece in curve.funs:
+        if not isinstance(piece.tech, Chebtech2):
+            raise TypeError("curve_plot_data requires bounded Chebtech2 pieces")
+        # Source plot(real(curve), imag(curve)) preserves component lengths
+        # except for identically zero components, which collapse to one.
+        xtech, ytech = piece.tech.real(), piece.tech.imag()
+        length = max(xtech.n, ytech.n)
+        count = min(max(501, int(4 * jnp.pi * length + .5)), max_length)
+        xvalues = _coeffs2vals_jax(xtech.prolong(count).coeffs).reshape(-1)
+        yvalues = _coeffs2vals_jax(ytech.prolong(count).coeffs).reshape(-1)
+        separator = jnp.asarray([jnp.nan], dtype=jnp.float64)
+        xparts.extend((separator, xvalues))
+        yparts.extend((separator, yvalues))
+    empty = jnp.asarray([], dtype=jnp.float64)
+    return {"xLine": jnp.concatenate(xparts) if xparts else empty,
+            "yLine": jnp.concatenate(yparts) if yparts else empty}

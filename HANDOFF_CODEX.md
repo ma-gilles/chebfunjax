@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Marching Squares rendering checkpoint (2026-10-08)
+
+The actual corrected CPU example completed and regenerated four 600x270 PNGs
+with empty stdout. Source canvas, axes, tick and color audits pass. The reusable
+bounded complex-curve plotting helper has six passing source controls. The
+export helper adds optional DPI with its existing 100 default preserved.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marchingsquares_v9_terminal_page_publication_review_20261008/review.json`.
+Inputs stable, no owned process survivors. Import whitespace was normalized
+for repository lint with exact AST equality to the tested files.
+Full visual parity remains OPEN: Trott endpoint gaps are about 0.00403922,
+smaller than the historical reference gaps; font/antialias differences remain.
+No artificial closure or segment masking was added. Fresh prose and MATLAB
+rendering qualification remain pending. These images are an improved verified
+rendering checkpoint, not a claim that the page is fully matched.
+
 ## Scalar zero-curve source correction (2026-10-08)
 
 125 CPU checks passed: 19 existing roots regressions, 79 numeric constructor
