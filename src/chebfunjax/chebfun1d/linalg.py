@@ -272,7 +272,30 @@ class Quasimatrix:
                            self.domain)
 
     def __add__(self, other):
-        return self._zip(other, lambda a, b: a + b)
+        """Add matching numeric constants columnwise, as MATLAB plus.m does.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/plus.m (quasimatrix numeric branch)
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun) and other.isempty():
+            return Chebfun.empty()
+        if isinstance(other, (Quasimatrix, Chebfun)):
+            return self._zip(other, lambda a, b: a+b)
+        try:
+            values = jnp.asarray(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if values.size == 0:
+            return Chebfun.empty()
+        if values.size == 1:
+            return self._map(lambda col: col+values.reshape(()))
+        if (values.ndim > 2 or (values.ndim == 2 and min(values.shape) != 1)
+                or values.size != len(self.cols)):
+            raise ValueError("CHEBFUN:CHEBFUN:plus:dims: Matrix dimensions must agree.")
+        values = values.reshape(-1)
+        return Quasimatrix([col+values[k] for k, col in enumerate(self.cols)], self.domain)
 
     __radd__ = __add__
 

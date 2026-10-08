@@ -2775,38 +2775,88 @@ class Chebfun(eqx.Module):
             object.__setattr__(out, "_point_values", pv)
         return Chebfun._as_transposed(out, result.is_transposed)
 
-    def __add__(self, other) -> Chebfun:
-        """Add two Chebfuns or a Chebfun and a scalar.
-
-        Returns a new Chebfun with each piece added independently.
+    @staticmethod
+    def _finish_plus(out: Chebfun, transposed: bool) -> Chebfun:
+        """Apply source breakpoint threshold and retain operand orientation.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/plus.m
+        MATLAB source : @chebfun/plus.m, @chebfun/thresholdBreakpointValues.m
+        Chebfun commit: 7574c77
+        """
+        values = jnp.asarray(out.point_values)
+        scale = jnp.max(jnp.stack([jnp.max(jnp.abs(p.values)) for p in out.funs]))
+        values = jnp.where(jnp.abs(values) < 10*scale*_EPS, 0., values)
+        object.__setattr__(out, "_point_values", values)
+        return Chebfun._as_transposed(out, transposed)
+
+    def __add__(self, other) -> Chebfun:
+        """Add Chebfuns or numeric constants with source column expansion.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/plus.m, @chebfun/dimCheck.m
         Chebfun commit: 7574c77
         """
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
-            out = Chebfun._binary_op(self, other, lambda a, b: a + b)
-            return self._attach_deltas(out, Chebfun._merge_deltas(
+            if self.is_transposed != other.is_transposed:
+                raise ValueError("CHEBFUN:CHEBFUN:plus:matdim: "
+                                 "Matrix dimensions must agree. (One input is transposed).")
+            if (self.n_columns != other.n_columns
+                    and self.n_columns != 1 and other.n_columns != 1):
+                raise ValueError("CHEBFUN:CHEBFUN:dimCheck:dim: "
+                                 "Matrix dimensions must agree.")
+            out = Chebfun._binary_op(self, other, lambda a, b: a+b)
+            if (getattr(self, "_point_values", None) is not None
+                    or getattr(other, "_point_values", None) is not None):
+                points = jnp.asarray(out.domain.breakpoints)
+                left = self.T if self.is_transposed else self
+                right = other.T if other.is_transposed else other
+                fv, gv = left(points), right(points)
+                if fv.ndim == 1 and gv.ndim == 2:
+                    fv = fv[:, None]
+                elif gv.ndim == 1 and fv.ndim == 2:
+                    gv = gv[:, None]
+                object.__setattr__(out, "_point_values", fv+gv)
+            out = self._attach_deltas(out, Chebfun._merge_deltas(
                 getattr(self, "deltas", ()), getattr(other, "deltas", ())))
-        if not isinstance(other, (int, float, complex, jnp.ndarray,
+            return self._finish_plus(out, self.is_transposed)
+        if not isinstance(other, (int, float, complex, list, tuple, jnp.ndarray,
                                   jax.Array)):
-            # Defer to the other type's reflected operator (e.g. a
-            # TreeVar recording a syntax tree) instead of crashing in
-            # the jnp coercion below.
             if not (hasattr(other, "dtype")
                     and getattr(other, "ndim", None) is not None):
                 return NotImplemented
-        # scalar: delegate to each piece
-        new_funs = [
-            piece._apply_unary(piece.tech + other)
-            for piece in self.funs
-        ]
+        value = jnp.asarray(other)
+        # Keep the established signed Python integer adapter. Explicit unsigned
+        # MATLAB operands are not doubles; the bounded leaf rejects them.
+        if (jnp.issubdtype(value.dtype, jnp.unsignedinteger)
+                and all(isinstance(p.tech, Chebtech2) for p in self.funs)):
+            raise TypeError("CHEBFUN:CHEBTECH:plus:typeMismatch: "
+                            "Incompatible operation between objects.\n"
+                            "Make sure functions are of the same type.")
+        if value.ndim == 2:
+            value = value.T if self.is_transposed else value
+            if value.shape[0] != 1:
+                raise ValueError("CHEBFUN:CHEBFUN:plus:dims: Matrix dimensions must agree.")
+            value = value[0]
+        if value.ndim > 1 or (value.ndim == 1 and value.size not in (1, self.n_columns)
+                             and self.n_columns != 1):
+            raise ValueError("CHEBFUN:CHEBFUN:plus:dims: Matrix dimensions must agree.")
+        if value.size == 1:
+            value = value.reshape(())
+        new_funs = [piece._apply_unary(piece.tech+value) for piece in self.funs]
         out = Chebfun(funs=new_funs, domain=self.domain)
-        out = self._propagate_point_values(out, lambda v, _o=other: v + _o)
-        return self._attach_deltas(out, getattr(self, "deltas", ()))
+
+        def add_points(points):
+            if points.ndim == 1 and value.ndim == 1 and value.size > 1:
+                points = points[:, None]
+            return points+value
+
+        out = self._propagate_point_values(out, add_points)
+        out = self._attach_deltas(out, getattr(self, "deltas", ()))
+        return self._finish_plus(out, self.is_transposed)
 
     # numpy must not try to broadcast a Chebfun when it appears on the
     # right of a numpy scalar.  Without this, `np.float64(2) - f` (and
