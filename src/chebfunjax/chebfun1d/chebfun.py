@@ -5105,18 +5105,24 @@ class Chebfun(eqx.Module):
             dlist = []
             for i in range(len(self.funs) - 1):
                 loc = float(self.funs[i].interval[1])
-                # complex() not float(): a piecewise COMPLEX chebfun --
-                # e.g. the per-body positions of ode-nonlin/ThreePlanets,
-                # marched onto the solver's mesh -- otherwise raises here
-                # the moment anything differentiates it.
-                left = complex(self.funs[i](jnp.array(loc)))
-                right = complex(self.funs[i + 1](jnp.array(loc)))
-                jump = right - left
-                # MATLAB @chebfun/diff.m getDeltaMag: a jump below
-                # pref.deltaPrefs.deltaTol (1e-9, absolute) is rounding
-                # residue at the breakpoint, not a delta.
+                left_value = jnp.asarray(self.funs[i](jnp.array(loc)))
+                right_value = jnp.asarray(self.funs[i + 1](jnp.array(loc)))
                 from chebfunjax.chebpref import ChebfunPref as _CP
                 _dtol = float(_CP().deltaPrefs.deltaTol)
+                if left_value.size > 1:
+                    # Source diffContinuousDim/getDeltaMag handles continuous
+                    # columns individually. makeDeltaFun warns and omits
+                    # unsupported array-valued deltas at actual jumps.
+                    if bool(jnp.any(jnp.abs(right_value - left_value) > _dtol)):
+                        import warnings
+                        warnings.warn(
+                            "CHEBFUN:CHEBFUN:diff:diffContinuousDim:makeDeltaFun:array: "
+                            "No support here for array-valued delta functions.",
+                            RuntimeWarning, stacklevel=2)
+                    continue
+                left = complex(left_value.reshape(()))
+                right = complex(right_value.reshape(()))
+                jump = right - left
                 # max(|re|, |im|) rather than abs(): Python's complex
                 # abs (hypot) overflows for ~1e308 parts (gamma's poles,
                 # approx/GammaFun); MATLAB's abs(jmp) > deltaTol simply
@@ -6713,49 +6719,57 @@ class Chebfun(eqx.Module):
         y: jax.Array,
         domain: tuple[float, float] | None = None,
     ) -> Chebfun:
-        """Piecewise cubic spline interpolant (not-a-knot conditions).
+        """Piecewise cubic spline with not-a-knot or supplied endpoint slopes.
 
-        Wraps ``scipy.interpolate.CubicSpline`` to construct a piecewise
-        cubic Chebfun through the data ``(x, y)``.  The domain is
-        partitioned at the knot sites ``x``.
-
-        Parameters
-        ----------
-        x : array_like, shape (n,)
-            Sorted interpolation sites (knots).
-        y : array_like, shape (n,)
-            Function values at the knots.
-        domain : (float, float) or None
-            Domain for the result; defaults to ``(x[0], x[-1])``.
-
-        Returns
-        -------
-        Chebfun
-            Piecewise cubic Chebfun interpolant.
-
-        Notes
-        -----
-        NOT JIT-safe.
+        Samples may be scalar, complex, or array-valued; their site axis
+        is accepted in either matrix orientation. With two extra sites in
+        ``y``, the first/last rows specify endpoint slopes. The domain may
+        restrict or extend the data interval and include additional breaks.
+        The public adapter is eager; spline arithmetic is compiled JAX.
 
         Provenance
         ----------
         MATLAB source : @chebfun/spline.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        from scipy.interpolate import CubicSpline
-        x_np = _np.asarray(x, dtype=_np.float64)
-        y_np = _np.asarray(y, dtype=_np.float64)
-        order = _np.argsort(x_np)
-        x_np = x_np[order]
-        y_np = y_np[order]
+        from chebfunjax.utils._spline import spline_coefficients, spline_evaluate
+
+        x = jnp.asarray(x, dtype=jnp.float64).reshape(-1)
+        y = jnp.asarray(y)
+        n = x.size
+        if n < 2 or not bool(jnp.all(jnp.isfinite(x))):
+            raise ValueError("spline requires at least two finite sites")
+        if y.ndim == 0 or y.ndim > 2:
+            raise ValueError("spline samples must be a vector or matrix")
+        if y.ndim == 2:
+            # Source first accepts the last axis as the site dimension,
+            # then forgives transposed input. Internally use sites first.
+            if y.shape[1] in (n, n + 2):
+                y = y.T
+            if y.shape[1] == 1:
+                y = y[:, 0]
+        if y.shape[0] not in (n, n + 2):
+            raise ValueError("spline samples must match sites, optionally with two slopes")
+        slopes = None
+        if y.shape[0] == n + 2:
+            slopes, y = y[jnp.asarray([0, n + 1])], y[1:-1]
+        order = jnp.argsort(x)
+        x, y = x[order], y[order]
+        if not bool(jnp.all(jnp.diff(x) > 0)):
+            raise ValueError("spline sites must be distinct")
+        if not bool(jnp.all(jnp.isfinite(y))) or (
+                slopes is not None and not bool(jnp.all(jnp.isfinite(slopes)))):
+            raise ValueError("spline values and slopes must be finite")
         if domain is None:
-            domain = (float(x_np[0]), float(x_np[-1]))
-        cs = CubicSpline(x_np, y_np, bc_type="not-a-knot")
-        # Use x nodes as breakpoints (unique, sorted)
-        breakpoints = _np.unique(_np.concatenate([[domain[0]], x_np, [domain[1]]]))
-        dom = Domain(tuple(float(b) for b in breakpoints))
-        return Chebfun.from_function(lambda z: jnp.asarray(cs(jnp.asarray(z)), dtype=jnp.float64), dom)
+            domain = (float(x[0]), float(x[-1]))
+        requested = Domain(tuple(float(v) for v in domain))
+        breaks = tuple(sorted(set(requested.breakpoints) | set(float(v) for v in x)))
+        coefficients = spline_coefficients(x, y, slopes)
+        result = Chebfun.from_function(
+            lambda z: spline_evaluate(x, coefficients, z), Domain(breaks), n=4)
+        if requested.a > float(x[0]) or requested.b < float(x[-1]):
+            result = result.restrict(requested.a, requested.b)
+        return result
 
     @staticmethod
     def pchip(

@@ -1,4 +1,4 @@
-# uses-numpy: marching-squares contour tracing and curve fitting are one-shot numpy/scipy
+# uses-numpy: marching-squares contour tracing is a one-shot host adapter
 """Zero-curve rootfinding for Chebfun2 (marching squares + Newton polish).
 
 Traces the zero level set of a real Chebfun2 as a set of complex-valued
@@ -32,6 +32,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+from chebfunjax.utils._spline import spline_coefficients, spline_evaluate
 from chebfunjax.utils.quadrature import chebpts
 
 __all__ = ["zero_curves", "common_zeros"]
@@ -166,16 +167,13 @@ def _snap(dc, dom, scl):
 def _fit_curve(f, fx, fy, pts, scl, vscale, dom):
     """Source six-step contour refinement and last accepted curve.
 
-    The existing SciPy cubic interpolation remains a legacy dependency;
-    new source arithmetic and endpoint handling use JAX arrays only.
+    Complex not-a-knot interpolation and endpoint arithmetic use JAX.
 
     Provenance
     ----------
     MATLAB source : @separableApprox/roots.m (lines 88–118)
     Chebfun commit: 7574c77
     """
-    from scipy.interpolate import interp1d
-
     data = jnp.asarray(pts[:, 0]) + 1j * (jnp.asarray(pts[:, 1]) + jnp.finfo(jnp.float64).tiny)
     # Source deletes data(ii), the FIRST sample in a near-equal pair.
     keep = jnp.concatenate((jnp.abs(jnp.diff(data)) >= 1e-8 * scl,
@@ -200,11 +198,7 @@ def _fit_curve(f, fx, fy, pts, scl, vscale, dom):
         s = jnp.concatenate((jnp.asarray([0.0]), jnp.cumsum(jnp.abs(jnp.diff(data)))))
         s = 2 * s / s[-1] - 1
         cp = chebpts(data.shape[0])
-        # Preserve the pre-existing not-a-knot cubic interpolator boundary.
-        kind = "linear" if npts == 2 else "quadratic" if npts == 3 else "cubic"
-        fr = interp1d(s, jnp.real(data), kind=kind, fill_value="extrapolate")
-        fi = interp1d(s, jnp.imag(data), kind=kind, fill_value="extrapolate")
-        data = jnp.asarray(fr(cp)) + 1j * jnp.asarray(fi(cp))
+        data = spline_evaluate(s, spline_coefficients(s, data), cp)
         curvenew = build(data)
         nodes = chebpts(npts)
         data = _snap(curvenew(nodes), dom, scl)

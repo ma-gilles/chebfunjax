@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Shared JAX spline and source spline tests (2026-10-08)
+
+68 CPU checks passed:49 spline/source/derivative controls and19 unchanged
+contour regressions, including cross0.01. Stable inputs, correct runtime origins,
+no surviving processes. Shared JAX tridiagonal cubic interpolation replaces
+SciPy in Chebfun.spline and contour fitting, retaining complex/array samples,
+endpoint slopes, nonuniform knots, small-node conventions and requested domains.
+All13 nonconstant MATLAB spline assertions retain their10eps norms, exact
+lengths and domains. Continuous array differentiation no longer casts vectors
+to scalar complex. Array-jump breakpoint infVals/pointValues and source warning
+multiplicity remain unfinished; no full diff parity or performance claim.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jax_spline_root_acceptance_20261008.json`.
+
 ## Chebyshev and phase portrait page corrections (2026-10-08)
 
 Two serial CPU page runs completed with stable inputs, verified runtime origins,
