@@ -1,5 +1,45 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest reviewed packages (2026-10-08, local ce0f8c27)
+
+Full parity remains incomplete. These additions supersede the older checkpoints:
+
+| Commit | Change | Verified CPU evidence |
+| --- | --- | --- |
+| 456be0c4 | Rational minimax CF/AAA-Lawson/CDF initialization, failure status, iteration rounding and constructor dependencies | 83 distinct passing checks across three staged gates; four native polynomial fixtures skipped. Not one final-tree suite; selected import origins, incomplete native dependency closure |
+| 3052acbe | Chebfun3 default/inf/even-order norms and source selector errors | All six original predicates plus ten controls; 12 + four disjoint checks. Default Frobenius loop unchanged; infinity uses existing optimizer, not MATLAB optimization trajectories |
+| fd083258 | BestApprox source computations, genuine diagnostics and five reference-sized figures | Numerical page 83.33 s, 3.56 GiB; saved-data tick correction 0.95 s. All five 600×269, numerical run AST/line arrays unchanged, all pairs visually reviewed; no exact pixel/native last-digit claim |
+| ce0f8c27 | Periodic boundary dispatch, piecewise generalized eigenproblem and explicit Fourier coefficient assembly | All 41 original predicates; 49 distinct checks across 45 + 14 gates with ten overlaps. Source bounds/domains retained, independent endpoint/residual controls included |
+
+Root acceptance records in the shared evidence directory below:
+`minimax_initialization_root_acceptance_20261008.json`,
+`chebfun3_norm_root_acceptance_20261008.json`,
+`bestapprox_page_root_acceptance_20261008.json`, and
+`chebop_periodic_root_acceptance_20261008.json`.
+All supervised runs above have terminal receipts, stable bound inputs and no
+surviving owned processes. The norm and periodic gates also bind observed native
+and Python dependency origins. Minimax/page origin limits are recorded explicitly.
+Full Ruff/F821, provenance/NumPy policies and diff checks pass at integration.
+
+Fresh `figure_size_current_bestapprox_20261008.json` rehashes all 1,304 mapped
+PNG pairs: **93 size mismatches on 19 pages**, down five after BestApprox.
+The historical AtmosphericTemperature slot-10 mapping hole remains; reused slot
+mapping and dimensions do not establish full figure/content/pixel parity.
+
+Periodic generalized eig uses JAX inverse-pencil eig and requires invertible A,
+positive differential orders and a shared domain. Singular/arbitrary pencils,
+all selectors and native QZ arithmetic remain open. Explicit scalar linear
+trigspec is qualified; nonlinear trigspec retains its regression-tested fallback.
+BestApprox CF(16,16) still takes a documented source-prescribed fallback after
+an inherited unsupported CF branch. Full CDF numerical hard-case parity remains
+open despite dispatch controls. Chebfun3 extrema remain an inherited algorithm.
+
+Active worker packages: Chebfun addition original predicates; ultraspherical
+REC/ASY and original 40 predicates with final JIT qualification; FermiDirac
+source page preparation awaiting the serial heavy lane. Root reviews deliveries.
+CPU only, three workers plus root; no extra agent slots. Publication/fresh native
+MATLAB blockers below are unchanged. No exact-head CI or full-suite claim.
+
 ## Latest accepted packages (2026-10-08, local 6e62af23)
 
 Full parity remains incomplete. These additions supersede the table below:
