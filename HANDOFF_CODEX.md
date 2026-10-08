@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AD error functions and finite classification (2026-10-08)
+
+Commit `d1fc3256` adds five source AD error functions and restores all15
+original test clauses with fresh MATLAB seed6179 inputs.291 distinct CPU
+tests passed across a preserved initial run (276 passes, one control failure)
+and corrected focused run (30 passes); this is not one all-green291 run.
+The correction changed a domain expectation only. Native MATLAB returned all15
+clauses true. Complex/array-valued generality and speed remain unqualified.
+Evidence: `ad_erf_root_acceptance_20261008.json` in the shared directory below.
+
+Commit `eceb146d` includes breakpoint values in finite classification, matching
+source semantics. All12 original finite/infinite predicates and4 controls pass;
+the previous implementation failed both isolated-infinite-point predicates.
+Evidence: `finite_root_acceptance_20261008.json`. These16 CPU tests were run
+with the pinned environment; no fresh MATLAB run was performed for this package.
+
+Three Astra workers remain active on repmat, small-order Hermite and the
+LaneEmden solver/page, with the coordinator reviewing and publishing. This is
+the session limit of four agents including the coordinator. CPU only; one heavy
+example lane. CI at154923bf is still running with no failures observed; newer
+commits require their own completed CI. Full parity remains incomplete.
+
+
 ## Fresh MATLAB logical and singular Laguerre checks (2026-10-08)
 
 Commit `eb666fec` repairs Chebfun.any's continuous reduction: exact nonzero
