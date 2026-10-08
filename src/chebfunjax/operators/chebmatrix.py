@@ -610,8 +610,7 @@ class ChebMatrix:
                     part = jnp.asarray([[c]]) * jnp.ones(
                         (rsize, 1), dtype=jnp.float64)
                 else:
-                    vals = jnp.ravel(jnp.asarray(block(disc.points()),
-                                                 dtype=jnp.float64))
+                    vals = jnp.ravel(jnp.asarray(block(disc.points())))
                     part = vals[:, None] if rsize == nn else vals[None, :]
                 col_parts.append(part)
 

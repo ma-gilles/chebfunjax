@@ -59,7 +59,7 @@ fprintf('The L2 error is: %1.3e\n', norm(f-u));
 ```
 
 ```text
-The L2 error is: 6.660e-14
+The L2 error is: 1.563e-14
 ```
 
 ## Finding the polytropic radius
@@ -98,7 +98,7 @@ fprintf('Polytropic range for white dwarfs: [0,%1.12f)\n',v(1));
 ```
 
 ```text
-The L2 error is: 6.660e-14
+Polytropic range for white dwarfs: [0,3.653753736219)
 ```
 
 which agrees to all digits shown with the results given in [4].

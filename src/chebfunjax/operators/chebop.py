@@ -1186,6 +1186,9 @@ class Chebop:
             simped = [Chebop._simplify_solution(v) for v in out]
             if any(isinstance(v, Chebfun) and v.isnan() for v in simped):
                 return type(out)(simped)
+            if any(not isinstance(v, Chebfun) for v in simped):
+                # Mixed chebmatrix outputs retain numeric parameter blocks.
+                return type(out)(simped)
             return type(out)(_commonize_system(simped))
         return out
 
@@ -2996,14 +2999,38 @@ class Chebop:
         return V, jnp.asarray(lam_out)
 
     def _system_is_linear(self) -> bool:
-        """Superposition check for system ops:
-        op(u+v) == op(u) + op(v) - op(0) at random probes."""
+        """Classify mixed scalar guesses by source AD, other systems by probes."""
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
         a, b = float(self.domain[0]), float(self.domain[-1])
         x_fun = Chebfun.identity(Domain(self.domain))
+        if self._has_explicit_scalar_parameters():
+            # MATLAB @chebop/linearize.m seeds the supplied initial guess,
+            # including numeric parameter columns. Signed random probes can
+            # leave the domain of fractional powers before Newton even starts.
+            from chebfunjax.autodiff.adchebfun import ADChebfun
+            from chebfunjax.chebfun1d.chebfun import chebfun
+
+            flags = (True,) + (False,) * (m - 1)
+            guesses = [self.init[0]] + [
+                chebfun(value, domain=self.domain) for value in self.init[1:]
+            ]
+            seeded = [ADChebfun(value).seed(index + 1, flags)
+                      for index, value in enumerate(guesses)]
+            outputs = [self._call_op(x_fun, seeded)]
+            outputs.extend(callback(*seeded)
+                           for callback in (self._lbc_raw, self._rbc_raw)
+                           if callback is not None)
+
+            def linear(value):
+                if isinstance(value, (list, tuple)):
+                    return all(linear(part) for part in value)
+                return value.is_linear if isinstance(value, ADChebfun) else True
+
+            return all(linear(value) for value in outputs)
+
         rng = _np.random.default_rng(7)
         xs = jnp.asarray(a + (b - a) * rng.random(7))
 
@@ -3041,6 +3068,21 @@ class Chebop:
         scale = max(_np.max(_np.abs(lhs)), 1.0)
         return bool(_np.max(_np.abs(lhs - rhs)) < 1e-9 * scale)
 
+    def _has_explicit_scalar_parameters(self):
+        """Real single-interval initial guess: one function and scalar seeds."""
+        return (
+            len(self.domain) == 2
+            and isinstance(self.init, (list, tuple))
+            and len(self.init) == self._n_vars() > 1
+            and hasattr(self.init[0], "isreal") and self.init[0].isreal()
+            and all(not callable(g) and jnp.asarray(g).ndim == 0
+                    and not jnp.iscomplexobj(g) for g in self.init[1:])
+            and all(bc is None or callable(bc)
+                    for bc in (self._lbc_raw, self._rbc_raw))
+            and self._bc_general is None
+            and self._n_equations() == 1
+        )
+
     def _solve_nonlinear_system(self, f=0.0, n: int | None = None,
                                 max_iter: int = 30, **kw):
         """Adaptive wrapper (MATLAB solvebvpNonlinear): solve on n = 48
@@ -3048,7 +3090,8 @@ class Chebop:
         residual on a finer grid is small.  A coarse grid can converge
         to a spurious discrete solution with a decaying coefficient tail
         (Carrier, eps = 0.01, at n = 48: residual 0.12), so both checks
-        are required; the refinement restarts from N.init."""
+        are required. Explicit scalar-parameter problems warm-start from the
+        previous grid; other systems retain their N.init restart behavior."""
         import numpy as _np
         if n is not None:
             return self._solve_nonlinear_system_fixed(
@@ -3057,14 +3100,21 @@ class Chebop:
         a0, b0 = float(self.domain[0]), float(self.domain[-1])
         x_fun = Chebfun.identity(Domain(self.domain))
         last = None
+        mixed = self._has_explicit_scalar_parameters()
         for nn in (48, 96, 192, 384, 768):
-            sol = self._solve_nonlinear_system_fixed(
-                f, n=nn, max_iter=max_iter, **kw)
+            if mixed:
+                from chebfunjax.operators.parameter_newton import solve_parameter_fixed
+                sol = solve_parameter_fixed(self, f, nn, max_iter, initial=last)
+            else:
+                sol = self._solve_nonlinear_system_fixed(
+                    f, n=nn, max_iter=max_iter, **kw)
             last = sol
             try:
                 comps = list(sol)
                 ok = True
                 for c in comps:
+                    if mixed and not hasattr(c, "funs"):
+                        continue
                     cs = c.simplify() if hasattr(c, "simplify") else c
                     L = max(int(_np.asarray(pc.tech.coeffs).shape[0])
                             for pc in cs.funs)
@@ -3079,11 +3129,11 @@ class Chebop:
                     fl = list(f) if isinstance(f, (list, tuple)) \
                         else [f] * len(out)
                     for r_i, f_i in zip(out, fl):
-                        rhs = (_np.asarray(f_i(xf), dtype=float)
-                               if callable(f_i) else float(f_i))
-                        rv = _np.asarray(r_i(xf), dtype=float) - rhs
+                        rhs = (_np.asarray(f_i(xf), dtype=None if mixed else float)
+                               if callable(f_i) else f_i if mixed else float(f_i))
+                        rv = _np.asarray(r_i(xf), dtype=None if mixed else float) - rhs
                         nscale = max(1.0, float(_np.max(_np.abs(
-                            _np.asarray(r_i(xf), dtype=float)))))
+                            _np.asarray(r_i(xf), dtype=None if mixed else float)))))
                         if _np.max(_np.abs(rv)) > 1e-6 * nscale:
                             ok = False
                             break
@@ -3108,6 +3158,9 @@ class Chebop:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
+        if self._has_explicit_scalar_parameters():
+            from chebfunjax.operators.parameter_newton import solve_parameter_fixed
+            return solve_parameter_fixed(self, f, 48 if n is None else n, max_iter)
         m = self._n_vars()
         a, b = float(self.domain[0]), float(self.domain[-1])
         if n is None:
