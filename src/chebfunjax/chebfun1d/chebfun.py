@@ -8416,6 +8416,10 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/isfinite.m, @singfun/isfinite.m
         Chebfun commit: 7574c77
         """
+        # Source columnIsfinite checks stored breakpoint values first,
+        # including NaN and isolated infinite values.
+        if bool(jnp.any(~jnp.isfinite(self.point_values))):
+            return False
         from chebfunjax.fun.singfun import _EXP_TOL, Singfun
         for piece in self.funs:
             tech = piece.tech
