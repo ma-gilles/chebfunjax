@@ -4341,18 +4341,31 @@ def _draw_jumplines(ax, f, jumpline, kw):
 
 
 def _draw_deltas(ax, f, deltaline, kw):
+    """Source @deltafun/plotData and @chebfun/plot delta stems."""
     deltas = getattr(f, "deltas", ()) or ()
     if not deltas:
         return
+    # Derivatives of deltas have no source graphical representation.
+    masses = {}
+    for row in deltas:
+        if len(row) > 2 and row[2] != 0:
+            continue
+        loc = float(row[0])
+        masses[loc] = masses.get(loc, 0.0) + float(row[1])
     fmt = deltaline if isinstance(deltaline, str) else None
-    for d in deltas:
-        loc, mag = float(d[0]), float(d[1])
-        if fmt:
-            ax.plot([loc, loc], [0.0, mag], fmt, **kw)
-        else:
-            ax.plot([loc, loc], [0.0, mag], "-", **kw)
+    style = dict(kw)
+    if not fmt and "color" not in style and ax.lines:
+        style["color"] = ax.lines[-1].get_color()
+    continuous = f.remove_deltas()
+    for loc, mag in masses.items():
+        base = float(continuous(loc))
+        finish = base + mag
+        stem, = ax.plot([loc, loc], [base, finish], fmt or "-", **style)
         marker = "^" if mag >= 0 else "v"
-        ax.plot([loc], [mag], marker, **kw)
+        color = stem.get_color()
+        ax.plot([loc], [finish], marker=marker, linestyle="none",
+                markersize=kw.get("markersize", 6), color=color,
+                markerfacecolor=color)
 
 
 def _source_complex_plot_coordinates(xs, ys):

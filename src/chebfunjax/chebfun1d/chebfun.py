@@ -8072,7 +8072,12 @@ class Chebfun(eqx.Module):
             )
 
         # Each delta has weight 1/|f'(r_i)|
-        weights = 1.0 / _np.abs(fpvals)
+        weights = jnp.reciprocal(jnp.abs(jnp.asarray(fpvals)))
+        # MATLAB @chebfun/dirac.m assigns half-strength to endpoint
+        # roots. Integration sums stored masses without further halving.
+        root_values = jnp.asarray(r)
+        weights = jnp.where((root_values == a) | (root_values == b),
+                            0.5 * weights, weights)
 
         # Carry the deltas on the UNIFIED ``deltas`` field (read by sum,
         # cumsum, arithmetic, and conv).  The legacy ``_delta_locs``/
