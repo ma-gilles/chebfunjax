@@ -1,5 +1,42 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest reviewed packages (2026-10-08, local eabdbfa0)
+
+Full parity remains incomplete. This checkpoint supersedes prior active-work
+lists; earlier evidence and limitations remain applicable.
+
+- `f3c27d55`: source ultraspherical REC/ASY/GW rules and all 40 original
+  predicates. Worker gate: 70 passing checks, one live-MATLAB fixture
+  deselected. Root review: nine additional controls and three bitwise interior
+  equivalence comparisons pass. This is composite evidence, not one final
+  79-test run. Mapped-interval JIT, source uncapped interior stopping, small-order
+  stopping and boundary underflow warning repaired. Both gates have stable
+  inputs, terminal receipts and no survivors; 2,950 and 2,934 observed runtime
+  files independently rehashed. Dynamic interval validity requires caller
+  validation before tracing. No general native last-bit/performance claim.
+- `eabdbfa0`: FermiDirac original four minimax fits and six 600×270 figures;
+  actual elapsed-time cells and conditional diagnostics. Numerical run 96.75 s,
+  peak sampled 3.86 GiB; saved-data rendering 1.14 s. All six reference/candidate
+  pairs visually reviewed, line-array/pickle/source hashes bound and 1,654
+  observed runtime files rehashed. Initial fplot still uses uniform 2,000-point
+  sampling; native adaptive sampling, CF rank-loss paths, font/dash/raster
+  identity remain open. The protected original dirty script is preserved;
+  its unsupported diagnostics are not accepted by this replacement.
+
+Root evidence in the shared directory below:
+`ultrapts_root_acceptance_20261008.json` and
+`fermi_dirac_root_acceptance_20261008.json`.
+Full Ruff/F821 and diff checks pass. Quadrature source provenance/NumPy checks
+pass; the following page-only commit does not change library policy results.
+
+Current parallel packages: all 35 Chebfun3 composition predicates plus controls
+(full 64-check gate, heavy lane); Chebfun addition source assertions/regressions
+(singular clause 28 queued); FourierBasedChebfuns source plotting/prolongation.
+Three workers plus root use CPU only. Figure-size audit remains 93 mismatches
+on 19 pages plus the historical mapping hole; Fermi dimensions already matched
+before this update. No full integration suite, fresh native MATLAB, remote push
+or exact-head CI has been established.
+
 ## Latest reviewed packages (2026-10-08, local ce0f8c27)
 
 Full parity remains incomplete. These additions supersede the older checkpoints:
