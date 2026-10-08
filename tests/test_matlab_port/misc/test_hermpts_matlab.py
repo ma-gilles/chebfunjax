@@ -8,6 +8,7 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+# uses-numpy: independent quadrature references and source predicate assertions.
 import numpy as np
 import pytest
 
@@ -30,9 +31,12 @@ class TestHermpts:
     def test_barycentric(self):
         # FIXED (Fable 5): bary=True returns MATLAB's third output.
         x, w, v = hermpts(42, bary=True)
+        assert x.shape == w.shape == v.shape == (42,)
         assert abs(float(np.asarray(v)[16]) - 0.311886101735772) < TOL
 
     def test_n251_moments(self):
+        x_only, _ = hermpts(251)
+        assert x_only.shape == (251,)
         x, w, v = hermpts(251, bary=True)
         x, w, v = np.asarray(x), np.asarray(w), np.asarray(v)
         assert x.shape == (251,)

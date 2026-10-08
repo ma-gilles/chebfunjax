@@ -15,7 +15,7 @@ Original author: Nick Hale, July 2011.
 from __future__ import annotations
 
 from functools import partial
-from math import ceil, floor, ulp
+from math import ceil, exp, floor, log, ulp
 
 import jax
 import jax.numpy as jnp
@@ -37,6 +37,8 @@ _AIRY_ROOTS = (
 
 def _initial_guesses(n: int) -> jax.Array:
     """Positive-half guesses from MATLAB's Airy/Tricomi blend."""
+    if n == 3:
+        raise ValueError("hermpts: source small REC/ASY seed concatenation fails at n=3")
     odd = n % 2
     m = (n - 1) // 2 if odd else n // 2
     a = 0.5 if odd else -0.5
@@ -53,18 +55,36 @@ def _initial_guesses(n: int) -> jax.Array:
     )
     n_exact = min(m, len(_AIRY_ROOTS))
     airy_roots = airy_asym.at[:n_exact].set(jnp.asarray(_AIRY_ROOTS[:n_exact]))
+    if m < 10:
+        # MATLAB assignment airyrts(1:10) grows the short vector.
+        airy_roots = jnp.asarray(_AIRY_ROOTS, dtype=jnp.float64)
 
-    airy = jnp.sqrt(
+    # exp/log matches the observed MATLAB scalar power rounding.
+    two_four_thirds = (exp(log(2.0) * (4.0 / 3.0)) if m < 10
+                       else 2.0 ** (4.0 / 3.0))
+    airy3, airy4, airy5 = airy_roots**3, airy_roots**4, airy_roots**5
+    if m < 10:
+        # Preserve source elementwise power rounding: integer-power expansion
+        # into multiplies perturbs the deliberately nonconverged small seeds.
+        # Dynamic exponents prevent XLA from replacing pow with multiplies.
+        airy3, airy4, airy5 = (
+            jnp.power(airy_roots, lax.optimization_barrier(jnp.float64(k)))
+            for k in (3, 4, 5)
+        )
+    airy_radicand = (
         nu
         + 2.0 ** (2.0 / 3.0) * airy_roots * nu ** (1.0 / 3.0)
-        + (1.0 / 5.0) * 2.0 ** (4.0 / 3.0) * airy_roots**2 * nu ** (-1.0 / 3.0)
-        + (11.0 / 35.0 - a**2 - (12.0 / 175.0) * airy_roots**3) / nu
-        + (16.0 / 1575.0 * airy_roots + 92.0 / 7875.0 * airy_roots**4)
+        + (1.0 / 5.0) * two_four_thirds * airy_roots**2 * nu ** (-1.0 / 3.0)
+        + (11.0 / 35.0 - a**2 - (12.0 / 175.0) * airy3) / nu
+        + (16.0 / 1575.0 * airy_roots + 92.0 / 7875.0 * airy4)
         * 2.0 ** (2.0 / 3.0) * nu ** (-5.0 / 3.0)
-        - (15152.0 / 3031875.0 * airy_roots**5
+        - (15152.0 / 3031875.0 * airy5
            + 1088.0 / 121275.0 * airy_roots**2)
         * 2.0 ** (1.0 / 3.0) * nu ** (-7.0 / 3.0)
-    )[::-1]
+    )
+    # Source takes real(sqrt(...)), including negative real radicands.
+    airy = (jnp.sqrt(airy_radicand.astype(jnp.complex128)).real if m < 10
+            else jnp.sqrt(airy_radicand))[::-1]
 
     rhs = (4.0 * m - 4.0 * j + 3.0) / nu * jnp.pi
     t0 = jnp.full((m,), jnp.pi / 2.0, dtype=jnp.float64)
@@ -118,12 +138,10 @@ def _hermpts_rec(n: int):
     output shape and recurrence length.
 
     The MATLAB top-level function handles n=0 and n=1 before method dispatch;
-    these source cases are reproduced here. This helper supports n>=21, the
-    source's default REC range and the range used by the positive-half seed
-    splice. The public MATLAB default uses GW for n<=20. Its explicit small-n
-    REC path interacts with the source's ten-entry Airy-root assignment to a
-    shorter vector; that legacy corner is intentionally left unsupported
-    here rather than replacing it with guessed seeds.
+    these source cases are reproduced here. Explicit n=2..20 retains the
+    source ten-entry Airy assignment, its n=3 concatenation error, and any
+    inaccurate, repeated or nonfinite source outputs. The public default
+    still selects GW below21.
     """
     if n < 0:
         raise ValueError("hermpts_rec: n must be nonnegative")
@@ -134,8 +152,6 @@ def _hermpts_rec(n: int):
         return (jnp.zeros((1,), dtype=jnp.float64),
                 jnp.full((1,), jnp.sqrt(jnp.pi), dtype=jnp.float64),
                 jnp.ones((1,), dtype=jnp.float64))
-    if n < 21:
-        raise ValueError("hermpts_rec: REC is supported for n >= 21")
 
     x0 = _initial_guesses(n) * jnp.sqrt(2.0)
     dx0 = jnp.full_like(x0, jnp.inf)
@@ -171,5 +187,6 @@ def _hermpts_rec(n: int):
         v = jnp.concatenate((v_pos[::-1], -v_pos))
 
     w = w * (jnp.sqrt(jnp.pi) / jnp.sum(w))
-    v = v / jnp.max(jnp.abs(v))
+    # MATLAB max omits NaNs, preserving finite barycentric entries at n=10.
+    v = v / jnp.nanmax(jnp.abs(v))
     return x, w, v

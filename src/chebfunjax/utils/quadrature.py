@@ -1494,8 +1494,9 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
     adapting MATLAB's column ``x`` and ``v`` and row ``w`` outputs to this
     package's existing convention.
 
-    Explicit REC/ASY at n=2..20 raise ``ValueError``; both implementations
-    require n>=21 beyond the wrapper's n=0 and n=1 cases.
+    Explicit REC at n=2..20 preserves source seed behavior, including the
+    n=3 concatenation error and inaccurate or nonfinite legacy results.
+    Explicit ASY at n=2..20 remains unsupported beyond n=0 and n=1.
 
     Provenance
     ----------
