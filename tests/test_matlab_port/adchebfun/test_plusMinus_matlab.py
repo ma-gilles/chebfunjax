@@ -1,18 +1,36 @@
-"""Port of MATLAB Chebfun tests/adchebfun/test_plusMinus.m (Fable 5).
+"""Original test_plusMinus.m: all five operand combinations and source bounds.
 
-Provenance
-----------
-MATLAB source : tests/adchebfun/test_plusMinus.m
-Chebfun commit: 7574c77
+Provenance: Chebfun 7574c77680d7e82b79626300bf255498271a72df,
+tests/adchebfun/test_plusMinus.m and @adchebfun/*TestingBinary.m.
+Fixed degree-seven inputs replace rand(8,1), without RNG-stream equivalence.
 """
+import operator
 
-from __future__ import annotations
-
+import jax.numpy as jnp
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloading AD class (user decision: JAX AD is the direct counterpart); chebop Newton linearization is exercised by the chebop ports")
+from ._binary_source import data as data
+from ._binary_source import evaluate, taylor_errors, value_error
+
+OPERATIONS = [operator.add, operator.sub]
 
 
-class TestAdchebfunPlusminus:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+@pytest.mark.parametrize("operation", OPERATIONS)
+@pytest.mark.parametrize("index", range(5))
+def test_source_value_clause(data, operation, index):
+    error = value_error(operation, data, index)
+    assert error == 0
+
+
+@pytest.mark.parametrize("operation", OPERATIONS)
+@pytest.mark.parametrize("index", range(5))
+def test_source_taylor_clause(data, operation, index):
+    order1, order2, remainder = taylor_errors(operation, data, index)
+    assert float(jnp.max(jnp.abs(order1-1))) < 1e-2
+    assert float(jnp.max(remainder)) < 1e-14
+
+
+@pytest.mark.parametrize("operation", OPERATIONS)
+@pytest.mark.parametrize("index", range(5))
+def test_source_linearity_clause(data, operation, index):
+    assert evaluate(operation, data, index, value_seeded=True).is_linear
