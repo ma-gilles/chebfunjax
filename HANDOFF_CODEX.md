@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Anchored AD cumulative integration (2026-10-08)
+
+119 CPU checks passed (16new plus103 unchanged AD/saved-reference cases),
+with stable inputs, verified runtime origins and no surviving processes.
+The old pseudoinverse differentiation Jacobian mapped a constant perturbation
+to x instead of x+1 on[-1,1], giving error1. The source anchored cumsum_op
+now composes with the prior Jacobian, supports repeated integration and
+preserves linearity and interior domain breaks. Original Taylor tolerances
+are retained on fixed polynomial controls; no MATLAB RNG or fresh capture
+claim. Remaining operations in the original combined AD test remain open.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ad_cumsum_root_acceptance_20261008.json`.
+
 ## Fourier coefficient page corrections (2026-10-08)
 
 Full CPU page run passed with stable inputs, runtime origins verified and no

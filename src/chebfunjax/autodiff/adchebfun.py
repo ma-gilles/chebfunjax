@@ -52,6 +52,7 @@ from chebfunjax.operators.blocks import (
     D,
     I,
     OperatorBlock,
+    cumsum_op,
     diag,
 )
 
@@ -321,34 +322,30 @@ class ADChebfun:
         # diff is linear, is_linear unchanged
         return result
 
-    def cumsum(self) -> "ADChebfun":
-        """Anti-differentiation (cumulative sum).
+    def cumsum(self, k: int = 1) -> "ADChebfun":
+        """Integrate k times with each antiderivative zero at the left endpoint.
 
-        The Fréchet derivative of cumsum is itself: an integration operator.
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cumsum),
+        @operatorBlock/operatorBlock.m (cumsum).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
-
-        # Build the antidifferentiation OperatorBlock
-        # In collocation: cumsum matrix C satisfies Cf = antiderivative values
-        dom = self.domain
-
-        def _cumsum_fn(disc: ChebColloc2Disc):
-            from chebfunjax.utils.diffmat import diffmat as _dm
-            # Cumsum matrix = inverse of differentiation (up to BCs)
-            # Use the standard Clenshaw-Curtis approach: integrate via coefficients
-            n = disc.n
-            # Build cumsum matrix numerically via columns
-            import jax.numpy as jnp
-            D1 = _dm(n, 1, domain=disc.domain)
-            # We want C such that D1 @ C = I (antiderivative)
-            # Chebfun uses a direct construction. For our purposes
-            # use the pseudo-inverse (pinv) of the differentiation matrix.
-            # This is consistent with how linop.solve works.
-            return jnp.linalg.pinv(D1)
-
-        cumsum_op = OperatorBlock(_cumsum_fn, order=-1, domain=dom)
+        # The operatorBlock source accepts only nonnegative integer orders.
+        # Order is static metadata; all integration arithmetic remains JAX.
+        try:
+            order = int(k)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError("cumsum order must be a nonnegative integer") from error
+        if order < 0 or order != k:
+            raise ValueError("cumsum order must be a nonnegative integer")
         result = _copy_ad(self)
-        result.func = self.func.cumsum()
-        result.jacobian = cumsum_op * self.jacobian
+        result.func = self.func.cumsum(order)
+        # Preserve interior breakpoints in the integration operator, even
+        # when the original AD seed records only the endpoint interval.
+        result.domain = tuple(float(x) for x in result.func.domain.breakpoints)
+        result.jacobian = cumsum_op(result.domain, order) * self.jacobian
+        # Integration is linear: retain the incoming linearity information.
         return result
 
     # ------------------------------------------------------------------
