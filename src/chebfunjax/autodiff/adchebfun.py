@@ -57,6 +57,7 @@ from chebfunjax.operators.blocks import (
     cumsum_op,
     diag,
     eval_at,
+    inner_functional,
     sum_functional,
     zeros_op,
 )
@@ -236,8 +237,8 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func * other.func
             result.jacobian = (
-                diag(self.func, self.domain) * other.jacobian
-                + diag(other.func, other.domain) * self.jacobian
+                _multiply_jacobian(self.func, other.jacobian, self.domain)
+                + _multiply_jacobian(other.func, self.jacobian, other.domain)
             )
             # Linear only if one factor is constant AND the other is linear
             if len(self.linearity) > 1:
@@ -263,7 +264,7 @@ class ADChebfun:
             # other is a Chebfun — diag multiplication
             result = _copy_ad(self)
             result.func = self.func * other
-            result.jacobian = diag(other, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(other, self.jacobian, self.domain)
             result.linearity = self.linearity
             return result
 
@@ -277,7 +278,7 @@ class ADChebfun:
             # other is a Chebfun
             result = _copy_ad(self)
             result.func = other * self.func
-            result.jacobian = diag(other, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(other, self.jacobian, self.domain)
             result.linearity = self.linearity
             return result
 
@@ -289,8 +290,8 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func / g
             result.jacobian = (
-                diag(1.0 / g, self.domain) * self.jacobian
-                - diag(self.func / g2, self.domain) * other.jacobian
+                _multiply_jacobian(1.0 / g, self.jacobian, self.domain)
+                - _multiply_jacobian(self.func / g2, other.jacobian, self.domain)
             )
             if len(self.linearity) > 1:
                 gzero = _jac_zero_flags(other.jacobian)
@@ -314,7 +315,7 @@ class ADChebfun:
             # other is a Chebfun (constant w.r.t. u)
             result = _copy_ad(self)
             result.func = self.func / other
-            result.jacobian = diag(1.0 / other, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(1.0 / other, self.jacobian, self.domain)
             result.linearity = self.linearity
             return result
 
@@ -327,7 +328,7 @@ class ADChebfun:
             mult = other / (-g2)
         result = _copy_ad(self)
         result.func = other / self.func
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         _mark_nonlinear(result, self)
         return result
 
@@ -339,8 +340,8 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = fg
             result.jacobian = (
-                diag(fg * exp.func / self.func, self.domain) * self.jacobian
-                + diag(fg * self.func.log(), exp.domain) * exp.jacobian
+                _multiply_jacobian(fg * exp.func / self.func, self.jacobian, self.domain)
+                + _multiply_jacobian(fg * self.func.log(), exp.jacobian, exp.domain)
             )
             if len(self.linearity) > 1:
                 result.linearity = tuple(a and b for a, b in zip(
@@ -361,7 +362,7 @@ class ADChebfun:
             mult = n * self.func ** (n - 1)
             result = _copy_ad(self)
             result.func = self.func ** n
-            result.jacobian = diag(mult, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
             _mark_nonlinear(result, self)
             return result
         else:
@@ -369,7 +370,7 @@ class ADChebfun:
             mult = exp * self.func ** (exp - 1)
             result = _copy_ad(self)
             result.func = self.func ** exp
-            result.jacobian = diag(mult, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
             _mark_nonlinear(result, self)
             return result
 
@@ -385,9 +386,9 @@ class ADChebfun:
         result = _copy_ad(self)
         result.func = val
         if isinstance(base, (int, float)):
-            result.jacobian = diag(val * log_base, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(val * log_base, self.jacobian, self.domain)
         else:
-            result.jacobian = diag(val * log_base_cheb, self.domain) * self.jacobian
+            result.jacobian = _multiply_jacobian(val * log_base_cheb, self.jacobian, self.domain)
         _mark_nonlinear(result, self)
         return result
 
@@ -457,6 +458,40 @@ class ADChebfun:
         integral = self.cumsum()
         return integral(b) - integral(a)
 
+    def innerProduct(self, other) -> "ADChebfun":
+        """Source AD bilinear integral: sum of the pointwise product.
+
+        Unlike plain Chebfun.inner, the AD source does not conjugate the
+        first operand. Real inputs agree with the usual L2 inner product.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (innerProduct).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return (self * other).sum()
+
+    def norm(self, p=2):
+        """Source L2 norm AD; other norm orders return the primal norm.
+
+        The source derivative formula is qualified here for real functions.
+        No holomorphic derivative of a complex norm is asserted.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (norm).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        if p != 2 and p != "fro":
+            return self.func.norm(p)
+        result = _copy_ad(self)
+        result.domain = tuple(float(x) for x in self.func.domain.breakpoints)
+        result.linearity = _jac_zero_flags(self.jacobian)
+        result.func = self.func.norm(2)
+        jacobian = inner_functional(self.func, result.domain) * self.jacobian
+        result.jacobian = _scale_jacobian(jacobian, 1/result.func)
+        return result
+
     def mean(self) -> "ADChebfun":
         """Compute the mean on a finite domain, retaining its Jacobian.
 
@@ -488,7 +523,7 @@ class ADChebfun:
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         mult = self.func.cos()
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.sin()
         return result
 
@@ -496,7 +531,7 @@ class ADChebfun:
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         mult = -self.func.sin()
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.cos()
         return result
 
@@ -505,7 +540,7 @@ class ADChebfun:
         _mark_nonlinear(result, self)
         cos_u = self.func.cos()
         mult = 1.0 / (cos_u * cos_u)
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.tan() if hasattr(self.func, "tan") else (
             self.func.sin() / self.func.cos()
         )
@@ -515,14 +550,14 @@ class ADChebfun:
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         result.func = self.func.exp()
-        result.jacobian = diag(result.func, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(result.func, self.jacobian, self.domain)
         return result
 
     def log(self) -> "ADChebfun":
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         mult = 1.0 / self.func
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.log() if hasattr(self.func, "log") else (
             _chebfun_log(self.func)
         )
@@ -535,7 +570,7 @@ class ADChebfun:
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         mult = self.func.cosh()
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.sinh()
         return result
 
@@ -543,7 +578,7 @@ class ADChebfun:
         result = _copy_ad(self)
         _mark_nonlinear(result, self)
         mult = self.func.sinh()
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = self.func.cosh()
         return result
 
@@ -552,7 +587,7 @@ class ADChebfun:
         _mark_nonlinear(result, self)
         cosh_u = self.func.cosh()
         mult = 1.0 / (cosh_u * cosh_u)
-        result.jacobian = diag(mult, self.domain) * self.jacobian
+        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
         result.func = (
             self.func.tanh() if hasattr(self.func, "tanh") else
             self.func.sinh() / self.func.cosh()
@@ -764,6 +799,33 @@ def _copy_ad(f: ADChebfun) -> ADChebfun:
     result.linearity = f.linearity
     result.domain = f.domain
     return result
+
+
+def _scale_jacobian(jacobian, factor):
+    """Scale derivative values using JAX, preserving their output spaces."""
+    if isinstance(jacobian, ChebMatrix):
+        return jacobian.cellfun(lambda block: _scale_jacobian(block, factor))
+    if isinstance(jacobian, (OperatorBlock, FunctionalBlock)):
+        action = jacobian._apply_fn
+        kwargs = dict(
+            domain=jacobian.domain,
+            apply_fn=None if action is None else lambda u: factor*action(u),
+            order=jacobian.order,
+            iszero=jacobian.iszero,
+            isnotdiffint=jacobian.isnotdiffint,
+        )
+        return type(jacobian)(lambda disc: factor*jacobian.matrix(disc), **kwargs)
+    return factor*jacobian
+
+
+def _multiply_jacobian(multiplier, jacobian, domain):
+    """Source operatorBlock.mult returns a scalar for numeric scalars."""
+    if callable(multiplier):
+        return diag(multiplier, domain)*jacobian
+    values = jnp.asarray(multiplier)
+    if values.ndim != 0:
+        raise ValueError("numeric vector AD multipliers require an explicit output layout")
+    return _scale_jacobian(jacobian, values)
 
 
 def _jac_zero_flags(jacobian):

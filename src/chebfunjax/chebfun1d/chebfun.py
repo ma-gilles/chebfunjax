@@ -8150,7 +8150,7 @@ class Chebfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun/innerProduct.m
+        MATLAB source : @chebfun/innerProduct.m; @adchebfun/adchebfun.m (innerProduct)
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
@@ -8159,6 +8159,10 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.inner, Chebfun.norm
         """
+        # MATLAB dispatch selects @adchebfun when either operand is AD.
+        from chebfunjax.autodiff.adchebfun import ADChebfun
+        if isinstance(other, ADChebfun):
+            return other.__rmul__(self).sum()
         return self.inner(other)
 
     def ellipj(self, m: float) -> tuple[Chebfun, Chebfun, Chebfun]:
@@ -12425,9 +12429,14 @@ def innerProduct(f: "Chebfun", g: "Chebfun") -> "jax.Array":
 
     Provenance
     ----------
-    MATLAB source : @chebfun/innerProduct.m
+    MATLAB source : @chebfun/innerProduct.m; @adchebfun/adchebfun.m (innerProduct)
     Chebfun commit: 7574c77
     """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    if isinstance(f, ADChebfun):
+        return f.innerProduct(g)
+    if isinstance(g, ADChebfun):
+        return g.__rmul__(f).sum()
     return f.inner(g)
 
 

@@ -1599,7 +1599,7 @@ def inner_functional(f, domain: _DomainT | None = None) -> FunctionalBlock:
         return w * _to_values(f, disc)
 
     return FunctionalBlock(_fn, domain=dom,
-                           apply_fn=lambda u: float(f.inner(u)),
+                           apply_fn=lambda u: f.inner(u),
                            isnotdiffint=True)
 
 
