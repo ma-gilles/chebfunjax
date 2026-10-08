@@ -3621,8 +3621,12 @@ def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
         F = (S1 @ np.asarray(vals2coeffs(jnp.asarray(F.T)))).T
         F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
     else:                                             # Chebyshev coefficients
+        from chebfunjax.tech.chebtech import _alias_chebtech2
+        from chebfunjax.tech.trigtech import _alias_trigtech
         real_valued = False
-        F = (S1 @ Mr2c @ np.asarray(f)).T
+        # Source aliases Fourier columns first, then radial Chebyshev rows.
+        coefficients = _alias_chebtech2(_alias_trigtech(jnp.asarray(f).T, n).T, m)
+        F = np.asarray((jnp.asarray(S1) @ jnp.asarray(Mr2c) @ coefficients).T)
     d = int((-n // 2) * real_valued + n + real_valued)
     K2 = complex(K) ** 2
     if abs(K2.imag) < 1e-14 * max(abs(K2.real), 1.0):

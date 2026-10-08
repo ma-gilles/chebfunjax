@@ -879,95 +879,71 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
 
 
 def _alias_trigtech(coeffs: jax.Array, m: int) -> jax.Array:
-    """Alias Fourier coefficients on the equispaced grid to length ``m``.
+    """Alias Fourier columns with JAX arithmetic and source-ordered folding.
 
-    Direct port of ``@trigtech/alias.m``.  If ``m`` exceeds ``len(coeffs)``
-    the coefficients are zero-padded (with the correct even-``n`` Nyquist
-    symmetry handling); otherwise higher modes are folded down onto the
-    modes indistinguishable from them on the ``m``-point grid.  Aliasing to
-    length ``m`` reproduces exactly the coefficients of the interpolant on
-    the ``m``-point equispaced grid.
+    m is a static positive integer. Even input/output lengths retain the
+    source split/collapse of the Nyquist cosine coefficient.
 
-    Not JIT-safe (Python-int branching + loop-based accumulation); uses
-    numpy for the folding, mirroring the coefficient-surgery helpers in
-    ``chebtech``.
+    Provenance
+    ----------
+    MATLAB source: @trigtech/alias.m
+    Chebfun commit: 7574c77
     """
-    import numpy as np
-
-    orig = jnp.asarray(coeffs)
-    twod = orig.ndim == 2
-    c = np.asarray(orig).astype(np.complex128)
+    if not isinstance(m, int) or m < 1:
+        raise ValueError("trigtech alias requires a positive static integer length")
+    original = jnp.asarray(coeffs)
+    twod = original.ndim == 2
+    c = original.astype(jnp.complex128)
     if not twod:
         c = c.reshape(-1, 1)
-    else:
-        c = c.copy()
-    n = c.shape[0]
-    cols = c.shape[1]
-
+    n, columns = c.shape
     if m == n:
-        # Same length: identity (the fold-down path assumed m < n and
-        # produced empty accumulators for n == m == 1).
-        return orig
-
+        return original
     if m > n:
-        k = int(np.ceil((m - n) / 2))
-        z = np.zeros((k, cols), dtype=c.dtype)
+        k = (m - n + 1) // 2
+        zeros = jnp.zeros((k, columns), dtype=c.dtype)
         if n % 2 == 0:
-            # Account for the even-n asymmetry (the cos(N/2) coeff) using
-            # the symmetry of the complex exponential.
-            c = np.concatenate([c[:1] / 2, c[1:n], c[:1] / 2], axis=0)
-            c = np.concatenate([z, c, z[: z.shape[0] - 1]], axis=0)
-            if m % 2 == 1:
+            c = jnp.concatenate((c[:1] / 2, c[1:], c[:1] / 2))
+            c = jnp.concatenate((zeros, c, zeros[:-1]))
+            if m % 2:
                 c = c[1:]
         else:
-            c = np.concatenate([z, c, z], axis=0)
+            c = jnp.concatenate((zeros, c, zeros))
             if m % 2 == 0:
                 c = c[:-1]
-        out = jnp.asarray(c, dtype=jnp.complex128)
-        return out if twod else out.reshape(-1)
-
-    # Make n odd by exploiting symmetry, which simplifies the cases below.
-    if n % 2 == 0:
-        c = c.copy()
-        c[0] = 0.5 * c[0]
-        c = np.concatenate([c, c[:1]], axis=0)
-        n = n + 1
-
-    if m % 2 == 1:
-        if m == 1:
-            n2 = (n - 1) // 2
-            const = c[n2]
-            pos = c[n2 - 1::-1]
-            neg = c[n2 + 1:n]
-            e = np.ones(int(np.ceil((n - 1) / 2)), dtype=c.dtype)
-            e[0::2] = -1
-            c = (const + (e @ pos + e @ neg)).reshape(1, cols)
-        else:
-            m2 = (m - 1) // 2
-            n2 = (n - 1) // 2
-            al = c[n2 - m2:n2 + m2 + 1].copy()
-            for j in range(-n2, -m2):
-                k = int(np.mod(j + m2 + 1, -m)) + m2
-                sgn = (-1) ** ((j + k) % 2)
-                al[k + m2] = al[k + m2] + sgn * c[j + n2]
-                al[-k + m2] = al[-k + m2] + sgn * c[-j + n2]
-            c = al
     else:
-        m2 = m // 2
+        if n % 2 == 0:
+            c = c.at[0].multiply(0.5)
+            c = jnp.concatenate((c, c[:1]))
+            n += 1
         n2 = (n - 1) // 2
-        al = c[n2 - m2:n2 + m2].copy()
-        al = np.concatenate([al, -al[:1]], axis=0)
-        for j in range(-n2, -m2 + 1):
-            k = int(np.mod(j + m2, -m)) + m2
-            al[k + m2] = al[k + m2] + c[j + n2]
-            al[-k + m2] = al[-k + m2] + c[-j + n2]
-        # Collapse the +m/2 exp term back onto the -m/2 one and drop the tail.
-        al[0] = al[0] + al[-1]
-        al = al[:-1]
-        c = al
+        if m == 1:
+            signs = jnp.where(jnp.arange(n2) % 2 == 0, -1., 1.)
+            c = (c[n2] + (signs @ c[n2-1::-1] + signs @ c[n2+1:])).reshape(1, columns)
+        elif m % 2:
+            m2 = (m - 1) // 2
+            initial = c[n2-m2:n2+m2+1]
 
-    out = jnp.asarray(c, dtype=jnp.complex128)
-    return out if twod else out.reshape(-1)
+            def fold(j, result):
+                k = jnp.mod(j + m2 + 1, -m) + m2
+                sign = jnp.where(jnp.mod(j + k, 2) == 0, 1., -1.)
+                result = result.at[k+m2].add(sign*c[j+n2])
+                return result.at[-k+m2].add(sign*c[-j+n2])
+
+            c = jax.lax.fori_loop(-n2, -m2, fold, initial)
+        else:
+            m2 = m // 2
+            initial = c[n2-m2:n2+m2]
+            initial = jnp.concatenate((initial, -initial[:1]))
+
+            def fold(j, result):
+                k = jnp.mod(j + m2, -m) + m2
+                result = result.at[k+m2].add(c[j+n2])
+                return result.at[-k+m2].add(c[-j+n2])
+
+            c = jax.lax.fori_loop(-n2, -m2+1, fold, initial)
+            c = c.at[0].add(c[-1])[:-1]
+    return c if twod else c.reshape(-1)
 
 
 def _trigcoeffs_trigtech(coeffs: jax.Array, N: int) -> jax.Array:
