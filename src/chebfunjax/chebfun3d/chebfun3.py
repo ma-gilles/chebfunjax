@@ -2585,11 +2585,14 @@ class Chebfun3(eqx.Module):
             r = _np.clip(r - step, lo, hi)
         return jnp.asarray(r)
 
-    def norm(self) -> jax.Array:
-        """Continuous Frobenius norm from orthogonal factors and the core.
+    def norm(self, p="fro", *, return_location=False):
+        """Continuous Frobenius, infinity, or even-order integral norm.
 
-        Weighted QR gives the source HOSVD norm without reconstructing the
-        squared function or forming a dense three-dimensional value tensor.
+        The default Frobenius norm uses weighted factor QR, equivalent to
+        the source HOSVD norm. Infinity norms delegate to ``minandmax3``;
+        ``return_location=True`` returns the extremizing point as well.
+        As in MATLAB Chebfun3, numeric 2 is an unsupported selector even
+        though the default Frobenius norm is the continuous L2 norm.
 
         Provenance
         ----------
@@ -2599,7 +2602,33 @@ class Chebfun3(eqx.Module):
         from chebfunjax.tech.trigtech import Trigtech
 
         if self.isempty():
-            return jnp.empty((0,))
+            empty = jnp.empty((0,))
+            return (empty, empty) if return_location else empty
+        if p in (float("inf"), "inf", "max"):
+            if self.isreal():
+                target = self
+            else:
+                # MATLAB represents conj(f).*f as a real-valued object.
+                # Remove its identically zero imaginary component for the
+                # Python extrema routine's real scalar contract.
+                target = (self.conj()*self).real()
+            values, locations = target.minandmax3()
+            magnitudes = jnp.abs(values)
+            if not self.isreal():
+                magnitudes = jnp.sqrt(magnitudes)
+            index = jnp.argmax(magnitudes)
+            result = magnitudes[index]
+            return (result, locations[index]) if return_location else result
+        if p == 1:
+            raise ValueError("CHEBFUN:CHEBFUN3:norm:norm: CHEBFUN3 does not support L1-norm")
+        if p in (2, -float("inf"), "-inf", "min", "op", "operator"):
+            raise ValueError("CHEBFUN:CHEBFUN3:norm:norm: Not implemented.")
+        if p != "fro":
+            if isinstance(p, (int, float, jax.Array)) and jnp.ndim(p) == 0 and not jnp.iscomplexobj(p):
+                if p % 2 == 0:
+                    return ((self.conj()*self)**(p/2)).sum3()**(1/jnp.asarray(p, dtype=jnp.float64))
+                raise ValueError("CHEBFUN:CHEBFUN3:norm:norm: Not implemented.")
+            raise ValueError("CHEBFUN:CHEBFUN3:norm:unknown: Unknown norm.")
         core = self.core
         for axis, factors in enumerate((self.cols, self.rows, self.tubes)):
             n = max(len(f.coeffs) for f in factors)
