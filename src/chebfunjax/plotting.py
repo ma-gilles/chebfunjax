@@ -3516,13 +3516,14 @@ def plotregion(
     Notes
     -----
     This source-shaped branch covers bounded scalar Chebtech1/2 pieces only.
-    Trigtech and Singfun have distinct MATLAB ``plotregionData`` methods;
-    unbounded and array-valued inputs are outside this adapter. Omitting eps
+    Scalar bounded Trigtech pieces use the source horizontal strip and
+    dotted period edges. Singfun, unbounded and array-valued inputs remain
+    outside this adapter. Omitting eps
     preserves the legacy heuristic for those unsupported representations.
 
     Provenance
     ----------
-    MATLAB sources: ``@chebtech/plotregionData.m``,
+    MATLAB sources: ``@chebtech/plotregionData.m``, ``@trigtech/plotregionData.m``,
     ``@classicfun/plotregionData.m``, ``@chebfun/plotregion.m``.
     Chebfun commit: 7574c77.
     """
@@ -3539,6 +3540,44 @@ def plotregion(
         fig = ax.get_figure()
 
     pieces = getattr(f, "funs", ())
+    if not pieces:
+        ax.plot([])
+        return fig, ax
+    from chebfunjax.tech.trigtech import Trigtech
+
+    if all(isinstance(piece.tech, Trigtech) for piece in pieces):
+        if any(piece.tech.coeffs.ndim != 1 for piece in pieces):
+            raise ValueError("plotregion does not support array-valued Chebfuns")
+        smooth = f.simplify()
+        eps_value = jnp.finfo(jnp.float64).eps if eps is None else jnp.asarray(eps, dtype=jnp.float64)
+        xlimits, ylimits = [], []
+        for piece in smooth.funs:
+            a, b = piece.interval
+            if not np.isfinite(a) or not np.isfinite(b):
+                raise ValueError("Plot of analyticity region is not supported for function on unbounded domain.")
+            # The tech method simplifies again after @chebfun/plotregion.
+            m = piece.tech.simplify().n
+            n = (m - 1) // 2 if m % 2 else m // 2 - 1
+            height = jnp.log(1 / eps_value) / (jnp.pi * n)
+            # @trigtech/plotregionData: horizontal strip and dotted period
+            # edges; @chebfun/plotregion maps both complex coordinates.
+            halfwidth, midpoint = .5 * (b - a), .5 * (a + b)
+            x = jnp.asarray([-1., 1., jnp.nan, -1., 1.])
+            y = height * jnp.asarray([1., 1., jnp.nan, -1., -1.])
+            aux_x = jnp.asarray([-1., -1., jnp.nan, 1., 1.])
+            aux_y = height * jnp.asarray([1., -1., jnp.nan, 1., -1.])
+            ax.plot(np.asarray(midpoint + halfwidth * x), np.asarray(halfwidth * y), color=color, **kw)
+            ax.plot(np.asarray(midpoint + halfwidth * aux_x), np.asarray(halfwidth * aux_y), ':', color=color)
+            xlimits.extend([midpoint - 1.1 * halfwidth, midpoint + 1.1 * halfwidth])
+            ylimits.extend([-1.1 * halfwidth * height, 1.1 * halfwidth * height])
+        ends = np.asarray(f.domain.breakpoints)
+        ax.plot(ends, np.zeros_like(ends), 'k+-')
+        ax.set_xlim(float(min(xlimits)), float(max(xlimits)))
+        # Constants have N=0 and an infinite strip in source data. Do not
+        # substitute an arbitrary finite strip; Matplotlib rejects its limits.
+        ax.set_ylim(float(min(ylimits)), float(max(ylimits)))
+        fig.set_facecolor("white")
+        return fig, ax
     source_supported = bool(pieces) and all(
         isinstance(piece.tech, (Chebtech1, Chebtech2))
         and piece.tech.coeffs.ndim == 1
@@ -5172,6 +5211,51 @@ def curve_plot_data(curve, *, max_length: int = 65537):
         xvalues = _coeffs2vals_jax(xtech.prolong(count).coeffs).reshape(-1)
         yvalues = _coeffs2vals_jax(ytech.prolong(count).coeffs).reshape(-1)
         separator = jnp.asarray([jnp.nan], dtype=jnp.float64)
+        xparts.extend((separator, xvalues))
+        yparts.extend((separator, yvalues))
+    empty = jnp.asarray([], dtype=jnp.float64)
+    return {"xLine": jnp.concatenate(xparts) if xparts else empty,
+            "yLine": jnp.concatenate(yparts) if yparts else empty}
+
+
+def trig_plot_data(f, *, max_length: int = 65536):
+    """Return source FFT line coordinates for scalar bounded trig pieces.
+
+    Real functions use the mapped periodic grid without an added right
+    endpoint. Complex functions parametrize the plane and include both
+    endpoint values, as in plotData(real(f), imag(f)). Leading NaNs separate
+    pieces. Only line coordinates are returned; marker and jump metadata
+    are outside this helper's scope.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/plotData.m; @bndfun/plotData.m; @chebfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.trigtech import Trigtech, trigpts
+
+    if max_length < 1:
+        raise ValueError("max_length must be positive")
+    xparts, yparts = [], []
+    separator = jnp.asarray([jnp.nan], dtype=jnp.float64)
+    for piece in f.funs:
+        tech = piece.tech
+        if not isinstance(tech, Trigtech) or tech.values.ndim != 1:
+            raise TypeError("trig_plot_data requires scalar bounded Trigtech pieces")
+        if tech.is_real:
+            count = min(max(501, int(4 * jnp.pi * tech.n + .5)), max_length)
+            nodes = trigpts(count)
+            a, b = piece.interval
+            xvalues = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
+            yvalues = tech.prolong(count).values.real
+        else:
+            xtech, ytech = tech.real(), tech.imag()
+            length = max(xtech.n, ytech.n)
+            count = min(max(501, int(4 * jnp.pi * length + .5)), max_length)
+            endpoints = jnp.asarray([-1., 1.])
+            xe, ye = xtech(endpoints).real, ytech(endpoints).real
+            xvalues = jnp.concatenate((xe[:1], xtech.prolong(count).values.real, xe[1:]))
+            yvalues = jnp.concatenate((ye[:1], ytech.prolong(count).values.real, ye[1:]))
         xparts.extend((separator, xvalues))
         yparts.extend((separator, yvalues))
     empty = jnp.asarray([], dtype=jnp.float64)
