@@ -928,7 +928,7 @@ class Chebop:
         n_min: int = 32,
         n_max: int = 4096,
         tol: float = 5e-13,
-        max_iter: int = 15,
+        max_iter: int = 25,
         newton_tol: float = 5e-13,
         discretization: str | None = None,
         ivp_solver: str | None = None,
@@ -1200,7 +1200,7 @@ class Chebop:
         n_min: int = 32,
         n_max: int = 4096,
         tol: float = 5e-13,
-        max_iter: int = 15,
+        max_iter: int = 25,
         newton_tol: float = 5e-13,
     ):
         """Solve the BVP ``N[u] = f`` with the attached boundary conditions.
@@ -1221,7 +1221,7 @@ class Chebop:
             Maximum size for adaptive loop.
         tol : float, default 5e-13
             Convergence tolerance for the adaptive size loop.
-        max_iter : int, default 15
+        max_iter : int, default 25
             Maximum Newton iterations (for nonlinear problems).
         newton_tol : float, default 1e-10
             Newton convergence tolerance (max absolute correction).
@@ -1353,6 +1353,10 @@ class Chebop:
                     pass
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
+            if self._has_explicit_scalar_parameters():
+                from chebfunjax.operators.parameter_newton import solve_parameter
+                return solve_parameter(self, f, n=n, max_iter=max_iter,
+                                       bvp_tol=tol, n_min=n_min, n_max=n_max)
             return self._solve_nonlinear_system(
                 f, n=n, max_iter=max_iter)
 
@@ -3022,7 +3026,7 @@ class Chebop:
             outputs = [self._call_op(x_fun, seeded)]
             outputs.extend(callback(*seeded)
                            for callback in (self._lbc_raw, self._rbc_raw)
-                           if callback is not None)
+                           if callable(callback))
 
             def linear(value):
                 if isinstance(value, (list, tuple)):
@@ -3069,15 +3073,15 @@ class Chebop:
         return bool(_np.max(_np.abs(lhs - rhs)) < 1e-9 * scale)
 
     def _has_explicit_scalar_parameters(self):
-        """Real single-interval initial guess: one function and scalar seeds."""
+        """Single-interval initial guess: one function and numeric scalar seeds."""
         return (
             len(self.domain) == 2
             and isinstance(self.init, (list, tuple))
             and len(self.init) == self._n_vars() > 1
-            and hasattr(self.init[0], "isreal") and self.init[0].isreal()
+            and hasattr(self.init[0], "funs")
             and all(not callable(g) and jnp.asarray(g).ndim == 0
-                    and not jnp.iscomplexobj(g) for g in self.init[1:])
-            and all(bc is None or callable(bc)
+                    for g in self.init[1:])
+            and all(bc is None or callable(bc) or jnp.asarray(bc).ndim <= 1
                     for bc in (self._lbc_raw, self._rbc_raw))
             and self._bc_general is None
             and self._n_equations() == 1
@@ -3090,9 +3094,14 @@ class Chebop:
         residual on a finer grid is small.  A coarse grid can converge
         to a spurious discrete solution with a decaying coefficient tail
         (Carrier, eps = 0.01, at n = 48: residual 0.12), so both checks
-        are required. Explicit scalar-parameter problems warm-start from the
-        previous grid; other systems retain their N.init restart behavior."""
+        are required for the legacy general-system path. Explicit scalar-parameter
+        problems use source damping with separately resolved Newton corrections."""
         import numpy as _np
+        if self._has_explicit_scalar_parameters():
+            from chebfunjax.operators.parameter_newton import solve_parameter
+            return solve_parameter(self, f, n=n, max_iter=max_iter,
+                                   bvp_tol=kw.get("tol", 5e-13),
+                                   n_min=kw.get("n_min", 32), n_max=kw.get("n_max", 4096))
         if n is not None:
             return self._solve_nonlinear_system_fixed(
                 f, n=n, max_iter=max_iter, **kw)

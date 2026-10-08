@@ -37,6 +37,28 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, "..", "..", "docs", "images", "ode-nonlin")
 
 
+def _real_display_solution(u, radius):
+    """Display the real physical branch, rejecting non-roundoff imaginary data.
+
+    The MATLAB page's plot/axis/fprintf calls assume a real solution. This
+    visualization adapter preserves the solver's complex result and only
+    projects values bounded by100 binary64 eps times their own scale. The
+    coefficient L1 bound controls the entire polynomial curve, not a grid.
+    This threshold does not test Newton convergence or the ODE residual.
+    """
+    rounding = 100 * np.finfo(float).eps
+    radius_value = complex(radius)
+    if abs(radius_value.imag) > rounding * max(1., abs(radius_value.real)):
+        raise ValueError("white-dwarf radius is materially complex; cannot display real branch")
+    imaginary_bound = max(float(np.sum(np.abs(np.imag(np.asarray(piece.tech.coeffs)))))
+                          for piece in u.funs)
+    imaginary_bound = max(imaginary_bound,
+                          float(np.max(np.abs(np.imag(np.asarray(u(u.domain.breakpoints)))))))
+    if imaginary_bound > rounding * max(1., float(u.vscale)):
+        raise ValueError("white-dwarf solution is materially complex; cannot display real branch")
+    return u.real(), radius_value.real
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -80,11 +102,11 @@ def run():
     N.init = [(np.pi / 2 * x).cos(), np.pi]
     uv = N.solvebvp(0.0)[0]
     u, v = uv[0], uv[1]
-    v0 = float(v)
+    u_display, v0 = _real_display_solution(u, v)
     fig, ax = plt.subplots(figsize=(600 / 72.009, 269 / 72.009))
     ax.set_position([0.13, 0.14, 0.775, 0.775])
     ax.tick_params(labelsize=12)
-    matlab_plot(u, ax=ax, linewidth=2, label="u")
+    matlab_plot(u_display, ax=ax, linewidth=2, label="u")
     # MATLAB chebmatrix/plot promotes numeric blocks only for plotting.
     matlab_plot(cj.chebfun(v0, domain=d), ax=ax, linewidth=2, label="v")
     ax.axis([0, 1, 0, 1.05 * v0])
