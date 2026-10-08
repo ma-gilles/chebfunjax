@@ -5164,3 +5164,43 @@ def curve_plot_data(curve, *, max_length: int = 65537):
     empty = jnp.asarray([], dtype=jnp.float64)
     return {"xLine": jnp.concatenate(xparts) if xparts else empty,
             "yLine": jnp.concatenate(yparts) if yparts else empty}
+
+
+def matlab_axis_equal(ax):
+    """Fit equal 2D Cartesian data units to the existing axes box, preserving its position.
+
+    This opt-in graphics adapter follows MATLAB R2024b axis.m LocSetEqual:
+    reset the unconstrained limit mode to automatic based on the existing
+    pixel box and data ranges. The automatic axis is centered on its data;
+    the other axis keeps its current limits. Host arithmetic here describes
+    the rendering box and does not change any plotted coordinates.
+
+    Provenance
+    ----------
+    MATLAB source: R2024b graphics/graphics/axis/axis.m (LocSetEqual).
+    Used by Chebfun complex/RoucheTheorem.m (axis equal).
+    Chebfun commit: 7574c77
+    """
+    fig = ax.get_figure()
+    pos = ax.get_position(original=True)
+    width = pos.width * fig.get_figwidth()
+    height = pos.height * fig.get_figheight()
+    ax.set_aspect("equal", adjustable="datalim")
+    if width <= 0 or height <= 0:
+        return ax
+    xlim, ylim = ax.get_xlim(), ax.get_ylim()
+    dx, dy = xlim[1]-xlim[0], ylim[1]-ylim[0]
+    ax.relim()
+    if dx/width < dy/height:
+        values = ax.dataLim.intervalx
+        center = float(np.mean(values)) if np.all(np.isfinite(values)) else sum(xlim)/2
+        span = dy * width/height
+        ax.set_xlim(center-span/2, center+span/2)
+        ax.set_autoscalex_on(True)
+    else:
+        values = ax.dataLim.intervaly
+        center = float(np.mean(values)) if np.all(np.isfinite(values)) else sum(ylim)/2
+        span = dx * height/width
+        ax.set_ylim(center-span/2, center+span/2)
+        ax.set_autoscaley_on(True)
+    return ax
