@@ -1,14 +1,6 @@
 """Port of MATLAB Chebfun tests/classicfun/test_isequal.m (Fable 5).
 
-``Classicfun.isequal`` (inherited by ``Bndfun``) and ``Unbndfun.isequal`` now
-compare the domain and the underlying onefun, so the non-singular MATLAB
-assertions are ported at MATLAB's tolerances (``isequal`` is exact, so no
-tolerance is involved).
-
-Gaps vs MATLAB (honest skip):
-* Pass 6 builds two BNDFUNs with ``exponents`` (SingFun endpoint blow-up) and
-  pass 8-9 build an UNBNDFUN with ``exponents`` under ``blowup = true``.  Those
-  belong to the SingFun subsystem, not to this file's ``isequal`` logic.
+All ten original predicates, including singular bounded and unbounded inputs.
 
 Provenance
 ----------
@@ -20,7 +12,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -72,11 +63,16 @@ class TestClassicfunIsequalBndfun:
         assert not f.isequal(g)
 
     def test_singular_bndfuns(self):
-        # pass(6)
-        pytest.skip(
-            "MATLAB pass 6 compares two BNDFUNs built with 'exponents' "
-            "(SingFun endpoint blow-up), which belongs to the SingFun "
-            "subsystem rather than to classicfun/isequal")
+        # Source uses fractional powers of negative values: MATLAB promotes
+        # to complex; JAX requires the explicit complex dtype adapter.
+        f = Bndfun.from_function(
+            lambda x: (x.astype(jnp.complex128)-7)**-.5*jnp.sin(x),
+            DOM, exponents=(0, -.5))
+        g = Bndfun.from_function(
+            lambda x: (x.astype(jnp.complex128)-7)**-.6*(jnp.cos(x)**2+1),
+            DOM, exponents=(0, -.6))
+        assert not f.isequal(g)
+
 
 
 class TestClassicfunIsequalUnbndfun:
@@ -97,8 +93,8 @@ class TestClassicfunIsequalUnbndfun:
         assert f.isequal(f)
 
     def test_blowup_unbndfun(self):
-        # pass(8:9)
-        pytest.skip(
-            "MATLAB passes 8-9 compare against an UNBNDFUN built with "
-            "'exponents' under blowup = true (SingFun endpoint blow-up), "
-            "which belongs to the SingFun subsystem")
+        dom = Domain((-jnp.inf, jnp.inf))
+        f = Unbndfun.from_function(lambda x: (1-jnp.exp(-x**2))/x, dom)
+        g = Unbndfun.from_function(lambda x: x**2*(1-jnp.exp(-x**2)), dom, exps=(2, 2))
+        assert not f.isequal(g)
+        assert not g.isequal(f)

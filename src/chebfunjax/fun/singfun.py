@@ -413,35 +413,39 @@ class Singfun(eqx.Module):
     def __len__(self) -> int:
         return self.n
 
-    def __eq__(self, other) -> bool:
-        """Equality test mirroring MATLAB ``@singfun/isequal``.
-
-        Two Singfuns are equal when their exponents agree and their
-        smooth-part Chebyshev coefficients agree.  A small tolerance is used
-        on the coefficients because complex-valued smooth parts constructed
-        through ``real``/``imag``/``conj`` differ from the directly-constructed
-        real smooth part by rounding in the complex FFT.
+    def normest(self):
+        """Estimate the norm from the smooth factor, as MATLAB does.
 
         Provenance
         ----------
-        MATLAB source : @singfun/isequal.m
-        Chebfun commit: 7574c77
+        MATLAB source: @singfun/normest.m, Chebfun7574c77.
         """
+        return self.smoothPart.normest()
+
+    def isequal(self, other) -> bool:
+        """Compare source exponents and exact smooth-part coefficients.
+
+        Provenance
+        ----------
+        MATLAB source: @singfun/isequal.m, @chebfunpref/chebfunpref.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        The default exponent tolerance is strictly 1.1e-11; coefficients
+        and lengths must match exactly through the smooth-part predicate.
+        """
+        if isinstance(other, (Chebtech1, Chebtech2)):
+            other = Singfun(other)
         if not isinstance(other, Singfun):
-            return NotImplemented
-        if self.isempty() or other.isempty():
-            return self.isempty() and other.isempty()
-        ea, eb = self.exponents, other.exponents
-        if abs(ea[0] - eb[0]) > _EXP_TOL or abs(ea[1] - eb[1]) > _EXP_TOL:
             return False
-        ca = self.smoothPart.coeffs
-        cb = other.smoothPart.coeffs
-        na, nb = ca.shape[0], cb.shape[0]
-        n = max(na, nb)
-        ca = jnp.pad(ca, (0, n - na))
-        cb = jnp.pad(cb, (0, n - nb))
-        scale = max(self.smoothPart.vscale, other.smoothPart.vscale, 1.0)
-        return bool(jnp.all(jnp.abs(ca - cb) <= 1e-11 * scale))
+        tol = 1.1e-11
+        if not all(abs(a - b) < tol for a, b in zip(self.exponents, other.exponents)):
+            return False
+        return self.smoothPart.isequal(other.smoothPart)
+
+    def __eq__(self, other) -> bool:
+        """Use the MATLAB isequal predicate for Python equality."""
+        if not isinstance(other, (Singfun, Chebtech1, Chebtech2)):
+            return NotImplemented
+        return self.isequal(other)
 
     def __hash__(self):
         return id(self)

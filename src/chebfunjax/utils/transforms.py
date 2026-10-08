@@ -38,10 +38,12 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
         return values
     tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
     if jnp.iscomplexobj(values):
-        coeffs_general = jnp.fft.ifft(tmp, axis=0)
-        coeffs_imag = 1j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
-        purely_imag = jnp.all(jnp.real(values) == 0)
-        coeffs = jnp.where(purely_imag, coeffs_imag, coeffs_general)
+        # The cosine transform is real-linear. Two real FFTs preserve
+        # conjugacy exactly; a general complex FFT can mix roundoff between
+        # components and violate the source's strict cancellation predicate.
+        # This is a numerical adaptation of @chebtech2/vals2coeffs.m's IFFT.
+        coeffs = (jnp.real(jnp.fft.ifft(jnp.real(tmp), axis=0))
+                  + 1j*jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0)))
     else:
         coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
     coeffs = coeffs[:n]
@@ -129,7 +131,9 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     # curve fits, adaptive constructors) rack up thousands of XLA
     # compiles -- 60% of chebfun2 roots() runtime was
     # backend_compile before this path.
-    if not isinstance(values, jax.core.Tracer):
+    # Complex inputs use the conjugacy-preserving JAX transform in both
+    # eager and traced execution.
+    if not isinstance(values, jax.core.Tracer) and not jnp.iscomplexobj(values):
         v = np.asarray(values)
         if np.all(np.isfinite(v)):
             return jnp.asarray(_vals2coeffs_np(v))

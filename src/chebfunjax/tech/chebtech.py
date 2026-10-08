@@ -220,6 +220,22 @@ def _collapse_if_zero(coeffs: jax.Array) -> jax.Array:
     return coeffs
 
 
+def _source_sum_coeffs(f, g, fc, gc):
+    """MATLAB @chebtech/plus.m zero-output rule (Chebfun7574c77).
+
+    Compare all sum coefficients with 0.2*eps times each prolonged input
+    column's scale. A single nonzero column prevents collapse of every column.
+    """
+    fv = f.coeffs2vals(fc)
+    gv = g.coeffs2vals(gc)
+    tol = jnp.finfo(jnp.float64).eps * jnp.maximum(
+        jnp.max(jnp.abs(fv), axis=0), jnp.max(jnp.abs(gv), axis=0))
+    result = fc + gc
+    if bool(jnp.all(jnp.abs(result) < .2*tol)):
+        return jnp.zeros((1,) + result.shape[1:], dtype=result.dtype)
+    return result
+
+
 def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     """Zero-pad or truncate Chebyshev coefficients to length *n*."""
     m = coeffs.shape[0]
@@ -3098,7 +3114,7 @@ class Chebtech2(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech2.from_coeffs(
-                _collapse_if_zero(fc + gc),
+                _source_sum_coeffs(self, other, fc, gc),
                 ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition: only the c_0 coefficient changes. Promote the
@@ -4791,7 +4807,7 @@ class Chebtech1(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech1.from_coeffs(
-                _collapse_if_zero(fc + gc),
+                _source_sum_coeffs(self, other, fc, gc),
                 ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition changes only c_0.  Promote the coefficient
@@ -5832,6 +5848,11 @@ def _tech_mrdivide(A, B):
 
 def _tech_isequal(f, g) -> bool:
     """Shared implementation of MATLAB ``@chebtech/isequal``."""
+    # MATLAB class dispatch promotes smoothfun operands for singfun/isequal.
+    from chebfunjax.fun.singfun import Singfun
+
+    if isinstance(g, Singfun):
+        return g.isequal(f)
     if type(f) is not type(g):
         return False
     if _is_empty_tech(f) or _is_empty_tech(g):
