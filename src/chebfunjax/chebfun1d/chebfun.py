@@ -2970,6 +2970,28 @@ class Chebfun(eqx.Module):
                 pass
         return out
 
+    def __matmul__(self, other):
+        """MATLAB matrix multiplication, exposed as Python ``@``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        from .mtimes import mtimes
+        return mtimes(self, other)
+
+    def __rmatmul__(self, other):
+        """MATLAB multiplication with a numeric left operand.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        from .mtimes import mtimes
+        return mtimes(other, self)
+
     def __rmul__(self, other) -> Chebfun:
         return self.__mul__(other)
 
@@ -8597,8 +8619,11 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/conj.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.fun.singfun import Singfun
+
         new_funs = [
             p.with_tech(
+                p.tech.conj() if isinstance(p.tech, Singfun) else
                 Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
@@ -8607,8 +8632,9 @@ class Chebfun(eqx.Module):
             )
             for p in self.funs
         ]
-        return Chebfun._as_transposed(
+        out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        return self._propagate_point_values(out, jnp.conj)
 
     def angle(self) -> Chebfun:
         """Phase angle atan2(imag f, real f), constructed adaptively.
@@ -9368,9 +9394,10 @@ def getValuesAtBreakpoints(f: "Chebfun", op=None) -> jax.Array:
 def kron(f, g, mode=None):
     """Kronecker product of two chebfuns.
 
-    ``kron(f, g)`` (default) is the rank-1 Chebfun2
-    ``kron(f, g)(x, y) = f(x) * g(y)`` -- MATLAB ``kron(f.', g)`` with ``f``
-    a row chebfun.
+    Oppositely oriented inputs follow MATLAB: ``kron(f.T, g)`` is
+    ``sum_j f_j(x) g_j(y)``, and ``kron(f, g.T)`` reverses the variables.
+    The Python column/column shorthand retains ``f(x) * g(y)`` for scalar
+    inputs. Factors are assembled directly, without adaptive resampling.
 
     ``kron(f, g, 'op')`` builds the rank-1 integral OPERATOR
     ``A = f (g' .)``: ``A*h = f * <g, h>`` (see
@@ -9394,11 +9421,14 @@ def kron(f, g, mode=None):
             "CHEBFUN:CHEBFUN:kron:sizes -- unknown kron mode "
             f"{mode!r} (expected 'op').")
 
-    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-    fa, fb = float(f.domain.a), float(f.domain.b)
-    ga, gb = float(g.domain.a), float(g.domain.b)
-    return Chebfun2.from_function(
-        lambda x, y: f(x) * g(y), domain=(fa, fb, ga, gb))
+    from .mtimes import _outer
+    if f.is_transposed != g.is_transposed:
+        if len(f.domain.breakpoints) > 2 or len(g.domain.breakpoints) > 2:
+            raise ValueError("CHEBFUN:CHEBFUN:kron:breakpts: "
+                             "The two CHEBFUNs must be smooth.")
+        return _outer(g, f) if f.is_transposed else _outer(f, g)
+    # Preserve the established Python column/column shorthand kron(f, g).
+    return _outer(g, f.T)
 
 
 def _qm_gram(cols):

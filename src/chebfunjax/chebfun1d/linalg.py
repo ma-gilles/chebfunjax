@@ -202,7 +202,8 @@ class Quasimatrix:
         x_array = jnp.asarray(x)
         results = [col(x_array) for col in self.cols]
         if x_array.ndim < 2:
-            return jnp.stack(results, axis=-1)
+            values = jnp.stack(results, axis=-1)
+            return values.T if self.is_transposed else values
         # MATLAB cell2mat joins each scalar column's matrix along dimension2.
         return jnp.concatenate(results, axis=1)
 
@@ -348,25 +349,90 @@ class Quasimatrix:
     def __neg__(self):
         return self._map(lambda c: -c)
 
-    def __matmul__(self, A):
-        """Quasimatrix times a matrix: columns' linear combinations
-        (MATLAB f*A for array-valued f)."""
-        import numpy as _onp
-        A = _onp.asarray(A)
-        if A.ndim == 1:
-            A = A[:, None]
-        if A.shape[0] != len(self.cols):
-            raise ValueError("inner dimensions must agree")
-        newcols = []
-        cplx = _onp.iscomplexobj(A)
-        for j in range(A.shape[1]):
-            c = self.cols[0] * (complex(A[0, j]) if cplx
-                                else float(A[0, j]))
-            for i in range(1, len(self.cols)):
-                c = c + self.cols[i] * (complex(A[i, j]) if cplx
-                                        else float(A[i, j]))
-            newcols.append(c)
-        return Quasimatrix(newcols, self.domain)
+    @property
+    def is_transposed(self):
+        """Orientation shared by the scalar columns.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebfun.m (isTransposed property)
+        Chebfun commit: 7574c77
+        """
+        return self.cols[0].is_transposed
+
+    def transpose(self):
+        """Non-conjugate transpose of a quasimatrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/transpose.m
+        Chebfun commit: 7574c77
+        """
+        return self._map(lambda c: c.T)
+
+    def ctranspose(self):
+        """Conjugate transpose of a quasimatrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ctranspose.m
+        Chebfun commit: 7574c77
+        """
+        return self._map(lambda c: c.H)
+
+    T = property(transpose)
+    H = property(ctranspose)
+
+    def size(self, dim=None):
+        """MATLAB size, including the continuous dimension.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/size.m
+        Chebfun commit: 7574c77
+        """
+        dims = (len(self.cols), float('inf')) if self.is_transposed else (
+            float('inf'), len(self.cols))
+        return dims if dim is None else dims[dim - 1] if dim <= 2 else 1
+
+    def norm(self, p=None):
+        """Continuous Frobenius or spectral quasimatrix norm.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/norm.m
+        Chebfun commit: 7574c77
+        """
+        from .mtimes import _columns
+        cols = _columns(self)
+        gram = jnp.stack([jnp.stack([a.inner(b) for b in cols]) for a in cols])
+        if p is None or p == 'fro':
+            return jnp.sqrt(jnp.abs(jnp.trace(gram)))
+        if p == 2:
+            return jnp.sqrt(jnp.maximum(jnp.linalg.eigvalsh(gram)[-1], 0))
+        raise NotImplementedError('Quasimatrix norm supports Frobenius and 2-norm.')
+
+    def __matmul__(self, other):
+        """MATLAB matrix multiplication, exposed as Python ``@``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        from .mtimes import mtimes
+        return mtimes(self, other)
+
+    def __rmatmul__(self, other):
+        """MATLAB multiplication with a numeric left operand.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        from .mtimes import mtimes
+        return mtimes(other, self)
 
     def horzcat(self, other) -> "Quasimatrix":
         cols = list(other.cols) if isinstance(other, Quasimatrix) \

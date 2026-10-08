@@ -128,6 +128,21 @@ class Chebfun2(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def size(self, dim=None):
+        """Continuous matrix size, independent of the stored rank.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/size.m
+        Chebfun commit: 7574c77
+        """
+        if dim is None:
+            return (float('inf'), float('inf'))
+        if dim in (1, 2):
+            return float('inf')
+        raise ValueError('CHEBFUN:SEPARABLEAPPROX:size:outputs: '
+                         'Too many output arguments.')
+
     def isempty(self) -> bool:
         """True for the empty Chebfun2 (MATLAB isempty).
 
@@ -2152,6 +2167,11 @@ class Chebfun2(eqx.Module):
         MATLAB source : @separableApprox/mtimes.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        if isinstance(other, (Chebfun, Quasimatrix)):
+            from chebfunjax.chebfun1d.mtimes import mtimes
+            return mtimes(self, other)
         import numpy as _np
 
         from chebfunjax.chebfun1d.linalg import Quasimatrix
