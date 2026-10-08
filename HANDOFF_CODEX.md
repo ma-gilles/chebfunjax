@@ -1,6 +1,48 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Latest CPU qualification (2026-10-08, local 7bb59fb8)
+## Latest CPU qualification (2026-10-08, local 561eef04)
+
+Full parity remains incomplete. This checkpoint supersedes earlier counts.
+Fresh inventory `matlab_test_static_inventory_561eef04_20261008.json` reports
+**1,089 present, 13 masked, zero module-skipped or missing**, with all 1,102
+source/port hashes revalidated. Presence does not establish literal assertion,
+RNG, runtime or API coverage; the ongoing 3D audit found substantial omissions
+inside existing files.
+
+| Commit | Verified change | CPU evidence and limits |
+| --- | --- | --- |
+| f31f378a | Piecewise composition and plain elliptic tolerance/preferences | 93 passing checks; seven original plain clauses; broader preference forwarding and extreme arguments remain open |
+| 5071198f | Bounded column differentiation and inner-product input checks; restored source calculus predicates | Actual run: 39 pass, one oscillatory integral failure; final marker-only tree retains existing strict xfail, verified by AST and collection |
+| 561eef04 | Classicfun/Unbndfun matrix multiplication dispatch and exact diagnostics | 44 passing checks; six original random-input clauses explicitly await native fixtures; deterministic numerical coverage retained |
+
+Acceptance records in the shared evidence directory:
+`plain_ellipj_root_acceptance_20261008.json`,
+`bndfun_source_root_acceptance_20261008.json`, and
+`classic_mtimes_root_acceptance_20261008.json`.
+The oscillatory integral error is `6.519329347198788e-14`, exceeding its unchanged
+`2.2204460475929106e-14` bound. A source forward-map arithmetic diagnostic still
+failed; that domain change was excluded. No all-40-clause qualification claim.
+
+Current workers: singular-function addition/integration, original 3D
+evaluation/division/integration, and Greeks page/layout. Greeks completed a
+full source computation; its call-vega approximation differs from analytic
+Black–Scholes by about `6.431e-8`, matching the historical source approximation
+error. An initially tighter diagnostic failed and is preserved; no library bug
+was established. Corrected source-position figures remain pending. No page
+acceptance or new figure-count reduction is claimed yet.
+
+Native startup diagnosis is now in `matlab_startup_diagnosis_20261008.json`.
+A long temporary path triggers an explicit MATLAB communication-plugin
+assertion. With a short shared temporary path, startup still exits 1 at the
+same plugin without output; `-nojvm` also exits 1. Independent local socket
+creation tests fail with EPERM for both AF_UNIX and AF_INET. This is consistent
+with an IPC restriction causing the remaining startup failure, not a traced
+proof of MATLAB's exact failed syscall (ptrace is also denied). Native captures
+require an authorized execution setting permitting local IPC and a short
+shared temporary path. Do not repeat unchanged startup attempts. Publication
+and exact-head CI remain blocked as described below; all new commits are local.
+
+## Earlier CPU qualification (2026-10-08, local 7bb59fb8)
 
 Full parity remains incomplete. This section supersedes the older checkpoint
 below. Fresh static inventory at `87a4f4b0` revalidated all 1,102 MATLAB test
