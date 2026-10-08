@@ -15,7 +15,51 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import (
+    Chebtech2,
+    _matlab_numeric_class,
+    _numeric_array,
+    _TechOperationError,
+)
+
+
+def _classicfun_mtimes(fun, other, *, reverse=False):
+    """Source CLASSICFUN mtimes dispatch, with JAX numeric operations.
+
+    MATLAB source: @classicfun/mtimes.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Python @ denotes MATLAB *; Python numeric literals denote doubles.
+    The MATLAB empty-double result is a length-zero JAX array.
+    """
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    is_fun = isinstance(other, (Classicfun, Unbndfun))
+    array = None if is_fun else _numeric_array(other)
+    if (getattr(fun, "_is_empty_object", False)
+            or getattr(other, "_is_empty_object", False)
+            or (array is not None and array.size == 0)):
+        return jnp.empty((0,), dtype=jnp.float64)
+    if reverse:
+        if array is not None and array.size > 1:
+            raise _TechOperationError(
+                "CHEBFUN:CLASSICFUN:mtimes:size",
+                "Inner matrix dimensions must agree.",
+            )
+    elif is_fun:
+        raise _TechOperationError(
+            "CHEBFUN:CLASSICFUN:mtimes:classicfunMtimesClassicfun",
+            "Use .* to multiply CLASSICFUN objects.",
+        )
+    elif array is None or array.dtype not in (jnp.float64, jnp.complex128):
+        name = _matlab_numeric_class(other, array)
+        raise _TechOperationError(
+            "CHEBFUN:CLASSICFUN:mtimes:classicfunMtimesUnknown",
+            f"mtimes does not know how to multiply a CLASSICFUN and a {name}.",
+        )
+    tech = fun.onefun @ other
+    if isinstance(fun, Unbndfun):
+        return fun.with_tech(tech)
+    return type(fun)(tech, fun.domain)
 
 
 def _gammaln(x: jax.Array) -> jax.Array:
@@ -440,7 +484,17 @@ class Classicfun(eqx.Module):
         MATLAB source : @classicfun/mtimes.m (delegates to @chebtech/mtimes.m)
         Chebfun commit: 7574c77
         """
-        return self.__class__(self.onefun @ other, self.domain)
+        return _classicfun_mtimes(self, other)
+
+    def __rmatmul__(self, other):
+        """Scalar-left MATLAB mtimes.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        return _classicfun_mtimes(self, other, reverse=True)
 
     def __truediv__(self, other) -> "Classicfun":
         """Division.

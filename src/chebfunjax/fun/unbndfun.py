@@ -16,7 +16,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
-from chebfunjax.fun.classicfun import _fun_isequal, _is_matrix_operand
+from chebfunjax.fun.classicfun import _classicfun_mtimes, _fun_isequal, _is_matrix_operand
 from chebfunjax.tech.chebtech import Chebtech2
 
 # Machine epsilon for float64
@@ -1142,10 +1142,20 @@ class Unbndfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @unbndfun/mtimes.m
+        MATLAB source : @classicfun/mtimes.m
         Chebfun commit: 7574c77
         """
-        return self.with_tech(self.onefun @ other)
+        return _classicfun_mtimes(self, other)
+
+    def __rmatmul__(self, other):
+        """Scalar-left MATLAB mtimes.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        return _classicfun_mtimes(self, other, reverse=True)
 
     def __truediv__(self, other) -> "Unbndfun":
         """Division.
