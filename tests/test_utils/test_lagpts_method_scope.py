@@ -22,7 +22,7 @@ def test_default_laguerre_uses_gw_above_rec_cutoff():
         npt.assert_array_equal(got, want)
 
 
-@pytest.mark.parametrize('method', ['RH', 'RHW', 'EXP'])
+@pytest.mark.parametrize('method', ['EXP'])
 def test_unported_source_methods_fail_explicitly(method):
     with pytest.raises(NotImplementedError, match='not yet supported'):
         lagpts(42, method=method)
@@ -36,3 +36,10 @@ def test_lagpts_n_zero_precedes_invalid_options():
 def test_recw_is_supported_at_small_order():
     for got, want in zip(lagpts(42, method='RECW'), lagpts(42, method='REC'), strict=True):
         npt.assert_array_equal(got, want)
+
+
+@pytest.mark.parametrize('method', ['RH', 'RHW'])
+def test_small_rh_preserves_source_convergence_failure(method):
+    import jax
+    with pytest.raises(jax.errors.JaxRuntimeError, match="Newton convergence guard"):
+        lagpts(42, method=method)[0].block_until_ready()

@@ -715,7 +715,8 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    GLR requires alpha=0. RH/RHW require concrete real alpha>-1 and n>=3000.
+    GLR requires alpha=0. RH/RHW require concrete finite real alpha>-1
+    and a valid source initial-guess layout; source convergence errors propagate.
     EXP remains unported. RECW and RHW use eager output-length adapters
     around fixed-capacity JAX kernels. RECW includes the first zero weight;
     RHW excludes the first underflowed weight.
@@ -740,8 +741,8 @@ def _lagpts_core(n: int, alpha: float = 0.0,
         from chebfunjax.utils.laguerre_glr import _laguerre_glr
         x, w = _laguerre_glr(n)
     elif method in ('rh', 'rhw'):
-        if n < 3000 or isinstance(alpha, jax.core.Tracer):
-            raise NotImplementedError("lagpts: this source RH variant is not yet supported")
+        if isinstance(alpha, jax.core.Tracer):
+            raise NotImplementedError("lagpts: RH/RHW require a concrete alpha")
         if method == 'rhw':
             from chebfunjax.utils.laguerre_rh_general import _laguerre_rh_general
             if alpha*alpha/n > 1:
@@ -750,6 +751,12 @@ def _lagpts_core(n: int, alpha: float = 0.0,
             x, w, length = _laguerre_rh_general(n, alpha, comp_repr=True)
             length = int(length)
             x, w = x[:length], w[:length]
+        elif n < 3000:
+            from chebfunjax.utils.laguerre_rh_general import _laguerre_rh_general
+            if alpha*alpha/n > 1:
+                warnings.warn('lagpts: a large alpha may lead to inaccurate results',
+                              UserWarning, stacklevel=2)
+            x, w = _laguerre_rh_general(n, alpha)
         elif alpha == 0:
             from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
             x, w = _laguerre_rh_alpha0(n)
@@ -769,7 +776,7 @@ def _lagpts_core(n: int, alpha: float = 0.0,
 
     import jax.scipy.special as jsp
     normalizer = jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)
-    if method in ('recw', 'rhw') or (method == 'rh' and alpha not in (0, -0.5, 0.5)):
+    if method in ('recw', 'rhw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5))):
         from chebfunjax.utils._gradual import gradual_positive_multiply
         w = gradual_positive_multiply(w, normalizer)
     else:
@@ -1568,12 +1575,14 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    Supports REC/RECW/GW/GLR and source RH for static alpha>-1 and n>=3000.
+    Supports REC/RECW/GW/GLR and source RH/RHW for static finite alpha>-1
+    with a valid source seed layout. Explicit RH/RHW may use orders below3000.
     Default selection is REC below300, GW below1000, alpha0 GLR below3000
     (GW for other alpha), then RH for static alpha, as in the source.
     Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
-    small explicit RH/RHW, EXP and the singular alpha=-1 case remain unsupported.
+    EXP and the singular alpha=-1 case remain unsupported. Source small-order
+    initial-guess and convergence errors propagate without a GW fallback.
     RHW uses the source truncated capacity and first-underflow stopping rule;
     RECW includes its first exact-zero weight. Both variable-length public
     results require eager execution. For truncated barycentric output the
@@ -1631,7 +1640,7 @@ def lagpts(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: interval must be semi-infinite")
 
     x, w = _lagpts_core(n, alpha, None, method)
-    gradual_rh = method in ('recw', 'rhw') or (method == 'rh' and alpha not in (0, -0.5, 0.5))
+    gradual_rh = method in ('recw', 'rhw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5)))
     if gradual_rh:
         from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
         from chebfunjax.utils.laguerre_rh_general import (
@@ -1643,7 +1652,12 @@ def lagpts(n: int, alpha: float = 0.0,
         magnitude = (_source_positive_sqrt(gradual_positive_multiply(w, x))
                      if gradual_rh else jnp.sqrt(w * x))
         v = jnp.where(jnp.arange(x.size) % 2 == 0, 1.0, -1.0) * magnitude
-        v = v / jnp.max(jnp.abs(v))
+        if gradual_rh:
+            # lagpts.m uses elementwise division, not scalar reciprocal scaling.
+            from chebfunjax.utils._signed_gradual import source_barycentric_normalize
+            v = source_barycentric_normalize(v)
+        else:
+            v = v / jnp.max(jnp.abs(v))
     if interval is not None:
         if isinf(interval[1]):
             scale = (gradual_exp_negative(-interval[0]) if gradual_rh

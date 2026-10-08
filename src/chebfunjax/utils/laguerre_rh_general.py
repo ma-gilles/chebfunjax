@@ -49,7 +49,10 @@ def _rh_initial_guesses_general(n, alpha, comp_repr=False):
         + (11.0/35.0 - alpha**2 - air_coeff**3 * 12.0/175.0)/nu
         + (16.0/1575.0*air_coeff + 92.0/7875.0*air_coeff**4)*2.0**(2.0/3.0)*nu**(-5.0/3.0)
         - (15152.0/3031875.0*air_coeff**5 + 1088.0/121275.0*air_coeff**2)*2.0**(1.0/3.0)*nu**(-7.0/3.0))
-    zeros = jnp.zeros((mn-itric-max(igatt,0),), dtype=jnp.float64)
+    middle = mn - itric - max(igatt, 0)
+    if middle < 0 or (middle > 0 and itric < 7):
+        raise ValueError("lagpts RH source initial-guess geometry is invalid")
+    zeros = jnp.zeros((middle,), dtype=jnp.float64)
     return jnp.concatenate((bes, zeros, air)), itric, igatt
 
 def _rh_factors_general(n, alpha):
@@ -88,9 +91,9 @@ def _poly_asy_rh_general(np, y, alpha, T):
 
 @partial(jax.jit, static_argnames=("n", "alpha", "comp_repr"))
 def _laguerre_rh_general(n, alpha, comp_repr=False):
-    """Source full RH rule for static real alpha and n>=3000."""
-    if n < 3000 or not math.isfinite(alpha) or alpha <= -1:
-        raise ValueError("general RH requires n>=3000 and finite alpha>-1")
+    """Source RH/RHW for static alpha and a valid source seed layout."""
+    if n < 2 or not math.isfinite(alpha) or alpha <= -1:
+        raise ValueError("general RH requires n>=2 and finite alpha>-1")
     x0, _itric, _igatt = _rh_initial_guesses_general(n, alpha, comp_repr)
     capacity = x0.shape[0]
     weights0 = jnp.zeros((capacity,), dtype=jnp.float64)
