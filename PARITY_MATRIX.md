@@ -6,19 +6,19 @@ Full parity with Chebfun `7574c77680d7e82b79626300bf255498271a72df`
 remains incomplete. `HANDOFF_CODEX.md` takes precedence over the historical
 snapshot below and the older `HANDOFF.md`.
 
-At local commit `661d865f`, the static
+At local commit `a817dfed`, the static
 MATLAB test-file inventory is:
 
 | Classification | Files |
 |---|---:|
-| Present without literal skip/xfail markers | 1,049 |
+| Present without literal skip/xfail markers | 1,051 |
 | Contains skip/skipif/xfail markers | 27 |
-| Module-skipped | 26 |
+| Module-skipped | 24 |
 | Missing after explicit consolidated test mappings | 0 |
 | Total pinned MATLAB test files | 1,102 |
 
 These counts describe files and literal markers, not verified assertions or
-numerical parity. All 26 module skips are in `adchebfun`. Four formerly missing `chebgui`
+numerical parity. All 24 module skips are in `adchebfun`. Four formerly missing `chebgui`
 export cohorts now map explicitly to `test_toFile_exporters_matlab.py` and
 passed with all64 original demos in the149-case CPU qualification. This does
 not establish general GUI or AD parity; both remain in the full scope.
@@ -26,13 +26,32 @@ Existing aggregate tests also need clause and tolerance audits: recent fixes
 restored an omitted Helmholtz field and the original norm bound.
 
 Immutable inventory with source and port hashes:
-`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_test_static_inventory_661d865f_20261008.json`.
-The refreshed PNG audit at661d865f reports136 image-size mismatches across
-28 of322 pages,1304 mapped slots and one unresolved AtmosphericTemperature
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_test_static_inventory_a817dfed_20261008.json`.
+The refreshed PNG audit at a817dfed reports129 image-size mismatches across
+27 of322 pages,1304 mapped slots and one unresolved AtmosphericTemperature
 slot. Mapping is inherited; matching dimensions alone does not qualify figures.
-Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_661d865f_20261008.json`. Local
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_a817dfed_20261008.json`. Local
 numerical packages have individual evidence in `HANDOFF_CODEX.md`; current
 local commits are not published, and green CI on their exact head is unproved.
+
+Latest bounded packages at this checkpoint:
+
+- AD calculus and independent seeds restore two original test modules. The
+  seed package passes179 CPU checks, including all five original seed clauses
+  at1e-15 and the unchanged154-case calculus cohort.
+- Disk Helmholtz coefficient input now performs the source Fourier/Chebyshev
+  resizing.66 alias controls and the original coefficient-input assertion
+  pass. The separate k=7 case still fails its original2.22e-8 bound with
+  error3.76e-8; its diagnostic is preserved.
+- Rouche regenerates all seven600x253 figures, including the previously
+  omitted seventh script output. Four equal-axis helper controls pass;
+  source stdout is empty and Markdown is unchanged. Pixel/font parity is
+  not established by these checks.
+
+Acceptance records in the shared evidence directory are
+`ad_seed_root_acceptance_20261008.json`,
+`disk_alias_root_acceptance_20261008.json`, and
+`rouche_root_acceptance_20261008.json`.
 
 ## Historical snapshot — not current completion evidence
 
