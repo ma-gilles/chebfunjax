@@ -1,37 +1,26 @@
-"""Port of MATLAB Chebfun tests/chebfun/test_airy.m (Fable 5).
-
-K = 0..3 (Ai, Ai', Bi, Bi') on [-1, 5]; MATLAB's scale option and the
-complex-argument (1+1i)x sweep are skipped.
-
-FIXED (Fable 5 audit): ``Chebfun.airy(K)`` exposes all four branches, so the
-K branch is exercised directly (the earlier conditional skip is now dead).
+"""All eight source Airy assertions, including the complex arguments.
 
 Provenance
 ----------
-MATLAB source : tests/chebfun/test_airy.m
+MATLAB source: tests/chebfun/test_airy.m
 Chebfun commit: 7574c77
+The source100eps*vscale bound is retained. SciPy supplies independent values;
+no fresh native MATLAB output capture is claimed.
 """
-
-from __future__ import annotations
-
+# uses-numpy: independent SciPy oracle arrays in numerical tests.
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from scipy.special import airy as sairy
+from scipy.special import airy
 
-import chebfunjax as cj
-
-EPS = float(np.finfo(np.float64).eps)
-XX = jnp.asarray(np.linspace(-1, 5, 100))
+from chebfunjax.chebfun1d.chebfun import chebfun
 
 
-class TestChebfunAiry:
-    @pytest.mark.parametrize("K", [0, 1, 2, 3])
-    def test_airy_branches(self, K):
-        # pass(1,k): airy(K, x) for K = 0..3 (Ai, Ai', Bi, Bi').
-        # FIXED (Fable 5 audit): all four branches exposed via airy(K).
-        x = cj.chebfun(lambda t: t, domain=(-1.0, 5.0))
-        g = x.airy(K)
-        exact = jnp.asarray(sairy(np.asarray(XX))[K])
-        err = jnp.abs(g(XX) - exact)
-        assert float(jnp.max(err)) < 1e3 * EPS * max(g.vscale, 1.0)
+@pytest.mark.parametrize('imaginary', [0, 1])
+@pytest.mark.parametrize('kind', [0, 1, 2, 3])
+def test_original_source_clause(imaginary, kind):
+    x = chebfun(lambda t: t, domain=(-1., 5.))
+    f = ((1+imaginary*1j)*x).airy(kind, 0)
+    xx = np.linspace(-1., 5., 100)
+    expected = airy((1+imaginary*1j)*xx)[kind]
+    assert float(jnp.max(jnp.abs(f(jnp.asarray(xx))-expected))) < 100*np.finfo(float).eps*f.vscale

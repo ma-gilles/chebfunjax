@@ -659,6 +659,24 @@ class ADChebfun:
         result.jacobian = _multiply_jacobian(multiplier, self.jacobian, result.domain)
         return result
 
+    def airy(self, k: int = 0) -> "ADChebfun":
+        """Apply source Airy dispatch with its literal next-index multiplier.
+
+        The source test covers Ai (k=0) and Bi (k=2). The source formula
+        uses airy(k+1) as its derivative multiplier for every supplied k.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (airy).
+        Chebfun commit: 7574c77
+        """
+        result = _copy_ad(self)
+        result.linearity = _jac_zero_flags(self.jacobian)
+        result.jacobian = _multiply_jacobian(
+            self.func.airy(k+1), self.jacobian, self.domain)
+        result.func = self.func.airy(k)
+        return result
+
     def erf(self) -> "ADChebfun":
         """Apply source erf and its literal Frechet multiplier.
 

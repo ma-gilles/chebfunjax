@@ -7790,35 +7790,27 @@ class Chebfun(eqx.Module):
             lambda x: jnp.asarray(_ss.yv(nu, jnp.asarray(x)), dtype=jnp.float64)
         )
 
-    def airy(self, k: int = 0) -> Chebfun:
-        """Airy function :math:`\\mathrm{Ai}` or :math:`\\mathrm{Bi}` of the Chebfun.
+    def airy(self, k: int = 0, scale: int = 0) -> Chebfun:
+        """Compose with JAX Airy Ai, Ai prime, Bi or Bi prime (k=0..3).
 
-        Parameters
-        ----------
-        k : int
-            Which Airy function:
-            - 0 : :math:`\\mathrm{Ai}(f(x))`
-            - 1 : :math:`\\mathrm{Ai}'(f(x))`
-            - 2 : :math:`\\mathrm{Bi}(f(x))`
-            - 3 : :math:`\\mathrm{Bi}'(f(x))`
-
-        Returns
-        -------
-        Chebfun
-
-        Notes
-        -----
-        NOT JIT-safe.
+        Optional scale=1 follows the source exponential scaling formulas.
+        Real and complex function values retain their numeric type.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/airy.m
+        MATLAB source: @chebfun/airy.m
         Chebfun commit: 7574c77
         """
-        import scipy.special as _ss
-        return self._apply_fun(
-            lambda x: jnp.asarray(_ss.airy(jnp.asarray(x))[k], dtype=jnp.float64)
-        )
+        from chebfunjax.utils.airy_general import airy_all
+        if k not in (0, 1, 2, 3) or scale not in (0, 1):
+            raise ValueError("CHEBFUN:CHEBFUN:airy:params")
+        result = self._apply_fun(lambda x: airy_all(x)[k])
+        if scale:
+            if k in (0, 1):
+                result = ((2/3)*self**1.5).exp()*result
+            else:
+                result = (-(2/3)*(self**1.5).real().abs()).exp()*result
+        return result
 
     def besselh(self, nu: float, k: int = 1, *, scale: int = 0) -> "tuple[Chebfun, Chebfun]":
         r"""Hankel (Bessel of the third kind) function :math:`H^{(k)}_\nu(f(x))`.
