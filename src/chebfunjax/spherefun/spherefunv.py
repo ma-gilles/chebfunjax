@@ -531,21 +531,43 @@ class Spherefunv(eqx.Module):
         return sph_of(g)
 
     def helmholtzdecomp(self):
-        """Helmholtz decomposition of a TANGENT field:
-        ``f = grad(u) + curl(v)`` with ``u = poisson(div f)`` and
-        ``v = poisson(vort f)`` (MATLAB ``helmholtzdecomp``).  Returns
-        ``(u, v)``; empty inputs give empty outputs.
+        """Source Helmholtz wrapper: project tangent, warn, and solve twice.
+
+        Returns two scalar Spherefuns. The Poisson dimensions preserve the
+        pinned source's rows-first ``length`` ordering literally. Existing
+        differential and Poisson implementations are reused; their numerical
+        backend/source qualification is separate from this wrapper.
 
         Provenance
         ----------
-        MATLAB source : @spherefunv/helmholtzdecomp.m
+        MATLAB source : @spherefunv/helmholtzdecomp.m,
+            @separableApprox/length.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.spherefun.spherefun import Spherefun
+        import warnings
+
+        from chebfunjax.chebpref import ChebfunPref
+
         if self.isempty():
-            return None, None
-        u = Spherefun.poisson(self.divergence())
-        v = Spherefun.poisson(self.vorticity())
+            return Spherefun.empty(), Spherefun.empty()
+        tangentf = self.tangent()
+        eps = ChebfunPref().cheb2Prefs.chebfun2eps
+        tol1 = 100 * jnp.asarray(self.components[0].vscale()) * eps
+        tol2 = 100 * jnp.asarray(self.components[1].vscale()) * eps
+        tol3 = 100 * jnp.asarray(self.components[2].vscale()) * eps
+        if bool((self - tangentf).norm() > tol1 + tol2 + tol3):
+            warnings.warn(
+                "SPHEREFUNV:HELMHOLTZDECOMPOSITON:TANGENT: "
+                "The vector field needs to be tangent to the surface of the"
+                "sphere, taking f = tangent(f).",
+                stacklevel=2,
+            )
+        divf = tangentf.div()
+        m, n = divf.length()
+        u = Spherefun.poisson(divf, 0, max(2*m, 50), max(2*n, 50))
+        vortf = tangentf.vort()
+        m, n = vortf.length()
+        v = Spherefun.poisson(vortf, 0, max(2*m, 50), max(2*n, 50))
         return u, v
 
     def coeffs2(self, m=None, n=None):

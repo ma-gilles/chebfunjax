@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Helmholtz source wrapper and literal tests (2026-10-08)
+
+CPU gate: 9 passed (five wrapper controls and all four pinned MATLAB test
+clauses), 1316.70 s pytest. Restores tangent projection, source warning bound,
+rows-first Poisson dimensions, and two empty Spherefun outputs. Replaces the
+old test port that omitted the third field and weakened the norm assertion.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_sampling_integration_root_20261008/review.json`.
+Source hashes stable, no surviving owned processes. This gate binds the pinned
+environment shell and source files; it is not a full native dependency audit
+or an isolated performance measurement. Full parity and latest-main CI remain
+open; preceding local commits have not been pushed from this restricted session.
+
 ## Sphere sampling and vscale source semantics (2026-10-08)
 
 Spherefun sampling now aliases Fourier coefficients before evaluation, retains
