@@ -5,10 +5,14 @@ from jax import lax
 
 from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_divide
 
-_SIGN = jnp.uint64(0x8000000000000000)
-_MAG = jnp.uint64(0x7fffffffffffffff)
-_INF = jnp.uint64(0x7ff0000000000000)
-_MIN_NORMAL = jnp.uint64(0x0010000000000000)
+# These modules may first be imported while tracing the public Hermite call.
+# Materialize masks outside that trace so module globals never retain tracers.
+with jax.ensure_compile_time_eval():
+    _SIGN = jnp.uint64(0x8000000000000000)
+    _MAG = jnp.uint64(0x7fffffffffffffff)
+    _INF = jnp.uint64(0x7ff0000000000000)
+    _MIN_NORMAL = jnp.uint64(0x0010000000000000)
+
 
 
 @jax.custom_jvp

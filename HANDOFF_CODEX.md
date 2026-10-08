@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Hermite fresh-process JIT import correction (2026-10-08)
+
+An additional existing fresh-process regression exposed six module-level uint64
+masks retaining tracers when ASY helpers are first imported inside jax.jit.
+Their values and arithmetic are unchanged; ensure_compile_time_eval now
+materializes the constants outside the enclosing trace. Independent AST review
+confirmed the initializer wrappers are the only algorithmic-source change.
+
+The original installed80 cases plus three existing independent ASY comparisons
+and the existing fresh-subprocess import/leak regression now pass together:
+84 passed in63.66s, stable source guards and no surviving children. Evidence:
+hermite_outer_jit_regression_root_v3_20261008/review.json under the shared20261005
+root. The preceding3pass/1fail run is preserved as v2; the initial launcher
+failed collection because its supervisor working directory was omitted.
+This additional gate uses the pinned environment shell; the earlier80/high-n
+archive retains its full dependency closure evidence. Full parity/CI remain open.
+
 ## Hermite gradual-underflow and source normalization (2026-10-07)
 
 Hermite asymptotic weights and barycentric factors retain representable tiny

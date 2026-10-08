@@ -14,8 +14,12 @@ import jax.numpy as jnp
 from jax import lax
 from jax.custom_batching import custom_vmap
 
-_FRACTION = jnp.uint64(0x000FFFFFFFFFFFFF)
-_EXPONENT = jnp.uint64(0x7FF0000000000000)
+# These modules may first be imported while tracing the public Hermite call.
+# Materialize masks outside that trace so module globals never retain tracers.
+with jax.ensure_compile_time_eval():
+    _FRACTION = jnp.uint64(0x000FFFFFFFFFFFFF)
+    _EXPONENT = jnp.uint64(0x7FF0000000000000)
+
 _TINY = jnp.finfo(jnp.float64).tiny
 _LN2_HI = float.fromhex("0x1.62e42fee00000p-1")
 _MIN_LOG = -1076 * _LN2_HI  # below half the least subnormal: guaranteed round to zero
