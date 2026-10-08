@@ -34,16 +34,18 @@ def _n(f):
 
 
 class TestMiscRandnfun:
-    @pytest.fixture(autouse=True)
-    def _injected_legacy_test_stream(self, monkeypatch):
-        # Diagnostic construction qualification only: preserve this test's
-        # historical NumPy seed/draw stream. Production does not use NumPy RNG.
-        from chebfunjax.utils import _randnfun
-        monkeypatch.setattr(_randnfun, '_normal_draw',
-                            lambda key, rows, columns:
-                            jnp.asarray(np.random.randn(columns, rows).T))
-
     def test_all_matlab_assertions(self):
+        # This test is also invoked directly by the core mirror runner,
+        # which does not execute pytest autouse fixtures. Bind and restore
+        # the matched primitive stream in both execution paths.
+        from chebfunjax.utils import _randnfun
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(_randnfun, '_normal_draw',
+                          lambda key, rows, columns:
+                          jnp.asarray(np.random.randn(columns, rows).T))
+            self._assert_all_matlab_predicates()
+
+    def _assert_all_matlab_predicates(self):
         np.random.seed(5489)
         f = randnfun(.01)
         assert abs(float(f.std()) - 1) < .1                          # pass(1)
