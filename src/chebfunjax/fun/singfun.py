@@ -8,6 +8,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import math
+import warnings
 from typing import Callable
 
 import equinox as eqx
@@ -558,7 +559,7 @@ class Singfun(eqx.Module):
         When the two operands share the same exponents the smooth parts are
         added directly.  When the exponents differ by integers the result can
         still be expressed as a Singfun by factoring out the more-singular
-        exponent (Case 2 in MATLAB Chebfun).  Otherwise a warning-free
+        exponent (Case 2 in MATLAB Chebfun).  Otherwise a warning accompanies the
         approximation is used by evaluating the sum pointwise and
         re-constructing (Case 3).  A result whose exponents are both zero is
         demoted to its bare smooth part, mirroring the ``issmooth`` block that
@@ -584,6 +585,19 @@ class Singfun(eqx.Module):
             if other == 0:
                 return self
 
+        # Source Case 3 zero-SINGFUN returns precede the final smooth
+        # demotion too. Keep those public return types/objects intact; the
+        # private _plus helper still returns raw Singfuns for differentiation.
+        if not isinstance(other, Singfun):
+            other = Singfun(other, (0.0, 0.0))
+        exponent_differences = tuple(
+            f - g for f, g in zip(self.exponents, other.exponents)
+        )
+        if not all(abs(round(d) - d) < _EXP_TOL for d in exponent_differences):
+            if self.iszero():
+                return other
+            if other.iszero():
+                return self
         return _demote_if_smooth(self._plus(other))
 
     def _plus(self, other) -> "Singfun":
@@ -659,41 +673,27 @@ class Singfun(eqx.Module):
 
             return Singfun(sp_f + sp_g, (new_a, new_b))
 
-        # Case 3: non-integer difference — reconstruct from pointwise sum
-        new_a = min(fExps[0], gExps[0])
-        new_b = min(fExps[1], gExps[1])
-        self_f = self
-        other_f = other
-
-        def sum_smooth(x: jax.Array) -> jax.Array:
-            """Smooth factor of the sum: (f+g) / weight."""
-            fv = self_f(x)
-            gv = other_f(x)
-            sumv = fv + gv
-            _eps12 = float(jnp.finfo(jnp.float64).eps) ** 0.5
-            x_safe = jnp.where(
-                (1.0 + x < _eps12) & (new_a != 0.0),
-                x + _eps12,
-                jnp.where(
-                    (1.0 - x < _eps12) & (new_b != 0.0),
-                    x - _eps12,
-                    x,
-                ),
-            )
-            fv2 = self_f(x_safe)
-            gv2 = other_f(x_safe)
-            sumv2 = fv2 + gv2
-            sumv_use = jnp.where((1.0 + x < _eps12) | (1.0 - x < _eps12), sumv2, sumv)
-            if new_a != 0.0:
-                lf = jnp.maximum(1.0 + x_safe, float(jnp.finfo(jnp.float64).tiny))
-                sumv_use = sumv_use / lf ** new_a
-            if new_b != 0.0:
-                rf = jnp.maximum(1.0 - x_safe, float(jnp.finfo(jnp.float64).tiny))
-                sumv_use = sumv_use / rf ** new_b
-            return sumv_use
-
-        new_tech = Chebtech2.from_function(sum_smooth)
-        return Singfun(new_tech, (new_a, new_b))
+        # Case 3: source plus.m reconstructs using the original operand
+        # scales. This scale matters when cancellation leaves a small result.
+        # Delegate endpoint factoring/extrapolation to the constructor rather
+        # than shifting near-endpoint samples by sqrt(eps).
+        if self.iszero():
+            return other
+        if other.iszero():
+            return self
+        warnings.warn(
+            "CHEBFUN:SINGFUN:plus:exponentDiff: "
+            "Non-integer difference in the exponents of the two SINGFUN "
+            "objects: The result may not be accurate.",
+            UserWarning, stacklevel=3,
+        )
+        new_exponents = (
+            min(fExps[0], gExps[0]), min(fExps[1], gExps[1])
+        )
+        return Singfun.from_function(
+            lambda x: self(x) + other(x), new_exponents,
+            vscale=self.vscale + other.vscale,
+        )
 
     def __radd__(self, other) -> "Singfun":
         return self.__add__(other)
