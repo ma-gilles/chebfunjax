@@ -19,6 +19,7 @@ from chebfunjax.tech.trigtech import (
 )
 
 
+@jax.jit
 def real_trig_matrix_qr(coefficients):
     """Source builtin array-trig QR followed by physical [-pi,pi] scaling.
 

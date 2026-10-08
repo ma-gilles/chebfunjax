@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Persistent sphere QR compilation (2026-10-08)
+
+CPU correctness gate: 141 passed in 1193.52 s pytest / 1211.62 s supervised
+wall time, no skips/failures or surviving owned processes, stable source
+inputs. The only algorithm-file change is `@jax.jit` on
+`real_trig_matrix_qr`; its function body is unchanged. Includes 128 existing
+sphere controls, all nine literal/protocol Helmholtz checks, and four new
+odd/even reconstruction/physical-measure controls with JIT on and off.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_qr_integration141_root_20261008/review.json`.
+The gate binds source files and the pinned environment shell, not the full
+native dependency closure. No isolated performance claim under parallel load.
+
 ## Marching Squares rendering checkpoint (2026-10-08)
 
 The actual corrected CPU example completed and regenerated four 600x270 PNGs
