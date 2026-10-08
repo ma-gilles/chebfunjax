@@ -636,6 +636,56 @@ class ADChebfun:
         result.jacobian = _multiply_jacobian(multiplier, self.jacobian, result.domain)
         return result
 
+    def erf(self) -> "ADChebfun":
+        """Apply source erf and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (erf).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("erf", lambda f, g: 2*(-f**2).exp()/jnp.sqrt(jnp.pi))
+
+    def erfc(self) -> "ADChebfun":
+        """Apply source erfc and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (erfc).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("erfc", lambda f, g: -2*(-f**2).exp()/jnp.sqrt(jnp.pi))
+
+    def erfcinv(self) -> "ADChebfun":
+        """Apply source erfcinv and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (erfcinv).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("erfcinv", lambda f, g: -(g**2).exp()*jnp.sqrt(jnp.pi)/2)
+
+    def erfcx(self) -> "ADChebfun":
+        """Apply source erfcx and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (erfcx).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("erfcx", lambda f, g: -2/jnp.sqrt(jnp.pi)+2*f*g)
+
+    def erfinv(self) -> "ADChebfun":
+        """Apply source erfinv and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (erfinv).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("erfinv", lambda f, g: (g**2).exp()*jnp.sqrt(jnp.pi)/2)
+
     def expm1(self) -> "ADChebfun":
         """Apply source expm1 and its literal Frechet multiplier.
 
