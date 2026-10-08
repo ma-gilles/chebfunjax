@@ -422,6 +422,29 @@ class ADChebfun:
         # diff is linear, is_linear unchanged
         return result
 
+    def cumprod(self) -> "ADChebfun":
+        """Compute the indefinite product integral through log, cumsum and exp.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cumprod).
+        Chebfun commit: 7574c77
+        """
+        return self.log().cumsum().exp()
+
+    def prod(self) -> "ADChebfun":
+        """Compute the product integral and scale its integral Jacobian.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (prod).
+        Chebfun commit: 7574c77
+        """
+        result = self.log().sum()
+        result.func = jnp.exp(result.func)
+        result.jacobian = _scale_jacobian(result.jacobian, result.func)
+        return result
+
     def cumsum(self, k: int = 1) -> "ADChebfun":
         """Integrate k times with each antiderivative zero at the left endpoint.
 

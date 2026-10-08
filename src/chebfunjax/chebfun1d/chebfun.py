@@ -3910,6 +3910,16 @@ class Chebfun(eqx.Module):
     # MISSING_FEATURES named-utilities sweep).
     # ------------------------------------------------------------------
 
+    def cumprod(self) -> "Chebfun":
+        """Compute the indefinite product integral exp(cumsum(log(f))).
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun/cumprod.m
+        Chebfun commit: 7574c77
+        """
+        return self.log().cumsum().exp()
+
     def prod(self) -> jax.Array:
         """Integral product: exp(sum(log(f))) (MATLAB prod).
 
