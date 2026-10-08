@@ -1,85 +1,91 @@
-"""Polynomial and rational best approximation of |x-0.5|.
+"""Source computations and plots for approx/BestApprox.m.
 
-Translation of approx/BestApprox.m by Nick Trefethen (October
-2010): equioscillating error curves for the degree-16 polynomial and
-type (8,8)/(16,16) rational minimax approximations to |x-1/2|, with
-zooms showing the error concentrated near the singularity.
-
-Original: https://www.chebfun.org/examples/approx/BestApprox.html
+Nick Trefethen, September 2010. Original:
+https://www.chebfun.org/examples/approx/BestApprox.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
-import matplotlib
-
-matplotlib.use("Agg")
 import os
 import sys
 
+import matplotlib
+
+matplotlib.use("Agg")
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
+from matplotlib.ticker import FormatStrFormatter, ScalarFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.plotting import curve_plot_data
 from chebfunjax.utils.minimax import minimax
 
-chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 
 
-def _errplot(fh, rh, err, dom, ylim, title, fname):
-    xs = np.linspace(dom[0], dom[1], 3000)
-    ev = np.asarray(fh(jnp.asarray(xs))) - np.asarray(rh(xs))
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(xs, ev, lw=1.6)
-    ax.plot([dom[0], dom[1]], [err, err], '--k', lw=1)
-    ax.plot([dom[0], dom[1]], [-err, -err], '--k', lw=1)
+def _errplot(xs, values, err, dom, ylim, title, number):
+    # Historical publication canvas/axes/ticks. This is a rendering adapter;
+    # the MATLAB source sets line widths, font size and data limits.
+    fig = plt.figure(figsize=(6, 2.69), dpi=100, facecolor='white')
+    ax = fig.add_axes([.13, .11, .775, .815])
+    ax.plot(xs, values, color='#0072BD', lw=.6)
+    ax.plot(dom, [err, err], '--', color='.55', lw=.6)
+    ax.plot(dom, [-err, -err], '--', color='.55', lw=.6)
     ax.set_xlim(*dom)
     ax.set_ylim(*ylim)
-    ax.set_title(title, fontsize=14)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
-    plt.close(fig)
+    ax.set_title(title, fontsize=4.5, pad=2)
+    ax.tick_params(direction='in', top=True, right=True, labelsize=10,
+                   colors='.25', width=.4, length=3)
+    for spine in ax.spines.values():
+        spine.set_color('.55')
+        spine.set_linewidth(.5)
+    if number <= 3:
+        ax.set_xticks(jnp.linspace(-1, 1, 5))
+    elif number == 4:
+        ax.set_xticks([.45, .5, .55])
+    else:
+        ax.set_xticks([.498, .499, .5, .501, .502])
+    if number >= 3:
+        ax.set_yticks(jnp.linspace(-4e-5, 4e-5, 5))
+    formatter = ScalarFormatter(useMathText=True)
+    formatter.set_powerlimits((-3, 3))
+    ax.yaxis.set_major_formatter(formatter)
+    ax.xaxis.set_major_formatter(FormatStrFormatter('%g'))
+    if number == 1:
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%g'))
+    fig.savefig(os.path.join(_IMG, f'BestApprox_{number:02d}.png'), dpi=100)
+    return fig
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    f = lambda x: jnp.abs(x - 0.5)  # noqa: E731
-
-    # Degree 16 polynomial minimax
-    res = minimax(f, 16)
-    p_cf = cj.chebfun(jnp.asarray(res.coeffs), coeffs=True)
-    _errplot(f, lambda x: np.asarray(p_cf(jnp.asarray(x))), res.err,
-             (-1, 1), (-0.03, 0.03),
-             "Degree 16 polynomial error curve",
-             "BestApprox_01.png")
-
-    # Type (8,8) rational minimax
+    x = cj.chebfun('x')
+    f = abs(x - .5)
+    result = minimax(f, 16)
+    p = cj.chebfun(jnp.asarray(result.coeffs), coeffs=True)
+    # Public source Chebyshev plotData sampling, piece by piece. Encoding the
+    # graph as x+i*y preserves each error piece's oversampling count.
+    data = curve_plot_data(x + 1j * (f - p))
+    figures = [_errplot(data['xLine'], data['yLine'], result.err,
+                        (-1, 1), (-.03, .03),
+                        'Degree 16 polynomial error curve', 1)]
     r88 = minimax(f, 8, rational=True, denom=8)
-    _errplot(f, r88.r, r88.err, (-1, 1), (-0.003, 0.003),
-             "Type (8,8) rational error curve",
-             "BestApprox_02.png")
-
-    # Type (16,16) rational minimax
-    # MATLAB's remez first tries a CF-based trial interpolant here and prints
-    # "Trial interpolant too far from optimal... Trying AAA-Lawson-based
-    # initialization..."; chebfunjax's minimax starts from the AAA-Lawson
-    # reference directly, so there is no such message.
+    p, q = r88.as_chebfuns()
+    data = curve_plot_data(x + 1j * (f - p / q))
+    figures.append(_errplot(data['xLine'], data['yLine'], r88.err,
+                           (-1, 1), (-.003, .003),
+                           'Type (8,8) rational error curve', 2))
     r16 = minimax(f, 16, rational=True, denom=16)
-    _errplot(f, r16.r, r16.err, (-1, 1), (-4e-5, 4e-5),
-             "Type (16,16) rational error curve",
-             "BestApprox_03.png")
+    for number, domain, title in (
+        (3, (-1, 1), 'Type (16,16) rational error curve'),
+        (4, (.45, .55), 'Zoom near singularity'),
+        (5, (.4975, .5025), 'Closer zoom'),
+    ):
+        xx = jnp.linspace(*domain, 3000)
+        figures.append(_errplot(xx, f(xx) - r16.r(xx), r16.err, domain,
+                               (-4e-5, 4e-5), title, number))
+    return {'figures': figures, 'polynomial': result, 'r88': r88, 'r16': r16}
 
-    # Zooms near the singularity
-    _errplot(f, r16.r, r16.err, (0.45, 0.55), (-4e-5, 4e-5),
-             "Zoom near singularity", "BestApprox_04.png")
-    _errplot(f, r16.r, r16.err, (0.4975, 0.5025), (-4e-5, 4e-5),
-             "Closer zoom", "BestApprox_05.png")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()
