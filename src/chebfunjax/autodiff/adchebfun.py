@@ -520,79 +520,447 @@ class ADChebfun:
     # ------------------------------------------------------------------
 
     def sin(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        mult = self.func.cos()
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.sin()
-        return result
+        """Apply source sin and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sin).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sin", lambda f, g: f.cos())
 
     def cos(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        mult = -self.func.sin()
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.cos()
-        return result
+        """Apply source cos and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cos).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cos", lambda f, g: -f.sin())
 
     def tan(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        cos_u = self.func.cos()
-        mult = 1.0 / (cos_u * cos_u)
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.tan() if hasattr(self.func, "tan") else (
-            self.func.sin() / self.func.cos()
-        )
-        return result
+        """Apply source tan and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (tan).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("tan", lambda f, g: f.sec()**2)
 
     def exp(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        result.func = self.func.exp()
-        result.jacobian = _multiply_jacobian(result.func, self.jacobian, self.domain)
-        return result
+        """Apply source exp and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (exp).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("exp", lambda f, g: g)
 
     def log(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        mult = 1.0 / self.func
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.log() if hasattr(self.func, "log") else (
-            _chebfun_log(self.func)
-        )
-        return result
+        """Apply source log and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (log).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("log", lambda f, g: 1/f)
 
     def sqrt(self) -> "ADChebfun":
         return self ** 0.5
 
     def sinh(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        mult = self.func.cosh()
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.sinh()
-        return result
+        """Apply source sinh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sinh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sinh", lambda f, g: f.cosh())
 
     def cosh(self) -> "ADChebfun":
-        result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        mult = self.func.sinh()
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = self.func.cosh()
-        return result
+        """Apply source cosh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cosh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cosh", lambda f, g: f.sinh())
 
     def tanh(self) -> "ADChebfun":
+        """Apply source tanh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (tanh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("tanh", lambda f, g: f.sech()**2)
+
+    def _elementary(self, name, derivative):
+        """Share source copy/linearity/domain plumbing, retaining formulae."""
         result = _copy_ad(self)
-        _mark_nonlinear(result, self)
-        cosh_u = self.func.cosh()
-        mult = 1.0 / (cosh_u * cosh_u)
-        result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-        result.func = (
-            self.func.tanh() if hasattr(self.func, "tanh") else
-            self.func.sinh() / self.func.cosh()
-        )
+        result.linearity = _jac_zero_flags(self.jacobian)
+        result.func = getattr(self.func, name)()
+        # Source unary methods retain the incoming AD domain.
+        multiplier = derivative(self.func, result.func)
+        result.jacobian = _multiply_jacobian(multiplier, self.jacobian, result.domain)
         return result
+
+    def expm1(self) -> "ADChebfun":
+        """Apply source expm1 and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (expm1).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("expm1", lambda f, g: f.exp())
+
+    def log10(self) -> "ADChebfun":
+        """Apply source log10 and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (log10).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("log10", lambda f, g: 1/(jnp.log(10.)*f))
+
+    def log1p(self) -> "ADChebfun":
+        """Apply source log1p and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (log1p).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("log1p", lambda f, g: 1/(f+1))
+
+    def log2(self) -> "ADChebfun":
+        """Apply source log2 and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (log2).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("log2", lambda f, g: 1/(jnp.log(2.)*f))
+
+    def acos(self) -> "ADChebfun":
+        """Apply source acos and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acos).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acos", lambda f, g: -1/(1-f**2).sqrt())
+
+    def acosd(self) -> "ADChebfun":
+        """Apply source acosd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acosd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acosd", lambda f, g: -(180/jnp.pi)/(1-f**2).sqrt())
+
+    def acosh(self) -> "ADChebfun":
+        """Apply source acosh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acosh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acosh", lambda f, g: 1/(f**2-1).sqrt())
+
+    def acot(self) -> "ADChebfun":
+        """Apply source acot and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acot).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acot", lambda f, g: -1/(1+f**2))
+
+    def acotd(self) -> "ADChebfun":
+        """Apply source acotd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acotd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acotd", lambda f, g: -(180/jnp.pi)/(1+f**2))
+
+    def acoth(self) -> "ADChebfun":
+        """Apply source acoth and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acoth).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acoth", lambda f, g: -1/(f**2-1))
+
+    def acsc(self) -> "ADChebfun":
+        """Apply source acsc and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acsc).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acsc", lambda f, g: -1/(abs(f)*(f**2-1).sqrt()))
+
+    def acscd(self) -> "ADChebfun":
+        """Apply source acscd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acscd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acscd", lambda f, g: -(180/jnp.pi)/(abs(f)*(f**2-1).sqrt()))
+
+    def acsch(self) -> "ADChebfun":
+        """Apply source acsch and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (acsch).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("acsch", lambda f, g: -1/(f*(1+f**2).sqrt()))
+
+    def asec(self) -> "ADChebfun":
+        """Apply source asec and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asec).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asec", lambda f, g: 1/(abs(f)*(f**2-1).sqrt()))
+
+    def asecd(self) -> "ADChebfun":
+        """Apply source asecd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asecd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asecd", lambda f, g: (180/jnp.pi)/(abs(f)*(f**2-1).sqrt()))
+
+    def asech(self) -> "ADChebfun":
+        """Apply source asech and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asech).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asech", lambda f, g: -1/(f*(1-f**2).sqrt()))
+
+    def asin(self) -> "ADChebfun":
+        """Apply source asin and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asin).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asin", lambda f, g: 1/(1-f**2).sqrt())
+
+    def asind(self) -> "ADChebfun":
+        """Apply source asind and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asind).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asind", lambda f, g: (180/jnp.pi)/(1-f**2).sqrt())
+
+    def asinh(self) -> "ADChebfun":
+        """Apply source asinh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (asinh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("asinh", lambda f, g: 1/(f**2+1).sqrt())
+
+    def atan(self) -> "ADChebfun":
+        """Apply source atan and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (atan).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("atan", lambda f, g: 1/(1+f**2))
+
+    def atand(self) -> "ADChebfun":
+        """Apply source atand and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (atand).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("atand", lambda f, g: (180/jnp.pi)/(1+f**2))
+
+    def atanh(self) -> "ADChebfun":
+        """Apply source atanh and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (atanh).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("atanh", lambda f, g: 1/(1-f**2))
+
+    def cosd(self) -> "ADChebfun":
+        """Apply source cosd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cosd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cosd", lambda f, g: -jnp.pi/180*f.sind())
+
+    def cot(self) -> "ADChebfun":
+        """Apply source cot and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cot).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cot", lambda f, g: -f.csc()**2)
+
+    def cotd(self) -> "ADChebfun":
+        """Apply source cotd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cotd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cotd", lambda f, g: -(jnp.pi/180)*f.cscd()**2)
+
+    def coth(self) -> "ADChebfun":
+        """Apply source coth and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (coth).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("coth", lambda f, g: -f.csch()**2)
+
+    def csc(self) -> "ADChebfun":
+        """Apply source csc and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (csc).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("csc", lambda f, g: -f.cot()*g)
+
+    def cscd(self) -> "ADChebfun":
+        """Apply source cscd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (cscd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("cscd", lambda f, g: -jnp.pi/180*f.cotd()*g)
+
+    def csch(self) -> "ADChebfun":
+        """Apply source csch and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (csch).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("csch", lambda f, g: -f.coth()*g)
+
+    def sec(self) -> "ADChebfun":
+        """Apply source sec and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sec).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sec", lambda f, g: f.tan()*g)
+
+    def secd(self) -> "ADChebfun":
+        """Apply source secd and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (secd).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("secd", lambda f, g: jnp.pi/180*f.tand()*g)
+
+    def sech(self) -> "ADChebfun":
+        """Apply source sech and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sech).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sech", lambda f, g: -f.tanh()*g)
+
+    def sinc(self) -> "ADChebfun":
+        """Apply source sinc and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sinc).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sinc", lambda f, g: f._apply_fun(lambda u: (u*jnp.cos(u)-jnp.sin(u))/(u**2)))
+
+    def sind(self) -> "ADChebfun":
+        """Apply source sind and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sind).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("sind", lambda f, g: jnp.pi/180*f.cosd())
+
+    def tand(self) -> "ADChebfun":
+        """Apply source tand and its literal Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (tand).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self._elementary("tand", lambda f, g: (jnp.pi/180)*f.secd()**2)
 
     # ------------------------------------------------------------------
     # Evaluation (f(x) syntax) — returns a scalar ADChebfun

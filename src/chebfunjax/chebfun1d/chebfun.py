@@ -3745,7 +3745,15 @@ class Chebfun(eqx.Module):
                 result = Chebfun(funs=new_funs, domain=self.domain)
                 result = Chebfun._as_transposed(result, self.is_transposed)
                 return result.set_point_values(jnp.power(self._breakpoint_values(), b))
-            return self._apply_fun(smooth_op)
+            def principal_smooth(value):
+                # MATLAB POWER promotes negative real bases to the principal
+                # complex branch for noninteger powers (CHEBTECH/POWER).
+                if b != int(b) and not jnp.iscomplexobj(value):
+                    if bool(jnp.any(value < 0)):
+                        value = value.astype(jnp.complex128)
+                return smooth_op(value)
+
+            return self._apply_fun(principal_smooth)
         # Split at interior roots so every remaining root sits on a breakpoint.
         fbr = self.addBreaksAtRoots()
         new_funs = []
@@ -9531,7 +9539,28 @@ _DEG2RAD = jnp.pi / 180.0
 # 7574c77): reciprocal/inverse trig and hyperbolic families plus the
 # degree-argument variants, all thin compositions like the explicit
 # sin/cos/... methods above.
+def _reciprocal_inverse_trig(value, cosine=False):
+    """MATLAB real ACSC/ASEC branch, retaining complex input dispatch.
+
+    Provenance: @chebfun/acsc.m, @chebfun/asec.m, commit 7574c77,
+    composing the MATLAB elementary functions. Real asin(z), z > 1,
+    has negative imaginary part; JAX complex asin(z+0j) chooses the other lip.
+    """
+    inverse = 1.0 / value
+    op = jnp.arccos if cosine else jnp.arcsin
+    if jnp.iscomplexobj(value) or not bool(jnp.any(jnp.abs(inverse) > 1)):
+        return op(inverse)
+    angle = jnp.where(
+        jnp.abs(inverse) > 1,
+        jnp.sign(inverse) * (jnp.pi / 2 - 1j * jnp.arccosh(jnp.abs(inverse))),
+        jnp.arcsin(inverse).astype(jnp.complex128),
+    )
+    return jnp.pi / 2 - angle if cosine else angle
+
+
 _EXTRA_ELEMENTWISE = {
+    # @chebfun/sinc is unnormalized sin(x)/x, with value1 at zero.
+    "sinc": lambda x: jnp.where(x == 0, jnp.ones_like(x), jnp.sin(x)/x),
     "tan": jnp.tan,
     "sec": lambda x: 1.0 / jnp.cos(x),
     "csc": lambda x: 1.0 / jnp.sin(x),
@@ -9542,8 +9571,8 @@ _EXTRA_ELEMENTWISE = {
     "asinh": jnp.arcsinh,
     "acosh": jnp.arccosh,
     "atanh": _atanh_log1p_real,
-    "asec": lambda x: jnp.arccos(1.0 / x),
-    "acsc": lambda x: jnp.arcsin(1.0 / x),
+    "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
+    "acsc": _reciprocal_inverse_trig,
     "acot": lambda x: jnp.arctan(1.0 / x),
     "asech": lambda x: jnp.arccosh(1.0 / x),
     "acsch": lambda x: jnp.arcsinh(1.0 / x),
@@ -9557,8 +9586,8 @@ _EXTRA_ELEMENTWISE = {
     "asind": lambda x: jnp.arcsin(x) / _DEG2RAD,
     "acosd": lambda x: jnp.arccos(x) / _DEG2RAD,
     "atand": lambda x: jnp.arctan(x) / _DEG2RAD,
-    "asecd": lambda x: jnp.arccos(1.0 / x) / _DEG2RAD,
-    "acscd": lambda x: jnp.arcsin(1.0 / x) / _DEG2RAD,
+    "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG2RAD,
+    "acscd": lambda x: _reciprocal_inverse_trig(x) / _DEG2RAD,
     "acotd": lambda x: jnp.arctan(1.0 / x) / _DEG2RAD,
     "pow2": lambda x: jnp.exp2(x),
 }
