@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Laguerre default dispatch ceiling removed (2026-10-08)
+
+Nine CPU checks passed with stable inputs and no surviving processes. Default
+n>=3000 now selects RH for every static alpha, exactly as the source dispatcher;
+the artificial alpha10 ceiling and GW fallback are removed. Dispatch boundaries,
+actual alpha12 moments/default-vs-explicit equality, and propagation of the
+source alpha20.3 Newton failure are verified without relaxed bounds. This
+supersedes the default-alpha>10 limitation recorded below. Arbitrary-order
+Bessel accuracy, traced-alpha dispatch, other unported methods, and full
+performance qualification remain open.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laguerre_default_dispatch_root_20261008/review.json`.
+
 ## General-alpha Laguerre RH implementation (2026-10-08)
 
 The final affected CPU gate passed 42 cases: general-alpha rule moments,

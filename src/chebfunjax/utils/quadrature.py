@@ -1553,10 +1553,10 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    Supports REC/GW/GLR and source RH for static alpha in (-1,10] and n>=3000.
+    Supports REC/GW/GLR and source RH for static real alpha>-1 and n>=3000.
     Default selection is REC below300, GW below1000, alpha0 GLR below3000
-    (GW for other alpha), then RH for alpha in (-1,10]. Higher static alpha
-    retains the prior default GW path while explicit general RH is under qualification.
+    (GW for other alpha), then RH for static alpha, as in the source.
+    Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
     small explicit RH, RHW, EXP and the singular alpha=-1 case remain unsupported.
     Dynamic alpha at the GLR/RH default thresholds retains the GW path because
@@ -1589,7 +1589,7 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rec'
         elif 1000 <= n < 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
             method = 'glr'
-        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and -1 < alpha <= 10:
+        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer):
             method = 'rh'
         else:
             method = 'gw'
