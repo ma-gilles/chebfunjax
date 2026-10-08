@@ -140,110 +140,13 @@ def _complete_aca(
     Algorithm: Townsend & Trefethen, "An extension of Chebfun to two
         dimensions", SISC, 35(6), C495–C518, 2013.
     """
-    A = A.copy()
-    ny, nx = A.shape
-    width = min(ny, nx)
+    from chebfunjax.chebfun2d._numeric_constructor import numeric_aca
 
-    pivot_vals = []
-    pivot_pos = []
-    row_vals_list = []
-    col_vals_list = []
-    ifail = True
-
-    # Find initial maximum entry.
-    # NumPy stores arrays in row-major (C) order, so flat index k corresponds
-    # to A[k // nx, k % nx] for an (ny, nx) array.
-    flat_idx = int(np.argmax(np.abs(A)))
-    row = flat_idx // nx
-    col = flat_idx % nx
-
-    # Bias toward diagonal for square matrices (improves nonneg-definite detection)
-    if ny == nx:
-        diag_vals = np.abs(np.diag(A))
-        diag_max = np.max(diag_vals)
-        inf_norm = np.abs(A.flat[flat_idx])
-        if diag_max - inf_norm > -abs_tol:
-            diag_idx = int(np.argmax(diag_vals))
-            row = diag_idx
-            col = diag_idx
-
-    scl = np.abs(A[row, col])
-
-    if scl == 0.0:
-        # Zero function
-        return (
-            np.array([0.0]),
-            np.array([[0, 0]], dtype=int),
-            np.zeros((1, nx)),
-            np.zeros((ny, 1)),
-            False,
-        )
-
-    z_rows = 0
-
-    while True:
-        inf_norm = np.max(np.abs(A))
-        if inf_norm <= abs_tol:
-            ifail = False
-            break
-        if z_rows >= width / factor:
-            ifail = True
-            break
-        if z_rows >= min(ny, nx):
-            ifail = True
-            break
-
-        # Extract current row/col
-        r = A[row, :].copy()
-        c = A[:, col].copy()
-        piv = A[row, col]
-
-        row_vals_list.append(r)
-        col_vals_list.append(c)
-        pivot_vals.append(piv)
-        pivot_pos.append([row, col])
-
-        # One step of GE
-        A = A - np.outer(c, r) / piv
-
-        z_rows += 1
-
-        # Find next pivot (NumPy row-major: flat index k -> A[k//nx, k%nx])
-        flat_idx = int(np.argmax(np.abs(A)))
-        row = flat_idx // nx
-        col = flat_idx % nx
-
-        # Bias toward diagonal for square matrices
-        if ny == nx:
-            diag_vals = np.abs(np.diag(A))
-            diag_max = np.max(diag_vals)
-            inf_norm_cur = np.max(np.abs(A))
-            if diag_max - inf_norm_cur > -abs_tol:
-                diag_idx = int(np.argmax(diag_vals))
-                row = diag_idx
-                col = diag_idx
-
-    if len(pivot_vals) == 0:
-        return (
-            np.array([0.0]),
-            np.array([[0, 0]], dtype=int),
-            np.zeros((1, nx)),
-            np.zeros((ny, 1)),
-            False,
-        )
-
-    # Source completeACA forces refinement at the rank budget even when
-    # the final residual is already below tolerance.
-    if z_rows >= width / factor:
-        ifail = True
-
-    pivot_vals = np.array(pivot_vals)
-    pivot_pos = np.array(pivot_pos, dtype=int)
-    # Stack: row_vals shape (r, nx), col_vals shape (ny, r)
-    row_vals = np.stack(row_vals_list, axis=0)
-    col_vals = np.stack(col_vals_list, axis=1)
-
-    return pivot_vals, pivot_pos, row_vals, col_vals, ifail
+    pivots, positions, rows, cols, failed = numeric_aca(A, abs_tol, factor)
+    # The adaptive host driver consumes arrays for its grid bookkeeping;
+    # pivot selection and source-ordered elimination use the shared JAX kernel.
+    return (np.asarray(pivots), np.asarray(positions, dtype=int),
+            np.asarray(rows), np.asarray(cols), failed)
 
 
 # ============================================================================

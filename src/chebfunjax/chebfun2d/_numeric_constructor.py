@@ -1,7 +1,7 @@
 """Numeric-matrix Chebfun2 construction using source-ordered JAX arithmetic.
 
 Rank and representation metadata are selected eagerly; this is not an outer-jit
-constructor. The callable adaptive constructor does not use these helpers.
+constructor. The callable adaptive constructor shares the completeACA kernel.
 
 Provenance
 ----------
@@ -75,8 +75,8 @@ def numeric_tolerances(x, y, values, domain, pseudo_level):
     return relative, absolute
 
 
-def numeric_aca(values, abs_tol):
-    """Literal numeric completeACA (factor zero, no adaptive budget).
+def numeric_aca(values, abs_tol, factor=0):
+    """Source completeACA, optionally with its adaptive pivot budget.
 
     Provenance
     ----------
@@ -105,7 +105,9 @@ def numeric_aca(values, abs_tol):
     row, col, norm = choose(residual)
     failed = not bool(norm == 0)
     pivots, positions, rows, cols = [], [], [], []
-    while bool(norm > abs_tol) and len(pivots) < min(ny, nx):
+    budget = min(ny, nx)/factor if factor else float("inf")
+    while (bool(norm > abs_tol) and len(pivots) < budget
+           and len(pivots) < min(ny, nx)):
         r, c = residual[row, :], residual[:, col]
         pivot = residual[row, col]
         rows.append(r)
@@ -117,6 +119,8 @@ def numeric_aca(values, abs_tol):
         row, col, norm = choose(residual)
     if bool(norm <= abs_tol):
         failed = False
+    if len(pivots) >= budget:
+        failed = True
     if not pivots:
         return (jnp.zeros((1,), dtype=jnp.float64), ((0, 0),),
                 jnp.zeros((1, nx), dtype=jnp.float64),
