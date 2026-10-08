@@ -2820,6 +2820,7 @@ class Chebtech2(eqx.Module):
         *,
         maxpow2: int = 16,
         extrapolate: bool = False,
+        tol: float | None = None,
     ) -> "Chebtech2":
         """Compose an operator with this Chebtech2.
 
@@ -2917,6 +2918,7 @@ class Chebtech2(eqx.Module):
         return Chebtech2._adaptive_construct(
             composed_func,
             maxpow2=maxpow2,
+            tol=tol,
             start_pow2=start_pow2,
             # MATLAB @chebtech/compose.m sets sampleTest=false after raising
             # minSamples to cover every operand.

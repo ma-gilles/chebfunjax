@@ -3934,33 +3934,59 @@ class Chebfun(eqx.Module):
         """
         return jnp.exp(self.log().sum())
 
-    def compose(self, op, g: "Chebfun" = None) -> "Chebfun":
-        """Compose with a pointwise operator: op(f) or op(f, g)
-        (MATLAB compose).  Falls back to splitting when the result
-        is not smooth.
+    def compose(self, op, g: "Chebfun" = None, *, pref=None) -> "Chebfun":
+        """Compose a pointwise operator on each overlapping input interval.
+
+        Stored breakpoint values are transformed independently of piece
+        limits. Preferences select approximation tolerance; numeric elliptic
+        tolerances do not change these composition preferences.
 
         Provenance
         ----------
         MATLAB source : @chebfun/compose.m
         Chebfun commit: 7574c77
         """
-        import warnings as _w
-        a, b = float(self.domain.a), float(self.domain.b)
+        from chebfunjax.chebpref import ChebfunPref
+
+        if g is None and pref is None:
+            return self._apply_fun(op)
+        pref = ChebfunPref(pref) if pref is not None else ChebfunPref()
+        if not self.funs:
+            return self
+        if g is not None and self.is_transposed != g.is_transposed:
+            raise ValueError("Cannot compose row and column Chebfuns")
+        original_g = g
+        f, g = self._overlap(self, g) if g is not None else (self, None)
+        # The existing overlap adapter only rebreaks smooth pieces. Recover
+        # original stored values at the union, including isolated point jumps.
+        sites = jnp.asarray(f.domain.breakpoints)
+        values = self.point_values if g is None else self(sites)
         if g is None:
-            def h(x):
-                return op(self(x))
+            values = op(values)
         else:
-            def h(x):
-                return op(self(x), g(x))
-        with _w.catch_warnings():
-            _w.simplefilter("ignore")
-            try:
-                out = chebfun(h, domain=(a, b))
-                if all(p.tech.ishappy for p in out.funs):
-                    return out
-            except Exception:
-                pass
-            return chebfun(h, domain=(a, b), splitting=True)
+            other = original_g(sites)
+            if values.ndim < other.ndim:
+                values = values[..., None]
+            elif other.ndim < values.ndim:
+                other = other[..., None]
+            values = op(values, other)
+        pieces = []
+        for k, piece in enumerate(f.funs):
+            if isinstance(piece.tech, Chebtech2):
+                tech = piece.tech.compose(
+                    op, None if g is None else g.funs[k].tech,
+                    extrapolate=len(f.funs) > 1 or pref.extrapolate,
+                    tol=pref.chebfuneps)
+                pieces.append(piece.with_tech(tech))
+            elif g is None:
+                pieces.append(piece._apply_fun(op))
+            else:
+                a, b = piece.interval
+                other_piece = g.funs[k]
+                pieces.append(_Piece.from_function(
+                    lambda x, p=piece, q=other_piece: op(p(x), q(x)), a, b))
+        result = Chebfun(funs=pieces, domain=f.domain).set_point_values(values)
+        return Chebfun._as_transposed(result, self.is_transposed)
 
     def compose_chebfun(self, g: "Chebfun") -> "Chebfun":
         """Composition f(g): evaluate self at the values of g
@@ -8229,38 +8255,20 @@ class Chebfun(eqx.Module):
             return other.__rmul__(self).sum()
         return self.inner(other)
 
-    def ellipj(self, m: float) -> tuple[Chebfun, Chebfun, Chebfun]:
-        """Jacobi elliptic functions sn, cn, dn of the Chebfun.
+    def ellipj(self, m: float, tol=None) -> tuple[Chebfun, Chebfun, Chebfun]:
+        """Jacobi sn, cn, dn with a numeric tolerance or ChebfunPref.
 
-        Parameters
-        ----------
-        m : float or Chebfun
-            Real parameter (0 <= m <= 1).
-
-        Returns
-        -------
-        (sn, cn, dn) : tuple of three Chebfuns
-            The three Jacobi elliptic functions of ``self`` with parameter m.
-
-        Notes
-        -----
-        NOT JIT-safe.
+        A numeric tolerance controls AGM stopping only. A preference object
+        also controls the approximation tolerance of the output pieces.
 
         Provenance
         ----------
         MATLAB source : @chebfun/ellipj.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.utils.ellipj import ellipj
+        from chebfunjax.utils.ellipj import _compose_ellipj
 
-        if isinstance(m, Chebfun):
-            if not m.isreal():
-                raise ValueError("ellipj parameter must be real")
-            return tuple(self.compose(lambda u, v, k=k: ellipj(u, v)[k], m)
-                         for k in range(3))
-        if jnp.iscomplexobj(m) or bool(jnp.any((jnp.asarray(m) < 0) | (jnp.asarray(m) > 1))):
-            raise ValueError("ellipj parameter must be real and lie in [0, 1]")
-        return tuple(self.compose(lambda u, k=k: ellipj(u, m)[k]) for k in range(3))
+        return _compose_ellipj(self, m, tol)
 
     def erf(self) -> Chebfun:
         """Error function :math:`\\mathrm{erf}(f(x))`.
