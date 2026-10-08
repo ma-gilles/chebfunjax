@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fresh MATLAB logical and singular Laguerre checks (2026-10-08)
+
+Commit `eb666fec` repairs Chebfun.any's continuous reduction: exact nonzero
+coefficients and point values count, NaNs do not. Tiny functions and isolated
+point values no longer disappear under an epsilon cutoff. Source singular
+and unbounded all/any tests are restored, together with previously omitted
+logical predicates.20 CPU tests plus2 focused final assertion checks passed.
+Fresh pinned MATLAB returned all6 all-results and16 any-results true; the
+Python tests now use its actual seed6178 probe vectors. Python scalar/vector
+storage and exception identifiers remain documented adapters. Evidence:
+`chebfun_logical_root_acceptance_20261008.json` in the shared directory below.
+
+Commit `faee142c` permits singular alpha=-1 in Laguerre EXP as MATLAB does,
+without changing formulas.54 CPU checks passed against45 fresh MATLAB
+method/order outcomes. Source nonfinite outputs are retained. RH/RHW exception
+and EXPW barycentric shape differences remain open, not declared parity.
+Evidence: `laguerre_alpha_minus_one_root_acceptance_20261008.json`.
+
+Fresh MATLAB is available; old startup blockers are historical. Remote CI
+at1daa4990 remains in progress with no failures at the latest observation.
+Exact-head green CI, remaining numerical/test contracts, page/figure audits
+and performance comparisons still prevent full-goal completion.
+
 ## AD power and complete Chebfun2 evaluation tests (2026-10-08)
 
 At `ad483fd1`, fresh static inventory has1,067 present files,25 with literal
