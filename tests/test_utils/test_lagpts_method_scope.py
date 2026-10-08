@@ -22,7 +22,7 @@ def test_default_laguerre_uses_gw_above_rec_cutoff():
         npt.assert_array_equal(got, want)
 
 
-@pytest.mark.parametrize('method', ['RH', 'RHW', 'EXP', 'RECW'])
+@pytest.mark.parametrize('method', ['RH', 'RHW', 'EXP'])
 def test_unported_source_methods_fail_explicitly(method):
     with pytest.raises(NotImplementedError, match='not yet supported'):
         lagpts(42, method=method)
@@ -31,3 +31,8 @@ def test_unported_source_methods_fail_explicitly(method):
 def test_lagpts_n_zero_precedes_invalid_options():
     x, w, v = lagpts(0, alpha=0.5j, interval=(0.0, 1.0), bary=True, method='bad')
     assert np.asarray(x).shape == np.asarray(w).shape == np.asarray(v).shape == (0,)
+
+
+def test_recw_is_supported_at_small_order():
+    for got, want in zip(lagpts(42, method='RECW'), lagpts(42, method='REC'), strict=True):
+        npt.assert_array_equal(got, want)

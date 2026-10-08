@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AD calculus source clauses and RECW (2026-10-08)
+
+AD calculus154 passed:27 clause forms from all9 operations in the original
+cumsumDiffSumMean test,8 new domain/vector controls and119 prior regressions.
+Sum, mean and numeric-order derivative evaluation preserve Jacobians and
+complex/vector values. One module skip removed. Source norms and tolerances
+retained; fixed degree7 inputs do not establish MATLAB RNG parity.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ad_calculus_root_acceptance_20261008.json`.
+
+RECW62 passed: JAX recurrence stops after retaining the first exactzero weight,
+with bitwise zero detection, staged overflow and subnormal continuation.
+At1000/alpha=-0.5 two source-emulated subnormal weights precede the finalzero.
+Ordinary REC/default algorithms retained. Initial59pass/2fail evidence is
+preserved: the failed tests incorrectly assumed alpha0 must have subnormals;
+reference-pattern checks corrected that premise without changing bounds.
+Variable output length is eager; bary signs use returned length, as in RHW,
+repairing the source n-size dimension defect. Both gates had stable inputs,
+verified runtime origins and no survivors. No fresh MATLAB or performance claim.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laguerre_recw_root_acceptance_20261008.json`.
+
 ## Domain remapping state preservation (2026-10-08)
 
 12 CPU source/regression checks passed with stable source/environment inputs

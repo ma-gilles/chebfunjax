@@ -1,7 +1,7 @@
-"""Full-length Newton/recurrence Gauss--Laguerre rule from Chebfun.
+"""Newton/recurrence Gauss--Laguerre REC and RECW rules from Chebfun.
 
-This module ports the ``lag_rec`` path without the optional ``RECW`` weight
-underflow truncation. The public Laguerre wrapper handles method selection,
+The optional RECW flag retains the first exact-zero weight and stops.
+The public Laguerre wrapper handles method selection,
 normalization, interval mapping, and barycentric weights.
 
 Provenance
@@ -19,12 +19,26 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
+from chebfunjax.utils._gradual import gradual_positive_divide
 from chebfunjax.utils.gamma_ratio import _gamma_ratio
 
 
-@partial(jax.jit, static_argnames=("n",))
-def _lag_rec(n: int, alpha: float = 0.0):
-    """Compute full-length Gauss--Laguerre nodes and weights by recurrence.
+def _recw_weight_is_zero(weight):
+    """Source ``w == 0`` without CPU arithmetic flushing a subnormal."""
+    bits = lax.bitcast_convert_type(weight, jnp.uint64)
+    return (bits << jnp.uint64(1)) == jnp.uint64(0)
+
+
+def _recw_raw_weight(ratio, z, derivative):
+    """Separate source square, product and division, retaining overflow."""
+    square = lax.optimization_barrier(derivative * derivative)
+    denominator = lax.optimization_barrier(z * square)
+    return gradual_positive_divide(ratio, denominator)
+
+
+@partial(jax.jit, static_argnames=("n", "flag"))
+def _lag_rec(n: int, alpha: float = 0.0, *, flag: bool = False):
+    """Compute Gauss--Laguerre nodes and weights by source recurrence.
 
     Parameters
     ----------
@@ -32,13 +46,16 @@ def _lag_rec(n: int, alpha: float = 0.0):
         Number of nodes. Zero returns empty arrays.
     alpha : float, default 0
         Generalized Laguerre parameter.
+    flag : bool, default False
+        RECW: stop at and include the first exact-zero weight.
 
     Returns
     -------
     x, w : tuple of jax.Array
         Ascending nodes and weights for ``x**alpha * exp(-x)``. The weights
-        sum to ``Gamma(alpha+1)``. This full-length routine does not implement
-        MATLAB's optional ``RECW`` underflow-truncation flag.
+        are the raw source recurrence weights. With ``flag=True``, return
+        ``(x, w, length)`` in fixed n-capacity arrays; entries after length
+        are zero padding. The public wrapper slices and normalizes.
 
     Provenance
     ----------
@@ -49,7 +66,7 @@ def _lag_rec(n: int, alpha: float = 0.0):
         raise ValueError("lag_rec: n must be nonnegative")
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
-        return empty, empty
+        return (empty, empty, jnp.asarray(0, jnp.int32)) if flag else (empty, empty)
 
     alpha_value = jnp.asarray(alpha, dtype=jnp.float64)
     n_value = jnp.asarray(n, dtype=jnp.float64)
@@ -117,7 +134,24 @@ def _lag_rec(n: int, alpha: float = 0.0):
              jnp.asarray(False)),
         )
         _, pp = eval_poly(z)
-        weight = _gamma_ratio(n + 1, alpha) / (z * pp**2)
+        weight = (_recw_raw_weight(_gamma_ratio(n + 1, alpha), z, pp) if flag
+                  else _gamma_ratio(n + 1, alpha) / (z * pp**2))
         return roots.at[i].set(z), weights.at[i].set(weight)
 
+    if flag:
+        def continue_roots(state):
+            i, _roots, _weights, stopped = state
+            return (i < n) & ~stopped
+
+        def next_root(state):
+            i, roots, weights, _stopped = state
+            roots, weights = root_step(i, (roots, weights))
+            stopped = _recw_weight_is_zero(weights[i])
+            # Store first, then stop: lag_rec includes the zero-weight node.
+            return i + 1, roots, weights, stopped
+
+        length, roots, weights, _ = lax.while_loop(
+            continue_roots, next_root,
+            (jnp.asarray(0, jnp.int32), initial_x, initial_w, jnp.asarray(False)))
+        return roots, weights, length
     return lax.fori_loop(0, n, root_step, (initial_x, initial_w))

@@ -43,6 +43,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
 from typing import Callable
 
 import jax.numpy as jnp
@@ -50,10 +51,13 @@ import jax.numpy as jnp
 from chebfunjax.operators.blocks import (
     ChebColloc2Disc,
     D,
+    FunctionalBlock,
     I,
     OperatorBlock,
     cumsum_op,
     diag,
+    eval_at,
+    sum_functional,
 )
 
 __all__ = [
@@ -348,6 +352,53 @@ class ADChebfun:
         # Integration is linear: retain the incoming linearity information.
         return result
 
+    def sum(self, *limits) -> "ADChebfun":
+        """Integrate over the full domain, or over the two supplied limits.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (sum).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        domain = tuple(float(x) for x in self.func.domain.breakpoints)
+        if not limits:
+            result = _copy_ad(self)
+            result.func = self.func.sum()
+            result.domain = domain
+            result.jacobian = sum_functional(domain) * self.jacobian
+            return result
+        if len(limits) != 2:
+            raise ValueError("CHEBFUN:ADCHEBFUN:sum:nargin")
+        a, b = limits
+        # Retain the literal source predicate, including reversed bounds.
+        if a < domain[0] or b > domain[-1]:
+            raise ValueError("CHEBFUN:ADCHEBFUN:sum:domain")
+        integral = self.cumsum()
+        return integral(b) - integral(a)
+
+    def mean(self) -> "ADChebfun":
+        """Compute the mean on a finite domain, retaining its Jacobian.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (mean).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        a, b = self.domain[0], self.domain[-1]
+        if math.isinf(a) or math.isinf(b):
+            raise ValueError("CHEBFUN:ADCHEBFUN:mean:domain")
+        return self.sum() / (b-a)
+
+    def deriv(self, x, k: int = 1) -> "ADChebfun":
+        """Evaluate the kth derivative at numeric locations.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (deriv, numeric-order branch).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self(x) if k == 0 else self.diff(k)(x)
+
     # ------------------------------------------------------------------
     # Unary functions — chain rule
     # ------------------------------------------------------------------
@@ -432,12 +483,33 @@ class ADChebfun:
     # ------------------------------------------------------------------
 
     def __call__(self, x):
-        """Point evaluation: returns a scalar-valued ADChebfun."""
-        from chebfunjax.operators.blocks import eval_at as _eval_at
-        E = _eval_at(float(x), domain=self.domain)
+        """Evaluate at numeric points, retaining scalar or vector Jacobians.
+
+        Locations are static operator metadata; primal values and operator
+        arithmetic remain JAX arrays, including complex values.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (feval),
+        @functionalBlock/functionalBlock.m (feval).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        points = jnp.asarray(x, dtype=jnp.float64)
+        domain = tuple(float(v) for v in self.func.domain.breakpoints)
+        rows = [eval_at(float(v), domain=domain) for v in points.reshape(-1)]
+        if points.ndim == 0:
+            evaluation = rows[0]
+        else:
+            evaluation = FunctionalBlock(
+                lambda disc: jnp.stack([row.matrix(disc) for row in rows]),
+                domain=domain,
+                apply_fn=lambda u: u(points),
+                isnotdiffint=True,
+            )
         result = _copy_ad(self)
-        result.func = float(self.func(jnp.array(x, dtype=jnp.float64)))
-        result.jacobian = E * self.jacobian  # FunctionalBlock * OperatorBlock
+        result.func = self.func(points)
+        result.domain = domain
+        result.jacobian = evaluation * self.jacobian
         return result
 
     # ------------------------------------------------------------------

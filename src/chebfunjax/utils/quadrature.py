@@ -716,8 +716,9 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
     GLR requires alpha=0. RH/RHW require concrete real alpha>-1 and n>=3000.
-    EXP and underflow-truncated RECW are unported. RHW uses an eager
-    output-length adapter around the source bounded-capacity JAX kernel.
+    EXP remains unported. RECW and RHW use eager output-length adapters
+    around fixed-capacity JAX kernels. RECW includes the first zero weight;
+    RHW excludes the first underflowed weight.
     """
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
@@ -726,6 +727,11 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     if method == 'rec':
         from chebfunjax.utils.laguerre_rec import _lag_rec
         x, w = _lag_rec(n, alpha)
+    elif method == 'recw':
+        from chebfunjax.utils.laguerre_rec import _lag_rec
+        x, w, length = _lag_rec(n, alpha, flag=True)
+        length = int(length)
+        x, w = x[:length], w[:length]
     elif method == 'glr':
         if isinstance(alpha, jax.core.Tracer):
             raise ValueError("lagpts: GLR requires a concrete alpha=0")
@@ -763,7 +769,7 @@ def _lagpts_core(n: int, alpha: float = 0.0,
 
     import jax.scipy.special as jsp
     normalizer = jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)
-    if method == 'rhw' or (method == 'rh' and alpha not in (0, -0.5, 0.5)):
+    if method in ('recw', 'rhw') or (method == 'rh' and alpha not in (0, -0.5, 0.5)):
         from chebfunjax.utils._gradual import gradual_positive_multiply
         w = gradual_positive_multiply(w, normalizer)
     else:
@@ -1562,14 +1568,17 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    Supports REC/GW/GLR and source RH for static real alpha>-1 and n>=3000.
+    Supports REC/RECW/GW/GLR and source RH for static alpha>-1 and n>=3000.
     Default selection is REC below300, GW below1000, alpha0 GLR below3000
     (GW for other alpha), then RH for static alpha, as in the source.
     Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
     small explicit RH/RHW, EXP and the singular alpha=-1 case remain unsupported.
     RHW uses the source truncated capacity and first-underflow stopping rule;
-    its variable-length public result requires eager execution.
+    RECW includes its first exact-zero weight. Both variable-length public
+    results require eager execution. For truncated barycentric output the
+    sign vector uses x.size, as already used for RHW; the source uses n and
+    has a dimension mismatch after truncation. This is a Python adaptation.
     Dynamic alpha at the GLR/RH default thresholds retains the GW path because
     source method selection is static in this Python/JAX API. Explicit GLR
     requires concrete alpha=0. The Python API returns 1D vectors in place of MATLAB's
@@ -1604,8 +1613,8 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rh'
         else:
             method = 'gw'
-    if method not in ('rec', 'gw', 'glr', 'rh', 'rhw'):
-        if method in ('exp', 'expw', 'recw'):
+    if method not in ('rec', 'recw', 'gw', 'glr', 'rh', 'rhw'):
+        if method in ('exp', 'expw'):
             raise NotImplementedError(f"lagpts: source method {method.upper()} is not yet supported")
         raise ValueError(f"lagpts: unsupported method {method!r}")
 
@@ -1622,7 +1631,7 @@ def lagpts(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: interval must be semi-infinite")
 
     x, w = _lagpts_core(n, alpha, None, method)
-    gradual_rh = method == 'rhw' or (method == 'rh' and alpha not in (0, -0.5, 0.5))
+    gradual_rh = method in ('recw', 'rhw') or (method == 'rh' and alpha not in (0, -0.5, 0.5))
     if gradual_rh:
         from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
         from chebfunjax.utils.laguerre_rh_general import (
