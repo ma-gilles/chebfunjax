@@ -1,6 +1,6 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Latest CPU qualification (2026-10-08, local b7b2a320)
+## Latest CPU qualification (2026-10-08, local b3b0258d)
 
 Full parity remains incomplete. This checkpoint supersedes earlier counts.
 Shared evidence directory:
@@ -11,15 +11,19 @@ Shared evidence directory:
 | c9edc577 | Singular addition scales, endpoint reconstruction, zero identity and diagnostics; original cumsum clauses | Composite gates: 30 + 2 prior checks, 31 final-library checks and seven strengthened controls; see acceptance record, not one combined final-tree run. Native seed666 identity and difficult right-pole happiness remain open |
 | f6338189 | 3D scalar callbacks, slices, paths, continuous factor norm, empty integration and Runge entry | 64 pass: all 59 original divide/feval/sum3 predicates plus five controls; full 100³ grids, 134.37 s supervised, 2.48 GiB; native RNG identity and direct factor-transfer slicing remain open |
 | b7b2a320 | Greeks source computations, actual relative-error output, reference dimensions and clipped interpolated surface rendering | Full page 107.75 s, 114.76 s supervised; corrected rendering 45.40 s from bound saved figures without recomputing numerics; all five 600×268; font/projection/triangulation and native last digits remain open |
+| 75fc23cf | Oriented Chebfun matrix products, stored outer factors, singular conjugation and public sizes | 94 pass including 75 original predicates; five original random clauses await native source-order fixtures; 169.44 s supervised, 2.67 GiB |
+| b3b0258d | Rectangular/mixed-grid/periodic differentiation and boundary matrices | 199 + five distinct checks pass, including all 62 original predicates; one unrelated integration-degree skip; final source differs only in docstrings from main gate |
 
 Acceptance records: `singfun_plus_cumsum_root_acceptance_20261008.json`,
 `chebfun3_source_root_acceptance_20261008.json`, and
-`greeks_page_root_acceptance_20261008.json`. The 3D gate records complete
+`greeks_page_root_acceptance_20261008.json`,
+`chebfun_mtimes_root_acceptance_20261008.json`, and
+`diffmat_source_root_acceptance_20261008.json`. The 3D gate records complete
 observed dependency/native origins; the Greeks page records only selected
 import origins and its frozen source/render inputs. Earlier Greek renders
 with off-window surface walls were rejected and superseded by v4.
 
-Fresh inventory `matlab_test_static_inventory_f6338189_20261008.json` reports
+Fresh inventory `matlab_test_static_inventory_b3b0258d_20261008.json` reports
 **1,094 present, eight masked, zero module-skipped or missing**, with all 1,102
 source/port hashes revalidated. These are file/marker counts, not assertion,
 RNG, runtime or API parity. Manual audit found 80 original Chebfun mtimes
@@ -33,12 +37,30 @@ hole. It rechecks all 1,304 mapped PNGs; matching sizes do not qualify pixels,
 prose, computations or stdout. The Greeks relative error now follows source;
 its call-vega approximation error about 6.431e-8 also occurs historically.
 
-All three available workers remain occupied: Chebfun mtimes (80 predicates,
-including five pending native random captures), deterministic diffmat (62),
-and BestApprox (five figures plus source computation audit). Four total agent
-slots include root; the user's newer request authorizes all three workers.
-CPU only. Chebfun mtimes owns the serial heavy lane until its terminal receipt.
-Keep assigning the next cohesive package immediately when a worker finishes.
+The cached prose/MATLAB-cell regeneration audit covers all 322 pages:
+`prose_cell_audit_75fc23cf_20261008/report.json` has 321 strict matches after
+whitespace normalization and excluding stdout/figure paths. Manual review of
+ThreeBodyProblem found only an original-site versus local bibliography link;
+no prose correction was needed. This uses the existing generator, not an
+independent HTML semantic proof, and does not qualify Python computations.
+
+The fixed-grid diagnostic `highfreq_integral_diagnosis_20261008/conclusion.json`
+reproduces the remaining oscillatory integral error at 65,537 samples.
+Compensated coefficient reduction changes only about 1e-17; extended-precision
+sampling with the same float64 transform reduces error to 4.75e-17. This
+localizes the dominant discrepancy to sampling arithmetic. No production
+precision/refinement change or tolerance relaxation was made; native sample
+trajectories remain needed for a justified source-parity repair.
+
+All three workers remain occupied: Chebop periodic (41 source predicates),
+Chebfun sum (36, with captured seed7681 inputs), and BestApprox/minimax source
+initialization/fallback semantics plus five figures. The session supports four
+agents including root, and the user's newer request authorizes all workers.
+CPU only. Coordinate the single heavy lane with BestApprox/minimax; small
+bounded matrix gates run independently. Diffmat's canceled duplicate preflight
+has no final receipt and cleanup is uncertified; it is excluded from acceptance.
+Its accepted main and focused runs both certify stable inputs/no survivors.
+MATLAB error identifiers/text and broader source Legendre quirks remain open.
 
 Previously accepted f31f378a plain elliptic/composition has 93 passing checks;
 561eef04 classic multiplication has 44 passing checks and six native-pending
