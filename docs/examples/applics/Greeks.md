@@ -200,10 +200,10 @@ disp(['rho approx   [call] = ' num2str(call_rho_approx,'%10.15f')])
 ```
 
 ```text
-delta approx [call] = 0.569386520857158
-vega approx  [call] = 27.781724710888401
-theta approx [call] = -12.942558625371539
-rho approx   [call] = 22.039170710752195
+delta approx [call] = 0.569386520857125
+vega approx  [call] = 27.781724710884099
+theta approx [call] = -12.942558625370300
+rho approx   [call] = 22.039170710747410
 ```
 
 Following exactly the same procedure, we calculate the Greeks of a put, using the appropriate domain.
@@ -246,9 +246,9 @@ disp(['rho approx   [put] = ' num2str(put_rho_approx,'%10.15f')])
 
 ```text
 delta approx [put] = -0.430613479154512
-vega approx  [put] = 27.781722924228063
-theta approx [put] = -11.947546250952318
-rho approx   [put] = -27.711453237466564
+vega approx  [put] = 27.781722924228053
+theta approx [put] = -11.947546250952753
+rho approx   [put] = -27.711453237446960
 ```
 
 ## Comparison with Black-Scholes
@@ -314,22 +314,22 @@ disp('-------------------------------------------------------')
 ```
 
 ```text
-                 call                 put
-delta exact  : 0.569386520845488    -0.430613479154512
-delta approx : 0.569386520857158    -0.430613479154512
-delta error  : 1.1670e-11            3.3307e-16
+                       call                 put
+delta exact  : 0.569386520845488     -0.430613479154512
+delta approx : 0.569386520857125     -0.430613479154512
+delta error  : 2.0437e-11            3.8674e-16
 -------------------------------------------------------
-vega  exact  : 27.781722924220272    27.781722924220272
-vega  approx : 27.781724710888401    27.781722924228063
-vega  error  : 1.7867e-06            7.7911e-12
+vega exact   : 27.781722924220272    27.781722924220272
+vega approx  : 27.781724710884099    27.781722924228053
+vega error   : 6.4311e-08            2.8006e-13
 -------------------------------------------------------
-theta exact  : -12.942558730342391    -11.947546251149708
-theta approx : -12.942558625371539    -11.947546250952318
-theta error  : 1.0497e-07            1.9739e-10
+theta exact  : -12.942558730342391   -11.947546251149708
+theta approx : -12.942558625370300   -11.947546250952753
+theta error  : 8.1106e-09            1.6485e-11
 -------------------------------------------------------
-rho   exact  : 22.039170722163501    -27.711453237470618
-rho   approx : 22.039170710752195    -27.711453237466564
-rho   error  : 1.1411e-08            4.0536e-12
+rho exact    : 22.039170722163501    -27.711453237470618
+rho approx   : 22.039170710747410    -27.711453237446960
+rho error    : 5.1799e-10            8.5371e-13
 -------------------------------------------------------
 ```
 
