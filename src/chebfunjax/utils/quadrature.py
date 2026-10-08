@@ -8,6 +8,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
+from functools import partial
 from math import isinf
 
 import jax
@@ -16,6 +17,7 @@ import jax.numpy as jnp
 from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
 
 
+@partial(jax.jit, static_argnames=("n", "kind"))
 def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
     """Chebyshev points of the first or second kind on [-1, 1].
 
@@ -59,7 +61,8 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
         # x = sin(pi*(-n+1:2:n-1)/(2n)) rather than cos((2k-1)pi/(2n)):
         # the sine construction is exactly antisymmetric (centre node is a
         # bit-exact 0 for odd n) and pairs small-argument sines against the
-        # symmetric endpoints, matching MATLAB to the last bit.
+        # symmetric endpoints. JIT fusion can change final rounding; source
+        # antisymmetry is retained, while MATLAB bit identity is not claimed.
         k = jnp.arange(-n + 1, n, 2, dtype=jnp.float64)
         x = jnp.sin(jnp.pi * k / (2 * n))
     elif kind == 2:
