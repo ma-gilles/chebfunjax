@@ -491,8 +491,10 @@ class Singfun(eqx.Module):
             h = Singfun(self.smoothPart * other, self.exponents)
         else:
             h = Singfun(self.smoothPart * other, self.exponents)
-        # MATLAB @singfun/times.m: demote a smooth product to its smoothfun.
-        return _demote_if_smooth(h)
+        # Source cancellation precedes simplification and smooth demotion.
+        # A cancelled pole must not survive as a singular representation:
+        # downstream unbounded integration selects its algorithm by this type.
+        return _demote_if_smooth(h.cancelExponents().simplify())
 
     def __rmul__(self, other) -> "Singfun":
         return self.__mul__(other)

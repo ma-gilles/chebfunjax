@@ -5430,10 +5430,14 @@ class Chebfun(eqx.Module):
             Chebfun(funs=new_pieces, domain=base.domain,
                     deltas=tuple(lowered)), self.is_transposed)
 
-    def sum(self) -> jax.Array:
-        r"""Definite integral over the full domain.
+    def sum(self, *args, dim=None):
+        r"""Definite integral, subdomain integral, or sum across columns.
 
-        Sums the definite integrals of all pieces.
+        With no arguments, sum the definite integrals of all pieces.
+        ``sum(a, b)`` or ``sum([a, b])`` integrates between numeric or
+        Chebfun limits; ``sum(dim)``/``sum(dim=dim)`` reduces dimension 1 or 2.
+        Numeric row results have shape ``(n, 1)``; column results retain
+        Python's one-dimensional vector convention.
 
         JIT-safe: yes.
 
@@ -5446,6 +5450,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/sum.m
         Chebfun commit: 7574c77
         """
+        if args or dim is not None:
+            from .summation import sum_dispatch
+            return sum_dispatch(self, args, dim)
         total = jnp.float64(0.0)
         for piece in self.funs:
             total = total + piece.sum()
@@ -5455,6 +5462,8 @@ class Chebfun(eqx.Module):
             _loc, _mag, _order = _delta_row(row)
             if _order == 0:
                 total = total + jnp.float64(_mag)
+        if self.is_transposed and self.n_columns > 1:
+            return jnp.reshape(total, (-1, 1))
         return total
 
     def inner(self, other: Chebfun) -> jax.Array:
@@ -11101,7 +11110,10 @@ def _string_op(expr: str):
     op = matlab_expression(expr, (var,))
 
     def _f(x, _op=op):
-        return jnp.asarray(_op(x)) + 0.0 * x
+        # Broadcast scalar expressions without changing nonfinite values:
+        # 0*Inf is NaN and would hide the pole of the identity expression
+        # from the unbounded constructor's endpoint singularity check.
+        return jnp.asarray(_op(x)) + jnp.zeros_like(x)
     return _f
 
 

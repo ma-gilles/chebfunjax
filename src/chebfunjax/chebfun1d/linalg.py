@@ -465,9 +465,16 @@ class Quasimatrix:
     def cumsum(self) -> "Quasimatrix":
         return self._map(lambda c: c.cumsum())
 
-    def sum(self) -> jnp.ndarray:
-        """Row vector of column integrals (MATLAB sum of array-valued)."""
-        return jnp.asarray([c.sum() for c in self.cols])
+    def sum(self, *args, dim=None):
+        """Integrate columns or sum the discrete dimension, with source limits.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sum.m
+        Chebfun commit: 7574c77
+        """
+        from .summation import sum_dispatch
+        return sum_dispatch(self, args, dim)
 
     def vscale(self) -> jnp.ndarray:
         return jnp.asarray([c.vscale for c in self.cols])

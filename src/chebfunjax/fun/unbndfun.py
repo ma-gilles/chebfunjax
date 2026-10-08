@@ -834,9 +834,11 @@ class Unbndfun(eqx.Module):
         Uses the substitution rule:
             ∫_{domain} f(x) dx = ∫_{-1}^{1} f(map(y)) * (dx/dy) dy
 
-        The integrand is constructed as a new Chebtech2 of the same length
-        (following MATLAB's heuristic in @unbndfun/sum.m: fixed-length
-        construction to avoid issues with the nonlinear map near ±1).
+        For a smooth input, construct a Chebtech2 integrand of the same
+        length (the source fixed-length heuristic near infinity). A singular
+        input first cancels vanishing boundary values and reconstructs the
+        integrand using the fractional parts of its original exponents.
+        Array columns have independent endpoint and divergence checks.
 
         Returns
         -------
@@ -859,87 +861,60 @@ class Unbndfun(eqx.Module):
         # than quadraturing garbage (the round-off filter below otherwise
         # turns sum(2, [-inf, b]) into a finite number).
         from chebfunjax.fun.singfun import Singfun as _SfChk
-        _tol_end = 1e-8 * max(float(self.onefun.vscale), 1e-300)
-        _ends = []
-        if isinstance(self.onefun, _SfChk):
-            # Singular onefuns: convergence/divergence (signed infinity,
-            # inf-inf NaN) is decided exactly by the Jacobi-moment sum
-            # below after boundary-root absorption; a naive endpoint
-            # evaluation of smooth*weight would be 0*inf here.
-            pass
-        elif self.mapping_type in ("right_inf", "both_inf"):
-            _ends.append(float(jnp.real(jnp.atleast_1d(
-                self.onefun(jnp.float64(1.0)))[0])))
-        if not isinstance(self.onefun, _SfChk) and \
-                self.mapping_type in ("left_inf", "both_inf"):
-            _ends.append(float(jnp.real(jnp.atleast_1d(
-                self.onefun(jnp.float64(-1.0)))[0])))
-        _big = [e for e in _ends if abs(e) > _tol_end]
-        if _big:
-            if (len(_big) == 2
-                    and math.copysign(1.0, _big[0])
-                    != math.copysign(1.0, _big[1])):
-                # inf - inf (e.g. sum of x on (-inf, inf)): NaN.
+        if (not isinstance(self.onefun, _SfChk)
+                and self.onefun.coeffs.ndim == 2):
+            # Source infinity tests, scales and divergence markers act on
+            # each column separately. Keep the same map and tech length;
+            # mixing a decaying and a constant column must retain both the
+            # finite integral and the other column's signed infinity.
+            return jnp.stack([
+                self.with_tech(type(self.onefun)(
+                    coeffs=self.onefun.coeffs[:, k],
+                    ishappy=self.onefun.ishappy)).sum()
+                for k in range(self.onefun.coeffs.shape[1])])
+        original_exponents = (self.onefun.exponents
+                              if isinstance(self.onefun, _SfChk) else None)
+        working = (self.onefun.cancelExponents()
+                   if original_exponents is not None else self.onefun)
+        # MATLAB cancels exponents before evaluating endpoints and scales.
+        vscale = float(working.vscale)
+        endpoint_tol = 1e5 * _EPS * vscale
+        ends = []
+        if self.mapping_type in ("right_inf", "both_inf"):
+            ends.append(float(jnp.real(working(jnp.float64(1.0)))))
+        if self.mapping_type in ("left_inf", "both_inf"):
+            ends.append(float(jnp.real(working(jnp.float64(-1.0)))))
+        divergent = [value for value in ends if abs(value) > endpoint_tol]
+        if divergent:
+            if (len(divergent) == 2 and
+                    math.copysign(1.0, divergent[0]) !=
+                    math.copysign(1.0, divergent[1])):
                 return jnp.float64(math.nan)
-            return jnp.float64(math.copysign(math.inf, _big[0]))
+            return jnp.float64(math.copysign(math.inf, divergent[0]))
 
-        from chebfunjax.fun.singfun import Singfun
-        if isinstance(self.onefun, Singfun):
-            # Exact: the map derivative is an algebraic factor —
-            # 30/(1-y)^2 (right), 30/(1+y)^2 (left), or
-            # 5(1+y^2)/((1+y)^2 (1-y)^2) (doubly infinite) — so the
-            # integrand is another SINGFUN with shifted exponents, and
-            # its Jacobi-moment sum handles convergence/divergence.
-            sa, sb = self.onefun.exponents
-            sp = self.onefun.smoothPart
-            if self.mapping_type == "right_inf":
-                integ = Singfun(sp * 30.0, (sa, sb - 2.0))
-            elif self.mapping_type == "left_inf":
-                integ = Singfun(sp * 30.0, (sa - 2.0, sb))
-            else:
-                poly = Chebtech2.from_coeffs(
-                    jnp.asarray([7.5, 0.0, 2.5], dtype=jnp.float64))
-                integ = Singfun(sp * poly, (sa - 2.0, sb - 2.0))
-            # A super-algebraically decaying function (e.g. sqrt(t)e^-t)
-            # carries its decay in the SMOOTH part; absorb just enough
-            # boundary roots into the exponents to lift them above -1 so
-            # the Jacobi-moment sum does not misread the map-derivative
-            # pole as divergence.  (Explicit multiplicities — the
-            # automatic extraction never terminates on exponentially
-            # flat smooth parts, whose deflated endpoint values stay
-            # below the growing tolerance indefinitely.)
-            ea_, eb_ = integ.exponents
-            ka = int(math.floor(-ea_)) if ea_ <= -1.0 else 0
-            kb = int(math.floor(-eb_)) if eb_ <= -1.0 else 0
-            if ka or kb:
-                integ = integ.extractBoundaryRoots((ka, kb))
-            return integ.sum()
-
-        # construct a fixed-length CHEBTECH for the mapped integrand
-        #   h(y) = filter(f(map(y))) * (dx/dy),
-        # then integrate it with the tech's own coefficient sum.
-        #
-        # The filter zeros samples with |f| < 10*eps*vscale BEFORE multiplying
-        # by dx/dy: near the infinite endpoints f is ~0 but its round-off would
-        # otherwise be amplified by the large map derivative (which blows up as
-        # y -> +/-1).  Directly quadraturing f(map(y))*der(y) without this
-        # filter lets those amplified round-off values corrupt the integral --
-        # e.g. after the sine-node change the Gaussian integral degraded ~20x.
-        #
-        # At y = +/-1 the map derivative is infinite and the (filtered) value is
-        # 0, so the integrand samples 0*Inf = NaN there; the CHEBTECH
-        # constructor extrapolates those endpoints from the interior (MATLAB
-        # populate.m), exactly as the MATLAB algorithm relies on.
-        vscale = float(self.vscale)
         tol = 10.0 * _EPS * vscale
+        mapped = self.with_tech(working)
 
         def integrand_fn(y: jax.Array) -> jax.Array:
-            fy = self.onefun(y)
+            # The singular source branch reconstructs unbndfunIntegrand
+            # after cancellation, evaluating through the physical map.
+            fy = (mapped(mapped.forward_map(y)) if original_exponents is not None
+                  else working(y))
             fy = jnp.where(jnp.abs(fy) < tol, jnp.zeros_like(fy), fy)
             return fy * self.map_derivative(y)
 
-        integrand_onefun = Chebtech2.from_function(integrand_fn, n=self.n)
-        return integrand_onefun.sum()
+        if original_exponents is not None:
+            # Preserve the *original* exponents, as @unbndfun/sum.m does;
+            # mod avoids introducing a pole in the reconstructed integrand.
+            exponents = tuple((value - 2*math.isinf(endpoint)) % 1
+                              for value, endpoint in zip(
+                                  original_exponents, (self.domain.a, self.domain.b)))
+            integrand = _SfChk.from_function(integrand_fn, exponents=exponents)
+        else:
+            # Source fixed-length construction for an originally smooth
+            # onefun suppresses adaptive overresolution of the tail filter.
+            integrand = Chebtech2.from_function(integrand_fn, n=self.n)
+        return integrand.sum()
 
     def inner(self, other: "Unbndfun") -> jax.Array:
         """L2 inner product ⟨f, g⟩ = ∫_{domain} f(x) g(x) dx.
