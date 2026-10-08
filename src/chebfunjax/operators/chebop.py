@@ -933,6 +933,12 @@ class Chebop:
         discretization: str | None = None,
         ivp_solver: str | None = None,
     ):
+        if (getattr(self, "_periodic", False) and len(self.domain) == 2
+                and discretization in ("coeffs", "trigspec")
+                and self._n_vars() == 1 and self._is_linear()):
+            from chebfunjax.operators.periodic import solve_coefficients
+            return self._simplify_solution(
+                solve_coefficients(self, f, n, n_max, tol))
         if discretization is not None and str(discretization) in (
                 "ultraS", "chebcolloc1"):
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
@@ -1265,8 +1271,7 @@ class Chebop:
         # the problem to the piecewise solver (which re-detects and
         # unions them into its grid).  MATLAB does the equivalent while
         # building the piecewise chebmatrix.
-        if (not getattr(self, "_periodic", False)
-                and self._n_vars() == 1 and self._bc_general is None):
+        if self._n_vars() == 1 and self._bc_general is None:
             try:
 
                 from chebfunjax.chebfun1d.chebfun import Chebfun as _Cf
@@ -2591,6 +2596,9 @@ class Chebop:
         MATLAB source : @chebop/eigs.m (generalized branch)
         Chebfun commit: 7574c77
         """
+        if getattr(self, "_periodic", False) and self._n_vars() > 1:
+            from chebfunjax.operators.periodic import generalized_periodic_system
+            return generalized_periodic_system(self, B, k, n, sort)
         if discretization in ("ultraS", "chebcolloc1"):
             from chebfunjax.operators.chebop_altdisc import (
                 eigs_generalized_altdisc,
@@ -3566,7 +3574,10 @@ class Chebop:
                 return [], []
 
             def cond_list(us):
-                out = self._bc_general(x_fun, *us)
+                # MATLAB @chebop/linearize.m accepts BCs with or without x.
+                nargs = _op_arity(self._bc_general, len(us))
+                out = (self._bc_general(x_fun, *us) if nargs > len(us)
+                       else self._bc_general(*us))
                 if not isinstance(out, (list, tuple)):
                     out = [out]
                 return out
