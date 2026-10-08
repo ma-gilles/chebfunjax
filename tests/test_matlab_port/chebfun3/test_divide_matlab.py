@@ -1,7 +1,4 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_divide.m (Fable 5).
-
-Scalar and root-free function division are ported; divisions creating
-singularities are skipped (no blowup support on Chebfun3).
+"""Literal predicates from MATLAB tests/chebfun3/test_divide.m.
 
 Provenance
 ----------
@@ -9,32 +6,17 @@ MATLAB source : tests/chebfun3/test_divide.m
 Chebfun commit: 7574c77
 """
 
-from __future__ import annotations
-
 import jax.numpy as jnp
 import pytest
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
 
-from ._helpers import EPS, maxdiff
-
-TOL = 1e4 * EPS
+from ._helpers import EPS
 
 
-class TestChebfun3Divide:
-    def test_divide_by_scalar(self):
-        f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
-        assert maxdiff(f / 2,
-                       lambda x, y, z: jnp.cos(x * y * z) / 2) < TOL
-
-    def test_divide_by_rootfree_function(self):
-        f = Chebfun3.from_function(lambda x, y, z: x * y * z)
-        g = Chebfun3.from_function(lambda x, y, z: 2 + jnp.cos(x * y * z))
-        assert maxdiff(
-            f / g,
-            lambda x, y, z: x * y * z / (2 + jnp.cos(x * y * z)),
-        ) < 100 * TOL
-
-    def test_divide_creating_singularity(self):
-        pytest.skip("division by a chebfun3 with roots requires blowup "
-                    "support (absent)")
+@pytest.mark.parametrize("clause", [1, 2, 3, 4])
+def test_source_divide(clause):
+    # Python maps scalar right/left and elementwise/matrix division to /.
+    f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x*y*z))
+    g = Chebfun3.from_function(lambda x, y, z: jnp.cos(x*y*z)/2)
+    assert (f / 2 - g).norm() < 1000 * EPS

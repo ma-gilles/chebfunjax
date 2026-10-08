@@ -29,6 +29,7 @@ __all__ = [
     "bspline",
     "gallery",
     "gallery2",
+    "gallery3",
     "gallerytrig",
     "galleryball",
     "normal2",
@@ -262,3 +263,18 @@ def galleryball(name: str | None = None):
         raise ValueError(
             "CHEB:GALLERYBALL:unknown:unknownFunction: Unknown function.")
     return f, fa
+
+
+def gallery3(name):
+    """Construct the three-dimensional Runge gallery function.
+
+    Provenance
+    ----------
+    MATLAB source : +cheb/gallery3.m (runge case)
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+
+    if name.lower() != "runge":
+        raise NotImplementedError(f"gallery3 entry {name!r} is not implemented")
+    return Chebfun3.from_function(lambda x, y, z: 1 / (1 + x*x + y*y + z*z))

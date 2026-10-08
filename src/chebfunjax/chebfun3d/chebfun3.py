@@ -599,6 +599,14 @@ class Chebfun3(eqx.Module):
                 _vec(_onp.asarray(a), _onp.asarray(b),
                      _onp.asarray(c)), dtype=jnp.float64)
 
+        original_function = f
+
+        def f(x, y, z):
+            return jnp.broadcast_to(jnp.asarray(original_function(x, y, z)),
+                                    jnp.broadcast_shapes(jnp.shape(x),
+                                                         jnp.shape(y),
+                                                         jnp.shape(z)))
+
         xa, xb = float(domain[0]), float(domain[1])
         ya, yb = float(domain[2]), float(domain[3])
         za, zb = float(domain[4]), float(domain[5])
@@ -1119,7 +1127,6 @@ class Chebfun3(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(
         self,
         x: jax.Array,
@@ -1158,6 +1165,36 @@ class Chebfun3(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+
+        if self.isempty():
+            return jnp.empty((0,))
+        if all(isinstance(v, Chebfun) for v in (x, y, z)):
+            return chebfun(lambda t: self(x(t), y(t), z(t)), domain=tuple(float(v) for v in x.domain.breakpoints))
+        coordinates = (x, y, z)
+        free = [i for i, v in enumerate(coordinates)
+                if isinstance(v, slice) and v == slice(None)]
+        if free:
+            if len(free) == 3:
+                return self
+            domain = tuple(endpoint for i in free
+                           for endpoint in self.domain[2*i:2*i+2])
+
+            def section(*values):
+                args = list(coordinates)
+                for i, value in zip(free, values):
+                    args[i] = value
+                return self(*args)
+
+            if len(free) == 1:
+                return chebfun(section, domain=domain)
+            from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+            return Chebfun2.from_function(section, domain=domain)
+
+        return self._evaluate_numeric(x, y, z)
+
+    @eqx.filter_jit
+    def _evaluate_numeric(self, x, y, z):
         xa, xb, ya, yb, za, zb = self.domain
         x = jnp.asarray(x, dtype=jnp.float64)
         y = jnp.asarray(y, dtype=jnp.float64)
@@ -1339,7 +1376,6 @@ class Chebfun3(eqx.Module):
             core=g.core[:k0, :k1, :k2],
             domain=self.domain)
 
-    @eqx.filter_jit
     def sum3(self) -> jax.Array:
         """Definite triple integral over the domain.
 
@@ -1368,6 +1404,12 @@ class Chebfun3(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        if self.isempty():
+            return jnp.empty((0,))
+        return self._sum3_numeric()
+
+    @eqx.filter_jit
+    def _sum3_numeric(self):
         xa, xb, ya, yb, za, zb = self.domain
         # Scale factors: ∫_a^b f(x) dx = (b-a)/2 * ∫_{-1}^{1} f(t) dt
         sx = 0.5 * (xb - xa)
@@ -1981,7 +2023,7 @@ class Chebfun3(eqx.Module):
         """
         if self.isempty():
             return 0.0
-        m, n, p = (max(k, 2) for k in self.length())
+        m, n, p = (min(max(k, 9), 41) for k in self.length())
         return float(jnp.max(jnp.abs(self.sample(m, n, p))))
 
     def fevalt(self, x, y, z) -> jax.Array:
@@ -2544,14 +2586,48 @@ class Chebfun3(eqx.Module):
         return jnp.asarray(r)
 
     def norm(self) -> jax.Array:
-        """L2 norm sqrt(int |f|^2) (MATLAB norm; Fable 5)."""
-        f2 = self * self if not any(
-            jnp.iscomplexobj(c.coeffs) for c in self.cols) else None
-        if f2 is None:
-            f2 = Chebfun3.from_function(
-                lambda x, y, z: jnp.abs(self(x, y, z)) ** 2,
-                domain=self.domain)
-        return jnp.sqrt(jnp.abs(f2.sum3()))
+        """Continuous Frobenius norm from orthogonal factors and the core.
+
+        Weighted QR gives the source HOSVD norm without reconstructing the
+        squared function or forming a dense three-dimensional value tensor.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/norm.m, @chebfun3/hosvd.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+
+        if self.isempty():
+            return jnp.empty((0,))
+        core = self.core
+        for axis, factors in enumerate((self.cols, self.rows, self.tubes)):
+            n = max(len(f.coeffs) for f in factors)
+            if isinstance(factors[0], Trigtech):
+                count = 2*n + 1
+                x = -1 + 2*jnp.arange(count)/count
+                weighted = jnp.stack([f(x) for f in factors], axis=1)
+                weighted = weighted*jnp.sqrt(2/count)
+            else:
+                k = jnp.arange(n)
+                plus = k[:, None]+k[None, :]
+                minus = jnp.abs(k[:, None]-k[None, :])
+
+                def moment(degree):
+                    denominator = jnp.where(degree % 2 == 0,
+                                            1-degree*degree, 1)
+                    return jnp.where(degree % 2 == 0, 2/denominator, 0)
+
+                gram = (moment(plus)+moment(minus))/2
+                coefficients = jnp.stack([
+                    jnp.pad(f.coeffs, (0, n-len(f.coeffs))) for f in factors
+                ], axis=1)
+                weighted = jnp.linalg.cholesky(gram).T @ coefficients
+            halfwidth = (self.domain[2*axis+1]-self.domain[2*axis])/2
+            _, triangular = jnp.linalg.qr(weighted*jnp.sqrt(halfwidth), mode="reduced")
+            core = jnp.tensordot(triangular, core, axes=(1, axis))
+            core = jnp.moveaxis(core, 0, axis)
+        return jnp.linalg.norm(core.ravel())
 
     def minandmax3(self, ngrid: int = 41, n_starts: int = 48):
         """Global extrema via dense-grid seed + multi-start Newton polish
@@ -3093,7 +3169,7 @@ class Chebfun3(eqx.Module):
 
 
 def chebfun3(
-    f,
+    f=None,
     domain: tuple[float, float, float, float, float, float] = (
         -1.0, 1.0, -1.0, 1.0, -1.0, 1.0,
     ),
@@ -3153,6 +3229,8 @@ def chebfun3(
     --------
     Chebfun3, Chebfun3.from_function
     """
+    if f is None:
+        return Chebfun3.empty()
     dv = tuple(float(v) for v in domain)
     if eps is not None:
         tol = float(eps)
@@ -3280,4 +3358,4 @@ def domainCheck(f, g, tol: float = 1e-12) -> bool:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum3', 'mean3', 'std3', 'norm', 'permute', 'squeeze', 'restrict', 'minandmax3', 'max3', 'min3', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])
+make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'mean3', 'std3', 'permute', 'squeeze', 'restrict', 'minandmax3', 'max3', 'min3', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])
