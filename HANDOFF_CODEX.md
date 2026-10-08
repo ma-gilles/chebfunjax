@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebgui export cohorts and PDE parser correction (2026-10-08)
+
+149 CPU checks passed with verified runtime origins, stable full guard inputs
+and no surviving processes. All64 original demos export through BVP/IVP/EIG/PDE
+adapters; fixtures match the pinned source byte-for-byte. This ports the four
+previously missing export-only MATLAB test cohorts, which do not solve or run
+the exported scripts.129 existing parser tests remain unchanged. PDE unary
+negation now precedes infix simplification, matching the source prefix stage.
+Literal demo loading and bounded numeric metadata parsing are supported; full
+MATLAB eval/num2str/vectorize semantics and error-side partial file contents
+remain open. No fresh MATLAB exporter output or solve/performance claim.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebgui_root_acceptance_20261008.json`.
+
 ## JAX PCHIP and complete source test assertions (2026-10-08)
 
 61 CPU checks passed in40.15s pytest with stable source/environment inputs

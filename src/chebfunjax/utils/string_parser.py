@@ -308,9 +308,12 @@ def str2anon(
     elif kind == "pde":
         pde_tree, pde_sign = _split_pde(tree)
         metadata_tree = _split_equation(pde_tree)
-        raw = par_simp(_render(metadata_tree))
+        # Source str2anon prepends UN- to the prefix tree before pref2inf.
+        # Rendering first and wrapping an already simplified string changes
+        # parSimp semantics for a leading negative term (u_t = v).
         if pde_sign == 1:
-            raw = par_simp("-(" + raw + ")")
+            metadata_tree = ("UN-", "-", metadata_tree)
+        raw = par_simp(_render(metadata_tree))
         exprs = raw
         comma = _contains(pde_tree, "COMMA")
     elif kind == "eig":

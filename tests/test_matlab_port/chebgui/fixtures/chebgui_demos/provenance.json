@@ -1,0 +1,263 @@
+{
+  "source": "chebguiDemos/*demos/*.guifile",
+  "commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "role": "literal sourceinputs; notcapturedMATLABexportoutputs",
+  "files": [
+    {
+      "path": "bvpdemos/advection_diffusion.guifile",
+      "sha256": "655190eed66da802e16d243fb21dfbe9950ef971cb443c234051c033e2b6f758"
+    },
+    {
+      "path": "bvpdemos/advection_diffusion_interior_cond.guifile",
+      "sha256": "81ce9ad274eee4b94e8ce4156d218ea7fe7af24fe47faebc1e3957086f91dbc6"
+    },
+    {
+      "path": "bvpdemos/advection_diffusion_jump.guifile",
+      "sha256": "be5eef80e809d3646ae20c1bdc1a0dedf3bf1795ad55fb38c224db442ac12371"
+    },
+    {
+      "path": "bvpdemos/advection_diffusion_periodic.guifile",
+      "sha256": "e0e122664085b1556c75c9ccf775fa3583928e867cfe3b7a8a0dca11e9e17785"
+    },
+    {
+      "path": "bvpdemos/airy.guifile",
+      "sha256": "dcb99d176656f15828dfea61eda2c7489a860f42d149330fe37849bdc5ee9e7c"
+    },
+    {
+      "path": "bvpdemos/bessel.guifile",
+      "sha256": "fbe750b43407b3d461fb874e00e0d1066ca6bf09427c80653adb01116ead6a42"
+    },
+    {
+      "path": "bvpdemos/blasius.guifile",
+      "sha256": "04590042a953bbdc8886974e34fd2ad9ef8e975c9160f00290cb228bd09b5417"
+    },
+    {
+      "path": "bvpdemos/carrier.guifile",
+      "sha256": "1b81d2c8254e197c46ac0e417736abb92d8826a89e674521f0e84a9c05eed4ea"
+    },
+    {
+      "path": "bvpdemos/carrier2.guifile",
+      "sha256": "7f766373779e1dd9d3f7665dc0a01e427a6493f51b51652e109b71c6a37c5dfc"
+    },
+    {
+      "path": "bvpdemos/coupled_system.guifile",
+      "sha256": "e6b44559795c12910ea7ebd9e9ce54324f257a3589bfa9e6e8f86020f4f8a7ca"
+    },
+    {
+      "path": "bvpdemos/discont_coeff.guifile",
+      "sha256": "b9aa72d112ef877ed76083bde90f934586174d554b22b2759c0fb2ff1a043261"
+    },
+    {
+      "path": "bvpdemos/falkner_skan.guifile",
+      "sha256": "a547b0310381848f69fc1ee807e44cb473f9cdc966f8c7894f4b1363941741e7"
+    },
+    {
+      "path": "bvpdemos/fisher_kpp.guifile",
+      "sha256": "a91382fa4d157c2b737e6632ff6d2ea32cbebbb6063bc84b5fb51eaebec4bfa6"
+    },
+    {
+      "path": "bvpdemos/fourth_order.guifile",
+      "sha256": "56e1bf960974ce4a80b2ec009c7bb8cde7cbd9a71527da5b0a3cabf610c63353"
+    },
+    {
+      "path": "bvpdemos/frank_kamenetskii.guifile",
+      "sha256": "3804da854f0c7ac9ce042006b2feca88d6dec9eb2b06a170bf4aa5ad36a078dd"
+    },
+    {
+      "path": "bvpdemos/interior_layers_linear.guifile",
+      "sha256": "74ba646f371273ef6b5deea588fcea2a2c6a98d5ff6e53f87718b081cf282adf"
+    },
+    {
+      "path": "bvpdemos/interior_layers_nonlinear.guifile",
+      "sha256": "bda30da457d58d9f7b80ecadb1036fb86ca526309bbd1fb8501825719e7aa58e"
+    },
+    {
+      "path": "bvpdemos/nonlinear_pendulum.guifile",
+      "sha256": "b1ead845d9bd61015b2a9b7367748707378ce8dbf431bf1157aa5cff10ccdf29"
+    },
+    {
+      "path": "bvpdemos/nonlinear_pendulum2.guifile",
+      "sha256": "a157953f55acc424ee6ffa2ba49748e897fbb67cd7da30a6ba9e2c600fe846a5"
+    },
+    {
+      "path": "bvpdemos/nonlinear_pendulum3.guifile",
+      "sha256": "4508f1ff8949ad5401bab87f52e2d0fb853827e78c902c5c03f76a3170d9c6d2"
+    },
+    {
+      "path": "bvpdemos/piecewise_forcing.guifile",
+      "sha256": "223e44124c53e5559176803b9b714f733552f645074fafe0f961fa80c0e4401a"
+    },
+    {
+      "path": "bvpdemos/sawtooth.guifile",
+      "sha256": "14c6213f84a2e09c229303313862fc8ed57ee93d9d5733e9697e6e96a25c35c4"
+    },
+    {
+      "path": "bvpdemos/system_coupled_bcs.guifile",
+      "sha256": "6efafeef817510851d28d80ba3e3b332a93d3f3c181ed5bfd57c67088adff726"
+    },
+    {
+      "path": "bvpdemos/troesch.guifile",
+      "sha256": "0fc43452a371465fb94e38ee49f55b7326471e5c1600f89f90123ae9b28cd388"
+    },
+    {
+      "path": "bvpdemos/water_droplet.guifile",
+      "sha256": "d62bfb114c00b485724c60118ff73d679c4e541448c375f0d19cf343fc7901e4"
+    },
+    {
+      "path": "eigdemos/advection_diffusion.guifile",
+      "sha256": "eed767930e74c3b4d4504f778d4531f52b9132982d6dc47715e686e804934558"
+    },
+    {
+      "path": "eigdemos/advection_diffusion_periodic.guifile",
+      "sha256": "c8cce6393c6d28cefa701cdce5d583c97dfd923e9899740954c766a27fd978d5"
+    },
+    {
+      "path": "eigdemos/airy.guifile",
+      "sha256": "bc078bcc026403436e62e417857212d37d3f174fe2f79af5e72db2a4aa2ae637"
+    },
+    {
+      "path": "eigdemos/cross.guifile",
+      "sha256": "7e27c562db2bb3c53b3d1a3485aebfb93611401b45b6a9446070461e9da28c21"
+    },
+    {
+      "path": "eigdemos/davies.guifile",
+      "sha256": "48ba09ffffb78ecde3971bbea8badd89ad88439caefea84554fbbc8c6e2763a2"
+    },
+    {
+      "path": "eigdemos/derivative.guifile",
+      "sha256": "8365949928265e2c51197203812c16f24f4c571f171d172ba47c43aa7ff2b779"
+    },
+    {
+      "path": "eigdemos/double_well.guifile",
+      "sha256": "135faf2be88b2208795a452900f5cb00bd5cf0e6e2d36b619ef4c5bbe9e6f5db"
+    },
+    {
+      "path": "eigdemos/harmonic.guifile",
+      "sha256": "ca6172b088f7d5210c9889733118482101bc7ad288dece714361ddfc68ca3f7d"
+    },
+    {
+      "path": "eigdemos/harmonic_system.guifile",
+      "sha256": "981ddcc17ad58ad2dac66eefcc45195cd0e3f4f3b0daaa08c6471095c8a05433"
+    },
+    {
+      "path": "eigdemos/mathieu.guifile",
+      "sha256": "8cdaf790eb04727e65d7c5727392588903d36bf2c6121fd0adc2080a84b341be"
+    },
+    {
+      "path": "eigdemos/orr_sommerfeld.guifile",
+      "sha256": "5f76fc308f54a2f49fa18ce013c1b6e87fac6f885d1d705f992dc1b1e60b3146"
+    },
+    {
+      "path": "eigdemos/variable_coeffs_system.guifile",
+      "sha256": "3aa0af3bc1167933464a762bd6bcd6a3384554df0d314dc944a11ca27c6f4917"
+    },
+    {
+      "path": "ivpdemos/blowup.guifile",
+      "sha256": "5170d3c013b95389850cc90ca344ffbaebad2b51aa7b1fbcbe1b8bd8208e9539"
+    },
+    {
+      "path": "ivpdemos/homoclinic_orbit.guifile",
+      "sha256": "027397899dd98391c1979e965b1a1fec18c63dbdbe3327498ea6327b0de9e728"
+    },
+    {
+      "path": "ivpdemos/lane_emden.guifile",
+      "sha256": "ab3105bc88ca2f7154a694f3b1e8cc94b15a525f93808d53b1f50dee95f2d991"
+    },
+    {
+      "path": "ivpdemos/linear_sawtooth.guifile",
+      "sha256": "5d4970027159bfe3cae7eea0d09bda96409df71af7459f2ac61547165be3f513"
+    },
+    {
+      "path": "ivpdemos/linear_wave.guifile",
+      "sha256": "636cbc149a1b5f8e2ae9c290b377fd898ca3bf097ba8bd1f9e68ab3d38d635ac"
+    },
+    {
+      "path": "ivpdemos/lorenz_chaotic.guifile",
+      "sha256": "faeb9634496b327f32ddfe315b2339ebfb37036660a9cc19fa3a4af40821a964"
+    },
+    {
+      "path": "ivpdemos/lotka_volterra.guifile",
+      "sha256": "4bf6ae03f6d8e5b2a5bc6f09df3b82299f9d5dfcfbbc55816c5905da0c78184a"
+    },
+    {
+      "path": "ivpdemos/resonance.guifile",
+      "sha256": "e65a29fc4aaef822c8abf7d2479a6a46c88ede45f438c8bd47d1c766cbd64635"
+    },
+    {
+      "path": "ivpdemos/rosslerAttractor.guifile",
+      "sha256": "c67d5e5c295bb08a834409d0d10d1936d8e5cb321ee95ceedcf2682714ea3011"
+    },
+    {
+      "path": "ivpdemos/sirModel.guifile",
+      "sha256": "cfb7c2bd139720006d260009792df7f42c214f14409bd70c242cf0878cc40676"
+    },
+    {
+      "path": "ivpdemos/van_der_pol.guifile",
+      "sha256": "ccbecb7d6a7e77fabf82747f85d2d4e943121b45f2a2de8b1ed0e9a93e26800e"
+    },
+    {
+      "path": "pdedemos/advection_diffusion.guifile",
+      "sha256": "9e339bea3d73f0163bd4d5f510eb716a6cb055302b03663a05e34765d51de488"
+    },
+    {
+      "path": "pdedemos/advection_diffusion2.guifile",
+      "sha256": "fae9f20e7adb96508f2519ce36135ce3c0454602f7c6bf37ba0e234fb04c1c9a"
+    },
+    {
+      "path": "pdedemos/allen_cahn.guifile",
+      "sha256": "744a11be41b949fe47e02ab106fd2508f35211a2b3a3c8ceaccf0126a4ea4ae9"
+    },
+    {
+      "path": "pdedemos/buckmaster.guifile",
+      "sha256": "e5083e0e062216528da1f5b1c9647511dee01543236cfc240f009b1a3fda4532"
+    },
+    {
+      "path": "pdedemos/burgers.guifile",
+      "sha256": "35522e7c3d3460c159d366c8dfc82532acc299bf1ded68f3d9130336a493abfa"
+    },
+    {
+      "path": "pdedemos/cahn_hilliard.guifile",
+      "sha256": "b71bead387422fcf3ae8274189ae87637980245ea011affae5c6b9bd21dcc960"
+    },
+    {
+      "path": "pdedemos/coupled_pde_bvp.guifile",
+      "sha256": "87c78187996e0fb4c80063011d685995a816b5aeec21210bb9daac426cbadbef"
+    },
+    {
+      "path": "pdedemos/diffusion_three_chem.guifile",
+      "sha256": "27e06fc6276777f398166505747b31173a336f2c11adbec8a88d6a20572876bf"
+    },
+    {
+      "path": "pdedemos/fisher_kpp.guifile",
+      "sha256": "5e53f783371e68c39d8c3ba942ebb5648ea99850fb5abb47b91febc2fcace11c"
+    },
+    {
+      "path": "pdedemos/frank_kamenetskii.guifile",
+      "sha256": "518b61c379b99cfb65532dc52f1cbdbfc528837f40ccbce241721bc7787e7540"
+    },
+    {
+      "path": "pdedemos/heat_eqn.guifile",
+      "sha256": "627c3046ce5bd526df869797797a67d50c9ea5bf2c11658cdf4cb0173f5a294c"
+    },
+    {
+      "path": "pdedemos/heat_eqn2.guifile",
+      "sha256": "14a785ba90b56744d26d7fe9d63c73650bdb5347155328b8b42b4dcaf1b328f4"
+    },
+    {
+      "path": "pdedemos/integro_differential.guifile",
+      "sha256": "14623a7263c10fd37913a7c5b30eb8845a310da4b502751ed5d86233b6e43a63"
+    },
+    {
+      "path": "pdedemos/ks.guifile",
+      "sha256": "f1fc2b353a77c5b1e9e4d94e5b61107c07351203f97cc6e044e1920ab41e4d2e"
+    },
+    {
+      "path": "pdedemos/periodic_advection.guifile",
+      "sha256": "9f7c7f75ec8b2648d491893784b0518adf1a111f1017538fdb692a2f0da1bffa"
+    },
+    {
+      "path": "pdedemos/wave_eqn.guifile",
+      "sha256": "d9a00b5ff22187475aeff370819abde0db3747ddc126071f47f3423fff33ea09"
+    }
+  ]
+}
