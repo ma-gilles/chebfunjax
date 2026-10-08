@@ -5436,14 +5436,15 @@ class Chebfun(eqx.Module):
             total = total + pf.inner(pg)
         return total
 
-    def norm(self, p: float = 2) -> jax.Array:
+    def norm(self, p: float | str | None = None) -> jax.Array:
         """Lp norm over the domain.
 
         Parameters
         ----------
-        p : float, default 2
-            The exponent.
-            - ``p=2``: L2 norm = sqrt(<f, f>).
+        p : float or str, optional
+            Default (or "fro") is the Frobenius norm for array-valued
+            functions and the L2 norm for scalar functions.
+            - ``p=2``: L2 norm for scalar functions; spectral norm for arrays.
             - ``p=jnp.inf``: scalar L-infinity norm, or for array-valued
               Chebfuns ``max_x sum_j |f_j(x)|`` (MATLAB matrix infinity norm).
             - Other p: computed via ``|f|^p`` integration.
@@ -5483,8 +5484,16 @@ class Chebfun(eqx.Module):
             for column in columns[1:]:
                 row_one_norm = row_one_norm + column.abs()
             return row_one_norm.norm(p)
-        if p == 2:
-            return jnp.sqrt(jnp.abs(self.inner(self)))
+        if p is None or p == "fro" or p == 2:
+            column = self.transpose() if self.is_transposed else self
+            gram = column.inner(column)
+            if self.n_columns == 1:
+                return jnp.sqrt(jnp.abs(jnp.reshape(gram, ())))
+            if p is None or p == "fro":
+                return jnp.sqrt(jnp.abs(jnp.trace(gram)))
+            # Source norm(F,2) is the largest singular value. Its square
+            # is the largest eigenvalue of the Hermitian L2 Gram matrix.
+            return jnp.sqrt(jnp.maximum(jnp.linalg.eigvalsh(gram)[-1], 0))
         elif p == float("inf") or p == jnp.inf:
             # MATLAB: [normF, ~] = minandmax(f); max(abs(normF)) — the true
             # extremum via rootfinding on f'. Taking max|values at the

@@ -96,53 +96,25 @@ def residue(u, v, k=None):
     return B, A
 
 
-def _gauss_nodes(n, a, b):
-    from chebfunjax.utils.quadrature import legpts
-    x, w = (np.asarray(t) for t in legpts(n))
-    return (a + (b - a) * (x + 1) / 2.0,
-            w * (b - a) / 2.0)
-
-
-def fred(kernel, f, onevar: int | None = None):
-    """Fredholm integral operator applied to a chebfun (MATLAB fred):
-    F(x) = int_a^b K(x, y) f(y) dy.
+def fred(kernel, f, onevar=None):
+    """Apply the shared JAX Fredholm integral action or its AD counterpart.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/fred.m
+    MATLAB source: @chebfun/fred.m, @adchebfun/adchebfun.m (fred).
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-    a, b = float(f.domain.a), float(f.domain.b)
-    t, w = _gauss_nodes(120, a, b)
-    tj = jnp.asarray(t)
-    wf = jnp.asarray(w) * f(tj)
-
-    def F(x):
-        return jnp.asarray(kernel(x[:, None], tj[None, :])) @ wf
-
-    return Chebfun.from_function(F, Domain((a, b)))
+    from chebfunjax.operators.integral import fred as _fred
+    return _fred(kernel, f, onevar)
 
 
-def volt(kernel, f, onevar: int | None = None):
-    """Volterra integral operator applied to a chebfun (MATLAB volt):
-    F(x) = int_a^x K(x, y) f(y) dy.
+def volt(kernel, f, onevar=None):
+    """Apply the shared JAX Volterra integral action or its AD counterpart.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/volt.m
+    MATLAB source: @chebfun/volt.m, @adchebfun/adchebfun.m (volt).
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-    from chebfunjax.utils.quadrature import legpts
-    a, b = float(f.domain.a), float(f.domain.b)
-    xi, w = (jnp.asarray(np.asarray(t)) for t in legpts(120))
-
-    def F(x):
-        # y_j(x) = a + (x - a)(xi_j + 1)/2, weight (x - a)/2 w_j
-        half = (x[:, None] - a) / 2.0
-        y = a + half * (xi[None, :] + 1.0)
-        Kv = jnp.asarray(kernel(x[:, None], y)) * f(y)
-        return jnp.sum(half * w[None, :] * Kv, axis=1)
-
-    return Chebfun.from_function(F, Domain((a, b)))
+    from chebfunjax.operators.integral import volt as _volt
+    return _volt(kernel, f, onevar)

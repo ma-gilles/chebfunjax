@@ -30,207 +30,110 @@ if TYPE_CHECKING:
 # ===========================================================================
 
 
-def fred(K: Callable, f, *, n: int = 128) -> "Chebfun":
-    r"""Apply the Fredholm integral operator with kernel *K* to a Chebfun *f*.
+def _integral_result(action, domain, normv):
+    """Source outer constructor resolves the result relative to norm(input)."""
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    pieces = [_Piece.from_function(action, a, b, vscale=normv)
+              for a, b in zip(domain[:-1], domain[1:])]
+    result = Chebfun(funs=pieces, domain=Domain(domain))
+    return result.set_point_values(action(jnp.asarray(domain)))
 
-    Computes the Chebfun representing
 
-    .. math::
-        (Kf)(x) = \int_a^b K(x, y)\, f(y)\, dy,
+def fred(K: Callable, f, onevar=None, *, n: int = 128) -> "Chebfun":
+    r"""Apply int_a^b K(x,y)f(y)dy with JAX Gauss-Legendre quadrature.
 
-    where ``[a, b]`` is the domain of *f*.
-
-    The integration over *y* uses Clenshaw-Curtis quadrature on *n* points.
-    The outer function in *x* is then constructed adaptively by building a
-    Chebfun that evaluates the definite integral for each *x*.
-
-    Parameters
-    ----------
-    K : callable
-        Kernel function ``K(x, y)``.  Must accept two scalar or 1-D array
-        arguments and return an array of the same shape.  A tensor-product
-        call ``K(X, Y)`` where ``X``, ``Y`` are 2-D arrays (``jnp.meshgrid``
-        output) is used internally for efficiency.
-    f : Chebfun
-        Input function on domain ``[a, b]``.
-    n : int, optional
-        Number of Clenshaw-Curtis quadrature points for the inner integral.
-        Default 128.  Increase for smooth kernels of high degree.
-
-    Returns
-    -------
-    Ff : Chebfun
-        Result on the same domain as *f*.
-
-    Notes
-    -----
-    The integral is approximated as::
-
-        (Kf)(x) ≈ w^T * (K(x, y_j) * f(y_j))
-
-    where ``y_j`` are Clenshaw-Curtis nodes on ``[a, b]`` and ``w`` are the
-    corresponding weights.  The outer Chebfun is then constructed adaptively.
-
-    NOT JIT-safe (uses adaptive Chebfun construction).
+    Each smooth input interval receives n nodes, retaining piecewise domains
+    and real or complex scalar/array values. The outer Chebfun is adaptive.
+    The fixed inner rule is an explicit numerical adaptation of the source's
+    adaptive inner Chebfun construction; increase n for unresolved kernels.
+    As in @chebfun/fred.m, onevar affects AD operator matrices only; direct
+    action still calls the two-argument kernel. Adaptive outer construction
+    is eager; the quadrature arithmetic is JAX.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/fred.m
+    MATLAB source: @chebfun/fred.m, @adchebfun/adchebfun.m (fred).
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    volt
-
-    Examples
-    --------
-    Identity kernel (K(x,y) = 1) integrates f over [-1, 1]:
-
-    >>> import jax.numpy as jnp
-    >>> from chebfunjax.chebfun1d.chebfun import chebfun
-    >>> from chebfunjax.operators.integral import fred
-    >>> f = chebfun(jnp.cos)
-    >>> Ff = fred(lambda x, y: jnp.ones_like(x * y), f)
-    >>> abs(float(Ff(jnp.float64(0.0))) - float(jnp.sin(jnp.float64(1.0)) - jnp.sin(jnp.float64(-1.0)))) < 1e-5
-    True
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun_factory
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.operators.chebop import _FourierProxy
     from chebfunjax.utils.quadrature import legpts
 
-    # Source @trigcolloc/fred.m assembles a weighted kernel action at the
-    # discretization's functionPoints; it does not fit a proxy as a Chebfun.
-    # Chebfun commit: 7574c77.
+    if isinstance(K, Chebfun):
+        K, f = f, K
+    if isinstance(f, ADChebfun):
+        return f.fred(K, onevar)
     if isinstance(f, _FourierProxy):
         return f.fred(K)
+    domain = tuple(float(x) for x in f.domain.breakpoints)
+    column = f.transpose() if f.is_transposed else f
+    normv = float(column.norm())
+    nodes, weights = legpts(n)
+    y = jnp.concatenate([a+(b-a)*(nodes+1)/2 for a, b in zip(domain[:-1], domain[1:])])
+    w = jnp.concatenate([(b-a)*weights/2 for a, b in zip(domain[:-1], domain[1:])])
+    values = column(y)
+    weighted = w.reshape(w.shape+(1,)*(values.ndim-1))*values
 
-    a = float(f.domain.a)
-    b = float(f.domain.b)
+    def action(x):
+        x = jnp.asarray(x)
+        X, Y = jnp.meshgrid(x.ravel(), y, indexing="ij")
+        kernel = jnp.broadcast_to(jnp.asarray(K(X, Y)), X.shape)
+        result = jnp.tensordot(kernel, weighted, axes=((-1,), (0,)))
+        return result.reshape(x.shape+values.shape[1:])
 
-    # Gauss-Legendre nodes and weights on [-1, 1]
-    t_ref, w_ref = legpts(n)
-    t_ref = jnp.asarray(t_ref, dtype=jnp.float64)
-    w_ref = jnp.asarray(w_ref, dtype=jnp.float64)
-    # Map from [-1, 1] to [a, b]
-    yj = 0.5 * (b - a) * t_ref + 0.5 * (a + b)  # shape (n,)
-    wj = w_ref * 0.5 * (b - a)                    # shape (n,)
-    fvals = jnp.asarray(f(yj), dtype=jnp.float64)  # shape (n,)
-
-    def _integrand(x_arr):
-        """Evaluate (Kf)(x) for a vector of x values."""
-        x_arr = jnp.asarray(x_arr, dtype=jnp.float64)
-        # Build tensor-product grid
-        X, Y = jnp.meshgrid(x_arr, yj, indexing="ij")  # (m, n)
-        Kvals = jnp.asarray(K(X, Y), dtype=jnp.float64)  # (m, n)
-        # Integrate in y: (m, n) @ (n,) = (m,)
-        return Kvals @ (wj * fvals)
-
-    return _chebfun_factory(_integrand, domain=(a, b))
+    result = _integral_result(action, domain, normv)
+    return Chebfun._as_transposed(result, f.is_transposed)
 
 
-# ===========================================================================
-# Volterra integral operator
-# ===========================================================================
+def volt(K: Callable, f, onevar=None, *, n: int = 128) -> "Chebfun":
+    r"""Apply int_a^x K(x,y)f(y)dy with JAX interval-wise quadrature.
 
-
-def volt(K: Callable, f, *, n: int = 128) -> "Chebfun":
-    r"""Apply the Volterra integral operator with kernel *K* to a Chebfun *f*.
-
-    Computes the Chebfun representing
-
-    .. math::
-        (Kf)(x) = \int_a^x K(x, y)\, f(y)\, dy,
-
-    where ``a`` is the left endpoint of the domain of *f*.
-
-    At each evaluation point *x* the upper limit of integration changes,
-    so the integral is computed via Gauss-Legendre quadrature with *n/2*
-    nodes mapped to ``[a, x]``.
-
-    Parameters
-    ----------
-    K : callable
-        Kernel function ``K(x, y)``.  Must accept two scalar arguments and
-        return a scalar; vectorised over the quadrature nodes.
-    f : Chebfun
-        Input function on domain ``[a, b]``.
-    n : int, optional
-        Number of Gauss-Legendre quadrature points per evaluation.
-        Default 128.  For smooth kernels ``n=64`` is usually sufficient.
-
-    Returns
-    -------
-    Vf : Chebfun
-        Result on the same domain as *f*.
-
-    Notes
-    -----
-    The outer Chebfun is constructed adaptively by calling the integral
-    evaluation at Chebyshev points.  The integral at the left endpoint is
-    always exactly zero (empty domain ``[a, a]``).
-
-    NOT JIT-safe (uses adaptive Chebfun construction and Python loops).
+    Each smooth input interval is intersected with [a,x] and receives n/2
+    Gauss-Legendre nodes (at least one). The source zero endpoint is exact.
+    Complex/array values and input domain breaks are retained. As in fred,
+    the inner fixed rule adapts the source adaptive Chebfun quadrature.
+    Outer Chebfun construction remains eager, while numeric integration
+    uses broadcast JAX operations without scalar Python evaluation loops.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/volt.m
+    MATLAB source: @chebfun/volt.m, @adchebfun/adchebfun.m (volt).
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    fred
-
-    Examples
-    --------
-    Volterra integral of f = 1 with kernel K(x, y) = 1 gives F(x) = x - a:
-
-    >>> import jax.numpy as jnp
-    >>> from chebfunjax.chebfun1d.chebfun import chebfun
-    >>> from chebfunjax.operators.integral import volt
-    >>> f = chebfun(lambda x: jnp.ones_like(x))
-    >>> Vf = volt(lambda x, y: jnp.ones_like(x * y), f)
-    >>> abs(float(Vf(jnp.float64(0.5))) - 1.5) < 1e-5
-    True
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun_factory
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.utils.quadrature import legpts
 
-    a = float(f.domain.a)
-    b = float(f.domain.b)
+    if isinstance(K, Chebfun):
+        K, f = f, K
+    if isinstance(f, ADChebfun):
+        return f.volt(K, onevar)
+    domain = tuple(float(x) for x in f.domain.breakpoints)
+    column = f.transpose() if f.is_transposed else f
+    normv = float(column.norm())
+    nodes, weights = legpts(n//2 if n > 1 else 1)
 
-    # Gauss-Legendre nodes and weights on [-1, 1]
-    t_ref, w_ref = legpts(n // 2 if n > 1 else 1)
-    t_ref = jnp.asarray(t_ref, dtype=jnp.float64)
-    w_ref = jnp.asarray(w_ref, dtype=jnp.float64)
+    def action(x):
+        x = jnp.asarray(x)
+        flat = x.ravel()
+        total = None
+        for a, b in zip(domain[:-1], domain[1:]):
+            half = jnp.clip(flat-a, 0, b-a)/2
+            y = a+half[:, None]*(nodes[None, :]+1)
+            values = column(y)
+            kernel = jnp.broadcast_to(jnp.asarray(K(flat[:, None], y)), y.shape)
+            weighted = half[:, None]*weights[None, :]*kernel
+            weighted = weighted.reshape(weighted.shape+(1,)*(values.ndim-2))
+            contribution = jnp.sum(weighted*values, axis=1)
+            active = (half != 0).reshape(half.shape+(1,)*(contribution.ndim-1))
+            contribution = jnp.where(active, contribution, 0)
+            total = contribution if total is None else total+contribution
+        return total.reshape(x.shape+total.shape[1:])
 
-    def _volt_at_x(x_scalar: float) -> float:
-        """Evaluate (Vf)(x) at a single point."""
-        if x_scalar <= a + 1e-15 * (b - a):
-            return 0.0
-        # Map GL nodes from [-1,1] to [a, x_scalar]
-        yj = 0.5 * (x_scalar - a) * t_ref + 0.5 * (x_scalar + a)  # (n/2,)
-        scale = 0.5 * (x_scalar - a)
-        fvals = jnp.asarray(f(yj), dtype=jnp.float64)
-        Kvals = jnp.asarray(
-            [float(K(x_scalar, yj[j])) for j in range(yj.shape[0])],
-            dtype=jnp.float64,
-        )
-        return float(jnp.dot(w_ref * scale, Kvals * fvals))
-
-    def _integrand(x_arr):
-        """Vectorised evaluation over array of x values."""
-        x_arr = jnp.asarray(x_arr, dtype=jnp.float64)
-        result = jnp.asarray(
-            [_volt_at_x(float(xi)) for xi in x_arr.ravel()],
-            dtype=jnp.float64,
-        )
-        return result.reshape(x_arr.shape)
-
-    return _chebfun_factory(_integrand, domain=(a, b))
+    result = _integral_result(action, domain, normv)
+    return Chebfun._as_transposed(result, f.is_transposed)
 
 
 # ===========================================================================

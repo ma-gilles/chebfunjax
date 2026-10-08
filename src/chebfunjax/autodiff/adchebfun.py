@@ -57,8 +57,10 @@ from chebfunjax.operators.blocks import (
     cumsum_op,
     diag,
     eval_at,
+    fred_op,
     inner_functional,
     sum_functional,
+    volt_op,
     zeros_op,
 )
 from chebfunjax.operators.chebmatrix import ChebMatrix
@@ -420,6 +422,34 @@ class ADChebfun:
         result.func = self.func.diff(k)
         result.jacobian = D(self.domain, order=k) * self.jacobian
         # diff is linear, is_linear unchanged
+        return result
+
+    def fred(self, kernel, onevar=None) -> "ADChebfun":
+        """Apply the source Fredholm action and compose its linear operator.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (fred).
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.integral import fred
+        result = _copy_ad(self)
+        result.func = fred(kernel, self.func)
+        result.jacobian = fred_op(kernel, self.domain, onevar)*self.jacobian
+        return result
+
+    def volt(self, kernel, onevar=None) -> "ADChebfun":
+        """Apply the source Volterra action and compose its linear operator.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (volt).
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.integral import volt
+        result = _copy_ad(self)
+        result.func = volt(kernel, self.func)
+        result.jacobian = volt_op(kernel, self.domain, onevar)*self.jacobian
         return result
 
     def cumprod(self) -> "ADChebfun":

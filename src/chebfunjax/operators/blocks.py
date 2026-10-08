@@ -1429,7 +1429,7 @@ def mult(f, domain: _DomainT | None = None) -> OperatorBlock:
 
 
 def fred_op(kernel: Callable, domain: _DomainT = _DEFAULT_DOMAIN,
-            ) -> OperatorBlock:
+            onevar=None) -> OperatorBlock:
     """Fredholm integral operator ``(F u)(x) = int_a^b K(x,y) u(y) dy``.
 
     Parameters
@@ -1466,8 +1466,8 @@ def fred_op(kernel: Callable, domain: _DomainT = _DEFAULT_DOMAIN,
         w = jnp.concatenate([chebweights(nk) * 0.5 * (b - a)
                              for nk, (a, b) in zip(disc.sizes,
                                                    disc.intervals)])
-        K = jnp.asarray(kernel(pts[:, None], pts[None, :]),
-                        dtype=jnp.float64)
+        K = jnp.asarray(kernel(pts) if onevar else
+                        kernel(pts[:, None], pts[None, :]))
         return K * w[None, :]
 
     def _apply(u):
@@ -1478,7 +1478,7 @@ def fred_op(kernel: Callable, domain: _DomainT = _DEFAULT_DOMAIN,
 
 
 def volt_op(kernel: Callable, domain: _DomainT = _DEFAULT_DOMAIN,
-            ) -> OperatorBlock:
+            onevar=None) -> OperatorBlock:
     """Volterra integral operator ``(V u)(x) = int_a^x K(x,y) u(y) dy``.
 
     Parameters
@@ -1513,8 +1513,8 @@ def volt_op(kernel: Callable, domain: _DomainT = _DEFAULT_DOMAIN,
     def _op_fn(disc: ChebColloc2Disc) -> Array:
         pts = disc.points()
         C = cumsum_op(disc.domain)._op_fn(disc)
-        K = jnp.asarray(kernel(pts[:, None], pts[None, :]),
-                        dtype=jnp.float64)
+        K = jnp.asarray(kernel(pts) if onevar else
+                        kernel(pts[:, None], pts[None, :]))
         return K * C
 
     def _apply(u):
