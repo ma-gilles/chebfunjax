@@ -1,16 +1,15 @@
-"""Zeros of rational harmonic functions.
+"""Zeros of rational harmonic functions with source Chebfun2 phase portraits.
 
-Translation of complex/RationalHarmonic.m by Olivier Sete
-(December 2015): zeros of r(z) - conj(z) (gravitational-lensing
-harmonic mappings), located as common roots of the real and imaginary
-parts, with phase portraits.
-
+Translation of complex/RationalHarmonic.m by Olivier Sete (February2016).
 Original: https://www.chebfun.org/examples/complex/RationalHarmonic.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
+
 import matplotlib
 
 matplotlib.use("Agg")
+import hashlib
+import json
 import os
 import sys
 
@@ -18,86 +17,106 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.phaseplot import phaseplot
 
 chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'complex')
-
+_IMG = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "images", "complex"
+)
+_PAGE_REPORT = None
 N = 3
 A = 0.7
-DOM = tuple(1.4 * np.array([-1, 1, -1, 1]))
-FIG = [0]
+DOM = (-1.4, 1.4, -1.4, 1.4)
 
 
 def _common_roots(expr):
-    """Common zeros of Re(expr) and Im(expr) where expr maps (x, y) to
-    a complex value."""
+    # Explicit MATLAB roots(complexChebfun2) real/imaginary host-output adapter.
     fre = cj.chebfun2(lambda x, y: jnp.real(expr(x, y)), domain=DOM)
     fim = cj.chebfun2(lambda x, y: jnp.imag(expr(x, y)), domain=DOM)
-    pts = np.asarray(fre.roots(fim))
-    return np.atleast_2d(pts)
+    return np.asarray(fre.roots(fim)).reshape(-1, 2)
 
 
 def smash(v):
-    with np.errstate(all="ignore"):
-        g = v / (1 + np.abs(v) ** 2)
-    return np.where(np.isnan(g), 0.0, g)
+    value = v / (1 + jnp.abs(v) ** 2)
+    return jnp.where(jnp.isnan(value), 0, value)
 
 
-def _portrait(F, zeros_xy, poles_xy, fname):
-    FIG[0] += 1
-    xs = np.linspace(DOM[0], DOM[1], 480)
-    X, Y = np.meshgrid(xs, xs)
-    with np.errstate(all="ignore"):
-        V = F(X + 1j * Y)
-    H = (np.angle(V) + np.pi) / (2 * np.pi)
-    fig, ax = plt.subplots(figsize=(6.8, 6.4))
-    ax.imshow(plt.cm.hsv(H), origin="lower",
-              extent=(DOM[0], DOM[1], DOM[2], DOM[3]), aspect="equal")
-    if poles_xy is not None and len(poles_xy):
-        ax.plot(poles_xy[:, 0], poles_xy[:, 1], 'ws', ms=4, mfc='w')
-    if zeros_xy is not None and len(zeros_xy):
-        ax.plot(zeros_xy[:, 0], zeros_xy[:, 1], 'ko', ms=4, mfc='k')
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"RationalHarmonic_{FIG[0]:02d}.png"))
+def _portrait(fun, zeros, poles, index):
+    # The source explicitly constructs the smooth Chebfun2 at eps1e-8.
+    portrait = cj.chebfun2(lambda x, y: fun(x + 1j * y), domain=DOM, tol=1e-8)
+    # classic hue with caxis_start0 equals angle(-f) with caxis[-pi,pi],
+    # as in pinned @separableApprox/plot.m; existing HSV600 adapter reused.
+    image = phaseplot(lambda z: portrait(jnp.real(z), jnp.imag(z)), ax=DOM, n_pts=500, classic=True)
+    fig, ax = plt.subplots(figsize=(610 / 72.009, 276 / 72.009))
+    ax.set_position([203 / 610, 30 / 276, 225 / 610, 225 / 276])
+    ax.imshow(image, origin="lower", extent=DOM, aspect="equal")
+    ax.set_xlim(DOM[:2])
+    ax.set_ylim(DOM[2:])
+    ax.set_axis_off()
+    ax.plot(poles[:, 0], poles[:, 1], "ws", markersize=3 * 100 / 72.009, markerfacecolor="w")
+    ax.plot(zeros[:, 0], zeros[:, 1], "ko", markersize=3 * 100 / 72.009, markerfacecolor="k")
+    _savefig(
+        fig, os.path.join(_IMG, f"RationalHarmonic_{index:02d}.png"), size=(610, 276), dpi=72.009
+    )
     plt.close(fig)
+    return {
+        "rank": portrait.rank,
+        "raster_shape": list(image.shape),
+        "raster_sha256": hashlib.sha256(image.tobytes()).hexdigest(),
+        "tol": 1e-8,
+    }
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    def zc(x, y):
-        return x + 1j * y
+    def p(z):
+        return z ** (N - 1)
 
-    p = lambda z: z ** (N - 1)          # noqa: E731
-    q = lambda z: z**N - A**N           # noqa: E731
+    def q(z):
+        return z**N - A**N
 
-    poles = _common_roots(lambda x, y: q(zc(x, y)))
-    zeros = _common_roots(
-        lambda x, y: p(zc(x, y)) - q(zc(x, y)) * jnp.conj(zc(x, y)))
-    print(f"n_zeros = {len(zeros)}  n_poles = {len(poles)}")
+    poles = _common_roots(lambda x, y: q(x + 1j * y))
+    zeros = _common_roots(lambda x, y: p(x + 1j * y) - q(x + 1j * y) * jnp.conj(x + 1j * y))
 
-    ff = lambda z: z ** (N - 1) / (z**N - A**N) - np.conj(z)  # noqa: E731
-    _portrait(lambda z: smash(ff(z)), zeros, poles, "")
+    def ff(z):
+        return p(z) / q(z) - jnp.conj(z)
 
-    # epsilon-perturbed: a pole at the origin creates additional zeros
-    eps_ = 0.01
+    report1 = _portrait(lambda z: smash(ff(z)), zeros, poles, 1)
+    epsilon = 0.01
+    poles_eps = _common_roots(lambda x, y: q(x + 1j * y) * (x + 1j * y))
     zeros_eps = _common_roots(
-        lambda x, y: (p(zc(x, y)) * zc(x, y) + eps_ * q(zc(x, y))
-                      - q(zc(x, y)) * zc(x, y) * jnp.conj(zc(x, y))))
+        lambda x, y: (
+            p(x + 1j * y) * (x + 1j * y)
+            + epsilon * q(x + 1j * y)
+            - q(x + 1j * y) * (x + 1j * y) * jnp.conj(x + 1j * y)
+        )
+    )
     print("ans =")
     print(f"    {len(zeros_eps)}")
-    poles_eps = np.vstack([poles, [[0.0, 0.0]]])
-    ffe = lambda z: ff(z) + eps_ / z  # noqa: E731
-    _portrait(lambda z: smash(ffe(z) * np.abs(z * q(z)) ** 2),
-              zeros_eps, poles_eps, "")
+    report2 = _portrait(
+        lambda z: smash((ff(z) + epsilon / z) * jnp.abs(z * q(z)) ** 2), zeros_eps, poles_eps, 2
+    )
+    if _PAGE_REPORT is not None:
+        with open(_PAGE_REPORT, "w") as stream:
+            json.dump(
+                {
+                    "pole_count": len(poles),
+                    "zero_count": len(zeros),
+                    "perturbed_pole_count": len(poles_eps),
+                    "perturbed_zero_count": len(zeros_eps),
+                    "portrait1": report1,
+                    "portrait2": report2,
+                    "roots": zeros.tolist(),
+                    "perturbed_roots": zeros_eps.tolist(),
+                },
+                stream,
+                indent=2,
+            )
 
 
 if __name__ == "__main__":
