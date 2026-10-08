@@ -1469,6 +1469,10 @@ class Trigtech(eqx.Module):
     )  # complex128, shape (N,)
     is_real: bool = eqx.field(static=True, default=True)
     ishappy: bool = eqx.field(static=True, default=True)
+    # Source stores grid values independently of coefficients. Keep exact
+    # supplied/scaled values when available; coefficient transforms construct
+    # fresh instances without this optional dynamic JAX leaf.
+    _values: jax.Array | None = None
 
     # ------------------------------------------------------------------
     # Empty representation (MATLAB trigtech() with no arguments)
@@ -1549,7 +1553,8 @@ class Trigtech(eqx.Module):
         values = jnp.atleast_1d(jnp.asarray(values))
         is_real = _trig_nonadaptive_real_flag(values)
         coeffs = _trig_vals2coeffs_impl(values)
-        return cls(coeffs=coeffs, is_real=is_real, ishappy=ishappy)
+        return cls(coeffs=coeffs, is_real=is_real, ishappy=ishappy,
+                   _values=jnp.real(values) if is_real else values)
 
     @classmethod
     def from_function(
@@ -1831,7 +1836,7 @@ class Trigtech(eqx.Module):
         if self.isempty():
             return jnp.empty(self.coeffs.shape, dtype=jnp.float64 if self.is_real
                              else jnp.complex128)
-        v = trig_coeffs2vals(self.coeffs)
+        v = self._values if self._values is not None else trig_coeffs2vals(self.coeffs)
         if self.is_real:
             return jnp.real(v).astype(jnp.float64)
         return v
@@ -2374,8 +2379,9 @@ class Trigtech(eqx.Module):
                         @trigtech/conj.m
         Chebfun commit: 7574c77
 
-        Equality uses coefficients and reconstructed values. The adapter has
-        no independent stored value array and retains its global real flag.
+        Equality uses coefficients and grid values. Supplied and scalar-scaled
+        grid values are retained as a dynamic JAX leaf; coefficient transforms
+        discard that cache. The adapter retains its global real flag.
         Construction and value-dependent branch selection remain eager.
         """
         if self.isempty():
@@ -2399,7 +2405,11 @@ class Trigtech(eqx.Module):
                 if values.ndim == 1:
                     values = values[:, None]
                 coeffs = trig_vals2coeffs(values * row[None, :])
-            return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=self.ishappy)
+            values = self.values
+            if row.size > 1 and values.ndim == 1:
+                values = values[:, None]
+            return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=self.ishappy,
+                            _values=values * (row[0] if row.size == 1 else row[None, :]))
         if other.isempty():
             return Trigtech.empty()
         if self.n == 1:
@@ -2648,40 +2658,30 @@ class Trigtech(eqx.Module):
         # MATLAB returns f unchanged when the isReal flag is set.
         if self.is_real:
             return self
-        # Exact coefficient-space real part: conj(f) has coeffs
-        # flip(conj(c)) (see conj), so Re(f) = (f + conj(f))/2 has coeffs
-        # (c + flip(conj(c)))/2.  Avoids an FFT round-trip.
-        c = self.coeffs
-        cr = 0.5 * (c + jnp.flip(jnp.conj(c), axis=0))
-        scale = max(float(jnp.max(jnp.abs(trig_coeffs2vals(c)))), 1.0)
-        if float(jnp.max(jnp.abs(cr))) <= 1e2 * _EPS * scale:
+        # Source real.m extracts values, tests exact zero, and simplifies.
+        values = jnp.real(self.values)
+        if not bool(jnp.any(values)):
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
                           dtype=jnp.complex128)
             return Trigtech(coeffs=z, is_real=True, ishappy=True)
-        out = Trigtech(coeffs=cr, is_real=True, ishappy=self.ishappy)
-        # Simplify: the imaginary part may have inflated the length.
-        return out.simplify()
+        return Trigtech(coeffs=trig_vals2coeffs(values), is_real=True,
+                        ishappy=self.ishappy).simplify()
 
     def imag(self) -> "Trigtech":
-        """Imaginary part (a zero tech if the input was real).
+        """Imaginary part, preserving source length for complex inputs.
 
         Provenance
         ----------
         MATLAB source : @trigtech/imag.m
         Chebfun commit: 7574c77
         """
-        # MATLAB checks the isReal FLAG (not values): a real tech has
-        # an exactly-zero imaginary part by definition.
         if self.is_real:
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
                           dtype=jnp.complex128)
             return Trigtech(coeffs=z, is_real=True, ishappy=True)
-        # Exact coefficient-space imaginary part: Im(f) = (f - conj(f))/2i
-        # has coeffs (c - flip(conj(c)))/(2i).
-        c = self.coeffs
-        ci = (c - jnp.flip(jnp.conj(c), axis=0)) / (2j)
-        out = Trigtech(coeffs=ci, is_real=True, ishappy=self.ishappy)
-        return out.simplify()
+        # Unlike real.m, source imag.m does not simplify this result.
+        return Trigtech(coeffs=trig_vals2coeffs(jnp.imag(self.values)),
+                        is_real=True, ishappy=self.ishappy)
 
     def conj(self) -> "Trigtech":
         """Complex conjugate (via conjugated grid values).

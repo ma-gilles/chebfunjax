@@ -23,7 +23,8 @@ def _tt(f):
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    a = jnp.abs(jnp.asarray(a))
+    return float(jnp.max(jnp.sum(a, axis=1) if a.ndim == 2 else a))
 
 
 class TestTrigtechImag:
