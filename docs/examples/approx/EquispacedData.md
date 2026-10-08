@@ -42,7 +42,7 @@ error = norm(f-fexact,inf)
 
 ```text
 error =
-     3.537098105913785e-06
+     3.537098156323622e-06
 ```
 
 For comparison, this is what we get with polynomial interpolation of the same data. Of course, any Chebfun user knows that polynomial interpolation in equispaced points is a bad idea (the Runge phenomenon).
@@ -67,7 +67,7 @@ f
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[      -1,       1]       96      0.31     -2.3
+[      -1,       1]       99      0.31     -2.3
 vertical scale = 2.6
 ```
 
@@ -93,7 +93,7 @@ title('Chebyshev coefficients up to degree 50',FS,10)
 
 ```text
 error50 =
-     3.526801903754929e-06
+     3.526801845033861e-06
 ```
 
 ![EquispacedData figure 04](../../images/approx/EquispacedData_04.png)
@@ -109,7 +109,7 @@ title('Chebyshev coefficients with loosened tolerance',FS,10)
 
 ```text
 errorloose =
-     3.522255555236694e-06
+     3.522255555293222e-06
 ```
 
 ![EquispacedData figure 05](../../images/approx/EquispacedData_05.png)

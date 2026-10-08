@@ -1,8 +1,8 @@
 """Chebfuns from equispaced data.
 
-Translation of approx/EquispacedData.m by Nick Trefethen (June
-2015): constructing a chebfun from equispaced samples via Gregory-type
-extension ('equi'), versus the catastrophic polynomial interpolant,
+Translation of approx/EquispacedData.m by Nick Trefethen (April
+2015): constructing a chebfun from equispaced samples via Floater-Hormann
+rational approximation ('equi'), versus the catastrophic polynomial interpolant,
 plus truncation, loosened tolerance, and noisy data.
 
 Original: https://www.chebfun.org/examples/approx/EquispacedData.html
@@ -17,12 +17,13 @@ import sys
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import StrMethodFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.chebfun1d.chebfun import Chebfun
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot, plotcoeffs
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -30,30 +31,48 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 
 PURPLE = (0.8, 0, 1)
-XS = np.linspace(-1, 1, 3000)
+FIGURE_SIZE = (598, 273)
 
 
-def _dataplot(f, grid, data, title, fname, color='C0'):
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(XS, np.asarray(f(jnp.asarray(XS))), color, lw=1)
+def _historical_axes(ax, title=None, fontsize=10):
+    # The cached page uses the older connected coefficient curves and larger
+    # renderer fonts, rather than the pinned library default dot markers.
+    ax.tick_params(labelsize=18, direction="in", top=True, right=True, length=3)
+    ax.grid(True, color="0.8", linewidth=0.5)
+    for spine in ax.spines.values():
+        spine.set_color("black")
+        spine.set_linewidth(0.6)
+    if title is not None:
+        ax.set_title(title, fontsize=fontsize * 4 / 3, fontweight="bold", pad=4)
+
+
+
+def _dataplot(f, grid, data, title, fname, fontsize=10):
+    fig, ax = plt.subplots(figsize=(598 / 72.009, 273 / 72.009))
+    matlab_plot(f, "b", ax=ax, linewidth=1)
     ax.plot(grid, data, '.k', ms=8)
-    ax.set_title(title, fontsize=11)
+    _historical_axes(ax, title, fontsize)
+    ax.set_xlim(-1, 1)
+    ax.set_xticks([-1, -.5, 0, .5, 1])
+    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    ax.set_position([0.13, 0.11, 0.775, 0.815])
+    _savefig(fig, os.path.join(_IMG, fname), size=FIGURE_SIZE, dpi=72.009)
     plt.close(fig)
 
 
 def _coeffplot(f, title, fname):
-    c = np.abs(np.asarray(f.coeffs)) + 1e-30
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.semilogy(np.arange(len(c)), c, '.', color=PURPLE, ms=6)
+    fig, ax = plt.subplots(figsize=(598 / 72.009, 273 / 72.009))
+    plotcoeffs(f, ax=ax, color=PURPLE, source=True, fmt="-", linewidth=1)
     ax.axis([0, 100, 1e-16, 10])
-    ax.grid(True)
-    ax.set_title(title, fontsize=11)
+    _historical_axes(ax, title)
+    ax.set_yticks([1e-10, 1])
+    ax.minorticks_off()
+    ax.xaxis.label.set_size(18)
+    ax.yaxis.label.set_size(18)
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    ax.set_position([0.13, 0.185, 0.775, 0.735])
+    _savefig(fig, os.path.join(_IMG, fname), size=FIGURE_SIZE, dpi=72.009)
     plt.close(fig)
 
 
@@ -75,12 +94,16 @@ def run():
 
     # The polynomial interpolant through the same data: Runge disaster
     runge = Chebfun.interp1(jnp.asarray(grid), jnp.asarray(data))
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(XS, np.asarray(runge(jnp.asarray(XS))), 'r', lw=1)
+    fig, ax = plt.subplots(figsize=(598 / 72.009, 273 / 72.009))
+    matlab_plot(runge, 'r', ax=ax, linewidth=1)
+    _historical_axes(ax)
+    ax.set_xlim(-1, 1)
+    ax.set_xticks([-1, -.5, 0, .5, 1])
+    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
     ax.plot(grid, data, '.k', ms=8)
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EquispacedData_02.png"), size=(598, 273))
+    ax.set_position([0.13, 0.11, 0.775, 0.815])
+    _savefig(fig, os.path.join(_IMG, "EquispacedData_02.png"), size=FIGURE_SIZE, dpi=72.009)
     plt.close(fig)
 
     print("f =")
@@ -101,8 +124,8 @@ def run():
     _coeffplot(floose, "Chebyshev coefficients with loosened tolerance",
                "EquispacedData_05.png")
 
-    # Noisy data (MATLAB randn is not reproducible outside MATLAB; the
-    # phenomenon, not the digits, is what replicates here)
+    # NumPy normals do not match the MATLAB rng(0) normal stream.
+    # These two figures remain illustrative until source draws are captured.
     rs = np.random.RandomState(5489)
     noisy = data + 1e-1 * rs.standard_normal(data.shape)
     for ep, lab, fn in ((1e-2, "1e-2", "EquispacedData_06.png"),
@@ -110,7 +133,7 @@ def run():
         fn_ = cj.chebfun(jnp.asarray(noisy), equi=True, eps=ep)
         _dataplot(fn_, grid, noisy,
                   f"noisy data with 'equi', eps = {lab}: "
-                  f"length(f) = {len(fn_)}", fn)
+                  f"length(f) = {len(fn_)}", fn, fontsize=12)
 
 
 if __name__ == "__main__":
