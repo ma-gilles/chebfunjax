@@ -4275,7 +4275,7 @@ class Chebfun(eqx.Module):
                     [c, jnp.zeros(n - m, dtype=c.dtype)])
         return c
 
-    def addBreaks(self, breaks) -> "Chebfun":
+    def addBreaks(self, breaks, tol: float = 0.0) -> "Chebfun":
         """Introduce new interior breakpoints (MATLAB addBreaks).
 
         Provenance
@@ -4285,11 +4285,21 @@ class Chebfun(eqx.Module):
         """
         import numpy as _np
         a, b = float(self.domain.a), float(self.domain.b)
-        old = [float(p.interval[0]) for p in self.funs] + [b]
-        pts = sorted(set(old)
-                     | {float(t) for t in _np.atleast_1d(
-                         _np.asarray(breaks, dtype=float))
-                        if a < float(t) < b})
+        old = jnp.asarray(self.domain.breakpoints)
+        new = jnp.unique(jnp.asarray(breaks, dtype=jnp.float64).reshape(-1))
+        new = new[jnp.isfinite(new)]
+        finite = old[jnp.isfinite(old)]
+        # Source addBreaks.m uses the shortest finite existing interval,
+        # and tests distance to every existing breakpoint before restricting.
+        if finite.size > 1:
+            break_tol = max(100 * float(jnp.finfo(jnp.float64).eps)
+                            * max(float(jnp.min(jnp.diff(finite))), 1.0), tol)
+            distance = jnp.abs(new[:, None] - finite[None, :])
+            new = new[~jnp.any(distance < break_tol, axis=1)]
+        if new.size == 0:
+            return self
+        pts = sorted(set(_np.asarray(old).tolist())
+                     | {float(t) for t in new if a < float(t) < b})
         out = self.restrict(pts[0], pts[1])
         for i in range(1, len(pts) - 1):
             out = out.join(self.restrict(pts[i], pts[i + 1]))
@@ -4307,13 +4317,19 @@ class Chebfun(eqx.Module):
         import numpy as _np
         r_all = jnp.asarray(self.roots(nojump=True, nozerofun=True))
         r = _np.asarray(r_all, dtype=float).ravel()
+        # getRootsForBreaks.m discards NaNs and adjacent roots closer
+        # than eps*hscale; addBreaks handles proximity to existing breaks.
         a, b = float(self.domain.a), float(self.domain.b)
-        eps_ = float(_np.finfo(float).eps)
-        gap = max(tol, 100 * eps_ * max(abs(a), abs(b), 1.0))
-        r = r[(r > a + gap) & (r < b - gap)]
+        hscale = max(abs(a), abs(b))
+        if not _np.isfinite(hscale):
+            hscale = 1.0
+        gap = max(tol, float(_np.finfo(float).eps) * hscale)
+        r = _np.sort(r[~_np.isnan(r)])
+        if len(r):
+            r = r[_np.r_[True, _np.diff(r) >= gap]]
         if len(r) == 0:
             return self
-        out = self.addBreaks(r)
+        out = self.addBreaks(r, tol)
         if tuple(out.domain.breakpoints) != tuple(self.domain.breakpoints):
             # Source addBreaksAtRoots sets pointValues=0 at original roots,
             # only after an actual new breakpoint was introduced.
@@ -11103,16 +11119,14 @@ def _string_op(expr: str):
     import re
 
     from chebfunjax.utils.matlab_expr import _FUNS, matlab_expression
-    names = [t for t in re.findall(r"[A-Za-z_]\w*", expr)
+    # A scientific literal exponent (1e-100) is not a variable name.
+    names = [t for t in re.findall(r"(?<![\w.])[A-Za-z_]\w*", expr)
              if t not in _FUNS]
     names = [t for t in names if not re.fullmatch(r"\d.*", t)]
     var = names[0] if names else "x"
     op = matlab_expression(expr, (var,))
 
     def _f(x, _op=op):
-        # Broadcast scalar expressions without changing nonfinite values:
-        # 0*Inf is NaN and would hide the pole of the identity expression
-        # from the unbounded constructor's endpoint singularity check.
         return jnp.asarray(_op(x)) + jnp.zeros_like(x)
     return _f
 

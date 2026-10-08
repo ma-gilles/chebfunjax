@@ -115,6 +115,7 @@ def minimax(
     breakpoints: Sequence[float] | None = None,
     rational: bool = False,
     denom: int | None = None,
+    silent: bool = False,
 ) -> MinimaxResult | MinimaxRationalResult:
     """Best polynomial approximation of degree ``n`` via the Remez algorithm.
 
@@ -159,7 +160,11 @@ def minimax(
         (defaulting to ``n``, i.e. the diagonal type ``(n, n)``).  A
         :class:`MinimaxRationalResult` is returned in this case.  Uses the
         adaptive barycentric-Remez algorithm of Filip, Nakatsukasa,
-        Beckermann & Trefethen (2018) with an AAA-Lawson initial reference.
+        Beckermann & Trefethen (2018), trying CF, AAA-Lawson and CDF
+        initial references in the MATLAB source order.
+    silent : bool, optional
+        Suppress initialization progress and trial-failure text, as with the
+        MATLAB ``silent`` flag. Convergence warnings remain enabled.
     denom : int or None, optional
         Denominator degree for the rational case.  Ignored unless
         ``rational=True``.  Defaults to ``n`` (diagonal type).
@@ -268,7 +273,7 @@ def minimax(
             )
         return _minimax_rational(
             f, n, denom_deg, domain=domain, tol=tol, max_iter=max_iter,
-            init_xk=init_xk,
+            init_xk=init_xk, silent=silent,
         )
 
     a, b = float(domain[0]), float(domain[1])
@@ -964,13 +969,15 @@ class MinimaxRationalResult:
     domain : tuple[float, float]
         Approximation domain ``(a, b)``.
     success : bool
-        Whether a valid (sign-consistent) trial interpolant was produced.
+        Whether the final trial interpolant is sign-consistent. An explicitly
+        supplied reference may return success=False and r=None; automatic
+        initialization retries the source strategies and raises if all fail.
     polynomial_coeffs : jnp.ndarray or None
         Original Chebyshev coefficients for the rational=True, denom=0
         polynomial wrapper branch; otherwise None.
     """
 
-    r: Callable
+    r: Callable | None
     err: float
     xk: jnp.ndarray
     delta: float
@@ -1236,7 +1243,21 @@ def _find_extrema_rat(
             rh(x), dtype=np.float64
         ).ravel()
 
-    doms = np.unique(np.concatenate([np.array([a, b]), np.asarray(xk)]))
+    source = getattr(f, "_minimax_source", None)
+    domain_points = source.domain.breakpoints if source is not None else (a, b)
+    if len(xk) == 0:
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        probes = jnp.linspace(a, b, 5000)
+        error_scale = float(jnp.max(jnp.abs(jnp.asarray(err_handle(probes)))))
+        vscale = getattr(f, "_minimax_vscale", 1.0)
+        rel_tol = 1e-15 * vscale / error_scale if error_scale else float("inf")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            error_function = chebfun(err_handle, domain=domain_points,
+                                    eps=rel_tol, splitting=True)
+            roots = error_function.diff().roots(nojump=True)
+        return jnp.sort(jnp.unique(jnp.concatenate((jnp.asarray(domain_points), roots))))
+    doms = np.unique(np.concatenate([np.asarray(domain_points), np.asarray(xk)]))
     doms = np.sort(doms)
     nn = 2 ** 3
     mid = (doms[:-1] + doms[1:]) / 2.0
@@ -1250,7 +1271,7 @@ def _find_extrema_rat(
     for k in range(len(doms) - 1):
         rnow = _roots_diff_rat(valerr[:, k], (doms[k], doms[k + 1]), err_handle)
         rts.extend(np.atleast_1d(rnow).tolist())
-    out = np.unique(np.concatenate([np.array([a, b]), np.array(rts, dtype=np.float64)]))
+    out = np.unique(np.concatenate([np.asarray(domain_points), np.array(rts, dtype=np.float64)]))
     return np.sort(out)
 
 
@@ -1823,7 +1844,55 @@ def _pzeros(
     return zer, pol
 
 
-def _minimax_rational(
+def _minimax_rational(f, m, n, *, domain, tol=None, max_iter=None,
+                      init_xk=None, silent=False):
+    """Source initialization dispatcher around the rational trial kernel.
+
+    Provenance
+    ----------
+    MATLAB source : minimax.m (lines 82–209)
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+    from chebfunjax.utils._minimax_init import initialize_rational
+    source = f if isinstance(f, Chebfun) else chebfun(f, domain=domain, splitting=True)
+    if not source.isreal():
+        raise ValueError("MINIMAX only supports real valued functions.")
+    if source.n_columns > 1:
+        raise ValueError("MINIMAX does not currently support quasimatrices.")
+    a, b = float(domain[0]), float(domain[1])
+    m, n, symmetry = _adjust_degrees_for_symmetries(f, m, n, a, b)
+    if n == 0:
+        return minimax(f, m, domain=domain, tol=tol, max_iter=max_iter,
+                       init_xk=init_xk, rational=True, denom=0, silent=silent)
+    normf = float(source.norm(2))
+    if tol is None:
+        tol = 1e-4
+    if max_iter is None:
+        max_iter = 10 + (max(m, n) + 1) // 2
+
+    def kernel(mm, nn, reference, dialog=True):
+        if nn == 0 and mm >= 0:
+            from types import SimpleNamespace
+            result = minimax(f, mm, domain=domain, tol=tol,
+                             max_iter=max_iter, init_xk=reference)
+            return SimpleNamespace(xk=result.xk, success=True, polynomial=result)
+        return _rational_kernel(f, mm, nn, domain=domain, tol=tol,
+                                max_iter=max_iter, init_xk=reference,
+                                source_f=source, source_norm=normf,
+                                dialog=dialog, silent=silent)
+    if m == -1 or normf == 0:
+        return kernel(m, n, init_xk)
+    if init_xk is not None:
+        return kernel(m, n, init_xk)
+    def handle(x):
+        return f(x)
+    handle._minimax_source = source
+    handle._minimax_vscale = float(source.vscale)
+    return initialize_rational(source, handle, m, n, symmetry, kernel, silent=silent)
+
+
+def _rational_kernel(
     f: Callable,
     m: int,
     n: int,
@@ -1832,6 +1901,7 @@ def _minimax_rational(
     tol: float | None = None,
     max_iter: int | None = None,
     init_xk: np.ndarray | None = None,
+    source_f=None, source_norm=None, dialog=True, silent=False,
 ) -> MinimaxRationalResult:
     """Best type-(m, n) rational approximation via barycentric-Remez.
 
@@ -1843,7 +1913,6 @@ def _minimax_rational(
     Chebfun commit: 7574c77
     """
     a, b = float(domain[0]), float(domain[1])
-    m, n, _sym = _adjust_degrees_for_symmetries(f, m, n, a, b)
 
     if m == -1:
         # Odd f with numerator degree 0: best approximant is the zero function.
@@ -1860,7 +1929,7 @@ def _minimax_rational(
     if tol is None:
         tol = 1e-4
     if max_iter is None:
-        max_iter = 10 + round(max(m, n) / 2)
+        max_iter = 10 + (max(m, n) + 1) // 2
 
     xd = _chebpts1p(max(512, 8 * (N + 2)), a, b)
     scale = float(np.max(np.abs(np.asarray(f(jnp.array(xd)), dtype=np.float64))))
@@ -1879,7 +1948,9 @@ def _minimax_rational(
         # Shape-preserving: 2-D inputs are used in _find_extrema_rat.
         return np.asarray(_f(jnp.array(x)), dtype=np.float64) / _s
 
-    normf = 1.0
+    normf = float(source_norm) / scale if source_norm is not None else 1.0
+    fs._minimax_source = source_f
+    fs._minimax_vscale = float(source_f.vscale) / scale if source_f is not None else 1.0
     if init_xk is not None:
         xk = np.asarray(init_xk, dtype=np.float64).ravel()
     else:
@@ -1888,7 +1959,7 @@ def _minimax_rational(
     xk = np.asarray(xk, dtype=np.float64)
     xo = xk.copy()
     iter_count = 0
-    deltamin = np.inf
+    delta = max(normf, float(np.finfo(float).eps) / scale)
     diffx = 1.0
     err = normf
     h = 2 * err + 1
@@ -1910,45 +1981,42 @@ def _minimax_rational(
             fs, xk, m, n, hpre, a, b
         )
         if not interp_success:
+            if dialog and not silent:
+                print("Trial interpolant too far from optimal...")
+            iter_count += 1
             break
         if h == 0:
             h = 1e-19
         xk_new, err, flag = _exchange_rat(xk, h, 2, fs, rh, N + 2, a, b)
-        # Record the best iterate using the CURRENT (valid, length-N+2)
-        # reference the trial was computed on -- support/wN/wD are consistent
-        # with this xk.
+        # MATLAB retains the last rational iterate (only its polynomial
+        # branch chooses a best iterate). The status reference is post-exchange.
         delta = err - abs(h)
-        if delta < deltamin:
-            deltamin = delta
-            best = dict(support=support, wN=wN, wD=wD, err=err, xk=xk.copy(), h=h)
-        # Shape-consistency guard: _compute_trial_rational requires exactly
-        # N+2 = m+n+2 reference points.  ``flag == 0`` (or a short set) means the
-        # exchange could not assemble a full alternating reference -- which can
-        # happen on a platform where the extrema/sign count rounds differently
-        # than it does here.  Stop with the best full-length iterate instead of
-        # feeding a short reference back in (that crashed downstream on a matmul
-        # core-dimension mismatch).
         if flag == 0 or len(xk_new) != N + 2:
+            interp_success = False
             break
         xk = xk_new
-        diffx = float(np.max(np.abs(xo - xk))) if len(xo) == len(xk) else 1.0
+        best = dict(support=support, wN=wN, wD=wD, err=err, xk=xk.copy(), h=h)
+        diffx = float(jnp.max(jnp.abs(jnp.asarray(xo) - jnp.asarray(xk))))
+        reference_error = float(jnp.max(jnp.abs(jnp.asarray(fs(xk)) - jnp.asarray(rh(xk)))))
+        # Literal source machine-precision floor, not an example tolerance.
+        if tol * reference_error < normf * 1e-14:
+            tol = min(normf * 1e-13 / reference_error, .1) if reference_error else .1
         xo = xk.copy()
         iter_count += 1
 
-    if best is None:
-        # No successful iteration; report failure with a best-effort evaluator.
-        rh0 = _make_reval(support, wN, wD) if support is not None else (
-            lambda x: np.zeros_like(np.asarray(x, dtype=np.float64))
-        )
+    if (interp_success and dialog and abs(abs(h)-abs(err))/abs(err) > tol
+            and abs(abs(h)-abs(err))/normf >= 1e-14):
+        warnings.warn(f"minimax algorithm did not converge after {iter_count} iterations to the tolerance {tol}.", RuntimeWarning, stacklevel=2)
+
+    if best is None or not interp_success:
+        # The source returns empty trial outputs on interpolation failure.
+        # Do not expose a fabricated zero or an earlier successful trial.
         return MinimaxRationalResult(
-            r=lambda x, _r=rh0, _s=scale: _s * np.asarray(_r(x), dtype=np.float64),
-            err=float(err) * scale if np.isfinite(err) else np.inf,
-            xk=jnp.array(xk, dtype=jnp.float64),
-            delta=float(deltamin) / normf, iter=iter_count, m=m, n=n,
-            support=jnp.array(support if support is not None else []),
-            wN=jnp.array(wN if wN is not None else []),
-            wD=jnp.array(wD if wD is not None else []),
-            poles=jnp.array([]), zeros=jnp.array([]), domain=(a, b),
+            r=None, err=float(err) * scale,
+            xk=jnp.asarray(xk, dtype=jnp.float64),
+            delta=float(delta) / normf, iter=iter_count, m=m, n=n,
+            support=jnp.asarray([]), wN=jnp.asarray([]), wD=jnp.asarray([]),
+            poles=jnp.asarray([]), zeros=jnp.asarray([]), domain=(a, b),
             success=False,
         )
 
@@ -1957,13 +2025,13 @@ def _minimax_rational(
     wD = np.asarray(best["wD"], dtype=np.float64)
     # Undo the scale normalisation on the numerator weights only (D unchanged).
     rh_scaled = _make_reval(support, wN * scale, wD)
-    zer, pol = _pzeros(support, wN, wD, m, n)
+    zer, pol = _pzeros(support, wN, wD, m, n) if dialog else (jnp.asarray([]), jnp.asarray([]))
 
     return MinimaxRationalResult(
         r=rh_scaled,
         err=float(best["err"]) * scale,
         xk=jnp.array(best["xk"], dtype=jnp.float64),
-        delta=float(deltamin) / normf,
+        delta=float(delta) / normf,
         iter=iter_count,
         m=m,
         n=n,
