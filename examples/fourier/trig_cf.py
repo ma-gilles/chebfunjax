@@ -25,7 +25,7 @@ from scipy.special import factorial
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -72,17 +72,26 @@ def run():
     print("err =")
     print(f"   {err:.15f}")
 
-    xs = np.linspace(-np.pi, np.pi, 3000)
-    e = np.asarray(f(jnp.asarray(xs))) - np.asarray(r(xs))
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, e, lw=1.6)
+    # Source page plots the Chebfun error f-p/q itself, retaining its
+    # representation instead of evaluating an independent callable grid.
+    error_curve = f - p / q
+    fig, ax = plt.subplots(figsize=(600/72.009,269/72.009))
+    matlab_plot(error_curve, ax=ax, linewidth=1.6)
     ax.grid(True)
     ax.plot([-np.pi, np.pi], [err, err], "--k", lw=1.0)
     ax.plot([-np.pi, np.pi], [-err, -err], "--k", lw=1.0)
     ax.set_ylim(-0.004, 0.004)
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "TrigCFExample_01.png"))
+    ax.set_position([.13,.11,.775,.815])
+    ax.set_xticks([-3,-2,-1,0,1,2,3])
+    ax.set_yticks([-.004,-.002,0,.002,.004])
+    ax.tick_params(labelsize=12)
+    from matplotlib.ticker import ScalarFormatter
+    formatter=ScalarFormatter(useMathText=True)
+    formatter.set_powerlimits((-3,-3))
+    ax.yaxis.set_major_formatter(formatter)
+    ax.grid(True, linewidth=.5)
+    _savefig(fig, os.path.join(_IMG, "TrigCFExample_01.png"), size=(600,269),dpi=72.009)
     plt.close(fig)
 
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")

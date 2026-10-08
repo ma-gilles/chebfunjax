@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigonometric CF page correction (2026-10-08)
+
+Full CPU page run and figure audit passed with stable inputs, verified runtime
+origins and no surviving processes. Source f-p/q error curve and600x269
+reference layout restored. Hankel norm, CF bound and Remez error match historical
+15-digit printed values. All7 output blocks come from the run; prose/MATLAB
+blocks preserved. Elapsed output is a concurrent diagnostic, not a paired
+performance comparison. Exact pixels and antialiasing remain unqualified.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigcf_root_acceptance_20261008.json`.
+
 ## Shared JAX spline and source spline tests (2026-10-08)
 
 68 CPU checks passed:49 spline/source/derivative controls and19 unchanged
