@@ -58,7 +58,9 @@ from chebfunjax.operators.blocks import (
     diag,
     eval_at,
     sum_functional,
+    zeros_op,
 )
+from chebfunjax.operators.chebmatrix import ChebMatrix
 
 __all__ = [
     "ADChebfun",
@@ -121,6 +123,64 @@ class ADChebfun:
         self.jacobian: OperatorBlock = I(self.domain)
         self.is_linear: bool = True
 
+    @property
+    def is_linear(self) -> bool:
+        """Whether all seeded-variable linearity flags are true.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (isLinear).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return all(self.linearity)
+
+    @is_linear.setter
+    def is_linear(self, value):
+        self.linearity = (bool(value),) * len(getattr(self, "linearity", (True,)))
+
+    def seed(self, k, v) -> "ADChebfun":
+        """Reseed variable k (one based) as function or scalar blocks.
+
+        A scalar v=0 selects a scalar parameter; v=1 selects one function.
+        Integer v>=2 selects v independent functions. A boolean vector
+        chooses an operator (true) or a Chebfun parameter column (false).
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (seed).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+
+        result = _copy_ad(self)
+        domain = tuple(float(x) for x in self.func.domain.breakpoints)
+        values = jnp.asarray(v)
+        if values.size == 1:
+            scalar = values.reshape(()).item()
+            if scalar < 2:
+                result.jacobian = I(domain) if scalar else chebfun(1., domain=domain)
+                result.domain = domain
+                result.linearity = (True,)
+                return result
+            count = int(scalar)
+            if count != scalar or count < 1:
+                raise ValueError("seed shorthand must be a positive integer")
+            flags = (True,) * count
+        else:
+            flags = tuple(bool(x) for x in values.reshape(-1))
+        index = int(k)-1
+        if int(k) != k or index < 0 or index >= len(flags):
+            raise ValueError("seed index must be one based and within the block row")
+        # Scalar derivative columns are actual constant Chebfuns, not zero
+        # operators with an incorrectly infinite-dimensional input space.
+        blocks = [((I(domain) if j == index else zeros_op(domain))
+                   if flag else chebfun(float(j == index), domain=domain))
+                  for j, flag in enumerate(flags)]
+        result.jacobian = ChebMatrix([blocks], domain=domain)
+        result.domain = domain
+        result.linearity = (True,) * len(flags)
+        return result
+
     # ------------------------------------------------------------------
     # Arithmetic — primal update + Jacobian chain rule
     # ------------------------------------------------------------------
@@ -131,7 +191,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func + other.func
             result.jacobian = self.jacobian + other.jacobian
-            result.is_linear = self.is_linear and other.is_linear
+            result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
             return result
         else:
             result = _copy_ad(self)
@@ -147,7 +207,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func - other.func
             result.jacobian = self.jacobian - other.jacobian
-            result.is_linear = self.is_linear and other.is_linear
+            result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
             return result
         else:
             result = _copy_ad(self)
@@ -180,10 +240,19 @@ class ADChebfun:
                 + diag(other.func, other.domain) * self.jacobian
             )
             # Linear only if one factor is constant AND the other is linear
-            result.is_linear = (
-                self.is_linear and other.is_linear
-                and (_jac_is_zero(self) or _jac_is_zero(other))
-            )
+            if len(self.linearity) > 1:
+                fzero = _jac_zero_flags(result.jacobian)
+                gzero = _jac_zero_flags(other.jacobian)
+                any_constant = all(fzero) or all(gzero)
+                result.linearity = tuple(
+                    a and b and (any_constant or (fz and gz))
+                    for a, b, fz, gz in zip(self.linearity, other.linearity, fzero, gzero)
+                )
+            else:
+                result.is_linear = (
+                    self.is_linear and other.is_linear
+                    and (_jac_is_zero(self) or _jac_is_zero(other))
+                )
             return result
         elif isinstance(other, (int, float)):
             result = _copy_ad(self)
@@ -195,7 +264,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func * other
             result.jacobian = diag(other, self.domain) * self.jacobian
-            result.is_linear = self.is_linear
+            result.linearity = self.linearity
             return result
 
     def __rmul__(self, other):
@@ -209,7 +278,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = other * self.func
             result.jacobian = diag(other, self.domain) * self.jacobian
-            result.is_linear = self.is_linear
+            result.linearity = self.linearity
             return result
 
     def __truediv__(self, other):
@@ -223,10 +292,18 @@ class ADChebfun:
                 diag(1.0 / g, self.domain) * self.jacobian
                 - diag(self.func / g2, self.domain) * other.jacobian
             )
-            result.is_linear = (
-                self.is_linear and other.is_linear
-                and _jac_is_zero(other)
-            )
+            if len(self.linearity) > 1:
+                gzero = _jac_zero_flags(other.jacobian)
+                fzero = _jac_zero_flags(result.jacobian)
+                result.linearity = tuple(
+                    a and gz and (all(gzero) or fz)
+                    for a, gz, fz in zip(self.linearity, gzero, fzero)
+                )
+            else:
+                result.is_linear = (
+                    self.is_linear and other.is_linear
+                    and _jac_is_zero(other)
+                )
             return result
         elif isinstance(other, (int, float)):
             result = _copy_ad(self)
@@ -238,7 +315,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func / other
             result.jacobian = diag(1.0 / other, self.domain) * self.jacobian
-            result.is_linear = self.is_linear
+            result.linearity = self.linearity
             return result
 
     def __rtruediv__(self, other):
@@ -251,7 +328,7 @@ class ADChebfun:
         result = _copy_ad(self)
         result.func = other / self.func
         result.jacobian = diag(mult, self.domain) * self.jacobian
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         return result
 
     def __pow__(self, exp):
@@ -265,7 +342,11 @@ class ADChebfun:
                 diag(fg * exp.func / self.func, self.domain) * self.jacobian
                 + diag(fg * self.func.log(), exp.domain) * exp.jacobian
             )
-            result.is_linear = False
+            if len(self.linearity) > 1:
+                result.linearity = tuple(a and b for a, b in zip(
+                    _jac_zero_flags(self.jacobian), _jac_zero_flags(exp.jacobian)))
+            else:
+                result.is_linear = False
             return result
         elif isinstance(exp, (int, float)):
             n = float(exp)
@@ -274,14 +355,14 @@ class ADChebfun:
             if n == 0.0:
                 result = _copy_ad(self)
                 result.func = self.func ** 0
-                result.jacobian = I(self.domain) * 0.0
+                result.jacobian = self.jacobian * 0.0
                 result.is_linear = True
                 return result
             mult = n * self.func ** (n - 1)
             result = _copy_ad(self)
             result.func = self.func ** n
             result.jacobian = diag(mult, self.domain) * self.jacobian
-            result.is_linear = False
+            _mark_nonlinear(result, self)
             return result
         else:
             # exp is a Chebfun (unusual)
@@ -289,7 +370,7 @@ class ADChebfun:
             result = _copy_ad(self)
             result.func = self.func ** exp
             result.jacobian = diag(mult, self.domain) * self.jacobian
-            result.is_linear = False
+            _mark_nonlinear(result, self)
             return result
 
     def __rpow__(self, base):
@@ -307,7 +388,7 @@ class ADChebfun:
             result.jacobian = diag(val * log_base, self.domain) * self.jacobian
         else:
             result.jacobian = diag(val * log_base_cheb, self.domain) * self.jacobian
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         return result
 
     # ------------------------------------------------------------------
@@ -405,7 +486,7 @@ class ADChebfun:
 
     def sin(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         mult = self.func.cos()
         result.jacobian = diag(mult, self.domain) * self.jacobian
         result.func = self.func.sin()
@@ -413,7 +494,7 @@ class ADChebfun:
 
     def cos(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         mult = -self.func.sin()
         result.jacobian = diag(mult, self.domain) * self.jacobian
         result.func = self.func.cos()
@@ -421,7 +502,7 @@ class ADChebfun:
 
     def tan(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         cos_u = self.func.cos()
         mult = 1.0 / (cos_u * cos_u)
         result.jacobian = diag(mult, self.domain) * self.jacobian
@@ -432,14 +513,14 @@ class ADChebfun:
 
     def exp(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         result.func = self.func.exp()
         result.jacobian = diag(result.func, self.domain) * self.jacobian
         return result
 
     def log(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         mult = 1.0 / self.func
         result.jacobian = diag(mult, self.domain) * self.jacobian
         result.func = self.func.log() if hasattr(self.func, "log") else (
@@ -452,7 +533,7 @@ class ADChebfun:
 
     def sinh(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         mult = self.func.cosh()
         result.jacobian = diag(mult, self.domain) * self.jacobian
         result.func = self.func.sinh()
@@ -460,7 +541,7 @@ class ADChebfun:
 
     def cosh(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         mult = self.func.sinh()
         result.jacobian = diag(mult, self.domain) * self.jacobian
         result.func = self.func.cosh()
@@ -468,7 +549,7 @@ class ADChebfun:
 
     def tanh(self) -> "ADChebfun":
         result = _copy_ad(self)
-        result.is_linear = False
+        _mark_nonlinear(result, self)
         cosh_u = self.func.cosh()
         mult = 1.0 / (cosh_u * cosh_u)
         result.jacobian = diag(mult, self.domain) * self.jacobian
@@ -680,9 +761,29 @@ def _copy_ad(f: ADChebfun) -> ADChebfun:
     result = object.__new__(ADChebfun)
     result.func = f.func
     result.jacobian = f.jacobian
-    result.is_linear = f.is_linear
+    result.linearity = f.linearity
     result.domain = f.domain
     return result
+
+
+def _jac_zero_flags(jacobian):
+    """Structural zero flags for a source seed row (static metadata)."""
+    if isinstance(jacobian, ChebMatrix):
+        if jacobian.nrows != 1:
+            raise ValueError("AD Jacobian must have exactly one block row")
+        return tuple(_jac_zero_flags(block)[0] for block in jacobian.blocks[0])
+    flag = getattr(jacobian, "iszero", None)
+    if flag is not None:
+        return (bool(flag() if callable(flag) else flag),)
+    return (bool(jnp.all(jnp.asarray(jacobian) == 0)),)
+
+
+def _mark_nonlinear(result, argument):
+    if len(argument.linearity) > 1:
+        result.linearity = _jac_zero_flags(argument.jacobian)
+    else:
+        # Preserve the established aggregate contract for unseeded callers.
+        result.is_linear = False
 
 
 def _jac_is_zero(f: ADChebfun) -> bool:
@@ -691,6 +792,8 @@ def _jac_is_zero(f: ADChebfun) -> bool:
     We probe by evaluating the Jacobian matrix at a small n and checking
     if it is close to zero.
     """
+    if isinstance(f.jacobian, ChebMatrix) or not isinstance(f.jacobian, OperatorBlock):
+        return all(_jac_zero_flags(f.jacobian))
     try:
         disc = ChebColloc2Disc(4, f.domain)
         mat = f.jacobian.matrix(disc)

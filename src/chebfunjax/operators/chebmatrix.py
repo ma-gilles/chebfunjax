@@ -341,6 +341,10 @@ class ChebMatrix:
     def __rmul__(self, other):
         if isinstance(other, (int, float, complex)):
             return self.cellfun(lambda blk: other * blk)
+        if isinstance(other, (OperatorBlock, FunctionalBlock)) and self.nrows == 1:
+            # @chebmatrix/mtimes: a single operator/function is a 1x1
+            # block; left composition acts on every column of this row.
+            return self.cellfun(lambda blk: other * blk)
         return NotImplemented
 
     def __matmul__(self, other):
@@ -482,7 +486,7 @@ class ChebMatrix:
                     srow.append((inf, inf))
                 elif isinstance(blk, FunctionalBlock):
                     srow.append((1.0, inf))
-                elif isinstance(blk, (int, float, complex)):
+                elif _is_numeric_scalar(blk):
                     srow.append((1.0, 1.0))
                 else:
                     srow.append((inf, 1.0))
@@ -584,7 +588,7 @@ class ChebMatrix:
                 row_sizes.append(1)
             elif isinstance(block, OperatorBlock):
                 row_sizes.append(nn)
-            elif isinstance(block, (int, float, complex)):
+            elif _is_numeric_scalar(block):
                 # Scalar: assumed to be a scalar (functional-style row)
                 row_sizes.append(1)
             else:
@@ -601,8 +605,8 @@ class ChebMatrix:
                 elif isinstance(block, FunctionalBlock):
                     row_vec = block.matrix(disc)   # shape (nn,)
                     part = row_vec[None, :]         # shape (1, nn)
-                elif isinstance(block, (int, float, complex)):
-                    c = block if isinstance(block, complex) else float(block)
+                elif _is_numeric_scalar(block):
+                    c = jnp.asarray(block)
                     part = jnp.asarray([[c]]) * jnp.ones(
                         (rsize, 1), dtype=jnp.float64)
                 else:
@@ -923,3 +927,8 @@ def _infer_domain(blocks: list[list[_Block]]) -> _DomainT:
     if ends is None:
         return _DEFAULT_DOMAIN
     return tuple(sorted(v for v in bps if ends[0] <= v <= ends[1]))
+
+
+def _is_numeric_scalar(value):
+    """Numeric scalar blocks include rank-zero JAX arrays and tracers."""
+    return isinstance(value, (int, float, complex)) or getattr(value, "ndim", None) == 0
