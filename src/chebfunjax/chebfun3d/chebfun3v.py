@@ -435,17 +435,14 @@ class Chebfun3v(eqx.Module):
         return all(c.isreal() for c in self.components)
 
     def isPeriodicTech(self) -> bool:
-        """True if the components use a periodic tech.
-
-        chebfunjax Chebfun3 is always built on a Chebyshev tech, so this is
-        always False (chebfunjax has no trigonometric tech).
+        """True if every component uses periodic factors.
 
         Provenance
         ----------
         MATLAB source : @chebfun3v/isPeriodicTech.m
         Chebfun commit: 7574c77
         """
-        return False
+        return all(component.isPeriodicTech() for component in self.components)
 
     # ------------------------------------------------------------------
     # Vector operations
@@ -900,14 +897,35 @@ class Chebfun3v(eqx.Module):
                 "Chebfun3 or a 3-component Chebfun3v.")
 
         if n == 2:
+            if not self.isreal():
+                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:Complex: "
+                                 "The first CHEBFUN3V object must be real-valued.")
+            from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+            from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+            from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+            from chebfunjax.chebfun3d.chebfun3 import chebfun3
+
             f1, f2 = self.components
-            comps = getattr(op, "components", None)
-            if comps is not None:
-                # Chebfun2v: compose each (callable) component in turn.
-                return Chebfun3v([self.compose(g) for g in comps])
-            # A scalar Chebfun2 / SeparableApprox (a callable of two args).
-            return Chebfun3.from_function(
-                lambda x, y, z: op(f1(x, y, z), f2(x, y, z)), domain=dom)
+            if isinstance(op, Chebfun2v):
+                return Chebfun3v([self.compose(g) for g in op.components])
+            if isinstance(op, SeparableApprox):
+                op = Chebfun2(approx=op)
+            if not isinstance(op, Chebfun2):
+                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:OP2: "
+                                 "Can compose only with a CHEBFUN2 or "
+                                 "CHEBFUN2V, since F has 2 components.")
+            ranges = (f1.minandmax3est(), f2.minandmax3est())
+            tol = 100 * float(jnp.finfo(jnp.float64).eps) * max(
+                f1.vscale(), f2.vscale(), op.vscale()) * max(abs(v) for v in dom)
+            if any(values[0] < op.domain[2 * k] - tol or
+                   values[1] > op.domain[2 * k + 1] + tol
+                   for k, values in enumerate(ranges)):
+                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:DomainMismatch2: "
+                                 "OP(F) is not defined, since image(F) is "
+                                 "not contained in domain(OP).")
+            return chebfun3(
+                lambda x, y, z: op(f1(x, y, z), f2(x, y, z)), dom,
+                trig=self.isPeriodicTech())
 
         raise ValueError("Chebfun3v.compose supports 2- or 3-component fields.")
 

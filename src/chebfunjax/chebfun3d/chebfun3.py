@@ -1836,23 +1836,18 @@ class Chebfun3(eqx.Module):
         return bool(self.cols) and all(
             isinstance(t, Trigtech) for t in self.cols + self.rows + self.tubes)
 
-    def minandmax3est(self, N: int = 33):
-        """Estimated global minimum and maximum from samples on an
-        ``N x N x N`` tensor grid (MATLAB ``minandmax3est``).
+    def minandmax3est(self, N: int = 25):
+        """Estimate the range on the source's 25-point tensor sample grid.
 
         Provenance
         ----------
         MATLAB source : @chebfun3/minandmax3est.m
         Chebfun commit: 7574c77
         """
-        xa, xb, ya, yb, za, zb = self.domain
-        x = np.linspace(xa, xb, N)
-        y = np.linspace(ya, yb, N)
-        z = np.linspace(za, zb, N)
-        X, Y, Z = np.meshgrid(x, y, z, indexing="ij")
-        vals = np.asarray(self(jnp.asarray(X), jnp.asarray(Y),
-                               jnp.asarray(Z)))
-        return jnp.asarray([float(vals.min()), float(vals.max())])
+        if self.isempty():
+            return jnp.zeros(2)
+        vals = self.sample(N, N, N)
+        return jnp.stack((jnp.min(vals), jnp.max(vals)))
 
     def tand(self):
         """Elementwise tangent in degrees (MATLAB ``tand``)."""
@@ -2148,14 +2143,16 @@ class Chebfun3(eqx.Module):
         """True if f is real-valued (MATLAB isreal).
 
         Checks the stored Tucker representation: a Chebfun3 is real iff its
-        core and all factor coefficients are real (a purely structural test,
-        matching MATLAB, so ``real(1i*x+y-z)`` reports real).
+        core and each factor represent real functions. Trigonometric factors
+        use their real-value flag; their Fourier coefficients may be complex.
 
         Provenance
         ----------
         MATLAB source : @chebfun3/isreal.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.tech.trigtech import Trigtech
+
         if self.isempty():
             return True
         if jnp.iscomplexobj(self.core):
@@ -2163,6 +2160,10 @@ class Chebfun3(eqx.Module):
                 return False
         for factors in (self.cols, self.rows, self.tubes):
             for t in factors:
+                if isinstance(t, Trigtech):
+                    if not t.isreal():
+                        return False
+                    continue
                 c = jnp.asarray(t.coeffs)
                 if jnp.iscomplexobj(c) and \
                         float(jnp.max(jnp.abs(jnp.imag(c)))) > 0.0:
@@ -2734,25 +2735,32 @@ class Chebfun3(eqx.Module):
         vals, locs = self.minandmax3()
         return vals[0], locs[0]
 
-    def sample(self, m: int, n: int, p: int) -> jax.Array:
-        """Values on an m-by-n-by-p tensor Chebyshev grid.
+    def sample(self, m: int | None = None, n: int | None = None,
+               p: int | None = None, *, return_factors: bool = False):
+        """Sample the tensor on each factor's own tech-appropriate grid.
 
-        Returns ``V[i, j, k] = f(x_i, y_j, z_k)`` with 2nd-kind Chebyshev
-        points in each direction (natural x, y, z index order).
+        Without all three counts, use at least 51 points in each direction
+        (or the factor length when longer), following the source. Set
+        ``return_factors=True`` for its four-output form ``(core, C, R, T)``.
+        Empty input returns an empty array in either form.
 
         Provenance
         ----------
         MATLAB source : @chebfun3/sample.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.utils.quadrature import chebpts_ab
-
-        d = self.domain
-        x = chebpts_ab(m, d[0], d[1], kind=2)
-        y = chebpts_ab(n, d[2], d[3], kind=2)
-        z = chebpts_ab(p, d[4], d[5], kind=2)
-        X, Y, Z = jnp.meshgrid(x, y, z, indexing="ij")
-        return self(X, Y, Z)
+        if self.isempty():
+            return jnp.empty((0,))
+        if m is None or n is None or p is None:
+            m, n, p = (max(count, 51) for count in self.length())
+        factors = [jnp.stack([tech.sample(count)[0] for tech in group], axis=1)
+                   for group, count in zip((self.cols, self.rows, self.tubes),
+                                           (m, n, p))]
+        if return_factors:
+            return self.core, *factors
+        values = jnp.einsum("ijk,ai->ajk", self.core, factors[0])
+        values = jnp.einsum("ajk,bj->abk", values, factors[1])
+        return jnp.einsum("abk,ck->abc", values, factors[2])
 
     def _extremum(self, g, dim: int, reducer):
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
@@ -2843,10 +2851,86 @@ class Chebfun3(eqx.Module):
         """
         return self._extremum2(g, dims, lambda v, ax: jnp.min(v, axis=ax))
 
-    def compose(self, op) -> "Chebfun3":
-        """Re-approximate op(f(x, y, z)) (MATLAB compose; Fable 5)."""
-        return Chebfun3.from_function(
-            lambda x, y, z: op(self(x, y, z)), domain=self.domain)
+    def compose(self, op, *args):
+        """Approximate a unary/binary operation or compose with a function.
+
+        A Chebfun with two or three columns produces a Chebfun3v. A
+        Chebfun2 or Chebfun2v takes the real and imaginary parts as inputs.
+        Unary composition preserves periodic factors, as in the source.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/compose.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+
+        if isinstance(op, Chebfun):
+            if not self.isreal():
+                raise ValueError("CHEBFUN:CHEBFUN3:COMPOSE:Complex: "
+                                 "Composition of a CHEBFUN and a complex "
+                                 "CHEBFUN3 is not defined.")
+            if len(op.domain.breakpoints) > 2:
+                warnings.warn("CHEBFUN:CHEBFUN3:compose:pieces: "
+                              "The composition of a CHEBFUN with several "
+                              "pieces and a CHEBFUN3\nmight be inaccurate.",
+                              UserWarning, stacklevel=2)
+            vals = self.minandmax3est()
+            tol = 100 * _EPS * max(self.vscale(), op.vscale) * max(
+                abs(v) for v in self.domain)
+            domain = op.domain.breakpoints
+            if vals[0] < domain[0] - tol or vals[1] > domain[-1] + tol:
+                raise ValueError("CHEBFUN:CHEBFUN3:COMPOSE:DomainMismatch: "
+                                 "OP(F) is not defined, since image(F) is "
+                                 "not contained in domain(OP).")
+            n_columns = op.size(2)
+            if n_columns not in (1, 2, 3):
+                raise ValueError("CHEBFUN:CHEBFUN3:COMPOSE:Columns: "
+                                 "The CHEBFUN object must have 1, 2, or 3 "
+                                 "columns.")
+            components = [chebfun3(
+                lambda x, y, z, column=op[j]: column(self(x, y, z)),
+                self.domain, trig=self.isPeriodicTech())
+                for j in range(n_columns)]
+            return components[0] if n_columns == 1 else Chebfun3v(components)
+        if isinstance(op, (Chebfun2, Chebfun2v)):
+            return Chebfun3v([self.real(), self.imag()]).compose(op)
+        if len(args) > 1 or not callable(op):
+            raise ValueError("CHEBFUN:CHEBFUN3:COMPOSE:OP: NARGIN(OP) not correct.")
+        arity_error = "CHEBFUN:CHEBFUN3:COMPOSE:OP: NARGIN(OP) not correct."
+        n_inputs = 1 + len(args)
+        # JAX ufuncs expose a variadic __call__, but declare their arity.
+        if getattr(op, "nin", None) is not None:
+            if op.nin != n_inputs:
+                raise ValueError(arity_error)
+        else:
+            try:
+                signature = inspect.signature(op)
+            except (TypeError, ValueError):
+                # Some valid compiled/builtin callables have no Python
+                # signature. Their call performs argument validation.
+                signature = None
+            if signature is not None:
+                try:
+                    signature.bind(*([None] * n_inputs))
+                except TypeError as error:
+                    raise ValueError(arity_error) from error
+        if args:
+            g = args[0]
+            f = self
+            if not isinstance(g, Chebfun3):
+                g = chebfun3(g, f.domain)
+            if not isinstance(f, Chebfun3):
+                f = chebfun3(f, g.domain)
+            return chebfun3(lambda x, y, z: op(f(x, y, z), g(x, y, z)),
+                            f.domain)
+        return chebfun3(lambda x, y, z: op(self(x, y, z)), self.domain,
+                        trig=self.isPeriodicTech())
 
     def exp(self):
         return self.compose(jnp.exp)
@@ -2878,8 +2962,7 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/real.m
         Chebfun commit: 7574c77
         """
-        return Chebfun3.from_function(
-            lambda x, y, z: jnp.real(self(x, y, z)), domain=self.domain)
+        return self.compose(jnp.real)
 
     def imag(self) -> "Chebfun3":
         """Imaginary part (MATLAB imag).
@@ -2889,8 +2972,7 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/imag.m
         Chebfun commit: 7574c77
         """
-        return Chebfun3.from_function(
-            lambda x, y, z: jnp.imag(self(x, y, z)), domain=self.domain)
+        return self.compose(jnp.imag)
 
     def conj(self) -> "Chebfun3":
         """Complex conjugate (MATLAB conj).
