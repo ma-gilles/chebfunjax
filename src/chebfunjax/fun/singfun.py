@@ -774,6 +774,20 @@ class Singfun(eqx.Module):
             new_sp, (self.exponents[0] + rL, self.exponents[1] + rR)
         )
 
+    def isnan(self) -> bool:
+        """Check both the smooth part and singular endpoint evaluations.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/isnan.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return False
+        return self.smoothPart.isnan() or bool(
+            jnp.any(jnp.isnan(self(jnp.asarray([-1.0, 1.0]))))
+        )
+
     def cancelExponents(self) -> "Singfun":
         """Cancel negative exponents against vanishing boundary values.
 
@@ -788,8 +802,8 @@ class Singfun(eqx.Module):
         """
         a, b = self.exponents
         tol = 100.0 * _EPS * float(self.smoothPart.vscale)
-        bl = float(self.smoothPart(jnp.float64(-1.0)))
-        br = float(self.smoothPart(jnp.float64(1.0)))
+        bl = float(jnp.abs(self.smoothPart(jnp.float64(-1.0))))
+        br = float(jnp.abs(self.smoothPart(jnp.float64(1.0))))
         nl = -a if (a < 0.0 and abs(bl) < tol) else 0.0
         nr = -b if (b < 0.0 and abs(br) < tol) else 0.0
         if nl > 0.0 or nr > 0.0:

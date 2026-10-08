@@ -436,6 +436,16 @@ class Unbndfun(eqx.Module):
         return [Unbndfun.from_chebtech(t, self.domain)
                 for t in self.onefun.mat2cell(sizes)]
 
+    def isnan(self) -> bool:
+        """Return whether the underlying function contains a NaN.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isnan.m
+        Chebfun commit: 7574c77
+        """
+        return self.onefun.isnan()
+
     def isequal(self, other) -> bool:
         """True when two Unbndfuns have the same domain and equal onefuns.
 

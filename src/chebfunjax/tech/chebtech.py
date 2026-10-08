@@ -2156,6 +2156,16 @@ class Chebtech2(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def isnan(self) -> bool:
+        """Return whether any coefficient is NaN.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isnan.m
+        Chebfun commit: 7574c77
+        """
+        return False if self.isempty() else bool(jnp.any(jnp.isnan(self.coeffs)))
+
     def isempty(self) -> bool:
         """True for the empty Chebtech2 (MATLAB ``isempty``).
 
@@ -4322,6 +4332,16 @@ class Chebtech1(eqx.Module):
         obj = object.__new__(cls)
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
+
+    def isnan(self) -> bool:
+        """Return whether any coefficient is NaN.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isnan.m
+        Chebfun commit: 7574c77
+        """
+        return False if self.isempty() else bool(jnp.any(jnp.isnan(self.coeffs)))
 
     def isempty(self) -> bool:
         """True for the empty Chebtech1 (MATLAB ``isempty``).

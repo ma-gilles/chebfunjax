@@ -193,6 +193,16 @@ class Classicfun(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def isnan(self) -> bool:
+        """Return whether the underlying function contains a NaN.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isnan.m
+        Chebfun commit: 7574c77
+        """
+        return False if self.isempty() else self.onefun.isnan()
+
     def isempty(self) -> bool:
         """True for the empty fun (MATLAB ``isempty``).
 
