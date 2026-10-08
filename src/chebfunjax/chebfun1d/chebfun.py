@@ -7611,23 +7611,75 @@ class Chebfun(eqx.Module):
             j += s
         return out
 
-    def repmat(self, k: int) -> "Chebfun":
-        """Horizontally tile the columns ``k`` times (MATLAB
-        ``repmat(f, 1, k)``).
+    def repmat(self, m, n=None):
+        """Tile finite columns/rows with source ``(m,n)`` or ``[m,n]`` syntax.
+
+        Columns require ``m=1`` and rows require ``n=1``. The established
+        one-factor ``repmat(k)`` adapter repeats the finite dimension.
+        Coefficients, breakpoint values and orientation are retained.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/repmat.m
-        Chebfun commit: 7574c77
+        MATLAB source: @chebfun/repmat.m, horzcat.m, vertcat.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
+        if n is None:
+            shape = jnp.asarray(m)
+            if shape.ndim == 0:
+                m, n = (m, 1) if self.is_transposed else (1, m)
+            elif shape.size == 2 and shape.ndim <= 2:
+                m, n = shape.reshape(-1)
+            else:
+                raise ValueError("repmat requires (m,n), [m,n], or one repeat count")
+        factors = []
+        for factor in (m, n):
+            value = jnp.asarray(factor)
+            if (value.ndim != 0 or jnp.iscomplexobj(value)
+                    or not bool(jnp.isfinite(value)) or float(value) != int(value)):
+                raise ValueError("repmat factors must be integer scalars")
+            factors.append(int(value))
+        m, n = factors
+        if self.is_transposed:
+            if n != 1:
+                raise ValueError("Use repmat(f,m,1) to tile row Chebfuns")
+            repeats = m
+        else:
+            if m != 1:
+                raise ValueError("Use repmat(f,1,n) to tile column Chebfuns")
+            repeats = n
+        if repeats <= 0:
+            return jnp.empty((0, 0))
+        if self.isempty():
+            return self
+        # Source vertcat promotes multirow inputs through num2cell into
+        # a ChebMatrix, even when only one copy was requested.
+        if self.is_transposed and self.n_columns > 1:
+            from chebfunjax.operators.chebmatrix import ChebMatrix
+            rows = [self.extract_columns(i).transpose()
+                    for i in range(self.n_columns)]
+            return ChebMatrix([[row] for _ in range(repeats) for row in rows],
+                              domain=self.domain)
+        if repeats == 1:
+            return self
+        if self.deltas or any(hasattr(piece.tech, "exponents") for piece in self.funs):
+            # Source horzcat keeps singular and delta functions as distinct
+            # quasimatrix columns instead of discarding their representations.
+            if self.is_transposed:
+                raise NotImplementedError("repmat of singular/delta rows needs a row quasimatrix")
+            from chebfunjax.chebfun1d.linalg import Quasimatrix
+            return Quasimatrix([self] * repeats, self.domain)
         new_funs = []
         for piece in self.funs:
-            t = piece.tech
-            c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
-            tiled = jnp.tile(c, (1, k))
+            tech = piece.tech
+            coeffs = tech.coeffs if tech.coeffs.ndim == 2 else tech.coeffs[:, None]
             new_funs.append(piece.with_tech(
-                self._tech_with_coeffs(t, tiled)))
-        return Chebfun(funs=new_funs, domain=self.domain)
+                self._tech_with_coeffs(tech, jnp.tile(coeffs, (1, repeats)))))
+        out = Chebfun(funs=new_funs, domain=self.domain)
+        values = self.point_values
+        if values.ndim == 1:
+            values = values[:, None]
+        out = out.set_point_values(jnp.tile(values, (1, repeats)))
+        return Chebfun._as_transposed(out, self.is_transposed)
 
     # ------------------------------------------------------------------
     # V11 — Special functions: Bessel, Airy, elliptic, erf family

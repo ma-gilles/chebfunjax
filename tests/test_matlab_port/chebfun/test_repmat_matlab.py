@@ -1,45 +1,24 @@
-"""Port of MATLAB Chebfun tests/chebfun/test_repmat.m (Fable 5).
+"""Both active assertions in pinned tests/chebfun/test_repmat.m.
 
-``repmat(k)`` tiles a scalar chebfun into an array-valued chebfun with ``k``
-identical columns.  The vertical-tiling case (repmat of a row chebfun) is
-commented out in the MATLAB source (needs vertcat) and stays skipped.
-
-Provenance
-----------
-MATLAB source : tests/chebfun/test_repmat.m
-Chebfun commit: 7574c77
+Chebfun7574c77680d7e82b79626300bf255498271a72df; MATLAB R2025b
+seedRNG(7681) points captured from that source. Original 10*vscale*eps bound.
+The source's third row assertion is commented out, so it is not a skipped test.
+Row behavior is independently qualified in test_repmat_source.py.
 """
-
-from __future__ import annotations
+import json
+from pathlib import Path
 
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
-import chebfunjax as cj
-
-EPS = float(np.finfo(np.float64).eps)
-RNG = np.random.default_rng(7681)
-XR = jnp.asarray(2 * RNG.uniform(size=1000) - 1)
+from chebfunjax.chebfun1d.chebfun import chebfun
 
 
-class TestChebfunRepmat:
-    def test_repmat_three_columns(self):
-        # pass(1, 2): repmat(f, 1, 3) == [sin sin sin].
-        # FIXED (Fable 5, Big-Three array-valued epic).
-        f = cj.chebfun(jnp.sin, domain=(-1, 0, 1))
-        Q = f.repmat(3)
-        exact = jnp.stack([jnp.sin(XR), jnp.sin(XR), jnp.sin(XR)], axis=-1)
-        assert Q.n_columns == 3
-        assert float(jnp.max(jnp.abs(Q(XR) - exact))) < 10 * Q.vscale * EPS
-
-    def test_vertical_tiling(self):
-        # pass(3): repmat(f.', 3, 1) -- vertically tiling a row chebfun into a
-        # 3-row array-valued row chebfun.  This assertion is COMMENTED OUT in
-        # the MATLAB source itself (it needs quasimatrix vertcat of rows, which
-        # chebfunjax routes through the ChebMatrix block container rather than
-        # an array-valued row chebfun), so it stays skipped.
-        pytest.skip(
-            "repmat(f.', 3, 1) is commented out in the MATLAB source; needs "
-            "array-valued row vertcat (not the ChebMatrix block path)"
-        )
+@pytest.mark.parametrize('args', [(1, 3), ([1, 3],)])
+def test_source_repmat(args):
+    fixture = json.loads(Path(__file__).with_name('repmat_matlab_inputs.json').read_text())
+    xr = jnp.asarray(fixture['xr'])
+    f = chebfun(jnp.sin, domain=(-1, 0, 1))
+    q = f.repmat(*args)
+    exact = jnp.stack([jnp.sin(xr)]*3, axis=-1)
+    assert float(jnp.max(jnp.abs(q(xr)-exact))) < 10*q.vscale*jnp.finfo(jnp.float64).eps
