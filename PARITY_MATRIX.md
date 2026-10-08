@@ -1,5 +1,29 @@
 # chebfunjax ↔ MATLAB Chebfun — Parity Status
 
+## Publication recovered and Fourier/EXP qualification (2026-10-08)
+
+Normal direct push now succeeds in the unrestricted execution environment.
+Main was published through `48936f2b`; CI run37827871039 was queued at last
+observation, not yet green. Earlier SSH blockage below is historical.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_recovered_20261008.json`.
+
+Fourier real/imag extraction now follows source grid values, exact-zero
+handling and imag length preservation. Supplied/scaled values use a dynamic
+JAX leaf, and coefficient transforms invalidate it.107 CPU tests passed,
+including original source assertions with matrix infinity norms, even modes,
+tiny components, cache invalidation and JVP. Commit `48936f2b`; evidence
+`trig_parts_root_acceptance_20261008.json` in the shared directory above.
+
+Explicit Laguerre EXP/EXPW is ported with staged JAX source expansions.
+46 frozen tests passed (40 method/grid combinations within20 cases plus26
+controls). Source approximation errors, alpha=-1, fresh MATLAB and performance
+qualification remain explicit limitations. Commit `d6f8f9b3`; evidence
+`laguerre_exp_root_acceptance_20261008.json` in the same directory.
+
+Prior remote CI at76c1e79e failed a sphere-vector timeout and the randnfun
+mirror's missing fixture setup. The latter is under focused correction;
+new-head CI must be checked. Full goal remains incomplete.
+
 ## Current qualification (2026-10-08, local ec3c4946)
 
 Full parity with MATLAB Chebfun `7574c77680d7e82b79626300bf255498271a72df`
