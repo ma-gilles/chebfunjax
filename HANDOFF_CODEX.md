@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fourier coefficient page corrections (2026-10-08)
+
+Full CPU page run passed with stable inputs, runtime origins verified and no
+surviving processes. Four610x276 figures use source coefficient coordinates,
+periodic conversion and dotted jumps without artificial coefficient floors.
+Eight actual output blocks replace stale text, including the duplicated and
+incomplete cosine/sine display. Source prose/MATLAB blocks remain byte-identical.
+Numerical parity remains open: abs(sin(x))^3 has length2513 vs historical3697,
+cosine coefficient norm0 vs8.5e-17, and coefficient differences around2e-15.
+Exact pixel/antialiasing parity also remains open.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fourier_coefficients_root_acceptance_20261008.json`.
+
 ## Chebgui export cohorts and PDE parser correction (2026-10-08)
 
 149 CPU checks passed with verified runtime origins, stable full guard inputs

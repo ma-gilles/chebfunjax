@@ -46,7 +46,7 @@ c
 ```
 
 ```text
-Fourier coeffs of 1 - 4*cos(x) + 6*sin(2*x):
+Fourier coeffs of 1 + cos(x) + sin(2*x):
 c =
   -0.000000000000000 + 3.000000000000000i
   -2.000000000000000 + 0.000000000000000i
@@ -68,15 +68,15 @@ b
 ```
 
 ```text
-Fourier coeffs of 1 - 4*cos(x) + 6*sin(2*x):
-c =
-  -0.000000000000000 + 3.000000000000000i
-  -2.000000000000000 + 0.000000000000000i
-   1.000000000000000 + 0.000000000000000i
-  -2.000000000000000 + 0.000000000000000i
-  -0.000000000000000 - 3.000000000000000i
-Fourier cosine coeffs of 1 - 4*cos(x) + 6*sin(2*x)
+Fourier cosine coeffs of 1 + cos(x) + sin(2*x)
 a =
+    1.000000000000000
+   -3.999999999999999
+   -0.000000000000000
+Fourier sine coeffs of 1 + cos(x) + sin(2*x)
+b =
+    0.000000000000000
+    6.000000000000000
 ```
 
 Note that `a` contains the constant term in the series as its first coefficient followed by the coefficients for $\cos(x)$ and $\cos(2x)$, while `b` starts with the coefficient for $\sin(x)$ followed by the coefficient for $\sin(2x)$.
@@ -122,23 +122,23 @@ c
 ```text
 Fourier coeffs of |sin(x)|^3
 c =
-   0.001102371900204 - 0.000000000000000i
-  -0.000000000000000 - 0.000000000000000i
-   0.004042030300747 - 0.000000000000000i
+   0.001102371900205 - 0.000000000000000i
   -0.000000000000000 + 0.000000000000000i
-   0.036378272706719 + 0.000000000000000i
+   0.004042030300748 - 0.000000000000000i
+  -0.000000000000000 + 0.000000000000000i
+   0.036378272706721 - 0.000000000000000i
    0.000000000000000 - 0.000000000000000i
-  -0.254647908947032 + 0.000000000000000i
-  -0.000000000000000 - 0.000000000000000i
-   0.424413181578388 + 0.000000000000000i
+  -0.254647908947031 - 0.000000000000000i
   -0.000000000000000 + 0.000000000000000i
-  -0.254647908947032 + 0.000000000000000i
+   0.424413181578389 + 0.000000000000000i
+  -0.000000000000000 - 0.000000000000000i
+  -0.254647908947031 + 0.000000000000000i
    0.000000000000000 + 0.000000000000000i
-   0.036378272706719 + 0.000000000000000i
+   0.036378272706721 + 0.000000000000000i
   -0.000000000000000 - 0.000000000000000i
-   0.004042030300747 - 0.000000000000000i
-  -0.000000000000000 + 0.000000000000000i
-   0.001102371900204 - 0.000000000000000i
+   0.004042030300748 + 0.000000000000000i
+  -0.000000000000000 - 0.000000000000000i
+   0.001102371900205 + 0.000000000000000i
 ```
 
 We see that the coefficients decay much more slowly in this case in fact the number of terms required to resolve this function to machine precision is:
@@ -149,7 +149,7 @@ length(u)
 
 ```text
 ans =
-   3697
+   2513
 ```
 
 The reason is that this function has only two continuous derivatives in $L^{2}[-\pi,\pi]$ and a piecewise continuous third derivative, so its Fourier coefficients decay as $O(|k|^{-4})$ [1]. This decay rate can be seen by plotting the Fourier coefficients on a log-log scale, which can be easily done for the positive mode coefficients (i.e. $k>0$) using the `plotcoeffs` command:
@@ -193,11 +193,11 @@ Fourier sine coeffs of unit step function:
 b =
     1.273239544735163
     0.000000000000000
-    0.424413181578388
+    0.424413181578387
     0.000000000000000
     0.254647908947033
-   -0.000000000000000
-    0.181891363533595
+    0.000000000000000
+    0.181891363533594
 ```
 
 The exact values of the coefficients are
@@ -218,7 +218,7 @@ disp([(1:7)' pi/4*real(b)])
    3.0000    0.333333333333333
    4.0000    0.000000000000000
    5.0000    0.200000000000000
-   6.0000    -0.000000000000000
+   6.0000    0.000000000000000
    7.0000    0.142857142857143
 ```
 
@@ -230,7 +230,7 @@ norm(a,inf)
 
 ```text
 ans =
-   8.515591619354413e-17
+   0.000000000000000e+00
 ```
 
 ## Truncated Fourier approximations

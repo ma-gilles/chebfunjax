@@ -21,7 +21,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot, plotcoeffs
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -43,8 +43,18 @@ def _pr(vals):
 
 def _save(fig, stem):
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, stem + ".png"))
+    ax = fig.axes[0]
+    ax.set_position([0.13, 0.155, 0.775, 0.755] if stem.endswith('_01')
+                    else [0.13, 0.11, 0.775, 0.815])
+    ax.tick_params(labelsize=12)
+    ax.set_title(ax.get_title(), fontsize=14)
+    if stem.endswith('_01'):
+        ax.set_xlabel('|Wave number|+1', fontsize=14)
+        ax.set_ylabel('Magnitude of coefficient', fontsize=14)
+        ax.set_yticks([1,1e-5,1e-10,1e-15])
+        ax.grid(True, which='major', linewidth=0.5)
+        ax.grid(True, which='minor', linestyle=':', linewidth=0.5)
+    _savefig(fig, os.path.join(_IMG, stem + ".png"), size=(610, 276), dpi=72.009)
     plt.close(fig)
 
 
@@ -56,13 +66,13 @@ def run():
     u = cj.chebfun(lambda x: 1 - 4 * jnp.cos(x) + 6 * jnp.sin(2 * x),
                    domain=dom, trig=True)
     c = np.asarray(u.trigcoeffs())
-    print('Fourier coeffs of 1 - 4*cos(x) + 6*sin(2*x):')
+    print('Fourier coeffs of 1 + cos(x) + sin(2*x):')
     print('c ='); _pc(c)
 
     a, b = u.trigcoeffs(form="cos_sin")
-    print('Fourier cosine coeffs of 1 - 4*cos(x) + 6*sin(2*x)')
+    print('Fourier cosine coeffs of 1 + cos(x) + sin(2*x)')
     print('a ='); _pr(a)
-    print('Fourier sine coeffs of 1 - 4*cos(x) + 6*sin(2*x)')
+    print('Fourier sine coeffs of 1 + cos(x) + sin(2*x)')
     print('b ='); _pr(b)
 
     # -- Truncation: 3/(5-4cos x), c_k = 2^-|k| ----------------------
@@ -85,17 +95,15 @@ def run():
     print('ans ='); print(f"   {len(u)}")
 
     fig, ax = plt.subplots(figsize=(6.5, 4))
-    cc = np.abs(np.asarray(u.funs[0].tech.coeffs))
-    n = len(cc)
-    k = np.abs(np.arange(n) - (n - 1) // 2)
-    pos = k > 0
-    ax.loglog(k[pos], np.maximum(cc[pos], 1e-18), ".b", ms=4)
+    # Source tech-dispatched plotting preserves both signed mode sequences,
+    # their zero coefficients, and the normalized wave-number +1 coordinate.
+    plotcoeffs(u, ax=ax, source=True, loglog=True, fmt="-", linewidth=1.6)
+    n = len(u)
     ks = np.array([100.0, n / 2.0])
     ax.loglog(ks, 10 * ks ** -4.0, "k-", lw=1.6)
     ax.text(500, 50 * 500.0 ** -4, r"$O(k^{-4})$", fontsize=12)
     ax.set_ylim(1e-15, 1)
-    ax.set_xlabel("wave number")
-    ax.set_ylabel("magnitude of coefficient")
+    ax.set_xlim(1, 10000)
     _save(fig, "FourierCoefficients_01")
 
     # -- Non-smooth: square wave via splitting -----------------------
@@ -115,23 +123,19 @@ def run():
     c = np.asarray(u.trigcoeffs(2 * numModes + 1))
     u_trunc = cj.chebfun(jnp.asarray(c), domain=dom, trig=True,
                          coeffs=True)
-    xs = np.linspace(-np.pi, np.pi, 1200)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, np.asarray(u(jnp.asarray(xs))), "k-", lw=1.6)
-    ax.plot(xs, np.real(np.asarray(u_trunc(jnp.asarray(xs)))), "b-",
-            lw=1.6)
+    fig, ax = plt.subplots(figsize=(610 / 72.009, 276 / 72.009))
+    matlab_plot(u, 'k-', u_trunc, 'b-', ax=ax, jumpline={'color': 'k', 'linestyle': ':'}, linewidth=1.6)
+    ax.set_ylim(-1.5, 1.5)
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
     _save(fig, "FourierCoefficients_02")
 
-    xw = np.linspace(-4 * np.pi, 4 * np.pi, 3000)
-    uw = cj.chebfun(sq_wave, domain=[-4 * np.pi, 4 * np.pi],
-                    splitting=True)
-    # periodic extension of the truncated series
-    period = 2 * np.pi
-    xmap = ((xw + np.pi) % period) - np.pi
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xw, np.asarray(uw(jnp.asarray(xw))), "k-", lw=1.2)
-    ax.plot(xw, np.real(np.asarray(u_trunc(jnp.asarray(xmap)))), "b-",
-            lw=1.2)
+    uw = cj.chebfun(sq_wave, domain=[-4 * np.pi, 4 * np.pi], splitting=True)
+    # Source Chebfun-to-Chebfun conversion extends the periodic representation.
+    u_trunc = cj.chebfun(u_trunc, domain=[-4 * np.pi, 4 * np.pi], trig=True)
+    fig, ax = plt.subplots(figsize=(610 / 72.009, 276 / 72.009))
+    matlab_plot(uw, 'k-', u_trunc, 'b-', ax=ax, jumpline={'color': 'k', 'linestyle': ':'}, linewidth=1.6)
+    ax.set_ylim(-1.5, 1.5)
+    ax.set_xticks([-10, -5, 0, 5, 10])
     _save(fig, "FourierCoefficients_03")
 
     # -- Sawtooth ----------------------------------------------------
@@ -142,10 +146,11 @@ def run():
                          coeffs=True)
     uw = cj.chebfun(sawtooth, domain=[-4 * np.pi, 4 * np.pi],
                     splitting=True)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xw, np.asarray(uw(jnp.asarray(xw))), "k-", lw=1.2)
-    ax.plot(xw, np.real(np.asarray(u_trunc(jnp.asarray(xmap)))), "b-",
-            lw=1.2)
+    u_trunc = cj.chebfun(u_trunc, domain=[-4 * np.pi, 4 * np.pi], trig=True)
+    fig, ax = plt.subplots(figsize=(610 / 72.009, 276 / 72.009))
+    matlab_plot(uw, 'k-', u_trunc, 'b-', ax=ax, jumpline={'color': 'k', 'linestyle': ':'}, linewidth=1.6)
+    ax.set_ylim(-0.5, 1.5)
+    ax.set_xticks([-10, -5, 0, 5, 10])
     _save(fig, "FourierCoefficients_04")
 
     return True
