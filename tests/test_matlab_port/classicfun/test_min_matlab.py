@@ -7,8 +7,6 @@ sampling (test-only).
 
 Scalar, array-valued, complex and complex-array-valued cases all port.
 
-Gap: pass(8), the blowup Unbndfun case, is xfailed -- Unbndfun.from_function
-has no ``exponents`` keyword, so the singular Unbndfun cannot be built.
 
 Provenance
 ----------
@@ -20,11 +18,11 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 import scipy.special as sp
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.unbndfun import Unbndfun
 
 EPS = float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
@@ -78,9 +76,9 @@ class TestClassicfunMin:
         y = np.asarray(y)
         fx = np.asarray(fun_op(xpos))[np.arange(3), np.arange(3)]
         exact = -np.array([1.0, 0.535656656015700, 0.7 ** 3 * np.cosh(0.7)])
-        tol = 10 * f.vscale * EPS
-        assert np.max(np.abs(y - exact)) < 10 * tol
-        assert np.max(np.abs(fx - exact)) < tol
+        tol = 10 * np.asarray(f.onefun.vscale_columns) * EPS
+        assert np.all(np.abs(y - exact) < 10 * tol)
+        assert np.all(np.abs(fx - exact) < tol)
 
     def test_complex_valued(self):
         # pass(6): min of a complex-valued Bndfun (exact 0).
@@ -109,12 +107,10 @@ class TestClassicfunMin:
         assert np.max(np.abs(y - exact)) < 10 * tol
         assert np.max(np.abs(fx - exact)) < tol
 
-    @pytest.mark.xfail(
-        reason="pass(8) needs a BLOWUP Unbndfun on [-Inf, -3*pi] built with "
-        "data.exponents = [0 -1] (y = -Inf at the finite endpoint).  "
-        "Unbndfun.from_function(f, domain, *, n) has no `exponents` keyword "
-        "-- only Bndfun.from_function does -- so the singular Unbndfun cannot "
-        "be constructed at all.  Blocked on singular-Unbndfun support."
-    )
     def test_unbndfun_min(self):
-        raise NotImplementedError("blowup Unbndfun min")
+        domain = Domain((-np.inf, -3 * np.pi))
+        op = lambda x: x * (5 + jnp.exp(x ** 3)) / (domain.b - x)
+        f = Unbndfun.from_function(op, domain, exps=(0.0, -1.0))
+        y, x = f.min()
+        assert abs(float(x) - domain.b) < EPS * f.vscale
+        assert float(y) == -np.inf

@@ -924,7 +924,14 @@ class Classicfun(eqx.Module):
         MATLAB source : @classicfun/minandmax.m
         Chebfun commit: 7574c77
         """
-        (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
+        from chebfunjax.fun.singfun import Singfun
+
+        if isinstance(self.onefun, Singfun):
+            # SINGFUN keeps MATLAB's separate value and position vectors.
+            # Smooth techs expose pairs; unpack each representation explicitly.
+            (min_val, max_val), (min_y, max_y) = self.onefun.minandmax()
+        else:
+            (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
         # Map positions from [-1, 1] to [a, b]
         min_pos = self.domain.forward_map(min_y)
         max_pos = self.domain.forward_map(max_y)

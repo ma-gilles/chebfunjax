@@ -1010,7 +1010,8 @@ class Unbndfun(eqx.Module):
     ) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
         """Global minimum and maximum on the unbounded domain.
 
-        Computes the extrema of the underlying Chebtech2 on [-1, 1] (which
+        Computes the extrema of the underlying smooth or singular function on
+        [-1, 1] (which
         represents ``f`` composed with the unbounded map) and maps the
         extremum positions back to the physical domain via the forward map.
         Endpoint positions y = +-1 map to +-inf; for a decaying function the
@@ -1020,20 +1021,23 @@ class Unbndfun(eqx.Module):
 
         Returns
         -------
-        (min_val, min_pos) : tuple[jax.Array, jax.Array]
-        (max_val, max_pos) : tuple[jax.Array, jax.Array]
+        (min_pos, min_val) : tuple[jax.Array, jax.Array]
+        (max_pos, max_val) : tuple[jax.Array, jax.Array]
 
         Provenance
         ----------
         MATLAB source : @classicfun/minandmax.m (shared by @unbndfun)
         Chebfun commit: 7574c77
         """
-        (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
-        # Piece convention (Bndfun / Chebfun.minandmax): POSITION first.
-        # This previously returned (value, position), so every consumer
-        # of an unbounded piece read the position as the value — e.g.
-        # norm(f, inf) of a near-zero function on [1, inf) returned
-        # ~1.02 (an x-location) instead of ~2e-13.
+        from chebfunjax.fun.singfun import Singfun
+
+        if isinstance(self.onefun, Singfun):
+            # SINGFUN keeps MATLAB's separate value and position vectors.
+            # Smooth techs expose pairs; unpack each representation explicitly.
+            (min_val, max_val), (min_y, max_y) = self.onefun.minandmax()
+        else:
+            (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
+        # Unbounded pieces use the position-first convention expected by Chebfun.
         return (
             (self.forward_map(min_y), min_val),
             (self.forward_map(max_y), max_val),

@@ -1250,10 +1250,9 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
         r = _prune_spurious_roots(r, rho)
 
     if all_roots:
-        # Keep complex roots; sort deterministically (real, then imag).
-        r = np.asarray(r)
-        order = np.lexsort((np.imag(r), np.real(r)))
-        return jnp.asarray(r[order])
+        # MATLAB preserves the eigensolver/subdivision order in all-root mode.
+        # In particular, conjugate pairs retain the positive-imaginary root first.
+        return jnp.asarray(r)
     r = np.sort(np.real(r))
     return jnp.asarray(r, dtype=jnp.float64)
 

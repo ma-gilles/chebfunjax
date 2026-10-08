@@ -7,8 +7,6 @@ evaluated with SciPy inside the constructor sampling (test-only).
 
 Scalar, array-valued, complex-array-valued and Unbndfun cases all port.
 
-Gap: pass(8), the singular (blowup) Bndfun case, is xfailed -- Singfun's
-minandmax returns the smooth-part extremum rather than +Inf.
 
 Provenance
 ----------
@@ -20,7 +18,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 import scipy.special as sp
 
 from chebfunjax.domain import Domain
@@ -119,23 +116,22 @@ class TestClassicfunMinAndMax:
         ref_abs = np.abs(
             np.array([[complex(a1), complex(b1)], [complex(a2), complex(b2)]])
         )
-        assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
+        assert np.linalg.norm(vals_abs - ref_abs, ord=np.inf) < 100 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="pass(8): singular Bndfun (exponents (-0.5, 0)) BUILDS, but "
-        "Singfun.minandmax ignores the algebraic blowup.  Measured today for "
-        "op = (x+2)^-0.5 sin(x)^2 on [-2, 7]: min = 2.86e-16 (correct, MATLAB "
-        "expects 0) but max = 0.142576 -- the smooth-part maximum -- instead "
-        "of MATLAB's +Inf.  Needs @singfun/minandmax blowup handling in the "
-        "Singfun layer; not a tolerance issue."
-    )
     def test_singular(self):
-        pow_ = -0.5
-        op = lambda x: (x - DOM.a) ** pow_ * jnp.sin(x) ** 2
-        f = Bndfun.from_function(op, DOM, exponents=(pow_, 0.0))
-        (min_val, _), (max_val, _) = f.minandmax()
-        assert float(min_val) < 1e-10
-        assert not np.isfinite(float(max_val))  # MATLAB: +Inf
+        op = lambda x: (x - DOM.a) ** -0.5 * jnp.sin(x) ** 2
+        f = Bndfun.from_function(op, DOM, exponents=(-0.5, 0.0))
+        (mn, xp), (mx, xq) = f.minandmax()
+        y = np.asarray([mn, mx])
+        x = jnp.asarray([xp, xq])
+        exact = np.asarray([0.0, np.inf])
+        # MATLAB max defaults to omitting NaN (Inf-Inf at the pole).
+        with np.errstate(invalid="ignore"):
+            assert np.nanmax(np.abs(y - exact)) < 100 * EPS
+            assert np.nanmax(np.abs(np.asarray(op(x)) - exact)) < 10 * EPS
+        # Independent endpoint control prevents NaN-omission masking a bad pole.
+        assert float(mx) == np.inf
+        assert float(xq) == DOM.a
 
     def test_complex_array_valued_2(self):
         # pass(9): MATLAB records the complex-array-valued assertion a second
@@ -154,7 +150,7 @@ class TestClassicfunMinAndMax:
         ref_abs = np.abs(
             np.array([[complex(a1), complex(b1)], [complex(a2), complex(b2)]])
         )
-        assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
+        assert np.linalg.norm(vals_abs - ref_abs, ord=np.inf) < 100 * f.vscale * EPS
 
     def test_unbndfun(self):  # pass(10): (1-e^{-x^2})/x on (-inf, inf)
         f = Unbndfun.from_function(
