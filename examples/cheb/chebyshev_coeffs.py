@@ -14,14 +14,13 @@ matplotlib.use("Agg")
 import os
 import sys
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot, plotcoeffs
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -40,9 +39,8 @@ def _print_coeffs(a, label=None):
 
 
 def _coeffplot(f, title, fname, ylim):
-    c = np.abs(np.asarray(f.coeffs)) + 1e-30
     fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    ax.semilogy(np.arange(len(c)), c, '.', ms=6)
+    plotcoeffs(f, ax=ax, source=True)
     ax.grid(True)
     ax.set_xlabel("degree n")
     ax.set_ylabel(r"$|a_n|$")
@@ -78,25 +76,26 @@ def run():
     ptr = cj.chebfun(f, trunc=10, splitting=True)
     _print_coeffs(ptr.coeffs)
     pin = cj.chebfun(f, n=10)
-    xs = np.linspace(-1, 1, 3000)
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    sgn = np.sign(xs)
-    ax.plot(xs[xs < 0], sgn[xs < 0], 'k', lw=1.4)
-    ax.plot(xs[xs > 0], sgn[xs > 0], 'k', lw=1.4)
-    ax.plot([0, 0], [-1, 1], 'k', lw=1.4)          # 'jumpline','-'
+    fig, ax = plt.subplots(figsize=(600 / 72.009, 253 / 72.009))
+    # Reference page axes occupy 13%..90.5% horizontally and 11%..91%
+    # vertically; preserve this box instead of tight_layout reflow.
+    ax.set_position([0.13, 0.11, 0.775, 0.8])
+    matlab_plot(f, 'k', ax=ax, jumpline={'linestyle': '-', 'color': 'k'}, linewidth=1.6)
     ax.set_ylim(-1.5, 1.5)
-    ax.set_title("sign(x)", fontsize=12)
+    ax.set_xticks([-1, -0.5, 0, 0.5, 1], ['-1', '-0.5', '0', '0.5', '1'])
+    ax.set_yticks([-1.5, -1, -0.5, 0, 0.5, 1, 1.5],
+                  ['-1.5', '-1', '-0.5', '0', '0.5', '1', '1.5'])
+    ax.tick_params(labelsize=12)
+    ax.set_title("sign(x)", fontsize=14)
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_03.png"))
-    # hold on, plot(p,'m')
-    ax.plot(xs, np.asarray(ptr(jnp.asarray(xs))), 'm', lw=1.4)
-    ax.set_title("sign(x) and truncated Chebyshev series", fontsize=12)
-    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_04.png"))
-    # plot(pinterp)
-    ax.plot(xs, np.asarray(pin(jnp.asarray(xs))), 'C0', lw=1.4)
-    ax.set_title("Same, also with Chebyshev interpolant", fontsize=12)
-    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_05.png"))
+    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_03.png"), size=(600, 253), dpi=72.009)
+    # Source hold-on overlay retains the manual y-limits and original black line.
+    matlab_plot(ptr, 'm', ax=ax, linewidth=1.6)
+    ax.set_title("sign(x) and truncated Chebyshev series", fontsize=14)
+    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_04.png"), size=(600, 253), dpi=72.009)
+    matlab_plot(pin, ax=ax, linewidth=1.6)
+    ax.set_title("Same, also with Chebyshev interpolant", fontsize=14)
+    _savefig(fig, os.path.join(_IMG, "ChebyshevCoeffs_05.png"), size=(600, 253), dpi=72.009)
     plt.close(fig)
 
 

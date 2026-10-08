@@ -1,8 +1,6 @@
-"""The phaseplot command.
+"""The phaseplot command: source phase colors and historical page layout.
 
-Translation of complex/PhaseplotCommand.m by Nick Trefethen
-(March 2020): quick phase portraits directly from function handles.
-
+Translation of complex/PhaseplotCommand.m by Nick Trefethen (March 2020).
 Original: https://www.chebfun.org/examples/complex/PhaseplotCommand.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
@@ -16,70 +14,53 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.phaseplot import phaseplot as _phase_data
 
 chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'complex')
+_IMG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'docs', 'images', 'complex')
 
-FIG = [0]
-
-
-def phaseplot(f, dom=(-1, 1, -1, 1), ax=None, title=None, n=480):
-    xa, xb, ya, yb = dom
-    xs = np.linspace(xa, xb, n)
-    ys = np.linspace(ya, yb, n)
-    X, Y = np.meshgrid(xs, ys)
+def _draw(f, dom, ax, classic=False):
+    # Source phaseplot.m samples a500x500 grid and applies phi/cyclic hsv600.
     with np.errstate(all="ignore"):
-        V = f(X + 1j * Y)
-    H = (np.angle(V) + np.pi) / (2 * np.pi)
-    standalone = ax is None
-    if standalone:
-        FIG[0] += 1
-        fig, ax = plt.subplots(figsize=(6.6, 6.2))
-    ax.imshow(plt.cm.hsv(H), origin="lower", extent=(xa, xb, ya, yb),
-              aspect="equal")
-    if title:
-        ax.set_title(title, fontsize=12)
-    if standalone:
-        fig.set_facecolor("white")
-        fig.tight_layout()
-        _savefig(fig, os.path.join(
-            _IMG, f"PhaseplotCommand_{FIG[0]:02d}.png"))
-        plt.close(fig)
-
+        img = _phase_data(f, ax=dom, n_pts=500, classic=classic)
+    ax.imshow(img, origin="lower", extent=dom, aspect="equal",
+              interpolation="nearest", alpha=1.0 if classic else 0.8)
+    ax.set_xlim(dom[:2])
+    ax.set_ylim(dom[2:])
+    ax.grid(False)
+    ax.tick_params(labelsize=12)
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-
-    phaseplot(lambda z: z)
-    phaseplot(lambda z: (z - 1) / (z + 1), (-2, 2, -2, 2))
-    phaseplot(lambda z: z**3)
-    phaseplot(lambda z: np.sqrt(z - 1) * np.sqrt(z + 1),
-              (-2, 2, -2, 2))
-    phaseplot(lambda z: np.exp(3.0 / z))
-
-    FIG[0] += 1
-    fig, axes = plt.subplots(1, 2, figsize=(9.6, 4.6))
-    phaseplot(lambda z: z, ax=axes[0], title="default colors")
-    # 'classic' colors: hue rotated so red points east
-    xs = np.linspace(-1, 1, 480)
-    X, Y = np.meshgrid(xs, xs)
-    H = np.mod(np.angle(X + 1j * Y) / (2 * np.pi) + 0.5, 1.0)
-    axes[1].imshow(plt.cm.hsv(np.mod(H + 0.5, 1.0)), origin="lower",
-                   extent=(-1, 1, -1, 1), aspect="equal")
-    axes[1].set_title("'classic' colors", fontsize=12)
-    for ax in axes:
+    cases = [
+        (lambda z: z, [-1, 1, -1, 1]),
+        (lambda z: (z-1)/(z+1), [-2, 2, -2, 2]),
+        (lambda z: z**3, [-1, 1, -1, 1]),
+        (lambda z: np.sqrt(z-1)*np.sqrt(z+1), [-2, 2, -2, 2]),
+        (lambda z: np.exp(3/z), [-1, 1, -1, 1]),
+    ]
+    for i,(f,dom) in enumerate(cases,1):
+        fig, ax = plt.subplots(figsize=(600/72.009,253/72.009))
+        # Reference square axis box is centered in the source wide figure.
+        ax.set_position([.13,.11,.775,.815])
+        _draw(f, dom, ax)
+        ticks = [-1,-.5,0,.5,1] if dom[1]==1 else [-2,-1,0,1,2]
+        labels=[f"{v:g}" for v in ticks]
+        ax.set_xticks(ticks,labels)
+        ax.set_yticks(ticks,labels)
+        _savefig(fig,os.path.join(_IMG,f"PhaseplotCommand_{i:02d}.png"),size=(600,253),dpi=72.009)
+        plt.close(fig)
+    fig,axes=plt.subplots(1,2,figsize=(600/72.009,253/72.009))
+    # MATLAB subplot positions retain the source paired square boxes.
+    for ax,pos,classic,title in zip(axes,[[.13,.11,.3346590909090909,.815],[.5703409090909091,.11,.3346590909090909,.815]],[False,True],["default colors","'classic' colors"]):
+        ax.set_position(pos)
+        _draw(lambda z:z,[-1,1,-1,1],ax,classic)
         ax.set_axis_off()
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"PhaseplotCommand_{FIG[0]:02d}.png"))
+        ax.set_title(title,fontsize=14)
+    _savefig(fig,os.path.join(_IMG,"PhaseplotCommand_06.png"),size=(600,253),dpi=72.009)
     plt.close(fig)
-    print("phaseplots:", FIG[0])
 
-
-if __name__ == "__main__":
+if __name__=="__main__":
     run()

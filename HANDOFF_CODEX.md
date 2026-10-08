@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebyshev and phase portrait page corrections (2026-10-08)
+
+Two serial CPU page runs completed with stable inputs, verified runtime origins,
+no surviving processes and figure audits passing. Eleven figures regenerated;
+nine reference-size mismatches removed. Chebyshev coefficient plots now reuse
+the source helper without an artificial floor; function overlays use source
+sampling. Two printed last digits changed by less than 1e-15; prose and MATLAB
+blocks are unchanged. Phase portraits reuse the existing source color helper,
+500-square sampling, alpha and subplot layout; source stdout is exactly empty.
+Exact historical pixels, antialiasing and marker fidelity remain unqualified.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_phase_pages_root_acceptance_20261008.json`.
+
 ## Laguerre RHW source truncation (2026-10-08)
 
 44 CPU checks passed (151.76 s pytest), stable source inputs and no surviving
