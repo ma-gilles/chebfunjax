@@ -24,6 +24,7 @@ from scipy.special import gammaln
 # Chebyshev values <-> coefficients (DCT-I based)
 # ===========================================================================
 
+@jax.jit
 def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
     """Unconditional JAX Chebyshev values-to-coefficients transform.
 
@@ -59,6 +60,7 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
     return coeffs
 
 
+@jax.jit
 def _coeffs2vals_jax(coeffs: jnp.ndarray) -> jnp.ndarray:
     """Unconditional JAX Chebyshev coefficients-to-values transform.
 
@@ -74,7 +76,10 @@ def _coeffs2vals_jax(coeffs: jnp.ndarray) -> jnp.ndarray:
     c = coeffs.at[1:n - 1].multiply(0.5)
     tmp = jnp.concatenate([c, c[n - 2:0:-1]])
     if jnp.iscomplexobj(coeffs):
-        values = jnp.fft.fft(tmp, axis=0)
+        # Real-linear FFT evaluation preserves real/imaginary components and
+        # conjugacy exactly, as in the inverse transform above.
+        values = (jnp.real(jnp.fft.fft(jnp.real(tmp), axis=0))
+                  + 1j*jnp.real(jnp.fft.fft(jnp.imag(tmp), axis=0)))
     else:
         values = jnp.real(jnp.fft.fft(tmp, axis=0))
     values = values[n - 1::-1]
@@ -125,65 +130,7 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     n = values.shape[0]
     if n <= 1:
         return values
-    # Concrete inputs run a numpy mirror (same dispatch pattern as
-    # trig_vals2coeffs): each distinct length otherwise compiles its
-    # own FFT kernel chain, and object-heavy pipelines (rootfinding
-    # curve fits, adaptive constructors) rack up thousands of XLA
-    # compiles -- 60% of chebfun2 roots() runtime was
-    # backend_compile before this path.
-    # Complex inputs use the conjugacy-preserving JAX transform in both
-    # eager and traced execution.
-    if not isinstance(values, jax.core.Tracer) and not jnp.iscomplexobj(values):
-        v = np.asarray(values)
-        if np.all(np.isfinite(v)):
-            return jnp.asarray(_vals2coeffs_np(v))
-
     return _vals2coeffs_jax(values)
-
-def _vals2coeffs_np(values: np.ndarray) -> np.ndarray:
-    """numpy mirror of :func:`vals2coeffs` (kept in lockstep; finite
-    input only -- the caller keeps the jnp path for non-finite data)."""
-    n = values.shape[0]
-    tmp = np.concatenate([values[n - 1:0:-1], values[:n - 1]])
-    if np.iscomplexobj(values):
-        if np.all(np.real(values) == 0):
-            coeffs = 1j * np.real(np.fft.ifft(np.imag(tmp), axis=0))
-        else:
-            coeffs = np.fft.ifft(tmp, axis=0)
-    else:
-        coeffs = np.real(np.fft.ifft(tmp, axis=0))
-    coeffs = coeffs[:n].copy()
-    coeffs[1:n - 1] *= 2.0
-    vflip = values[::-1]
-    is_even = np.max(np.abs(values - vflip), axis=0) == 0
-    is_odd = np.max(np.abs(values + vflip), axis=0) == 0
-    k = np.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
-    coeffs = np.where((k % 2 == 1) & is_even, 0.0, coeffs)
-    coeffs = np.where((k % 2 == 0) & is_odd, 0.0, coeffs)
-    return coeffs
-
-
-def _coeffs2vals_np(coeffs: np.ndarray) -> np.ndarray:
-    """numpy mirror of :func:`coeffs2vals` (kept in lockstep; finite
-    input only)."""
-    n = coeffs.shape[0]
-    c = coeffs.astype(np.complex128 if np.iscomplexobj(coeffs)
-                      else np.float64).copy()
-    c[1:n - 1] *= 0.5
-    tmp = np.concatenate([c, c[n - 2:0:-1]])
-    if np.iscomplexobj(coeffs):
-        values = np.fft.fft(tmp, axis=0)
-    else:
-        values = np.real(np.fft.fft(tmp, axis=0))
-    values = values[n - 1::-1].copy()
-    is_even = (np.max(np.abs(coeffs[1::2]), axis=0, initial=0.0) == 0)
-    is_odd = (np.max(np.abs(coeffs[0::2]), axis=0, initial=0.0) == 0)
-    vflip = values[::-1]
-    values = np.where(is_even, (values + vflip) / 2.0, values)
-    vflip = values[::-1]
-    values = np.where(is_odd, (values - vflip) / 2.0, values)
-    return values
-
 
 def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
     """Convert Chebyshev coefficients to values at 2nd-kind Chebyshev points.
@@ -220,12 +167,6 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
     n = coeffs.shape[0]
     if n <= 1:
         return coeffs
-    # Concrete inputs run the numpy mirror (see vals2coeffs).
-    if not isinstance(coeffs, jax.core.Tracer):
-        c_np = np.asarray(coeffs)
-        if np.all(np.isfinite(c_np)):
-            return jnp.asarray(_coeffs2vals_np(c_np))
-
     return _coeffs2vals_jax(coeffs)
 
 # ===========================================================================

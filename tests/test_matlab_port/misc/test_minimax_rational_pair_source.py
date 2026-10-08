@@ -128,13 +128,11 @@ def test_unsuccessful_empty_rational_result_is_not_misread_as_zero():
 def test_conversion_never_uses_concrete_numpy_transform_mirrors(
     disable_jit, monkeypatch
 ):
-    from chebfunjax.utils import transforms
-
-    def forbidden(_values):
+    def forbidden(_values, *args, **kwargs):
         raise AssertionError("NumPy transform mirror must not be called")
 
-    monkeypatch.setattr(transforms, "_vals2coeffs_np", forbidden)
-    monkeypatch.setattr(transforms, "_coeffs2vals_np", forbidden)
+    monkeypatch.setattr(np.fft, "ifft", forbidden)
+    monkeypatch.setattr(np.fft, "fft", forbidden)
     result = _result([-1.0, 1.0], [2.0, 3.0], [4.0, 5.0], m=1, n=1)
     with jax.disable_jit(disable_jit):
         p, q = result.as_chebfuns()

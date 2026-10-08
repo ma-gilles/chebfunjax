@@ -131,8 +131,10 @@ def test_construction_avoids_legacy_numpy_transform_and_rng(monkeypatch, disable
 
     monkeypatch.setattr(np.random, 'randn', forbidden)
     monkeypatch.setattr(np.random, 'default_rng', forbidden)
-    for name in ('vals2coeffs', 'coeffs2vals', '_vals2coeffs_np', '_coeffs2vals_np'):
+    for name in ('vals2coeffs', 'coeffs2vals'):
         monkeypatch.setattr(transforms, name, forbidden)
+    monkeypatch.setattr(np.fft, 'fft', forbidden)
+    monkeypatch.setattr(np.fft, 'ifft', forbidden)
     monkeypatch.setattr(trigtech, '_trig_eval_np', forbidden)
     with jax.disable_jit(disabled):
         a = engine.randnfun(1, 'trig', seed=17)
