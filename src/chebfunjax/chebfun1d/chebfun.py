@@ -85,6 +85,10 @@ def jump(f: "Chebfun", x, c: float = 0.0):
     MATLAB source : @chebfun/jump.m
     Chebfun commit: 7574c77
     """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+
+    if isinstance(f, ADChebfun):
+        return f.jump(x, c)
     return f(x, "right") - f(x, "left") - c
 
 

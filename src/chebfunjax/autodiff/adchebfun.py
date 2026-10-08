@@ -119,9 +119,10 @@ class ADChebfun:
                 f"ADChebfun expects a Chebfun, got {type(u).__name__}."
             )
         self.func = u
-        # Extract domain as a (a, b) tuple
+        # Keep interior breakpoints as static operator metadata
         bpts = u.domain.breakpoints
-        self.domain: tuple[float, float] = (float(bpts[0]), float(bpts[-1]))
+        self.domain: tuple[float, ...] = tuple(float(x) for x in bpts)
+        self.jumpLocations: tuple[float, ...] = ()
         # Seed Jacobian as identity operator
         self.jacobian: OperatorBlock = I(self.domain)
         self.is_linear: bool = True
@@ -191,13 +192,13 @@ class ADChebfun:
     def __add__(self, other):
         """(a + b).jacobian = a.jacobian + b.jacobian  (if both AD)."""
         if isinstance(other, ADChebfun):
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func + other.func
             result.jacobian = self.jacobian + other.jacobian
             result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
             return result
         else:
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func + other
             # jacobian unchanged
             return result
@@ -207,13 +208,13 @@ class ADChebfun:
 
     def __sub__(self, other):
         if isinstance(other, ADChebfun):
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func - other.func
             result.jacobian = self.jacobian - other.jacobian
             result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
             return result
         else:
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func - other
             return result
 
@@ -236,7 +237,7 @@ class ADChebfun:
         """Product rule: d(f*g)[v] = f*dg[v] + g*df[v]."""
         if isinstance(other, ADChebfun):
             # Product rule
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func * other.func
             result.jacobian = (
                 _multiply_jacobian(self.func, other.jacobian, self.domain)
@@ -258,13 +259,13 @@ class ADChebfun:
                 )
             return result
         elif isinstance(other, (int, float)):
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func * float(other)
             result.jacobian = self.jacobian * float(other)
             return result
         else:
             # other is a Chebfun — diag multiplication
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func * other
             result.jacobian = _multiply_jacobian(other, self.jacobian, self.domain)
             result.linearity = self.linearity
@@ -289,7 +290,7 @@ class ADChebfun:
             # Quotient rule: d(f/g) = (g*df - f*dg) / g^2
             g = other.func
             g2 = g * g
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func / g
             result.jacobian = (
                 _multiply_jacobian(1.0 / g, self.jacobian, self.domain)
@@ -309,13 +310,13 @@ class ADChebfun:
                 )
             return result
         elif isinstance(other, (int, float)):
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func / float(other)
             result.jacobian = self.jacobian * (1.0 / float(other))
             return result
         else:
             # other is a Chebfun (constant w.r.t. u)
-            result = _copy_ad(self)
+            result = _copy_ad(self, other)
             result.func = self.func / other
             result.jacobian = _multiply_jacobian(1.0 / other, self.jacobian, self.domain)
             result.linearity = self.linearity
@@ -344,6 +345,7 @@ class ADChebfun:
         """
         result = _copy_ad(self)
         if isinstance(exp, ADChebfun):
+            result = _copy_ad(self, exp)
             result.linearity = tuple(
                 az and bz and a and b
                 for az, bz, a, b in zip(
@@ -1124,7 +1126,7 @@ class ADChebfun:
         Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
         points = jnp.asarray(x, dtype=jnp.float64)
-        domain = tuple(float(v) for v in self.func.domain.breakpoints)
+        domain = self.domain
         rows = [eval_at(float(v), domain=domain) for v in points.reshape(-1)]
         if points.ndim == 0:
             evaluation = rows[0]
@@ -1139,6 +1141,27 @@ class ADChebfun:
         result.func = self.func(points)
         result.domain = domain
         result.jacobian = evaluation * self.jacobian
+        return result
+
+    def jump(self, x, c=0):
+        """Right minus left limit minus ``c``, with the incoming AD chain.
+
+        The explicit condition records its breakpoint for continuity handling.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (jump).
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import jump
+        from chebfunjax.operators.blocks import jump_functional
+
+        result = _copy_ad(self)
+        location = float(x)
+        result.domain = tuple(sorted(set(self.domain + (location,))))
+        result.func = jump(self.func, location, c)
+        result.jacobian = jump_functional(location, result.domain) * self.jacobian
+        result.jumpLocations = tuple(sorted(set(self.jumpLocations + (location,))))
         return result
 
     # ------------------------------------------------------------------
@@ -1304,13 +1327,17 @@ def detect_linearity(
 # ===========================================================================
 
 
-def _copy_ad(f: ADChebfun) -> ADChebfun:
+def _copy_ad(f: ADChebfun, other=None) -> ADChebfun:
     """Shallow-copy an ADChebfun (without calling __init__)."""
     result = object.__new__(ADChebfun)
     result.func = f.func
     result.jacobian = f.jacobian
     result.linearity = f.linearity
     result.domain = f.domain
+    result.jumpLocations = f.jumpLocations
+    if isinstance(other, ADChebfun):
+        result.domain = tuple(sorted(set(f.domain + other.domain)))
+        result.jumpLocations = tuple(sorted(set(f.jumpLocations + other.jumpLocations)))
     return result
 
 
