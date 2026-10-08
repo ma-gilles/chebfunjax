@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere sampling and vscale source semantics (2026-10-08)
+
+Spherefun sampling now aliases Fourier coefficients before evaluation, retains
+source real-factor extraction and the nonconjugating CDR product, and uses the
+source singleton phase and physical-grid selection. vscale samples each factor
+length clamped to9..2000 and takes the source maximum magnitude. Original
+missing/nonpositive dimension checks and source identifiers are preserved;
+the empty three-output error remains a documented Python adapter.
+
+91 CPU cases passed:43 source controls plus48 unchanged sampling regressions,
+exact collection/JUnit/runtime origins, stable inputs and no surviving children.
+The two production files match the tested snapshot; test import whitespace is
+the only post-test formatting change. Qualification was concurrent correctness
+work, not a performance comparison. Coefficient-only storage still reconstructs
+values where MATLAB may retain stored samples, so bitwise parity is not claimed.
+
+Evidence: sphere_sample91_terminal_review_20261008_oe7bpzzx/review.json.
+Verified archive sphere_sample_vscale91_reference_20261008.zip SHA256
+ad99b4bd94be15126af71fe53e5f62c48f1d91bddb66b111c0bddf0cddc1663c
+requires the full-source base archive documented below. Constructor-V2 changes
+are separate and require method-level integration and combined tests.
+
 ## Hermite fresh-process JIT import correction (2026-10-08)
 
 An additional existing fresh-process regression exposed six module-level uint64

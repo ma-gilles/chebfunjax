@@ -122,6 +122,15 @@ def _real_sample_values(coefficients):
 
 
 def _sample(techs, m):
+    """Real factor samples using source coefficient aliasing and FFT.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/sample.m, @trigtech/alias.m, @spherefun/sample.m
+    Chebfun commit: 7574c77
+    The single-point branch preserves source reversed negative-mode dot and
+    positive-mode dot before their sum with the constant coefficient.
+    """
     # Source sample aliases when its vscale sampling cap is below stored length.
     # The existing generic alias helper uses NumPy; this bounded matrix port
     # keeps the source update order and JAX arithmetic, including disabled JIT.
@@ -135,7 +144,14 @@ def _sample(techs, m):
             c = jnp.concatenate((c, c[:1]), axis=0)
             n += 1
         n2 = (n - 1) // 2
-        if m % 2:
+        if m == 1:
+            # alias.m's dedicated one-point branch, evaluated at x=-1.
+            const = c[n2]
+            negative = c[:n2][::-1]
+            positive = c[n2 + 1 :]
+            signs = jnp.where(jnp.arange(n2) % 2 == 0, -1.0, 1.0)
+            a = (const + (signs @ negative + signs @ positive))[None, :]
+        elif m % 2:
             m2 = (m - 1) // 2
             a = c[n2 - m2 : n2 + m2 + 1]
             for j in range(-n2, -m2):
@@ -154,6 +170,7 @@ def _sample(techs, m):
             a = a.at[0].add(a[-1])[:-1]
         c = a
     return _real_sample_values(c)
+
 
 
 def _scale(f):

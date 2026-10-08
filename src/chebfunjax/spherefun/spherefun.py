@@ -1591,52 +1591,51 @@ class Spherefun(eqx.Module):
         return self(L, T)
 
     def sample(self, m: int | None = None, n: int | None = None) -> jax.Array:
-        """Values on an m (longitude) x n (colatitude) tensor grid:
-        lam = trigpts(m, [-pi, pi]), th = linspace(0, pi, n); returns
-        an (n, m) matrix (MATLAB sample).
+        """Source FFT samples on the physical n-by-m tensor grid.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/sample.m
+        MATLAB source : @spherefun/sample.m, @trigtech/sample.m
         Chebfun commit: 7574c77
+        Two dimensions are required when either is supplied. Source n=1
+        retains the first doubled-domain sample; no endpoint grid substitute.
         """
-        from chebfunjax.utils.quadrature import trigpts
-        if m is None or n is None:
-            m0, n0 = self.length()
-            m = m0 if m is None else m
-            n = n0 if n is None else n
-        lam = np.pi * np.array(trigpts(int(m))[0])
-        th = np.linspace(0.0, np.pi, int(n))
-        return self.fevalm(jnp.asarray(lam), jnp.asarray(th))
+        if self.isempty():
+            return jnp.zeros((0, 0), dtype=jnp.float64)
+        columns, diagonal, rows = self.sample_cdr(m, n)
+        return (columns @ diagonal) @ rows.T
 
-    def sample_cdr(self, m: int, n: int):
-        """(U, D, V) sampled low-rank factors with
-        ``U @ D @ V.T == sample(m, n)`` (MATLAB [U, D, V] = sample(f)).
+
+    def sample_cdr(self, m: int | None = None, n: int | None = None):
+        """Source three-output sample factors, with real(C) and real(R).
 
         Provenance
         ----------
-        MATLAB source : @spherefun/sample.m
+        MATLAB source : @spherefun/sample.m, @separableApprox/cdr.m,
+            @trigtech/sample.m, @trigtech/alias.m
         Chebfun commit: 7574c77
+        Source returns only one empty output for an empty spherefun, so this
+        three-output interface rejects that case (unqualified Python adapter
+        error behavior; no claimed MATLAB exception identifier). Coefficients are aliased
+        before FFT evaluation, retaining source update and multiplication order.
         """
-        from chebfunjax.tech.trigtech import _trig_eval_np
-        from chebfunjax.utils.quadrature import trigpts
-        lam = np.pi * np.array(trigpts(int(m))[0])
-        th = np.linspace(0.0, np.pi, int(n))
-        U = np.column_stack(
-            [np.real(np.asarray(_trig_eval_np(
-                np.asarray(c.coeffs)[:, None], th / np.pi,
-                is_real=c.is_real))).ravel()
-             for c in self.cols])
-        V = np.column_stack(
-            [np.real(np.asarray(_trig_eval_np(
-                np.asarray(r.coeffs)[:, None], lam / np.pi,
-                is_real=r.is_real))).ravel()
-             for r in self.rows])
         from chebfunjax.spherefun._cdr import inverse_pivots
-        D = jnp.diag(inverse_pivots(self.pivots))
-        return (jnp.asarray(U, dtype=jnp.float64),
-                jnp.asarray(D),
-                jnp.asarray(V, dtype=jnp.float64))
+        from chebfunjax.spherefun._plus import _sample
+
+        if self.isempty():
+            raise ValueError("SPHEREFUN:sample:outputs: empty input has one output (Python adapter)")
+        if m is None and n is None:
+            m, n = self.length()
+        elif m is None or n is None:
+            raise ValueError("CHEBFUN:SPHEREFUN:sample:inputs Dimension not specified.")
+        if m <= 0 or n <= 0:
+            raise ValueError("CHEBFUN:SPHEREFUN:sample:inputs Number of sample points must be positive.")
+        columns = _sample(self.cols, max(2 * n - 2, 1))
+        columns = jnp.concatenate((columns[n - 1 : 2 * n - 2], columns[:1]), axis=0)
+        rows = _sample(self.rows, m)
+        diagonal = jnp.diag(inverse_pivots(self.pivots))
+        return columns, diagonal, rows
+
 
     def mean2(self) -> jax.Array:
         """Mean value over the sphere: sum2(f) / (4*pi) (MATLAB mean2).
@@ -3169,18 +3168,21 @@ class Spherefun(eqx.Module):
         return Spherefun.from_values(F)
 
     def vscale(self) -> float:
-        """Vertical scale: the largest absolute sampled value (MATLAB
-        ``vscale``).
+        """Largest sample magnitude on the source bounded tensor grid.
 
         Provenance
         ----------
         MATLAB source : @separableApprox/vscale.m
         Chebfun commit: 7574c77
+        Uses source rows-first length and sample argument ordering.
         """
-        if self.isempty() or len(self.cols) == 0:
+        if self.isempty():
             return 0.0
-        V = np.asarray(Spherefun.coeffs2vals(self.coeffs2()))
-        return float(np.max(np.abs(V)))
+        m, n = self.length()
+        m = min(max(m, 9), 2000)
+        n = min(max(n, 9), 2000)
+        return float(jnp.max(jnp.abs(self.sample(m, n))))
+
 
     @staticmethod
     def poisson(f, const: float = 0.0, m: int | None = None,
