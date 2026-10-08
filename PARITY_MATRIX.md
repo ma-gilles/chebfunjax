@@ -1,5 +1,29 @@
 # chebfunjax ↔ MATLAB Chebfun — Parity Status
 
+## AD power and complete Chebfun2 evaluation tests (2026-10-08)
+
+At `ad483fd1`, fresh static inventory has1,067 present files,25 with literal
+skip/xfail markers and10 module-skipped files among1,102 source tests. This is
+file coverage, not proof of all assertions or MATLAB random-stream parity.
+Evidence: `matlab_test_static_inventory_ad483fd1_20261008.json` in the shared
+evidence directory below.
+
+AD power passed261 CPU checks, restoring21 source clauses, literal derivative
+arithmetic, linearity/domain rules and reverse dispatch (commit8fda14fd;
+`ad_power_root_acceptance_20261008.json`). Chebfun2 evaluation restores all24
+source predicates, matrix2-norms, complex syntax and full1001x1001 transposed
+grid;24 pass (commitad483fd1; `chebfun2_feval_root_acceptance_20261008.json`).
+The old Chebfun2 path-composition skip described a different requirement from
+the pinned test and was replaced by its actual source predicates.
+
+Fresh MATLAB startup now works in the unrestricted environment; worker
+Laguerre boundary capture succeeded. Current remote CI724ce10c numerical
+shards are running; lint,code-quality and golden-reference gates passed.
+Do not infer green CI on newer local commits. Three worker lanes continue AD
+error functions, Laguerre alpha=-1 and a compressed scalar-parameter Newton
+solver for LaneEmden. Its n24 diagnostic converged but public integration and
+refined qualification remain open.
+
 ## Publication recovered and Fourier/EXP qualification (2026-10-08)
 
 Normal direct push now succeeds in the unrestricted execution environment.
