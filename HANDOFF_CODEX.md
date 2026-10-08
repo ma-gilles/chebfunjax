@@ -1,5 +1,39 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest reviewed arithmetic/composition (2026-10-08, local b6ce6212)
+
+Full parity remains incomplete. New local packages:
+
+- `194e2d07`: Chebfun addition orientation, numeric-column expansion,
+  breakpoint threshold and quasimatrix constants. Composite114 passing checks
+  include33 original predicates, six controls and75 regressions; source15 is
+  vacuous and independently controlled. Source29 is explicitly skipped pending
+  native source-order RNG; source28 uses mapped recovered primitive uniforms,
+  not a fresh native capture. Its strict bound passes despite two retained
+  constructor convergence warnings. Three accepted gates have terminal receipts,
+  stable inputs/no survivors; root rehashed2942/2947/2939 observed files.
+- `b6ce6212`: all35 original Chebfun3 composition predicates plus27 controls
+  and13 regressions (75 distinct staged passes). Full64-check gate903.01s,
+  peak8.20GiB; sample/arity followup40pass and complex-vector guard12pass.
+  Source sample defaults/empty/factor output, N25 range estimation, periodic
+  dispatch and diagnostics restored. Numerical contractions/typed dispatch
+  unchanged across followups; original test bytes identical. Root rehashed
+  all three gates' observed runtime files. Inherited constructor/fiberDim/RNG
+  trajectories and broader Chebfun3v API remain open.
+
+Evidence: `chebfun_plus_root_acceptance_20261008.json` and
+`chebfun3_compose_root_acceptance_20261008.json` in the shared directory below.
+Full Ruff/F821, source provenance/NumPy policies and diff checks pass locally.
+No full-suite, native MATLAB, remote publication or exact-head CI claim.
+
+Active: Chebfun norms (heavy singular/slow-decay cases); remaining Chebfun3v
+composition; Fourier/NonsmoothFOV final page review and unresolved output gaps.
+Root disk constructor has33/34 original assertions qualified in disjoint groups;
+high-rank10 queued. Two inherited nonsmooth disk regressions remain unqualified
+following a bounded RSS stop; no weakened assertions or tolerance changes.
+Updated static inventory atbf21897f reports1094 PRESENT/8 MASKED/0 missing out
+of1102 source files, which establishes mapping only, not semantic coverage.
+
 ## Latest reviewed packages (2026-10-08, local eabdbfa0)
 
 Full parity remains incomplete. This checkpoint supersedes prior active-work
