@@ -1,5 +1,42 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Current CPU qualification (2026-10-08, local 6cda66b9)
+
+Full parity remains incomplete. Latest static inventory revalidated all 1,102
+source/port mappings: **1,075 present, 19 with skip/xfail markers, 8 module-skipped**.
+File presence does not establish complete assertions or runtime parity.
+
+| Commit | Verified change | CPU evidence |
+| --- | --- | --- |
+| ca70c195 | Source repmat forms, point values and orientation | 64 passing tests; native seeded source inputs |
+| ea3fb9e2 | Exact singular equality, source cancellation, complex-transform conjugacy | 207 passing tests; fresh MATLAB equality/complex predicates pass |
+| 73772a94 | Explicit small Hermite REC source outcomes, including source defects | 60 passing tests against captured native outcomes; bounds unchanged |
+| 6cda66b9 | AD product integrals and plain cumprod | 65 passing tests plus 12 integration checks; six original clauses |
+
+Evidence directory: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+See `repmat_root_acceptance_20261008.json`,
+`singfun_equality_root_acceptance_20261008.json`,
+`hermite_small_root_acceptance_20261008.json`,
+`ad_cumprod_prod_root_acceptance_20261008.json`, and
+`matlab_test_static_inventory_6cda66b9_20261008.json`.
+
+The complex cosine transform uses two real JAX IFFTs, an explicit numerical
+adaptation preserving conjugacy; no performance claim. The real-valued eager
+NumPy path still needs porting. Small Hermite ASY, singular/delta repmat rows,
+and general complex/array product-integral behavior remain open.
+
+Three workers continue public JAX Airy/AD functions, small Hermite ASY, and
+LaneEmden complex parameter correctness. The earlier two-figure LaneEmden run
+is not accepted for publication: review found imaginary equation components
+were discarded. A corrected complex solve passes a manufactured case; final
+adaptive/page qualification remains outstanding. Heavy examples run serially.
+
+Last confirmed remote main is **8a6d9c80**. The execution profile subsequently
+changed to restricted networking; the GitHub API now fails to connect, so CI
+status cannot be refreshed and newer commits are local. Previous successful
+pushes and MATLAB captures remain valid historical evidence. Full source/test,
+page/figure, performance and exact-head CI gates remain required.
+
 ## AD error functions and finite classification (2026-10-08)
 
 Commit `d1fc3256` adds five source AD error functions and restores all15
