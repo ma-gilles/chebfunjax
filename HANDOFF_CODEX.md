@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Domain remapping state preservation (2026-10-08)
+
+12 CPU source/regression checks passed with stable source/environment inputs
+and no surviving processes. new_domain now uses JAX affine mapping, retains
+coefficient objects, stored point values and row/column orientation, and maps
+delta locations while retaining magnitudes and derivative orders, as specified
+by newDomain/changeMap. The old constructor discarded this state. Existing
+remapping and CF output contracts pass. Scope is finite bounded pieces;
+unbounded/other FUN representations, fresh MATLAB and full native closure
+are not qualified.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newdomain_root_v1_20261008/review.json`.
+
 ## Anchored AD cumulative integration (2026-10-08)
 
 119 CPU checks passed (16new plus103 unchanged AD/saved-reference cases),

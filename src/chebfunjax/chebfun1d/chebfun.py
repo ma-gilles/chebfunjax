@@ -6873,9 +6873,10 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/newDomain.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        old = _np.asarray([float(b) for b in self.domain.breakpoints])
-        nd = _np.asarray([float(v) for v in new_dom], dtype=_np.float64)
+        from copy import copy
+
+        old = jnp.asarray(self.domain.breakpoints, dtype=jnp.float64)
+        nd = jnp.asarray(new_dom, dtype=jnp.float64).reshape(-1)
         if nd.size == old.size:
             newb = nd
         elif nd.size == 2:
@@ -6883,14 +6884,31 @@ class Chebfun(eqx.Module):
             a, b = nd[0], nd[1]
             newb = (b - a) * (old - c) / (d - c) + a
         else:
-            raise ValueError("newDomain: inconsistent domains.")
+            raise ValueError("CHEBFUN:CHEBFUN:newDomain:numints: Inconsistent domains.")
+        domain = Domain(tuple(float(v) for v in newb))
         funs = [
             _Piece(tech=pc.tech,
                    interval=(float(newb[k]), float(newb[k + 1])))
             for k, pc in enumerate(self.funs)
         ]
-        return Chebfun(funs=funs, domain=Domain(tuple(float(v)
-                                                      for v in newb)))
+        # Source changes each map and the domain on a value-copy of g.
+        # Coefficients, pointValues and row/column orientation remain intact.
+        result = copy(self)
+        object.__setattr__(result, "funs", funs)
+        object.__setattr__(result, "domain", domain)
+        mapped_deltas = []
+        for row in self.deltas:
+            location, magnitude, order = _delta_row(row)
+            k = int(jnp.clip(jnp.searchsorted(old, location, side="right") - 1,
+                             0, old.size - 2))
+            # @deltafun/changeMap changes deltaLoc, retaining deltaMag,
+            # including its derivative-order rows.
+            fraction = (jnp.asarray(location) - old[k]) / (old[k + 1] - old[k])
+            moved = float(newb[k] + fraction * (newb[k + 1] - newb[k]))
+            mapped_deltas.append((moved, magnitude, order) if len(row) == 3
+                                 else (moved, magnitude))
+        object.__setattr__(result, "deltas", tuple(mapped_deltas))
+        return result
 
     def conv(self, g: Chebfun) -> Chebfun:
         r"""Convolution of two Chebfuns.
