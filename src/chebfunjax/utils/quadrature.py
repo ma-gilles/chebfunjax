@@ -717,9 +717,9 @@ def _lagpts_core(n: int, alpha: float = 0.0,
 
     GLR requires alpha=0. RH/RHW require concrete finite real alpha>-1
     and a valid source initial-guess layout; source convergence errors propagate.
-    EXP remains unported. RECW and RHW use eager output-length adapters
+    EXP/EXPW use literal direct expansions. RECW, RHW and EXPW use eager output-length adapters
     around fixed-capacity JAX kernels. RECW includes the first zero weight;
-    RHW excludes the first underflowed weight.
+    RHW excludes the first underflowed weight; EXPW ends at the last nonzero weight.
     """
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
@@ -769,6 +769,19 @@ def _lagpts_core(n: int, alpha: float = 0.0,
                 warnings.warn('lagpts: a large alpha may lead to inaccurate results',
                               UserWarning, stacklevel=2)
             x, w = _laguerre_rh_general(n, alpha)
+    elif method in ('exp', 'expw'):
+        if isinstance(alpha, jax.core.Tracer):
+            raise NotImplementedError('lagpts: EXP/EXPW require a concrete alpha')
+        from chebfunjax.utils.laguerre_exp import _laguerre_exp
+        if alpha*alpha/n > 1:
+            warnings.warn('lagpts: a large alpha may lead to inaccurate results',
+                          UserWarning, stacklevel=2)
+        if method == 'expw':
+            x, w, length = _laguerre_exp(n, alpha, comp_repr=True)
+            length = int(length)
+            x, w = x[:length], w[:length]
+        else:
+            x, w = _laguerre_exp(n, alpha)
     elif method == 'gw':
         x, w = _lagpts_gw(n, alpha)
     else:
@@ -776,7 +789,7 @@ def _lagpts_core(n: int, alpha: float = 0.0,
 
     import jax.scipy.special as jsp
     normalizer = jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)
-    if method in ('recw', 'rhw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5))):
+    if method in ('recw', 'rhw', 'exp', 'expw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5))):
         from chebfunjax.utils._gradual import gradual_positive_multiply
         w = gradual_positive_multiply(w, normalizer)
     else:
@@ -1581,7 +1594,8 @@ def lagpts(n: int, alpha: float = 0.0,
     (GW for other alpha), then RH for static alpha, as in the source.
     Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
-    EXP and the singular alpha=-1 case remain unsupported. Source small-order
+    The singular alpha=-1 case remains unsupported. EXP/EXPW retain the source
+    direct-expansion accuracy, including its less accurate Airy-region weights. Source small-order
     initial-guess and convergence errors propagate without a GW fallback.
     RHW uses the source truncated capacity and first-underflow stopping rule;
     RECW includes its first exact-zero weight. Both variable-length public
@@ -1622,9 +1636,7 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rh'
         else:
             method = 'gw'
-    if method not in ('rec', 'recw', 'gw', 'glr', 'rh', 'rhw'):
-        if method in ('exp', 'expw'):
-            raise NotImplementedError(f"lagpts: source method {method.upper()} is not yet supported")
+    if method not in ('rec', 'recw', 'gw', 'glr', 'rh', 'rhw', 'exp', 'expw'):
         raise ValueError(f"lagpts: unsupported method {method!r}")
 
     if not jnp.isrealobj(alpha) or (
@@ -1640,7 +1652,7 @@ def lagpts(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: interval must be semi-infinite")
 
     x, w = _lagpts_core(n, alpha, None, method)
-    gradual_rh = method in ('recw', 'rhw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5)))
+    gradual_rh = method in ('recw', 'rhw', 'exp', 'expw') or (method == 'rh' and (n < 3000 or alpha not in (0, -0.5, 0.5)))
     if gradual_rh:
         from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
         from chebfunjax.utils.laguerre_rh_general import (

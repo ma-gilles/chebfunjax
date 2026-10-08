@@ -2,7 +2,7 @@
 
 Provenance: MATLAB ``lagpts.m`` and ``hermpts.m``, Chebfun commit
 7574c77680d7e82b79626300bf255498271a72df. These tests distinguish the
-ported algorithms from deliberately unsupported variants (including small RH).
+ported algorithms and preserve source convergence failures at small RH orders.
 """
 import numpy as np
 import numpy.testing as npt
@@ -22,10 +22,12 @@ def test_default_laguerre_uses_gw_above_rec_cutoff():
         npt.assert_array_equal(got, want)
 
 
-@pytest.mark.parametrize('method', ['EXP'])
-def test_unported_source_methods_fail_explicitly(method):
-    with pytest.raises(NotImplementedError, match='not yet supported'):
-        lagpts(42, method=method)
+@pytest.mark.parametrize('method', ['EXP', 'EXPW'])
+def test_explicit_expansions_are_supported(method):
+    x, w, v = map(np.asarray, lagpts(42, method=method, bary=True))
+    assert x.shape == w.shape == v.shape == (42,)
+    assert np.isfinite(x).all() and np.isfinite(w).all() and np.isfinite(v).all()
+    assert np.all(np.diff(x) > 0) and np.all(w > 0)
 
 
 def test_lagpts_n_zero_precedes_invalid_options():
