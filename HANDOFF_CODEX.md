@@ -1,46 +1,60 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Latest CPU qualification (2026-10-08, local 561eef04)
+## Latest CPU qualification (2026-10-08, local b7b2a320)
 
 Full parity remains incomplete. This checkpoint supersedes earlier counts.
-Fresh inventory `matlab_test_static_inventory_561eef04_20261008.json` reports
-**1,089 present, 13 masked, zero module-skipped or missing**, with all 1,102
-source/port hashes revalidated. Presence does not establish literal assertion,
-RNG, runtime or API coverage; the ongoing 3D audit found substantial omissions
-inside existing files.
+Shared evidence directory:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 
 | Commit | Verified change | CPU evidence and limits |
 | --- | --- | --- |
-| f31f378a | Piecewise composition and plain elliptic tolerance/preferences | 93 passing checks; seven original plain clauses; broader preference forwarding and extreme arguments remain open |
-| 5071198f | Bounded column differentiation and inner-product input checks; restored source calculus predicates | Actual run: 39 pass, one oscillatory integral failure; final marker-only tree retains existing strict xfail, verified by AST and collection |
-| 561eef04 | Classicfun/Unbndfun matrix multiplication dispatch and exact diagnostics | 44 passing checks; six original random-input clauses explicitly await native fixtures; deterministic numerical coverage retained |
+| c9edc577 | Singular addition scales, endpoint reconstruction, zero identity and diagnostics; original cumsum clauses | Composite gates: 30 + 2 prior checks, 31 final-library checks and seven strengthened controls; see acceptance record, not one combined final-tree run. Native seed666 identity and difficult right-pole happiness remain open |
+| f6338189 | 3D scalar callbacks, slices, paths, continuous factor norm, empty integration and Runge entry | 64 pass: all 59 original divide/feval/sum3 predicates plus five controls; full 100³ grids, 134.37 s supervised, 2.48 GiB; native RNG identity and direct factor-transfer slicing remain open |
+| b7b2a320 | Greeks source computations, actual relative-error output, reference dimensions and clipped interpolated surface rendering | Full page 107.75 s, 114.76 s supervised; corrected rendering 45.40 s from bound saved figures without recomputing numerics; all five 600×268; font/projection/triangulation and native last digits remain open |
 
-Acceptance records in the shared evidence directory:
-`plain_ellipj_root_acceptance_20261008.json`,
-`bndfun_source_root_acceptance_20261008.json`, and
-`classic_mtimes_root_acceptance_20261008.json`.
-The oscillatory integral error is `6.519329347198788e-14`, exceeding its unchanged
-`2.2204460475929106e-14` bound. A source forward-map arithmetic diagnostic still
-failed; that domain change was excluded. No all-40-clause qualification claim.
+Acceptance records: `singfun_plus_cumsum_root_acceptance_20261008.json`,
+`chebfun3_source_root_acceptance_20261008.json`, and
+`greeks_page_root_acceptance_20261008.json`. The 3D gate records complete
+observed dependency/native origins; the Greeks page records only selected
+import origins and its frozen source/render inputs. Earlier Greek renders
+with off-window surface walls were rejected and superseded by v4.
 
-Current workers: singular-function addition/integration, original 3D
-evaluation/division/integration, and Greeks page/layout. Greeks completed a
-full source computation; its call-vega approximation differs from analytic
-Black–Scholes by about `6.431e-8`, matching the historical source approximation
-error. An initially tighter diagnostic failed and is preserved; no library bug
-was established. Corrected source-position figures remain pending. No page
-acceptance or new figure-count reduction is claimed yet.
+Fresh inventory `matlab_test_static_inventory_f6338189_20261008.json` reports
+**1,094 present, eight masked, zero module-skipped or missing**, with all 1,102
+source/port hashes revalidated. These are file/marker counts, not assertion,
+RNG, runtime or API parity. Manual audit found 80 original Chebfun mtimes
+predicates behind four old assertions and 62 diffmat predicates behind three.
+`source_assertion_triage_v2_3b20c740_20261008.json` guides further review;
+static assertion counts alone also cannot establish parity.
 
-Native startup diagnosis is now in `matlab_startup_diagnosis_20261008.json`.
-A long temporary path triggers an explicit MATLAB communication-plugin
-assertion. With a short shared temporary path, startup still exits 1 at the
-same plugin without output; `-nojvm` also exits 1. Independent local socket
-creation tests fail with EPERM for both AF_UNIX and AF_INET. This is consistent
-with an IPC restriction causing the remaining startup failure, not a traced
-proof of MATLAB's exact failed syscall (ptrace is also denied). Native captures
-require an authorized execution setting permitting local IPC and a short
-shared temporary path. Do not repeat unchanged startup attempts. Publication
-and exact-head CI remain blocked as described below; all new commits are local.
+Fresh figure audit `figure_size_current_b7b2a320_20261008.json` has **98 size
+gaps on 20 pages**, plus the historical AtmosphericTemperature slot-10 mapping
+hole. It rechecks all 1,304 mapped PNGs; matching sizes do not qualify pixels,
+prose, computations or stdout. The Greeks relative error now follows source;
+its call-vega approximation error about 6.431e-8 also occurs historically.
+
+All three available workers remain occupied: Chebfun mtimes (80 predicates,
+including five pending native random captures), deterministic diffmat (62),
+and BestApprox (five figures plus source computation audit). Four total agent
+slots include root; the user's newer request authorizes all three workers.
+CPU only. Chebfun mtimes owns the serial heavy lane until its terminal receipt.
+Keep assigning the next cohesive package immediately when a worker finishes.
+
+Previously accepted f31f378a plain elliptic/composition has 93 passing checks;
+561eef04 classic multiplication has 44 passing checks and six native-pending
+clauses. Bounded calculus 5071198f actually ran 39 pass/one failure:
+cos(1e4*x) integral error 6.519329347198788e-14 exceeds unchanged bound
+2.2204460475929106e-14. A forward-map diagnostic still failed and was excluded;
+the final tree preserves the existing strict xfail by a marker-only change.
+
+Native startup remains blocked: `matlab_startup_diagnosis_20261008.json` records
+long-TMP plugin assertion, short-TMP and -nojvm exit1 without scientific output,
+and independent AF_UNIX/AF_INET socket creation EPERM. IPC restriction is a
+supported inference, not a traced MATLAB syscall diagnosis; ptrace is denied.
+Required change: authorized execution setting permitting local IPC, with a
+short shared TMP. Publication remains blocked by system SSH configuration and,
+with user configuration, unavailable GitHub DNS/API. No new exact-head CI.
+Do not repeat unchanged attempts; continue local work and preserve bundles.
 
 ## Earlier CPU qualification (2026-10-08, local 7bb59fb8)
 
