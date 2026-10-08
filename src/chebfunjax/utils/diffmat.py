@@ -5,7 +5,7 @@ the core spectral-collocation building blocks.
 
 Translated from MATLAB Chebfun (commit 7574c77): diffmat.m, intmat.m,
 cumsummat.m, introw.m, diffrow.m, @chebcolloc/baryDiffMat.m,
-@chebcolloc2/diffmat.m, @chebcolloc2/cumsummat.m.
+@chebcolloc2/chebcolloc2.m (diffmat), @chebcolloc2/cumsummat.m.
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 See https://www.chebfun.org/ for Chebfun information.
 """
@@ -240,7 +240,7 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
 # Public: diffmat
 # ============================================================================
 
-def diffmat(n: int, p: int = 1,
+def _square_cheb_diffmat(n: int, p: int = 1,
             domain: tuple[float, float] = (-1.0, 1.0),
             kind: int = 2) -> jnp.ndarray:
     """Spectral differentiation matrix on Chebyshev points.
@@ -284,7 +284,7 @@ def diffmat(n: int, p: int = 1,
     Provenance
     ----------
     MATLAB source : diffmat.m, @chebcolloc/baryDiffMat.m,
-        @chebcolloc2/diffmat.m, @chebcolloc1/diffmat.m
+        @chebcolloc2/chebcolloc2.m (diffmat), @chebcolloc1/chebcolloc1.m (diffmat)
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
@@ -296,21 +296,6 @@ def diffmat(n: int, p: int = 1,
     --------
     cumsummat, intmat, diffrow, introw
     """
-    if isinstance(n, (tuple, list)):
-        # Rectangular discretization (MATLAB diffmat([m n], p, dom)):
-        # the p-th derivative of the degree n-1 interpolant through n
-        # Chebyshev points, resampled onto m Chebyshev points of the
-        # SAME kind (MATLAB's default; the Driscoll-Hale bvp mode maps
-        # to 1st-kind points instead and is what Linop uses internally).
-        from chebfunjax.utils.interpolation import barymat
-        m, ncols = int(n[0]), int(n[1])
-        D = diffmat(ncols, p, domain=domain, kind=kind)
-        if m == ncols:
-            return D
-        t_src = chebpts(ncols, kind=kind)
-        t_tgt = chebpts(m, kind=kind)
-        P = barymat(t_tgt, t_src)
-        return P @ D
     if n <= 0:
         return jnp.array([], dtype=jnp.float64).reshape(0, 0)
     if p < 0:
@@ -342,6 +327,259 @@ def diffmat(n: int, p: int = 1,
     a, b = domain
     scl = (2.0 / (b - a)) ** p
     return scl * D
+
+
+def _parse_diffmat(n, args, p, domain, kind):
+    """Source ordered option parser, retaining the legacy positional kind."""
+    if kind not in (1, 2):
+        raise ValueError(f"kind must be 1 or 2, got {kind}")
+    rectangular_size = isinstance(n, (tuple, list))
+    if rectangular_size:
+        m, ncols = (int(v) for v in n)
+        if ncols < 0:
+            m, ncols = m+ncols, m
+    else:
+        m = ncols = int(n)
+    args = list(args)
+    # The established Python spelling diffmat(n,p,domain,kind) predates
+    # MATLAB's string options; preserve its fourth scalar as the kind.
+    if len(args) >= 3 and isinstance(args[2], int):
+        if args[2] not in (1, 2):
+            raise ValueError(f"kind must be 1 or 2, got {args[2]}")
+        args[2] = f"chebkind{args[2]}"
+    grids, boundaries = [], []
+    for value in args:
+        if isinstance(value, str):
+            if value == 'rect':
+                if 'periodic' in grids:
+                    raise ValueError('Rectangular Fourier differentiation matrices are not supported')
+                if not rectangular_size:
+                    m = ncols-p
+            elif value in ('periodic', 'trig'):
+                if m != ncols:
+                    raise ValueError('Rectangular Fourier differentiation matrices are not supported')
+                grids = ['periodic', 'periodic']
+            elif value in ('chebkind1', 'chebkind2', 'leg'):
+                grids.append(value)
+                if len(grids) > 2:
+                    raise ValueError('Too many inputs for grid type')
+            elif value in ('dirichlet', 'neumann', 'sum'):
+                boundaries.append([value])
+            else:
+                raise ValueError(f'Unknown diffmat input {value!r}')
+        elif isinstance(value, (tuple, list)):
+            if not value or all(isinstance(v, str) for v in value):
+                boundaries.append(list(value))
+            else:
+                domain = value
+        elif getattr(value, 'ndim', 0) > 0:
+            if value.size == 0:
+                boundaries.append([])
+            else:
+                domain = value
+        else:
+            p = int(value)
+        if len(boundaries) > 2:
+            raise ValueError('Too many boundary conditions; group conditions for each endpoint')
+    if p < 0:
+        raise ValueError(f'Differentiation order p must be non-negative, got p={p}')
+    if not grids:
+        grids = [f'chebkind{kind}']
+    if len(grids) == 1:
+        grids *= 2
+    if len(domain) > 2:
+        import warnings
+        warnings.warn('DIFFMAT does not support domains with breakpoints', stacklevel=3)
+        domain = (domain[0], domain[-1])
+    left = boundaries[0] if boundaries else []
+    right = boundaries[1] if len(boundaries) > 1 else []
+    if left or right:
+        if len(left)+len(right) != p:
+            raise ValueError('The number of boundary conditions must match differentiation order p')
+        if any(v not in ('dirichlet', 'neumann', 'sum') for v in left+right):
+            raise ValueError('Unknown type of boundary conditions')
+    return m, ncols, p, domain, grids[0], grids[1], left, right
+
+
+def _rectdiff_first(m, n, kind):
+    """Literal rectdiff1/rectdiff2 formulas from diffmat.m."""
+    angles = _cheb1_angles(n) if kind == 1 else _cheb2_angles(n)
+    tau_angles = _cheb1_angles(m)
+    denom = 2*jnp.sin((tau_angles[:, None]+angles[None, :])/2)*jnp.sin(
+        (tau_angles[:, None]-angles[None, :])/2)
+    row, col = jnp.arange(m)[:, None], jnp.arange(n)[None, :]
+    if kind == 1:
+        c = n-m
+        signs = jnp.where((row+col) % 2 == c % 2, -1., 1.)
+        first = (jnp.cos(c*tau_angles)/jnp.sin(tau_angles))[:, None]*jnp.sin(angles)
+        second = jnp.sin(c*tau_angles)[:, None]/n*jnp.sin(angles)/denom
+        d = signs*(first-second)/denom
+        indices = jnp.argmin(jnp.abs(denom), axis=1)
+        d = d.at[jnp.arange(m), indices].set(0)
+        d = d.at[jnp.arange(m), indices].set(-jnp.sum(d, axis=1))
+        if c == 1:
+            mask = jnp.rot90(jnp.tril(jnp.ones((m, n), dtype=bool)), 2)
+            d = jnp.where(mask, -d[::-1, ::-1], d)
+    else:
+        nm1, cm1 = n-1, n-1-m
+        x, tau = chebpts(n), chebpts(m, kind=1)
+        numer = (1-tau[:, None]*x[None, :])*(jnp.cos(cm1*tau_angles)/jnp.sin(tau_angles))[:, None]
+        d = numer/denom**2/nm1
+        if cm1:
+            d = (-1)**cm1*(jnp.sin(cm1*tau_angles)[:, None]/denom+d)
+        d = d.at[:, 0].multiply(.5).at[:, -1].multiply(.5)
+        if cm1 == 0:
+            mask = jnp.rot90(jnp.tril(jnp.ones((m, n), dtype=bool)), 2)
+            d = jnp.where(mask, d[::-1, ::-1], d)
+        d = jnp.where((row+col) % 2 == 0, -d, d)
+        indices = jnp.argmin(jnp.abs(denom), axis=1)
+        d = d.at[jnp.arange(m), indices].set(0)
+        d = d.at[jnp.arange(m), indices].set(-jnp.sum(d, axis=1))
+        if cm1 == 0:
+            corner = -.25/(nm1*jnp.sin(jnp.pi/(2*m))*jnp.sin(jnp.pi/(4*m))**2)
+            d = d.at[0, 0].set(corner).at[-1, -1].set(-corner)
+            next_entry = -jnp.sum(jnp.concatenate((d[0, :1], d[0, 2:])))
+            d = d.at[0, 1].set(next_entry).at[-1, -2].set(-next_entry)
+    return d, denom, indices
+
+
+def _derivative_coefficients(c):
+    """Source computeDerCoeffs, with parity-separated cumulative sums."""
+    n = len(c)
+    if n <= 1:
+        return jnp.zeros((1,), dtype=c.dtype)
+    weighted = 2*jnp.arange(1, n)*c[1:]
+    out = jnp.zeros(n-1, dtype=c.dtype)
+    for start in (n-2, n-3):
+        if start >= 0:
+            indices = jnp.arange(start, -1, -2)
+            out = out.at[indices].set(jnp.cumsum(weighted[indices]))
+    return out.at[0].multiply(.5)
+
+
+def _rectdiff(m, n, p, kind):
+    from chebfunjax.tech.chebtech import _clenshaw
+
+    d, denom, indices = _rectdiff_first(m, n, kind)
+    if p == 1:
+        return d
+    signs = jnp.where(jnp.arange(n) % 2 == 0, -1., 1.)*(-1)**(n-1)
+    if kind == 1:
+        c = jnp.zeros(n+1).at[-1].set(1.)
+        signs = signs*jnp.sin(_cheb1_angles(n))/n
+    else:
+        c = jnp.zeros(n+1).at[-3].set(-1.).at[-1].set(1.)
+        signs = signs/(2*(n-1))
+        signs = signs.at[0].multiply(.5).at[-1].multiply(.5)
+    c = _derivative_coefficients(c)
+    for order in range(2, p+1):
+        c = _derivative_coefficients(c)
+        values = _clenshaw(c, chebpts(m, kind=1))
+        d = (values[:, None]*signs[None, :]+order*d)/denom
+    d = d.at[jnp.arange(m), indices].set(0.)
+    return d.at[jnp.arange(m), indices].set(-jnp.sum(d, axis=1))
+
+
+def _grid_data(n, grid):
+    from chebfunjax.utils.quadrature import legpts
+
+    if grid == 'leg':
+        x, weights, baryweights = legpts(n, bary=True)
+        return x, weights, baryweights, None
+    kind = 1 if grid == 'chebkind1' else 2
+    return (chebpts(n, kind=kind), chebweights(n, kind=kind),
+            _cheb1_barywts(n) if kind == 1 else _cheb2_barywts(n),
+            _cheb1_angles(n) if kind == 1 else _cheb2_angles(n))
+
+
+def diffmat(n, *args, p: int = 1,
+            domain: tuple[float, float] = (-1., 1.), kind: int = 2) -> jnp.ndarray:
+    """Square or rectangular spectral differentiation with boundary rows.
+
+    Supports source ordered arguments: derivative order, interval, one or
+    two grid strings (``chebkind1``, ``chebkind2``, ``leg``), ``rect``, and
+    left/right boundary conditions (``dirichlet``, ``neumann``, ``sum``).
+    ``periodic``/``trig`` selects a square Fourier matrix. Size ``(m,n)``
+    specifies a rectangular matrix; ``(n,-p)`` means ``(n-p,n)``.
+
+    The established ``diffmat(n,p,domain,kind)`` and keyword forms remain
+    supported. Shape/order/grid options must be static under JIT; numeric
+    interval endpoints can be traced. Operator preferences do not change
+    the default second-kind grid, matching MATLAB.
+
+    Provenance
+    ----------
+    MATLAB source : diffmat.m, @chebcolloc/baryDiffMat.m,
+        @chebcolloc1/chebcolloc1.m (diffmat), @chebcolloc2/chebcolloc2.m (diffmat), @trigcolloc/diffmat.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.utils.interpolation import barymat
+
+    m, n, p, domain, source, target, left, right = _parse_diffmat(n, args, p, domain, kind)
+    if n <= 0:
+        return jnp.zeros((0, 0), dtype=jnp.float64)
+    if m < 0:
+        raise ValueError('The number of output rows must be nonnegative')
+    if source == target and m == n and source != 'leg':
+        if source == 'periodic':
+            from chebfunjax.discretization.trigcolloc import trig_diffmat
+            d = trig_diffmat(n, p)
+        else:
+            d = _square_cheb_diffmat(n, p, kind=1 if source == 'chebkind1' else 2)
+    elif target == 'chebkind1' and source != 'leg' and p > 0 and n > 1 and m > 0:
+        d = _rectdiff(m, n, p, 1 if source == 'chebkind1' else 2)
+    else:
+        x, _, v, angles = _grid_data(n, source)
+        z, _, _, target_angles = _grid_data(m, target)
+        if source == 'leg':
+            y, _, w, _ = _grid_data(n, 'chebkind2')
+            d = barymat(z, y, w) @ _square_cheb_diffmat(n, p) @ barymat(y, x, v)
+        else:
+            d = _square_cheb_diffmat(n, p, kind=1 if source == 'chebkind1' else 2)
+            if target == 'chebkind2':
+                d = barymat(z, x, v, target_angles, angles, True) @ d
+            else:
+                d = barymat(z, x, v) @ d
+        if m == n and source == target == 'leg':
+            anti = jnp.diag(jnp.rot90(d))
+            anti = jnp.sign(anti)*(jnp.abs(anti)+jnp.abs(anti[::-1]))/2
+            d = d.at[jnp.arange(n-1, -1, -1), jnp.arange(n)].set(anti)
+            mask = jnp.rot90(~jnp.triu(jnp.ones((n, n), dtype=bool)))
+            d = jnp.where(mask, (-1)**p*d[::-1, ::-1], d)
+            if n % 2:
+                d = d.at[n//2, n//2].set(0.)
+    a, b = domain
+    d = d*(2/(b-a))**p
+    if not left and not right:
+        return d
+    x, weights, baryweights, angles = _grid_data(n, source)
+    boundary_rows = []
+    for index, condition in enumerate(left+right):
+        at_left = index < len(left)
+        endpoint, endpoint_angle, row = (-1., jnp.pi, 0) if at_left else (1., 0., n-1)
+        if condition == 'sum':
+            bc = weights*(b-a)/2
+        elif source == 'chebkind2':
+            bc = jnp.eye(n)[row] if condition == 'dirichlet' else _square_cheb_diffmat(n, 1, domain)[row]
+        else:
+            if source == 'chebkind1':
+                interpolation = barymat(jnp.asarray([endpoint]), x, baryweights,
+                                        jnp.asarray([endpoint_angle]), angles)[0]
+                bc = interpolation if condition == 'dirichlet' else interpolation @ _square_cheb_diffmat(n, 1, domain, 1)
+            elif condition == 'dirichlet':
+                bc = barymat(jnp.asarray([endpoint]), x, baryweights)[0]
+            else:
+                cheb = chebpts(n)
+                bc = (_square_cheb_diffmat(n, 1, domain) @ barymat(cheb, x, baryweights))[row]
+        boundary_rows.append(bc)
+    bc = jnp.stack(boundary_rows)
+    if m == n:
+        if left:
+            d = d.at[:len(left)].set(bc[:len(left)])
+        if right:
+            d = d.at[-len(right):].set(bc[len(left):])
+        return d
+    return jnp.concatenate((bc[:len(left)], d, bc[len(left):]), axis=0)
 
 
 # ============================================================================
