@@ -196,6 +196,23 @@ def besselk(f: Chebfun, nu: float, *, scale: int = 0) -> Chebfun:
     return f.besselk(nu, scale=scale)
 
 
+def ellipj(u, m):
+    """Jacobi sn, cn, dn for numeric, Chebfun or first-argument AD input.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/ellipj.m, @adchebfun/adchebfun.m.
+    Chebfun commit: 7574c77
+    """
+    if hasattr(u, "ellipj"):
+        return u.ellipj(m)
+    from .utils.ellipj import ellipj as evaluate
+
+    if isinstance(m, Chebfun):
+        return tuple(m.compose(lambda v, k=k: evaluate(u, v)[k]) for k in range(3))
+    return evaluate(u, m)
+
+
 def ellipke(f: Chebfun):
     """Complete elliptic integrals K(f), E(f).  Equivalent to ``f.ellipke()``."""
     return f.ellipke()
@@ -287,6 +304,7 @@ __all__ = [
     "besselh",
     "besselk",
     "ellipke",
+    "ellipj",
     "dirac",
     "heaviside",
     "unwrap",

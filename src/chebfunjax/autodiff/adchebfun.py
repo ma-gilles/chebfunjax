@@ -724,6 +724,26 @@ class ADChebfun:
         result.func = self.func.airy(k)
         return result
 
+    def ellipj(self, m):
+        """Apply all three Jacobi functions and source Frechet multipliers.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (ellipj).
+        Chebfun commit: 7574c77
+        """
+        if isinstance(m, ADChebfun):
+            raise TypeError("ellipj supports AD only in the first argument")
+        sn, cn, dn = self.func.ellipj(m)
+        results = []
+        for value, multiplier in ((sn, cn*dn), (cn, -sn*dn), (dn, -m*sn*cn)):
+            result = _copy_ad(self)
+            result.func = value
+            result.linearity = _jac_zero_flags(self.jacobian)
+            result.jacobian = _multiply_jacobian(multiplier, self.jacobian, self.domain)
+            results.append(result)
+        return tuple(results)
+
     def erf(self) -> "ADChebfun":
         """Apply source erf and its literal Frechet multiplier.
 

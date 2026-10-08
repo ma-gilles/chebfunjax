@@ -8234,8 +8234,8 @@ class Chebfun(eqx.Module):
 
         Parameters
         ----------
-        m : float
-            Parameter (0 <= m <= 1).
+        m : float or Chebfun
+            Real parameter (0 <= m <= 1).
 
         Returns
         -------
@@ -8251,17 +8251,16 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/ellipj.m
         Chebfun commit: 7574c77
         """
-        import scipy.special as _ss
-        sn = self._apply_fun(
-            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[0], dtype=jnp.float64)
-        )
-        cn = self._apply_fun(
-            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[1], dtype=jnp.float64)
-        )
-        dn = self._apply_fun(
-            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[2], dtype=jnp.float64)
-        )
-        return sn, cn, dn
+        from chebfunjax.utils.ellipj import ellipj
+
+        if isinstance(m, Chebfun):
+            if not m.isreal():
+                raise ValueError("ellipj parameter must be real")
+            return tuple(self.compose(lambda u, v, k=k: ellipj(u, v)[k], m)
+                         for k in range(3))
+        if jnp.iscomplexobj(m) or bool(jnp.any((jnp.asarray(m) < 0) | (jnp.asarray(m) > 1))):
+            raise ValueError("ellipj parameter must be real and lie in [0, 1]")
+        return tuple(self.compose(lambda u, k=k: ellipj(u, m)[k]) for k in range(3))
 
     def erf(self) -> Chebfun:
         """Error function :math:`\\mathrm{erf}(f(x))`.
