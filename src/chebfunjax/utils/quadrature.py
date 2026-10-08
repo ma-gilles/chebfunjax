@@ -1594,7 +1594,8 @@ def lagpts(n: int, alpha: float = 0.0,
     (GW for other alpha), then RH for static alpha, as in the source.
     Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
-    The singular alpha=-1 case remains unsupported. EXP/EXPW retain the source
+    At alpha=-1, REC/RECW/GW/EXP/EXPW preserve source singular weights;
+    RH/RHW still reject this parameter. EXP/EXPW retain the source
     direct-expansion accuracy, including its less accurate Airy-region weights. Source small-order
     initial-guess and convergence errors propagate without a GW fallback.
     RHW uses the source truncated capacity and first-underflow stopping rule;

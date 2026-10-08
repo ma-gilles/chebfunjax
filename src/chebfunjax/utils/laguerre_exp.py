@@ -72,8 +72,8 @@ def _laguerre_exp(n, alpha=0.0, comp_repr=False):
     Dynamic array inputs keep complete fixed rules out of monolithic compile-time
     evaluation. Every correction and weight expression follows the source.
     """
-    if n < 2 or not math.isfinite(alpha) or alpha <= -1:
-        raise ValueError('lagpts EXP requires n>=2 and finite alpha>-1')
+    if n < 2 or not math.isfinite(alpha) or alpha < -1:
+        raise ValueError('lagpts EXP requires n>=2 and finite alpha>=-1')
     mn = min(n, math.ceil(17 * math.sqrt(n))) if comp_repr else n
     ibes = max(math.floor(math.sqrt(n) + 0.5), 7)
     iair = math.floor(0.9 * n)
