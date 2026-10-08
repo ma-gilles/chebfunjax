@@ -27,9 +27,9 @@ from chebfunjax.utils.laguerre_rh_expansions import (
 )
 
 
-def _rh_initial_guesses_general(n, alpha):
+def _rh_initial_guesses_general(n, alpha, comp_repr=False):
     """Source RH starting nodes with source Piessens/McMahon Bessel seeds."""
-    mn = n
+    mn = min(n, math.ceil(17 * math.sqrt(n))) if comp_repr else n
     itric = math.floor(3.6 * n**0.188 + 0.5)
     igatt = math.floor(mn + 1.31 * n**0.4 - n + 0.5)
     nu = 4.0 * n + 2.0 * alpha + 2.0
@@ -86,13 +86,14 @@ def _poly_asy_rh_general(np, y, alpha, T):
     return lax.cond(y < math.sqrt(np+alpha), near_zero, far_or_bulk, y)
 
 
-@partial(jax.jit, static_argnames=("n", "alpha"))
-def _laguerre_rh_general(n, alpha):
+@partial(jax.jit, static_argnames=("n", "alpha", "comp_repr"))
+def _laguerre_rh_general(n, alpha, comp_repr=False):
     """Source full RH rule for static real alpha and n>=3000."""
     if n < 3000 or not math.isfinite(alpha) or alpha <= -1:
         raise ValueError("general RH requires n>=3000 and finite alpha>-1")
-    x0, _itric, _igatt = _rh_initial_guesses_general(n, alpha)
-    weights0 = jnp.zeros((n,), dtype=jnp.float64)
+    x0, _itric, _igatt = _rh_initial_guesses_general(n, alpha, comp_repr)
+    capacity = x0.shape[0]
+    weights0 = jnp.zeros((capacity,), dtype=jnp.float64)
     factorx, factorw = _rh_factors_general(n, alpha)
     T = math.ceil(34.0 / math.log(n))
     eps = jnp.finfo(jnp.float64).eps
@@ -102,7 +103,7 @@ def _laguerre_rh_general(n, alpha):
     def node(k, state):
         x, weights, no_underflow = state
         source_guess = x[k]
-        source_indices = jnp.clip(k - 1 - jnp.arange(7), 0, n - 1)
+        source_indices = jnp.clip(k - 1 - jnp.arange(7), 0, capacity - 1)
         extrapolated = jnp.dot(extrapolation, x[source_indices])
         xk = lax.cond(source_guess == 0.0, lambda _: extrapolated,
                       lambda _: source_guess, operand=None)
@@ -143,6 +144,24 @@ def _laguerre_rh_general(n, alpha):
         no_underflow = no_underflow & ~starts_underflow
         return x, weights, no_underflow
 
+    if comp_repr:
+        # Source RHW returns immediately before the first zero following a
+        # positive weight, or at its smaller heuristic capacity. Returning a
+        # live length keeps the numerical kernel JAX; the public eager adapter
+        # slices this prefix without solving any discarded tail nodes.
+        def condition(state):
+            k, _x, _w, active = state
+            return (k < capacity) & active
+
+        def advance(state):
+            k, x, w, active = state
+            x, w, active = node(k, (x, w, active))
+            return k + 1, x, w, active
+
+        k, x, weights, active = lax.while_loop(
+            condition, advance, (jnp.asarray(0), x0, weights0, jnp.asarray(True)))
+        length = k - jnp.asarray(~active, dtype=k.dtype)
+        return x, weights, length
     x, weights, _no_underflow = lax.fori_loop(
         0, n, node, (x0, weights0, jnp.asarray(True)))
     return x, weights

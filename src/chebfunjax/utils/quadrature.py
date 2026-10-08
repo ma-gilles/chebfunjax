@@ -715,8 +715,9 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    GLR requires alpha=0. RH requires concrete alpha in (-1,10] and n>=3000.
-    EXP, and underflow-truncated RECW/RHW are unported.
+    GLR requires alpha=0. RH/RHW require concrete real alpha>-1 and n>=3000.
+    EXP and underflow-truncated RECW are unported. RHW uses an eager
+    output-length adapter around the source bounded-capacity JAX kernel.
     """
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
@@ -732,10 +733,18 @@ def _lagpts_core(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: GLR method not supported for nonzero alpha")
         from chebfunjax.utils.laguerre_glr import _laguerre_glr
         x, w = _laguerre_glr(n)
-    elif method == 'rh':
+    elif method in ('rh', 'rhw'):
         if n < 3000 or isinstance(alpha, jax.core.Tracer):
             raise NotImplementedError("lagpts: this source RH variant is not yet supported")
-        if alpha == 0:
+        if method == 'rhw':
+            from chebfunjax.utils.laguerre_rh_general import _laguerre_rh_general
+            if alpha*alpha/n > 1:
+                warnings.warn('lagpts: a large alpha may lead to inaccurate results',
+                              UserWarning, stacklevel=2)
+            x, w, length = _laguerre_rh_general(n, alpha, comp_repr=True)
+            length = int(length)
+            x, w = x[:length], w[:length]
+        elif alpha == 0:
             from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
             x, w = _laguerre_rh_alpha0(n)
         elif alpha in (-0.5, 0.5):
@@ -754,7 +763,7 @@ def _lagpts_core(n: int, alpha: float = 0.0,
 
     import jax.scipy.special as jsp
     normalizer = jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)
-    if method == 'rh' and alpha not in (0, -0.5, 0.5):
+    if method == 'rhw' or (method == 'rh' and alpha not in (0, -0.5, 0.5)):
         from chebfunjax.utils._gradual import gradual_positive_multiply
         w = gradual_positive_multiply(w, normalizer)
     else:
@@ -1558,7 +1567,9 @@ def lagpts(n: int, alpha: float = 0.0,
     (GW for other alpha), then RH for static alpha, as in the source.
     Source Newton convergence failures propagate, including at large alpha.
     General-alpha RH uses a JAX Bessel adapter;
-    small explicit RH, RHW, EXP and the singular alpha=-1 case remain unsupported.
+    small explicit RH/RHW, EXP and the singular alpha=-1 case remain unsupported.
+    RHW uses the source truncated capacity and first-underflow stopping rule;
+    its variable-length public result requires eager execution.
     Dynamic alpha at the GLR/RH default thresholds retains the GW path because
     source method selection is static in this Python/JAX API. Explicit GLR
     requires concrete alpha=0. The Python API returns 1D vectors in place of MATLAB's
@@ -1593,8 +1604,8 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rh'
         else:
             method = 'gw'
-    if method not in ('rec', 'gw', 'glr', 'rh'):
-        if method in ('rhw', 'exp', 'expw', 'recw'):
+    if method not in ('rec', 'gw', 'glr', 'rh', 'rhw'):
+        if method in ('exp', 'expw', 'recw'):
             raise NotImplementedError(f"lagpts: source method {method.upper()} is not yet supported")
         raise ValueError(f"lagpts: unsupported method {method!r}")
 
@@ -1611,7 +1622,7 @@ def lagpts(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: interval must be semi-infinite")
 
     x, w = _lagpts_core(n, alpha, None, method)
-    gradual_rh = method == 'rh' and alpha not in (0, -0.5, 0.5)
+    gradual_rh = method == 'rhw' or (method == 'rh' and alpha not in (0, -0.5, 0.5))
     if gradual_rh:
         from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_multiply
         from chebfunjax.utils.laguerre_rh_general import (
@@ -1622,7 +1633,7 @@ def lagpts(n: int, alpha: float = 0.0,
         # MATLAB computes these before affine mapping of a semi-infinite domain.
         magnitude = (_source_positive_sqrt(gradual_positive_multiply(w, x))
                      if gradual_rh else jnp.sqrt(w * x))
-        v = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0) * magnitude
+        v = jnp.where(jnp.arange(x.size) % 2 == 0, 1.0, -1.0) * magnitude
         v = v / jnp.max(jnp.abs(v))
     if interval is not None:
         if isinf(interval[1]):

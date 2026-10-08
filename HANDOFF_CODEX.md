@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Laguerre RHW source truncation (2026-10-08)
+
+44 CPU checks passed (151.76 s pytest), stable source inputs and no surviving
+owned processes. RHW now uses source capacity min(n,ceil(17*sqrt(n))), updates
+initial-guess regions for that capacity, and stops before the first zero weight
+following a positive one. The JAX kernel returns a live length; the eager API
+slices it and normalizes only the returned rule. It does not solve the full
+n-node rule before truncation. Barycentric signs use the returned node count.
+Tests retain full-rule prefixes for alpha -0.5/0/0.3/0.5, exercise early stopping,
+public barycentric/interval ordering, and degree10000/100000 moments/capacity,
+plus all33 prior general-alpha controls. No isolated speed claim.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laguerre_rhw_root_v2_20261008/review.json`.
+Small explicit RH/RHW, RECW/EXP/EXPW, singular alpha=-1, traced-alpha dispatch,
+and arbitrary-argument special-function qualification remain open.
+
 ## Spherefun constructor source dispatch (2026-10-08)
 
 Integrated constructor changes passed 274 unique CPU checks, then 13 focused
