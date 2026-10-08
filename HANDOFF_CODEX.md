@@ -1,6 +1,60 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Current CPU qualification (2026-10-08, local 89a9c49a)
+## Latest CPU qualification (2026-10-08, local 7bb59fb8)
+
+Full parity remains incomplete. This section supersedes the older checkpoint
+below. Fresh static inventory at `87a4f4b0` revalidated all 1,102 MATLAB test
+mappings: **1,087 present, 15 with skip/xfail markers, zero module-skipped or
+missing**. These are file/marker counts, not complete assertion or runtime parity.
+The following constructor commit does not change mapped source-test files.
+
+| Commit | Verified change | CPU evidence |
+| --- | --- | --- |
+| c1cbba95 | JAX Bessel primitive and source AD | 40 passing checks, including six original clauses |
+| fa4748af | Classicfun division, public NaN predicates and complex singular cancellation | 31 passing checks; all 15 original division clauses restored |
+| c8cbc1c1 | JAX Jacobi elliptic primitive and AD | 60 passing checks; plain tolerance/preferences/composition still being repaired |
+| 456ca646 | AD deflation and linearity detection | 66 passing checks, including 48 original clauses |
+| cb1e7e03 | Source mixed Newton damping and collocation projection | Ten passing controls; LaneEmden full run 163.30 s, two 600×269 figures |
+| 87a4f4b0 | Singular extrema layouts and complex-root order | 52 passing checks; all 29 original extrema/root clauses restored |
+| 7bb59fb8 | Adaptive construction shares source-ordered JAX ACA | 106 passing checks; corrected overlapping rank-budget fixture separately passes |
+
+Evidence remains in
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`:
+`ad_bessel_root_acceptance_20261008.json`,
+`classicfun_rdivide_root_acceptance_20261008.json`,
+`ad_ellipj_root_acceptance_20261008.json`,
+`ad_remaining_root_acceptance_20261008.json`,
+`nonlinear_projection_root_acceptance_20261008.json`,
+`classic_extrema_roots_root_acceptance_20261008.json`, and
+`adaptive_aca_root_acceptance_20261008.json`.
+Static inventory: `matlab_test_static_inventory_87a4f4b0_20261008.json`.
+
+The corrected LaneEmden run prints actual L2 error `1.602e-14` and radius
+`3.653753736220`. Newton uses the source update/error convergence criterion;
+white-dwarf continuous residual `1.0864e-6` and derivative boundary error
+`7.458e-10` still need native comparison. Only one finite-interval function with
+explicit scalar parameters is qualified. No full nonlinear-system parity claim.
+
+VanillaOptions remains held: the ACA repair does not close its out-of-domain
+zero curve. A saved-state analytic diagnostic shows the source endpoint tangent
+snap and subsequent Newton step can leave the domain even for the exact field.
+Independent interpolation/snap replay is ongoing; no clipping or relaxed bound
+has been introduced. The figure audit still has 103 dimension gaps on 21 pages,
+plus its historical mapping hole; prose/output/pixel parity also remains open.
+
+Three worker slots are active: plain elliptic/composition semantics, literal
+bndfun differentiation/inner-product/integration clauses, and option-contour
+source diagnosis. The session limit is four concurrent agents including root;
+new user instructions permit all three worker slots. Heavy examples use one
+reserved serial lane. CPU only. Root integrates reviewed patches separately.
+
+All commits above are local. Normal SSH push fails the system hostbased-config
+ownership check; explicit user SSH config loads but GitHub DNS fails in this
+restricted session. No exact-head CI result is available. Native MATLAB startup
+also currently exits without output. Do not repeat unchanged failed launch or
+network attempts, claim publication, or mark the goal complete.
+
+## Earlier CPU qualification (2026-10-08, local 89a9c49a)
 
 Full parity remains incomplete. The static inventory revalidated all 1,102
 source/port mappings: **1,079 present, 19 with skip/xfail markers, 4 module-skipped**.
