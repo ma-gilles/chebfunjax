@@ -691,6 +691,21 @@ class ADChebfun:
         result.jacobian = _multiply_jacobian(multiplier, self.jacobian, result.domain)
         return result
 
+    def besselj(self, nu: float) -> "ADChebfun":
+        """Apply source Bessel J and its Frechet multiplier.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (besselj).
+        Chebfun commit: 7574c77
+        """
+        result = _copy_ad(self)
+        result.linearity = _jac_zero_flags(self.jacobian)
+        result.func = self.func.besselj(nu)
+        multiplier = -self.func.besselj(nu+1)+nu*result.func/self.func
+        result.jacobian = _multiply_jacobian(multiplier, self.jacobian, self.domain)
+        return result
+
     def airy(self, k: int = 0) -> "ADChebfun":
         """Apply source Airy dispatch with its literal next-index multiplier.
 

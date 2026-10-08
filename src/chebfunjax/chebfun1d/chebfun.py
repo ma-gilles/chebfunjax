@@ -7733,8 +7733,8 @@ class Chebfun(eqx.Module):
 
         Notes
         -----
-        Uses ``jax.scipy.special.bessel_jn`` when ``nu`` is a non-negative
-        integer, and falls back to ``scipy.special.jv`` otherwise.
+        Uses JAX series, recurrence and ODE continuation. Numerical
+        qualification is bounded in order and argument (see the primitive).
         NOT JIT-safe (adaptive construction).
 
         Provenance
@@ -7754,28 +7754,8 @@ class Chebfun(eqx.Module):
                 return unscaled
             scl = (-self.imag().abs()).exp()
             return unscaled * scl
-        import scipy.special as _ss
-        if self.isreal():
-            try:
-                # jax.scipy.special.bessel_jn requires non-negative integer
-                # order; it is the JIT/grad-friendly path for real input.
-                n_int = int(round(nu))
-                if abs(nu - n_int) < 1e-12 and n_int >= 0 and hasattr(
-                        jax.scipy.special, "bessel_jn"):
-                    return self._apply_fun(
-                        lambda x: jax.scipy.special.bessel_jn(
-                            x, n=n_int, maxiter=100)[-1])
-            except Exception:
-                pass
-            return self._apply_fun(
-                lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)),
-                                      dtype=jnp.float64))
-        # Complex-valued f: scipy.special.jv accepts complex arguments and
-        # the result must keep its imaginary part (MATLAB besselj supports
-        # complex CHEBFUN input).
-        return self._apply_fun(
-            lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)),
-                                  dtype=jnp.complex128))
+        from chebfunjax.utils.besselj import besselj
+        return self._apply_fun(lambda x: besselj(nu, x))
 
     def bessely(self, nu: float) -> Chebfun:
         r"""Bessel function of the second kind :math:`Y_\nu(f(x))`.

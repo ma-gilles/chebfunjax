@@ -173,6 +173,19 @@ def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
 
 # New functions
 
+def besselj(nu, f, scale=0):
+    """Bessel J with MATLAB order-first dispatch, including AD inputs.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/besselj.m, @adchebfun/adchebfun.m.
+    Chebfun commit: 7574c77
+    """
+    if scale == 0:
+        return f.besselj(nu)
+    return f.besselj(nu, scale)
+
+
 def besselh(f: Chebfun, nu: float, k: int = 1, *, scale: int = 0):
     """Hankel function of f.  Returns ``(H_re, H_im)`` pair of Chebfuns.  Equivalent to ``f.besselh(nu, k, scale=scale)``."""
     return f.besselh(nu, k, scale=scale)
@@ -270,6 +283,7 @@ __all__ = [
     "atan",
     "atan2",
     # Bessel and special functions
+    "besselj",
     "besselh",
     "besselk",
     "ellipke",
