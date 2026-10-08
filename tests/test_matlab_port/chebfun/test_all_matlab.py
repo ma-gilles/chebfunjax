@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -42,20 +41,20 @@ class TestChebfunAll:
     def test_array_valued(self):
         # pass(4): all([sin(x) sin(x-0.1) exp(2 pi i x)]) == [0 0 1].
         f = cj.chebfun(
-            lambda x: jnp.stack(
-                [jnp.sin(x), jnp.sin(x - 0.1),
-                 jnp.exp(2j * jnp.pi * x)], axis=-1),
-            domain=_DOM)
-        np.testing.assert_array_equal(
-            np.asarray(f.all()), [False, False, True])
+            lambda x: jnp.stack([jnp.sin(x), jnp.sin(x - 0.1), jnp.exp(2j * jnp.pi * x)], axis=-1),
+            domain=_DOM,
+        )
+        np.testing.assert_array_equal(np.asarray(f.all()), [False, False, True])
 
     def test_singular(self):
         # pass(5): ~all(sin(x)/(x+1)) with an endpoint pole -- the SingFun has
         # an interior root (sin(0) = 0), so all() is False.
-        f = cj.chebfun(lambda x: jnp.sin(x) / (x + 1.0),
-                       domain=(-1.0, 1.0), exps=(-1.0, 0.0))
+        f = cj.chebfun(lambda x: jnp.sin(x) / (x + 1.0), domain=(-1.0, 1.0), exps=(-1.0, 0.0))
         assert not bool(f.all())
 
     def test_unbounded(self):
         # pass(6): all(x^2(1-exp(-x^2))+3) on [-inf, inf].
-        pytest.skip("chebfunjax has no unbounded-domain support")
+        f = cj.chebfun(
+            lambda x: x**2 * (1 - jnp.exp(-(x**2))) + 3, domain=(-jnp.inf, jnp.inf), exps=(2, 2)
+        )
+        assert bool(f.all())

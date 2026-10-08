@@ -8641,15 +8641,18 @@ class Chebfun(eqx.Module):
             return self._any_dim2()
         if self.isempty():
             return False
-        if self.n_columns > 1:
-            import numpy as _np
-            col_max = _np.max(
-                _np.stack([
-                    _np.max(_np.abs(_np.asarray(p.tech.values)), axis=0)
-                    for p in self.funs
-                ]), axis=0)
-            return jnp.asarray(col_max > _EPS)
-        return self.vscale > _EPS
+        # Source anyDim1 checks pointValues and each FUN's coefficients.
+        # Exact nonzero tests preserve tiny values; NaNs do not count.
+        def nonzero_columns(values):
+            values = jnp.asarray(values)
+            if values.ndim == 1:
+                values = values[:, None]
+            return jnp.any((values != 0) & ~jnp.isnan(values), axis=0)
+
+        result = nonzero_columns(self.point_values)
+        for piece in self.funs:
+            result = result | nonzero_columns(piece.tech.coeffs)
+        return result if self.n_columns > 1 else bool(result[0])
 
     def _any_dim2(self) -> "Chebfun":
         """any() across the columns (MATLAB @chebfun/any.m anyDim2)."""
