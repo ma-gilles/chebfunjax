@@ -1,9 +1,9 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Current CPU qualification (2026-10-08, local d74670ee)
+## Current CPU qualification (2026-10-08, local 89a9c49a)
 
 Full parity remains incomplete. The static inventory revalidated all 1,102
-source/port mappings: **1,076 present, 19 with skip/xfail markers, 7 module-skipped**.
+source/port mappings: **1,079 present, 19 with skip/xfail markers, 4 module-skipped**.
 File presence does not establish complete assertions or runtime parity.
 
 | Commit | Verified change | CPU evidence |
@@ -14,50 +14,66 @@ File presence does not establish complete assertions or runtime parity.
 | 6cda66b9 | AD product integrals and plain cumprod | 65 passing tests plus 12 integration checks; six original clauses |
 | d14c813a | JAX Airy primitive, complex public wrapper and source AD | 44 passing checks, including 14 original clauses at source bounds |
 | d74670ee | JAX-only Chebtech2 value/coefficient transforms | 102 passing source, inverse, cancellation and JAX controls |
+| 53d7efb4 | EquispacedData source computations and historical figure layout | Seven 598×273 figures, four observed output blocks; 39.06 s run |
+| 8a33d4ce | AD Fredholm/Volterra operators and source array norms | 67 passing tests, including six original AD clauses |
+| 702456ef | Complex-preserving mixed scalar AD solver and LaneEmden page | Four solver controls; full page 270.95 s, L2 residual 1.563e-14, two 600×269 figures |
+| 31d78758 | Fused JAX Chebyshev nodes | 89 passing tests plus four mixed solver controls; profiled first flower inverse 9.17 s |
+| 16b62ba2 | Source endpoint Dirac masses, stems and EuropeanOptions | 26 strict integration tests; seven 600×268 figures and seven observed output blocks |
+| 89a9c49a | AD numeric evaluation, jumps and domain metadata | 98 passing tests, including all six original clauses |
 
 Evidence directory: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Acceptance records: `repmat_root_acceptance_20261008.json`,
 `singfun_equality_root_acceptance_20261008.json`,
 `hermite_small_root_acceptance_20261008.json`,
 `ad_cumprod_prod_root_acceptance_20261008.json`,
-`airy_root_acceptance_20261008.json`, `dct_root_acceptance_20261008.json`.
-Inventory: `matlab_test_static_inventory_d74670ee_20261008.json`.
+`airy_root_acceptance_20261008.json`, `dct_root_acceptance_20261008.json`,
+`equispaced_root_acceptance_20261008.json`,
+`ad_integrals_root_acceptance_20261008.json`,
+`lane_scalar_root_acceptance_20261008.json`,
+`chebpts_fused_root_acceptance_20261008.json`,
+`europeanoptions_root_acceptance_20261008.json`,
+`ad_feval_jump_root_acceptance_20261008.json`.
+Inventory: `matlab_test_static_inventory_89a9c49a_20261008.json`.
 
-Airy replaces the builtin primitive with JAX ODE continuation, contour
-quadrature and asymptotics. Independent sampled complex arguments through
-radius100 qualify that range only; no fresh native Airy outputs, universal
-complex-plane accuracy or extreme scaling claim. Source AD covers kinds0,2.
+Fresh figure inventory `figure_size_current_89a9c49a_20261008.json` reports
+**103 dimension mismatches on 21 pages**, among 1,304 mapped slots plus one
+historical mapping hole. Matching dimensions do not establish matching pixels
+or computations. EquispacedData RNG and last digits remain open. EuropeanOptions
+now uses public library payoffs/Dirac masses; the digital price agrees with its
+analytic check to about 2e-15. A cubic endpoint root rounding diagnostic remains
+open; source exact endpoint comparisons were retained. No fresh native MATLAB
+EuropeanOptions output is claimed.
+
+Airy uses JAX ODE continuation, contour quadrature and asymptotics. Independent
+sampled complex arguments through radius 100 qualify that range only; no fresh
+native Airy outputs, universal complex-plane accuracy or extreme scaling claim.
+Source AD covers kinds 0,2. Fredholm/Volterra inner quadratures remain fixed-order
+adapters, so general kernel accuracy remains open. AD evaluation/jump side flags,
+character endpoints and callable composition remain unqualified.
 
 The public Chebtech2 transforms no longer use eager NumPy mirrors. Two real
 FFTs preserve complex conjugacy and pure components. Other transform families
-still contain legacy NumPy/SciPy paths. A slow initial end-to-end timing did
-not recur in the instrumented repeat: warmed flower inverse0.751–0.767s versus
-baseline0.776–0.778s, first calls21.91s/22.53s. These are bounded observations
-with other workers active, not an isolated speedup or MATLAB comparison.
-First-call JAX compilation remains substantial; changed rounding alters
-adaptive lengths while roundtrip errors stay about1e-15.
+still contain legacy NumPy/SciPy paths. Fused nodes reduced the profiled flower
+first inverse from 21.91 s to 9.17 s, with warmed calls 0.707–0.718 s and composition
+error 1.05e-15. Other workers were active; this is not an isolated speedup or
+MATLAB timing comparison. Initial compilation and rounding-sensitive adaptive
+lengths remain important. The LaneEmden page ran before fused nodes; four solver
+controls separately qualify that integration, not a fresh full page.
 
-Small explicit Hermite ASY remains unresolved:28/38 source cases pass;
+Small explicit Hermite ASY remains unresolved: 28/38 source cases pass;
 focused arithmetic changes did not close six remaining comparisons. Strict
 bounds and failed evidence are preserved in
 `hermite_asy_small_next_20261008/HANDOFF.md`. Do not substitute REC results.
 Singular/delta repmat rows and general complex/array product integrals remain open.
+The accepted mixed solver still has damping/stopping adapters; a separate source
+algorithm package is under review. Its passing diagnostics are not yet accepted
+library/page parity.
 
-Three Astra workers cover light example pages, Fredholm/Volterra operators,
-and LaneEmden scalar AD. Root reviews/integrates and profiles CPU work. The
-four-agent session cap is full; heavy examples use one serial lane. LaneEmden
-has a corrected complex solve and faster source-AD classification, but its
-continuous residual and nonlinear damping/stopping parity remain open.
-
-EquispacedData correction `53d7efb4` regenerates seven598×273 figures and
-four observed output blocks, preserving prose/MATLAB cells. Historical connected
-coefficient curves and larger labels replace the pinned library's current dot
-style for this page. RNG, last digits and raster parity remain open. Root final
-run completed in39.06s with stable inputs/no survivors; evidence:
-`equispaced_root_acceptance_20261008.json`. Fresh figure inventory
-`figure_size_current_53d7efb4_20261008.json` reports **112 dimension mismatches
-on 23 pages**, among1,304 mapped slots plus one historical mapping hole.
-Matching dimensions do not establish matching pixels or computations.
+Three Astra workers cover Bessel functions, source nonlinear damping/refinement,
+and VanillaOptions. Root reviews/integrates and restores omitted division tests.
+The user requested maximum parallelism; the four-agent session cap is full.
+CPU only; heavy examples use one serial lane. Package status is recorded in
+`current_parallel_checkpoint_20261008.json` outside the repository.
 
 Last confirmed remote main is **8a6d9c80**. Restricted networking prevents
 GitHub API refresh/publication; newer commits are local. Prior successful
