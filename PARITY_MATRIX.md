@@ -1,57 +1,61 @@
 # chebfunjax ↔ MATLAB Chebfun — Parity Status
 
-## Current qualification (2026-10-08)
+## Current qualification (2026-10-08, local ec3c4946)
 
-Full parity with Chebfun `7574c77680d7e82b79626300bf255498271a72df`
-remains incomplete. `HANDOFF_CODEX.md` takes precedence over the historical
-snapshot below and the older `HANDOFF.md`.
+Full parity with MATLAB Chebfun `7574c77680d7e82b79626300bf255498271a72df`
+remains incomplete. This checkpoint supersedes older counts and disk k=7
+failure reports below. CPU only. Three worker agents plus the coordinator
+are active; the user requested this expansion of the older two-worker limit.
 
-At local commit `a817dfed`, the static
-MATLAB test-file inventory is:
+Fresh static inventory: **1,059 present, 26 containing skip/xfail markers,
+17 module-skipped, zero missing after explicit consolidated mappings**, out
+of 1,102 MATLAB test files. These are file classifications, not proof of all
+source assertions, random streams or runtime parity. Fresh PNG dimensions:
+**118 mismatches across 24 pages**, 1,304 mapped slots, one unresolved
+AtmosphericTemperature mapping slot. Equal sizes do not establish visual parity.
 
-| Classification | Files |
-|---|---:|
-| Present without literal skip/xfail markers | 1,051 |
-| Contains skip/skipif/xfail markers | 27 |
-| Module-skipped | 24 |
-| Missing after explicit consolidated test mappings | 0 |
-| Total pinned MATLAB test files | 1,102 |
+Evidence directory:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Fresh inventories: `matlab_test_static_inventory_ec3c4946_20261008.json` and
+`figure_size_current_ec3c4946_20261008.json`.
 
-These counts describe files and literal markers, not verified assertions or
-numerical parity. All 24 module skips are in `adchebfun`. Four formerly missing `chebgui`
-export cohorts now map explicitly to `test_toFile_exporters_matlab.py` and
-passed with all64 original demos in the149-case CPU qualification. This does
-not establish general GUI or AD parity; both remain in the full scope.
-Existing aggregate tests also need clause and tolerance audits: recent fixes
-restored an omitted Helmholtz field and the original norm bound.
+Latest verified changes:
 
-Immutable inventory with source and port hashes:
-`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_test_static_inventory_a817dfed_20261008.json`.
-The refreshed PNG audit at a817dfed reports129 image-size mismatches across
-27 of322 pages,1304 mapped slots and one unresolved AtmosphericTemperature
-slot. Mapping is inherited; matching dimensions alone does not qualify figures.
-Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_a817dfed_20261008.json`. Local
-numerical packages have individual evidence in `HANDOFF_CODEX.md`; current
-local commits are not published, and green CI on their exact head is unproved.
+- Disk numeric BMC reconstruction now uses the actual doubled matrix rank
+  capacity, an explicit correctness adaptation to the source cap. Pivots and
+  tolerances are unchanged. All ten original Helmholtz predicates pass in a
+  19-test CPU gate. At k=7 the actual disk L2 error is 5.81034e-12 against the
+  original 2.22045e-8 bound, down from the preserved 3.75766e-8 failure.
+  Commit `3a69ee84`; `disk_doubled_rank_root_acceptance_20261008.json`.
+- AD elementary operations restore 129 source clause forms for 43 operations
+  and repair real complex-branch evaluation and incoming-domain retention.
+  371 distinct tests pass across two runs (367 original plus 39 focused,
+  35 overlapping). Fixed degree7 inputs do not establish MATLAB RNG parity.
+  Commit `97773b63`; `ad_elementary_root_acceptance_20261008.json`.
+- Hosepipe restores four public surface/slice plots at 600x253 and records
+  actual displays while preserving prose/source blocks. Lighting, pixels and
+  the annulus Fourier representation (1195 coefficients versus historical
+  about 101) remain open. Commit `ec3c4946`;
+  `hosepipe_root_acceptance_20261008.json`.
+- Lower-order Laguerre RH/RHW passed 45 tests in two bounded runs, including
+  documented source nonconvergence at some n=42 parameters. The interrupted
+  monolithic run remains unqualified. Commit `81045e3f`;
+  `laguerre_small_rh_root_acceptance_20261008.json`.
+- Earlier accepted AD inner/norm, ConformalVis and RationalHarmonic packages
+  are in commits `5adbbe93`, `dd3664c3` and `6fdc4c2c` with individual root
+  acceptance records in the same evidence directory.
 
-Latest bounded packages at this checkpoint:
+Current parallel work: original AD arithmetic tests, explicit Laguerre EXP
+compilation diagnosis, and LaneEmden source figures. Heavy examples run in
+one serial lane. Broad test clauses, outputs, visual audits, known numerical
+issues and matched performance measurements remain open.
 
-- AD calculus and independent seeds restore two original test modules. The
-  seed package passes179 CPU checks, including all five original seed clauses
-  at1e-15 and the unchanged154-case calculus cohort.
-- Disk Helmholtz coefficient input now performs the source Fourier/Chebyshev
-  resizing.66 alias controls and the original coefficient-input assertion
-  pass. The separate k=7 case still fails its original2.22e-8 bound with
-  error3.76e-8; its diagnostic is preserved.
-- Rouche regenerates all seven600x253 figures, including the previously
-  omitted seventh script output. Four equal-axis helper controls pass;
-  source stdout is empty and Markdown is unchanged. Pixel/font parity is
-  not established by these checks.
-
-Acceptance records in the shared evidence directory are
-`ad_seed_root_acceptance_20261008.json`,
-`disk_alias_root_acceptance_20261008.json`, and
-`rouche_root_acceptance_20261008.json`.
+Publication is unresolved: ordinary push at `81045e3f` failed with
+`Bad owner or permissions on /etc/ssh/ssh_config.d/20-hostbased.conf`.
+Evidence: `ordinary_push_81045e3f_20261008.json`. No exact-head green CI or
+fresh MATLAB execution is claimed. Local commits and immutable evidence are
+preserved; an authorized working publication environment or corrected system
+SSH configuration is needed for remote publication.
 
 ## Historical snapshot — not current completion evidence
 

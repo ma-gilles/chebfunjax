@@ -1,5 +1,62 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Current qualification (2026-10-08, local ec3c4946)
+
+Full parity with MATLAB Chebfun `7574c77680d7e82b79626300bf255498271a72df`
+remains incomplete. This checkpoint supersedes older counts and disk k=7
+failure reports below. CPU only. Three worker agents plus the coordinator
+are active; the user requested this expansion of the older two-worker limit.
+
+Fresh static inventory: **1,059 present, 26 containing skip/xfail markers,
+17 module-skipped, zero missing after explicit consolidated mappings**, out
+of 1,102 MATLAB test files. These are file classifications, not proof of all
+source assertions, random streams or runtime parity. Fresh PNG dimensions:
+**118 mismatches across 24 pages**, 1,304 mapped slots, one unresolved
+AtmosphericTemperature mapping slot. Equal sizes do not establish visual parity.
+
+Evidence directory:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
+Fresh inventories: `matlab_test_static_inventory_ec3c4946_20261008.json` and
+`figure_size_current_ec3c4946_20261008.json`.
+
+Latest verified changes:
+
+- Disk numeric BMC reconstruction now uses the actual doubled matrix rank
+  capacity, an explicit correctness adaptation to the source cap. Pivots and
+  tolerances are unchanged. All ten original Helmholtz predicates pass in a
+  19-test CPU gate. At k=7 the actual disk L2 error is 5.81034e-12 against the
+  original 2.22045e-8 bound, down from the preserved 3.75766e-8 failure.
+  Commit `3a69ee84`; `disk_doubled_rank_root_acceptance_20261008.json`.
+- AD elementary operations restore 129 source clause forms for 43 operations
+  and repair real complex-branch evaluation and incoming-domain retention.
+  371 distinct tests pass across two runs (367 original plus 39 focused,
+  35 overlapping). Fixed degree7 inputs do not establish MATLAB RNG parity.
+  Commit `97773b63`; `ad_elementary_root_acceptance_20261008.json`.
+- Hosepipe restores four public surface/slice plots at 600x253 and records
+  actual displays while preserving prose/source blocks. Lighting, pixels and
+  the annulus Fourier representation (1195 coefficients versus historical
+  about 101) remain open. Commit `ec3c4946`;
+  `hosepipe_root_acceptance_20261008.json`.
+- Lower-order Laguerre RH/RHW passed 45 tests in two bounded runs, including
+  documented source nonconvergence at some n=42 parameters. The interrupted
+  monolithic run remains unqualified. Commit `81045e3f`;
+  `laguerre_small_rh_root_acceptance_20261008.json`.
+- Earlier accepted AD inner/norm, ConformalVis and RationalHarmonic packages
+  are in commits `5adbbe93`, `dd3664c3` and `6fdc4c2c` with individual root
+  acceptance records in the same evidence directory.
+
+Current parallel work: original AD arithmetic tests, explicit Laguerre EXP
+compilation diagnosis, and LaneEmden source figures. Heavy examples run in
+one serial lane. Broad test clauses, outputs, visual audits, known numerical
+issues and matched performance measurements remain open.
+
+Publication is unresolved: ordinary push at `81045e3f` failed with
+`Bad owner or permissions on /etc/ssh/ssh_config.d/20-hostbased.conf`.
+Evidence: `ordinary_push_81045e3f_20261008.json`. No exact-head green CI or
+fresh MATLAB execution is claimed. Local commits and immutable evidence are
+preserved; an authorized working publication environment or corrected system
+SSH configuration is needed for remote publication.
+
 ## AD calculus source clauses and RECW (2026-10-08)
 
 AD calculus154 passed:27 clause forms from all9 operations in the original
