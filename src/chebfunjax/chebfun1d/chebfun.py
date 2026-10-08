@@ -6777,47 +6777,48 @@ class Chebfun(eqx.Module):
         y: jax.Array,
         domain: tuple[float, float] | None = None,
     ) -> Chebfun:
-        """Piecewise cubic Hermite interpolant (shape-preserving).
+        """Shape-preserving cubic Hermite interpolation with JAX arithmetic.
 
-        Wraps ``scipy.interpolate.PchipInterpolator`` to build a
-        shape-preserving piecewise cubic Chebfun.
-
-        Parameters
-        ----------
-        x : array_like, shape (n,)
-            Sorted knot sites.
-        y : array_like, shape (n,)
-            Function values at knots.
-        domain : (float, float) or None
-            Domain for the result; defaults to ``(x[0], x[-1])``.
-
-        Returns
-        -------
-        Chebfun
-            Shape-preserving piecewise cubic interpolant.
-
-        Notes
-        -----
-        NOT JIT-safe.
+        Real and complex samples may be vectors or matrices with one site
+        axis. Complex components are interpolated separately. Requested
+        domain endpoints and internal breaks are retained; each interval
+        contains exactly four Chebyshev coefficients. This adapter is eager.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/pchip.m
+        MATLAB source: @chebfun/pchip.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        from scipy.interpolate import PchipInterpolator
-        x_np = _np.asarray(x, dtype=_np.float64)
-        y_np = _np.asarray(y, dtype=_np.float64)
-        order = _np.argsort(x_np)
-        x_np = x_np[order]
-        y_np = y_np[order]
+        from chebfunjax.utils._pchip import pchip_coefficients
+        from chebfunjax.utils._spline import spline_evaluate
+
+        x = jnp.asarray(x, dtype=jnp.float64).reshape(-1)
+        y = jnp.asarray(y)
+        if x.size < 2 or not bool(jnp.all(jnp.isfinite(x))):
+            raise ValueError("pchip requires at least two finite sites")
+        if y.ndim == 0 or y.ndim > 2:
+            raise ValueError("pchip samples must be a vector or matrix")
+        if y.ndim == 2:
+            if y.shape[0] != x.size:
+                y = y.T
+            if y.shape[1] == 1:
+                y = y[:, 0]
+        if y.shape[0] != x.size or not bool(jnp.all(jnp.isfinite(y))):
+            raise ValueError("pchip samples must be finite and match the sites")
         if domain is None:
-            domain = (float(x_np[0]), float(x_np[-1]))
-        ph = PchipInterpolator(x_np, y_np)
-        breakpoints = _np.unique(_np.concatenate([[domain[0]], x_np, [domain[1]]]))
-        dom = Domain(tuple(float(b) for b in breakpoints))
-        return Chebfun.from_function(lambda z: jnp.asarray(ph(jnp.asarray(z)), dtype=jnp.float64), dom)
+            domain = (float(x[0]), float(x[-1]))
+        requested = Domain(tuple(float(v) for v in domain))
+        order = jnp.argsort(x)
+        x, y = x[order], y[order]
+        if not bool(jnp.all(jnp.diff(x) > 0)):
+            raise ValueError("pchip sites must be distinct")
+        breaks = tuple(sorted(set(requested.breakpoints) | set(float(v) for v in x)))
+        coefficients = pchip_coefficients(x, y)
+        result = Chebfun.from_function(
+            lambda z: spline_evaluate(x, coefficients, z), Domain(breaks), n=4)
+        if requested.a > float(x[0]) or requested.b < float(x[-1]):
+            result = result.restrict(requested.a, requested.b)
+        return result
 
     # ------------------------------------------------------------------
     # V10 — Convolution, flip

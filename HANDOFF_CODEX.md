@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX PCHIP and complete source test assertions (2026-10-08)
+
+61 CPU checks passed in40.15s pytest with stable source/environment inputs
+and no surviving processes. JAX harmonic-slope Hermite interpolation replaces
+SciPy in Chebfun.pchip, supports complex components and array orientation,
+retains requested domain breaks and four coefficients per interval. All12
+original MATLAB test assertions retain10eps norms and exact lengths/domains.
+Independent SciPy comparisons, plateaus, nonuniform/extrapolated values and
+existing spline regressions pass. No fresh MATLAB, full native-runtime closure
+or isolated performance claim. General MATLAB input-cleaning/error behavior
+remains unqualified beyond the finite data controls.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pchip_root_v1_20261008/review.json`.
+
 ## Trigonometric CF page correction (2026-10-08)
 
 Full CPU page run and figure audit passed with stable inputs, verified runtime
