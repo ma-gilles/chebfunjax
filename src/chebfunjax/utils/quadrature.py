@@ -81,9 +81,10 @@ def chebpts_ab(n: int, a: float, b: float, kind: int = 2) -> jnp.ndarray:
 
     Provenance
     ----------
-    MATLAB source : hermpts.m, ASY weight and barycentric normalization
+    MATLAB source : chebpts.m, local scaleNodes function
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
-    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    The affine map is evaluated in an algebraically equivalent midpoint form;
+    bitwise identity with the source endpoint-weighted expression is not claimed.
     """
     x = chebpts(n, kind)
     return 0.5 * ((b - a) * x + (b + a))

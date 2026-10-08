@@ -1,9 +1,9 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Current CPU qualification (2026-10-08, local 6cda66b9)
+## Current CPU qualification (2026-10-08, local d74670ee)
 
-Full parity remains incomplete. Latest static inventory revalidated all 1,102
-source/port mappings: **1,075 present, 19 with skip/xfail markers, 8 module-skipped**.
+Full parity remains incomplete. The static inventory revalidated all 1,102
+source/port mappings: **1,076 present, 19 with skip/xfail markers, 7 module-skipped**.
 File presence does not establish complete assertions or runtime parity.
 
 | Commit | Verified change | CPU evidence |
@@ -12,28 +12,55 @@ File presence does not establish complete assertions or runtime parity.
 | ea3fb9e2 | Exact singular equality, source cancellation, complex-transform conjugacy | 207 passing tests; fresh MATLAB equality/complex predicates pass |
 | 73772a94 | Explicit small Hermite REC source outcomes, including source defects | 60 passing tests against captured native outcomes; bounds unchanged |
 | 6cda66b9 | AD product integrals and plain cumprod | 65 passing tests plus 12 integration checks; six original clauses |
+| d14c813a | JAX Airy primitive, complex public wrapper and source AD | 44 passing checks, including 14 original clauses at source bounds |
+| d74670ee | JAX-only Chebtech2 value/coefficient transforms | 102 passing source, inverse, cancellation and JAX controls |
 
 Evidence directory: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
-See `repmat_root_acceptance_20261008.json`,
+Acceptance records: `repmat_root_acceptance_20261008.json`,
 `singfun_equality_root_acceptance_20261008.json`,
 `hermite_small_root_acceptance_20261008.json`,
-`ad_cumprod_prod_root_acceptance_20261008.json`, and
-`matlab_test_static_inventory_6cda66b9_20261008.json`.
+`ad_cumprod_prod_root_acceptance_20261008.json`,
+`airy_root_acceptance_20261008.json`, `dct_root_acceptance_20261008.json`.
+Inventory: `matlab_test_static_inventory_d74670ee_20261008.json`.
 
-The complex cosine transform uses two real JAX IFFTs, an explicit numerical
-adaptation preserving conjugacy; no performance claim. The real-valued eager
-NumPy path still needs porting. Small Hermite ASY, singular/delta repmat rows,
-and general complex/array product-integral behavior remain open.
+Airy replaces the builtin primitive with JAX ODE continuation, contour
+quadrature and asymptotics. Independent sampled complex arguments through
+radius100 qualify that range only; no fresh native Airy outputs, universal
+complex-plane accuracy or extreme scaling claim. Source AD covers kinds0,2.
 
-Three workers continue public JAX Airy/AD functions, small Hermite ASY, and
-LaneEmden complex parameter correctness. The earlier two-figure LaneEmden run
-is not accepted for publication: review found imaginary equation components
-were discarded. A corrected complex solve passes a manufactured case; final
-adaptive/page qualification remains outstanding. Heavy examples run serially.
+The public Chebtech2 transforms no longer use eager NumPy mirrors. Two real
+FFTs preserve complex conjugacy and pure components. Other transform families
+still contain legacy NumPy/SciPy paths. A slow initial end-to-end timing did
+not recur in the instrumented repeat: warmed flower inverse0.751–0.767s versus
+baseline0.776–0.778s, first calls21.91s/22.53s. These are bounded observations
+with other workers active, not an isolated speedup or MATLAB comparison.
+First-call JAX compilation remains substantial; changed rounding alters
+adaptive lengths while roundtrip errors stay about1e-15.
 
-Last confirmed remote main is **8a6d9c80**. The execution profile subsequently
-changed to restricted networking; the GitHub API now fails to connect, so CI
-status cannot be refreshed and newer commits are local. Previous successful
+Small explicit Hermite ASY remains unresolved:28/38 source cases pass;
+focused arithmetic changes did not close six remaining comparisons. Strict
+bounds and failed evidence are preserved in
+`hermite_asy_small_next_20261008/HANDOFF.md`. Do not substitute REC results.
+Singular/delta repmat rows and general complex/array product integrals remain open.
+
+Three Astra workers cover light example pages, Fredholm/Volterra operators,
+and LaneEmden scalar AD. Root reviews/integrates and profiles CPU work. The
+four-agent session cap is full; heavy examples use one serial lane. LaneEmden
+has a corrected complex solve and faster source-AD classification, but its
+continuous residual and nonlinear damping/stopping parity remain open.
+
+EquispacedData correction `53d7efb4` regenerates seven598×273 figures and
+four observed output blocks, preserving prose/MATLAB cells. Historical connected
+coefficient curves and larger labels replace the pinned library's current dot
+style for this page. RNG, last digits and raster parity remain open. Root final
+run completed in39.06s with stable inputs/no survivors; evidence:
+`equispaced_root_acceptance_20261008.json`. Fresh figure inventory
+`figure_size_current_53d7efb4_20261008.json` reports **112 dimension mismatches
+on 23 pages**, among1,304 mapped slots plus one historical mapping hole.
+Matching dimensions do not establish matching pixels or computations.
+
+Last confirmed remote main is **8a6d9c80**. Restricted networking prevents
+GitHub API refresh/publication; newer commits are local. Prior successful
 pushes and MATLAB captures remain valid historical evidence. Full source/test,
 page/figure, performance and exact-head CI gates remain required.
 
