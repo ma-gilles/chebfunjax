@@ -1,7 +1,4 @@
-"""Seven qualified predicates of the pinned scalar Spherefun constructor test.
-
-Source clauses 1, 2, 8, 9, 16, 26 and 30 are included. The other 23 clauses
-remain in the preserved full-source draft pending public API implementation.
+"""The thirty predicates of the pinned scalar Spherefun constructor test.
 
 Provenance
 ----------
@@ -65,6 +62,10 @@ def _tol():
     return 2e3 * ChebfunPref().cheb2Prefs.chebfun2eps
 
 
+def _rank(f):
+    method = getattr(f, "numerical_rank", None)
+    assert method is not None, "Source rank requires the qualified numerical_rank API"
+    return method()
 
 
 def _error_id(call, expected):
@@ -80,21 +81,50 @@ def _error_id(call, expected):
 @pytest.mark.parametrize("clause,f,wrap_first", [
     (1, lambda x, y, z: x**2 + y**2 + z**2, True),
     (2, lambda x, y, z: jnp.exp(-jnp.cos(jnp.pi * (x + y + z))), True),
+    (3, lambda x, y, z: 1 - jnp.exp(x), False),
+    (4, lambda x, y, z: jnp.exp(y), False),
+    (5, lambda x, y, z: jnp.exp(z), False),
+    (6, lambda x, y, z: jnp.cos(x * y), False),
+    (7, lambda x, y, z: jnp.sin(x * y * z), False),
     (8, lambda x, y, z: jnp.sin(x + y * z), True),
     (9, lambda x, y, z: jnp.sin(x + y * z) + 1, True),
-], ids=[f"source_clause_{k:02d}" for k in (1, 2, 8, 9)])
+], ids=[f"source_clause_{k:02d}" for k in range(1, 10)])
 def test_constructor_sample_error(clause, f, wrap_first):
     spherical = _spherical(f)
     g = _construct(spherical if wrap_first else f)
     assert _sample_error(spherical, g) < _tol(), clause
 
 
+def test_source_clause_10():
+    g = _construct(lambda x, y, z: 0 * x)
+    assert g.norm(jnp.inf) == 0
 
 
+@pytest.mark.parametrize("clause,f", [
+    (11, lambda x, y, z: jnp.cos(z)),
+    (12, lambda x, y, z: x * y * z),
+    (13, lambda x, y, z: 1),
+], ids=["source_clause_11", "source_clause_12", "source_clause_13"])
+def test_constructor_vectorize(clause, f):
+    # Python * is elementwise; the public vectorize option must still be
+    # accepted/executed. Scalar-only callback vectorization needs extra tests.
+    a = _construct(f)
+    b = _construct(f, "vectorize")
+    assert (a - b).norm() < _tol(), clause
 
 
+def test_source_clause_14():
+    f = _construct(lambda x, y, z: 1 + x * jnp.sin(x * y))
+    m, n = f.length()
+    values = f.sample(m + m % 2, n)
+    g = _construct(values)
+    assert (f - g).norm() < _tol()
 
 
+def test_source_clause_15():
+    f = _construct(lambda x, y, z: 1 + 0 * x)
+    g = _construct(jnp.ones((2, 2)))
+    assert (f - g).norm() < _tol()
 
 
 def test_source_clause_16():
@@ -102,22 +132,59 @@ def test_source_clause_16():
               "CHEBFUN:SPHEREFUN:constructor:poleSamples")
 
 
+def _gaussian(x, y, z):
+    return jnp.exp(-10 * ((x - 1 / jnp.sqrt(2.0))**2
+                         + (z - 1 / jnp.sqrt(2.0))**2 + y**2))
 
 
+def test_source_clause_17():
+    f = _construct(_gaussian)
+    g = _construct(f.coeffs2(), "coeffs")
+    assert (f - g).norm() < _tol()
 
 
+@pytest.mark.parametrize("fixed_rank", [5, 6],
+                         ids=["source_clause_18", "source_clause_19"])
+def test_constructor_fixed_rank(fixed_rank):
+    f = _construct(_gaussian, fixed_rank)
+    assert _rank(f) == fixed_rank
 
 
+def test_source_clause_20():
+    f = _construct(_gaussian)
+    g = _construct(f, 7)
+    assert _rank(g) == 7
 
 
+def test_source_clause_21():
+    f = _construct(_gaussian)
+    g = _construct(f, 0)
+    assert _rank(g) == 0
 
 
+def test_source_clause_22():
+    f = _construct(_gaussian)
+    g = _construct(f, 0)
+    assert g.norm() < _tol()
 
 
+def test_source_clause_23():
+    _error_id(lambda: _construct(_gaussian, -1),
+              "CHEBFUN:SPHEREFUN:constructor:parseInputs:domain3")
 
 
+def test_source_clause_24():
+    f = _construct(_gaussian)
+    g = _construct(_gaussian, "eps", 1e-5)
+    assert _rank(g) < _rank(f)
 
 
+def test_source_clause_25():
+    f = _construct(_gaussian)
+    g = _construct(_gaussian, "eps", 1e-5)
+    mf, nf = f.length()
+    mg, ng = g.length()
+    assert (mg < mf) and (ng < nf)
 
 
 def test_source_clause_26():
@@ -125,10 +192,21 @@ def test_source_clause_26():
     assert (f - 1).norm(jnp.inf) == 0
 
 
+def test_source_clause_27():
+    f = _construct(_gaussian)
+    g = _construct("exp(-10*((x-1/sqrt(2)).^2 + (z-1/sqrt(2)).^2 + y.^2))")
+    assert (f - g).norm(jnp.inf) == 0
 
 
+def test_source_clause_28():
+    f = _construct(lambda l, t: jnp.cos(l) * jnp.sin(t))
+    g = _construct("cos(l).*sin(t)")
+    assert (f - g).norm(jnp.inf) == 0
 
 
+def test_source_clause_29():
+    _error_id(lambda: _construct("x.*y.*z.*w"),
+              "CHEBFUN:SPHEREFUN:constructor:str2op:depvars")
 
 
 def test_source_clause_30():

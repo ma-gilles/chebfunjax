@@ -983,6 +983,8 @@ class Spherefun(eqx.Module):
         max_sample: int = 2**14,
         min_abs_tol: float = 0.0,
         start_grid: int | None = None,
+        sample_test: bool = True,
+        _fixed_rank: int | None = None,
     ) -> "Spherefun":
         """Construct a Spherefun from a callable.
 
@@ -1003,6 +1005,9 @@ class Spherefun(eqx.Module):
             Maximum allowed rank. Default 512.
         max_sample : int, optional
             Maximum grid size per dimension. Default 2^14.
+        sample_test : bool, optional
+            Apply the inherited off-grid acceptance check, as controlled by
+            source cheb2Prefs.sampleTest. Default True.
         min_abs_tol : float, optional
             Absolute floor on the pivoting tolerance.  When re-approximating
             a result that is much smaller than the data it was derived from
@@ -1019,7 +1024,8 @@ class Spherefun(eqx.Module):
 
         Notes
         -----
-        Construction is NOT JIT-safe.
+        Construction is NOT JIT-safe. The private _fixed_rank argument is
+        used by the source public factory between simplify and projection.
 
         Provenance
         ----------
@@ -1144,44 +1150,50 @@ class Spherefun(eqx.Module):
             nonzero_poles=bool(remove_poles),
         )
 
-        # Sample test (MATLAB constructor sampleTest analogue): on
-        # marginally-resolved functions the phase-2 GE replay can
-        # DIVERGE -- near-singular phase-1 pivots amplify slice values
-        # exponentially across the elimination, producing objects whose
-        # evaluations are astronomically wrong (observed: bounded
-        # samples <= 39 building a rank-91 object evaluating to 2e90).
-        # Probe off-grid points; on catastrophic mismatch restart the
-        # construction from a finer initial grid.
-        phi_gr = 0.6180339887498949
-        ts = np.arange(1, 25, dtype=float)
-        lam_t = -np.pi + 2 * np.pi * ((0.5 + phi_gr * ts) % 1.0)
-        th_t = np.pi * ((0.25 + phi_gr * ts * ts) % 1.0)
-        fv = np.asarray(f(jnp.asarray(lam_t), jnp.asarray(th_t))).ravel()
-        av = np.asarray(result(jnp.asarray(lam_t),
-                               jnp.asarray(th_t))).ravel()
-        fscale = max(float(np.max(np.abs(fv))), 1e-300)
-        # MATLAB @spherefun/sampleTest.m: max|f - g| <= 100*tol at the
-        # scattered points (tol = the construction tolerance).
-        _stol = 100.0 * max(float(tol_abs), _EPS * fscale)
-        if not np.all(np.isfinite(av)) or \
-                float(np.max(np.abs(av - fv))) > _stol:
-            new_start = 2 * max(grid, 8)
-            if start_grid is None or new_start > int(start_grid):
-                if new_start <= max_sample // 4:
-                    return cls.from_function(
-                        f, tol=tol, max_rank=max_rank,
-                        max_sample=max_sample,
-                        min_abs_tol=min_abs_tol,
-                        start_grid=new_start)
-            warnings.warn(
-                "Spherefun.from_function: construction failed the "
-                "off-grid sample test (phase-2 divergence on a "
-                "marginally-resolved function); returning the best "
-                "approximation found.",
-                RuntimeWarning, stacklevel=2)
+        if sample_test:
+            # Sample test (MATLAB constructor sampleTest analogue): on
+            # marginally-resolved functions the phase-2 GE replay can
+            # DIVERGE -- near-singular phase-1 pivots amplify slice values
+            # exponentially across the elimination, producing objects whose
+            # evaluations are astronomically wrong (observed: bounded
+            # samples <= 39 building a rank-91 object evaluating to 2e90).
+            # Probe off-grid points; on catastrophic mismatch restart the
+            # construction from a finer initial grid.
+            phi_gr = 0.6180339887498949
+            ts = np.arange(1, 25, dtype=float)
+            lam_t = -np.pi + 2 * np.pi * ((0.5 + phi_gr * ts) % 1.0)
+            th_t = np.pi * ((0.25 + phi_gr * ts * ts) % 1.0)
+            fv = np.asarray(f(jnp.asarray(lam_t), jnp.asarray(th_t))).ravel()
+            av = np.asarray(result(jnp.asarray(lam_t),
+                                   jnp.asarray(th_t))).ravel()
+            fscale = max(float(np.max(np.abs(fv))), 1e-300)
+            # MATLAB @spherefun/sampleTest.m: max|f - g| <= 100*tol at the
+            # scattered points (tol = the construction tolerance).
+            _stol = 100.0 * max(float(tol_abs), _EPS * fscale)
+            if not np.all(np.isfinite(av)) or \
+                    float(np.max(np.abs(av - fv))) > _stol:
+                new_start = 2 * max(grid, 8)
+                if start_grid is None or new_start > int(start_grid):
+                    if new_start <= max_sample // 4:
+                        return cls.from_function(
+                            f, tol=tol, max_rank=max_rank,
+                            max_sample=max_sample,
+                            min_abs_tol=min_abs_tol,
+                            start_grid=new_start, sample_test=sample_test,
+                            _fixed_rank=_fixed_rank)
+                warnings.warn(
+                    "Spherefun.from_function: construction failed the "
+                    "off-grid sample test (phase-2 divergence on a "
+                    "marginally-resolved function); returning the best "
+                    "approximation found.",
+                    RuntimeWarning, stacklevel=2)
         # MATLAB @spherefun/constructor.m: simplify, then project onto the
         # exact BMC-I symmetry.
-        return result.simplify(tol_abs)._prune_zero_terms().projectOntoBMCI()
+        result = result.simplify(tol_abs)._prune_zero_terms()
+        if _fixed_rank is not None:
+            from chebfunjax.spherefun._constructor import fix_rank
+            result = fix_rank(result, _fixed_rank)
+        return result.projectOntoBMCI()
 
     def _prune_zero_terms(self) -> "Spherefun":
         """Drop CDR terms whose column or row simplified to exactly zero
@@ -2001,9 +2013,9 @@ class Spherefun(eqx.Module):
                 idx_minus=tuple(int(i) for i in idx_minus),
                 pivot_locations=tuple(locs[:len(pivots)]),
                 nonzero_poles=bool(remove_pole))
-        # MATLAB constructor.m ends with simplify(g, chebfuneps) for
-        # every input kind, matrices included.
-        return g.simplify()._prune_zero_terms().projectOntoBMCI()
+        # Source constructFromDouble projects directly, retaining full
+        # numeric factor lengths. Callable-only simplify is not applied here.
+        return g.projectOntoBMCI()
 
     def projectOntoBMCI(self) -> "Spherefun":
         """Project the column/row slices onto BMC-I symmetry (even/pi-

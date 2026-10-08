@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Spherefun constructor source dispatch (2026-10-08)
+
+Integrated constructor changes passed 274 unique CPU checks, then 13 focused
+checks against the committed compiled QR helper. All source bounds retained,
+inputs stable, exact runtime origins, no surviving owned processes. Adds the
+public `spherefun` factory for spherical/Cartesian callables, bounded string
+expressions, numeric/coefficient inputs, fixed ranks/grids and preferences.
+Restores empty-input precedence, numeric-scalar recursion and sampleTest
+preference handling. Only the existing from_function/from_values methods change;
+other sampling, QR, Helmholtz and contour fixes are preserved.
+Evidence: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_constructor_root_acceptance_20261008.json`.
+The frozen five vector regressions include the old Helmholtz test and do not
+replace the separately verified corrected literal nine-case suite. No fresh
+MATLAB or isolated performance claim; strings use a restricted arithmetic
+parser rather than arbitrary MATLAB evaluation.
+
 ## Laguerre default dispatch ceiling removed (2026-10-08)
 
 Nine CPU checks passed with stable inputs and no surviving processes. Default
