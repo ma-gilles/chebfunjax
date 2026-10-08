@@ -21,12 +21,12 @@ from chebfunjax.fun.bndfun import Bndfun
 EPS = float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
 A, B = -2.0, 7.0
-XR = np.linspace(-2.0, 7.0, 1000)
+# Source seed6178 MT19937 stream; its first 100 draws match the retained native capture.
+XR = 9 * np.random.RandomState(6178).rand(1000) - 2
 X = jnp.asarray(XR)
 
 
 def _bf(f, n=None):
-    # xfail cases pass a small fixed n so a non-converging build stays fast.
     return Bndfun.from_function(f, DOM, n=n)
 
 
@@ -45,10 +45,10 @@ class TestBndfunSum:
         assert abs(float(f.sum()) - exact) < 10 * f.vscale * EPS
 
     @pytest.mark.xfail(
-        reason="Numerical: definite integral of cos(1e4*x) on [-2,7] has "
-        "error ~3.3e-14, exceeding MATLAB's 100*vscale*eps ~= 2.2e-14 bound. "
-        "chebfunjax needs ~45322 Chebyshev points here; the Clenshaw-Curtis "
-        "quadrature accumulates ~150*eps rather than <100*eps.",
+        reason="Original MATLAB bound unresolved: CPU x64 error 6.519329347198788e-14 "
+        "exceeds 100*vscale*eps = 2.2204460475929105e-14 (n=45326). "
+        "Unmasked source predicate fails; source forward-map diagnostic also "
+        "fails at 2.549069082983385e-14. No tolerance relaxation.",
         strict=True,
     )
     def test_spotcheck_high_freq_cos(self):

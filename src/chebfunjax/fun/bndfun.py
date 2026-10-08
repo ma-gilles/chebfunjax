@@ -65,6 +65,21 @@ class Bndfun(Classicfun):
     Classicfun, Chebtech2, Domain
     """
 
+    def inner(self, other: "Bndfun") -> jax.Array:
+        """Conjugate-linear inner product with bounded-function type checking.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/innerProduct.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or (isinstance(other, Bndfun) and other.isempty()):
+            return jnp.asarray([])
+        if not isinstance(other, Bndfun):
+            raise TypeError("CHEBFUN:BNDFUN:innerProduct:input: "
+                            "innerProduct() only operates on two BNDFUN objects.")
+        return super().inner(other)
+
     # ------------------------------------------------------------------
     # Construction
     # ------------------------------------------------------------------

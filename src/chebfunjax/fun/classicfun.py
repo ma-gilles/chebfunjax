@@ -525,7 +525,7 @@ class Classicfun(eqx.Module):
     # Calculus (with domain scaling)
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1) -> "Classicfun":
+    def diff(self, k: int = 1, dim: int = 1) -> "Classicfun":
         """Differentiate *k* times with respect to x in [a, b].
 
         Applies the chain rule: the derivative with respect to x is the
@@ -536,6 +536,8 @@ class Classicfun(eqx.Module):
         ----------
         k : int, default 1
             Order of differentiation.
+        dim : int, default 1
+            Use 2 for finite differences across columns, without domain scaling.
 
         Returns
         -------
@@ -547,6 +549,11 @@ class Classicfun(eqx.Module):
         MATLAB source : @bndfun/diff.m
         Chebfun commit: 7574c77
         """
+        if dim == 2:
+            new_onefun = self.onefun.diff(k, dim=dim)
+            if new_onefun.coeffs.size == 0:
+                return self.__class__.empty()
+            return self.__class__(new_onefun, self.domain)
         if k == 0:
             return self.__class__(self.onefun, self.domain)
         # Jacobian raised to the k-th power

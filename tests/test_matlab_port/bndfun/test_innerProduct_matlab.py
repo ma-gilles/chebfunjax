@@ -18,6 +18,7 @@ import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.utils.airy_general import airy_all
 
 EPS = float(np.finfo(np.float64).eps)
 TOL = 10 * EPS
@@ -26,9 +27,8 @@ ALPHA = -0.194758928283640 + 0.075474485412665j
 BETA = -0.526634844879922 - 0.685484380523668j
 
 
-def _bf(f, n=None):
-    # xfail cases pass a small fixed n so a non-converging build stays fast.
-    return Bndfun.from_function(f, DOM, n=n)
+def _bf(f):
+    return Bndfun.from_function(f, DOM)
 
 
 def _ip(f, g):
@@ -93,47 +93,25 @@ class TestBndfunInnerProduct:
         g = _bf(lambda x: 1.0 / (1 + 1j * x ** 2))
         h = _bf(lambda x: jnp.sinh(x * np.exp(np.pi * 1j / 6)))
         n2vals = np.array([_ip(f, f), _ip(g, g), _ip(h, h)])
-        assert np.all(np.abs(n2vals.imag) < 10 * EPS)
+        assert np.all(n2vals.imag == 0)
         assert np.all(n2vals.real >= 0)
 
     def test_array_valued(self):
-        # pass(10): innerProduct of a 2-column f with a 3-column g yields the
-        # 2x3 Gram matrix of pairwise inner products.
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun; inner
-        # returns the full Gram matrix.  MATLAB's third g column is airy(x),
-        # which chebfunjax has no special function for, so we substitute cos(x)
-        # and validate against the matrix of the corresponding SCALAR inner
-        # products (the exact array-valued property MATLAB asserts).
         f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
-        g = _bf(
-            lambda x: jnp.stack(
-                [jnp.exp(x), 1.0 / (1 + x ** 2), jnp.cos(x)], axis=-1
-            )
-        )
-        ip = np.asarray(f.inner(g))
-        assert ip.shape == (2, 3)
-        f_cols = [_bf(jnp.sin), _bf(jnp.cos)]
-        g_cols = [_bf(jnp.exp), _bf(lambda x: 1.0 / (1 + x ** 2)), _bf(jnp.cos)]
-        ref = np.array(
-            [[complex(f_cols[i].inner(g_cols[j])) for j in range(3)] for i in range(2)]
-        )
-        assert float(np.max(np.abs(ip - ref))) < 10 * max(f.vscale, g.vscale) * EPS
+        g = _bf(lambda x: jnp.stack([jnp.exp(x), 1/(1+x**2), airy_all(x)[0]], axis=-1))
+        exact = np.array([[-53.1070904269318222, 0.0025548835039100, -0.4683303433821355],
+                          [773.70343924989359096771, 1.3148120368924471, 0.6450791915572742]])
+        assert np.max(np.abs(np.asarray(f.inner(g))-exact)) < 10*EPS*max(f.vscale,g.vscale)
 
     def test_error_on_non_bndfun(self):
-        # MATLAB raises CHEBFUN:BNDFUN:innerProduct:input.  chebfunjax reaches
-        # into `other.onefun`, so a non-Bndfun argument raises AttributeError.
         f = _bf(jnp.sin)
-        with pytest.raises(AttributeError):
+        with pytest.raises(TypeError, match="CHEBFUN:BNDFUN:innerProduct:input"):
             f.inner(2)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: (x-b)^p factors "
-        "cannot be constructed via Bndfun.from_function."
-    )
     def test_singular_function(self):
         pow1, pow2 = -0.3, -0.5
-        f = _bf(lambda x: (x - DOM.b) ** pow1 * jnp.sin(x), n=17)
-        g = _bf(lambda x: (x - DOM.b) ** pow2 * jnp.cos(3 * x), n=17)
+        f = Bndfun.from_function(lambda x: (x - DOM.b + 0j) ** pow1 * jnp.sin(x), DOM, exponents=(0.0, pow1))
+        g = Bndfun.from_function(lambda x: (x - DOM.b + 0j) ** pow2 * jnp.cos(3 * x), DOM, exponents=(0.0, pow2))
         I = _ip(f, g)
         I_exact = -0.65182492763883119 + 0.47357853074362785j
         assert abs(I - I_exact) < 5e2 * EPS * abs(I_exact)
