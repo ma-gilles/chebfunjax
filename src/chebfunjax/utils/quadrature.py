@@ -1688,21 +1688,20 @@ def lagpts(n: int, alpha: float = 0.0,
         w = _source_positive_product(w, scale) if gradual_rh else w * scale
     return (x, w, v) if bary else (x, w)
 
-def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
-    """See ``_ultrapts_core``.  With ``bary=True`` also returns the
-normalized barycentric weights (MATLAB's third output).
+def ultrapts(n: int, lam: float, interval=None, method=None, *, bary: bool = False, angles: bool = False):
+    """Ultraspherical nodes and weights using source REC, ASY or GW methods.
+
+    Vectors use the Python one-dimensional convention. ``bary=True`` adds
+    barycentric weights; ``angles=True`` returns all four source outputs.
 
     Provenance
     ----------
-    MATLAB source : hermpts.m, ASY weight and barycentric normalization
-    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
-    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    MATLAB source : ultrapts.m
+    Chebfun commit: 7574c77
     """
-    out = _ultrapts_core(n, lam, interval)
-    if not bary:
-        return out
-    x, w = out
-    return x, w, _bary_weights_gauss(x, flip=False)
+    from .ultraspherical_points import ultra_rule
+    x, w, v, t = ultra_rule(n, lam, interval, method)
+    return (x, w, v, t) if angles else (x, w, v) if bary else (x, w)
 
 
 def radaupts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
