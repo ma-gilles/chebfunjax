@@ -1,136 +1,144 @@
-"""Combining Chebyshev and trigonometric.
+"""Combining Chebyshev and trigonometric: source mixed slices and four figures.
 
-Translation of approx2/Hosepipe.m (Trefethen, 2019): mixed
-Chebyshev/trig chebfun2 representations via the 'trigy' flag -- a
-corrugated hosepipe surface (nonperiodic in x, periodic in phi), the
-display of the three coordinate chebfun2 objects, mixed plotcoeffs,
-and a function on an annulus.
-
+Translation of approx2/Hosepipe.m by Nick Trefethen (November2019).
 Original: https://www.chebfun.org/examples/approx2/Hosepipe.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
+
 import matplotlib
 
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
-from chebfunjax.chebfun1d.chebfun import chebfun
-from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-from chebfunjax.plotting import chebfun_style
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style, plotcoeffs, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx2')
+_IMG = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "images", "approx2"
+)
 
 
-def _save(fig, k):
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Hosepipe_{k:02d}.png"))
+def _wide_box(ax):
+    # Host renderer adapter: MATLAB retains the source rectangular3Daxes
+    # position, while Axes3D.apply_aspect forces a square viewport. The
+    # supplied plotted coordinates, limits and3Dprojection stay intact.
+    def keep_source_position(position=None):
+        ax._set_position(
+            ax.get_position(original=True) if position is None else position, which="active"
+        )
+
+    ax.apply_aspect = keep_source_position
+
+
+def _figure():
+    return plt.figure(figsize=(600 / 72.009, 253 / 72.009))
+
+
+def _save(fig, index):
+    _savefig(fig, os.path.join(_IMG, f"Hosepipe_{index:02d}.png"), size=(600, 253), dpi=72.009)
     plt.close(fig)
 
 
-def _display(name, F):
+def _display(name, obj):
     print(f"{name} =")
-    print(F.disp())
+    print(obj.disp())
 
 
-def _plotcoeffs(F, k):
-    """Mixed plotcoeffs: Chebyshev row coeffs and Fourier col coeffs."""
-    rows = F.approx.rows
-    cols = F.approx.cols
-    rc = np.zeros(max(int(r.coeffs.shape[0]) for r in rows))
-    for r in rows:
-        a = np.abs(np.asarray(r.coeffs)).ravel()
-        rc[:a.shape[0]] = np.maximum(rc[:a.shape[0]], a)
-    nmax = max(int(c.coeffs.shape[0]) for c in cols)
-    cc = np.zeros(nmax)
-    ks = None
-    for c in cols:
-        a = np.abs(np.asarray(c.coeffs)).ravel()
-        n = a.shape[0]
-        kk = np.arange(-(n // 2), n - n // 2)
-        if ks is None or n == nmax:
-            ks = np.arange(-(nmax // 2), nmax - nmax // 2)
-        pad = np.zeros(nmax)
-        off = (nmax // 2) - (n // 2)
-        pad[off:off + n] = a
-        cc = np.maximum(cc, pad)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.4))
-    ax1.semilogy(np.arange(rc.shape[0]), np.maximum(rc, 1e-20), '.')
-    ax1.set_title("Chebyshev coefficients (rows, x)")
-    ax1.set_xlabel("degree")
-    ax1.grid(True)
-    ax2.semilogy(ks, np.maximum(cc, 1e-20), '.')
-    ax2.set_title("Fourier coefficients (columns, y)")
-    ax2.set_xlabel("wavenumber")
-    ax2.grid(True)
-    _save(fig, k)
+def _plotcoeffs(obj, index):
+    # @separableApprox/plotcoeffs.m dispatches actual column slices left,
+    # row slices right to1Dplotcoeffs; no coefficient envelope or floor.
+    columns, _, rows = obj.cdr()
+    fig = _figure()
+    for position, slices, title in [
+        ([0.13, 0.15, 0.33465909, 0.755], columns, "Column slices"),
+        ([0.5703409, 0.15, 0.33465909, 0.755], rows, "Row slices"),
+    ]:
+        ax = fig.add_axes(position)
+        # Historical2019 annulus Fourier slices were rendered as lines;
+        # retain explicit per-page override and pinned helper defaults.
+        fmt = "-" if index == 4 and title == "Column slices" else "."
+        plotcoeffs(
+            slices,
+            ax=ax,
+            source=True,
+            title=title,
+            fmt=fmt,
+            linewidth=0.5,
+            markersize=8 if index == 2 and title == "Column slices" else 4,
+        )
+        # Explicit historical rendering style; the pinned standalone helper
+        # marker defaults and all actual coefficient coordinates stay intact.
+        ax.grid(True, which="both", linestyle=":", linewidth=0.5)
+        ax.set_position(position)
+        ax.set_title(title, fontsize=14)
+        ax.set_xlabel(ax.get_xlabel(), fontsize=14)
+        ax.set_ylabel(ax.get_ylabel(), fontsize=14)
+        ax.tick_params(labelsize=12)
+    _save(fig, index)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
-
-    r = chebfun(lambda x: .5 + .04 * np.cos(40 * x))
-
-    def rx(x):
-        return .5 + .04 * np.cos(40 * x)
-
-    F = Chebfun2.from_function(lambda x, ph: 2 * x, trigy=True)
-    G = Chebfun2.from_function(
-        lambda x, ph: rx(x) * np.cos(np.pi * ph), trigy=True)
-    H = Chebfun2.from_function(
-        lambda x, ph: rx(x) * np.sin(np.pi * ph), trigy=True)
-
-    # Hosepipe surface.
-    xg = np.linspace(-1, 1, 400)
-    pg = np.linspace(-1, 1, 200)
-    X, P = np.meshgrid(xg, pg)
-    fig = plt.figure(figsize=(8.0, 6.0))
+    r = cj.chebfun(lambda x: 0.5 + 0.04 * jnp.cos(40 * x))
+    F = cj.chebfun2(lambda x, phi: 2 * x, trigy=True)
+    G = cj.chebfun2(lambda x, phi: r(x) * jnp.cos(jnp.pi * phi), trigy=True)
+    H = cj.chebfun2(lambda x, phi: r(x) * jnp.sin(jnp.pi * phi), trigy=True)
+    fig = _figure()
     ax = fig.add_subplot(projection="3d")
-    ax.plot_surface(np.asarray(F(X, P)), np.asarray(G(X, P)),
-                    np.asarray(H(X, P)), cmap="viridis",
-                    rstride=1, cstride=2, linewidth=0)
-    ax.set_box_aspect((2, 1, 1))
-    ax.axis("off")
+    surf(F, G, H, ax=ax, n_pts=200)
+    # Axis-off tube fills MATLABwideviewport; allworldpoints areinside
+    # manualsourceXYZlimits, so retain them past Matplotlibsquareclipbox.
+    ax.collections[0].set_clip_on(False)
+    ax.collections[0].set_antialiased(False)
+    ax.collections[0].set_edgecolor("none")
+    ax.set_position([0.13, 0.11, 0.775, 0.815])
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-0.54, 0.54)
+    ax.set_zlim(-0.54, 0.54)
+    ax.set_box_aspect((4, 1.08, 1.08), zoom=1.65)
+    ax.set_axis_off()
+    # Source camlight illumination has no exact MATLAB backend equivalent;
+    # preserve actual public surface coordinates and color mapping.
     _save(fig, 1)
-
     _display("F", F)
     _display("G", G)
     _display("H", H)
-
     _plotcoeffs(G, 2)
 
-    # Annulus: f analytic in 1/2 <= |z| <= 3/2.
-    def f(z):
-        return (1 + 4 / z**3)**-1 * (z**3 + .1)**-1
+    def func(z):
+        return (1 + 4 / z**3) ** -1 * (z**3 + 0.1) ** -1
 
-    def Fa(rr, tt):
-        return np.abs(f(rr * np.exp(1j * tt)))
-
-    Fc = Chebfun2.from_function(Fa, domain=(.5, 1.5, -np.pi, np.pi),
-                                trigy=True)
-
-    rg = np.linspace(.5, 1.5, 200)
-    tg = np.linspace(-np.pi, np.pi, 400)
-    R, T = np.meshgrid(rg, tg)
-    Z = np.asarray(Fc(R, T))
-    fig, ax = plt.subplots(figsize=(7.6, 5.2))
-    pc = ax.pcolormesh(R, T, Z, cmap="viridis", shading="auto")
-    fig.colorbar(pc, ax=ax)
-    ax.set_xlabel("r")
-    ax.set_ylabel("t")
+    Fc = cj.chebfun2(
+        lambda radius, theta: jnp.abs(func(radius * jnp.exp(1j * theta))),
+        domain=(0.5, 1.5, -jnp.pi, jnp.pi),
+        trigy=True,
+    )
+    fig = _figure()
+    ax = fig.add_subplot(projection="3d")
+    surf(Fc, ax=ax, n_pts=200)
+    ax.collections[0].set_antialiased(False)
+    ax.collections[0].set_edgecolor("none")
+    ax.set_position([0.09, 0.11, 0.69, 0.8])
+    _wide_box(ax)
+    ax.set_xlim(0.5, 1.5)
+    ax.set_ylim(-float(jnp.pi), float(jnp.pi))
+    ax.set_zlim(0, 2)
+    ax.set_xticks([0.5, 1, 1.5])
+    ax.set_yticks([-2, 0, 2])
+    ax.set_zticks([0, 1, 2])
+    ax.set_xlabel("r", fontsize=14)
+    ax.set_ylabel("t", fontsize=14)
+    ax.tick_params(labelsize=12)
+    bar = fig.colorbar(ax.collections[0], cax=fig.add_axes([0.84, 0.11, 0.035, 0.815]))
+    bar.ax.tick_params(labelsize=12)
     _save(fig, 3)
-
     _plotcoeffs(Fc, 4)
 
 

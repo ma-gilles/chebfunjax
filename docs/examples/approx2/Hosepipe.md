@@ -42,7 +42,7 @@ vertical scale = 0.54
 H =
    chebfun2 object  (trig in y)
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]        1     [-8.1e-17 -8.1e-17 3.5e-17 3.5e-17]
+[  -1,   1] x [  -1,   1]        1     [-5.7e-17 -5.7e-17 5.9e-17 5.9e-17]
 vertical scale = 0.5
 ```
 
