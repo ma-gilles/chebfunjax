@@ -3128,6 +3128,10 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/power.m
         Chebfun commit: 7574c77
         """
+        # MATLAB class dispatch routes CHEBFUN.^ADCHEBFUN to AD power.
+        from chebfunjax.autodiff.adchebfun import ADChebfun
+        if isinstance(exponent, ADChebfun):
+            return exponent.__rpow__(self)
         if self.isempty():
             return type(self).empty()
         exp_array = None

@@ -333,64 +333,78 @@ class ADChebfun:
         return result
 
     def __pow__(self, exp):
-        """Power: d(u^n) = n*u^{n-1} * du."""
+        """Apply the source power cases and literal Frechet multipliers.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (power, updateDomain).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        result = _copy_ad(self)
         if isinstance(exp, ADChebfun):
-            # f^g: d(f^g) = f^g * (g/f * df + log(f) * dg)
-            fg = self.func ** exp.func
-            result = _copy_ad(self)
-            result.func = fg
-            result.jacobian = (
-                _multiply_jacobian(fg * exp.func / self.func, self.jacobian, self.domain)
-                + _multiply_jacobian(fg * self.func.log(), exp.jacobian, exp.domain)
+            result.linearity = tuple(
+                az and bz and a and b
+                for az, bz, a, b in zip(
+                    _jac_zero_flags(self.jacobian), _jac_zero_flags(exp.jacobian),
+                    self.linearity, exp.linearity,
+                )
             )
-            if len(self.linearity) > 1:
-                result.linearity = tuple(a and b for a, b in zip(
-                    _jac_zero_flags(self.jacobian), _jac_zero_flags(exp.jacobian)))
-            else:
-                result.is_linear = False
-            return result
-        elif isinstance(exp, (int, float)):
-            n = float(exp)
-            if n == 1.0:
-                return self
-            if n == 0.0:
-                result = _copy_ad(self)
-                result.func = self.func ** 0
-                result.jacobian = self.jacobian * 0.0
-                result.is_linear = True
-                return result
-            mult = n * self.func ** (n - 1)
-            result = _copy_ad(self)
-            result.func = self.func ** n
-            result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-            _mark_nonlinear(result, self)
-            return result
+            value = self.func ** exp.func
+            result.jacobian = (
+                _multiply_jacobian(
+                    exp.func * self.func ** (exp.func-1), self.jacobian, self.domain,
+                )
+                + _multiply_jacobian(
+                    value * self.func.log(), exp.jacobian, self.domain,
+                )
+            )
+            result.func = value
         else:
-            # exp is a Chebfun (unusual)
-            mult = exp * self.func ** (exp - 1)
-            result = _copy_ad(self)
+            if isinstance(exp, (int, float)):
+                if exp == 1:
+                    return self
+                if exp == 0:
+                    result.func = self.func ** 0
+                    result.jacobian = self.jacobian * 0.0
+                    result.is_linear = True
+                    return result
+            result.linearity = _jac_zero_flags(self.jacobian)
+            result.jacobian = _multiply_jacobian(
+                exp * self.func ** (exp-1), self.jacobian, self.domain,
+            )
             result.func = self.func ** exp
-            result.jacobian = _multiply_jacobian(mult, self.jacobian, self.domain)
-            _mark_nonlinear(result, self)
-            return result
+        return _update_ad_domain(result)
 
     def __rpow__(self, base):
-        """base^self: d(a^u) = a^u * log(a) * du."""
-        import math
-        if isinstance(base, (int, float)):
-            log_base = math.log(float(base))
-            val = float(base) ** self.func
+        """Apply source scalar/Chebfun-to-AD power, including complex log.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (power, updateDomain).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        if isinstance(base, Chebfun):
+            log_base = base.log()
+            value = base ** self.func
         else:
-            log_base_cheb = base.log()
-            val = base ** self.func
+            base_array = jnp.asarray(base)
+            if base_array.ndim != 0:
+                raise ValueError("AD power requires a scalar or Chebfun base")
+            if not jnp.iscomplexobj(base_array) and bool(base_array < 0):
+                base_array = base_array.astype(jnp.complex128)
+            log_base = jnp.log(base_array)
+            value = (self.func.__rpow__(base_array)
+                     if isinstance(self.func, Chebfun)
+                     else jnp.power(base_array, self.func))
         result = _copy_ad(self)
-        result.func = val
-        if isinstance(base, (int, float)):
-            result.jacobian = _multiply_jacobian(val * log_base, self.jacobian, self.domain)
-        else:
-            result.jacobian = _multiply_jacobian(val * log_base_cheb, self.jacobian, self.domain)
-        _mark_nonlinear(result, self)
-        return result
+        result.linearity = _jac_zero_flags(self.jacobian)
+        result.func = value
+        result.jacobian = _multiply_jacobian(
+            value * log_base, self.jacobian, self.domain,
+        )
+        return _update_ad_domain(result)
 
     # ------------------------------------------------------------------
     # Calculus operators
@@ -568,6 +582,16 @@ class ADChebfun:
         Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
         return self._elementary("log", lambda f, g: 1/f)
+
+    def pow2(self) -> "ADChebfun":
+        """Compute 2**self through the source power dispatch.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (pow2).
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return 2 ** self
 
     def sqrt(self) -> "ADChebfun":
         return self ** 0.5
@@ -1166,6 +1190,33 @@ def _copy_ad(f: ADChebfun) -> ADChebfun:
     result.jacobian = f.jacobian
     result.linearity = f.linearity
     result.domain = f.domain
+    return result
+
+
+def _update_ad_domain(result):
+    """Union the source primal, incoming and Jacobian breakpoints.
+
+    Provenance: @adchebfun/adchebfun.m (private updateDomain),
+    Chebfun 7574c77680d7e82b79626300bf255498271a72df.
+    Breakpoint topology is static metadata; numerical array work stays JAX.
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
+    domain = set(result.domain)
+    if isinstance(result.func, Chebfun):
+        domain.update(float(x) for x in result.func.domain.breakpoints)
+    jacobian = result.jacobian
+    jac_domain = jacobian.domain
+    if hasattr(jac_domain, "breakpoints"):
+        jac_domain = jac_domain.breakpoints
+    domain.update(float(x) for x in jac_domain)
+    result.domain = tuple(sorted(domain))
+    if isinstance(jacobian, Chebfun):
+        result.jacobian = jacobian._with_breakpoints(result.domain)
+    else:
+        # Power has just composed a new Jacobian, so its domain metadata
+        # can be updated without changing the input AD object's Jacobian.
+        jacobian.domain = result.domain
     return result
 
 
