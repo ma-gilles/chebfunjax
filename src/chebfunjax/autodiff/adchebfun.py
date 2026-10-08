@@ -561,6 +561,42 @@ class ADChebfun:
         result.jacobian = _scale_jacobian(jacobian, 1/result.func)
         return result
 
+    def deflation_fun(self, u, roots, p, alp, norm_type="L2"):
+        """Deflate this residual at the AD iterate u against known roots.
+
+        The source rank-one derivative is composed with u's incoming
+        Jacobian, extending its identity-seeded assumption to AD chains.
+        Real scalar-valued iterates are supported by this derivative.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (deflationFun).
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.deflation import _roots
+
+        result = _copy_ad(self, u)
+        phi = jnp.asarray(1.)
+        derivative = zeros_op(result.domain)
+        for root in _roots(roots):
+            delta = u.func-root
+            squared = delta.norm("fro")**2
+            functional = inner_functional(delta, result.domain)
+            if norm_type != "L2":
+                differentiated = delta.diff()
+                squared = squared+differentiated.norm("fro")**2
+                functional = functional + inner_functional(
+                    differentiated, result.domain)*D(result.domain)
+            reciprocal = 1/squared
+            phi = phi*reciprocal
+            derivative = derivative + _multiply_jacobian(
+                self.func, _scale_jacobian(functional, reciprocal), result.domain)
+        factor = phi**(p/2)
+        result.jacobian = _scale_jacobian(self.jacobian, factor+alp) - (
+            _scale_jacobian(derivative, p*factor)*u.jacobian)
+        result.func = self.func*(alp+factor)
+        return result
+
     def mean(self) -> "ADChebfun":
         """Compute the mean on a finite domain, retaining its Jacobian.
 
