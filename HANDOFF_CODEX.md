@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Source histogram edges and CPU division (2026-10-09)
+
+A JAX helper now implements the R2017a scalar-bin hist source for nonempty
+finite real vectors. It retains37 edges for36 bins, half-bin centers and
+edge+eps(edge) classification, including negative powers of two, signed zero
+and already represented subnormal data. Other MATLAB hist overloads remain
+unimplemented; R2013a arithmetic differs, and the2014 page runtime is unproven.
+
+Qualification:39 strict controls, including all23 unchanged original controls
+and16 division/shape/overflow checks. Root rehashed2949 observed runtime files;
+terminal0, stable inputs, uncensored, no survivors. Original failed strict
+asymmetric case is retained. Compiler IR proves XLA changed vector division
+into reciprocal multiplication:8 divisions moved by1ulp, changing14 probe bins.
+Strict CPU compiler options did not fix it. A full broadcast-operand barrier
+preserves vector division with default options; all diagnostic stage words and
+counts match the independent source-order oracle. Root reviewed both IR arms
+and independently rehashed2938 files per diagnostic. No tolerances were widened.
+
+This barrier is private to the new histogram helper, with no global compiler
+flags. Extreme subnormal grid arithmetic, whole-function AD/JIT, and asymmetric
+runs with global JIT disabled remain unqualified. The Resampling example has
+NOT yet been switched: a full page run is still required, and native RNG and
+historical plot/output equivalence remain open.
+
+Evidence in shared goal scratch:resampling_hist_source_20261009/library_delivery_v1,
+vscale_histogram_root_review_20261009.json, histogram_controls_root_review_20261009.json
+and histogram_root_integration_20261009.json. Full suite, publication and CI remain open.
+
 ## 2026-10-09: periodic promoted functional source7–10
 
 Periodic `u'' + sum(u)` now follows native trigcolloc values or trigspec coefficient assembly, with exact AD blocks, full values-stack conversion, source dimension schedules, repeated toFunctionOut conversions and strict continuous imaginary-part projection. Narrow proxy `sum` markers retain existing differential callback and nonlinear routes. Existing first-kind capability arithmetic is unchanged.
