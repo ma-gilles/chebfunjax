@@ -26,7 +26,7 @@ class TestChebfunQr:
                 cj.chebfun(lambda x: 2 * x - 1.0, domain=(0.0, 1.0))]
         Q, R = cols[0].qr(cols[1:]) if False else cols[0].qr(cols[1:])
         # Q columns orthonormal
-        qcols = Q.cols if hasattr(Q, "cols") else Q
+        qcols = Q.mat2cell()
         n = len(qcols)
         G = np.zeros((n, n))
         for i in range(n):
@@ -56,7 +56,7 @@ class TestChebfunQr:
             cj.chebfun(lambda x: (2 - 1j) * x, domain=(0.0, 1.0)),
         ]
         Q, R = cols[0].qr(cols[1:])
-        qcols = Q.cols if hasattr(Q, "cols") else Q
+        qcols = Q.mat2cell()
         n = len(qcols)
         # Q columns orthonormal (Hermitian Gram == I).
         G = np.array(

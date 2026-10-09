@@ -28,7 +28,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 from chebfunjax.chebfun1d.linalg import (
     Quasimatrix,
     _legendre_basis,
@@ -178,10 +178,10 @@ class TestChebfunQR:
         """QR of a single column: Q = f/||f||, R = [[||f||]]."""
         f = chebfun(jnp.sin)
         Q, R = f.qr()
-        assert Q.n_cols == 1
+        assert Q.n_columns == 1
         assert R.shape == (1, 1)
         # Q[:,0] is normalised
-        norm_q = float(Q.cols[0].norm())
+        norm_q = float(Q.mat2cell()[0].norm())
         npt.assert_allclose(norm_q, 1.0, atol=1e-12)
         # R[0,0] is the original norm
         npt.assert_allclose(float(R[0, 0]), float(f.norm()), rtol=1e-12)
@@ -198,7 +198,7 @@ class TestChebfunQR:
         Q, R = qr_quasimatrix(qm)
         for i in range(3):
             for j in range(3):
-                ip = float(Q.cols[i].inner(Q.cols[j]))
+                ip = float(Q.mat2cell()[i].inner(Q.mat2cell()[j]))
                 expected = 1.0 if i == j else 0.0
                 npt.assert_allclose(ip, expected, atol=1e-10,
                     err_msg=f"<Q[:,{i}], Q[:,{j}]> = {ip}")
@@ -257,9 +257,9 @@ class TestChebfunQR:
         P1 = np.sqrt(3.0 / 2.0) * xs_np
         P2 = np.sqrt(5.0 / 2.0) * (3.0 * xs_np ** 2 - 1.0) / 2.0
 
-        q0 = np.array(Q.cols[0](xs))
-        q1 = np.array(Q.cols[1](xs))
-        q2 = np.array(Q.cols[2](xs))
+        q0 = np.array(Q.mat2cell()[0](xs))
+        q1 = np.array(Q.mat2cell()[1](xs))
+        q2 = np.array(Q.mat2cell()[2](xs))
 
         # Q columns match Legendre (up to global sign)
         assert (
@@ -280,7 +280,7 @@ class TestChebfunQR:
         # Orthonormality
         for i in range(3):
             for j in range(3):
-                ip = float(Q.cols[i].inner(Q.cols[j]))
+                ip = float(Q.mat2cell()[i].inner(Q.mat2cell()[j]))
                 expected = 1.0 if i == j else 0.0
                 npt.assert_allclose(ip, expected, atol=1e-9,
                     err_msg=f"<Q[:,{i}], Q[:,{j}]> = {ip}")
@@ -306,7 +306,7 @@ class TestChebfunQR:
         Q, R = qr_quasimatrix(qm)
         for i in range(5):
             for j in range(5):
-                ip = float(Q.cols[i].inner(Q.cols[j]))
+                ip = float(Q.mat2cell()[i].inner(Q.mat2cell()[j]))
                 expected = 1.0 if i == j else 0.0
                 npt.assert_allclose(ip, expected, atol=1e-9,
                     err_msg=f"<Q[:,{i}], Q[:,{j}]> = {ip}")
@@ -316,10 +316,10 @@ class TestChebfunQR:
         f = chebfun(jnp.sin)
         g = chebfun(jnp.cos)
         Q, R = f.qr([g])
-        ip = float(Q.cols[0].inner(Q.cols[1]))
+        ip = float(Q.mat2cell()[0].inner(Q.mat2cell()[1]))
         npt.assert_allclose(ip, 0.0, atol=1e-11)
-        npt.assert_allclose(float(Q.cols[0].norm()), 1.0, atol=1e-12)
-        npt.assert_allclose(float(Q.cols[1].norm()), 1.0, atol=1e-12)
+        npt.assert_allclose(float(Q.mat2cell()[0].norm()), 1.0, atol=1e-12)
+        npt.assert_allclose(float(Q.mat2cell()[1].norm()), 1.0, atol=1e-12)
 
 
 # ============================================================================
@@ -357,7 +357,7 @@ class TestChebfunSVD:
         U, S, V = svd_quasimatrix(qm)
         for i in range(3):
             for j in range(3):
-                ip = float(U.cols[i].inner(U.cols[j]))
+                ip = float(U.mat2cell()[i].inner(U.mat2cell()[j]))
                 expected = 1.0 if i == j else 0.0
                 npt.assert_allclose(ip, expected, atol=1e-9,
                     err_msg=f"<U[:,{i}], U[:,{j}]> = {ip}")
@@ -389,13 +389,13 @@ class TestChebfunSVD:
         """SVD of a single Chebfun column."""
         f = chebfun(jnp.sin)
         U, S, V = f.svd()
-        assert U.n_cols == 1
+        assert U.n_columns == 1
         assert S.shape == (1,)
         assert V.shape == (1, 1)
         # S[0] = ||f||_2
         npt.assert_allclose(float(S[0]), float(f.norm()), rtol=1e-11)
         # U[:,0] is normalised
-        npt.assert_allclose(float(U.cols[0].norm()), 1.0, atol=1e-12)
+        npt.assert_allclose(float(U.mat2cell()[0].norm()), 1.0, atol=1e-12)
 
     def test_chebfun_svd_method(self):
         """Chebfun.svd() method matches svd_quasimatrix."""
@@ -441,8 +441,8 @@ class TestConvenienceAPI:
         f = chebfun(jnp.sin)
         g = chebfun(jnp.cos)
         Q, R = chebfun_qr([f, g])
-        assert isinstance(Q, Quasimatrix)
-        assert Q.n_cols == 2
+        assert isinstance(Q, Chebfun)
+        assert Q.n_columns == 2
         assert R.shape == (2, 2)
 
     def test_chebfun_svd_wrapper(self):
@@ -450,7 +450,7 @@ class TestConvenienceAPI:
         f = chebfun(jnp.sin)
         g = chebfun(jnp.cos)
         U, S, V = chebfun_svd([f, g])
-        assert isinstance(U, Quasimatrix)
+        assert isinstance(U, Chebfun)
         assert S.shape == (2,)
         assert V.shape == (2, 2)
 

@@ -1,5 +1,34 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native array-valued QR/SVD returns and scalar-zero branch (2026-10-09)
+
+Smooth/scalar QR now returns an actual Chebfun array, retaining factor panels
+and native matrix multiplication semantics. SVD preserves this representation;
+backslash, subspace, orth and pinv consumers use explicit column access.
+Public Chebfun normest/cond/rank expose the native estimate/tolerance formulas.
+The scalar-zero branch uses literal0*f+1/sqrt(diff(domain)), preserving C1/C2
+and source piecewise numeric-vector expansion. Orth's broader native return
+API and existing noncollatable fallback behavior remain separate gaps.
+
+Forty-nine passing instances across seven bounded serial CPU gates cover48
+unique case IDs, including all15 original QR slots and mldivide5/6 at their
+unchanged bounds. QR15 is repeated after the separate zero-branch repair.
+Other checks include array and complex-row SVD, consumers and legacy adapted
+regressions; these do not establish all native SVD/subspace clauses. A first
+missing-import failure is preserved; subsequent gates explicitly checked F821.
+
+Twelve final payload hashes match the last frozen snapshot. Migration and
+zero-branch patches/evidence are separately attributable. Three example
+consumers and one Chebfun2 test have column-access compatibility edits; their
+full numerical/page runs remain pending. Degree80 VandermondeArnoldi, full
+suite/native execution, publication and exact-head CI remain unresolved.
+Earlier degree8 diagnostics apply to their earlier accepted base.
+
+Evidence in shared goal scratch: qr_native_array_source_20261009/
+final_delivery_v1/HANDOFF.md, migration_delivery_v1, zero_followup_delivery_v1,
+and qr_native_array_root_runtime_review_20261009.json.
+
+
 ## Committed sphere backend regression coverage (2026-10-09)
 
 Five reusable test files retain the previously qualified numerical controls,

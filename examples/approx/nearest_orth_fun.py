@@ -53,10 +53,10 @@ def nearest_ortho(cols, label):
     U, S, V = svd_quasimatrix(A)
     V = np.asarray(V)
     # Q = U * V^T: columns q_j = sum_k u_k V[j,k]
-    Q = [sum(float(V[j, k]) * U.cols[k] for k in range(len(cols)))
+    Q = [sum(float(V[j, k]) * U.mat2cell()[k] for k in range(len(cols)))
          for j in range(len(cols))]
     Q2m, _R = qr_quasimatrix(A)
-    Q2 = list(Q2m.cols)
+    Q2 = Q2m.mat2cell()
     m = len(cols)
 
     FIGNUM[0] += 1

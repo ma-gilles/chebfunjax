@@ -26,7 +26,7 @@ class TestChebfunSvd:
                 cj.chebfun(lambda x: jnp.exp(x))]
         out = cols[0].svd(cols[1:])
         U, S, V = out
-        ucols = U.cols if hasattr(U, "cols") else U
+        ucols = U.mat2cell()
         n = len(ucols)
         G = np.zeros((n, n))
         for i in range(n):

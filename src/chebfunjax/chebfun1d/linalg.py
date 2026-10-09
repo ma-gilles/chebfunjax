@@ -612,6 +612,15 @@ class Quasimatrix:
             return jnp.asarray(C.real)
         return jnp.asarray(C)
 
+    def normest(self):
+        """Native @chebfun/normest estimate for a genuine quasimatrix.
+
+        The source resets the accumulator for each outer Chebfun, so the
+        final column supplies the result. Array-valued Chebfuns instead
+        include every column in each FUN estimate.
+        """
+        return self.cols[-1].normest() if self.cols else 0.0
+
     def rank(self, tol: float | None = None) -> int:
         """Numerical rank via singular values (MATLAB rank).
 
@@ -637,7 +646,8 @@ class Quasimatrix:
         """
         U, S, _ = self.svd()
         r = self.rank(tol)
-        return Quasimatrix(list(U.cols[:r]), self.domain)
+        from .mtimes import _columns
+        return Quasimatrix(list(_columns(U)[:r]), self.domain)
 
     def null(self, tol: float | None = None):
         """Orthonormal basis (matrix, n x k) for the discrete null
@@ -665,9 +675,11 @@ class Quasimatrix:
         U, S, V = self.svd()
         S = np.real(np.asarray(S))
         r = self.rank()
+        from .mtimes import _columns
+        ucols = _columns(U)
         # sesquilinear projections <u_i, f>
         proj = np.array([
-            complex(np.asarray(U.cols[i].inner(f)))  # inner conjugates U
+            complex(np.asarray(ucols[i].inner(f)))  # inner conjugates U
             for i in range(r)
         ])
         Vn = np.asarray(V)
@@ -965,11 +977,11 @@ def abstract_qr(
 
 def qr_quasimatrix(
     qm: Quasimatrix,
-) -> tuple[Quasimatrix, jnp.ndarray]:
+) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]:
     """QR factorization of a quasimatrix.
 
     Factorises ``qm`` (an n-column quasimatrix on [a, b]) as A = Q * R where
-    Q has L2-orthonormal columns (as a Quasimatrix) and R is an n x n upper-
+    Q has L2-orthonormal columns and R is an n x n upper-
     triangular matrix.
 
     Parameters
@@ -979,8 +991,9 @@ def qr_quasimatrix(
 
     Returns
     -------
-    Q : Quasimatrix
-        n-column quasimatrix with L2-orthonormal columns.
+    Q : Chebfun or Quasimatrix
+        Array-valued Chebfun for collatable polynomial columns, otherwise a
+        Quasimatrix, with L2-orthonormal columns.
     R : jnp.ndarray, shape (n, n)
         Upper-triangular factor.  A = Q @ R in the quasimatrix sense:
         A[:,j] = sum_i Q[:,i] * R[i,j].
@@ -1019,14 +1032,12 @@ def qr_quasimatrix(
         if r > 0.0:
             Q_col = f * (1.0 / r)
         else:
-            # Zero function: return 1/sqrt(b-a)
-            a, b = domain.a, domain.b
-            Q_col = Chebfun.from_function(
-                lambda x: jnp.full_like(x, 1.0 / np.sqrt(b - a)),
-                domain=domain,
-            )
+            # @chebfun/qr.m32: retain technology and numeric-row expansion.
+            # With breakpoints the native diff(domain) is a vector.
+            widths = jnp.diff(jnp.asarray(domain.breakpoints))
+            Q_col = 0 * f + 1 / jnp.sqrt(widths)
         R = jnp.array([[r]], dtype=jnp.float64)
-        return Quasimatrix(cols=[Q_col], domain=domain), R
+        return Q_col, R
 
     # @chebfun/{quasi2cheb,qr}: ordinary polynomial FUNs collate into
     # array-valued panels. Only noncollatable representations use abstractQR.
@@ -1072,12 +1083,10 @@ def qr_quasimatrix(
                       for k, panel in enumerate(panels)]
         # Native qr constructs new FUNs/Chebfuns; point values are recomputed
         # from the new panels, not copied from the input columns.
-        result = [Chebfun(funs=[_Piece(
-            tech=type(panel)(coeffs=panel.coeffs[:, j],
-                             ishappy=panel.ishappy), interval=interval)
-            for panel, interval in zip(panels, intervals)],
-            domain=panel_domain) for j in range(n)]
-        return Quasimatrix(result, panel_domain), R
+        result = Chebfun(funs=[_Piece(tech=panel, interval=interval)
+                                for panel, interval in zip(panels, intervals)],
+                         domain=panel_domain)
+        return result, R
 
     # Build Legendre basis
     basis = _legendre_basis(n, domain)
@@ -1130,7 +1139,7 @@ def svd_quasimatrix(
 
     Returns
     -------
-    U : Quasimatrix
+    U : Chebfun or Quasimatrix
         n-column quasimatrix with L2-orthonormal columns (left singular
         functions).
     S : jnp.ndarray, shape (n,)
@@ -1160,21 +1169,8 @@ def svd_quasimatrix(
     R_np = np.array(R)
     U_r, S_np, Vt_np = np.linalg.svd(R_np, full_matrices=False)
 
-    # Step 3: U = Q * U_r  (quasimatrix times matrix)
-    # U[:,i] = sum_j Q[:,j] * U_r[j,i]
-    n = qm.n_cols
-    U_cols = []
-    cplx = np.iscomplexobj(U_r)
-    U_cols = []
-    for i in range(n):
-        col = Q.cols[0] * (complex(U_r[0, i]) if cplx
-                           else float(U_r[0, i]))
-        for j in range(1, n):
-            col = col + Q.cols[j] * (complex(U_r[j, i]) if cplx
-                                     else float(U_r[j, i]))
-        U_cols.append(col)
-
-    U = Quasimatrix(cols=U_cols, domain=qm.domain)
+    # @chebfun/svd: multiplication preserves the QR return representation.
+    U = Q @ jnp.asarray(U_r)
     S = jnp.array(S_np, dtype=jnp.float64)
     # A = U S V^H, so V = Vt^H (conjugate transpose, complex-safe)
     Vn = Vt_np.conj().T
@@ -1189,7 +1185,7 @@ def svd_quasimatrix(
 # Convenience: attach qr / svd to Chebfun as a "quasimatrix" factory
 # ============================================================================
 
-def chebfun_qr(cols: list[Chebfun]) -> tuple[Quasimatrix, jnp.ndarray]:
+def chebfun_qr(cols: list[Chebfun]) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]:
     """QR factorization of a list of Chebfun columns.
 
     Convenience wrapper: builds a Quasimatrix from ``cols`` and calls
@@ -1203,7 +1199,7 @@ def chebfun_qr(cols: list[Chebfun]) -> tuple[Quasimatrix, jnp.ndarray]:
 
     Returns
     -------
-    Q : Quasimatrix
+    Q : Chebfun or Quasimatrix
     R : jnp.ndarray, shape (n, n)
 
     See Also
@@ -1231,7 +1227,7 @@ def chebfun_svd(cols: list[Chebfun]) -> tuple[Quasimatrix, jnp.ndarray, jnp.ndar
 
     Returns
     -------
-    U : Quasimatrix
+    U : Chebfun or Quasimatrix
     S : jnp.ndarray, shape (n,)
     V : jnp.ndarray, shape (n, n)
 

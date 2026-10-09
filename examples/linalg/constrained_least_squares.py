@@ -59,7 +59,7 @@ def _backslash(A, f):
     """A\\f for a quasimatrix A (MATLAB @chebfun/mldivide: QR)."""
     Q, R = chebfun_qr(list(A.cols))
     return np.linalg.solve(np.asarray(R),
-                           np.array([float(q.inner(f)) for q in Q.cols]))
+                           np.array([float(q.inner(f)) for q in Q.mat2cell()]))
 
 
 def gqr(A, B):
@@ -72,7 +72,7 @@ def gqr(A, B):
     if isinstance(A, Quasimatrix):
         AQ = A @ Q
         U0, R0 = chebfun_qr([g.flipud() for g in AQ.cols[::-1]])
-        U = [u.flipud() for u in list(U0.cols)[::-1]]
+        U = [u.flipud() for u in U0.mat2cell()[::-1]]
     else:
         U0, R0 = np.linalg.qr(np.flipud(np.fliplr(A @ Q)))
         U = np.flipud(np.fliplr(U0.T))

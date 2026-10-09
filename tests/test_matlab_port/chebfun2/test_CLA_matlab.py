@@ -23,12 +23,13 @@ jax.config.update("jax_enable_x64", True)
 
 
 def _qr_residual(Q):
-    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    from chebfunjax.chebfun1d.chebfun import Chebfun
     q, R = Q.qr()
-    cols = list(getattr(q, "cols", q))
-    QR = Quasimatrix(cols, Q.domain) @ np.asarray(R)
+    assert isinstance(q, Chebfun)
+    QR = q @ np.asarray(R)
+    assert isinstance(QR, Chebfun)
     return float(np.sqrt(sum(float((a - b).norm(2)) ** 2
-                             for a, b in zip(QR.cols, Q.cols))))
+                             for a, b in zip(QR.mat2cell(), Q.cols))))
 
 
 class TestChebfun2CLA:

@@ -6192,6 +6192,38 @@ class Chebfun(eqx.Module):
     # Quasimatrix linear algebra: qr, svd
     # ------------------------------------------------------------------
 
+    def cond(self):
+        """Two-norm condition number, @chebfun/cond.m (7574c77)."""
+        _, singular_values, _ = self.svd()
+        return singular_values[0] / singular_values[-1]
+
+    def rank(self, tol=None):
+        """Numerical rank, with the native length/vscale tolerance."""
+        _, singular_values, _ = self.svd()
+        if tol is None:
+            largest = jnp.max(singular_values)
+            spacing = jnp.nextafter(largest, jnp.inf) - largest
+            tol = jnp.maximum(len(self) * spacing,
+                              self.vscale * jnp.finfo(jnp.float64).eps)
+        return jnp.sum(singular_values > tol)
+
+    def normest(self):
+        """Sum FUN norm estimates, including all array-valued columns.
+
+        MATLAB @chebfun/normest delegates to each FUN; polynomial and
+        trigonometric technologies use max(abs(values)), not pointValues.
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+
+        out = 0.0
+        for piece in self.funs:
+            tech = piece.tech
+            if isinstance(tech, Trigtech):
+                out = out + jnp.max(jnp.abs(tech.values))
+            else:
+                out = out + tech.normest()
+        return out
+
     def qr(self, other_cols: list | None = None):
         """QR factorization of this Chebfun as a single column, or a quasimatrix.
 
@@ -6211,8 +6243,9 @@ class Chebfun(eqx.Module):
 
         Returns
         -------
-        Q : Quasimatrix
-            Quasimatrix with L2-orthonormal columns on the same domain.
+        Q : Chebfun or Quasimatrix
+            Array-valued Chebfun for collatable columns, otherwise a
+            Quasimatrix, with L2-orthonormal columns on the same domain.
         R : jnp.ndarray, shape (n, n)
             Upper-triangular factor.  If all n columns are ``[self]``, R is
             1 x 1.
@@ -6261,7 +6294,7 @@ class Chebfun(eqx.Module):
 
         Returns
         -------
-        U : Quasimatrix
+        U : Chebfun or Quasimatrix
             Left singular functions (L2-orthonormal columns).
         S : jnp.ndarray, shape (n,)
             Singular values in non-increasing order.
@@ -6284,11 +6317,12 @@ class Chebfun(eqx.Module):
         Chebfun.qr, chebfun1d.linalg.svd_quasimatrix
         """
         from chebfunjax.chebfun1d.linalg import chebfun_svd
-        if other_cols is None:
-            cols = [self]
-        else:
-            cols = [self] + list(other_cols)
-        return chebfun_svd(cols)
+        from chebfunjax.chebfun1d.mtimes import _columns
+        inputs = [self] if other_cols is None else [self] + list(other_cols)
+        cols = [col for f in inputs for col in
+                _columns(f.H if f.is_transposed else f)]
+        U, S, V = chebfun_svd(cols)
+        return (V, S, U) if self.is_transposed else (U, S, V)
 
     def diag(self):
         """Multiplication-by-self operator ``D`` with ``D*g == self.*g``
@@ -9458,6 +9492,7 @@ def mldivide(A, B):
     Chebfun commit: 7574c77
     """
     from chebfunjax.chebfun1d.linalg import Quasimatrix, chebfun_qr
+    from chebfunjax.chebfun1d.mtimes import _columns
 
     if isinstance(A, (Chebfun, Quasimatrix)) and not A.is_transposed:
         acols = A.cols if isinstance(A, Quasimatrix) else A.mat2cell()
@@ -9469,7 +9504,7 @@ def mldivide(A, B):
         A.domain.union(B.domain)
         Q, R = chebfun_qr(list(acols))
         products = jnp.stack([jnp.stack([q.inner(b) for b in bcols])
-                              for q in Q.cols])
+                              for q in _columns(Q)])
         result = jnp.linalg.solve(R, products)
         return result[:, 0] if len(bcols) == 1 else result
 
@@ -12782,6 +12817,7 @@ def subspace(
     import numpy as _np
 
     from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix
+    from chebfunjax.chebfun1d.mtimes import _columns
 
     if not A or not B:
         raise ValueError("subspace: A and B must be non-empty lists of Chebfun.")
@@ -12802,13 +12838,14 @@ def subspace(
     QA, _ = qr_quasimatrix(qA)
     QB, _ = qr_quasimatrix(qB)
 
-    pA = len(QA.cols)
-    pB = len(QB.cols)
+    acols, bcols = _columns(QA), _columns(QB)
+    pA = len(acols)
+    pB = len(bcols)
 
     # Build Gram matrix C_ij = <QA_i, QB_j>
     C = _np.zeros((pA, pB), dtype=_np.float64)
-    for i, colA in enumerate(QA.cols):
-        for j, colB in enumerate(QB.cols):
+    for i, colA in enumerate(acols):
+        for j, colB in enumerate(bcols):
             C[i, j] = float(colA.inner(colB))
 
     # Singular values of C
@@ -12824,9 +12861,9 @@ def subspace(
             # Compute QA - projection of QA onto QB
             # recontruct vector norms
             diff_cols = []
-            for i, colA in enumerate(QA.cols):
+            for i, colA in enumerate(acols):
                 proj = None
-                for j, colB in enumerate(QB.cols):
+                for j, colB in enumerate(bcols):
                     c_ij = C[i, j]
                     if proj is None:
                         proj = colB * c_ij
@@ -12837,9 +12874,9 @@ def subspace(
             sin_theta = max(float(col.norm()) for col in diff_cols) if diff_cols else 0.0
         else:
             diff_cols = []
-            for j, colB in enumerate(QB.cols):
+            for j, colB in enumerate(bcols):
                 proj = None
-                for i, colA in enumerate(QA.cols):
+                for i, colA in enumerate(acols):
                     c_ij = C[i, j]
                     if proj is None:
                         proj = colA * c_ij

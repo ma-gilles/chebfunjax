@@ -58,7 +58,7 @@ def run():
     print(f"     {A.cond():.15e}")
 
     Q, R = A.qr()
-    _plotcoeffs(Q.cols, "Q")
+    _plotcoeffs(Q.mat2cell(), "Q")
 
     # norm(A - Q*R): largest singular value of the residual quasimatrix
     R = np.asarray(R)
@@ -66,7 +66,7 @@ def run():
     for j in range(10):
         qr_col = None
         for i in range(10):
-            term = Q.cols[i] * float(R[i, j])
+            term = Q.mat2cell()[i] * float(R[i, j])
             qr_col = term if qr_col is None else qr_col + term
         resid_cols.append(cols[j] - qr_col)
     _, S, _ = svd_quasimatrix(
