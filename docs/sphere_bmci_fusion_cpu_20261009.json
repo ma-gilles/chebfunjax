@@ -1,0 +1,79 @@
+{
+  "scope": "Compile existing BMC-I projection formula in persistent JAX kernels with static parity/pole flags; no source formula change.",
+  "base": "8e60bd39",
+  "native_source": "@spherefun/projectOntoBMCI.m",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "tests": {
+    "exact_eager_byte_cases": 8,
+    "unchanged_source_controls": 17
+  },
+  "verification": "Source input hashes, AST identity after removing only decorators/identity barriers, JUnit and terminal process receipts; no full dependency/runtime audit.",
+  "application": {
+    "scope": "Actual five-Gaussian initialization and first m150 solve complete; second solve capped. Source-guard verification only, no matched speedup or full-page parity.",
+    "original_handle": 32012,
+    "terminal": true,
+    "exit": 137,
+    "censored_limit": "sampled_summed_RSS_cap",
+    "peak_rss_kib": 3147960,
+    "events": [
+      {
+        "stage": "start",
+        "seconds": 2.764631062746048e-06,
+        "maxrss_kib": 423868,
+        "jax": "0.11.0"
+      },
+      {
+        "stage": "constructed",
+        "seconds": 46.19330714875832,
+        "maxrss_kib": 2590828,
+        "mean": 0.04166666666666654
+      },
+      {
+        "stage": "before_step",
+        "seconds": 46.19386464776471,
+        "maxrss_kib": 2590828,
+        "step": 0
+      },
+      {
+        "stage": "after_step",
+        "seconds": 46.24029458966106,
+        "maxrss_kib": 2590828,
+        "step": 0,
+        "mean": 0.04166666666666654,
+        "mean_error": 0.0
+      },
+      {
+        "stage": "before_step",
+        "seconds": 46.240666288882494,
+        "maxrss_kib": 2590828,
+        "step": 1
+      },
+      {
+        "stage": "after_step",
+        "seconds": 56.354300032835454,
+        "maxrss_kib": 3030508,
+        "step": 1,
+        "mean": 0.041666666666666484,
+        "mean_error": 5.551115123125783e-17
+      },
+      {
+        "stage": "before_step",
+        "seconds": 56.35522123472765,
+        "maxrss_kib": 3030892,
+        "step": 2
+      }
+    ],
+    "receipt_sha256": "76d4f21cb192f27ffe959f02ea3d96a30370845f3f7d41a4d3e1346fcab0d2ea"
+  },
+  "limitations": [
+    "Second m150 step still exceeds 3GiB",
+    "No complete SphereHeat page or visual parity",
+    "Exact eager bytes tested only for recorded fixtures; no universal compiler rounding promise"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_bmci_fusion_source_20261009/bitwise8_v1/ROOT_REVIEW.json": "4cf89d8bb661d6c029df2c7e68b99d74d307853e3cf19548436618e64361a563",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_bmci_fusion_source_20261009/controls17_v1/ROOT_REVIEW.json": "17bbb735b09e68b461ff8837b110b9e6d5f37c6d2a9ee8ba7d476538d2baee88",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_bmci_fusion_source_20261009/SOURCE_AST_v1.json": "9dadf107839d6dc2559c962fa87cbbfc1ba0cbe7d5b71444541a5c4eecf388be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_public_source_20261009/gaussian_prefix2_bmci_v1/ROOT_REVIEW.json": "548382caa6e0a274367bb52d27e9fd256258db062877597f0465fedf7efaf90b"
+  }
+}

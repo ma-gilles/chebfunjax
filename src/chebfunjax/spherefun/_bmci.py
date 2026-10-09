@@ -6,6 +6,9 @@ MATLAB source : @spherefun/projectOntoBMCI.m; @trigtech/{real,populate,
     prolong,simplify,extractColumns}.m
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 """
+from functools import partial
+
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.spherefun._factor_assembly import stack_factor_coefficients
@@ -23,6 +26,7 @@ def _stack(techs):
     return stack_factor_coefficients(techs)
 
 
+@partial(jax.jit, static_argnames=("even", "nonzero_poles"))
 def _columns(coeffs, even, nonzero_poles):
     original_n = coeffs.shape[0]
     x = coeffs
@@ -30,21 +34,24 @@ def _columns(coeffs, even, nonzero_poles):
         x = jnp.concatenate((x[:1] * .5, x[1:], x[:1] * .5), axis=0)
     m = x.shape[0]
     if even:
-        x = x - .5 * (x - x[::-1])
+        x = x - jax.lax.optimization_barrier(.5 * (x - x[::-1]))
         start = 1 if nonzero_poles else 0
         if start < x.shape[1]:
             y = x[:, start:]
-            y = y.at[::2].add(-(2.0 / (m + 1)) * jnp.sum(y[::2], axis=0))
+            y = y.at[::2].add(jax.lax.optimization_barrier(
+                -(2.0 / (m + 1)) * jnp.sum(y[::2], axis=0)))
             if m > 1:
-                y = y.at[1::2].add(-(2.0 / (m - 1)) * jnp.sum(y[1::2], axis=0))
+                y = y.at[1::2].add(jax.lax.optimization_barrier(
+                    -(2.0 / (m - 1)) * jnp.sum(y[1::2], axis=0)))
             x = x.at[:, start:].set(y)
     else:
-        x = x - .5 * (x + x[::-1])
+        x = x - jax.lax.optimization_barrier(.5 * (x + x[::-1]))
     if original_n % 2 == 0:
         x = x.at[0].set(x[0] + x[-1])[:-1]
     return x
 
 
+@partial(jax.jit, static_argnames=("even",))
 def _rows(coeffs, even):
     modes = jnp.arange(coeffs.shape[0]) - coeffs.shape[0] // 2
     remove = (modes % 2 != 0) if even else (modes % 2 == 0)
