@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Restored autoVectorize execution setups (2026-10-08)
+
+Canonical tests now reproduce original setups1–5, including late operator
+assignment, coefficient closures, general BCs and exact coupled initial values.
+All five original completion-without-exception predicates pass. Two independent
+assignment/action controls pass; no constructor or assignment defect was found.
+Prior four endpoint controls remain separately named legacy tests and were not
+rerun in this package. No library files changed.
+
+These are execution checks, not native vectorization or algorithm parity. Python
+pointwise operators spell the already-vectorized expressions; original clause6
+stays pending. Cases1/2 run SciPy LSODA instead of native ode113. Coupled5 retains
+the existing fixed48 solver. Source3/4 use the accepted scalar Newton path.
+
+Root rehashed1789 imported files for assignment/1/2/5 and1797 for3/4, source
+hashes and delivered tests; six receipts terminal0/stable/no survivors. The
+source/test/runner guards are prebound, but1716–1724 imported dependencies per
+gate were only hashed after execution, not prebound. This is not a fully bound
+runtime-environment qualification. Evidence:autovectorize_root_review_20261008.json
+and autovectorize_scalar_source_20261008/HANDOFF_FINAL_v1.json in shared scratch.
+Full native callable rewriting, solver algorithms, all tests/pages and CI remain open.
+
 ## Explicit contour level counts (2026-10-08)
 
 Scalar contour counts now use the R2017a contourobjHelper source rule: exactly
