@@ -87,17 +87,56 @@ def test_fixed_length_explicit_false_and_finite_numeric_transform(tech, monkeypa
 
 
 @pytest.mark.parametrize("tech", [Chebtech1, Chebtech2])
-def test_callable_omission_retains_prior_false_defaults(tech):
+def test_callable_omission_inherits_session_with_explicit_false_override(tech, monkeypatch):
+    # Native chebfun parseInputs739-744 merges explicit fields into a private
+    # session preference. Omission must not manufacture False overrides.
+    import importlib
+    module = importlib.import_module("chebfunjax.tech.chebtech")
+    original_construct = tech.from_function
+    original_turbo = module._turbo_coeffs
+    observed = []
+    turbo_lengths = []
+    def observe(cls, op, **kwargs):
+        observed.append(kwargs.copy())
+        return original_construct(op, **kwargs)
+    def turbo(op, coefficients, count):
+        turbo_lengths.append(count)
+        return original_turbo(op, coefficients, count)
+    monkeypatch.setattr(tech, "from_function", classmethod(observe))
+    monkeypatch.setattr(module, "_turbo_coeffs", turbo)
     ChebfunPref.setDefaults("useTurbo", True)
     ChebfunPref.setDefaults("extrapolate", True)
     omitted = chebfun(jnp.exp, tech=tech, n=9)
     explicit = chebfun(jnp.exp, tech=tech, n=9, turbo=False, extrapolate=False)
-    assert bool(jnp.all(omitted.funs[0].tech.coeffs == explicit.funs[0].tech.coeffs))
+    assert [entry["turbo"] for entry in observed] == [True, False]
+    if tech is Chebtech2:
+        assert [entry["extrapolate"] for entry in observed] == [True, False]
+    assert turbo_lengths == [9]
+    assert omitted.funs[0].n == explicit.funs[0].n == 9
+    assert bool(jnp.all(jnp.isfinite(omitted.funs[0].tech.coeffs)))
+    kind = 1 if tech is Chebtech1 else 2
+    expected = tech.from_values(jnp.exp(chebpts(9, kind=kind)))
+    assert bool(jnp.all(explicit.funs[0].tech.coeffs == expected.coeffs))
+    assert ChebfunPref().useTurbo is True and ChebfunPref().extrapolate is True
 
 
-def test_trig_adaptive_options_remain_explicitly_unsupported():
-    with pytest.raises(ValueError, match="not yet supported"):
-        chebfun(0., domain=(0., float("inf")), trig=True, sample_test=False)
+def test_trig_adaptive_options_use_qualified_full_preference_route(monkeypatch):
+    # Native unbndfun numeric zero -> operator -> selected Trig preferences.
+    # Accepted R2 now supports sampleTest, so the old rejection is obsolete.
+    from chebfunjax.tech.trigtech import Trigtech
+    original = Trigtech.from_function
+    observed = []
+    def observe(cls, op, **kwargs):
+        observed.append(kwargs)
+        return original(op, **kwargs)
+    monkeypatch.setattr(Trigtech, "from_function", classmethod(observe))
+    f = chebfun(0., domain=(0., float("inf")), trig=True, sample_test=False)
+    assert len(observed) == 1
+    assert observed[0]["pref"]["sampleTest"] is False
+    assert observed[0]["data"] == {"hscale": 1., "vscale": 0.}
+    assert isinstance(f.funs[0].tech, Trigtech) and f.funs[0].ishappy
+    assert f.vscale == 0
+    assert bool(jnp.all(f(jnp.asarray([0., 1., float("inf")])) == 0))
 
 
 @pytest.mark.parametrize("tech,kind", [(Chebtech1, 1), (Chebtech2, 2)])

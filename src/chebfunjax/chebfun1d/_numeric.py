@@ -33,11 +33,6 @@ def source_numeric_chebfun(values, domain, *, tech, n, pref,
     if key not in classes:
         raise ValueError(f'Unknown numeric construction Tech: {tech!r}')
     cls = classes[key]
-    if cls is Trigtech and any(
-            (zero_overrides or {}).get(name) is not None
-            for name in ("sample_test", "refinement_function")):
-        raise ValueError("sample_test/refinement_function overrides are not "
-                         "yet supported for numeric Trigtech construction")
     if explicit_trig and len(points) != 2:
         raise ValueError('CHEBFUN:parseInputs:periodic: periodic construction '
                          'does not support domains with breakpoints.')
@@ -81,8 +76,11 @@ def source_numeric_chebfun(values, domain, *, tech, n, pref,
                 for key, value in (zero_overrides or {}).items():
                     if value is not None and key in options:
                         options[key] = value
-            # Trigtech's existing n/maxpow2 API cannot express these prefs.
-            # Retain its qualified numeric/fixedLength behavior separately.
+            if cls is Trigtech:
+                # Accepted source constructor consumes all selected Tech
+                # preferences; native unbounded zero remains a real operator.
+                options = {'pref': pref.techPrefs,
+                           'data': {'hscale': 1., 'vscale': 0.}}
             constructed = cls.from_function(zero, n=length, **options)
             pieces.append(Unbndfun.from_chebtech(constructed, interval))
             continue

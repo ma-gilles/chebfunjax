@@ -54,6 +54,18 @@ def _install_scheduler_seams(monkeypatch, fits, edges=()):
         edge_events.append(interval)
         return scripted_edges[interval]
 
+    # Public construction now uses selected-Tech context fitting. Observe
+    # that seam while retaining actual bounded_get_fun scale propagation.
+    context = importlib.import_module("chebfunjax.chebfun1d._construction_context")
+    original_get_fun = context.bounded_get_fun
+    active_interval = [None]
+    def get_fun(op, interval, data, pref):
+        active_interval[0] = interval
+        return original_get_fun(op, interval, data, pref)
+    def tech_from_function(cls, op, **kwargs):
+        return piece_from_function(_Piece, op, *active_interval[0], **kwargs).tech
+    monkeypatch.setattr(context, "bounded_get_fun", get_fun)
+    monkeypatch.setattr(Chebtech2, "from_function", classmethod(tech_from_function))
     monkeypatch.setattr(_Piece, "from_function", classmethod(piece_from_function))
     monkeypatch.setattr(module, "_detect_edge_matlab", detect_edge)
     monkeypatch.setattr(Chebfun, "merge", lambda self, *args, **kwargs: self)

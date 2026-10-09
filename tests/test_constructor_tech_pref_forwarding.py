@@ -61,7 +61,7 @@ def test_omitted_tol_and_factory_check_unchanged(monkeypatch, tech):
     try:
         ChebfunPref.setDefaults("factory")
         chebfun(jnp.exp, tech=tech, n=9)
-        assert calls[0]["tol"] is None
+        assert calls[0]["tol"] == ChebfunPref().chebfuneps
         assert calls[0]["check"] == "standard"
     finally:
         ChebfunPref.setDefaults(saved)

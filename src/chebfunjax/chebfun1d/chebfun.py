@@ -23,6 +23,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.chebfun1d._construction import OMITTED
 from chebfunjax.domain import Domain, _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.utils.elementary import _atanh_log1p_real
@@ -4473,7 +4474,8 @@ class Chebfun(eqx.Module):
               min_samples: int | None = None,
               refinement_function: str | Callable | None = None,
               max_length: int | None = None, splitting: bool | None = None,
-              turbo: bool = False, check: str = "standard") -> "Chebfun":
+              turbo: bool = False, check: str = "standard",
+              _construction_pref=None) -> "Chebfun":
         """Remove supported smooth or singular breakpoints in one source-ordered pass.
 
         Python index values remain breakpoint LOCATIONS, preserving this public
@@ -4492,10 +4494,30 @@ class Chebfun(eqx.Module):
         from chebfunjax.fun.singfun import Singfun
         from chebfunjax.tech.chebtech import Chebtech1
 
+        source_pref = None
+        if _construction_pref is not None:
+            from chebfunjax.chebfun1d._construction import endpoint_limit
+            from chebfunjax.chebfun1d._construction_context import bounded_get_fun
+            from chebfunjax.chebpref import ChebfunPref
+            from chebfunjax.tech.trigtech import Trigtech
+            source_pref = ChebfunPref(_construction_pref)
+            splitting = bool(source_pref.splitting)
+            max_length = (source_pref.splitPrefs.splitLength if splitting
+                          else source_pref.maxLength)
+            source_pref.maxLength = max_length
+            if splitting:
+                source_pref.extrapolate = True
+            source_pref.chebfuneps = jnp.maximum(jnp.finfo(jnp.float64).eps,
+                                               jnp.asarray(source_pref.chebfuneps))
+            source_pref.blowup = False
+            tol = source_pref.chebfuneps
+
         if len(self.funs) < 2:
             return self
         from chebfunjax.fun.unbndfun import Unbndfun
-        if any(not isinstance(p.tech, (Chebtech1, Chebtech2, Singfun))
+        supported = ((Chebtech1, Chebtech2, Singfun) if source_pref is None
+                     else (Chebtech1, Chebtech2, Trigtech, Singfun))
+        if any(not isinstance(p.tech, supported)
                or (not all(math.isfinite(t) for t in p.interval)
                    and not isinstance(p, Unbndfun)) for p in self.funs):
             # Periodic and unsupported representation adapters remain separate.
@@ -4540,8 +4562,12 @@ class Chebfun(eqx.Module):
                 continue
             # Original point values and original one-sided limits are invariant
             # throughout the pass, even when earlier current neighbors changed.
-            limits = jnp.stack((_merge_limit_row(old_funs[k - 1], True),
-                                _merge_limit_row(old_funs[k], False)))
+            if source_pref is None:
+                limits = jnp.stack((_merge_limit_row(old_funs[k - 1], True),
+                                    _merge_limit_row(old_funs[k], False)))
+            else:
+                limits = jnp.stack((jnp.ravel(endpoint_limit(old_funs[k - 1], True)),
+                                    jnp.ravel(endpoint_limit(old_funs[k], False))))
             differences = old_values[k][None, :] - limits
             # MATLAB matrix norm(...,inf) is max row SUM, not max entry.
             jumps = jnp.max(jnp.sum(jnp.abs(differences), axis=1)) / vs
@@ -4553,13 +4579,22 @@ class Chebfun(eqx.Module):
                 raise ValueError("F and G must be on consecutive domains.")
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                trial = _merge_fun_source(
-                    left, right,
-                    maxpow2=16 if maxpow2 is None else int(maxpow2),
-                    max_length=cap, tol=tolerance, splitting=splitting,
-                    vscale=float(vs), hscale=hs, sample_test=sample_test,
-                    min_samples=min_samples, refinement_function=refinement_function,
-                    turbo=turbo, check=check)
+                if (source_pref is not None and all(math.isfinite(x) for x in
+                        (left.interval[0], right.interval[1]))
+                        and not isinstance(left.tech, Singfun)
+                        and not isinstance(right.tech, Singfun)):
+                    trial, _, _ = bounded_get_fun(
+                        lambda x: _merge_pair_values(x, left, right),
+                        (left.interval[0], right.interval[1]),
+                        {'vscale': vs, 'hscale': hs}, source_pref)
+                else:
+                    trial = _merge_fun_source(
+                        left, right,
+                        maxpow2=16 if maxpow2 is None else int(maxpow2),
+                        max_length=cap, tol=tolerance, splitting=splitting,
+                        vscale=float(vs), hscale=hs, sample_test=sample_test,
+                        min_samples=min_samples, refinement_function=refinement_function,
+                        turbo=turbo, check=check)
             if not trial.ishappy:
                 continue
             funs[j - 1:j + 1] = [trial]
@@ -8946,11 +8981,11 @@ class Chebfun(eqx.Module):
         return roots.shape[0] == 0
 
     def isempty(self) -> bool:
-        """True if the Chebfun has no pieces.
+        """True when no FUN exists or the first FUN is empty, as in source.
 
-        In practice, the standard constructor always creates at least one
-        piece, so this is always False for valid Chebfuns.  It is kept for
-        API compatibility.
+        Fixed-length zero construction retains its original domain and an
+        empty FUN. Emptiness does not require collapsing this representation
+        to the no-argument constructor's empty list.
 
         Returns
         -------
@@ -8961,7 +8996,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/isempty.m
         Chebfun commit: 7574c77
         """
-        return len(self.funs) == 0
+        return not self.funs or self.funs[0].tech.isempty()
 
     def isequal(self, other: Chebfun) -> bool:
         """Equality test: True if self and other have identical coefficients.
@@ -10333,6 +10368,7 @@ def _chebfun_build(
     resampling: bool = False,
     sample_test: bool | None = None,
     refinement_function: str | Callable | None = None,
+    _construction_context=None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -10425,6 +10461,29 @@ def _chebfun_build(
     # chebfun(@sin, 0)): no data / a zero-length domain -> the empty object.
     import numpy as _np
 
+    context = _construction_context
+    if context is not None:
+        from chebfunjax.chebfun1d._construction_context import fixed_length, selected_tech
+        from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.tech.trigtech import Trigtech
+        n = fixed_length(context.pref)
+        eps = context.pref.chebfuneps
+        max_length = context.pref.maxLength
+        min_samples = context.pref.minSamples
+        turbo = context.pref.techPrefs.get('useTurbo', False)
+        extrapolate = context.pref.extrapolate
+        splitting = context.pref.splitting
+        blowup = context.pref.blowup
+        split_length = context.pref.splitPrefs.splitLength
+        split_max_length = context.pref.splitPrefs.splitMaxLength
+        cls = selected_tech(context.pref)
+        trig = cls is Trigtech
+        chebkind = 1 if cls is Chebtech1 else None
+        tech = None
+        periodic = False
+        vectorize = False
+        equi = context.pref.enableFunqui
+
     # Preserve omission for the native numeric-zero preference boundary.
     # Every existing nonnumeric branch still sees its prior False defaults.
     _numeric_turbo, _numeric_extrapolate = turbo, extrapolate
@@ -10436,7 +10495,8 @@ def _chebfun_build(
     # Session defaults (MATLAB chebfunpref / the splitting() and blowup()
     # toggles) apply when the flags are not given explicitly.
     if splitting is None or blowup is None:
-        from chebfunjax.chebpref import ChebfunPref as _CP
+        from chebfunjax.chebpref import ChebfunPref as _SessionCP
+        _CP = _SessionCP if context is None else lambda: _SessionCP(context.pref)
         _pref = _CP()
         if splitting is None:
             splitting = bool(_pref.splitting)
@@ -10447,7 +10507,8 @@ def _chebfun_build(
                 blowup = 1 if str(
                     _pref.blowupPrefs.defaultSingType).lower() == "pole" \
                     else 2
-    from chebfunjax.chebpref import ChebfunPref as _CP
+    from chebfunjax.chebpref import ChebfunPref as _SessionCP
+    _CP = _SessionCP if context is None else lambda: _SessionCP(context.pref)
     _sample_test = (bool(_CP().sampleTest) if sample_test is None
                     else bool(sample_test))
     if resampling:
@@ -10519,9 +10580,9 @@ def _chebfun_build(
             trig = False
         elif isinstance(f.funs[0].tech, Trigtech) and not trig:
             trig = True
-    if vectorize and callable(f):
+    if context is None and vectorize and callable(f):
         f = _vectorize_op(f)
-    elif callable(f) and not isinstance(f, Chebfun):
+    elif context is None and callable(f) and not isinstance(f, Chebfun):
         f = _vector_check(f)
     # Native ordinary numeric construction owns Tech selection, full-domain
     # iteration and nonfinite preprocessing; do not adapt numeric data as a
@@ -10539,7 +10600,8 @@ def _chebfun_build(
                 _numeric_values, domain, tech=("trigtech" if trig else
                     ("chebtech1" if chebkind == 1 else
                      "chebtech2" if chebkind == 2 else _CP().tech)),
-                n=n, pref=_CP(), explicit_trig=trig,
+                n=n, pref=_CP(), explicit_trig=(
+                    context.explicit_periodic if context is not None else trig),
                 zero_overrides={
                     "tol": eps, "max_length": max_length,
                     "min_samples": min_samples, "turbo": _numeric_turbo,
@@ -10648,8 +10710,10 @@ def _chebfun_build(
                         for t in _elems)))
         if _cellish:
             def _cell_entry(t):
+                if context is not None:
+                    return t
                 if callable(t):
-                    return _vector_check(t)
+                    return _vector_check(t) if context is None else t
                 if isinstance(t, (int, float)):
                     return t
                 _v = jnp.asarray(t, dtype=jnp.float64).ravel()
@@ -10667,8 +10731,15 @@ def _chebfun_build(
             _pairs = (_parse_exps(exps, len(_elems))
                       if exps is not None else [None] * len(_elems))
             _funs = []
+            _cell_vscale = 0. if context is None else context.data['vscale']
             for _k, _op in enumerate(_elems):
-                _sub = chebfun(
+                _builder = chebfun if context is None else _chebfun_build
+                _extra = {}
+                if context is not None:
+                    child = context.interval(_k)
+                    child.data['vscale'] = _cell_vscale
+                    _extra['_construction_context'] = child
+                _sub = _builder(
                     _op, domain=(_dv[_k], _dv[_k + 1]), n=n, trig=trig,
                     eps=eps, max_length=max_length, splitting=splitting,
                     split_length=split_length,
@@ -10676,8 +10747,12 @@ def _chebfun_build(
                     blowup=blowup, singType=singType, turbo=turbo,
                     equi=equi, coeffs=coeffs, min_samples=min_samples,
                     sample_test=sample_test,
-                    refinement_function=refinement_function)
+                    refinement_function=refinement_function, **_extra)
                 _funs.extend(_sub.funs)
+                if context is not None:
+                    for piece in _sub.funs:
+                        if piece.ishappy:
+                            _cell_vscale = jnp.maximum(_cell_vscale, jnp.max(piece.vscale))
             return Chebfun(funs=_funs, domain=Domain(tuple(_dv)))
 
     # Endpoint singularities (MATLAB 'exps'/'blowup' flags): each interval
@@ -10749,9 +10824,10 @@ def _chebfun_build(
         # under splitting), so the largest grid tried is 129 = 2^7 + 1.
         _mp2 = (16 if not splitting else
                 int(math.floor(math.log2(max((split_length or 160) - 1, 2)))))
-        _hscale = max(abs(v) for v in dom_vals)
+        _hscale = (max(abs(v) for v in dom_vals) if context is None
+                   else context.data['hscale'])
         _tol = None if eps is None else float(eps)
-        _vscale = 0.0
+        _vscale = 0.0 if context is None else context.data['vscale']
         funs = []
         for j in range(n_int):
             piece = _build_exps_piece(
@@ -10847,7 +10923,8 @@ def _chebfun_build(
             split_length=160 if split_length is None else int(split_length),
             tol=_tol, turbo=turbo, check=str(_CP().happinessCheck),
             sample_test=_sample_test, min_samples=min_samples,
-            refinement_function=refinement_function)
+            refinement_function=refinement_function,
+            _defer_finalization=context is not None)
 
     # --- Preferences (task #11): eps -> chop tolerance, max_length ->
     #     maximum adaptive length (2**maxpow2 + 1). ---
@@ -10994,8 +11071,18 @@ def _chebfun_build(
             for _k in range(_n_int):
                 _a, _b = _dom_arr[_k], _dom_arr[_k + 1]
                 if math.isfinite(_a) and math.isfinite(_b):
-                    _sub = chebfun(f, domain=(_a, _b), n=n,
-                                   exps=_pairs[_k])
+                    if context is None:
+                        _sub = chebfun(f, domain=(_a, _b), n=n,
+                                       exps=_pairs[_k])
+                    else:
+                        from chebfunjax.chebfun1d._construction_context import construct_bounded
+                        child = context.interval(_k)
+                        if _pairs[_k] is None and not child.pref.blowup:
+                            _sub = construct_bounded(child)
+                        else:
+                            _sub = _chebfun_build(
+                                f, domain=(_a, _b), n=n, exps=_pairs[_k],
+                                _construction_context=child)
                     _funs.extend(_sub.funs)
                 else:
                     _funs.append(Unbndfun.from_function(
@@ -11063,7 +11150,8 @@ def _chebfun_build(
                         split_length=split_length,
                         split_max_length=split_max_length,
                         sample_test=_sample_test,
-                        refinement_function=refinement_function)
+                        refinement_function=refinement_function,
+                        _defer_finalization=context is not None)
                     _funs.extend(_sub.funs)
                     _bps.extend(float(v)
                                 for v in _sub.domain.breakpoints[1:])
@@ -11716,7 +11804,7 @@ def tweak_domain(f: Chebfun, g=None, tol: float | None = None,
 
 
 
-def chebfun(f=None, *, domain=(-1.0, 1.0), **kwargs) -> Chebfun:
+def chebfun(f=None, *, domain=OMITTED, pref=None, **kwargs) -> Chebfun:
     """Create a Chebfun (MATLAB ``chebfun(...)``); see
     :func:`_chebfun_build` for every flag.
 
@@ -11731,27 +11819,8 @@ def chebfun(f=None, *, domain=(-1.0, 1.0), **kwargs) -> Chebfun:
     MATLAB source : @chebfun/chebfun.m, @chebfun/constructor.m
     Chebfun commit: 7574c77
     """
-    out = _chebfun_build(f, domain=domain, **kwargs)
-    if (callable(f) or isinstance(f, str)) and not isinstance(f, Chebfun) \
-            and not out.isempty() \
-            and getattr(out, "_point_values", None) is None:
-        try:
-            import numpy as _np
-            op = _string_op(f) if isinstance(f, str) else _vector_check(f)
-            bps = _np.asarray(list(out.domain.breakpoints), dtype=float)
-            finite = _np.isfinite(bps)
-            pv = _np.array(out.point_values)
-            if _np.any(finite):
-                vals = _np.asarray(op(jnp.asarray(bps[finite])))
-                if _np.iscomplexobj(vals) and not _np.iscomplexobj(pv):
-                    pv = pv.astype(_np.complex128)
-                if vals.shape == pv[finite].shape and \
-                        bool(_np.all(_np.isfinite(vals))):
-                    pv[finite] = vals
-                    out = out.set_point_values(jnp.asarray(pv))
-        except Exception:
-            pass
-    return out
+    from chebfunjax.chebfun1d._construction_context import public_construct
+    return public_construct(f, domain, pref, kwargs)
 
 
 chebfun.__doc__ = (chebfun.__doc__ or "") + "\n\n" + (
@@ -11917,7 +11986,8 @@ def _merge_limit_row(piece, right):
 def _finalize_bounded_singular(funs, given, op, *, split_length=160,
                                tol=None, turbo=False, check="standard",
                                sample_test=True, min_samples=None,
-                               refinement_function=None):
+                               refinement_function=None,
+                               _defer_finalization=False):
     """Capture callback point values and merge only introduced boundaries.
 
     Provenance
@@ -11929,6 +11999,8 @@ def _finalize_bounded_singular(funs, given, op, *, split_length=160,
     """
     ends = [funs[0].interval[0]] + [piece.interval[1] for piece in funs]
     out = Chebfun(funs=list(funs), domain=Domain(tuple(ends)))
+    if _defer_finalization:
+        return out
     object.__setattr__(out, "_point_values",
                        _source_breakpoint_values(funs, ends, op))
     introduced = [x for x in ends[1:-1] if x not in given]
@@ -12317,7 +12389,9 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               refinement_function: str | Callable | None = None,
                               *, vscale: float = 0.0,
                               hscale: float | None = None,
-                              breakpoints: tuple[float, ...] | None = None):
+                              breakpoints: tuple[float, ...] | None = None,
+                              _construction_context=None,
+                              _defer_finalization=False):
     """Build bounded smooth pieces with the source constructorSplit loop.
 
     Fit supplied intervals in order, then split the first widest unhappy
@@ -12343,8 +12417,26 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         raise ValueError("split_length must be a positive integer")
     total_limit = 6000 if split_max_length is None else int(split_max_length)
 
-    def get_fun(left, right):
+    context = _construction_context
+    if context is not None:
+        from chebfunjax.chebfun1d._construction_context import bounded_get_fun
+        from chebfunjax.chebpref import ChebfunPref
+        source_pref = ChebfunPref(context.pref)
+        source_pref.maxLength = source_pref.splitPrefs.splitLength
+        source_pref.extrapolate = True
+        raw_split_length = source_pref.splitPrefs.splitLength
+        total_limit = source_pref.splitPrefs.splitMaxLength
+        hscale_g = context.data['hscale']
+        vscale_g = context.data['vscale']
+        operators = list(context.op) if context.is_cell else [context.op] * (len(given) - 1)
+
+    def get_fun(left, right, op=None):
         nonlocal vscale_g
+        if context is not None:
+            piece, _, vscale_g = bounded_get_fun(
+                op, (left, right), {**context.data, 'vscale': vscale_g,
+                                    'hscale': hscale_g}, source_pref)
+            return piece
         # Source getFun treats a sufficiently small physical interval as a
         # constant sampled once at its midpoint, instead of adapting it.
         if right - left < 4e-14 * hscale_g:
@@ -12375,8 +12467,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         return piece
 
     funs = []
-    for left, right in zip(given[:-1], given[1:]):
-        funs.append(get_fun(left, right))
+    for index, (left, right) in enumerate(zip(given[:-1], given[1:])):
+        funs.append(get_fun(left, right, None if context is None else operators[index]))
         # constructorSplit resets an infinite initial scale after each fit.
         if math.isinf(vscale_g):
             vscale_g = 0.0
@@ -12387,7 +12479,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                   if not piece.ishappy else 0.0 for piece in funs]
         k = max(range(len(funs)), key=widths.__getitem__)
         left, right = funs[k].interval
-        edge = _detect_edge_matlab(f, left, right,
+        op = f if context is None else operators[k]
+        edge = _detect_edge_matlab(op, left, right,
                                    vscale=vscale_g, hscale=hscale_g)
         if edge is None:
             edge = (left + right) / 2
@@ -12397,9 +12490,11 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                 edge = left + (right - left) / 100
             elif abs(right - edge) <= htol:
                 edge = right - (right - left) / 100
-        child_left = get_fun(left, edge)
-        child_right = get_fun(edge, right)
+        child_left = get_fun(left, edge, op)
+        child_right = get_fun(edge, right, op)
         funs[k:k + 1] = [child_left, child_right]
+        if context is not None:
+            operators[k:k + 1] = [op, op]
         length = sum(piece.n for piece in funs)
         if length > total_limit:
             warnings.warn(f"Function not resolved using {length} pts.",
@@ -12408,6 +12503,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
 
     ends = [funs[0].interval[0]] + [piece.interval[1] for piece in funs]
     out = Chebfun(funs=funs, domain=Domain(tuple(ends)))
+    if context is not None or _defer_finalization:
+        # Public context captures metadata once after optional doubleLength;
+        # merge uses the same original selected preference afterward.
+        return out
     # Outer chebfun constructor captures the original callback at all final
     # breaks before source merge; only NaNs fall back to one-sided limits.
     object.__setattr__(out, "_point_values",

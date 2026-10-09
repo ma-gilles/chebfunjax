@@ -1,5 +1,32 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public constructor context and regression milestone (2026-10-09)
+
+Integrated the source construction context: selected technology and private
+preferences, full-domain scale, operator normalization, literal affine maps,
+endpoint metadata and shared recursion through splitting, doubleLength and
+cells. Session-selected Trigtech is now distinguished from the explicit
+periodic parser flag; numeric breakpoint construction no longer raises the
+wrong periodic error. The original failed regression is preserved.
+
+Qualification: 29 helper controls, 53 focused public controls and 64 affected
+regression cases pass. Root independently audited all process receipts,
+observed runtime files and frozen payloads. Regressions include original
+vectorCheck/equi norms, explicit-periodic rejection, doubleLength, actual
+singular cells/autodetection at the original bound, and both unbounded maps.
+Native clauses exceed pytest body counts; 146 controls are not complete
+constructor coverage. New numerical implementation uses JAX.
+
+Remaining: numeric-empty cell/native null-FUN semantics, command service
+options, broader singular/unbounded modifier combinations, full MATLAB RNG
+and full-suite/page/performance/CI verification. SciPy quad in one test is a
+callback adapter, not a quadgk library port. Existing Python shape conventions
+and the native even-length conjugation quirk are explicitly recorded.
+
+Evidence: public_constructor_root_integration_20261009.json and
+trig_constructor_r2_source_20261009/qualified_public_constructor_packet_v8.json
+in shared scratch. Native MATLAB execution and publication remain unresolved.
+
 ## High-order derivatives and polynomial preprocessing (2026-10-09)
 
 Chebtech1/2 now return a fresh resolved real-double zero when derivative order
