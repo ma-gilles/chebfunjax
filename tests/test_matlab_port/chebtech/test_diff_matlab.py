@@ -1,8 +1,10 @@
 """Port of MATLAB Chebfun tests/chebtech/test_diff.m (Opus 4.8; marker audit
 Fable 5).
 
-Self-validating: each operation is checked against an analytic exact at the
-SAME tolerance MATLAB uses (multiples of vscale*eps).  No .mat fixture needed.
+Analytic predicates retain MATLAB bounds (multiples of vscale*eps).
+Query points still use an inherited deterministic grid; the native seed6178
+random query fixture remains unverified. Per-column vscale uses the existing
+Python vscale_columns vector adapter for MATLAB row-vector vscale.
 
 The MATLAB test loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; we
 parametrize each ported assertion over ``[Chebtech1, Chebtech2]``.
@@ -178,13 +180,13 @@ class TestChebtechDiff:
         dim2df = f.diff(1, dim=2)
         g = jnp.stack(
             [X ** 2 - jnp.sin(X), jnp.exp(1j * X) - X ** 2], axis=-1)
-        assert dim2df.coeffs.shape[1] == 2
-        assert _ninf(dim2df(X) - g) < 10 * dim2df.vscale * EPS
+        assert dim2df.vscale_columns.shape == (2,)
+        assert _ninf(dim2df(X) - g) < 10 * float(jnp.max(dim2df.vscale_columns * EPS))
 
         dim2df2 = f.diff(2, dim=2)
         g2 = jnp.exp(1j * X) - 2 * X ** 2 + jnp.sin(X)
-        assert dim2df2.coeffs.shape[1] == 1
-        assert _ninf(dim2df2(X)[:, 0] - g2) < 10 * dim2df2.vscale * EPS
+        assert dim2df2.vscale_columns.shape == (1,)
+        assert _ninf(dim2df2(X)[:, 0] - g2) < 10 * float(jnp.max(dim2df2.vscale_columns * EPS))
 
     @pytest.mark.parametrize("Tech", BOTH)
     def test_dim_option_scalar_empty(self, Tech):
@@ -202,7 +204,8 @@ class TestChebtechDiff:
                 [1 + x + x ** 2, 1 - x + 2 * x ** 2], axis=-1))
         df = f.diff()
         exact = np.array([[1.0, -1.0], [2.0, 4.0]])
-        err = np.linalg.norm(np.asarray(df.coeffs)[:2] - exact)
+        assert df.coeffs.shape == exact.shape
+        err = np.linalg.norm(np.asarray(df.coeffs) - exact, ord="fro")
         assert err < 10 * EPS
 
 

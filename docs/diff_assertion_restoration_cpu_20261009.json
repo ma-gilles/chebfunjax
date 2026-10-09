@@ -1,0 +1,22 @@
+{
+  "result": "All4 restored assertions pass on unmodified d60eeeb2 library. No library defect exposed; recommend test-only integration.",
+  "scope": "DIM native passes13/14 via existing per-column vscale adapter; native issue1641 full coefficient shape and Frobenius norm restored.",
+  "base": "d60eeeb2e84c70ba97f039cb53bbb80e9d53d8ef",
+  "library_modified": false,
+  "test_payload": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_assertion_restoration_20261009/candidate/tests/test_matlab_port/chebtech/test_diff_matlab.py",
+  "test_sha256": "90c2ef282d2febe43e4ebe86b6aae6cf465e20a68e38e87412fadb385cebc972",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_assertion_restoration_20261009/assertions_v1.patch",
+  "patch_sha256": "a27225f355f2906ccaee5caa6f2003a2df87bce6083e94c49354cd05acd77052",
+  "source_proof_sha256": "b9133f2f4d3f4acd183c001b84b6c0ff032bec032dc1ba5ad89b6e53c28a22ab",
+  "runtime_audit_sha256": "3a6aff761384f1a89867b0c569f34d4a8f73646d500b171be4e4e5ab58dc4443",
+  "remaining_gaps": [
+    "Query X remains inherited linspace100, not native MATLABseed6178 random100.",
+    "Native row-vector vscale is represented by existing JAX vscale_columns vector; public scalar vscale API unchanged.",
+    "This independent baseline gate does not test unintegrated helper fusion or Newton trajectories."
+  ],
+  "next": "Root review and test-only integration; source query input capture remains separate.",
+  "integration_test_sha256": "261fda293d2b5061316b914393573bff60e823d605837b12bbac14e469899dbe",
+  "integration_note": "Only module qualification docstring changed after tested payload; executable AST identical. Gate on d60 baseline, earlier59-case derivative qualification separately bound; no new seeded input claim.",
+  "root_runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_assertion_root_runtime_review_20261009.json",
+  "root_runtime_review_sha256": "ddb8bfeae6b1839e57f79371645fe9d5716429bdb3ca081fc604481cf2efdb96"
+}
