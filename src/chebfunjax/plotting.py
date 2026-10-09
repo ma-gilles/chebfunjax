@@ -2783,7 +2783,8 @@ def plot_ball_slices(
 ) -> tuple[plt.Figure, Any]:
     """Slice plot of a Ballfun inside the unit ball (MATLAB Chebfun style).
 
-    Faithful translation of ``plotBall`` from @ballfun/plot.m.
+    Default slice data follows ``plotBall`` from @ballfun/plot.m.
+    The existing flat-face/heightfield lighting remains an approximate renderer.
     Produces 5 surfaces: 1 sphere at r≈0.5, 2 constant-elevation slices,
     2 constant-lambda half-planes. Coordinates use MATLAB's sph2cart
     convention where theta is elevation [-pi/2, pi/2].
@@ -2803,6 +2804,10 @@ def plot_ball_slices(
     fig, ax
     """
     import jax.numpy as jnp
+
+    if style.lower() == "ball":
+        from chebfunjax._ball_plot_data import ball_plot_data
+        source_data = ball_plot_data(bf)
 
     cmap_obj = _coerce_cmap(cmap)
 
@@ -2841,38 +2846,8 @@ def plot_ball_slices(
     style_name = style.lower()
 
     if style_name == "ball":
-        lam_core = np.asarray(trigpts(n)[0]) * np.pi
-        lam = np.concatenate([lam_core, [np.pi]])
-        th = np.concatenate([np.asarray(trigpts(p)[0]) * np.pi, [np.pi]]) - np.pi / 2.0
-        th = th[p // 2 :]
-        th_colat = np.pi / 2.0 - th
-
-        ff = np.asarray(bf.fevalm(jnp.asarray(r_pos), jnp.asarray(lam), jnp.asarray(th_colat)))
-        if bf.is_real:
-            ff = np.real(ff)
-
-        idx_r = int(np.argmin(np.abs(r_pos - 0.5)))
-        tslice = [float(th[0]), float(th[p // 4])]
-        lslice = [float(lam[0]), float(lam[n // 4])]
-
-        for th_val in tslice:
-            th_idx = int(np.argmin(np.abs(th - th_val)))
-            cdata = ff[:, :, th_idx]
-            rr, ll = np.meshgrid(r_pos, lam, indexing="ij")
-            xs, ys, zs = _sph2cart(ll, th_val, rr)
-            surfaces.append((xs, ys, zs, cdata))
-
-        cdata = ff[idx_r, :, :]
-        ll, tt = np.meshgrid(lam, th, indexing="ij")
-        xs, ys, zs = _sph2cart(ll, tt, float(r_pos[idx_r]))
-        surfaces.append((xs, ys, zs, cdata))
-
-        for lam_val in lslice:
-            lam_idx = int(np.argmin(np.abs(lam - lam_val)))
-            cdata = ff[:, lam_idx, :]
-            rr, tt = np.meshgrid(r_pos, th, indexing="ij")
-            xs, ys, zs = _sph2cart(lam_val, tt, rr)
-            surfaces.append((xs, ys, zs, cdata))
+        surfaces = [(np.asarray(item.x), np.asarray(item.y), np.asarray(item.z),
+                     np.asarray(item.values)) for item in source_data.surfaces]
 
     elif style_name == "wedgeaz":
         az_intvl = (-np.pi / 2.0, np.pi)

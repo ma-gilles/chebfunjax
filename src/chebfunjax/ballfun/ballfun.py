@@ -896,7 +896,7 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/isempty.m
         Chebfun commit: 7574c77
         """
-        return getattr(self, "_is_empty_object", False)
+        return getattr(self, "_is_empty_object", False) or self.coeffs.size == 0
 
     coeffs: jax.Array  # shape (m, n, p) complex128
     is_real: bool = eqx.field(static=True)

@@ -1,5 +1,30 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun default plot data and coefficient emptiness (2026-10-09)
+
+Default public plot/surf now use the pinned coefficient prolongation,
+radial-first transform, theta reordering, longitude closure and five source
+slices. The new numerical helper is JAX-only. Ballfun.isempty now also detects
+zero-size coefficient tensors; the empty factory remains supported. Native
+empty-input test coverage and mixed zero-axis controls are included.
+
+Qualification comprises 27 distinct passing checks across staged runs: three
+grid rules, nine transform/slice controls, five public artist/wedge controls,
+and ten empty/complex/canonical controls. Two earlier failures are retained:
+a signed-zero error in the independent alias oracle, and the real public
+isempty bug fixed here. Root independently rehashed 2,932/2,933/2,966/2,945
+runtime files and verified applicability of carried checks. All three actual
+192px public artist images were reviewed. A separate actual-plot check passes
+with the scratch artifact environment variable absent; tests use pytest's
+temporary directory in ordinary CI.
+
+This qualifies default plot data and routing, not native lighting or surface
+interpolation. Wedge empty/complex handling, the full SolidHarmonics page and
+degree-150 execution remain open. The accepted sphere contour viewport fix is
+preserved. Evidence: ball_plot_composite_root_{runtime_review,applicability}_20261009.json,
+ball_plot_ci_fallback_root_runtime_review_20261009.json and
+solid_harmonics_source_gap_20261009 in shared scratch.
+
 ## Atmospheric explicit-camera page replay (2026-10-09)
 
 Integrated all ten 600 x 270 source-computation figures with explicit captured
