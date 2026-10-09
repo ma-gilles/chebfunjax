@@ -24,7 +24,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_axis_equal, plotcoeffs, trig_plot_data
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.quadrature import trigpts
 
@@ -38,11 +38,70 @@ def _show(name, f):
     print(repr(f))
 
 
+def _source_style(fig, stem):
+    from matplotlib.ticker import FormatStrFormatter, LogLocator, NullFormatter
+    ax = fig.axes[0]
+    slot = int(stem.rsplit("_", 1)[1])
+    ax.tick_params(direction="in", top=True, right=True)
+    if slot != 2:
+        ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    if slot in (1, 3, 4, 5, 6, 7):
+        ax.lines[0].set_color((0, .447, .741))
+        ax.lines[0].set_linewidth(1.5)
+    if slot == 8:
+        for line in ax.lines:
+            line.set_linewidth(1.5)
+    ticks = {1: [-1, -.5, 0, .5, 1], 3: [0, .2, .4, .6, .8, 1], 6: [-2, -1, 0, 1, 2], 8: [0, 1, 2, 3, 4]}
+    if slot in ticks:
+        ax.set_yticks(ticks[slot])
+    if slot == 2:
+        ax.set_position([.13, .16, .775, .75])
+        ax.title.set_fontsize(12)
+        ax.xaxis.label.set_fontsize(11)
+        ax.yaxis.label.set_fontsize(11)
+        for line in ax.lines:
+            line.set_markersize(2.5)
+        ax.set_yticks([1, 1e-5, 1e-10, 1e-15])
+        ax.yaxis.set_minor_locator(LogLocator(base=10, subs=(1,), numticks=30))
+        ax.yaxis.set_minor_formatter(NullFormatter())
+        ax.grid(True, which="major", color=".85", linewidth=.5)
+        ax.grid(True, which="minor", color=".85", linewidth=.5, linestyle=":")
+    if slot == 5:
+        for line, color in zip(ax.lines[1:3], [(0, 1, 0), (1, 0, 1)]):
+            line.set_color(color)
+        for line in ax.lines[1:]:
+            line.set_markersize(7)
+    legend = ax.get_legend()
+    if legend is not None:
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.legend(handles, labels, loc="lower left" if slot == 5 else "upper right",
+                           fontsize=9, labelspacing=.15, borderpad=.3, handletextpad=.3,
+                           handlelength=3.2 if slot == 8 else 2)
+        for handle, line in zip(legend.legend_handles, ax.lines):
+            handle.set_color(line.get_color())
+            handle.set_linewidth(line.get_linewidth())
+        legend.get_frame().set_edgecolor("black")
+        legend.get_frame().set_linewidth(.5)
+        legend.get_frame().set_alpha(1)
+        legend.get_frame().set_boxstyle("square", pad=0)
+
+
 def _save(fig, stem):
     fig.set_facecolor("white")
-    fig.tight_layout()
+    fig.set_size_inches(6, 2.7)
+    fig.axes[0].set_position([.13, .11, .775, .815])
+    _source_style(fig, stem)
     _savefig(fig, os.path.join(_IMG, stem + ".png"))
     plt.close(fig)
+
+
+def _plot(ax, f, style, *, complex_curve=False, **kwargs):
+    data = trig_plot_data(f)
+    ax.plot(np.asarray(data["xLine"]), np.asarray(data["yLine"]), style, **kwargs)
+    ax.set_position([.13, .11, .775, .815])
+    if not complex_curve:
+        ax.set_xlim(-np.pi, np.pi)
+        ax.set_xticks(np.arange(-3, 4))
 
 
 def run():
@@ -53,19 +112,14 @@ def run():
     f = cj.chebfun(lambda x: jnp.cos(8 * jnp.sin(x)), domain=dom,
                    trig=True)
     _show("f", f)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    xs = np.linspace(*dom, 800)
-    ax.plot(xs, np.asarray(f(jnp.asarray(xs))), "b")
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, f, "b")
+    ax.set_ylim(-1, 1)
     _save(fig, "FourierBasedChebfuns_01")
 
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    c = np.abs(np.asarray(f.funs[0].coeffs))
-    n = len(c)
-    k = np.arange(n) - (n - 1) // 2
-    ax.semilogy(k, np.maximum(c, 1e-18), ".b", ms=6)
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    plotcoeffs(f, ax=ax, source=True)
     ax.set_ylim(1e-18, 1)
-    ax.set_xlabel("wave number")
-    ax.set_ylabel("magnitude of coefficient")
     _save(fig, "FourierBasedChebfuns_02")
 
     f_cheby = cj.chebfun(lambda x: jnp.cos(8 * jnp.sin(x)), domain=dom)
@@ -93,8 +147,9 @@ def run():
         else:
             print("Warning:", message)
     _show("f", f_step)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, np.asarray(f_step(jnp.asarray(xs))), "b", lw=0.7)
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, f_step, "b")
+    ax.set_ylim(0, 1)
     _save(fig, "FourierBasedChebfuns_03")
 
     f_split = cj.chebfun(lambda x: 0.5 * (1.0 + jnp.sign(x)),
@@ -105,9 +160,9 @@ def run():
     g = cj.chebfun(lambda x: jnp.sin(x), domain=dom, trig=True)
     f = ((1 + 2 * g).cos() ** 2).tanh() - 0.5
     _show("f", f)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    fx = np.asarray(f(jnp.asarray(xs)))
-    ax.plot(xs, fx, "b")
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, f, "b")
+    ax.set_ylim(-.6, .4)
     _save(fig, "FourierBasedChebfuns_04")
 
     (xminf, minf), (xmaxf, maxf) = f.minandmax()
@@ -120,17 +175,19 @@ def run():
     for r in rootsf:
         print(f"  {r: .15f}")
 
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, fx, "b", label="f")
-    ax.plot([xmaxf], [maxf], "gs", label="max f")
-    ax.plot([xminf], [minf], "md", label="min f")
-    ax.plot(rootsf, 0 * rootsf, "ro", label="zeros f")
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, f, "b", label="f")
+    ax.set_ylim(-.6, .4)
+    ax.plot([xmaxf], [maxf], "gs", markerfacecolor="none", label="max f")
+    ax.plot([xminf], [minf], "md", markerfacecolor="none", label="min f")
+    ax.plot(rootsf, 0 * rootsf, "ro", markerfacecolor="none", label="zeros f")
     ax.legend(loc="lower left", fontsize=9)
     _save(fig, "FourierBasedChebfuns_05")
 
     df = f.diff()
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, np.asarray(df(jnp.asarray(xs))), "b")
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, df, "b")
+    ax.set_ylim(-2, 2)
     _save(fig, "FourierBasedChebfuns_06")
 
     print("intf =")
@@ -142,10 +199,10 @@ def run():
                         - 2 * jnp.cos(3 * x) - jnp.cos(4 * x))
         + 16 * jnp.sin(x) ** 3, domain=dom, trig=True)
     _show("f", fh)
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
-    vals = np.asarray(fh(jnp.asarray(xs)))
-    ax.plot(np.real(vals), np.imag(vals), "b")
-    ax.set_aspect("equal")
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, fh, "b", complex_curve=True)
+    ax.set_ylim(-17, 12)
+    matlab_axis_equal(ax)
     _save(fig, "FourierBasedChebfuns_07")
 
     area_heart = abs(float((fh.real() * fh.imag().diff()).sum()))
@@ -160,17 +217,10 @@ def run():
     rng = np.random.RandomState(0)
     n = 201
     x, _ = trigpts(n)  # source samples on default [-1,1), then uses dom
-    x = np.asarray(x)
-    func_vals = np.exp(np.sin(2 * np.pi * x)) + 0.05 * rng.randn(n)
-    fN = cj.Chebfun.from_trig_values(jnp.asarray(func_vals), tuple(dom)) \
-        if hasattr(cj.Chebfun, "from_trig_values") else None
-    if fN is None:
-        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-        from chebfunjax.domain import Domain
-        from chebfunjax.tech.trigtech import Trigtech
-        tech = Trigtech.from_values(jnp.asarray(func_vals))
-        fN = Chebfun(funs=[_Piece(tech=tech, interval=tuple(dom))],
-                     domain=Domain(tuple(dom)))
+    # NumPy seed 0 is reproducible here; native MATLAB Gaussian draws have
+    # not been captured, so this realization is not a native RNG fixture.
+    func_vals = jnp.exp(jnp.sin(2 * jnp.pi * x)) + 0.05 * jnp.asarray(rng.randn(n))
+    fN = cj.chebfun(func_vals, domain=dom, trig=True)
     _show("f", fN)
 
     sigma = 0.1
@@ -178,13 +228,12 @@ def run():
         lambda t: 1 / (sigma * np.sqrt(2 * np.pi))
         * jnp.exp(-0.5 * (t / sigma) ** 2), domain=dom, trig=True)
     h = fN.circconv(gm)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.plot(xs, np.asarray(gm(jnp.asarray(xs))), "b", label="Mollifier g")
-    ax.plot(xs, np.asarray(fN(jnp.asarray(xs))), "r",
-            label="Noisy function f")
-    ax.plot(xs, np.asarray(h(jnp.asarray(xs))), "k",
-            label="Smoothed function h")
-    ax.legend(fontsize=9)
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    _plot(ax, gm, "b", label="Mollifier g")
+    _plot(ax, fN, "r", label="Noisy function f")
+    _plot(ax, h, "k", label="Smoothed function h")
+    ax.set_ylim(0, 4)
+    ax.legend(loc="upper right", fontsize=9)
     _save(fig, "FourierBasedChebfuns_08")
 
     return True

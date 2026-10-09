@@ -62,7 +62,6 @@ ratio =
    1.688524590163935
 theoretical =
    1.570796326794897
-representation?
 ```
 
 Trying to construct a trigfun from a non-periodic or non-smooth function will typically result in a warning being issued and an "unhappy" trigfun, as illustrated for the unit step function below:
@@ -70,6 +69,16 @@ Trying to construct a trigfun from a non-periodic or non-smooth function will ty
 ```matlab
 f = chebfun(@(x) 0.5*(1+sign(x)),dom,'trig')
 plot(f);
+```
+
+```text
+Warning: Function not resolved using 65536 pts. Have you tried a non-trig
+representation?
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[    -3.1,     3.1]    65536       0.5      0.5
+vertical scale =   1
 ```
 
 ![FourierBasedChebfuns figure 03](../../images/fourier/FourierBasedChebfuns_03.png)
@@ -82,15 +91,10 @@ f = chebfun(@(x) 0.5*(1+sign(x)),dom,'splitting','on')
 
 ```text
 f =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values trig
-[    -3.1,     3.1]    65536       0.5      0.5
-vertical scale =   1
-f =
    chebfun column (2 smooth pieces)
        interval       length     endpoint values
-[    -3.1,2.2e-308]        1         0        0
-[2.2e-308,     3.1]        1         1        1
+[    -3.1,6.5e-309]        1         0        0
+[6.5e-309,     3.1]        1         1        1
 vertical scale =   1    Total length = 2
 ```
 
@@ -138,9 +142,9 @@ rootsf =
   -3.009212218006481
   -2.090420462897022
   -1.051172190692771
-  -0.132380435583312
+  -0.132380435583313
    0.779312428506054
-   2.362280225083740
+   2.362280225083739
 ```
 
 These can be visualized as
@@ -200,7 +204,7 @@ area_heart = abs(sum(real(f)*diff(imag(f))))
 
 ```text
 area_heart =
-     5.654866776461624e+02
+     5.654866776461625e+02
 ```
 
 According to [1], the true area enclosed is $180\pi$. The relative error in the computation above is then
@@ -211,7 +215,7 @@ err = (area_heart - 180*pi)/(180*pi)
 
 ```text
 err =
-    -6.031274062627113e-16
+    -4.020849375084742e-16
 ```
 
 The convolution of two smooth periodic functions can be computed using the `circconv` (circular convolution) function. The example below demonstrates this function in combination with the additional feature that allows trigfuns to be constructed from function values. The latter is demonstrated first:

@@ -36,7 +36,7 @@ plotcoeffs(c), grid on
 
 ```text
 ans =
-   488
+   805
 ```
 
 ![NonsmoothFOV figure 02](../../images/linalg/NonsmoothFOV_02.png)
@@ -54,7 +54,7 @@ title('Fourier coefficients wrt Johnson angle t')
 
 ```text
 ans =
-   543
+   545
 ```
 
 ![NonsmoothFOV figure 03](../../images/linalg/NonsmoothFOV_03.png)
@@ -149,7 +149,7 @@ plotcoeffs(c), grid on
 
 ```text
 ans =
-   5597
+   5546
 ```
 
 ![NonsmoothFOV figure 10](../../images/linalg/NonsmoothFOV_10.png)
@@ -164,7 +164,7 @@ plotcoeffs(c), grid on
 
 ```text
 ans =
-   3699
+   3671
 ```
 
 ![NonsmoothFOV figure 11](../../images/linalg/NonsmoothFOV_11.png)

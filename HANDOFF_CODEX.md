@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fourier and NonsmoothFOV page reruns (2026-10-08)
+
+Both scripts completed alone on CPU against1fbf3a2a. Fourier:51.07s,
+2.79GiB peak,8figures600x270; actual adaptive composition now161terms,
+matching the cached reference length without tuning. NonsmoothFOV:153.93s,
+4.09GiB peak,14figures600x253; all source stages including final inverse plot
+restored. Both receipts show stable inputs/no survivors; root independently
+rehashed1661/1652 observed Python/native-extension files and reviewed all22
+reference/current figure pairs. Final rendering-only edits preserve line arrays
+and numerical AST; their lightweight renderer has no RSS supervisor receipt.
+Prose and MATLAB code cells unchanged; published output is actual execution.
+
+Historical numerical/pixel parity is still incomplete: Fourier native seed0
+Gaussian input is unavailable, extrema select different ties, and area residual
+is-4.020849375084742e-16. Nonsmooth actual lengths805/545/5546/3671 differ
+from803/545/5636/3509; remote AAA poles and renderer differences remain open.
+Fresh audit of1304 mapped figure pairs leaves79size mismatches across18pages
+(down from93/19); AtmosphericTemperature still has a historical slot10 mapping
+hole. Matching dimensions do not certify content or pixel parity.
+Evidence: fourier_page_root_acceptance_20261008.json,
+nonsmooth_page_root_acceptance_20261008.json, and
+figure_size_current_fourier_nonsmooth_20261008.json in the shared directory.
+
 ## Disk constructor qualification (2026-10-08)
 
 All34 original disk constructor predicates now pass across staged CPU gates,
