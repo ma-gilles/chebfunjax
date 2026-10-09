@@ -494,7 +494,7 @@ class SeparableApprox(eqx.Module):
 
     cols: list  # list of Chebtech2 (column slices, functions of y)
     rows: list  # list of Chebtech2 (row slices, functions of x)
-    pivots: jax.Array  # shape (r,)
+    pivots: jax.Array  # legacy reciprocal CDR weights, shape (r,)
     domain: tuple = eqx.field(static=True)  # (xa, xb, ya, yb)
     # Physical (x, y) pivot locations chosen by the GE construction
     # (MATLAB f.pivotLocations); empty tuple when not applicable
@@ -504,6 +504,9 @@ class SeparableApprox(eqx.Module):
     # Representation per dimension: ("cheb"|"trig", "cheb"|"trig") for
     # (x, y) -- MATLAB chebfun2 'trig'/'trigx'/'trigy' flags.
     techs: tuple = eqx.field(static=True, default=("cheb", "cheb"))
+    # Native raw pivotValues; None marks a legacy reciprocal-only adapter.
+    # Dynamic array metadata must not be put in a static JAX field.
+    pivot_values: jax.Array | None = None
 
     # ------------------------------------------------------------------
     # Construction
@@ -599,7 +602,8 @@ class SeparableApprox(eqx.Module):
         values = values.astype(jnp.complex128 if jnp.iscomplexobj(values) else jnp.float64)
         dom = tuple(float(v) for v in domain)
         if values.size == 0:
-            return cls(cols=[], rows=[], pivots=jnp.empty((0,)), domain=dom, techs=techs)
+            return cls(cols=[], rows=[], pivots=jnp.empty((0,)),
+                       pivot_values=jnp.empty((0,)), domain=dom, techs=techs)
         if values.size == 1:
             return cls(**scalar_cdr(values, dom))
         if values.ndim != 2:
@@ -816,8 +820,9 @@ class SeparableApprox(eqx.Module):
             return cls(
                 cols=[zero_col],
                 rows=[zero_row],
-                # d_j=1/inf -> 0 effectively; cols/rows are zero
-                pivots=jnp.array([1.0], dtype=jnp.float64),
+                # Source zero representation stores pivotValue=Inf.
+                pivots=jnp.array([0.0], dtype=jnp.float64),
+                pivot_values=jnp.array([jnp.inf], dtype=jnp.float64),
                 domain=(xa, xb, ya, yb),
                 techs=(tech_x, tech_y),
             ), abs_tol
@@ -918,12 +923,15 @@ class SeparableApprox(eqx.Module):
 
         # Store d_j = 1/piv_j so that f(x,y) = Σ_j d_j * c_j(y) * r_j(x)
         # (This matches the CDR formula: C * diag(1/pivotValues) * R.')
-        d_arr = jnp.asarray(1.0 / pivot_vals, dtype=jnp.float64)
+        from chebfunjax.chebfun2d._pivot_metadata import _cdr_weights
+        raw_pivots = jnp.asarray(pivot_vals)
+        d_arr = _cdr_weights(raw_pivots)
 
         return cls(
             cols=cols_list,
             rows=rows_list,
             pivots=d_arr,
+            pivot_values=raw_pivots,
             domain=(xa, xb, ya, yb),
             pivot_locations=tuple(
                 (float(piv_x_phys[j]), float(piv_y_phys[j]))
@@ -1150,6 +1158,7 @@ class SeparableApprox(eqx.Module):
             cols=new_cols,
             rows=new_rows,
             pivots=self.pivots,
+            pivot_values=self.pivot_values,
             domain=self.domain,
         )
 
@@ -1207,7 +1216,7 @@ class SeparableApprox(eqx.Module):
             cols=new_cols,
             rows=new_rows,
             pivots=new_pivots,
-            domain=self.domain,
+            domain=self.domain, pivot_values=None,
         )
 
     def sum2(self) -> jax.Array:
@@ -1235,6 +1244,9 @@ class SeparableApprox(eqx.Module):
 
     def norm(self, p=2) -> jax.Array:
         """Frobenius (L2) norm of the approximation.
+
+        Uses a Hermitian Gram form. Native norm uses singular values; the
+        inherited Gram evaluation has different roundoff behavior.
 
         Parameters
         ----------
@@ -1266,7 +1278,8 @@ class SeparableApprox(eqx.Module):
             for k in range(r):
                 col_ip = self.cols[j].inner(self.cols[k]) * col_scale
                 row_ip = self.rows[j].inner(self.rows[k]) * row_scale
-                norm_sq = norm_sq + self.pivots[j] * self.pivots[k] * col_ip * row_ip
+                # Tech.inner is conjugate-linear in its first operand.
+                norm_sq = norm_sq + jnp.conj(self.pivots[j]) * self.pivots[k] * col_ip * row_ip
 
         return jnp.sqrt(jnp.abs(norm_sq))
 

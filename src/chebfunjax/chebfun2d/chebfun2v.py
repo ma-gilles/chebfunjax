@@ -189,7 +189,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/isempty.m
         Chebfun commit: 7574c77
         """
-        return len(self.components) == 0
+        return all(len(c.cols) == 0 and len(c.rows) == 0
+                   for c in self.components)
 
     def is_periodic_tech(self) -> bool:
         """Whether every component is represented by a trigonometric
@@ -446,8 +447,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/times.m
         Chebfun commit: 7574c77
         """
-        if self.isempty():
-            return self
+        if self.isempty() or (isinstance(other, Chebfun2v) and other.isempty()):
+            return Chebfun2v.empty()
         if isinstance(other, Chebfun2v) and self.is_transposed:
             return self.dot(other)          # MATLAB F' * G
         if isinstance(other, (int, float, complex)):
@@ -1085,22 +1086,14 @@ def _neg_separable(f: SeparableApprox) -> SeparableApprox:
     Negates the pivot values, leaving cols and rows unchanged.
     f(x,y) = sum_j d_j * c_j(y) * r_j(x)  =>  -f = sum_j (-d_j) * c_j(y) * r_j(x)
     """
-    return SeparableApprox(
-        cols=f.cols,
-        rows=f.rows,
-        pivots=-f.pivots,
-        domain=f.domain,
-    )
+    from chebfunjax.chebfun2d._pivot_metadata import _negate
+    return _negate(f)
 
 
 def _scale_separable(f: SeparableApprox, scalar: float) -> SeparableApprox:
     """Multiply a SeparableApprox by a scalar."""
-    return SeparableApprox(
-        cols=f.cols,
-        rows=f.rows,
-        pivots=f.pivots * scalar,
-        domain=f.domain,
-    )
+    from chebfunjax.chebfun2d._pivot_metadata import _scale
+    return _scale(f, scalar)
 
 
 def _add_scalar_separable(f: SeparableApprox, scalar: float) -> SeparableApprox:
@@ -1124,7 +1117,7 @@ def _add_scalar_separable(f: SeparableApprox, scalar: float) -> SeparableApprox:
         cols=new_cols,
         rows=new_rows,
         pivots=new_pivots,
-        domain=f.domain,
+        domain=f.domain, pivot_values=None,
     )
 
 
@@ -1146,7 +1139,7 @@ def _add_separable(f: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
         cols=new_cols,
         rows=new_rows,
         pivots=new_pivots,
-        domain=f.domain,
+        domain=f.domain, pivot_values=None,
     )
     # Recompress (MATLAB @separableApprox/plus.m): without this,
     # f - f keeps cancelling O(1) terms and downstream quadratic
@@ -1191,7 +1184,7 @@ def _mul_separable(f: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
         cols=new_cols,
         rows=new_rows,
         pivots=new_pivots,
-        domain=f.domain,
+        domain=f.domain, pivot_values=None,
     )
 
 
@@ -1270,7 +1263,7 @@ def _diff_separable(f: SeparableApprox, n: int = 1, dim: int = 1) -> SeparableAp
             cols=new_cols,
             rows=list(f.rows),
             pivots=new_pivots,
-            domain=f.domain,
+            domain=f.domain, pivot_values=None,
         )
     elif dim == 2:
         # Differentiate x-direction: act on rows
@@ -1281,7 +1274,7 @@ def _diff_separable(f: SeparableApprox, n: int = 1, dim: int = 1) -> SeparableAp
             cols=list(f.cols),
             rows=new_rows,
             pivots=new_pivots,
-            domain=f.domain,
+            domain=f.domain, pivot_values=None,
         )
     else:
         raise ValueError(f"_diff_separable: dim must be 1 (y) or 2 (x), got {dim}.")

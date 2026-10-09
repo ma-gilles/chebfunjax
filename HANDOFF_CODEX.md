@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Retained 2D pivots and complex norm correction (2026-10-09)
+
+Native construction now retains original raw pivot values alongside legacy
+reciprocal CDR weights. Supported arithmetic propagates that metadata; adapters
+without native metadata mark it unknown. Source extrema uses retained pivots.
+Scalar division preserves the native division/reciprocal operation boundaries.
+
+Corrected the complex Hermitian norm formula to conjugate the first CDR weight
+in both Chebfun2 and SeparableApprox. Restored original native imag/complex and
+vector conjugation predicates, including function norms and expression order,
+without widening bounds. Eighty-six CPU cases passed in thirteen serial groups;
+root independently checked exact payloads, results and runtime evidence.
+
+Full native norm/SVD parity remains open: the inherited Gram norm and sampled
+NumPy QR/SVD compression still differ from the native continuous algorithm.
+The legacy pivots property still exposes CDR weights; pivot_values exposes raw
+values. Native normalized getter migration, active-set extrema and the full
+Gibbs example remain unresolved. No MATLAB complex bit-identity claim is made.
+Evidence: docs/pivot_complex_norm_cpu_20261009.json.
+
 ## Periodic QR source restoration (2026-10-09)
 
 Built-in two-output Trigtech QR now uses JAX QR, native weighting/sign order,
@@ -95,7 +115,7 @@ This is one instrumented process per revision, after setup that itself invokes
 roots. It is not a pristine-cold or matched MATLAB comparison. Full CPU-suite,
 all-page/figure parity, remaining correctness issues, publication and CI remain
 open. Complex separable norms also have a newly confirmed weight-conjugation
-bug; its repair is in progress and is not part of this inverse change.
+bug; its repair is recorded above and is separate from this inverse change.
 
 Evidence in shared scratch: roots_two_phase_fusion_plan_20261009/
 QUALIFIED_TIMING_PACKET_v1.json, QUALIFIED_CORRECTNESS_PACKET_v1.json,

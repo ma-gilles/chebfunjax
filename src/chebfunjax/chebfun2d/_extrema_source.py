@@ -17,6 +17,7 @@ import jax.numpy as jnp
 
 from chebfunjax.chebfun2d._cdr_source import _mesh_values, _slice_values
 from chebfunjax.chebfun2d._extrema_fallback import source_higher_extrema
+from chebfunjax.chebfun2d._pivot_metadata import _retained_pivots
 from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.tech.trigtech import Trigtech
@@ -35,7 +36,9 @@ def _slice_iszero(piece):
 
 def _iszero(approx):
     """Literal reciprocal-pivot shortcut, 10x10 mesh, then slice check."""
-    if bool(jnp.all(jnp.asarray(approx.pivots) == 0)):
+    raw = _retained_pivots(approx)
+    reciprocal = jnp.asarray(approx.pivots) if raw is None else 1/raw
+    if bool(jnp.all(reciprocal == 0)):
         return True
     xa, xb, ya, yb = approx.domain
     values = _mesh_values(approx, jnp.linspace(xa, xb, 10),
@@ -77,14 +80,12 @@ def _reconstruct(slices, a, b):
     return result.simplify(float(ChebfunPref().techPrefs.chebfuneps))
 
 
-def _scale_factors(rows, cols, weights):
-    """Recover native pivots from stored reciprocals, then literal scaling.
+def _scale_factors(rows, cols, weights, pivot_values=None):
+    """Use retained native pivots, or the explicitly limited legacy recovery.
 
-    Storage discards the original pivotValues. Recovery can lose its original
-    last bit; this representation limitation is not full native pivot parity.
     Do not substitute sqrt(abs(weights)): its rounding differs from the source.
     """
-    pivots = 1 / jnp.asarray(weights)
+    pivots = 1 / jnp.asarray(weights) if pivot_values is None else pivot_values
     sq = 1 / jnp.sqrt(jnp.abs(pivots))
     rows = rows @ jnp.diag(sq * jnp.sign(pivots))
     cols = cols @ jnp.diag(sq)
@@ -120,7 +121,11 @@ def source_extrema(f):
     xa, xb, ya, yb = approx.domain
     rows = _reconstruct(approx.rows, xa, xb)
     cols = _reconstruct(approx.cols, ya, yb)
-    rows, cols = _scale_factors(rows, cols, approx.pivots)
+    raw = _retained_pivots(approx)
+    if raw is None:
+        rows, cols = _scale_factors(rows, cols, approx.pivots)
+    else:
+        rows, cols = _scale_factors(rows, cols, approx.pivots, raw)
     if approx.rank == 1:
         return _rank_one(rows, cols)
     # No source-equivalent active-set implementation exists in this library.

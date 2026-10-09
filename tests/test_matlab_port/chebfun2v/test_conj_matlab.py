@@ -35,11 +35,12 @@ class TestChebfun2vConj:
     def test_conj_of_imaginary(self):
         # pass(2): conj(1i*F) == -1i*F.
         F = _v(lambda x, y: jnp.cos(x * y))
-        assert float(((1j * F).conj() - (-1j) * F).norm()) < 100 * EPS
+        G = (1j * F).conj()
+        assert float((1j * F + G).norm()) < 100 * EPS
 
     def test_conj_of_complex_sum(self):
         # pass(3): conj(F1 + 1i*F2) == F1 - 1i*F2.
         F1 = _v(lambda x, y: jnp.cos(x * y))
         F2 = _v(lambda x, y: jnp.sin(x + y ** 2))
-        assert float(((F1 + 1j * F2).conj()
-                      - (F1 - 1j * F2)).norm()) < 100 * EPS
+        G = (F1 + 1j * F2).conj()
+        assert float((F1 - 1j * F2 - G).norm()) < 100 * EPS

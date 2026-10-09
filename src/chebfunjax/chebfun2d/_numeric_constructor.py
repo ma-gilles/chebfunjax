@@ -165,7 +165,7 @@ def numeric_cdr(values, domain, tolerance, techs, chop=False):
     MATLAB source : @chebfun2/constructor.m (constructFromDouble),
         @separableApprox/cdr.m
     Chebfun commit: 7574c77
-    Python stores inverse CDR weights; source stores raw pivot values.
+    Python stores inverse CDR weights and retains the original raw pivot values.
     """
     x = numeric_points(values.shape[1], domain[:2], techs[0])
     y = numeric_points(values.shape[0], domain[2:], techs[1])
@@ -176,7 +176,8 @@ def numeric_cdr(values, domain, tolerance, techs, chop=False):
     locations = tuple((float(x[col]), float(y[row])) for row, col in positions)
     return dict(cols=numeric_factors(cols, techs[1], tolerance, chop),
                 rows=numeric_factors(rows.T, techs[0], tolerance, chop), pivots=inverse,
-                domain=domain, techs=techs, pivot_locations=locations)
+                domain=domain, techs=techs, pivot_locations=locations,
+                pivot_values=pivots)
 
 
 def extrapolate_cheb_values(values):
@@ -213,5 +214,8 @@ def scalar_cdr(value, domain):
     factor = Chebtech2.from_coeffs(value[None])
     inverse = 1/value
     inverse = jnp.where(_source_inf_magnitude(inverse), 0, inverse)
+    # Scalar numeric input recurses through the callable constructor. Its
+    # zero-factor branch sets pivotValue=Inf, unlike zero numeric-matrix ACA.
+    raw = jnp.asarray([jnp.inf]) if bool(value == 0) else value[None]
     return dict(cols=[factor], rows=[factor], pivots=inverse[None],
-                domain=domain, techs=("cheb", "cheb"))
+                pivot_values=raw, domain=domain, techs=("cheb", "cheb"))

@@ -1827,7 +1827,7 @@ class Chebop2:
             cols=cols_list,
             rows=rows_list,
             pivots=pivots,
-            domain=(xa, xb, ya, yb),
+            domain=(xa, xb, ya, yb), pivot_values=None,
         )
 
     # ------------------------------------------------------------------

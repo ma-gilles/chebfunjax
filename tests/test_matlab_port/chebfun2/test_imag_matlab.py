@@ -27,6 +27,6 @@ class TestChebfun2Imag:
         # pass(1): imag(feval(h)) matches feval(g) on a 3x3 grid.
         xs = jnp.asarray(np.linspace(-1, 1, 3))
         xx, yy = jnp.meshgrid(xs, xs)
-        assert float(jnp.max(jnp.abs(jnp.imag(h(xx, yy)) - g(xx, yy)))) < 10 * TOL
+        assert float(jnp.linalg.norm(jnp.imag(h(xx, yy)) - g(xx, yy), ord=2)) < 10 * TOL
         # pass(2): imag(h) == g as a chebfun2.
         assert float((h.imag() - g).norm()) < TOL

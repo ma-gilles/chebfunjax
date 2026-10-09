@@ -403,7 +403,7 @@ class Chebfun2(eqx.Module):
                              ishappy=True)
             approx = SeparableApprox(cols=[zero], rows=[zero],
                                      pivots=jnp.asarray([0.0]),
-                                     domain=tuple(float(v) for v in domain))
+                                     domain=tuple(float(v) for v in domain), pivot_values=None)
             return cls(approx=approx)
         u = u[:, keep]          # column slices (functions of y)
         w = vh[keep, :].T       # row slices (functions of x)
@@ -420,7 +420,7 @@ class Chebfun2(eqx.Module):
             cols=_mk(_np.asarray(u)),
             rows=_mk(_np.asarray(w)),
             pivots=jnp.asarray(sig, dtype=jnp.float64),
-            domain=tuple(float(v) for v in domain),
+            domain=tuple(float(v) for v in domain), pivot_values=None,
         )
         return cls(approx=approx)
 
@@ -964,6 +964,7 @@ class Chebfun2(eqx.Module):
             cols=new_cols,
             rows=new_rows,
             pivots=self.approx.pivots,
+            pivot_values=self.approx.pivot_values,
             domain=self.domain,
         )
         return Chebfun2(approx=new_approx)
@@ -1052,7 +1053,7 @@ class Chebfun2(eqx.Module):
             cols=new_cols,
             rows=new_rows,
             pivots=new_pivots,
-            domain=self.domain,
+            domain=self.domain, pivot_values=None,
         )
         return Chebfun2(approx=new_approx)
 
@@ -1337,7 +1338,11 @@ class Chebfun2(eqx.Module):
         return True
 
     def _norm_fro(self) -> jax.Array:
-        """Frobenius/L2 norm via the exact quadratic form over the pivots."""
+        """Represented Frobenius/L2 norm via a Hermitian quadratic form.
+
+        Native norm uses singular values; this inherited Gram evaluation has
+        different floating-point cancellation behavior.
+        """
         xa, xb, ya, yb = self.domain
         r = self.approx.rank
         # Scale factors for physical inner products
@@ -1351,7 +1356,8 @@ class Chebfun2(eqx.Module):
                 col_ip = self.approx.cols[j].inner(self.approx.cols[k]) * col_scale
                 # <r_j, r_k> on reference [-1,1] scaled for physical domain
                 row_ip = self.approx.rows[j].inner(self.approx.rows[k]) * row_scale
-                norm_sq = norm_sq + self.approx.pivots[j] * self.approx.pivots[k] * col_ip * row_ip
+                # Tech.inner is conjugate-linear in its first operand.
+                norm_sq = norm_sq + jnp.conj(self.approx.pivots[j]) * self.approx.pivots[k] * col_ip * row_ip
 
         return jnp.sqrt(jnp.abs(norm_sq))
 
@@ -1460,7 +1466,7 @@ class Chebfun2(eqx.Module):
             one_r = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
         approx = SeparableApprox(
             cols=[one_c], rows=[one_r], pivots=jnp.asarray([c]),
-            domain=self.approx.domain)
+            domain=self.approx.domain, pivot_values=None)
         return Chebfun2(approx=approx)
 
     def _compress(self, vscl: float | None = None) -> "Chebfun2":
@@ -1538,12 +1544,8 @@ class Chebfun2(eqx.Module):
             scale = float(vscl)
         keep = sig > 10 * _np.finfo(float).eps * max(scale, 1e-300)
         if not bool(_np.any(keep)):
-            zero = Chebtech2(coeffs=jnp.zeros(1, dtype=jnp.float64),
-                             ishappy=True)
-            approx = SeparableApprox(cols=[zero], rows=[zero],
-                                     pivots=jnp.asarray([0.0]),
-                                     domain=ap.domain)
-            return Chebfun2(approx=approx)
+            from chebfunjax.chebfun2d._pivot_metadata import _scale
+            return Chebfun2(approx=_scale(ap, 0))
         u = u[:, keep]
         w = wh.conj().T[:, keep]
         sig = sig[keep]
@@ -1565,9 +1567,11 @@ class Chebfun2(eqx.Module):
                 # OOM-killed after ~25 adds).
                 out.append(Chebtech2(coeffs=cf, ishappy=True).simplify())
             return out
+        from chebfunjax.chebfun2d._pivot_metadata import _cdr_weights
+        raw = 1/jnp.asarray(sig)
         approx = SeparableApprox(cols=_mk(new_col_vals, trig_c),
                                  rows=_mk(new_row_vals, trig_r),
-                                 pivots=jnp.asarray(sig),
+                                 pivots=_cdr_weights(raw), pivot_values=raw,
                                  domain=ap.domain,
                                  techs=("trig" if trig_c else "cheb",
                                         "trig" if trig_r else "cheb"))
@@ -1646,10 +1650,8 @@ class Chebfun2(eqx.Module):
                 f"{self.approx.domain} vs {other.approx.domain}")
 
     def __neg__(self) -> "Chebfun2":
-        approx = SeparableApprox(
-            cols=list(self.approx.cols), rows=list(self.approx.rows),
-            pivots=-self.approx.pivots, domain=self.approx.domain)
-        return Chebfun2(approx=approx)
+        from chebfunjax.chebfun2d._pivot_metadata import _negate
+        return Chebfun2(approx=_negate(self.approx))
 
     def __add__(self, other) -> "Chebfun2":
         """f + g by exact concatenation of the low-rank terms.
@@ -1671,7 +1673,7 @@ class Chebfun2(eqx.Module):
                 pivots=jnp.concatenate(
                     [jnp.atleast_1d(self.approx.pivots),
                      jnp.atleast_1d(other.approx.pivots)]),
-                domain=self.approx.domain)
+                domain=self.approx.domain, pivot_values=None)
             try:
                 vscl = 2.0 * max(float(self.vscale()), float(other.vscale()))
             except Exception:
@@ -1706,11 +1708,8 @@ class Chebfun2(eqx.Module):
         Chebfun commit: 7574c77
         """
         if isinstance(other, (int, float, complex)):
-            approx = SeparableApprox(
-                cols=list(self.approx.cols), rows=list(self.approx.rows),
-                pivots=self.approx.pivots * other,
-                domain=self.approx.domain)
-            return Chebfun2(approx=approx)
+            from chebfunjax.chebfun2d._pivot_metadata import _scale
+            return Chebfun2(approx=_scale(self.approx, other))
         if isinstance(other, Chebfun2):
             self._check_same_domain(other)
             for one, many in ((self.approx, other.approx),
@@ -1764,7 +1763,7 @@ class Chebfun2(eqx.Module):
             raise ValueError("dim must be 1 or 2")
         return Chebfun2(approx=SeparableApprox(
             cols=new_cols, rows=new_rows, pivots=self.approx.pivots,
-            domain=self.approx.domain))
+            pivot_values=self.approx.pivot_values, domain=self.approx.domain))
 
     def cumsum2(self) -> "Chebfun2":
         """Double indefinite integral (MATLAB cumsum2).
@@ -1996,7 +1995,7 @@ class Chebfun2(eqx.Module):
         locs = tuple((py, px) for (px, py) in a.pivot_locations)
         return Chebfun2(approx=SeparableApprox(
             cols=list(a.rows), rows=list(a.cols), pivots=a.pivots,
-            domain=(ya, yb, xa, xb), pivot_locations=locs,
+            pivot_values=a.pivot_values, domain=(ya, yb, xa, xb), pivot_locations=locs,
             techs=(a.techs[1], a.techs[0])))
 
     def ctranspose(self) -> "Chebfun2":
@@ -2076,12 +2075,44 @@ class Chebfun2(eqx.Module):
 
     @property
     def pivots(self) -> jax.Array:
-        """Pivot values ``d_j`` of the CDR representation (MATLAB
-        ``pivots(f)``)."""
+        """Legacy CDR weights d_j; use pivot_values for native raw values."""
         return jnp.asarray(self.approx.pivots)
 
+    @property
+    def pivot_values(self):
+        """Retained native raw pivots, without reciprocal reconstruction.
+
+        This eager source accessor raises when an inverse-only adapter has
+        no retained pivots or when metadata is inconsistent with its weights.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/pivots.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d._pivot_metadata import _retained_pivots
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        raw = _retained_pivots(self.approx)
+        if raw is None:
+            raise NotImplementedError("Original pivot values are unavailable for this CDR adapter")
+        return raw
+
     @classmethod
-    def from_cdr(cls, C, D, R, domain=None) -> "Chebfun2":
+    def from_pivot_values(cls, C, pivot_values, R, domain=None):
+        """Assemble source factors using raw pivotValues and native CDR weights.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/constructor.m, @separableApprox/cdr.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d._pivot_metadata import _cdr_weights
+        raw = jnp.asarray(pivot_values).reshape(-1)
+        return cls.from_cdr(C, _cdr_weights(raw), R, domain, _pivot_values=raw)
+
+    @classmethod
+    def from_cdr(cls, C, D, R, domain=None, *, _pivot_values=None) -> "Chebfun2":
         """Assemble ``f(x, y) = sum_j D[j] C_j(y) R_j(x)`` from lists (or
         Quasimatrices) of single-piece column and row chebfuns and the
         pivot vector (or diagonal matrix) ``D``.
@@ -2093,7 +2124,7 @@ class Chebfun2(eqx.Module):
         """
         C = list(getattr(C, "cols", C))
         R = list(getattr(R, "cols", R))
-        Dm = jnp.asarray(D, dtype=jnp.float64)
+        Dm = jnp.asarray(D) if _pivot_values is not None else jnp.asarray(D, dtype=jnp.float64)
         d = jnp.diag(Dm) if Dm.ndim == 2 else Dm.reshape(-1)
         if domain is None:
             ya, yb = (float(v) for v in
@@ -2107,7 +2138,7 @@ class Chebfun2(eqx.Module):
         techs = ("trig" if cols and all(isinstance(t, Trigtech) for t in cols) else "cheb",
                  "trig" if rows and all(isinstance(t, Trigtech) for t in rows) else "cheb")
         approx = SeparableApprox(cols=cols, rows=rows, pivots=d,
-                                 domain=tuple(float(v) for v in domain),
+                                 pivot_values=_pivot_values, domain=tuple(float(v) for v in domain),
                                  techs=techs)
         return cls(approx=approx)
 
@@ -2381,8 +2412,8 @@ class Chebfun2(eqx.Module):
         technology, simplified, and scaled. Rank one uses continuous factor
         extrema. Higher ranks use source Chebyshev seeds and the Nelder-Mead
         fallback; native active-set optimization is not implemented. Original
-        pivotValues are recovered from stored reciprocals, so their original
-        rounding is unavailable. Complex input retains the inherited optimizer,
+        pivotValues are used when retained; legacy inverse-only adapters use
+        explicitly limited reciprocal recovery. Complex input retains the inherited optimizer,
         whose source parity is not established.
 
         Nondefault legacy tuning arguments retain the inherited optimizer. Returns
@@ -3222,8 +3253,7 @@ def _chebfun2_from_matrix(A, dv, xkind: str, ykind: str):
         return [q.extract_columns(k) for k in range(len(vals))]
     cols = _slices(colvals, ya, yb, ykind)
     rows = _slices(rowvals, xa, xb, xkind)
-    return Chebfun2.from_cdr(cols, jnp.asarray(1.0 / _np.asarray(piv_vals)),
-                             rows, dv)
+    return Chebfun2.from_pivot_values(cols, jnp.asarray(piv_vals), rows, dv)
 
 
 def _chebfun2_fixed(f, dv, sizes, rank, tol, trig):
@@ -3240,6 +3270,8 @@ def _chebfun2_fixed(f, dv, sizes, rank, tol, trig):
                 cols=g.approx.cols[:int(rank)],
                 rows=g.approx.rows[:int(rank)],
                 pivots=jnp.asarray(g.approx.pivots)[:int(rank)],
+                pivot_values=(None if g.approx.pivot_values is None else
+                              g.approx.pivot_values[:int(rank)]),
                 domain=g.approx.domain))
         return g
     m, nn = sizes
@@ -3257,6 +3289,8 @@ def _chebfun2_fixed(f, dv, sizes, rank, tol, trig):
         g = Chebfun2(approx=SeparableApprox(
             cols=g.approx.cols[:int(rank)], rows=g.approx.rows[:int(rank)],
             pivots=jnp.asarray(g.approx.pivots)[:int(rank)],
+            pivot_values=(None if g.approx.pivot_values is None else
+                          g.approx.pivot_values[:int(rank)]),
             domain=g.approx.domain))
     return g
 
@@ -3293,8 +3327,7 @@ def _chebfun2_from_equi(A, dv):
                  equi=True)
     cols = [C.extract_columns(k) for k in range(len(piv_vals))]
     rows = [Rw.extract_columns(k) for k in range(len(piv_vals))]
-    return Chebfun2.from_cdr(cols, jnp.asarray(1.0 / _np.asarray(piv_vals)),
-                             rows, dv)
+    return Chebfun2.from_pivot_values(cols, jnp.asarray(piv_vals), rows, dv)
 
 
 def _chebfun2_impl(
@@ -3782,7 +3815,7 @@ def _mul_rank1(f1: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
     new_cols = [c1s * c for c in g.cols]
     new_rows = [r1s * r for r in g.rows]
     return SeparableApprox(cols=new_cols, rows=new_rows,
-                           pivots=jnp.asarray(g.pivots),
+                           pivots=jnp.asarray(g.pivots), pivot_values=g.pivot_values,
                            domain=g.domain)
 
 

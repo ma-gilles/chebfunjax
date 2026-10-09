@@ -1,0 +1,319 @@
+{
+  "scope": [
+    "Retain original raw pivots at native construction sites and preserve/update them in supported arithmetic.",
+    "Explicit None for adapters lacking source-equivalent metadata; eager getter rejects stale weights/raw.",
+    "Known scalar division keeps divisor/result boundaries; real Fraction exact controls and complex dependency/IR controls.",
+    "Represented complex L2 norms now conjugate the first weight in the Hermitian Gram form.",
+    "Canonical native imag/complex/vectorconj predicates restore original norms/expression order without tolerance changes."
+  ],
+  "cases": 86,
+  "payload": {
+    "src/chebfunjax/chebfun2d/_pivot_metadata.py": "0ff68e493bbf634d54c1ddd59d831ee805addf0c986f2f560f6189c4c989bcc0",
+    "src/chebfunjax/chebfun2d/_numeric_constructor.py": "f4312316ca3d0c6d2004240cf2ec39b3e6c77eeaf07bef46338521ed6301510d",
+    "src/chebfunjax/chebfun2d/_extrema_source.py": "b7f394e92eedd2d9fe5b3a86a478b18802bf024b3ad88e0b2f70c385aca55d49",
+    "src/chebfunjax/chebfun2d/separable_approx.py": "c01a6e89653e4e6d24a2445d99037a04d70c4436f5637f1c143cd3d6403a7c8f",
+    "src/chebfunjax/chebfun2d/chebfun2.py": "02cadbec068a51ed168dba8e745bf72c8196e736b15374e54d58d4f52299eed8",
+    "src/chebfunjax/chebfun2d/chebfun2v.py": "5f0af41b62d12e15fabb148c274aba35884928c125797710176b059aba53c6c5",
+    "src/chebfunjax/operators/chebop2.py": "9d9e80ca9633645f459c142b5a9a5504ceb181fc1747abd96ea99b381077cc7c",
+    "tests/test_matlab_port/chebfun2/test_imag_matlab.py": "dbd1d78f29065b264a3d55f320b012454d9aab2e5a8b8030c69dbc239522009b",
+    "tests/test_matlab_port/chebfun2/test_complex_matlab.py": "867739e5591cd5f5870fc3efbbde139454a0af96d43dab46ccb5a2d3b415e496",
+    "tests/test_matlab_port/chebfun2v/test_conj_matlab.py": "358fb29d4aca5e090374d42579fe99030604e627f2fc139474b1b1059a3b05ad",
+    "tests/test_chebfun2d/test_complex_norm_source.py": "b2797780b59d9619811e7223dbf0d028caaa2f4e39a94a40e7b1fc48fb7921de",
+    "tests/test_chebfun2d/test_pivot_metadata_source.py": "7d4b4d6065231bbd6aaf82d6a3657e85a5ae0e4cd660c3f051bf9575a761f265"
+  },
+  "limitations": [
+    "Active-set optimizer unavailable; Gibbs public page not yet run.",
+    "Old .pivots property remains CDR weights; explicit pivot_values getter is raw/un-normalized. Native normalized getter migration remains.",
+    "Unknown adapters cannot recover lost pivot bits; arbitrary inconsistent dependent-leaf edits unsupported.",
+    "No general traced-scalar AD or MATLAB complex bit parity claim.",
+    "Native SVD/QR norm algorithm differs from inherited Gram implementation; conjugation correction establishes the mathematical norm only.",
+    "Inherited tech/pivot-location omissions and unsupported Sphere/Disk representation remain outside this payload."
+  ],
+  "groups": [
+    {
+      "group": "pivot_norm7_v4",
+      "audit": {
+        "observed_files": 2942,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 7,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 76.7204279480502,
+          "sampled_peak_summed_rss_kib": 1183636
+        }
+      }
+    },
+    {
+      "group": "pivot_policy20_v4",
+      "audit": {
+        "observed_files": 2943,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 20,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 70.58486394863576,
+          "sampled_peak_summed_rss_kib": 1016608
+        }
+      }
+    },
+    {
+      "group": "pivot_construction12_v4",
+      "audit": {
+        "observed_files": 2960,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 12,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 73.78218781156465,
+          "sampled_peak_summed_rss_kib": 1258228
+        }
+      }
+    },
+    {
+      "group": "pivot_rawhigher1_v4",
+      "audit": {
+        "observed_files": 2958,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 1,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 94.12415164383128,
+          "sampled_peak_summed_rss_kib": 884248
+        }
+      }
+    },
+    {
+      "group": "pivot_frontend_simple17_combined8479_v4",
+      "audit": {
+        "observed_files": 2956,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 17,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 77.83473407989368,
+          "sampled_peak_summed_rss_kib": 1426536
+        }
+      }
+    },
+    {
+      "group": "pivot_frontend_routing10_v4",
+      "audit": {
+        "observed_files": 2942,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 10,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 74.47385462699458,
+          "sampled_peak_summed_rss_kib": 908424
+        }
+      }
+    },
+    {
+      "group": "pivot_frontend_quadratic1_v4",
+      "audit": {
+        "observed_files": 2955,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 1,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 75.38439587224275,
+          "sampled_peak_summed_rss_kib": 874360
+        }
+      }
+    },
+    {
+      "group": "pivot_frontend_empty1_v4",
+      "audit": {
+        "observed_files": 2941,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 1,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 73.10283383680508,
+          "sampled_peak_summed_rss_kib": 516460
+        }
+      }
+    },
+    {
+      "group": "pivot_aca5_v4",
+      "audit": {
+        "observed_files": 2936,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 5,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 67.65083557832986,
+          "sampled_peak_summed_rss_kib": 804944
+        }
+      }
+    },
+    {
+      "group": "pivot_native_conj3_v4",
+      "audit": {
+        "observed_files": 2938,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 3,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 113.31402509473264,
+          "sampled_peak_summed_rss_kib": 1645748
+        }
+      }
+    },
+    {
+      "group": "pivot_native_imag_complex3_v4",
+      "audit": {
+        "observed_files": 2939,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 3,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 79.21839515399188,
+          "sampled_peak_summed_rss_kib": 1419320
+        }
+      }
+    },
+    {
+      "group": "pivot_native_vector_conj3_v4",
+      "audit": {
+        "observed_files": 2939,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 3,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 95.4039935162291,
+          "sampled_peak_summed_rss_kib": 1711588
+        }
+      }
+    },
+    {
+      "group": "pivot_native_uminus3_v4",
+      "audit": {
+        "observed_files": 2938,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 3,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 84.17813146486878,
+          "sampled_peak_summed_rss_kib": 1352404
+        }
+      }
+    }
+  ],
+  "retained_failed_evidence": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_public_extrema_source_20261009/pivot_policy20_v2_AUDIT.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_public_extrema_source_20261009/pivot_policy20_v3_AUDIT.json"
+  ],
+  "integration_applicability": "At e34cb308: changed Newton routes are unused; 2D compression uses its own inherited NumPy QR/SVD, not changed Trig/public 1D QR. Existing combined simple17 snapshot includes the qualified roots changes. No new combined numeric execution is claimed.",
+  "root_evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_norm7_root_runtime_review_20261009.json",
+      "sha256": "9b62a9015f701de86c1c5531312f7bd94ef14df6c0dcb53c23a8fbfef177b585"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_norm7_root_results_review_20261009.json",
+      "sha256": "e2282b4f3425303149cff1c77c2ae76548be88ccbbe22919621bf98a37535f8b"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_policy20_root_runtime_review_20261009.json",
+      "sha256": "935d9b3bc96445f76e1acac31a8ea9e65e4e0b34fe2c5a7125c977dbad1b1d44"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_policy20_root_ir_values_review_20261009.json",
+      "sha256": "d3172a7032e7e97b7286d9c640047c36b9fda62390f50ae430a545c6e636422f"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_construction_higher_root_runtime_review_20261009.json",
+      "sha256": "5ed0107b44760fd6ccc64dbee5fc8b6e4386f28320dde692e037a55864fb59ab"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_construction_higher_root_results_review_20261009.json",
+      "sha256": "8ddc8e9f32071a2bd7221e48b618d22a54f5f919872d714e2cf8ff1a6eb8a2c0"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_frontend27_root_runtime_review_20261009.json",
+      "sha256": "5aad840413563eb0de240514242f8c74751a1ac742c28b40f4bfd9413721ef91"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_frontend_and_next40_root_results_review_20261009.json",
+      "sha256": "052daca518b264f36029337cb3a821c4ead675f3976e8f01719ae5159c9611b0"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_next13_root_runtime_review_20261009.json",
+      "sha256": "8f654be73ba3b1be06750350f5e865baeba5f1b1d3b7f496c1c36a0ad86e3a7e"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_final6_root_runtime_review_20261009.json",
+      "sha256": "387fcaf0cf8a2106856bbfa2f230421ecfb3194fefc8b7a20e37f600422dfc92"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pivot_final6_root_results_review_20261009.json",
+      "sha256": "f3b696b4f1d34a25ff05f2755eae84c6681fbb8ac1bb39977f0bea8a8abe97ca"
+    }
+  ]
+}
