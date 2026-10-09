@@ -58,14 +58,27 @@ def _rows(coeffs, even):
     return jnp.where(remove[:, None], 0, coeffs)
 
 
-def _real_source(coeffs):
-    # populate({'',coeffs}) stores original coefficients while classifying
-    # each value column with3eps. real() returns unchanged if ALL are real.
+@jax.jit
+def _real_source_values(coeffs):
+    """Source populate values and aggregate real flag in one reusable kernel.
+
+    MATLAB @trigtech/populate.m at 7574c77 uses 3*(eps*vscale).
+    The barrier expresses the source multiplication boundary; qualification
+    is limited to inspected/tested CPU behavior, not arbitrary compiler output.
+    """
     values = _trig_coeffs2vals_impl(coeffs)
     eps = jnp.finfo(jnp.float64).eps
     scale = jnp.max(jnp.abs(values), axis=0)
-    flags = jnp.max(jnp.abs(jnp.imag(values)), axis=0) <= 3 * (eps * scale)
-    if bool(jnp.all(flags)):
+    threshold = 3 * jax.lax.optimization_barrier(eps * scale)
+    flags = jnp.max(jnp.abs(jnp.imag(values)), axis=0) <= threshold
+    return values, jnp.all(flags)
+
+
+def _real_source(coeffs):
+    # populate({'',coeffs}) stores original coefficients while classifying
+    # each value column with3eps. real() returns unchanged if ALL are real.
+    values, all_real = _real_source_values(coeffs)
+    if bool(all_real):
         return coeffs
     values = jnp.real(values)
     if not bool(jnp.any(values != 0)):

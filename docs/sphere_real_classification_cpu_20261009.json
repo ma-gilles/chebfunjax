@@ -1,0 +1,25 @@
+{
+  "scope": "Reusable JAX kernel for source coefficient-to-value conversion and aggregate real classification. Source3*(eps*vscale) order retained with identity barrier; later all-real/zero/transform/simplify branches unchanged.",
+  "base": "d60eeeb2",
+  "native_sources": [
+    "@trigtech/populate.m52",
+    "@trigtech/real.m"
+  ],
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "checks": {
+    "exact_value_and_flag_fixtures": 7,
+    "threshold_neighbor_fixtures": 5,
+    "unchanged_source_controls": 17
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_real_classification_fusion_20261009/classification_v1/ROOT_REVIEW.json": "348ab15e1c4da0fd4ee9598b22b9c8f1f388302bc6f18c11d5d268411669983a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_real_classification_fusion_20261009/controls17_v1/ROOT_REVIEW.json": "1c72354b098a73085c400fbc2e4ff4af05d404ece11767068d88bfc60904a860",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_real_classification_fusion_20261009/PLAN_v1.json": "8b9a80b484014c1003939947fae351a9d1e2d46d180b9daa4a2c7815f1f3b169"
+  },
+  "limitations": [
+    "No measured memory or time reduction for this kernel yet",
+    "Actual SphereHeat continuation deferred while AnalyticSVD owns heavy lane",
+    "Source guards only, not full runtime audit",
+    "No universal compiler rounding or native FFT bit-identity claim"
+  ]
+}
