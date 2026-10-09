@@ -6,6 +6,33 @@
 
 
 
+
+## AAA derivative API and source recurrences (2026-10-08)
+
+AAA deriv_deg now returns a list of derivative callables as its first output,
+retaining the other six outputs. JAX Schneider-Werner recurrences follow native
+ordinary/support-node formulas, nonconjugate products and sequential denominator
+accumulation. Autosampling, greedy/SVD, cleanup, Lawson and pole kernels are
+unchanged. Constant derivatives retain native scalar zero. Numeric singleton
+arrays now follow MATLAB isscalar semantics; root caught and corrected an
+initial ndim-only parser. Boolean/nonnumeric/multielement options remain ignored.
+
+All eight original derivative predicates33-40 pass unchanged, including both
+1e-112 bounds. Final parser/derivative gate passes28 checks. Composite coverage
+is113 acceptance bodies, including85 prior nonderivative checks carried by
+unchanged function AST and default-zero parsing; not one final113-test run.
+Root rehashed2938/2999/2926 observed files across three accepted gates, verified
+terminal stable receipts/no survivors and native source/payload/scope hashes.
+Evidence:aaa_derivatives_root_acceptance_20261008.json and
+ aaa_derivatives_scalar_correction_20261008/qualified_packet.json in shared scratch.
+
+Known limitation: a new analytical autoZ-exp endpoint bound1e-11 failed and is
+retained as unaccepted diagnostic evidence. At+1 the error is7.66e-8 near an
+inset support node; identical-data literal scalar/vector/JIT recurrences agree.
+This is cancellation evidence on those data, not fresh native MATLAB behavior.
+No snapping, sample changes or bound relaxation were introduced. Native complex
+order-option behavior, full AAA42/API and exact-head CI remain unqualified.
+
 ## Orthographic surface viewport (2026-10-08)
 
 New surf axes use an orthographic rectangular viewport instead of Matplotlib's

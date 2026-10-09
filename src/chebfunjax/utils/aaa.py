@@ -80,7 +80,8 @@ def aaa(
     sign: bool = False,
     cleanup: bool = True,
     cleanup_tol: float | None = None,
-) -> tuple[Callable, jnp.ndarray, jnp.ndarray, jnp.ndarray,
+    deriv_deg: int = 0,
+) -> tuple[Callable | list[Callable], jnp.ndarray, jnp.ndarray, jnp.ndarray,
            jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """AAA rational approximation.
 
@@ -108,6 +109,10 @@ def aaa(
         Function values at ``Z``, or a callable to evaluate.  If callable,
         ``F(Z)`` is called once.  Must have the same length as ``Z`` if given
         as an array.
+    deriv_deg : int, optional
+        Return derivatives through this order (default 0). When positive,
+        the first output is a list of callables [r, r_prime, ...], matching
+        MATLAB's row cell array; the other six outputs are unchanged.
     Z : array_like, shape (M,)
         Sample points (real or complex).
     tol : float, optional
@@ -146,9 +151,10 @@ def aaa(
 
     Returns
     -------
-    r : callable
-        Rational approximant as a function handle.  ``r(zz)`` evaluates
-        the approximant at points ``zz``; it is JIT-safe.
+    r : callable or list of callables
+        Rational approximant, or [r, r_prime, ...] when deriv_deg is positive.
+        Each returned callable is JIT-safe. The constant derivative follows
+        MATLAB diffbary and returns scalar zero, even for array queries.
     pol : jnp.ndarray, complex
         Poles of the rational approximant (from generalised eigenvalue problem).
     res : jnp.ndarray, complex
@@ -185,13 +191,16 @@ def aaa(
     Original authors: Copyright 2023 by The University of Oxford and The
         Chebfun Developers.
     """
+    deriv_deg = _aaa_derivative_order(deriv_deg)
     if Z is None:
         if not callable(F):
             raise ValueError("aaa: Z may only be omitted when F is callable "
                              "(MATLAB aaa_autoZ).")
-        return _aaa_autoZ(F, dom, tol=tol, mmax=mmax, degree=degree,
+        out = _aaa_autoZ(F, dom, tol=tol, mmax=mmax, degree=degree,
                           lawson=lawson, damping=damping, sign=sign,
                           cleanup=cleanup, cleanup_tol=cleanup_tol)
+        r = _aaa_derivative_outputs(out[0], *out[4:7], deriv_deg)
+        return (r, *out[1:])
 
     # ---- Input handling ----
     Z_input = jnp.asarray(Z).ravel()
@@ -371,8 +380,83 @@ def aaa(
 
     # ---- Build callable ----
     r = _make_callable(zj_jnp, fj_jnp, wj_jnp)
+    r = _aaa_derivative_outputs(r, zj_jnp, fj_jnp, wj_jnp, deriv_deg)
 
     return r, pol, res, zer, zj_jnp, fj_jnp, wj_jnp
+
+
+
+def _aaa_derivative_order(value):
+    """Native numeric-scalar option parsing; positive orders size a cell array."""
+    try:
+        value = jnp.asarray(value)
+    except (TypeError, ValueError):
+        return 0
+    if value.size != 1 or not jnp.issubdtype(value.dtype, jnp.number):
+        return 0
+    value = value.reshape(())
+    if jnp.iscomplexobj(value):
+        raise ValueError("aaa: deriv_deg must be a real derivative order")
+    order = float(value)
+    if not order >= 1:
+        return 0
+    if not bool(jnp.isfinite(value)) or order != int(order):
+        raise ValueError("aaa: positive deriv_deg must be an integer")
+    return int(order)
+
+
+def _aaa_derivative_outputs(r, zj, fj, wj, order):
+    """Python list adapter for the native 1-by-(order+1) cell output."""
+    if order < 1:
+        return r
+    return [r] + [
+        lambda x, k=k: _diffbary(x, zj, fj, wj, k)
+        for k in range(1, order + 1)
+    ]
+
+
+def _diffbary(x, zj, fj, wj, k=1):
+    """Native Schneider--Werner barycentric derivative recurrence, in JAX.
+
+    Provenance: aaa.m, local DIFFBARY, Chebfun7574c77. Products are ordinary
+    transposes (no conjugation). Support nodes use the separate deleted-node
+    recurrence; a zero mask with a safe denominator implements the deletion
+    without data-dependent shapes. The native constant case returns scalar0.
+    """
+    zj, fj, wj = jnp.asarray(zj), jnp.asarray(fj), jnp.asarray(wj)
+    if zj.size <= 1:
+        return jnp.asarray(0.)
+    x = jnp.asarray(x)
+    shape = x.shape
+    xx = x.ravel()
+    delta = xx[:, None] - zj[None, :]
+    at_node = delta == 0
+    support = jnp.any(at_node, axis=1)
+    pos = jnp.argmin(jnp.abs(delta), axis=1)
+    safe_delta = jnp.where(at_node, 1., delta)
+    terms = wj[None, :] / safe_delta
+    # D in native diffbary is accumulated sequentially in support order.
+    denominator = jax.lax.fori_loop(
+        0, zj.size, lambda j, total: total + terms[:, j],
+        jnp.zeros(xx.shape, dtype=terms.dtype))
+    ordinary_gamma = terms / denominator[:, None]
+    support_gamma = jnp.where(at_node, 0., -wj[None, :] / wj[pos, None])
+    gamma = jnp.where(support[:, None], support_gamma, ordinary_gamma)
+    divisor = -safe_delta
+    initial_support = jnp.where(at_node, 0., (fj[None, :] - fj[pos, None]) / divisor)
+    values = jnp.broadcast_to(fj, delta.shape)
+    # Ordinary recurrence needs k+1 products, whereas support needs k.
+    ordinary_phi = jnp.sum(gamma * values, axis=1)
+    ordinary_next = (values - ordinary_phi[:, None]) / divisor
+    current = jnp.where(support[:, None], initial_support, ordinary_next)
+    phi = ordinary_phi
+    for _ in range(k):
+        phi = jnp.sum(gamma * current, axis=1)
+        current = (current - phi[:, None]) / divisor
+    factorial = jnp.asarray(1., dtype=jnp.float64)
+    for j in range(2, k + 1):
+        factorial *= j
+    return (phi * factorial).reshape(shape)
 
 
 # ---------------------------------------------------------------------------
