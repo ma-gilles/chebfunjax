@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AAA explicit-sample string expressions (2026-10-08)
+
+AAA now accepts MATLAB expression strings with explicit sample coordinates,
+reusing the existing single-variable expression parser. Sampling, derivatives,
+SVD/Lawson/cleanup and pole kernels are unchanged. Omitted-sample strings remain
+rejected; native parseInputs establishes conversion only in its explicit-Z arm.
+
+Sixteen final checks pass: eight independent expression controls plus all eight
+original derivative predicates33-40. Controls include the original16 sample
+count10001 with deterministic queries, exact scalar/vector outputs and all six
+metadata outputs, alternate variable names, complex/nondefault domains and
+MATLAB elementwise syntax. Original16's exact random query remains unavailable;
+the API gap is repaired but its native random input is not claimed captured.
+Root rehashed2931 observed runtime files and verified terminal stable receipt/no
+survivors. Evidence:aaa_string_root_review_20261008.json and
+ aaa_string_source_20261008/qualified_packet.json in shared scratch.
+The shared parser's existing syntax limits and earlier AAA endpoint cancellation
+and complex-pole questions remain. Full suite/native reruns/exact-head CI open.
+
 ## Scalar general boundary conditions (2026-10-08)
 
 Finite single-interval scalar nonlinear general BCs now use the source scalar

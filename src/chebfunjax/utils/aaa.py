@@ -68,7 +68,7 @@ def _aaa_source_weights(s, vh, sign):
 
 
 def aaa(
-    F: jnp.ndarray | Callable,
+    F: jnp.ndarray | Callable | str,
     Z: jnp.ndarray | None = None,
     *,
     dom: tuple[float, float] = (-1.0, 1.0),
@@ -105,10 +105,11 @@ def aaa(
 
     Parameters
     ----------
-    F : array_like or callable
+    F : array_like, callable, or str
         Function values at ``Z``, or a callable to evaluate.  If callable,
         ``F(Z)`` is called once.  Must have the same length as ``Z`` if given
-        as an array.
+        as an array. With explicit ``Z``, a MATLAB expression string such
+        as ``"abs(x)"`` is evaluated using the shared expression parser.
     deriv_deg : int, optional
         Return derivatives through this order (default 0). When positive,
         the first output is a list of callables [r, r_prime, ...], matching
@@ -206,6 +207,13 @@ def aaa(
     Z_input = jnp.asarray(Z).ravel()
     Z = Z_input.astype(jnp.complex128)
     M = Z.shape[0]
+
+    if isinstance(F, str):
+        # Native parseInputs converts inline(vectorize(F)) only with explicit Z.
+        # Reuse the existing MATLAB single-variable expression contract.
+        from chebfunjax.chebfun1d.chebfun import _string_op
+
+        F = _string_op(F)
 
     if callable(F):
         # Native parseInputs evaluates the supplied sample coordinates before
