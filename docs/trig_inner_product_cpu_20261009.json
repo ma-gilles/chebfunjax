@@ -1,0 +1,143 @@
+{
+  "scope": "Native summed-length Trigtech inner product; scalar QR regressions, no full SVD qualification",
+  "target": "7574c77680d7e82b79626300bf255498271a72df",
+  "checks": 23,
+  "source_predicates": {
+    "focused": 10,
+    "native_innerProduct": "all eleven original clauses, exact bounds and expressions; slot4 inherited tol_f; slot9 exact real/nonnegative; slot10 flattened max; slot11 source error",
+    "scalar_QR": "unchanged source slots1/2; orthogonality10eps*vscale, reconstruction100eps*vscale"
+  },
+  "cases": [
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_even_nyquist_exact_integral_and_scalar_qr[1.0]",
+      "time": "1.479"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_even_nyquist_exact_integral_and_scalar_qr[1j]",
+      "time": "0.222"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_array_orientation_and_real_pairs",
+      "time": "1.025"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_prolong_regenerates_stale_caches_before_equality",
+      "time": "0.097"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_empty_first_and_invalid_input[2]",
+      "time": "0.100"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_empty_first_and_invalid_input[other1]",
+      "time": "0.002"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_empty_first_and_invalid_input[other2]",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_jit_ad_nyquist_energy",
+      "time": "0.569"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_nan_equality_is_false",
+      "time": "0.132"
+    },
+    {
+      "classname": "tests.test_trig_inner_product_source",
+      "name": "test_scalar_zero_inner_and_native_qr_division",
+      "time": "0.234"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[1]",
+      "time": "3.715"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[2]",
+      "time": "2.678"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[3]",
+      "time": "3.501"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[4]",
+      "time": "0.617"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[5]",
+      "time": "4.778"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[6]",
+      "time": "0.563"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[7]",
+      "time": "0.427"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[8]",
+      "time": "0.397"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[9]",
+      "time": "0.651"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[10]",
+      "time": "7.101"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_innerProduct_matlab",
+      "name": "test_native_inner_product[11]",
+      "time": "0.081"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_qr_matlab.TestTrigtechQr",
+      "name": "test_factorization_1",
+      "time": "7.745"
+    },
+    {
+      "classname": "tests.test_matlab_port.trigtech.test_qr_matlab.TestTrigtechQr",
+      "name": "test_factorization_2",
+      "time": "0.066"
+    }
+  ],
+  "payload": {
+    "src/chebfunjax/tech/trigtech.py": "e48bb7292dcfcf07dcce51210674abb8233a2aeb1099ba25cc8fce637fbdeab0",
+    "tests/test_trig_inner_product_source.py": "dade89f3f1835822bd92c831d4645717cbeee7bf2ebed47854e51cce09172022",
+    "tests/test_matlab_port/trigtech/test_innerProduct_matlab.py": "404cffb9ffcdeb2d6a50b351fa24da362c31a959b3b1d9edd34f17104b7cb8fb"
+  },
+  "limitations": [
+    "traced complex scalar retains static complex dtype; eager equal scalar real",
+    "multicolumn QR numerical body unchanged",
+    "three-output pivot QR not qualified",
+    "nonfinite SVD provider boundary not qualified",
+    "SVDv1 unrun; will reuse shared helper in new draft"
+  ],
+  "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_inner_product_root_runtime_review_20261009.json",
+  "runtime_review_sha256": "884335e556f3cd9d7828ae76175f3906fb5716845dcc2f83d8ab4a4568edc292",
+  "delivery_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_inner_product_source_20261009/QUALIFIED_INNER_PRODUCT_v1.json",
+  "delivery_packet_sha256": "8855b6401c599dd6bfc4a6387feb83c30804e36dd4085a2e0e790026a94573bb"
+}

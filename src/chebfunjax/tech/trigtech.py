@@ -2133,46 +2133,27 @@ class Trigtech(eqx.Module):
                         ishappy=result.ishappy, _values=result.values - lval)
 
     def innerProduct(self, other: "Trigtech") -> jax.Array:
-        r"""L^2 inner product <f, g> = \int_{-1}^{1} conj(f) g dx.
+        """Native summed-length trapezoid inner product, conjugate-linear in F.
 
-        For Fourier series f = sum a_k e^{i pi k x},
-        g = sum b_k e^{i pi k x}: <f, g> = 2 sum conj(a_k) b_k
-        (orthogonality of the modes on [-1, 1]).  MATLAB forces
-        <f, f> real-nonnegative (isequal branch).  Added by Claude
-        Fable 5 (trigtech method gap).
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/innerProduct.m
-        Chebfun commit: 7574c77
+        MATLAB @trigtech/innerProduct.m and isequal.m, Chebfun7574c77.
+        Python adapters return a scalar for two vector coefficient arrays
+        and a (0, 0) array for native []. Eager equal scalar operands return
+        real storage; traced complex inputs retain a static complex dtype.
         """
-        n = max(self.n, other.n)
-        fc = _trig_prolong_coeffs(self.coeffs, n)
-        gc = _trig_prolong_coeffs(other.coeffs, n)
-        both_1d = (fc.ndim == 1) and (gc.ndim == 1)
-        # Fourier-mode orthogonality on [-1, 1]:
-        # <e^{i pi k x}, e^{i pi m x}> = 2 delta_{km}, hence
-        # <f, g>_{ij} = 2 sum_k conj(a_{k,i}) b_{k,j}.
-        fc2 = fc if fc.ndim == 2 else fc[:, None]
-        gc2 = gc if gc.ndim == 2 else gc[:, None]
-        out = 2.0 * (jnp.conj(fc2).T @ gc2)  # (mf, mg) matrix
-        same = other is self
-        if not same and self.coeffs.shape == other.coeffs.shape:
-            if not isinstance(self.coeffs, jax.core.Tracer) and \
-                    not isinstance(other.coeffs, jax.core.Tracer):
-                same = bool(jnp.all(self.coeffs == other.coeffs))
-        real_pairs = jnp.asarray(self.real_columns)[:, None] & jnp.asarray(other.real_columns)[None, :]
-        out = jnp.where(real_pairs, jnp.real(out), out)
-        if same:
-            # Force a non-negative real diagonal (MATLAB isequal branch).
-            d = jnp.diag(out)
-            out = out - jnp.diag(d) + jnp.diag(jnp.abs(d))
-        if both_1d:
-            # Scalar-valued inputs: return a scalar (legacy behaviour).
+        if self.isempty() or (isinstance(other, Trigtech) and other.isempty()):
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        if isinstance(other, (list, tuple)) and not other:
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        if hasattr(other, "size") and other.size == 0:
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        if not isinstance(other, Trigtech):
+            raise ValueError("CHEBFUN:TRIGTECH:innerProduct:input")
+        out, equal = _trig_inner_product_jax(self, other)
+        if self.coeffs.ndim == other.coeffs.ndim == 1:
             val = out[0, 0]
-            if same:
-                return jnp.abs(val)
             if self.is_real and other.is_real:
+                return jnp.real(val)
+            if not isinstance(equal, jax.core.Tracer) and bool(equal):
                 return jnp.real(val)
             return val
         return out
@@ -3392,3 +3373,31 @@ def _trig_qr_collate(techs):
         real_columns=tuple(flag for t in techs for flag in t.real_columns),
         ishappy=techs[0].ishappy,
         _values=jnp.column_stack([t.values for t in prolonged]))
+
+
+@eqx.filter_jit
+def _trig_inner_product_jax(f: Trigtech, g: Trigtech):
+    """JAX arithmetic for native innerProduct/isequal (Chebfun7574c77).
+
+    Nonempty validated operands only. Return matrix and native equality
+    predicate separately so the eager Python scalar adapter can retain its
+    real self-product dtype without a data-dependent compiled return type.
+    """
+    n = f.n + g.n
+    f, g = f.prolong(n), g.prolong(n)
+    fv, gv = f.values, g.values
+    fm = fv[:, None] if fv.ndim == 1 else fv
+    gm = gv[:, None] if gv.ndim == 1 else gv
+    weighted = f.quadwts(n)[:, None] * fm
+    out = jnp.conj(weighted).T @ gm
+    real_pairs = jnp.asarray(f.real_columns)[:, None] & jnp.asarray(g.real_columns)[None, :]
+    out = jnp.where(real_pairs, jnp.real(out), out)
+    # MATLAB vector storage is a column: align the Python 1D adapter here.
+    fc = f.coeffs[:, None] if f.coeffs.ndim == 1 else f.coeffs
+    gc = g.coeffs[:, None] if g.coeffs.ndim == 1 else g.coeffs
+    equal = jnp.asarray(False)
+    if fc.shape == gc.shape:
+        equal = jnp.all(fc == gc) & jnp.all(fm == gm)
+        diagonal = jnp.diag(jnp.diag(out))
+        out = jnp.where(equal, out - diagonal + jnp.abs(diagonal), out)
+    return out, equal
