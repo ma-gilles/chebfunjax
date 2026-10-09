@@ -33,6 +33,7 @@ import matplotlib as mpl
 # display available.
 if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
+import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
@@ -5219,12 +5220,11 @@ def _sphere_visible_vertices(points, projection, radius):
     """
     points = jnp.asarray(points, dtype=jnp.float64)
     eye_h = jnp.linalg.inv(jnp.asarray(projection))[:, 2]
-    if bool(eye_h[3] == 0):
-        ray = jnp.broadcast_to(-eye_h[:3], points.shape)
-        maximum = jnp.inf
-    else:
-        ray = eye_h[:3] / eye_h[3] - points
-        maximum = 1.0
+    ray, maximum = jax.lax.cond(
+        eye_h[3] == 0,
+        lambda: (jnp.broadcast_to(-eye_h[:3], points.shape), jnp.inf),
+        lambda: (eye_h[:3] / eye_h[3] - points, 1.0),
+    )
     norm2 = jnp.sum(ray * ray, axis=1)
     parameter = -jnp.sum(points * ray, axis=1) / jnp.where(norm2 > 0, norm2, 1.0)
     parameter = jnp.clip(parameter, 0.0, maximum)
@@ -5267,6 +5267,37 @@ def _sphere_ray_distance2_upper(points, ray, parameter):
     gamma = jnp.nextafter(5 * unit_roundoff / (1 - 5 * unit_roundoff), jnp.inf)
     denominator = jnp.nextafter(1 - gamma, -jnp.inf)
     return jnp.nextafter(total / denominator, jnp.inf)
+
+@jax.jit
+def _sphere_mask_block(points, projection, radius):
+    """Compile the accepted conservative ray test and display mask together."""
+    visible = _sphere_visible_vertices(points, projection, radius)
+    return jnp.where(visible[:, None], points, jnp.nan)
+
+
+def _sphere_display_vertices(points, projection, radius):
+    """Bound renderer compilation to eight row shapes without changing geometry.
+
+    Matplotlib source coordinates are copied on the host. NaN padding is
+    row-independent; camera and radius remain dynamic kernel arguments.
+    Consecutive blocks preserve separators, vertex order and visible bits.
+    This is a compiler adapter for the existing conservative visibility test,
+    not a change to native sphere coordinates or a mesh-depth approximation.
+    """
+    points = np.asarray(points, dtype=np.float64)
+    if points.shape[0] == 0:
+        return points.copy()
+    displayed = np.empty_like(points)
+    for start in range(0, len(points), 4096):
+        count = min(4096, len(points) - start)
+        bucket = max(32, 1 << (count - 1).bit_length())
+        padded = np.full((bucket, 3), np.nan, dtype=np.float64)
+        padded[:count] = points[start:start + count]
+        displayed[start:start + count] = np.asarray(
+            _sphere_mask_block(padded, projection, radius)
+        )[:count]
+    return displayed
+
 
 def _coast_opaque_spheres(ax):
     """Return live opaque sphere artists registered by sphere plot helpers.
@@ -5330,11 +5361,10 @@ class _SphereCoastLine(Line3D):
         if not spheres or not self.get_visible():
             return super().draw(renderer)
         original = self.get_data_3d()
-        points = jnp.stack([jnp.asarray(part) for part in original], axis=1)
+        points = np.stack([np.asarray(part) for part in original], axis=1)
         # Registered surfaces are concentric; their union is the largest ball.
         radius = max(radius for _, radius in spheres)
-        visible = _sphere_visible_vertices(points, self.axes.M, radius)
-        displayed = np.asarray(jnp.where(visible[:, None], points, jnp.nan))
+        displayed = _sphere_display_vertices(points, self.axes.M, radius)
         self._verts3d = tuple(displayed[:, k] for k in range(3))
         try:
             super().draw(renderer)

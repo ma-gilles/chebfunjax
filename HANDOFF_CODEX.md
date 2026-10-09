@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere visibility compilation adapter (2026-10-09)
+
+The existing conservative ray test and final display mask now compile together.
+Renderer inputs use eight bounded row shapes (32 through4096), preserving
+vertex order, separators and original stored geometry. Camera and radius stay
+dynamic; no camera-result cache or geometric offset was introduced. The outward
+arithmetic-bound helper is unchanged and the frozen eager test oracle matches
+its accepted source AST.
+
+All29 focused geometry/painter/compiler controls pass in26.78s, peak0.84GiB;
+terminal0/stable/no survivors. Root independently rehashed3024 observed runtime
+files and verified the three integrated file hashes. Evidence:
+sphere_visibility_root_runtime_review_20261009.json and
+sphere_visibility_root_integration_20261009.json in shared goal scratch.
+Matched synthetic timing is pending; no full-page speed or figure-parity claim.
+
 ## Atmospheric current painter/layout replay (2026-10-09)
 
 A fresh full source run on226ba700 produced all10 figures at600x270 with
