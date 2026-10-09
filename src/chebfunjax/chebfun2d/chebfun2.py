@@ -1122,107 +1122,16 @@ class Chebfun2(eqx.Module):
         return chebfun(h, domain=(a, b)).sum()
 
     def svd(self, full: bool = False):
-        r"""Singular values (and functions) of the Chebfun2 kernel.
+        """Native continuous QR and small-core SVD (@separableApprox/svd.m).
 
-        Returns the singular values of ``f`` in decreasing order.  The number
-        returned equals the rank of the low-rank representation.  With
-        ``full=True`` (MATLAB ``[U, S, V] = svd(f)``) returns the tuple
-        ``(U, S, V)`` where ``U`` is a list of 1D Chebfuns of ``y``, ``V``
-        of ``x``, orthonormal in the physical L2 inner products, and
-        ``f = sum_j S[j] U[j](y) V[j](x)``.
-
-        Algorithm (identical to MATLAB @separableApprox/svd.m)::
-
-            f = C D R'                 (low-rank / cdr representation)
-            C = Q_C R_C                (quasimatrix QR in the y inner product)
-            R = Q_R R_R                (quasimatrix QR in the x inner product)
-            f = Q_C (R_C D R_R') Q_R'
-            singular values of f = singular values of  R_C D R_R'
-
-        The quasimatrix QRs are realised as ordinary QRs of the column/row
-        slice *values* on a common Chebyshev grid, weighted by the square
-        root of the Clenshaw-Curtis quadrature weights and the physical
-        affine-map scale, so that ``Q^H Q = I`` in the physical L^2 inner
-        product.  The core ``R_C D R_R'`` is then an ``r x r`` matrix whose
-        singular values are those of ``f``.
-
-        Returns
-        -------
-        jax.Array, shape (rank,)
-            Singular values in decreasing order (non-negative reals).
-
-        Notes
-        -----
-        NOT JIT-safe (uses numpy QR/SVD on the small core).
-
-        Provenance
-        ----------
-        MATLAB source : @separableApprox/svd.m
-        Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        norm, rank
+        Source pin7574c77. Python returns a singular-value vector; full=True
+        returns lists of left/right Chebfuns plus that vector, adapting native
+        quasimatrices/diagonal S. Empty values-only returns an empty array.
+        Complex right factors follow literal native Qright*V; no general
+        bilinear reconstruction identity is asserted for these outputs.
         """
-        import numpy as _np
-
-        from chebfunjax.tech.chebtech import _coeffs_to_values
-        from chebfunjax.utils.quadrature import chebweights
-        ap = self.approx
-        xa, xb, ya, yb = self.domain
-        col_scale = float((yb - ya) / 2.0)
-        row_scale = float((xb - xa) / 2.0)
-
-        d = _np.asarray(ap.pivots)
-        if _np.linalg.norm(d) == 0.0:
-            return jnp.zeros((1,), dtype=jnp.float64)
-
-        def _weighted_vals(funs, scale):
-            # common grid of 2*nmax points: Clenshaw-Curtis quadrature is
-            # then exact for pairwise products of the underlying polynomials.
-            n = 2 * max(int(f.n) for f in funs)
-            mat = []
-            for f in funs:
-                c = _np.zeros(n, dtype=_np.asarray(f.coeffs).dtype)
-                c[: int(f.n)] = _np.asarray(f.coeffs)
-                mat.append(_np.asarray(_coeffs_to_values(jnp.asarray(c))))
-            vals = _np.stack(mat, axis=1)
-            w = _np.sqrt(_np.asarray(chebweights(n, kind=2), dtype=float)
-                         * scale)
-            return w[:, None] * vals
-
-        wc_vc = _weighted_vals(ap.cols, col_scale)
-        wr_vr = _weighted_vals(ap.rows, row_scale)
-        qc, rc = _np.linalg.qr(wc_vc)             # economy QR
-        qr_, rr = _np.linalg.qr(wr_vr)
-        # Plain transpose (not conjugate): the reconstruction
-        # f = sum_j d_j c_j(y) r_j(x) carries no conjugate on the rows.
-        core = rc @ _np.diag(d) @ rr.T
-        if not full:
-            sig = _np.linalg.svd(core, compute_uv=False)
-            return jnp.asarray(sig, dtype=jnp.float64)
-
-        # MATLAB [U, S, V] = svd(f):  f = U * S * V'  with U a
-        # quasimatrix of functions of y and V of functions of x
-        # (f = C D R' and C = Q_C R_C, R = Q_R R_R).
-        from chebfunjax.chebfun1d.chebfun import Chebfun
-
-        uc, sig, vct = _np.linalg.svd(core)
-        nyg = wc_vc.shape[0]
-        nxg = wr_vr.shape[0]
-        wy = _np.sqrt(_np.asarray(chebweights(nyg, kind=2), dtype=float)
-                      * col_scale)
-        wx = _np.sqrt(_np.asarray(chebweights(nxg, kind=2), dtype=float)
-                      * row_scale)
-        u_vals = (qc @ uc) / wy[:, None]
-        v_vals = (qr_ @ vct.T) / wx[:, None]
-        U = [Chebfun.from_values(jnp.asarray(u_vals[:, j]), (ya, yb))
-             for j in range(u_vals.shape[1])]
-        V = [Chebfun.from_values(jnp.asarray(v_vals[:, j]), (xa, xb))
-             for j in range(v_vals.shape[1])]
-        return U, jnp.asarray(sig, dtype=jnp.float64), V
+        from chebfunjax.chebfun2d._svd import source_svd
+        return source_svd(None if self.isempty() else self.approx, full=full)
 
     def norm(self, p: Union[int, float, str] = "fro") -> jax.Array:
         """Norm of f.
@@ -1264,17 +1173,18 @@ class Chebfun2(eqx.Module):
         --------
         svd, sum2, minandmax2
         """
-        # Frobenius / L2 norm: sqrt(sum of squared singular values).  Kept as
-        # the direct quadratic form because it is exact and does not need the
-        # numpy QR/SVD path.
+        from chebfunjax.chebfun2d._svd import source_svd
+
+        if not self.approx.cols:
+            return jnp.empty((0,), dtype=jnp.float64)
         if p in ("fro", "F"):
             return self._norm_fro()
 
         if p in (2, 2.0, "op", "operator"):
-            return jnp.asarray(self.svd()[0], dtype=jnp.float64)
+            return source_svd(self.approx, operator=True)[0]
 
         if p in ("nuc", "nuclear"):
-            return jnp.sum(self.svd())
+            return jnp.sum(source_svd(self.approx, operator=True))
 
         if p in (jnp.inf, float("inf"), "inf", "max"):
             if self._is_real():
@@ -1338,28 +1248,9 @@ class Chebfun2(eqx.Module):
         return True
 
     def _norm_fro(self) -> jax.Array:
-        """Represented Frobenius/L2 norm via a Hermitian quadratic form.
-
-        Native norm uses singular values; this inherited Gram evaluation has
-        different floating-point cancellation behavior.
-        """
-        xa, xb, ya, yb = self.domain
-        r = self.approx.rank
-        # Scale factors for physical inner products
-        col_scale = jnp.float64((yb - ya) / 2.0)
-        row_scale = jnp.float64((xb - xa) / 2.0)
-
-        norm_sq = jnp.float64(0.0)
-        for j in range(r):
-            for k in range(r):
-                # <c_j, c_k> on reference [-1,1] scaled for physical domain
-                col_ip = self.approx.cols[j].inner(self.approx.cols[k]) * col_scale
-                # <r_j, r_k> on reference [-1,1] scaled for physical domain
-                row_ip = self.approx.rows[j].inner(self.approx.rows[k]) * row_scale
-                # Tech.inner is conjugate-linear in its first operand.
-                norm_sq = norm_sq + jnp.conj(self.approx.pivots[j]) * self.approx.pivots[k] * col_ip * row_ip
-
-        return jnp.sqrt(jnp.abs(norm_sq))
+        """Native @separableApprox/norm.m7574c77 singular-value formula."""
+        from chebfunjax.chebfun2d._svd import source_frobenius
+        return source_frobenius(self.approx)
 
     # ------------------------------------------------------------------
     # Root finding

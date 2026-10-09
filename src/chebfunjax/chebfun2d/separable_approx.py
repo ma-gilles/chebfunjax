@@ -1245,8 +1245,8 @@ class SeparableApprox(eqx.Module):
     def norm(self, p=2) -> jax.Array:
         """Frobenius (L2) norm of the approximation.
 
-        Uses a Hermitian Gram form. Native norm uses singular values; the
-        inherited Gram evaluation has different roundoff behavior.
+        Uses native continuous QR and singular values. The p=2 spelling
+        retains the Python Frobenius compatibility convention.
 
         Parameters
         ----------
@@ -1268,20 +1268,8 @@ class SeparableApprox(eqx.Module):
             raise NotImplementedError(
                 f"SeparableApprox.norm: only p=2/'fro' is implemented, got p={p!r}."
             )
-        xa, xb, ya, yb = self.domain
-        r = self.rank
-        col_scale = jnp.float64((yb - ya) / 2.0)
-        row_scale = jnp.float64((xb - xa) / 2.0)
-
-        norm_sq = jnp.float64(0.0)
-        for j in range(r):
-            for k in range(r):
-                col_ip = self.cols[j].inner(self.cols[k]) * col_scale
-                row_ip = self.rows[j].inner(self.rows[k]) * row_scale
-                # Tech.inner is conjugate-linear in its first operand.
-                norm_sq = norm_sq + jnp.conj(self.pivots[j]) * self.pivots[k] * col_ip * row_ip
-
-        return jnp.sqrt(jnp.abs(norm_sq))
+        from chebfunjax.chebfun2d._svd import source_frobenius
+        return source_frobenius(self)
 
     # ------------------------------------------------------------------
     # Representation
