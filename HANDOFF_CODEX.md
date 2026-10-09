@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Scalar linear alternative backends (2026-10-08)
+
+Scalar linear C1/ultraS solves now use exact AD differential/constraint blocks
+and adaptive requested-backend correction, including supplied initial guesses,
+coefficient breakpoints, interior evaluations and integral boundary conditions.
+The default-solver seed, fixed65 reconstruction and finite-difference probes
+are removed from this route. Shared matrix assembly and scalar Newton are unchanged.
+
+All56 instances pass compositionally:44 source instances covering28 original
+slots/54 unique scalar comparisons, plus12 controls. Canonical linearScalarODEs
+and linearInit tests restore source continuous norms, original tolerance factors,
+piecewise cases and nonidentity checks. Native signed/repeated-variable quirks
+are retained with independent absolute-boundary controls. Linear bc1–8 pass
+under all three backends. Max observed RSS3.33GiB; no guard activation.
+
+Root rehashed nine gates (2963–2969 observed files each), checked source hashes,
+payloads and AST scope/equivalence. Initial controls_v1 preserves two wrong
+exception-class expectations; its six passing controls and focused corrected
+two-check rerun qualify identical numerical code. Every receipt is stable with
+no survivors. Evidence:scalar_linear_root_review_20261008.json and
+scalar_linear_altdisc_source_20261008/qualified_packet.json in shared scratch.
+
+Nonlocal equation realization, periodic and explicit scalar parameter routes
+remain unsupported here. This does not qualify a full exact-head suite, fresh
+MATLAB execution, all pages or CI.
+
 ## Historical matrix spy artist behavior (2026-10-08)
 
 Matrix spy now follows the installed R2016b/R2017a source: one-based

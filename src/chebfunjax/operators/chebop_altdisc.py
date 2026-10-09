@@ -1,11 +1,11 @@
 """Chebop BVP solves and eigenproblems under ultraS / chebcolloc1.
 
-Ordinary coupled linear systems use exact AD differential and boundary blocks,
+Ordinary scalar and coupled linear systems use exact AD differential and boundary blocks,
 source dimension offsets, and adaptive resolution in the requested space.
 Finite single-interval scalar nonlinear systems use the shared scalar Newton
 workflow. Other legacy routes, including eigenproblems, retain the existing
 finite-difference differential-form reconstruction; those routes are outside
-this adaptive coupled-linear parity scope.
+this adaptive linear parity scope.
 
 Provenance
 ----------
@@ -403,6 +403,55 @@ def _solve_linear_system_ad(N, f_list, dom, count, backend, n, n_min, n_max, tol
     return [(u+du).simplify() for u, du in zip(initial, correction)]
 
 
+def _linearize_scalar_ad(N, forcing, dom):
+    """Native scalar linearize, including nonlocal boundary functionals.
+
+    MATLAB source: @chebop/linearize.m, @chebop/solvebvpLinear.m (7574c77).
+    """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.operators.blocklinop import BlockLinop
+    from chebfunjax.operators.blocks import zero_functional, zeros_op
+    from chebfunjax.operators.scalar_newton import _conditions
+
+    initial = _zero_fun(dom) if N.init is None else N.init
+    if isinstance(initial, (list, tuple)) and len(initial) == 1:
+        initial = initial[0]
+    if not isinstance(initial, Chebfun):
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        initial = chebfun(initial, domain=dom)
+    seed = ADChebfun(initial).seed(1, (True,))
+    outputs = _apply_op(N, [seed])
+    if len(outputs) != 1:
+        raise NotImplementedError("Scalar alternative solve requires one differential equation")
+    output = outputs[0]
+    conditions = _conditions(N, seed)
+    linear = all(value.is_linear if isinstance(value, ADChebfun) else True
+                 for value in [output, *conditions])
+    if not linear:
+        return None
+    jacobian = output.jacobian if isinstance(output, ADChebfun) else zeros_op(dom)
+    residual = output.func if isinstance(output, ADChebfun) else output
+    merged = tuple(sorted(set(dom).union(jacobian.domain)))
+    operator = BlockLinop(jacobian, domain=merged)
+    for condition in conditions:
+        row = (condition.jacobian if isinstance(condition, ADChebfun)
+               else zero_functional(merged))
+        value = condition.func if isinstance(condition, ADChebfun) else condition
+        operator = operator.add_constraint(row, -value)
+    return operator, [forcing-residual], initial
+
+
+def _solve_scalar_linear_ad(N, data, backend, n, n_min, n_max, tol):
+    """Resolve the native scalar linear correction without a default seed."""
+    from chebfunjax.operators._linear_altdisc import solve_operator
+
+    operator, rhs, initial = data
+    result, _disc, _happy = solve_operator(
+        operator, rhs, backend=backend, n=n, n_min=n_min, n_max=n_max, tol=tol)
+    return [(initial+result[0]).simplify()] if N.init is not None else result
+
+
 def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
                       n: int | None = None, tol: float = 1e-10,
                       max_iter: int = 30, n_min: int = 32,
@@ -432,8 +481,17 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
     if linear_system:
         return _solve_linear_system_ad(N, f_list, dom, m, discretization,
                                        n, n_min, n_max, tol)
+    scalar_linear = N._is_linear() if m == 1 else None
+    if scalar_linear:
+        if N._periodic or N._has_explicit_scalar_parameters():
+            raise NotImplementedError("Scalar alternative linear solve does not support periodic or parameter constraints")
+        data = _linearize_scalar_ad(N, f_list[0], dom)
+        scalar_linear = data is not None
+        if scalar_linear:
+            return _solve_scalar_linear_ad(N, data, discretization,
+                                            n, n_min, n_max, tol)
     if (m == 1 and len(dom) == 2
-            and all(bool(jnp.isfinite(x)) for x in dom) and not N._is_linear()):
+            and all(bool(jnp.isfinite(x)) for x in dom) and not scalar_linear):
         from chebfunjax.operators.scalar_newton import solve_scalar
         return [solve_scalar(N, f, n=n, max_iter=max_iter, bvp_tol=tol,
                              n_min=n_min, n_max=n_max, backend=discretization)]
