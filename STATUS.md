@@ -1,5 +1,20 @@
 # Parity status — 2026-10-09
 
+## Existing Chebfun3 constructor identity (2026-10-09)
+
+The public constructor now returns an existing Chebfun3 directly, matching
+native constructor.m before fixed-rank processing. It no longer resamples the
+object or changes its domain when construction flags are supplied. Native
+EQUI validation still precedes that return.
+
+Five bounded CPU/x64 controls passed: empty and nonempty identity, domain/rank
+flags, fiber/technology flags, and EQUI validation order. The process closed
+uncensored with stable source inputs, no survivors and 496544 KiB peak RSS.
+Loaded library source hashes and exact applied bytes were checked; this was
+not a full third-party runtime audit or a numerical approximation test.
+The larger Chebfun3 algorithm/dispatch gap remains open.
+Evidence: docs/chebfun3_identity_cpu_20261009.json.
+
 ## Chebfun3 constructor factory preference (2026-10-09)
 
 Restored cheb3Prefs.constructor='chebfun3f' from native chebfunpref.m740.

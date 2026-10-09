@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "checks": [
+    "empty identity",
+    "nonempty identity",
+    "domain/rank/constructor flags do not reconstruct",
+    "fiber/tech flags do not reconstruct",
+    "equi validation precedes identity"
+  ],
+  "backend": "cpu",
+  "x64": true,
+  "scope": "Public constructor identity and validation order only; no numerical approximation parity claim",
+  "source_modules_rehashed": 51,
+  "peak_kib": 496544,
+  "wall_seconds": 9.0250257961452,
+  "source_sha256": "86a1d22675ec9773ab4700cc732adb1cf67a2d3e060a0af99d1d2ac0c337ba86",
+  "runtime_scope": "Guarded all snapshot Python source inputs; rehashed loaded chebfunjax modules. Not a full third-party runtime audit.",
+  "initial_launcher_failure": "Default Anaconda python3 lacks pidfd APIs; supervisor rejected before launching a child. Corrected to /usr/bin/python3 with both required APIs; resource limits unchanged.",
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_identity_source_20261009/check_identity.py",
+      "sha256": "cf3c9e8af9a3a7ca25adb36796743c12878795cc7f8f66e253de39e650bbc9fb"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_identity_source_20261009/result.json",
+      "sha256": "228593cc6e93a143290d30a4d8f0abe3a201f4a3c9c34bb8e08462602ee3222b"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_identity_source_20261009/guard.json",
+      "sha256": "9413069cc6ec6c508d1c2b7c11928de2bdebc080ea2a2152a03b8f456ff2ad63"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_identity_source_20261009/supervision/receipt.json",
+      "sha256": "251f1342fdb55592ba093eda1ec25cbc35aeababd4f04cbb3cae8445f3e82b46"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/constructor.m",
+      "sha256": "c827ec7cc88f92385d7dd98af377978dee0852e5fb5d227fac3f212e96dafeb4"
+    }
+  ]
+}

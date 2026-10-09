@@ -3414,9 +3414,9 @@ def chebfun3(
         def f(x, y, z, _op=_op):
             return jnp.asarray(_op(x, y, z)) + 0.0 * x
     if isinstance(f, Chebfun3):
-        _g = f
-        def f(x, y, z, _g=_g):
-            return _g(x, y, z)
+        # @chebfun3/constructor.m: existing objects return before construction
+        # and fixed-rank processing; preserve their representation and domain.
+        return f
     if not callable(f):
         arr = np.asarray(f, dtype=float)
         if arr.ndim == 0 or arr.size == 1:
