@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Literal Carrier solver qualification (2026-10-08)
+
+All six original Carrier predicates now pass with source inputs, adaptive
+solves and exact backend-specific preferences. C1/C2 restore bvpTol1e-10 and
+bounds1e-10; ultraS retains factory5e-13 and bounds5e-11. Fixed256/384 alternate
+resolution substitutions are removed from canonical tests. Prior variants remain
+explicit legacy controls. This package changes seven test files only.
+
+C2 errors1.699e-11/1.167e-11, C1 errors1.699e-11/1.166e-11 and ultraS errors
+5.463e-13/1.512e-13 satisfy both original comparisons per backend. Solution
+lengths157/157/185; updates9/9/10; maximum matrix width258. Resource guards never
+activated. Root rehashed1804/1805/1805 observed runtime files and pinned source
+hashes, verified exact payload and terminal stable receipts/no survivors.
+Evidence:carrier_root_review_20261008.json and
+ carrier_scalar_source_20261008/HANDOFF_FINAL_v1.json in shared scratch.
+
+Qualification used4e431f08 plus the exact generalBC overlay; newer157d source
+differs only in AAA. No full-head suite, fresh native execution or isolated
+performance claim. Full autoVectorize/operator API, all pages and CI remain open.
+
 ## AAA explicit-sample string expressions (2026-10-08)
 
 AAA now accepts MATLAB expression strings with explicit sample coordinates,
