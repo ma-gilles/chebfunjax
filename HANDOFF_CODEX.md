@@ -1,5 +1,40 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Historical matrix spy artist behavior (2026-10-08)
+
+Matrix spy now follows the installed R2016b/R2017a source: one-based
+column-major nonzero coordinates, native limits/orientation and nz label,
+physical-point automatic marker sizing and clamps, and axes-first color.
+Historical axes Position and one-third point diameter follow installed
+R2017a/R2013a documentation. Linop discretization is unchanged.
+
+Thirteen checks pass: eleven independent artist controls, one existing test
+and a scratch Gibbs source-matrix render. Root rehashed2946 observed runtime
+files; terminal0/stable/no survivors. Only spy changes in plotting.py.
+Evidence:spy_root_review_v5_20261008.json and spy_source_20261008/controls_v5
+in shared scratch. controls_v4 ran zero tests due to an incorrect selector;
+its terminal failure is preserved. Axes color inspection uses Matplotlib3.10.8
+private cycle representation and has an explicit custom-cycle control.
+
+This does not establish cached-image parity: Gibbs spy still differs in ticks,
+plot box, dot rasterization and label layout. Full Gibbs camera/lighting/contour
+work, native execution, full-head tests and exact-head CI remain open.
+
+## NonsmoothFOV complex-pole diagnosis (2026-10-08)
+
+No extraction defect is demonstrated on the captured current data. All59
+poles and upstream polynomial/trig coefficient arrays are byte-identical to
+the earlier accepted Python page artifacts. Maximum normalized denominator
+residual2.056e-15 and pencil residual1.720e-17; known complex-pole controls
+are consistent with conditioning. A small Loewner singular gap indicates
+sensitivity but does not establish the historical discrepancy's cause.
+
+Root independently rehashed2935/2923 runtime files plus packet artifacts,
+confirmed terminal stable receipts/no survivors. Evidence:aaa_fov_root_review_20261008.json
+and aaa_fov_pole_audit_20261008/qualified_packet.json. No production numerical
+change. Native matched F/Z/support/weight data remain unavailable; the native
+capture script is explicitly UNRUN. Historical page comparison remains open.
+
 ## Literal Carrier solver qualification (2026-10-08)
 
 All six original Carrier predicates now pass with source inputs, adaptive

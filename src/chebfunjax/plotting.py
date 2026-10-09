@@ -3473,29 +3473,31 @@ def roots_plot(
 def spy(
     A,
     ax=None,
-    title: str = "Sparsity pattern",
-    markersize: float = 2,
+    title: str | None = None,
+    markersize: float | None = None,
     **kw,
 ):
-    """Visualise the sparsity pattern of a matrix or Linop.
+    """Visualise matrix sparsity with historical MATLAB marker geometry.
 
-    Parameters
-    ----------
-    A : array_like or Linop
-    ax : optional
-    title : str
-    markersize : float
-
-    Returns
-    -------
-    fig, ax
+    Matrix indices are one-based. Automatic dot size uses axes dimensions in
+    physical points, following the R2016b/R2017a implementation. A custom
+    marker uses the default line marker size unless explicitly overridden.
+    Returns ``(fig, ax)``. Explicit precision/origin/aspect keywords retain
+    the corresponding Python plotting extensions.
 
     Provenance
     ----------
-    Wraps matplotlib.axes.Axes.spy. See https://www.chebfun.org/
+    MATLAB builtin source: R2016b/R2017a toolbox/matlab/sparfun/spy.m;
+    R2017a axes Position and R2013a Line MarkerSize documentation.
+    The newer R2025a marker formula differs. This preserves the historical
+    policy for the Chebfun example era, not exact native rasterization.
+    The inherited Linop assembly adapter is not a native discretization claim.
     """
+    from matplotlib.markers import MarkerStyle
+
     if ax is None:
-        fig, ax = plt.subplots(figsize=(5, 5))
+        fig = plt.figure()
+        ax = fig.add_axes([.13, .11, .775, .815])
     else:
         fig = ax.get_figure()
 
@@ -3507,11 +3509,51 @@ def spy(
         pass
 
     A_np = np.asarray(A)
-    ax.spy(A_np, markersize=markersize, **kw)
+    if A_np.ndim != 2:
+        raise ValueError("spy expects a two-dimensional matrix")
+    m, n = A_np.shape
+    marker = kw.pop("marker", ".") or "."
+    precision = kw.pop("precision", 0)
+    origin = kw.pop("origin", "upper")
+    aspect = kw.pop("aspect", "equal")
+    if origin not in ("upper", "lower"):
+        raise ValueError("origin must be 'upper' or 'lower'")
+    if markersize is None or markersize == 0:
+        if marker != ".":
+            markersize = mpl.rcParams["lines.markersize"]
+        else:
+            position = ax.get_position(original=True)
+            width, height = fig.get_size_inches()
+            short_points = min(position.width * width, position.height * height) * 72
+            # MATLAB rounds positive half-integers away from zero.
+            markersize = max(4, min(14, np.floor(6 * short_points / max(m+1, n+1) + .5)))
+    mask = A_np != 0 if precision == 0 else np.abs(A_np) > precision
+    # MATLAB find visits columns first, including nonfinite nonzero entries.
+    columns, rows = np.nonzero(mask.T)
+    x, y = columns + 1, rows + 1
+    if not x.size:
+        x = y = np.asarray([np.nan])
+    if not A_np.size:
+        marker = "None"
+    kw.setdefault("linestyle", "none")
+    # Native spy selects the axes first color, independent of cycle position.
+    kw.setdefault("color", ax._get_lines._cycler_items[0].get("color", "k"))
+    if marker == ".":
+        # Historical MATLAB line documentation specifies a point diameter
+        # one-third of MarkerSize; Matplotlib's point path is one-half.
+        marker = MarkerStyle(".").scaled(2/3)
+        kw.setdefault("markeredgewidth", 0)
+    ax.plot(x, y, marker=marker, markersize=markersize, **kw)
+    ax.set_xlim(0, n+1)
+    ax.set_ylim((m+1, 0) if origin == "upper" else (0, m+1))
+    ax.set_aspect(aspect)
+    ax.xaxis.set_ticks_position("bottom")
+    ax.xaxis.set_label_position("bottom")
+    ax.set_xlabel(f"nz = {np.count_nonzero(A_np)}")
+    ax.grid(False)
     if title:
         ax.set_title(title, fontsize=11)
     fig.set_facecolor("white")
-    fig.tight_layout()
     return fig, ax
 
 
