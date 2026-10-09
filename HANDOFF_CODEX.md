@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX two-dimensional Nelder–Mead fallback dependency (2026-10-09)
+
+Added the finite real two-variable fminsearch policy used by the native
+separableApprox extrema fallback, following the available R2017a source.
+Initial simplex, stable ties, reflection/expansion/contraction/shrink rules,
+AND convergence test and complete-branch evaluation-budget behavior are
+preserved. Twelve analytical and source-clause controls pass in a bounded
+CPU process; root independently verified all 2,932 observed runtime hashes.
+
+This private dependency is not yet wired into public extrema. The active-set
+optimizer, historical page branch, nonfinite inputs and general dimensions
+remain unqualified. A native protected finite-difference probe is prepared in
+shared scratch but unrun because MATLAB IPC remains unavailable. No full-page,
+full-suite, speed or CI claim follows. Evidence: gibbs2d_extrema_source_20261009/
+FMINSEARCH_DELIVERY_FINAL_v1.json and fminsearch_root_runtime_review_20261009.json.
+
 ## Shared JAX polynomial extrema policy (2026-10-09)
 
 Chebtech1/2 minandmax now follow the pinned source's constant midpoint,
