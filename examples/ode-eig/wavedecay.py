@@ -1,94 +1,84 @@
-"""Wave equation with decay band.
+"""WaveDecay.m source computations and two600x480 publication figures.
 
-Translation of ode-eig/WaveDecay.m by Nick Trefethen (November
-2010): eigenmodes 1, 2, 20, 40 of u'' on [-pi/2, pi/2] with Dirichlet
-conditions, then the same for the operator with a decay band,
-
-    L u = u'' + (2/a) 1_{|x|<=a} u',    a = 0.2,
-
-whose indicator coefficient makes the discretization piecewise.
-
-Original: https://www.chebfun.org/examples/ode-eig/WaveDecay.html
+Original: Nick Trefethen, November2010, Chebfun examples f4b9ea46.
+https://www.chebfun.org/examples/ode-eig/WaveDecay.html
 Copyright by The University of Oxford and The Chebfun Developers.
+Public eigs retains current library implementation; historical eigenfunction
+signs and graphics defaults are not inferred from image pixels.
 """
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
 import matplotlib
 
-matplotlib.use("Agg")
-import os
-import sys
-import warnings
-
+matplotlib.use('Agg')
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+_ROOT = Path(__file__).resolve().parents[2]
+if str(_ROOT/'src') not in sys.path:
+    sys.path.insert(0, str(_ROOT/'src'))
 
-from chebfunjax.chebfun1d.chebfun import chebfun
-from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.chebfun1d.chebfun import chebfun  # noqa: E402
+from chebfunjax.operators.chebop import Chebop  # noqa: E402
+from chebfunjax.plotting import (  # noqa: E402
+    chebfun_style,
+    matlab_plot,
+    save_chebfun_figure,
+)
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-eig')
 
-
-def _panel_plot(fname, modes, band=None):
-    """Four stacked panels in the style of the MATLAB original."""
-    fig, axes = plt.subplots(4, 1, figsize=(7.5, 6.0))
-    xx = np.linspace(-np.pi / 2, np.pi / 2, 2000)
-    for ax, (nmode, lam, v) in zip(axes, modes):
+def _panel_plot(path, modes, band=None):
+    # Source figure position600x480. ReferencePNG physical resolution72.009dpi
+    # is the PNG integer-pixels/meter representation of72dpi, not a font fit.
+    fig, axes = plt.subplots(4, 1, figsize=(600/72, 480/72), dpi=72)
+    for index, (ax, (number, eigenvalue, vector)) in enumerate(zip(axes, modes)):
+        vector = vector/vector.norm(float('inf'))
         if band is not None:
-            ax.fill([-band, band, band, -band], [-1.6, -1.6, 2.2, 2.2],
-                    color=(1, .8, .8), zorder=0)
-        vv = np.asarray(v(xx)).real
-        vv = vv / np.max(np.abs(vv))
-        ax.plot(xx, vv)
-        ax.set_xlim(-np.pi / 2, np.pi / 2)
+            # Native patch default black edges; no source alpha override.
+            ax.fill(band*jnp.array([-1., 1., 1., -1.]),
+                    [-1.6, -1.6, 2.2, 2.2], facecolor=(1., .8, .8),
+                    edgecolor='black', linewidth=.5)
+        matlab_plot(vector, ax=ax)
+        ax.set_xlim(-jnp.pi/2, jnp.pi/2)
         ax.set_ylim(-1.6, 2.2)
-        ax.text(.3, 1.6, f"mode {nmode}         lam = {lam:6.3f}",
-                fontsize=12)
-    for ax in axes[:-1]:
-        ax.set_xticks([])
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+        if index < 3:
+            ax.set_xticks([])
+        ax.text(.3, 1.6, f'mode {number}         lam = {float(eigenvalue):6.3f}', fontsize=12)
+    fig.set_facecolor('white')
+    save_chebfun_figure(fig, path, size=(600, 480), dpi=72)
     plt.close(fig)
 
 
-def run():
-    os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
-
-    nn = [1, 2, 20, 40]
-    nmax = max(nn)
-
-    # Pure wave equation: eigenmodes of u'' with Dirichlet conditions.
-    L = Chebop(lambda u: u.diff(2), domain=(-np.pi / 2, np.pi / 2))
-    L.bc = "dirichlet"
-    lam, V = L.eigs(k=nmax, n=256, return_eigenfunctions=True)
-    lam = np.asarray(lam).real
-    idx = np.argsort(-lam)                      # sort descending
-    lam, V = lam[idx], [V[i] for i in idx]
-    _panel_plot("WaveDecay_01.png",
-                [(n, lam[n - 1], V[n - 1]) for n in nn])
-    print("modes:", [f"{lam[n-1]:.3f}" for n in nn])
-
-    # Wave equation with a decay band.
-    a = 0.2
-    x = chebfun(lambda t: t, domain=(-np.pi / 2, np.pi / 2))
-    middle = (abs(x) <= a)
-    L = Chebop(lambda x_, u: u.diff(2) + (2 / a) * middle * u.diff(),
-               domain=(-np.pi / 2, np.pi / 2))
-    L.bc = "dirichlet"
-    lam, V = L.eigs(k=nmax, return_eigenfunctions=True)
-    lam = np.asarray(lam).real
-    idx = np.argsort(-lam)
-    lam, V = lam[idx], [V[i] for i in idx]
-    _panel_plot("WaveDecay_02.png",
-                [(n, lam[n - 1], V[n - 1]) for n in nn], band=a)
-    print("decay modes:", [f"{lam[n-1]:.3f}" for n in nn])
+def _modes(operator):
+    numbers = [1, 2, 20, 40]
+    eigenvalues, vectors = operator.eigs(k=max(numbers), return_eigenfunctions=True)
+    # The source real spectrum is sorted descending, then the same columns
+    # are selected. Preserve solver-provided signs instead of fitting images.
+    order = jnp.argsort(-eigenvalues)
+    return [(number, eigenvalues[order[number-1]], vectors[int(order[number-1])])
+            for number in numbers]
 
 
-if __name__ == "__main__":
-    run()
+def run(output_dir=None):
+    output = Path(output_dir) if output_dir is not None else _ROOT/'docs/images/ode-eig'
+    output.mkdir(parents=True, exist_ok=True)
+    chebfun_style()
+    operator = Chebop(lambda u: u.diff(2), domain=(-jnp.pi/2, jnp.pi/2))
+    operator.bc = 'dirichlet'
+    _panel_plot(output/'WaveDecay_01.png', _modes(operator))
+
+    a = .2
+    x = chebfun('x', domain=(-jnp.pi/2, jnp.pi/2))
+    middle = abs(x) <= a
+    operator.op = lambda x_, u: u.diff(2)+(2/a)*middle*u.diff()
+    _panel_plot(output/'WaveDecay_02.png', _modes(operator), band=a)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output-dir', type=Path)
+    run(parser.parse_args().output_dir)

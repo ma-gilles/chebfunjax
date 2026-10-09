@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## WaveDecay source execution and reference dimensions (2026-10-09)
+
+Both source40-mode eigenproblems now use the public adaptive eigensolver,
+continuous infinity-norm normalization and public plotting. The fixed256
+override, sampled normalization, warning suppression and synthetic stdout
+were removed. The full CPU page ran in59.60s (3,351,892KiB sampled peak);
+all eight actual eigenvalue labels match the historical three-decimal labels.
+Both figures are600 x480 at72dpi. Source stdout is empty; prose and the two
+MATLAB input cells remain byte-identical.
+
+Root independently verified2,973 runtime hashes and viewed both actual/reference
+image pairs. Maximum observed pencil was240 x240. Unchanged source algorithms
+were bound across later Ball-only library changes. Historical eigenfunction
+signs, second-figure color, subplot spacing, ticks and line widths still differ.
+The inherited piecewise solver and canonical BlockLinop adaptive/targeting
+semantics remain library parity gaps; this page does not qualify them.
+The native basic-eigs test also needs its four original predicates restored.
+
+Evidence: wavedecay_page_root_runtime_review_20261009.json,
+wavedecay_root_integration_20261009.json and
+wavedecay_source_20261009/DELIVERY.json in shared scratch.
+
 ## SolidHarmonics full source execution (2026-10-09)
 
 The page now calls public Ballfun.plot for all eleven source plots, producing
