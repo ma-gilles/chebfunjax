@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Explicit native sphere camera mapping (2026-10-09)
+
+The opt-in matlab_explicit_camera adapter maps explicit camera position,
+target, up vector, data aspect and view angle into the actual viewport.
+It corrects Matplotlib's default aperture and offset using source camera
+geometry; no image-fitted zoom is used. Supplied axes and the angle-only
+matlab_view helper retain their existing behavior unless explicitly opted in.
+Later explicit view, projection or box-zoom changes opt out of this mapping.
+
+All 31 controls pass, including two captured views, independent landmark
+equations, resize/layout, depth and coastline visibility. The run completed
+in 25.16 s with a 784,084 KiB sampled peak, stable inputs and no survivors.
+Root verified 3,023 loaded-file hashes, matched camera fields to the native
+capture, and viewed the saved test image. Its centered globe and coastlines
+are visible; flat-face banding remains. This does not establish automatic
+camera behavior, historical pixel parity, or a completed Atmospheric replay.
+
+Evidence: sphere_explicit_camera_root_{runtime_review,integration}_20261009.json
+and sphere_camera_scale_source_20261009/DELIVERY.json in shared goal scratch.
+
 ## Preference provenance and complete native preference test (2026-10-09)
 
 ChebfunPref now stores explicit technology overrides separately from resolved

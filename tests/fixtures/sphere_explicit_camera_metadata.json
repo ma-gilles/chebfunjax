@@ -1,0 +1,213 @@
+{
+  "source_metadata_sha256": "3754684ed299c6bfb597114ef5e22a3739ebcf00da35a31dbcf35866ac96c8bc",
+  "release": "R2025bUpdate2",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cases": {
+    "surface": {
+      "Units": "normalized",
+      "Position": [
+        0.13,
+        0.11,
+        0.775,
+        0.8150000000000001
+      ],
+      "OuterPosition": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "InnerPosition": [
+        0.13,
+        0.11,
+        0.775,
+        0.8150000000000001
+      ],
+      "TightInset": [
+        0,
+        0.07592594093746609,
+        0,
+        0.020370370370370372
+      ],
+      "LooseInset": [
+        0.13,
+        0.11,
+        0.095,
+        0.075
+      ],
+      "PositionConstraint": "outerposition",
+      "CameraPosition": [
+        13.268278963378766,
+        -11.133407984528386,
+        0
+      ],
+      "CameraPositionMode": "auto",
+      "CameraTarget": [
+        0,
+        0,
+        0
+      ],
+      "CameraTargetMode": "auto",
+      "CameraUpVector": [
+        0,
+        0,
+        1
+      ],
+      "CameraUpVectorMode": "auto",
+      "CameraViewAngle": 6.608610360311924,
+      "CameraViewAngleMode": "auto",
+      "DataAspectRatio": [
+        1,
+        1,
+        1
+      ],
+      "DataAspectRatioMode": "manual",
+      "PlotBoxAspectRatio": [
+        1,
+        1,
+        1
+      ],
+      "PlotBoxAspectRatioMode": "auto",
+      "Projection": "orthographic",
+      "View": [
+        50,
+        0
+      ],
+      "XLim": [
+        -1,
+        1
+      ],
+      "YLim": [
+        -1,
+        1
+      ],
+      "ZLim": [
+        -1,
+        1
+      ],
+      "XLimMode": "manual",
+      "YLimMode": "manual",
+      "ZLimMode": "manual",
+      "CLim": [
+        -1.0307465459910843,
+        1.030738760547388
+      ],
+      "CLimMode": "auto",
+      "Visible": "off",
+      "NextPlot": "replace",
+      "XDir": "normal",
+      "YDir": "normal",
+      "ZDir": "normal",
+      "SortMethod": "depth",
+      "position_pixels": [
+        79,
+        30.7,
+        465,
+        220.05
+      ]
+    },
+    "contour": {
+      "Units": "normalized",
+      "Position": [
+        0.13,
+        0.17998694810919538,
+        0.775,
+        0.7450130518908046
+      ],
+      "OuterPosition": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "InnerPosition": [
+        0.13,
+        0.17998694810919538,
+        0.775,
+        0.7450130518908046
+      ],
+      "TightInset": [
+        0,
+        0.1810980592203065,
+        0,
+        0.03668394234455494
+      ],
+      "LooseInset": [
+        0.13,
+        0.11,
+        0.095,
+        0.075
+      ],
+      "PositionConstraint": "outerposition",
+      "CameraPosition": [
+        13.217789156120169,
+        -11.091042005879483,
+        1.5095817461034662
+      ],
+      "CameraPositionMode": "auto",
+      "CameraTarget": [
+        0,
+        0,
+        0
+      ],
+      "CameraTargetMode": "auto",
+      "CameraUpVector": [
+        0,
+        0,
+        1
+      ],
+      "CameraUpVectorMode": "auto",
+      "CameraViewAngle": 7.392854781564241,
+      "CameraViewAngleMode": "auto",
+      "DataAspectRatio": [
+        1,
+        1,
+        1
+      ],
+      "DataAspectRatioMode": "manual",
+      "PlotBoxAspectRatio": [
+        1,
+        1,
+        1
+      ],
+      "PlotBoxAspectRatioMode": "auto",
+      "Projection": "orthographic",
+      "View": [
+        50,
+        5
+      ],
+      "XLim": [
+        -1,
+        1
+      ],
+      "YLim": [
+        -1,
+        1
+      ],
+      "ZLim": [
+        -1,
+        1
+      ],
+      "XLimMode": "auto",
+      "YLimMode": "auto",
+      "ZLimMode": "auto",
+      "CLim": [
+        0,
+        2
+      ],
+      "CLimMode": "auto",
+      "Visible": "off",
+      "NextPlot": "replace",
+      "XDir": "normal",
+      "YDir": "normal",
+      "ZDir": "normal",
+      "SortMethod": "depth",
+      "position_pixels": [
+        79,
+        49.596475989482755,
+        465,
+        201.15352401051723
+      ]
+    }
+  }
+}

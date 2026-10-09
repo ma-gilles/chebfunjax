@@ -41,6 +41,7 @@ from matplotlib.colors import LightSource, Normalize
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
 
+from chebfunjax._matlab_camera import matlab_explicit_camera as matlab_explicit_camera
 from chebfunjax._matlab_layout import matlab_axes_layout
 from chebfunjax.utils.quadrature import chebpts, trigpts
 
