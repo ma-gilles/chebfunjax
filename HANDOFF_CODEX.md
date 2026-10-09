@@ -1,5 +1,40 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest CPU qualification and open failures (2026-10-09)
+
+Latest implementation/test checkpoint267171e5 is local only. It adds compiled
+Chebyshev differentiation (2bc54ae8), sphere real-value classification
+(101eec15), and restored complete differentiation assertions (267171e5).
+Differentiation has29 exact-eager fixture tests/30 captured outputs and30
+inherited port regressions, with independent runtime audits. Sphere classification
+has12 exact-value/flag or threshold-neighbor fixtures and17 unchanged source
+controls. Neither change yet establishes complete solver memory improvement.
+
+Four restored test cases verify per-column vscale shape/bounds and the full
+issue1641 coefficient array without truncation. They pass on the unchanged
+d60eeeb2 baseline. Native seed6178 query input capture remains open, and test
+comments now state that limitation. Evidence is in docs/chebtech_derivative_fusion_cpu_20261009.json,
+docs/sphere_real_classification_cpu_20261009.json and
+docs/diff_assertion_restoration_cpu_20261009.json.
+
+A separate, unintegrated literal MATLAB compressed-quadrature port passes
+source-stage/IR checks but fails the unchanged n10 weight-sum test: error is
+4.440892098500626e-16, exactly2eps, while the predicate requires less than2eps.
+The failure is preserved; FFT/backend rounding diagnosis is underway. No
+normalization correction or relaxed predicate has been accepted.
+
+AnalyticSVD has a source-faithful draft and a running functional diagnostic
+with explicitly unmatched historical NumPy A/B matrices. Its first run failed
+only in the observer after a successful construction; the corrected recorder
+run is separately frozen. No page/figure/native-RNG parity is claimed. Heavy
+examples remain serial: SphereHeat continuation and an unchanged full Newton
+C2 test are prepared but await this run's terminal closure.
+
+Full CPU suite, all322 verified pages,68 outstanding figure-size mismatches,
+remaining numerical/source gaps, matched MATLAB captures, push and exact-head
+green CI all remain unresolved. Shared checkpoint records current owned handles.
+
+
 ## Latest CPU integration (2026-10-09; supersedes prior checkpoint below)
 
 Local implementation head 0f120b1e includes native continuous factor QR/JAX
