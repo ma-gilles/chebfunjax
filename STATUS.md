@@ -99,3 +99,20 @@ Evidence: gibbs2d_extrema_source_20261009/FALLBACK_DELIVERY_FINAL_v2.json,
 extrema_fallback_root_delivery_review_20261009.json and the two root runtime
 reviews in shared scratch. Seventeen controls plus two rechecks are not nineteen
 distinct controls. No full-suite, speed, figure or CI claim follows.
+
+## Trigonometric empty numeric storage (2026-10-09)
+
+Fixed-zero Trigtech population preserves the sampled empty array's columns and
+complex dtype. The values getter returns an explicit stored cache before using
+the cacheless empty fallback, matching native stored-value observation. Seven
+unchanged controls pass, including actual callback order and PyTree/JIT storage;
+root verified all 2,930 runtime hashes and the two-function change scope. The
+first run exposed the values getter's complex-storage loss and is preserved as
+a failed run. Numeric empty population differs from the initial null shortcut,
+which is unchanged. Empty logical-mask dimensions remain a Python adaptation.
+
+The public constructor's 53 draft controls are still unqualified; source review
+also found a separate numeric-to-zero prolong error case requiring correction.
+This package does not establish full constructor, full-suite or CI parity.
+Evidence: trig_constructor_r2_source_20261009/qualified_trig_empty7_packet_v2.json
+and trig_empty7_root_runtime_review_20261009.json in shared scratch.

@@ -291,7 +291,12 @@ def construct(op, *, pref=None, data=None, n=None, maxpow2=None, coefficients=Fa
     if not callable(op):
         supplied = jnp.atleast_1d(jnp.asarray(op))
         if supplied.shape[0] == 0:
-            result = Trigtech.empty()
+            # Native vals2coeffs/coeffs2vals return their input unchanged at
+            # n<=1. Fixed-grid zero sampling reaches populate (happy numeric
+            # data), preserving its empty column shape and complex storage.
+            # This differs from the initial null-operand shortcut above.
+            result = Trigtech(coeffs=supplied, real_columns=(), ishappy=True,
+                             _values=supplied)
         else:
             coeffs = supplied if coefficients else _trig_vals2coeffs_impl(supplied)
             values = _trig_coeffs2vals_impl(coeffs) if coefficients else supplied

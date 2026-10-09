@@ -1896,11 +1896,12 @@ class Trigtech(eqx.Module):
     @property
     def values(self) -> jax.Array:
         """Function values at equispaced trigonometric points (float64 if real)."""
+        # Native populate stores supplied values even for an empty array.
+        if self._values is not None:
+            return self._values
         if self.isempty():
             return jnp.empty(self.coeffs.shape, dtype=jnp.float64 if self.is_real
                              else jnp.complex128)
-        if self._values is not None:
-            return self._values
         return _trig_project_values(trig_coeffs2vals(self.coeffs), self.real_columns)
 
     @property
