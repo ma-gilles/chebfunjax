@@ -1,8 +1,8 @@
-"""Scratch composition of source sphere operators and pivoted JAX band LU.
+"""Composition of source sphere operators and pivoted JAX band LU.
 
-Equations: Chebfun 7574c77 @spherefun/{poisson,helmholtz}.m.
+Provenance: Chebfun 7574c77680d7e82b79626300bf255498271a72df @spherefun/{poisson,helmholtz}.m.
 Zero longitude is deliberately returned separately for its native constraint.
-No public solver uses this unqualified candidate yet.
+Used by the public Poisson and Helmholtz coefficient solvers.
 """
 from functools import partial
 

@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Committed sphere backend regression coverage (2026-10-09)
+
+Five reusable test files retain the previously qualified numerical controls,
+now importing the committed library:23 pivoted band-LU checks,12 Fourier
+assembly/convolution checks,6 nonzero-mode composition checks and14 bordered-QR
+checks. All55 pass in five fresh serial CPU processes, each120s/2GiB; original
+bounds retained. These are backend regression controls, not55 additional native
+MATLAB test slots. Public/native sphere assertions remain documented below.
+
+Root verified numerical test ASTs unchanged after package-import adaptation
+and one artifact destination change to pytest tmp_path. Stale prototype-only
+helper descriptions were corrected with no numerical AST change. Full Ruff,
+F821, provenance/NumPy policy and whitespace checks pass.
+
+Evidence in shared goal scratch: sphere_helper_regressions_20261009/
+(root_scope_review.json and five gate directories), sphere_helpers_first_root_
+runtime_review_20261009.json, sphere_helpers_remaining_root_runtime_review_
+20261009.json and sphere_helper_documentation_scope_20261009.json.
+Large-grid scaling, actual AtmosphericTemperature inputs/reconstruction/page,
+full-suite qualification, native MATLAB execution, publication and CI remain open.
+
+
 ## JAX sphere Fourier band solvers (2026-10-09)
 
 Poisson and Helmholtz now use compact JAX pivoted band LU for nonzero longitude

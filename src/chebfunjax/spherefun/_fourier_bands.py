@@ -1,8 +1,8 @@
-"""Isolated source sphere Fourier assembly in compact JAX bands.
+"""Source sphere Fourier assembly in compact JAX bands.
 
 Provenance: Chebfun7574c77680d7e82b79626300bf255498271a72df,
 @spherefun/{poisson,helmholtz}.m, @trigspec/{diffmat,multmat}.m,
-@coeffsDiscretization/sptoeplitz.m. No public solver is replaced here.
+@coeffsDiscretization/sptoeplitz.m. Used by the public sphere Fourier solvers.
 """
 from dataclasses import dataclass
 from functools import partial
@@ -47,7 +47,7 @@ def band_dense(ab, *, lower, upper):
 
 @dataclass(frozen=True)
 class BandMatrix:
-    """Unfactored row storage compatible with the scratch pivoted solver."""
+    """Unfactored row storage compatible with the pivoted band solver."""
     ab: jax.Array
     lower: int
     upper: int

@@ -1,6 +1,6 @@
-"""Scratch JAX band elimination for the source sphere Fourier systems.
+"""JAX band elimination for the source sphere Fourier systems.
 
-Source equations: Chebfun7574c77 @spherefun/{poisson,helmholtz}.m.
+Provenance: Chebfun7574c77680d7e82b79626300bf255498271a72df @spherefun/{poisson,helmholtz}.m.
 This is explicit Gaussian elimination with row pivoting, not a claim of
 identical MATLAB sparse-backslash ordering. All input bands are retained.
 """
