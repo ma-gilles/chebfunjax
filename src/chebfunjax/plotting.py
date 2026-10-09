@@ -1600,7 +1600,9 @@ def contour_sphere(
                            if ls in fmt), "-")
             line_options = {"color": clr, "linestyle": lstyle,
                             "linewidth": 1.0, **kw}
-            ax.plot(xv, yv, zv, **line_options)
+            (line,) = ax.plot(xv, yv, zv, **line_options)
+            line.__class__ = _SphereCoastLine
+            line._coast_auto_zorder = "zorder" not in kw
             continue
         if len(level_list) > 1:
             idx = np.argmin(np.abs(lev_val - level_list))
@@ -1608,7 +1610,9 @@ def contour_sphere(
         else:
             clr = 'k'
         line_options = {"color": clr, "linewidth": 1.0, **kw}
-        ax.plot(xv, yv, zv, **line_options)
+        (line,) = ax.plot(xv, yv, zv, **line_options)
+        line.__class__ = _SphereCoastLine
+        line._coast_auto_zorder = "zorder" not in kw
 
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
@@ -5279,10 +5283,17 @@ class _SphereCoastLine(Line3D):
 
     def set_zorder(self, level):
         self._coast_auto_zorder = False
+        # Artist.set_zorder(None) reads the class default, but this adapter
+        # exposes zorder as a descriptor. Retain Line3D's numeric default.
+        if level is None:
+            level = Line3D.zorder
         return super().set_zorder(level)
 
-    def get_zorder(self):
-        level = super().get_zorder()
+    @property
+    def zorder(self):
+        # Axes.draw sorts actual attributes, not get_zorder(). Preserve the
+        # pre-adapter Line3D order while following registered opaque spheres.
+        level = self.__dict__.get("zorder", Line3D.zorder)
         if (getattr(self, '_coast_auto_zorder', False)
                 and self.axes is not None and self.axes.computed_zorder):
             # Follow only the owning sphere surfaces. An unrelated collection
@@ -5290,6 +5301,11 @@ class _SphereCoastLine(Line3D):
             for artist, _ in _coast_opaque_spheres(self.axes):
                 level = max(level, artist.get_zorder() + 0.1)
         return level
+
+    @zorder.setter
+    def zorder(self, level):
+        self.__dict__["zorder"] = level
+        self._coast_auto_zorder = False
 
     def draw(self, renderer):
         spheres = _coast_opaque_spheres(self.axes)
