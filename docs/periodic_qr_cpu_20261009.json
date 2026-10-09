@@ -1,0 +1,98 @@
+{
+  "scope": "Built-in two-output periodic QR and original array-valued input preservation",
+  "cases": 28,
+  "payload": {
+    "src/chebfunjax/tech/trigtech.py": "558e5ad9cdda1508d3b417fac3c98092e71d25ddf833b9646f867c043ab70683",
+    "src/chebfunjax/chebfun1d/linalg.py": "d42dc1391ba351b0467c69d235fab7e5be28c4d98baca1aa2bcc4b87d8d7da48",
+    "tests/test_tech/test_trig_qr_source_controls.py": "4ff44067748d00ae2f48a56b5df1e57ad3ca3949a667e3403735a81a32e4cbf0",
+    "tests/test_matlab_port/trigtech/test_qr_matlab.py": "cf16f3ecc5ffde6ea9abdabe93b43e92910c75a67b6cb9214bc6b113c1c2c9c7",
+    "src/chebfunjax/chebfun1d/chebfun.py": "36b3febdfe05cc22ff62041b4349ea5b6ca3f958bda7cfce4f5c484220ac9e3f"
+  },
+  "groups": [
+    {
+      "gate": "focused16_v3",
+      "original_handle": 15317,
+      "audit_handle": 25968,
+      "cases": 16,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/focused16_v3_AUDIT_v1.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/focused16_v3/supervision/receipt.json",
+      "runtime_rehashed": 2944,
+      "peak_kib": 1500452,
+      "wall_seconds_including_guards": 82.25984382070601,
+      "body_seconds_junit": 14.040999999999999,
+      "stable": true,
+      "survivors": [],
+      "uncensored": true
+    },
+    {
+      "gate": "native8_v3",
+      "original_handle": 63818,
+      "audit_handle": 69198,
+      "cases": 8,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/native8_v3_AUDIT_v1.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/native8_v3/supervision/receipt.json",
+      "runtime_rehashed": 2934,
+      "peak_kib": 2099516,
+      "wall_seconds_including_guards": 134.7646541199647,
+      "body_seconds_junit": 25.91,
+      "stable": true,
+      "survivors": [],
+      "uncensored": true
+    },
+    {
+      "gate": "polynomial_complex2_v3",
+      "original_handle": 51274,
+      "audit_handle": 85540,
+      "cases": 2,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/polynomial_complex2_v3_AUDIT_v1.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/polynomial_complex2_v3/supervision/receipt.json",
+      "runtime_rehashed": 2957,
+      "peak_kib": 1048720,
+      "wall_seconds_including_guards": 78.57878764811903,
+      "body_seconds_junit": 7.682,
+      "stable": true,
+      "survivors": [],
+      "uncensored": true
+    },
+    {
+      "gate": "polynomial_piecewise2_v3",
+      "original_handle": 25054,
+      "audit_handle": 36682,
+      "cases": 2,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/polynomial_piecewise2_v3_AUDIT_v1.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_source_20261009/polynomial_piecewise2_v3/supervision/receipt.json",
+      "runtime_rehashed": 2957,
+      "peak_kib": 1248896,
+      "wall_seconds_including_guards": 81.92604937404394,
+      "body_seconds_junit": 11.165,
+      "stable": true,
+      "survivors": [],
+      "uncensored": true
+    }
+  ],
+  "limitations": [
+    "Three-output pivoted QR identity adapter remains incomplete",
+    "Householder selector unsupported",
+    "Single-column division and generic fallback retain inherited host/NumPy paths",
+    "No complete JIT/AD or native QR bit identity claim",
+    "2D SVD and norm source parity remains open"
+  ],
+  "root_evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_focused16_root_runtime_review_20261009.json",
+      "sha256": "f8a5e10a30964b102de1557566b29f8c90a9dea1dd5c5904e79d563c1eaceafb"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_focused16_root_results_review_20261009.json",
+      "sha256": "2a02c5d3aa240762253081bf2fc90fd117238533ce1cefedfab0376258851cb8"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_remaining12_root_runtime_review_20261009.json",
+      "sha256": "3eef87570cd9e663d949e8c36b25c57d893edaec3f3d79892346defddc569ff9"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_qr_remaining12_root_results_review_20261009.json",
+      "sha256": "6c9dae7d10b0b75354526dd6f353bd35271ed06cd99e4422874b64ed60395711"
+    }
+  ]
+}

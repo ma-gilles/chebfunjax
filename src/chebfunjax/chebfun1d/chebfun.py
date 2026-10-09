@@ -6366,7 +6366,9 @@ class Chebfun(eqx.Module):
         inputs = [self] if other_cols is None else [self] + list(other_cols)
         cols = [col for f in inputs for col in
                 (f.mat2cell() if f.n_columns > 1 else [f])]
-        return chebfun_qr(cols)
+        # @chebfun/quasi2cheb.m returns an existing array-valued object
+        # unchanged. Preserve that provenance through the private adapter.
+        return chebfun_qr(cols, array_input=self if len(inputs) == 1 else None)
 
     def svd(self, other_cols: list | None = None):
         """SVD of this Chebfun as a single column, or a quasimatrix.

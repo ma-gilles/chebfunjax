@@ -11,15 +11,21 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import json
+import struct
+from pathlib import Path
+
 import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.tech.trigtech import Trigtech
 
 EPS = float(np.finfo(np.float64).eps)
-# Deterministic test points in [-1, 1) (stands in for seedRNG(6178)).
-X = jnp.asarray(np.linspace(-1.0, 1.0, 100, endpoint=False)
-                + 0.0031415926, dtype=jnp.float64)
+# Primitive MATLAB capture of the same seedRNG(6178) query expression.
+_fixture = json.loads((Path(__file__).parents[2] / "fixtures" /
+                       "trig_times_rng6178_2025b.json").read_text())
+X = jnp.asarray([struct.unpack(">d", bytes.fromhex(word))[0]
+                 for word in _fixture["query_words"]])
 
 
 def _tt(f):
@@ -27,11 +33,11 @@ def _tt(f):
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    return float(jnp.linalg.norm(jnp.asarray(a), ord=jnp.inf))
 
 
 def _eye_err(ip, n):
-    return _ninf(jnp.atleast_2d(jnp.asarray(ip)) - jnp.eye(n))
+    return float(jnp.max(jnp.abs(jnp.atleast_2d(jnp.asarray(ip)) - jnp.eye(n))))
 
 
 def _check_qr(f):

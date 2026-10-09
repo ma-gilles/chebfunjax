@@ -1,5 +1,23 @@
 # Parity status — 2026-10-09
 
+## Periodic QR source restoration (2026-10-09)
+
+Built-in two-output Trigtech QR now uses JAX QR, native weighting/sign order,
+and authoritative value caches. Public QR preserves original array-valued FUNs;
+true quasimatrices still undergo native restriction before concatenation.
+The eight native two-output tests use exact accepted seed6178 query values and
+the source matrix-infinity residual predicate, with unchanged bounds.
+
+Twenty-eight CPU cases passed: sixteen focused controls, eight native periodic
+cases and four polynomial regressions. Root verified all tested payloads,
+JUnit outcomes and runtime files. An earlier failed public periodic control
+is preserved; its array-provenance bug was fixed without bypassing restriction.
+
+Three-output pivoting and Householder selection remain incomplete. Inherited
+single-column and generic fallback host/NumPy paths are not fully JAX-qualified.
+This does not complete 2D SVD/norm, full-suite, page or CI parity.
+Evidence: docs/periodic_qr_cpu_20261009.json.
+
 ## Newton damping preference consumption (2026-10-09)
 
 Scalar, parameter and coupled Newton solvers now capture ChebopPref.lambdaMin

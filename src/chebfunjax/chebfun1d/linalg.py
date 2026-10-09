@@ -976,7 +976,7 @@ def abstract_qr(
 
 
 def qr_quasimatrix(
-    qm: Quasimatrix,
+    qm: Quasimatrix, *, array_input: Chebfun | None = None,
 ) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]:
     """QR factorization of a quasimatrix.
 
@@ -1042,14 +1042,22 @@ def qr_quasimatrix(
     # @chebfun/{quasi2cheb,qr}: ordinary polynomial FUNs collate into
     # array-valued panels. Only noncollatable representations use abstractQR.
     from chebfunjax.tech.chebtech import Chebtech1
+    from chebfunjax.tech.trigtech import Trigtech, _trig_qr_collate
 
-    if all(c.funs and not getattr(c, "deltas", ()) and all(
-            isinstance(p.tech, (Chebtech1, Chebtech2)) and
-            p.tech.coeffs.ndim == 1 for p in c.funs) for c in qm.cols):
-        panel_domain = qm.cols[0].domain
-        for col in qm.cols[1:]:
-            panel_domain = panel_domain.union(col.domain)
-        columns = [c.restrict(panel_domain.breakpoints) for c in qm.cols]
+    collatable = all(c.funs and not getattr(c, "deltas", ()) and all(
+        isinstance(p.tech, (Chebtech1, Chebtech2, Trigtech)) and
+        p.tech.coeffs.ndim == 1 for p in c.funs) for c in qm.cols)
+    if collatable:
+        # @chebfun/quasi2cheb.m: numel(F)<2 bypasses restriction. A true
+        # quasimatrix is restricted BEFORE concatenation; periodic inputs
+        # then become regular FUNs even when their domains were identical.
+        panel_domain = array_input.domain if array_input is not None else qm.cols[0].domain
+        if array_input is None:
+            for col in qm.cols[1:]:
+                panel_domain = panel_domain.union(col.domain)
+            columns = [c.restrict(panel_domain.breakpoints) for c in qm.cols]
+        else:
+            columns = qm.cols
         panels, factors = [], []
         intervals = tuple(zip(panel_domain.breakpoints[:-1],
                               panel_domain.breakpoints[1:]))
@@ -1057,12 +1065,18 @@ def qr_quasimatrix(
             techs = [c.funs[k].tech for c in columns]
             # @chebtech/horzcat retains the first input technology; the
             # shared Chebyshev coefficients need only zero prolongation.
-            cls = type(techs[0])
-            length = max(t.coeffs.shape[0] for t in techs)
-            coeffs = jnp.stack([jnp.pad(t.coeffs,
-                                      (0, length - t.coeffs.shape[0]))
-                                for t in techs], axis=1)
-            tech = cls(coeffs=coeffs, ishappy=techs[0].ishappy)
+            if array_input is not None:
+                # Use the original FUN, including authoritative value cache.
+                tech = array_input.funs[k].tech
+            elif all(isinstance(t, Trigtech) for t in techs):
+                tech = _trig_qr_collate(tuple(techs))
+            else:
+                cls = type(techs[0])
+                length = max(t.coeffs.shape[0] for t in techs)
+                coeffs = jnp.stack([jnp.pad(t.coeffs,
+                                          (0, length - t.coeffs.shape[0]))
+                                    for t in techs], axis=1)
+                tech = cls(coeffs=coeffs, ishappy=techs[0].ishappy)
             qtech, local_r = tech.qr()
             scale = jnp.sqrt((b - a) / 2)
             panels.append(qtech / scale)
@@ -1185,7 +1199,9 @@ def svd_quasimatrix(
 # Convenience: attach qr / svd to Chebfun as a "quasimatrix" factory
 # ============================================================================
 
-def chebfun_qr(cols: list[Chebfun]) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]:
+def chebfun_qr(
+    cols: list[Chebfun], *, array_input: Chebfun | None = None,
+) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]:
     """QR factorization of a list of Chebfun columns.
 
     Convenience wrapper: builds a Quasimatrix from ``cols`` and calls
@@ -1210,7 +1226,7 @@ def chebfun_qr(cols: list[Chebfun]) -> tuple[Chebfun | Quasimatrix, jnp.ndarray]
         raise ValueError("cols must be a non-empty list of Chebfun objects.")
     domain = cols[0].domain
     qm = Quasimatrix(cols=cols, domain=domain)
-    return qr_quasimatrix(qm)
+    return qr_quasimatrix(qm, array_input=array_input)
 
 
 def chebfun_svd(cols: list[Chebfun]) -> tuple[Quasimatrix, jnp.ndarray, jnp.ndarray]:

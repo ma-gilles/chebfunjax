@@ -3258,41 +3258,18 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/qr.m (built-in / weighted discrete QR)
         Chebfun commit: 7574c77
         """
-        import numpy as np
-        mf = self.num_columns
-        nf = self.n
-        if mf == 1:
+        if self.isempty():
+            empty = jnp.empty((0, 0), dtype=jnp.float64)
+            return (self, empty, empty) if want_e else (self, empty)
+        if self.num_columns == 1:
             R = jnp.sqrt(self.innerProduct(self))
-            Q = self / R
-            if want_e:
-                E = jnp.array([0]) if mode == "vector" else jnp.eye(1)
-                return Q, jnp.reshape(R, (1, 1)), E
-            return Q, jnp.reshape(R, (1, 1))
-
-        isreal = self.is_real
-        n = max(nf, mf)
-        fp = _trig_prolong_coeffs(self.coeffs, n)  # (n, mf)
-        vals = np.asarray(trig_coeffs2vals(fp))
-        if isreal:
-            vals = np.real(vals)
-        Qm, Rm = np.linalg.qr(vals, mode="reduced")  # (n, mf), (mf, mf)
-        # Enforce diag(R) >= 0.
-        s = np.sign(np.diag(Rm))
-        s[s == 0] = 1
-        Qm = Qm * s[np.newaxis, :]
-        Rm = s[:, np.newaxis] * Rm
-        # Scale by the trapezoid weight sqrt(2/n).
-        W = np.sqrt(2.0 / n)
-        Qm = Qm / W
-        Rm = W * Rm
-        Qc = trig_vals2coeffs(jnp.asarray(Qm, dtype=jnp.complex128))
-        Q = Trigtech(coeffs=Qc, is_real=isreal, ishappy=self.ishappy)
-        Q = Q.prolong(nf)
-        R = jnp.asarray(Rm, dtype=jnp.complex128)
-        if isreal:
-            R = jnp.real(R).astype(jnp.complex128)
+            Q, R = self / R, jnp.reshape(R, (1, 1))
+        else:
+            Q, R = _trig_qr_builtin_jax(self)
         if want_e:
-            E = jnp.arange(mf) if mode == "vector" else jnp.eye(mf)
+            # Inherited Python compatibility only: native three-output QR
+            # pivots columns. This identity adapter does not qualify that API.
+            E = jnp.arange(self.num_columns) if mode == "vector" else jnp.eye(self.num_columns)
             return Q, R, E
         return Q, R
 
@@ -3368,3 +3345,50 @@ class Trigtech(eqx.Module):
             AR = jnp.linalg.lstsq(R.T, Am.T)[0].T
             return Q @ AR.T
         raise ValueError("CHEBFUN:TRIGTECH:mrdivide:badArg")
+
+
+@eqx.filter_jit
+def _trig_qr_builtin_jax(f: Trigtech):
+    """Two-output @trigtech/qr.m at 7574c77, including source cache order.
+
+    JAX QR supplies the dense factorization. The source multiplies BOTH
+    factors by sign(diag(R)); do not substitute a conjugated phase here.
+    The one-column zero division is intentionally distinct from Chebfun QR.
+    """
+    nf, mf = f.n, f.num_columns
+    n = max(nf, mf)
+    prolonged = f.prolong(n)
+    values = prolonged.values
+    if f.is_real:
+        values = jnp.real(values)
+    q, r = jnp.linalg.qr(values, mode="reduced")
+    diagonal = jnp.diag(r)
+    phase = jnp.sign(diagonal)
+    phase = jnp.where(phase == 0, 1, phase)
+    q = q * phase[None, :]
+    r = phase[:, None] * r
+    weight = jnp.sqrt(jnp.asarray(2.0 / n))
+    q = q / weight
+    r = weight * r
+    result = Trigtech(coeffs=_trig_vals2coeffs_impl(q),
+                     real_columns=(f.is_real,) * mf, ishappy=f.ishappy,
+                     _values=q)
+    result = result.prolong(nf)
+    return Trigtech(coeffs=result.coeffs, real_columns=result.real_columns,
+                    ishappy=result.ishappy, _values=result.values), r
+
+
+@eqx.filter_jit
+def _trig_qr_collate(techs):
+    """Native @trigtech/horzcat.m 7574c77 for nonempty QR columns.
+
+    Preserve the first column's happiness, every realness flag, and each
+    prolonged value cache. This avoids the unrelated cell2mat policy.
+    """
+    n = max(t.n for t in techs)
+    prolonged = tuple(t.prolong(n) for t in techs)
+    return Trigtech(
+        coeffs=jnp.column_stack([t.coeffs for t in prolonged]),
+        real_columns=tuple(flag for t in techs for flag in t.real_columns),
+        ishappy=techs[0].ishappy,
+        _values=jnp.column_stack([t.values for t in prolonged]))
