@@ -307,6 +307,43 @@ def _collect_bcs(N, U, var_orders, dom):
     return rows
 
 
+def _linear_system_by_ad(N, dom, count):
+    """Source linearize.m flags for ordinary function-valued coupled systems.
+
+    MATLAB source: @chebop/linearize.m, @chebop/solvebvp.m (7574c77).
+    General constraints and scalar-parameter systems retain their existing
+    initialization path; this helper does not infer linearity by sampling.
+    """
+    if (count < 2 or N._bc_general is not None
+            or N._has_explicit_scalar_parameters()):
+        return False
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+
+    try:
+        flags = (True,) * count
+        initial = (list(N.init) if isinstance(N.init, (list, tuple))
+                   else [N.init]) if N.init is not None else []
+        initial += [_zero_fun(dom)] * (count-len(initial))
+        initial = [_zero_fun(dom)+value if isinstance(value, (int, float))
+                   else value for value in initial]
+        seeded = [ADChebfun(value).seed(index+1, flags)
+                  for index, value in enumerate(initial)]
+        outputs = _apply_op(N, seeded)
+        for callback in (N._lbc_raw, N._rbc_raw):
+            if callable(callback):
+                outputs.append(callback(*seeded))
+
+        def linear(value):
+            if isinstance(value, (list, tuple)):
+                return all(linear(part) for part in value)
+            return value.is_linear if isinstance(value, ADChebfun) else True
+
+        return all(linear(value) for value in outputs)
+    except Exception:
+        # Unsupported AD syntax keeps the established conservative path.
+        return False
+
+
 def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
                       n: int | None = None, tol: float = 1e-10,
                       max_iter: int = 30):
@@ -328,24 +365,23 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
     else:
         f_list = [f] * m
 
-    # Seed the Newton iteration.  A converged chebcolloc2 solution is
-    # the natural continuation seed (the iteration then refines to the
-    # fixed point of the REQUESTED discretization -- the last Newton
-    # corrections are solved entirely in ultraS/chebcolloc1 space);
-    # fall back to N.init or zero functions.
+    # Linear systems must solve on the requested discretization; a converged
+    # default-backend seed can otherwise bypass that solve entirely.
     from chebfunjax.chebfun1d.chebfun import Chebfun as _Chebfun
+    linear_system = _linear_system_by_ad(N, dom, m)
     U = None
-    try:
-        sol = N.solve(f)
-        if isinstance(sol, _Chebfun):
-            cand = [sol]
-        else:
-            cand = [sol[i] for i in range(m)]
-        if len(cand) == m and all(hasattr(c, "domain")
-                                  for c in cand):
-            U = cand
-    except Exception:
-        U = None
+    if not linear_system:
+        # Preserve the established nonlinear continuation seed.
+        try:
+            sol = N.solve(f)
+            if isinstance(sol, _Chebfun):
+                cand = [sol]
+            else:
+                cand = [sol[i] for i in range(m)]
+            if len(cand) == m and all(hasattr(c, "domain") for c in cand):
+                U = cand
+        except Exception:
+            U = None
     if U is None and N.init is not None:
         init = (list(N.init) if isinstance(N.init, (list, tuple))
                 else [N.init])
@@ -399,7 +435,10 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
             break
         sd.con_vals = [0.0] * n_cont + bc_vals
         b = sd.rhs([-r for r in R])
-        v = np.linalg.solve(np.asarray(sd.A), b)
+        if linear_system:
+            v = jnp.linalg.solve(jnp.asarray(sd.A), jnp.asarray(b))
+        else:
+            v = np.linalg.solve(np.asarray(sd.A), b)
         dU = sd.recover(v)
         # Negligible correction: the iterate is the fixed point of this
         # discretization to rounding; stop before finite-difference

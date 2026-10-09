@@ -1,41 +1,55 @@
-"""Port of MATLAB Chebfun tests/chebop/test_linearSystem1.m (Fable 5).
-
-FIXED: linear systems of coupled ODEs added in the Fable 5 audit
-(block collocation via basis probing; Chebop ops with signature
-(x, u, v, ...) dispatch to the system solver).  The chebcolloc1 /
-ultraS discretization variants are covered by the single chebfunjax
-collocation; the piecewise-domain case remains a documented skip.
+"""Literal21 slots (30 scalar comparisons) of the coupled linear-system test.
 
 Provenance
 ----------
-MATLAB source : tests/chebop/test_linearSystem1.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebop/test_linearSystem1.m
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+Copyright 2017 The University of Oxford and The Chebfun Developers.
+All three discretizations, both domains, continuous norms and source bounds.
 """
-
-from __future__ import annotations
+from functools import lru_cache
 
 import jax.numpy as jnp
-import numpy as np
+import pytest
 
+from chebfunjax.chebfun1d.chebfun import chebfun, jump
 from chebfunjax.operators.chebop import Chebop
 
 TOL = 1e-10
 
 
-class TestChebopLinearSystem1:
-    def test_2x2_sin_cos_system(self):
-        d = (-np.pi, np.pi)
-        A = Chebop(lambda x, u, v: [u - v.diff(), u.diff() + v], d)
-        A.lbc = lambda u, v: u + 1
-        A.rbc = lambda u, v: v
-        sol = A.solve(0)
-        u1, u2 = sol[0], sol[1]
-        xs = jnp.asarray(np.linspace(-0.99 * np.pi, 0.99 * np.pi, 60))
-        # pass(4)-(5): u = cos, v = sin
-        assert float(jnp.max(jnp.abs(u1(xs) - jnp.cos(xs)))) \
-            < 100 * TOL
-        assert float(jnp.max(jnp.abs(u2(xs) - jnp.sin(xs)))) \
-            < 100 * TOL
-        # pass(6): boundary residuals
-        assert abs(float(u1(jnp.asarray(d[0]))) + 1) < 10 * TOL
-        assert abs(float(u2(jnp.asarray(d[1])))) < 10 * TOL
+@lru_cache(None)
+def _case(discretization, piecewise):
+    d = (-float(jnp.pi), float(jnp.pi))
+    A = Chebop(lambda x, u, v: [u-v.diff(), u.diff()+v], d)
+    A.lbc = lambda u, v: u+1
+    A.rbc = lambda u, v: v
+    x = chebfun(lambda t: t, domain=d)
+    if piecewise:
+        A.domain = (d[0], 0.0, d[1])
+    u = A.solve(0, discretization=discretization)
+    u1, u2 = u[0], u[1]
+    return u1, u2, x, A.lbc(u1, u2), A.rbc(u1, u2), d
+
+
+@pytest.mark.parametrize('clause', range(1, 22),
+                         ids=[f'source_clause_{i:02d}' for i in range(1, 22)])
+def test_literal_linear_system1(clause):
+    if clause <= 9:
+        group, predicate = divmod(clause-1, 3)
+        piecewise = False
+    else:
+        group, predicate = divmod(clause-10, 4)
+        piecewise = True
+    discretization = ('chebcolloc1', 'chebcolloc2', 'ultraS')[group]
+    u1, u2, x, bc_left, bc_right, d = _case(discretization, piecewise)
+    if predicate == 0:
+        assert (u1-x.cos()).norm(jnp.inf) < (2000 if piecewise else 100)*TOL
+    elif predicate == 1:
+        assert (u2-x.sin()).norm(jnp.inf) < (2000 if piecewise else 100)*TOL
+    elif predicate == 2:
+        assert jnp.abs(bc_left(d[0])) < TOL
+        assert jnp.abs(bc_right(d[-1])) < TOL
+    else:
+        assert jnp.abs(jump(u1, 0)) < TOL
+        assert jnp.abs(jump(u2, 0)) < TOL

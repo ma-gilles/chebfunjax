@@ -1,5 +1,26 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Coupled linear-system backend qualification (2026-10-08)
+
+All21 original linearSystem1 slots (30 scalar comparisons) pass across
+Chebcolloc1, Chebcolloc2 and ultraspherical discretizations on smooth and
+piecewise domains, retaining continuous norms and exact source tolerances.
+Six independent controls also pass. Alternative coupled-linear calls now
+solve on the requested backend instead of returning a default-backend seed;
+source AD linearity flags and supplied initial functions determine routing.
+New solve math uses JAX. A suspected AD zero-product defect was disproved
+by structural source flags and executed controls; AD code is unchanged.
+
+Root checked all seven qualified terminal receipts, rehashed the observed
+runtime files, and reviewed source/branch equivalence. The source test bytes
+are unchanged across staged gates. Baseline dispatch failures and an incorrect
+exploratory control expectation remain recorded. No native RNG is required.
+Inherited fixed alternative grid65 and finite-difference Frechet assembly
+remain explicit source/JAX gaps; the next package addresses those algorithms.
+Evidence:linear_system1_root_acceptance_20261008.json and
+chebop_linear_system1_source_20261008/qualified_packet.json in shared scratch.
+No complete-suite, native performance or exact-head CI claim.
+
 ## Object and binary composition, stored-factor interpolation (2026-10-08)
 
 All30 original Chebfun-object composition predicates pass in one final CPU
