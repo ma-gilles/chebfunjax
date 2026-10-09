@@ -1,5 +1,20 @@
 # Parity status — 2026-10-09
 
+## Current CPU inverse measurements (2026-10-09)
+
+Measured actual flower construction at d7c2c8d0: default inverse first call after
+setup 22.272s, warmed median 0.612s; derivative roots 16.230s / 0.111s. Separate
+setup costs were 18.488s / 18.847s. Repeated outputs were bit-identical; inverse
+roundtrip error was 1.055e-15. First calls recorded 544/411 backend compilations,
+while all warm calls had none. These are instrumented absolute costs, not a
+matched speedup or a fresh MATLAB comparison.
+
+Both CPU processes and independent runtime/capture audits passed. See
+[measurement report](docs/inverse_cpu_profile_20261009.md) and its compact JSON
+record for timings, scope, provider caveat and evidence hashes. Cold compilation
+attribution is next; no optimization is inferred from overlapping profiler totals.
+Full-suite, page/figure parity, publication and final CI remain open.
+
 ## Native trigonometric extrema delegation (2026-10-09)
 
 Trigtech minandmax now constructs a full-array Chebtech1 from its evaluation

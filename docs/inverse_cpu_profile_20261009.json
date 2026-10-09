@@ -1,0 +1,208 @@
+{
+  "tested_commit": "d7c2c8d066df2dc355b229058f8deb7bb1d23c69",
+  "runtime": "CPU/x64, JAX/JAXlib0.11.0; eight CPU affinity slots8\u201315, BLAS/OMP1",
+  "scope": "Instrumented absolute costs, not matched revision speedup or fresh MATLAB comparison",
+  "measurements": [
+    {
+      "gate": "inverse_v1",
+      "measurement_sha256": "62f5dfc4ac78213fbd6817d4b72c22f03cf6b5a1bfc4ac537183ea97044438a4",
+      "binary_capture_count": 80,
+      "all_captured_values_independently_finite": true,
+      "six_outputs_bit_identical": true,
+      "setup_seconds": 18.48846345115453,
+      "first_after_setup_seconds": 22.272435767110437,
+      "warm_seconds": [
+        0.6213474101386964,
+        0.6119541916996241,
+        0.6112667601555586,
+        0.6116987220011652,
+        0.613489659037441
+      ],
+      "warm_median_seconds": 0.6119541916996241,
+      "first_compile_rows": [
+        {
+          "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+          "name": "backend_compile_and_load",
+          "calls": 544,
+          "self_seconds": 14.26431675,
+          "cumulative_seconds": 14.264819673000002
+        },
+        {
+          "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+          "name": "compile_or_get_cached",
+          "calls": 544,
+          "self_seconds": 0.010572628,
+          "cumulative_seconds": 14.498294838000001
+        }
+      ],
+      "warm_compile_rows": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "roundtrip_error": 1.0547118733938987e-15,
+      "forward_length": 2090,
+      "inverse_lengths": [
+        8880,
+        8880,
+        8880,
+        8880,
+        8880,
+        8880
+      ],
+      "target_shapes": [
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ]
+      ]
+    },
+    {
+      "gate": "derivative_roots_v1",
+      "measurement_sha256": "b29984b07efa9bcc84875b38d9c98f3ef2a639fc7a1b17cf52fa1f33a5c9a632",
+      "binary_capture_count": 14,
+      "all_captured_values_independently_finite": true,
+      "six_outputs_bit_identical": true,
+      "setup_seconds": 18.84695173613727,
+      "first_after_setup_seconds": 16.23000822495669,
+      "warm_seconds": [
+        0.11717202281579375,
+        0.11070843320339918,
+        0.10997646721079946,
+        0.11064136680215597,
+        0.11038037622347474
+      ],
+      "warm_median_seconds": 0.11064136680215597,
+      "first_compile_rows": [
+        {
+          "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+          "name": "compile_or_get_cached",
+          "calls": 411,
+          "self_seconds": 0.01213643,
+          "cumulative_seconds": 11.374516141
+        },
+        {
+          "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+          "name": "backend_compile_and_load",
+          "calls": 411,
+          "self_seconds": 11.191625931,
+          "cumulative_seconds": 11.191996983000001
+        }
+      ],
+      "warm_compile_rows": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ]
+    }
+  ],
+  "evidence_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_constructor_profile_20261009/QUALIFIED_PACKET_v1.json": "fb2135b3dd7dc4508e9851689f523939a9aa6b193d92f33bf14d737e9a6a95a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_constructor_profile_20261009/REPORT_v1.md": "b31e83f36379bc1961fc9b5b3cb01d3c6a290adf6be42ac4fcbc17e8465dcee9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_constructor_profile_20261009/SUMMARY_v1.json": "e3cf0fd0282566b9ef0cdea679d1b6cb64b69ff9a0184ee115ee8d3e578babab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_profile_root_runtime_review_20261009.json": "1f9927b34635a81b01a1b5028ee0a08fa3efa93972680b4d897d99596a671a0b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_profile_root_values_review_20261009.json": "ecdb8ff0c54d5c8897f4cdd983588a09a37f5819c0ec5620bb2a26981ec88058"
+  }
+}
