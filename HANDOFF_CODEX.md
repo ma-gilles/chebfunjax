@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Separable extrema fallback transaction (2026-10-09)
+
+Added private JAX helpers for original CDR evaluation, column-major seed
+selection and the source optimizer/fallback transaction. Literal physical maps,
+partial assignments after exceptions and source Nelder–Mead fallback are
+preserved. Seventeen distinct controls pass; two targeted reruns verify the
+standalone helper extraction. Root checked all 2,943 observed runtime hashes
+in each successful process, unchanged function ASTs and identical test bytes.
+The intervening fixed-zero polynomial changes affect neither the positive-length
+nonempty fixtures nor their executed algorithms.
+
+This is a dependency for public extrema, not completed public dispatch. Native
+active-set optimization, fixed-4000 constructor routing, complex/nonfinite cases,
+Gibbs2D page qualification and native MATLAB execution remain unresolved.
+Evidence: gibbs2d_extrema_source_20261009/FALLBACK_DELIVERY_FINAL_v2.json,
+extrema_fallback_root_delivery_review_20261009.json and the two root runtime
+reviews in shared scratch. Seventeen controls plus two rechecks are not nineteen
+distinct controls. No full-suite, speed, figure or CI claim follows.
+
 ## Fixed-zero polynomial callback and empty scale (2026-10-09)
 
 C1/C2 fixed-length zero construction now calls the operator on the empty grid,

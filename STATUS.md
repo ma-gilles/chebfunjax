@@ -80,3 +80,22 @@ Immutable run receipts, runtime hashes and reviews are under:
 [PARITY_MATRIX.md](PARITY_MATRIX.md) and the handoff retain dated historical
 qualification records. The old initial-port phase labels and percentage in this
 file did not establish MATLAB parity; their historical inventory remains in git.
+
+## Separable extrema fallback transaction (2026-10-09)
+
+Added private JAX helpers for original CDR evaluation, column-major seed
+selection and the source optimizer/fallback transaction. Literal physical maps,
+partial assignments after exceptions and source Nelder–Mead fallback are
+preserved. Seventeen distinct controls pass; two targeted reruns verify the
+standalone helper extraction. Root checked all 2,943 observed runtime hashes
+in each successful process, unchanged function ASTs and identical test bytes.
+The intervening fixed-zero polynomial changes affect neither the positive-length
+nonempty fixtures nor their executed algorithms.
+
+This is a dependency for public extrema, not completed public dispatch. Native
+active-set optimization, fixed-4000 constructor routing, complex/nonfinite cases,
+Gibbs2D page qualification and native MATLAB execution remain unresolved.
+Evidence: gibbs2d_extrema_source_20261009/FALLBACK_DELIVERY_FINAL_v2.json,
+extrema_fallback_root_delivery_review_20261009.json and the two root runtime
+reviews in shared scratch. Seventeen controls plus two rechecks are not nineteen
+distinct controls. No full-suite, speed, figure or CI claim follows.
