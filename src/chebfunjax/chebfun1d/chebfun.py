@@ -400,13 +400,7 @@ class _Piece(eqx.Module):
         # Chebtech would poison later arithmetic with mixed techs.
         from chebfunjax.tech.trigtech import Trigtech
         if isinstance(self.tech, Trigtech):
-            import numpy as _np
-            m = max(4 * len(_np.asarray(self.tech.coeffs)), 64)
-            xs = a + (b - a) * _np.arange(m) / m
-            vals = op(self(jnp.asarray(xs)))
-            tech = Trigtech.from_values(
-                jnp.asarray(vals)).simplify()
-            return _Piece(tech=tech, interval=(a, b))
+            return _Piece(tech=self.tech.compose(op), interval=(a, b))
         from chebfunjax.tech.chebtech import Chebtech1
         if isinstance(self.tech, (Chebtech1, Chebtech2)):
             # @bndfun/compose.m delegates to its onefun. @chebtech/compose.m
@@ -3302,6 +3296,11 @@ class Chebfun(eqx.Module):
                 op = lambda values: values ** integer_power  # noqa: E731
                 result = self._apply_fun(op).set_point_values(op(self._breakpoint_values()))
                 return Chebfun._as_transposed(result, self.is_transposed)
+        from chebfunjax.tech.trigtech import Trigtech
+        if exp_f == 2 and all(isinstance(piece.tech, Trigtech) for piece in self.funs):
+            # @chebfun/power columnPower squares via TIMES; direct tech
+            # power uses COMPOSE even for an integer exponent.
+            return self * self
         new_funs = [
             piece._apply_unary(piece.tech ** exponent)
             for piece in self.funs
@@ -4019,9 +4018,21 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.chebpref import ChebfunPref
+        from chebfunjax.tech.trigtech import Trigtech
 
         if g is None and pref is None:
             return self._apply_fun(op)
+        # Keep explicit periodic options distinct from the Chebyshev factory
+        # maxLength. Trigtech's own factory cap is 65536.
+        trig_pref = {}
+        if isinstance(pref, dict):
+            trig_pref.update(pref.get("techPrefs", {}))
+            trig_pref.update({k: v for k, v in pref.items() if k != "techPrefs"})
+        elif pref is not None:
+            factory = ChebfunPref().techPrefs
+            trig_pref.update(pref.techPrefs)
+            if trig_pref.get("maxLength") == factory.get("maxLength"):
+                trig_pref.pop("maxLength", None)
         pref = ChebfunPref(pref) if pref is not None else ChebfunPref()
         if not self.funs:
             return self
@@ -4049,6 +4060,10 @@ class Chebfun(eqx.Module):
                     op, None if g is None else g.funs[k].tech,
                     extrapolate=len(f.funs) > 1 or pref.extrapolate,
                     tol=pref.chebfuneps)
+                pieces.append(piece.with_tech(tech))
+            elif isinstance(piece.tech, Trigtech):
+                tech = piece.tech.compose(op, None if g is None else g.funs[k].tech,
+                                          pref=trig_pref)
                 pieces.append(piece.with_tech(tech))
             elif g is None:
                 pieces.append(piece._apply_fun(op))
@@ -5563,7 +5578,7 @@ class Chebfun(eqx.Module):
             total = total + pf.inner(pg)
         return total
 
-    def norm(self, p: float | str | None = None) -> jax.Array:
+    def norm(self, p: float | str | None = None, *, return_location: bool = False):
         """Lp norm over the domain.
 
         Parameters
@@ -5574,11 +5589,14 @@ class Chebfun(eqx.Module):
             - ``p=2``: L2 norm for scalar functions; spectral norm for arrays.
             - ``p=jnp.inf``: scalar L-infinity norm, or for array-valued
               Chebfuns ``max_x sum_j |f_j(x)|`` (MATLAB matrix infinity norm).
-            - Other p: computed via ``|f|^p`` integration.
+            - Other p: scalar integral or array maximum row power sum.
+        return_location : bool, optional
+            Request MATLAB's second output, with source arity errors.
 
         Returns
         -------
-        jax.Array (scalar)
+        jax.Array (scalar), or (value, location) when return_location=True.
+        Array1-norm locations are one-based column indices.
 
         Provenance
         ----------
@@ -5598,53 +5616,8 @@ class Chebfun(eqx.Module):
                                    + float(_np.sum(_np.abs(mags))))
             return jnp.asarray(_np.inf)
 
-        if self.isempty():
-            return jnp.asarray(0.0)
-        if (p == float("inf") or p == jnp.inf) and self.n_columns > 1:
-            # MATLAB @chebfun/norm.m uses max_x sum_j |f_j(x)| for
-            # array-valued functions. Build that scalar Chebfun by existing
-            # column extraction, abs/root splitting, and piecewise addition,
-            # then use the scalar continuous extremum path below.
-            oriented = self.T if self.is_transposed else self
-            columns = oriented.mat2cell()
-            row_one_norm = columns[0].abs()
-            for column in columns[1:]:
-                row_one_norm = row_one_norm + column.abs()
-            return row_one_norm.norm(p)
-        if p is None or p == "fro" or p == 2:
-            column = self.transpose() if self.is_transposed else self
-            gram = column.inner(column)
-            if self.n_columns == 1:
-                return jnp.sqrt(jnp.abs(jnp.reshape(gram, ())))
-            if p is None or p == "fro":
-                return jnp.sqrt(jnp.abs(jnp.trace(gram)))
-            # Source norm(F,2) is the largest singular value. Its square
-            # is the largest eigenvalue of the Hermitian L2 Gram matrix.
-            return jnp.sqrt(jnp.maximum(jnp.linalg.eigvalsh(gram)[-1], 0))
-        elif p == float("inf") or p == jnp.inf:
-            # MATLAB: [normF, ~] = minandmax(f); max(abs(normF)) — the true
-            # extremum via rootfinding on f'. Taking max|values at the
-            # Chebyshev nodes| instead misses peaks that fall between nodes
-            # (e.g. sin on a shifted domain gave 0.99084 instead of 1.0).
-            # Complex chebfuns: minandmax needs an ordered field, so work
-            # with |f|^2 (a real chebfun) and take the sqrt of its max —
-            # the previous code crashed with `lt on complex128`
-            # (Fable 5 audit, bug #5).
-            if any(jnp.iscomplexobj(piece.tech.coeffs)
-                   for piece in self.funs):
-                mag2 = (self.real() * self.real()
-                        + self.imag() * self.imag())
-                (_, _), (_, m_max) = mag2.minandmax()
-                return jnp.sqrt(jnp.array(max(float(m_max), 0.0),
-                                          dtype=jnp.float64))
-            (_, f_min), (_, f_max) = self.minandmax()
-            return jnp.array(
-                max(abs(float(f_min)), abs(float(f_max))), dtype=jnp.float64
-            )
-        else:
-            # Integrate |f|^p
-            fp = abs(self) ** p
-            return fp.sum() ** (1.0 / p)
+        from .norms import continuous_norm
+        return continuous_norm(self, p, return_location=return_location)
 
     def mean(self) -> jax.Array:
         """Mean value of the function over the domain.
@@ -6266,7 +6239,15 @@ class Chebfun(eqx.Module):
                 subs = piece.restrict((lo, hi))
                 if not isinstance(subs, (list, tuple)):
                     subs = [subs]
-                new_funs.extend(subs)
+                from chebfunjax.fun.bndfun import Bndfun
+                for sub in subs:
+                    # Source returns a bounded FUN after finite restriction.
+                    # Chebfun's internal bounded protocol is _Piece; reuse the
+                    # returned onefun and interval without recomputing it.
+                    if isinstance(sub, Bndfun):
+                        sub = _Piece(tech=sub.onefun,
+                                     interval=(sub.domain.a, sub.domain.b))
+                    new_funs.append(sub)
             else:
                 new_funs.append(piece.restrict(lo, hi))
         if not new_funs:

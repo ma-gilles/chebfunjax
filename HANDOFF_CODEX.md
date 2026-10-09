@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest norm and composition review (2026-10-08, publication pending)
+
+Full CPU parity remains incomplete. The current local batch restores:
+
+- Chebfun norms: all34 original predicates and22 additional controls/regressions
+  pass in staged runs. Source24 still emits an inherited65537-point constructor
+  convergence warning despite satisfying its original norm bound. Stored-point
+  extrema comparisons remain incomplete. Finite unbounded restrictions now
+  retain the bounded internal piece protocol without resampling.
+- Trigtech composition: all11 original predicates plus12 controls pass. Source
+  adaptive nested/resampling replaces the public fixed-grid approximation;
+  cos(80*sin(x)) error falls from1.877 on64 samples to3.40e-14 on249 terms.
+  Empty scale metadata and empty optional operands follow source defaults.
+  Classic/plateau/custom happiness and empty-receiver composition remain open.
+- Chebfun3v composition: all10 original predicates plus29 controls/regressions
+  pass; source range/periodic/error/empty-component dispatch restored. Independent
+  review rehashed2947 observed runtime files and19 pinned MATLAB inputs.
+
+Evidence in the shared directory below: chebfun_norm_root_acceptance_20261008.json,
+trig_compose_root_acceptance_20261008.json, and
+chebfun3v_compose_independent_review_20261008.json. No fresh native MATLAB,
+full combined suite, remote publication, or exact-head CI is established.
+Fourier/NonsmoothFOV pages await computation reruns after this integration.
+Disk constructor final public-rank/failure-propagation qualification is active;
+both inherited nonsmooth regression assertions now pass in isolated runs.
+
 ## Latest reviewed arithmetic/composition (2026-10-08, local b6ce6212)
 
 Full parity remains incomplete. New local packages:

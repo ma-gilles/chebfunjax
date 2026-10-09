@@ -80,7 +80,13 @@ class Chebfun3v(eqx.Module):
                 f"Chebfun3v supports at most 3 components, got {len(comps)}."
             )
         # Check domains match (non-empty components only).
-        if comps:
+        if comps and any(c.isempty() for c in comps):
+            # @chebfun3/domainCheck accepts two empty fields and rejects
+            # pairing an empty field with a nonempty field.
+            if not all(c.isempty() for c in comps):
+                raise ValueError("CHEBFUN:CHEBFUN3V:domainCheck: "
+                                 "All chebfun3 objects need to have the same domain.")
+        elif comps:
             dom0 = comps[0].domain
             for j, c in enumerate(comps[1:], 1):
                 if tuple(c.domain) != tuple(dom0):
@@ -155,11 +161,17 @@ class Chebfun3v(eqx.Module):
     @property
     def domain(self):
         """Shared domain of the components, or None if empty."""
-        return self.components[0].domain if self.components else None
+        return None if self.isempty() else self.components[0].domain
 
     def isempty(self) -> bool:
-        """True for the empty Chebfun3v (MATLAB isempty)."""
-        return len(self.components) == 0
+        """True when every component is empty.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3v/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return all(f.isempty() for f in self.components)
 
     def __getitem__(self, k: int) -> Chebfun3:
         """Component access ``F[k]`` (0-based), returning a Chebfun3."""
@@ -870,7 +882,7 @@ class Chebfun3v(eqx.Module):
         Following MATLAB @chebfun3v/compose:
 
         - 3 components with a Chebfun3 ``g`` -> Chebfun3 ``g(F_1, F_2, F_3)``.
-        - 3 components with a 3-component Chebfun3v ``G`` -> Chebfun3v of
+        - 3 components with a Chebfun3v ``G`` -> Chebfun3v of
           the componentwise compositions.
         - 2 components with a Chebfun2 ``g`` -> Chebfun3 ``g(F_1, F_2)``.
         - 2 components with a Chebfun2v ``G`` -> Chebfun3v of the
@@ -881,35 +893,58 @@ class Chebfun3v(eqx.Module):
         MATLAB source : @chebfun3v/compose.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+        from chebfunjax.chebfun3d.chebfun3 import chebfun3
+
+        if isinstance(op, SeparableApprox):
+            op = Chebfun2(approx=op)
+        # Empty scalar-result dispatch in MATLAB falls through to a lookup
+        # of nComponents on CHEBFUN3, whose GET rejects that property.
+        if self.isempty() or (hasattr(op, "isempty") and op.isempty()):
+            if isinstance(op, (Chebfun2v, Chebfun3v)):
+                return Chebfun3v()
+            raise ValueError("CHEBFUN:CHEBFUN3:get:propName: "
+                             "nComponents is not a valid CHEBFUN3 property.")
         dom = self.domain
         n = self.n_components
+        if n == 1 and isinstance(op, (Chebfun2, Chebfun2v)):
+            f = self.components[0]
+            return Chebfun3v(f.real(), f.imag()).compose(op)
+        if not self.isreal():
+            raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:Complex: "
+                             "The first CHEBFUN3V object must be real-valued.")
+        if n == 1:
+            return self.components[0].compose(op)
 
         if n == 3:
             f1, f2, f3 = self.components
-            if isinstance(op, Chebfun3):
-                return Chebfun3.from_function(
-                    lambda x, y, z: op(f1(x, y, z), f2(x, y, z), f3(x, y, z)),
-                    domain=dom)
             if isinstance(op, Chebfun3v):
-                return Chebfun3v([self.compose(g) for g in op.components])
-            raise ValueError(
-                "Chebfun3v.compose: a 3-component field composes with a "
-                "Chebfun3 or a 3-component Chebfun3v.")
+                results = [self.compose(g) for g in op.components]
+                return results[0] if len(results) == 1 else Chebfun3v(results)
+            if not isinstance(op, Chebfun3):
+                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:OP3: "
+                                 "Can compose only with a CHEBFUN3 or "
+                                 "CHEBFUN3V, since F has 3 components.")
+            ranges = [f.minandmax3est() for f in self.components]
+            tol = 100 * float(jnp.finfo(jnp.float64).eps) * max(
+                *(f.vscale() for f in self.components), op.vscale()) * max(
+                    abs(v) for v in dom)
+            if any(values[0] < op.domain[2 * k] - tol or
+                   values[1] > op.domain[2 * k + 1] + tol
+                   for k, values in enumerate(ranges)):
+                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:DomainMismatch3: "
+                                 "OP(F) is not defined, since image(F) is "
+                                 "not contained in domain(OP).")
+            return chebfun3(
+                lambda x, y, z: op(f1(x, y, z), f2(x, y, z), f3(x, y, z)),
+                dom, trig=self.isPeriodicTech())
 
         if n == 2:
-            if not self.isreal():
-                raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:Complex: "
-                                 "The first CHEBFUN3V object must be real-valued.")
-            from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-            from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
-            from chebfunjax.chebfun2d.separable_approx import SeparableApprox
-            from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
             f1, f2 = self.components
             if isinstance(op, Chebfun2v):
                 return Chebfun3v([self.compose(g) for g in op.components])
-            if isinstance(op, SeparableApprox):
-                op = Chebfun2(approx=op)
             if not isinstance(op, Chebfun2):
                 raise ValueError("CHEBFUN:CHEBFUN3V:COMPOSE:OP2: "
                                  "Can compose only with a CHEBFUN2 or "

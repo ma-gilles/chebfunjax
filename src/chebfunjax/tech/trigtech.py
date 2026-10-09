@@ -2107,10 +2107,102 @@ class Trigtech(eqx.Module):
 
     inner = innerProduct
 
-    def compose(self, op) -> "Trigtech":
-        """Re-approximate op(f) adaptively (MATLAB @trigtech/compose.m;
-        added by Claude Fable 5)."""
-        return Trigtech.from_function(lambda x: op(self(x)))
+    def compose(self, op, g=None, data=None, pref=None) -> "Trigtech":
+        """Adaptive unary, binary or Trigtech-of-Trigtech composition.
+
+        Construction is eager. The resulting representation supports JAX
+        evaluation and differentiation. Source preferences cover the operand
+        lengths, disable sampleTest, and retain the source refinement policy.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/compose.m, populate.m, refine.m, techPref.m
+        Chebfun commit: 7574c77
+        """
+        import math
+
+        from chebfunjax.utils._trigpts import global_trigpts_nodes
+
+        prefs = dict(minSamples=17, maxLength=65536, chebfuneps=_EPS,
+                     refinementFunction="nested", happinessCheck="standard")
+        if pref is not None:
+            prefs.update(dict(pref))
+        def columns(u):
+            return 1 if u.coeffs.ndim == 1 else u.coeffs.shape[1]
+        # @trigtech/compose treats an empty third operand as omitted.
+        if isinstance(g, Trigtech) and g.isempty():
+            g = None
+        minimum = max(prefs["minSamples"], self.n)
+        if g is not None:
+            if not isinstance(g, Trigtech) or columns(self) != columns(g):
+                raise ValueError("CHEBFUN:TRIGTECH:compose:dim: Matrix dimensions must agree.")
+            minimum = max(minimum, g.n)
+            def function(x):
+                left, right = self(x), g(x)
+                if left.ndim < right.ndim:
+                    left = left[..., None]
+                elif right.ndim < left.ndim:
+                    right = right[..., None]
+                return op(left, right)
+        elif isinstance(op, Trigtech):
+            if columns(self) > 1 and columns(op) > 1:
+                raise ValueError("CHEBFUN:TRIGTECH:compose:arrval: Cannot compose two array-valued TRIGTECH objects.")
+            if bool(jnp.max(jnp.abs(self.values)) > 1 + 2 * _EPS):
+                raise ValueError("CHEBFUN:TRIGTECH:compose:range: The range of f is not contained in the domain of g.")
+            minimum = max(minimum, op.n)
+            def function(x):
+                return op(self(x))
+        else:
+            def function(x):
+                return op(self(x))
+        fixed = prefs.get("fixedLength")
+        if fixed is not None and not math.isnan(float(fixed)):
+            return Trigtech._fixed_construct(function, int(fixed))
+        refinement = prefs["refinementFunction"]
+        if not isinstance(refinement, str) or refinement.lower() not in ("nested", "resampling"):
+            raise ValueError("CHEBFUN:TRIGTECH:refine: No user defined refinement options allowed")
+        if isinstance(prefs["happinessCheck"], str) and prefs["happinessCheck"].lower() in ("strict", "loose"):
+            kind = prefs["happinessCheck"].lower()
+            raise ValueError(f"CHEBFUN:TRIGTECH:happinessCheck:{kind}Check: {kind.capitalize()} check not implemented for TRIGTECH. Please use classic check.")
+        if not isinstance(prefs["happinessCheck"], str) or prefs["happinessCheck"].lower() != "standard":
+            raise NotImplementedError("Trigtech compose currently supports standard happinessCheck")
+        tol = jnp.maximum(jnp.asarray(prefs["chebfuneps"]), _EPS)
+        probe = jnp.asarray(function(jnp.asarray([2 * .376989633393435 - 1])))
+        if not bool(jnp.all(jnp.isfinite(probe))):
+            raise ValueError("CHEBFUN:TRIGTECH:populate:isNan: Cannot handle functions that evaluate to Inf or NaN.")
+        n = 2 ** math.ceil(math.log2(minimum - 1))
+        values, coeffs = None, None
+        # parseDataInputs defaults a missing OR empty VSCALE to zero.
+        # MATLAB row vectors map to the internal one-dimensional columns.
+        vscale = 0. if data is None or len(data) == 0 else data.get("vscale", 0.)
+        if vscale is None or jnp.asarray(vscale).size == 0:
+            vscale = 0.
+        vscale = jnp.asarray(vscale)
+        if vscale.ndim == 2 and vscale.shape[0] == 1:
+            vscale = vscale[0]
+        is_real = True
+        while n <= prefs["maxLength"]:
+            if values is None or refinement.lower() == "resampling":
+                values, is_real = _sample_callable_trig_grid(function, n, source_global=True)
+            else:
+                fresh, fresh_real = _sample_as_trig_dtype(function, global_trigpts_nodes(n)[1::2])
+                interleaved = jnp.empty((n,) + values.shape[1:], dtype=values.dtype)
+                values = interleaved.at[::2].set(values).at[1::2].set(fresh)
+                is_real = is_real and fresh_real
+            coeffs = trig_vals2coeffs(values)
+            vscale = jnp.maximum(vscale, jnp.max(jnp.abs(jnp.where(jnp.isfinite(values), values, 0)), axis=0))
+            happy, cutoff = self.happiness_check(coeffs, values, op=None, tol=tol, vscale=vscale)
+            if happy:
+                return Trigtech(coeffs=_trig_prolong_coeffs(coeffs, cutoff), is_real=is_real, ishappy=True)
+            if refinement.lower() == "resampling":
+                power = math.log2(n)
+                n = 3 * 2 ** (int(power) - 1) if power == math.floor(power) and power > 5 else 2 ** (math.floor(power) + 1)
+            else:
+                n *= 2
+        if coeffs is None:
+            raise ValueError("Trigtech compose maxLength is below the initial source refinement grid")
+        warnings.warn(f"TRIGTECH:TRIGTECH:compose:convfail: Composition failed to converge with {len(coeffs)} points.", stacklevel=2)
+        return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=False)
 
     def restrict(self, a: float, b: float):
         """Restriction to [a, b] within [-1, 1].
@@ -2549,24 +2641,14 @@ class Trigtech(eqx.Module):
         )
 
     def __pow__(self, exponent) -> "Trigtech":
-        """Raise to a power."""
-        if isinstance(exponent, int) and exponent >= 0:
-            if exponent == 0:
-                # ones with the same column count (array-valued f**0
-                # keeps m columns, MATLAB power.m)
-                c = jnp.ones((1,) + self.coeffs.shape[1:],
-                             dtype=jnp.complex128)
-                return Trigtech(coeffs=c, is_real=True, ishappy=True)
-            result = self
-            for _ in range(exponent - 1):
-                result = result * self
-            return result
-        else:
-            # Fractional power: adaptive re-construction (MATLAB compose)
-            e = jnp.asarray(exponent, dtype=jnp.float64)
-            return Trigtech.from_function(
-                lambda x: _trig_eval(self.coeffs, x, self.is_real) ** e
-            )
+        """Pointwise power through source composition.
+
+        MATLAB source : @trigtech/power.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(exponent, Trigtech):
+            return self.compose(jnp.power, exponent)
+        return self.compose(lambda x: jnp.power(x, exponent))
 
     def __abs__(self) -> "Trigtech":
         """Absolute value via grid evaluation."""

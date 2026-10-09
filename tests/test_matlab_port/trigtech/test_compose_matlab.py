@@ -1,63 +1,90 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_compose.m (Fable 5).
+"""All 11 original predicates of tests/trigtech/test_compose.m.
 
-FIXED: Trigtech.compose added in the Fable 5 audit; array-valued unary
-composition (pass 2, 3) now works via (n, m) Fourier coefficients.
-
-chebfunjax ``Trigtech.compose`` is UNARY only (``compose(op)`` -> op(f)); it has
-no binary (pass 5, 6) or trigtech-of-trigtech (pass 7, 8, 9) form, so those and
-the two error-identifier cases (pass 10, 11) stay skipped with precise reasons.
-
-Provenance
-----------
 MATLAB source : tests/trigtech/test_compose.m
 Chebfun commit: 7574c77
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
+import pytest
 
-from chebfunjax.tech.trigtech import Trigtech
+from chebfunjax.tech.trigtech import Trigtech, trigpts
 
-EPS = float(np.finfo(np.float64).eps)
-XS = jnp.asarray(np.linspace(-0.97, 0.97, 60))
-
-
-def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+EPS = float(jnp.finfo(jnp.float64).eps)
+make = Trigtech.from_function
 
 
-class TestTrigtechCompose:
-    def test_sin_of_cos(self):
-        f = Trigtech.from_function(
-            lambda x: jnp.pi * jnp.cos(jnp.pi * (x - 0.1)))
-        g = f.compose(jnp.sin)
-        h = Trigtech.from_function(
-            lambda x: jnp.sin(jnp.pi * jnp.cos(jnp.pi * (x - 0.1))))
-        err = jnp.abs(g(XS) - h(XS))
-        assert float(jnp.max(err)) < 100 * h.vscale * EPS
+def norminf(x):
+    return jnp.linalg.norm(x, ord=jnp.inf)
 
-    def test_array_valued(self):
-        # pass(2): compose([pi*cos(pi x) pi*cos(2 pi x)], @sin), coeffs match
-        # after prolonging to a common length.
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        f = Trigtech.from_function(
-            lambda x: jnp.stack(
-                [jnp.pi * jnp.cos(jnp.pi * x), jnp.pi * jnp.cos(2 * jnp.pi * x)], axis=-1
-            )
-        )
-        g = f.compose(jnp.sin)
-        h = Trigtech.from_function(
-            lambda x: jnp.stack(
-                [
-                    jnp.sin(jnp.pi * jnp.cos(jnp.pi * x)),
-                    jnp.sin(jnp.pi * jnp.cos(2 * jnp.pi * x)),
-                ],
-                axis=-1,
-            )
-        )
+
+def col(*args):
+    return jnp.stack(args, axis=-1)
+
+
+def pair(x):
+    return col(jnp.pi*jnp.cos(jnp.pi*x), jnp.pi*jnp.cos(2*jnp.pi*x))
+
+
+@pytest.mark.parametrize("clause", [1, 2, 3, 4])
+def test_unary_original(clause):
+    if clause == 1:
+        fun = lambda x: jnp.pi*jnp.cos(jnp.pi*(x-.1))
+    elif clause in (2, 3):
+        fun = pair
+    else:
+        fun = lambda x: col(jnp.pi*jnp.cos(jnp.pi*x), jnp.pi*jnp.cos(2*jnp.pi*x), jnp.pi*jnp.cos(3*jnp.pi*x))
+    f = make(fun)
+    g = f.compose(jnp.sin)
+    h = make(lambda x: jnp.sin(fun(x) if clause != 4 else pair(x)))
+    if clause in (1, 2):
         n = max(g.n, h.n)
-        gp = g.prolong(n)
-        hp = h.prolong(n)
-        assert _ninf(hp.coeffs - gp.coeffs) < 10 * h.vscale * EPS
+        assert norminf(h.prolong(n).coeffs-g.prolong(n).coeffs) < 10*h.vscale*EPS
+    else:
+        assert norminf(jnp.sin(fun(trigpts(g.n)))-g.values) < 100*h.vscale*EPS
+
+
+@pytest.mark.parametrize("clause", [5, 6])
+def test_binary_original(clause):
+    if clause == 5:
+        f1 = make(lambda x: jnp.exp(jnp.sin(jnp.pi*x)))
+        f2 = make(lambda x: jnp.exp(jnp.cos(jnp.pi*x)))
+        g = f1.compose(jnp.add, f2)
+        x = trigpts(g.n)
+        h = Trigtech.from_values(jnp.exp(jnp.sin(jnp.pi*x))+jnp.exp(jnp.cos(jnp.pi*x)))
+        bound = 10
+    else:
+        f1 = make(lambda x: jnp.exp(col(jnp.sin(jnp.pi*x), jnp.cos(jnp.pi*x))))
+        f2 = make(lambda x: jnp.exp(col(jnp.cos(jnp.pi*x), jnp.sin(jnp.pi*jnp.cos(jnp.pi*x)))))
+        g = f1.compose(jnp.multiply, f2)
+        x = trigpts(g.n)
+        h = Trigtech.from_values(col(jnp.exp(jnp.sin(jnp.pi*x)+jnp.cos(jnp.pi*x)),jnp.exp(jnp.cos(jnp.pi*x)+jnp.sin(jnp.pi*jnp.cos(jnp.pi*x)))))
+        bound = 100
+    assert norminf(h.values-g.values) < bound*h.vscale*EPS
+
+
+@pytest.mark.parametrize("clause", [7, 8, 9])
+def test_tech_of_tech_original(clause):
+    if clause == 7:
+        inner = lambda x: jnp.sin(jnp.pi*x)
+        outer = lambda x: jnp.exp(jnp.cos(jnp.pi*x))
+    elif clause == 8:
+        inner = lambda x: jnp.cos(jnp.pi*jnp.sin(jnp.pi*x))
+        outer = lambda x: col(jnp.sin(jnp.pi*(x-.1)),jnp.cos(jnp.pi*(x+.5)))
+    else:
+        inner = lambda x: col(jnp.sin(jnp.pi*(x-.1)),jnp.cos(jnp.pi*(x+.5)))
+        outer = lambda x: jnp.cos(jnp.pi*jnp.sin(jnp.pi*x))
+    h = make(inner).compose(make(outer))
+    assert norminf(h.values-outer(inner(trigpts(h.n)))) < (10 if clause==7 else 100)*h.vscale*EPS
+
+
+def test_original_error_10():
+    f = make(lambda x: col(jnp.exp(jnp.pi*jnp.cos(jnp.pi*(x-.14))),jnp.exp(jnp.pi*jnp.sin(jnp.pi*(x-.14)))))
+    g = make(lambda x: col(jnp.sin(jnp.pi*x),jnp.cos(jnp.pi*x)))
+    with pytest.raises(ValueError, match="CHEBFUN:TRIGTECH:compose:arrval"):
+        f.compose(g)
+
+
+def test_original_error_11():
+    f = make(lambda x: col(jnp.cos(jnp.pi*x),jnp.sin(jnp.pi*(x-.17))))
+    g = make(lambda x: jnp.sin(jnp.pi*x))
+    with pytest.raises(ValueError, match="CHEBFUN:TRIGTECH:compose:dim"):
+        f.compose(jnp.add, g)

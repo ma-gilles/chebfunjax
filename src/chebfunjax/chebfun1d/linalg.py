@@ -418,22 +418,16 @@ class Quasimatrix:
             float('inf'), len(self.cols))
         return dims if dim is None else dims[dim - 1] if dim <= 2 else 1
 
-    def norm(self, p=None):
-        """Continuous Frobenius or spectral quasimatrix norm.
+    def norm(self, p=None, *, return_location=False):
+        """Continuous source norm; optional location or one-based column index.
 
         Provenance
         ----------
         MATLAB source : @chebfun/norm.m
         Chebfun commit: 7574c77
         """
-        from .mtimes import _columns
-        cols = _columns(self)
-        gram = jnp.stack([jnp.stack([a.inner(b) for b in cols]) for a in cols])
-        if p is None or p == 'fro':
-            return jnp.sqrt(jnp.abs(jnp.trace(gram)))
-        if p == 2:
-            return jnp.sqrt(jnp.maximum(jnp.linalg.eigvalsh(gram)[-1], 0))
-        raise NotImplementedError('Quasimatrix norm supports Frobenius and 2-norm.')
+        from .norms import continuous_norm
+        return continuous_norm(self, p, return_location=return_location)
 
     def __matmul__(self, other):
         """MATLAB matrix multiplication, exposed as Python ``@``.
