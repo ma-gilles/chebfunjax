@@ -2667,35 +2667,15 @@ class Chebfun(eqx.Module):
 
     @staticmethod
     def _overlap(f: Chebfun, g: Chebfun) -> "tuple[Chebfun, Chebfun]":
-        """Re-break both Chebfuns onto the union of their breakpoints.
-
-        MATLAB Chebfun arithmetic accepts operands with different interior
-        breakpoints and merges them (@chebfun/overlap.m); requiring
-        identical piecewise structure broke e.g. ``abs(x) * u`` inside
-        operators when one operand had root-splitting breakpoints.
+        """Source domain check, tweak, exact union, and restriction.
 
         Provenance
         ----------
         MATLAB source : @chebfun/overlap.m
         Chebfun commit: 7574c77
         """
-        Chebfun._check_domains(f, g)
-        if f.domain == g.domain:
-            return f, g
-        hscale = max(abs(float(f.domain.a)), abs(float(f.domain.b)), 1.0)
-        tol = 1e-14 * hscale
-        merged: list[float] = []
-        for x in sorted(
-            {float(b) for b in f.domain.breakpoints}
-            | {float(b) for b in g.domain.breakpoints}
-        ):
-            if not merged or x - merged[-1] > tol:
-                merged.append(x)
-        # Pin the outer endpoints to f's exact values.
-        merged[0] = float(f.domain.a)
-        merged[-1] = float(f.domain.b)
-        bps = tuple(merged)
-        return f._with_breakpoints(bps), g._with_breakpoints(bps)
+        from chebfunjax.chebfun1d.restriction import overlap
+        return overlap(f, g)
 
     @staticmethod
     def _binary_op(f: Chebfun, g: Chebfun, op) -> Chebfun:
@@ -6177,88 +6157,16 @@ class Chebfun(eqx.Module):
     # Restriction
     # ------------------------------------------------------------------
 
-    def restrict(self, a: float, b: float) -> Chebfun:
-        """Restrict the Chebfun to the sub-interval [a, b].
-
-        Parameters
-        ----------
-        a : float
-            Left endpoint of the restriction (must be in the domain).
-        b : float
-            Right endpoint of the restriction (must be in the domain).
-
-        Returns
-        -------
-        Chebfun
-            A new Chebfun on [a, b].
-
-        Raises
-        ------
-        ValueError
-            If [a, b] is not a sub-interval of the domain.
-
-        Notes
-        -----
-        Each piece that overlaps [a, b] is restricted via ``_Piece.restrict``.
-        Pieces entirely outside [a, b] are discarded.
+    def restrict(self, a, b=None) -> Chebfun:
+        """Restrict to endpoints or a breakpoint vector, preserving old breaks.
 
         Provenance
         ----------
         MATLAB source : @chebfun/restrict.m
         Chebfun commit: 7574c77
         """
-        if self.isempty():
-            return Chebfun.empty()
-        a, b = float(a), float(b)
-        da, db = self.domain.a, self.domain.b
-        if a < da - 100 * _EPS or b > db + 100 * _EPS or a >= b:
-            raise ValueError(
-                f"Cannot restrict Chebfun on [{da}, {db}] to [{a}, {b}]: "
-                f"the restriction interval must be a sub-interval of the domain."
-            )
-        new_domain = self.domain.restrict(a, b)
-        new_funs = []
-        for piece in self.funs:
-            pa, pb = piece.interval
-            # Does this piece overlap [a, b]?
-            lo = max(pa, a)
-            hi = min(pb, b)
-            # skip zero-width overlaps, both absolutely and relative
-            # to the piece width: an overlap much narrower than the
-            # piece maps to a degenerate reference interval (observed
-            # as restrict([1.0, 1.0]) from a splitting sliver).
-            if (lo >= hi - 100 * _EPS
-                    or (math.isfinite(pa) and math.isfinite(pb)
-                        and hi - lo < 1e-13 * (pb - pa))):
-                continue  # No overlap or zero-width
-            from chebfunjax.fun.unbndfun import Unbndfun
-            if isinstance(piece, Unbndfun) or not (
-                    math.isfinite(pa) and math.isfinite(pb)):
-                # Unbounded pieces restrict via the partition API
-                # (@unbndfun/restrict.m returns one fun per subinterval).
-                subs = piece.restrict((lo, hi))
-                if not isinstance(subs, (list, tuple)):
-                    subs = [subs]
-                from chebfunjax.fun.bndfun import Bndfun
-                for sub in subs:
-                    # Source returns a bounded FUN after finite restriction.
-                    # Chebfun's internal bounded protocol is _Piece; reuse the
-                    # returned onefun and interval without recomputing it.
-                    if isinstance(sub, Bndfun):
-                        sub = _Piece(tech=sub.onefun,
-                                     interval=(sub.domain.a, sub.domain.b))
-                    new_funs.append(sub)
-            else:
-                new_funs.append(piece.restrict(lo, hi))
-        if not new_funs:
-            raise ValueError(
-                f"Restriction [{a}, {b}] produced no pieces — check domain."
-            )
-        # MATLAB @chebfun/restrict.m / @chebtech/restrict.m: the restricted
-        # pieces keep the original length (no simplify) -- verified in
-        # MATLAB R2025b: restrict(legpoly(1:100), [-1 -0.2 0.3 1]) has
-        # lengths [101 101 101].
-        return Chebfun(funs=new_funs, domain=new_domain)
+        from chebfunjax.chebfun1d.restriction import restrict
+        return restrict(self, a if b is None else (a, b))
 
     # ------------------------------------------------------------------
     # Quasimatrix linear algebra: qr, svd

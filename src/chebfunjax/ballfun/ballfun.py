@@ -535,6 +535,12 @@ def _evaluate_on_grid(
     MATLAB source : @ballfun/constructor.m  (evaluate subfunction)
     Chebfun commit: 7574c77
     """
+    # Source evaluate's f1 broadcasts scalar callback outputs to the grid.
+    original_op = op
+
+    def op(a, b, c):
+        return original_op(a, b, c) + 0*a + 0*b + 0*c
+
     # MATLAB: r = chebpts(m) gives m points in [-1, 1] in ASCENDING order.
     # r(floor(m/2)+1:m) in 1-based = r[m//2:] in 0-based = last m_half points = [0, ..., 1].
     # With m odd, floor(m/2) = (m-1)/2, so m_half = (m+1)/2 points in [0, 1].
@@ -1228,6 +1234,9 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/ballfun.m  (numeric input branch)
         Chebfun commit: 7574c77
         """
+        if jnp.size(values) == 1:
+            value = jnp.asarray(values).reshape(())
+            return cls.from_function(lambda x, y, z: value + 0*x)
         vals = np.asarray(values)
         if vals.ndim == 2:
             vals = vals[:, :, None]
@@ -2732,8 +2741,8 @@ class Ballfun(eqx.Module):
         return Ballfun.from_coeffs(jnp.asarray(F), is_real=True)
 
     @staticmethod
-    def helmholtz(f, K: float, bc=None, m: int = 39,
-                  n: int = 40, p: int = 41,
+    def helmholtz(f, K: float, bc=None, m: int | None = None,
+                  n: int | None = None, p: int | None = None,
                   bc_type: str = "dirichlet") -> "Ballfun":
         r"""Solve the Helmholtz equation
         :math:`\nabla^2 u + K^2 u = f` on the ball with Dirichlet or
@@ -2760,7 +2769,9 @@ class Ballfun(eqx.Module):
             derivative ``du/dr(1,.,.)``.
         m, n, p : int
             Discretization sizes (Chebyshev in r, Fourier in lambda and
-            theta).  ``m`` is made odd; ``n`` and ``p`` even.
+            theta). A single size sets all three dimensions. Only Neumann
+            data require increasing an even radial size to the next odd size.
+            The Python no-size adapter retains its (39, 40, 41) default.
         bc_type : {'dirichlet', 'neumann'}, default 'dirichlet'
             Boundary condition type imposed at ``r = 1``.
 
@@ -2771,28 +2782,43 @@ class Ballfun(eqx.Module):
         Original authors: Copyright 2019 by The University of Oxford
             and The Chebfun Developers.
         """
+        # Source empty check precedes inspection of every other argument.
+        if isinstance(f, Ballfun) and f.isempty():
+            return f
+
+        from chebfunjax.spherefun import Spherefun
+
         isNeumann = str(bc_type).lower().startswith("neu")
+        if m is None:
+            m, n, p = 39, 40 if n is None else n, 41 if p is None else p
+        else:
+            n = m if n is None else n
+            p = m if p is None else p
         m, n, p = int(m), int(n), int(p)
-        # Parity: m odd (radial), n and p even (doubled Fourier structure).
-        m = m + 1 - m % 2
-        n = n + n % 2
-        p = p + p % 2
+        if isNeumann:
+            m = m + 1 - m % 2
 
         # Right-hand side coefficients on the solve grid.
         if isinstance(f, Ballfun):
-            f_is_real = f.is_real
             Fc = _resize_coeffs3_ball(
                 np.asarray(f.coeffs, dtype=np.complex128), m, n, p)
         else:
             fb = Ballfun.from_function(f, spherical=True)
-            f_is_real = fb.is_real
             Fc = _resize_coeffs3_ball(
                 np.asarray(fb.coeffs, dtype=np.complex128), m, n, p)
 
         # Boundary coefficients (n x p Fourier-Fourier matrix or None).
         if bc is None:
             BC1 = None
+        elif isinstance(bc, Spherefun):
+            BC1 = bc.coeffs2(n, p).T
         elif callable(bc):
+            import inspect
+            if len(inspect.signature(bc).parameters) == 3:
+                cartesian_bc = bc
+                def bc(ll, tt):
+                    return cartesian_bc(jnp.cos(ll)*jnp.sin(tt),
+                                        jnp.sin(ll)*jnp.sin(tt), jnp.cos(tt))
             BC1 = _sample_boundary_coeffs(bc, n, p)
         elif np.ndim(bc) >= 2:
             BC1 = _resize_fourier2(np.asarray(bc, dtype=np.complex128), n, p)
@@ -2805,8 +2831,18 @@ class Ballfun(eqx.Module):
         # giving negative real K^2); keep it complex here and realify
         # K^2 inside the spectral solver.
         CFS = _ballfun_helmholtz_spectral(Fc, complex(K), BC1, isNeumann)
+        # A real forcing does not imply a real solution: boundary data may
+        # contain complex harmonics. Infer reality from the solved coefficients.
+        cfs = jnp.asarray(CFS)
+        check = (cfs[:, 1-n % 2:n//2+1, 1-p % 2:p//2+1]
+                 - jnp.conj(jnp.flip(cfs[:, n//2:, p//2:], axis=(1, 2))))
+        is_real = bool(jnp.max(jnp.abs(check)) < 1e7*_EPS)
+        if n % 2 == 0:
+            is_real = is_real and bool(jnp.max(jnp.abs(cfs[:, 0, :])) < 1e7*_EPS)
+        if p % 2 == 0:
+            is_real = is_real and bool(jnp.max(jnp.abs(cfs[:, :, 0])) < 1e7*_EPS)
         return Ballfun.from_coeffs(
-            jnp.asarray(CFS, dtype=jnp.complex128), is_real=bool(f_is_real))
+            jnp.asarray(CFS, dtype=jnp.complex128), is_real=is_real).simplify()
 
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun.

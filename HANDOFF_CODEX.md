@@ -1,5 +1,34 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Restriction and Ballfun Helmholtz source qualification (2026-10-08)
+
+Chebfun restriction now preserves breakpoint vectors, existing point values,
+row orientation and periodic-to-Chebyshev conversion. Overlap follows source
+finite hscale for unbounded domains, domain tweaking and exact breakpoint union.
+Scoped CPU gates pass 28 of 29 original predicates plus 12 controls and two
+existing regressions (42 distinct). Original24 remains explicitly skipped for
+missing subsequent native random inputs. Original23/27 constructor warnings
+remain visible; no tolerance was changed. Root independently rehashed all seven
+observed runtime manifests (1771–1779 files each); these are Python and native
+extension observations, not recursive shared-library closure. The final module
+provenance heading was added during review; executable AST is unchanged.
+
+Ballfun Helmholtz passes all38 original slots (79 scalar comparisons), eight
+controls and nine unchanged regressions (55 distinct). Fixes include scalar
+constructor broadcasting, explicit grid parity/single-size dispatch, Spherefun
+boundary data, solution-based reality and source early-empty return. Root
+rehashed all six contributing runtime manifests (2930–2950 files each), checked
+terminal stable-input receipts with no survivors and reviewed the early-return
+AST equivalence. Inherited NumPy/SciPy solver/transforms, undersized coefficient
+aliasing, native arithmetic trajectories and performance remain unqualified.
+
+Evidence: restrict_root_acceptance_20261008.json and
+ball_helmholtz_root_acceptance_20261008.json in the shared directory below.
+Qualification is composite across immutable scoped gates, not a complete-suite
+run. Chebfun-object composition has29 original passes and one strict numerical
+failure under diagnosis; its candidate is not committed. Publication and
+exact-head CI remain unresolved.
+
 ## Trigonometric Pade source qualification (2026-10-08)
 
 Public trigpade now follows the source Laurent coefficient ordering, first
