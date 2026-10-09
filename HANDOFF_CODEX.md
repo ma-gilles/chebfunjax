@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere contour viewport (2026-10-09)
+
+Newly created sphere contour axes now use the existing non-overflow setup,
+matching unit-sphere plotting. The sole library change is fill_canvas=False
+at the contour_sphere setup call. Source grids, contour extraction, coordinates,
+visibility and supplied-axes identity are unchanged. This fixes the legacy
+oversized viewport exposed by explicit native camera mapping.
+
+Eight focused checks pass in 38.67 s, including a saved analytic contour with
+camera/layout, source-coordinate restoration, existing samples and line styles.
+The run was terminal 0, stable and uncensored, with no survivors and a sampled
+peak of 1,513,036 KiB. Root verified 3,053 loaded-file hashes, the one-keyword
+AST change, and the saved image. The Atmospheric figure 3 source replay remains
+pending; this does not establish its completed page or historical pixel parity.
+Evidence: sphere_contour_viewport_root_{runtime_review,integration}_20261009.json
+and sphere_contour_viewport_source_20261009/DELIVERY.json in shared scratch.
+
 ## Periodic composition preference forwarding (2026-10-09)
 
 Public periodic compose now copies raw preferences, applies source splitting

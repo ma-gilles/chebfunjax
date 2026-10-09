@@ -1601,7 +1601,8 @@ def contour_sphere(
     plt.close(fig_tmp)
 
     # Setup 3D axes
-    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
+    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75),
+                             fill_canvas=False)
 
     _draw_sphere_background(ax, color=sphere_color)
 
