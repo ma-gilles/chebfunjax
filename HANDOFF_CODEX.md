@@ -2,37 +2,38 @@
 
 ## Latest CPU qualification and open failures (2026-10-09)
 
-Latest implementation/test checkpoint267171e5 is local only. It adds compiled
-Chebyshev differentiation (2bc54ae8), sphere real-value classification
-(101eec15), and restored complete differentiation assertions (267171e5).
-Differentiation has29 exact-eager fixture tests/30 captured outputs and30
-inherited port regressions, with independent runtime audits. Sphere classification
-has12 exact-value/flag or threshold-neighbor fixtures and17 unchanged source
-controls. Neither change yet establishes complete solver memory improvement.
-
-Four restored test cases verify per-column vscale shape/bounds and the full
-issue1641 coefficient array without truncation. They pass on the unchanged
-d60eeeb2 baseline. Native seed6178 query input capture remains open, and test
-comments now state that limitation. Evidence is in docs/chebtech_derivative_fusion_cpu_20261009.json,
-docs/sphere_real_classification_cpu_20261009.json and
+Latest implementation/test checkpoint 267171e5 remains local only. Compiled
+Chebyshev differentiation passed 29 fixture and 30 inherited regression cases;
+four restored differentiation cases pass on the unchanged d60eeeb2 baseline.
+Native seed6178 query inputs remain unmatched. See the scoped qualification
+records in docs/chebtech_derivative_fusion_cpu_20261009.json and
 docs/diff_assertion_restoration_cpu_20261009.json.
 
-A separate, unintegrated literal MATLAB compressed-quadrature port passes
-source-stage/IR checks but fails the unchanged n10 weight-sum test: error is
-4.440892098500626e-16, exactly2eps, while the predicate requires less than2eps.
-The failure is preserved; FFT/backend rounding diagnosis is underway. No
-normalization correction or relaxed predicate has been accepted.
+Sphere real-value classification compilation now lets the actual five-Gaussian
+initial condition and first two public m150 Helmholtz solves complete under the
+unchanged 180-second/3-GiB guard: 60.11 seconds of observed computation,
+3,032,620 KiB sampled process-tree peak, and second-step mean drift 2.08e-17.
+All 234 guarded inputs were independently rehashed unchanged; no processes
+survived. This is a two-step computation result, not full trajectory, matched
+MATLAB RNG, dependency-runtime, or figure qualification. Evidence:
+docs/sphere_heat_two_step_cpu_20261009.json. The full 100-step computation is
+prepared; the full native Newton C2 test currently owns the serial heavy lane.
 
-AnalyticSVD has a source-faithful draft and a running functional diagnostic
-with explicitly unmatched historical NumPy A/B matrices. Its first run failed
-only in the observer after a successful construction; the corrected recorder
-run is separately frozen. No page/figure/native-RNG parity is claimed. Heavy
-examples remain serial: SphereHeat continuation and an unchanged full Newton
-C2 test are prepared but await this run's terminal closure.
+The unintegrated compressed-quadrature port failed the original strict n10
+sum predicate at exactly 2eps. That failure remains preserved. A subsequent
+mathematical inverse-DFT scaling candidate passed six source/normalization
+controls and two compiler-output checks; native tests remain pending. No
+predicate relaxation or production quadrature change has been accepted.
 
-Full CPU suite, all322 verified pages,68 outstanding figure-size mismatches,
+AnalyticSVD's corrected diagnostic stopped at the unchanged 4-GiB cap after
+58 completed constructors and three figures. Retained input/runtime-start
+evidence is clean; final runtime coverage and JUnit are absent. The historical
+NumPy A/B inputs are unmatched to MATLAB. No complete page or figure parity
+is established, and the partial figures are not publication replacements.
+
+Full CPU suite, all 322 verified pages, 68 outstanding figure-size mismatches,
 remaining numerical/source gaps, matched MATLAB captures, push and exact-head
-green CI all remain unresolved. Shared checkpoint records current owned handles.
+green CI remain unresolved. Live handles are recorded in the shared checkpoint.
 
 
 ## Latest CPU integration (2026-10-09; supersedes prior checkpoint below)

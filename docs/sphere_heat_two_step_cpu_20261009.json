@@ -1,0 +1,72 @@
+{
+  "original_handle": 71796,
+  "terminal": true,
+  "scope": "Actual five-Gaussian initialization and first two m150 public solves complete. No full100-step, native RNG, visual parity, or full dependency audit claim.",
+  "guard_files_rehashed": 234,
+  "issues": [],
+  "events": [
+    {
+      "stage": "start",
+      "seconds": 2.72504985332489e-06,
+      "maxrss_kib": 423684,
+      "jax": "0.11.0"
+    },
+    {
+      "stage": "constructed",
+      "seconds": 42.21624213177711,
+      "maxrss_kib": 2342056,
+      "mean": 0.04166666666666654
+    },
+    {
+      "stage": "before_step",
+      "seconds": 42.21675681974739,
+      "maxrss_kib": 2342056,
+      "step": 0
+    },
+    {
+      "stage": "after_step",
+      "seconds": 42.261741128750145,
+      "maxrss_kib": 2342056,
+      "step": 0,
+      "mean": 0.04166666666666654,
+      "mean_error": 0.0
+    },
+    {
+      "stage": "before_step",
+      "seconds": 42.26199389388785,
+      "maxrss_kib": 2342056,
+      "step": 1
+    },
+    {
+      "stage": "after_step",
+      "seconds": 52.151204471010715,
+      "maxrss_kib": 2761384,
+      "step": 1,
+      "mean": 0.041666666666666484,
+      "mean_error": 5.551115123125783e-17
+    },
+    {
+      "stage": "before_step",
+      "seconds": 52.151712054852396,
+      "maxrss_kib": 2761384,
+      "step": 2
+    },
+    {
+      "stage": "after_step",
+      "seconds": 60.10561694903299,
+      "maxrss_kib": 3029416,
+      "step": 2,
+      "mean": 0.04166666666666656,
+      "mean_error": 2.0816681711721685e-17
+    },
+    {
+      "stage": "complete",
+      "seconds": 60.106543039903045,
+      "maxrss_kib": 3029416,
+      "scope": "Five source Gaussian bumps, m150 first two public solves only; RNG/native full-page parity open"
+    }
+  ],
+  "peak_rss_kib": 3032620,
+  "censored_limit": null,
+  "receipt_sha256": "0794cf6f6ea98d5aad7d942740e254c0e5f798b2dc61aa30bda3a9884333d0b4"
+}
