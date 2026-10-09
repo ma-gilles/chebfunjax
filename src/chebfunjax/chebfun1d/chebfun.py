@@ -1365,11 +1365,14 @@ class Chebfun(eqx.Module):
         Returns the explicit override set by :meth:`set_point_values` when
         present, else the default: the value of the Chebfun evaluated at each
         breakpoint (shape ``(n_ends,)``, or ``(n_ends, n_cols)`` when
-        array-valued).
+        array-valued). Storage is independent of row/column orientation;
+        without an explicit override, interior values average neighboring
+        FUN limits as in the native breakpoint helper.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/chebfun.m (pointValues property)
+        MATLAB source : @chebfun/chebfun.m (pointValues property),
+            @chebfun/getValuesAtBreakpoints.m, @chebfun/transpose.m
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
@@ -1381,9 +1384,7 @@ class Chebfun(eqx.Module):
         override = getattr(self, "_point_values", None)
         if override is not None:
             return override
-        import numpy as _np
-        bps = _np.asarray(list(self.domain.breakpoints), dtype=float)
-        return self(jnp.asarray(bps))
+        return self._breakpoint_values()
 
     def define_point(self, s, v) -> "Chebfun":
         """Assign function value(s) at point(s) (MATLAB ``f(s) = v``).

@@ -64,6 +64,10 @@ def restrict(f, domain):
     previous = f.point_values
     for k, x in enumerate(breaks):
         if x in old:
+            # Native indexed assignment promotes real storage when an old
+            # breakpoint carries an explicit complex value. Preserve real
+            # storage if no old breakpoint is restored.
+            values = values.astype(jnp.result_type(values, previous))
             values = values.at[k].set(previous[old.index(x)])
     out = out.set_point_values(values)
     if f.is_transposed:

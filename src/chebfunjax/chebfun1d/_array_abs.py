@@ -33,9 +33,8 @@ def source_array_abs(f):
 
     from .chebfun import Chebfun
 
-    # Native pointValues are independent of row orientation. The Python
-    # evaluation adapter transposes implicit row point values, so perform
-    # the source representation operations in column orientation.
+    # Native pointValues are independent of row orientation. Normalize
+    # representation operations to columns, then restore the input orientation.
     is_transposed = f.is_transposed
     f = f.T if is_transposed else f
     eps = float(jnp.finfo(jnp.float64).eps)
