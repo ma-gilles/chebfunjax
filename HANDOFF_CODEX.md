@@ -1,5 +1,43 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Continuous Lebesgue, concatenation and contour follow-through (2026-10-09)
+
+The new public `chebfunjax.lebesgue` constructs a continuous piecewise
+Chebfun and optionally returns its continuous infinity norm. It follows
+polynomial fixed-length construction/manual simplify and the trigonometric
+barycentric branch, including periodic endpoint removal. Supported C1/C2
+session preferences reach the actual technology; polynomial construction
+retains native fixedLength/sampleTest overrides. All11 literal native test
+slots and23 parser/preference/public-entry controls pass together (34 total)
+in final_public_v2,180s/3GiB CPU-only, stable inputs and no survivors.
+Root independently rehashed2941 loaded files (consult the runtime JSON for
+its authoritative count). No original test bounds were widened. Earlier
+static/fixture failures and separate successful gates are preserved.
+
+Limits: non-Chebtech session preferences, complex/large-weight edge cases,
+and legacy sampled lebesgue_constant/lebesgue_function helpers remain
+unqualified or unfinished. The new API does not establish all such parity.
+Evidence: lebesgue_source_20261009/final_public_v2 and
+lebesgue_final_public_root_runtime_review_20261009.json in shared goal scratch.
+
+Accepted prerequisites: dd091ade native sequential vander/column reversal
+(52 controls);98a2b70c source FFT contour sampling/seam closure (6 composite
+controls);f3f91c23 public horzcat source return/dispatch (22 focused plus9
+native slots);f4ff1ecf C1 tolerance/turbo/check and C2check forwarding
+(10 actual-technology/analytic controls). Root runtime/scope/full lint
+checks passed for each. Numeric promotion on unbounded/nonfinite inputs and
+session technology remains active follow-up work; no full constructor claim.
+
+Full Atmospheric replay on98a2b70c saved9figures, then SIGSEGV during the
+last smoothing reconstruction below its6GiB cap. A matched observer-only
+replay is testing a periodic traceback watchdog race hypothesis; the cause
+is unproven. Independent visual review found contour/coastline/layout and
+possible reference-version numerical gaps. Neither full page nor figure
+parity is established. Degree16 Vandermonde/Arnoldi checks pass; degree32
+and the original degree80 page remain unrun. All322-page/full-suite/native
+MATLAB/publication/exact-head CI completion remains open.
+
+
 ## Sphere subtraction accepts public JAX scalar results (2026-10-09)
 
 Preparing the actual AtmosphericTemperature input exposed a dispatch bug:

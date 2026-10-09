@@ -75,6 +75,7 @@ from chebfunjax.utils.fasttransforms import (  # noqa: E402
     idlt,
     idst,
 )
+from chebfunjax.utils.lebesgue_source import lebesgue  # noqa: E402
 from chebfunjax.utils.misc import isSubset  # noqa: E402
 from chebfunjax.utils.nufft import nufft2  # noqa: E402
 from chebfunjax.utils.ode_solution import odesol  # noqa: E402
@@ -344,6 +345,7 @@ __all__ = [
     "isSubset",
     "nufft2",
     "complex_fun",
+    "lebesgue",
     "cf",
     "chebpade",
     "padeapprox",
