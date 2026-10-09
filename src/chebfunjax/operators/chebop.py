@@ -1366,6 +1366,18 @@ class Chebop:
                         return self._solve_ivp_system_highorder(f)
                 except Exception:
                     pass
+            if self._bc_general is not None:
+                from chebfunjax.operators._coupled_newton import (
+                    CoupledParameterVariables,
+                    solve_coupled,
+                    supported,
+                )
+                if supported(self):
+                    try:
+                        return solve_coupled(self, f, n=n, max_iter=max_iter,
+                                             bvp_tol=tol, n_min=n_min, n_max=n_max)
+                    except CoupledParameterVariables:
+                        pass  # Preserve the existing parameter adapter below.
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
             if self._has_explicit_scalar_parameters():
@@ -7351,6 +7363,16 @@ class Chebop:
         MATLAB source : @chebop/linearize.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.operators._coupled_newton import (
+            CoupledParameterVariables,
+            linearize,
+            supported,
+        )
+        if supported(self):
+            try:
+                return linearize(self, u0)
+            except CoupledParameterVariables:
+                pass  # Preserve the existing parameter linearization below.
         if u0 is not None:
             from chebfunjax.operators.chebop_altdisc import linearize_about
             return linearize_about(self, u0)

@@ -1,6 +1,42 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
 
+## Coupled nonlocal Newton and second-kind adaptive assembly (2026-10-09)
+
+Original promote_functional slots3–6 now use exact coupled AD, native zero-state
+public linearization, source boundary fitting and error-controlled Newton.
+Both C2 and C1 solve the two original systems at the unchanged continuous
+infinity-norm bound1e-10; independent analytic solution and absolute boundary
+checks pass. The second system starts without an inherited explicit init.
+New C2 assembly uses native second-kind function points and first-kind equation
+points through the shared adaptive solve. Scalar algorithms remain unchanged.
+Numeric-zero AD multiplication now preserves native zero/order metadata while
+zero Chebfun multiplication retains its distinct structural behavior.
+
+Composite qualification has54 checks:42 ordinary/source-matrix/AD checks,
+8 routing/applicability checks and4 original coupled solves across C2/C1.
+Six historical routing comparisons remain scratch-only evidence; permanent
+routing tests have no scratch environment dependency. Known scalar parameter
+columns delegate to existing routes; alternate routing has code-scope proof,
+not a claimed runtime parameter test.
+
+One C2 receipt retains a root_exited_with_live_descendants label. Root review
+found only the root process identity, no signals or observed descendants,
+terminal exit0, stable inputs and no survivors. Supervisor discovery-before-poll
+explains a stale root-only exit sample. The numerical result is accepted with
+this explicit caveat; the raw receipt remains unchanged. Other gates are
+uncensored. Final parameter guards are qualified by8 focused checks and code
+scope proofs; historical C2 runs bind the earlier guarded-route implementation.
+This is composite evidence, not a full-suite run on the integrated tree.
+
+Evidence:root_coupled_roots_receipt_review_20261009.json,
+coupled_c1_root_receipt_review_20261009.json,
+coupled_root_final_algorithm_scope_20261009.json and the source mapping,
+algorithm review, routing extraction and frozen gates under
+coupled_nonlocal_source_20261008 in shared scratch. Original periodic slots7–10,
+full regression/pages/native execution/performance/push/exact-head CI remain open.
+
+
 ## Native C1 nonlocal equations and AD scalar matrix multiplication (2026-10-08)
 
 The scalar finite-interval nonlocal route now realizes the original operator

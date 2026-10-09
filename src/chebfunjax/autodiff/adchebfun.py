@@ -1480,11 +1480,14 @@ def _scale_jacobian(jacobian, factor):
         return jacobian.cellfun(lambda block: _scale_jacobian(block, factor))
     if isinstance(jacobian, (OperatorBlock, FunctionalBlock)):
         action = jacobian._apply_fn
+        # Static block metadata requires a concrete scalar. Traced factors
+        # cannot advertise a data-dependent zero/order flag.
+        iszero = jacobian.iszero or bool(jnp.asarray(factor) == 0)
         kwargs = dict(
             domain=jacobian.domain,
             apply_fn=None if action is None else lambda u: factor*action(u),
-            order=jacobian.order,
-            iszero=jacobian.iszero,
+            order=0 if isinstance(jacobian, OperatorBlock) and iszero else jacobian.order,
+            iszero=iszero,
             isnotdiffint=jacobian.isnotdiffint,
         )
         coordinates = jacobian._coordinate_fn

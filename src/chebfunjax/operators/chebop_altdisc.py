@@ -495,6 +495,18 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
         from chebfunjax.operators.scalar_newton import solve_scalar
         return [solve_scalar(N, f, n=n, max_iter=max_iter, bvp_tol=tol,
                              n_min=n_min, n_max=n_max, backend=discretization)]
+    if N._bc_general is not None:
+        from chebfunjax.operators._coupled_newton import (
+            CoupledParameterVariables,
+            solve_coupled,
+            supported,
+        )
+        if supported(N):
+            try:
+                return solve_coupled(N, f, n=n, max_iter=max_iter, bvp_tol=tol,
+                                     n_min=n_min, n_max=n_max, backend=discretization)
+            except CoupledParameterVariables:
+                pass  # Preserve the established parameter continuation below.
     U = None
     if not linear_system:
         # Preserve the established nonlinear continuation seed.

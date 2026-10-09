@@ -316,7 +316,12 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
             if not isinstance(block, OperatorBlock):
                 continue
             if block._coeff_fn is None:
-                native_domains.extend(_native_capability(block, backend).domain)
+                if backend == 'chebcolloc2':
+                    capability = block._values_capability
+                    native_domains.extend(block.domain if capability is None
+                                          else capability.domain)
+                else:
+                    native_domains.extend(_native_capability(block, backend).domain)
             else:
                 coefficient_functions.extend(
                     coefficient for coefficient in block.coeff_list()
@@ -339,7 +344,11 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
     history = []
     for next_dimension in (*schedule, None):
         if disc is None or disc.dimensions != dimensions or not disc.is_factored:
-            disc = LinearDiscretization(L, dimensions, backend, domain)
+            if backend == 'chebcolloc2':
+                from chebfunjax.operators._second_kind_linear import SecondKindDiscretization
+                disc = SecondKindDiscretization(L, dimensions, backend, domain)
+            else:
+                disc = LinearDiscretization(L, dimensions, backend, domain)
         history.append(dimensions)
         current_constraints = [val for _, val in disc.L.continuity]
         current_constraints += [val for _, val in L.constraint]
@@ -353,6 +362,8 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
         # C1 therefore includes the values-constructor transform here too.
         if backend == 'chebcolloc1':
             data = [Chebtech1.vals2coeffs(value) for value in values]
+        elif backend == 'chebcolloc2':
+            data = [Chebtech2.vals2coeffs(value) for value in values]
         for value in values:
             scales = jnp.maximum(scales, jnp.max(jnp.abs(value), axis=0))
         checks = [disc.tech.happiness_check(
