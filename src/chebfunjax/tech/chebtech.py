@@ -867,6 +867,11 @@ def _sample_extrapolate(
 # ============================================================================
 
 
+# Reuse one compiled program per coefficient shape. Mark the weighted
+# coefficients and parity-prefix sums as optimization boundaries. Later
+# compiler passes may remove barriers; pinned CPU IR and exact-byte tests
+# qualify the arithmetic for the recorded coefficient shapes.
+@jax.jit
 def _diff_coeffs_once(c: jax.Array) -> jax.Array:
     """Single differentiation via the Chebyshev coefficient recurrence.
 
@@ -897,7 +902,7 @@ def _diff_coeffs_once(c: jax.Array) -> jax.Array:
     # (trailing singleton axes broadcast over array-valued columns)
     w = 2.0 * jnp.arange(1, n, dtype=jnp.float64)
     w = w.reshape((n - 1,) + (1,) * (c.ndim - 1))
-    v = w * c[1:]  # v[k] = 2*(k+1)*c_{k+1}
+    v = jax.lax.optimization_barrier(w * c[1:])  # v[k] = 2*(k+1)*c_{k+1}
 
     # Accumulate from the tail, even and odd indices separately.
     # (buffer dtype follows the series: complex chebfuns stay complex)
@@ -905,10 +910,10 @@ def _diff_coeffs_once(c: jax.Array) -> jax.Array:
 
     # Slice1: indices n-2, n-4, ..., i.e. v[-1], v[-3], ...
     s1 = v[::-1][::2]  # reversed, take every other
-    cs1 = jnp.cumsum(s1, axis=0)
+    cs1 = jax.lax.optimization_barrier(jnp.cumsum(s1, axis=0))
     # Slice2: indices n-3, n-5, ..., i.e. v[-2], v[-4], ...
     s2 = v[::-1][1::2]
-    cs2 = jnp.cumsum(s2, axis=0)
+    cs2 = jax.lax.optimization_barrier(jnp.cumsum(s2, axis=0))
 
     # Place back
     out = out.at[::-1].set(0.0)  # reset

@@ -1,0 +1,67 @@
+{
+  "scope": "Compile unchanged Chebyshev differentiation recurrence; barriers mark weighted-product/parity-prefix stages. Optimized barriers may disappear; exact byte qualification is scoped.",
+  "base": "d60eeeb2",
+  "tests": {
+    "synthetic_exact_eager_tests": 29,
+    "captured_output_comparisons": 30,
+    "unchanged_inherited_port_cases": 30
+  },
+  "regressions": [
+    {
+      "gate": "diff_edges_v1",
+      "tests": 17,
+      "junit_sha256": "1890ca0550975601a48ddd3ec5ca8ccc07ec8649806a9c1feab92df8e61331d7"
+    },
+    {
+      "gate": "diff_actual_v1",
+      "tests": 12,
+      "junit_sha256": "1ed6b7df79983ca773a7f8dc291feba2e443a30d41ad30cd4bdd9ea181f32119"
+    },
+    {
+      "gate": "port_diff_1_v1",
+      "tests": 6,
+      "junit_sha256": "7f563bb486015136defbadb21ca28c8a85f225e4c33eaaa7e87f2e56ff54cfa5"
+    },
+    {
+      "gate": "port_diff_2_v1",
+      "tests": 6,
+      "junit_sha256": "0790d24de15d9675627a8792131efef97dbbd7dd46fe63844260a9f771ca1d08"
+    },
+    {
+      "gate": "port_diff_3_v1",
+      "tests": 6,
+      "junit_sha256": "e4522909cd5d6f7981d72dbe5f2323c58b0458c17c23ce802e0b4a1dfe390dc5"
+    },
+    {
+      "gate": "port_diff_4_v1",
+      "tests": 6,
+      "junit_sha256": "25d2d668e053468bc33f3f0ca2dc1934ddf37ee7245fe96c18b532b89fbe0a02"
+    },
+    {
+      "gate": "port_diff_5_v1",
+      "tests": 6,
+      "junit_sha256": "06e9496cc97ce96074ab04f60d0a3d98135f3a792840d594427f3e6215895ed3"
+    }
+  ],
+  "integration": {
+    "path": "src/chebfunjax/tech/chebtech.py",
+    "tested_sha256": "0a91624bb3139661ec2932d71fd2c44d0fb87e87c778e6fdfda0df8e7ce1e5d6",
+    "integration_sha256": "83df08d7f8886e5eb943d0e910f2c2e35838e610bdc020719b44bd248144464e",
+    "baseline_sha256": "806578ba2ef2edd7c83d9eda93df29b3501a4fb73def5c3a134eafa588ccd5b6",
+    "current_publication_matches_baseline": true,
+    "AST_exactly_equal_to_tested": true,
+    "only_comment_edits_since_tested": true,
+    "payload": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_helper_fusion_prepare_20261009/integration_payload_v1/src/chebfunjax/tech/chebtech.py",
+    "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_helper_fusion_prepare_20261009/derivative_integration_v1.patch",
+    "patch_sha256": "75ffe3cd542c01fd5ef6509559e779fd991259eecaf5cd4d94e692f5479cd0d0"
+  },
+  "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_derivative_root_runtime_review_20261009.json",
+  "runtime_review_sha256": "4abe421e9e975a78da632cbc9a563dc774d965824ed48816eaf9044aa7ea9fb4",
+  "limitations": [
+    "No actual Newton memory reduction or complete solve established",
+    "Inherited differentiation ports retain input/assertion gaps; restoration work separate",
+    "Only derivative integrated; both quadrature candidates remain separate"
+  ],
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_helper_fusion_gibbs_cross_review_20261009.json",
+  "source_review_sha256": "10ff869c4c7f47d354d7d65a78c087b55007db2e146ea64cc42899042555ffd4"
+}
