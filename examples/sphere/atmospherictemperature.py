@@ -1,217 +1,177 @@
-"""Atmospheric temperature data on the sphere.
+"""Computing with an atmospheric dataset in Spherefun.
 
-Translation of sphere/AtmosphericTemperature.m: the 529 x 1024
-global temperature dataset (AtmosphericData.mat, fetched from the
-chebfun examples repository) as a spherefun -- mean temperature, pole
-values, equator slice, zonal mean, the steady-heat Poisson solve, and
-Gaussian filtering at sigma = 2, 10, 20 degrees (implemented
-spectrally: the Gauss-Weierstrass filter scales harmonic band l by
-exp(-l(l+1) sigma^2 / 2)).
+Source: sphere/AtmosphericTemperature.m, Chebfun examples f4b9ea46.
+With no arguments, use the project .atmospheric_data.mat cache, downloading
+the pinned input when missing. --data and ATMOSPHERIC_DATA override that path.
+All printed values and ten figures are computed, without reference output.
 
 Original: https://www.chebfun.org/examples/sphere/AtmosphericTemperature.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
+from __future__ import annotations
+
+import argparse
+import hashlib
+import os
+import sys
+import tempfile
+import urllib.request
+from pathlib import Path
+
 import matplotlib
 
 matplotlib.use("Agg")
-import os
-import sys
-import urllib.request
-import warnings
-
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src'))
+# uses-numpy: pinned MAT input and host-side plotting options only.
 import numpy as np
-
-from chebfunjax.plotting import save_chebfun_figure as _savefig
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
 from scipy.io import loadmat
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'sphere')
-_MAT_URL = ("https://raw.githubusercontent.com/chebfun/examples/"
-            "master/sphere/AtmosphericData.mat")
-FIG = [0]
+_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_ROOT / "src"))
+
+from chebfunjax.plotting import (  # noqa: E402
+    chebfun_style,
+    matlab_plot,
+    matlab_view,
+    plot_earth,
+    save_chebfun_figure,
+)
+from chebfunjax.spherefun.spherefun import Spherefun  # noqa: E402
+
+_MAT_URL = (
+    "https://raw.githubusercontent.com/chebfun/examples/"
+    "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c/sphere/AtmosphericData.mat"
+)
+_DATA_SHA256 = "27549e83460110925ee85c8f7ae6875e7f8ed749f30eaebd5f6290c45f3108bd"
 
 
-def _load_temp():
-    cache = os.path.join(_HERE, '..', '..', '.atmospheric_data.mat')
-    if not os.path.exists(cache):
-        urllib.request.urlretrieve(_MAT_URL, cache)
-    return np.asarray(loadmat(cache)["Temp"], dtype=float)
+def _print_source_spherefun_display(fun):
+    """Native display fields, calculated from the current representation."""
+    print("\nf =\n")
+    print("   spherefun object")
+    print("       domain        rank    vertical scale")
+    print(f"     unit sphere  {int(fun.rank):6d}          {float(fun.vscale()):3.2g}\n")
 
 
-def _dfs_coeffs(V):
-    """2D Fourier coefficients of the DFS extension of the data.
-
-    V is (n_th, n_lam) with theta 0..pi inclusive, lambda [-pi,pi).
-    """
-    nth, nlam = V.shape
-    # drop the duplicated theta = pi row for the doubled grid
-    Vh = V[:-1, :]
-    V2 = np.vstack([Vh, np.roll(V[::-1][:-1, :], nlam // 2, axis=1)])
-    return np.fft.fft2(V2) / V2.size
+def _print_source_ans(value):
+    """Computed scalar output; MATLAB session formatting is not inferred."""
+    print("\nans =\n")
+    print(f"{float(value):20.15f}\n")
 
 
-def _dfs_eval(C, lam, th):
-    n2, nlam = C.shape
-    kt = np.fft.fftfreq(n2, d=1.0 / n2)
-    kl = np.fft.fftfreq(nlam, d=1.0 / nlam)
-    Et = np.exp(1j * np.outer(np.asarray(th).ravel(), kt))
-    El = np.exp(1j * np.outer(np.asarray(lam).ravel() + np.pi, kl))
-    out = np.real(np.einsum("pk,kl,pl->p", Et, C, El))
-    return out.reshape(np.shape(lam))
+def run(data_path, output_dir=None):
+    """Execute the literal source computations and save figures in source order."""
+    data_path = Path(data_path)
+    if hashlib.sha256(data_path.read_bytes()).hexdigest() != _DATA_SHA256:
+        raise ValueError("AtmosphericData.mat must match Chebfun examples f4b9ea46")
+    output_dir = Path(output_dir) if output_dir else _ROOT / "docs/images/sphere"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    chebfun_style()
+    figure_number = 0
 
+    def save(fig):
+        nonlocal figure_number
+        figure_number += 1
+        fig.set_facecolor("white")
+        save_chebfun_figure(
+            fig, output_dir / f"AtmosphericTemperature_{figure_number:02d}.png",
+            size=(600, 270),
+        )
+        plt.close(fig)
 
-def _sphere_plot(fun, title="", view=(0, 50), n=280, cmap="jet",
-                 clim=None):
-    FIG[0] += 1
-    lam = np.linspace(-np.pi, np.pi, n)
-    th = np.linspace(0, np.pi, n)
-    L, T = np.meshgrid(lam, th)
-    V = fun(L, T)
-    fig, ax = plt.subplots(figsize=(7.2, 5.6),
-                           subplot_kw={"projection": "3d"})
-    X, Y, Z = (np.cos(L) * np.sin(T), np.sin(L) * np.sin(T), np.cos(T))
-    lo, hi = clim if clim else (V.min(), V.max())
-    W = np.clip((V - lo) / (hi - lo + 1e-300), 0, 1)
-    ax.plot_surface(X, Y, Z, facecolors=plt.get_cmap(cmap)(W),
-                    rstride=1, cstride=1, linewidth=0,
-                    antialiased=False)
-    ax.set_box_aspect((1, 1, 1))
-    ax.view_init(*view)
-    ax.set_axis_off()
-    if title:
-        ax.set_title(title)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"AtmosphericTemperature_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    def surface(fun, title="", *, colorbar=False, method="surf"):
+        # Public mappable carries the exact surface data and color normalization.
+        fig, ax, mappable = getattr(fun, method)(
+            n_pts=200, cmap="jet", return_mappable=True,
+        )
+        if colorbar:
+            fig.colorbar(mappable, ax=ax)
+        ax.set_axis_off()
+        matlab_view(ax, 50, 0)
+        plot_earth(ax, "k-")
+        if title:
+            ax.set_title(title)
+        save(fig)
 
+    # Native lines 28-44: Kelvin constructor, surface and object display.
+    temperature = np.asarray(loadmat(data_path)["Temp"], dtype=float)
+    f = Spherefun.from_values(temperature)
+    surface(f, colorbar=True)
+    _print_source_spherefun_display(f)
 
-def run():
-    os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
+    # Native lines 59-70. Cartesian poles map exactly to these spherical angles.
+    f = f - 273.15
+    _print_source_ans(f.mean2())
+    _print_source_ans(f(0.0, 0.0))
+    _print_source_ans(f(0.0, np.pi))
 
-    Temp = _load_temp()
-    C = _dfs_coeffs(Temp)
-    print("dataset:", Temp.shape)
-
-    f = lambda L, T: _dfs_eval(C, L, T)  # noqa: E731
-    _sphere_plot(f, view=(0, 50))
-
-    # Celsius; mean over the sphere (integrate f sin(theta)).
-    C0 = C.copy()
-    Cc = C0.copy()
-    Cc[0, 0] -= 273.15
-
-    fc = lambda L, T: _dfs_eval(Cc, L, T)  # noqa: E731
-    nq = 180
-    from numpy.polynomial.legendre import leggauss
-    xg, wg = leggauss(nq)
-    thq = np.arccos(xg)
-    lamq = -np.pi + 2 * np.pi * np.arange(2 * nq) / (2 * nq)
-    LQ, TQ = np.meshgrid(lamq, thq)
-    FV = fc(LQ, TQ)
-    mean2 = float(np.sum(FV * wg[:, None]) * (2 * np.pi / (2 * nq))
-                  / (4 * np.pi))
-    print("mean2(f) =")
-    print(f"  {mean2:.15f}")
-    print("f(North pole) =")
-    print(f"   {float(fc(0.0, 0.0)):.15f}")
-    print("f(South pole) =")
-    print(f" {float(fc(0.0, np.pi)):.15f}")
-
-    # Equator slice.
-    FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    lamg = np.linspace(-np.pi, np.pi, 1200)
-    ax.plot(lamg, fc(lamg, np.pi / 2 * np.ones_like(lamg)), lw=1.4)
+    # Public MATLAB argument-stream adapter uses the native plotData grid.
+    fig, ax = matlab_plot(f.slice_theta(np.pi / 2))
     ax.set_xlabel(r"Longitude, $\lambda$")
     ax.set_ylabel("Temperature (Celsius)")
-    ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"AtmosphericTemperature_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    save(fig)
 
-    # Zonal mean (mean over lambda as a function of theta).
-    FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    thg = np.linspace(0, np.pi, 800)
-    zon = np.real(np.array(
-        [_dfs_eval(Cc[:, :1] * 0 + Cc, np.full(1, 0.0), np.array([t]))
-         for t in thg]).ravel())
-    # zonal mean = lambda-DC Fourier mode
-    Cz = np.zeros_like(Cc)
-    Cz[:, 0] = Cc[:, 0]
-    zon = _dfs_eval(Cz, np.zeros_like(thg), thg)
-    ax.plot(thg, zon, lw=1.6)
-    ax.set_xlim(0, np.pi)
+    fig, ax = f.contour(levels=np.arange(-40, 41, 5), n_pts=200, linewidth=2.0)
+    ax.set_axis_off()
+    matlab_view(ax, 50, 5)
+    plot_earth(ax, "k-")
+    save(fig)
+
+    zonal_mean = f.mean(dim=2)
+    fig, ax = matlab_plot(zonal_mean)
+    ax.set_xlim(0.0, np.pi)
     ax.set_xlabel(r"Co-latitude, $\theta$")
     ax.set_ylabel("Temperature (Celsius)")
-    ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"AtmosphericTemperature_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    save(fig)
 
-    # Steady heat: Poisson solve on the mean-free data (harmonic space).
-    from chebfunjax.spherefun.spherefun import _real_ylm_values
-    LMAXP = 60
-    co = {}
-    for l in range(1, LMAXP + 1):
-        for m in range(-l, l + 1):
-            Y = np.asarray(_real_ylm_values(
-                l, m, LQ.ravel(), TQ.ravel())).reshape(LQ.shape)
-            c = float(np.sum((FV - mean2) * Y * wg[:, None])
-                      * (2 * np.pi / (2 * nq)))
-            if abs(c) > 1e-10:
-                co[(l, m)] = c / (l * (l + 1))   # -lap u = rhs
+    # Requested sizes come from the Celsius function, not its resampled RHS.
+    n, m = f.length()
+    steady_heat = Spherefun.poisson(-(f - f.mean2()), 0, m, n)
+    surface(f, "Original dataset", method="plot")
+    surface(steady_heat, "Steady Heat", method="plot")
 
-    def heat(Lg, Tg):
-        out = np.zeros(np.shape(Lg))
-        for (l, m), cc in co.items():
-            out = out + cc * np.asarray(_real_ylm_values(l, m, Lg, Tg))
-        return out
+    sig = np.asarray([2, 10, 20]) * np.pi / 180
+    surface(f, "Original Temp.")
+    for sigma, degrees in zip(sig, (2, 10, 20), strict=True):
+        fsmooth = f.gaussfilt(sigma)
+        surface(fsmooth, rf"Smoothed Temp., $\sigma$={degrees} degrees")
 
-    _sphere_plot(fc, "Original dataset", view=(0, 50))
-    _sphere_plot(heat, "Steady Heat", view=(0, 50))
 
-    # Gaussian filtering at sigma = 2, 10, 20 degrees.
-    for sig in np.array([2, 10, 20]) * np.pi / 180:
-        LMAXF = min(int(6 / sig), 200)
-        cof = {}
-        for l in range(0, LMAXF + 1):
-            damp = np.exp(-l * (l + 1) * sig**2 / 2)
-            if damp < 1e-8:
-                break
-            for m in range(-l, l + 1):
-                Y = np.asarray(_real_ylm_values(
-                    l, m, LQ.ravel(), TQ.ravel())).reshape(LQ.shape)
-                c = float(np.sum(FV * Y * wg[:, None])
-                          * (2 * np.pi / (2 * nq)))
-                if abs(c) > 1e-10:
-                    cof[(l, m)] = c * damp
+def _resolve_data(data_path=None):
+    """Retain the standalone cache contract with pinned, verified downloads."""
+    if data_path is not None:
+        return Path(data_path)
+    cache = _ROOT / ".atmospheric_data.mat"
+    if not cache.exists():
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                dir=_ROOT, prefix=".atmospheric_data.", suffix=".mat", delete=False,
+            ) as stream:
+                temporary = Path(stream.name)
+                with urllib.request.urlopen(_MAT_URL) as response:
+                    while block := response.read(1024 * 1024):
+                        stream.write(block)
+            if hashlib.sha256(temporary.read_bytes()).hexdigest() != _DATA_SHA256:
+                raise ValueError("AtmosphericData.mat must match Chebfun examples f4b9ea46")
+            temporary.replace(cache)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+    if hashlib.sha256(cache.read_bytes()).hexdigest() != _DATA_SHA256:
+        raise ValueError("AtmosphericData.mat must match Chebfun examples f4b9ea46")
+    return cache
 
-        def fsm(Lg, Tg, _co=cof):
-            out = np.zeros(np.shape(Lg))
-            for (l, m), cc in _co.items():
-                out = out + cc * np.asarray(
-                    _real_ylm_values(l, m, Lg, Tg))
-            return out
 
-        _sphere_plot(fsm,
-                     f"Smoothed Temp., $\\sigma$="
-                     f"{sig * 180 / np.pi:g} degrees", view=(0, 50))
-        print(f"sigma={sig * 180 / np.pi:g} deg done", flush=True)
+def main(argv=None):
+    """Run the example with the original no-argument cache behavior."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data", default=os.environ.get("ATMOSPHERIC_DATA"))
+    parser.add_argument("--output", type=Path, default=None)
+    args = parser.parse_args(argv)
+    run(_resolve_data(args.data), args.output)
 
 
 if __name__ == "__main__":
-    run()
+    main()

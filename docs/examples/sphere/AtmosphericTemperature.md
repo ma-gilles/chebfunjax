@@ -39,7 +39,11 @@ f
 ```
 
 ```text
+f =
 
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere     185          3.1e+02
 ```
 
 Spherefun calculated the rank of $f$ as 185. Since the dataset is of size 529x1024, this shows that the low rank representation is achieving some useful compression of the original dataset, although the results are not as dramatic as one often sees for smooth functions (see [2] for more detailed discussions).
@@ -59,7 +63,9 @@ mean2( f )
 ```
 
 ```text
+ans =
 
+  16.367643667365964
 ```
 
 What is the temperature at the North and South poles?
@@ -70,7 +76,13 @@ f( 0, 0, -1) % South pole
 ```
 
 ```text
+ans =
 
+   0.624920062687916
+
+ans =
+
+ -44.513990845477110
 ```
 
 This confirms that the atmospheric temperature data was taken during summer in the Northern hemisphere.
@@ -154,7 +166,7 @@ end
 
 ![AtmosphericTemperature figure 08](../../images/sphere/AtmosphericTemperature_08.png)
 
-*(Figure 09 of the original page is not reproduced yet.)*
+![AtmosphericTemperature figure 09](../../images/sphere/AtmosphericTemperature_09.png)
 
 ![AtmosphericTemperature figure 10](../../images/sphere/AtmosphericTemperature_10.png)
 

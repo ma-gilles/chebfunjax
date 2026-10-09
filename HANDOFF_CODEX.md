@@ -1,5 +1,38 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Atmospheric full source execution and numeric construction (2026-10-09)
+
+AtmosphericTemperature now executes the original dataset through public
+Spherefun construction, mean/slices, Poisson and three Gaussian filters.
+The complete fresh CPU run generated all10 figures at600x270 in194.23s,
+peak4.27GiB; root rehashed3053 observed files, stable inputs/no survivors.
+A prior run crashed after9figures during a periodic traceback dump; matched
+replay without that watchdog passed. This supports an observer-race hypothesis,
+not a proven causal diagnosis. Six mocked CLI/cache controls also pass; root
+rehashed2999 files. Noargs cache/download behavior is retained with immutable
+input URL/SHA verification; numerical run/display ASTs are unchanged.
+
+This is a verified source computation replacement, NOT full page parity.
+All published MATLAB cells/prose remain, four output cells use actual stdout,
+and the missing09 image is restored. Coast/contour painter order, clipped
+labels/titles, globe framing and surface striping remain under repair.
+Historical MATLAB mean commit eecdfb505040f941b324b6468316088088a88e43
+corrected s/2*pi to s/(2*pi), explaining a plausible pi-squared reference04
+scale discrepancy; exact historical image-generation revision is unbound.
+Poisson historical changes/reference06 remain under investigation. Do not
+rescale current correct computations merely to fit historical reference PNGs.
+Evidence: atmospheric_page_source_20261009/FULL_PAGE_EXECUTION_HANDOFF.json,
+CLI_HANDOFF.json and atmospheric_page_source_root_integration_20261009.json.
+
+Numeric constructor commit bc365398 passes93 composite controls: selected
+session technology, full-domain numeric samples, own-grid nonfinite
+extrapolation, native unbounded nonzero rejection and realdouble zero
+operators (including Trigtech). Existing modifier routes and finite low-level
+Tech transforms remain unchanged. Zero-operator preference forwarding and
+low-level nonfinite API still have documented gaps. Fullsuite, all322pages,
+native execution, publication and exact-head CI remain open.
+
+
 ## Continuous Lebesgue, concatenation and contour follow-through (2026-10-09)
 
 The new public `chebfunjax.lebesgue` constructs a continuous piecewise
