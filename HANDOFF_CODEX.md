@@ -1,5 +1,41 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Original-grid roots normalization (2026-10-09)
+
+Public Chebtech1/2 roots now divide by native vscale from the original
+representation grid, separately for each array column. Constant shortcuts
+precede scale evaluation. No denominator floor or fallback is introduced.
+The coefficient-only private resultant caller retains its previous policy;
+inherited host trimming/eig/QZ and other roots options remain open gaps.
+
+145 acceptance checks passed across11 gates, plus2 explicitly diagnostic
+nonfinite cases. These cover original-grid/constant/column behavior, source
+roots, count boundaries through4001, mapped roots and inverse behavior.
+Root independently rehashed each gate's observed runtime files; all final
+gates terminal0, stable, uncensored, no survivors. Native tolerances unchanged.
+
+Four matched CPU measurement arms were run serially while other numerical
+workers paused. First calls AFTER setup, inverse baseline/candidate:
+16.8709/16.6170s; derivative roots8.9189/9.0256s. Five-call warm medians:
+inverse0.727106/0.701232s; derivative roots0.130914/0.124562s. Samples overlap;
+these observations do not establish a speed gain. Setup had already compiled
+shared work; these are neither pristine cold timings nor MATLAB comparisons.
+Both inverse roundtrips retain1.0547118733938987e-15 error (<1e-10 bound).
+Root independently verified2958 runtime files for each measurement arm.
+A separately bound posttiming comparison confirms62 inverse and8 derivative
+pipeline capture arrays are byte-identical across arms; root also compared
+these raw bytes independently. Normalized engine inputs differ intentionally
+under the corrected scale, changing some internal trimming counts without
+changing these measured outputs. The unchanged native correctness bounds,
+not cross-arm identity, remain the acceptance criteria.
+
+Evidence: roots_vscale_source_20261009/correctness_packet_v1.json,
+roots_vscale_full_root_review_20261009.json and
+roots_vscale_measurement_root_review_20261009.json in shared goal scratch.
+Full-suite regression, all-page parity, native execution, push and exact-head
+CI remain unresolved.
+
+
 ## Native anonymous multiplication assignment (2026-10-09)
 
 Chebop.nativeAnonymous explicitly preserves native * versus .* syntax and captured bindings. Op/BC assignment compiles tags using the instance vectorize flag, initialized from current ChebopPref. Ordinary Python callbacks and legacy constructor strings retain their algorithms. Actual AD mtimes now exposes its literal identifier through a compatible ValueError subclass.

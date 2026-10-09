@@ -1305,7 +1305,8 @@ def _roots_subdivide(c):
 
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
-                     recurse: bool = True) -> jax.Array:
+                     recurse: bool = True, *,
+                     normalization_scale: float | jax.Array | None = None) -> jax.Array:
     import numpy as np
     """Find roots of a Chebyshev expansion in [-1, 1].
 
@@ -1325,6 +1326,10 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
       problem for the whole series (MATLAB ``'recurse'``, 0).
 
     MATLAB's ``'complex'`` flag is exactly ``all_roots=True, prune=True``.
+
+    ``normalization_scale`` is supplied only by public Tech callers from
+    their original representation-grid vscale. The coefficient-only default
+    preserves the separate resultant backend's established policy.
 
     NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -1354,11 +1359,18 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     # length(f) for the top-level prune radius (MATLAB uses numel(coeffs)).
     length_f = c.shape[0]
 
-    # Normalize
-    vscl = np.max(np.abs(c))
-    if vscl == 0.0:
-        return jnp.array([0.0], dtype=jnp.float64)
-    c_scaled = c / vscl
+    # Public Tech callers supply their own-grid vscale, as in native
+    # roots_scalar. Coefficient-only callers (notably the separate resultant
+    # backend) retain their established max-coefficient normalization.
+    if normalization_scale is None:
+        vscl = np.max(np.abs(c))
+        if vscl == 0.0:
+            return jnp.array([0.0], dtype=jnp.float64)
+        c_scaled = c / vscl
+    else:
+        # Preserve source division, including zero/nonfinite outcomes. There
+        # is no denominator floor or fallback to coefficient scaling.
+        c_scaled = np.asarray(jnp.asarray(c) / jnp.asarray(normalization_scale))
 
     r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
                     prune=prune, recurse=recurse)
@@ -3937,8 +3949,11 @@ class Chebtech2(eqx.Module):
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m does exactly this)
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], **kw))
-                    for j in range(self.coeffs.shape[1])]
+            # Native mat2cell -> roots_scalar keeps each column's original
+            # Tech grid for vscale and applies its constant shortcut first.
+            cols = [_np.asarray(type(self)(
+                        coeffs=self.coeffs[:, j], ishappy=self.ishappy
+                    ).roots(**kw)) for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
             dt = (_np.complex128
                   if any(_np.iscomplexobj(c) for c in cols) else float)
@@ -3946,7 +3961,14 @@ class Chebtech2(eqx.Module):
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs, **kw)
+        # Native roots_scalar returns constants before asking for vscale.
+        if self.n == 1:
+            return (jnp.asarray([0.], dtype=jnp.float64)
+                    if bool(self.coeffs[0] == 0)
+                    else jnp.empty((0,), dtype=jnp.float64))
+        # The n == 0 coefficient-only compatibility path is unchanged.
+        scale = self.vscale if self.n > 1 else None
+        return _roots_colleague(self.coeffs, normalization_scale=scale, **kw)
 
     def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
         """Global minimum and maximum of the function on [-1, 1].
@@ -5432,8 +5454,11 @@ class Chebtech1(eqx.Module):
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], **kw))
-                    for j in range(self.coeffs.shape[1])]
+            # Native mat2cell -> roots_scalar keeps each column's original
+            # Tech grid for vscale and applies its constant shortcut first.
+            cols = [_np.asarray(type(self)(
+                        coeffs=self.coeffs[:, j], ishappy=self.ishappy
+                    ).roots(**kw)) for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
             dt = (_np.complex128
                   if any(_np.iscomplexobj(c) for c in cols) else float)
@@ -5441,7 +5466,14 @@ class Chebtech1(eqx.Module):
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs, **kw)
+        # Native roots_scalar returns constants before asking for vscale.
+        if self.n == 1:
+            return (jnp.asarray([0.], dtype=jnp.float64)
+                    if bool(self.coeffs[0] == 0)
+                    else jnp.empty((0,), dtype=jnp.float64))
+        # The n == 0 coefficient-only compatibility path is unchanged.
+        scale = self.vscale if self.n > 1 else None
+        return _roots_colleague(self.coeffs, normalization_scale=scale, **kw)
 
     # ------------------------------------------------------------------
     # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)
