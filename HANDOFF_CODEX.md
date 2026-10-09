@@ -1,5 +1,26 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Operator preference factory and complete native test (2026-10-09)
+
+Restored top-level scale=NaN, lambdaMin=1e-6 and happinessCheck factory fields.
+The happiness selector retains the existing Python string representation;
+independent operator defaults no longer inherit technology-check overrides.
+The canonical preference test now preserves all ten native predicates, including
+an explicit NaN-aware comparison of represented preference state.
+
+Nine CPU cases passed: eight focused controls and the ten-predicate canonical
+case. Root verified exact tested payloads, JUnit names and 2929 runtime files;
+the process closed uncensored with no survivors. Full Ruff/F821 and provenance
+checks passed. These tests exercise preference state, not numerical solvers.
+
+Native callable identity, entry-specific parser rules, flat object shape and
+solver consumption of scale/lambdaMin remain incomplete. Existing default
+solver read-values are unchanged; no new combined solver run is claimed.
+
+Evidence: cheboppref_factory_source_plan_20261009/DELIVERY_v1.json and
+cheboppref_factory_root_runtime_review_20261009.json /
+cheboppref_factory_root_results_review_20261009.json in shared scratch.
+
 ## CPU inverse compilation reduction (2026-10-09)
 
 Default colleague roots now compile matrix construction with input checks, then

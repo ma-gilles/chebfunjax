@@ -435,6 +435,9 @@ class ChebopPref(ChebfunPref):
     Chebfun commit: 7574c77
     """
 
+    # Native factory @cheboppref/cheboppref.m459-476. The existing Python
+    # selector "standard" represents @standardCheck; arbitrary native handle
+    # invocation and entry-specific alias parsing are not implemented here.
     _defaults: "ChebopPref | None" = None
 
     def __init__(self, src=None, **kwargs):
@@ -443,7 +446,9 @@ class ChebopPref(ChebfunPref):
         super().__init__(src if isinstance(src, ChebfunPref) else None)
         top = self.__dict__["_top"]
         for k, v in (("discretization", "values"),
-                     ("bvpTol", 5e-13), ("minDimension", 32),
+                     ("bvpTol", 5e-13), ("scale", float("nan")),
+                     ("lambdaMin", 1e-6), ("happinessCheck", "standard"),
+                     ("minDimension", 32),
                      ("maxDimension", 4096), ("ivpAbsTol", 1e5 * _EPS),
                      ("ivpRelTol", 100 * _EPS), ("ivpRestartSolver", True),
                      ("damping", True),
