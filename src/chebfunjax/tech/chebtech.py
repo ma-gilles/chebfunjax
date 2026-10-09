@@ -3822,6 +3822,9 @@ class Chebtech2(eqx.Module):
                     ishappy=self.ishappy)
             return Chebtech2(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
                              ishappy=self.ishappy)
+        if k >= self.coeffs.shape[0]:
+            return Chebtech2.from_values(jnp.zeros(
+                (1,) + self.coeffs.shape[1:], dtype=jnp.float64))
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
@@ -5364,6 +5367,9 @@ class Chebtech1(eqx.Module):
                     ishappy=self.ishappy)
             return Chebtech1(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
                              ishappy=self.ishappy)
+        if k >= self.coeffs.shape[0]:
+            return Chebtech1.from_values(jnp.zeros(
+                (1,) + self.coeffs.shape[1:], dtype=jnp.float64))
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 

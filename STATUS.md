@@ -1,5 +1,27 @@
 # Parity status — 2026-10-09
 
+## High-order derivatives and polynomial preprocessing (2026-10-09)
+
+Chebtech1/2 now return a fresh resolved real-double zero when derivative order
+reaches the stored coefficient count, matching diff.m. The ordinary recurrence
+is unchanged. Ten controls pass, including huge orders bypassing recurrence,
+column shape, happiness reset, JIT and coefficient derivatives. Root verified
+2,929 runtime files; peak RSS was 638,504KiB. Finite-dimension exhaustion's
+empty metadata remains an inherited gap.
+
+Added an eager JAX polynomial-root preprocessing helper: finite/vector checks,
+exact leading/trailing-zero handling, overflow-leading removal, companion
+construction and zero-root prefix. Native zero/constant allocations preserve
+real single/double class; eigenvalue concatenation promotes normally. Twenty-eight
+distinct controls and four dtype rechecks pass; root verified 2,932 runtime files
+per process and unchanged original control ASTs. This helper is not yet wired
+into Trigtech. JAX eigenvalue rounding/order, rank>2 input handling and the
+strict complex-root residual failure remain outside this qualification.
+
+Evidence: diff_polynomial_root_integration_20261009.json and the corresponding
+runtime/source reviews in shared scratch. Full-suite, page and CI gates remain
+open; no native MATLAB execution or complete root parity is claimed.
+
 ## Differentiation early dispatch (2026-10-09)
 
 Chebtech1/2 now return empty inputs before inspecting derivative arguments,
