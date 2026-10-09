@@ -1944,6 +1944,7 @@ class Chebfun(eqx.Module):
         refinement_function: str | Callable | None = None,
         min_samples: int | None = None,
         max_length: int | None = None,
+        check: str = "standard",
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -1993,7 +1994,8 @@ class Chebfun(eqx.Module):
                                          sample_test=sample_test,
                                          refinement_function=refinement_function,
                                          min_samples=min_samples,
-                                         max_length=max_length)
+                                         max_length=max_length,
+                                         check=check)
             funs.append(piece)
         out = cls(funs=funs, domain=domain)
         if all(math.isfinite(x) for x in domain.breakpoints):
@@ -10533,6 +10535,8 @@ def _chebfun_build(
                 _t = Chebtech1.from_function(
                     lambda y, _f=f, _a=_a, _b=_b:
                         _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n,
+                    tol=None if eps is None else float(eps),
+                    turbo=turbo, check=str(_CP().happinessCheck),
                     sample_test=_sample_test,
                     min_samples=min_samples,
                     # constructorSplit overrides the ordinary tech cap.
@@ -11092,7 +11096,8 @@ def _chebfun_build(
                                      refinement_function=refinement_function,
                                      min_samples=min_samples,
                                      max_length=(None if max_length is None
-                                                 else int(max_length)))
+                                                 else int(max_length)),
+                                     check=str(_CP().happinessCheck))
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "
