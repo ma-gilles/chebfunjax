@@ -1305,7 +1305,7 @@ def _roots_subdivide(c):
 
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
-                     recurse: bool = True, *,
+                     recurse: bool = True, *, zero_fun: bool = True,
                      normalization_scale: float | jax.Array | None = None) -> jax.Array:
     import numpy as np
     """Find roots of a Chebyshev expansion in [-1, 1].
@@ -1322,6 +1322,8 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
       (MATLAB ``'all'``).
     * ``prune`` — when ``all_roots`` holds, discard 'spurious' roots by the
       Bernstein-radius test (MATLAB ``'prune'``).
+    * ``zero_fun`` — include the midpoint root for an identically zero
+      representation (MATLAB ``zeroFun``, default True).
     * ``recurse`` — when ``False``, never subdivide; solve one colleague
       problem for the whole series (MATLAB ``'recurse'``, 0).
 
@@ -1365,7 +1367,7 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     if normalization_scale is None:
         vscl = np.max(np.abs(c))
         if vscl == 0.0:
-            return jnp.array([0.0], dtype=jnp.float64)
+            return jnp.asarray([0.] if zero_fun else [], dtype=jnp.float64)
         c_scaled = c / vscl
     else:
         # Preserve source division, including zero/nonfinite outcomes. There
@@ -1373,7 +1375,7 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
         c_scaled = np.asarray(jnp.asarray(c) / jnp.asarray(normalization_scale))
 
     r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
-                    prune=prune, recurse=recurse)
+                    prune=prune, recurse=recurse, zero_fun=zero_fun)
 
     # Prune the roots if requested (MATLAB prunes at the top level only when
     # recurse is off; with recursion the per-leaf prune already ran).
@@ -1452,7 +1454,7 @@ def _roots_default_eigenvalues(c):
 
 
 def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
-                prune: bool = False, recurse: bool = True):
+                prune: bool = False, recurse: bool = True, zero_fun: bool = True):
     import numpy as np
     """Host-driven recursive root-finding engine (not JIT-safe).
 
@@ -1470,14 +1472,15 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
     tail_max = 5.0 * np.finfo(np.float64).eps * np.linalg.norm(c, 1)
     idx = np.where(np.abs(c) > tail_max)[0]
     if idx.size == 0:
-        return np.array([0.0])
+        return jax.device_get(jnp.asarray(
+            [0.] if zero_fun else [], dtype=jnp.float64)).copy()
     n = int(idx[-1]) + 1
     c = c[:n]
 
     # Trivial cases
     if n == 1:
-        if c[0] == 0.0:
-            return np.array([0.0])
+        if zero_fun and c[0] == 0.0:
+            return jax.device_get(jnp.asarray([0.], dtype=jnp.float64)).copy()
         return np.array([], dtype=np.float64)
 
     if n == 2:
@@ -1551,9 +1554,9 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
 
     # Recurse
     r_left = _roots_main(c_left, 2.0 * htol, qz=qz, all_roots=all_roots,
-                         prune=prune, recurse=recurse)
+                         prune=prune, recurse=recurse, zero_fun=zero_fun)
     r_right = _roots_main(c_right, 2.0 * htol, qz=qz, all_roots=all_roots,
-                          prune=prune, recurse=recurse)
+                          prune=prune, recurse=recurse, zero_fun=zero_fun)
 
     # Map back to original interval
     r_left_mapped = (SPLIT_POINT - 1.0) / 2 + (SPLIT_POINT + 1.0) / 2 * r_left
@@ -3958,7 +3961,7 @@ class Chebtech2(eqx.Module):
 
     def roots(self, qz: bool = False, *, complex_roots: bool = False,
               all_roots: bool = False, prune: bool = False,
-              recurse: bool = True) -> jax.Array:
+              recurse: bool = True, zero_fun: bool = True) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe (variable output size, recursive subdivision).
@@ -3986,6 +3989,10 @@ class Chebtech2(eqx.Module):
             MATLAB's ``'recurse'``: when False, never subdivide; solve one
             colleague eigenproblem for the whole series.
 
+        zero_fun : bool, default True
+            MATLAB ``zeroFun``: include a midpoint root for the zero function.
+            When False, the zero-function branches return no roots.
+
         Returns
         -------
         jax.Array, shape (n_roots,)
@@ -4012,7 +4019,8 @@ class Chebtech2(eqx.Module):
         if complex_roots:
             all_roots = True
             prune = True
-        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse)
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
+                  zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m does exactly this)
@@ -4032,7 +4040,7 @@ class Chebtech2(eqx.Module):
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
             return (jnp.asarray([0.], dtype=jnp.float64)
-                    if bool(self.coeffs[0] == 0)
+                    if zero_fun and bool(self.coeffs[0] == 0)
                     else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
@@ -5502,12 +5510,12 @@ class Chebtech1(eqx.Module):
 
     def roots(self, qz: bool = False, *, complex_roots: bool = False,
               all_roots: bool = False, prune: bool = False,
-              recurse: bool = True) -> jax.Array:
+              recurse: bool = True, zero_fun: bool = True) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe.  See :meth:`Chebtech2.roots` for the full option
         surface (``qz``, ``complex_roots``, ``all_roots``, ``prune``,
-        ``recurse``) mirroring MATLAB ``@chebtech/roots.m``.
+        ``recurse``, ``zero_fun``) mirroring MATLAB ``@chebtech/roots.m``.
 
         Provenance
         ----------
@@ -5517,7 +5525,8 @@ class Chebtech1(eqx.Module):
         if complex_roots:
             all_roots = True
             prune = True
-        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse)
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
+                  zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
@@ -5537,7 +5546,7 @@ class Chebtech1(eqx.Module):
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
             return (jnp.asarray([0.], dtype=jnp.float64)
-                    if bool(self.coeffs[0] == 0)
+                    if zero_fun and bool(self.coeffs[0] == 0)
                     else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
