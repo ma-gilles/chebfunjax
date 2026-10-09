@@ -4046,93 +4046,19 @@ class Chebtech2(eqx.Module):
         scale = self.vscale if self.n > 1 else None
         return _roots_colleague(self.coeffs, normalization_scale=scale, **kw)
 
-    def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
-        """Global minimum and maximum of the function on [-1, 1].
+    def minandmax(self):
+        """Native continuous extrema and locations; roots remain eager.
 
-        Returns the global minimum and maximum values together with the
-        positions at which they are achieved.  Computed by finding the roots
-        of the derivative and evaluating at those interior critical points as
-        well as at the endpoints.
-
-        NOT JIT-safe (depends on rootfinding which has variable output size).
-
-        Returns
-        -------
-        (min_val, min_pos) : tuple[jax.Array, jax.Array]
-            Global minimum value and the x-position where it is achieved.
-        (max_val, max_pos) : tuple[jax.Array, jax.Array]
-            Global maximum value and the x-position where it is achieved.
+        Preserves constant midpoint, first-index ties, grid-minimum safeguard,
+        complex magnitude ordering and the pinned source maximum-check quirk.
 
         Provenance
         ----------
         MATLAB source : @chebtech/minandmax.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        roots, diff
         """
-        import numpy as _np
-
-        if jnp.iscomplexobj(self.coeffs):
-            # Complex-valued: extrema of |f| located via |f|^2 (avoids
-            # the abs singularity), values are f at those positions
-            # (MATLAB @chebtech/minandmax.m lines 23-36).
-            realf = self.real()
-            imagf = self.imag()
-            h = (realf * realf + imagf * imagf).simplify()
-            (_, min_pos), (_, max_pos) = h.minandmax()
-            if self.coeffs.ndim == 2:
-                # f(pos) is (m, m); the diagonal pairs column k with
-                # its own extremum position (MATLAB's stride trick).
-                min_val = jnp.diagonal(self(jnp.atleast_1d(min_pos)))
-                max_val = jnp.diagonal(self(jnp.atleast_1d(max_pos)))
-            else:
-                min_val = self(min_pos)
-                max_val = self(max_pos)
-            return (min_val, min_pos), (max_val, max_pos)
-
-        if self.coeffs.ndim == 2:
-            # Array-valued: extremum per column (MATLAB
-            # @chebtech/minandmax.m returns 2 x m values/positions)
-            per_col = [
-                Chebtech2(coeffs=self.coeffs[:, j],
-                          ishappy=self.ishappy).minandmax()
-                for j in range(self.coeffs.shape[1])
-            ]
-            min_val = jnp.stack([p[0][0] for p in per_col])
-            min_pos = jnp.stack([p[0][1] for p in per_col])
-            max_val = jnp.stack([p[1][0] for p in per_col])
-            max_pos = jnp.stack([p[1][1] for p in per_col])
-            return (min_val, min_pos), (max_val, max_pos)
-
-        # Compute turning points (roots of derivative)
-        fp = self.diff()
-        r = fp.roots()
-
-        # Include endpoints
-        endpoints = jnp.array([-1.0, 1.0], dtype=jnp.float64)
-        if r.shape[0] > 0:
-            candidates = jnp.concatenate([endpoints, r])
-        else:
-            candidates = endpoints
-
-        # Evaluate at all candidate points
-        v = self(candidates)
-        v_np = _np.array(v)
-        cand_np = _np.array(candidates)
-
-        min_idx = int(_np.argmin(v_np))
-        max_idx = int(_np.argmax(v_np))
-
-        min_val = jnp.array(v_np[min_idx], dtype=jnp.float64)
-        max_val = jnp.array(v_np[max_idx], dtype=jnp.float64)
-        min_pos = jnp.array(cand_np[min_idx], dtype=jnp.float64)
-        max_pos = jnp.array(cand_np[max_idx], dtype=jnp.float64)
-
-        return (min_val, min_pos), (max_val, max_pos)
+        from chebfunjax.tech._chebtech_extrema import minandmax
+        return minandmax(self, kind=2)
 
     def min(self) -> tuple[jax.Array, jax.Array]:
         """Global minimum of the function on [-1, 1].
@@ -5680,59 +5606,15 @@ class Chebtech1(eqx.Module):
         return Chebtech1(coeffs=new_coeffs, ishappy=self.ishappy)
 
     def minandmax(self):
-        """Global minimum and maximum on [-1, 1] with their positions.
-
-        NOT JIT-safe.
+        """Native continuous extrema and locations; roots remain eager.
 
         Provenance
         ----------
         MATLAB source : @chebtech/minandmax.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-
-        if jnp.iscomplexobj(self.coeffs):
-            realf = self.real()
-            imagf = self.imag()
-            h = (realf * realf + imagf * imagf).simplify()
-            (_, min_pos), (_, max_pos) = h.minandmax()
-            if self.coeffs.ndim == 2:
-                min_val = jnp.diagonal(self(jnp.atleast_1d(min_pos)))
-                max_val = jnp.diagonal(self(jnp.atleast_1d(max_pos)))
-            else:
-                min_val = self(min_pos)
-                max_val = self(max_pos)
-            return (min_val, min_pos), (max_val, max_pos)
-
-        if self.coeffs.ndim == 2:
-            per_col = [
-                Chebtech1(coeffs=self.coeffs[:, j],
-                          ishappy=self.ishappy).minandmax()
-                for j in range(self.coeffs.shape[1])
-            ]
-            min_val = jnp.stack([p[0][0] for p in per_col])
-            min_pos = jnp.stack([p[0][1] for p in per_col])
-            max_val = jnp.stack([p[1][0] for p in per_col])
-            max_pos = jnp.stack([p[1][1] for p in per_col])
-            return (min_val, min_pos), (max_val, max_pos)
-
-        fp = self.diff()
-        r = fp.roots()
-        endpoints = jnp.array([-1.0, 1.0], dtype=jnp.float64)
-        if r.shape[0] > 0:
-            candidates = jnp.concatenate([endpoints, r])
-        else:
-            candidates = endpoints
-        v = self(candidates)
-        v_np = _np.array(v)
-        cand_np = _np.array(candidates)
-        min_idx = int(_np.argmin(v_np))
-        max_idx = int(_np.argmax(v_np))
-        min_val = jnp.array(v_np[min_idx], dtype=jnp.float64)
-        max_val = jnp.array(v_np[max_idx], dtype=jnp.float64)
-        min_pos = jnp.array(cand_np[min_idx], dtype=jnp.float64)
-        max_pos = jnp.array(cand_np[max_idx], dtype=jnp.float64)
-        return (min_val, min_pos), (max_val, max_pos)
+        from chebfunjax.tech._chebtech_extrema import minandmax
+        return minandmax(self, kind=1)
 
     def min(self):
         """Global minimum on [-1, 1]. NOT JIT-safe.

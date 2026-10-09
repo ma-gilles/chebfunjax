@@ -154,7 +154,8 @@ class TestChebtechMinAndMax:
         ref = np.abs(np.array(
             [[complex(mn1), complex(mn2)],
              [complex(mx1), complex(mx2)]]))
-        assert np.max(np.abs(vals - ref)) < 1e2 * f.vscale * EPS
+        # Native pass(n,7) uses matrix infinity norm: maximum row sum.
+        assert np.linalg.norm(vals - ref, ord=np.inf) < 1e2 * f.vscale * EPS
 
     def test_minmax_complex_array_pos(self, Tech):
         # pass(n, 8): complex array-valued minandmax (position of the

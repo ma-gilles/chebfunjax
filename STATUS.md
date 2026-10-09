@@ -20,7 +20,7 @@ These are scoped qualifications, not a complete passing suite or exact-head CI.
 ## Remaining gates
 
 - **Tests and functions:** complete semantic coverage and full CPU suite.
-  Exact-commit inventory at `1bacf226` maps all 1,102 native test files:
+  Exact-commit inventory at `ad02a54d` maps all 1,102 native test files:
   1,091 have no literal skip/xfail marker; 11 contain markers. File presence
   is not complete predicate coverage or a passing execution result.
 - **Figures:** fresh audit at `510b3f8a` checks 1,305 mapped image pairs with
@@ -48,9 +48,12 @@ is JAX; inherited Ballfun host numerics and rendering differences remain.
 The shared Trigtech constructor/composition core passes 82 distinct checks,
 including nine original constructor and eleven original composition clauses.
 
+The shared JAX Chebtech extrema policy passes all 16 original C1/C2 predicates
+and 12 focused controls; empty-sentinel and nonfinite edge cases remain open.
+
 Active work: full public constructor context and callback/endpoint semantics;
 JAX Ballfun norms and triple integration with native dimensions and Nyquist
-handling; Gibbs2D continuous extrema and its underlying 1D extrema dependencies.
+handling; Gibbs2D continuous extrema and public constructor dependencies.
 These scoped qualifications are not full-suite or exact-head CI evidence.
 Resource-heavy examples run serially; independent bounded work uses up to
 three worker slots. Work remains CPU-only.

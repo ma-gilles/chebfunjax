@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Shared JAX polynomial extrema policy (2026-10-09)
+
+Chebtech1/2 minandmax now follow the pinned source's constant midpoint,
+[-1; roots; 1] candidate order, strict grid-minimum safeguard and complex
+magnitude ordering with actual complex output values. Stored zero-column
+arrays return empty outputs. The source's maximum-grid MIN quirk is retained.
+The native complex-array test now uses its original matrix infinity norm,
+with the original tolerance unchanged.
+
+All 16 original source predicates pass across C1 and C2, plus 12 focused
+controls. Three fresh bounded CPU processes terminated cleanly; root verified
+runtime hashes, unchanged frozen payloads and unchanged code outside the two
+minandmax methods. New arithmetic uses JAX. Native MATLAB execution, broad
+JIT/AD behavior, NaN/complex-storage edges and ordinary marker-only Tech.empty
+representation remain unqualified. Gibbs2D constructor and optimizer work is
+separate and unfinished. No full-suite, plot, performance or CI claim follows.
+Evidence: gibbs2d_extrema_source_20261009/CHEBTECH_DELIVERY_FINAL_v1.json and
+chebtech_extrema_root_integration_20261009.json in shared scratch.
+
 ## Shared Trigtech constructor and composition core (2026-10-09)
 
 Added the source preference/data, refinement, happiness and sample-check core
