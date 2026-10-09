@@ -2157,7 +2157,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/feval.m
         Chebfun commit: 7574c77
         """
-        if isinstance(x, Chebfun):
+        from .linalg import Quasimatrix
+        if isinstance(x, (Chebfun, Quasimatrix)):
             return self.compose_chebfun(x)
         # MATLAB deltafun/feval: the value AT a (zeroth-order) delta
         # location is +-inf (sign of the magnitude); one-sided limits
@@ -3997,9 +3998,22 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/compose.m
         Chebfun commit: 7574c77
         """
+        import math
+
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
         from chebfunjax.chebpref import ChebfunPref
+        from chebfunjax.fun.singfun import Singfun
         from chebfunjax.tech.trigtech import Trigtech
 
+        from ._composition import compose_object
+
+        handled, result = compose_object(self, op, pref)
+        if handled:
+            return result
+        if isinstance(g, Quasimatrix):
+            # Source mixed array/quasimatrix binary path extracts columns.
+            from chebfunjax.chebfun1d._composition import _columns
+            return Quasimatrix(_columns(self), self.domain).compose(op, g, pref=pref)
         if g is None and pref is None:
             return self._apply_fun(op)
         # Keep explicit periodic options distinct from the Chebyshev factory
@@ -4034,17 +4048,24 @@ class Chebfun(eqx.Module):
                 other = other[..., None]
             values = op(values, other)
         pieces = []
+        new_breaks = [f.domain.breakpoints[0]]
+        new_values = [values[0]]
+        maxpow2 = (int(math.floor(math.log2(max(int(pref.splitPrefs.splitLength)-1, 2))))
+                   if pref.splitting else 16)
         for k, piece in enumerate(f.funs):
             if isinstance(piece.tech, Chebtech2):
                 tech = piece.tech.compose(
                     op, None if g is None else g.funs[k].tech,
                     extrapolate=len(f.funs) > 1 or pref.extrapolate,
-                    tol=pref.chebfuneps)
+                    tol=pref.chebfuneps, maxpow2=maxpow2)
                 pieces.append(piece.with_tech(tech))
             elif isinstance(piece.tech, Trigtech):
                 tech = piece.tech.compose(op, None if g is None else g.funs[k].tech,
                                           pref=trig_pref)
                 pieces.append(piece.with_tech(tech))
+            elif isinstance(piece.tech, Singfun):
+                pieces.append(piece.with_tech(piece.tech.compose(
+                    op, None if g is None else g.funs[k].tech)))
             elif g is None:
                 pieces.append(piece._apply_fun(op))
             else:
@@ -4052,56 +4073,55 @@ class Chebfun(eqx.Module):
                 other_piece = g.funs[k]
                 pieces.append(_Piece.from_function(
                     lambda x, p=piece, q=other_piece: op(p(x), q(x)), a, b))
-        result = Chebfun(funs=pieces, domain=f.domain).set_point_values(values)
+            if pref.splitting and not pieces[-1].ishappy:
+                # Source columnCompose retries an unresolved interval through
+                # the splitting-enabled Chebfun constructor. Old endpoints
+                # retain the independently transformed stored pointValues.
+                def evaluate(x):
+                    left = f(x)
+                    if g is None:
+                        return op(left)
+                    right = g(x)
+                    if left.ndim < right.ndim:
+                        left = left[..., None]
+                    elif right.ndim < left.ndim:
+                        right = right[..., None]
+                    return op(left, right)
+                a, b = piece.interval
+                sub = chebfun(evaluate, domain=(a, b), splitting=True,
+                              split_length=pref.splitPrefs.splitLength,
+                              split_max_length=pref.splitPrefs.splitMaxLength,
+                              eps=pref.chebfuneps, extrapolate=bool(pref.extrapolate),
+                              sample_test=bool(pref.sampleTest))
+                pieces.pop()
+                pieces.extend(sub.funs)
+                new_breaks.extend(sub.domain.breakpoints[1:-1])
+                new_values.extend(sub.point_values[1:-1])
+            new_breaks.append(f.domain.breakpoints[k+1])
+            new_values.append(values[k+1])
+        result = Chebfun(funs=pieces, domain=Domain(new_breaks)).set_point_values(jnp.stack(new_values))
         return Chebfun._as_transposed(result, self.is_transposed)
 
-    def compose_chebfun(self, g: "Chebfun") -> "Chebfun":
-        """Composition f(g): evaluate self at the values of g
-        (MATLAB compose(g, f) / f(g) syntax).
+    def compose_chebfun(self, g):
+        """Return self(g) through the source typed composition dispatch.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/compose.m (chebfun-of-chebfun branch)
+        MATLAB source : @chebfun/compose.m, @chebfun/subsref.m
         Chebfun commit: 7574c77
         """
-        import warnings as _w
+        return g.compose(self)
 
-        import numpy as _np
-        a, b = float(g.domain.a), float(g.domain.b)
+    def isPeriodicTech(self):
+        """Whether the first FUN uses the source periodic technology.
 
-        def h(x):
-            return self(g(x))
-
-        # Kinks of f(g) occur where g crosses a GENUINE kink of f, so
-        # place breakpoints at the roots of g - c (as MATLAB compose
-        # does) instead of bisection splitting; spurious breaks with
-        # no derivative jump are filtered out.
-        breaks = {a, b}
-        breaks.update(float(p.interval[0]) for p in g.funs[1:])
-        if len(self.funs) > 1:
-            fd = self.diff()
-            vs = max(float(self.vscale), 1.0)
-            for i in range(len(self.funs) - 1):
-                c = float(self.funs[i + 1].interval[0])
-                jump = abs(
-                    float(fd.funs[i](jnp.asarray(c)))
-                    - float(fd.funs[i + 1](jnp.asarray(c))))
-                if jump > 1e-7 * vs:
-                    r = _np.asarray((g - c).roots(nojump=True),
-                                    dtype=float).ravel()
-                    breaks.update(
-                        float(t) for t in r if a < t < b)
-        pts = sorted(breaks)
-
-        with _w.catch_warnings():
-            _w.simplefilter("ignore")
-            if len(pts) == 2:
-                return chebfun(h, domain=(a, b))
-            out = chebfun(h, domain=(pts[0], pts[1]))
-            for i in range(1, len(pts) - 1):
-                out = out.join(
-                    chebfun(h, domain=(pts[i], pts[i + 1])))
-            return out
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isPeriodicTech.m
+        Chebfun commit: 7574c77
+        """
+        from ._composition import periodic
+        return periodic(self)
 
     @staticmethod
     def _chebT2U(c):

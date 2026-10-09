@@ -256,6 +256,40 @@ def _invtprod(
     return X
 
 
+def _stored_factor_core(values, factors, points, scales, fallback):
+    """Enforce DEIM interpolation with the actual stored polynomial factors.
+
+    MATLAB ``chebfun3f`` Phase 3 computes the core from QR sample matrices,
+    then transforms and simplifies their columns. In exact arithmetic this
+    is equivalent to using the stored factors at the same DEIM points.
+    Floating-point transforms/chopping can change those values by a few ulps;
+    solving with the stored factors avoids carrying that discrepancy into
+    the represented function. No new callback samples or stopping bounds
+    are used.
+
+    Divide out the original Phase 3 column scaling before solving, keeping
+    the conditioning of the QR interpolation matrices even when a component
+    has very small amplitude. A nonfinite solve retains the source core.
+    This is a numerical adaptation, not MATLAB's literal operation order.
+    """
+    core = jnp.asarray(values)
+    for axis, (columns, nodes, scale) in enumerate(zip(factors, points, scales)):
+        scale = jnp.asarray(scale)
+        matrix = jnp.stack([column(nodes) for column in columns], axis=1)
+        matrix = matrix / scale[None, :]
+        core = jnp.moveaxis(core, axis, 0)
+        shape = core.shape
+        core = jnp.linalg.solve(matrix, core.reshape(shape[0], -1)).reshape(shape)
+        core = jnp.moveaxis(core, 0, axis)
+    for axis, scale in enumerate(scales):
+        shape = [1, 1, 1]
+        shape[axis] = len(scale)
+        core = core / jnp.asarray(scale).reshape(shape)
+    if not bool(jnp.all(jnp.isfinite(core))):
+        return jnp.asarray(fallback)
+    return core
+
+
 def _tprod(
     X: np.ndarray,
     U: np.ndarray,
@@ -1032,7 +1066,15 @@ class Chebfun3(eqx.Module):
                 c = c[:cutoff]
             tubes_list.append(Chebtech2.from_coeffs(c))
 
-        core_jax = jnp.asarray(core_scaled, dtype=jnp.float64)
+        core_jax = _stored_factor_core(
+            T_deim,
+            (cols_list, rows_list, tubes_list),
+            (_phys_to_ref(jnp.asarray(xp_deim), xa, xb),
+             _phys_to_ref(jnp.asarray(yp_deim), ya, yb),
+             _phys_to_ref(jnp.asarray(zp_deim), za, zb)),
+            (col_scaling, row_scaling, tube_scaling),
+            core_scaled,
+        )
 
         result = cls(
             cols=cols_list,
@@ -1084,7 +1126,7 @@ class Chebfun3(eqx.Module):
         Tv = np.stack([_Cnp.chebval(sz, np.asarray(c.coeffs))
                        for c in tubes_list])
         v_fun = np.einsum("ijk,ip,jp,kp->p",
-                          np.asarray(core_scaled), Cv, Rv, Tv)
+                          np.asarray(core_jax), Cv, Rv, Tv)
         sample_err = float(np.max(np.abs(v_op - v_fun)))
         if sample_err <= 10.0 * abs_tol_running:
             return result

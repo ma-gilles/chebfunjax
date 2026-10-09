@@ -1,5 +1,39 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Object and binary composition, stored-factor interpolation (2026-10-08)
+
+All30 original Chebfun-object composition predicates pass in one final CPU
+gate with30 additional controls/regressions (60 total,150.73s pytest).
+Typed Chebfun/quasimatrix/2D/3D/vector dispatch now preserves source errors,
+periodicity, breakpoint preimages and stored point values; g(f) shares the
+public composition route. Binary composition now follows the source splitting
+fallback and preserves old endpoints through newly split intervals. All10
+available original binary predicates pass; source11 is explicitly skipped
+for missing subsequent native seed6178 inputs. The old nonsmooth proxy had
+omitted splitting; its baseline failure remains recorded, and its replacement
+uses the original source preferences, matrix norms and strict tolerances.
+
+The strict 3D periodic composition failure was constructor representation
+roundoff. A JAX correction enforces the same source DEIM equations using the
+stored polynomial factors, with original column scaling removed during solves
+for conditioning. This is a mathematically equivalent numerical adaptation,
+not MATLAB's literal floating-point order. Source28 passes its unchanged10eps
+bound. Independent polynomial/exponential/small-component controls and19
+existing constructor/evaluation/integration regressions also pass; exponential
+roundoff does not uniformly improve. Original factor endpoint storage remains
+a separate fidelity gap.
+
+Composite coverage is97 distinct passing checks, not a full repository suite.
+Root rehashed the final runtime manifest and both binary gates, plus the two
+constructor gates. All accepted runs were terminal with stable inputs and no
+survivors. Mapped native inputs for object11/binary10 are explicitly derived,
+not fresh MATLAB captures. Evidence:composition_root_acceptance_20261008.json,
+compose28_root_acceptance_20261008.json and
+chebfun_compose_source_root_20261008/staged_review.json in shared scratch.
+The latest figure-size audit is76 mismatches across17 pages (1304 mapped
+pairs), plus the existing AtmosphericTemperature mapping hole. Full parity,
+publication and exact-head CI remain open.
+
 ## GulfStream actual-output and figure refresh (2026-10-08)
 
 Source script rerun on CPU completed at83.09s supervised/3.23GiB peak,

@@ -199,6 +199,8 @@ class Quasimatrix:
         MATLAB source : @chebfun/feval.m, columnFeval
         Chebfun commit: 7574c77
         """
+        if isinstance(x, (Chebfun, Quasimatrix)):
+            return x.compose(self)
         x_array = jnp.asarray(x)
         results = [col(x_array) for col in self.cols]
         if x_array.ndim < 2:
@@ -210,6 +212,34 @@ class Quasimatrix:
     # ------------------------------------------------------------------
     # Inner product (continuous L2)
     # ------------------------------------------------------------------
+
+    def compose(self, op, g=None, *, pref=None):
+        """Source componentwise composition and typed operator dispatch.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/compose.m
+        Chebfun commit: 7574c77
+        """
+        from ._composition import _assemble, _columns, compose_object
+        handled, result = compose_object(self, op, pref)
+        if handled:
+            return result
+        others = [None]*len(self.cols) if g is None else _columns(g)
+        if len(others) != len(self.cols):
+            raise ValueError('Composition column counts must agree.')
+        return _assemble([c.compose(op, q, pref=pref) for c, q in zip(self.cols, others)])
+
+    def isPeriodicTech(self):
+        """Periodic technology for every source quasimatrix column.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isPeriodicTech.m
+        Chebfun commit: 7574c77
+        """
+        from ._composition import periodic
+        return periodic(self)
 
     def _col_inner(self, i: int, j: int) -> float:
         """<cols[i], cols[j]> on the domain."""

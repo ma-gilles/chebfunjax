@@ -219,8 +219,18 @@ class Chebfun3v(eqx.Module):
             return jnp.asarray([], dtype=jnp.float64)
         return jnp.stack([c(x, y, z) for c in self.components], axis=0)
 
-    def __call__(self, x, y, z) -> jax.Array:
-        """Alias for :meth:`feval`."""
+    def __call__(self, x, y=None, z=None):
+        """Evaluate numerically, or compose a source Chebfun input.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3v/subsref.m, @chebfun/compose.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        if y is None and z is None and isinstance(x, (Chebfun, Quasimatrix)):
+            return x.compose(self)
         return self.feval(x, y, z)
 
     # ------------------------------------------------------------------
