@@ -4046,19 +4046,9 @@ class Chebfun(eqx.Module):
             # Source mixed array/quasimatrix binary path extracts columns.
             from chebfunjax.chebfun1d._composition import _columns
             return Quasimatrix(_columns(self), self.domain).compose(op, g, pref=pref)
-        if g is None and pref is None:
+        if (g is None and pref is None
+                and not (self.funs and isinstance(self.funs[0].tech, Trigtech))):
             return self._apply_fun(op)
-        # Keep explicit periodic options distinct from the Chebyshev factory
-        # maxLength. Trigtech's own factory cap is 65536.
-        trig_pref = {}
-        if isinstance(pref, dict):
-            trig_pref.update(pref.get("techPrefs", {}))
-            trig_pref.update({k: v for k, v in pref.items() if k != "techPrefs"})
-        elif pref is not None:
-            factory = ChebfunPref().techPrefs
-            trig_pref.update(pref.techPrefs)
-            if trig_pref.get("maxLength") == factory.get("maxLength"):
-                trig_pref.pop("maxLength", None)
         pref = ChebfunPref(pref) if pref is not None else ChebfunPref()
         if not self.funs:
             return self
@@ -4082,6 +4072,17 @@ class Chebfun(eqx.Module):
         pieces = []
         new_breaks = [f.domain.breakpoints[0]]
         new_values = [values[0]]
+        trig_pref = None
+        if isinstance(f.funs[0].tech, Trigtech):
+            # @chebfun/compose.m269-283 (7574c77): source overrides precede
+            # selecting the actual operand Tech and resolving its defaults.
+            # ChebfunPref copies raw overrides, retaining explicit65537.
+            if pref.splitting:
+                pref.maxLength = pref.splitPrefs.splitLength
+            if len(f.funs) > 1:
+                pref.extrapolate = True
+            pref.tech = type(f.funs[0].tech)
+            trig_pref = dict(pref.techPrefs)
         maxpow2 = (int(math.floor(math.log2(max(int(pref.splitPrefs.splitLength)-1, 2))))
                    if pref.splitting else 16)
         for k, piece in enumerate(f.funs):

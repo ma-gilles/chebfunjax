@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Periodic composition preference forwarding (2026-10-09)
+
+Public periodic compose now copies raw preferences, applies source splitting
+and multi-piece overrides, selects the actual operand technology, then resolves
+its defaults. Explicit values equal to polynomial factory defaults are retained.
+Unary periodic compose without an explicit preference now honors session
+preferences. Low-level Trigtech numerical policy is unchanged.
+
+All 21 focused checks pass in 31.94 s, including actual fixed-length and typed
+compositions. The frozen run was terminal 0, stable and uncensored, with no
+survivors and a 1,236,284 KiB sampled peak. Root rehashed 2,949 loaded files and
+verified that only Chebfun.compose changed in its module. The first run's
+invalid tuple-domain fixture and failure evidence are preserved; the correction
+used the actual Domain storage type without changing production or tolerances.
+
+Evidence: compose_preference_root_{runtime_review,integration}_20261009.json
+and compose_preference_provenance_20261009/qualified_packet_v1.json in shared
+scratch. Polynomial/singular forwarding, direct sin/cos shortcuts and general
+mixed-technology composition remain open; this is not complete compose parity.
+
 ## Explicit native sphere camera mapping (2026-10-09)
 
 The opt-in matlab_explicit_camera adapter maps explicit camera position,
