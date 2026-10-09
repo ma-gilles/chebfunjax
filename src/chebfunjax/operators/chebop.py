@@ -4790,33 +4790,29 @@ class Chebop:
         n_default: int = 64,
         sigma=None,
         return_eigenfunctions: bool = False,
+        pref=None,
     ):
-        """Eigenvalues of the (linearised) operator.
+        """Eigenvalues and optional eigenfunctions of a linear operator.
 
-        Constructs the :class:`Linop` corresponding to the (linearised)
-        operator and calls :meth:`Linop.eigs`.
+        Smooth scalar C2/values problems use exact scalar AD extraction and the
+        shared native projected eigs policy, including boundary linearity.
+        Omitted n is adaptive; explicit n retains the total input-point
+        convention. sigma=None uses native33/65 target selection. pref accepts
+        ChebopPref or a mapping for the supported C2 preference path.
 
-        Parameters
-        ----------
-        n : int or None
-            Discretization size.
-        k : int, default 6
-            Number of eigenvalues to return.
-        n_default : int, default 64
-            Default size when ``n`` is ``None``.
-        sigma : scalar or str or None
-            Target eigenvalue or string selector (see :meth:`Linop.eigs`).
+        return_eigenfunctions=True returns (eigenvalues, function list), while
+        the default returns eigenvalues alone. Periodic, system, piecewise and
+        general-boundary adapters retain their separate existing algorithms;
+        newly explicit prefs on those adapters are not silently ignored.
+        n_default remains relevant to the legacy system adapter only.
 
-        Returns
-        -------
-        lam : jnp.ndarray, shape (k,)
-            Selected eigenvalues.
+        The shared generalized LAPACK eigensolve remains an inherited host
+        boundary. This scalar qualification is not full eigs backend parity.
 
-        Provenance
-        ----------
-        MATLAB source : @chebop/eigs.m
-        Chebfun commit: 7574c77
+        MATLAB source: @chebop/eigs.m, @linop/eigs.m (7574c77).
         """
+        if pref is not None and (getattr(self, '_periodic', False) or self._n_vars() >= 2):
+            raise NotImplementedError('Explicit eigs preferences for periodic/system adapters are not implemented')
         if getattr(self, "_periodic", False) and self._n_vars() < 2:
             # A periodic operator with PIECEWISE coefficients (e.g. the
             # Landscape example's square-well potential) cannot converge on
@@ -4845,12 +4841,26 @@ class Chebop:
         # General .bc functionals (e.g. integral conditions like the Barber
         # condition) are probed as constraint rows by the same dense path.
         if len(_bks) > 2 or self._bc_general is not None:
+            if pref is not None:
+                raise NotImplementedError('Explicit eigs preferences for the piecewise/general-BC adapter are not implemented')
             return self._eigs_piecewise_std(
                 _bks, k=k, n=n, sigma=sigma,
                 return_eigenfunctions=return_eigenfunctions)
-        linop = self._build_linop(value_shift=0.0)
-        return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma,
-                          return_eigenfunctions=return_eigenfunctions)
+        from chebfunjax.operators._eigs_source import preferences
+        from chebfunjax.operators.chebop_altdisc import _linearize_scalar_ad
+
+        prefs = preferences(pref)
+        if prefs.discretization not in ('values', 'chebcolloc2'):
+            raise NotImplementedError('Scalar adaptive eigs currently supports C2/values preferences')
+        data = _linearize_scalar_ad(self, 0.0, tuple(self.domain))
+        if data is None:
+            raise ValueError('CHEBFUN:CHEBOP:eigs:nonlinear -- EIGS supports only linear operators and boundary conditions')
+        operator, _, _ = data
+        equation_n = None if n is None else int(n)-operator.proj_order()[0]
+        if equation_n is not None and equation_n < 1:
+            raise ValueError('Fixed input dimension must exceed differential order')
+        lam, columns = operator.eigs(k=k, sigma=sigma, n=equation_n, pref=prefs)
+        return (lam, [column.blocks[0][0] for column in columns]) if return_eigenfunctions else lam
 
     def null(self, discretization: str = "ultraS", n: int = 128,
              tol: float | None = None):

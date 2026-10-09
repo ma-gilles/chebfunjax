@@ -1,5 +1,29 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## C2 eigenvalue policy and original basic predicates (2026-10-09)
+
+Restored native C2 projection, automatic target selection, adaptive refinement,
+mode filtering and continuous normalization. Smooth scalar Chebop and internal
+Linop share the policy while retaining their explicit-size API conventions.
+ChebMatrix differentiation now preserves continuous block semantics. All four
+original basic-eigs predicates pass: both public routes, ten eigenpairs,
+spectrum tolerance 1e-10 and continuous residual tolerance 1e-7.
+
+Qualification comprises 14 controls, four original predicates and four affected
+consumer/dispatch checks, in eight bounded CPU processes. Root independently
+verified runtime hashes, native test scope, carried polynomial-path applicability
+and documentation-only delivery changes. Full Ruff/F821 and provenance checks
+are required at integration. An earlier combined control run hit its memory
+cap; its partial dots are excluded and the unchanged tests passed in partitions.
+
+The new policy is JAX; the inherited generalized eigendecomposition still uses
+SciPy/NumPy. Alternative C1/ultraS defaults retain legacy fixed size 65, and
+periodic/system/piecewise/general-boundary adapters remain separate parity gaps.
+This resolves the basic-eigs issue described in older entries below, not full
+eigensolver parity. Evidence: eigs_basic_source_20261009/DELIVERY_FINAL_v1.json,
+eigs_delivery_root_documentation_review_20261009.json and the native/regression
+root runtime reviews under shared goal scratch. Publication and CI remain open.
+
 ## Trigtech per-column realness (2026-10-09)
 
 Static per-column masks now propagate through constructors, arithmetic,

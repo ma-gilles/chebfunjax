@@ -1,47 +1,87 @@
-"""Port of MATLAB Chebfun tests/chebop/test_eigs_basic.m (Fable 5).
+"""Literal four predicates from tests/chebop/test_eigs_basic.m.
 
--u'' on [0, pi] with Dirichlet BCs: eigenvalues k^2, k = 1..10.
+MATLAB source: tests/chebop/test_eigs_basic.m, @linop/eigs.m.
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
 
-Provenance
-----------
-MATLAB source : tests/chebop/test_eigs_basic.m
-Chebfun commit: 7574c77
+The only output adapter packs Python's actual returned function columns and
+lambda vector into native-shaped ChebMatrix containers. No sampled residuals.
 """
 
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
+from chebfunjax.chebpref import ChebopPref
+from chebfunjax.operators.blocklinop import linop
+from chebfunjax.operators.blocks import D, eval_at
+from chebfunjax.operators.chebmatrix import ChebMatrix
 from chebfunjax.operators.chebop import Chebop
 
-TOL_VALS = 1e-8
+
+def _diagonal(values, domain):
+    # Numeric block packing only; native V*D is the same block multiplication.
+    return ChebMatrix(
+        [[complex(values[i]) if i == j else 0.0
+          for j in range(len(values))] for i in range(len(values))],
+        domain=domain,
+    )
 
 
-class TestChebopEigsBasic:
-    def test_dirichlet_laplacian_eigenvalues(self):
-        L = Chebop(lambda x, u: -u.diff(2), domain=(0.0, float(np.pi)))
-        L.lbc = 0.0
-        L.rbc = 0.0
-        lam = L.eigs(k=10)
-        lam = lam[0] if isinstance(lam, tuple) else lam
-        lam = np.sort(np.real(np.asarray(lam)))
-        exact = np.arange(1, 11, dtype=float) ** 2
-        assert float(np.max(np.abs(lam - exact))) < TOL_VALS * exact[-1]
+@pytest.fixture(scope="module")
+def linop_source_result():
+    domain = (0.0, float(jnp.pi))
+    operator = linop(-D(domain, 2))
+    operator = operator.add_constraint(eval_at(domain[0], domain=domain), 0.0)
+    operator = operator.add_constraint(eval_at(domain[1], domain=domain), 0.0)
+    pref = ChebopPref(discretization="chebcolloc2")
+    values, columns = operator.eigs(k=10, pref=pref)
+    functions = ChebMatrix(
+        [[column.blocks[0][0] for column in columns]], domain=domain,
+    )
+    residual = operator @ functions - functions @ _diagonal(values, domain)
+    return values, residual
 
-    def test_eigenfunction_residual(self):
-        L = Chebop(lambda x, u: -u.diff(2), domain=(0.0, float(np.pi)))
-        L.lbc = 0.0
-        L.rbc = 0.0
-        out = L.eigs(k=3)
-        if not (isinstance(out, tuple) and len(out) >= 2):
-            pytest.skip("eigs does not return eigenfunctions")
-        lam, V = out[0], out[1]
-        lam = np.asarray(lam)
-        xs = jnp.asarray(np.linspace(0.2, np.pi - 0.2, 25))
-        for i, v in enumerate(V if isinstance(V, list) else V):
-            res = -v.diff(2)(xs) - float(np.real(lam[i])) * v(xs)
-            scale = float(jnp.max(jnp.abs(v(xs))))
-            assert float(jnp.max(jnp.abs(res))) < 1e-6 * max(
-                scale * float(np.real(lam[i])), 1.0)
+
+@pytest.fixture(scope="module")
+def chebop_source_result():
+    domain = (0.0, float(jnp.pi))
+    operator = Chebop(lambda x, u: -u.diff(2), domain=domain)
+    operator.lbc = "dirichlet"
+    operator.rbc = "dirichlet"
+    pref = ChebopPref(discretization="values")
+    values, columns = operator.eigs(k=10, pref=pref, return_eigenfunctions=True)
+    functions = ChebMatrix([list(columns)], domain=domain)
+    residual = operator(functions) - functions @ _diagonal(values, domain)
+    return values, residual
+
+
+def _source_spectrum_error(values):
+    values = jnp.asarray(values)
+    # Native real eigenvalues negate in real arithmetic before the complex
+    # square root. Negating an already complex value can manufacture -0j and
+    # choose the lower side of sqrt's negative-real branch cut. Do not discard
+    # any genuine imaginary eigenvalue component.
+    negative = (-jnp.real(values)).astype(jnp.complex128) if bool(
+        jnp.all(jnp.imag(values) == 0)) else -values
+    actual = jnp.sqrt(negative)
+    expected = 1j * jnp.arange(1, 11)
+    return jnp.max(jnp.abs(actual - expected))
+
+
+def test_native_1_linop_sqrt_spectrum(linop_source_result):
+    values, _ = linop_source_result
+    assert _source_spectrum_error(values) < 1e-10
+
+
+def test_native_2_chebop_sqrt_spectrum(chebop_source_result):
+    values, _ = chebop_source_result
+    assert _source_spectrum_error(values) < 1e-10
+
+
+def test_native_3_linop_continuous_frobenius(linop_source_result):
+    _, residual = linop_source_result
+    assert residual.norm() < 1e-7
+
+
+def test_native_4_chebop_continuous_frobenius(chebop_source_result):
+    _, residual = chebop_source_result
+    assert residual.norm() < 1e-7

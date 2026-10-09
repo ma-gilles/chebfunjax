@@ -1014,89 +1014,32 @@ class BlockLinop:
                           domain=use_dom)
 
     def eigs(self, k: int = 6, sigma=None, B: "BlockLinop | None" = None,
-             n: int = 65, dom: _DomainT | None = None,
-             rayleigh: bool = False, discretization: str = "chebcolloc2"):
-        """Eigenvalues and eigenfunctions of ``L`` (or of ``L*u = lam*B*u``).
+             n: int | None = None, dom: _DomainT | None = None,
+             rayleigh: bool = False, discretization: str | None = None,
+             pref=None):
+        """Native C2 adaptive eigs; explicit n is an equation-size extension.
 
-        Parameters
-        ----------
-        k : int, default 6
-            Number of eigenvalues.
-        sigma : float, complex, 'LM', 'SM', or None
-            Target; ``None`` and ``'SM'`` mean nearest zero.
-        B : BlockLinop or None
-            Mass operator for a generalized problem.
-        n : int, default 65
-            Collocation dimension per subinterval.
-        dom : tuple of float or None
-            Override the domain.
-        rayleigh : bool, default False
-            Perform one step of Rayleigh quotient iteration on the computed
-            eigenpairs to improve their accuracy.
+        None targets the most resolved mode using native33/65 probes. C2 output
+        uses projected first-kind values and native convergence/normalization.
+        Alternative backends retain the legacy fixed-size adapter (65 when n
+        is omitted); this is compatibility, not native adaptive qualification.
+        The return contract remains (eigenvalues, list of ChebMatrix columns).
 
-        Returns
-        -------
-        lams : jnp.ndarray, shape (k,)
-            Eigenvalues, sorted ascending as in MATLAB.
-        vecs : list of ChebMatrix
-            The corresponding eigenfunctions.
-
-        Provenance
-        ----------
-        MATLAB source : @linop/eigs.m
-        Chebfun commit: 7574c77
+        MATLAB source: @linop/eigs.m (7574c77).
         """
-        import numpy as np  # uses-numpy: dense generalized eigensolve
-        if discretization != "chebcolloc2":
-            lam_a, funs_a = self._eigs_altdisc(k, sigma, n, discretization,
-                                               B=B)
-            if rayleigh:
-                lam_a, funs_a = self._rayleigh_qi(jnp.asarray(lam_a), funs_a, B)
-            return jnp.asarray(lam_a), funs_a
-        r_use = self.proj_order()
-        if B is not None:
-            r_b = (B.proj_order() if isinstance(B, BlockLinop)
-                   else BlockLinop(B).proj_order())
-            r_use = [max(a, b) for a, b in zip(r_use, r_b)]
-        MA, _, info = self._assemble(n, dom, r=r_use)
-        sizes, r, isfun, col_dims, use_dom, n_con = info
-        rhs_src = self.A.identity() if B is None else (
-            B.A if isinstance(B, BlockLinop) else B)
-        rhs_rows = [self._block_row_matrix(rhs_src.blocks[i], sizes,
-                                           use_dom, r, isfun, project=True)
-                    for i in range(rhs_src.nrows)]
-        MB = jnp.concatenate(rhs_rows, axis=0)
-        MB = jnp.concatenate(
-            [jnp.zeros((n_con, MB.shape[1]), dtype=MB.dtype), MB], axis=0)
+        from chebfunjax.operators._eigs_source import preferences, solve
 
-        lam, vec = _geig(np.asarray(MA), np.asarray(MB))
-        finite = np.isfinite(lam)
-        lam, vec = lam[finite], vec[:, finite]
-        target = 0.0 if sigma is None or (
-            isinstance(sigma, str) and sigma.upper() == "SM") else sigma
-        if isinstance(target, str):
-            if target.upper() != "LM":
-                raise ValueError(f"eigs: unknown sigma {sigma!r}.")
-            idx = np.argsort(-np.abs(lam))[:k]
+        prefs = preferences(pref)
+        backend = discretization if discretization is not None else prefs.discretization
+        if backend == 'values':
+            backend = 'chebcolloc2'
+        if backend == 'chebcolloc2':
+            lam, funs = solve(self, k=k, sigma=sigma, n=n, mass=B,
+                              domain=dom, pref=prefs)
         else:
-            idx = np.argsort(np.abs(lam - complex(target)))[:k]
-        lam, vec = lam[idx], vec[:, idx]
-        # MATLAB's SORT on a real vector is ascending; on a complex vector it
-        # orders by magnitude and then by phase angle.
-        scale = float(np.max(np.abs(lam))) if lam.size else 1.0
-        if lam.size and np.max(np.abs(lam.imag)) <= 1e-12 * max(scale, 1.0):
-            order = np.argsort(lam.real)
-        else:
-            # Magnitudes are rounded before sorting so that a multiple
-            # eigenvalue is not split by rounding noise.
-            mag = np.round(np.abs(lam) / max(scale, 1e-300), 9)
-            order = np.lexsort((np.angle(lam), mag))
-        lam, vec = lam[order], vec[:, order]
-        funs = []
-        for j in range(vec.shape[1]):
-            col = jnp.asarray(vec[:, j])
-            parts = self._partition(col, sizes, r, isfun, col_dims, use_dom)
-            funs.append(ChebMatrix([[p] for p in parts], domain=use_dom))
+            if n is None:
+                n = 65  # Preserve the prior alternative-backend default adapter.
+            lam, funs = self._eigs_altdisc(k, sigma, n, backend, B=B)
         if rayleigh:
             lam, funs = self._rayleigh_qi(jnp.asarray(lam), funs, B)
         return jnp.asarray(lam), funs

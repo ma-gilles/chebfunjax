@@ -254,6 +254,29 @@ class ChebMatrix:
             [[fn(blk) for blk in row] for row in self.blocks],
             domain=self.domain)
 
+    def diff(self, k: int = 1) -> "ChebMatrix":
+        """Differentiate each block, retaining the native cellfun container.
+
+        MATLAB source: @chebmatrix/chebmatrix.m diff/cellfun (7574c77).
+        Numeric blocks use numeric differences, not constant-function calculus.
+        """
+        import numbers
+
+        def differentiate(block):
+            if isinstance(block, (OperatorBlock, FunctionalBlock)):
+                raise TypeError('Instance differentiation is not defined for this operator block')
+            if hasattr(block, 'diff'):
+                return block.diff(k)
+            if isinstance(block, numbers.Number) or hasattr(block, 'ndim'):
+                if k == 0:
+                    return block
+                values = jnp.atleast_1d(jnp.asarray(block))
+                axis = next((i for i, size in enumerate(values.shape) if size != 1), 0)
+                return jnp.diff(values, n=k, axis=axis)
+            raise TypeError(f'diff is not defined for block type {type(block).__name__}')
+
+        return self.cellfun(differentiate)
+
     def _zip(self, other, fn) -> "ChebMatrix":
         if isinstance(other, ChebMatrix):
             if (self.nrows, self.ncols) != (other.nrows,

@@ -39,12 +39,18 @@ These are scoped qualifications, not a complete passing suite or exact-head CI.
 
 ## Current work
 
-Trigonometric per-column metadata passed 45 focused and 14 unchanged regression
-checks (commit `e8c8bfec`). The Ballfun subplot fix passed five controls; both
-refreshed SolidHarmonics images passed rendering and runtime audits. Native basic eigenvalue behavior, full real/complex
-solid harmonics and remaining constructor contracts are being implemented.
-Resource-heavy examples run
-serially; independent bounded work uses up to three worker slots.
+The C2 eigensolver package restores all four original basic predicates and
+passes 14 controls plus four affected consumer/dispatch checks. Its inherited
+host eigendecomposition and other backend/adapter semantics remain open.
+Trigonometric column metadata is committed with 59 passing checks. The next
+constructor package has passed 38 analytical and nine native tests; composition
+regressions and public callback/preference routing are still being qualified.
+All 121 real solid harmonics pass the three source norm predicates; complex
+cases, final norms and the changed degree-150 page consumer are being checked.
+These uncommitted packages are not full-suite or exact-head CI evidence.
+
+Resource-heavy examples run serially; independent bounded work uses up to
+three worker slots. Work remains CPU-only.
 
 ## Evidence
 

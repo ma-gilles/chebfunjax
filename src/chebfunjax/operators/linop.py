@@ -533,59 +533,39 @@ class Linop:
         sigma: float | str | None = None,
         return_eigenfunctions: bool = False,
         _raw: bool = False,
+        pref=None,
     ):
-        """Compute eigenvalues of the constrained operator.
+        """Compute finite C2 eigensystems with source projection and adaptivity.
 
-        Discretizes *L* at size *n*, imposes BC rows as in :meth:`solve`,
-        then calls ``jnp.linalg.eig`` on the resulting ``n x n`` generalized
-        eigenproblem::
+        Omitted n uses the shared native target/refinement policy. Explicit n
+        retains this adapter's total input-point convention; the shared block
+        pencil receives n minus the differential order as its equation size.
+        n_default is retained for call compatibility, not a scalar fixed grid.
 
-            A * v = lambda * B * v
+        sigma=None selects the most resolved target using raw projected33/65
+        probes. return_eigenfunctions=True returns (eigenvalues, function list);
+        otherwise only the eigenvalues are returned. The private _raw route
+        remains a legacy fixed-grid adapter for existing private callers.
 
-        where *A* is the BC-constrained operator and *B* is the identity with
-        the same BC rows zeroed out (so the BC-constrained rows do not
-        contribute finite eigenvalues).
+        New numerical policy uses JAX. The inherited dense generalized solver
+        uses SciPy/NumPy LAPACK through blocklinop._geig; no JIT/AD-through-eigs
+        or complete native backend-parity claim is made.
 
-        Returns the *k* eigenvalues that appear most resolved (smallest
-        magnitude first, so the lowest-frequency modes come first for
-        differential operators).
-
-        Parameters
-        ----------
-        n : int or None
-            Discretization size.  Defaults to ``n_default``.
-        k : int, default 6
-            Number of eigenvalues to return.
-        n_default : int, default 64
-            Discretization size used when ``n`` is ``None``.
-        sigma : float or str or None
-            Target: a scalar means "nearest to sigma", ``None`` means
-            "smallest magnitude".  Strings ``'LM'``, ``'SM'``, ``'LR'``,
-            ``'SR'`` are also accepted.
-
-        Returns
-        -------
-        lam : jnp.ndarray, shape (k,)
-            The *k* selected eigenvalues (real part sorted ascending).
-
-        Notes
-        -----
-        Uses dense ``jnp.linalg.eig`` (not sparse ARPACK) — suitable for
-        moderate *n* (≤ 1000).  Spurious eigenvalues from the BC rows are
-        removed by deflation: the ``n_bc`` largest-magnitude eigenvalues
-        are discarded before selecting the *k* target eigenvalues.
-
-        Provenance
-        ----------
-        MATLAB source : @linop/eigs.m (``getEigenvalues`` helper)
-        Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        solve
+        MATLAB source: @linop/eigs.m, @chebcolloc2/toFunctionOut.m (7574c77).
         """
+        if not _raw:
+            from chebfunjax.operators.blocklinop import BlockLinop
+
+            operator = BlockLinop(self.L, domain=self.domain)
+            for bc in self.bcs:
+                operator = operator.add_constraint(bc, 0.0)
+            # Internal Linop's existing fixed n counts input points. Canonical
+            # BlockLinop counts equation points; preserve both public meanings.
+            equation_n = None if n is None else int(n)-operator.proj_order()[0]
+            if equation_n is not None and equation_n < 1:
+                raise ValueError('Fixed input dimension must exceed differential order')
+            lam, columns = operator.eigs(k=k, sigma=sigma, n=equation_n, pref=pref)
+            return (lam, [column.blocks[0][0] for column in columns]) if return_eigenfunctions else lam
         if sigma is None:
             # MATLAB automatic mode (@linop/eigs.m): find the "most
             # interesting" eigenvalue -- solve at two coarse sizes,
@@ -1053,11 +1033,15 @@ class Linop:
     # ------------------------------------------------------------------
 
     def __matmul__(self, f):
-        """``L @ f`` — apply operator to a Chebfun (returns Chebfun)."""
-        raise NotImplementedError(
-            "Linop.__matmul__: operator application not yet implemented. "
-            "Use Linop.solve(f) to solve L*u = f."
-        )
+        """Continuous operator action; side constraints are not applied.
+
+        MATLAB source: @linop/linop.m inheritance, @chebmatrix/mtimes.m.
+        """
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+
+        if isinstance(f, ChebMatrix):
+            return ChebMatrix([[self.L]], domain=self.domain) @ f
+        return self.L.apply(f)
 
     def __truediv__(self, f):
         """``L \\ f`` equivalent: solve L*u = f."""
