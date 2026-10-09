@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Explicit contour level counts (2026-10-08)
+
+Scalar contour counts now use the R2017a contourobjHelper source rule: exactly
+N interior evenly spaced levels, midpoint for N=1, truncation toward zero,
+finite-data extrema and minimum boundary for filled counts. Explicit vectors
+and repeated single-level vectors keep their value semantics. This replaces
+Matplotlib's different integer tick-locator behavior; sampling is unchanged.
+
+All23 checks pass (13 focused controls plus10 existing sampling/plot checks).
+Root rehashed2948 observed files and source hashes; terminal0/stable/no
+survivors. Only contour changes in plotting.py. Evidence:
+contour_levels_root_review_20261008.json and contour_levels_source_20261008/controls_v2
+in shared scratch.
+
+Automatic level selection is NOT resolved: the existing default12 still
+substitutes an explicit count for MATLAB auto. R2013a HG1 automatic source
+is readable, but equivalence with later HG2 p-code is not established.
+Constant/all-nonfinite data keep the inherited renderer path. Gibbs automatic
+contours, exact image parity, native execution and exact-head CI remain open.
+
 ## Scalar linear alternative backends (2026-10-08)
 
 Scalar linear C1/ultraS solves now use exact AD differential/constraint blocks

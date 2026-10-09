@@ -959,6 +959,11 @@ def contour(
     locations (MATLAB ``contour(f, 'pivots', S)``); ``xx``/``yy`` give
     an explicit evaluation grid (MATLAB ``contour(xx, yy, f)``).
 
+    An explicit scalar level count gives evenly spaced interior levels;
+    negative counts are rejected and noninteger counts are truncated toward
+    zero. The existing default count of 12 is not MATLAB automatic-level
+    selection. Constant/all-nonfinite data retain the existing renderer path.
+
     Draws contour lines (optionally over filled bands) using the parula
     colormap and unit-domain ticks.
 
@@ -992,15 +997,10 @@ def contour(
     Provenance
     ----------
     MATLAB source : @separableApprox/contour.m
+    Scalar level-count parsing: R2017a specgraph/private/contourobjHelper.m
     Chebfun commit: 7574c77
     """
     cmap_obj = _coerce_cmap(cmap)
-
-    # MATLAB convention: contour(f, [v v]) draws the single level v.
-    if not np.isscalar(levels):
-        _lv = np.atleast_1d(np.asarray(levels, dtype=float))
-        if _lv.size == 2 and _lv[0] == _lv[1]:
-            levels = [float(_lv[0])]
 
     try:
         x0, x1, y0, y1 = f2.domain
@@ -1015,6 +1015,25 @@ def contour(
         ys = np.linspace(float(y0), float(y1), n_pts)
         XX, YY = np.meshgrid(xs, ys, indexing="xy")
     ZZ = _eval_2d_vectorized(f2, XX, YY)
+
+    # MATLAB R2017a contourobjHelper: a scalar requests exactly N interior
+    # levels, unlike Matplotlib's integer argument to its tick locator.
+    level_values = np.atleast_1d(np.asarray(levels, dtype=float))
+    if level_values.size == 1:
+        count_value = float(level_values[0])
+        if not np.isfinite(count_value) or count_value < 0:
+            raise ValueError("contour level count must be finite and nonnegative")
+        finite_values = ZZ[np.isfinite(ZZ)]
+        if finite_values.size and np.min(finite_values) < np.max(finite_values):
+            count = int(count_value)
+            bottom, top = np.min(finite_values), np.max(finite_values)
+            levels = (np.asarray([(bottom + top)/2]) if count == 1
+                      else np.linspace(bottom, top, count+2)[1:-1])
+            if filled:
+                levels = np.concatenate(([bottom], levels))
+    elif level_values.size == 2 and level_values[0] == level_values[1]:
+        levels = [float(level_values[0])]
+
 
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
