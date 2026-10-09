@@ -27,6 +27,7 @@ from __future__ import annotations
 # small transform calls in ballfun/spherefun construction; numpy mirrors
 # the exact same algorithm at C speed.  Tracers use the jnp implementation.
 import warnings
+from functools import partial
 from typing import Callable
 
 import equinox as eqx
@@ -815,6 +816,7 @@ def _trig_definite_integral(coeffs: jax.Array) -> jax.Array:
 # ============================================================================
 
 
+@partial(jax.jit, static_argnames=("n_out",))
 def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     """Zero-pad or truncate Fourier coefficients to length n_out.
 

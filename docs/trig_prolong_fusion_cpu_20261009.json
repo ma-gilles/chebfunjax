@@ -1,0 +1,72 @@
+{
+  "base": "03e2d894",
+  "change": "Single static n_out JIT decorator on existing _trig_prolong_coeffs; unchanged function/class ASTs",
+  "tests": {
+    "native_assertions": 11,
+    "zero_output_boundaries": 8,
+    "finite_byte_cases": 14,
+    "nonfinite_component_cases": 2
+  },
+  "verification": "Source guards, terminal receipts and JUnit; no full runtime audit or broad JIT/AD claim.",
+  "application": {
+    "original_handle": 75624,
+    "terminal": true,
+    "scope": "First m150 solve completes; second step still3GiB capped. No full-trajectory or matched performance claim.",
+    "events": [
+      {
+        "stage": "start",
+        "seconds": 3.477092832326889e-06,
+        "maxrss_kib": 423888,
+        "jax": "0.11.0"
+      },
+      {
+        "stage": "constructed",
+        "seconds": 45.72153689805418,
+        "maxrss_kib": 2531064,
+        "mean": 0.04166666666666654
+      },
+      {
+        "stage": "before_step",
+        "seconds": 45.721978657878935,
+        "maxrss_kib": 2531064,
+        "step": 0
+      },
+      {
+        "stage": "after_step",
+        "seconds": 45.76772655406967,
+        "maxrss_kib": 2531064,
+        "step": 0,
+        "mean": 0.04166666666666654,
+        "mean_error": 0.0
+      },
+      {
+        "stage": "before_step",
+        "seconds": 45.767938242759556,
+        "maxrss_kib": 2531064,
+        "step": 1
+      },
+      {
+        "stage": "after_step",
+        "seconds": 55.56724479980767,
+        "maxrss_kib": 2967764,
+        "step": 1,
+        "mean": 0.041666666666666484,
+        "mean_error": 5.551115123125783e-17
+      },
+      {
+        "stage": "before_step",
+        "seconds": 55.56768905511126,
+        "maxrss_kib": 2967764,
+        "step": 2
+      }
+    ],
+    "peak_rss_kib": 3146352,
+    "censored_limit": "sampled_summed_RSS_cap"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_prolong_fusion_source_20261009/SOURCE_AST_v1.json": "665c98fbf0c18ded98d8cede4ee50e2a791a0a2439a276d6b6dd82088e900da9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_prolong_fusion_source_20261009/native19_v1/ROOT_REVIEW.json": "1c95caf4c1f7a3bde1fcff3bc91255cbf86b565a2d66b24116deb87aeb76dce6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_prolong_fusion_source_20261009/boundaries16_v1/ROOT_REVIEW.json": "557ede8119c529486630ac7cb01d2ff190d412e3711517fed7fcf4dbc6b0db89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_public_source_20261009/gaussian_prefix2_prolong_v1/ROOT_REVIEW.json": "081ad0962a031adcc59140b4f5b3d19e9b56b079219499e84df96ea63e814606"
+  }
+}
