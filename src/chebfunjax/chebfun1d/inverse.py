@@ -257,36 +257,85 @@ def _bisection(f, y, a, b, max_iterations: int = 2048):
                         "MATLAB-source bisection still open at safety cap")
 
 
-def _false_position(f, y, a, b, illinois):
+def _illinois_source_prefix_mask(selected, side, value):
+    """Translate MATLAB side(I1)==value used directly as a prefix mask.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/inv.m, fInverseIllinois
+    Chebfun commit: 7574c77
+    MATLAB logical indexing here addresses the first numel(side(I1)) entries,
+    not the original locations selected by I1. Preserve this source behavior.
+    """
+    selected = jnp.ravel(selected)
+    side = jnp.ravel(side)
+    rank = jnp.cumsum(selected.astype(jnp.int32)) - 1
+    destination = jnp.where(selected, rank, selected.size)
+    matches = selected & (side == value)
+    return jnp.zeros(selected.size, dtype=jnp.int32).at[destination].max(
+        matches.astype(jnp.int32), mode="drop").astype(jnp.bool_)
+
+
+@eqx.filter_jit
+def _false_position(f, y, a, b, illinois, max_iterations: int = 512):
+    """Literal collective source Regula Falsi / Illinois iteration.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/inv.m, fInverseRegulaFalsi, fInverseIllinois
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        the Chebfun Developers.
+    The host safety cap raises only if the source continuation condition
+    remains open. No residual test or Brent fallback changes source output.
+    Flattening/scalar restoration and empty-array return are shape adapters.
+    """
+    y = jnp.asarray(y, dtype=jnp.float64)
+    shape = y.shape
+    y = jnp.ravel(y)
+    if y.size == 0:
+        return jnp.reshape(y, shape)
     aa, bb = jnp.full_like(y, a), jnp.full_like(y, b)
     fa, fb = f(aa) - y, f(bb) - y
     cc = bb - fb * (bb - aa) / (fb - fa)
+    old = jnp.full_like(cc, jnp.inf)
     side = jnp.zeros_like(y, dtype=jnp.int32)
-    xtol = _EPS * max(abs(a), abs(b), abs(b - a))
-    for _ in range(512):
+
+    def condition(state):
+        count, aa, bb, fa, fb, cc, old, side = state
+        del aa, bb, fa, fb, side
+        return (count < max_iterations) & (jnp.max(jnp.abs(cc-old)) >= _EPS)
+
+    def step(state):
+        count, aa, bb, fa, fb, cc, old, side = state
+        del old
         fc = f(cc) - y
-        change = (jnp.signbit(fa) != jnp.signbit(fc)) | (fc == 0)
-        aa, fa = jnp.where(change, aa, cc), jnp.where(change, fa, fc)
-        bb, fb = jnp.where(change, cc, bb), jnp.where(change, fc, fb)
+        i1, i2 = fc < 0, fc > 0
+        i3 = ~i1 & ~i2
+        # Source arithmetic masks also preserve the zero/NaN residual clauses.
+        aa = i1*cc + i2*aa + i3*cc
+        bb = i1*bb + i2*cc + i3*cc
+        fa = i1*fc + i2*fa + i3*fc
+        fb = i1*fb + i2*fc + i3*fc
         if illinois:
-            fa = jnp.where(change & (side == 1), fa / 2, fa)
-            fb = jnp.where(~change & (side == -1), fb / 2, fb)
-        side = jnp.where(change, 1, -1)
-        step = -fb * (bb - aa) / (fb - fa)
-        nxt = bb + jnp.where(jnp.isfinite(step), step, 0)
-        converged = float(jnp.max(jnp.abs(nxt - cc))) <= xtol
-        cc = nxt
-        if converged:
-            break
-    # A flat endpoint can make regula falsi stagnate before convergence.
-    # Retain its converged values and safeguard unresolved ones with Brent.
-    error = jnp.abs(f(cc) - y)
-    scale = jnp.maximum(jnp.abs(y), max(abs(float(f(jnp.asarray(a)))),
-                                     abs(float(f(jnp.asarray(b))))))
-    if bool(jnp.any(error > 10 * _EPS * scale)):
-        polished = _brent(f, y, a, b)
-        cc = jnp.where(error > 10 * _EPS * scale, polished, cc)
-    return cc
+            mask = _illinois_source_prefix_mask(i1, side, -1)
+            fb = jnp.where(mask, fb/2, fb)
+            side = jnp.where(i1, -1, side)
+            mask = _illinois_source_prefix_mask(i1, side, 1)
+            fa = jnp.where(mask, fa/2, fa)
+            side = jnp.where(i2, 1, side)
+        trial = -fb * (bb-aa) / (fb-fa)
+        trial = jnp.where(jnp.isnan(trial), 0., trial)
+        return count+1, aa, bb, fa, fb, bb+trial, cc, side
+
+    state = jax.lax.while_loop(condition, step,
+        (jnp.asarray(0, dtype=jnp.int32), aa, bb, fa, fb, cc, old, side))
+    count, aa, bb, fa, fb, cc, old, side = state
+    del aa, bb, fa, fb, side
+    exhausted = (count >= max_iterations) & (jnp.max(jnp.abs(cc-old)) >= _EPS)
+    result = eqx.error_if(cc, exhausted,
+        "MATLAB-source false-position loop still open at explicit safety cap")
+    return jnp.reshape(result, shape)
 
 
 def _roots(f, y, tol):

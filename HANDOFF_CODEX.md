@@ -3,6 +3,32 @@
 
 
 
+
+## Inverse Regula Falsi and Illinois source behavior (2026-10-08)
+
+The JAX false-position loop now follows source absolute-eps collective
+stopping, signed-residual updates, NaN-only step cleanup and sequential
+Illinois logical indexing. Non-source Brent rescue is removed. The explicit
+512-step safety cap raises if native continuation remains open. Native
+Illinois uses a compressed logical prefix mask; this unusual source behavior
+is preserved, with an unrun MATLAB probe retained for fresh native checking.
+
+All24 canonical inverse test bodies (33 distinct original predicates plus
+three extras) and15 focused controls pass:39 acceptance bodies, plus four
+before/after diagnostics. Root rehashed2950/2949/2927 observed runtime files,
+verified three terminal stable receipts/no survivors, native source hashes,
+unchanged canonical test bytes and exact method scope. Default Brent,
+tol_union and evaluator code are unchanged. No full-suite or fresh native
+trajectory claim. Evidence:inverse_false_position_root_acceptance_20261008.json
+and inverse_cpu_source_20261008/qualified_packet.json in shared scratch.
+
+Default flower timing remains first11.306s/warm0.738-0.753s on this CPU setup.
+A static evaluator unroll trial was slower warm0.811-0.846s and was rejected.
+Matched65-target sine diagnostics improve Regula Falsi7.54-8.14ms to0.156-0.219ms
+and Illinois3.43-3.66ms to0.274-0.418ms at unchanged1.11e-16 error; these are
+combined-process observations with changed source policies, not a general
+speed guarantee or a native MATLAB comparison. The old800x finding is stale.
+
 ## Separable surface and contour sampling (2026-10-08)
 
 Public surf/contour now use the source200x200 default grid (formerly100/150).
