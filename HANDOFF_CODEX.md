@@ -5,6 +5,24 @@
 
 
 
+
+## Orthographic surface viewport (2026-10-08)
+
+New surf axes use an orthographic rectangular viewport instead of Matplotlib's
+forced physical square and perspective projection. This preserves sampled data
+and Matplotlib depth ordering. The native two-angle viewmtx source is explicitly
+orthographic. Other3D renderers retain their existing policies; supplied axes
+retain their aspect handler. Exact native plot-box aspect, zoom, lighting and
+rasterization remain open, so this is not a complete rendering parity claim.
+
+Ten focused controls and eight existing plotting regressions pass (18 total),
+including wide/tall viewport and homogeneous projection checks. Root rehashed
+2970 observed bound runtime files and checked terminal stable receipt/no
+survivors. Evidence:gibbs2d_source_20261008/frame_root_review_v1.json.
+Gibbs2D scientific replay completed all extrema and eight figures, but its page
+is not integrated: native lighting, contour levels, spy styling and final camera
+matching remain under review in NEXT_RENDERING.md. No size-only acceptance.
+
 ## Mixed Chebyshev technology arithmetic (2026-10-08)
 
 Chebtech1 and Chebtech2 addition now accept either polynomial technology,

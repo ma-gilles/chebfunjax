@@ -37,6 +37,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
 from matplotlib.colors import LightSource, Normalize
+from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
 
 from chebfunjax.utils.quadrature import chebpts, trigpts
@@ -325,8 +326,23 @@ def _draw_sphere_background(
     surface._chebfun_sphere_radius = scale
 
 
+class _SurfaceFrameAxes(Axes3D):
+    """Allow an orthographic surface to fill its rectangular axes viewport.
+
+    Matplotlib Axes3D otherwise forces a physically square viewport even
+    with automatic aspect. This presentation adapter retains its projection
+    math, data coordinates and artist depth ordering. Exact native camera
+    zoom, plot-box aspect and rasterization are separate rendering policies.
+    """
+
+    def apply_aspect(self, position=None):
+        if position is None:
+            position = self.get_position(original=True)
+        self._set_position(position, 'active')
+
+
 def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
-                   fill_canvas=True):
+                   fill_canvas=True, surface_frame=False):
     """Create or configure 3D axes with MATLAB-Chebfun styling.
 
     Parameters
@@ -348,15 +364,20 @@ def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
         ``fill_canvas=False`` to keep the plain ``add_subplot`` framing that
         the reference sphere renders were produced with.
 
+    surface_frame : bool
+        Use a rectangular orthographic surface viewport for newly created axes.
+        Supplied axes retain their own aspect handler.
+
     Returns
     -------
     fig, ax
     """
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-
     if ax is None:
         fig = plt.figure(figsize=figsize)
-        if fill_canvas:
+        if surface_frame:
+            ax = fig.add_axes([.13, .11, .775, .815],
+                              axes_class=_SurfaceFrameAxes)
+        elif fill_canvas:
             # Fill the canvas like MATLAB's published surf renders —
             # add_subplot leaves large margins around 3D axes.
             ax = fig.add_axes([0.02, -0.07, 0.96, 1.14], projection="3d")
@@ -366,6 +387,10 @@ def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
         if fig is None:
             fig = ax.get_figure()
 
+    if surface_frame:
+        # MATLAB viewmtx(az,el) is orthographic; no perspective is requested
+        # by separableApprox/surf. Other 3-D renderers keep their policies.
+        ax.set_proj_type("ortho")
     ax.view_init(elev=elev, azim=azim)
     fig.set_facecolor("white")
     ax.set_facecolor("white")
@@ -818,7 +843,9 @@ def surf(
     """Surface plot of a Chebfun2 (MATLAB Chebfun style).
 
     Renders a smooth surface with the parula colormap, no axis labels,
-    light gray grid, and thin box edges -- matching MATLAB's surf(f) output.
+    light gray grid, and thin box edges. New axes use a rectangular
+    orthographic viewport. Native lighting, plot-box aspect and exact pixels
+    are not reproduced by this adapter.
 
     Parameters
     ----------
@@ -857,7 +884,7 @@ def surf(
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
     fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
-                             figsize=(6.1, 2.58))
+                             figsize=(6.1, 2.58), surface_frame=True)
 
     if g2 is not None and h2 is not None:
         # Parametric surface surf(x, y, f): coordinates from the three
@@ -872,7 +899,6 @@ def surf(
         _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
         if title:
             ax.set_title(title, fontsize=10, pad=0)
-        fig.tight_layout(pad=0.5)
         return fig, ax
     if g2 is not None:
         # surf(f, g): height from f, colouring from g (MATLAB).
@@ -887,7 +913,6 @@ def surf(
         _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
         if title:
             ax.set_title(title, fontsize=10, pad=0)
-        fig.tight_layout(pad=0.5)
         return fig, ax
 
     # Native surf(f) uses the matrix infinity norm (maximum row sum),
@@ -905,7 +930,6 @@ def surf(
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)
-    fig.tight_layout(pad=0.5)
     return fig, ax
 
 

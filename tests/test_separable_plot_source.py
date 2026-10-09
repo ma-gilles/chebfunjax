@@ -73,3 +73,19 @@ def test_contour_colorbar_preserves_levels(filled):
         assert colored.colorbar.ax is fig.axes[1]
     finally:
         plt.close(fig)
+
+
+@pytest.mark.parametrize('size', [(6., 2.69), (3., 6.)])
+def test_surface_orthographic_viewport_keeps_rectangle(size):
+    f = SampledFunction(lambda x, y: x-y)
+    fig, ax = plotting.surf(f, n_pts=9)
+    try:
+        fig.set_size_inches(*size)
+        fig.canvas.draw()
+        assert np.isinf(ax._focal_length)
+        assert np.allclose(ax.get_position().bounds, [.13, .11, .775, .815])
+        # Orthographic homogeneous division does not depend on data position.
+        assert np.array_equal(ax.get_proj()[3, :3], np.zeros(3))
+        assert not np.isclose(ax.bbox.width, ax.bbox.height)
+    finally:
+        plt.close(fig)
