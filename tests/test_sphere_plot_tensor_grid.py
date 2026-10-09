@@ -8,15 +8,12 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 # uses-numpy: plotting fixtures/assertions
-import pytest  # noqa: E402
-
 from chebfunjax import plotting  # noqa: E402
 from chebfunjax.spherefun.spherefun import Spherefun  # noqa: E402
 from chebfunjax.tech import trigtech  # noqa: E402
 
 
-@pytest.mark.parametrize("kind", ["surface", "contour"])
-def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monkeypatch, kind):
+def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monkeypatch):
     lam = jnp.linspace(-jnp.pi, jnp.pi, 11)[:-1]
     theta = jnp.linspace(0., jnp.pi, 9)
     ll, tt = jnp.meshgrid(lam, theta)
@@ -39,10 +36,7 @@ def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monke
     monkeypatch.setattr(Spherefun, "__call__", evaluate)
     monkeypatch.setattr(trigtech, "_trig_eval_np", factor)
     n_pts = 11
-    if kind == "surface":
-        fig, _ = plotting.plot_sphere(f, n_pts=n_pts)
-    else:
-        fig, _ = plotting.contour_sphere(f, n_pts=n_pts, levels=[1.5, 2., 2.5])
+    fig, _ = plotting.plot_sphere(f, n_pts=n_pts)
     try:
         longitude, colatitude, values = evaluated[0]
         assert longitude.shape == colatitude.shape == values.shape == (n_pts, n_pts)

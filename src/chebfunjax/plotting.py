@@ -1537,8 +1537,6 @@ def contour_sphere(
         lv = np.atleast_1d(np.asarray(levels, dtype=float))
         if lv.size == 2 and lv[0] == lv[1]:
             levels = [float(lv[0])]
-    import jax.numpy as jnp
-
     cmap_obj = _coerce_cmap(cmap)
 
     if sphere_color is None:
@@ -1547,10 +1545,11 @@ def contour_sphere(
     # Evaluate on grid
     l = np.linspace(-np.pi, np.pi, n_pts)
     t = np.linspace(0.0, np.pi, n_pts)
-    ll, tt = np.meshgrid(l, t)
-    # @spherefun/fevalm uses this tensor grid; preserve its two axes so
-    # Spherefun evaluates each one-dimensional factor only once per node.
-    C = np.array(fs(jnp.asarray(ll), jnp.asarray(tt)))
+    # @spherefun/contour.m samples the factors on an endpoint-exclusive
+    # longitude grid, then repeats its first column to close the seam.
+    # sample performs the source coefficient aliasing and inverse FFTs.
+    values = np.asarray(fs.sample(n_pts - 1, n_pts))
+    C = np.concatenate((values, values[:, :1]), axis=1)
 
     # Get contour lines using a temporary 2D contour call
     fig_tmp, ax_tmp = plt.subplots()
