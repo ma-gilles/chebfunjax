@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native trigonometric zero-target truncation (2026-10-09)
+
+Nonempty Trigtech truncation to zero now reaches the native coefficient
+indexing error after deleting all rows, including even input lengths after
+Nyquist expansion. The shared helper's initial guard is the only production
+AST change; positive-target arithmetic is unchanged. Already-empty zero-target
+construction retains its object and stored empty shape/dtype.
+
+Eight focused controls and all eleven original prolongation predicates pass.
+The canonical array tests now use MATLAB's matrix infinity row-sum norm and
+recompute values from coefficients; same-length equality also compares the
+recomputed transforms. Original numerical bounds are unchanged. Root verified
+all 2,929 and 2,933 observed runtime hashes respectively, source scope and JUnit
+counts. Sampled peaks were 708,432 and 1,450,328KiB.
+
+Negative targets and empty-to-positive prolongation still have inherited source
+gaps. No native MATLAB error identifier or complete constructor qualification
+is claimed. Public constructor tests are running separately. Evidence:
+trig_constructor_r2_source_20261009/qualified_trig_prolong_zero_packet_v1.json,
+trig_prolong_zero_root_source_review_20261009.json and both root runtime reviews
+in shared scratch. Full-suite, page, speed and CI gates remain open.
+
 ## Trigonometric empty numeric storage (2026-10-09)
 
 Fixed-zero Trigtech population preserves the sampled empty array's columns and

@@ -1,4 +1,4 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_prolong.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/trigtech/test_prolong.m.
 
 prolong zero-pads (to a longer grid) or truncates (to a shorter grid) the
 Fourier representation; the values on the new equispaced grid must match
@@ -13,11 +13,10 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
-EPS = float(np.finfo(np.float64).eps)
+EPS = float(jnp.finfo(jnp.float64).eps)
 
 
 def _F(x):
@@ -29,7 +28,8 @@ def _tt(f):
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    # MATLAB matrix norm(...,inf) is the maximum absolute row sum.
+    return float(jnp.linalg.norm(jnp.asarray(a), ord=jnp.inf))
 
 
 class TestTrigtechProlong:
@@ -87,34 +87,34 @@ class TestTrigtechProlong:
 
     def test_array_valued_prolong(self):
         # pass(8): prolong([F, -F], 101), values match [F(x), -F(x)].
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
         f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
         k = 101
         g = f.prolong(k)
         x = trigpts(k)
         assert g.n == k
         ref = jnp.stack([_F(x), -_F(x)], axis=-1)
-        assert _ninf(g.values - ref) < 100 * g.vscale * EPS
+        values = g.coeffs2vals(g.coeffs)
+        assert _ninf(values - ref) < 100 * g.vscale * EPS
 
     def test_array_valued_prolong_to_one(self):
         # pass(9): prolong([F, -F], 1) has length 1.
-        # FIXED (Fable 5, Big-Three array-valued epic).
         f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
         g = f.prolong(1)
         assert g.n == 1
 
     def test_array_valued_same_length(self):
         # pass(10): prolong to the same length leaves the values unchanged.
-        # FIXED (Fable 5, Big-Three array-valued epic).
         f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
         g = f.prolong(f.n)
-        assert bool(jnp.all(f.values == g.values))
+        fvalues = f.coeffs2vals(f.coeffs)
+        gvalues = g.coeffs2vals(g.coeffs)
+        assert bool(jnp.all(jnp.ravel(fvalues) == jnp.ravel(gvalues)))
 
     def test_array_valued_values(self):
         # pass(11): a constant array-valued tech [1 2 3] prolonged to 5 has
         # values repmat([1 2 3], 5, 1).
-        # FIXED (Fable 5, Big-Three array-valued epic).
         f = Trigtech.from_values(jnp.array([[1.0, 2.0, 3.0]]))
         g = f.prolong(5)
         ref = jnp.tile(jnp.array([1.0, 2.0, 3.0]), (5, 1))
-        assert _ninf(g.values - ref) < 10 * g.vscale * EPS
+        values = g.coeffs2vals(g.coeffs)
+        assert _ninf(values - ref) < 10 * g.vscale * EPS

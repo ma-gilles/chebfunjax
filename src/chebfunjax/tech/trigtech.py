@@ -835,8 +835,10 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     MATLAB source : @trigtech/prolong.m
     Chebfun commit: 7574c77
     """
-    if n_out <= 0 or coeffs.shape[0] == 0:
-        # MATLAB: trigcoeffs(f, 0) and prolong of an empty are empty.
+    if n_out < 0 or coeffs.shape[0] == 0:
+        # Preserve inherited negative/empty adapters. For nonempty input,
+        # native prolong.m58-67 truncation to zero reaches coeffs(1,:)
+        # after deleting every row and raises an indexing error.
         return jnp.zeros((max(n_out, 0),) + coeffs.shape[1:],
                          dtype=coeffs.dtype)
     n = coeffs.shape[0]
