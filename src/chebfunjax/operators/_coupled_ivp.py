@@ -137,6 +137,65 @@ def _entries(value):
     return list(value) if isinstance(value, (tuple, list)) else [value]
 
 
+def _rhs_entries(rhs, domain, count):
+    """Native solveivp domain guard and toFirstOrder numeric-only repmat.
+
+    Source: @chebop/solveivp.m82-89; @treeVar/toFirstOrder.m79-89,223;
+    @chebmatrix/chebmatrix.m parseData; @chebfun/num2cell.m. Rank>2
+    numeric arrays and row Chebfuns remain outside this adapter's scope.
+    Numeric matrices preserve MATLAB linear column-major cell indexing,
+    including consuming only the first count entries (source rhs{wCounter}).
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.operators.chebmatrix import ChebMatrix
+
+    rhs_breaks = set()
+
+    def endpoint_check(obj):
+        d = obj.domain
+        points = d.breakpoints if hasattr(d, 'breakpoints') else d
+        if float(points[0]) != domain[0] or float(points[-1]) != domain[-1]:
+            raise ValueError('CHEBFUN:CHEBOP:solveivp:domainMismatch')
+        rhs_breaks.update(float(v) for v in points)
+
+    def numeric_node(value):
+        a = jnp.asarray(value)
+        if a.size != 1 or jnp.issubdtype(a.dtype, jnp.bool_) or jnp.iscomplexobj(a):
+            raise UnsupportedStructure('RHS cells require real numeric scalars')
+        scalar = a.reshape(())
+        return _Expr(lambda t, y: scalar)
+
+    if isinstance(rhs, Chebfun):
+        endpoint_check(rhs)
+        if rhs.is_transposed:
+            raise UnsupportedStructure('row Chebfun RHS is not qualified')
+        entries = [rhs.extract_columns(k) for k in range(rhs.n_columns)]
+    elif isinstance(rhs, ChebMatrix):
+        endpoint_check(rhs)
+        entries = [rhs.blocks[i][j] for j in range(rhs.ncols) for i in range(rhs.nrows)]
+    elif isinstance(rhs, (list, tuple)) and any(isinstance(v, Chebfun) for v in rhs):
+        # Existing Python list-of-functions adapter denotes a column cell list.
+        entries = list(rhs)
+        for value in entries:
+            if isinstance(value, Chebfun):
+                endpoint_check(value)
+    else:
+        array = jnp.asarray(rhs)
+        if array.ndim > 2:
+            raise UnsupportedStructure('numeric RHS rank>2 is not qualified')
+        if jnp.issubdtype(array.dtype, jnp.bool_) or jnp.iscomplexobj(array):
+            raise UnsupportedStructure('native route requires real numeric RHS')
+        entries = [numeric_node(v) for v in array.reshape(-1, order='F')]
+        # Native isnumeric(rhs) && length(rhs)==1, not scalar cell replication.
+        if array.size == 1:
+            entries *= count
+    nodes = [entry if isinstance(entry, _Expr) else
+             (_Expr.coerce(entry) if isinstance(entry, Chebfun) else numeric_node(entry))
+             for entry in entries]
+    # Preserve native linear indexing: insufficient cells error, surplus ignored.
+    return [nodes[k] for k in range(count)], tuple(sorted(rhs_breaks))
+
+
 @dataclass(frozen=True)
 class Extracted:
     rhs: object
@@ -154,6 +213,7 @@ def extract(op, forcing=0):
     dom = tuple(float(x) for x in op.domain)
     if not all(bool(jnp.isfinite(v)) for v in dom):
         raise UnsupportedStructure('finite domain required')
+    forces, rhs_breaks = _rhs_entries(forcing, dom, count)
     variables = [_Expr(lambda t, y, k=k: y[k], variable=k, state=True)
                  for k in range(count)]
     time = _Expr(lambda t, y: t)
@@ -161,12 +221,6 @@ def extract(op, forcing=0):
     if len(rows) != count or any(row.derivatives != ((k, 1),)
                                  for k, row in enumerate(rows)):
         raise UnsupportedStructure('requires one unit diagonal derivative per equation')
-    forcing_rows = _entries(forcing)
-    if len(forcing_rows) == 1:
-        forcing_rows *= count
-    if len(forcing_rows) != count:
-        raise UnsupportedStructure('forcing must have one entry per equation')
-    forces = [_Expr.coerce(v) for v in forcing_rows]
     forward = op._lbc_raw is not None
     point = dom[0] if forward else dom[-1]
     boundary = op._lbc_raw if forward else op._rbc_raw
@@ -193,7 +247,7 @@ def extract(op, forcing=0):
     initial = jnp.asarray(initial)
     if jnp.iscomplexobj(initial):
         raise UnsupportedStructure('complex initial state remains on existing route')
-    breaks = set(dom)
+    breaks = set(dom) | set(rhs_breaks)
     for row in rows+forces:
         breaks.update(v for v in row.breaks if dom[0] < v < dom[-1])
     span = tuple(sorted(breaks, reverse=not forward))

@@ -1,5 +1,35 @@
 # Parity status — 2026-10-09
 
+## Native coupled RHS parsing and restart preference (2026-10-09)
+
+The native coupled IVP route now validates exact RHS endpoint domains before
+selection, broadcasts only numeric scalars, and reads numeric/ChebMatrix entries
+in native column-major order. Array-valued Chebfun columns and RHS interior
+breakpoints are retained. Insufficient entries raise; surplus entries follow
+the pinned source indexing. Domain errors cannot silently fall back to a legacy
+solver. Row Chebfuns and complex/logical/higher-rank RHS remain unsupported.
+
+The native ivpRestartSolver=True factory preference is now a top-level field,
+so overrides, copying, session defaults and factory reset use the right storage.
+The prior solver fallback was already True; default numerical options are equal.
+
+Qualification:19 RHS cases (16 focused, native initialConditions9/10 through
+numeric-column RHS, one independent analytic solve) plus5 preference cases
+(4 focused and the canonical7-predicate preference test). Original bounds are
+unchanged. All five CPU processes closed cleanly; root verified runtime hashes,
+JUnit, exact payloads and source applicability. Combined read-value equivalence
+is source-reviewed, not a new combined solver run. Previous Lorenz/Brusselator
+expression trees and solver/provider calls are unchanged.
+
+Source provider remains R2025b. General solver grammar, callable solver tokens,
+remaining preference factory/NaN-comparison gaps, full Consensus, fresh MATLAB,
+full-suite, page parity, publication and CI remain open.
+
+Evidence: rhs_preference_root_delivery_review_20261009.json,
+coupled_ivp_rhs_source_20261009/DELIVERY_v1.json and
+ivp_restart_preference_source_20261009/QUALIFIED_PACKET_v1.json in shared scratch.
+
+
 ## Full native Brusselator cell-syntax test restored (2026-10-09)
 
 The canonical test now preserves all six pinned predicates, the full [0,5]

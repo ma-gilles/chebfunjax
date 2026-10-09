@@ -445,7 +445,8 @@ class ChebopPref(ChebfunPref):
         for k, v in (("discretization", "values"),
                      ("bvpTol", 5e-13), ("minDimension", 32),
                      ("maxDimension", 4096), ("ivpAbsTol", 1e5 * _EPS),
-                     ("ivpRelTol", 100 * _EPS), ("damping", True),
+                     ("ivpRelTol", 100 * _EPS), ("ivpRestartSolver", True),
+                     ("damping", True),
                      ("maxIter", 25), ("plotting", "off"),
                      ("display", "off"), ("vectorize", True),
                      ("ivpSolver", "ode113")):
