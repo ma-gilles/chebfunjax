@@ -1,5 +1,22 @@
 # Parity status — 2026-10-09
 
+## Differentiation early dispatch (2026-10-09)
+
+Chebtech1/2 now return empty inputs before inspecting derivative arguments,
+return the original object for zero-order differentiation before dimension
+selection, accept None as the default first derivative, and use column finite
+differences for every dimension other than one, matching the pinned source.
+The coefficient recurrence is unchanged. Ten analytical controls pass,
+including empty shape/dtype preservation, scalar and array identity, exact
+polynomial and column differences, JIT and coefficient derivatives. Root
+verified all 2,929 observed runtime hashes and frozen payloads; peak RSS was
+679,156KiB. Factory-empty representation and high-order happiness-reset gaps
+remain open; this does not qualify the full differentiation suite.
+
+Evidence: chebtech_diff_dispatch_source_20261009 and
+chebtech_diff_dispatch_root_runtime_review_20261009.json in shared scratch.
+Full-suite, page, native MATLAB execution and CI gates remain incomplete.
+
 **Full parity is incomplete.** The target is MATLAB Chebfun commit
 `7574c77680d7e82b79626300bf255498271a72df`, all native functions/tests, and
 all 322 example pages, including computations, prose, outputs and figures.

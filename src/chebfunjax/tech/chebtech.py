@@ -3775,7 +3775,7 @@ class Chebtech2(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1, dim: int = 1) -> "Chebtech2":
+    def diff(self, k: int | None = 1, dim: int = 1) -> "Chebtech2":
         """Differentiate *k* times.
 
         Uses the Chebyshev coefficient recurrence (Mason & Handscomb, p. 34).
@@ -3809,15 +3809,19 @@ class Chebtech2(eqx.Module):
         --------
         cumsum, sum
         """
-        if dim == 2:
+        if self.isempty():
+            return self
+        if k is None:
+            k = 1
+        elif k == 0:
+            return self
+        if dim != 1:
             if self.coeffs.ndim == 1:
                 return Chebtech2(
                     coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
                     ishappy=self.ishappy)
             return Chebtech2(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
                              ishappy=self.ishappy)
-        if k == 0:
-            return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
@@ -5336,7 +5340,7 @@ class Chebtech1(eqx.Module):
     # Calculus (same coefficient-level helpers as Chebtech2)
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1, dim: int = 1) -> "Chebtech1":
+    def diff(self, k: int | None = 1, dim: int = 1) -> "Chebtech1":
         """Differentiate *k* times (dim=2 takes finite differences
         across the columns of an array-valued tech, MATLAB
         ``diff(f, k, 2)``).
@@ -5347,15 +5351,19 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         Algorithm: Page 34 of Mason & Handscomb, "Chebyshev Polynomials", 2003.
         """
-        if dim == 2:
+        if self.isempty():
+            return self
+        if k is None:
+            k = 1
+        elif k == 0:
+            return self
+        if dim != 1:
             if self.coeffs.ndim == 1:
                 return Chebtech1(
                     coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
                     ishappy=self.ishappy)
             return Chebtech1(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
                              ishappy=self.ishappy)
-        if k == 0:
-            return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
