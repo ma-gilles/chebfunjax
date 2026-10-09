@@ -1,0 +1,124 @@
+{
+  "scope": "Private finite two-variable box QP, internal phase-I LP, and SQP mechanics with explicit analytic/synthetic providers only. No public optimizer registration or native finite-difference qualification.",
+  "checks": 19,
+  "native_source_pin": "Chebfun 7574c77680d7e82b79626300bf255498271a72df and installed MATLAB R2017a, source hashes in bound manifest",
+  "source_map": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_box_active_set_source_20261009/QP_SQP_REVIEW_v2.md",
+  "source_map_sha256": "35e082999825075f4784f8ab39f62f6058c3d44718084810486c835e865891ba",
+  "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_qp_sqp_root_runtime_review_20261009.json",
+  "runtime_review_sha256": "2ffdc58a6ee1cd1f640d8bde214e429b80c4e5252c6e3762349efd87fa4f9731",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_box_active_set_source_20261009/QP_SQP_DELIVERY_v2.json",
+  "delivery_sha256": "d636303994defcd10a9a6d06129085e499dbd745e563fcf68c799fc60c13be51",
+  "payload": {
+    "src/chebfunjax/utils/_active_set_box_qp.py": "571cf8923ded78e89a5031e517a9acfd15768bf0e6c9965b5d24c4aa5fcd816d",
+    "src/chebfunjax/utils/_active_set_box_sqp.py": "42972ba28a2c6fa0d69c7bac802b40080c8abf6bcc04855afb337100f8c8a564",
+    "tests/test_active_set_box_qp_source.py": "764716940bd1a52d18ce2518e59a829525dd56eb21d71d6de027e916e52464d6",
+    "tests/test_active_set_box_sqp_source.py": "e956ae673cc085b208248a14a1c18a8a39893654f7ef63c1222903ada9232fbd"
+  },
+  "cases": [
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[interior-g0-expected0-multipliers0-active0]",
+      "time": "2.090"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[upper_edge-g1-expected1-multipliers1-active1]",
+      "time": "1.296"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[lower_edge-g2-expected2-multipliers2-active2]",
+      "time": "0.143"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[corner-g3-expected3-multipliers3-active3]",
+      "time": "0.704"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[wrong_warm_face-g4-expected4-multipliers4-active4]",
+      "time": "0.328"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_quadratic_solve[warm_truncate-g5-expected5-multipliers5-active5]",
+      "time": "0.377"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_actual_phase_one_then_quadratic[initial0]",
+      "time": "1.498"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_actual_phase_one_then_quadratic[initial1]",
+      "time": "0.772"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_singular_convex_compatible_system",
+      "time": "0.287"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_negative_curvature_box_minimum",
+      "time": "0.143"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_iteration_limit_returns_without_extra_step",
+      "time": "0.132"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_qr_empty_insert_and_column_delete_source_order",
+      "time": "0.227"
+    },
+    {
+      "classname": "tests.test_active_set_box_qp_source",
+      "name": "test_invalid_scope_is_explicit",
+      "time": "0.002"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_missing_native_difference_provider_stays_explicit",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_actual_sqp_with_explicit_analytic_provider",
+      "time": "0.797"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_literal_equal_merit_acceptance_and_bfgs_transition",
+      "time": "0.444"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_rejected_full_trial_then_half_step_acceptance",
+      "time": "0.156"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_actual_negative_curvature_repair_sequence",
+      "time": "0.414"
+    },
+    {
+      "classname": "tests.test_active_set_box_sqp_source",
+      "name": "test_positive_provider_count_cap_restores_original_state",
+      "time": "0.238"
+    }
+  ],
+  "known_limits": [
+    "protected finite-difference provider",
+    "native singular-set RNG and rectangular singular backslash",
+    "degenerate backend factorization/status and subnormal pinv spacing",
+    "remaining native branch/trajectory controls",
+    "Host-controlled dynamic loops; no full JIT or AD contract",
+    "No claim of all LP cycling, phase-I failures, sign-reversing line search or nonzero multiplier interpolation coverage",
+    "No native MATLAB runtime comparison or full Gibbs result"
+  ],
+  "dependency_scope": "New private modules use JAX and unchanged qualified _active_set_qp only; no Trigtech/Chebfun/public extrema dispatch dependency"
+}
