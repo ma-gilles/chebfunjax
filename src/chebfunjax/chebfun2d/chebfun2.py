@@ -2375,6 +2375,35 @@ class Chebfun2(eqx.Module):
         return Chebfun2v([self.approx] + [g.approx for g in others])
 
     def minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
+        """Real extrema using the source separable front-end and fallback.
+
+        Factors are reconstructed at fixed length 4000 with session-selected
+        technology, simplified, and scaled. Rank one uses continuous factor
+        extrema. Higher ranks use source Chebyshev seeds and the Nelder-Mead
+        fallback; native active-set optimization is not implemented. Original
+        pivotValues are recovered from stored reciprocals, so their original
+        rounding is unavailable. Complex input retains the inherited optimizer,
+        whose source parity is not established.
+
+        Nondefault legacy tuning arguments retain the inherited optimizer. Returns
+        values [min, max] and locations [[xmin, ymin], [xmax, ymax]], or two
+        empty arrays for an empty object. No result is cached across requests.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minandmax2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d._extrema_source import source_extrema
+        if self.isempty():
+            return source_extrema(self)
+        if ngrid is None and n_starts == 24:
+            result = source_extrema(self)
+            if result is not None:
+                return result
+        return self._legacy_minandmax2(ngrid=ngrid, n_starts=n_starts)
+
+    def _legacy_minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
         """Global minimum and maximum over the domain (MATLAB
         ``minandmax2``).
 
@@ -2476,14 +2505,26 @@ class Chebfun2(eqx.Module):
                             dtype=jnp.float64))
 
     def max2(self):
-        """Global maximum (value, [x, y]) -- MATLAB max2."""
+        """Global maximum (value, [x, y]) via minandmax2.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/max2.m
+        Chebfun commit: 7574c77
+        """
         vals, locs = self.minandmax2()
-        return vals[1], locs[1]
+        return (vals, locs) if self.isempty() else (vals[1], locs[1])
 
     def min2(self):
-        """Global minimum (value, [x, y]) -- MATLAB min2."""
+        """Global minimum (value, [x, y]) via minandmax2.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/min2.m
+        Chebfun commit: 7574c77
+        """
         vals, locs = self.minandmax2()
-        return vals[0], locs[0]
+        return (vals, locs) if self.isempty() else (vals[0], locs[0])
 
     def sample(self, m: int, n: int) -> jax.Array:
         """Values of f on an m-by-n tensor Chebyshev grid.
@@ -3756,6 +3797,6 @@ make_empty_aware(Chebfun2, [
     "__rmul__", "__truediv__", "__pow__", "__neg__",
     "sqrt", "sum", "norm", "squeeze", "diff", "cos", "sin", "exp",
     "log", "tanh", "abs", "diag_fun", "trace", "mean", "mean2",
-    "std2", "minandmax2", "max2", "min2", "fliplr", "flipud",
+    "std2", "fliplr", "flipud",
     "cumsum", "cumsum2", "sum2", "integral2", "restrict", "compose",
 ])

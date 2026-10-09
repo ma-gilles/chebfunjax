@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public separable extrema source path (2026-10-09)
+
+Real Chebfun2 extrema now use the pinned empty/zero checks, fixed4000 factor
+construction with selected preferences, signed scaling, rank-one extrema and
+the previously qualified higher-rank fallback. Separate min/max requests each
+compute both extrema as the source does. Native empty outputs are numeric.
+The inherited complex/nondefault optimizer body is unchanged.
+
+Qualification: 28 focused controls plus one native empty regression passed in
+four bounded CPU processes. Root independently verified runtime files, all
+payloads/JUnit counts, source scope and unchanged legacy optimizer AST. The
+original turbo accuracy control remains archived as failed: exact summation
+showed cancellation already in its large-ellipse samples. Corrected controls
+check turbo stage semantics; two separate non-turbo controls retain the original
+analytical bound. No native tolerance was changed.
+
+This is incomplete native extrema parity: original pivot bits are still lost
+by reciprocal storage, and a source-equivalent active-set optimizer is absent.
+The explicit unavailable capability selects the source fallback. Raw-pivot
+retention is the next representation package; full Gibbs rendering, historical
+optimizer behavior, fresh MATLAB, full-suite and CI remain open.
+
+Evidence: gibbs_frontend_root_delivery_review_20261009.json,
+gibbs_frontend_root_runtime_review_20261009.json and
+gibbs_public_extrema_source_20261009/FRONTEND_DELIVERY_v3.json in shared scratch.
+
 ## Current CPU inverse measurements (2026-10-09)
 
 Measured actual flower construction at d7c2c8d0: default inverse first call after
