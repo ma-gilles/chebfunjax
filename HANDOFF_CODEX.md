@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Remaining deterministic AAA source predicates (2026-10-08)
+
+A literal companion restores original14,17,18,21-23,25-32 with native autoZ,
+full complex residuals, original norms/options and unchanged bounds. All14
+pass across three isolated CPU gates (12+1+1); no library edit was needed.
+Original17 uses the already captured native real-gamma pole convention; finite
+values use JAX gamma. Original31 uses public mapped chebpts; node arithmetic
+is not claimed bitwise native. No fixed-grid substitution for original21/22/32.
+
+Together with accepted earlier and derivative packages,40 of42 original AAA
+predicates are now qualified. Original15/16 native random inputs remain pending;
+16 also needs the string-expression API. This is composite coverage, not a single
+42-case run, and does not establish general complex-pole or endpoint accuracy.
+Evidence:aaa_remaining_literal_20261008/qualified_packet.json and
+ aaa_remaining_root_rehash_20261008.json in shared scratch. All three receipts
+are terminal/stable/no survivors; root independently checks2933 observed files
+per gate. Full suite, native reruns and exact-head CI remain open.
+
 
 
 
