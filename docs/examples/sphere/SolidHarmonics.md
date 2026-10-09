@@ -153,4 +153,4 @@ Elapsed time is 0.207955 seconds.
 
 *Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*
 
-*Execution note: timing is from this Python run, including coefficient completion and validation. Lighting, surface coloring and subplot layout still differ from MATLAB.*
+*Execution note: printed scalar outputs and degree-150 timing retain the earlier full-source Python execution, including coefficient completion and validation. The figures were refreshed from the original eleven low-degree rendering constructions after correcting figure-wide subplot adjustment. Lighting, surface coloring and default subplot layout still differ from MATLAB.*

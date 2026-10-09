@@ -27,10 +27,12 @@ survivors. Root independently verified2,954 runtime hashes, the exact one-line
 change and saved subplot/standalone images.
 
 No mathematical/data or camera algorithm changed. Supplied-axis camera reset,
-lighting/interpolation and native default layout remain open. Published
-SolidHarmonics images still reflect the preceding full run; a qualified
-low-degree source rendering update is pending, not a repeated scalar/high-degree
-computation. Evidence: ball_subplot_root_runtime_review_20261009.json and
+lighting/interpolation and native default layout remain open. SolidHarmonics
+images now use the corrected subplot behavior: a rendering-only source replay
+verified 11 finite fields, 55 surfaces and two 600 x253 images. Root verified
+2,949 runtime hashes and viewed both images. Original full-source scalar and
+degree-150 evidence is carried unchanged; this is composite qualification,
+not a repeated full-page computation. Evidence: ball_subplot_root_runtime_review_20261009.json and
 ball_subplot_position_source_20261009/HANDOFF.json in shared scratch.
 
 ## WaveDecay source execution and reference dimensions (2026-10-09)
