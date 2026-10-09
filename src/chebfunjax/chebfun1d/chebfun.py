@@ -6387,6 +6387,19 @@ class Chebfun(eqx.Module):
     # V08 — Quasimatrix ops: horzcat, vertcat, size, __getitem__
     # ------------------------------------------------------------------
 
+    def vander(self, n):
+        """Native sequential-multiplication Vandermonde columns.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/vander.m, @chebfun/horzcat.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        The source initializes column one even for n=0; no independent
+        powers or reassociation replace its multiplication sequence.
+        """
+        from chebfunjax.chebfun1d._vander import source_vander
+        return source_vander(self, n)
+
     @staticmethod
     def horzcat(chebfuns: list[Chebfun]) -> list[Chebfun]:
         """Horizontal concatenation: return a list (quasimatrix column list).
@@ -7382,11 +7395,13 @@ class Chebfun(eqx.Module):
             return self.transpose().flipud().transpose()
         # Column chebfun: reverse the column order of each piece
         # (the identity for a scalar single-column chebfun).
-        new_funs = [
-            _Piece(tech=piece.tech.fliplr(), interval=piece.interval)
-            for piece in self.funs
-        ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        new_funs = [piece.with_tech(piece.tech.fliplr())
+                    for piece in self.funs]
+        out = Chebfun(funs=new_funs, domain=self.domain, deltas=self.deltas)
+        values = self.point_values
+        if values.ndim == 2:
+            values = values[:, ::-1]
+        return out.set_point_values(values)
 
     # ------------------------------------------------------------------
     # Array-valued column manipulation (Fable 5, Big-Three epic)
