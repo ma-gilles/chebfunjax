@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 from chebfunjax.ballfun.ballfun import Ballfun
+from chebfunjax.chebpref import ChebfunPref
 
 
 class TestBallfunSum3:
@@ -26,3 +27,13 @@ class TestBallfunSum3:
         # int_ball (x^2+y^2+z^2) = 4 pi / 5
         f = Ballfun.from_function(lambda x, y, z: x * x + y * y + z * z)
         assert abs(float(f.sum()) - 4 * np.pi / 5) < 1e-9
+
+
+def test_original_sum3():
+    tol = 1e4 * ChebfunPref().techPrefs.chebfuneps
+    f = Ballfun.from_function(lambda r, lam, th: 1, spherical=True)
+    assert abs(f.sum() - 4 * np.pi / 3) < tol
+    f = Ballfun.from_function(lambda x, y, z: x + 1)
+    assert abs(f.sum() - 4 * np.pi / 3) < tol
+    f = Ballfun.from_function(lambda x, y, z: x**2)
+    assert abs(f.sum() - 4 * np.pi / 15) < tol

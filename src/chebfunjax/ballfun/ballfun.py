@@ -1734,118 +1734,12 @@ class Ballfun(eqx.Module):
         """
         if dim is not None:
             return self._partial_sum(dim)
-        cfs = np.array(self.coeffs)
-        m_orig, n, p_orig = cfs.shape
+        from chebfunjax.ballfun._integrals import sum_coefficients
 
-        # Step 1: zero-pad coefficients by 2 in r and theta (matches MATLAB coeffs3(f,m+2,n,p+2))
-        # r axis (Chebyshev): append zeros at the end (high-degree coefficients → zero-pad)
-        # theta axis (Fourier, fftshift order): insert zeros at both ends to keep DC at center
-        m = m_orig + 2
-        p = p_orig + 2
-        F_big = np.zeros((m, n, p), dtype=complex)
-        # For Fourier (fftshift), the DC mode shifts from p_orig//2 to p//2.
-        # Place original wavenumbers at the correct positions in the padded array.
-        theta_offset = p // 2 - p_orig // 2  # = 1 for even p_orig
-        F_big[:m_orig, :, theta_offset : theta_offset + p_orig] = cfs
-
-        # Step 2: extract DC lambda slice (0-th Fourier mode, index n//2)
-        dc_lam = n // 2
-        F_rth = F_big[:, dc_lam, :]  # shape (m, p)
-
-        # Step 3: pad F_rth to (m+2, p+2) with one zero column on each theta side
-        # and two zero rows appended in r (MATLAB: [zeros(m,1),F,zeros(m,1);zeros(2,p+2)])
-        m2 = m + 2  # = m_orig + 4
-        p2 = p + 2  # = p_orig + 4
-        F_pad = np.zeros((m2, p2), dtype=complex)
-        F_pad[:m, 1 : 1 + p] = F_rth  # embed with one-zero padding on theta sides
-        # last two r rows remain zero (already initialized)
-
-        # Step 4: build multiplication matrix for r^2 in Chebyshev-T basis.
-        # r^2 = (T_0 + T_2)/2.  T_in * T_0 = T_in, T_in * T_2 = (T_{in+2} + T_{|in-2|})/2.
-        # So [Mr2]_{out, in} = 0.5 * delta(out,in)
-        #                    + 0.25 * delta(out, in+2)  [if in+2 < m2]
-        #                    + 0.25 * delta(out, |in-2|)
-        # Special cases: for in=0, |in-2|=2 = in+2, so the two T_2 terms coincide → coeff = 0.5
-        Mr2 = np.zeros((m2, m2))
-        for i in range(m2):
-            Mr2[i, i] += 0.5  # T_0 term
-            if i + 2 < m2:
-                Mr2[i + 2, i] += 0.25  # upper diagonal from T_2
-            j_low = abs(i - 2)
-            Mr2[j_low, i] += 0.25  # lower diagonal from T_2
-
-        # Step 5: build multiplication matrix for sin(theta) in Fourier basis.
-        # Fourier coefficients stored as k = -p2//2, ..., p2//2-1 (fftshift order).
-        # sin(th) = (exp(ith) - exp(-ith))/(2i) = (e^{ith} terms: coeff +1/(2i) at k=+1, -1/(2i) at k=-1)
-        # In the fftshift ordering with p2 modes, k=+1 is at index p2//2+1 and k=-1 at index p2//2-1.
-        # Multiplication by e^{ith}: shifts k → k+1, i.e., [Mplus]_{k+1, k} = 1.
-        # Multiplication by e^{-ith}: shifts k → k-1, i.e., [Mminus]_{k-1, k} = 1.
-        # Msin = (1/(2i)) * Mplus + (-1/(2i)) * Mminus = -0.5j * Mplus + 0.5j * Mminus
-        # MATLAB trigspec.multmat(p, [0.5i; 0; -0.5i]) uses fftshift ordering.
-        # The Fourier coeff vector [0.5i, 0, -0.5i] corresponds to:
-        #   k=-1 → 0.5i, k=0 → 0, k=+1 → -0.5i
-        # which is: f(theta) = 0.5i*exp(-ith) - 0.5i*exp(ith) = sin(th).  ✓
-        # The Toeplitz multiplication matrix: [Msin]_{out, in} = coeff[out - in]
-        # where coeff[k] is the Fourier coefficient at wavenumber k.
-        Msin = np.zeros((p2, p2), dtype=complex)
-        # In fftshift order, index j corresponds to wavenumber j - p2//2.
-        # [Msin]_{out, in} = c_{(out - p2//2) - (in - p2//2)} = c_{out - in}
-        # sin(th): c_{-1} = 0.5i, c_{0} = 0, c_{+1} = -0.5i
-        for out_idx in range(p2):
-            for in_idx in range(p2):
-                dk = out_idx - in_idx  # wavenumber shift
-                if dk == -1:
-                    Msin[out_idx, in_idx] = 0.5j
-                elif dk == 1:
-                    Msin[out_idx, in_idx] = -0.5j
-
-        # Step 6: apply Jacobian multiplication F = Mr2 * F_pad * Msin.T
-        F_jac = Mr2 @ F_pad @ Msin.T
-
-        # Step 7: integration weight vectors
-        # int_0^1 T_j(r) dr (Chebyshev T on [-1,1] but we only want [0,1])
-        # Using: int_0^1 T_j(r) dr from MATLAB sum3 formula:
-        #   mod(j,4)==0: -1/(j^2-1)  [special: j=0 → 1]
-        #   mod(j,4)==1: 1/(j+1)
-        #   mod(j,4)==2: -1/(j^2-1)
-        #   mod(j,4)==3: -1/(j-1)
-        int_cheb = np.zeros(m2, dtype=float)
-        for j in range(m2):
-            r = j % 4
-            if j == 0:
-                int_cheb[j] = 1.0
-            elif r == 0:
-                int_cheb[j] = -1.0 / (j * j - 1)
-            elif r == 1:
-                int_cheb[j] = 1.0 / (j + 1)
-            elif r == 2:
-                int_cheb[j] = -1.0 / (j * j - 1)
-            else:  # r == 3
-                int_cheb[j] = -1.0 / (j - 1)
-
-        # int_0^pi exp(i*k*th) dth (Fourier on [0, pi])
-        # = pi           if k=0
-        # = -i*((-1)^k - 1)/k   if k != 0
-        # (from MATLAB: Listp = (1:p2).' - floor(p2/2)-1 gives k from -(p2//2) to p2//2-1
-        #  IntTheta(k==0) = pi, else = -1i*((-1)^k - 1)/k)
-        int_theta = np.zeros(p2, dtype=complex)
-        p2_mid = p2 // 2  # index of k=0 in fftshift ordering
-        for idx in range(p2):
-            k = idx - p2_mid  # wavenumber
-            if k == 0:
-                int_theta[idx] = np.pi
-            else:
-                int_theta[idx] = -1j * ((-1.0) ** k - 1.0) / k
-
-        # Step 8: integrate over lambda (multiply by 2*pi for the DC lambda mode)
-        int_theta *= 2.0 * np.pi
-
-        # Step 9: I = int_cheb @ F_jac @ int_theta
-        I = int_cheb @ F_jac @ int_theta
-
-        if self.is_real:
-            I = float(np.real(I))
-        return I
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        result = sum_coefficients(self.coeffs, self.is_real)
+        return jnp.real(result) if self.is_real else result
 
     def _partial_sum(self, dim: int):
         """Integrate over a single spherical variable (MATLAB @ballfun/sum)."""
@@ -2267,21 +2161,11 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/norm.m
         Chebfun commit: 7574c77
         """
-        c = np.array(self.coeffs)
-        m, n, p = c.shape
-        # MATLAB pads to (2m, 2n, 2p) before forming |f|^2 to avoid aliasing.
-        mp, np_, pp = 2 * m + 1 - (2 * m) % 2, 2 * n + (2 * n) % 2, max(4, 2 * p)
-        big = np.zeros((mp, np_, pp), dtype=complex)
-        n_off = np_ // 2 - n // 2
-        p_off = pp // 2 - p // 2
-        big[:m, n_off : n_off + n, p_off : p_off + p] = c
-        v = _coeffs2vals_3d(big)
-        f2 = Ballfun(
-            coeffs=jnp.asarray(_vals2coeffs_3d(v * np.conj(v)), dtype=jnp.complex128),
-            is_real=True,
-            domain=self.domain,
-        )
-        return float(np.sqrt(abs(f2.sum())))
+        from chebfunjax.ballfun._integrals import norm_coefficients
+
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        return float(norm_coefficients(self.coeffs))
 
     def integral(self) -> float:
         """Triple integral of f over the unit ball.

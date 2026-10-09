@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ball volume integrals and norms (2026-10-09)
+
+Integrated JAX coefficient-space volume integration and the source norm
+construction, including literal radial/Fourier weights, source prolongation
+sizes and real/complex return semantics. Only Ballfun norm/sum methods and a
+new private integration module change library behavior.
+
+Qualification includes 42 scoped controls, all 121 real spherical-harmonic
+modes through degree 10 (363 norm observations), and 11 complex/normalization
+cases. Root independently audited all 48 bounded CPU processes and verified
+identical code/test payloads across their frozen snapshots. Native tolerances
+were retained; the real-mode aggregate was run in partitions.
+
+Four original SolidHarmonics scalar cells were executed and their printed
+values updated. This is not a new full-page render or a degree-150 accuracy
+qualification. Existing Ball adaptive/differentiation host paths, image
+lighting/camera/interpolation differences, fresh MATLAB captures and final
+full-suite/CI qualification remain open.
+
+Evidence: ball_norm_root_delivery_review_20261009.json and
+ball_norm_source_20261009/FINAL_HANDOFF.json in shared scratch. Source
+applicability was reviewed through 94a1014a; no new-head runtime claim.
+
 ## Public constructor context and regression milestone (2026-10-09)
 
 Integrated the source construction context: selected technology and private

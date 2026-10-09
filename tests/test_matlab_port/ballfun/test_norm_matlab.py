@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 from chebfunjax.ballfun.ballfun import Ballfun
+from chebfunjax.chebpref import ChebfunPref
 
 
 class TestBallfunNorm:
@@ -23,3 +24,9 @@ class TestBallfunNorm:
         one = Ballfun.from_function(
             lambda x, y, z: 1.0 + 0 * x)
         assert abs(float(one.norm()) - np.sqrt(4 * np.pi / 3)) < 1e-8
+
+
+def test_original_norm():
+    f = Ballfun.from_function(lambda r, lam, th: 1, spherical=True)
+    tol = 1e4 * ChebfunPref().techPrefs.chebfuneps
+    assert abs(f.norm() - np.sqrt(4 * np.pi / 3)) < tol
