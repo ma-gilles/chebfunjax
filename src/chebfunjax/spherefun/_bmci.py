@@ -8,6 +8,7 @@ Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 """
 import jax.numpy as jnp
 
+from chebfunjax.spherefun._factor_assembly import stack_factor_coefficients
 from chebfunjax.tech.trigtech import (
     Trigtech,
     _trig_coeffs2vals_impl,
@@ -19,8 +20,7 @@ from chebfunjax.utils.misc import standard_chop
 
 
 def _stack(techs):
-    n = max(t.coeffs.shape[0] for t in techs)
-    return jnp.stack([_trig_prolong_coeffs(t.coeffs, n) for t in techs], axis=1)
+    return stack_factor_coefficients(techs)
 
 
 def _columns(coeffs, even, nonzero_poles):

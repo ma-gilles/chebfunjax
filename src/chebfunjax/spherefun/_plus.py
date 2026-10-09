@@ -11,6 +11,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.spherefun._cdr import inverse_pivots
+from chebfunjax.spherefun._factor_assembly import stack_factor_coefficients
 from chebfunjax.tech.trigtech import (
     _trig_coeffs2vals_impl,
     _trig_eval,
@@ -103,8 +104,7 @@ def _zero():
 
 
 def _stack(techs):
-    size = max(t.coeffs.shape[0] for t in techs)
-    return jnp.stack([_trig_prolong_coeffs(t.coeffs, size) for t in techs], axis=1)
+    return stack_factor_coefficients(techs)
 
 
 @jax.jit
