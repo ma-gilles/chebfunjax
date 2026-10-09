@@ -1,58 +1,32 @@
-"""Port of MATLAB Chebfun tests/chebop/test_exactInitial.m (Fable 5).
+"""Literal four-clause Chebfun exact-initial-guess source test.
 
-The chebcolloc1/ultraS discretization variants run through
-solve_bvp_altdisc.
+The previous sampled/fixed-grid controls remain separately in
+``test_exactInitial_legacy_controls.py`` and do not qualify source predicates.
 
 Provenance
 ----------
-MATLAB source : tests/chebop/test_exactInitial.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebop/test_exactInitial.m.
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
 """
+import math
 
-from __future__ import annotations
-
-import jax
-import jax.numpy as jnp
-
-import chebfunjax as cj
+from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.operators.chebop_altdisc import solve_bvp_altdisc
-
-jax.config.update("jax_enable_x64", True)
-
-TOL = 1e-7
 
 
-def _n(f, d):
-    xs = jnp.linspace(d[0] + 1e-9, d[1] - 1e-9, 33)
-    return float(jnp.max(jnp.abs(jnp.asarray(f(xs)))))
-
-
-class TestChebopExactInitial:
-    def test_all_matlab_assertions(self):
-        d = (0.0, 10.0)
-        x = cj.chebfun(lambda t: t, domain=d)
-
-        def mk():
-            N = Chebop(lambda x, u: u.diff(2) + u.sin(), domain=d)
-            N.lbc = 2.0
-            N.rbc = 2.0
-            return N
-
-        N = mk()
-        N.init = 2.0 * (2.0 * jnp.pi * x / 10.0).cos()
-        u = N.solve(0.0)
-        assert _n(N(u), d) < TOL           # err(1)
-
-        # Restart from the exact solution.
-        N = mk()
-        N.init = u
-        u = N.solve(0.0)
-        assert _n(N(u), d) < TOL           # err(2)
-
-        # chebcolloc1 / ultraS variants.
-        for disc in ("chebcolloc1", "ultraS"):
-            N = mk()
-            N.init = u
-            v = solve_bvp_altdisc(N, 0.0, disc, n=64)[0]
-            assert _n(N(v), d) < TOL       # err(3)/(4)
+def test_original_exact_initial_1_4(record_property):
+    dom = (0., 10.)
+    op = Chebop(lambda x, u: u.diff(2) + u.sin(), dom)
+    op.bc = lambda x, u: [u(0.)-2, u(10.)-2]
+    x = chebfun(lambda x: x, domain=dom)
+    op.init = 2*(2*math.pi*x/10).cos()
+    u, _ = op.solvebvp(0., discretization='chebcolloc2')
+    errors = [float(op(u).norm())]
+    op.init = u
+    # Source keeps this initial guess for all three subsequent solves.
+    for backend in ['chebcolloc2', 'chebcolloc1', 'ultraS']:
+        u, _ = op.solvebvp(0., discretization=backend)
+        errors.append(float(op(u).norm()))
+    for slot, error in enumerate(errors, 1):
+        record_property(f'source_exactInitial_{slot}', error)
+    assert all(error < 1e-7 for error in errors), errors

@@ -1389,11 +1389,10 @@ class Chebop:
                 max_iter=max_iter, newton_tol=newton_tol,
             )
 
-        # A scalar problem carrying a general .bc constraint (conditions the
-        # user evaluates at arbitrary points, e.g. an interior u(0)) is
-        # assembled by the block collocation solver, which supports the
-        # general-constraint row placement.  A single-block system reduces to
-        # the scalar collocation matrix; unwrap to a plain Chebfun.
+        # General .bc constraints may evaluate at interior points or apply
+        # nonlocal functionals. Finite scalar nonlinear problems use source
+        # scalar Newton; remaining cases retain the block solver adapters.
+        # Unwrap a single-block result to a plain Chebfun.
         if self._bc_general is not None:
             try:
                 _lin_sys = (self._is_linear() if self._n_vars() == 1
@@ -1410,8 +1409,16 @@ class Chebop:
                 sol = self._solve_linear_system(f, n=n)
             else:
                 try:
-                    sol = self._solve_nonlinear_system(
-                        f, n=n, max_iter=max_iter)
+                    if (self._n_vars() == 1 and len(self.domain) == 2
+                            and all(bool(jnp.isfinite(point)) for point in self.domain)):
+                        # Source solvebvp uses the scalar Newton engine for
+                        # general functional BCs too; preserve public prefs.
+                        sol = [self._solve_nonlinear(
+                            f, n=n, n_min=n_min, n_max=n_max, tol=tol,
+                            max_iter=max_iter, newton_tol=newton_tol)]
+                    else:
+                        sol = self._solve_nonlinear_system(
+                            f, n=n, max_iter=max_iter)
                 except ValueError as exc:
                     # The operator could not be evaluated at the initial
                     # guess (sqrt(u), 1/u about u = 0): MATLAB's
@@ -5406,6 +5413,23 @@ class Chebop:
         # norm reductions inside M).
         if self._deflation is not None:
             return False
+        # Source @chebop/linearize.m includes every BC linearity flag.
+        # Restrict this adapter to the qualified scalar/general-BC domain;
+        # other system, periodic and piecewise classifications are unchanged.
+        if (self._bc_general is not None and self._n_vars() == 1
+                and len(self.domain) == 2 and not self._periodic
+                and all(bool(jnp.isfinite(point)) for point in self.domain)):
+            from chebfunjax.autodiff.adchebfun import ADChebfun
+            from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+            from chebfunjax.operators.scalar_newton import _conditions
+
+            initial = self.init if self.init is not None else 0
+            initial = (initial if isinstance(initial, Chebfun)
+                       else chebfun(initial, domain=self.domain))
+            seed = ADChebfun(initial).seed(1, (True,))
+            if any(isinstance(row, ADChebfun) and not row.is_linear
+                   for row in _conditions(self, seed)):
+                return False
         # If op is already an OperatorBlock, definitely linear
         if isinstance(self.op, OperatorBlock):
             return True

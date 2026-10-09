@@ -1,5 +1,30 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Scalar general boundary conditions (2026-10-08)
+
+Finite single-interval scalar nonlinear general BCs now use the source scalar
+Newton adapter and preserve public tolerance/resolution preferences. Scalar
+linearity classification includes AD boundary-condition flags at the explicit
+initial guess or source zero. This repairs two independently reproduced
+misroutes without changing AD, shared matrix assembly or parameter Newton.
+
+Literalbc9-10 and exactInitial1-4 all pass unchanged, with five independent
+controls. The canonical exactInitial test restores general BCs, continuous norm,
+adaptive alternate backends and the source restart sequence; prior sampled/fixed
+grid controls remain explicitly named legacy controls. Root rehashed1795 files
+per control run and1805 for the source gate, checked source hashes and the exact
+two-method scope. Accepted runs are terminal/stable/no survivors. Evidence:
+ scalar_general_bc_root_review_20261008.json and
+ scalar_general_bc_source_20261008/HANDOFF_FINAL_v4.json in shared scratch.
+
+Unresolved diagnostic retained: u''=0 with nonlinear BC[u(-1)^2-1,u(1)-1] and
+explicitinit2 stalls with damping warning and distance norm0.0204124. Adding a
+BC-satisfying nonconstant-init control does not resolve that failure. Its runnable
+reproducer and unrun native MATLAB probe are in the package diagnostics folder;
+frozen-constraint recurrence is a hypothesis, not a verified native trajectory.
+Periodic/piecewise/coupled/parameter cases, Carrier restoration, full-suite and
+exact-head CI remain open. Timings are qualification observations, not benchmarks.
+
 ## Adaptive alternative ODE discretizations (2026-10-08)
 
 Coupled linear Chebcolloc1/ultraS solves now use exact AD coefficient/functional
