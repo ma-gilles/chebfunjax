@@ -18,6 +18,7 @@ from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece, chebfun
 from chebfunjax.discretization.ultras import convertmat, multmat
 from chebfunjax.discretization.ultras import diffmat as ultra_diffmat
 from chebfunjax.domain import Domain
+from chebfunjax.operators._native_values import FirstKindDisc
 from chebfunjax.operators.blocks import OperatorBlock
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2, _clenshaw
 from chebfunjax.utils.diffmat import _cheb1_barywts, diffmat
@@ -76,6 +77,18 @@ def _dimension_values(minimum, maximum, backend):
         powers = interval(lo, 9, 1.)+interval(9.5, hi, .5)
     return tuple(int(math.floor(2**p + 0.5)) for p in powers)
 
+
+
+def _native_capability(block, backend):
+    """Source values-stack capability, with the native ultraS rejection."""
+    if backend == 'ultraS':
+        raise TypeError(
+            "COEFFSDISCRETIZATION:instantiate:fail -- Cannot represent this "
+            "operator. Suggest you use VALSDISCRETIZATION.")
+    capability = block._values_capability
+    if backend != 'chebcolloc1' or capability is None:
+        raise TypeError("No native first-kind stack capability for this operator")
+    return capability
 
 
 class LinearDiscretization:
@@ -151,6 +164,11 @@ class LinearDiscretization:
 
     def _operator_column(self, block, column, output_order):
         if isinstance(block, OperatorBlock):
+            if block._coeff_fn is None:
+                capability = _native_capability(block, self.backend)
+                sizes = tuple(n+self.orders[column] for n in self.dimensions)
+                matrix = capability.realize(FirstKindDisc(sizes, self.domain))
+                return self.projections[column] @ matrix
             coefficients = block.coeff_list()
         elif isinstance(block, (int, float, complex)):
             coefficients = [block]
@@ -291,12 +309,21 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
     """
     entries = L._normalize_rhs(rhs)
-    coefficient_functions = [coefficient
-                             for row in L.A.blocks for block in row
-                             if isinstance(block, OperatorBlock)
-                             for coefficient in block.coeff_list()
-                             if isinstance(coefficient, Chebfun)]
+    coefficient_functions = []
+    native_domains = []
+    for row in L.A.blocks:
+        for block in row:
+            if not isinstance(block, OperatorBlock):
+                continue
+            if block._coeff_fn is None:
+                native_domains.extend(_native_capability(block, backend).domain)
+            else:
+                coefficient_functions.extend(
+                    coefficient for coefficient in block.coeff_list()
+                    if isinstance(coefficient, Chebfun))
     domain = L._merged_domain(entries+coefficient_functions)
+    if native_domains:
+        domain = tuple(sorted(set(domain).union(native_domains)))
     schedule = _dimension_values(n_min, n_max, backend)
     if n is not None:
         dimensions = tuple(L._sizes(n, domain))

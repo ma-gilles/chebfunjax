@@ -1,5 +1,39 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+
+## Native C1 nonlocal equations and AD scalar matrix multiplication (2026-10-08)
+
+The scalar finite-interval nonlocal route now realizes the original operator
+stack on genuine first-kind nodes, preserving intermediate multiplication,
+complex values, coefficient breakpoints and global cross-interval functionals.
+Existing differential assembly and the adaptive solver loop are unchanged.
+Unsupported ultraS nonlocal equations retain the native rejection.
+
+AD matrix multiplication now accepts numeric scalars, including size-one JAX
+arrays, and preserves coefficient, coordinate and native-values metadata.
+Chebfun/AD operand precedence follows the native AD class. Functional matrix
+multiplication raises the native dimension error. Numeric AD array expansion
+and native anonymous-function vectorization remain unfinished.
+
+Qualification is composite: 27 AD controls, nine nonlocal controls, four
+instances of original promote_functional slots 1/2 (C2 and C1), and 20 endpoint
+controls. The original continuous infinity-norm bound remains 1e-10. Root
+independently rehashed every observed runtime file in all seven gates. All
+receipts are terminal zero with stable inputs and no surviving processes.
+
+Root review caught and corrected interval-direction corner cases before
+integration. Historical gates bind the earlier helper; AST review proves only
+FirstKindDisc.evaluation changed, the scalar source solves use unchanged paths,
+and the final endpoint controls cover the corrected branches. This is not a
+single full-suite run on the final tree. Source slots 3-10, periodic/coupled
+nonlocal workflows, full page parity, native execution and final CI remain open.
+
+Evidence in shared scratch: nonlocal_root_runtime_review_20261008.json,
+nonlocal_root_endpoint_runtime_20261008.json, nonlocal_root_scope_review_20261008.json,
+nonlocal_root_assembler_scope_20261008.json, nonlocal_root_endpoint_scope_20261008.json,
+and ad_mtimes_root_review_v2_20261008.json. Atomic payload comes from
+nonlocal_c1_source_20261008 and autovectorize_mtimes_source_20261008/delivery_v3.
+
 ## Interrupted-script disposition refresh and inverse experiment (2026-10-08)
 
 A fresh hash inventory at4d5ff9b7 confirms five interrupted scripts have

@@ -233,6 +233,41 @@ class ADChebfun:
     def __pos__(self):
         return self
 
+    def mtimes(self, other):
+        """MATLAB matrix multiplication, exposed by Python ``@``.
+
+        Scalar numeric operands scale the primal and Jacobian. Functional
+        operands raise the native dimension error, regardless of their values.
+
+        Provenance: @adchebfun/adchebfun.m, mtimes and scalar times,
+        Chebfun 7574c77680d7e82b79626300bf255498271a72df.
+        Numeric AD array expansion is not implemented by this scalar class.
+        """
+        if isinstance(other, (int, float, complex)) and not isinstance(other, bool):
+            result = _copy_ad(self)
+            result.func = self.func * other
+            result.jacobian = self.jacobian * other
+            return result
+        if hasattr(other, "dtype") and jnp.issubdtype(other.dtype, jnp.number):
+            values = jnp.asarray(other)
+            if values.size != 1:
+                raise NotImplementedError(
+                    "ADChebfun numeric array mtimes expansion is not implemented.")
+            scalar = values.reshape(())
+            result = _copy_ad(self)
+            result.func = self.func * scalar
+            result.jacobian = _multiply_jacobian(scalar, self.jacobian, self.domain)
+            return result
+        raise ValueError(
+            "CHEBFUN:ADCHEBFUN:mtimes:dims: Matrix dimensions must agree. "
+            "Use pointwise multiplication for two ADChebfun or Chebfun objects.")
+
+    def __matmul__(self, other):
+        return self.mtimes(other)
+
+    def __rmatmul__(self, other):
+        return self.mtimes(other)
+
     def __mul__(self, other):
         """Product rule: d(f*g)[v] = f*dg[v] + g*df[v]."""
         if isinstance(other, ADChebfun):
@@ -1452,6 +1487,17 @@ def _scale_jacobian(jacobian, factor):
             iszero=jacobian.iszero,
             isnotdiffint=jacobian.isnotdiffint,
         )
+        coordinates = jacobian._coordinate_fn
+        kwargs["_coordinate_fn"] = (None if coordinates is None
+                                    else lambda n: factor*coordinates(n))
+        if isinstance(jacobian, OperatorBlock):
+            coefficients = jacobian._coeff_fn
+            kwargs["coeff_fn"] = (None if coefficients is None
+                                  else lambda: [factor*c for c in coefficients()])
+        capability = getattr(jacobian, "_values_capability", None)
+        if capability is not None:
+            kwargs["_values_capability"] = type(capability)(
+                lambda disc: factor*capability.realize(disc), capability.domain)
         return type(jacobian)(lambda disc: factor*jacobian.matrix(disc), **kwargs)
     return factor*jacobian
 

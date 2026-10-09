@@ -1,48 +1,32 @@
-"""Port of MATLAB Chebfun tests/chebop/test_promote_functional.m
-(Fable 5).
-
-Integro-differential operators (sum(u) terms inside the op).  The
-nonlinear Newton path resolves them to 1e-13; the scalar LINEAR
-path's functional promotion only reaches ~7e-9 against MATLAB's
-1e-10 bound (worse at higher n), so that assertion is an honest
-xfail with evidence.  The system case (pointwise u(0)-style bc)
-remains a documented gap.
+"""Strict source promote_functional slots1/2, with explicit C1 qualification.
 
 Provenance
 ----------
-MATLAB source : tests/chebop/test_promote_functional.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebop/test_promote_functional.m
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+
+All ten original slots remain mapped in the package source_mapping.json.
+Slots1/2 below retain continuous infinity norms and the original1e-10 bound.
+C1 is an additional explicitly requested backend, not an extra original slot.
+Unresolved slots3/5 check coupled linearize matrix row count8; slots4/6 check
+coupled nonlinear continuous residuals; slots7/9 check periodic continuous
+residuals and slots8/10 require returned trigtech. None is replaced by a proxy
+or counted as qualified by this two-slot package. Native ultraS rejects the
+finite-interval nonlocal equation; periodic coeffs means trigspec instead.
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
+import pytest
 
 from chebfunjax.operators.chebop import Chebop
 
-TOL = 1e-10
-XS = jnp.asarray(np.linspace(-0.99, 0.99, 30))
 
-
-class TestChebopPromoteFunctional:
-    # (Previously xfailed at ~7e-9: the solve returned an unchopped
-    # ~1e-14 coefficient tail that diff(2) amplified in the residual;
-    # solutions are now simplified as in MATLAB's linsolve.  Measured
-    # 6.4e-14 on 2026-07-30.)
-    def test_linear_integro_differential(self):
-        # pass(1)
-        N = Chebop(lambda x, u: u.diff(2) + u.sum(), (-1.0, 1.0))
-        N.lbc = 0.0
-        N.rbc = 0.0
-        u = N.solve(1.0)
-        assert float(jnp.max(jnp.abs(N(u)(XS) - 1.0))) < TOL
-
-    def test_nonlinear_integro_differential(self):
-        # pass(2)
-        N = Chebop(lambda x, u: u.diff(2) + u * u.sum(),
-                   (-1.0, 1.0))
-        N.lbc = 0.0
-        N.rbc = 0.0
-        u = N.solve(1.0)
-        assert float(jnp.max(jnp.abs(N(u)(XS) - 1.0))) < TOL
+@pytest.mark.parametrize('backend', ['chebcolloc2', 'chebcolloc1'])
+@pytest.mark.parametrize('clause', [1, 2], ids=['source_clause_01', 'source_clause_02'])
+def test_literal_scalar_functional_promotion(clause, backend):
+    if clause == 1:
+        N = Chebop(lambda u: u.diff(2)+u.sum())
+    else:
+        N = Chebop(lambda u: u.diff(2)+u*u.sum())
+    N.lbc, N.rbc = 0., 0.
+    u = N.solve(1., discretization=backend)
+    assert (N(u)-1).norm(jnp.inf) < 1e-10

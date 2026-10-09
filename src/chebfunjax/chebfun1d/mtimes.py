@@ -49,10 +49,15 @@ def mtimes(f, g):
         @separableApprox/mtimes.m
     Chebfun commit: 7574c77
     """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
     from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
     from .chebfun import Chebfun, _is_empty_operand
     from .linalg import Quasimatrix
+
+    # Native ADChebfun declares Chebfun inferior, so AD owns either ordering.
+    if isinstance(f, Chebfun) and isinstance(g, ADChebfun):
+        return g.mtimes(f)
     types = (Chebfun, Quasimatrix)
     ff, gf = isinstance(f, types), isinstance(g, types)
     if ((isinstance(f, Chebfun) and f.isempty()) or

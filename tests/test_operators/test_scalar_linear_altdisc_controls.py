@@ -42,17 +42,24 @@ def test_exact_nonlocal_boundary_functionals(backend):
 
 
 @pytest.mark.parametrize('backend', ['chebcolloc1', 'ultraS'])
-def test_nonlocal_equation_is_explicitly_unsupported(monkeypatch, backend):
+def test_nonlocal_equation_backend_capability(monkeypatch, backend):
     operator = Chebop(lambda u: u.diff(2)+u.sum(), [-1, 1])
     operator.lbc = operator.rbc = 0.
     original = operator.solve
     def recorded(*args, **kwargs):
-        assert kwargs.get('discretization') == backend, 'No default seed for unsupported equation'
+        assert kwargs.get('discretization') == backend, 'No default seed for nonlocal equation'
         return original(*args, **kwargs)
     monkeypatch.setattr(operator, 'solve', recorded)
-    # Existing OperatorBlock.coeff_list uses TypeError for this capability.
-    with pytest.raises(TypeError, match='no coefficient realization'):
-        operator.solve(1, n=8, discretization=backend)
+    if backend == 'ultraS':
+        # Native coeffsDiscretization has no conversion for this operator.
+        with pytest.raises(TypeError, match='COEFFSDISCRETIZATION:instantiate:fail'):
+            operator.solve(1, n=8, discretization=backend)
+    else:
+        solution = operator.solve(1, n=8, discretization=backend)
+        exact = chebfun(lambda x: 1.5*(x*x-1))
+        assert (solution-exact).norm(jnp.inf) < 1e-10
+        assert jnp.abs(solution(-1.)) < 1e-10
+        assert jnp.abs(solution(1.)) < 1e-10
 
 
 @pytest.mark.parametrize('backend', ['chebcolloc1', 'ultraS'])

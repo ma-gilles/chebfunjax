@@ -24,6 +24,7 @@ from typing import Callable, Sequence, Union
 
 import jax.numpy as jnp
 
+from chebfunjax.operators import _native_values
 from chebfunjax.operators._coordinates import (
     binary as _coordinate_binary,
 )
@@ -232,9 +233,11 @@ class OperatorBlock:
         isnotdiffint: bool = False,
         coeff_fn: Callable[[], list] | None = None,
         _coordinate_fn: Callable | None = None,
+        _values_capability: _native_values.Capability | None = None,
     ) -> None:
         self._op_fn = op_fn
         self._coordinate_fn = _coordinate_fn
+        self._values_capability = _values_capability
         self.order = order
         self.domain = tuple(float(v) for v in domain)
         # Optional coefficient realization (MATLAB blockCoeff): a thunk
@@ -345,7 +348,8 @@ class OperatorBlock:
             isnotdiffint=(self.isnotdiffint and other.isnotdiffint),
             coeff_fn=(None if (ac is None or bc is None)
                       else (lambda: _coeff_add(ac(), bc()))),
-            _coordinate_fn=_coordinate_binary(self, other, 'add'))
+            _coordinate_fn=_coordinate_binary(self, other, 'add'),
+            _values_capability=_native_values.binary(self, other, 'add'))
 
     def __radd__(self, other: "OperatorBlock") -> "OperatorBlock":
         return self.__add__(other)
@@ -374,7 +378,8 @@ class OperatorBlock:
             coeff_fn=(None if (ac is None or bc is None)
                       else (lambda: _coeff_add(ac(),
                                                [-v for v in bc()]))),
-            _coordinate_fn=_coordinate_binary(self, other, 'sub'))
+            _coordinate_fn=_coordinate_binary(self, other, 'sub'),
+            _values_capability=_native_values.binary(self, other, 'sub'))
 
     def __rsub__(self, other):
         if isinstance(other, (int, float)):
@@ -404,7 +409,8 @@ class OperatorBlock:
                 iszero=isz, isnotdiffint=self.isnotdiffint,
                 coeff_fn=(None if ac is None
                           else (lambda: [c * v for v in ac()])),
-            _coordinate_fn=_coordinate_scale(self, c))
+            _coordinate_fn=_coordinate_scale(self, c),
+            _values_capability=_native_values.scale(self, c))
 
         if isinstance(other, FunctionalBlock):
             other = other.promote()
@@ -429,7 +435,8 @@ class OperatorBlock:
                               or isz),
                 coeff_fn=(None if (ac is None or bc is None)
                           else (lambda: _coeff_mul(ac(), bc()))),
-            _coordinate_fn=_coordinate_binary(self, other, "compose"))
+            _coordinate_fn=_coordinate_binary(self, other, "compose"),
+            _values_capability=_native_values.binary(self, other, "compose"))
 
         # Application to a function (Chebfun): A * u -> A(u).
         from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -463,7 +470,8 @@ class OperatorBlock:
             apply_fn=(None if af is None else (lambda u: -af(u))),
             iszero=self.iszero, isnotdiffint=self.isnotdiffint,
             coeff_fn=(None if ac is None else (lambda: [-v for v in ac()])),
-            _coordinate_fn=_coordinate_scale(self, -1))
+            _coordinate_fn=_coordinate_scale(self, -1),
+            _values_capability=_native_values.scale(self, -1))
 
     def __pow__(self, k: int) -> "OperatorBlock":
         """Repeated composition: ``A^k = A * A * ... * A`` (k times)."""
@@ -538,9 +546,11 @@ class FunctionalBlock:
         iszero: bool = False,
         isnotdiffint: bool = False,
         _coordinate_fn: Callable | None = None,
+        _values_capability: _native_values.Capability | None = None,
     ) -> None:
         self._func_fn = func_fn
         self._coordinate_fn = _coordinate_fn
+        self._values_capability = _values_capability
         self.domain = tuple(float(v) for v in domain)
         self._apply_fn = apply_fn
         self.order = order
@@ -601,7 +611,8 @@ class FunctionalBlock:
 
         return OperatorBlock(_fn, order=0, domain=dom,
                              apply_fn=(None if af is None else _apply),
-                             iszero=self.iszero, isnotdiffint=True)
+                             iszero=self.iszero, isnotdiffint=True,
+                             _values_capability=_native_values.promote(self))
 
     # ------------------------------------------------------------------
     # Core method
@@ -649,7 +660,8 @@ class FunctionalBlock:
             order=max(self.order, other.order),
             iszero=(self.iszero and other.iszero),
             isnotdiffint=(self.isnotdiffint and other.isnotdiffint),
-            _coordinate_fn=_coordinate_binary(self, other, 'add'))
+            _coordinate_fn=_coordinate_binary(self, other, 'add'),
+            _values_capability=_native_values.binary(self, other, 'add'))
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -682,7 +694,8 @@ class FunctionalBlock:
                 order=self.order,
                 iszero=(self.iszero or c == 0),
                 isnotdiffint=self.isnotdiffint,
-            _coordinate_fn=_coordinate_scale(self, c))
+            _coordinate_fn=_coordinate_scale(self, c),
+            _values_capability=_native_values.scale(self, c))
 
         if isinstance(other, OperatorBlock):
             domain = merge_domains(self.domain, other.domain)
@@ -699,7 +712,8 @@ class FunctionalBlock:
                 order=self.order + other.order, iszero=isz,
                 isnotdiffint=((self.isnotdiffint and other.isnotdiffint)
                               or isz),
-            _coordinate_fn=_coordinate_binary(self, other, "compose"))
+            _coordinate_fn=_coordinate_binary(self, other, "compose"),
+            _values_capability=_native_values.binary(self, other, "compose"))
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         if isinstance(other, Chebfun):
@@ -724,7 +738,8 @@ class FunctionalBlock:
             apply_fn=(None if af is None else (lambda u: -af(u))),
             order=self.order, iszero=self.iszero,
             isnotdiffint=self.isnotdiffint,
-            _coordinate_fn=_coordinate_scale(self, -1))
+            _coordinate_fn=_coordinate_scale(self, -1),
+            _values_capability=_native_values.scale(self, -1))
 
     def __repr__(self) -> str:
         return f"FunctionalBlock(domain={self.domain})"
@@ -1038,7 +1053,8 @@ def D(domain: _DomainT = _DEFAULT_DOMAIN, order: int = 1) -> OperatorBlock:
     return OperatorBlock(_op_fn, order=order, domain=domain,
                          apply_fn=lambda u: u.diff(order),
                          isnotdiffint=(order == 0), coeff_fn=_coeffs,
-            _coordinate_fn=_coordinate_derivative(domain, order))
+            _coordinate_fn=_coordinate_derivative(domain, order),
+            _values_capability=_native_values.derivative(domain, order))
 
 
 def I(domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:  # noqa: E743
@@ -1080,7 +1096,8 @@ def I(domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:  # noqa: E743
     return OperatorBlock(_op_fn, order=0, domain=domain,
                          apply_fn=lambda u: u, isnotdiffint=True,
                          coeff_fn=lambda: [_const_chebfun(1.0, domain)],
-            _coordinate_fn=_coordinate_identity(domain))
+            _coordinate_fn=_coordinate_identity(domain),
+            _values_capability=_native_values.identity(domain))
 
 
 def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
@@ -1146,7 +1163,8 @@ def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
     coeff_fn = (lambda: [f]) if isinstance(f, Chebfun) else None
     return OperatorBlock(_op_fn, order=0, domain=dom, apply_fn=apply_fn,
                          isnotdiffint=True, coeff_fn=coeff_fn,
-            _coordinate_fn=_coordinate_multiplier(f, dom))
+            _coordinate_fn=_coordinate_multiplier(f, dom),
+            _values_capability=_native_values.multiplier(f, dom))
 
 
 def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN,
@@ -1223,7 +1241,8 @@ def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN,
             return u(jnp.asarray(_x))
         return u(jnp.asarray(_x), "left" if _d < 0 else "right")
     fb = FunctionalBlock(_fn, domain=dom, isnotdiffint=True, apply_fn=_apply,
-            _coordinate_fn=_coordinate_evaluation(x, dom))
+            _coordinate_fn=_coordinate_evaluation(x, dom),
+            _values_capability=_native_values.evaluation(x, dom, dirn))
     # Location metadata: lets piecewise discretizations (Linop.expm) place
     # this row in the sub-interval that owns the evaluation point.
     fb.loc = float(x)
@@ -1280,7 +1299,8 @@ def sum_functional(domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:
         return jnp.concatenate(parts)
 
     return FunctionalBlock(_fn, domain=dom, order=-1,
-                           apply_fn=lambda u: u.sum())
+                           apply_fn=lambda u: u.sum(),
+                           _values_capability=_native_values.integral(dom))
 
 
 # ===========================================================================
@@ -1327,7 +1347,8 @@ def zeros_op(domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:
 
     return OperatorBlock(_op_fn, order=0, domain=dom, apply_fn=_apply,
                          iszero=True, isnotdiffint=True,
-                         coeff_fn=lambda: [_const_chebfun(0.0, dom)])
+                         coeff_fn=lambda: [_const_chebfun(0.0, dom)],
+                         _values_capability=_native_values.zero(dom))
 
 
 def cumsum_op(domain: _DomainT = _DEFAULT_DOMAIN,
@@ -1556,7 +1577,8 @@ def zero_functional(domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:
     dom = tuple(float(v) for v in domain)
     return FunctionalBlock(
         lambda disc: jnp.zeros(disc.n, dtype=jnp.float64),
-        domain=dom, apply_fn=lambda u: 0.0, iszero=True, isnotdiffint=True)
+        domain=dom, apply_fn=lambda u: 0.0, iszero=True, isnotdiffint=True,
+        _values_capability=_native_values.zero(dom, functional=True))
 
 
 def inner_functional(f, domain: _DomainT | None = None) -> FunctionalBlock:
