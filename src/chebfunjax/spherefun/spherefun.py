@@ -2607,7 +2607,9 @@ class Spherefun(eqx.Module):
             if other._is_exact_zero():
                 return self
             return self.__add__(other * (-1.0))
-        if np.isscalar(other):
+        if (np.isscalar(other) or (not isinstance(other, Spherefun)
+                                  and jnp.ndim(other) == 0
+                                  and not jnp.iscomplexobj(other))):
             return self.__add__(-other)
         return self._binary(other, lambda a, b: a - b)
 

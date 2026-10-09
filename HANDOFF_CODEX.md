@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere subtraction accepts public JAX scalar results (2026-10-09)
+
+Preparing the actual AtmosphericTemperature input exposed a dispatch bug:
+mean2(f) returns a JAX scalar, but sphere subtraction recognized only NumPy's
+isscalar predicate. The native f-g=plus(f,uminus(g)) route was bypassed for
+zero-dimensional arrays, triggering adaptive resampling of the whole function.
+Real zero-dimensional NumPy/JAX scalars now use the existing addition route.
+Complex zero-dimensional arrays and non-scalar arrays retain their prior paths.
+
+The frozen baseline reproduces the wrong route with an explicit resampling
+sentinel. The corrected candidate passes6 controls: actual mean2 subtraction
+and five scalar representations, sampled analytical values and zero-mean
+checking. The source condition is the only production change; numerical tests
+retain their original bounds. These controls do not establish arbitrary data
+or complex-scalar parity. Both runs are stable/uncensored with no survivors.
+
+Evidence in shared goal scratch: sphere_scalar_minus_20261009/{baseline_v1,
+candidate_v1}, sphere_scalar_minus_independent_source_review_20261009.json
+and sphere_scalar_minus_root_runtime_review_20261009.json.
+Actual Atmospheric data construction and full page verification remain pending.
+
+
 ## Native array-valued QR/SVD returns and scalar-zero branch (2026-10-09)
 
 Smooth/scalar QR now returns an actual Chebfun array, retaining factor panels
