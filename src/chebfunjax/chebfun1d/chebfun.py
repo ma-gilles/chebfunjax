@@ -6401,44 +6401,17 @@ class Chebfun(eqx.Module):
         return source_vander(self, n)
 
     @staticmethod
-    def horzcat(chebfuns: list[Chebfun]) -> list[Chebfun]:
-        """Horizontal concatenation: return a list (quasimatrix column list).
+    def horzcat(*operands):
+        """Source horizontal concatenation, accepting a list or variadic inputs.
 
-        All Chebfuns must share the same domain endpoints. Returns the input
-        list, validating domain compatibility. In Python there is no native
-        quasimatrix type; the list-of-Chebfun convention is used here and
-        throughout the linalg module.
-
-        Parameters
-        ----------
-        chebfuns : list[Chebfun]
-            Column Chebfuns to concatenate.
-
-        Returns
-        -------
-        list[Chebfun]
-            The same list (quasimatrix representation).
-
-        Raises
-        ------
-        ValueError
-            If domain endpoints differ between any two inputs.
-
-        Provenance
-        ----------
-        MATLAB source : @chebfun/horzcat.m
-        Chebfun commit: 7574c77
+        Returns an array-valued Chebfun, Quasimatrix, or row ChebMatrix.
+        Provenance: @chebfun/horzcat.m, Chebfun commit7574c77.
+        An empty Python operand list returns an empty Chebfun.
         """
-        if not chebfuns:
-            return []
-        a0, b0 = chebfuns[0].domain.a, chebfuns[0].domain.b
-        for i, f in enumerate(chebfuns[1:], start=1):
-            if abs(f.domain.a - a0) > 100 * _EPS or abs(f.domain.b - b0) > 100 * _EPS:
-                raise ValueError(
-                    f"horzcat: column {i} has domain [{f.domain.a}, {f.domain.b}] "
-                    f"which is inconsistent with [{a0}, {b0}]."
-                )
-        return list(chebfuns)
+        from chebfunjax.chebfun1d._horzcat import source_horzcat
+        if len(operands) == 1 and isinstance(operands[0], (list, tuple)):
+            operands = tuple(operands[0])
+        return source_horzcat(operands)
 
     @staticmethod
     def vertcat(chebfuns: list[Chebfun]) -> list[Chebfun]:

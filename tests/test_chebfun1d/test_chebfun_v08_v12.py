@@ -40,24 +40,25 @@ class TestHorzcat:
     def test_single_chebfun(self):
         f = chebfun(jnp.sin)
         result = Chebfun.horzcat([f])
-        assert isinstance(result, list)
-        assert len(result) == 1
+        assert result is f
 
     def test_two_same_domain(self):
         f = chebfun(jnp.sin)
         g = chebfun(jnp.cos)
         result = Chebfun.horzcat([f, g])
-        assert len(result) == 2
+        assert isinstance(result, Chebfun)
+        assert result.n_columns == 2
 
     def test_domain_mismatch_raises(self):
         f = chebfun(jnp.sin)
         g = chebfun(jnp.cos, domain=(0.0, 1.0))
-        with pytest.raises(ValueError, match="inconsistent"):
+        with pytest.raises(ValueError, match="Inconsistent"):
             Chebfun.horzcat([f, g])
 
     def test_empty_list(self):
         result = Chebfun.horzcat([])
-        assert result == []
+        assert isinstance(result, Chebfun)
+        assert result.isempty()
 
 
 class TestVertcat:
