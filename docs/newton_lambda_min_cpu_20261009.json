@@ -1,0 +1,158 @@
+{
+  "reviewer": "/root",
+  "default_source_proof": [
+    {
+      "path": "src/chebfunjax/operators/scalar_newton.py",
+      "default_module_AST_equal": true,
+      "removed_only": [
+        "once-per-solve preference import",
+        "lambda_min = ChebopPref().lambdaMin"
+      ],
+      "factory_value": 1e-06
+    },
+    {
+      "path": "src/chebfunjax/operators/parameter_newton.py",
+      "default_module_AST_equal": true,
+      "removed_only": [
+        "once-per-solve preference import",
+        "lambda_min = ChebopPref().lambdaMin"
+      ],
+      "factory_value": 1e-06
+    },
+    {
+      "path": "src/chebfunjax/operators/_coupled_newton.py",
+      "default_module_AST_equal": true,
+      "removed_only": [
+        "once-per-solve preference import",
+        "lambda_min = ChebopPref().lambdaMin"
+      ],
+      "factory_value": 1e-06
+    }
+  ],
+  "six_controls": "independently accepted actual public scalar/parameter/coupled first-step controls; original1e-10 bound",
+  "native_c2": {
+    "status": "incomplete, RSS capped; NOT a pass",
+    "peak_kib": 3151380,
+    "missing": [
+      "runtime/end.json",
+      "JUnit",
+      "native predicate result"
+    ],
+    "width_max": 258,
+    "full_runtime_claim": false
+  },
+  "integration_decision": "Accept preference-consumption correction on six actual-solve controls plus exact default numerical source equivalence; keep native C2 resource qualification explicitly unresolved and pursue resource diagnosis. This does not close the native regression gate or full goal.",
+  "next": "Source-only memory/compilation investigation; no unchanged retry/cap raise",
+  "payload": [
+    {
+      "path": "src/chebfunjax/operators/scalar_newton.py",
+      "sha256": "2017bdef67a546c9b7dfa4ceee473db39445400b41e79dc474922980a483a2f3"
+    },
+    {
+      "path": "src/chebfunjax/operators/parameter_newton.py",
+      "sha256": "538e31532b8905aab455e01b41bb569a2ab2915a19061d88d02b89246aaf5607"
+    },
+    {
+      "path": "src/chebfunjax/operators/_coupled_newton.py",
+      "sha256": "9835a864f51ebd140026d57d64cef47c2b11159fdaa126c5352ab6bf16ac39dc"
+    },
+    {
+      "path": "tests/test_newton_lambda_min_source.py",
+      "sha256": "831be67096d0f849353a9520538c46089303b2f977984f9e4d6401e872825be7"
+    }
+  ],
+  "native_c2_evidence": {
+    "original_handle": 13370,
+    "qualification": "CENSORED/incomplete; no native predicate acceptance",
+    "receipt": {
+      "supervisor_exit_code": 137,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 104.46430272981524,
+      "sampled_peak_summed_rss_kib": 3151380
+    },
+    "runtime_files": [
+      "matrix_widths.jsonl",
+      "start.json"
+    ],
+    "max_width": 258,
+    "widths": [
+      2,
+      32,
+      34,
+      64,
+      66,
+      128,
+      130,
+      256,
+      258
+    ],
+    "width_events": 184,
+    "stage_counts": {
+      "before_scalar_grid_and_projection": 26,
+      "before_operator_matrix": 158
+    },
+    "rss_checkpoints": [
+      {
+        "seconds": 0.010924457106739283,
+        "rss_kib": 288
+      },
+      {
+        "seconds": 10.632924498058856,
+        "rss_kib": 475716
+      },
+      {
+        "seconds": 21.256147048901767,
+        "rss_kib": 475716
+      },
+      {
+        "seconds": 31.87504107085988,
+        "rss_kib": 610856
+      },
+      {
+        "seconds": 42.54319349396974,
+        "rss_kib": 1235628
+      },
+      {
+        "seconds": 53.22460886789486,
+        "rss_kib": 1724348
+      },
+      {
+        "seconds": 63.868441632948816,
+        "rss_kib": 2242276
+      },
+      {
+        "seconds": 74.50371908396482,
+        "rss_kib": 2732516
+      }
+    ],
+    "rss_final": {
+      "elapsed_seconds": 85.03820442967117,
+      "sum_rss_kib": 3151380
+    },
+    "next_action": "No retry/cap change authorized. Preserve six controls separately. Root review required."
+  },
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheboppref_entry_routes_source_20261009/READINESS_v1.json",
+      "sha256": "60cbddcc4721bc27b66b430e37dbb6260ed690eb8477a104d5606715cbe06cd0"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheboppref_entry_routes_source_20261009/SIX_CONTROL_QUALIFICATION_v1.json",
+      "sha256": "c6a7cafa4dc10068f606b6783ff16fa5dd43ff7b9acd9cbae813f95921abcb6e"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_lambda_six_root_results_review_20261009.json",
+      "sha256": "010c49e69f2a9c0f59a9524aeca6c7fe210b3c188660af4cd0ffc96f4d295914"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_lambda_scalar_root_runtime_review_20261009.json",
+      "sha256": "3d2ad00a1658df73cf4dd5afe21d1b0ad9c51f053b5824f3b780e2ca38ef5421"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_lambda_parameter_coupled_root_runtime_review_20261009.json",
+      "sha256": "fb5e1fb49a10f6b3371137fb6fc95ea6acfddb57b77aebb0b23b019092dd7492"
+    }
+  ]
+}

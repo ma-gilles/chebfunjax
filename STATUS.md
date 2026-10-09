@@ -1,5 +1,23 @@
 # Parity status — 2026-10-09
 
+## Newton damping preference consumption (2026-10-09)
+
+Scalar, parameter and coupled Newton solvers now capture ChebopPref.lambdaMin
+once per solve and use it in the native strict damping comparison. Six actual
+solve controls passed, covering reduced steps and full-step fallback in all
+three routes. Root verified the exact tested payloads, JUnit cases and runtime
+files. Default numerical module ASTs match the previous implementation after
+substituting the factory value 1e-6 and removing the new preference read.
+
+The unchanged native C2 damping regression remains UNRESOLVED: its run hit
+the 3 GiB RSS cap (3151380 KiB peak), without a result, JUnit or end manifest.
+This is not a passing regression. Inputs were stable and no processes survived;
+only the startup runtime could be audited. Width observations reached 258.
+The next step is memory/compilation diagnosis, with no unchanged retry or cap
+increase. Callable/parser parity and the full CPU suite remain open.
+
+Evidence and exact scope: docs/newton_lambda_min_cpu_20261009.json.
+
 ## PTDecomposition source plot structure and dimensions (2026-10-09)
 
 The example now calls public Ballfunv.quiver and Ballfun.plot. This replaces
@@ -31,7 +49,7 @@ the process closed uncensored with no survivors. Full Ruff/F821 and provenance
 checks passed. These tests exercise preference state, not numerical solvers.
 
 Native callable identity, entry-specific parser rules, flat object shape and
-solver consumption of scale/lambdaMin remain incomplete. Existing default
+solver consumption of scale remain incomplete; lambdaMin is addressed above. Existing default
 solver read-values are unchanged; no new combined solver run is claimed.
 
 Evidence: cheboppref_factory_source_plan_20261009/DELIVERY_v1.json and

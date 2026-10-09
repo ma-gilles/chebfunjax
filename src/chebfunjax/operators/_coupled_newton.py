@@ -155,6 +155,10 @@ def fit_bcs(L):
 def solve_coupled(op, f=0, n=None, max_iter=25, bvp_tol=5e-13,
                   n_min=32, n_max=4096, backend='chebcolloc2'):
     """Source Newton on coupled function blocks using the shared adaptive solve."""
+    # Native solvebvpNonlinear.m75 captures this preference once per solve.
+    from chebfunjax.chebpref import ChebopPref
+
+    lambda_min = ChebopPref().lambdaMin
     domain = tuple(op.domain)
     u = _initial(op, op.init)
     L0, _, flags = linearize(op, u)
@@ -232,7 +236,7 @@ def solve_coupled(op, f=0, n=None, max_iter=25, bvp_tol=5e-13,
                                  _norm(_add(delta_bar, delta, -1)) * norm_delta) * lam
                     lam = min(1, mu)
                     prediction = False
-                if lam < 1e-6:
+                if lam < lambda_min:
                     trial = _add(u, delta)
                     lam = 1
                     give_up += .5

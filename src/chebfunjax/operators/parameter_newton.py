@@ -64,8 +64,11 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
     as the source does. Scalar parameters remain numeric, including complex
     parameters. Fixed n explicitly bypasses linear-solve happiness refinement.
     """
+    from chebfunjax.chebpref import ChebopPref
     from chebfunjax.operators.chebop import SystemSolution
 
+    # Native solvebvpNonlinear.m75 captures this preference once per solve.
+    lambda_min = ChebopPref().lambdaMin
     domain = tuple(op.domain)
     x = chebfun(lambda t: t, domain=domain)
     m = op._n_vars()
@@ -232,7 +235,7 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
                                  _norm(_add(delta_bar, delta, -1)) * norm_delta) * lam
                     lam = min(1, mu)
                     prediction = False
-                if lam < 1e-6:
+                if lam < lambda_min:
                     trial = _add(u, delta)
                     lam = 1
                     give_up += .5
