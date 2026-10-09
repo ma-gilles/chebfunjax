@@ -416,7 +416,9 @@ def _simplify_trig_slices(vals: np.ndarray, rel_tol: float) -> list:
         if n % 2 == 0:
             c = np.concatenate(([0.5 * c[0]], c[1:], [0.5 * c[0]]))
         mid = (c.shape[0] + 1) // 2 - 1
-        out.append(Trigtech.from_coeffs(jnp.asarray(c[mid - cutoff + 1:mid + cutoff])))
+        out.append(Trigtech.from_coeffs(
+            jnp.asarray(c[mid - cutoff + 1:mid + cutoff]),
+            real_columns=techs[j].real_columns))
     return out
 
 

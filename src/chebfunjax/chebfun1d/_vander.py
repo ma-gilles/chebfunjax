@@ -31,11 +31,11 @@ def _source_tech_columns(techs):
     if all(isinstance(t, Trigtech) for t in techs):
         columns = [_column_matrix(_trig_prolong_coeffs(t.coeffs, size))
                    for t in techs]
-        # Trigtech's existing Python representation has one aggregate flag;
-        # retaining full complex coefficients preserves every column value.
         return type(first)(coeffs=jnp.concatenate(columns, axis=1),
-                           is_real=all(t.is_real for t in techs),
-                           ishappy=first.ishappy)
+                           real_columns=tuple(flag for t in techs for flag in t.real_columns),
+                           ishappy=first.ishappy,
+                           _values=jnp.concatenate([
+                               _column_matrix(t.prolong(size).values) for t in techs], axis=1))
     raise ValueError('CHEBFUN:CHEBTECH:horzcat:typeMismatch: '
                      'Incompatible concatenation technologies.')
 

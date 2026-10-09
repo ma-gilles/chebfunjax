@@ -2095,7 +2095,7 @@ class Diskfun(eqx.Module):
             coeffs = jnp.asarray(rows[i].coeffs)
             modes = jnp.arange(coeffs.shape[0])-coeffs.shape[0]//2
             coeffs = jnp.where(modes % 2 == 1, 0., coeffs)
-            rows[i] = Trigtech.from_coeffs(coeffs, is_real=rows[i].is_real).real()
+            rows[i] = Trigtech.from_coeffs(coeffs, real_columns=rows[i].real_columns).real()
         for i in minus:
             X = _bmc2_odd_cols(_stack_cheb_coeffs([cols[i]]))
             cols[i] = Chebtech2.from_coeffs(jnp.asarray(X[:, 0]))
@@ -2104,7 +2104,7 @@ class Diskfun(eqx.Module):
             coeffs = jnp.asarray(rows[i].coeffs)
             modes = jnp.arange(coeffs.shape[0])-coeffs.shape[0]//2
             coeffs = jnp.where(modes % 2 == 0, 0., coeffs)
-            rows[i] = Trigtech.from_coeffs(coeffs, is_real=rows[i].is_real).real()
+            rows[i] = Trigtech.from_coeffs(coeffs, real_columns=rows[i].real_columns).real()
         return Diskfun(cols=cols, rows=rows, pivots=self.pivots,
                        idx_plus=self.idx_plus, idx_minus=self.idx_minus,
                        pivot_locations=self.pivot_locations,

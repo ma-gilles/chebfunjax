@@ -543,7 +543,7 @@ class _Piece(eqx.Module):
             # MATLAB @trigtech/diff.m retains isReal and realifies values
             # for derivative columns that are known to represent reals.
             new_tech = type(tech_der).from_coeffs(
-                scaled_coeffs, is_real=tech_der.is_real)
+                scaled_coeffs, real_columns=tech_der.real_columns)
         else:
             new_tech = type(tech_der).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
@@ -577,7 +577,9 @@ class _Piece(eqx.Module):
             return _Piece(tech=Chebtech2.from_coeffs(scaled), interval=(a, b))
         # Scale coefficients by (b-a)/2
         scaled_coeffs = tech_cs.coeffs * jnp.float64(scale)
-        new_tech = type(self.tech).from_coeffs(scaled_coeffs)
+        from chebfunjax.tech.trigtech import Trigtech
+        new_tech = (tech_cs * jnp.float64(scale) if isinstance(tech_cs, Trigtech)
+                    else type(self.tech).from_coeffs(scaled_coeffs))
         return _Piece(tech=new_tech, interval=(a, b))
 
     def sum(self) -> jax.Array:
@@ -5787,8 +5789,10 @@ class Chebfun(eqx.Module):
                             # skipped BEFORE the tech-level call, which
                             # otherwise root-finds every column.
                             continue
-                        ct = type(piece.tech)(
-                            coeffs=jnp.asarray(pc[:, j]))
+                        if hasattr(piece.tech, "real_columns"):
+                            ct = piece.tech.extract_column(j)
+                        else:
+                            ct = type(piece.tech)(coeffs=jnp.asarray(pc[:, j]))
                         a_, b_ = piece.interval
                         t_r = _np.asarray(ct.roots())
                         col = a_ + (b_ - a_) * (t_r + 1.0) / 2.0
@@ -7503,10 +7507,22 @@ class Chebfun(eqx.Module):
                 for j in range(len(cell[0]))]
 
     @staticmethod
-    def _tech_with_coeffs(tech, coeffs):
-        """Rebuild a tech of the same class around new coefficients."""
+    def _tech_with_coeffs(tech, coeffs, *, column_indices=None):
+        """Rebuild with explicit column provenance; None indices mean new zeros."""
         kwargs = {"coeffs": coeffs, "ishappy": tech.ishappy}
-        if hasattr(tech, "is_real"):
+        if hasattr(tech, "real_columns"):
+            indices = (list(range(len(tech.real_columns)))
+                       if column_indices is None else column_indices)
+            kwargs["real_columns"] = tuple(
+                True if j is None else tech.real_columns[j] for j in indices)
+            values = tech.values
+            values = values[:, None] if values.ndim == 1 else values
+            selected = [jnp.zeros_like(values[:, :1]) if j is None
+                        else values[:, j:j + 1] for j in indices]
+            new_values = (jnp.concatenate(selected, axis=1) if selected
+                          else values[:, :0])
+            kwargs["_values"] = new_values[:, 0] if coeffs.ndim == 1 else new_values
+        elif hasattr(tech, "is_real"):
             kwargs["is_real"] = tech.is_real
         return type(tech)(**kwargs)
 
@@ -7530,7 +7546,7 @@ class Chebfun(eqx.Module):
             if single:
                 block = block[:, 0]
             new_funs.append(piece.with_tech(
-                self._tech_with_coeffs(t, block)))
+                self._tech_with_coeffs(t, block, column_indices=idx)))
         out = Chebfun(funs=new_funs, domain=self.domain)
         _pv = getattr(self, "_point_values", None)
         if _pv is not None and jnp.ndim(_pv) == 2:
@@ -7657,7 +7673,8 @@ class Chebfun(eqx.Module):
                 c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
                 pad = jnp.zeros((c.shape[0], target - n_cols), dtype=c.dtype)
                 grown.append(piece.with_tech(self._tech_with_coeffs(
-                    t, jnp.concatenate([c, pad], axis=1))))
+                    t, jnp.concatenate([c, pad], axis=1),
+                    column_indices=list(range(n_cols)) + [None] * (target - n_cols))))
             values = base._breakpoint_values().reshape((-1, n_cols))
             values = jnp.concatenate(
                 [values, jnp.zeros((values.shape[0], target - n_cols),
@@ -7826,7 +7843,8 @@ class Chebfun(eqx.Module):
             tech = piece.tech
             coeffs = tech.coeffs if tech.coeffs.ndim == 2 else tech.coeffs[:, None]
             new_funs.append(piece.with_tech(
-                self._tech_with_coeffs(tech, jnp.tile(coeffs, (1, repeats)))))
+                self._tech_with_coeffs(tech, jnp.tile(coeffs, (1, repeats)),
+                                       column_indices=list(range(coeffs.shape[1])) * repeats)))
         out = Chebfun(funs=new_funs, domain=self.domain)
         values = self.point_values
         if values.ndim == 1:
@@ -8702,10 +8720,11 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.fun.singfun import Singfun
+        from chebfunjax.tech.trigtech import Trigtech
 
         new_funs = [
             p.with_tech(
-                p.tech.conj() if isinstance(p.tech, Singfun) else
+                p.tech.conj() if isinstance(p.tech, (Singfun, Trigtech)) else
                 Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
@@ -11099,7 +11118,7 @@ def _chebfun_build(
             # Fourier series to exactly N symmetric coefficients.
             tech = Trigtech(
                 coeffs=tech.trigcoeffs(int(trunc)),
-                is_real=tech.is_real, ishappy=tech.ishappy)
+                real_columns=tech.real_columns, ishappy=tech.ishappy)
         piece = _Piece(tech=tech, interval=(a, b))
         return Chebfun(funs=[piece], domain=Domain((a, b)))
 

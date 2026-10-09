@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigtech per-column realness (2026-10-09)
+
+Static per-column masks now propagate through constructors, arithmetic,
+calculus, column operations and existing-object factories. Public evaluation
+retains the native aggregate projection; direct Horner supports explicit static
+column masks. Source conjugation and scalar-row division semantics are covered.
+45 focused checks and 14 unchanged regressions passed on CPU. Root independently
+verified 2,942 focused and 2,950 regression runtime hashes; both runs terminated
+cleanly with stable inputs and no resource censoring or surviving processes.
+
+This qualifies the representation/propagation package only. Full constructor
+preference/refinement behavior, inherited arithmetic formula gaps and native
+complex-zero storage observations remain open. Evidence under shared scratch:
+trig_real_columns_source_20261009/qualified_packet_v2.json and
+trig_regression_root_runtime_review_20261009.json.
+
 ## Ballfun subplot preservation (2026-10-09)
 
 Removed one unconditional figure-wide subplots_adjust call from the public

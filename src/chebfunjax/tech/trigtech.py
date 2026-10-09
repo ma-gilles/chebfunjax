@@ -1410,22 +1410,59 @@ def _trig_minandmax_scalar(f) -> tuple:
 
 
 
-def _trig_nonadaptive_real_flag(values: jax.Array) -> bool:
-    """Source3eps realness with an explicit static-metadata tracing adapter."""
+def _trig_column_mask(values, vscale=0.):
+    """Native populate3eps per-column predicate; tracing is conservative.
+
+    Source @trigtech/populate.m48-53, pin7574c77. Static metadata cannot be
+    inferred from traced complex values; callers can supply a known mask.
+    """
     values = jnp.asarray(values)
     if values.shape[0] == 0:
-        return True
-    vscale = jnp.max(jnp.abs(values), axis=0)
-    flags = jnp.max(jnp.abs(jnp.imag(values)), axis=0) <= (
-        3*jnp.finfo(jnp.float64).eps*vscale
-    )
-    flag = jnp.all(flags)
-    if isinstance(flag, jax.core.Tracer):
-        # Finite real-dtype values have no imaginary component. Complex
-        # traced data retain phase; explicit is_real in from_coeffs can
-        # provide a known real-representation contract without inspecting data.
-        return not jnp.iscomplexobj(values)
-    return bool(flag)
+        return ()
+    columns = 1 if values.ndim == 1 else values.shape[1]
+    scale = jnp.maximum(jnp.asarray(vscale), jnp.max(jnp.abs(values), axis=0))
+    flags = jnp.max(jnp.abs(jnp.imag(values)), axis=0) <= 3 * (_EPS * scale)
+    if isinstance(flags, jax.core.Tracer):
+        return (not jnp.iscomplexobj(values),) * columns
+    return tuple(bool(x) for x in jnp.ravel(flags))
+
+
+def _trig_nonadaptive_real_flag(values):
+    return all(_trig_column_mask(values))
+
+
+def _trig_project_values(values, mask):
+    """Project columns only at native source assignment points (7574c77)."""
+    if not mask:
+        return values
+    if all(mask):
+        return jnp.real(values)
+    flags = jnp.asarray(mask)
+    return jnp.where(flags[0] if len(mask) == 1 else flags,
+                     jnp.real(values), values)
+
+
+def _trig_mask_width(mask, width):
+    if len(mask) == width:
+        return mask
+    if len(mask) == 1:
+        return mask * width
+    if width == 0:
+        return ()
+    raise ValueError("Trigtech real_columns width mismatch")
+
+
+def _trig_mask_and(left, right, width):
+    return tuple(a and b for a, b in zip(_trig_mask_width(left, width),
+                                        _trig_mask_width(right, width)))
+
+
+def _trig_probe_mask(probe):
+    # MATLAB isreal tests storage, not an imag==0 predicate. JAX arrays use
+    # homogeneous dtype, including complex-zero scalars (adapter contract).
+    probe = jnp.asarray(probe)
+    return (not jnp.iscomplexobj(probe),) * int(probe.size)
+
 
 class Trigtech(eqx.Module):
     """Trigonometric interpolant for smooth periodic functions on [-1, 1].
@@ -1441,6 +1478,11 @@ class Trigtech(eqx.Module):
     is_real : bool
         True if the underlying function is real-valued. Controls whether
         evaluation returns real (float64) or complex (complex128) values.
+    real_columns : tuple of bool
+        Static source isReal metadata, one flag per represented column.
+        Explicit masks take precedence over the legacy is_real argument.
+        Without a mask, a raw constructor asserts uniform is_real metadata;
+        from_values/from_coeffs infer concrete per-column metadata instead.
     ishappy : bool
         True if the representation is resolved to tolerance.
 
@@ -1473,6 +1515,60 @@ class Trigtech(eqx.Module):
     # supplied/scaled values when available; coefficient transforms construct
     # fresh instances without this optional dynamic JAX leaf.
     _values: jax.Array | None = None
+    real_columns: tuple[bool, ...] | None = eqx.field(static=True, default=None)
+
+    def __post_init__(self):
+        width = 0 if self.coeffs.shape[0] == 0 else (1 if self.coeffs.ndim == 1 else self.coeffs.shape[1])
+        mask = self.real_columns
+        if mask is None:
+            # Backward-compatible raw constructor: aggregate flag
+            # asserts a uniform mask. Existing-object factories pass masks.
+            mask = (bool(self.is_real),) * width
+        else:
+            mask = tuple(bool(value) for value in mask)
+            if len(mask) != width:
+                raise ValueError("Trigtech real_columns must match coefficient columns")
+        object.__setattr__(self, "real_columns", mask)
+        object.__setattr__(self, "is_real", all(mask))
+
+    @property
+    def isReal(self):
+        """Source per-column metadata; is_real remains its scalar aggregate."""
+        return jnp.asarray(self.real_columns, dtype=jnp.bool_)
+
+    @staticmethod
+    def horner(x, coeffs, is_real=False):
+        """Direct source horner mask API; public feval passes its aggregate.
+
+        @trigtech/horner.m55-63 and feval.m34, pin7574c77.
+
+        Python metadata adapter: accept scalar flags, static tuples/lists,
+        or concrete one-dimensional logical arrays (including f.isReal).
+        A traced mask is unsupported: pass the static f.real_columns tuple
+        when tracing evaluation. This method does not infer dynamic realness.
+        """
+        width = 1 if coeffs.ndim == 1 else coeffs.shape[1]
+        if any(isinstance(value, jax.core.Tracer)
+               for value in jax.tree_util.tree_leaves(is_real)):
+            raise TypeError("Trigtech.horner requires a static realness mask; "
+                            "pass f.real_columns when tracing evaluation")
+        if isinstance(is_real, (bool, int)):
+            # Python scalar metadata stays concrete inside a traced evaluator.
+            mask = (bool(is_real),) * width
+        elif isinstance(is_real, (tuple, list)):
+            mask = tuple(bool(v) for v in is_real)
+        else:
+            flags = jnp.asarray(is_real)
+            if flags.ndim == 0:
+                mask = (bool(flags),) * width
+            elif flags.ndim == 1 and flags.dtype == jnp.bool_:
+                mask = tuple(bool(value) for value in flags)
+            else:
+                raise ValueError("Trigtech.horner mask must be a scalar flag "
+                                 "or a one-dimensional logical array")
+        mask = _trig_mask_width(mask, width)
+        result = _trig_eval(coeffs, x, all(mask))
+        return result if all(mask) else _trig_project_values(result, mask)
 
     # ------------------------------------------------------------------
     # Empty representation (MATLAB trigtech() with no arguments)
@@ -1510,6 +1606,7 @@ class Trigtech(eqx.Module):
         *,
         is_real: bool | None = None,
         ishappy: bool = True,
+        real_columns: tuple[bool, ...] | None = None,
     ) -> "Trigtech":
         """Construct from Fourier coefficients using source realness threshold.
 
@@ -1526,10 +1623,13 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
-        if is_real is None:
-            values = _trig_coeffs2vals_impl(coeffs)
-            is_real = _trig_nonadaptive_real_flag(values)
-        return cls(coeffs=coeffs, is_real=bool(is_real), ishappy=ishappy)
+        if real_columns is None:
+            if is_real is None:
+                real_columns = _trig_column_mask(_trig_coeffs2vals_impl(coeffs))
+            else:
+                width = 0 if coeffs.shape[0] == 0 else (1 if coeffs.ndim == 1 else coeffs.shape[1])
+                real_columns = (bool(is_real),) * width
+        return cls(coeffs=coeffs, real_columns=real_columns, ishappy=ishappy)
 
     @classmethod
     def from_values(
@@ -1551,10 +1651,10 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         values = jnp.atleast_1d(jnp.asarray(values))
-        is_real = _trig_nonadaptive_real_flag(values)
+        mask = _trig_column_mask(values)
         coeffs = _trig_vals2coeffs_impl(values)
-        return cls(coeffs=coeffs, is_real=is_real, ishappy=ishappy,
-                   _values=jnp.real(values) if is_real else values)
+        return cls(coeffs=coeffs, real_columns=mask, ishappy=ishappy,
+                   _values=_trig_project_values(values, mask))
 
     @classmethod
     def from_function(
@@ -1607,16 +1707,15 @@ class Trigtech(eqx.Module):
             raise ValueError(
                 "Trigtech: cannot handle functions that evaluate to "
                 "Inf or NaN.")
-        return cls._adaptive_construct(f, maxpow2)
+        return cls._adaptive_construct(f, maxpow2, real_columns=_trig_probe_mask(probe))
 
     @classmethod
     def _fixed_construct(cls, f: Callable, n: int) -> "Trigtech":
         """Fixed-size construction."""
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.complex128), is_real=True)
-        values, is_real = _sample_callable_trig_grid(f, n)
-        c = trig_vals2coeffs(values)
-        return cls(coeffs=c, is_real=is_real, ishappy=True)
+        values, _ = _sample_callable_trig_grid(f, n)
+        return cls.from_values(values)
 
     @classmethod
     def _adaptive_construct(
@@ -1624,6 +1723,7 @@ class Trigtech(eqx.Module):
         f: Callable,
         maxpow2: int = 16,
         start_pow2: int = 4,
+        real_columns: tuple[bool, ...] | None = None,
     ) -> "Trigtech":
         """Adaptive construction — Python loop, NOT JIT-safe.
 
@@ -1662,7 +1762,7 @@ class Trigtech(eqx.Module):
             ishappy, n_keep = cls.happiness_check(c, values, op=f, vscale=vscale)
             if ishappy:
                 c_keep = _trig_prolong_coeffs(c, n_keep)
-                return cls(coeffs=c_keep, is_real=is_real, ishappy=True)
+                return cls(coeffs=c_keep, is_real=is_real, real_columns=real_columns, ishappy=True)
 
         # Did not converge
         warnings.warn(
@@ -1674,7 +1774,7 @@ class Trigtech(eqx.Module):
             # Preserve the existing adapter for an explicit cap below start.
             values, is_real = _sample_callable_trig_grid(f, 2**maxpow2)
             c = trig_vals2coeffs(values)
-        return cls(coeffs=c, is_real=is_real, ishappy=False)
+        return cls(coeffs=c, is_real=is_real, real_columns=real_columns, ishappy=False)
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -1818,8 +1918,7 @@ class Trigtech(eqx.Module):
             values = self.values
         else:
             values = trig_coeffs2vals(_alias_trigtech(self.coeffs, n))
-            if self.is_real:
-                values = jnp.real(values).astype(jnp.float64)
+            values = _trig_project_values(values, self.real_columns)
         points = trigpts(n)
         return values, points
 
@@ -1838,10 +1937,9 @@ class Trigtech(eqx.Module):
         if self.isempty():
             return jnp.empty(self.coeffs.shape, dtype=jnp.float64 if self.is_real
                              else jnp.complex128)
-        v = self._values if self._values is not None else trig_coeffs2vals(self.coeffs)
-        if self.is_real:
-            return jnp.real(v).astype(jnp.float64)
-        return v
+        if self._values is not None:
+            return self._values
+        return _trig_project_values(trig_coeffs2vals(self.coeffs), self.real_columns)
 
     @property
     def vscale(self) -> float:
@@ -1892,7 +1990,7 @@ class Trigtech(eqx.Module):
         if n == self.n:
             return self
         new_coeffs = _trig_prolong_coeffs(self.coeffs, n)
-        return Trigtech(coeffs=new_coeffs, is_real=self.is_real, ishappy=self.ishappy)
+        return Trigtech(coeffs=new_coeffs, is_real=self.is_real, real_columns=self.real_columns, ishappy=self.ishappy)
 
     def simplify(self, tol: float | jax.Array | None = None) -> "Trigtech":
         """Return a new Trigtech with small trailing Fourier coefficients removed.
@@ -1941,7 +2039,7 @@ class Trigtech(eqx.Module):
         n_keep = max(1, n_keep)
 
         new_coeffs = _trig_prolong_coeffs(self.coeffs, n_keep)
-        return Trigtech(coeffs=new_coeffs, is_real=self.is_real, ishappy=self.ishappy)
+        return Trigtech(coeffs=new_coeffs, is_real=self.is_real, real_columns=self.real_columns, ishappy=self.ishappy)
 
     # ------------------------------------------------------------------
     # Calculus
@@ -1972,20 +2070,21 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         if dim == 2:
-            # k-th finite differences ACROSS the columns of an
-            # array-valued tech (MATLAB diff(f, k, 2)); empty for
-            # scalar-valued input.
-            if self.coeffs.ndim == 1:
-                return Trigtech(
-                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
-                    is_real=self.is_real, ishappy=self.ishappy)
+            if k == 0:
+                return self
+            if k >= self.num_columns:
+                return Trigtech.empty()
+            mask = self.real_columns
+            for _ in range(k):
+                mask = tuple(a == b for a, b in zip(mask[:-1], mask[1:]))
             return Trigtech(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
-                            is_real=self.is_real, ishappy=self.ishappy)
+                            real_columns=mask, ishappy=self.ishappy,
+                            _values=jnp.diff(self.values, n=k, axis=1))
         if k == 0:
             return self
         dc = _trig_diff_coeffs(self.coeffs, k)
         # Derivative of a real function is real-valued
-        return Trigtech(coeffs=dc, is_real=self.is_real, ishappy=self.ishappy)
+        return Trigtech(coeffs=dc, is_real=self.is_real, real_columns=self.real_columns, ishappy=self.ishappy)
 
     def cumsum(self, m: int | None = 1, dim: int = 1) -> "Trigtech":
         r"""Return the antiderivative with F(-1) = 0.
@@ -2016,9 +2115,8 @@ class Trigtech(eqx.Module):
         factor and its post-integration simplify/left-value adjustment. The
         finite-dimensional branch applies the source column cumulative sum
         ``m`` times. MATLAB updates both its cached values and coefficient
-        row after subtracting ``lval``; this Python representation recomputes
-        values from coefficients, so that two-storage detail remains a parity
-        qualification point. The Python method accepts scalar integer ``m``
+        row after subtracting ``lval``; both stored arrays are preserved.
+        The Python method accepts scalar integer ``m``
         and ``dim``.
         """
         if self.isempty():
@@ -2031,11 +2129,12 @@ class Trigtech(eqx.Module):
         if dim != 1:
             if self.coeffs.ndim == 1:
                 return self
-            coeffs = self.coeffs
+            coeffs, values = self.coeffs, self.values
             for _ in range(max(m, 0)):
                 coeffs = jnp.cumsum(coeffs, axis=1)
-            return Trigtech(coeffs=coeffs, is_real=self.is_real,
-                            ishappy=self.ishappy)
+                values = jnp.cumsum(values, axis=1)
+            return Trigtech(coeffs=coeffs, real_columns=self.real_columns,
+                            ishappy=self.ishappy, _values=values)
 
         n = self.n
         c0_idx = n // 2
@@ -2052,15 +2151,15 @@ class Trigtech(eqx.Module):
                 "with zero mean."
             )
         bc = _trig_cumsum_coeffs(self.coeffs, m=m)
-        result = Trigtech(coeffs=bc, is_real=self.is_real, ishappy=self.ishappy)
+        result = Trigtech(coeffs=bc, is_real=self.is_real, real_columns=self.real_columns, ishappy=self.ishappy)
         result = result.simplify()
         # MATLAB @trigtech/cumsum.m subtracts lval from coefficient row 1
         # after simplify. Preserve this literal source operation; it is not
         # rewritten as a central (constant-mode) correction here.
         lval = result(jnp.asarray(-1.0))
         corrected = result.coeffs.at[0].add(-lval)
-        return Trigtech(coeffs=corrected, is_real=result.is_real,
-                        ishappy=result.ishappy)
+        return Trigtech(coeffs=corrected, is_real=result.is_real, real_columns=result.real_columns,
+                        ishappy=result.ishappy, _values=result.values - lval)
 
     def innerProduct(self, other: "Trigtech") -> jax.Array:
         r"""L^2 inner product <f, g> = \int_{-1}^{1} conj(f) g dx.
@@ -2091,8 +2190,8 @@ class Trigtech(eqx.Module):
             if not isinstance(self.coeffs, jax.core.Tracer) and \
                     not isinstance(other.coeffs, jax.core.Tracer):
                 same = bool(jnp.all(self.coeffs == other.coeffs))
-        if self.is_real and other.is_real:
-            out = jnp.real(out).astype(jnp.complex128)
+        real_pairs = jnp.asarray(self.real_columns)[:, None] & jnp.asarray(other.real_columns)[None, :]
+        out = jnp.where(real_pairs, jnp.real(out), out)
         if same:
             # Force a non-negative real diagonal (MATLAB isequal branch).
             d = jnp.diag(out)
@@ -2183,6 +2282,7 @@ class Trigtech(eqx.Module):
         if vscale.ndim == 2 and vscale.shape[0] == 1:
             vscale = vscale[0]
         is_real = True
+        real_columns = _trig_probe_mask(probe)
         while n <= prefs["maxLength"]:
             if values is None or refinement.lower() == "resampling":
                 values, is_real = _sample_callable_trig_grid(function, n, source_global=True)
@@ -2195,7 +2295,7 @@ class Trigtech(eqx.Module):
             vscale = jnp.maximum(vscale, jnp.max(jnp.abs(jnp.where(jnp.isfinite(values), values, 0)), axis=0))
             happy, cutoff = self.happiness_check(coeffs, values, op=None, tol=tol, vscale=vscale)
             if happy:
-                return Trigtech(coeffs=_trig_prolong_coeffs(coeffs, cutoff), is_real=is_real, ishappy=True)
+                return Trigtech(coeffs=_trig_prolong_coeffs(coeffs, cutoff), real_columns=real_columns, ishappy=True)
             if refinement.lower() == "resampling":
                 power = math.log2(n)
                 n = 3 * 2 ** (int(power) - 1) if power == math.floor(power) and power > 5 else 2 ** (math.floor(power) + 1)
@@ -2204,7 +2304,7 @@ class Trigtech(eqx.Module):
         if coeffs is None:
             raise ValueError("Trigtech compose maxLength is below the initial source refinement grid")
         warnings.warn(f"TRIGTECH:TRIGTECH:compose:convfail: Composition failed to converge with {len(coeffs)} points.", stacklevel=2)
-        return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=False)
+        return Trigtech(coeffs=coeffs, real_columns=real_columns, ishappy=False)
 
     def restrict(self, a: float, b: float):
         """Restriction to [a, b] within [-1, 1].
@@ -2258,11 +2358,10 @@ class Trigtech(eqx.Module):
             if self.coeffs.ndim == 1:
                 return self
             return Trigtech(coeffs=jnp.sum(self.coeffs, axis=1),
-                            is_real=self.is_real, ishappy=self.ishappy)
+                            real_columns=(self.is_real,), ishappy=self.ishappy,
+                            _values=jnp.sum(self.values, axis=1))
         s = _trig_definite_integral(self.coeffs)
-        if self.is_real:
-            return jnp.real(s).astype(jnp.float64)
-        return s
+        return _trig_project_values(s, self.real_columns)
 
     # ------------------------------------------------------------------
     # Roots
@@ -2293,14 +2392,14 @@ class Trigtech(eqx.Module):
         """
         import numpy as _np
 
-        def _one(col):
+        def _one(col, mask):
             if complex:
-                simp = Trigtech.from_coeffs(col).simplify()
+                simp = Trigtech.from_coeffs(col, real_columns=mask).simplify()
                 return _np.asarray(_trig_roots_complex(simp.coeffs, prune=True))
             return _np.asarray(_trig_roots(col))
 
         if self.coeffs.ndim == 2:
-            cols = [_one(self.coeffs[:, j])
+            cols = [_one(self.coeffs[:, j], (self.real_columns[j],))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
             dtype = _np.complex128 if complex else _np.float64
@@ -2308,7 +2407,7 @@ class Trigtech(eqx.Module):
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return jnp.asarray(_one(self.coeffs))
+        return jnp.asarray(_one(self.coeffs, self.real_columns))
 
     # ------------------------------------------------------------------
     # Happiness check
@@ -2411,11 +2510,18 @@ class Trigtech(eqx.Module):
                     fc = fc[:, None]
                 if gc.ndim == 1:
                     gc = gc[:, None]
-            new_is_real = self.is_real and other.is_real
+            coeffs = fc + gc
+            width = 1 if coeffs.ndim == 1 else coeffs.shape[1]
+            mask = _trig_mask_and(self.real_columns, other.real_columns, width)
             return Trigtech(
-                coeffs=fc + gc,
-                is_real=new_is_real,
+                coeffs=coeffs,
+                real_columns=mask,
                 ishappy=self.ishappy and other.ishappy,
+                _values=_trig_project_values(
+                    (self.prolong(n).values[:, None] if self.coeffs.ndim == 1
+                     and coeffs.ndim == 2 else self.prolong(n).values)
+                    + (other.prolong(n).values[:, None] if other.coeffs.ndim == 1
+                       and coeffs.ndim == 2 else other.prolong(n).values), mask),
             )
         else:
             # Scalar (or row of per-column scalars): add to the
@@ -2432,11 +2538,14 @@ class Trigtech(eqx.Module):
             n = self.n
             c0_idx = n // 2
             c = c.at[c0_idx].add(s)
-            new_is_real = self.is_real and bool(
-                jnp.isrealobj(jnp.asarray(other))
-                or not jnp.any(jnp.imag(s)))
-            return Trigtech(coeffs=c, is_real=new_is_real,
-                            ishappy=self.ishappy)
+            width = 1 if c.ndim == 1 else c.shape[1]
+            mask = tuple(flag and jnp.isrealobj(jnp.asarray(other))
+                         for flag in _trig_mask_width(self.real_columns, width))
+            values = self.values
+            if c.ndim == 2 and values.ndim == 1:
+                values = values[:, None]
+            return Trigtech(coeffs=c, real_columns=mask,
+                            ishappy=self.ishappy, _values=values + jnp.asarray(other))
 
     def __radd__(self, other) -> "Trigtech":
         return self.__add__(other)
@@ -2459,7 +2568,8 @@ class Trigtech(eqx.Module):
     def __neg__(self) -> "Trigtech":
         if self.isempty():
             return Trigtech.empty()
-        return Trigtech(coeffs=-self.coeffs, is_real=self.is_real, ishappy=self.ishappy)
+        return Trigtech(coeffs=-self.coeffs, real_columns=self.real_columns,
+                        ishappy=self.ishappy, _values=-self.values)
 
     def __pos__(self) -> "Trigtech":
         return self
@@ -2475,7 +2585,8 @@ class Trigtech(eqx.Module):
 
         Equality uses coefficients and grid values. Supplied and scalar-scaled
         grid values are retained as a dynamic JAX leaf; coefficient transforms
-        discard that cache. The adapter retains its global real flag.
+        discard that cache. Realness propagates per column with a scalar
+        aggregate used only where native feval requests all(isReal).
         Construction and value-dependent branch selection remain eager.
         """
         if self.isempty():
@@ -2487,7 +2598,6 @@ class Trigtech(eqx.Module):
             if scalar.ndim > 2 or (scalar.ndim == 2 and scalar.shape[0] != 1):
                 raise ValueError("Trigtech times requires a scalar or row vector")
             row = scalar.reshape(-1)
-            is_real = self.is_real and jnp.isrealobj(scalar)
             if row.size == 1:
                 # Source scalar path scales coefficients directly.
                 coeffs = self.coeffs * row[0]
@@ -2502,7 +2612,10 @@ class Trigtech(eqx.Module):
             values = self.values
             if row.size > 1 and values.ndim == 1:
                 values = values[:, None]
-            return Trigtech(coeffs=coeffs, is_real=is_real, ishappy=self.ishappy,
+            width = 1 if coeffs.ndim == 1 else coeffs.shape[1]
+            mask = tuple(flag and jnp.isrealobj(scalar)
+                         for flag in _trig_mask_width(self.real_columns, width))
+            return Trigtech(coeffs=coeffs, real_columns=mask, ishappy=self.ishappy,
                             _values=values * (row[0] if row.size == 1 else row[None, :]))
         if other.isempty():
             return Trigtech.empty()
@@ -2556,8 +2669,11 @@ class Trigtech(eqx.Module):
             values = values[:, 0]
         h = Trigtech(
             coeffs=trig_vals2coeffs(values),
-            is_real=self.is_real and other.is_real,
+            real_columns=_trig_mask_and(
+                self.real_columns, other.real_columns, max(fm, gm)),
             ishappy=self.ishappy and other.ishappy,
+            _values=_trig_project_values(values, _trig_mask_and(
+                self.real_columns, other.real_columns, max(fm, gm))),
         ).simplify()
         if pos:
             # Source enforces grid positivity after simplification. This is
@@ -2606,13 +2722,12 @@ class Trigtech(eqx.Module):
                 nan_c = jnp.full(
                     (1, ncols) if self.coeffs.ndim == 2 else (1,),
                     jnp.nan, dtype=jnp.complex128)
-                return Trigtech(coeffs=nan_c, is_real=self.is_real,
-                                ishappy=True)
+                return Trigtech.from_values(nan_c)
             # A complex divisor clears is_real (the imaginary part was
             # silently dropped before -- Fable 5, flip-roots audit).
             s = arr.astype(jnp.complex128)
-            new_is_real = self.is_real and bool(
-                jnp.isrealobj(arr) or not jnp.any(jnp.imag(s)))
+            mask = tuple(flag and jnp.isrealobj(arr)
+                         for flag in self.real_columns)
             if row.shape[0] > 1:
                 # MATLAB divides the VALUES row-wise and sets the
                 # zero-divisor columns' values to NaN, whose transform
@@ -2621,12 +2736,19 @@ class Trigtech(eqx.Module):
                 zero_cols = row == 0
                 if bool(jnp.any(zero_cols)):
                     q = jnp.where(zero_cols[None, :], jnp.nan, q)
-                return Trigtech(coeffs=q, is_real=new_is_real,
-                                ishappy=self.ishappy)
+                values = self.values / s.reshape(1, -1)
+                values = jnp.where(zero_cols[None, :], jnp.nan, values)
+                return Trigtech(coeffs=q, real_columns=mask,
+                                ishappy=self.ishappy, _values=values)
+            # Native numel(c)==1 is scalar division regardless of storage
+            # shape. Rank-zero adaptation avoids (1,1)/(n,) broadcasting to
+            # (1,n), which would reinterpret Fourier modes as columns.
+            scalar = s.reshape(())
             return Trigtech(
-                coeffs=self.coeffs / s,
-                is_real=new_is_real,
+                coeffs=self.coeffs / scalar,
+                real_columns=mask,
                 ishappy=self.ishappy,
+                _values=self.values / scalar,
             )
 
     def __rtruediv__(self, other) -> "Trigtech":
@@ -2696,7 +2818,9 @@ class Trigtech(eqx.Module):
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
         return Trigtech(coeffs=c @ A.astype(jnp.complex128),
                         is_real=self.is_real and bool(jnp.isrealobj(A)),
-                        ishappy=self.ishappy)
+                        ishappy=self.ishappy,
+                        _values=(self.values if self.values.ndim == 2
+                                 else self.values[:, None]) @ A)
 
     def fliplr(self) -> "Trigtech":
         """Reverse the column order of an array-valued tech (no-op for
@@ -2709,8 +2833,10 @@ class Trigtech(eqx.Module):
         """
         if self.coeffs.ndim == 1:
             return self
+        # Native fliplr reverses stored arrays but deliberately leaves isReal.
         return Trigtech(coeffs=self.coeffs[:, ::-1],
-                        is_real=self.is_real, ishappy=self.ishappy)
+                        real_columns=self.real_columns, ishappy=self.ishappy,
+                        _values=self.values[:, ::-1])
 
     def flipud(self) -> "Trigtech":
         """Return g with g(x) = f(-x).  Odd length flips the
@@ -2728,8 +2854,10 @@ class Trigtech(eqx.Module):
         else:
             new_c = jnp.concatenate(
                 [jnp.conj(c[:1]), c[:0:-1]])
-        return Trigtech(coeffs=new_c, is_real=self.is_real,
-                        ishappy=self.ishappy)
+        values = self.values
+        return Trigtech(coeffs=new_c, real_columns=self.real_columns,
+                        ishappy=self.ishappy,
+                        _values=jnp.concatenate([values[:1], values[:0:-1]]))
 
     def real(self) -> "Trigtech":
         """Real part (a zero tech if the input was purely imaginary).
@@ -2768,7 +2896,7 @@ class Trigtech(eqx.Module):
                         is_real=True, ishappy=self.ishappy)
 
     def conj(self) -> "Trigtech":
-        """Complex conjugate (via conjugated grid values).
+        """Source conjugation of only columns not marked real.
 
         Provenance
         ----------
@@ -2777,16 +2905,22 @@ class Trigtech(eqx.Module):
         """
         if self.is_real:
             return self
-        v = jnp.conj(trig_coeffs2vals(self.coeffs))
-        return Trigtech(coeffs=trig_vals2coeffs(v),
-                        is_real=self.is_real, ishappy=self.ishappy)
+        # Literal @trigtech/conj.m: modify only columns not marked real.
+        flags = jnp.asarray(self.real_columns)
+        flags = flags[0] if self.coeffs.ndim == 1 else flags[None, :]
+        coeffs = jnp.where(flags, self.coeffs, jnp.conj(self.coeffs[::-1]))
+        values = jnp.where(flags, self.values, jnp.conj(self.values))
+        return Trigtech(coeffs=coeffs, real_columns=self.real_columns,
+                        ishappy=self.ishappy, _values=values)
 
     def extract_column(self, j: int) -> "Trigtech":
         """Return column ``j`` (0-based) of an array-valued tech as a
         scalar-valued Trigtech (MATLAB ``extractColumns``)."""
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        return Trigtech(coeffs=c[:, j], is_real=self.is_real,
-                        ishappy=self.ishappy)
+        values = self.values
+        values = values[:, None] if values.ndim == 1 else values
+        return Trigtech(coeffs=c[:, j], real_columns=(self.real_columns[j],),
+                        ishappy=self.ishappy, _values=values[:, j])
 
     def minandmax(self):
         """Global minimum and maximum on [-1, 1].
@@ -2838,10 +2972,14 @@ class Trigtech(eqx.Module):
         j = 0
         for s in sizes:
             block = c[:, j:j + s]
-            j += s
+            values = self.values
+            values = values[:, None] if values.ndim == 1 else values
+            vb = values[:, j:j + s]
             out.append(Trigtech(
                 coeffs=block[:, 0] if s == 1 else block,
-                is_real=self.is_real, ishappy=self.ishappy))
+                real_columns=self.real_columns[j:j + s], ishappy=self.ishappy,
+                _values=vb[:, 0] if s == 1 else vb))
+            j += s
         return out
 
     @classmethod
@@ -2865,8 +3003,11 @@ class Trigtech(eqx.Module):
             c = _trig_prolong_coeffs(t.coeffs, n)
             cols.append(c if c.ndim == 2 else c[:, None])
         return cls(coeffs=jnp.concatenate(cols, axis=1),
-                   is_real=all(t.is_real for t in techs),
-                   ishappy=all(t.ishappy for t in techs))
+                   real_columns=tuple(flag for t in techs for flag in t.real_columns),
+                   ishappy=all(t.ishappy for t in techs),
+                   _values=jnp.concatenate([
+                       t.prolong(n).values[:, None] if t.coeffs.ndim == 1
+                       else t.prolong(n).values for t in techs], axis=1))
 
     def assign_columns(self, cols, g) -> "Trigtech":
         """Overwrite the columns ``cols`` (0-based) with the columns of
@@ -2882,16 +3023,25 @@ class Trigtech(eqx.Module):
         cols = [cols] if isinstance(cols, int) else list(cols)
         if g is None:
             keep = [j for j in range(fc.shape[1]) if j not in cols]
+            values = self.values
+            values = values[:, None] if values.ndim == 1 else values
             return Trigtech(coeffs=fc[:, keep],
-                            is_real=self.is_real, ishappy=self.ishappy)
+                            real_columns=tuple(self.real_columns[j] for j in keep),
+                            ishappy=self.ishappy, _values=values[:, keep])
         n = max(fc.shape[0], g.n)
         fc = _trig_prolong_coeffs(fc, n)
         gc = _trig_prolong_coeffs(g.coeffs, n)
         gc = gc if gc.ndim == 2 else gc[:, None]
         out = fc.at[:, jnp.asarray(cols)].set(gc)
-        return Trigtech(coeffs=out,
-                        is_real=self.is_real and g.is_real,
-                        ishappy=self.ishappy and g.ishappy)
+        mask = list(self.real_columns)
+        for j, flag in zip(cols, _trig_mask_width(g.real_columns, len(cols)), strict=True):
+            mask[j] = flag
+        fv, gv = self.prolong(n).values, g.prolong(n).values
+        fv = fv[:, None] if fv.ndim == 1 else fv
+        gv = gv[:, None] if gv.ndim == 1 else gv
+        values = fv.at[:, jnp.asarray(cols)].set(gv)
+        return Trigtech(coeffs=out, real_columns=tuple(mask),
+                        ishappy=self.ishappy and g.ishappy, _values=values)
 
     # ------------------------------------------------------------------
     # Size / scale introspection (array-valued)
@@ -3290,7 +3440,7 @@ class Trigtech(eqx.Module):
                 raise ValueError("CHEBFUN:TRIGTECH:mrdivide:size")
             if not bool(jnp.any(Bd != 0)):
                 z = jnp.full((1, A.num_columns), jnp.nan, dtype=jnp.complex128)
-                return Trigtech(coeffs=z, is_real=A.is_real, ishappy=True)
+                return Trigtech.from_values(z)
             if Bd.size == 1:
                 return A * (1.0 / Bd.reshape(()))
             # Matrix least squares: X = Q * (R / B).

@@ -107,7 +107,7 @@ def simplify_factors(techs, tol=None):
     base = jnp.finfo(jnp.float64).eps if tol is None else tol
     tolerances = jnp.asarray(base) * jnp.max(local) / local
     result = _simplify_coefficients(coefficients, tolerances)
-    return [Trigtech(coeffs=result[:, j], is_real=t.is_real, ishappy=True)
+    return [Trigtech(coeffs=result[:, j], real_columns=t.real_columns, ishappy=True)
             for j, t in enumerate(techs)]
 
 

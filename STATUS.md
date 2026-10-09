@@ -39,9 +39,10 @@ These are scoped qualifications, not a complete passing suite or exact-head CI.
 
 ## Current work
 
-Trigonometric per-column metadata is under focused CPU qualification. The Ballfun
-subplot fix is under regression testing. Native basic eigenvalue tests and
-canonical operator behavior are being restored. Resource-heavy examples run
+Trigonometric per-column metadata passed 45 focused and 14 unchanged regression
+checks. The Ballfun subplot fix passed five controls; its refreshed images are
+under final integration. Native basic eigenvalue behavior, full real/complex
+solid harmonics and remaining constructor contracts are being implemented. Resource-heavy examples run
 serially; independent bounded work uses up to three worker slots.
 
 ## Evidence

@@ -1844,7 +1844,7 @@ class Spherefun(eqx.Module):
             n = c.shape[0]
             k = jnp.arange(n, dtype=jnp.float64) - n // 2
             new_rows.append(Trigtech.from_coeffs(
-                c * jnp.exp(-1j * k * a), is_real=r.is_real))
+                c * jnp.exp(-1j * k * a), real_columns=r.real_columns))
         return Spherefun(cols=self.cols, rows=new_rows, pivots=self.pivots,
                          idx_plus=self.idx_plus, idx_minus=self.idx_minus,
                          pivot_locations=self.pivot_locations,
