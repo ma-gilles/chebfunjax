@@ -1593,6 +1593,10 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/trigtech.m, @trigtech/populate.m
         Chebfun commit: 7574c77
         """
+        # Native @trigtech/trigtech.m (7574c77) samples fixedLength before
+        # populate receives numeric values, bypassing its adaptive probe.
+        if n is not None:
+            return cls._fixed_construct(f, n)
         # MATLAB @trigtech/populate.m probes the handle at a fixed
         # pseudo-random point and refuses functions that evaluate to
         # Inf or NaN (a trigtech is a smooth periodic representation).
@@ -1603,8 +1607,6 @@ class Trigtech(eqx.Module):
             raise ValueError(
                 "Trigtech: cannot handle functions that evaluate to "
                 "Inf or NaN.")
-        if n is not None:
-            return cls._fixed_construct(f, n)
         return cls._adaptive_construct(f, maxpow2)
 
     @classmethod

@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigtech fixed-length callback order (2026-10-09)
+
+Fixed-length Trigtech construction now samples only its requested fixed grid
+and endpoint before converting values, matching native constructor136–150.
+The adaptive pseudo-random probe is no longer called for fixedLength; the
+adaptive path and fixed-grid transform are otherwise unchanged. This restores
+valid fixed-grid-only callbacks and callbacks nonfinite only at that unrequested
+adaptive point. Thirteen focused controls pass in23.81s, peak0.76GiB;
+terminal0/stable/no survivors, root2929 observed-file hashes clean.
+Evidence: trig_fixed_probe_root_runtime_review_20261009.json and
+trig_fixed_probe_source_20261009/focused_v1 in shared goal scratch.
+General Trigtech preferences, native per-column realness thresholds and full
+constructor parity remain separate open work.
+
+
 ## Numeric zero operator preference forwarding (2026-10-09)
 
 Unbounded numeric zero construction now forwards C1/C2 technology preferences
