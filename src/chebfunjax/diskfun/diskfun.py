@@ -33,6 +33,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import ast
 import warnings
 from typing import Callable
 
@@ -310,7 +311,7 @@ def _phase_two_disk(
     remove_poles: bool,
     tol: float,
     fixed: bool = False,
-) -> tuple[list, list, np.ndarray, list, list]:
+) -> tuple[list, list, np.ndarray, list, list, list, bool]:
     """Resolve column (Chebtech2) and row (Trigtech) slices adaptively.
 
     With ``fixed=True`` the slices are extracted in a single pass at the
@@ -356,6 +357,11 @@ def _phase_two_disk(
         0-based indices into the full list that are "plus" terms.
     idx_minus : list of int
         0-based indices into the full list that are "minus" terms.
+    locs : list
+        Pivot locations.
+    failure : bool
+        Maximum slice length was reached before resolution. The constructor
+        must retain this source PhaseTwo state across its sample test.
 
     Provenance
     ----------
@@ -403,7 +409,7 @@ def _phase_two_disk(
         zero_col = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
         zero_row = Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128))
         return ([zero_col], [zero_row], np.array([1.0]), [0], [],
-                [(0.0, 1.0)])
+                [(0.0, 1.0)], False)
 
     while not (happy_cols and happy_rows) and not failure:
         r_pts = _disk_col_pts(m_cur)
@@ -697,7 +703,7 @@ def _phase_two_disk(
         rows_list.append(Trigtech.from_coeffs(rc, is_real=True))
 
     return (cols_list, rows_list, pivots_raw, idx_plus_raw,
-            idx_minus_raw, locs_raw)
+            idx_minus_raw, locs_raw, failure)
 
 
 # ============================================================================
@@ -850,7 +856,11 @@ class Diskfun(eqx.Module):
         tol: float = _EPS,
         max_rank: int = 512,
         max_sample: int = 2**14,
-            start_grid: int | None = None,
+        start_grid: int | None = None,
+        *,
+        coordinates: str = "polar",
+        vectorize: bool = False,
+        fixed_rank: int | None = None,
     ) -> "Diskfun":
         """Construct a Diskfun from a callable.
 
@@ -890,10 +900,12 @@ class Diskfun(eqx.Module):
             and The Chebfun Developers.
         Algorithm: Townsend, Wilber, Wright, SISC 39(5) 2017.
         """
+        _validate_disk_fixed_rank(fixed_rank)
+        f = _prepare_disk_callable(f, coordinates, vectorize)
         alpha = 100.0  # coupling parameter
         min_sample = 4 if start_grid is None else max(4, int(start_grid) // 2)
         factor = 8.0  # rank bound = min(m, n) / factor
-        pseudo_level = _EPS
+        pseudo_level = max(_EPS, float(tol))
 
         is_happy = False
         failure = False
@@ -978,7 +990,7 @@ class Diskfun(eqx.Module):
 
         # Phase 2: resolve slices
         (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
-         locs) = _phase_two_disk(
+         locs, failure) = _phase_two_disk(
             f,
             pivot_indices,
             pivot_array,
@@ -1013,15 +1025,19 @@ class Diskfun(eqx.Module):
         if (not np.all(np.isfinite(gv))
                 or float(np.max(np.abs(gv - fv))) > 100 * max(tol_abs, _EPS * fscale)):
             new_start = 2 * max(grid, 8)
-            if (start_grid is None or new_start > int(start_grid)) \
+            # Source outer loop is (~isHappy && ~failure): unresolved
+            # slices cannot trigger another tensor-grid construction.
+            if not failure and (start_grid is None or new_start > int(start_grid)) \
                     and new_start <= max_sample // 4:
                 return cls.from_function(
                     f, tol=tol, max_rank=max_rank, max_sample=max_sample,
-                    start_grid=new_start)
+                    start_grid=new_start, fixed_rank=fixed_rank)
         # MATLAB @diskfun/constructor.m: simplify the slices, then
         # project onto the exact BMC-II symmetry (plus columns vanish at
         # the origin exactly -- what keeps diff's division by r clean).
-        return g.simplify(pseudo_level)._prune_zero_terms().projectOntoBMCII()
+        g = g.simplify(pseudo_level)._prune_zero_terms()
+        # Source applies fixTheRank before the callable BMC-II projection.
+        return _fix_disk_rank(g, fixed_rank).projectOntoBMCII()
 
     def _prune_zero_terms(self) -> "Diskfun":
         """Drop CDR terms whose column or row simplified to exactly zero
@@ -1217,6 +1233,25 @@ class Diskfun(eqx.Module):
     def rank(self) -> int:
         """Total number of terms in the low-rank decomposition."""
         return len(self.cols)
+
+    def numerical_rank(self, tol=0):
+        """Return the source SVD rank at relative tolerance ``tol``.
+
+        The default uses the hard threshold zero. Empty objects and nonzero
+        spectra with no singular value strictly above ``tol*s[0]`` return an
+        empty JAX array; a zero function returns scalar zero. ``rank`` retains
+        the number of stored factors. This host API is not JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/rank.m, @diskfun/svd.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        # The generic adapter implements the shared separableApprox source
+        # and calls this object's disk-weighted SVD.
+        from chebfunjax.spherefun._rank import numerical_rank
+
+        return numerical_rank(self, tol)
 
     # ------------------------------------------------------------------
     # Representation / low-rank accessors
@@ -1951,7 +1986,8 @@ class Diskfun(eqx.Module):
     # ------------------------------------------------------------------
     @classmethod
     def from_values(cls, F, tol: float | None = None,
-                    alpha: float = 100.0) -> "Diskfun":
+                    alpha: float = 100.0, *,
+                    preserve_lengths: bool = False) -> "Diskfun":
         """Construct from an ``n x m`` matrix of samples on the polar grid
         ``theta = trigpts(m, [-pi, pi])`` (columns, ``m`` even) and the
         radial points ``r = chebpts(2n-1)[n-1:]`` (rows, ``r = 0`` first),
@@ -1964,7 +2000,30 @@ class Diskfun(eqx.Module):
             PhaseOne with factor = 0)
         Chebfun commit: 7574c77
         """
-        F = np.array(F, dtype=float)
+        values = jnp.asarray(F, dtype=jnp.float64)
+        if values.size == 0:
+            return cls.empty()
+        if values.ndim < 2:
+            values = values.reshape(-1, 1)
+        # Source PhaseOne numeric exact-zero branch retains m radial and n
+        # angular entries. Inspect binary64 bits so FTZ cannot erase a
+        # nonzero subnormal. Signed zeros both count as zero.
+        if values.size > 1 and values.ndim == 2:
+            bits = jax.lax.bitcast_convert_type(values, jnp.uint64)
+            exact_zero = bool(jnp.all(
+                (bits & jnp.uint64(0x7fffffffffffffff)) == 0))
+            if exact_zero and values.shape[1] % 2 == 0:
+                radial, angular = values.shape
+                return cls(
+                    cols=[Chebtech2.from_coeffs(jnp.zeros(radial, dtype=jnp.float64))],
+                    rows=[Trigtech.from_coeffs(jnp.zeros(angular, dtype=jnp.complex128),
+                                              is_real=True)],
+                    pivots=jnp.asarray([jnp.inf], dtype=jnp.float64),
+                    idx_plus=(0,), idx_minus=(),
+                    pivot_locations=((-float(jnp.pi), 0.0),),
+                    nonzero_poles=False,
+                ).projectOntoBMCII()
+        F = np.array(values, dtype=float)
         if F.ndim < 2:
             F = F.reshape(-1, 1)
         if F.size == 1:
@@ -2002,6 +2061,9 @@ class Diskfun(eqx.Module):
                 nonzero_poles=bool(remove_pole))
         # MATLAB constructor.m ends with simplify(g, pseudoLevel) for
         # every input kind, matrices included.
+        if preserve_lengths:
+            # Source constructFromDouble projects directly without simplify.
+            return g.projectOntoBMCII()
         return g.simplify()._prune_zero_terms().projectOntoBMCII()
 
     def projectOntoBMCII(self) -> "Diskfun":
@@ -2028,15 +2090,21 @@ class Diskfun(eqx.Module):
             X = _bmc2_even_cols(X) if jj == 0 else _bmc2_even_cols(
                 np.concatenate([np.zeros_like(X), X], axis=1))[:, 1:]
             cols[i] = Chebtech2.from_coeffs(jnp.asarray(X[:, 0]))
-            R = _zero_trig_modes_disk(_stack_trig_coeffs_disk([rows[i]]),
-                                      odd=True)
-            rows[i] = _trigtech_from_coeffs_real_disk(R[:, 0])
+            # Source projects the stored coefficients directly, retaining
+            # even-length Nyquist storage and exact zero-matrix dimensions.
+            coeffs = jnp.asarray(rows[i].coeffs)
+            modes = jnp.arange(coeffs.shape[0])-coeffs.shape[0]//2
+            coeffs = jnp.where(modes % 2 == 1, 0., coeffs)
+            rows[i] = Trigtech.from_coeffs(coeffs, is_real=rows[i].is_real).real()
         for i in minus:
             X = _bmc2_odd_cols(_stack_cheb_coeffs([cols[i]]))
             cols[i] = Chebtech2.from_coeffs(jnp.asarray(X[:, 0]))
-            R = _zero_trig_modes_disk(_stack_trig_coeffs_disk([rows[i]]),
-                                      odd=False)
-            rows[i] = _trigtech_from_coeffs_real_disk(R[:, 0])
+            # Source projects the stored coefficients directly, retaining
+            # even-length Nyquist storage and exact zero-matrix dimensions.
+            coeffs = jnp.asarray(rows[i].coeffs)
+            modes = jnp.arange(coeffs.shape[0])-coeffs.shape[0]//2
+            coeffs = jnp.where(modes % 2 == 0, 0., coeffs)
+            rows[i] = Trigtech.from_coeffs(coeffs, is_real=rows[i].is_real).real()
         return Diskfun(cols=cols, rows=rows, pivots=self.pivots,
                        idx_plus=self.idx_plus, idx_minus=self.idx_minus,
                        pivot_locations=self.pivot_locations,
@@ -3884,3 +3952,250 @@ def _simplify_global(techs, tol=None):
         else:
             out.append(t.simplify(min(0.5, max(base, base * vs / sc))))
     return out
+
+
+class DiskfunConstructorError(ValueError):
+    """Constructor error carrying the pinned MATLAB identifier.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/constructor.m (parseInputs and str2op)
+    Chebfun commit: 7574c77
+    """
+
+    def __init__(self, identifier: str, message: str):
+        super().__init__(f"{identifier}: {message}")
+        self.identifier = identifier
+
+
+def _validate_disk_fixed_rank(fixed_rank):
+    if fixed_rank is None:
+        return
+    value = float(fixed_rank)
+    if (not bool(jnp.isfinite(value)) or value < 0
+            or abs(round(value) - value) > _EPS):
+        raise DiskfunConstructorError(
+            "CHEBFUN:DISKFUN:constructor:parseInputs:domain3",
+            "When constructing with fixed rank, the value must be a positive integer.",
+        )
+
+
+def _disk_vector_check(op, coordinates):
+    """Source two-by-two scalar/array agreement check in polar coordinates.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/constructor.m (vectorCheck)
+    Chebfun commit: 7574c77
+    """
+    if coordinates == "cart":
+        original = op
+        def op(theta, r):
+            return original(r*jnp.cos(theta), r*jnp.sin(theta))
+    theta = jnp.asarray([-jnp.pi, jnp.pi])/3 + (2*jnp.pi)/3
+    radius = jnp.asarray([0., 1.])/2 + 1/3
+    xx, yy = jnp.meshgrid(theta, radius)
+    try:
+        actual = jnp.asarray(op(xx, yy))
+    except Exception:
+        mismatch = True
+    else:
+        expected = jnp.stack([jnp.asarray(op(xx[j, k], yy[j, k]))
+                              for j in range(2) for k in range(2)]).reshape(2, 2)
+        mismatch = bool(jnp.any(jnp.abs(actual-expected) > min(1000*_EPS, 1e-4)))
+    if mismatch:
+        warnings.warn(
+            "CHEBFUN:DISKFUN:constructor:vectorize: Function did not correctly "
+            "evaluate on an array.\nTurning on the 'vectorize' flag. Did you "
+            "intend this?\nUse the 'vectorize' flag in the DISKFUN constructor\n"
+            "call to avoid this warning message.", stacklevel=2)
+    return mismatch
+
+
+def _prepare_disk_callable(op, coordinates, vectorize):
+    if coordinates not in ("cart", "polar"):
+        raise ValueError("Diskfun coordinates must be 'cart' or 'polar'")
+    if coordinates == "cart":
+        cart_original = op
+
+        def op(theta, r):
+            return cart_original(r*jnp.cos(theta), r*jnp.sin(theta))
+    original = op
+
+    def evaluate(theta, r):
+        theta, r = jnp.broadcast_arrays(jnp.asarray(theta), jnp.asarray(r))
+        if vectorize:
+            # Source evaluate visits scalar arguments in row-major mesh
+            # order. This also supports paired one-dimensional sample tests.
+            vals = [original(theta.reshape(-1)[k], r.reshape(-1)[k])
+                    for k in range(theta.size)]
+            return jnp.stack([jnp.asarray(v) for v in vals]).reshape(theta.shape)
+        vals = jnp.asarray(original(theta, r))
+        return jnp.broadcast_to(vals, theta.shape)
+
+    return evaluate
+
+
+def _fix_disk_rank(g, fixed_rank):
+    if fixed_rank is None:
+        return g
+    fixed_rank = int(round(float(fixed_rank)))
+    if fixed_rank == 0:
+        return Diskfun(
+            cols=[Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))],
+            rows=[Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128), is_real=True)],
+            pivots=jnp.asarray([jnp.inf], dtype=jnp.float64),
+            idx_plus=(), idx_minus=(0,),
+            pivot_locations=g.pivot_locations,
+            nonzero_poles=g.nonzero_poles,
+        )
+    count = len(g.pivots)
+    if count > fixed_rank:
+        return Diskfun(
+            cols=list(g.cols[:fixed_rank]), rows=list(g.rows[:fixed_rank]),
+            pivots=g.pivots[:fixed_rank],
+            idx_plus=tuple(i for i in g.idx_plus if i < fixed_rank),
+            idx_minus=tuple(i for i in g.idx_minus if i < fixed_rank),
+            # Source fixTheRank intentionally leaves these metadata intact.
+            pivot_locations=g.pivot_locations, nonzero_poles=g.nonzero_poles,
+        )
+    if count < fixed_rank:
+        zeros = fixed_rank - count
+        return Diskfun(
+            cols=list(g.cols) + [Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+                                 for _ in range(zeros)],
+            rows=list(g.rows) + [Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128),
+                                                    is_real=True) for _ in range(zeros)],
+            pivots=jnp.concatenate([g.pivots, jnp.zeros(zeros, dtype=jnp.float64)]),
+            idx_plus=g.idx_plus, idx_minus=g.idx_minus,
+            pivot_locations=g.pivot_locations, nonzero_poles=g.nonzero_poles,
+        )
+    return g
+
+
+def _disk_string_callable(expr):
+    from chebfunjax.utils.matlab_expr import _FUNS, matlab_expression
+
+    normalized = expr.replace(".*", "*").replace("./", "/")
+    normalized = normalized.replace(".^", "**").replace("^", "**")
+    tree = ast.parse(normalized, mode="eval")
+    # Source symvar ordering is alphabetical. Known function names and pi
+    # are not dependent variables.
+    variables = tuple(sorted({n.id for n in ast.walk(tree)
+                              if isinstance(n, ast.Name) and n.id not in _FUNS}))
+    if len(variables) > 2:
+        raise DiskfunConstructorError(
+            "CHEBFUN:DISKFUN:constructor:str2op:depvars",
+            "Too many dependent variables in string input.",
+        )
+    if not variables:
+        # The pinned str2op indexes depvar{1:3} for a constant string.
+        # Keep that unsupported path explicit instead of inventing semantics.
+        raise ValueError("Diskfun source string input has no dependent variables")
+    return matlab_expression(expr, variables)
+
+
+def diskfun(op=None, *source_args, coordinates=None, vectorize=False,
+            tol=None, fixed_rank=None, fixed_length=None, coeffs=False):
+    """Construct with the pinned MATLAB diskfun input conventions.
+
+    Callable and two-variable string inputs default to Cartesian coordinates;
+    the 'polar' token selects theta/r. Existing Diskfun.from_function retains
+    its polar default. Numeric matrices are polar-grid values, 'coeffs' selects
+    coefficients, a numeric scalar argument fixes rank, and a two-element
+    numeric argument fixes radial/angular degrees. 'eps' sets construction
+    tolerance and 'vectorize' selects scalar evaluation. The unit disk is the
+    only supported domain.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/diskfun.m, @diskfun/constructor.m
+        (parseInputs, evaluate, fixTheRank, str2op, constructFromDouble)
+    Chebfun commit: 7574c77
+    """
+    mode = "cart" if coordinates is None else coordinates
+    remaining = list(source_args)
+    while remaining:
+        arg = remaining.pop(0)
+        if isinstance(arg, str):
+            name = arg.lower()
+            if name in ("cart", "polar"):
+                mode = name
+            elif name.startswith("vectori"):
+                vectorize = True
+            elif name == "coeffs":
+                coeffs = True
+            elif name == "eps":
+                if not remaining:
+                    raise ValueError("Diskfun eps requires a value")
+                tol = remaining.pop(0)
+            else:
+                raise ValueError(f"Unknown diskfun constructor option {arg!r}")
+        else:
+            numeric = jnp.asarray(arg)
+            if numeric.size == 1:
+                fixed_rank = float(numeric.reshape(-1)[0])
+            elif numeric.size == 2:
+                fixed_length = tuple(float(v) for v in numeric.reshape(-1))
+            elif numeric.size == 4:
+                expected = jnp.asarray([-jnp.pi, jnp.pi, 0.0, 1.0])
+                if not bool(jnp.all(numeric.reshape(-1) == expected)):
+                    raise DiskfunConstructorError(
+                        "CHEBFUN:DISKFUN:CONSTRUCTOR:domain", "Only the unit disk is supported"
+                    )
+            else:
+                raise DiskfunConstructorError(
+                    "CHEBFUN:DISKFUN:CONSTRUCTOR:domain", "Expected rank, two degrees or domain"
+                )
+    _validate_disk_fixed_rank(fixed_rank)
+    if op is None:
+        return Diskfun.empty()
+    if isinstance(op, str):
+        op = _disk_string_callable(op)
+    if callable(op) and not isinstance(op, Diskfun):
+        import inspect
+        try:
+            parameters = tuple(inspect.signature(op).parameters.values())
+        except (TypeError, ValueError):
+            parameters = None
+        if parameters is not None:
+            positional = [p for p in parameters if p.kind in
+                          (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+            variadic = any(p.kind == p.VAR_POSITIONAL for p in parameters)
+            if len(positional) <= 1 and not variadic:
+                raise DiskfunConstructorError(
+                    "CHEBFUN:DISKFUN:CONSTRUCTOR:toFewInputArgs",
+                    "The function must accept 2 input arguments.")
+    if coeffs:
+        op = Diskfun.coeffs2diskfun(op)
+    pseudo_level = _EPS if tol is None else max(_EPS, float(tol))
+    if callable(op) and not isinstance(op, Diskfun) and not vectorize:
+        vectorize = _disk_vector_check(op, mode)
+    if fixed_length is not None:
+        degrees = tuple(float(v) for v in fixed_length)
+        if (len(degrees) != 2 or any(v <= 0 or not bool(jnp.isfinite(v))
+                                     or abs(round(v)-v) > _EPS for v in degrees)):
+            raise DiskfunConstructorError(
+                "CHEBFUN:DISKFUN:constructor:parseInputs:domain2",
+                "Fixed degrees must be positive integers",
+            )
+        m, n = (int(round(v)) for v in degrees)
+        radial_grid = (m + 1) // 2
+        theta = _disk_row_pts(n)
+        r = chebpts(2 * radial_grid + 1)[radial_grid:]
+        tt, rr = jnp.meshgrid(jnp.asarray(theta), r)
+        if isinstance(op, Diskfun):
+            values = op(tt, rr)
+        elif callable(op):
+            values = _prepare_disk_callable(op, mode, vectorize)(tt, rr)
+        else:
+            raise TypeError("Fixed-degree diskfun construction needs a callable or Diskfun")
+        return _fix_disk_rank(
+            Diskfun.from_values(values, preserve_lengths=True), fixed_rank
+        )
+    if isinstance(op, Diskfun):
+        return _fix_disk_rank(op, fixed_rank)
+    if callable(op):
+        return Diskfun.from_function(op, tol=pseudo_level, coordinates=mode,
+                                     vectorize=vectorize, fixed_rank=fixed_rank)
+    return _fix_disk_rank(Diskfun.from_values(op, preserve_lengths=True), fixed_rank)

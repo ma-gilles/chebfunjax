@@ -1,5 +1,26 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Disk constructor qualification (2026-10-08)
+
+All34 original disk constructor predicates now pass across staged CPU gates,
+including the original high-rank field (129.85s pytest,4.07GiB peak). Composite
+coverage is72 distinct checks:34 originals,9 constructor controls,8 numerical
+rank controls,3 failure-state controls,16 smooth and2 nonsmooth regressions.
+The first extended gate's two test-import mistakes were corrected and retested;
+no failed assertion or resource-censored run is counted as a passing gate.
+
+The public diskfun factory now supports the source constructor forms covered
+by those predicates. Fourier projection preserves even/odd stored dimensions.
+Diskfun.numerical_rank(tol=0) exposes source singular-value threshold semantics;
+legacy .rank remains the stored factor count. PhaseTwo failure now prevents
+post-cap sample-test restarts, as in MATLAB. Original radial/angular regressions
+pass unchanged with peaks0.87/0.96GiB; source nonconvergence warnings remain.
+Root rehashed every observed file in eight qualification gates and checked
+final payload identity and unchanged original assertion bodies. Evidence:
+disk_constructor_root_acceptance_20261008.json in the shared directory below.
+Inherited NumPy/SVD kernels, unsupported constructor forms, native trajectories,
+full combined tests and exact-head CI remain unqualified.
+
 ## Latest norm and composition review (2026-10-08, publication pending)
 
 Full CPU parity remains incomplete. The current local batch restores:
