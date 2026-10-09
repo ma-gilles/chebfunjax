@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Atmospheric explicit-camera page replay (2026-10-09)
+
+Integrated all ten 600 x 270 source-computation figures with explicit captured
+camera properties. Full CPU replay completed in 197.95 s (4,323,316 KiB peak);
+root independently verified 3,064 runtime hashes. Computed stdout and generated
+prose are unchanged. The full replay exposed an overflowing contour viewport;
+after the library fix, the exact figure 3 source cells were rerun in isolation
+(18.16 s body, 1,517,916 KiB peak), with 3,053 runtime hashes verified by root.
+The other nine images are byte-identical to the full replay. This is a qualified
+composite, not another full execution on the final commit.
+
+Figure 3 now fits the canvas. Historical colors/line widths, surface
+interpolation, figure 1 colorbar framing, typography, and the historical
+figure 4/6 scientific-reference differences remain unresolved. No complete
+pixel parity or isolated visibility speedup is claimed.
+Evidence: sphere_contour_viewport_source_20261009/PAGE_DELIVERY.json and
+atmospheric_source03_root_runtime_review_20261009.json in shared scratch.
+
 ## Sphere contour viewport (2026-10-09)
 
 Newly created sphere contour axes now use the existing non-overflow setup,
@@ -12,8 +30,8 @@ Eight focused checks pass in 38.67 s, including a saved analytic contour with
 camera/layout, source-coordinate restoration, existing samples and line styles.
 The run was terminal 0, stable and uncensored, with no survivors and a sampled
 peak of 1,513,036 KiB. Root verified 3,053 loaded-file hashes, the one-keyword
-AST change, and the saved image. The Atmospheric figure 3 source replay remains
-pending; this does not establish its completed page or historical pixel parity.
+AST change, and the saved image. The Atmospheric figure 3 replay is now qualified in the entry above;
+historical pixel parity remains unresolved.
 Evidence: sphere_contour_viewport_root_{runtime_review,integration}_20261009.json
 and sphere_contour_viewport_source_20261009/DELIVERY.json in shared scratch.
 

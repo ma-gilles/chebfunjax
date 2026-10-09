@@ -32,6 +32,7 @@ sys.path.insert(0, str(_ROOT / "src"))
 
 from chebfunjax.plotting import (  # noqa: E402
     chebfun_style,
+    matlab_explicit_camera,
     matlab_plot,
     matlab_view,
     plot_earth,
@@ -53,6 +54,11 @@ def _print_source_spherefun_display(fun):
     print("       domain        rank    vertical scale")
     print(f"     unit sphere  {int(fun.rank):6d}          {float(fun.vscale()):3.2g}\n")
 
+
+# Explicit R2025b/7574c77 captured camera properties (not an automatic policy).
+# Metadata SHA3754684ed299c6bfb597114ef5e22a3739ebcf00da35a31dbcf35866ac96c8bc.
+_SOURCE_SURFACE_CAMERA = {'position': (13.268278963378766, -11.133407984528386, 0), 'target': (0, 0, 0), 'up': (0, 0, 1), 'view_angle': 6.608610360311924, 'data_aspect': (1, 1, 1)}
+_SOURCE_CONTOUR_CAMERA = {'position': (13.217789156120169, -11.091042005879483, 1.5095817461034662), 'target': (0, 0, 0), 'up': (0, 0, 1), 'view_angle': 7.392854781564241, 'data_aspect': (1, 1, 1)}
 
 def _print_source_ans(value):
     """Computed scalar output; MATLAB session formatting is not inferred."""
@@ -77,7 +83,7 @@ def run(data_path, output_dir=None):
         save_chebfun_figure(
             fig, output_dir / f"AtmosphericTemperature_{figure_number:02d}.png",
             size=(600, 270),
-            layout="matlab" if figure_number in (2, 4, 5, 6, 7, 8, 9, 10) else None,
+            layout="matlab" if figure_number in (2, 3, 4, 5, 6, 7, 8, 9, 10) else None,
         )
         plt.close(fig)
 
@@ -90,6 +96,7 @@ def run(data_path, output_dir=None):
             fig.colorbar(mappable, ax=ax)
         ax.set_axis_off()
         matlab_view(ax, 50, 0)
+        matlab_explicit_camera(ax, **_SOURCE_SURFACE_CAMERA)
         plot_earth(ax, "k-")
         if title:
             ax.set_title(title)
@@ -116,6 +123,7 @@ def run(data_path, output_dir=None):
     fig, ax = f.contour(levels=np.arange(-40, 41, 5), n_pts=200, linewidth=2.0)
     ax.set_axis_off()
     matlab_view(ax, 50, 5)
+    matlab_explicit_camera(ax, **_SOURCE_CONTOUR_CAMERA)
     plot_earth(ax, "k-")
     save(fig)
 
