@@ -1,6 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
 
+
+## AAA source scaling and infinite-query correction (2026-10-08)
+
+AAA now preserves scaling after the first conditioning trigger, uses exact
+minimum-singular-value multiplicity, follows the sign option's zero-minimum
+rule, and evaluates callbacks on their original real/complex sample type.
+Infinite queries now use the source barycentric limit; a baseline complex
+rational example returned NaN instead of1+i. Source NaN-only support repair
+is restored. New helper/evaluation math uses JAX; inherited NumPy/SciPy
+SVD, greedy loop, cleanup and pole/residue kernels remain migration gaps.
+
+Eighty-two acceptance checks plus two diagnostics pass, including18 literal
+original slots. Root independently rehashed2936 and2999 observed bound files,
+verified both terminal stable receipts/no survivors, native source hashes,
+payload identity and exact function scope. Full AAA42/API coverage, native
+random fixtures and derivative clauses33-40 remain outside this package.
+
+Source42 now uses50 SVD calls instead of72 at unchanged49 supports; no elapsed
+performance claim. Baseline/candidate poles are exactly unchanged for both
+source diagnostics and the derived Python FOV replay. Thus these corrections
+do not resolve the historical FOV remote-pole discrepancy; matched native AAA
+sample data remains needed. Evidence:aaa_root_acceptance_20261008.json and
+aaa_complex_source_20261008/qualified_packet.json in shared scratch.
+No full-suite, complete JAX migration, page parity or exact-head CI claim.
+
 ## Scalar Newton source policy and GulfStream correction (2026-10-08)
 
 The finite single-interval scalar Chebcolloc2 path now follows source initial

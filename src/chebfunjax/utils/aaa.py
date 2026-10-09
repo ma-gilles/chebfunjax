@@ -41,6 +41,32 @@ from scipy import linalg as spla
 # Public API
 # ---------------------------------------------------------------------------
 
+def _aaa_scale_needed(s):
+    """Literal aaa.m conditioning test, without an absolute regularizer."""
+    s = jnp.asarray(s)
+    return bool(s[0] / s[-1] > 1 / (3 * jnp.finfo(jnp.float64).eps))
+
+
+def _aaa_source_weights(s, vh, sign):
+    """Source right-singular-vector rule, including exact multiplicities.
+
+    MATLAB aaa.m (7574c77) averages only singular vectors whose singular
+    values are exactly equal to the minimum. A nearby distinct singular
+    value does not belong to that subspace. With the sign option, a zero
+    minimum instead selects the final singular vector.
+    """
+    s = jnp.asarray(s)
+    vh = jnp.asarray(vh)
+    if sign:
+        if bool(jnp.min(s) > 0):
+            weights = vh.conj().T @ (1 / s**2)
+            return weights / jnp.linalg.norm(weights)
+        return vh[-1].conj()
+    minimum = s == jnp.min(s)
+    coefficients = minimum.astype(vh.dtype) / jnp.sqrt(jnp.sum(minimum))
+    return vh.conj().T @ coefficients
+
+
 def aaa(
     F: jnp.ndarray | Callable,
     Z: jnp.ndarray | None = None,
@@ -168,11 +194,14 @@ def aaa(
                           cleanup=cleanup, cleanup_tol=cleanup_tol)
 
     # ---- Input handling ----
-    Z = jnp.asarray(Z, dtype=jnp.complex128).ravel()
+    Z_input = jnp.asarray(Z).ravel()
+    Z = Z_input.astype(jnp.complex128)
     M = Z.shape[0]
 
     if callable(F):
-        F_vals = jnp.asarray(F(Z), dtype=jnp.complex128).ravel()
+        # Native parseInputs evaluates the supplied sample coordinates before
+        # the internal complex workspace conversion.
+        F_vals = jnp.asarray(F(Z_input), dtype=jnp.complex128).ravel()
     else:
         F_vals = jnp.asarray(F, dtype=jnp.complex128).ravel()
         if F_vals.shape[0] != M:
@@ -222,6 +251,7 @@ def aaa(
 
     wj = np.array([], dtype=complex)
 
+    doscale = False  # Source scaling remains active after its first trigger.
     for m in range(1, mmax + 1):
         # --- Select next support point: largest |F(J) - R(J)| ---
         J_arr = np.array(J)
@@ -251,46 +281,24 @@ def aaa(
             A_sub = A[J_arr, :]
             # Column scaling to improve conditioning (Fei Xue)
             col_norms = np.linalg.norm(A_sub, axis=0)
-            doscale = False
-            # Quick conditioning estimate: compare largest and smallest sing val
-            try:
-                _, s, V = np.linalg.svd(A_sub, full_matrices=False)
-                eps_machine = np.finfo(float).eps
-                if s[0] / (s[-1] + 1e-300) > 1.0 / (3.0 * eps_machine):
+            if not doscale:
+                try:
+                    _, s, V = np.linalg.svd(A_sub, full_matrices=False)
+                    doscale = _aaa_scale_needed(s)
+                except np.linalg.LinAlgError:
                     doscale = True
-            except np.linalg.LinAlgError:
-                doscale = True
 
             if doscale:
                 col_norms_safe = np.where(col_norms > 0, col_norms, 1.0)
                 A_scaled = A_sub / col_norms_safe[None, :]
                 _, s, V = np.linalg.svd(A_scaled, full_matrices=False)
-                if sign and np.min(s) > 0:
-                    # 'sign' improvement: weight all right singular vectors
-                    # by 1/s^2 (Trefethen memo Rat342, 2024).
-                    wj = V.conj().T @ (1.0 / s ** 2)
-                    wj = wj / np.linalg.norm(wj)
-                else:
-                    idx_min = np.argmin(s)
-                    # Handle multiple minimum singular values
-                    tol_sv = s[idx_min] * (1 + 1e-10)
-                    mm = np.where(s <= tol_sv)[0]
-                    nm = len(mm)
-                    # numpy's svd returns Vh; the null vector needs the
-                    # CONJUGATE transpose (plain .T silently breaks every
-                    # complex-valued approximation)
-                    wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
-                wj = wj / col_norms_safe  # un-scale
-                wj = wj / np.linalg.norm(wj)
-            elif sign and np.min(s) > 0:
-                wj = V.conj().T @ (1.0 / s ** 2)
+                # Host conversion retains the inherited NumPy greedy loop;
+                # the corrected singular-vector selection itself is JAX.
+                wj = np.asarray(_aaa_source_weights(s, V, sign))
+                wj = wj / col_norms_safe
                 wj = wj / np.linalg.norm(wj)
             else:
-                idx_min = np.argmin(s)
-                tol_sv = s[idx_min] * (1 + 1e-10)
-                mm = np.where(s <= tol_sv)[0]
-                nm = len(mm)
-                wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
+                wj = np.asarray(_aaa_source_weights(s, V, sign))
 
         elif n_free >= 1:
             # More columns than rows: compute null space
@@ -524,6 +532,10 @@ def _reval(
 
     r = N / D
 
+    # aaa.m/reval assigns the barycentric limit for every infinite query.
+    limit = jnp.sum(wj * fj) / jnp.sum(wj)
+    r = jnp.where(jnp.isinf(zv), limit, r)
+
     # Fix NaNs at support points (0/0 case).
     # An NaN occurs when zv[i] == zj[k] for some k.
     diff = zv[:, None] - zj[None, :]   # (M, m)
@@ -532,7 +544,7 @@ def _reval(
     match_idx = jnp.argmax(exact_match, axis=1)  # (M,) — index of match
     matched_val = fj[match_idx]
 
-    r = jnp.where(has_match, matched_val, r)
+    r = jnp.where(jnp.isnan(r) & has_match, matched_val, r)
 
     return r.reshape(orig_shape)
 
