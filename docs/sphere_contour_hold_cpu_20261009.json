@@ -1,0 +1,38 @@
+{
+  "checks": [
+    "test_held_contour_preserves_surface_and_axes",
+    "test_unheld_contour_draws_background",
+    "test_explicit_line_properties_on_equatorial_contour[None]",
+    "test_explicit_line_properties_on_equatorial_contour[r--]"
+  ],
+  "passed": 4,
+  "peak_kib": 861460,
+  "wall_seconds": 11.277039468288422,
+  "source_inputs_stable": true,
+  "survivors": [],
+  "payload": {
+    "src/chebfunjax/plotting.py": "0139696cd2cbc7fc7bf92a1a35e6b0d511e4e01eaccc51cd038144d455ba4dc3",
+    "tests/test_spherefun/test_contour_hold_source.py": "44b16c109faf8b7be177fff5c3ecb467a207c8d012230975cceb74d568f83891",
+    "tests/test_spherefun/test_contour_line_properties_source_controls.py": "d73264e7522dc9e303fcfea652904662a830a57a1629864bc78cdbcd2ba3c4d0"
+  },
+  "scope": "Public hold overlay artists/geometry and unchanged line-property controls. Source-input guard only; no full third-party runtime audit, pixel, page, or numerical solver parity claim.",
+  "source_contract": "@spherefun/contour.m32,115-132: preserve holdState; create background only when not held. Explicit Python hold=True represents this state.",
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_contour_hold_source_20261009/junit.xml",
+      "sha256": "4ceb746bc02240e8d04f889210b6102d08fa673b036f1660351c9d6a967b4a9c"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_contour_hold_source_20261009/supervision/receipt.json",
+      "sha256": "6702ee48cea2a257ca0b33ff158be0e5e74307204ddc0f5366de3335b6998a6d"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_contour_hold_source_20261009/guard.json",
+      "sha256": "678ce997ce4dd633fc125ba336727cb9655eb9810c1f92ca8f26838536924520"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spherefun/contour.m",
+      "sha256": "96c44e088dd412af44e205b3f3413e25ffd42c4caa7c1c65f1bd9bfe779dd05c"
+    }
+  ]
+}

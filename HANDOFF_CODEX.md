@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere contour overlays preserve held plots (2026-10-09)
+
+Public Spherefun.contour now accepts explicit hold=True, representing the native
+ishold branch. It adds contour lines without an extra background sphere and
+preserves supplied axes camera, limits, aspect and layout. Default standalone
+contours retain their background and layout behavior.
+
+Four CPU checks passed: held surface/geometry preservation, standalone backing
+sphere and two unchanged line-property cases. Peak RSS was 861460 KiB, with
+stable guarded source inputs, no censoring and no survivors. This qualifies
+artist behavior, not rendered pixel or whole-page parity.
+
+The SphereHeatConduction page still uses a private harmonic stepping surrogate,
+omits source colorbars/mean contours and has ten wrong-size figures. Restoring
+its public Helmholtz workflow and fixed color scale remains open. Evidence:
+docs/sphere_contour_hold_cpu_20261009.json; source page audit in shared scratch
+sphere_heat_source_audit_20261009/SOURCE_AUDIT_v1.json.
+
 ## Existing Chebfun3 constructor identity (2026-10-09)
 
 The public constructor now returns an existing Chebfun3 directly, matching

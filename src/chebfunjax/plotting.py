@@ -1519,6 +1519,7 @@ def contour_sphere(
     sphere_color=None,
     cmap=None,
     fmt=None,
+    hold: bool = False,
     **kw,
 ) -> tuple[plt.Figure, Any]:
     """Contour plot of a Spherefun on the unit sphere (MATLAB @spherefun/contour.m).
@@ -1534,6 +1535,10 @@ def contour_sphere(
     levels : int or array-like
     sphere_color : tuple, optional (default: off-white)
     cmap : colormap, optional (default: parula)
+
+    ``hold=True`` adds contour lines to supplied axes without adding a
+    background sphere or resetting the camera, limits, aspect or layout.
+    This represents the native ``ishold`` branch explicitly.
 
     Standard Matplotlib line properties in ``kw`` override defaults on
     the 3D contour lines, including lines selected with ``fmt``.
@@ -1601,10 +1606,15 @@ def contour_sphere(
     plt.close(fig_tmp)
 
     # Setup 3D axes
-    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75),
-                             fill_canvas=False)
+    if hold and ax is not None:
+        fig = ax.get_figure()
+    else:
+        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75),
+                                 fill_canvas=False)
 
-    _draw_sphere_background(ax, color=sphere_color)
+    # @spherefun/contour.m117: add a backing sphere only when not held.
+    if not hold:
+        _draw_sphere_background(ax, color=sphere_color)
 
     # Plot contour lines on sphere
     for lev_val, verts in contour_paths:
@@ -1635,14 +1645,16 @@ def contour_sphere(
         line.__class__ = _SphereCoastLine
         line._coast_auto_zorder = "zorder" not in kw
 
-    ax.set_xlim(-1.0, 1.0)
-    ax.set_ylim(-1.0, 1.0)
-    ax.set_zlim(-1.0, 1.0)
-    ax.set_box_aspect([1, 1, 1])
+    if not hold:
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(-1.0, 1.0)
+        ax.set_zlim(-1.0, 1.0)
+        ax.set_box_aspect([1, 1, 1])
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)
-    fig.tight_layout(pad=0.5)
+    if not hold:
+        fig.tight_layout(pad=0.5)
     return fig, ax
 
 
