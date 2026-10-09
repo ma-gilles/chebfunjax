@@ -1,5 +1,33 @@
 # Parity status — 2026-10-09
 
+## CPU inverse compilation reduction (2026-10-09)
+
+Default colleague roots now compile matrix construction with input checks, then
+eigenvalues with output metadata, in two JAX phases. Host failure boundaries,
+provider ordering, matrix arithmetic and writable output ownership are retained.
+Qualification: 45 helper cases and 30 inverse/root regressions passed with the
+original bounds, including the full flower inverse. Retained compiler IR was
+reviewed for source operation order and unchanged LAPACK calls.
+
+A matched CPU run measured first inversion after setup at 24.437788s baseline
+and 17.574701s candidate (1.3905x observed), with 544 versus 370 compilation
+calls. Five warm calls had medians 0.614889s and 0.608158s; this small difference
+is not a general warm-speed claim. Setup was 19.321124s versus 19.513769s.
+All 80 captured arrays per arm were byte-identical, including inverse outputs;
+roundtrip error remained 1.0547118733938987e-15. Both processes and runtime
+audits closed cleanly. Root independently rehashed 2964 runtime files per arm.
+
+This is one instrumented process per revision, after setup that itself invokes
+roots. It is not a pristine-cold or matched MATLAB comparison. Full CPU-suite,
+all-page/figure parity, remaining correctness issues, publication and CI remain
+open. Complex separable norms also have a newly confirmed weight-conjugation
+bug; its repair is in progress and is not part of this inverse change.
+
+Evidence in shared scratch: roots_two_phase_fusion_plan_20261009/
+QUALIFIED_TIMING_PACKET_v1.json, QUALIFIED_CORRECTNESS_PACKET_v1.json,
+QUALIFIED_HELPERS_PACKET_v1.json; roots_fusion_timing_root_runtime_review_20261009.json
+and roots_fusion_timing_root_values_review_20261009.json.
+
 ## Native coupled RHS parsing and restart preference (2026-10-09)
 
 The native coupled IVP route now validates exact RHS endpoint domains before

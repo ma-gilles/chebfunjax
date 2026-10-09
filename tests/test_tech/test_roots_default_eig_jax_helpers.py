@@ -45,7 +45,8 @@ def test_source_colleague_matrix(n, dtype, scale):
         source = source.astype(jnp.complex128)
     source = source.at[-2, -1].set(1.)
     source = source.at[:, 0].set(adjusted[::-1])
-    actual = module._roots_colleague_matrix_jax(c)
+    actual, finite = module._roots_matrix_and_finite_jax(c)
+    assert bool(finite)
     eps = jnp.finfo(jnp.real(c).dtype).eps
     bound = 32*eps*max(1., float(jnp.max(jnp.abs(adjusted))))
     indices = jnp.argwhere(actual != source)
@@ -92,13 +93,14 @@ def test_adapter_nonfinite_input_prevents_solver(monkeypatch, invalid):
     def forbidden(_):
         raise AssertionError('solver must not run for nonfinite matrix')
     monkeypatch.setattr(module, '_roots_eigvals_jax', forbidden)
+    monkeypatch.setattr(module, '_roots_eig_and_metadata_jax', forbidden)
     with pytest.raises(LinAlgError, match='infs or NaNs'):
         module._roots_default_eigenvalues(jnp.asarray([invalid, 1., 1.]))
 
 
 @pytest.mark.parametrize('invalid', [complex(float('nan'), 0), complex(float('inf'), 0),
                                     complex(0, float('nan')), complex(0, float('inf'))])
-def test_adapter_nonfinite_output_prevents_native_filter(monkeypatch, invalid):
+def test_adapter_nonfinite_output_prevents_native_filter(monkeypatch, invalid, isolated_eig_metadata):
     monkeypatch.setattr(module, '_roots_eigvals_jax',
                         lambda _: jnp.asarray([invalid, .25], dtype=jnp.complex128))
     with pytest.raises(LinAlgError, match='nonfinite JAX eig output'):
@@ -106,7 +108,7 @@ def test_adapter_nonfinite_output_prevents_native_filter(monkeypatch, invalid):
 
 
 @pytest.mark.parametrize('complex_input', [False, True])
-def test_adapter_preserves_injected_order_and_dtype(monkeypatch, complex_input):
+def test_adapter_preserves_injected_order_and_dtype(monkeypatch, complex_input, isolated_eig_metadata):
     given = jnp.asarray([.75+0j, -.25+0j])
     monkeypatch.setattr(module, '_roots_eigvals_jax', lambda _: given)
     result = module._roots_default_eigenvalues(jnp.asarray([1., 1., 1.],
@@ -114,3 +116,13 @@ def test_adapter_preserves_injected_order_and_dtype(monkeypatch, complex_input):
     assert bool(jnp.array_equal(jnp.asarray(result), given))
     assert str(result.dtype) == ('complex128' if complex_input else 'float64')
     assert result.flags.writeable and result.flags.owndata
+
+
+@pytest.fixture
+def isolated_eig_metadata():
+    """Injection must retrace phase2; do not reuse a provider from another case."""
+    module._roots_eig_and_metadata_jax.clear_cache()
+    try:
+        yield
+    finally:
+        module._roots_eig_and_metadata_jax.clear_cache()

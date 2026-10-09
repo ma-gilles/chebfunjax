@@ -76,5 +76,7 @@ def test_colleague_literal_source_operation_sequence(dtype):
     fmt = '>f' if dtype == 'float32' else '>d'
     c = jnp.asarray([struct.unpack(fmt, bytes.fromhex(x[0]))[0]
                      for x in fixture], dtype=getattr(jnp, dtype))
-    actual = component_bits(module._roots_colleague_matrix_jax(c))
+    matrix, finite = module._roots_matrix_and_finite_jax(c)
+    assert bool(finite)
+    actual = component_bits(matrix)
     assert actual == source_matrix_bits(fixture, dtype)

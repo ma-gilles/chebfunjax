@@ -1,0 +1,342 @@
+{
+  "scope": "Matched local CPU flower inverse, one fresh process per arm; no MATLAB comparison",
+  "baseline_commit": "9b4679ad65f8d0d643b48d63db4ca397b1b5d504",
+  "applicable_publication_head": "13a6a8dc49f007679e8c2ed06c2018e6c219e8c8",
+  "candidate_chebtech_sha256": "806578ba2ef2edd7c83d9eda93df29b3501a4fb73def5c3a134eafa588ccd5b6",
+  "cpu_affinity": "8-15",
+  "x64": true,
+  "arms": {
+    "baseline": {
+      "setup_seconds": 19.32112449966371,
+      "first_after_setup_seconds": 24.437788370996714,
+      "warm_seconds": [
+        0.6151948440819979,
+        0.6148887486197054,
+        0.613451967947185,
+        0.614849295001477,
+        0.6178157217800617
+      ],
+      "warm_median": 0.6148887486197054,
+      "warm_range": [
+        0.613451967947185,
+        0.6178157217800617
+      ],
+      "forward_length": 2090,
+      "inverse_lengths": [
+        8880,
+        8880,
+        8880,
+        8880,
+        8880,
+        8880
+      ],
+      "actual_target_shapes": [
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ]
+      ],
+      "roundtrip_error": 1.0547118733938987e-15,
+      "setup_backend_compile": {
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "name": "backend_compile_and_load",
+        "calls": 598,
+        "self_seconds": 12.748877883,
+        "cumulative_seconds": 12.749436961
+      },
+      "first_backend_compile": {
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "name": "backend_compile_and_load",
+        "calls": 544,
+        "self_seconds": 15.619056846000001,
+        "cumulative_seconds": 15.619599961
+      },
+      "warm_compile_rows": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "observed_runtime_hashes": 2964,
+      "peak_summed_rss_kib": 2428724
+    },
+    "candidate": {
+      "setup_seconds": 19.51376916281879,
+      "first_after_setup_seconds": 17.574701427016407,
+      "warm_seconds": [
+        0.6086114798672497,
+        0.6067702895961702,
+        0.6081583490595222,
+        0.608028634916991,
+        0.6091217999346554
+      ],
+      "warm_median": 0.6081583490595222,
+      "warm_range": [
+        0.6067702895961702,
+        0.6091217999346554
+      ],
+      "forward_length": 2090,
+      "inverse_lengths": [
+        8880,
+        8880,
+        8880,
+        8880,
+        8880,
+        8880
+      ],
+      "actual_target_shapes": [
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ],
+        [
+          [
+            2
+          ],
+          [
+            4097
+          ],
+          [
+            4096
+          ],
+          [
+            8192
+          ],
+          [
+            2
+          ]
+        ]
+      ],
+      "roundtrip_error": 1.0547118733938987e-15,
+      "setup_backend_compile": {
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "name": "backend_compile_and_load",
+        "calls": 590,
+        "self_seconds": 12.969562620000001,
+        "cumulative_seconds": 12.970139924000001
+      },
+      "first_backend_compile": {
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "name": "backend_compile_and_load",
+        "calls": 370,
+        "self_seconds": 10.542843548,
+        "cumulative_seconds": 10.543215639000001
+      },
+      "warm_compile_rows": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "observed_runtime_hashes": 2964,
+      "peak_summed_rss_kib": 2174620
+    }
+  },
+  "captures_per_arm": 80,
+  "all_cross_arm_capture_bits_shapes_dtypes_identical": true,
+  "correctness": {
+    "helper_ir_adapter_cases": 45,
+    "unchanged_regression_cases": 30
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_two_phase_fusion_plan_20261009/QUALIFIED_HELPERS_PACKET_v1.json": "d395acf9140222d0d751d947d1e53f1ab4bf11e5f69048f43ab1338fea72f1c9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_two_phase_fusion_plan_20261009/QUALIFIED_CORRECTNESS_PACKET_v1.json": "4f7424252b8a0ad6bf6f61571a6f0a194893e2318d80ee0e8741f5feda0f85fb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_two_phase_fusion_plan_20261009/QUALIFIED_TIMING_PACKET_v1.json": "91e7a131e6dba2ce11421c7cfb7555a37577af7213d72f3414fb0fcd5c72b7ac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_two_phase_fusion_plan_20261009/TIMING_BITS_COMPARISON_v1.json": "053b069b01d2652a9b8df53ad7e867907b785fccb772d4988cf5238c83a3d03c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_two_phase_fusion_plan_20261009/TIMING_READY_PACKET_v1.json": "c51f30cbba874761f9bb26812b5fbbe1adc4a94c84e015f7b0ce7db3a6d7c534",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_fusion_root_ir_review_20261009.json": "12fae0675ee521240513c978b2b75e3f22266aca05c151578830fe55d39ea5f9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_fusion_root_runtime_review_20261009.json": "18cbed8330ffcc4c99cefc8cdc1e7ef1c745c600292be5fdf5563de999b68370",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_fusion_timing_root_runtime_review_20261009.json": "b7a017b8897728ec7d0719611224c5d01652b7b757c2ebb38697d841867ab580",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_fusion_timing_root_values_review_20261009.json": "b324334a8b36ba91a4c69aeba72ecc95c04b17c756269409c9a003da3e8580a1"
+  },
+  "limitations": [
+    "One process per arm, serial baseline then candidate; no process-level confidence interval",
+    "First-after-setup is not pristine process-cold: setup itself exercises roots/compilation",
+    "cProfile and identical synchronous observation overhead retained; cumulative intervals overlap",
+    "Coordinated agent quiet window is not exclusive host hardware",
+    "No source-matched current MATLAB timing; stale historical ratio is not used"
+  ],
+  "observed_first_after_setup_ratio": 1.3905094474851303,
+  "warm_interpretation": "About1.1% observed median difference; no broad warm-speed claim from one process per arm."
+}

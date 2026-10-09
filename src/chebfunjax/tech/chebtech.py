@@ -1425,6 +1425,30 @@ def _roots_eigvals_jax(matrix: jax.Array) -> jax.Array:
     return jnp.linalg.eigvals(matrix)
 
 
+
+@jax.jit
+def _roots_matrix_and_finite_jax(c: jax.Array):
+    """Native colleague matrix plus the Python adapter's finite-input flag.
+
+    The matrix helper preserves ``@chebtech/roots.m`` at Chebfun ``7574c77``.
+    The finite flag is Python failure policy; the host checks it before eig.
+    """
+    matrix = _roots_colleague_matrix_jax(c)
+    return matrix, jnp.all(jnp.isfinite(matrix))
+
+
+@jax.jit
+def _roots_eig_and_metadata_jax(matrix: jax.Array):
+    """Native eig plus Python finite-output and spectrum-dtype metadata.
+
+    The eig helper preserves ``@chebtech/roots.m`` at Chebfun ``7574c77``.
+    Classification does not filter or reorder the provider's eigenvalues.
+    """
+    roots = _roots_eigvals_jax(matrix)
+    return (roots, jnp.all(jnp.isfinite(roots)),
+            jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
+
+
 def _roots_default_eigenvalues(c):
     """JAX default leaf with explicit Python failure, dtype and ownership adapters.
 
@@ -1437,19 +1461,19 @@ def _roots_default_eigenvalues(c):
     # This exception class preserves the existing host engine's failure type.
     from numpy.linalg import LinAlgError
 
-    matrix = _roots_colleague_matrix_jax(jnp.asarray(c))
-    if not bool(jnp.all(jnp.isfinite(matrix))):
+    matrix, matrix_finite = _roots_matrix_and_finite_jax(jnp.asarray(c))
+    if not bool(matrix_finite):
         raise LinAlgError("Array must not contain infs or NaNs")
-    roots = _roots_eigvals_jax(matrix)
+    roots, roots_finite, has_imaginary, real_roots = _roots_eig_and_metadata_jax(matrix)
     # Public JAX eig returns NaNs when LAPACK reports failure and does not expose
     # INFO. Reject nonfinite output before the host filters can discard it.
-    if not bool(jnp.all(jnp.isfinite(roots))):
+    if not bool(roots_finite):
         raise LinAlgError("Eigenvalues did not converge (nonfinite JAX eig output)")
     # NumPy returns real dtype for a real matrix with an entirely real spectrum.
     # Keep complex matrix outputs complex and preserve the solver's own order.
     if (not jnp.issubdtype(matrix.dtype, jnp.complexfloating)
-            and not bool(jnp.any(jnp.imag(roots) != 0))):
-        roots = jnp.real(roots)
+            and not bool(has_imaginary)):
+        roots = real_roots
     return jax.device_get(roots).copy()
 
 
