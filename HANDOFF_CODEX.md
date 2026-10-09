@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fixed-zero polynomial callback and empty scale (2026-10-09)
+
+C1/C2 fixed-length zero construction now calls the operator on the empty grid,
+populates its actual numeric result and prolongs to zero. Empty callback-result
+shape/dtype and nonempty constant/array column counts are preserved; callback
+exceptions propagate. Scalar vscale returns zero for empty coefficient storage,
+including the existing null adapter, matching the native empty scale branch.
+
+Fourteen source controls pass in a fresh CPU process (28.75s pytest,
+640,424KiB sampled peak). Root verified all 2,931 runtime hashes and proved
+positive-length construction and unrelated Chebtech bodies unchanged by AST.
+The first draft passed its fixtures but incorrectly collapsed explicit empty
+shapes/dtypes; it is preserved and excluded from source qualification. Corrected
+v2 follows the native vals2coeffs n<=1 identity branch. One-dimensional empty
+arrays retain the established Python vector adapter.
+
+Public retained-empty-FUN/domain behavior awaits the constructor package.
+Default null ishappy representation, negative-length legacy behavior and general
+nonfinite extrapolation remain outside this qualification. Evidence in shared
+scratch: chebtech_zero_fixed_source_20261009/DRAFT_REVIEW_v3.json,
+SOURCE_CORRECTION_v1_v2.json and chebtech_zero_fixed_root_integration_20261009.json.
+
 ## JAX two-dimensional Nelder–Mead fallback dependency (2026-10-09)
 
 Added the finite real two-variable fminsearch policy used by the native

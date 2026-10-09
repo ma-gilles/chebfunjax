@@ -1570,6 +1570,21 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
 # ============================================================================
 
 
+def _fixed_zero_construct(cls, f, kind):
+    """Sample the native zero grid, populate numeric data, then prolong to0.
+
+    Source @chebtech1/chebtech1.m, @chebtech2/chebtech2.m,
+    @chebtech/populate.m and @chebtech/prolong.m; Chebfun7574c77.
+    A callable receiving an empty grid may still return nonempty numeric data.
+    Preserve its evaluation/errors and numeric construction before truncating.
+    """
+    values = jnp.atleast_1d(_as_fun_dtype(f(chebpts(0, kind=kind))))
+    if not bool(jnp.all(jnp.isnan(values))) and not bool(jnp.all(jnp.isfinite(values))):
+        points = chebpts(values.shape[0], kind=kind)
+        values = _extrapolate_values(values, points, cls.barywts(values.shape[0]))[0]
+    return cls.from_values(values).prolong(0)
+
+
 def _is_empty_tech(obj) -> bool:
     """Source isempty.m, including zero-sized coefficient arrays."""
     if getattr(obj, "_is_empty_object", False):
@@ -2503,6 +2518,8 @@ class Chebtech2(eqx.Module):
         extrapolate: bool = False,
     ) -> "Chebtech2":
         """Fixed-length construction on an n-point Chebyshev-2 grid."""
+        if n == 0:
+            return _fixed_zero_construct(cls, f, 2)
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=2)
@@ -2812,6 +2829,9 @@ class Chebtech2(eqx.Module):
     @property
     def vscale(self) -> float:
         """Vertical scale: max absolute function value."""
+        # Native @chebtech/vscale.m returns scalar0 for empty coefficients.
+        if self.isempty():
+            return 0.0
         return float(jnp.max(jnp.abs(self.values)))
 
     @property
@@ -4570,6 +4590,8 @@ class Chebtech1(eqx.Module):
         cls, f: Callable[[jax.Array], jax.Array], n: int
     ) -> "Chebtech1":
         """Fixed-length construction on an n-point Chebyshev-1 grid."""
+        if n == 0:
+            return _fixed_zero_construct(cls, f, 1)
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=1)
@@ -4808,6 +4830,9 @@ class Chebtech1(eqx.Module):
     @property
     def vscale(self) -> float:
         """Vertical scale: max absolute function value."""
+        # Native @chebtech/vscale.m returns scalar0 for empty coefficients.
+        if self.isempty():
+            return 0.0
         return float(jnp.max(jnp.abs(self.values)))
 
     @property

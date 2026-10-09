@@ -54,6 +54,9 @@ and 12 focused controls; empty-sentinel and nonfinite edge cases remain open.
 The private JAX two-dimensional Nelder–Mead fallback passes 12 controls.
 Public optimizer dispatch and native active-set parity remain unfinished.
 
+C1/C2 fixed-zero callback/population and empty vscale pass 14 source controls;
+public retained-empty-FUN behavior is part of the ongoing constructor work.
+
 Active work: full public constructor context and callback/endpoint semantics;
 JAX Ballfun norms and triple integration with native dimensions and Nyquist
 handling; Gibbs2D continuous extrema and public constructor dependencies.
