@@ -22,7 +22,9 @@ ALGORITHMS = ['roots', 'newton', 'bisection', 'regulafalsi', 'illinois', 'brent'
 
 def _sausagemap(x):
     # MATLAB's degree-nine polynomial from test_inv.m, in monomial form.
-    weights = jnp.asarray([1.0, 1 / 6, 3 / 40, 5 / 112, 35 / 1152])
+    weights = jnp.concatenate((jnp.ones(1),
+        jnp.cumprod(jnp.arange(1., 8., 2.)) / jnp.cumprod(jnp.arange(2., 9., 2.))))
+    weights = weights / jnp.arange(1., 10., 2.)
     coeffs = jnp.zeros(10).at[jnp.asarray([8, 6, 4, 2, 0])].set(weights)
     coeffs = coeffs / jnp.sum(coeffs)
     return jnp.polyval(coeffs, x)
@@ -32,9 +34,10 @@ def _sausagemap(x):
 class TestChebfunInvAlgorithms:
     def test_sine_and_inverse_roundtrip(self, algorithm):
         # MATLAB pass(k,1:2): asin and inv(inv(sin)).
-        f = cj.chebfun(jnp.sin)
+        x = cj.chebfun("x")
+        f = cj.sin(x)
         expected = cj.chebfun(jnp.arcsin, domain=(-np.sin(1.0), np.sin(1.0)))
-        inverse = f.inv(algorithm=algorithm)
+        inverse = f.inv(ChebfunPref(), algorithm=algorithm)
         tol = 100 * EPS * inverse.vscale
         assert float((expected - inverse).norm(jnp.inf)) < tol
         restored = inverse.inv(algorithm=algorithm)
@@ -56,7 +59,7 @@ class TestChebfunInvAlgorithms:
     def test_monocheck_and_rangecheck(self, algorithm):
         # MATLAB pass(k,4:5): exp inversion, range correction, and domain.
         f = cj.chebfun(jnp.exp)
-        inverse = f.inv(algorithm=algorithm, monocheck='on', rangecheck='on')
+        inverse = f.inv(ChebfunPref(), algorithm=algorithm, monocheck='on', rangecheck='on')
         tol = 100 * EPS * inverse.vscale
         values = jnp.linspace(float(inverse.domain.a), float(inverse.domain.b), 20)
         assert float(jnp.max(jnp.abs(f(inverse(values)) - values))) < tol
@@ -69,7 +72,7 @@ class TestChebfunInv:
         # MATLAB pass(:,6).
         f = cj.chebfun(lambda x: x**2)
         with pytest.raises(ValueError) as exc_info:
-            f.inv(splitting='on', monocheck='on')
+            f.inv(ChebfunPref(), splitting='on', monocheck='on')
         source_id = 'CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic'
         actual_id = str(exc_info.value).split(': ', maxsplit=1)[0]
         assert actual_id.lower() == source_id.lower()
@@ -94,7 +97,8 @@ class TestChebfunInv:
 
     def test_decreasing_inverse(self):
         # MATLAB pass(:,8), issue #1098.
-        f = cj.chebfun(lambda x: -jnp.sin(x))
+        x = cj.chebfun("x")
+        f = -cj.sin(x)
         inverse = f.inv()
         points = jnp.linspace(-1.0, 1.0, 10)
         assert float(jnp.max(jnp.abs(inverse(f(points)) - points))) < 10 * EPS * inverse.vscale

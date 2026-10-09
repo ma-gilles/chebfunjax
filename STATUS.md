@@ -1,5 +1,27 @@
 # Parity status — 2026-10-09
 
+## Complete pinned inverse test battery at default preferences (2026-10-09)
+
+Restored the native test setup: sine of the identity Chebfun, cumulative
+arithmetic for the degree-nine sausage map, and explicit preference arguments.
+All six inversion algorithms pass the original continuous-norm, composition,
+range and endpoint predicates. Shared nonmonotonic-error, jump and decreasing
+cases also pass. Native tolerances are unchanged.
+
+Eight separate CPU processes passed 24 pytest cases: 21 cases exercise 33
+distinct native predicates (48 pass-array cells), plus three labelled API/domain
+controls. Independent cross-review checked runtime hashes, receipts, source
+and JUnit bindings, and every snapshot production file against tested 94a1014a.
+Root separately reviewed the source predicates and payload bindings. The later
+Ball-only commit does not change inverse dependencies; no new-head run claimed.
+
+This qualifies tests/chebfun/test_inv.m at default preferences, not arbitrary
+preference contexts, fresh native execution, full-library parity or a speedup.
+Current CPU profiling, remaining library tests, page audits and CI remain open.
+Evidence: inverse_native_root_source_review_20261009.json and
+inverse_native_cross_review_greeks_20261009/CROSS_REVIEW_FINAL_v1.json in shared
+scratch, with inverse_native_predicates_plan_20261009/qualified_packet_v1.json.
+
 ## Ball volume integrals and norms (2026-10-09)
 
 Integrated JAX coefficient-space volume integration and the source norm
