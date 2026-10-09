@@ -75,7 +75,7 @@ ans =
 ans =
    1.000000000000000
 ans =
-     1.12e-17
+     1.118945367695923e-17
 ```
 
 Here is a plot of the solid harmonics $R^m_l$, with $l=0,...,4$ and $0\leq m\leq l$.
@@ -138,7 +138,7 @@ toc
 ```
 
 ```text
-Elapsed time is 0.237402 seconds.
+Elapsed time is 0.207955 seconds.
 ```
 
 ## References
@@ -152,3 +152,5 @@ Elapsed time is 0.237402 seconds.
 ---
 
 *Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*
+
+*Execution note: timing is from this Python run, including coefficient completion and validation. Lighting, surface coloring and subplot layout still differ from MATLAB.*

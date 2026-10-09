@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## SolidHarmonics full source execution (2026-10-09)
+
+The page now calls public Ballfun.plot for all eleven source plots, producing
+55 surfaces and two correctly sized 600 x 253 images. The full source sequence
+ran on CPU, including all thirteen finite constructions and degree150/order50.
+The body completed in about9.48s with a1,242,736KiB sampled peak. Its observed
+high-degree construction took0.207955s including completion/finite validation;
+this is not an isolated benchmark or a MATLAB speed comparison.
+
+Actual Laplacian norm:2.315864701948616e-14; squared norms:
+0.999999999999999 and1.0; cross integral:1.118945367695923e-17.
+Original prose/MATLAB input cells are preserved; output blocks use this run.
+Root independently verified2,955 runtime hashes and viewed both actual and
+reference images. Lighting/interpolation, visible surface seams, overall
+framing and subplot positions/scales remain visibly different. This is source
+execution and dimension qualification, not full figure parity. Inherited
+NumPy numerical paths also remain part of the JAX-only goal.
+
+Evidence: solid_harmonics_page_root_runtime_review_20261009.json,
+solid_harmonics_root_visual_review_20261009.json and
+solid_harmonics_page_20261009/HANDOFF.json in shared scratch.
+
 ## Ballfun default plot data and coefficient emptiness (2026-10-09)
 
 Default public plot/surf now use the pinned coefficient prolongation,
@@ -19,9 +41,9 @@ with the scratch artifact environment variable absent; tests use pytest's
 temporary directory in ordinary CI.
 
 This qualifies default plot data and routing, not native lighting or surface
-interpolation. Wedge empty/complex handling, the full SolidHarmonics page and
-degree-150 execution remain open. The accepted sphere contour viewport fix is
-preserved. Evidence: ball_plot_composite_root_{runtime_review,applicability}_20261009.json,
+interpolation. Wedge empty/complex handling remains open. The full
+SolidHarmonics execution is qualified in the entry above. The accepted sphere
+contour viewport fix is preserved. Evidence: ball_plot_composite_root_{runtime_review,applicability}_20261009.json,
 ball_plot_ci_fallback_root_runtime_review_20261009.json and
 solid_harmonics_source_gap_20261009 in shared scratch.
 
