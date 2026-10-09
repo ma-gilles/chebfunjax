@@ -1419,13 +1419,19 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
         return np.array([], dtype=np.float64)
 
     if n == 2:
-        r = np.array([-c[0] / c[1]])
+        linear = jnp.asarray(c)
+        r = -linear[:1] / linear[1]
         if not all_roots:
-            mask_im = np.abs(np.imag(r)) < htol
-            r = np.real(r[mask_im])
-            r = r[(r >= -(1.0 + htol)) & (r <= (1.0 + htol))]
-            r = np.clip(r, -1.0, 1.0)
-        return r
+            # Native linear rejection is strict: equality at the imaginary
+            # or expanded domain bounds is retained. The eig leaf below has
+            # its own intentionally strict imaginary acceptance predicate.
+            reject = ((jnp.abs(jnp.imag(r)) > htol)
+                      | (jnp.real(r) < -(1.0 + htol))
+                      | (jnp.real(r) > (1.0 + htol)))
+            r = jnp.clip(jnp.real(r[~reject]), -1.0, 1.0)
+        # Explicit writable host adapter for the inherited recursive engine.
+        # All arithmetic, rejection and clipping in this branch are JAX.
+        return jax.device_get(r).copy()
 
     if (not recurse) or (n <= MAX_EIG_SIZE):
         # Form the colleague matrix

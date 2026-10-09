@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX linear roots and literal boundary rejection (2026-10-09)
+
+The n=2 roots branch now computes, filters and clips with JAX. Native linear
+rejection retains equality at the imaginary threshold and expanded domain
+bounds; the distinct strict eigenvalue-leaf predicate remains unchanged.
+A writable host return adapts to the inherited recursive engine.
+
+The focused CPU gate passed48 checks (24 direct boundaries, scaled/public
+and array dispatch, solver selection and8 dtype/ownership checks). An exact
+Fraction diagnostic on represented normalized coefficients independently
+explains21 imaginary-component one-ULP changes: JAX rounded all21 correctly,
+including4 changed acceptances whose exact imaginary magnitudes exceed the
+threshold. This is not a general correctly-rounded complex-division claim:
+only18/21 real components were correctly rounded. Native MATLAB division
+and observed acceptance remain unmeasured; the exact-input MATLAB probe is
+prepared but unexecuted. No tolerances were widened.
+
+Root independently verified2928/2924 observed runtime files for the passing
+boundary and diagnostic gates, exact rational results and payload hashes.
+Only the n=2 production branch changed. Host trimming, eig/QZ migration,
+full regressions, native execution, publication and CI remain open.
+Evidence in shared goal scratch: roots_linear_boundary_source_20261009/
+qualified_caveat_packet_v3.json, roots_linear_root_runtime_review_20261009.json
+and roots_linear_fraction_root_review_20261009.json.
+
+
 ## Polynomial FUN QR and column backslash (2026-10-09)
 
 Column Chebfun/Quasimatrix backslash now uses continuous QR and inner products,
