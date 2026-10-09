@@ -1,6 +1,11 @@
 # chebfunjax ↔ MATLAB Chebfun — Parity Status
 
-## Current CPU qualification (2026-10-08, local 6cda66b9)
+For the current summary, see [STATUS.md](STATUS.md) and
+[HANDOFF_CODEX.md](HANDOFF_CODEX.md). The dated entries below are historical
+qualification records; their active assignments and environment availability
+are not current status. Full parity remains incomplete.
+
+## Historical CPU qualification (2026-10-08, local 6cda66b9)
 
 Full parity remains incomplete. Latest static inventory revalidated all 1,102
 source/port mappings: **1,075 present, 19 with skip/xfail markers, 8 module-skipped**.

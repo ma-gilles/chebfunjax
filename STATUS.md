@@ -1,118 +1,62 @@
-# Translation Status
+# Parity status — 2026-10-09
 
-## 39 PRs merged — ~90% feature parity with MATLAB Chebfun
+**Full parity is incomplete.** The target is MATLAB Chebfun commit
+`7574c77680d7e82b79626300bf255498271a72df`, all native functions/tests, and
+all 322 example pages, including computations, prose, outputs and figures.
+Work is CPU-only. [HANDOFF_CODEX.md](HANDOFF_CODEX.md) takes precedence over
+the July handoff. No defensible overall completion percentage is available.
 
-### Phase 1: Utilities (complete)
-| Module | PR(s) | Functions |
-|--------|-------|-----------|
-| utils/quadrature | #2 | chebpts, legpts, jacpts, hermpts, lagpts, ultrapts, radaupts, lobpts, trigpts |
-| utils/transforms | #4 | vals2coeffs, coeffs2vals, cheb2leg, leg2cheb, cheb2jac, jac2cheb |
-| utils/interpolation | #3 | bary, bary_weights, trig_bary, barymat |
-| utils/diffmat | #11 | diffmat, cumsummat, intmat, introw, diffrow |
-| utils/polynomials | #9 | chebpoly, legpoly, jacpoly + eval functions |
-| utils/aaa | #13 | aaa (AAA rational approximation) |
-| utils/minimax | #35 | minimax (Remez exchange) |
-| utils/ratapprox | #33 | ratinterp, padeapprox, trigratinterp |
-| utils/misc | #1 | standard_chop, gridsample, abstract_qr |
-| domain | #7 | Domain class |
-| pref | #6 | ChebPreferences |
+## Latest verified changes
 
-### Phase 2: Tech Layer (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| tech/chebtech | #5,8,12,33 | Chebtech2, Chebtech1 (full ops) |
-| tech/trigtech | #19 | Trigtech (periodic functions) |
+| Local commit | Change | Qualification |
+| --- | --- | --- |
+| `17fb15c6` | AtmosphericTemperature captured cameras and contour framing | Full source replay plus isolated corrected figure 3; all 10 images; historical graphics/scientific-reference differences remain |
+| `cf3cde14` | Ballfun default source slices and coefficient emptiness | 27 distinct checks across staged runs plus a normal-pytest artifact check; native lighting remains open |
+| `f5d7d450` | SolidHarmonics full source page | All 13 constructions, including degree 150; 11 public plots/55 surfaces; two 600×253 figures; lighting/layout differ |
+| `510b3f8a` | WaveDecay adaptive eigensolves and continuous normalization | Full source run, two 600×480 figures and eight matching formatted eigenvalue labels; solver/rendering parity remains open |
 
-### Phase 3: Fun Layer (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| fun/bndfun | #15 | Classicfun, Bndfun on [a,b] |
-| fun/unbndfun | #22 | Unbndfun on (-∞,∞), [a,∞) |
-| fun/singfun+deltafun | #25 | Singfun, Deltafun |
+These are scoped qualifications, not a complete passing suite or exact-head CI.
 
-### Phase 4: Chebfun 1D (complete)
-| Module | PR(s) | What |
-|--------|-------|------|
-| chebfun1d/chebfun | #14,16 | Chebfun class, factory, arithmetic, calculus, roots, norm |
-| chebfun1d/specfun | #18 | sin, cos, exp, log, sqrt, abs, sign, sinh, tanh, ... |
-| chebfun1d/linalg | #29 | Quasimatrix QR, SVD |
-| chebfun1d/ode | #37,41 | ode45, ode113, bvp4c, bvp5c, ivp, bvp, eigs |
-| chebfun1d (V08-V12) | #39 | conv, polyfit, interp1, besselj, erf, horzcat, isnan, ... |
+## Remaining gates
 
-### Phase 5: Discretization (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| discretization/chebcolloc | #17 | ChebColloc1, ChebColloc2 |
-| discretization/ultras | #20 | UltraS spectral method |
-| discretization/trigcolloc | #33 | TrigColloc |
+- **Tests and functions:** complete semantic coverage and full CPU suite.
+  Exact-commit inventory at `cf3cde14` maps all 1,102 native test files:
+  1,090 have no literal skip/xfail marker; 12 contain markers. File presence
+  is not complete predicate coverage or a passing execution result.
+- **Figures:** fresh audit at `510b3f8a` checks 1,305 mapped image pairs with
+  no mapping holes. **71 dimension mismatches remain across 14 pages.**
+  Correct dimensions do not establish matching content, colors or rendering.
+- **Correctness:** trigonometric constructors and mixed-column realness,
+  rational poles, Hermite edge cases, eigensolver semantics, difficult
+  examples and the remaining source-linked handoff backlog.
+- **Performance:** inverse-function and other slow paths need qualification;
+  no full MATLAB performance-parity claim is supported.
+- **Implementation:** remaining host numerical paths must become JAX-only.
+- **Acceptance:** native MATLAB comparisons, publication and final green CI.
+  Latest observed session failures are GitHub network/SSH access and MATLAB
+  IPC startup. Last confirmed remote main was `8a6d9c80`; newer listed commits
+  are local. Useful local implementation and verification continue.
 
-### Phase 6: Operators (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| operators/blocks+chebmatrix | #21 | OperatorBlock, FunctionalBlock, ChebMatrix |
-| operators/linop+chebop | #23 | Linop, Chebop (ODE/BVP solving) |
-| operators/chebop2 | #31 | Chebop2 (2D PDE: Poisson, Helmholtz) |
-| autodiff/adchebfun | #42 | ADChebfun (exact Fréchet derivatives) |
-| autodiff/treevar | #42 | TreeVar (symbolic operator linearization) |
+## Current work
 
-### Phase 7: 2D Functions (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| chebfun2d/separable_approx | #24,37 | SeparableApprox (low-rank 2D) + diff/sum/norm |
-| chebfun2d/chebfun2 | #26 | Chebfun2 |
-| chebfun2d/chebfun2v | #32,36 | Chebfun2v (2D vector fields) |
-| diskfun | #27,36 | Diskfun, Diskfunv |
-| spherefun | #27,36 | Spherefun, Spherefunv |
+Trigonometric per-column metadata is under focused CPU qualification. The Ballfun
+subplot fix is under regression testing. Native basic eigenvalue tests and
+canonical operator behavior are being restored. Resource-heavy examples run
+serially; independent bounded work uses up to three worker slots.
 
-### Phase 8: 3D Functions (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| chebfun3d/chebfun3 | #28 | Chebfun3 (Tucker 3D) |
-| chebfun3d/chebfun3v | #36 | Chebfun3v (3D vector fields) |
-| chebfun3d/chebfun3t | #37 | Chebfun3T (Tucker tensor) |
-| ballfun | #32 | Ballfun, Ballfunv |
+## Evidence
 
-### Phase 9: PDE Time-Stepping (complete)
-| Module | PR(s) | Classes |
-|--------|-------|---------|
-| spin (1D) | #30 | SpinOp, ETDRK4 (KdV, Allen-Cahn, NLS, KS) |
-| spin (2D) | #38 | SpinOp2, spin2 |
-| spin (3D+sphere) | #40 | SpinOp3, SpinOpSphere, spin3, spinsphere |
-| spin (IMEX) | #41 | imex_euler, imex_sbdf2 |
+Immutable run receipts, runtime hashes and reviews are under:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`
 
-### Phase 10: Testing & Polish (complete)
-| Module | PR(s) | What |
-|--------|-------|------|
-| integration tests | #36 | 50 end-to-end tests covering README examples |
-| autodiff tests | #37 | JIT/grad/vmap verification |
-| benchmarks | #37 | benchmarks/bench_core.py |
+- `atmospheric_composite_root_integration_20261009.json`
+- `ball_plot_composite_root_runtime_review_20261009.json`
+- `ball_plot_ci_fallback_root_runtime_review_20261009.json`
+- `solid_harmonics_root_integration_20261009.json`
+- `wavedecay_root_integration_20261009.json`
+- `matlab_test_static_inventory_cf3cde14_20261009.json`
+- `figure_size_current_510b3f8a_20261009.json`
 
-## In Progress
-
-| Unit | What | Agent |
-|------|------|-------|
-| V13-V18, V24-V28 | pde15s, singularity detection, Lebesgue, gallery, test coverage backfill | running |
-
-## Whole-codebase parity campaign (2026-07)
-
-See **[HANDOFF.md](HANDOFF.md)** for the authoritative status of the
-plot/example parity campaign: what is done, what was verified, and
-what remains.
-
-- **Guide figures:** 323/323 regenerated; 19/20 chapters at genuine
-  parity (ch.17 gated on the spherefun calculus layer).
-- **Example figures:** all 21 categories complete — **826 genuinely
-  computed figures**, 631 (76%) pass the strict 0.06 visual gate; the
-  rest are content-verified in documented exception classes
-  (3D-renderer aspect, random-instance, data-dependent).
-- **Tests:** 2513 passed / 4 skipped on `test-fast`.
-- **Still open:** spherefun calculus `diff`/`laplacian`/`grad` (#25),
-  Ballfun Helmholtz (#17), unhappy-constructor edge detection (#15),
-  Chebop periodic/IVP routing (#24), and the library backlog (#9–#20).
-
-## Stats
-- **39 PRs merged**
-- **65 source files, ~38,000 LOC**
-- **~23,000 test LOC**
-- **~2,000+ tests**
-- **Repo**: https://github.com/ma-gilles/chebfunjax
+[PARITY_MATRIX.md](PARITY_MATRIX.md) and the handoff retain dated historical
+qualification records. The old initial-port phase labels and percentage in this
+file did not establish MATLAB parity; their historical inventory remains in git.
