@@ -48,15 +48,15 @@ rbc_residual = u(end) - rbc               % residual of right BC
 
 ```text
 N_residual =
-     1.547130238609495e-12
+     4.580504745849406e-10
 lbc_residuals =
-   0.000000000000000e+00  1.457544196448168e-09
+   3.317617200067683e-14  1.339056782123649e-10
 rbc_residual =
-    4.440892098500626e-16
+    -9.658940314238862e-15
 I =
-   0.499999998394869
+   0.499999999999915
 I_error =
-     1.605131083604050e-09
+     8.476552793013070e-14
 ```
 
 The Newton iteration has converged quadratically:
@@ -98,7 +98,7 @@ total_time_for_this_example = toc
 
 ```text
 total_time_for_this_example =
-   75.788147211074829
+   62.931086301803589
 ```
 
 ## References

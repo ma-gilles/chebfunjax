@@ -1,5 +1,36 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+
+## Scalar Newton source policy and GulfStream correction (2026-10-08)
+
+The finite single-interval scalar Chebcolloc2 path now follows source initial
+boundary fitting, adaptive correction solves, L2 damping/stopping and final
+simplification. New numerical code uses JAX. Nineteen distinct checks pass:
+nine original source predicates and ten focused controls. Four original
+Chebcolloc1/ultraS nonlinear clauses remain explicitly pending. Retained legacy
+controls were not rerun; this is not full-suite qualification.
+
+GulfStream now produces five Newton updates and45 coefficients, with actual
+integral error8.476552793013070e-14 versus cached8.482103908136196e-14.
+Its three600x253 figures and printed output come from the same completed CPU
+run; fonts, plotting grids and final digits are not exact native parity.
+This supersedes the older35-update/57-coefficient numerical status below.
+
+Root verified payload/source/artifact hashes, four terminal stable receipts
+with no survivors, and1799/1796/1798/1669 observed runtime paths respectively.
+Final executable AST matches qualified snapshots; observed paths do not imply
+recursive shared-library closure. Failed and memory-censored attempts remain.
+Evidence:scalar_newton_root_acceptance_20261008.json and
+scalar_nonlinear_source_20261008/HANDOFF_v7.json in shared scratch.
+
+Limits: general-BC dispatch, coupled/piecewise/periodic/alternate nonlinear
+paths and nondefault happiness preferences remain outside this qualification.
+Legacy newton_tol is accepted but ignored on this path; public tol supplies
+native bvpTol and stopping uses200*bvpTol. Reusing identical frozen LU factors
+is algebraically equivalent but differs from native cache-state policy; see
+SOURCE_CACHE_NOTE.md. No AD multiplication defect is claimed. Parameter Newton
+code is unchanged. No fresh MATLAB, isolated performance or final CI claim.
+
 ## Coupled linear-system backend qualification (2026-10-08)
 
 All21 original linearSystem1 slots (30 scalar comparisons) pass across

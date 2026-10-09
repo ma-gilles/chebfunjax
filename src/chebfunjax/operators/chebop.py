@@ -6639,22 +6639,18 @@ class Chebop:
             jnp.zeros(start_sz, dtype=jnp.float64), dom)
 
     def _fitbc_init_vals(self, x_pts):
-        """MATLAB fitBCs-style default initial guess (scalar problems).
+        """Source fitBCs initial guess for a scalar finite interval.
 
-        MATLAB's solvebvp starts Newton from a low-degree polynomial
-        satisfying the (linearized) boundary conditions, not from zero.
-        Starting from zero matters for operators with a u-multiplying
-        highest derivative: ode-nonlin/ExactSolns problem 3 is
-        y y'' = 2 (y')^2 with y(1) = 1, y(2) = 2, and at y == 0 every
-        Jacobian entry vanishes, so the Newton loop broke out of a
-        singular LU and silently returned the zero function -- which
-        satisfies the ODE but violates both boundary conditions.
+        Callable, numeric and general linearized constraints are fitted by
+        the source rank/retry procedure. Other domains retain the legacy
+        numeric-constraint fallback below.
 
-        Handles scalar and list-valued lbc/rbc (value = successive
-        derivatives), the forms whose conditions are known in closed
-        form; returns None -- meaning keep the zero default -- for
-        callable or general BCs.
+        Provenance: Chebfun 7574c77 @linop/fitBCs.m.
         """
+        if len(self.domain) == 2 and all(bool(jnp.isfinite(float(x))) for x in self.domain):
+            from chebfunjax.operators.scalar_newton import fit_scalar_bcs
+            return fit_scalar_bcs(self)(x_pts)
+
         from math import factorial
 
         import numpy as _np
@@ -6715,30 +6711,25 @@ class Chebop:
         max_iter: int,
         newton_tol: float,
     ):
-        """Newton iteration with adaptive discretization refinement.
+        """Source scalar Newton with separately resolved corrections.
 
-        The previous implementation ran Newton at a FIXED grid (16 points
-        unless n was given; n_max was accepted but never used) and returned
-        whatever the coarse collocation system converged to — for stiff
-        problems that solution satisfies the BCs but grossly violates the
-        ODE (residual O(100)). Following MATLAB solvebvpNonlinear's
-        adaptive strategy:
+        One finite interval delegates to source solvebvpNonlinear and
+        dampingErrorBased semantics. Other domains retain the legacy
+        whole-solution refinement below; that path is not source-qualified.
 
-        1. Newton-solve the collocation system at size sz (warm-started by
-           interpolating the previous size's iterate; the user's N.init is
-           honoured at the first size).
-        2. Check that the solution is RESOLVED at sz via the Chebyshev
-           coefficient-tail happiness check (an under-resolved solution has
-           a fat tail).
-        3. If unresolved (or Newton failed), double sz and continue — the
-           coarse solution warm-starts the next level, acting as a natural
-           continuation strategy for stiff problems.
+        On the finite scalar source path, legacy ``newton_tol`` is accepted
+        but ignored, including nondefault values: it is not a native
+        preference. Public ``tol`` supplies bvpTol, and source nonlinear
+        error stopping uses 200*bvpTol.
 
-        Provenance
-        ----------
-        MATLAB source : @chebop/solvebvpNonlinear.m, @chebop/newtonBVP.m
-        Chebfun commit: 7574c77
+        Provenance: Chebfun 7574c77 @chebop/solvebvpNonlinear.m,
+        @chebop/dampingErrorBased.m, @linop/linsolve.m.
         """
+        if len(self.domain) == 2 and all(bool(jnp.isfinite(float(x))) for x in self.domain):
+            from chebfunjax.operators.scalar_newton import solve_scalar
+            return solve_scalar(self, f, n=n, max_iter=max_iter, bvp_tol=tol,
+                                n_min=n_min, n_max=n_max)
+
         import scipy.linalg as _sla
 
         from chebfunjax.chebfun1d.chebfun import Chebfun

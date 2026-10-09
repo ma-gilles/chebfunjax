@@ -1,50 +1,23 @@
-"""Port of MATLAB Chebfun tests/chebop/test_scalarODE.m (Fable 5).
+"""Literal Chebfun 7574c77 tests/chebop/test_scalarODE.m predicates.
 
-Nonlinear scalar BVP u'' + sin(u - 0.2) = 0, u(0)=2, u(pi)=3.  MATLAB
-solves it under three discretizations; chebfunjax has one -- the
-residual + BC assertions are the same.
-
-Provenance
-----------
-MATLAB source : tests/chebop/test_scalarODE.m
-Chebfun commit: 7574c77
+Alternative nonlinear backend source semantics remain unqualified. Previous
+sampled residual controls remain in test_scalarODE_legacy_controls.py.
 """
+import math
 
-from __future__ import annotations
-
-import jax.numpy as jnp
-import numpy as np
 import pytest
 
 from chebfunjax.operators.chebop import Chebop
 
-TOL = 1e3 * 1e-10  # 1e3 * bvpTol
 
-
-class TestChebopScalarODE:
-    def test_nonlinear_bvp_residual_and_bcs(self):
-        N = Chebop(lambda x, u: u.diff(2) + (u - 0.2).sin(),
-                   domain=(0.0, float(np.pi)))
-        N.lbc = 2.0
-        N.rbc = 3.0
-        u = N.solve(0.0)
-        assert abs(float(u(jnp.asarray(0.0))) - 2.0) < TOL
-        assert abs(float(u(jnp.asarray(float(np.pi)))) - 3.0) < TOL
-        # residual: u'' + sin(u - .2) ~ 0 at interior points
-        xs = jnp.asarray(np.linspace(0.2, np.pi - 0.2, 30))
-        res = u.diff(2)(xs) + jnp.sin(u(xs) - 0.2)
-        assert float(jnp.max(jnp.abs(res))) < 1e3 * TOL
-
-    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
-    def test_other_discretizations(self, disc):
-        # MATLAB solves the same BVP under ultraS and chebcolloc1.
-        N = Chebop(lambda x, u: u.diff(2) + (u - 0.2).sin(),
-                   domain=(0.0, float(np.pi)))
-        N.lbc = 2.0
-        N.rbc = 3.0
-        u = N.solve(0.0, n=64, discretization=disc)
-        assert abs(float(u(jnp.asarray(0.0))) - 2.0) < TOL
-        assert abs(float(u(jnp.asarray(float(np.pi)))) - 3.0) < TOL
-        xs = jnp.asarray(np.linspace(0.2, np.pi - 0.2, 30))
-        res = u.diff(2)(xs) + jnp.sin(u(xs) - 0.2)
-        assert float(jnp.max(jnp.abs(res))) < 1e3 * TOL
+@pytest.mark.parametrize('discretization', ['chebcolloc2', 'ultraS', 'chebcolloc1'])
+def test_original_scalar_ode(discretization):
+    if discretization != 'chebcolloc2':
+        pytest.skip('Original nonlinear alternate-backend semantics unqualified; '
+                    'legacy controls retained separately, not a known assertion failure')
+    pref_bvp_tol = 5e-13
+    op = Chebop(lambda u: u.diff(2)+(u-.2).sin(), (0., math.pi))
+    op.lbc = lambda u: u-2
+    op.rbc = lambda u: u-3
+    u, _ = op.solvebvp(0., tol=pref_bvp_tol)
+    assert float(op(u).norm()) < 1e3*pref_bvp_tol
