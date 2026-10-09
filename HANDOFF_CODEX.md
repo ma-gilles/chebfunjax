@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Shared Trigtech constructor and composition core (2026-10-09)
+
+Added the source preference/data, refinement, happiness and sample-check core
+using JAX, including classic checks, callback order, fixed/numeric bypass and
+literal refinement lengths. Trigtech.compose now uses that core with source
+operand checks, length overrides, epsilon floor and disabled sample test.
+All nine original low-level constructor clauses are restored.
+
+Qualification: 38 analytical controls, nine native constructor clauses, ten
+composition controls, eleven original composition clauses and fourteen affected
+regressions (including JIT/AD and Frechet propagation): 82 distinct passing
+bodies. Six bounded CPU processes terminated cleanly with stable input hashes
+and no survivors. A combined 25-body run hit its 3GiB memory cap and is excluded;
+the same tests passed in fresh 11/1/13 partitions with unchanged caps/assertions.
+Root verified all runtime hashes, JUnit counts, source applicability and the
+final documentation-only change. Default numeric factory bodies used by the
+solid-harmonic package remain identical.
+
+Full public Chebfun constructor parity is still unfinished: shared preference
+and callback context, vectorCheck, existing-object technology selection,
+recursive modifier order, full-domain hscale and endpoint metadata remain the
+next package. Low-level malformed minSamples and integer endpoint storage,
+complex-zero observation, broader Trig arithmetic and native MATLAB capture
+also remain open. No full-suite, speed or CI claim follows from these checks.
+Evidence: trig_constructor_r2_source_20261009/qualified_core_compose_packet_v2.json
+and trig_constructor_core_compose_root_packet_review_20261009.json in shared
+scratch. Publication remains local pending network access.
+
 ## JAX solid harmonics and radial restriction (2026-10-09)
 
 Ballfun.solharm now follows the native modified-forward-column recurrence,

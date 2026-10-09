@@ -10,13 +10,14 @@ from chebfunjax.tech.trigtech import Trigtech
 def test_pref_grid_sampletest_and_cap(monkeypatch):
     f = Trigtech.from_function(lambda x: jnp.sin(9*jnp.pi*x))
     seen = []
-    original = Trigtech.happiness_check
-    def check(coeffs, values, op=None, tol=None, vscale=0.):
-        seen.append((len(coeffs), op, float(jnp.max(tol))))
-        return original(coeffs, values, op, tol, vscale)
-    monkeypatch.setattr(Trigtech, 'happiness_check', staticmethod(check))
+    from chebfunjax.tech import _trig_constructor as core
+    original = core.happiness
+    def check(f, op=None, values=None, data=None, pref=None):
+        seen.append((f.n, pref['sampleTest'], float(jnp.max(pref['chebfuneps']))))
+        return original(f, op, values, data, pref)
+    monkeypatch.setattr(core, 'happiness', check)
     f.compose(jnp.cos, pref={'minSamples':65,'chebfuneps':1e-30,'sampleTest':True})
-    assert seen[0][0] == 64 and all(op is None for _,op,_ in seen)
+    assert seen[0][0] == 64 and all(sample_test is False for _,sample_test,_ in seen)
     assert all(tol == float(jnp.finfo(float).eps) for _,_,tol in seen)
     with pytest.warns(UserWarning, match='compose:convfail'):
         result = f.compose(lambda y: jnp.sin(30*y), pref={'maxLength':32})

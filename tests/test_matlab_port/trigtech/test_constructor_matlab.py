@@ -1,88 +1,56 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_constructor.m (Opus 4.8).
+"""Literal nine clauses of tests/trigtech/test_constructor.m, pin7574c77.
 
-Adaptive construction (populate): the values on the resolved equispaced
-grid must reproduce the sampled function to machine precision.  chebfunjax
-uses a single adaptive path (no 'nested'/'resampling' preference), so both
-refinement-function variants map to the same scalar checks.
-
-Provenance
-----------
-MATLAB source : tests/trigtech/test_constructor.m
-Chebfun commit: 7574c77
+Nested/resampling are actual preferences. Matrix infinity norm is row-sum max;
+slot7 uses adaptive minSamples=maxLength8. Slots8/9 use source normest.
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
-EPS = float(np.finfo(np.float64).eps)
-XX = jnp.asarray(np.linspace(-1.0, 1.0, 500, endpoint=False))
+EPS = jnp.finfo(jnp.float64).eps
 
 
-def _tt(f):
-    return Trigtech.from_function(f)
+@pytest.mark.parametrize('slot,refinement,array', [
+    (1, 'nested', False), (2, 'nested', True),
+    (3, 'resampling', False), (4, 'resampling', True),
+])
+def test_source_resolved_values(slot, refinement, array, record_property):
+    record_property('native_slot', slot)
+
+    def op(x):
+        if array:
+            return jnp.stack([jnp.exp(jnp.sin(jnp.pi*x)),
+                              jnp.sin(jnp.cos(4*jnp.pi*x)), jnp.cos(jnp.pi*x)], axis=1)
+        return jnp.tanh(jnp.sin(jnp.pi*x))
+
+    g = Trigtech.from_function(op, pref={'refinementFunction': refinement},
+                              data={'vscale': 0., 'hscale': 1.})
+    error = jnp.abs(op(trigpts(g.n))-g.values)
+    norm = jnp.max(jnp.sum(error, axis=1)) if array else jnp.max(error)
+    assert norm < 10*jnp.max(g.vscale_columns()*EPS)
 
 
-def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+@pytest.mark.parametrize('slot,bad', [(5, jnp.nan), (6, jnp.inf)])
+def test_source_probe_error_message(slot, bad, record_property):
+    record_property('native_slot', slot)
+    with pytest.raises(ValueError) as error:
+        Trigtech.from_function(lambda x: jnp.sin(jnp.pi*x)+bad,
+                               pref={'refinementFunction': 'resampling'})
+    assert str(error.value) == 'Cannot handle functions that evaluate to Inf or NaN.'
 
 
-class TestTrigtechConstructor:
-    def test_scalar_values_nested(self):
-        f = lambda x: jnp.tanh(jnp.sin(jnp.pi * x))  # noqa: E731
-        g = _tt(f)
-        x = trigpts(g.n)
-        assert _ninf(f(x) - g.values) < 10 * g.vscale * EPS
+def test_source_actual_adaptive_min_equals_max(record_property):
+    record_property('native_slot', 7)
+    Trigtech.from_function(lambda x: jnp.sin(jnp.pi*x),
+                          pref={'minSamples': 8, 'maxLength': 8,
+                                'refinementFunction': 'resampling'})
 
-    def test_scalar_values_resampling(self):
-        # chebfunjax has a single construction path; mirror the scalar check.
-        f = lambda x: jnp.tanh(jnp.sin(jnp.pi * x))  # noqa: E731
-        g = _tt(f)
-        x = trigpts(g.n)
-        assert _ninf(f(x) - g.values) < 10 * g.vscale * EPS
 
-    def test_min_equals_max_samples_no_crash(self):
-        # Analogue of pref.minSamples == pref.maxLength: fixed-length build works.
-        g = Trigtech.from_function(lambda x: jnp.sin(jnp.pi * x), n=8)
-        assert g.n == 8
-
-    def test_logical_true_is_one(self):
-        # trigtech(@(x) x > -2) == 1 on [-1, 1)
-        f = _tt(lambda x: jnp.where(x > -2, 1.0, 0.0))
-        g = f - 1.0
-        assert _ninf(g(XX)) < EPS
-
-    def test_logical_false_is_zero(self):
-        # trigtech(@(x) x < -2) == 0 on [-1, 1)
-        f = _tt(lambda x: jnp.where(x < -2, 1.0, 0.0))
-        assert _ninf(f(XX)) < EPS
-
-    def _array_op(self, x):
-        return jnp.stack([jnp.exp(jnp.sin(jnp.pi * x)),
-                          jnp.sin(jnp.cos(4 * jnp.pi * x)),
-                          jnp.cos(jnp.pi * x)], axis=-1)
-
-    def test_array_values_nested(self):
-        g = _tt(self._array_op)
-        x = trigpts(g.n)
-        assert _ninf(self._array_op(x) - g.values) < 10 * g.vscale * EPS
-
-    def test_array_values_resampling(self):
-        # chebfunjax has a single construction path; mirror the array check.
-        g = _tt(self._array_op)
-        x = trigpts(g.n)
-        assert _ninf(self._array_op(x) - g.values) < 10 * g.vscale * EPS
-
-    def test_nan_raises(self):
-        # MATLAB @trigtech/populate.m errors on NaN-valued handles.
-        with pytest.raises(ValueError):
-            Trigtech.from_function(lambda x: jnp.sin(jnp.pi * x) + jnp.nan)
-
-    def test_inf_raises(self):
-        # MATLAB @trigtech/populate.m errors on Inf-valued handles.
-        with pytest.raises(ValueError):
-            Trigtech.from_function(lambda x: jnp.full_like(x, jnp.inf))
+@pytest.mark.parametrize('slot,truth', [(8, True), (9, False)])
+def test_source_logical_normest(slot, truth, record_property):
+    record_property('native_slot', slot)
+    op = (lambda x: x > -2) if truth else (lambda x: x < -2)
+    f = Trigtech.from_function(op)
+    g = Trigtech.from_values(jnp.asarray([1. if truth else 0.]))
+    assert (f-g).normest() < EPS

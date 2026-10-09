@@ -1107,18 +1107,26 @@ def _trig_standard_check(coeffs, values, tol, vscale):
     if bool(source_nan):
         raise ValueError("Trigtech standardCheck: function returned NaN")
     tolerance_input = jnp.asarray(tol)
-    tolerances = jnp.ravel(tolerance_input)
-    if (tolerances.size != m
-            or (tolerance_input.ndim > 1 and tolerance_input.shape[-1] != m)):
-        tolerances = jnp.full((m,), jnp.max(tolerances))
+    # MATLAB tests size(tol,2), not numel(tol). Python vectors represent
+    # MATLAB rows; preserve explicit matrix shapes and later linear indexing.
+    tolerances = (tolerance_input.reshape(1, -1) if tolerance_input.ndim < 2
+                  else tolerance_input)
+    if tolerances.shape[1] != m:
+        maximum = (jnp.max(tolerances).reshape(1, 1) if tolerances.shape[0] == 1
+                   else jnp.max(tolerances, axis=0, keepdims=True))
+        # Source ones(1,m)*max(tol) is scalar scaling or matrix multiplication;
+        # incompatible shapes must not be repaired by flattening/global max.
+        tolerances = (jnp.ones((1, m))*maximum.reshape(()) if maximum.size == 1
+                      else jnp.ones((1, m)) @ maximum)
     local = jnp.max(jnp.abs(samples), axis=0)
     scales = jnp.maximum(jnp.asarray(vscale), local)
     scaled = tolerances * scales / local
+    linear_scaled = jnp.reshape(scaled.T, (-1,))
     happy = True
     retained = 1
     for column in range(m):
         paired = _trig_abs_coeffs_for_chop(columns[:, column])
-        raw = standard_chop(paired, float(scaled[column]))
+        raw = standard_chop(paired, float(linear_scaled[column]))
         happy, keep = _trig_cutoff_decision(raw, n)
         retained = max(retained, keep)
         if not happy:
@@ -1607,6 +1615,8 @@ class Trigtech(eqx.Module):
         is_real: bool | None = None,
         ishappy: bool = True,
         real_columns: tuple[bool, ...] | None = None,
+        pref=None,
+        data=None,
     ) -> "Trigtech":
         """Construct from Fourier coefficients using source realness threshold.
 
@@ -1623,6 +1633,21 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
+        if pref is not None or data is not None:
+            from chebfunjax.tech._trig_constructor import construct
+
+            result = construct(coeffs, pref=pref, data=data, coefficients=True)
+            if real_columns is None and is_real is not None:
+                real_columns = (bool(is_real),) * len(result.real_columns)
+            if real_columns is None:
+                real_columns = result.real_columns
+                values = result.values
+            else:
+                # Explicit static metadata is the existing Python adapter;
+                # it overrides inference, including under source preferences.
+                values = _trig_project_values(_trig_coeffs2vals_impl(result.coeffs), real_columns)
+            return cls(coeffs=result.coeffs, real_columns=real_columns,
+                       ishappy=ishappy, _values=values)
         if real_columns is None:
             if is_real is None:
                 real_columns = _trig_column_mask(_trig_coeffs2vals_impl(coeffs))
@@ -1637,6 +1662,8 @@ class Trigtech(eqx.Module):
         values: jax.Array,
         *,
         ishappy: bool = True,
+        pref=None,
+        data=None,
     ) -> "Trigtech":
         """Construct from source-grid values with literal3eps classification.
 
@@ -1650,6 +1677,12 @@ class Trigtech(eqx.Module):
                         @trigtech/vscale.m
         Chebfun commit: 7574c77
         """
+        if pref is not None or data is not None:
+            from chebfunjax.tech._trig_constructor import construct
+
+            result = construct(values, pref=pref, data=data)
+            return cls(coeffs=result.coeffs, real_columns=result.real_columns,
+                       ishappy=ishappy, _values=result.values)
         values = jnp.atleast_1d(jnp.asarray(values))
         mask = _trig_column_mask(values)
         coeffs = _trig_vals2coeffs_impl(values)
@@ -1662,52 +1695,27 @@ class Trigtech(eqx.Module):
         f: Callable[[jax.Array], jax.Array],
         *,
         n: int | None = None,
-        maxpow2: int = 16,
+        maxpow2: int | None = None,
+        pref=None,
+        data=None,
     ) -> "Trigtech":
-        """Construct a Trigtech from a callable.
+        """Source fixed/adaptive constructor with complete Tech preferences.
 
-        If ``n`` is given, evaluates the function on an ``n``-point equispaced
-        trigonometric grid (non-adaptive), averaging the endpoint samples
-        according to MATLAB callable construction. If ``n`` is None, uses an adaptive
-        algorithm.
-
-        Parameters
-        ----------
-        f : callable
-            Vectorised function on [-1, 1]. Should be periodic.
-        n : int or None
-            Fixed number of points, or None for adaptive.
-        maxpow2 : int, default 16
-            Maximum grid size = 2^maxpow2 for adaptive construction.
-
-        Returns
-        -------
-        Trigtech
-
-        Notes
-        -----
-        Adaptive construction is NOT JIT-safe.
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/trigtech.m, @trigtech/populate.m
-        Chebfun commit: 7574c77
+        MATLAB @trigtech/trigtech.m, populate.m and refine.m, pin7574c77.
+        ``n`` overrides fixedLength. Legacy explicit maxpow2 supplies a cap
+        only absent an explicit maxLength; omitted defaults use source65536.
+        Construction/callbacks are eager; the resulting Tech supports JAX.
+        Public Chebfun routing remains a separate pending R2 adapter.
         """
-        # Native @trigtech/trigtech.m (7574c77) samples fixedLength before
-        # populate receives numeric values, bypassing its adaptive probe.
-        if n is not None:
-            return cls._fixed_construct(f, n)
-        # MATLAB @trigtech/populate.m probes the handle at a fixed
-        # pseudo-random point and refuses functions that evaluate to
-        # Inf or NaN (a trigtech is a smooth periodic representation).
-        pseudo_rand = 0.376989633393435
-        probe = jnp.asarray(
-            f(jnp.asarray([2.0 * pseudo_rand - 1.0], dtype=jnp.float64)))
-        if not bool(jnp.all(jnp.isfinite(probe))):
-            raise ValueError(
-                "Trigtech: cannot handle functions that evaluate to "
-                "Inf or NaN.")
-        return cls._adaptive_construct(f, maxpow2, real_columns=_trig_probe_mask(probe))
+        from chebfunjax.tech._trig_constructor import construct
+
+        result = construct(f, pref=pref, data=data, n=n, maxpow2=maxpow2)
+        if maxpow2 is not None and not result.ishappy:
+            # Legacy Python maxpow2 adapter retains its warning; native pref
+            # construction itself returns unhappy without emitting one.
+            warnings.warn(f"Trigtech.from_function: function did not converge with "
+                          f"{result.n} points. Returning unhappy representation.", stacklevel=2)
+        return result
 
     @classmethod
     def _fixed_construct(cls, f: Callable, n: int) -> "Trigtech":
@@ -1719,62 +1727,16 @@ class Trigtech(eqx.Module):
 
     @classmethod
     def _adaptive_construct(
-        cls,
-        f: Callable,
-        maxpow2: int = 16,
-        start_pow2: int = 4,
+        cls, f: Callable, maxpow2: int = 16, start_pow2: int = 4,
         real_columns: tuple[bool, ...] | None = None,
     ) -> "Trigtech":
-        """Adaptive construction — Python loop, NOT JIT-safe.
-
-        Refines nested grids of 2^k points, evaluating only new nodes.
-        The first grid alone averages the two endpoint samples.
-        Note: start_pow2=4 gives n=16, producing a chop array of length 17,
-        which is the minimum required by standard_chop.
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/populate.m, @trigtech/refine.m
-        Chebfun commit: 7574c77
-        """
-        from chebfunjax.utils._trigpts import global_trigpts_nodes
-
-        vscale = 0.0
-        c = None
-        values = None
-        is_real = True
-        for k in range(start_pow2, maxpow2 + 1):
-            n = 2**k
-            if values is None:
-                values, is_real = _sample_callable_trig_grid(f, n, source_global=True)
-            else:
-                # Source refineNested preserves old even-indexed samples;
-                # only new odd-indexed nodes are evaluated after doubling.
-                fresh, fresh_real = _sample_as_trig_dtype(f, global_trigpts_nodes(n)[1::2])
-                interleaved = jnp.empty((n,) + values.shape[1:], dtype=values.dtype)
-                values = interleaved.at[::2].set(values).at[1::2].set(fresh)
-                is_real = is_real and fresh_real
-            c = trig_vals2coeffs(values)
-            finite_values = jnp.where(jnp.isfinite(values), values, 0)
-            vscale = jnp.maximum(vscale, jnp.max(jnp.abs(finite_values), axis=0))
-            # populate checks the full interpolant, then prolongs only after
-            # source standardCheck AND the two-point sampleTest are happy.
-            ishappy, n_keep = cls.happiness_check(c, values, op=f, vscale=vscale)
-            if ishappy:
-                c_keep = _trig_prolong_coeffs(c, n_keep)
-                return cls(coeffs=c_keep, is_real=is_real, real_columns=real_columns, ishappy=True)
-
-        # Did not converge
-        warnings.warn(
-            f"Trigtech.from_function: function did not converge with "
-            f"{2**maxpow2} points. Returning unhappy representation.",
-            stacklevel=2,
-        )
-        if c is None:
-            # Preserve the existing adapter for an explicit cap below start.
-            values, is_real = _sample_callable_trig_grid(f, 2**maxpow2)
-            c = trig_vals2coeffs(values)
-        return cls(coeffs=c, is_real=is_real, real_columns=real_columns, ishappy=False)
+        """Legacy private shape adapter into the shared source constructor."""
+        result = cls.from_function(f, pref={"minSamples": 2**start_pow2+1}, maxpow2=maxpow2)
+        if real_columns is None:
+            return result
+        return cls(coeffs=result.coeffs, real_columns=real_columns,
+                   ishappy=result.ishappy,
+                   _values=_trig_project_values(result.values, real_columns))
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -1958,6 +1920,12 @@ class Trigtech(eqx.Module):
             # MATLAB @trigtech/vscale.m returns zero when coeffs are empty.
             return 0.0
         return float(jnp.max(jnp.abs(self.values)))
+
+    def normest(self):
+        """Native @trigtech/normest.m7574c77: max of column value scales."""
+        from chebfunjax.tech._trig_constructor import _values
+
+        return 0.0 if self.isempty() else float(jnp.max(jnp.abs(_values(self))))
 
     def __len__(self) -> int:
         return self.n
@@ -2209,102 +2177,54 @@ class Trigtech(eqx.Module):
     inner = innerProduct
 
     def compose(self, op, g=None, data=None, pref=None) -> "Trigtech":
-        """Adaptive unary, binary or Trigtech-of-Trigtech composition.
+        """Native composition through the shared eager Trig constructor.
 
-        Construction is eager. The resulting representation supports JAX
-        evaluation and differentiation. Source preferences cover the operand
-        lengths, disable sampleTest, and retain the source refinement policy.
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/compose.m, populate.m, refine.m, techPref.m
-        Chebfun commit: 7574c77
+        MATLAB @trigtech/compose.m, Chebfun7574c77. Python shape adapters
+        align scalar-column operand arrays; constructor numerics are JAX.
         """
-        import math
+        from chebfunjax.tech._trig_constructor import construct, resolve_pref
 
-        from chebfunjax.utils._trigpts import global_trigpts_nodes
+        prefs = resolve_pref(pref)
+        prefs["minSamples"] = max(prefs["minSamples"], self.n)
+        prefs["chebfuneps"] = jnp.maximum(jnp.asarray(prefs["chebfuneps"]), _EPS)
+        prefs["sampleTest"] = False
 
-        prefs = dict(minSamples=17, maxLength=65536, chebfuneps=_EPS,
-                     refinementFunction="nested", happinessCheck="standard")
-        if pref is not None:
-            prefs.update(dict(pref))
         def columns(u):
             return 1 if u.coeffs.ndim == 1 else u.coeffs.shape[1]
-        # @trigtech/compose treats an empty third operand as omitted.
+
+        # Python None and an empty technology represent the omitted G slot.
         if isinstance(g, Trigtech) and g.isempty():
             g = None
-        minimum = max(prefs["minSamples"], self.n)
         if g is not None:
             if not isinstance(g, Trigtech) or columns(self) != columns(g):
                 raise ValueError("CHEBFUN:TRIGTECH:compose:dim: Matrix dimensions must agree.")
-            minimum = max(minimum, g.n)
-            def function(x):
-                left, right = self(x), g(x)
-                if left.ndim < right.ndim:
-                    left = left[..., None]
-                elif right.ndim < left.ndim:
-                    right = right[..., None]
-                return op(left, right)
+            prefs["minSamples"] = max(prefs["minSamples"], g.n)
         elif isinstance(op, Trigtech):
             if columns(self) > 1 and columns(op) > 1:
                 raise ValueError("CHEBFUN:TRIGTECH:compose:arrval: Cannot compose two array-valued TRIGTECH objects.")
             if bool(jnp.max(jnp.abs(self.values)) > 1 + 2 * _EPS):
                 raise ValueError("CHEBFUN:TRIGTECH:compose:range: The range of f is not contained in the domain of g.")
-            minimum = max(minimum, op.n)
-            def function(x):
-                return op(self(x))
-        else:
-            def function(x):
-                return op(self(x))
-        fixed = prefs.get("fixedLength")
-        if fixed is not None and not math.isnan(float(fixed)):
-            return Trigtech._fixed_construct(function, int(fixed))
-        refinement = prefs["refinementFunction"]
-        if not isinstance(refinement, str) or refinement.lower() not in ("nested", "resampling"):
-            raise ValueError("CHEBFUN:TRIGTECH:refine: No user defined refinement options allowed")
-        if isinstance(prefs["happinessCheck"], str) and prefs["happinessCheck"].lower() in ("strict", "loose"):
-            kind = prefs["happinessCheck"].lower()
-            raise ValueError(f"CHEBFUN:TRIGTECH:happinessCheck:{kind}Check: {kind.capitalize()} check not implemented for TRIGTECH. Please use classic check.")
-        if not isinstance(prefs["happinessCheck"], str) or prefs["happinessCheck"].lower() != "standard":
-            raise NotImplementedError("Trigtech compose currently supports standard happinessCheck")
-        tol = jnp.maximum(jnp.asarray(prefs["chebfuneps"]), _EPS)
-        probe = jnp.asarray(function(jnp.asarray([2 * .376989633393435 - 1])))
-        if not bool(jnp.all(jnp.isfinite(probe))):
-            raise ValueError("CHEBFUN:TRIGTECH:populate:isNan: Cannot handle functions that evaluate to Inf or NaN.")
-        n = 2 ** math.ceil(math.log2(minimum - 1))
-        values, coeffs = None, None
-        # parseDataInputs defaults a missing OR empty VSCALE to zero.
-        # MATLAB row vectors map to the internal one-dimensional columns.
-        vscale = 0. if data is None or len(data) == 0 else data.get("vscale", 0.)
-        if vscale is None or jnp.asarray(vscale).size == 0:
-            vscale = 0.
-        vscale = jnp.asarray(vscale)
-        if vscale.ndim == 2 and vscale.shape[0] == 1:
-            vscale = vscale[0]
-        is_real = True
-        real_columns = _trig_probe_mask(probe)
-        while n <= prefs["maxLength"]:
-            if values is None or refinement.lower() == "resampling":
-                values, is_real = _sample_callable_trig_grid(function, n, source_global=True)
+            prefs["minSamples"] = max(prefs["minSamples"], op.n)
+
+        function = op
+        if isinstance(prefs["refinementFunction"], str):
+            if g is None:
+                def function(x):
+                    return op(self(x))
             else:
-                fresh, fresh_real = _sample_as_trig_dtype(function, global_trigpts_nodes(n)[1::2])
-                interleaved = jnp.empty((n,) + values.shape[1:], dtype=values.dtype)
-                values = interleaved.at[::2].set(values).at[1::2].set(fresh)
-                is_real = is_real and fresh_real
-            coeffs = trig_vals2coeffs(values)
-            vscale = jnp.maximum(vscale, jnp.max(jnp.abs(jnp.where(jnp.isfinite(values), values, 0)), axis=0))
-            happy, cutoff = self.happiness_check(coeffs, values, op=None, tol=tol, vscale=vscale)
-            if happy:
-                return Trigtech(coeffs=_trig_prolong_coeffs(coeffs, cutoff), real_columns=real_columns, ishappy=True)
-            if refinement.lower() == "resampling":
-                power = math.log2(n)
-                n = 3 * 2 ** (int(power) - 1) if power == math.floor(power) and power > 5 else 2 ** (math.floor(power) + 1)
-            else:
-                n *= 2
-        if coeffs is None:
-            raise ValueError("Trigtech compose maxLength is below the initial source refinement grid")
-        warnings.warn(f"TRIGTECH:TRIGTECH:compose:convfail: Composition failed to converge with {len(coeffs)} points.", stacklevel=2)
-        return Trigtech(coeffs=coeffs, real_columns=real_columns, ishappy=False)
+                def function(x):
+                    left, right = self(x), g(x)
+                    if left.ndim < right.ndim:
+                        left = left[..., None]
+                    elif right.ndim < left.ndim:
+                        right = right[..., None]
+                    return op(left, right)
+
+        result = construct(function, data=data, pref=prefs)
+        if not result.ishappy:
+            warnings.warn("TRIGTECH:TRIGTECH:compose:convfail: "
+                          f"Composition failed to converge with {result.n} points.", stacklevel=2)
+        return result
 
     def restrict(self, a: float, b: float):
         """Restriction to [a, b] within [-1, 1].

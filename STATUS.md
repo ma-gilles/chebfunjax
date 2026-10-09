@@ -42,15 +42,16 @@ These are scoped qualifications, not a complete passing suite or exact-head CI.
 The C2 eigensolver package restores all four original basic predicates and
 passes 14 controls plus four affected consumer/dispatch checks. Its inherited
 host eigendecomposition and other backend/adapter semantics remain open.
-Trigonometric column metadata is committed with 59 passing checks. The next
-constructor package has passed 38 analytical and nine native tests; composition
-regressions and public callback/preference routing are still being qualified.
-Solid harmonics now pass all 14 original predicates and 25 controls, with a
-fresh full-page run including degree 150. New recurrence and radial contraction
-code is JAX; inherited Ballfun host numerics and rendering differences remain.
-The constructor package is still uncommitted. These scoped qualifications are
-not full-suite or exact-head CI evidence.
+Solid harmonics pass all 14 original predicates and 25 controls, with a fresh
+full-page run including degree 150. New recurrence and radial contraction code
+is JAX; inherited Ballfun host numerics and rendering differences remain.
+The shared Trigtech constructor/composition core passes 82 distinct checks,
+including nine original constructor and eleven original composition clauses.
 
+Active work: full public constructor context and callback/endpoint semantics;
+JAX Ballfun norms and triple integration with native dimensions and Nyquist
+handling; Gibbs2D continuous extrema and its underlying 1D extrema dependencies.
+These scoped qualifications are not full-suite or exact-head CI evidence.
 Resource-heavy examples run serially; independent bounded work uses up to
 three worker slots. Work remains CPU-only.
 
