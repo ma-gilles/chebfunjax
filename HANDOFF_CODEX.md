@@ -1,5 +1,30 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX solid harmonics and radial restriction (2026-10-09)
+
+Ballfun.solharm now follows the native modified-forward-column recurrence,
+real/complex coefficient branches and conjugacy predicate using JAX. Radial
+restriction uses paired Clenshaw contraction and the public Spherefun coefficient
+constructor. All 14 original native test predicates pass: 121 real modes with
+363 continuous norm observations, nine complex closed forms and two final
+normalization cases. Their original tolerance is unchanged. Twenty-five
+independent controls also pass; grouped execution uses identical source payloads.
+
+The affected full SolidHarmonics page was rerun, including all 13 constructions,
+degree 150/order 50, four scalar outputs and 11 plots/55 surfaces. Both images
+are 600 x 253. The page body took about 16.17s with a sampled peak of 1,653,060KiB.
+The observed degree-150 time is 1.202674s including completion/validation, not
+an isolated benchmark or MATLAB speed comparison. Actual outputs and images
+replace the previous implementation's artifacts; source prose and cells remain.
+
+Root verified every qualification group, all 14 predicates, runtime hashes,
+current-head applicability and both generated images. Inherited Ballfun norm,
+differentiation and arithmetic still contain host numerical code. Native
+lighting, camera/layout and exact figure parity remain open, as do native MATLAB
+capture, publication and CI. Evidence under shared goal scratch:
+ball_solharm_source_20261009/FINAL_HANDOFF.json, ROOT_NATIVE14_AGGREGATE.json,
+and ball_solharm_affected_page_root_runtime_review_20261009.json.
+
 ## C2 eigenvalue policy and original basic predicates (2026-10-09)
 
 Restored native C2 projection, automatic target selection, adaptive refinement,

@@ -57,7 +57,7 @@ norm( laplacian( R42 ) )
 
 ```text
 ans =
-     2.315864701948616e-14
+     2.869853557954798e-14
 ```
 
 The solid harmonics are also orthonormal on the ball with respect to the standard $L^2$ inner-product. This can be verified with the `sum3` command:
@@ -75,7 +75,7 @@ ans =
 ans =
    1.000000000000000
 ans =
-     1.118945367695923e-17
+     1.658065433470134e-17
 ```
 
 Here is a plot of the solid harmonics $R^m_l$, with $l=0,...,4$ and $0\leq m\leq l$.
@@ -138,7 +138,7 @@ toc
 ```
 
 ```text
-Elapsed time is 0.207955 seconds.
+Elapsed time is 1.202674 seconds.
 ```
 
 ## References
@@ -153,4 +153,4 @@ Elapsed time is 0.207955 seconds.
 
 *Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*
 
-*Execution note: printed scalar outputs and degree-150 timing retain the earlier full-source Python execution, including coefficient completion and validation. The figures were refreshed from the original eleven low-degree rendering constructions after correcting figure-wide subplot adjustment. Lighting, surface coloring and default subplot layout still differ from MATLAB.*
+*Execution note: all printed outputs and both figures come from a fresh full-source Python execution with the JAX solid-harmonic recurrence. The degree-150 timing includes coefficient completion and validation; it is not a MATLAB performance comparison or a high-degree accuracy test. All thirteen constructed coefficient arrays were finite. Lighting, surface coloring and default subplot layout still differ from MATLAB.*

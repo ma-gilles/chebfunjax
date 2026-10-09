@@ -1994,19 +1994,10 @@ class Ballfun(eqx.Module):
         if self.isempty():
             return Spherefun.empty()
 
-        # MATLAB @ballfun/spherefun.m collapses the radial Chebyshev axis at
-        # r (Clenshaw), yielding the Fourier(lambda) x Fourier(theta) coeff
-        # matrix of the shell, then builds the Spherefun directly from those
-        # coefficients (coeffs2spherefun) -- no adaptive re-sampling of the
-        # full 3D tensor.  Sampling the ball pointwise here instead (the old
-        # path) fed the Spherefun Gaussian-elimination constructor an
-        # O(npts * m*n*p) evaluator: for a high-frequency shell (e.g.
-        # galleryball('moire')) the adaptive grid grows to max_sample and
-        # construction stalls for tens of minutes.  Contracting the radial
-        # axis first makes the per-evaluation cost a cheap O(npts * (n+p))
-        # separable Fourier sum.
-        A = _radial_slice_coeffs(np.asarray(self.coeffs), float(r))
-        return Spherefun.from_function(_mk_fourier_fourier_eval(A))
+        from chebfunjax.ballfun._solharm import radial_clenshaw
+
+        coefficients = radial_clenshaw(self.coeffs, r)
+        return Spherefun.coeffs2spherefun(coefficients.T)
 
     def to_diskfun(self, axis: str = "z", c: float = 0.0):
         """Extract a planar slice of the ball as a Diskfun.
@@ -2670,75 +2661,18 @@ class Ballfun(eqx.Module):
         return float(self.sum()) / (4.0 * _np.pi / 3.0)
 
     @staticmethod
-    def solharm(l: int, m: int) -> "Ballfun":
-        r"""Solid harmonic :math:`R_{lm} = \sqrt{2l+3}\, r^l\,
-        Y_l^m(\lambda, \theta)` , normalized to unit L2 norm on the
-        ball (MATLAB ballfun.solharm).
-
-        Constructed ANALYTICALLY in coefficient space (the MATLAB
-        route): Chebyshev coefficients of ``r^l`` outer-multiplied with
-        the trig coefficients of the fully-normalized associated
-        Legendre polynomial (stable Modified-Forward-Column recurrence
-        of Holmes & Featherstone 2002).  The former sampled
-        construction ran the adaptive theta grid to the max_sample cap
-        (blind doubled-grid sampling of odd-m harmonics) and paid ~300
-        XLA compiles: 11 s vs ~0.05 s here.
+    def solharm(l: int, m: int, *options) -> "Ballfun":
+        """Source real or ``'complex'`` solid harmonic, normalized on the ball.
 
         Provenance
         ----------
-        MATLAB source : @ballfun/solharm.m
+        MATLAB source : @ballfun/solharm.m, @ballfun/constructor.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.tech.trigtech import trig_vals2coeffs
-        from chebfunjax.utils.quadrature import chebpts
-        from chebfunjax.utils.transforms import vals2coeffs
+        from chebfunjax.ballfun._solharm import solid_coefficients
 
-        am = abs(int(m))
-        l = int(l)
-        if l < am:
-            raise ValueError(
-                "Ballfun.solharm: degree must be >= order.")
-
-        # normalized_legendre(l, |m|): P_l^{|m|} values at 2l+1 trig
-        # points via the MFC recurrence, then FFT to trig coeffs.
-        p = 2 * l + 1
-        th = np.pi * (-1.0 + 2.0 * np.arange(p) / p)  # pi*trigpts(p)
-        cos_th = np.cos(th)
-        Pold = np.ones(p)
-        for mm in range(1, am + 1):
-            Pold = np.sqrt((2 * mm + 1) / (2 * mm - (mm == 1))) * Pold
-        Poldold = np.zeros(p)
-        for ll in range(am + 1, l + 1):
-            anm = np.sqrt((4.0 * ll * ll - 1) / ((ll - am) * (ll + am)))
-            bnm = np.sqrt((2.0 * ll + 1) * (ll + am - 1) * (ll - am - 1)
-                          / ((ll - am) * (ll + am) * (2.0 * ll - 3)))
-            Pl = anm * cos_th * Pold - bnm * Poldold
-            Poldold = Pold
-            Pold = Pl
-        Pold = ((-1.0) ** am * np.sin(th) ** am * Pold
-                / np.sqrt(4 * np.pi))
-        Plm = np.asarray(trig_vals2coeffs(jnp.asarray(Pold))).ravel()
-        # (MATLAB's real branch calls complex_solharm(l, abs(m)), so the
-        # (-1)^m twist for negative m never applies here.)
-        Plm = Plm * np.sqrt(2 * l + 3)
-
-        # Chebyshev coefficients of r^l on [-1, 1].
-        r = np.asarray(chebpts(l + 1, kind=2))
-        monomial = np.asarray(vals2coeffs(jnp.asarray(r ** l))).ravel()
-
-        # Complex solid harmonic tensor: nonzero lambda-Fourier mode at
-        # index 2|m| (0-based; wavenumber +|m| in the shifted layout).
-        S = (l + 1, 2 * am + 1, 2 * l + 1)
-        F = np.zeros(S, dtype=np.complex128)
-        F[:, 2 * am, :] = np.outer(monomial, Plm)
-
-        # Real combination (MATLAB solharm.m): copy the +|m| mode to
-        # the -|m| slot with the parity sign, then scale.
-        pos = 1 if m >= 0 else 0
-        F[:, 0, :] = (-1.0) ** (1 - pos) * F[:, 2 * am, :]
-        F = (-1j) ** (1 - pos) * F / (1 + (m != 0))
-
-        return Ballfun.from_coeffs(jnp.asarray(F), is_real=True)
+        coefficients, real = solid_coefficients(l, m, options)
+        return Ballfun.from_coeffs(coefficients, is_real=real)
 
     @staticmethod
     def helmholtz(f, K: float, bc=None, m: int | None = None,
