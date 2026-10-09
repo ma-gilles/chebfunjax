@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Atmospheric current painter/layout replay (2026-10-09)
+
+A fresh full source run on226ba700 produced all10 figures at600x270 with
+accepted coastline/contour visibility and final-canvas layout for02/04/05–10.
+Only the save-layout keyword changed in the script. Numerical stdout is
+byte-identical to the prior successful run; page prose, MATLAB cells and
+output text are unchanged. Root viewed all10 fresh images and independently
+rehashed3063 observed runtime files; terminal0/stable/no survivors,257.10s
+page body and4.62GiB peak. Current PNGs now show the previously clipped
+labels/titles and visible contours/coastlines.
+
+Full figure parity is still open: globe framing/scale (the native-inset
+adapter makes current spheres smaller), flat-face striping, typography,
+ticks/colorbars, and historical reference04/06 differences. The unqualified
+Gouraud candidate is NOT included. Figure03 save took53.43s for183lines;
+shape-specific eager JAX visibility work is being investigated. This timing
+is an observed stage cost, not a controlled speed comparison.
+Evidence: atmospheric_layout_full_root_runtime_review_20261009.json and
+atmospheric_layout_root_integration_20261009.json; package
+atmospheric_layout_optin_20261009/full_page_layout_v1.
+
+
 ## Trigtech fixed-length callback order (2026-10-09)
 
 Fixed-length Trigtech construction now samples only its requested fixed grid

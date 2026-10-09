@@ -77,6 +77,7 @@ def run(data_path, output_dir=None):
         save_chebfun_figure(
             fig, output_dir / f"AtmosphericTemperature_{figure_number:02d}.png",
             size=(600, 270),
+            layout="matlab" if figure_number in (2, 4, 5, 6, 7, 8, 9, 10) else None,
         )
         plt.close(fig)
 
