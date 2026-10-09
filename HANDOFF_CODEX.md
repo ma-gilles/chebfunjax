@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun subplot preservation (2026-10-09)
+
+Removed one unconditional figure-wide subplots_adjust call from the public
+Ballfun renderer. Native plot changes the current axes; it does not reposition
+all sibling subplots. Five actual-artist controls pass for default/wedge styles,
+ten native subplot indices and standalone rendering, with exact position and
+figure-parameter invariance. Peak831,672KiB; terminal0/stable/uncensored and no
+survivors. Root independently verified2,954 runtime hashes, the exact one-line
+change and saved subplot/standalone images.
+
+No mathematical/data or camera algorithm changed. Supplied-axis camera reset,
+lighting/interpolation and native default layout remain open. Published
+SolidHarmonics images still reflect the preceding full run; a qualified
+low-degree source rendering update is pending, not a repeated scalar/high-degree
+computation. Evidence: ball_subplot_root_runtime_review_20261009.json and
+ball_subplot_position_source_20261009/HANDOFF.json in shared scratch.
+
 ## WaveDecay source execution and reference dimensions (2026-10-09)
 
 Both source40-mode eigenproblems now use the public adaptive eigensolver,

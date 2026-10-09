@@ -2946,7 +2946,6 @@ def plot_ball_slices(
 
     if title:
         ax.set_title(title, fontsize=9, pad=0)
-    fig.subplots_adjust(left=0, right=1, top=0.95, bottom=0)
     return fig, ax
 
 
