@@ -1,5 +1,51 @@
 # Parity status — 2026-10-09
 
+## CPU numerical checkpoint (2026-10-09; supersedes older status below)
+
+Full MATLAB/library/test/page parity is still incomplete. Latest qualified
+implementation checkpoint: b90aa677, local only; exact-head remote CI remains
+unverified. No GPU work was used.
+
+- Native periodic inner products now use summed-length trapezoid quadrature,
+  fixing even-Nyquist norms. All eleven original assertions, ten focused
+  controls and two scalar QR regressions passed (23 total). Evidence:
+  docs/trig_inner_product_cpu_20261009.json.
+- Two persistent JAX FFT transform kernels passed 25 unchanged native
+  assertion bodies directly on JAX, plus eight empty/nonfinite/AD controls.
+  Evidence: docs/trig_transform_fusion_cpu_20261009.json. These root gates
+  used source input guards; they do not establish full dependency/runtime parity.
+- Native active-set direction/blocking primitives passed 16 controls. The
+  finite-box QP working-set/phase-I and explicit-provider SQP engines passed
+  another 19 controls, including backtracking, curvature repair and budget
+  restoration. Independent runtime audits were clean. Public extrema are not
+  switched to this engine: protected finite differences, native RNG and
+  degenerate branches remain unresolved. Evidence:
+  docs/active_set_qp_primitives_cpu_20261009.json and
+  docs/active_set_box_qp_sqp_cpu_20261009.json.
+
+An isolated SphereHeat rewrite completed the first 100 public Helmholtz solves
+and five 610x276 figures. Its error norm was 2.3252808304058767e-05 versus cached
+website 2.325280830910560e-05. The website uses flipud(hot) and different limits
+from the pinned example .m; the draft now follows the website colors, but fresh
+visual verification remains open. With the FFT kernels, the five-Gaussian
+initial condition finishes; the first m150 solve still hits the 3 GiB guard.
+The draft and figures have not replaced the published page. Figure inventory
+therefore remains 68 size mismatches across 13 pages, with broader visual and
+printed-output parity unresolved.
+
+Actual Newton trajectory instrumentation stopped at 2.7 GiB during the second
+update. Differentiation and quadrature accounted for 98 of 187 new compilations
+in that update; final live arrays were zero. Stable helper kernels are under
+qualification, with no claimed full-solve memory fix. SVD/norm work is also
+under native regression qualification, not integrated or complete.
+
+Continuing-work evidence and owned handles are in shared scratch:
+/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/
+current_parallel_checkpoint_20261008.json. Do not rerun a live handle or treat
+a capped/partial diagnostic as native acceptance. Full CPU suite, all322 fresh
+pages, complete function/assertion coverage, MATLAB captures, push and green CI
+remain outstanding.
+
 ## Fixed sphere surface color limits (2026-10-09)
 
 Public sphere plotting now accepts clim=(low, high), applying the fixed scale
