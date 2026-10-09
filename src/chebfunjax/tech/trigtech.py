@@ -127,6 +127,7 @@ def _trig_vals2coeffs_np(values):
     return np.real(coeffs) * fix + 1j * (np.imag(coeffs) * fix)
 
 
+@jax.jit
 def _trig_vals2coeffs_impl(values: jax.Array) -> jax.Array:
     r"""Convert values at N equally spaced points on [-1,1) to Fourier coefficients.
 
@@ -259,6 +260,7 @@ def trig_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     return jnp.asarray(_trig_coeffs2vals_np(c))
 
 
+@jax.jit
 def _trig_coeffs2vals_impl(coeffs: jax.Array) -> jax.Array:
     r"""Convert Fourier coefficients to values at N equally spaced points on [-1,1).
 

@@ -1,0 +1,40 @@
+{
+  "scope": "Persistent compiled JAX FFT transform helpers; surrounding host wrappers unchanged",
+  "source": "Chebfun7574c77 trigtech vals2coeffs/coeffs2vals; only two jit boundaries added, function body AST unchanged",
+  "checks": {
+    "native_direct_jax": 25,
+    "boundary_and_exact_four_node_AD": 8
+  },
+  "native_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transform_fusion_source_20261009/native25_v1/ROOT_REVIEW.json",
+  "native_review_sha256": "50e3401a235d691a21e5a0929023e6096f4e125a6c70aa0a300f1c73340e086c",
+  "boundary_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transform_fusion_source_20261009/boundaries8_v1/ROOT_REVIEW.json",
+  "boundary_review_sha256": "e8484396545fc0bb3422ab37011b03aa18c411de594a69af2dbd7d97470251d2",
+  "source_sha256": "be20b7f8dc535dd397a76b2af3bd87ea3e501889c12c33d05c3639c1ae04e28d",
+  "test_sha256": "d4b73bf7223d23f1cabd67d0259ddb0678a3fc1f35ca5a30278fc8b8f37553c5",
+  "attribution": "Two Gaussian constructions/additions produced1005compiler calls;248 nearest coeffs2vals and67 nearest vals2coeffs",
+  "application": {
+    "scope": "Changed-candidate Gaussian initialization completed, first m150 solve still resource-capped. No speed ratio or full page qualification",
+    "terminal": 137,
+    "cap": "sampled_summed_RSS_cap",
+    "peak_kib": 3150144,
+    "constructed": {
+      "stage": "constructed",
+      "seconds": 48.80215606512502,
+      "maxrss_kib": 2816132,
+      "mean": 0.04166666666666654
+    },
+    "last_event": {
+      "stage": "before_step",
+      "seconds": 48.848632543347776,
+      "maxrss_kib": 2816132,
+      "step": 1
+    },
+    "survivors": []
+  },
+  "limitations": [
+    "Source input guards; no complete third-party runtime file audit for these root gates",
+    "No matched full-page speed claim",
+    "Gaussian first m150 solve remains3GiB-capped",
+    "Full examples/native parity and broader suite remain open"
+  ]
+}
