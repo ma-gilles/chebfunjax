@@ -1,5 +1,38 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest CPU integration (2026-10-09; supersedes prior checkpoint below)
+
+Local implementation head 0f120b1e includes native continuous factor QR/JAX
+core SVD and BMC-I projection compilation. Full parity and remote CI remain open.
+
+- SVD: 54 distinct scoped checks passed, plus six repeated Trig integration
+  checks against the current FFT kernels. Includes all ten executed native
+  chebfun2 norm assignments and 18 explicit capability-boundary controls.
+  All seven runtime audits and independent root reviews passed. Nonfinite
+  MATLAB behavior, extreme finite norms, custom zero constructors, generic
+  axes and full JIT/AD remain unqualified. Evidence: docs/separable_svd_cpu_20261009.json.
+- Sphere BMC-I: eight exact eager-byte cases and 17 unchanged source controls
+  passed. The actual five-Gaussian initial condition now builds at about
+  2.47 GiB process highwater, and the first m150 Helmholtz solve completes
+  with mean drift 5.55e-17. The second step still exceeds the 3 GiB guard.
+  No full-page or matched performance claim. Evidence:
+  docs/sphere_bmci_fusion_cpu_20261009.json.
+- A distinct first-solve compiler diagnostic completed at 3,038,960 KiB
+  sampled tree peak. Initialization produced 1,333 compile starts; source
+  projection, real conversion, factor scaling and prolongation remain
+  prominent. Evidence: shared scratch sphere_heat_public_source_20261009/
+  gaussian_firstsolve_compile_v1/ROOT_REVIEW.json.
+- Newton fusion: 38 fixture tests/39 captured outputs remain byte-identical;
+  inherited differentiation regressions are running. Some inherited tests
+  substitute deterministic inputs or weaker assertions, so they do not
+  establish complete native assertion parity. Separately, a literal native
+  compressed quadrature candidate is entering source-stage/IR qualification.
+
+No page/figure inventory reduction is claimed: 68 size mismatches across
+13 pages remain. Publication remains local; push and exact-head green CI,
+full CPU suite, missing MATLAB captures and all-page verification are open.
+
+
 ## CPU numerical checkpoint (2026-10-09; supersedes older status below)
 
 Full MATLAB/library/test/page parity is still incomplete. Latest qualified
