@@ -85,6 +85,7 @@ def _factory_top() -> dict:
                                      "maxPoleOrder": 20,
                                      "defaultSingType": "sing"}),
         "enableDeltaFunctions": True,
+        "enableFunqui": False,  # @chebfunpref/chebfunpref.m731, pin7574c77
         "deltaPrefs": DotDict.wrap({"deltaTol": 1e-9,
                                     "proximityTol": 1e-11}),
         "tech": "chebtech2",

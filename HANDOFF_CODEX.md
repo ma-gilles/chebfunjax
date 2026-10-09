@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Missing FUNQUI factory preference (2026-10-09)
+
+Restored the native top-level enableFunqui=false factory field. Its omission
+caused the first source-constructor control to raise AttributeError and routed
+explicit writes into technology overrides. Four controls verify factory default,
+private copy, session inheritance and field reset without losing unrelated
+technology overrides. All pass; root verified 2,922 observed runtime hashes,
+JUnit counts and the one-field-only production change. The failed constructor
+run is preserved; its unchanged forty controls are being rerun separately.
+
+Evidence: trig_constructor_r2_source_20261009/qualified_funqui_factory_packet_v1.json
+and funqui_factory4_root_runtime_review_20261009.json in shared scratch. This
+fix does not establish full constructor/preference, example or CI parity.
+
 ## Native trigonometric zero-target truncation (2026-10-09)
 
 Nonempty Trigtech truncation to zero now reaches the native coefficient
