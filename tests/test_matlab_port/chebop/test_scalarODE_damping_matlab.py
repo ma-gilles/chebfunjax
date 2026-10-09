@@ -12,12 +12,9 @@ from chebfunjax.operators.chebop import Chebop
 
 @pytest.mark.parametrize('discretization', ['chebcolloc2', 'chebcolloc1', 'ultraS'])
 def test_original_scalar_ode_damping(discretization):
-    if discretization != 'chebcolloc2':
-        pytest.skip('Original nonlinear alternate-backend semantics unqualified; '
-                    'legacy controls retained separately, not a known assertion failure')
     pref_bvp_tol = 1e-12 if discretization == 'ultraS' else 1e-13
     op = Chebop(lambda x, u: .05*u.diff(2)+(5*x).cos()*u.sin(), (0., math.pi))
     op.lbc = lambda u: u-2
     op.rbc = lambda u: u-3
-    u, _ = op.solvebvp(0., tol=pref_bvp_tol)
+    u, _ = op.solvebvp(0., tol=pref_bvp_tol, discretization=discretization)
     assert float(op(u).norm()) < 1e-9

@@ -742,6 +742,15 @@ class Chebop:
         if self.op is not None and not isinstance(self.op, str) \
                 and _op_arity(self.op, 2) == 2:
             self.op, _cell_m = _cellify(self.op, True, self._domain)
+        elif self.op is not None and _op_arity(self.op, 1) == 1:
+            # Source linearize accepts autonomous cell-argument systems.
+            # Normalize successful detection to the canonical x+variables
+            # signature used by _n_vars; retain ordinary scalar callables.
+            autonomous = self.op
+            cell_op, cell_count = _cellify(
+                lambda x, u: autonomous(u), True, self._domain)
+            if cell_count:
+                self.op = cell_op
         #: MATLAB N.maxnorm: halt IVP time marching when any watched
         #: solution component reaches this norm; the remainder of the
         #: interval is filled with NaN (@chebfun/constructODEsol.m).
@@ -946,7 +955,8 @@ class Chebop:
                 solve_bvp_altdisc,
             )
             out = solve_bvp_altdisc(self, f, str(discretization), n=n,
-                                    tol=tol)
+                                    tol=tol, max_iter=max_iter,
+                                    n_min=n_min, n_max=n_max)
             return out[0] if len(out) == 1 else out
         if (discretization is not None
                 and str(discretization).lower() in ("chebcolloc2", "colloc2")

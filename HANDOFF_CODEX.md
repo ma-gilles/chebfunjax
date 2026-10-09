@@ -1,5 +1,32 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Adaptive alternative ODE discretizations (2026-10-08)
+
+Coupled linear Chebcolloc1/ultraS solves now use exact AD coefficient/functional
+blocks, native input dimension offsets, projection, backend factor policies and
+adaptive per-interval happiness checks. Only unhappy intervals advance. Native
+C1 output construction is included before convergence testing and final output.
+Scalar nonlinear alternate backends now use those genuine corrections through
+the accepted scalar Newton engine; neither uses a default-backend seed.
+
+Qualification:60 linear checks (all33 original System1/2 slots,49 scalar
+comparisons,27 independent controls), four original scalar alternate clauses,
+and eight scalar representation-equivalence checks. All original bounds remain.
+This is composite qualification with source/AST equivalence for final guard/domain
+edits, not one exact-head full-suite run. Root rehashed all ten linear gates,
+both1805-file scalar gates and the1664-file equivalence gate; every accepted
+receipt is terminal/stable with no survivors. Evidence:linear_adaptive_root_rehash_20261008.json,
+ scalar_alternate_root_review_20261008.json and scalar_helper_equivalence_root_review_20261008.json.
+
+Review found and fixed coefficient-only breakpoints missing from discretization
+domains. An initial suspicion of raw periodic coefficients was disproved:
+existing restriction already converts periodic data as native restrict does.
+Four incorrect rejection expectations are retained as failed diagnostic evidence;
+positive conversion/action tests pass. Singfun data remaining after restriction
+are explicitly unsupported. Scalar-linear legacy paths, general/coupled nonlinear
+constraints, scalar parameters and eigenproblems retain documented gaps. Native
+reruns, full-suite coverage, JAX migration and exact-head CI remain open.
+
 ## Remaining deterministic AAA source predicates (2026-10-08)
 
 A literal companion restores original14,17,18,21-23,25-32 with native autoZ,

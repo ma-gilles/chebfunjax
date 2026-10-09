@@ -1,15 +1,11 @@
 """Chebop BVP solves and eigenproblems under ultraS / chebcolloc1.
 
-MATLAB solves a chebop under ``prefs.discretization = @ultraS`` or
-``@chebcolloc1`` by discretizing the linearized operator of each Newton
-step in the requested space.  chebfunjax's chebop records its operator
-as a closure, so this module recovers the Frechet derivative at the
-current iterate in *differential form* by probing the operator with
-scaled monomial perturbations (central differences), assembles typed
-:class:`~chebfunjax.operators.blocks.OperatorBlock` rows from the
-recovered coefficient chebfuns, linearizes the boundary conditions into
-``eval_at * D^k`` functionals the same way, and solves each Newton step
-through :meth:`BlockLinop.linsolve` with the requested backend.
+Ordinary coupled linear systems use exact AD differential and boundary blocks,
+source dimension offsets, and adaptive resolution in the requested space.
+Finite single-interval scalar nonlinear systems use the shared scalar Newton
+workflow. Other legacy routes, including eigenproblems, retain the existing
+finite-difference differential-form reconstruction; those routes are outside
+this adaptive coupled-linear parity scope.
 
 Provenance
 ----------
@@ -344,9 +340,73 @@ def _linear_system_by_ad(N, dom, count):
         return False
 
 
+
+def _linearize_coupled_ad(N, f_list, dom, count):
+    """Source linearize/solvebvpLinear via exact AD coefficient blocks.
+
+    MATLAB source: @chebop/linearize.m, @chebop/solvebvpLinear.m (7574c77).
+    """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    from chebfunjax.operators.blocklinop import linop
+    from chebfunjax.operators.blocks import eval_at, zero_functional, zeros_op
+    from chebfunjax.operators.chebmatrix import ChebMatrix
+
+    initial = (list(N.init) if isinstance(N.init, (list, tuple))
+               else [N.init]) if N.init is not None else []
+    initial += [_zero_fun(dom)] * (count-len(initial))
+    initial = [_zero_fun(dom)+u if isinstance(u, (int, float)) else u
+               for u in initial]
+    seeds = [ADChebfun(u).seed(j+1, (True,)*count)
+             for j, u in enumerate(initial)]
+    outputs = _apply_op(N, seeds)
+    rows, rhs = [], []
+    for i, output in enumerate(outputs):
+        if isinstance(output, ADChebfun):
+            rows.append(output.jacobian.blocks[0])
+            residual = output.func
+        else:
+            rows.append([zeros_op(dom) for _ in seeds])
+            residual = output
+        rhs.append(f_list[i]-residual)
+    L = linop(ChebMatrix(rows))
+    for callback, point in ((N._lbc_raw, dom[0]), (N._rbc_raw, dom[-1])):
+        if callback is None:
+            continue
+        if callable(callback):
+            out = callback(*seeds)
+            out = list(out) if isinstance(out, (list, tuple)) else [out]
+            for value in out:
+                if isinstance(value, ADChebfun):
+                    value = value(point) if callable(value.func) else value
+                    L = L.add_constraint(value.jacobian.blocks[0], -value.func)
+                else:
+                    L = L.add_constraint([zero_functional(dom) for _ in seeds],
+                                         -value)
+        else:
+            values = list(callback) if isinstance(callback, (list, tuple)) else [callback]
+            for j, value in enumerate(values):
+                row = [eval_at(point, dom) if k == j else zero_functional(dom)
+                       for k in range(count)]
+                L = L.add_constraint(row, value-initial[j](point))
+    return L, rhs, initial
+
+
+def _solve_linear_system_ad(N, f_list, dom, count, backend, n, n_min, n_max, tol):
+    """Source solvebvpLinear correction with exact AD differential blocks."""
+    from chebfunjax.operators._linear_altdisc import solve_operator
+
+    L, rhs, initial = _linearize_coupled_ad(N, f_list, dom, count)
+    correction, _disc, _converged = solve_operator(
+        L, rhs, backend=backend, n=n, n_min=n_min, n_max=n_max, tol=tol)
+    if N.init is None:
+        return correction
+    return [(u+du).simplify() for u, du in zip(initial, correction)]
+
+
 def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
                       n: int | None = None, tol: float = 1e-10,
-                      max_iter: int = 30):
+                      max_iter: int = 30, n_min: int = 32,
+                      n_max: int = 4096):
     """Solve the chebop BVP with a Newton iteration whose linear solves
     run under the requested discretization.
 
@@ -369,6 +429,14 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
     # default-backend seed can otherwise bypass that solve entirely.
     from chebfunjax.chebfun1d.chebfun import Chebfun as _Chebfun
     linear_system = _linear_system_by_ad(N, dom, m)
+    if linear_system:
+        return _solve_linear_system_ad(N, f_list, dom, m, discretization,
+                                       n, n_min, n_max, tol)
+    if (m == 1 and len(dom) == 2
+            and all(bool(jnp.isfinite(x)) for x in dom) and not N._is_linear()):
+        from chebfunjax.operators.scalar_newton import solve_scalar
+        return [solve_scalar(N, f, n=n, max_iter=max_iter, bvp_tol=tol,
+                             n_min=n_min, n_max=n_max, backend=discretization)]
     U = None
     if not linear_system:
         # Preserve the established nonlinear continuation seed.

@@ -170,7 +170,7 @@ def _validate_initial(op, domain, n_min):
 
 
 def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
-                    bvp_tol=5e-13, n_min=32, n_max=4096):
+                    bvp_tol=5e-13, n_min=32, n_max=4096, backend="chebcolloc2"):
     """Resolve each correction before source damping and L2 error stopping.
 
     Provenance
@@ -180,6 +180,8 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     Chebfun commit: 7574c77
     Fixed n is an explicit nonadaptive extension; n counts equation points.
     """
+    if backend not in ("chebcolloc2", "chebcolloc1", "ultraS"):
+        raise ValueError(f"Unsupported scalar Newton backend {backend!r}")
     domain = tuple(op.domain)
     _validate_initial(op, domain, n_min)
     x = chebfun(lambda t: t, domain=domain)
@@ -233,6 +235,34 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
         """Resolve a correction with frozen differential and BC Jacobians."""
         out, bc, cache = linear
         order = max(0, out.jacobian.diff_order)
+        if backend != "chebcolloc2":
+            from chebfunjax.operators._linear_altdisc import solve_operator
+            from chebfunjax.operators.blocklinop import BlockLinop
+            from chebfunjax.operators.blocks import zero_functional
+
+            if "alternate_operator" not in cache:
+                operator = BlockLinop(out.jacobian, domain=domain)
+                for condition in bc:
+                    row = (condition.jacobian if isinstance(condition, ADChebfun)
+                           else zero_functional(domain))
+                    operator = operator.add_constraint(row, value(condition))
+                cache["alternate_operator"] = operator
+            # The source passes the previous discretization only for the
+            # simplified Newton trial, preserving the frozen operator/BC RHS.
+            previous = cache.get("alternate_disc") if start is not None else None
+            entries, actual_disc, happy = solve_operator(
+                cache["alternate_operator"], [residual], backend=backend,
+                n=n, n_min=n_min, n_max=n_max, tol=bvp_tol, vscale=[vscale],
+                disc=previous)
+            cache["alternate_disc"] = actual_disc
+            for dimensions_used in actual_disc.dimension_history:
+                size_used = int(dimensions_used[0])
+                grid_history.append(size_used)
+                discretization_history.append({
+                    'dimension': size_used, 'functionPoints': size_used + order,
+                    'equationPoints': size_used, 'diffOrder': order,
+                    'backend': backend})
+            return [-entry for entry in entries], int(actual_disc.dimensions[0]), happy
         if len(bc) != order + m - 1:
             raise ValueError("scalar linearization is not square: "
                              "boundary count must equal differential order "
@@ -392,4 +422,6 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                      'linearDiscretizations': discretization_history,
                      'boundaryResidual': [value(c) for c in conditions(u)],
                      'bvpTol': bvp_tol, 'newtonTolerance': err_tol}
+    if backend != 'chebcolloc2':
+        op._last_info['discretization'] = backend
     return u[0].simplify(tol=bvp_tol)
