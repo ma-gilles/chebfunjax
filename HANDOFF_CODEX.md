@@ -1,5 +1,38 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Interrupted-script disposition refresh and inverse experiment (2026-10-08)
+
+A fresh hash inventory at4d5ff9b7 confirms five interrupted scripts have
+separately qualified source replacements in shared main: BestApprox, FermiDirac,
+Localization, FourierBasedChebfuns and MarchingSquares. Current payloads match
+their accepted records/commits. Their documented numerical/RNG/raster gaps
+remain; this is not full page parity. All12 original home-worktree files remain
+unchanged and none is byte-identical to the current publication script.
+
+Seven entries still need current source/page disposition review: VandermondeArnoldi,
+DelayDifferentialEquations, RandomSwitching, TrapezoidEigs, AtmosphericTemperature,
+LaplaceBall and ResamplingRandomVariables. Existing partial evidence is retained.
+Do not repeat the stale blanket count of11 unverified edits as a current audit.
+Evidence:handoff_twelve_current_disposition_20261008.json in shared scratch.
+Next root page package:trapezoid_source_20261008/PLAN.md; restore public local
+minima, original boundary matrices and JAX Bessel/SVD, with bounded kernel
+qualification before adaptive whole-page execution. No run is claimed yet.
+
+The single256-point inverse evaluator-blocking experiment is rejected: matched
+fresh-process warm medians0.704283s baseline versus0.717561s blocked (1.01885x);
+cold9.60261s versus9.60349s. Nine controls and both actual-flower arms pass;
+all captured inputs, Brent outputs and inverse coefficients match bitwise.
+Root rehashed2933/2955/2955 runtime files and packet artifacts; all three
+receipts terminal0/stable/no survivors. No production change or speed gain.
+Evidence:inverse_point_block_root_review_20261008.json and
+inverse_point_block_20261008/qualified_packet.json.
+
+Active correctness work: additive native C1 nonlocal equation realization and
+AD scalar-multiplication metadata preservation require coordinated qualification
+and integration. Neither is accepted yet. A read-only roots source audit found
+count-threshold/subdivision branch differences; its proposal must precede further
+evaluator optimization. CPU only; full tests/pages/native captures/push/CI open.
+
 ## Restored autoVectorize execution setups (2026-10-08)
 
 Canonical tests now reproduce original setups1–5, including late operator
