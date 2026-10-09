@@ -77,7 +77,7 @@ def _row_horzcat(inputs, functions):
 
 def source_horzcat(operands):
     """Native public branch order; list/1D numeric conventions are adapters."""
-    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
     from chebfunjax.chebfun1d.linalg import Quasimatrix
 
     operands = list(operands)
@@ -115,11 +115,6 @@ def source_horzcat(operands):
         if isinstance(item, Chebfun):
             promoted.append(item)
         else:
-            # Native constructor reuses numeric sampled values separately
-            # on each interval. A one-row value matrix gives constants.
-            values = _numeric(item)
-            pieces = [_Piece.from_values(values, a, b)
-                      for a, b in zip(first.domain.breakpoints[:-1],
-                                      first.domain.breakpoints[1:])]
-            promoted.append(Chebfun(funs=pieces, domain=first.domain))
+            promoted.append(chebfun(_numeric(item),
+                                    domain=first.domain.breakpoints))
     return source_column_horzcat(promoted)

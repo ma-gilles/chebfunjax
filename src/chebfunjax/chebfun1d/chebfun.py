@@ -10495,6 +10495,23 @@ def _chebfun_build(
         f = _vectorize_op(f)
     elif callable(f) and not isinstance(f, Chebfun):
         f = _vector_check(f)
+    # Native ordinary numeric construction owns Tech selection, full-domain
+    # iteration and nonfinite preprocessing; do not adapt numeric data as a
+    # callable constant or bypass these rules through the early C1 route.
+    if (f is not None and not callable(f) and not coeffs and not equi
+            and exps is None and not blowup and singType is None
+            and not doubleLength and trunc is None and not _adaptive_override):
+        try:
+            _numeric_values = jnp.asarray(f)
+        except (TypeError, ValueError):
+            _numeric_values = None
+        if _numeric_values is not None:
+            from chebfunjax.chebfun1d._numeric import source_numeric_chebfun
+            return source_numeric_chebfun(
+                _numeric_values, domain, tech=("trigtech" if trig else
+                    ("chebtech1" if chebkind == 1 else
+                     "chebtech2" if chebkind == 2 else _CP().tech)),
+                n=n, pref=_CP(), explicit_trig=trig)
     if doubleLength:
         if splitting:
             raise ValueError(
