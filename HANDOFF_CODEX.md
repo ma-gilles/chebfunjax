@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native trigonometric extrema delegation (2026-10-09)
+
+Trigtech minandmax now constructs a full-array Chebtech1 from its evaluation
+callback and delegates to the accepted Chebtech extrema implementation, as the
+pinned MATLAB source does. This replaces the direct Fourier derivative shortcut.
+Canonical tests preserve complex results, paired location evaluation, native
+vscale factors and the complex matrix infinity norm.
+
+All seven native extrema predicates passed across five bounded CPU processes.
+Independent cross-review rehashed runtime files and checked commands, output,
+source/payload bindings and process closure. Original commands did not request
+JUnit; exact nodes and captured pytest counts establish their reported scope.
+The integrated expression is an exact inline expansion of the tested conversion
+helper. Whole-module AST comparison verifies that only minandmax changes.
+Later dependency changes were reviewed; this is not a new-head runtime claim.
+
+The strict complex-root source4 failure remains unresolved and its proposed
+root implementation is not part of this commit. Empty representation parity,
+full root options/backend behavior, fresh MATLAB and full-suite/CI gates remain
+open. Evidence: trig_minandmax_independent_inverse_review_20261009/
+INTEGRATION_REVIEW_PACKET_v1.json, trig_mthree_inverse_cross_review_20261009.json
+and trig_remaining8_inverse_cross_review_20261009.json in shared scratch.
+
 ## Complete pinned inverse test battery at default preferences (2026-10-09)
 
 Restored the native test setup: sine of the identity Chebfun, cumulative

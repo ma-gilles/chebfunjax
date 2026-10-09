@@ -25,11 +25,10 @@ def _tt(f):
 def _spotcheck(fn, exact_min, exact_max):
     f = _tt(fn)
     (mn, mnp), (mx, mxp) = f.minandmax()
-    y = np.array([np.real(np.asarray(mn)), np.real(np.asarray(mx))])
+    y = np.array([np.asarray(mn), np.asarray(mx)])
     y_exact = np.array([exact_min, exact_max])
-    fx = np.array([
-        float(np.real(np.asarray(fn(jnp.atleast_1d(mnp))).ravel()[0])),
-        float(np.real(np.asarray(fn(jnp.atleast_1d(mxp))).ravel()[0]))])
+    positions = jnp.stack((jnp.asarray(mnp), jnp.asarray(mxp)))
+    fx = np.asarray(fn(positions))
     vs = f.vscale
     return (np.max(np.abs(y - y_exact)) < 100 * vs * EPS
             and np.max(np.abs(fx - y_exact)) < 10 * vs * EPS)
@@ -68,15 +67,17 @@ class TestTrigtechMinandmax:
                 jnp.exp(-jnp.sin(jnp.pi * (x - 0.32)) ** 100)], axis=-1)
         f = _tt(fun)
         (mn, mnp), (mx, mxp) = f.minandmax()
-        y = np.array([np.real(np.asarray(mn)), np.real(np.asarray(mx))])
+        y = np.array([np.asarray(mn), np.asarray(mx)])
         y_exact = np.array([[np.exp(-1), -1, np.exp(-1)],
                             [np.exp(1), 1, 1]])
-        assert np.max(np.abs(y - y_exact)) < 100 * EPS
+        scale_eps = np.max(np.asarray(f.vscale) * EPS)
+        assert np.max(np.abs(y - y_exact)) < 100 * scale_eps
         for k in range(3):
-            fmn = np.real(np.asarray(fun(jnp.atleast_1d(mnp[k]))).ravel()[k])
-            fmx = np.real(np.asarray(fun(jnp.atleast_1d(mxp[k]))).ravel()[k])
-            assert abs(fmn - y_exact[0, k]) < 10 * EPS
-            assert abs(fmx - y_exact[1, k]) < 10 * EPS
+            positions = jnp.stack((jnp.asarray(mnp[k]), jnp.asarray(mxp[k])))
+            fx = np.asarray(fun(positions))
+            # Native rejects only >: equality passes. Preserve its rejection
+            # form also rather than changing the NaN comparison semantics.
+            assert not (np.max(np.abs(fx[:, k] - y_exact[:, k])) > 10 * scale_eps)
 
     def test_complex_array_valued(self):
         f = _tt(lambda x: jnp.stack(
@@ -90,4 +91,6 @@ class TestTrigtechMinandmax:
         (mn2, _), (mx2, _) = f2.minandmax()
         ref = np.stack([[complex(np.asarray(mn1)), complex(np.asarray(mn2))],
                         [complex(np.asarray(mx1)), complex(np.asarray(mx2))]])
-        assert np.max(np.abs(np.abs(vals) - np.abs(ref))) < 1e2 * f.vscale * EPS
+        # Native matrix infinity norm is maximum absolute row sum.
+        assert np.linalg.norm(np.abs(vals) - np.abs(ref), ord=np.inf) \
+            < 1e2 * np.max(np.asarray(f.vscale) * EPS)

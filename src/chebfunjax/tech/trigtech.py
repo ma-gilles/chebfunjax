@@ -2846,29 +2846,15 @@ class Trigtech(eqx.Module):
                         ishappy=self.ishappy, _values=values[:, j])
 
     def minandmax(self):
-        """Global minimum and maximum on [-1, 1].
+        """Native full-array adaptive C1 conversion followed by extrema.
 
-        Extrema of a smooth periodic function occur at the roots of its
-        derivative.  We locate those critical points by finding the real
-        roots of the derivative trig series (for a complex-valued tech, of
-        ``|f|^2``) and evaluate ``f`` there, matching MATLAB's chebtech
-        delegation while avoiding the expensive adaptive re-construction.
-        Array-valued techs return a 2 x m result, one column per column.
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/minandmax.m
-        Chebfun commit: 7574c77
+        Source @trigtech/minandmax.m33–35, Chebfun7574c77. Python technology
+        return adapter is ((min_value,min_position),(max_value,max_position)).
+        Empty/complex/array behavior delegates to the same C1 source path;
+        no per-column preconversion or direct-Fourier derivative shortcut.
         """
-        if self.coeffs.ndim == 2:
-            per_col = [_trig_minandmax_scalar(self.extract_column(j))
-                       for j in range(self.coeffs.shape[1])]
-            min_val = jnp.stack([p[0][0] for p in per_col])
-            min_pos = jnp.stack([p[0][1] for p in per_col])
-            max_val = jnp.stack([p[1][0] for p in per_col])
-            max_pos = jnp.stack([p[1][1] for p in per_col])
-            return (min_val, min_pos), (max_val, max_pos)
-        return _trig_minandmax_scalar(self)
+        from chebfunjax.tech.chebtech import Chebtech1
+        return Chebtech1.from_function(lambda x: self(x)).minandmax()
 
     def min(self):
         """Global minimum (value, position) via minandmax."""
