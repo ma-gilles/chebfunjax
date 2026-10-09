@@ -811,7 +811,7 @@ def surf(
     h2=None,
     ax=None,
     title: str = "",
-    n_pts: int = 100,
+    n_pts: int = 200,
     cmap=None,
     **kw,
 ) -> tuple[plt.Figure, Any]:
@@ -836,6 +836,11 @@ def surf(
     Returns
     -------
     fig, ax
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/surf.m
+    Chebfun commit: 7574c77
     """
     if cmap is None:
         cmap = PARULA
@@ -885,6 +890,12 @@ def surf(
         fig.tight_layout(pad=0.5)
         return fig, ax
 
+    # Native surf(f) uses the matrix infinity norm (maximum row sum),
+    # not maximum element magnitude, to avoid a roundoff-sized color range.
+    sampled = jnp.asarray(ZZ)
+    if bool(jnp.linalg.norm(sampled - sampled[0, 0], ord=jnp.inf) < 1e-10):
+        ZZ = np.asarray(jnp.full_like(sampled, sampled[0, 0]))
+
     ax.plot_surface(XX, YY, ZZ, cmap=cmap,
                     rstride=1, cstride=1,
                     linewidth=0, antialiased=True,
@@ -906,7 +917,7 @@ def contour(
     f2,
     ax: Optional[plt.Axes] = None,
     title: str = "",
-    n_pts: int = 150,
+    n_pts: int = 200,
     levels: int = 12,
     cmap=None,
     filled: bool = False,
@@ -943,7 +954,7 @@ def contour(
         colormap (guide-chapter style).  Pass e.g. ``"k"`` for the black
         contour lines the filled chebfun2 reference renders use.
     colorbar : bool
-        If True, attach a colorbar to the filled bands (needs ``filled``).
+        If True, attach a colorbar to the filled bands or contour lines.
         Default False.
     figsize : tuple
         Figure size when creating a new figure.  Default (6.1, 2.58) is the
@@ -953,6 +964,11 @@ def contour(
     Returns
     -------
     fig, ax
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/contour.m
+    Chebfun commit: 7574c77
     """
     cmap_obj = _coerce_cmap(cmap)
 
@@ -994,10 +1010,10 @@ def contour(
                         max(top, float(lv_arr[0]) + 1e-12)]
         cf = ax.contourf(XX, YY, ZZ, levels=lv_f, cmap=cmap_obj, **kw)
     if line_color is None:
-        ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj,
+        lines = ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj,
                    linewidths=0.8, **kw)
     else:
-        ax.contour(XX, YY, ZZ, levels=levels, colors=line_color,
+        lines = ax.contour(XX, YY, ZZ, levels=levels, colors=line_color,
                    linewidths=0.5, **kw)
 
     if pivots is not None:
@@ -1008,9 +1024,9 @@ def contour(
             fmt_p = pivots if isinstance(pivots, str) else "r."
             ax.plot(locs[:, 0], locs[:, 1], fmt_p)
 
-    has_colorbar = colorbar and cf is not None
+    has_colorbar = colorbar
     if has_colorbar:
-        fig.colorbar(cf, ax=ax)
+        fig.colorbar(cf if cf is not None else lines, ax=ax)
 
     # With a colorbar the reference render lets the plot fill the box; a
     # forced equal aspect just shrinks it and leaves whitespace. Without a

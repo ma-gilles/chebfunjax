@@ -2,6 +2,20 @@
 
 
 
+
+## Separable surface and contour sampling (2026-10-08)
+
+Public surf/contour now use the source200x200 default grid (formerly100/150).
+Scalar surf(f) follows the source matrix-infinity-norm near-constant correction;
+contour colorbar=True now attaches a colorbar to line contours as well as filled
+contours. Eight focused grid/override/matrix-norm/colorbar controls and eight
+existing plotting regressions pass (16 total,39.03s pytest). Root independently
+rehashed2970 observed bound runtime files; terminal receipt reports stable
+inputs and no survivors. Full source rendering is not established: parametric
+surface color corrections, automatic contour levels and native lights remain
+open. Gibbs2D page replay is separate and is not claimed complete here.
+Evidence:gibbs2d_source_20261008/plotting_root_review.json in shared scratch.
+
 ## AAA source scaling and infinite-query correction (2026-10-08)
 
 AAA now preserves scaling after the first conditioning trigger, uses exact
