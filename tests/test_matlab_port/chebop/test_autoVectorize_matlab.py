@@ -1,4 +1,4 @@
-"""Original autoVectorize execution setups1–5; native syntax clause6 pending.
+"""Original autoVectorize execution setups1–5 and native syntax clause6.
 
 Python */** spell MATLAB's vectorized pointwise result. These execution tests
 cannot establish anonymous-function rewriting or native ode113/coupled-Newton
@@ -65,6 +65,12 @@ def test_original_5_coupled_bvp():
     op.solve(0.)
 
 
-def test_original_6_vectorize_disabled_pending():
-    pytest.skip('Native vectorize=false/mtimes dimension semantics have no '
-                'Python callable counterpart; no native error is synthesized')
+def test_original_6_vectorize_disabled():
+    fun = Chebop.nativeAnonymous('@(u) diff(u,2)-u*diff(u)')
+    op = Chebop(domain=DOMAIN)
+    op.vectorize = False
+    op.op = fun
+    op.bc = Chebop.nativeAnonymous('@(x,u) [u(0)-2; u(1)-3]')
+    with pytest.raises(ValueError) as caught:
+        op.solve(0.)
+    assert caught.value.identifier == 'CHEBFUN:ADCHEBFUN:mtimes:dims'

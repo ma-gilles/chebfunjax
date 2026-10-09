@@ -241,7 +241,7 @@ class ChebopPref(ChebfunPref):
                      ("maxDimension", 4096), ("ivpAbsTol", 1e5 * _EPS),
                      ("ivpRelTol", 100 * _EPS), ("damping", True),
                      ("maxIter", 25), ("plotting", "off"),
-                     ("display", "off"),
+                     ("display", "off"), ("vectorize", True),
                      ("ivpSolver", "ode113")):
             top.setdefault(k, v)
         if isinstance(src, dict):

@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native anonymous multiplication assignment (2026-10-09)
+
+Chebop.nativeAnonymous explicitly preserves native * versus .* syntax and captured bindings. Op/BC assignment compiles tags using the instance vectorize flag, initialized from current ChebopPref. Ordinary Python callbacks and legacy constructor strings retain their algorithms. Actual AD mtimes now exposes its literal identifier through a compatible ValueError subclass.
+
+Original autoVectorize clause6 passes through public solve with the original expression, BCs, domain and expected identifier. Composite34 passing instances qualify29 unique checks:22 historical ordinary passes,3 focused corrections,9 final preference/constructor checks. The first gate's three failures are retained: one test domain mismatch and two overly small resource guards; no tolerance or solver defaults changed. Final negative solve allows only initial descriptor32 and forbids adaptive correction assembly. All final gates stable/no survivors; runtime file hashes verified.
+
+Limited multiplication grammar only; not general MATLAB parsing, arbitrary Python rewriting or AD array expansion. Earlier source1–5 remain their existing execution-only qualification and were not rerun. Full suite/native execution/pages/performance/publication/exact-head CI remain open. Evidence: autovectorize_native6_source_20261009/qualified_packet.json.
+
+Root independently reviewed source/dispatch/error scope and rehashed2972,2972
+and2971 observed runtime files for the three composite gates. Earlier raw
+failures remain preserved. See native_anonymous_root_review_20261009.json
+and native_anonymous_root_integration_20261009.json in shared goal scratch.
+
 ## Source histogram edges and CPU division (2026-10-09)
 
 A JAX helper now implements the R2017a scalar-bin hist source for nonempty

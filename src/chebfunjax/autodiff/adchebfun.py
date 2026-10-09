@@ -72,6 +72,12 @@ __all__ = [
 ]
 
 
+class ADMatrixDimensionError(ValueError):
+    """Native mtimes identifier; retains ValueError catch compatibility."""
+
+    identifier = "CHEBFUN:ADCHEBFUN:mtimes:dims"
+
+
 # ===========================================================================
 # ADChebfun — thin wrapper  (dual-number style: value + Jacobian)
 # ===========================================================================
@@ -258,7 +264,7 @@ class ADChebfun:
             result.func = self.func * scalar
             result.jacobian = _multiply_jacobian(scalar, self.jacobian, self.domain)
             return result
-        raise ValueError(
+        raise ADMatrixDimensionError(
             "CHEBFUN:ADCHEBFUN:mtimes:dims: Matrix dimensions must agree. "
             "Use pointwise multiplication for two ADChebfun or Chebfun objects.")
 

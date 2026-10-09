@@ -733,6 +733,8 @@ class Chebop:
     ) -> None:
         if isinstance(op, str):
             op = _op_from_string(op)
+        from chebfunjax.chebpref import ChebopPref
+        self.vectorize = ChebopPref().vectorize
         self.op = op
         domain = _validate_chebop_domain(domain)
         #: Full breakpoint list as passed by the user (MATLAB's
@@ -782,6 +784,35 @@ class Chebop:
             self.rbc = rbc
         if bc is not None:
             self.bc = bc
+
+    @staticmethod
+    def nativeAnonymous(source, workspace=None):
+        """Tag limited native anonymous syntax with snapshotted workspace bindings.
+
+        Unlike ordinary Python callables and legacy constructor strings, native
+        * versus .* is compiled at op/BC assignment using ``vectorize``.
+        See the private adapter's documented grammar; AD arrays are unsupported.
+        """
+        from chebfunjax.operators._native_anonymous import NativeAnonymous
+        return NativeAnonymous(source, workspace)
+
+    @property
+    def vectorize(self):
+        """Assignment-time rewriting flag for tagged native expressions only."""
+        return self._vectorize
+
+    @vectorize.setter
+    def vectorize(self, value):
+        self._vectorize = value
+
+    @property
+    def op(self):
+        return self._op
+
+    @op.setter
+    def op(self, value):
+        from chebfunjax.operators._native_anonymous import compile_assignment
+        self._op = compile_assignment(value, self.vectorize)
 
     # ------------------------------------------------------------------
     # BC setters (properties for MATLAB-style assignment)
@@ -838,6 +869,8 @@ class Chebop:
 
     @lbc.setter
     def lbc(self, val):
+        from chebfunjax.operators._native_anonymous import compile_assignment
+        val = compile_assignment(val, self.vectorize)
         val = self._translate_bc_keywords(val)
         if callable(val) and _op_arity(val, 1) == 1:
             try:
@@ -854,6 +887,8 @@ class Chebop:
 
     @rbc.setter
     def rbc(self, val):
+        from chebfunjax.operators._native_anonymous import compile_assignment
+        val = compile_assignment(val, self.vectorize)
         val = self._translate_bc_keywords(val)
         if callable(val) and _op_arity(val, 1) == 1:
             try:
@@ -878,6 +913,8 @@ class Chebop:
 
     @bc.setter
     def bc(self, val):
+        from chebfunjax.operators._native_anonymous import compile_assignment
+        val = compile_assignment(val, self.vectorize)
         self._bc_show = val
         self._periodic = False
         self._bc_general = None
@@ -1148,19 +1185,17 @@ class Chebop:
 
     @staticmethod
     def vectorizeOp(fun):
-        """MATLAB ``chebop.vectorizeOp``: rewrite an anonymous
-        function's ``*``, ``/`` and ``^`` into their elementwise
-        forms.  Python chebfun operators are already elementwise
-        (``*`` is pointwise, ``**`` is power), so vectorization is
-        the identity here; the method exists so ported code and the
-        MATLAB test suite run unchanged.
+        """Vectorize a tagged native anonymous multiplication expression.
 
-        Provenance
-        ----------
-        MATLAB source : @chebop/vectorizeOp.m
-        Chebfun commit: 7574c77
+        Ordinary Python callables are returned unchanged: their * already means
+        pointwise multiplication. Only nativeAnonymous tags preserve the native
+        * / .* distinction; division and powers are outside this limited grammar.
+        Legacy constructor strings retain their existing separate parser.
+
+        Provenance: @chebop/vectorizeOp.m, Chebfun 7574c77.
         """
-        return fun
+        from chebfunjax.operators._native_anonymous import compile_assignment
+        return compile_assignment(fun, True)
 
     def solvebvp(self, f=0.0, **kwargs):
         """Solve and also return the Newton convergence history.
