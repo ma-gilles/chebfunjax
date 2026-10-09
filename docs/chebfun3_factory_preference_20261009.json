@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "complete factory structure",
+    "session constructor override",
+    "factory independent of session",
+    "nested field factory reset",
+    "partial nested structure merge",
+    "copy isolation",
+    "full factory reset"
+  ],
+  "passed": true,
+  "execution": "Python standard-library direct module load; no JAX or numerical solver executed",
+  "source_sha256": "6b1a90f8034ceeb5393279a38b90107724705ecfd9fcbff6000191e4746c70ca",
+  "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfunpref/chebfunpref.m",
+  "native_sha256": "9c15988fbb3e062572da2c321254c9fb6c663578407dd52d286b236079909491",
+  "remaining": "Chebfun3 constructor does not yet consume this preference to dispatch native classic versus chebfun3f algorithms."
+}

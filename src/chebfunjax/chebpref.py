@@ -92,7 +92,8 @@ def _factory_top() -> dict:
         "cheb2Prefs": DotDict.wrap({"chebfun2eps": _EPS,
                                     "maxRank": 513,
                                     "sampleTest": True}),
-        "cheb3Prefs": DotDict.wrap({"chebfun3eps": _EPS,
+        "cheb3Prefs": DotDict.wrap({"constructor": "chebfun3f",
+                                    "chebfun3eps": _EPS,
                                     "maxRank": 128,
                                     "sampleTest": True}),
     }

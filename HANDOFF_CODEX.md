@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebfun3 constructor factory preference (2026-10-09)
+
+Restored cheb3Prefs.constructor='chebfun3f' from native chebfunpref.m740.
+Seven direct preference checks passed: complete factory fields, session
+selection, independent factory access, nested factory reset, partial structure
+merge, copy isolation and full reset. These used a standard-library module
+load; no numerical solver or pytest suite was run for this small state change.
+
+Chebfun3 still does not consume this field to select the native classic versus
+chebfun3f algorithms. That dispatch/algorithm gap remains unresolved; restoring
+the field does not establish constructor parity. Evidence:
+docs/chebfun3_factory_preference_20261009.json.
+
 ## Retained 2D pivots and complex norm correction (2026-10-09)
 
 Native construction now retains original raw pivot values alongside legacy
