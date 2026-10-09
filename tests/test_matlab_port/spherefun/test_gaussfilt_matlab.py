@@ -1,48 +1,33 @@
-"""Port of MATLAB Chebfun tests/spherefun/test_gaussfilt.m (Fable 5).
-
-FIXED: Spherefun.gaussfilt added in the Fable 5 audit (one
-backward-Euler heat step on spherical-harmonic coefficients).
+"""Literal assertions from MATLAB spherefun Gaussian-filter tests.
 
 Provenance
 ----------
 MATLAB source : tests/spherefun/test_gaussfilt.m
-Chebfun commit: 7574c77
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+Retain all source predicates, including the repeated sig=100 loop and the
+final mean predicate that overwrites a source pass-array slot.
 """
-
-from __future__ import annotations
-
-import jax.numpy as jnp
-import numpy as np
-
+from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.spherefun.spherefun import Spherefun
-
-TOL = 1e3 * np.finfo(float).eps
-LAMS = jnp.asarray(np.linspace(-3, 3, 11))
-THS = jnp.asarray(np.linspace(0.1, 3.0, 11))
-LL, TT = jnp.meshgrid(LAMS, THS, indexing="ij")
 
 
 class TestSpherefunGaussfilt:
     def test_constant_unchanged(self):
-        # pass(1)-(2)
-        f = Spherefun.from_function(lambda lam, th: 1.0 + 0 * lam)
+        tol = 1e3*ChebfunPref().cheb2Prefs.chebfun2eps
         for sig in (None, 2):
+            f = Spherefun.from_function(lambda lam, th: 1.0+0*lam)
             g = f.gaussfilt() if sig is None else f.gaussfilt(sig)
-            assert float(jnp.max(jnp.abs(g(LL, TT) - 1.0))) < TOL
+            assert float((f-g).norm()) < tol
 
     def test_norm_decreases(self):
-        # pass(3)-(5)
         f = Spherefun.sphharm(13, 7)
-        prev = float(f.norm())
-        for _ in range(3):
+        for _ in (1, 10, 100):
             g = f.gaussfilt(100)
-            cur = float(g.norm())
-            assert cur < prev
-            prev, f = cur, g
+            assert float(g.norm()) < float(f.norm())
+            f = g
 
     def test_mean_preserved(self):
-        # pass(6): mean of 2 + Y_12^5 is 2
-        f = Spherefun.from_function(
-            lambda lam, th: 2.0 + Spherefun.sphharm(12, 5)(lam, th))
+        tol = 1e3*ChebfunPref().cheb2Prefs.chebfun2eps
+        f = 2 + Spherefun.sphharm(12, 5)
         g = f.gaussfilt(2)
-        assert abs(float(g.sum2()) / (4 * np.pi) - 2) < TOL
+        assert abs(complex(g.mean2())-2) < tol

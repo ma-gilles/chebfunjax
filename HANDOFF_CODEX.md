@@ -1,5 +1,43 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX sphere Fourier band solvers (2026-10-09)
+
+Poisson and Helmholtz now use compact JAX pivoted band LU for nonzero longitude
+modes and compact bordered QR for the integral-constrained zero mode. The
+source's actual Fourier multiplier coefficients, including tiny odd bands,
+are retained. No dense PDE factorization or principal-minor inversion is used.
+The public callers preserve explicit odd Poisson sizes, source grids, original
+forcing integral, complex Helmholtz parameters and native eigenvalue checks.
+Gaussian filtering now passes longitude/latitude lengths in native order.
+
+Original-source CPU predicates pass:40 Helmholtz harmonic checks across all
+four original size cases,6 Poisson assertions, and6 Gaussian-filter assertions
+in3 tests. The latter test port restores full function norms and the original
+spherical-harmonic construction. Fourteen independent public controls also
+pass. Root/independent runtime audits found no hash/origin faults, changed
+inputs, censored gates or surviving processes. Helper evidence separately
+covers23 band-LU,12 assembly,6 composition and14 bordered-QR checks.
+
+An initial near-eigenvalue analytic control failed: the actual source-rounded
+border has condition number6.95e13. Independent dense and compact solutions
+agree to1.11e-16 but differ from the ideal harmonic by2.003e-5. The preserved
+diagnostic and final controls compare the complete discrete equations at the
+original bounds; a well-conditioned case additionally checks the analytic
+harmonic. No tolerance widening or tiny-coefficient deletion was used.
+
+Limits: no fresh MATLAB execution, release-specific linspace bit identity,
+large-grid scaling, AtmosphericBlocking replay or performance claim. General
+latitude sizes below3 and native singular-system warning/exception identity
+remain unqualified. Existing native real projection in coeffs2spherefun is
+preserved. These scoped source predicates do not establish all sphere parity.
+
+Evidence in shared goal scratch: sphere_public_source_20261009/
+(native_helmholtz_qualified_packet.json, caller_qualified_packet.json,
+poisson_native_v1, gaussfilt_native_v1), sphere_helmholtz_root_runtime_review_
+20261009.json, sphere_gaussfilt_root_runtime_review_20261009.json and
+sphere_public_independent_review_20261009.json. Publication and CI remain open.
+
+
 ## JAX linear roots and literal boundary rejection (2026-10-09)
 
 The n=2 roots branch now computes, filters and clips with JAX. Native linear

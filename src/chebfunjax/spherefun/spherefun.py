@@ -3223,75 +3223,44 @@ class Spherefun(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford and
             The Chebfun Developers.
         """
-        import warnings as _warnings
-
+        from chebfunjax.chebpref import ChebfunPref
         from chebfunjax.tech.trigtech import trig_vals2coeffs
+        from chebfunjax.utils.quadrature import trigpts
+
+        from ._fourier_solve import poisson_coefficients
 
         if lmax is not None and m is None:
             m = 2 * int(lmax) + 2
-        if isinstance(f, Spherefun):
-            fs = f
-        elif callable(f):
-            fs = None
-        else:
-            fs = None
+        fs = f if isinstance(f, Spherefun) else None
         if m is None:
             if fs is None and not callable(f):
-                F0 = np.asarray(f)
-                m, n = F0.shape
+                m, n = jnp.asarray(f).shape
             elif fs is not None:
-                mc = max(int(np.asarray(c.coeffs).shape[0]) for c in fs.cols)
-                nr = max(int(np.asarray(r.coeffs).shape[0]) for r in fs.rows)
-                m = max(4, mc + (mc % 2))
-                n = max(4, nr + (nr % 2))
+                mc = max(c.coeffs.shape[0] for c in fs.cols)
+                nr = max(r.coeffs.shape[0] for r in fs.rows)
+                m, n = max(4, mc + mc % 2), max(4, nr + nr % 2)
             else:
                 m = n = 64
-        m = int(m)
-        n = int(m) if n is None else int(n)
-        m = max(4, m + (m % 2))
-        n = max(4, n)
-
-        DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm = \
-            _sphere_fourier_operators(m, n)
-        Im = np.eye(m)
-        scl = np.diag(DF2n)
-        eps2 = 2.220446049250313e-16
+        m, n = int(m), int(m) if n is None else int(n)
+        # Native Poisson preserves explicitly requested odd dimensions.
+        eps2 = ChebfunPref().cheb2Prefs.chebfun2eps
         if fs is not None:
-            tol = 1e5 * float(fs.vscale()) * eps2
-            F = np.asarray(fs.coeffs2(n, m), dtype=complex)
+            tolerance = 1e5 * float(fs.vscale()) * eps2
+            coefficients = jnp.asarray(fs.coeffs2(n, m), dtype=jnp.complex128)
         elif callable(f):
-            lam0 = -np.pi + 2 * np.pi * np.arange(n) / n
-            th0 = -np.pi + 2 * np.pi * np.arange(m) / m
-            LL, TT = np.meshgrid(lam0, th0)
-            F = np.asarray(f(jnp.asarray(LL), jnp.asarray(TT)), dtype=complex)
-            tol = 1e5 * float(np.max(np.abs(F))) * eps2
-            F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
-            F = np.asarray(trig_vals2coeffs(jnp.asarray(F.T))).T
+            lam, _ = trigpts(n, (-jnp.pi, jnp.pi))
+            theta, _ = trigpts(m, (-jnp.pi, jnp.pi))
+            ll, tt = jnp.meshgrid(lam, theta)
+            values = jnp.asarray(f(ll, tt), dtype=jnp.complex128)
+            tolerance = 1e5 * float(jnp.max(jnp.abs(values))) * eps2
+            coefficients = trig_vals2coeffs(trig_vals2coeffs(values).T).T
         else:
-            tol = 1e5 * eps2
-            F = np.asarray(f, dtype=complex)
-        k0 = n // 2                      # zero longitudinal mode (0-based)
-        meanF = en @ F[:, k0] / en[floorm]
-        if abs(meanF) > tol:
-            _warnings.warn(
-                "CHEBFUN:SPHEREFUN:POISSON:meanRHS: The integral of the right "
-                "hand side may not be zero, which is required for there to "
-                "exist a solution to the Poisson equation. Subtracting the "
-                "mean off the right hand side now.")
-        F = F.copy()
-        F[floorm, k0] = F[floorm, k0] - meanF
-        F = Msin2 @ F
-        CFS = np.zeros((m, n), dtype=complex)
-        L = Msin2 @ DF2m + Mcossin @ DF1m
-        for k in range(n):
-            if k == k0:
-                continue
-            CFS[:, k] = np.linalg.solve(L + scl[k] * Im, F[:, k])
-        ii = [i for i in range(m) if i != floorm]
-        A = np.vstack([en[None, :], L[ii, :]])
-        b = np.concatenate([[0.0], F[ii, k0]])
-        CFS[:, k0] = np.linalg.solve(A, b)
-        u = Spherefun.coeffs2spherefun(jnp.asarray(CFS))
+            tolerance = 1e5 * eps2
+            coefficients = jnp.asarray(f, dtype=jnp.complex128)
+        if coefficients.shape != (m, n):
+            raise ValueError('Sphere RHS coefficients do not match requested dimensions')
+        coefficients, _ = poisson_coefficients(coefficients, mean_tolerance=tolerance)
+        u = Spherefun.coeffs2spherefun(coefficients)
         return u + const if const != 0 else u
 
     def gaussfilt(self, sig: float = np.pi / 180.0) -> "Spherefun":
@@ -3305,14 +3274,15 @@ class Spherefun(eqx.Module):
         MATLAB source : @spherefun/gaussfilt.m
         Chebfun commit: 7574c77
         """
-        dt = 0.5 * float(sig) ** 2
+        dt = 0.5 * jnp.asarray(sig, dtype=jnp.float64)**2
         if self.isempty() or len(self.cols) == 0:
             return self
-        # MATLAB: [n, m] = length(f) (columns, rows); helmholtz(..., m, n)
-        n = max(int(np.asarray(c.coeffs).shape[0]) for c in self.cols)
-        m = max(int(np.asarray(r.coeffs).shape[0]) for r in self.rows)
-        K = np.sqrt(1.0 / dt) * 1j
-        return Spherefun.helmholtz(self * (-1.0 / dt), K, m, n)
+        # Native [n,m]=length(f) is longitude rows first, latitude cols second.
+        n, m = self.length()
+        k = jnp.sqrt(1.0/dt)*1j
+        # Convert the scalar parameter at the existing Python scalar-multiply
+        # interface; all calculation of its value remains JAX.
+        return Spherefun.helmholtz(self * float(-1.0/dt), k, m, n)
 
     @staticmethod
     def helmholtz(f, K, m: int | None = None,
@@ -3338,62 +3308,50 @@ class Spherefun(eqx.Module):
         """
         from chebfunjax.tech.trigtech import trig_vals2coeffs
 
-        K2 = complex(K) ** 2
-        if abs(K2.imag) < 1e-12 * max(1.0, abs(K2.real)):
-            K2 = K2.real
-        if K2 == 0:
+        from ._fourier_solve import helmholtz_coefficients
+
+        k = jnp.asarray(K, dtype=jnp.complex128)
+        if k.ndim != 0:
+            raise ValueError('Helmholtz K must be a scalar')
+        if bool(k == 0):
             return Spherefun.poisson(f, 0.0, m, n)
-        if isinstance(K2, float) and K2 > 0:
-            # K = sqrt(l(l+1)) for an integer l?
-            ell = (-1 + np.sqrt(1 + 4 * K2)) / 2
-            if abs(ell - round(ell)) < 1e-13:
-                raise ValueError(
-                    "SPHEREFUN:HELMHOLTZ:EIGENVALUE: There are infinitely "
-                    "many solutions since K is an eigenvalue of the Helmholtz "
-                    "operator.")
+        k2 = k*k
+        # Literal native eigenvalue predicate, retaining complex K throughout.
+        eigenvalues = jnp.linalg.eigvals(jnp.array([[-1, k2], [1, 0]], dtype=jnp.complex128))
+        real, imag = jnp.real(eigenvalues), jnp.imag(eigenvalues)
+        rounded = (jnp.sign(real)*jnp.floor(jnp.abs(real)+.5)
+                   + 1j*jnp.sign(imag)*jnp.floor(jnp.abs(imag)+.5))
+        if bool(jnp.any((real > 0) & (jnp.abs(eigenvalues-rounded) < 1e-13))):
+            raise ValueError(
+                'SPHEREFUN:HELMHOLTZ:EIGENVALUE: There are infinitely many '
+                'solutions since K is an eigenvalue of the Helmholtz operator.')
         fs = f if isinstance(f, Spherefun) else None
         if m is None:
             if fs is None:
                 fs = Spherefun.from_function(f)
-            mc = max(int(np.asarray(c.coeffs).shape[0]) for c in fs.cols)
-            nr = max(int(np.asarray(r.coeffs).shape[0]) for r in fs.rows)
-            m, n = max(4, mc + (mc % 2)), max(4, nr + (nr % 2))
-        m = int(m)
-        n = int(m) if n is None else int(n)
+            mc = max(c.coeffs.shape[0] for c in fs.cols)
+            nr = max(r.coeffs.shape[0] for r in fs.rows)
+            m, n = max(4, mc + mc % 2), max(4, nr + nr % 2)
+        m, n = int(m), int(m) if n is None else int(n)
         if m <= 0 or n <= 0:
-            raise ValueError("CHEBFUN:SPHEREFUN:HELMHOLTZ:badInput: "
-                             "Discretization sizes should be positive numbers")
+            raise ValueError('CHEBFUN:SPHEREFUN:HELMHOLTZ:badInput: '
+                             'Discretization sizes should be positive numbers')
         if m == 1 and n == 1:
             fs = fs if fs is not None else Spherefun.from_function(f)
-            return fs * 0.0 + float(np.real(fs.mean2())) / K2
-        m = m + (m % 2)
-        ops = _sphere_fourier_operators(m, n)
-        DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm = ops
-        Im = np.eye(m)
+            return fs * 0.0 + fs.mean2()/k2
+        m += m % 2
         if fs is not None:
-            F = np.asarray(fs.coeffs2(n, m), dtype=complex)
+            coefficients = jnp.asarray(fs.coeffs2(n, m), dtype=jnp.complex128)
         else:
-            lam0 = -np.pi + 2 * np.pi * np.arange(n) / n
-            th0 = -np.pi + 2 * np.pi * np.arange(m) / m
-            LL, TT = np.meshgrid(lam0, th0)
-            F = np.asarray(f(jnp.asarray(LL), jnp.asarray(TT)), dtype=complex)
-            F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
-            F = np.asarray(trig_vals2coeffs(jnp.asarray(F.T))).T
-        k0 = n // 2
-        int_const = en @ F[:, k0] / K2
-        F = Msin2 @ F / K2
-        CFS = np.zeros((m, n), dtype=complex)
-        L = (Msin2 @ DF2m + Mcossin @ DF1m) / K2 + Msin2
-        scl = np.diag(DF2n) / K2
-        for k in range(n):
-            if k == k0:
-                continue
-            CFS[:, k] = np.linalg.solve(L + scl[k] * Im, F[:, k])
-        ii = [i for i in range(m) if i != floorm]
-        A = np.vstack([en[None, :], L[ii, :]])
-        b = np.concatenate([[int_const], F[ii, k0]])
-        CFS[:, k0] = np.linalg.solve(A, b)
-        return Spherefun.coeffs2spherefun(jnp.asarray(CFS))
+            # Native Helmholtz uses linspace, distinct from Poisson's trigpts.
+            lam = jnp.linspace(-jnp.pi, jnp.pi, n+1)[:-1]
+            theta = jnp.linspace(-jnp.pi, jnp.pi, m+1)[:-1]
+            ll, tt = jnp.meshgrid(lam, theta)
+            values = jnp.asarray(f(ll, tt), dtype=jnp.complex128)
+            coefficients = trig_vals2coeffs(trig_vals2coeffs(values).T).T
+        if coefficients.shape != (m, n):
+            raise ValueError('Sphere RHS coefficients do not match requested dimensions')
+        return Spherefun.coeffs2spherefun(helmholtz_coefficients(coefficients, k))
 
     def __repr__(self) -> str:
         """Compact display.
