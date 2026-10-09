@@ -1,7 +1,7 @@
 """MATLAB-shaped preference objects: chebfunpref / cheboppref.
 
-The runtime preference system chebfunjax actually consults lives in
-:mod:`chebfunjax.pref`; this module ports the MATLAB *object* semantics
+The separate ContextVar preference adapter lives in :mod:`chebfunjax.pref`.
+This module supplies the MATLAB preference object consulted by source ports
 (struct construction, techPrefs merging and passthrough, mergeTechPrefs,
 setDefaults / factory reset) so preference-manipulating code and the
 MATLAB test suite translate directly.
@@ -44,10 +44,25 @@ class DotDict(dict):
         return out
 
 
-def _factory_tech_prefs() -> DotDict:
-    return DotDict.wrap({
+def _factory_tech_prefs(tech="chebtech2") -> DotDict:
+    # @chebtech/techPref.m59-67, @trigtech/techPref.m63-71 (7574c77).
+    # Public constructor aliases are supported; unknown technologies never
+    # inherit polynomial defaults silently. An explicit provider is allowed.
+    provider = getattr(tech, "techPref", None)
+    if callable(provider):
+        supplied = provider()
+        if not isinstance(supplied, dict):
+            raise TypeError("Tech techPref() must return a mapping dict")
+        if any(isinstance(value, dict) for value in supplied.values()):
+            raise NotImplementedError("Nested Tech factory defaults require path-aware mutation")
+        return DotDict.wrap(copy.deepcopy(supplied))
+    key = (tech.__name__ if isinstance(tech, type) else str(tech)).lower().lstrip("@")
+    if key not in {"chebtech", "chebtech1", "chebtech2", "trigtech", "trig", "periodic"}:
+        raise ValueError(f"Unsupported preference technology {tech!r}")
+    periodic = key in {"trigtech", "trig", "periodic"}
+    out = DotDict.wrap({
         "chebfuneps": _EPS,
-        "maxLength": 65537,
+        "maxLength": 65536 if periodic else 65537,
         "minSamples": 17,
         "fixedLength": None,
         "extrapolate": False,
@@ -55,6 +70,8 @@ def _factory_tech_prefs() -> DotDict:
         "refinementFunction": "nested",
         "happinessCheck": "standard",
     })
+    out["gridType" if periodic else "useTurbo"] = 2 if periodic else False
+    return out
 
 
 def _factory_top() -> dict:
@@ -80,144 +97,332 @@ def _factory_top() -> dict:
     }
 
 
-class ChebfunPref:
-    """MATLAB ``chebfunpref``: top-level structure fields plus a
-    ``techPrefs`` substructure; unknown names route into techPrefs on
-    both read and write.
+_MISSING = object()
 
-    Provenance
-    ----------
-    MATLAB source : @chebfunpref/chebfunpref.m
-    Chebfun commit: 7574c77
+
+class _TechPrefView(DotDict):
+    """Resolved dict view; mutations record only explicit raw overrides.
+
+    Python deletion removes raw overrides: inherited-only keys raise KeyError.
+    Copies materialize a detached resolved DotDict. Native source reads/writes:
+    @chebfunpref/chebfunpref.m342-408, pin7574c77. Deletion is a Python adapter.
+    """
+
+    def __init__(self, owner):
+        object.__setattr__(self, "_owner", owner)
+        object.__setattr__(self, "_dirty", True)
+
+    def _ensure(self):
+        if self._dirty:
+            self._refresh()
+
+    def _refresh(self):
+        resolved = _factory_tech_prefs(self._owner._top["tech"])
+        resolved.update(self._owner._tech_overrides)
+        dict.clear(self)
+        dict.update(self, resolved)
+        object.__setattr__(self, "_dirty", False)
+
+    def __getitem__(self, key):
+        self._ensure()
+        return dict.__getitem__(self, key)
+
+    def __iter__(self):
+        self._ensure()
+        return dict.__iter__(self)
+
+    def __len__(self):
+        self._ensure()
+        return dict.__len__(self)
+
+    def __contains__(self, key):
+        self._ensure()
+        return dict.__contains__(self, key)
+
+    def get(self, key, default=None):
+        self._ensure()
+        return dict.get(self, key, default)
+
+    def keys(self):
+        self._ensure()
+        return dict.keys(self)
+
+    def items(self):
+        self._ensure()
+        return dict.items(self)
+
+    def values(self):
+        self._ensure()
+        return dict.values(self)
+
+    def __eq__(self, other):
+        self._ensure()
+        if isinstance(other, _TechPrefView):
+            other._ensure()
+        return dict.__eq__(self, other)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __repr__(self):
+        self._ensure()
+        return dict.__repr__(self)
+
+    def __setitem__(self, key, value):
+        value = DotDict.wrap(value) if isinstance(value, dict) else value
+        self._owner._tech_overrides[key] = value
+        object.__setattr__(self, "_dirty", True)
+
+    def __delitem__(self, key):
+        del self._owner._tech_overrides[key]
+        object.__setattr__(self, "_dirty", True)
+
+    def __delattr__(self, name):
+        try:
+            del self[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+
+    def update(self, *args, **kwargs):
+        for key, value in dict(*args, **kwargs).items():
+            self[key] = value
+
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self[key] = default
+        return self[key]
+
+    def pop(self, key, default=_MISSING):
+        raw = self._owner._tech_overrides
+        if key not in raw:
+            if default is _MISSING:
+                raise KeyError(key)
+            return default
+        value = raw[key]
+        del self[key]
+        return value
+
+    def popitem(self):
+        raw = self._owner._tech_overrides
+        if not raw:
+            raise KeyError("No explicit technology overrides")
+        key = next(reversed(raw))
+        return key, self.pop(key)
+
+    def clear(self):
+        self._owner._tech_overrides.clear()
+        object.__setattr__(self, "_dirty", True)
+
+    def __or__(self, other):
+        if not isinstance(other, dict):
+            return NotImplemented
+        self._ensure()
+        return dict(self) | dict(other)
+
+    def __ror__(self, other):
+        if not isinstance(other, dict):
+            return NotImplemented
+        self._ensure()
+        return dict(other) | dict(self)
+
+    def __reversed__(self):
+        self._ensure()
+        return dict.__reversed__(self)
+
+    def __ior__(self, other):
+        self.update(other)
+        return self
+
+    def copy(self):
+        return DotDict(dict(self))
+
+    def __copy__(self):
+        return self.copy()
+
+    def __deepcopy__(self, memo):
+        return DotDict.wrap(copy.deepcopy(dict(self), memo))
+
+
+class ChebfunPref:
+    """Native raw overrides with lazy selected-Tech default resolution.
+
+    Provenance: @chebfunpref/chebfunpref.m264-408,532-733, pin7574c77.
+    Reads never record defaults as explicit; object copies preserve omission.
+    Public dict/view copies and mergeTechPrefs intentionally materialize values.
+    Unknown-Tech-pref warning parity remains open; supplied fields are retained.
     """
 
     _defaults: "ChebfunPref | None" = None
 
-    def __init__(self, src=None, **kwargs):
-        base = type(self).__dict__.get("_defaults")
-        if base is not None and src is None and not kwargs:
-            self.__dict__["_top"] = copy.deepcopy(base._top)
-            self.__dict__["techPrefs"] = copy.deepcopy(base.techPrefs)
-            return
-        self.__dict__["_top"] = _factory_top()
-        self.__dict__["techPrefs"] = _factory_tech_prefs()
-        if isinstance(src, ChebfunPref):
-            self.__dict__["_top"] = copy.deepcopy(src._top)
-            self.__dict__["techPrefs"] = copy.deepcopy(src.techPrefs)
-        elif isinstance(src, dict):
+    def __init__(self, src=None, overrides=_MISSING, **kwargs):
+        if overrides is not _MISSING and not isinstance(src, ChebfunPref):
+            raise TypeError("Two-input ChebfunPref requires an object base")
+        if src is not None and not isinstance(src, (ChebfunPref, dict)):
+            raise TypeError("ChebfunPref input must be an object or dict")
+        base = src if isinstance(src, ChebfunPref) else type(self).__dict__.get("_defaults")
+        object.__setattr__(self, "_top", copy.deepcopy(base._top) if base is not None else _factory_top())
+        object.__setattr__(self, "_tech_overrides", copy.deepcopy(base._tech_overrides) if base is not None else DotDict())
+        object.__setattr__(self, "_tech_view", None)
+        if isinstance(src, dict):
             self._absorb(src)
-        if kwargs:
-            self._absorb(kwargs)
-
-    def _absorb(self, d: dict):
-        for k, v in d.items():
-            if k == "techPrefs" and isinstance(v, dict):
-                for tk, tv in v.items():
-                    self.techPrefs[tk] = (DotDict.wrap(tv)
-                                          if isinstance(tv, dict)
-                                          else tv)
-            elif k in self._top:
-                self._top[k] = (DotDict.wrap(v)
-                                if isinstance(v, dict)
-                                and isinstance(self._top[k], dict)
-                                else v)
+        if overrides is not _MISSING:
+            if isinstance(overrides, ChebfunPref):
+                supplied = copy.deepcopy(overrides._top)
+                supplied["techPrefs"] = copy.deepcopy(overrides.techPrefs)
+            elif isinstance(overrides, dict):
+                supplied = overrides
             else:
-                self.techPrefs[k] = (DotDict.wrap(v)
-                                     if isinstance(v, dict) else v)
+                raise TypeError("Second ChebfunPref input must be an object or dict")
+            self._absorb(supplied)
+        self._absorb(kwargs)
+
+    @property
+    def techPrefs(self):
+        if self._tech_view is None:
+            object.__setattr__(self, "_tech_view", _TechPrefView(self))
+        # Native subsref resolves the selected provider on every owner read.
+        # Defer until values are read so Python nested assignments stay raw.
+        object.__setattr__(self._tech_view, "_dirty", True)
+        return self._tech_view
+
+    def _refresh_view(self):
+        # Raw writes must not call a possibly unsupported/custom provider.
+        if self._tech_view is not None:
+            object.__setattr__(self._tech_view, "_dirty", True)
+
+    def _absorb(self, d):
+        # Source constructor merges substructures one level, not recursively.
+        for key, value in d.items():
+            if key == "techPrefs":
+                if not isinstance(value, dict):
+                    raise TypeError("techPrefs must be a dict")
+                self._tech_overrides.update(DotDict.wrap(copy.deepcopy(value)))
+            elif key in self._top:
+                if isinstance(self._top[key], dict) and isinstance(value, dict):
+                    self._top[key].update(DotDict.wrap(copy.deepcopy(value)))
+                else:
+                    self._top[key] = copy.deepcopy(value)
+            else:
+                self._tech_overrides[key] = DotDict.wrap(copy.deepcopy(value)) if isinstance(value, dict) else copy.deepcopy(value)
+        self._refresh_view()
 
     def __getattr__(self, name):
-        top = self.__dict__["_top"]
-        if name in top:
-            return top[name]
-        tp = self.__dict__["techPrefs"]
-        if name in tp:
-            return tp[name]
-        raise AttributeError(name)
+        if name.startswith("_"):
+            raise AttributeError(name)
+        if name in self._top:
+            return self._top[name]
+        try:
+            return self.techPrefs[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
 
     def __setattr__(self, name, value):
-        if name == "techPrefs":
-            self.__dict__["techPrefs"] = (
-                DotDict.wrap(value) if isinstance(value, dict)
-                else value)
-        elif name in self.__dict__["_top"]:
-            self.__dict__["_top"][name] = value
+        if name.startswith("_"):
+            object.__setattr__(self, name, value)
+        elif name == "techPrefs":
+            # Augmented assignment has already updated this view; do not
+            # materialize inherited defaults in its implicit writeback.
+            if value is self._tech_view:
+                return
+            if not isinstance(value, dict):
+                raise TypeError("techPrefs must be a dict")
+            object.__setattr__(self, "_tech_overrides", DotDict.wrap(copy.deepcopy(dict(value))))
+            self._refresh_view()
+        elif name in self._top:
+            self._top[name] = DotDict.wrap(value) if isinstance(value, dict) else value
+            if name == "tech":
+                self._refresh_view()
         else:
-            self.__dict__["techPrefs"][name] = value
+            self._tech_overrides[name] = DotDict.wrap(value) if isinstance(value, dict) else value
+            self._refresh_view()
+
+    def __copy__(self):
+        return self.__deepcopy__({})
+
+    def __deepcopy__(self, memo):
+        out = type(self).__new__(type(self))
+        memo[id(self)] = out
+        object.__setattr__(out, "_top", copy.deepcopy(self._top, memo))
+        object.__setattr__(out, "_tech_overrides", copy.deepcopy(self._tech_overrides, memo))
+        object.__setattr__(out, "_tech_view", None)
+        return out
 
     def __eq__(self, other):
-        return (isinstance(other, ChebfunPref)
-                and self._top == other._top
+        return (isinstance(other, ChebfunPref) and self._top == other._top
                 and self.techPrefs == other.techPrefs)
 
     __hash__ = None
 
-    # -- statics -------------------------------------------------------
-
     @staticmethod
     def mergeTechPrefs(p, q) -> DotDict:
-        """Merge two techPrefs structures (later wins); ChebfunPref
-        inputs contribute their ``techPrefs``.
+        """Materialize each object's own selected defaults; later fields win.
 
-        Provenance
-        ----------
-        MATLAB source : @chebfunpref/mergeTechPrefs.m
-        Chebfun commit: 7574c77
+        Native @chebfunpref/chebfunpref.m532-562, pin7574c77.
         """
-        def tp(x):
-            return (copy.deepcopy(x.techPrefs)
-                    if isinstance(x, ChebfunPref)
-                    else DotDict.wrap(dict(x)))
-        out = tp(p)
-        out.update(tp(q))
+        def materialize(x):
+            return copy.deepcopy(x.techPrefs) if isinstance(x, ChebfunPref) else DotDict.wrap(copy.deepcopy(dict(x)))
+        out = materialize(p)
+        out.update(materialize(q))
         return out
 
     @classmethod
-    def getFactoryDefaults(cls) -> "ChebfunPref":
-        """The factory-default preference object.
-
-        Provenance
-        ----------
-        MATLAB source : @chebfunpref/getFactoryDefaults.m
-        Chebfun commit: 7574c77
-        """
-        saved = cls._defaults
-        cls._defaults = None
-        try:
-            return cls()
-        finally:
-            cls._defaults = saved
+    def getFactoryDefaults(cls):
+        # Build without temporarily mutating session state; retain subclass
+        # constructor defaults via a supplied factory object, not session copy.
+        raw = cls.__new__(cls)
+        object.__setattr__(raw, "_top", _factory_top())
+        object.__setattr__(raw, "_tech_overrides", DotDict())
+        object.__setattr__(raw, "_tech_view", None)
+        return cls(raw)
 
     @classmethod
     def setDefaults(cls, *args, **kwargs):
-        """Set (or factory-reset) the session default preferences:
-        ``setDefaults('factory')``, ``setDefaults(prefOrDict)``, or
-        name/value pairs (a value of ``'factory'`` resets that name).
-
-        Provenance
-        ----------
-        MATLAB source : @chebfunpref/setDefaults.m
-        Chebfun commit: 7574c77
-        """
-        if len(args) == 1 and args[0] == "factory" and not kwargs:
+        if len(args) == 1 and isinstance(args[0], str) and args[0] == "factory" and not kwargs:
             cls._defaults = None
             return
-        if len(args) == 1 and isinstance(args[0],
-                                         (ChebfunPref, dict)):
+        if len(args) == 1 and isinstance(args[0], (ChebfunPref, dict)) and not kwargs:
             cls._defaults = cls(args[0])
             return
-        pairs = dict(zip(args[0::2], args[1::2]))
-        pairs.update(kwargs)
+        # @chebpref/chebpref.m: no inputs and unpaired arguments error.
+        if not args and not kwargs:
+            raise TypeError("setDefaults requires at least one argument")
+        if len(args) % 2:
+            raise TypeError("setDefaults requires name/value pairs")
+        # Native manageDefaultPrefs applies pairs in order, including repeats.
+        pairs = list(zip(args[0::2], args[1::2]))
+        pairs.extend(kwargs.items())
         base = cls()
         factory = cls.getFactoryDefaults()
-        for k, v in pairs.items():
-            if isinstance(v, str) and v == "factory":
-                if k in factory._top:
-                    base._top[k] = copy.deepcopy(factory._top[k])
+        for key, value in pairs:
+            want_factory = isinstance(value, str) and value == "factory"
+            if isinstance(key, (list, tuple)):
+                # Source two-tier branch tests the stored raw structure,
+                # never the resolved technology-default view.
+                if len(key) != 2 or not all(isinstance(k, str) for k in key):
+                    raise TypeError("Two-tier preference names require two strings")
+                parent, child = key
+                target = base._tech_overrides if parent == "techPrefs" else base._top.get(parent)
+                if not isinstance(target, dict) or child not in target:
+                    raise KeyError(tuple(key))
+                if want_factory:
+                    original = factory._tech_overrides if parent == "techPrefs" else factory._top.get(parent)
+                    if not isinstance(original, dict) or child not in original:
+                        raise KeyError(tuple(key))
+                    value = copy.deepcopy(original[child])
+                target[child] = DotDict.wrap(value) if isinstance(value, dict) else value
+                base._refresh_view()
+            elif want_factory:
+                if key == "techPrefs":
+                    base.techPrefs = {}
+                elif key in factory._top:
+                    setattr(base, key, copy.deepcopy(factory._top[key]))
                 else:
-                    base.techPrefs[k] = factory.techPrefs.get(k)
+                    del base._tech_overrides[key]
+                    base._refresh_view()
             else:
-                setattr(base, k, v)
-        cls._defaults = base
+                setattr(base, key, value)
+            # Native persistent manager commits each pair before the next.
+            cls._defaults = copy.deepcopy(base)
 
 
 class ChebopPref(ChebfunPref):

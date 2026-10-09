@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Preference provenance and complete native preference test (2026-10-09)
+
+ChebfunPref now stores explicit technology overrides separately from resolved
+defaults. Reads use the selected technology's defaults; copies and session
+preferences preserve omission, including an explicit value equal to a factory
+default. Polynomial and periodic defaults stay distinct. Ordered default
+updates and two-level field assignment/reset now follow the native manager.
+
+Verification: 45 preference-object checks, 34 unchanged constructor checks,
+and an 11-body followup covering all 28 predicates from native
+`tests/chebpref/test_chebfunpref.m` plus 10 focused setter controls. These are
+90 executions across three frozen runs, not 90 distinct native tests. All
+runs were CPU-only, terminal 0, stable, uncensored, and left no survivors.
+Root independently verified 2,928 / 2,941 / 2,925 loaded-file hashes and the
+JUnit record of predicates 1–28. Only setDefaults changed after the first
+two runs; the final followup covers that change and the complete native test.
+
+Evidence: shared_preference_combined_root_integration_20261009.json and
+shared_preference_provenance_20261009/combined_qualified_packet_v1.json in
+shared goal scratch. Unknown-preference warning behavior, general callable
+constructor forwarding, periodic composition, and broader API parity remain
+open. The ChebopPref nested-field check covers Python compatibility only.
+
 ## Sphere visibility compilation adapter (2026-10-09)
 
 The existing conservative ray test and final display mask now compile together.
@@ -14,7 +37,11 @@ terminal0/stable/no survivors. Root independently rehashed3024 observed runtime
 files and verified the three integrated file hashes. Evidence:
 sphere_visibility_root_runtime_review_20261009.json and
 sphere_visibility_root_integration_20261009.json in shared goal scratch.
-Matched synthetic timing is pending; no full-page speed or figure-parity claim.
+The matched synthetic baseline hit its 2 GiB RSS cap (original handle 63499;
+2,101,996 KiB sampled peak, terminal 137, stable inputs, no survivors).
+The candidate timing arm was not run. No speed ratio, full-page speed, or
+figure-parity claim is supported by this censored comparison. Evidence:
+sphere_visibility_compile_plan_20261009/FINAL_HANDOFF.json.
 
 ## Atmospheric current painter/layout replay (2026-10-09)
 
