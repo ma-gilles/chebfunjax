@@ -134,3 +134,44 @@ def test_bumpy_lighting_receives_same_scalar_colors(monkeypatch):
         np.testing.assert_allclose(inputs[0], mappable.to_rgba(expected)[..., :3], rtol=0, atol=8e-16)
     finally:
         plt.close(fig)
+
+
+@pytest.mark.parametrize("projection", ["sphere", "equirectangular"])
+def test_fixed_source_color_limits_reach_artist_and_colorbar(monkeypatch, projection):
+    from mpl_toolkits.mplot3d import Axes3D
+
+    colors = []
+    original = Axes3D.plot_surface
+
+    def observe(self, *args, **kwargs):
+        colors.append(np.array(kwargs['facecolors'], copy=True))
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Axes3D, 'plot_surface', observe)
+    fig, ax, mappable = plot_sphere(AnalyticField(), n_pts=12, cmap="jet",
+                                   projection=projection, clim=(-.5, 1.),
+                                   return_mappable=True)
+    try:
+        expected = independent_grid(12)
+        expected_rgba = plt.get_cmap("jet")(Normalize(-.5, 1.)(expected))
+        assert mappable.get_clim() == (-.5, 1.)
+        np.testing.assert_allclose(mappable.to_rgba(expected), expected_rgba,
+                                   rtol=0, atol=8e-16)
+        if projection == "sphere":
+            assert len(colors) == 1
+            np.testing.assert_allclose(colors[0], expected_rgba, rtol=0, atol=8e-16)
+        else:
+            assert ax.collections[0].get_clim() == (-.5, 1.)
+        colorbar = fig.colorbar(mappable, ax=ax)
+        assert colorbar.norm.vmin == -.5 and colorbar.norm.vmax == 1.
+        fig.canvas.draw()
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.parametrize("clim", [(1., 1.), (0., np.nan), (0., 1., 2.)])
+def test_invalid_color_limits_rejected_before_sampling(clim):
+    field = AnalyticField()
+    with pytest.raises(ValueError, match="clim"):
+        plot_sphere(field, clim=clim)
+    assert field.calls == []

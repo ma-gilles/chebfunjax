@@ -1274,6 +1274,7 @@ def plot_sphere(
     n_lam: int = None,  # backward-compat alias for n_pts
     n_theta: int = None,  # backward-compat (ignored; grid is uniform)
     return_mappable: bool = False,
+    clim: tuple[float, float] | None = None,
     **kw,
 ) -> tuple[plt.Figure, Any] | tuple[plt.Figure, Any, Any]:
     """Plot a Spherefun on the unit sphere (MATLAB Chebfun style).
@@ -1298,6 +1299,9 @@ def plot_sphere(
     n_grid_lam, n_grid_th : int
         Number of grid lines in lon/lat directions.
 
+    clim : pair of floats, optional
+        Fixed scalar color limits, equivalent to source caxis([low high]).
+        Applied to surface colors and the optional colorbar snapshot together.
     return_mappable : bool
         If True, return (fig, ax, mappable) for a colorbar of the corrected
         plotting grid. The mappable is a snapshot: its set_clim, set_cmap,
@@ -1320,6 +1324,12 @@ def plot_sphere(
     import jax.numpy as jnp
 
     cmap_obj = _coerce_cmap(cmap)
+    fixed_norm = None
+    if clim is not None:
+        limits = np.asarray(clim, dtype=float)
+        if limits.shape != (2,) or not np.all(np.isfinite(limits)) or limits[0] >= limits[1]:
+            raise ValueError("clim requires two finite increasing color limits")
+        fixed_norm = Normalize(vmin=float(limits[0]), vmax=float(limits[1]))
 
     # Handle backward-compat aliases
     if n_lam is not None:
@@ -1371,7 +1381,7 @@ def plot_sphere(
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
                                  figsize=(6.1, 2.75), fill_canvas=False)
 
-        color_norm = _normalize_values(C)
+        color_norm = _normalize_values(C) if fixed_norm is None else fixed_norm
         facecolors = _matlab_facecolors(
             C,
             cmap_obj,
@@ -1414,6 +1424,8 @@ def plot_sphere(
             fig = ax.get_figure()
 
         mesh = ax.pcolormesh(xh, yh, C, cmap=cmap_obj, shading='auto', **kw)
+        if fixed_norm is not None:
+            mesh.set_clim(fixed_norm.vmin, fixed_norm.vmax)
 
         if grid:
             xg, yg = _sph2map(projection, llgl, ttgl)

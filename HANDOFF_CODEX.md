@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fixed sphere surface color limits (2026-10-09)
+
+Public sphere plotting now accepts clim=(low, high), applying the fixed scale
+to the surface facecolors and colorbar snapshot together. Map projections use
+the same limits. This supports the source heat-page caxis commands without
+changing only a detached colorbar. Omitted limits retain automatic scaling.
+
+Twelve CPU controls passed: seven existing mappable/lighting checks and five
+fixed-limit/validation checks. Actual surface color inputs, map limits and
+colorbar normalization were checked. Peak RSS was 619168 KiB; source inputs
+were stable with no censoring or survivors. Whole-page and pixel parity remain
+open. Evidence: docs/sphere_fixed_color_limits_cpu_20261009.json.
+
 ## Sphere contour overlays preserve held plots (2026-10-09)
 
 Public Spherefun.contour now accepts explicit hold=True, representing the native

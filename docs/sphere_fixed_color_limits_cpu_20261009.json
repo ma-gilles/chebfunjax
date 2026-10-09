@@ -1,0 +1,42 @@
+{
+  "passed": 12,
+  "cases": [
+    "test_default_source_grid_one_evaluation_and_colorbar_limits",
+    "test_cmap_and_snapshot_mutations_do_not_recolor_existing_artist[sphere]",
+    "test_cmap_and_snapshot_mutations_do_not_recolor_existing_artist[bumpy]",
+    "test_cmap_and_snapshot_mutations_do_not_recolor_existing_artist[equirectangular]",
+    "test_constant_correction_and_existing_constant_norm_fallback",
+    "test_multiple_surfaces_keep_independent_scales_and_default_pair_return",
+    "test_bumpy_lighting_receives_same_scalar_colors",
+    "test_fixed_source_color_limits_reach_artist_and_colorbar[sphere]",
+    "test_fixed_source_color_limits_reach_artist_and_colorbar[equirectangular]",
+    "test_invalid_color_limits_rejected_before_sampling[clim0]",
+    "test_invalid_color_limits_rejected_before_sampling[clim1]",
+    "test_invalid_color_limits_rejected_before_sampling[clim2]"
+  ],
+  "peak_kib": 619168,
+  "wall_seconds": 12.749888693913817,
+  "payload": {
+    "src/chebfunjax/plotting.py": "fe9eb17f6a588f88975da4623ce6e8da3420da844c8d6bdeb185623d8070f77a",
+    "tests/test_sphere_scalar_mappable.py": "c30f4912cce982b0b43d92eb94dd0a76d3b445eb9b9421290ce989770715044b"
+  },
+  "scope": "Explicit fixed color limits reach actual surface colors/map artist and colorbar;7 existing and5 new controls. Source-input guard only, no full third-party runtime audit or pixel/page parity claim.",
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_clim_source_20261009/plan.json",
+      "sha256": "c55b94a016b2fc75eb70026c743331186843e469ab80aba999892bb92e6c9adc"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_clim_source_20261009/junit.xml",
+      "sha256": "96408f5c10a266893054403dffc0ba2fd80b76955bf27146668d3ac93ff37721"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_clim_source_20261009/supervision/receipt.json",
+      "sha256": "112c3cc6e94dc325630768f118922823a0b9ba3c33692daf48e60c7b8780a439"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_clim_source_20261009/guard.json",
+      "sha256": "d189ea6db7683bdffab60f86a80389e254a4c77dccb8aa401935ea17d565556f"
+    }
+  ]
+}
