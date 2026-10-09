@@ -1585,6 +1585,23 @@ def _fixed_zero_construct(cls, f, kind):
     return cls.from_values(values).prolong(0)
 
 
+def _roots_array_columns(f, **options):
+    """Native per-column scalar roots and NaN padding, using JAX storage.
+
+    Source @chebtech/roots.m mat2cell/roots_scalar/cell2mat, pin7574c77.
+    Preserve each original technology and its scalar normalization/ordering.
+    Variable root counts make this an eager adapter, not a JIT promise.
+    """
+    columns = [type(f)(coeffs=f.coeffs[:, j], ishappy=f.ishappy).roots(**options)
+               for j in range(f.coeffs.shape[1])]
+    count = max((len(column) for column in columns), default=0)
+    dtype = jnp.complex128 if any(jnp.iscomplexobj(c) for c in columns) else jnp.float64
+    result = jnp.full((count, len(columns)), jnp.nan, dtype=dtype)
+    for j, column in enumerate(columns):
+        result = result.at[:len(column), j].set(column)
+    return result
+
+
 def _is_empty_tech(obj) -> bool:
     """Source isempty.m, including zero-sized coefficient arrays."""
     if getattr(obj, "_is_empty_object", False):
@@ -4042,21 +4059,7 @@ class Chebtech2(eqx.Module):
         kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
                   zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
-            # Array-valued: roots per column, NaN-padded to equal length
-            # (MATLAB @chebtech/roots.m does exactly this)
-            import numpy as _np
-            # Native mat2cell -> roots_scalar keeps each column's original
-            # Tech grid for vscale and applies its constant shortcut first.
-            cols = [_np.asarray(type(self)(
-                        coeffs=self.coeffs[:, j], ishappy=self.ishappy
-                    ).roots(**kw)) for j in range(self.coeffs.shape[1])]
-            nmax = max((len(c) for c in cols), default=0)
-            dt = (_np.complex128
-                  if any(_np.iscomplexobj(c) for c in cols) else float)
-            out = _np.full((nmax, len(cols)), _np.nan, dtype=dt)
-            for j, c in enumerate(cols):
-                out[: len(c), j] = c
-            return jnp.asarray(out)
+            return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
             return (jnp.asarray([0.], dtype=jnp.float64)
@@ -5479,21 +5482,7 @@ class Chebtech1(eqx.Module):
         kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
                   zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
-            # Array-valued: roots per column, NaN-padded to equal length
-            # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
-            import numpy as _np
-            # Native mat2cell -> roots_scalar keeps each column's original
-            # Tech grid for vscale and applies its constant shortcut first.
-            cols = [_np.asarray(type(self)(
-                        coeffs=self.coeffs[:, j], ishappy=self.ishappy
-                    ).roots(**kw)) for j in range(self.coeffs.shape[1])]
-            nmax = max((len(c) for c in cols), default=0)
-            dt = (_np.complex128
-                  if any(_np.iscomplexobj(c) for c in cols) else float)
-            out = _np.full((nmax, len(cols)), _np.nan, dtype=dt)
-            for j, c in enumerate(cols):
-                out[: len(c), j] = c
-            return jnp.asarray(out)
+            return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
             return (jnp.asarray([0.], dtype=jnp.float64)

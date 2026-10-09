@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX array-root result assembly (2026-10-09)
+
+Chebtech1/2 now assemble per-column root results and NaN padding with JAX
+arrays, removing NumPy transfers from that wrapper. Each original scalar
+technology, stored coefficient length, happiness flag, option and root order
+is preserved. AST comparison proves scalar algorithms and unrelated code
+unchanged. The helper remains eager because root counts vary.
+
+Six independent polynomial controls pass for both technologies: real roots,
+complex roots and zeroFun=false, with unequal column counts and NaN padding.
+Root verified all 2,932 observed runtime hashes, frozen payloads and JUnit
+counts. The bounded CPU process peaked at 704,528KiB. Inherited scalar QZ,
+evaluation and other host paths, empty representation gaps and broad root
+parity remain open; this is not a whole-library JAX claim.
+
+Evidence: chebtech_array_roots_jax_20261009/SOURCE_REVIEW.json,
+candidate/manifest.json and chebtech_array_roots_root_runtime_review_20261009.json
+in shared scratch. Full-suite, example and CI qualification remains incomplete.
+
 ## Missing FUNQUI factory preference (2026-10-09)
 
 Restored the native top-level enableFunqui=false factory field. Its omission

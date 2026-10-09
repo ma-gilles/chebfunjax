@@ -152,3 +152,22 @@ run is preserved; its unchanged forty controls are being rerun separately.
 Evidence: trig_constructor_r2_source_20261009/qualified_funqui_factory_packet_v1.json
 and funqui_factory4_root_runtime_review_20261009.json in shared scratch. This
 fix does not establish full constructor/preference, example or CI parity.
+
+## JAX array-root result assembly (2026-10-09)
+
+Chebtech1/2 now assemble per-column root results and NaN padding with JAX
+arrays, removing NumPy transfers from that wrapper. Each original scalar
+technology, stored coefficient length, happiness flag, option and root order
+is preserved. AST comparison proves scalar algorithms and unrelated code
+unchanged. The helper remains eager because root counts vary.
+
+Six independent polynomial controls pass for both technologies: real roots,
+complex roots and zeroFun=false, with unequal column counts and NaN padding.
+Root verified all 2,932 observed runtime hashes, frozen payloads and JUnit
+counts. The bounded CPU process peaked at 704,528KiB. Inherited scalar QZ,
+evaluation and other host paths, empty representation gaps and broad root
+parity remain open; this is not a whole-library JAX claim.
+
+Evidence: chebtech_array_roots_jax_20261009/SOURCE_REVIEW.json,
+candidate/manifest.json and chebtech_array_roots_root_runtime_review_20261009.json
+in shared scratch. Full-suite, example and CI qualification remains incomplete.
