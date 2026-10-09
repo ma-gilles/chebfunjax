@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigonometric Pade source qualification (2026-10-08)
+
+Public trigpade now follows the source Laurent coefficient ordering, first
+null-space vector, degree-defect reduction, zero-denominator diagnostic,
+n=0 values-constructor branch, final simplify and conditional imaginary-part
+warning. New numerical kernels use JAX; the separate legacy ratapprox API
+and trigremez are unchanged. Four staged terminal gates provide36 distinct
+passes:27 original deterministic predicates,7 independent controls and2 legacy
+regressions. Original random-handle predicates5/10/15 remain explicitly skipped
+pending native unseeded tt inputs; the MATLAB capture harness is unrun.
+Root rehashed2939/2939/2939/2936 observed runtime files and verified payload
+identity. Full Ruff/F821, provenance/NumPy policies and diff checks pass.
+No native singular-vector/roundoff identity or performance qualification.
+Evidence: trigpade_root_acceptance_20261008.json in the shared directory below.
+
+Active: Ballfun Helmholtz original38; source restrict29 and unbounded overlap;
+root Chebfun-object composition30 (28predicates pass, one unbounded pending,
+one strict periodic numerical discrepancy under diagnosis). No complete-suite,
+remote publication or exact-head CI claim.
+
 ## Fourier and NonsmoothFOV page reruns (2026-10-08)
 
 Both scripts completed alone on CPU against1fbf3a2a. Fourier:51.07s,

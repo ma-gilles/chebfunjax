@@ -16,148 +16,150 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-from scipy.linalg import null_space, toeplitz
 
 __all__ = ["trigpade", "trigremez"]
 
 
-def _trig_coeffs_ascending(f) -> np.ndarray:
-    """MATLAB trigcoeffs layout [c_{-N} ... c_0 ... c_N] (odd length)
-    from a single-piece trig chebfun."""
-    c = np.asarray(f.funs[0].tech.coeffs)  # descending wavenumber
-    c = c[::-1].astype(complex)            # ascending
-    if len(c) % 2 == 0:
-        # split the top mode symmetrically to make the length odd
-        c = np.concatenate([[c[0] / 2.0], c[1:], [c[0] / 2.0]])
-    return c
+class TrigpadeError(ValueError):
+    """Source diagnostic with a MATLAB-compatible identifier."""
+
+    def __init__(self, identifier, message):
+        self.identifier = identifier
+        super().__init__(f"{identifier}: {message}")
+
+
+def _trig_coeffs_ascending(f):
+    """Source @chebfun/trigpade.m: obtain its public Fourier coefficients."""
+    return jnp.asarray(f.trigcoeffs(), dtype=jnp.complex128)
 
 
 def _trig_chebfun_from_ascending(c, domain):
-    """Build a trig chebfun from ascending Laurent coefficients."""
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
-    from chebfunjax.tech.trigtech import Trigtech
-    c = np.atleast_1d(np.asarray(c, dtype=complex))
-    tech = Trigtech.from_coeffs(jnp.asarray(c[::-1]))
-    piece = _Piece(tech=tech,
-                   interval=(float(domain[0]), float(domain[1])))
-    return Chebfun(funs=[piece],
-                   domain=Domain((float(domain[0]),
-                                  float(domain[1]))))
+    """Source coefficient constructor; storage is c[-N],...,c[N]."""
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    return chebfun(jnp.atleast_1d(c), domain=domain, coeffs=True, trig=True)
 
 
 def _laurent_approx(c, m, n, N, tol):
-    """One-sided Laurent-Pade coefficients (MATLAB laurent_approx)."""
-    col = c[(m + 1) + N: (m + n) + N + 1]
-    row = c[np.arange((m + 1) + N, (m - n) + N, -1)]
-    C = toeplitz(col, row)
-    b = null_space(C)
-    if b.size == 0:
-        # fall back to the smallest right singular vector
-        _, _, Vh = np.linalg.svd(C)
-        b = Vh[-1, :].conj()[:, None]
-    if b.shape[1] > 1:
-        b = b[:, :1]
-    b = b[:, 0]
-    if abs(b[0]) < tol:
-        raise ValueError(
-            "trigpade: denominator zero at the origin detected")
+    """@chebfun/trigpade.m laurent_approx, including first null vector.
+
+    MATLAB null uses max(size(A))*eps(norm(A)); singular vectors themselves
+    can differ between LAPACK versions, especially in multidimensional null
+    spaces. The source selects the first returned null vector.
+    """
+    rows = jnp.arange(n)[:, None]
+    columns = jnp.arange(n + 1)[None, :]
+    matrix = c[N + m + 1 + rows - columns]
+    _, singular, vh = jnp.linalg.svd(matrix, full_matrices=True)
+    threshold = max(matrix.shape) * jnp.spacing(singular[0])
+    rank = int(jnp.sum(singular > threshold))
+    b = jnp.conj(vh[rank])
+    if float(jnp.abs(b[0])) < tol:
+        raise TrigpadeError('CHEBFUN:TRIGPADE:laurent_approx',
+                           'denominator zero at the origin detected')
     b = b / b[0]
-    M = max(m, n)
-    col2 = c[N: M + N + 1].copy()
-    col2[0] = col2[0] / 2.0
-    C2 = np.tril(toeplitz(col2, col2))
-    bb = np.concatenate([b, np.zeros(M + 1 - len(b))])
-    a = C2 @ bb
-    return a, b
+    degree = max(m, n)
+    col = c[N:N + degree + 1].at[0].multiply(.5)
+    delta = jnp.arange(degree + 1)[:, None] - jnp.arange(degree + 1)[None, :]
+    lower = jnp.where(delta >= 0, col[jnp.maximum(delta, 0)], 0)
+    bb = jnp.pad(b, (0, degree + 1 - b.size))
+    return lower @ bb, b
 
 
 def _laurent_pade(c, m, n, tol):
-    c = np.asarray(c, dtype=complex).ravel()
-    N = (len(c) - 1) // 2
-    if n == 0:
-        ap = c[N: N + m + 1].copy()
-        am = c[N:: -1][: m + 1].copy()
-        ap[0] /= 2.0
-        am[0] /= 2.0
-        ap = np.concatenate([np.zeros(len(ap) - 1), ap])
-        am = np.concatenate([np.zeros(len(am) - 1), am])
-        return ap, np.array([1.0]), am[::-1], np.array([1.0])
+    """Source Laurent positive/negative solves and centered zero padding."""
+    c = jnp.ravel(jnp.asarray(c, dtype=jnp.complex128))
+    N = (c.size - 1) // 2
     ap, bp = _laurent_approx(c, m, n, N, tol)
-    c_rev = c[::-1]
-    if np.max(np.abs(c - np.conj(c_rev))) < 10 * tol:
-        am, bm = np.conj(ap), np.conj(bp)
+    reversed_c = c[::-1]
+    if float(jnp.max(jnp.abs(c - jnp.conj(reversed_c)))) < 10 * tol:
+        am, bm = jnp.conj(ap), jnp.conj(bp)
     else:
-        am, bm = _laurent_approx(c_rev, m, n, N, tol)
-    ap = np.concatenate([np.zeros(len(ap) - 1), ap])
-    bp = np.concatenate([np.zeros(len(bp) - 1), bp])
-    am = np.concatenate([np.zeros(len(am) - 1), am])[::-1]
-    bm = np.concatenate([np.zeros(len(bm) - 1), bm])[::-1]
-    return ap, bp, am, bm
+        am, bm = _laurent_approx(reversed_c, m, n, N, tol)
+    return (jnp.pad(ap, (ap.size - 1, 0)),
+            jnp.pad(bp, (bp.size - 1, 0)),
+            jnp.pad(am, (am.size - 1, 0))[::-1],
+            jnp.pad(bm, (bm.size - 1, 0))[::-1])
 
 
 def _chop(c, tol):
-    mid = (len(c) - 1) // 2
-    nz = np.where(np.abs(c) > tol)[0]
-    if len(nz) == 0:
-        return np.zeros(1, dtype=c.dtype)
-    nn = max(mid - nz[0], nz[-1] - mid)
-    return c[mid - nn: mid + nn + 1]
+    """Source chop_coeffs preserves the largest nonnegligible Fourier mode."""
+    mid = (c.size - 1) // 2
+    active = jnp.abs(c) > tol
+    indices = jnp.arange(c.size)
+    if not bool(jnp.any(active)):
+        # Source find returns empty at both ends, hence empty support.
+        return c[:0]
+    first = int(jnp.min(jnp.where(active, indices, c.size)))
+    last = int(jnp.max(jnp.where(active, indices, -1)))
+    degree = max(mid - first, last - mid)
+    return c[mid - degree:mid + degree + 1]
 
 
 def _center_pad(v, L):
-    k = (len(v) - 1) // 2
-    pad = L - k
-    return np.concatenate([np.zeros(pad), v, np.zeros(pad)])
+    """Source symmetric Laurent coefficient padding."""
+    pad = L - (v.size - 1) // 2
+    return jnp.pad(v, (pad, pad))
 
 
-def trigpade(f, m: int, n: int):
-    """Trigonometric (Fourier) Pade approximation of a periodic
-    chebfun (MATLAB trigpade): returns
-    ``(p, q, r, tn_p, td_p, tn_m, td_m)`` with
-    ``p/q = tn_p/td_p + tn_m/td_m``.
+def trigpade(f, m=None, n=None):
+    """Source Fourier-Pade approximation of a periodic Chebfun.
+
+    Return ``(p, q, r, tn_p, td_p, tn_m, td_m)`` with
+    ``p/q = tn_p/td_p + tn_m/td_m``. Empty input returns the empty
+    Chebfun before inspecting degrees, matching the source early return.
 
     Provenance
     ----------
     MATLAB source : @chebfun/trigpade.m
-    Chebfun commit: 7574c77
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    dom = (float(f.domain.a), float(f.domain.b))
-    if getattr(f, "isempty", lambda: False)():
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.tech.trigtech import Trigtech
+
+    if f.isempty():
         return f
+    if not all(isinstance(piece.tech, Trigtech) for piece in f.funs):
+        raise TrigpadeError('CHEBFUN:CHEBFUN:trigpade:trig',
+                           'Input chebfun F must have a periodic representation')
+    if m is None or n is None:
+        raise TypeError('trigpade requires numerator and denominator degrees')
+    dom = (float(f.domain.a), float(f.domain.b))
     c = _trig_coeffs_ascending(f)
-    N = (len(c) - 1) // 2
-    tol = 100 * np.finfo(float).eps * np.max(np.abs(c))
+    if c.size % 2 != 1:
+        raise ValueError('c must have odd length')
+    N = (c.size - 1) // 2
+    tol = float(100 * jnp.finfo(jnp.float64).eps * jnp.max(jnp.abs(c)))
+    if n == 0:
+        # The m<N source call deliberately supplies these entries as VALUES,
+        # without its 'coeffs' flag; retain that public constructor behavior.
+        p = f if m >= N else chebfun(c[N-m:N+m+1], domain=dom, trig=True)
+        q = chebfun(1, domain=dom, trig=True)
+        return p, q, lambda x: p(x), p / 2, q, p / 2, q
 
-    d = 2 * max(m, n) - N
-    if d > 0:
-        c = np.concatenate([np.zeros(d), c, np.zeros(d)])
-        N += d
-
+    padding = 2 * max(m, n) - N
+    if padding > 0:
+        c = jnp.pad(c, (padding, padding))
     ap, bp, am, bm = _laurent_pade(c, m, n, tol)
+    tn_p, td_p, tn_m, td_m = (
+        _trig_chebfun_from_ascending(v, dom) for v in (ap, bp, am, bm))
+    L = (max(ap.size, am.size, bp.size, bm.size) - 1) // 2
+    ap, bp, am, bm = (_center_pad(v, L) for v in (ap, bp, am, bm))
+    pk = _chop(jnp.convolve(ap, bm) + jnp.convolve(am, bp), tol)
+    qk = _chop(jnp.convolve(bm, bp), tol)
+    p = _trig_chebfun_from_ascending(pk, dom).simplify()
+    q = _trig_chebfun_from_ascending(qk, dom).simplify()
+    if float(jnp.max(jnp.abs(c - jnp.conj(c[::-1])))) < tol:
+        if float((p / q).imag().norm()) > tol:
+            import warnings
 
-    tn_p = _trig_chebfun_from_ascending(ap, dom)
-    td_p = _trig_chebfun_from_ascending(bp, dom)
-    tn_m = _trig_chebfun_from_ascending(am, dom)
-    td_m = _trig_chebfun_from_ascending(bm, dom)
+            warnings.warn('CHEBFUN:CHEBFUN:trigpade:imag: imaginary part not negligible.',
+                          RuntimeWarning, stacklevel=2)
+        else:
+            p, q = p.real(), q.real()
 
-    L = (max(len(ap), len(am), len(bp), len(bm)) - 1) // 2
-    ap_, bp_, am_, bm_ = (
-        _center_pad(v, L) for v in (ap, bp, am, bm))
-    pk = np.convolve(ap_, bm_) + np.convolve(am_, bp_)
-    qk = np.convolve(bm_, bp_)
-    pk = _chop(pk, tol)
-    qk = _chop(qk, tol)
-
-    p = _trig_chebfun_from_ascending(pk, dom)
-    q = _trig_chebfun_from_ascending(qk, dom)
-
-    # discard imaginary rounding errors for real input
-    if np.max(np.abs(c - np.conj(c[::-1]))) < tol:
-        p = p.real()
-        q = q.real()
-
-    def r(t):
-        return p(t) / q(t)
+    def r(x):
+        return p(x) / q(x)
 
     return p, q, r, tn_p, td_p, tn_m, td_m
 
