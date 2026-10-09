@@ -1,5 +1,22 @@
 # Parity status — 2026-10-09
 
+## PTDecomposition source plot structure and dimensions (2026-10-09)
+
+The example now calls public Ballfunv.quiver and Ballfun.plot. This replaces
+invented sparse blue arrows and flat scalar images with four magnitude-colored
+vector plots and two five-surface 3D scalar plots. All three generated figures
+have the reference 600x253 dimensions. Fresh printed outputs are recorded in
+the page. One full CPU example run passed its structure/size checks (69.39s
+pytest, 2871584KiB peak); root audited 2960 runtime files and inspected all
+three generated images against the references.
+
+Full visual parity is NOT established: lighting/depth sorting, arrow scaling,
+ticks and spacing still differ; some edge tick labels are clipped. Numerical
+outputs differ from the retained MATLAB rerun, with no new tolerance invented
+to declare a match. The original computation sequence is unchanged. The page
+remains open for numerical and renderer parity despite corrected plot types
+and sizes. See docs/ptdecomposition_cpu_plot_refresh_20261009.json.
+
 ## Operator preference factory and complete native test (2026-10-09)
 
 Restored top-level scale=NaN, lambdaMin=1e-6 and happinessCheck factory fields.

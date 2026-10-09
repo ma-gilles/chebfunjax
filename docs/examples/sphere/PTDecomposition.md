@@ -37,7 +37,7 @@ norm( div( w ) )
 
 ```text
 ans =
-     1.179574108110481e-10
+     1.148940403272226e-10
 ```
 
 ## Computing the PT decomposition
@@ -90,7 +90,7 @@ norm( v - w )
 
 ```text
 ans =
-     1.138299570975991e-12
+     1.102028124774853e-12
 ```
 
 ## References

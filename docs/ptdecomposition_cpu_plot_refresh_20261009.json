@@ -1,0 +1,92 @@
+{
+  "reviewer": "/root",
+  "scope": "Public native plot types and reference dimensions restored; not full pageparity",
+  "frozen_base": "8479f2174704160de36f95653af95868be385448",
+  "junit_cases": 1,
+  "source_plot_calls": [
+    {
+      "method": "quiver",
+      "axes": "3d",
+      "collections": 1,
+      "title": ""
+    },
+    {
+      "method": "plot",
+      "axes": "3d",
+      "collections": 5,
+      "title": "poloidal scalar"
+    },
+    {
+      "method": "plot",
+      "axes": "3d",
+      "collections": 5,
+      "title": "toroidal scalar"
+    },
+    {
+      "method": "quiver",
+      "axes": "3d",
+      "collections": 1,
+      "title": "divergence-free field"
+    },
+    {
+      "method": "quiver",
+      "axes": "3d",
+      "collections": 1,
+      "title": "poloidal component"
+    },
+    {
+      "method": "quiver",
+      "axes": "3d",
+      "collections": 1,
+      "title": "toroidal component"
+    }
+  ],
+  "outputs": [
+    1.148940403272226e-10,
+    1.102028124774853e-12
+  ],
+  "reference_rerun_outputs": [
+    3.991764344210531e-10,
+    1.263875807887794e-12
+  ],
+  "exact_output_match": false,
+  "figures": [
+    {
+      "path": "docs/images/sphere/PTDecomposition_01.png",
+      "dimensions": [
+        600,
+        253
+      ],
+      "sha256": "8137bed6802c08eadcc757ee6b1a2813e87c1d2e6abfe56eb3a612c67026a636"
+    },
+    {
+      "path": "docs/images/sphere/PTDecomposition_02.png",
+      "dimensions": [
+        600,
+        253
+      ],
+      "sha256": "474c43534c76afdf6d189fa7cdca792211861d8344ecb275ba77c21003bcd34b"
+    },
+    {
+      "path": "docs/images/sphere/PTDecomposition_03.png",
+      "dimensions": [
+        600,
+        253
+      ],
+      "sha256": "314faba0d4f399b5d8526f8554c0f7f659173fc3278454972215d907a8badb7e"
+    }
+  ],
+  "visual_review": "All3candidate/referenceimages inspected. Fourquivers now native-style magnitude coloring/radialgrid; scalarpanels have5surfaces each. Scalar lighting/depthorder differs, quiverautoscale/ticks/spacing differs, someedge ticklabels clipped. These remain open, no imagecontentparity claim.",
+  "runtime_review": "ptdecomposition_page_root_runtime_review_20261009.json",
+  "numerical_policy": "Recorded outputs only; no fabricated tolerance for differences from MATLABroundoff",
+  "next": "integrate verified sourceplot/size improvement and freshoutputs, retainrenderer/mathparitygaps",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/SOURCE_REVIEW_v1.json": "1aa3a8d7466630c7a8c83cbdddd626dd4ca08de2f24c8de684f3e0b427b3c839",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/FROZEN_v1.json": "c9a21690d7398fc932710c39b00d11ec4a4242daa7d07de8b25e513bda1cb502",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/ROOT_RESULTS_v1.json": "ea6517af82791abc1e3c03d5ca01412b366444b30bc995cb506173358ee0394d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/full_page_v1/runtime/page_observation.json": "0d775d85373c8adac7f5695b8474d3fa1ac97a3122b1813c9120d362a3cc3eda",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/full_page_v1/supervision/receipt.json": "5dce027d9d1fe1eade8f9b6313ab34cecb9fd3737d56d9d5e66fbd8b7991ef2b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_source_20261009/full_page_v1/junit.xml": "1746b7af3d20dde49078bd4f5ec3241dfeafffe5db0feec1a28256d42bffd0a2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ptdecomposition_page_root_runtime_review_20261009.json": "72a18d298cab7d75df30b41910cd22578fdcf8a4fa30cfe53aa7efb030584e07"
+  }
+}
