@@ -1389,10 +1389,72 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     return jnp.asarray(r, dtype=jnp.float64)
 
 
+@jax.jit
+def _roots_colleague_matrix_jax(c: jax.Array) -> jax.Array:
+    """Literal native default colleague construction.
+
+    Provenance: MATLAB ``@chebtech/roots.m``, colleague matrix in roots_main,
+    Chebfun commit ``7574c77680d7e82b79626300bf255498271a72df``.
+    Matrix storage retains the inherited Python float64/complex128 convention.
+    """
+    # Preserve the native multiply, divide, then addition as separate steps.
+    # A full-shaped divisor boundary prevents scalar reciprocal hoisting.
+    product = jax.lax.optimization_barrier(-0.5 * c[:-1])
+    divisor = jax.lax.optimization_barrier(jnp.broadcast_to(c[-1], product.shape))
+    c_adj = jax.lax.optimization_barrier(product / divisor)
+    amended = jax.lax.optimization_barrier(c_adj[-2] + 0.5)
+    c_adj = c_adj.at[-2].set(amended)
+    nn = c.shape[0] - 1
+    oh = 0.5 * jnp.ones(nn - 1, dtype=jnp.float64)
+    matrix = jnp.diag(oh, 1) + jnp.diag(oh, -1)
+    if jnp.issubdtype(c_adj.dtype, jnp.complexfloating):
+        matrix = matrix.astype(jnp.complex128)
+    matrix = matrix.at[-2, -1].set(1.0)
+    return matrix.at[:, 0].set(c_adj[::-1])
+
+
+@jax.jit
+def _roots_eigvals_jax(matrix: jax.Array) -> jax.Array:
+    """Native default nonsymmetric ``eig(A)`` branch, without eigenvectors.
+
+    Provenance: MATLAB ``@chebtech/roots.m``, qz=False branch in roots_main,
+    Chebfun commit ``7574c77680d7e82b79626300bf255498271a72df``.
+    """
+    return jnp.linalg.eigvals(matrix)
+
+
+def _roots_default_eigenvalues(c):
+    """JAX default leaf with explicit Python failure, dtype and ownership adapters.
+
+    The numerical matrix/eig path follows MATLAB ``@chebtech/roots.m``,
+    Chebfun commit ``7574c77680d7e82b79626300bf255498271a72df``.
+    Finite-input/output checks, real-dtype restoration and writable host-array
+    ownership preserve the inherited Python interface; they are adapter policy,
+    not additional native root filtering or a claim of MATLAB division parity.
+    """
+    # This exception class preserves the existing host engine's failure type.
+    from numpy.linalg import LinAlgError
+
+    matrix = _roots_colleague_matrix_jax(jnp.asarray(c))
+    if not bool(jnp.all(jnp.isfinite(matrix))):
+        raise LinAlgError("Array must not contain infs or NaNs")
+    roots = _roots_eigvals_jax(matrix)
+    # Public JAX eig returns NaNs when LAPACK reports failure and does not expose
+    # INFO. Reject nonfinite output before the host filters can discard it.
+    if not bool(jnp.all(jnp.isfinite(roots))):
+        raise LinAlgError("Eigenvalues did not converge (nonfinite JAX eig output)")
+    # NumPy returns real dtype for a real matrix with an entirely real spectrum.
+    # Keep complex matrix outputs complex and preserve the solver's own order.
+    if (not jnp.issubdtype(matrix.dtype, jnp.complexfloating)
+            and not bool(jnp.any(jnp.imag(roots) != 0))):
+        roots = jnp.real(roots)
+    return jax.device_get(roots).copy()
+
+
 def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
                 prune: bool = False, recurse: bool = True):
     import numpy as np
-    """Recursive root-finding engine (numpy, NOT JIT-safe).
+    """Host-driven recursive root-finding engine (not JIT-safe).
 
     Follows MATLAB Chebfun's roots.m strategy:
     - Trim trailing small coefficients.
@@ -1434,19 +1496,19 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
         return jax.device_get(r).copy()
 
     if (not recurse) or (n <= MAX_EIG_SIZE):
-        # Form the colleague matrix
-        c_adj = -0.5 * c[:-1] / c[-1]
-        c_adj[-2] += 0.5
-
-        nn = n - 1
-        oh = 0.5 * np.ones(nn - 1)
-        A = np.diag(oh, 1) + np.diag(oh, -1)
-        if np.iscomplexobj(c_adj) or (qz and np.iscomplexobj(c)):
-            A = A.astype(np.complex128)
-        A[-2, -1] = 1.0
-        A[:, 0] = c_adj[::-1]
-
         if qz:
+            # Form the colleague matrix
+            c_adj = -0.5 * c[:-1] / c[-1]
+            c_adj[-2] += 0.5
+
+            nn = n - 1
+            oh = 0.5 * np.ones(nn - 1)
+            A = np.diag(oh, 1) + np.diag(oh, -1)
+            if np.iscomplexobj(c_adj) or (qz and np.iscomplexobj(c)):
+                A = A.astype(np.complex128)
+            A[-2, -1] = 1.0
+            A[:, 0] = c_adj[::-1]
+
             # Colleague matrix *pencil* (A, B) solved by the QZ / GEP
             # algorithm for extra numerical stability, mirroring the
             # scaled generalized eigenproblem of MATLAB
@@ -1463,7 +1525,7 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
             import scipy.linalg as _sla
             rts = _sla.eig(A, B, right=False)
         else:
-            rts = np.linalg.eigvals(A)
+            rts = _roots_default_eigenvalues(c)
 
         if not all_roots:
             # Keep roots with small imaginary part and inside [-1, 1].
@@ -1483,8 +1545,8 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
     # Native subdivision: cached coefficient transforms through count 513,
     # paired Clenshaw through count 4000, then the source NDCT policy.
     c_left, c_right = _roots_subdivide(c)
-    # The recursive trimming/eigenvalue engine remains host-side. Numerical
-    # subdivision and transforms above are JAX; this is only its array boundary.
+    # The recursive driver and trimming remain host-side. Subdivision and
+    # the default eigenvalue leaf use JAX; this is their array boundary.
     c_left, c_right = np.asarray(c_left), np.asarray(c_right)
 
     # Recurse
