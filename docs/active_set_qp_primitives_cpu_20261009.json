@@ -1,0 +1,19 @@
+{
+  "scope": "Private real binary64 two-dimensional native QP primitives; full active-set optimizer not implemented by this commit",
+  "source": "R2017a compdir.m including choltrap and qpsub.m findBlockingConstr; Chebfun target7574c77",
+  "checks": 16,
+  "results": "All eager/JIT exact dyadic controls pass, including strict negative curvature threshold, upper-triangle Cholesky, first blocking tie and active exclusion",
+  "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_qp_root_runtime_review_20261009.json",
+  "runtime_review_sha256": "1506152c65578437e3804780a2321ebe2febcb542f8e819439d8461a70ca098b",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_box_active_set_source_20261009/DELIVERY_v2.json",
+  "delivery_sha256": "0b1c1c218e1b28c635d31cd8b1bfea4871817498f1616c6a276eb68dbe16dbb6",
+  "payload": {
+    "src/chebfunjax/utils/_active_set_qp.py": "62f818ac734398f3f67d99e715ad5a08741a21423d7e07094fe22a245306a92f",
+    "tests/test_active_set_qp_source.py": "1d235494d5d1ceee247e4900071fa54cfc03c69edfb472871d38a69942a1ad57"
+  },
+  "limitations": [
+    "No full QP/SQP, phase I, working-set updates, BFGS, finite differences or public dispatch",
+    "No MATLAB execution or bitwise parity claim",
+    "Finite real binary64 inputs; ambient dimension2 only"
+  ]
+}
