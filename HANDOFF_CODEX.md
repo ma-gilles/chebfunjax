@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## 2026-10-09: periodic promoted functional source7–10
+
+Periodic `u'' + sum(u)` now follows native trigcolloc values or trigspec coefficient assembly, with exact AD blocks, full values-stack conversion, source dimension schedules, repeated toFunctionOut conversions and strict continuous imaginary-part projection. Narrow proxy `sum` markers retain existing differential callback and nonlinear routes. Existing first-kind capability arithmetic is unchanged.
+
+Evidence: `periodic_nonlocal_source_20261009/qualified_packet.json`. Four original slots7–10 pass in two backend cases at native initial dimension32; continuous residual <1e-10 and actual Trigtech class, plus independent analytic/mean checks. Composite31 passing test instances =29 ordinary controls +2 source backend cases. Final source snapshots use accepted roots base11682da24 plus only six owned files; historical ordinary base9c8d1a07 applies by scoped proof.
+
+Preserve limitations: pinned odd-size trigspec conversion is C*M*V.T, not a Fourier similarity; literal source quirk retained and independently tested. Original failed ordinary gate retained (six member-lookup errors fixed, one invalid odd-diagonal hypothesis corrected), with22 prior passes plus7 focused passes. The bounded n=8 initial-scale control emits native noConverge and does not qualify adaptation. No native MATLAB capture (startup IPC restriction). Other periodic nonlocal primitives/systems and legacy NumPy/nonlinear algorithms are outside this package.
+
+Root independently rehashed2972 loaded files for each source backend, and
+2968/2970 for the ordinary composite gates. All final source gates are
+terminal0, stable, uncensored and have no survivors. Full-suite regression,
+publication and exact-head CI remain unresolved. Root evidence:
+periodic_root_source_review_20261009.json, periodic_values_root_review_20261009.json,
+periodic_coeffs_root_review_20261009.json and periodic_root_integration_20261009.json.
+
 ## TrapezoidEigs source computation restored (2026-10-09)
 
 The full example now uses public JAX Bessel/SVD boundary matrices, source

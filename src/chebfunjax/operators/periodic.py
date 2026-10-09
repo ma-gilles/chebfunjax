@@ -174,6 +174,10 @@ class _CoefficientProxy:
         return _CoefficientProxy(matrix, self.grid, self.length,
                                  self.real if real is None else real)
 
+    def sum(self):
+        from chebfunjax.operators._periodic_nonlocal import NonlocalPeriodicFunctional
+        raise NonlocalPeriodicFunctional
+
     def diff(self, order=1):
         n = self.mat.shape[0]
         modes = jnp.arange(-(n//2), (n+1)//2, dtype=jnp.float64)
@@ -216,7 +220,7 @@ class _CoefficientProxy:
     __rmul__ = __mul__
 
 
-def solve_coefficients(op, rhs, n, n_max, tol):
+def solve_coefficients(op, rhs, n, n_max, tol, n_min=32):
     """Adaptive coefficient discretization selected by trigspec/coeffs.
 
     Provenance
@@ -226,6 +230,7 @@ def solve_coefficients(op, rhs, n, n_max, tol):
     Chebfun commit: 7574c77
     """
     from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.operators._periodic_nonlocal import NonlocalPeriodicFunctional
 
     a, b = float(op.domain[0]), float(op.domain[-1])
     length = b-a
@@ -243,11 +248,19 @@ def solve_coefficients(op, rhs, n, n_max, tol):
         grid = a+length*jnp.arange(2*size)/(2*size)
         proxy = _CoefficientProxy(jnp.eye(size, dtype=jnp.complex128), grid, length)
         try:
-            action = op._apply_op(coordinate, proxy)
-        except TypeError:
-            # Numeric-only JAX coordinate callbacks retain the existing API.
-            # Function-valued callbacks above adaptively resolve coefficients.
-            action = op._apply_op(grid, proxy)
+            try:
+                action = op._apply_op(coordinate, proxy)
+            except TypeError:
+                # Numeric-only JAX coordinate callbacks retain the existing API.
+                # Function-valued callbacks above adaptively resolve coefficients.
+                action = op._apply_op(grid, proxy)
+        except NonlocalPeriodicFunctional:
+            from chebfunjax.operators._periodic_nonlocal import prepare, solve
+            data = prepare(op, rhs)
+            if data is None:
+                raise NotImplementedError("trigspec nonlocal adapter requires a linear equation")
+            return solve(data, backend="trigspec", n=n, n_min=n_min,
+                         n_max=n_max, tol=tol)
         if not isinstance(action, _CoefficientProxy):
             raise TypeError('trigspec requires a linear differential operator')
         modes = jnp.arange(-(size//2), (size+1)//2)

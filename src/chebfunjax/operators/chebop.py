@@ -947,7 +947,7 @@ class Chebop:
                 and self._n_vars() == 1 and self._is_linear()):
             from chebfunjax.operators.periodic import solve_coefficients
             return self._simplify_solution(
-                solve_coefficients(self, f, n, n_max, tol))
+                solve_coefficients(self, f, n, n_max, tol, n_min=n_min))
         if discretization is not None and str(discretization) in (
                 "ultraS", "chebcolloc1"):
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
@@ -1389,7 +1389,7 @@ class Chebop:
 
         # Periodic BVPs use Fourier collocation (task #24, Opus 4.8).
         if getattr(self, "_periodic", False):
-            return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
+            return self._solve_periodic(f, n=n, n_max=n_max, tol=tol, n_min=n_min)
 
         # Deflated operators (G = M(u; r) N(u)) use a dedicated globalized
         # solve: the multiplicative factor makes plain undamped Newton from a
@@ -5512,7 +5512,7 @@ class Chebop:
         return diff / scale < 1e-6
 
     def _solve_periodic(self, f=0.0, n=None, n_max: int = 2048,
-                        tol: float = 1e-10):
+                        tol: float = 1e-10, n_min: int = 32):
         """Solve a linear periodic BVP by Fourier collocation (Opus 4.8).
 
         Discretises with the Fourier differentiation matrix on N
@@ -5524,6 +5524,7 @@ class Chebop:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.operators._periodic_nonlocal import NonlocalPeriodicFunctional
         a, b = float(self.domain[0]), float(self.domain[-1])
         L = float(b - a)
 
@@ -5541,6 +5542,14 @@ class Chebop:
                 out = self._apply_op(jnp.asarray(x), proxy)
                 if not isinstance(out, _FourierProxy):
                     raise TypeError("nonlinear")
+            except NonlocalPeriodicFunctional:
+                from chebfunjax.operators._periodic_nonlocal import prepare, solve
+                data = prepare(self, f)
+                if data is None:
+                    return self._solve_periodic_nonlinear(
+                        f, n=n, n_max=n_max, tol=tol)
+                return solve(data, backend="trigcolloc", n=n, n_min=n_min,
+                             n_max=n_max, tol=tol)
             except (TypeError, AttributeError, ValueError):
                 # Nonlinear periodic operator: Newton on the grid.
                 return self._solve_periodic_nonlinear(
@@ -8367,6 +8376,10 @@ class _FourierProxy:
 
     def _wrap(self, mat):
         return _FourierProxy(self.n, self.length, mat, grid=self.grid)
+
+    def sum(self):
+        from chebfunjax.operators._periodic_nonlocal import NonlocalPeriodicFunctional
+        raise NonlocalPeriodicFunctional
 
     def diff(self, order: int = 1):
         import numpy as _np

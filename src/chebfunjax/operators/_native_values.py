@@ -119,7 +119,9 @@ def zero(domain, functional=False):
 def derivative(domain, order):
     return Capability(lambda disc: _diagonal([
         diffmat(n, order, domain=interval, kind=1)
-        for n, interval in zip(disc.sizes, disc.intervals)]), tuple(domain))
+        for n, interval in zip(disc.sizes, disc.intervals)])
+        if not hasattr(disc, "native_derivative") else disc.native_derivative(order),
+        tuple(domain))
 
 
 def multiplier(value, domain):
@@ -136,4 +138,6 @@ def evaluation(location, domain, direction):
 def integral(domain):
     return Capability(lambda disc: jnp.concatenate([
         .5*(b-a)*chebweights(n, kind=1)
-        for n, (a, b) in zip(disc.sizes, disc.intervals)]), tuple(domain))
+        for n, (a, b) in zip(disc.sizes, disc.intervals)])
+        if not hasattr(disc, "native_integral") else disc.native_integral(),
+        tuple(domain))

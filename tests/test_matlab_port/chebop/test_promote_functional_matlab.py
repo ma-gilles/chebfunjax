@@ -1,4 +1,4 @@
-"""Strict source promote_functional slots1–6, with explicit C1 qualification.
+"""Strict source promote_functional slots1–10, with explicit C1 qualification.
 
 Provenance
 ----------
@@ -9,8 +9,8 @@ All ten original slots remain mapped in the package source_mapping.json.
 Slots1/2 below retain continuous infinity norms and the original1e-10 bound.
 C1 is an additional explicitly requested backend, not an extra original slot.
 Slots3–6 below preserve the two separate coupled source objects and explicit
-init only on the first object. Slots7–10 remain unresolved periodic residual
-and trigtech predicates. Native ultraS rejects finite-interval nonlocal
+init only on the first object. Slots7–10 retain periodic residual
+and trigtech predicates with distinct values/coefficient backends. Native ultraS rejects finite-interval nonlocal
 equations; periodic coeffs means trigspec instead.
 """
 import jax.numpy as jnp
@@ -62,3 +62,21 @@ def test_literal_coupled_solve(problem, backend):
     exact = [x+1, x-.5 if problem == 1 else
              chebfun(lambda t: .15*(jnp.exp(1-2*t)-1))]
     assert max((a-b).norm(jnp.inf) for a, b in zip(u, exact)) < 1e-10
+
+
+@pytest.mark.parametrize('backend', [None, 'coeffs'],
+                         ids=['source_clauses_07_08', 'source_clauses_09_10'])
+def test_literal_periodic_promotion(backend):
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.tech.trigtech import Trigtech
+
+    N = Chebop(lambda u: u.diff(2)+u.sum())
+    N.bc = 'periodic'
+    rhs = chebfun(lambda x: jnp.cos(jnp.pi*x))
+    u = N.solve(rhs, discretization=backend)
+    assert (N(u)-rhs).norm(jnp.inf) < 1e-10
+    assert type(u.funs[0].tech) is Trigtech
+    # Independent analytic and mean controls, not source substitutes.
+    exact = chebfun(lambda x: -jnp.cos(jnp.pi*x)/jnp.pi**2, trig=True)
+    assert (u-exact).norm(jnp.inf) < 1e-10
+    assert abs(u.sum()) < 1e-10
