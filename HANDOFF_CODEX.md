@@ -1,5 +1,33 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Coupled native IVP route and restored Lorenz predicate (2026-10-09)
+
+Structurally recognized real first-order coupled initial-value problems now
+use one vector ode113 solve through the public Chebop interface. The route
+preserves reordered initial conditions, forward/backward spans, forcing
+breakpoints and native solver preferences. Once selected, native solver errors
+propagate. Unsupported default grammar retains the existing route; explicit
+unsupported ode113 requests raise.
+
+Four bounded CPU gates passed 17 unique cases: 14 structural/options/error
+controls, two analytic forward/backward solves with original 100eps bounds,
+and the native Lorenz endpoint predicate on [0,5] with its original 1e-14 bound.
+The canonical Lorenz test replaces the weakened [0,3]/LSODA/1e-6 adapter.
+Root independently checked runtime evidence, receipts, payload hashes and
+AST identity when moving the qualified Lorenz predicate into its canonical file.
+The duplicate focused Lorenz case was removed without numerical replay.
+
+This uses the ported R2025b ode113 provider with the pinned Chebfun wrappers;
+it is not fresh MATLAB execution or complete treeVar/options parity. Mixed or
+higher derivatives, complex systems, events and broader forcing/solver forms
+remain unsupported or on the legacy route. Actual cell-style Brusselator tests,
+full Consensus rendering, the full suite and CI remain open.
+
+Evidence: coupled_native_ivp_source_20261009/DELIVERY_v2.json,
+coupled_ivp_root_delivery_review_20261009.json and the A/B/Lorenz root runtime
+and results reviews in shared scratch.
+
+
 ## Public separable extrema source path (2026-10-09)
 
 Real Chebfun2 extrema now use the pinned empty/zero checks, fixed4000 factor

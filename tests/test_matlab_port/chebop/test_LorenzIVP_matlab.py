@@ -1,47 +1,40 @@
-"""Port of MATLAB Chebfun tests/chebop/test_LorenzIVP.m (Fable 5).
+"""Literal native tests/chebop/test_LorenzIVP.m endpoint predicate.
 
-FIXED: first-order explicit IVP systems time-march (MATLAB routes
-these to ode113; chebfunjax uses LSODA with the RHS recovered by
-evaluating the op on constant chebfuns and initial values solved
-from the affine boundary residuals).
-
-Provenance
-----------
-MATLAB source : tests/chebop/test_LorenzIVP.m
-Chebfun commit: 7574c77
+Chebfun source pin7574c77680d7e82b79626300bf255498271a72df.
+The independent operator/direct routes share the accepted R2025b Adams
+provider; this is not a fresh MATLAB R2017 runtime comparison.
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
-from scipy.integrate import solve_ivp
+import pytest
 
 from chebfunjax.operators.chebop import Chebop
+from chebfunjax.utils.native_ode113 import native_ode113
 
-DOM = (0.0, 3.0)
+EPS = 2.220446049250313e-16
 
 
-class TestChebopLorenzIVP:
-    def test_lorenz_vs_reference_integrator(self):
-        N = Chebop(
-            lambda t, u, v, w: [u.diff() - 10 * (v - u),
-                                v.diff() - u * (28 - w) + v,
-                                w.diff() - u * v + (8 / 3) * w],
-            DOM)
-        N.lbc = lambda u, v, w: [w - 20, v + 15, u + 14]
-        sol = N.solve([0, 0, 0])
-        u, v, w = sol[0], sol[1], sol[2]
+@pytest.fixture(autouse=True)
+def factory_preferences(monkeypatch):
+    from chebfunjax.chebpref import ChebfunPref, ChebopPref
+    # monkeypatch restores each exact prior object even after test failure.
+    monkeypatch.setattr(ChebfunPref, '_defaults', None)
+    monkeypatch.setattr(ChebopPref, '_defaults', None)
+    pref = ChebopPref()
+    assert pref.ivpSolver == 'ode113'
+    assert pref.ivpAbsTol == 1e5*EPS and pref.ivpRelTol == 100*EPS
+    yield
 
-        def ode(t, y):
-            return [10 * (y[1] - y[0]),
-                    y[0] * (28 - y[2]) - y[1],
-                    y[0] * y[1] - (8 / 3) * y[2]]
 
-        ref = solve_ivp(ode, DOM, [-14, -15, 20], method="LSODA",
-                        rtol=1e-12, atol=1e-13, dense_output=True)
-        end = ref.sol(DOM[1])
-        mine = np.array([float(u(jnp.asarray(DOM[1]))),
-                         float(v(jnp.asarray(DOM[1]))),
-                         float(w(jnp.asarray(DOM[1])))])
-        assert np.linalg.norm(mine - end) < 1e-6
+def test_native_lorenz_original_predicate():
+    n = Chebop(lambda t, u, v, w: [u.diff()-10*(v-u),
+                                  v.diff()-u*(28-w)+v,
+                                  w.diff()-u*v+(8/3)*w], domain=(0, 5))
+    n.lbc = lambda u, v, w: [w-20, v+15, u+14]
+    solved = n.solve([0, 0, 0])
+    def rhs(t, y):
+        return jnp.asarray([10*(y[1]-y[0]), y[0]*(28-y[2])-y[1],
+                            y[0]*y[1]-(8/3)*y[2]])
+    reference = native_ode113(rhs, [0, 5], [-14, -15, 20],
+                             {'AbsTol': 1e5*EPS, 'RelTol': 100*EPS})
+    error = jnp.stack([u(5.) for u in solved])-reference['sol'](jnp.asarray([5.]))[:, 0]
+    assert float(jnp.linalg.norm(error)) < 1e-14

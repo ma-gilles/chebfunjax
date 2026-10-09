@@ -1384,6 +1384,13 @@ class Chebop:
                 and self._n_params() == 0
                 and (self._lbc_raw is None) != (self._rbc_raw is None)
             ):
+                # Structural native plan is selected before any legacy try/
+                # fallback. Native integration errors must escape unchanged.
+                if n is None:
+                    from chebfunjax.operators import _coupled_ivp
+                    native_plan = _coupled_ivp.prepare(self, f, selected=ivp_solver)
+                    if native_plan is not None:
+                        return _coupled_ivp.solve(self, native_plan)
                 try:
                     _sol = self._solve_ivp_system(f)
                     if self._n_vars() == 1:
