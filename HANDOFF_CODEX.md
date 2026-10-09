@@ -1,5 +1,30 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## TrapezoidEigs source computation restored (2026-10-09)
+
+The full example now uses public JAX Bessel/SVD boundary matrices, source
+n=4..7 and domain[3,7], adaptive splitting, and public local minima with the
+literal x>3 filter. Private numerical surrogates/prominence selection are gone.
+A complete standalone CPU run on11682da2 passed all12 displayed labels and
+all5 reference-sized600x270 figures with72.009dpi metadata. It finished with
+stable inputs, no survivors, and peak sampled RSS5.10GiB; root independently
+rehashed2978 observed runtime files. Actual stdout is empty. Construction
+titles report actual instrumented timings (observer I/O included), not native
+MATLAB timing or an isolated benchmark.
+
+The generated page preserves all5 cached MATLAB cells and source prose.
+Delivered code differs from the executed script only by import ordering and
+an explicit source-default black polygon edge, redrawn from the saved figure;
+root AST and output-hash checks establish applicability. Numerical labels agree
+to the historical five displayed decimals, not an unrounded MATLAB capture.
+Native plot sampling counts are matched; automatic axes/ticks, fonts, title
+weight, grid styling and exact pixels remain open. This is a verified source
+computation replacement, not a claim of complete page visual parity.
+
+Evidence in shared goal scratch:trapezoid_page_source_20261008/delivery_v2,
+trapezoid_standalone_root_review_20261009.json and
+trapezoid_root_integration_20261009.json. Full suite, publication and CI remain open.
+
 
 ## Native roots subdivision regimes and measured CPU tradeoff (2026-10-09)
 
