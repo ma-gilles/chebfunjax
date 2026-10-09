@@ -3116,7 +3116,7 @@ class Chebtech2(eqx.Module):
             return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech2.empty()
-        if isinstance(other, Chebtech2):
+        if isinstance(other, (Chebtech1, Chebtech2)):
             # Prolong to the same length (zero-pad shorter one)
             nf = self.n
             ng = other.n
@@ -4822,7 +4822,7 @@ class Chebtech1(eqx.Module):
             return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech1.empty()
-        if isinstance(other, Chebtech1):
+        if isinstance(other, (Chebtech1, Chebtech2)):
             n = max(self.n, other.n)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)

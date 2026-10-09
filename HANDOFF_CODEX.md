@@ -4,6 +4,24 @@
 
 
 
+
+## Mixed Chebyshev technology arithmetic (2026-10-08)
+
+Chebtech1 and Chebtech2 addition now accept either polynomial technology,
+matching their common native chebtech coefficient representation. The change
+is exactly two type predicates; addition formulas, left output class, happiness,
+stored point values and each original technology's transform of prolonged
+coefficients are unchanged. Subtraction uses the existing addition path.
+This fixes the type error when genuine Chebcolloc1 corrections meet a
+Chebtech2 initial iterate or analytic reference; no solver-local resampling.
+
+Seven independent controls pass, including both operand orders, subtraction,
+unequal lengths and cancellation using different grid scales. Root verified
+exact scope, payload identity,1766 observed runtime hashes and terminal stable
+receipt/no survivors (4.90s pytest,757748KiB peak). Full suite and exact native
+last-bit identity remain unclaimed. Evidence:mixed_chebtech_root_acceptance_20261008.json
+and scalar_nonlinear_altdisc_source_20261008/MIXED_HANDOFF_v1.json in shared scratch.
+
 ## Inverse Regula Falsi and Illinois source behavior (2026-10-08)
 
 The JAX false-position loop now follows source absolute-eps collective
