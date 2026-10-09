@@ -10298,7 +10298,7 @@ def _chebfun_build(
     exps: tuple[float, float] | None = None,
     blowup: "bool | int | None" = None,
     singType: "list | tuple | None" = None,
-    turbo: bool = False,
+    turbo: bool | None = None,
     equi: bool = False,
     coeffs: bool = False,
     min_samples: int | None = None,
@@ -10308,7 +10308,7 @@ def _chebfun_build(
     doubleLength: bool = False,
     vectorize: bool = False,
     tech=None,
-    extrapolate: bool = False,
+    extrapolate: bool | None = None,
     split_max_length: int | None = None,
     resampling: bool = False,
     sample_test: bool | None = None,
@@ -10405,6 +10405,14 @@ def _chebfun_build(
     # chebfun(@sin, 0)): no data / a zero-length domain -> the empty object.
     import numpy as _np
 
+    # Preserve omission for the native numeric-zero preference boundary.
+    # Every existing nonnumeric branch still sees its prior False defaults.
+    _numeric_turbo, _numeric_extrapolate = turbo, extrapolate
+    if turbo is None:
+        turbo = False
+    if extrapolate is None:
+        extrapolate = False
+
     # Session defaults (MATLAB chebfunpref / the splitting() and blowup()
     # toggles) apply when the flags are not given explicitly.
     if splitting is None or blowup is None:
@@ -10500,7 +10508,7 @@ def _chebfun_build(
     # callable constant or bypass these rules through the early C1 route.
     if (f is not None and not callable(f) and not coeffs and not equi
             and exps is None and not blowup and singType is None
-            and not doubleLength and trunc is None and not _adaptive_override):
+            and not doubleLength and trunc is None):
         try:
             _numeric_values = jnp.asarray(f)
         except (TypeError, ValueError):
@@ -10511,7 +10519,13 @@ def _chebfun_build(
                 _numeric_values, domain, tech=("trigtech" if trig else
                     ("chebtech1" if chebkind == 1 else
                      "chebtech2" if chebkind == 2 else _CP().tech)),
-                n=n, pref=_CP(), explicit_trig=trig)
+                n=n, pref=_CP(), explicit_trig=trig,
+                zero_overrides={
+                    "tol": eps, "max_length": max_length,
+                    "min_samples": min_samples, "turbo": _numeric_turbo,
+                    "extrapolate": _numeric_extrapolate,
+                    "sample_test": sample_test,
+                    "refinement_function": refinement_function})
     if doubleLength:
         if splitting:
             raise ValueError(

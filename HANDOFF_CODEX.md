@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Numeric zero operator preference forwarding (2026-10-09)
+
+Unbounded numeric zero construction now forwards C1/C2 technology preferences
+through its native zero-valued operator boundary. Explicit keyword values win
+over session values, including explicit False; omitted turbo/extrapolate retain
+existing defaults on ordinary callable routes. Polynomial numeric input with
+explicit adaptive preferences keeps the native direct-value transform. No
+finite transform arithmetic or other constructor branch bodies changed.
+
+All34 focused/regression controls pass in39.34s, peak1.39GiB; terminal0,
+stable inputs/no survivors and root2943 observed-file hashes clean. Controls
+include actual refinement callbacks, fixedLength/useTurbo and real-double
+multi-column zeros. One prior test expecting numeric sample_test rejection was
+corrected from pinned @chebtech/populate.m65–84 (numeric data returns before
+adaptive refinement), without changing numerical bounds.
+
+Trigtech general preference support remains incomplete; this package retains
+its existing fixedLength behavior and explicit unsupported-override errors.
+It does not establish complete constructor or callable-preference parity.
+Evidence: numeric_zero_preferences_root_{runtime,integration}_review_20261009.json
+and numeric_zero_preferences_candidate_20261009/controls_v1.
+
+
 ## Full original degree80 Vandermonde/Arnoldi execution (2026-10-09)
 
 The example now uses actual public Chebfun powers, continuous least squares,

@@ -16,7 +16,7 @@ from chebfunjax.utils.quadrature import chebpts
 
 
 def source_numeric_chebfun(values, domain, *, tech, n, pref,
-                           explicit_trig):
+                           explicit_trig, zero_overrides=None):
     """Source numeric populate on each interval, including native failures."""
     from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
     from chebfunjax.fun.unbndfun import Unbndfun
@@ -33,6 +33,11 @@ def source_numeric_chebfun(values, domain, *, tech, n, pref,
     if key not in classes:
         raise ValueError(f'Unknown numeric construction Tech: {tech!r}')
     cls = classes[key]
+    if cls is Trigtech and any(
+            (zero_overrides or {}).get(name) is not None
+            for name in ("sample_test", "refinement_function")):
+        raise ValueError("sample_test/refinement_function overrides are not "
+                         "yet supported for numeric Trigtech construction")
     if explicit_trig and len(points) != 2:
         raise ValueError('CHEBFUN:parseInputs:periodic: periodic construction '
                          'does not support domains with breakpoints.')
@@ -58,7 +63,27 @@ def source_numeric_chebfun(values, domain, *, tech, n, pref,
             def zero(x):
                 shape = (x.shape[0],) + values.shape[1:]
                 return jnp.zeros(shape, dtype=jnp.float64)
-            constructed = cls.from_function(zero, n=length)
+            options = {}
+            if cls is not Trigtech:
+                # smoothfun forwards resolved techPrefs to the selected Tech.
+                # Explicit keyword values win, including explicit False.
+                options = {
+                    "tol": pref.techPrefs.chebfuneps,
+                    "check": pref.techPrefs.happinessCheck,
+                    "max_length": pref.techPrefs.maxLength,
+                    "min_samples": pref.techPrefs.minSamples,
+                    "sample_test": pref.techPrefs.sampleTest,
+                    "refinement_function": pref.techPrefs.refinementFunction,
+                    "turbo": pref.techPrefs.get("useTurbo", False),
+                }
+                if cls is Chebtech2:
+                    options["extrapolate"] = pref.techPrefs.extrapolate
+                for key, value in (zero_overrides or {}).items():
+                    if value is not None and key in options:
+                        options[key] = value
+            # Trigtech's existing n/maxpow2 API cannot express these prefs.
+            # Retain its qualified numeric/fixedLength behavior separately.
+            constructed = cls.from_function(zero, n=length, **options)
             pieces.append(Unbndfun.from_chebtech(constructed, interval))
             continue
         sampled = values

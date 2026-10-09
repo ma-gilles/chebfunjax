@@ -139,5 +139,7 @@ def test_inherited_numeric_singular_route(kwargs):
 
 
 def test_inherited_numeric_adaptive_override_route():
-    with pytest.raises(ValueError, match='do not apply'):
-        chebfun(jnp.array([1., 2.]), sample_test=False)
+    # Native populate65–84 ignores adaptive prefs for numeric values.
+    values = jnp.array([1., 2.])
+    f = chebfun(values, sample_test=False)
+    assert bool(jnp.all(f.funs[0].tech.coeffs == Chebtech2.from_values(values).coeffs))
