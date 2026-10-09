@@ -26,7 +26,7 @@ original bounds; a well-conditioned case additionally checks the analytic
 harmonic. No tolerance widening or tiny-coefficient deletion was used.
 
 Limits: no fresh MATLAB execution, release-specific linspace bit identity,
-large-grid scaling, AtmosphericBlocking replay or performance claim. General
+large-grid scaling, AtmosphericTemperature replay or performance claim. General
 latitude sizes below3 and native singular-system warning/exception identity
 remain unqualified. Existing native real projection in coeffs2spherefun is
 preserved. These scoped source predicates do not establish all sphere parity.
