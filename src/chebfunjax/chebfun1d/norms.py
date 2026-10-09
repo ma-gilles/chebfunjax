@@ -47,10 +47,12 @@ def continuous_norm(f, p=None, *, return_location=False):
     if quasi:
         from .mtimes import _columns
         columns = _columns(f)
+        count = len(columns)
     else:
         oriented = f.T if f.is_transposed else f
-        columns = [oriented] if oriented.n_columns == 1 else oriented.mat2cell()
-    count = len(columns)
+        count = oriented.n_columns
+        columns = ([oriented] if count == 1 else
+                   oriented.mat2cell() if p in (1, 2, 'fro') else [])
     loc = None
     if count == 1:
         column = columns[0]
@@ -90,6 +92,16 @@ def continuous_norm(f, p=None, *, return_location=False):
         gram = jnp.stack([jnp.stack([a.inner(b) for b in columns]) for a in columns])
         value = (jnp.sqrt(jnp.maximum(jnp.linalg.eigvalsh(gram)[-1], 0)) if p == 2
                  else jnp.sqrt(jnp.abs(jnp.trace(gram))))
+    elif not quasi:
+        # MATLAB keeps a true array through abs/power and sums its FUN
+        # columns once. Scalarizing changes root partitions and chopping.
+        row = oriented.abs()
+        if p not in (jnp.inf, -jnp.inf):
+            row = row**p
+        row = row.sum(dim=2)
+        loc, value = row.min() if p == -jnp.inf else row.max()
+        if p not in (jnp.inf, -jnp.inf):
+            value = value**(1/p)
     else:
         row = columns[0].abs()
         if p not in (jnp.inf, -jnp.inf):

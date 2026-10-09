@@ -3200,15 +3200,25 @@ class Chebfun(eqx.Module):
             if exp_array.size == 0:
                 return type(self).empty()
             if exp_array.size == 1:
-                return Chebfun._as_transposed(self ** exp_array[0], self.is_transposed)
+                return self ** exp_array[0]
             elif self.n_columns == 1:
                 # MATLAB @chebfun/power.m then quasi2cheb: build each scalar
                 # power separately, and align/concatenate through assignColumns.
-                powered = [Chebfun._as_transposed(self ** exp_array[k], self.is_transposed)
-                           for k in range(exp_array.size)]
+                powered = [None] * exp_array.size
+                for k in range(exp_array.size - 1, -1, -1):
+                    powered[k] = self ** exp_array[k]
                 from chebfunjax.tech.chebtech import Chebtech1
                 from chebfunjax.tech.trigtech import Trigtech
 
+                # quasi2cheb calls cat using the first result's orientation.
+                # Native zero powers are fresh columns, even for a row base;
+                # mixing those with nonzero row powers fails concatenation.
+                if any(column.is_transposed != powered[0].is_transposed
+                       for column in powered[1:]):
+                    operation = "vertcat" if powered[0].is_transposed else "horzcat"
+                    raise ValueError(
+                        f"CHEBFUN:CHEBFUN:{operation}:transpose: "
+                        "Dimensions of matrices being concatenated are not consistent.")
                 # @chebfun/cat cannot collate singular funs into one array.
                 if not all(isinstance(p.tech, (Chebtech1, Chebtech2, Trigtech))
                            for column in powered for p in column.funs):
@@ -3227,10 +3237,11 @@ class Chebfun(eqx.Module):
                 from chebfunjax.chebfun1d.linalg import Quasimatrix
 
                 columns = self.mat2cell()
+                powered = [None] * self.n_columns
+                for k in range(self.n_columns - 1, -1, -1):
+                    powered[k] = columns[k] ** exp_array[k]
                 return Quasimatrix(
-                    [columns[k] ** exp_array[k]
-                     for k in range(self.n_columns)],
-                    Domain((self.domain.a, self.domain.b)),
+                    powered, Domain((self.domain.a, self.domain.b)),
                 )
         if isinstance(exponent, Chebfun):
             if self.isempty() or exponent.isempty():
@@ -3260,6 +3271,26 @@ class Chebfun(eqx.Module):
         # path (MATLAB @chebfun/power.m columnPower general case) so e.g.
         # (1+x)**0.3 yields a compact Singfun with exps [0.3, 0] instead
         # of an unhappy 65537-point smooth representation.
+        # Source equality branches also accept complex numeric scalars
+        # with zero imaginary part. This concrete scalar conversion does
+        # not change the later general-power dispatch.
+        try:
+            scalar_value = complex(exponent)
+        except (TypeError, ValueError):
+            scalar_value = None
+        # Source columnPower dispatches by scalar value, including numeric
+        # array scalars. Zero constructs a constant on the support domain;
+        # one preserves the object and its metadata; two calls TIMES.
+        if scalar_value == 0:
+            values = (jnp.asarray(1.) if self.n_columns == 1
+                      else jnp.ones((1, self.n_columns)))
+            # Native constructor orientation is column; power does not
+            # restore a row base's orientation in this branch.
+            return chebfun(values, domain=(self.domain.a, self.domain.b))
+        if scalar_value == 1:
+            return self
+        if scalar_value == 2:
+            return self * self
         try:
             exp_f = float(exponent)
         except (TypeError, ValueError):
@@ -3277,11 +3308,6 @@ class Chebfun(eqx.Module):
                 op = lambda values: values ** integer_power  # noqa: E731
                 result = self._apply_fun(op).set_point_values(op(self._breakpoint_values()))
                 return Chebfun._as_transposed(result, self.is_transposed)
-        from chebfunjax.tech.trigtech import Trigtech
-        if exp_f == 2 and all(isinstance(piece.tech, Trigtech) for piece in self.funs):
-            # @chebfun/power columnPower squares via TIMES; direct tech
-            # power uses COMPOSE even for an integer exponent.
-            return self * self
         new_funs = [
             piece._apply_unary(piece.tech ** exponent)
             for piece in self.funs
@@ -3878,6 +3904,9 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.sign, Chebfun.__abs__
         """
+        from ._array_abs import bounded_real_array, source_array_abs
+        if bounded_real_array(self):
+            return source_array_abs(self)
         return self._propagate_point_values(self._abs_core(), jnp.abs)
 
     def _abs_core(self) -> Chebfun:
@@ -5398,6 +5427,23 @@ class Chebfun(eqx.Module):
             and The Chebfun Developers.
         """
         base = 2.220446049250313e-16 if tol is None else float(tol)
+        # Native default simplify scales each array column independently
+        # across pieces; a common scale requires the separate globaltol flag.
+        from chebfunjax.tech.chebtech import Chebtech1
+        if self.n_columns > 1 and all(
+                isinstance(piece.tech, (Chebtech1, Chebtech2))
+                for piece in self.funs):
+            if tol is None:
+                from chebfunjax.chebpref import ChebfunPref
+                base = float(ChebfunPref().techPrefs.chebfuneps)
+            local = jnp.stack([piece.tech.vscale_columns for piece in self.funs])
+            global_scale = jnp.max(local, axis=0)
+            new_funs = [piece.with_tech(piece.tech.simplify(base * global_scale / scale))
+                        for piece, scale in zip(self.funs, local)]
+            out = Chebfun._as_transposed(
+                Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+            out = out.set_point_values(self.point_values)
+            return self._attach_deltas(out, getattr(self, "deltas", ()))
         vloc = [max(float(p.vscale), 0.0) for p in self.funs]
         vglob = max(vloc) if vloc else 0.0
         new_funs = []
@@ -7559,7 +7605,14 @@ class Chebfun(eqx.Module):
             # Column deletion keeps the existing per-tech path.
             new_funs = [piece.with_tech(piece.tech.assign_columns(cols, None))
                         for piece in self.funs]
-            return Chebfun(funs=new_funs, domain=self.domain)
+            out = Chebfun(funs=new_funs, domain=self.domain)
+            values = self._breakpoint_values().reshape((-1, n_cols))
+            keep = [k for k in range(n_cols) if k not in idx]
+            values = values[:, jnp.asarray(keep, dtype=jnp.int32)]
+            if len(keep) == 1:
+                values = values[:, 0]
+            out = out.set_point_values(values)
+            return Chebfun._as_transposed(out, self.is_transposed)
 
         if not isinstance(g, Chebfun):
             # Numeric operand: an array-valued constant on f's domain.
@@ -7598,6 +7651,10 @@ class Chebfun(eqx.Module):
                 "assign_columns: inconsistent domains; "
                 "domain(f) != domain(g).")
 
+        # Source's full ordered assignment returns g, including its breaks
+        # and stored pointValues, before overlap or coefficient arithmetic.
+        if idx == list(range(n_cols)):
+            return g
         base = self
         target = max(idx) + 1
         if target > n_cols:
@@ -7609,14 +7666,26 @@ class Chebfun(eqx.Module):
                 pad = jnp.zeros((c.shape[0], target - n_cols), dtype=c.dtype)
                 grown.append(piece.with_tech(self._tech_with_coeffs(
                     t, jnp.concatenate([c, pad], axis=1))))
-            base = Chebfun(funs=grown, domain=base.domain)
+            values = base._breakpoint_values().reshape((-1, n_cols))
+            values = jnp.concatenate(
+                [values, jnp.zeros((values.shape[0], target - n_cols),
+                                   dtype=values.dtype)], axis=1)
+            base = Chebfun(funs=grown, domain=base.domain).set_point_values(values)
             base = Chebfun._as_transposed(base, self.is_transposed)
 
         f2, g2 = Chebfun._overlap(base, g)
         new_funs = [piece.with_tech(
             piece.tech.assign_columns(idx, g2.funs[k].tech))
             for k, piece in enumerate(f2.funs)]
-        out = Chebfun(funs=new_funs, domain=f2.domain)
+        values = f2._breakpoint_values().reshape((-1, f2.n_columns))
+        replacements = g2._breakpoint_values().reshape((-1, g2.n_columns))
+        values = values.astype(jnp.result_type(values, replacements))
+        # Repeated destinations have MATLAB's last-column-wins semantics.
+        for source, destination in enumerate(idx):
+            values = values.at[:, destination].set(replacements[:, source])
+        if f2.n_columns == 1:
+            values = values[:, 0]
+        out = Chebfun(funs=new_funs, domain=f2.domain).set_point_values(values)
         return Chebfun._as_transposed(out, self.is_transposed)
 
     def mat2cell(self, sizes=None, n=None) -> list:

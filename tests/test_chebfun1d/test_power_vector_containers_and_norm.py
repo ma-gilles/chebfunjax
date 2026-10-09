@@ -115,10 +115,16 @@ def test_empty_array_exponent_and_singleton_numeric_vector():
 
 
 @pytest.mark.parametrize("row", [False, True])
-def test_scalar_vector_powers_keep_array_orientation(row):
+def test_scalar_vector_powers_follow_source_orientation(row):
     base = cj.chebfun(lambda x: x)
     if row:
         base = base.T
+    # power.m columnPower zero creates a column. quasi2cheb then calls
+    # horzcat because this is the first column; mixing row powers fails.
+    if row:
+        with pytest.raises(ValueError, match="CHEBFUN:CHEBFUN:horzcat:transpose"):
+            _ = base ** jnp.arange(4)
+        return
     result = base ** jnp.arange(4)
     points = jnp.asarray((-0.7, -0.1, 0.4, 0.8))
     expected = jnp.stack([points**k for k in range(4)], axis=-1)
