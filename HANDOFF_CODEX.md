@@ -1,5 +1,26 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full original degree80 Vandermonde/Arnoldi execution (2026-10-09)
+
+The example now uses actual public Chebfun powers, continuous least squares,
+all80 literal Arnoldi iterations and an independent80-step evaluation recurrence.
+All12 preamble outputs plus14 total scalars, both81-column arrays and81x80 H
+were captured from the original source order. Source body369.30s CPU-only,
+peak4.93GiB, terminal0/stable/no survivors; root rehashed2967 observed files.
+The fresh600x253 figure and all output fences come from that run. Published
+prose/MATLAB cells are preserved; previously scrambled output cells are repaired.
+
+This replaces the sampled surrogate but does NOT establish page parity.
+Ill-conditioned monomial max is1.0450 versus cached MATLAB1.5596; coefficient
+infinity norm1.0862e14 versus3.5308e14. Several condition numbers and the native
+near-singular warning also differ. The stable yA display matches cached text,
+but source computations/figure pixels still need numerical/reference review.
+Root viewed both images: same canvas size, different oscillations, axes/ticks
+and framing. No source coefficients or limits were fitted to the reference.
+Evidence: vandermonde_full80_root_{runtime,source}_review_20261009.json and
+vandermonde_full80_source_20261009/{full80_v2,payload_manifest_v2.json}.
+
+
 ## Source-derived opt-in figure layout (2026-10-09)
 
 The single-axes `matlab_axes_layout` helper and

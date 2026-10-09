@@ -1,130 +1,111 @@
-"""Vandermonde with Arnoldi.
+"""Vandermonde with Arnoldi: source translation, full degree80.
 
-Translation of linalg/VandermondeArnoldi.m by Nick Trefethen
-(July 2020, after Brubeck-Nakatsukasa-Trefethen, SIAM Review 2021):
-Vandermonde matrices and quasimatrices are exponentially
-ill-conditioned; orthogonalizing on the fly with Arnoldi fixes
-polynomial least-squares fitting without changing the mathematics.
-
+Pablo Brubeck, Yuji Nakatsukasa, and Nick Trefethen, January2020.
+Chebfun7574c77680d7e82b79626300bf255498271a72df;
+example f4b9ea46cfc2f52f20a844627f4a74d0bb10098c.
 Original: https://www.chebfun.org/examples/linalg/VandermondeArnoldi.html
-Copyright by The University of Oxford and The Chebfun Developers.
+Copyright The University of Oxford and The Chebfun Developers.
 """
-import matplotlib
-
-matplotlib.use("Agg")
 import os
 import sys
 
+import jax.numpy as jnp
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from chebfunjax.plotting import chebfun_style
+import chebfunjax as cj
+from chebfunjax.chebfun1d.chebfun import mldivide
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.utils.lebesgue import lebesgue_constant
 from chebfunjax.utils.quadrature import chebpts
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'linalg')
+_IMG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                    "docs", "images", "linalg")
 
 
-# Continuous L2 inner products on [-1,1] realized by 400-point
-# Gauss-Legendre quadrature — exact for polynomials up to degree 799,
-# so every quantity below is the true continuous one.
-_GX, _GW = np.polynomial.legendre.leggauss(400)
+def _scalar(value):
+    # MATLAB one-element numeric assignment versus JAX rank-zero storage.
+    value = jnp.asarray(value)
+    if value.size != 1:
+        raise ValueError("Expected a scalar numeric result")
+    return value.reshape(())
 
 
-def _qm_vals(n):
-    """Value matrix of the monomial quasimatrix x^(0:n-1) on the
-    Gauss grid, and the weight vector."""
-    return _GX[:, None] ** np.arange(n)
+def _ans(value, scientific=True, name="ans"):
+    print(f"{name} =")
+    print(f"   {float(_scalar(value)):.4e}" if scientific
+          else f"    {float(_scalar(value)):.4f}")
 
 
-def _cond_qm(n):
-    A = _qm_vals(n)
-    return np.linalg.cond(np.sqrt(_GW)[:, None] * A)
+def polyfit(x, f, n):
+    A = x ** jnp.arange(n+1)
+    return mldivide(A, f)
+
+
+def polyval(c, s):
+    n = len(c)-1
+    B = s ** jnp.arange(n+1)
+    return B @ c
+
+
+def polyfitA(x, f, n):
+    Q = 1 + 0*x
+    H = jnp.zeros((n+1, n))
+    for k in range(n):
+        q = x * Q.extract_columns(k)
+        for j in range(k+1):
+            H = H.at[j, k].set(_scalar(Q.extract_columns(j).H @ q))
+            q = q - H[j, k] * Q.extract_columns(j)
+        H = H.at[k+1, k].set(_scalar(q.norm()))
+        Q = cj.Chebfun.horzcat([Q, q/H[k+1, k]])
+    return mldivide(Q, f), H
+
+
+def polyvalA(d, H, s):
+    W = 1 + 0*s
+    for k in range(H.shape[1]):
+        w = s * W.extract_columns(k)
+        for j in range(k+1):
+            w = w - H[j, k] * W.extract_columns(j)
+        W = cj.Chebfun.horzcat([W, w/H[k+1, k]])
+    return W @ d
 
 
 def run():
+    chebfun_style()
     os.makedirs(_IMG, exist_ok=True)
-
-    for m in (17, 33):
-        pts = np.asarray(chebpts(m))
-        V = np.vander(pts, increasing=False)
-        print("ans =")
-        print(f"   {np.linalg.cond(V):.4e}")
-    for m in (17, 33):
-        pts = np.asarray(chebpts(m))
-        A = pts[:, None] ** np.arange(m)
-        print("ans =")
-        print(f"   {np.linalg.cond(A):.4e}")
-
-    for m in (17, 33):
-        L = lebesgue_constant(np.asarray(chebpts(m)))
-        print(f"L{m-1} =")
-        print(f"    {float(L):.4f}")
-
-    for m in (17, 33):
-        print("ans =")
-        print(f"   {_cond_qm(m):.4e}")
-    for m in (17, 33):
-        pts = np.linspace(-1, 1, m)
-        print("ans =")
-        print(f"   {np.linalg.cond(np.vander(pts)):.4e}")
-
-    # ill-conditioned monomial least-squares fit of |x|, degree 80
-    n = 80
-    fvals = np.abs(_GX)
-    A = _qm_vals(n + 1)
-    sw = np.sqrt(_GW)
-    Qd, Rd = np.linalg.qr(sw[:, None] * A)
-    c = np.linalg.solve(Rd, Qd.T @ (sw * fvals))
-    xs = np.linspace(-1, 1, 1201)
-    y = (xs[:, None] ** np.arange(n + 1)) @ c
-    print("max(y) =")
-    print(f"    {np.max(y):.4f}")
-    print("norm(c,inf) =")
-    print(f"   {np.max(np.abs(c)):.4e}")
-
-    # Arnoldi version: orthogonalize the powers on the fly in the
-    # same continuous inner product
-    W = np.ones((len(_GX), 1))
-    H = np.zeros((n + 1, n))
-    for k in range(n):
-        q = _GX * W[:, k]
-        for j in range(k + 1):
-            H[j, k] = np.sum(_GW * W[:, j] * q)
-            q = q - H[j, k] * W[:, j]
-        H[k + 1, k] = np.sqrt(np.sum(_GW * q * q))
-        W = np.column_stack([W, q / H[k + 1, k]])
-    # d = Q\\f: weighted least squares (the first Arnoldi
-    # column is the unnormalized constant, as in MATLAB)
-    sww = np.sqrt(_GW)
-    d, *_ = np.linalg.lstsq(sww[:, None] * W, sww * fvals,
-                            rcond=None)
-    # evaluate the Arnoldi basis at plotting points via the recurrence
-    Wx = np.ones((len(xs), 1))
-    for k in range(n):
-        w = xs * Wx[:, k]
-        for j in range(k + 1):
-            w = w - H[j, k] * Wx[:, j]
-        Wx = np.column_stack([Wx, w / H[k + 1, k]])
-    yA = Wx @ d
-    print("yA endpoint values:",
-          f"{yA[0]:.6f} {yA[-1]:.6f}")
-    print("max(yA) =")
-    print(f"    {np.max(yA):.4f}")
-
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    ax.plot(xs, y, lw=1.2, label="monomial fit y")
-    ax.plot(xs, yA, lw=1.2, label="Arnoldi fit yA")
-    ax.legend()
-    ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "VandermondeArnoldi_01.png"))
+    for count in (17, 33):
+        _ans(jnp.linalg.cond(jnp.vander(chebpts(count))))
+    for count in (17, 33):
+        _ans(jnp.linalg.cond(chebpts(count)[:, None] ** jnp.arange(count)))
+    for count in (17, 33):
+        _, constant = cj.lebesgue(chebpts(count), return_constant=True)
+        _ans(constant, scientific=False, name=f"L{count-1}")
+    x = cj.chebfun("x")
+    for count in (17, 33):
+        _ans(x.vander(count).cond())
+    for count in (17, 33):
+        _ans((x ** jnp.arange(count)).cond())
+    for count in (17, 33):
+        _ans(jnp.linalg.cond(jnp.vander(jnp.linspace(-1., 1., count))))
+    f = abs(x)
+    c = polyfit(x, f, 80)
+    y = polyval(c, x)
+    print("y =")
+    print(repr(y))
+    _ans(y.max()[1], scientific=False)
+    _ans(jnp.linalg.norm(c, ord=jnp.inf))
+    d, H = polyfitA(x, f, 80)
+    yA = polyvalA(d, H, x)
+    print("yA =")
+    print(repr(yA))
+    fig, ax = plt.subplots()
+    matlab_plot(cj.Chebfun.horzcat([y, yA]), ax=ax)
+    _savefig(fig, os.path.join(_IMG, "VandermondeArnoldi_01.png"), size=(600, 253))
     plt.close(fig)
 
 

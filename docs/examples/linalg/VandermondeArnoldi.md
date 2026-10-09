@@ -31,6 +31,8 @@ cond(vander(chebpts(33)))
 ```text
 ans =
    5.4282e+05
+ans =
+   6.8312e+11
 ```
 
 There isn't any real need to call the `vander` command. We could equally well have generated the numbers like this:
@@ -41,8 +43,6 @@ cond(chebpts(33).^(0:32))
 ```
 
 ```text
-ans =
-   6.8312e+11
 ans =
    5.4282e+05
 ans =
@@ -74,6 +74,8 @@ cond(vander(x,33))
 ```text
 ans =
    5.4803e+05
+ans =
+   6.2360e+11
 ```
 
 Again there was no need for the `vander` command:
@@ -84,6 +86,8 @@ cond(x.^(0:32))
 ```
 
 ```text
+ans =
+   5.4803e+05
 ans =
    6.2360e+11
 ```
@@ -98,6 +102,8 @@ cond(vander(linspace(-1,1,33)))
 ```text
 ans =
    9.9831e+06
+ans =
+   5.2719e+14
 ```
 
 If we try to do interpolation or least-squares fitting with these ill-conditioned matrices or quasimatrices, we quickly run into trouble at larger values of $n$. In MATLAB, the traditional codes for computing a polynomial and then evaluating it are `polyfit` and `polyval`, whose essences (with the columns ordered by increasing degrees) look like this:
@@ -125,6 +131,14 @@ c = polyfit(x,f,80);
 y = polyval(c,x)
 ```
 
+```text
+y =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       69         1        1
+vertical scale =   1
+```
+
 We'll plot the result in a moment. But here's a sign that it's not good: the maximum is much bigger than $1$:
 
 ```matlab
@@ -133,14 +147,7 @@ max(y)
 
 ```text
 ans =
-   5.2609e+14
-max(y) =
-    1.0032
-norm(c,inf) =
-   1.0447e+13
-yA endpoint values: 0.998935 0.998935
-max(yA) =
-    0.9989
+    1.0450
 ```
 
 The reason is that the coefficients $c$ are huge because the basis is so ill-conditioned, and cancellation has destroyed the accuracy:
@@ -150,7 +157,8 @@ norm(c,inf)
 ```
 
 ```text
-
+ans =
+   1.0862e+14
 ```
 
 ## 3. Vandermonde with Arnoldi
@@ -207,7 +215,11 @@ plot([y yA])
 ```
 
 ```text
-
+yA =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       81         1        1
+vertical scale =   1
 ```
 
 ![VandermondeArnoldi figure 01](../../images/linalg/VandermondeArnoldi_01.png)
