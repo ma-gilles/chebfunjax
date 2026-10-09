@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Source-derived opt-in figure layout (2026-10-09)
+
+The single-axes `matlab_axes_layout` helper and
+`save_chebfun_figure(..., layout="matlab")` now measure annotations at final
+canvas size/DPI and apply normalized outer-position/loose-inset constraints.
+No camera, function data, font size or output dimensions are fitted to reference
+pixels. Multiple axes/colorbars, legends and active layout engines are rejected.
+Nine controls pass, including actual saved label/title bounds and unchanged
+sphere geometry/camera. Root independently rehashed2952 observed runtime files;
+terminal0, stable inputs and no survivors. The first run's -7.1e-15 pixel
+boundary failure is preserved; final checks use a symmetric binary64 roundoff
+bound. Existing save behavior remains the default, and no page is yet opted in.
+
+This is a layout policy adapter, not verified historical typography or a
+complete MATLAB graphics engine. Surface interpolation is separately in progress;
+combined renderer/layout checks and a fresh Atmospheric replay remain required.
+Evidence: sphere_layout_root_runtime_review_20261009.json and
+sphere_source_layout_policy_20261009/controls_v2 in shared goal scratch.
+
+
 ## Atmospheric full source execution and numeric construction (2026-10-09)
 
 AtmosphericTemperature now executes the original dataset through public

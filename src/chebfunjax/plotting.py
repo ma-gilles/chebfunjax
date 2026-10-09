@@ -40,6 +40,7 @@ from matplotlib.colors import LightSource, Normalize
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
 
+from chebfunjax._matlab_layout import matlab_axes_layout
 from chebfunjax.utils.quadrature import chebpts, trigpts
 
 # ---------------------------------------------------------------------------
@@ -89,7 +90,7 @@ def chebfun_style():
     mpl.rcParams.update(CHEBFUN_RC)
 
 
-def save_chebfun_figure(fig, path, size=(600, 270), dpi=100.0):
+def save_chebfun_figure(fig, path, size=(600, 270), dpi=100.0, *, layout=None):
     """Save *fig* at an exact pixel size matching chebfun.org renders.
 
     The figures published on chebfun.org use fixed canvas sizes
@@ -108,14 +109,31 @@ def save_chebfun_figure(fig, path, size=(600, 270), dpi=100.0):
         example figure size; pass ``(610, 258)`` for Guide figures.
     dpi : float
         Export DPI; defaults to 100.0 to preserve existing callers.
+    layout : None or "matlab"
+        Opt in to source-derived single-axes outer-position/inset layout at
+        final output size. Colorbars/multiple axes and historical typography
+        are outside this adapter's scope. The default path is unchanged.
     """
+    if layout not in (None, "matlab"):
+        raise ValueError("layout must be None or 'matlab'")
     w, h = size
     # Small offset protects the requested integer canvas from binary rounding.
     fig.set_size_inches((w + 1e-6) / dpi, (h + 1e-6) / dpi)
     # rc 'savefig.bbox: tight' would rescale the canvas even when
     # bbox_inches is not passed — force it off for the exact-size export.
     with mpl.rc_context({"savefig.bbox": None}):
-        fig.savefig(path, dpi=dpi, facecolor="white")
+        if layout is None:
+            fig.savefig(path, dpi=dpi, facecolor="white")
+        else:
+            if len(fig.axes) != 1:
+                raise ValueError("matlab layout supports one axes without a colorbar")
+            original_dpi = fig.dpi
+            try:
+                fig.set_dpi(dpi)
+                matlab_axes_layout(fig.axes[0])
+                fig.savefig(path, dpi=dpi, facecolor="white")
+            finally:
+                fig.set_dpi(original_dpi)
 
 
 # ---------------------------------------------------------------------------
