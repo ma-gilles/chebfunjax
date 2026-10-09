@@ -4087,13 +4087,14 @@ def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
 
     Provenance
     ----------
-    MATLAB source : @chebtech/plotData.m, @bndfun/plotData.m,
+    MATLAB source : @chebtech/plotData.m, @trigtech/plotData.m, @bndfun/plotData.m,
         @mapping/mapping.m (linear ForHandle)
     Chebfun commit: 7574c77
     """
     from chebfunjax.fun.singfun import Singfun
     from chebfunjax.fun.unbndfun import Unbndfun
     from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+    from chebfunjax.tech.trigtech import Trigtech, trigpts
 
     out = []
     for p in f.funs:
@@ -4115,6 +4116,17 @@ def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
             nodes = chebpts(count, kind=kind)
             x = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
             y = p.tech.prolong(count).values
+            out.append((np.asarray(x), np.asarray(y)))
+            continue
+        if (_source_grid and interval is None and np.isfinite(a) and np.isfinite(b)
+                and not isinstance(p, Unbndfun)
+                and isinstance(p.tech, Trigtech) and p.tech.is_real):
+            # @trigtech/plotData.m uses an oversampled periodic grid, with
+            # no extra right endpoint for a real function of one variable.
+            count = min(max(501, int(4 * jnp.pi * p.tech.n + .5)), 65536)
+            nodes = trigpts(count)
+            x = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
+            y = p.tech.prolong(count).values.real
             out.append((np.asarray(x), np.asarray(y)))
             continue
         if interval is not None:
@@ -4167,10 +4179,11 @@ def _source_point_pieces(f):
     breakpoints: MATLAB plotData uses tech values and side limits, while
     stored ``pointValues`` are used by feval rather than this plot-data path.
     Provenance: Chebfun source commit 7574c77, ``@chebfun/plotData.m`` and
-    ``@chebtech/plotData.m``.
+    ``@chebtech/plotData.m``, and ``@trigtech/plotData.m``.
     """
     from chebfunjax.fun.singfun import Singfun
     from chebfunjax.tech.chebtech import Chebtech1
+    from chebfunjax.tech.trigtech import Trigtech, trigpts
 
     pieces = []
     for piece in f.funs:
@@ -4186,7 +4199,7 @@ def _source_point_pieces(f):
             continue
         kind = 1 if isinstance(tech, Chebtech1) else 2
         n = int(tech.coeffs.shape[0])
-        nodes = chebpts(n, kind=kind)
+        nodes = trigpts(n) if isinstance(tech, Trigtech) else chebpts(n, kind=kind)
         a, b = map(float, piece.interval)
         # Literal @mapping/mapping.m linear ForHandle arithmetic.
         x = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
@@ -4380,6 +4393,7 @@ def _function_lims(f, numpts=2001, interval=None):
     else:
         wlo, whi = a0, b0
     from chebfunjax.fun.singfun import Singfun
+    from chebfunjax.tech.trigtech import Trigtech
 
     for p in f.funs:
         a, b = float(p.interval[0]), float(p.interval[1])
@@ -4398,6 +4412,17 @@ def _function_lims(f, numpts=2001, interval=None):
                     ylim[1] = max(ylim[1], sy[1])
                 default_ylim = default_ylim and source_default
                 continue
+        if (interval is None and isinstance(p.tech, Trigtech) and p.tech.is_real
+                and np.isfinite(p.interval[0]) and np.isfinite(p.interval[1])):
+            # @trigtech/plotData yLim is the range of the same prolonged
+            # values used for the curve, not an independently sampled grid.
+            count = min(max(501, int(4 * jnp.pi * p.tech.n + .5)), 65536)
+            values = p.tech.prolong(count).values.real
+            ylim[0] = min(ylim[0], float(jnp.min(values)))
+            ylim[1] = max(ylim[1], float(jnp.max(values)))
+            xlim[0] = min(xlim[0], a)
+            xlim[1] = max(xlim[1], b)
+            continue
         exps = getattr(p.tech, "exponents", None)
         pad = 1e-8 * max(1.0, abs(b - a))
         x = np.linspace(a + pad, b - pad, 1001)
@@ -4533,7 +4558,8 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
     ``numpts`` / ``interval`` / ``jumpline`` / ``deltaline`` options
     (passed as Python keywords).
 
-    Ordinary bounded polynomial curves use the source degree-based
+    Real bounded periodic curves use the source FFT grid and representation
+    nodes for markers. Ordinary bounded polynomial curves use the source degree-based
     Chebyshev plotting grid; ``numpts`` is accepted and ignored there,
     matching MATLAB's deprecated option. Explicit windows, parametric
     plots and singular/unbounded sampling retain their existing adapters.
@@ -4602,11 +4628,13 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                         from chebfunjax.fun.singfun import Singfun
                         from chebfunjax.fun.unbndfun import Unbndfun
                         from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+                        from chebfunjax.tech.trigtech import Trigtech
 
                         source_markers = _marker_requested(fmt, kw) and all(
                             isinstance(piece, _Piece)
                             and not isinstance(piece, Unbndfun)
                             and (isinstance(piece.tech, (Chebtech1, Chebtech2))
+                                 or (isinstance(piece.tech, Trigtech) and piece.tech.is_real)
                                  or (isinstance(piece.tech, Singfun)
                                      and _source_singfun_eligible(piece)))
                             and np.isfinite(piece.interval[0])
