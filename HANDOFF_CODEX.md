@@ -1,5 +1,31 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full native Brusselator cell-syntax test restored (2026-10-09)
+
+The canonical test now preserves all six pinned predicates, the full [0,5]
+interval, sequential operator reuse and boundary-condition updates. Continuous
+solution differences use the public ChebMatrix Frobenius norm, replacing the
+previous maximum-block surrogate. Cell syntax and multi-argument syntax both
+select the accepted native ode113 route.
+
+Six focused syntax/options/norm controls passed (27.14s), followed by one
+sequential canonical test containing six native predicates (48.96s). Original
+1e-14 endpoint bounds and four exact-zero difference comparisons are unchanged.
+Root independently checked JUnit, all six post-assertion markers, both test
+payloads, current production bytes and 2959/2960 observed runtime files. Peak
+canonical process-tree RSS was1576620KiB. The CUDA plugin compatibility warning
+is preserved; these were explicitly CPU-only runs.
+
+This qualifies the pinned Brusselator test with the ported R2025b ode113
+provider, not fresh MATLAB execution or general cell grammar/preference parity.
+Numeric-array forcing, callable solver preferences, higher-order/complex/events,
+full Consensus rendering, full-suite and CI remain open.
+
+Evidence: brusselator_root_results_review_20261009.json,
+brusselator_focused_root_runtime_review_20261009.json and
+brusselator_source_root_runtime_review_20261009.json in shared scratch.
+
+
 ## Coupled native IVP route and restored Lorenz predicate (2026-10-09)
 
 Structurally recognized real first-order coupled initial-value problems now
