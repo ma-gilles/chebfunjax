@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## GulfStream actual-output and figure refresh (2026-10-08)
+
+Source script rerun on CPU completed at83.09s supervised/3.23GiB peak,
+stable inputs and no survivors. The earlier3GiB capped run is retained.
+All three figures now have the source600x253 canvas and use public source
+plot/plotcoeffs adapters; printed output is the actual completed computation.
+Root rehashed1660 observed Python/native-extension files, checked source/run
+AST identity after styling, preserved prose/MATLAB cells, and viewed all three
+reference/current pairs. Fonts, sampling grids and pixels are not fully equal.
+
+Scientific parity remains open:35 Newton updates versus reference5,57
+coefficients, integral error1.605131083604050e-9 versus cached8.482e-14,
+left derivative boundary residual1.458e-9. The differential residual is
+1.547e-12 (cached4.581e-10); comparisons are not uniformly worse. Actual
+history is retained. Source initial-guess, stopping-norm and adaptive-solve
+policy gaps are documented for the nonlinear solver worker; no tolerance
+or iteration-history tuning was performed. Evidence:gulf_stream_root_acceptance_20261008.json
+and gulf_stream_source_20261008/SOLVER_DIAGNOSIS.md in shared scratch.
+
 ## Restriction and Ballfun Helmholtz source qualification (2026-10-08)
 
 Chebfun restriction now preserves breakpoint vectors, existing point values,
