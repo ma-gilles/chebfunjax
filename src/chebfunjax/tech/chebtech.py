@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from functools import partial
+from functools import lru_cache, partial
 from typing import Callable
 
 import equinox as eqx
@@ -19,7 +19,12 @@ import numpy as np  # uses-numpy: concrete-input eval fast path
 
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
-from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
+from chebfunjax.utils.transforms import (
+    _vals2coeffs_jax,
+    coeffs2vals,
+    ndct,
+    vals2coeffs,
+)
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -1183,14 +1188,129 @@ def _prune_spurious_roots(r, rho):
     return r[rho_roots <= rho]
 
 
+@partial(jax.jit, static_argnames=("n",))
+def _roots_mapped_points(n, a, b):
+    """Native ``chebptsAB`` weighted affine operation order.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, chebptsAB
+    Chebfun commit: 7574c77
+    """
+    x = chebpts(n, kind=2)
+    return b * (x + 1) / 2 + a * (1 - x) / 2
+
+
+@jax.jit
+def _roots_build_transforms():
+    """Build the two source-fixed 513 by 513 triangular transforms.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, roots_main persistent TLeft/TRight
+    Chebfun commit: 7574c77
+    """
+    matrices = []
+    for a, b in ((-1., -0.004849834917525), (-0.004849834917525, 1.)):
+        x = _roots_mapped_points(513, a, b)
+        values = jnp.ones((513, 513), dtype=x.dtype).at[:, 1].set(x)
+
+        def step(k, values):
+            following = 2 * x * values[:, k - 1] - values[:, k - 2]
+            return values.at[:, k].set(following)
+
+        values = jax.lax.fori_loop(2, 513, step, values)
+        reflected = jnp.concatenate((values[512:0:-1, :], values[:512, :]), axis=0)
+        transformed = jnp.real(jnp.fft.fft(reflected, axis=0) / 512)
+        matrix = jnp.concatenate((.5 * transformed[:1], transformed[1:512],
+                                  .5 * transformed[512:513]), axis=0)
+        matrices.append(jnp.triu(matrix))
+    return tuple(matrices)
+
+
+@lru_cache(maxsize=None)
+def _roots_cached_transforms(device, x64_enabled):
+    """Cache only source constants, separately for device/precision context.
+
+    This eager factory returns concrete arrays; no coefficient-dependent
+    value or traced construction enters the cache.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, persistent TLeft/TRight
+    Chebfun commit: 7574c77
+    """
+    del x64_enabled  # Part of the cache key; JAX uses the active precision mode.
+    with jax.default_device(device):
+        matrices = _roots_build_transforms()
+    if any(isinstance(matrix, jax.core.Tracer) for matrix in matrices):
+        raise RuntimeError("roots subdivision constants require eager construction")
+    return matrices
+
+
+@jax.jit
+def _roots_apply_transforms(c, left, right):
+    """Apply the exact source n by n prefixes to dynamic coefficients.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, roots_main n <= 513 branch
+    Chebfun commit: 7574c77
+    """
+    n = c.shape[0]
+    return left[:n, :n] @ c, right[:n, :n] @ c
+
+
+@jax.jit
+def _roots_sampled_subdivision(c):
+    """Evaluate both source grids with Clenshaw/NDCT and transform each half.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, roots_main n > 513 branch
+    Chebfun commit: 7574c77
+    """
+    n = c.shape[0]
+    left = _roots_mapped_points(n, -1., -0.004849834917525)
+    right = _roots_mapped_points(n, -0.004849834917525, 1.)
+    points = jnp.concatenate((left, right))
+    values = _clenshaw(c, points) if n <= 4000 else ndct(points, c)
+    return _vals2coeffs_jax(values[:n]), _vals2coeffs_jax(values[n:])
+
+
+def _roots_subdivide(c):
+    """Source subdivision dispatch for a trimmed coefficient count above 50.
+
+    Host recursion calls this eager adapter; its numerical kernels use JAX.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/roots.m, roots_main subdivision branches
+    Chebfun commit: 7574c77
+    """
+    c = jnp.asarray(c)
+    if isinstance(c, jax.core.Tracer):
+        raise ValueError("roots subdivision dispatch requires eager coefficients")
+    if c.shape[0] <= 513:
+        left, right = _roots_cached_transforms(c.device, jax.config.x64_enabled)
+        return _roots_apply_transforms(c, left, right)
+    if c.shape[0] > 4000:
+        # Public ndct lazily imports its fixed JAX Bessel table. Initialize
+        # that dependency here, outside tracing, so no module-global tracer
+        # can escape the compiled sampled-subdivision call below.
+        from chebfunjax.utils import ndct_fast
+        del ndct_fast
+    return _roots_sampled_subdivision(c)
+
+
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
                      recurse: bool = True) -> jax.Array:
     import numpy as np
     """Find roots of a Chebyshev expansion in [-1, 1].
 
-    Uses recursive subdivision for degree > 50 and colleague matrix
-    eigenvalue computation for degree <= 50.
+    Uses recursive subdivision for coefficient count > 50 and colleague
+    matrix eigenvalue computation for coefficient count <= 50.
 
     Parameters mirror the option surface of MATLAB ``@chebtech/roots.m``:
 
@@ -1264,8 +1384,8 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
 
     Follows MATLAB Chebfun's roots.m strategy:
     - Trim trailing small coefficients.
-    - If ``recurse`` and degree > 50, subdivide at a slightly off-center
-      point and recurse.
+    - If ``recurse`` and coefficient count > 50, subdivide at the native
+      off-center point using its count-dependent JAX transform/evaluator.
     - Otherwise form the colleague matrix and compute eigenvalues, then
       filter (real roots in [-1, 1]), prune, or keep all per the options.
     """
@@ -1295,7 +1415,7 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
             r = np.clip(r, -1.0, 1.0)
         return r
 
-    if (not recurse) or (n - 1 <= MAX_EIG_SIZE):
+    if (not recurse) or (n <= MAX_EIG_SIZE):
         # Form the colleague matrix
         c_adj = -0.5 * c[:-1] / c[-1]
         c_adj[-2] += 0.5
@@ -1342,59 +1462,12 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
             rts = _prune_spurious_roots(rts, rho)
         return rts
 
-    # Subdivide and recurse
-    pts = np.asarray(chebpts(n, kind=2))
-
-    # Map Chebyshev points to left and right subintervals
-    a_left, b_left = -1.0, SPLIT_POINT
-    a_right, b_right = SPLIT_POINT, 1.0
-
-    x_left = 0.5 * ((b_left - a_left) * pts + (b_left + a_left))
-    x_right = 0.5 * ((b_right - a_right) * pts + (b_right + a_right))
-
-    # Evaluate using numpy Clenshaw
-    def _eval_cheb(x_arr, cc):
-        """Evaluate Chebyshev series at numpy points."""
-        nn = cc.shape[0]
-        bk1 = np.zeros_like(x_arr)
-        bk2 = np.zeros_like(x_arr)
-        for k in range(nn - 1, 0, -1):
-            bk1_new = 2.0 * x_arr * bk1 - bk2 + cc[k]
-            bk2 = bk1
-            bk1 = bk1_new
-        return x_arr * bk1 - bk2 + cc[0]
-
-    v_left = _eval_cheb(x_left, c)
-    v_right = _eval_cheb(x_right, c)
-
-    # Convert values to coefficients with a pure-numpy transform: this
-    # recursion is NOT JIT-safe anyway, and routing through the jitted
-    # vals2coeffs compiled one XLA program per distinct piece length
-    # (~20 ms each), dominating multi-piece roots() wall time.
-    def _v2c_np(v):
-        nn = v.shape[0]
-        if nn <= 1:
-            return v.copy()
-        tmp = np.concatenate([v[nn - 1:0:-1], v[:nn - 1]])
-        if np.iscomplexobj(v):
-            if np.all(np.real(v) == 0):
-                cc = 1j * np.real(np.fft.ifft(np.imag(tmp)))
-            else:
-                cc = np.fft.ifft(tmp)
-        else:
-            cc = np.real(np.fft.ifft(tmp))
-        cc = cc[:nn]
-        cc[1:nn - 1] *= 2.0
-        vflip = v[::-1]
-        k = np.arange(nn)
-        if np.max(np.abs(v - vflip)) == 0:
-            cc[k % 2 == 1] = 0.0
-        if np.max(np.abs(v + vflip)) == 0:
-            cc[k % 2 == 0] = 0.0
-        return cc
-
-    c_left = _v2c_np(v_left)
-    c_right = _v2c_np(v_right)
+    # Native subdivision: cached coefficient transforms through count 513,
+    # paired Clenshaw through count 4000, then the source NDCT policy.
+    c_left, c_right = _roots_subdivide(c)
+    # The recursive trimming/eigenvalue engine remains host-side. Numerical
+    # subdivision and transforms above are JAX; this is only its array boundary.
+    c_left, c_right = np.asarray(c_left), np.asarray(c_right)
 
     # Recurse
     r_left = _roots_main(c_left, 2.0 * htol, qz=qz, all_roots=all_roots,
@@ -1403,8 +1476,8 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
                           prune=prune, recurse=recurse)
 
     # Map back to original interval
-    r_left_mapped = 0.5 * (SPLIT_POINT - 1.0) + 0.5 * (SPLIT_POINT + 1.0) * r_left
-    r_right_mapped = 0.5 * (SPLIT_POINT + 1.0) + 0.5 * (1.0 - SPLIT_POINT) * r_right
+    r_left_mapped = (SPLIT_POINT - 1.0) / 2 + (SPLIT_POINT + 1.0) / 2 * r_left
+    r_right_mapped = (SPLIT_POINT + 1.0) / 2 + (1.0 - SPLIT_POINT) / 2 * r_right
 
     return np.concatenate([r_left_mapped, r_right_mapped])
 

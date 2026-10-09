@@ -1,6 +1,55 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
 
+## Native roots subdivision regimes and measured CPU tradeoff (2026-10-09)
+
+Roots now use the pinned coefficient-count cutoff50 (including the formerly
+incorrect51-coefficient boundary), cached513-point triangular transforms
+through count513, paired Clenshaw sampling through4000, and public source-policy
+NDCT above4000. New subdivision arithmetic/transforms are JAX. Fixed transforms
+are cached as concrete arrays by device/x64 configuration; no traced inputs are
+cached. Native affine operation order and NDCT pure-imaginary behavior remain.
+Inherited host trimming/eig/QZ and coefficient-max rather than native-vscale
+normalization remain explicit gaps; this is not full roots/JAX parity.
+
+Qualification:124 scoped checks across ten frozen gates, including37 helper
+checks,28 technology-root checks (four restore literal native output order),
+six actual boundary/trim checks,14 mapped-root checks, and39 inverse checks.
+All are terminal0/stable/no survivors. Root independently verified observed
+runtime hashes and unchanged acceptance-test ASTs after diagnostic-only code
+extraction. Original numerical root/inverse bounds are unchanged. Earlier exact
+matrix-builder comparison failed by1.11e-16 across compiler contexts; that raw
+failure is preserved, with a separately reviewed helper-only finite-arithmetic
+bound. The precise compiler cause is unproven; no native bitwise matrix claim.
+
+Four separate CPU measurement processes used the same affinity and setup,
+with all other numerical workers paused. Both arms were profiled, with an extra
+subdivision observer on the candidate; five warm calls per arm are observations,
+not a machine-exclusive or fresh MATLAB comparison. All compared raw forward,
+derivative, target, Brent, domain and result arrays match bitwise. Inverse
+roundtrip error is1.054711873e-15 for both. First means first call AFTER identical
+flower/arc-length/derivative setup; the fixed matrix cache was built in setup.
+
+| Operation | First after setup, baseline → candidate | Warm median, baseline → candidate |
+| --- | --- | --- |
+| Inverse | 12.205127 s → 15.996914 s | 0.822081 s → 0.720799 s |
+| Derivative roots | 3.658862 s → 8.336681 s | 0.251248 s → 0.153377 s |
+
+First-call compilation costs increased (inverse212→292 and derivative76→156
+profiled backend compile calls); warm calls compiled zero times. Warm inverse
+latency is about12.3% lower and derivative roots about39.0% lower in these runs,
+but first calls are slower. The large MATLAB inverse performance gap remains.
+The failed v2 measurement capture (tuple metadata handling) is preserved; v3
+changes only capture conversion outside the timed section.
+
+Evidence:roots_correctness_root_acceptance_20261009.json,
+roots_measurements_root_review_20261009.json and
+roots_subdivision_source_20261008/measurement_comparison_v3.json in shared
+scratch. Frozen evidence predates unrelated operator changes; publication tech
+matches the implementation base and intervening changes are disjoint. Full-suite
+regression, all pages, native execution, publication and exact-head CI remain open.
+
+
 ## Coupled nonlocal Newton and second-kind adaptive assembly (2026-10-09)
 
 Original promote_functional slots3–6 now use exact coupled AD, native zero-state
