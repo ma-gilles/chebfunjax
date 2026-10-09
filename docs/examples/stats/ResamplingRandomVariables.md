@@ -112,11 +112,10 @@ missing = 1 - ans(end)
 
 ```text
 ans =
-   0.500000000000000
+   0.499999999999999
    0.984374999762706
-   0.999511718505291
-   0.999969482176942
-   0.999984740965997
+   0.999755859130171
+   0.999984740965996
    0.999992370360524
    0.999996185057788
    0.999998092406420
@@ -124,9 +123,9 @@ ans =
    0.999999522917894
    0.999999761336473
    0.999999880545762
-   0.999999999755052
+   0.999999999755051
 missing =
-     2.449481728561409e-10
+     2.449485059230483e-10
 ```
 
 Thus, a uniform variable that takes a value closer to 1 than this number won't be mapped accurately back to the logit-normal variable we want, unless we take further steps. Clearly, such events will be extremely rare.

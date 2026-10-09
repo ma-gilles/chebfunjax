@@ -6,6 +6,9 @@ constructor, sum, cumsum, restrict, inv and plotting APIs. NumPy's
 MT19937 stream is retained as a deterministic Python sampling adapter;
 MATLAB rand stream equivalence is not established.
 
+Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+Example commit: f4b9ea46cfc2f52f20a844627f4a74d0bb10098c
+
 Original: https://www.chebfun.org/examples/stats/ResamplingRandomVariables.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
@@ -26,6 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.matlab_hist import matlab_hist_counts
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,17 +47,10 @@ def _save(fig):
 
 
 def _hist36(values):
-    """MATLAB hist(x,36): 36 equally spaced bin centers spanning data."""
-    values = np.asarray(values, dtype=float).reshape(-1)
-    centers = np.linspace(float(np.min(values)), float(np.max(values)), 36)
+    """Source scalar-bin histogram and area normalization through JAX."""
+    counts, centers = matlab_hist_counts(jnp.asarray(values), 36)
     width = centers[1] - centers[0]
-    edges = np.concatenate((
-        [centers[0] - width / 2],
-        (centers[:-1] + centers[1:]) / 2,
-        [centers[-1] + width / 2],
-    ))
-    counts, _ = np.histogram(values, bins=edges)
-    counts = counts / np.sum(counts * width)
+    counts = counts / jnp.sum(counts * width)
     return counts, centers, width
 
 
@@ -61,7 +58,8 @@ def _plot_histogram(values, density, xlim=None):
     counts, centers, width = _hist36(values)
     fig, ax = plt.subplots()
     # MATLAB bar's default width occupies 0.8 of each bin spacing.
-    ax.bar(centers, counts, width=0.8 * width, color="#352A86")
+    ax.bar(centers, counts, width=0.8 * width, color="#352A86",
+           edgecolor="black", linewidth=0.5)
     matlab_plot(density, "r", ax=ax, lw=1.6)
     if xlim is not None:
         ax.set_xlim(*xlim)

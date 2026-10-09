@@ -1,5 +1,29 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Resampling histogram page replay (2026-10-09)
+
+The full ResamplingRandomVariables script now uses the accepted source JAX
+histogram helper and native-default black0.5pt bar outlines. A complete CPU
+replay on roots-vscale commit2e572ea6 passed in86.48s test time, with stable
+inputs, no survivors and peak2.80GiB. Root independently rehashed2971 observed
+runtime files, checked all8 delivered payload hashes and compared19 nonimage
+captures byte-for-byte with the earlier run. Actual stdout is unchanged:
+12 inverse breakpoints and missing2.449485059230483e-10; no reference injection.
+
+Both10000-sample histograms match independent R2017a source counts and all
+center words. All6 figures are600x270;9 MATLAB cells and original prose are
+preserved. All6 reference pairs were reviewed, including new03/06 outlines.
+Native RNG, historical2014 runtime, precise historical numerical output,
+fonts/titles/legends/axes/ticks and exact bar geometry/pixels remain open.
+This qualifies a source computation replacement, not full historical parity.
+
+Evidence: resampling_hist_source_20261009/page_delivery_v2,
+sphere_border_resampling_v2_root_review_20261009.json and
+resampling_page_v2_root_integration_20261009.json in shared goal scratch.
+Seven of twelve interrupted scripts now have reviewed source replacements;
+original home-worktree edits remain preserved. Full suite, push and CI open.
+
+
 ## Original-grid roots normalization (2026-10-09)
 
 Public Chebtech1/2 roots now divide by native vscale from the original
