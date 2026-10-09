@@ -989,8 +989,9 @@ def qr_quasimatrix(
     -----
     NOT JIT-safe (Python loops, adaptive construction).
 
-    Algorithm: Continuous Householder method [1].  The starting orthonormal
-    basis E is formed from L2-normalised Legendre polynomials on the domain.
+    Algorithm: polynomial FUNs use their weighted Legendre-grid QR, with
+    panel factorisation for multiple pieces. Noncollatable representations
+    retain continuous Householder [1] with a normalised Legendre basis.
 
     References
     ----------
@@ -1026,6 +1027,57 @@ def qr_quasimatrix(
             )
         R = jnp.array([[r]], dtype=jnp.float64)
         return Quasimatrix(cols=[Q_col], domain=domain), R
+
+    # @chebfun/{quasi2cheb,qr}: ordinary polynomial FUNs collate into
+    # array-valued panels. Only noncollatable representations use abstractQR.
+    from chebfunjax.tech.chebtech import Chebtech1
+
+    if all(c.funs and not getattr(c, "deltas", ()) and all(
+            isinstance(p.tech, (Chebtech1, Chebtech2)) and
+            p.tech.coeffs.ndim == 1 for p in c.funs) for c in qm.cols):
+        panel_domain = qm.cols[0].domain
+        for col in qm.cols[1:]:
+            panel_domain = panel_domain.union(col.domain)
+        columns = [c.restrict(panel_domain.breakpoints) for c in qm.cols]
+        panels, factors = [], []
+        intervals = tuple(zip(panel_domain.breakpoints[:-1],
+                              panel_domain.breakpoints[1:]))
+        for k, (a, b) in enumerate(intervals):
+            techs = [c.funs[k].tech for c in columns]
+            # @chebtech/horzcat retains the first input technology; the
+            # shared Chebyshev coefficients need only zero prolongation.
+            cls = type(techs[0])
+            length = max(t.coeffs.shape[0] for t in techs)
+            coeffs = jnp.stack([jnp.pad(t.coeffs,
+                                      (0, length - t.coeffs.shape[0]))
+                                for t in techs], axis=1)
+            tech = cls(coeffs=coeffs, ishappy=techs[0].ishappy)
+            qtech, local_r = tech.qr()
+            scale = jnp.sqrt((b - a) / 2)
+            panels.append(qtech / scale)
+            factors.append(local_r * scale)
+        if len(panels) == 1:
+            R = factors[0]
+        else:
+            # @chebfun/qr: QR of stacked physical FUN triangular factors.
+            qhat, R = jnp.linalg.qr(jnp.concatenate(factors, axis=0),
+                                   mode="reduced")
+            diagonal = jnp.diag(R)
+            magnitude = jnp.abs(diagonal)
+            phase = jnp.where(magnitude == 0, 1,
+                              diagonal / jnp.where(magnitude == 0, 1, magnitude))
+            qhat = qhat * phase[None, :]
+            R = jnp.conj(phase)[:, None] * R
+            panels = [panel @ qhat[k*n:(k+1)*n, :]
+                      for k, panel in enumerate(panels)]
+        # Native qr constructs new FUNs/Chebfuns; point values are recomputed
+        # from the new panels, not copied from the input columns.
+        result = [Chebfun(funs=[_Piece(
+            tech=type(panel)(coeffs=panel.coeffs[:, j],
+                             ishappy=panel.ishappy), interval=interval)
+            for panel, interval in zip(panels, intervals)],
+            domain=panel_domain) for j in range(n)]
+        return Quasimatrix(result, panel_domain), R
 
     # Build Legendre basis
     basis = _legendre_basis(n, domain)

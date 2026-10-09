@@ -1,5 +1,32 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Polynomial FUN QR and column backslash (2026-10-09)
+
+Column Chebfun/Quasimatrix backslash now uses continuous QR and inner products,
+then a JAX triangular-system solve. Smooth polynomial columns collate onto
+unified domains and delegate to technology QR with physical-interval scaling;
+piecewise panels use stacked-factor QR. First C1/C2 technology is preserved.
+Public Chebfun.qr accepts array-valued inputs through column dispatch.
+
+Seven passing test instances cover seven native source slots (mldivide5/6;
+QR9/10/13/14/15) plus two physical-domain controls. Root independently verified
+2971/2959/2971 loaded files across three gates; all terminal0, stable, uncensored,
+no survivors. Original input/tolerance predicates retained. A first interval-
+adapter error and an invalid last-column normest adapter are preserved; the
+final gate uses native array-valued all-column normest semantics.
+
+The Python Q return remains Quasimatrix; native smooth Q is array-valued
+Chebfun. Return type/shape/normest and numeric-multiplication order remain an
+explicit API/behavior gap, not covered by these factorization checks. Row/
+singular backslash, other original QR slots, degree80, the full Vandermonde
+page, broad regressions and performance remain unqualified.
+
+Evidence: vandermonde_qr_source_20261009/delivery_v1,
+vandermonde_qr_root_runtime_review_20261009.json and
+vandermonde_qr_root_integration_20261009.json in shared goal scratch.
+Full suite, all-page parity, native execution, publication and CI remain open.
+
+
 ## Resampling histogram page replay (2026-10-09)
 
 The full ResamplingRandomVariables script now uses the accepted source JAX

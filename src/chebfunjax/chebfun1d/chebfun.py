@@ -6200,13 +6200,14 @@ class Chebfun(eqx.Module):
 
         For a quasimatrix (by passing a list of additional Chebfun columns as
         ``other_cols``), the columns ``[self] + other_cols`` are jointly
-        factorised using the continuous Householder algorithm [1].
+        factorised through polynomial FUN QR or the continuous Householder
+        fallback [1]. Array-valued input is split into its existing columns.
 
         Parameters
         ----------
         other_cols : list[Chebfun] or None
             Additional columns.  If ``None`` (default), ``self`` is treated as
-            a single column.
+            a single column unless it is array-valued.
 
         Returns
         -------
@@ -6237,10 +6238,12 @@ class Chebfun(eqx.Module):
         Chebfun.svd, chebfun1d.linalg.qr_quasimatrix
         """
         from chebfunjax.chebfun1d.linalg import chebfun_qr
-        if other_cols is None:
-            cols = [self]
-        else:
-            cols = [self] + list(other_cols)
+        if self.is_transposed:
+            raise ValueError("CHEBFUN:CHEBFUN:qr:transpose: "
+                             "CHEBFUN QR works only for column CHEBFUN objects.")
+        inputs = [self] if other_cols is None else [self] + list(other_cols)
+        cols = [col for f in inputs for col in
+                (f.mat2cell() if f.n_columns > 1 else [f])]
         return chebfun_qr(cols)
 
     def svd(self, other_cols: list | None = None):
@@ -9440,6 +9443,8 @@ def mldivide(A, B):
     Supports the mixed scalar / numeric-matrix / quasimatrix cases used by
     ``@chebfun/mldivide``:
 
+    - column Chebfun/Quasimatrix ``A`` and column ``B``: continuous QR,
+      followed by ``solve(R, innerProduct(Q, B))``;
     - scalar ``A``: ``B / A`` (elementwise);
     - numeric ``A`` (m x n) and a row-quasimatrix ``B`` (a list of m
       chebfuns): ``X = pinv(A) @ B``, a list of n chebfuns;
@@ -9452,6 +9457,22 @@ def mldivide(A, B):
     MATLAB source : @chebfun/mldivide.m
     Chebfun commit: 7574c77
     """
+    from chebfunjax.chebfun1d.linalg import Quasimatrix, chebfun_qr
+
+    if isinstance(A, (Chebfun, Quasimatrix)) and not A.is_transposed:
+        acols = A.cols if isinstance(A, Quasimatrix) else A.mat2cell()
+        if not isinstance(B, (Chebfun, Quasimatrix)) or B.is_transposed:
+            raise ValueError("CHEBFUN:CHEBFUN:mldivide:agree: "
+                             "Matrix dimensions must agree.")
+        bcols = B.cols if isinstance(B, Quasimatrix) else B.mat2cell()
+        # Domain.union supplies the existing source endpoint tolerance.
+        A.domain.union(B.domain)
+        Q, R = chebfun_qr(list(acols))
+        products = jnp.stack([jnp.stack([q.inner(b) for b in bcols])
+                              for q in Q.cols])
+        result = jnp.linalg.solve(R, products)
+        return result[:, 0] if len(bcols) == 1 else result
+
     import numpy as _np
     if isinstance(A, (int, float, complex)):
         if isinstance(B, list):
