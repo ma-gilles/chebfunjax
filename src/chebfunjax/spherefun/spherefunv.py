@@ -518,7 +518,15 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/compose.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
         from chebfunjax.spherefun.spherefun import Spherefun
+        if not isinstance(g, (Chebfun3, Chebfun3v)):
+            raise ValueError('CHEBFUN:SPHEREFUNV:COMPOSE:OP: '
+                             'Can compose a SPHEREFUNV with a CHEBFUN3 or CHEBFUN3V.')
+        if isinstance(g, Chebfun3):
+            from chebfunjax.chebfun3d._subsref import check_sphere_composition
+            check_sphere_composition(self, g)
         fx, fy, fz = self.components
 
         def sph_of(gg):

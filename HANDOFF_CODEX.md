@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebfun3 indexing and slices restored (2026-10-10; latest)
+
+Parenthesis, property and brace dispatch now follow the native source.
+Colon slices contract existing factors; a scalar-column adapter corrects
+plane broadcasting and is shared with restriction. All 67 cases passed in
+six serial CPU gates, including all 18 original subsref predicates and all
+10 restriction predicates through an independent brace route. The prior
+analytic test is retained. Root rehashed all six runtime records and 110
+delivery bindings; the numeric evaluator AST is unchanged. Evidence:
+docs/chebfun3_subsref_cpu_20261010.json. Native test sections were qualified
+in separate processes. Vector-fixed colon slices, empty properties,
+arbitrary recursive indexing, full current suite and remote CI remain open.
+Earlier scalar-plane and sphere-domain failures are preserved.
+
 ## Trigtech finite/infinite predicates restored (2026-10-10; latest)
 
 isinf and isfinite now inspect the stored source-grid values as native

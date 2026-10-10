@@ -1,8 +1,8 @@
 """All ten original test_restrict.m predicates, Chebfun commit 7574c77.
 
-Python .restrict(dom) represents both MATLAB brace indexing and the explicit
-subsref({}, dom) call in predicate ten. Construction and assertion order are
-unchanged. No sampled norm substitutes are used.
+Python .restrict(dom) represents MATLAB brace indexing. Predicate ten uses
+the independent public subsref({}, dom) route. Construction, assertion
+order and bounds are unchanged. No sampled norm substitutes are used.
 """
 import jax.numpy as jnp
 import pytest
@@ -48,5 +48,5 @@ def test_native_restrict_ten_predicates():
     assert (g-exact).norm() < tol  # 8
     with pytest.raises(Exception):  # Native catches any exception.
         f.restrict(tuple(x/2 for x in d))  # 9
-    val = f.restrict((-2.5, -2.5, 0., 0., 2.5, 2.5))
+    val = f.subsref({'type': '{}', 'subs': (-2.5, -2.5, 0., 0., 2.5, 2.5)})
     assert abs(val-ff(-2.5, 0., 2.5)) < tol  # 10

@@ -1177,70 +1177,50 @@ class Chebfun3(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
-    def __call__(
-        self,
-        x: jax.Array,
-        y: jax.Array,
-        z: jax.Array,
-    ) -> jax.Array:
-        """Evaluate f(x, y, z) at point(s).
+    def __call__(self, *args):
+        """Native parenthesis dispatch; see :meth:`subsref`."""
+        return self.subsref({"type": "()", "subs": args})
 
-        Computes:
-            Σ_ijk  core[i, j, k] * X_i(tx) * Y_j(ty) * Z_k(tz)
+    def subsref(self, index):
+        """Apply source-like indexing records with ``type`` and ``subs``.
 
-        where tx, ty, tz are the reference-interval images of x, y, z.
+        ``()`` evaluates/composes, ``{}`` restricts, and ``.`` gets a
+        property. A list of records supports property-following indexing.
+        Numeric property indices are MATLAB one-based, in column-major
+        order; function indices remain physical coordinates. Arbitrary
+        foreign-object recursion is explicitly unsupported.
 
-        Parameters
-        ----------
-        x : jax.Array, scalar or shape (m,)
-            x-coordinates in [xa, xb].
-        y : jax.Array, scalar or shape (m,)
-            y-coordinates in [ya, yb].  Must broadcast with x.
-        z : jax.Array, scalar or shape (m,)
-            z-coordinates in [za, zb].  Must broadcast with x and y.
+        Provenance: @chebfun3/subsref.m, Chebfun commit 7574c77.
+        """
+        from ._subsref import source_subsref
+        return source_subsref(self, index)
 
-        Returns
-        -------
-        jax.Array, same shape as broadcast(x, y, z)
-            Approximated function values.
+    def get(self, name):
+        """Source property access, exposing factor Chebfun panels.
 
-        Notes
-        -----
-        JIT-safe, grad-safe, and vmap-safe.
+        Raw Python storage attributes retain their existing types.
+        Provenance: @chebfun3/get.m, Chebfun commit 7574c77.
+        """
+        from ._subsref import source_get
+        return source_get(self, name)
 
-        Provenance
-        ----------
-        MATLAB source : @chebfun3/feval.m
-        Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
+    def feval(self, x, y, z):
+        """Evaluate directly, independently from indexing/composition.
+
+        Provenance: @chebfun3/feval.m, Chebfun commit 7574c77.
+        Numeric evaluator arithmetic is unchanged; colon slices use source
+        factor contractions and three Chebfuns follow the direct path.
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
+        from ._subsref import is_colon, source_colon_feval
         if self.isempty():
             return jnp.empty((0,))
         if all(isinstance(v, Chebfun) for v in (x, y, z)):
-            return chebfun(lambda t: self(x(t), y(t), z(t)), domain=tuple(float(v) for v in x.domain.breakpoints))
-        coordinates = (x, y, z)
-        free = [i for i, v in enumerate(coordinates)
-                if isinstance(v, slice) and v == slice(None)]
-        if free:
-            if len(free) == 3:
-                return self
-            domain = tuple(endpoint for i in free
-                           for endpoint in self.domain[2*i:2*i+2])
-
-            def section(*values):
-                args = list(coordinates)
-                for i, value in zip(free, values):
-                    args[i] = value
-                return self(*args)
-
-            if len(free) == 1:
-                return chebfun(section, domain=domain)
-            from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-            return Chebfun2.from_function(section, domain=domain)
-
+            return chebfun(lambda t: self.feval(x(t), y(t), z(t)),
+                           domain=tuple(float(v) for v in x.domain.breakpoints))
+        if any(is_colon(v) for v in (x, y, z)):
+            return source_colon_feval(self, x, y, z)
         return self._evaluate_numeric(x, y, z)
 
     @eqx.filter_jit

@@ -12,6 +12,7 @@ from chebfunjax.chebfun1d.chebfun import Chebfun
 from chebfunjax.chebfun1d.mtimes import _columns
 
 from ._mtimes import _native_squeeze, _panel
+from ._plane import scalar_plane_product
 
 
 def source_restrict(f, dom):
@@ -63,15 +64,15 @@ def source_restrict(f, dom):
     if fixed == (True, False, False):
         cols, rows, tubes = values(0), restricted(1), restricted(2)
         core = _native_squeeze(f.txm(f.core, cols, 1))
-        return (tubes @ core.T) @ rows.T
+        return scalar_plane_product(tubes, core.T, rows)
     if fixed == (False, True, False):
         cols, rows, tubes = restricted(0), values(1), restricted(2)
         core = _native_squeeze(f.txm(f.core, rows, 2))
-        return (tubes @ core.T) @ cols.T
+        return scalar_plane_product(tubes, core.T, cols)
     if fixed == (False, False, True):
         cols, rows, tubes = restricted(0), restricted(1), values(2)
         core = f.txm(f.core, tubes, 3)
-        return (rows @ core.reshape(core.shape[:2]).T) @ cols.T
+        return scalar_plane_product(rows, core.reshape(core.shape[:2]).T, cols)
 
     from .chebfun3 import Chebfun3
     factors = [_columns(restricted(k)) for k in range(3)]

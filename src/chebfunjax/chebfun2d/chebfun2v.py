@@ -968,6 +968,10 @@ class Chebfun2v(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+        if len(self.components) == 3 and isinstance(g, Chebfun3):
+            from chebfunjax.chebfun3d._subsref import compose_chebfun2v_three
+            return compose_chebfun2v_three(self, g)
         if len(self.components) != 2:
             raise ValueError(
                 "compose: F must have exactly 2 components.")
