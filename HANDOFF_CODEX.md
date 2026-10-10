@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native guide predicates1–10 restored (2026-10-10; latest)
+
+The first ten guide assertions now use native public construction/length
+routes and the actual three-column Chebfun helix curve. All five cases
+passed in four serial gates; root rehashed2,939/2,938/2,946/2,940 files.
+HOSVD assertions11–19 remain unchanged from their accepted qualification.
+The earlier positional-domain Python adapter failure is retained; v2
+changed only the required domain keyword. Native predicates/tolerances
+remain. Evidence: docs/chebfun3_native_guide_cpu_20261010.json. Full extrema
+and line-integration algorithm equivalence is not established by this gate.
+
 ## Norm JIT interval check repaired (2026-10-10; latest)
 
 Interval overlap now checks static Domain endpoints as Python metadata,
