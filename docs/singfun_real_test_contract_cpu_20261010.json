@@ -1,0 +1,23 @@
+{
+  "scope": "Two stale supplemental Singfun real-part test expectations corrected; production unchanged",
+  "source": [
+    "@singfun/real.m:16,19-20",
+    "@singfun/issmooth.m:11"
+  ],
+  "native_commit": "7574c77",
+  "correction": "real transforms the smoothPart before demotion; zero real smoothPart demotes even when exponents are nonzero. Python object identity is not a source guarantee.",
+  "bounds": "Original inputs and all analytic tolerances preserved",
+  "agent_cases": 13,
+  "root_cases": 5,
+  "root_elapsed_seconds": 12.278748049866408,
+  "root_peak_child_rss_kib": 978492,
+  "root_verified_delivery_bindings": 26,
+  "agent_runtime_audit_files": 2944,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_real_test_contract_20261010/DELIVERY.json": "331a3f014791f54e0a29c3a8544060e420cab02a94f5e47c32565dd642b7098e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_real_test_contract_20261010/INTEGRATION.patch": "4868b9e6f875571b617536eb27976ded3b690908a7179d22da7569dc7f031a0d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_real_test_contract_20261010/root_integration_v1/receipt.json": "3b438889c26705a6559a8c518997c8fa71d788f2249ccc6a436fbbe23bf8f3b4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_real_test_contract_20261010/root_integration_v1/bindings_review.json": "9daae4cb1e61101448b357302cd235e518ec1a2f0387db9dae71c892707da4c6"
+  },
+  "remaining": "Coupled linearize sweep failure, remaining broad suite, full parity and current CI unresolved"
+}

@@ -432,15 +432,18 @@ class TestSingfunReflectionAndComplex:
         npt.assert_allclose(np.array(g(x)), np.array(f(-x)), rtol=1e-12)
 
     def test_real_demotes_when_smooth(self):
-        """real of a smooth Singfun returns the bare smooth part (identity)."""
+        """real transforms the smooth factor before returning the bare tech."""
         f = Singfun.from_function(lambda x: jnp.exp(x), (0.0, 0.0))
-        assert f.real() is f.smoothPart
-        assert not isinstance(f.real(), Singfun)
+        result = f.real()
+        assert isinstance(result, type(f.smoothPart))
+        npt.assert_array_equal(result.coeffs, jnp.real(f.smoothPart.coeffs))
 
     def test_real_imag_of_complex_singfun(self):
         """real/imag split a complex smooth part while keeping the exponents."""
         f = 1j * Singfun.from_function(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
-        assert isinstance(f.real(), Singfun)
+        real_part = f.real()
+        assert isinstance(real_part, type(f.smoothPart))
+        assert bool(real_part.iszero())
         x = jnp.array([-0.3, 0.2], dtype=jnp.float64)
         npt.assert_allclose(np.array(f.imag()(x)),
                             np.array(1.0 / ((1 + x) * (1 - x))), rtol=1e-11)

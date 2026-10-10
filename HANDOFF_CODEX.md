@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Singfun real-part test contracts (2026-10-10; latest)
+
+Two stale supplemental assertions now follow native real/issmooth semantics:
+real transforms the smooth part before demotion, and an identically zero
+smooth part demotes regardless of exponents. Production and original analytic
+bounds are unchanged. Agent 13 cases and root five integration cases pass;
+root verified 26 delivery bindings. Evidence:
+docs/singfun_real_test_contract_cpu_20261010.json. The coupled linearization
+sweep failure and remaining broad continuation are still open.
+
 ## Native Chebfun2 continuous eigenfunctions (2026-10-10; latest)
 
 Chebfun2.eig now follows the native continuous SVD and rank-sized core,
