@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Continuous conformal mapping restored (2026-10-10; latest)
+
+Conformal mapping accepts native continuous Chebfun boundaries, uses native
+arclength and inverse composition, and follows the source Kerzman-Stein and
+polynomial construction with JAX arithmetic. The complete original conformal
+and conformal2 tests passed together, followed by five analytic/array controls.
+Root verified all three runtime records; independent review checked 90 delivery
+bindings, unchanged canonical tests and executable AST identity after a doc-only
+correction. Evidence: docs/conformal_continuous_cpu_20261010.json. A prior 4 GiB
+resource-cap failure is retained; the complete gate passed at a justified higher
+limit. Plot/numbers options, page geometry/RNG, exact boundary classification,
+inherited host-array dependencies, full current suite and CI remain open.
+
 ## Native Chebfun3 indexing and slices restored (2026-10-10; latest)
 
 Parenthesis, property and brace dispatch now follow the native source.

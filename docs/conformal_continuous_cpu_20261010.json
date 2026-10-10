@@ -1,0 +1,332 @@
+{
+  "scope": "Continuous conformal boundary, native Kerzman-Stein and polynomial construction",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Complete canonical conformal/conformal2 and five additional controls; three frozen CPU gates",
+    "gates": [
+      {
+        "gate": "G2canonical_completion_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/G2canonical_completion_v1/supervision/receipt.json",
+        "receipt_sha256": "d4692aa31590327e07bfb4833ff366315e6b075458aa5afe857fd0ccbb5eaf6d",
+        "runtime_manifest_sha256": "ce68bbc6605a4bdcd28a9b3ff81f8aab7314a58bb73479b9b150933d5f446311",
+        "runtime_end_sha256": "e6122504a1b2287c6d63aac2adac4fcf9ae5799e5c34781fd1a4a70b7efb331f",
+        "observed_files_rehashed": 2967,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 81,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 4444956,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 2,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "F4analytic_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/F4analytic_v1/supervision/receipt.json",
+        "receipt_sha256": "33c76e6822a7c42de1ffbbb29f8f8dedc6ec36f6be3867f529fd73538e168734",
+        "runtime_manifest_sha256": "8bc8e94d2ac91e644b7909926e496f07cb2e55f121e9c6a363b03fdc3d15595c",
+        "runtime_end_sha256": "1e2695ab12052088cffe7b1b2e1b359dd3a24d52c3bbc1266e7afeb804be7cb7",
+        "observed_files_rehashed": 2949,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 68,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1810912,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 4,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "H1array_adapter_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/H1array_adapter_v1/supervision/receipt.json",
+        "receipt_sha256": "7106d13b38ee563820f61f6796d454b632bf05ccf4c186607c36a7e823ba99cb",
+        "runtime_manifest_sha256": "b434e7527f89f6208c4369607ad70ceedb38864e087997b6643a8c206c65860f",
+        "runtime_end_sha256": "5cbd4b925f31147af0efdaa13a580d2e9c4916baf1f42cc307e5bb3f02584461",
+        "observed_files_rehashed": 2953,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 69,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1841424,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "independent_source_review": {
+    "reviewer": "/root/newton_memory_diagnosis",
+    "publication_head": "b70c8030fd266b330bdfa443e7ace5e9d04e31ce",
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/DELIVERY_v1.json",
+    "delivery_sha256": "7755b13a70325ab22402770d017180a9c64d61e51ba4a4afcc52b32d21442b0b",
+    "bindings_rehashed": 90,
+    "numerical_AST_identical_after_docstring_removal": true,
+    "changed_docstrings": [
+      "conformal"
+    ],
+    "portable_function_AST_identity": {
+      "test_circle_continuous_ks": true,
+      "test_circle_polynomial_source_samples": true,
+      "test_native_winding_rejection": true,
+      "test_array_adapter_circle": true
+    },
+    "portable_test_count": 5,
+    "gates_source_test_binding_checks": [
+      {
+        "name": "G2canonical_completion_v1",
+        "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/G2canonical_completion_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "source_sha256": "224d9563afda6bf73076dc058a517d6e84e701899a6a0797f1247fb8f40be6d3",
+        "same_qualified_source": true,
+        "source_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/G2canonical_completion_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "test_origins": {
+          "tests.test_matlab_port.misc.test_conformal_matlab": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/G2canonical_completion_v1/snapshot/tests/test_matlab_port/misc/test_conformal_matlab.py",
+          "tests.test_matlab_port.misc.test_conformal2_matlab": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/G2canonical_completion_v1/snapshot/tests/test_matlab_port/misc/test_conformal2_matlab.py"
+        },
+        "junit_cases": [
+          "test_all_matlab_assertions",
+          "test_all_matlab_assertions"
+        ]
+      },
+      {
+        "name": "F4analytic_v1",
+        "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/F4analytic_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "source_sha256": "224d9563afda6bf73076dc058a517d6e84e701899a6a0797f1247fb8f40be6d3",
+        "same_qualified_source": true,
+        "source_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/F4analytic_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "test_origins": {
+          "test_continuous_controls_v1": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/F4analytic_v1/snapshot/test_continuous_controls_v1.py"
+        },
+        "junit_cases": [
+          "test_circle_continuous_ks",
+          "test_circle_polynomial_source_samples",
+          "test_native_winding_rejection[-1]",
+          "test_native_winding_rejection[2]"
+        ]
+      },
+      {
+        "name": "H1array_adapter_v1",
+        "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/H1array_adapter_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "source_sha256": "224d9563afda6bf73076dc058a517d6e84e701899a6a0797f1247fb8f40be6d3",
+        "same_qualified_source": true,
+        "source_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/H1array_adapter_v1/snapshot/src/chebfunjax/utils/conformal.py",
+        "test_origins": {
+          "tests.test_utils.test_conformal_continuous_source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/H1array_adapter_v1/snapshot/tests/test_utils/test_conformal_continuous_source.py"
+        },
+        "junit_cases": [
+          "test_array_adapter_circle"
+        ]
+      }
+    ],
+    "canonical_tests_unchanged": [
+      {
+        "path": "tests/test_matlab_port/misc/test_conformal_matlab.py",
+        "executed_sha256": "f594566c71ae8cab810aa8861c2c901de71077b38bd20a0e2aeadf44a450e16c",
+        "publication_sha256": "f594566c71ae8cab810aa8861c2c901de71077b38bd20a0e2aeadf44a450e16c",
+        "unchanged": true,
+        "baseline_sha256": "f594566c71ae8cab810aa8861c2c901de71077b38bd20a0e2aeadf44a450e16c",
+        "baseline_unchanged": true
+      },
+      {
+        "path": "tests/test_matlab_port/misc/test_conformal2_matlab.py",
+        "executed_sha256": "b7268e16842a74c8369f2edf2f307be8d16125c261998bfea723b0605cc850aa",
+        "publication_sha256": "b7268e16842a74c8369f2edf2f307be8d16125c261998bfea723b0605cc850aa",
+        "unchanged": true,
+        "baseline_sha256": "b7268e16842a74c8369f2edf2f307be8d16125c261998bfea723b0605cc850aa",
+        "baseline_unchanged": true
+      }
+    ],
+    "integration": {
+      "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/integration_v2.patch",
+      "sha256": "caacee2a028603e694309f993248c5f4ddf8dc7b886407e71bc2d3b809cc5041",
+      "paths": [
+        "src/chebfunjax/utils/conformal.py",
+        "tests/test_utils/test_conformal_continuous_source.py"
+      ],
+      "publication_check": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "scratch_apply": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "applied_bytes_match_expected": {
+        "src/chebfunjax/utils/conformal.py": true,
+        "tests/test_utils/test_conformal_continuous_source.py": true
+      },
+      "baseline_hashes": {
+        "src/chebfunjax/utils/conformal.py": "d2ff7e1877f1137e5884a347db6de1b14da5af35bc1c2f86f0603ef680edfaf4"
+      }
+    },
+    "accepted_runtime_review": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_complete7_root_runtime_review_20261010.json",
+      "sha256": "a9357127c1b401e7547d2689cfaa1388daf071b0a43fb27e5c67de9c8cc1a292",
+      "decision": "ACCEPT evidence"
+    },
+    "scope": [
+      "Independent source/hash/integration review only; no numerical reruns.",
+      "Relies on accepted root G2/F4/H1 runtime audit; did not redundantly rehash all runtime dependency files.",
+      "Doc-only differences are relative to qualified conformal source, not relative to old publication algorithm.",
+      "Historical portability report says H1 pending; completed H1 and root review supersede that status.",
+      "No full native-stage bitwise, performance, plotting/options, end-to-end JAX purity, or higher-degree/M900/M1200 qualification claimed."
+    ],
+    "faults": [],
+    "decision": "ACCEPT source integration"
+  },
+  "source_review": {
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/conformal.m": "f1409ceb8897b8c0260ba748ede74896ad8e31c106c87f5673394fbdc1a383fa",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/arcLength.m": "5f8b4264aa87e2cc36c410ac3b3616da5e8aba5909e24a3318d740079f45a5df",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/inv.m": "b6c2ec83e2417bf133424437c18fa4a1f412e2d8114ccb55b0e6b855bf052e9e",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/compose.m": "0ea795bc79fb1a0a00a36dd17718ae9838da91353033b74639de49dce18c4f32",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/newDomain.m": "a0269beab9c320c0b73275b01ac7773c3c39580645701f07a600eabdc0719b08",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_conformal.m": "e3c0812812a4370d7aa74a03ab1245f884212907109b4c0d474cd2711b1b1e88",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_conformal2.m": "5753854da8eed9336d5eba17f9c3dc392bd46c4a1cbb8b6851359123c6b26e9f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_continuous_source_20261010/candidate/src/chebfunjax/utils/conformal.py": "224d9563afda6bf73076dc058a517d6e84e701899a6a0797f1247fb8f40be6d3"
+    },
+    "unchanged_native_tests": {
+      "tests/test_matlab_port/misc/test_conformal_matlab.py": true,
+      "tests/test_matlab_port/misc/test_conformal2_matlab.py": true
+    },
+    "new_numpy_imports": false,
+    "numerical_source_map": {
+      "continuous": "conformal.m lines252-270 -> _kerzman_stein public operations",
+      "KS": "conformal.m lines271-297 -> JAX masked matrix, solve, source W",
+      "poly": "conformal.m lines90-118 -> adaptive resampling, growing-column Arnoldi, JAX lstsq",
+      "tail": "conformal.m lines69-81 -> existing600/900/1200 loop, Chebfun trigcoeffs"
+    },
+    "prerequisite_caveats": [
+      "arc_length constructs adaptive polynomial integrand, native composes abs with existing technology; no sampled quadrature introduced",
+      "inverse uses existing source-derived Brent route",
+      "source unused angle/unwrap is still executed",
+      "JAX lstsq default rank decision differs from MATLAB backslash and requires original predicate qualification"
+    ],
+    "open_scope": [
+      "plots and numbers public options",
+      "exact pole-on-boundary inpolygon classification",
+      "figure/RNG parity"
+    ],
+    "candidate_version": "v3: lazy imports avoid initialization cycle",
+    "inherited_host_array_gaps": [
+      "public Chebfun.trigcoeffs currently performs coefficient copying and phase conversion with NumPy; this candidate invokes that existing source API, so end-to-end JAX-only claim is not made",
+      "arc_length host scalar conversion and other preexisting public Chebfun operations remain dependencies"
+    ]
+  },
+  "results_and_limitations": {
+    "status": "Ready for root review/integration; no publication edits",
+    "canonical": "G2canonical_completion_v1: original complete conformal four predicates and unchanged conformal2, two test methods passed together",
+    "additional_controls": "F4 four analytic controls plus H1 array adapter; all five function ASTs preserved in portable module",
+    "integration_patch": "integration_v2.patch",
+    "doc_only_adjustment": "DOC_AST_PROOF_v1.json proves numerical AST unchanged",
+    "gates": {
+      "B1ellipse_trace_v1": {
+        "junit_count": 1,
+        "observed_rehash_count": 2949,
+        "peak_kib": 2471928,
+        "wall_seconds": 125.86219467502087,
+        "survivors": []
+      },
+      "C1snowflake_v1": {
+        "junit_count": 1,
+        "observed_rehash_count": 2950,
+        "peak_kib": 3969584,
+        "wall_seconds": 171.12961644073948,
+        "survivors": []
+      },
+      "D1tanh_v1": {
+        "junit_count": 1,
+        "observed_rehash_count": 2950,
+        "peak_kib": 3146432,
+        "wall_seconds": 132.9733870937489,
+        "survivors": []
+      },
+      "E1conformal2_v1": {
+        "junit_count": 1,
+        "observed_rehash_count": 2959,
+        "peak_kib": 1715360,
+        "wall_seconds": 98.62278068205342,
+        "survivors": []
+      },
+      "F4analytic_v1": {
+        "junit_count": 4,
+        "observed_rehash_count": 2949,
+        "peak_kib": 1810912,
+        "wall_seconds": 98.8389738863334,
+        "survivors": []
+      },
+      "G2canonical_completion_v1": {
+        "junit_count": 2,
+        "observed_rehash_count": 2967,
+        "peak_kib": 4444956,
+        "wall_seconds": 213.90333359036595,
+        "survivors": []
+      },
+      "H1array_adapter_v1": {
+        "junit_count": 1,
+        "observed_rehash_count": 2953,
+        "peak_kib": 1841424,
+        "wall_seconds": 103.40611573401839,
+        "survivors": []
+      }
+    },
+    "retained_failures": [
+      "A2native_v1: unlaunched static import-order failure",
+      "A2native_v2: circular-import preflight exit4, no numerical tests",
+      "A2native_v3:4GiB RSS cap, peak4194364KiB; unresolved failed resource gate, not repaired by completion scope"
+    ],
+    "open_scope": [
+      "plots/numbers public options",
+      "exact on-edge inpolygon warning semantics",
+      "inherited public trigcoeffs NumPy coefficient/phase operations; no end-to-end JAX-only claim",
+      "M900/1200 and higher polynomial degrees source-preserved but not exercised by original tests in diagnostic records",
+      "page1200-sample boundary, figure dimensions/plot geometry and RNG parity remain unchanged/unqualified",
+      "native-stage bitwise/performance comparisons unavailable"
+    ],
+    "active_processes": []
+  },
+  "integrated_sha256": {
+    "src/chebfunjax/utils/conformal.py": "f3020b651f6ecdc52fff5de97fb1a2e6373820516d62c6a76c15b8db54cc262e",
+    "tests/test_utils/test_conformal_continuous_source.py": "5dae3310b13981f48365911afe0b91e3379876e6a764ce8ca2b57aa0e9e30b61"
+  },
+  "full_goal_complete": false
+}
