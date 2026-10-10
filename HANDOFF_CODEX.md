@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## RandomSwitching CPU FFT variability (2026-10-10; latest)
+
+Fixed-input repeated CPU FFT execution reproduces the previously unexplained
+subdivision-matrix and sign-breakpoint byte variants; fixed-input downstream
+postprocessing is stable. Root verified109 delivery bindings and57 FFT-stage
+bindings. No production change or MATLAB correctness claim. The failed old
+byte gate remains preserved; next trajectory uses fresh retained source
+forcing with independent high-precision diagnostics, after Randfuneig closes.
+Evidence: docs/randomswitching_fft_cpu_20261010.json.
+
 ## Chebfun2 eager JAX scalar arithmetic (2026-10-10; latest)
 
 Eager scalar and singleton JAX arrays now reach native scalar multiplication

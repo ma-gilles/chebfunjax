@@ -1,0 +1,24 @@
+{
+  "scope": "CPU FFT execution variability explains prior RandomSwitching forcing byte mismatch",
+  "root_verified_delivery_bindings": 109,
+  "root_verified_fft_bindings": 57,
+  "finding": "The same precompiled raw FFT executable produced two different outputs across eight calls on each side, with input hashes unchanged before/after, explicit synchronization and retained buffers. Postprocessing of fixed raw output was stable.",
+  "magnitude": "2006 complex FFT entries differ, confined to columns64 and512; max absolute2.96e-14 left and5.69e-14 right. After native normalization/triu, reproduces prior392-entry left subdivision matrix variation.",
+  "consequence": "The old exact cross-process sign-breakpoint gate is not a reliable computational prerequisite. Its failed result remains preserved; the next gate uses fresh source-generated forcing, retains its bytes, and independently checks roots/signs and 80-digit piecewise2x2 trajectory flow.",
+  "source": "Native @chebtech/roots.m322-341 constructs subdivision constants through recurrence and reflected FFT; production unchanged.",
+  "plan": "Full second trajectory only after current Randfuneig process terminal/cleanup; original span[0,40],events,maxnorm,initialstate and tolerances unchanged.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_STAGE_DELIVERY_v1.json": "6c53a01bf6f5f0690a829e34cba956e3d3776a1bd59a24f90d8037d609ec26e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_FFT_DIAGNOSIS_v1.json": "707614074c23f249399c99f166adb40264f7daf2dcb559368624f920d7c2ffc7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/FFT_EXECUTION_COMPARISON_v1.json": "a9aac9458f0201e996049e9661762ad25060143cd320d88d392b7837d0af5a55",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_RUNTIME_COMPARISON_v2.json": "f0f694978ef1ad33bd51fd9902e22d6165012f0e7da21e096a5879e6e72d0d7e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/SECOND_TRAJECTORY_PLAN_v2.json": "dfac0bee071facdec12fc04707a97d1c5568c0d4dd17551bc12053606fb9097f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_FFT_PLAN_REVIEW_v1.json": "fe25cc8af8805264c757a4611666dcaf44b16d821a20bcb206b0786c5ca504ae"
+  },
+  "limits": [
+    "No instruction-level cause or production FFT fix established.",
+    "Neither FFT variant is established as MATLAB-correct.",
+    "Source-order random adapter does not match MATLAB rng.",
+    "Full second trajectory not executed by this diagnostic; scalar analytic error and three existing ODE accuracy failures remain unresolved."
+  ]
+}
