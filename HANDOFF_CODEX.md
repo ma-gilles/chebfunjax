@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere addition staging qualified (2026-10-09; supersedes caps below)
+
+Persistent JAX stages preserve source sampling, ordered products, compression
+and exceptional pole behavior. 102 numerical cases, compiler review, 16
+portable controls and exact baseline/candidate initialization+two-step state
+comparisons passed. The original Gaussian trajectory now completes all100
+solves in a distinct6GiB completion run (peak3.56GiB). The older3GiB gate
+failed after38solves and remains a performance failure. Fullpage/tenfigures,
+MATLAB RNG matching and matched performance remain open. Evidence:
+docs/sphere_addition_stages_cpu_20261009.json.
+
 ## Sequential sum3 qualified (2026-10-09; supersedes contraction gap below)
 
 Native physical factor scaling and x→y→z contraction order are now restored.

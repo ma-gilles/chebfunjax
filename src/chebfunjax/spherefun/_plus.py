@@ -7,6 +7,8 @@ MATLAB source : @spherefun/plus.m, @spherefun/extractPole.m,
 Chebfun commit: 7574c77
 """
 
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 
@@ -49,24 +51,48 @@ def real_trig_matrix_qr(coefficients):
     return qc / jnp.sqrt(jnp.pi), r * jnp.sqrt(jnp.pi)
 
 
-def compressed_parity_core(columns, rows, pivots, vscale_f, vscale_g):
-    """Source small-SVD compression for already-concatenated non-pole factors.
+@jax.jit
+def _compression_analysis(columns, rows, pivots, vscale_f, vscale_g):
+    """Stage source QR, ordered small core, SVD and threshold predicate.
 
-    Provenance
-    ----------
-    MATLAB source : @separableApprox/plus.m (compression_plus)
-    Chebfun commit: 7574c77
-    Caller handles operand pivot-order swap, parity groups, zero/empty and poles.
+    Source: @separableApprox/plus.m, @trigtech/qr.m, @bndfun/qr.m,
+    Chebfun7574c77. All numerical operands are dynamic; no Spherefun metadata
+    participates in compilation. Barriers retain the prior call boundaries
+    and the source two-product order. Native rank remains a host decision.
     """
-    qc, rc = real_trig_matrix_qr(columns)
-    qr, rr = real_trig_matrix_qr(rows)
+    qc, rc = jax.lax.optimization_barrier(real_trig_matrix_qr(columns))
+    qr, rr = jax.lax.optimization_barrier(real_trig_matrix_qr(rows))
     d = jnp.diag(1 / pivots)
-    u, s, vh = jnp.linalg.svd((rc @ d) @ rr.T, full_matrices=False)
-    threshold = 10 * jnp.finfo(jnp.float64).eps * (2 * jnp.maximum(vscale_f, vscale_g))
-    keep = int(jnp.sum(s > threshold))
-    if keep == 0:
-        return None  # caller must implement source 0*f representation
+    core_left = jax.lax.optimization_barrier(rc @ d)
+    u, s, vh = jnp.linalg.svd(core_left @ rr.T, full_matrices=False)
+    scale = jax.lax.optimization_barrier(2 * jnp.maximum(vscale_f, vscale_g))
+    threshold = 10 * jnp.finfo(jnp.float64).eps * scale
+    keep = jnp.sum(s > threshold)
+    return qc, qr, u, s, vh, keep
+
+
+@partial(jax.jit, static_argnames=("keep",))
+def _compression_reconstruct(qc, qr, u, s, vh, *, keep):
+    """Source selected-column products after the native host rank decision.
+
+    Source: @separableApprox/plus.m, Chebfun7574c77. Do not multiply by full
+    singular-vector matrices then truncate: the selected operands are native.
+    """
     return qc @ u[:, :keep], qr @ vh[:keep, :].T, 1 / s[:keep]
+
+
+def compressed_parity_core(columns, rows, pivots, vscale_f, vscale_g):
+    """Source compression with the unchanged host zero/native-rank branch.
+
+    Source: @separableApprox/plus.m, Chebfun7574c77. Caller owns pivot-order
+    swap, parity selection, empty and zero operands, and pole handling.
+    """
+    qc, qr, u, s, vh, keep_value = _compression_analysis(
+        columns, rows, pivots, vscale_f, vscale_g)
+    keep = int(keep_value)
+    if keep == 0:
+        return None
+    return _compression_reconstruct(qc, qr, u, s, vh, keep=keep)
 
 
 def _class():
@@ -122,20 +148,14 @@ def _real_sample_values(coefficients):
     return jnp.real(_trig_coeffs2vals_impl(coefficients))
 
 
-def _sample(techs, m):
-    """Real factor samples using source coefficient aliasing and FFT.
+@partial(jax.jit, static_argnames=("m",))
+def _sample_coefficients(c, m):
+    """Source matrix alias/prolong and real FFT as one numerical stage.
 
-    Provenance
-    ----------
-    MATLAB source : @trigtech/sample.m, @trigtech/alias.m, @spherefun/sample.m
-    Chebfun commit: 7574c77
-    The single-point branch preserves source reversed negative-mode dot and
-    positive-mode dot before their sum with the constant coefficient.
+    Source: @trigtech/sample.m, @trigtech/alias.m, @spherefun/sample.m,
+    Chebfun7574c77. Sequential alias updates retain their source order; loop
+    staging avoids a graph proportional to the number of folded modes.
     """
-    # Source sample aliases when its vscale sampling cap is below stored length.
-    # The existing generic alias helper uses NumPy; this bounded matrix port
-    # keeps the source update order and JAX arithmetic, including disabled JIT.
-    c = _stack(techs)
     n = c.shape[0]
     if m >= n:
         c = _trig_prolong_coeffs(c, m)
@@ -146,44 +166,82 @@ def _sample(techs, m):
             n += 1
         n2 = (n - 1) // 2
         if m == 1:
-            # alias.m's dedicated one-point branch, evaluated at x=-1.
             const = c[n2]
             negative = c[:n2][::-1]
             positive = c[n2 + 1 :]
             signs = jnp.where(jnp.arange(n2) % 2 == 0, -1.0, 1.0)
-            a = (const + (signs @ negative + signs @ positive))[None, :]
+            neg = jax.lax.optimization_barrier(signs @ negative)
+            pos = jax.lax.optimization_barrier(signs @ positive)
+            folded = jax.lax.optimization_barrier(neg + pos)
+            a = (const + folded)[None, :]
         elif m % 2:
             m2 = (m - 1) // 2
-            a = c[n2 - m2 : n2 + m2 + 1]
-            for j in range(-n2, -m2):
+            initial = c[n2 - m2 : n2 + m2 + 1]
+
+            def fold(j, a):
                 k = (j + m2 + 1) % (-m) + m2
-                sign = (-1) ** ((j + k) % 2)
-                a = a.at[k + m2].add(sign * c[j + n2])
-                a = a.at[-k + m2].add(sign * c[-j + n2])
+                sign = jnp.where((j + k) % 2 == 0, 1, -1)
+                left = jax.lax.optimization_barrier(sign * c[j + n2])
+                a = a.at[k + m2].add(left)
+                right = jax.lax.optimization_barrier(sign * c[-j + n2])
+                return a.at[-k + m2].add(right)
+
+            a = jax.lax.fori_loop(-n2, -m2, fold, initial)
         else:
             m2 = m // 2
-            a = c[n2 - m2 : n2 + m2]
-            a = jnp.concatenate((a, -a[:1]), axis=0)
-            for j in range(-n2, -m2 + 1):
+            initial = c[n2 - m2 : n2 + m2]
+            initial = jnp.concatenate((initial, -initial[:1]), axis=0)
+
+            def fold(j, a):
                 k = (j + m2) % (-m) + m2
                 a = a.at[k + m2].add(c[j + n2])
-                a = a.at[-k + m2].add(c[-j + n2])
+                return a.at[-k + m2].add(c[-j + n2])
+
+            a = jax.lax.fori_loop(-n2, -m2 + 1, fold, initial)
             a = a.at[0].add(a[-1])[:-1]
         c = a
-    return _real_sample_values(c)
+    return _real_sample_values(jax.lax.optimization_barrier(c))
 
+
+def _sample(techs, m):
+    return _sample_coefficients(_stack(techs), m)
+
+
+@jax.jit
+def _scale_matrices(columns, rows, pivots):
+    """Complete native vscale sampling after common-length assembly.
+
+    Source: @separableApprox/vscale.m, @spherefun/sample.m, Chebfun7574c77.
+    Grid caps, physical half, CDR reciprocal and product association are native.
+    """
+    m = min(max(rows.shape[0], 9), 2000)
+    n = min(max(columns.shape[0], 9), 2000)
+    cv = _sample_coefficients(columns, 2 * n - 2)
+    cv = jax.lax.optimization_barrier(
+        jnp.concatenate((cv[n - 1 : 2 * n - 2], cv[:1]), axis=0))
+    rv = jax.lax.optimization_barrier(_sample_coefficients(rows, m))
+    left = jax.lax.optimization_barrier(cv @ jnp.diag(inverse_pivots(pivots)))
+    values = jax.lax.optimization_barrier(left @ rv.T)
+    return jnp.max(jnp.abs(values))
 
 
 def _scale(f):
-    # Source separableApprox.vscale -> spherefun.sample; preserve physical half.
     if f.isempty() or not f.cols:
         return jnp.asarray(0.0)
-    m = min(max(max(t.coeffs.shape[0] for t in f.rows), 9), 2000)
-    n = min(max(max(t.coeffs.shape[0] for t in f.cols), 9), 2000)
-    cv = _sample(f.cols, 2 * n - 2)
-    cv = jnp.concatenate((cv[n - 1 : 2 * n - 2], cv[:1]), axis=0)
-    rv = _sample(f.rows, m)
-    return jnp.max(jnp.abs((cv @ jnp.diag(inverse_pivots(f.pivots))) @ rv.T))
+    return _scale_matrices(_stack(f.cols), _stack(f.rows), f.pivots)
+
+
+@jax.jit
+def _samples_nonzero(columns, rows, pivots):
+    """Source sampled exact-zero predicate; no tolerance or NaN cleanup.
+
+    Source: @separableApprox/iszero.m, @separableApprox/cdr.m, Chebfun7574c77.
+    Per-factor Horner evaluation and raw reciprocal early exit remain outside.
+    """
+    left = jax.lax.optimization_barrier(
+        columns @ jnp.diag(inverse_pivots(pivots)))
+    values = jax.lax.optimization_barrier(left @ rows.T)
+    return jnp.max(jnp.abs(values)) > 0
 
 
 @jax.jit
@@ -211,9 +269,7 @@ def _iszero(f):
     th = jnp.linspace(0.0, 1.0, 10)
     c = jnp.stack([_real_factor_values(t.coeffs, th) for t in f.cols], axis=1)
     r = jnp.stack([_real_factor_values(t.coeffs, lam) for t in f.rows], axis=1)
-    if bool(
-        jnp.max(jnp.abs((c @ jnp.diag(inverse_pivots(f.pivots))) @ r.T)) > 0
-    ):
+    if bool(_samples_nonzero(c, r, f.pivots)):
         return False
     return all(bool(jnp.all(t.coeffs == 0)) for t in f.cols) or all(
         bool(jnp.all(t.coeffs == 0)) for t in f.rows
@@ -327,9 +383,57 @@ def _column_norm(c):
     # Literal trigtech.innerProduct: prolong to sum of lengths, trapezium
     # weights, weighted dot, physical bndfun scaling, then chebfun.norm.
     n = 2 * c.shape[0]
-    v = jnp.real(_trig_coeffs2vals_impl(_trig_prolong_coeffs(c, n)))
-    inner = ((jnp.asarray(2.0) / n) * v) @ v
+    padded = jax.lax.optimization_barrier(_trig_prolong_coeffs(c, n))
+    v = jax.lax.optimization_barrier(jnp.real(_trig_coeffs2vals_impl(padded)))
+    weighted = jax.lax.optimization_barrier((jnp.asarray(2.0) / n) * v)
+    inner = jax.lax.optimization_barrier(weighted @ v)
     return jnp.sqrt(jnp.abs(jnp.abs(inner) * jnp.pi))
+
+
+@jax.jit
+def _pole_data(fc, gc, fm, gm, fp, gp):
+    """Source addPoles samples, sum, transform and cancellation norm.
+
+    Source: @spherefun/plus.m addPoles, @trigtech/innerProduct.m,
+    Chebfun7574c77. Native unequal-length prolongation is unchanged. Barriers
+    preserve the divisions and both scaled samples before their addition.
+    """
+    size = max(fc.shape[0], gc.shape[0])
+    fc = jax.lax.optimization_barrier(_trig_prolong_coeffs(fc, size))
+    gc = jax.lax.optimization_barrier(_trig_prolong_coeffs(gc, size))
+    fv = jax.lax.optimization_barrier(jnp.real(_trig_coeffs2vals_impl(fc)))
+    gv = jax.lax.optimization_barrier(jnp.real(_trig_coeffs2vals_impl(gc)))
+    fscale = jax.lax.optimization_barrier(fm / fp)
+    gscale = jax.lax.optimization_barrier(gm / gp)
+    fvalues = jax.lax.optimization_barrier(fscale * fv)
+    gvalues = jax.lax.optimization_barrier(gscale * gv)
+    values = jax.lax.optimization_barrier(fvalues + gvalues)
+    coeffs = jax.lax.optimization_barrier(_trig_vals2coeffs_impl(values))
+    return coeffs, fv, gv, _column_norm(coeffs)
+
+
+@jax.jit
+def _zero_pole_coefficients(fv, gv, fp, gp):
+    """Literal zero-multiplier branch, including zero/Inf/NaN division.
+
+    Source: @spherefun/plus.m addPoles, Chebfun7574c77.
+    """
+    fscale = jax.lax.optimization_barrier(0 / fp)
+    gscale = jax.lax.optimization_barrier(0 / gp)
+    fvalues = jax.lax.optimization_barrier(fscale * fv)
+    gvalues = jax.lax.optimization_barrier(gscale * gv)
+    values = jax.lax.optimization_barrier(fvalues + gvalues)
+    return _trig_vals2coeffs_impl(values)
+
+
+@jax.jit
+def _pole_nonzero(coeffs, tol):
+    """Source endpoint predicate after cancellation has been excluded.
+
+    Source: @spherefun/plus.m addPoles, @trigtech/horner.m, Chebfun7574c77.
+    """
+    endpoints = _trig_eval(coeffs, jnp.asarray([0.0, 1.0]), is_real=True)
+    return jnp.any(jnp.abs(endpoints) > tol)
 
 
 def _add_poles(f, g, tol):
@@ -338,21 +442,14 @@ def _add_poles(f, g, tol):
     if f.isempty():
         return g
     fc, gc = f.cols[0], g.cols[0]
-    size = max(fc.coeffs.shape[0], gc.coeffs.shape[0])
     fm = f.rows[0].coeffs[f.rows[0].coeffs.shape[0] // 2]
     gm = g.rows[0].coeffs[g.rows[0].coeffs.shape[0] // 2]
-    fv = jnp.real(_trig_coeffs2vals_impl(_trig_prolong_coeffs(fc.coeffs, size)))
-    gv = jnp.real(_trig_coeffs2vals_impl(_trig_prolong_coeffs(gc.coeffs, size)))
-    values = (fm / f.pivots[0]) * fv + (gm / g.pivots[0]) * gv
-    coeffs = _trig_vals2coeffs_impl(values)
-    if bool(_column_norm(coeffs) <= tol):
-        # Literal addPoles zero branch: zero both multipliers, pivot=0.
-        values = (0 / f.pivots[0]) * fv + (0 / g.pivots[0]) * gv
-        return _make([_tech(_trig_vals2coeffs_impl(values))], [_tech(jnp.ones(1))], [0.0], 1, False)
-    from chebfunjax.tech.trigtech import _trig_eval
-
-    endpoints = _trig_eval(coeffs, jnp.asarray([0.0, 1.0]), is_real=True)
-    pole = bool(jnp.any(jnp.abs(endpoints) > tol))
+    coeffs, fv, gv, norm = _pole_data(
+        fc.coeffs, gc.coeffs, fm, gm, f.pivots[0], g.pivots[0])
+    if bool(norm <= tol):
+        coeffs = _zero_pole_coefficients(fv, gv, f.pivots[0], g.pivots[0])
+        return _make([_tech(coeffs)], [_tech(jnp.ones(1))], [0.0], 1, False)
+    pole = bool(_pole_nonzero(coeffs, tol))
     return _make([_tech(coeffs)], [_tech(jnp.ones(1))], [1.0], 1, pole)
 
 
