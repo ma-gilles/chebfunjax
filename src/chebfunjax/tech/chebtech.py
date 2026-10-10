@@ -3207,6 +3207,8 @@ class Chebtech2(eqx.Module):
         --------
         compose, prolong
         """
+        if self.isempty():
+            return self
         if b is None or not isinstance(a, (int, float)):
             # MATLAB restrict(f, s) with a breakpoint vector s: one tech per
             # sub-interval, returned as a list when s has more than two
@@ -3216,20 +3218,23 @@ class Chebtech2(eqx.Module):
                 raise ValueError(
                     "CHEBFUN:CHEBTECH:restrict:badInterval: "
                     "need at least two breakpoints.")
+            if (brk[0] < -1.0 or brk[-1] > 1.0
+                    or any(right <= left for left, right in zip(brk, brk[1:]))):
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
             if len(brk) == 2:
                 return self.restrict(brk[0], brk[1])
             return [self.restrict(brk[i], brk[i + 1])
                     for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
-        if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
+        if a < -1.0 or b > 1.0 or a >= b:
             raise ValueError(
-                f"[a, b] = [{a}, {b}] is not a valid sub-interval of [-1, 1]. "
-                f"Require -1 <= a < b <= 1."
+                "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval."
             )
         # Trivial case: full interval
-        if abs(a - (-1.0)) < 10 * _EPS and abs(b - 1.0) < 10 * _EPS:
-            return Chebtech2(coeffs=self.coeffs.copy(), ishappy=self.ishappy)
+        if a == -1.0 and b == 1.0:
+            return self
 
         n = self.n
         # Chebyshev points of the 2nd kind on [-1, 1]
@@ -5633,6 +5638,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/restrict.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if b is None or not isinstance(a, (int, float)):
             # MATLAB restrict(f, s) with a breakpoint vector s: one tech per
             # sub-interval, returned as a list when s has more than two
@@ -5642,19 +5649,22 @@ class Chebtech1(eqx.Module):
                 raise ValueError(
                     "CHEBFUN:CHEBTECH:restrict:badInterval: "
                     "need at least two breakpoints.")
+            if (brk[0] < -1.0 or brk[-1] > 1.0
+                    or any(right <= left for left, right in zip(brk, brk[1:]))):
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
             if len(brk) == 2:
                 return self.restrict(brk[0], brk[1])
             return [self.restrict(brk[i], brk[i + 1])
                     for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
-        if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
+        if a < -1.0 or b > 1.0 or a >= b:
             raise ValueError(
-                f"[a, b] = [{a}, {b}] is not a valid sub-interval of [-1, 1]. "
-                f"Require -1 <= a < b <= 1."
+                "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval."
             )
-        if abs(a - (-1.0)) < 10 * _EPS and abs(b - 1.0) < 10 * _EPS:
-            return Chebtech1(coeffs=self.coeffs.copy(), ishappy=self.ishappy)
+        if a == -1.0 and b == 1.0:
+            return self
         n = self.n
         x = chebpts(n, kind=1)
         y = 0.5 * (b - a) * x + 0.5 * (a + b)

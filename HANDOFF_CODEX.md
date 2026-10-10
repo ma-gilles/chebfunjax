@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebtech restriction validation restored (2026-10-10; latest)
+
+Both Tech classes now return empty inputs before validation, reject endpoints
+strictly outside [-1,1], validate the complete breakpoint ordering, preserve
+exact full-interval identity, and emit the native badInterval identifier/message.
+Prolong/restrict tests now use native vector/matrix infinity norms and public
+empty/equality predicates. All 40 focused cases and six downstream Singfun
+restriction cases pass; tolerances are unchanged. Only the two restrict methods
+changed in library AST. Evidence: docs/chebtech_restrict_native_cpu_20261010.json.
+Full current-suite, page qualification and publication remain open.
+
 ## Native public isnan tests restored (2026-10-10; latest)
 
 All ten native Chebtech isnan cases now exercise the public method, with exact

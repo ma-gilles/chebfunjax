@@ -1,0 +1,47 @@
+{
+  "package": "Native Chebtech restriction validation and prolong/restrict predicates",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "gates": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_prolong_restrict_predicates_20261010/receipt.json",
+      "receipt_sha256": "0d0a193af27512bedac9268aae4dfc49238c5d19d7204ed46512de356485ae23",
+      "passed": 40,
+      "elapsed_seconds": 58.88439546106383,
+      "peak_child_rss_kib": 1033560,
+      "source_test_hash_count": 2086
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_restrict_singfun_regression_20261010/receipt.json",
+      "receipt_sha256": "c37c39ba68a1679650c7d67ece34c01ed08bc25ea14ffbc70af73db651ed7d97",
+      "passed": 6,
+      "elapsed_seconds": 25.142774615902454,
+      "peak_child_rss_kib": 885232,
+      "source_test_hash_count": 2086
+    }
+  ],
+  "passed_total": 46,
+  "source_review": {
+    "only_changed_library_methods": [
+      "Chebtech1.restrict",
+      "Chebtech2.restrict"
+    ],
+    "all_other_library_ast_unchanged": true,
+    "native_source": "@chebtech/restrict.m:21-33",
+    "norm_source": "https://www.mathworks.com/help/matlab/ref/norm.html",
+    "norm_semantics": "Vectors use max(abs); genuine matrices with both dimensions >1 use maximum absolute row sum.",
+    "v1_failure": "Six native error identifier assertions exposed missing ID in interval validation. v1 also used matrix norm on one-row vectors; corrected before v2.",
+    "source_behavior_restored": [
+      "Empty input returned before interval validation.",
+      "Strict endpoint bounds and global monotonicity validation.",
+      "Exact full interval returns input without approximate endpoint shortcut.",
+      "Native badInterval error ID/message."
+    ]
+  },
+  "native_source_sha256": "0c999fd92f821be9c7978fe01bc480f7a254b8909d13a8ec8cd14f51a4cb4d32",
+  "limitations": [
+    "Focused source/test hash audits; no observed-module runtime hash audit.",
+    "CPU24\u201331 and 180s timeout enforced; RSS measured, not capped.",
+    "Malformed singleton breakpoints retain existing Python error adapter.",
+    "Full current-suite and page qualification remain open."
+  ]
+}

@@ -31,7 +31,10 @@ BOTH = [Chebtech1, Chebtech2]
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    a = jnp.asarray(a)
+    # MATLAB norm(A, inf) sums columns for matrices.
+    return float(jnp.max(jnp.sum(jnp.abs(a), axis=1))
+                 if a.ndim == 2 and min(a.shape) > 1 else jnp.max(jnp.abs(a)))
 
 
 class TestChebtechProlong:
@@ -77,7 +80,7 @@ class TestChebtechProlong:
         values = np.asarray(Tech.coeffs2vals(g.coeffs))
         exact = np.stack([np.sin(np.asarray(x)),
                           -np.sin(np.asarray(x))], axis=-1)
-        assert np.max(np.abs(values - exact)) < 10 * g.vscale * EPS
+        assert _ninf(values - exact) < 10 * g.vscale * EPS
 
     @pytest.mark.parametrize("Tech", BOTH)
     def test_array_valued_highfreq_truncate(self, Tech):
@@ -96,4 +99,4 @@ class TestChebtechProlong:
         g = f.prolong(5)
         values = np.asarray(Tech.coeffs2vals(g.coeffs))
         exact = np.tile([1.0, 2.0, 3.0], (5, 1))
-        assert np.max(np.abs(values - exact)) < 10 * g.vscale * EPS
+        assert _ninf(values - exact) < 10 * g.vscale * EPS

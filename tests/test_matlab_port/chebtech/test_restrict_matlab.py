@@ -10,7 +10,7 @@ on the sub-interval, remapped to [-1, 1], at the SAME tolerance MATLAB uses
 Chebtech1 and Chebtech2.  ``restrict(f, [a b])`` maps the sub-interval
 [a, b] onto [-1, 1] via ``t -> (2/(b-a))*(t-a) - 1``.
 
-Every MATLAB assertion (pass 1-11) is ported; there are no gaps:
+The native predicates (pass 1-11) are exercised as follows:
 
 * Breakpoint VECTORS are supported.  ``f.restrict([a, b, c, ...])`` returns a
   LIST of techs, one per sub-interval (MATLAB returns a cell array);
@@ -20,9 +20,8 @@ Every MATLAB assertion (pass 1-11) is ported; there are no gaps:
 * Array-valued restriction (pass 11) is supported: Chebtech coefficients may
   be an (n, m) matrix (one function per column), and ``restrict`` acts
   column-wise.
-* chebfunjax raises ``ValueError`` where MATLAB raises the identifier
-  ``CHEBFUN:CHEBTECH:restrict:badInterval``; chebfunjax has no MATLAB error
-  identifiers, so the ported tests assert the exception type only.
+* Python encodes the MATLAB error identifier in its ValueError text; the
+  error checks require that exact identifier prefix.
 
 Provenance
 ----------
@@ -42,7 +41,10 @@ EPS = float(np.finfo(np.float64).eps)
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    a = jnp.asarray(a)
+    # MATLAB norm(A, inf) sums columns for matrices.
+    return float(jnp.max(jnp.sum(jnp.abs(a), axis=1))
+                 if a.ndim == 2 and min(a.shape) > 1 else jnp.max(jnp.abs(a)))
 
 
 def _spotcheck_restrict(Tech, fun, a, b):
@@ -63,25 +65,29 @@ class TestChebtechRestrict:
         # pass(n, 1): restricting an empty tech stays empty.
         f = Tech.from_coeffs(jnp.asarray([]))
         g = f.restrict(-0.5, 0.5)
+        assert g.isempty()
         assert g.n == 0
 
     def test_restrict_full_interval(self, Tech):
         # pass(n, 2): restrict to [-1, 1] returns an equal function.
         f = Tech.from_function(lambda x: jnp.sin(x))
         g = f.restrict(-1.0, 1.0)
+        assert f.isequal(g)
         assert g.n == f.n
         assert _ninf(g.coeffs - f.coeffs) == 0.0
 
     def test_restrict_badinterval_right(self, Tech):
         # pass(n, 3): restrict(f, [-1, 3]) -> badInterval error.
         f = Tech.from_function(lambda x: jnp.sin(x))
-        with pytest.raises(ValueError):
+        with pytest.raises(
+                ValueError, match=r"^CHEBFUN:CHEBTECH:restrict:badInterval:"):
             f.restrict(-1.0, 3.0)
 
     def test_restrict_badinterval_left(self, Tech):
         # pass(n, 4): restrict(f, [-2, 1]) -> badInterval error.
         f = Tech.from_function(lambda x: jnp.sin(x))
-        with pytest.raises(ValueError):
+        with pytest.raises(
+                ValueError, match=r"^CHEBFUN:CHEBTECH:restrict:badInterval:"):
             f.restrict(-2.0, 1.0)
 
     def test_restrict_badinterval_nonmonotone(self, Tech):
@@ -89,7 +95,8 @@ class TestChebtechRestrict:
         # The vector is not increasing (0.3 > 0.1), which MATLAB rejects via
         # any(diff(s) <= 0) in @chebtech/restrict.m.
         f = Tech.from_function(lambda x: jnp.sin(x))
-        with pytest.raises(ValueError):
+        with pytest.raises(
+                ValueError, match=r"^CHEBFUN:CHEBTECH:restrict:badInterval:"):
             f.restrict([-1.0, -0.25, 0.3, 0.1, 1.0])
 
     def test_restrict_spotcheck_exp(self, Tech):
@@ -160,3 +167,20 @@ class TestChebtechRestrict:
         err = _ninf(fun(x) - g(mapx))
         tol = 1e3 * g.vscale * EPS
         assert err < tol
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+def test_native_restrict_boundary_order(Tech):
+    # @chebtech/restrict.m: empty return precedes interval validation.
+    empty = Tech.empty()
+    assert empty.restrict(-2.0, 3.0) is empty
+    f = Tech.from_function(lambda x: x)
+    assert f.restrict(-1.0, 1.0) is f
+    for a, b in [(np.nextafter(-1.0, -np.inf), 1.0),
+                 (-1.0, np.nextafter(1.0, np.inf))]:
+        with pytest.raises(
+                ValueError, match=r"^CHEBFUN:CHEBTECH:restrict:badInterval:"):
+            f.restrict(float(a), float(b))
+    # An interior endpoint one ulp from -1 is a real restriction, not identity.
+    g = f.restrict(float(np.nextafter(-1.0, 0.0)), 1.0)
+    assert g is not f
