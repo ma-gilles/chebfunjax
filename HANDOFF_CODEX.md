@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full native Jacobi sweep and restrict error semantics (2026-10-10; latest)
+
+All625 native Jacobi parameter tuples and3 original513x2 cases pass at
+original matrix-infinity-norm bounds, with explicit unmatched NumPy RNG
+adapter. Root verified321 bindings and all28 clean runtime audits;9 reachable
+Jacobi function ASTs match current code. Root7 integration tests pass, including
+all3large cases and restrict error slots4-6. Prior oracle-grouping failure is
+preserved; no production changes. Reduced composition tests remain supplemental.
+Evidence: docs/native_jacobi_restrict_tests_cpu_20261010.json.
+
 ## Parametric source plotData and limits (2026-10-10; latest)
 
 Bounded polynomial parametric curves now overlap breakpoints and sample both

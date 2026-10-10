@@ -1,0 +1,125 @@
+{
+  "scope": "Restore full native Jacobi test shapes/operators/assertions and restrict malformed-domain catch semantics. Production code unchanged.",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "jacobi": {
+    "status": "628 pass,28 clean runtime audits; no production edits",
+    "scope": "original625 sweep and3 N513 predicates; native shapes/operators/matrix-infinity-norm/bounds preserved",
+    "limitations": [
+      "NumPy default_rng(0) deterministic adapter, not MATLAB rng(0) fixture parity",
+      "Fresh processes every25 sweep cases and each large case; caches retained within each process",
+      "Prior reduced81 composition assertions preserved supplemental; not rerun",
+      "No MATLAB timing or global algorithm parity claim"
+    ],
+    "prior_evidence": "Initial50pass/index50failure preserved separately; oracle grouping fault independently localized with mpmath80; no merged counts",
+    "max_sweep_error": 8.405387497134598e-11,
+    "large_results": [
+      {
+        "index": 625,
+        "parameters": [
+          0.46,
+          -0.7,
+          0.56,
+          1.54
+        ],
+        "shape": [
+          513,
+          2
+        ],
+        "input_sha256": "afad1833e24d0e2abb651aee316c99514f2540ec208ccbc6171c190e7372ddbf",
+        "error": 1.8549883851193272e-11,
+        "bound": 2e-10,
+        "passed": true,
+        "elapsed_seconds": 4.829586856067181,
+        "gate": "large0_literal_v2"
+      },
+      {
+        "index": 626,
+        "parameters": [
+          -0.6,
+          -0.4,
+          -0.65,
+          -0.45
+        ],
+        "shape": [
+          513,
+          2
+        ],
+        "input_sha256": "c67746ec517b9c13285c2fc3c430931a789282cfacce7ead2124e40b9e5a442c",
+        "error": 1.8357027009585636e-10,
+        "bound": 4e-10,
+        "passed": true,
+        "elapsed_seconds": 4.559520366135985,
+        "gate": "large1_literal_v2"
+      },
+      {
+        "index": 627,
+        "parameters": [
+          0.1,
+          -0.4,
+          0.10000001,
+          -0.4
+        ],
+        "shape": [
+          513,
+          2
+        ],
+        "input_sha256": "a3dd49a3a9f3d3cf99a6bf9f6adbff635c25dd51290be1ec933198ce9c5b176b",
+        "error": 2.1561641361245165e-11,
+        "bound": 2e-10,
+        "passed": true,
+        "elapsed_seconds": 4.29801523219794,
+        "gate": "large2_literal_v2"
+      }
+    ],
+    "peak_rss_kib": 893188,
+    "gate_wall_seconds_range": [
+      67.85387746570632,
+      141.7750907028094
+    ],
+    "observed_runtime_file_counts": [
+      2944
+    ]
+  },
+  "independent_review": {
+    "delivery_bindings_rehashed": 321,
+    "terminal_clean_gates": 28,
+    "unique_observed_runtime_paths_rehashed": 2944,
+    "current_source_binding": "Jacobi entry and all nine reachable same-module functions have identical AST. Current module additionally contains unrelated qualified ultraspherical changes and removal of unused NumPy helper."
+  },
+  "root_integration_gate": {
+    "passed": 7,
+    "scope": "Sweep index50, all3large513cases, all3restrict error slots; overlaps agent evidence.",
+    "elapsed_seconds": 13.867876716889441,
+    "peak_child_rss_kib": 709904,
+    "cpu_affinity": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39
+    ],
+    "timeout_seconds": 120,
+    "source_unchanged": true
+  },
+  "restrict": "Native pass6 catches any exception. Python test now does likewise; exact source error IDs for passes4/5 retained. Missing native pass24 RNG fixture remains open.",
+  "limits": [
+    "625+3 full sweep ran isolated source snapshot; current-head integration reran four Jacobi predicates after static dependency equality review, not another full625.",
+    "Native MATLAB RNG values remain unavailable; source input shapes and original tolerances preserved with explicit NumPy RNG adapter.",
+    "Old reduced composition test remains supplemental and is not full native coverage.",
+    "Root integration has full source/test/output hash checks, no observed runtime-origin audit or enforced RSS cap.",
+    "Global core sweep remains on frozen c8172bfa; MATLAB executable fixtures and remote CI unresolved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jac2jac_full_native_source_20261010/DELIVERY_LITERAL_v2.json": "23a87f65eb8a5cfa09bd9b5e735474d56a006935233f9451a3c0be8bb3422d75",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jac2jac_full_native_source_20261010/TEST_CANDIDATE_LITERAL_v2.patch": "3e47130eb49a5864866b5e22cbbde7e4df50f39c1996e8e6f1cd46008a11d7e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_full_native_root_review_20261010.json": "4f1fb0cfcc01022b06b2d07e918362a3f4ebe757859c5591797571091d9dfacf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_current_source_binding_20261010.json": "0fbcc81ada9563caeac432aba129f16b8529de7b455425d48cc39fcec885d7aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_pass6_root_review_20261010.json": "ae7f34be35845ccb349e37bb1b8dc5345c2fa0ca5c845afe27e34f52a37cab7a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_tests_integration_root_20261010/receipt.json": "a2da2df52af2672434169a37991b4edabb03bf5d2ca06f5e962dc7dfc389cf95",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_tests_integration_root_20261010/junit.xml": "2bbcd33440fa9ddb0138baeaaddbe04f5683fcc272252cfd70297f095b8b1e6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_tests_integration_root_20261010/static.json": "7c8fe25778950eed79b1962373a60f32b2213ae0884067ac5e708887379dd235"
+  }
+}

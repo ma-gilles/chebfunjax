@@ -1,37 +1,55 @@
-"""Port of MATLAB Chebfun tests/misc/test_jac2jac.m (Fable 5).
+"""All native tests/misc/test_jac2jac.m7574c77 assertions.
 
-MATLAB sweeps 5^4 (alpha,beta,gam,delta) combinations against a direct
-cheb2jac(jac2cheb(.)) reference at tol 2e-10; the port uses the same
-composition identity on a reduced deterministic sweep (3^4) for
-runtime, at the same tolerance per combination.
-
-Provenance
-----------
-MATLAB source : tests/misc/test_jac2jac.m
-Chebfun commit: 7574c77
+The 625-parameter sweep and three N513 cases retain native shapes, direct
+reference operators, matrix infinity norms and bounds. NumPy default_rng(0)
+is a deterministic fixture adapter, not MATLAB rng(0)/randn parity.
 """
-
-from __future__ import annotations
+import hashlib
+import itertools
+import json
+import os
+import time
 
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from chebfunjax.utils.transforms import cheb2jac, jac2cheb, jac2jac
+from chebfunjax.utils.transforms import jac2jac
 
-TOL = 2e-10
+from ._jac2jac_native_reference import cheb2jac_direct, jac2cheb_direct
+
 RNG = np.random.default_rng(0)
-V = jnp.asarray(RNG.standard_normal(10))
-PARAMS = np.linspace(-0.99, 1.1, 3)
+V = RNG.standard_normal((10, 2))
+LARGE_VALUES = [RNG.standard_normal((513, 2)) for _ in range(3)]
+PARAMS = np.linspace(-.99, 1.1, 5)
+TUPLES = list(itertools.product(PARAMS, repeat=4))
+LARGE = [(.46, -.7, .56, 1.54, 2e-10),
+         (-.6, -.4, -.65, -.45, 4e-10),
+         (.1, -.4, .10000001, -.4, 2e-10)]
 
 
-class TestJac2jac:
-    @pytest.mark.parametrize("a", PARAMS)
-    @pytest.mark.parametrize("b", PARAMS)
-    def test_jac2jac_matches_composition(self, a, b):
-        for g in PARAMS:
-            for d in PARAMS:
-                exact = cheb2jac(jac2cheb(V, a, b), g, d)
-                w = jac2jac(V, a, b, g, d)
-                err = float(jnp.max(jnp.abs(w - exact)))
-                assert err < TOL, f"(a,b,g,d)=({a},{b},{g},{d})"
+def _check(v, parameters, bound, index):
+    start = time.monotonic()
+    a, b, g, d = parameters
+    exact = cheb2jac_direct(jac2cheb_direct(v, a, b), g, d)
+    w = np.asarray(jac2jac(jnp.asarray(v), a, b, g, d))
+    error = float(np.linalg.norm(exact-w, ord=np.inf))
+    record = {'index': index, 'parameters': [float(p) for p in parameters],
+              'shape': list(v.shape), 'input_sha256': hashlib.sha256(v.tobytes()).hexdigest(),
+              'error': error, 'bound': bound, 'passed': error < bound,
+              'elapsed_seconds': time.monotonic()-start}
+    if path := os.environ.get('JAC2JAC_CASE_RECORDS'):
+        with open(path, 'a') as stream:
+            stream.write(json.dumps(record)+'\n')
+    assert error < bound, record
+
+
+@pytest.mark.parametrize('index', range(625), ids=lambda n: f'{n:03d}')
+def test_native_sweep(index):
+    _check(V, TUPLES[index], 2e-10, index)
+
+
+@pytest.mark.parametrize('index', range(3))
+def test_native_large(index):
+    *parameters, bound = LARGE[index]
+    _check(LARGE_VALUES[index], parameters, bound, 625+index)

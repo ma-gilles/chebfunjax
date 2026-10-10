@@ -47,8 +47,13 @@ def test_source_03():
 @pytest.mark.parametrize('slot,dom', [(4, [-2, .5]), (5, [-.5, 2]), (6, [-1, -.25, .3, .1, 1])])
 def test_source_bad_domain(slot, dom):
     f = cj.chebfun(jnp.sin)
-    with pytest.raises(ValueError, match='CHEBFUN:CHEBFUN:restrict:subdom' if slot != 6 else None):
-        f.restrict(dom)
+    if slot == 6:
+        # Native pass(6) treats any thrown error as success for this malformed vector.
+        with pytest.raises(Exception):
+            f.restrict(dom)
+    else:
+        with pytest.raises(ValueError, match='CHEBFUN:CHEBFUN:restrict:subdom'):
+            f.restrict(dom)
 
 
 @pytest.mark.parametrize('slot', range(7, 23))
