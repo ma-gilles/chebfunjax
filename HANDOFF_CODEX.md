@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigtech Fourier transforms now use JAX throughout (2026-10-10; latest)
+
+Concrete and traced public transforms share the existing JAX kernels; the
+two unused NumPy transform mirrors are removed. Kernel and other method ASTs
+are unchanged. All 123 focused/native/construction cases passed, plus one
+cumulative resource control covering 832 round trips across 416 lengths.
+Root audited all four runtime gates and source equivalence. Cumulative peak
+RSS was 2.87 GiB; cold compilation retained 416 entries per kernel and the
+warm sweep added no entries. Native 100eps absolute bounds were unchanged.
+Evidence: docs/trig_transforms_jax_cpu_20261010.json. Legacy host Horner and
+construction paths remain; no full expensive-solver or matched speed claim.
+
+Latest full dimension audit maps 1,305 figure pairs with no missing files or
+changed reference bytes: 37 size mismatches across 8 pages remain after
+Consensus. Source: figure_size_current_d85340c7_20261010.json in shared evidence.
+Matching dimensions do not establish figure content or historical rendering.
+
 ## Consensus source forcing and full page restored (2026-10-10; latest)
 
 All three native [0,40] solves completed in 596.6s with 4.26 GiB peak RSS.

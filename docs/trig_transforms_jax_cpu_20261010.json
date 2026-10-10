@@ -1,0 +1,281 @@
+{
+  "current_head": "d85340c7b82abc3e71d3e6efbfde5ae01a760bbf",
+  "removed": [
+    "_trig_coeffs2vals_np",
+    "_trig_vals2coeffs_np"
+  ],
+  "changed": [
+    "trig_coeffs2vals",
+    "trig_vals2coeffs"
+  ],
+  "all_other_function_class_AST_unchanged": true,
+  "gates": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms32_root_runtime_review_20261010.json",
+      "sha256": "4f183db7667b49adf701fe713a4f8d58a06c43b544cb3ea10a55b485525fc190",
+      "gates": [
+        {
+          "gate": "transform32_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms_jax_source_20261010/transform32_v1/supervision/receipt.json",
+          "receipt_sha256": "198608432435ac8a45f1bb12c5baaae4432ba6993daf122b5a2f59c01f721eb2",
+          "runtime_manifest_sha256": "9a34cf8d633519ae00ba3a40ab69b44ec9fc275a33b60e49a12921ffea2db4ce",
+          "runtime_end_sha256": "47896bd534a73e11db1aad4329a2bd393d32499118a7744811d270290ee0bab7",
+          "observed_files_rehashed": 2938,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 49,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 723456,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 32,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real59_root_runtime_review_20261010.json",
+      "sha256": "30ac97898ac5b4fc81338f0eda21eaba9bb5e233c6eb33e6d5ad5f70c198a62e",
+      "gates": [
+        {
+          "gate": "real59_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms_jax_source_20261010/real59_v1/supervision/receipt.json",
+          "receipt_sha256": "b6096057328163b40b29812481f2dccd54823b7047eaced8bedaf7dc5649877c",
+          "runtime_manifest_sha256": "3a645bb23679dbf8a75e33617138ec170d98e1737ebd028a89ab3a26c8f8e200",
+          "runtime_end_sha256": "c5f16c64a76d6bc4301d76a9bb87d0fd3f63623fb4d26c7c3bb2eee26a7dace7",
+          "observed_files_rehashed": 2949,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 61,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 2735776,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 59,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_construct32_root_runtime_review_20261010.json",
+      "sha256": "62e62f346a166a0b7161c0f1f23da6138e1b9e5065ccae43779d6808e5102371",
+      "gates": [
+        {
+          "gate": "construct32_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms_jax_source_20261010/construct32_v1/supervision/receipt.json",
+          "receipt_sha256": "34f4731b3857dd1179ceecb708ae13160612a3ed38a0617cead658bf8e4c0d9a",
+          "runtime_manifest_sha256": "140480d409e845d651b0c5f775ef8cecc3bc7592ab5873b568ae37e80821ece9",
+          "runtime_end_sha256": "96293a17ca3a0ffe7fe61a479aab7a199097d1a103beaaf157852409b9eece89",
+          "observed_files_rehashed": 2956,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 64,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 3354492,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 32,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ]
+    }
+  ],
+  "resource_review": {
+    "reviewer": "/root",
+    "scope": "Cumulative416 distinct shapes,832roundtrips, original100eps; supplemental resource control, no full solver or MATLAB timing claim",
+    "gates": [
+      {
+        "gate": "cumulative416_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms_cumulative_resource_20261010/cumulative416_v1/supervision/receipt.json",
+        "receipt_sha256": "c607dc42db55ee921127966111ffe72c6f289df5c77c829b1490ab739e68c173",
+        "runtime_manifest_sha256": "108256562f48f51303c80c86c8861bb7ce124a805fd947a19aa79a7731229acc",
+        "runtime_end_sha256": "212b0a0e420880a16ec553c1a9e5cc3077ffacf6d89471f48d935bd9da002a88",
+        "observed_files_rehashed": 2922,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 238,
+        "before_after_identical": true,
+        "peak_kib": 3007100,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "resource_delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_transforms_cumulative_resource_20261010/DELIVERY.json",
+    "sha256": "2ef4cd95adb7edbf22f08f9ee7f57200b6467e0f65af219223f16fba25285ff0",
+    "bindings": 25
+  },
+  "resource_results": {
+    "original_handle": 28194,
+    "receipt": {
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 3007100,
+      "wall_seconds": 169.93881711969152,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "faults": [],
+    "observed_files": 2922,
+    "runtime_failures": [],
+    "manifest_hash_matches": true,
+    "bad_origins": {},
+    "junit": [
+      {
+        "name": "test_cumulative_416_lengths",
+        "outcomes": []
+      }
+    ],
+    "events": 838,
+    "phase_summaries": [
+      {
+        "event": "phase_end",
+        "phase": "cold",
+        "completed_lengths": 416,
+        "forward_seconds_sum": 45.979972150642425,
+        "inverse_seconds_sum": 38.21306227054447,
+        "max_absolute_errors": [
+          2.014825869654255e-15,
+          2.4450125863434694e-15,
+          1.831026719408895e-15
+        ],
+        "max_input_amplitudes": [
+          1.1395778901512454,
+          1.4000000000000004,
+          1.0115773104010608
+        ],
+        "timestamp_utc": "2026-10-10T07:18:16.502365+00:00",
+        "elapsed_seconds": 89.30781144881621,
+        "rss_kib": 2999932,
+        "peak_rss_kib": 2997532,
+        "cache_entries": {
+          "forward": 416,
+          "inverse": 416
+        }
+      },
+      {
+        "event": "phase_end",
+        "phase": "warm",
+        "completed_lengths": 416,
+        "forward_seconds_sum": 0.03418282978236675,
+        "inverse_seconds_sum": 0.030718157533556223,
+        "max_absolute_errors": [
+          2.014825869654255e-15,
+          2.4450125863434694e-15,
+          1.831026719408895e-15
+        ],
+        "max_input_amplitudes": [
+          1.1395778901512454,
+          1.4000000000000004,
+          1.0115773104010608
+        ],
+        "timestamp_utc": "2026-10-10T07:18:16.708318+00:00",
+        "elapsed_seconds": 89.51376343611628,
+        "rss_kib": 2999960,
+        "peak_rss_kib": 2997532,
+        "cache_entries": {
+          "forward": 416,
+          "inverse": 416
+        }
+      }
+    ],
+    "last_event": {
+      "event": "complete",
+      "roundtrips": 832,
+      "distinct_lengths": 416,
+      "timestamp_utc": "2026-10-10T07:18:16.708442+00:00",
+      "elapsed_seconds": 89.51388612715527,
+      "rss_kib": 2999960,
+      "peak_rss_kib": 2997532,
+      "cache_entries": {
+        "forward": 416,
+        "inverse": 416
+      }
+    },
+    "full_shape_sequences": {
+      "cold": true,
+      "warm": true
+    },
+    "samples_completed": {
+      "cold": 416,
+      "warm": 416
+    },
+    "passed": true
+  },
+  "limitations": [
+    "Legacy NumPy Horner/construction paths remain; not whole module JAX compliance.",
+    "Resource control is416transform shapes, not a full Helmholtz or atmospheric solver qualification.",
+    "Timing descriptive under parallel work; no paired MATLAB speed claim.",
+    "Whole current suite and remote CI remain open."
+  ],
+  "candidate_sha256": "9fe524af35ca4797101eccc23e1578821949b0b86c21d4e26807d00b40c9723f",
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "d85340c7b82abc3e71d3e6efbfde5ae01a760bbf",
+    "passed": true
+  }
+}
