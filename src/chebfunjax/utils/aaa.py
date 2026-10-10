@@ -1238,6 +1238,14 @@ def _revaltrig_csc(
     D = CC @ wj
     r = N / D
 
+    # Native revaltrig.m imaginary-infinity limits (7574c77).
+    upper_phase = jnp.exp(-1j*zj/2)
+    lower_phase = jnp.exp(1j*zj/2)
+    upper_limit = jnp.sum(wj*fj*upper_phase)/jnp.sum(wj*upper_phase)
+    lower_limit = jnp.sum(wj*fj*lower_phase)/jnp.sum(wj*lower_phase)
+    r = jnp.where(jnp.isposinf(jnp.imag(zv)), upper_limit, r)
+    r = jnp.where(jnp.isneginf(jnp.imag(zv)), lower_limit, r)
+
     # Fix NaNs at support points
     diff = zv[:, None] - zj[None, :]
     exact = diff == 0.0
@@ -1265,6 +1273,10 @@ def _revaltrig_cot(
     N = CC @ (wj * fj)
     D = CC @ wj
     r = N / D
+
+    # Native revaltrig.m imaginary-infinity limits (7574c77).
+    limit = jnp.sum(wj*fj)/jnp.sum(wj)
+    r = jnp.where(jnp.isinf(jnp.imag(zv)), limit, r)
 
     diff = zv[:, None] - zj[None, :]
     exact = diff == 0.0

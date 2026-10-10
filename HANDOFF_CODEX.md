@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native AAAtrig evaluation at imaginary infinity restored (2026-10-10; latest)
+
+Both trigonometric bases now return the native analytic limits at positive
+and negative imaginary infinity using JAX. The baseline returned NaNs for
+independently derived finite limits. All 24 cases passed, including closed-form
+limits, NaN/real-infinite/support evaluation, original public special-value
+predicates and the previous 20 controls. Root verified 2,940 runtime files;
+all constructor and pole/zero code is unchanged. Evidence:
+docs/aaatrig_evaluation_cpu_20261010.json. Missing degree/Lawson/autoZ and
+infinity-sample constraints, native RNG fixtures, inherited host construction,
+complete native tests and current-head CI remain unresolved.
+
 ## Native Chebfun3 get and empty properties restored (2026-10-10; latest)
 
 All five valid properties of an empty Chebfun3 return native numeric empty

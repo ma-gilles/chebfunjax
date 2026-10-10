@@ -1,0 +1,119 @@
+{
+  "scope": "Native AAAtrig evaluator limits at imaginary infinities",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_review": {
+    "native": "revaltrig.m at7574c77",
+    "native_sha256": "bf0f972dc0dc66b5922641c68ebcf561b8ba37ed04781b20f22bc74280bd60fa",
+    "scope": "Source-defined +/-imaginary-infinity limits for both basis forms; construction and pole/zero algorithms unchanged.",
+    "protected_AST_identical": true,
+    "baseline_candidate_test_bytes_identical": true,
+    "arithmetic": "Numerator retains native left-to-right wj*fj*exp; denominator wj*exp. Even limit sum(wj*fj)/sum(wj).",
+    "representation_adapter": "Inspect imaginary coordinate directly instead of complex division by1i to avoid artificial NaNs at infinite values.",
+    "tests": "Two independent closed-form both-form limits, exact supports/NaN/real infinities; two actual public native special-value predicates, plus20 previously accepted controls.",
+    "source_order_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_evaluation_source_20261010/SOURCE_ORDER_CORRECTION_v3.json",
+    "limitations": [
+      "Malformed complex inputs with NaN real part and infinite imaginary part are not qualified.",
+      "Inherited host constructor/eigenproblem and missingLawson/degree/autoZ still open.",
+      "No full current suite or remoteCI claim."
+    ]
+  },
+  "baseline_expected_failure": {
+    "reviewer": "/root",
+    "scope": "Preserved native imaginary-infinity evaluation baseline expected failure",
+    "gates": [
+      {
+        "gate": "aaatrig_evaluation_source_20261010/baseline_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_evaluation_source_20261010/baseline_v2/supervision/receipt.json",
+        "receipt_sha256": "444552d07241e463098f923ded1f760e8a84785c802883cdb687d1d0af36bb23",
+        "runtime_manifest_sha256": "e12f1872b30afabaea8107c5297ddb06310f02d34a9edad780a573b364d81b4e",
+        "runtime_end_sha256": "d0293bebad6fb04ff6f5026d0da29dab49c08fbc4536dc9fc09510e5e76d804c",
+        "observed_files_rehashed": 2939,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 544480,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "preserved_outcome": [
+          {
+            "name": "test_closed_form_imaginary_infinity_limits[odd]",
+            "failures": [
+              "tests/test_utils/test_aaatrig_evaluation_source.py:21: in test_closed_form_imaginary_infinity_limits\n    assert jnp.max(jnp.abs(actual-expected)) < 2e-15\nE   assert Array(nan, dtype=float64) < 2e-15\nE    +  where Array(nan, dtype=float64) = <function max at 0x14f85475fe20>(Array([[nan, nan]], dtype=float64))\nE    +    where <function max at 0x14f85475fe20> = jnp.max\nE    +    and   Array([[nan, nan]], dtype=float64) = <PjitFunction of <function abs at 0x14f85485f9c0>>((Array([[nan+nanj, nan+nanj]], dtype=complex128) - Array([4.4-1.2j, 4.4+1.2j], dtype=complex128)))\nE    +      where <PjitFunction of <function abs at 0x14f85485f9c0>> = jnp.abs"
+            ]
+          }
+        ],
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "candidate_runtime_review": {
+    "reviewer": "/root",
+    "scope": "AAAtrig infinity mapping/cancellation candidate twenty cases",
+    "gates": [
+      {
+        "gate": "aaatrig_evaluation_source_20261010/candidate_v3",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_evaluation_source_20261010/candidate_v3/supervision/receipt.json",
+        "receipt_sha256": "a6660c40523a627ef6a3ed78ec5d58d8dcb30bf65fdcb5640c213242a8527f04",
+        "runtime_manifest_sha256": "ec1cc3cf609ec1b1ffc38d9f795d270a7651e85174d0c88ed0283d7f8ca2a13c",
+        "runtime_end_sha256": "8205ead60126b540ee1a14af7993baa0e1aab4406cd84a9135ff1249edfe3427",
+        "observed_files_rehashed": 2940,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1918848,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 24,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "cases_passed": 24,
+  "baseline_candidate_tests_identical": true,
+  "integrated_sha256": {
+    "src/chebfunjax/utils/aaa.py": "1b9ad925715dbb9cd929b5eca9c94eb68548448d618ce753d89d1adac967d263",
+    "tests/test_utils/test_aaatrig_evaluation_source.py": "ee6becf00238896a9488c4a087e956d7ec678cf727ca618cb485ffe3d0577715"
+  },
+  "preserved_prelaunch_records": [
+    {
+      "stage": "preparation before guard freeze or numerical launch",
+      "exit_code": 1,
+      "error": "Path/string precedence in generated SOURCE_REVIEW filename",
+      "action": "Corrected parentheses; retain baseline_v1 as unlaunched; prepare fresh v2"
+    },
+    {
+      "unlaunched_candidate": "candidate_v2",
+      "change": "Retain native left-to-right wj*fj*exp multiplication in limit numerator; denominator wj*exp.",
+      "tests_unchanged": true,
+      "reason": "Source inspection before numerical launch found regrouped multiplication."
+    }
+  ],
+  "full_goal_complete": false
+}
