@@ -1,0 +1,8 @@
+{
+  "base": "7220c652100e2ff6743a5d19d18ead42e84b597d",
+  "verified_bindings": 15,
+  "delivery_sha256": "a1cfd5fa1a0ad387d42327135943277d1f02b00a2181978ec1bec805500a0533",
+  "scope": "HTML parser/doc correction only; no numericalexample rerun",
+  "qualification": "Agent compared322cached pages; onlyNeedle changes; exact12orderedMATLABfences and5figurelinks restored",
+  "numerical_limits": "Existing Python yval0.076897720345079 is preserved; native0.076897745875264 differs. Missing optimization timing explicitlynotinvented. Full numericalparity remainsunqualified."
+}

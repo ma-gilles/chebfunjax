@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Needle page parser correction and fresh static inventory (2026-10-10; latest)
+
+A malformed cached anchor flattened Needle's final five MATLAB blocks and two
+outputs into prose. The parser now repairs that exact anchor form; all 322
+cached renders were compared and only Needle changes. Its 12 ordered code
+blocks and five figure links are restored, with the retained Python outputs
+and an explicit missing optimization timing. Root verified 15 delivery bindings.
+No numerical parity claim: Needle's existing Python minimum differs from the
+native printed value. Evidence: docs/needle_page_parser_cpu_20261010.json;
+full audit is page_figure_committed_e2a64600_20261010 under shared goal scratch.
+That audit confirms 322 pages and 1,305 assets present, with 28 dimension errors
+on five pages; static presence does not establish computational parity.
+
 ## Native factor and periodic restriction (2026-10-10; latest)
 
 Chebfun2 restriction now reuses its factors and pivot state. It preserves the

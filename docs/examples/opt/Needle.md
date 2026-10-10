@@ -108,13 +108,52 @@ title(['min value on grid: ' num2str(min(min(yy)))],FS,14), toc
 
 ```text
 Elapsed time is 0.040735 seconds.
-yval =
-   0.076897720345079
 ```
 
 ![Needle figure 04](../../images/opt/Needle_04.png)
 
-The winner seems to be the region on the right. From here the right thing to do is call a bivariate optimization routine. In basic MATLAB the simplest one is the direct search code . This requires the input to be a single vector, so we'll need a wrapper: function y = minfunwrapper(xvec) y = minfun(xvec(1), xvec(2)); end Here goes. opts = optimset('tolx',1e-14,'display','off'); guess = [.41, -0.2]; tic, [xvec,yval] = fminsearch(@minfunwrapper,guess,opts); toc Elapsed time is 8.119365 seconds. So it would seem that to 10 digits or more, the minimal height is around yval yval = 0.076897745875264 Here is a closeup of the solution: plotneedle(xvec(1),xvec(2)), hold on axis equal, axis([-2 2 -.4 1.2]) plot(xvec(1),yval,'.k',MS,12), grid on ![Needle figure 05](../../images/opt/Needle_05.png) end © Copyright 2025 the University of Oxford and the Chebfun Developers.
+The winner seems to be the region on the right. From here the right thing to do is call a bivariate optimization routine. In basic MATLAB the simplest one is the direct search code [fminsearch](http://www.mathworks.co.uk/help/matlab/ref/fminsearch.html). This requires the input to be a single vector, so we'll need a wrapper:
+
+```matlab
+function y = minfunwrapper(xvec)
+y = minfun(xvec(1), xvec(2));
+end
+```
+
+Here goes.
+
+```matlab
+opts = optimset('tolx',1e-14,'display','off');
+guess = [.41, -0.2];
+tic, [xvec,yval] = fminsearch(@minfunwrapper,guess,opts); toc
+```
+
+The optimization timing was not retained in the existing Python output, so no timing value is shown here.
+
+So it would seem that to 10 digits or more, the minimal height is around
+
+```matlab
+yval
+```
+
+```text
+yval =
+   0.076897720345079
+```
+
+Here is a closeup of the solution:
+
+```matlab
+plotneedle(xvec(1),xvec(2)), hold on
+axis equal, axis([-2 2 -.4 1.2])
+plot(xvec(1),yval,'.k',MS,12), grid on
+```
+
+![Needle figure 05](../../images/opt/Needle_05.png)
+
+```matlab
+end
+```
 
 ---
 

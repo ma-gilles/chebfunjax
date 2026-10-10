@@ -64,6 +64,17 @@ class _TreeParser(HTMLParser):
         self.stack: list[_Node] = []
         self.depth_in = 0
 
+    def feed(self, data):
+        # The cached Needle page corrupts a valid source <a href=...> into
+        # <href='...'&gt;label&lt;/a>. Repair that precise anchor spelling so
+        # HTMLParser does not nest all later code/output inside the paragraph.
+        data = re.sub(
+            r"<href=(['\"])(.*?)\1&gt;([^<]*?)&lt;/a>",
+            lambda match: f'<a href={match[1]}{match[2]}{match[1]}>{match[3]}</a>',
+            data,
+        )
+        super().feed(data)
+
     def handle_starttag(self, tag, attrs):
         d = dict(attrs)
         if self.root is None:
