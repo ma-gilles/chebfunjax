@@ -1,0 +1,55 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": [
+    "@diskfun/svd.m",
+    "@diskfun/norm.m",
+    "@trigtech/qr.m",
+    "@chebtech/restrict.m"
+  ],
+  "changes": [
+    "Native common-length radial restriction and r-weighted QR with positive R diagonal; unweight before sign correction",
+    "Continuous angular QR preserves authoritative values and physical domain scaling",
+    "JAX core SVD with plain transpose in core and native singular-function reconstruction",
+    "Default/2/fro norm now sqrt(sum(svd(f)**2)); previous sampled host quadrature removed",
+    "Public empty norm dispatch restored by removing norm from generic object-return wrapper"
+  ],
+  "api": "Values-only remains default; return_uv=True returns U,diagonal S,V. Empty native early return is one empty array in either mode.",
+  "checks": {
+    "focused": 14,
+    "original_native": 6,
+    "failed": 0,
+    "skipped": 0,
+    "root_junit_review": true
+  },
+  "runtime_reviews": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_svd_helpers_root_runtime_review_20261009.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_svd_native_root_runtime_review_20261009.json"
+  ],
+  "runtime_files_rehashed": [
+    2950,
+    2951
+  ],
+  "original_handles": [
+    93727,
+    26818
+  ],
+  "root_audit_handles": [
+    51565,
+    60152
+  ],
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_svd_candidate_v2_20261009",
+  "delivery_sha256": "9f0dba015fdf12bee68ddb371acce0dd64b9d812bd4fdbfe8b1ab7fda3a00d1c",
+  "payload_sha256": {
+    "src/chebfunjax/diskfun/diskfun.py": "c1455b8865b7854b4a8b8a37e7beadfef9fd82fb3086af54fee7a0d4357b4581",
+    "src/chebfunjax/diskfun/_svd.py": "f29a76277d93d1e164b7c5bf788389a4163e50fcd2c492976375f57820846e9c",
+    "tests/test_diskfun/test_svd_source.py": "54094b96902caaa4f629c9b321e417ee929f21d0debea1570bf2b2dd51fe5868",
+    "tests/test_matlab_port/diskfun/test_svd_norm_native_source.py": "cfba87f70f03a6138fac79702081fb6f22dac5f03730e219d076b0326415d33f"
+  },
+  "limitations": [
+    "No general JIT/AD guarantee or phase-wise MATLAB singular-vector identity.",
+    "New core arithmetic is JAX; inherited upstream adaptive construction and public evaluation retain host paths, so global library JAX purity remains unresolved.",
+    "Nonfinite QR/SVD providers retain explicit unqualified capability boundary.",
+    "Initial focused run stopped after6passes on empty-wrapper failure; preserved before correction. Earlier even-norm empty tests qualified only method seams.",
+    "No new whole-page, performance, or remote CI qualification."
+  ]
+}

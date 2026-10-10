@@ -1413,81 +1413,24 @@ class Diskfun(eqx.Module):
 
         return U @ jnp.diag(dinv) @ R.T
 
-    def svd(self) -> jax.Array:
-        r"""Singular values of the Diskfun (as a Hilbert--Schmidt kernel).
+    def svd(self, return_uv: bool = False):
+        """Disk-weighted singular values, or ``(U, S, V)`` when requested.
 
-        Returns the singular values of ``f`` in non-increasing order.  The
-        number returned equals the length (number of pivots) of the Diskfun.
-
-        The SVD is computed from the CDR decomposition ``f = C D R'`` by
-        orthonormalising the column and row slices in their physical inner
-        products::
-
-            C = Q_C R_C     (QR in the disk radial weight  <u, v> = int_0^1 u v r dr)
-            R = Q_R R_R      (QR in the angular L^2 weight  <u, v> = int_{-pi}^{pi} u v dtheta)
-            f = Q_C ( R_C D R_R' ) Q_R'
-
-        so the singular values of ``f`` are those of the small ``rank x rank``
-        core ``R_C D R_R'``.  The radial QR uses a Gauss--Legendre rule on
-        ``[0, 1]`` weighted by ``sqrt(w * r)`` (the disk measure); the angular
-        QR uses the exact Parseval inner product on the Fourier coefficients
-        (weight ``sqrt(2 * pi)``).
-
-        Returns
-        -------
-        jax.Array, shape (rank,)
-            Singular values in non-increasing order.
-
-        Notes
-        -----
-        NOT JIT-safe (uses numpy QR/SVD on the small core).
+        With ``return_uv=True``, U and V are array-valued Chebfuns on [0,1]
+        and [-pi,pi], and S is a diagonal matrix, as in the native three-output
+        call. U is orthonormal with radial weight r; V in angular L2.
+        Default calls retain the singular-value vector API. Empty input
+        returns one empty array in both modes, following native early return.
+        Construction/output dispatch is eager; no general JIT/AD guarantee.
 
         Provenance
         ----------
         MATLAB source : @diskfun/svd.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        cdr, norm, rank
         """
-        from chebfunjax.tech.trigtech import _trig_prolong_coeffs
-        from chebfunjax.utils.quadrature import legpts
+        from chebfunjax.diskfun._svd import source_svd
 
-        if self.isempty() or len(self.cols) == 0:
-            return jnp.zeros((0,), dtype=jnp.float64)
-
-        d = np.asarray(self.pivots, dtype=np.float64)
-        if np.linalg.norm(d) == 0.0:
-            return jnp.zeros((1,), dtype=jnp.float64)
-        dinv = 1.0 / d
-
-        # Radial columns: disk-weighted QR on [0, 1].
-        ncol = max(int(c.n) for c in self.cols)
-        npts = ncol + 1
-        r_nodes, w_nodes = (np.asarray(x, dtype=np.float64)
-                            for x in legpts(npts, interval=(0.0, 1.0)))
-        vc = np.stack(
-            [np.asarray(c(jnp.asarray(r_nodes, dtype=jnp.float64)))
-             for c in self.cols],
-            axis=1,
-        )
-        wc = np.sqrt(w_nodes * r_nodes)
-        _, rc = np.linalg.qr(wc[:, None] * vc)
-
-        # Angular rows: exact L^2 QR via the Fourier coefficients (Parseval).
-        mrow = max(int(rw.n) for rw in self.rows)
-        rr_coeffs = np.stack(
-            [np.asarray(_trig_prolong_coeffs(rw.coeffs, mrow)) for rw in self.rows],
-            axis=1,
-        )
-        _, rr = np.linalg.qr(np.sqrt(2.0 * np.pi) * rr_coeffs)
-
-        core = rc @ np.diag(dinv) @ rr.T
-        sig = np.linalg.svd(core, compute_uv=False)
-        return jnp.asarray(sig, dtype=jnp.float64)
+        return source_svd(self, return_uv=return_uv)
 
     def fevalm(self, theta, r) -> jax.Array:
         """Evaluate the Diskfun on a polar meshgrid.
@@ -2410,10 +2353,9 @@ class Diskfun(eqx.Module):
         negative even orders are retained. Empty input returns an empty array.
         ``inf``/``'inf'``/``'max'`` uses the existing extrema implementation.
 
-        The inherited ``2``/``'fro'`` implementation below is sampled host
-        quadrature, not the native ``sqrt(sum(svd(f)**2))`` algorithm. Full
-        norm/provider parity remains open. Diskfun construction supports real
-        fields; complex orders are rejected by the native numeric-real check.
+        Default, ``2`` and ``'fro'`` use the native singular-value formula
+        ``sqrt(sum(svd(f)**2))``. Diskfun construction supports real fields;
+        complex orders are rejected by the native numeric-real check.
         Construction and scalar dispatch are eager, not JIT-safe.
 
         Provenance
@@ -2460,24 +2402,8 @@ class Diskfun(eqx.Module):
             integral = jnp.asarray(powered.sum2())
             reciprocal = jnp.asarray(1.0, dtype=jnp.float64) / rounded
             return integral ** reciprocal
-        from chebfunjax.utils.quadrature import chebpts, chebweights
-        ncol = max(int(np.asarray(c.coeffs).ravel().shape[0])
-                   for c in self.cols)
-        nrow = max(int(np.asarray(r.coeffs).ravel().shape[0])
-                   for r in self.rows)
-        nr = 2 * ncol + 16
-        mth = 2 * nrow + 16
-        xr = np.array(chebpts(nr))          # [-1, 1]
-        wr = np.array(chebweights(nr))
-        r_pts = (xr + 1.0) / 2.0            # [0, 1]
-        w_r = wr / 2.0
-        th = np.linspace(-np.pi, np.pi, mth, endpoint=False)
-        TH, RR = np.meshgrid(th, r_pts)
-        V = np.asarray(self(jnp.asarray(TH), jnp.asarray(RR)),
-                       dtype=float)
-        val = float(np.sum((V ** 2) * (r_pts * w_r)[:, None])
-                    * (2.0 * np.pi / mth))
-        return jnp.sqrt(jnp.abs(jnp.asarray(val, dtype=jnp.float64)))
+        singular_values = self.svd()
+        return jnp.sqrt(jnp.sum(singular_values ** 2))
 
     def mean(self) -> jax.Array:
         """Mean value over the disk (integral / pi)."""
@@ -3769,7 +3695,7 @@ def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------
