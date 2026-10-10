@@ -3099,14 +3099,17 @@ class Trigtech(eqx.Module):
     def isinf(self) -> bool:
         """True if the tech has any infinite value (MATLAB ``isinf``).
 
-        An Inf value maps to Inf Fourier coefficients under the FFT.
+        MATLAB tests the stored source-grid values directly. This matters for
+        an isolated Inf sample: the FFT may spread it across the coefficients
+        as mixed Inf/NaN values, while ``from_values`` retains the true source
+        samples in ``self.values``.
 
         Provenance
         ----------
         MATLAB source : @trigtech/isinf.m
         Chebfun commit: 7574c77
         """
-        return bool(jnp.any(jnp.isinf(jnp.asarray(self.coeffs))))
+        return bool(jnp.any(jnp.isinf(jnp.asarray(self.values))))
 
     def isfinite(self) -> bool:
         """True if the tech is everywhere finite (MATLAB ``isfinite``).
@@ -3116,7 +3119,7 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/isfinite.m
         Chebfun commit: 7574c77
         """
-        return bool(jnp.all(jnp.isfinite(jnp.asarray(self.coeffs))))
+        return bool(jnp.all(jnp.isfinite(jnp.asarray(self.values))))
 
     def isreal(self) -> bool:
         """True if the underlying function is real-valued (MATLAB

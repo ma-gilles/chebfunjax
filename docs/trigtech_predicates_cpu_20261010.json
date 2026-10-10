@@ -1,0 +1,59 @@
+{
+  "scope": "Native stored-value Trigtech isinf/isfinite predicates",
+  "cases_passed": 14,
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "Native Trigtech isinf/isfinite source correction14cases",
+    "gates": [
+      {
+        "gate": "core_part1_predicate_fix_20261010_v3/focused",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_predicate_fix_20261010_v3/focused/supervision/receipt.json",
+        "receipt_sha256": "1766915c27a5a24be794c648c7d42cdb86c85b2ada65289f9182e51acef39bcb",
+        "runtime_manifest_sha256": "867746f490369015443ea7bc1ab867c1f928b56026164cda264a0451523886ab",
+        "runtime_end_sha256": "df49ed019f7b7bdd2a79204c4a7efad10f49bb3eabbcb1b94a853050643bedd6",
+        "observed_files_rehashed": 2937,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 51,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 2024912,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 14,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "source_review": {
+    "reviewer": "root",
+    "source_sha256": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@trigtech/isinf.m": "34985e20e9f2f8a0991b10bab3ee7f03f495691bcf7782d67dc98ea70778631f",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@trigtech/isfinite.m": "12502d0252201718f97029e660ff79bf76fe1667b73595bc6e2a503c422fc4f4"
+    },
+    "protected_module_ast_identical": true,
+    "scope": "Only isinf/isfinite numeric methods change from Fourier coefficients to preserved source-grid values, matching both native functions.",
+    "tests": "Original14case module, original failed predicate unchanged; one extra assertion confirms Inf retained on actual constructed values.",
+    "prior_failure": "core1_batch09_root_runtime_review_20261010.json:237pass1source mismatch; two preflight failure receipts in v1/v2 preserved."
+  },
+  "integrated_sha256": {
+    "src/chebfunjax/tech/trigtech.py": "1468fb2bd1b8dc03c011c21758b25141c88eb78b3008f00eee7b003ae2c5ae91",
+    "tests/test_tech/test_trigtech_methods.py": "e7a1a5c5cbeb1e158356b81c1b6a19975fa5d4fc6c756c11e959e6543b1abe66"
+  },
+  "full_goal_complete": false,
+  "limitations": [
+    "Full current core suite/native suite/remote CI remain unresolved.",
+    "Two provenance preflight failures remain preserved without scientific credit."
+  ]
+}

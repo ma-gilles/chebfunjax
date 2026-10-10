@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigtech finite/infinite predicates restored (2026-10-10; latest)
+
+isinf and isfinite now inspect the stored source-grid values as native
+Trigtech does. An isolated Inf sample can produce NaNs in Fourier
+coefficients, so testing coefficients missed the actual infinity.
+All14 cases in the original predicate module passed; its failed assertion
+is unchanged and an added check proves constructed values retain Inf.
+Root independently checked2,937 runtime files and confirmed only these two
+library methods changed. Evidence: docs/trigtech_predicates_cpu_20261010.json.
+The prior237-pass/one-failure batch and two harness-preflight failures are
+preserved. Remaining broad batches, full current suite and CI remain open.
+
 ## AAAtrig cleanup order and JAX arithmetic restored (2026-10-10; latest)
 
 Cleanup now uses native truncation toward zero and removes each selected

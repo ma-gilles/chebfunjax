@@ -47,6 +47,10 @@ class TestTrigtechMethods:
         assert f.isreal()
         y = jnp.ones(11).at[3].set(jnp.inf)
         fi = Trigtech.from_values(y)
+        # This exercises the true constructed representation: its stored
+        # source-grid samples retain the isolated Inf even though its FFT
+        # coefficients contain mixed non-finite values.
+        assert bool(jnp.any(jnp.isinf(fi.values)))
         assert fi.isinf() and not fi.isfinite()
         fn = Trigtech.from_values(jnp.array([jnp.nan]))
         assert fn.isnan()
