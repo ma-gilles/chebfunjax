@@ -1,0 +1,32 @@
+{
+  "qualification": "Nine native value-realness derivative controls pass; test-only correction of three obsolete zero-imaginary dtype assertions",
+  "base": "7e1e2f03601de9359ac1e1a2f301aa9bd0631bcd",
+  "contract": "unchanged5e-14numericbound/domain/foursamplepoints/orders1\u20133; correctnativevalue-realness forcomplexzero; addedgenuinecomplexcontrols",
+  "native_evidence": "Existing scalar-indexnativecapture+populate/diffsource bound; no newMATLAB execution",
+  "passed": 9,
+  "audit": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null,
+    "wall_seconds": 84.39171105716377,
+    "sampled_peak_summed_rss_kib": 819412
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/REPORT.json": "9ae2fafb11381ef7c0ac8b0de4c9af64aa32165aa7befa55aabab076b4e81914",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/candidate.patch": "0c55283fde712f444d980da0bed139be38af0c9ff3399576bcd3cfd76d433efc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/candidate/tests/test_chebfun1d/test_piece_trig_derivative_realness.py": "a3b48f080517aa779a71b7662b2aab370ade02201cb7609077e46ce869ca73a5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/focused_v2/snapshot/tests/test_chebfun1d/test_piece_trig_derivative_realness.py": "a3b48f080517aa779a71b7662b2aab370ade02201cb7609077e46ce869ca73a5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/focused_v2/AUDIT.json": "69654f6a40b7c866e9931158518ba8b3fce4e5dcd2b24252714abb27febcfa6f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/focused_v2/junit.xml": "f93e1d46ad079193d49256d4f60cbe8b091b4b03d0004de72bcf69e24c490452",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/focused_v2/guard.json": "e5f3d461533076ffe539a04df013047abdf5d1fad0b1dab1c01207ab4c1e5b41",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piece_trig_realness_contract_20261010/focused_v2/PREFLIGHT.json": "bdbc6c72ff326b2af22167c5c66d2469d0a0e0a06be5f8a1615c088f0a4a479c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_native_contracts_20261010/AUDIT.json": "1a76f0c65452b39d50c7c97a47c95de24c18fba8d4e26c3574fa1d298f291702",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_native_contracts_20261010/native_contracts.mat": "609a94eec716ac950c8cd67f086751686ad85aaca72bb047aa3dd531e85592d9"
+  },
+  "limitations": [
+    "Existing native scalar capture reused; no new native execution.",
+    "Full latest-main CI remains pending."
+  ]
+}

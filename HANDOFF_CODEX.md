@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native periodic derivative realness contract (2026-10-10; latest)
+
+Three older-main CI failures expected complex storage for a zero-imaginary
+input. Native scalar probe isreal treats it as real. The supplemental test
+now checks native metadata and returned dtype for real, complex-zero and
+genuinely complex inputs, through derivative orders 1–3. All nine cases pass
+at the unchanged 5e-14 bound; production code is unchanged. Existing native
+scalar capture and source are bound in the audited evidence:
+docs/piece_trig_realness_cpu_20261010.json. Latest full CI remains pending.
+
+
+## Native extrema seed identity mapping (2026-10-10; latest)
+
+The seed grid now follows native chebpts.m's exact return on [-1, 1].
+An unnecessary affine mapping changed 74 of 100 native node values. All
+45 focused controls pass, including 16 mixed-domain controls and 28 existing
+public/fallback controls. The saved Gibbs triangle minimum seed now matches
+MATLAB bit-for-bit. Two node values and the near-tied maximum seed still differ.
+Only source_seed changes; the optimizer, fallback, grid sizes and tolerances
+are unchanged. Full page replay and latest CI remain pending. Evidence:
+docs/gibbs_seed_nodes_cpu_20261010.json. Full parity remains open.
+
+
 ## Full Gibbs replay after grid correction (2026-10-10; latest)
 
 The complete source page runs on4f364d37 with six extrema, twelve fixed4000

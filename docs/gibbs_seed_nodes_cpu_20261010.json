@@ -1,0 +1,95 @@
+{
+  "qualification": "source identity-domain node-mapping correction; full Gibbs rerun pending",
+  "source_commit": "Chebfun7574c77680d7e82b79626300bf255498271a72df",
+  "source_lines": "chebpts.m scaleNodes129\u2013135 returns input on[-1,1]",
+  "production_scope": "source_seed only; no global mapping/fallback/optimizer/tolerance edits",
+  "gate": {
+    "controls": 45,
+    "raw_factor_arrays_bit_exact": 44,
+    "reconstruction_arrays_bit_exact": 2,
+    "legacy_initial_points_and_signed_values_bit_exact": 2,
+    "legacy_seed_matrix_bit_exact": true,
+    "native_pivot_weights_bit_exact": true,
+    "mapping_domain_controls": 16,
+    "existing_fallback_public_controls": 28,
+    "audit": {
+      "faults": [],
+      "terminal": 0,
+      "supervisor_exit": 0,
+      "bound_inputs": 53608,
+      "runtime_files": 1894,
+      "mismatches": [],
+      "wrong_origins": {},
+      "stable": true,
+      "survivors": [],
+      "wall_seconds": 95.89564835000783,
+      "peak_kib": 1526612
+    }
+  },
+  "actual_candidate": {
+    "points": [
+      [
+        0.015865963834807928,
+        -0.015865963834807928
+      ],
+      [
+        -0.3270679633174216,
+        0.266473813690035
+      ]
+    ],
+    "original_objective_values": [
+      -2.5213056041365775e-15,
+      1.0000000000000016
+    ],
+    "nodes_vs_native": {
+      "x": {
+        "bit_differences": 2,
+        "max_abs_difference": 1.1102230246251565e-16
+      },
+      "y": {
+        "bit_differences": 2,
+        "max_abs_difference": 1.1102230246251565e-16
+      }
+    },
+    "winner_details": [
+      {
+        "kind": "minimum",
+        "index_column_major_zero_based": 5049,
+        "point": [
+          0.015865963834807928,
+          -0.015865963834807928
+        ],
+        "value": -2.964160766895527e-15,
+        "runner_up": -2.0112989209761222e-15,
+        "margin": 9.528618459194047e-16,
+        "exact_ties": 1,
+        "winner_bits": "bceab2e3ae92d6a7"
+      },
+      {
+        "kind": "maximum",
+        "index_column_major_zero_based": 3958,
+        "point": [
+          -0.3270679633174216,
+          0.266473813690035
+        ],
+        "value": 1.0000000000000024,
+        "runner_up": 1.0000000000000022,
+        "margin": 2.220446049250313e-16,
+        "exact_ties": 1,
+        "winner_bits": "3ff000000000000b"
+      }
+    ]
+  },
+  "limitations": [
+    "Native minimum seed now bit-exact; maximum seed3958 differs from native4360 at near-tie.",
+    "Two of100 node values still differ from native by at most1.11e-16.",
+    "No full-page extrema/figure claim; default R2025 optimizer differs from ported R2017a route.",
+    "Native near-zero grid minimum stability is measured, not grounds to alter grid/tolerance/tie policy."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_stage_crossfeed_20261010/A_seeds/AUDIT.json": "bcee5ecacd87e0d407c6a2391a3a082b7e022aceb6ffb0460b93cda7f9b0bf5b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_stage_crossfeed_20261010/B_mapping/AUDIT.json": "70d06b7e3e1805571ee28be18c478a79b69d5c89a942bf21bf84e481c71543e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_stage_crossfeed_20261010/B_mapping/capture/SUMMARY.json": "7d61c13077bb4c82645bdbdcf19bbc8c5e77df00f3d3e8cb27aa745f7aca98c5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_stage_crossfeed_20261010/SOURCE_AST_EXCLUSION.json": "f4b51c2198116b280070f8ea6d84c6843a81e27b66c3af055326a6e017f0655e"
+  }
+}

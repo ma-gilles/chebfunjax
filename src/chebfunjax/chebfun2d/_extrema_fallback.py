@@ -56,8 +56,14 @@ def original_objective(approx):
 
 def source_seed(rows, cols, objective):
     """Native sample lengths and first column-major min/max, no conjugation."""
-    xpts = _forward(chebpts(len(rows)), rows.domain.a, rows.domain.b)
-    ypts = _forward(chebpts(len(cols)), cols.domain.a, cols.domain.b)
+    # Native chebpts.m/scaleNodes returns the nodes directly on [-1, 1].
+    # Reapplying the affine map there introduces rounding at seed near-ties.
+    xpts = chebpts(len(rows))
+    ypts = chebpts(len(cols))
+    if rows.domain.a != -1 or rows.domain.b != 1:
+        xpts = _forward(xpts, rows.domain.a, rows.domain.b)
+    if cols.domain.a != -1 or cols.domain.b != 1:
+        ypts = _forward(ypts, cols.domain.a, cols.domain.b)
     cvals = jnp.asarray(cols(ypts)).reshape((len(cols), -1))
     rvals = jnp.asarray(rows(xpts)).reshape((len(rows), -1))
     values = cvals @ rvals.T
