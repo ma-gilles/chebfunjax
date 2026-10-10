@@ -1805,14 +1805,21 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/truncate.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebpref import ChebfunPref
         from chebfunjax.tech.trigtech import Trigtech
-        bp = [float(v) for v in self.domain.breakpoints]
-        a_, b_ = bp[0], bp[-1]
-        if isinstance(self.funs[0].tech, Trigtech):
-            c = self.trigcoeffs(int(n))
-            return chebfun(c, domain=(a_, b_), coeffs=True, trig=True)
-        c = self.chebcoeffs(int(n))
-        return chebfun(c, domain=(a_, b_), coeffs=True)
+
+        domain = (float(self.domain.a), float(self.domain.b))
+        canonical = domain == (-1.0, 1.0)
+        f = self if canonical else self.new_domain((-1.0, 1.0))
+        onefun = f.funs[0].tech
+        tech = type(getattr(onefun, "smoothPart", onefun))
+        # Source extracts canonical coefficients: physical-domain trigcoeffs
+        # applies a phase which must not enter a canonical tech constructor.
+        c = f.trigcoeffs(int(n)) if tech is Trigtech else f.chebcoeffs(int(n))
+        pref = ChebfunPref()
+        pref.tech = tech
+        g = chebfun(c, coeffs=True, pref=pref)
+        return g if canonical else g.new_domain(domain)
 
     def ultracoeffs(self, *args) -> jax.Array:
         """Ultraspherical (Gegenbauer) expansion coefficients (MATLAB

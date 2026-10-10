@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Truncate native domain normalization (2026-10-10; latest)
+
+The broad-sweep truncate failure was a library phase error: physical-domain
+Fourier coefficients were passed to a canonical constructor. truncate now
+performs native canonical remapping, first-tech preservation, and restoration.
+All9 original native predicates and8 supplemental controls pass at unchanged
+bounds; root integration9pytest cases passed. Exactly6967 original-universe
+nodes are prepared for continuation, plus separately inventoried added tests.
+Evidence: docs/truncate_phase_cpu_20261010.json. FullCI remains open.
+
 ## Full RandomSwitching scalar execution and open accuracy gap (2026-10-10)
 
 The original first scalar computation completes all44 native intervals on[0,40]

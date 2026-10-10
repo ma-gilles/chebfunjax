@@ -1,0 +1,25 @@
+{
+  "scope": "Native truncate canonical-domain normalization and first-tech restoration",
+  "root_pytest_cases": 9,
+  "native_predicates": 9,
+  "supplemental_cases": 8,
+  "root_seconds": 27.085755232255906,
+  "root_peak_child_rss_kib": 929856,
+  "fault": "Physical-domain trigcoeffs phase was incorrectly fed to canonical trig constructor; exp(sin(x)) became exp(-sin(x)) on[0,2pi].",
+  "fix": "Map input to[-1,1], extract original-tech coefficients, construct using pref.tech, restore original domain; only Chebfun.truncate production AST changed.",
+  "bounds": "Original native predicates unchanged; no tolerance or RNG changes.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_native_diagnosis_20261010/DELIVERY.json": "b03243baff779277e31d9d73dc8d8f352b7da150858fca5a7f110b1c0dad313e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_native_diagnosis_20261010/SOURCE_PROOF.json": "7bbba4ef6e803802c2dc9ecfdb09b64dc596e81d1151e9c009050ebbe6e974d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_root_20261010/review.json": "a59f658b12da6a3e21997e312fc9f265f1677d5697971bbcb314fb41af46af50",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_root_20261010/runtime_review.json": "9788355cbfd4348c932f4df3d23ca2ded5ffb8006c0f094b0952a7c1ecb32cbc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_root_20261010/receipt.json": "80e5153dae1b58cd960179da690a1c6a8e880f075cdbc99371e4496cc69312db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_root_20261010/junit.xml": "0a32adab3dc15575e9993fc83c44ceb26afa26789ab1057c4e6ab8763fdb970b"
+  },
+  "limits": [
+    "Existing native sign-constructor splitting adaptation unchanged.",
+    "Even/Nyquist, array and singular coefficient extraction outside tested scope remain unqualified.",
+    "Broad continuation6967nodes pending; no full currentHEAD or CI claim."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/truncate_root_20261010/static.json"
+}
