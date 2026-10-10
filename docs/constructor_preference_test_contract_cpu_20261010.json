@@ -1,0 +1,73 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_inverse_pref_contract_fix_20261010",
+  "base_snapshot_head": "af7ada7faa70aba4f7a1247f9ab1b37e0ca2139e",
+  "changed_snapshot_paths": [
+    "tests/test_chebfun1d/test_inverse_constructor_preferences.py"
+  ],
+  "source_paths_changed": [],
+  "test_change": "Replace a parameterized three-case ValueError expectation (trig=True, domain=(-inf,inf), exps=(0.5,0)) with one supported periodic trig=True test. The trig case is now a positive Trigtech type and evaluation assertion. The two obsolete negative domain/exps expectations are covered by existing positive tests. This is a Python contract test correction; no MATLAB-native assertion was deleted and equal assertion count is not claimed.",
+  "existing_positive_controls": [
+    {
+      "node": "tests/test_chebfun1d/test_chebfun_unbounded.py::TestFactoryRouting::test_evaluation_matches_operand",
+      "covers": "domain=(-inf, inf), matching the removed domain option"
+    },
+    {
+      "node": "tests/test_chebfun1d/test_chebfun_exps.py::TestChebfunExps::test_fractional_root_left",
+      "covers": "exps=(0.5, 0.0), matching the removed exps option"
+    }
+  ],
+  "focused_test_node": "tests/test_chebfun1d/test_inverse_constructor_preferences.py::test_trig_override_constructs_trigtech_for_periodic_input",
+  "focused_test_result": "1 passed; pytest 21.97s, supervisor wall 63.71185s; no censor, no owned children remain, input hashes stable; peak summed RSS 694996 KiB",
+  "source_evidence": {
+    "native_chebfun": "MATLAB @chebfun/chebfun.m:770-780 selects Trigtech for trig/periodic preference",
+    "python_selection": "chebfunjax construction preference dispatch maps trig/periodic to Trigtech; focused assertion checks resulting tech and evaluation"
+  },
+  "hashes": {
+    "test": "b600fe2edd90ac715a182cde13a713ab0038c61ae88bef6688697cdbc86b7598",
+    "manifest": "e177054095477bf66c5fc2efb6a99f38f0b4ba1cefe547f8ef05d70e5ce3748c",
+    "plan": "fe5b9d29764b89154f4ebd1deb91c10a09b021f6b1b86712b5ef321da0f6bb8e",
+    "launch": "8dd286cc6f0abd4c7a0c04de8b6f1d34c2116b8d1f43c00913b358636209faa0",
+    "guard": "7ac22c0cdccebd9c362082b6fb8c055da620b4c9f13081369e8ff9ddefc77cff",
+    "junit": "f0fb6e9e26ccbe7047d1809d811eb00404220e9a6b97acbcb73271243b6af30f",
+    "receipt": "17bad6b1128f3c318dd3a8f8d5479cea3e4d32e6ff862af3cbe3f9cecfe47c68",
+    "runtime_start": "4e2e237e76bb3612ebc70446de631cb6f72aaa8e1eaa580dddd51c3913ba538d",
+    "runtime_end": "bbb8c6026a58814eddfb34ff762076613c3ee2a080572a36593df5d050e75c96"
+  },
+  "runtime_origin": "Python 3.12.13; chebfunjax imported from candidate snapshot/src; start/end runtime checks report no failures",
+  "static": "Ruff target passed; launch bash -n passed; refreshed guard matched 47,078 inputs with zero mismatches before launch",
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Supported trig constructor positive control replacing obsolete negative expectations",
+    "gates": [
+      {
+        "gate": "core_part1_inverse_pref_contract_fix_20261010/gate",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_inverse_pref_contract_fix_20261010/gate/supervision/receipt.json",
+        "receipt_sha256": "17bad6b1128f3c318dd3a8f8d5479cea3e4d32e6ff862af3cbe3f9cecfe47c68",
+        "runtime_manifest_sha256": "e177054095477bf66c5fc2efb6a99f38f0b4ba1cefe547f8ef05d70e5ce3748c",
+        "runtime_end_sha256": "bbb8c6026a58814eddfb34ff762076613c3ee2a080572a36593df5d050e75c96",
+        "observed_files_rehashed": 2939,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 52,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 694996,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  }
+}

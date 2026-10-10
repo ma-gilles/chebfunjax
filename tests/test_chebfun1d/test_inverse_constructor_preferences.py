@@ -101,11 +101,11 @@ def test_default_recursive_coefficient_builder_retains_ordinary_behavior():
     assert float(jnp.max(jnp.abs(result(points) - (1.0 + 2.0 * points)))) < 100 * jnp.finfo(jnp.float64).eps
 
 
-@pytest.mark.parametrize("options", [
-    {"trig": True},
-    {"domain": (-jnp.inf, jnp.inf)},
-    {"exps": (0.5, 0.0)},
-])
-def test_unpropagated_representation_overrides_raise_explicitly(options):
-    with pytest.raises(ValueError, match="overrides are not yet supported"):
-        cj.chebfun(jnp.sin, sample_test=False, **options)
+def test_trig_override_constructs_trigtech_for_periodic_input():
+    def op(x):
+        return jnp.sin(jnp.pi * x)
+
+    result = cj.chebfun(op, sample_test=False, trig=True)
+    assert type(result.funs[0].tech).__name__ == "Trigtech"
+    points = jnp.linspace(-1.0, 1.0, 17)
+    assert float(jnp.max(jnp.abs(result(points) - op(points)))) < 1e-12

@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Supported preference test corrected (2026-10-10; latest)
+
+The obsolete unsupported-trig expectation is replaced by a positive
+periodic type/evaluation control; the focused CPU case passed and root
+verified2,939 runtime hashes. Two obsolete domain/exps negative cases
+are removed with exact existing positive nodes documented. This corrects
+a Python contract test, not a native MATLAB assertion, and does not claim
+equal assertion counts. Evidence: docs/constructor_preference_test_contract_cpu_20261010.json.
+Full broad remainder and CI remain open.
+
 ## Atmospheric presentation replay integrated (2026-10-10; latest)
 
 The full CPU page completed with ten fresh600x270 figures. Discrete jet64,
