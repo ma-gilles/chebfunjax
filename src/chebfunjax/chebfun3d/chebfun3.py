@@ -2945,7 +2945,14 @@ class Chebfun3(eqx.Module):
         return self.compose(jnp.exp)
 
     def sin(self):
-        return self.compose(jnp.sin)
+        """Resample sine with the native default constructor technology.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/sin.m
+        Chebfun commit: 7574c77
+        """
+        return chebfun3(lambda x, y, z: jnp.sin(self(x, y, z)), self.domain)
 
     def cos(self):
         return self.compose(jnp.cos)

@@ -1,0 +1,50 @@
+{
+  "reviewer": "/root",
+  "scope": "All nine original sine predicates plus periodic constructor-technology and empty controls; six CPU cases.",
+  "gates": [
+    {
+      "gate": "chebfun3_sin_dispatch_source_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sin_dispatch_source_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "cca386bb3db9d69287388c28a71895a572371fcbe927ee8572ad1bcb74728ee7",
+      "runtime_manifest_sha256": "b5d24618efe1093fa1b9953e7802f5512f2481477e566289b50b57ef07a1d2f3",
+      "runtime_end_sha256": "2eee1d60a0c1d7015ccf2435ce030f04187dd1901c8e6eb9e89837bd9484ac2a",
+      "observed_files_rehashed": 2945,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 55,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 2209232,
+      "cpu_affinity": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "assertion_slots": 6,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": {
+    "base": "e004204c2011cca7b91e16cc3ba17a365d3694fb",
+    "scope": "Native sin calls default chebfun3 constructor; generic compose preserves trig and is a distinct route. Empty wrapper retained.",
+    "changes": {
+      "src/chebfunjax/chebfun3d/chebfun3.py": "7f7ba689d0a6a2225f1210458299151b9a418dd8a904f63373f25d06eeca354e",
+      "tests/test_chebfun3d/test_sin_dispatch_source_controls.py": "309f679382c94cf532db22516ca973a0399b4107197cb19ea1fb9e87ae6a874b"
+    },
+    "source_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/sin.m": "37b23f654c185a2c2e897557f6db7f0551a0eba031bef112969bf11f81ba92af"
+    },
+    "unresolved": [
+      "Other unary methods and global constructor/evaluation host paths need separate source audit."
+    ]
+  },
+  "original_native_test_unchanged": true
+}

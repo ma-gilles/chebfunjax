@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native sine constructor dispatch fixed (2026-10-10; latest)
+
+Chebfun3.sin now resamples through the default constructor as native
+sin.m requires; generic compose still preserves periodic technology.
+All nine original sine predicates and new periodic/empty controls passed
+in six CPU cases. Root independently verified2,945 runtime files and
+that all non-sine module/class AST remained unchanged. Evidence:
+docs/chebfun3_sin_dispatch_cpu_20261010.json. This closes the separately
+recorded periodic-object sine dispatch gap; other unary methods and
+global constructor/evaluation host paths remain under audit.
+
 ## Native max3 assertions restored (2026-10-10; latest)
 
 Both original cosine/sine predicates now run with the shared constant
