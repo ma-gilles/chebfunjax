@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Laguerre dispatch regression expectation corrected (2026-10-10; latest)
+
+A broad batch exposed an outdated test expecting GW for alpha=1.5 at n=3000.
+Pinned lagpts.m selects RH for every static alpha at n>=3000; the library
+already follows it. The expectation now matches the source. All 13 focused
+cases passed, including numerical default-RH checks and the separate traced
+alpha adapter. Root independently checked 2,954 runtime files.
+Evidence: docs/laguerre_dispatch_cpu_20261010.json. The preceding 99-pass,
+one-failure batch remains preserved; its unexecuted suffix is running.
+Full current suite and remote CI remain unresolved.
+
 ## Native ODE45 terminal events implemented (2026-10-10; latest)
 
 The JAX controller now locates directional events using the source quartic

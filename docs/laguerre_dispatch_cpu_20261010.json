@@ -1,0 +1,50 @@
+{
+  "reviewer": "/root",
+  "scope": "13sourceLaguerre dispatchcases including correctedstatic1.5expectation and preserved dynamicadapter",
+  "gates": [
+    {
+      "gate": "laguerre_dispatch_regression_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laguerre_dispatch_regression_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "bde3ffb17728564813caec5e8a63ef3d2768163f1bab650a0094594dcc1fa45a",
+      "runtime_manifest_sha256": "78b96afda7793320989be14040a5b455ed2e53b8578564bee911d99fe65c92d7",
+      "runtime_end_sha256": "1dcb9cd31c2b4a29c6493e0fff97b84ab53faafae21a2ca20d68e8311d5ee7fb",
+      "observed_files_rehashed": 2954,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 58,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1217016,
+      "cpu_affinity": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "assertion_slots": 13,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": {
+    "base": "41a21ed06b8f130e0eacbdbd8a9ea200d672625c",
+    "source_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/lagpts.m": "de429e146df41e4b26fc183ed958876600072d39f6d980654eb2dd2635151cb9"
+    },
+    "change": "Correct stale static-alpha method expectation: source n>=3000 branch selects RH unconditionally; library already matches. Dynamic traced alpha Python adapter remains separately asserted.",
+    "changed_file": "tests/test_utils/test_laguerre_rh_half.py",
+    "before_sha256": "7a3bacdfaa570646e7c77421e4b5c7a04f3403f3b1f0444c89083fb61ff01137",
+    "after_sha256": "6b78d9f6231d0cef8784e7ab5402d198fdd6e5e72b409d80912a9df33ab31267",
+    "native_lines": "lagpts.m109-124",
+    "failure_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part2_cc9a691f_batches16_20261010/batch_11/ROOT_REVIEW.json"
+  },
+  "limitations": [
+    "Source expectation correction only; no library arithmetic or tolerances changed. Full current suite and remote CI unresolved."
+  ]
+}

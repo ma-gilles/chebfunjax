@@ -112,7 +112,8 @@ def test_large_default_method_selection_without_dense_allocations(monkeypatch, a
         return jnp.ones(n), jnp.ones(n)
     monkeypatch.setattr(quadrature, '_lagpts_core', probe)
     lagpts(3000, alpha)
-    assert methods == (['rh'] if alpha in (-0.5, 0.5) else ['gw'])
+    # Native lagpts.m selects RH for every alpha when n >= 3000.
+    assert methods == ['rh']
 
 
 def test_dynamic_alpha_default_retains_documented_gw_adapter(monkeypatch):
