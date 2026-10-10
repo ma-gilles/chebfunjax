@@ -2372,6 +2372,27 @@ class Chebtech2(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def iszero(self) -> jax.Array:
+        """Return an exact zero predicate for each coefficient column.
+
+        A scalar-valued Python coefficient vector returns a scalar boolean;
+        a coefficient matrix returns one boolean per column. NaNs are not zero.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/iszero.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.empty((0,), dtype=jnp.bool_)
+        coefficients = self.coeffs
+        if coefficients.ndim == 1 and coefficients.size == 0:
+            return jnp.empty((0,), dtype=jnp.bool_)
+        # Equality rejects NaN as well as nonzero finite and infinite values.
+        return jnp.all(coefficients == 0, axis=0)
+
     def isnan(self) -> bool:
         """Return whether any coefficient is NaN.
 
@@ -4495,6 +4516,27 @@ class Chebtech1(eqx.Module):
         obj = object.__new__(cls)
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
+
+    def iszero(self) -> jax.Array:
+        """Return an exact zero predicate for each coefficient column.
+
+        A scalar-valued Python coefficient vector returns a scalar boolean;
+        a coefficient matrix returns one boolean per column. NaNs are not zero.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/iszero.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.empty((0,), dtype=jnp.bool_)
+        coefficients = self.coeffs
+        if coefficients.ndim == 1 and coefficients.size == 0:
+            return jnp.empty((0,), dtype=jnp.bool_)
+        # Equality rejects NaN as well as nonzero finite and infinite values.
+        return jnp.all(coefficients == 0, axis=0)
 
     def isnan(self) -> bool:
         """Return whether any coefficient is NaN.

@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public Chebtech iszero implemented (2026-10-10; latest)
+
+Both Tech classes now expose the source exact per-column zero predicate in JAX.
+Native tests previously used a coefficient proxy and did not exercise this API.
+All ten native cases, two JIT/complex/nonfinite/empty controls and two simplify
+zero regressions pass. Only the two new methods change the library AST.
+Evidence: docs/chebtech_iszero_public_cpu_20261010.json. Remaining simplify
+source/input gaps and full-suite qualification stay open.
+
 ## Built-in three-output QR pivoting restored (2026-10-10; latest)
 
 Both weighted QR branches now use JAX column pivoting when a permutation is

@@ -1,0 +1,28 @@
+{
+  "package": "Public Chebtech exact per-column iszero",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source_sha256": "8235d0fdcbd1896ff029285699165c6b708c6ac850a9b69179409728bab6a204",
+  "native_tests_sha256": "2365437722b3988a247c5b246b4e1769b2ff546e1f2b72dd73a96a60eb9870e6",
+  "methods_added": [
+    "Chebtech2.iszero",
+    "Chebtech1.iszero"
+  ],
+  "other_library_ast_unchanged": true,
+  "semantics": "Exact all(coefficients==0, axis=0), which rejects NaN/nonzero/Inf; 1D Python coefficient vectors return scalar, matrices return per-column vector; empty object/empty1D denotes native0x0.",
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_iszero_public_20261010/receipt.json",
+    "receipt_sha256": "1c2496898565126da818fbf7e44b1f6c360b72cec12b0531371adf668c273ae2",
+    "passed": 14,
+    "native_cases": 10,
+    "jax_complex_empty_cases": 2,
+    "simplify_zero_regressions": 2,
+    "elapsed_seconds": 6.311446433886886,
+    "peak_child_rss_kib": 564412,
+    "source_test_hashes_verified": 2086
+  },
+  "limitations": [
+    "CPU24\u201331 and120s timeout enforced; RSS measured, not capped.",
+    "Source/test hashes and JUnit verified; no observed-module runtime hash audit.",
+    "Remaining simplify tests retain input/other predicate gaps; no full-native simplify qualification."
+  ]
+}

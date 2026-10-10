@@ -9,7 +9,7 @@ gaps.  Naming/API differences only:
 
 * Array-valued techs are supported ((n, m) coefficient matrices), so the
   array-valued sub-tests (pass 10-12) are real tests.
-* ``iszero`` is not a chebfunjax method; we check ``max(|coeffs|) == 0``.
+* The zero check exercises the public ``iszero`` method.
 * The unhappy ``sqrt(x)`` sub-test (pass 2) uses complex ``sqrt`` (matching
   MATLAB, where ``sqrt`` of a negative real is complex); either way it does not
   resolve, so it is unhappy on both tech kinds and simplify leaves it alone.
@@ -143,8 +143,8 @@ class TestChebtechSimplify:
     def test_long_zero_simplifies(self, Tech):
         # pass(n, 14): a long identically-zero tech simplifies to length 1.
         # MATLAB uses struct('fixedLength', 8); chebfunjax builds a length-8
-        # zero tech directly.  ``iszero`` -> max(|coeffs|) == 0.
+        # zero tech directly.
         f = Tech.from_function(lambda x: 0.0 * x, n=8)
         g = f.simplify()
-        assert _ninf(g.coeffs) == 0.0
+        assert bool(g.iszero())
         assert len(g) == 1
