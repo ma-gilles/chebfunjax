@@ -1,0 +1,124 @@
+{
+  "package": "Singfun native factory/preference handling and scalar-column evaluation",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/DELIVERY.json",
+  "root_runtime_review": {
+    "delivery_sha256": "30c2a0828e8d283bdfe53fe8cb693835d6763df9c4b4ad67dc74c5040e3cee17",
+    "bindings_verified": 88,
+    "gates": [
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_20261010/helpers12_v1",
+        "tests": 12,
+        "exit_code": 0,
+        "runtime_files_verified": 2940,
+        "wall_seconds": 60.99218819569796,
+        "peak_kib": 628164
+      },
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_20261010/actual12_v1",
+        "tests": 12,
+        "exit_code": 0,
+        "runtime_files_verified": 2947,
+        "wall_seconds": 72.97922571795061,
+        "peak_kib": 1248904
+      },
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_20261010/regressions27_v1",
+        "tests": 27,
+        "exit_code": 0,
+        "runtime_files_verified": 2948,
+        "wall_seconds": 86.6729414332658,
+        "peak_kib": 1888484
+      },
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_column_probe_20261010/column1_v1",
+        "tests": 1,
+        "exit_code": 1,
+        "runtime_files_verified": 2929,
+        "wall_seconds": 63.06993937678635,
+        "peak_kib": 567076
+      },
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/columns24_v2",
+        "tests": 24,
+        "exit_code": 0,
+        "runtime_files_verified": 2945,
+        "wall_seconds": 72.79795018816367,
+        "peak_kib": 1095316
+      },
+      {
+        "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/actual12_v2",
+        "tests": 12,
+        "exit_code": 0,
+        "runtime_files_verified": 2947,
+        "wall_seconds": 74.52954672789201,
+        "peak_kib": 1248620
+      }
+    ],
+    "unique_files_rehashed": 3105,
+    "qualification": {
+      "passed_executions": 87,
+      "distinct_logical_pytest_cases": 75,
+      "final_v2_cases": 36,
+      "prior_v1_cases": 51,
+      "preserved_expected_failure": "Explicit numeric-column query produced(4,4) instead of(4,); preserved baseline/provenance before fix.",
+      "native_make": "Six original operator/auto/data/pref/isequal routes restored. Native unseeded rand inputs remain retained deterministic0.3/0.4,3/4,2/3 adapters; no MATLAB RNG parity.",
+      "native_constructor": "Original19\u201324 deterministic predicates run with public iszero in finalv2. Literal pass24 earlier-s reference retained.",
+      "v1_applicability": "V2_DIFF_PROOF restores entire v1 production AST by removing only scalar-column shape adapters; same rank-one factory/regression paths protected. actual12 repeated to qualify changed eval and public iszero.",
+      "regressions": "15 accepted constructor hints,6 original restriction cases,6 preserved supplemental make controls passed onv1; new24shape/complex/AD controls and actual12 passed onv2.",
+      "static": "Explicit-config Ruff all six integration files passed; no numerical rerun for legacy module docstring-only revision, entire remaining AST identical."
+    }
+  },
+  "root_source_review": {
+    "protected_library_AST": "All prior Singfun detection/from_function/arithmetic unchanged outside __init__,__call__,make and new constructor",
+    "reviewed_changes": [
+      "__init__ accepts Trigtech smooth factor.",
+      "__call__ removes only trailing single component axis when shape equals query.shape+(1,).",
+      "New helper preserves source parse/type/factoring branch order and copies preferences/data.",
+      "Numeric inputs are smooth-part samples; callable1e-14tol floor only nonzero exponents.",
+      "Native and legacy factory argument adapters explicit."
+    ],
+    "source_scope_remaining": [
+      "Native constructor1\u201318 seeded random-query fixture mismatch and omitted feval14/16/18 remain separate; no complete constructor suite parity.",
+      "Native no-input exponents[] versus inherited Pythonempty(0,0) remains.",
+      "Only C1/C2/Trigtech selected Techs supported; custom tech unsupported explicitly. Native Chebtech ignores unknown data fields; arbitrary preference extensions not claimed.",
+      "Trig callable singular endpoints have native periodic-tech limitations; new numeric/existing smooth Trig factors are qualified, not all Singfun arithmetic methods.",
+      "Data/legacy-call parsing is a documented Python API adapter; source coefficient/exponent numeric type restrictions retain accepted Python pairs.",
+      "No full current-head CI, matched MATLAB numerical fixture or performance claim."
+    ]
+  },
+  "remaining_scope": [
+    "Native constructor1\u201318 seeded random-query fixture mismatch and omitted feval14/16/18 remain separate; no complete constructor suite parity.",
+    "Native no-input exponents[] versus inherited Pythonempty(0,0) remains.",
+    "Only C1/C2/Trigtech selected Techs supported; custom tech unsupported explicitly. Native Chebtech ignores unknown data fields; arbitrary preference extensions not claimed.",
+    "Trig callable singular endpoints have native periodic-tech limitations; new numeric/existing smooth Trig factors are qualified, not all Singfun arithmetic methods.",
+    "Data/legacy-call parsing is a documented Python API adapter; source coefficient/exponent numeric type restrictions retain accepted Python pairs.",
+    "No full current-head CI, matched MATLAB numerical fixture or performance claim."
+  ],
+  "integration_payload": {
+    "src/chebfunjax/fun/singfun.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/candidate_0c8e017b/src/chebfunjax/fun/singfun.py",
+      "sha256": "0a9338b16d016364bff2e638a6eaa81491d29942dc118b30121a1c59efa3cd71"
+    },
+    "src/chebfunjax/fun/_singfun_factory.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/candidate_0c8e017b/src/chebfunjax/fun/_singfun_factory.py",
+      "sha256": "5c819da049c50143aba2d476e8eb7a01d7e9f1d395cef5823c8a803a139427c9"
+    },
+    "tests/test_matlab_port/singfun/test_make_matlab.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/candidate_0c8e017b/tests/test_matlab_port/singfun/test_make_matlab.py",
+      "sha256": "3f6f6f5fc3e01d7f3ac569d3c0ce6c8cd4c6b34c24799a626b435992896960ae"
+    },
+    "tests/test_fun/test_singfun_factory_source.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/candidate_0c8e017b/tests/test_fun/test_singfun_factory_source.py",
+      "sha256": "4e1af9d49dfcbde8ce7f2d5623c33edcef115b81543199f6ab4276b910bded1e"
+    },
+    "tests/test_fun/test_singfun_make_legacy.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/integration/tests/test_fun/test_singfun_make_legacy.py",
+      "sha256": "a74199632941691ac5fc55af5398ca76e86ba2abab0380e4e4e2995e2cb3af49"
+    },
+    "tests/test_fun/test_singfun_scalar_columns.py": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_factory_source_v2_20261010/candidate_0c8e017b/tests/test_fun/test_singfun_scalar_columns.py",
+      "sha256": "4d96f63794ab98ed5d3280b449449997779d117a9f88d6391a04499b05792505"
+    }
+  },
+  "qualification_scope": "75 distinct logical cases across frozen v1/v2 snapshots,87passing executions;36finalv2cases. Preserved expected baseline broadcast failure. No whole current-head suite claim."
+}

@@ -15,6 +15,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.fun._singfun_factory import OMITTED
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 # Machine epsilon for float64
@@ -134,7 +135,9 @@ class Singfun(eqx.Module):
         exponents : tuple of two floats, default (0, 0)
             (a, b) — left and right algebraic exponents.
         """
-        if not isinstance(smoothPart, (Chebtech1, Chebtech2)):
+        from chebfunjax.tech.trigtech import Trigtech
+
+        if not isinstance(smoothPart, (Chebtech1, Chebtech2, Trigtech)):
             const = smoothPart
 
             def _const(x, _c=const):
@@ -374,6 +377,10 @@ class Singfun(eqx.Module):
         x = jnp.asarray(x)
         x = x.astype(jnp.result_type(x, jnp.float64))
         val = self.smoothPart(x)
+        # A one-column Tech retains a trailing component axis in Python.
+        # SINGFUN is scalar-valued: remove only that axis before source weights.
+        if val.shape == x.shape + (1,):
+            val = jnp.squeeze(val, axis=-1)
         a, b = self.exponents
         if a != 0.0:
             val = val * (1.0 + x) ** a
@@ -964,20 +971,32 @@ class Singfun(eqx.Module):
     # Factory and composition
     # ------------------------------------------------------------------
 
-    def make(self, op, exponents=None, singType=None, pref=None) -> "Singfun":
-        """Factory shortcut: build a Singfun from ``op``.
+    @classmethod
+    def constructor(cls, op=OMITTED, data=OMITTED, pref=OMITTED):
+        """Native constructor adapter on [-1,1], distinct from low-level init.
 
-        Mirrors MATLAB's ``@singfun/make`` (a factory method used so that
-        ONEFUN-level code can construct a SINGFUN without naming the class
-        directly).  ``singType`` and ``pref`` are accepted for signature
-        compatibility but ignored — they are redundant hints in chebfunjax.
-
-        Provenance
-        ----------
-        MATLAB source : @singfun/make.m
-        Chebfun commit: 7574c77
+        ``data`` is a dictionary with exponents, singType, and tech scale
+        metadata. Omitted arguments preserve native one-input identity paths;
+        explicitly empty data/preferences still count as supplied arguments.
+        Numeric inputs are smooth-factor samples, not singular-function values.
+        Source: @singfun/singfun.m and @smoothfun/smoothfun.m, 7574c77.
         """
-        return Singfun.from_function(op, exponents)
+        from chebfunjax.fun._singfun_factory import construct
+
+        return construct(cls, op, data, pref)
+
+    def make(self, op=OMITTED, exponents=OMITTED, singType=OMITTED,
+             pref=OMITTED, *, data=OMITTED) -> "Singfun":
+        """Native ``make(op, data, pref)`` with legacy Python pair support.
+
+        A dictionary second argument denotes native data; its third positional
+        argument denotes preferences. Legacy ``(op, exponents, singType, pref)``
+        and named arguments remain accepted. ``data=`` cannot be combined with
+        legacy exponent/hint arguments. No preferences or hints are discarded.
+        """
+        from chebfunjax.fun._singfun_factory import make
+
+        return make(type(self), op, exponents, singType, pref, data)
 
     def compose(self, op, g=None) -> "Singfun":
         """Compose: ``op(f)`` or ``op(f, g)``.

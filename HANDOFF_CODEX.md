@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Singfun factory preferences and scalar columns restored (2026-10-10; latest)
+
+Native constructor(op,data,pref) and make now forward endpoint hints, copied
+preferences, scales, selected tech and constructor options. Numeric input means
+smooth-factor samples; existing smooth factors retain identity. Scalar-column
+construction/evaluation avoids unintended outer broadcasting, with complex and
+JAX gradient controls. Root verified 88 bindings and six runtime inventories
+(2929–2948 files), including the preserved baseline shape failure.
+75 distinct logical cases pass across qualified snapshots; 36 final-v2 cases
+cover the shape fix and actual construction. Evidence: docs/singfun_factory_cpu_20261010.json.
+Remaining gaps include constructor 1–18 random-input/assertion fidelity, native
+empty exponent representation and unqualified Trig arithmetic. Full current-head
+suite and MATLAB numerical parity remain open.
+
 ## Large QR reconstruction error corrected (2026-10-10; latest)
 
 QR now selects the existing source transpose-NDCT inverse transform throughout
