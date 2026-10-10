@@ -1,0 +1,62 @@
+{
+  "production_changes": "Both chebpts kinds preserve rounded pi*k before correctly rounded integer division using existing binary64 helper. No grid/sine/tolerance changes.",
+  "causality": "Old actual HLO multiplies integer indices by precombined pi/denominator; candidate actual4000 nodes match independently captured native-angle JAXsin and instrumented angles match all native angle bits. Native-angle JAXsin suffices for row cutoff100; old baseline102/noisy bits reproduced.",
+  "controls": {
+    "A_candidate": 31,
+    "B_regression": 12
+  },
+  "portable_sizes": [
+    2,
+    3,
+    17,
+    64,
+    129,
+    4000
+  ],
+  "portable_kinds": [
+    1,
+    2
+  ],
+  "boundary_review": {
+    "n0_n1": "unchanged early returns before division",
+    "n2": "both kinds passed native-port existing controls and new exact arithmetic controls",
+    "helper_denominator": "static positive integer <=2**53; kind1 n<=2**52,kind2 n<=2**52+1, far beyond feasible dense arrays",
+    "x64": "package __init__ enables binary64; existing helper requires x64"
+  },
+  "delivery_AST_identical": true,
+  "delivery_only_differences": "Comments clarify both kinds and residual sine differences; test import blank-line formatting only. Frozen qualified files unchanged.",
+  "limitations": [
+    "140 of4000 sine results still differ from native by up to1ulp",
+    "Full Gibbs maximum/page parity remains open; initial construction also changes",
+    "No timing/speedup claim",
+    "No proof for every possible representable grid length; generic selected controls only"
+  ],
+  "next_plan": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/PLAN.json",
+  "root_review": {
+    "A": {
+      "status": "A_candidate accepted; portable regression gate pending",
+      "checked_bindings": 53630,
+      "passed": 31,
+      "only_chebpts_AST_changed": true,
+      "candidate_source_sha256": "44bccabea6e6b5df7cfc6ebe000b89757428eb988db896028f8440d74651845c",
+      "audit_sha256": "117ba4855eaf3911c846bee9fb04c80a5f3d02f84ebab0482f53287c2c1bdb15",
+      "remaining": "140 sine ULP differences; full page reconstruction/extrema/figures unresolved"
+    },
+    "B": {
+      "passed": 12,
+      "runtime_files": 1802,
+      "bound_inputs": 53634
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpts_source_division_20261010/A_candidate/AUDIT.json": "117ba4855eaf3911c846bee9fb04c80a5f3d02f84ebab0482f53287c2c1bdb15",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpts_source_division_20261010/B_regression/AUDIT.json": "ffa5a40e0bd20fbe071ff6c39f171abe4da2e706fd30d28d8626c6cb2fad940a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpts_source_division_20261010/A_candidate/capture/SUMMARY.json": "7487f179c01a010fc85cab74e98f4f4867a2e6b2831265b8d0ddbab24e8d8646",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpts_source_division_20261010/ROOT_A_REVIEW.json": "5b3ff380d331cf071ffb76a43e5618d9d277d99ba082a02da21230f87d08210e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpts_source_division_20261010/QUALIFICATION.json": "b34a5ce77e38cab487125fe0a9c01088fe4d52f3b3a4b66778963bc606f784c7"
+  },
+  "delivery_source_sha256": {
+    "src/chebfunjax/utils/quadrature.py": "e200c68a46377adb552794bf2f382b488b461f182ffae7f1a54fafe5b5b4c254",
+    "tests/test_chebpts_source_rounding.py": "717e8731ce6542580fb01539b0d4ca80b2a11d18960c88f5a6d5dd57e895cb24"
+  }
+}

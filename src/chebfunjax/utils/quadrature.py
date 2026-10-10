@@ -61,18 +61,20 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
         # x = sin(pi*(-n+1:2:n-1)/(2n)) rather than cos((2k-1)pi/(2n)):
         # the sine construction is exactly antisymmetric (centre node is a
         # bit-exact 0 for odd n) and pairs small-argument sines against the
-        # symmetric endpoints. JIT fusion can change final rounding; source
-        # antisymmetry is retained, while MATLAB bit identity is not claimed.
+        # symmetric endpoints. Preserve the rounded numerator and integer division
+        # against reciprocal reassociation; sine backend bit identity is not claimed.
         k = jnp.arange(-n + 1, n, 2, dtype=jnp.float64)
-        x = jnp.sin(jnp.pi * k / (2 * n))
+        x = jnp.sin(_divide_binary64_by_positive_integer(jnp.pi * k, 2 * n))
     elif kind == 2:
         # Extrema of T_{n-1}.  MATLAB @chebtech2/chebpts.m uses the sine form
         # x = sin(pi*(-m:2:m)/(2m)), m = n-1, instead of cos(k*pi/(n-1)):
         # "Use of sine enforces symmetry" (antisymmetry residual and centre
         # node are bit-exact 0, not ~1e-16 as the cosine form gives).
+        # Preserve source-rounded multiplication then division here too;
+        # backend sine evaluations can still differ from MATLAB by an ulp.
         m = n - 1
         k = jnp.arange(-m, m + 1, 2, dtype=jnp.float64)
-        x = jnp.sin(jnp.pi * k / (2 * m))
+        x = jnp.sin(_divide_binary64_by_positive_integer(jnp.pi * k, 2 * m))
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
 

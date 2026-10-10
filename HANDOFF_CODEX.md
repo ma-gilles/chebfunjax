@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Source-rounded Chebyshev grid arguments (2026-10-10; latest)
+
+Both chebpts kinds now preserve native multiplication-then-division rounding
+using the existing JAX binary64 integer-division helper. The old compiled path
+combined pi and the denominator before multiplication. All 4,000 captured
+native angle bits now match; the unchanged saved-factor Gibbs reconstruction
+returns length100 instead of102. The 31 existing/causal controls and 12 portable
+regressions pass. Root review verifies 53,630 candidate bindings and both gate
+receipts. No tolerance, sine implementation or truncation rule changes.
+There are still140 native/JAX sine differences of at most one ulp, and the full
+Gibbs page must be rerun because initial construction also changes. Evidence:
+docs/chebpts_source_rounding_cpu_20261010.json. Full parity and green CI are open.
+
+
 ## Same-input L1 iteration-limit test contract (2026-10-10; latest)
 
 The supplemental seeded inpainting test now checks the native MAXITER warning,
