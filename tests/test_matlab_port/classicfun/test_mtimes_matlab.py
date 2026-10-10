@@ -3,16 +3,13 @@
 MATLAB source: tests/classicfun/test_mtimes.m
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
 Python @ is MATLAB mtimes; * remains pointwise times. Python literals are
-MATLAB doubles and explicit uint8 keeps its class. Uniform RNG uses MT19937
-seed 6178 (first 100 points independently captured in the logical fixture).
-Native randn and the subsequent uniform stream await the capture fixture;
-these clauses skip explicitly, with separate deterministic controls retained.
+MATLAB doubles and explicit uint8 keeps its class. All seeded random inputs are captured in original native statement order,
+including randn and the subsequent uniform stream.
 """
 import json
 from pathlib import Path
 
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
 from chebfunjax.domain import Domain
@@ -21,8 +18,8 @@ from chebfunjax.fun.unbndfun import Unbndfun
 
 EPS = float(jnp.finfo(jnp.float64).eps)
 DOM = Domain((-2.0, 7.0))
-X = jnp.asarray(9 * np.random.RandomState(6178).rand(1000) - 2)
 FIXTURE = Path(__file__).parents[2] / "fixtures/classic_mtimes_rng6178.json"
+X = jnp.asarray(json.loads(FIXTURE.read_text())["x_bounded"])
 
 
 def array_op(x):
@@ -35,10 +32,9 @@ def unbounded_op(x):
 
 @pytest.fixture(scope="module")
 def native():
-    if not FIXTURE.exists():
-        pytest.skip("Native MATLAB randn after rand(1000,1) and subsequent rand(100,1) fixture pending")
     data = json.loads(FIXTURE.read_text())
     assert data["source_commit"] == "7574c77680d7e82b79626300bf255498271a72df"
+    assert data["source_sha256"] == "51868fd843f3018edcc7c66136754f6ab47bce18de73f34fe96a4d243d117288"
     assert jnp.array_equal(jnp.asarray(data["x_bounded"]), X)
     assert bool(jnp.all(jnp.asarray(data["pass"])))
     return (complex(*data["alpha"]), jnp.asarray(data["A"]), jnp.asarray(data["x_unbounded"]))

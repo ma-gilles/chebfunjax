@@ -1,5 +1,29 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## CPU examples and direct 3D progress (2026-10-10; latest)
+
+EigLandscapes completes both full 512x512 grids and all five 600x253 figures.
+Bounded JAX eigenvalue batches pass 32 callback controls. Historical full
+execution took 53.03 s; the final artifact-only layout replay preserves surface
+data and source limits. Native RNG, lighting and pixel parity remain open.
+Evidence: docs/eiglandscapes_full_cpu_20261010.json.
+
+Twenty-four of 80 direct Chebfun3 cases pass on frozen e6748499; 56 remain.
+The latest eight passed serially in 706.68 s including supervision, peak
+3,277,836 KiB, with no cap or surviving workers. This is historical qualification,
+not current-main suite completion. See docs/port_mirror_execution_cpu_20261010.md.
+
+
+## Native multiplication inputs restored (2026-10-10; latest)
+
+Native classicfun/mtimes passes all 13 predicates and chebfun/mtimes all 80.
+Original-order captured randn matrices and unbounded queries restore eleven
+previously skipped Python clauses. All 18 selected controls pass (13 classicfun
+and five Chebfun), with original assertions and tolerances; no solver changed.
+The classicfun uniform queries now also use the native capture instead of a
+reconstructed generator. Evidence: docs/mtimes_native_inputs_cpu_20261010.json.
+
+
 ## Addition and trigpade native inputs restored (2026-10-10; latest)
 
 Native test_plus passed all 34 predicates; test_trigpade passed all 30. Input

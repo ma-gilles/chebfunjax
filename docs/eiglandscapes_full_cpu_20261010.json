@@ -1,0 +1,69 @@
+{
+  "scope": "Full source Python EigLandscapes execution with both fixed512\u00d7512 grids, corrected reference600\u00d7253 dimensions and source zoom bounds; native numerical/RNG/pixel parity not established.",
+  "source_example": "linalg/EigLandscapes.m, Nick Trefethen, November2019",
+  "full_original_handle": 10545,
+  "base_full_original_handle": 5694,
+  "callback_control_original_handle": 69286,
+  "scientific_case_count": {
+    "adaptive_Hermitian_functions": 2,
+    "fixed512_real_symmetric_functions": 2,
+    "gap_min2": 2,
+    "figures": 5
+  },
+  "full_elapsed_seconds": {
+    "source_page": 53.02812886890024,
+    "supervisor": 61.15482497820631
+  },
+  "peak_summed_rss_kib": 2959408,
+  "no_caps_or_survivors": true,
+  "full_matrix_payloads_equal_baseline": true,
+  "all_callback_metadata_equal_baseline": true,
+  "source_AST_controls": "Eigenvalue callback exact; run mathematics unchanged excluding renderer title strings and capture calls.",
+  "callback_controls": {
+    "cases": 32,
+    "chunk_vs_unchunked_JAX_bits": true,
+    "NumPy_max_abs_difference": 1.9539925233402755e-14,
+    "bound": "64eps matrix scale, supplemental callback regression bound only; no native scientific tolerance modified."
+  },
+  "reference_dimensions": [
+    600,
+    253
+  ],
+  "stdout": "No native numerical output cells. FULL_PAGE_COMPLETED is gate telemetry and is not inserted as MATLAB/page output.",
+  "remaining_gaps": [
+    "NumPy RandomState1/8 draws differ from MATLAB rng1/8; minima and crossing locations belong to Python draws.",
+    "JAX eigvalsh differs from native eig/sort backend; no matched native matrix oracle.",
+    "Private80\u00d780 surface and200\u00d7200 contour rendering; viridis palette and lack of camlight remain different from native.",
+    "Source zoom bounds/camera are preserved, but Python random surfaces do not reproduce the reference crossing inside that window.",
+    "261-source/environment binding guard and imported runtime versions/origin hashes, not exhaustive runtime dependency closure.",
+    "v2 full factors were not saved; consistency compares exact matrices and319callback shape/min/max records, not full factor bitidentity.",
+    "Exact native tick spacing, palette, lighting, and framing parity remain unverified after readable rectangular-panel replay."
+  ],
+  "saved_artifacts": {
+    "figure_pickles": 5,
+    "plotXYZ_arrays": 8,
+    "constructed_Chebfun2_pickles": 4,
+    "root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/captures"
+  },
+  "timing_limit": "Shared-host observer timings are historical execution measurements, not controlled performance benchmarks.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/AUDIT.json": "f20bc7580b88a9f9e1d7161f125538ced102dfbac12cfaa2e994a89eea079d86",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/READINESS_PACKET.json": "2cea8388ce33dded89165e4d343e8fcfc4519edca8093b63a67b1f2cd4076a03",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/supervision/receipt.json": "7a537f90d54559fc50b9d748771ac485606cacca107cc725b0f54441fb9438ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/VERSIONS.json": "f5f30c3b0025cdb4bd4798d393120bec573ae4c86f14544c6e7a2fd2831ce29a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_rendered_v3_20261010/supervision/stdout": "d29b5439ead45dc96b9619f1cc2bfa96b4240ae101a7c84a17d399adfff6e930",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_full_v2_20261010/AUDIT.json": "35ec88c1806726028af93efe5d0690222e71d53976d98da2085754f5a2ca39c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_chunk_candidate_v2_20261010/CONTROL_RESULTS.json": "175de371877b6a544b77686450d856179404a5e1ad366d52d7c771c8bdc88d28",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_chunk_candidate_v2_20261010/supervision/receipt.json": "9b22274076d92767c03ab10dfc9f6ee42ad5eef25d79a830335d35e8e475ca3a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_render_prepare_v3_20261010/PAGE_PRESERVATION.json": "f85ba2f783ba732c99583e5e2014a076b2e077dcfebd6513149500b0df093e6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_render_prepare_v3_20261010/PLAN.json": "57c3aeb2e07592d0aa92b7f3813e64d8bd9565962f2ce228ec0b0a60514004f1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_artifact_layout_v4_20261010/AUDIT.json": "3a8567e78431bde99c35e79649149c2c907d62a4b2076868152d656c07c6a08e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_artifact_layout_v4_20261010/LABEL_AUDIT.json": "0bb989b5d2647aec95722caa330f2891ca50835cc1e2b429f5f205da901949da",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_artifact_layout_v4_20261010/replay.py": "f9f6cb45abc1f4237d4f78e20319c0ddf9a3b0601a22fbc9f96ef2cfdb48278e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eiglandscapes_artifact_layout_v4_20261010/candidate/examples/linalg/eig_landscapes.py": "09b944f39cd7bb01486d5be970cb28eba9449da5487741daf095a41d3f5ef227"
+  },
+  "artifact_renderer_original_handle": 59785,
+  "artifact_renderer_scope": "Replay saved figure pickles only; exact source limits and surface vertices preserved. Contour2/4 PNGs unchanged. Both source numerical functions ASTs unchanged. All plotted labels inside600\u00d7253 canvas, no pairwise label bbox overlaps.",
+  "renderer_implementation": "Orthographic camera with MATLAB-to-Matplotlib azimuth conversion -90 degrees; normalized rectangular axes panel via temporary pinned Matplotlib3.10.8 Axes3D.apply_aspect hook during sequential save, restored in finally. No library algorithm change.",
+  "historical_timer_qualification": "Full numerical execution timings53.0281s/61.1548s remain historical source-run observations. Artifact replay does not produce a new fullpage timing."
+}

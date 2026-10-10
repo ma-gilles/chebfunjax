@@ -2,8 +2,8 @@
 
 MATLAB ``*`` is written ``@``; ``.'`` is ``.T`` and ``'`` is ``.H``.
 The seed6178 first 100 uniform probes are native MATLAB captures. The three
-later randn matrices and later unbounded probe vector need a native capture;
-their five source clauses remain explicitly pending, with separate controls.
+later randn matrices and later unbounded probe vector are native captures
+from the original statement order; all original predicates are retained.
 
 Provenance
 ----------
@@ -108,9 +108,10 @@ def test_source_01_20(clause, basic):
 
 def native_rng():
     path = FIXTURES / 'mtimes_source_matlab.json'
-    if not path.exists():
-        pytest.skip('Native MATLAB source-order randn matrices/probes pending; deterministic controls are separate.')
-    return json.loads(path.read_text())
+    data = json.loads(path.read_text())
+    assert data['source_commit'] == '7574c77680d7e82b79626300bf255498271a72df'
+    assert data['source_sha256'] == 'd283ec6f0ff6cf5970863afe4cac622c19201fb83d907c141f788fdc94714c56'
+    return data
 
 
 def matrix_case(f, a, x, row):
