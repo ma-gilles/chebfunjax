@@ -70,7 +70,7 @@ def mtimes(f, g):
             raise ValueError('CHEBFUN:CHEBFUN:mtimes:dims: Matrix dimensions must agree.')
         c, d, r = f.cdr()
         gc = _columns(g)
-        weights = jnp.stack([jnp.stack([a.inner(b) for b in gc]) for a in r])
+        weights = jnp.stack([jnp.stack([jnp.reshape(a.inner(b), ()) for b in gc]) for a in r])
         return mtimes(_assemble(c), jnp.asarray(d) @ weights)
     if ff and isinstance(g, Chebfun2):
         return mtimes(g.T, f.T).T
@@ -80,7 +80,7 @@ def mtimes(f, g):
         if not f.is_transposed:
             return _outer(f, g)
         fc, gc = _columns(f), _columns(g)
-        return jnp.stack([jnp.stack([a.conj().inner(b) for b in gc]) for a in fc])
+        return jnp.stack([jnp.stack([jnp.reshape(a.conj().inner(b), ()) for b in gc]) for a in fc])
     if not ff and gf:
         try:
             a = jnp.asarray(f)

@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebfun2 continuous eigenfunctions (2026-10-10; latest)
+
+Chebfun2.eig now follows the native continuous SVD and rank-sized core,
+retaining provider order and continuous eigenfunction normalization. The
+original gallery challenge and continuous residual replace the substituted
+kernel and sampled residual. Root 19 cases pass, including both original
+native predicates, constant-panel matrix shapes, complex source convention,
+empty outputs, and zero-function normalization error. Ruff and policy checks
+pass. Evidence: docs/chebfun2_eig_source_cpu_20261010.json. Full parity and CI
+remain open; no new MATLAB executable run or full runtime audit is claimed.
+
 ## Coupled initial-guess error classification (2026-10-10; latest)
 
 Coupled linearization now translates exactly the two native operator-evaluation

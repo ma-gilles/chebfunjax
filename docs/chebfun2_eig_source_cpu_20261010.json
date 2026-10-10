@@ -1,0 +1,42 @@
+{
+  "base": "4598cf5ccd3f60c37ee71ddb4dc303640439d226",
+  "scope": "Native Chebfun2 continuous small-core eig and original two MATLAB test predicates restored",
+  "changes": [
+    "Literal V.H*U*S eigenproblem, U*S*eigenvectors lift, continuous normalization for full outputs; provider order retained",
+    "full=True adapts native two-output API; legacy sampled triple samples same continuous functions",
+    "Continuous scalar inner-product entries become scalars before matrix assembly, including (n,1) constant panels"
+  ],
+  "verification": {
+    "pytest_cases": 19,
+    "native_predicates": 2,
+    "elapsed_seconds": 64.81098496494815,
+    "peak_child_rss_kib": 2371324,
+    "source_guard_unchanged": true,
+    "cpu_affinity": [
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "static": "Ruff, explicit F821, diff and provenance/NumPy-policy clean"
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/integration_v1/receipt.json": "b4656914c5a6ef908e8fd5b66111435ad496697d7a07526b85ada63f97dedaba",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/integration_v1/junit.xml": "c7b90822b33bddd042e1907663d07342d643b142504449083f4e86a15fccda61",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/integration_v1/static.json": "01bbe8ee171e595f6bce170eb1bdd16934edce659da14f94275c8f737d35f5dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/integration_v1/INPUT_SCOPE.json": "42a26661f7ab8ec27ab026956e15f32f2129974e17c144270b5e82ea80aef87b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/ROOT_SOURCE_SCOPE_v1.json": "c1446fe0852768dcfb0a2ccf2e8afeeb6daaf57d80968728cacc5897ae8cebbd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_eig_source_20261010/native_v4/receipt.json": "413bd96793f585a76ac22f89f724727ac11b1f1514720554c5acf072ab331d53"
+  },
+  "limitations": [
+    "CPU only; no new MATLAB executable run",
+    "Native source complex SVD convention retained literally; this is not a claim of corrected bilinear complex-kernel semantics",
+    "Full zero-function output preserves native divisionByZero error while values-only returns [0]",
+    "Dependency paths pin cached JAX/JAXlib 0.11.0; this gate does not include a complete imported-runtime-file audit",
+    "Full suite, page parity, publication and current CI remain open"
+  ]
+}

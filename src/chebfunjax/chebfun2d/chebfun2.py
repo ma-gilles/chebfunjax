@@ -2591,52 +2591,45 @@ class Chebfun2(eqx.Module):
         vals = self.sample(m, n)
         return float(jnp.max(jnp.abs(vals)))
 
-    def eig(self, return_functions: bool = False):
-        """Eigenvalues of the Fredholm integral operator with kernel f.
+    def eig(self, return_functions: bool = False, *, full: bool = False):
+        """Native continuous SVD and rank-sized eigenvalue problem.
 
-        For a chebfun2 on a square domain [a,b]x[a,b], returns the
-        (nonzero) eigenvalues of (Kg)(x) = int_a^b f(x,t) g(t) dt.
-        With ``return_functions=True`` also returns the eigenfunction
-        values on the discretization grid together with the grid.
-
-        Algorithm: discretize on an n-point Chebyshev grid resolving f
-        with Clenshaw-Curtis weights, A = F diag(w); the operator has
-        finite rank, so eig(A) carries its nonzero spectrum.  (MATLAB
-        uses the equivalent low-rank identity eig(v'*u*S).)
+        The operator integrates the first coordinate: an eigenfunction w
+        obeys integral(f(x,y)*w(x),x) = lambda*w(y). Default output is the
+        provider-order eigenvalue vector. ``full=True`` returns continuous
+        eigenfunctions and a diagonal eigenvalue matrix, adapting MATLAB's
+        two-output form. ``return_functions=True`` preserves the older Python
+        triple (values, sampled functions, grid), sampling these same
+        continuously normalized functions on a Chebyshev display grid.
 
         Provenance
         ----------
         MATLAB source : @chebfun2/eig.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
+        from chebfunjax.chebfun2d._eig import source_eig
+        from chebfunjax.utils.quadrature import chebpts
 
-        from chebfunjax.utils.quadrature import chebpts, chebweights
-
-        xa, xb, ya, yb = self.domain
-        if not (xa == ya and xb == yb):
+        empty = self.isempty()
+        xa, xb, ya, yb = (-1., 1., -1., 1.) if empty else self.domain
+        if xa != ya or xb != yb:
             raise ValueError(
-                "eig: domain of chebfun2 needs to be of the form "
-                "[a b a b].")
-        m, n_len = self.length()
-        n = max(int(m), int(n_len), 16)
-        pts = _np.asarray(chebpts(n), dtype=_np.float64)
-        w = _np.asarray(chebweights(n), dtype=_np.float64)
-        xg = 0.5 * (xb - xa) * pts + 0.5 * (xa + xb)
-        w_phys = w * 0.5 * (xb - xa)
-        X, T = _np.meshgrid(xg, xg, indexing="ij")
-        F = _np.asarray(self(jnp.asarray(X), jnp.asarray(T)))
-        A = F * w_phys[None, :]
-        lam, V = _np.linalg.eig(A)
-        order = _np.argsort(-_np.abs(lam))
-        lam = lam[order]
-        V = V[:, order]
-        r = self.rank
-        lam = lam[:r]
+                "CHEBFUN:CHEBFUN2:eig:domainerr: "
+                "Domain of chebfun2 needs to be in form [a b a b].")
+        if full and return_functions:
+            raise ValueError("Choose full or return_functions, not both.")
+        values, functions = source_eig(
+            None if empty else self.approx,
+            normalize=full or return_functions)
+        if full:
+            return functions, jnp.diag(values)
         if return_functions:
-            return jnp.asarray(lam), jnp.asarray(V[:, :r]), \
-                jnp.asarray(xg)
-        return jnp.asarray(lam)
+            m, n = (0, 0) if empty else self.length()
+            grid = (xb-xa)/2*chebpts(max(int(m), int(n), 16)) + (xa+xb)/2
+            samples = (jnp.empty((grid.size, 0), dtype=jnp.complex128)
+                       if values.size == 0 else functions(grid))
+            return values, samples, grid
+        return values
 
     def sumdisk(self) -> float:
         """Integral over the unit disk inscribed in the domain square.
