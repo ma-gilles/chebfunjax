@@ -1437,7 +1437,8 @@ class Spherefun(eqx.Module):
         indices = list(self.idx_plus)
         columns = [self.cols[j] for j in indices]
         rows = [self.rows[j] for j in indices]
-        inverse = 1.0 / self.pivots[jnp.asarray(indices)]
+        from chebfunjax.spherefun._factor_assembly import select_factor_entries
+        inverse = 1.0 / select_factor_entries(self.pivots, jnp.asarray(indices))
         inverse = jnp.where(jnp.isinf(jnp.abs(inverse)), 0.0, inverse)
         int_cols = _sphere_source_int_columns(columns).reshape(-1)
         # Raw technologies integrate over [-1,1]; source rows own [-pi,pi].

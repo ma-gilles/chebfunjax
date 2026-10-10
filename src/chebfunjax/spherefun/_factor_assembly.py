@@ -10,6 +10,7 @@ stack inputs is a compiler adapter: JAX0.11 CPU compilation of a714-input stack
 exceeded300s in actual Atmospheric reconstruction. No arithmetic, precision,
 source tolerance or factor count is changed by copying columns in groups.
 """
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.tech.trigtech import _trig_prolong_coeffs
@@ -24,3 +25,23 @@ def stack_factor_coefficients(techs):
         for begin in range(0, len(techs), 32)
     ]
     return groups[0] if len(groups) == 1 else jnp.concatenate(groups, axis=1)
+
+
+@jax.jit
+def select_factor_columns(coeffs, index):
+    """Copy native factor columns in order; indices are dynamic.
+
+    Source: @spherefun/projectOntoBMCI.m, Chebfun7574c77.
+    The zero-based indexing convention is the existing Python adapter.
+    """
+    return coeffs[:, index]
+
+
+@jax.jit
+def select_factor_entries(values, index):
+    """Copy selected pivot entries without changing cdr arithmetic.
+
+    Source: @spherefun/sum2.m and @separableApprox/cdr.m, Chebfun7574c77.
+    The zero-based indexing convention is the existing Python adapter.
+    """
+    return values[index]

@@ -1,0 +1,41 @@
+{
+  "scope": "Only literal dynamic matrix-column/vector-entry gather wrappers and three existing indexing callsites. Source AST restoration exact. Existing projection/cdr reciprocal/masking/numerical order/metadata untouched.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cases": {
+    "focused": 28,
+    "portable_new_numerical": 26,
+    "external_cache_IR": 2,
+    "unchanged_public_regressions": 6,
+    "total": 34
+  },
+  "source_ast_independent_review": {
+    "src/chebfunjax/spherefun/_bmci.py": true,
+    "src/chebfunjax/spherefun/_factor_assembly.py": true,
+    "src/chebfunjax/spherefun/spherefun.py": true
+  },
+  "runtime_rehash_counts": [
+    2938,
+    2940
+  ],
+  "root_runtime_audits": [
+    4713,
+    45645
+  ],
+  "original_handles": [
+    86792,
+    28895
+  ],
+  "IR_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_selection_fusion_source_20261009/ROOT_IR_REVIEW_v1.json",
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_selection_fusion_source_20261009",
+  "payload_sha256": {
+    "tests/test_spherefun/test_factor_selection_source.py": "c11f4f3d6267e487d9efe0c5c07b7d3d61b995930cd839fbbfeb3bee146a8ae9",
+    "src/chebfunjax/spherefun/_bmci.py": "fa8bc7513565258f55a22a5d3898620328e05d22618667e8c5ce321711d2295d",
+    "src/chebfunjax/spherefun/_factor_assembly.py": "4b10bf587a8eff22522add04df63f88a6ff96e62979087f21c3c0ff7eba6cb0c",
+    "src/chebfunjax/spherefun/spherefun.py": "cfe42f0af930ce25daf4295c75d94908969c99cd0589f0bcae618c69090149b5"
+  },
+  "limitations": [
+    "No full SphereHeat or AnalyticSVD execution/performance evidence with this change.",
+    "No claim this eliminates all indexing events or resolves prior RSS caps.",
+    "JAX negative indexing is existing Python adapter behavior, not MATLAB negative-index parity."
+  ]
+}

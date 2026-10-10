@@ -11,7 +11,10 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.spherefun._factor_assembly import stack_factor_coefficients
+from chebfunjax.spherefun._factor_assembly import (
+    select_factor_columns,
+    stack_factor_coefficients,
+)
 from chebfunjax.tech.trigtech import (
     Trigtech,
     _trig_coeffs2vals_impl,
@@ -161,8 +164,8 @@ def project(f):
         if not indices:
             continue
         index = jnp.asarray(indices, dtype=jnp.int32)
-        c = _real_source(_columns(col_coeffs[:, index], even, f.nonzero_poles and even))
-        r = _real_source(_rows(row_coeffs[:, index], even))
+        c = _real_source(_columns(select_factor_columns(col_coeffs, index), even, f.nonzero_poles and even))
+        r = _real_source(_rows(select_factor_columns(row_coeffs, index), even))
         for j, i in enumerate(indices):
             cols[i] = Trigtech(coeffs=c[:, j], is_real=True, ishappy=True)
             rows[i] = Trigtech(coeffs=r[:, j], is_real=True, ishappy=True)
