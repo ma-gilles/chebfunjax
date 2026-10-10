@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public JAX ODE45 and complete DynamicalSystems run (2026-10-10; latest)
+
+Chebfun2v.ode45 now uses a JAX finite Dormand–Prince accepted-mesh controller
+following the separately versioned R2017a built-in source and pinned7574c77
+wrapper: native defaults, domain indicator, accepted mesh and complex return.
+Source/wrapper controls and the preserved analytic regression passed.
+All55 public example integrations completed and11 fresh500x400 figures
+are integrated. Root checked2,963 runtime files, all110 mesh arrays exactly
+against the accepted computation, and all10 unchanged Markdown stdout cells.
+Public plotData grids and source-backed72dpi export fix the clipped final
+title while retaining literal font/marker sizes and canvas dimensions.
+Evidence: docs/dynamical_ode45_cpu_20261010.json.
+
+Terminal events, mass/output options, broader controller qualification,
+native executable trajectories and historical website styling remain open.
+The shortened projectile control is explicitly separate from nativepass1.
+The earlier100dpi layout failure is preserved, along with its completed
+55 numerical solutions. Full current tests and remote CI remain unresolved.
+
 ## Native contractions and directional assertions restored (2026-10-10; latest)
 
 Chebfun3 now exposes source mtimes through `.mtimes()` and Python `@`:

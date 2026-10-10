@@ -1,15 +1,14 @@
-"""Port of MATLAB Chebfun tests/chebfun2/test_ode45.m (Fable 5).
+"""Native default-options phase-plane predicate plus separate Python controls.
 
-ode45(F, tspan, y0) with a chebfun2v vector field returns chebfun
-trajectories.  MATLAB's pass(1) uses an events option to stop the
-integration (not ported — no events interface); the initial-value
-recovery it checks is asserted directly, and the phase-plane sweeps
-of pass(2) run verbatim.
+Native pass(2): all seven source calls, including the duplicated initial state,
+with default options and successful completion as the only predicate.
+The shortened projectile and tight analytic endpoint tests are independent
+Python regressions. They do not qualify native pass(1), which uses [0,30],
+RelTol=100*eps and a terminal event; that event path remains unported.
 
 Provenance
 ----------
-MATLAB source : tests/chebfun2/test_ode45.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebfun2/test_ode45.m; Chebfun commit7574c77.
 """
 
 from __future__ import annotations
@@ -26,8 +25,8 @@ def _cf2(fn, dom):
 
 
 class TestChebfun2Ode45:
-    def test_projectile(self):
-        # pass(1): h'' = -1 - 0.01 h' with the (h, h', x) state trick;
+    def test_shortened_projectile_python_control(self):
+        # Independent shortened no-event control; native pass(1) is unresolved: h'' = -1 - 0.01 h' with the (h, h', x) state trick;
         # Y(0) must recover u0 (MATLAB bound 1e-3).
         dom = (0.0, 30.0, 0.0, 2.0)
         F = Chebfun2v([
@@ -38,9 +37,20 @@ class TestChebfun2Ode45:
         T, Y = F.ode45((0.0, 2.0), [2.0, 0.0, 0.0])
         assert abs(float(np.asarray(Y(jnp.asarray(0.0)))[0]) - 2.0) < 1e-3
 
-    def test_phase_plane(self):
-        # pass(2): the A*g linear phase-plane sweeps run; cross-check the
-        # flow of u' = A u against the matrix exponential.
+    def test_native_phase_plane_default_success(self):
+        g = Chebfun2v.from_functions(lambda x, y: x, lambda x, y: y)
+        A = [[2., -2.], [0., 1.]]
+        components = [Chebfun2(approx=c) for c in g.components]
+        G = Chebfun2v([(A[j][0]*components[0]+A[j][1]*components[1]).approx
+                       for j in range(2)])
+        for u0 in ([.1, .05], [-.1, -.05], [-.1, -.05], [-.1, 0.], [.1, 0.]):
+            G.ode45((0., 1.), u0)
+        for u0 in ([.1, .1], [-.1, -.1]):
+            G.ode45((0., 2./3.), u0)
+
+    def test_tight_endpoint_python_control(self):
+        # Existing extra analytic check with its historical Python tolerances;
+        # this is separate from the native default-options success predicate.
         from scipy.linalg import expm
 
         A = np.array([[2.0, -2.0], [0.0, 1.0]])
@@ -49,12 +59,14 @@ class TestChebfun2Ode45:
             _cf2(lambda x, y: 0 * x + y, (-1.0, 1.0, -1.0, 1.0)),
         ])
         for u0 in ([0.1, 0.05], [-0.1, -0.05], [-0.1, 0.0], [0.1, 0.0]):
-            _, y = G.ode45((0.0, 1.0), u0)
+            _, y = G.ode45((0.0, 1.0), u0, rtol=1e-10, atol=1e-12)
             want = expm(A) @ np.asarray(u0)
-            got = np.asarray(y(jnp.asarray(1.0)))
+            value = complex(y(jnp.asarray(1.0)))
+            got = np.asarray([value.real, value.imag])
             assert np.max(np.abs(got - want)) < 1e-8
         for u0 in ([0.1, 0.1], [-0.1, -0.1]):
-            _, y = G.ode45((0.0, 2.0 / 3.0), u0)
+            _, y = G.ode45((0.0, 2.0 / 3.0), u0, rtol=1e-10, atol=1e-12)
             want = expm((2.0 / 3.0) * A) @ np.asarray(u0)
-            got = np.asarray(y(jnp.asarray(2.0 / 3.0)))
+            value = complex(y(jnp.asarray(2.0 / 3.0)))
+            got = np.asarray([value.real, value.imag])
             assert np.max(np.abs(got - want)) < 1e-8

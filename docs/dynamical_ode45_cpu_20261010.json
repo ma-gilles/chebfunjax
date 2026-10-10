@@ -1,0 +1,395 @@
+{
+  "reviewer": "/root",
+  "scope": "Native finite accepted-mesh JAXcontroller, Chebfun7574c77 wrapper, full55public solves and11fresh500x400 figures. Originalpageprose/Matlabcells retained; all10existingstdoutcells byteequalactualrun.",
+  "runtime_reviews": {
+    "ode45": {
+      "reviewer": "/root",
+      "scope": "JAX ODE45 source controls, real field wrapper controls, full55solve page and preserved regression predicates; visual and full native event parity remain open",
+      "gates": [
+        {
+          "gate": "dynamical_ode45_source_20261010/A12_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/A12_v2/supervision/receipt.json",
+          "receipt_sha256": "d524766dec9eedaa5b092ba18c05799f2dfac06d9acd726f198099c929e14251",
+          "runtime_manifest_sha256": "97cbcd6adebc8f33b1f946ad5231066809e092375cf238e8e85d0940e327a36e",
+          "runtime_end_sha256": "d8cfb4ba972ada48b0bafae8056c673c50c5c88cacd4d41693ed64cc9bf8d337",
+          "observed_files_rehashed": 2934,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 54,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 906444,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 12,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "dynamical_ode45_source_20261010/B4_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/B4_v2/supervision/receipt.json",
+          "receipt_sha256": "c4268144cc9e0734ec9fdfcae1697c8ce790393be189dc7ddeae2958dfed7989",
+          "runtime_manifest_sha256": "142634cb520ab69a5cc3ecd54c804dab2ca0df43c2a7a81e632593f5e3327a88",
+          "runtime_end_sha256": "0665666902d3ff514a2cc09940f38ce7398a81f9d39e3b3071bb002fbdcf852e",
+          "observed_files_rehashed": 2935,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 55,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 887320,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 4,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "dynamical_ode45_source_20261010/Dpage1_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Dpage1_v2/supervision/receipt.json",
+          "receipt_sha256": "b0319eaa7115399ab9cd6cd23e745bf3b87056dc8302c72c47e750ca076ebcf2",
+          "runtime_manifest_sha256": "0c85f552136a66e4db47aa37f2f2ecc31364486edefe607d71460d578ee4ae0f",
+          "runtime_end_sha256": "1c8b33c1cb2b4e3d6cfc1d973288605ae4242afba78ac72ee978a04ed79129fc",
+          "observed_files_rehashed": 2956,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 57,
+          "wrong_library_origins": {},
+          "native_loaded_files": 239,
+          "before_after_identical": true,
+          "peak_kib": 1122844,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "dynamical_ode45_source_20261010/Efull55_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Efull55_v2/supervision/receipt.json",
+          "receipt_sha256": "f7b7ce1013b5887104ad22127da8b034baa45654ff08ef0390449d0e7e29778b",
+          "runtime_manifest_sha256": "48da83e720fff9a6c6cd7d9d295713b836b2bd1aac76abbe61826f41d7f22fa9",
+          "runtime_end_sha256": "79cdc1b1635675a9a38780651696726643d1b1be5f0a1bd95956a9443a796c01",
+          "observed_files_rehashed": 2963,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 64,
+          "wrong_library_origins": {},
+          "native_loaded_files": 239,
+          "before_after_identical": true,
+          "peak_kib": 3015808,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "dynamical_ode45_source_20261010/Fregression3_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Fregression3_v1/supervision/receipt.json",
+          "receipt_sha256": "521555e879a45618ee29aff04c990397c22de9115d93a285415b46fa836d44b6",
+          "runtime_manifest_sha256": "bede515ee0f6d35da20bd775f5fa3f65648c937769b3d78ee4824a55e4fc1d75",
+          "runtime_end_sha256": "a7735bda6aa02e2d8833f0ca5d84117d243e734a04d8f95ae17352c68e32cea8",
+          "observed_files_rehashed": 2935,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 55,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1173384,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 3,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "ode45_render": {
+      "reviewer": "/root",
+      "scope": "Source plotData/rendering controls only; no full-page numeric or visual parity claim",
+      "gates": [
+        {
+          "gate": "dynamical_ode45_source_20261010/Hrender3_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Hrender3_v2/supervision/receipt.json",
+          "receipt_sha256": "118c50a1e069d260b57108e344930b24ae6756822b183e26a6935a2616c03739",
+          "runtime_manifest_sha256": "ac062b5f679b0b14bf32684e373a6ce2d59579d7821be594092f32be3377e7b2",
+          "runtime_end_sha256": "a43866dcc66fa6ed2215dc41b32413f7aa0a5e144f1df5c9584d4628ce93c286",
+          "observed_files_rehashed": 2964,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 64,
+          "wrong_library_origins": {},
+          "native_loaded_files": 239,
+          "before_after_identical": true,
+          "peak_kib": 2467316,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 3,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "ode45_72dpi": {
+      "reviewer": "/root",
+      "scope": "Source plotData/rendering controls only; no full-page numeric or visual parity claim",
+      "gates": [
+        {
+          "gate": "dynamical_ode45_source_20261010/Krender4_72dpi_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Krender4_72dpi_v1/supervision/receipt.json",
+          "receipt_sha256": "eb0b673489370b35f66341e5582abdafd0ba380fcb3831fd8b4f497abade8bf8",
+          "runtime_manifest_sha256": "be5a1d3b114bffae2246e977696c96a183b5f3325bd2a1c96d0a4ba04d763a85",
+          "runtime_end_sha256": "b0292a6653eba4d122a35155fa8067e7a9153a1cdeded2dd02b2aea915aa8387",
+          "observed_files_rehashed": 2964,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 64,
+          "wrong_library_origins": {},
+          "native_loaded_files": 239,
+          "before_after_identical": true,
+          "peak_kib": 2548484,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 4,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "ode45_finalfull": {
+      "reviewer": "/root",
+      "scope": "Full55solve source-rendered page; currentnative72dpi metadata, no historicalvisualparityclaim",
+      "gates": [
+        {
+          "gate": "dynamical_ode45_source_20261010/Lfull55_72dpi_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/supervision/receipt.json",
+          "receipt_sha256": "78a4c741364a8f00dbaaa288e85a56f63ec91bd5a2e37485e75c2b182701dd54",
+          "runtime_manifest_sha256": "e41db7f0121770b1739aba1ebf8904036b9e55fdeae9f318557431833e440946",
+          "runtime_end_sha256": "9afcb2787e6d80e54447c8c3f5080353ae032deeaee2d146fc2adda84f892336",
+          "observed_files_rehashed": 2963,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 64,
+          "wrong_library_origins": {},
+          "native_loaded_files": 239,
+          "before_after_identical": true,
+          "peak_kib": 3273888,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "artifacts_review": {
+    "reviewer": "/root",
+    "arrays_compared_byte_for_byte": 110,
+    "stdout_equal": true,
+    "stdout_sha256": "7c4a059a504d575e1e73007fe1b0ef34e94333f0b8e091fe6f0d468f010da64b",
+    "figures": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_01.png": {
+        "sha256": "7de1a2912bc7f95420060645a6cd37976c43b13910528fdea22564118f4f954b",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_02.png": {
+        "sha256": "68ffd012e4a342521dac5c735db0aa731d7d8dcc91dd40135e1640e614d7600d",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_03.png": {
+        "sha256": "8ba1393de8ab3655bd071e1e63b68f410ea00ecdaf456fee876b52f8a9a506a6",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_04.png": {
+        "sha256": "97156ce535e44182b35ec4741d12286646a500fcbe2267d41b30321881e13c3a",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_05.png": {
+        "sha256": "21196957d204e4e7995712421d8f1ff2dbcccbd3e3132208999a4be137c7c74d",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_06.png": {
+        "sha256": "cf7374307b5ff3ebf9cab0ebecc2555d13060ddb8ac77af94e3ac91edb246f86",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_07.png": {
+        "sha256": "3788d69eb5a9ff5195f24d2e0b03648d8253764509f2b0b5fb136e20381c1ee1",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_08.png": {
+        "sha256": "108a986d2baa7faf0739935dd5454b3c10da86da11b339869ce342918cfcd229",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_09.png": {
+        "sha256": "5157051592eb28cd344375d7b3c6be0d2b42532ac37452178ef5d8322aa83c40",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_10.png": {
+        "sha256": "549b7e286ca561784cae03a1352be632b34e7a03a04acfec9bae26490dc8d500",
+        "size": [
+          500,
+          400
+        ]
+      },
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/Lfull55_72dpi_v1/runtime/figures/DynamicalSystems_11.png": {
+        "sha256": "20f108ac5f407ffdb049d4de7adf530cf6535a600fc154b8e6d9c513aaec11f6",
+        "size": [
+          500,
+          400
+        ]
+      }
+    },
+    "faults": [],
+    "contact_sheet_sha256": "fe201b2052acd0f844b2e1be10caabbaf1bb2233a787b193301a8a01b1a4a985",
+    "visual_inspection": "Root inspected full11image contact; allphaseportraits andstabilitydiagram present, titles/labels insidecanvas. Historicalviewport/font/marker/tickparity unresolved.",
+    "scope": "Independent artifact comparison toaccepted computationalE; not native executable trajectory or timing claim."
+  },
+  "source_delivery_sha256": "719d0111e5888831dfd6156380064fbc9d0f609b4ad137a986962d8299b38401",
+  "source_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/FULLPAGE_DELIVERY_v2.json": "719d0111e5888831dfd6156380064fbc9d0f609b4ad137a986962d8299b38401",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/DOCS_DELIVERY_v1.json": "4c5655b29d554d8ef6905f8542f6387702516fc5f43ae13b5c026b47597ad0fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/integration_v2.patch": "d5326861cbb9eee4c33027eaf9e746a3c8622f0e3d5780e34c538b28099988b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/docs_v1.patch": "c9eaedd6fd780b31b0200067667ea4a04e832852544d9ce746d74db43a632572",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/RENDER_SOURCE_REVIEW_v1.json": "07804f35f5996e0f8287d482e59cd56df86b42da420c3d12a108479eb0653b90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/DPI_AST_BINDINGS_v1.json": "aaafafec529c68cfccf5d3057cc0009cab069cc96e559109e62980a83ac134ff",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/DPI_SOURCE_v1.json": "5a2d08a1b42add9aa7186158c2506827fbd916c5cc1b8a5924bdff6cdc668907",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dynamical_ode45_source_20261010/NATIVE_TEST_MAP_COMPLETED_v2.md": "d1a238fe34a86bf79a1d44505f36458471695fee8735483c2884909a319bed64"
+  },
+  "integrated_files": {
+    "src/chebfunjax/chebfun2d/chebfun2v.py": "c2502ad2e88fe9f36ed872c3f609c66b746e72f76142d5f3a49709a2c82efa83",
+    "src/chebfunjax/utils/native_ode45.py": "2035486e601357d33c28ce7b00ed51b2aea349be272c5b2cae12a8e43146f45c",
+    "examples/ode-linear/dynamical_systems.py": "fbf0b1e8ce02b1382249fd08f25fccfcacbf74d152fc49215899c9831ae7b00c",
+    "tests/test_chebfun2v_native45_source.py": "f30cd36bbffd7f54be420f2f9125ae4801552cf1d7ce3c116fde854bce63db09",
+    "tests/test_native45_mesh_controls.py": "37c1f21531f4b7b6fed3e37b4425b4bad343691abfbf8c35eb70041d54b70c50",
+    "tests/test_matlab_port/chebfun2/test_ode45_matlab.py": "6fb6ecf29d65c8bd854500ac47b36d6a3cf5a021fbdb0c6132aa7b18d0873cdc",
+    "docs/images/ode-linear/DynamicalSystems_01.png": "7de1a2912bc7f95420060645a6cd37976c43b13910528fdea22564118f4f954b",
+    "docs/images/ode-linear/DynamicalSystems_02.png": "68ffd012e4a342521dac5c735db0aa731d7d8dcc91dd40135e1640e614d7600d",
+    "docs/images/ode-linear/DynamicalSystems_03.png": "8ba1393de8ab3655bd071e1e63b68f410ea00ecdaf456fee876b52f8a9a506a6",
+    "docs/images/ode-linear/DynamicalSystems_04.png": "97156ce535e44182b35ec4741d12286646a500fcbe2267d41b30321881e13c3a",
+    "docs/images/ode-linear/DynamicalSystems_05.png": "21196957d204e4e7995712421d8f1ff2dbcccbd3e3132208999a4be137c7c74d",
+    "docs/images/ode-linear/DynamicalSystems_06.png": "cf7374307b5ff3ebf9cab0ebecc2555d13060ddb8ac77af94e3ac91edb246f86",
+    "docs/images/ode-linear/DynamicalSystems_07.png": "3788d69eb5a9ff5195f24d2e0b03648d8253764509f2b0b5fb136e20381c1ee1",
+    "docs/images/ode-linear/DynamicalSystems_08.png": "108a986d2baa7faf0739935dd5454b3c10da86da11b339869ce342918cfcd229",
+    "docs/images/ode-linear/DynamicalSystems_09.png": "5157051592eb28cd344375d7b3c6be0d2b42532ac37452178ef5d8322aa83c40",
+    "docs/images/ode-linear/DynamicalSystems_10.png": "549b7e286ca561784cae03a1352be632b34e7a03a04acfec9bae26490dc8d500",
+    "docs/images/ode-linear/DynamicalSystems_11.png": "20f108ac5f407ffdb049d4de7adf530cf6535a600fc154b8e6d9c513aaec11f6"
+  },
+  "markdown_sha256": "0dc477f2305a7deca9e865b3bf048bfdd283e37addd9302a84cd29505956991b",
+  "doc_note_decision": "Engineering qualification recorded here andHANDOFF; no added paragraph in original page prose because outputcells already match. Agentdocsnote retained asunapplied artifact.",
+  "open_gaps": [
+    "Native terminal events/mass/output callbacks/NonNegative/single precision remain unsupported.",
+    "Full native projectile event regression is unqualified; shortened Python projectile is explicitly separate.",
+    "Controller source is MATLAB R2017a, distinct from pinned Chebfun7574c77 wrapper. Native trajectory capture unavailable.",
+    "NormControl implemented but dedicated qualification missing; public backward/multibreakpoint edge cases not fully qualified.",
+    "Historical website phase viewport, font/marker/tick metrics, diagram limits and native eigenbasis/stdout remain unmatched.",
+    "72dpi is supported by current native graphics metadata, not historical website metadata."
+  ],
+  "preserved_failures": [
+    "Cpage1_v1 public component type mismatch before integration",
+    "Grender3_v1 plotData observer omitted native leading NaN",
+    "Ifull55_render_v1 final title too wide at100dpi after all55 integrations",
+    "Preflight Ruff failures and premature H audit retained in package"
+  ],
+  "performance": "125.14s supervised completion only; no matched performance comparison",
+  "whole_current_suite_or_remote_CI": false
+}
