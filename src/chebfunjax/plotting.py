@@ -629,7 +629,7 @@ def plotcoeffs(
         the MATLAB default (hold off) clears the supplied axes. Default
         colors map the graphics root to Matplotlib rcParams. Backend y-axis
         autoscaling, ticks and pixel rendering remain Matplotlib adapters.
-        The source developer-only barplot option is not implemented.
+        The source developer-only barplot option is supported for Chebyshev pieces.
 
     Provenance
     ----------
@@ -700,10 +700,7 @@ def _plotcoeffs_source(f, ax=None, title=None, color=None,
     from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
     from chebfunjax.tech.trigtech import Trigtech
 
-    if kw.pop("barplot", False):
-        raise NotImplementedError(
-            "source=True does not port MATLAB's developer-only barplot option"
-        )
+    barplot = bool(kw.pop("barplot", False))
     # Explicit adapter for MATLAB ishold: off by default; on retains artists.
     hold_state = bool(kw.pop("hold", False))
     markersize_arg = kw.pop("markersize", None)
@@ -772,6 +769,8 @@ def _plotcoeffs_source(f, ax=None, title=None, color=None,
                     raise TypeError("source plotcoeffs requires an extracted scalar column")
                 n = int(coeffs.shape[0])
                 if isinstance(tech, Trigtech):
+                    if barplot:
+                        raise ValueError("barplot is a Chebyshev coefficient option")
                     last_kind = "fourier"
                     modes = jnp.arange(n, dtype=jnp.float64) - (n // 2)
                     if loglog:
@@ -799,14 +798,27 @@ def _plotcoeffs_source(f, ax=None, title=None, color=None,
                     x = jnp.arange(n, dtype=jnp.float64)
                     values = coeffs
                     xlabel = "Degree of Chebyshev polynomial"
-                    if float(tech.vscale) == 0.0:
+                    scale = jnp.asarray(tech.vscale)
+                    if float(scale) == 0.0:
                         values = values + jnp.finfo(jnp.float64).eps
+                    elif barplot:
+                        # @chebtech/plotcoeffs: strict small-coefficient cutoff.
+                        threshold = jnp.min(jnp.finfo(jnp.float64).eps * scale) / 100
+                        values = jnp.where(values < threshold, 0.0, values)
+                    if barplot:
+                        # Literal padData column-major order: each coefficient
+                        # appears twice, followed by NaN; negative x is clipped.
+                        x = jnp.maximum(jnp.stack((x + .5, x - .5, x - .5),
+                                                   axis=1).reshape(-1), 0.0)
+                        values = jnp.stack((values, values,
+                                            jnp.full_like(values, jnp.nan)),
+                                           axis=1).reshape(-1)
                 else:
                     raise TypeError(f"source=True does not support {type(tech).__name__}")
                 marker_size = (markersize_arg if markersize_arg is not None else
                                float(jnp.asarray(2.5, dtype=jnp.float64)
                                      + jnp.asarray(50.0, dtype=jnp.float64)
-                                     / jnp.sqrt(jnp.asarray(n + 8, dtype=jnp.float64))))
+                                     / jnp.sqrt(jnp.asarray((3 * n if barplot else n) + 8, dtype=jnp.float64))))
                 draw_kwargs = dict(kw)
                 if draw_color is not None:
                     draw_kwargs["color"] = draw_color

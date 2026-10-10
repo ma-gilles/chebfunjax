@@ -113,9 +113,6 @@ def test_piecewise_curves_reuse_column_color_and_empty_is_empty_plot():
 
 
 def test_barplot_and_short_format_color_policy():
-    with pytest.raises(NotImplementedError, match="barplot"):
-        cj.plotcoeffs(cj.chebfun.from_coeffs(jnp.asarray([1.0, 0.5])),
-                      source=True, barplot=True)
     with pytest.raises(ValueError, match="at most one"):
         cj.plotcoeffs(cj.chebfun.from_coeffs(jnp.asarray([1.0, 0.5])),
                       source=True, fmt="rr.")

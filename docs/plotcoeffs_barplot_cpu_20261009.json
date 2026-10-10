@@ -1,0 +1,45 @@
+{
+  "scope": "Chebyshev source=True barplot rendering data; not MATLAB pixel parity",
+  "native_source": "@chebtech/plotcoeffs.m",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "implementation_base": "dc9ccc6b76a0974e6c00f00bc4dc56b6ab351b7c",
+  "tests": {
+    "new_literal_controls": 6,
+    "existing_source_policy": 12,
+    "existing_source_oracle": 12,
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0
+  },
+  "runtime": {
+    "original": 21634,
+    "root_audit": 29546,
+    "rehash_files": 2948,
+    "faults": [],
+    "peak_kib": 1840256,
+    "limit_mib": 3072,
+    "cpu": "24-31",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0"
+  },
+  "semantics": [
+    "strict absCoeffs < min(eps*vscale)/100 becomes zero only for positive scale and bar option",
+    "zero function coefficients receive eps before padding",
+    "literal MATLAB column-major padData corresponds to row-stacked coefficient triples",
+    "x negative clipped to zero; original degree count retained for axis limits",
+    "default marker uses padded3n count; explicit marker unchanged",
+    "Fourier source lacks barplot option; Python ValueError adapter retained as an unsupported-option boundary"
+  ],
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plotcoeffs_barplot_source_20261009",
+  "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plotcoeffs_barplot_root_runtime_review_20261009.json",
+  "payload_sha256": {
+    "src/chebfunjax/plotting.py": "fb821a06e0b1196173baf9fc98efd97ade273370a2e5b546b79256e299afb9a5",
+    "tests/test_plotcoeffs_source_policy.py": "7203e51b2caf8cc8a545c75236a546408af42e1231e3072ba5035aa5c8ba9dae",
+    "tests/test_plotcoeffs_barplot_source.py": "77ec61b3b85ecc0fcd066148cfd6a39e2bca28ff8ab3f42d4576d4dc2bbf5ade"
+  },
+  "limitations": [
+    "Six new controls derive literal source arrays, not new MATLAB captures.",
+    "Figure backend autoscaling/ticks/rasterization remain existing Matplotlib adapters.",
+    "Trigtech source does not support barplot; Python raises ValueError."
+  ]
+}
