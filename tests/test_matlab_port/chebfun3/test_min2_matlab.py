@@ -1,40 +1,31 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_min2.m (Fable 5).
+"""Original assertions from Chebfun tests/chebfun3/test_min2.m, 7574c77.
 
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_min2.m
-Chebfun commit: 7574c77
+Original functions, construction order, norms and thresholds are retained.
+Python None represents the native empty second argument for max2/min2.
+Passing these predicates does not establish full extrema algorithm parity.
 """
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-import numpy as np
-import pytest
-
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-
-TOL = 1e12 * float(np.finfo(np.float64).eps)
-_TN = np.linspace(-1.0, 1.0, 101)
-_T = jnp.asarray(_TN)
+from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Min2:
-    """min2(x^2+y^2+z^2) over two dims is the remaining variable squared."""
+def test_native_min2():
+    tol = 1e12*ChebfunPref().cheb3Prefs.chebfun3eps
+    f = chebfun3(lambda x, y, z: x**2+y**2+z**2)
+    g = chebfun(lambda z: z**2)
+    h1 = f.min2()
+    h2 = f.min2(None)
+    h3 = f.min2(None, (1, 2))
+    h4 = f.min2(None, (2, 1))
+    h5 = f.min2(None, (1, 3))
+    h6 = f.min2(None, (2, 3))
 
-    def setup_method(self):
-        self.f = Chebfun3.from_function(
-            lambda x, y, z: x**2 + y**2 + z**2)
-
-    def _err(self, h):
-        return float(np.max(np.abs(np.asarray(h(_T)) - _TN**2)))
-
-    def test_default(self):
-        assert self._err(self.f.min2()) < TOL
-
-    def test_g_none(self):
-        assert self._err(self.f.min2(None)) < TOL
-
-    @pytest.mark.parametrize("dims", [(1, 2), (2, 1), (1, 3), (2, 3)])
-    def test_dims(self, dims):
-        assert self._err(self.f.min2(None, dims)) < TOL
+    assert (h1-g).norm() < tol
+    assert (h2-g).norm() < tol
+    assert (h3-g).norm() < tol
+    assert (h4-g).norm() < tol
+    assert (h5-g).norm() < tol
+    assert (h6-g).norm() < tol

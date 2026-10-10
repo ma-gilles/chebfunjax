@@ -1,27 +1,22 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_cumsum3.m (Fable 5).
+"""Original assertions from Chebfun tests/chebfun3/test_cumsum3.m, 7574c77.
 
-FIXED (Fable 5): Chebfun3.cumsum3 added in the audit.
-
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_cumsum3.m
-Chebfun commit: 7574c77
+Original functions, construction order, norms and thresholds are retained.
+Python None represents the native empty second argument for max2/min2.
+Passing these predicates does not establish full extrema algorithm parity.
 """
 
 from __future__ import annotations
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-
-from ._helpers import EPS, maxdiff
-
-TOL = 100 * EPS
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Cumsum3:
-    def test_all_matlab_assertions(self):
-        # f = x on the cube; cumsum3 = (y+1)(z+1)(x^2/2 - 1/2).
-        f = Chebfun3.from_function(lambda x, y, z: x)
-        g = f.cumsum3()
-        assert maxdiff(
-            g, lambda x, y, z: (y + 1) * (z + 1)
-            * (x ** 2 / 2 - 0.5)) < TOL
+def test_native_cumsum3():
+    tol = 100*ChebfunPref().cheb3Prefs.chebfun3eps
+    x = chebfun3(lambda x, y, z: x)
+    y = chebfun3(lambda x, y, z: y)
+    z = chebfun3(lambda x, y, z: z)
+    f = x
+    g = f.cumsum3()
+    exact = (y+1)*(z+1)*(x**2/2-1/2)
+    assert (g-exact).norm() < tol

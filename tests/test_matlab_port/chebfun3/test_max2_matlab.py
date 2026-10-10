@@ -1,39 +1,37 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_max2.m (Fable 5).
+"""Original assertions from Chebfun tests/chebfun3/test_max2.m, 7574c77.
 
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_max2.m
-Chebfun commit: 7574c77
+Original functions, construction order, norms and thresholds are retained.
+Python None represents the native empty second argument for max2/min2.
+Passing these predicates does not establish full extrema algorithm parity.
 """
 
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
-import pytest
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-
-TOL = 1e7 * float(np.finfo(np.float64).eps)
-_T = jnp.asarray(np.linspace(-1.0, 1.0, 101))
+from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Max2:
-    """max2(cos(xyz)) over any two dims is the constant 1."""
+def test_native_max2():
+    tol = 1e7*ChebfunPref().cheb3Prefs.chebfun3eps
+    f = chebfun3(lambda x, y, z: jnp.cos(x*y*z))
+    g = chebfun(lambda x: 1+0*x)
+    h1 = f.max2()
+    h2 = f.max2(None)
+    h3 = f.max2(None, (1, 2))
+    h4 = f.max2(None, (2, 1))
+    h5 = f.max2(None, (1, 3))
+    h6 = f.max2(None, (3, 1))
+    h7 = f.max2(None, (2, 3))
+    h8 = f.max2(None, (3, 2))
 
-    def setup_method(self):
-        self.f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
-
-    def _err_vs_one(self, h):
-        return float(np.max(np.abs(np.asarray(h(_T)) - 1.0)))
-
-    def test_default(self):
-        assert self._err_vs_one(self.f.max2()) < TOL
-
-    def test_g_none(self):
-        assert self._err_vs_one(self.f.max2(None)) < TOL
-
-    @pytest.mark.parametrize(
-        "dims", [(1, 2), (2, 1), (1, 3), (3, 1), (2, 3), (3, 2)])
-    def test_dims(self, dims):
-        assert self._err_vs_one(self.f.max2(None, dims)) < TOL
+    assert (h1-g).norm() < tol
+    assert (h2-g).norm() < tol
+    assert (h3-g).norm() < tol
+    assert (h4-g).norm() < tol
+    assert (h5-g).norm() < tol
+    assert (h6-g).norm() < tol
+    assert (h7-g).norm() < tol
+    assert (h8-g).norm() < tol

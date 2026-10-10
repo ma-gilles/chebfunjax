@@ -1,0 +1,107 @@
+{
+  "reviewer": "/root",
+  "scope": "All16nativecumsum3/min3/max2/min2 predicates with native continuous norms and original bounds",
+  "gates": [
+    {
+      "gate": "chebfun3_native_cumsum_extrema_20261010/cumsum3_min3_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_cumsum_extrema_20261010/cumsum3_min3_v1/supervision/receipt.json",
+      "receipt_sha256": "da1ca12fd9069ab9b5d43564b1fe5fa611d7366554ef55a46222aad3375fb79e",
+      "runtime_manifest_sha256": "1031d5f25b8a79970955812b9ffe2f3b5ba3785af98b2bb545baf3bae7e490e1",
+      "runtime_end_sha256": "6df798ea62ceff4ad4e6bdd9af9612de7d9f2e0bc47a754dadd68baa83e6793f",
+      "observed_files_rehashed": 2941,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 53,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1382860,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 2,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "chebfun3_native_cumsum_extrema_20261010/max2_native8_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_cumsum_extrema_20261010/max2_native8_v1/supervision/receipt.json",
+      "receipt_sha256": "f8ea41d15233025e7ab50ddea56732fb53a7ad1e39f421de3aba4eb14d3a6b2c",
+      "runtime_manifest_sha256": "b02e47f979c02fc1711c5d6f7153e30f68ea4003a5b50e17ad61a7ea5bc5d2ee",
+      "runtime_end_sha256": "d29da6a0d2239fa448188e797f5b117617570170a793bd7a17d64229e449903f",
+      "observed_files_rehashed": 2948,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 61,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 881180,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "chebfun3_native_cumsum_extrema_20261010/min2_native6_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_cumsum_extrema_20261010/min2_native6_v1/supervision/receipt.json",
+      "receipt_sha256": "dd1db29053821af5d04d821fef044dd9abdf5c857d6e515edd486fc83192a896",
+      "runtime_manifest_sha256": "98d1b7059173e3ccfc4afc67026b42c5a9cc9166c83ccb564d2bb3a04a1af3ce",
+      "runtime_end_sha256": "c0e1525c57b342e3aac264367c262c720028845eaf0b18b323b1a982f70b2882",
+      "observed_files_rehashed": 2948,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 61,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 844484,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_cumsum_extrema_20261010/DELIVERY.json",
+  "delivery_sha256": "3e7b4ded43f70015d05651abbcccf2f305e03198b06ca7183f7e0ba56a9e871d",
+  "delivery_bindings_rehashed": 43,
+  "changed_files": {
+    "tests/test_matlab_port/chebfun3/test_cumsum3_matlab.py": "aa46b414cfc8ca782c48914f8adf99ea4ca46d7132b6cfedfd1145f4016418e4",
+    "tests/test_matlab_port/chebfun3/test_max2_matlab.py": "462dc3e6cfde02e849a8ad37dd086703e4b3e66a50a042125c992d57c91fb711",
+    "tests/test_matlab_port/chebfun3/test_min2_matlab.py": "cd470581c3b454846b312071b5cbc94cb2d9e95ebf26d15667bc3985e6df906a",
+    "tests/test_matlab_port/chebfun3/test_min3_matlab.py": "ec9dd07ad86294ae4904d56ee8d56ecd7676cdd95108db0d2001284d80e380bb"
+  },
+  "source_review": "Root compared all four pinned MATLAB test files with ports, including functions, construction order, continuous norms and original tolerances.",
+  "limitations": [
+    "Four cases in three fresh processes; 16 native predicates.",
+    "Focused tests do not establish full extrema algorithm parity.",
+    "Full current suite and remote CI remain unresolved."
+  ]
+}

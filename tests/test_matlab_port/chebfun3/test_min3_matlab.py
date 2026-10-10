@@ -1,21 +1,20 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_min3.m (Fable 5).
+"""Original assertions from Chebfun tests/chebfun3/test_min3.m, 7574c77.
 
-FIXED: Chebfun3.min3 added in the Fable 5 audit.
-
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_min3.m
-Chebfun commit: 7574c77
+Original functions, construction order, norms and thresholds are retained.
+Python None represents the native empty second argument for max2/min2.
+Passing these predicates does not establish full extrema algorithm parity.
 """
 
 from __future__ import annotations
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Min3:
-    def test_min3_of_quadratic(self):
-        g = Chebfun3.from_function(
-            lambda x, y, z: (x - 0.1) ** 2 + y ** 2 + z ** 2)
-        v, loc = g.min3()
-        assert abs(float(v)) < 1e-8
+def test_native_min3():
+    tol = 1e4*ChebfunPref().cheb3Prefs.chebfun3eps
+    a, b, c = 0.3, -0.4322, -0.83343
+    f = chebfun3(lambda x, y, z: (x-a)**2+(y-b)**2+(z-c)**2)
+    exact = 0
+    value, _ = f.min3()
+    assert abs(value-exact) < tol

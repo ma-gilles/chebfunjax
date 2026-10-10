@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native cumulative integral and extrema tests restored (2026-10-10; latest)
+
+All 16 original cumsum3/min3/max2/min2 predicates now use the native
+functions, construction order, continuous norms and tolerances. Four CPU
+cases passed in three serial processes; root independently checked runtime
+hashes and all source delivery bindings. This replaces sampled-grid
+surrogates and restores the original shifted quadratic for min3.
+Evidence: docs/native_cumsum_extrema_cpu_20261010.json.
+Full extrema algorithm parity, the current complete suite and remote CI
+remain unresolved.
+
 ## Public JAX ODE45 and complete DynamicalSystems run (2026-10-10; latest)
 
 Chebfun2v.ode45 now uses a JAX finite Dormand–Prince accepted-mesh controller
