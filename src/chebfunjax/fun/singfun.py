@@ -1453,39 +1453,27 @@ class Singfun(eqx.Module):
 
     innerProduct = inner
 
-    def cumsum(self) -> "Singfun":
-        """Antiderivative with F(-1) = 0.
+    def cumsum(self):
+        """Native scalar antiderivative, or two locally mapped halves.
 
-        For functions with singularity at one endpoint only (the simpler
-        integrable case), this uses the algorithm of Hale & Olver.  For
-        smooth functions it delegates to the smoothPart's cumsum.
+        The two-item list represents [-1, 0] and [0, 1], with each item
+        evaluated in its own [-1, 1] coordinate. The right item includes
+        the left integral's endpoint constant. Logarithmic primitives
+        retain the native unsupported error.
 
-        Notes
-        -----
-        This is a simplified implementation: only the one-sided singularity
-        case is fully supported.  Functions with singularities at both
-        endpoints raise ``NotImplementedError``.
+        Construction is not JIT-safe.
 
-        NOT JIT-safe (construction-level operation).
-
-        Provenance
-        ----------
-        MATLAB source : @singfun/cumsum.m
-        Chebfun commit: 7574c77
+        Provenance: @singfun/cumsum.m, Chebfun 7574c77.
         """
         a, b = self.exponents
-
-        if abs(a) < _EXP_TOL and abs(b) < _EXP_TOL:
-            return Singfun(self.smoothPart.cumsum(), (0.0, 0.0))
-
-        if abs(a) > _EXP_TOL and abs(b) > _EXP_TOL:
-            raise NotImplementedError(
-                "Singfun.cumsum: antiderivatives of functions singular at both "
-                "endpoints are not yet supported.  Use Singfun.sum() for definite "
-                "integrals instead."
-            )
-
-        # One-sided singularity — use singIntegral algorithm (Hale & Olver)
+        # Native issmooth also recognizes a zero smoothPart.
+        if (a == 0 and b == 0) or bool(jnp.all(self.smoothPart.coeffs == 0)):
+            return self.smoothPart.cumsum()
+        if a != 0 and b != 0:
+            left, right = self.restrict([-1.0, 0.0, 1.0])
+            g_left = _sing_cumsum(left) / 2.0
+            g_right = _sing_cumsum(right) / 2.0
+            return [g_left, g_right + g_left(jnp.float64(1.0))]
         return _sing_cumsum(self)
 
 
@@ -1789,166 +1777,74 @@ def _chebT2U(cT: jax.Array) -> jax.Array:
     return 0.5 * (cU[:m] - cU[2 : m + 2])
 
 
-def _sing_cumsum(f: Singfun) -> Singfun:
-    """Antiderivative for a Singfun with a singularity at exactly one endpoint.
+def _sing_cumsum(f: Singfun):
+    """Literal scalar singIntegral recurrence with complex coefficient support.
 
-    Uses the Hale–Olver algorithm (see MATLAB @singfun/cumsum.m).
-
-    Provenance
-    ----------
-    MATLAB source : @singfun/cumsum.m (singIntegral sub-function)
-    Chebfun commit: 7574c77
-    Algorithm: Hale, N. and Olver, S., "Numerical Computation of Indefinite
-        Integrals for Functions with Poles or Algebraic Singularities",
-        Unpublished Note.
+    Provenance: @singfun/cumsum.m, Chebfun 7574c77 (Hale--Olver).
+    Host branches select the source representation; coefficient arithmetic
+    remains in JAX. This construction routine is not JIT/AD qualified.
     """
-    a, b = f.exponents
-
-    # Work with singularity at the LEFT end (flip if needed)
-    flip = abs(b) > _EXP_TOL and abs(a) < _EXP_TOL
-    if flip:
-        # Flip: replace x -> -x so singularity moves to left end
-        s_ref = f.smoothPart
-        flipped_smooth = Chebtech2.from_function(lambda x: s_ref(-x))
-        f_work = Singfun(flipped_smooth, (b, a))
+    if not isinstance(f.smoothPart, (Chebtech1, Chebtech2)):
+        raise ValueError("CHEBFUN:SINGFUN:cumsum:noSupport: unsupported smoothPart")
+    flip = f.exponents[1] != 0
+    work = f.flipud() if flip else f
+    smooth = work.smoothPart
+    tech_type = type(smooth)
+    alpha = jnp.float64(-work.exponents[0])
+    # MATLAB round uses nearest integer, ties away from zero. Negative
+    # rounded values are all replaced by 1 in this particular expression.
+    ra = max(int(jnp.floor(alpha + 0.5)), 1)
+    xs = tech_type.from_function(lambda x: x + 1.0) * smooth
+    old_n = len(xs) - 1
+    n = max(old_n, ra + 2)
+    if n != old_n:
+        xs = xs.prolong(n + 1)
+    aa = xs.coeffs
+    c = jnp.zeros(n + 1, dtype=aa.dtype)  # one-based indices, c[0] unused
+    c = c.at[n].set(2 * aa[n] / (1 - alpha / n))
+    c = c.at[n-1].set(2 * (aa[n-1] - c[n]) / (1 - alpha / (n-1)))
+    for k in range(n-2, ra, -1):
+        c = c.at[k].set(2 * (aa[k] - c[k+1] - c[k+2]*.5*(1 + alpha/k))
+                            / (1 - alpha/k))
+    cm = (2.0**(ra-1)) * (aa[ra] - c[ra+1] - c[ra+2]*(1 + alpha/ra)/2)
+    xa = tech_type.from_function(lambda x: (x + 1.0)**ra)
+    aa = aa.at[:ra+1].add(-cm * xa.coeffs[::-1])
+    for k in range(ra-1, 0, -1):
+        c = c.at[k].set(2 * (aa[k] - c[k+1] - c[k+2]*.5*(1 + alpha/k))
+                            / (1 - alpha/k))
+    kk = jnp.arange(1, n+1, dtype=jnp.float64)
+    c = .5*c[1:]
+    dd1 = c/kk
+    dd2 = -c[2:]/kk[:-2]
+    cc = jnp.concatenate([jnp.zeros(1, dtype=c.dtype),
+                          dd1 + jnp.concatenate([dd2, jnp.zeros(2, dtype=c.dtype)])])
+    cc = cc.at[0].set(jnp.sum(cc[1::2]) - jnp.sum(cc[2::2]))
+    if n > old_n + 2:
+        cc = cc[:old_n+2]
+    nonzero = jnp.nonzero(cc != 0)[0]
+    cc = cc[:int(nonzero[-1])+1] if nonzero.size else jnp.zeros(1, dtype=cc.dtype)
+    u = tech_type.from_coeffs(cc)
+    # @chebtech/iszero: exact zero, including explicit rejection of NaNs.
+    u_zero = bool(jnp.all(u.coeffs == 0))
+    tol = _EPS * work.vscale
+    if abs(ra-alpha) > tol:
+        cm_scaled = cm/(ra-alpha)
+        if u_zero and abs(cm_scaled) > tol*smooth.vscale:
+            g = Singfun(tech_type.from_function(lambda x: cm_scaled + 0*x),
+                        (ra-alpha, 0.0))
+        elif not u_zero and abs(cm_scaled) < tol:
+            g = Singfun(u, work.exponents).extractBoundaryRoots((1.0, 0.0))
+        else:
+            g = Singfun(u + cm_scaled*xa, work.exponents).extractBoundaryRoots((1.0, 0.0))
+    elif abs(cm) < tol:
+        g = Singfun(u, work.exponents).extractBoundaryRoots((1.0, 0.0))
     else:
-        f_work = f
-
-    a_w = f_work.exponents[0]  # singularity exponent at the left end
-    aa = -a_w  # aa > 0 for integrable singularity
-
-    # Get smooth part: (x+1)*s as a Chebtech2
-    s = f_work.smoothPart
-    xs = Chebtech2.from_function(lambda x: (x + 1.0) * s(x))
-
-    N = len(xs) - 1
-    oldN = N
-    ra = max(round(aa), 1)
-    if N < ra + 2:
-        N = ra + 2
-        # Prolong xs to N+1 coefficients
-        c_old = xs.coeffs
-        c_new = jnp.zeros(N + 1, dtype=jnp.float64).at[: c_old.shape[0]].set(c_old)
-        xs = Chebtech2(c_new)
-
-    xsc = xs.coeffs  # shape (N+1,) array
-    aa_list = [float(xsc[i]) for i in range(min(len(xsc), N + 1))]
-    while len(aa_list) < N + 1:
-        aa_list.append(0.0)
-
-    # Solve the recurrence for c_k (coefficients of u')
-    c = [0.0] * (N + 1)
-    c[N] = 2.0 * aa_list[N] / (1.0 - aa / N)
-    c[N - 1] = 2.0 * (aa_list[N - 1] - c[N]) / (1.0 - aa / (N - 1))
-    for k in range(N - 2, ra, -1):
-        c[k] = (
-            2.0 * (aa_list[k] - c[k + 1] - c[k + 2] * 0.5 * (1.0 + aa / k))
-            / (1.0 - aa / k)
-        )
-
-    # Compute Cm
-    Cm = (2.0 ** (ra - 1)) * (
-        aa_list[ra] - c[ra + 1] - c[ra + 2] * (1.0 + aa / ra) / 2.0
-    )
-
-    # Compute (x+1)^ra as a Chebtech2
-    xa_tech = Chebtech2.from_function(lambda x: (1.0 + x) ** ra)
-    xa_c = [float(xa_tech.coeffs[i]) if i < len(xa_tech.coeffs) else 0.0
-            for i in range(ra + 2)]
-
-    # Modify aa_list
-    aa_mod = list(aa_list)
-    for i in range(ra + 1):
-        aa_mod[i] -= Cm * xa_c[ra - i]  # flipud equivalent
-
-    # Compute remaining c_k
-    for k in range(ra - 1, 0, -1):
-        c[k] = (
-            2.0 * (aa_mod[k] - c[k + 1] - c[k + 2] * 0.5 * (1.0 + aa / k))
-            / (1.0 - aa / k)
-        )
-
-    # Integrate u' to get u coefficients
-    kk = list(range(1, N + 1))
-    c_half = [cv * 0.5 for cv in c[1:]]  # c[1..N] / 2
-
-    dd1 = [c_half[k - 1] / k for k in kk]
-    # MATLAB: dd2 = -c(3:end)./kk(1:end-2), i.e. dd2(i) = -c(i+2)/i.
-    # The previous indexing read c one entry early AND (at the first
-    # element) divided by kk[-1] = N via Python wraparound — invisible
-    # for a pure pole (single c mode) but wrong for any varying smooth
-    # part, producing an antiderivative with a spurious extra
-    # (1+x)^(exp+1) component.
-    dd2 = [-c_half[j + 2] / (j + 1) for j in range(len(kk) - 2)]
-
-    cc = [0.0] * (N + 1)
-    for i, v in enumerate(dd1):
-        cc[i + 1] += v
-    for i, v in enumerate(dd2):
-        cc[i + 1] += v
-
-    # Choose cc[0] so u(-1) = 0
-    pos = sum(cc[i] for i in range(2, N + 1, 2))
-    neg = sum(cc[i] for i in range(1, N + 1, 2))
-    cc[0] = neg - pos  # from T_k(-1) = (-1)^k
-
-    # Trim
-    if N > oldN + 2:
-        cc = cc[: oldN + 2]
-
-    # Remove trailing zeros
-    last_nz = 0
-    for i in range(len(cc) - 1, -1, -1):
-        if abs(cc[i]) > 0.0:
-            last_nz = i
-            break
-    cc = cc[: last_nz + 1] if last_nz > 0 else [0.0]
-
-    u_coeffs = jnp.array(cc, dtype=jnp.float64)
-    u_tech = Chebtech2(u_coeffs)
-
-    # Construct the antiderivative Singfun
-    exps_new = list(f_work.exponents)
-    tol = _EPS * float(jnp.max(jnp.abs(f_work.smoothPart.coeffs)))
-
-    if abs(ra - aa) > tol:
-        CM = Cm / (ra - aa)
-        g = Singfun(u_tech + xa_tech * CM, tuple(exps_new))
-    else:
-        g = Singfun(u_tech, tuple(exps_new))
-
-    # Absorb the boundary root introduced by the (x+1) prefactor back into the
-    # left exponent (MATLAB @singfun/cumsum.m lines 177/181/188:
-    # ``extractBoundaryRoots(g, [1;0])``).  This canonicalises e.g. a smooth
-    # part ~(1+x)/(A+1) with exponent 0.64 into a constant with exponent 1.64,
-    # which then evaluates to the exact power law rather than a resampled
-    # polynomial (recovering the ~5 lost digits at a left fractional root).
-    g = g.extractBoundaryRoots((1.0, 0.0))
-
-    # Flip back and negate for the right-endpoint-singularity case.  MATLAB
-    # (@singfun/cumsum.m lines 197-209) does this BEFORE enforcing F(-1)=0,
-    # then checks the FINAL left exponent.  The previous ordering enforced
-    # F(-1)=0 in the flipped working space and tested the working left
-    # exponent (the singularity itself), so for a right-endpoint pole the
-    # constant was never added and the antiderivative came out shifted by the
-    # missing 2^(d+1)/(d+1).
+        raise ValueError("CHEBFUN:SINGFUN:cumsum:noLog: indefinite integral has a logarithmic term")
     if flip:
-        inner_smooth = g.smoothPart
-        flipped_back = Chebtech2.from_function(lambda x: inner_smooth(-x))
-        g = Singfun(-flipped_back, (g.exponents[1], g.exponents[0]))
-
-    # If G is not blowing up at the left end, ensure G(-1) == 0.  MATLAB
-    # (@singfun/cumsum.m line 207) subtracts get(g,'lval') unconditionally, but
-    # when the antiderivative already satisfies F(-1)=0 the offset is only
-    # roundoff (~1e-16).  Subtracting a negligible constant from a function with
-    # a nonzero right exponent forces the Case-3 pointwise reconstruction of a
-    # non-smooth ``lval*(1-x)^p`` term, which our adaptive constructor cannot
-    # resolve (it runs to the max length and aliases in ~1e-6 error).  Skipping
-    # the no-op subtraction keeps the exact result and matches MATLAB's intent.
-    if g.exponents[0] >= 0.0:
-        lval = float(g(jnp.float64(-1.0)))
-        tol_lval = 1e3 * _EPS * max(float(g.smoothPart.vscale), 1.0)
-        if abs(lval) > tol_lval:
-            g = g - lval
-
+        g = -g.flipud()
+    # Native conditional subtraction, including arbitrarily small offsets.
+    if g.exponents[0] >= 0:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*Non-integer difference.*")
+            g = g - g(jnp.float64(-1.0))
     return g

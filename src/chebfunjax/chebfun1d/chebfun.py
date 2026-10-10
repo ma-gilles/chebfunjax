@@ -549,7 +549,7 @@ class _Piece(eqx.Module):
             new_tech = type(tech_der).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
 
-    def cumsum(self) -> _Piece:
+    def cumsum(self) -> _Piece | list[_Piece]:
         """Antiderivative with respect to x satisfying F(a) = 0.
 
         The antiderivative in the reference variable t is scaled by (b-a)/2
@@ -560,7 +560,8 @@ class _Piece(eqx.Module):
 
         Returns
         -------
-        _Piece
+        _Piece or list[_Piece]
+            A two-endpoint Singfun primitive introduces the midpoint.
         """
         a, b = self.interval
         scale = (b - a) / 2.0
@@ -576,6 +577,15 @@ class _Piece(eqx.Module):
             cheb = Chebtech2.from_function(lambda t, _s=self.tech: _s(t))
             scaled = cheb.cumsum().coeffs * jnp.float64(scale)
             return _Piece(tech=Chebtech2.from_coeffs(scaled), interval=(a, b))
+        if isinstance(tech_cs, list):
+            midpoint = (a + b)/2.0
+            intervals = [(a, midpoint), (midpoint, b)]
+            return [_Piece(tech=part*jnp.float64(right-left), interval=(left, right))
+                    for part, (left, right) in zip(tech_cs, intervals)]
+        from chebfunjax.fun.singfun import Singfun
+        if isinstance(self.tech, Singfun):
+            # Preserve output type and exponents, including smooth demotion.
+            return _Piece(tech=tech_cs*jnp.float64(scale), interval=(a, b))
         # Scale coefficients by (b-a)/2
         scaled_coeffs = tech_cs.coeffs * jnp.float64(scale)
         from chebfunjax.tech.trigtech import Trigtech
@@ -5540,9 +5550,13 @@ class Chebfun(eqx.Module):
                 out = out.cumsum()
             return out
         if len(self.funs) == 1 and not self.deltas:
+            integrated = self.funs[0].cumsum()
+            pieces = integrated if isinstance(integrated, list) else [integrated]
+            domain = (Domain(tuple([pieces[0].interval[0]] +
+                                   [p.interval[1] for p in pieces]))
+                      if isinstance(integrated, list) else self.domain)
             return Chebfun._as_transposed(
-                Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain),
-                self.is_transposed)
+                Chebfun(funs=pieces, domain=domain), self.is_transposed)
 
         # Multi-piece: compute antiderivative on each piece, then shift to
         # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
@@ -5576,16 +5590,16 @@ class Chebfun(eqx.Module):
         new_pieces = []
         offset = None
         for piece in base.funs:
-            piece_cs = piece.cumsum()
-            # piece_cs has F_piece(a_piece) = 0 by construction
-            # Shift by offset to achieve continuity
+            integrated = piece.cumsum()
+            children = integrated if isinstance(integrated, list) else [integrated]
+            # Children already share a constant from the onefun split. Add
+            # the SAME incoming parent carry to every child, then update once.
             if offset is not None and bool(jnp.any(offset != 0)):
-                # Add offset as a constant to the antiderivative piece
-                new_tech = piece_cs.tech + offset
-                piece_cs = _Piece(tech=new_tech, interval=piece_cs.interval)
-            new_pieces.append(piece_cs)
-            # Update offset: new cumulative value at the right endpoint
-            offset = piece_cs.values[-1]
+                children = [_Piece(tech=child.tech + offset, interval=child.interval)
+                            for child in children]
+            new_pieces.extend(children)
+            from chebfunjax.chebfun1d._construction import endpoint_limit
+            offset = endpoint_limit(children[-1], right=True)
             # A delta sitting on this piece's right breakpoint adds a step
             # (Heaviside jump) to every subsequent piece.
             if delta_by_loc:
@@ -5595,7 +5609,10 @@ class Chebfun(eqx.Module):
                         offset = offset + mag
 
         return Chebfun._as_transposed(
-            Chebfun(funs=new_pieces, domain=base.domain,
+            Chebfun(funs=new_pieces,
+                    domain=(Domain(tuple([new_pieces[0].interval[0]] +
+                                         [p.interval[1] for p in new_pieces]))
+                            if new_pieces else base.domain),
                     deltas=tuple(lowered)), self.is_transposed)
 
     def sum(self, *args, dim=None):

@@ -65,6 +65,22 @@ class Bndfun(Classicfun):
     Classicfun, Chebtech2, Domain
     """
 
+    def cumsum(self):
+        """Native bounded antiderivative; a split onefun yields two Bndfuns.
+
+        Provenance: @bndfun/cumsum.m, Chebfun 7574c77.
+        """
+        if self.isempty():
+            return self
+        integrated = self.onefun.cumsum()
+        if isinstance(integrated, list):
+            a, b = self.domain.a, self.domain.b
+            midpoint = (a + b)/2.0
+            intervals = [(a, midpoint), (midpoint, b)]
+            return [type(self)(part*(right-left), Domain((left, right)))
+                    for part, (left, right) in zip(integrated, intervals)]
+        return type(self)(integrated*self.domain.map_derivative(), self.domain)
+
     def inner(self, other: "Bndfun") -> jax.Array:
         """Conjugate-linear inner product with bounded-function type checking.
 

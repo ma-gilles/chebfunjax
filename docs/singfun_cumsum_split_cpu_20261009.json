@@ -1,0 +1,53 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "sources": [
+    "@singfun/cumsum.m",
+    "@bndfun/cumsum.m",
+    "@chebfun/cumsum.m"
+  ],
+  "changes": [
+    "Native two-endpoint restriction, local half scaling and right primitive continuity constant",
+    "Flatten split primitives into physical child intervals, preserving parent carry and transpose",
+    "Use actual endpoint limit for incoming carry, fixing Chebtech1 interior-sample substitution",
+    "JAX coefficient recurrence with complex support, native noLog branch and smooth/zero demotion"
+  ],
+  "checks": {
+    "structural13_v3": 13,
+    "errors4_v3": 4,
+    "analytic8_v3": 8,
+    "original_singfun6_v3": 6
+  },
+  "total_passed": 31,
+  "root_runtime_audits": [
+    55881,
+    65288
+  ],
+  "root_runtime_reports": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_structural_errors_root_runtime_review_20261009.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_analytic_native_root_runtime_review_20261009.json"
+  ],
+  "rehash_counts": [
+    2940,
+    2940,
+    2941,
+    2941
+  ],
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_two_endpoint_cumsum_source_20261009",
+  "delivery_sha256": "56de6d8a166fc44639143985d9b8a8f112682141aeb3bb8c990194b75d89cff6",
+  "warning_review_sha256": "e73e002c81a457e573523e8dd90e6b61b433e2ef7df9edb66c272ee05db16176",
+  "payload_sha256": {
+    "src/chebfunjax/fun/singfun.py": "575e397da26a3d51373b32ce287b7602cc0a31026bb1e61b74808c5f8e023f6d",
+    "src/chebfunjax/fun/bndfun.py": "5be7a2a244bb4440639d5b53ab6824924a9b7000419e98209852ed7ae4d6b073",
+    "src/chebfunjax/chebfun1d/chebfun.py": "758b1579ca9c3c1533ff8a038b421a9df361a78012372e636de11597270a4f58",
+    "tests/test_fun/test_singfun_cumsum_split_source.py": "02cfd7d3bacc6104b0dd863befe846523242ce70632d68e2db379748598db654"
+  },
+  "limitations": [
+    "Asin analytic and original right-pole controls emit65537 nonconvergence warnings. Sampled checks pass; no happiness qualification. Internalcallsite/flagpropagation conclusions source-derived, not runtime metadata capture.",
+    "Native higher-order split uses stale native numFuns; Python existing recursive behavior retained.",
+    "Direct Deltafun nonzero-delta plus split list semantics remain unresolved; public Chebfun parent delta carry tested independently.",
+    "No full native Chebfun11/12 qualification; unmatched inputs diagnostics unrun/external.",
+    "No JIT/AD-through-singular-construction or general array-valuedSingfun/FFT bit-parity claim."
+  ],
+  "preserved_failure": "v2 structural firstcase failed nonexistentiszero;12unrun. Preserved receipt/audit unchanged. v3 changes exactzero predicate only; originalbounds unchanged.",
+  "status": "Scoped source integration qualified; full Chebfun singular integration and all-page parity remain incomplete."
+}
