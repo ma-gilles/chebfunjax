@@ -4,9 +4,10 @@ Andre Uschmajew and Nick Trefethen, February2017.
 Original: https://www.chebfun.org/examples/approx2/Gibbs2D.html
 Copyright The University of Oxford and The Chebfun Developers.
 
-CPU-qualified source candidate using public construction/extrema routes.
-Native active-set, camlight/face interpolation and automatic
-contour levels remain gaps; public renderer approximations are not parity.
+CPU-qualified source execution includes four active-set solves without fallback.
+The triangle maximum differs from the published native reference by 0.02129.
+Camlight, face interpolation and automatic contour levels remain graphics gaps;
+public renderer approximations are not parity.
 """
 
 from pathlib import Path

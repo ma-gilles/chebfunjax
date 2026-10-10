@@ -110,7 +110,7 @@ def test_frontend_conversion_scaling_dispatch_order(monkeypatch):
     assert source.source_extrema(f) == 'answer'
     assert calls == [('convert', 'r', 2., 6.), ('convert', 'c', -3., 5.),
         ('scale', 'r4000', 'c4000', 'd'),
-        ('higher', 'r4000scaled', 'c4000scaled', {'active_solver': None})]
+        ('higher', 'r4000scaled', 'c4000scaled', {'active_solver': source.native_active_set})]
 
 
 def test_rank_limit_after_conversion_and_scaling(monkeypatch):
@@ -158,7 +158,7 @@ def test_separate_requests_execute_both_extrema(monkeypatch):
     assert bool(jnp.array_equal(xmax, jnp.asarray([6., 7.])))
 
 
-def test_public_rank_two_quadratic_fallback():
+def test_public_rank_two_quadratic_active_set():
     # (x-1/4)^2 + (y+1/8)^2. Exact coefficients independent of construction.
     f = function([poly(1), poly(33/64, 1/4, 1/2)],
                  [poly(9/16, -1/2, 1/2), poly(1)], [1., 1.])

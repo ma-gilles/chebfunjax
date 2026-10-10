@@ -2345,12 +2345,12 @@ class Chebfun2(eqx.Module):
         return Chebfun2v([self.approx] + [g.approx for g in others])
 
     def minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
-        """Real extrema using the source separable front-end and fallback.
+        """Real extrema using the source separable front-end and optimizer transaction.
 
         Factors are reconstructed at fixed length 4000 with session-selected
         technology, simplified, and scaled. Rank one uses continuous factor
-        extrema. Higher ranks use source Chebyshev seeds and the Nelder-Mead
-        fallback; native active-set optimization is not implemented. Original
+        extrema. Higher ranks use source Chebyshev seeds, the fixed-option active-set
+        solver and the source exception-triggered Nelder-Mead fallback. Original
         pivotValues are used when retained; legacy inverse-only adapters use
         explicitly limited reciprocal recovery. Complex input retains the inherited optimizer,
         whose source parity is not established.

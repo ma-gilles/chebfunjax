@@ -11,7 +11,7 @@ observed, not available as readable source. The separate Chebfun caller is
 @separableApprox/minandmax2.m at 7574c77680d7e82b79626300bf255498271a72df,
 Copyright 2017 The University of Oxford and The Chebfun Developers.
 Capture provenance is bound in tests/fixtures/active_set_fd_native.json.
-No public registration, arbitrary option support, full JIT or AD contract.
+Fixed caller registration only; no arbitrary option, full JIT or AD contract.
 """
 import jax.numpy as jnp
 

@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx2/gibbs2d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/gibbs2d.py)
 
-> **Qualification:** These figures and printed results come from the CPU execution of the original 100 × 100 inputs through the public chebfunjax constructors, restrictions, and extrema routes. Rank-one extrema use the source reconstruction path; the triangle uses the transparent higher-rank fallback because the native active-set route is unavailable. Its maximum is **1.273581928619899**, whereas the published MATLAB output is **1.294875501773784**. This numerical difference remains unresolved. Surface lighting, Gouraud/material behavior, surface framing and ticks, and automatic MATLAB contour levels remain incomplete; spy tick choices and marker widths differ from the published reference; the figures use the public rendering defaults and have not been rescaled or fitted to reference images. This example makes no random draws. Successful execution does not establish native numerical or visual parity.
+> **Qualification:** CPU source execution passed 35 controls, including this original 100x100 computation, all six extrema calls, twelve fixed-4000 reconstructions and four active-set solves, with no fallback or unsupported branch. The triangle maximum is 1.273581928619538 versus the published native 1.294875501773784 (gap -0.021293573154246); its cause remains under investigation. The other displayed answers closely match the published reference. All eight figures are actual 600x269 outputs. Camlight, interpolated faces, automatic contour levels, framing and typography remain graphics differences. These results establish source execution, not full numerical or graphics parity.
 
 ## 1. Chebyshev 2D Gibbs effect
 
@@ -114,9 +114,9 @@ contour(p2), axis([-.6 .6 -.6 .6]), axis square, colorbar
 
 ```text
 ans =
-   1.273581928619899
+   1.273581928619538
 ans =
-  -0.228957699300768
+  -0.228957699300504
 ```
 
 ![Gibbs2D figure 06](../../images/approx2/Gibbs2D_06.png)

@@ -1,0 +1,153 @@
+{
+  "qualification": "source execution only; triangle maximum and graphics parity unresolved",
+  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35_AUDIT_v2.json",
+  "gate_sha256": "ba29aaca343fb365b0cf07594463392ac1118305693558f598a69490e730cc0a",
+  "comparison": {
+    "reference_type": "cached published native page, not fresh matched MATLAB run",
+    "rows": [
+      {
+        "name": "square_max",
+        "actual_printed": 1.32031625404239,
+        "published_native_printed": 1.32031625404239,
+        "difference": 0.0
+      },
+      {
+        "name": "1d_max",
+        "actual_printed": 1.149050152970874,
+        "published_native_printed": 1.149050152970874,
+        "difference": 0.0
+      },
+      {
+        "name": "square_min",
+        "actual_printed": -0.153785123606236,
+        "published_native_printed": -0.153785123606236,
+        "difference": 0.0
+      },
+      {
+        "name": "periodic_max",
+        "actual_printed": 1.316297664943328,
+        "published_native_printed": 1.31629766494333,
+        "difference": -1.9984014443252818e-15
+      },
+      {
+        "name": "periodic_min",
+        "actual_printed": -0.155566549488912,
+        "published_native_printed": -0.155566549488912,
+        "difference": 0.0
+      },
+      {
+        "name": "triangle_max",
+        "actual_printed": 1.273581928619538,
+        "published_native_printed": 1.294875501773784,
+        "difference": -0.02129357315424607
+      },
+      {
+        "name": "triangle_min",
+        "actual_printed": -0.228957699300504,
+        "published_native_printed": -0.228957699300502,
+        "difference": -1.9984014443252818e-15
+      },
+      {
+        "name": "square_rank",
+        "actual_printed": 1.0,
+        "published_native_printed": 1.0,
+        "difference": 0.0
+      },
+      {
+        "name": "periodic_rank",
+        "actual_printed": 1.0,
+        "published_native_printed": 1.0,
+        "difference": 0.0
+      },
+      {
+        "name": "triangle_rank",
+        "actual_printed": 22.0,
+        "published_native_printed": 22.0,
+        "difference": 0.0
+      },
+      {
+        "name": "matrix_rank",
+        "actual_printed": 22.0,
+        "published_native_printed": 22.0,
+        "difference": 0.0
+      }
+    ],
+    "actual_active_solves": [
+      {
+        "kind": "active_set",
+        "time": 2790729.022588634,
+        "call": 1,
+        "seconds": 0.5613499716855586,
+        "exitflag": 5,
+        "iterations": 9,
+        "evaluations": 41
+      },
+      {
+        "kind": "active_set",
+        "time": 2790729.497814733,
+        "call": 2,
+        "seconds": 0.47049245005473495,
+        "exitflag": 5,
+        "iterations": 9,
+        "evaluations": 42
+      },
+      {
+        "kind": "active_set",
+        "time": 2790730.342165229,
+        "call": 3,
+        "seconds": 0.2455042558722198,
+        "exitflag": 5,
+        "iterations": 9,
+        "evaluations": 41
+      },
+      {
+        "kind": "active_set",
+        "time": 2790730.604286707,
+        "call": 4,
+        "seconds": 0.25737704802304506,
+        "exitflag": 5,
+        "iterations": 9,
+        "evaluations": 42
+      }
+    ],
+    "acceptance_tolerance": null,
+    "counts": {
+      "grids": 7,
+      "extrema": 6,
+      "reconstruct": 12,
+      "higher": 2,
+      "fallback": 0,
+      "active": 4,
+      "active_errors": 0,
+      "unsupported_errors": 0,
+      "figures": 8
+    },
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs2d_page_source_20261009/CACHED_CELLS.json": "c8cacbddf845a4a19418c4f1ba93926c51a6f12c1dcdaa300bc862af0262ba4c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/stdout.txt": "de40efecc78d46fd0fb1b08e3453945f3159a031f90076c47a2af6cddd1f792b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/events.json": "46f89fbdf6122d7ced52e676341031b05441bb7460447630c812cd998baf5c75",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/PAGE_RECEIPT.json": "8df894c760326df7a175d83fdde0c42a8d444e3ee5f74fcce4d9d5132e1a3424",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_02.json": "31a948ead946bb3d1f0446c26ce9fca95bdbb8cab0ca3ade03f5744f9add9da9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_03.json": "9c7ce5d4aaa02c97eb3f05bc39c63daa8f167fe91f73b1c9f963168c90848352",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_04.json": "31a948ead946bb3d1f0446c26ce9fca95bdbb8cab0ca3ade03f5744f9add9da9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_01.json": "9c7ce5d4aaa02c97eb3f05bc39c63daa8f167fe91f73b1c9f963168c90848352"
+    }
+  },
+  "counts": {
+    "controls": 35,
+    "extrema": 6,
+    "reconstructions": 12,
+    "active_solves": 4,
+    "fallbacks": 0,
+    "figures": 8
+  },
+  "no_numerical_rerun": true,
+  "no_publication_edit": true,
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/ROOT_REVIEW.json",
+    "sha256": "fe8d81d187d35daad401d4b5a0cf05a3e304c34d4adc1bf5d952d1a052b9690a",
+    "figure_hashes_all_identical_to_previous_publication": true,
+    "example_executable_AST_unchanged": true,
+    "cosmetic_source_docstrings_only": true
+  }
+}

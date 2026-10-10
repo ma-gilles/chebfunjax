@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public active-set extrema and Gibbs replay (2026-10-10; latest)
+
+The fixed-option two-variable native active-set adapter now serves higher-rank
+real extrema through the existing source exception/fallback transaction.
+All 35 controls pass, including the complete Gibbs computation: six extrema,
+twelve fixed4000 reconstructions, four actual active-set solves, no fallback or
+unsupported branch, eleven answers and eight 600x269 figures. All figure bytes
+match the prior publication; actual triangle outputs and page qualification
+are updated. Audits verify 44,700 inputs and 1,881 runtime files. All four solves
+return exitflag5 after nine iterations. Triangle maximum1.273581928619538 still
+differs from native1.294875501773784; matched-factor native optimizer diagnosis
+is next. Remaining graphics differences stay explicit. Evidence:
+docs/gibbs_active_set_source_cpu_20261010.json. Full parity and green CI are open.
+
+
 ## Private native active-set solver qualification (2026-10-10; latest)
 
 All 84 strict controls pass, including seven complete native solver trajectories,

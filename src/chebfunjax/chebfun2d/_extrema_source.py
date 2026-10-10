@@ -1,8 +1,8 @@
 """Source real separable extrema front-end and rank-one policy.
 
-Higher ranks use the qualified source fallback because no source-equivalent
-active-set optimizer is implemented. This does not establish parity with native
-active-set installations. Complex extrema return None for the legacy adapter. Fixed4000
+Higher ranks use the fixed-option, two-variable active-set route and native
+exception-triggered fallback transaction. Complex extrema return None for the
+legacy adapter. Fixed4000
 reconstruction uses the public constructor and its selected session technology.
 
 Provenance
@@ -15,6 +15,7 @@ Copyright The University of Oxford and The Chebfun Developers.
 
 import jax.numpy as jnp
 
+from chebfunjax.chebfun2d._active_set_source import native_active_set
 from chebfunjax.chebfun2d._cdr_source import _mesh_values, _slice_values
 from chebfunjax.chebfun2d._extrema_fallback import source_higher_extrema
 from chebfunjax.chebfun2d._pivot_metadata import _retained_pivots
@@ -108,7 +109,7 @@ def _rank_one(rows, cols):
 
 
 def source_extrema(f):
-    """Public real branch with explicit absence of active-set capability."""
+    """Public real branch with fixed-option active-set optimizer."""
     if f.isempty():
         return jnp.empty((0,), dtype=jnp.float64), jnp.empty((0,), dtype=jnp.float64)
     approx = f.approx
@@ -128,6 +129,4 @@ def source_extrema(f):
         rows, cols = _scale_factors(rows, cols, approx.pivots, raw)
     if approx.rank == 1:
         return _rank_one(rows, cols)
-    # No source-equivalent active-set implementation exists in this library.
-    # None selects the source fallback transparently, without a fake failure.
-    return source_higher_extrema(approx, rows, cols, active_solver=None)
+    return source_higher_extrema(approx, rows, cols, active_solver=native_active_set)
