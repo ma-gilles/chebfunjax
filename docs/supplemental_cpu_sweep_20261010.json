@@ -1,0 +1,292 @@
+{
+  "audit": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/FINAL_AUDIT.json",
+    "sha256": "b5781243a1e79f4908947c4245e4d96a1b329119800a20a44b51223232558a74"
+  },
+  "failed_attempts": [
+    {
+      "attempt": "execution_v2f",
+      "command_exit_code": null,
+      "error": "FileNotFoundError(2, 'No such file or directory')",
+      "lane": "cpu0-3",
+      "original_tool_handle": 73944,
+      "reason": "wrapper FileNotFoundError before child launch; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v2f/cpu0-3/supervision/receipt.json",
+      "receipt_sha256": "acd4ab7b53de2e27c93d45d62593cf15cf551c8b9fe3c052a24a6e0840f85f0b",
+      "science_credit": 0,
+      "terminal_supervisor_exit_code": 1
+    },
+    {
+      "attempt": "execution_v2f",
+      "command_exit_code": null,
+      "error": "FileNotFoundError(2, 'No such file or directory')",
+      "lane": "cpu4-7",
+      "original_tool_handle": 41901,
+      "reason": "wrapper FileNotFoundError before child launch; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v2f/cpu4-7/supervision/receipt.json",
+      "receipt_sha256": "b89e0849f5f9e506ba81b8638b3563d9cd4568e85aa8b93a8693a152e331c54e",
+      "science_credit": 0,
+      "terminal_supervisor_exit_code": 1
+    },
+    {
+      "attempt": "execution_v2f",
+      "command_exit_code": null,
+      "error": "FileNotFoundError(2, 'No such file or directory')",
+      "lane": "cpu28-31",
+      "original_tool_handle": 58782,
+      "reason": "wrapper FileNotFoundError before child launch; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v2f/cpu28-31/supervision/receipt.json",
+      "receipt_sha256": "64891525265e94349ff37ab3b33a886629ca3c7218bf8927f038e298dbe035ef",
+      "science_credit": 0,
+      "terminal_supervisor_exit_code": 1
+    },
+    {
+      "attempt": "execution_v2f",
+      "command_exit_code": null,
+      "error": "FileNotFoundError(2, 'No such file or directory')",
+      "lane": "cpu32-35",
+      "original_tool_handle": 37161,
+      "reason": "wrapper FileNotFoundError before child launch; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v2f/cpu32-35/supervision/receipt.json",
+      "receipt_sha256": "e87691ffa837470169da62d6f1237858d8501168fecd02369b3f5936405ab03c",
+      "science_credit": 0,
+      "terminal_supervisor_exit_code": 1
+    },
+    {
+      "attempt": "execution_v3",
+      "command_exit_code": 4,
+      "failure": [
+        "AssertionError(\"assert ('0.11.2', '0.11.2', '0.6.0', '2.4.3', '1.17.1') == ('0.11.0', '0.11.0', '0.5.4', '2.4.3', '1.17.1')\")"
+      ],
+      "failure_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu0-3/runtime/failure.json",
+      "failure_sha256": "48c52a02646ae1da480cca025ab4dd084a9aea05c298b4d5f247559593f23987",
+      "lane": "retry_cpu0-3",
+      "original_tool_handle": 99464,
+      "reason": "sessionstart provenance preflight rejected environment version mismatch before collection; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu0-3/supervision/receipt.json",
+      "receipt_sha256": "d9535752738aa7fce578b404287113abe57a314cbfad6e07664136eb3b037c58",
+      "science_credit": 0,
+      "stderr_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu0-3/supervision/stderr",
+      "stderr_sha256": "7c020647503f8d9be7154d3cb57dfbdabd6e16b6e1b603a3b0f69dcc28c928f7"
+    },
+    {
+      "attempt": "execution_v3",
+      "command_exit_code": 4,
+      "failure": [
+        "AssertionError(\"assert ('0.11.2', '0.11.2', '0.6.0', '2.4.3', '1.17.1') == ('0.11.0', '0.11.0', '0.5.4', '2.4.3', '1.17.1')\")"
+      ],
+      "failure_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu4-7/runtime/failure.json",
+      "failure_sha256": "9c3f1b92c8bdb3686fbee4e4113d7ddd9cc04a5c7d9d01581e4f9af4ed287dd7",
+      "lane": "retry_cpu4-7",
+      "original_tool_handle": 66523,
+      "reason": "sessionstart provenance preflight rejected environment version mismatch before collection; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu4-7/supervision/receipt.json",
+      "receipt_sha256": "089920ae60d37529696b7a6820d7ac2e0e605cd84c4edc3c4a4564a2e6736d83",
+      "science_credit": 0,
+      "stderr_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu4-7/supervision/stderr",
+      "stderr_sha256": "7c020647503f8d9be7154d3cb57dfbdabd6e16b6e1b603a3b0f69dcc28c928f7"
+    },
+    {
+      "attempt": "execution_v3",
+      "command_exit_code": 4,
+      "failure": [
+        "AssertionError(\"assert ('0.11.2', '0.11.2', '0.6.0', '2.4.3', '1.17.1') == ('0.11.0', '0.11.0', '0.5.4', '2.4.3', '1.17.1')\")"
+      ],
+      "failure_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu28-31/runtime/failure.json",
+      "failure_sha256": "6f0979888128d604fac279665ce5150f3ac5493f77cb5bbb6556ab3fa215a835",
+      "lane": "retry_cpu28-31",
+      "original_tool_handle": 7053,
+      "reason": "sessionstart provenance preflight rejected environment version mismatch before collection; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu28-31/supervision/receipt.json",
+      "receipt_sha256": "e108539346f3cff4bfba08bee3c6c1318b79e0b2e7cd34d4a972cc4c33a8519e",
+      "science_credit": 0,
+      "stderr_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu28-31/supervision/stderr",
+      "stderr_sha256": "7c020647503f8d9be7154d3cb57dfbdabd6e16b6e1b603a3b0f69dcc28c928f7"
+    },
+    {
+      "attempt": "execution_v3",
+      "command_exit_code": 4,
+      "failure": [
+        "AssertionError(\"assert ('0.11.2', '0.11.2', '0.6.0', '2.4.3', '1.17.1') == ('0.11.0', '0.11.0', '0.5.4', '2.4.3', '1.17.1')\")"
+      ],
+      "failure_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu32-35/runtime/failure.json",
+      "failure_sha256": "98bf323869b8c489cd64d23430bf5baf32babe25156bd8c392986ee4752a46e9",
+      "lane": "retry_cpu32-35",
+      "original_tool_handle": 23788,
+      "reason": "sessionstart provenance preflight rejected environment version mismatch before collection; no scientific tests",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu32-35/supervision/receipt.json",
+      "receipt_sha256": "2f978b44fd09a9254e74581b411f15476e03b5fd4bb2dd719fd8543848333e9d",
+      "science_credit": 0,
+      "stderr_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v3/retry_cpu32-35/supervision/stderr",
+      "stderr_sha256": "7c020647503f8d9be7154d3cb57dfbdabd6e16b6e1b603a3b0f69dcc28c928f7"
+    }
+  ],
+  "lane_results": [
+    {
+      "collection": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu0-3/runtime/collected_nodeids.json",
+        "sha256": "544cd936bde4b39a838577ed1d5e3a208194dc8047afd2c497cbaff5adfae0eb"
+      },
+      "cpu_affinity": "0-3",
+      "errors": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu0-3/runtime/junit.xml",
+        "sha256": "1dbda9bd042366939510228efc6bdcb2b6b14f22134e436bbb9bc42ce2466943"
+      },
+      "lane": "retry_cpu0-3",
+      "nodes": 25,
+      "passed": 25,
+      "rss_mib_limit": 4096.0,
+      "sampled_peak_summed_rss_kib": 1258312,
+      "skipped": 0,
+      "terminal_receipt": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu0-3/supervision/receipt.json",
+        "remaining_owned_pids": [],
+        "sha256": "7538ce2679ece686a8f7ef840cd77480e1222d0938af803162e642967e9a847a",
+        "supervisor_exit_code": 0
+      },
+      "wall_limit_seconds": 300.0,
+      "wall_seconds": 102.65495119802654
+    },
+    {
+      "collection": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu4-7/runtime/collected_nodeids.json",
+        "sha256": "e71b2cb36d742d582ec89261395d1a600b57c43ae4af4c4753051a7602c5bc4a"
+      },
+      "cpu_affinity": "4-7",
+      "errors": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu4-7/runtime/junit.xml",
+        "sha256": "5fe83a9824e3b643db81bec0a2c95ed9b605dcc60273f5bd124ad381e50d40d3"
+      },
+      "lane": "retry_cpu4-7",
+      "nodes": 21,
+      "passed": 21,
+      "rss_mib_limit": 4096.0,
+      "sampled_peak_summed_rss_kib": 1354804,
+      "skipped": 0,
+      "terminal_receipt": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu4-7/supervision/receipt.json",
+        "remaining_owned_pids": [],
+        "sha256": "f67cbd99f5901c1a944730b030ad5bd89682847f00b4ee061eed2327f7c5e00b",
+        "supervisor_exit_code": 0
+      },
+      "wall_limit_seconds": 300.0,
+      "wall_seconds": 113.67908406397328
+    },
+    {
+      "collection": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu28-31/runtime/collected_nodeids.json",
+        "sha256": "77728e6c3ff05ac8f870060f5fccf4e8195a14e5dd855f2e97e10e3b62f5f6ac"
+      },
+      "cpu_affinity": "28-31",
+      "errors": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu28-31/runtime/junit.xml",
+        "sha256": "a4799f839910563c01bf4d1165023029269ee57bdef86ace224643f41560d991"
+      },
+      "lane": "retry_cpu28-31",
+      "nodes": 20,
+      "passed": 20,
+      "rss_mib_limit": 4096.0,
+      "sampled_peak_summed_rss_kib": 1672376,
+      "skipped": 0,
+      "terminal_receipt": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu28-31/supervision/receipt.json",
+        "remaining_owned_pids": [],
+        "sha256": "fa6df5d0febdb8720f38497a23f6a6104936b939a0ec813491a27a8514464bf0",
+        "supervisor_exit_code": 0
+      },
+      "wall_limit_seconds": 300.0,
+      "wall_seconds": 113.81270393822342
+    },
+    {
+      "collection": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu32-35/runtime/collected_nodeids.json",
+        "sha256": "c9a73df6cdd1e5a6551c29da024dffa1f3c63510b011a47ecbbc9d457ef80283"
+      },
+      "cpu_affinity": "32-35",
+      "errors": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu32-35/runtime/junit.xml",
+        "sha256": "452f2297800d79406db3036dd600b5ccb545fe8154102128afee6499d10f18df"
+      },
+      "lane": "retry_cpu32-35",
+      "nodes": 33,
+      "passed": 33,
+      "rss_mib_limit": 4096.0,
+      "sampled_peak_summed_rss_kib": 2631600,
+      "skipped": 0,
+      "terminal_receipt": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/retry_cpu32-35/supervision/receipt.json",
+        "remaining_owned_pids": [],
+        "sha256": "8691523572f940484bacc9936b38d9f905657ba0b5f6a92d0568873aa1785383",
+        "supervisor_exit_code": 0
+      },
+      "wall_limit_seconds": 300.0,
+      "wall_seconds": 130.5988313020207
+    }
+  ],
+  "resource_totals": {
+    "per_lane_caps": {
+      "rss_mib": 4096,
+      "wall_seconds": 300
+    },
+    "rss_measurement_note": "Each lane peak is the supervisor sampled sum of RSS for its owned process tree; lane peaks are reported separately and not summed as a simultaneous host peak.",
+    "wall_seconds_sum_across_lanes": 460.74557050224394
+  },
+  "result": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 99,
+    "selected_nodeids_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_cpu_sweep_delivery_20261010/data/selected_nodeids.json",
+    "selected_nodeids_sha256": "cf9af4a88c5e3a43c172a12597be38345199870deb3564aa9a17e933049c1ed9",
+    "selected_nodes": 99,
+    "skipped": 0,
+    "unique_nodes": 99
+  },
+  "root_independent_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/ROOT_REVIEW.json",
+    "result": "99 exact unique JUnit passes; receipt and runtime hashes verified; not a current-main full-suite claim.",
+    "sha256": "1199e285671d69bd77bffab97852b8a06483c29983ee7d3fbb878ee871b08a5e"
+  },
+  "schema_version": 1,
+  "source_delta_caveat": {
+    "interpretation": "The sweep covers only the immutable 4247b168 source archive. The later b655a880 source/test delta is outside the tested snapshot and is not represented as tested.",
+    "later_commit_time": "2026-10-10T15:27:43-04:00",
+    "later_source_test_files": [
+      "src/chebfunjax/chebfun2d/_extrema_fallback.py",
+      "tests/test_chebfun1d/test_piece_trig_derivative_realness.py",
+      "tests/test_chebfun2d/test_seed_node_mapping.py"
+    ],
+    "prelaunch_check": "Each lane verifier passed the equality check for src, tests, and pyproject.toml against the frozen 4247b168 commit before launch. The runtime used execution_v2f/snapshot, and supervisor receipts report inputs_stable=true.",
+    "publication_checkout_at_final_audit": "b655a880f076a7937c14e26769181df20ffd6938"
+  },
+  "status": "complete",
+  "tested_source": {
+    "archive_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/source_archive.tar",
+    "archive_sha256": "0cdc96d1d18df2cdc23ea44481d372d4ba00c93791777e1784473e07d697aa00",
+    "commit": "4247b168296f2d86de887218ce2dfc87076a09b2",
+    "review_packet_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v4/review_packet_v5.json",
+    "review_packet_sha256": "0b674d389f1ba3260bfd91bf10e880aeb010367a8b29b80655f2fe5f030616e7",
+    "runtime_snapshot_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/supplemental_current_4247b168_20261010/execution_v2f/snapshot",
+    "scope_description": "93 supplemental cases plus 6 additional quadrature consequence checks; duplicates already covered by the A_candidate31 gate were excluded."
+  },
+  "title": "Supplemental CPU sweep qualification"
+}

@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Supplemental CPU sweep completed (2026-10-10; latest)
+
+All 99 unique supplemental nodes pass across four CPU lanes, with exact
+collection/JUnit reconciliation, clean runtime provenance and no caps or
+surviving children. This qualifies frozen 4247b168 source (library bytes also
+equal 7e1e2f03); the later b655a880 seed/test changes have separate 45/9-case
+qualification. Eight earlier harness failures receive zero test credit.
+Root independently verified all 99 outcomes and bound receipt hashes.
+Evidence: docs/supplemental_cpu_sweep_20261010.json. Full current-main suite,
+remaining numerical/page/figure parity and green CI remain open.
+
+
 ## Native periodic derivative realness contract (2026-10-10; latest)
 
 Three older-main CI failures expected complex storage for a zero-imaginary
