@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Golden fixture inventory (2026-10-10; latest)
+
+A static scan of literal test reference names finds three missing files:
+chebfun.mat, chebfun_ops.mat and chebfun_specfun.mat. The latter two now
+have source-reviewed capture generators; the first already had one. No
+new MATLAB capture has run. Two specfun tests still have unconditional
+missing-fixture skips, and five ops tests skip at runtime. This inventory
+is not complete dynamic test coverage. Evidence: docs/missing_matlab_fixtures_20261010.json.
+
+
 ## Ballfun scalar contract corrected (2026-10-09; latest)
 
 The stale Python float assertion now checks the intended rank-0 JAX scalar;

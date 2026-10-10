@@ -1,0 +1,44 @@
+{
+  "scope": "Static literal test reference inventory; not runtime or reference qualification",
+  "missing_literal_filenames": [
+    "chebfun.mat",
+    "chebfun_ops.mat",
+    "chebfun_specfun.mat"
+  ],
+  "missing_rows": [
+    {
+      "test_file": "tests/test_chebfun1d/test_chebfun.py",
+      "filename": "chebfun.mat",
+      "present": false,
+      "lines": [
+        1,
+        501,
+        518,
+        521
+      ]
+    },
+    {
+      "test_file": "tests/test_chebfun1d/test_chebfun_ops.py",
+      "filename": "chebfun_ops.mat",
+      "present": false,
+      "lines": [
+        1,
+        851,
+        866,
+        869
+      ]
+    },
+    {
+      "test_file": "tests/test_chebfun1d/test_chebfun_specfun.py",
+      "filename": "chebfun_specfun.mat",
+      "present": false,
+      "lines": [
+        1,
+        556,
+        568
+      ]
+    }
+  ],
+  "full_inventory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_fixture_static_inventory_v2_20261010.json",
+  "action": "Restored ops and specfun generators, each enforcing pinned clean source and recording MATLAB version. Existing chebfun_refs.m already exists. No generator executed and no fixture fabricated. Existing skips remain unresolved."
+}
