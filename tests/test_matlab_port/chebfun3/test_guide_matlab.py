@@ -1,29 +1,21 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_guide.m (Fable 5).
+"""Chebfun3 guide tests, with native HOSVD assertions11--19 restored.
 
-Assertion-for-assertion at the MATLAB tolerances, with these named
-exceptions: pass 10 constructs with the 'trig' flag (chebfunjax
-Chebfun3 has no trig tech); MATLAB's 5-output ``hosvd`` (pass 14-19)
-returns factor quasimatrices, while chebfunjax's hosvd returns
-``(sv, g)`` with g an equivalent Chebfun3 whose factors are
-L2-orthonormal and core all-orthogonal -- the same orthogonality
-properties MATLAB pins are asserted on g's factors and core.
-
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_guide.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebfun3/test_guide.m, Chebfun7574c77.
+HOSVD uses all five outputs, native matrix norms, and unrelaxed tolerance.
+Earlier guide predicates are retained; their broader audit remains open.
 """
 
-# uses-numpy: Gram-matrix orthonormality checks on hosvd factor coefficients
+# uses-numpy: inherited earlier guide test array helpers.
 from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 EPS = float(np.finfo(np.float64).eps)
-TOL = 1e3 * EPS
+TOL = 1e3 * ChebfunPref().cheb3Prefs.chebfun3eps
 _EXACT_SUM3 = 4.28685406230184188268
 
 
@@ -85,31 +77,14 @@ class TestChebfun3Guide:
         assert m <= mc and n <= nc and p <= pc                               # pass(10)
 
     def test_pass11to19_hosvd(self):
-        f = Chebfun3.from_function(
-            lambda x, y, z: jnp.sin(x + 2 * y + 3 * z))
-        sv, g = f.hosvd()
-        # pass 11-13 (MATLAB: sv{k}(2) <= sv{k}(2), i.e. ordering holds)
-        for k in range(3):
-            s = np.asarray(sv[k])
-            assert np.all(s[:-1] >= s[1:] - 1e-14)
-        # pass 14-16: factor quasimatrices are L2-orthonormal.
-        from chebfunjax.utils.quadrature import chebweights
-        for factors in (g.cols, g.rows, g.tubes):
-            nmax = max(len(np.asarray(t.coeffs)) for t in factors)
-            npts = max(2 * nmax, 8)
-            from chebfunjax.utils.quadrature import chebpts
-            x = np.asarray(chebpts(npts, kind=2))
-            w = np.asarray(chebweights(npts, kind=2))
-            V = np.stack([np.asarray(t(jnp.asarray(x))) for t in factors],
-                         axis=1)
-            G = V.T @ (w[:, None] * V)
-            assert float(np.max(np.abs(
-                G - np.eye(G.shape[0])))) < 1e2 * TOL
-        # pass 17-19: core slices are mutually orthogonal (all-orthogonal
-        # core), the property MATLAB pins via elementwise slice products.
-        core = np.asarray(g.core)
-        for mode in range(3):
-            M = np.moveaxis(core, mode, 0).reshape(core.shape[mode], -1)
-            if M.shape[0] >= 2:
-                assert abs(float(M[0] @ M[1])) < 1e2 * TOL * \
-                    float(np.linalg.norm(M[0]) * np.linalg.norm(M[1]) + 1)
+        # Literal native assertions11--19, including its three tautologies.
+        f = Chebfun3.from_function(lambda x, y, z: jnp.sin(x+2*y+3*z))
+        values, core, cols, rows, tubes = f.hosvd(return_factors=True)
+        for mode in values:
+            assert mode[1] <= mode[1]
+        for panel in (cols, rows, tubes):
+            gram = panel.ctranspose() @ panel
+            assert jnp.linalg.norm(jnp.eye(gram.shape[0])-gram, ord=2) < TOL
+        assert jnp.linalg.norm(core[0, :, :]*core[1, :, :], ord=2) < TOL
+        assert jnp.linalg.norm(core[:, 0, :]*core[:, 1, :], ord=2) < TOL
+        assert jnp.linalg.norm(core[:, :, 0]*core[:, :, 1], ord=2) < TOL

@@ -1,0 +1,100 @@
+{
+  "base": "78539704474b72b9fa13b06582676364c3d58666",
+  "scope": "Native factorQR/discreteHOSVD; complex-conjugate modes and five-output adapter; restore9literalnativepredicates",
+  "changes": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "25679f59d6e54bfc4cde2ebaa21eb1f49cbe3e9d5cc749c6a7a336fdffc6a785",
+    "src/chebfunjax/chebfun3d/_hosvd.py": "dd398c924c3fb38900abb62b92760016b78c2775ff84840c491763720bc51cad",
+    "tests/test_matlab_port/chebfun3/test_hosvd_matlab.py": "382a78d877f0c42f9356ac3a7577f25ad92da8c0c1766b36ec20c875909060a4",
+    "tests/test_chebfun3d/test_hosvd_source_controls.py": "946ec90f2a7cb4a63c48f66814047280da9c26e81a6da6db03511f74129854ac",
+    "tests/test_matlab_port/chebfun3/test_guide_matlab.py": "cd06fc3fc1ce7f1e88930ef7316535d470d3f5e01d2950569bf279656dc3807b",
+    "tests/test_chebfun3d/test_hosvd_zero_source.py": "497d6be91e3720bb6532d8e95a68dd203c0ec159dee78648f8d9fdb5fa4e0783"
+  },
+  "source_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/hosvd.m": "8c9eab0d02b394b1847652a57189790f5d2a2ff28b551b29ca8780d3568a292d",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/discreteHOSVD.m": "c59b795bdb92e6ae2a03cf545d796b4be92465ee34d4cbbb161e8c6f71e7301a",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/unfold.m": "5812ba5e723a61b1c3f1176d985316f64b21e95042d048c2fdfc0d505e32b47c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/txm.m": "94fcbfc99bf0b28c1f4f89e8e5750a627ad4daecd07b968ca54c5eded71e5575",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_hosvd.m": "3e0f3f910c05de25469d02a3aa9917a8cba94d65227c86b48c635d46412f4897",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_guide.m": "f11fdebf3301171d6afea8dd6dc1165e59a67eb4f0c012aa1e3f9ba9b6c1df13"
+  },
+  "unresolved": [
+    "Inherited empty-wrapper output behavior",
+    "Global constructor/evaluation host paths",
+    "Full guide predicates1\u201310 audit and current full suite/CI"
+  ],
+  "preserved_failure": "qualification_v1: original9nativepredicates passed in2cases; addedcomplexcontrol failed beforealgorithm due missing required explicitdomain. Only test-inputadapter fixed; no numerical assertions or source behavior changed.",
+  "new_scope": "Originalguide11\u201319 via5outputs, exactmatrixnorms/tol, native3tautologies retained; zero-core independentcheck. Libraryidenticalqualifiedv2.",
+  "root_runtime_reviews": {
+    "hosvd_v2_root_runtime_review_20261010.json": {
+      "reviewer": "/root",
+      "scope": "HOSVD original9predicates in2cases plus3complex-periodic-dependent analytic controls; publicQR/sourceSVDalgorithm",
+      "gates": [
+        {
+          "gate": "chebfun3_hosvd_source_20261010/qualification_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_hosvd_source_20261010/qualification_v2/supervision/receipt.json",
+          "receipt_sha256": "20656739e77b97f5b6e712b095625b5a2511581761d26c9f82ae71832c7d7dac",
+          "runtime_manifest_sha256": "97647bc51b306c6cddcee5fe61fff8a08987fa9b8a05b416ed1bdb6c3d663b92",
+          "runtime_end_sha256": "990613a5dd31b33cd24c0943ff05c354088c6a9e24fb94b4592a579d0bd7e5a1",
+          "observed_files_rehashed": 2972,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 80,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1179584,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 5,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "hosvd_guide_zero_v3_root_runtime_review_20261010.json": {
+      "reviewer": "/root",
+      "scope": "HOSVD originalguide11-19 andzero-core controls;2cases",
+      "gates": [
+        {
+          "gate": "chebfun3_hosvd_source_20261010/guide_zero_v3",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_hosvd_source_20261010/guide_zero_v3/supervision/receipt.json",
+          "receipt_sha256": "655cf351c06c9c8fa9fee982d4582cbb9f6f8ae2fd0223cd709fbb8d449aca9b",
+          "runtime_manifest_sha256": "8d8c59b1307592d05705dbe8da1d593ebd54f04689aa975d89951fa34fbf4207",
+          "runtime_end_sha256": "2fe04f7af17ec893bb9ac90e1553979511dcc4fd93b563eff825125492582b84",
+          "observed_files_rehashed": 2968,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 78,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1139740,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 2,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "qualification": "Seven pytest cases: nine native HOSVD predicates, guide11\u201319, complex, periodic, dependent and zero controls. No tolerance relaxation."
+}

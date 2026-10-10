@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native continuous HOSVD restored (2026-10-10; latest)
+
+HOSVD now follows continuous factor QR and discrete mode SVD in JAX,
+removing the old real-only host arrays and Cholesky jitter. The five-output
+adapter supplies continuous singular factors. Seven CPU cases passed:
+all nine original HOSVD predicates, guide11–19 and complex, periodic,
+dependent-factor and zero controls. Original tolerances remain; native
+guide11–13 tautologies are retained literally. Root rehashed 2,972 and
+2,968 runtime files. Evidence: docs/chebfun3_hosvd_cpu_20261010.json.
+Empty-output semantics, earlier guide predicates, global host paths and
+full current-suite/remote CI remain open.
+
 ## All native Chebfun3 sine assertions restored (2026-10-10; latest)
 
 All nine original predicates now run, including fiberDim1/2/3, coordinate

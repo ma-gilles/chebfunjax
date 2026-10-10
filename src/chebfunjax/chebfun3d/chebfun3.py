@@ -1313,76 +1313,21 @@ class Chebfun3(eqx.Module):
             vol *= d[2 * (dd - 1) + 1] - d[2 * (dd - 1)]
         return self.sum2(dims) * (1.0 / vol)
 
-    def hosvd(self):
-        r"""Higher-order SVD (MATLAB hosvd): returns
-        ``(sv, g)`` where ``sv`` is a list of the three mode-k singular
-        value vectors (continuous L2 sense) and ``g`` is an equivalent
-        Chebfun3 whose factors are L2-orthonormal and whose core is
-        all-orthogonal.
+    def hosvd(self, *, return_factors=False):
+        """Native continuous Tucker HOSVD through factor QR and core SVD.
+
+        Returns ``(singular_values, g)`` by default. With ``return_factors``
+        return the native five outputs: values, core, cols, rows, tubes.
+        Factor outputs are continuous Chebfun or Quasimatrix objects.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/hosvd.m
+        MATLAB source : @chebfun3/hosvd.m, discreteHOSVD.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        d = self.domain
-        scales = [(d[1] - d[0]) / 2.0, (d[3] - d[2]) / 2.0,
-                  (d[5] - d[4]) / 2.0]
-        factor_lists = [self.cols, self.rows, self.tubes]
+        from chebfunjax.chebfun3d._hosvd import source_hosvd
 
-        # Coefficient matrices (padded) and L2 Gram factors per mode
-        Cmats, Rs = [], []
-        for mode in range(3):
-            fl = factor_lists[mode]
-            nmax = max(len(_np.asarray(t.coeffs)) for t in fl)
-            C = _np.zeros((nmax, len(fl)))
-            for i, t in enumerate(fl):
-                ci = _np.asarray(t.coeffs)
-                C[: len(ci), i] = ci
-            # Gram of T_j on [-1,1]: <T_i,T_j> = int T_i T_j dx
-            W = _cheb_gram(nmax) * scales[mode]
-            G = C.T @ W @ C
-            # Cholesky with symmetrization safeguard
-            G = 0.5 * (G + G.T)
-            jitter = 1e-15 * max(_np.max(_np.abs(G)), 1.0)
-            R = _np.linalg.cholesky(
-                G + jitter * _np.eye(G.shape[0])).T
-            Cmats.append(C)
-            Rs.append(R)
-
-        core = _np.asarray(self.core)
-        # core' = core x1 R1 x2 R2 x3 R3
-        core1 = _np.einsum("pi,ijk->pjk", Rs[0], core)
-        core1 = _np.einsum("qj,pjk->pqk", Rs[1], core1)
-        core1 = _np.einsum("rk,pqk->pqr", Rs[2], core1)
-
-        sv, Us = [], []
-        for mode in range(3):
-            M = _np.moveaxis(core1, mode, 0).reshape(
-                core1.shape[mode], -1)
-            U, S, _ = _np.linalg.svd(M, full_matrices=False)
-            sv.append(jnp.asarray(S, dtype=jnp.float64))
-            Us.append(U)
-        # all-orthogonal core
-        core2 = _np.einsum("pi,ijk->pjk", Us[0].T, core1)
-        core2 = _np.einsum("qj,pjk->pqk", Us[1].T, core2)
-        core2 = _np.einsum("rk,pqk->pqr", Us[2].T, core2)
-
-        # new factor functions: A @ inv(R) @ U in coefficient space
-        new_factors = []
-        for mode in range(3):
-            B = Cmats[mode] @ _np.linalg.solve(Rs[mode], Us[mode])
-            new_factors.append([
-                Chebtech2.from_coeffs(
-                    jnp.asarray(B[:, i], dtype=jnp.float64))
-                for i in range(B.shape[1])])
-        g = Chebfun3(
-            cols=new_factors[0], rows=new_factors[1],
-            tubes=new_factors[2],
-            core=jnp.asarray(core2, dtype=jnp.float64),
-            domain=d)
-        return sv, g
+        return source_hosvd(self, return_factors=return_factors)
 
     def _compress(self, tol: float | None = None) -> "Chebfun3":
         """Recompress the Tucker representation via truncated HOSVD.
