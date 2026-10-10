@@ -51,7 +51,7 @@ def _demote_if_smooth(s):
             f = f.smoothPart;
         end
 
-    A Singfun whose exponents are both (numerically) zero carries no
+    A Singfun with exactly zero exponents or a zero smooth factor carries no
     singular structure, so the result of the operation is a plain
     ``smoothfun`` (here a :class:`Chebtech2`) rather than a Singfun.
     Non-Singfun inputs (already-demoted results, scalars) pass through.
@@ -440,11 +440,13 @@ class Singfun(eqx.Module):
 
     @property
     def issmooth(self) -> bool:
-        """True if both exponents are (numerically) zero."""
-        if not self.exponents:
+        """True for exactly zero exponents or an identically zero smooth part.
+
+        Provenance: @singfun/issmooth.m, Chebfun commit 7574c77.
+        """
+        if all(exponent == 0 for exponent in self.exponents):
             return True
-        a, b = self.exponents
-        return abs(a) < _EXP_TOL and abs(b) < _EXP_TOL
+        return bool(jnp.all(self.smoothPart.iszero()))
 
     def __len__(self) -> int:
         return self.n
@@ -940,12 +942,9 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Singfun.empty()
-        if self.issmooth:
-            if jnp.iscomplexobj(self.smoothPart.coeffs):
-                return self.smoothPart.real()
-            return self.smoothPart
-        return Singfun(self.smoothPart.real(), self.exponents)
+            return self
+        transformed = Singfun(self.smoothPart.real(), self.exponents)
+        return _demote_if_smooth(transformed)
 
     def imag(self):
         """Imaginary part of ``f``.
@@ -956,10 +955,9 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Singfun.empty()
-        if self.issmooth:
-            return self.smoothPart.imag()
-        return Singfun(self.smoothPart.imag(), self.exponents)
+            return self
+        transformed = Singfun(self.smoothPart.imag(), self.exponents)
+        return _demote_if_smooth(transformed)
 
     def fliplr(self):
         """Reverse the columns of the smooth part (identity for a scalar).
@@ -985,12 +983,9 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Singfun.empty()
-        if self.issmooth:
-            if jnp.iscomplexobj(self.smoothPart.coeffs):
-                return self.smoothPart.conj()
-            return self.smoothPart
-        return Singfun(self.smoothPart.conj(), self.exponents)
+            return self
+        transformed = Singfun(self.smoothPart.conj(), self.exponents)
+        return _demote_if_smooth(transformed)
 
     # ------------------------------------------------------------------
     # Factory and composition

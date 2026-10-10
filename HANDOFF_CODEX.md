@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Exact Singfun smoothness and unary demotion restored (2026-10-10; latest)
+
+issmooth now uses the native exact-zero exponent or zero smooth-factor
+predicate. real/imag/conj transform first, then demote a smooth result; empty
+inputs preserve their original exponent representation. All eight new
+regressions fail on the preserved baseline; the corrected package passes
+46 focused/native unary and arithmetic cases with unchanged numerical bounds.
+Static checks pass. Evidence: docs/singfun_smoothness_cpu_20261010.json.
+This resolves the previous nonempty issmooth item; constructor14 and broader
+Singfun/library/page qualification remain open.
+
+
 ## Singfun no-input empty representation restored (2026-10-10; latest)
 
 No-input Singfun stores empty exponents; explicit empty input retains the

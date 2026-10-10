@@ -1,0 +1,43 @@
+{
+  "base_commit": "f02942c27d9a744319ff5551dbf628624c0fe034",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_definitions": [
+    "Singfun.conj",
+    "Singfun.imag",
+    "Singfun.issmooth",
+    "Singfun.real",
+    "_demote_if_smooth"
+  ],
+  "helper_change": "_demote_if_smooth docstring only",
+  "native_source_hashes": {
+    "issmooth.m": "e7255d23515ecec9c2843bd6239e30b692f3564aa309052a738dfdbb80a48df7",
+    "real.m": "980759b44f326fe1bc033ee2cbd5233bd0fa872c2cfec476969cdb07a3c0a009",
+    "imag.m": "fdfef48c82845b97ec60fd68635aa44fbf93881bcf2ac1fe3dafa2fdb478f12e",
+    "conj.m": "352adb9b14e71ae62e2734ae441c8c5af2042b67566da51fc0d42bd94da7ebef"
+  },
+  "qualification": {
+    "passed": 46,
+    "elapsed_seconds": 38.532049589790404,
+    "peak_child_rss_kib": 888896,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_smoothness_v2_20261010/receipt.json",
+    "receipt_sha256": "964fecaeb90e1309cab044c0e19cba95faf1d4ae493848f6eaff4b787a805f87",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_smoothness_v2_20261010/static.json",
+    "static_sha256": "95b3ce4fd8ff88f0bb2f1259587706fa29c1a275ac80d5aa76d928035e4141d1"
+  },
+  "baseline": {
+    "failed": 8,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_smoothness_baseline_20261010/receipt.json"
+  },
+  "scope": [
+    "Exact zero exponents or zero smooth factor defines issmooth; no tolerance.",
+    "Unary real/imag/conj transform first, then test smoothness and demote.",
+    "Empty unary return preserves original explicit exponent representation."
+  ],
+  "limitations": [
+    "Focused CPU regression, not full current-head suite or remote CI.",
+    "One expected noninteger exponent-difference warning in native addition test.",
+    "RSS measured, not capped; no observed-runtime module audit.",
+    "Other Singfun methods and constructor accuracy remain incompletely qualified."
+  ]
+}
