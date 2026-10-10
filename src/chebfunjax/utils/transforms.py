@@ -1756,14 +1756,14 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
 
     Parameters
     ----------
-    c_cheb : jnp.ndarray, shape (n,)
+    c_cheb : jnp.ndarray, shape (n,) or (n, m)
         Chebyshev coefficients.
     lam : float
         Ultraspherical parameter.  Must be > 0.
 
     Returns
     -------
-    c_ultra : jnp.ndarray, shape (n,)
+    c_ultra : jnp.ndarray, shape (n,) or (n, m)
         Ultraspherical coefficients.
 
     Notes
@@ -1792,11 +1792,11 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
         # wrong): T_0 = U_0, T_1 = U_1/2, T_n = (U_n - U_{n-2})/2 for n >= 2,
         # so b_0 = a_0 - a_2/2 and b_k = (a_k - a_{k+2})/2 for k >= 1.
         n = c_cheb.shape[0]
-        a = jnp.asarray(c_cheb, dtype=jnp.float64)
+        a = jnp.asarray(c_cheb)
         if n <= 1:
             return a
         a_shift = jnp.concatenate(
-            [a[2:], jnp.zeros(min(2, n), dtype=a.dtype)]
+            [a[2:], jnp.zeros((min(2, n),) + a.shape[1:], dtype=a.dtype)]
         )[:n]
         b = 0.5 * (a - a_shift)
         b0 = a[0] - 0.5 * a[2] if n > 2 else a[0]
@@ -1806,17 +1806,14 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
     ab = lam - 0.5
     c_jac = cheb2jac(c_cheb, ab, ab)
 
-    # Scale from Jacobi to ultraspherical
+    # Native ultracoeffs.m uses gamma-ratio scaling of each coefficient row.
     n = c_jac.shape[0]
-    from scipy.special import gammaln as _gammaln
-    scl = jnp.array(
-        np.exp(_gammaln(2 * lam) - _gammaln(lam + 0.5))
-        * np.exp(
-            np.array([float(_gammaln(lam + 0.5 + k)) for k in range(n)])
-            - np.array([float(_gammaln(2 * lam + k)) for k in range(n)])
-        )
-    )
-    return c_jac * scl
+    nn = jnp.arange(n, dtype=jnp.float64)
+    scl = (jax.scipy.special.gamma(2 * lam)
+           / jax.scipy.special.gamma(lam + .5)
+           * jnp.exp(jax.scipy.special.gammaln(lam + .5 + nn)
+                     - jax.scipy.special.gammaln(2 * lam + nn)))
+    return c_jac * (scl[:, None] if c_jac.ndim == 2 else scl)
 
 
 # ===========================================================================

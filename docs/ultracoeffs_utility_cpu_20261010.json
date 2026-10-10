@@ -1,0 +1,54 @@
+{
+  "base": "9bab36bb350f8ab13f39bce6981656a92297e572",
+  "scope": "Coefficient-array ultracoeffs adapter uses JAX nativegamma scaling and preserves complex/matrix lambda1 shifts",
+  "native_source": {
+    "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/ultracoeffs.m",
+    "sha256": "86a016bd26ef69731c0010384c5d2149e8fa475340a8655538d70700e83198b1"
+  },
+  "baseline": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultracoeffs_utility_baseline_20261010/receipt.json",
+    "passed": 7,
+    "failed": 11,
+    "interpretation": "9 genuine complex/matrix failures;2 empty-input fixtures incorrectly constructed float64 while asserting complex."
+  },
+  "qualification": {
+    "distinct_passed": 35,
+    "gates": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultracoeffs_utility_root_20261010/receipt.json",
+        "sha256": "1e1f46b4c6d60b9c36bb8d3038f071649300e1515070428848aa1fe5fd5f27bd",
+        "exit_code": 1,
+        "passed": 33,
+        "failures": 2,
+        "wall_seconds": 32.915176534093916,
+        "peak_child_rss_kib": 1032828
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultracoeffs_utility_fixture_v2_20261010/receipt.json",
+        "sha256": "cae06107a01039b152bf18b3c46811cb8fe70e185031e58cc04f143200cf2c99",
+        "exit_code": 0,
+        "passed": 6,
+        "failures": 0,
+        "wall_seconds": 4.648664047010243,
+        "peak_child_rss_kib": 508508
+      }
+    ],
+    "fixture_correction": "Explicit complex128 input for six short-series cases; corrected all six rerun, original bounds unchanged. Firstgate33pass2fixturefail, secondgate6pass; union35.",
+    "source_unchanged_across_gates": true,
+    "limitations": "FocusedCPU24\u201331,120s bound, measuredRSS/noRSS cap/no observedruntime audit."
+  },
+  "ast_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultracoeffs_utility_root_20261010/ast_review.json",
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultracoeffs_utility_fixture_v2_20261010/static.json",
+    "sha256": "a49a5c4a64d3e2dd130e33c5bf9bcc346e2b3f563542efc985fdeabbe005303c",
+    "passed": true
+  },
+  "payload_sha256": {
+    "src/chebfunjax/utils/transforms.py": "cac204288be5e01b58a3113eedc9fb8cb5607d64be11b167a564a8837fa885de",
+    "tests/test_tech/test_ultracoeffs_utility_source.py": "f38a4b513796e66aa02c0ba5a7ffa4cd902ba97f558434f6807eac7f3af40637"
+  },
+  "remaining": [
+    "PublicChebfun.ultracoeffs is unchanged; full nativepublic-test restoration not claimed by these coefficient-array controls.",
+    "FullJacobi sweep, largeNspeed, librarywide JAXpurity and CI still pending."
+  ]
+}

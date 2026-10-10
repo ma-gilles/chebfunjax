@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ultraspherical coefficient utility preserves complex matrices (2026-10-10; latest)
+
+The coefficient-array ultracoeffs helper now uses JAX nativegamma scaling,
+rowwise matrix scaling, and complex-preserving second-kind coefficient shifts.
+Nine distinguishing complex/matrix failures are fixed. Qualification covers
+35 distinct passing cases across two gates; two initially incorrect empty
+fixtures were corrected to explicitly complex inputs and all six affected
+cases rerun at unchanged bounds. Other module AST and public Chebfun method
+are unchanged; static checks pass. Evidence: docs/ultracoeffs_utility_cpu_20261010.json.
+Full native public-test and large-N qualification remain open.
+
+
 ## Native ultraspherical conversion wrapper restored (2026-10-10; latest)
 
 Ultra2ultra now uses native JAX gamma/cumulative-product scaling around the
