@@ -1,0 +1,77 @@
+{
+  "status": "qualified scoped endpoint helper; no performance or full-page claim",
+  "base": "c5f0562cfbd3f719e15185456fe029b5528d66f3",
+  "applicable_head": "0dc56f07f4ff39737ca8ad934c50f093a5686dfa",
+  "payload_sha256": {
+    "tests/test_endpoint_limit_fusion_source.py": "e804426a223120165c247cd53938c8683490bdb948a30b4600b7e25898509615",
+    "src/chebfunjax/chebfun1d/_construction.py": "8a61d26869689da21a3c77f40a3cb4b6c0d0fd3070351e228a46d752e580508a"
+  },
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/delivery_v1.patch",
+  "patch_sha256": "d3710595da2a2d9ec754d039a1726354d116880dd841cabaab7bac357f3f3176",
+  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1",
+  "original_handle": 62698,
+  "audit_handle": 14919,
+  "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1_AUDIT_v1.json",
+  "cases": 49,
+  "portable_new": 44,
+  "existing_dispatch": 4,
+  "external_ir": 1,
+  "portable_proof": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/PORTABLE_AST_v1.json",
+  "ir_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/IR_REVIEW_v1.json",
+  "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/final_review_v1/static.json",
+  "applicability": "Current head production _construction.py identical to frozen base before this patch; unrelated integrations require no numerical replay.",
+  "limitations": [
+    "No end-to-end timing or RSS improvement measured.",
+    "AnalyticSVD full run cap and unmatched MATLAB inputs remain unresolved.",
+    "IR captures four f64/c128 7x2 specializations, not all possible compiler reductions."
+  ],
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Polynomial endpoint helper49checks; no page/performance claim.",
+    "gates": [
+      {
+        "gate": "focused49_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/supervision/receipt.json",
+        "receipt_sha256": "185971cefd18c0bec209ab093c453ba383463c08efd6cb8d49193218533b0f42",
+        "runtime_manifest_sha256": "00686a7ded86984114d5dcc0477b5f4cb121b0734ff405f3a6fcc12f615bde1d",
+        "runtime_end_sha256": "e6cc4885da2e77d1bbdf54868d63c87bc684072c106af6b82d770c453fa3105b",
+        "observed_files_rehashed": 2938,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 54,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 978988,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 49,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "root_portable_AST_review": "All8 unchanged numerical functions, check_bits input/data capture and assertion nodes independently identical; artifact writing only is optional. IR recorder excluded.",
+  "root_IR_review": {
+    "scope": "Inspected all4 optimized real/complex left/right captures; odd-row negation feeds scatter then axis0sum; right axis0sum directly. Not all shape/backend reduction equivalence.",
+    "hashes": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/complex128_left.stablehlo": "afbec931fcf09a01aee9bdc4acf4c71a200a189791a4b208707cb87b6597de93",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/float64_right.stablehlo": "57d16b07924e138fb8346fdb403daf8fb0c76be651183ab15eec4976047010ee",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/float64_right.optimized.txt": "9e83df48ee6ddddf91b2f8d2eb8d063ad264985de4494ea45a85ba28fabc7d95",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/complex128_right.optimized.txt": "c5b3820a30ff218748eb0ea55cd6da0948c320f47bff702552e81b62345afddf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/complex128_right.stablehlo": "6cce8e0b89d56e3e1ee64ff148c2ade13aa39e160c72e894977aa6fd16fbaaa0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/float64_left.optimized.txt": "2263c505df2005fc7acc1f6beeadc7196e1df3cff4ac17f257d5b2bd140d853b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/float64_left.stablehlo": "e03f8b628fbe5ebbe30a55df5b600f78c0ab32bfb9b10bdda05699bcbd9b5e07",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/endpoint_limit_fusion_source_20261009/focused49_v1/ir/complex128_left.optimized.txt": "0d4f2fb9e78a6d600145fbd8c326621e1f724dcf9e6bd49b2b797cfe1bca98ac"
+    }
+  }
+}

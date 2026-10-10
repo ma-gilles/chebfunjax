@@ -7,7 +7,9 @@ numerical values and arithmetic use JAX. Public wiring is a separate draft.
 from __future__ import annotations
 
 import warnings
+from functools import partial
 
+import jax
 import jax.numpy as jnp
 
 
@@ -117,6 +119,18 @@ def _default_double(values):
     return values.astype(jnp.complex128 if jnp.iscomplexobj(values) else jnp.float64)
 
 
+@partial(jax.jit, static_argnames=('right',))
+def _polynomial_endpoint_limit(coeffs, *, right=False):
+    """Literal @chebtech/lval.m and rval.m, Chebfun7574c77.
+
+    Keep odd-index negation before the axis-zero sum. The Python adapter
+    dispatches/unpacks FUN objects outside this numerical compilation boundary.
+    """
+    if not right:
+        coeffs = coeffs.at[1::2].set(-coeffs[1::2])
+    return jnp.sum(coeffs, axis=0)
+
+
 def endpoint_limit(fun, right=False):
     """Native classicfun/onefun endpoint dispatch without physical mapping.
 
@@ -132,10 +146,7 @@ def endpoint_limit(fun, right=False):
         return endpoint_limit(fun.funPart, right)
     onefun = fun.onefun if hasattr(fun, 'onefun') else fun.tech
     if isinstance(onefun, (Chebtech1, Chebtech2)):
-        coeffs = onefun.coeffs
-        if not right:
-            coeffs = coeffs.at[1::2].set(-coeffs[1::2])
-        return jnp.sum(coeffs, axis=0)
+        return _polynomial_endpoint_limit(onefun.coeffs, right=right)
     return onefun(jnp.asarray(1. if right else -1.))
 
 
