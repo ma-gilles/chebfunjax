@@ -1,0 +1,196 @@
+{
+  "scope": "Supported Atmospheric presentation changes; full page remains visually incomplete",
+  "fullpage_delivery": {
+    "status": "Actual fullpage complete and owner-audited; ready for independent root review/integration",
+    "original": 58346,
+    "audit": 54059,
+    "terminal": 0,
+    "cases": 1,
+    "observed_hashes": 3067,
+    "wall_seconds": 193.03022084198892,
+    "peak_kib": 3090004,
+    "limits": "420s6GiB CPU8-15; no matched timing claim",
+    "snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/snapshot",
+    "page": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/snapshot/examples/sphere/atmospherictemperature.py",
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/source_stdout.txt",
+    "figures": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures",
+    "exact_previous84_comparison": {
+      "stdout_bytes": true,
+      "all_non_timing_events": true
+    },
+    "publication_edited": false,
+    "older_failures_and_historical_gaps_preserved": true,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/integration_v2.patch": "e5dd951ebb7ba5a5710fdf7a52abba3829bcc15b141948ade69d298fb52b0c37",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/DELIVERY_v1.json": "7fd1aa0894d43a90e3921add99c5d4abd16bf13e8e07fea0a5e6fe04e8f9c344",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FULLPAGE_SOURCE_BINDING_v1.json": "cbe3c3977e14e956f8daaaa8c9fd3aeeed63a021e0a8945d476a7da2216df61a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FROZEN_FULLPAGE_v1.json": "8c3b1da93750df6baa8742bc4b5c5e0fda9e9ac0180b48a2074100cd198e2240",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1_AUDIT_v2.json": "0099f44f0882a9282f3b2cf202d5a90ac603e4a74033a2a53af10993dcc62721",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FULLPAGE_COMPARISON_v1.json": "ce84a81c2fd7bc8cc93d998b4737cc05ed71bd17f96b78f18f32c7a66202d052",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FULLPAGE_VISUAL_REVIEW_v1.json": "40929a10af62e5e749bd2621c327de2ce276128d89f563c35c260e1e36a4f0eb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FULLPAGE_CONTACT_v1.png": "d012056490aa52ee0c58d62b87d5da1481a000f05fe29aa5d3f767d6988fc578",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/FULLPAGE_REFERENCE_CONTACT_v1.png": "226202536193c8b4e9a5db6c2293cfcb23ce65f227669a458f42f010c2f3eedd",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/compare_fullpage_v1.py": "6cb47f963cec5a602b6875ddfb5e4107e692bd3ed31b76191ef15feedc2b77f3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/source_stdout.txt": "45df8ed9a3d28d58ab4ff3cfaad6cddad3679eda66b345bd63ab72823d478dc3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/page_result.json": "bc06513868401788c188007ae8c4e527252a6200fbf51a065e1154c1b8842bb9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_01.png": "64429f7320ecbfe6d899ec802c093029bfec6c6592b36bce9ae1d0129bc09493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_02.png": "b5f9d9a7c264b6f669daecf25a266cb1b0e8667990dff87a9814e6000b4364ba",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_03.png": "ca01ea447d79cd7ff696bc251ec984b816c8cb807234a694cf638137ab69ea3a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_04.png": "d114ee7f9aeccbbaf1e0bc0d015187065569fe2fe7d50aff0ccccda2296ff78a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_05.png": "3534d38e07d87c721f9b3b4cf215701b8ce61d2bd62475e84d32d65899202d72",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_06.png": "132869ca078ab089876e98a98420c348571164c054929a66fc8cdcafe4c5a12e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_07.png": "284c98a226362a926f1d11702c91f1c3d661be433c4d8c379bb1fb74673ddf06",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_08.png": "876a652f8e70e2ac496649bf63aca22e0d5b536990880fd06a1950e1134561a2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_09.png": "7e996af316e7349cee57b8a126f1fc39c0d689b7154efb2b5607cbabc14e18af",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/runtime/figures/AtmosphericTemperature_10.png": "cfe32985f6d0db402a20416f3a72ac9952bf4b53e4db0958c83a41a5ac9dda09"
+    }
+  },
+  "root_reviews": {
+    "atmospheric_presentation_root_runtime_review_20261010.json": {
+      "reviewer": "/root",
+      "scope": "Atmospheric jet64/singlecontour/layout presentation qualified5+11+3; finalbar endpoints coveredportable3, fieldsunchanged/fullpagepending",
+      "gates": [
+        {
+          "gate": "atmospheric_presentation_source_20261010/render5_v3",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/render5_v3/supervision/receipt.json",
+          "receipt_sha256": "5cf194ef33d677359fc4ce1a800275698e3bd3dd8bc3a51b3e6a8cbd9c62e655",
+          "runtime_manifest_sha256": "dae7b00e1730d80e4a47d754908485ea28f7c05d26eb1b93bdcea6d5cf31ba94",
+          "runtime_end_sha256": "d7b2dbbe8871a0c04e7759c054d389991d3ce7bfb983d90cd87c748c5077e140",
+          "observed_files_rehashed": 3059,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 59,
+          "wrong_library_origins": {},
+          "native_loaded_files": 244,
+          "before_after_identical": true,
+          "peak_kib": 830736,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 5,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "atmospheric_presentation_source_20261010/portable11_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/portable11_v1/supervision/receipt.json",
+          "receipt_sha256": "9997071fb6a8b63082777fcac3f83d1147e757e262cb0c9db43ddbd456b0d4fd",
+          "runtime_manifest_sha256": "fcd491fce14d6a4f0acf972813516f2edc9a51afb4b83055b789551bbe3a2bd8",
+          "runtime_end_sha256": "03d7fd1853cad03a046b86d113ebd734f20efe49d848e1b2b7ce5aeeb1c77f14",
+          "observed_files_rehashed": 3062,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 59,
+          "wrong_library_origins": {},
+          "native_loaded_files": 245,
+          "before_after_identical": true,
+          "peak_kib": 1041376,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 11,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "atmospheric_presentation_source_20261010/portable3_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/portable3_v2/supervision/receipt.json",
+          "receipt_sha256": "f6949c28d838bc2f031dd6f21dc77d6cc711e99684632e1bade662ff4a59dc8d",
+          "runtime_manifest_sha256": "cab9568081491248e61e7803e83e9aabbd75b0f235c30c5e9990905ccf38e74b",
+          "runtime_end_sha256": "620e38ebe99b559243fba0cce6f34d83616039098c236cfe0f20680d1632cc90",
+          "observed_files_rehashed": 3054,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 55,
+          "wrong_library_origins": {},
+          "native_loaded_files": 245,
+          "before_after_identical": true,
+          "peak_kib": 694108,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 3,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "atmospheric_presentation_fullpage_root_runtime_review_20261010.json": {
+      "reviewer": "/root",
+      "scope": "Atmospheric presentation fullpage runtime evidence; comparematched84afnumericsseparately; visualparityunresolved",
+      "gates": [
+        {
+          "gate": "atmospheric_presentation_source_20261010/full_page_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/supervision/receipt.json",
+          "receipt_sha256": "31ad4b382748a52b47844c9302596d0cb82c507517663a40959a80d8bf43a42f",
+          "runtime_manifest_sha256": "9792a623952755d007b4b4d4d6e7fd3337e3480e51aa66e9d72f6660b0e51bbc",
+          "runtime_end_sha256": "889578c9b10d89c8f7516f3d6cf3c62e6f241440f5cd5371c9c6698586ee65ea",
+          "observed_files_rehashed": 3067,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 73,
+          "wrong_library_origins": {},
+          "native_loaded_files": 244,
+          "before_after_identical": true,
+          "peak_kib": 3090004,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "integrated_figure_sha256": {
+    "AtmosphericTemperature_01.png": "64429f7320ecbfe6d899ec802c093029bfec6c6592b36bce9ae1d0129bc09493",
+    "AtmosphericTemperature_02.png": "b5f9d9a7c264b6f669daecf25a266cb1b0e8667990dff87a9814e6000b4364ba",
+    "AtmosphericTemperature_03.png": "ca01ea447d79cd7ff696bc251ec984b816c8cb807234a694cf638137ab69ea3a",
+    "AtmosphericTemperature_04.png": "d114ee7f9aeccbbaf1e0bc0d015187065569fe2fe7d50aff0ccccda2296ff78a",
+    "AtmosphericTemperature_05.png": "3534d38e07d87c721f9b3b4cf215701b8ce61d2bd62475e84d32d65899202d72",
+    "AtmosphericTemperature_06.png": "132869ca078ab089876e98a98420c348571164c054929a66fc8cdcafe4c5a12e",
+    "AtmosphericTemperature_07.png": "284c98a226362a926f1d11702c91f1c3d661be433c4d8c379bb1fb74673ddf06",
+    "AtmosphericTemperature_08.png": "876a652f8e70e2ac496649bf63aca22e0d5b536990880fd06a1950e1134561a2",
+    "AtmosphericTemperature_09.png": "7e996af316e7349cee57b8a126f1fc39c0d689b7154efb2b5607cbabc14e18af",
+    "AtmosphericTemperature_10.png": "cfe32985f6d0db402a20416f3a72ac9952bf4b53e4db0958c83a41a5ac9dda09"
+  },
+  "stdout_sha256": "45df8ed9a3d28d58ab4ff3cfaad6cddad3679eda66b345bd63ab72823d478dc3",
+  "comparison_correction": "Root earlier combined check failed before integration because expected equality was not established against the correct baseline. This check explicitly uses atmospheric_gouraud_replay_plan_20261010 and verifies byte equality; older pre84 mismatch remains preserved.",
+  "limitations": [
+    "Historical Poisson field differs from website; pinned corrected solver retained.",
+    "Exact parula palette and minor styling unresolved.",
+    "Fullpage frozen84 baseline plus presentation overlays; current unrelated HOSVD/sine changes not represented by this page run.",
+    "No matched performance claim."
+  ]
+}

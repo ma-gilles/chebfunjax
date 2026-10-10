@@ -1622,7 +1622,12 @@ def contour_sphere(
     cs = ax_tmp.contour(l, t, C, levels=levels)
 
     level_list = cs.levels
-    clrmap = cmap_obj(np.linspace(0, 1, max(len(level_list), 1)))
+    # MATLAB parula(1) selects its last endpoint (linspace(1,P,1)=P).
+    # Retain the existing approximate palette, without claiming an exact
+    # native table; explicit custom-cmap compatibility is unchanged.
+    positions = (np.ones(1) if cmap is None and len(level_list) == 1
+                 else np.linspace(0, 1, max(len(level_list), 1)))
+    clrmap = cmap_obj(positions)
 
     # Extract contour paths — compatible with both old and new matplotlib
     contour_paths = []
@@ -1679,6 +1684,8 @@ def contour_sphere(
         if len(level_list) > 1:
             idx = np.argmin(np.abs(lev_val - level_list))
             clr = clrmap[idx, :3]
+        elif cmap is None:
+            clr = clrmap[0, :3]
         else:
             clr = 'k'
         line_options = {"color": clr, "linewidth": 1.0, **kw}

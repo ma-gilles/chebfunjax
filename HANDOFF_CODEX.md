@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Atmospheric presentation replay integrated (2026-10-10; latest)
+
+The full CPU page completed with ten fresh600x270 figures. Discrete jet64,
+figure01 sphere/colorbar placement and default single-contour color now
+follow the supported source/reference evidence. Stdout and non-timing
+events match the previous84-baseline run; north-pole output cell now
+records0.624920062687918. Root accepted the rendering controls and
+3,067-file fullpage audit. Evidence: docs/atmospheric_presentation_cpu_20261010.json.
+Historical Poisson field, exact parula and minor styling remain unresolved;
+this is not complete visual parity or a current whole-suite/CI claim.
+
 ## Native continuous HOSVD restored (2026-10-10; latest)
 
 HOSVD now follows continuous factor QR and discrete mode SVD in JAX,

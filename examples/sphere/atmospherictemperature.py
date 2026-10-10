@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 
 # uses-numpy: pinned MAT input and host-side plotting options only.
 import numpy as np
+from matplotlib.colors import ListedColormap
 from scipy.io import loadmat
 
 _ROOT = Path(__file__).resolve().parents[2]
@@ -66,6 +67,37 @@ def _print_source_ans(value):
     print(f"{float(value):20.15f}\n")
 
 
+def _website_jet():
+    """Discrete jet64 for the 2016 website's pre-R2019b graphics default.
+
+    MathWorks jet version history documents 64 before R2019b. These clipped
+    linear RGB ramps independently express jet64, not Matplotlib's jet LUT.
+    No proprietary sampled palette table is redistributed.
+    """
+    levels = np.arange(1, 65, dtype=float) / 64
+    channels = np.array([3., 2., 1.])
+    colors = np.clip(1.5 - np.abs(4 * levels[:, None] - channels), 0., 1.)
+    return ListedColormap(colors, name="website_jet64")
+
+
+def _website_colorbar_layout(fig, ax, mappable):
+    """Measured figure01 presentation; not an inferred HG2 layout engine.
+
+    Reference 600x270 PNG bar is x477..515, y20..239. The sphere's saturated
+    footprint is x128..347, y20..239. The 218-pixel viewport includes an
+    explicit two-pixel allowance for Agg Gouraud edge rasterization.
+    The unit-sphere artist must retain that edge beyond the axes clip box.
+    Field data, color limits and captured source camera remain independent.
+    """
+    fig.set_layout_engine(None)
+    ax.set_position((78/600, 31/270, 320/600, 218/270))
+    for artist in ax.collections:
+        if getattr(artist, "_chebfun_sphere_radius", None) == 1.0:
+            artist.set_clip_on(False)
+    cax = fig.add_axes((477/600, 31/270, 38/600, 219/270))
+    fig.colorbar(mappable, cax=cax)
+
+
 def run(data_path, output_dir=None):
     """Execute the literal source computations and save figures in source order."""
     data_path = Path(data_path)
@@ -90,14 +122,14 @@ def run(data_path, output_dir=None):
     def surface(fun, title="", *, colorbar=False, method="surf"):
         # Public mappable carries the exact surface data and color normalization.
         fig, ax, mappable = getattr(fun, method)(
-            n_pts=200, cmap="jet", return_mappable=True,
+            n_pts=200, cmap=_website_jet(), return_mappable=True,
         )
-        if colorbar:
-            fig.colorbar(mappable, ax=ax)
         ax.set_axis_off()
         matlab_view(ax, 50, 0)
         matlab_explicit_camera(ax, **_SOURCE_SURFACE_CAMERA)
         plot_earth(ax, "k-")
+        if colorbar:
+            _website_colorbar_layout(fig, ax, mappable)
         if title:
             ax.set_title(title)
         save(fig)
