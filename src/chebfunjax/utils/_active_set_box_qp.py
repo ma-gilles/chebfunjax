@@ -220,7 +220,7 @@ def _qpsub(h, f, a, b, x, active, maxiter, tolcon, phase, randn, observer):
     simplex = len(active) >= n-1
     gf = h@x+f if is_qp else f
     if is_qp:
-        sd, kind = compdir(z, h, gf)
+        sd, kind = compdir(z, h, gf, scalar_arithmetic=True)
         kind = int(kind)
     else:
         sd, kind = (-z@z.T)@gf, STEEPEST_DESCENT
@@ -326,7 +326,7 @@ def _qpsub(h, f, a, b, x, active, maxiter, tolcon, phase, randn, observer):
             if zg.size and bool(jnp.linalg.norm(zg) < 1e-15):
                 sd, kind = jnp.zeros(n), ZERO_STEP
             else:
-                sd, kind = compdir(z, h, gf)
+                sd, kind = compdir(z, h, gf, scalar_arithmetic=True)
                 kind = int(kind)
         else:
             if not simplex:

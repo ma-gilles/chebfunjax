@@ -10,7 +10,12 @@ from typing import NamedTuple
 import jax.numpy as jnp
 
 from chebfunjax.utils._active_set_box_qp import EPS, box_qp
-from chebfunjax.utils._active_set_qp import _real64
+from chebfunjax.utils._active_set_qp import (
+    _dot2,
+    _matvec2,
+    _real64,
+    _scalar_matrix_divide,
+)
 
 
 class SQPResult(NamedTuple):
@@ -107,7 +112,9 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
     evaluations, gradients, iteration = 1, 1, 0
     best_value, best = jnp.inf, None
     active = ()
-    error = jnp.asarray(jnp.inf)
+    # nlconst.m284: iteration-zero optimality is empty; best restoration
+    # must preserve that output state rather than invent scalar infinity.
+    error = jnp.empty((0,), dtype=jnp.float64)
     fd_options = {'FinDiffType': 'forward', 'FinDiffRelStep': jnp.full(2, jnp.sqrt(EPS)),
                   'TypicalX': jnp.ones(2), 'DiffMinChange': 0., 'DiffMaxChange': jnp.inf,
                   'fwdFinDiff': True, 'scaleObjConstr': False, 'chkFunEval': False,
@@ -142,22 +149,24 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
         if gradients > 1:
             y = (g+a.T@lamb) - (old_g+old_a.T@lamb)
             displacement = x-old_x
-            if bool(y@displacement < steplength**2*1e-3):
-                while bool(y@displacement < -1e-5):
+            if bool(_dot2(y, displacement) < steplength**2*1e-3):
+                while bool(_dot2(y, displacement) < -1e-5):
                     index = int(jnp.argmin(y*displacement))
                     y = y.at[index].set(y[index]/2)
-                if bool(y@displacement < EPS*jnp.linalg.norm(h, ord='fro')):
+                if bool(_dot2(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')):
                     factor = a.T@residual-old_a.T@old_c
                     factor = factor*(displacement*factor > 0)*(y*displacement <= EPS)
                     weight = jnp.asarray(1e-2)
                     if bool(jnp.max(jnp.abs(factor)) == 0):
                         factor = 1e-5*jnp.sign(displacement)
-                    while bool(y@displacement < EPS*jnp.linalg.norm(h, ord='fro')) and bool(weight < 1/EPS):
+                    while bool(_dot2(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')) and bool(weight < 1/EPS):
                         y = y+weight*factor
                         weight = weight*2
-            if bool(y@displacement > EPS):
-                h = (h+jnp.outer(y, y)/(y@displacement)
-                     -jnp.outer(h@displacement, displacement@h.T)/((displacement@h)@displacement))
+            if bool(_dot2(y, displacement) > EPS):
+                h = (h+_scalar_matrix_divide(jnp.outer(y, y), _dot2(y, displacement))
+                     -_scalar_matrix_divide(
+                         jnp.outer(_matvec2(h, displacement), _matvec2(h, displacement)),
+                         _dot2(_matvec2(h.T, displacement), displacement)))
             emit('bfgs', hessian=h, corrected_y=y, displacement=displacement)
         else:
             old_lambda = jnp.full(4, EPS+g@g)/(jnp.sum(a.T*a.T, axis=0)+EPS)

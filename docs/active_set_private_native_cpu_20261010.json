@@ -1,0 +1,44 @@
+{
+  "scope": "Private fixed-option two-variable active-set SQP and finite differences",
+  "qualified_cases": 84,
+  "full_native_trajectories": 7,
+  "callback_and_return_bit_differences": 0,
+  "native_runtime_scope": "R2017a provider/group under R2025b; two real64 variables, finite box and exact source options; seven complete solves incl infeasible and best restoration",
+  "source_changes": [
+    "native finite differences37transactions",
+    "initial/restored optimality empty output",
+    "source BFGS scalar arithmetic and ordinary triangular substitution preserve native operation rounding"
+  ],
+  "unsupported": [
+    "singular-working-set RNG/rectangular backslash branch",
+    "dependent convergence working set",
+    "arbitrary finite-difference options; full solver JIT/AD"
+  ],
+  "private_only": true,
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_scalar_sqp_20261010/ROOT_REVIEW.json",
+    "sha256": "cdec618bf06d2d5f54518afcd043815ce2d1bb951791afee47e441864f127482"
+  },
+  "packet": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_scalar_sqp_20261010/PRIVATE84_PACKET.json",
+    "sha256": "833e6508a0ad1feb37bbac5e2ff1745ebf2c896d77cbd22b33b5a9c48bd53ebe"
+  },
+  "runtime_files": 1826,
+  "stable_inputs": 44712,
+  "candidate_files": {
+    "src/chebfunjax/utils/_active_set_finite_difference.py": "37ef96284861d0f4cfedd395e10fb0acc682b0e7742c5851432c7d3255eaf4a3",
+    "src/chebfunjax/utils/_active_set_qp.py": "b369926eeaa6bc07748f87b9f52b886e938fc672cdeb4125ca818d7553593430",
+    "src/chebfunjax/utils/_active_set_box_qp.py": "a5ff67418ee2ede07004d1fe8728b3d9dd916442189a7388ace5c1f2a63fd922",
+    "src/chebfunjax/utils/_active_set_box_sqp.py": "9e337b638a7324ffe3467a42f7bba982a9bba99e1afa593b9c2395533b5c9d86",
+    "tests/test_active_set_finite_difference.py": "77255321b62ae1265943659cad172b83a90141b5384e320a119f9339af7c4886",
+    "tests/test_active_set_full_native.py": "5a62f46f1ff6a88cd0c90e738fa9c38e90bd6b2bc220c3d0527e5bf8c13af398",
+    "tests/fixtures/active_set_fd_native.json": "713e799bd3f0af49ea62d887745666bb40826638ee8fcec7ec917710df740304",
+    "tests/fixtures/active_set_full_native.json": "6d00a45ee08f6c9b086c312a76a726b6a68a75bd07601537d9a91b723d01e9a2"
+  },
+  "public_gibbs_status": "Separate source execution qualification in progress; public triangle maximum remains different; no public parity claim",
+  "prior_failed_qualification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_full_jax_20261010/A_full84",
+  "limits": [
+    "No arbitrary dimension, general finite-difference options, full solver JIT or AD claim",
+    "Current full suite, remaining pages and green CI are unresolved"
+  ]
+}

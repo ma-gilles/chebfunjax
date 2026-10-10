@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Private native active-set solver qualification (2026-10-10; latest)
+
+All 84 strict controls pass, including seven complete native solver trajectories,
+callback sequences and returned fields with zero bit differences. Finite
+forward differences cover 37 captured bound/rounding transactions. Eager scalar
+BFGS division and ordinary triangular substitution preserve the native rounding
+observed in 14 saved states; no tolerance change or compensated arithmetic.
+The audited run binds 44,712 inputs and 1,826 runtime files. Native scope is
+R2017a optimizer providers under R2025b, two real variables, finite boxes and
+fixed source options. Singular working-set RNG/rectangular solves, dependent
+working-set convergence, arbitrary options and full-solver JIT/AD remain open.
+Evidence: docs/active_set_private_native_cpu_20261010.json. Public registration
+and Gibbs page qualification are separate; the triangle maximum remains a gap.
+Full suite, remaining numerical/figure parity and green main CI remain open.
+
+
 ## CI source contracts and JAX Fourier columns (2026-10-10; latest)
 
 Periodic Fourier coefficient extraction now delegates to the source Trigtech

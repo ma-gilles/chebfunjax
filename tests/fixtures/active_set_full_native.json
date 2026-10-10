@@ -1,0 +1,4837 @@
+{
+  "version": "Original R2017a provider/optimizer files under R2025b backend",
+  "provenance": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_full_native_20261010/full_sqp.json": "914020926997624de0185671aa314e2b659ab118f67b3ee602c83c2035609854",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_full_native_20261010/full_sqp.mat": "e07f7afc6fe3f54f2c05ff9ebf48db8f36e7fcfa0c23de679ad92a0f8a281a88"
+  },
+  "cases": [
+    {
+      "name": "interior",
+      "x_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "bff0000000000000",
+        "bff0000000000000"
+      ],
+      "upper_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "3fcffffff0000000",
+        "bfe0000004000000"
+      ],
+      "value_hex": "3c90000000000000",
+      "exitflag": 5,
+      "output": {
+        "iterations": 2,
+        "funcCount": 6,
+        "lssteplength": 1,
+        "stepsize": 1.4901160767522028e-08,
+        "algorithm": "active-set",
+        "firstorderopt": 1.4901161193847656e-08,
+        "constrviolation": -0.4999999925494194,
+        "message": "Local minimum possible. Constraints satisfied.\n\nfmincon stopped because the predicted change in the objective function\nis less than the selected value of the function tolerance and constraints \nare satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization stopped because the predicted change in the objective function,\n2.220446e-16, is less than options.FunctionTolerance = 2.220446e-16, and the maximum constraint\nviolation, -5.000000e-01, is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nabs(steplength*directional derivative) =   2.22e-16          FunctionTolerance =   2e-16 (selected)\nmax(constraint violation) =  -5.00e-01                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          0,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "0000000000000000",
+        "be50000000000000"
+      ],
+      "hessian_hex": [
+        "3feffffffd70a3da",
+        "be247ae118000000",
+        "be247ae118000000",
+        "3ff0000007ae147a"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "3fcffffff0000000",
+        "bfe0000004000000",
+        "3fd0000008000000",
+        "bfe0000004000000",
+        "3fcffffff0000000",
+        "bfe000000c000000"
+      ],
+      "values_hex": [
+        "3fc4000000000000",
+        "3fc3fffff8000004",
+        "3fc4000010000004",
+        "3c90000000000000",
+        "3c90000000000000",
+        "3cb4000000000000"
+      ],
+      "actual_calls": 6,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0.15625,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -0.2499999925494194,
+              0.5000000074505806
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bfcffffff0000000",
+            "3fe0000004000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0.15625,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -0.2499999925494194,
+              0.5000000074505806
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bfcffffff0000000",
+            "3fe0000004000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.2499999925494194,
+            -0.5000000074505806
+          ],
+          "x_hex": [
+            "3fcffffff0000000",
+            "bfe0000004000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 5.551115123125783e-17,
+            "constrviolation": -0.4999999925494194,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -0.2499999925494194,
+              0.5000000074505806
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bfcffffff0000000",
+            "3fe0000004000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.2499999925494194,
+            -0.5000000074505806
+          ],
+          "x_hex": [
+            "3fcffffff0000000",
+            "bfe0000004000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 5.551115123125783e-17,
+            "constrviolation": -0.4999999925494194,
+            "lssteplength": 1,
+            "stepsize": 0.5590169977069485,
+            "directionalderivative": -0.5590169977069485,
+            "gradient": [
+              0,
+              -1.4901161193847656e-08
+            ],
+            "searchdirection": [
+              0.2499999925494194,
+              -0.5000000074505806
+            ],
+            "firstorderopt": 1.4901161193847656e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "be50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.2499999925494194,
+            -0.5000000074505806
+          ],
+          "x_hex": [
+            "3fcffffff0000000",
+            "bfe0000004000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 6,
+            "fval": 5.551115123125783e-17,
+            "constrviolation": -0.4999999925494194,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              0,
+              -1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "be50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            0.2499999925494194,
+            -0.5000000074505806
+          ],
+          "x_hex": [
+            "3fcffffff0000000",
+            "bfe0000004000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 6,
+            "fval": 5.551115123125783e-17,
+            "constrviolation": -0.4999999925494194,
+            "lssteplength": 1,
+            "stepsize": 1.4901160767522028e-08,
+            "directionalderivative": -1.4901161193847656e-08,
+            "gradient": [
+              0,
+              -1.4901161193847656e-08
+            ],
+            "searchdirection": [
+              3.5527131010975744e-17,
+              1.4901160767522028e-08
+            ],
+            "firstorderopt": 1.4901161193847656e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "be50000000000000"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [
+        "3e50000000000000"
+      ],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0.15625,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -0.2499999925494194,
+              0.5000000074505806
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bfcffffff0000000",
+            "3fe0000004000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.2499999925494194,
+            -0.5000000074505806
+          ],
+          "x_hex": [
+            "3fcffffff0000000",
+            "bfe0000004000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 5.551115123125783e-17,
+            "constrviolation": -0.4999999925494194,
+            "lssteplength": 1,
+            "stepsize": 0.5590169977069485,
+            "directionalderivative": -0.5590169977069485,
+            "gradient": [
+              0,
+              -1.4901161193847656e-08
+            ],
+            "searchdirection": [
+              0.2499999925494194,
+              -0.5000000074505806
+            ],
+            "firstorderopt": 1.4901161193847656e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "be50000000000000"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "corner",
+      "x_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "bff0000000000000",
+        "bff0000000000000"
+      ],
+      "upper_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "3ff0000000000000",
+        "bff0000000000000"
+      ],
+      "value_hex": "3ff0000000000000",
+      "exitflag": 1,
+      "output": {
+        "iterations": 1,
+        "funcCount": 6,
+        "lssteplength": 1,
+        "stepsize": 1.4142135623730951,
+        "algorithm": "active-set",
+        "firstorderopt": 0,
+        "constrviolation": 0,
+        "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the selected value of the optimality tolerance,\nand constraints are satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization completed: The first-order optimality measure, 0.000000e+00, is less\nthan options.OptimalityTolerance = 2.220446e-16, and the maximum constraint violation,\n0.000000e+00,is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nfirst-order optimality =   0.00e+00                        OptimalityTolerance =   2e-16 (selected)\nmax(constraint violation) =   0.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          1
+        ],
+        "upper": [
+          1,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "bff0000000000000",
+        "3ff0000000000000"
+      ],
+      "hessian_hex": [
+        "3ff0000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3ff0000000000000"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "3ff0000000000000",
+        "bff0000000000000",
+        "3feffffff8000000",
+        "bff0000000000000",
+        "3ff0000000000000",
+        "bfeffffff8000000"
+      ],
+      "values_hex": [
+        "4010000000000000",
+        "400ffffffc000000",
+        "4010000002000000",
+        "3ff0000000000000",
+        "3ff0000004000000",
+        "3ff0000004000000"
+      ],
+      "actual_calls": 6,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 4,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2,
+              2
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000000000000",
+            "4000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 4,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2,
+              2
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000000000000",
+            "4000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1,
+            -1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "bff0000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2,
+              2
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000000000000",
+            "4000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1,
+            -1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "bff0000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 1.4142135623730951,
+            "directionalderivative": -2.82842712474619,
+            "gradient": [
+              -1,
+              1
+            ],
+            "searchdirection": [
+              1,
+              -1
+            ],
+            "firstorderopt": 0,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bff0000000000000",
+            "3ff0000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            1,
+            -1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "bff0000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 1.4142135623730951,
+            "directionalderivative": -2.82842712474619,
+            "gradient": [
+              -1,
+              1
+            ],
+            "searchdirection": [
+              1,
+              -1
+            ],
+            "firstorderopt": 0,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bff0000000000000",
+            "3ff0000000000000"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [
+        "0000000000000000"
+      ],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 4,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2,
+              2
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000000000000",
+            "4000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1,
+            -1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "bff0000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 1.4142135623730951,
+            "directionalderivative": -2.82842712474619,
+            "gradient": [
+              -1,
+              1
+            ],
+            "searchdirection": [
+              1,
+              -1
+            ],
+            "firstorderopt": 0,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bff0000000000000",
+            "3ff0000000000000"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "equal_merit",
+      "x_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "c008000000000000",
+        "c008000000000000"
+      ],
+      "upper_hex": [
+        "4008000000000000",
+        "4008000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "3feffffffc43b3d5",
+        "3dd0ecf542bda580"
+      ],
+      "value_hex": "3c8be9212ca1d950",
+      "exitflag": 5,
+      "output": {
+        "iterations": 5,
+        "funcCount": 16,
+        "lssteplength": 1,
+        "stepsize": 1.503404323893854e-08,
+        "algorithm": "active-set",
+        "firstorderopt": 1.5024311268508484e-08,
+        "constrviolation": -2.0000000069579804,
+        "message": "Local minimum possible. Constraints satisfied.\n\nfmincon stopped because the predicted change in the objective function\nis less than the selected value of the function tolerance and constraints \nare satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization stopped because the predicted change in the objective function,\n2.183777e-16, is less than options.FunctionTolerance = 2.220446e-16, and the maximum constraint\nviolation, -2.000000e+00, is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nabs(steplength*directional derivative) =   2.18e-16          FunctionTolerance =   2e-16 (selected)\nmax(constraint violation) =  -2.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          0,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "3e10ecf51de2615c",
+        "3e5021d9ea857b4c"
+      ],
+      "hessian_hex": [
+        "403f6c77d56c8fd4",
+        "4019dd4d7989eee7",
+        "4019dd4d7989eee7",
+        "4002b1747ac56970"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "3ffffffffc000000",
+        "be50000000000000",
+        "4000000002000000",
+        "be50000000000000",
+        "3ffffffffc000000",
+        "be60000000000000",
+        "3feffffff8000003",
+        "3e3ffffff4000000",
+        "3ff0000000000002",
+        "3e3ffffff4000000",
+        "3feffffff8000003",
+        "3e57fffffd000000",
+        "3feffffffbfffff8",
+        "be57fffff5ffffff",
+        "3feffffff9fffffe",
+        "be3ffffff1fffffe",
+        "3ff0000000ffffff",
+        "be3ffffff1fffffe",
+        "3feffffff9fffffe",
+        "be57fffffc800000",
+        "3feffffffc43b3d5",
+        "3dd0ecf542bda580",
+        "3ff000000221d9ea",
+        "3dd0ecf542bda580",
+        "3feffffffc43b3d5",
+        "3e5010ecf542bda6"
+      ],
+      "values_hex": [
+        "3ff0000000000000",
+        "3feffffff0000002",
+        "3ff0000000000001",
+        "3feffffff0000004",
+        "3ff0000008000002",
+        "3feffffff000000a",
+        "3cb3fffff1000002",
+        "3c8fffffe8000024",
+        "3cc9fffff5800001",
+        "3cc3fffff900000a",
+        "3caa000005000002",
+        "3c93ffffea000005",
+        "3cc67ffffdc00000",
+        "3c8be9212ca1d950",
+        "3c922fcdddc984ff",
+        "3cb39efe1019b676"
+      ],
+      "actual_calls": 16,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 1,
+            "constrviolation": -3,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.9999999850988388,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bffffffffc000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 1,
+            "constrviolation": -3,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.9999999850988388,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bffffffffc000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.9999999850988388,
+            -1.4901161193847656e-08
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "be50000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 0.9999999701976781,
+            "constrviolation": -1.0000000149011612,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.9999999850988388,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bffffffffc000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.9999999850988388,
+            -1.4901161193847656e-08
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "be50000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 0.9999999701976781,
+            "constrviolation": -1.0000000149011612,
+            "lssteplength": 1,
+            "stepsize": 1.9999999850988388,
+            "directionalderivative": -1.9999999850988386,
+            "gradient": [
+              2.000000014901161,
+              -4.470348358154297e-08
+            ],
+            "searchdirection": [
+              1.9999999850988388,
+              -1.4901161193847656e-08
+            ],
+            "firstorderopt": 2.000000014901161,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4000000002000000",
+            "be68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.9999999850988388,
+            -1.4901161193847656e-08
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "be50000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 6,
+            "fval": 0.9999999701976781,
+            "constrviolation": -1.0000000149011612,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              2.000000014901161,
+              -4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4000000002000000",
+            "be68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999850988391,
+            7.4505804303903744e-09
+          ],
+          "x_hex": [
+            "3feffffff8000003",
+            "3e3ffffff4000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 7,
+            "fval": 2.7755574374858005e-16,
+            "constrviolation": -2.0000000149011607,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              2.000000014901161,
+              -4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4000000002000000",
+            "be68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999850988391,
+            7.4505804303903744e-09
+          ],
+          "x_hex": [
+            "3feffffff8000003",
+            "3e3ffffff4000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 9,
+            "fval": 2.7755574374858005e-16,
+            "constrviolation": -2.0000000149011607,
+            "lssteplength": 1,
+            "stepsize": 0.9999999999999999,
+            "directionalderivative": -2.0000000149011616,
+            "gradient": [
+              -1.4901160527713833e-08,
+              2.9802322054628405e-08
+            ],
+            "searchdirection": [
+              -0.9999999999999997,
+              2.235174162423803e-08
+            ],
+            "firstorderopt": 2.9802322054628405e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be4fffffe7fffffb",
+            "3e5ffffffa000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999850988391,
+            7.4505804303903744e-09
+          ],
+          "x_hex": [
+            "3feffffff8000003",
+            "3e3ffffff4000000"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 9,
+            "fval": 2.7755574374858005e-16,
+            "constrviolation": -2.0000000149011607,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.4901160527713833e-08,
+              2.9802322054628405e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be4fffffe7fffffb",
+            "3e5ffffffa000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999925494185,
+            -2.235174123565997e-08
+          ],
+          "x_hex": [
+            "3feffffffbfffff8",
+            "be57fffff5ffffff"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 10,
+            "fval": 5.551115007320507e-16,
+            "constrviolation": -2.0000000074505815,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.4901160527713833e-08,
+              2.9802322054628405e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be4fffffe7fffffb",
+            "3e5ffffffa000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999888241289,
+            -7.450580402634797e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "be3ffffff1fffffe"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 11,
+            "fval": 1.8041124356953952e-16,
+            "constrviolation": -2.000000011175871,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.4901160527713833e-08,
+              2.9802322054628405e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be4fffffe7fffffb",
+            "3e5ffffffa000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999888241289,
+            -7.450580402634797e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "be3ffffff1fffffe"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 13,
+            "fval": 1.8041124356953952e-16,
+            "constrviolation": -2.000000011175871,
+            "lssteplength": 0.5,
+            "stepsize": 1.535976488850025e-08,
+            "directionalderivative": -3.2526561272979396e-08,
+            "gradient": [
+              -7.450581041013038e-09,
+              -2.980232199911725e-08
+            ],
+            "searchdirection": [
+              7.4505793756785416e-09,
+              -2.9802321666050343e-08
+            ],
+            "firstorderopt": 2.980232199911725e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be40000010000000",
+            "be5ffffff8ffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999888241289,
+            -7.450580402634797e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "be3ffffff1fffffe"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 13,
+            "fval": 1.8041124356953952e-16,
+            "constrviolation": -2.000000011175871,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -7.450581041013038e-09,
+              -2.980232199911725e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be40000010000000",
+            "be5ffffff8ffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999930420197,
+            6.157503733041224e-11
+          ],
+          "x_hex": [
+            "3feffffffc43b3d5",
+            "3dd0ecf542bda580"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 14,
+            "fval": 4.8417281382646273e-17,
+            "constrviolation": -2.0000000069579804,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -7.450581041013038e-09,
+              -2.980232199911725e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be40000010000000",
+            "be5ffffff8ffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999930420197,
+            6.157503733041224e-11
+          ],
+          "x_hex": [
+            "3feffffffc43b3d5",
+            "3dd0ecf542bda580"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 16,
+            "fval": 4.8417281382646273e-17,
+            "constrviolation": -2.0000000069579804,
+            "lssteplength": 1,
+            "stepsize": 8.615281911643352e-09,
+            "directionalderivative": -2.963401725059226e-08,
+            "gradient": [
+              9.852004694148947e-10,
+              1.5024311268508484e-08
+            ],
+            "searchdirection": [
+              4.2178908310778085e-09,
+              7.51215543996521e-09
+            ],
+            "firstorderopt": 1.5024311268508484e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "3e10ecf51de2615c",
+            "3e5021d9ea857b4c"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999930420197,
+            6.157503733041224e-11
+          ],
+          "x_hex": [
+            "3feffffffc43b3d5",
+            "3dd0ecf542bda580"
+          ],
+          "values": {
+            "iteration": 5,
+            "funccount": 16,
+            "fval": 4.8417281382646273e-17,
+            "constrviolation": -2.0000000069579804,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              9.852004694148947e-10,
+              1.5024311268508484e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e10ecf51de2615c",
+            "3e5021d9ea857b4c"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            0.9999999930420197,
+            6.157503733041224e-11
+          ],
+          "x_hex": [
+            "3feffffffc43b3d5",
+            "3dd0ecf542bda580"
+          ],
+          "values": {
+            "iteration": 5,
+            "funccount": 16,
+            "fval": 4.8417281382646273e-17,
+            "constrviolation": -2.0000000069579804,
+            "lssteplength": 1,
+            "stepsize": 1.503404323893854e-08,
+            "directionalderivative": -1.4525548182105743e-08,
+            "gradient": [
+              9.852004694148947e-10,
+              1.5024311268508484e-08
+            ],
+            "searchdirection": [
+              3.000013801785392e-09,
+              -1.4731679242346095e-08
+            ],
+            "firstorderopt": 1.5024311268508484e-08,
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "3e10ecf51de2615c",
+            "3e5021d9ea857b4c"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [
+        "3e5021d9ea857b4c"
+      ],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 1,
+            "constrviolation": -3,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.9999999850988388,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "bffffffffc000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.9999999850988388,
+            -1.4901161193847656e-08
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "be50000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 0.9999999701976781,
+            "constrviolation": -1.0000000149011612,
+            "lssteplength": 1,
+            "stepsize": 1.9999999850988388,
+            "directionalderivative": -1.9999999850988386,
+            "gradient": [
+              2.000000014901161,
+              -4.470348358154297e-08
+            ],
+            "searchdirection": [
+              1.9999999850988388,
+              -1.4901161193847656e-08
+            ],
+            "firstorderopt": 2.000000014901161,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4000000002000000",
+            "be68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999850988391,
+            7.4505804303903744e-09
+          ],
+          "x_hex": [
+            "3feffffff8000003",
+            "3e3ffffff4000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 9,
+            "fval": 2.7755574374858005e-16,
+            "constrviolation": -2.0000000149011607,
+            "lssteplength": 1,
+            "stepsize": 0.9999999999999999,
+            "directionalderivative": -2.0000000149011616,
+            "gradient": [
+              -1.4901160527713833e-08,
+              2.9802322054628405e-08
+            ],
+            "searchdirection": [
+              -0.9999999999999997,
+              2.235174162423803e-08
+            ],
+            "firstorderopt": 2.9802322054628405e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be4fffffe7fffffb",
+            "3e5ffffffa000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999888241289,
+            -7.450580402634797e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "be3ffffff1fffffe"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 13,
+            "fval": 1.8041124356953952e-16,
+            "constrviolation": -2.000000011175871,
+            "lssteplength": 0.5,
+            "stepsize": 1.535976488850025e-08,
+            "directionalderivative": -3.2526561272979396e-08,
+            "gradient": [
+              -7.450581041013038e-09,
+              -2.980232199911725e-08
+            ],
+            "searchdirection": [
+              7.4505793756785416e-09,
+              -2.9802321666050343e-08
+            ],
+            "firstorderopt": 2.980232199911725e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be40000010000000",
+            "be5ffffff8ffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999930420197,
+            6.157503733041224e-11
+          ],
+          "x_hex": [
+            "3feffffffc43b3d5",
+            "3dd0ecf542bda580"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 16,
+            "fval": 4.8417281382646273e-17,
+            "constrviolation": -2.0000000069579804,
+            "lssteplength": 1,
+            "stepsize": 8.615281911643352e-09,
+            "directionalderivative": -2.963401725059226e-08,
+            "gradient": [
+              9.852004694148947e-10,
+              1.5024311268508484e-08
+            ],
+            "searchdirection": [
+              4.2178908310778085e-09,
+              7.51215543996521e-09
+            ],
+            "firstorderopt": 1.5024311268508484e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "3e10ecf51de2615c",
+            "3e5021d9ea857b4c"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "backtrack",
+      "x_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "c020000000000000",
+        "c020000000000000"
+      ],
+      "upper_hex": [
+        "4020000000000000",
+        "4020000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "3feffffffc7f8e9d",
+        "bdefe3a76926b700"
+      ],
+      "value_hex": "3c988a2cbb6ee1e7",
+      "exitflag": 5,
+      "output": {
+        "iterations": 5,
+        "funcCount": 17,
+        "lssteplength": 1,
+        "stepsize": 8.89216472139892e-09,
+        "algorithm": "active-set",
+        "firstorderopt": 1.5365211194661608e-08,
+        "constrviolation": -7.00000000652248,
+        "message": "Local minimum possible. Constraints satisfied.\n\nfmincon stopped because the predicted change in the objective function\nis less than the selected value of the function tolerance and constraints \nare satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization stopped because the predicted change in the objective function,\n1.306075e-16, is less than options.FunctionTolerance = 2.220446e-16, and the maximum constraint\nviolation, -7.000000e+00, is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nabs(steplength*directional derivative) =   1.31e-16          FunctionTolerance =   2e-16 (selected)\nmax(constraint violation) =  -7.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          0,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "3e2fe3a71c038b1e",
+        "be507f8e9da49adc"
+      ],
+      "hessian_hex": [
+        "4041e8bbec158e0f",
+        "c01619b2f91e3f38",
+        "c01619b2f91e3f38",
+        "400442ccf04431d3"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "400ffffffc000000",
+        "0000000000000000",
+        "3ffffffffc000000",
+        "0000000000000000",
+        "4000000002000000",
+        "0000000000000000",
+        "3ffffffffc000000",
+        "3e50000000000000",
+        "3feffffff8000000",
+        "be3ffffffc000000",
+        "3ff0000000000000",
+        "be3ffffffc000000",
+        "3feffffff8000000",
+        "be57ffffff000000",
+        "3feffffffbfffffd",
+        "3e57fffffa000001",
+        "3feffffff9fffffe",
+        "3e3ffffff6000002",
+        "3ff0000000ffffff",
+        "3e3ffffff6000002",
+        "3feffffff9fffffe",
+        "3e57fffffd800000",
+        "3feffffffc7f8e9d",
+        "bdefe3a76926b700",
+        "3ff00000023fc74e",
+        "bdefe3a76926b700",
+        "3feffffffc7f8e9d",
+        "be503fc74ed24d6e"
+      ],
+      "values_hex": [
+        "4000000000000000",
+        "3ffffffff0000002",
+        "4000000000000000",
+        "4031fffffa000000",
+        "3ffffffff0000002",
+        "4000000008000001",
+        "3ffffffff0000003",
+        "3cc1ffffff800000",
+        "3c8ffffff8000000",
+        "3cd0ffffff400000",
+        "3cc5fffffd000005",
+        "3cb6000009800003",
+        "3c97ffffe600000c",
+        "3ccb000002400001",
+        "3c988a2cbb6ee1e7",
+        "3ca43e0024b853bb",
+        "3cb6a219cc805356"
+      ],
+      "actual_calls": 17,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 2,
+            "constrviolation": -8,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -3.9999999701976776,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c00ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 2,
+            "constrviolation": -8,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -3.9999999701976776,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c00ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            3.9999999701976776,
+            0
+          ],
+          "x_hex": [
+            "400ffffffc000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 17.99999964237213,
+            "constrviolation": -4.000000029802322,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -3.9999999701976776,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c00ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.9999999850988388,
+            0
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 5,
+            "fval": 1.9999999403953557,
+            "constrviolation": -6.000000014901161,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -3.9999999701976776,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c00ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.9999999850988388,
+            0
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 7,
+            "fval": 1.9999999403953557,
+            "constrviolation": -6.000000014901161,
+            "lssteplength": 0.5,
+            "stepsize": 1.9999999850988388,
+            "directionalderivative": -3.999999970197677,
+            "gradient": [
+              4.000000029802322,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [
+              3.9999999701976776,
+              0
+            ],
+            "firstorderopt": 4.000000029802322,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4010000002000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.9999999850988388,
+            0
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 7,
+            "fval": 1.9999999403953557,
+            "constrviolation": -6.000000014901161,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              4.000000029802322,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4010000002000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999850988388,
+            -7.450580541412677e-09
+          ],
+          "x_hex": [
+            "3feffffff8000000",
+            "be3ffffffc000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 8,
+            "fval": 4.996003602541398e-16,
+            "constrviolation": -7.000000014901161,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              4.000000029802322,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4010000002000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999850988388,
+            -7.450580541412677e-09
+          ],
+          "x_hex": [
+            "3feffffff8000000",
+            "be3ffffffc000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 10,
+            "fval": 4.996003602541398e-16,
+            "constrviolation": -7.000000014901161,
+            "lssteplength": 1,
+            "stepsize": 1,
+            "directionalderivative": -4.000000029802322,
+            "gradient": [
+              -2.9802322387695312e-08,
+              -2.980232227667301e-08
+            ],
+            "searchdirection": [
+              -1,
+              -7.450580541412677e-09
+            ],
+            "firstorderopt": 2.9802322387695312e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be60000000000000",
+            "be5ffffffe000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999850988388,
+            -7.450580541412677e-09
+          ],
+          "x_hex": [
+            "3feffffff8000000",
+            "be3ffffffc000000"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 10,
+            "fval": 4.996003602541398e-16,
+            "constrviolation": -7.000000014901161,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.9802322387695312e-08,
+              -2.980232227667301e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be60000000000000",
+            "be5ffffffe000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999925494191,
+            2.235174145770458e-08
+          ],
+          "x_hex": [
+            "3feffffffbfffffd",
+            "3e57fffffa000001"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 11,
+            "fval": 6.106226585807529e-16,
+            "constrviolation": -7.000000007450581,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.9802322387695312e-08,
+              -2.980232227667301e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be60000000000000",
+            "be5ffffffe000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999888241289,
+            7.450580458145952e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "3e3ffffff6000002"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 12,
+            "fval": 3.05311339630134e-16,
+            "constrviolation": -7.000000011175871,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.9802322387695312e-08,
+              -2.980232227667301e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be60000000000000",
+            "be5ffffffe000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999888241289,
+            7.450580458145952e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "3e3ffffff6000002"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 14,
+            "fval": 3.05311339630134e-16,
+            "constrviolation": -7.000000011175871,
+            "lssteplength": 0.5,
+            "stepsize": 1.535976515103716e-08,
+            "directionalderivative": -3.614062413188688e-08,
+            "gradient": [
+              -1.4901162082026076e-08,
+              2.9802322110139553e-08
+            ],
+            "searchdirection": [
+              7.450580208345778e-09,
+              2.9802321999117257e-08
+            ],
+            "firstorderopt": 2.9802322110139553e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be50000010000000",
+            "3e5ffffffaffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999888241289,
+            7.450580458145952e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "3e3ffffff6000002"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 14,
+            "fval": 3.05311339630134e-16,
+            "constrviolation": -7.000000011175871,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.4901162082026076e-08,
+              2.9802322110139553e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be50000010000000",
+            "3e5ffffffaffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999934775193,
+            -2.320250004069759e-10
+          ],
+          "x_hex": [
+            "3feffffffc7f8e9d",
+            "bdefe3a76926b700"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 15,
+            "fval": 8.513934369529294e-17,
+            "constrviolation": -7.00000000652248,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.4901162082026076e-08,
+              2.9802322110139553e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be50000010000000",
+            "3e5ffffffaffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999934775193,
+            -2.320250004069759e-10
+          ],
+          "x_hex": [
+            "3feffffffc7f8e9d",
+            "bdefe3a76926b700"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 17,
+            "fval": 8.513934369529294e-17,
+            "constrviolation": -7.00000000652248,
+            "lssteplength": 1,
+            "stepsize": 8.982008108817542e-09,
+            "directionalderivative": -3.321088166495296e-08,
+            "gradient": [
+              3.7123994712634605e-09,
+              -1.5365211194661608e-08
+            ],
+            "searchdirection": [
+              4.6533904881362414e-09,
+              -7.682605458552928e-09
+            ],
+            "firstorderopt": 1.5365211194661608e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "3e2fe3a71c038b1e",
+            "be507f8e9da49adc"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9999999934775193,
+            -2.320250004069759e-10
+          ],
+          "x_hex": [
+            "3feffffffc7f8e9d",
+            "bdefe3a76926b700"
+          ],
+          "values": {
+            "iteration": 5,
+            "funccount": 17,
+            "fval": 8.513934369529294e-17,
+            "constrviolation": -7.00000000652248,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              3.7123994712634605e-09,
+              -1.5365211194661608e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e2fe3a71c038b1e",
+            "be507f8e9da49adc"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            0.9999999934775193,
+            -2.320250004069759e-10
+          ],
+          "x_hex": [
+            "3feffffffc7f8e9d",
+            "bdefe3a76926b700"
+          ],
+          "values": {
+            "iteration": 5,
+            "funccount": 17,
+            "fval": 8.513934369529294e-17,
+            "constrviolation": -7.00000000652248,
+            "lssteplength": 1,
+            "stepsize": 8.89216472139892e-09,
+            "directionalderivative": -1.4687929871512323e-08,
+            "gradient": [
+              3.7123994712634605e-09,
+              -1.5365211194661608e-08
+            ],
+            "searchdirection": [
+              1.2542899652176188e-09,
+              8.80325792622515e-09
+            ],
+            "firstorderopt": 1.5365211194661608e-08,
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "3e2fe3a71c038b1e",
+            "be507f8e9da49adc"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [
+        "3e507f8e9da49adc"
+      ],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 2,
+            "constrviolation": -8,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -3.9999999701976776,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c00ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.9999999850988388,
+            0
+          ],
+          "x_hex": [
+            "3ffffffffc000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 7,
+            "fval": 1.9999999403953557,
+            "constrviolation": -6.000000014901161,
+            "lssteplength": 0.5,
+            "stepsize": 1.9999999850988388,
+            "directionalderivative": -3.999999970197677,
+            "gradient": [
+              4.000000029802322,
+              1.4901161193847656e-08
+            ],
+            "searchdirection": [
+              3.9999999701976776,
+              0
+            ],
+            "firstorderopt": 4.000000029802322,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4010000002000000",
+            "3e50000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999850988388,
+            -7.450580541412677e-09
+          ],
+          "x_hex": [
+            "3feffffff8000000",
+            "be3ffffffc000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 10,
+            "fval": 4.996003602541398e-16,
+            "constrviolation": -7.000000014901161,
+            "lssteplength": 1,
+            "stepsize": 1,
+            "directionalderivative": -4.000000029802322,
+            "gradient": [
+              -2.9802322387695312e-08,
+              -2.980232227667301e-08
+            ],
+            "searchdirection": [
+              -1,
+              -7.450580541412677e-09
+            ],
+            "firstorderopt": 2.9802322387695312e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be60000000000000",
+            "be5ffffffe000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999888241289,
+            7.450580458145952e-09
+          ],
+          "x_hex": [
+            "3feffffff9fffffe",
+            "3e3ffffff6000002"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 14,
+            "fval": 3.05311339630134e-16,
+            "constrviolation": -7.000000011175871,
+            "lssteplength": 0.5,
+            "stepsize": 1.535976515103716e-08,
+            "directionalderivative": -3.614062413188688e-08,
+            "gradient": [
+              -1.4901162082026076e-08,
+              2.9802322110139553e-08
+            ],
+            "searchdirection": [
+              7.450580208345778e-09,
+              2.9802321999117257e-08
+            ],
+            "firstorderopt": 2.9802322110139553e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be50000010000000",
+            "3e5ffffffaffffff"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0.9999999934775193,
+            -2.320250004069759e-10
+          ],
+          "x_hex": [
+            "3feffffffc7f8e9d",
+            "bdefe3a76926b700"
+          ],
+          "values": {
+            "iteration": 4,
+            "funccount": 17,
+            "fval": 8.513934369529294e-17,
+            "constrviolation": -7.00000000652248,
+            "lssteplength": 1,
+            "stepsize": 8.982008108817542e-09,
+            "directionalderivative": -3.321088166495296e-08,
+            "gradient": [
+              3.7123994712634605e-09,
+              -1.5365211194661608e-08
+            ],
+            "searchdirection": [
+              4.6533904881362414e-09,
+              -7.682605458552928e-09
+            ],
+            "firstorderopt": 1.5365211194661608e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "3e2fe3a71c038b1e",
+            "be507f8e9da49adc"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "negative_curvature",
+      "x_hex": [
+        "3ff0000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "c020000000000000",
+        "c020000000000000"
+      ],
+      "upper_hex": [
+        "4020000000000000",
+        "4020000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "4020000000000000",
+        "0000000000000000"
+      ],
+      "value_hex": "c050000000000000",
+      "exitflag": 1,
+      "output": {
+        "iterations": 3,
+        "funcCount": 9,
+        "lssteplength": 1,
+        "stepsize": 0,
+        "algorithm": "active-set",
+        "firstorderopt": 0,
+        "constrviolation": 0,
+        "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the selected value of the optimality tolerance,\nand constraints are satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization completed: The first-order optimality measure, 0.000000e+00, is less\nthan options.OptimalityTolerance = 2.220446e-16, and the maximum constraint violation,\n0.000000e+00,is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nfirst-order optimality =   0.00e+00                        OptimalityTolerance =   2e-16 (selected)\nmax(constraint violation) =   0.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          15.99999988079071,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "c02ffffffc000000",
+        "0000000000000000"
+      ],
+      "hessian_hex": [
+        "3f947ad147ae1837",
+        "0000000000000000",
+        "0000000000000000",
+        "3ff0000000000000"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "3ff0000000000000",
+        "0000000000000000",
+        "3ff0000004000000",
+        "0000000000000000",
+        "3ff0000000000000",
+        "3e50000000000000",
+        "4008000002000000",
+        "0000000000000000",
+        "4008000008000000",
+        "0000000000000000",
+        "4008000002000000",
+        "3e50000000000000",
+        "4020000000000000",
+        "0000000000000000",
+        "401ffffff8000000",
+        "0000000000000000",
+        "4020000000000000",
+        "3e50000000000000"
+      ],
+      "values_hex": [
+        "bff0000000000000",
+        "bff0000008000001",
+        "bff0000000000000",
+        "c022000003000000",
+        "c02200000c000002",
+        "c022000003000000",
+        "c050000000000000",
+        "c04ffffff0000002",
+        "c050000000000000"
+      ],
+      "actual_calls": 9,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            1,
+            0
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": -1,
+            "constrviolation": -7,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.000000014901161,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000002000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1,
+            0
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": -1,
+            "constrviolation": -7,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.000000014901161,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000002000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            3.000000014901161,
+            0
+          ],
+          "x_hex": [
+            "4008000002000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": -9.000000089406967,
+            "constrviolation": -4.999999985098839,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.000000014901161,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000002000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            3.000000014901161,
+            0
+          ],
+          "x_hex": [
+            "4008000002000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": -9.000000089406967,
+            "constrviolation": -4.999999985098839,
+            "lssteplength": 1,
+            "stepsize": 2.000000014901161,
+            "directionalderivative": -2.000000014901161,
+            "gradient": [
+              -6.000000049670537,
+              0
+            ],
+            "searchdirection": [
+              2.000000014901161,
+              0
+            ],
+            "firstorderopt": 6.000000049670537,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c018000003555555",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            3.000000014901161,
+            0
+          ],
+          "x_hex": [
+            "4008000002000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 6,
+            "fval": -9.000000089406967,
+            "constrviolation": -4.999999985098839,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -6.000000049670537,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c018000003555555",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            8,
+            0
+          ],
+          "x_hex": [
+            "4020000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 7,
+            "fval": -64,
+            "constrviolation": 0,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -6.000000049670537,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c018000003555555",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            8,
+            0
+          ],
+          "x_hex": [
+            "4020000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 9,
+            "fval": -64,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 4.999999985098839,
+            "directionalderivative": -6.000000049670537,
+            "gradient": [
+              -15.99999988079071,
+              0
+            ],
+            "searchdirection": [
+              4.999999985098839,
+              0
+            ],
+            "firstorderopt": 10.099990294079003,
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "c02ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            8,
+            0
+          ],
+          "x_hex": [
+            "4020000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 9,
+            "fval": -64,
+            "constrviolation": 0,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -15.99999988079071,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c02ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            8,
+            0
+          ],
+          "x_hex": [
+            "4020000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 9,
+            "fval": -64,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 0,
+            "directionalderivative": 0,
+            "gradient": [
+              -15.99999988079071,
+              0
+            ],
+            "searchdirection": [
+              0,
+              0
+            ],
+            "firstorderopt": 0,
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "c02ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "402ffffffc000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [
+        "0000000000000000"
+      ],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            1,
+            0
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": -1,
+            "constrviolation": -7,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.000000014901161,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c000000002000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            3.000000014901161,
+            0
+          ],
+          "x_hex": [
+            "4008000002000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": -9.000000089406967,
+            "constrviolation": -4.999999985098839,
+            "lssteplength": 1,
+            "stepsize": 2.000000014901161,
+            "directionalderivative": -2.000000014901161,
+            "gradient": [
+              -6.000000049670537,
+              0
+            ],
+            "searchdirection": [
+              2.000000014901161,
+              0
+            ],
+            "firstorderopt": 6.000000049670537,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "c018000003555555",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            8,
+            0
+          ],
+          "x_hex": [
+            "4020000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 9,
+            "fval": -64,
+            "constrviolation": 0,
+            "lssteplength": 1,
+            "stepsize": 4.999999985098839,
+            "directionalderivative": -6.000000049670537,
+            "gradient": [
+              -15.99999988079071,
+              0
+            ],
+            "searchdirection": [
+              4.999999985098839,
+              0
+            ],
+            "firstorderopt": 10.099990294079003,
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "c02ffffffc000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "stationary_restore",
+      "x_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "lower_hex": [
+        "bff0000000000000",
+        "bff0000000000000"
+      ],
+      "upper_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "value_hex": "0000000000000000",
+      "exitflag": 5,
+      "output": {
+        "iterations": 3,
+        "funcCount": 12,
+        "lssteplength": 1,
+        "stepsize": 1.3269768346423194e-08,
+        "algorithm": "active-set",
+        "firstorderopt": [],
+        "constrviolation": -1,
+        "message": "Local minimum possible. Constraints satisfied.\n\nfmincon stopped because the predicted change in the objective function\nis less than the selected value of the function tolerance and constraints \nare satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization stopped because the predicted change in the objective function,\n1.933787e-16, is less than options.FunctionTolerance = 2.220446e-16, and the maximum constraint\nviolation, -1.000000e+00, is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nabs(steplength*directional derivative) =   1.93e-16          FunctionTolerance =   2e-16 (selected)\nmax(constraint violation) =  -1.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          0,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "3e50000000000000",
+        "3e68000000000000"
+      ],
+      "hessian_hex": [
+        "3ff0000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3ff0000000000000"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3e50000000000000",
+        "be50000000000000",
+        "be68000000000000",
+        "be40000000000000",
+        "be58000000000000",
+        "be30000000000000",
+        "be48000000000000",
+        "be20000000000000",
+        "be38000000000000",
+        "be52000000000000",
+        "be38000000000000",
+        "be20000000000000",
+        "be56000000000000",
+        "be1973d5b26aabe1",
+        "be1e3b3749fd2204",
+        "be51973d5b26aabe",
+        "be1e3b3749fd2204",
+        "be1973d5b26aabe1",
+        "be51e3b3749fd220"
+      ],
+      "values_hex": [
+        "0000000000000000",
+        "3cb0000000000000",
+        "3cc8000000000000",
+        "3cff000000000000",
+        "3cdf000000000000",
+        "3cbf000000000000",
+        "3c9f000000000000",
+        "3cc0e00000000000",
+        "3cd7700000000000",
+        "3c703f165a8e5d39",
+        "3cb6161f90960d70",
+        "3ccef8b1be473ea8"
+      ],
+      "actual_calls": 12,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -1.4901161193847656e-08,
+            -4.470348358154297e-08
+          ],
+          "x_hex": [
+            "be50000000000000",
+            "be68000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 6.8833827526759706e-15,
+            "constrviolation": -0.9999999552965164,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -7.450580596923828e-09,
+            -2.2351741790771484e-08
+          ],
+          "x_hex": [
+            "be40000000000000",
+            "be58000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 5,
+            "fval": 1.7208456881689926e-15,
+            "constrviolation": -0.9999999776482582,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -3.725290298461914e-09,
+            -1.1175870895385742e-08
+          ],
+          "x_hex": [
+            "be30000000000000",
+            "be48000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 4.3021142204224816e-16,
+            "constrviolation": -0.9999999888241291,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -1.862645149230957e-09,
+            -5.587935447692871e-09
+          ],
+          "x_hex": [
+            "be20000000000000",
+            "be38000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 7,
+            "fval": 1.0755285551056204e-16,
+            "constrviolation": -0.9999999944120646,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            -1.862645149230957e-09,
+            -5.587935447692871e-09
+          ],
+          "x_hex": [
+            "be20000000000000",
+            "be38000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 9,
+            "fval": 1.0755285551056204e-16,
+            "constrviolation": -0.9999999944120646,
+            "lssteplength": 0.125,
+            "stepsize": 5.890201144234053e-09,
+            "directionalderivative": -4.7121609153872417e-08,
+            "gradient": [
+              -2.421438694000244e-08,
+              -8.009374141693115e-08
+            ],
+            "searchdirection": [
+              -1.4901161193847656e-08,
+              -4.470348358154297e-08
+            ],
+            "firstorderopt": 8.009374141693115e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be5a000000000000",
+            "be75800000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -1.862645149230957e-09,
+            -5.587935447692871e-09
+          ],
+          "x_hex": [
+            "be20000000000000",
+            "be38000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 9,
+            "fval": 1.0755285551056204e-16,
+            "constrviolation": -0.9999999944120646,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.421438694000244e-08,
+              -8.009374141693115e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be5a000000000000",
+            "be75800000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -1.4815292965232775e-09,
+            -1.759693980768474e-09
+          ],
+          "x_hex": [
+            "be1973d5b26aabe1",
+            "be1e3b3749fd2204"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 10,
+            "fval": 1.4091535959739316e-17,
+            "constrviolation": -0.999999998240306,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -2.421438694000244e-08,
+              -8.009374141693115e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be5a000000000000",
+            "be75800000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            -1.4815292965232775e-09,
+            -1.759693980768474e-09
+          ],
+          "x_hex": [
+            "be1973d5b26aabe1",
+            "be1e3b3749fd2204"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 12,
+            "fval": 1.4091535959739316e-17,
+            "constrviolation": -0.999999998240306,
+            "lssteplength": 1,
+            "stepsize": 3.84716545293604e-09,
+            "directionalderivative": -8.209854052905471e-08,
+            "gradient": [
+              -1.9623913767662684e-08,
+              -5.674317676267708e-08
+            ],
+            "searchdirection": [
+              3.8111585270767947e-10,
+              3.828241466924397e-09
+            ],
+            "firstorderopt": 5.674317676267708e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "be55122e2aed279c",
+            "be6e76b90b72cbbe"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            -1.4815292965232775e-09,
+            -1.759693980768474e-09
+          ],
+          "x_hex": [
+            "be1973d5b26aabe1",
+            "be1e3b3749fd2204"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 12,
+            "fval": 1.4091535959739316e-17,
+            "constrviolation": -0.999999998240306,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              -1.9623913767662684e-08,
+              -5.674317676267708e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be55122e2aed279c",
+            "be6e76b90b72cbbe"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 3,
+            "funccount": 12,
+            "fval": 0,
+            "constrviolation": -1,
+            "lssteplength": 1,
+            "stepsize": 1.3269768346423194e-08,
+            "directionalderivative": -1.4572876079021435e-08,
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [
+              1.321865802898806e-08,
+              -1.163542814169053e-09
+            ],
+            "firstorderopt": [],
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -1,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              1.4901161193847656e-08,
+              4.470348358154297e-08
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "3e50000000000000",
+            "3e68000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            -1.862645149230957e-09,
+            -5.587935447692871e-09
+          ],
+          "x_hex": [
+            "be20000000000000",
+            "be38000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 9,
+            "fval": 1.0755285551056204e-16,
+            "constrviolation": -0.9999999944120646,
+            "lssteplength": 0.125,
+            "stepsize": 5.890201144234053e-09,
+            "directionalderivative": -4.7121609153872417e-08,
+            "gradient": [
+              -2.421438694000244e-08,
+              -8.009374141693115e-08
+            ],
+            "searchdirection": [
+              -1.4901161193847656e-08,
+              -4.470348358154297e-08
+            ],
+            "firstorderopt": 8.009374141693115e-08,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "be5a000000000000",
+            "be75800000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            -1.4815292965232775e-09,
+            -1.759693980768474e-09
+          ],
+          "x_hex": [
+            "be1973d5b26aabe1",
+            "be1e3b3749fd2204"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 12,
+            "fval": 1.4091535959739316e-17,
+            "constrviolation": -0.999999998240306,
+            "lssteplength": 1,
+            "stepsize": 3.84716545293604e-09,
+            "directionalderivative": -8.209854052905471e-08,
+            "gradient": [
+              -1.9623913767662684e-08,
+              -5.674317676267708e-08
+            ],
+            "searchdirection": [
+              3.8111585270767947e-10,
+              3.828241466924397e-09
+            ],
+            "firstorderopt": 5.674317676267708e-08,
+            "procedure": " Hessian modified  "
+          },
+          "gradient_hex": [
+            "be55122e2aed279c",
+            "be6e76b90b72cbbe"
+          ],
+          "feasible": true
+        }
+      ]
+    },
+    {
+      "name": "infeasible_search",
+      "x_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000"
+      ],
+      "lower_hex": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "upper_hex": [
+        "3ff0000100000000",
+        "3ff0000100000000"
+      ],
+      "options": {
+        "Display": "none",
+        "MaxFunEvals": [],
+        "MaxIter": [],
+        "TolFun": 2.220446049250313e-16,
+        "TolX": 2.220446049250313e-16,
+        "FunValCheck": [],
+        "PlotFcns": [],
+        "ActiveConstrTol": [],
+        "Algorithm": "active-set",
+        "AlwaysHonorConstraints": [],
+        "DerivativeCheck": [],
+        "Diagnostics": [],
+        "DiffMaxChange": [],
+        "DiffMinChange": [],
+        "FinDiffRelStep": [],
+        "FinDiffType": [],
+        "GoalsExactAchieve": [],
+        "GradConstr": [],
+        "GradObj": [],
+        "HessFcn": [],
+        "Hessian": [],
+        "HessMult": [],
+        "HessPattern": [],
+        "HessUpdate": [],
+        "InitBarrierParam": [],
+        "InitTrustRegionRadius": [],
+        "Jacobian": [],
+        "JacobMult": [],
+        "JacobPattern": [],
+        "LargeScale": [],
+        "MaxNodes": [],
+        "MaxPCGIter": [],
+        "MaxProjCGIter": [],
+        "MaxSQPIter": [],
+        "MaxTime": [],
+        "MeritFunction": [],
+        "MinAbsMax": [],
+        "NoStopIfFlatInfeas": [],
+        "ObjectiveLimit": [],
+        "PhaseOneTotalScaling": [],
+        "Preconditioner": [],
+        "PrecondBandWidth": [],
+        "RelLineSrchBnd": [],
+        "RelLineSrchBndDuration": [],
+        "ScaleProblem": [],
+        "SubproblemAlgorithm": [],
+        "TolCon": [],
+        "TolConSQP": [],
+        "TolGradCon": [],
+        "TolPCG": [],
+        "TolProjCG": [],
+        "TolProjCGAbs": [],
+        "TypicalX": [],
+        "UseParallel": []
+      },
+      "status": "returned",
+      "x_final_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000"
+      ],
+      "value_hex": "0000000000000000",
+      "exitflag": 1,
+      "output": {
+        "iterations": 2,
+        "funcCount": 21,
+        "lssteplength": 0.5,
+        "stepsize": 4.2484023298981175e-05,
+        "algorithm": "active-set",
+        "firstorderopt": [],
+        "constrviolation": -9.5367431640625e-07,
+        "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the selected value of the optimality tolerance,\nand constraints are satisfied to within the default value of the constraint tolerance.\n\nStopping criteria details:\n\nOptimization completed: The first-order optimality measure, 0.000000e+00, is less\nthan options.OptimalityTolerance = 2.220446e-16, and the maximum constraint violation,\n0.000000e+00,is less than options.ConstraintTolerance = 1.000000e-06.\n\nOptimization Metric                                                    Options\nfirst-order optimality =   0.00e+00                        OptimalityTolerance =   2e-16 (selected)\nmax(constraint violation) =   0.00e+00                     ConstraintTolerance =   1e-06 (default)"
+      },
+      "lambda": {
+        "lower": [
+          0,
+          0
+        ],
+        "upper": [
+          0,
+          0
+        ],
+        "eqlin": [],
+        "eqnonlin": [],
+        "ineqlin": [],
+        "ineqnonlin": []
+      },
+      "gradient_hex": [
+        "4190000000000000",
+        "4190000000000000"
+      ],
+      "hessian_hex": [
+        "3ff0000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3ff0000000000000"
+      ],
+      "hessian_shape": [
+        2,
+        2
+      ],
+      "warning_message": "",
+      "warning_identifier": "",
+      "inputs_hex": [
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000004000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000004000000",
+        "0000000000000000",
+        "0000000000000000",
+        "3fe0000000000000",
+        "3fe0000000000000",
+        "3fe8000000000000",
+        "3fe8000000000000",
+        "3fec000000000000",
+        "3fec000000000000",
+        "3fee000000000000",
+        "3fee000000000000",
+        "3fef000000000000",
+        "3fef000000000000",
+        "3fef800000000000",
+        "3fef800000000000",
+        "3fefc00000000000",
+        "3fefc00000000000",
+        "3fefe00000000000",
+        "3fefe00000000000",
+        "3feff00000000000",
+        "3feff00000000000",
+        "3feff80000000000",
+        "3feff80000000000",
+        "3feffc0000000000",
+        "3feffc0000000000",
+        "3feffe0000000000",
+        "3feffe0000000000",
+        "3fefff0000000000",
+        "3fefff0000000000",
+        "3ff0004000000000",
+        "3ff0004000000000",
+        "3ff0004004001000",
+        "3ff0004000000000",
+        "3ff0004000000000",
+        "3ff0004004001000",
+        "3ff0000100000000",
+        "3ff0000100000000"
+      ],
+      "values_hex": [
+        "0000000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "3ff0000000000000",
+        "c630000000000000",
+        "c630000000000000",
+        "c630000000000000",
+        "3ff0000000000000"
+      ],
+      "actual_calls": 21,
+      "events": [
+        {
+          "state": "init",
+          "x": [
+            1,
+            1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "3ff0000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -9.5367431640625e-07,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1,
+            1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "3ff0000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -9.5367431640625e-07,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0,
+            0
+          ],
+          "x_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 4,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.5,
+            0.5
+          ],
+          "x_hex": [
+            "3fe0000000000000",
+            "3fe0000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 5,
+            "fval": 1,
+            "constrviolation": -0.5,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.75,
+            0.75
+          ],
+          "x_hex": [
+            "3fe8000000000000",
+            "3fe8000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 6,
+            "fval": 1,
+            "constrviolation": -0.2500009536743164,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.875,
+            0.875
+          ],
+          "x_hex": [
+            "3fec000000000000",
+            "3fec000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 7,
+            "fval": 1,
+            "constrviolation": -0.1250009536743164,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9375,
+            0.9375
+          ],
+          "x_hex": [
+            "3fee000000000000",
+            "3fee000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 8,
+            "fval": 1,
+            "constrviolation": -0.0625009536743164,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.96875,
+            0.96875
+          ],
+          "x_hex": [
+            "3fef000000000000",
+            "3fef000000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 9,
+            "fval": 1,
+            "constrviolation": -0.031250953674316406,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.984375,
+            0.984375
+          ],
+          "x_hex": [
+            "3fef800000000000",
+            "3fef800000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 10,
+            "fval": 1,
+            "constrviolation": -0.015625953674316406,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9921875,
+            0.9921875
+          ],
+          "x_hex": [
+            "3fefc00000000000",
+            "3fefc00000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 11,
+            "fval": 1,
+            "constrviolation": -0.007813453674316406,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.99609375,
+            0.99609375
+          ],
+          "x_hex": [
+            "3fefe00000000000",
+            "3fefe00000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 12,
+            "fval": 1,
+            "constrviolation": -0.003907203674316406,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.998046875,
+            0.998046875
+          ],
+          "x_hex": [
+            "3feff00000000000",
+            "3feff00000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 13,
+            "fval": 1,
+            "constrviolation": -0.0019540786743164062,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9990234375,
+            0.9990234375
+          ],
+          "x_hex": [
+            "3feff80000000000",
+            "3feff80000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 14,
+            "fval": 1,
+            "constrviolation": -0.0009775161743164062,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.99951171875,
+            0.99951171875
+          ],
+          "x_hex": [
+            "3feffc0000000000",
+            "3feffc0000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 15,
+            "fval": 1,
+            "constrviolation": -0.0004892349243164062,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.999755859375,
+            0.999755859375
+          ],
+          "x_hex": [
+            "3feffe0000000000",
+            "3feffe0000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 16,
+            "fval": 1,
+            "constrviolation": -0.00024509429931640625,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            0.9998779296875,
+            0.9998779296875
+          ],
+          "x_hex": [
+            "3fefff0000000000",
+            "3fefff0000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 17,
+            "fval": 1,
+            "constrviolation": -0.00012302398681640625,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.00006103515625,
+            1.00006103515625
+          ],
+          "x_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 18,
+            "fval": -1.2676506002282294e+30,
+            "constrviolation": 6.008148193359375e-05,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": false
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.00006103515625,
+            1.00006103515625
+          ],
+          "x_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 20,
+            "fval": -1.2676506002282294e+30,
+            "constrviolation": 6.008148193359375e-05,
+            "lssteplength": -6.103515625e-05,
+            "stepsize": 8.631674575031098e-05,
+            "directionalderivative": -94906265.62425154,
+            "gradient": [
+              0,
+              0
+            ],
+            "searchdirection": [
+              -1,
+              -1
+            ],
+            "firstorderopt": 67112958.99993896,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "feasible": false
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.00006103515625,
+            1.00006103515625
+          ],
+          "x_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 20,
+            "fval": -1.2676506002282294e+30,
+            "constrviolation": 6.008148193359375e-05,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              0,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "feasible": false
+        },
+        {
+          "state": "interrupt",
+          "x": [
+            1.0000009536743164,
+            1.0000009536743164
+          ],
+          "x_hex": [
+            "3ff0000100000000",
+            "3ff0000100000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 21,
+            "fval": 1,
+            "constrviolation": 0,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              0,
+              0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "done",
+          "x": [
+            1,
+            1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "3ff0000000000000"
+          ],
+          "values": {
+            "iteration": 2,
+            "funccount": 21,
+            "fval": 0,
+            "constrviolation": -9.5367431640625e-07,
+            "lssteplength": 0.5,
+            "stepsize": 4.2484023298981175e-05,
+            "directionalderivative": 0,
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [
+              -6.008148193359375e-05,
+              -6.008148193359372e-05
+            ],
+            "firstorderopt": [],
+            "procedure": " Hessian modified twice  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        }
+      ],
+      "infeasible_provider": [
+        {
+          "label": "infeasible_search",
+          "mode": "infeasible_search",
+          "x_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000"
+          ],
+          "lower_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "upper_hex": [
+            "3ff0000100000000",
+            "3ff0000100000000"
+          ],
+          "base_hex": "c630000000000000",
+          "helper_status": "returned",
+          "adjusted_hex": [
+            "3e50004000000000",
+            "3e50004000000000"
+          ],
+          "status": "returned",
+          "gradient_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "returned_count": 2,
+          "warning_message": "",
+          "warning_identifier": "",
+          "inputs_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000",
+            "3ff0004004001000",
+            "3ff0004000000000",
+            "3ff0004000000000",
+            "3ff0004004001000"
+          ],
+          "values_hex": [
+            "c630000000000000",
+            "c630000000000000",
+            "c630000000000000"
+          ],
+          "actual_calls_including_base": 3
+        }
+      ],
+      "multipliers_hex": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "optimality_hex": [],
+      "provider_events": [
+        {
+          "state": "iter",
+          "x": [
+            1,
+            1
+          ],
+          "x_hex": [
+            "3ff0000000000000",
+            "3ff0000000000000"
+          ],
+          "values": {
+            "iteration": 0,
+            "funccount": 3,
+            "fval": 0,
+            "constrviolation": -9.5367431640625e-07,
+            "lssteplength": [],
+            "stepsize": [],
+            "directionalderivative": [],
+            "gradient": [
+              67108864.0,
+              67108864.0
+            ],
+            "searchdirection": [],
+            "firstorderopt": [],
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "4190000000000000",
+            "4190000000000000"
+          ],
+          "feasible": true
+        },
+        {
+          "state": "iter",
+          "x": [
+            1.00006103515625,
+            1.00006103515625
+          ],
+          "x_hex": [
+            "3ff0004000000000",
+            "3ff0004000000000"
+          ],
+          "values": {
+            "iteration": 1,
+            "funccount": 20,
+            "fval": -1.2676506002282294e+30,
+            "constrviolation": 6.008148193359375e-05,
+            "lssteplength": -6.103515625e-05,
+            "stepsize": 8.631674575031098e-05,
+            "directionalderivative": -94906265.62425154,
+            "gradient": [
+              0,
+              0
+            ],
+            "searchdirection": [
+              -1,
+              -1
+            ],
+            "firstorderopt": 67112958.99993896,
+            "procedure": "  "
+          },
+          "gradient_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "feasible": false
+        }
+      ]
+    }
+  ]
+}

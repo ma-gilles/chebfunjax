@@ -69,7 +69,38 @@ def choltrap(matrix):
         lambda: (identity, identity[:, 0], jnp.asarray(True)), positive_first)
 
 
-def compdir(z, hessian, gradient):
+def _dot2(a, b):
+    """Two-term source dot with each product rounded before accumulation."""
+    return a[0]*b[0] + a[1]*b[1]
+
+
+def _matvec2(matrix, vector):
+    return jnp.stack((_dot2(matrix[0], vector), _dot2(matrix[1], vector)))
+
+
+def _scalar_matrix_divide(matrix, denominator):
+    """Retain scalar division instead of XLA broadcast reciprocal multiply.
+
+    This helper is eager: fusing its scalar operations under jit can reintroduce
+    the rewrite. The fixed two-variable SQP driver uses host control throughout.
+    Qualified against 14 saved native BFGS states; no compensated arithmetic.
+    """
+    return jnp.stack([matrix.reshape(-1)[i]/denominator
+                      for i in range(matrix.size)]).reshape(matrix.shape)
+
+
+def _scalar_newton_substitution(upper, gradient):
+    """Ordinary forward/back substitution, with eager scalar divisions."""
+    first = gradient[0]/upper[0, 0]
+    if upper.shape == (1, 1):
+        return jnp.stack((first/upper[0, 0],))
+    second = (gradient[1]-upper[0, 1]*first)/upper[1, 1]
+    last = second/upper[1, 1]
+    initial = (first-upper[0, 1]*last)/upper[0, 0]
+    return jnp.stack((initial, last))
+
+
+def compdir(z, hessian, gradient, *, scalar_arithmetic=False):
     """Native projected direction and kind; Z=I represents source scalar Z=1.
 
     Z must have shape (2,1) or (2,2). Native chol reads the upper triangle;
@@ -83,6 +114,16 @@ def compdir(z, hessian, gradient):
     projected = (z.T @ h) @ z
     upper = jax.lax.linalg.cholesky(projected.T, symmetrize_input=False).T
     positive = jnp.all(jnp.isfinite(jnp.diag(upper))) & jnp.all(jnp.diag(upper) > 0)
+
+    # nlconst/qpsub are host-controlled. Keep the eager source arithmetic
+    # separate from the existing traceable primitive used by direct JIT callers.
+    # XLA's matrix division rewrite and blocked triangular solve differ in
+    # rounding from the native backend on the captured two-variable states.
+    if scalar_arithmetic and bool(positive):
+        step = -z @ _scalar_newton_substitution(upper, z.T @ g)
+        if bool(g @ step > 0):
+            step = -step
+        return Direction(step, jnp.asarray(NEWTON))
 
     def newton():
         step = -z @ solve_triangular(
