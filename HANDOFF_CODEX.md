@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Coupled initial-guess error classification (2026-10-10; latest)
+
+Coupled linearization now translates exactly the two native operator-evaluation
+error IDs to invalidInitialGuess, preserving unrelated errors and the boundary
+and initialization catch boundaries. All seven native clauses and13controls
+pass; root12 integration cases pass. Root verified48 delivery bindings and
+3069 runtime files. Evidence: docs/coupled_initial_guess_cpu_20261010.json.
+Both frozen-sweep failures have focused fixes; broad continuation remains open.
+
 ## RandomSwitching CPU FFT variability (2026-10-10; latest)
 
 Fixed-input repeated CPU FFT execution reproduces the previously unexplained

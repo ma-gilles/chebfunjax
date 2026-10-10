@@ -83,7 +83,23 @@ def linearize(op, state=None):
     count = len(initial)
     seeds = [ADChebfun(u).seed(j+1, (True,)*count) for j, u in enumerate(initial)]
     x = chebfun(lambda t: t, domain=op.domain)
-    outputs = _entries(op._call_op(x, seeds))
+    # Native linearize.m142-164 classifies only operator-evaluation failures.
+    # Initialization, boundary callbacks and Jacobian assembly remain outside.
+    try:
+        evaluated = op._call_op(x, seeds)
+    except ValueError as exc:
+        identifiers = (
+            'CHEBFUN:CHEBTECH:extrapolate:nansInfs',
+            'CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun',
+        )
+        if any(str(exc) == identifier or str(exc).startswith(identifier + ':')
+               for identifier in identifiers):
+            raise ValueError(
+                'CHEBFUN:CHEBOP:linearize:invalidInitialGuess: '
+                'Failed to evaluate operator on the initial guess; '
+                'please supply a valid initial guess via N.init.') from exc
+        raise
+    outputs = _entries(evaluated)
     rows = [out.jacobian.blocks[0] if isinstance(out, ADChebfun)
             else [zeros_op(op.domain) for _ in seeds] for out in outputs]
     # Native linearize.m isParam: only classify undifferentiated columns

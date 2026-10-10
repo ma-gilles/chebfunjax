@@ -1,0 +1,28 @@
+{
+  "scope": "Source invalid-initial-guess classification in coupled operator linearization",
+  "agent_cases": 20,
+  "native_clauses": 7,
+  "new_error_controls": 11,
+  "existing_valid_coupled_controls": 2,
+  "root_cases": 12,
+  "root_seconds": 8.089914069976658,
+  "root_peak_child_rss_kib": 718972,
+  "root_reverified_delivery_bindings": 48,
+  "root_rehashed_runtime_files": 3069,
+  "fix": "Translate only two exact native error identifiers during operator evaluation; initialization, boundary callbacks and unrelated failures remain outside the catch. Accept bare identifiers or identifier plus colon message.",
+  "bounds": "Native continuous L2<1e-10 and coupled Frobenius<1e-8 unchanged; all seven native test clauses unchanged.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_source_20261010/DELIVERY_v2.json": "03619bed4a28782bde117cc1dbf65ed7074c268eb098e7558f56027a89f8cb9f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_source_20261010/SOURCE_PROOF_v2.json": "3d68c82c8a2470a7f90d3f92dd88461627c90fe15d9b15940938b76df0e5f6e7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_source_20261010/INTEGRATION_v2.patch": "8d98d4022ad276191d2238e7cfb2cc3aa2abaf446f5772b8372ffda33b6f510d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_root_20261010/receipt.json": "7d2cbf00054f933d20421c624f30bbfc38eaa58a959534fdd9aa342d370d6914",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_root_20261010/junit.xml": "03aca83104338bd1b1495984b2e3537516c418cd58d402cd00ee413f30e905fe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_root_20261010/review.json": "989e2aca037723e10726cbbeae79682e52de71dd663f1332afd91e3482935d2f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_root_20261010/runtime_review.json": "092f4b629d3cf2e8190df9d610f66cca08f55d05e03fdb33671f53c5bd1fd7b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_initial_guess_root_20261010/static.json": "1a9a502dfcc27fca6ecf5c690cc64ba141ef87fe97d1aa3394a289fd970e48a3"
+  },
+  "limits": [
+    "Error-contract correction only; does not establish full BVP algorithm parity.",
+    "Broad frozen epoch has3243passed14skipped2failed6511unrun across successive heads; its two failures now have focused corrections, but continuation and full CI remain unresolved."
+  ]
+}
