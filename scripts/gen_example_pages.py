@@ -411,6 +411,7 @@ def main():
             ("opt", "Needle"),
             ("ode-linear", "Floquet"),
             ("linalg", "EigLandscapes"),
+            ("applics", "VanillaOptions"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")

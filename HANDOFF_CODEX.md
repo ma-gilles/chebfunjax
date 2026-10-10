@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## All reference figure dimensions matched (2026-10-10; latest)
+
+The full VanillaOptions translation completes public Chebfun prices, minima,
+two surfaces and six zero-curve computations on original domains, producing
+all seven 600x268 figures and matching printed output. Full CPU execution took
+401.19 s, peak sampled RSS 5,946,508 KiB, with stable inputs and no cap or
+survivors. Native source failure behavior is documented; exact field/curve
+and pixel parity remain open. Evidence: docs/vanillaoptions_full_cpu_20261010.json.
+
+The global audit now verifies all 1,305 figure slots at reference dimensions,
+with no missing images or mismatched dimensions across 322 pages. All 2,408
+native code blocks and original prose/equations remain intact; ten explicit
+qualification notes describe remaining gaps. Six native output blocks across
+five pages remain absent. Counts do not prove numerical or pixel parity.
+Evidence: docs/page_inventory_cpu_20261010.json.
+
+
 ## Square-wave assertion restored; historical 3D progress (2026-10-10; latest)
 
 The original square-wave equation test passes all three native predicates on

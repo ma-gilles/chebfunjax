@@ -1,6 +1,6 @@
 {
-  "audit_head": "83f284f7ceea50e71e31203c20cc5582632d3cc5",
-  "scope": "Offline inventory on clean committed83f284f7; before/after status/diff and full input manifests stable. No numerical rerun or full pixel/RNG/native parity claim.",
+  "audit_head": "e9e102443e2ae9ae7b5b5584df9208ec0d0742f3",
+  "scope": "Offline inventory on explicitly bound VanillaOptions working-tree candidate over e9e10244; before/after status/diff and input manifests stable. No full numerical, pixel or RNG parity claim.",
   "figure_summary": {
     "canonical_pages": 322,
     "missing_markdown_pages": 0,
@@ -10,15 +10,13 @@
     "slot_name_or_order_mismatches": 0,
     "missing_current_images": 0,
     "missing_reference_assets": 0,
-    "pixel_comparable_slots": 1298,
-    "dimension_mismatch_slots": 7,
-    "exact_pixel_fraction_mean": 0.8058591799909858,
-    "rmse_mean": 44.0994791830445
+    "pixel_comparable_slots": 1305,
+    "dimension_mismatch_slots": 0,
+    "exact_pixel_fraction_mean": 0.8059420506329965,
+    "rmse_mean": 43.9697374208372
   },
-  "dimension_mismatch_pages": {
-    "applics/VanillaOptions": 7
-  },
-  "prose_result": "All original prose retained in order; nine added qualification notes; equations retained after alignment.",
+  "dimension_mismatch_pages": {},
+  "prose_result": "All original prose retained in order; ten added qualification notes; equations retained after alignment.",
   "source_code": {
     "native_blocks": 2408,
     "matching_markdown_blocks": 2408,
@@ -64,8 +62,8 @@
   },
   "limits": "Counts do not establish printed numerical-output equality. Pixel statistics are descriptive, not acceptance thresholds. The RandomSwitching Python computation and figures were not rerun.",
   "evidence": {
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_eiglandscapes_worktree/report.json": "e3b244289e8bff5741eafefb23c1b1c8439b270c491f197c0b103d7779aa1a72",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_eiglandscapes_20261010.json": "804f43502dd111de5b6c136b1573228396c17d0782fc75712f59c01bdea67c1d",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_eiglandscapes.json": "7b4a4039a72f4ca1786171e617c437ca442989a7698cb279cb0b6ae2350158a7"
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_vanillaoptions_worktree/report.json": "ad06f5c61d81ad25f8e2abeee0b102905c9eb8fbb47454bb1ffcc9fbe37b55f9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_vanillaoptions_20261010.json": "185312100217617066f8eb8eb45f50c807055e8e64d86357769187165df86526",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_vanillaoptions.json": "7de18eab388975b9a51dc65838ebecc7eb012cd9a112d8a51e1455d6b7124e76"
   }
 }

@@ -6,6 +6,8 @@
 
 Python translation: [`examples/applics/vanillaoptions.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/vanillaoptions.py)
 
+> **Python execution qualification.** All source price, hedge, surface and six boundary computations run through public Chebfun operations on the original domains. Pinned MATLAB also returns an out-of-domain, nonzero-residual boundary at rate 0.0405; the source iteration is preserved. Exact curve coordinates, native rendering and pixel parity remain unverified.
+
 ## Introduction
 
 Call and put options, the financial products that were relatively illiquid and highly specialized 40 years ago, are nowadays traded frantically on all asset types all over the world. They are commonly referred as "vanilla options", to distinguish them from their more "exotic" cousins. Financial professionals take decision on a day-to-day basis through the intuition they have built around these simple contracts. *What is the impact of increasing the maturity? Or lowering the volatility? Is an increase in the interest rates going to hurt me?* Clearly obtaining a price is not only what matters!
@@ -125,7 +127,7 @@ disp(['Max loss stgy 3: ' num2str(ls3) ' at ' num2str(as3)])
 ```
 
 ```text
-Max loss stgy 2: -1.6817 at 124.4330
+Max loss stgy 2: -1.6817 at 124.433
 Max loss stgy 3: -3.7783 at 43.4027
 ```
 

@@ -1,0 +1,242 @@
+{
+  "source_head": "d478e10bfa427ee9087a1861da1476b284626610",
+  "original_handle": 57294,
+  "full_computation": true,
+  "figures": [
+    {
+      "name": "VanillaOptions_01.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "a520c642eda059eab2ad9da1a4488da9fc0304325a09de825c9966818a66e76b"
+    },
+    {
+      "name": "VanillaOptions_02.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "fa9c40f2a66de3b6a2b0bf649b2d39f9052c2dabecb585e1b4c54a17b355e2b5"
+    },
+    {
+      "name": "VanillaOptions_03.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "12e68e326082d4316359747d06ab2473e29022aa3fbb61ac4ae2275e12c7707e"
+    },
+    {
+      "name": "VanillaOptions_04.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "f2a5085faf528bff10c036003257449a71ff208139041d225e840af970dceab9"
+    },
+    {
+      "name": "VanillaOptions_05.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "d9d7a968a7f5ee242785e3f6da135a76783d27a6e86dcea21d21ad3126b46a9a"
+    },
+    {
+      "name": "VanillaOptions_06.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "f556654dd388977d80286465c34848db6ce931f7a50ba7c854b68b7ba247e050"
+    },
+    {
+      "name": "VanillaOptions_07.png",
+      "size": [
+        600,
+        268
+      ],
+      "sha256": "ee1da97f7dad7df327c89930d9c20b3ec7df3347f259245d46cb6597416cde6d"
+    }
+  ],
+  "page_seconds": 401.18840497918427,
+  "supervisor_seconds": 411.5892610498704,
+  "sampled_peak_summed_rss_kib": 5946508,
+  "caps": {
+    "seconds": 600,
+    "rss_mib": 6144
+  },
+  "censored_limit": null,
+  "survivors": [],
+  "inputs_stable": true,
+  "versions": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "matplotlib": "3.10.8",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "backend": "cpu",
+    "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/snapshot/src/chebfunjax/__init__.py"
+  },
+  "numeric": {
+    "hedge_0": {
+      "minima": [
+        {
+          "location": 124.43295780887662,
+          "value": -1.6817101203032818
+        },
+        {
+          "location": 43.40272910682586,
+          "value": -3.77825182286523
+        }
+      ],
+      "exact_hedge_norm": 6.774406361993055e-14
+    },
+    "surface_0": {
+      "domain": [
+        0.0,
+        200.0,
+        0.001,
+        200.0
+      ],
+      "rank": 43,
+      "length": [
+        1025,
+        2049
+      ]
+    },
+    "surface_0.015": {
+      "domain": [
+        0.0,
+        200.0,
+        0.001,
+        200.0
+      ],
+      "rank": 43,
+      "length": [
+        1025,
+        4097
+      ]
+    },
+    "boundary_0.0005": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 39,
+      "length": [
+        2049,
+        257
+      ],
+      "curve_count": 1
+    },
+    "boundary_0.0105": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 39,
+      "length": [
+        2049,
+        257
+      ],
+      "curve_count": 1
+    },
+    "boundary_0.0205": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 40,
+      "length": [
+        2049,
+        257
+      ],
+      "curve_count": 1
+    },
+    "boundary_0.0305": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 40,
+      "length": [
+        2049,
+        257
+      ],
+      "curve_count": 1
+    },
+    "boundary_0.0405": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 40,
+      "length": [
+        2049,
+        513
+      ],
+      "curve_count": 1
+    },
+    "boundary_0.0505": {
+      "domain": [
+        0.001,
+        25.0,
+        0.0,
+        100.0
+      ],
+      "rank": 40,
+      "length": [
+        2049,
+        513
+      ],
+      "curve_count": 1
+    },
+    "hedge_0.05": {
+      "minima": [
+        {
+          "location": 126.65220024031123,
+          "value": -1.3220598130920331
+        },
+        {
+          "location": 41.90834470803405,
+          "value": -4.358563514783227
+        }
+      ],
+      "exact_hedge_norm": 4.686897096994138e-14
+    }
+  },
+  "stdout_matches_published_cells": true,
+  "original_matlab_code_preserved": true,
+  "root_visual_review": "All seven images inspected; axis labels visible at600x268. Layout differences from native remain.",
+  "native_failure_evidence": "docs/vanillaoptions_native_curve_diagnosis_cpu_20261010.json",
+  "limits": [
+    "Execution success does not establish full numerical/pixel parity.",
+    "Exact native field factors and contour coordinates remain unmatched; source itself has inaccurate/exterior curves.",
+    "Timing is an observed shared-host run, not a controlled performance comparison.",
+    "Source/environment hash guard and actual imported versions/origin, not exhaustive dynamic-loader closure."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/RUN_RESULT.json": "606ba06e79dbe8f65979365a0e1ade78e46b00332fe2d264fe4400e81bf05670",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/VERSIONS.json": "709eaca8fa38f28d4bf558d20266d09c14bb7c7f5de10fb8091b108ce5cc860e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/page_numeric.json": "2a73fa8179e09867d78a4877b6df304482a321c0567a0f62d2e5e214ce503223",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/stdout.txt": "1ebcb45613bb5d3b68cb9133d1e9f18b46c69246e61bb193fc8377906195c542",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/artists.json": "83eccfe14646946af727693d073249549df62e51ed23809ce2a362f3f5ad3d9c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/operations.jsonl": "b1c35da482c6d8248eb2227c91e9e42a218cfc976190ccef662ddbd0b626e98c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/guard.json": "932159e41cf8ede31ba534e0fbb3088e0d3ddc15fdc1eb3e407c0b69e3665ce5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/supervision/receipt.json": "2a5537f31122f205425700a92427087ecf7e859682fc84c970a6445605051466",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/run_page.py": "9203c322f7c5e7fee44b226077e353ac68968bf8c0b08d591fdf4554e2b44603",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_full_d478e10b_20261010/PLAN.json": "4cbc7bb41064b3a41d0a1d5f858193aa9f7b020a154709500246e27095d13eb2"
+  }
+}

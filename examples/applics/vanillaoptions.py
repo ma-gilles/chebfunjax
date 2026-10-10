@@ -1,246 +1,202 @@
-"""Exploring Vanilla Options.
+"""Exploring Vanilla Options (Pachon, December 2014).
 
-Translation of applics/VanillaOptions.m (Pachon, 2014):
-Black-Scholes call/put prices as chebfuns of the underlying --
-price profiles vs maturity, put-call parity hedging strategies with
-their maximum instant losses, implicit/time value, non-zero rates,
-the chebfun2 price surface, and the early-exercise boundary from
-the roots of a chebfun2.
-
+Translation of applics/VanillaOptions.m, using public Chebfun operations.
 Original: https://www.chebfun.org/examples/applics/VanillaOptions.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
-import matplotlib
-
-matplotlib.use("Agg")
+import json
 import os
 import sys
-import warnings
+import time
 
+import jax.numpy as jnp
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.optimize import minimize_scalar
-from scipy.stats import norm
+import numpy as np  # uses-numpy: plotting coordinates and JSON observations only
+from jax.scipy.special import ndtr
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
+from chebfunjax import chebfun
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
-chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'applics')
-FIG = [0]
+_PAGE_REPORT = None
+_TRACE = None
+K, VOL = 100, 0.45
 
-K = 100
-VOL = 0.45
+
+def vanilla(s, strike, maturity, vol, rate, sign):
+    """Source Black–Scholes callback, including its s=0 limit."""
+    d1 = (jnp.log(s / strike) + (rate + 0.5 * vol**2) * maturity) / (vol * jnp.sqrt(maturity))
+    d2 = (jnp.log(s / strike) + (rate - 0.5 * vol**2) * maturity) / (vol * jnp.sqrt(maturity))
+    return sign * (s * ndtr(sign * d1) - strike * ndtr(sign * d2) * jnp.exp(-rate * maturity))
 
 
-def _save(fig):
-    FIG[0] += 1
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG,
-                             f"VanillaOptions_{FIG[0]:02d}.png"))
+def payoff(s, strike, sign):
+    return jnp.maximum(0, sign * (s - strike))
+
+
+def _trace(label):
+    if _TRACE:
+        with open(_TRACE, 'a') as f:
+            f.write(json.dumps({'operation': label, 'time': time.monotonic()}) + '\n')
+
+
+def _save(fig, number):
+    # Historical page raster and explicit normalized MATLAB axes positions.
+    _savefig(fig, os.path.join(_IMG, f'VanillaOptions_{number:02d}.png'), size=(600, 268))
     plt.close(fig)
+    _trace(f'figure_{number}_complete')
 
 
-def vanilla(S, Kk, T, vol, r, W):
-    S = np.maximum(np.asarray(S, dtype=float), 1e-300)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        d1 = (np.log(S / Kk) + (r + 0.5 * vol**2) * T) / (vol * np.sqrt(T))
-        d2 = (np.log(S / Kk) + (r - 0.5 * vol**2) * T) / (vol * np.sqrt(T))
-        return W * (S * norm.cdf(W * d1)
-                    - Kk * norm.cdf(W * d2) * np.exp(-r * T))
+def _pair(xmax, ylim, first=False):
+    fig, axes = plt.subplots(1, 2)
+    for index, (ax, title) in enumerate(zip(axes, ('put', 'call'), strict=True)):
+        ax.set_position([.05 + .5 * index, .13, .42, .75])
+        ax.set_title(title, fontsize=6.5 if first else 5.5)
+        ax.set_xlabel('S', fontsize=5.5)
+        ax.set_xticks(np.arange(0, 351, 50))
+        ax.set_xlim(0, xmax)
+        ax.set_ylim(*ylim)
+        ax.grid(True)
+    return fig, axes
 
 
-def payoff(S, Kk, W):
-    return np.maximum(0, W * (np.asarray(S, dtype=float) - Kk))
+def _option(strike, maturity, rate, sign, domain):
+    return chebfun(lambda s: vanilla(s, strike, maturity, VOL, rate, sign), domain=domain)
 
 
-def _minloss(err_fn, lo=0.0, hi=300.0, n=3000):
-    ss = np.linspace(lo, hi, n)
-    vals = err_fn(ss)
-    i = int(np.argmin(vals))
-    res = minimize_scalar(err_fn,
-                          bounds=(max(lo, ss[i] - 1), min(hi, ss[i] + 1)),
-                          method="bounded",
-                          options={"xatol": 1e-10})
-    return float(res.fun), float(res.x)
+def _hedge(rate, strike3, number, report):
+    _trace(f'hedge_{rate}_start')
+    asset = chebfun(lambda s: s, domain=(0, 300))
+    call = _option(100, .5, rate, +1, (0, 300))
+    loan = K * jnp.exp(-rate * .5)
+    puts = [_option(100, .5, rate, -1, (0, 300)),
+            _option(105.5, .25, rate, -1, (0, 300)),
+            1.03 * _option(strike3, .75, rate, -1, (0, 300))]
+    errors = [(put + asset - loan) - call for put in puts]
+    fig, ax = plt.subplots()
+    ax.set_position([.13, .11, .775, .815])
+    labels = ('1.00 put/same K/same T', '1.00 put/higher K/ shorter T', '1.03 put/lower K/ longer T')
+    for error, color, label in zip(errors, ('b', 'r', 'k'), labels, strict=True):
+        matlab_plot(asset, error, color, ax=ax, linewidth=.6, label=label)
+    ax.set_xlim(0, 300)
+    ax.set_ylim(-6, 8)
+    ax.set_yticks(np.arange(-6, 9, 2))
+    ax.set_title('Imperfect put-call parity relation, r=0' if rate == 0 else 'Imperfect put-call parity relation, r = 5%', fontsize=6)
+    ax.set_xlabel('S', fontsize=6)
+    ax.set_ylabel('profit/loss (instant)', fontsize=6)
+    ax.legend(loc='upper right', fontsize=5.5)
+    ax.grid(True)
+    _save(fig, number)
+    minima = []
+    for index, error in enumerate(errors[1:], start=2):
+        location, value = error.min()  # Python API returns location before value.
+        location_text = f'{location:.4f}'.rstrip('0').rstrip('.')
+        print(f'Max loss stgy {index}: {value:.4f} at {location_text}')
+        minima.append({'location': float(location), 'value': float(value)})
+    report[f'hedge_{rate}'] = {'minima': minima, 'exact_hedge_norm': float(errors[0].norm(jnp.inf))}
+    _trace(f'hedge_{rate}_complete')
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
-
-    # ---- zero interest rate ----
-    r = 0.0
-    Ss = np.linspace(1e-8, 350, 2000)
-
-    fig, (axp, axc) = plt.subplots(1, 2, figsize=(11.6, 5.2))
-    axp.plot(Ss, payoff(Ss, K, -1), lw=1.6)
-    axc.plot(Ss, payoff(Ss, K, +1), lw=1.6)
-    for T in 2.0 ** np.arange(-1, 9):
-        axp.plot(Ss, vanilla(Ss, K, T, VOL, r, -1), 'k', lw=0.9)
-        axc.plot(Ss, vanilla(Ss, K, T, VOL, r, +1), 'k', lw=0.9)
-    axp.plot(Ss, vanilla(Ss, K, 1000, VOL, r, -1), 'r', lw=1.2)
-    axc.plot(Ss, vanilla(Ss, K, 1000, VOL, r, +1), 'r', lw=1.2)
-    for ax, tt in [(axp, 'put'), (axc, 'call')]:
-        ax.set_xticks(np.arange(0, 351, 50))
-        ax.set_title(tt, fontsize=18)
-        ax.set_xlabel('S', fontsize=14)
+    chebfun_style()
+    plt.rcParams.update({'font.size': 5.5, 'axes.linewidth': .35, 'xtick.labelsize': 5.5,
+                         'ytick.labelsize': 5.5, 'grid.linewidth': .3, 'grid.alpha': .35,
+                         'lines.linewidth': .4, 'figure.facecolor': 'white'})
+    report = {}
+    domain = (0, K, 350)
+    payoffs = [chebfun(lambda s, sign=sign: payoff(s, K, sign), domain=domain) for sign in (-1, +1)]
+    _trace('profiles_start')
+    fig, axes = _pair(250, (-10, 250), first=True)
+    for ax, terminal, sign in zip(axes, payoffs, (-1, +1), strict=True):
+        matlab_plot(terminal, ax=ax, color='#0072bd', linewidth=.6)
+        for exponent in range(-1, 9):
+            matlab_plot(_option(K, 2.**exponent, 0, sign, domain), 'k', ax=ax)
+        matlab_plot(_option(K, 1000, 0, sign, domain), 'r', ax=ax)
+    for ax in axes:
         ax.set_xlim(0, 250)
         ax.set_ylim(-10, 250)
-        ax.grid(True)
-    _save(fig)
-
-    # ---- put-call parity hedges, r = 0 ----
-    Sh = np.linspace(1e-8, 300, 3000)
-
-    def call(s):
-        return vanilla(s, 100, .5, VOL, 0.0, +1)
-
-    def err2(s):
-        return (vanilla(s, 105.5, .25, VOL, 0.0, -1) + s - K) - call(s)
-
-    def err3(s):
-        return (1.03 * vanilla(s, 94.5, .75, VOL, 0.0, -1)
-                + s - K) - call(s)
-
-    def err1(s):
-        return (vanilla(s, 100.0, .50, VOL, 0.0, -1) + s - K) - call(s)
-
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    ax.plot(Sh, err1(Sh), 'b', lw=1.6, label='1.00 put/same K/same T')
-    ax.plot(Sh, err2(Sh), 'r', lw=1.6,
-            label='1.00 put/higher K/ shorter T')
-    ax.plot(Sh, err3(Sh), 'k', lw=1.6,
-            label='1.03 put/lower K/ longer T')
-    ax.set_ylim(-6, 8)
-    ax.set_title('Imperfect put-call parity relation, r=0')
-    ax.set_xlabel('S', fontsize=14)
-    ax.set_ylabel('profit/loss (instant)', fontsize=14)
-    ax.legend()
-    ax.grid(True)
-    _save(fig)
-
-    ls2, as2 = _minloss(err2)
-    ls3, as3 = _minloss(err3)
-    print(f"Max loss stgy 2: {ls2:.4f} at {as2:.4f}")
-    print(f"Max loss stgy 3: {ls3:.4f} at {as3:.4f}")
-
-    # ---- implicit and time value, r = 0 ----
-    fig, (axp, axc) = plt.subplots(1, 2, figsize=(11.6, 5.2))
-    for T in 2.0 ** np.arange(-1, 9):
-        axp.plot(Ss, vanilla(Ss, K, T, VOL, 0.0, -1)
-                 - payoff(Ss, K, -1), 'k', lw=0.9)
-        axc.plot(Ss, vanilla(Ss, K, T, VOL, 0.0, +1)
-                 - payoff(Ss, K, +1), 'k', lw=0.9)
-    axp.plot(Ss, vanilla(Ss, K, 1000, VOL, 0.0, -1)
-             - payoff(Ss, K, -1), 'r', lw=1.2)
-    axc.plot(Ss, vanilla(Ss, K, 1000, VOL, 0.0, +1)
-             - payoff(Ss, K, +1), 'r', lw=1.2)
-    for ax, tt in [(axp, 'put'), (axc, 'call')]:
-        ax.set_xticks(np.arange(0, 351, 50))
-        ax.set_title(tt, fontsize=14)
-        ax.set_xlabel('S', fontsize=14)
-        ax.set_ylim(-30, 110)
-        ax.grid(True)
-    _save(fig)
-
-    # ---- non-zero rates ----
-    r = 0.015
-    fig, (axp, axc) = plt.subplots(1, 2, figsize=(11.6, 5.2))
-    for T in 2.0 ** np.arange(-1, 5):
-        axp.plot(Ss, vanilla(Ss, K, T, VOL, r, -1)
-                 - payoff(Ss, K, -1), 'k', lw=0.9)
-        axc.plot(Ss, vanilla(Ss, K, T, VOL, r, +1)
-                 - payoff(Ss, K, +1), 'k', lw=0.9)
-    for ax, tt in [(axp, 'put'), (axc, 'call')]:
-        ax.set_xticks(np.arange(0, 351, 50))
-        ax.set_title(tt, fontsize=14)
-        ax.set_xlabel('S', fontsize=14)
-        ax.set_xlim(0, 350)
-        ax.set_ylim(-30, 110)
-        ax.grid(True)
-    _save(fig)
-
-    # ---- chebfun2 price surfaces ----
-    fig = plt.figure(figsize=(11.6, 5.4))
-    for j, rr in enumerate([0.0, 0.015], start=1):
-        put2 = Chebfun2.from_function(
-            lambda s, t: vanilla(s, K, np.maximum(t, 1e-3), VOL, rr, -1),
-            domain=(1e-6, 200, 0.001, 200))
-        ax = fig.add_subplot(1, 2, j, projection="3d")
-        sg = np.linspace(0, 200, 120)
-        tg = np.linspace(0.001, 200, 120)
-        SG, TG = np.meshgrid(sg, tg)
-        ax.plot_surface(SG, TG, np.asarray(put2(SG, TG)),
-                        cmap="viridis", rstride=1, cstride=1,
-                        linewidth=0)
+        ax.set_xticks(np.arange(0, 251, 50))
+    _save(fig, 1)
+    _hedge(0, 94.5, 2, report)
+    for number, rate, exponents in [(3, 0, range(-1, 9)), (4, .015, range(-1, 5))]:
+        _trace(f'time_values_{rate}_start')
+        fig, axes = _pair(350, (-30, 110))
+        for ax, terminal, sign in zip(axes, payoffs, (-1, +1), strict=True):
+            for exponent in exponents:
+                matlab_plot(_option(K, 2.**exponent, rate, sign, domain) - terminal, 'k', ax=ax)
+            if rate == 0:
+                matlab_plot(_option(K, 1000, rate, sign, domain) - terminal, 'r', ax=ax)
+        for ax in axes:
+            ax.set_xlim(0, 350)
+            ax.set_ylim(-30, 110)
+        _save(fig, number)
+    if _PAGE_REPORT:
+        with open(_PAGE_REPORT, 'w') as f:
+            json.dump(report, f, indent=2)
+    fig = plt.figure()
+    for index, rate in enumerate((0, .015)):
+        _trace(f'surface_{rate}_construct_start')
+        put = Chebfun2.from_function(lambda s, t: vanilla(s, K, t, VOL, rate, -1), domain=(0, 200, .001, 200))
+        report[f'surface_{rate}'] = {'domain': list(put.domain), 'rank': put.rank, 'length': list(put.length())}
+        _trace(f'surface_{rate}_construct_complete')
+        ax = fig.add_subplot(1, 2, index + 1, projection='3d')
+        surf(put, ax=ax)
+        for surface in ax.collections:
+            surface.set_antialiased(False)
+            surface.set_edgecolor('face')
+        ax.set_proj_type('ortho')
+        ax.set_box_aspect((1, 1, .75), zoom=1.3)
+        ax.zaxis._axinfo['juggled'] = (1, 2, 0)
+        ax.set_position([.05 + .5 * index, .13, .42, .75])
+        # Fixed page coordinates keep projected labels inside the historic raster.
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        fig.text(.095 + .5 * index, .11, 'S', fontsize=5.5, ha='center')
+        fig.text(.32 + .5 * index, .035, 'T', fontsize=5.5, ha='center')
         ax.set_zlim(0, 100)
-        ax.set_xlabel('S')
-        ax.set_ylabel('T')
-        ax.set_title('put, r=0' if rr == 0 else 'put, r=1.5%',
-                     fontsize=14)
-        ax.view_init(20, -60)
-    _save(fig)
-
-    # ---- early-exercise boundary via chebfun2 roots ----
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    for rr in np.arange(0.0005, 0.0551, 0.010):
-        put2 = Chebfun2.from_function(
-            lambda t, s: (vanilla(s, K, np.maximum(t, 1e-3), VOL, rr, -1)
-                          - payoff(s, K, -1)),
-            domain=(0.001, 25, 1e-6, 100))
-        for c in put2.roots():
-            tt = np.linspace(float(c.domain.a), float(c.domain.b), 400)
-            z = np.asarray(c(tt))
-            ax.plot(np.real(z), np.imag(z), lw=1.6)
+        ax.set_xticks(np.arange(0, 201, 50))
+        ax.set_yticks(np.arange(0, 201, 20))
+        ax.set_zticks(np.arange(0, 101, 10))
+        ax.set_title('put, r=0' if rate == 0 else 'put, r=1.5%', fontsize=5.5)
+        # Source camera is [1347 -347 346], with target near box center.
+        ax.view_init(elev=24.1, azim=-19.7)
+    for index, ax in enumerate(fig.axes):
+        ax.set_position([.05 + .5 * index, .13, .42, .75])
+        ax.tick_params(labelsize=4.3, pad=0)
+    _save(fig, 5)
+    fig, ax = plt.subplots()
+    ax.set_position([.13, .11, .775, .815])
+    for index in range(6):
+        rate = .0005 + .010 * index
+        _trace(f'boundary_{rate}_construct_start')
+        put = Chebfun2.from_function(lambda t, s: vanilla(s, K, t, VOL, rate, -1) - payoff(s, K, -1), domain=(.001, 25, 0, 100))
+        _trace(f'boundary_{rate}_roots_start')
+        curves = put.roots()
+        report[f'boundary_{rate}'] = {'domain': list(put.domain), 'rank': put.rank, 'length': list(put.length()), 'curve_count': len(curves)}
+        for curve in curves:
+            matlab_plot(curve, ax=ax, linewidth=.6)
+        _trace(f'boundary_{rate}_complete')
+    ax.tick_params(labelsize=8.5)
+    ax.set_xlim(0, 25)
     ax.set_ylim(0, 110)
-    ax.set_ylabel('Asset level', fontsize=14)
-    ax.set_xlabel('Time to maturity', fontsize=14)
-    ax.set_title('Asset level at which time value of a put becomes '
-                 'negative', fontsize=12)
+    ax.set_xlabel('Time to maturity', fontsize=5.5, labelpad=-2)
+    ax.set_ylabel('Asset level', fontsize=5.5)
+    ax.set_title('Asset level at which time value of a put becomes negative', fontsize=5.5)
     ax.grid(True)
-    _save(fig)
-
-    # ---- put-call parity with r = 5% ----
-    r = 0.05
-    loan = K * np.exp(-r * 0.5)
-
-    def call5(s):
-        return vanilla(s, 100, .5, VOL, r, +1)
-
-    def e1(s):
-        return (vanilla(s, 100.0, .50, VOL, r, -1) + s - loan) - call5(s)
-
-    def e2(s):
-        return (vanilla(s, 105.5, .25, VOL, r, -1) + s - loan) - call5(s)
-
-    def e3(s):
-        return (1.03 * vanilla(s, 95., .75, VOL, r, -1)
-                + s - loan) - call5(s)
-
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    ax.plot(Sh, e1(Sh), 'b', lw=1.6, label='1.00 put/same K/same T')
-    ax.plot(Sh, e2(Sh), 'r', lw=1.6,
-            label='1.00 put/higher K/ shorter T')
-    ax.plot(Sh, e3(Sh), 'k', lw=1.6, label='1.03 put/lower K/ longer T')
-    ax.set_ylim(-6, 8)
-    ax.set_title('Imperfect put-call parity relation, r = 5%')
-    ax.set_xlabel('S', fontsize=14)
-    ax.set_ylabel('profit/loss (instant)', fontsize=14)
-    ax.legend()
-    ax.grid(True)
-    _save(fig)
-
-    ls2, as2 = _minloss(e2)
-    ls3, as3 = _minloss(e3)
-    print(f"Max loss stgy 2: {ls2:.4f} at {as2:.4f}")
-    print(f"Max loss stgy 3: {ls3:.4f} at {as3:.4f}")
+    _save(fig, 6)
+    _hedge(.05, 95, 7, report)
+    if _PAGE_REPORT:
+        with open(_PAGE_REPORT, 'w') as f:
+            json.dump(report, f, indent=2)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()
