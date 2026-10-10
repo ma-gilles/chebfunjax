@@ -2468,6 +2468,15 @@ class Chebtech2(eqx.Module):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
 
+    def isdecay(self) -> jax.Array:
+        """Test decay faster than a single root at each endpoint.
+
+        Provenance: @chebtech/isdecay.m, Chebfun commit 7574c77.
+        """
+        from chebfunjax.tech._decay import chebtech_isdecay
+
+        return chebtech_isdecay(self)
+
     def logical(self):
         """Return a constant logical Tech for each root-free input column.
 
@@ -4772,6 +4781,15 @@ class Chebtech1(eqx.Module):
         if getattr(self, "_is_empty_object", False):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def isdecay(self) -> jax.Array:
+        """Test decay faster than a single root at each endpoint.
+
+        Provenance: @chebtech/isdecay.m, Chebfun commit 7574c77.
+        """
+        from chebfunjax.tech._decay import chebtech_isdecay
+
+        return chebtech_isdecay(self)
 
     def logical(self):
         """Return a constant logical Tech for each root-free input column.

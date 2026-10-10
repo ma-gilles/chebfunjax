@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public endpoint-decay methods implemented (2026-10-10; latest)
+
+Chebtech1, Chebtech2 and Singfun expose native isdecay; unbounded integral
+warnings dispatch through these methods. The shared JAX helper now uses
+MATLAB real-part ordering for complex constants, replacing the earlier
+exact-zero-only adapter. Eight new controls and all24 unbounded-sum cases
+pass, with two previously recorded warnings. Static checks pass. Evidence:
+docs/isdecay_public_cpu_20261010.json. Nonconstant JIT, Trigtech decay and
+no-input Singfun numeric-empty dispatch remain unqualified.
+
+
 ## Singfun reflection and derivative empty metadata fixed (2026-10-10; latest)
 
 Empty flipud reverses the stored exponent tuple; fliplr is the native identity;

@@ -342,6 +342,14 @@ class Singfun(eqx.Module):
         """
         return self.smoothPart.isempty()
 
+    def isdecay(self) -> jax.Array:
+        """Test smooth-factor decay or endpoint exponents greater than one.
+
+        Provenance: @singfun/isdecay.m, Chebfun commit 7574c77.
+        """
+        flags = self.smoothPart.isdecay()
+        return flags | (jnp.asarray(self.exponents) > 1.0)[:, None]
+
     def iszero(self) -> bool:
         """True when the smooth part is identically zero (MATLAB ``iszero``).
 

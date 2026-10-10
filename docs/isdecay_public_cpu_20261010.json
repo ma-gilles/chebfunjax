@@ -1,0 +1,44 @@
+{
+  "base_commit": "c55f8bbd58d086088449426a2dff257ec03c16f3",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_definitions": {
+    "src/chebfunjax/fun/singfun.py": [
+      "Singfun.isdecay"
+    ],
+    "src/chebfunjax/fun/unbndfun.py": [
+      "_isdecay"
+    ],
+    "src/chebfunjax/tech/chebtech.py": [
+      "Chebtech1.isdecay",
+      "Chebtech2.isdecay"
+    ]
+  },
+  "new_module": "src/chebfunjax/tech/_decay.py",
+  "native_source_hashes": {
+    "@chebtech/isdecay.m": "234e099dee6b8652d68931a2152b87e614062d8e5ae50050d7e23d133970f4b3",
+    "@singfun/isdecay.m": "d8a294c09c78e8cdd1f26cd19043a7903e2465ef579fd7dd2dd6a024fc22944b"
+  },
+  "complex_comparison_reference": "https://www.mathworks.com/help/matlab/ref/double.lt.html",
+  "qualification": {
+    "passed": 32,
+    "elapsed_seconds": 65.56851317780092,
+    "peak_child_rss_kib": 1524716,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/isdecay_public_root_20261010/receipt.json",
+    "receipt_sha256": "d8f719eb1991483bc62d490e60f781384d3353732d840139effccd2e71c251af",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/isdecay_public_root_20261010/static.json",
+    "static_sha256": "96fc655c1ef85446005ff15435ad88814a9448bb872e95b35e6d5398515f96a1"
+  },
+  "scope": [
+    "Public Chebtech1/Chebtech2/Singfun isdecay; shared JAX Chebtech implementation and Unbndfun warning dispatch.",
+    "Constant ordering uses real components as MATLAB lt; replaces exactzero-only complex adapter.",
+    "Native two endpoint flags per column, single root extraction/relaxed residual threshold, Singfun exponent>1 override."
+  ],
+  "limitations": [
+    "No full-library/current-head CI claim.",
+    "Nonconstant extraction path uses eager data-dependent dispatch; JIT not qualified.",
+    "Native Singfun no-input numeric[] dispatch and Trigtech decay are not qualified.",
+    "RSS measured not capped; no observed-runtime module audit.",
+    "Two previously recorded sqrt-exp warnings remain."
+  ]
+}

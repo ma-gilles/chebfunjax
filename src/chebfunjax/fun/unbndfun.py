@@ -36,55 +36,8 @@ _SLOW_DECAY_WARNING_MESSAGE = (
 
 
 def _isdecay(onefun) -> jax.Array:
-    """Return native ``isdecay`` flags for the left and right endpoints.
-
-    The result has shape ``(2, n_columns)``. A true entry means the mapped
-    function vanishes faster than one simple boundary root at that endpoint.
-    This is the internal predicate used by MATLAB ``@unbndfun/sum``.
-    """
-    from chebfunjax.fun.singfun import Singfun
-
-    if isinstance(onefun, Singfun):
-        flags = _isdecay(onefun.smoothPart)
-        exponents = jnp.asarray(onefun.exponents)
-        # Native @singfun/isdecay accepts a singular endpoint when its
-        # exponent itself is greater than one.
-        return flags | (exponents > 1.0)[:, None]
-
-    coeffs = jnp.asarray(onefun.coeffs)
-    if coeffs.ndim == 1:
-        coeffs = coeffs[:, None]
-    n, ncols = coeffs.shape
-    scales = jnp.asarray(onefun.vscale_columns, dtype=jnp.float64).reshape((ncols,))
-    tol = 1e2 * _EPS * scales
-
-    if n == 1:
-        # Literal constant branch from @chebtech/isdecay.m. Nonzero constants
-        # are already classified divergent by sum; for complex coefficients,
-        # retain the exact-zero case without applying an unsupported ordering.
-        if jnp.iscomplexobj(coeffs):
-            mask = coeffs[0] == 0
-        else:
-            mask = (coeffs[0] < tol) | (coeffs[0] == 0)
-        return jnp.broadcast_to(mask[None, :], (2, ncols))
-
-    end_values = jnp.asarray(onefun(jnp.asarray([-1.0, 1.0], dtype=jnp.float64)))
-    if end_values.ndim == 1:
-        end_values = end_values[:, None]
-    endpoint_roots = jnp.abs(end_values) < tol[None, :]
-    flags = jnp.zeros((2, ncols), dtype=jnp.bool_)
-
-    for side in (0, 1):
-        roots = jnp.zeros((2, ncols), dtype=jnp.int32)
-        roots = roots.at[side].set(endpoint_roots[side].astype(jnp.int32))
-        if bool(jnp.any(roots[side] > 0)):
-            peeled, _, _ = onefun.extractBoundaryRoots(roots)
-            residual = jnp.abs(peeled(jnp.asarray(-1.0 if side == 0 else 1.0)))
-            residual = jnp.asarray(residual).reshape((ncols,))
-            flags = flags.at[side].set(
-                residual < 1e4 * tol
-            )
-    return flags
+    """Dispatch to the native Tech/Singfun endpoint-decay method."""
+    return onefun.isdecay()
 
 
 def _has_slow_decay_at_infinity(onefun, mapping_type: str, endpoint_values,
