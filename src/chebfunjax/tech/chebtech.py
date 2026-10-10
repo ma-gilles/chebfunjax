@@ -5976,7 +5976,13 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
             Qd, R = jnp.linalg.qr(converted, mode="reduced")
         s = _unit_sign(jnp.diagonal(R))
         legendre_values = (Qd * s[None, :]) / sqrt_wl[:, None]
-        Q_coeffs = leg2cheb(_legendre_idlt(legendre_values))
+        # This QR branch starts at n=4001, while the general IDLT helper's
+        # source crossover is n=5000. Use its equivalent transpose-NDCT
+        # algorithm throughout the matrix-free QR branch: the direct
+        # recurrence loses enough accuracy for 4001 <= n < 5000 to violate
+        # the unchanged QR reconstruction regression bound.
+        Q_coeffs = leg2cheb(
+            _legendre_idlt(legendre_values, force_fast=True))
 
     # Enforce a nonnegative real diagonal while preserving Q @ R.
     R = jnp.conj(s)[:, None] * R

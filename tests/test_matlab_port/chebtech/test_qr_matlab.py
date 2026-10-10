@@ -181,6 +181,29 @@ class TestChebtechQr:
         assert R.shape == (2, 2) and Rm.shape == (2, 2)
         assert _ncols(Q) == 2 and _ncols(Qm) == 2
 
+    @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+    def test_builtin_three_output_pivot_fast_transform_reconstruction(self, Tech):
+        # Preserve the original failing smooth fixture and tight bound while
+        # checking Q*R = f*E through the n > 4000 transform path.
+        f = Tech.from_function(_two_col).prolong(4001)
+        Q, R, permutation = f.qr(
+            mode="vector", method="built-in", want_e=True)
+        error = (Q @ R) - (f @ jnp.eye(2)[:, permutation])
+        assert float(jnp.linalg.norm(error(X), ord=jnp.inf)) < (
+            5e4 * f.vscale * EPS
+        )
+
+    @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+    def test_builtin_two_output_fast_transform_reconstruction(self, Tech):
+        # The same n=4001 fixture and source bound exercise the unpivoted
+        # two-output branch, whose output contract remains unchanged.
+        f = Tech.from_function(_two_col).prolong(4001)
+        Q, R = f.qr(method="built-in")
+        error = (Q @ R) - f
+        assert float(jnp.linalg.norm(error(X), ord=jnp.inf)) < (
+            5e4 * f.vscale * EPS
+        )
+
     @pytest.mark.parametrize("Tech,method", CASES, ids=IDS)
     def test_rank_deficient(self, Tech, method):
         # pass(n, 18): size(Q) == 3 and size(R) == 3 for f = [x x x].

@@ -1,0 +1,43 @@
+{
+  "package": "Large QR reconstruction with existing fast inverse transform",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_high_branch_reconstruction_83e3fea5_20261010/snapshot/delivery.json",
+  "delivery_review": {
+    "delivery_sha256": "8a502e3c33fb7a4ba3a6af7d9be66e8868b294577dc1e89d21c07c326cce6bb8",
+    "bindings_verified": 12
+  },
+  "source_review": {
+    "src/chebfunjax/tech/chebtech.py": "Only _tech_qr_builtin changed; identical to qualified candidate AST",
+    "src/chebfunjax/utils/transforms.py": "Only _legendre_idlt changed; identical to qualified candidate AST"
+  },
+  "captured_metrics": {
+    "Chebtech1_pivoted_direct_residual": 1.262950563742467e-09,
+    "Chebtech1_pivoted_fast_residual": 5.126635864956674e-12,
+    "Chebtech1_unpivoted_direct_residual": 1.26293633542855e-09,
+    "Chebtech1_unpivoted_fast_residual": 1.1742069292018307e-11,
+    "Chebtech2_pivoted_direct_residual": 1.2629442999754326e-09,
+    "Chebtech2_pivoted_fast_residual": 6.5438179979060225e-12,
+    "Chebtech2_unpivoted_direct_residual": 1.2629372129407073e-09,
+    "Chebtech2_unpivoted_fast_residual": 6.3066718072457145e-12
+  },
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_high_reconstruction_root_20261010/receipt.json",
+    "receipt_sha256": "0146f62fc157a5cd10c1b539d6dd3a4e65aa0d4f4c627f23bdff20d1267924cc",
+    "passed": 14,
+    "elapsed_seconds": 41.5576360989362,
+    "peak_child_rss_kib": 1666544,
+    "source_test_hash_count": 2088
+  },
+  "preserved_failure": {
+    "unfixed_direct_idlt_gate": "supervision/qualification_v2.json and qualification_v2.log; exact smooth fixture and bound failed before force_fast.",
+    "initial_pivot_package_failure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_builtin_pivot_096222d9_20261010/candidate/supervision/qualification.json and qualification.log.",
+    "unpivoted_baseline": "Prior delivery supervision/unpivoted_baseline.log showed max pointwise residual 1.05346619e-9 and 1.05346883e-9 on the same n=4001 cos/exp inputs; this establishes the defect predated pivoting."
+  },
+  "limits": [
+    "The n4001 cos/exp supplement passes unchanged5e4*vscale*eps bound for both Tech classes and both output forms. No claim every length4001..4999 individually tested.",
+    "QR locally uses mathematically equivalent source fast IDLT below native5000 threshold; not literal MATLAB direct floating-point operation parity. General IDLT default and non-QR callsites unchanged.",
+    "Root source/test hashes and JUnit verified; no observed-module runtime hash audit.",
+    "Root180s timeout andCPU24\u201331 enforced; RSS measured without cap. Agent gate enforced3GiB.",
+    "No MATLAB paired timing or current full-suite claim."
+  ]
+}

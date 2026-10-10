@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Large QR reconstruction error corrected (2026-10-10; latest)
+
+QR now selects the existing source transpose-NDCT inverse transform throughout
+its n>4000 branch. The general inverse transform retains its 5000 crossover.
+The original n=4001 cos/exp regression now passes the unchanged 5e4eps-scaled
+bound for both Tech classes and pivoted/unpivoted outputs. Root verified 14
+cases including existing large Legendre blocks and permutation controls.
+Captured matrix-infinity residuals improve from about 1.263e-9 to
+5.13e-12–1.17e-11. Evidence: docs/chebtech_qr_reconstruction_cpu_20261010.json.
+The direct failure remains preserved. This source-equivalent algorithm choice
+differs from MATLAB’s direct floating-point path below 5000; no exhaustive
+length-range, paired MATLAB speed or full-suite parity claim.
+
 ## Pitchfork source computations and figures integrated (2026-10-10; latest)
 
 All five native [0,600] solves completed using the existing JAX ode113 state

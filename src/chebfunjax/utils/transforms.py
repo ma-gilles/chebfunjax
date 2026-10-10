@@ -866,11 +866,17 @@ def _legendre_dlt(c_leg: jnp.ndarray) -> jnp.ndarray:
     return dlt(c_leg)
 
 
-def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
+def _legendre_idlt(v_leg: jnp.ndarray, *, force_fast: bool = False) -> jnp.ndarray:
     """Inverse DLT: values at Gauss-Legendre points -> Legendre coefficients.
 
     Uses Gauss-Legendre quadrature:
         c_k = (2k+1)/2 * sum_j w_j * P_k(x_j) * v_j
+
+    ``force_fast`` selects the source transpose-NDCT algorithm below its
+    normal 5000-row crossover.  The large-QR path uses this when its own
+    matrix-free branch begins at 4001 rows; the recurrence-based direct IDLT
+    loses enough accuracy in the overlapping 4001..4999 range to violate the
+    unchanged QR reconstruction regression bound.
 
     This is the analogue of ``chebfun.idlt`` (MATLAB).
     """
@@ -886,7 +892,7 @@ def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
 
     from chebfunjax.utils.quadrature import legpts
 
-    if n >= 5000:
+    if n >= 5000 or force_fast:
         from chebfunjax.utils.legendre_fast import _idlt_ndct_transpose_source
 
         x, w, _v, theta = legpts(n, newtheta=True)
