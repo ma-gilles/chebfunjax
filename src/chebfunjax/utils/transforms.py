@@ -15,6 +15,8 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+from functools import lru_cache
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -173,7 +175,7 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
 # Chebyshev <-> Legendre (direct O(n^2) method)
 # ===========================================================================
 
-def cheb2leg(c_cheb: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
+def cheb2leg(c_cheb: jnp.ndarray, normalize: bool | str = False) -> jnp.ndarray:
     """Convert Chebyshev coefficients to Legendre coefficients.
 
     C_LEG = cheb2leg(C_CHEB) converts the vector C_CHEB of Chebyshev
@@ -185,22 +187,21 @@ def cheb2leg(c_cheb: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
 
     Parameters
     ----------
-    c_cheb : jnp.ndarray, shape (n,)
-        Chebyshev coefficients.
-    normalize : bool, default False
-        If True, use Legendre polynomials normalized to be orthonormal.
+    c_cheb : jnp.ndarray, shape (n,) or (n, m)
+        Chebyshev coefficients. Matrix columns are converted independently.
+    normalize : bool or str, default False
+        If true, or if the string begins with the native four-character
+        abbreviation ``"norm"``, use orthonormal Legendre normalization.
 
     Returns
     -------
-    c_leg : jnp.ndarray, shape (n,)
+    c_leg : jnp.ndarray, shape (n,) or (n, m)
         Legendre coefficients.
 
     Notes
     -----
-    Uses the direct O(n^2) method based on evaluating the Chebyshev expansion
-    on a fine grid and projecting onto Legendre polynomials via Clenshaw-Curtis
-    quadrature. For N >= 513, the fast O(n log^2 n) algorithm of [1] would be
-    preferable; this implementation uses the direct method for all n.
+    Uses the direct Clenshaw-Curtis projection below 513 coefficient rows and
+    the native pivoted-Cholesky Toeplitz-Hankel method from [1] at 513 rows.
 
     References
     ----------
@@ -218,14 +219,105 @@ def cheb2leg(c_cheb: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
     --------
     leg2cheb, cheb2jac, jac2cheb
     """
+    if isinstance(normalize, str):
+        normalize = normalize[:4].lower() == "norm"
+    c_cheb = jnp.asarray(c_cheb)
+    if c_cheb.ndim not in (1, 2):
+        raise ValueError("cheb2leg expects a coefficient vector or matrix")
     n = c_cheb.shape[0]
-    if n <= 1:
-        c_leg = c_cheb
-        if normalize and n == 1:
-            c_leg = c_leg / jnp.sqrt(0.5)
-        return c_leg
+    # Native cheb2leg returns before normalization for N < 2.
+    if n < 2:
+        return c_cheb
+    if c_cheb.ndim == 2:
+        return jax.vmap(lambda col: cheb2leg(col, normalize=normalize),
+                        in_axes=1, out_axes=1)(c_cheb)
+    if n < 513:
+        return _cheb2leg_direct(c_cheb, normalize)
+    return _cheb2leg_fast(c_cheb, normalize)
 
-    return _cheb2leg_direct(c_cheb, normalize)
+
+def _cheb2leg_fast(c_cheb: jnp.ndarray, normalize: bool) -> jnp.ndarray:
+    """Native pivoted-Cholesky Toeplitz-Hankel transform (N >= 513)."""
+    n = c_cheb.shape[0]
+    # The pivot sequence depends only on static N. Build and cache the exact
+    # source stopping-rank plan at trace time, so runtime work and buffers use
+    # only the retained low-rank columns (no workspace cap or truncation).
+    with jax.ensure_compile_time_eval():
+        vals, chol = _cheb2leg_cholesky_plan(n)
+    num = jnp.arange(1, n, dtype=jnp.float64)
+
+    # First row of the conversion matrix, with the singular zero-mode
+    # expressions assigned directly as in the MATLAB routine.
+    rownum = jnp.arange(n, dtype=jnp.float64)
+    l1top = jnp.concatenate((jnp.ones((2,)), vals[:n - 2]))
+    l2top = jnp.concatenate((jnp.ones((1,)), vals[:n - 1]))
+    l1 = jnp.where(rownum == 0, 1.0, l1top / jnp.where(rownum == 0, 1.0, rownum))
+    l2 = l2top / (rownum + 1.0)
+    first_row = -0.5 * rownum * l1 * l2
+    first_row = jnp.where((rownum.astype(jnp.int32) % 2) == 1, 0.0, first_row)
+    first_row = first_row.at[0].set(1.0)
+
+    # Toeplitz row and its circulant embedding for the FFT product.
+    toeplitz = jnp.concatenate((jnp.zeros((2,)), vals[:n - 3]))
+    denom = jnp.arange(n - 1, dtype=jnp.float64)
+    toeplitz = jnp.where(denom == 0, 0.0, toeplitz / jnp.where(denom == 0, 1.0, denom))
+    toeplitz = jnp.where((jnp.arange(n - 1) % 2) == 1, 0.0, toeplitz)
+    embed = jnp.concatenate((jnp.zeros((n,), dtype=jnp.float64), toeplitz[-1:0:-1]))
+    a_fft = jnp.fft.fft(embed)
+
+    diag_scale = 0.5 * jnp.sqrt(jnp.pi) / vals[jnp.arange(2, 2 * n - 1, 2)]
+    scale = (num + 0.5) / num
+    tail = c_cheb[1:]
+    tmp = -chol * tail[:, None]
+    f1 = jnp.fft.fft(tmp, n=2 * n - 2, axis=0)
+    b = jnp.fft.ifft(f1 * a_fft[:, None], axis=0)[:n - 1]
+    result = jnp.sum(chol * b, axis=1)
+    out_tail = scale * result + diag_scale * tail
+    out = jnp.concatenate((jnp.dot(first_row, c_cheb)[None], out_tail))
+    if normalize:
+        inverse_norms = 1.0 / jnp.sqrt(jnp.arange(n, dtype=jnp.float64) + 0.5)
+        out = out * inverse_norms
+    if not jnp.issubdtype(c_cheb.dtype, jnp.complexfloating):
+        out = jnp.real(out)
+    return out
+
+
+@lru_cache(maxsize=8)
+def _cheb2leg_cholesky_plan(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
+    """Cache the native static-N Cholesky factors using JAX arithmetic only."""
+    from jax import lax
+
+    vals = jnp.zeros((2 * n,), dtype=jnp.float64)
+    vals = vals.at[0].set(jnp.sqrt(jnp.pi)).at[1].set(2.0 / jnp.sqrt(jnp.pi))
+
+    def _vals_step(k, values):
+        i = 2 + 2 * k
+        values = values.at[i].set(values[i - 2] * (1.0 - 1.0 / i))
+        values = values.at[i + 1].set(values[i - 1] * (1.0 - 1.0 / (i + 1)))
+        return values
+
+    vals = lax.fori_loop(0, n - 1, _vals_step, vals)
+    num = jnp.arange(1, n, dtype=jnp.float64)
+    diag = vals[2 * jnp.arange(1, n, dtype=jnp.int32) - 1] * (
+        num**2 / (2.0 * num + 1.0)
+    )
+    tol = 1e-14 * jnp.log(float(n))
+    chol = jnp.empty((n - 1, 0), dtype=jnp.float64)
+    pivots = jnp.empty((0,), dtype=jnp.float64)
+    peak = float(jnp.max(diag))
+    while peak > tol:
+        idx = int(jnp.argmax(diag))
+        mx = diag[idx]
+        vals_idx = idx + 1 + jnp.arange(n - 1, dtype=jnp.int32)
+        col = vals[vals_idx] * (num * (idx + 1.0) / (idx + num + 2.0))
+        if chol.shape[1]:
+            col = col - chol @ (chol[idx, :] * pivots)
+        chol = jnp.concatenate((chol, col[:, None]), axis=1)
+        pivots = jnp.concatenate((pivots, (1.0 / mx)[None]))
+        diag = diag - col**2 / mx
+        peak = float(jnp.max(diag))
+    chol = chol * jnp.sqrt(pivots)[None, :]
+    return vals, chol
 
 
 def _cheb2leg_direct(c_cheb: jnp.ndarray, normalize: bool) -> jnp.ndarray:
@@ -275,8 +367,8 @@ def _cheb2leg_direct(c_cheb: jnp.ndarray, normalize: bool) -> jnp.ndarray:
         c_leg = jnp.stack([c0, c1])[: N + 1]
 
     if normalize:
-        norms = jnp.sqrt(jnp.arange(N + 1, dtype=jnp.float64) + 0.5)
-        c_leg = c_leg / norms
+        inverse_norms = 1.0 / jnp.sqrt(jnp.arange(N + 1, dtype=jnp.float64) + 0.5)
+        c_leg = c_leg * inverse_norms
 
     return c_leg
 

@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native low-rank Chebyshev-to-Legendre branch restored (2026-10-10; latest)
+
+cheb2leg now uses the native pivoted-Cholesky/FFT algorithm at513 rows,
+with static-N JAX plans and runtime arrays sized by retained rank. N513
+retains26 columns (106496 factor bytes); the rejected square-buffer candidate
+is preserved unmerged. Matrix conversion, native row early returns and
+normalization order are restored. Root corrected the N1000 normalization
+bound to native tol and literal row fixtures, then qualified30 combined
+transform/coefficient API cases. Static checks pass; _dct1 is unchanged.
+Evidence: docs/cheb2leg_lowrank_cpu_20261010.json. Random fixtures are not
+MATLAB-identical; large-N scaling and matchedMATLAB timing remain open.
+
+
 ## Public endpoint-decay methods implemented (2026-10-10; latest)
 
 Chebtech1, Chebtech2 and Singfun expose native isdecay; unbounded integral

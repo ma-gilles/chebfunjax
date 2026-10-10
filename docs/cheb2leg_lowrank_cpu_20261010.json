@@ -1,0 +1,49 @@
+{
+  "base_commit": "5a8fc7e93c8cb4d17819913a13cd7d728c5a301a",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_definitions": [
+    "_cheb2leg_cholesky_plan",
+    "_cheb2leg_direct",
+    "_cheb2leg_fast",
+    "cheb2leg"
+  ],
+  "qualification": {
+    "passed": 30,
+    "elapsed_seconds": 34.5817582430318,
+    "peak_child_rss_kib": 1089400,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb2leg_lowrank_root_20261010/receipt.json",
+    "receipt_sha256": "924d06508162404d782ea9c18c978e65174237453ddb1ef8b1c9dc7057a66afe",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb2leg_lowrank_root_20261010/static.json",
+    "static_sha256": "ad49cac35984a0c8c9b93764f061827b2138c6d05c7ff940e48aac8358cc6940"
+  },
+  "native_source_hashes": {
+    "cheb2leg.m": "8f1074b54bad827dbd12013553f10b54d50b2e5401209a83fa773a9c5d63bb17",
+    "tests/misc/test_cheb2leg.m": "fab4f64c0231ba6dffcdc863bbe34a29b6b6ee63cbee281d18499240475d6f56"
+  },
+  "scope": [
+    "Native >=513 pivoted-Cholesky Toeplitz-Hankel transform, matrix columns and low-row early return.",
+    "Static-N JAX plan uses native stopping criterion, realized rank and bounded eight-plan cache; runtime FFT uses only retained columns.",
+    "Direct/fast normalization now reciprocal multiplication, native option aliases accepted.",
+    "All12 native assertion formulas represented, including literal1x21/1x1001 rows and strict N1000 normalization bound; six supplementary transform controls plus12coefficient API checks."
+  ],
+  "root_review_corrections": [
+    "Rejected dense(n-1)^2 candidate despite numerical pass; retained as unmerged evidence.",
+    "Corrected row-vector fixture interpretation and normalizationN1000bound10tol->tol and expected reciprocal multiplication."
+  ],
+  "rank_evidence": {
+    "n": 513,
+    "retained_rank": 26,
+    "factor_bytes": 106496,
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb2leg_source_20261010/lowrank_v3_full_v1/supervision/stdout",
+    "sha256": "a099cb7ac673f3cf49cefb235ae321c8af08c4d88deed32911f3d48a4f95a9a9"
+  },
+  "limitations": [
+    "Random-matrix fixtures are seeded Python replacements, not MATLAB RNG-identical.",
+    "Compile-time plan uses eager static-shape decisions with JAX arithmetic; cold-cache JIT/complex paths qualified at513, no arbitrary rank truncation.",
+    "Real FFT output projection is a Python adapter; no MATLAB bitwise output-dtype/roundoff identity claim.",
+    "Large-N timing/RSS scaling beyond tested1000rows remains to measure; no matchedMATLAB speed claim.",
+    "Public variadic MATLAB option combinations and higher-dimensional input semantics not fully qualified.",
+    "Focused CPU gate, not current-head full suite/remote CI; RSS measured not capped; no observed-module runtime audit."
+  ]
+}
