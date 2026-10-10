@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fresh page source and asset inventory (2026-10-10; latest)
+
+Offline audit of committed869ad7fa verifies 322 canonical pages, 1,305 current
+and reference assets, and 4,567 stable inputs. Following restoration of two
+source blank lines in BayesianGradebook, all 2,408 displayed MATLAB code blocks
+match normalized cached originals. This does not establish Python computation
+parity. There remain 28 dimension mismatches across five pages, 11 pages with
+output-count gaps, and 228 observational output-text differences requiring
+individual interpretation. The three prose differences include qualification
+notes in AnalyticSVD, Needle and SphereHeatConduction. Evidence:
+docs/page_inventory_cpu_20261010.json. Broad CPU continuation runs separately
+on frozen869ad7fa; no library or test source changes in this documentation fix.
+
 ## Exact scalar AD and public coupled linearization (2026-10-10; latest)
 
 Explicit coupled states now return the public linear operator. Scalar finite

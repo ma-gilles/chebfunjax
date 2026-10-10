@@ -85,6 +85,8 @@ We will encapsulate the Bayesian update process in a function for repeated use b
         fprintf('Bayes Mean    %6.3f %6.3f %6.3f %6.3f\n',Mu(m-3:m))
         fprintf('Std dev       %6.3f %6.3f %6.3f %6.3f\n',sqrt(Sig2(m-3:m)))
 
+
+
     end
 ```
 

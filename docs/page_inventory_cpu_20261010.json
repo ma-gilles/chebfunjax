@@ -1,0 +1,33 @@
+{
+  "scope": "Static cached-reference audit, not numerical or visual parity",
+  "audit_head": "869ad7fa6da5a989d2d9894420d7e4e87ebc135f",
+  "audit_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_figure_committed_869ad7fa_20261010/AUDIT.json",
+  "audit_sha256": "af628a9aec56742f30802bb87b4dc4eeab533987dd0549222f6e0d311d50cd19",
+  "stable_audit_inputs": 4567,
+  "canonical_pages": 322,
+  "matlab_code_blocks": 2408,
+  "code_blocks_matching_after_whitespace_repair": 2408,
+  "repair": "Restore two source blank lines in BayesianGradebook MATLAB display block; Python computation unchanged.",
+  "figures_present": 1305,
+  "dimension_mismatches": 28,
+  "dimension_mismatch_pages": [
+    "applics/VanillaOptions",
+    "approx2/Gibbs2D",
+    "linalg/EigLandscapes",
+    "ode-eig/Randfuneig",
+    "ode-random/RandomSwitching"
+  ],
+  "output_count_gap_pages": 11,
+  "output_text_difference_pages_observational": 228,
+  "prose_differences": [
+    "linalg/AnalyticSVD",
+    "opt/Needle",
+    "sphere/SphereHeatConduction"
+  ],
+  "limits": [
+    "Output differences include timing, RNG, warnings and numeric differences; require individual review.",
+    "Three prose differences include explicit qualification notes.",
+    "Matching displayed MATLAB source does not prove Python computation parity.",
+    "Figure dimension equality does not prove visual parity."
+  ]
+}
