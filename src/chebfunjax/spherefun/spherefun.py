@@ -1523,11 +1523,14 @@ class Spherefun(eqx.Module):
             weights = [jnp.real(weight) for weight in weights]
         combined = _sum_trigtech_factors(self.cols, weights)
         combined = combined.simplify()  # source globaltol simplify
-        restricted = combined.restrict(0.0, 1.0)
-        piece = _Piece(tech=restricted, interval=(0.0, float(jnp.pi)))
-        curve = Chebfun(funs=[piece], domain=Domain(
-            (0.0, float(jnp.pi))))
-        return curve
+        # Native restriction acts on the physical-domain Chebfun, whose
+        # periodic-to-Chebtech conversion precedes subinterval restriction.
+        # Calling Trigtech.restrict directly instead requires periodicity on
+        # the half interval and bypasses that source conversion.
+        interval = (-float(jnp.pi), float(jnp.pi))
+        curve = Chebfun(funs=[_Piece(tech=combined, interval=interval)],
+                        domain=Domain(interval))
+        return curve.restrict((0.0, float(jnp.pi)))
 
 
 

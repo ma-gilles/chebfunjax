@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Spherefun mean restriction dispatch (2026-10-10; latest)
+
+The broad sweep exposed direct Trigtech restriction in Spherefun.sum(dim=2),
+which bypassed native Chebfun periodic-to-polynomial conversion and failed
+for zero functions. The combined factor is now wrapped on [-pi,pi] and
+restricted through Chebfun to [0,pi], matching the source. All 14 unchanged
+zero, analytic mean, sum and restriction controls pass; 2,963 runtime files
+are audited clean. No preference or tolerance changes. Evidence:
+docs/sphere_sum_restriction_cpu_20261010.json. Broad continuation remains open.
+
 ## RandomSwitching full page restored (2026-10-10; latest)
 
 All four source-order public solves complete on CPU in 384.33 seconds, with

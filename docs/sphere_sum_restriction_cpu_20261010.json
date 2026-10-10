@@ -1,0 +1,12 @@
+{
+  "scope": "Restore native Spherefun.sum dimension2 Chebfun restriction dispatch",
+  "source": "Chebfun7574c77 @spherefun/sum.m and @chebfun/restrict.m",
+  "candidate_sha256": "7e4e5c2cce692daae3bcf5fd5402cce227506e651900b8c56e7022f435b013ec",
+  "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_sum_restrict_dispatch_20261010/qualification_v1/focused14/AUDIT.json",
+  "audit_sha256": "ecb7e4fbb3b50a4919072b0edde653f35294a5618b6b79382421dbe389e90d74",
+  "tests_passed": 14,
+  "runtime_files": 2963,
+  "wall_seconds": 91.6550912540406,
+  "root_verified_bindings": 9,
+  "limits": "Focused CPU qualification only; full broad suite and latest CI remain open. Trigtech refinement preferences unchanged."
+}
