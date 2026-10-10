@@ -1,10 +1,10 @@
 """Port of MATLAB Chebfun tests/chebop/test_chap21.m (Fable 5).
 
-ATAP chapter 21 exercises (mostly SCALAR chebops).  The operator-application
-assertion ``L*f`` is ported; the finite differentiation-matrix realizations
-(``D(14)``, ``size(D(33))``, ``feval(L, n, 'oldschool')``) and the stiff
-``L\\x`` residual check have no counterpart / are not reachable and stay
-skipped with precise reasons.
+This module covers all four asserted source predicates: differentiation
+matrix identities and size (pass(1) and pass(2)), operator application
+(pass(3)), and the adaptive Dirichlet solve residual (pass(4)). The remaining
+constructions, oldschool finite-grid solves, and plots in the MATLAB file are
+demonstrations without assertions and are not represented as tested here.
 
 Provenance
 ----------
@@ -50,14 +50,9 @@ class TestChebopChap21:
         assert np.asarray(D(33)).shape == (33, 33)
 
     def test_stiff_solve_residual(self):
-        # pass(4): u = L\\x with L = diff(u,2)+diff(u)+100u, dirichlet BCs;
-        # norm(L*u - x) < 1e-10.
-        import pytest
-        pytest.skip(
-            "the stiff operator diff(u,2)+diff(u)+100u on the square (oldschool) "
-            "collocation grid has an operator-application residual norm(L*u - x) "
-            "that oscillates around 1e-10 with the grid size (it grows, not shrinks, "
-            "for n > ~60 as conditioning degrades); no robust grid choice clears "
-            "MATLAB's 1e-10 the way its adaptive rectangular collocation does. Not "
-            "widened, not tuned to a fragile magic n -- accuracy gap"
-        )
+        # pass(4): native adaptive Dirichlet solve, with default solver settings.
+        L = Chebop(lambda u: u.diff(2) + u.diff() + 100 * u, (-1.0, 1.0))
+        L.bc = "dirichlet"
+        x = cj.chebfun(lambda x: x)
+        u = L.solve(x)
+        assert float((L(u) - x).norm()) < 1e-10

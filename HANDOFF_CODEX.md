@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Default chapter-21 solve and page audit (2026-10-10; latest)
+
+The previously skipped chapter-21 adaptive Dirichlet solve now passes the
+original residual bound 1e-10 using default solver settings. All three methods
+covering four native predicates pass; library code is unchanged.
+Evidence: docs/chap21_default_solve_cpu_20261010.json.
+
+The all-page audit at 83f284f7 verifies 322 pages, 1305 figure slots and 2408 native
+code blocks. Seven figure dimension mismatches remain, all VanillaOptions;
+943 of 949 native output blocks are present. These inventories do not establish
+numerical or pixel parity. Evidence: docs/page_inventory_cpu_20261010.json.
+
+
 ## CPU examples and direct 3D progress (2026-10-10; latest)
 
 EigLandscapes completes both full 512x512 grids and all five 600x253 figures.
@@ -3533,7 +3546,7 @@ regression, all pages, native execution, publication and exact-head CI remain op
 Original promote_functional slots3–6 now use exact coupled AD, native zero-state
 public linearization, source boundary fitting and error-controlled Newton.
 Both C2 and C1 solve the two original systems at the unchanged continuous
-infinity-norm bound1e-10; independent analytic solution and absolute boundary
+infinity-norm bound 1e-10; independent analytic solution and absolute boundary
 checks pass. The second system starts without an inherited explicit init.
 New C2 assembly uses native second-kind function points and first-kind equation
 points through the shared adaptive solve. Scalar algorithms remain unchanged.
