@@ -1289,6 +1289,20 @@ def _revaltrig(
         return _revaltrig_csc(zz, zj, fj, wj)
 
 
+def _trig_residues_source(pol, zj, fj, wj, form):
+    """Evaluate the quotient residue at complex poles (prztrig.m, 7574c77)."""
+    delta = (jnp.asarray(pol)[:, None] - jnp.asarray(zj)[None, :]) / 2
+    values, weights = jnp.asarray(fj), jnp.asarray(wj)
+    if form == "even":
+        numerator = (1 / jnp.tan(delta)) @ (values * weights)
+        derivative = (-0.5 / jnp.sin(delta)**2) @ weights
+    else:
+        numerator = (1 / jnp.sin(delta)) @ (values * weights)
+        derivative = (-0.5 * (1 / jnp.sin(delta))
+                      * (1 / jnp.tan(delta))) @ weights
+    return numerator / derivative
+
+
 def _prztrig_np(
     zj: np.ndarray,
     fj: np.ndarray,
@@ -1381,30 +1395,7 @@ def _prztrig_np(
     pol = pol - 2 * np.pi * np.floor(np.real(pol / (2 * np.pi)))
     zer = zer - 2 * np.pi * np.floor(np.real(zer / (2 * np.pi)))
 
-    if len(pol) > 0:
-        if form == "odd":
-            def N_fn(t):
-                return (1.0 / np.sin((t[:, None] - zj[None, :]) / 2)) @ (fj * wj)
-
-            def Ddiff_fn(t):
-                d = (t[:, None] - zj[None, :]) / 2
-                return -0.5 * (1.0 / np.sin(d)) * (1.0 / np.tan(d)) @ wj
-        else:
-            def N_fn(t):
-                return (1.0 / np.tan((t[:, None] - zj[None, :]) / 2)) @ (fj * wj)
-
-            def Ddiff_fn(t):
-                d = (t[:, None] - zj[None, :]) / 2
-                return -0.5 / np.sin(d) ** 2 @ wj
-
-        pol_real = np.real(pol)
-        try:
-            with np.errstate(divide="ignore", invalid="ignore"):
-                res = N_fn(pol_real[:, None].T.ravel()) / Ddiff_fn(pol_real[:, None].T.ravel())
-        except Exception:
-            res = np.zeros_like(pol)
-    else:
-        res = np.array([], dtype=complex)
+    res = _trig_residues_source(pol, zj, fj, wj, form)
 
     return pol, res, zer
 

@@ -1,0 +1,103 @@
+{
+  "scope": "AAAtrig complex-pole residues; JAX quotient derivative matches native prztrig.m",
+  "source_review": {
+    "scope": "Only residue computation changes; pole/zero generalized eigenproblems and all other module functions unchanged AST",
+    "protected_ast_identical": true,
+    "native_tests_sha256": "b634e7337141037160c574e87ba45014bb57508f6f6855eae4cad3eb2fe07c10",
+    "independent_closed_form": "For zj=[0,pi],fj=[1,2],wj=[1,2i], q=exp(iz): r=(-3q+5)/(-q+3), finite pole q=3, residue -4i/3.",
+    "public_analytic_oracle": "f(z)=1/(2-cos(z)) has poles +/-i*acosh(2), residues1/sin(p).",
+    "native_predicates": "16/17 original537point grids,functions,bounds retained; nonempty selected-pole assertions added to avoid vacuous success. Native loop repeats default odd calls; tested once each.",
+    "remaining": "Pole infinity handling/cleanup order, NumPy eigensolver/greedy construction and broader options/tests remain open."
+  },
+  "baseline_failed_as_expected": {
+    "reviewer": "/root",
+    "scope": "Preserved closed-form AAAtrig complex-residue baseline expected failure",
+    "gates": [
+      {
+        "gate": "aaatrig_complex_residue_source_20261010/baseline_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_complex_residue_source_20261010/baseline_v1/supervision/receipt.json",
+        "receipt_sha256": "eaf21ebc7599f83d328f8a932787974eab1651c0e8c59eadc8484d6c2fda485d",
+        "runtime_manifest_sha256": "d79702ab58f691942100973f0a116a5b3d108937008e6e2ff8675db4529aefc9",
+        "runtime_end_sha256": "2766b31a33fc6056f42d31ec907dd139953823a39b4ba46c4cd37c38fdca7e36",
+        "observed_files_rehashed": 2935,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 563812,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "preserved_outcome": [
+          {
+            "name": "test_two_support_odd_closed_form",
+            "failures": [
+              "tests/test_utils/test_aaatrig_complex_residues_source.py:25: in test_two_support_odd_closed_form\n    assert abs(residues[k]+4j/3) < 1e-12\nE   assert Array(1.33333333, dtype=float64) < 1e-12\nE    +  where Array(1.33333333, dtype=float64) = abs((Array(-4.082156e-17+3.33279952e-33j, dtype=complex128) + (4j / 3)))"
+            ]
+          }
+        ],
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "candidate_runtime_review": {
+    "reviewer": "/root",
+    "scope": "AAAtrig complex-residue candidate ten cases",
+    "gates": [
+      {
+        "gate": "aaatrig_complex_residue_source_20261010/candidate_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_complex_residue_source_20261010/candidate_v1/supervision/receipt.json",
+        "receipt_sha256": "181a36e906536a2e5de3998fc9a50b4645e93145fadee2a977842a36bd145a3d",
+        "runtime_manifest_sha256": "2cfe6717f1ba09fca7dfb08e259fe61fd9d8173b1a4859bcd7c9a3b4204df0d2",
+        "runtime_end_sha256": "9c5f86f799b2a066a769cbb642a3d4178e9d3e4c32cb04dee8524d7293af5063",
+        "observed_files_rehashed": 2936,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 848732,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 10,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "integrated_sha256": {
+    "src/chebfunjax/utils/aaa.py": "1bee96fa922759060cba49dc128b63fc435a94c142b755897cb4a14128d12a55",
+    "tests/test_utils/test_aaatrig_complex_residues_source.py": "5457107d5179457f456367ae58e0eaf61a4dc5f5ef0ac7b3ad23669e90375d53"
+  },
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cases_passed": 10,
+  "limitations": [
+    "Pole/zero infinity projection warnings remain; cancellation/mapping source gaps are separate.",
+    "Generalized eigensolver, greedy loop and cleanup still contain inherited NumPy/SciPy.",
+    "Broader native23predicate suite and missing public options remain unqualified.",
+    "No full current suite or remote CI claim."
+  ],
+  "full_goal_complete": false
+}

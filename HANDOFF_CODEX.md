@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AAAtrig complex-pole residues corrected (2026-10-10; latest)
+
+Residues now evaluate the quotient numerator and derivative at the full
+complex pole using JAX, matching native prztrig.m. The prior implementation
+discarded imaginary pole coordinates and could return a near-zero residue
+instead of the analytic -4i/3. That failing baseline is preserved.
+All ten candidate cases passed: independent closed-form and public both-form
+controls, original native residue predicates16/17, and five existing controls.
+Root checked source AST boundaries and both runtime records. Evidence:
+docs/aaatrig_complex_residues_cpu_20261010.json.
+Infinity mapping/cancellation, cleanup order, inherited NumPy/SciPy paths,
+missing AAAtrig options, full native tests and remote CI remain unresolved.
+
 ## Obsolete AAAtrig even-form skip removed (2026-10-10; latest)
 
 All five existing AAAtrig controls pass, including the formerly skipped cot
