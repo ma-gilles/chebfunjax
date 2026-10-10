@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Missing golden operation fixture (2026-10-09)
+
+The five corepart2 skips require tests/references/chebfun_ops.mat, which
+is absent. The old advertised generator was also absent; the restored
+matlab_harness/refs/chebfun_ops_refs.m captures the five consumed fields,
+checks the pinned clean Chebfun source and records MATLAB provenance.
+It has only been source-reviewed, not executed. No reference values have
+been fabricated; all five comparisons remain unresolved pending capture.
+
+
 ## SphereHeat public computation integrated (2026-10-09; latest)
 
 Replaces the private harmonic shortcut with both original 100-step public
