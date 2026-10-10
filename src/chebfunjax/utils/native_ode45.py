@@ -4,7 +4,7 @@ Provenance
 ----------
 Algorithm: installed MATLAB R2017a ode45.m and private/odearguments.m.
 Chebfun context: @chebfun2v/ode45.m, commit 7574c77.
-Finite binary64 one-output mesh branch; events, mass matrices, output callbacks,
+Finite binary64 one-output mesh branch; mass matrices, output callbacks,
 NonNegative and single precision are not yet implemented. This module returns
 accepted mesh values, not a SciPy dense-output substitution. Native executable
 capture remains unavailable; qualification uses independent source controls.
@@ -111,6 +111,132 @@ def _step(fun, state, tfinal, direction, threshold, rtol, hmax, args, *, norm_co
     return State(trial.tnew, trial.ynew, f, next_h, trial.nfevals, trial.nfailed), trial
 
 
+# Dense extension coefficients for Dormand--Prince, R2017a ntrp45.m.
+_BI = ((1, -183/64, 37/12, -145/128), (0, 0, 0, 0),
+       (0, 1500/371, -1000/159, 1000/371),
+       (0, -125/32, 125/12, -375/64),
+       (0, 9477/3392, -729/106, 25515/6784),
+       (0, -11/7, 11/3, -55/28), (0, 3/2, -4, 5/2))
+
+
+@jax.jit
+def _interpolate(tinterp, t, y, h, f):
+    """Native quartic extension and its derivative, with ordered products."""
+    s = (jnp.atleast_1d(tinterp)-t)/h
+    bi = jnp.asarray(_BI, dtype=jnp.float64)
+    powers = jnp.cumprod(jnp.stack((s, s, s, s)), axis=0)
+    values = y[:, None] + (f@(h*bi))@powers
+    derivatives = (f@bi)@jnp.concatenate(
+        (jnp.ones_like(s)[None, :],
+         jnp.cumprod(jnp.stack((2*s, 3/2*s, 4/3*s)), axis=0)), axis=0)
+    return values, derivatives
+
+
+def _event_values(event, t, y, size=None):
+    value, terminal, direction = event(t, y)
+    value = jnp.asarray(value, dtype=jnp.float64).reshape(-1, order='F')
+    terminal = jnp.asarray(terminal).reshape(-1, order='F')
+    direction = jnp.asarray(direction).reshape(-1, order='F')
+    if direction.size == 0:
+        direction = jnp.zeros_like(value)
+    if (not value.size or terminal.size != value.size or direction.size != value.size
+            or (size is not None and value.size != size)):
+        raise ValueError('Events outputs must have matching, fixed nonzero lengths')
+    if not bool(jnp.all(jnp.isfinite(value)) & jnp.all((terminal == 0) | (terminal == 1))
+                & jnp.all((direction == -1) | (direction == 0) | (direction == 1))):
+        raise ValueError('Events requires finite values, binary terminal flags and directions -1/0/1')
+    return value, terminal, direction
+
+
+def _locate_events(event, v, t, y, tnew, ynew, t0, h, f):
+    """Directional Illinois brackets, following R2017a odezero semantics.
+
+    Host control owns bracket decisions; interpolation and event arithmetic
+    use JAX arrays. The first-step terminal exception and right bracket
+    endpoint are intentional native rules. Indices are MATLAB one-based.
+    """
+    tol = jnp.minimum(128*jnp.maximum(jnp.spacing(jnp.abs(t)),
+                                     jnp.spacing(jnp.abs(tnew))), jnp.abs(tnew-t))
+    tdir = jnp.sign(tnew-t)
+    vnew, terminal, direction = _event_values(event, tnew, ynew, v.size)
+    left, yl, vl = t, y, v
+    right, yr, vr = tnew, ynew, vnew
+    trial = right
+    vt = vr
+    times, values, indices = [], [], []
+    def crossing(a, b):
+        return [i for i in range(a.size)
+                if bool((jnp.sign(a[i]) != jnp.sign(b[i])) & (direction[i]*(b[i]-a[i]) >= 0))]
+    for _ in range(10000):
+        moved = 0
+        for _ in range(10000):
+            active = crossing(vl, vr)
+            if not active:
+                if moved:
+                    raise RuntimeError('ode45 event bracket lost its crossing')
+                return times, values, indices, vnew, False
+            delta = right-left
+            if bool(jnp.abs(delta) <= tol):
+                break
+            if bool(left == t) and any(bool((vl[i] == 0) & (vr[i] != 0)) for i in active):
+                trial = left + tdir*.5*tol
+            else:
+                fraction = jnp.asarray(1.)
+                for i in active:
+                    if bool(vl[i] == 0):
+                        maybe = (1-vr[i]*(trial-right)/((vt[i]-vr[i])*delta)
+                                 if bool((tdir*trial > tdir*right) & (vt[i] != vr[i]))
+                                 else jnp.asarray(.5))
+                        if bool((maybe < 0) | (maybe > 1)):
+                            maybe = jnp.asarray(.5)
+                    elif bool(vr[i] == 0):
+                        maybe = (vl[i]*(left-trial)/((vt[i]-vl[i])*delta)
+                                 if bool((tdir*trial < tdir*left) & (vt[i] != vl[i]))
+                                 else jnp.asarray(.5))
+                        if bool((maybe < 0) | (maybe > 1)):
+                            maybe = jnp.asarray(.5)
+                    else:
+                        maybe = -vl[i]/(vr[i]-vl[i])
+                    fraction = jnp.minimum(fraction, maybe)
+                change = jnp.maximum(.5*tol, jnp.minimum(fraction*jnp.abs(delta),
+                                                        jnp.abs(delta)-.5*tol))
+                trial = left + tdir*change
+            yt = _interpolate(trial, t, y, h, f)[0][:, 0]
+            vt = _event_values(event, trial, yt, v.size)[0]
+            if crossing(vl, vt):
+                right, trial = trial, right
+                yr, yt = yt, yr
+                vr, vt = vt, vr
+                if moved == 2:
+                    half = .5*vl
+                    vl = jnp.where(jnp.abs(half) >= jnp.finfo(jnp.float64).tiny, half, vl)
+                moved = 2
+            else:
+                left, trial = trial, left
+                yl, yt = yt, yl
+                vl, vt = vt, vl
+                if moved == 1:
+                    half = .5*vr
+                    vr = jnp.where(jnp.abs(half) >= jnp.finfo(jnp.float64).tiny, half, vr)
+                moved = 1
+        else:
+            raise RuntimeError('ode45 event bracket resource cap exceeded')
+        for i in active:
+            times.append(right)
+            values.append(yr)
+            indices.append(i+1)
+        if any(bool(terminal[i]) for i in active):
+            return times, values, indices, vnew, bool(left != t0)
+        if bool(jnp.abs(tnew-right) <= tol):
+            return times, values, indices, vnew, False
+        trial, yt, vt = right, yr, vr
+        left = right + tdir*.5*tol
+        yl = _interpolate(left, t, y, h, f)[0][:, 0]
+        vl = _event_values(event, left, yl, v.size)[0]
+        right, yr, vr = tnew, ynew, vnew
+    raise RuntimeError('ode45 event count resource cap exceeded')
+
+
 def native_ode45(fun, tspan, y0, options=None, *, args=(), max_steps=100000):
     """Return accepted ``x``/``y`` mesh and statistics using JAX arithmetic.
 
@@ -121,7 +247,11 @@ def native_ode45(fun, tspan, y0, options=None, *, args=(), max_steps=100000):
     if not jax.config.x64_enabled:
         raise ValueError('native ode45 requires JAX x64')
     options = {} if options is None else dict(options)
-    supported = {'RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'NormControl'}
+    # ODESET option names are case-insensitive.
+    names = ('RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'NormControl', 'Events')
+    canonical = {name.lower(): name for name in names}
+    options = {canonical.get(key.lower(), key): value for key, value in options.items()}
+    supported = {'RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'NormControl', 'Events'}
     def empty(v):
         return v is None or (isinstance(v, (list, tuple, dict, str)) and not v) or getattr(v, 'size', None) == 0
     for key, value in options.items():
@@ -184,6 +314,12 @@ def native_ode45(fun, tspan, y0, options=None, *, args=(), max_steps=100000):
     f = jnp.zeros((y.size, 7), dtype=y.dtype).at[:, 0].set(f0)
     state = State(span[0], y, f, absh, jnp.asarray(1, jnp.int32), jnp.asarray(0, jnp.int32))
     history = [state]
+    event = opt('Events', None)
+    event_times, event_states, event_indices = [], [], []
+    if event is not None:
+        if not callable(event):
+            raise ValueError('Events must be callable')
+        event_value = _event_values(event, state.t, state.y)[0]
     for _ in range(max_steps):
         candidate, trial = _step(fun, state, span[-1], jnp.asarray(direction), threshold,
                                  rtol, hmax, args, norm_control=norm_control)
@@ -192,15 +328,33 @@ def native_ode45(fun, tspan, y0, options=None, *, args=(), max_steps=100000):
         if bool(trial.failed_at_minimum):
             warnings.warn('ode45 tolerance not met at minimum step; returning accepted partial mesh', stacklevel=2)
             break
+        stopped = False
+        if event is not None:
+            te, ye, ie, event_value, stopped = _locate_events(
+                event, event_value, state.t, state.y, trial.tnew, trial.ynew,
+                span[0], trial.h, trial.f)
+            event_times.extend(te)
+            event_states.extend(ye)
+            event_indices.extend(ie)
+            if stopped:
+                taux = state.t + (te[-1]-state.t)*jnp.asarray(_A)
+                derivatives = _interpolate(taux, state.t, state.y, trial.h, trial.f)[1]
+                adjusted = trial.f.at[:, 1:].set(derivatives)
+                candidate = candidate._replace(t=te[-1], y=ye[-1], f=adjusted)
         state = candidate
         history.append(state)
-        if bool(trial.done):
+        if stopped or bool(trial.done):
             break
     else:
         raise RuntimeError('native ode45 exceeded max_steps resource cap')
-    return {'solver': 'ode45', 'x': jnp.stack([s.t for s in history]),
+    result = {'solver': 'ode45', 'x': jnp.stack([s.t for s in history]),
             'y': jnp.stack([s.y for s in history], axis=1),
             'stats': {'nsteps': len(history)-1, 'nfailed': int(trial.nfailed),
                       'nfevals': int(trial.nfevals)},
             'extdata': {'options': options},
             'scope': 'R2017a finite one-output mesh; native executable capture unavailable'}
+    if event is not None:
+        result.update(xe=jnp.stack(event_times) if event_times else jnp.empty((0,)),
+                      ye=jnp.stack(event_states, axis=1) if event_states else jnp.empty((y.size, 0)),
+                      ie=jnp.asarray(event_indices, dtype=jnp.int32))
+    return result

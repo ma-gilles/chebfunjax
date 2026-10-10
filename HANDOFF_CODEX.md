@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native ODE45 terminal events implemented (2026-10-10; latest)
+
+The JAX controller now locates directional events using the source quartic
+interpolant and safeguarded Illinois brackets, records event metadata, and
+truncates the public solution domain. All 30 CPU cases passed across six
+serial gates, including the original full-interval projectile and unchanged
+controller regressions. Root independently verified runtime hashes and all
+49 delivery bindings. The projectile triggers no events under the native
+domain mask; separate controls exercise actual crossings and public outputs.
+Evidence: docs/ode45_events_cpu_20261010.json. No-event numerical kernels and
+the complete DynamicalSystems page source remain unchanged.
+Public SOL/five-output adapters, broader event corners, remaining solver
+options, native executable trajectories and complete suite/CI remain open.
+
 ## Native complex construction and realness restored (2026-10-10; latest)
 
 Chebfun3 complex now checks real inputs before arithmetic, then uses the

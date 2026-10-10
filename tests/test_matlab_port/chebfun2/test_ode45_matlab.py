@@ -3,8 +3,10 @@
 Native pass(2): all seven source calls, including the duplicated initial state,
 with default options and successful completion as the only predicate.
 The shortened projectile and tight analytic endpoint tests are independent
-Python regressions. They do not qualify native pass(1), which uses [0,30],
-RelTol=100*eps and a terminal event; that event path remains unported.
+Python regressions. The separate test_native45_projectile_event.py preserves
+native pass(1), including [0,30], RelTol=100*eps and its terminal event callback.
+Independent crossing controls qualify the locator; the native domain mask
+can prevent the projectile from reaching the event.
 
 Provenance
 ----------
@@ -26,7 +28,7 @@ def _cf2(fn, dom):
 
 class TestChebfun2Ode45:
     def test_shortened_projectile_python_control(self):
-        # Independent shortened no-event control; native pass(1) is unresolved: h'' = -1 - 0.01 h' with the (h, h', x) state trick;
+        # Independent shortened no-event control; full native pass(1) is tested separately: h'' = -1 - 0.01 h' with the (h, h', x) state trick;
         # Y(0) must recover u0 (MATLAB bound 1e-3).
         dom = (0.0, 30.0, 0.0, 2.0)
         F = Chebfun2v([

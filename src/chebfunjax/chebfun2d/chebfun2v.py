@@ -548,8 +548,8 @@ class Chebfun2v(eqx.Module):
         rather than fitting a dense-time interpolant. Explicit solver options
         override the source defaults from the active Chebfun preference.
 
-        Finite binary64, no-event calls use a JAX R2017a Dormand--Prince
-        controller. Events/mass/output callbacks remain unported and raise.
+        Finite binary64 calls use a JAX R2017a Dormand--Prince controller
+        with directional events. Mass/output callbacks remain unported and raise.
         No native executable trajectory equality is claimed.
 
         Provenance
@@ -565,8 +565,11 @@ class Chebfun2v(eqx.Module):
         resolved = {'RelTol': 1e8*abstol, 'AbsTol': abstol}
         if options is not None:
             # ODESET merges only nonempty fields (R2017a odeset.m).
-            resolved.update({key: value for key, value in dict(options).items()
-                             if value is not None and jnp.size(value) != 0})
+            names = ('RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'NormControl', 'Events')
+            canonical = {name.lower(): name for name in names}
+            resolved.update({canonical.get(key.lower(), key): value
+                             for key, value in dict(options).items()
+                             if value is not None and (callable(value) or jnp.size(value) != 0)})
         if rtol is not None:
             resolved['RelTol'] = rtol
         if atol is not None:
@@ -579,6 +582,8 @@ class Chebfun2v(eqx.Module):
         # Pinned source truncates tspan if the solver stopped before its end.
         if abs(float(sol['x'][-1]-span[-1])) > abstol:
             span = jnp.concatenate((span[span < sol['x'][-1]], sol['x'][-1:]))
+        if 'xe' in sol and sol['xe'].size:
+            span = jnp.unique(jnp.sort(jnp.concatenate((span, sol['xe']))))
         times = tuple(float(t) for t in span)
         T = chebfun(span[jnp.asarray([0, span.size-1])], domain=times)
         ys = sol['y']
