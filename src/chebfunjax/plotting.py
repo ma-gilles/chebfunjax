@@ -3916,22 +3916,13 @@ def arrowplot(
         # @chebfun/arrowplot.m combines real components before plot(f).
         # Use its source plotData grid, including piece boundaries.
         curve = fk if gk is None else fk + 1j * gk
-        pieces = _sample_pieces(curve, n_pts, _source_grid=True)
-        if not pieces:
+        if curve.isempty():
             continue
-        xs, values = _join_plot_pieces(pieces)
-        xvals, yvals = _source_complex_plot_coordinates(xs, values)
         line_kw = dict(kw)
         if ck is not None:
             line_kw["color"] = ck
         first_line = len(ax.lines)
-        if _marker_requested(None, line_kw):
-            px, py = _join_plot_pieces(_source_point_pieces(curve))
-            px, py = _source_complex_plot_coordinates(px, py)
-            _source_plot_line_and_points(
-                ax, xvals, yvals, px, py, None, line_kw)
-        else:
-            _plot_curve(ax, xvals, yvals, None, line_kw)
+        matlab_plot(curve.real(), curve.imag(), ax=ax, numpts=n_pts, **line_kw)
         ck = ax.lines[first_line].get_color()
         ts = (float(curve.domain.breakpoints[0]),
               float(curve.domain.breakpoints[-1]))
@@ -4621,6 +4612,43 @@ def _source_complex_plot_coordinates(xs, ys):
     return ys.real, imaginary
 
 
+def _source_parametric_plot_data(f, g):
+    """Bounded polynomial paired plotData with source overlap and common degree.
+
+    Provenance: @chebfun/plotData.m, @chebtech/plotData.m, commit7574c77.
+    Other tech types retain the existing sampling adapter.
+    """
+    from chebfunjax.chebfun1d.chebfun import overlap
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    if not f.funs or not g.funs or not all(
+        isinstance(p.tech, (Chebtech1, Chebtech2))
+        and np.all(np.isfinite(p.interval)) for p in (*f.funs, *g.funs)
+    ):
+        return None
+    f, g = overlap(f, g)
+    parts = [[], [], [], []]
+    endpoints = [[], []]
+    for fp, gp in zip(f.funs, g.funs):
+        degree_length = max(len(fp.tech), len(gp.tech))
+        count = min(max(501, int(np.floor(4*np.pi*degree_length + .5))), 65537)
+        endpoints[0].append(np.asarray(fp.tech(jnp.array([-1., 1.]))))
+        endpoints[1].append(np.asarray(gp.tech(jnp.array([-1., 1.]))))
+        values = (fp.tech.prolong(count).values, gp.tech.prolong(count).values,
+                  fp.tech.prolong(degree_length).values,
+                  gp.tech.prolong(degree_length).values)
+        for target, data in zip(parts, values):
+            data = np.asarray(data)
+            target.extend((np.full((1, *data.shape[1:]), np.nan,
+                                   dtype=np.result_type(data.dtype, float)), data))
+    joined = tuple(np.concatenate(part, axis=0) for part in parts)
+    limits = []
+    for line, ends in zip(joined[:2], endpoints):
+        data = np.concatenate((line.ravel(), *(v.ravel() for v in ends)))
+        limits.append((float(np.nanmin(data)), float(np.nanmax(data))))
+    return (*joined, limits)
+
+
 def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 jumpline=None, deltaline=None, **kw):
     """MATLAB @chebfun/plot.m argument-stream plotting.
@@ -4746,10 +4774,24 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 for k in range(npairs):
                     fx = cols[k % nx]
                     fy = ycols[k % ny]
-                    for (xs, xv), (_, yv) in zip(
-                            _sample_pieces(fx, numpts, interval),
-                            _sample_pieces(fy, numpts, interval)):
-                        _plot_curve(ax, xv, yv, fmt, kw)
+                    data = (_source_parametric_plot_data(fx, fy)
+                            if interval is None else None)
+                    if data is not None:
+                        xv, yv, px, py, limits = data
+                        if _marker_requested(fmt, kw):
+                            _source_plot_line_and_points(ax, xv, yv, px, py, fmt, kw)
+                        else:
+                            _plot_curve(ax, xv, yv, fmt, kw)
+                        saw_plain = True
+                        agg_x = [min(agg_x[0], limits[0][0]),
+                                 max(agg_x[1], limits[0][1])]
+                        agg_y = [min(agg_y[0], limits[1][0]),
+                                 max(agg_y[1], limits[1][1])]
+                    else:
+                        for (xs, xv), (_, yv) in zip(
+                                _sample_pieces(fx, numpts, interval),
+                                _sample_pieces(fy, numpts, interval)):
+                            _plot_curve(ax, xv, yv, fmt, kw)
             i = j
         else:
             # Discrete data group: x, y[, style]

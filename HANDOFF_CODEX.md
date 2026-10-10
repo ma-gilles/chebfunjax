@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Parametric source plotData and limits (2026-10-10; latest)
+
+Bounded polynomial parametric curves now overlap breakpoints and sample both
+components at their common source degree. Representation markers, NaN piece
+separators and endpoint-inclusive axis limits follow source. Arrowplot uses
+this route. Root25 tests pass; static checks pass. ChebopQuiver serial rerun
+and unsupported-tech/interval rendering remain open.
+Evidence: docs/parametric_plot_source_cpu_20261010.json.
+
 ## Arrowplot source sampling and held colors (2026-10-10; latest)
 
 Arrowplot now uses native polynomial plotData grids/markers after combining

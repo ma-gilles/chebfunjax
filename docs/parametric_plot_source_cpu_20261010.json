@@ -1,0 +1,46 @@
+{
+  "scope": "Bounded polynomial parametric plotting source grids, overlap, markers and axis limits; arrowplot uses the shared route.",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "implementation": [
+    "Overlap component breakpoints; use maximum polynomial length for source oversampling and representation points.",
+    "Prepend source NaN separators to each piece and draw markers on representation grids.",
+    "Use source limits including endpoint values even for first-kind techs, with held manual-limit union.",
+    "Arrowplot delegates combined real/imaginary components to shared parametric route."
+  ],
+  "root_gate": {
+    "passed": 25,
+    "elapsed_seconds": 29.63810125272721,
+    "peak_child_rss_kib": 925992,
+    "cpu_affinity": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39
+    ],
+    "timeout_seconds": 120,
+    "source_unchanged": true
+  },
+  "tested": "Six new analytic/source controls, existing native plot assertion test,18arrowplot controls.",
+  "review": "New helper plus matlab_plot/arrowplot changes only; remaining module AST identical. Static checks pass.",
+  "limits": [
+    "Source route covers bounded polynomial techs without interval option; singular, unbounded, periodic and explicit-interval sampling retain existing adapters and remain unqualified.",
+    "Complete ChebopQuiver rerun and historical font/renderer parity remain outstanding.",
+    "Root source/test before-after and output hashes verified; no observed runtime-origin audit or enforced RSS cap.",
+    "Frozen core sweep is at c8172bfa; this focused gate supplements it. Remote CI unresolved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_root_20261010/receipt.json": "4a6ed5899d222e01fc20a41edd8fece49913f002d610f5595588e7e2efa45bb7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_root_20261010/junit.xml": "255e82e7f32a1e378c5f0bf48ae5c2c9eba5b141e598e6e36b68e78f03e6062e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_root_20261010/source_review.json": "763230496c50f0d5bae83bb81e4965888dc55cedac5e000968cada98f4d433f4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_root_20261010/static.json": "81f5e31f09db13cdc43c42820c24a5cde08677c29e373f9c77d5a6371310c88d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_source_20261010/gate_v1/receipt.json": "60ce2ddcd2d2eded4c6699de85f9d1df06f47388685ff0f826013daea406e1bc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parametric_plot_source_20261010/gate_v2/receipt.json": "74fe10c42f91827717435ef4c1e67781b5b2ead6bf493ed9edc3005055814246",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/plotData.m": "c3829c9968e271347d574116711ef7a3425296e2a42da39e1adb2b7dbe37e76e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech/plotData.m": "fbcb953ae11a85853880b6f33be7b0f73114997f5704f33692e2175b3c432b00",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/plot.m": "4534d5c739810ae9a1e2b1c4b8ccf2bbe32845f4f56487786fa0831aa02da3df"
+  }
+}
