@@ -1,0 +1,68 @@
+{
+  "base": "12161a0b",
+  "scope": "Local JAX beta evaluation with corrected algdiv Stirling geometric ratio; no dependency modifications",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_qualification": {
+    "passed": 30,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_beta_root_20261010/receipt.json",
+    "sha256": "a8d13ed102ae3c7c73f0845e0d46c6ad832d2ac55bab8d66be5e56c3f22377a2",
+    "wall_seconds": 19.230407701805234,
+    "peak_child_rss_kib": 805404,
+    "CPU": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "hashes_stable": true,
+    "limits": "Focused120s gate, measuredRSS, noRSS cap or observedruntime audit."
+  },
+  "independent_delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_sequential_diagnosis_20261010/BETA_DELIVERY.json",
+    "sha256": "53c86f4a16f866b4706f68aa27c7fe1afd743fa20a38f1f5c857913c105e2e9c",
+    "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_beta_delivery_root_review_20261010.json",
+    "bindings": 61,
+    "observed_runtime_counts": [
+      2958,
+      2984
+    ]
+  },
+  "source_provenance": {
+    "upstream": "https://raw.githubusercontent.com/scipy/scipy/c89dfc2b90d993f2a8174e57e0cbc8fbe6f3ee19/scipy/special/cdflib/algdiv.f lines38-40",
+    "cache": "UPSTREAM_WEB_CACHE.json complete toolsource response, not rawHTTPbytearchive",
+    "JAX": "installed0.11 source bound below"
+  },
+  "independent_long_scale_check": {
+    "handle": 48620,
+    "audit_handle": 97482,
+    "pytest": "6 passed",
+    "runtime_files": 2984,
+    "runtime_clean": true,
+    "max_relative_error": 2.801880664113531e-15,
+    "bound": "30eps unchanged",
+    "coverage": "Full helper vectors n513/10000 evaluated; independent80digit reference at predefined plus SciPy-worst indices for mu1e-12,.3,1-1e-12; exactbinaryfloat args captured"
+  },
+  "preserved_failures": {
+    "root_native7": "both sequential source assertions originally failed",
+    "beta_attribution_v1": "integral passes6.106e-15; derivative stillfails3.997e-13 versus9.865e-14 with beta correction alone",
+    "beta36_v2": "SciPy beta reference shown inaccurate by mpmath80, up to4.2543e-11 relative at highargument; no bound relaxation"
+  },
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_beta_root_20261010/static.json",
+    "sha256": "95c76cb10709e6d3f0838293269162bde9d60e1e0f775dccd3b9f229347dbdaa",
+    "passed": true
+  },
+  "remaining": [
+    "Beta-only derivative still fails originalbound; separate sourceFFT patch pending.",
+    "Original sevenpredicate test remains untracked pending derivativefix; passing integrateTwice is included in rootreceipt.",
+    "No full fractional, longvector exhaustiveoracle or current-head CI claim."
+  ],
+  "payload_sha256": {
+    "src/chebfunjax/tech/_fractional.py": "886a44750d223a5a05a8c112deabb3b8dfbddc73d8c9f61b0b43d5b33d20ea74",
+    "tests/test_tech/test_fractional_beta_source.py": "f545a1c47c11228ddf21615347a2e20160c698bf84f4d43b797f56b87056e6c3"
+  }
+}

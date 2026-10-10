@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fractional beta scaling corrected (2026-10-10; latest)
+
+Installed JAX0.11 beta uses the wrong geometric ratio in its algdiv remainder.
+A local JAX helper restores the upstream ratio while retaining native beta/gamma
+scaling. Root30 cases pass, including the original repeated-integral bound.
+Independent80-digit checks cover selected indices up to10000 and mu near0/1;
+the failed SciPy reference gate is preserved and diagnosed as oracle error.
+Evidence: docs/fractional_beta_cpu_20261010.json. Repeated differentiation
+still needs the separate sourceFFT correction; no tolerance changes.
+
+
 ## Native high-order Jacobi conversion helpers restored (2026-10-10; latest)
 
 Chebyshev/Jacobi conversions now handle matrix columns and use the corrected
