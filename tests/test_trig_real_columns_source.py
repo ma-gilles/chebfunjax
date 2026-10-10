@@ -180,8 +180,20 @@ def test_integral_pairwise_inner_and_matrix_aggregate():
     assert_mask(f.sum(dim=2), (False,))
     g = Trigtech(coeffs=jnp.asarray([[3+2e-5j, 4j]]), real_columns=(True, False))
     ip = f.innerProduct(g)
-    raw = 2*jnp.conj(f.coeffs).T@g.coeffs
-    assert jnp.array_equal(ip, raw.at[0, 0].set(jnp.real(raw[0, 0])))
+    # Literal @trigtech/innerProduct.m reference: prolong to summed length,
+    # integrate stored grid values with source quadrature weights, then force
+    # only real-real pairs to real. The coefficient shortcut is invalid here
+    # because the explicit real-column metadata projects stored values.
+    n = f.n + g.n
+    fp, gp = f.prolong(n), g.prolong(n)
+    w = fp.quadwts(n)
+    fv = fp.values[:, None] if fp.values.ndim == 1 else fp.values
+    gv = gp.values[:, None] if gp.values.ndim == 1 else gp.values
+    raw = jnp.conj(w[:, None] * fv).T @ gv
+    real_pairs = (jnp.asarray(fp.real_columns)[:, None]
+                  & jnp.asarray(gp.real_columns)[None, :])
+    raw = jnp.where(real_pairs, jnp.real(raw), raw)
+    assert jnp.array_equal(ip, raw)
     assert_mask(f@jnp.eye(2), (False, False))
 
 

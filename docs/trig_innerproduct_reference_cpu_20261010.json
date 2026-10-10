@@ -1,0 +1,50 @@
+{
+  "scope": "Correct source-reference expectation for real-column innerProduct",
+  "native_source_sha256": "ca7204bdcd3fbee738cd171360a3f94a02e9752a59aa393ebd20ef43b9e2f455",
+  "source_reason": "Native prolongs to summed length and integrates stored values with trapezium weights. Explicit real-column metadata changes values, so raw coefficient dot product is not the source reference.",
+  "exact_array_equality_preserved": true,
+  "production_changed": false,
+  "other_test_AST_unchanged": true,
+  "before_sha256": "233e21823bc8591e3cb5288e73247965dffdc9aae9db09e8591e7d51f5a18ec0",
+  "after_sha256": "4fa2ee7968bad728b322f27892cf2863136d325c65b045f845ea3953884ff43b",
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Corrected source-value innerProduct reference; complete original real-column module45cases",
+    "gates": [
+      {
+        "gate": "batch_10_focus",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_batches10_12_innerproductfix_b70c8030_20261010_v3/batch_10_focus/supervision/receipt.json",
+        "receipt_sha256": "7e585ac64136459bb07a31be4125ed85bdc5a608bd0029bb08dd44a1296882be",
+        "runtime_manifest_sha256": "612bd43555ae2795dcf3beca17d4fe200271a89e84dea5c46f5c8e58a99cf104",
+        "runtime_end_sha256": "83e8d1171c59368513a48c9adbc41dde59f4eaa57f8d28e1d1a81d03b2a63924",
+        "observed_files_rehashed": 2948,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 61,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1677960,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 45,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "cases_passed": 45,
+  "limitations": [
+    "Focused frozen snapshot qualified; no complete current-suite or remote CI claim."
+  ],
+  "full_goal_complete": false
+}

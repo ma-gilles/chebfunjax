@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Trigtech inner-product test reference corrected (2026-10-10; latest)
+
+The real-column control now uses native prolonged stored values and trapezium
+weights. Its old coefficient shortcut ignored real-column projection. Exact
+array equality is retained; library code is unchanged. All 45 cases in the
+original module passed, with 2,948 runtime files independently verified.
+Evidence: docs/trig_innerproduct_reference_cpu_20261010.json. The earlier
+batch failure remains preserved; broad-suite and CI qualification remain open.
+
 ## AAAtrig infinity mapping and cancellation restored (2026-10-10; latest)
 
 Odd/even inverse transforms now apply native infinity thresholds and cancel
