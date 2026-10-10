@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Factor-preserving Chebfun3 restriction restored (2026-10-10; latest)
+
+Restriction now contracts the existing core and restricts its factors using
+native branch order, preserving complex point values, scalar line shapes,
+and cuboid domain errors. It no longer reconstructs slices by resampling.
+All 21 CPU cases passed: 19 controls, one case containing nine native
+restriction predicates plus one adapted predicate, and the unchanged analytic
+regression. Root independently checked all three runtime records and 46
+source delivery bindings. Evidence: docs/chebfun3_restrict_cpu_20261010.json.
+The explicit subsref API and its independent test route remain open, as do
+native rank stress tests, full current suite and remote CI. Prior failing
+shape controls and the Python scalar-shape regression are preserved.
+
 ## Public ODE45 output modes restored (2026-10-10; latest)
 
 The explicit outputs keyword now provides native solution-record, T/Y and

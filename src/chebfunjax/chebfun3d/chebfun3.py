@@ -2361,38 +2361,8 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/restrict.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-        v = [float(t) for t in dom]
-        pts = [v[0] == v[1], v[2] == v[3], v[4] == v[5]]
-        fixed = [v[0], v[2], v[4]]
-        free = [i for i in range(3) if not pts[i]]
-        if len(free) == 0:
-            return float(self(jnp.asarray(v[0]), jnp.asarray(v[2]),
-                              jnp.asarray(v[4])))
-        if len(free) == 1:
-            i = free[0]
-
-            def f1(t, i=i):
-                args = [jnp.full_like(t, fixed[k]) for k in range(3)]
-                args[i] = t
-                return self(*args)
-
-            return Chebfun.from_function(
-                f1, Domain((v[2 * i], v[2 * i + 1])))
-        if len(free) == 2:
-            i, j = free
-
-            def f2(s, t, i=i, j=j):
-                args = [jnp.full_like(s, fixed[k]) for k in range(3)]
-                args[i], args[j] = s, t
-                return self(*args)
-
-            return Chebfun2.from_function(
-                f2, domain=(v[2 * i], v[2 * i + 1],
-                            v[2 * j], v[2 * j + 1]))
-        return Chebfun3.from_function(
-            lambda x, y, z: self(x, y, z), domain=tuple(v))
+        from ._restrict import source_restrict
+        return source_restrict(self, dom)
 
     def squeeze(self):
         """Collapse constant dimensions (MATLAB squeeze):

@@ -1,0 +1,115 @@
+{
+  "scope": "Chebfun3 factor-preserving restriction; CPU only",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_rank_restrict_v3_20261010/DELIVERY.json",
+  "delivery_sha256": "7ac59d5d99bea4b2396bb4a6e00febbb8ad66ffa2ad298457653bdcf68f3b1d7",
+  "source_review": {
+    "delivery_sha256": "7ac59d5d99bea4b2396bb4a6e00febbb8ad66ffa2ad298457653bdcf68f3b1d7",
+    "bindings_verified": 46,
+    "protected_module_ast_identical": true,
+    "native_source_review": "All fixed-axis contraction branches match pinned restrict.m; scalar column adapter preserves Python evaluation shape. Explicit subsref API remains unqualified.",
+    "decision": "source and delivery accepted; runtime review pending"
+  },
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "21 restriction cases; nine native restriction predicates and one adapted predicate; explicit subsref unqualified",
+    "gates": [
+      {
+        "gate": "controls19_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_rank_restrict_v3_20261010/controls19_v1/supervision/receipt.json",
+        "receipt_sha256": "356d4e2b1e076b74863cb28207e283c195f9a789bfd46d6b2c16ad9d74c5edcf",
+        "runtime_manifest_sha256": "711e9a912a15a864b07a0da02db5c4e18c2cd6c61a8d7abbe50fc86978987afb",
+        "runtime_end_sha256": "d9cfb99fb7ecbd9de955486ac91078b56db2f75dc952890eb17fbe2642b5535b",
+        "observed_files_rehashed": 2964,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 78,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 949280,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 19,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "native10_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_rank_restrict_v3_20261010/native10_v1/supervision/receipt.json",
+        "receipt_sha256": "6cc814b6d7106a5f9c56fe6d2743f8586bddfbc321d3db561fcd5761588ca21c",
+        "runtime_manifest_sha256": "935724973ef79dced5fd57490f29419f8e9f267a0cd9ad0142da79948a3d88ce",
+        "runtime_end_sha256": "9a68263cc1ae56742f23c3519e9c059090a6cabcf8e104be7153386dafef9be3",
+        "observed_files_rehashed": 2971,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 84,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1955264,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "analytic1_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_rank_restrict_v3_20261010/analytic1_v1/supervision/receipt.json",
+        "receipt_sha256": "f97ac5aeadc640867a542a6a82a3cc4907f016aee7c5a66b6f999a652d0b605a",
+        "runtime_manifest_sha256": "77ec787cc84fd68ad9d48561406b41dd66b1fd967645a7fcc298860b5751590d",
+        "runtime_end_sha256": "7546f7856d4f62f702a8c1623021424256cbb1337ff3ba6d39fc0312100f6ac5",
+        "observed_files_rehashed": 2962,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 77,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 972248,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "limitations": [
+    "Nine native restriction predicates and one adapted predicate10 pass; native explicit subsref API and independent route test remain open.",
+    "Python real numeric sequences adapt MATLAB double domain arguments.",
+    "Native _native_squeeze and contraction orientation retained; arbitrary degenerate rank shape behavior not globally qualified.",
+    "Inherited 1D restriction, outer product and numeric evaluation helpers reused; no global constructor/algorithm parity claim.",
+    "Rank original six constructor stress predicates remain separate; not qualified here.",
+    "Shared empty wrapper unchanged; no new empty native contract claimed.",
+    "Three fresh processes; all10 native predicates retain source order and shared initial object in one process."
+  ],
+  "pytest_passed": 21,
+  "full_goal_complete": false
+}
