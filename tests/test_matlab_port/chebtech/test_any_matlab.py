@@ -1,17 +1,6 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_any.m (Fable 5).
+"""Port of MATLAB Chebfun tests/chebtech/test_any.m.
 
-All four MATLAB assertions are ported, on genuine array-valued ``(n, m)``
-techs and on the empty tech ``Tech.empty()``.
-
-chebfunjax exposes no ``any()`` *method*, but MATLAB ``@chebtech/any.m`` is
-a plain reduction over the representation, reproduced here directly:
-
-- ``any(f)``    (dim 1, down columns): ``any(f.coeffs)`` -- per column, is any
-  coefficient nonzero -> a 1 x m logical row.
-- ``any(f, 2)`` (dim 2, across rows): evaluate at the arbitrary point
-  ``0.1273881594`` and take ``any`` across the columns, storing the result as
-  the single coefficient of a constant tech.
-- ``any(emptyTech)`` is false, i.e. the empty tech holds no nonzero data.
+All four native assertions call the public ``Chebtech.any`` method directly.
 
 Provenance
 ----------
@@ -21,21 +10,12 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
-
-# MATLAB's arbitrary evaluation point for any(f, 2).
-_ARB_POINT = 0.1273881594
-
-
-def _any_dim2(Tech, f):
-    """MATLAB ``any(f, 2)``: a constant tech holding the row-wise `any`."""
-    vals = f(jnp.array([_ARB_POINT], dtype=jnp.float64))
-    a = float(jnp.any(vals != 0))
-    return Tech.from_coeffs(jnp.array([a], dtype=jnp.float64))
 
 
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
@@ -43,14 +23,14 @@ class TestChebtechAny:
     def test_any_empty_class(self, Tech):
         # pass(n,1): ~any(testclass) -- the empty tech has no nonzero data
         f = Tech.empty()
-        assert f.isempty()
+        assert not bool(f.any())
 
     def test_any_down_columns(self, Tech):
         # pass(n,2): any(make(@(x) [sin(x) 0*x cos(x)])) == [1 0 1]
         f = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), 0 * x, jnp.cos(x)], axis=-1)
         )
-        a = jnp.any(f.coeffs != 0, axis=0)
+        a = f.any()
         assert list(np.asarray(a).astype(int)) == [1, 0, 1]
 
     def test_any_across_rows_nonzero(self, Tech):
@@ -58,11 +38,36 @@ class TestChebtechAny:
         f = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), 0 * x, jnp.cos(x)], axis=-1)
         )
-        g = _any_dim2(Tech, f)
+        g = f.any(2)
         assert float(g.coeffs[0]) == 1.0
 
     def test_any_across_rows_zero(self, Tech):
         # pass(n,4): any(make(@(x) [0*x 0*x]), 2).coeffs == 0
         f = Tech.from_function(lambda x: jnp.stack([0 * x, 0 * x], axis=-1))
-        g = _any_dim2(Tech, f)
+        g = f.any(2)
         assert float(g.coeffs[0]) == 0.0
+
+    def test_any_invalid_dimension(self, Tech):
+        f = Tech.from_coeffs(np.array([1.0]))
+        with pytest.raises(ValueError, match="DIM input must be 1 or 2"):
+            f.any(3)
+
+    def test_any_jit(self, Tech):
+        f = Tech.from_coeffs(jnp.array([[0.0, 2.0], [0.0, 0.0]]))
+        result = jax.jit(lambda tech: tech.any())(f)
+        np.testing.assert_array_equal(np.asarray(result), [False, True])
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+def test_any_native_nan_and_first_nonsingleton(Tech):
+    # Source any(f.coeffs) has no explicit dimension and ignores NaN.
+    assert not Tech.from_coeffs(jnp.asarray([jnp.nan])).any()
+    assert not Tech.from_coeffs(jnp.asarray([jnp.nan])).any(2).coeffs[0]
+    row = Tech.from_coeffs(jnp.asarray([[0., jnp.nan, 2.]]))
+    assert row.any().shape == () and bool(row.any())
+    columns = Tech.from_coeffs(jnp.asarray([[0., jnp.nan, 2.], [0., 0., 0.]]))
+    np.testing.assert_array_equal(columns.any(), [False, False, True])
+    empty_columns = Tech(coeffs=jnp.empty((0, 3)))
+    np.testing.assert_array_equal(empty_columns.any(), [False, False, False])
+    unhappy = Tech(coeffs=jnp.asarray([1.]), ishappy=False)
+    assert not unhappy.any(2).ishappy

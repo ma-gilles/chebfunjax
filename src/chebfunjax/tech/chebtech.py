@@ -2386,6 +2386,39 @@ class Chebtech2(eqx.Module):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
 
+    def any(self, dim: int = 1):
+        """Reduce nonzero values down columns or across rows.
+
+        ``dim=1`` applies MATLAB any to coefficients (first nonsingleton axis).
+        ``dim=2`` evaluates at Chebfun's arbitrary point and returns a constant
+        tech whose coefficient is true when any component is nonzero there.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/any.m
+        Chebfun commit: 7574c77
+        """
+        if dim == 1:
+            if getattr(self, "_is_empty_object", False):
+                return jnp.asarray(False)
+            coefficients = self.coeffs
+            if coefficients.size == 0 and (coefficients.ndim == 1
+                                           or coefficients.shape == (0, 0)):
+                return jnp.asarray(False)
+            nonzero = (coefficients != 0) & ~jnp.isnan(coefficients)
+            if coefficients.ndim == 2 and coefficients.shape[0] == 1:
+                return jnp.any(nonzero)
+            return jnp.any(nonzero, axis=0)
+        if dim == 2:
+            if self.isempty():
+                return type(self).from_coeffs(jnp.asarray([False]))
+            point = jnp.asarray(0.1273881594, dtype=jnp.float64)
+            values = self(point)
+            result = jnp.any((values != 0) & ~jnp.isnan(values))
+            return type(self)(coeffs=jnp.reshape(result, (1,)),
+                              ishappy=self.ishappy)
+        raise ValueError("CHEBFUN:CHEBTECH:any:dim: DIM input must be 1 or 2.")
+
     def isinf(self) -> jax.Array:
         """Return whether any coefficient is infinite.
 
@@ -4572,6 +4605,39 @@ class Chebtech1(eqx.Module):
         if getattr(self, "_is_empty_object", False):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def any(self, dim: int = 1):
+        """Reduce nonzero values down columns or across rows.
+
+        ``dim=1`` applies MATLAB any to coefficients (first nonsingleton axis).
+        ``dim=2`` evaluates at Chebfun's arbitrary point and returns a constant
+        tech whose coefficient is true when any component is nonzero there.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/any.m
+        Chebfun commit: 7574c77
+        """
+        if dim == 1:
+            if getattr(self, "_is_empty_object", False):
+                return jnp.asarray(False)
+            coefficients = self.coeffs
+            if coefficients.size == 0 and (coefficients.ndim == 1
+                                           or coefficients.shape == (0, 0)):
+                return jnp.asarray(False)
+            nonzero = (coefficients != 0) & ~jnp.isnan(coefficients)
+            if coefficients.ndim == 2 and coefficients.shape[0] == 1:
+                return jnp.any(nonzero)
+            return jnp.any(nonzero, axis=0)
+        if dim == 2:
+            if self.isempty():
+                return type(self).from_coeffs(jnp.asarray([False]))
+            point = jnp.asarray(0.1273881594, dtype=jnp.float64)
+            values = self(point)
+            result = jnp.any((values != 0) & ~jnp.isnan(values))
+            return type(self)(coeffs=jnp.reshape(result, (1,)),
+                              ishappy=self.ishappy)
+        raise ValueError("CHEBFUN:CHEBTECH:any:dim: DIM input must be 1 or 2.")
 
     def isinf(self) -> jax.Array:
         """Return whether any coefficient is infinite.

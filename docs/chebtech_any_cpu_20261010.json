@@ -1,0 +1,31 @@
+{
+  "package": "Native Chebtech.any API and literal predicate calls",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source_sha256": "91f9b6945f9b27cf820e741bc794ce8d7e11ca4373d40371b6eb3b42c8b134d7",
+  "methods_added": [
+    "Chebtech2.any",
+    "Chebtech1.any"
+  ],
+  "other_library_ast_unchanged": true,
+  "review_corrections": [
+    "Ignore NaN entries in both branches.",
+    "Source dim1 calls any(coeffs) with implicit first nonsingleton dimension; one-row coefficients reduce to scalar.",
+    "Preserve ishappy in nonempty dim2 output, as native a=f."
+  ],
+  "matlab_any_reference": "https://www.mathworks.com/help/matlab/ref/any.html",
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_any_root_20261010/receipt.json",
+    "receipt_sha256": "f502f037b2d306f9682cfd3b907095cc69db3333dcf17a8836db435571588d5c",
+    "passed": 14,
+    "native_cases": 8,
+    "supplemental_cases": 6,
+    "elapsed_seconds": 11.620608233846724,
+    "peak_child_rss_kib": 634604,
+    "source_test_hashes_verified": 2092
+  },
+  "limitations": [
+    "Native dim2 arbitrary-point contract assumes identically zero or root-free components; no root-splitting extension.",
+    "CPU24\u201331 and120s timeout enforced; RSS measured without cap.",
+    "Source/test tree and JUnit verified; no observed-module runtime hash audit or full-suite claim."
+  ]
+}

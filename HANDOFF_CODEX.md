@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebtech any implemented (2026-10-10; latest)
+
+Both Tech classes expose any with native coefficient reduction and arbitrary
+point dim2 behavior. Tests now call the API instead of duplicating it. Root
+review additionally restored NaN ignoring, first-nonsingleton row behavior,
+zero-row columns and dim2 happiness metadata. All 14 cases pass; only two new
+methods change library AST. Evidence: docs/chebtech_any_cpu_20261010.json.
+Native dim2 root-free precondition remains; global qualification is incomplete.
+
 ## Singfun factory preferences and scalar columns restored (2026-10-10; latest)
 
 Native constructor(op,data,pref) and make now forward endpoint hints, copied
