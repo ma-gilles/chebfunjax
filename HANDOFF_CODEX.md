@@ -1,5 +1,37 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest accepted CPU packages (2026-10-09; supersedes status below)
+
+Local implementation head f0aa9f83 adds:
+
+- Diskfun native weighted continuous SVD and default/2/fro norm formula
+  (462e3342): 14 focused controls and six original deterministic native
+  assertions passed. Independent runtime reviews rehashed 2,950/2,951 files.
+  Public empty norm wrapper bypass fixed. New arithmetic is JAX; inherited
+  public evaluation/adaptive construction host paths remain a library gap.
+  Evidence: docs/disk_svd_cpu_20261009.json.
+- Two-endpoint singular antiderivatives, physical split scaling and parent
+  continuity carry (f0aa9f83): 25 controls and six unchanged native cases pass;
+  all four runtime groups independently verified. Corrects first-kind endpoint
+  carry and restores logarithmic-term rejection. Two cases emit nonconvergence
+  warnings despite passing sampled accuracy checks; happiness is unqualified.
+  Broader Chebfun11/12 unmatched-input diagnostics remain separate.
+  Evidence: docs/singfun_cumsum_split_cpu_20261009.json.
+- Chebyshev source barplot data (eb091960): six literal-source controls and
+  24 existing source plotting checks pass, with 2,948 runtime hashes reviewed.
+  Raster/tick/backend parity remains open. Evidence:
+  docs/plotcoeffs_barplot_cpu_20261009.json.
+
+The latest full AnalyticSVD diagnostic on frozen22f73f99 still capped at4GiB,
+now after62 completed constructors/three figures. Start-observed/prebound file
+hashes are clean, but no final runtime report/JUnit survived the cap. Unmatched
+historical RNG inputs and complete page/figure parity remain unresolved.
+SphereHeat still caps during its sixth m150 solve; selection-compilation work
+is in progress. Full CPU suite, all322 verified pages,68 known figure-size
+mismatches, remaining source/RNG gaps, publication and exact-head green CI
+remain open. Current worker handles live in the shared checkpoint JSON.
+
+
 ## Latest CPU qualification and open failures (2026-10-09)
 
 Local implementation head 22f73f99 includes these qualified packages:
