@@ -1,7 +1,10 @@
-"""Port of MATLAB Chebfun tests/chebop/test_exactInitial.m (Fable 5).
+"""Supplemental endpoint-BC and fixed-grid exact-initial controls.
 
-The chebcolloc1/ultraS discretization variants run through
-solve_bvp_altdisc.
+Canonical test_exactInitial_matlab.py owns the four literal source clauses.
+These retain endpoint-BC adapters, the original 33-point diagnostic and
+fixed n=64 alternative-discretization coverage. The private adapter must
+receive native bvpTol/maxIter preferences; its defaults differ from public
+solvebvp.
 
 Provenance
 ----------
@@ -15,6 +18,7 @@ import jax
 import jax.numpy as jnp
 
 import chebfunjax as cj
+from chebfunjax.chebpref import ChebopPref
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.operators.chebop_altdisc import solve_bvp_altdisc
 
@@ -54,5 +58,8 @@ class TestChebopExactInitial:
         for disc in ("chebcolloc1", "ultraS"):
             N = mk()
             N.init = u
-            v = solve_bvp_altdisc(N, 0.0, disc, n=64)[0]
+            pref = ChebopPref()
+            v = solve_bvp_altdisc(
+                N, 0.0, disc, n=64, tol=pref.bvpTol, max_iter=pref.maxIter
+            )[0]
             assert _n(N(v), d) < TOL       # err(3)/(4)

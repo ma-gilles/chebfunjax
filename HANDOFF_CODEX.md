@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fixed-grid exact-initial supplemental test contract (2026-10-10; latest)
+
+The supplemental endpoint-BC/fixed64 adapter now receives public/native
+ChebopPref bvpTol5e-13 and maxIter25. Its 33-point check and1e-7 bound are
+unchanged. Same-input paired runs reproduce the CI failure at the private
+helper's loose1e-10 default: length85 is truncated to its exact65-coefficient
+prefix, with residual9.08e-7. Native tolerance retains85coefficients and gives
+1.24e-8/4.15e-8 for C1/ultraS. The final complete supplemental test passes.
+No production behavior or canonical four-clause native test changes. Audits
+preserve the absent simplify-hook capture limitation. Evidence:
+docs/exact_initial_adapter_cpu_20261010.json. Latest main CI and full parity
+remain unresolved; this local result is not a green-CI claim.
+
+
 ## Public active-set extrema and Gibbs replay (2026-10-10; latest)
 
 The fixed-option two-variable native active-set adapter now serves higher-rank

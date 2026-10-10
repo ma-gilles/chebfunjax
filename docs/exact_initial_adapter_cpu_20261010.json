@@ -1,0 +1,46 @@
+{
+  "scope": "Only supplemental helper call receives public/native preference defaults. Canonical four-clause native adaptive test unchanged; no production edits or tolerance weakening. Observer hook emitted no simplify events; coefficient-prefix identity and source finalreturn establish attribution, not hook captures.",
+  "root_verified_bindings": 44123,
+  "gates": {
+    "pair_v2": {
+      "passed": 1,
+      "runtime_files": 1848,
+      "wall_seconds": 112.09497923776507,
+      "peak_kib": 2480272
+    },
+    "final_v1": {
+      "passed": 1,
+      "runtime_files": 1851,
+      "wall_seconds": 103.72875049896538,
+      "peak_kib": 2396192
+    }
+  },
+  "packet": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/exact_initial_contract_review_20261010/DELIVERY_PACKET.json",
+    "sha256": "3819531f5abc2cf5d65ee49f308bf08baa288b72885e217980227a8ca091d505"
+  },
+  "native_defaults": {
+    "bvpTol": 5e-13,
+    "maxIter": 25
+  },
+  "unchanged": {
+    "n": 64,
+    "samples": 33,
+    "bound": 1e-07
+  },
+  "paired_loose": {
+    "length": 65,
+    "sample_residual": 9.081977807316544e-07,
+    "input_prefix_bit_exact": true
+  },
+  "paired_native_tolerance": {
+    "length": 85,
+    "C1_residual": 1.2364209556912842e-08,
+    "ultraS_residual": 4.14116487565415e-08
+  },
+  "production_changes": false,
+  "limits": [
+    "Final full-suite and latest main CI are unresolved",
+    "No simplify-hook event was captured; attribution uses coefficient-prefix identity and source return path"
+  ]
+}
