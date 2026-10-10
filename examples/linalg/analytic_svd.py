@@ -1,14 +1,11 @@
 """The analytic SVD.
 
-Translation of linalg/AnalyticSVD.m by Yuji Nakatsukasa and
-Vanni Noferini (May 2016): the singular values of the matrix family
-A t + B(1-t) as functions of t.  Sorted singular values have kinks
-where branches cross; flipping signs across the crossings recovers
-the analytic SVD, in which singular values may go negative but every
-branch is smooth.
-
-rng(10) randn is not bit-reproducible vs MATLAB; the crossing
-structure of our draw differs while the phenomenon replicates.
+Translation of linalg/AnalyticSVD.m by Yuji Nakatsukasa, Vanni Noferini,
+and Nick Trefethen (July 2016). The source uses MATLAB rng(10), followed
+by A=randn(4,4), B=randn(4,4). Supply those matrices using --matrix-input;
+no matching MATLAB capture is currently included. The default run uses the
+checked-in, explicitly unmatched historical Python matrices. Other input matrices
+are an explicitly unmatched diagnostic, not the cached reference example.
 
 Original: https://www.chebfun.org/examples/linalg/AnalyticSVD.html
 Copyright by The University of Oxford and The Chebfun Developers.
@@ -16,23 +13,25 @@ Copyright by The University of Oxford and The Chebfun Developers.
 import matplotlib
 
 matplotlib.use("Agg")
+import argparse
+import json
 import os
 import sys
 import time
-import warnings
+from pathlib import Path
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, plotcoeffs
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
+_DEFAULT_MATRIX_INPUT = Path(_HERE) / "analytic_svd_unmatched_inputs.json"
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'linalg')
 
 M = N = 4
@@ -42,77 +41,70 @@ FIG = [0]
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"AnalyticSVD_{FIG[0]:02d}.png"))
+        _IMG, f"AnalyticSVD_{FIG[0]:02d}.png"), size=(608, 271))
     plt.close(fig)
 
 
-def run():
+def run(matrix_input=_DEFAULT_MATRIX_INPUT):
+    """Run the source computation on explicitly supplied 4-by-4 matrices.
+
+    The JSON input contains A, B, and provenance. Input provenance and hashes
+    belong in the execution manifest; a non-MATLAB fixture cannot establish
+    random-input or cached-figure parity.
+    """
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
+    FIG[0] = 0
     t0 = time.time()
+    data = json.loads(Path(matrix_input).read_text())
+    A = jnp.asarray(data["A"], dtype=jnp.float64)
+    B = jnp.asarray(data["B"], dtype=jnp.float64)
+    if A.shape != (M, N) or B.shape != (M, N):
+        raise ValueError("AnalyticSVD requires two 4-by-4 matrices")
+    if not data.get("provenance"):
+        raise ValueError("Matrix input must state its provenance")
+    if not bool(jnp.all(jnp.isfinite(A)) & jnp.all(jnp.isfinite(B))):
+        raise ValueError("AnalyticSVD matrix input must be finite")
 
-    rs = np.random.RandomState(10)
-    A = rs.randn(M, N)
-    B = rs.randn(M, N)
+    def uvsvd(t, i, j=0, pos=2):
+        # Native UVSVD always computes [U,S,V]=svd(A,0), including the
+        # singular-value-only caller. Public vectorize supplies scalar t.
+        U, singular, Vh = jnp.linalg.svd(A * t + B * (1 - t),
+                                         full_matrices=False)
+        if pos == 1:
+            return U[i, j]
+        if pos == 2:
+            return singular[i]
+        return jnp.conj(Vh[j, i])
 
-    def AA(t):
-        return A * t + B * (1 - t)
-
-    def sigma_k(t_arr, k):
-        t_arr = np.atleast_1d(np.asarray(t_arr, dtype=float))
-        out = np.empty_like(t_arr)
-        for i, t in enumerate(t_arr.ravel()):
-            out.ravel()[i] = np.linalg.svd(AA(t),
-                                           compute_uv=False)[k]
-        return out.reshape(np.shape(t_arr))
-
-    # sorted singular values: chebfuns with splitting; kinks marked
-    fig, ax = plt.subplots(figsize=(9.0, 5.4))
+    # Native sorted singular-value loop, including marked breakpoints.
+    fig, ax = plt.subplots()
+    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     for k in range(N):
-        f = cj.chebfun(
-            lambda t, _k=k: jnp.asarray(sigma_k(np.asarray(t), _k)),
-            splitting=True)
-        xs = np.linspace(-1, 1, 800)
-        ax.plot(xs, np.asarray(f(xs)), lw=2)
-        for bp in [float(v) for v in f.domain.breakpoints][1:-1]:
-            ax.plot([bp, bp], [0, 4], 'k', lw=0.8)
-            ax.plot(bp, float(f(bp)), 'ko', ms=5, mfc='none')
+        f = cj.chebfun(lambda t, _k=k: uvsvd(t, _k),
+                       splitting=True, vectorize=True)
+        f.plot(ax=ax, color=colors[k], linewidth=2)
+        for bp in f.domain.breakpoints[1:-1]:
+            x = float(bp)
+            ax.plot([x, x], [0, 4], 'k')
+            ax.plot(x, float(f(x)), 'ko', mfc='none')
     ax.grid(True)
-    ax.set_title("sorted singular values, kinks at crossings",
-                 fontsize=12)
     _save(fig)
 
-    def uvsvd(t, i, j, pos):
-        """(i, j) element of U (pos=1), S (pos=2) or V (pos=3) of AA(t)."""
-        tt = np.asarray(t, dtype=float)
-        ta = np.atleast_1d(tt).ravel()
-        Us, ss, Vts = np.linalg.svd(A[None] * ta[:, None, None]
-                                    + B[None] * (1 - ta)[:, None, None])
-        if pos == 1:
-            y = Us[:, i, j]
-        elif pos == 2:
-            y = ss[:, i]
-        else:
-            y = Vts[:, j, i]
-        return jnp.asarray(y.reshape(tt.shape))
-
     def split(fun):
-        return cj.chebfun(fun, splitting=True)
+        return cj.chebfun(fun, splitting=True, vectorize=True)
 
     def breaks(f):
-        return np.array([float(v) for v in f.domain.breakpoints][1:-1])
+        return jnp.asarray(f.domain.breakpoints[1:-1])
 
     def flip(f, b):
         return split(lambda t: f(t) * jnp.sign(b - t))
 
     def plot_usv(sspos, uupos, vvpos):
         fig, axes = plt.subplots(1, 3, figsize=(6.0, 2.7))
-        xs = np.linspace(-1, 1, 2001)
         for pos in range(N):
             for ax, f in zip(axes, (sspos[pos], uupos[pos], vvpos[pos])):
-                ax.plot(xs, np.asarray(f(xs)), lw=2)
+                f.plot(ax=ax, color=colors[pos], linewidth=2)
         for ax, ttl in zip(axes, ("singular values", "U", "V")):
             ax.set_title(ttl)
         axes[0].grid(True)
@@ -133,15 +125,16 @@ def run():
         uu, vv, ss = uupos[pos], vvpos[pos], sspos[pos]
         endsss = breaks(ss)
         ssp = ss.diff()
-        sdisc = np.array([], dtype=int)
+        sdisc = jnp.array([], dtype=int)
         if endsss.size:
-            spleft = np.asarray(ssp(jnp.asarray(endsss), 'left'))
-            spright = np.asarray(ssp(jnp.asarray(endsss), 'right'))
-            sdisc = np.nonzero(np.abs(spleft - spright) > 1e-8)[0]
+            spleft = jnp.asarray(ssp(jnp.asarray(endsss), 'left'))
+            spright = jnp.asarray(ssp(jnp.asarray(endsss), 'right'))
+            sdisc = jnp.nonzero(jnp.abs(spleft - spright) > 1e-8)[0]
         if sdisc.size:
-            uleft = np.asarray(uu(jnp.asarray(endsss[sdisc]), 'left'))
-            uright = np.asarray(uu(jnp.asarray(endsss[sdisc]), 'right'))
-            ujump = bool(np.all(np.abs(uleft - uright) > 1e-8))
+            uleft = jnp.asarray(uu(jnp.asarray(endsss[sdisc]), 'left'))
+            uright = jnp.asarray(uu(jnp.asarray(endsss[sdisc]), 'right'))
+            # MATLAB if(vector) is true only when every element is true.
+            ujump = bool(jnp.all(jnp.abs(uleft - uright) > 1e-8))
         for ii in sdisc:
             ss = flip(ss, endsss[ii])
             if ujump:
@@ -157,9 +150,9 @@ def run():
         uu, vv = uupos[pos], vvpos[pos]
         endsuu = breaks(uu)
         if endsuu.size:
-            uleft = np.asarray(uu(jnp.asarray(endsuu), 'left'))
-            uright = np.asarray(uu(jnp.asarray(endsuu), 'right'))
-            for ii in np.nonzero(np.abs(uleft - uright) > 1e-8)[0]:
+            uleft = jnp.asarray(uu(jnp.asarray(endsuu), 'left'))
+            uright = jnp.asarray(uu(jnp.asarray(endsuu), 'right'))
+            for ii in jnp.nonzero(jnp.abs(uleft - uright) > 1e-8)[0]:
                 uu = flip(uu, endsuu[ii])
                 vv = flip(vv, endsuu[ii])
         uupos[pos], vvpos[pos] = uu, vv
@@ -170,22 +163,20 @@ def run():
 
     # the analytic SVD: every branch is a smooth global chebfun
     fig, ax = plt.subplots(figsize=(6.0, 2.7))
-    eps = np.finfo(float).eps
+    eps = jnp.finfo(jnp.float64).eps
     for pos in (0, N - 1):
         uu = cj.chebfun(lambda t, _f=uupos[pos]: _f(t))
         ss = cj.chebfun(lambda t, _f=sspos[pos]: _f(t))
         vv = cj.chebfun(lambda t, _f=vvpos[pos]: _f(t))
         for f, c in ((uu, 'b'), (ss, 'k'), (vv, 'r')):
-            cf = np.abs(np.asarray(f.coeffs))
-            ax.semilogy(np.arange(len(cf)), cf, '.', color=c, ms=4)
+            plotcoeffs(f, ax=ax, fmt=c + '.', source=True,
+                       linewidth=2, hold=bool(ax.lines))
         ax.text(len(uu) + 5, eps * 10, f"$U_{{{pos + 1}1}}$", color='b',
-                fontsize=11)
+                fontsize=14)
         ax.text(len(ss) + 5, eps / 10, rf"$\sigma_{pos + 1}$", color='k',
-                fontsize=11)
+                fontsize=14)
         ax.text(len(vv) + 5, eps / 1e3, f"$V_{{{pos + 1}1}}$", color='r',
-                fontsize=11)
-    ax.set_xlabel("Degree of Chebyshev polynomial", fontsize=9)
-    ax.set_ylabel("Magnitude of coefficient", fontsize=9)
+                fontsize=14)
     _save(fig)
 
     print("time_in_seconds =")
@@ -193,4 +184,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--matrix-input", default=_DEFAULT_MATRIX_INPUT,
+                        help="JSON containing A, B and explicit provenance")
+    run(parser.parse_args().matrix_input)

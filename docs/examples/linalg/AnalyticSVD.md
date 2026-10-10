@@ -173,10 +173,7 @@ Unfortunately, these computations are not very fast:
 time_in_seconds = toc
 ```
 
-```text
-time_in_seconds =
-     1.049717607498169e+02
-```
+*The timing output from the latest completed run was not captured. Its numerical work and all five figures were verified; a fresh stdout capture is still required.*
 
 ## 6. References
 
@@ -205,6 +202,8 @@ else
 end
 end
 ```
+
+**CPU verification:** The full Python computation completed using the checked-in historical Python matrices. These inputs have not been matched to MATLAB `rng(10)`, so the figures below do not establish numerical or visual parity with the original example.
 
 ---
 

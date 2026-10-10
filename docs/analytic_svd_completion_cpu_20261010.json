@@ -1,0 +1,115 @@
+{
+  "scope": "Completed source computation on explicitly unmatched Python matrices; NOT full MATLAB page parity",
+  "integration": {
+    "qualified_script_sha256": "c340819f383b8e5dfe083db1f62bb906043cd34dff1c514b24e25db582bfc995",
+    "integrated_script_sha256": "8838cf248c7e3a3603c1f2f3f6d28092ecd1f15f313e4252e1d10c93e3503c56",
+    "fixture_sha256": "cd2bb04974c9518789c1d28b254c5f9f7d8b9b670236c13064f7d12dbf6add5b",
+    "all_function_bodies_AST_identical": true,
+    "adapter": "Optional run/CLI default resolves checked-in exact qualified unmatched fixture; scientific body unchanged",
+    "original_prose_and_matlab_preserved": true,
+    "printed_timing": "NOT captured; outdated output removed and missing-capture note added"
+  },
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "AnalyticSVD distinct9GiB completion; unmatchedMATLABrngfixture, prior4GiBfailure retained",
+    "gates": [
+      {
+        "gate": "completion_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/supervision/receipt.json",
+        "receipt_sha256": "01b486b15c67e2ef5f8eb6f9248023b4587adcf8712692dc469dad32b7789d3f",
+        "runtime_manifest_sha256": "0440f9917686c7ef6a73d7e4c5ec2b83d89540f2c741bbb5fc116fe983e20d1e",
+        "runtime_end_sha256": "d9200adc7233b1a824738483558ccba40804b2fa6fbeec3412ba62435283e882",
+        "observed_files_rehashed": 2946,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 57,
+        "wrong_library_origins": {},
+        "native_loaded_files": 239,
+        "before_after_identical": true,
+        "peak_kib": 4480956,
+        "cpu_affinity": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "values_review": {
+    "reviewer": "root",
+    "constructor_enter_exit_counts": [
+      86,
+      86
+    ],
+    "ordered_indices_complete": true,
+    "pieces": 427,
+    "all_finite_and_happy": true,
+    "fresh_image_hashes_dimensions_verified": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/outputs/AnalyticSVD_01.png",
+        "size": [
+          608,
+          271
+        ],
+        "sha256": "046e6da286096e803cac84760b55b16488b172b6dc69242eb4311c2b67ad3bf4"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/outputs/AnalyticSVD_02.png",
+        "size": [
+          608,
+          271
+        ],
+        "sha256": "20f5f3284e5f691e7a8eddbfa36a696ec2a1c97268db36802e2be2fd968990ce"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/outputs/AnalyticSVD_03.png",
+        "size": [
+          608,
+          271
+        ],
+        "sha256": "134f762d7165bb950d069848b7bcadb481aa4e22cfecd1b559387e7bc3c55fa6"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/outputs/AnalyticSVD_04.png",
+        "size": [
+          608,
+          271
+        ],
+        "sha256": "6f79a431003a903a8a2a287ef0eb4df78a9017a386a05510b05ce3a53d84dd91"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_completion_plan_20261009/completion_v1/outputs/AnalyticSVD_05.png",
+        "size": [
+          608,
+          271
+        ],
+        "sha256": "560fe4d2d6772c79d5ee61ca74f17cd5a949b751fb40f9bf85f5f727cb6e4e94"
+      }
+    ],
+    "events_sha256": "c0ff61a1dda7bb583795de1f8f783a122ebb98c84193c20c9b6e17c8a3d0d240",
+    "visual_review": "All five plots present; final U/V panels show continuous-looking curves and coefficient panel exists. Native visual/numerical equality unproven due unmatched random matrices.",
+    "decision": "Accept scoped completion evidence; old4GiB failure retained, no matched MATLAB performance/RNG claim"
+  },
+  "limitations": [
+    "MATLAB rng(10) matrices unmatched",
+    "printed timing not captured",
+    "native figure/numerical parity unverified",
+    "old 4GiB gate failure preserved;9GiB completion is not a performance improvement"
+  ],
+  "figure_size_audit": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_analyticsvd_20261010.json",
+    "sha256": "1cd421db0e5bec7d171a099ed94246eb1ef4c3c2317f2854ff1304c8c064896b",
+    "mapped_pairs": 1305,
+    "size_mismatches": 53,
+    "pages": 11
+  }
+}

@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AnalyticSVD computation completed (2026-10-10; latest)
+
+All86 constructors completed:427 pieces finite and happy, five608x271
+figures. Root independently verified2,946runtime hashes, constructor events
+and all images. The example uses the exact checked-in historical Python
+matrices by default; --matrix-input permits a future MATLAB capture.
+Native rng(10) matching, visual/numerical parity and printed timing remain
+unverified. The observer discarded timing stdout; the page now identifies
+that missing capture instead of retaining an older output. The former4GiB
+cap failure remains recorded; this distinct9GiB completion is not a speed fix.
+Evidence: docs/analytic_svd_completion_cpu_20261010.json.
+
+The full1,305-pair dimension audit now has53 mismatches across11 pages.
+Dimensions alone do not establish figure content parity.
+
+
 ## Callable coefficient input validation fixed (2026-10-10; latest)
 
 The public constructor now rejects callable input with coeffs=True before
