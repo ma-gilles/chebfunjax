@@ -1,0 +1,84 @@
+{
+  "scope": "Restoreall10nativeChebfun3plus predicates in8pytestcases",
+  "source_commit": "7574c77",
+  "native_test": "tests/chebfun3/test_plus.m",
+  "qualified_test_sha256": "ce18af1de8af934d6b731a4ee843f09feb1a834dced058dd2b21c8a5aab29e57",
+  "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_plus_root_runtime_review_20261010.json",
+  "root_review_sha256": "e7471bdf9fe83d27e00357a58b56ca2810068eebe541de2d3bbdf7386d59eb84",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_plus_restoration_20261010/DELIVERY.json",
+  "delivery_sha256": "8d2d4ac77b491c46f4852b3a1b082de9533687d7e77fa8df96b403c60dd53d27",
+  "retained": "Original source functions/domains, separate FplusG construction, continuous default norm predicates, single-output maximum Tucker rank comparisons, vscale calls, original thresholds, mixed-tech constructor route and subtraction. No tolerance changes.",
+  "execution": "Native domain loop is3iterations; each identical iteration in a fresh serial process. Rank/scales assertions4\u20139 share one process; mixed10 fresh. No within-process cache clearing. All original mathematical sequences and thresholds preserved.",
+  "gates": [
+    {
+      "gate": "domain1_v1",
+      "original_handle": 68605,
+      "pytest_cases": 1,
+      "runtime_files": 2940,
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1516532,
+      "wall_seconds": 95.09206691430882,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "gate": "domain2_v1",
+      "original_handle": 21047,
+      "pytest_cases": 1,
+      "runtime_files": 2940,
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1922984,
+      "wall_seconds": 104.92550935223699,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "gate": "domain3_v1",
+      "original_handle": 35050,
+      "pytest_cases": 1,
+      "runtime_files": 2940,
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 3192412,
+      "wall_seconds": 188.39644187688828,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "gate": "rank_scales_v1",
+      "original_handle": 37380,
+      "pytest_cases": 4,
+      "runtime_files": 2940,
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1165684,
+      "wall_seconds": 88.07734333211556,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "gate": "mixed_tech_v1",
+      "original_handle": 54902,
+      "pytest_cases": 1,
+      "runtime_files": 2942,
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1209932,
+      "wall_seconds": 74.0574214477092,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  ],
+  "remaining": [
+    "This qualifies these original ten assertions on CPU, not global native HOSVD/norm algorithm parity.",
+    "max3, sin and guide inherited test gaps remain open; HOSVD/guide package owned by parent.",
+    "No matched performance claim; stated caps were predeclared and no retries occurred."
+  ]
+}

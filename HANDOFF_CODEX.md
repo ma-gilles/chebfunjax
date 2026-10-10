@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## All native Chebfun3 plus assertions restored (2026-10-10; latest)
+
+The canonical plus test now contains all10 original MATLAB predicates:
+three domains with continuous norm, scalar-output rank comparisons, tiny
+and large scales, and mixed technologies. Eight pytest cases passed in
+five serial gates; root independently verified2,940 runtime files per gate
+(2,942 for mixed technologies). Original thresholds and construction order
+remain. Evidence: docs/chebfun3_native_plus_cpu_20261010.json. This restores
+previously omitted assertions; the82-file native inventory still contains
+semantic gaps in sin/max3/guide and is not full parity.
+
 ## Empty abs dispatch fixed (2026-10-10; latest)
 
 Chebfun.abs now returns the empty input before inspecting array metadata,
