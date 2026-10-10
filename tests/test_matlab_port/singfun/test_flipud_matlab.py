@@ -1,8 +1,7 @@
 """Port of MATLAB Chebfun tests/singfun/test_flipud.m (Opus 4.8).
 
-chebfunjax Singfun implements no ``flipud`` method (reflection x -> -x with
-swapped exponents), so every assertion is xfailed (the call raises
-``AttributeError``).  Analytic exacts from the MATLAB test are preserved.
+Reflection uses swapped endpoint exponents. Analytic expressions and bounds
+from the MATLAB test are preserved; query points use a deterministic grid.
 
 Provenance
 ----------
@@ -25,7 +24,6 @@ C = 1.28
 D = -1.28
 
 X = jnp.asarray(np.linspace(-0.99, 0.99, 100))
-_REASON = "chebfunjax Singfun has no flipud() method"
 
 
 def _sf(f, exps):

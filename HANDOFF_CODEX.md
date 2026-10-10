@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Singfun reflection and derivative empty metadata fixed (2026-10-10; latest)
+
+Empty flipud reverses the stored exponent tuple; fliplr is the native identity;
+diff preserves input for empty and order-zero cases. This completes the
+remaining explicit-empty unary metadata corrections found after the new
+no-input representation. Twenty focused/native reflection and derivative
+cases pass; static checks pass. Evidence: docs/singfun_empty_flips_cpu_20261010.json.
+Existing deterministic query grids are not native RNG fixtures.
+
+
 ## Exact Singfun smoothness and unary demotion restored (2026-10-10; latest)
 
 issmooth now uses the native exact-zero exponent or zero smooth-factor

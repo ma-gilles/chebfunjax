@@ -1,0 +1,34 @@
+{
+  "base_commit": "d1b3e677d1e8858ef31b838f30ef01601482ef54",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_definitions": [
+    "Singfun.diff",
+    "Singfun.fliplr",
+    "Singfun.flipud"
+  ],
+  "native_source_hashes": {
+    "flipud.m": "66b6a418fe5780af1f8cdbd72be8ca28a70a7fcf6a01d1844769acccd061c7e9",
+    "fliplr.m": "62e7091d7c8b94f29545829a18f6578b199e02ac203a97266f89ccffcd25120c",
+    "diff.m": "097597fc7b1b4bf30517478018273f74a76f7ac7b8a25290ae7f77b4ae6ba71e"
+  },
+  "qualification": {
+    "passed": 20,
+    "elapsed_seconds": 17.33194110961631,
+    "peak_child_rss_kib": 773348,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_empty_flips_root_20261010/receipt.json",
+    "receipt_sha256": "27603627a72b4b4a4ad7a0b462b9bc0529b28db96da713bf926572b95053b553",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_empty_flips_root_20261010/static.json",
+    "static_sha256": "4e3cf117817eac69575c3f54b5a4a7cd2e012ff9e6c3e4b17c7a1c071487e17a"
+  },
+  "scope": [
+    "Empty flipud reverses exponent tuple instead of constructing a new no-input empty.",
+    "fliplr is native identity; diff empty/order0 returns original object.",
+    "Removed stale flipud test documentation falsely claiming all cases were xfailed; existing numerical predicates unchanged."
+  ],
+  "limitations": [
+    "Native Singfun does not support array-valued columns; no extension claimed.",
+    "Existing flipud/diff test query grids are not matched native seeded random fixtures.",
+    "Focused CPU gate, not full current-head suite/remote CI; RSS measured not capped; no observed-module runtime audit."
+  ]
+}

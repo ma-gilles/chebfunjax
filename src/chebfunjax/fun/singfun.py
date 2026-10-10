@@ -925,7 +925,7 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Singfun.empty()
+            return Singfun(self.smoothPart, tuple(reversed(self.exponents)))
         a, b = self.exponents
         return Singfun(self.smoothPart.flipud(), (b, a))
 
@@ -960,19 +960,14 @@ class Singfun(eqx.Module):
         return _demote_if_smooth(transformed)
 
     def fliplr(self):
-        """Reverse the columns of the smooth part (identity for a scalar).
-
-        ``fliplr`` acts on the array (column) dimension, not the x-axis, so the
-        endpoint exponents are unchanged.
+        """Return the input unchanged, as native scalar-valued SINGFUN does.
 
         Provenance
         ----------
         MATLAB source : @singfun/fliplr.m
         Chebfun commit: 7574c77
         """
-        if self.isempty():
-            return Singfun.empty()
-        return Singfun(self.smoothPart.fliplr(), self.exponents)
+        return self
 
     def conj(self):
         """Complex conjugate of ``f``.
@@ -1292,9 +1287,9 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Singfun.empty()
+            return self
         if k == 0:
-            return Singfun(self.smoothPart, self.exponents)
+            return self
 
         f = Singfun(self.smoothPart, self.exponents)
         for _ in range(k):
