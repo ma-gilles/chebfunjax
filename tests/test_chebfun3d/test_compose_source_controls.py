@@ -70,14 +70,18 @@ def test_three_columns_and_piece_warning():
         assert (component - f ** (i + 1)).norm() < TOL
 
 
-def test_periodic_values_and_unary_preservation():
+def test_periodic_compose_and_default_tech_sine_routes():
     f = chebfun3(lambda x, y, z: jnp.cos(jnp.pi * x), trig=True)
     h = f.compose(chebfun(lambda t: t ** 2))
-    unary = f.sin()
+    unary = f.compose(jnp.sin)
+    direct = f.sin()
+    assert h.isPeriodicTech()
     assert unary.isPeriodicTech()
+    assert not direct.isPeriodicTech()
     x = jnp.linspace(-1, 1, 37)
     assert jnp.max(jnp.abs(h(x, 0., 0.) - jnp.cos(jnp.pi * x) ** 2)) < TOL
     assert jnp.max(jnp.abs(unary(x, 0., 0.) - jnp.sin(jnp.cos(jnp.pi * x)))) < TOL
+    assert jnp.max(jnp.abs(direct(x, 0., 0.) - jnp.sin(jnp.cos(jnp.pi * x)))) < TOL
 
 
 @pytest.mark.parametrize("tech", ["chebtech2", "chebtech1", "trigtech"])

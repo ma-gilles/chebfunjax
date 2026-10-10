@@ -1,0 +1,20 @@
+{
+  "scope": "Correct supplemental periodic compose assertion to match pinned native sin/compose distinction",
+  "production_changes": false,
+  "source_basis": "@chebfun3/sin.m reconstructs with default tech; compose.m explicitly preserves periodic tech for Chebfun and callable unary composition.",
+  "bounds": "Unchanged1000eps analytic errors; three independent route assertions.",
+  "agent_passes": 27,
+  "agent_runtime_hashes_root_verified": 2968,
+  "root_current_integration_passes": 1,
+  "root_seconds": 15.029785952996463,
+  "root_peak_child_rss_kib": 719304,
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_compose_periodic_regression_20261010/DELIVERY.json": "43c83657ad441e9faf33b1d92ae7d4216daf678565e9397f18993a80c2abd1db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_compose_periodic_regression_20261010/ROOT_REVIEW_v2.json": "7dc30947a8dba0aa132261cecf109929e23a2c5006765c19c68840684fcec328",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_periodic_root_20261010/receipt.json": "bb08c312e83278e7af04a8c0e862eeeaa343c9d776e4e01b2217072819728e3c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_periodic_root_20261010/junit.xml": "d19c9ec442bc1042488df061e509a8d785554cceca74e404d4ad2c9be9a0f547",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_refresh_c8172bfa_20261010/EPOCH_CLOSURE.json": "60e38620f179a44968dce8511b313ca1c3b0b8872c08d3e44db9babb7141445c"
+  },
+  "broad_sweep": "2524 observed nodes:2508passed,14skipped,2failures;7246unexecuted. Periodic failure corrected here; inverse trig mirror failure under separate investigation. No full current-head regression or CI claim.",
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_periodic_root_20261010/static.json"
+}

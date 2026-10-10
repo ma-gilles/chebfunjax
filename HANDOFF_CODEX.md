@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Core regression checkpoint and periodic test correction (2026-10-10)
+
+Fresh frozen sweep stopped after2524 observed nodes:2508pass,14skip,2fail;
+7246 exact nodeids remain unexecuted. One failure was a supplemental test
+conflating direct sin (native default tech) with compose (native periodic
+preservation). Corrected all three route assertions at unchanged bounds;
+agent27pass with2968runtime hashes verified, root1 integration pass. Production
+unchanged. Inverse-trig mirror failure remains under separate investigation.
+Evidence: docs/chebfun3_periodic_test_cpu_20261010.json.
+
 ## Restriction singleton pointValues (2026-10-10; latest)
 
 Actual RandomSwitching raw.sign() exposed a (n,1) stored pointValues versus
