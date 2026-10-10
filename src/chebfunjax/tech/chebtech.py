@@ -3539,8 +3539,9 @@ class Chebtech2(eqx.Module):
             nodal values with a dense QR; 'householder' uses Trefethen's
             Householder triangularisation of a quasimatrix.
         want_e : bool, default False
-            If True, also return ``E``.  Neither method pivots, so ``E``
-            is the identity (as a vector or a matrix, per ``mode``).
+            If True, also return ``E``.  Built-in QR uses column pivoting;
+            householder QR returns the identity permutation. ``mode`` selects
+            vector or matrix encoding.
 
         Returns
         -------
@@ -5159,8 +5160,9 @@ class Chebtech1(eqx.Module):
             nodal values with a dense QR; 'householder' uses Trefethen's
             Householder triangularisation of a quasimatrix.
         want_e : bool, default False
-            If True, also return ``E``.  Neither method pivots, so ``E``
-            is the identity (as a vector or a matrix, per ``mode``).
+            If True, also return ``E``.  Built-in QR uses column pivoting;
+            householder QR returns the identity permutation. ``mode`` selects
+            vector or matrix encoding.
 
         Returns
         -------
@@ -5797,8 +5799,8 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
     """Weighted Gauss-Legendre QR, including the source fast branch.
 
     Provenance: ``@chebtech/qr.m``, Chebfun commit 7574c77.
-    The three-output adapter currently returns identity permutation; MATLAB's
-    built-in three-output QR pivots columns, which remains a parity gap.
+    The three-output built-in path uses column-pivoted dense QR; the
+    two-output path retains unpivoted dense QR, as in MATLAB.
     """
     from chebfunjax.utils.interpolation import barymat
     from chebfunjax.utils.quadrature import legpts
@@ -5820,7 +5822,14 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
         WP = sqrt_wl[:, None] * barymat(xl, xc, vc)
         invWP = barymat(xc, xl, vl) * (1.0 / sqrt_wl)[None, :]
         values = cls.coeffs2vals(coeffs)
-        Qd, R = jnp.linalg.qr(WP @ values, mode="reduced")
+        weighted_values = WP @ values
+        if want_e:
+            from jax.scipy.linalg import qr as scipy_qr
+
+            Qd, R, permutation = scipy_qr(
+                weighted_values, mode="economic", pivoting=True)
+        else:
+            Qd, R = jnp.linalg.qr(weighted_values, mode="reduced")
         s = _unit_sign(jnp.diagonal(R))
         Q_coeffs = cls.vals2coeffs(invWP @ (Qd * s[None, :]))
     else:
@@ -5832,7 +5841,13 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
         xl, wl, _vl, theta = legpts(n, newtheta=True)
         sqrt_wl = jnp.sqrt(wl)
         converted = sqrt_wl[:, None] * ndct(xl, coeffs, theta)
-        Qd, R = jnp.linalg.qr(converted, mode="reduced")
+        if want_e:
+            from jax.scipy.linalg import qr as scipy_qr
+
+            Qd, R, permutation = scipy_qr(
+                converted, mode="economic", pivoting=True)
+        else:
+            Qd, R = jnp.linalg.qr(converted, mode="reduced")
         s = _unit_sign(jnp.diagonal(R))
         legendre_values = (Qd * s[None, :]) / sqrt_wl[:, None]
         Q_coeffs = leg2cheb(_legendre_idlt(legendre_values))
@@ -5841,7 +5856,7 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
     R = jnp.conj(s)[:, None] * R
     Q = cls(coeffs=Q_coeffs, ishappy=f.ishappy)
     if want_e:
-        return Q, R, _tech_qr_perm(m, mode)
+        return Q, R, _tech_qr_perm(m, mode, permutation)
     return Q, R
 
 
@@ -5888,11 +5903,17 @@ def _tech_qr_householder(f, want_e: bool, mode: str):
     return Q, jnp.asarray(R)
 
 
-def _tech_qr_perm(m: int, mode: str):
-    """The (identity) column permutation returned as a vector or matrix."""
+def _tech_qr_perm(m: int, mode: str, permutation=None):
+    """Return a column permutation as a vector or matrix.
+
+    ``permutation`` follows JAX QR's convention: ``A[:, permutation] = Q @ R``.
+    An omitted permutation is the identity, as used by householder QR.
+    """
+    if permutation is None:
+        permutation = jnp.arange(m)
     if mode == "vector" or mode == 0:
-        return jnp.arange(m)
-    return jnp.eye(m, dtype=jnp.float64)
+        return permutation
+    return jnp.eye(m, dtype=jnp.float64)[:, permutation]
 
 
 def _tech_qr(f, mode: str = "matrix", method: str = "built-in",

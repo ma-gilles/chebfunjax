@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Built-in three-output QR pivoting restored (2026-10-10; latest)
+
+Both weighted QR branches now use JAX column pivoting when a permutation is
+requested; two-output and Householder behavior remain source-correct. Matrix
+and vector encodings use the native A[:,p]=Q*R convention. Twelve integration
+cases pass, including a three-cycle control that distinguishes inverse
+permutations. Newer restriction fixes and QR scale assertion are preserved.
+Evidence: docs/chebtech_qr_pivot_cpu_20261010.json. The pre-existing high-length
+cos/exp reconstruction error (~1.05e-9 versus3.02e-11 bound) remains open and
+is under source diagnosis; high-branch pivot checks do not qualify accuracy.
+
 ## Native Chebtech restriction validation restored (2026-10-10; latest)
 
 Both Tech classes now return empty inputs before validation, reject endpoints

@@ -12,13 +12,12 @@ Remaining adaptations vs MATLAB:
   MATLAB constructs a CHEBFUN and repeats the same two results across its
   four class/method rows. Here both Tech kinds exercise each source block.
 * Pass 20 checks ``size(vscale(Q)) == [1 3]``.  chebfunjax's ``vscale`` is a
-  scalar aggregate over all columns rather than a per-column row vector, so
-  the assertion is ported as the equivalent column-count check.
+  scalar aggregate; the native vector-size assertion uses vscale_columns.
 
-Neither MATLAB method pivots the columns for the two-output form. MATLAB's
-three-output built-in form does pivot; chebfunjax currently returns identity
-``E``. Reconstruction and pass-17 consistency checks do not qualify that
-remaining permutation-choice gap.
+The two-output form remains unpivoted. MATLAB's three-output built-in form
+pivots columns; focused controls below cover a non-tied pivot, matrix/vector
+encodings, rank deficiency without tie-order assumptions, and the fast
+transform branch.
 
 Provenance
 ----------
@@ -140,6 +139,48 @@ class TestChebtechQr:
         err = E1[:, E2] - jnp.eye(N)
         assert bool(jnp.all(err == 0))
 
+    @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+    def test_builtin_three_output_pivots_larger_column_first(self, Tech):
+        # The native pass 5-8 fixture is [cos(x), exp(x)]; with a full dense
+        # three-output QR, MATLAB orders abs(diag(R)) decreasing.
+        f = Tech.from_function(_two_col)
+        Q, R, permutation = f.qr(
+            mode="vector", method="built-in", want_e=True)
+        assert int(permutation[0]) == 1
+
+        Qm, Rm, E = f.qr(mode="matrix", method="built-in", want_e=True)
+        assert bool(jnp.array_equal(E[:, permutation], jnp.eye(2)))
+        err = (Qm @ Rm) - (f @ E)
+        assert float(jnp.linalg.norm(err(X), ord=jnp.inf)) < 1e3 * f.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+    def test_builtin_three_output_rank_deficient_permutation(self, Tech):
+        # Supplemental control: preserve reconstruction without fixing a tie order.
+        f = Tech.from_function(lambda x: jnp.stack([x, x, x], axis=-1))
+        Q, R, permutation = f.qr(
+            mode="vector", method="built-in", want_e=True)
+        assert sorted(np.asarray(permutation).tolist()) == [0, 1, 2]
+        Qm, Rm, E = f.qr(mode="matrix", method="built-in", want_e=True)
+        assert bool(jnp.array_equal(E[:, permutation], jnp.eye(3)))
+        err = (Qm @ Rm) - (f @ E)
+        assert float(jnp.linalg.norm(err(X), ord=jnp.inf)) < 1e3 * f.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+    def test_builtin_three_output_pivot_fast_transform_branch(self, Tech):
+        # Prolong the native [cos, exp] fixture beyond 4000 to cover pivot
+        # selection and both permutation encodings in the IDLT/NDCT branch.
+        # High-branch reconstruction is tracked separately: the unchanged
+        # unpivoted path has the same pre-existing pointwise residual.
+        f = Tech.from_function(_two_col).prolong(4001)
+        Q, R, permutation = f.qr(
+            mode="vector", method="built-in", want_e=True)
+        assert int(permutation[0]) == 1
+        Qm, Rm, E = f.qr(mode="matrix", method="built-in", want_e=True)
+        assert bool(jnp.array_equal(permutation, jnp.asarray([1, 0])))
+        assert bool(jnp.array_equal(E[:, permutation], jnp.eye(2)))
+        assert R.shape == (2, 2) and Rm.shape == (2, 2)
+        assert _ncols(Q) == 2 and _ncols(Qm) == 2
+
     @pytest.mark.parametrize("Tech,method", CASES, ids=IDS)
     def test_rank_deficient(self, Tech, method):
         # pass(n, 18): size(Q) == 3 and size(R) == 3 for f = [x x x].
@@ -190,3 +231,19 @@ class TestChebtechQr:
             lambda x: jnp.stack([x, x**2, x**3], axis=-1)
         )
         assert float(source_norm) < 5e4 * f.vscale * EPS
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+def test_builtin_three_output_noninvolutory_permutation(Tech):
+    # Supplemental non-tied three-cycle: catches inverse-permutation mistakes
+    # that identity and two-column swaps cannot expose.
+    f = Tech.from_function(
+        lambda x: jnp.stack([0.1*x**2, 3*jnp.ones_like(x), 2*x], axis=-1))
+    Q, R, permutation = f.qr(mode=0, method="built-in", want_e=True)
+    assert bool(jnp.array_equal(permutation, jnp.asarray([1, 2, 0])))
+    Qm, Rm, E = f.qr(mode="matrix", method="built-in", want_e=True)
+    assert bool(jnp.array_equal(E, jnp.eye(3)[:, permutation]))
+    assert float(jnp.linalg.norm(((Qm @ Rm) - (f @ E))(X), ord=jnp.inf)) < (
+        1e3 * f.vscale * EPS)
+    assert float(jnp.linalg.norm(
+        (Q @ R)(X) - f(X)[:, permutation], ord=jnp.inf)) < 1e3 * f.vscale * EPS

@@ -1,0 +1,46 @@
+{
+  "package": "Built-in three-output Chebtech pivoted QR",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "d1fd0150fe01accd64915f7e32f63c64884c0e09",
+  "agent_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_builtin_pivot_096222d9_20261010/candidate/delivery.json",
+  "delivery_review": {
+    "delivery_sha256": "8cff7464de1aa10c60b0543ecf31b188fa5a679446dba31788ee6d39d526c336",
+    "verified_bindings": 8
+  },
+  "source_review": {
+    "only_changed_library_functions": [
+      "_tech_qr_builtin",
+      "_tech_qr_perm"
+    ],
+    "qualified_agent_functions_ast_identical": true,
+    "other_library_ast_unchanged": true,
+    "newer_restrict_methods_preserved": true,
+    "newer_qr_vscale_assertion_preserved": true,
+    "supplemental_control": "Three-cycle [1,2,0], mode0/vector and matrix reconstruction, original 1e3eps scale bound."
+  },
+  "root_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_pivot_root_integration_20261010/receipt.json",
+    "receipt_sha256": "ff5f9342ca59ffbd8292263b2cb53d0190fa2a43c01134426888f43fc1464be2",
+    "passed": 12,
+    "elapsed_seconds": 32.74972680490464,
+    "peak_child_rss_kib": 1059904,
+    "source_test_hashes_verified": 2086,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "timeout_seconds": 180
+  },
+  "limitations": [
+    "High-length reconstruction for n4001 cos/exp remains open: candidate and unchanged unpivoted path have about1.05347e-9 pointwise error against3.0179e-11 target. High-branch gate establishes pivot ordering/encoding only.",
+    "Root source/test tree hashes and JUnit verified; no full observed-module runtime hash audit.",
+    "Root gate measured RSS without cap; agent gate sampled and enforced3GiB limit.",
+    "No full native QR suite, global current-suite or MATLAB paired performance claim."
+  ]
+}
