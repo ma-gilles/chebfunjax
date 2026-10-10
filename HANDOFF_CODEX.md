@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Arrowplot source sampling and held colors (2026-10-10; latest)
+
+Arrowplot now uses native polynomial plotData grids/markers after combining
+real components, follows the held axes color cycle, retains stationary-endpoint
+annotations for nonzero functions, and rejects a single real argument. Root18
+tests pass, including six source controls; static checks pass. Only arrowplot
+changed. ChebopQuiver fullpage and general parametric sampling remain open.
+Evidence: docs/arrowplot_source_cpu_20261010.json.
+
 ## Subtraction and negation preserve breakpoint values (2026-10-10; latest)
 
 Native plus/uminus dispatch now retains pointValues, orientation and delta

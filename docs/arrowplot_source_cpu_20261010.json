@@ -1,0 +1,52 @@
+{
+  "scope": "Arrowplot bounded polynomial curve data, held axes color, real-input validation and nonzero stationary-endpoint annotations.",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Combine real components before source plotData sampling, preserving native per-piece leading NaNs and representation-node markers.",
+    "Take arrow color from plotted line on supplied axes, continuing its color cycle.",
+    "Retain zero-length annotation for nonzero functions with zero derivative; suppress zero-function arrows.",
+    "Reject a single real function as native source requires two real components or one complex function."
+  ],
+  "root_gate": {
+    "passed": 18,
+    "elapsed_seconds": 14.865921014919877,
+    "peak_child_rss_kib": 680180,
+    "source_unchanged": true,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "timeout_seconds": 120
+  },
+  "preserved_failures": [
+    "Original implementation12 existing controls passed and4 new source controls failed.",
+    "First corrected implementation15passed1failed: new analytic observer omitted source leading NaN; source plotData lines74-79 justified correcting fixture, no tolerance change."
+  ],
+  "review": "Only arrowplot AST changed. Six new source controls and twelve existing controls pass. Static gates pass.",
+  "limits": [
+    "No complete ChebopQuiver page or pixel parity claim; page regeneration pending.",
+    "General matlab_plot parametric sampling remains separate known source gap.",
+    "Arrowhead renderer geometry, full array-valued input support and nonpolynomial sampling remain unqualified.",
+    "Root full src/tests before-after and output hashes checked; no observed runtime-origin audit or enforced RSS cap.",
+    "Remote CI unresolved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_root_20261010/receipt.json": "b2cb6c57cb4d22aaea95b5f3aaa521846c0be1354acd962ec5febe198c42aed2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_root_20261010/junit.xml": "257a10aeaa317cf843870b80c4edc6cbda92a3f692084f06cbc25c2365c56332",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_root_20261010/source_review.json": "6f3ffca72b31d1964c2ff154f490537d907985da3cd404cc48d4bcc5b2c22411",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_root_20261010/static.json": "698a2e80e3d9696e71f979943ebe73a8ad0807d7c8fb54a45348824a0619a1b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_source_20261010/baseline/receipt.json": "f29bb0027826c13bad5df5e0f3d40af176355908a333eb1ae32f69b78e6f8821",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_source_20261010/qualified/receipt.json": "695d3c10add32721da1aefec900372f6ca9835dd4055652387b830f645386b12",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_source_20261010/qualified_v2/receipt.json": "95c826f98be12fd20f81a3c324dabd9f6e5c8fa0aade2f85d4d722103a440c0d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/arrowplot_source_20261010/qualified_v3/receipt.json": "55ee28d24e34b869bdce5149ca556bd8d3288579128b3b1b3f9ffbb87dfeddde",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/arrowplot.m": "0e3f7f37b1c523ef313e3e73d2381a7922e79da25b9e7e64e9eddb60299dcab7",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/plotData.m": "c3829c9968e271347d574116711ef7a3425296e2a42da39e1adb2b7dbe37e76e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech/plotData.m": "fbcb953ae11a85853880b6f33be7b0f73114997f5704f33692e2175b3c432b00"
+  }
+}

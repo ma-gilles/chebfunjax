@@ -3855,9 +3855,10 @@ def arrowplot(
     ax : matplotlib Axes, optional
     title : str
     color : matplotlib color or list, optional
-        Defaults to the Chebfun colour cycle.
+        Defaults to the supplied axes colour cycle, continuing held curves.
     n_pts : int
-        Points used to draw the curve itself.
+        Sampling adapter for unsupported source plotData types. Bounded
+        polynomial curves use the native degree-based Chebyshev grid.
     multi : int
         Number of arrowheads (MATLAB ``'multi', n``).
     markersize : float
@@ -3901,24 +3902,39 @@ def arrowplot(
             f"arrowplot: got {len(fs)} x-components but {len(gs)} "
             f"y-components.")
 
+    if g is None and all(fk.isreal() for fk in fs):
+        raise ValueError("arrowplot expects two real functions or one complex function")
+
     if color is None:
-        cyc = [CHEBFUN_BLUE, CHEBFUN_RED, CHEBFUN_GREEN, CHEBFUN_ORANGE,
-               "#8B008B", "#008080"]
-        colors = [cyc[k % len(cyc)] for k in range(len(fs))]
+        colors = [None] * len(fs)
     elif isinstance(color, (list, tuple)) and not isinstance(color, str):
         colors = list(color)
     else:
         colors = [color] * len(fs)
 
     for fk, gk, ck in zip(fs, gs, colors):
-        ts = _domain_points(fk, n_pts)
-        fvals = np.asarray(fk(jnp.array(ts)))
-        if gk is not None:
-            xvals, yvals = np.real(fvals), np.asarray(gk(jnp.array(ts)))
+        # @chebfun/arrowplot.m combines real components before plot(f).
+        # Use its source plotData grid, including piece boundaries.
+        curve = fk if gk is None else fk + 1j * gk
+        pieces = _sample_pieces(curve, n_pts, _source_grid=True)
+        if not pieces:
+            continue
+        xs, values = _join_plot_pieces(pieces)
+        xvals, yvals = _source_complex_plot_coordinates(xs, values)
+        line_kw = dict(kw)
+        if ck is not None:
+            line_kw["color"] = ck
+        first_line = len(ax.lines)
+        if _marker_requested(None, line_kw):
+            px, py = _join_plot_pieces(_source_point_pieces(curve))
+            px, py = _source_complex_plot_coordinates(px, py)
+            _source_plot_line_and_points(
+                ax, xvals, yvals, px, py, None, line_kw)
         else:
-            xvals, yvals = np.real(fvals), np.imag(fvals)
-
-        ax.plot(xvals, yvals, color=ck, **kw)
+            _plot_curve(ax, xvals, yvals, None, line_kw)
+        ck = ax.lines[first_line].get_color()
+        ts = (float(curve.domain.breakpoints[0]),
+              float(curve.domain.breakpoints[-1]))
 
         # MATLAB evaluates f and f' at linspace(a, b, multi+1) minus the
         # first point, so multi=1 gives one arrow at the right endpoint.
@@ -3932,9 +3948,10 @@ def arrowplot(
             else:
                 yp = float(np.imag(np.asarray(fp(jnp.float64(p)))))
             nrm = np.hypot(xp, yp)
-            if nrm == 0.0:
-                continue                    # zero chebfun: no arrowhead
-            xp, yp = 0.001 * xp / nrm, 0.001 * yp / nrm
+            if curve.iszero():
+                continue
+            if nrm != 0.0:
+                xp, yp = 0.001 * xp / nrm, 0.001 * yp / nrm
             x0 = float(np.real(np.asarray(fk(jnp.float64(p)))))
             y0 = (float(np.asarray(gk(jnp.float64(p)))) if gk is not None
                   else float(np.imag(np.asarray(fk(jnp.float64(p))))))
