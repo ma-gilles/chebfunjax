@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fourth RandomSwitching trajectory completed (2026-10-10; latest)
+
+The fourth original trajectory now completes all 144 intervals through time
+40, with one compiled RHS step kernel. Execution and 2,953 runtime hashes are
+audited clean; peak RSS is 4,456,976 KiB and supervised wall time 283.50 s.
+Independent 80-digit flow comparison gives maximum fitted absolute error
+1.68e-8. Its largest relative error is 7.92% at time 39.56, where the exact
+state scale is 1.28e-9 and absolute error is 1.01e-10; both metrics are retained.
+All four trajectories have execution evidence. The source page repair, figures,
+MATLAB RNG matching, and accuracy parity remain open. Evidence:
+docs/randomswitching_fourth_cpu_20261010.json. Observer preflight/version errors
+before the successful run are preserved in the delivery packet.
+
 ## Needle page parser correction and fresh static inventory (2026-10-10; latest)
 
 A malformed cached anchor flattened Needle's final five MATLAB blocks and two
