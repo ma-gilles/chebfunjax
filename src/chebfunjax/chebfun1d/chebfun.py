@@ -17,6 +17,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import math
+import numbers
 from typing import TYPE_CHECKING, Callable
 
 import equinox as eqx
@@ -5294,51 +5295,109 @@ class Chebfun(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1) -> Chebfun:
-        """Differentiate *k* times with respect to x.
+    def diff(self, k: int | float = 1, dim: int | str = 1) -> Chebfun:
+        """Differentiate *k* times or take finite differences by dimension.
 
-        Each piece is differentiated independently using the affine chain rule.
+        Column Chebfuns are differentiated with respect to the continuous
+        variable. For array-valued row Chebfuns, ``dim=1`` selects finite
+        differences across rows and ``dim=2`` selects continuous
+        differentiation; column Chebfuns use the opposite dimension mapping.
+        A noninteger order computes the Riemann-Liouville fractional
+        derivative, or the Caputo derivative when ``dim="Caputo"`` is given.
 
-        JIT-safe: yes (k must be a static Python int).
+        ``k`` and numeric ``dim`` may be Python, NumPy, or scalar JAX numeric
+        values. They must be concrete at trace time, as the order controls
+        Python-level derivative dispatch.
 
         Parameters
         ----------
-        k : int or float, default 1
-            Order of differentiation.  A non-integer order computes the
-            Riemann-Liouville fractional derivative (MATLAB
-            ``diff(f, alpha)`` semantics, dispatching to
-            :meth:`fracDiff`).
+        k : scalar numeric, default 1
+            Integer derivative or finite-difference order, or a noninteger
+            fractional derivative order.
+        dim : scalar numeric or str, default 1
+            Differentiation dimension, or fractional derivative kind.
 
         Returns
         -------
         Chebfun
-            The k-th derivative, represented piecewise.
+            The derivative or finite difference, represented piecewise.
 
         Provenance
         ----------
         MATLAB source : @chebfun/diff.m
         Chebfun commit: 7574c77
         """
-        if float(k) != int(k):
-            return self.fracDiff(float(k))
-        k = int(k)
-        if k == 0:
+        if self.isempty():
             return self
-        if k > 1 and (len(self.funs) > 1 or self.deltas):
+        # Keep ordinary Python values on the static path: converting them to
+        # JAX arrays while tracing would make float(...) see a tracer. MATLAB
+        # uses isnumeric(n), so also accept NumPy scalar adapters without a
+        # production NumPy dependency; concrete JAX scalars use the array path.
+        def scalar_numeric(value, identifier):
+            if isinstance(value, bool):
+                raise ValueError(identifier)
+            if isinstance(value, numbers.Real):
+                return float(value)
+            try:
+                array = jnp.asarray(value)
+            except (TypeError, ValueError):
+                array = None
+            if (array is None or array.ndim != 0
+                    or not (jnp.issubdtype(array.dtype, jnp.integer)
+                            or jnp.issubdtype(array.dtype, jnp.floating))):
+                raise ValueError(identifier)
+            return float(array)
+
+        k_float = scalar_numeric(
+            k, "CHEBFUN:CHEBFUN:diff:n: Second argument must be an integer.")
+        if not isinstance(dim, str):
+            dim_value = scalar_numeric(
+                dim, "CHEBFUN:CHEBFUN:diff:dim: Dimension must either be 1 or 2.")
+            if dim_value not in (1.0, 2.0):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:diff:dim: Dimension must either be 1 or 2.")
+            dim = int(dim_value)
+        if k_float != int(k_float):
+            kind = dim if isinstance(dim, str) else "RL"
+            return self.fracDiff(k_float, kind)
+        order = int(k_float)
+        if order == 0:
+            return self
+        finite_dim = self.is_transposed != (dim == 2)
+        if finite_dim:
+            import warnings
+
+            from chebfunjax.fun.singfun import Singfun
+
+            new_funs = []
+            for piece in self.funs:
+                if isinstance(piece.tech, Singfun):
+                    warnings.warn(
+                        "CHEBFUN:SINGFUN:diff:noSupport: "
+                        "SINGFUN does not support array-valued objects.",
+                        RuntimeWarning, stacklevel=2)
+                    tech = piece.tech.diff(order)
+                else:
+                    tech = piece.tech.diff(order, dim=2)
+                new_funs.append(piece.with_tech(tech))
+            out = Chebfun(funs=new_funs, domain=self.domain)
+            # Native diffFiniteDim mutates FUNs in place without updating
+            # pointValues; source endpoint overrides therefore persist.
+            point_values = getattr(self, "_point_values", None)
+            if point_values is not None:
+                object.__setattr__(out, "_point_values", point_values)
+            return Chebfun._as_transposed(out, self.is_transposed)
+        if order > 1 and (len(self.funs) > 1 or self.deltas):
             # Iterate so each stage's jump deltas are promoted to
             # higher-order rows by the next stage (MATLAB @deltafun/diff).
             out = self
-            for _ in range(int(k)):
-                out = out.diff(1)
+            for _ in range(order):
+                out = out.diff(1, dim=dim)
             return out
-        new_funs = [piece.diff(k) for piece in self.funs]
+        new_funs = [piece.diff(order) for piece in self.funs]
         # (orientation is preserved below via _as_transposed)
-        # Differentiating across a jump discontinuity produces a Dirac
-        # delta of magnitude equal to the jump (task #9, Opus 4.8); a
-        # carried delta row is promoted to its distributional derivative
-        # (order + 1).
         deltas = ()
-        if k == 1 and len(self.funs) > 1:
+        if order == 1 and len(self.funs) > 1:
             dlist = []
             for i in range(len(self.funs) - 1):
                 loc = float(self.funs[i].interval[1])
@@ -5361,16 +5420,15 @@ class Chebfun(eqx.Module):
                 right = complex(right_value.reshape(()))
                 jump = right - left
                 # max(|re|, |im|) rather than abs(): Python's complex
-                # abs (hypot) overflows for ~1e308 parts (gamma's poles,
-                # approx/GammaFun); MATLAB's abs(jmp) > deltaTol simply
-                # yields an Inf-magnitude delta.
+                # abs (hypot) overflows for ~1e308 parts; MATLAB's abs(jmp)
+                # yields an Inf-magnitude delta for the same input.
                 if max(abs(jump.real), abs(jump.imag)) > _dtol:
                     dlist.append((loc, jump if jump.imag else jump.real))
             deltas = tuple(dlist)
-        if k == 1 and self.deltas:
+        if order == 1 and self.deltas:
             promoted = tuple(
-                (loc, mag, order + 1)
-                for loc, mag, order in map(_delta_row, self.deltas))
+                (loc, mag, delta_order + 1)
+                for loc, mag, delta_order in map(_delta_row, self.deltas))
             deltas = Chebfun._merge_deltas(deltas, promoted)
         return Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
@@ -9162,8 +9220,11 @@ class Chebfun(eqx.Module):
         integrated = singular.fracInt(mu_frac)
         integrated = ((b - a) / 2.0) ** mu_frac * integrated
         out_piece = _Piece(tech=integrated, interval=(a, b))
-        return Chebfun._as_transposed(
-            Chebfun(funs=[out_piece], domain=Domain((a, b))), f.is_transposed)
+        out = Chebfun(funs=[out_piece], domain=Domain((a, b)))
+        # @chebfun/fracInt.m refreshes pointValues from the integrated FUN
+        # limits before any later finite-dimensional differentiation.
+        out = out.set_point_values(out._breakpoint_values())
+        return Chebfun._as_transposed(out, f.is_transposed)
 
     def fracDiff(self, mu: float, kind: str = "RL") -> "Chebfun":
         r"""Fractional derivative of order *mu* (Riemann-Liouville or Caputo).

@@ -21,6 +21,7 @@ References
 
 from __future__ import annotations
 
+import numbers
 from typing import Sequence
 
 import jax.numpy as jnp
@@ -506,8 +507,69 @@ class Quasimatrix:
             mn = mn.minimum(c)
         return mx - mn
 
-    def diff(self, k: int = 1) -> "Quasimatrix":
-        return self._map(lambda c: c.diff(k))
+    def diff(self, k: int | float = 1, dim: int | str = 1):
+        """Differentiate columns continuously or take finite differences.
+
+        The shared orientation and ``dim`` follow native ``@chebfun/diff``:
+        dim 1 is continuous for column quasimatrices and finite across columns
+        for transposed quasimatrices; dim 2 selects the opposite direction.
+        Noninteger orders use the fractional derivative kind when ``dim`` is a
+        string, with numeric dimensions selecting the default RL definition.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/diff.m
+        Chebfun commit: 7574c77
+        """
+        if not self.cols:
+            return Chebfun.empty()
+
+        def scalar_numeric(value, identifier):
+            if isinstance(value, bool):
+                raise ValueError(identifier)
+            if isinstance(value, numbers.Real):
+                return float(value)
+            try:
+                array = jnp.asarray(value)
+            except (TypeError, ValueError):
+                array = None
+            if (array is None or array.ndim != 0
+                    or not (jnp.issubdtype(array.dtype, jnp.integer)
+                            or jnp.issubdtype(array.dtype, jnp.floating))):
+                raise ValueError(identifier)
+            return float(array)
+
+        order_value = scalar_numeric(
+            k, "CHEBFUN:CHEBFUN:diff:n: Second argument must be an integer.")
+        if not isinstance(dim, str):
+            dim_value = scalar_numeric(
+                dim, "CHEBFUN:CHEBFUN:diff:dim: Dimension must either be 1 or 2.")
+            if dim_value not in (1.0, 2.0):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:diff:dim: Dimension must either be 1 or 2.")
+            dim = int(dim_value)
+        if order_value != int(order_value):
+            kind = dim if isinstance(dim, str) else "RL"
+            return self.fracDiff(order_value, kind)
+        order = int(order_value)
+        if order == 0:
+            return self
+
+        finite_dim = self.is_transposed != (dim == 2)
+        if finite_dim:
+            if len(self.cols) <= order:
+                return Chebfun.empty()
+            cols = list(self.cols)
+            for _ in range(order):
+                cols = [cols[j + 1] - cols[j]
+                        for j in range(len(cols) - 1)]
+            # Binary Chebfun subtraction rebuilds a column by default; native
+            # finite differences retain the row-quasimatrix orientation.
+            cols = [Chebfun._as_transposed(col, self.is_transposed)
+                    for col in cols]
+            return Quasimatrix(cols, self.domain)
+        # For a transposed row quasimatrix, the continuous variable is dim 2.
+        return self._map(lambda c: c.diff(order, dim=dim))
 
     def fracInt(self, mu: float) -> "Quasimatrix":
         """Integrate scalar columns, preserving their orientation.

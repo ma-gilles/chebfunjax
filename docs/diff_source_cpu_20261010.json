@@ -1,0 +1,65 @@
+{
+  "scope": "Native continuous/finite-dimensional Chebfun and Quasimatrix differentiation, fractional kind dispatch, and integrated endpoint metadata.",
+  "changed_methods": {
+    "src/chebfunjax/chebfun1d/chebfun.py": [
+      "diff",
+      "fracInt"
+    ],
+    "src/chebfunjax/chebfun1d/linalg.py": [
+      "diff"
+    ]
+  },
+  "distinct_root_passing_nodes": 38,
+  "gates": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_native_v3_root_20261010",
+      "passed": 13,
+      "failed": [
+        "test_native_quasimatrix_finite_difference_dimensions"
+      ],
+      "seconds": 49.70480075897649,
+      "peak_rss_kib": 1192596
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_fractional_v3_root_20261010",
+      "passed": 23,
+      "failed": [],
+      "seconds": 14.89402097184211,
+      "peak_rss_kib": 680396
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_quasimatrix_root_20261010",
+      "passed": 2,
+      "failed": [],
+      "seconds": 8.020500962156802,
+      "peak_rss_kib": 593692
+    }
+  ],
+  "qualification_note": "38 distinct passes across separate gates, not a single all-green run. Native gate originally failed on omitted Quasimatrix dependency; final two-case gate repairs that failed node and checks row dispatch. Other existing linalg methods unchanged. Guarded source-tree and JUnit hashes checked; root gates do not audit runtime origins.",
+  "source_assertions": "All11 original Chebfun diff expressions/bounds represented, including restored piecewise-sin second derivative. Python RNG/grid and removable singularity adapters are not exact MATLAB sample captures.",
+  "jit": "Python/NumPy scalar static parsing preserves JIT; exact derivative coefficients compared with original one-piece derivative path. Concrete JAX scalar orders supported; dynamic traced orders are not supported.",
+  "preserved_failures": [
+    "Earlier wrong fractional endpoint fixture and missing stored endpoint metadata.",
+    "Combined3GiB RSS-censored qualification.",
+    "v2 scalar validation JIT ConcretizationTypeError.",
+    "v3 overly strict added analytic JIT smoke; replaced with exact original-route coefficients.",
+    "Root omitted Quasimatrix dependency failure; candidate row finite orientation failure."
+  ],
+  "remaining": [
+    "Exact MATLAB RNG samples, broader API/path coverage and global current-head tests/CI remain unresolved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_native_v3_root_20261010/receipt.json": "31918872e7b7c18242eaadf9686905f39fb0ca361e151a8f0b916e7ead95921e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_native_v3_root_20261010/junit.xml": "842f3d99c1c11685a6eaf0abeef8c289af4f9a2666d3e774b221594b645d020a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_fractional_v3_root_20261010/receipt.json": "0ed6c09a5e0151fc12c0a70032ccca02adcd021d2d811acbf94d866a228d5837",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_fractional_v3_root_20261010/junit.xml": "a055a1fc3a25450463b973d8fbf62ae477af02a19938cc6e8c4394f6cf51311e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_quasimatrix_root_20261010/receipt.json": "084a697d261060f09b1eaff2fe7ba74b5c709db56e21361ec14e1b68c7db19eb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_quasimatrix_root_20261010/junit.xml": "f66cc499d49a0138ad997f6ef28fc880be739f03d170d92e4fcca07eba07ba5e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_quasimatrix_root_20261010/static.json": "6019b7c733a760236b18a00b3e80a86ec389e1df588fc98249f6f09076fa22d5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_diff_source_20261010/DIFF_DELIVERY.json": "65622d36aba81fd414fd01e2a07217952149dae42edccd62d2c72111d13de055",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_diff_source_v2_20261010/DIFF_DELIVERY_v3.json": "8766c14576d996856d11b1c6d7586c79176302a4e95d90057cb9894dae3227cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_diff_source_v2_20261010/QUASIMATRIX_DIFF_DELIVERY.json": "bf50f6e5276cf90997cd487cdcc869ff11891e6ac20256a769e5833ccf1bd944",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_delivery_v1_root_review_20261010.json": "99a4dab67ef9c906ba0d1d1901eae68ee1cc08af685925b789764ff47bd5d77c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_v3_delivery_root_review_20261010.json": "e4976eafddfe149018d1653862928849c59176da2a486e229760c4435faeec20"
+  }
+}

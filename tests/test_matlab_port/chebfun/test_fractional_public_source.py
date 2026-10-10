@@ -32,7 +32,10 @@ def test_fractional_columns_and_orientation(storage, transpose):
     x = jnp.array([.1, .4, .9])
     for name, expected in [
         ("fracInt", jnp.stack([x**.5/gamma(1.5), x**1.5/gamma(2.5)], axis=-1)),
-        ("fracDiff", jnp.stack([x**(-.5)/gamma(.5), x**.5/gamma(1.5)], axis=-1)),
+        # Native row RL dispatch takes bndfun.diff(n, 2): it differentiates
+        # the fractional-integral canonical factor without physical rescaling.
+        ("fracDiff", .5*jnp.stack([x**(-.5)/gamma(.5), x**.5/gamma(1.5)], axis=-1)
+         if transpose else jnp.stack([x**(-.5)/gamma(.5), x**.5/gamma(1.5)], axis=-1)),
     ]:
         g = getattr(f, name)(.5)
         assert isinstance(g, Quasimatrix)
@@ -57,3 +60,25 @@ def test_caputo_columns_use_derivative_then_integral(storage):
     expected = jnp.stack([x**.5/gamma(1.5), 2*x**1.5/gamma(2.5)], axis=-1)
     np.testing.assert_allclose(f.fracDiff(.5, "cApUtO")(x), expected,
                                rtol=0., atol=100*np.finfo(float).eps)
+
+
+def test_diff_fractional_kind_and_numeric_dim_dispatch():
+    f = chebfun(lambda x: x*x, domain=(0., 1.))
+    x = jnp.array([.1, .4, .9])
+    np.testing.assert_allclose(f.diff(.5, "cApUtO")(x),
+                               f.fracDiff(.5, "cApUtO")(x), rtol=0., atol=0.)
+    np.testing.assert_allclose(f.diff(.5, 2)(x),
+                               f.fracDiff(.5, "RL")(x), rtol=0., atol=0.)
+
+
+def test_row_rl_fractional_source_scaling_warning_and_endpoint_metadata():
+    row = chebfun(lambda x: jnp.ones_like(x), domain=(0., 4.)).T
+    with pytest.warns(RuntimeWarning, match="CHEBFUN:SINGFUN:diff:noSupport"):
+        got = row.diff(.5)
+    x = jnp.array([.4, 1., 2., 3.6])
+    expected = 2.0 / (jnp.sqrt(jnp.pi) * jnp.sqrt(x))
+    np.testing.assert_allclose(got(x), expected, rtol=0., atol=2e-12)
+    # diffFiniteDim leaves the fractional-integral endpoint overrides intact.
+    np.testing.assert_allclose(got.point_values,
+                               jnp.array([0., 4. / jnp.sqrt(jnp.pi)]),
+                               rtol=0., atol=2e-12)

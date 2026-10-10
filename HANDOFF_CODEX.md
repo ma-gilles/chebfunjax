@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native differentiation dimensions and fractional metadata (2026-10-10; latest)
+
+Chebfun/Quasimatrix diff now dispatches continuous and finite dimensions by
+orientation, including row finite differences and fractional kind. fracInt
+materializes native endpoint metadata. All11 original Chebfun diff expressions
+and bounds are represented with explicit Python RNG/grid adapters. Root38
+distinct cases pass across3 gates; initial missing Quasimatrix dependency and
+JIT/fixture failures remain documented. Final static checks pass.
+Evidence: docs/diff_source_cpu_20261010.json. Global tests/CI remain open.
+
 ## LevelHopping completes both source solves (2026-10-10; latest)
 
 The complete page now finishes with53.919777s captured timing, both original
