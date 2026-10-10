@@ -1,5 +1,13 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sequential sum3 qualified (2026-10-09; supersedes contraction gap below)
+
+Native physical factor scaling and x→y→z contraction order are now restored.
+Four focused executions (JIT enabled/disabled) and 24 reduction regressions
+pass independent runtime review; all other library files are unchanged.
+Evidence: docs/chebfun3_sum3_order_cpu_20261009.json. This does not establish
+MATLAB bitwise equality, full-suite completion, or remote CI.
+
 ## Latest accepted CPU packages (2026-10-09; supersedes status below)
 
 Local implementation head efc54edf includes:

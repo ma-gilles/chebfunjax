@@ -1,0 +1,161 @@
+{
+  "scope": "Native sequential sum3 mode order and factor-local physical scaling",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_references": [
+    "@chebfun3/sum3.m",
+    "@chebfun3/txm.m",
+    "@bndfun/sum.m"
+  ],
+  "source_review": "Only _sum3_numeric differs; remainder of class module AST identical; all other 234 library files byte-identical. NumPy test-only reference follows native unfold/matmul/fold with singleton modes.",
+  "files": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "b2326012706b0e4ed986f63a98c7f243394fdf13ae827e6e274e14046e9b34ea",
+    "tests/test_chebfun3d/test_sum3_sequential_source_controls.py": "c077b5fb842f3b8b382c1fa2384a5e03fd2d99ff02bfa98329895a3535ac5656"
+  },
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "Chebfun3 sequential sum3 source controls and original reductions regressions",
+    "gates": [
+      {
+        "gate": "qualification_controls_v3/runtime/jit_enabled",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_order_source_20261009/qualification_controls_v3/supervision/receipt.json",
+        "receipt_sha256": "44644d7a9154b43ebbf1db583b7fa44e22ca404ab14de479abcd38e325d2ae8e",
+        "runtime_manifest_sha256": "448636c1a8bfdbf96745fb27dd825608de85b9798d30c98d385b644c0540f5eb",
+        "runtime_end_sha256": "f81301946a41911659dd30e79acc31e9ab38a142798530636fb620ec9e2fad17",
+        "observed_files_rehashed": 2935,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 51,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 595776,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 2,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "qualification_controls_v3/runtime/jit_disabled",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_order_source_20261009/qualification_controls_v3/supervision/receipt.json",
+        "receipt_sha256": "44644d7a9154b43ebbf1db583b7fa44e22ca404ab14de479abcd38e325d2ae8e",
+        "runtime_manifest_sha256": "448636c1a8bfdbf96745fb27dd825608de85b9798d30c98d385b644c0540f5eb",
+        "runtime_end_sha256": "927d389dd2afb4836594de7e25a060cf1dfd52b2ef0880b8a2496cb7cf226de6",
+        "observed_files_rehashed": 2933,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 51,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 595776,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 2,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "qualification_regressions_v3/runtime",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_order_source_20261009/qualification_regressions_v3/supervision/receipt.json",
+        "receipt_sha256": "424776e43501b2bac38e85e380c7c836e1e86976216a04a7a1127f1e935709eb",
+        "runtime_manifest_sha256": "a35d63d0b37b8bf4ad39d815535cb6e8f59d43bc76e95a00df83c4ed9ccb45e3",
+        "runtime_end_sha256": "cd2530b56dc0bdab68798f41a439b7741e0cceee0e13a2ab7d59066c533d2b08",
+        "observed_files_rehashed": 2948,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 54,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1432804,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 24,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "worker_results": {
+    "candidate_base": "efc54edfc5dce21853dedf63d370be29c8642a01",
+    "controls_gate": {
+      "inputs_stable": true,
+      "jit_disabled": {
+        "failed": 0,
+        "passed": 2
+      },
+      "jit_enabled": {
+        "failed": 0,
+        "passed": 2
+      },
+      "junit_disabled_sha256": "458d3f2896288b76573c81c45c2ed350a2a91ef24f343c7e29152200f62a962b",
+      "junit_enabled_sha256": "b8b6e11b83354139238d3a4eb329e51445cb3d5a6efcde90a92405a8cdf91e69",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_order_source_20261009/qualification_controls_v3",
+      "peak_summed_rss_kib": 595776,
+      "remaining_pids": 0,
+      "runtime_guard": "passed at start and finish in both processes",
+      "supervision_receipt_sha256": "44644d7a9154b43ebbf1db583b7fa44e22ca404ab14de479abcd38e325d2ae8e",
+      "wall_seconds": 108.26255412911996
+    },
+    "controls_source_sha256": "c077b5fb842f3b8b382c1fa2384a5e03fd2d99ff02bfa98329895a3535ac5656",
+    "library_source_sha256": "b2326012706b0e4ed986f63a98c7f243394fdf13ae827e6e274e14046e9b34ea",
+    "numerical_performance_or_full_examples_run": false,
+    "publication_checkout_untouched": true,
+    "regression_gate": {
+      "failed": 0,
+      "inputs_stable": true,
+      "junit_sha256": "7a3b05e7110922e1ffd12b1241737eb493656ddfee0c127105d9bd1ce631cac3",
+      "passed": 24,
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_order_source_20261009/qualification_regressions_v3",
+      "peak_summed_rss_kib": 1432804,
+      "remaining_pids": 0,
+      "runtime_end_sha256": "cd2530b56dc0bdab68798f41a439b7741e0cceee0e13a2ab7d59066c533d2b08",
+      "runtime_start_sha256": "1efa0e57fafa4103ca87144cae24e502367f434a33a4719235eea2a61135b4dc",
+      "supervision_receipt_sha256": "424776e43501b2bac38e85e380c7c836e1e86976216a04a7a1127f1e935709eb",
+      "wall_seconds": 80.22198775736615,
+      "warning": "Ambient CUDA plugin version mismatch warning; plugin was ignored; runtime guard confirmed JAX CPU."
+    },
+    "source_limits": "The code follows native x\u2192y\u2192z dependency order and factor-local physical scaling; no claim of MATLAB bitwise floating-order parity.",
+    "superseded_prelaunch_attempts": [
+      {
+        "status": "not launched; test reference later found to use nonnative contracted output sizes",
+        "version": "v1"
+      },
+      {
+        "status": "runtime provenance preflight stopped before tests due nonexistent ml_dtypes wheel path selecting 0.6.0; preserved logs; no tests ran",
+        "version": "v2"
+      }
+    ]
+  },
+  "limitations": [
+    "No MATLAB bitwise floating-point parity claim",
+    "No full CPU suite or performance qualification",
+    "No remote CI or publication qualification"
+  ]
+}

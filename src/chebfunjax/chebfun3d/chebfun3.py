@@ -1456,22 +1456,25 @@ class Chebfun3(eqx.Module):
     @eqx.filter_jit
     def _sum3_numeric(self):
         xa, xb, ya, yb, za, zb = self.domain
-        # Scale factors: ∫_a^b f(x) dx = (b-a)/2 * ∫_{-1}^{1} f(t) dt
+        # Native sum(f.cols/rows/tubes) integrates each factor over its
+        # physical interval, applying this half-width to that factor sum.
         sx = 0.5 * (xb - xa)
         sy = 0.5 * (yb - ya)
         sz = 0.5 * (zb - za)
 
-        # Integral of each fiber over [-1, 1]
-        # Infer the dtype from the stored factors: MATLAB sum preserves
-        # complex factor integrals even when the Tucker core is real.
-        ix = jnp.array([col.sum() for col in self.cols])
-        iy = jnp.array([row.sum() for row in self.rows])
-        iz = jnp.array([tube.sum() for tube in self.tubes])
+        # Each factor integral is physical, matching @bndfun/sum.m.
+        ix = jnp.array([col.sum() * sx for col in self.cols])
+        iy = jnp.array([row.sum() * sy for row in self.rows])
+        iz = jnp.array([tube.sum() * sz for tube in self.tubes])
 
-        # sum3 = Σ_ijk core[i,j,k] * ix[i] * iy[j] * iz[k]
-        # = core x_1 ix x_2 iy x_3 iz  (Tucker triple contraction)
-        result = jnp.einsum('ijk,i,j,k->', self.core, ix, iy, iz)
-        return result * sx * sy * sz
+        # Preserve @chebfun3/sum3.m's sequential mode order. Native txm keeps
+        # singleton contracted modes through each fold; retain them here too.
+        core_x = jnp.expand_dims(
+            jnp.tensordot(ix, self.core, axes=((0,), (0,))), axis=0)
+        core_xy = jnp.expand_dims(
+            jnp.tensordot(core_x, iy, axes=((1,), (0,))), axis=1)
+        core_xyz = jnp.tensordot(core_xy, iz, axes=((2,), (0,)))
+        return jnp.reshape(core_xyz, ())
 
     def diff(self, dim: int = 1, k: int = 1) -> "Chebfun3":
         """k-th partial derivative in the Cartesian direction dim.
