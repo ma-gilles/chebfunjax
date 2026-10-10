@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native ODE113 event location and terminal history (2026-10-10; latest)
+
+Events now use the native Adams interpolant and source terminal phi/psi
+rebasing; xe/ye/ie and truncated dense output are exposed. Shared ODE45
+event bracket arithmetic is unchanged after callback extraction. Root43
+CPU tests pass, including8 independent complex polynomial-history controls.
+Adaptive step and interpolation kernels are unchanged; static checks pass.
+No native MATLAB trajectory capture is claimed. RandomSwitching system
+routing, coefficient breakpoints and fullpage remain outstanding.
+Evidence: docs/native_ode113_events_cpu_20261010.json.
+
 ## Native differentiation dimensions and fractional metadata (2026-10-10; latest)
 
 Chebfun/Quasimatrix diff now dispatches continuous and finite dimensions by

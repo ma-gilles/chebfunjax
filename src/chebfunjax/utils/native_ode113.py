@@ -1,7 +1,7 @@
 """JAX Adams PECE controller and native ode113 continuous output.
 
 This initial port implements the ordinary finite one-output solver-structure
-path. Mass matrices, events, NonNegative, output callbacks/refinement, single
+path. Mass matrices, NonNegative, output callbacks/refinement, single
 precision and non-JAX-traceable callbacks require separate ports. Unsupported
 nonempty options reject explicitly. This is not a MATLAB parity receipt.
 
@@ -387,12 +387,40 @@ def _ntrp113(times, tnew, ynew, klast, phi, psi, *, return_derivative=False):
     return (values.T, derivatives.T) if return_derivative else values.T
 
 
+def _truncate_at_event(previous, accepted, time, value):
+    """Rebase terminal Adams history using ode113.m's pre-step phi/psi.
+
+    Provenance: installed MATLAB R2025b ode113.m lines541-566. The event
+    derivative comes from the accepted polynomial, not a new RHS evaluation.
+    """
+    order = int(accepted.klast)
+    _, derivative = _ntrp113(time, accepted.t, accepted.y, accepted.klast,
+                            accepted.phi, accepted.psi, return_derivative=True)
+    psi = previous.psi
+    beta = accepted.beta.at[0].set(1.0)
+    step = time - previous.t
+    temp = step
+    for i in range(1, order):
+        prior = psi[i - 1]
+        psi = psi.at[i - 1].set(temp)
+        temp = prior + step
+        beta = beta.at[i].set(beta[i - 1] * psi[i - 1] / prior)
+    psi = psi.at[order - 1].set(temp)
+    phi = previous.phi
+    phi = phi.at[:, 1:order].set(phi[:, 1:order] * beta[None, 1:order])
+    shifted = jnp.concatenate((derivative, -phi[:, :order + 1]), axis=1)
+    phi = phi.at[:, :order + 2].set(jnp.cumsum(shifted, axis=1))
+    return accepted._replace(t=time, y=value, psi=psi, phi=phi, beta=beta,
+                             done=jnp.asarray(True))
+
+
 def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
     """Solve a finite IVP using native variable-step Adams PECE orders1..12.
 
     Produces the one-output solver structure consumed by public ODESOL.
     Unsupported options reject explicitly; this initial backend does not
-    implement native events/mass/NonNegative/output callbacks. max_steps is
+    implement mass/NonNegative/output callbacks. Native events use the Adams
+    interpolant and terminal-history rebasing. max_steps is
     a Python resource cap, not a MATLAB algorithm parameter. The adaptive
     driver is eager; each accepted/rejected step and dense evaluation are JAX.
 
@@ -407,7 +435,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
     if not jax.config.x64_enabled:
         raise ValueError("native ode113 port requires JAX x64")
     options = {} if options is None else dict(options)
-    known = {"RelTol", "AbsTol", "InitialStep", "MaxStep", "MinStep", "NormControl"}
+    known = {"RelTol", "AbsTol", "InitialStep", "MaxStep", "MinStep", "NormControl", "Events"}
 
     def empty(v):
         return (
@@ -531,8 +559,17 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
         zero,
         jnp.asarray(False),
     )
+    from chebfunjax.utils.native_ode_events import _event_values, locate_events
+
+    event = opt("Events", None)
+    event_times, event_states, event_indices = [], [], []
+    if event is not None:
+        if not callable(event):
+            raise ValueError("Events must be callable")
+        event_value = _event_values(event, state.t, state.y)[0]
     history = [state]
     for _ in range(max_steps):
+        previous = state
         state, tolerance_failed, invalid = _advance_step(
             rhs,
             state,
@@ -555,6 +592,16 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
             break
         if bool(invalid):
             raise RuntimeError("native ode113 encountered nonfinite RHS/state")
+        if event is not None:
+            te, ye, ie, event_value, stopped = locate_events(
+                event, event_value, previous.t, previous.y, state.t, state.y, t0,
+                lambda query: _ntrp113(query, state.t, state.y, state.klast,
+                                       state.phi, state.psi)[:, 0])
+            event_times.extend(te)
+            event_states.extend(ye)
+            event_indices.extend(ie)
+            if stopped:
+                state = _truncate_at_event(previous, state, te[-1], ye[-1])
         history.append(state)
         if bool(state.done):
             break
@@ -601,14 +648,14 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
     # initial output slot zero, even though the internal initial phi=f0.
     exposed_phi = jnp.moveaxis(phis, 0, -1)[:, : kmax + 1, :].at[:, :, 0].set(0.0)
     exposed_psi = psis.T[:kmax, :].at[:, 0].set(0.0)
-    return {
+    result = {
         "solver": "ode113",
         "x": mesh,
         "y": values.T,
         "sol": dense,
         "extdata": {"options": dict(options), "odefun": odefun, "varargin": ()},
-        "ie": jnp.empty(0, dtype=jnp.int32),
-        "xe": jnp.empty(0),
+        "ie": jnp.asarray(event_indices, dtype=jnp.int32),
+        "xe": jnp.stack(event_times) if event_times else jnp.empty(0),
         "idata": {
             "klastvec": orders,
             "phi3d": exposed_phi,
@@ -621,5 +668,10 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
             "nfevals": int(state.nfev),
             "tfinal": float(mesh[-1]),
         },
-        "scope": "finite one-output native Adams; events/mass/nonnegative/output callbacks unported",
+        "scope": "finite one-output native Adams; mass/nonnegative/output callbacks unported",
     }
+
+    if event is not None:
+        result["ye"] = (jnp.stack(event_states, axis=1) if event_states
+                        else jnp.empty((y.size, 0), dtype=y.dtype))
+    return result

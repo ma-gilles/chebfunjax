@@ -16,6 +16,8 @@ from typing import NamedTuple
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.utils.native_ode_events import _event_values
+
 _A = (1/5, 3/10, 4/5, 8/9, 1., 1.)
 _B = ((1/5, 3/40, 44/45, 19372/6561, 9017/3168, 35/384),
       (0., 9/40, -56/15, -25360/2187, -355/33, 0.),
@@ -132,109 +134,14 @@ def _interpolate(tinterp, t, y, h, f):
     return values, derivatives
 
 
-def _event_values(event, t, y, size=None):
-    value, terminal, direction = event(t, y)
-    value = jnp.asarray(value, dtype=jnp.float64).reshape(-1, order='F')
-    terminal = jnp.asarray(terminal).reshape(-1, order='F')
-    direction = jnp.asarray(direction).reshape(-1, order='F')
-    if direction.size == 0:
-        direction = jnp.zeros_like(value)
-    if (not value.size or terminal.size != value.size or direction.size != value.size
-            or (size is not None and value.size != size)):
-        raise ValueError('Events outputs must have matching, fixed nonzero lengths')
-    if not bool(jnp.all(jnp.isfinite(value)) & jnp.all((terminal == 0) | (terminal == 1))
-                & jnp.all((direction == -1) | (direction == 0) | (direction == 1))):
-        raise ValueError('Events requires finite values, binary terminal flags and directions -1/0/1')
-    return value, terminal, direction
 
 
 def _locate_events(event, v, t, y, tnew, ynew, t0, h, f):
-    """Directional Illinois brackets, following R2017a odezero semantics.
+    """Preserve the ODE45 event API using its native dense polynomial."""
+    from chebfunjax.utils.native_ode_events import locate_events
 
-    Host control owns bracket decisions; interpolation and event arithmetic
-    use JAX arrays. The first-step terminal exception and right bracket
-    endpoint are intentional native rules. Indices are MATLAB one-based.
-    """
-    tol = jnp.minimum(128*jnp.maximum(jnp.spacing(jnp.abs(t)),
-                                     jnp.spacing(jnp.abs(tnew))), jnp.abs(tnew-t))
-    tdir = jnp.sign(tnew-t)
-    vnew, terminal, direction = _event_values(event, tnew, ynew, v.size)
-    left, yl, vl = t, y, v
-    right, yr, vr = tnew, ynew, vnew
-    trial = right
-    vt = vr
-    times, values, indices = [], [], []
-    def crossing(a, b):
-        return [i for i in range(a.size)
-                if bool((jnp.sign(a[i]) != jnp.sign(b[i])) & (direction[i]*(b[i]-a[i]) >= 0))]
-    for _ in range(10000):
-        moved = 0
-        for _ in range(10000):
-            active = crossing(vl, vr)
-            if not active:
-                if moved:
-                    raise RuntimeError('ode45 event bracket lost its crossing')
-                return times, values, indices, vnew, False
-            delta = right-left
-            if bool(jnp.abs(delta) <= tol):
-                break
-            if bool(left == t) and any(bool((vl[i] == 0) & (vr[i] != 0)) for i in active):
-                trial = left + tdir*.5*tol
-            else:
-                fraction = jnp.asarray(1.)
-                for i in active:
-                    if bool(vl[i] == 0):
-                        maybe = (1-vr[i]*(trial-right)/((vt[i]-vr[i])*delta)
-                                 if bool((tdir*trial > tdir*right) & (vt[i] != vr[i]))
-                                 else jnp.asarray(.5))
-                        if bool((maybe < 0) | (maybe > 1)):
-                            maybe = jnp.asarray(.5)
-                    elif bool(vr[i] == 0):
-                        maybe = (vl[i]*(left-trial)/((vt[i]-vl[i])*delta)
-                                 if bool((tdir*trial < tdir*left) & (vt[i] != vl[i]))
-                                 else jnp.asarray(.5))
-                        if bool((maybe < 0) | (maybe > 1)):
-                            maybe = jnp.asarray(.5)
-                    else:
-                        maybe = -vl[i]/(vr[i]-vl[i])
-                    fraction = jnp.minimum(fraction, maybe)
-                change = jnp.maximum(.5*tol, jnp.minimum(fraction*jnp.abs(delta),
-                                                        jnp.abs(delta)-.5*tol))
-                trial = left + tdir*change
-            yt = _interpolate(trial, t, y, h, f)[0][:, 0]
-            vt = _event_values(event, trial, yt, v.size)[0]
-            if crossing(vl, vt):
-                right, trial = trial, right
-                yr, yt = yt, yr
-                vr, vt = vt, vr
-                if moved == 2:
-                    half = .5*vl
-                    vl = jnp.where(jnp.abs(half) >= jnp.finfo(jnp.float64).tiny, half, vl)
-                moved = 2
-            else:
-                left, trial = trial, left
-                yl, yt = yt, yl
-                vl, vt = vt, vl
-                if moved == 1:
-                    half = .5*vr
-                    vr = jnp.where(jnp.abs(half) >= jnp.finfo(jnp.float64).tiny, half, vr)
-                moved = 1
-        else:
-            raise RuntimeError('ode45 event bracket resource cap exceeded')
-        for i in active:
-            times.append(right)
-            values.append(yr)
-            indices.append(i+1)
-        if any(bool(terminal[i]) for i in active):
-            return times, values, indices, vnew, bool(left != t0)
-        if bool(jnp.abs(tnew-right) <= tol):
-            return times, values, indices, vnew, False
-        trial, yt, vt = right, yr, vr
-        left = right + tdir*.5*tol
-        yl = _interpolate(left, t, y, h, f)[0][:, 0]
-        vl = _event_values(event, left, yl, v.size)[0]
-        right, yr, vr = tnew, ynew, vnew
-    raise RuntimeError('ode45 event count resource cap exceeded')
+    return locate_events(event, v, t, y, tnew, ynew, t0,
+                         lambda query: _interpolate(query, t, y, h, f)[0][:, 0])
 
 
 def native_ode45(fun, tspan, y0, options=None, *, args=(), max_steps=100000):

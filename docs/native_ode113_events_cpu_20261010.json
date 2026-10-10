@@ -1,0 +1,62 @@
+{
+  "scope": "Native ODE113 finite binary64 event location and terminal dense-history rebasing; shared source event brackets with ODE45.",
+  "source_version": "Installed MATLAB R2025b ode113.m/private odezero.m/ntrp113.m; pinned Chebfun7574c77 wrapper context.",
+  "implementation": [
+    "Events callbacks initialized and evaluated on accepted step boundaries; source directional brackets use each solver native dense interpolant.",
+    "Terminal ODE113 step reuses interpolated derivative, pre-step phi/psi, source beta scaling and cumulative-difference history; exposes xe/ye/ie and truncated dense domain.",
+    "Existing ODE45 event arithmetic and validation AST unchanged after interpolationcallback extraction; existing private API retained.",
+    "ODE113 adaptive controller, accepted-step kernel and dense interpolation polynomial functions unchanged."
+  ],
+  "root_gate": {
+    "passed": 43,
+    "elapsed_seconds": 45.545792828314006,
+    "peak_child_rss_kib": 1122520,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "timeout_seconds": 180,
+    "source_unchanged": true,
+    "verification": "Full src/test before-after hashes, output hashes, JUnit and static gates verified. No observed runtime-origin audit in root gates."
+  },
+  "isolated_gates": [
+    {
+      "passed": 17,
+      "scope": "Initial analytic113events and existing45event regressions; initial misplacedimport lint error corrected separately."
+    },
+    {
+      "passed": 25,
+      "scope": "Adds8 independent complex polynomial terminal-history controls, forward/reverse orders1..4."
+    }
+  ],
+  "tested_contracts": [
+    "Directional terminal and ignored crossings",
+    "Backward integration",
+    "Initial zero nontermination",
+    "Vector nonterminal then terminal events with one-based indices",
+    "Final interval quadratic values/derivatives and dense domain rejection",
+    "Independent complex polynomial history shift orders1..4 forward/reverse",
+    "Existing ODE45 events/projectile and ODE113 history/tolerance controls"
+  ],
+  "limitations": [
+    "No native executable MATLAB event trajectory capture or universal event accuracy claim.",
+    "NonNegative, mass matrices, output callbacks and full option surface remain unported.",
+    "RandomSwitching system/coefficient-breakpoint routing and complete page qualification remain outstanding.",
+    "Remote current-head CI unresolved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_source_20261010/SOURCE_PLAN_v1.json": "08a3e59ae9775c526ac021b4827b0f122804aec3373805a3e8004b2a5e22bf7c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_source_20261010/LOCATOR_SOURCE_REVIEW_v1.json": "574dac6a4447b13e5218d7d0d34802603b81f8d82b94cabb3c6508835beb511d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_source_20261010/gate_v1/receipt.json": "9a78ad8dc55567159aec4c8cf37e8b418e237468e811cab533a46c108e55f875",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_source_20261010/gate_v2/receipt.json": "3fbad020864635dcbc524c3e133ec0f25c6faec52dc483aae690e6de32d0a8d7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_root_20261010/receipt.json": "569fd2c1a93c79b89b8fb8fb106b232f943f99d6736ab6947d0bbbeb686a1f97",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_root_20261010/junit.xml": "b8eeb679905d1a1a2b6f32b6afdb8ca9f782a16b845239a6d2c4273b4909837e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_events_root_20261010/static.json": "f9aa054532a800984ec9f8e39b774538a90b164fc70efac100adeed90f6c4972"
+  }
+}
