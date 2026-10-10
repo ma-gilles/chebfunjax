@@ -1,41 +1,47 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_mtimes.m (Fable 5).
+"""All four original tests/chebfun3/test_mtimes.m predicates, Chebfun7574c77.
 
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_mtimes.m
-Chebfun commit: 7574c77
+Python @ selects matrix multiplication; * selects elementwise multiplication.
+Original domain, functions, continuous norms and1000prefeps retained.
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
+import pytest
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
-from ._helpers import EPS, maxdiff
+TOL = 1000*ChebfunPref().cheb3Prefs.chebfun3eps
+DOMAIN = (-1., 1., 0., 2., -4., -2.)
 
-TOL = 1e4 * EPS
+
+@pytest.fixture(scope='module')
+def field():
+    return chebfun3(lambda x, y, z: x+jnp.cos(y+2*z), DOMAIN)
 
 
-class TestChebfun3Mtimes:
-    def test_scalar_mtimes(self):
-        f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
-        assert maxdiff(3 * f,
-                       lambda x, y, z: 3 * jnp.cos(x * y * z)) < TOL
-        assert maxdiff(f * 3,
-                       lambda x, y, z: 3 * jnp.cos(x * y * z)) < TOL
+def test_native_mtimes_scalar(field):
+    c = 10
+    h = field @ c
+    exact = chebfun3(lambda x, y, z: c*(x+jnp.cos(y+2*z)), DOMAIN)
+    assert (exact-h).norm() < TOL
 
-    def test_chebfun3_times_chebfun3v(self):
-        # A scalar CHEBFUN3 scales every component of a CHEBFUN3V
-        # (MATLAB @chebfun3v/times, invoked as f .* F / f * F).
-        f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
-        F = Chebfun3v.from_functions(lambda x, y, z: x,
-                                     lambda x, y, z: y,
-                                     lambda x, y, z: z)
-        expect = Chebfun3v.from_functions(
-            lambda x, y, z: x * jnp.cos(x * y * z),
-            lambda x, y, z: y * jnp.cos(x * y * z),
-            lambda x, y, z: z * jnp.cos(x * y * z))
-        assert float((f * F - expect).norm()) < TOL
-        assert float((F * f - expect).norm()) < TOL
+
+def test_native_mtimes_chebfun(field):
+    g = chebfun(lambda x: 2*x+3)
+    h = field @ g
+    exact = Chebfun2.from_function(lambda y, z: 4/3+6*jnp.cos(y+2*z), domain=DOMAIN[2:])
+    assert (exact-h).norm() < TOL
+
+
+def test_native_mtimes_chebfun2(field):
+    g = Chebfun2.from_function(lambda x, t: x+t, domain=(-1., 1., 3., 5.))
+    h = field @ g
+    exact = chebfun3(lambda t, y, z: 2/3+2*t*jnp.cos(y+2*z), (3., 5.)+DOMAIN[2:])
+    assert (exact-h).norm() < TOL
+
+
+def test_native_mtimes_chebfun3_error(field):
+    g = chebfun3(lambda x, y, z: x+y+z)
+    with pytest.raises(ValueError, match='CHEBFUN:CHEBFUN3:mtimes'):
+        field @ g

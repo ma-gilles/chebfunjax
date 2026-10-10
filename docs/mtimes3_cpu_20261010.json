@@ -1,0 +1,48 @@
+{
+  "reviewer": "/root",
+  "scope": "Native mode-one mtimes:fouroriginalpredicates plus2retainedPythoncontrols and4scalar/shapecontrols",
+  "gates": [
+    {
+      "gate": "chebfun3_mtimes_source_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_mtimes_source_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "e9677ec23c87abfad308c3797a76ed17bf88ae8b4245dd1cf1bf1914ed592c17",
+      "runtime_manifest_sha256": "5a5dae2c07a390d1f2af15e505b1a95df3484828a43580862c69ee0baedde305",
+      "runtime_end_sha256": "9bcc110219c44d473c4cfd21df3b4bdfe683c85c916f350cbb9bcab55190306f",
+      "observed_files_rehashed": 2976,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 84,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 2073104,
+      "cpu_affinity": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "assertion_slots": 10,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_mtimes_source_20261010/ROOT_SOURCE_REVIEW.json",
+  "source_review_sha256": "c6903cd46a0be3e5dc02631786ac63af0284c8c889bba15c6d9f88312aaceecb",
+  "limitations": [
+    "Focused source/runtime qualification; current full suite and remote CI unresolved.",
+    "General complex/periodic/rectangular products not independently qualified; existing global host paths remain."
+  ],
+  "changed_files": {
+    "tests/test_chebfun3d/test_mtimes_additional_controls.py": "7f3ea6edc57879eeff681a12a77e1a854a115fd161644b824753a73ef5ceaa21",
+    "tests/test_matlab_port/chebfun3/test_mtimes_matlab.py": "5c2375d61da512a8d57ccb56c6cec781491ba44e803ece1bc171a4a200dad833",
+    "src/chebfunjax/chebfun3d/chebfun3.py": "8202ede9aa460bf38e41c4e6b513d3f42a6b35f24487e3bb3de59b9d922773b3",
+    "src/chebfunjax/chebfun3d/_mtimes.py": "449972d63e5448e8836341f825bbfee117994352e9d6938e3ae73159fd4f8011",
+    "tests/test_chebfun3d/test_mtimes_source_controls.py": "fef0d75c65dc6f7db0d369459906ef060d1231f59601a86cd569b27e060573f2"
+  }
+}

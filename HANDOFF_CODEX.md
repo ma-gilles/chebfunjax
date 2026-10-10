@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native contractions and directional assertions restored (2026-10-10; latest)
+
+Chebfun3 now exposes source mtimes through `.mtimes()` and Python `@`:
+scalar/zero branches, continuous mode-one contraction with Chebfun and
+Chebfun2, and the native forbidden Chebfun3 contraction error. New arithmetic
+uses JAX inner products, tensor products and SVD. Python `*` retains its
+elementwise convention. All four original mtimes predicates, two unchanged
+additional Python tests and four scalar/shape controls passed in ten cases;
+root verified 2,976 runtime files. Evidence: docs/mtimes3_cpu_20261010.json.
+General complex/periodic/rectangular product qualification remains open.
+
+All 44 original diffx/diffy/diffz continuous norm predicates are restored
+with the actual functions, domains, constructor order and native bounds.
+Twenty-two cases passed across nine serial gates, each independently checked
+against 2,940 runtime files. Evidence: docs/native_directional_diff_cpu_20261010.json.
+The whole current suite, remaining source gaps and remote CI remain open.
+
 ## Native complex routes and assertions restored (2026-10-10; latest)
 
 Permute now rearranges existing factor functions and transposes the JAX core,

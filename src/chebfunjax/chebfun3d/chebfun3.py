@@ -2301,6 +2301,29 @@ class Chebfun3(eqx.Module):
 
     __rmul__ = __mul__
 
+    def mtimes(self, other):
+        """Native scalar or mode-one tensor contraction (Chebfun7574c77).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/mtimes.m
+        Chebfun commit: 7574c77
+        Python ``*`` retains elementwise multiplication; ``@`` selects this route.
+        """
+        from chebfunjax.chebfun3d._mtimes import source_mtimes
+
+        return source_mtimes(self, other)
+
+    def __matmul__(self, other):
+        return self.mtimes(other)
+
+    def __rmatmul__(self, other):
+        try:
+            value = jnp.asarray(other)
+        except (TypeError, ValueError):
+            raise ValueError("CHEBFUN:CHEBFUN3:mtimes:size: Sizes are inconsistent.") from None
+        return self.mtimes(value)
+
     def __truediv__(self, other) -> "Chebfun3":
         if isinstance(other, (int, float, complex)):
             return self * (1.0 / other)
