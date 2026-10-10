@@ -509,6 +509,20 @@ class Quasimatrix:
     def diff(self, k: int = 1) -> "Quasimatrix":
         return self._map(lambda c: c.diff(k))
 
+    def fracInt(self, mu: float) -> "Quasimatrix":
+        """Integrate scalar columns, preserving their orientation.
+
+        Provenance: @chebfun/fracInt.m, Chebfun7574c77.
+        """
+        return self._map(lambda c: c.fracInt(mu))
+
+    def fracDiff(self, mu: float, kind: str = "RL") -> "Quasimatrix":
+        """Differentiate scalar columns with the native fractional definition.
+
+        Provenance: @chebfun/fracDiff.m, Chebfun7574c77.
+        """
+        return self._map(lambda c: c.fracDiff(mu, kind))
+
     def cumsum(self) -> "Quasimatrix":
         return self._map(lambda c: c.cumsum())
 

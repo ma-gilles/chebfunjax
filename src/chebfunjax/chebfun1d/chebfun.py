@@ -9126,6 +9126,12 @@ class Chebfun(eqx.Module):
         >>> g(jnp.float64(0.0)) is not None  # smoke test
         True
         """
+        # Native rejects breakpoints even for zero or integer orders.
+        if len(self.funs) > 1:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:fracInt:breakpoints: "
+                "FRACINT does not currently support piecewise functions."
+            )
         mu = float(mu)
         if mu < 0:
             raise ValueError("fracInt: mu must be >= 0.")
@@ -9141,12 +9147,12 @@ class Chebfun(eqx.Module):
         if mu_frac == 0.0:
             return f
 
-        # Fractional part via Volterra integral operator with kernel (x-t)^{mu_frac-1}/Gamma(mu_frac)
-        if len(f.funs) > 1:
-            raise ValueError(
-                "fracInt: fractional integral only supported for single-piece Chebfuns. "
-                "Use a Chebfun with one interval."
-            )
+        # Native splits array-valued input into scalar singular columns.
+        if f.n_columns > 1:
+            from .linalg import Quasimatrix
+
+            return Quasimatrix([f[j].fracInt(mu_frac) for j in range(f.n_columns)],
+                               f.domain)
 
         from chebfunjax.fun.singfun import Singfun
 
@@ -9156,7 +9162,8 @@ class Chebfun(eqx.Module):
         integrated = singular.fracInt(mu_frac)
         integrated = ((b - a) / 2.0) ** mu_frac * integrated
         out_piece = _Piece(tech=integrated, interval=(a, b))
-        return Chebfun(funs=[out_piece], domain=Domain((a, b)))
+        return Chebfun._as_transposed(
+            Chebfun(funs=[out_piece], domain=Domain((a, b))), f.is_transposed)
 
     def fracDiff(self, mu: float, kind: str = "RL") -> "Chebfun":
         r"""Fractional derivative of order *mu* (Riemann-Liouville or Caputo).
@@ -9231,18 +9238,20 @@ class Chebfun(eqx.Module):
             # Integer order: classical derivative
             return self.diff(int(n))
 
-        if kind.upper() in ("RL", "RIEMANNLIOUVILLE"):
-            # Riemann-Liouville: I^{n-mu} first, then D^n
-            g = self.fracInt(n - mu)
-            return g.diff(n)
-        elif kind.upper() == "CAPUTO":
-            # Caputo: D^n first, then I^{n-mu}
-            g = self.diff(n)
-            return g.fracInt(n - mu)
-        else:
+        if len(self.funs) > 1:
             raise ValueError(
-                f"fracDiff: unknown kind '{kind}'. Use 'RL' or 'Caputo'."
+                "CHEBFUN:CHEBFUN:fracDiff:breakpoints: "
+                "FRACDIFF does not currently support piecewise functions."
             )
+        if self.n_columns > 1:
+            from .linalg import Quasimatrix
+
+            return Quasimatrix([self[j].fracDiff(mu, kind)
+                               for j in range(self.n_columns)], self.domain)
+        if isinstance(kind, str) and kind.lower() == "caputo":
+            return self.diff(n).fracInt(n - mu)
+        # Native strcmpi selects Caputo only; every other type selects RL.
+        return self.fracInt(n - mu).diff(n)
 
     # ------------------------------------------------------------------
     # L1 polynomial fitting

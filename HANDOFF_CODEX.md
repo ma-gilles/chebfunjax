@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fractional public column dispatch restored (2026-10-10; latest)
+
+Chebfun fractional integrals/derivatives split array input into scalar columns;
+Quasimatrix exposes both methods. Scalar integral output preserves orientation.
+Native breakpoint error IDs/order and non-Caputo RL fallback are restored.
+Nine distinguishing controls failed before the fix; final34 cases pass
+(11public controls,19kernel controls,4existing compatibility tests). Static
+checks pass; other method ASTs are unchanged. Evidence:
+docs/fractional_public_api_cpu_20261010.json. Original sequential fractional
+failures, full diff dimension/kind dispatch and remaining edge semantics are
+still open; no full fractional parity claim.
+
+
 ## Public Singfun predicates restored (2026-10-10; latest)
 
 Added isfinite/isinf/isreal/any with native current-preference strict exponent
