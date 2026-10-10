@@ -1,0 +1,70 @@
+{
+  "scope": "Historical ebd93016 ordinary5575 only; not current-main fullsuite",
+  "frozen_head": "ebd93016af75324d0703c4cbe742716a4ba6d8f9",
+  "counts": {
+    "pass": 5571,
+    "skip": 1,
+    "failure": 3
+  },
+  "unique_planned_nodes": 5575,
+  "logical_batches": 67,
+  "terminal_attempts_reviewed": 70,
+  "known_failures": [
+    {
+      "nodeid": "tests/test_utils/test_transforms_coverage.py::TestChebLeg::test_normalize_length_one",
+      "source": "ordinary_batch_46_planrunner_retry2",
+      "logical_batch": 46,
+      "handle": 57536,
+      "failure_message": "AssertionError: \nNot equal to tolerance rtol=1e-07, atol=0\n\nMismatched elements: 1 / 1 (100%)\nMismatch at index:\n [0]: 2.0 (ACTUAL), 2.82842712474619 (DESIRED)\nMax absolute difference among violations: 0.82842712\nMax relative difference among violations: 0.29289322\n ACTUAL: array([2.])\n DESIRED: array([2.828427])"
+    },
+    {
+      "nodeid": "tests/test_utils/test_transforms_coverage.py::TestJac2Jac::test_fractional_roundtrip",
+      "source": "ordinary_batch_46_remainder_planrunner",
+      "logical_batch": 46,
+      "handle": 32773,
+      "failure_message": "AssertionError: \nNot equal to tolerance rtol=0, atol=1e-10\n\nnan location mismatch:\n ACTUAL: array([nan, nan, nan, nan, nan, nan, nan, nan])\n DESIRED: array([ 0.496714, -0.138264,  0.647689,  1.52303 , -0.234153, -0.234137,\n        1.579213,  0.767435])"
+    },
+    {
+      "nodeid": "tests/test_tech/test_chebtech_construct.py::TestRestrict::test_restrict_bad_interval",
+      "source": "ordinary_batch_53_planrunner",
+      "logical_batch": 53,
+      "handle": 31083,
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'not a valid sub-interval'\n  Actual message: 'CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.'"
+    }
+  ],
+  "skip": [
+    {
+      "nodeid": "tests/test_utils/test_diffmat.py::TestCumsummatPolynomialExactness::test_cumsum_of_monomial[4-5]",
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/broad_continuation_prepare_20261010/ordinary_cpu_run_v4/ordinary_batch_21_isolatedpycache",
+      "logical_batch": 21,
+      "handle": 51776
+    }
+  ],
+  "pending_separate_scopes": {
+    "mirrors": 53,
+    "supplemental": 93,
+    "heavy_3d": 80
+  },
+  "current_head_L1_recheck": {
+    "audit_sha256": "78db2747058a3b740eed58cc86d98ee0048678a46491da3bfb7d605231e6471a",
+    "source_equals_current_main": true,
+    "test_equals_current_main": true,
+    "head": "4f364d37d3dd2a170b200ca611c0b52f71e51bcf",
+    "passed": 1,
+    "scope": "warning/finite-degree contract only; polynomial parity open"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/broad_continuation_prepare_20261010/ordinary_cpu_run_v4/BROAD_ORDINARY_RECONCILIATION_v1.json": "e77c807e47c391ab041e9af3b918e7105f069039fcd5d24aeaab877cfabf5020",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/broad_continuation_prepare_20261010/ordinary_cpu_run_v4/ROOT_RECONCILIATION_REVIEW.json": "fbe13c4de47af50a945888ee29974cceb19e3247d119d54c8a164802c07cfbe7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_4f364d37_20261010/AUDIT.json": "78db2747058a3b740eed58cc86d98ee0048678a46491da3bfb7d605231e6471a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_4f364d37_20261010/ROOT_REVIEW.json": "4d12318201e3fcd2c942ec39c8bf3fbbc8f8dc4138aae012062a4389207b3bfa"
+  },
+  "limitations": [
+    "Historical sweep is not a complete current-main test pass.",
+    "Three failed historical assertions remain counted as failures; their source-backed corrections were qualified separately on main.",
+    "Duplicate wrong-scope runs44/45 receive no credit.",
+    "Batch57 original tool handle unavailable; outcome is backed by terminal supervisor receipt, exact JUnit scope and runtime audit.",
+    "Current-head L1 recheck proves only its iteration warning/finite-output contract, not polynomial agreement.",
+    "Full native test/function/page/figure parity and green main CI remain open."
+  ]
+}

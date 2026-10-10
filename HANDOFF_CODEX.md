@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ordinary CPU sweep reconciled (2026-10-10; latest)
+
+The frozen ebd93016 sweep now accounts for all5,575 unique planned tests across
+67 logical batches:5,571 pass,1 intentional polynomial-representation skip,
+and3 historical failures already corrected separately on main. Root review
+checks every terminal JUnit outcome against the exact master list and audit
+bindings. Duplicate wrong-scope attempts receive zero credit. This is not a
+current-main full-suite pass:53 mirrors,93 supplemental cases and80 heavy3D
+cases remain separate scopes. The supplemental L1 iteration-warning test also
+passes on current4f364d37 with exact current source/test bytes; its numerical
+polynomial gap remains open. Evidence: docs/ordinary_cpu_sweep_20261010.json.
+Full parity and green main CI remain open.
+
+
 ## Source-rounded Chebyshev grid arguments (2026-10-10; latest)
 
 Both chebpts kinds now preserve native multiplication-then-division rounding
