@@ -1409,74 +1409,37 @@ def _cleanup_trig(
     cleanup_tol: float,
     form: str,
 ) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
-    """Remove Froissart doublets from a trigonometric AAA approximant."""
-    pol, res, zer = _prztrig_np(
-        np.array(zj), np.array(fj), np.array(wj), form
-    )
-    pol_np = np.array(pol, dtype=complex)
-    res_np = np.array(res, dtype=complex)
-    Z_np = np.array(Z, dtype=complex)
-    F_np = np.array(F, dtype=complex)
-    zj_np = np.array(zj, dtype=complex)
-    fj_np = np.array(fj, dtype=complex)
-    wj_np = np.array(wj, dtype=complex)
-
-    if len(pol_np) == 0:
+    """Remove Froissart doublets in native order (aaatrig.m, 7574c77)."""
+    poles, residues, _ = _prztrig_np(zj, fj, wj, form)
+    poles, residues = jnp.asarray(poles), jnp.asarray(residues)
+    if len(poles) == 0:
         return zj, fj, wj
-
-    # Geometric mean of |F|
-    absF = np.abs(F_np[F_np != 0])
-    geom_mean = np.exp(np.mean(np.log(absF))) if len(absF) > 0 else 0.0
-
-    Zdist = np.array([np.min(np.abs(p - Z_np)) for p in pol_np])
-    spurious = np.abs(res_np) / (Zdist + 1e-300) < cleanup_tol * geom_mean
-    ii = np.where(spurious)[0]
-
-    if len(ii) == 0:
+    samples, data = jnp.asarray(Z), jnp.asarray(F)
+    supports, values = jnp.asarray(zj), jnp.asarray(fj)
+    nonzero = jnp.abs(data[data != 0])
+    geometric_mean = jnp.exp(jnp.mean(jnp.log(nonzero))) if len(nonzero) else 0.
+    distances = jnp.min(jnp.abs(poles[:, None]-samples[None, :]), axis=1)
+    spurious = jnp.nonzero(jnp.abs(residues)/distances
+                          < cleanup_tol*geometric_mean)[0]
+    if len(spurious) == 0:
         return zj, fj, wj
-
-    import warnings
-    warnings.warn(f"AAAtrig cleanup: {len(ii)} Froissart doublets removed.", stacklevel=4)
-
-    remove_idx = set()
-    for j in ii:
-        # Find closest support point modulo 2*pi
-        np_diff = np.floor(np.real((zj_np - pol_np[j]) / np.pi)).astype(int)
-        azp = np.abs(zj_np - (pol_np[j] + np_diff * 2 * np.pi))
-        remove_idx.add(int(np.argmin(azp)))
-
-    keep = [k for k in range(len(zj_np)) if k not in remove_idx]
-    if len(keep) == 0:
-        return (
-            jnp.array([], dtype=jnp.complex128),
-            jnp.array([], dtype=jnp.complex128),
-            jnp.array([], dtype=jnp.complex128),
-        )
-
-    zj_np = zj_np[keep]
-    fj_np = fj_np[keep]
-    m = len(zj_np)
-
-    # Remove support points from Z
-    mask = np.ones(len(Z_np), dtype=bool)
-    for z in zj_np:
-        mask &= (Z_np != z)
-    Z_sub = Z_np[mask]
-    F_sub = F_np[mask]
-
-    if form == "even":
-        def cst_np(z):
-            return 1.0 / np.tan(z)
-    else:
-        def cst_np(z):
-            return 1.0 / np.sin(z)
-
-    C = cst_np((Z_sub[:, None] - zj_np[None, :]) / 2.0)
-    SF = np.diag(F_sub)
-    Sf = np.diag(fj_np)
-    A_mat = SF @ C - C @ Sf
-
-    _, _, V = np.linalg.svd(A_mat, full_matrices=False)
-    wj_np = V[m - 1, :].conj()   # Vh row -> conjugate (complex data)
-
-    return jnp.array(zj_np), jnp.array(fj_np), jnp.array(wj_np)
+    warnings.warn(f"AAAtrig cleanup: {len(spurious)} Froissart doublets removed.",
+                  stacklevel=4)
+    for index in spurious:
+        # MATLAB fix truncates toward zero. Remove each selected support
+        # before finding the closest remaining support for the next pole.
+        periods = jnp.trunc(jnp.real((supports-poles[index])/jnp.pi))
+        distance = jnp.abs(supports-(poles[index]+periods*2*jnp.pi))
+        selected = jnp.argmin(distance)
+        keep = jnp.arange(len(supports)) != selected
+        supports, values = supports[keep], values[keep]
+    keep = jnp.ones(len(samples), dtype=bool)
+    for support in supports:
+        keep = keep & (samples != support)
+    samples, data = samples[keep], data[keep]
+    delta = (samples[:, None]-supports[None, :])/2
+    cauchy = 1/jnp.tan(delta) if form == "even" else 1/jnp.sin(delta)
+    loewner = data[:, None]*cauchy-cauchy*values[None, :]
+    _, _, vh = jnp.linalg.svd(loewner, full_matrices=False)
+    weights = vh[len(supports)-1, :].conj()
+    return supports, values, weights

@@ -1,0 +1,181 @@
+{
+  "scope": "JAX AAAtrig cleanup in native sequential support order",
+  "source_review": {
+    "source_sha256": "d94d34923d2917af51f5add8a68374cb124664367b8f2024cda7aeae01450297",
+    "native_range": "cleanuptrig: geometric mean/residue distance test; sequential fix-based support removal; reduced SVD and conjugate-transposed vector",
+    "protected_ast_identical": true,
+    "changes": [
+      "No artificial1e-300 distance denominator.",
+      "Use truncation toward zero (MATLAB fix), then remove each support before next selection.",
+      "Compute cleanup arithmetic and reduced SVD with JAX; inherited pole solver remains separate."
+    ],
+    "tests": "Four deterministic source-branch controls use injected spurious poles; two independent public noisy-data approximations must actually emit cleanup warning and recover analytic sine; prior ten public/residue checks retained.",
+    "limitations": [
+      "Native constraints at infinity are not exposed by public signature, remain separate.",
+      "Inherited generalized pole eigensolver and greedy AAA construction still NumPy/SciPy.",
+      "No native RNG oracle or complete native suite claim."
+    ]
+  },
+  "baseline_expected_failure": {
+    "reviewer": "/root",
+    "scope": "Preserved native AAAtrig cleanup support-removal baseline expected failure",
+    "gates": [
+      {
+        "gate": "aaatrig_cleanup_source_20261010/baseline_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_cleanup_source_20261010/baseline_v1/supervision/receipt.json",
+        "receipt_sha256": "6df548af4304b3ceedaec1b6b9032f7b867c8730c4131eae1682997350e9b5c8",
+        "runtime_manifest_sha256": "34abe153f0c4b117aa868ddc8db6b6d27fb304003bd2b3847414fb2a96af5182",
+        "runtime_end_sha256": "5121a14336f6f033b14d361a3a6ebcc6338fc6f316af5de258def0abc823c536",
+        "observed_files_rehashed": 2935,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 549896,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "preserved_outcome": [
+          {
+            "name": "test_native_sequential_truncated_support_removal[1-odd]",
+            "failures": [
+              "tests/test_utils/test_aaatrig_cleanup_source.py:24: in test_native_sequential_truncated_support_removal\n    assert jnp.array_equal(z, supports[count:])\nE   assert Array(False, dtype=bool)\nE    +  where Array(False, dtype=bool) = <function array_equal at 0x146cd16dff60>(Array([0.1+0.j, 1. +0.j, 2. +0.j], dtype=complex128), Array([0.5+0.j, 1. +0.j, 2. +0.j], dtype=complex128))\nE    +    where <function array_equal at 0x146cd16dff60> = jnp.array_equal"
+            ]
+          }
+        ],
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "prior_observer_failure": {
+    "reviewer": "/root",
+    "scope": "Preserved candidatev1:5passed1missing-warning failure;10unrun, no qualification credit",
+    "gates": [
+      {
+        "gate": "aaatrig_cleanup_source_20261010/candidate_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_cleanup_source_20261010/candidate_v1/supervision/receipt.json",
+        "receipt_sha256": "8dd55643446f11137bd89d8a2982d71c2f1badf9f39bac30853cb5d185b3ffab",
+        "runtime_manifest_sha256": "1da3a63d29886aa82ad494b56b3ec70f1b792d2b43b6fd62f18238fe7de592e6",
+        "runtime_end_sha256": "05d5a1f5d29537e5086ff192d8df91b9b84f97ff2c9d2d9532e55b9f77b40abf",
+        "observed_files_rehashed": 2937,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 917052,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 6,
+        "source_payload_sha256": {},
+        "preserved_outcome": [
+          {
+            "name": "test_native_sequential_truncated_support_removal[1-odd]",
+            "failures": []
+          },
+          {
+            "name": "test_native_sequential_truncated_support_removal[1-even]",
+            "failures": []
+          },
+          {
+            "name": "test_native_sequential_truncated_support_removal[2-odd]",
+            "failures": []
+          },
+          {
+            "name": "test_native_sequential_truncated_support_removal[2-even]",
+            "failures": []
+          },
+          {
+            "name": "test_public_removes_isolated_small_data_defect[odd]",
+            "failures": []
+          },
+          {
+            "name": "test_public_removes_isolated_small_data_defect[even]",
+            "failures": [
+              "tests/test_utils/test_aaatrig_cleanup_source.py:34: in test_public_removes_isolated_small_data_defect\n    with pytest.warns(UserWarning, match='Froissart'):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\nE    Emitted warnings: []."
+            ]
+          }
+        ],
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "test_input_review": {
+    "reason": "V1 even data-defect case emitted no Froissart warning, so it did not establish actual cleanup branch. All4 deterministic source controls and odd public case passed. Preserve original gate unchanged.",
+    "change": "Replace isolated sampled defect with analytic1e-8/(2-cos(z)) term with known off-axis poles/residues. Both forms keep same numerical error bounds and required cleanup warning; prior10source/public cases unchanged.",
+    "production_change": "None between candidatev1 andv2.",
+    "v1_test_sha256": "e96a3497d6bf0a7dc3fcd23a2d3e9dde05dcdb49a07b057e10427efde573f5e8",
+    "v2_test_sha256": "0d27310c62a33057d1bdd42d3c70ba60d4345e1d69f443bf2ba4610111b5c068",
+    "remaining": "Must qualify v2, never count missing-warning failure as success."
+  },
+  "candidate_runtime_review": {
+    "reviewer": "/root",
+    "scope": "AAAtrig cleanup candidate sixteen cases",
+    "gates": [
+      {
+        "gate": "aaatrig_cleanup_source_20261010/candidate_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_cleanup_source_20261010/candidate_v2/supervision/receipt.json",
+        "receipt_sha256": "8e095df4ff0801c4783d07a37dd6313862461564154ae5b12ba1eecfa851673c",
+        "runtime_manifest_sha256": "393f6988c3ecf9b17ab83227bd03f0f5b235f021653a0503604dce6cd758d615",
+        "runtime_end_sha256": "9075c69b5ee423a188c763cd7fad8fb7ab5765d686ad04b378db83a001343579",
+        "observed_files_rehashed": 2937,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1404548,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 16,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "integrated_sha256": {
+    "src/chebfunjax/utils/aaa.py": "e0d4ab8654196f3bf4eab6c38207c9fed8216ef04d1f8521de89c96f40adda98",
+    "tests/test_utils/test_aaatrig_cleanup_source.py": "0d27310c62a33057d1bdd42d3c70ba60d4345e1d69f443bf2ba4610111b5c068"
+  },
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cases_passed": 16,
+  "limitations": [
+    "Native pole/zero infinity mapping and cancellation remain open.",
+    "Inherited generalized eigensolver and greedy AAA loop still NumPy/SciPy.",
+    "Missing public options and complete native tests remain unresolved.",
+    "No complete current suite or remote CI claim."
+  ],
+  "full_goal_complete": false
+}

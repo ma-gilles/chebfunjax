@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AAAtrig cleanup order and JAX arithmetic restored (2026-10-10; latest)
+
+Cleanup now uses native truncation toward zero and removes each selected
+support before considering the next spurious pole. It removes the artificial
+distance regularizer and uses JAX for cleanup arithmetic and reduced SVD.
+The previous wrong-support failure is preserved. All16 CPU cases passed:
+four source branch controls, two public analytic small-pole cleanup runs,
+and ten existing residue/public controls. A prior test input that did not
+trigger even-form cleanup is preserved; its replacement has known poles
+and retains the same numerical bounds and required cleanup warning.
+Root verified runtime evidence and unchanged AST outside cleanup. Evidence:
+docs/aaatrig_cleanup_cpu_20261010.json. Infinity mapping/cancellation,
+inherited host eigensolver/greedy loop, full native tests and CI remain open.
+
 ## AAAtrig complex-pole residues corrected (2026-10-10; latest)
 
 Residues now evaluate the quotient numerator and derivative at the full
