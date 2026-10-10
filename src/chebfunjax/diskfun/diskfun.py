@@ -2404,24 +2404,62 @@ class Diskfun(eqx.Module):
             bool(getattr(r, "is_real", True)) for r in self.rows)
 
     def norm(self, p=2) -> jax.Array:
-        """Norm of the diskfun: ``p = 2``/``'fro'`` is
-        ``sqrt(sum(svd(f).^2))`` (the L2 norm on the disk), ``'inf'``
-        the maximum absolute value (MATLAB @diskfun/norm.m).
+        """Disk norm dispatch with the native even-integer power branch.
+
+        Even real scalar orders use ``sum2(f**p)**(1/p)``; native zero and
+        negative even orders are retained. Empty input returns an empty array.
+        ``inf``/``'inf'``/``'max'`` uses the existing extrema implementation.
+
+        The inherited ``2``/``'fro'`` implementation below is sampled host
+        quadrature, not the native ``sqrt(sum(svd(f)**2))`` algorithm. Full
+        norm/provider parity remains open. Diskfun construction supports real
+        fields; complex orders are rejected by the native numeric-real check.
+        Construction and scalar dispatch are eager, not JIT-safe.
 
         Provenance
         ----------
         MATLAB source : @diskfun/norm.m
         Chebfun commit: 7574c77
         """
-        if isinstance(p, str) and p.lower() in ("inf", "max"):
+        # Native emptiness precedes every order/option check.
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        if isinstance(p, str):
+            # Retain the public adapter's existing case-insensitive aliases.
+            p = p.lower()
+        else:
+            try:
+                order = jnp.asarray(p)
+            except (TypeError, ValueError):
+                raise ValueError("CHEBFUN:DISKFUN:norm:unknown: Unknown norm.") from None
+            if (order.size != 1 or not jnp.issubdtype(order.dtype, jnp.number)
+                    or jnp.iscomplexobj(order)):
+                raise ValueError("CHEBFUN:DISKFUN:norm:unknown: Unknown norm.")
+            p = order.reshape(())
+        named = isinstance(p, str)
+        if (named and p in ("inf", "max")) or (not named and bool(p == jnp.inf)):
             Y, _X = self.minandmax2()
             return jnp.max(jnp.abs(jnp.asarray(Y)))
-        if not (p == 2 or (isinstance(p, str) and p.lower() == "fro")):
-            raise NotImplementedError(
-                "CHEBFUN:DISKFUN:norm: only the 2/'fro'/'inf' norms are "
-                "implemented")
-        if len(self.cols) == 0:
-            return jnp.asarray(0.0, dtype=jnp.float64)
+        if not named and bool(p == 1):
+            raise ValueError("CHEBFUN:DISKFUN:norm:norm: DISKFUN does not support L1-norm.")
+        if (named and p in ("-inf", "min")) or (not named and bool(p == -jnp.inf)):
+            raise ValueError("CHEBFUN:DISKFUN:norm:norm: DISKFUN does not support this norm.")
+        if not ((named and p == "fro") or (not named and bool(p == 2))):
+            if isinstance(p, str):
+                raise ValueError("CHEBFUN:DISKFUN:norm:unknown: Unknown norm.")
+            rounded = jnp.round(p)
+            if not bool(jnp.abs(rounded - p) < _EPS):
+                raise ValueError("CHEBFUN:DISKFUN:norm:norm: DISKFUN does not support this norm.")
+            # The accepted integer branch is unaffected by tie-rounding rules.
+            # Native computes the power before rejecting an odd integer.
+            powered = self ** rounded
+            if bool(jnp.mod(rounded, 2)):
+                raise ValueError("CHEBFUN:DISKFUN:norm:norm: p-norm must have p even for now.")
+            # Keep source zero/negative orders and f**p (not abs(f)**p).
+            # JAX division retains 1/0 = inf instead of Python's exception.
+            integral = jnp.asarray(powered.sum2())
+            reciprocal = jnp.asarray(1.0, dtype=jnp.float64) / rounded
+            return integral ** reciprocal
         from chebfunjax.utils.quadrature import chebpts, chebweights
         ncol = max(int(np.asarray(c.coeffs).ravel().shape[0])
                    for c in self.cols)
