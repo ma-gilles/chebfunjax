@@ -7,11 +7,13 @@ Chebfun commit: 7574c77
 The 2e-8 absolute accuracy target is retained from the existing scalar-IVP
 fit controls, with rtol0; original source restart-off remains strict1e-10.
 """
+import importlib
+
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebpref import ChebopPref
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -54,9 +56,44 @@ def test_explicit_lsoda_adapter_restart_agreement():
     assert float((restarted - uninterrupted).norm(2)) < 1e-4
 
 
-def test_explicit_native_unsupported_event_does_not_fall_back():
+def test_explicit_native_terminal_event_does_not_fall_back(monkeypatch):
+    # solveivp.m269-280: abs(y)-maxnorm, terminal1, either direction.
+    # constructODEsol.m40-52: stop at xe and join NaNs to the original end.
+    provider = importlib.import_module('chebfunjax.utils.native_ode113')
+    original = provider.native_ode113
+    calls = []
+
+    def observed(fun, span, initial, options=None, **kwargs):
+        result = original(fun, span, initial, options, **kwargs)
+        calls.append((span, initial, dict(options or {}), result))
+        return result
+
+    def forbidden_fallback(*args, **kwargs):
+        raise AssertionError('explicit native event must not use SciPy fallback')
+
+    monkeypatch.setattr(provider, 'native_ode113', observed)
+    monkeypatch.setattr('scipy.integrate.solve_ivp', forbidden_fallback)
     operator = Chebop(lambda u: u.diff() - u, (0.0, 2.0), 1.0, None)
     operator.ivp_method = 'chebfun.ode113'
     operator.maxnorm = 2.0
-    with pytest.raises(NotImplementedError, match='native scalar ode113 events'):
-        operator.solve(0.0)
+    result = operator.solve(0.0)
+    assert operator._ivp_backend_used == 'native_ode113'
+    assert len(calls) == 1
+    span, initial, options, native = calls[0]
+    np.testing.assert_array_equal(span, [0., 2.])
+    np.testing.assert_array_equal(initial, [1.])
+    pref = ChebopPref()
+    assert options['RelTol'] == pref.ivpRelTol
+    assert options['AbsTol'] == pref.ivpAbsTol
+    value, terminal, direction = options['Events'](0., jnp.asarray([-2.]))
+    np.testing.assert_array_equal(value, [0.])
+    np.testing.assert_array_equal(terminal, [1.])
+    assert float(direction) == 0.
+    np.testing.assert_array_equal(native['ie'], [1])
+    np.testing.assert_allclose(native['xe'], [jnp.log(2.)], atol=2e-8, rtol=0)
+    np.testing.assert_allclose(native['ye'], [[2.]], atol=2e-8, rtol=0)
+    cutoff = float(native['xe'][0])
+    np.testing.assert_array_equal(result.domain.breakpoints, [0., cutoff, 2.])
+    points = jnp.asarray([0., .25, .5])
+    np.testing.assert_allclose(result(points), jnp.exp(points), atol=2e-8, rtol=0)
+    assert bool(jnp.all(jnp.isnan(result(jnp.asarray([1., 2.])))))

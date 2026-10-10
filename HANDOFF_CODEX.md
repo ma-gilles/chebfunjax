@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## ShortPulse supported-event regression correction (2026-10-10; latest)
+
+The old unsupported-event expectation now tests the existing native maxnorm
+terminal event, its recorded cutoff/state, finite exponential solution and
+NaN tail, and rejects SciPy fallback. All four module cases pass with 2,958
+runtime hashes audited; other three numerical assertions are unchanged.
+Production library code is unchanged. Root verified 18 delivery bindings and
+exact integrated test bytes; static gates pass. Evidence:
+docs/shortpulse_event_test_cpu_20261010.json. Pantograph AD composition remains
+under qualification. The next broad inventory will directly execute all 12
+parameterized linearSystem2 clauses; its aggregate mirror skip is retained
+without coverage credit until that direct execution succeeds.
+
 ## Fresh page source and asset inventory (2026-10-10; latest)
 
 Offline audit of committed869ad7fa verifies 322 canonical pages, 1,305 current

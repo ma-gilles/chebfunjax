@@ -1,0 +1,12 @@
+{
+  "scope": "Test-only correction to obsolete unsupported-event assertion; production unchanged",
+  "qualified_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/shortpulse_supported_events_source_20261010/FINAL_DELIVERY_v2.json",
+  "packet_sha256": "fafbcd8552e30ac09dad126d7b82324b7e1ae3ab664ee0ca50fa1efdc12918a7",
+  "root_verified_artifacts": 18,
+  "cases_passed": 4,
+  "runtime_files_audited": 2958,
+  "other_three_test_asts_unchanged": true,
+  "event_contract": "Native maxnorm termination, captured event/cutoff, finite exp(t) segment, NaN tail and no SciPy fallback",
+  "source": "Chebfun7574c77 @chebop/solveivp.m269-280 and @chebfun/constructODEsol.m40-52",
+  "limits": "Original accuracy controls retained; full page and broad suite unresolved"
+}
