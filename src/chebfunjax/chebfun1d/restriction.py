@@ -87,12 +87,23 @@ def overlap(f, g):
         return f, g
     if f.isempty() or g.isempty():
         raise ValueError('CHEBFUN:CHEBFUN:overlap:domains: Inconsistent domains; intervals do not match.')
-    a = jnp.asarray([f.domain.a, f.domain.b])
-    b = jnp.asarray([g.domain.a, g.domain.b])
-    hf, hg = jnp.max(jnp.abs(a)), jnp.max(jnp.abs(b))
-    hf, hg = jnp.where(jnp.isinf(hf), 1., hf), jnp.where(jnp.isinf(hg), 1., hg)
-    delta = a-b
-    if not bool(jnp.all((jnp.abs(delta) < 1e-15*jnp.maximum(hf, hg)) | jnp.isnan(delta))):
+    # Domain endpoints are static metadata (Domain.breakpoints), so validate
+    # them in Python.  JAX array comparisons here become tracers under jit and
+    # cannot be converted to bool; the endpoint check does not depend on the
+    # differentiable Chebyshev coefficients.
+    f_ends = (f.domain.a, f.domain.b)
+    g_ends = (g.domain.a, g.domain.b)
+
+    def hscale(ends):
+        if any(math.isnan(x) for x in ends):
+            return math.nan
+        scale = max(abs(x) for x in ends)
+        return 1.0 if math.isinf(scale) else scale
+
+    hf, hg = hscale(f_ends), hscale(g_ends)
+    scale = math.nan if math.isnan(hf) or math.isnan(hg) else max(hf, hg)
+    delta = tuple(x - y for x, y in zip(f_ends, g_ends))
+    if not all(math.isnan(d) or abs(d) < 1e-15 * scale for d in delta):
         raise ValueError('CHEBFUN:CHEBFUN:overlap:domains: Inconsistent domains; intervals do not match.')
     if f.domain.breakpoints == g.domain.breakpoints:
         return f, g

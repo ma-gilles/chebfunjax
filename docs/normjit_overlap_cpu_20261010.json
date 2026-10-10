@@ -1,0 +1,105 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_normjit_overlap_fix_20261010",
+  "base_snapshot_head": "af7ada7faa70aba4f7a1247f9ab1b37e0ca2139e",
+  "changed_snapshot_paths": [
+    "src/chebfunjax/chebfun1d/restriction.py"
+  ],
+  "source_sha256": "6831efb22481e426c1dfeebef177a8fedc0bf1fe82d34eb473f8938f6d14cf4a",
+  "source_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_normjit_overlap_fix_20261010.patch",
+  "source_patch_sha256": "da23dfc56a072cd9664d3ba40b0680fa164893a18f6ab00fdb14b5088562b110",
+  "cause": "Under jit, overlap converted static Domain endpoints to JAX arrays and then bool(jnp.all(...)); JAX traced the validation and raised TracerBoolConversionError before the 2-norm derivative could run.",
+  "source_change": "Validate the static Python-float endpoint tuples before any JAX array operations, using the existing native 1e-15 scaled tolerance and accepting NaN deltas (inf-inf). Preserve the source overlap ValueError and leave tweakDomain, union, and restriction code unchanged. No coefficient value is host-converted; gradients remain JAX operations.",
+  "native_refs": [
+    "@chebfun/domainCheck.m:31-45",
+    "@chebfun/hscale.m:1-15",
+    "@chebfun/overlap.m:13-35"
+  ],
+  "initial_failure": {
+    "node": "tests/test_chebfun1d/test_norm_source_controls.py::test_two_norm_jit_derivative",
+    "failure": "jax.errors.TracerBoolConversionError at chebfunjax/chebfun1d/restriction.py:95, reached through (a*f).norm(2) -> inner(column,column) -> overlap",
+    "junit_counts": {
+      "tests": 80,
+      "passed": 79,
+      "failed": 1,
+      "skipped": 0
+    },
+    "junit_sha256": "2b896e1728af5cd42d7181902e31911a7d1b52af7e1cae4744d9933e0b2e6202",
+    "receipt_sha256": "3ac81965e7f02979bd6aebef51d25554cbadc0265e5c13fc2f96dc0af918b78a",
+    "runtime_start_sha256": "993496edd040026ee2218e7cf1becf65ec1711c6b17d5a5e26103321f50d4190",
+    "runtime_end_sha256": "119740af9ba3b379ad0b91a87ea5266c16595132677293e1ee6cf84dcf8c5bd5",
+    "receipt_wall_seconds": 144.0768159661435,
+    "peak_summed_rss_kib": 3904836,
+    "censored_limit": null,
+    "inputs_stable": true
+  },
+  "focused_qualification": {
+    "test_args": [
+      "tests/test_chebfun1d/test_norm_source_controls.py",
+      "tests/test_restrict_source_controls.py",
+      "tests/test_chebfun1d/test_chebfun_ops.py::TestChebfunArithmetic::test_domain_mismatch_raises",
+      "tests/test_chebfun1d/test_chebfun_ops.py::TestChebfunInnerNorm::test_inner_domain_mismatch_raises"
+    ],
+    "junit_counts": {
+      "tests": 23,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0
+    },
+    "junit_sha256": "20736adcbe1a256b8e9bdb9030d92c8d139e90f2ac37f50d07cdfad0772aa7dc",
+    "receipt_sha256": "c6dd986d525dff66e63c9e2cbc9d1e35417af346542b5dc053c4be7b3e421e87",
+    "runtime_start_sha256": "5395d7152cf8ed0d217eaaabb0c7477cd560d8b8ffb547de3e3561778a8b5488",
+    "runtime_end_sha256": "affbd06d24c2a0457d78ba3da1052888a9c08614de4632b13793b3167af718e7",
+    "supervisor_wall_seconds": 97.75926567707211,
+    "pytest_seconds": 53.072,
+    "peak_summed_rss_kib": 2137380,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "runtime_python": "3.12.13",
+    "module_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_normjit_overlap_fix_20261010/snapshot/src/chebfunjax/__init__.py",
+    "runtime_failures": []
+  },
+  "static_checks": {
+    "ruff_all_src_tests": "passed",
+    "launch_bash_n": "passed",
+    "guard_hash_count": 47078,
+    "guard_mismatches": 0,
+    "source_diff_only_restriction_py": true,
+    "test_changes": false
+  },
+  "qualification_scope": "Focused source qualification only; broad core part1 remainder still stopped at the original failure and must resume on an integrated, frozen source snapshot.",
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Static interval metadata overlap under JIT; original norm value/gradient plus finite/unbounded mismatch controls",
+    "gates": [
+      {
+        "gate": "core_part1_normjit_overlap_fix_20261010/gate",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_normjit_overlap_fix_20261010/gate/supervision/receipt.json",
+        "receipt_sha256": "c6dd986d525dff66e63c9e2cbc9d1e35417af346542b5dc053c4be7b3e421e87",
+        "runtime_manifest_sha256": "18e2cef604a775e2d40c309dfd871551e418ac6ab4a7f0419a4e1c1fe1b783f9",
+        "runtime_end_sha256": "affbd06d24c2a0457d78ba3da1052888a9c08614de4632b13793b3167af718e7",
+        "observed_files_rehashed": 2964,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 76,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 2137380,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 23,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  }
+}

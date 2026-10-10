@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Norm JIT interval check repaired (2026-10-10; latest)
+
+Interval overlap now checks static Domain endpoints as Python metadata,
+avoiding a traced boolean conversion while retaining the native scaled
+tolerance and unbounded-domain handling. No coefficient is host-converted.
+All23 existing focused tests passed, including the original norm value
+and derivative assertions, restriction and mismatch controls; root
+verified2,964 runtime files. Evidence: docs/normjit_overlap_cpu_20261010.json.
+The preceding79-pass/1-failure broad run remains recorded; its remaining
+cases still need completion.
+
 ## Native sine constructor dispatch fixed (2026-10-10; latest)
 
 Chebfun3.sin now resamples through the default constructor as native
