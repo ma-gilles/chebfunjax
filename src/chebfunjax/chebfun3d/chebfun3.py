@@ -1284,6 +1284,9 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/mean.m
         Chebfun commit: 7574c77
         """
+        # Native @chebfun3/mean.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return Chebfun3.empty()
         d = self.domain
         i = dim - 1
         return self.sum(dim) * (1.0 / (d[2 * i + 1] - d[2 * i]))
@@ -1483,6 +1486,9 @@ class Chebfun3(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        # Native @chebfun3/diff.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return self
         xa, xb, ya, yb, za, zb = self.domain
         if dim == 1:
             scale = (2.0 / (xb - xa)) ** k
@@ -1612,6 +1618,9 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/sum.m
         Chebfun commit: 7574c77
         """
+        # Native @chebfun3/sum.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,))
         from chebfunjax.chebfun2d import chebfun2
 
         xa, xb, ya, yb, za, zb = self.domain
@@ -1650,6 +1659,9 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/sum2.m
         Chebfun commit: 7574c77
         """
+        # Native @chebfun3/sum2.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,))
         from chebfunjax.chebfun1d.chebfun import chebfun
 
         xa, xb, ya, yb, za, zb = self.domain
@@ -1956,6 +1968,9 @@ class Chebfun3(eqx.Module):
         --------
         Chebfun3.hosvd, Chebfun3.core
         """
+        # Native @chebfun3/tucker.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return tuple(jnp.empty((0,)) for _ in range(4))
         from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
         from chebfunjax.domain import Domain
 
@@ -2481,12 +2496,18 @@ class Chebfun3(eqx.Module):
 
     def mean3(self) -> jax.Array:
         """Mean value over the box (MATLAB mean3; Fable 5)."""
+        # Native @chebfun3/mean3.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,))
         xa, xb, ya, yb, za, zb = self.domain
         vol = (xb - xa) * (yb - ya) * (zb - za)
         return self.sum3() / vol
 
     def std3(self) -> jax.Array:
         """Standard deviation over the box (MATLAB std3)."""
+        # Native @chebfun3/std3.m (empty arithmetic followed by mean3), Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,))
         mu = float(self.mean3())
         var = (self - mu) * (self - mu)
         return jnp.sqrt(var.mean3())
@@ -2713,6 +2734,9 @@ class Chebfun3(eqx.Module):
         true global extremum (e.g. Wagon's function, min3 = -3.32833834566,
         which single-start seeding misses by ~1%).
         """
+        # Native @chebfun3/minandmax3.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,)), jnp.empty((0,))
         import numpy as _np
         xa, xb, ya, yb, za, zb = self.domain
         g1 = _np.linspace(xa, xb, ngrid)
@@ -2770,6 +2794,9 @@ class Chebfun3(eqx.Module):
         return jnp.asarray(out_vals), jnp.asarray(out_locs)
 
     def max3(self):
+        # Native @chebfun3/max3.m, Chebfun7574c77: empty dispatch.
+        if self.isempty():
+            return jnp.empty((0,)), jnp.empty((0,))
         vals, locs = self.minandmax3()
         return vals[1], locs[1]
 
@@ -3235,6 +3262,21 @@ class Chebfun3(eqx.Module):
 
         return chebfun2(_integrand, domain=sdom).sum2()
 
+    def __rpow__(self, base):
+        """Propagate an empty function exponent; nonempty support is pending.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/power.m (first empty-operand branch)
+        Chebfun commit: 7574c77
+
+        This adapter does not implement native scalar-to-nonempty-function
+        power; returning NotImplemented retains Python's unsupported result.
+        """
+        if self.isempty():
+            return Chebfun3.empty()
+        return NotImplemented
+
     def __pow__(self, p) -> "Chebfun3":
         return Chebfun3.from_function(
             lambda x, y, z: self(x, y, z) ** p, domain=self.domain)
@@ -3511,4 +3553,4 @@ def domainCheck(f, g, tol: float = 1e-12) -> bool:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'mean3', 'std3', 'permute', 'squeeze', 'restrict', 'minandmax3', 'max3', 'min3', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])
+make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'permute', 'squeeze', 'restrict', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])

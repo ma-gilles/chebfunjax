@@ -1,0 +1,40 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Actual public Chebfun3 empty dispatch and faithful native empty command sequence",
+  "changes": [
+    "Restore all22 original test statements with original no-exception predicate; remove erroneous universal output-object assertion",
+    "Return native numeric empty arrays or explicit output tuples for reductions/Tucker; preserve object returns where native",
+    "Handle empty reflected powers and empty methods before absent-field/dimension access",
+    "Preserve source-derived min3(empty) indexing error and existing empty permute with omitted argument"
+  ],
+  "cases": {
+    "native_sequence": 1,
+    "native_statements": 22,
+    "supplemental": 19,
+    "total_passed": 20,
+    "failed": 0,
+    "skipped": 0
+  },
+  "source_ast_review": "Entire module restored by removing nine empty guards, additive reflected-power method and restoring five wrapper entries; all existing nonempty bodies unchanged.",
+  "runtime": {
+    "original": 9517,
+    "owner_audit": 39696,
+    "root_audit": 51343,
+    "rehash_files": 2941,
+    "peak_kib": 514136,
+    "cpu": "16-23"
+  },
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_empty_candidate_20261009",
+  "delivery_sha256": "43233ae5d21d6e3cc0c0049022f05070368b70a9bca01c90f95a66f8a9fe2be8",
+  "payload_sha256": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "70615a61df24301232d4c09028f437f503fcf2a52401badd2814255d5190bff8",
+    "tests/test_matlab_port/chebfun3/test_emptyObjects_matlab.py": "50663cca5ef2de8c0f130ad82e635f66dc9b6b3755612eac66762271050d7b40",
+    "tests/test_chebfun3d/test_empty_source_contracts.py": "4a2b85b975a8291880b8c07e626909ab5fd2f48091212cfc56045d16948def2a"
+  },
+  "limitations": [
+    "Native min3 empty error follows source indexing; no MATLAB runtime error-message capture.",
+    "Numeric [] represented as shape(0,) arrays; existing Python Tucker/extrema multiple outputs use tuples.",
+    "Nonempty reflected/function powers, complex std3 and extrema provider parity remain unresolved.",
+    "Original22 no-exception test is restored; this does not qualify all nonempty commands."
+  ]
+}
