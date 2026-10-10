@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native113 public Events and coefficient restart routing (2026-10-10; latest)
+
+Public ode113 now accepts its native Events implementation. Structural scalar
+first-order IVPs include coefficient breakpoints and maxnorm events; coupled
+maxnorm uses the same source callback. Root 80 regressions pass. Four original
+RandomSwitching draws reach the correct native provider and first span, but
+full trajectories are not yet qualified. Three supplemental analytic controls
+remain failing at unchanged bounds. Scalar-terminal vector events and mixed
+finite/Inf limits need follow-up validation semantics fixes. Evidence:
+docs/native113_dispatch_cpu_20261010.json.
+
 ## Real-input inverse trig reference correction (2026-10-10; latest)
 
 All 37 native trig predicates pass after correcting four scalar reference

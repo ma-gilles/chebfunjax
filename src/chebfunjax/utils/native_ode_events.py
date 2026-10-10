@@ -13,6 +13,9 @@ def _event_values(event, t, y, size=None):
     direction = jnp.asarray(direction).reshape(-1, order='F')
     if direction.size == 0:
         direction = jnp.zeros_like(value)
+    elif direction.size == 1:
+        # odezero uses direction .* (vR-vL): MATLAB expands a scalar here.
+        direction = jnp.broadcast_to(direction, value.shape)
     if (not value.size or terminal.size != value.size or direction.size != value.size
             or (size is not None and value.size != size)):
         raise ValueError('Events outputs must have matching, fixed nonzero lengths')

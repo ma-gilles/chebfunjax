@@ -1320,6 +1320,18 @@ class Chebop:
                 "before solving."
             )
 
+        # Source solveivp joins coefficient problemDom before choosing the
+        # restart intervals. Reuse structural extraction for scalar first-order
+        # problems with actual breaks/events; smooth scalar and higher-order
+        # towers retain their established route and numerical operation order.
+        if n is None and self._n_vars() == 1 and self._is_ivp():
+            from chebfunjax.operators import _coupled_ivp
+            native_plan = _coupled_ivp.prepare(
+                self, f, selected=ivp_solver, allow_scalar=True)
+            if native_plan is not None and (
+                    len(native_plan.span) > 2 or self.maxnorm is not None):
+                return _coupled_ivp.solve(self, native_plan)
+
         # Piecewise domains (>= 1 interior breakpoint): collocate each
         # unknown piece-by-piece and glue with continuity conditions at the
         # breaks.  Handles both scalar and system BVPs; single-interval

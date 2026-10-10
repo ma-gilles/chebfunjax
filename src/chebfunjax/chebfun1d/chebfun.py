@@ -11895,7 +11895,8 @@ def ode113(odefun, tspan, y0, options=None, *, rtol=None, atol=None,
     The default backend uses the native JAX method for finite float64/complex128
     problems and the supported solver options. Unsupported native options raise;
     backend="scipy" explicitly selects the inherited DOP853 compatibility path.
-    Events, mass matrices and broader native options remain unfinished.
+    Events use the native Adams interpolation and source event construction.
+    Mass matrices and broader native options remain unfinished.
 
     Provenance
     ----------
@@ -12639,6 +12640,8 @@ def _ode_solve(method, odefun, tspan, y0, options=None, *, rtol=None,
         raise NotImplementedError(f'native backend for {method} is not implemented')
     if native_selected:
         supported = {'RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'MinStep', 'NormControl'}
+        if method == 'ode113':
+            supported.add('Events')
         for name, value in opts.items():
             if name not in supported | {'restartSolver', 'happinessCheck'} and not empty(value):
                 raise NotImplementedError(f'native {method} option {name} is not yet implemented')

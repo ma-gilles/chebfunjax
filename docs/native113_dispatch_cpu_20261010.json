@@ -1,0 +1,28 @@
+{
+  "scope": "Public native ode113 Events and structural scalar coefficient-break/maxnorm routing",
+  "source": "Pinned @chebop/solveivp.m joins coefficient problem domains, restarts at their breaks, and emits Events for maxnorm. Installed odezero expands scalar direction in elementwise arithmetic.",
+  "root_passes": 80,
+  "root_seconds": 49.48531826538965,
+  "root_peak_child_rss_kib": 1142388,
+  "agent_regressions": 64,
+  "agent_additional_controls": {
+    "passed": 18,
+    "failed": 3,
+    "unexecuted": 0
+  },
+  "dependency_replay": "All four original JAX raw forcing draws byte-identical; four native provider entries, first spans/defaults and 16 RHS probes verified. Stops before integration.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebop_native_system_source_20261010/FINAL_DELIVERY_v5.json": "6d2a33d7037058eac84da8a85fc975a74d813aca5a7373b5876039640b0b81bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_dispatch_root_20261010/review.json": "de232c6aa19946199f5838eb04f7d54c8a4bfceb46afd5bb9584a130e99f059b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_dispatch_root_20261010/runtime_review.json": "e76318c60792e361369b912f83b7188f81894f5a9c96035f34dc805072459b28",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_dispatch_root_20261010/receipt.json": "ebe6a898b0046e2b628bb4c5367ce9f983b77245a6f5b563a9f3147b37d450df",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_dispatch_root_20261010/junit.xml": "9ad9d039ac13b890db04c79c58e0adb79326adfee1288f30767cf2178d044533"
+  },
+  "limitations": [
+    "Full RandomSwitching trajectories and MATLAB random inputs remain unqualified.",
+    "Three discontinuous global analytic errors exceed unchanged 2e-8 bounds. Forward terminal step matches independently evaluated native formula; actual MATLAB trajectories and backward/coupled attribution remain missing.",
+    "Scalar terminal flags for vector events are rejected up front, stricter than native per-crossing indexing; mixed finite/Inf maxnorm also rejected too early. Separate source-faithful fix underway.",
+    "No current-head full regression, speed parity, or CI claim."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_dispatch_root_20261010/static.json"
+}

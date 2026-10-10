@@ -203,10 +203,10 @@ class Extracted:
     span: tuple
 
 
-def extract(op, forcing=0):
+def extract(op, forcing=0, *, allow_scalar=False):
     """Build an RHS expression once; no finite-probe classification."""
     count = op._n_vars()
-    if count < 2 or op._bc_general is not None or op._periodic:
+    if count < (1 if allow_scalar else 2) or op._bc_general is not None or op._periodic:
         raise UnsupportedStructure('requires a nonperiodic coupled endpoint IVP')
     if (op._lbc_raw is None) == (op._rbc_raw is None):
         raise UnsupportedStructure('requires conditions at exactly one endpoint')
@@ -258,7 +258,7 @@ def extract(op, forcing=0):
     return Extracted(rhs, initial, span)
 
 
-def prepare(op, forcing=0, *, selected=None):
+def prepare(op, forcing=0, *, selected=None, allow_scalar=False):
     """Return a structural native plan, or None BEFORE selecting native mode.
 
     Default unsupported grammars keep their prior legacy route. An explicit
@@ -272,14 +272,12 @@ def prepare(op, forcing=0, *, selected=None):
     name = str(method).strip().lower().lstrip('@').split('.')[-1]
     if name != 'ode113':
         return None
-    if getattr(op, 'maxnorm', None) is not None:
-        if explicit:
-            raise UnsupportedStructure('native coupled ode113 events remain unsupported')
-        return None
     try:
-        return extract(op, forcing)
+        return extract(op, forcing, allow_scalar=allow_scalar)
     except (UnsupportedStructure, TypeError, AttributeError):
-        if explicit:
+        # Scalar unsupported expressions retain the existing tower route,
+        # including its explicit native-method error handling.
+        if explicit and not allow_scalar:
             raise
         return None
 
@@ -295,5 +293,18 @@ def solve(op, plan):
                'restartSolver': getattr(op, 'ivp_restart_solver',
                                         getattr(pref, 'ivpRestartSolver', True)),
                'happinessCheck': pref.happinessCheck}
+    # @chebop/solveivp.m269-280 watches each original dependent variable.
+    # This structural route is first order, so varIndex selects all states.
+    maximum = getattr(op, 'maxnorm', None)
+    if maximum is not None and jnp.asarray(maximum).size:
+        limits = jnp.asarray(maximum).reshape(-1)
+        if limits.size not in (1, plan.initial.size):
+            raise ValueError('maxnorm requires a scalar or one limit per variable')
+        if not bool(jnp.all(jnp.isinf(limits))):
+            def event(t, y):
+                return jnp.abs(y)-limits, 1+0*limits, jnp.asarray(0.)
+            options['Events'] = event
     array = ode113(plan.rhs, plan.span, plan.initial, options, backend='native')
+    if op._n_vars() == 1:
+        return array.extract_columns(0)
     return SystemSolution([array.extract_columns(k) for k in range(op._n_vars())])

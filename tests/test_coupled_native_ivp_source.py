@@ -91,12 +91,13 @@ def test_explicit_alternate_selection_preserved():
     assert prepare(_polynomial(), selected='RK45') is None
 
 
-def test_events_not_silently_native():
+def test_events_structurally_native():
+    # Updated added-Python scope predicate: events now have a native route.
+    # This checks extraction only, not scalar terminal flag compatibility.
     n = _polynomial()
     n.maxnorm = 10
-    assert prepare(n) is None
-    with pytest.raises(UnsupportedStructure):
-        prepare(n, selected='ode113')
+    assert prepare(n) is not None
+    assert prepare(n, selected='ode113') is not None
 
 
 def test_one_array_call_and_options(monkeypatch):
