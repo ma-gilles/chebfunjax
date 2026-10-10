@@ -37,7 +37,7 @@ total_time_in_seconds = toc
 
 ```text
 total_time_in_seconds =
-  456.596930
+  53.919777
 ```
 
 ---

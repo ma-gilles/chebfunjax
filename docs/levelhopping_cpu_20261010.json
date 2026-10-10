@@ -1,0 +1,43 @@
+{
+  "scope": "Complete two-solve LevelHopping page, source-shaped computations and reference dimensions; exact historical parity remains incomplete.",
+  "root_portable_tests": 5,
+  "root_elapsed_seconds": 15.088920205831528,
+  "root_peak_child_rss_kib": 692724,
+  "fullpage_audit": {
+    "passed": 1,
+    "observed_runtime_files_rehashed": 2968,
+    "delivery_bindings_rehashed": 83,
+    "printed_elapsed_seconds": 53.919777,
+    "supervisor_seconds": 135.3185469196178,
+    "two_source_solves_complete": true,
+    "figures": 2,
+    "dimensions": [
+      600,
+      269
+    ]
+  },
+  "source_review": "Both lambda.4/.2 sequential nonperiodic big random forcings, original operator/IC/full[0,100] intervals, line widths2/1 and32pt axis labels retained. Prose/code cells retained; printed timing replaced with measured capture.",
+  "limitations": [
+    "Sequential JAXrng0 unmatched",
+    "R2025bcontroller distinct historical2017website",
+    "Literal32pt/font/grid/raster mismatch not hidden by size equality",
+    "No matched native mesh/coefficients or invented accuracy bound",
+    "Actual timings include observers; no matched speedclaim"
+  ],
+  "figure_audit": {
+    "mapped_slots": 1305,
+    "size_mismatches": 33,
+    "pages_with_size_mismatch": 6,
+    "missing": 0,
+    "changed_reference_bytes": 0,
+    "scope": "Dimensions only; not content parity."
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_history_source_20261010/PAGE_DELIVERY_v1.json": "9fe4f230ef19fcee897ac79e14c17c60c25103f0ebe31943e11a5e111726a125",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_history_source_20261010/VALUES_v1.json": "3fab90a422262ee4b54021ad4959d6ec7b10e33f59d6743d665e5fce8181b02c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/levelhopping_fullpage_root_review_20261010.json": "e662dea9b442a02c14a1d487b681f2be2d01432f9f2a01f1dde97b74194a841b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/levelhopping_page_root_20261010/receipt.json": "d4423c5631be60f5dfbb696cb47859a0e8a9a78a4a4caf5f1bf4d655a62d309f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/levelhopping_page_root_20261010/static.json": "3f84b5684f9e7134765d0bb3568408f3c76a37fa5799f75cf402100fca1d17f4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_levelhopping_20261010.json": "c41f8366b280fc3ba828fcc27d4ef5061f697f49ccf0d88019517785805a9743"
+  }
+}

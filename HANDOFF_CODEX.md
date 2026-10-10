@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## LevelHopping completes both source solves (2026-10-10; latest)
+
+The complete page now finishes with53.919777s captured timing, both original
+full-domain solves and two fresh600x269 figures. Root5 portable tests pass;
+fullpage1 test passes with2968 runtime files independently rehashed.
+Prior first-solve payloads and second-solve replay match exactly. Updated
+whole figure-size audit:1305 mapped,33 mismatches across6 pages, none missing.
+JAX/MATLAB RNG and historical font/grid/raster differences remain unresolved.
+Evidence: docs/levelhopping_cpu_20261010.json.
+
 ## ODE113 history assembly bottleneck fixed (2026-10-10; latest)
 
 Bounded JAX stack/concatenate groups preserve ordered history and all existing

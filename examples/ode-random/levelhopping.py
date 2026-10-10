@@ -1,72 +1,77 @@
 """Random level hopping.
 
-Translation of ode-random/LevelHopping.m by Nick Trefethen (May
-2017): y' = -2 sin(2 pi y) + f has stable fixed points at the
-integers; smooth random noise makes the process hop between them.
-Two trajectories on [0, 100]: lambda = 0.4 and 0.2.
-
-Sample paths use JAX keys (MATLAB rng(0) not reproducible).
+Translation of ode-random/LevelHopping.m, Nick Trefethen, May 2017.
+Both source nonperiodic random forcings and [0,100] solves are retained.
+The explicit sequential JAX stream is unmatched to MATLAB rng(0).
 
 Original: https://www.chebfun.org/examples/ode-random/LevelHopping.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
 import matplotlib
 
-matplotlib.use("Agg")
-import os
+matplotlib.use('Agg')
 import sys
 import time
-import warnings
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from pathlib import Path
 
 import jax
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
+
+from chebfunjax import randnfun
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.utils.randnfun import randnfun
+from chebfunjax.plotting import chebfun_style, matlab_plot, save_chebfun_figure
 
 chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-random')
-
+_IMG = Path(__file__).resolve().parents[2] / 'docs/images/ode-random'
 DOM = (0.0, 100.0)
+_SIZE = (600, 269)
+_DPI = 72.0
 
 
-def _run_one(lam, key, lw, fname):
-    N = Chebop(lambda y: y.diff() + 2 * (2 * np.pi * y).sin(), domain=DOM)
-    N.lbc = 0.0
-    f = randnfun(lam, DOM, big=True, key=key)
-    y = N.solve(f)
-    fig, ax = plt.subplots(figsize=(8.8, 4.6))
-    xx = np.linspace(*DOM, 8000)
-    ax.plot(xx, np.asarray(y(xx)), lw=lw)
+def _draw_forcing(lam, key):
+    forcing = randnfun(lam, DOM, 'big', key=key)
+    # The real nonperiodic source branch consumes one normal matrix draw.
+    key, _ = jax.random.split(key)
+    return forcing, key
+
+
+def _operator(y):
+    return y.diff() + 2 * (2 * jnp.pi * y).sin()
+
+
+def _plot(solution, linewidth, filename):
+    fig, ax = plt.subplots(figsize=(_SIZE[0]/_DPI, _SIZE[1]/_DPI), dpi=_DPI)
+    matlab_plot(solution, ax=ax, linewidth=linewidth)
     ax.grid(True)
-    ax.set_xlabel("t", fontsize=18)
-    ax.set_ylabel("y", fontsize=18)
-    ax.set_xlim(*DOM)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    ax.set_xlabel('t', fontsize=32)
+    ax.set_ylabel('y', fontsize=32)
+    save_chebfun_figure(fig, _IMG/filename, size=_SIZE, dpi=_DPI, layout='matlab')
     plt.close(fig)
-    print(f"lambda={lam}: levels visited "
-          f"{sorted(set(np.round(np.asarray(y(xx))).astype(int)))}",
-          flush=True)
 
 
 def run():
-    os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
-    t0 = time.time()
-    _run_one(0.4, jax.random.PRNGKey(0), 2, "LevelHopping_01.png")
-    _run_one(0.2, jax.random.PRNGKey(1), 1, "LevelHopping_02.png")
-    print("total_time_in_seconds =")
-    print(f"  {time.time() - t0:.6f}")
+    _IMG.mkdir(parents=True, exist_ok=True)
+    key = jax.random.PRNGKey(0)
+    started = time.perf_counter()
+    N = Chebop(_operator, domain=DOM)
+    lam = 0.4
+    f1, key = _draw_forcing(lam, key)
+    N.lbc = 0.0
+    y1 = N.solve(f1)
+    _plot(y1, 2, 'LevelHopping_01.png')
+    lam = lam/2
+    f2, key = _draw_forcing(lam, key)
+    y2 = N.solve(f2)
+    _plot(y2, 1, 'LevelHopping_02.png')
+    elapsed = time.perf_counter() - started
+    print('total_time_in_seconds =')
+    print(f'  {elapsed:.6f}')
+    return {'forcing': (f1, f2), 'solutions': (y1, y2),
+            'elapsed_seconds': elapsed}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()

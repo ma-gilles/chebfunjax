@@ -1,23 +1,23 @@
 {
-  "head": "2cee0bf093ef4bd9775fcb95f0168b0345af99d9",
+  "base_head": "bb44a3a69cf6c411d0634caae211e1eac9c88f84",
   "scope": "Dimensions and reference bytes for every inherited mapped pair; no image-content or numerical parity claim.",
-  "prior_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_d85340c7_20261010.json",
-  "prior_report_sha256": "0d6a0f872c34991ce4463d2401c6369f5aed3e921dbf28ffda518ab68c3855f0",
+  "working_changes": "Qualified LevelHopping page and two figures pending commit",
+  "prior_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_2cee0bf0_20261010.json",
+  "prior_report_sha256": "521db34e11a2f28b22b338c5e66ac6c57e5287961bacdfefe6433052c0a82ab0",
   "mapped_slots": 1305,
   "mapping_holes": 0,
   "missing": [],
   "changed_reference_bytes": [],
-  "size_mismatches": 35,
-  "pages_with_size_mismatch": 7,
+  "size_mismatches": 33,
+  "pages_with_size_mismatch": 6,
   "mismatch_page_counts": {
     "applics/VanillaOptions": 7,
     "approx2/Gibbs2D": 8,
     "linalg/EigLandscapes": 5,
     "ode-eig/Randfuneig": 5,
     "ode-nonlin/ChebopQuiver": 5,
-    "ode-random/LevelHopping": 2,
     "ode-random/RandomSwitching": 3
   },
-  "full_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_current_2cee0bf0_20261010.json",
-  "full_report_sha256": "521db34e11a2f28b22b338c5e66ac6c57e5287961bacdfefe6433052c0a82ab0"
+  "full_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_levelhopping_20261010.json",
+  "full_report_sha256": "c41f8366b280fc3ba828fcc27d4ef5061f697f49ccf0d88019517785805a9743"
 }
