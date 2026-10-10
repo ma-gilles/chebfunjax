@@ -1,0 +1,57 @@
+{
+  "scope": "Chebfun3 native active addition and power dispatch, including cancellation and empty-ACA handling",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "sources": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "13a94bf84442199ba5a9cce3034039fc52068735891afab95728094642f795b2",
+    "src/chebfunjax/chebfun3d/_power.py": "d3ffb22e17a42ac1fe36d6c71772759ece8d53a5b871718e7a0421b0bc2b388f",
+    "src/chebfunjax/chebfun3d/_plus.py": "9f5656626ecec9c370a8734ce67dd7629807fab780a2410f3703eea2efbd6421",
+    "tests/test_matlab_port/chebfun3/test_power_source_controls.py": "5054f7abcf6d17bd369e7031393a5208d779d7215cf86d5e2fcfafdea41bc531",
+    "tests/test_matlab_port/chebfun3/test_plus_source_controls.py": "4bd1f1f564ffb24ebfc77488747c9d64eda6c1be384102088135ba632ce4b1bd",
+    "tests/test_matlab_port/chebfun3/test_times_matlab.py": "fa58962de0b28d9632ec10609d801676c88f94452ad165285956d22b2bb3e332",
+    "tests/test_matlab_port/chebfun3/test_repeatedArithmetic_matlab.py": "adc5395f6c23ab840310e52e74daf73b7792ff6e97c8ad50c584f996a04f00c8"
+  },
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_active_plus_candidate_20261009/FINAL_V7B_DELIVERY.json",
+  "delivery_sha256": "385745433314463d8465d84488b348df627b6a71b106bd2adf21708b66d31e96",
+  "independent_root_reviews": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_reductions49_root_runtime_review_20261010.json": "37387cbe5cc4facaa1f30908a4c419989ca92442dec8d31f2877fca693412302",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_partial12_root_runtime_review_20261010.json": "239ecf2f156bdea9c7b37613c24d71578e91d3eed9abda07cdd647b205343ea7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_native9_root_runtime_review_20261010.json": "004e8450b0d8e2c1d4195f52450db5640d0da02f90718b53467534382daef410",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated12_root_runtime_review_20261010.json": "adc6d0bcfe8bea5f55639a012f6fa50585a801379b39f8f1f0fa642390ee53b2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated3_root_runtime_review_20261010.json": "efdb7e07d0358a1451797c3c2dd4e94174afced07e5ecd575c06f17431220ba3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated4_root_runtime_review_20261010.json": "22ab0cbc78ff0adae60d25fa8ffb46c12b58c83f94d2f7f916b1056bf804c8e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated56_root_runtime_review_20261010.json": "7da98cbfbfaa60b1492f83f5da7d77f7225a9b7dd7cc021cfd533d7915f56747",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated7_root_runtime_review_20261010.json": "0f42229572aa3dccd1277eec1c1a989e817bc647394f8cbe3b135d2bacbf0ba8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_v7b_repeated8_root_runtime_review_20261010.json": "0652b155cad2f30ea623d8b19ff0a2ab5cbc39f8b88371a5b09ec7026e7aa73a"
+  },
+  "merged_cases": 78,
+  "merged_gates": 12,
+  "prior_focused_controls": {
+    "active_plus_helpers_v3": 28,
+    "active_plus_actual_v5": 17,
+    "power_helpers_v6": 35,
+    "power_actual_v6": 13
+  },
+  "retained_current_methods_AST_verified": [
+    "sum",
+    "sum2",
+    "_sum3_numeric"
+  ],
+  "preserved_failures": [
+    "Power-only original times statement5 residual1.718e-9; independently localized to subtraction compression.",
+    "actual16_v3 added near-cancellation expectation corrected from native tol/zero-ACA source; native assertions unchanged.",
+    "actual17_v4 periodic trigpts tuple API failure; source adapter corrected before passingv5.",
+    "native_times9_v6 at3GiB capped after8; distinct explicitly authorized6GiB completion passed; no memory-fix claim.",
+    "reductions24_v7 provenance preflight rejected stale launcher v6 origin before tests; corrected launch-only v7b, all prior bytes preserved."
+  ],
+  "remaining_limits": [
+    "Full native HOSVD algorithm parity remains unqualified; existing norm and unrelated compression helpers are inherited.",
+    "Complex real/imag component construction and matrix/unstructured evaluation remain scoped adapters, not full native constructor/feval parity.",
+    "No global JAX purity claim: inherited constructor/evaluation host paths remain.",
+    "No MATLAB bitwise capture, full Chebfun3 suite or matched performance claim."
+  ],
+  "execution_deviations": [
+    "Eight repeatedArithmetic clauses executed in serial fresh processes, original iteration counts and numerical predicates preserved; differs from single MATLAB script cache lifetime",
+    "CPU-only; no remote CI or aggregate coverage qualification",
+    "Timings descriptive from concurrent workload, not matched MATLAB speed measurements"
+  ]
+}

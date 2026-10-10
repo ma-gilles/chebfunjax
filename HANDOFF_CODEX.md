@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebfun3 active arithmetic integrated (2026-10-10; latest)
+
+Addition now follows native condition-scaled adaptive resampling; power
+follows native empty/type/sign dispatch. Empty ACA pivots and Cartesian
+callback handling are corrected. All78 merged cases across12 gates passed,
+including all nine native multiplication cases and all eight original
+repeatedArithmetic clauses. Root independently reviewed every gate and
+verified the seven integrated files against the qualified snapshot. Current
+sum/sum2/sequential sum3 methods are retained unchanged. Evidence:
+docs/chebfun3_active_arithmetic_cpu_20261010.json. Repeated clauses used
+separate processes; original loop counts and tolerances remain. Full native
+constructor/HOSVD/evaluation parity, inherited host paths, broader tests,
+performance comparison and remote CI remain unresolved.
+
 ## Native test expectations corrected (2026-10-10; latest)
 
 Two broad-run failures were obsolete test expectations, confirmed against

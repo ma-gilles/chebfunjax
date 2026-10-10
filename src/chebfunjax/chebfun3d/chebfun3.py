@@ -142,6 +142,9 @@ def _aca(
     col_idx = []
 
     for _ in range(max_iter):
+        # Native ACA: isempty(error) returns empty pivot index sets.
+        if A.size == 0:
+            break
         flat = int(np.argmax(np.abs(A)))
         err = np.abs(A.flat[flat])
         if err < tol:
@@ -153,11 +156,6 @@ def _aca(
         # Rank-1 update
         piv = A[i, j]
         A = A - np.outer(A[:, j], A[i, :]) / piv
-
-    if len(row_idx) == 0:
-        # Zero matrix
-        row_idx = [0]
-        col_idx = [0]
 
     row_idx = np.array(row_idx, dtype=int)
     col_idx = np.array(col_idx, dtype=int)
@@ -413,6 +411,10 @@ def _eval_tensor(
     yj = y_pts[J]
     zk = z_pts[K]
     # Build ndgrid-style meshgrid (indexing='ij')
+    # Native evalTensor skips the callback for an empty Cartesian product.
+    # Preserve its downstream tensor shape in the Python representation.
+    if len(I) == 0 or len(J) == 0 or len(K) == 0:
+        return jnp.empty((len(I), len(J), len(K)), dtype=jnp.float64)
     xx, yy, zz = np.meshgrid(xi, yj, zk, indexing='ij')
     xx_j = jnp.asarray(xx, dtype=jnp.float64)
     yy_j = jnp.asarray(yy, dtype=jnp.float64)
@@ -660,7 +662,9 @@ class Chebfun3(eqx.Module):
                 lambda x, y, z: jnp.real(f(x, y, z)), **kw)
             fim = cls.from_function(
                 lambda x, y, z: jnp.imag(f(x, y, z)), **kw)
-            return fre + fim * 1j
+            from chebfunjax.chebfun3d._plus import _assemble_components
+
+            return _assemble_components(fre, fim * 1j)
 
         # ----------------------------------------------------------------
         # Helper: sample f on full tensor grid (n1 x n2 x n3)
@@ -682,6 +686,9 @@ class Chebfun3(eqx.Module):
         def _get_abs_tol(M: np.ndarray, dom_diff: float, old_tol: float) -> float:
             """Compute absolute tolerance matching MATLAB's getTol."""
             n = M.shape[0]
+            # Native max([[], tolOld, pseudoLevel]) for empty fibers.
+            if M.size == 0:
+                return float(jnp.fmax(old_tol, tol))
             rel_tol = 2.0 * n ** (4.0 / 5.0) * tol
             vscale = float(np.max(np.abs(M))) if M.size > 0 else 0.0
             if n > 1:
@@ -693,7 +700,8 @@ class Chebfun3(eqx.Module):
             else:
                 grad_norms = 0.0
             abs_t = max(dom_diff * grad_norms, vscale) * rel_tol
-            abs_t = max(abs_t, old_tol, tol)
+            # MATLAB max omits NaNs: exact cancellation can form 0*Inf.
+            abs_t = float(jnp.fmax(jnp.fmax(abs_t, old_tol), tol))
             return abs_t
 
         # ================================================================
@@ -2302,41 +2310,16 @@ class Chebfun3(eqx.Module):
                         domain=self.domain)
 
     def __add__(self, other) -> "Chebfun3":
-        """f + g: exact block-diagonal Tucker embedding, then compression.
-
-        The embedding is exact; the truncated-HOSVD compression then
-        restores the minimal Tucker rank (so ``rank(f+f)`` stays
-        ``rank(f)`` instead of doubling), which is what MATLAB's
-        constructor-based ``@chebfun3/plus.m`` achieves.  A previous
-        version re-approximated the sum through the full adaptive
-        constructor instead -- semantically the MATLAB path, but it made
-        EVERY addition cost a 3D adaptive construction and hung the abs/
-        compose chains for ~30 minutes on CI.
+        """Native active addition: condition-scaled adaptive resampling.
 
         Provenance
         ----------
         MATLAB source : @chebfun3/plus.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, Chebfun3):
-            self._check_same_domain(other)
-            r1 = self.core.shape
-            r2 = other.core.shape
-            dt = jnp.result_type(self.core.dtype, other.core.dtype)
-            core = jnp.zeros((r1[0] + r2[0], r1[1] + r2[1],
-                              r1[2] + r2[2]), dtype=dt)
-            core = core.at[:r1[0], :r1[1], :r1[2]].set(self.core)
-            core = core.at[r1[0]:, r1[1]:, r1[2]:].set(other.core)
-            out = Chebfun3(
-                cols=list(self.cols) + list(other.cols),
-                rows=list(self.rows) + list(other.rows),
-                tubes=list(self.tubes) + list(other.tubes),
-                core=core,
-                domain=self.domain)
-            return out._compress()
-        if isinstance(other, (int, float, complex)):
-            return self + self._const_like(other)
-        return NotImplemented
+        from chebfunjax.chebfun3d._plus import source_plus
+
+        return source_plus(self, other)
 
     __radd__ = __add__
 
@@ -3275,23 +3258,28 @@ class Chebfun3(eqx.Module):
         return chebfun2(_integrand, domain=sdom).sum2()
 
     def __rpow__(self, base):
-        """Propagate an empty function exponent; nonempty support is pending.
+        """Scalar-to-function power with native empty and input dispatch.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/power.m (first empty-operand branch)
+        MATLAB source : @chebfun3/power.m
         Chebfun commit: 7574c77
-
-        This adapter does not implement native scalar-to-nonempty-function
-        power; returning NotImplemented retains Python's unsupported result.
         """
-        if self.isempty():
-            return Chebfun3.empty()
-        return NotImplemented
+        from chebfunjax.chebfun3d._power import source_power
+
+        return source_power(base, self)
 
     def __pow__(self, p) -> "Chebfun3":
-        return Chebfun3.from_function(
-            lambda x, y, z: self(x, y, z) ** p, domain=self.domain)
+        """Function-to-scalar/function power through native source dispatch.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/power.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun3d._power import source_power
+
+        return source_power(self, p)
 
     # ------------------------------------------------------------------
     # Plotting
