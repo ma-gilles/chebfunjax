@@ -1,0 +1,199 @@
+{
+  "scope": "Native AAAtrig degree/mmax/Lawson options and two-sample correction",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_review": {
+    "native_sha256": "d94d34923d2917af51f5add8a68374cb124664367b8f2024cda7aeae01450297",
+    "protected_module_AST_identical": true,
+    "base": "d674129e",
+    "source_map": {
+      "parse": "aaatrig.m340,370-397,469-470; explicitmmax/degree enablesadaptiveLawson; consistencyerror retained",
+      "two_samples": "aaatrig.m224-231 normalizedantisymmetricweights/errvec2zero",
+      "lawson": "aaatrig.m234-291 interleavedCauchy/Loewner,supportrows,orderednum/denom,JAXSVD,reweighting,adaptive20to1000steps androllback",
+      "cleanup": "aaatrig.m303 onlynlawson0"
+    },
+    "JAX_only_new_arithmetic": true,
+    "native_tests_restored": "9and18-23bothforms;13cases includingfiniteiteration/optioncontrols;28priorcases",
+    "limitations": [
+      "Greedy support selection and generalized eigenproblem remain inherited NumPy/SciPy.",
+      "Infinity-sample constraints and accompanying Lawson warning remain unported.",
+      "AutoZ/string inputs and source RNG fixture remain open.",
+      "New SVD arithmetic uses JAX; MATLAB bitwiseidentity not asserted.",
+      "Full native23predicates and wholecurrentCI unresolved."
+    ]
+  },
+  "independent_source_review": {
+    "scope": "Read-only source review of the frozen AAAtrig Lawson/degree candidate; no numerical run",
+    "candidate_base": "d674129e",
+    "candidate_aaa_sha256": "07aa2ad60ad777c840769a2ebcacd00d7e5e65739fb25d6d70eb869bbf1e1779",
+    "candidate_test_sha256": "fb8ad393ec8c1f778c5bc9b923e61b54bc58de3ff13f06fa35fd52acb4da77d2",
+    "native_aaatrig_sha256": "d94d34923d2917af51f5add8a68374cb124664367b8f2024cda7aeae01450297",
+    "reviewed_native_source": "aaatrig.m lines 224-231, 234-291, 303, 340, 370-397, 469-470",
+    "review_findings": {
+      "confirmed_mismatches": [],
+      "rejected_initial_concern": {
+        "topic": "economy SVD shape for wide Lawson matrix",
+        "resolution": "Candidate uses full JAX SVD when rows < columns and selects vh[-1].conj(). MATLAB svd(A,0) is documented to equal full SVD for m<=n, so this matches V(:,end). Candidate uses reduced SVD for tall matrices, selecting the last right singular vector there as well.",
+        "reference": "https://www.mathworks.com/help/matlab/ref/double.svd.html (svd(A,0) versus svd(A,\"econ\"), lines 53-56; independently supplied by root reviewer)"
+      },
+      "coverage_recommendation": "Add a focused wide-matrix Lawson control with M < 2*n_support to protect the full-SVD behavior; current candidate controls use enough samples that this branch is not covered.",
+      "native_match_checks": [
+        "Cauchy/value columns are interleaved as native A=[A cst, F.*cst].",
+        "Support rows are zeroed and restored with alternating 2 and 2*F entries.",
+        "The numerator and denominator use the native ordered j accumulation and signs.",
+        "Weights start at ones, update as wt.*abs(error), and normalize by infinity norm.",
+        "Adaptive Lawson runs at least 20 and at most 1000 steps, continuing while maxerr/maxerrold < .999.",
+        "Rollback applies only to adaptive Lawson when final error exceeds pre-Lawson error.",
+        "Explicit degree or mmax enables adaptive Lawson unless lawson=0; degree/mmax consistency is checked.",
+        "Two-sample correction restores both support values, antisymmetric normalized weights, zero second error, and zero baseline error before Lawson.",
+        "Cleanup is run only when cleanup is enabled and nlawson equals zero."
+      ],
+      "documented_scope_limits": [
+        "Greedy support selection and pole/zero generalized eigenproblem remain NumPy/SciPy inherited paths.",
+        "Infinity-sample constraints and warning behavior, AutoZ/string inputs, source RNG fixture, and complete native predicate coverage remain outside this candidate scope.",
+        "No bitwise MATLAB identity claim is made for JAX SVD arithmetic."
+      ]
+    },
+    "candidate_and_root_review_inputs_unchanged": true,
+    "qualification_status": "Source review only; candidate remains unlaunched and unmodified."
+  },
+  "wide_SVD_semantics": {
+    "documentation": "https://www.mathworks.com/help/matlab/ref/double.svd.html",
+    "finding": "The zero argument differs from econ: at rows<=columns it requests full SVD. Native V(:,end) therefore selects a nullspace vector when the matrix is wide. Candidate keeps fullV in that case.",
+    "review_correction": "Independent reviewer retracted initial econ-based objection after checking primary documentation.",
+    "control": "3x4literal Lawson matrix has analytical nullspace span[4,-2,-5,1]; reducedV omits required direction.",
+    "production_change_required": false
+  },
+  "runtime_reviews": {
+    "baseline_expected_failure": {
+      "reviewer": "/root",
+      "scope": "Preserved native Lawson/degree API baseline expected failure",
+      "gates": [
+        {
+          "gate": "aaatrig_lawson_source_20261010/baseline_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_lawson_source_20261010/baseline_v1/supervision/receipt.json",
+          "receipt_sha256": "1ccbeffd50934cc92ae3384bd22f3a007d7a86df8b53fe8fc86719c60e368d72",
+          "runtime_manifest_sha256": "4934ccb7c73f5ead2b752eb9225aebef638a5bb3bca48e9634b5d1926807654c",
+          "runtime_end_sha256": "ede0c248a10d202cf314dfaabaa241ed39ea16f39bad4490571ee1fcc4a7a8e5",
+          "observed_files_rehashed": 2944,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 538048,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "preserved_outcome": [
+            {
+              "name": "test_native_degree_alias_21_to_23[odd]",
+              "failures": [
+                "tests/test_utils/test_aaatrig_lawson_source.py:16: in test_native_degree_alias_21_to_23\n    r, poles, *_ = module.aaatrig(f, z, form=form, degree=3)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: aaatrig() got an unexpected keyword argument 'degree'"
+              ]
+            }
+          ],
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "candidate41": {
+      "reviewer": "/root",
+      "scope": "AAAtrig infinity mapping/cancellation candidate twenty cases",
+      "gates": [
+        {
+          "gate": "aaatrig_lawson_source_20261010/candidate_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_lawson_source_20261010/candidate_v1/supervision/receipt.json",
+          "receipt_sha256": "efcdd0ca9736e8f65f9af049647b50e14fc7c39de744c490f021da0b5d39341f",
+          "runtime_manifest_sha256": "4d4d0d76e6d80cb95356894eb57433d2aa8e089fbd3cb6dbd350fcbf6ece1a6e",
+          "runtime_end_sha256": "6450e93008691c863324543383849e5e96f1fac4e4d7f59856b51552dbadf790",
+          "observed_files_rehashed": 2945,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 2992868,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 41,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "wide1": {
+      "reviewer": "/root",
+      "scope": "AAAtrig infinity mapping/cancellation candidate twenty cases",
+      "gates": [
+        {
+          "gate": "aaatrig_lawson_source_20261010/wide_shape_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_lawson_source_20261010/wide_shape_v1/supervision/receipt.json",
+          "receipt_sha256": "24e8477601137acebac6911118c0382c86d17b5a038f5026ebdc7543b4a39cb6",
+          "runtime_manifest_sha256": "018ba17b24b5f26ac9c4b122d707dca041cd4bbc08ce740f3e7fe1b717d010d1",
+          "runtime_end_sha256": "7445e93e75eb5f7cedae5c28fcb1daf2a52526f89280d028c03dc10f1da8bb4e",
+          "observed_files_rehashed": 2933,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 584992,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "cases_passed": 42,
+  "native_predicates_restored": [
+    "9",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23"
+  ],
+  "protected_module_AST_identical": true,
+  "integrated_sha256": {
+    "src/chebfunjax/utils/aaa.py": "07aa2ad60ad777c840769a2ebcacd00d7e5e65739fb25d6d70eb869bbf1e1779",
+    "tests/test_utils/test_aaatrig_lawson_source.py": "fb8ad393ec8c1f778c5bc9b923e61b54bc58de3ff13f06fa35fd52acb4da77d2",
+    "tests/test_utils/test_aaatrig_lawson_wide_source.py": "ea882205ddbeb00b452cb7f94b652e0741f4a1e183bff1f3229d3a8902bd1c2a"
+  },
+  "qualification_note": "Independent source review preceded terminal runs; subsequent root audits qualify41+1cases on unchanged production bytes.",
+  "full_goal_complete": false
+}

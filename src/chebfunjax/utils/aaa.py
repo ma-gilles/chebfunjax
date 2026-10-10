@@ -998,7 +998,9 @@ def aaatrig(
     Z: jnp.ndarray,
     *,
     tol: float = 1e-13,
-    mmax: int = 100,
+    mmax: int | None = None,
+    degree: int | None = None,
+    lawson: int | float | None = None,
     form: str = "odd",
     cleanup: bool = True,
     cleanup_tol: float | None = None,
@@ -1031,8 +1033,13 @@ def aaatrig(
         Sample points (real, typically in [0, 2*pi]).
     tol : float, optional
         Relative tolerance (default 1e-13).
-    mmax : int, optional
-        Maximum number of support points (default 100).
+    mmax : int or None, optional
+        Maximum support count (default 100). Explicit mmax enables adaptive
+        Lawson iteration unless lawson=0.
+    degree : int or None, optional
+        Equivalent to mmax=degree+1; both options must agree.
+    lawson : int, float or None, optional
+        IRLS step count; omitted/Inf adapts when degree or mmax is supplied.
     form : {'odd', 'even'}, optional
         Trigonometric basis type.  'odd' uses csc; 'even' uses cot.
     cleanup : bool, optional
@@ -1079,6 +1086,16 @@ def aaatrig(
     --------
     aaa
     """
+    mmax_given = mmax is not None or degree is not None
+    if degree is not None:
+        if mmax is not None and mmax != degree+1:
+            raise ValueError('CHEBFUN:aaatrig:degmmaxmismatch: mmax must equal degree+1.')
+        mmax = degree+1
+    mmax = 100 if mmax is None else int(mmax)
+    nlawson = float('inf') if lawson is None else float(lawson)
+    if not mmax_given and nlawson == float('inf'):
+        nlawson = 0.
+
     Z_in = jnp.asarray(Z, dtype=jnp.complex128).ravel()
     M = Z_in.shape[0]
 
@@ -1171,6 +1188,21 @@ def aaatrig(
         if maxerr <= reltol:
             break
 
+    maxerr_aaa = float(maxerr)
+    # Native two-sample interpolation correction, aaatrig.m224-231.
+    if M == 2:
+        zj, fj = jnp.asarray(Z_np), jnp.asarray(F_np)
+        wj = jnp.array([1., -1.])/jnp.sqrt(2.)
+        if len(errvec) < 2:
+            errvec.append(0.)
+        else:
+            errvec[1] = 0.
+        maxerr_aaa = 0.
+    if nlawson > 0:
+        fj, wj = _trig_lawson_source(zj, fj, wj, Z_np, F_np,
+                                    nlawson, maxerr_aaa, form)
+        zj = jnp.asarray(zj)
+
     # Remove zero-weight support points
     nonzero = wj != 0
     zj = zj[nonzero]
@@ -1185,7 +1217,7 @@ def aaatrig(
     pol, res, zer = _prztrig_np(zj, fj, wj, form)
 
     # Cleanup
-    if cleanup:
+    if cleanup and nlawson == 0:
         zj_jnp, fj_jnp, wj_jnp = _cleanup_trig(
             zj_jnp, fj_jnp, wj_jnp,
             jnp.array(Z_np), jnp.array(F_np),
@@ -1202,6 +1234,61 @@ def aaatrig(
     r = _make_trig_callable(zj_jnp, fj_jnp, wj_jnp, form)
 
     return r, pol_jnp, res_jnp, zer_jnp, zj_jnp, fj_jnp, wj_jnp, errvec
+
+
+@jax.jit
+def _trig_lawson_step_source(matrix, cauchy, values, supports, weights):
+    """One literal AAAtrig IRLS step (aaatrig.m264-282,7574c77)."""
+    weighted = jnp.sqrt(weights)[:, None]*matrix
+    # MATLAB svd(A,0) retains square V when A has fewer rows than columns.
+    _, _, vh = jnp.linalg.svd(weighted, full_matrices=weighted.shape[0] < weighted.shape[1])
+    coefficients = vh[-1].conj()
+
+    def accumulate(j, state):
+        denominator, numerator = state
+        denominator = denominator+coefficients[2*j+1]*cauchy[:, j]
+        numerator = numerator-coefficients[2*j]*cauchy[:, j]
+        return denominator, numerator
+
+    denominator, numerator = jax.lax.fori_loop(
+        0, cauchy.shape[1], accumulate,
+        (jnp.zeros_like(values), jnp.zeros_like(values)))
+    result = numerator/denominator
+    result = result.at[supports].set(-coefficients[::2]/coefficients[1::2])
+    error = jnp.abs(values-result)
+    next_weights = weights*error
+    next_weights = next_weights/jnp.linalg.norm(next_weights, ord=jnp.inf)
+    return coefficients, next_weights, jnp.max(error)
+
+
+def _trig_lawson_source(zj, fj, wj, samples, values, nlawson, maxerr_aaa, form):
+    """Native AAAtrig Lawson iteration and adaptive rollback,7574c77."""
+    zj, fj, wj = jnp.asarray(zj), jnp.asarray(fj), jnp.asarray(wj)
+    samples, values = jnp.asarray(samples), jnp.asarray(values)
+    delta = (samples[:, None]-zj[None, :])/2
+    cauchy = 1/jnp.tan(delta) if form == 'even' else 1/jnp.sin(delta)
+    matrix = jnp.stack((cauchy, values[:, None]*cauchy), axis=2).reshape((len(samples), -1))
+    supports = jnp.argmax(samples[:, None] == zj[None, :], axis=0)
+    matrix = matrix.at[supports, :].set(0)
+    columns = jnp.arange(len(zj))
+    matrix = matrix.at[supports, 2*columns].set(2)
+    matrix = matrix.at[supports, 2*columns+1].set(2*values[supports])
+    next_weights = jnp.ones(len(samples))
+    maxerr = maxerrold = float(maxerr_aaa)
+    stepno = 0
+    adaptive = nlawson == float('inf')
+    while ((not adaptive and stepno < nlawson)
+           or (adaptive and stepno < 20)
+           or (adaptive and float(jnp.divide(maxerr, maxerrold)) < .999 and stepno < 1000)):
+        stepno += 1
+        coefficients, next_weights, error = _trig_lawson_step_source(
+            matrix, cauchy, values, supports, next_weights)
+        maxerrold, maxerr = maxerr, float(error)
+    weights = coefficients[1::2]
+    values_at_support = -coefficients[::2]/weights
+    if adaptive and maxerr > maxerr_aaa:
+        return fj, wj
+    return values_at_support, weights
 
 
 def _make_trig_callable(

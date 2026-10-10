@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native AAAtrig degree and Lawson options restored (2026-10-10; latest)
+
+Explicit degree or mmax now enables native adaptive Lawson iteration, unless
+lawson=0. JAX IRLS preserves source support rows, ordered sums, iteration
+limits and rollback. Native two-sample antisymmetric weights remove the old
+spurious midpoint pole. All 42 CPU cases passed, including original predicates
+9 and 18-23 in both forms, finite-step/option controls, a wide-matrix nullspace
+control and 28 prior cases. Root audited both successful gates and the missing-
+option baseline failure; independent source review confirmed the SVD shape
+semantics. Evidence: docs/aaatrig_lawson_cpu_20261010.json. Infinity-sample
+constraints, AutoZ/string inputs, native RNG fixture, inherited host greedy/
+eigenproblem paths, full native tests and current-head CI remain open.
+
 ## Native AAAtrig evaluation at imaginary infinity restored (2026-10-10; latest)
 
 Both trigonometric bases now return the native analytic limits at positive
