@@ -1,0 +1,78 @@
+{
+  "base": "96ba8d6448791625a0ca1bcfecab141e99ddb9b7",
+  "scope": "Public JAX native-stage jac2jac dispatch and native Chebtech1 FFT in direct jac2cheb; restore all7original fractional predicates",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_qualification": {
+    "passed": 70,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_fft_public_jacobi_root_20261010/receipt.json",
+    "sha256": "2f61168a7ce2d9f3b6cc1d46e328281e6a8185e62f8e3c969266a9cb901d2888",
+    "wall_seconds": 64.90882002096623,
+    "peak_child_rss_kib": 1318596,
+    "CPU": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "hashes_stable": true,
+    "limits": "Focused180s CPU gate; measuredRSS/noRSS cap/no observedruntime import audit."
+  },
+  "deliveries": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_sequential_diagnosis_20261010/FFT_DELIVERY.json",
+      "sha256": "6e1a42d14de7dbb2232fb352486a5c771c8f5675b1e6270ba64e79b95ebd2a8e",
+      "bindings": 33,
+      "observed_runtime_files": 2973,
+      "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_fft_delivery_root_review_20261010.json"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_conversion_source_20261010/PUBLIC_JAC2JAC_DELIVERY.json",
+      "sha256": "8038c1a64230b1a6a0383c5089cccf5e9d4b21d8b714301fb23684a291b8b79b",
+      "guarded_files": 7,
+      "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_jac2jac_root_review_20261010.json",
+      "scope": "13passed guard-only source/test qualification"
+    }
+  ],
+  "causal_observations": {
+    "original_errors": {
+      "integral": 5.347692400015092e-09,
+      "derivative": 1.8057020556572212e-07
+    },
+    "beta_only_errors": {
+      "integral": 6.106226635438361e-15,
+      "derivative": 3.9968028886505635e-13
+    },
+    "beta_plus_sourceFFT_errors": {
+      "integral": 3.3306690738754696e-15,
+      "derivative": 5.839773109528323e-14
+    },
+    "native_bounds": {
+      "integral": 1.2419818231085252e-14,
+      "derivative": 9.865181867312791e-14
+    },
+    "scope": "Errors captured in distinct external attribution gate; production12case gate independently passes literal original assertions."
+  },
+  "ast_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_fft_public_jacobi_root_20261010/ast_review.json",
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_fft_public_jacobi_root_20261010/static.json",
+    "sha256": "1a4a4d91d9722efcb7b3b7ff6fa96e5bcb25cc48b0e37766859b61d704022c07",
+    "passed": true
+  },
+  "remaining": [
+    "Native fractional test uses documented Python entry adapters for diff(f,q,type) and cheb2quasi; thirdargument API restoration pending.",
+    "Existing public fractional transpose tests preserve current Python behavior; source-only row audit identifies native differences in derivative rescaling, warnings and storedendpoint overrides; diff repair agent owns correction.",
+    "Full native jac2jac625parameter+3largecases sweep remains pending; reduced sweep passed only.",
+    "Native RNG fixtures still unmatched; large-N speed and current-head CI unverified."
+  ],
+  "row_source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_row_fractional_source_review_20261010.json",
+  "payload_sha256": {
+    "src/chebfunjax/utils/transforms.py": "33726606cee8ea8be4651df0db7bed7cabeade8da6f2f4e5763516459bacc44a",
+    "tests/test_matlab_port/chebfun/test_fracCalc_native_source.py": "8939d4cfbfbcb6d0682edef59cfb0724c4c7a0b6e104b18926ad36e3018c3775",
+    "tests/test_tech/test_jac2cheb_fft_source.py": "19a6581d689188f90f3a812d08e05ba08a402eb28595ca7dc88c1bf10998b03f",
+    "tests/test_matlab_port/misc/test_jac2jac_source_route.py": "3bd10d6474cd9021488e12db579d4de17b27a06cb8f3a5606816505394dd6a06"
+  }
+}

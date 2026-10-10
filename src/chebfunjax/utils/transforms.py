@@ -792,7 +792,9 @@ def _jac2cheb_direct(c_jac: jnp.ndarray, a: float, b: float) -> jnp.ndarray:
     v_cheb = P @ c_jac
 
     # Convert values at 1st-kind Chebyshev points to Chebyshev coefficients
-    c_cheb = _vals2coeffs_kind1(v_cheb)
+    from chebfunjax.tech.chebtech import Chebtech1
+
+    c_cheb = Chebtech1.vals2coeffs(v_cheb)
 
     return c_cheb
 
@@ -1452,10 +1454,7 @@ def jac2jac(
     --------
     cheb2jac, jac2cheb, ultra2ultra
     """
-    # Work in numpy (iterative algorithm, data-dependent branching)
-    v = np.array(c_jac, dtype=np.float64)
-    v = _jac2jac_np(v, alpha, beta, gam, delta)
-    return jnp.array(v)
+    return _jac2jac_source(c_jac, alpha, beta, gam, delta)
 
 
 def _jac2jac_source(

@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Original fractional predicates and public Jacobi route pass (2026-10-10; latest)
+
+Direct jac2cheb now uses native Chebtech1 FFT coefficients; with corrected beta,
+all seven original fractional predicates pass unchanged bounds. Public jac2jac
+now dispatches to the JAX source stages and preserves complex/matrix inputs.
+Root70 combined cases pass; static checks pass; only those two transform
+functions changed. Evidence: docs/fractional_fft_public_jacobi_cpu_20261010.json.
+Full625+3 native Jacobi sweep and diff thirdargument dispatch are underway.
+Source review found that existing Python fractional row assertions differ from
+native row warning/rescaling/storedendpoint behavior; diff repair owns that gap.
+No full fractional/public-API or current-head CI parity claim.
+
+
 ## Fractional beta scaling corrected (2026-10-10; latest)
 
 Installed JAX0.11 beta uses the wrong geometric ratio in its algdiv remainder.
