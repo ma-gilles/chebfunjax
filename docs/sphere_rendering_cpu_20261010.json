@@ -1,0 +1,348 @@
+{
+  "scope": "Default Sphere surface interpolated colors/source camera and complete SphereHeat figures; nativeGaussianRNG and completepixelparity unresolved",
+  "delivery": {
+    "root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/delivery_v3",
+    "files": {
+      "page_stdout.txt": "a0a974eab7d839c4fab8136dd4eb8d4bddf588dc70f9cd80cd33f967791762b4",
+      "tests/test_matlab_axes_layout.py": "4a5f53e405fe6a5e3e5403f33680c3981fca4a37c58db1f4f89709c8d157183f",
+      "tests/test_sphere_surface_source.py": "5de9b550838a94a9073acaa8a84732524e75429cf181087ad8599da47c66e8d6",
+      "tests/test_sphere_scalar_mappable.py": "2d6410e9d84c947274648ff5e5c732cd2f5a186fe955f7710b235ad14895f29a",
+      "tests/test_sphere_explicit_camera_source.py": "5b96b51b8920cb5fc4c6ec75cfe57e3a0f32168aa5b876fc465e39de3ecfe339",
+      "docs/images/sphere/SphereHeatConduction_02.png": "633415f6203e0b3d8b2ae78723b4d803be0a28f6e38bd9a7a3a97ec79fa2ac28",
+      "docs/images/sphere/SphereHeatConduction_03.png": "fde0754e21bdab028158f5afadf8dce4b926c328bac8802946ab23f972ff31e5",
+      "docs/images/sphere/SphereHeatConduction_08.png": "78ab0d4285b49ce15197f1eb2e80aec177fcdb0d33e26c20fff882a06b123cf9",
+      "docs/images/sphere/SphereHeatConduction_01.png": "230f04b343a0e5e16a7f15490ca44cb6e56b9959f34d69cb02d7ea4d579d2064",
+      "docs/images/sphere/SphereHeatConduction_05.png": "72d953c55307c2af774da419a59580bf4bb552b79b941a8bdc6eb6a4ccd083fe",
+      "docs/images/sphere/SphereHeatConduction_07.png": "2b32cfd1dd74c9b4f12e0c15065ae275a4562581acc18781125602b749d81335",
+      "docs/images/sphere/SphereHeatConduction_04.png": "ebbb3bb5178bfadf44051d5b0d67f4e415939902979bb1942ae1151f9464d620",
+      "docs/images/sphere/SphereHeatConduction_06.png": "78548675887bdc16ba2a540bf2b2d339b5a410b973e08d1327b8d6276ef04491",
+      "docs/images/sphere/SphereHeatConduction_09.png": "813d016193ba50167f6922d2c2d01d84ac1413691c674a9e14a6515d89babfff",
+      "docs/images/sphere/SphereHeatConduction_10.png": "d3374ecc9d8e17c82bf1edeaf408e186d86ec127d846c7dad2b8670d32444f71",
+      "examples/sphere/sphereheatconduction.py": "b489601780e8c451fbd69e4e9f4cd09ef2cae3f98bb9f7e326873e03e138c151",
+      "src/chebfunjax/plotting.py": "49f086050e05ef2b3f35e1afdce05c3eef507d3d761ac3ef714b78860dcae495",
+      "src/chebfunjax/_sphere_surface.py": "9ee99124435520af8e30abe91fd8dbc39171bd74992a4fb056ae7fa907452da1"
+    },
+    "production_source": "Exact Ufullpage snapshotbytes",
+    "tests_source": "Exact Xportable7 snapshotbytes;3 updatedobserverfiles qualifiedW52,all7portablecontrols Xpassed",
+    "reference_presentation": "Explicit measured websitegeometry with2px Aggfootprintallowance/.5pxcenter offset; not nativeHG2algorithm.",
+    "visualreview": "All10actualPNGs/contact inspected;8titles visiblecorrecttimes; harmonicorientation/smoothcolor/referencegeometry corrected;blueGaussianmeancontours.",
+    "limitations": [
+      "GaussianMATLABseed10captureunmatched",
+      "Historical3GiBGaussiancomparisonFAILED persists",
+      "Explicitcustomkwargs retain inheritedflatcolors",
+      "Triangle/Aggnativepixelidentitynotclaimed",
+      "No matchedperformanceclaim"
+    ],
+    "artifacts": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Ufullpage_v3_AUDIT_v2.json": "7112cdf74ee557f6a55be82d64d708ac7753e935e1d5c8a5a5802d2653ba3ed4",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/FULLPAGE_VALUES_v3.json": "571c76f68da56d78033a2991bbe93c3fe3f0be0e0d481b65b987f1b689869657",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/FULLPAGE_CONTACT_v3.png": "25349f39219120a4942c54be06790d9a26251070a62f839e64bb39fd9f30fbc8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Wregression_v5_AUDIT_v2.json": "8017cd88c6a180b7e3a5fd5208f0f1c05759a8eb772c44319834519765147540",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/PORTABLE_CONTROLS_SOURCE_v4.json": "c7c9244a1ca09482f5dfe58599d673d2277987d9066bf139f82b908bc360a7be",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/integration_v3.patch": "e61844defff5ec094be7619b1ed7d593586c82995a5ae283294ac077111cdc86",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4_AUDIT_v2.json": "1ec8ea3d15303834b099a8bb532d3c6fa01ed4017056c4febd2c3dca0b3b1dff"
+    },
+    "portable_audit": {
+      "gate": "Xportable7_v4",
+      "faults": [],
+      "observed_rehash_count": 2982,
+      "mismatches": [],
+      "wrong_origins": {},
+      "junit_count": 7,
+      "terminal": 0,
+      "supervisor_exit": 0,
+      "censored_limit": null,
+      "peak_kib": 988416,
+      "wall_seconds": 93.83936491701752,
+      "stable": true,
+      "survivors": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/plan.json": "7aa93eb9f25eaa9c2e09b9662e2238db5dbd2866e837f68483bd311b16c137a4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/guard.json": "1965adebc08225d600fdc5dddf99deca83fb0701f15ff7837d605cba09dd457c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/manifest.json": "2ceb52c61fe1c72b147cfe8cd8eb54f2bc63398340ada9e3ef2639195415f01f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/static.json": "57f3a2e13abbad85f19fa44c469ba6a2a2ea52b5bd0a29b8fad457802efcd197",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/supervision/receipt.json": "0160a187818db59fa684b2087e6bd378fd6b6c57bce3f5a4af85278e719cbc1b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/runtime/end.json": "5f854ebf6ae091bb869d2dbe28dc5e6ee71b3ea80e1a7ecf3749f6bca0daace0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/runtime/start.json": "fdff6549fa1c02d251767e535a01e3a00153aaeeaae3b215179fdab33b3c0d87",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/junit.xml": "e538e048883f5f2c6d450db80c264ff142bf7f2a890ca3c8913e8931d090c421"
+      }
+    },
+    "status": "READY root integration; all owned processes terminal/audited, no publication edits"
+  },
+  "root_runtime_reviews": {
+    "fullpage": {
+      "reviewer": "/root",
+      "scope": "Sphere fullpage rendering completion200solves10figures; MATLABrng remains unmatched",
+      "gates": [
+        {
+          "gate": "Ufullpage_v3",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Ufullpage_v3/supervision/receipt.json",
+          "receipt_sha256": "7d0e16e8c84090eca3717b3cc2989e391c713ab4e1410abe4f8a9c77cb9f00e4",
+          "runtime_manifest_sha256": "a7669198da3ab4e406992af43fde20eb3c42a52aa08c7730c56faaba7fce3afb",
+          "runtime_end_sha256": "13bcaeb85ebfd7adcc7b2e631e3aecec35f051dfdc76a9c42817c660ff49d176",
+          "observed_files_rehashed": 2978,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 67,
+          "wrong_library_origins": {},
+          "native_loaded_files": 241,
+          "before_after_identical": true,
+          "peak_kib": 4125876,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "regressions52": {
+      "reviewer": "/root",
+      "scope": "Sphere52 regression with independentRGBA and actualnonemptygeometryinvariance",
+      "gates": [
+        {
+          "gate": "Wregression_v5",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Wregression_v5/supervision/receipt.json",
+          "receipt_sha256": "245a42aaafb19174f76f7956e7f5d4ff3411ad5ff905aec6e0b7d8fafec79b4a",
+          "runtime_manifest_sha256": "5e0c18503f8d1080d8ae7e877d199773672f6470fcb7258a8731e1f3be49addf",
+          "runtime_end_sha256": "61533eda1feb50b449d12f07713c32079eb004ec089a160b48b76cc6261ffad4",
+          "observed_files_rehashed": 3037,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 58,
+          "wrong_library_origins": {},
+          "native_loaded_files": 244,
+          "before_after_identical": true,
+          "peak_kib": 938020,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 52,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "portable7": {
+      "reviewer": "/root",
+      "scope": "Sphere renderer seven repository portablecontrols qualified; fullMATLABparity unresolved",
+      "gates": [
+        {
+          "gate": "Xportable7_v4",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/Xportable7_v4/supervision/receipt.json",
+          "receipt_sha256": "0160a187818db59fa684b2087e6bd378fd6b6c57bce3f5a4af85278e719cbc1b",
+          "runtime_manifest_sha256": "2ceb52c61fe1c72b147cfe8cd8eb54f2bc63398340ada9e3ef2639195415f01f",
+          "runtime_end_sha256": "5f854ebf6ae091bb869d2dbe28dc5e6ee71b3ea80e1a7ecf3749f6bca0daace0",
+          "observed_files_rehashed": 2982,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 59,
+          "wrong_library_origins": {},
+          "native_loaded_files": 241,
+          "before_after_identical": true,
+          "peak_kib": 988416,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 7,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "presentation2": {
+      "reviewer": "/root",
+      "scope": "Sphere final presentation2 controls percentg ticks measuredgeometry; fullpageparity unresolved",
+      "gates": [
+        {
+          "gate": "S2renderer_v3",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/S2renderer_v3/supervision/receipt.json",
+          "receipt_sha256": "5b29e462ca7344ed94e6a1bde331f3cb2b810bc9e0716dd5cce3a9c21b486b98",
+          "runtime_manifest_sha256": "eb8ec21a18b912dcfca659ce64e2a68531503e614fd6db6b1453b2b054c52a61",
+          "runtime_end_sha256": "f4a40a50cbd36c925984ce1b2d98e8cc13f9fd9ac8ec61ec13907cabeb168a75",
+          "observed_files_rehashed": 2969,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 59,
+          "wrong_library_origins": {},
+          "native_loaded_files": 240,
+          "before_after_identical": true,
+          "peak_kib": 999816,
+          "cpu_affinity": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "assertion_slots": 2,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "root_value_review": {
+    "reviewer": "root",
+    "scope": "FullSpherepage currentrenderer tenfigures; nativeRNGstillunmatched",
+    "image_hashes_and_dimensions_verified": [
+      {
+        "name": "SphereHeatConduction_01.png",
+        "sha256": "230f04b343a0e5e16a7f15490ca44cb6e56b9959f34d69cb02d7ea4d579d2064",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "",
+        "title_band_dark_pixels": 0
+      },
+      {
+        "name": "SphereHeatConduction_02.png",
+        "sha256": "633415f6203e0b3d8b2ae78723b4d803be0a28f6e38bd9a7a3a97ec79fa2ac28",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.25",
+        "title_band_dark_pixels": 178
+      },
+      {
+        "name": "SphereHeatConduction_03.png",
+        "sha256": "fde0754e21bdab028158f5afadf8dce4b926c328bac8802946ab23f972ff31e5",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.50",
+        "title_band_dark_pixels": 185
+      },
+      {
+        "name": "SphereHeatConduction_04.png",
+        "sha256": "ebbb3bb5178bfadf44051d5b0d67f4e415939902979bb1942ae1151f9464d620",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.75",
+        "title_band_dark_pixels": 171
+      },
+      {
+        "name": "SphereHeatConduction_05.png",
+        "sha256": "72d953c55307c2af774da419a59580bf4bb552b79b941a8bdc6eb6a4ccd083fe",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 1.00",
+        "title_band_dark_pixels": 179
+      },
+      {
+        "name": "SphereHeatConduction_06.png",
+        "sha256": "78548675887bdc16ba2a540bf2b2d339b5a410b973e08d1327b8d6276ef04491",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "",
+        "title_band_dark_pixels": 0
+      },
+      {
+        "name": "SphereHeatConduction_07.png",
+        "sha256": "2b32cfd1dd74c9b4f12e0c15065ae275a4562581acc18781125602b749d81335",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.25",
+        "title_band_dark_pixels": 178
+      },
+      {
+        "name": "SphereHeatConduction_08.png",
+        "sha256": "78ab0d4285b49ce15197f1eb2e80aec177fcdb0d33e26c20fff882a06b123cf9",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.50",
+        "title_band_dark_pixels": 185
+      },
+      {
+        "name": "SphereHeatConduction_09.png",
+        "sha256": "813d016193ba50167f6922d2c2d01d84ac1413691c674a9e14a6515d89babfff",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 0.75",
+        "title_band_dark_pixels": 171
+      },
+      {
+        "name": "SphereHeatConduction_10.png",
+        "sha256": "d3374ecc9d8e17c82bf1edeaf408e186d86ec127d846c7dad2b8670d32444f71",
+        "size": [
+          610,
+          276
+        ],
+        "expected_title": "Time 1.00",
+        "title_band_dark_pixels": 179
+      }
+    ],
+    "stdout_byte_identical_to_prior_qualified_run": true,
+    "stderr_empty": true,
+    "diagnostics": [
+      2.32528083135002e-05,
+      3.559652572704408e-15
+    ],
+    "visual_review": "All ten plots inspected in contact sheet; eight Time labels visible and correct, smooth surfaces, blue Gaussian contours, expected color scales. Gaussian locations remain unmatched to MATLAB.",
+    "source_functions_AST_proof": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_website_render_source_20261009/ROOT_FULLPAGE_SOURCE_REVIEW_v3.json",
+    "runtime_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_fullpage_render_root_runtime_review_20261010.json"
+  },
+  "integrated_paths": [
+    "tests/test_matlab_axes_layout.py",
+    "tests/test_sphere_surface_source.py",
+    "tests/test_sphere_scalar_mappable.py",
+    "tests/test_sphere_explicit_camera_source.py",
+    "docs/images/sphere/SphereHeatConduction_02.png",
+    "docs/images/sphere/SphereHeatConduction_03.png",
+    "docs/images/sphere/SphereHeatConduction_08.png",
+    "docs/images/sphere/SphereHeatConduction_01.png",
+    "docs/images/sphere/SphereHeatConduction_05.png",
+    "docs/images/sphere/SphereHeatConduction_07.png",
+    "docs/images/sphere/SphereHeatConduction_04.png",
+    "docs/images/sphere/SphereHeatConduction_06.png",
+    "docs/images/sphere/SphereHeatConduction_09.png",
+    "docs/images/sphere/SphereHeatConduction_10.png",
+    "examples/sphere/sphereheatconduction.py",
+    "src/chebfunjax/plotting.py",
+    "src/chebfunjax/_sphere_surface.py"
+  ]
+}

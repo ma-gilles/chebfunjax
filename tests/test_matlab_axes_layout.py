@@ -74,12 +74,12 @@ def test_sphere_title_fits_without_camera_or_geometry_change(tmp_path, title):
         ax.set_title(title)
         projection = ax.get_proj().copy()
         box_aspect = ax.get_box_aspect().copy()
-        geometry = ax.collections[0]._vec.copy()
+        geometry = _surface_geometry(ax.collections[0]).copy()
         before = (ax.elev, ax.azim, ax.get_xlim(), ax.get_ylim(), ax.get_zlim(), ax.title.get_fontsize(), fig.dpi)
         save_and_capture(fig, tmp_path/"sphere.png")
         np.testing.assert_array_equal(ax.get_proj(), projection)
         np.testing.assert_array_equal(ax.get_box_aspect(), box_aspect)
-        np.testing.assert_array_equal(ax.collections[0]._vec, geometry)
+        np.testing.assert_array_equal(_surface_geometry(ax.collections[0]), geometry)
         assert before == (ax.elev, ax.azim, ax.get_xlim(), ax.get_ylim(), ax.get_zlim(), ax.title.get_fontsize(), fig.dpi)
     finally:
         plt.close(fig)
@@ -154,3 +154,10 @@ def test_infeasible_and_unsupported_layouts_raise_without_fitting(tmp_path):
             matlab_axes_layout(colorbar.ax)
     finally:
         plt.close(fig)
+
+
+def _surface_geometry(artist):
+    # Gouraud artist retains source vertices; legacy polygons retain _vec.
+    geometry = artist._source_vertices if hasattr(artist, "_source_vertices") else artist._vec
+    assert geometry.size > 0
+    return geometry

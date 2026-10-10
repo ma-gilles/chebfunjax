@@ -138,16 +138,16 @@ def test_bumpy_lighting_receives_same_scalar_colors(monkeypatch):
 
 @pytest.mark.parametrize("projection", ["sphere", "equirectangular"])
 def test_fixed_source_color_limits_reach_artist_and_colorbar(monkeypatch, projection):
-    from mpl_toolkits.mplot3d import Axes3D
+    from chebfunjax import _sphere_surface
 
     colors = []
-    original = Axes3D.plot_surface
+    original = _sphere_surface.InterpolatedSphereSurface
 
-    def observe(self, *args, **kwargs):
-        colors.append(np.array(kwargs['facecolors'], copy=True))
-        return original(self, *args, **kwargs)
+    def observe(*args, **kwargs):
+        colors.append(np.array(args[3], copy=True))
+        return original(*args, **kwargs)
 
-    monkeypatch.setattr(Axes3D, 'plot_surface', observe)
+    monkeypatch.setattr(_sphere_surface, 'InterpolatedSphereSurface', observe)
     fig, ax, mappable = plot_sphere(AnalyticField(), n_pts=12, cmap="jet",
                                    projection=projection, clim=(-.5, 1.),
                                    return_mappable=True)

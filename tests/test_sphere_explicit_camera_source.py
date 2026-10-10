@@ -123,13 +123,13 @@ def test_actual_sphere_coast_camera_preserves_source_geometry(tmp_path):
     try:
         ax.set_axis_off()
         surface = ax.collections[0]
-        geometry = surface._vec.copy()
+        geometry = _surface_geometry(surface).copy()
         (coast,) = plot_earth(ax, 'r-', linewidth=2.)
         original = np.array(coast.get_data_3d(), copy=True)
         matlab_explicit_camera(ax, **settings('surface'))
         ax.set_title('Explicit captured camera')
         save_chebfun_figure(fig, tmp_path/'explicit_surface.png', size=(600, 270), layout='matlab')
-        np.testing.assert_array_equal(surface._vec, geometry)
+        np.testing.assert_array_equal(_surface_geometry(surface), geometry)
         np.testing.assert_array_equal(coast.get_data_3d(), original)
         rgba = np.asarray(fig.canvas.buffer_rgba())
         red = (rgba[..., 0] > 150) & (rgba[..., 1] < 100) & (rgba[..., 2] < 100)
@@ -194,3 +194,10 @@ def test_reapplying_explicit_camera_is_idempotent():
         np.testing.assert_array_equal(ax.get_proj(), before)
     finally:
         plt.close(fig)
+
+
+def _surface_geometry(artist):
+    # Gouraud artist retains source vertices; legacy polygons retain _vec.
+    geometry = artist._source_vertices if hasattr(artist, "_source_vertices") else artist._vec
+    assert geometry.size > 0
+    return geometry

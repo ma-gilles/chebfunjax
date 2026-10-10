@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Sphere rendering integrated (2026-10-10; latest)
+
+Default sphere surfaces now interpolate vertex colors and use source camera
+orientation. The complete SphereHeat rerun produced ten610x276 figures and
+all eight visible time titles, with byte-identical numerical stdout.
+Root independently verified2,978runtime hashes;52 global regressions with
+nonempty geometry checks and seven portable controls also passed. Evidence:
+docs/sphere_rendering_cpu_20261010.json. Website layout is an explicit
+measured presentation policy, not a port of opaque HG2 layout. Gaussian
+MATLAB RNG remains unmatched; custom plotting kwargs retain the inherited
+flat-color renderer. AtmosphericTemperature is next for actual-page impact
+verification. Global CI and full pixel-level parity remain unresolved.
+
+
 ## AnalyticSVD computation completed (2026-10-10; latest)
 
 All86 constructors completed:427 pieces finite and happy, five608x271

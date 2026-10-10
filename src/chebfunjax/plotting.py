@@ -1363,8 +1363,6 @@ def plot_sphere(
     if np.linalg.norm(C - C[0, 0], ord=np.inf) < 1e-10:
         C = np.full_like(C, C[0, 0])
 
-    default_opts = dict(rstride=1, cstride=1, linewidth=0, antialiased=True, shade=False)
-
     # --- Grid meshes for lines of longitude/latitude ---
     llgl, ttgl = np.meshgrid(
         np.linspace(-np.pi, np.pi, n_grid_lam + 1),
@@ -1390,8 +1388,14 @@ def plot_sphere(
         yy = vv * np.cos(elev) * np.sin(ll)
         zz = vv * np.sin(elev)
 
-        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
-                                 figsize=(6.1, 2.75), fill_canvas=False)
+        if ax is None:
+            # R2017a surf selects view(3): MATLAB(-37.5,30), converted
+            # from negative-y to Matplotlib positive-x azimuth convention.
+            fig, ax = _setup_3d_axes(None, None, elev=30, azim=-127.5,
+                                     figsize=(6.1, 2.75), fill_canvas=False,
+                                     surface_frame=True)
+        else:
+            fig = ax.get_figure()
 
         color_norm = _normalize_values(C) if fixed_norm is None else fixed_norm
         facecolors = _matlab_facecolors(
@@ -1401,7 +1405,20 @@ def plot_sphere(
             apply_lighting=(projection.lower() == "bumpy"),
             norm=color_norm,
         )
-        surface = ax.plot_surface(xx, yy, zz, facecolors=facecolors, **default_opts, **kw)
+        from chebfunjax._sphere_surface import InterpolatedSphereSurface
+
+        # Native surf uses interpolated vertex colors and no edges. Keep all
+        # source grid points; constant polygon facecolors create false seams.
+        if kw:
+            # Preserve the established plot_surface customization contract,
+            # including its validation of stride/shading/collection options.
+            default_opts = dict(rstride=1, cstride=1, linewidth=0,
+                                antialiased=True, shade=False)
+            surface = ax.plot_surface(xx, yy, zz, facecolors=facecolors,
+                                      **default_opts, **kw)
+        else:
+            surface = InterpolatedSphereSurface(xx, yy, zz, facecolors)
+            ax.add_collection3d(surface, autolim=False)
         if projection.lower() == "sphere":
             surface._chebfun_sphere_radius = 1.0
 

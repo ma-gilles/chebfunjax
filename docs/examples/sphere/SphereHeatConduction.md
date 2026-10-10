@@ -160,7 +160,7 @@ In the future we hope to extend the technology of the new `spin2` command in Che
 
 [2] A. Townsend and G. B. Wright, Fast spectral methods for partial differential equations in spherical and polar geometries, manuscript in preparation, 2016.
 
-**CPU verification:** Both 100-step trajectories below have completed using the public Helmholtz solver. The ten generated figures have the reference dimensions and visible time titles. MATLAB random-number matching and visual parity (camera, shading, layout and contour colors) remain under review.
+**CPU verification:** Both 100-step trajectories below completed using the public Helmholtz solver. The ten reference-sized figures now use the source camera, interpolated surface colors, website layout, visible time titles and blue mean contours. MATLAB random-number matching and complete pixel-level visual parity remain unverified.
 
 ---
 
