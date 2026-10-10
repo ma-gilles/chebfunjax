@@ -1,0 +1,29 @@
+{
+  "scope": "Guarded jax.device_put at two existing host ndarray transfer adapters; all numerical kernels, shapes and predicates unchanged.",
+  "qualified_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_next_attribution_20261010/QUALIFIED_PACKET.json",
+  "qualified_packet_sha256": "9bea4270f1037f199ecc99f34785e78afe0c85d8b22962bb71a7e1640d2e5d24",
+  "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_next_attribution_20261010/ROOT_BINDING_REVIEW_v1.json",
+  "regression_cases": 86,
+  "first_seconds": {
+    "baseline": 17.435246,
+    "candidate": 16.117402
+  },
+  "warm_median_seconds": {
+    "baseline": 0.608843,
+    "candidate": 0.614206
+  },
+  "first_compiler_calls": {
+    "baseline": 370,
+    "candidate": 268
+  },
+  "capture_arrays_bit_identical": 80,
+  "limitations": [
+    "One process per timing arm; no process-level confidence interval.",
+    "First after setup, not pristine cold. Setup invokes roots and compilation.",
+    "Observed warm median candidate about0.9percent slower; shared-host variability means no general warm claim.",
+    "Other agents worked on separate CPUsets; host not exclusive, load recorded.",
+    "No fresh MATLAB run or full-library parity claim."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_next_attribution_20261010/ROOT_STATIC_v1.json",
+  "publication": "Local main only; push and current CI unresolved."
+}

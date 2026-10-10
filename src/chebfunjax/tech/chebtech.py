@@ -1293,7 +1293,8 @@ def _roots_subdivide(c):
     MATLAB source : @chebtech/roots.m, roots_main subdivision branches
     Chebfun commit: 7574c77
     """
-    c = jnp.asarray(c)
+    # Concrete host arrays need a transfer, not a shape-specific conversion JIT.
+    c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
     if isinstance(c, jax.core.Tracer):
         raise ValueError("roots subdivision dispatch requires eager coefficients")
     if c.shape[0] <= 513:
@@ -1466,7 +1467,9 @@ def _roots_default_eigenvalues(c):
     # This exception class preserves the existing host engine's failure type.
     from numpy.linalg import LinAlgError
 
-    matrix, matrix_finite = _roots_matrix_and_finite_jax(jnp.asarray(c))
+    # Preserve non-array coercion while avoiding eager host-array conversion JITs.
+    c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
+    matrix, matrix_finite = _roots_matrix_and_finite_jax(c)
     if not bool(matrix_finite):
         raise LinAlgError("Array must not contain infs or NaNs")
     roots, roots_finite, has_imaginary, real_roots = _roots_eig_and_metadata_jax(matrix)

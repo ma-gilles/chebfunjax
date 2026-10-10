@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Inverse host transfer compilation reduction (2026-10-10; latest)
+
+Two existing host-array adapters now use guarded JAX device transfer, removing
+shape-specific conversion compilations while preserving numerical kernels.
+All 86 regression cases pass; 80 captured arrays remain byte-identical.
+Matched first inverse time is 17.4352 -> 16.1174 seconds; compiler calls
+370 -> 268. Warm medians are 0.608843 -> 0.614206 seconds, so no warm speed
+improvement is claimed. One process per arm, shared CPU host, no fresh MATLAB
+timing. Root verified 36 artifact bindings and exact integrated source bytes;
+Ruff, F821, provenance/NumPy policy and diff checks pass. Evidence:
+docs/inverse_cpu_transfer_20261010.json. Full parity and fresh CI remain open.
+
 ## Fourth RandomSwitching trajectory completed (2026-10-10; latest)
 
 The fourth original trajectory now completes all 144 intervals through time
