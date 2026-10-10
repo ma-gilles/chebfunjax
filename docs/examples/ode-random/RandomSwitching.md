@@ -6,7 +6,7 @@
 
 Python translation: [`examples/ode-random/randomswitching.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomswitching.py)
 
-> **Qualification of the Python results.** The prose and MATLAB code below are preserved from the native example. The figures and printed outputs come from the tested Python translation, using JAX key 1 as an explicit adapter rather than reproducing MATLAB `rng(1)`. The realizations differ: the first Python figure peaks near 75 (the native reference stays below 10), and the second Python figure does not show the decay described in the source illustration. The original data and axis limits are retained. The four solves use the native defaults and `maxnorm` setting; the third stops at about 18.27595224 and its continuous solution and squared norm retain a NaN tail. Execution checks passed, but numerical accuracy differences remain unresolved. Rendering also differs in apparent stroke thickness, major and minor grids, and inward top/right ticks; source line widths are retained. These results do not establish MATLAB RNG, numerical, or visual parity.
+> **Qualification of the Python results.** The prose and MATLAB code below are preserved from the native example. The figures and printed outputs come from the tested Python translation, using JAX key 1 as an explicit adapter without reproducing the MATLAB random stream. The cached published webpage starts with `rng(0)`; the checked-out `.m` source instead uses `rng(1)`. The realizations differ: the first Python figure peaks near 75 (the native reference stays below 10), and the second Python figure does not show the decay described in the source illustration. The original data and axis limits are retained. The four solves use the native defaults and `maxnorm` setting; the third stops at about 18.27595224 and its continuous solution and squared norm retain a NaN tail. Execution checks passed, but numerical accuracy differences remain unresolved. Rendering also differs in apparent stroke thickness, major and minor grids, and inward top/right ticks; source line widths are retained. These results do not establish MATLAB RNG, numerical, or visual parity.
 
 ## 1. The simplest scalar example
 
@@ -15,7 +15,7 @@ Suppose you have a time-dependent ODE whose coefficients switch randomly between
 The simplest scalar example would be to switch randomly between $y' = y$ and $y' = -y$.  Here is an illustration, showing the large swings of amplitude familiar in stochastic analysis in the related problem known as geometric Brownian motion. On a log scale, this process has no bias upward or downward. On a linear scale it's a bit subtler -- again there is no bias in the sense that for large values of $t$, $y(t)$ is as likely to be $<1$ as $>1$.  The expected values of $y(t)$ or of $y(t)^2$, however, diverge to $\infty$ as $t\to\infty$.
 
 ```matlab
-rng(1), dom = [0 40]; LW = 'linewidth'; tic
+rng(0), dom = [0 40]; LW = 'linewidth'; tic
 L = chebop(dom); L.lbc = 1;
 c = sign(randnfun(1,dom));
 L.op = @(t,y) diff(y) - c*y;

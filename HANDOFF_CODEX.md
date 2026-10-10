@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Page code fidelity and direct 3D progress (2026-10-10; latest)
+
+All 2,408 MATLAB code blocks now match cached published page contents after
+restoring RandomSwitching's rng(0); its checked-out .m source instead uses
+rng(1), and the page identifies that source variant. No Python RNG or solver
+change is implied. The refreshed 322-page audit finds all 1,305 figure slots,
+12 wrong-sized images and five missing output blocks. Original prose and
+equations are retained with seven explicit qualification notes. These are
+content/inventory checks, not numerical or pixel parity. Evidence:
+docs/page_inventory_cpu_20261010.json.
+
+Eight of 80 direct Chebfun3 battery cases now pass on frozen e6748499, with
+unchanged assertions and parent/worker provenance; 72 remain. The latest four
+run serially in 319.04 s, peak 2,326,928 KiB, without a cap or survivors.
+Root rehashed 42,901 inputs and 1,859 runtime files. Historical execution is
+separate from current-main qualification. Evidence:
+docs/port_mirror_execution_cpu_20261010.md.
+
 ## Full Needle execution and scalar extrema corrected (2026-10-10; latest)
 
 Needle now uses public Chebfun construction, restriction, simplification and

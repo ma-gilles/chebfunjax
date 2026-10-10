@@ -1,6 +1,6 @@
 {
-  "audit_head": "722f898ab6778789a261fe4eb6307e81051a2d3b",
-  "scope": "Offline cached reference/page inventory; no new numerical example execution or full pixel parity claim",
+  "audit_head": "dd4f719d7c851bc18f1c529c7cf5d5c37e19cb06",
+  "scope": "Offline cached reference/page inventory. Code and aligned prose audit additionally includes the documented RandomSwitching seed-text restoration; exact page hashes are bound in that report. No numerical rerun or full pixel parity claim.",
   "figure_summary": {
     "canonical_pages": 322,
     "missing_markdown_pages": 0,
@@ -10,40 +10,38 @@
     "slot_name_or_order_mismatches": 0,
     "missing_current_images": 0,
     "missing_reference_assets": 0,
-    "pixel_comparable_slots": 1288,
-    "dimension_mismatch_slots": 17,
-    "exact_pixel_fraction_mean": 0.8062631741628898,
-    "rmse_mean": 44.02487026556224
+    "pixel_comparable_slots": 1293,
+    "dimension_mismatch_slots": 12,
+    "exact_pixel_fraction_mean": 0.806487895943143,
+    "rmse_mean": 44.08551145169652
   },
-  "prose_result": "All original prose retained in order; six added qualification notes; math retained after alignment",
+  "dimension_mismatch_pages": {
+    "applics/VanillaOptions": 7,
+    "linalg/EigLandscapes": 5
+  },
+  "prose_result": "All original prose retained in order; seven added qualification notes; equations retained after alignment.",
+  "source_code": {
+    "native_blocks": 2408,
+    "matching_markdown_blocks": 2408,
+    "comparison": "All internal code text and indentation match cached HTML after CRLF and boundary-newline normalization.",
+    "corrected_discrepancy": "RandomSwitching published page uses rng(0), whereas checked-out .m source uses rng(1). The page now retains cached published code and explicitly identifies the variant; Python RNG/numerical parity remains open."
+  },
   "output_blocks": {
     "native": 949,
-    "current": 943,
-    "page_names": [
-      "AAAApprox",
-      "Noisy",
-      "TransientGrowth",
-      "Floquet",
-      "Needle",
-      "ResamplingRandomVariables"
+    "current": 944,
+    "pages_missing_one_block": [
+      "approx/AAAApprox",
+      "approx/Noisy",
+      "linalg/TransientGrowth",
+      "ode-linear/Floquet",
+      "stats/ResamplingRandomVariables"
     ]
   },
-  "limits": "Output differences include warnings and actual missing computations/timing. Pixel comparison statistics are descriptive, not an acceptance threshold. Source code fence counts match but content comparison is separate.",
+  "limits": "Counts do not establish printed numerical-output equality. Pixel statistics are descriptive, not acceptance thresholds. The RandomSwitching Python computation and figures were not rerun.",
   "evidence": {
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_722f898a/report.json": "355ae9919c71c34f83466433748edd381e74e0914b63b1a1ecbf1070ea3257b6",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_alignment_20261010_722f898a.json": "a80cc91b4a1b29fe262fb03ad1a4ed13846c796bb92ab7d032975396c5b4b980",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_722f898a.json": "8995c1259e5b9a84b1a11bbcc9b8bca3d6a315971e467913df5c1018f697b0d0"
-  },
-  "verified_asset_update": {
-    "source_execution_head": "19e13c49970dc7ce2951506d318734b716000d88",
-    "page": "ode-eig/Randfuneig",
-    "replaced_images": 5,
-    "all_reference_dimensions": [
-      600,
-      269
-    ],
-    "remaining_dimension_mismatches": 12,
-    "basis": "Baseline322page inventory17mismatches minus5verifiedRandfuneig images; otherimagesunchanged. This is a verified delta, not a new fullpixel audit.",
-    "evidence": "docs/randfuneig_full_cpu_20261010.json"
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_dd4f719d/report.json": "a743264427cccadaac892db2d760a3f3a0b3b720ffe3d81ddeed6346357e97bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_dd4f719d.json": "0576cb304af6be5e17a33a8ba421830d660678b30e1e1185ee6e3fa3b2b9cbcb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_20261010_dd4f719d.json": "6c85401e9c0f23e4d51740c3bf237f22bbe48d126fb4aac8a144ea60e152ba57",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_seed_restore_20261010.json": "e8fdc4cd236ccc4ed573785ae8031f5b1551690381e33bd21c95343ae230779b"
   }
 }

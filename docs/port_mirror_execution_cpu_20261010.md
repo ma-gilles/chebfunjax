@@ -34,19 +34,20 @@ The v4 lane audit details and timeout-policy hashes remain in `recovery_20261010
 
 Native `tests/misc/test_pde15s.m` compares the same PDE under `chebtech1` and `chebtech2`, with native default solver options, and checks cross-run norm against `1e5*pref.chebfuneps`. Native `pdeSolve.m` sets PDE tolerance to `1e-6` by default, maps ODE tolerances from it, and adaptively refines nonperiodic `chebtech2` spatial grids. The frozen Python test instead supplies `rtol=1e-10`, `atol=1e-12`; its solver uses fixed inferred resolution with no spatial adaptation. Treat this as an open solver implementation/port-contract gap. Do not loosen the assertion or claim a tolerance-only repair. SciPy dependency debt remains separate; this evidence does not establish a JAX-only solver.
 
-## Direct Chebfun3 battery: first four cases qualified
+## Direct Chebfun3 battery: first eight cases qualified
 
-Four of the 80 direct cases now pass on the frozen `e6748499` source, separately
-from the wrapper results above. Indices 0–3 cover 20 native predicates; 76 direct
+Eight of the 80 direct cases now pass on the frozen `e6748499` source, separately
+from the wrapper results above. Indices 0–7 cover 40 native predicates; 72 direct
 cases remain unexecuted. These results do not establish current-main suite success.
 
 | Gate | Original handle | Cases | Wall time | Peak summed RSS |
 |---|---:|---:|---:|---:|
 | `execution_v11` | 85989 | index 0 | 141.19 s | 1,898,784 KiB |
 | `execution_v12` | 9903 | indices 1–3 | 231.03 s | 2,325,424 KiB |
+| `execution_v13` | 84327 | indices 4–7 | 319.04 s | 2,326,928 KiB |
 
 Each case ran serially in a fresh spawn worker, with its original 600-second
-per-case timeout and a 4 GiB RSS cap. Both runs exited normally, with stable
+per-case timeout and a 4 GiB RSS cap. All three runs exited normally, with stable
 inputs, no resource cap, and no surviving owned process. The observer records
 worker completion before the pool terminates it; parent and worker module/native
 snapshots all pass. Snapshots do not prove coverage of transient dynamic loads.
@@ -59,6 +60,11 @@ SHA-256 `a1cb29ea0eb92205a376bcee56b7692d4e17c6c2df43ccb8202c64ae89859a24`.
 The corresponding audit hashes are
 `c1fef5fcb27a739b592fe3418e08e52a04e85020cb8aec2abb60474bbcbff8dd`
 and `eadd54a94d69b9658c32e65fd845e42667dcedec7ce936a492e2b40ffa5af0b5`.
+
+Root also rehashed all 42,901 v13 guard bindings and 1,859 observed runtime
+files. Its review is `port_mirror_qualification_e6748499_20261010/ROOT_NEXT4_REVIEW.json`,
+SHA-256 `a8d3638ca1d758782fa366de8f6db92b54a16a23c7eea8757377ebb3f5455961`. The v13 audit SHA-256 is
+`e9f74d43d914687559e280d20411ee2213fd5cee911b7121f4cbc3f512280731`.
 
 Static triage of native warning output gaps remains in
 `recovery_20261010/NATIVE_OUTPUT_GAP_TRIAGE_v1.json`.
