@@ -1,0 +1,299 @@
+{
+  "schema": 1,
+  "date": "2026-10-10",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "08259dfbfc40e6e690d3a29fc78522a20e2adcfe",
+  "change": "Keep native array-valued SVD factors through eig Gram and both lifting multiplications, then adapt public output; native post-prolong equality correction for polynomial inner-product diagonals, preserving known-real scalar storage.",
+  "qualified_tests": {
+    "count": 50,
+    "failures": 0,
+    "skips": 0,
+    "runtime_files": 2975,
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/C_focused_AUDIT_v2.json"
+  },
+  "saved_full_rank_execution": {
+    "scope": "Complete public eig of actual retained484factor kernel; no RNG or adaptive constructor replay",
+    "result": "PASS",
+    "restored_arrays": 970,
+    "factors": 484,
+    "finite_values": 484,
+    "stages": [
+      {
+        "stage": "_axis_panel",
+        "call": 3,
+        "seconds": 41.911662203259766
+      },
+      {
+        "stage": "_axis_panel",
+        "call": 4,
+        "seconds": 41.79183949995786
+      },
+      {
+        "stage": "_axis_qr",
+        "call": 5,
+        "seconds": 2.210317465942353
+      },
+      {
+        "stage": "_axis_qr",
+        "call": 6,
+        "seconds": 1.6203320431523025
+      },
+      {
+        "stage": "_core_svd",
+        "call": 7,
+        "seconds": 0.24187312182039022
+      },
+      {
+        "stage": "_action",
+        "call": 8,
+        "seconds": 0.011933223344385624
+      },
+      {
+        "stage": "_action",
+        "call": 9,
+        "seconds": 0.011321982834488153
+      },
+      {
+        "stage": "complete_svd",
+        "call": 2,
+        "seconds": 88.05064132716507
+      },
+      {
+        "stage": "function_matrix_multiply",
+        "call": 10,
+        "seconds": 0.9477615179494023
+      },
+      {
+        "stage": "small_core_eig",
+        "call": 11,
+        "seconds": 0.16628839820623398
+      },
+      {
+        "stage": "function_matrix_multiply",
+        "call": 12,
+        "seconds": 0.09315805789083242
+      },
+      {
+        "stage": "function_matrix_multiply",
+        "call": 13,
+        "seconds": 0.06536761811003089
+      },
+      {
+        "stage": "complete_source_eig",
+        "call": 1,
+        "seconds": 89.87963174516335
+      }
+    ],
+    "mandatory_lifting_calls": [
+      12,
+      13
+    ],
+    "audit": {
+      "gate": "D_saved484",
+      "faults": [],
+      "observed_rehash_count": 2949,
+      "mismatches": [],
+      "wrong_origins": {},
+      "junit_count": 1,
+      "terminal": 0,
+      "supervisor_exit": 0,
+      "censored_limit": null,
+      "peak_kib": 949408,
+      "wall_seconds": 155.87937011988834,
+      "stable": true,
+      "survivors": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/memory_prelaunch.json": "9a56edd18531f53f05284e5b01a5387770e875f5e0d028971bdbe3965d22b60f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/plan.json": "818a48175a4b1c87c5a8c7a94f30f8b1513fe8d98598d9f76c4a51fcba097ddc",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/guard.json": "9f3d73177f750e3d851c76243dd50eb5f5756adcfd7af9879c89fe37f300f7c4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/input.json": "dbe6e988a35bada00d663d3a135f447e923d3c80aa8a4d02bca8d9f14f5eadb2",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/manifest.json": "3a46725819ef269630b7c0a563db602f1b514372f6636fdfc4fb4c8a7ab62259",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/supervision/receipt.json": "a82bbe53b16b567c57d88f5ccd072d55c678c3111484c6b070f63e7c9c2c91a6",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/runtime/end.json": "34d8d29c0741b6a1b80679d6d8c4a5adba01fffac02ac1c2400637798ce272cf",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/runtime/start.json": "ab1f2171121c47db2365b3e67647cdda399fb7f7f0aa608f865bb0eac016a9fc",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/junit.xml": "9b68b81c7d4f3891d432584671b7a43942707b0588c3e3802999cea7787121e8"
+      }
+    },
+    "baseline": "A1saved_eig_v2 capped600s during function_matrix_multiply Gram, after89.9087sSVD; no completed baseline time or speedup ratio",
+    "qualified_focused_cases": 50,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/capture/events.jsonl": "d05f7b3df2dcb58a8518f40edccc292a6d663f2d5999152b1d3dc43e8f446e6c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/capture/eigenvalues.npy": "9f5d9be58d3ed8b126bbea7f01fb2a0236f09d7266a6d5c69474091c4e206492",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/junit.xml": "9b68b81c7d4f3891d432584671b7a43942707b0588c3e3802999cea7787121e8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/runtime/end.json": "34d8d29c0741b6a1b80679d6d8c4a5adba01fffac02ac1c2400637798ce272cf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/supervision/receipt.json": "a82bbe53b16b567c57d88f5ccd072d55c678c3111484c6b070f63e7c9c2c91a6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/C_focused_AUDIT_v2.json": "ff29d5e6b8fd520a0d332f151c0b8daed4645e5c25d62d2d6e06b50e429a4823",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/FROZEN_SAVED484_PACKET.json": "8418ab308bcf43ee368992b02ca2a804fac12c48615d72ec4411b43d36348ba9"
+    }
+  },
+  "native_saved_kernel_oracle": {
+    "audit": {
+      "faults": [],
+      "terminal": 0,
+      "supervisor_exit": 0,
+      "wall_seconds": 84.9522129711695,
+      "peak_kib": 1456968,
+      "survivors": [],
+      "source_head": "7574c77680d7e82b79626300bf255498271a72df",
+      "source_clean": true,
+      "source_input_hashes_count": 3525,
+      "inputs_stable": true,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/supervision/receipt.json": "f3e80a26032a95e3979a9986d5fb50ec572b79a76d98a1f2f3946b3610dcab6b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/guard_native.json": "d0e4624f01e798d00a25b7469a3b7284b5493d7e5df147b8582624e16841c258",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/PREFLIGHT_native.json": "81468262c4060a9a08eadefc17dd9a686cedbb09f23e7bb1ef17a6fdecf168d9",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/restoration_native.mat": "ee8c042afe48d7c36300c469fa104c9738d4402b85102490d8c8ebd52cbe24d0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/values_only_native.mat": "2e4a44676d5b7802e1767c217896979e15db7f1481d3559fee4d4991f52e9b7d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/full_native.mat": "bc7c425495836ba41d6fc08dda0d40c0a5e35524df0782ea3073c5b2ac4e6218",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/supervision/stdout": "1fd2189c6eac461f3a03c7ffd1301b0a33f5b10e255adab80032bbdad2ce76aa",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/supervision/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "diagnostic": {
+      "status": "DIAGNOSTIC_NO_ACCEPTANCE_TOLERANCE",
+      "exact_restoration": true,
+      "jax_vs_native_values_only": {
+        "pairing": "Complete minimum-total-absolute-distance assignment; no omitted eigenvalues",
+        "count": 484,
+        "max_abs": 3.454578069940389e-14,
+        "median_abs": 5.903518435340154e-15,
+        "rms_abs": 8.724588465580338e-15,
+        "max_abs_over_native_spectral_radius": 3.330182500536108e-14,
+        "max_relative_nonzero_native": 2.116958087634401,
+        "native_zero_count": 0,
+        "absolute_error_at_native_zeros": [],
+        "largest_absolute_pair": {
+          "lhs_index": 207,
+          "rhs_index": 203,
+          "lhs": [
+            -0.53465112075725,
+            0.3801946780688479
+          ],
+          "rhs": [
+            -0.5346511207572511,
+            0.3801946780688824
+          ]
+        },
+        "absolute_quantiles": {
+          "0": 5.381967937515019e-19,
+          "25": 1.987626749397768e-15,
+          "50": 5.903518435340154e-15,
+          "75": 9.150420182604947e-15,
+          "90": 1.3309717391015238e-14,
+          "99": 2.7151536298496823e-14,
+          "100": 3.454578069940389e-14
+        },
+        "largest_relative_pair": {
+          "lhs_index": 483,
+          "rhs_index": 481,
+          "lhs": [
+            -9.427912562314697e-18,
+            0.0
+          ],
+          "rhs": [
+            8.440703967936717e-18,
+            0.0
+          ],
+          "absolute_error": 1.7868616530251413e-17,
+          "native_magnitude": 8.440703967936717e-18,
+          "relative_error": 2.116958087634401
+        }
+      },
+      "native_two_vs_one_output": {
+        "pairing": "Complete minimum-total-absolute-distance assignment; no omitted eigenvalues",
+        "count": 484,
+        "max_abs": 0.0,
+        "median_abs": 0.0,
+        "rms_abs": 0.0,
+        "max_abs_over_native_spectral_radius": 0.0,
+        "max_relative_nonzero_native": 0.0,
+        "native_zero_count": 0,
+        "absolute_error_at_native_zeros": [],
+        "largest_absolute_pair": {
+          "lhs_index": 0,
+          "rhs_index": 0,
+          "lhs": [
+            0.9970779728990724,
+            0.28624953289981997
+          ],
+          "rhs": [
+            0.9970779728990724,
+            0.28624953289981997
+          ]
+        },
+        "absolute_quantiles": {
+          "0": 0.0,
+          "25": 0.0,
+          "50": 0.0,
+          "75": 0.0,
+          "90": 0.0,
+          "99": 0.0,
+          "100": 0.0
+        },
+        "largest_relative_pair": {
+          "lhs_index": 0,
+          "rhs_index": 0,
+          "lhs": [
+            0.9970779728990724,
+            0.28624953289981997
+          ],
+          "rhs": [
+            0.9970779728990724,
+            0.28624953289981997
+          ],
+          "absolute_error": 0.0,
+          "native_magnitude": 1.0373539796645543,
+          "relative_error": 0.0
+        }
+      },
+      "native_seconds": {
+        "values_only_first_after_restore": 1.664499,
+        "full_subsequent_arity": 1.560781
+      },
+      "native_normalized_eigenfunction_count": 484,
+      "native_norm_max_abs_error_from_one": 8.881784197001252e-16,
+      "limitations": [
+        "No MATLAB RNG or original adaptive-constructor replay.",
+        "Eigenvalue pairing is a diagnostic multiset comparison, not provider ordering/phase equality or a conditioning analysis.",
+        "Native full normalized eigenfunctions captured; JAX saved gate captured values-only output, so full484eigenfunction parity not established.",
+        "Different libraries/startup states and separate observations; no matched speedup ratio."
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/values_only_native.mat": "2e4a44676d5b7802e1767c217896979e15db7f1481d3559fee4d4991f52e9b7d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/full_native.mat": "bc7c425495836ba41d6fc08dda0d40c0a5e35524df0782ea3073c5b2ac4e6218",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/restoration_native.mat": "ee8c042afe48d7c36300c469fa104c9738d4402b85102490d8c8ebd52cbe24d0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484/capture/eigenvalues.npy": "9f5d9be58d3ed8b126bbea7f01fb2a0236f09d7266a6d5c69474091c4e206492",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/compare_native_spectra.py": "72d06ba9f243d8aebbb913215ca7b8f48d1ead5dfc86b8507ba78a2222cc6455"
+      }
+    }
+  },
+  "prior_evidence_retained": {
+    "A_focused": "45passed/1overbroad observer failure; QR-internal splits excluded in corrected observer",
+    "B_staging": "frozen not launched because scalar dtype issue identified",
+    "original_saved_eig": "Prior unchanged baseline cap600seconds during Gram retained; cannot compute completed-baseline speedup ratio"
+  },
+  "limits": [
+    "This verifies the retained JAX-generated484kernel, not MATLAB RNG or original fullpage constructor parity.",
+    "Complete spectra compared diagnostically without inventing acceptance tolerance; native normalized eigenfunctions captured, but full484JAX normalized-eigenfunction parity not established.",
+    "Known-equal complex scalar outputs are real for eager equality and statically identical traced inputs; distinct dynamically equal traced inputs retain fixed complex dtype.",
+    "No broad latest-HEAD suite, freshCI or end-to-end page performance claim."
+  ],
+  "qualified_files": {
+    "src/chebfunjax/chebfun1d/mtimes.py": "f92ca9a422f19e4c2e95c92061626413a0e6d69b9630c12f9356206ecacd904d",
+    "src/chebfunjax/chebfun2d/_eig.py": "aac88cd4dac8bf63891b5eefa4cbe6c526bf2c52e9267fa2bb4026f5d453414a",
+    "src/chebfunjax/chebfun2d/_svd.py": "b400a6ba7c498b880122d2283d082c1492a5934a8207c431daf20510d29d6997",
+    "tests/test_chebfun2d/test_eig_array_staging.py": "5ece873a852f82ce11669876bd01dcf13dd833114e9f745bcd2177a5e9d2766c",
+    "src/chebfunjax/tech/chebtech.py": "49e96b1841e4e9a5539f7adb56d08776d1f25e18902b3a6f2c85f2ddab42494a"
+  },
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/C_focused_AUDIT_v2.json": "ff29d5e6b8fd520a0d332f151c0b8daed4645e5c25d62d2d6e06b50e429a4823",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/D_saved484_AUDIT_v2.json": "5cfc1daba2299f765175458142e1544659ef0b70145eb8f24501a9c6d3bb81f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/SAVED484_RESULT.json": "fadeb8bd2455becd43406f8a2531f3a04afadc197d69b0a0d6f33419ec956c7c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/NATIVE_SPECTRUM_DIAGNOSTIC.json": "a8980788214b18d20a192eb241317358df90cdd37e70ee7f6a77c887d1292617",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/NATIVE_AUDIT.json": "9deb5b925c17ae47bbfb6c0546d8af68ac2d85095a6d64b5bc1103ea98c3db9c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/native_saved_factor_oracle/BRIDGE_VERIFIED.json": "3f9a99c27d1f8c25f1f457aecb1a2f760bff0b3f9b970567f87ad48fce6ac258",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/SOURCE_AND_PLAN_v3.json": "df9bf88cd4fc36a6b046a84fc794cbb774e1ea3f677de360028e29312149aa90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/FROZEN_SAVED484_PACKET.json": "8418ab308bcf43ee368992b02ca2a804fac12c48615d72ec4411b43d36348ba9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eig_array_gram_20261010/A_focused_AUDIT_v2.json": "a58d2dd5688f617d229bd429ce3769afedb91b8d438e9e1240f3caa9ae650904"
+  }
+}

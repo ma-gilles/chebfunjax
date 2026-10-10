@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Array-valued eig factors and full saved-kernel execution (2026-10-10; latest)
+
+Native array-valued SVD factors now remain intact through the Gram product
+and both eigenfunction lifting operations. All 50 focused cases pass. The
+actual saved 484-factor kernel completes in 89.88 seconds, versus the prior
+600-second cap during Gram assembly; no completed-baseline speedup is claimed.
+All 484 eigenvalues are retained, with 2,949 runtime files audited clean.
+
+Fresh MATLAB restored all 970 arrays and native CDR weights exactly. The full
+spectra differ by at most 3.46e-14 absolutely; the largest relative difference
+is on an 8.44e-18 eigenvalue. This is diagnostic evidence, not full page or
+normalized-eigenfunction parity. Native and JAX timing conditions differ.
+Evidence: docs/eig_array_gram_cpu_20261010.json. The remaining dominant saved
+kernel cost is array-panel construction, about 84 seconds. Broad tests and
+CI remain open. The current figure audit has 25 size mismatches across four
+pages and 11 output-count gaps; source-level output review continues.
+
 ## Fresh MATLAB references and 11 restored comparisons (2026-10-10; latest)
 
 MATLAB execution is restored with matlab/R2025b module settings and a short

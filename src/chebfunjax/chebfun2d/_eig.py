@@ -13,11 +13,10 @@ from chebfunjax.chebfun2d._svd import source_svd
 
 def source_eig(approx, *, normalize=False):
     """Literal V.H*U*S, then U*S*small eigenvectors; continuous norms."""
-    left, singular, right = source_svd(approx, full=True)
-    if not left:
+    left, singular, right = source_svd(approx, full=True, as_array=True)
+    if left.isempty():
         return jnp.empty((0,), dtype=jnp.complex128), jnp.empty((0, 0))
-    u = Quasimatrix(left, left[0].domain)
-    v = Quasimatrix(right, right[0].domain)
+    u, v = left, right
     diagonal = jnp.diag(singular)
     core = (v.H @ u) @ diagonal
     values, vectors = jnp.linalg.eig(core)
@@ -25,4 +24,4 @@ def source_eig(approx, *, normalize=False):
     columns = list(lifted.cols) if isinstance(lifted, Quasimatrix) else lifted.mat2cell()
     if normalize:
         columns = [column / column.norm() for column in columns]
-    return values, Quasimatrix(columns, left[0].domain)
+    return values, Quasimatrix(columns, left.domain)

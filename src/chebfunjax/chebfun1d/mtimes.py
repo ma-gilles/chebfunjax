@@ -79,6 +79,16 @@ def mtimes(f, g):
             return f * g
         if not f.is_transposed:
             return _outer(f, g)
+        # @chebfun/innerProduct.m keeps bounded array-valued polynomial
+        # CHEBFUNs intact; @chebtech/innerProduct.m computes one weighted
+        # matrix product after prolonging to the sum of lengths. Quasi,
+        # mixed-tech and singular cases retain their existing dispatch.
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+        if (isinstance(f, Chebfun) and isinstance(g, Chebfun)
+                and all(isinstance(p.tech, (Chebtech1, Chebtech2))
+                        for p in f.funs + g.funs)):
+            product = f.conj().inner(g)
+            return jnp.reshape(product, (f.n_columns, g.n_columns))
         fc, gc = _columns(f), _columns(g)
         return jnp.stack([jnp.stack([jnp.reshape(a.conj().inner(b), ()) for b in gc]) for a in fc])
     if not ff and gf:
@@ -104,7 +114,7 @@ def mtimes(f, g):
                             'Undefined function mtimes for these input types.')
         if a.size == 1:
             return f * a.reshape(())
-        n = len(_columns(f))
+        n = f.n_columns if isinstance(f, Chebfun) else len(_columns(f))
         if a.ndim == 1:
             a = a[None, :] if n == 1 else a[:, None]
         if a.ndim != 2 or f.is_transposed or a.shape[0] != n:

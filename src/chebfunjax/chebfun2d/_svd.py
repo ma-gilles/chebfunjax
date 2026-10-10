@@ -182,15 +182,24 @@ def _zero_constant_class(factors):
     return classes[key]
 
 
-def source_svd(approx, *, full=False, operator=False):
+def source_svd(approx, *, full=False, operator=False, as_array=False):
     """Native factor operations with explicit Python output adapters.
 
     ``operator`` represents L=C*D*R' before QR, as norm.m requires. The
     full complex V is literal Qright*V, not a corrected reconstruction
     factor. Rank-deficient singular vectors have provider-dependent phases.
     """
+    # Native SVD retains array-valued CHEBFUNs through subsequent mtimes.
+    # Lists are only the existing Python public-output adapter.
+    def full_output(left, singular, right):
+        if as_array:
+            return left, singular, right
+        return left.mat2cell(), singular, right.mat2cell()
+
     empty = jnp.empty((0,), dtype=jnp.float64)
     if approx is None or not approx.cols:
+        if full and as_array:
+            return Chebfun.empty(), empty, Chebfun.empty()
         return ([], empty, []) if full else empty
     xa, xb, ya, yb = approx.domain
     weights = jnp.asarray(approx.pivots)
@@ -207,6 +216,8 @@ def source_svd(approx, *, full=False, operator=False):
         # Literal native width/height scaling, even on nonsquare domains.
         left = _constant_panel(_zero_constant_class(approx.cols), 1/jnp.sqrt(xb-xa))
         right = _constant_panel(_zero_constant_class(approx.rows), 1/jnp.sqrt(yb-ya))
+        if as_array:
+            return _as_fun(left, (ya, yb)), s, _as_fun(right, (xa, xb))
         return [_as_fun(left, (ya, yb))], s, [_as_fun(right, (xa, xb))]
     left = _axis_panel(tuple(approx.cols))
     right = _axis_panel(tuple(approx.rows))
@@ -223,7 +234,7 @@ def source_svd(approx, *, full=False, operator=False):
         return s
     left = _action(qleft.funs[0].tech, u)
     right = _action(qright.funs[0].tech, v)
-    return _as_fun(left, (ya, yb)).mat2cell(), s, _as_fun(right, (xa, xb)).mat2cell()
+    return full_output(_as_fun(left, (ya, yb)), s, _as_fun(right, (xa, xb)))
 
 
 def source_frobenius(approx):

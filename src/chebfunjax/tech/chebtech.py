@@ -1101,12 +1101,45 @@ def _inner_product(f_coeffs: jax.Array, g_coeffs: jax.Array) -> jax.Array:
 
     # MATLAB @chebtech/innerProduct.m is conjugate-linear in F.
     if fv.ndim == 1 and gv.ndim == 1:
-        return jnp.dot(w * jnp.conj(fv), gv)
+        out = jnp.dot(w * jnp.conj(fv), gv)
+        return jnp.where(jnp.all(fc == gc), jnp.abs(out), out)
     # Array-valued: pairwise column inner products (MATLAB returns the
     # m_f x m_g matrix F' * W * G)
     fv2 = fv if fv.ndim == 2 else fv[:, None]
     gv2 = gv if gv.ndim == 2 else gv[:, None]
-    return (w[:, None] * jnp.conj(fv2)).T @ gv2
+    out = (w[:, None] * jnp.conj(fv2)).T @ gv2
+    # Native isequal is evaluated AFTER prolonging, and only compares the
+    # coefficient array shape and entries (including NaN != NaN). Apply its
+    # diagonal correction inside JAX so traced and eager execution agree.
+    fc2 = fc if fc.ndim == 2 else fc[:, None]
+    gc2 = gc if gc.ndim == 2 else gc[:, None]
+    if fc2.shape == gc2.shape:
+        diagonal = jnp.diag(jnp.diag(out))
+        corrected = out - diagonal + jnp.abs(diagonal)
+        out = jnp.where(jnp.all(fc2 == gc2), corrected, out)
+    return out
+
+
+def _scalar_inner_storage(fc, gc, out):
+    """Retain real scalar self-products where equality is knowable.
+
+    Existing scalar inner callers rely on a real norm for complex self
+    products. JAX cannot select dtype from a traced runtime equality;
+    identical arrays are statically equal, and eager arrays can be checked
+    after native zero prolongation. Array-valued outputs retain their matrix
+    dtype and receive the native diagonal correction in _inner_product.
+    """
+    if out.ndim != 0:
+        return out
+    if fc is gc:
+        return jnp.abs(out)
+    if not isinstance(fc, jax.core.Tracer) and not isinstance(gc, jax.core.Tracer):
+        n = fc.shape[0] + gc.shape[0]
+        same = jnp.all(jnp.pad(fc, (0, n-fc.shape[0])) ==
+                       jnp.pad(gc, (0, n-gc.shape[0])))
+        if bool(same):
+            return jnp.abs(out)
+    return out
 
 
 # ============================================================================
@@ -4211,17 +4244,7 @@ class Chebtech2(eqx.Module):
         sum, norm
         """
         out = _inner_product(self.coeffs, other.coeffs)
-        # MATLAB @chebtech/innerProduct.m forces a nonnegative real result
-        # when f == g (isequal branch).  The identity check is JIT-safe;
-        # the value check runs only on concrete (non-traced) arrays.
-        same = other is self
-        if not same and self.coeffs.shape == other.coeffs.shape:
-            if not isinstance(self.coeffs, jax.core.Tracer) and \
-                    not isinstance(other.coeffs, jax.core.Tracer):
-                same = bool(jnp.all(self.coeffs == other.coeffs))
-        if same and out.ndim == 0:
-            return jnp.abs(out)
-        return out
+        return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 
     def norm(self, p: float = 2.0) -> jax.Array:
         """Lp norm of the Chebtech2.
@@ -5900,17 +5923,7 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         out = _inner_product(self.coeffs, other.coeffs)
-        # MATLAB @chebtech/innerProduct.m forces a nonnegative real result
-        # when f == g (isequal branch).  The identity check is JIT-safe;
-        # the value check runs only on concrete (non-traced) arrays.
-        same = other is self
-        if not same and self.coeffs.shape == other.coeffs.shape:
-            if not isinstance(self.coeffs, jax.core.Tracer) and \
-                    not isinstance(other.coeffs, jax.core.Tracer):
-                same = bool(jnp.all(self.coeffs == other.coeffs))
-        if same and out.ndim == 0:
-            return jnp.abs(out)
-        return out
+        return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 
     def norm(self, p: float = 2.0) -> jax.Array:
         """Lp norm on [-1, 1].
