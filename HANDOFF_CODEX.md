@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebfun3 get and empty properties restored (2026-10-10; latest)
+
+All five valid properties of an empty Chebfun3 return native numeric empty
+arrays through get and dot subsref. Invalid names still raise the native
+error. All five original get predicates now use source continuous norms and
+factory tolerances; the previous sampled test is retained. All 20 cases
+passed, with 2,966 runtime files and 31 delivery bindings checked by root.
+Nonempty executable AST is unchanged. Evidence: docs/chebfun3_get_cpu_20261010.json.
+Native object-array/cell recursion has no Python representation yet; that
+branch, full current suite and CI remain open.
+
 ## Trigtech inner-product test reference corrected (2026-10-10; latest)
 
 The real-column control now uses native prolonged stored values and trapezium

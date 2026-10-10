@@ -46,6 +46,10 @@ def _matlab_shape(array):
 
 
 def source_get(f, name):
+    # Uninitialized native class properties are numeric [] even for factors.
+    # Validate the property first; an empty object still rejects unknown names.
+    if name in ('cols', 'rows', 'tubes', 'core', 'domain') and f.isempty():
+        return jnp.empty((0, 0), dtype=jnp.float64)
     if name in ('cols', 'rows', 'tubes'):
         k = ('cols', 'rows', 'tubes').index(name)
         return _panel(getattr(f, name), tuple(f.domain[2*k:2*k+2]))
