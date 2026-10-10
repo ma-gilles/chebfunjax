@@ -5,7 +5,7 @@ Provenance
 MATLAB source : tests/chebfun/test_plus.m, @chebfun/isequal.m, @chebfun/vscale.m
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 The first100 seed6178 sites are native captured primitive inputs. Clause29's
-post-constructor RNG state still requires a source-order native capture.
+post-constructor RNG state is captured from the original native source order.
 Clause15 preserves the original catch-all/undefined-ME defect. Clause16 uses
 the ME retained by clause15; independent controls qualify actual rejection.
 """
@@ -187,9 +187,9 @@ def test_source_predicate(slot):
         assert _singular_predicate(x)
     elif slot == 29:
         path = Path(__file__).with_name('plus_source_clause29_native_sites.json')
-        if not path.exists():
-            pytest.skip('Native source-order RNG state after singular constructors is pending')
         data = json.loads(path.read_text())
+        assert data['source_commit'] == '7574c77680d7e82b79626300bf255498271a72df'
+        assert data['source_sha256'] == 'b711cfc5addb3d863dfd091a7bb743347fd59b51e8225ab4cab60d3d8296243b'
         x = jnp.asarray([struct.unpack('>d', bytes.fromhex(w))[0] for w in data['query_words']])
         assert _unbounded_predicate(x)
     elif slot >= 30:

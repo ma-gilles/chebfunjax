@@ -1,0 +1,65 @@
+{
+  "scope": "Restore native query inputs for trigpade clauses5,10,15; solver and original tolerance unchanged",
+  "native": {
+    "native_passed": 30,
+    "original_handle": 63799,
+    "runtime_version": "25.2.0.3055257 (R2025b) Update 2",
+    "provider": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/@chebfun/chebfun.m",
+    "source": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/tests/chebfun/test_trigpade.m",
+      "source_sha256": "3f6ae01eb993a95b46ee04cbfc61558c2d5d539083d9a1ceafcfaf0372fc1c76",
+      "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+      "instrumentation": "Rename entrypoint; save tt after original random draw; retain all30 source predicates",
+      "bounds": "CPU12\u201315,180s,3GiB"
+    },
+    "resources": {
+      "wall_seconds": 84.50434453599155,
+      "sampled_peak_summed_rss_kib": 1540260,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "artifacts": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpg1/inputs.mat": "d80945f421c0b0beed8454f8072591fb65343da039778478a8f0c118317c4792",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpg1/result.mat": "18517b1fd989a7a59565d25d4abc47a46fee3b986324db8301eace6abc042429",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpg1/guard.json": "676f2cf8fdb37757e49317ea9895d2f14413b5d61f083c33710d80ef1cc32786",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpg1/supervision/receipt.json": "5e8f5e481bb8e7c4adb797f50ad73d27c6611dff8a854e54bc0b80a0800c22a0"
+    }
+  },
+  "python": {
+    "original_handle": 88936,
+    "passed": 3,
+    "clauses": [
+      5,
+      10,
+      15
+    ],
+    "versions": {
+      "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+      "executable": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "equinox": "0.13.8",
+      "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpade_native_input_candidate_20261010/snapshot/src/chebfunjax/__init__.py",
+      "devices": [
+        "cpu:0"
+      ]
+    },
+    "resources": {
+      "wall_seconds": 17.61482842406258,
+      "sampled_peak_summed_rss_kib": 1149280,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpg1/AUDIT.json": "0b3fe0af715b6ce7acb23db35a8c0d6984d648a3ade7277438e5f74e0470c785",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpade_native_input_candidate_20261010/guard.json": "97b01787b7be0d1ce6040be1da56f1f00dd46426487f1d286db946f734846406",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpade_native_input_candidate_20261010/junit.xml": "312c561fd1d74ee73c97160ef57461a46f3c966b6772947d2b9f0af28dc9eba6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpade_native_input_candidate_20261010/supervision/receipt.json": "7f12b7632f8ff62c2eee22775e2352a8c40ddd549ff7a832cd0333bf84b37e23"
+  }
+}

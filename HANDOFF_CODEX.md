@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Addition and trigpade native inputs restored (2026-10-10; latest)
+
+Native test_plus passed all 34 predicates; test_trigpade passed all 30. Input
+captures preserve original statement order, including the random draw after
+singular constructors for addition. The formerly skipped addition clause29
+and trigpade clauses5,10,15 now pass in Python with exact native queries and
+unchanged tolerances. No solver changes. Evidence:
+docs/plus_native_inputs_cpu_20261010.json and
+docs/trigpade_native_inputs_cpu_20261010.json.
+
+
 ## Native restriction input gap closed (2026-10-10; latest)
 
 Native test_restrict passed all 29 predicates while capturing x1/x2 after the

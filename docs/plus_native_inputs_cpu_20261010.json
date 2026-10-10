@@ -1,0 +1,64 @@
+{
+  "scope": "Restore native source-order input for plus clause29; original predicate/tolerance and solver unchanged",
+  "native": {
+    "native_passed": 34,
+    "original_handle": 73981,
+    "runtime_version": "25.2.0.3055257 (R2025b) Update 2",
+    "provider": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/@chebfun/chebfun.m",
+    "source": {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/tests/chebfun/test_plus.m",
+      "source_sha256": "b711cfc5addb3d863dfd091a7bb743347fd59b51e8225ab4cab60d3d8296243b",
+      "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+      "instrumentation": "Rename entrypoint; save x after three original random draws; retain all34 source predicates",
+      "bounds": "CPU8\u201311,180s,3GiB"
+    },
+    "resources": {
+      "wall_seconds": 62.208428845740855,
+      "sampled_peak_summed_rss_kib": 1561624,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "prefix_matches_existing100draw_fixture": true,
+    "artifacts": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/prefix.mat": "b86378951da19558eb14b1600b4740343c974d51f6b5772fdab7ce5c99ce3493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/singular.mat": "ea54642ae920de3d021d4f8837a2c23cfc6764ebade4cf668aaef081b4512642",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/unbounded.mat": "2dfc391e5da70292249681ebb8981a31f0517f320c085ab3a935275f91116b40",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/result.mat": "fc2a1091436347d5cc7fe4fdbf103ccbcd7729318507706a6713f33180e2e1c3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/guard.json": "722385aae3d3b710bfed81792bfd07438c38bae180a593338c5a6e526a3025af",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/supervision/receipt.json": "912e1051b50b1c17f0fcb4cedce1b8cfdc717809c9e0389c5acb8248e38ea8a6"
+    }
+  },
+  "python": {
+    "original_handle": 92042,
+    "passed": 1,
+    "node": "tests/test_matlab_port/chebfun/test_plus_matlab.py::test_source_predicate[source_29]",
+    "versions": {
+      "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+      "executable": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "equinox": "0.13.8",
+      "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_native_input_candidate_20261010/snapshot/src/chebfunjax/__init__.py",
+      "devices": [
+        "cpu:0"
+      ]
+    },
+    "resources": {
+      "wall_seconds": 19.509829896967858,
+      "sampled_peak_summed_rss_kib": 1185992,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pls1/AUDIT.json": "ad0f090a4e6d5bf2d57566ff44a15d2ec417549b8a123dfe56d69dca87c373ca",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_native_input_candidate_20261010/guard.json": "434aba7305c55b614eecae5cf9167e2375f0fa686431f25149d199d47124f5df",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_native_input_candidate_20261010/junit.xml": "c9f5e4f271aa9da693fa479ffb0c0a738426ac83cafbf183b06d576f01c32921",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_native_input_candidate_20261010/supervision/receipt.json": "095ed53cc1343bb88068c8343e5b4a3cdab0a60bccbd137ae4df56fdf3af3767"
+  }
+}

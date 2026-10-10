@@ -1,7 +1,7 @@
 """Literal30 source slots of tests/chebfun/test_trigpade.m (7574c77).
 
-Clauses5,10,15 use the source unseeded tt stream; native source-order input
-capture is pending. No seeded Python stream substitutes for those predicates.
+Clauses5,10,15 use tt captured from the original native source order.
+No seeded Python stream substitutes for those predicates.
 """
 import json
 from functools import lru_cache
@@ -78,8 +78,6 @@ def _compare_coeffs(f, g, n, tolerance):
 def test_original_predicate(clause):
     if clause in (5,10,15):
         fixture = Path(__file__).parents[2]/"fixtures/trigpade_source_tt.json"
-        if not fixture.exists():
-            pytest.skip("Native unseeded trigpade tt stream capture pending; original predicate not replaced")
         captured = json.loads(fixture.read_text())
         assert captured["source_commit"] == "7574c77680d7e82b79626300bf255498271a72df"
         assert captured["source_sha256"] == "3f6ae01eb993a95b46ee04cbfc61558c2d5d539083d9a1ceafcfaf0372fc1c76"
