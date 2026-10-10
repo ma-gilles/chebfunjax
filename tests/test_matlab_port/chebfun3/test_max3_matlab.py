@@ -1,26 +1,26 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_max3.m (Fable 5).
+"""Both original assertions from MATLAB tests/chebfun3/test_max3.m.
 
-FIXED: Chebfun3.max3 added in the Fable 5 audit.
-
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_max3.m
-Chebfun commit: 7574c77
+Chebfun commit: 7574c77. Preserve the original inputs, construction order,
+shared one-dimensional Chebfun reference, default norm and 100*factoryeps.
+Python max3 returns (value, location); select its first output. The unused
+y/z formal arguments of the native constant callback are omitted.
 """
 
 from __future__ import annotations
 
-import numpy as np
+import jax.numpy as jnp
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Max3:
-    def test_max3_of_quadratic(self):
-        g = Chebfun3.from_function(
-            lambda x, y, z: 1 - (x - 0.2) ** 2 - (y + 0.1) ** 2
-            - z ** 2)
-        v, loc = g.max3()
-        assert abs(float(v) - 1.0) < 1e-8
-        np.testing.assert_allclose(np.asarray(loc), [0.2, -0.1, 0.0],
-                                   atol=1e-4)
+def test_native_max3_both_original_assertions():
+    tol = 100*ChebfunPref().cheb3Prefs.chebfun3eps
+    f = chebfun3(lambda x, y, z: jnp.cos(x*y*z))
+    g = chebfun(lambda x: 1+0*x)
+    h1 = float(f.max3()[0])
+    assert (h1-g).norm() < tol
+    f = chebfun3(lambda x, y, z: jnp.sin(x+y+z))
+    h2 = float(f.max3()[0])
+    assert (h2-g).norm() < tol

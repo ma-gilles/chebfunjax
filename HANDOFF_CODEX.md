@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native max3 assertions restored (2026-10-10; latest)
+
+Both original cosine/sine predicates now run with the shared constant
+Chebfun reference and native continuous norm threshold. One CPU case
+passed; root independently verified2,947 runtime files. Evidence:
+docs/chebfun3_native_max3_cpu_20261010.json. This replaces the surrogate
+quadratic-only native test; the current extrema implementation still uses
+a different algorithm, so full extrema/source parity remains unresolved.
+
 ## Supported preference test corrected (2026-10-10; latest)
 
 The obsolete unsupported-trig expectation is replaced by a positive
