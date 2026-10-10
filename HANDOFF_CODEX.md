@@ -1,5 +1,13 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native public isnan tests restored (2026-10-10; latest)
+
+All ten native Chebtech isnan cases now exercise the public method, with exact
+case-insensitive exception-message checks after removing Python’s native-ID
+prefix. All ten pass; library code is unchanged. Evidence:
+docs/isnan_public_native_cpu_20261010.json. Source/test hashes and JUnit verified;
+no full observed-module runtime audit or whole-suite claim.
+
 ## QR per-column scale assertion restored (2026-10-10; latest)
 
 Native QR pass 20 now checks the three-entry vscale_columns vector. All four

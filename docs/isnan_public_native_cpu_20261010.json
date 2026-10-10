@@ -1,0 +1,27 @@
+{
+  "package": "Native Chebtech public isnan predicates",
+  "base_commit": "81d86b41dff0b9276d18248af8e835f7bd7c74be",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_test_sha256": "ad87d000a3f3b6982690f3c46cea8144bf9b4d96102938341532b7b302a035f9",
+  "native_error_source_sha256": "e3295f489391a83ea8bc2368b51e8b703c621ce198e97d585f5c59fdf116d22d",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/isnan_public_native_20261010/receipt.json",
+  "receipt_sha256": "1c1abf19705684ce1d8f163c28ccb4947c680afa890593ed60d928d0e2976314",
+  "passed": 10,
+  "elapsed_seconds": 6.867399211972952,
+  "peak_child_rss_kib": 580268,
+  "source_test_hashes_verified": 2086,
+  "changes": [
+    "Call public isnan for all five native clauses across both Chebtech classes.",
+    "Compare complete exception message case-insensitively, removing only the exact native identifier prefix encoded by Python."
+  ],
+  "library_unchanged": true,
+  "preserved_runs": {
+    "v1": "10 passed with public method calls and previous substring error checks.",
+    "v2": "6 passed,4 failed because Python exception text includes native identifier; this is an adapter discrepancy, preserved unmodified."
+  },
+  "limitations": [
+    "No observed-module runtime hash audit; source/test tree verified before and after.",
+    "Peak RSS measured, not capped; 120s timeout and CPU24\u201331 affinity enforced.",
+    "No full constructor or current whole-suite qualification."
+  ]
+}
