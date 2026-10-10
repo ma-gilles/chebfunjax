@@ -1,0 +1,28 @@
+{
+  "scope": "Direct execution of all 12 parameterized native linearSystem2 clauses (19 comparisons); no production or test edits",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualified_head": "3d32ca4e836efb7aa04eb2084653c01df9e879f1",
+  "packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/linearSystem2_direct_native_20261010/FINAL_DELIVERY_v1.json",
+  "packet_sha256": "3858a416dea3350bc2655008240ed713d8835bc694b6eb3f70150595d030717e",
+  "root_verified_bindings": 16,
+  "audit": {
+    "gate": "A12native_v1",
+    "faults": [],
+    "observed_rehash_count": 2973,
+    "mismatches": [],
+    "wrong_origins": {},
+    "junit_count": 12,
+    "terminal": 0,
+    "supervisor_exit": 0,
+    "censored_limit": null,
+    "peak_kib": 1660988,
+    "wall_seconds": 92.73884651716799,
+    "stable": true,
+    "survivors": []
+  },
+  "coverage": "Historical aggregate mirror skip remains a skip. Direct module passes are separately counted and included explicitly in the continuation inventory.",
+  "limits": [
+    "Focused execution at the qualified head, not a complete latest-HEAD suite or fresh CI.",
+    "Other skips and missing native coverage remain unresolved."
+  ]
+}

@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Direct native linearSystem2 coverage (2026-10-10; latest)
+
+All 12 parameterized native clauses, containing 19 comparisons, pass unchanged
+at qualified head 3d32ca4e. The aggregate mirror still skips because its plain
+callable discovery excludes this parameterized module; that skip receives no
+pass credit. The continuation inventory now explicitly includes the direct
+module, with its 12 completed cases counted separately. Root verified all 16
+delivery bindings; 2,973 runtime hashes are clean, with no surviving processes.
+Evidence: docs/linear_system2_direct_cpu_20261010.json. Broad latest-HEAD
+verification, other skips, full parity and fresh CI remain open.
+
 ## Native AD composition and pantograph equations (2026-10-10; latest)
 
 Function-state evaluation now uses native composition: its Jacobian includes
