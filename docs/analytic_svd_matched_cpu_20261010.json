@@ -1,0 +1,59 @@
+{
+  "qualification": "Full source computation on captured MATLAB R2025b rng10 matrices; numerical and visual parity remain open",
+  "source_base": "4247b168296f2d86de887218ce2dfc87076a09b2",
+  "library_delta_on_later_main": "b655a880 changes 2D extrema seed only; this page uses1D construction/SVD",
+  "native_input": {
+    "entries": 32,
+    "json_mat_native_bits_exact": true,
+    "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "release": "2025b"
+  },
+  "execution": {
+    "input_bindings": 48216,
+    "observed_rehash_count": 1822,
+    "terminal": 0,
+    "supervisor_exit": 0,
+    "peak_kib": 4324964,
+    "wall_seconds": 1091.113097440917,
+    "stable": true,
+    "survivors": []
+  },
+  "constructions": 86,
+  "figures": 5,
+  "figure_pixels": [
+    608,
+    271
+  ],
+  "actual_time_in_seconds": 984.1017472743988,
+  "function_class_asts_unchanged": true,
+  "original_matlab_code_blocks_preserved": 9,
+  "visual_review": {
+    "figures_reviewed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "reference_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ref_retrieval_20261006/assets/linalg",
+    "observations": [
+      "Singular-value shapes now visually match native reference after matched RNG inputs.",
+      "U/V sign choices and some discontinuities differ from historical LAPACK.",
+      "Axes placement, limits, ticks, font/box policy differ.",
+      "Figure5 rightmost labels clip; source-faithful saved-data renderer correction is next."
+    ],
+    "parity_claim": false
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/AUDIT.json": "bd00b24d7128fe622716baf1fa35ffd007ae6b52a2a9d15c75d605279a720f3f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/guard.json": "d464c5cde4854ba527d1bb61621985cc65e51b5794145053b338a73e3aed72b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/events.jsonl": "78175422e931b31d5c52eb52c9b86320fb124d7b1514f299a8c0165ce19ecddb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/supervision/stdout": "d06a0e29b7671881f4f40e9d6a51187fb4882819b18d81aee8c512991ea30c8c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/supervision/receipt.json": "c18a52c097f6dd0948b44db1fe596930e2cbca7827d7176a6118a8c340f93c37",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/runtime/end.json": "4425f1ea2837ef7e06f61daef76bcc40f76105defe1d20ea8fda45ba940e4ae5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_matched_page_20261010/VISUAL_REVIEW.json": "a1a51087baa9c26fe68c12ccf257d42982a7abde46c03175e76be2256a285f01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/AUDIT.json": "463410c2af001fb6c80f31edaad843dc26d8aefc32435a48384f1762cc4e75c9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/native_inputs.mat": "c4bbf7f6de6a45f099f4e2c0445a901a4d4b1c1be48998a036cc9011c9374792",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/analytic_svd_matlab_rng10.json": "2457366d53895f8e8f711ef16985c65863a6406edb9bc28026a3eac0940b26aa"
+  }
+}

@@ -173,7 +173,10 @@ Unfortunately, these computations are not very fast:
 time_in_seconds = toc
 ```
 
-*The timing output from the latest completed run was not captured. Its numerical work and all five figures were verified; a fresh stdout capture is still required.*
+```text
+time_in_seconds =
+     9.841017472743988e+02
+```
 
 ## 6. References
 
@@ -203,7 +206,15 @@ end
 end
 ```
 
-**CPU verification:** The full Python computation completed using the checked-in historical Python matrices. These inputs have not been matched to MATLAB `rng(10)`, so the figures below do not establish numerical or visual parity with the original example.
+**CPU verification:** The complete computation uses checked-in matrices captured
+from MATLAB R2025b's literal `rng(10); A=randn(4,4); B=randn(4,4)` source
+commands. All 32 input values match the native capture bit-for-bit. The run
+completed 86 finite, resolved constructions and generated all five 608×271
+figures; the timing above is its actual output. Historical LAPACK sign choices,
+coefficient rounding and visual parity remain unverified. Visible differences
+include singular-vector signs, axes limits and placement, typography, and
+clipped rightmost labels in the coefficient plot. These figures are the actual
+completed run, not reference images.
 
 ---
 

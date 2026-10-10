@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AnalyticSVD executed on captured MATLAB inputs (2026-10-10; latest)
+
+The default matrices now come from literal R2025b rng(10)/randn source
+commands; all 32 entries match native MAT/JSON bits. The complete source
+computation passes: 86 finite, resolved constructions, all five 608x271
+figures, and actual timer 984.1017472743988 seconds. Runtime 1,822 files and
+48,216 inputs audit clean; peak RSS 4,324,964 KiB with no cap or survivors.
+Original MATLAB page code is preserved. Historical LAPACK signs, coefficient
+rounding and visual parity remain open; axes/layout and clipped last-figure
+labels need a saved-data renderer correction. Evidence:
+docs/analytic_svd_matched_cpu_20261010.json. Full parity and CI remain open.
+
+
 ## Supplemental CPU sweep completed (2026-10-10; latest)
 
 All 99 unique supplemental nodes pass across four CPU lanes, with exact

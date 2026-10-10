@@ -3,9 +3,9 @@
 Translation of linalg/AnalyticSVD.m by Yuji Nakatsukasa, Vanni Noferini,
 and Nick Trefethen (July 2016). The source uses MATLAB rng(10), followed
 by A=randn(4,4), B=randn(4,4). Supply those matrices using --matrix-input;
-no matching MATLAB capture is currently included. The default run uses the
-checked-in, explicitly unmatched historical Python matrices. Other input matrices
-are an explicitly unmatched diagnostic, not the cached reference example.
+the default run uses captured MATLAB R2025b matrices from those source commands.
+Historical July2016 LAPACK sign choices and cached figure identity remain
+unverified. Other input matrices are explicitly unmatched diagnostics.
 
 Original: https://www.chebfun.org/examples/linalg/AnalyticSVD.html
 Copyright by The University of Oxford and The Chebfun Developers.
@@ -31,7 +31,7 @@ from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_DEFAULT_MATRIX_INPUT = Path(_HERE) / "analytic_svd_unmatched_inputs.json"
+_DEFAULT_MATRIX_INPUT = Path(_HERE) / "analytic_svd_matlab_rng10.json"
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'linalg')
 
 M = N = 4
