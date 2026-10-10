@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Six native unary contracts restored (2026-10-10; latest)
+
+Exp/cos/tanh now use the native default constructor. Abs returns positive
+real input, negates negative input and rejects sign changes. Sqrt/log
+apply the source sign test and principal complex promotion for negative
+samples, preserving generic-compose periodic behavior. All five original
+abs predicates, including the previously omitted error case, and fifteen
+periodic/sign/complex/empty controls passed:18CPUcases,2,950runtime
+hashes independently verified. Evidence: docs/chebfun3_unary_source_cpu_20261010.json.
+Generic compose, existing isreal, constructor/evaluation host paths and
+fully traceable adaptive dtype selection remain separate audit scope.
+
 ## Native guide predicates1–10 restored (2026-10-10; latest)
 
 The first ten guide assertions now use native public construction/length

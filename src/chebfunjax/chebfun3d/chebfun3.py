@@ -2942,7 +2942,10 @@ class Chebfun3(eqx.Module):
                         trig=self.isPeriodicTech())
 
     def exp(self):
-        return self.compose(jnp.exp)
+        """Apply native @chebfun3/exp.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'exp')
 
     def sin(self):
         """Resample sine with the native default constructor technology.
@@ -2955,19 +2958,34 @@ class Chebfun3(eqx.Module):
         return chebfun3(lambda x, y, z: jnp.sin(self(x, y, z)), self.domain)
 
     def cos(self):
-        return self.compose(jnp.cos)
+        """Apply native @chebfun3/cos.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'cos')
 
     def sqrt(self):
-        return self.compose(jnp.sqrt)
+        """Apply native @chebfun3/sqrt.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'sqrt')
 
     def log(self):
-        return self.compose(jnp.log)
+        """Apply native @chebfun3/log.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'log')
 
     def tanh(self):
-        return self.compose(jnp.tanh)
+        """Apply native @chebfun3/tanh.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'tanh')
 
     def abs(self):
-        return self.compose(jnp.abs)
+        """Apply native @chebfun3/abs.m dispatch (Chebfun7574c77)."""
+        from chebfunjax.chebfun3d._unary import source_unary
+
+        return source_unary(self, 'abs')
 
     def real(self) -> "Chebfun3":
         """Real part, re-approximated adaptively (a complex Chebfun3's

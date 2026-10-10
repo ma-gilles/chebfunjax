@@ -1,0 +1,65 @@
+{
+  "reviewer": "/root",
+  "scope": "Six unary source contracts: all5nativeabs predicates and15independent controls",
+  "gates": [
+    {
+      "gate": "chebfun3_unary_source_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_source_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "852e021cc0ee4fc21a282981717046b23e3bf6ecab8d4c47726cd484acccaac3",
+      "runtime_manifest_sha256": "279684f5e6a7fb8a9500c8c58c6c6c6dad50a5673fb618f5215573f5b34b5c9b",
+      "runtime_end_sha256": "5d02bd34a596db5d62cf2a20b9495211c0fd2ef158129ea866e2e3b888ce6f20",
+      "observed_files_rehashed": 2950,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 58,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1962948,
+      "cpu_affinity": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "assertion_slots": 18,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": {
+    "base": "1b9bbee74e569c60a33063098a2fc502b2781eb1",
+    "scope": "Six unary source routes; original5abs predicates and15independent controls",
+    "changes": {
+      "src/chebfunjax/chebfun3d/chebfun3.py": "780727fe13ecf1e33e2bfd412c4510cbe418b7281c8c90ada97e2371b8467f70",
+      "src/chebfunjax/chebfun3d/_unary.py": "bd2fb3d06f4c26b0b8718c68b689a87cea5392972b88df19df1bcd5ceb9d6b33",
+      "tests/test_matlab_port/chebfun3/test_abs_matlab.py": "1b56a73118d71220141772aa45a260da4eeb8de17e46dd79f163bea522fdb52e",
+      "tests/test_chebfun3d/test_unary_source_controls.py": "b901be416fd695793dac4c3cdf819eb2ec8db674e32c249f5bd7d4e333970927"
+    },
+    "source_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/exp.m": "d19eb663faddcfa58b31fb4ebdd6938f480de3f3714e1563626c935a36ec16f6",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/cos.m": "5d8381995b017e1f23cf50cfa03b78e9770b395378ccbc0976c72fcbd9016aa1",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/tanh.m": "695403a32714d4089e28cd3d74bf24f43d59883c01a9fa9c0bd0def4c0cd982e",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/sqrt.m": "8fd51ff3993473a7458e2f210462b47c311fcc9aa3c4d4d2e6249b2d18b1b127",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/log.m": "9dc136b739f5aa62163b7d13873ebb0026127f45a13f3e43d462705e5df773d9",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/abs.m": "dd24e70144e74f98a44d809a5e234f002da4bd0036b6330edf4a0b0214d0e6c3",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/private/singleSignTest.m": "50c571337fd17b00761a3a3032cbd88ab76a1325f799f459f1db22a156ddf1e7",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_abs.m": "db541d7f340bdf900ef24d426d59542c98eff9f822ded08fb1baf0720ee443ca"
+    },
+    "remaining": [
+      "Global constructor/evaluation and existing isreal implementation require separate audit.",
+      "Principal-value promotion is eager sampled dtype selection, not fully traceable adaptive construction."
+    ]
+  },
+  "native_abs_assertions": 5,
+  "independent_controls": 15,
+  "limitations": [
+    "Global constructor/evaluation and existing isreal implementation require separate audit.",
+    "Principal-value promotion is eager sampled dtype selection, not fully traceable adaptive construction."
+  ]
+}
