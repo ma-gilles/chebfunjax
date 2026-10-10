@@ -28,7 +28,7 @@ toc
 ```
 
 ```text
-Elapsed time is 1.433953 seconds.
+Elapsed time is 106.318439 seconds.
 ```
 
 ![ConformalMapping figure 01](../../images/complex/ConformalMapping_01.png)
@@ -52,7 +52,7 @@ ylim([-1.3 1.3]), axis equal
 ```
 
 ```text
-Elapsed time is 0.095856 seconds.
+Elapsed time is 0.160215 seconds.
 ```
 
 ![ConformalMapping figure 02](../../images/complex/ConformalMapping_02.png)
@@ -72,7 +72,7 @@ max_deviation_from_circle = norm( abs(Z)-1 , inf)
 
 ```text
 max_deviation_from_circle =
-     6.229561869686151e-06
+     3.598218333955572e-06
 ```
 
 As a test of how accurately `f` and `finv` are inverses of each other, we compare the computed preimages of these points `Z` to the original set of points `W`:
@@ -84,7 +84,7 @@ max_back_and_forth_error = norm( W-W2 , inf)
 
 ```text
 max_back_and_forth_error =
-     8.337543733114265e-05
+     1.264531885427687e-05
 ```
 
 The algorithm used by `conformal` is a discretization of the Kerzman-Stein integral equation [2], and our code is a descendant of one written by Anne Greenbaum and Trevor Caldwell of the University of Washington. This code only works for smooth domains, but we hope to introduce capabilities for regions with corners in the future.

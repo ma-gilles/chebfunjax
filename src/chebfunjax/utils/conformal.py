@@ -15,6 +15,7 @@ Comp. Meth. Funct. Th. 20 (2020), 369-387.
 
 from __future__ import annotations
 
+import time
 import warnings
 from typing import Callable, Tuple
 
@@ -33,6 +34,8 @@ def conformal(
     *,
     tol: float = 1e-5,
     method: str = "kerzman-stein",
+    plots: bool = False,
+    numbers: bool = False,
 ) -> Tuple[Callable, Callable, jnp.ndarray, jnp.ndarray]:
     """Conformal map from a simply-connected region to the unit disk.
 
@@ -56,6 +59,10 @@ def conformal(
         - 'kerzman-stein': solve the Kerzman-Stein integral equation
           (Greenbaum-Caldwell), more robust for smooth domains.
         - 'poly': polynomial least-squares (faster for simple domains).
+
+    plots, numbers : bool, default False
+        Native plotting and printed-diagnostic options, adapted as keywords.
+        Plotting clears the current figure and retains its canvas size.
 
     Returns
     -------
@@ -101,6 +108,8 @@ def conformal(
     """
     from chebfunjax.chebfun1d.chebfun import chebfun
 
+    t1 = time.perf_counter()
+    poly_info = {} if numbers and method == "poly" else None
     C = boundary_pts if hasattr(boundary_pts, "funs") else chebfun(
         jnp.asarray(boundary_pts, dtype=jnp.complex128).reshape(-1),
         domain=(0.0, 2 * jnp.pi), trig=True)
@@ -120,7 +129,7 @@ def conformal(
                 warnings.warn("conformal did not converge", stacklevel=2)
                 break
     elif method == "poly":
-        W, Z = _poly_method(C, ctr, scl, tol=tol)
+        W, Z = _poly_method(C, ctr, scl, tol=tol, _diagnostics=poly_info)
     else:
         raise ValueError("method must be 'kerzman-stein' or 'poly'")
     f0, pol, *_ = aaa(W, Z, tol=tol)
@@ -134,6 +143,19 @@ def conformal(
         warnings.warn("conformal: pole of forward map inside region", stacklevel=2)
     if polinv.size and bool(jnp.min(jnp.abs(polinv)) < 1):
         warnings.warn("conformal: pole of inverse map inside unit disk", stacklevel=2)
+    tcomp = time.perf_counter() - t1
+    tplot = None
+    if plots:
+        from chebfunjax.utils._conformal_options import plot_conformal
+        t2 = time.perf_counter()
+        plot_conformal(C, ctr, scl, finv, pol, polinv)
+        tplot = time.perf_counter() - t2
+    if numbers:
+        from chebfunjax.utils._conformal_options import print_conformal_numbers
+        print_conformal_numbers(
+            f, finv, Z, W, pol, polinv, tcomp, tplot,
+            poly_info['M'] if poly_info is not None else M,
+            poly_info['err'] if poly_info is not None else err, poly_info)
     return f, finv, pol, polinv
 
 
@@ -183,7 +205,7 @@ def _kerzman_stein(C, M):
     return g, Z, W
 
 
-def _poly_method(C, ctr, scl, *, tol=1e-5):
+def _poly_method(C, ctr, scl, *, tol=1e-5, _diagnostics=None):
     """Source resampling, Arnoldi and least squares; conformal.m 7574c77."""
     err, logn = float("inf"), 4.0
     a, b = float(C.domain.a), float(C.domain.b)
@@ -208,4 +230,6 @@ def _poly_method(C, ctr, scl, *, tol=1e-5):
         if err > tol and logn >= 9.5:
             warnings.warn("conformal did not converge", stacklevel=2)
             break
+    if _diagnostics is not None:
+        _diagnostics.update(M=M, n=n, err=err, A=A)
     return W, Z

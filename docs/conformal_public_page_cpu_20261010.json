@@ -1,0 +1,133 @@
+{
+  "base_head": "20c109c52245bb7904204d95fd06e57e3d0787ce",
+  "delivery_sha256": "614374f84aa1fd24efda5f51b720ea2008d62b3957b5df521deefe3e7628c29d",
+  "binding_count": 80,
+  "assertions_equal": 23,
+  "prose_and_MATLAB_cells_unchanged": true,
+  "subsequent_aaa_function_changes": [
+    "aaatrig",
+    "_revaltrig_csc",
+    "_revaltrig_cot",
+    "_prztrig_np",
+    "_cleanup_trig"
+  ],
+  "production": [
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/candidate/examples/complex/conformal_mapping.py",
+      "destination": "examples/complex/conformal_mapping.py",
+      "sha256": "3bff51b8a60fe6d72e95ec4dd28405b959b90aaf5f0eec39d61b51d518570c04"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/candidate/src/chebfunjax/utils/_conformal_options.py",
+      "destination": "src/chebfunjax/utils/_conformal_options.py",
+      "sha256": "eb5c8e0b7ccd2bef1c1edb53b258a722c60342bb5cec669a18d82aba1a60b285"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/candidate/src/chebfunjax/utils/conformal.py",
+      "destination": "src/chebfunjax/utils/conformal.py",
+      "sha256": "000ebf2facff388a68828162439c632954a4a1223505927594abd6b3a0c395ad"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/portable_v2/tests/test_utils/test_conformal_options_source.py",
+      "destination": "tests/test_utils/test_conformal_options_source.py",
+      "sha256": "d4e9055fb80b7e2438d516886e0f1a0383b94de157d9527db58f43601e914200"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/generated/docs/examples/complex/ConformalMapping.md",
+      "destination": "docs/examples/complex/ConformalMapping.md",
+      "sha256": "1c9fbeaa926c763f66831e2c8421e3a2799829460c1c2d57b21cae17a3579bc1"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/F1fullpage_v2/snapshot/docs/images/complex/ConformalMapping_01.png",
+      "destination": "docs/images/complex/ConformalMapping_01.png",
+      "sha256": "91fe25ffd99a71a9b54167539505329d378adffc65ba4f574bd473349dccdfb8"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/F1fullpage_v2/snapshot/docs/images/complex/ConformalMapping_02.png",
+      "destination": "docs/images/complex/ConformalMapping_02.png",
+      "sha256": "a8fae34c7053cfebbdd91a92d420258a98cb9bc2203d78073105f7d2f9291b91"
+    }
+  ],
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "Full native-computation ConformalMapping page and portable5options controls; two frozen CPU gates",
+    "gates": [
+      {
+        "gate": "F1fullpage_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/F1fullpage_v2/supervision/receipt.json",
+        "receipt_sha256": "a89a11e9da7014da97906d7ca84afe857d3d45cfbc8e2c2fdf00f9222a650b2b",
+        "runtime_manifest_sha256": "36aab238c03c058bad1edafbb8d213e4f3dd4c8525b1bec5c1e3367f46b0b374",
+        "runtime_end_sha256": "fdccc5ebf40639fa89efd3fa0a42ccf93ac94271c124659f7648ef325716e1a0",
+        "observed_files_rehashed": 2971,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 72,
+        "wrong_library_origins": {},
+        "native_loaded_files": 239,
+        "before_after_identical": true,
+        "peak_kib": 4148356,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "G5portable_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_public_page_source_20261010/G5portable_v2/supervision/receipt.json",
+        "receipt_sha256": "c10d4254600aa1429c3d3ebfb9924287cffbfbe3bfcc9a4b5bae3dfb7d43289a",
+        "runtime_manifest_sha256": "64989b3c2fe6cc7a60520fc4a2ae7838f441146dfb37f31efe9ecd4be687c04d",
+        "runtime_end_sha256": "996231a4c835597e02f837c6cb90961bd60b0673f0c272cb2408182ec039f467",
+        "observed_files_rehashed": 2978,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 71,
+        "wrong_library_origins": {},
+        "native_loaded_files": 240,
+        "before_after_identical": true,
+        "peak_kib": 2183912,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "assertion_slots": 5,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "remaining": [
+    "MATLABrng0unmatched:51/40candidatepoles versus59/46historicalprose",
+    "historicalfont/tick/rasterparityopen",
+    "unmatchedCPUtimings, no performancespeedclaim",
+    "underlyingacceptedconformalnumericalremaininggaps inherited; this package onlyplots/numbers/example contract"
+  ],
+  "failed_preserved": [
+    "A6unlaunchedwrongcasecount",
+    "A5postexportaspectobserverfailure",
+    "C1outputPNGinputguardfailure",
+    "G5prematurepreparationlauncherbeforeguardcreation(no numericalchild)"
+  ],
+  "integration_import_order_fix": {
+    "path": "tests/test_utils/test_conformal_options_source.py",
+    "tested_sha256": "d4e9055fb80b7e2438d516886e0f1a0383b94de157d9527db58f43601e914200",
+    "integrated_sha256": "dce0d7ba01aab53cc40dfc3fb0302c08aff44d561095e6fd0ff41d6a16f5ac74",
+    "nonimport_AST_and_import_set_identical": true,
+    "reason": "full repository Ruff I001; function/assertion AST unchanged"
+  }
+}

@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Conformal plotting/options and full page restored (2026-10-10; latest)
+
+Native plots/numbers options and continuous-boundary page computations now
+use source geometry, 10,000 mapped disk points and 1,001 boundary probes.
+The complete page and five portable option controls passed on CPU; root
+verified 2,971 and 2,978 runtime files and all 80 delivery bindings. Both
+figures are 600 by 253 pixels. Four actual output cells were refreshed;
+original prose and MATLAB cells are unchanged. Evidence:
+docs/conformal_public_page_cpu_20261010.json. MATLAB rng(0) parity remains
+open (51/40 poles versus historical 59/46), as do historical fonts/ticks/
+rasterization, matched performance and current-head CI. Preserved failed
+preparation/observer/guard attempts are documented in the evidence.
+
 ## Native AAAtrig degree and Lawson options restored (2026-10-10; latest)
 
 Explicit degree or mmax now enables native adaptive Lawson iteration, unless
