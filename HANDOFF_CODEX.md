@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Same-input L1 iteration-limit test contract (2026-10-10; latest)
+
+The supplemental seeded inpainting test now checks the native MAXITER warning,
+finite degree-8 output and failure to recover at its original 1e-7 bound.
+Unmodified MATLAB 7574c77 on the exact nine input pieces also reaches 100
+iterations without recovery. The corrected test passes with 39,633 input
+bindings and 1,843 runtime files audited; all other test ASTs are unchanged.
+No library behavior changes. Numerical parity remains open: native error is
+2.427494535, JAX error is 0.364067260, and their coefficient difference reaches
+0.475140494. Evidence: docs/polyfit_l1_iteration_limit_cpu_20261010.json.
+Unpaired timings are diagnostic only. Full parity and green main CI remain open.
+
+
 ## Fixed-grid exact-initial supplemental test contract (2026-10-10; latest)
 
 The supplemental endpoint-BC/fixed64 adapter now receives public/native

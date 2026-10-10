@@ -1,0 +1,59 @@
+{
+  "scope": "Supplemental native iteration-limit warning contract; no production change or polynomial parity claim",
+  "comparison": {
+    "status": "Same-input native and JAX both MAXITER100/nonrecovery; final polynomial coefficient parity unresolved",
+    "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "jax_source_head": "9457af432b3180f4f02cebc7ac146d49c28fa977",
+    "degree": 8,
+    "pieces": 9,
+    "native_error_to_smooth": 2.4274945351549655,
+    "jax_error_evaluated_by_native": 0.36406725972569043,
+    "jax_original_assertion_error": 0.3640672597256905,
+    "original_assertion_bound": 1e-07,
+    "coefficients_max_abs_difference": 0.47514049368257144,
+    "same_shape": [
+      9
+    ],
+    "native_iterations": 100,
+    "native_warning": "CHEBFUN:POLYFIT:MAXITER",
+    "timings_unpaired": {
+      "jax_fit_seconds": 114.58337189396843,
+      "native_fit_seconds": 10.631161,
+      "limitation": "Different runtime/hardware load and instrumentation; no paired performance claim"
+    },
+    "source_behavior": "Native Watson source explicitly caps100iterations and warns; unconditional recovery is not guaranteed. Supplemental contract correction preserves input/degree/threshold and asserts warning plus finite degree8 nonrecovery.",
+    "evidence": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_ci_same_input_v2_20261010/AUDIT.json": "38a459c225fcd63661593ccbe6dd288e2a2234a7841f18e47b460be6f3c120b7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_ci_same_input_v2_20261010/capture/result.mat": "d933f8478d63bb30fa28948ddb071a06de5cd48c9f86b8da94a0a8d9473d5fcb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_ci_native_same_input_v2_20261010/AUDIT.json": "a51ec3450ac9ee3ef971865d990370eb3425e7222b0c6f4b29869912f7919bb8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_ci_native_same_input_v2_20261010/native_result.mat": "24e0dee74e9a0e9cd94c9bc9aa07f88b88e56aae6c72f29598f828bb2ca6eb8e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_ci_native_same_input_v2_20261010/native_trace.mat": "e97aa6d7cdfbab404614fffdaf134177a732a64ccf38526b83e784072fd976d8"
+    }
+  },
+  "qualification": {
+    "status": "passed supplemental native warning contract; polynomial parity unresolved",
+    "passed": 1,
+    "stable_bindings": 39633,
+    "runtime_files": 1843,
+    "wall_seconds": 196.14071068912745,
+    "peak_rss_kib": 1640536,
+    "unchanged_other_test_ast": true,
+    "hashes": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/supervision/receipt.json": "6bcb768b911ef44f892a7b66457adaf8850b0cc11f37fbc9fee265545dce4882",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/runtime/start.json": "165339b8d7d30cbf29c852a63f136e657f5c3026e4428fdcc87b1a15635d38b8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/runtime/end.json": "f111c608a0551ffec9fe0908c5fff395feb291fc4a4877ad20b7687511e3c60e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/junit.xml": "829f702e63e0a409a6c050405ba2a7d198b5a6bb91c2585133a985fb0377bdeb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/MATCHED_SOURCE_COMPARISON.json": "7ccb61f7d670b839ab0107f8751e824b35cc05e3d933602d15a215156c945699",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/snapshot/tests/test_chebfun1d/test_chebfun_ops.py": "96296a4829a195134492e974be1e20d7249906a1f791dac23effda1d05451ff3"
+    }
+  },
+  "audit": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_iteration_contract_20261010/AUDIT.json",
+    "sha256": "f39bf0574c748a6a52ee5b77bc35b6a281b76dac4d0dcd6f41721d27de8f5c26"
+  },
+  "limitations": [
+    "Native and JAX returned polynomial coefficients differ by up to 0.47514049368257144; trajectory diagnosis remains open.",
+    "Timing observations are unpaired; no speed comparison is qualified.",
+    "Full tests, page and figure parity, and green latest-main CI remain open."
+  ]
+}
