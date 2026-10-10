@@ -1,0 +1,37 @@
+{
+  "scope": "randnfun2 native centered Fourier construction, parser and normalization order",
+  "root_pytest_cases": 6,
+  "native_assertions": 12,
+  "supplemental_cases": 5,
+  "root_seconds": 69.93580784788355,
+  "root_peak_child_rss_kib": 1367232,
+  "root_cpu_affinity": [
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+  ],
+  "fault": "Left-origin NumPy Fourier evaluator and adaptive resampling replaced the native centered trig coefficient constructor. Independent fixed-mode baseline error was 2.0.",
+  "fix": "JAX coefficient draws, native elliptical mask and nnz normalization, centered trig constructor then real/big/restrict source order; singleton scalar inputs and one-real-draw infinite wavelength.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_root_20261010/review.json": "23699e08cc0483682e80c1d97bff432a39071ef24e50e72694fa86bb035579bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_root_20261010/receipt.json": "a40c764d59eed6a865756400566c2987dc5d8308783ebaececc1c89905f09940",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_root_20261010/junit.xml": "6f8ac45deeae0e35de72fd4965b82de856da2889027d9185b38ccea8ccabf57a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_root_20261010/static.json": "a3b8c80334759fda0084c4017ebe19d0ce79734b5cb41a96b2a3000fc628fcf8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_native_source_20261010/qualification_v4/DELIVERY.json": "3e0956223c23e6096805065a386f292b9b4ee40e0213bfe9807c512c6290bba8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfun2_phase_source_20261010/SOURCE_REVIEW.json": "bef12b2ca7f0766048c1a7ee9de843795bbe11963d907d464dbc301283a7bb9e"
+  },
+  "agent_guard_inputs_verified": 533,
+  "limits": [
+    "Random stream is a deterministic JAX adapter, not MATLAB rng equivalence.",
+    "General JAX scalar-left Chebfun2 dispatch remains unresolved; native sqrt(10) uses an exact binary64 Python scalar adapter preserving operand order.",
+    "Guard verification covers recorded inputs; external runtime dependencies were not fully hash-pinned by the agent.",
+    "Agent v4 metadata incorrectly labels randnfun2 unchanged from v3; root AST inspection confirms only that library function changed, and the original 12-assertion method is unchanged.",
+    "Agent v4 actual cap was 300 seconds/4096 MiB; completion within 26.93 seconds/1485968 KiB also fits the originally stated smaller plan.",
+    "Full Randfuneig page, broad current-HEAD regression and CI remain unqualified."
+  ]
+}

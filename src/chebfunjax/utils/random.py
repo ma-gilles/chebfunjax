@@ -463,87 +463,123 @@ def _sph_harm_sum_fixed_deg(
 
 
 def randnfun2(
-    lam: float,
-    domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
-    *,
+    *args,
     seed: int | None = None,
-    big: bool = False,
-    trig: bool = False,
+    lam: float | None = None,
+    domain: tuple[float, float, float, float] | None = None,
+    big: bool | None = None,
+    trig: bool | None = None,
 ):
-    """Band-limited random Chebfun2 with minimal wavelength ``lam``
-    (MATLAB randnfun2).
+    """Construct a smooth random Chebfun2 using the native source route.
 
-    Random Fourier coefficients with unit variance are confined to an
-    elliptical disc of wavenumbers (for isotropy) and normalized so the
-    pointwise variance is ~1.  The non-periodic case samples the
-    periodic series on a padded domain, so translated domains with the
-    same seed and aspect give the same (shifted) function -- the same
-    property the MATLAB rng-based version has.
-
-    Parameters
-    ----------
-    lam : float
-        Minimal wavelength.
-    domain : (xa, xb, ya, yb)
-    seed : int or None
-        Numpy RNG seed for reproducibility.
-    big : bool
-        Divide by sqrt(lam) (2D white-noise normalization).
-    trig : bool
-        Doubly periodic function.
+    Positional inputs follow ``randnfun2.m``: scalar values set the wavelength,
+    nonscalars set ``[xa, xb, ya, yb]``, and strings beginning with ``n``/``b``
+    or ``t`` select ``big`` or trigonometric construction.  The MATLAB random
+    stream is not reproduced; ``seed`` is a deterministic JAX PRNG adapter.
 
     Provenance
     ----------
     MATLAB source : randnfun2.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+    Original authors: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.
     """
+    import math
+
     from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-    xa, xb, ya, yb = (float(v) for v in domain)
-    if not trig:
-        if np.isinf(lam):
-            rng = np.random.default_rng(seed)
-            c = float(rng.standard_normal())
-            if big:
-                c = 0.0
+    from chebfunjax.utils import _randnfun
+
+    supplied = list(args)
+    if lam is not None:
+        supplied.append(lam)
+    if domain is not None:
+        supplied.append(domain)
+
+    wavelength = math.nan
+    dom = None
+    makebig = False
+    periodic = False
+    for value in supplied:
+        if isinstance(value, str):
+            first = value[:1]
+            if first in ('n', 'b'):
+                makebig = True
+            elif first == 't':
+                periodic = True
+            else:
+                raise ValueError('CHEBFUN:randnfun2: Unrecognized string input')
+            continue
+        array = jnp.asarray(value)
+        if array.size != 1:
+            dom = tuple(float(v) for v in array.reshape(-1))
+        else:
+            wavelength = float(array.reshape(()))
+
+    if big is not None:
+        makebig = bool(big)
+    if trig is not None:
+        periodic = bool(trig)
+    if math.isnan(wavelength):
+        wavelength = 1.0
+    if dom is None or (len(dom) == 4 and all(math.isnan(v) for v in dom)):
+        dom = (-1.0, 1.0, -1.0, 1.0)
+    if len(dom) != 4:
+        raise ValueError('CHEBFUN:randnfun2: domain must have four endpoints')
+    xa, xb, ya, yb = dom
+    if not (xb > xa and yb > ya):
+        raise ValueError('CHEBFUN:randnfun2: domain endpoints must be increasing')
+    if not (wavelength > 0.0):
+        raise ValueError('CHEBFUN:randnfun2: wavelength must be positive')
+
+    def draw_pair(rows, columns):
+        if seed is None:
+            key_re = _randnfun._next_key()
+            key_im = _randnfun._next_key()
+        else:
+            seed_key = jax.random.key(int(seed))
+            key_re, key_im = jax.random.split(seed_key)
+        return (_randnfun._normal_draw(key_re, rows, columns)
+                + 1j * _randnfun._normal_draw(key_im, rows, columns))
+
+    def draw_real_scalar():
+        if seed is None:
+            key = _randnfun._next_key()
+        else:
+            key, _ = jax.random.split(jax.random.key(int(seed)))
+        return _randnfun._normal_draw(key, 1, 1)[0, 0].real
+
+    if not periodic:
+        if math.isinf(wavelength):
+            value = draw_real_scalar()
+            if makebig:
+                value = value / math.sqrt(wavelength)
             return Chebfun2.from_function(
-                lambda x, y: c + 0.0 * x, domain=domain)
-        # periodic construction on a padded domain, then restrict
-        m = int(round(1.2 * (xb - xa) / lam + 2))
-        n = int(round(1.2 * (yb - ya) / lam + 2))
-        dom2 = (xa, xa + m * lam, ya, ya + n * lam)
-        f2 = randnfun2(lam, dom2, seed=seed, big=big, trig=True)
-        return f2.restrict(domain)
+                lambda x, y: value + 0.0 * x, domain=dom)
+
+        # MATLAB pads the requested box by a wavelength-scaled margin, builds
+        # the periodic source function there, then restricts in that order.
+        m_pad = int(math.floor(1.2 * (xb - xa) / wavelength + 2.5))
+        n_pad = int(math.floor(1.2 * (yb - ya) / wavelength + 2.5))
+        padded = (xa, xa + m_pad * wavelength,
+                  ya, ya + n_pad * wavelength)
+        f = randnfun2(wavelength, padded, seed=seed,
+                      big=makebig, trig=True)
+        return f.restrict(dom)
 
     Lx = xb - xa
     Ly = yb - ya
-    m = int(round(Lx / lam))
-    n = int(round(Ly / lam))
-    rng = np.random.default_rng(seed)
-    kx, ky = np.meshgrid(np.arange(-m, m + 1), np.arange(-n, n + 1))
-    c = (rng.standard_normal(kx.shape)
-         + 1j * rng.standard_normal(kx.shape))
+    m = int(math.floor(Lx / wavelength + 0.5))
+    n = int(math.floor(Ly / wavelength + 0.5))
+    c = draw_pair(2 * n + 1, 2 * m + 1)
+    kx = jnp.arange(-m, m + 1)[None, :]
+    ky = jnp.arange(-n, n + 1)[:, None]
     if m > 0 and n > 0:
-        c = c * (((kx / m) ** 2 + (ky / n) ** 2) <= 1)
-    nnz = np.count_nonzero(c)
-    c = c / np.sqrt(max(nnz, 1))
-    if big:
-        c = c / np.sqrt(lam)
+        c = jnp.where((kx / m) ** 2 + (ky / n) ** 2 <= 1.0, c, 0.0)
+    c = c / jnp.sqrt(jnp.count_nonzero(c))
 
-    kxu = np.arange(-m, m + 1)
-    kyu = np.arange(-n, n + 1)
-
-    def f(x, y):
-        # real part of the double Fourier series (vectorised):
-        # Re( sum_ij c[i,j] exp(i*(ky_i*py + kx_j*px)) )
-        px = 2.0 * np.pi * (np.asarray(x, dtype=float) - xa) / Lx
-        py = 2.0 * np.pi * (np.asarray(y, dtype=float) - ya) / Ly
-        px, py = np.broadcast_arrays(px, py)
-        shp = px.shape
-        Ex = np.exp(1j * px.ravel()[:, None] * kxu[None, :])
-        Ey = np.exp(1j * py.ravel()[:, None] * kyu[None, :])
-        out = np.einsum("pi,ij,pj->p", Ey, c, Ex).real
-        return jnp.asarray(out.reshape(shp), dtype=jnp.float64)
-
-    return Chebfun2.from_function(f, domain=domain)
+    # Keep the native construction order: centered trig coefficients, real
+    # projection, big normalization, and (for nonperiodic mode) restriction.
+    f = Chebfun2.from_trig_coeffs(c, domain=dom).real()
+    if makebig:
+        f = f / math.sqrt(wavelength)
+    return f

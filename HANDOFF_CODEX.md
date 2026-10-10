@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Randnfun2 native construction and assertions (2026-10-10; latest)
+
+The centered trig-coefficient constructor replaces the left-origin Fourier
+surrogate. JAX draws, source normalization/restriction order, singleton parsing
+and infinite-wavelength draw count are implemented. Root six cases pass,
+including all12 native assertions and five controls; static checks pass.
+MATLAB RNG matching and general JAX scalar-left Chebfun2 dispatch remain open.
+The Randfuneig page still needs its full source correction and execution.
+Evidence: docs/randnfun2_source_cpu_20261010.json. Full parity/CI remain open.
+
 ## Truncate native domain normalization (2026-10-10; latest)
 
 The broad-sweep truncate failure was a library phase error: physical-domain
