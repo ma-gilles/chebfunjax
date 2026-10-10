@@ -32,7 +32,7 @@ def test_nonzero_exact_product_boundary_and_equation_action():
     v = chebfun(lambda x: 2-x)
     h = chebfun(lambda x: 3+x)
     k = chebfun(lambda x: x*x)
-    L, _, _ = N.linearize([u, v])
+    L = N.linearize([u, v])
     actual = L.A.blocks[1][0].apply(h)+L.A.blocks[1][1].apply(k)
     expected = k.diff()+k*u.sum()+v*h.sum()+h(.3)
     assert (actual-expected).norm(jnp.inf) < 2e-12
@@ -177,7 +177,7 @@ def test_public_matrix_constraint_action():
     N = _problem()
     u, v = chebfun(lambda x: 1+x*x), chebfun(lambda x: 2-x)
     h, k = chebfun(lambda x: 3+x), chebfun(lambda x: x*x)
-    L, _, _ = N.linearize([u, v])
+    L = N.linearize([u, v])
     points = chebpts(4, kind=2)
     actual = L.matrix(3) @ jnp.concatenate([h(points), k(points)])
     expected = jnp.concatenate([jnp.asarray([h(0), h(0)*v(.5)+u(0)*k(.5)]),

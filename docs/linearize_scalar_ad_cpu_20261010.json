@@ -1,0 +1,42 @@
+{
+  "scope": "Public coupled output adapter plus exact AD scalar function-state operator and boundary Jacobians",
+  "qualified_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/linearize_output_adapter_source_20261010/FINAL_DELIVERY_v3.json",
+  "qualified_packet_sha256": "61433591e09e66be0f7914c57b86ce2f230fb2ee8603ac465cd172eaaefa27e7",
+  "root_verified_artifact_bindings": 114,
+  "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/linearize_output_adapter_source_20261010/ROOT_BINDING_REVIEW_v1.json",
+  "strict_native_tests": {
+    "passed": 5,
+    "tolerance": 1e-14
+  },
+  "focused_scalar_controls_passed": 5,
+  "unchanged_mirror_cases_passed": 1,
+  "unchanged_mirror_clauses": 9,
+  "nonlocal_regressions_passed": 13,
+  "earlier_coupled_adapter_controls_passed": 4,
+  "notes": {
+    "scope": "Public coupled output adapter plus exact AD scalar function-state operator and boundary Jacobians",
+    "native_source": "Chebfun7574c77 @chebop/linearize.m; tests/chebop/test_linearize.m mathematical clauses1-5 at continuous norm1e-14",
+    "coupled_contract": "Explicit state returns operator; omitted/None state retains established Python information triple; internal coupled Newton triple unchanged",
+    "scalar_contract": "Finite domain, one Chebfun state uses ADChebfun seed and Jacobian. Wrapper scalar Chebfun action, typed blocks, lazy solve assembly/backend and homogeneous correction-boundary values unchanged. Numeric initial parameter and multiple-variable legacy paths unchanged.",
+    "additional_reachability": "Legacy _polish_marched_scalar invokes linearize_about and therefore receives exact scalar AD when reached; native_ode113 solve route returns before that polish. No ODE controller or trajectory edits.",
+    "preserved_failures": [
+      "Original lane0_batch04 public coupled triple multiplication TypeError",
+      "D5native_norm_v1 scalar analytic clauses3 and4 fail original1e-14",
+      "E5native_norm_v2 scalar Jacobian container AttributeError"
+    ],
+    "held_unlaunched": [
+      "F5scalar_controls_v2",
+      "G1mirror_v2",
+      "H13nonlocal_v2"
+    ],
+    "limits": [
+      "Native fourthoutput/linCheckFlag/paramReshapeFlag public selection remains incomplete",
+      "Numeric-parameter legacy derivative route retains finite differences",
+      "Existing mirror uses1e-8 sampled norm; unchanged and reported separately from strict source controls",
+      "No full MATLAB runtime capture or full library parity claim"
+    ],
+    "publication": "No publication edits by this agent; root integrates reviewed source and evidence"
+  },
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/linearize_output_adapter_source_20261010/ROOT_STATIC_v1.json",
+  "integration": "Six files exactly match qualified candidate; broad combined-HEAD continuation pending."
+}

@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Exact scalar AD and public coupled linearization (2026-10-10; latest)
+
+Explicit coupled states now return the public linear operator. Scalar finite
+Chebfun states use native automatic differentiation for operator and boundary
+Jacobians, replacing the legacy finite-difference approximation on that route.
+All five original continuous-norm clauses pass at 1e-14, plus five focused
+scalar controls, the unchanged nine-clause mirror, and 13 nonlocal regressions.
+Four coupled adapter controls were separately qualified; their implementation
+is unchanged. Root verified 114 artifact bindings and all six integrated files
+match the qualified candidate. Static gates pass. Prior failing evidence stays
+preserved. Numeric-parameter derivatives and native output/flag selection still
+have gaps; the broad combined-HEAD continuation remains pending. Evidence:
+docs/linearize_scalar_ad_cpu_20261010.json. Push/current CI remain unresolved.
+
 ## Inverse host transfer compilation reduction (2026-10-10; latest)
 
 Two existing host-array adapters now use guarded JAX device transfer, removing

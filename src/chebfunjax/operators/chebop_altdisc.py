@@ -689,8 +689,38 @@ class LinearizedChebop:
         if not isinstance(U, (list, tuple)):
             U = [U]
         U = list(U) + [_zero_fun(dom)] * (m - len(U))
-        f_list = [0.0] * m
-        blocks, _R, var_orders = _frechet_blocks(N, U, f_list, dom)
+        from chebfunjax.autodiff.adchebfun import ADChebfun
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.operators.blocks import zeros_op
+
+        # Native linearize.m seeds the state and extracts its Jacobian.
+        # Keep the legacy parameter adapter outside this scalar function route.
+        self._scalar_seed = None
+        if m == 1 and isinstance(U[0], Chebfun) and all(
+                bool(jnp.isfinite(point)) for point in dom):
+            self._scalar_seed = ADChebfun(U[0]).seed(1, (True,))
+            try:
+                output = N._call_op(_identity(dom), [self._scalar_seed])
+            except ValueError as exc:
+                identifiers = (
+                    'CHEBFUN:CHEBTECH:extrapolate:nansInfs',
+                    'CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun',
+                )
+                if any(str(exc) == name or str(exc).startswith(name + ':')
+                       for name in identifiers):
+                    raise ValueError(
+                        'CHEBFUN:CHEBOP:linearize:invalidInitialGuess: '
+                        'Failed to evaluate operator on the initial guess; '
+                        'please supply a valid initial guess via N.init.') from exc
+                raise
+            outputs = output if isinstance(output, (list, tuple)) else [output]
+            blocks = [[row.jacobian] if isinstance(row, ADChebfun)
+                      else [zeros_op(dom)] for row in outputs]
+            var_orders = [max(max(0, block.diff_order) for row in blocks
+                              for block in row)]
+        else:
+            f_list = [0.0] * m
+            blocks, _R, var_orders = _frechet_blocks(N, U, f_list, dom)
         self._L = _mk_linop(ChebMatrix(blocks))
         self._m = m
         self._dom = dom
@@ -707,8 +737,17 @@ class LinearizedChebop:
             return
         from chebfunjax.operators.altdisc import system_matrices
         L = self._L
-        bc_rows = _collect_bcs(self._N, self._U, self._var_orders,
-                               self._dom)
+        if self._scalar_seed is not None:
+            from chebfunjax.autodiff.adchebfun import ADChebfun
+            from chebfunjax.operators.blocks import zero_functional
+            from chebfunjax.operators.scalar_newton import _conditions
+
+            bc_rows = [([row.jacobian] if isinstance(row, ADChebfun)
+                        else [zero_functional(self._dom)], 0.0)
+                       for row in _conditions(self._N, self._scalar_seed)]
+        else:
+            bc_rows = _collect_bcs(self._N, self._U, self._var_orders,
+                                   self._dom)
         for row_list, _val in bc_rows:
             L = L.add_constraint(row_list, 0.0)
         self._sd = system_matrices(L, self._n, self._disc)

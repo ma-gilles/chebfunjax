@@ -7453,9 +7453,11 @@ class Chebop:
         the operator as a typed block :class:`ChebMatrix`, the residual
         ``N(0)``, and the linearity flags (MATLAB @chebop/linearize.m).
 
-        Linearization about a nonzero state ``u0`` currently supports
-        the zero state only; the Newton machinery linearizes about the
-        running iterate internally.
+        With an explicit state ``u0``, return the linear operator ``L``
+        alone, for both scalar and coupled equations. With omitted/None
+        state, retain the Python ``(L, residual, isLinear)`` adapter.
+        Native MATLAB selects these outputs by nargout; supplying a state
+        changes the expansion point, not the first output's operator type.
 
         Provenance
         ----------
@@ -7469,7 +7471,8 @@ class Chebop:
         )
         if supported(self):
             try:
-                return linearize(self, u0)
+                result = linearize(self, u0)
+                return result if u0 is None else result[0]
             except CoupledParameterVariables:
                 pass  # Preserve the existing parameter linearization below.
         if u0 is not None:
