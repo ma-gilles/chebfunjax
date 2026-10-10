@@ -1,0 +1,53 @@
+{
+  "package": "Chebtech QR pass20 vscale columns",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_vscale_columns_04766eae_20261010/delivery_v2.json",
+  "delivery_sha256": "02aef138f2c2825a0e4991bf9b3d41dc6f7dd2889a6f2018f2779ad49723a41e",
+  "verified_source_test_files": 2085,
+  "passed": 4,
+  "exact_added_assertion": [
+    "assert Q.vscale_columns.shape == (3,)"
+  ],
+  "library_unchanged": true,
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_vscale_columns_04766eae_20261010/gate_v2/run.receipt.json",
+    "receipt_sha256": "c7fbc4e3800746e56aecfd269c11e67a78fff31c76ab82a8694e0ee08386c1b4",
+    "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_vscale_columns_04766eae_20261010/gate_v2/run.junit.xml",
+    "junit_sha256": "5faa5bd6884c5605b7d22739f4df482c8561ad2095efed0de733e72100758089",
+    "exit_code": 0,
+    "elapsed_seconds": 10.391414165496826,
+    "tests": 4,
+    "passed": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "timeout_seconds": 120
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "pytest": "9.0.2",
+    "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/qr_vscale_columns_04766eae_20261010/candidate_v2/src/chebfunjax/__init__.py",
+    "devices": [
+      "cpu:0"
+    ],
+    "x64": true
+  },
+  "limitations": [
+    "Test-only gate; source/test hashes verified but no observed-module runtime hash audit.",
+    "CPU affinity and timeout enforced; RSS neither measured nor capped.",
+    "Builtin three-output QR pivoting remains a separate open library gap."
+  ]
+}

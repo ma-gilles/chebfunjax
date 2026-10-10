@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## QR per-column scale assertion restored (2026-10-10; latest)
+
+Native QR pass 20 now checks the three-entry vscale_columns vector. All four
+Chebtech/method combinations pass; root verified the single added assertion,
+unchanged library, source/test hashes and JUnit. Existing aggregate checks are
+retained as supplemental controls. Evidence: docs/qr_vscale_columns_cpu_20261010.json.
+The gate enforced CPU affinity and timeout but did not measure or cap RSS.
+Builtin three-output pivoting remains an independent library gap under repair.
+
 ## Singfun typed and partial exponent construction restored (2026-10-10; latest)
 
 Callable construction now accepts endpoint sing_type hints: pole selects

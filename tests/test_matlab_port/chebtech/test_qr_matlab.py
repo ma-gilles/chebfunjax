@@ -151,13 +151,13 @@ class TestChebtechQr:
 
     @pytest.mark.parametrize("Tech,method", CASES, ids=IDS)
     def test_array_valued_output_shape(self, Tech, method):
-        # pass(n, 20): MATLAB checks size(vscale(Q)) == [1 3].  chebfunjax's
-        # vscale is a scalar aggregate, so we check the column count of Q
-        # (the property the MATLAB assertion is really pinning) plus that the
-        # aggregate vscale is finite and positive.
+        # pass(n, 20): MATLAB checks size(vscale(Q)) == [1 3]. The
+        # documented Python vector adapter vscale_columns has shape (3,).
+        # Retain the aggregate scale checks as supplemental controls.
         f = Tech.from_function(
             lambda x: jnp.stack([x, x**2, x**3], axis=-1))
         Q, R = f.qr(method=method)
+        assert Q.vscale_columns.shape == (3,)
         assert _ncols(Q) == 3
         assert R.shape == (3, 3)
         assert np.isfinite(Q.vscale) and Q.vscale > 0
