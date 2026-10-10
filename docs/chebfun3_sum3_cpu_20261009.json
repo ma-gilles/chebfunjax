@@ -135,5 +135,10 @@
     "qualified_sha256": "5eeec2b21b0948be04e20f0b3f1d7a5254e98fd3c52a95df53f972fbff30afef",
     "integrated_sha256": "b318465f398eee0175c15aae48d4ab486310308359242a34f644ad5a875e26ba",
     "nonimport_ast_identical": true
+  },
+  "root_static_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_root_static_20261009.json",
+    "sha256": "4101426f2f1442bd2860aaffa5f0ec1e57ca5bd1800905e4a4e8599fe951e19c",
+    "passed": true
   }
 }
