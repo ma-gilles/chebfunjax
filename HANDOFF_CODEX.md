@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native factor and periodic restriction (2026-10-10; latest)
+
+Chebfun2 restriction now reuses its factors and pivot state. It preserves the
+native periodic-to-Chebtech conversion even for the full rectangle. Direct
+Trigtech restriction retains Trigtech storage and the native notPeriodic error.
+All four original Chebfun2 and nine active Trigtech predicates are restored;
+agent 11 cases and root 13 integration cases pass, including both native eig
+tests. Evidence: docs/chebfun2_trigtech_restrict_cpu_20261010.json. The earlier
+full-domain shortcut failed source review and was removed before integration.
+Full parity, remaining examples, broad suite, and current CI remain open.
+
 ## RandomSwitching second and third source trajectories (2026-10-10; latest)
 
 The second trajectory executes all 18 spans through time 40. The third reaches

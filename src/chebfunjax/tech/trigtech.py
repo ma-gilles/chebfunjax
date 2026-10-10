@@ -2151,32 +2151,62 @@ class Trigtech(eqx.Module):
                           f"Composition failed to converge with {result.n} points.", stacklevel=2)
         return result
 
-    def restrict(self, a: float, b: float):
+    def restrict(self, a: float, b: float | None = None):
         """Restriction to [a, b] within [-1, 1].
 
-        A restricted periodic function is generally NOT periodic, so
-        (like MATLAB) the result is a Chebyshev representation on the
-        subinterval: returns a Chebtech2 of f|_[a,b] mapped to [-1,1].
-        Added by Claude Fable 5.
+        The interval is mapped affinely back to [-1, 1] and reconstructed
+        as a trigonometric tech.  If an initially happy function is no
+        longer periodic on the restricted interval, restriction fails as in
+        MATLAB.  Added by Claude Fable 5.
 
         Provenance
         ----------
-        MATLAB source : @trigtech/restrict.m (output is cheb-based)
+        MATLAB source : @trigtech/restrict.m
         Chebfun commit: 7574c77
+
+        MATLAB ``f.techPref`` calls the static ``@trigtech/techPref`` factory.
+        Its default values match this reconstruction's Trigtech factory.
         """
-        from chebfunjax.tech.chebtech import Chebtech2
         if self.isempty():
-            return Chebtech2.empty()
-        a = float(a)
-        b = float(b)
-        if not (-1.0 <= a < b <= 1.0):
-            raise ValueError("restrict: need -1 <= a < b <= 1")
+            return self
+        if b is None:
+            subinterval = [float(x) for x in jnp.asarray(a).reshape(-1)]
+            if (len(subinterval) < 2 or subinterval[0] < -1.0
+                    or subinterval[-1] > 1.0
+                    or any(right <= left for left, right in
+                           zip(subinterval, subinterval[1:]))):
+                raise ValueError(
+                    "TRIGTECH:restrict:badinterval: Not a valid interval.")
+            if len(subinterval) > 2:
+                raise ValueError(
+                    "CHEBFUN:TRIGTECH:restrict:multIntervals: "
+                    "Cannot restrict a TRIGTECH to multiple intervals.")
+            a, b = subinterval
+        else:
+            a = float(a)
+            b = float(b)
+            if not (-1.0 <= a < b <= 1.0):
+                raise ValueError(
+                    "TRIGTECH:restrict:badinterval: Not a valid interval.")
+        if a == -1.0 and b == 1.0:
+            return self
 
         def g(t):
-            x = a + (b - a) * (jnp.asarray(t) + 1.0) / 2.0
+            x = 0.5 * ((1.0 - jnp.asarray(t)) * a
+                       + (1.0 + jnp.asarray(t)) * b)
             return self(x)
 
-        return Chebtech2.from_function(g)
+        from chebfunjax.chebpref import _factory_tech_prefs
+
+        pref = _factory_tech_prefs("trigtech")
+        pref["minSamples"] = min(self.n, pref["minSamples"])
+        result = type(self).from_function(
+            g, pref=pref, data={"vscale": self.vscale_columns()})
+        if self.ishappy and not result.ishappy:
+            raise ValueError(
+                "CHEBFUN:TRIGTECH:restrict:notPeriodic: Restrict failed. "
+                "Perhaps f is not periodic in [a, b].")
+        return result
 
     def sum(self, dim: int = 1) -> "jax.Array | Trigtech":
         r"""Definite integral over [-1, 1].

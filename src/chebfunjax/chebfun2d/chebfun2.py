@@ -1676,7 +1676,7 @@ class Chebfun2(eqx.Module):
         """Restrict to a subdomain (MATLAB restrict / {}-indexing).
 
         ``dom`` is ``(xa, xb, ya, yb)``.  Degenerate intervals collapse
-        dimensions: a point returns a float; a line returns a Chebfun in
+        dimensions: a point returns a scalar; a line returns a Chebfun in
         the surviving variable.  A Chebfun ``dom`` is treated as a
         complex path t + 1i*s(t) and returns f along that path.
 
@@ -1686,6 +1686,17 @@ class Chebfun2(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.chebfun2d._svd import _as_fun, _axis_panel
+        from chebfunjax.tech.trigtech import Trigtech
+
+        def _factor_techs(factors, source_interval, target_interval):
+            panel = _axis_panel(tuple(factors))
+            array_fun = _as_fun(panel, source_interval)
+            restricted = array_fun.restrict(target_interval)
+            return [cell.funs[0].tech for cell in restricted.mat2cell()]
+
+        def _array_fun(factors, interval):
+            return _as_fun(_axis_panel(tuple(factors)), interval)
 
         if hasattr(dom, "funs"):  # a Chebfun path
             a, b = float(dom.domain.a), float(dom.domain.b)
@@ -1696,17 +1707,48 @@ class Chebfun2(eqx.Module):
         x_pt = xa == xb
         y_pt = ya == yb
         if x_pt and y_pt:
-            return float(self(jnp.asarray(xa), jnp.asarray(ya)))
+            return jnp.asarray(self(jnp.asarray(xa), jnp.asarray(ya))).reshape(())
         if x_pt:
-            return Chebfun.from_function(
-                lambda y: self(jnp.full_like(y, xa), y),
-                Domain((ya, yb)))
+            cols = _factor_techs(
+                self.approx.cols, (self.domain[2], self.domain[3]), (ya, yb))
+            row_values = _array_fun(self.approx.rows, (self.domain[0], self.domain[1]))(xa)
+            weights = jnp.asarray(self.approx.pivots).reshape((-1,))
+            # Source C*diag(1./pivotValues)*R(xa).  Keep the two
+            # matrix-vector operations in that order and do not conjugate R.
+            weighted_cols = _array_fun(cols, (ya, yb)) @ jnp.diag(weights)
+            restricted = weighted_cols @ jnp.asarray(row_values).reshape((-1, 1))
+            return restricted.mat2cell()[0]
         if y_pt:
-            return Chebfun.from_function(
-                lambda x: self(x, jnp.full_like(x, ya)),
-                Domain((xa, xb)))
-        return Chebfun2.from_function(
-            lambda x, y: self(x, y), domain=(xa, xb, ya, yb))
+            rows = _factor_techs(
+                self.approx.rows, (self.domain[0], self.domain[1]), (xa, xb))
+            col_values = _array_fun(self.approx.cols, (self.domain[2], self.domain[3]))(ya)
+            weights = jnp.asarray(self.approx.pivots).reshape((-1,))
+            # The transposed CDR expression is R*diag(d)*C(ya); scalar
+            # output is a Chebfun in x and uses no complex conjugation.
+            weighted_coefficients = jnp.asarray(col_values) @ jnp.diag(weights)
+            restricted = _array_fun(rows, (xa, xb)) @ weighted_coefficients.reshape((-1, 1))
+            return restricted.mat2cell()[0]
+
+        cols = _factor_techs(
+            self.approx.cols, (self.domain[2], self.domain[3]), (ya, yb))
+        rows = _factor_techs(
+            self.approx.rows, (self.domain[0], self.domain[1]), (xa, xb))
+        techs = self.approx.techs
+        if rows and cols:
+            techs = (
+                "trig" if isinstance(rows[0], Trigtech) else "cheb",
+                "trig" if isinstance(cols[0], Trigtech) else "cheb",
+            )
+        approx = type(self.approx)(
+            cols=cols,
+            rows=rows,
+            pivots=self.approx.pivots,
+            pivot_values=self.approx.pivot_values,
+            domain=(xa, xb, ya, yb),
+            pivot_locations=self.approx.pivot_locations,
+            techs=techs,
+        )
+        return Chebfun2(approx=approx)
 
     def squeeze(self):
         """Collapse dimensions along which f is constant, returning a

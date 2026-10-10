@@ -1,0 +1,31 @@
+{
+  "scope": "Native Chebfun2 factor restriction and Trigtech restriction semantics; original native assertions restored",
+  "native_commit": "7574c77",
+  "changes": [
+    "Chebfun2 restricts existing axis factors, retaining pivot state and source multiplication order; complex scalar point outputs retained",
+    "Full-domain rectangles still restrict factors, preserving native periodic-to-Chebtech conversion",
+    "Direct Trigtech restrict reconstructs in Trigtech and raises native notPeriodic error when originally happy input becomes unhappy",
+    "Original four Chebfun2 continuous/value predicates and nine active Trigtech predicates replace reduced or substituted checks"
+  ],
+  "agent_cases": 11,
+  "agent_guard_inputs": 5308,
+  "root_cases": 13,
+  "root_case_scope": "11 restriction cases plus two original Chebfun2 eig tests",
+  "root_elapsed_seconds": 73.24880271591246,
+  "root_peak_child_rss_kib": 3674100,
+  "root_verified_bindings": 16,
+  "root_ast_scope": "Only restrict methods changed in Chebfun2 and Trigtech; integrated eig method retained",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_restrict_source_20261010/DELIVERY_v8.json": "77456ff1901e68d560c1f8a74c4da1df7ce61f0ce1e451ad5e83a59139902bdf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_restrict_source_20261010/CANDIDATE_v8.patch": "f557c38e19d3f5d9b3189b7c6c6e9492e4c79e0723a15e3a3908ede518275fa0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_restrict_source_20261010/root_integration_v1/receipt.json": "05c356ca42f4ef4948c5c8f0c4687344c0f73b65d803d7307a83c13add54a318",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_restrict_source_20261010/root_integration_v1/review.json": "6c82811f4469cea8f726ced914e4d23f6d50e17f17a349fcfd785e118b067e47"
+  },
+  "limitations": [
+    "CPU only; no new MATLAB executable run",
+    "v5 incorrect full-domain shortcut preserved as historical evidence and corrected in v8",
+    "v6 supervisor directory preflight failure and unlaunched v7 are retained; they are not numerical runs",
+    "Root gate guards source/tests; full imported runtime audit belongs to agent gate",
+    "Full function/error coverage, broad suite, page fidelity and current CI remain open"
+  ]
+}
