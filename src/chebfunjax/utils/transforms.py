@@ -21,7 +21,6 @@ from functools import lru_cache
 import jax
 import jax.numpy as jnp
 import numpy as np
-from scipy.special import gammaln
 
 # ===========================================================================
 # Chebyshev values <-> coefficients (DCT-I based)
@@ -1478,66 +1477,6 @@ def _jac2jac_source(
     return jnp.asarray(values)
 
 
-def _jac2jac_np(
-    v: np.ndarray,
-    alpha: float,
-    beta: float,
-    gam: float,
-    delta: float,
-) -> np.ndarray:
-    """Numpy O(n^2) implementation of jac2jac via Gauss-Jacobi quadrature.
-
-    Evaluates the source Jacobi expansion at (gam,delta) Gauss-Jacobi nodes,
-    then projects onto the target basis via the Gauss-Jacobi inner products.
-    This is O(n^2) but correct and numerically stable for n up to a few hundred.
-    """
-    N = len(v)
-    if N == 0:
-        return v
-    if N == 1:
-        return v
-
-    # If source == target, identity
-    if abs(alpha - gam) < 1e-14 and abs(beta - delta) < 1e-14:
-        return v.copy()
-
-    # Gauss-Jacobi nodes and weights for (gam, delta) — used for quadrature
-    from chebfunjax.utils.quadrature import jacpts
-    x, w = jacpts(N, gam, delta)
-    x_np = np.array(x, dtype=np.float64)
-    w_np = np.array(w, dtype=np.float64)
-
-    # Evaluate source expansion at x_np: f(x) = sum_k v[k] * P_k^{(alpha,beta)}(x)
-    P_src = np.array(_jacobi_vandermonde(N - 1, jnp.array(x_np), alpha, beta))  # (N, N)
-    f_vals = P_src @ v
-
-    # Project f onto target Jacobi basis using Gauss-Jacobi quadrature:
-    # c_k = (2k + gam + delta + 1)/(2^{gam+delta+1}) * B(k+gam+1,k+delta+1)/(k! * ...)
-    # Actually: c_k = h_k^{-1} * sum_j w_j * P_k^{(gam,delta)}(x_j) * f(x_j)
-    # where h_k = 2^{gam+delta+1} * Gamma(k+gam+1)*Gamma(k+delta+1) / ((2k+gam+delta+1)*Gamma(k+1)*Gamma(k+gam+delta+1))
-
-    P_tgt = np.array(_jacobi_vandermonde(N - 1, jnp.array(x_np), gam, delta))  # (N, N)
-
-    # Normalization constants h_k (squared norm of P_k^{(gam,delta)})
-    k = np.arange(N, dtype=np.float64)
-    s = gam + delta + 1
-    # Denominator log((2k+s) * Gamma(k+s)): at k=0 this is log(s*Gamma(s))
-    # = gammaln(s+1), which stays finite as s -> 0 (e.g. gam=delta=-0.5,
-    # the Chebyshev weight) where the naive form gives inf - inf = NaN.
-    with np.errstate(divide="ignore", invalid="ignore"):
-        log_den = np.log(2 * k + s) + gammaln(k + s)
-    log_den[0] = gammaln(s + 1)
-    h_k = np.exp(
-        s * np.log(2)
-        + gammaln(k + gam + 1) + gammaln(k + delta + 1)
-        - log_den
-        - gammaln(k + 1)
-    )
-
-    c_out = (P_tgt.T @ (w_np * f_vals)) / h_k
-    return c_out
-
-
 def _jacobi_integer_conversion(
     v: jnp.ndarray,
     alpha: float,
@@ -1757,7 +1696,7 @@ def ultra2ultra(c: jnp.ndarray, lam_in: float, lam_out: float) -> jnp.ndarray:
 
     Parameters
     ----------
-    c : jnp.ndarray, shape (n,)
+    c : jnp.ndarray, shape (n,) or (n, m)
         Ultraspherical C^{(lam_in)} coefficients.
     lam_in : float
         Source ultraspherical parameter (must be >= 0).
@@ -1766,13 +1705,14 @@ def ultra2ultra(c: jnp.ndarray, lam_in: float, lam_out: float) -> jnp.ndarray:
 
     Returns
     -------
-    c_out : jnp.ndarray, shape (n,)
+    c_out : jnp.ndarray, shape (n,) or (n, m)
         Ultraspherical C^{(lam_out)} coefficients.
 
     Notes
     -----
     The scaling from ultraspherical to Jacobi and back follows DLMF Table 18.3.1.
-    For lam=0 the polynomial reduces to Legendre / T_n (Chebyshev).
+    For lam=0 the basis is Chebyshev T; lam=0.5 is Legendre.
+    JIT supports static Python parameters lam_in and lam_out.
 
     Provenance
     ----------
@@ -1785,31 +1725,26 @@ def ultra2ultra(c: jnp.ndarray, lam_in: float, lam_out: float) -> jnp.ndarray:
     --------
     jac2jac, ultracoeffs
     """
-    n = c.shape[0] - 1
+    coefficients = jnp.asarray(c)
+    n = coefficients.shape[0] - 1
 
-    def _scl(lam: float) -> np.ndarray:
-        """Scaling from Jacobi to ultraspherical (DLMF Table 18.3.1)."""
+    def scale(lam):
         if lam == 0.0:
-            nn_scl = np.arange(n, dtype=np.float64)
-            s = np.concatenate([[1.0], np.cumprod((nn_scl + 0.5) / (nn_scl + 1.0))])
-        else:
-            nn_scl = np.arange(n + 1, dtype=np.float64)
-            s = (np.exp(gammaln(2 * lam) - gammaln(lam + 0.5))
-                 * np.exp(gammaln(lam + 0.5 + nn_scl) - gammaln(2 * lam + nn_scl)))
-        return s
+            nn = jnp.arange(n, dtype=jnp.float64)
+            return jnp.concatenate((jnp.ones((1,)),
+                                    jnp.cumprod((nn + .5) / (nn + 1))))
+        nn = jnp.arange(n + 1, dtype=jnp.float64)
+        return (jax.scipy.special.gamma(2 * lam)
+                / jax.scipy.special.gamma(lam + .5)
+                * jnp.exp(jax.scipy.special.gammaln(lam + .5 + nn)
+                          - jax.scipy.special.gammaln(2 * lam + nn)))
 
-    c_np = np.array(c, dtype=np.float64)
-
-    # Scale from US to Jacobi
-    c_np = c_np / _scl(lam_in)
-
-    # Convert Jacobi (lam_in-0.5, lam_in-0.5) -> (lam_out-0.5, lam_out-0.5)
-    c_np = _jac2jac_np(c_np, lam_in - 0.5, lam_in - 0.5, lam_out - 0.5, lam_out - 0.5)
-
-    # Scale from Jacobi to US
-    c_np = c_np * _scl(lam_out)
-
-    return jnp.array(c_np)
+    input_scale, output_scale = scale(lam_in), scale(lam_out)
+    if coefficients.ndim == 2:
+        input_scale, output_scale = input_scale[:, None], output_scale[:, None]
+    converted = jac2jac(coefficients / input_scale,
+                        lam_in - .5, lam_in - .5, lam_out - .5, lam_out - .5)
+    return converted * output_scale
 
 
 def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:

@@ -1,0 +1,56 @@
+{
+  "base": "8bfa77d23859d448a9176eb6a265a2740f91e0d4",
+  "scope": "Native JAX ultra2ultra scaling around public Jacobi conversion; preserve complex and matrix inputs; remove last unused NumPy Jacobi quadrature helper",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source_hashes": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/ultra2ultra.m": "bb836be00a6f0de5b6a3f288834eb06e89a517cb85168fd4fe0c89144bf4253c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_ultra2ultra.m": "53c9d0a6acf0987f37b75b50e50673e38a90d0d12144d74b2e866b2ca7e75bdb",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/ultracoeffs.m": "86a016bd26ef69731c0010384c5d2149e8fa475340a8655538d70700e83198b1"
+  },
+  "baseline": {
+    "pass": 1,
+    "fail": 15,
+    "native_cases": "1passes,3failures among original4; all12 JITvalue controls fail",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultra2ultra_source_baseline_20261010/receipt.json",
+    "sha256": "5f66b318890201a7561e61daf419dc9a6600371bdad088f7372f252a6d20b9ee"
+  },
+  "qualification": {
+    "passed": 23,
+    "composition": "Original4 ultra2ultra predicates +12 independent value/JIT controls +2 priorcompatibility +4 publicJacobi +1 existingultracoeffs case",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultra2ultra_source_v2_root_20261010/receipt.json",
+    "sha256": "4d67b1d56d07bc565c4c14a162b7833b9e90c75e384e820496eb36a6385335ca",
+    "wall_seconds": 35.7199189690873,
+    "peak_child_rss_kib": 1096580,
+    "hashes_stable": true,
+    "cpu": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "limits": "Focused120s CPU gate, measuredRSS, noRSS cap or observedruntime audit."
+  },
+  "preserved_preflight_failure": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultra2ultra_source_root_20261010/receipt.json",
+    "reason": "Wrong directory for existingultracoeffs test; pytest exit4, no testsran. Corrected selection in freshv2gate."
+  },
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultra2ultra_source_v2_root_20261010/static.json",
+    "sha256": "b83813dd6ae109d5a278515da187ae102c664c97f8e020aacf904490431af0ea",
+    "passed": true
+  },
+  "ast_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultra2ultra_source_v2_root_20261010/ast_review.json",
+  "remaining": [
+    "Utility ultracoeffs retains separate hostscaling and lam1 complex narrowing; not changed by this wrapperfix.",
+    "Large-N performance and fullnativeJacobi sweep still pending.",
+    "No globalJAXpurity or current-head CI claim."
+  ],
+  "payload_sha256": {
+    "src/chebfunjax/utils/transforms.py": "cf6c8e05871fc8d584dcce9ec60293edf087948ae0df56a23311768baf6669e7",
+    "tests/test_matlab_port/misc/test_ultra2ultra_source.py": "6033e571e3e7c89ae67c4f77990d8cf5f04782b130e16c2b1ba442766716a3ed"
+  }
+}

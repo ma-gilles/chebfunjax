@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native ultraspherical conversion wrapper restored (2026-10-10; latest)
+
+Ultra2ultra now uses native JAX gamma/cumulative-product scaling around the
+public Jacobi converter, preserving complex values and matrix columns. Its
+last NumPy Jacobi quadrature dependency is removed. Three of four original
+native predicates failed before; all four now pass at unchanged100eps.
+Root23 combined cases pass, including12 independent JIT/value controls; static
+checks pass. Evidence: docs/ultra2ultra_jax_cpu_20261010.json. The separate
+utility ultracoeffs hostscaling/complex-lam1 path remains an identified gap.
+
+
 ## Original fractional predicates and public Jacobi route pass (2026-10-10; latest)
 
 Direct jac2cheb now uses native Chebtech1 FFT coefficients; with corrected beta,
