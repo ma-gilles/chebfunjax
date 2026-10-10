@@ -6850,9 +6850,8 @@ class Chebfun(eqx.Module):
         Notes
         -----
         The polynomial method uses barycentric Lagrange interpolation with
-        second-kind barycentric weights, which is numerically stable for
-        any node distribution.  As in MATLAB, ``'linear'`` evaluation
-        outside ``[x[0], x[-1]]`` gives NaN.  NOT JIT-safe (adaptive
+        weights scaled for the supplied interpolation nodes.  As in MATLAB, ``'linear'`` evaluation
+        outside ``[x[0], x[-1]]`` gives NaN.  NOT JIT-safe (object
         construction).
 
         Provenance
@@ -6861,14 +6860,13 @@ class Chebfun(eqx.Module):
             subfunctions)
         Chebfun commit: 7574c77
         """
-        import numpy as _np
         if method is not None and not isinstance(method, str):
             # MATLAB interp1(x, y, dom): a non-char third argument is the
             # domain, not a method name.
             method, domain = None, method
         method = "poly" if method is None else str(method).lower()
         x = jnp.asarray(x, dtype=jnp.float64)
-        y = jnp.asarray(y, dtype=jnp.float64)
+        y = jnp.asarray(y)
         # Sort nodes
         order = jnp.argsort(x)
         x = x[order]
@@ -6883,41 +6881,16 @@ class Chebfun(eqx.Module):
         if method != "poly":
             raise ValueError(f"interp1: unknown method {method!r}.")
 
-        # Compute second-kind barycentric weights (Chebyshev-like, safe for
-        # arbitrary nodes via the standard alternating-sign formula)
-        n = x.shape[0]
-        x_np = _np.asarray(x)
-        w = _np.ones(n)
-        for j in range(n):
-            for k in range(n):
-                if k != j:
-                    w[j] /= (x_np[j] - x_np[k])
+        from chebfunjax.utils.interpolation import bary, bary_weights
 
-        x_ref = jnp.asarray(x_np)
-        y_ref = y
-        w_ref = jnp.asarray(w)
+        weights = bary_weights(x)
 
-        def interpolant(z: jax.Array) -> jax.Array:
-            """Evaluate barycentric interpolant at points z (column-wise
-            for array-valued (n, m) data)."""
-            z = jnp.atleast_1d(z)
-            # Compute w_j / (z - x_j) for each z, then sum
-            diffs = z[:, None] - x_ref[None, :]   # shape (nz, n)
-            # Handle exact hits (z == x_j)
-            hit = jnp.abs(diffs) < 1e-14
-            safe_diffs = jnp.where(hit, jnp.ones_like(diffs), diffs)
-            terms = w_ref[None, :] / safe_diffs    # shape (nz, n)
-            numer = terms @ y_ref                  # (nz,) or (nz, m)
-            denom = jnp.sum(terms, axis=1)         # (nz,)
-            any_hit = jnp.any(hit, axis=1)
-            hit_idx = jnp.argmax(hit, axis=1)
-            hit_val = y_ref[hit_idx]               # (nz,) or (nz, m)
-            if y_ref.ndim == 2:
-                return jnp.where(any_hit[:, None], hit_val,
-                                 numer / denom[:, None])
-            return jnp.where(any_hit, hit_val, numer / denom)
+        def interpolant(z):
+            return bary(jnp.atleast_1d(z), y, x, weights)
 
-        return Chebfun.from_function(interpolant, dom)
+        # interp1Poly constructs exactly length(x) samples, not an adaptive
+        # approximation of the barycentric callback.
+        return chebfun(interpolant, domain=dom.breakpoints, n=x.shape[0])
 
     @staticmethod
     def _interp1_linear(x, y, domain) -> Chebfun:
@@ -9329,9 +9302,9 @@ class Chebfun(eqx.Module):
         approximant.  Unlike the L-infinity case (Remez), the L1 optimum
         may not be unique.
 
-        This implementation delegates to :func:`chebfunjax.utils.minimax.minimax`
-        for the initial polynomial interpolant and then runs Watson's update
-        loop.  For smooth *f* with ``len(f) <= n+1`` the result is just *f*
+        The initial polynomial interpolates the interior second-kind
+        Chebyshev points. Watson updates use the Chebyshev-U basis and
+        the roots and derivative of the continuous residual.  For smooth *f* with ``len(f) <= n+1`` the result is just *f*
         itself.
 
         NOT JIT-safe (iterative construction).
@@ -9362,139 +9335,9 @@ class Chebfun(eqx.Module):
         >>> float(abs(p).sum()) > 0  # smoke test: returns a valid Chebfun
         True
         """
-        # uses-numpy/scipy: robust weighted-LP formulation of the
-        # continuous L1 problem.  The previous hand-rolled Watson-Newton
-        # loop silently diverged beyond small degrees (BestL1 deg-100:
-        # sup err 14 on a function of scale 2; Inpainting1D failed to
-        # recover).  min_c sum_i w_i |f(x_i) - (Vc)_i| on a dense
-        # Clenshaw-Curtis grid is the discretized L1 best approximation
-        # and is solved exactly by HiGHS.
-        import numpy as _np
-        from numpy.polynomial import chebyshev as _C
-        from scipy.optimize import linprog
+        from chebfunjax.chebfun1d._polyfit_l1 import polyfit_l1
 
-        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
-        from chebfunjax.utils.quadrature import chebpts, chebweights
-
-        a = float(self.domain.a)
-        b = float(self.domain.b)
-        if len(self.funs) == 1 and self.funs[0].n <= n + 1:
-            return self
-
-        N = max(8 * (n + 1), 400)
-        s = _np.asarray(chebpts(N), dtype=_np.float64)
-        w = _np.asarray(chebweights(N), dtype=_np.float64)
-        x = 0.5 * (b - a) * s + 0.5 * (a + b)
-        F = _np.asarray(self(jnp.asarray(x)), dtype=_np.float64)
-        V = _np.cos(_np.outer(_np.arccos(_np.clip(s, -1.0, 1.0)),
-                              _np.arange(n + 1)))
-        A_ub = _np.vstack([_np.hstack([V, -_np.eye(N)]),
-                           _np.hstack([-V, -_np.eye(N)])])
-        b_ub = _np.concatenate([F, -F])
-        cvec = _np.concatenate([_np.zeros(n + 1), w])
-        res = linprog(cvec, A_ub=A_ub, b_ub=b_ub,
-                      bounds=[(None, None)] * (n + 1)
-                      + [(0, None)] * N, method="highs")
-        if not res.success:
-            raise RuntimeError(f"polyfitL1: LP failed ({res.message})")
-        coef = res.x[:n + 1]
-
-        # Watson-Newton polish (continuous optimality): minimize
-        # Phi(c) = int |f - p_c| whose gradient is -G_k = -int sign(e) T_k
-        # and whose Hessian J_kj = sum_i (2/|e'(tau_i)|) T_k(tau_i)
-        # T_j(tau_i) over the sign crossings tau_i is symmetric PSD.
-        # Crossings are bisected to machine precision and G is computed
-        # exactly from antiderivatives, so the LP grid solution is
-        # polished to continuous optimality in a few Newton steps.
-        def _antider_coeffs(k):
-            ck = _np.zeros(k + 1)
-            ck[k] = 1.0
-            return _C.chebint(ck)
-
-        _A = [_antider_coeffs(k) for k in range(n + 1)]
-
-        sf = _np.linspace(-1.0, 1.0, max(4001, 40 * (n + 1)))
-        xf = 0.5 * (b - a) * sf + 0.5 * (a + b)
-        Ff = _np.asarray(self(jnp.asarray(xf)), dtype=_np.float64)
-
-        def _crossings(cc):
-            ef = Ff - _C.chebval(sf, cc)
-            sgn0 = _np.sign(ef[0]) if ef[0] != 0 else 1.0
-            idx = _np.nonzero(_np.diff(_np.sign(ef)) != 0)[0]
-            roots = []
-            for i in idx:
-                lo, hi = sf[i], sf[i + 1]
-                flo = ef[i]
-                for _bi in range(60):
-                    mid = 0.5 * (lo + hi)
-                    xm = 0.5 * (b - a) * mid + 0.5 * (a + b)
-                    fm = (float(self(jnp.asarray(xm)))
-                          - _C.chebval(mid, cc))
-                    if fm == 0.0 or hi - lo < 4e-16:
-                        break
-                    if _np.sign(fm) == _np.sign(flo):
-                        lo, flo = mid, fm
-                    else:
-                        hi = mid
-                roots.append(0.5 * (lo + hi))
-            return sgn0, _np.asarray(roots)
-
-        for _it in range(30):
-            sgn0, tau = _crossings(coef)
-            if len(tau) == 0:
-                break
-            # G_k = int_{-1}^{1} sign(e) T_k: alternating sum of
-            # antiderivative increments over the crossing partition
-            nodes = _np.concatenate([[-1.0], tau, [1.0]])
-            segsign = sgn0 * (-1.0) ** _np.arange(len(nodes) - 1)
-            G = _np.zeros(n + 1)
-            for k in range(n + 1):
-                Avals = _C.chebval(nodes, _A[k])
-                G[k] = _np.sum(segsign * _np.diff(Avals))
-            if _np.max(_np.abs(G)) < 1e-12:
-                break
-            # e'(tau) by centered finite difference
-            h = 1e-7
-            taum = _np.clip(tau - h, -1.0, 1.0)
-            taup = _np.clip(tau + h, -1.0, 1.0)
-            xm_ = 0.5 * (b - a) * taum + 0.5 * (a + b)
-            xp_ = 0.5 * (b - a) * taup + 0.5 * (a + b)
-            em = (_np.asarray(self(jnp.asarray(xm_)), dtype=_np.float64)
-                  - _C.chebval(taum, coef))
-            ep = (_np.asarray(self(jnp.asarray(xp_)), dtype=_np.float64)
-                  - _C.chebval(taup, coef))
-            de = (ep - em) / (taup - taum)
-            de = _np.where(_np.abs(de) < 1e-300, 1e-300, de)
-            Tt = _np.cos(_np.outer(
-                _np.arccos(_np.clip(tau, -1.0, 1.0)),
-                _np.arange(n + 1)))
-            J = (Tt * (2.0 / _np.abs(de))[:, None]).T @ Tt
-            try:
-                dc = _np.linalg.solve(
-                    J + 1e-14 * _np.eye(n + 1) * _np.trace(J), G)
-            except _np.linalg.LinAlgError:
-                break
-            # damped step with objective check
-            phi0 = _np.trapezoid(_np.abs(Ff - _C.chebval(sf, coef)), sf)
-            step = 1.0
-            improved = False
-            for _d in range(20):
-                cnew = coef + step * dc
-                phi = _np.trapezoid(_np.abs(Ff - _C.chebval(sf, cnew)),
-                                    sf)
-                if phi <= phi0 + 1e-15:
-                    coef = cnew
-                    improved = True
-                    break
-                step /= 2
-            if not improved:
-                break
-
-        def p_eval(xx):
-            ss = (2.0 * (_np.asarray(xx) - a) / (b - a)) - 1.0
-            return jnp.asarray(_C.chebval(ss, coef))
-
-        return _cf(p_eval, domain=(a, b))
+        return polyfit_l1(self, n)
 
     # ------------------------------------------------------------------
     # Plotting method on the Chebfun object

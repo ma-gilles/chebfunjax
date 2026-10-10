@@ -1,0 +1,61 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualified_base": "fc4f54f09fb35cb1396ee1874dfab3a59aad0f6d",
+  "changes": [
+    "Replace sampled SciPy LP and alternate Newton polish with native continuous Watson iteration, in JAX.",
+    "Restore source fixed-degree barycentric polynomial interpolation; preserve complex data.",
+    "Port all eight original L1 optimality predicates, retaining case2 basis degrees0:5 and original1e-8 bounds."
+  ],
+  "source_parameters": {
+    "maximum_Watson_iterations": 100,
+    "moment_stop": "1e-10/(b-a)",
+    "damping_floor": 1e-05,
+    "quadrature": "legpts(n) on source residual-root intervals",
+    "derivative": "continuous residual derivative; no finite-difference approximation or ridge"
+  },
+  "cpu_qualification": {
+    "focused": {
+      "original_handle": 81601,
+      "passed": 21,
+      "runtime_files": 1838,
+      "supervised_seconds": 127.16212934628129,
+      "peak_rss_kib": 3520876
+    },
+    "large": {
+      "original_handle": 87492,
+      "passed": 2,
+      "runtime_files": 1833,
+      "supervised_seconds": 143.565,
+      "peak_rss_kib": 3518340
+    },
+    "native": {
+      "original_handle": 87768,
+      "passed": 8,
+      "bound_files": 3521,
+      "runtime": "MATLAB R2025b Update2, pinned Chebfun source"
+    }
+  },
+  "largest_original_predicate": 1.1663250146473585e-12,
+  "largest_coefficient_difference": 4.390932062392494e-14,
+  "largest_sampled_polynomial_difference": 1.8101492527122787e-13,
+  "all_polynomial_lengths_match": true,
+  "diagnostic_timings": {
+    "large_degree11_JAX_seconds": 10.086954306345433,
+    "large_degree101_JAX_seconds": 15.511026678141207,
+    "native_degree101_seconds": 10.134137,
+    "qualification": "Different CPU/runtime/warmup conditions; no paired speedup claim."
+  },
+  "limitations": [
+    "Inpainting full page replay remains pending.",
+    "Sampled polynomial comparison is not a continuous error bound or bitwise equivalence claim.",
+    "Full suite, remaining correctness issues, pages/figures and CI remain open."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_source_20261010/ROOT_INTEGRATION_REVIEW.json": "1bc9e6bac0896b5d6f8544afa669149d3f0251ca132086fcad17638d2b5b55c2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_source_20261010/focused_v2/FOCUSED_AUDIT.json": "18d4f5cd909b2d1e60e7876ed6d300c4b7ab2262b2d5bab83b2241c9483489a9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_source_20261010/large_v1/LARGE_AUDIT.json": "01aa72bf88ff618dc79e4e60f56a7bcd1ac544bfc0e8f70edb5748861a2ddfcf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_native_20261010/AUDIT.json": "41b8190f50b37405e5c51f8f67aa7f57fb2653070aba1917a4df6b39e2fbbdda",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_source_20261010/FULL_NATIVE_COMPARISON.json": "1522a955221876512baea70f1493cfe5601ec2791dbc0b6dcc092cb31e956a01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_l1_source_20261010/focused_v1/FAILURE_AUDIT.json": "1f269a71a68e814da89a0a6208e5b1c5e9a6c0cdce5b49a3486c614aed862337"
+  }
+}

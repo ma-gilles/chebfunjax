@@ -1,5 +1,21 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native continuous L1 polynomial fitting (2026-10-10; latest)
+
+`polyfitL1` now uses the source Watson iteration in JAX, replacing the sampled
+SciPy linear program and alternate Newton polish. Its initial polynomial uses
+source fixed-degree barycentric interpolation; complex interpolation data are
+preserved. All eight original native predicates pass without changed bounds,
+alongside three existing L1 tests and twelve interpolation controls (23 total).
+Fresh MATLAB passes all eight reference cases. Runtime audits cover 1,838 and
+1,833 files; all eight polynomial lengths match, with coefficient differences
+at most 4.40e-14. Degree101 on [0,100] fits in 15.51 seconds in the captured JAX
+run; native 10.13 seconds is under different conditions, not a paired benchmark.
+The first harness import failure is preserved separately. Evidence:
+`docs/polyfit_l1_watson_cpu_20261010.json`. Inpainting full replay is next;
+full suite, remaining numerical/figure parity and green main CI remain open.
+
+
 ## Gibbs2D source execution and reference-size figures (2026-10-10; latest)
 
 The literal 100x100 inputs now execute through public construction, restriction,
