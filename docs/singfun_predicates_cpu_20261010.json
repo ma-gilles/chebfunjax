@@ -1,0 +1,51 @@
+{
+  "base": "92cfc573f1c359ad4de834f73aad2a16ceb4c4c8",
+  "scope": "Singfun isfinite/isinf/isreal/any public source methods; replace proxy finite/isnan tests with original public constructor routes",
+  "source_reference": "Chebfun 7574c77680d7e82b79626300bf255498271a72df",
+  "integration": {
+    "passed": 21,
+    "elapsed_seconds": 10.42633516388014,
+    "peak_child_rss_kib": 660564,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "source_and_test_hashes_stable_during_run": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_predicates_root_20261010/receipt.json",
+    "receipt_sha256": "7cfa33c3aac9c70700150fa8e21dc62ab33887f7921c4bfd73e4bc7b35a52b87",
+    "qualification_limit": "Focused CPU run, no RSS cap or observed-runtime import audit. Agent gate separately has observed runtime audit."
+  },
+  "agent_delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_predicates_source_20261010/DELIVERY.json",
+    "sha256": "e70021d06309aab5d9593c3d918082c0b596c2e88086ce8b7c54d5c3889fdcbe",
+    "verified_bindings": 31,
+    "verified_observed_runtime_files": 2946,
+    "independent_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_predicates_root_review_20261010.json"
+  },
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_predicates_root_20261010/static.json",
+    "sha256": "7c9c9d0701f770a495c89d60290f59a3e03b9ebfc4828a29964d592fd4a85cbc",
+    "passed": true
+  },
+  "ast_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_predicates_root_20261010/ast_review.json",
+    "all_existing_ast_unchanged": true
+  },
+  "remaining": [
+    "No-input numeric-empty MATLAB behavior remains an explicitly labeled Python storage adapter.",
+    "No full Singfun or current-head whole-suite qualification.",
+    "Restored fractional tests remain pending: 5 pass, 2 original-bound failures; isolated diagnosis active."
+  ],
+  "payload_sha256": {
+    "src/chebfunjax/fun/singfun.py": "66e1a97dcf1533ce291be3cc74fe871eb3e295f9b56ce44217afbefcc02c1b01",
+    "tests/test_fun/test_singfun_predicates_source.py": "3535094b7562bf64492d7732dd8d1d99a61fabaf4695935129edc2efa0f8f73d",
+    "tests/test_matlab_port/singfun/test_isfinite_matlab.py": "14517f1c9706f078a9b029b01612b849e03d97f780203f009739e4b0cec8d725",
+    "tests/test_matlab_port/singfun/test_isnan_matlab.py": "1b64c78db4f673d58141397c192e9c961530de3c35148c866fb48d7633942d60"
+  }
+}

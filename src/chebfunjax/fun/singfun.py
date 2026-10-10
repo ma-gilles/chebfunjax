@@ -850,6 +850,42 @@ class Singfun(eqx.Module):
             new_sp, (self.exponents[0] + rL, self.exponents[1] + rR)
         )
 
+    def isfinite(self):
+        """Source boundedness predicate with the current exponent tolerance.
+
+        Provenance: @singfun/isfinite.m, Chebfun7574c77. The comparison is
+        strict. No-input empty objects use the Python empty-Tech predicate;
+        native numeric[] short-circuit semantics are not claimed by this adapter.
+        """
+        from chebfunjax.chebpref import ChebfunPref
+
+        tol = ChebfunPref().blowupPrefs.exponentTol
+        if not all(exponent > -tol for exponent in self.exponents):
+            return jnp.asarray(False)
+        return self.smoothPart.isfinite()
+
+    def isinf(self):
+        """Native logical complement of isfinite, including NaN smooth factors.
+
+        Provenance: @singfun/isinf.m, Chebfun7574c77.
+        """
+        return jnp.logical_not(self.isfinite())
+
+    def isreal(self):
+        """Delegate realness to smooth-factor storage, including complex zero.
+
+        Provenance: @singfun/isreal.m, Chebfun7574c77.
+        """
+        return self.smoothPart.isreal()
+
+    def any(self, dim: int = 1):
+        """Delegate logical reduction and dimension handling to the smooth factor.
+
+        Provenance: @singfun/any.m, Chebfun7574c77. For no-input empties,
+        empty-Tech results are a Python adapter for native numeric[] storage.
+        """
+        return self.smoothPart.any(dim)
+
     def isnan(self) -> bool:
         """Check both the smooth part and singular endpoint evaluations.
 

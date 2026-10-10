@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public Singfun predicates restored (2026-10-10; latest)
+
+Added isfinite/isinf/isreal/any with native current-preference strict exponent
+boundary, NaN complement and smooth-factor delegation. Original finite/isnan
+tests now call public methods instead of test-only proxies. All21 integration
+cases pass; existing module AST is unchanged outside the four added methods.
+Agent runtime audit independently checked2946 files; root focused CPU gate and
+static checks pass. Evidence: docs/singfun_predicates_cpu_20261010.json.
+Numeric-empty behavior remains a labeled Python adapter. Restoring all seven
+fractional predicates exposed two original-bound failures (sequential integral
+and derivative); five pass, diagnosis active, no tolerance relaxation.
+
+
 ## JAX fractional integral coefficient path restored (2026-10-10; latest)
 
 Tech/Singfun fracInt now expose native smooth-factor and exponent operations.
