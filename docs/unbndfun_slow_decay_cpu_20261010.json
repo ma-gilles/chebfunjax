@@ -1,0 +1,40 @@
+{
+  "base_commit": "1cdc304449b5ff700a68ee0c9deb46a590ce5cdb",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "candidate_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbndfun_slow_decay_candidate_fb39ab23_20261010/delivery.json",
+  "candidate_delivery_sha256": "2e7adfdac82d452980fc23abe280b2b26600a1f8ad56dde8651b3406fa478ef7",
+  "qualification": {
+    "passed": 24,
+    "elapsed_seconds": 61.15153263602406,
+    "peak_child_rss_kib": 1453480,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbndfun_slow_decay_root_20261010/receipt.json",
+    "receipt_sha256": "8d62142e943eb217ab41d8bbdcf6df75bbd2546f718faa8a91b5c5cf5a10ab0a",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbndfun_slow_decay_root_20261010/static.json",
+    "static_sha256": "c7e452427dcd662560da2d9645374546935aac99d5645718cc3da975ed7f4d98"
+  },
+  "changed_definitions": [
+    "Unbndfun.sum",
+    "_has_slow_decay_at_infinity",
+    "_isdecay"
+  ],
+  "root_correction": "Native residual threshold applies to every column after any initial root triggers extraction; removed candidate conjunction with initial root mask and added distinguishing mixed-column regression.",
+  "scope": "Restores native slow-decay warning ID/message and endpoint root-extraction predicate in Unbndfun.sum; preserves existing integral and divergence paths and all existing numerical bounds.",
+  "limitations": [
+    "Focused CPU gate, not full current-head suite/remote CI. RSS measured, not capped; no observed-module audit.",
+    "Two existing warnings remain: unhappy65537-point representation and invalid subtraction in breakpoint selection for sqrt-exp reassignment case.",
+    "Private isdecay helper; public Tech/Singfun isdecay methods still absent.",
+    "Complex nonzero constants use a documented predicate adapter; complex unbounded integration is not qualified.",
+    "Existing array integration remains per-column rather than literal vectorized source algorithm."
+  ]
+}

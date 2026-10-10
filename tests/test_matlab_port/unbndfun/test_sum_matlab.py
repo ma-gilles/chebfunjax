@@ -11,8 +11,12 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import re
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.unbndfun import Unbndfun
@@ -101,6 +105,49 @@ class TestUnbndfunSum:
         f = _U(lambda x: 0 * x + 2, (-INF, -3 * np.pi))
         assert float(f.sum()) == INF
 
+    def test_warns_for_simple_root_at_infinite_endpoint(self):
+        f = _U(lambda x: 1.0 / x, (1.0, INF))
+        with pytest.warns(
+            RuntimeWarning,
+            match=re.escape(
+                "CHEBFUN:UNBNDFUN:sum:slowDecay: Result may not be accurate "
+                "as the function decays slowly at infinity."
+            ),
+        ):
+            result = f.sum()
+        assert np.isfinite(float(result))
+
+    def test_double_root_at_infinite_endpoint_does_not_warn(self):
+        f = _U(lambda x: 1.0 / x ** 2, (1.0, INF))
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            result = f.sum()
+        assert not any("CHEBFUN:UNBNDFUN:sum:slowDecay" in str(w.message)
+                       for w in caught)
+        assert abs(float(result) - 1.0) < 1e5 * EPS * f.vscale
+
+    def test_array_unbndfun_warns_once_for_slow_column(self):
+        f = _U(
+            lambda x: jnp.stack([1.0 / x, 1.0 / x ** 2], axis=-1),
+            (1.0, INF),
+        )
+        with pytest.warns(
+            RuntimeWarning,
+            match="CHEBFUN:UNBNDFUN:sum:slowDecay",
+        ) as caught:
+            result = f.sum()
+        assert len(caught) == 1
+        assert result.shape == (2,)
+
+    def test_divergent_endpoint_does_not_emit_slow_decay_warning(self):
+        f = _U(lambda x: 2.0 + 0.0 * x, (1.0, INF))
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            result = f.sum()
+        assert float(result) == INF
+        assert not any("CHEBFUN:UNBNDFUN:sum:slowDecay" in str(w.message)
+                       for w in caught)
+
     # --- Chebfun with singular 'exps' (MATLAB pass 17-19) -------------
     def test_chebfun_sqrt_exp_single_piece(self):
         # chebfun(sqrt(t)*exp(-t), [0, inf], 'exps', [0.5 0]):
@@ -127,3 +174,15 @@ class TestUnbndfunSum:
         v1 = float(f3(jnp.asarray(1.0)))
         g3 = f3.define_point(1.0, v1)
         assert abs(float(g3.sum()) - np.sqrt(np.pi) / 2) < 1e-10
+
+
+def test_isdecay_mixed_columns_use_native_residual_mask():
+    # Native isdecay tests every residual column when ANY column has a root.
+    # The second column is above the initial threshold but below the relaxed
+    # residual threshold; intersecting with the initial mask loses this case.
+    from chebfunjax.fun.unbndfun import _isdecay
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    f = Chebtech2.from_coeffs(jnp.array([[1.5, 1.0 + 1e-10],
+                                      [2.0, 1.0], [0.5, 0.0]]))
+    np.testing.assert_array_equal(_isdecay(f)[0], [True, True])

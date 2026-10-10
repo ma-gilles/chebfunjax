@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Unbounded integration slow-decay warning restored (2026-10-10; latest)
+
+Unbndfun.sum now emits the native slowDecay ID/message when endpoint decay
+is insufficient, including one warning for array-valued input. Existing
+divergence thresholds and integration paths are unchanged. Root corrected the
+candidate residual mask to match MATLAB across all columns when any initial
+root triggers extraction, with a distinguishing regression. Full module:
+24 passed, two existing warnings; static checks green and source/test hashes
+stable. Evidence: docs/unbndfun_slow_decay_cpu_20261010.json. Public isdecay
+wrappers and complex unbounded integration remain unqualified.
+
+
 ## Chebtech coefficient APIs and complex Legendre conversion (2026-10-10; latest)
 
 Both Tech classes now expose chebcoeffs, legcoeffs and jaccoeffs with native
