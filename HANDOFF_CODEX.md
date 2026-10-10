@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun scalar contract corrected (2026-10-09; latest)
+
+The stale Python float assertion now checks the intended rank-0 JAX scalar;
+sum/integral documentation agrees. Numerical values and tolerances are
+unchanged. All24 scoped cases passed; root independently rehashed2,946
+runtime files. Evidence: docs/ballfun_scalar_contract_cpu_20261009.json.
+The failed broad shard is retained and still requires a complete rerun.
+
+
 ## Missing golden operation fixture (2026-10-09)
 
 The five corepart2 skips require tests/references/chebfun_ops.mat, which

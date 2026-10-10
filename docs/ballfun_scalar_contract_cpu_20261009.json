@@ -1,0 +1,46 @@
+{
+  "scope": "Ballfun scalar JAX return contract; no numerical implementation or tolerance change",
+  "qualified_cases": 24,
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Ballfun scalar return contract and native sum3 controls24",
+    "gates": [
+      {
+        "gate": "ballfun_sum_scalar_contract_20261009",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_sum_scalar_contract_20261009/supervision/receipt.json",
+        "receipt_sha256": "cb64fd4474034a94869c9488c78e092ea3b0d262810d580ba782a2b329ba57e8",
+        "runtime_manifest_sha256": "eb8cf9ecb2c40b8b627ed6d8c75310e3943baa049a065f3b8e7d4a18f3ff91de",
+        "runtime_end_sha256": "c22b6dfd552c3dad6e43de5222753367a88a73ec5226d34c84183361ffb06300",
+        "observed_files_rehashed": 2946,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 53,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 2204612,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 24,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "source_audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_ballfun_sum_audit_20261009/AUDIT.md",
+  "source_audit_sha256": "10cd29ad48d34dccba0a7ed760e1711e84dd92d3f4ff92e32d2c8772b9df0a5a",
+  "integrated_hashes": {
+    "src/chebfunjax/ballfun/ballfun.py": "d1057f252bc7f7cd23b4f63cb8007933396c2b4b1558e5299a483f904e679690",
+    "tests/test_ballfun/test_ballfun.py": "8e0043dfa4172709fed3538c493811a8db1d586f5353edcf28305c1ab1870bd0"
+  },
+  "remaining": "Full core shard rerun and exact-head CI; this does not qualify whole-object jit/grad."
+}

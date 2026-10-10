@@ -14,6 +14,7 @@ Test coverage (Tier 1 — unit tests, no MATLAB required):
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -299,7 +300,8 @@ class TestBallfunPartialIntegration:
     def test_full_sum_still_scalar(self):
         f = self._bf(lambda r, lam, th: jnp.ones_like(r))
         val = f.sum()
-        assert isinstance(val, float)
+        assert isinstance(val, jax.Array)
+        assert val.shape == ()
         npt.assert_allclose(val, 4.0 * np.pi / 3.0, atol=1e-11)
 
     def test_sum_dim1_returns_spherefun(self):

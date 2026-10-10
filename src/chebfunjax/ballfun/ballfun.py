@@ -1721,7 +1721,8 @@ class Ballfun(eqx.Module):
 
         Returns
         -------
-        float if ``dim is None``, else Spherefun (``dim=1``) or Diskfun.
+        jax.Array (rank-0 scalar) if ``dim is None``, else Spherefun
+        (``dim=1``) or Diskfun. Empty Ballfun returns an empty JAX array.
 
         Notes
         -----
@@ -2167,15 +2168,15 @@ class Ballfun(eqx.Module):
             return jnp.empty((0,), dtype=jnp.float64)
         return float(norm_coefficients(self.coeffs))
 
-    def integral(self) -> float:
+    def integral(self) -> jax.Array:
         """Triple integral of f over the unit ball.
 
         Alias for ``sum()``.
 
         Returns
         -------
-        float
-            The triple integral.
+        jax.Array (rank-0 scalar)
+            The triple integral. Empty Ballfun returns an empty JAX array.
 
         Provenance
         ----------
