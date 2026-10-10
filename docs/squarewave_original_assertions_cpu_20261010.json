@@ -1,0 +1,83 @@
+{
+  "schema": "squarewave_pass3_diagnosis.v1",
+  "scope": "one exact original test method; no source/test changes",
+  "current_head": "d478e10bfa427ee9087a1861da1476b284626610",
+  "archive_sha256": "bb014b39db5f5d4ea798c30e19d766549c50e093111dee942e477100e91a2c6c",
+  "native_reference_head": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_test": "tests/chebop2/test_squarewaveequation.m",
+  "native_test_sha256": "004692650efe21808b7d84109f553cb3e7bdd439728b3dd95fdd7ba6cd592890",
+  "python_test": "tests/test_matlab_port/chebop2/test_squarewaveequation_matlab.py",
+  "python_test_sha256": "f31dacfd4413fd41917a0f675c4b8f7def1a775acc20734f372d948e84621469",
+  "assertion_contract": {
+    "native_line": 42,
+    "python_line": 69,
+    "bound": "err < 5 * tol; tol = 100 * chebfun2eps",
+    "eps_default": 2.220446049250313e-16,
+    "bound_approx": 1.1102230246251565e-13,
+    "test_and_tolerance_unchanged": true
+  },
+  "historical_xfail_note": {
+    "python_lines": [
+      61,
+      68
+    ],
+    "reason_recorded_in_test": "2026-09-03 note reports best n=21 error 2.1e-14 but n=33 result 1.2e-13; MATLAB absolute resolveCheck cited as behavioral difference. Historical note, not a fresh measurement in this run."
+  },
+  "native_solver_contract": {
+    "path": "@chebop2/solvepde.m",
+    "solver_tol_lines": "40",
+    "resolve_check_lines": "155-166",
+    "rule": "tol=max(pref.cheb2Prefs.chebfun2eps,1e-14); resolve when the last nine coefficients satisfy abs-tail < 20*m*tol, with boundary residual checks."
+  },
+  "current_python_solver": {
+    "path": "src/chebfunjax/operators/chebop2.py",
+    "adaptive_method_lines": "1695-1748",
+    "resolution_helper_lines": "2518-2548",
+    "rule": "adaptive coefficient solver uses relative tol=1e-13; helper checks last three coefficients against tol*coefficient scale."
+  },
+  "current_numerical_source_delta": {
+    "path": "src/chebfunjax/chebfun2d/separable_approx.py",
+    "method": "_ge_on_skeleton",
+    "current_sha256": "c7c51f2c0e89cd92cd3112c6238b6cba8f6b32fc3da981cc4e9f77a55e7249c7",
+    "e674_sha256": "357d2a0d473882edeb2803232cfd1239c3958cf00dfdb6a91562c4a46eae1b20",
+    "delta_summary": "Current d478 changes skeleton Gaussian elimination to divide row values by each pivot before both outer products using JAX arrays; this file changed between e674 and d478. chebop2.py itself is unchanged across those commits. This is a plausible source of changed approximation results, not isolated causal proof."
+  },
+  "result": {
+    "test_node": "tests/test_matlab_port/chebop2/test_squarewaveequation_matlab.py::TestChebop2Squarewaveequation::test_all_matlab_assertions",
+    "pytest": "1 passed, 1 warning in 20.374s",
+    "test_time_seconds": 17.077,
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 25.303579495754093,
+    "sampled_peak_summed_rss_kib": 1450968,
+    "censored_limit": null,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "observed_conclusion": "The unchanged original test passed on d478; therefore its pytest.xfail branch was not entered and pass(3) satisfied the original bound. The recorded historical xfail is stale for this frozen current-head result. The run does not record the exact current err value."
+  },
+  "run_caps": {
+    "cpu_affinity": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "wall_seconds": 180,
+    "rss_mib": 3072
+  },
+  "artifact_sha256": {
+    "plan": "a7acc57a0e31d634f677fc055fe2af1507133498210b6e7b5de2792d884acfc1",
+    "nodes": "b5f049abae0252ecf85d16813a701185800bdffeacc1bc09184ddb865fa8e301",
+    "launcher": "1cb88a42873f4eebbd2f032fd9296a5f99cda54eefc66d2c6af924e4ec80bc3c",
+    "verify_scope": "cc6e6e7e887f497a968bbc2f3cf2a70d11b226d3297d23c2fc021fedd37df05f",
+    "guard": "140793ab62708c7be66e74052b7a4d643672af0f55e117dbedb62ad6e02cde19",
+    "runtime_collection": "b5f049abae0252ecf85d16813a701185800bdffeacc1bc09184ddb865fa8e301",
+    "junit": "19fb2dd499c43bdb800e3c86cbc34353f10ee7aa1a16cde6ceaf880f22027aa0",
+    "supervisor_receipt": "e940e1b7fadc131b83df0c0352289583c5ba3b8f4c2c2e4874b735abaedc9637",
+    "stdout": "2062159fe2a4c49bc0c27978ec60efd4def70a64b1d48673eafad44dff09a70f",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "root_review": "All11 result bindings and one passed JUnit case verified; three assertion ASTs identical after removing the unexecuted xfail branch/import. No numerical rerun needed for this test-only deletion.",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/squarewave_pass3_d478e10b_20261010",
+  "patch_sha256": "360e51a66eedf724b61d069389fdb3555ab623a7dd0fbc5e3189fd18bdff0458"
+}

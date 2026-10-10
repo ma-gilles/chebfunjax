@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Square-wave assertion restored; historical 3D progress (2026-10-10; latest)
+
+The original square-wave equation test passes all three native predicates on
+d478e10b, including the formerly xfailed bound. Its unexecuted xfail branch
+has been removed; assertions and tolerances are unchanged. The adaptive
+solver's distinct refinement criterion remains a source-contract gap.
+Evidence: docs/squarewave_original_assertions_cpu_20261010.json.
+
+Thirty-two of 80 direct Chebfun3 cases pass on frozen e6748499; 48 remain.
+Latest indices 24–31 passed serially in 420.81 s, peak 2,183,724 KiB, with
+stable inputs and no cap/survivors. These are historical results, not
+current-main suite qualification. See docs/port_mirror_execution_cpu_20261010.md.
+
+
 ## First-kind source node and mapping correction (2026-10-10; latest)
 
 First-kind nodes now divide before multiplying by pi, as native source does;

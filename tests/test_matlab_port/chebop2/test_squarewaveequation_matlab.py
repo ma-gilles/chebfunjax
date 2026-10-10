@@ -14,7 +14,6 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun2d.chebfun2 import chebfun2
 from chebfunjax.chebpref import ChebfunPref
@@ -58,12 +57,4 @@ class TestChebop2Squarewaveequation:
         N.rbc = lambda t: jnp.sin(pi + t)
         N.dbc = lambda x, u: [u - jnp.sin(x), u.diff(1) - jnp.cos(x)]
         err = _err(N.solve(0.0), exact)
-        if not err < 5 * tol:
-            # KNOWN GAP (2026-09-03): MATLAB R2025b reaches 1.3e-14 on this
-            # [0, pi]^2 case; chebfunjax's ultraspherical solve is best at
-            # n = 21 (2.1e-14) but the adaptive loop stops at n = 33
-            # (1.2e-13).  MATLAB's absolute resolveCheck rule made the
-            # rest of the chebop2 suite worse, so the relative rule stays.
-            pytest.xfail(f"square wave pass(3): {err:.2e} vs {5 * tol:.2e} "
-                         "(MATLAB 1.3e-14; open accuracy gap)")
         assert err < 5 * tol                                                 # pass(3)
