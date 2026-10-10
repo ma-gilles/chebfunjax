@@ -15,6 +15,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
 from functools import lru_cache
 
 import jax
@@ -669,16 +670,18 @@ def cheb2jac(c_cheb: jnp.ndarray, alpha: float, beta: float) -> jnp.ndarray:
     if alpha == 0.0 and beta == 0.0:
         return cheb2leg(c_cheb)
 
-    # Special case: alpha=beta=-1/2 is Chebyshev T_n (up to scaling)
+    # Chebyshev basis is a diagonally scaled Jacobi (-1/2,-1/2) basis.
+    nn = jnp.arange(n, dtype=jnp.float64)
+    scl = jnp.concatenate([
+        jnp.array([1.0], dtype=jnp.float64),
+        jnp.cumprod((0.5 + nn[:-1]) / (1.0 + nn[:-1]))
+    ])
     if alpha == -0.5 and beta == -0.5:
-        # T_n = scl[n] * P_n^{(-1/2,-1/2)}
-        # scl[n] = prod_{k=0}^{n-1} (1/2+k)/(1+k)  with scl[0]=1
-        nn = jnp.arange(n, dtype=jnp.float64)
-        scl = jnp.concatenate([
-            jnp.array([1.0], dtype=jnp.float64),
-            jnp.cumprod((0.5 + nn[:-1]) / (1.0 + nn[:-1]))
-        ])
-        return c_cheb / scl
+        return c_cheb / (scl if c_cheb.ndim == 1 else scl[:, None])
+
+    if n > 512:
+        scaled = c_cheb / (scl if c_cheb.ndim == 1 else scl[:, None])
+        return _jac2jac_source(scaled, -0.5, -0.5, alpha, beta)
 
     return _cheb2jac_direct(c_cheb, alpha, beta)
 
@@ -752,9 +755,20 @@ def jac2cheb(c_jac: jnp.ndarray, alpha: float, beta: float) -> jnp.ndarray:
     if n <= 1:
         return c_jac
 
-    # Special case: alpha=beta=0 is Legendre
+    # Special case: alpha=beta=0 is Legendre. Preserve matrix columns.
     if alpha == 0.0 and beta == 0.0:
-        return leg2cheb(c_jac)
+        if c_jac.ndim == 1:
+            return leg2cheb(c_jac)
+        return jax.vmap(leg2cheb, in_axes=1, out_axes=1)(c_jac)
+
+    if n > 512:
+        converted = _jac2jac_source(c_jac, alpha, beta, -0.5, -0.5)
+        nn = jnp.arange(n, dtype=jnp.float64)
+        scl = jnp.concatenate([
+            jnp.array([1.0], dtype=jnp.float64),
+            jnp.cumprod((0.5 + nn[:-1]) / (1.0 + nn[:-1]))
+        ])
+        return converted * (scl if converted.ndim == 1 else scl[:, None])
 
     return _jac2cheb_direct(c_jac, alpha, beta)
 
@@ -789,6 +803,8 @@ def _vals2coeffs_kind1(values: jnp.ndarray) -> jnp.ndarray:
     Uses the relation: c_k = (2/n) sum_{j=0}^{n-1} v_j T_k(x_j), with
     appropriate scaling for k=0.
     """
+    if values.ndim == 2:
+        return jax.vmap(_vals2coeffs_kind1, in_axes=1, out_axes=1)(values)
     n = values.shape[0]
     if n <= 1:
         return values
@@ -1442,6 +1458,27 @@ def jac2jac(
     return jnp.array(v)
 
 
+def _jac2jac_source(
+    c_jac: jnp.ndarray,
+    alpha: float,
+    beta: float,
+    gam: float,
+    delta: float,
+) -> jnp.ndarray:
+    """Jacobi conversion through the native integer and fractional stages."""
+    values = jnp.asarray(c_jac)
+    values, alpha, beta = _jacobi_integer_conversion(
+        values, alpha, beta, gam, delta
+    )
+    if abs(alpha - gam) > 1e-15:
+        values = _jacobi_fractional_conversion(values, alpha, beta, gam)
+    if abs(beta - delta) > 1e-15:
+        values = values.at[1::2, ...].multiply(-1)
+        values = _jacobi_fractional_conversion(values, beta, gam, delta)
+        values = values.at[1::2, ...].multiply(-1)
+    return jnp.asarray(values)
+
+
 def _jac2jac_np(
     v: np.ndarray,
     alpha: float,
@@ -1503,12 +1540,12 @@ def _jac2jac_np(
 
 
 def _jacobi_integer_conversion(
-    v: np.ndarray,
+    v: jnp.ndarray,
     alpha: float,
     beta: float,
     gam: float,
     delta: float,
-) -> tuple[np.ndarray, float, float]:
+) -> tuple[jnp.ndarray, float, float]:
     """Move (alpha,beta) to (A,B) so that |A-gam|<1 and |B-delta|<1."""
     a, b = float(alpha), float(beta)
 
@@ -1528,82 +1565,71 @@ def _jacobi_integer_conversion(
     return v, a, b
 
 
-def _up_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+def _up_jacobi(v: jnp.ndarray, a: float, b: float) -> jnp.ndarray:
     """Convert Jacobi (a,b) -> (a,b+1) in O(n) operations."""
-    N, = v.shape
-    nn = np.arange(N, dtype=np.float64)
+    vector_input = v.ndim == 1
+    values = jnp.asarray(v)[:, None] if vector_input else jnp.asarray(v)
+    N = values.shape[0]
+    nn = jnp.arange(N, dtype=jnp.float64)
     apb = a + b
-    # Diagonal
-    d1 = np.empty(N)
-    d1[0] = 1.0
-    if N > 1:
-        d1[1] = (apb + 2) / (apb + 3)
-    if N > 2:
-        d1[2:] = (apb + 3 + nn[:-2]) / (apb + 5 + 2 * nn[:-2])
-    # Super-diagonal
+    d1 = jnp.concatenate((
+        jnp.ones((1,), dtype=jnp.float64),
+        jnp.asarray([(apb + 2) / (apb + 3)], dtype=jnp.float64) if N > 1 else jnp.empty((0,), dtype=jnp.float64),
+        (apb + 3 + nn[:-2]) / (apb + 5 + 2 * nn[:-2]) if N > 2 else jnp.empty((0,), dtype=jnp.float64),
+    ))
     d2 = (a + 1 + nn[:N - 1]) / (apb + 3 + 2 * nn[:N - 1])
-    out = d1 * v
-    out[:N - 1] += d2 * v[1:]
-    return out
+    out = d1[:, None] * values
+    out = out.at[:N - 1].add(d2[:, None] * values[1:])
+    return out[:, 0] if vector_input else out
 
 
-def _down_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+def _down_jacobi(v: jnp.ndarray, a: float, b: float) -> jnp.ndarray:
     """Convert Jacobi (a,b+1) -> (a,b) by inverting _up_jacobi."""
-    N, = v.shape
-    nn = np.arange(N, dtype=np.float64)
+    vector_input = v.ndim == 1
+    values = jnp.asarray(v)[:, None] if vector_input else jnp.asarray(v)
+    N = values.shape[0]
+    nn = jnp.arange(N, dtype=jnp.float64)
     apb = a + b
-    # Build topRow (first row of inverse of up-conversion matrix)
-    topRow = np.ones(N)
-    if N > 1:
-        topRow[1] = (a + 1) / (apb + 2)
-    for k in range(2, N):
-        topRow[k] = topRow[k - 1] * (a + k) / (apb + k + 1)
+    ratio1 = (a + 1) / (apb + 2)
+    factors = (a + jnp.arange(2, N, dtype=jnp.float64)) / (apb + jnp.arange(3, N + 1, dtype=jnp.float64))
+    top_tail = ratio1 * jnp.cumprod(factors)
+    topRow = jnp.concatenate((jnp.ones((1,), dtype=jnp.float64), jnp.asarray([ratio1]), top_tail))[:N]
     signs = (-1.0) ** nn
-    topRow *= signs
+    topRow = topRow * signs
+    tv = topRow[:, None] * values
+    vecsum = jnp.cumsum(tv[::-1, :], axis=0)[::-1, :]
+    ratios = jnp.concatenate((
+        jnp.ones((1,), dtype=jnp.float64),
+        jnp.asarray([-(apb + 3) / (a + 1)], dtype=jnp.float64) if N > 1 else jnp.empty((0,), dtype=jnp.float64),
+        ((apb + 5 + 2 * nn[:-2]) / (apb + 3 + nn[:-2]) / topRow[2:]) if N > 2 else jnp.empty((0,), dtype=jnp.float64),
+    ))
 
-    # Apply S^{-1} in O(N) via fliplr cumsum
-    # vecsum[k] = sum_{j>=k} topRow[j] * v[j]
-    # Efficient: vecsum = fliplr(cumsum(fliplr(topRow * v)))
-    tv = topRow * v
-    vecsum = np.cumsum(tv[::-1])[::-1]
-
-    ratios = np.empty(N)
-    ratios[0] = 1.0
-    if N > 1:
-        ratios[1] = -(apb + 3) / (a + 1)
-    if N > 2:
-        ratios[2:] = ((apb + 5 + 2 * nn[:-2]) / (apb + 3 + nn[:-2])) * (1.0 / topRow[2:])
-        # Correct signs: alternating after the first two
-        ratios[2:] = ratios[2:] * signs[2:] / signs[2:]  # no-op if already correct
-
-    out = ratios * vecsum
-    return out
+    out = ratios[:, None] * vecsum
+    return out[:, 0] if vector_input else out
 
 
-def _right_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+def _right_jacobi(v: jnp.ndarray, a: float, b: float) -> jnp.ndarray:
     """Convert Jacobi (a,b) -> (a+1,b) using reflection formula."""
-    v = v.copy()
-    v[1::2] = -v[1::2]
+    v = v.at[1::2].multiply(-1)
     v = _up_jacobi(v, b, a)
-    v[1::2] = -v[1::2]
+    v = v.at[1::2].multiply(-1)
     return v
 
 
-def _left_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+def _left_jacobi(v: jnp.ndarray, a: float, b: float) -> jnp.ndarray:
     """Convert Jacobi (a+1,b) -> (a,b) using reflection formula."""
-    v = v.copy()
-    v[1::2] = -v[1::2]
+    v = v.at[1::2].multiply(-1)
     v = _down_jacobi(v, b, a)
-    v[1::2] = -v[1::2]
+    v = v.at[1::2].multiply(-1)
     return v
 
 
 def _jacobi_fractional_conversion(
-    v: np.ndarray,
+    v: jnp.ndarray,
     alpha: float,
     beta: float,
     gam: float,
-) -> np.ndarray:
+) -> jnp.ndarray:
     """Convert Jacobi (alpha,beta) -> (gam,beta) with |alpha-gam|<1.
 
     Uses the Toeplitz-Hankel decomposition from Townsend-Webb-Olver [1].
@@ -1614,100 +1640,106 @@ def _jacobi_fractional_conversion(
     ----------
     .. [1] A. Townsend, M. Webb, and S. Olver, 2018.
     """
-    N = len(v)
+    vector_input = v.ndim == 1
+    values = jnp.asarray(v)[:, None] if vector_input else jnp.asarray(v)
+    N = values.shape[0]
     if N <= 1:
         return v
 
-    # Log-gamma helpers (using scipy.special.gammaln)
-    def Lambda1(z):
-        return np.exp(gammaln(z + alpha + beta + 1) - gammaln(z + gam + beta + 2))
+    d1, d2, T_row, vals_first, C_arr, a_fft = _jacobi_fractional_plan(
+        N, alpha, beta, gam
+    )
+    c_work = d2[:, None] * values
 
-    def Lambda2(z):
-        return np.exp(gammaln(z + alpha - gam) - gammaln(z + 1))
+    def transform_column(column):
+        tmp = C_arr * column[:, None]
+        f1 = jnp.fft.fft(tmp, n=2 * N - 1, axis=0)
+        b = jnp.fft.ifft(f1 * a_fft[:, None], axis=0)
+        return d1 * jnp.sum(b[:N, :] * C_arr, axis=1)
 
-    def Lambda3(z):
-        return np.exp(gammaln(z + gam + beta + 1) - gammaln(z + beta + 1))
+    # MATLAB processes each coefficient column separately; lax.map keeps the
+    # FFT workspace at O(N * numerical_rank) for each column.
+    result = jax.lax.map(transform_column, c_work.T).T
 
-    def Lambda4(z):
-        return np.exp(gammaln(z + beta + 1) - gammaln(z + alpha + beta + 1))
+    matrow1 = (
+        jax.scipy.special.gamma(gam + beta + 2)
+        / jax.scipy.special.gamma(beta + 1)
+        * d2 * T_row * vals_first
+    )
+    result = result.at[0, :].set(matrow1 @ values + values[0, :])
 
-    nn = np.arange(N, dtype=np.float64)
+    # The real source transform maps real coefficients to real coefficients;
+    # FFT roundoff can leave a tiny imaginary component in the implementation.
+    if not jnp.issubdtype(values.dtype, jnp.complexfloating):
+        result = jnp.real(result)
+    return result[:, 0] if vector_input else result
 
-    # Diagonal matrix D1
-    d1 = (2 * nn + gam + beta + 1) * Lambda3(np.concatenate([[1], nn[:-1]]))
-    d1[0] = 1.0
 
-    # Diagonal matrix D2
-    inv_gam_factor = 1.0 / float(np.exp(gammaln(alpha - gam + 1)))  # 1/gamma(alpha-gam)
-    d2 = inv_gam_factor * Lambda4(np.concatenate([[1], nn[:-1]]))
-    d2[0] = 0.0
+@lru_cache(maxsize=8)
+def _jacobi_fractional_plan(
+    N: int,
+    alpha: float,
+    beta: float,
+    gam: float,
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+    """Cache native Jacobi conversion factors at their source stopping rank."""
+    with jax.ensure_compile_time_eval():
+        def lambda1(z):
+            return jnp.exp(
+                jax.scipy.special.gammaln(z + alpha + beta + 1)
+                - jax.scipy.special.gammaln(z + gam + beta + 2)
+            )
 
-    # Symbol of Hankel part: vals[k] = Lambda1(k+1) for k=0..2N-1, vals[0]=0
-    vals = Lambda1(np.arange(1, 2 * N + 1, dtype=np.float64))
-    # vals[0] would be Lambda1(1), but MATLAB sets vals(1)=0 (1-indexed)
-    vals_h = np.concatenate([[0.0], vals[:-1]])  # vals_h[k] = vals[k-1] for k>=1, 0 for k=0
+        def lambda2(z):
+            return jnp.exp(
+                jax.scipy.special.gammaln(z + alpha - gam)
+                - jax.scipy.special.gammaln(z + 1)
+            )
 
-    # Pivoted Cholesky on the Hankel matrix H with diagonal d = vals_h[0::2]
-    d_diag = vals_h[0::2].copy()  # diagonal of H: H[i,i] = vals_h[2i]
-    # Note: Hankel H has H[i,j] = vals_h[i+j], so diag = vals_h[0,2,4,...]
-    # But vals_h[0]=0, so d_diag[0]=0; actual diagonal is Lambda1([1,3,5,...])
-    # Re-derive: H[i,j] = Lambda1(i+j+1), diagonal H[i,i]=Lambda1(2i+1)
-    d_diag = Lambda1(2 * nn + 1)
+        def lambda3(z):
+            return jnp.exp(
+                jax.scipy.special.gammaln(z + gam + beta + 1)
+                - jax.scipy.special.gammaln(z + beta + 1)
+            )
 
-    tol_chol = 1e-14 * np.log(N + 2)
-    chol_cols = []
-    pivot_vals = []
+        def lambda4(z):
+            return jnp.exp(
+                jax.scipy.special.gammaln(z + beta + 1)
+                - jax.scipy.special.gammaln(z + alpha + beta + 1)
+            )
 
-    mx_idx = int(np.argmax(d_diag))
-    mx = d_diag[mx_idx]
+        nn = jnp.arange(N, dtype=jnp.float64)
+        source_indices = jnp.concatenate((jnp.asarray([1.0]), nn[1:]))
+        d1 = (2 * nn + gam + beta + 1) * lambda3(source_indices)
+        d1 = d1.at[0].set(1.0)
+        d2 = lambda4(source_indices) / jax.scipy.special.gamma(alpha - gam)
+        d2 = d2.at[0].set(0.0)
 
-    # Full Hankel column extractor: col j of H = Lambda1([j+1, j+2, ..., j+N])
-    def hankel_col(j):
-        return Lambda1(j + 1 + nn)
+        vals = lambda1(jnp.arange(1, 2 * N + 1, dtype=jnp.float64))
+        vals_h = jnp.concatenate((jnp.zeros((1,), dtype=jnp.float64), vals[:-1]))
+        diagonal = vals_h[0::2]
+        tol = 1e-14 * math.log(N)
+        chol = jnp.empty((N, 0), dtype=jnp.float64)
+        pivots = jnp.empty((0,), dtype=jnp.float64)
+        peak = float(jnp.max(diagonal))
+        while peak > tol:
+            pivot = int(jnp.argmax(diagonal))
+            mx = diagonal[pivot]
+            col = vals_h[pivot:pivot + N]
+            if chol.shape[1]:
+                col = col - chol @ (chol[pivot, :] * pivots)
+            chol = jnp.concatenate((chol, col[:, None]), axis=1)
+            pivots = jnp.concatenate((pivots, (1.0 / mx)[None]))
+            diagonal = jnp.maximum(diagonal - col**2 / mx, 0.0)
+            peak = float(jnp.max(diagonal))
+        chol = chol * jnp.sqrt(pivots)[None, :]
 
-    while mx > tol_chol:
-        new_col = hankel_col(mx_idx)
-        if chol_cols:
-            C_arr = np.column_stack(chol_cols)
-            pv_arr = np.array(pivot_vals)
-            new_col = new_col - C_arr @ (C_arr[mx_idx, :] * pv_arr)
-
-        pivot_vals.append(1.0 / mx)
-        chol_cols.append(new_col.copy())
-        d_diag = d_diag - new_col ** 2 / mx
-        d_diag = np.maximum(d_diag, 0.0)
-        mx_idx = int(np.argmax(d_diag))
-        mx = d_diag[mx_idx]
-
-    if not chol_cols:
-        return v
-
-    C_arr = np.column_stack(chol_cols) * np.sqrt(np.array(pivot_vals))[None, :]  # (N, sz)
-
-    # Toeplitz row: T_row[k] = Lambda2(k) for k=0..N-1
-    T_row = Lambda2(nn)
-    T_row[0] = float(np.exp(gammaln(alpha - gam + 1))) / (alpha - gam)
-
-    # Fast Toeplitz-vector product via FFT
-    Z = np.concatenate([[T_row[0]], np.zeros(N - 1)])
-    a_fft = np.fft.fft(np.concatenate([Z, T_row[N - 1:0:-1]]))
-
-    # c_jac = D2 * v
-    c_work = d2 * v
-
-    # Apply D1*(T.*H)*D2: c_work -> sum over Cholesky columns
-    tmp = C_arr * c_work[:, None]  # (N, sz)
-    f1 = np.fft.fft(tmp, n=2 * N - 1, axis=0)
-    tmp2 = f1 * a_fft[:, None]
-    b = np.real(np.fft.ifft(tmp2, axis=0))
-    result = d1 * np.sum(b[:N, :] * C_arr, axis=1)
-
-    # Fix first entry
-    Matrow1 = (np.exp(gammaln(gam + beta + 2)) / np.exp(gammaln(beta + 1))
-               * d2 * T_row * Lambda1(nn))
-    result[0] = float(np.dot(Matrow1, v)) + v[0]
-
-    return result
+        T_row = lambda2(nn).at[0].set(
+            jax.scipy.special.gamma(alpha - gam + 1) / (alpha - gam)
+        )
+        Z = jnp.concatenate((T_row[:1], jnp.zeros((N - 1,), dtype=jnp.float64)))
+        a_fft = jnp.fft.fft(jnp.concatenate((Z, T_row[N - 1:0:-1])))
+        return d1, d2, T_row, vals_h[:N], chol, a_fft
 
 
 # ===========================================================================

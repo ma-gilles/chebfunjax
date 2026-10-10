@@ -1,0 +1,103 @@
+{
+  "base": "a5fdd04edbb7faaa1e633f92ebfbdfae3c082a7c",
+  "scope": "Chebyshev/Jacobi matrix routes and native high-order JAX integer/fractional conversion helper",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualification": {
+    "passed": 63,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_integration_root_20261010/receipt.json",
+    "sha256": "a21a000d532ced21957e7b0a920489009ce96d13a0c6a7c99769a6eba6365bbc",
+    "wall_seconds": 51.68826642399654,
+    "peak_child_rss_kib": 1142872,
+    "CPU": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "hashes_stable": true,
+    "limits": "180s focused CPU gate; measuredRSS, no enforcedRSS cap or observedruntime import audit."
+  },
+  "agent_delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_conversion_source_20261010/DELIVERY.json",
+    "sha256": "862f32292b852c7e0e3bc1f7bfd6e62767556fcced55ffdde146142f5de08564",
+    "independent_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_delivery_root_review_20261010.json",
+    "guard_hash_counts": [
+      258,
+      259
+    ],
+    "qualification": "10 module cases plus separate cold-cache complex JIT diagnostic; inputguards, not observedruntime audits."
+  },
+  "plan_shapes_N513": [
+    {
+      "parameters": [
+        0.2,
+        -0.4,
+        -0.5
+      ],
+      "factor_shape": [
+        513,
+        26
+      ],
+      "factor_bytes": 139520
+    },
+    {
+      "parameters": [
+        -0.4,
+        -0.5,
+        -0.5
+      ],
+      "factor_shape": [
+        513,
+        22
+      ],
+      "factor_bytes": 123104
+    },
+    {
+      "parameters": [
+        -0.5,
+        -0.5,
+        0.2
+      ],
+      "factor_shape": [
+        513,
+        21
+      ],
+      "factor_bytes": 119000
+    },
+    {
+      "parameters": [
+        -0.5,
+        0.2,
+        -0.4
+      ],
+      "factor_shape": [
+        513,
+        21
+      ],
+      "factor_bytes": 119000
+    }
+  ],
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_v4g_preliminary_root_review_20261010.json",
+  "ast_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_integration_root_20261010/ast_review.json",
+  "static": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_integration_root_20261010/static.json",
+    "sha256": "ec1474c5c82b909ac3dcef14e1977322eea5223cfaa44c0b9a6f3c373bedb590",
+    "passed": true
+  },
+  "remaining": [
+    "Public jac2jac still uses existing NumPy quadrature; separate reviewed candidate pending.",
+    "Small-N jac2cheb sourceFFT fix and fractional beta correction pending.",
+    "Native test bounds and matrix shapes retained; NumPyrandom fixtures are not MATLAB-identical.",
+    "N100matrix cheb2jac assertions overwritten by N513 in native finalpass array are not independently restored.",
+    "LargeN scaling beyond513 and matched MATLAB speed qualification remain open."
+  ],
+  "payload_sha256": {
+    "src/chebfunjax/utils/transforms.py": "51eb70f3eb777533e92bd43be35f5be00935d9a269352a510ee5f0a387f144ca",
+    "tests/test_matlab_port/misc/test_cheb2jac_matlab.py": "8b431a420d7b887c27f04441a2df8163fe1854bbf15187a1f1f5f4f0e289dc2d",
+    "tests/test_matlab_port/misc/test_jac2cheb_matlab.py": "dae76785306ea6e858526e1f9408a260a56f4c7e84a7f05452d72d2aff1849e7"
+  }
+}

@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native high-order Jacobi conversion helpers restored (2026-10-10; latest)
+
+Chebyshev/Jacobi conversions now handle matrix columns and use the corrected
+source integer/fractional chain at high order. Native pivot/diagonal/first-row
+indices are restored. Cached JAX factors retain actual rank (21–26 at tested
+N513 parameters); per-column FFT workspaces avoid rejected square buffers.
+All63 root integration cases pass, including restored native matrix predicates;
+static checks pass. Evidence: docs/jacobi_conversion_cpu_20261010.json.
+Public jac2jac remains the old host quadrature route pending a separate patch.
+Small-N FFT, beta correction, exact MATLAB RNG and large-N speed remain open.
+
+
 ## Fractional public column dispatch restored (2026-10-10; latest)
 
 Chebfun fractional integrals/derivatives split array input into scalar columns;
