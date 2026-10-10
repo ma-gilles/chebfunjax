@@ -1,33 +1,37 @@
 {
-  "scope": "Static cached-reference audit, not numerical or visual parity",
-  "audit_head": "869ad7fa6da5a989d2d9894420d7e4e87ebc135f",
-  "audit_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_figure_committed_869ad7fa_20261010/AUDIT.json",
-  "audit_sha256": "af628a9aec56742f30802bb87b4dc4eeab533987dd0549222f6e0d311d50cd19",
-  "stable_audit_inputs": 4567,
-  "canonical_pages": 322,
-  "matlab_code_blocks": 2408,
-  "code_blocks_matching_after_whitespace_repair": 2408,
-  "repair": "Restore two source blank lines in BayesianGradebook MATLAB display block; Python computation unchanged.",
-  "figures_present": 1305,
-  "dimension_mismatches": 28,
-  "dimension_mismatch_pages": [
-    "applics/VanillaOptions",
-    "approx2/Gibbs2D",
-    "linalg/EigLandscapes",
-    "ode-eig/Randfuneig",
-    "ode-random/RandomSwitching"
-  ],
-  "output_count_gap_pages": 11,
-  "output_text_difference_pages_observational": 228,
-  "prose_differences": [
-    "linalg/AnalyticSVD",
-    "opt/Needle",
-    "sphere/SphereHeatConduction"
-  ],
-  "limits": [
-    "Output differences include timing, RNG, warnings and numeric differences; require individual review.",
-    "Three prose differences include explicit qualification notes.",
-    "Matching displayed MATLAB source does not prove Python computation parity.",
-    "Figure dimension equality does not prove visual parity."
-  ]
+  "audit_head": "722f898ab6778789a261fe4eb6307e81051a2d3b",
+  "scope": "Offline cached reference/page inventory; no new numerical example execution or full pixel parity claim",
+  "figure_summary": {
+    "canonical_pages": 322,
+    "missing_markdown_pages": 0,
+    "html_figure_slots": 1305,
+    "markdown_figure_slots": 1305,
+    "page_slot_count_mismatches": 0,
+    "slot_name_or_order_mismatches": 0,
+    "missing_current_images": 0,
+    "missing_reference_assets": 0,
+    "pixel_comparable_slots": 1288,
+    "dimension_mismatch_slots": 17,
+    "exact_pixel_fraction_mean": 0.8062631741628898,
+    "rmse_mean": 44.02487026556224
+  },
+  "prose_result": "All original prose retained in order; six added qualification notes; math retained after alignment",
+  "output_blocks": {
+    "native": 949,
+    "current": 943,
+    "page_names": [
+      "AAAApprox",
+      "Noisy",
+      "TransientGrowth",
+      "Floquet",
+      "Needle",
+      "ResamplingRandomVariables"
+    ]
+  },
+  "limits": "Output differences include warnings and actual missing computations/timing. Pixel comparison statistics are descriptive, not an acceptance threshold. Source code fence counts match but content comparison is separate.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_722f898a/report.json": "355ae9919c71c34f83466433748edd381e74e0914b63b1a1ecbf1070ea3257b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_alignment_20261010_722f898a.json": "a80cc91b4a1b29fe262fb03ad1a4ed13846c796bb92ab7d032975396c5b4b980",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_722f898a.json": "8995c1259e5b9a84b1a11bbcc9b8bca3d6a315971e467913df5c1018f697b0d0"
+  }
 }

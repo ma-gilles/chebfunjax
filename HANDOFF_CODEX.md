@@ -1,17 +1,35 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## MATLAB mirror execution accounting (2026-10-10; latest)
+## Factor panel compilation bounded (2026-10-10; latest)
 
-The frozen e6748499 CPU run selected 52 wrapper tests: 49 passed, one pde15s
-solver-contract failure, one minimax helper-only skip, and one quantumstates
-selector not run because fail-fast stopped its lane. These are separate from
-the 5,575 ordinary and 99 supplemental direct-node ledgers. Root verified the
-four terminal lane receipts, exact ordered selections and 5,675 scratch inputs.
-A subsequent quantumstates attempt stopped before pytest because OS libraries
-had changed; it receives no execution credit. A fresh singleton is now queued.
-The PDE gap includes spatial adaptation, native tolerance mapping and boundary/
-mass-matrix semantics; preserve the native assertion. The separate 80 direct
-3D tests remain unexecuted. Evidence: docs/port_mirror_execution_cpu_20261010.md.
+Large factor panels now compile in groups of at most 32, using the same whole-axis
+length and retaining coefficients, cached values, order and metadata. All 74
+focused controls pass; the saved restriction preserves all 970 array leaves and
+recursive metadata. Observed CPU call time falls from 364.38 to 30.80 seconds;
+these are separate shared-host profiled runs, not a controlled benchmark. Root
+independently rehashed both candidate gates. Full Randfuneig execution, native
+RNG/eigenfunction parity and general AD coverage remain open. Evidence:
+docs/axis_panel_cpu_20261010.json.
+
+
+## MATLAB port mirror execution update (2026-10-10)
+
+All 52 selected wrappers now have terminal results: 50 passed, one pde15s
+failure and one minimax helper-only skip. Quantumstates passed its fresh CPU
+singleton; root rehashed 42,896 input bindings and 1,860 runtime files. Earlier
+startup failures remain preserved. These frozen e6748499 results are separate
+from the ordinary and supplemental suites, and do not establish current-main
+suite success. The 80 direct 3D battery cases remain pending. Preserve the
+native PDE assertion while fixing adaptation, tolerance mapping and solver
+semantics. Evidence: docs/port_mirror_execution_cpu_20261010.md.
+
+## Complete page inventory refreshed (2026-10-10)
+
+All 322 pages and 1,305 figure slots are present in the offline reference audit.
+Seventeen images still have wrong dimensions; six output blocks are missing.
+Original prose and equations are retained after accounting for six additional
+qualification notes. This inventory does not establish numerical or pixel
+parity. Evidence: docs/page_inventory_cpu_20261010.json.
 
 ## Polynomial integration endpoint metadata corrected (2026-10-10; latest)
 

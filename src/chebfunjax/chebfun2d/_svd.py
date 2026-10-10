@@ -17,7 +17,7 @@ from chebfunjax.tech.trigtech import Trigtech, _trig_inner_product_jax, _trig_qr
 
 
 @eqx.filter_jit
-def _axis_panel(factors):
+def _axis_panel_unblocked(factors):
     """Native horizontal collation without turning an array into a quasi.
 
     @chebtech/horzcat.m and @trigtech/horzcat.m (7574c77): first input
@@ -34,6 +34,42 @@ def _axis_panel(factors):
     raise NotImplementedError(
         'SVD axis requires source collation for heterogeneous or singular '
         'factor technologies; no polynomial reinterpretation is provided.')
+
+
+@eqx.filter_jit
+def _axis_panel_group(factors, n):
+    """Compile at most32 factors, with the whole axis's source length."""
+    if all(isinstance(t, Trigtech) for t in factors):
+        return _trig_qr_collate(tuple(t.prolong(n) for t in factors))
+    return type(factors[0])(
+        coeffs=jnp.column_stack([jnp.pad(t.coeffs, (0, n-t.n))
+                                for t in factors]),
+        ishappy=factors[0].ishappy)
+
+
+def _axis_panel(factors):
+    """Native collation with bounded compiled groups and unchanged length.
+
+    Keep groups outside one encompassing JIT graph. Every factor is
+    prolonged to the same global maximum before coefficient/cache collation.
+    """
+    if len(factors) <= 32:
+        return _axis_panel_unblocked(factors)
+    trig = all(isinstance(t, Trigtech) for t in factors)
+    poly = all(isinstance(t, (Chebtech1, Chebtech2)) for t in factors)
+    if not (trig or poly):
+        return _axis_panel_unblocked(factors)
+    n = max(t.n for t in factors)
+    panels = [_axis_panel_group(factors[k:k+32], n)
+              for k in range(0, len(factors), 32)]
+    coeffs = jnp.concatenate([panel.coeffs for panel in panels], axis=1)
+    if trig:
+        return Trigtech(
+            coeffs=coeffs,
+            real_columns=tuple(flag for t in factors for flag in t.real_columns),
+            ishappy=factors[0].ishappy,
+            _values=jnp.concatenate([panel.values for panel in panels], axis=1))
+    return type(factors[0])(coeffs=coeffs, ishappy=factors[0].ishappy)
 
 
 @eqx.filter_jit
