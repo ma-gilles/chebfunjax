@@ -1202,6 +1202,9 @@ class Chebop:
         ax.add_collection(LineCollection(_np.asarray(heads), **head_options))
         ax.set_xlim(x0, x1)
         ax.set_ylim(y0, y1)
+        from chebfunjax.plotting import _matlab_ticks
+
+        _matlab_ticks(ax)
         return ax
 
     @staticmethod

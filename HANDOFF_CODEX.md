@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Quiver cumulative source page and figure dimensions (2026-10-10; latest)
+
+All43 original solve returns support the corrected source plotting routes,
+held colors and explicit limits. Archived rendering produces five600x268 images;
+root28 controls pass. All1305 mapped figures were reaudited:28 wrong dimensions
+remain across5pages, no missing/reference changes. Quiver arrow rasterization,
+fonts and VdP tick matching remain incomplete. Evidence:
+docs/quiver_page_cpu_20261010.json. This is not full image/content parity.
+
 ## Native event indexing and ODE113 restart compilation (2026-10-10; latest)
 
 Scalar terminal flags now follow native per-crossing indexing; mixed finite/Inf

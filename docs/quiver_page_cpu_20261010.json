@@ -1,0 +1,47 @@
+{
+  "scope": "Cumulative ChebopQuiver source-page correction and reference dimensions",
+  "source_changes": [
+    "Native plotData for damped trajectories instead of fixed3000 samples",
+    "Native held color cycling and default stroke widths",
+    "Source-authored limits only",
+    "600x268at100dpi exports",
+    "Existing shared tick heuristic applied after quiver limits; not exact MATLAB autotick implementation"
+  ],
+  "numerical_basis": "Original43fullsolves at e70fa892 retained; rendering3feef0e snapshot reuses43archivedreturns/63components byte-exact, no new solver calls. No sameHEAD numerical rerun claim.",
+  "root_focused_passes": 28,
+  "root_seconds": 17.706137833185494,
+  "root_peak_child_rss_kib": 671168,
+  "replay_seconds": 51.68620557477698,
+  "replay_peak_summed_rss_kib": 2263432,
+  "global_dimensions": {
+    "mapped_slots": 1305,
+    "mapping_holes": 0,
+    "missing": 0,
+    "wrong_dimensions": 28,
+    "pages": 5,
+    "remaining": {
+      "applics/VanillaOptions": 7,
+      "approx2/Gibbs2D": 8,
+      "linalg/EigLandscapes": 5,
+      "ode-eig/Randfuneig": 5,
+      "ode-random/RandomSwitching": 3
+    }
+  },
+  "remaining_visual_gaps": [
+    "VdP reference y ticks -5,0,5 differ from current -4,-2,0,2,4.",
+    "Arrow shafts/heads thinner/smaller than references; HG2 rasterization not reproduced.",
+    "Math/font raster differences remain."
+  ],
+  "markdown": "Existing generated Markdown byte-identical to offline cached HTML preview; no printed output cells.",
+  "scipy_provenance": "Original solver environment used SciPy1.17.1 from user-site; later RECORD audit does not retroactively input-pin it.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_quiver_page_e70fa892_20261010/render_v5b/FINAL_DELIVERY.json": "5c5fea117d0c9879cf5053d36c87a0f406bb88aecc8e262d91de434d0016a088",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_quiver_page_e70fa892_20261010/render_v5b/TICK_REVIEW.md": "7670e9d00951a0186810c7b49682b3ed04adf54193b0d08b2852f1da80df9969",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quiver_page_root_20261010/review.json": "b59511c205e25786a7d331424a6d8c27beaed73c8ce7e219ecacef7d08023404",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quiver_page_root_20261010/receipt.json": "29c36aa673f3f321aeb66ee8ddfda6fa530033b8dfb29a9d9895f27e708d2f20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quiver_page_root_20261010/junit.xml": "981c1e84664e4cf31cbbbe7591950fefa60db8dc18763fcf7fa0a559bbd59027",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/figure_size_quiver_20261010.json": "a13fa712541845fbd08fd10410ef34b7f9c0fe59df8d5f6cfea8333c08771075"
+  },
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quiver_page_root_20261010/static.json",
+  "completion": "Dimension improvement and source corrections only; full figure/page/CI parity remains open."
+}

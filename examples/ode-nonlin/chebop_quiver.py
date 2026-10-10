@@ -22,7 +22,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import arrowplot, chebfun_style
+from chebfunjax.plotting import arrowplot, chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -31,22 +31,12 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-nonlin')
 
 FIG = [0]
 
-# MATLAB's default axes ColorOrder. The quiver plot is drawn first and
-# takes index 0 (blue), so overlaid solutions start at index 1.
-MATLAB_COLORS = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E",
-                 "#77AC30", "#4DBEEE", "#A2142F"]
-
-
-def _curve_color(k):
-    return MATLAB_COLORS[(k + 1) % len(MATLAB_COLORS)]
-
-
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"ChebopQuiver_{FIG[0]:02d}.png"))
+        _IMG, f"ChebopQuiver_{FIG[0]:02d}.png"), size=(600, 268), dpi=100, layout="matlab")
     plt.close(fig)
 
 
@@ -60,27 +50,24 @@ def run():
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     N.quiver([-2.75, 2.75, -5.5, 5.5], ax=ax, xpts=40, ypts=40,
              scale=.5, normalize=True)
-    for k, init in enumerate((0.2,)):          # MATLAB: 0.2:0.4:0.2
+    for init in (0.2,):                        # MATLAB: 0.2:0.4:0.2
         N.lbc = [init, 1]
         u = N.solve(0.0)
-        arrowplot(u, u.diff(), ax=ax, color=_curve_color(k), linewidth=1.6)
+        arrowplot(u, u.diff(), ax=ax)
     ax.set_title("Phase portrait of the van der Pol oscillator")
     ax.set_xlabel("$u$")
     ax.set_ylabel("$u'$")
-    ax.set_xlim(-2.75, 2.75)
-    ax.set_ylim(-5.5, 5.5)
     _save(fig)
 
     # --- An undamped mathematical pendulum ---------------------------
     N = Chebop(lambda t, u: u.diff(2) + u.sin(), domain=(0, 50))
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     N.quiver([-2.5, 25, -2, 5.5], ax=ax, xpts=30)
-    for k, init in enumerate(np.arange(0, 5.01, 0.5)):
+    for init in np.arange(0, 5.01, 0.5):
         N.lbc = [0, float(init)]
         u = N.solve(0.0)
-        arrowplot(u, u.diff(), ax=ax, color=_curve_color(k), linewidth=1.4)
+        arrowplot(u, u.diff(), ax=ax)
     ax.set_xlim(-2.5, 25)
-    ax.set_ylim(-2, 5.5)
     ax.set_title("Phase portrait for an undamped nonlinear pendulum")
     ax.set_xlabel("$u$")
     ax.set_ylabel("$u'$")
@@ -91,14 +78,10 @@ def run():
                domain=(0, 50))
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     N.quiver([-2.5, 25, -2, 5.5], ax=ax, xpts=30)
-    for k, init in enumerate(np.arange(0, 5.01, 0.5)):
+    for init in np.arange(0, 5.01, 0.5):
         N.lbc = [0, float(init)]
         u = N.solve(0.0)
-        t = np.linspace(0, 50, 3000)
-        ax.plot(np.asarray(u(t)), np.asarray(u.diff()(t)),
-                color=_curve_color(k), lw=1.4)
-    ax.set_xlim(-2.5, 25)
-    ax.set_ylim(-2, 5.5)
+        matlab_plot(u, u.diff(), ax=ax)
     ax.set_title("Phase portrait for a damped nonlinear pendulum")
     ax.set_xlabel("$u$")
     ax.set_ylabel("$u'$")
@@ -115,13 +98,14 @@ def run():
         fig, ax = plt.subplots(figsize=(9.0, 4.6))
         N.quiver([0, 5, 0, 5], ax=ax, xpts=30, ypts=30,
                  normalize=True, scale=.4)
-        for k, rabbits in enumerate(np.arange(0.1, 1.91, 0.2)):
+        for rabbits in np.arange(0.1, 1.91, 0.2):
             N.lbc = (lambda u, v, _r=float(rabbits):
                      [u - _r, v - 1])
             u, v = N.solve(0.0)
-            arrowplot(u, v, ax=ax, color=_curve_color(k), linewidth=1.4)
-        ax.set_xlim(0, 5)
-        ax.set_ylim(0, 5)
+            arrowplot(u, v, ax=ax)
+        if growth == 1.5:
+            ax.set_xlim(0, 5)
+            ax.set_ylim(0, 5)
         ax.set_title(title)
         ax.set_xlabel("Rabbits")
         ax.set_ylabel("Foxes")
