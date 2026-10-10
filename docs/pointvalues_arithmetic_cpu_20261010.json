@@ -1,0 +1,51 @@
+{
+  "scope": "Chebfun subtraction and negation preserve native stored breakpoint values and orientation.",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_contract": "@chebfun/minus.m delegates plus(f,uminus(g)); uminus negates pointValues separately from FUN pieces.",
+  "root_gate": {
+    "passed": 27,
+    "elapsed_seconds": 15.192033517174423,
+    "peak_child_rss_kib": 837812,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "timeout_seconds": 120,
+    "source_unchanged": true
+  },
+  "agent_gates": {
+    "portable_and_retained_coefficient": 17,
+    "unchanged_native_regressions": 11,
+    "runtime_files_rehashed": [
+      2942,
+      2945
+    ]
+  },
+  "regression_evidence": "Actual RandomSwitching retained coefficient had 17 incorrect interior switching values under subtraction. With identical coefficient/query bytes, both corrected residuals equal the direct formula at all 19 breakpoints.",
+  "review": "Only __sub__, __rsub__, __neg__ changed; full remaining module AST identical. Root and agent gates overlap, counts must not be added.",
+  "preserved_failures": [
+    "Initial observer used wrong constructor",
+    "Uncorrected coefficient arithmetic failure",
+    "Test preparation missing destination",
+    "Delta observer initially expected three fields instead of canonical two for order zero"
+  ],
+  "limits": [
+    "Arithmetic replay, not full RandomSwitching trajectory or page qualification.",
+    "Root gate hashes full src/tests before and after; no root observed runtime-origin audit or enforced RSS cap.",
+    "Fresh global regression, MATLAB fixtures and remote CI remain incomplete."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_source_20261010/POINTVALUES_DELIVERY_v1.json": "a126b73e5b50bd3b0ce1113ab883d973d4dc623d5a8357e48c0d39e4a6b424d6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_source_20261010/POINTVALUES_RESULT_v1.json": "d2b400f479151620339387ca2ca697a3649baa67132b66dc740f95b1b178e1b4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pointvalues_root_20261010/receipt.json": "59ae13ed1c35b7a86585f617e1926fd5a03ff21fdffa71a6714622275c62f7b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pointvalues_root_20261010/review.json": "9ba254f80f462284117bf279ee27202b27f15fd65c535368b0862ac5c2b4757f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pointvalues_root_20261010/junit.xml": "18024330a516a314c8a1a7a323006b20daad5ad49cf5fbb7a67a19276f012d24",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pointvalues_root_20261010/static.json": "41f5599c3f52a68d60ced9988187bd5e47e3fdfcd4c892263e511b8d9aa934a0"
+  }
+}

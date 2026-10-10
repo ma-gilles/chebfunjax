@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Subtraction and negation preserve breakpoint values (2026-10-10; latest)
+
+Native plus/uminus dispatch now retains pointValues, orientation and delta
+metadata. Actual RandomSwitching arithmetic was wrong at17 switching points;
+retained-coefficient replay now matches both direct residuals at all19 points.
+Root27 focused tests pass; agent17+11 overlapping tests and runtime hashes
+verified. Only3 arithmetic methods changed; static gates pass. Full page and
+global regression remain open. Evidence: docs/pointvalues_arithmetic_cpu_20261010.json.
+
 ## Native ODE113 event location and terminal history (2026-10-10; latest)
 
 Events now use the native Adams interpolant and source terminal phi/psi

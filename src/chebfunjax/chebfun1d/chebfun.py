@@ -2873,25 +2873,17 @@ class Chebfun(eqx.Module):
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
-            out = Chebfun._binary_op(self, other, lambda a, b: a - b)
-            return self._attach_deltas(out, Chebfun._merge_deltas(
-                getattr(self, "deltas", ()), getattr(other, "deltas", ()),
-                1.0, -1.0))
-        if not isinstance(other, (int, float, complex, jnp.ndarray,
-                                  jax.Array)):
-            # Defer to the other type's reflected operator (see __add__).
+            # @chebfun/minus.m is literally plus(f, uminus(g)). This also
+            # preserves the source pointValues and orientation checks.
+            return self + (-other)
+        if not isinstance(other, (int, float, complex, jnp.ndarray, jax.Array)):
             if not (hasattr(other, "dtype")
                     and getattr(other, "ndim", None) is not None):
                 return NotImplemented
-        new_funs = [
-            piece._apply_unary(piece.tech - other)
-            for piece in self.funs
-        ]
-        out = Chebfun(funs=new_funs, domain=self.domain)
-        return self._attach_deltas(out, getattr(self, "deltas", ()))
+        return self + (-other)
 
     def __rsub__(self, other) -> Chebfun:
-        return -(self - other)
+        return (-self).__add__(other)
 
     def __neg__(self) -> Chebfun:
         """Unary negation.
@@ -2904,6 +2896,8 @@ class Chebfun(eqx.Module):
         new_funs = [piece._apply_unary(-piece.tech) for piece in self.funs]
         out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        # @chebfun/uminus.m negates stored values separately from each FUN.
+        out = self._propagate_point_values(out, lambda values: -values)
         return self._attach_deltas(out, Chebfun._merge_deltas(
             (), getattr(self, "deltas", ()), 1.0, -1.0))
 
