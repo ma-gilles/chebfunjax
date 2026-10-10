@@ -1,5 +1,24 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native test qualification and restored Singfun assertions (2026-10-10; latest)
+
+All 55 existing native Chebtech port modules passed: 825 unique cases, no
+skips/failures/errors, on frozen f1cb17fd. Root verified exact JUnit coverage,
+delivery hashes and all four runtime audits. This is execution qualification,
+not proof that every port retains all native predicates; source fidelity
+review continues. Evidence: docs/chebtech_native825_cpu_20261010.json.
+
+Singfun restriction's six old tests only called restrict and discarded the
+results. The original 12 subinterval accuracy checks are now restored with
+100-point grids, endpoint exclusions and unchanged 5e4eps-scaled bounds.
+All six cases pass on the unchanged library; root audited 2,943 runtime files.
+Evidence: docs/singfun_restrict_native_cpu_20261010.json.
+
+A file-level inventory maps all 1,102 native test files: 1,098 matching port
+paths and four combined GUI exporter cohorts. This establishes representation
+only. Missing assertions and changed operators/order/masks can remain inside
+those files, as the Singfun and Trigtech roots reviews demonstrate.
+
 ## Trigtech Fourier transforms now use JAX throughout (2026-10-10; latest)
 
 Concrete and traced public transforms share the existing JAX kernels; the

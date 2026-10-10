@@ -1,0 +1,129 @@
+{
+  "reviewer": "/root",
+  "scope": "All six original Singfun restriction accuracy cases; every original subinterval/grid/bound restored, library unchanged",
+  "gates": [
+    {
+      "gate": "native6_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_restrict_literal_source_20261010/native6_v1/supervision/receipt.json",
+      "receipt_sha256": "ea206b1809e117d40fd9fc9743ac387a2788eb76de9175dedf8cd39605418837",
+      "runtime_manifest_sha256": "4fa627465db1d9cfc4141bdf6ffa7d7a0de0f955595f4b78e3abe716238d9d04",
+      "runtime_end_sha256": "fd5ef8a5ccf6bfc3592e1cbcbaa96867f62bf88c482702e0f1d0d73647731030",
+      "observed_files_rehashed": 2943,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 55,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1790504,
+      "cpu_affinity": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "assertion_slots": 6,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_plan": {
+    "base": "fe2247fad757d77fb83fb5d4bb38f87666900eca",
+    "finding": "Existing six tests discard every numerical native assertion. Restore original six cases and every subinterval100point grid, strict5e4eps bound and original if/elseif endpoint exclusions.",
+    "library_changes": [],
+    "source_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/singfun/test_restrict.m": "affed7ec6f8b016ca2dca1845902db3ea2297f06d28ff269373f72e4cfd5e5d4",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/restrict.m": "159d7d1980c9342e68c9abdbeeafe8a01fd2bd3a8ea7c4aea95c34eb706621c9",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/singfun.m": "d89b5b61505a6c7ccac1e9b1108fbb13704750224b4909fea385ef698f4a5830"
+    },
+    "next_action": "Run literal predicates before choosing library correction; no bound/source reduction."
+  },
+  "source_review": "All six native operators/exponents/subintervals,100point grids,if/elseif shun rules,affine maps,max(1,abs(exact)) and strict5e4eps absolute bound retained. Native constructor consults singType only for unspecified/NaN exponents; all supplied here.",
+  "restored_subinterval_checks": 12,
+  "case_properties": [
+    {
+      "name": "test_original_restrict_spotchecks[left-root]",
+      "properties": {
+        "piece_0_error": "3.3306690738754696e-16",
+        "piece_0_native_bound": "1.3041603624761777e-11"
+      }
+    },
+    {
+      "name": "test_original_restrict_spotchecks[left-pole]",
+      "properties": {
+        "piece_0_error": "5.129550117999315e-10",
+        "piece_0_native_bound": "2.2988585358590533e-08"
+      }
+    },
+    {
+      "name": "test_original_restrict_spotchecks[right-root]",
+      "properties": {
+        "piece_0_error": "6.661338147750939e-16",
+        "piece_0_native_bound": "1.674775827545584e-11",
+        "piece_1_error": "6.661338147750939e-16",
+        "piece_1_native_bound": "1.67781735984863e-11"
+      }
+    },
+    {
+      "name": "test_original_restrict_spotchecks[right-pole]",
+      "properties": {
+        "piece_0_error": "2.220446049250313e-16",
+        "piece_0_native_bound": "1.1102230246251565e-11",
+        "piece_1_error": "8.881784197001252e-16",
+        "piece_1_native_bound": "2.3991236215887014e-11",
+        "piece_2_error": "7.736389306955971e-11",
+        "piece_2_native_bound": "4.0309761614190866e-09"
+      }
+    },
+    {
+      "name": "test_original_restrict_spotchecks[both-poles]",
+      "properties": {
+        "piece_0_error": "4.263256414560601e-14",
+        "piece_0_native_bound": "1.396789261571504e-09",
+        "piece_1_error": "6.661338147750939e-16",
+        "piece_1_native_bound": "1.6693548633520295e-11",
+        "piece_2_error": "1.1102230246251565e-15",
+        "piece_2_native_bound": "2.3781561029469383e-11",
+        "piece_3_error": "3.0340743251144886e-08",
+        "piece_3_native_bound": "7.902712579498514e-07"
+      }
+    },
+    {
+      "name": "test_original_restrict_spotchecks[near-endpoints]",
+      "properties": {
+        "piece_0_error": "9.958966984413564e-10",
+        "piece_0_native_bound": "4.856163307650168e-08"
+      }
+    }
+  ],
+  "library_changed": false,
+  "candidate_test_sha256": "1b8566da05c72580898d778da86b2dff2846c9e4efcfaa5c2acf8e9065042c1f",
+  "limitations": [
+    "No claim of full Singfun/native test fidelity or current-head CI."
+  ],
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "fe2247fad757d77fb83fb5d4bb38f87666900eca",
+    "passed": true
+  }
+}
