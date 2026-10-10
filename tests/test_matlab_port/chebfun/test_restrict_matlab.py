@@ -1,8 +1,8 @@
 """Literal tests/chebfun/test_restrict.m at MATLAB7574c77.
 
 The first1000 seedRNG(7681) transformed uniforms are reused from the native
-repmat fixture: both source files use exactly xr=2*rand(1000,1)-1. Later
-100+100 draws for slot24 are pending; no substitute generator is used.
+repmat fixture: both source files use exactly xr=2*rand(1000,1)-1. The subsequent
+100+100 draws for slot24 are captured after the original native source prefix.
 """
 import json
 from pathlib import Path
@@ -75,11 +75,11 @@ def test_source_23_singular():
     check_function(f, op, [-2, 1, 3.5, 6.5, 7])
 
 
-def test_source_24_native_pending():
+def test_source_24_unbounded():
     fixture = Path(__file__).with_name('restrict_matlab_inputs.json')
-    if not fixture.exists():
-        pytest.skip('Native source-order seed7681 subsequent100+100 uniforms not captured')
     native = json.loads(fixture.read_text())
+    assert native['source_commit'] == '7574c77680d7e82b79626300bf255498271a72df'
+    assert native['source_sha256'] == 'f1bce676e7f6173184c8a1cf475fb305af36cd0a18555c65aae63a52f843a087'
     # x1/x2 must be captured after the source1000-point prefix, already
     # mapped by MATLAB to [-100,1] and [1,2*pi], respectively.
     x1, x2 = jnp.asarray(native['x1']), jnp.asarray(native['x2'])

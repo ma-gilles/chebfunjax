@@ -1,0 +1,64 @@
+{
+  "scope": "Restore native source-order inputs for restriction test24; solver and all original predicates/tolerances unchanged",
+  "native": {
+    "native_passed": 29,
+    "original_handle": 45995,
+    "runtime_version": "25.2.0.3055257 (R2025b) Update 2",
+    "provider": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/@chebfun/chebfun.m",
+    "source": {
+      "purpose": "Full native restrict source with observational input capture after original x2 draw",
+      "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_evaluable_reproduction_f36efb27_20261010_v5/native_snapshot/tests/chebfun/test_restrict.m",
+      "source_sha256": "f1bce676e7f6173184c8a1cf475fb305af36cd0a18555c65aae63a52f843a087",
+      "instrumentation": "Rename entrypoint and add one save after x2; all computations/predicates unchanged",
+      "bounds": "CPU8\u201311,180s,3GiB",
+      "runtime_scope": "Pinned MATLABR2025b binary; source hashes and provider profile, not full dynamic-loader closure"
+    },
+    "resource_summary": {
+      "wall_seconds": 69.86581732938066,
+      "sampled_peak_summed_rss_kib": 1541896,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "prefix_matches_existing1000draw_fixture": true,
+    "artifacts": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rst1/inputs.mat": "76ee34c248bddd5fbeccd4f51a5ff6d2781950599bfbfa095b1f5a35671845e2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rst1/result.mat": "90b920e8a1cf7b565d0d138fd0dfd40c9b54df642b286cc071cec0ac4cc31228",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rst1/guard.json": "95d1ef60b52675971f7b062a0e80cb92aae4b8882840b9ce0925b6b05c72bfbc",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rst1/supervision/receipt.json": "1cd232cd49367ff7a40ee993ea573fa3257dab5837e58a62978ed41b3a6a474d"
+    }
+  },
+  "python": {
+    "original_handle": 45697,
+    "passed": 1,
+    "node": "tests/test_matlab_port/chebfun/test_restrict_matlab.py::test_source_24_unbounded",
+    "versions": {
+      "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+      "executable": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "equinox": "0.13.8",
+      "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_native_input_candidate_20261010/snapshot/src/chebfunjax/__init__.py",
+      "devices": [
+        "cpu:0"
+      ]
+    },
+    "resources": {
+      "wall_seconds": 14.23544990317896,
+      "sampled_peak_summed_rss_kib": 894556,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rst1/AUDIT.json": "c75de84ce12a65b39992090a66d72fe47a4afb4aa255e10f27b8dd07434f2de8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_native_input_candidate_20261010/guard.json": "d7373185598c8348f9bae81358f29b42f9c693fac08f4c268bb074a8041d81d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_native_input_candidate_20261010/junit.xml": "39731feec446faceb54a2de88f420100fc28ee2104705af71559b2e77b0e327c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_native_input_candidate_20261010/supervision/receipt.json": "5def6cd2b4706b0a232e2d05cc81d5b95c71e0bc74e7ed9705f1e2c93a5b37f2"
+  }
+}

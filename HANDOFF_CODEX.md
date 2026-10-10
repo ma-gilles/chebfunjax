@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native restriction input gap closed (2026-10-10; latest)
+
+Native test_restrict passed all 29 predicates while capturing x1/x2 after the
+original source prefix. Its first 1000 draws exactly match the existing native
+fixture. The previously skipped Python unbounded restriction case now passes
+with these captured inputs and the original tolerance. No solver changed.
+Evidence: docs/restrict_native_inputs_cpu_20261010.json.
+
+
 ## Native L1 failure contract qualified (2026-10-10; latest)
 
 The exact cosine degree-four case returns 20 NaNs and MAXITER in native
