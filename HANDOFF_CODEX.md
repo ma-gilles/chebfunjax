@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full Gibbs replay after grid correction (2026-10-10; latest)
+
+The complete source page runs on4f364d37 with six extrema, twelve fixed4000
+reconstructions and four active-set solves without fallback. All eleven actual
+answers are published; eight600x269 figures remain byte-identical. Triangle
+maximum1.172291450338935 and minimum-0.010179284112782 still differ from the
+historical published reference. Raw triangle factors are unchanged; the first
+changed captured stage is reconstruction, then optimization seeds. The earlier
+native matched-factor solves were not a full native source replay. Fresh source-direct R2025b
+native triangle max1.1722914503389705 matches JAX within3.6e-14; native
+min-0.004032268925529743 still differs. Native uses installed R2025b fmincon;
+the JAX adapter was qualified against R2017a source. Historical parity and
+the fresh minimum remain open.
+Runtime1,875 files and48,219 inputs audit clean. Evidence:
+docs/gibbs_active_set_source_cpu_20261010.json. Full parity and CI remain open.
+
+
 ## Ordinary CPU sweep reconciled (2026-10-10; latest)
 
 The frozen ebd93016 sweep now accounts for all5,575 unique planned tests across

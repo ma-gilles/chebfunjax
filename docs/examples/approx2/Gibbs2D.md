@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx2/gibbs2d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/gibbs2d.py)
 
-> **Qualification:** CPU source execution passed 35 controls, including this original 100x100 computation, all six extrema calls, twelve fixed-4000 reconstructions and four active-set solves, with no fallback or unsupported branch. The triangle maximum is 1.273581928619538 versus the published native 1.294875501773784 (gap -0.021293573154246); its cause remains under investigation. The other displayed answers closely match the published reference. All eight figures are actual 600x269 outputs. Camlight, interpolated faces, automatic contour levels, framing and typography remain graphics differences. These results establish source execution, not full numerical or graphics parity.
+> **Qualification:** The complete CPU source replay on revision 4f364d37 passed: the original 100x100 computation, all six extrema calls, twelve fixed-4000 reconstructions and four active-set solves completed without fallback or unsupported branches. With source-rounded Chebyshev grid arguments, the triangle maximum is 1.172291450338935 and minimum is -0.010179284112782. The historical published native page reports 1.294875501773784 and -0.228957699300502; historical parity remains unresolved. A fresh source-direct MATLAB R2025b triangle run gives maximum 1.1722914503389705 (within 3.6e-14 of this JAX result) and minimum -0.004032268925529743, which still differs. That run uses the installed R2025b optimizer; the JAX adapter was qualified against R2017a optimizer source. All eight figures are actual 600x269 outputs, byte-identical to the previous publication. Camlight, interpolated faces, automatic contour levels, framing and typography remain graphics differences. This establishes source execution, not full numerical or graphics parity.
 
 ## 1. Chebyshev 2D Gibbs effect
 
@@ -38,7 +38,7 @@ max2(p)
 
 ```text
 ans =
-   1.320316254042390
+   1.320316254042389
 ```
 
 This is big! -- about twice what we are used to with a 1D Gibbs effect:
@@ -114,9 +114,9 @@ contour(p2), axis([-.6 .6 -.6 .6]), axis square, colorbar
 
 ```text
 ans =
-   1.273581928619538
+   1.172291450338935
 ans =
-  -0.228957699300504
+  -0.010179284112782
 ```
 
 ![Gibbs2D figure 06](../../images/approx2/Gibbs2D_06.png)

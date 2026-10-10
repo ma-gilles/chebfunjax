@@ -1,153 +1,173 @@
 {
-  "qualification": "source execution only; triangle maximum and graphics parity unresolved",
-  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35_AUDIT_v2.json",
-  "gate_sha256": "ba29aaca343fb365b0cf07594463392ac1118305693558f598a69490e730cc0a",
-  "comparison": {
-    "reference_type": "cached published native page, not fresh matched MATLAB run",
-    "rows": [
-      {
-        "name": "square_max",
-        "actual_printed": 1.32031625404239,
-        "published_native_printed": 1.32031625404239,
-        "difference": 0.0
-      },
-      {
-        "name": "1d_max",
-        "actual_printed": 1.149050152970874,
-        "published_native_printed": 1.149050152970874,
-        "difference": 0.0
-      },
-      {
-        "name": "square_min",
-        "actual_printed": -0.153785123606236,
-        "published_native_printed": -0.153785123606236,
-        "difference": 0.0
-      },
-      {
-        "name": "periodic_max",
-        "actual_printed": 1.316297664943328,
-        "published_native_printed": 1.31629766494333,
-        "difference": -1.9984014443252818e-15
-      },
-      {
-        "name": "periodic_min",
-        "actual_printed": -0.155566549488912,
-        "published_native_printed": -0.155566549488912,
-        "difference": 0.0
-      },
-      {
-        "name": "triangle_max",
-        "actual_printed": 1.273581928619538,
-        "published_native_printed": 1.294875501773784,
-        "difference": -0.02129357315424607
-      },
-      {
-        "name": "triangle_min",
-        "actual_printed": -0.228957699300504,
-        "published_native_printed": -0.228957699300502,
-        "difference": -1.9984014443252818e-15
-      },
-      {
-        "name": "square_rank",
-        "actual_printed": 1.0,
-        "published_native_printed": 1.0,
-        "difference": 0.0
-      },
-      {
-        "name": "periodic_rank",
-        "actual_printed": 1.0,
-        "published_native_printed": 1.0,
-        "difference": 0.0
-      },
-      {
-        "name": "triangle_rank",
-        "actual_printed": 22.0,
-        "published_native_printed": 22.0,
-        "difference": 0.0
-      },
-      {
-        "name": "matrix_rank",
-        "actual_printed": 22.0,
-        "published_native_printed": 22.0,
-        "difference": 0.0
-      }
-    ],
-    "actual_active_solves": [
-      {
-        "kind": "active_set",
-        "time": 2790729.022588634,
-        "call": 1,
-        "seconds": 0.5613499716855586,
-        "exitflag": 5,
-        "iterations": 9,
-        "evaluations": 41
-      },
-      {
-        "kind": "active_set",
-        "time": 2790729.497814733,
-        "call": 2,
-        "seconds": 0.47049245005473495,
-        "exitflag": 5,
-        "iterations": 9,
-        "evaluations": 42
-      },
-      {
-        "kind": "active_set",
-        "time": 2790730.342165229,
-        "call": 3,
-        "seconds": 0.2455042558722198,
-        "exitflag": 5,
-        "iterations": 9,
-        "evaluations": 41
-      },
-      {
-        "kind": "active_set",
-        "time": 2790730.604286707,
-        "call": 4,
-        "seconds": 0.25737704802304506,
-        "exitflag": 5,
-        "iterations": 9,
-        "evaluations": 42
-      }
-    ],
-    "acceptance_tolerance": null,
-    "counts": {
-      "grids": 7,
-      "extrema": 6,
-      "reconstruct": 12,
-      "higher": 2,
-      "fallback": 0,
-      "active": 4,
-      "active_errors": 0,
-      "unsupported_errors": 0,
-      "figures": 8
-    },
-    "bindings": {
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs2d_page_source_20261009/CACHED_CELLS.json": "c8cacbddf845a4a19418c4f1ba93926c51a6f12c1dcdaa300bc862af0262ba4c",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/stdout.txt": "de40efecc78d46fd0fb1b08e3453945f3159a031f90076c47a2af6cddd1f792b",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/events.json": "46f89fbdf6122d7ced52e676341031b05441bb7460447630c812cd998baf5c75",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/PAGE_RECEIPT.json": "8df894c760326df7a175d83fdde0c42a8d444e3ee5f74fcce4d9d5132e1a3424",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_02.json": "31a948ead946bb3d1f0446c26ce9fca95bdbb8cab0ca3ade03f5744f9add9da9",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_03.json": "9c7ce5d4aaa02c97eb3f05bc39c63daa8f167fe91f73b1c9f963168c90848352",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_04.json": "31a948ead946bb3d1f0446c26ce9fca95bdbb8cab0ca3ade03f5744f9add9da9",
-      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/B_public35/capture/active_set_01.json": "9c7ce5d4aaa02c97eb3f05bc39c63daa8f167fe91f73b1c9f963168c90848352"
-    }
-  },
+  "qualification": "Complete CPU source execution; numerical and graphics parity unresolved",
+  "source_head": "4f364d37d3dd2a170b200ca611c0b52f71e51bcf",
+  "source_page_control_passed": 1,
+  "prior_adapter_controls": 35,
+  "grid_controls": 43,
   "counts": {
-    "controls": 35,
+    "grids": 7,
     "extrema": 6,
-    "reconstructions": 12,
-    "active_solves": 4,
-    "fallbacks": 0,
+    "reconstruct": 12,
+    "higher": 2,
+    "fallback": 0,
+    "active": 4,
+    "active_errors": 0,
+    "unsupported_errors": 0,
     "figures": 8
   },
-  "no_numerical_rerun": true,
-  "no_publication_edit": true,
-  "root_review": {
-    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/active_set_gibbs_public_20261010/ROOT_REVIEW.json",
-    "sha256": "fe8d81d187d35daad401d4b5a0cf05a3e304c34d4adc1bf5d952d1a052b9690a",
-    "figure_hashes_all_identical_to_previous_publication": true,
-    "example_executable_AST_unchanged": true,
-    "cosmetic_source_docstrings_only": true
+  "printed_answers": [
+    {
+      "name": "square_max",
+      "actual_printed": 1.320316254042389,
+      "previous_JAX_printed": 1.32031625404239,
+      "published_native_printed": 1.32031625404239,
+      "difference_native": -1.1102230246251565e-15,
+      "difference_previous": -1.1102230246251565e-15
+    },
+    {
+      "name": "1d_max",
+      "actual_printed": 1.149050152970874,
+      "previous_JAX_printed": 1.149050152970874,
+      "published_native_printed": 1.149050152970874,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "square_min",
+      "actual_printed": -0.153785123606236,
+      "previous_JAX_printed": -0.153785123606236,
+      "published_native_printed": -0.153785123606236,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "periodic_max",
+      "actual_printed": 1.316297664943328,
+      "previous_JAX_printed": 1.316297664943328,
+      "published_native_printed": 1.31629766494333,
+      "difference_native": -1.9984014443252818e-15,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "periodic_min",
+      "actual_printed": -0.155566549488912,
+      "previous_JAX_printed": -0.155566549488912,
+      "published_native_printed": -0.155566549488912,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "triangle_max",
+      "actual_printed": 1.172291450338935,
+      "previous_JAX_printed": 1.273581928619538,
+      "published_native_printed": 1.294875501773784,
+      "difference_native": -0.12258405143484907,
+      "difference_previous": -0.101290478280603
+    },
+    {
+      "name": "triangle_min",
+      "actual_printed": -0.010179284112782,
+      "previous_JAX_printed": -0.228957699300504,
+      "published_native_printed": -0.228957699300502,
+      "difference_native": 0.21877841518772,
+      "difference_previous": 0.218778415187722
+    },
+    {
+      "name": "square_rank",
+      "actual_printed": 1.0,
+      "previous_JAX_printed": 1.0,
+      "published_native_printed": 1.0,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "periodic_rank",
+      "actual_printed": 1.0,
+      "previous_JAX_printed": 1.0,
+      "published_native_printed": 1.0,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "triangle_rank",
+      "actual_printed": 22.0,
+      "previous_JAX_printed": 22.0,
+      "published_native_printed": 22.0,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    },
+    {
+      "name": "matrix_rank",
+      "actual_printed": 22.0,
+      "previous_JAX_printed": 22.0,
+      "published_native_printed": 22.0,
+      "difference_native": 0.0,
+      "difference_previous": 0.0
+    }
+  ],
+  "factor_comparison_summary": {
+    "raw_triangle_factor_arrays": 44,
+    "raw_factor_bytes_unchanged": true,
+    "row_reconstruction_length_before": 102,
+    "row_reconstruction_length_after": 100,
+    "column_reconstruction_length": 100,
+    "first_observed_changed_stage": "fixed4000 reconstruction, then extrema seeds"
+  },
+  "solver_results": [
+    {
+      "exitflag": 5,
+      "iterations": 10,
+      "evaluations": 36
+    },
+    {
+      "exitflag": 5,
+      "iterations": 10,
+      "evaluations": 45
+    },
+    {
+      "exitflag": 5,
+      "iterations": 10,
+      "evaluations": 36
+    },
+    {
+      "exitflag": 5,
+      "iterations": 10,
+      "evaluations": 45
+    }
+  ],
+  "figures": {
+    "count": 8,
+    "size": [
+      600,
+      269
+    ],
+    "bytes_equal_previous_publication": true
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/A_page_AUDIT_v2.json": "4de5b93f20ae99b7e7344ca5fe4dbb63f1df6317cfdca49823fc3b0ecac7a7b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/OUTPUT_COMPARISON.json": "83f554f3ee89307edc95ebd3d2ba1b8ecde6ef7c193c9daddde5e4a3e12e4540",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/FACTOR_COMPARISON.json": "abb394141c08a2ee8e9a0479206f02ef6118fcd4f3a40200a4d56a10c649963a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/ROOT_DELIVERY_REVIEW.json": "0fdfc0566c8298d8a3faf51322332bc785f8edc23879824993d2bb5d377264c7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/DELIVERY_PACKET.json": "c0b499662364135da85b14c4b7b98c056240c752e405f420fe506742b459e423",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/AUDIT.json": "463410c2af001fb6c80f31edaad843dc26d8aefc32435a48384f1762cc4e75c9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/gibbs_native_triangle.mat": "dd726af3ada4b7caf519f1cc4780ebb70edfd523f64f233ec542a69b65c258b5"
+  },
+  "limitations": [
+    "Historical published extrema differ from fresh R2025b native and JAX outputs; cause not fully established.",
+    "Earlier fresh native optimizer comparison used saved JAX factors/seeds.",
+    "Fresh-native minimum and both historical triangle extrema remain unresolved.",
+    "Lighting, interpolated faces, automatic contour levels, framing and typography remain graphics gaps.",
+    "Counts cover different scopes and are not a unique fullsuite total.",
+    "Full parity and green main CI remain unresolved."
+  ],
+  "fresh_native_triangle": {
+    "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "optimizer": "/usr/licensed/matlab-R2025b/toolbox/shared/optimlib/fmincon.m",
+    "maximum": 1.1722914503389705,
+    "minimum": -0.004032268925529743,
+    "maximum_abs_difference": 3.552713678800501e-14,
+    "minimum_abs_difference": 0.006147015187252256,
+    "qualification": "Original100x100 native triangle construction/publicmax2/min2; installed R2025b fmincon, whereas JAX adapter qualified against R2017a optimizer source. Full historical-page parity remains open."
   }
 }
