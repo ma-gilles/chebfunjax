@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Callable coefficient input validation fixed (2026-10-10; latest)
+
+The public constructor now rejects callable input with coeffs=True before
+callback normalization or coefficient-array construction. This restores
+the Python rejection adapter for the native invalid bare coeffs marker.
+Existing error assertion, callback-not-called control and native constructor
+input module pass (three pytest cases); root rehashed2,950runtime files.
+Evidence: docs/callable_coeffs_cpu_20261010.json. The earlier broad failed
+shard remains recorded; full rerun and remote CI are still required.
+
+
 ## Golden fixture inventory (2026-10-10; latest)
 
 A static scan of literal test reference names finds three missing files:

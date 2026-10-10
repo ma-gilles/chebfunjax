@@ -322,6 +322,13 @@ def public_construct(op, domain, pref, options):
         return result
     # Parser validation follows the native empty and FUN-cell fast paths.
     inspect.signature(_chebfun_build).bind(op, domain=domain, **options)
+    # Python's coeffs=True adapter represents MATLAB's bare 'coeffs' mode,
+    # which is accepted only for numeric coefficient input. Reject a callable
+    # before vector_check invokes it or the coefficient builder treats the
+    # function object as an array.
+    if options.get('coeffs') and callable(op):
+        raise ValueError("chebfun(..., coeffs=True) requires a "
+                         "coefficient array, not a callable.")
     context = prepare_context(op, domain, pref, keywords=options)
     Domain(context.domain)  # Validate before constructing any FUNs.
 

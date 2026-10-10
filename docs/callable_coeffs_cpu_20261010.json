@@ -1,0 +1,62 @@
+{
+  "scope": "Reject callable coefficient-mode input before callback normalization; native bare coeffs marker rejects callable input",
+  "native_source_review": {
+    "status": "source-reviewed; isolated candidate prepared; no numerical tests launched",
+    "candidate_base": "8abf72b7348a802c313b676cf5a6ffc1b1a220a0",
+    "candidate_source": "src/chebfunjax/chebfun1d/_construction_context.py",
+    "base_source_sha256": "b6f32c38f5754d89d3a471e0969fa5fd2668e96a6a036e59dfe3c2591d0cc359",
+    "candidate_source_sha256": "adefd8ef2936262eb0f493a0f390b7047b94a6ee5b4e0dbece9b0f4833bc972d",
+    "target_test_sha256_current_and_candidate": "8a8f8036f932698ea8fd20c949c245d98239c47822c04c93d8315e36aa6f8020",
+    "diff_sha256": "4235af3143884e53530bc1aeaaabf49baab1d8664729db9180ba613a60d2135a",
+    "diff_bytes": 889,
+    "native_chebfun_sha256": "65c842de9d46d71ead533d31128ccabb8a34067a4117f8fe191cec34c9c06cc7",
+    "native_chebfunpref_sha256": "9c15988fbb3e062572da2c321254c9fb6c663578407dd52d286b236079909491",
+    "native_behavior": "@chebfun/chebfun.m:579\u2013585 consumes bare coeffs marker only for numeric op; callable op reaches generic char parsing; one-token coeffs marker errors at 700\u2013702 with parseInputs:noPrefValue; cell op errors coeffcell. Native constructor therefore rejects the canonical callable plus bare coeffs marker before any coefficient handling. Python coeffs=True is the adapter encoding of that marker; ValueError normalizes the rejection without claiming MATLAB identifier parity.",
+    "regression_cause": "public_construct routes to prepare_context/bounded_get_fun, whose data[coefficients] branch calls jnp.atleast_1d(op) on callable before legacy _chebfun_build validation at chebfun.py:10790\u201310792.",
+    "patch_proposal": "After empty/FUN-cell fast paths and signature binding, reject options[coeffs] and callable(op) with the existing ValueError text before prepare_context invokes vector_check. Numeric coefficient path, callback path without coeffs, empty/FUN-cell behavior unchanged.",
+    "test": "Existing TestTrigcoeffs.test_coeffs_constructor_flag retains ValueError assertion; canonical MATLAB constructor-input tests are a focused qualification selection. Current test file is copied byte-identically from parent commit e276231f, preserving all three path-hint edits.",
+    "test_promotion": "No test assertion/tolerance modified. Intended narrow gate: target test node plus tests/test_matlab_port/chebfun/test_constructor_inputs_matlab.py, CPU-only."
+  },
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "Callable coefficient input rejection existingregression/callbackorder/nativeconstructorinputs",
+    "gates": [
+      {
+        "gate": "chebfun_coeffs_callable_source_20261010",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_coeffs_callable_source_20261010/supervision/receipt.json",
+        "receipt_sha256": "745dd035f8d26f20688cdffa1e70b6955993ea8063c3fe61f3cf1b7b20e24651",
+        "runtime_manifest_sha256": "e755c5a39f2adefa652fa98487b5c2f7cdf0bc95f039ecd23aedf22eded5f692",
+        "runtime_end_sha256": "0be88026ef52f40214d708b6070f96d987223e22e919557f109d3a950ba3260b",
+        "observed_files_rehashed": 2950,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 60,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 2946836,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 3,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "qualified_cases": 3,
+  "coverage": "Existing invalid-input regression, explicit callback-not-called ordering, original constructor-input MATLAB test module",
+  "integrated_hashes": {
+    "src/chebfunjax/chebfun1d/_construction_context.py": "adefd8ef2936262eb0f493a0f390b7047b94a6ee5b4e0dbece9b0f4833bc972d",
+    "tests/test_chebfun1d/test_chebfun_ops.py": "349c5b566a8f1d75c21f7d5987cc4d3ab4901d07dd1d7c8de3d92f0ab3b2f012"
+  },
+  "limitations": "Normalized Python ValueError rather than identical MATLAB error identifier. Broad failed CPU shard still requires complete rerun; remoteCI unresolved."
+}

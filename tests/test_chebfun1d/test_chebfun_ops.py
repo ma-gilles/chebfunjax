@@ -1296,6 +1296,17 @@ class TestTrigcoeffs:
         with pytest.raises(ValueError):
             chebfun(jnp.sin, coeffs=True)
 
+    def test_coeffs_callable_rejected_before_callback_evaluation(self):
+        calls = []
+
+        def callback(x):
+            calls.append(x)
+            return jnp.sin(x)
+
+        with pytest.raises(ValueError, match="requires a coefficient array"):
+            chebfun(callback, coeffs=True)
+        assert calls == []
+
 
 class TestTrigremezRationalCore:
     """Core coverage for the rational (m, n) trigremez mode."""
