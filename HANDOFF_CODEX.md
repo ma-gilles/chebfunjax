@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native complex routes and assertions restored (2026-10-10; latest)
+
+Permute now rearranges existing factor functions and transposes the JAX core,
+retaining periodic factors and avoiding constructor resampling. Conjugate
+uses native compose with its empty guard; imag also preserves empty input.
+All fifteen original conj/imag/permute predicates now run with the actual
+complex functions, continuous norms and original bounds. These and four
+periodic/factor/empty controls passed in ten CPU cases. Root independently
+verified the runtime and source bindings. Evidence:
+docs/chebfun3_complex_routes_cpu_20261010.json. Invalid permutation adapters,
+global constructor host paths, full current suite and remote CI remain open.
+
 ## Native subtraction and Carrier gate restored (2026-10-10; latest)
 
 All three original subtraction predicates passed, including the varying

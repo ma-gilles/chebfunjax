@@ -1,0 +1,50 @@
+{
+  "reviewer": "/root",
+  "scope": "Native complex routes:15original predicates and4source controls",
+  "gates": [
+    {
+      "gate": "chebfun3_complex_routes_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_complex_routes_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "c3793f6751f837cadf662a0d4859de46168e4c5f566f1292da24647810114ea4",
+      "runtime_manifest_sha256": "7170c37515ea908e08ab005c72a0b546a4036f4cb5ffad1653ece52b6c0681ff",
+      "runtime_end_sha256": "197d2df088e0ea8d56c8e30ad749a6e39f0e0072532bf197a1ab68ee4644de69",
+      "observed_files_rehashed": 2951,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 57,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 2946532,
+      "cpu_affinity": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "assertion_slots": 10,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_complex_routes_20261010/ROOT_SOURCE_REVIEW.json",
+  "source_review_sha256": "fab0a8c4a38e5de515224d880a2ef48e7c7604351a993ff9903ccbf107d71cd9",
+  "changes": {
+    "tests/test_chebfun3d/test_complex_routes_source_controls.py": "97044b0a5f5efa68b062e3d20e06c253c53b1e70623ce7223cb1c88ede744d3b",
+    "tests/test_matlab_port/chebfun3/test_imag_matlab.py": "88145bb47853963f7ab00bc60527c6b46bd8f686094dc11330088681f2fc6e59",
+    "tests/test_matlab_port/chebfun3/test_permute_matlab.py": "9e5cdc48a3f68162a2d106ffbccb679aab2dd474b31ccb1a2daffac1d003a9d5",
+    "tests/test_matlab_port/chebfun3/test_conj_matlab.py": "819eba4dabeb3c2405137efa565fc4d0cc7539c6568364c665deb75df386654e",
+    "src/chebfunjax/chebfun3d/chebfun3.py": "dda8c12deaf843e7cbb1260d67c986076d9265a3de48eb16615781ae345c56e9"
+  },
+  "native_assertions": 15,
+  "additional_controls": 4,
+  "limitations": [
+    "Current full suite and remote CI unresolved",
+    "Invalid permutation adapter and global constructor/evaluation host paths remain under audit"
+  ]
+}

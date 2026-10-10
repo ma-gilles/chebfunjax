@@ -2324,18 +2324,19 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/permute.m
         Chebfun commit: 7574c77
         """
-        order = [int(o) - 1 if min(order) == 1 else int(o)
-                 for o in order]
+        if self.isempty():
+            return Chebfun3.empty()
+        order = tuple(int(o) - 1 if min(order) == 1 else int(o)
+                      for o in order)
+        if order == (0, 1, 2):
+            return self
         d = self.domain
-        ivals = [(d[0], d[1]), (d[2], d[3]), (d[4], d[5])]
-        new_dom = ivals[order[0]] + ivals[order[1]] + ivals[order[2]]
-
-        def g(x, y, z):
-            args = [None, None, None]
-            args[order[0]], args[order[1]], args[order[2]] = x, y, z
-            return self(*args)
-
-        return Chebfun3.from_function(g, domain=new_dom)
+        factors = (self.cols, self.rows, self.tubes)
+        new_dom = tuple(d[2*i+j] for i in order for j in (0, 1))
+        return Chebfun3(cols=list(factors[order[0]]),
+                        rows=list(factors[order[1]]),
+                        tubes=list(factors[order[2]]),
+                        core=jnp.transpose(self.core, order), domain=new_dom)
 
     def restrict(self, dom):
         """Restrict to a subdomain (MATLAB restrict / {}-indexing).
@@ -3006,6 +3007,8 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/imag.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         return self.compose(jnp.imag)
 
     def conj(self) -> "Chebfun3":
@@ -3016,8 +3019,9 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/conj.m
         Chebfun commit: 7574c77
         """
-        return Chebfun3.from_function(
-            lambda x, y, z: jnp.conj(self(x, y, z)), domain=self.domain)
+        if self.isempty():
+            return self
+        return self.compose(jnp.conj)
 
     @classmethod
     def complex(cls, re: "Chebfun3", im: "Chebfun3") -> "Chebfun3":

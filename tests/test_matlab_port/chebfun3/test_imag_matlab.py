@@ -1,39 +1,21 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_imag.m (Fable 5).
-
-FIXED (Fable 5): Chebfun3.imag added in the audit.
-
-Provenance
-----------
-MATLAB source : tests/chebfun3/test_imag.m
-Chebfun commit: 7574c77
-"""
-
+"""Original two predicates from tests/chebfun3/test_imag.m, Chebfun7574c77."""
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
-from ._helpers import EPS, maxdiff, ninf
-
-TOL = 100 * EPS
+TOL = 100 * ChebfunPref().cheb3Prefs.chebfun3eps
 
 
-class TestChebfun3Imag:
-    def test_all_matlab_assertions(self):
-        f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
-        g = Chebfun3.from_function(
-            lambda x, y, z: jnp.sin(x + y ** 2 + z ** 3))
-        h = f + 1j * g
-
-        # pass(1): pointwise consistency on a 3x3x3 ndgrid over [-1,1]^3.
-        x = np.linspace(-1, 1, 3)
-        xx, yy, zz = np.meshgrid(x, x, x, indexing="ij")
-        X, Y, Z = (jnp.asarray(xx.ravel()), jnp.asarray(yy.ravel()),
-                   jnp.asarray(zz.ravel()))
-        assert ninf(jnp.imag(h(X, Y, Z)) - g(X, Y, Z)) < TOL
-
-        # pass(2): imag(h) == g as functions.
-        assert maxdiff(h.imag(),
-                       lambda x, y, z: jnp.sin(x + y ** 2 + z ** 3)) < TOL
+def test_native_imag():
+    f = chebfun3(lambda x, y, z: jnp.cos(x*y*z))
+    g = chebfun3(lambda x, y, z: jnp.sin(x+y**2+z**3))
+    x = jnp.linspace(-1., 1., 3)
+    xx, yy, zz = jnp.meshgrid(x, x, x, indexing='ij')
+    h = f+1j*g
+    fv = h(xx, yy, zz)
+    gv = g(xx, yy, zz)
+    assert jnp.linalg.norm(jnp.imag(fv.reshape(-1, order='F'))-gv.reshape(-1, order='F')) < TOL
+    assert (h.imag()-g).norm() < TOL
