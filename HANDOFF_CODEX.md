@@ -15,8 +15,9 @@ its failed status is preserved. Artifact-only recovery qualified retained
 meshes, arrays and figures without repeating solves. Missing full-page artist
 metadata, endpoint/interior residual and fitted initial-derivative accuracy,
 MATLAB RNG and historical rendering remain open. These figures do not establish
-full visual parity. Two former figure-size mismatches are resolved; a fresh
-whole-gallery audit remains due.
+full visual parity. A fresh whole-gallery audit maps all 1,305 figure pairs with
+no missing files or changed reference bytes: 35 size mismatches across 7 pages
+remain. Evidence: docs/figure_size_audit_20261010.json.
 
 ## Missing Chebtech predicate APIs implemented (2026-10-10; latest)
 
