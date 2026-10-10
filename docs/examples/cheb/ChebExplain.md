@@ -96,6 +96,15 @@ For working with noisy data, and also for computations in two and especially thr
 f = chebfun('exp(x) + 1e-8*cos(99999*x)')
 ```
 
+```text
+Warning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]    65537      0.37      2.7
+vertical scale = 2.7
+```
+
 With a looser tolerance it has no trouble:
 
 ```matlab
@@ -103,11 +112,6 @@ f = chebfun('exp(x) + 1e-8*cos(99999*x)','eps',1e-8)
 ```
 
 ```text
-f =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[      -1,       1]    65537      0.37      2.7
-vertical scale = 2.7
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values

@@ -205,19 +205,6 @@ set(gca, 'fontsize', 16)
 ```text
 error =
      6.284919537022033e-07
-u_minres =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[      -1,       1]      137  -9.4e-16 -3.6e-16
-vertical scale =   1
-flag =
-     0
-relres =
-     8.684357357266332e-14
-iter =
-   558
-error =
-     1.213894572721258e-11
 ```
 
 ![Krylov figure 02](../../images/ode-linear/Krylov_02.png)
@@ -231,6 +218,22 @@ f = chebfun( 1 );
 [u_minres, flag, relres, iter] = pcg(L, f, 1e-13, 1000)
 u_colloc = L \ f;
 error = norm( u_minres - u_colloc )
+```
+
+```text
+u_minres =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]      137  -9.4e-16 -3.6e-16
+vertical scale =   1
+flag =
+     0
+relres =
+     8.684357357266332e-14
+iter =
+   558
+error =
+     1.213894572721258e-11
 ```
 
 ## Piecewise smooth solutions

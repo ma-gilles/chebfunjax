@@ -1,0 +1,48 @@
+{
+  "scope": "warning-led output alignment and3page placement; historical captured outputs, no numerical reruns or valueparity claim",
+  "base": "67e1de63c80177c3e4bd4e39d212c9c5e2ed268a",
+  "focused_tests": {
+    "passed": 5,
+    "terminal_handle": 38658,
+    "seconds": 0.16
+  },
+  "pages": [
+    {
+      "page": "approx/Pushnitski",
+      "previous_blocks": 2,
+      "current_blocks": 3,
+      "stdout_nonblank_lines": 3,
+      "all_stdout_preserved_in_order": true,
+      "prose_code_image_links_unchanged": true
+    },
+    {
+      "page": "cheb/ChebExplain",
+      "previous_blocks": 2,
+      "current_blocks": 3,
+      "stdout_nonblank_lines": 16,
+      "all_stdout_preserved_in_order": true,
+      "prose_code_image_links_unchanged": true
+    },
+    {
+      "page": "ode-linear/Krylov",
+      "previous_blocks": 9,
+      "current_blocks": 10,
+      "stdout_nonblank_lines": 37,
+      "all_stdout_preserved_in_order": true,
+      "prose_code_image_links_unchanged": true
+    }
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/warning_output_alignment_20261010/candidate/docs/examples/approx/Pushnitski.md": "7c9916d99de633d8bafdce96f9b3320c4ab9b953ff6937d4c17b4d80d887238c",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/stdout/approx_pushnitski.txt": "b38bd2305cd5a41ec7878ad3eda164b358f694d7f8f7c08a3d106777b452ead0",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx_Pushnitski.html": "a5a6721496004e4e98f0ec1a55e8080cb5b9b17bc7504ca791f12d27cc5ad9b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/warning_output_alignment_20261010/candidate/docs/examples/cheb/ChebExplain.md": "045e043d767a0b8cb0a1d96c169e61f2979688c3f11156974d09977bacbde76c",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/stdout/cheb_cheb_explain.txt": "446ad988df28b272a22c72b5d64643a89a056fa9c8eeaaf88d3641bd0d658957",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/cheb_ChebExplain.html": "60b3e62bcc1b21e019fe6dc7742a625929675d4fbd37176271d0bde2faa12d6d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/warning_output_alignment_20261010/candidate/docs/examples/ode-linear/Krylov.md": "a75d5be2508522c82c797c3fa89049f14998a7e344f523b1ee7050c06b337a7c",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/stdout/ode-linear_krylov.txt": "d39d623b5b4e463733a984b2fc8d10fce53a6ba47daede7b17d89a39a540349a",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/ode-linear_Krylov.html": "bea5b5f075c37c9033d5becf7fffed687ec08daf9f726d3666bd7000a141d151",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/warning_output_alignment_20261010/candidate/scripts/gen_example_pages.py": "790dd2075b9cb00f125e7b8ba11d299c64102a73862bac4b007334f0f4241f18",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/warning_output_alignment_20261010/candidate/tests/test_examples/test_page_generator_warning_output.py": "42e77adec49727a6e0cf9e3d2c2c0f6a3af290476ce6ad7aabc44e52970f495d"
+  }
+}

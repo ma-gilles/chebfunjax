@@ -49,3 +49,29 @@ def test_generate_preserves_captured_output(generator, tmp_path, output):
     markdown = (generator.DOCS / category / f'{stem}.md').read_text()
     assert f'```text\n{output}\n```' in markdown
     assert '```text\nans =\n1\n2\n3\n```' in markdown
+
+
+@pytest.mark.parametrize('warning', ['', 'Warning: Python wording.\n'])
+def test_warning_led_timing_stays_with_its_source_block(generator, warning):
+    reference = [['Elapsed time is 1 seconds.'],
+                 ['Warning: MATLAB wording', 'continuation text',
+                  'Elapsed time is 2 seconds.'],
+                 ['Elapsed time is 3 seconds.']]
+    actual = ('Elapsed time is 11 seconds.\n' + warning +
+              'Elapsed time is 22 seconds.\nElapsed time is 33 seconds.').splitlines()
+    chunks = generator.align_outputs(reference, actual)
+    assert chunks == [['Elapsed time is 11 seconds.'],
+                      warning.splitlines() + ['Elapsed time is 22 seconds.'],
+                      ['Elapsed time is 33 seconds.']]
+    assert sum(chunks, []) == actual
+
+
+def test_warning_led_repeated_label_keeps_all_values(generator):
+    reference = [['f =', 'reference first'],
+                 ['Warning: MATLAB wording', 'f =', 'reference second'],
+                 ['f =', 'reference third']]
+    actual = ['f =', 'computed first', 'Warning: Python wording',
+              'f =', 'computed second', 'f =', 'computed third']
+    chunks = generator.align_outputs(reference, actual)
+    assert chunks == [actual[:2], actual[2:5], actual[5:]]
+    assert sum(chunks, []) == actual

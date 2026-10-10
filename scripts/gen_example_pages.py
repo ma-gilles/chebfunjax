@@ -269,11 +269,35 @@ def align_outputs(ref_blocks, ours):
                 if keys[i] == kf:
                     found = i
                     break
+        anchor = found
+        reference_offset = 0
+        if found is None and first.lstrip().startswith("Warning:"):
+            # MATLAB may warn where Python does not, or use different wording.
+            # Anchor the computed output after that warning instead. Only use
+            # labelled output/timings, never coincidentally matching numbers.
+            for offset, line in enumerate(blk[1:], 1):
+                if not (line.lstrip().startswith("Elapsed time is") or
+                        re.match(r"^\s*[A-Za-z]\w*\s*=", line)):
+                    continue
+                key = _key(line)
+                anchor = next((i for i in range(cursor, len(lines))
+                               if keys[i] == key), None)
+                if anchor is not None:
+                    reference_offset = offset
+                    found = anchor
+                    # Keep an actual Python warning with its computed output.
+                    warning = next((i for i in range(cursor, anchor)
+                                    if lines[i].lstrip().startswith("Warning:")), None)
+                    if warning is not None:
+                        found = warning
+                    break
         starts.append(found)
         if found is not None:
-            # skip the reference block's own lines: a block may itself
-            # contain several "ans =" entries (Gibbs2D)
-            cursor = found + max(1, len([ln for ln in blk if ln.strip()]))
+            # Count from the matched output, excluding an absent/different
+            # reference warning. Repeated labels within one block still belong
+            # together (for example the several Gibbs2D "ans =" entries).
+            cursor = anchor + max(1, len([ln for ln in blk[reference_offset:]
+                                         if ln.strip()]))
     chunks = []
     for k, blk in enumerate(ref_blocks):
         if starts[k] is None:

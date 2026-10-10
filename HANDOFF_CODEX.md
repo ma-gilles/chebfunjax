@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Warning-led output placement restored (2026-10-10; latest)
+
+The page generator now anchors the computation after an absent or differently
+worded MATLAB warning, retaining any actual Python warning with its result.
+Pushnitski, ChebExplain and Krylov outputs now occupy their correct source
+sections: 3, 3 and 10 blocks. All 56 nonblank captured stdout lines are
+preserved in order; native prose/code and image links are unchanged. Five
+focused parser checks pass. These are historical captured computations, not
+new numerical runs. Evidence: docs/warning_output_alignment_20261010.json.
+Three grouping gaps are repaired; eight previously listed output-count gaps
+remain. Numerical differences and warning semantics still need verification.
+
 ## Array-valued eig factors and full saved-kernel execution (2026-10-10; latest)
 
 Native array-valued SVD factors now remain intact through the Gram product
