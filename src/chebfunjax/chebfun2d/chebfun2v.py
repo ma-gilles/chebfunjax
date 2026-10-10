@@ -540,7 +540,7 @@ class Chebfun2v(eqx.Module):
         new_comps = [_diff_separable(c, n=n, dim=dim) for c in self.components]
         return Chebfun2v(new_comps)
 
-    def ode45(self, tspan, y0, options=None, *, rtol=None, atol=None):
+    def ode45(self, tspan, y0, options=None, *, rtol=None, atol=None, outputs=None):
         """Integrate the field with the native domain indicator and mesh policy.
 
         Two components return a complex Chebfun; three return an array-valued
@@ -552,15 +552,41 @@ class Chebfun2v(eqx.Module):
         with directional events. Mass/output callbacks remain unported and raise.
         No native executable trajectory equality is claimed.
 
+        ``outputs=None`` preserves the Python ``(T, Y)`` default. Explicit
+        ``outputs=1`` returns the source solution dictionary, replacing its
+        ``x`` and ``y`` with those Chebfuns; ``outputs=2`` returns ``(T, Y)``.
+        Explicit 3--5 returns a prefix of ``(T, Y, sol.x, sol.y, sol.ie)``.
+        The raw accepted mesh in outputs 3/4 follows the source implementation
+        (the native help text instead describes event-only arrays). Without
+        Events, the source has no ``ie`` field and this branch raises KeyError,
+        even for three or four outputs. ``outputs=0`` computes and returns None.
+
+        An empty field returns one empty array for the Python default or
+        explicit one-output call; zero outputs returns None. Explicit 2--5
+        raises ValueError because native empty varargout supplies only one
+        output. The default empty-array return is a Python adaptation.
+
         Provenance
         ----------
         MATLAB source: @chebfun2v/ode45.m; Chebfun commit7574c77.
         Controller source context: installed MATLAB R2017a ode45.m.
         """
+        from numbers import Integral
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.chebpref import ChebfunPref
         from chebfunjax.utils.native_ode45 import native_ode45
 
+        if outputs is not None and (isinstance(outputs, bool)
+                                    or not isinstance(outputs, Integral)
+                                    or not 0 <= outputs <= 5):
+            raise ValueError('ode45 outputs must be an integer from 0 to 5')
+        if self.isempty():
+            if outputs == 0:
+                return None
+            if outputs is not None and outputs > 1:
+                raise ValueError('empty ode45 supplies only one output')
+            return jnp.empty((0,), dtype=jnp.float64)
         abstol = 100*ChebfunPref().techPrefs.chebfuneps
         resolved = {'RelTol': 1e8*abstol, 'AbsTol': abstol}
         if options is not None:
@@ -598,7 +624,16 @@ class Chebfun2v(eqx.Module):
         Y = chebfun(values, domain=times)
         if self.n_components == 3:
             Y = chebfun(ys if ys.shape[1] == 2 else ys.T, domain=times)
-        return T, Y
+        if outputs is None or outputs == 2:
+            return T, Y
+        if outputs == 0:
+            return None
+        if outputs == 1:
+            cheb_sol = dict(sol)
+            cheb_sol.update(x=T, y=Y)
+            return cheb_sol
+        # Source constructs all five entries before MATLAB selects its prefix.
+        return (T, Y, sol['x'], sol['y'], sol['ie'])[:outputs]
 
     def normal(self) -> "Chebfun2v":
         """Normal vector of the surface parametrized by F (MATLAB normal).

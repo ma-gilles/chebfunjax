@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public ODE45 output modes restored (2026-10-10; latest)
+
+The explicit outputs keyword now provides native solution-record, T/Y and
+three-to-five-output branches while preserving the existing T/Y default.
+Raw accepted mesh outputs and missing-event-field errors follow executable
+source; empty explicit multiple-output calls report the native arity fault.
+All 42 CPU cases passed. Root independently checked runtime hashes, 21
+delivery bindings, unchanged controller bytes and the entire existing
+nonempty numerical AST. Evidence: docs/ode45_outputs_cpu_20261010.json.
+The private record still lacks native dense interpolation and continuation
+metadata; complete SOL/deval equivalence, full suite and remote CI remain open.
+
 ## Laguerre dispatch regression expectation corrected (2026-10-10; latest)
 
 A broad batch exposed an outdated test expecting GW for alpha=1.5 at n=3000.

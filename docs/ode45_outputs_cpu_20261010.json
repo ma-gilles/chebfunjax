@@ -1,0 +1,79 @@
+{
+  "reviewer": "/root",
+  "scope": "ODE public output source35 and actual7;42cases",
+  "gates": [
+    {
+      "gate": "ode45_public_outputs_source_20261010/A35outputs_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode45_public_outputs_source_20261010/A35outputs_v1/supervision/receipt.json",
+      "receipt_sha256": "ea3a40a037e796f10670ed0450a9c3dd53356f57093214a40c361256e2437fcc",
+      "runtime_manifest_sha256": "c64e6cce6ff3dc8a0cb0eba68d51735ee16034092af5823016ab646e6a6c587a",
+      "runtime_end_sha256": "6bcb28c041fdb717f465589380997c3af7c8161430a824cc4f7140c5ceb0964e",
+      "observed_files_rehashed": 2937,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 55,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 830920,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 35,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "ode45_public_outputs_source_20261010/B7actual_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode45_public_outputs_source_20261010/B7actual_v1/supervision/receipt.json",
+      "receipt_sha256": "3daf967d00c908b6c1a24b48ee9d63d9f5dc3fb838e5d11fc56c7534306642e3",
+      "runtime_manifest_sha256": "496c67d2ec4913937af934bcc2bd8beb4008fcb99c44e0d621fc1cb3e0a75501",
+      "runtime_end_sha256": "b65e31f0579e0a5493ff406ab5460026978149cbfb79fbb3d8c363113716f9da",
+      "observed_files_rehashed": 2935,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 55,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 946608,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 7,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "delivery_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode45_public_outputs_source_20261010/DELIVERY_v1.json",
+  "delivery_sha256": "21bae6c83594c4b41c9693ef5a9d193ad0a5ca51add63a8f49a9e6c54a53f518",
+  "delivery_bindings_verified": 21,
+  "nonempty_numerical_AST_unchanged": true,
+  "remaining_module_AST_unchanged": true,
+  "controller_sha256": "10485a07ed084cde577c6ae237a8350762b1c5f7a65a8055783fdd4d8e88c15e",
+  "changed_files": {
+    "src/chebfunjax/chebfun2d/chebfun2v.py": "f74e9f54cb8485acd2a5fcacd5d047ef52dc44d7cdc5fbd7cdc8fd1fa568daa6",
+    "tests/test_chebfun2v_ode45_outputs_actual.py": "7288810dbe8ce92080114458aa9e49ff4ee3bf28f755fe3f9e6c5a7ef12b24e8",
+    "tests/test_chebfun2v_ode45_outputs_source.py": "1fc26adbfcbee18e26b3d705c96709bb895789c4f6e950e02def4f5d27ca6246"
+  },
+  "source_review": "Root compared explicit 0/1/2/3-5 output handling to pinned wrapper, including raw accepted mesh and missing-ie error. Empty explicit2-5 reports output arity; default empty-array return is documented Python adaptation.",
+  "limitations": [
+    "Native SOL dense idata and extdata continuation/deval internals remain missing.",
+    "Controller options, native executable equality, full current suite and remote CI remain unresolved."
+  ]
+}
