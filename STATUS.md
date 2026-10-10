@@ -2,7 +2,15 @@
 
 ## Latest CPU qualification and open failures (2026-10-09)
 
-Local implementation head 6b5a7101 includes two newly qualified packages:
+Local implementation head 22f73f99 includes these qualified packages:
+
+- Persistent real-Horner loop (5c191a08): 10 exact-eager fixtures and 23
+  existing regressions; independent full-module AST identity after helper
+  inlining and runtime reviews. Evidence: docs/trig_real_horner_cpu_20261009.json.
+- Persistent polynomial endpoint helper (22f73f99): 49 scoped checks,
+  independent runtime/IR review, 44 portable numerical cases and unchanged
+  generic dispatch. No full AnalyticSVD memory/completion claim. Evidence:
+  docs/endpoint_limit_fusion_cpu_20261009.json.
 
 - Diskfun norm dispatch (4a07afe9): empty-before-dispatch, numeric infinity,
   native errors and even-order powers, including zero/negative orders.
@@ -25,8 +33,10 @@ trajectory completed only five solves before the sixth hit the limit. A
 separate compiler/shape/live-array diagnostic capped during the fifth solve;
 its four completed steps expose repeated real-Horner loop compilation and
 about 1 MiB live array payload. Full trajectory, native RNG and figures
-remain unqualified. The next candidate extracts only the unchanged recurrence
-into a persistent compiled helper. Shared evidence: sphere_heat_public_source_20261009/
+remain unqualified. The accepted Horner extraction still capped during the
+sixth solve in a full100 consumer replay; five solves completed. Its numerical
+qualification does not establish a complete memory fix. Shared evidence:
+sphere_heat_public_source_20261009/
 gaussian_full100_classification_v1/ROOT_REVIEW.json and
 gaussian_steps_compile_v1/ROOT_REVIEW.json.
 
