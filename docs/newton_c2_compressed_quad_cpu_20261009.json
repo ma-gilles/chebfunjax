@@ -1,0 +1,90 @@
+{
+  "status": "Full original scalarODE damping chebcolloc2 case passed on6b5a7101",
+  "original_handle": 96763,
+  "runtime_audit_handle": 5709,
+  "both_terminal": true,
+  "canonical_node": "tests/test_matlab_port/chebop/test_scalarODE_damping_matlab.py::test_original_scalar_ode_damping[chebcolloc2]",
+  "problem": {
+    "domain": [
+      0,
+      "pi"
+    ],
+    "operator": ".05*u.diff(2)+(5*x).cos()*u.sin()",
+    "lbc": "lambda u:u-2",
+    "rbc": "lambda u:u-3",
+    "rhs": 0.0,
+    "discretization": "chebcolloc2",
+    "bvpTol": 1e-13,
+    "predicate": "float(op(u).norm()) < 1e-9"
+  },
+  "limits": {
+    "wall_seconds": 180,
+    "rss_mib": 3072,
+    "cpu": "24-31",
+    "width_limit": 1026,
+    "same_as_original": "Wall/RSS/width unchanged; disjoint rootCPU24\u201331 lane.",
+    "soft_rss_or_outer_update_stops": false
+  },
+  "junit_case": {
+    "classname": "tests.test_matlab_port.chebop.test_scalarODE_damping_matlab",
+    "name": "test_original_scalar_ode_damping[chebcolloc2]",
+    "time": "56.257"
+  },
+  "supervisor": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 143.9240929489024,
+    "sampled_peak_summed_rss_kib": 3057940,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "width_events": 310,
+  "max_width": 258,
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Full original native scalarODE damping C2 on6b5a7101; original180s/3072MiB/width1026 and residual<1e-9.",
+    "gates": [
+      {
+        "gate": "full_c2_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_c2_compressed_quad_prepare_20261009/full_c2_v1/supervision/receipt.json",
+        "receipt_sha256": "cd81f9999e41a0fd56f98cef923d16f691c02ba454b7bba65c5670a115e0ca49",
+        "runtime_manifest_sha256": "105a15b61ccc61e0f77926adc2487114bfb372654a0b27b312f9ca2cddedb256",
+        "runtime_end_sha256": "3948cd0b2ab9d2c5c18606b07cdad2a14fbc10410c6ec6efe0c1ecc6d18ca4aa",
+        "observed_files_rehashed": 2970,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 73,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 3057940,
+        "cpu_affinity": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "assertion_slots": 1,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_c2_compressed_quad_prepare_20261009/full_c2_v1/runtime/junit.xml": "cde60827bade112a8bde4de3eb25924f8e080716f59ac2a3c5255afc848fe25d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_c2_compressed_quad_prepare_20261009/full_c2_v1/runtime/matrix_widths.jsonl": "e2f8bf59972c63b2c006e8485a523e89afa8bad220b994c6f342e18d491e2e13",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_c2_compressed_quad_prepare_20261009/REVIEW_PACKET_v1.json": "b90441833b717a7a9312f97405cbbee01779f8b2f411d81d977dc158d14617a5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_c2_compressed_quad_prepare_20261009/full_c2_v1/supervision/receipt.json": "cd81f9999e41a0fd56f98cef923d16f691c02ba454b7bba65c5670a115e0ca49"
+  },
+  "scope_limits": [
+    "One original C2 boundary-value problem,not completeNewton/library parity.",
+    "Earlier capped runs retained; no matched speedup ratio inferred from censored trials.",
+    "FullCPU suite,pages,publication/CI remain open."
+  ]
+}

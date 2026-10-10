@@ -30,10 +30,13 @@ into a persistent compiled helper. Shared evidence: sphere_heat_public_source_20
 gaussian_full100_classification_v1/ROOT_REVIEW.json and
 gaussian_steps_compile_v1/ROOT_REVIEW.json.
 
-The derivative-only full Newton C2 run also capped at 3 GiB. The unchanged
-native test is now running on 6b5a7101 with the accepted quadrature change,
-original 180-second/3-GiB/width1026 limits and original residual predicate.
-No completed Newton result is claimed.
+The full native Newton C2 scalarODE damping case now PASSES on 6b5a7101:
+original residual predicate <1e-9, unchanged 180-second/3-GiB/width1026
+limits, 56.257 seconds for the test and 3,057,940 KiB sampled peak. Independent
+runtime review rehashed 2,970 observed files cleanly; no censoring or survivors.
+Earlier capped trials remain preserved. This resolves this particular C2 gate,
+not all Newton cases or general memory behavior. Evidence:
+docs/newton_c2_compressed_quad_cpu_20261009.json.
 
 AnalyticSVD's full diagnostic remains capped at 4 GiB after 58 constructions
 and three figures, using unmatched historical NumPy matrices. A distinct
