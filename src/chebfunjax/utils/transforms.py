@@ -300,7 +300,9 @@ def _dct1(c: jnp.ndarray) -> jnp.ndarray:
     tmp = jnp.concatenate([c_scaled, c_scaled[-2:0:-1]])
 
     # FFT and take first n entries, then scale
-    v = jnp.real(jnp.fft.fft(tmp))
+    v = jnp.fft.fft(tmp)
+    if not jnp.issubdtype(c.dtype, jnp.complexfloating):
+        v = jnp.real(v)
     v = v[:n] / 2.0
 
     return v

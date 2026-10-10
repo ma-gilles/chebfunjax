@@ -2323,6 +2323,23 @@ def _tech_cell2mat(cls, techs):
                ishappy=all(t.ishappy for t in kept))
 
 
+def _tech_series_count(n, default):
+    """Static Python coefficient-count adapter for native series methods."""
+    if n is None:
+        return default
+    count = int(n)
+    if count < 0 or count != n:
+        raise ValueError("Coefficient count must be a nonnegative integer")
+    return count
+
+
+def _tech_series_data(f):
+    """Map the native empty coefficient matrix to the Python empty vector."""
+    if getattr(f, "_is_empty_object", False):
+        return jnp.empty((0,), dtype=jnp.float64)
+    return f.coeffs
+
+
 class Chebtech2(eqx.Module):
     """Chebyshev interpolant on 2nd-kind points.
 
@@ -2371,6 +2388,71 @@ class Chebtech2(eqx.Module):
         obj = object.__new__(cls)
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
+
+    def chebcoeffs(self, n=None, kind=1):
+        """Return padded/truncated Chebyshev coefficients of kind 1 or 2.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/chebcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        coefficients = _tech_series_data(self)
+        if n is not None and jnp.asarray(n).size == 0:
+            n = None
+        count = _tech_series_count(n, coefficients.shape[0])
+        if kind is None or jnp.asarray(kind).size == 0:
+            kind = 1
+        if kind == 1:
+            return _prolong_coeffs(coefficients, count)
+        if kind == 2:
+            extended = _prolong_coeffs(coefficients, count + 2)
+            return _chebT_to_chebU_coeffs(extended)[:count]
+        raise ValueError("CHEBFUN:CHEBTECH:chebcoeffs:badKind: 'kind' input must be 1 or 2.")
+
+    def legcoeffs(self, n=None):
+        """Convert to Legendre coefficients, then truncate or zero-pad.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/legcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2leg
+
+        coefficients = _tech_series_data(self)
+        count = _tech_series_count(n, coefficients.shape[0])
+        converted = (jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else cheb2leg(coefficients))
+        return _prolong_coeffs(converted, count)
+
+    def jaccoeffs(self, *args):
+        """Return Jacobi coefficients: (alpha,beta) or (n,alpha,beta).
+
+        Coefficients follow the native implementation's ascending degree order.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/jaccoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2jac
+
+        if len(args) == 2:
+            n, (alpha, beta) = None, args
+        elif len(args) == 3:
+            n, alpha, beta = args
+        else:
+            raise TypeError("jaccoeffs expects (alpha,beta) or (n,alpha,beta)")
+        coefficients = _tech_series_data(self)
+        count = _tech_series_count(n, coefficients.shape[0])
+
+        def convert(column):
+            return cheb2jac(column, alpha, beta)
+
+        converted = (jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else convert(coefficients))
+        return _prolong_coeffs(converted, count)
 
     def isfinite(self) -> jax.Array:
         """Return whether every coefficient is finite.
@@ -4591,6 +4673,71 @@ class Chebtech1(eqx.Module):
         obj = object.__new__(cls)
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
+
+    def chebcoeffs(self, n=None, kind=1):
+        """Return padded/truncated Chebyshev coefficients of kind 1 or 2.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/chebcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        coefficients = _tech_series_data(self)
+        if n is not None and jnp.asarray(n).size == 0:
+            n = None
+        count = _tech_series_count(n, coefficients.shape[0])
+        if kind is None or jnp.asarray(kind).size == 0:
+            kind = 1
+        if kind == 1:
+            return _prolong_coeffs(coefficients, count)
+        if kind == 2:
+            extended = _prolong_coeffs(coefficients, count + 2)
+            return _chebT_to_chebU_coeffs(extended)[:count]
+        raise ValueError("CHEBFUN:CHEBTECH:chebcoeffs:badKind: 'kind' input must be 1 or 2.")
+
+    def legcoeffs(self, n=None):
+        """Convert to Legendre coefficients, then truncate or zero-pad.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/legcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2leg
+
+        coefficients = _tech_series_data(self)
+        count = _tech_series_count(n, coefficients.shape[0])
+        converted = (jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else cheb2leg(coefficients))
+        return _prolong_coeffs(converted, count)
+
+    def jaccoeffs(self, *args):
+        """Return Jacobi coefficients: (alpha,beta) or (n,alpha,beta).
+
+        Coefficients follow the native implementation's ascending degree order.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/jaccoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2jac
+
+        if len(args) == 2:
+            n, (alpha, beta) = None, args
+        elif len(args) == 3:
+            n, alpha, beta = args
+        else:
+            raise TypeError("jaccoeffs expects (alpha,beta) or (n,alpha,beta)")
+        coefficients = _tech_series_data(self)
+        count = _tech_series_count(n, coefficients.shape[0])
+
+        def convert(column):
+            return cheb2jac(column, alpha, beta)
+
+        converted = (jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else convert(coefficients))
+        return _prolong_coeffs(converted, count)
 
     def isfinite(self) -> jax.Array:
         """Return whether every coefficient is finite.

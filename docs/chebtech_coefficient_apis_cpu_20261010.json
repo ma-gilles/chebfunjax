@@ -1,0 +1,58 @@
+{
+  "base_commit": "7579047ade4e7b11e45d5d9f5b25d25939966504",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": {
+    "src/chebfunjax/tech/chebtech.py": [
+      "Chebtech1.chebcoeffs",
+      "Chebtech1.jaccoeffs",
+      "Chebtech1.legcoeffs",
+      "Chebtech2.chebcoeffs",
+      "Chebtech2.jaccoeffs",
+      "Chebtech2.legcoeffs",
+      "_tech_series_count",
+      "_tech_series_data"
+    ],
+    "src/chebfunjax/utils/transforms.py": [
+      "_dct1"
+    ]
+  },
+  "qualification": {
+    "passed": 16,
+    "elapsed_seconds": 14.022643641103059,
+    "peak_child_rss_kib": 702068,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_coefficient_apis_v2_20261010/receipt.json",
+    "receipt_sha256": "68bcdd70a812c80d48d75e26e47986b12780e3783012e98fa74a08e2cdf3182b",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_coefficient_apis_v2_20261010/static.json",
+    "static_sha256": "8d05fec7381eac6ff39c730be96cef395b8c9441a7aebb3f0e6253972f8cbaa8"
+  },
+  "preserved_failure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_coefficient_apis_20261010/receipt.json",
+  "native_sources": {
+    "@chebtech/chebcoeffs.m": "0adef890a4730fb9f023ad008432f00ed0b93898bdc4f015900a98e75d8910a5",
+    "@chebtech/legcoeffs.m": "ffd3568d3e7df98c8bfaee8a206b7f6958e40aa266ca2d0d7d3d755f63fc4421",
+    "@chebtech/jaccoeffs.m": "dda26e1343eaf175b216be70f23dc367c7b49ecab8d18db00d2071963e2fb80b",
+    "cheb2leg.m": "8f1074b54bad827dbd12013553f10b54d50b2e5401209a83fa773a9c5d63bb17",
+    "@chebfun/dct.m": "8e3779299d9f29c2898321420cebad5be3502faed7170f8da758ea4c2e58c17b"
+  },
+  "scope": [
+    "Adds both Tech coefficient APIs; converts before padding/truncation; second-kind conversion retains two lookahead rows.",
+    "Restores public native legcoeffs tests and matrix infinity norm.",
+    "Preserves complex FFT results; real inputs retain real output."
+  ],
+  "limitations": [
+    "Focused gate, not full current-head suite or remote CI.",
+    "RSS measured, not capped; no observed runtime-module audit.",
+    "Conversion utilities still have unqualified native algorithm and large-size branch gaps; separate source audit underway.",
+    "Invalid size validation is a Python adapter; no complete MATLAB error-ID parity claim."
+  ]
+}

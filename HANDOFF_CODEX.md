@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebtech coefficient APIs and complex Legendre conversion (2026-10-10; latest)
+
+Both Tech classes now expose chebcoeffs, legcoeffs and jaccoeffs with native
+conversion/padding order and matrix-column behavior. Public native legcoeffs
+assertions replace utility proxies and use the native matrix infinity norm.
+A complex control exposed unconditional real FFT projection; the helper now
+preserves complex data. Root gate: 16 passed, stable source/test hashes, static
+checks green. The initial two complex failures remain preserved. Evidence:
+docs/chebtech_coefficient_apis_cpu_20261010.json. Large transform algorithms,
+full current-head regression and MATLAB/remote CI qualification remain open.
+
+
 ## Native Chebtech any implemented (2026-10-10; latest)
 
 Both Tech classes expose any with native coefficient reduction and arbitrary
