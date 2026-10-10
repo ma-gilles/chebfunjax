@@ -495,15 +495,25 @@ class TestPolyfitL1:
         assert err5 < err3, "Higher degree polyfitL1 should give lower L1 error"
 
     def test_evaluable(self):
-        """polyfitL1 result should be evaluable at arbitrary points."""
+        """Preserve native Watson nonconvergence for the cos degree-4 case."""
         from chebfunjax.chebfun1d.chebfun import chebfun
 
+        # Native Chebfun 7574c776 (MATLAB R2025b) reaches MAXITER and
+        # returns NaN at all 20 points for this exact input. The symmetric
+        # initial residual has only four computed real roots for five
+        # coefficients, so its Newton Hessian is rank deficient.
         f = chebfun(jnp.cos)
-        p = f.polyfitL1(4)
+        with pytest.warns(
+            RuntimeWarning,
+            match=r"^CHEBFUN:POLYFIT:MAXITER: The maximum number of iterations "
+            r"was reach\. Answer may not be accurate\.$",
+        ):
+            p = f.polyfitL1(4)
         xs = jnp.linspace(-0.9, 0.9, 20)
         vals = p(xs)
         assert vals.shape == (20,)
-        assert not jnp.any(jnp.isnan(vals))
+        assert jnp.all(jnp.isnan(vals))
+        assert not jnp.any(jnp.isinf(vals))
 
 
 # ===========================================================================

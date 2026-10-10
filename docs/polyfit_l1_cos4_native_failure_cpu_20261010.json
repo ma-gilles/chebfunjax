@@ -1,0 +1,64 @@
+{
+  "scope": "Native failure parity for unchanged cos(x), degree4, twenty evaluation points; not a convergence repair",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_result": "20 NaNs, zero Infs, MAXITER warning; original finite assertion failed",
+  "python_result": "Focused corrected parity test passed on JAX/JAXlib0.11.0 CPU; solver unchanged",
+  "contract": {
+    "status": "Focused native failure parity test passed; not a convergence fix",
+    "base_head": "0d4be2a1d94fac0fbd7a755ae302e252b6f25fb7",
+    "changed_files": [
+      "tests/test_new_functions.py"
+    ],
+    "production_source_unchanged": true,
+    "all_eight_native_literal_clauses_unchanged": true,
+    "native_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1n7",
+    "native_classification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_nan_diagnosis_20261010/NATIVE_V7_OFFLINE_OUTPUT_CLASSIFICATION.json",
+    "original_tool_session": 91495,
+    "resources": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "wall_seconds": 27.993072335142642,
+      "sampled_peak_summed_rss_kib": 907312,
+      "cpu_affinity": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "versions": {
+      "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+      "executable": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_nan_diagnosis_20261010/cos4_native_contract_candidate_v1/snapshot/src/chebfunjax/__init__.py",
+      "devices": [
+        "cpu:0"
+      ]
+    },
+    "rehash_count": 270,
+    "bindings": {
+      "PLAN.json": "d6d52846a88aebb40982c8aed47870b1c74285e3d58a1d8023672005de99a9c1",
+      "candidate.patch": "81509bebd654f96072369cb1dfea8dfe8de2c819cc97552a909d17978626d62f",
+      "gate/guard.json": "9297fcccdbe3b58e94953cbf688d0bccbef4d77925098d0b5636ba42fe8abe89",
+      "gate/versions.json": "f34c79b45d92dccb33c2add9f1d10f5b9ba77cdae00e18749f9f62489056388a",
+      "gate/junit.xml": "a02ffdb9765d79d464a2c47f2bfe39e480fbef5e7004f9241149ee9a994387ae",
+      "gate/supervision/receipt.json": "7bd7ca7e2f5beae4c5a22d0688f0c0a6ddc4ba02f6771d211026fe2383b7b909",
+      "gate/supervision/stdout": "b32a1f7817f9bc1f8637389efa7f163f64202514f53eddc130dbdf7ab27ca051",
+      "gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+      "gate/run_case.py": "36056873efd3d193b6c79329f63b813f96ee64f55217ea71518b986604cc4ca6",
+      "gate/launch.sh": "7bb3789f77cde1a1b0de553b78eebef9207f731e5e037d07cbd8a1241a7c82a9",
+      "snapshot/tests/test_new_functions.py": "e724899c47fdea184486247a71691ce42794e4e09f2fa22023245ebee2179f61",
+      "snapshot/tests/test_matlab_port/chebfun/test_polyfitL1_native_literal.py": "eef221c7ad2df4e0b4a20b5694d327e36be604a67bc336288fc968c9a107fd42"
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_nan_diagnosis_20261010/cos4_native_contract_candidate_v1/gate/CONTRACT_AUDIT.json": "91e2913ca3e7c2e2bf0bed4fb6b3c5d95ea4686645254e102a8e740181681450",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1n7/POSTEXIT_AUDIT.json": "7f63e9ff161220a014aec3df2812dfef58ba13a5f5038fc7d4373f7454880868",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1n7/native_result.mat": "4a1cc7b72490e642dfdd0a80fbd128a4ce38b490a91df6ef01b20018bed91519",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/l1_nan_diagnosis_20261010/NATIVE_V7_OFFLINE_OUTPUT_CLASSIFICATION.json": "f4cc82e61a661e7422c91b6ab7283c69aee182ca9e2da7e76d85b293f4b02589"
+  }
+}

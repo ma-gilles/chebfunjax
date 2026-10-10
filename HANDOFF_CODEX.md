@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native L1 failure contract qualified (2026-10-10; latest)
+
+The exact cosine degree-four case returns 20 NaNs and MAXITER in native
+Chebfun 7574c776 as well as Python. Native v7 completed with stable source/runtime
+bindings and no resource cap; its original finiteness assertion failed. The
+Python-only test now preserves the original input/points and checks that native
+failure behavior explicitly. Its focused CPU run passes in 27.99 s, peak
+907,312 KiB. Production solver and all eight native optimality clauses are
+unchanged. This establishes failure parity, not successful fitting. Evidence:
+docs/polyfit_l1_cos4_native_failure_cpu_20261010.json.
+
+
 ## Floquet full computation and direct 3D progress (2026-10-10; latest)
 
 Floquet now executes the original four IVPs, all 16 periodic Chebfun entries,
