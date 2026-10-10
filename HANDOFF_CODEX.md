@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Subnormal breakpoint alignment fixed (2026-10-10; latest)
+
+Static domain comparisons now preserve subnormal differences using Python
+doubles, matching native tweakDomain before overlap restriction. Previously
+XLA flushed the difference to zero, causing a zero-width restriction in the
+original constructor-splitting test. Coefficient and remap arithmetic remain
+JAX. Half-away integer rounding also retains values just below one half and
+large exactly representable odd integers.
+All 18 focused CPU cases passed, including unchanged native constructor,
+tweakDomain and overlap assertions; root independently checked 2,955 runtime
+files and confirmed only tweak_domain changed in the library module AST.
+Evidence: docs/breakpoint_subnormal_cpu_20261010.json. Earlier failed control
+observers are preserved. Full current suite and remote CI remain unresolved.
+
 ## Native cumulative integral and extrema tests restored (2026-10-10; latest)
 
 All 16 original cumsum3/min3/max2/min2 predicates now use the native

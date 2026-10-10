@@ -11747,37 +11747,48 @@ def tweak_domain(f: Chebfun, g=None, tol: float | None = None,
     if f_dom.shape[0] < 2 or g_dom.shape[0] < 2:
         return f, g, [], []
 
-    # Source masks both ends of every interval strictly shorter than 2*tol,
-    # so neither breakpoint may participate in a match.
-    tiny_f = jnp.diff(f_dom) < 2.0 * tol
-    mask_f = jnp.concatenate((tiny_f, jnp.asarray([False]))) | jnp.concatenate(
-        (jnp.asarray([False]), tiny_f))
-    tiny_g = jnp.diff(g_dom) < 2.0 * tol
-    mask_g = jnp.concatenate((tiny_g, jnp.asarray([False]))) | jnp.concatenate(
-        (jnp.asarray([False]), tiny_g))
-    f_work = jnp.where(mask_f, jnp.nan, f_dom)
-    g_work = jnp.where(mask_g, jnp.nan, g_dom)
-    distances = jnp.abs(f_work[:, None] - g_work[None, :])
-    matched = (distances > 0.0) & (distances < tol)
-    loc_f = jnp.any(matched, axis=1)
-    loc_g = jnp.any(matched, axis=0)
-    if not bool(jax.device_get(jnp.any(loc_f))):
+    # Breakpoints are static domain metadata. Compare them as Python doubles,
+    # matching MATLAB arithmetic even for subnormal differences that XLA may
+    # flush to zero. Keep coefficient data and remapping on the JAX path.
+    f_meta = tuple(float(x) for x in f.domain.breakpoints)
+    g_meta = tuple(float(x) for x in
+                    (g_dom if domain_given else g.domain.breakpoints))
+    tiny_f = [f_meta[k + 1] - f_meta[k] < 2.0 * tol
+              for k in range(len(f_meta) - 1)]
+    mask_f = [((k > 0 and tiny_f[k - 1]) or
+               (k < len(tiny_f) and tiny_f[k]))
+              for k in range(len(f_meta))]
+    tiny_g = [g_meta[k + 1] - g_meta[k] < 2.0 * tol
+              for k in range(len(g_meta) - 1)]
+    mask_g = [((k > 0 and tiny_g[k - 1]) or
+               (k < len(tiny_g) and tiny_g[k]))
+              for k in range(len(g_meta))]
+    matches = [(i, j) for i, a in enumerate(f_meta) if not mask_f[i]
+               for j, b in enumerate(g_meta) if not mask_g[j]
+               and 0.0 < abs(a - b) < tol]
+    f_indices = sorted({i for i, _ in matches})
+    g_indices = sorted({j for _, j in matches})
+    if not f_indices:
         return f, g, [], []
+    loc_f = jnp.asarray([i in f_indices for i in range(len(f_meta))])
+    loc_g = jnp.asarray([j in g_indices for j in range(len(g_meta))])
 
+    # MATLAB chooses average/f/g, then rounds near-integers half away from zero.
     if side == 0:
-        new_breaks = (f_dom[loc_f] + g_dom[loc_g]) / 2.0
+        new_values = [(f_meta[i] + g_meta[j]) / 2.0
+                      for i, j in zip(f_indices, g_indices)]
     elif side < 0:
-        new_breaks = f_dom[loc_f]
+        new_values = [f_meta[i] for i in f_indices]
     else:
-        new_breaks = g_dom[loc_g]
-
-    # MATLAB round() is half-away-from-zero (jnp.round is ties-to-even).
-    magnitude = jnp.abs(new_breaks)
-    whole = jnp.floor(magnitude)
-    rounded = jnp.sign(new_breaks) * (
-        whole + ((magnitude - whole) >= 0.5).astype(magnitude.dtype))
-    new_breaks = jnp.where(jnp.abs(rounded - new_breaks) < tol,
-                           rounded, new_breaks)
+        new_values = [g_meta[j] for j in g_indices]
+    rounded_values = []
+    for value in new_values:
+        magnitude = abs(value)
+        whole = math.floor(magnitude)
+        rounded = math.copysign(
+            whole + int(magnitude - whole >= 0.5), value)
+        rounded_values.append(rounded if abs(rounded - value) < tol else value)
+    new_breaks = jnp.asarray(rounded_values, dtype=f_dom.dtype)
     f_new = f_dom.at[loc_f].set(new_breaks)
     g_new = g_dom.at[loc_g].set(new_breaks)
 

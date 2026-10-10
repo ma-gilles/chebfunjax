@@ -1,0 +1,60 @@
+{
+  "reviewer": "/root",
+  "scope": "Original constructor splitting plus tweakDomain/overlap/restriction controls,18cases",
+  "gates": [
+    {
+      "gate": "core_part1_portmirror_fix_20261010_v3/gate",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_portmirror_fix_20261010_v3/gate/supervision/receipt.json",
+      "receipt_sha256": "ed1d39adc1f570b8d07755f55400eb0f996c344aa03b24ebc9cb5b81b46c4c54",
+      "runtime_manifest_sha256": "10f3e617dd368c71dc33b0fdb3bbeac381edbbcf8d7cf10e9a4e9213d5b94782",
+      "runtime_end_sha256": "012f4329d7eae40dc75b4ce4a4e876b8c67b2709682b8747a50fb7a803f7010f",
+      "observed_files_rehashed": 2955,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 64,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 4011464,
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "assertion_slots": 18,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": {
+    "head": "d12b319f2e926fb7ed4a8d1f7788ca0e1a03274d",
+    "changed_library_AST": [
+      "tweak_domain"
+    ],
+    "qualified_files": {
+      "src/chebfunjax/chebfun1d/chebfun.py": "b7170367a8ce9c98c3fae1103d3b3d845c94011f5c891cb8dd31770a8a52b26c",
+      "tests/test_restrict_source_controls.py": "ccfca70545d9646b5ef16b15a65727b766bb8d3bb746f11691eecbb50dcabeb2"
+    },
+    "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/tweakDomain.m",
+    "native_sha256": "7763f854329c8349b514cd0b0b080a0da8df3e4edbf3f9e3357f1f9a78443157",
+    "review": "Root compared static breakpoint matching/masking, ordered matches, average/side selection and half-away rounding to pinned tweakDomain. Coefficient/remap arithmetic remains JAX. Source comparison uses Python doubles to preserve subnormal metadata. Original native constructor assertion retained.",
+    "prior_failed_attempts": [
+      "v1 control incorrectly required smallest normal instead of largest subnormal",
+      "v2 below-half control averaged adjacent values to exact half; v3 corrected inputs and asserts genuine subnormal input"
+    ],
+    "limits": [
+      "Focused source tests; entire current suite remains unqualified."
+    ]
+  },
+  "source_review_sha256": "9aed652477c4950ba2fc276537b78a35b0d02cd16b25d9905b031bf1f4a84ad9",
+  "limitations": [
+    "Focused18CPUcases including original constructor-splitting assertions; full suite and remote CI remain unresolved.",
+    "Prior failed test observers remain preserved in v1/v2 scratch evidence; no native assertions or tolerances weakened."
+  ]
+}

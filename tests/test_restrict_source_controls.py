@@ -4,6 +4,7 @@ import jax.numpy as jnp
 import pytest
 
 import chebfunjax as cj
+from chebfunjax.chebfun1d.chebfun import tweak_domain
 
 
 @pytest.mark.parametrize('domain', [[], [.2], [.2, .2]])
@@ -52,6 +53,32 @@ def test_finite_union_tweaks_source_nearby_breaks():
     g = cj.chebfun(lambda x: x*x, domain=[-1, 5e-16, 1])
     a, b = type(f)._overlap(f, g)
     assert a.domain.breakpoints == b.domain.breakpoints == (-1., 0., 1.)
+
+
+def test_finite_union_tweaks_subnormal_breakpoint_before_restriction():
+    f = cj.chebfun(lambda x: x > 0, domain=(-1., 1.), splitting=True)
+    g = cj.heaviside(cj.chebfun("x", domain=(-1., 1.)))
+    assert 0.0 < f.domain.breakpoints[1] < float.fromhex("0x1p-1022")
+    a, b = type(f)._overlap(f, g)
+    assert a.domain.breakpoints == b.domain.breakpoints == (-1., 0., 1.)
+    assert float((a - b).norm(2)) < 1e-14
+
+
+def test_tweak_domain_rounds_sub_half_value_before_large_tolerance():
+    below_half = float.fromhex("0x1.fffffffffffffp-2")
+    just_below = float.fromhex("0x1.ffffffffffffep-2")
+    f = cj.chebfun(lambda x: x, domain=(-10., just_below, 10.))
+    g = cj.chebfun(lambda x: x*x, domain=(-10., below_half, 10.))
+    f2, g2, _, _ = tweak_domain(f, g, tol=0.5)
+    assert f2.domain.breakpoints == g2.domain.breakpoints == (-10., 0., 10.)
+
+
+def test_tweak_domain_preserves_large_exact_odd_integer_rounding():
+    odd = float(2**52 + 1)
+    f = cj.chebfun(lambda x: x, domain=(-2**54, odd - 1, 2**54))
+    g = cj.chebfun(lambda x: x*x, domain=(-2**54, odd + 1, 2**54))
+    f2, g2, _, _ = tweak_domain(f, g, tol=3.0)
+    assert f2.domain.breakpoints == g2.domain.breakpoints == (-2**54, odd, 2**54)
 
 
 @pytest.mark.parametrize('right', [False, True])
