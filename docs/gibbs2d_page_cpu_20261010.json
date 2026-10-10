@@ -1,0 +1,195 @@
+{
+  "delivery": {
+    "status": "complete_qualified_page_ready_for_root_review",
+    "predecessor_fault_preserved": {
+      "packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v2/DELIVERY_PACKET.json",
+      "sha256": "e68ff799712753028ce7dbef5c40310f02ba40a19b70e040673a5680b1885857",
+      "page_sha256": "858f88955652c4f8256cdd5b1484b90ff29b78c6548987cde8685b329c47b9aa",
+      "fault": "All8 figures were incorrectly emitted as placeholders because the offline generator IMAGES root did not point at the captured candidateassets."
+    },
+    "integration_files": {
+      "docs/images/approx2/Gibbs2D_06.png": "0766734ed7046f7ec88b19487ef09a52ea9dee4f33c67275b2b2882cc9687f21",
+      "docs/images/approx2/Gibbs2D_03.png": "97729a8c134a528c65bc11af91b7e16fe92f2c294ee69755ae067983475e153a",
+      "docs/images/approx2/Gibbs2D_05.png": "fd3826585798bad97ff9a1a5def7850276bf4e8bd150db5b30e0fad82f4e34d6",
+      "docs/images/approx2/Gibbs2D_04.png": "f7818084db5b3c18438dc34b7346d450c762320163ba6419636fd6dc4efd306d",
+      "docs/images/approx2/Gibbs2D_02.png": "9b1e624548bbebc044cc9eb7998c62a22fca0dcb409759b75aec80028204f48f",
+      "docs/images/approx2/Gibbs2D_08.png": "df34c9ec9b29b166d88874af5d0cfa1a822184d2f6a525af4aa1f0282f1ab968",
+      "docs/images/approx2/Gibbs2D_01.png": "d388de83d18d4d1dadec6811981d531ca6566f51bbfcf58aa4e10b303b585435",
+      "docs/images/approx2/Gibbs2D_07.png": "68f1317aa3e3bb9987a375efbcd8022d52a976cad580925c288a63e3ecdc6c26",
+      "docs/examples/approx2/Gibbs2D.md": "9448aab7169439d9ab2354090608afddb573025834c4a892afff6c8c44c69143",
+      "examples/approx2/gibbs2d.py": "839093916c2ec1a8b52b40b86aa3ac91d4372032d7b9ddf01e5250a54fd54e4b",
+      "scripts/gen_example_pages.py": "720397cdac92c8d9d5ff4c84fc18f53d4c909cf63ffb31808c23610664f7c30b"
+    },
+    "page_audit": {
+      "actual_image_links": 8,
+      "image_placeholders": 0,
+      "links_resolve_to_all8_present_assets": true,
+      "exact_cached_native_prose_and_code_with_qualification": true,
+      "normalized_pinned_native_code_blocks": 13,
+      "actual_ans_blocks": 11,
+      "native_grouped_text_cells": 8,
+      "ordered_actual_stdout_tokens_exact": true,
+      "page_sha256": "9448aab7169439d9ab2354090608afddb573025834c4a892afff6c8c44c69143"
+    },
+    "figures": [
+      {
+        "slot": 1,
+        "markdown_target": "../../images/approx2/Gibbs2D_01.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_01.png",
+        "sha256": "d388de83d18d4d1dadec6811981d531ca6566f51bbfcf58aa4e10b303b585435",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 2,
+        "markdown_target": "../../images/approx2/Gibbs2D_02.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_02.png",
+        "sha256": "9b1e624548bbebc044cc9eb7998c62a22fca0dcb409759b75aec80028204f48f",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 3,
+        "markdown_target": "../../images/approx2/Gibbs2D_03.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_03.png",
+        "sha256": "97729a8c134a528c65bc11af91b7e16fe92f2c294ee69755ae067983475e153a",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 4,
+        "markdown_target": "../../images/approx2/Gibbs2D_04.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_04.png",
+        "sha256": "f7818084db5b3c18438dc34b7346d450c762320163ba6419636fd6dc4efd306d",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 5,
+        "markdown_target": "../../images/approx2/Gibbs2D_05.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_05.png",
+        "sha256": "fd3826585798bad97ff9a1a5def7850276bf4e8bd150db5b30e0fad82f4e34d6",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 6,
+        "markdown_target": "../../images/approx2/Gibbs2D_06.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_06.png",
+        "sha256": "0766734ed7046f7ec88b19487ef09a52ea9dee4f33c67275b2b2882cc9687f21",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 7,
+        "markdown_target": "../../images/approx2/Gibbs2D_07.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_07.png",
+        "sha256": "68f1317aa3e3bb9987a375efbcd8022d52a976cad580925c288a63e3ecdc6c26",
+        "size": [
+          600,
+          269
+        ]
+      },
+      {
+        "slot": 8,
+        "markdown_target": "../../images/approx2/Gibbs2D_08.png",
+        "resolved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/candidate/docs/images/approx2/Gibbs2D_08.png",
+        "sha256": "df34c9ec9b29b166d88874af5d0cfa1a822184d2f6a525af4aa1f0282f1ab968",
+        "size": [
+          600,
+          269
+        ]
+      }
+    ],
+    "generator_only_patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v3/generator_only.patch",
+      "sha256": "f1d8c81d94955e67d1a0038e1c08136bdfeb0252596623e1d0e203263cff16c7",
+      "base_head": "9f2c76d4cb64b4a923255c0caba0c9a1f084b3a7",
+      "base_sha256": "790dd2075b9cb00f125e7b8ba11d299c64102a73862bac4b007334f0f4241f18",
+      "candidate_sha256": "720397cdac92c8d9d5ff4c84fc18f53d4c909cf63ffb31808c23610664f7c30b",
+      "apply_check_passed": true,
+      "warning_alignment_preserved": true,
+      "batch_control_passed": true,
+      "actual_control_stdout": "ode-random/RandomSwitching: skipped source-managed page; preserve pinned native prose/code and qualified Python stdout/figures\napprox2/Gibbs2D: skipped source-managed page; preserve pinned native prose/code and qualified Python stdout/figures\napprox/AAAApprox: ok script=None figures=0\n1/3 pages written\n"
+    },
+    "source_bindings": {
+      "cached_html": {
+        "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx2_Gibbs2D.html",
+        "sha256": "fa10c48fd5954c4439df3a04f4f4fb1a0ebfc8c8287f870c079fc05aa3b774e9"
+      },
+      "native_source": {
+        "path": "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx2/Gibbs2D.m",
+        "sha256": "e53d135cbe889153f889aa326e43396acfa652953e40a82becf5600e5a8e1d81"
+      },
+      "actual_stdout": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/full_current_v2/capture/stdout.txt",
+        "sha256": "1a67f7d77adfdd290aac6c8365b8fbd33bf12746fa4323dd27834cff03e0f596"
+      },
+      "body_generator": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/integration_v2/generator_pinned.py",
+        "sha256": "f791f31741b709e6e03d24704e86ccb82c6f40405653931b50e45b2a0efb1987"
+      },
+      "repair_script": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/prepare_delivery_v3.py",
+        "sha256": "deeeaa7b33b73bcb4a5056da1272d1a3c19bcfdf0f629f72932fd8a8820301c8"
+      }
+    },
+    "full_gate_audit": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/full_current_v2/FULL_GATE_AUDIT.json",
+      "sha256": "bec37503aae4d726949245bf9372787bf6c61bc4f5ed0912f9b51faa9fc5104a"
+    },
+    "spy_derived_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/spy_layout_v2/RENDER_RECEIPT.json",
+      "sha256": "52c0d6c81d12d0a904ec2fe83f040cf02f8b67ab0f600897d48fd48d2c44994c",
+      "supervision_receipt_sha256": "35613fd32c9e62e5f57d9df2e9479540647a4cff64c32d398ad33fe154742888",
+      "runtime_start_sha256": "cc925373ad86c372e1bd69cf07b2613d6c063045ab94b0d841af1b4b378c29fe",
+      "runtime_end_sha256": "fdb987b2ac97ea6285d260862588c302643cf98263fce11b753bb393e028f630",
+      "image_bit_identical_to_v1_roundoff_rejection": true,
+      "failure_v1_receipt_sha256": "8ccbce4cbcb548c112cfb0cdc2a5c65fe35bd1ff86dcad3884ee452592c2b420"
+    },
+    "spy_runtime_bindings": {
+      "guard.json": "4d08663bd6b52cf0f93334eb3be828bcaabdd7d5c76a7c10f0ceac8ba7d3ab1f",
+      "manifest.json": "9bcab66df2070ba435e4244faf3b4e47da121b808af32fa255c3ebaf699dd794",
+      "replay.py": "4f64c2acb2ea31c917c00fb0ef0bb357e180e490ab4ec4f84fbdb73b6f44d933",
+      "source_A2_verified.npz": "8d8ebdfb0ca95348db4088167fb53970c5e6f6aa0a7ab8056d6f11c329ec01f7",
+      "RENDER_RECEIPT.json": "52c0d6c81d12d0a904ec2fe83f040cf02f8b67ab0f600897d48fd48d2c44994c",
+      "runtime/start.json": "cc925373ad86c372e1bd69cf07b2613d6c063045ab94b0d841af1b4b378c29fe",
+      "runtime/end.json": "fdb987b2ac97ea6285d260862588c302643cf98263fce11b753bb393e028f630",
+      "supervision/receipt.json": "35613fd32c9e62e5f57d9df2e9479540647a4cff64c32d398ad33fe154742888",
+      "supervision/manifest.json": "8ecdff4817695f6cbe0d5b98f022c1538a5b0208343fe04b07106e256dd30c10",
+      "Gibbs2D_08.png": "df34c9ec9b29b166d88874af5d0cfa1a822184d2f6a525af4aa1f0282f1ab968"
+    },
+    "numerical_calls_AST_equal": true,
+    "numerical_gap": {
+      "triangle_max_actual": 1.273581928619899,
+      "published_reference_display": 1.294875501773784,
+      "difference": -0.021293573153885026,
+      "active_set_unavailable": true,
+      "old_python_scipy_max": 1.294875501773878
+    },
+    "qualifications": [
+      "Actual public source extrema and fallback, original inputs, accepted frame/spy",
+      "No numerical parity, native active-set qualification, native lighting/material/Gouraud parity, or automatic-level parity",
+      "No random draws; no RNG equivalence claim needed",
+      "Spy marker widths and tick choices still differ from reference; automatic layout only restores full label visibility"
+    ],
+    "no_numerical_or_renderer_rerun": true,
+    "no_publication_edits": true
+  },
+  "root_verified_binding_count": 28,
+  "root_visual_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_page_current_prepare_20261010/full_current_v2/ROOT_VISUAL_REVIEW.json",
+  "figure8_review": "Derivedpublicspy automaticlayout visuallyinspected; labelvisible; diagnosticbboxepsilon only, imagebitidentical to v1",
+  "goal_complete": false
+}

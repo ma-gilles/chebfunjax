@@ -6,6 +6,8 @@
 
 Python translation: [`examples/approx2/gibbs2d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/gibbs2d.py)
 
+> **Qualification:** These figures and printed results come from the CPU execution of the original 100 × 100 inputs through the public chebfunjax constructors, restrictions, and extrema routes. Rank-one extrema use the source reconstruction path; the triangle uses the transparent higher-rank fallback because the native active-set route is unavailable. Its maximum is **1.273581928619899**, whereas the published MATLAB output is **1.294875501773784**. This numerical difference remains unresolved. Surface lighting, Gouraud/material behavior, surface framing and ticks, and automatic MATLAB contour levels remain incomplete; spy tick choices and marker widths differ from the published reference; the figures use the public rendering defaults and have not been rescaled or fitted to reference images. This example makes no random draws. Successful execution does not establish native numerical or visual parity.
+
 ## 1. Chebyshev 2D Gibbs effect
 
 Here is an illustration of the Gibbs phenomenon in 2D:
@@ -36,7 +38,7 @@ max2(p)
 
 ```text
 ans =
-   1.320316254042389
+   1.320316254042390
 ```
 
 This is big! -- about twice what we are used to with a 1D Gibbs effect:
@@ -93,9 +95,9 @@ max2(t), min2(t)
 
 ```text
 ans =
-   1.316297664943330
+   1.316297664943328
 ans =
-  -0.155566549488913
+  -0.155566549488912
 ```
 
 ## 3. A triangular island
@@ -112,7 +114,7 @@ contour(p2), axis([-.6 .6 -.6 .6]), axis square, colorbar
 
 ```text
 ans =
-   1.294875501773878
+   1.273581928619899
 ans =
   -0.228957699300768
 ```

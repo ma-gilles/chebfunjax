@@ -1,142 +1,117 @@
-"""Gibbs phenomenon in 2D.
+"""The Gibbs phenomenon in 2D — original100x100 source computation.
 
-Translation of approx2/Gibbs2D.m: interpolating a 100x100
-square-block data matrix at Chebyshev (chebfun2(A)) and uniform/
-periodic (chebfun2(A,'periodic')) grids exhibits the 2D Gibbs
-overshoot; a triangular block shows the same with full matrix rank.
-
+Andre Uschmajew and Nick Trefethen, February2017.
 Original: https://www.chebfun.org/examples/approx2/Gibbs2D.html
-Copyright by The University of Oxford and The Chebfun Developers.
+Copyright The University of Oxford and The Chebfun Developers.
+
+CPU-qualified source candidate using public construction/extrema routes.
+Native active-set, camlight/face interpolation and automatic
+contour levels remain gaps; public renderer approximations are not parity.
 """
+
+from pathlib import Path
+
 import matplotlib
 
 matplotlib.use("Agg")
-import os
-import sys
-import warnings
-
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.plotting import chebfun_style, matlab_view, save_chebfun_figure, spy
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx2')
-FIG = [0]
+REFERENCE_SIZE = (600, 269)
 
 
-def _surf(fn, zlim=(-.2, 1.5), n=240, dom=(-1, 1)):
-    FIG[0] += 1
-    g = np.linspace(dom[0], dom[1], n)
-    X, Y = np.meshgrid(g, g)
-    Z = fn(X, Y)
-    fig, ax = plt.subplots(figsize=(7.2, 5.4),
-                           subplot_kw={"projection": "3d"})
-    ax.plot_surface(X, Y, Z, cmap="viridis", rstride=1, cstride=1,
-                    linewidth=0)
-    ax.set_zlim(*zlim)
-    ax.view_init(50, -20)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Gibbs2D_{FIG[0]:02d}.png"))
-    plt.close(fig)
+def _answer(value, *, integer=False):
+    print("ans =", flush=True)
+    print(f"{int(value):6d}" if integer else f"  {float(value): .15f}", flush=True)
 
 
-def _contour(fn, n=400):
-    FIG[0] += 1
-    g = np.linspace(-1, 1, n)
-    X, Y = np.meshgrid(g, g)
-    Z = fn(X, Y)
-    fig, ax = plt.subplots(figsize=(6.2, 5.6))
-    cs = ax.contour(X, Y, Z, 10)
+def _surface(fn):
+    # Public source200x200 grid, no example-local mesh or camera-angle substitute.
+    fig, ax = fn.plot()
+    ax.set_zlim(-.2, 1.5)
+    matlab_view(ax, -20, 50)
+    # Native camlight sequence is bound in SOURCE_MAP; unsupported by renderer.
+    return fig
+
+
+def _contour(fn):
+    # Public200x200 default grid. Native automatic-level policy is still absent;
+    # do not insert cached/image-fitted levels to conceal that dependency.
+    fig, ax = fn.contour(colorbar=True)
     ax.set_xlim(-.6, .6)
     ax.set_ylim(-.6, .6)
-    ax.set_aspect("equal")
-    fig.colorbar(cs.collections[0] if hasattr(cs, 'collections')
-                 else cs, ax=ax)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Gibbs2D_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    ax.set_box_aspect(1)
+    return fig
 
 
-def run():
-    os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
+def run(output_dir=None):
+    chebfun_style()
+    output = Path(output_dir) if output_dir else Path(__file__).resolve().parents[2] / "docs/images/approx2"
+    output.mkdir(parents=True, exist_ok=True)
+    slot = 0
 
-    A = np.zeros((100, 100))
-    A[39:61, 39:61] = 1
+    def save(fig, *, layout=None):
+        nonlocal slot
+        slot += 1
+        save_chebfun_figure(fig, output / f"Gibbs2D_{slot:02d}.png", size=REFERENCE_SIZE, layout=layout)
+        plt.close(fig)
+
+    A = jnp.zeros((100, 100), dtype=jnp.float64).at[39:61, 39:61].set(1)
     p = Chebfun2.from_values(A)
-    _surf(lambda X, Y: np.asarray(p(X, Y)))
-    _contour(lambda X, Y: np.asarray(p(X, Y)))
+    save(_surface(p))  # Native camlight left, camlight left.
+    save(_contour(p))
+    max_p, _ = p.max2()
+    _answer(max_p)
 
-    m2, _ = p.max2()
-    print("ans =")
-    print(f"   {float(m2):.15f}")
-
-    a = np.zeros(100)
-    a[39:61] = 1
+    a = jnp.zeros((100,), dtype=jnp.float64).at[39:61].set(1)
     p1 = chebfun(a)
-    _, m1 = p1.max()
-    print("ans =")
-    print(f"   {float(m1):.15f}")
+    _, max_p1 = p1.max()
+    _answer(max_p1)
 
-    # Zoom near a corner of the block (MATLAB plot(p{0,.5,0,.5})).
     pzoom = p.restrict((0, .5, 0, .5))
-    _surf(lambda X, Y: np.asarray(pzoom(X, Y)), dom=(0, .5))
+    save(_surface(pzoom))  # Native camlight left.
+    min_p, _ = p.min2()
+    _answer(min_p)
 
-    mn, _ = p.min2()
-    print("ans =")
-    print(f"  {float(mn):.15f}")
-
-    # Periodic interpolant of the same data.
     t = Chebfun2.from_values(A, trig=True)
-    _surf(lambda X, Y: np.asarray(t(X, Y)))
-    _contour(lambda X, Y: np.asarray(t(X, Y)))
-    mt, _ = t.max2()
-    mnt, _ = t.min2()
-    print("ans =")
-    print(f"   {float(mt):.15f}")
-    print("ans =")
-    print(f"  {float(mnt):.15f}")
+    save(_surface(t))  # Native camlight, camlight, snapnow.
+    save(_contour(t))
+    max_t, _ = t.max2()
+    _answer(max_t)
+    min_t, _ = t.min2()
+    _answer(min_t)
 
-    # Triangular block: same Gibbs, full matrix rank.
-    A2 = np.tril(A)
+    A2 = jnp.tril(A)
     p2 = Chebfun2.from_values(A2)
-    p2z = p2.restrict((-.5, .5, -.5, .5))
-    _surf(lambda X, Y: np.asarray(p2z(X, Y)), dom=(-.5, .5))
-    m2b, _ = p2.max2()
-    mnb, _ = p2.min2()
-    print("ans =")
-    print(f"   {float(m2b):.15f}")
-    print("ans =")
-    print(f"  {float(mnb):.15f}")
-    _contour(lambda X, Y: np.asarray(p2(X, Y)))
+    fig = _surface(p2.restrict((-.5, .5, -.5, .5)))  # Native camlight left.
+    max_p2, _ = p2.max2()
+    _answer(max_p2)
+    min_p2, _ = p2.min2()
+    _answer(min_p2)
+    save(fig)  # Native snapnow occurs after both extrema calls.
+    save(_contour(p2))
 
-    # Ranks: block data is rank 1; triangular block is full rank.
-    for r in (p.rank, t.rank, p2.rank, np.linalg.matrix_rank(A2)):
-        print("ans =")
-        print(f"{r:6d}")
-    # spy(A2), axis([36 65 36 65])
-    FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(6.0, 5.6))
-    ii, jj = np.nonzero(A2)
-    ax.plot(jj + 1, ii + 1, '.', color="C0", ms=5)
+    _answer(p.rank, integer=True)
+    _answer(t.rank, integer=True)
+    _answer(p2.rank, integer=True)
+    _answer(jnp.linalg.matrix_rank(A2), integer=True)
+
+    fig, ax = plt.subplots(figsize=((600 + 1e-6) / 100, (269 + 1e-6) / 100), dpi=100)
+    fig, ax = spy(A2, ax=ax)
     ax.set_xlim(36, 65)
-    ax.set_ylim(65, 36)
-    ax.set_aspect("equal")
-    ax.set_xlabel(f"nz = {len(ii)}")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Gibbs2D_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    ax.set_ylim(65, 36)  # Native spy YDir reverse remains after axis([...]).
+    save(fig, layout="matlab")
+    assert slot == 8
 
 
 if __name__ == "__main__":
-    run()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", type=Path)
+    args = parser.parse_args()
+    run(args.output_dir)

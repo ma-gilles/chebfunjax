@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Gibbs2D source execution and reference-size figures (2026-10-10; latest)
+
+The literal 100x100 inputs now execute through public construction, restriction,
+extrema and rendering routes. The CPU gate completes in 28.82 seconds, with
+six extrema calls, twelve fixed4000 reconstructions, four fallback solves,
+eleven actual outputs and eight 600x269 figures. Runtime/source audits are clean.
+A separate public-spy layout replay fixes the clipped final label; its data
+are unchanged. Root reviewed all eight figures beside the reference images.
+
+This is not native parity: triangle maximum 1.273581928619899 differs from
+published MATLAB 1.294875501773784 because the native active-set route is
+unavailable. Lighting, contour-level policy, framing, typography and spy marker
+choices remain unresolved. The page states these limits and retains original
+prose/code with actual outputs. Generic cached-HTML batches preserve this page.
+Evidence: docs/gibbs2d_page_cpu_20261010.json. Eight dimension gaps are repaired,
+leaving 17 across VanillaOptions, EigLandscapes and Randfuneig; eight previously
+listed output-count gaps remain. Full numerical/visual parity and CI are open.
+
 ## Warning-led output placement restored (2026-10-10; latest)
 
 The page generator now anchors the computation after an absent or differently

@@ -403,7 +403,10 @@ def main():
     n_ok = 0
     for key in pages:
         cat, stem = key.split("/")
-        if (cat, stem) == ("ode-random", "RandomSwitching"):
+        if (cat, stem) in {
+            ("ode-random", "RandomSwitching"),
+            ("approx2", "Gibbs2D"),
+        }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")
             continue
