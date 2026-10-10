@@ -9099,9 +9099,8 @@ class Chebfun(eqx.Module):
 
         Notes
         -----
-        The fractional integral is computed via quadrature on a Chebyshev
-        grid using the kernel ``(x - t)^{mu-1} / Gamma(mu)``.  Only single-
-        piece Chebfuns are supported.
+        The fractional integral uses JAX Legendre/Jacobi coefficient transforms
+        and an analytic endpoint factor. Only single-piece Chebfuns are supported.
 
         NOT JIT-safe.
 
@@ -9123,20 +9122,16 @@ class Chebfun(eqx.Module):
         >>> import jax.numpy as jnp
         >>> from chebfunjax.chebfun1d.chebfun import chebfun
         >>> f = chebfun(lambda x: jnp.ones_like(x))
-        >>> g = f.fracInt(0.5)  # I^{0.5}[1](x) = 2*sqrt(x+1)/Gamma(1.5) on [-1,1]
+        >>> g = f.fracInt(0.5)  # I^{0.5}[1](x) = sqrt(x+1)/Gamma(1.5) on [-1,1]
         >>> g(jnp.float64(0.0)) is not None  # smoke test
         True
         """
-        # uses-numpy: scipy.special.gamma for non-integer orders
-        import numpy as _np
-        from scipy.special import gamma as _gamma
-
         mu = float(mu)
         if mu < 0:
             raise ValueError("fracInt: mu must be >= 0.")
 
         # Integer part: repeated cumsum
-        mu_int = int(_np.floor(mu))
+        mu_int = math.floor(mu)
         mu_frac = mu - mu_int
 
         f = self
@@ -9153,72 +9148,14 @@ class Chebfun(eqx.Module):
                 "Use a Chebfun with one interval."
             )
 
-        # Spectral coefficient-space algorithm (@chebtech/fracInt.m):
-        # Legendre (or Jacobi P^(0,b)) coefficients scaled by
-        # beta(k+b+1, mu)/Gamma(mu), mapped back as Jacobi P^(-mu, b+mu)
-        # coefficients; the result carries the analytic endpoint
-        # exponent update exps + [mu, 0] as a Singfun
-        # (@singfun/fracInt.m), scaled by (diff(domain)/2)^mu
-        # (@bndfun/fracInt.m).  The previous pointwise Gauss-Jacobi
-        # quadrature built a SMOOTH result whose endpoint branch
-        # plateaued at ~1e-8.
-        import scipy.special as _sps
-
         from chebfunjax.fun.singfun import Singfun
-        from chebfunjax.utils.transforms import cheb2jac, cheb2leg, jac2cheb
 
-        a = float(f.domain.a)
-        b = float(f.domain.b)
-        piece = f.funs[0]
-        tech = piece.tech
-        if isinstance(tech, Singfun):
-            e_l, e_r = (float(v) for v in tech.exponents)
-            if e_r != 0.0:
-                raise ValueError(
-                    "fracInt: only functions smooth at the right "
-                    "boundary are supported (right exponent must be 0).")
-            sp_coeffs = _np.asarray(tech.smoothPart.coeffs, dtype=float)
-        else:
-            e_l = 0.0
-            sp_coeffs = _np.asarray(tech.coeffs, dtype=float)
-
-        n = sp_coeffs.shape[0]
-        k = _np.arange(n, dtype=float)
-        if e_l == 0.0:
-            c_leg = _np.asarray(cheb2leg(jnp.asarray(sp_coeffs)))
-            if mu_frac != 0.5:
-                c_jac = (c_leg * _sps.beta(k + 1.0, mu_frac)
-                         / _gamma(mu_frac))
-                c_new = _np.asarray(jac2cheb(jnp.asarray(c_jac),
-                                             -mu_frac, mu_frac))
-            else:
-                # Half-integral special case ([1, (18.17.45)]); divide
-                # out (1+x) via the tridiagonal averaging operator.
-                scl = k + 0.5
-                c_scl = c_leg / (scl * _gamma(0.5))
-                c_ext = _np.concatenate([c_scl, [0.0]])
-                c_shift = _np.concatenate([[0.0], c_scl])
-                c_sum = c_ext + c_shift
-                import scipy.sparse as _spa
-                e = _np.ones(n)
-                D = _spa.spdiags([0.5 * e, e, 0.5 * e], [0, 1, 2],
-                                 n, n).tolil()
-                D[0, 0] = 1.0
-                sol = _spa.linalg.spsolve(D.tocsr(), c_sum[1:])
-                c_new = _np.concatenate([sol, [0.0]])
-        else:
-            c_jac1 = _np.asarray(cheb2jac(jnp.asarray(sp_coeffs),
-                                          0.0, e_l))
-            c_jac2 = (c_jac1 * _sps.beta(k + e_l + 1.0, mu_frac)
-                      / _gamma(mu_frac))
-            c_new = _np.asarray(jac2cheb(jnp.asarray(c_jac2),
-                                         -mu_frac, e_l + mu_frac))
-
-        scl = ((b - a) / 2.0) ** mu_frac
-        new_smooth = Chebtech2.from_coeffs(
-            jnp.asarray(scl * c_new, dtype=jnp.float64))
-        sf = Singfun(new_smooth, (e_l + mu_frac, 0.0))
-        out_piece = _Piece(tech=sf, interval=(a, b))
+        a, b = float(f.domain.a), float(f.domain.b)
+        tech = f.funs[0].tech
+        singular = tech if isinstance(tech, Singfun) else Singfun(tech)
+        integrated = singular.fracInt(mu_frac)
+        integrated = ((b - a) / 2.0) ** mu_frac * integrated
+        out_piece = _Piece(tech=integrated, interval=(a, b))
         return Chebfun(funs=[out_piece], domain=Domain((a, b)))
 
     def fracDiff(self, mu: float, kind: str = "RL") -> "Chebfun":

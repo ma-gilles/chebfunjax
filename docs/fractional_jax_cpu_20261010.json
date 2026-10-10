@@ -1,0 +1,48 @@
+{
+  "base_commit": "22c134febbd44b1daa9f99f788a593e38fba7cb7",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_definitions": {
+    "src/chebfunjax/fun/singfun.py": [
+      "Singfun.fracInt"
+    ],
+    "src/chebfunjax/chebfun1d/chebfun.py": [
+      "Chebfun.fracInt"
+    ],
+    "src/chebfunjax/tech/chebtech.py": [
+      "Chebtech1.fracInt",
+      "Chebtech2.fracInt"
+    ]
+  },
+  "new_module": "src/chebfunjax/tech/_fractional.py",
+  "native_source_hashes": {
+    "@chebtech/fracInt.m": "e867cbf96aeac98c79fa88e88d0dbc763da7cab1e446f5ffaf1dde19fbc05db3",
+    "@singfun/fracInt.m": "650c54b20c6e5393e266d54467ec41bb233a0b5ac923557986068428f03eb8e5",
+    "@bndfun/fracInt.m": "53bd91e5ce1774b547d2d66c6cc00ae6bf5d05aa958f363cad606a0ac9bfe05d",
+    "@chebfun/fracInt.m": "42b643fb07965947429bad8f7a80205d19283a237cace5f2031c1e7585bcec57",
+    "tests/chebfun/test_fracCalc.m": "cfee5c7ff98ece33da873321bd850c28ad7335ebb1295fe141c1367ceece5a76"
+  },
+  "qualification": {
+    "passed": 23,
+    "elapsed_seconds": 12.979891217313707,
+    "peak_child_rss_kib": 688212,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_jax_root_20261010/receipt.json",
+    "receipt_sha256": "2740b03531a859a3efdcd44a13ac670486a43d5af433beb22e8500ce7cba5744",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fractional_jax_root_20261010/static.json",
+    "static_sha256": "db1dc184dc5d49c1acf9fa7c5ce9be69620617eab7eac214d3a16a528d61df46"
+  },
+  "scope": [
+    "Tech and Singfun fracInt methods; JAX beta/gamma and coefficient transforms preserve complex data.",
+    "Half-integral native upper-triangular system solved by O(n)-storage JAX back substitution, no dense matrix or SciPy solver.",
+    "Singfun source exponent simplification, right-boundary validation and exponent update; Chebfun physical scaling delegates to source methods.",
+    "Removed real NumPy coefficient casts and SciPy fractional kernel from Chebfun.fracInt."
+  ],
+  "limitations": [
+    "19new analytic/source controls and4existing fractional tests; the existing test_fracCalc port is incomplete and uses non-native bounds. Next task is restore all7original predicates.",
+    "Chebfun array/quasimatrix fractional routes and native piecewise-error order are not yet restored.",
+    "No-input Singfun fractional dispatch and all parameter/error semantics unqualified.",
+    "Fractional derivative still contains separate host operations; only fractional integral coefficient kernel addressed.",
+    "JIT qualified for fixed-order half integral; public Chebfun construction remains eager.",
+    "Focused CPU gate, not full current-head/remote CI; RSS measured not capped; no observed-runtime audit."
+  ]
+}

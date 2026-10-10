@@ -2468,6 +2468,17 @@ class Chebtech2(eqx.Module):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
 
+    def fracInt(self, mu, b=0.0):
+        """Return the smooth factor of an order-mu fractional integral.
+
+        Provenance: @chebtech/fracInt.m, Chebfun commit 7574c77.
+        """
+        from chebfunjax.tech._fractional import fractional_smooth_coefficients
+
+        coefficients = fractional_smooth_coefficients(_tech_series_data(self), mu, b)
+        return type(self)(coeffs=coefficients,
+                          ishappy=getattr(self, "ishappy", True))
+
     def isdecay(self) -> jax.Array:
         """Test decay faster than a single root at each endpoint.
 
@@ -4781,6 +4792,17 @@ class Chebtech1(eqx.Module):
         if getattr(self, "_is_empty_object", False):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def fracInt(self, mu, b=0.0):
+        """Return the smooth factor of an order-mu fractional integral.
+
+        Provenance: @chebtech/fracInt.m, Chebfun commit 7574c77.
+        """
+        from chebfunjax.tech._fractional import fractional_smooth_coefficients
+
+        coefficients = fractional_smooth_coefficients(_tech_series_data(self), mu, b)
+        return type(self)(coeffs=coefficients,
+                          ishappy=getattr(self, "ishappy", True))
 
     def isdecay(self) -> jax.Array:
         """Test decay faster than a single root at each endpoint.

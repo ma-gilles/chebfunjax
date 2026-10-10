@@ -342,6 +342,24 @@ class Singfun(eqx.Module):
         """
         return self.smoothPart.isempty()
 
+    def fracInt(self, mu):
+        """Fractionally integrate a function smooth at the right boundary.
+
+        Provenance: @singfun/fracInt.m, Chebfun commit 7574c77.
+        """
+        f = self.simplifyExponents()
+        a, b = f.exponents
+        if b != 0:
+            raise ValueError("CHEBFUN:SINGFUN:fracInt:exponents: "
+                             "FRACINT(F, MU) currently only supports the situation when F is "
+                             "smooth at the right boundary.")
+        g = Singfun(f.smoothPart.fracInt(mu, a), (a + mu, b))
+        if a != 0:
+            g = g.simplifyExponents()
+        if not any(g.exponents):
+            return g.smoothPart
+        return g
+
     def isdecay(self) -> jax.Array:
         """Test smooth-factor decay or endpoint exponents greater than one.
 

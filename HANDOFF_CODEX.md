@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## JAX fractional integral coefficient path restored (2026-10-10; latest)
+
+Tech/Singfun fracInt now expose native smooth-factor and exponent operations.
+Chebfun delegates through them, removing real NumPy coefficient casts and
+SciPy special/sparse kernels. Complex inputs are preserved; the half-integral
+triangular solve uses linear-storage JAX back substitution. All23 focused
+cases pass; static checks pass. Evidence: docs/fractional_jax_cpu_20261010.json.
+The old fractional-calculus port omits native predicates and changes bounds;
+all7original predicates, quasimatrix support and remaining derivative host
+operations remain open. No full native fractional-calculus parity claim.
+
+
 ## Native low-rank Chebyshev-to-Legendre branch restored (2026-10-10; latest)
 
 cheb2leg now uses the native pivoted-Cholesky/FFT algorithm at513 rows,
