@@ -61,7 +61,7 @@ class TestRandnfun2:
         assert float(f.diff().norm("fro")) == 0
 
         # Native pass(11): norm(sqrt(10)*standard - big) == 0 exactly.
-        # JAX ArrayImpl scalar-left dispatch raises before Chebfun2.__rmul__;
+        # Chebfun2.__rmul__ currently rejects JAX ArrayImpl scalars;
         # Python's correctly rounded binary64 sqrt preserves this native
         # scalar-left multiplication while adapting the scalar representation.
         assert math.sqrt(10.).hex() == float(jnp.sqrt(10.)).hex()

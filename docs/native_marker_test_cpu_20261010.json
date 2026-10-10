@@ -1,0 +1,25 @@
+{
+  "scope": "Correct obsolete unsupported-event expectation while preserving reused-operator marker regression",
+  "production_changed": false,
+  "root_cases": 3,
+  "root_seconds": 16.408342932350934,
+  "root_peak_child_rss_kib": 760068,
+  "source_contract": "solveivp.m lines269-280 installs terminal maxnorm event; uprime=u, initial1 reaches2 at log(2).",
+  "test_change": "Require exp(.5) at original2e-8 bound and NaN padding at1; retain native backend marker and invalid-forcing TypeError followed by cleared marker.",
+  "secondary_comment_correction": "Instrumented scalar-left multiply on JAX0.11.0 and0.11.2 both invokes Chebfun2.__rmul__, which returns NotImplemented for JAX scalars. Prior comment claiming failure before dispatch was incorrect. No arithmetic changed.",
+  "runtime_note": "Agent randnfun2 qualification explicitly selected JAX0.11.0. Separate root default-environment dispatch probe observed0.11.2. Root pytest guards did not record imported dependency versions, so they do not establish matched-runtime qualification.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_marker_test_root_20261010/original_test.py": "fc74c11ce3c7329595b80639d350a03b90d2db33defa0335759c898d09f91acd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_marker_test_root_20261010/receipt.json": "1651fbee5cb3997e0344cd5ba6416a292a5429ed4867d31d4d580c1755d00aea",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_marker_test_root_20261010/junit.xml": "6c691c318a64b3399a79686ac771377858522ef7f9387c7705002344cde5a3f1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_marker_test_root_20261010/static.json": "415a89aa93d8cb9a54db7cf0e6e97460134799b8a876f07490cf27342129195f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_dispatch_20261010/probe.py": "08e4024b2b38422a793ae4c5197a62e7ddf49ba2795efdf388fd7c05a5bb273d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_dispatch_20261010/probe.json": "109d8d3238d9c77d306df41f45c6d4b19f10585ac424680df58f3ed60d177599",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_dispatch_20261010/probe_jax0110.json": "68e17f9713c2130d5f938bb648390fadc2dfe9ef236222f20fcb22ca73198b75",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/solveivp.m": "71a069795632bd54a3140be04977240a589f8d3bbb6346f24606b674082f3602"
+  },
+  "limits": [
+    "Frozen broad regression epoch is draining after its original failure; no full suite or CI completion claim.",
+    "General JAX scalar Chebfun2 arithmetic remains unresolved."
+  ]
+}

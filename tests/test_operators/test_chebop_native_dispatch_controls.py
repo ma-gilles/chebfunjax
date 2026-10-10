@@ -67,8 +67,10 @@ def test_reused_operator_resets_native_marker_before_extraction_error():
     problem = Chebop(lambda u: u.diff() - u, (0.0, 2.0), 1.0, None)
     problem.ivp_method = 'ode113'
     problem.maxnorm = 2.0
-    with pytest.raises(NotImplementedError, match='native scalar ode113 events'):
-        problem.solve(0.0)
+    solution = problem.solve(0.0)
+    # Native maxnorm now terminates this solve at log(2), with NaN padding.
+    np.testing.assert_allclose(solution(0.5), math.exp(0.5), rtol=0, atol=2e-8)
+    assert np.isnan(float(solution(1.0)))
     assert problem._ivp_backend_used == 'native_ode113'
     problem.maxnorm = None
     with pytest.raises(TypeError, match='forcing must be a real scalar'):

@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native event marker regression correction (2026-10-10; latest)
+
+The continued sweep found one added test still expecting unsupported native
+maxnorm events. It now verifies the supported event and NaN padding, preserving
+the invalid-forcing error and backend-marker reset assertions. All three
+module cases pass; production is unchanged. Sweep closure remains pending.
+Evidence: docs/native_marker_test_cpu_20261010.json. This also corrects an
+inaccurate randnfun2 test comment about JAX scalar dispatch.
+
 ## Randnfun2 native construction and assertions (2026-10-10; latest)
 
 The centered trig-coefficient constructor replaces the left-origin Fourier
