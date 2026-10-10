@@ -44,7 +44,11 @@ class TestPointValues:
     def test_sign_propagates_override(self):
         f = cj.chebfun(lambda x: x ** 2 + 1.0, domain=(-1, 0, 1))
         g = f.set_point_values(jnp.asarray([-3.0, 4.0, 0.0]))
-        assert np.allclose(np.asarray(g.sign().point_values), [-1.0, 1.0, 0.0])
+        h = g.sign()
+        # @chebfun/sign.m (7574c77) calls merge: redundant interior
+        # sign=+1 equals both FUN limits and is removed. Values remain exact.
+        np.testing.assert_array_equal(np.asarray(h(jnp.asarray([-1.0, 0.0, 1.0]))), [-1.0, 1.0, 0.0])
+        np.testing.assert_array_equal(np.asarray(h.point_values), [-1.0, 0.0])
 
     def test_override_does_not_affect_interior_feval(self):
         f = cj.chebfun(jnp.sin, domain=(-1, 1))

@@ -5463,22 +5463,11 @@ class Chebfun(eqx.Module):
         b_d = float(self.domain.b)
         L = b_d - a_d
         if n % 2 == 1:
-            modes = _np.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
+            modes = jnp.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
         else:
-            modes = _np.arange(-n // 2, n // 2)
+            modes = jnp.arange(-n // 2, n // 2)
         if is_trig:
-            c_tech = _np.asarray(self.funs[0].tech.coeffs,
-                                 dtype=_np.complex128)
-            m = c_tech.shape[0]
-            if m % 2 == 1:
-                tech_modes = _np.arange(-(m - 1) // 2, (m - 1) // 2 + 1)
-            else:
-                tech_modes = _np.arange(-m // 2, m // 2)
-            C = _np.zeros(n, dtype=_np.complex128)
-            for i, k in enumerate(modes):
-                j = _np.where(tech_modes == k)[0]
-                if j.size:
-                    C[i] = c_tech[int(j[0])]
+            C = self.funs[0].tech.trigcoeffs(n)
         else:
             omega = 2.0 * _np.pi / L
             C = _np.zeros(n, dtype=_np.complex128)
@@ -5488,26 +5477,26 @@ class Chebfun(eqx.Module):
                     domain=tuple(float(v)
                                  for v in self.domain.breakpoints))
                 C[i] = complex(_np.asarray((self * Fc).sum())) / L
-        change = _np.exp(-1j * modes * 2.0 * _np.pi
-                         * (a_d + L / 2.0) / L)
-        C = C * change
+        # @chebfun/trigcoeffs.m: source phase, broadcast down every column.
+        modes = jnp.asarray(modes)
+        change = jnp.exp(-1j * modes * 2.0 * jnp.pi * (a_d + L / 2.0) / L)
+        C = jnp.asarray(C) * change.reshape((n,) + (1,) * (C.ndim - 1))
         if form == "exp":
-            return jnp.asarray(C)
+            return C
         if form != "cos_sin":
             raise ValueError("trigcoeffs: form must be 'exp' or 'cos_sin'.")
         if n % 2 == 1:
             z = (n - 1) // 2
-            A = _np.concatenate([[C[z]], C[z - 1::-1] + C[z + 1:]])
+            A = jnp.concatenate((C[z:z + 1], C[z - 1::-1] + C[z + 1:]))
             B = 1j * (C[z + 1:] - C[z - 1::-1])
         else:
             z = n // 2
-            A = _np.concatenate([[C[z]], C[z - 1:0:-1] + C[z + 1:],
-                                 [C[0]]])
+            A = jnp.concatenate((C[z:z + 1], C[z - 1:0:-1] + C[z + 1:], C[:1]))
             B = 1j * (C[z + 1:] - C[z - 1:0:-1])
         if self.isreal():
-            A = _np.real(A)
-            B = _np.real(B)
-        return jnp.asarray(A), jnp.asarray(B)
+            A = jnp.real(A)
+            B = jnp.real(B)
+        return A, B
 
     def simplify(self, tol: float | None = None) -> "Chebfun":
         """Chop negligible trailing coefficients from every piece.

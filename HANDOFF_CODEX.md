@@ -1,5 +1,35 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## CI source contracts and JAX Fourier columns (2026-10-10; latest)
+
+Periodic Fourier coefficient extraction now delegates to the source Trigtech
+padding and Nyquist-fold rules using JAX, including array-valued columns.
+The 80-case qualification passes, and all 14 combined integration cases pass
+with the adaptive real-column fix below. Source-backed supplemental tests now
+check sign breakpoint merging, restriction identifiers, scalar ChebLeg early
+return and numeric empty Diskfun norms. Native decimal Jacobi parameters yield
+NaNs; 14 transform controls preserve that behavior and check a finite nearby
+roundtrip at the unchanged bound. Diskfun.sum2 now returns native scalar zero
+for empty/no-plus inputs; 10 focused controls pass. Audits retain failed attempts
+and verify runtime sources. Counts overlap and must not be summed as unique.
+Evidence: docs/ci_source_contracts_cpu_20261010.json. The fixed-grid exactInitial
+legacy failure, full-suite completion, page/figure parity and green CI remain open.
+
+
+## Native scalar-index realness for adaptive Trigtech (2026-10-10; latest)
+
+Adaptive construction now checks each probe scalar's zero imaginary part,
+matching MATLAB isreal(rndVal(k)). Native scalar indexing removes zero-imaginary
+storage even when the original scalar was explicitly complex. The old JAX
+homogeneous-dtype assumption incorrectly marked real columns as complex;
+finite column differences then discarded genuine imaginary results. All156
+focused cases pass, including the unchanged17 original derivative cases,
+45 metadata controls and92 audited source-oracle cases. Fresh MATLAB passes
+all17 original predicates. Runtime1,831files audit clean; only the probe-mask
+helper changes in production. Evidence: docs/trig_probe_native_cpu_20261010.json.
+Full suite, remaining numerical/page parity and green main CI remain open.
+
+
 ## Inpainting source execution and same-input native diagnosis (2026-10-10; latest)
 
 The page now uses the default nonperiodic randnfun, native degree selection,

@@ -895,26 +895,24 @@ def _trigcoeffs_trigtech(coeffs: jax.Array, N: int) -> jax.Array:
     Direct port of ``@trigtech/trigcoeffs.m``: pads symmetrically when ``N``
     exceeds the stored length and, when truncating to an even ``N``, folds
     the highest retained mode back onto the ``cos(N/2)`` coefficient (rather
-    than the plain ``prolong`` scaling).  Not JIT-safe (Python-int
-    branching).
+    than the plain ``prolong`` scaling). JIT-safe when ``N`` is static:
+    output length and padding/index branches depend on that integer.
     """
-    import numpy as np
-
     if N is None or N <= 0:
         return jnp.array([], dtype=jnp.complex128)
 
     orig = jnp.asarray(coeffs)
     twod = orig.ndim == 2
-    c = np.asarray(orig).astype(np.complex128)
+    c = orig.astype(jnp.complex128)
     if not twod:
         c = c.reshape(-1, 1)
     num = c.shape[0]
     cols = c.shape[1]
 
     if num < N:
-        k = int(np.ceil((N - num) / 2))
-        z = np.zeros((k, cols), dtype=c.dtype)
-        c = np.concatenate([z, c, z], axis=0)
+        k = (N - num + 1) // 2
+        z = jnp.zeros((k, cols), dtype=c.dtype)
+        c = jnp.concatenate([z, c, z], axis=0)
         num = c.shape[0]
 
     f_is_even = num % 2 == 0
@@ -925,7 +923,7 @@ def _trigcoeffs_trigtech(coeffs: jax.Array, N: int) -> jax.Array:
         end = const_index + (N // 2 - 1)
         out = c[start:end + 1].copy()
         if end < num - 1:
-            out[0] = out[0] + c[end + 1]
+            out = out.at[0].add(c[end + 1])
     else:
         start = const_index - (N - 1) // 2
         end = const_index + (N - 1) // 2
@@ -1409,10 +1407,11 @@ def _trig_mask_and(left, right, width):
 
 
 def _trig_probe_mask(probe):
-    # MATLAB isreal tests storage, not an imag==0 predicate. JAX arrays use
-    # homogeneous dtype, including complex-zero scalars (adapter contract).
+    # populate.m tests isreal(rndVal(k)), after scalar indexing. MATLAB
+    # drops zero imaginary storage on that extraction, including complex(1,0).
+    # Preserve exact-zero semantics per column; no small-imaginary threshold.
     probe = jnp.asarray(probe)
-    return (not jnp.iscomplexobj(probe),) * int(probe.size)
+    return tuple(bool(value) for value in jnp.ravel(jnp.imag(probe) == 0))
 
 
 class Trigtech(eqx.Module):

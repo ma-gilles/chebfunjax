@@ -52,10 +52,11 @@ def test_fixed_mixed_columns_and_endpoint_values(n):
 
 
 @pytest.mark.parametrize('as_complex', [False, True])
-def test_adaptive_probe_storage_not_zero_imaginary(as_complex):
-    # JAX homogeneous storage adapter; no scalar MATLAB indexing capture.
+def test_adaptive_probe_native_scalar_indexing(as_complex):
+    # Native populate indexes each scalar before isreal. Fresh R2025b
+    # source capture: isreal(complex(1,0)) is false; indexing it is real.
     f = Trigtech.from_function(lambda x: jnp.ones_like(x)*(1+0j if as_complex else 1))
-    assert_mask(f, (not as_complex,))
+    assert_mask(f, (True,))
     assert jnp.max(jnp.abs(f(jnp.asarray([.13, .42]))-1)) <= 10*EPS
 
 

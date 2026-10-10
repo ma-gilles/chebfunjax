@@ -12,12 +12,18 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import numpy as np
+
 from chebfunjax.diskfun.diskfun import Diskfun
 
 
 class TestDiskfunEmptyobjects:
     def test_all_commands_tolerate_empty(self):
         f = Diskfun.empty()
-        results = [f + f, f * 2, f ** 2, -f, f.sum2(), f.norm(), f.laplacian(), f.cos()]
+        results = [f + f, f * 2, f ** 2, -f, f.laplacian(), f.cos()]
         for r in results:
-            assert hasattr(r, "isempty") and r.isempty()
+            assert r.isempty()
+        # Native test_emptyObjects.m checks commands tolerate empty input,
+        # not that numeric outputs are diskfuns. @diskfun/norm.m returns [].
+        assert np.asarray(f.norm()).size == 0
+        f.sum2()  # Native integral2/sum2 command must complete.

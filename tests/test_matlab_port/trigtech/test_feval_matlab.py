@@ -153,7 +153,12 @@ class TestTrigtechFeval:
             axis=-1)
         f = chebfun(f_exact, trig=True, trunc=4)
         t = jnp.asarray(0.5)
-        assert _ninf(f(t) - f_exact(t)) < 10 * EPS
+        # Literal native tests/trigtech/test_feval.m pass(13), 7574c77:
+        # bound is 10*vscale(f)*eps, not the supplemental unscaled 10*eps.
+        error = _ninf(f(t) - f_exact(t))
+        bound = 10 * f.vscale * EPS
+        print(f"native_feval_pass13 error={error:.17e} bound={bound:.17e}")
+        assert error < bound
 
     def test_chebfun_trig_constant(self):
         # pass(14): constant complex trig chebfun at multiple points.

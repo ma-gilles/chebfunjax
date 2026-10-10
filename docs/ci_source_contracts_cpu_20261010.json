@@ -1,0 +1,100 @@
+{
+  "base_head": "05a7079fb967a561af8d6429c258127bfc50ec55",
+  "source_contracts": [
+    {
+      "failure": "Sign point_values shape",
+      "diagnosis": "Native sign calls merge; an interior +1 point value equal to both FUN limits permits removal of that redundant breakpoint.",
+      "fix": "No library edit. Assert exact evaluations at all three original points and the two retained endpoint values.",
+      "native": "@chebfun/sign.m and @chebfun/merge.m"
+    },
+    {
+      "failure": "Restriction error regex",
+      "diagnosis": "The library already emits the native badInterval identifier and message.",
+      "fix": "Assert that exact source error for all three invalid intervals; no library edit.",
+      "native": "@chebtech/restrict.m"
+    },
+    {
+      "failure": "Empty Diskfun numeric output",
+      "diagnosis": "Native norm(empty) returns a numeric empty array; the supplemental test incorrectly expected every result to be a Diskfun.",
+      "fix": "Retain object emptiness checks, assert numeric norm emptiness, and require sum2 to complete. Ballfun tests remain unchanged.",
+      "native": "tests/diskfun/test_emptyObjects.m and @diskfun/norm.m",
+      "limitation": "The existing Python command list remains a subset of the native command list."
+    },
+    {
+      "failure": "Array-valued trig truncation",
+      "diagnosis": "The public Chebfun route used a scalar Fourier buffer and omitted the source even-N Nyquist fold.",
+      "fix": "Delegate to public Trigtech.trigcoeffs. Translate only its existing helper array operations to JAX; retain static padding/index/fold semantics. Apply source phase and cos/sin output selection in JAX.",
+      "native": "@trigtech/trigcoeffs.m and @chebfun/trigcoeffs.m"
+    },
+    {
+      "failure": "Length-one ChebLeg normalization expectation",
+      "diagnosis": "Native N<2 returns the input before normalization; fresh MATLAB confirms 2 maps to 2.",
+      "fix": "Use exact array equality to [2.0]; no transform library edit.",
+      "native": "cheb2leg.m lines31\u201335"
+    }
+  ],
+  "tests": {
+    "focused": 53,
+    "regression": 27,
+    "distinct_union": 80
+  },
+  "runtime_files": [
+    1842,
+    1828
+  ],
+  "verified_bindings_count": 1941,
+  "qualified_packet": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/DELIVERY_PACKET.json",
+    "sha256": "f6f941777b7c8204df3895596990725d1c34539dd951236864250688b0d0f077"
+  },
+  "native_pass13_error": 8.744889959941791e-17,
+  "native_pass13_bound": 2.2204460492503135e-15,
+  "retained_failures": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/candidate_jax_v2/FAILURE_AUDIT.json",
+    "sha256": "b693cbe280813b5e1d677a12fe7fb451cdfc27fd272e05ee753aba4437a9e7cc",
+    "no_pass_credit": true,
+    "same_caps_split_addresses_accumulated_RSS": true
+  },
+  "integration": {
+    "root_probe_helper_preserved": true,
+    "agent_Fourier_helper_AST_exact": true,
+    "other7files_byte_identical": true
+  },
+  "combined_integration_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_combined_trig_20261010/ROOT_AUDIT.json",
+    "sha256": "45b4a8f339fb524b3d60f323d0896ff7c08cd73561fd7651a1b764c43469cbd4",
+    "passed": 14,
+    "runtime_files": 1820
+  },
+  "limits": [
+    "EmptyDiskfun operationlist remains a subset ofnative commandlist",
+    "NonperiodicFourier integration retains existingNumPyhostadapter; newperiodicpath/helper areJAX",
+    "FullnativeAPI/test/pageparity/currentCIremainopen"
+  ],
+  "runtime_binding_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/ROOT_INTEGRATION_BINDINGS.json",
+    "sha256": "863d1f8c11b321c84051fdf2e5bf52c732ac2831b1ebf44df2ba506e9db49c1b",
+    "verified_count": 1941
+  },
+  "Jacobi_test_contract": {
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/JACOBI_DELIVERY_PACKET.json",
+    "sha256": "59e5745cabc3b91b70c5902840c0c99ae025d286b358511e297710e0da0905c9",
+    "tests": 14,
+    "runtime_files": 1816,
+    "native_input_exact_RandomState42": true,
+    "native_decimal_case": "forward/back all NaN; preserve source failure; no dtype/payloadbitparityclaim",
+    "finite_quarter_roundtrip": "native error8.66e-15; JAX passesunchanged1e-10",
+    "only_TestJac2Jac_AST_changes": true
+  },
+  "Diskfun_sum2": {
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/DISK_SUM2_DELIVERY_PACKET.json",
+    "sha256": "48eb24e5c8ba7340302939cc07bb88225d3f71901e9f09175db7de0db620f57d",
+    "root_audit": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_small_contracts_20261010/disk_sum2_v2/ROOT_AUDIT.json",
+      "sha256": "955244018e9a1e0a707fbe3f4bb40ddcaf087b5045f92a30e2f7c1c5d8f0d09a",
+      "passed": 10,
+      "runtime_files": 1834
+    },
+    "result": "Native empty/no-plus scalar zero; generic sum and norm behavior retained"
+  }
+}

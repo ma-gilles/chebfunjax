@@ -122,9 +122,9 @@ class TestChebLeg:
         npt.assert_allclose(np.asarray(rt), c, rtol=0, atol=1e-12)
 
     def test_normalize_length_one(self):
-        # Orthonormal P_0 = 1/sqrt(2); c0 rescaled by 1/sqrt(1/2).
+        # Native cheb2leg.m (7574c77), N < 2 returns input before normalization.
         out = np.asarray(T.cheb2leg(jnp.asarray([2.0]), normalize=True))
-        npt.assert_allclose(out, [2.0 / np.sqrt(0.5)])
+        npt.assert_array_equal(out, [2.0])
 
     def test_coeff_aliases_match(self):
         c = jnp.asarray(_rand(7, 24))
@@ -184,10 +184,22 @@ class TestJac2Jac:
         npt.assert_allclose(_jac_series(out, g, d, _XT), _jac_series(c, a, b, _XT),
                             rtol=0, atol=1e-11)
 
-    def test_fractional_roundtrip(self):
+    def test_fractional_decimal_boundary_native_nan(self):
+        # jac2jac.m (Chebfun 7574c77), reproduced in MATLAB R2025b:
+        # 1.2 - 1 < .2, while 1.2 - .2 == 1; the literal source path
+        # returns NaNs for this exact RandomState(42) input in both directions.
         c = _rand(8, 42)
         out = T.jac2jac(jnp.asarray(c), 0.2, 0.5, 1.2, 0.9)
         rt = T.jac2jac(out, 1.2, 0.9, 0.2, 0.5)
+        assert np.isnan(np.asarray(out)).all()
+        assert np.isnan(np.asarray(rt)).all()
+
+    def test_fractional_roundtrip(self):
+        # Exact quarter parameters avoid that decimal boundary. Fresh native
+        # R2025b roundtrip error is 8.659739592076221e-15; original bound stays.
+        c = _rand(8, 42)
+        out = T.jac2jac(jnp.asarray(c), 0.25, 0.5, 1.25, 0.9)
+        rt = T.jac2jac(out, 1.25, 0.9, 0.25, 0.5)
         npt.assert_allclose(np.asarray(rt), c, rtol=0, atol=1e-10)
 
     def test_fractional_same_polynomial(self):

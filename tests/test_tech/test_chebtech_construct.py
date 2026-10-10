@@ -200,11 +200,11 @@ class TestRestrict:
     def test_restrict_bad_interval(self):
         """restrict with invalid interval should raise ValueError."""
         f = Chebtech2.from_function(jnp.sin)
-        with pytest.raises(ValueError, match="not a valid sub-interval"):
+        with pytest.raises(ValueError, match=r"CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval\."):
             f.restrict(-2.0, 0.5)
-        with pytest.raises(ValueError, match="not a valid sub-interval"):
+        with pytest.raises(ValueError, match=r"CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval\."):
             f.restrict(0.5, 0.3)  # a >= b
-        with pytest.raises(ValueError, match="not a valid sub-interval"):
+        with pytest.raises(ValueError, match=r"CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval\."):
             f.restrict(-0.5, 1.5)
 
     def test_restrict_narrow_interval(self):

@@ -1149,6 +1149,11 @@ class Diskfun(eqx.Module):
         MATLAB source : @diskfun/sum2.m
         Chebfun commit: 7574c77
         """
+        # @diskfun/sum2.m returns numeric zero when there are no plus terms.
+        # This includes empty objects; the generic empty wrapper must not
+        # replace this source scalar result with an empty array.
+        if self.isempty() or len(self.idx_plus) == 0:
+            return jnp.array(0.0, dtype=jnp.float64)
         return self.sum()
 
     def sum(self, dim: int | None = None):
@@ -3695,7 +3700,7 @@ def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'mean', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------
