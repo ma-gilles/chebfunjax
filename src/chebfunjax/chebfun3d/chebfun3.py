@@ -2508,8 +2508,8 @@ class Chebfun3(eqx.Module):
         # Native @chebfun3/std3.m (empty arithmetic followed by mean3), Chebfun7574c77: empty dispatch.
         if self.isempty():
             return jnp.empty((0,))
-        mu = float(self.mean3())
-        var = (self - mu) * (self - mu)
+        h = self - self._const_like(self.mean3())
+        var = h * h.conj()
         return jnp.sqrt(var.mean3())
 
     @classmethod

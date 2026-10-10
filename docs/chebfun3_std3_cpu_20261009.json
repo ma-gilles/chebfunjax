@@ -1,0 +1,42 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_sources": [
+    "@chebfun3/std3.m",
+    "tests/chebfun3/test_std3.m"
+  ],
+  "changes": [
+    "Preserve complex JAX mean through same-domain constant embedding",
+    "Compute centered product h*conj(h), then mean and principal square root in native order"
+  ],
+  "checks": {
+    "original_constant_assertion": 1,
+    "existing_real_control": 1,
+    "added_complex_and_domain_controls": 3,
+    "existing_empty_contract": 1,
+    "total": 6
+  },
+  "original_handle": 28835,
+  "root_audit_handle": 69961,
+  "root_runtime_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std3_root_runtime_review_20261009.json",
+  "observed_files_rehashed": 2939,
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std3_source_20261009/ROOT_SOURCE_REVIEW.json",
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std3_source_20261009/std3_focused_v2",
+  "preserved_preparation_failure": {
+    "gate": "std3_focused_v1",
+    "original_handle": 60195,
+    "exit_code": 1,
+    "reason": "Guard omitted pinned wheel PYTHONPATH entries; numerical child not started. Corrected v2 keeps all334 source/test files byte-identical."
+  },
+  "limitations": [
+    "Scoped six-case qualification; no full Chebfun3 parity claim.",
+    "Inherited complex-factor float casts in sum3 remain a separate gap; component constructor usually stores complexity in core.",
+    "Inherited adaptive constructor, conjugation and addition backend behavior remain separate; no global JAX/AD qualification.",
+    "Concurrent bounded CPU tests: no matched performance conclusion."
+  ],
+  "payload_sha256": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "00cd937e59277d91468ca17fea1579e4e0c2b9a77de78d2e0ad5109b5da3a49e",
+    "tests/test_matlab_port/chebfun3/test_std3_matlab.py": "cfcb39a8f3bd64afbdaceb962234f7c1591c6d436e646b10db58df3c0eb108e1"
+  },
+  "tested_test_sha256": "904b49b2e982d6c923bca1ee1627c93588b5af66c3e703d54f7ea9fa970c35cb",
+  "integration_formatting": "Ruff sorted test imports; all non-import module AST nodes identical to qualified snapshot."
+}
