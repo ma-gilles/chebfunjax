@@ -77,6 +77,43 @@ class _Trial(NamedTuple):
     tnew: jax.Array
 
 
+def _stack_history_entries(entries, block_size=256):
+    """Stack native history with bounded compiler operand counts.
+
+    This only copies entries in order.  The native ODE113 step/controller and
+    dense interpolation equations are unchanged.  Native history fields have
+    homogeneous shape, dtype and weak-type metadata; retain JAX's original
+    promotion/error behavior for any nonhomogeneous private-helper input.
+    """
+    if block_size < 2:
+        raise ValueError("History block size must be at least two.")
+    if not entries:
+        return jnp.stack(entries)
+    first = entries[0]
+    metadata = (first.shape, first.dtype, first.weak_type)
+    if any((entry.shape, entry.dtype, entry.weak_type) != metadata
+           for entry in entries[1:]):
+        return jnp.stack(entries)
+    blocks = [jnp.stack(entries[start:start + block_size])
+              for start in range(0, len(entries), block_size)]
+    while len(blocks) > 1:
+        blocks = [jnp.concatenate(blocks[start:start + block_size], axis=0)
+                  if len(blocks[start:start + block_size]) > 1 else blocks[start]
+                  for start in range(0, len(blocks), block_size)]
+    return blocks[0]
+
+
+def _assemble_history(history):
+    """Preserve the five native history layouts used by dense output.
+
+    Native ODE113 collects t, y, klast, phi and psi at accepted steps.  Grouping
+    stack/concatenate copies bounds JAX compiler graph width without changing
+    any values, ordering, dtype, controller operation or interpolation formula.
+    """
+    return tuple(_stack_history_entries([getattr(state, field) for state in history])
+                 for field in ("t", "y", "klast", "phi", "psi"))
+
+
 def _coefficients(s, h):
     """Native variable-step Adams coefficients, source lines281–344."""
     ns = jnp.where(h != s.hlast, 0, s.ns)
@@ -523,11 +560,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
             break
     else:
         raise RuntimeError("native ode113 exceeded Python max_steps resource cap")
-    mesh = jnp.stack([s.t for s in history])
-    values = jnp.stack([s.y for s in history])
-    orders = jnp.stack([s.klast for s in history])
-    phis = jnp.stack([s.phi for s in history])
-    psis = jnp.stack([s.psi for s in history])
+    mesh, values, orders, phis, psis = _assemble_history(history)
 
     @partial(jax.jit, static_argnames=("return_derivative",))
     def dense_kernel(times, *, return_derivative=False):

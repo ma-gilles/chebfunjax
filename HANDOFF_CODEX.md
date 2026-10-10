@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## ODE113 history assembly bottleneck fixed (2026-10-10; latest)
+
+Bounded JAX stack/concatenate groups preserve ordered history and all existing
+controller/interpolation AST. Root18 tests and agent12 exact history/provider
+controls pass. Actual LevelHopping second IVP now returns in18.38s,37.21s
+including fit, with26330 accepted steps and207 retained checkpoints exact;
+previous unchanged provider timed out at600s. Both sequential forcing draws
+match prior evidence. Full page, MATLAB RNG/trajectory and CI remain open.
+Evidence: docs/ode113_history_cpu_20261010.json.
+
 ## Ultraspherical coefficient utility preserves complex matrices (2026-10-10; latest)
 
 The coefficient-array ultracoeffs helper now uses JAX nativegamma scaling,

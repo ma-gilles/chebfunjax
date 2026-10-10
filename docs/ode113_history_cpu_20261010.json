@@ -1,0 +1,54 @@
+{
+  "scope": "Bounded JAX ODE113 history assembly; native controller and dense interpolation unchanged.",
+  "source": "src/chebfunjax/utils/native_ode113.py",
+  "source_sha256": "952a647a2bbbeafbf18275a54cfab7caa82ae22eccda3fb1cf4376802c4452a7",
+  "change": "Stack at most256 homogeneous entries per block, recursively concatenate adjacent blocks with bounded fan-in. Mixed metadata delegates to original stack.",
+  "root_tests": {
+    "passed": 18,
+    "elapsed_seconds": 36.096662308089435,
+    "peak_child_rss_kib": 914676,
+    "cpu_affinity": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "verification": "All src/tests hashes unchanged during run; output hashes and JUnit verified. Root gate does not audit observed runtime origins."
+  },
+  "agent_tests": {
+    "exact_history_provider_controls": 12,
+    "observed_files_rehashed": 2931,
+    "actual_second_ivp": 1,
+    "second_observed_files_rehashed": 2951,
+    "delivery_bindings_verified": 41
+  },
+  "actual_levelhopping_second_ivp": {
+    "nsteps": 26330,
+    "nfailed": 234,
+    "nfevals": 52895,
+    "tfinal": 100,
+    "provider_elapsed_seconds": 18.382525286171585,
+    "including_fit_seconds": 37.21391658531502,
+    "exact_retained_checkpoint_records": 207,
+    "forcing": "Both sequential source draws match prior D1 arrays exactly.",
+    "comparison": "Previous unchanged provider failed to return by600 seconds after integration completed. Full prior history unavailable; checkpoint comparison excludes timing fields. No matched MATLAB speed claim."
+  },
+  "remaining": [
+    "Full changed-source LevelHopping page and figure audit pending.",
+    "MATLAB RNG and native controller trajectory equivalence remain unverified.",
+    "Global tests/pages/performance and remote CI remain incomplete."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_root_source_review_20261010.json": "ed3e5c6d5d88e45a614b163c144f1cdf360fc002707b520629ecb350910109e6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_controls_root_review_20261010.json": "ea26e3a2a239eb2b77ff44751f8db21687511f70eac4eb13fb629897191b9c3f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_second_ivp_root_review_20261010.json": "cb3620f429130b4a707bf7ca5a35e318c0b13823c575fb76eb93db56e9489721",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_ode113_history_source_20261010/DELIVERY_v1.json": "6a7bd41e88354de981d84c3f0ebafc54d8282a97f6aba0b9dc9a302ed449b51f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_root_20261010/receipt.json": "9a775167992946d78504a330491aaa039119962466da4fcf121ff04b224e9951",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_root_20261010/static.json": "f6d8fe1e71a679f005a3469e6df952f8a929d243b5777908c684ff45434df9e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ode113_history_root_20261010/junit.xml": "082eb0b6cc39561fc087c15a993f476fdbd5016d94950491ea8796b5f59c84ea"
+  }
+}
