@@ -461,7 +461,7 @@ class TestChebfunRestrict:
     def test_restrict_outside_raises(self):
         """Restricting outside the domain should raise ValueError."""
         f = chebfun(jnp.sin)
-        with pytest.raises(ValueError, match="sub-interval"):
+        with pytest.raises(ValueError, match=r"CHEBFUN:CHEBFUN:restrict:subdom: Not a valid subdomain\."):
             f.restrict(-2.0, 1.0)
 
 

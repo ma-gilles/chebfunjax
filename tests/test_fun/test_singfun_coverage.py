@@ -402,7 +402,7 @@ class TestSingfunInner:
 
 
 # ----------------------------------------------------------------------
-# cumsum: smooth, both-singular error, one-sided (both orientations)
+# cumsum: smooth, two-endpoint splitting, one-sided (both orientations)
 # ----------------------------------------------------------------------
 class TestSingfunCumsum:
     def test_smooth_cumsum(self):
@@ -412,10 +412,18 @@ class TestSingfunCumsum:
         npt.assert_allclose(float(F(jnp.float64(0.0))), -0.5, atol=1e-9)
         npt.assert_allclose(float(F(jnp.float64(1.0))), 0.0, atol=1e-9)
 
-    def test_both_singular_not_implemented(self):
+    def test_both_singular_piecewise_cumsum(self):
+        # @singfun/cumsum.m (7574c77) splits at zero and carries the
+        # first primitive's right value into the second piece.
         f = Singfun(1.0, (0.5, 0.5))
-        with pytest.raises(NotImplementedError):
-            f.cumsum()
+        pieces = f.cumsum()
+        assert isinstance(pieces, list) and len(pieces) == 2
+        u = jnp.asarray([-1.0, -0.5, 0.0, 0.5, 1.0])
+        for piece, x in zip(pieces, ((u - 1.0) / 2.0, (u + 1.0) / 2.0)):
+            # Integral of sqrt(1-x**2), normalized to zero at x=-1.
+            expected = (x * jnp.sqrt(1.0 - x**2) + jnp.arcsin(x)) / 2.0 + jnp.pi / 4.0
+            npt.assert_allclose(piece(u), expected, rtol=0.0, atol=1e-9)
+        npt.assert_allclose(pieces[0](1.0), pieces[1](-1.0), rtol=0.0, atol=1e-9)
 
     def test_left_singularity_cumsum(self):
         # f = (1+x)^-0.5 ; antiderivative 2 (1+x)^0.5, F(-1)=0

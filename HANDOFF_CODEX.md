@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native test expectations corrected (2026-10-10; latest)
+
+Two broad-run failures were obsolete test expectations, confirmed against
+7574c77 source. Two-endpoint Singfun integration now checks both returned
+primitives against an independent semicircle integral;29 focused cases pass.
+Invalid Chebfun restriction now checks the native error identifier/message;
+the focused case passes. Production code is unchanged. Root independently
+verified2,943 and2,940 runtime files. Evidence:
+docs/native_test_contract_corrections_cpu_20261010.json. Both prior failed
+broad receipts remain retained; their full reruns are still required.
+
 ## Numeric sequence constructor restored (2026-10-10; latest)
 
 Numeric lists/tuples now convert to JAX arrays before atleast_1d in the

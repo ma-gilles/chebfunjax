@@ -1,0 +1,36 @@
+{
+  "scope": "Two stale test expectations corrected against native source; production library unchanged",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Singfun cumsum with both endpoint exponents returns two primitives; independent integral of sqrt(1-x^2) checked on both mapped pieces at absolute1e-9, matching neighboring smooth test target; existing split controls unchanged",
+    "Chebfun restrict invalid subdomain must raise existing native identifier and message; replaces obsolete sub-interval regex"
+  ],
+  "checks": [
+    {
+      "test": "tests/test_fun/test_singfun_coverage.py",
+      "sha256": "2a37af1414cdfadda83a7db6074acf3d215d4182a89f29d8e6bec89f1c4f0b5a",
+      "passed_cases": 29,
+      "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_cumsum_contract_root_runtime_review_20261010.json",
+      "root_review_sha256": "96bc73712b2b7661a2e9c1d645745942791de3cc4e35c99fb8408f344228e7fd",
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_cumsum_contract_20261010"
+    },
+    {
+      "test": "tests/test_chebfun1d/test_chebfun.py",
+      "sha256": "8a7d5af814fba0a2db3cbf91124fbb2feedb3ecf8b449fd1a40947b30c23a2ab",
+      "passed_cases": 1,
+      "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_message_root_runtime_review_20261010.json",
+      "root_review_sha256": "6459d600bf618c9d4ef1953cbcd1e515514881c5b772dc8351b831e46d96af58",
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_restrict_message_fix_20261010"
+    }
+  ],
+  "source_bindings": {
+    "@singfun/cumsum.m": "d234fee0a9fba2d61c6dba407ca749825900bfdf43847911c5cdc1402e9e21bb",
+    "@chebfun/restrict.m": "e999d810c2412a55d93f651f6f943881d6d1a05398746a76abe63b4a83503489"
+  },
+  "limitations": [
+    "Corepart2 diagnostic ended1231passed5skipped1staleSingfunfailure; full rerun required",
+    "Corepart1 first batch ended161passed1staleRestrictfailure; rerun required",
+    "29-case Singfun run retains2 known unhappy-representation warnings; no blanket numerical qualification",
+    "Full CPU suite, missing MATLAB captures, publication and CI remain unresolved"
+  ]
+}
