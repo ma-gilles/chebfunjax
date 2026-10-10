@@ -12654,14 +12654,17 @@ def _ode_solve(method, odefun, tspan, y0, options=None, *, rtol=None,
                 opts[name] = kwargs.pop(alias)
         if kwargs:
             raise NotImplementedError(f'native {method} keywords {sorted(kwargs)} are not implemented')
-        from chebfunjax.utils.native_ode113 import native_ode113
+        from chebfunjax.utils.native_ode113 import _prepare_rhs, native_ode113
         from chebfunjax.utils.native_rk import native_rk
+
+        prepared_rhs = _prepare_rhs(odefun) if method == 'ode113' else None
 
         def native_solver(fun, span, initial, fitting_options):
             native_options = {name: value for name, value in fitting_options.items()
                               if name in supported}
             if method == 'ode113':
-                solved = native_ode113(fun, span, initial, native_options)
+                solved = native_ode113(fun, span, initial, native_options,
+                                       _prepared_rhs=prepared_rhs)
             else:
                 solved = native_rk(method, fun, span, initial, native_options)
             # ODESOL sees the full fitting options, separately from native ODESET.

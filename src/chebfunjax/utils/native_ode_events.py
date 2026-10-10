@@ -16,12 +16,18 @@ def _event_values(event, t, y, size=None):
     elif direction.size == 1:
         # odezero uses direction .* (vR-vL): MATLAB expands a scalar here.
         direction = jnp.broadcast_to(direction, value.shape)
-    if (not value.size or terminal.size != value.size or direction.size != value.size
+    if (not value.size or direction.size != value.size
             or (size is not None and value.size != size)):
-        raise ValueError('Events outputs must have matching, fixed nonzero lengths')
-    if not bool(jnp.all(jnp.isfinite(value)) & jnp.all((terminal == 0) | (terminal == 1))
+        raise ValueError('Events values and directions must have matching, fixed nonzero lengths')
+    valid_terminal = (terminal == 0) | (terminal == 1)
+    if terminal.size == value.size:
+        # Chebop maxnorm produces +/-Inf values and 1+0*Inf == NaN flags
+        # for disabled components. odezero never indexes an uncrossed flag.
+        valid_terminal = valid_terminal | (jnp.isnan(terminal) & jnp.isinf(value))
+    if not bool(jnp.all(~jnp.isnan(value)) & jnp.all(valid_terminal)
                 & jnp.all((direction == -1) | (direction == 0) | (direction == 1))):
-        raise ValueError('Events requires finite values, binary terminal flags and directions -1/0/1')
+        raise ValueError('Events requires non-NaN values, binary active terminal flags '
+                         'and directions -1/0/1')
     return value, terminal, direction
 
 
@@ -102,6 +108,11 @@ def locate_events(event, v, t, y, tnew, ynew, t0, interpolate):
             times.append(right)
             values.append(yr)
             indices.append(i+1)
+        # odezero evaluates isterminal(indzc) before any(): a scalar flag
+        # is not expanded. Check every index before reducing so an earlier
+        # true flag cannot hide a later out-of-range index (JAX would clamp).
+        if any(i >= terminal.size for i in active):
+            raise IndexError('Events terminal flag index exceeds its output length')
         if any(bool(terminal[i]) for i in active):
             return times, values, indices, vnew, bool(left != t0)
         if bool(jnp.abs(tnew-right) <= tol):

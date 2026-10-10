@@ -414,7 +414,20 @@ def _truncate_at_event(previous, accepted, time, value):
                              done=jnp.asarray(True))
 
 
-def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
+def _prepare_rhs(odefun):
+    """Normalize an RHS once per public solve, shared across its restarts.
+
+    A fresh wrapper for each independent solve preserves closure recapture.
+    Source arithmetic is unchanged; only the JAX static callable identity is
+    shared within constructODEsol's restart loop.
+    """
+    def rhs(t, y):
+        return jnp.atleast_1d(jnp.asarray(odefun(t, y)))
+    return rhs
+
+
+def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
+                  _prepared_rhs=None):
     """Solve a finite IVP using native variable-step Adams PECE orders1..12.
 
     Produces the one-output solver structure consumed by public ODESOL.
@@ -465,8 +478,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000):
         raise ValueError("native ode113 requires a finite initial state vector")
     y = y.astype(jnp.complex128 if jnp.iscomplexobj(y) else jnp.float64)
 
-    def rhs(t, y):
-        return jnp.atleast_1d(jnp.asarray(odefun(t, y)))
+    rhs = _prepare_rhs(odefun) if _prepared_rhs is None else _prepared_rhs
 
     f0 = rhs(span[0], y)
     if f0.shape != y.shape or not bool(jnp.all(jnp.isfinite(f0))):

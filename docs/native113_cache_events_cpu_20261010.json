@@ -1,0 +1,44 @@
+{
+  "scope": "Source event terminal indexing/mixed infinite limits and per-public-solve ODE113 RHS compilation reuse",
+  "root_passes": 55,
+  "root_seconds": 35.3111829161644,
+  "root_peak_child_rss_kib": 1030048,
+  "earlier_gate": "91passed/1obsolete unsupportedEvents expectation failed; expectation replaced by public terminal-event analytic control, no bound changes.",
+  "agent_events_passes": 43,
+  "agent_count_correction": "Prepared count44 was19+16+8=43; count-only audit failure retained, strict corrected audit passed.",
+  "event_semantics": "Scalar terminal output is indexed only at actual crossings, never broadcast. All crossing indices checked before any reduction, avoiding JAX out-of-range clamping. Disabled infinite values with NaN flags accepted; active-value and direction checks retained.",
+  "cache_scope": "Fresh normalized callback per independent public solve, shared across its constructODEsol restart spans. Direct native calls retain fresh callbacks.",
+  "measurement": {
+    "same_rhs_restart_kernel_counts_before": [
+      1,
+      1,
+      1
+    ],
+    "after": [
+      0.011279320809990168,
+      0.009880932979285717
+    ],
+    "second_third_spans_seconds_before": [
+      0.35886872513219714,
+      0.37692184932529926
+    ],
+    "byte_equal_arrays": 26,
+    "separate_mutated_closure_public_and_direct_controls": "passed",
+    "limitations": "Small matched scalar diagnostic, not full RandomSwitching or general performance parity."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_event_terminal_flags_source_20261010/DELIVERY_v1.json": "b1bbdc2805f2e6d26eb43e55933c9bbc99df76932dbc23107b6cac94dd6af63c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_event_terminal_flags_source_20261010/ROOT_CACHE_CANDIDATE_V2_REVIEW.json": "c4fdb8b366f3a490616a8cdf7d2ed767b8b39c80ca353f7add6fed76141a8b84",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_rhs_cache_20261010/public_comparison_v2.json": "3ab2e8436919bedd10122a07515292ee4472bb6c11c01dc6c1c6e12adcb5c2cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_cache_events_root_v2_20261010/agent_runtime_review.json": "695d189853830e74056389cf352642dda485cf1fdc3ed96352ab8a4cf15b8222",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_cache_events_root_v2_20261010/receipt.json": "119ba8bfd6192322459f3ca04ee923f90a821157a874c455b537bb39829424fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_cache_events_root_v2_20261010/junit.xml": "70ef0d05c5af23508c74fc8b74a476bcab56f04f8b576c46fdf2993e68750e89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_rhs_cache_root_20261010/receipt.json": "f471d35362d8b35865f5fc0883101f5d4400629003328c91c1f476a8953ead77"
+  },
+  "outstanding": [
+    "Three discontinuous analytic error controls remain above unchanged2e-8.",
+    "Full original RandomSwitching trajectories, MATLAB RNG equivalence and figure matching remain unverified.",
+    "Current full regression now exposes native truncate pass9 failure. No CI/publication claim."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native113_cache_events_root_v2_20261010/static.json"
+}

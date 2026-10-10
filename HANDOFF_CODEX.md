@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native event indexing and ODE113 restart compilation (2026-10-10; latest)
+
+Scalar terminal flags now follow native per-crossing indexing; mixed finite/Inf
+maxnorm limits work without broadcasting terminal flags. Root 55 tests pass,
+including public event behavior and changed-closure callback controls. Native113
+restarts share one normalized RHS per public solve; separate calls recapture
+callback state. Three-span diagnostic cuts compiled kernels from3 to1, with26
+mesh/history/output arrays byte-identical. This does not qualify fullpage speed.
+Three earlier analytic accuracy failures remain unresolved. Evidence:
+docs/native113_cache_events_cpu_20261010.json.
+
 ## Native113 public Events and coefficient restart routing (2026-10-10; latest)
 
 Public ode113 now accepts its native Events implementation. Structural scalar
