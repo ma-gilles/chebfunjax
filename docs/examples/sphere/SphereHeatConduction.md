@@ -80,7 +80,7 @@ norm(u-utrue)
 
 ```text
 ans =
-     2.325280829717088e-05
+     2.325280831350020e-05
 ```
 
 The error here is dominated by temporal errors from the BDF2 method, as opposed to spatial discretization errors.
@@ -147,7 +147,7 @@ norm(meanu0 - mean2(u))
 
 ```text
 ans =
-     0.000000000000000e+00
+     3.559652572704408e-15
 ```
 
 ## 6. Future
@@ -159,6 +159,8 @@ In the future we hope to extend the technology of the new `spin2` command in Che
 [1] A. Townsend, H. Wilber, and G. B. Wright, Computing with function in polar and spherical geometries I. The sphere, to appear in *SIAM J. Sci. Comp.*, 2016
 
 [2] A. Townsend and G. B. Wright, Fast spectral methods for partial differential equations in spherical and polar geometries, manuscript in preparation, 2016.
+
+**CPU verification:** Both 100-step trajectories below have completed using the public Helmholtz solver. The ten generated figures have the reference dimensions and visible time titles. MATLAB random-number matching and visual parity (camera, shading, layout and contour colors) remain under review.
 
 ---
 

@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## SphereHeat public computation integrated (2026-10-09; latest)
+
+Replaces the private harmonic shortcut with both original 100-step public
+Helmholtz trajectories. The completed CPU run generated ten 610x276 figures
+and all eight visible Time titles; independent audit rehashed 2,977 runtime
+files. Actual output is now on the page; original prose and MATLAB cells
+are unchanged. Evidence: docs/sphere_heat_public_cpu_20261009.json.
+Camera, interpolated shading, layout, contour colors and MATLAB RNG remain
+open: this is computational completion, not full page parity.
+
+All 1,305 mapped figure pairs were reread and hashed: 58 dimension mismatches
+remain across 12 pages (shared figure_size_current_sphereheat_20261009.json).
+This dimensional audit does not establish visual/content parity.
+
+Broad CPU shards stopped at first failures: part1 46 passed/1 failed
+(Ballfun Python float assertion versus intended JAX scalar); part2 234
+passed/5 skipped/1 failed (callable input with coeffs=True exception).
+Both failures are being diagnosed; neither shard is qualified as passing.
+
+
 ## Partial Chebfun3 reductions qualified (2026-10-09; latest)
 
 Partial sum/sum2 now preserve complex factor integrals, physical factor
