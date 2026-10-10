@@ -1113,8 +1113,17 @@ def aaatrig(
     F_vals = F_vals[keep]
     Z_in = Z_in[keep]
 
-    Z_np = np.array(Z_in, dtype=complex)
-    F_np = np.array(F_vals, dtype=complex)
+    # Native input constraints are removed before periodic projection and
+    # before finite-sample relative tolerance is computed (aaatrig.m118-144).
+    infP = Z_in == jnp.asarray(complex(0., float('inf')))
+    infM = Z_in == jnp.asarray(complex(0., -float('inf')))
+    finfP, finfM = F_vals[infP], F_vals[infM]
+    if (form == 'even' and len(finfP)+len(finfM) == 2
+            and len(finfP) and len(finfM) and bool(finfP[0] != finfM[0])):
+        raise ValueError('The even representation must take the same values at +/-i*Inf.')
+    finite = ~(infP | infM)
+    Z_np = np.array(Z_in[finite], dtype=complex)
+    F_np = np.array(F_vals[finite], dtype=complex)
 
     # Project to [0, 2*pi)
     Z_np = Z_np - 2 * np.pi * np.floor(np.real(Z_np / (2 * np.pi)))
@@ -1164,8 +1173,25 @@ def aaatrig(
 
         # Loewner matrix and SVD
         J_arr = np.array(J, dtype=int)
+        blocks = _trig_constraint_blocks_source(zj, fj, finfP, finfM, form)
+        extra_rows = None
+        if blocks:
+            selected_rows = []
+            for block in blocks:
+                if len(block):
+                    # Native Jv appends size(A,1), selecting the last row of
+                    # each appended block even for repeated constraints.
+                    selected_rows.append(block[-1:])
+                else:
+                    # Literal even negative-only source oddity: finfP is
+                    # empty, so A gains no row but Jv still appends size(A,1).
+                    last = (jnp.asarray(F_np[-1])*jnp.asarray(C[-1, :])
+                            - jnp.asarray(C[-1, :])*jnp.asarray(fj))
+                    selected_rows.append(jnp.asarray(last)[None, :])
+            extra_rows = jnp.concatenate(selected_rows, axis=0)
         wj = np.asarray(_trig_greedy_weights_source(
-            jnp.asarray(C[J_arr, :]), jnp.asarray(F_np[J_arr]), jnp.asarray(fj)))
+            jnp.asarray(C[J_arr, :]), jnp.asarray(F_np[J_arr]),
+            jnp.asarray(fj), extra_rows))
 
         # Evaluate approximant
         with np.errstate(invalid="ignore"):
@@ -1176,7 +1202,13 @@ def aaatrig(
             if len(J_cur) > 0:
                 R[J_cur] = N_vec[J_cur] / D_vec[J_cur]
 
-        maxerr = np.linalg.norm(F_np - R, np.inf)
+        if len(finfP)+len(finfM):
+            error = jnp.asarray(F_np-R)
+            error = jnp.concatenate((error, _trig_constraint_errors_source(
+                zj, fj, wj, finfP, finfM, form)))
+            maxerr = float(jnp.linalg.norm(error, ord=jnp.inf))
+        else:
+            maxerr = np.linalg.norm(F_np - R, np.inf)
         errvec.append(maxerr)
         if maxerr <= reltol:
             break
@@ -1192,6 +1224,9 @@ def aaatrig(
             errvec[1] = 0.
         maxerr_aaa = 0.
     if nlawson > 0:
+        if len(finfP)+len(finfM):
+            warnings.warn('Specifying the function values at infinity is not currently compatible with Lawson iteration.',
+                          stacklevel=2)
         fj, wj = _trig_lawson_source(zj, fj, wj, Z_np, F_np,
                                     nlawson, maxerr_aaa, form)
         zj = jnp.asarray(zj)
@@ -1214,7 +1249,7 @@ def aaatrig(
         zj_jnp, fj_jnp, wj_jnp = _cleanup_trig(
             zj_jnp, fj_jnp, wj_jnp,
             jnp.array(Z_np), jnp.array(F_np),
-            cleanup_tol, form,
+            cleanup_tol, form, finfP=finfP, finfM=finfM,
         )
         pol, res, zer = _prztrig_np(
             np.array(zj_jnp), np.array(fj_jnp), np.array(wj_jnp), form
@@ -1229,8 +1264,46 @@ def aaatrig(
     return r, pol_jnp, res_jnp, zer_jnp, zj_jnp, fj_jnp, wj_jnp, errvec
 
 
+def _trig_constraint_blocks_source(zj, fj, finfP, finfM, form):
+    """Native appended rows (aaatrig.m170-183 and537-548,7574c77).
+
+    Return blocks separately: greedy Jv selects each block's last row;
+    cleanup uses every row. Negative-only even input retains empty finfP.
+    """
+    zj, fj = jnp.asarray(zj), jnp.asarray(fj)
+    finfP, finfM = jnp.asarray(finfP), jnp.asarray(finfM)
+    if not len(finfP)+len(finfM):
+        return ()
+    if form == 'even':
+        return (finfP[:, None]-fj[None, :],)
+    blocks = []
+    if len(finfP):
+        blocks.append((finfP[:, None]-fj[None, :])*jnp.exp(-1j*zj[None, :]/2))
+    if len(finfM):
+        blocks.append((finfM[:, None]-fj[None, :])*jnp.exp(1j*zj[None, :]/2))
+    return tuple(blocks)
+
+
+def _trig_constraint_errors_source(zj, fj, wj, finfP, finfM, form):
+    """Native limit residuals and order (aaatrig.m194-212,7574c77)."""
+    zj, fj, wj = jnp.asarray(zj), jnp.asarray(fj), jnp.asarray(wj)
+    finfP, finfM = jnp.asarray(finfP), jnp.asarray(finfM)
+    errors = []
+    if form == 'even':
+        if len(finfP)+len(finfM):
+            errors.append(finfP-(fj@wj)/jnp.sum(wj))
+    else:
+        if len(finfP):
+            phase = jnp.exp(-1j*zj/2)
+            errors.append(finfP-((fj*phase)@wj)/(phase@wj))
+        if len(finfM):
+            phase = jnp.exp(1j*zj/2)
+            errors.append(finfM-((fj*phase)@wj)/(phase@wj))
+    return jnp.concatenate(errors) if errors else jnp.empty(0, dtype=jnp.complex128)
+
+
 @jax.jit
-def _trig_greedy_weights_source(cauchy, values, support_values):
+def _trig_greedy_weights_source(cauchy, values, support_values, extra_rows=None):
     """Native greedy Loewner weights, aaatrig.m160-190, Chebfun7574c77.
 
     The two scaling products preserve SF*C - C*Sf. MATLAB svd(A,0)
@@ -1240,6 +1313,8 @@ def _trig_greedy_weights_source(cauchy, values, support_values):
     left = values[:, None]*cauchy
     right = cauchy*support_values[None, :]
     matrix = left-right
+    if extra_rows is not None:
+        matrix = jnp.concatenate((matrix, extra_rows), axis=0)
     _, _, vh = jnp.linalg.svd(
         matrix, full_matrices=matrix.shape[0] < matrix.shape[1])
     return vh[matrix.shape[1]-1, :].conj()
@@ -1541,6 +1616,9 @@ def _cleanup_trig(
     F: jnp.ndarray,
     cleanup_tol: float,
     form: str,
+    *,
+    finfP=(),
+    finfM=(),
 ) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """Remove Froissart doublets in native order (aaatrig.m, 7574c77)."""
     poles, residues, _ = _prztrig_np(zj, fj, wj, form)
@@ -1572,7 +1650,7 @@ def _cleanup_trig(
     samples, data = samples[keep], data[keep]
     delta = (samples[:, None]-supports[None, :])/2
     cauchy = 1/jnp.tan(delta) if form == "even" else 1/jnp.sin(delta)
-    loewner = data[:, None]*cauchy-cauchy*values[None, :]
-    _, _, vh = jnp.linalg.svd(loewner, full_matrices=False)
-    weights = vh[len(supports)-1, :].conj()
+    blocks = _trig_constraint_blocks_source(supports, values, finfP, finfM, form)
+    extra_rows = jnp.concatenate(blocks, axis=0) if blocks else None
+    weights = _trig_greedy_weights_source(cauchy, data, values, extra_rows)
     return supports, values, weights

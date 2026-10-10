@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AAAtrig input infinity constraints restored (2026-10-10; latest)
+
+Source constraint extraction, appended Loewner rows, limit residuals and
+cleanup refitting now preserve supplied values at imaginary infinity.
+All 74 CPU cases passed (20 new, 54 unchanged prior controls); root verified
+69 delivery bindings and 2,935/2,946 runtime files. Full static checks pass.
+Evidence: docs/aaatrig_sample_constraints_cpu_20261010.json. Integration
+adds four JAX operand conversions solely in an unexecuted source edge branch;
+entire-module AST equivalence outside those conversions was checked.
+Negative-only even, duplicate constraints and no-finite-sample branches
+remain unqualified. Native options, host eigenpaths and full current CI
+remain open. Earlier sections describe historical package boundaries.
+
 ## Core sweep ledger and deferred examples verified (2026-10-10; latest)
 
 Historical frozen core partitions provide 8,800 distinct passing test IDs,

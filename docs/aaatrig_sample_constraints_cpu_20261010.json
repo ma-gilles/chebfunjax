@@ -1,0 +1,93 @@
+{
+  "reviewer": "/root",
+  "scope": "AAAtrig sample constraints 20 new and 54 retained cases; edge branches unqualified",
+  "gates": [
+    {
+      "gate": "focused20_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_sample_constraints_source_20261010/focused20_v1/supervision/receipt.json",
+      "receipt_sha256": "4f4ee669f56f7f72e54663d0090af10d0da84324d38b378a24338a6d2789cb56",
+      "runtime_manifest_sha256": "d2a08557392ae47071e628faa922c20a10e9bfe4cd8ef767765324daa877b1e3",
+      "runtime_end_sha256": "80b62daa14bccaaa211fd9aba6ce8df93c704ee4011830379b0ce7e7ab6e148c",
+      "observed_files_rehashed": 2935,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 48,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1272620,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 20,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "prior54_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_sample_constraints_source_20261010/prior54_v1/supervision/receipt.json",
+      "receipt_sha256": "90b80162acf657dde8ecc0b0151bfb67dddbd33ed211386178ff3b9986b1e371",
+      "runtime_manifest_sha256": "3f062ef1c0578004398c4d036d3c23e1e0c87a56e094c71b91686e39acec995e",
+      "runtime_end_sha256": "c872691285c9659dc0554fe5e212b43ca0c6499d139440ae04fe3424924aed57",
+      "observed_files_rehashed": 2946,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 48,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 3632320,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 54,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_sample_constraints_source_20261010/DELIVERY.json",
+  "delivery_sha256": "7d0d355cac6df6aea8b0fb2d6f46f646d23bd7b30d7092cb6750a26f33f37be2",
+  "delivery_bindings_rehashed": 69,
+  "integration_ast_review": "Unwrapping exactly four jnp.asarray operands in the unqualified negative-only even branch restores the entire tested module AST. Executed branches unchanged.",
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "83a2bcc79f1aea9e4ce09625d9758152b7a04ac3",
+    "passed": true
+  },
+  "limitations": [
+    "Negative-only even, duplicate constraints and no-finite-sample behavior need native MATLAB qualification.",
+    "Full native options, host eigenproblem paths, current-head whole suite and CI remain open."
+  ],
+  "source_sha256": "caec49a4a429749f580c7d892cddb87ec027978264cefc90eadb559ef8e464e0",
+  "test_sha256": "f45fbf72b43fcfd055e768a4c4024313e99e525cf6f1d5714086fda3ed82f138"
+}
