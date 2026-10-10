@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebtech logical API implemented (2026-10-10; latest)
+
+Both Tech classes now expose logical via source coefficient-to-value
+conversion and explicit column reduction, retaining happiness and boolean
+coefficients. Eight CPU controls pass, including NaN/value-versus-coefficient
+semantics, complex columns, empty shapes and JIT. Only two new method ASTs;
+full static checks pass. Evidence: docs/chebtech_logical_cpu_20261010.json.
+Native root-free precondition remains; full qualification is incomplete.
+
+
 ## Unbounded integration slow-decay warning restored (2026-10-10; latest)
 
 Unbndfun.sum now emits the native slowDecay ID/message when endpoint decay

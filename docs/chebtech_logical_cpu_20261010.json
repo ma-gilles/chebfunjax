@@ -1,0 +1,26 @@
+{
+  "base_commit": "233040f993e9a45f86f6d5b7d38e7c6dba9c5781",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": "@chebtech/logical.m",
+  "native_source_sha256": "6b42cebd99df86cbe82e5a8705c4edf7f0dfb1d46904e61f276e8e178a87548d",
+  "changed_definitions": [
+    "Chebtech1.logical",
+    "Chebtech2.logical"
+  ],
+  "qualification": {
+    "passed": 8,
+    "elapsed_seconds": 6.110041609033942,
+    "peak_child_rss_kib": 547088,
+    "source_test_hashes_stable": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_logical_root_20261010/receipt.json",
+    "receipt_sha256": "8612c9680968939f6a74cff4e430ecf6e42de18c7deca1611fd81475a0b0fab5",
+    "static_sha256": "8ab3aba5125250ec6ffe00c4cc2ee31d172153d6c18dc963e3f7a9aa1e858b6f"
+  },
+  "scope": "Transforms coefficients to values before explicit dimension1 nonzero/NaN-ignoring reduction; preserves column shape, boolean coefficients, happiness, input immutability.",
+  "limitations": [
+    "Native input must be root-free; no guarantee for functions with roots.",
+    "Python scalar coefficient vectors map native column vectors; marked empty maps numeric[] using empty coefficient vector.",
+    "No native test_logical.m exists in the pinned chebtech test directory; eight source-derived supplemental cases.",
+    "Focused CPU gate, not current-head full suite/remote CI. RSS measured not capped; no observed-runtime module audit."
+  ]
+}

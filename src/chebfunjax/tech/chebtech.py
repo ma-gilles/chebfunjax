@@ -2468,6 +2468,26 @@ class Chebtech2(eqx.Module):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
 
+    def logical(self):
+        """Return a constant logical Tech for each root-free input column.
+
+        As in MATLAB, behavior for columns with roots is unspecified.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/logical.m
+        Chebfun commit: 7574c77
+        """
+        coefficients = _tech_series_data(self)
+        values = self.coeffs2vals(coefficients)
+        if values.ndim == 1 and values.size == 0:
+            result = jnp.empty((0,), dtype=jnp.bool_)
+        else:
+            nonzero = (values != 0) & ~jnp.isnan(values)
+            result = jnp.any(nonzero, axis=0, keepdims=True)
+        return type(self)(coeffs=result,
+                          ishappy=getattr(self, "ishappy", True))
+
     def any(self, dim: int = 1):
         """Reduce nonzero values down columns or across rows.
 
@@ -4752,6 +4772,26 @@ class Chebtech1(eqx.Module):
         if getattr(self, "_is_empty_object", False):
             return jnp.asarray(True)
         return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def logical(self):
+        """Return a constant logical Tech for each root-free input column.
+
+        As in MATLAB, behavior for columns with roots is unspecified.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/logical.m
+        Chebfun commit: 7574c77
+        """
+        coefficients = _tech_series_data(self)
+        values = self.coeffs2vals(coefficients)
+        if values.ndim == 1 and values.size == 0:
+            result = jnp.empty((0,), dtype=jnp.bool_)
+        else:
+            nonzero = (values != 0) & ~jnp.isnan(values)
+            result = jnp.any(nonzero, axis=0, keepdims=True)
+        return type(self)(coeffs=result,
+                          ishappy=getattr(self, "ishappy", True))
 
     def any(self, dim: int = 1):
         """Reduce nonzero values down columns or across rows.
