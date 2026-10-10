@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full RandomSwitching scalar execution and open accuracy gap (2026-10-10)
+
+The original first scalar computation completes all44 native intervals on[0,40]
+and public fitting, with one compiled step kernel and2.37GiB peak sampled RSS.
+The full execution and2953 runtime inputs are verified. Independent comparison
+with exp(integral(c)) on1001 captured points shows maxrelative1.0358e-7 and
+maxabsolute2.6721e-6: accuracy/MATLAB trajectory parity remain unresolved.
+JAX source-order random draws remain unmatched MATLAB rng1. The old page
+script still needs replacement of its pre-screened keys and evaluator shortcuts.
+Evidence: docs/randomswitching_scalar_cpu_20261010.json. Second trajectory
+is now being qualified serially; final two remain pending.
+
 ## Quiver cumulative source page and figure dimensions (2026-10-10; latest)
 
 All43 original solve returns support the corrected source plotting routes,

@@ -1,0 +1,35 @@
+{
+  "scope": "Full first original RandomSwitching computation and resource qualification, not numerical parity",
+  "source_snapshot": "3feef0e45e381b877b2f709c7d62bdb57a408fa3",
+  "domain": [
+    0,
+    40
+  ],
+  "native_intervals": 44,
+  "steps": 3710,
+  "rejected_steps": 1324,
+  "rhs_evaluations": 8788,
+  "provider_seconds_sum": 20.827114515472203,
+  "numerical_observer_seconds": 56.920147688128054,
+  "supervised_wall_seconds": 161.0863463850692,
+  "peak_summed_rss_kib": 2480216,
+  "compiled_step_kernels": 1,
+  "runtime_files_root_rehashed": 2953,
+  "delivery_bindings_root_verified": 76,
+  "independent_analytic_diagnostic": {
+    "query_count": 1001,
+    "max_absolute_error": 2.672133959435996e-06,
+    "max_relative_error": 1.0358194862093449e-07,
+    "final_exact": 3.2234699707165944,
+    "final_fitted": 3.223470289606919
+  },
+  "accuracy_status": "Global analytic discrepancy remains open. Local solver tolerances do not directly specify this global error. No MATLAB trajectory capture to establish native equivalence.",
+  "observer_caveat": "Observer forwarded host NumPy copies for initial state; independent audit proves all44 normalized initial states byte-identical to source preceding endpoint. Actual original runtime type not recorded. Future observer forwards object unchanged.",
+  "page_status": "Current published script still uses pre-screened keys and hand-coded coefficient evaluator. Source-order computations here must replace those routes before page qualification. JAX key1 remains unmatched MATLAB rng1. Other three original computations unfinished.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/DELIVERY_v1.json": "a3d2de6ad180919b6d74c97929d1c13faf24aeb763c452829c71f7d9951e88b0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_REVIEW_v1.json": "2b1d0bdc6e84289ac27339a026de58851ef9c7937357812fd3d024bbe6c953ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/ROOT_ANALYTIC_DIAGNOSTIC_v1.json": "c25653253df7a1978366bb2e05470870f186c7ff1ba7b552d411053dd9d16c0f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/PAYLOAD_AUDIT_v1.json": "44c168cd315cf681208bdcb999df066e458b936f32ee10eab79d60dca8a0e60d"
+  }
+}
