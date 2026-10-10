@@ -1,0 +1,82 @@
+{
+  "reviewer": "/root",
+  "scope": "Singfun hint dispatch and missing exponent source controls15 plus retained native restriction6",
+  "gates": [
+    {
+      "gate": "focused_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_constructor_hints_source_v2_20261010/focused_v1/supervision/receipt.json",
+      "receipt_sha256": "6f03d820469e27816c35c1a03a57eada7bdfa754477e961883d16a39d52939e6",
+      "runtime_manifest_sha256": "52d99a298aafb652055c5a68e72c398d2ed1321736fbdb453fc9e964d3ece1c7",
+      "runtime_end_sha256": "70dd8ec93612e7241f86dd3cd3965de6fcffb019319ad61e23143514e588c045",
+      "observed_files_rehashed": 2945,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 55,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1823116,
+      "cpu_affinity": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "assertion_slots": 21,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_plan": {
+    "base": "04766eae0cdebd8fdef6497fe771f4b6fe467dc2",
+    "scope": "Native hint dispatch and partial-NaN exponent construction; existing detection kernels and smooth construction unchanged.",
+    "native_sources": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/singfun.m": "d89b5b61505a6c7ccac1e9b1108fbb13704750224b4909fea385ef698f4a5830",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/findSingExponents.m": "d35379c6b73656f1fca1d308a215a5db9af8c133b64a895db4e18720f2edf819"
+    },
+    "remaining": "Factory pref forwarding and public numeric/smooth construction semantics remain open; no complete constructor parity claim."
+  },
+  "source_review": {
+    "changed": [
+      "Singfun.from_function",
+      "_find_sing_exponents"
+    ],
+    "other_method_function_AST_identical": true,
+    "native_dispatch_verified": "pole/findPoleOrder;sing,root/findSingOrder;none/zero;caseinsensitive;numericreturnsbeforehints",
+    "source_NaN_semantics": "detect both ends only if anyNaN, overwrite masked entries; finite entries preserved",
+    "prepared_v1_not_run": "Only E731 lambda lint finding; v2 names the same callable via def. No numericalgate onv1."
+  },
+  "candidate_source_sha256": "52c54a412490f4ffbde3bd34147371b0d7dccbe56bda32e05d908e2cce9ed6d7",
+  "candidate_test_sha256": "5fd3acac59b2b39371471d52b69b05c3a128a185c63ffd2aa72d476381e309f4",
+  "limitations": [
+    "Native preference forwarding and make factory handling remain unresolved.",
+    "The public Python constructor still has separate numeric/smooth/operator API differences; this package covers callable exponent resolution.",
+    "No whole current-head suite or remote CI claim."
+  ],
+  "adapter": "Python accepts flat length2 exponents as well as native-style1x2 rows. Existing scalar conversion is retained; native MATLAB storage-class validation is not claimed.",
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "b5f3d3dda8924a86c0b67e558c83424052086b93",
+    "passed": true
+  }
+}

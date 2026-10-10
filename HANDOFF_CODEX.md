@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Singfun typed and partial exponent construction restored (2026-10-10; latest)
+
+Callable construction now accepts endpoint sing_type hints: pole selects
+integer detection, sing/root select fractional detection, and none gives zero.
+Empty exponents trigger detection; NaN entries are filled while finite supplied
+entries remain unchanged. Case-insensitive native dispatch and numeric helper
+behavior are preserved. Existing detection kernels and other methods are
+unchanged. All 21 cases pass, including six original restriction cases; root
+verified 2,945 runtime files and the source AST. Evidence:
+docs/singfun_constructor_hints_cpu_20261010.json. Factory/preference forwarding,
+other constructor forms, full current-suite qualification and CI remain open.
+
 ## Chebtech division public NaN assertions restored (2026-10-10; latest)
 
 Native division passes 2, 4 and 6 now check public isnan, instead of accepting

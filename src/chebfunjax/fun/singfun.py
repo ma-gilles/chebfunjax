@@ -160,6 +160,7 @@ class Singfun(eqx.Module):
         vscale: float = 0.0,
         hscale: float = 1.0,
         extrapolate: bool = False,
+        sing_type: tuple[str, str] = ("sing", "sing"),
     ) -> "Singfun":
         """Construct a Singfun from a callable and (optionally) known exponents.
 
@@ -196,6 +197,11 @@ class Singfun(eqx.Module):
             Extrapolate endpoint values on a second-kind grid. Negative
             exponents enable this automatically, as in MATLAB.
 
+        sing_type : pair of strings, optional
+            Native endpoint hints: 'pole' selects integer detection, 'sing'
+            and 'root' fractional detection, and 'none' zero. Used only for
+            missing exponents or NaN entries; finite supplied entries win.
+
         Returns
         -------
         Singfun
@@ -224,8 +230,21 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/singfun.m (constructor)
         Chebfun commit: 7574c77
         """
-        if exponents is None:
-            exponents = _find_sing_exponents(f)
+        # Native data.exponents=[] triggers detection; NaNs are filled from
+        # detection at both ends while supplied finite entries stay unchanged.
+        if exponents is None or jnp.asarray(exponents).size == 0:
+            exponents = _find_sing_exponents(f, sing_type)
+        else:
+            supplied = jnp.asarray(exponents)
+            if supplied.shape not in ((2,), (1, 2)):
+                raise ValueError("CHEBFUN:SINGFUN:singfun:badExponents: "
+                                 "Exponents must have two entries in a row.")
+            supplied = supplied.reshape(2)
+            missing = jnp.isnan(supplied)
+            if bool(jnp.any(missing)):
+                detected = jnp.asarray(_find_sing_exponents(f, sing_type))
+                supplied = jnp.where(missing, detected, supplied)
+            exponents = supplied
         a, b = float(exponents[0]), float(exponents[1])
         # MATLAB @singfun/singfun.m loosens the smooth-part tolerance only
         # for a genuinely nonzero endpoint exponent.
@@ -1606,18 +1625,31 @@ _EXPONENT_TOL = 1.1e-11
 _MAX_POLE_ORDER = 20
 
 
-def _find_sing_exponents(op: Callable) -> tuple[float, float]:
-    """Detect the endpoint exponents of ``op`` by sampling near +/-1.
-
-    Uses the default ``singType = 'sing'`` at both ends, i.e. the fractional
-    singularity-order finder (which also covers pole and root cases).
+def _find_sing_exponents(op: Callable, sing_type=("sing", "sing")) -> tuple[float, float]:
+    """Native endpoint dispatch; supplied constructor hints are case insensitive.
 
     Provenance
     ----------
     MATLAB source : @singfun/findSingExponents.m
     Chebfun commit: 7574c77
     """
-    return (_find_sing_order(op, "left"), _find_sing_order(op, "right"))
+    if not callable(op):
+        # Native numeric data has no detected endpoint exponents.
+        jnp.asarray(op)
+        return (0.0, 0.0)
+    result = []
+    for index, endpoint in enumerate(("left", "right")):
+        hint = sing_type[index].lower()
+        if hint == "pole":
+            result.append(_find_pole_order(op, endpoint))
+        elif hint in ("sing", "root"):
+            result.append(_find_sing_order(op, endpoint))
+        elif hint == "none":
+            result.append(0.0)
+        else:
+            raise ValueError('CHEBFUN:SINGFUN:findSingExponents:unknownPref: '
+                             f'singType "{sing_type[index]}" unknown.')
+    return tuple(result)
 
 
 def _pole_order_finder(fvals: jax.Array, x: jax.Array) -> int:
