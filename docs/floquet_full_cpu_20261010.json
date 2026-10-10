@@ -1,0 +1,91 @@
+{
+  "base_library_head": "0d4be2a1d94fac0fbd7a755ae302e252b6f25fb7",
+  "scope": "Complete source computation and plotting executed; no full MATLAB RNG or pixel parity claim",
+  "native_source": "ode-linear/Floquet.m by Richard Mikael Slevinsky, October2014",
+  "execution": {
+    "original_handle": 86241,
+    "wall_seconds": 53.73669732315466,
+    "peak_rss_kib": 2504516,
+    "source_bindings_rehashed": 263,
+    "all_9_saved_arrays_and_stdout_exactly_equal_to_full_source_v2": true
+  },
+  "diagnostics": {
+    "full_script_completed": true,
+    "finite_solution": true,
+    "initial_error_sampled": 6.874915747900352e-17,
+    "periodicity_endpoint_error": 1.483826252641656e-15,
+    "solution_lengths": [
+      221,
+      204,
+      224,
+      204
+    ],
+    "resolved": {
+      "periodic": [
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "solution": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "continuation_error_sampled": 4.1932558002521096e-14,
+    "ode_residual_max_sampled": 3.8934405689424944e-10,
+    "rng": "JAX key 0 adapter; native ambient rand stream not reproduced",
+    "scope": "Execution and sampled diagnostics only; no MATLAB numerical or visual parity claim"
+  },
+  "figure_sizes": [
+    [
+      600,
+      270
+    ],
+    [
+      600,
+      270
+    ]
+  ],
+  "cached_output_max_abs_difference": {
+    "exponents": 3.1620249972398474e-15,
+    "multipliers": 9.840985828031828e-15
+  },
+  "prose_and_matlab_code": "Original retained; qualification note added, actual numeric output replaced, spurious periodicity print and empty fence removed",
+  "generator": "Legacy unrelated2x2 Mathieu surrogate replaced with dispatch to canonical public script; page is source-managed",
+  "remaining": [
+    "Native ambient RNG stream differs from JAX key0",
+    "Two native warnings absent: non-principal matrix logarithm and deprecated vertical concatenation",
+    "Dense SciPy logm / NumPy eig inherited adapters; new functional matrix operations use public Chebfun and ChebMatrix",
+    "Fresh full native rerun and exact pixels not qualified"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/ROOT_EXECUTION_AUDIT.json": "61670a602a0457f78a5d34a3e4fb12792c47e639c6f8e7bc5831d61eb7f36f89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_candidate_v2_20261010/full_cpu_v1/ROOT_EXECUTION_AUDIT.json": "6746e24db2083cb0658d5c22cfb9dd94aa3a5ccb8c3b5ae5e4925ba4d41a54b5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_candidate_v2_20261010/full_cpu_v1/CACHED_OUTPUT_COMPARISON.json": "79862088d42e61b10d38e2ccac2a7f5175486e43a6d57b49378188595c23e620",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_page_integration_20261010/PRESERVATION_AUDIT.json": "163db647120a075fe1aa64f95ef529e353c23cbd663dbca9e8eb961767f3b482",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_generator_integration_20261010/DELIVERY_PACKET.json": "905e0dbef65972c5f155f61a0efdcd791eb8a1422159c54391181a5dd32c7d5c"
+  }
+}

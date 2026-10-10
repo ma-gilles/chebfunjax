@@ -409,6 +409,7 @@ def main():
             ("approx", "Inpainting1D"),
             ("ode-eig", "Randfuneig"),
             ("opt", "Needle"),
+            ("ode-linear", "Floquet"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")

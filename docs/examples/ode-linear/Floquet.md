@@ -6,6 +6,8 @@
 
 Python translation: [`examples/ode-linear/floquet.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/floquet.py)
 
+> **Python execution qualification.** The four initial-value problems, all 16 periodic matrix entries, and the ten-period solution have been executed. The initial conditions use JAX key 0, which differs from MATLAB’s ambient `rand` stream. SciPy `logm` and the explicit `ChebMatrix` construction do not emit the native warnings about the negative-spectrum matrix logarithm and deprecated vertical concatenation. RNG and exact pixel parity are unverified.
+
 ```matlab
 clear all;
 LW = 'linewidth'; lw = 2.0;
@@ -74,10 +76,10 @@ Exponents = diag(D)
 
 ```text
 Exponents =
-  0.000000000058162 - 0.268354690535090i
-  0.000000000058162 + 0.268354690535090i
-  -0.037475319704801 + 1.000000000000000i
-  0.037475319730719 + 1.000000000000000i
+  0.000000000004850 - 0.268354690535319i
+  0.000000000004850 + 0.268354690535318i
+  -0.037475319730415 + 0.999999999999999i
+  0.037475319732383 + 1.000000000000000i
 ```
 
 And the Floquet multipliers are given by the exponential of the Floquet exponents multiplied by the period T:
@@ -88,11 +90,10 @@ Multipliers = exp(diag(D)*T)
 
 ```text
 Multipliers =
-  0.665180257120732 - 0.746682814789678i
-  0.665180257120733 + 0.746682814789678i
-  -0.888934086998722 + 0.000000000000001i
-  -1.124942799142388 - 0.000000000000001i
-max |P(0) - P(T)| = 2.02e-13
+  0.665180257008788 - 0.746682814665099i
+  0.665180257008789 + 0.746682814665098i
+  -0.888934086927189 + 0.000000000000002i
+  -1.124942799148267 + 0.000000000000001i
 ```
 
 We can build the chebmatrix exponential $e^{-tB}$ and use this to find the periodic matrix $P(t)$:
@@ -115,10 +116,6 @@ for i = 1:n
         P(i,j) = chebfun(@(t) temp(t), d, 'periodic');
     end
 end
-```
-
-```text
-
 ```
 
 The periodicity of $P(t)$ is numerically confirmed by the construction of entries $P(i,j)(t)$ with the `periodic` flag, which would otherwise fail. The entries of the periodic solution are plotted below:

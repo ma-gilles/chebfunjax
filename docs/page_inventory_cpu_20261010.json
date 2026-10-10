@@ -1,6 +1,6 @@
 {
-  "audit_head": "dd4f719d7c851bc18f1c529c7cf5d5c37e19cb06",
-  "scope": "Offline cached reference/page inventory. Code and aligned prose audit additionally includes the documented RandomSwitching seed-text restoration; exact page hashes are bound in that report. No numerical rerun or full pixel parity claim.",
+  "audit_head": "0d4be2a1d94fac0fbd7a755ae302e252b6f25fb7",
+  "scope": "Offline cached reference/page inventory on the explicitly audited Floquet candidate working tree. Before/after status, diff and input manifests were unchanged during the figure audit. No numerical rerun or full pixel/RNG parity claim.",
   "figure_summary": {
     "canonical_pages": 322,
     "missing_markdown_pages": 0,
@@ -12,14 +12,14 @@
     "missing_reference_assets": 0,
     "pixel_comparable_slots": 1293,
     "dimension_mismatch_slots": 12,
-    "exact_pixel_fraction_mean": 0.806487895943143,
-    "rmse_mean": 44.08551145169652
+    "exact_pixel_fraction_mean": 0.8064091624016612,
+    "rmse_mean": 44.094286925551714
   },
   "dimension_mismatch_pages": {
     "applics/VanillaOptions": 7,
     "linalg/EigLandscapes": 5
   },
-  "prose_result": "All original prose retained in order; seven added qualification notes; equations retained after alignment.",
+  "prose_result": "All original prose retained in order; eight added qualification notes; equations retained after alignment.",
   "source_code": {
     "native_blocks": 2408,
     "matching_markdown_blocks": 2408,
@@ -28,20 +28,45 @@
   },
   "output_blocks": {
     "native": 949,
-    "current": 944,
-    "pages_missing_one_block": [
-      "approx/AAAApprox",
-      "approx/Noisy",
-      "linalg/TransientGrowth",
-      "ode-linear/Floquet",
-      "stats/ResamplingRandomVariables"
-    ]
+    "current": 943,
+    "pages_with_missing_blocks": [
+      {
+        "page": "approx/AAAApprox",
+        "native_blocks": 6,
+        "current_blocks": 5,
+        "missing_blocks": 1
+      },
+      {
+        "page": "approx/Noisy",
+        "native_blocks": 5,
+        "current_blocks": 4,
+        "missing_blocks": 1
+      },
+      {
+        "page": "linalg/TransientGrowth",
+        "native_blocks": 4,
+        "current_blocks": 3,
+        "missing_blocks": 1
+      },
+      {
+        "page": "ode-linear/Floquet",
+        "native_blocks": 4,
+        "current_blocks": 2,
+        "missing_blocks": 2
+      },
+      {
+        "page": "stats/ResamplingRandomVariables",
+        "native_blocks": 2,
+        "current_blocks": 1,
+        "missing_blocks": 1
+      }
+    ],
+    "qualification": "Floquet lacks two native warning blocks (negative-spectrum logm and deprecated vertical concatenation); Python does not emit these warnings. Counts do not establish numerical-output equality."
   },
   "limits": "Counts do not establish printed numerical-output equality. Pixel statistics are descriptive, not acceptance thresholds. The RandomSwitching Python computation and figures were not rerun.",
   "evidence": {
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_dd4f719d/report.json": "a743264427cccadaac892db2d760a3f3a0b3b720ffe3d81ddeed6346357e97bd",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_dd4f719d.json": "0576cb304af6be5e17a33a8ba421830d660678b30e1e1185ee6e3fa3b2b9cbcb",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_20261010_dd4f719d.json": "6c85401e9c0f23e4d51740c3bf237f22bbe48d126fb4aac8a144ea60e152ba57",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_seed_restore_20261010.json": "e8fdc4cd236ccc4ed573785ae8031f5b1551690381e33bd21c95343ae230779b"
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_floquet_worktree/report.json": "1bb4e9c70804b9d2c64ad79e867912dc534ba7ea286a93da46ebe6ba83af643a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_floquet.json": "bc6a88193299185f9e1bcc316f748c1ebac1e1db6586cb084fe679b3af5733c8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_code_alignment_floquet_20261010.json": "3c7d8eedd70f76fa54a1e66d7ffbbd43275cffd8486d98303382926eb03361d3"
   }
 }

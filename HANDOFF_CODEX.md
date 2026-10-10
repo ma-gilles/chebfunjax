@@ -1,5 +1,22 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Floquet full computation and direct 3D progress (2026-10-10; latest)
+
+Floquet now executes the original four IVPs, all 16 periodic Chebfun entries,
+the full ten-period solution, and both 600x270 figures. All constructed entries
+are resolved. The final renderer preserves all nine saved numeric arrays and
+stdout exactly; sampled ODE residual is 3.89e-10. Printed exponents and
+multipliers match cached native values within 1e-14. Legacy generation now
+calls the canonical script instead of a different 2x2 Mathieu problem.
+Native RNG, two warning messages and exact pixels remain open. Evidence:
+docs/floquet_full_cpu_20261010.json.
+
+Sixteen of 80 direct Chebfun3 cases now pass on frozen e6748499; 64 remain.
+The latest eight ran serially in 587.71 s including supervision, with peak
+3,350,932 KiB and no cap/survivors. Historical results remain separate from
+current-main qualification. Evidence: docs/port_mirror_execution_cpu_20261010.md.
+
+
 ## Page code fidelity and direct 3D progress (2026-10-10; latest)
 
 All 2,408 MATLAB code blocks now match cached published page contents after

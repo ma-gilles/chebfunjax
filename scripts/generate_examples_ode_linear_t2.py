@@ -597,39 +597,12 @@ def periodicsystem():
 
 
 def floquet():
-    """ode-linear/Floquet — fundamental matrix of a periodic system."""
-    # Mathieu-type: u'' + (2 + 2cos t) u = 0; monodromy over [0, 2pi]
-    def rhs(t, y):
-        return [y[1], -(2 + 2 * np.cos(t)) * y[0]]
+    """Dispatch the source-managed public Floquet example."""
+    import runpy
 
-    ts = np.linspace(0, 2 * PI, 600)
-    P = np.zeros((2, 2, len(ts)))
-    for j, ic in enumerate((np.array([1.0, 0.0]),
-                            np.array([0.0, 1.0]))):
-        sol = solve_ivp(rhs, (0, 2 * PI), ic, t_eval=ts, rtol=1e-10)
-        P[:, j] = sol.y
-
-    fig, axes = plt.subplots(2, 2)
-    for i in range(2):
-        for j in range(2):
-            axes[i, j].plot(ts, P[i, j], linewidth=1.6,
-                            color=CHEBFUN_BLUE)
-            axes[i, j].tick_params(labelsize=6)
-    save(fig, "Floquet_01.png")
-
-    M = P[:, :, -1]
-    mults = np.linalg.eigvals(M)
-    print(f"    Floquet multipliers: {mults}")
-    th = np.linspace(0, 2 * PI, 200)
-    fig, ax = plt.subplots()
-    ax.plot(np.cos(th), np.sin(th), "k", linewidth=0.7)
-    ax.plot(np.real(mults), np.imag(mults), "xr", markersize=11,
-            markeredgewidth=2)
-    ax.set_aspect("equal")
-    ax.set_title("Floquet multipliers vs the unit circle",
-                 fontsize=9)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    save(fig, "Floquet_02.png")
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "ode-linear", "floquet.py")
+    runpy.run_path(example, run_name="__main__")
 
 
 def dawsonintegral():
