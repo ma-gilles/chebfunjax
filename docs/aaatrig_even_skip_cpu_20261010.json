@@ -1,0 +1,62 @@
+{
+  "scope": "Remove obsolete AAAtrig even-form skip; original five controls pass with unchanged assertions and library",
+  "root_ast_review": "Only test_even_form skip decorator removed; remainder AST identical",
+  "runtime_review": {
+    "reviewer": "/root",
+    "scope": "Five original AAAtrig controls; even-form skip removed, all assertions and library unchanged",
+    "gates": [
+      {
+        "gate": "aaatrig_even_skip_diagnosis_20261010/qualification_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_even_skip_diagnosis_20261010/qualification_v1/supervision/receipt.json",
+        "receipt_sha256": "cf7f4c604b706bd54d16e903c49b4393e5b74f5a0565ca32e4e1716e0d0e82ea",
+        "runtime_manifest_sha256": "d89343dd5cdb3a5b0198ddc15fc38e840c1df1b8cc49e1f98ab635af3c9bf357",
+        "runtime_end_sha256": "5ba7f35c3b55825e8e48a2ad88565139ca252370672300ab8e4359c9b977058d",
+        "observed_files_rehashed": 2933,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 616052,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 5,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "source_gaps": {
+    "source_sha256": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/aaa.py": "1a6beb151cdffbbfa3160051bd2dca8da54a78f4533a4131e207ce24dd164289",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_aaatrig_matlab.py": "f9fbf892dc63f9f457c7f94949ce56f5e52af7c5cf9c1e8e4b13431f5a13cccf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_utils/test_missing_functions.py": "4af4ddf9a77e6f3e746a4f9ba8dbdc084bbba139f68cd23574582c323252cafc",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/aaatrig.m": "d94d34923d2917af51f5add8a68374cb124664367b8f2024cda7aeae01450297",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/prztrig.m": "dcce3fcb6291c7e4925220b92fccbc9acc1fac97099060bdb0f944877358534d",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/revaltrig.m": "bf0f972dc0dc66b5922641c68ebcf561b8ba37ed04781b20f22bc74280bd60fa",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_aaatrig.m": "b634e7337141037160c574e87ba45014bb57508f6f6855eae4cad3eb2fe07c10"
+    },
+    "confirmed_gaps": [
+      "Residue evaluation discards imaginary pole coordinate via pol_real=np.real(pol); native prztrig evaluates N(pol)/Ddiff(pol).",
+      "Even prztrig lacks native transformed poles/zeros at +/-i mapping and coincident-infinity pair cancellation.",
+      "Cleanup uses floor where source uses fix/truncation and removes support indices simultaneously rather than sequentially.",
+      "Canonical MATLAB test port covers only subsets of original23 stored predicates per form and uses TOL1e-10 instead1e4*machine epsilon.",
+      "Native infinity constraints, Lawson, automatic samples and degree options absent in public signature.",
+      "Greedy construction and pole solver use NumPy/SciPy; full JAX-only requirement remains unresolved."
+    ],
+    "baseline_run": "qualification_v1 original88634; original5controls only skip removed; scientific library unchanged",
+    "claim": "Source audit only; no numerical fixes or native parity established."
+  },
+  "warnings": "Four existing invalid-value projection warnings in odd-form controls retained; source infinity handling and residues remain unresolved",
+  "full_goal_complete": false
+}

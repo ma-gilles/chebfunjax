@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Obsolete AAAtrig even-form skip removed (2026-10-10; latest)
+
+All five existing AAAtrig controls pass, including the formerly skipped cot
+basis case, with original assertions and library bytes unchanged. Root
+independently rehashed 2,933 runtime files and checked the only test AST
+change was removal of that skip. Evidence: docs/aaatrig_even_skip_cpu_20261010.json.
+This closes the known skip in the 304-pass core suffix. It does not establish
+full native AAAtrig parity: complex-pole residues, infinity handling, cleanup,
+missing options, native test fidelity and JAX-only construction remain open.
+Four existing pole-projection warnings were retained in the passing run.
+
 ## Factor-preserving Chebfun3 restriction restored (2026-10-10; latest)
 
 Restriction now contracts the existing core and restricts its factors using
