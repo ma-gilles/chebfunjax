@@ -2372,6 +2372,48 @@ class Chebtech2(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def isfinite(self) -> jax.Array:
+        """Return whether every coefficient is finite.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isfinite.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(True)
+        return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def isinf(self) -> jax.Array:
+        """Return whether any coefficient is infinite.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isinf.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(False)
+        return jnp.asarray(jnp.any(jnp.isinf(self.coeffs)))
+
+    def isreal(self) -> jax.Array:
+        """Return whether coefficient storage has a real dtype.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isreal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(True)
+        return jnp.asarray(not jnp.iscomplexobj(self.coeffs))
+
     def iszero(self) -> jax.Array:
         """Return an exact zero predicate for each coefficient column.
 
@@ -4516,6 +4558,48 @@ class Chebtech1(eqx.Module):
         obj = object.__new__(cls)
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
+
+    def isfinite(self) -> jax.Array:
+        """Return whether every coefficient is finite.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isfinite.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(True)
+        return jnp.asarray(jnp.all(jnp.isfinite(self.coeffs)))
+
+    def isinf(self) -> jax.Array:
+        """Return whether any coefficient is infinite.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isinf.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(False)
+        return jnp.asarray(jnp.any(jnp.isinf(self.coeffs)))
+
+    def isreal(self) -> jax.Array:
+        """Return whether coefficient storage has a real dtype.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isreal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.asarray(True)
+        return jnp.asarray(not jnp.iscomplexobj(self.coeffs))
 
     def iszero(self) -> jax.Array:
         """Return an exact zero predicate for each coefficient column.

@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Missing Chebtech predicate APIs implemented (2026-10-10; latest)
+
+Both Tech classes now expose JAX isfinite, isinf and isreal. Native tests call
+these APIs and existing isequal, replacing copied predicates. Inf fixtures now
+use coefficients, matching native make({[],y}); duplicate native scalar inputs
+and separate array controls are retained. All 44 cases pass, including JIT,
+NaN, complex-zero dtype and empty controls. Only six new methods change library
+AST. Evidence: docs/chebtech_public_predicates_cpu_20261010.json. Global suite
+qualification, remaining native test fidelity and publication remain open.
+
 ## Public Chebtech iszero implemented (2026-10-10; latest)
 
 Both Tech classes now expose the source exact per-column zero predicate in JAX.

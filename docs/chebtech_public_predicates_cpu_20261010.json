@@ -1,0 +1,41 @@
+{
+  "package": "Public Chebtech finite/infinite/real predicates and native equality tests",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "methods_added": [
+    "Chebtech2.isfinite",
+    "Chebtech2.isinf",
+    "Chebtech2.isreal",
+    "Chebtech1.isfinite",
+    "Chebtech1.isinf",
+    "Chebtech1.isreal"
+  ],
+  "other_library_ast_unchanged": true,
+  "source_hashes": {
+    "@chebtech/populate.m": "78f3d04420a48395a33dee2999f29438b74454ba858c0537bd466a213ef90d8a",
+    "@chebtech/isfinite.m": "f675d12c94850c325a709f5e59166de997600ed56cba603d10d0a920122e66d6",
+    "@chebtech/isinf.m": "1dc9774d07ce110b8fef8607158a85b6c948585ebfb3ea08629d8f7e8c7cc27b",
+    "@chebtech/isreal.m": "97aa738b938c96b39c1156ec9f48ef4da0386ea7232cce60b87e143a90f1e0bb"
+  },
+  "restored_tests": [
+    "Public method calls replace copied implementations and dtype proxies.",
+    "Native make({[],y}) uses coefficient data; changed Inf fixtures from from_values to from_coeffs.",
+    "Native duplicate scalar pass2 restored; actual array-valued supplemental cases retained separately.",
+    "Existing public isequal exercised by all native equality tests."
+  ],
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_public_predicates_20261010/receipt.json",
+    "receipt_sha256": "37a8cbf15101c40d95c9af0366c9e47cbade4b7ccf5ff7267d59d7f9b9f5ee6c",
+    "passed": 44,
+    "native_cases": 38,
+    "supplemental_cases": 6,
+    "elapsed_seconds": 19.445791880134493,
+    "peak_child_rss_kib": 678004,
+    "source_test_hashes_verified": 2086
+  },
+  "limitations": [
+    "isreal follows coefficient storage dtype; no claim of identical MATLAB intermediate storage on other paths.",
+    "Source/test hashes and JUnit verified; no observed-module runtime hash audit.",
+    "CPU24\u201331 and120s timeout enforced; RSS measured, not capped.",
+    "No global current-suite qualification."
+  ]
+}
