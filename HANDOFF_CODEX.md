@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Empty abs dispatch fixed (2026-10-10; latest)
+
+Chebfun.abs now returns the empty input before inspecting array metadata,
+as native abs.m requires. The original empty propagation test and added
+identity check pass. A separate stale Chebfun3 error regex now checks the
+native plus identifier/message; its original mismatch case passes. Root
+verified2,942 and2,939 runtime hashes. Evidence:
+docs/empty_abs_and_domain_contract_cpu_20261010.json. Prior broad failures
+and their unexecuted remainder remain recorded; full CI is not qualified.
+
 ## Chebfun3 active arithmetic integrated (2026-10-10; latest)
 
 Addition now follows native condition-scaled adaptive resampling; power

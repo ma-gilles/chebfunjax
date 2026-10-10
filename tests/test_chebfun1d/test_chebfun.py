@@ -618,6 +618,7 @@ class TestEmptyChebfun:
     def test_empty_propagation(self):
         f = chebfun(jnp.sin)
         g = chebfun()
+        assert g.abs() is g
         # arithmetic with an empty operand (either side) is empty.
         for r in (f + g, g + f, f - g, f * g, f / g, f + [], f * []):
             assert r.isempty()

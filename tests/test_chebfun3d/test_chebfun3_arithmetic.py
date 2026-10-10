@@ -63,5 +63,5 @@ class TestChebfun3Arithmetic:
         f, _ = fg
         h = Chebfun3.from_function(lambda x, y, z: x * y * z,
                                    domain=(0.0, 2.0, 0.0, 2.0, 0.0, 2.0))
-        with pytest.raises(ValueError, match="matching domains"):
+        with pytest.raises(ValueError, match=r"CHEBFUN:CHEBFUN3:plus:domain: Inconsistent domains\."):
             _ = f + h

@@ -3920,6 +3920,8 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.sign, Chebfun.__abs__
         """
+        if self.isempty():
+            return self
         from ._array_abs import bounded_real_array, source_array_abs
         if bounded_real_array(self):
             return source_array_abs(self)

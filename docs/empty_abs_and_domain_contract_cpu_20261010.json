@@ -1,0 +1,20 @@
+{
+  "scope": "Fix actual empty abs dispatch failure and align Chebfun3 domain-error test with native source",
+  "library_change": "Chebfun.abs returns self when empty before accessing array metadata; matches @chebfun/abs.m11-13",
+  "test_change": "Existing empty propagation now also checks directabs identity; existing mismatched-domain test uses exact native plus error identifier/message, no numerical predicate changes",
+  "qualified_cases": 2,
+  "root_reviews": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/empty_abs_root_runtime_review_20261010.json": "81863d33369a829b7f76e1fb5014db005e9450a4503c946affaf5b0a484990bf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_domain_test_root_runtime_review_20261010.json": "46c396e8c31aa37e799a41b895f4f4aae21408b80a67217a0b325afa0e70c97a"
+  },
+  "integrated_files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "739c185f5685bac365d65731027b574948adec016a7777423c8a03881165b378",
+    "tests/test_chebfun1d/test_chebfun.py": "6d3027b62357af8818a53dfcdcd343abd3e4c896dc47a26fcb07b3a50b8d12f4",
+    "tests/test_chebfun3d/test_chebfun3_arithmetic.py": "1c835d53c2a091b42e1092a73a4b33d26686eeadecddd8fe4da14ecb01f1bdec"
+  },
+  "preserved_failed_runs": [
+    "core_part1_78539704_batches16_20261010/batch_01:172pass4skip1emptyabs failure",
+    "core_part0_78539704_batches16_20261010/batch_03:85pass1obsoleteerrorregex failure;root3066hashes"
+  ],
+  "remaining": "CompletebroadCPUcoverage,missingMATLABcaptures,publicationandCI stillrequired"
+}
