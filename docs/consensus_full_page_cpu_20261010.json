@@ -1,0 +1,177 @@
+{
+  "reviewer": "/root",
+  "scope": "Consensus source controls and full native domain page; RNG and visual gaps remain",
+  "gates": [
+    {
+      "gate": "A7source_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/A7source_v1/supervision/receipt.json",
+      "receipt_sha256": "e09db4b36b67e655747af9c697e2a30fb38b58cf5e0a79f1308f110b7e6bb62a",
+      "runtime_manifest_sha256": "5c4e100be83fc2f013c05d293b5b03fa921eb9f473ad8ba5a071d22d98c7b745",
+      "runtime_end_sha256": "1c4169fcfb7ff1e36fc1d25f2d47563a5d40edc8cc21d1c6b2d0a5b66c54af90",
+      "observed_files_rehashed": 2969,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 69,
+      "wrong_library_origins": {},
+      "native_loaded_files": 239,
+      "before_after_identical": true,
+      "peak_kib": 882656,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 7,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "B1firstsolve_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/B1firstsolve_v1/supervision/receipt.json",
+      "receipt_sha256": "249df2662c21df4c425f4f9c2065154cc856a48fba433bae0cba3d539fd70379",
+      "runtime_manifest_sha256": "4169a7cd59bd54a2e9234bed765974228af4c8abde7ab75b3623b059553f0de0",
+      "runtime_end_sha256": "981353916287becb6280495c44db449f7b8783b9cc64a2cceffa0edaaededa0a",
+      "observed_files_rehashed": 2951,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 71,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 2181844,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "C7portable_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/C7portable_v1/supervision/receipt.json",
+      "receipt_sha256": "df34a0a71a2a56ff8d860d768dc01593a494f38ac8169d09daec6277c23fa2de",
+      "runtime_manifest_sha256": "88929c9df2fdaff3bf9684c109190e093c30e541c2c472805cdb3da29e6487d0",
+      "runtime_end_sha256": "ceb2c06da52007bed8c051ae71c857b8f8a586e03cc97b5115eb1d71b6b63354",
+      "observed_files_rehashed": 2975,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 69,
+      "wrong_library_origins": {},
+      "native_loaded_files": 240,
+      "before_after_identical": true,
+      "peak_kib": 884696,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 7,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "D1fullpage_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/D1fullpage_v1/supervision/receipt.json",
+      "receipt_sha256": "c7d4c01c3307541cd9104139acb4fa7d5f5278fa13cff0203449d4372d8e2ed0",
+      "runtime_manifest_sha256": "dd420da340efcd6dbacf58cd921b0330a6df91a6c45bc8fda23e2624a903ede2",
+      "runtime_end_sha256": "639da98cdd93711ed4a23836ae7ff072c79453716811e9bcb03a253386bbc99d",
+      "observed_files_rehashed": 2972,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 74,
+      "wrong_library_origins": {},
+      "native_loaded_files": 239,
+      "before_after_identical": true,
+      "peak_kib": 4466672,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/DELIVERY_v1.json",
+  "delivery_sha256": "7f495b27666abae64cafa1d4763c6a7c1f52eb7811f4f626566b5b8374098b73",
+  "bindings_rehashed": 69,
+  "production_files": [
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/candidate/examples/ode-random/consensus.py",
+      "destination": "examples/ode-random/consensus.py",
+      "sha256": "0458a657e62d34823cd32e600e6cf516580f0cbc5d64841444ac395ded776b94"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/portable/tests/test_examples/test_consensus_source.py",
+      "destination": "tests/test_examples/test_consensus_source.py",
+      "sha256": "8036a5f623b56f11607ba3ce05ba8908dc71f0bb462762df1cc2bd8e3d98956b"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/D1fullpage_v1/snapshot/docs/images/ode-random/Consensus_01.png",
+      "destination": "docs/images/ode-random/Consensus_01.png",
+      "sha256": "fe49026f5de7e05c4a43c2fa5c435b30a8aea0108ed7c9cb63563976acd1dc2c"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/D1fullpage_v1/snapshot/docs/images/ode-random/Consensus_02.png",
+      "destination": "docs/images/ode-random/Consensus_02.png",
+      "sha256": "6b55ba59ee23efe7d3c2a0613df63e1fdbf51b6e677c1732bb9a76ba2ba2e49e"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/consensus_source_20261010/D1fullpage_v1/snapshot/docs/images/ode-random/Consensus_03.png",
+      "destination": "docs/images/ode-random/Consensus_03.png",
+      "sha256": "63dbfe5c853e97f6ec245f63364003d52b0c116a0ef58f506a9538842d032b76"
+    }
+  ],
+  "source_review": "Native nonperiodic forcing, domain [0,40], initial values, operator signs, strengths 0/3/1 and literal 32pt/2.5 styling checked against pinned Consensus.m. Root viewed contact sheet.",
+  "limitations": [
+    "Explicit sequential JAX rng3 stream unmatched to MATLAB rng3",
+    "Literal source32pt/2.5 settings retained; historical website publishing typography unresolved",
+    "Installed R2025b ode113 controller source distinct from historical website version",
+    "No matched timing or pixel-parity claim"
+  ],
+  "visual_review": "All three figures 600x269. Historical typography, RNG trajectories and raster appearance visibly differ; not visual parity.",
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "3ba9259d2cf088963af045387526b8f571ba2e3c",
+    "passed": true
+  }
+}

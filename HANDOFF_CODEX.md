@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Consensus source forcing and full page restored (2026-10-10; latest)
+
+All three native [0,40] solves completed in 596.6s with 4.26 GiB peak RSS.
+Nonperiodic random forcing uses the native 48-unit embedding/481 coefficients,
+then restricts to the original physical interval. Source operators, initial
+values and strengths 0/3/1 are retained. Seven portable controls pass; root
+audited all four gates (2,951-2,975 runtime files each) and 69 delivery bindings.
+Three actual figures are 600x269; stdout is empty as in the source. Evidence:
+docs/consensus_full_page_cpu_20261010.json. Sequential JAX random draws differ
+from MATLAB rng(3); literal source 32pt labels and 2.5 linewidth differ visibly
+from historical website rendering. Full visual/controller parity stays open.
+
 ## AAAtrig input infinity constraints restored (2026-10-10; latest)
 
 Source constraint extraction, appended Loewner rows, limit residuals and
