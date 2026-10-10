@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fresh MATLAB references and 11 restored comparisons (2026-10-10; latest)
+
+MATLAB execution is restored with matlab/R2025b module settings and a short
+shared temporary path. Three authentic fixtures were generated from clean
+7574c77, with 3,518 input hashes unchanged and successful exit. All 11 previously
+skipped comparisons pass at their original bounds, with 3,016 runtime files
+audited. The obsolete unconditional specfun skip is removed; no production
+code changed. Evidence: docs/golden_refs_recovery_cpu_20261010.json.
+
+The diskfun inherited mirror also passes in a fresh CPU process (original 93118,
+2,956 runtime files clean), preserving its earlier broad LLVM allocation failure
+as resource evidence. Both broad-sweep failures now have passing focused gates.
+Full suite continuation and latest CI remain open.
+
 ## Spherefun mean restriction dispatch (2026-10-10; latest)
 
 The broad sweep exposed direct Trigtech restriction in Spherefun.sum(dim=2),

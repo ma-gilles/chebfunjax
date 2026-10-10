@@ -1,0 +1,22 @@
+{
+  "scope": "Fresh MATLAB fixtures and activation of11previously skipped CPU comparisons",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "25.2.0.3055257 (R2025b) Update2",
+  "matlab_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/receipt.json",
+  "matlab_original_handle": 86850,
+  "matlab_exit": 0,
+  "matlab_input_hashes_verified": 3518,
+  "matlab_completion_marker": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/MATLAB_COMPLETED.json",
+  "python_audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/qualification_v1/focused11/AUDIT.json",
+  "python_tests_passed": 11,
+  "python_runtime_files": 3016,
+  "test_change": "Remove obsolete unconditional missing-reference skip; all numerical assertions and bounds unchanged; remove now-unused pytest import after Ruff check (no assertion or runtime computation changes)",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/qualification_v1/focused11/AUDIT.json": "52bcdde16dad976e0c16a1660ddad1a07cd81de023997e2e05f4a66dc166b32a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/tests/references/chebfun_specfun.mat": "2cafb95aa92e30c9378a03bca010b893e9c203296770b15b3a03edf2aae8920c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/tests/references/chebfun.mat": "0aaebed5b4601260a79b29b6766a1ef9a5cfe9d2c30af1c1ec315a4d847878fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/golden_refs_recovery_20261010/tests/references/chebfun_ops.mat": "67b13159166db59cd1aafa24192dc7abc524cea2657c72d6016152c07cd08003"
+  },
+  "startup_contract": "Load matlab/R2025b module, use short shared TMPDIR, shared MATLAB_PREFDIR, singleCompThread; explicit exit0. Previous failed startup receipts retained.",
+  "limits": "Basic fixture comparisons only; full native suite, examples and currentCI unresolved."
+}

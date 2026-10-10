@@ -24,7 +24,6 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
-import pytest
 
 import chebfunjax as cj
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
@@ -542,7 +541,6 @@ class TestMultiPiece:
 # ============================================================================
 
 
-@pytest.mark.skip(reason="MATLAB .mat reference not yet generated")
 class TestMatlabGoldenRefs:
     """Compare against MATLAB Chebfun golden references.
 
