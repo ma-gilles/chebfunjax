@@ -1,0 +1,195 @@
+{
+  "scope": "Second and third original RandomSwitching trajectories; CPU execution evidence, no new library edits",
+  "source_snapshot": "3feef0e45e381b877b2f709c7d62bdb57a408fa3",
+  "root_verified_delivery_bindings": 113,
+  "deliveries": [
+    {
+      "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/SECOND_TRAJECTORY_DELIVERY_v2.json",
+      "sha256": "97523c88ff16da8627eb7864d3e6de88de7fcc09f2664ae46ac9570d34d03e2a",
+      "binding_count": 53,
+      "mismatches": []
+    },
+    {
+      "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/THIRD_TRAJECTORY_DELIVERY_v1.json",
+      "sha256": "c85fb4fd757a7622e5610060b99af325b76b247fc7281b6bbefab405dbc26891",
+      "binding_count": 60,
+      "mismatches": []
+    }
+  ],
+  "trajectories": {
+    "second": {
+      "summary_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/G1second_v2/SUMMARY_v1.json",
+      "summary_sha256": "f5c4b03974b59cf5cf289aa5375da0ebc0612b54dafda5c0928fe73aeffb119d",
+      "summary": {
+        "status": "Original second coupledtrajectory execution complete; source/defaults qualified at bound snapshot; analytic/nativeMATaccuracy notqualified",
+        "base": "3feef0e45e381b877b2f709c7d62bdb57a408fa3",
+        "original_handle": 29375,
+        "audit_handle": 52413,
+        "audit": {
+          "gate": "G1second_v2",
+          "faults": [],
+          "observed_rehash_count": 2953,
+          "mismatches": [],
+          "wrong_origins": {},
+          "junit_count": 1,
+          "terminal": 0,
+          "supervisor_exit": 0,
+          "censored_limit": null,
+          "peak_kib": 2394696,
+          "wall_seconds": 120.07578721502796,
+          "stable": true,
+          "survivors": []
+        },
+        "spans": 18,
+        "public_piece_counts": [
+          18,
+          18
+        ],
+        "accepted": 1696,
+        "rejected": 462,
+        "evals": 3872,
+        "provider_seconds": 18.816766122356057,
+        "cache_deltas": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "all_forcing_members_happened_byte_equal_F2": true,
+        "analytic": {
+          "native_max_abs": 3.0921801594391267e-07,
+          "native_max_relative": 1.8900975326919802e-06,
+          "fit_queries": {
+            "max_abs": "0.00000030932778738991198601471532602568974904785527264151088991689920750927477833209244",
+            "max_relative_inf_norm": "0.0000018886327826771441004825881680307564781036148165984110071310481660442472682941935",
+            "at_max_abs": 27.96,
+            "samples": 1001
+          },
+          "fit_midpoint_residual_max": "0.000000018829930136467099037713030952457404383458523252611354143603951093699112200853985",
+          "raw_root_checks": [
+            {
+              "draw": 0,
+              "max_raw_polynomial_root_residual": "0.000000000000031607191030740909215419446581288692475461205162222230600283038459159765857392596",
+              "midpoint_signs_consistent": true,
+              "root_count": 43
+            },
+            {
+              "draw": 1,
+              "max_raw_polynomial_root_residual": "0.000000000000025294299722316507637500613911888073384246598732550826214843129999143894170969354",
+              "midpoint_signs_consistent": true,
+              "root_count": 17
+            }
+          ]
+        },
+        "caveats": [
+          "B1second_v1 failed old cross-process breakpointbytecheck beforeODE; outcome unchanged. F1 rawFFT variability independently justified new freshsourceforcing gate, not a tolerancechange or savedforcing substitution.",
+          "This run happened to match all F2raw/sign/coefficient arrays but doesnot prove cross-process deterministic roots.",
+          "Original input objects forwarded; observations use hostcopies independently. Native source maxnorm honored; noeventoccurred in18spans.",
+          "Analyticgap is predominantlybeforefit; no nativeMATstagecapture/no unsupported cause attribution. JAXsequentialkey1unmatchedMATrng1.",
+          "No page integration, full4trajectory completion or matched performanceclaim. Remaining54/144piece runs held."
+        ],
+        "postanalysis": "analyze_second_flow_v2.py is a separately bound artifact-only improvement over unused v1 at gatefreeze: preserves full complexerrors and checks source times/levelsreal. Doesnot modify numerical gate."
+      }
+    },
+    "third": {
+      "summary_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_scalar_trajectory_20261010/H1third_v1/SUMMARY_v1.json",
+      "summary_sha256": "ba332a85ef1fe0f96dc55cda4c55845b50a1c5c6b9ae449bad3213f359e4eb6d",
+      "summary": {
+        "base": "3feef0e45e381b877b2f709c7d62bdb57a408fa3",
+        "status": "Original third source trajectory executed through native terminal event; source NaNpaddingto40 qualified; no MATLABtrajectory/accuracyparity claim",
+        "original_handle": 50242,
+        "audit_handle": 24993,
+        "audit": {
+          "gate": "H1third_v1",
+          "faults": [],
+          "observed_rehash_count": 2953,
+          "mismatches": [],
+          "wrong_origins": {},
+          "junit_count": 1,
+          "terminal": 0,
+          "supervisor_exit": 0,
+          "censored_limit": null,
+          "peak_kib": 2881032,
+          "wall_seconds": 145.91484344284981,
+          "stable": true,
+          "survivors": []
+        },
+        "actual_spans": 23,
+        "requested_coefficient_spans": 54,
+        "terminal_time": 18.27595224212559,
+        "public_piece_counts": [
+          24,
+          24
+        ],
+        "source_nan_tail": true,
+        "accepted": 2155,
+        "rejected": 721,
+        "evaluations": 5054,
+        "provider_seconds": 27.524260099511594,
+        "cache_deltas": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "native_max_abs_flow_error": 4.602570635989107e-06,
+        "native_max_relative_flow_error": 3.23875842803402e-08,
+        "fit_queries": {
+          "max_abs": "0.0000044958246396688921036390849174155633839233389938503134735871447559362235121010861",
+          "max_relative_inf_norm": "0.000000032709175956693664213823759507070916251894405847693576148696793996680993237345537",
+          "at_max_abs": 18.257694547578012,
+          "samples": 1001
+        },
+        "fit_midpoint_residual_max": "0.000000015056176836704773420537545623039370953575634102994430622026241159297628751277498",
+        "source_notes": [
+          "constructODEsol.m123-128 joins valid solution to NaNfun on[event,oldEnd]. Observer verifies finiteprefixcoefficients and NaNtailcoefficients/fullquerytail, without requiring storedvalue at jump to be finite.",
+          "All fresh forcingmembers happened to match F2; FFT variability still recorded, no deterministicrootclaim.",
+          "Full source inputdomain[0,40] and maxnorm[200,200] preserved; event termination is not a reduced-domain substitute.",
+          "Analyticerror predominantlyexists in native mesh; no unsupported source/MATLAB attribution, no invented passbound.",
+          "ScalarA1 andsecondG1 unchanged; fourthlambda1/3held for explicitreview."
+        ]
+      }
+    }
+  },
+  "limits": [
+    "Fourth source trajectory remains unexecuted",
+    "JAX random stream does not match MATLAB rng(1)",
+    "Observed fixed-input CPU FFT variability remains unresolved; old failed exact-byte gate preserved",
+    "Analytic error predominantly exists before public fitting; MATLAB trajectory comparison remains unavailable",
+    "Original input domain [0,40] and maxnorm [200,200] preserved. Third terminal event and NaN tail are source behavior",
+    "Example page still needs source-input repair, all four trajectories, printed output and figure audit"
+  ]
+}

@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## RandomSwitching second and third source trajectories (2026-10-10; latest)
+
+The second trajectory executes all 18 spans through time 40. The third reaches
+its native terminal event at 18.27595224212559 after 23 of 54 possible spans,
+then preserves source NaN padding through time 40. Both audits are clean;
+root verified 113 delivery bindings. Independent flow comparisons retain
+max absolute mesh errors of 3.09e-7 and 4.60e-6 respectively. No MATLAB accuracy
+parity is claimed. The fourth trajectory and page repair remain pending.
+Evidence: docs/randomswitching_second_third_cpu_20261010.json.
+
 ## Singfun real-part test contracts (2026-10-10; latest)
 
 Two stale supplemental assertions now follow native real/issmooth semantics:
