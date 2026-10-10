@@ -1598,6 +1598,10 @@ class Chebfun2(eqx.Module):
         MATLAB source : @separableApprox/times.m, mtimes.m
         Chebfun commit: 7574c77
         """
+        # Native mtimes accepts numel(other)==1. Normalize an eager JAX
+        # singleton to the static scalar required by the source zero branch.
+        if isinstance(other, jax.Array) and other.size == 1:
+            other = other.reshape(()).item()
         if isinstance(other, (int, float, complex)):
             from chebfunjax.chebfun2d._pivot_metadata import _scale
             return Chebfun2(approx=_scale(self.approx, other))
@@ -1617,6 +1621,8 @@ class Chebfun2(eqx.Module):
     __rmul__ = __mul__
 
     def __truediv__(self, other) -> "Chebfun2":
+        if isinstance(other, jax.Array) and other.size == 1:
+            other = other.reshape(()).item()
         if isinstance(other, (int, float, complex)):
             return self * (1.0 / other)
         if isinstance(other, Chebfun2):

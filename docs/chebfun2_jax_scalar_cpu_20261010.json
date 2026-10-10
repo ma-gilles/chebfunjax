@@ -1,0 +1,38 @@
+{
+  "scope": "Eager JAX singleton scalar multiplication and right division for Chebfun2",
+  "changed_methods": [
+    "Chebfun2.__mul__",
+    "Chebfun2.__truediv__"
+  ],
+  "source_contract": "Native mtimes accepts numel(g)==1; normalize eager JAX singleton to exact represented Python scalar before existing static-scalar branch. Native pivot/scalar and reciprocal division order unchanged.",
+  "root_cases": 34,
+  "new_controls": 16,
+  "root_seconds": 93.00251385103911,
+  "peak_child_rss_kib": 3783496,
+  "baseline": "First new scalar-left control fails with TypeError on original8f632 code; original20231terminal1 preserved.",
+  "native_randnfun2": "All12 mathematical assertions unchanged; pass11 now uses jnp.sqrt(10.) directly, removing Python-scalar test adaptation.",
+  "coverage": [
+    "Real/complex/zero operands on scalar,1-vector,1x1 shapes",
+    "Non-singleton arrays remain rejected",
+    "float32 represented scalar value preserved",
+    "Existing arithmetic and native pivot metadata controls",
+    "Existing static-scalar JIT and coefficient differentiation controls"
+  ],
+  "runtime": "Candidate PYTHONPATH explicitly selects cached JAX/JAXLIB0.11.0 imports used by the agent native qualification; root source/test hashes unchanged. No full external runtime hash audit claimed.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_candidate_20261010/receipt.json": "57228a5f703c0746ad3ab72a8df7740a5c46261b00ede665dd0c01eb3e3f9e40",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_candidate_20261010/junit.xml": "003ff7e2f73fbda18e135daff092f17c00d65e7188db1451de58ad8752350afa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_candidate_20261010/review.json": "302d341e670547534c26dede2ef1bb74dd6bae6f3bcb0e5b7a014bdd916197aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_candidate_20261010/run.py": "f695629ec3d4acdee8363f7a6d2cdb55229e8cb2e6de714d9a38715e0e277436",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_candidate_20261010/static.json": "de43ab50b03a8f11e2f46502acf1c3efbaca7c0ab2e282bf5b6082475a57a037",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_20261010/receipt.json": "7bbae7f44b95723c71d6964b42a60e6d110c80e9cadf8ddcd4e1410d53a93df6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_scalar_operands_20261010/stdout": "47a0402e5c62a22186579d138d5b72a6e4d5bd1d78a135f3e7ae63d9d3e855db",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/mtimes.m": "775b0278c800ac2569f488b7abb38f78ed18eb1a1fb4ed3735809c4210d0e334",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/rdivide.m": "5b00c914661264c72e0e2e62ddd40e81dc56524d8eac8bffd859f0449fa3697f"
+  },
+  "limits": [
+    "Dynamic traced scalar operands remain unsupported/unqualified by the static zero-branch contract.",
+    "JAX scalar addition/subtraction and other classes not included.",
+    "Full test/page/figure/performance/CI parity remains unresolved."
+  ]
+}

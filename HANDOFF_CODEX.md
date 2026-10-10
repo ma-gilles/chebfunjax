@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebfun2 eager JAX scalar arithmetic (2026-10-10; latest)
+
+Eager scalar and singleton JAX arrays now reach native scalar multiplication
+and right division, retaining existing pivot arithmetic. Root34 cases pass,
+including16 new controls and all12 native randnfun2 assertions using JAXsqrt
+directly. Static-scalar JIT/AD controls pass; dynamic traced scalars and
+scalar addition/subtraction remain unqualified. Evidence:
+docs/chebfun2_jax_scalar_cpu_20261010.json. Full parity/CI remain open.
+
 ## Native event marker regression correction (2026-10-10; latest)
 
 The continued sweep found one added test still expecting unsupported native

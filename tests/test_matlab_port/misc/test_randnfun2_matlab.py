@@ -8,8 +8,6 @@ not claimed to match MATLAB's rng(0)/randn stream.
 """
 from __future__ import annotations
 
-import math
-
 import jax.numpy as jnp
 import numpy as np
 
@@ -61,11 +59,7 @@ class TestRandnfun2:
         assert float(f.diff().norm("fro")) == 0
 
         # Native pass(11): norm(sqrt(10)*standard - big) == 0 exactly.
-        # Chebfun2.__rmul__ currently rejects JAX ArrayImpl scalars;
-        # Python's correctly rounded binary64 sqrt preserves this native
-        # scalar-left multiplication while adapting the scalar representation.
-        assert math.sqrt(10.).hex() == float(jnp.sqrt(10.)).hex()
-        f1 = math.sqrt(10.) * cj.randnfun2(.1, seed=0)
+        f1 = jnp.sqrt(10.) * cj.randnfun2(.1, seed=0)
         f2 = cj.randnfun2(.1, "big", seed=0)
         assert float((f1 - f2).norm()) == 0
 
