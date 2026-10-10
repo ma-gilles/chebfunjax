@@ -462,6 +462,27 @@ def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Arr
     return result[0] if scalar_input else result
 
 
+@jax.jit
+def _trig_real_horner_loop(a, b, u, v, co, si):
+    """Run the real Horner recurrence with dynamic coefficient operands.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/horner.m (horner_scl_real, horner_vec_real)
+    Chebfun commit: 7574c77
+    """
+    n_h = a.shape[0]
+    def body(j, state):
+        co_, si_ = state
+        # j = 0, ..., n_h-3; inner index k = n_h-2-j goes from n_h-2 down to 1
+        k = n_h - 2 - j
+        temp = a[k] + u * co_ + v * si_
+        si_new = b[k] + u * si_ - v * co_
+        return (temp, si_new)
+
+    return jax.lax.fori_loop(0, n_h - 2, body, (co, si))
+
+
 def _trig_eval_real(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
     """Real Horner evaluation for real-valued trig series.
 
@@ -521,15 +542,7 @@ def _trig_eval_real(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
     co = jnp.broadcast_to(a[n_h - 1].astype(carry_dtype), out_shape)
     si = jnp.broadcast_to(b[n_h - 1].astype(carry_dtype), out_shape)
 
-    def body(j, state):
-        co_, si_ = state
-        # j = 0, ..., n_h-3; inner index k = n_h-2-j goes from n_h-2 down to 1
-        k = n_h - 2 - j
-        temp = a[k] + u * co_ + v * si_
-        si_new = b[k] + u * si_ - v * co_
-        return (temp, si_new)
-
-    co, si = jax.lax.fori_loop(0, n_h - 2, body, (co, si))
+    co, si = _trig_real_horner_loop(a, b, u, v, co, si)
 
     # Final: f(x) = a_0 + 2*(u*co + v*si)
     return a[0] + 2.0 * (u * co + v * si)

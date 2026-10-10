@@ -1,0 +1,163 @@
+{
+  "status": "Qualified extraction-only candidate for root integration review; no publication edit",
+  "base": "c5f0562cfbd3f719e15185456fe029b5528d66f3",
+  "production_payload": "candidate/src/chebfunjax/tech/trigtech.py",
+  "patch": "candidate.patch",
+  "external_evidence_only": [
+    "baseline_horner.py",
+    "candidate/tests/test_tech/test_trig_horner_persistent_source.py"
+  ],
+  "proof": "Full module AST identical after inline expansion; unchanged recurrence body and fori_loop call; only stable module-level JIT boundary added with six dynamic arrays. No pre/post math or generic dispatch change.",
+  "results": [
+    {
+      "gate": "fixture10_v1",
+      "original_handle": 87376,
+      "audit_handle": 52022,
+      "passed": true,
+      "cases": 10,
+      "observed_files": 2933,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 852888,
+        "wall_seconds": 74.71936409221962,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "gate": "regression23_v1",
+      "original_handle": 51366,
+      "audit_handle": 14172,
+      "passed": true,
+      "cases": 23,
+      "observed_files": 2941,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 1218084,
+        "wall_seconds": 86.16853409912437,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    }
+  ],
+  "scope": [
+    "20 exact byte comparisons across ten fixtures (two operand sets each); shapes/dtypes identical",
+    "Helper JIT cache entry count stable across changed same-shaped values; this is cache-entry observation, not measured compiler event count",
+    "Five unchanged existing native-port tests correspond to native pass1,2,3,4,6; inherited grid differs from MATLAB seed7681 random query inputs",
+    "16 independent complex-point Fourier identities and2 independent coefficient AD guards passed unchanged",
+    "No actual SphereHeat/Newton replay or measured total-memory reduction. Further shape changes still create shape specializations.",
+    "No scratch-dependent fixture test should enter default portable suite."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/candidate/src/chebfunjax/tech/trigtech.py": "6ef6cd90e2ae9fb87a025f0e52f74255beacba176d967441ed3df8614eebb557",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/candidate.patch": "fe5b00a65910ae9ddf5d63c2ac5ab251ef5a2ac88c6ce4ba4cd8ef315090e0cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/SOURCE_PROOF.json": "a6fb7f648b62413aff687bcb49a45df6bf1afc44c715410d30152ce9411f7af0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/FROZEN_GATE_PLAN_v1.json": "c2c2ba4515d31f21a25f00e54fe326cda08067bfae0c087b6c24528b0304cd0d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/FINAL_STATIC_v1.json": "1d4c1f3836024550b88b8f1a5a8c75fbaf3e1d9d95e19d961a2df88313946fab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/baseline_horner.py": "d676572f2fb6a50466abd812bce1b087a77d7859633a1074e13e50b01d6f98b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/candidate/tests/test_tech/test_trig_horner_persistent_source.py": "b4cd1d0c77ed911cf6cbb9ca3e9ed61a5be4015bb6fada390e5e723c2fe8138b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/audit.py": "e637ac2c3a960714e207cf4af34238bf7c0815384693668b1d9839d158267905",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/freeze.py": "3af91698cc3fec3927ded90dd8524a850da967ac191ddeee958da92f3d48c4f7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/prepare.py": "7f296b760a8c122130f061d9ca32a3c3903ab6ebbdc8f2c719e728dd234430de",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/FIXTURE10_V1_AUDIT.json": "e504d456aa04506321861e06750871e1d13c1a15fffbea0204ae245448904fba",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/manifest.json": "c04404677ec5ca3e294a6e5b9e7667ba0cd555be4ed70c6f83684b713af2f92f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/guard.json": "fd4068007a0bb387e1db414292ff6318aa228084f2d07a5393cde3f11ff5d85d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/launch.sh": "e68bc8943b8fb40839c7b07db7a2335d7a3fb3c35d9ac6ebe8cb11af0f71cccf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/plan.json": "6f9b5d362959335f80c347641f0140d182cba9e614abb60db8285ac7caf0f993",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/supervision/receipt.json": "b36549ae75eb474f5fadb1f3e960dc85592aa670ea1abccabb411aa84816dd3c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/start.json": "d879fe724d2b1975189c38fcf39dc583d8d1b2f761b114f6bfed36e41926f60a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/end.json": "fb370e14a9ae5db63842a6fef164b63de53dc984e8b0c09e1e7e0d66267b1bd2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/junit.xml": "e1f85de657d76a280db4e0d820f24f5af962155ec3843df6dca754d905bccbcf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/9_1_True_True.json": "6990457b9c6b15fd3c131449197a2c8c9a07a9758fc7156c785c32d230ca52fb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/8_3_False_True.json": "53258a68c96e7127410dd17487f478bf5b3b1a6b34e1d5555aa1b7b20bce2d84",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/9_3_True_False.json": "a533ec31da07c140cf1932adad5d582c40efd0005da42590449b99f64f99023e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/8_1_False_False.json": "b126132d71d4e7855cb67670a93db43f54033d8afb4e275b8e7e60e12a423e20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/151_1_False_True.json": "f13e4c50c022557f658c1173436077245f900a13307980863e31f451a66ae3d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/0_1_False_False.json": "2b463cc62d0b2552c23ba57131f1dc0241caf3c506203967bdc19d3b03f3534d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/2_1_True_False.json": "7d86938b43f5ae79bf0c1aa4637d3e28fdccb869fd218110e0df9e5aa67638bc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/150_3_False_False.json": "688508a3e5f39981b073cb76914320f0760d27d523ea5e5277bfe706a3f33292",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/3_3_False_True.json": "6b0c9e6da055cf172f1aa7d8be493546ad5abd9969ae5efb5b8077cf0b0a9309",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/runtime/captures/1_3_True_True.json": "a62420f27e68ada672059d4f7426bd475ef86613bb676d6cb3ba892b8daffdf1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/REGRESSION23_V1_AUDIT.json": "acb34d2048e30a4bfd4f81440eb540b033b83b82a1f2d1c2865fb539219b78e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/manifest.json": "71bca97eddfafae0bd4b84ae0a6c21c50570dcbf976bf25afcd32646d2194c7a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/guard.json": "f12dffc158b269f51d5640c23284f4ecfd479d6b52801e371bd4a6f4f9be71e0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/launch.sh": "e79782a38f90064b4727722c79a4c03613c413be43175134360880ca35a6eaf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/plan.json": "40c7c88b13e32b7b71abcf915a1aac3029701f963c75e6601eacb83db3661f0e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/supervision/receipt.json": "8bed46b6c70f19e49e87d47cd143a257a125dbc9039646f7e341e26dd9cf8e44",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/runtime/start.json": "8674eb8da21dee16d7fe03653869fd3eff7877b329177530c5764836b9c938cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/runtime/end.json": "438dd0798d2e65a7a7ed97729caa8b171a384509fedd29f73ab3d8de06540dff",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/runtime/junit.xml": "01fb9cefba8e05bb1e118a123e81425bb3ebca49d0332cf15c0311978ea87831",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_public_source_20261009/gaussian_steps_compile_v1/ROOT_REVIEW.json": "7f2b9d5673fba4dc07f73c99afda1eee0efffe261cf821f8de8f76445bf79718",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@trigtech/horner.m": "a1846513fa74add879125a3cd5d6a178b87c048305f2e3f070f33f04317d05cc",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/trigtech/test_feval.m": "b96e34f2da1146f9c55205446e47d18e036ebad8011ebbad03fa3b51a2e95c0c"
+  },
+  "root_AST_inline_identity": true,
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Extraction-only real Trig Horner loop;10 exact-eager fixtures and23 existing regressions; no fullSphere claim.",
+    "gates": [
+      {
+        "gate": "fixture10_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/fixture10_v1/supervision/receipt.json",
+        "receipt_sha256": "b36549ae75eb474f5fadb1f3e960dc85592aa670ea1abccabb411aa84816dd3c",
+        "runtime_manifest_sha256": "c04404677ec5ca3e294a6e5b9e7667ba0cd555be4ed70c6f83684b713af2f92f",
+        "runtime_end_sha256": "fb370e14a9ae5db63842a6fef164b63de53dc984e8b0c09e1e7e0d66267b1bd2",
+        "observed_files_rehashed": 2933,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 852888,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 10,
+        "source_payload_sha256": {},
+        "faults": []
+      },
+      {
+        "gate": "regression23_v1",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_horner_prepare_20261009/regression23_v1/supervision/receipt.json",
+        "receipt_sha256": "8bed46b6c70f19e49e87d47cd143a257a125dbc9039646f7e341e26dd9cf8e44",
+        "runtime_manifest_sha256": "71bca97eddfafae0bd4b84ae0a6c21c50570dcbf976bf25afcd32646d2194c7a",
+        "runtime_end_sha256": "438dd0798d2e65a7a7ed97729caa8b171a384509fedd29f73ab3d8de06540dff",
+        "observed_files_rehashed": 2941,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 50,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1218084,
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "assertion_slots": 23,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "source_sha256": "6ef6cd90e2ae9fb87a025f0e52f74255beacba176d967441ed3df8614eebb557"
+}
