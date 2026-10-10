@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Core sweep ledger and deferred examples verified (2026-10-10; latest)
+
+Historical frozen core partitions provide 8,800 distinct passing test IDs,
+11 remaining skipped IDs and one retired stale-contract baseline ID. Root
+verified the artifact bindings and the separately resolved AAAtrig skip.
+All 13 deferred example tests also passed in a clean frozen d674129e run;
+root rehashed 3,018 runtime files and 12 fresh declared PNG outputs. The
+preceding guard-failed run remains preserved. Evidence:
+docs/core_sweep_completion_ledger_20261010_v2.json and
+docs/core_sweep_and_examples_review_20261010.json. These are separate
+snapshots, not current-head full CI or page/figure parity. Native-port
+coverage, actual MATLAB reference fixtures and broader semantic gaps remain.
+
 ## Native AAAtrig greedy nullspace weights restored (2026-10-10; latest)
 
 JAX row/column scaling preserves the native two-product Loewner expression

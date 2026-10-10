@@ -1,0 +1,135 @@
+{
+  "historical_core_review": {
+    "ledger": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_sweep_completion_ledger_20261010.json",
+    "ledger_sha256": "2ad882b3fb5de2513f96dfe8265ca8cf12eb46ebf93cbe6da9ff91f34a559dc1",
+    "checked_artifacts": 218,
+    "summaries": {
+      "core0": {
+        "unique_node_ids": 2971,
+        "with_pass_evidence": 2969,
+        "failed_only_ids": 0,
+        "skip_only_ids": 2
+      },
+      "core1": {
+        "unique_node_ids": 2483,
+        "with_pass_evidence": 2478,
+        "failed_only_ids": 1,
+        "skip_only_ids": 4
+      },
+      "core2": {
+        "unique_node_ids": 3358,
+        "with_pass_evidence": 3353,
+        "failed_only_ids": 0,
+        "skip_only_ids": 5
+      }
+    },
+    "faults": [],
+    "scope": "Historical frozen partition JUnit identities and artifact bindings only; not current-head suite qualification",
+    "supplemental_resolution": {
+      "qualification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_even_skip_diagnosis_20261010/qualification_v1",
+      "junit_sha256": "1473815eede39cb40e5330ba37fedb4b8a2032bf81e9404c72c9bd8d73685012",
+      "newly_passing_nodes": [
+        [
+          "tests.test_utils.test_missing_functions.TestAaatrig",
+          "test_even_form"
+        ]
+      ],
+      "note": "Initial reviewer omitted explicitly listed supplemental even-form gate; original incomplete review preserved."
+    }
+  },
+  "ledger_v2_sha256": "cfe9f1a58ab1955d9ad818c798d041c29ee49390c32de01cdb0219d98698f8ce",
+  "core_evidence_and_node_summary_unchanged_from_independently_reviewed_v1": true,
+  "deferred_examples_review": {
+    "reviewer": "/root",
+    "scope": "Deferred13 example module, frozen d674129e, corrected declared PNG outputs; numerical tests only, not figure parity",
+    "gates": [
+      {
+        "gate": "examples_deferred13_d674129e_v4",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/examples_deferred13_d674129e_v4/supervision/receipt.json",
+        "receipt_sha256": "b1a5ea43bfb10d22a84e67b468d3de620bd00084f9d7664c56916ede8242c7e6",
+        "runtime_manifest_sha256": "a8d107195b5eb89f7ceabc719b43c15b819e61321b547ee72c170344193550f9",
+        "runtime_end_sha256": "f784b32996d8cef910acc9737a822ee43b9568ec577b36d7010b5975fe5b8df4",
+        "observed_files_rehashed": 3018,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 87,
+        "wrong_library_origins": {},
+        "native_loaded_files": 240,
+        "before_after_identical": true,
+        "peak_kib": 5456024,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 13,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "deferred_examples_owner_audit_sha256": "b6022a1c2b8ecca9470a3e16c9b8e3296bffd8be4700bbd8ef45e2bdcf9e9e0e",
+  "frozen_examples_head": "d674129e743808331f4305bd7b2616d177c68f73",
+  "declared_generated_outputs_rehashed": [
+    {
+      "path": "docs/images/ode-linear/LinearIVP_01.png",
+      "sha256": "9bbb884e8a0a187d62e11141ce4598a52414f38f71adda84fa7c221c8707156c"
+    },
+    {
+      "path": "docs/images/ode-linear/BoundaryLayer_02.png",
+      "sha256": "612924045943d16a37b8054f61a85759e28df6dfc0a2b4b9ee6b3caa5c83ce8e"
+    },
+    {
+      "path": "docs/images/ode-nonlin/Carrier_01.png",
+      "sha256": "4a054cf557d785db44d682949f9991b97d044c8c5d66e7b5cc8c16e91f68356d"
+    },
+    {
+      "path": "docs/images/ode-nonlin/Carrier_02.png",
+      "sha256": "6b44b681935d574b14cb585e40373f064ef3246ee5a9f430b62ce874c2d70eb6"
+    },
+    {
+      "path": "docs/images/ode-nonlin/Carrier_03.png",
+      "sha256": "8683e62a426817455f3662b02378affc4872e86dcd8235940b6e7079f4cb0d02"
+    },
+    {
+      "path": "docs/images/opt/GlobalMinimum_01.png",
+      "sha256": "4e7a3da29da0ed16421fe24ac14fc97865fe9300edc5d96be2e44d5576c84fef"
+    },
+    {
+      "path": "docs/images/opt/GlobalMinimum_02.png",
+      "sha256": "df32ac784a903c129a05a2a1dedd464ed6fed2b872b2ebf8d315d63dc90b1589"
+    },
+    {
+      "path": "docs/images/opt/GlobalMinimum_03.png",
+      "sha256": "4fb4ab1759c4f961a74f9be2483e205b364fc7ee0a62fe4c91098d02c90cbe4d"
+    },
+    {
+      "path": "docs/images/linalg/MercuryEarthConjunctions_01.png",
+      "sha256": "620fed5a6923f4517e919f42f10756fb254c06d08b92c472502611ad73cb12e1"
+    },
+    {
+      "path": "docs/images/linalg/CondNos_01.png",
+      "sha256": "9bcd4dd37fb94a41d230b2e9c0e5206532da1d07672daf3e39e81622512ffc18"
+    },
+    {
+      "path": "docs/images/linalg/CondNos_02.png",
+      "sha256": "dd9dc2fd8b1601001d969ae25d6e44d10ac929d852e764019e8f6a3e03a88028"
+    },
+    {
+      "path": "docs/images/linalg/CondNos_03.png",
+      "sha256": "b3903c1a334ca30ee1246a60a11573f49d46aad2b63e7ab2655b17d8616aba50"
+    }
+  ],
+  "prior_v3_failure": "13numericalpasses, supervisor1 because12PNGoutputs incorrectly bound inputs; preserved at examples_deferred13_d674129e_v3",
+  "limits": [
+    "Historical multi-snapshot core ledger plus separately qualified13examples; no current-head whole-suite/coverage/CI claim.",
+    "Generated PNG existence and hashes do not establish website visual parity.",
+    "MissingMATLABfixtures and native-port/semantic gaps remain."
+  ]
+}
