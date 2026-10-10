@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## All native Chebfun3 sine assertions restored (2026-10-10; latest)
+
+All nine original predicates now run, including fiberDim1/2/3, coordinate
+object construction on the varying domain, trig evaluation and eps alias.
+Four pytest cases passed in three serial CPU gates; root independently
+verified 2,940/2,942/2,940 runtime hashes. Original thresholds remain.
+Evidence: docs/chebfun3_native_sin_cpu_20261010.json. Native test8 checks
+scalar sine, so periodic-object sine dispatch remains separately open.
+Full suite and remote CI remain unresolved.
+
 ## All native Chebfun3 plus assertions restored (2026-10-10; latest)
 
 The canonical plus test now contains all10 original MATLAB predicates:
