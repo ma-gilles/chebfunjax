@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Restriction singleton pointValues (2026-10-10; latest)
+
+Actual RandomSwitching raw.sign() exposed a (n,1) stored pointValues versus
+scalar-piece output shape mismatch. Restriction now restores the same logical
+row with the output storage shape, without numerical arithmetic. Six new
+controls pass, including retained177-coefficient input yielding44 sign pieces
+and43 zero root impulses. Root63pass/1skip, no failures; existing restrict
+query-fixture skip remains explicit. Full provider replay remains open.
+Evidence: docs/restrict_singleton_pointvalues_cpu_20261010.json.
+
 ## Binary composition unbounded native predicate (2026-10-10; latest)
 
 Source pass11 no longer skips for missing raw second-block uniforms. The

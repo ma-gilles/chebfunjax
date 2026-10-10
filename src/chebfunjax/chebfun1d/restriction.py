@@ -68,7 +68,11 @@ def restrict(f, domain):
             # breakpoint carries an explicit complex value. Preserve real
             # storage if no old breakpoint is restored.
             values = values.astype(jnp.result_type(values, previous))
-            values = values.at[k].set(previous[old.index(x)])
+            # MATLAB's pointValues matrix always has a column dimension;
+            # scalar Python pieces can store either (n,) or (n,1). Restore
+            # the same logical columns in the new piece's storage shape.
+            restored = previous[old.index(x)].reshape(values[k].shape)
+            values = values.at[k].set(restored)
     out = out.set_point_values(values)
     if f.is_transposed:
         object.__setattr__(out, '_is_transposed', True)

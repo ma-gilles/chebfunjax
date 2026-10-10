@@ -1,0 +1,42 @@
+{
+  "scope": "Restore scalar and singleton-column stored point values during restriction",
+  "source": "@chebfun/restrict.m:112-122,7574c77",
+  "base": "05ab1bb88d6fd0b9303eaf822fbf401344d37e41",
+  "production_change": "Reshape old breakpoint logical row to new pointValues row shape before indexed assignment; preserves values and dtype promotion without arithmetic.",
+  "baseline": "6 failures including retained RandomSwitching first raw.sign() input",
+  "tests": {
+    "passed": 63,
+    "skipped": [
+      "test_source_24_native_pending"
+    ],
+    "failures": 0,
+    "new_controls": 6
+  },
+  "actual_replay": "Retained177-coefficient raw RandomSwitching draw now signs to44 pieces with43 exact zero root impulses;201 interior queries match direct sign. Fixture is JAX seed1 output, not MATLAB random capture.",
+  "seconds": 105.50430314289406,
+  "peak_child_rss_kib": 1565364,
+  "cpu_affinity": [
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_pointvalues_20261010/receipt.json": "ebccf46489eb63696558e7cf4b97d1cb79081aa9a3dd56f2db8dc9e56a5eef00",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_pointvalues_20261010/junit.xml": "db8e6006e7feb7f6f5b2a6baafe07070031d570ef1460cfbabc43f06ec9ef0b7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_root_20261010/receipt.json": "29a4b638f989bf31427573b84be74267957206a5b5bf7c287c47478c3a0da582",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_root_20261010/junit.xml": "22a37e73438159aed2d1aa48bfb89da79da0bb223d4ca53b0bdc440e5fec6fa0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_root_20261010/fixture_provenance.json": "821d21d96c340d3b89ed758be62ac3d4732fc2d4bf59f79016238f91a700252e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/restrict.m": "e999d810c2412a55d93f651f6f943881d6d1a05398746a76abe63b4a83503489"
+  },
+  "limits": [
+    "Remaining native restrict source24 query fixture is still skipped.",
+    "Full RandomSwitching provider replay and trajectory remain open.",
+    "Root source/test hashes stable; measured RSS, no RSS cap or runtime-import audit."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/restrict_singleton_root_20261010/static.json"
+}
