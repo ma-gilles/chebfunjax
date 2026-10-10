@@ -1225,6 +1225,27 @@ class ADChebfun:
     # Evaluation (f(x) syntax) — returns a scalar ADChebfun
     # ------------------------------------------------------------------
 
+    def compose(self, g):
+        """Compose function states with the native two-term AD chain rule.
+
+        Provenance
+        ----------
+        MATLAB source: @adchebfun/adchebfun.m (compose); commit 7574c77.
+        """
+        from chebfunjax.operators.blocks import compose_op
+
+        argument = g.func if isinstance(g, ADChebfun) else g
+        evaluation = compose_op(argument, self.domain)
+        result = _copy_ad(self)
+        result.jacobian = evaluation * self.jacobian
+        if isinstance(g, ADChebfun):
+            result.jacobian = result.jacobian + diag(
+                evaluation * self.func.diff(), self.domain) * g.jacobian
+            result.linearity = tuple(a and b for a, b in zip(
+                _jac_zero_flags(g.jacobian), self.linearity))
+        result.func = self.func(argument)
+        return result
+
     def __call__(self, x):
         """Evaluate at numeric points, retaining scalar or vector Jacobians.
 
@@ -1237,6 +1258,10 @@ class ADChebfun:
         @functionalBlock/functionalBlock.m (feval).
         Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        if isinstance(x, (ADChebfun, Chebfun)):
+            return self.compose(x)
         points = jnp.asarray(x, dtype=jnp.float64)
         domain = self.domain
         rows = [eval_at(float(v), domain=domain) for v in points.reshape(-1)]

@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native AD composition and pantograph equations (2026-10-10; latest)
+
+Function-state evaluation now uses native composition: its Jacobian includes
+both the outer-function variation and the derivative through an AD argument.
+The collocation operator preserves native barycentric evaluation, left-side
+breakpoint ownership and clipped exterior interval selection. All four original
+pantograph clauses pass at unchanged 1e-10/1e-8 bounds, alongside 23 focused and
+regression cases. Eight polynomial/routing controls are included. Root verified
+48 artifact bindings and exact integrated bytes; static gates pass. Evidence:
+docs/pantograph_ad_composition_cpu_20261010.json. Count and harness faults are
+retained in the delivery. Broad continuation, other native APIs and CI remain open.
+
 ## ShortPulse supported-event regression correction (2026-10-10; latest)
 
 The old unsupported-event expectation now tests the existing native maxnorm

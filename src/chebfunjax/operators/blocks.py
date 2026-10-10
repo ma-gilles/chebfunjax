@@ -1167,6 +1167,42 @@ def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
             _values_capability=_native_values.multiplier(f, dom))
 
 
+
+def compose_op(g, domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:
+    """Native composition operator ``C*u = u(g)``.
+
+    Provenance
+    ----------
+    MATLAB source: @operatorBlock/operatorBlock.m (compose),
+    @chebcolloc/compose.m and @chebfun/whichInterval.m; commit 7574c77.
+    """
+    from chebfunjax.utils.interpolation import barymat
+
+    dom = tuple(float(x) for x in domain)
+
+    def matrix(disc):
+        points = disc.points()
+        locations = jnp.asarray(g(points)).reshape(-1)
+        # Native whichInterval defaults to the left at interior breaks;
+        # compose clips exterior points to the first/last interval.
+        owners = jnp.clip(jnp.searchsorted(jnp.asarray(disc.domain),
+                                          jnp.real(locations), side='left')-1,
+                          0, disc.num_intervals-1)
+        offsets = disc.offsets()
+        result = jnp.zeros((points.size, points.size),
+                           dtype=jnp.result_type(locations, points))
+        for interval in range(disc.num_intervals):
+            selected = jnp.where(owners == interval)[0]
+            if selected.size:
+                columns = jnp.arange(offsets[interval], offsets[interval+1])
+                values = barymat(locations[selected], points[columns])
+                result = result.at[selected[:, None], columns[None, :]].set(values)
+        return result
+
+    return OperatorBlock(matrix, domain=dom, apply_fn=lambda u: u(g),
+                         isnotdiffint=True)
+
+
 def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN,
             direction: Union[int, str] = 0) -> FunctionalBlock:
     """Point-evaluation functional: ``F[u] = u(x)``.

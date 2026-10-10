@@ -1,0 +1,27 @@
+{
+  "scope": "Native function-state AD composition and collocation composition operator",
+  "source": "Chebfun7574c77 @adchebfun/adchebfun.m compose/feval; @operatorBlock/operatorBlock.m compose; @chebcolloc/compose.m",
+  "packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pantograph_ad_composition_20261010/DELIVERY.json",
+  "packet_sha256": "b7fb36a820a537bc1d256303f045d36f4c19105efd63b5f769217e02dd3006c7",
+  "root_verified_bindings": 48,
+  "focused_and_regression_cases_passed": 23,
+  "native_pantograph_clauses_passed": 4,
+  "native_bounds": [
+    1e-10,
+    1e-10,
+    1e-10,
+    1e-08
+  ],
+  "runtime_hashes": {
+    "controls": 2981,
+    "native": 2976
+  },
+  "new_controls": 8,
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pantograph_ad_composition_20261010/ROOT_STATIC_v1.json",
+  "limits": [
+    "Qualifies Chebfun/ADChebfun composition and internal ChebColloc2 matrix route; not full native API parity.",
+    "Controls plan undercount19 corrected to23 from frozen source/JUnit without numerical rerun.",
+    "Harness ordering fault preserved; no input mutation or unapproved repeat.",
+    "Broad combined-HEAD rerun and freshCI remain pending."
+  ]
+}
