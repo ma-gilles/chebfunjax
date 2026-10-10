@@ -5,8 +5,10 @@ Provenance
 MATLAB source: tests/chebfun/test_compose_binary.m; commit7574c77.
 Source1–9 use native seed7681 xr fixture. Source10 recovers the primitive
 uniforms from native seed6178 xr words and applies the source affine map;
-that mapping is derived, not a fresh native capture. Source11 awaits the
-subsequent seed6178 words, with its literal body retained below.
+that mapping is derived, not a fresh native capture. Source11 uses every
+binary64 primitive uniform consistent with the captured second-block affine
+values. Its 252-point superset includes all 100 source queries; the original
+infinity-norm bound is unchanged. This does not claim unique raw RNG recovery.
 """
 import json
 import struct
@@ -79,11 +81,43 @@ def test_original_binary_10_singular():
     assert h(7.) == exact(jnp.asarray(7.))
 
 
+
+def _double(word):
+    return struct.unpack('>d', struct.pack('>Q', word))[0]
+
+def _uniform_preimages(y):
+    # For nonnegative doubles the uint64 encoding is monotone. Binary search
+    # the full finite interval, not a guessed radius around the inverse.
+    end = 0x3ff0000000000000 + 1
+    def bound(strict):
+        low, high = 0, end
+        while low < high:
+            mid = (low + high)//2
+            value = 9.0*_double(mid)-2.0
+            past = value > y if strict else value >= y
+            if past:
+                high = mid
+            else:
+                low = mid+1
+        return low
+    first, last = bound(False), bound(True)
+    assert first < last
+    # Exact outside-neighbor checks establish completeness for this monotone
+    # two-operation map; retain every interior binary64 candidate.
+    assert first == 0 or 9.0*_double(first-1)-2.0 < y
+    assert last == end or 9.0*_double(last)-2.0 > y
+    out = [_double(word) for word in range(first,last)]
+    assert all(9.0*u-2.0 == y for u in out)
+    return out
+
 def test_original_binary_11_unbounded():
-    path = Path(__file__).with_name('compose_binary_native_subsequent6178.json')
-    if not path.exists():
-        pytest.skip('Native seed6178 subsequent100 uniforms for source11 not captured')
-    x = jnp.asarray(json.loads(path.read_text())['x'])
+    # capture.m performs the first and second seed6178 draws consecutively.
+    # Native compose_binary's intervening deterministic constructor/compose
+    # operations consume no uniforms (sampleTest uses two fixed points).
+    # Each y is rounded 9*u-2, so inversion may not identify u uniquely.
+    # Test ALL possible binary64 u instead of guessing the missing low bits.
+    data = json.loads((Path(__file__).parent/'fixtures/logical_source_matlab.json').read_text())
+    x = jnp.asarray([100.0*u for y in data['y'] for u in _uniform_preimages(y)])
     f = cj.chebfun(lambda x: jnp.exp(-x), domain=[0, jnp.inf])
     g = cj.chebfun(lambda x: x*jnp.exp(-x), domain=[0, jnp.inf])
     h = f.compose(lambda a, b: a+b, g)

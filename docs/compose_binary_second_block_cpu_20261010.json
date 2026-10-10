@@ -1,0 +1,48 @@
+{
+  "scope": "Original binary-compose pass11 unbounded error bound, previously skipped for missing raw second-block inputs",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "e70fa89216e8a8a805c17843a5c25ba6aa037b88",
+  "production_changes": false,
+  "capture_provenance": {
+    "source": "Existing R2025b seed6178 two-block logical capture",
+    "capture_sha256": "f7d67af39de8f47f5a88f845f3355b2f3949cb5df54303820e61226043c2deca",
+    "receipt_sha256": "516a72771c43b8177e8201d3cea9d54dd17df4caf9941805d88bf5f53064492f"
+  },
+  "method": "Exhaustively enumerate every nonnegative binary64 u in [0,1] consistent with each captured y=fl(fl(9*u)-2), using monotone uint64 binary searches and exact inside/outside checks. Check native100*u queries for all252 candidates at original10eps*vscale bound; actual100 source probes are included.",
+  "candidates": 252,
+  "original_native_queries": 100,
+  "verification": {
+    "scratch_superset_gate": "1 passed",
+    "first_root_module": "10 passed,1 helper-name integration error; preserved",
+    "corrected_root": "1 passed; no skips",
+    "distinct_native_clauses_passed_across_gates": 11,
+    "unchanged_test_ASTs_after_helper_correction": true,
+    "root_v2_seconds": 11.321459542028606,
+    "root_v2_peak_child_rss_kib": 646316,
+    "cpu_affinity": [
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ]
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_20261010/SOURCE_PROOF_v2.json": "bffd49df509679bbf5eccff441a054c31a59d3534766f21cef9d5b523ed097f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_20261010/PREIMAGE_AUDIT_v1.json": "788452de09bab9cd422321d16e4471ca515334338924aa861f7bd1ec699b66a2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_20261010/receipt.json": "a5c82da38f683bc653940ee17a4e280d0cd9299b292e03e0d611903e3bd2b8c9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_20261010/junit.xml": "067f1f6f8e0f7b319dd3c2d2f308f0fe409b3b1ed6a043b0e6c3963dac3955ea",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_v2_20261010/receipt.json": "78152180f0cdfc0f8f579737675f6793400654beff71d711e013184424ab12e8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_v2_20261010/junit.xml": "b87dbe9977d3026741abf727b796af2e34c1a99c08398997dcc23edc9420c8dc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_v2_20261010/preflight_correction.json": "9da871717ced43b6fc0855e3bad935e77aa3c85a8db3380e8408556dd82e1a69"
+  },
+  "limitations": [
+    "No fresh native capture or uniquely recovered raw uniform words. Superset establishes inequality without that recovery.",
+    "The first full-module invocation failed at a helper definition typo; only corrected case11 was rerun because all other test/source bytes were unchanged.",
+    "Root receipts bind source/test hashes, measured RSS without cap, no runtime-import audit."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_binary_second_block_root_v2_20261010/static.json"
+}

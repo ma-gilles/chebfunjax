@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Binary composition unbounded native predicate (2026-10-10; latest)
+
+Source pass11 no longer skips for missing raw second-block uniforms. The
+existing native affine capture constrains252 possible binary64 inputs,
+including all100 original queries; all pass the original10eps*vscale bound.
+No random replacement or unique raw-word recovery is claimed. Source passes
+1–10 remain passing; an integration helper typo was preserved and corrected,
+then pass11 reran cleanly. Production unchanged. This supersedes the earlier
+claim that no usable evidence for the continued seed6178 block exists.
+Evidence: docs/compose_binary_second_block_cpu_20261010.json.
+
 ## Relational/sign source semantics (2026-10-10; latest)
 
 All20 original lt/le clauses now pass (baseline16failed), with true <=/>=
