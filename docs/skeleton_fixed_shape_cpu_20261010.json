@@ -1,0 +1,432 @@
+{
+  "title": "Fixed-shape source-ordered skeleton CPU qualification",
+  "controls": {
+    "title": "Fixed-shape eager skeleton controls",
+    "candidate": "candidate_fixed_shape_v1; isolated scratch copy of candidate_v2 with only _ge_on_skeleton changed and one persisted rank-40 test added",
+    "source_baseline": "P/d478 source bytes c7c51f2c0e89cd92cd3112c6238b6cba8f6b32fc3da981cc4e9f77a55e7249c7, bound in guard",
+    "scope": {
+      "preexisting_controls": 27,
+      "preexisting_order_preserved": true,
+      "new_rank40_regression": 1,
+      "total": 28,
+      "passed": 28,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pytest_duration_seconds": 48.598
+    },
+    "resources": {
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "wall_seconds": 52.889711959287524,
+      "cap_wall_seconds": 240.0,
+      "rss_peak_summed_kib": 2992936,
+      "rss_cap_mib": 4096.0,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "ruff": "passed for changed source and added regression test",
+    "warning": "JAX CUDA plugin 0.11.2 is incompatible with jaxlib 0.11.0 and was not used; execution backend CPU.",
+    "artifacts": {
+      "guard_controls_fixed_shape.json": {
+        "path": "guard_controls_fixed_shape.json",
+        "sha256": "4c7113f58ab63cf0b0a814beb25e2753de5a9e79f6f0ab7f39d058a7952649d5"
+      },
+      "launch_fixed_shape_controls.sh": {
+        "path": "launch_fixed_shape_controls.sh",
+        "sha256": "45cfbb86d989751de3b04ec2124efef54492a9560beb1b336b659651d1fa0ee0"
+      },
+      "candidate_fixed_shape_v1/src/chebfunjax/chebfun2d/separable_approx.py": {
+        "path": "candidate_fixed_shape_v1/src/chebfunjax/chebfun2d/separable_approx.py",
+        "sha256": "58528b19c1d77aa67210487b7c05cc3fd81dcd5ff81d5842c342dfa43faafd86"
+      },
+      "candidate_fixed_shape_v1/tests/test_chebfun2d/test_skeleton_source_order.py": {
+        "path": "candidate_fixed_shape_v1/tests/test_chebfun2d/test_skeleton_source_order.py",
+        "sha256": "bc9b9e4339deb0c2b03a1e215161576112f3f2ef8defd725e29c271fa47a0c6f"
+      },
+      "candidate_fixed_shape_v1/tests/test_chebfun2d/test_separable_approx.py": {
+        "path": "candidate_fixed_shape_v1/tests/test_chebfun2d/test_separable_approx.py",
+        "sha256": "b0e4a23793f5baf86d7d0d00d25942c2ad56f0d55e5126e177a99694ab7b0a64"
+      },
+      "candidate_fixed_shape_v1/tests/test_chebfun2d/test_skeleton_fixed_shape_rank40.py": {
+        "path": "candidate_fixed_shape_v1/tests/test_chebfun2d/test_skeleton_fixed_shape_rank40.py",
+        "sha256": "e2553c12e04e4e861550ceebf091dfbda73b8478287ce6c637c284e48457e2c5"
+      },
+      "controls_fixed_shape.xml": {
+        "path": "controls_fixed_shape.xml",
+        "sha256": "12927b912851aa4a08c6676d6d0ccd0830ce3abc28a4e483d57e3fcf8ecb24c9"
+      },
+      "controls_fixed_shape/receipt.json": {
+        "path": "controls_fixed_shape/receipt.json",
+        "sha256": "95d6023da39ba7a1fe47e2a665d01846fc7b2d390c63a88c861a7a2a8664dfaf"
+      }
+    },
+    "terminal_receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "sampled_peak_summed_rss_kib": 2992936,
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "wall_seconds": 52.889711959287524,
+      "guard_file_sha256": "4c7113f58ab63cf0b0a814beb25e2753de5a9e79f6f0ab7f39d058a7952649d5",
+      "script_sha256": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25"
+    },
+    "notes": "No publication checkout files were edited. Original benchmark implementation, result files and report are guard-bound and unchanged. Rank-40 test compares bitwise against the prior tail-sliced JAX helper operation sequence on a rectangular synthetic input."
+  },
+  "benchmark": {
+    "title": "Fixed-shape eager _ge_on_skeleton synthetic benchmark",
+    "scope": "No P source edits. Synthetic helper-level comparison only; does not attribute the full VanillaOptions page runtime regression.",
+    "publication_head_at_report": "e9e102443e2ae9ae7b5b5584df9208ec0d0742f3",
+    "reference_commit": "d478e10bfa427ee9087a1861da1476b284626610",
+    "reference_file_sha256": "c7c51f2c0e89cd92cd3112c6238b6cba8f6b32fc3da981cc4e9f77a55e7249c7",
+    "current_source_file_sha256": "c7c51f2c0e89cd92cd3112c6238b6cba8f6b32fc3da981cc4e9f77a55e7249c7",
+    "source_bytes_equal_to_d478": true,
+    "copied_helper_body_ast_equal_to_publication_helper": true,
+    "implementation_sha256": "e56bdda399e0eea894ecec31579fc36839f41a5203b79c16bc0523bb71127cf5",
+    "jax": "0.11.0",
+    "backend": "cpu",
+    "affinity": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "caps": {
+      "wall_seconds": 180,
+      "sampled_summed_rss_mib": 3072
+    },
+    "bitwise_checks": {
+      "ranks": [
+        1,
+        2,
+        3,
+        5,
+        12,
+        40
+      ],
+      "all_rectangular_cases_equal": true,
+      "vanillaoptions_shape_equal": true,
+      "cases": [
+        {
+          "rank": 1,
+          "ny": 5,
+          "nx": 7,
+          "baseline_cold_seconds": 0.11376332910731435,
+          "candidate_cold_seconds": 0.15368320513516665,
+          "baseline_warm_seconds": [
+            0.00021177809685468674,
+            0.0001702597364783287,
+            0.00015251664444804192
+          ],
+          "candidate_warm_seconds": [
+            0.0007389378733932972,
+            0.00048550311475992203,
+            0.00044199079275131226
+          ],
+          "output_sha256": "c3acdcd6091040d2223e851442b9f5c3fc7d0050fc83908c080a3566396bb314",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 2,
+          "ny": 9,
+          "nx": 11,
+          "baseline_cold_seconds": 0.5811268524266779,
+          "candidate_cold_seconds": 0.8243000768125057,
+          "baseline_warm_seconds": [
+            0.0035845371894538403,
+            0.002852149773389101,
+            0.002759326249361038
+          ],
+          "candidate_warm_seconds": [
+            0.003733627963811159,
+            0.0031811189837753773,
+            0.003144521266222
+          ],
+          "output_sha256": "0445a6acbbfe7521121575dc03d809286b38db4e997671a5d5e21f044b39fb68",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 3,
+          "ny": 13,
+          "nx": 8,
+          "baseline_cold_seconds": 0.8240486960858107,
+          "candidate_cold_seconds": 0.617031691595912,
+          "baseline_warm_seconds": [
+            0.006252001039683819,
+            0.005353603046387434,
+            0.0053606657311320305
+          ],
+          "candidate_warm_seconds": [
+            0.005846680141985416,
+            0.005747873801738024,
+            0.0057150921784341335
+          ],
+          "output_sha256": "f04141bdde290f461e7f65f6585da87fae9269f9abcc946bf727605b3fe8b32c",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 5,
+          "ny": 11,
+          "nx": 17,
+          "baseline_cold_seconds": 1.658458367921412,
+          "candidate_cold_seconds": 0.6460887189023197,
+          "baseline_warm_seconds": [
+            0.011840976774692535,
+            0.010456794407218695,
+            0.010387555230408907
+          ],
+          "candidate_warm_seconds": [
+            0.01111322920769453,
+            0.011068915016949177,
+            0.010919874999672174
+          ],
+          "output_sha256": "59dac2483471ad40ea8596e214564780073d240ab149424f736bed582473a8dc",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 12,
+          "ny": 19,
+          "nx": 14,
+          "baseline_cold_seconds": 4.949384812731296,
+          "candidate_cold_seconds": 0.7029500459320843,
+          "baseline_warm_seconds": [
+            0.034687919076532125,
+            0.02938748709857464,
+            0.02916200179606676
+          ],
+          "candidate_warm_seconds": [
+            0.03011690778657794,
+            0.03017729101702571,
+            0.030140423215925694
+          ],
+          "output_sha256": "a6c638c3f6e130358f0dc7a9d3d3145dcb5f28af39d6a6ba8c4091a01798b393",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 40,
+          "ny": 43,
+          "nx": 37,
+          "baseline_cold_seconds": 22.903180961031467,
+          "candidate_cold_seconds": 0.8780909441411495,
+          "baseline_warm_seconds": [
+            0.12775187427178025,
+            0.10560414474457502,
+            0.10495089692994952
+          ],
+          "candidate_warm_seconds": [
+            0.1049358588643372,
+            0.11155404895544052,
+            0.10434378637000918
+          ],
+          "output_sha256": "20b6ed94c9916e5f016bb4992947adb254ed18c1a3a8cc5b5b27b58263a86476",
+          "bitwise_equal": true
+        },
+        {
+          "rank": 40,
+          "ny": 2049,
+          "nx": 513,
+          "baseline_cold_seconds": 14.756029906217009,
+          "candidate_cold_seconds": 0.4840257130563259,
+          "baseline_warm_seconds": [
+            0.11918231565505266,
+            0.11290830420330167
+          ],
+          "candidate_warm_seconds": [
+            0.10822060285136104,
+            0.10805725585669279
+          ],
+          "output_sha256": "5e6732495795c720d69a003cde77ef50a9a3ce4bc2f9833f09e96edc246ee52e",
+          "bitwise_equal": true
+        }
+      ]
+    },
+    "vanillaoptions_shape_single_fresh_process": {
+      "dimensions": {
+        "col_vals": [
+          2049,
+          40
+        ],
+        "row_vals": [
+          40,
+          513
+        ]
+      },
+      "input_seed_formula": "RandomState(1000 + rank*31 + ny*7 + nx)",
+      "baseline_cold_seconds": 23.5010831579566,
+      "candidate_cold_seconds": 1.142492407001555,
+      "baseline_warm_seconds": [
+        0.1354877850972116,
+        0.11447748402133584
+      ],
+      "candidate_warm_seconds": [
+        0.10987376002594829,
+        0.10933012794703245
+      ],
+      "output_sha256": "5e6732495795c720d69a003cde77ef50a9a3ce4bc2f9833f09e96edc246ee52e",
+      "bitwise_equal": true
+    },
+    "supervisor_receipts": {
+      "baseline.supervision/receipt.json": {
+        "path": "baseline.supervision/receipt.json",
+        "sha256": "d84ddacdd41ff373ff8c443a87742cb8c7ffc89f12e8f39019ea20465c783942",
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 50.863071439787745,
+          "limits": {
+            "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/baseline.supervision",
+            "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/guard.json",
+            "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1",
+            "wall_seconds": 180.0,
+            "rss_mib": 3072.0,
+            "sample_seconds": 0.1,
+            "grace_seconds": 1.0,
+            "command": [
+              "--",
+              "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/bench.py",
+              "baseline",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/baseline.json"
+            ]
+          },
+          "sampled_peak_summed_rss_kib": 2987264,
+          "remaining_owned_pids": [],
+          "inputs_stable": true,
+          "guard_file_sha256": "0cca7fc232b601a5b166cef217fa8a97d5bb58c92718afe5822a9b41f56feb05",
+          "script_sha256": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25"
+        }
+      },
+      "candidate.supervision/receipt.json": {
+        "path": "candidate.supervision/receipt.json",
+        "sha256": "d11a89b115e0394fbeb922f66a3d349119370fc5affe01e90d2eeb92e990ecf3",
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 7.413165462203324,
+          "limits": {
+            "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/candidate.supervision",
+            "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/guard.json",
+            "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1",
+            "wall_seconds": 180.0,
+            "rss_mib": 3072.0,
+            "sample_seconds": 0.1,
+            "grace_seconds": 1.0,
+            "command": [
+              "--",
+              "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/bench.py",
+              "candidate",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/candidate.json"
+            ]
+          },
+          "sampled_peak_summed_rss_kib": 730312,
+          "remaining_owned_pids": [],
+          "inputs_stable": true,
+          "guard_file_sha256": "0cca7fc232b601a5b166cef217fa8a97d5bb58c92718afe5822a9b41f56feb05",
+          "script_sha256": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25"
+        }
+      },
+      "baseline_vanilla.supervision/receipt.json": {
+        "path": "baseline_vanilla.supervision/receipt.json",
+        "sha256": "ec991bf50d58c7696e527917979c53f99fc735ad1773010f9605e601b9dcfe36",
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 27.08436595182866,
+          "limits": {
+            "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/baseline_vanilla.supervision",
+            "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/guard_vanilla.json",
+            "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1",
+            "wall_seconds": 180.0,
+            "rss_mib": 3072.0,
+            "sample_seconds": 0.1,
+            "grace_seconds": 1.0,
+            "command": [
+              "--",
+              "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/bench_vanilla_only.py",
+              "baseline",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/baseline_vanilla.json"
+            ]
+          },
+          "sampled_peak_summed_rss_kib": 1906208,
+          "remaining_owned_pids": [],
+          "inputs_stable": true,
+          "guard_file_sha256": "8db03d8b39f6b222b04691526eaecb3a9b8faedb193f89bf49f6eb846d4fb958",
+          "script_sha256": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25"
+        }
+      },
+      "candidate_vanilla.supervision/receipt.json": {
+        "path": "candidate_vanilla.supervision/receipt.json",
+        "sha256": "03253674bbc79a72dc610ffbdffae67ada7d85454e56c242fb325042e35401b1",
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 3.453888223040849,
+          "limits": {
+            "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/candidate_vanilla.supervision",
+            "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/guard_vanilla.json",
+            "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1",
+            "wall_seconds": 180.0,
+            "rss_mib": 3072.0,
+            "sample_seconds": 0.1,
+            "grace_seconds": 1.0,
+            "command": [
+              "--",
+              "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/bench_vanilla_only.py",
+              "candidate",
+              "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/fixed_shape_eager_v1/candidate_vanilla.json"
+            ]
+          },
+          "sampled_peak_summed_rss_kib": 483928,
+          "remaining_owned_pids": [],
+          "inputs_stable": true,
+          "guard_file_sha256": "8db03d8b39f6b222b04691526eaecb3a9b8faedb193f89bf49f6eb846d4fb958",
+          "script_sha256": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25"
+        }
+      }
+    },
+    "result_files": {
+      "baseline.json": {
+        "path": "baseline.json",
+        "sha256": "d97e8ee2d37414ae48ca5edb2bbfe0d8dbccf1644b4530445bb164341198dcb5"
+      },
+      "candidate.json": {
+        "path": "candidate.json",
+        "sha256": "d009f93c3e2a79049b1e2ebed3b9838c9d8a35982109547810c0f3d3bf43d522"
+      },
+      "baseline_vanilla.json": {
+        "path": "baseline_vanilla.json",
+        "sha256": "204aef209b664834de78e9c3812b07a48d0a276ba5fef728262e2a8a8f868c3c"
+      },
+      "candidate_vanilla.json": {
+        "path": "candidate_vanilla.json",
+        "sha256": "aec2147a7687bec6459344a42155e5a5d7ea60acfdd2317a3de911394b5da2c4"
+      }
+    },
+    "interpretation": "Fixed-shape full-array masked updates preserve source-order results exactly for the tested inputs. At the representative rank-40 shape, the first fresh-process call is much faster and uses less sampled RSS; warmed calls differ modestly. This does not establish the cause or full-run impact of the end-to-end VanillaOptions slowdown."
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010",
+  "review": {
+    "artifact_hashes_verified": true,
+    "junit_passes": 28,
+    "production_source_matches_tested_candidate": true
+  },
+  "limitations": [
+    "Synthetic helper timing, not full-example timing.",
+    "Some small ranks have modest overhead; high-rank cold compilation is the optimization target.",
+    "Full MATLAB and example parity remains incomplete."
+  ]
+}

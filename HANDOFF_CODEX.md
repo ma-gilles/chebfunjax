@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Fixed-shape skeleton CPU compilation improvement (2026-10-10; latest)
+
+Chebfun2 skeleton elimination now uses full-shape masked JAX updates while
+preserving native division and subtraction order. All 28 controls pass,
+including the existing 27 and a rank-40 bit-identity regression. A matched
+fresh-process rank-40 helper benchmark improves cold time 23.501 s to
+1.142 s and sampled peak RSS 1,906,208 to 483,928 KiB. Warm times differ
+modestly; some small ranks incur overhead. Full-example speedup is unmeasured.
+Evidence: docs/skeleton_fixed_shape_cpu_20261010.json.
+
 ## All reference figure dimensions matched (2026-10-10; latest)
 
 The full VanillaOptions translation completes public Chebfun prices, minima,

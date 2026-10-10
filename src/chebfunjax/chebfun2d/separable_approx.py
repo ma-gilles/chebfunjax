@@ -193,26 +193,26 @@ def _ge_on_skeleton(
     pivot_vals = jnp.asarray(pivot_vals)
     pivot_pos = jnp.asarray(pivot_pos)
     r = len(pivot_vals)
+    rows_all = pivot_pos[:, 0]
+    cols_all = pivot_pos[:, 1]
+    axis = jnp.arange(r)
 
     for k in range(r - 1):
-        piv = pivot_vals[k]
-        row_at_pivot_y = pivot_pos[k + 1 :, 0]
-        col_at_pivot_x = pivot_pos[k + 1 :, 1]
-        # Source divides row entries before either outer product. Moving the
-        # division to the column factor changes subsequent elimination steps.
-        # Materialize the divisor shape so XLA does not replace division
-        # with a rounded scalar reciprocal and multiplication.
-        numerator = row_vals[k, col_at_pivot_x]
+        kk = jnp.asarray(k)
+        piv = pivot_vals[kk]
+
+        # Keep each operation in native source order while using full-shape
+        # gathers, divisors, outer products, and masked updates. This avoids
+        # compiling a different sliced-update shape for every pivot.
+        numerator = row_vals[kk, cols_all]
         scale = numerator / jnp.full_like(numerator, piv)
-        col_vals = col_vals.at[:, k + 1 :].set(
-            col_vals[:, k + 1 :] - jnp.outer(col_vals[:, k], scale)
-        )
-        numerator = row_vals[k, :]
+        col_update = col_vals - jnp.outer(col_vals[:, kk], scale)
+        col_vals = jnp.where((axis > kk)[None, :], col_update, col_vals)
+
+        numerator = row_vals[kk, :]
         row_scale = numerator / jnp.full_like(numerator, piv)
-        row_vals = row_vals.at[k + 1 :, :].set(
-            row_vals[k + 1 :, :]
-            - jnp.outer(col_vals[row_at_pivot_y, k], row_scale)
-        )
+        row_update = row_vals - jnp.outer(col_vals[rows_all, kk], row_scale)
+        row_vals = jnp.where((axis > kk)[:, None], row_update, row_vals)
 
     return col_vals, row_vals
 
