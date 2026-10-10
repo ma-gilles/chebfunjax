@@ -1,0 +1,122 @@
+{
+  "package": "Pitchfork source computations and native higher-order ode113 routing",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/DELIVERY_v2.json",
+  "delivery_sha256": "ac59e91f5c173671c339ddf4377565b1252c0ab8eba376c6aec74fcc22543d94",
+  "hash_review": {
+    "delivery_sha256": "ac59e91f5c173671c339ddf4377565b1252c0ab8eba376c6aec74fcc22543d94",
+    "bindings_verified": 117,
+    "production_files_verified": 7,
+    "status": "Hashes verified only; source/runtime/artifact semantic review and visual inspection still required before integration."
+  },
+  "runtime_review": {
+    "gates": [
+      {
+        "gate": "A7higherorder_v1",
+        "terminal": 0,
+        "runtime_files_verified": 2953,
+        "wall_seconds": 90.1804885850288,
+        "peak_kib": 1464276,
+        "faults": []
+      },
+      {
+        "gate": "B6pagecontrols_v4",
+        "terminal": 0,
+        "runtime_files_verified": 2970,
+        "wall_seconds": 70.76286101713777,
+        "peak_kib": 880612,
+        "faults": []
+      },
+      {
+        "gate": "C1noisyprobe_v1",
+        "terminal": 0,
+        "runtime_files_verified": 2953,
+        "wall_seconds": 303.0137670072727,
+        "peak_kib": 3263672,
+        "faults": []
+      },
+      {
+        "gate": "D12portable_v1",
+        "terminal": 0,
+        "runtime_files_verified": 2980,
+        "wall_seconds": 85.47154893120751,
+        "peak_kib": 1474100,
+        "faults": []
+      },
+      {
+        "gate": "E1fullpage_v1",
+        "terminal": 1,
+        "runtime_files_verified": 2971,
+        "wall_seconds": 881.6089057768695,
+        "peak_kib": 4943688,
+        "faults": [
+          "terminal",
+          "JUnit"
+        ]
+      }
+    ],
+    "unique_files_rehashed": 3318,
+    "fullpage_status": "All solves completed; original E1 remains failed observer; artifact recovery reviewed separately."
+  },
+  "artifact_review": {
+    "native_solves": 5,
+    "exact_probe_replay_members": 11,
+    "signed_arrays_checked": 11,
+    "figures": 2,
+    "dimensions": [
+      600,
+      269
+    ],
+    "only_library_ast_changes": "Two len(ic)==1 guards become >=1",
+    "markdown_prose_and_code_unchanged": true,
+    "visual_review": "Viewed historical/actual contact. Source32pt styling larger and unmatched RNG produces both undamped paths negative; labels visible. Not historical parity.",
+    "original_E1_status": "failed observer; never relabelled passed",
+    "limitations": "Fullpage artist styles/axes/text bounding boxes were held in memory and lost; not recovered. Source styles qualified separately by B6 and portable D12. PNG and actual coordinate artifacts retained."
+  },
+  "production_files": [
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/candidate/examples/ode-random/pitchfork.py",
+      "destination": "examples/ode-random/pitchfork.py",
+      "sha256": "947d099e95ba5ffb8dc76ac166a611bb3e7b49b19df0df6494de7cbcb3758a64"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/candidate/src/chebfunjax/operators/chebop.py",
+      "destination": "src/chebfunjax/operators/chebop.py",
+      "sha256": "7d1aeabaf0ee63dd50219bb2dfe6dc417a930531902cab12b16980542b222cdf"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/portable/tests/test_operators/test_native_higher_order_dispatch.py",
+      "destination": "tests/test_operators/test_native_higher_order_dispatch.py",
+      "sha256": "23ca2a9e958c448adddd3b901ac8e50165ac5672233fb48eea641c5660913617"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/portable/tests/test_examples/test_pitchfork_source.py",
+      "destination": "tests/test_examples/test_pitchfork_source.py",
+      "sha256": "1a85cdd3d12ed1cfe1c7409fb27eb28fc98ecbf54767a5b43574faf1810536f3"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/F1artifact_recovery_v3/Pitchfork.md",
+      "destination": "docs/examples/ode-random/Pitchfork.md",
+      "sha256": "5ea674355650860fa19c478f8851a32ab8b26caf5892bb9eb1adccc3ad0193dc"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/E1fullpage_v1/snapshot/docs/images/ode-random/Pitchfork_01.png",
+      "destination": "docs/images/ode-random/Pitchfork_01.png",
+      "sha256": "250de9732e4c9b5057da8c7df0ea796a81f3db4270fc0a1a92998ecf6cde0296"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pitchfork_source_20261010/E1fullpage_v1/snapshot/docs/images/ode-random/Pitchfork_02.png",
+      "destination": "docs/images/ode-random/Pitchfork_02.png",
+      "sha256": "3de6a1836f643401d42ce468386ad400f696915fb8f10cf9bd5164a78c8ae316"
+    }
+  ],
+  "accuracy_gap": "C1 global fitted polynomial residual2.07799e-5 at600, interior sampled6.93252e-9, initial fitted derivative1.15202e-9; remains unqualified, no invented accuracy bound or matched native fixture",
+  "limitations": [
+    "Sequential JAXrng0 unmatched to MATLABrng0",
+    "R2025b nativecontroller source distinct from2017website",
+    "Literal32pt/2.5 source typography differs from historicalwebsite",
+    "Higher-order complex/system/event adapters retain prior scope; no blanketnativeparity claim",
+    "Elapsed includes observers; no matchedperformance claim"
+  ],
+  "fullpage_status": "Five native solves completed; E1 observer/JUnit FAILED on optional None metadata. Artifact-only F1 recovered numerical evidence without rerunning or changing E1 status.",
+  "remaining": "Numerical residual/initial derivative, MATLAB RNG, historical rendering and absent full-page artist metadata remain unqualified. Not full page parity."
+}

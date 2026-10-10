@@ -5984,17 +5984,19 @@ class Chebop:
         seg_edges = [x0] + (bps if left else bps[::-1]) + [x1]
 
         # Native source route for the supported finite scalar IVP contract.
+        # Higher derivatives form the same first-order state tower used by
+        # native @chebop/solveivp.m; return its first solution component.
         # Source @chebop/solveivp.m passes the complete problem domain and
         # restart preference to @chebfun/ode113 -> constructODEsol -> odesol.
         # Chebfun commit: 7574c77. Other scipy call sites remain unchanged.
         selected = ivp_solver if ivp_solver is not None else getattr(self, "ivp_method", None)
         explicit_method = selected is not None
         native_name = str(selected).strip().lower().lstrip("@").split(".")[-1]
-        if len(ic) == 1 and selected is None and events is None:
+        if len(ic) >= 1 and selected is None and events is None:
             from chebfunjax.chebpref import ChebopPref
             selected = ChebopPref().ivpSolver
             native_name = str(selected).strip().lower().lstrip("@").split(".")[-1]
-        if len(ic) == 1 and native_name == "ode113":
+        if len(ic) >= 1 and native_name == "ode113":
             from chebfunjax.chebfun1d.chebfun import ode113
             from chebfunjax.chebpref import ChebopPref
             # Set before invocation: source failures must propagate through

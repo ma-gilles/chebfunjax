@@ -1,5 +1,23 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Pitchfork source computations and figures integrated (2026-10-10; latest)
+
+All five native [0,600] solves completed using the existing JAX ode113 state
+tower, now enabled for higher-order real scalar IVPs. The page restores
+sequential nonperiodic forcing and the source damped -f1/f2 signs, actual
+600x269 figures and timing-only stdout. Root verified117delivery bindings,
+five runtime inventories (2953/2970/2953/2980/2971files),11exact probe members
+and11signed array comparisons. Existing first-order controls passed.
+Evidence: docs/pitchfork_full_page_cpu_20261010.json.
+
+The full-page observer failed after computations on optional None metadata;
+its failed status is preserved. Artifact-only recovery qualified retained
+meshes, arrays and figures without repeating solves. Missing full-page artist
+metadata, endpoint/interior residual and fitted initial-derivative accuracy,
+MATLAB RNG and historical rendering remain open. These figures do not establish
+full visual parity. Two former figure-size mismatches are resolved; a fresh
+whole-gallery audit remains due.
+
 ## Missing Chebtech predicate APIs implemented (2026-10-10; latest)
 
 Both Tech classes now expose JAX isfinite, isinf and isreal. Native tests call
