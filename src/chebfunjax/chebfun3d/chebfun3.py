@@ -2162,35 +2162,23 @@ class Chebfun3(eqx.Module):
                         domain=self.domain)
 
     def isreal(self) -> bool:
-        """True if f is real-valued (MATLAB isreal).
+        """Literal native stored-core and factor realness.
 
-        Checks the stored Tucker representation: a Chebfun3 is real iff its
-        core and each factor represent real functions. Trigonometric factors
-        use their real-value flag; their Fourier coefficients may be complex.
+        Complex-zero core or Chebtech coefficients are not real storage;
+        Trigtech factors use their real-value flag. This follows executable
+        source, including its distinction from the native header wording.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/isreal.m
+        MATLAB source : @chebfun3/isreal.m, @chebtech/isreal.m,
+            @trigtech/isreal.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.tech.trigtech import Trigtech
+        from chebfunjax.chebfun3d._power import _source_isreal
 
         if self.isempty():
             return True
-        if jnp.iscomplexobj(self.core):
-            if float(jnp.max(jnp.abs(jnp.imag(self.core)))) > 0.0:
-                return False
-        for factors in (self.cols, self.rows, self.tubes):
-            for t in factors:
-                if isinstance(t, Trigtech):
-                    if not t.isreal():
-                        return False
-                    continue
-                c = jnp.asarray(t.coeffs)
-                if jnp.iscomplexobj(c) and \
-                        float(jnp.max(jnp.abs(jnp.imag(c)))) > 0.0:
-                    return False
-        return True
+        return _source_isreal(self)
 
     def iszero(self) -> bool:
         """True if f is the zero function (MATLAB iszero).
@@ -3020,6 +3008,8 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/real.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         return self.compose(jnp.real)
 
     def imag(self) -> "Chebfun3":
@@ -3055,10 +3045,16 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/complex.m
         Chebfun commit: 7574c77
         """
-        re._check_same_domain(im)
-        return Chebfun3.from_function(
-            lambda x, y, z: re(x, y, z) + 1j * im(x, y, z),
-            domain=re.domain)
+        def real_input(value):
+            # Numeric operands use MATLAB's storage test; objects dispatch
+            # through their own isreal method before addition validation.
+            return (value.isreal() if hasattr(value, "isreal")
+                    else not jnp.iscomplexobj(value))
+
+        if not real_input(re) or not real_input(im):
+            raise ValueError("CHEBFUN:CHEBFUN3:complex:notReal1: "
+                             "Inputs must be real.")
+        return re + 1j*im
 
     def std(self, flag=None, dim: int = 1):
         """Standard deviation along one variable, returning a Chebfun2.

@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native complex construction and realness restored (2026-10-10; latest)
+
+Chebfun3 complex now checks real inputs before arithmetic, then uses the
+native sum of real and imaginary components. isreal follows the stored core
+and factors, including complex-zero storage and the Trigtech real flag;
+real preserves empty input before composition. Only these three library
+methods changed. All 53 CPU cases passed in four serial processes, including
+the four original complex/isreal predicates and all three preserved analytic
+regressions. Root independently checked runtime hashes and 58 delivery
+bindings. Evidence: docs/complex_real_cpu_20261010.json.
+Global representation normalization, full consumer coverage, the complete
+current suite and remote CI remain unresolved.
+
 ## Subnormal breakpoint alignment fixed (2026-10-10; latest)
 
 Static domain comparisons now preserve subnormal differences using Python
