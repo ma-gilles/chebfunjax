@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebtech division public NaN assertions restored (2026-10-10; latest)
+
+Native division passes 2, 4 and 6 now check public isnan, instead of accepting
+any Inf/NaN coefficient contamination. The complete 30-case module passes;
+source/test hashes and exact three-assertion AST additions were root-reviewed.
+Library behavior was already correct. Evidence: docs/rdivide_public_isnan_cpu_20261010.json.
+Native seeded query points remain unmatched. This test-only gate enforced CPU
+affinity and timeout but did not sample/enforce RSS; no memory claim is made.
+
 ## Native test qualification and restored Singfun assertions (2026-10-10; latest)
 
 All 55 existing native Chebtech port modules passed: 825 unique cases, no

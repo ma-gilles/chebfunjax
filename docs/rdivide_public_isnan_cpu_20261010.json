@@ -1,0 +1,61 @@
+{
+  "scope": "Test-only restore public isnan for native passes2/4/6; library unchanged",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_public_isnan_04766eae_20261010/delivery.json",
+  "delivery_sha256": "ce0d4bd787df4fe56122656d936e8a121217cc4e8031ce93542822fa70d1ca6e",
+  "root_ast_proof": "Removing exactly3added g.isnan assertions and module docstrings makes whole AST identical to publication baseline",
+  "root_reviews": [
+    {
+      "gate": "focus",
+      "cases": 6,
+      "source_test_hashes_reverified": 2085,
+      "receipt_sha256": "d7584ab24f833f713315b860eb2a53fa6bc0646935b3cf72f5641a76dcb923a3",
+      "junit_sha256": "56d0ce4ff206bb9ed3861ebe29f8c82b4034e7f17d3dfc38b62b0c4f062146df"
+    },
+    {
+      "gate": "full",
+      "cases": 30,
+      "source_test_hashes_reverified": 2085,
+      "receipt_sha256": "6bdb62ee76279dcc40a83af31e47002b342fb3b339927b364285989305285cb8",
+      "junit_sha256": "e9cd4e7470a7eed9ea241ee40821ffa4ecdc6eea17028e1bca1faea37f1b0db5"
+    }
+  ],
+  "unique_cases": 30,
+  "runtime": {
+    "python": "3.12.13",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "pytest": "9.0.2",
+    "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_public_isnan_04766eae_20261010/candidate/src/chebfunjax/__init__.py",
+    "devices": [
+      "cpu:0"
+    ],
+    "x64": true
+  },
+  "limitations": [
+    "Native RNG query inputs remain unmatched.",
+    "Runner enforced CPU affinity/time limit but did not enforce or sample RSS; no memory qualification claim.",
+    "Source/test hash verification and runtime identity were recorded; these gates do not provide the full observed-module audit used for numerical library changes."
+  ],
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "04766eae0cdebd8fdef6497fe771f4b6fe467dc2",
+    "passed": true
+  }
+}

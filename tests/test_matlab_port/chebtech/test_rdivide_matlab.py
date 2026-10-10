@@ -10,9 +10,9 @@ Open source-parity items:
 - Source pass(10), ``cos(1e4*x)/exp(x)``, executes for both kinds under the
   unchanged bound. The fixed linspace below remains a sampling adaptation;
   exact source RNG inputs and a fresh MATLAB rerun are pending.
-- For division by zero, the source checks ``isnan(g)`` while this port checks
-  coefficient Inf/NaN propagation; exact predicate parity still needs
-  qualification.
+- Division-by-zero passes 2, 4, and 6 call the public ``g.isnan()`` predicate,
+  matching native ``@chebtech/isnan``. Coefficient-content checks in passes 2
+  and 4 remain supplemental representation controls.
 - Size-error checks match the source identifier embedded in the Python
   ``ValueError`` text; Python has no separate MATLAB ``ME.identifier`` field.
 
@@ -82,6 +82,8 @@ class TestChebtechRdivide:
         # pass(n, 2): isnan(sin ./ 0).  chebfunjax f/0 -> inf/NaN coeffs.
         f = Tech.from_function(lambda x: jnp.sin(x))
         g = f / 0
+        assert g.isnan()
+        # Supplemental representation control; native predicate is public isnan(g).
         assert bool(jnp.any(jnp.isnan(g.coeffs)) or jnp.any(jnp.isinf(g.coeffs)))
 
     # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ alpha.
@@ -101,6 +103,8 @@ class TestChebtechRdivide:
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
         )
         g = f / 0
+        assert g.isnan()
+        # Supplemental representation control; native predicate is public isnan(g).
         assert bool(jnp.any(jnp.isnan(g.coeffs)) or jnp.any(jnp.isinf(g.coeffs)))
 
     # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ [alpha beta].
@@ -122,6 +126,7 @@ class TestChebtechRdivide:
         )
         g = f / jnp.asarray([ALPHA, 0.0])
         c = g.coeffs
+        assert g.isnan()
         assert not bool(jnp.any(jnp.isnan(c[:, 0]))) and bool(
             jnp.all(jnp.isnan(c[:, 1]))
         )
