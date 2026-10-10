@@ -1,95 +1,62 @@
-"""Inpainting in one dimension.
+"""L1 inpainting in one dimension, literal source operations.
 
-Translation of approx/Inpainting1D.m by Yuji Nakatsukasa and Nick
-Trefethen (November 2019): recovering a smooth function corrupted on
-part of its domain — L1 fitting recovers it to nearly machine
-precision where L2 and Linf fail.
-
+Yuji Nakatsukasa and Nick Trefethen, July2019.
 Original: https://www.chebfun.org/examples/approx/Inpainting1D.html
-Copyright by The University of Oxford and The Chebfun Developers.
+Copyright The University of Oxford and The Chebfun Developers.
+
+JAX key1 does not reproduce MATLAB rng1 normal draws. Public polyfitL1 must
+be source-qualified separately; no alternative algorithm is inserted here.
 """
+import time
+from pathlib import Path
+
 import matplotlib
 
 matplotlib.use("Agg")
-import os
-import sys
-import time
-import warnings
-
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.plotting import chebfun_style, save_chebfun_figure
 from chebfunjax.utils.minimax import minimax
-from chebfunjax.utils.randnfun import randnfun
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
+REFERENCE_SIZES = ((600, 270), (600, 270), (600, 270), (600, 270), (600, 270))
 
-XS = np.linspace(-1, 1, 3000)
-
-
-def _plot(vals, title, fname, color='C0'):
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(XS, vals, color, lw=1.4)
-    ax.grid(True)
-    ax.set_title(title, fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
-    plt.close(fig)
-
-
-def run():
-    os.makedirs(_IMG, exist_ok=True)
-    t0 = time.time()
-
-    x = cj.chebfun(lambda t: t)
-    smooth = 0.3 + x**2 + (0.3 * x).exp()
-    # MATLAB rng(1) randnfun noise: randn streams are not reproducible
-    # outside MATLAB, so this translation uses its own smooth random noise.
-    noise = randnfun(0.1, key=jax.random.PRNGKey(1))
-    corrupted = smooth.maximum(noise)
-    _plot(np.asarray(corrupted(jnp.asarray(XS))),
-          "corrupted smooth function", "Inpainting1D_01.png")
-
-    n = len(smooth) - 3
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        p1 = corrupted.polyfitL1(n)
-    _plot(np.asarray(p1(jnp.asarray(XS))), "L1 fit",
-          "Inpainting1D_02.png")
-    err1 = float((p1 - smooth).norm(np.inf))
-    print("err1 =")
-    print(f"     {err1:.15e}")
-
-    p2 = corrupted.polyfit(n - 2)
-    _plot(np.asarray(p2(jnp.asarray(XS))), "L2 fit",
-          "Inpainting1D_03.png")
-    err2 = float((p2 - smooth).norm(np.inf))
-    print("err2 =")
-    print(f"   {err2:.15f}")
-    _plot(np.asarray((p2 - smooth)(jnp.asarray(XS))), "L2 error",
-          "Inpainting1D_04.png", color='k')
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        res = minimax(lambda t: corrupted(t), n - 2)
-    pinf = cj.chebfun(jnp.asarray(res.coeffs), coeffs=True)
-    _plot(np.asarray(pinf(jnp.asarray(XS))), "Linf fit",
-          "Inpainting1D_05.png")
-    errinf = float((pinf - smooth).norm(np.inf))
-    print("errinf =")
-    print(f"   {errinf:.15f}")
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
-
-
-if __name__ == "__main__":
+def run(output_dir=None):
+    chebfun_style()
+    output=Path(output_dir) if output_dir else Path(__file__).resolve().parents[2]/"docs/images/approx"
+    output.mkdir(parents=True,exist_ok=True)
+    slot=0
+    def draw(f,title,color=None):
+        nonlocal slot
+        fig,ax=f.plot(**({} if color is None else {"color":color}))
+        ax.grid(True);ax.set_title(title)
+        slot+=1
+        save_chebfun_figure(fig,output/f"Inpainting1D_{slot:02}.png",size=REFERENCE_SIZES[slot-1],layout="matlab")
+        plt.close(fig)
+    t0=time.perf_counter()
+    x=cj.chebfun(lambda t:t)
+    smooth=.3+x**2+(.3*x).exp()
+    noise=cj.randnfun(.1,key=jax.random.PRNGKey(1))
+    corrupted=smooth.maximum(noise)
+    draw(corrupted,"corrupted smooth function")
+    n=len(smooth)-3
+    p1=corrupted.polyfitL1(n)
+    draw(p1,"L1 fit")
+    err1=float((p1-smooth).norm(jnp.inf))
+    print("err1 =",flush=True);print(f"     {err1:.15e}",flush=True)
+    p2=corrupted.polyfit(n-2)
+    draw(p2,"L2 fit")
+    err2=float((p2-smooth).norm(jnp.inf))
+    print("err2 =",flush=True);print(f"   {err2:.15f}",flush=True)
+    draw(p2-smooth,"L2 error",color="k")
+    result=minimax(corrupted,n-2)
+    pinf=cj.chebfun(jnp.asarray(result.coeffs),coeffs=True)
+    draw(pinf,"Linf fit")
+    errinf=float((pinf-smooth).norm(jnp.inf))
+    print("errinf =",flush=True);print(f"   {errinf:.15f}",flush=True)
+    print(f"Elapsed time is {time.perf_counter()-t0:.6f} seconds.",flush=True)
+    assert slot==5
+if __name__=="__main__":
     run()

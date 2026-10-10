@@ -1,0 +1,147 @@
+{
+  "qualified_head": "05a7079fb967a561af8d6429c258127bfc50ec55",
+  "scope": "Native source computation restored for Inpainting: default nonperiodic randnfun; degree length(smooth)-3; all three fits on identical corrupted Chebfun; actual warning, outputs and5reference-sizefigures. Different RNG and numerical/visual parity unresolved.",
+  "full_page": {
+    "original_handle": 75804,
+    "wall_seconds": 174.179,
+    "runtime_files": 1854,
+    "L1_error": 2.16663334677837e-05,
+    "L2_error": 0.08888608186543,
+    "Linf_error": 0.535844974246717,
+    "warning": "CHEBFUN:POLYFIT:MAXITER",
+    "figure_sizes": [
+      [
+        600,
+        270
+      ],
+      [
+        600,
+        270
+      ],
+      [
+        600,
+        270
+      ],
+      [
+        600,
+        270
+      ],
+      [
+        600,
+        270
+      ]
+    ]
+  },
+  "native_saved_input": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "error_to_smooth": 7.061517343020836e-06,
+    "jax_error_native_norm": 2.16663334677837e-05,
+    "seconds": 10.014784,
+    "warning_id": "CHEBFUN:POLYFIT:MAXITER",
+    "iterations": 100,
+    "observer_public_bits_identical": true,
+    "restored_pieces": 9
+  },
+  "trace": {
+    "original_handle": 42038,
+    "terminal_code": 0,
+    "completion": {
+      "seconds": 138.621725294739,
+      "iterations": 100,
+      "baseline_bits_identical": true,
+      "baseline_max_abs": 0.0
+    },
+    "runtime_files": 1828,
+    "stable_bound_files": 42165,
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "wall_seconds": 209.47031850321218,
+      "sampled_peak_summed_rss_kib": 1277268
+    },
+    "initial": {
+      "coeffs": {
+        "shape_match": true,
+        "max_abs": 1.1102230246251565e-16,
+        "bits_identical": false
+      },
+      "roots": {
+        "shape_match": true,
+        "max_abs": 3.3306690738754696e-16,
+        "bits_identical": false
+      }
+    },
+    "first_damping_or_root_count_difference": 27,
+    "final_coeffs": {
+      "shape_match": true,
+      "max_abs": 6.903635542676589e-06,
+      "bits_identical": false
+    },
+    "point_values": {
+      "shape_match": true,
+      "max_abs": 8.881784197001252e-16,
+      "bits_identical": false
+    }
+  },
+  "root_visual_review": "Viewed allfivepaired images: dimensions/labels correct; differentnoise/curves, limits, ticks, darkergrid andthickerlines remain. Native prose/code retained alongside qualification.",
+  "page_audit": {
+    "five_actual_links_resolve": true,
+    "placeholders": 0,
+    "native_code_blocks_exact": 7,
+    "native_prose_preserved_by_cached_renderer": true,
+    "actual_output_blocks": 4,
+    "actual_warning_blocks": 1,
+    "actual_stdout_order_exact": true,
+    "warning_before_L1figure_and_err1": true,
+    "source_script_bitidentical_to_fullgate": true
+  },
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx_Inpainting1D.html": "ea56ba84198ad5c73d144a539fb542b3b3ded6410e75d9d78fcc2174307efea7",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx/Inpainting1D.m": "9e13d6ed06e7f029332cf14d64de1fa195fe76f76f4ee4daaaee868fbe88ada1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/generator_frozen.py": "720397cdac92c8d9d5ff4c84fc18f53d4c909cf63ffb31808c23610664f7c30b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/full_05a7079f_v1/FULL_GATE_AUDIT.json": "81375077c6ebe0cd915ff7c462a9468dd6d0af34d187d0c0f26dc7d4b02b4a8e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/full_05a7079f_v1/capture/events.json": "7230dbefb7f6eeda8b05e833d5e2a643cdbc3a8366e8b4a1ce1b17a703619a85",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/full_05a7079f_v1/capture/stdout.txt": "2172b885664a7b74e868aa25eb1f1f9ed719ee06a11699c1bd54e5ecc52b014d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/full_05a7079f_v1/supervision/stdout": "01fe710f004b5526f0cbe239591d25df22bd81ec4a5d7739ee1b952fb9079bb1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/BREAKPOINT_STATE.json": "1ee59122ab069c03fd056325787d5ea74c2399046053c277d738bb7070691bcd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/derived_breakpoint_state.npz": "9040ffadc9950b6facb2e773955c66f1e8711cec2012c7dd680432b9886ef05c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/FIGURE_REVIEW_CONTACT.png": "01a629375d794e3124f8e1890c3940fe2e3f8c24515eb2ceb9f2f838283a8c35",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/prepare_review_delivery.py": "a1235b634b41ca362001b5ad6c1b5c7c907ed789b209bb754faeb3abad83a744",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/images/approx/Inpainting1D_03.png": "84e1409971b075868ebde72086c1c4a08d5aa37d243d9ec2bb727f06124d1536",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/images/approx/Inpainting1D_02.png": "fd461e74ea43728af64e9e1aed3d0d387189163098b40ea9f1a9a73a03220b17",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/images/approx/Inpainting1D_05.png": "e9413e9890038069bdd037fbfbec3575d3e5dad41078d510911838521e176808",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/images/approx/Inpainting1D_01.png": "4c6b2dd2740dccf7a1c1627c099773ab1107dab7f029c49e319fa4cff039d880",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/images/approx/Inpainting1D_04.png": "9abf00a882bb30e7d2e8925fbae90010460296ce2d303bc5bf3a617f1b137f0b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/docs/examples/approx/Inpainting1D.md": "acdc2fd8b6e93cbde0e15bea4fe4e57f9ecf7538d5df08036f131dc8d66dfe5d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_source_prepare_20261010/review_delivery_v1/candidate/examples/approx/inpainting1d.py": "90b3fc762c562062f25eca00936b1d8fc3ca0cec19f2f6690275a1a284501a0e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_native_saved_20261010/AUDIT.json": "87b8f1e224fbdfa4716a82005e9a2ee4c93d48a65cd9ea2c6d9333c511a7efc5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inpainting_jax_saved_trace_20261010/AUDIT.json": "b2501d6d575fb0e38ea038c51233ba8598499e3a00be592e78d41c0a76ba1908"
+  },
+  "published_file_hashes": {
+    "docs/images/approx/Inpainting1D_03.png": "84e1409971b075868ebde72086c1c4a08d5aa37d243d9ec2bb727f06124d1536",
+    "docs/images/approx/Inpainting1D_02.png": "fd461e74ea43728af64e9e1aed3d0d387189163098b40ea9f1a9a73a03220b17",
+    "docs/images/approx/Inpainting1D_05.png": "e9413e9890038069bdd037fbfbec3575d3e5dad41078d510911838521e176808",
+    "docs/images/approx/Inpainting1D_01.png": "4c6b2dd2740dccf7a1c1627c099773ab1107dab7f029c49e319fa4cff039d880",
+    "docs/images/approx/Inpainting1D_04.png": "9abf00a882bb30e7d2e8925fbae90010460296ce2d303bc5bf3a617f1b137f0b",
+    "docs/examples/approx/Inpainting1D.md": "3bce87b8b906969bfc82ad035e26dba5eb12c5faa14f2217501b862970ef520f",
+    "examples/approx/inpainting1d.py": "9a5cc40d20e9661a671b098910db72fd8618f7c9e16f82536c014e4426a725d7",
+    "scripts/gen_example_pages.py": "f3be9a4600f0e7dbf149dbcaba9b3cba1646a3a17fb3254f284910b18bd97a3d"
+  },
+  "limits": [
+    "DefaultJAXrandomdraws are not MATLABrng(1)",
+    "Savedcoeff/domainexact; defaultbreakpoint arithmetic differs by8.89e-16",
+    "No attribution of final6.904e-6coefficientdifference to onebackendoperation",
+    "Observedtimingsunpaired; no performanceparityclaim",
+    "All322pages/fulltests/greenmainCIunfinished"
+  ],
+  "formatting_only": {
+    "qualified_script_sha256": "90b3fc762c562062f25eca00936b1d8fc3ca0cec19f2f6690275a1a284501a0e",
+    "published_script_sha256": "9a5cc40d20e9661a671b098910db72fd8618f7c9e16f82536c014e4426a725d7",
+    "nonimport_AST_identical": true,
+    "import_set_identical": true,
+    "matplotlib_Agg_call_preserved_before_pyplot": true
+  }
+}

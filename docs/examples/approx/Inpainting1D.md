@@ -6,6 +6,8 @@
 
 Python translation: [`examples/approx/inpainting1d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/inpainting1d.py)
 
+> **Qualification:** This source computation uses public nonperiodic `cj.randnfun(.1, key=PRNGKey(1))`; its normal draws do not reproduce MATLAB `rng(1)`. All three public fits receive the same captured nine-piece corrupted function. The source Watson L1 iteration reached its unchanged 100-iteration limit and emitted the warning below; its actual recovery error is `2.166633346778370e-05`, so the native prose’s near-zero recovery is not established. L2 and minimax values use this different noise realization. Native prose/code are retained for comparison. All five figures are captured at the reference 600×270 sizes; curves, limits, ticks, grid and line styling differ. A MATLAB replay using the saved piece coefficients also reaches 100 iterations, with recovery error `7.061517343020836e-06`. The initial polynomial coefficients differ by at most `1.12e-16`; damping/root-count choices first diverge at iteration 27. This does not establish numerical or visual parity.
+
 Here is a smooth function corrupted in three regions:
 
 ```matlab
@@ -28,6 +30,10 @@ p1 = polyfitL1(corrupted,n);
 plot(p1), grid on, title('L1 fit')
 ```
 
+```text
+RuntimeWarning: CHEBFUN:POLYFIT:MAXITER: The maximum number of iterations was reach. Answer may not be accurate.
+```
+
 ![Inpainting1D figure 02](../../images/approx/Inpainting1D_02.png)
 
 The error is very small and would in principle be zero if we used a polynomial of the same degree as the function being recovered:
@@ -38,7 +44,7 @@ err1 = norm(p1-smooth,inf)
 
 ```text
 err1 =
-     8.753620329970481e-10
+     2.166633346778370e-05
 ```
 
 The 2-norm has no such magic. The fit looks pretty good to the eye,
@@ -51,7 +57,7 @@ err2 = norm(p2-smooth,inf)
 
 ```text
 err2 =
-   0.164201627741589
+   0.088886081865430
 ```
 
 ![Inpainting1D figure 03](../../images/approx/Inpainting1D_03.png)
@@ -74,7 +80,7 @@ errinf = norm(pinf-smooth,inf)
 
 ```text
 errinf =
-   0.629201401459400
+   0.535844974246717
 ```
 
 ![Inpainting1D figure 05](../../images/approx/Inpainting1D_05.png)
@@ -88,7 +94,7 @@ toc
 ```
 
 ```text
-Elapsed time is 21.163293 seconds.
+Elapsed time is 109.583760 seconds.
 ```
 
 (Virtually all the time was taken by `polyfitL1`; in comparison `polyfit` and `minimax` are almost instantaneous.) This is partly because $L^1$ fitting is challenging, but equally because Chebfun's `polyfitL1` command avoids the tool that could speed it up considerably, namely linear programming. This is because linear programming is not available in core Matlab.

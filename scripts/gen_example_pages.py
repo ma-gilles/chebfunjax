@@ -406,6 +406,7 @@ def main():
         if (cat, stem) in {
             ("ode-random", "RandomSwitching"),
             ("approx2", "Gibbs2D"),
+            ("approx", "Inpainting1D"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")

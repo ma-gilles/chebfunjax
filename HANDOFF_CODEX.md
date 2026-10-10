@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Inpainting source execution and same-input native diagnosis (2026-10-10; latest)
+
+The page now uses the default nonperiodic randnfun, native degree selection,
+and public L1/L2/minimax fits on one captured nine-piece input. All five
+600x270 figures and actual outputs/warning are preserved. The source L1
+iteration reaches100steps in both JAX and MATLAB on the saved coefficients:
+errors2.16663e-5 and7.06152e-6. The JAX trace exactly reproduces the full-page
+fit; initial polynomial coefficients differ by1.12e-16, with first damping/
+root-count divergence at iteration27. No isolated algorithm fault or parity
+claim follows. Runtime audits are clean (1,828 trace files); native3,527inputs
+are stable. Different RNG, curves/style and full numerical parity remain open.
+Evidence: docs/inpainting_source_cpu_20261010.json. Generic page generation
+preserves this source-managed page. Full suite and green main CI are open.
+
+
 ## Native continuous L1 polynomial fitting (2026-10-10; latest)
 
 `polyfitL1` now uses the source Watson iteration in JAX, replacing the sampled
