@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Partial Chebfun3 reductions qualified (2026-10-09; latest)
+
+Partial sum/sum2 now preserve complex factor integrals, physical factor
+scaling and native contraction order; invalid dimensions raise. All25
+original sum/sum2/mean/mean2 norm assertions pass at their native tolerances,
+plus12 complex/dimension controls. Independent runtime reviews verified
+2941/2952 observed hashes. Evidence: docs/chebfun3_partial_reductions_cpu_20261009.json.
+Inherited output reconstruction, global tests and remoteCI remain open.
+
+SphereHeat fullpage has separately completed both100step trajectories and
+all10 reference-size610x276 figures. Missing Time titles were found during
+visual review; page rendering repair is underway, so fullpage parity is not
+qualified. Evidence: shared sphere_heat_fullpage_root_runtime_review_20261009.json
+and sphere_heat_fullpage_root_values_review_20261009.json.
+
 ## Sphere addition staging qualified (2026-10-09; supersedes caps below)
 
 Persistent JAX stages preserve source sampling, ordered products, compression

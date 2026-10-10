@@ -1626,22 +1626,24 @@ class Chebfun3(eqx.Module):
         # Native @chebfun3/sum.m, Chebfun7574c77: empty dispatch.
         if self.isempty():
             return jnp.empty((0,))
+        if dim not in (1, 2, 3):
+            raise ValueError("The second input must be 1, 2, or 3.")
         from chebfunjax.chebfun2d import chebfun2
 
         xa, xb, ya, yb, za, zb = self.domain
         if dim == 1:
-            w = jnp.array([c.sum() for c in self.cols], dtype=jnp.float64)
-            M = jnp.einsum('ijk,i->jk', self.core, w) * (0.5 * (xb - xa))
+            w = jnp.array([c.sum() * (0.5 * (xb - xa)) for c in self.cols])
+            M = jnp.einsum('ijk,i->jk', self.core, w)
             f1, f2 = self.rows, self.tubes
             dom2 = (ya, yb, za, zb)
         elif dim == 2:
-            w = jnp.array([r.sum() for r in self.rows], dtype=jnp.float64)
-            M = jnp.einsum('ijk,j->ik', self.core, w) * (0.5 * (yb - ya))
+            w = jnp.array([r.sum() * (0.5 * (yb - ya)) for r in self.rows])
+            M = jnp.einsum('ijk,j->ik', self.core, w)
             f1, f2 = self.cols, self.tubes
             dom2 = (xa, xb, za, zb)
         else:
-            w = jnp.array([t.sum() for t in self.tubes], dtype=jnp.float64)
-            M = jnp.einsum('ijk,k->ij', self.core, w) * (0.5 * (zb - za))
+            w = jnp.array([t.sum() * (0.5 * (zb - za)) for t in self.tubes])
+            M = jnp.einsum('ijk,k->ij', self.core, w)
             f1, f2 = self.cols, self.rows
             dom2 = (xa, xb, ya, yb)
 
@@ -1671,20 +1673,25 @@ class Chebfun3(eqx.Module):
 
         xa, xb, ya, yb, za, zb = self.domain
         dims = tuple(sorted(dims))
-        wx = jnp.array([c.sum() for c in self.cols], dtype=jnp.float64)
-        wy = jnp.array([r.sum() for r in self.rows], dtype=jnp.float64)
-        wz = jnp.array([t.sum() for t in self.tubes], dtype=jnp.float64)
+        if dims not in ((1, 2), (1, 3), (2, 3)):
+            raise ValueError("dims must contain two distinct indices from 1, 2, and 3.")
+        wx = jnp.array([c.sum() * (0.5 * (xb - xa))
+                        for c in self.cols])
+        wy = jnp.array([r.sum() * (0.5 * (yb - ya))
+                        for r in self.rows])
+        wz = jnp.array([t.sum() * (0.5 * (zb - za))
+                        for t in self.tubes])
         if dims == (1, 2):
-            v = jnp.einsum('ijk,i,j->k', self.core, wx, wy) \
-                * (0.25 * (xb - xa) * (yb - ya))
+            v = jnp.tensordot(jnp.tensordot(wx, self.core, axes=(0, 0)),
+                              wy, axes=(0, 0))
             fibers, (a, b) = self.tubes, (za, zb)
         elif dims == (1, 3):
-            v = jnp.einsum('ijk,i,k->j', self.core, wx, wz) \
-                * (0.25 * (xb - xa) * (zb - za))
+            v = jnp.tensordot(jnp.tensordot(wx, self.core, axes=(0, 0)),
+                              wz, axes=(1, 0))
             fibers, (a, b) = self.rows, (ya, yb)
         else:
-            v = jnp.einsum('ijk,j,k->i', self.core, wy, wz) \
-                * (0.25 * (yb - ya) * (zb - za))
+            v = jnp.tensordot(jnp.tensordot(self.core, wy, axes=(1, 0)),
+                              wz, axes=(1, 0))
             fibers, (a, b) = self.cols, (xa, xb)
 
         def _fn(t):

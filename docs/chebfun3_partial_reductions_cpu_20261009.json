@@ -1,0 +1,112 @@
+{
+  "scope": "Chebfun3 partial sums preserve complex integrals and native physical scaling/contraction order; native invalid-dimension errors",
+  "source_review": {
+    "reviewer": "/root",
+    "base_head": "f3a20274634f94141a40297410d44bc41c351ff4",
+    "scope": [
+      "sum complex factors and physical scaling before contraction",
+      "sum2 complex factors, physical scaling before each sequentialnativecontraction",
+      "nonempty invaliddimensions error"
+    ],
+    "unchanged_ast_outside_methods": true,
+    "all_other_library_files_byte_identical": true,
+    "native_assertions_restored": {
+      "sum": 13,
+      "sum2": 10,
+      "mean": 1,
+      "mean2": 1
+    },
+    "added_controls": 12,
+    "tolerances": "Original1e4eps sum,1e5eps sum2,eps mean/mean2 fromChebfunPref; no relaxedbounds",
+    "test_api_adapter": "Native [1]/[2]/[3] scalar dimension represented byPythonint; native callbackstrings byequivalentJAXlambda; original norms retained",
+    "limitations": [
+      "OutputChebfun2/Chebfun callback reconstruction remains inherited, native factorcombination/simplify correspondence unverified",
+      "Native complexconstructor assertions may expose independent inheritedfault; diagnoseifso"
+    ],
+    "hashes": {
+      "src/chebfunjax/chebfun3d/chebfun3.py": "40b99032034cdf05114b053080a54a34dedb677fb43ce89fccbf94914ac0a6ec"
+    }
+  },
+  "runtime_reviews": [
+    {
+      "reviewer": "/root",
+      "scope": "Chebfun3 partial reductions12 complex anddimension controls",
+      "gates": [
+        {
+          "gate": "controls12_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_partial_reductions_source_20261009/controls12_v1/supervision/receipt.json",
+          "receipt_sha256": "ec77433b97a1d7288ba6b64f976fc456e91d99750e5ad5fe74f85ae66f37551d",
+          "runtime_manifest_sha256": "73c4396250175441d544a94accb197282108bbe1968a7526b8c0d111ba0451eb",
+          "runtime_end_sha256": "fbc8808c6a94d4ac9c67d4c7091f3ae0760cb3fc1d20dba9feec048c48f04838",
+          "observed_files_rehashed": 2941,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 56,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1135692,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 12,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    {
+      "reviewer": "/root",
+      "scope": "Chebfun3 original25 native partial reduction assertions",
+      "gates": [
+        {
+          "gate": "native25_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_partial_reductions_source_20261009/native25_v1/supervision/receipt.json",
+          "receipt_sha256": "bced18800bdd0d14d045939b76b6dfe6c3bc9b473247095c99e4236273d07718",
+          "runtime_manifest_sha256": "3955c3ec418eca625abc68f2fd1eb55e823630079bea7183d0fe8415f690b6ab",
+          "runtime_end_sha256": "8161207c02fc825eb7377f6fbca264d6f9a78d042ade39a5fc682e192f4f36ba",
+          "observed_files_rehashed": 2952,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 65,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 2235720,
+          "cpu_affinity": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "assertion_slots": 25,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  ],
+  "test_assertions": "All13sum+10sum2+1mean+1mean2 originalnormassertions atnative tolerances;12addedcontrols forcomplexfactor means and invaliddimensions",
+  "files": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "40b99032034cdf05114b053080a54a34dedb677fb43ce89fccbf94914ac0a6ec",
+    "tests/test_chebfun3d/test_partial_reductions_source_controls.py": "2ee144166b4246b48ca80eb5de28cd6bb9232df66b0d71a817df73479d805f3c",
+    "tests/test_matlab_port/chebfun3/test_partial_reductions_native_matlab.py": "cede7963630eb09320dafe0a20c40b48abbe9180395b73fb31a44e46186fa2c1"
+  },
+  "limits": [
+    "Inherited output callback reconstruction not established equivalent to native factor combination/simplify in every representation",
+    "Native MATLAB binary comparisons, fullsuite and remoteCI remain open"
+  ]
+}
