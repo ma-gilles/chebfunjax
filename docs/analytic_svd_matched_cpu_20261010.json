@@ -40,7 +40,7 @@
       "Singular-value shapes now visually match native reference after matched RNG inputs.",
       "U/V sign choices and some discontinuities differ from historical LAPACK.",
       "Axes placement, limits, ticks, font/box policy differ.",
-      "Figure5 rightmost labels clip; source-faithful saved-data renderer correction is next."
+      "Figure5 rightmost label clipping corrected by audited public saved-coefficient rendering; other layout/sign/limits gaps remain."
     ],
     "parity_claim": false
   },
@@ -55,5 +55,24 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/AUDIT.json": "463410c2af001fb6c80f31edaad843dc26d8aefc32435a48384f1762cc4e75c9",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/native_inputs.mat": "c4bbf7f6de6a45f099f4e2c0445a901a4d4b1c1be48998a036cc9011c9374792",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/analytic_svd_matlab_rng10.json": "2457366d53895f8e8f711ef16985c65863a6406edb9bc28026a3eac0940b26aa"
+  },
+  "figure5_renderer_correction": {
+    "qualification": "figure5 artifact-only public plotting replay and isolatedexample_save layoutkeywordpatch",
+    "source_change": "Only _save layout keyword; numerical run AST unchanged",
+    "coefficients": "all6originalglobalcoeffarrays restoredbitexact; noadaptivefits orSVD",
+    "labels": "all6unclipped/bboxaudited andvisualviewed",
+    "render_seconds": 1.959170248825103,
+    "full_timer_unchanged": 984.1017472743988,
+    "evidence": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/PLAN.json": "5e6de9476b9f49687ae521f1189d5d3d721bf81419db9c128add65dac44ac6ff",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/source_layout.patch": "cc63ced305f5dffc13353c64eb74c71615b79d9df9af27e1fb8c9d50f793c097",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/SOURCE_AST_AUDIT.json": "834c05321c81c7c36a53e4790e50d596b5e4f435e28d72528dbd3e20c8ffb0a2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/replay_figure5.py": "99670f27004505194976777320142ebd0220987726b342b80bbf7c24f8e0cbc4",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/render_v1/AUDIT.json": "c6ced97af03689d069726ef7ab614242f465cdf94bb9f4b683dd8be12dddf430",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/render_v1/output/RENDER_AUDIT.json": "c09f239c7eabbab32720d7f6ec4b6fb7ca0ff1f0c7862d0c51ed61fda35bfbb6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/render_v1/output/AnalyticSVD_05.png": "39ee3ed30cc470d70412992febd81e2a5e59688a0cd22d5149ee11daf434e356",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_layout_review_20261010/render_v1/junit.xml": "e62feab3ee51ff0ef682eb1f0fe3fcdea429545e8cc89df44984d8bf4a9526fc"
+    },
+    "limits": "MATbackendautoscale retained, nohardcodednativeylim; ylimits/ticks/typography differreference"
   }
 }

@@ -212,9 +212,10 @@ commands. All 32 input values match the native capture bit-for-bit. The run
 completed 86 finite, resolved constructions and generated all five 608×271
 figures; the timing above is its actual output. Historical LAPACK sign choices,
 coefficient rounding and visual parity remain unverified. Visible differences
-include singular-vector signs, axes limits and placement, typography, and
-clipped rightmost labels in the coefficient plot. These figures are the actual
-completed run, not reference images.
+include singular-vector signs, axes limits and placement, and typography.
+The coefficient plot was rendered again from the six saved coefficient arrays,
+verified bit-for-bit, to keep all labels visible. The other four figures come
+directly from the completed run; the timing remains that original full run.
 
 ---
 

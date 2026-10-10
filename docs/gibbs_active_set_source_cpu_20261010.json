@@ -1,28 +1,16 @@
 {
-  "qualification": "Complete CPU source execution; numerical and graphics parity unresolved",
-  "source_head": "4f364d37d3dd2a170b200ca611c0b52f71e51bcf",
-  "source_page_control_passed": 1,
-  "prior_adapter_controls": 35,
-  "grid_controls": 43,
-  "counts": {
-    "grids": 7,
-    "extrema": 6,
-    "reconstruct": 12,
-    "higher": 2,
-    "fallback": 0,
-    "active": 4,
-    "active_errors": 0,
-    "unsupported_errors": 0,
-    "figures": 8
-  },
-  "printed_answers": [
+  "qualification": "source execution; fresh native minimum agreement; maximum and graphics parity unresolved",
+  "source_base": "b655a880 native identity-domain seed mapping",
+  "actual_answers": [
     {
       "name": "square_max",
-      "actual_printed": 1.320316254042389,
-      "previous_JAX_printed": 1.32031625404239,
+      "actual_printed": 1.32031625404239,
+      "previous_JAX_printed": 1.320316254042389,
       "published_native_printed": 1.32031625404239,
-      "difference_native": -1.1102230246251565e-15,
-      "difference_previous": -1.1102230246251565e-15
+      "difference_native": 0.0,
+      "difference_previous": 1.1102230246251565e-15,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "1d_max",
@@ -30,7 +18,9 @@
       "previous_JAX_printed": 1.149050152970874,
       "published_native_printed": 1.149050152970874,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "square_min",
@@ -38,39 +28,49 @@
       "previous_JAX_printed": -0.153785123606236,
       "published_native_printed": -0.153785123606236,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "periodic_max",
-      "actual_printed": 1.316297664943328,
+      "actual_printed": 1.31629766494333,
       "previous_JAX_printed": 1.316297664943328,
       "published_native_printed": 1.31629766494333,
-      "difference_native": -1.9984014443252818e-15,
-      "difference_previous": 0.0
+      "difference_native": 0.0,
+      "difference_previous": 1.9984014443252818e-15,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "periodic_min",
-      "actual_printed": -0.155566549488912,
+      "actual_printed": -0.155566549488913,
       "previous_JAX_printed": -0.155566549488912,
       "published_native_printed": -0.155566549488912,
-      "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_native": -9.992007221626409e-16,
+      "difference_previous": -9.992007221626409e-16,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "triangle_max",
-      "actual_printed": 1.172291450338935,
-      "previous_JAX_printed": 1.273581928619538,
+      "actual_printed": 1.171307334393718,
+      "previous_JAX_printed": 1.172291450338935,
       "published_native_printed": 1.294875501773784,
-      "difference_native": -0.12258405143484907,
-      "difference_previous": -0.101290478280603
+      "difference_native": -0.12356816738006615,
+      "difference_previous": -0.000984115945217079,
+      "fresh_R2025_native": 1.1722914503389705,
+      "difference_fresh_native": -0.000984115945252606
     },
     {
       "name": "triangle_min",
-      "actual_printed": -0.010179284112782,
-      "previous_JAX_printed": -0.228957699300504,
+      "actual_printed": -0.00403226892553,
+      "previous_JAX_printed": -0.010179284112782,
       "published_native_printed": -0.228957699300502,
-      "difference_native": 0.21877841518772,
-      "difference_previous": 0.218778415187722
+      "difference_native": 0.224925430374972,
+      "difference_previous": 0.006147015187251999,
+      "fresh_R2025_native": -0.004032268925529743,
+      "difference_fresh_native": -2.5673907444456745e-16
     },
     {
       "name": "square_rank",
@@ -78,7 +78,9 @@
       "previous_JAX_printed": 1.0,
       "published_native_printed": 1.0,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "periodic_rank",
@@ -86,7 +88,9 @@
       "previous_JAX_printed": 1.0,
       "published_native_printed": 1.0,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "triangle_rank",
@@ -94,7 +98,9 @@
       "previous_JAX_printed": 22.0,
       "published_native_printed": 22.0,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     },
     {
       "name": "matrix_rank",
@@ -102,72 +108,172 @@
       "previous_JAX_printed": 22.0,
       "published_native_printed": 22.0,
       "difference_native": 0.0,
-      "difference_previous": 0.0
+      "difference_previous": 0.0,
+      "fresh_R2025_native": null,
+      "difference_fresh_native": null
     }
   ],
-  "factor_comparison_summary": {
-    "raw_triangle_factor_arrays": 44,
-    "raw_factor_bytes_unchanged": true,
-    "row_reconstruction_length_before": 102,
-    "row_reconstruction_length_after": 100,
-    "column_reconstruction_length": 100,
-    "first_observed_changed_stage": "fixed4000 reconstruction, then extrema seeds"
-  },
-  "solver_results": [
+  "figures": [
     {
-      "exitflag": 5,
-      "iterations": 10,
-      "evaluations": 36
+      "name": "Gibbs2D_01.png",
+      "sha256": "d388de83d18d4d1dadec6811981d531ca6566f51bbfcf58aa4e10b303b585435",
+      "previous_sha256": "d388de83d18d4d1dadec6811981d531ca6566f51bbfcf58aa4e10b303b585435",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
     },
     {
-      "exitflag": 5,
-      "iterations": 10,
-      "evaluations": 45
+      "name": "Gibbs2D_02.png",
+      "sha256": "9b1e624548bbebc044cc9eb7998c62a22fca0dcb409759b75aec80028204f48f",
+      "previous_sha256": "9b1e624548bbebc044cc9eb7998c62a22fca0dcb409759b75aec80028204f48f",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
     },
     {
-      "exitflag": 5,
-      "iterations": 10,
-      "evaluations": 36
+      "name": "Gibbs2D_03.png",
+      "sha256": "97729a8c134a528c65bc11af91b7e16fe92f2c294ee69755ae067983475e153a",
+      "previous_sha256": "97729a8c134a528c65bc11af91b7e16fe92f2c294ee69755ae067983475e153a",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
     },
     {
-      "exitflag": 5,
-      "iterations": 10,
-      "evaluations": 45
+      "name": "Gibbs2D_04.png",
+      "sha256": "f7818084db5b3c18438dc34b7346d450c762320163ba6419636fd6dc4efd306d",
+      "previous_sha256": "f7818084db5b3c18438dc34b7346d450c762320163ba6419636fd6dc4efd306d",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
+    },
+    {
+      "name": "Gibbs2D_05.png",
+      "sha256": "fd3826585798bad97ff9a1a5def7850276bf4e8bd150db5b30e0fad82f4e34d6",
+      "previous_sha256": "fd3826585798bad97ff9a1a5def7850276bf4e8bd150db5b30e0fad82f4e34d6",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
+    },
+    {
+      "name": "Gibbs2D_06.png",
+      "sha256": "0766734ed7046f7ec88b19487ef09a52ea9dee4f33c67275b2b2882cc9687f21",
+      "previous_sha256": "0766734ed7046f7ec88b19487ef09a52ea9dee4f33c67275b2b2882cc9687f21",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
+    },
+    {
+      "name": "Gibbs2D_07.png",
+      "sha256": "68f1317aa3e3bb9987a375efbcd8022d52a976cad580925c288a63e3ecdc6c26",
+      "previous_sha256": "68f1317aa3e3bb9987a375efbcd8022d52a976cad580925c288a63e3ecdc6c26",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
+    },
+    {
+      "name": "Gibbs2D_08.png",
+      "sha256": "df34c9ec9b29b166d88874af5d0cfa1a822184d2f6a525af4aa1f0282f1ab968",
+      "previous_sha256": "df34c9ec9b29b166d88874af5d0cfa1a822184d2f6a525af4aa1f0282f1ab968",
+      "same_previous_bytes": true,
+      "width": 600,
+      "height": 269
     }
   ],
-  "figures": {
-    "count": 8,
-    "size": [
-      600,
-      269
-    ],
-    "bytes_equal_previous_publication": true
+  "audit": {
+    "gate": "A_page",
+    "faults": [],
+    "input_bindings": 58971,
+    "input_mismatches": [],
+    "observed_rehash_count": 1875,
+    "mismatches": [],
+    "wrong_origins": {},
+    "junit_count": 1,
+    "terminal": 0,
+    "supervisor_exit": 0,
+    "censored_limit": null,
+    "peak_kib": 1821632,
+    "wall_seconds": 96.49574969895184,
+    "stable": true,
+    "survivors": []
   },
-  "evidence": {
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/A_page_AUDIT_v2.json": "4de5b93f20ae99b7e7344ca5fe4dbb63f1df6317cfdca49823fc3b0ecac7a7b8",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/OUTPUT_COMPARISON.json": "83f554f3ee89307edc95ebd3d2ba1b8ecde6ef7c193c9daddde5e4a3e12e4540",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/FACTOR_COMPARISON.json": "abb394141c08a2ee8e9a0479206f02ef6118fcd4f3a40200a4d56a10c649963a",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/ROOT_DELIVERY_REVIEW.json": "0fdfc0566c8298d8a3faf51322332bc785f8edc23879824993d2bb5d377264c7",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_corrected_grid_replay_20261010/DELIVERY_PACKET.json": "c0b499662364135da85b14c4b7b98c056240c752e405f420fe506742b459e423",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/AUDIT.json": "463410c2af001fb6c80f31edaad843dc26d8aefc32435a48384f1762cc4e75c9",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/analytic_svd_native_input_v3_20261010/gibbs_native_triangle.mat": "dd726af3ada4b7caf519f1cc4780ebb70edfd523f64f233ec542a69b65c258b5"
+  "active_returns": [
+    {
+      "call": 1,
+      "initial": [
+        0.015865963834807928,
+        -0.015865963834807928
+      ],
+      "returned": [
+        0.513435319566434,
+        -0.5134353198934342
+      ],
+      "signed_result": -0.004032268925530074,
+      "iterations": 8,
+      "evaluations": 33,
+      "exitflag": 5
+    },
+    {
+      "call": 2,
+      "initial": [
+        -0.3270679633174216,
+        0.266473813690035
+      ],
+      "returned": [
+        -0.1928894946295551,
+        0.31515957907765596
+      ],
+      "signed_result": -1.1713073343937177,
+      "iterations": 10,
+      "evaluations": 42,
+      "exitflag": 5
+    },
+    {
+      "call": 3,
+      "initial": [
+        0.015865963834807928,
+        -0.015865963834807928
+      ],
+      "returned": [
+        0.513435319566434,
+        -0.5134353198934342
+      ],
+      "signed_result": -0.004032268925530074,
+      "iterations": 8,
+      "evaluations": 33,
+      "exitflag": 5
+    },
+    {
+      "call": 4,
+      "initial": [
+        -0.3270679633174216,
+        0.266473813690035
+      ],
+      "returned": [
+        -0.1928894946295551,
+        0.31515957907765596
+      ],
+      "signed_result": -1.1713073343937177,
+      "iterations": 10,
+      "evaluations": 42,
+      "exitflag": 5
+    }
+  ],
+  "fresh_triangle_minimum": {
+    "jax": -0.004032268925530074,
+    "native": -0.004032268925529743,
+    "difference": -3.3046482217358175e-16
   },
   "limitations": [
-    "Historical published extrema differ from fresh R2025b native and JAX outputs; cause not fully established.",
-    "Earlier fresh native optimizer comparison used saved JAX factors/seeds.",
-    "Fresh-native minimum and both historical triangle extrema remain unresolved.",
-    "Lighting, interpolated faces, automatic contour levels, framing and typography remain graphics gaps.",
-    "Counts cover different scopes and are not a unique fullsuite total.",
-    "Full parity and green main CI remain unresolved."
+    "Fresh R2025b native uses installed optimizer; JAX adapter is R2017a source.",
+    "Maximum differs by9.84115945252606e-4 after a different near-tie starting point.",
+    "Historical numerical and graphics parity unresolved."
   ],
-  "fresh_native_triangle": {
-    "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
-    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
-    "optimizer": "/usr/licensed/matlab-R2025b/toolbox/shared/optimlib/fmincon.m",
-    "maximum": 1.1722914503389705,
-    "minimum": -0.004032268925529743,
-    "maximum_abs_difference": 3.552713678800501e-14,
-    "minimum_abs_difference": 0.006147015187252256,
-    "qualification": "Original100x100 native triangle construction/publicmax2/min2; installed R2025b fmincon, whereas JAX adapter qualified against R2017a optimizer source. Full historical-page parity remains open."
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/DELIVERY_PACKET.json": "d9837e7b161e54129fb02420425d9cfc0f7634768179ff5c3d259807ebc4bdc4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/A_page_AUDIT_v2.json": "976b0f582292927c0f27d3a99c45c984bf34a2127c5c391d25e12ce0f793b206",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/OUTPUT_COMPARISON.json": "3d641e7a762dbaa575dd18fc4b90dc0c89510fa971ad0b6c3069d300e79991cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/STAGE_COMPARISON.json": "13fd1671a7b3b8a6ab631bd35ca02ffe614d6b57ae1bdec33853a7ca391312a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/page_delivery/DELIVERY_PACKET.json": "5388addb21bf6e349219343178a0d8f5b9b534d2773821e0d7caa7e8eda6ab6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gibbs_seed_mapping_replay_20261010/MAXIMUM_EVALUATION_PLAN.json": "997f04c68d36c3302ec3ea3a8434bf423dfd30c9ba8087010b51ca671bc95c4a"
   }
 }

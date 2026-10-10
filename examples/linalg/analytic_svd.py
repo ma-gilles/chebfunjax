@@ -42,7 +42,8 @@ def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
     _savefig(fig, os.path.join(
-        _IMG, f"AnalyticSVD_{FIG[0]:02d}.png"), size=(608, 271))
+        _IMG, f"AnalyticSVD_{FIG[0]:02d}.png"), size=(608, 271),
+        layout="matlab" if FIG[0] == 5 else None)
     plt.close(fig)
 
 

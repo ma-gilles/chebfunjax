@@ -1,5 +1,29 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AnalyticSVD coefficient-plot labels repaired (2026-10-10; latest)
+
+The final figure now reserves native-style axes margins using the existing
+public renderer. All six saved coefficient arrays are bit-exact, and all six
+label bounding boxes fit the 608x271 image. Only the example save-layout
+keyword changes; there is no SVD/adaptive rerun or sign forcing. The page
+retains its actual full-run timer. Reference log limits, typography and
+historical sign parity remain open. Evidence is appended to
+docs/analytic_svd_matched_cpu_20261010.json.
+
+
+## Full Gibbs replay confirms minimum correction (2026-10-10; latest)
+
+The identity-domain seed fix passes the full source page: eleven actual
+answers, eight unchanged 600x269 figures, six extrema, twelve reconstructions
+and four active-set solves without fallback. Triangle minimum is
+-0.004032268925530074, within 3.3e-16 of fresh native R2025b. Maximum is
+1.171307334393718, still 9.84e-4 below fresh native because a nearly tied
+seed changed. Raw factors and reconstructions remain byte-identical.
+All 58,971 inputs and 1,875 runtime files audit clean. Historical numerical
+and figure parity remain open; next saved-array diagnosis targets evaluation
+rounding. Evidence: docs/gibbs_active_set_source_cpu_20261010.json.
+
+
 ## AnalyticSVD executed on captured MATLAB inputs (2026-10-10; latest)
 
 The default matrices now come from literal R2025b rng(10)/randn source

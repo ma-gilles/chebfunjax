@@ -5,8 +5,9 @@ Original: https://www.chebfun.org/examples/approx2/Gibbs2D.html
 Copyright The University of Oxford and The Chebfun Developers.
 
 CPU-qualified source execution includes four active-set solves without fallback.
-Triangle extrema are 1.172291450338935 and -0.010179284112782; differences
-from the historical published native reference remain unresolved.
+Triangle minimum -0.004032268925530 matches fresh native to about 3.3e-16.
+Maximum 1.171307334393718 remains about 0.0009841 below fresh native;
+near-tied seed values and graphics differences remain under investigation.
 Camlight, face interpolation and automatic contour levels remain graphics gaps;
 public renderer approximations are not parity.
 """
