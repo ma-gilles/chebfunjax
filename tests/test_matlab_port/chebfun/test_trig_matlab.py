@@ -38,17 +38,37 @@ def _cplx(fn):
     return _f
 
 
-# (method name, exact NumPy reference)
+def _matlab_real_acsc(v):
+    """Real-input MATLAB branch from the published asin logarithm formula.
+
+    MathWorks double.acsc defines asin(1/z); double.asin defines
+    -i*log(i*z + sqrt(1-z**2)). Promote the square root after real
+    arithmetic. Casting the input before reciprocal instead selects a
+    complex branch lip in NumPy and reverses the original real-input result.
+    This reference serves the real native base_op values, not complex inputs.
+    """
+    v = np.asarray(v)
+    if np.iscomplexobj(v):
+        raise TypeError("This reference is restricted to real native inputs")
+    z = 1.0 / v
+    return -1j * np.log(1j*z + np.sqrt((1-z*z).astype(complex)))
+
+
+def _matlab_real_asec(v):
+    return np.pi/2 - _matlab_real_acsc(v)
+
+
+# (method name, scalar reference with MATLAB real-input branches)
 TRIG = [
     ("acos", _cplx(np.arccos)), ("acosd", _cplx(lambda v: np.arccos(v) / D2R)),
     ("acosh", _cplx(np.arccosh)), ("acot", lambda v: np.arctan(1 / v)),
     ("acotd", lambda v: np.arctan(1 / v) / D2R),
     ("acoth", _cplx(lambda v: np.arctanh(1 / v))),
-    ("acsc", _cplx(lambda v: np.arcsin(1 / v))),
-    ("acscd", _cplx(lambda v: np.arcsin(1 / v) / D2R)),
+    ("acsc", _matlab_real_acsc),
+    ("acscd", lambda v: _matlab_real_acsc(v) / D2R),
     ("acsch", lambda v: np.arcsinh(1 / v)),
-    ("asec", _cplx(lambda v: np.arccos(1 / v))),
-    ("asecd", _cplx(lambda v: np.arccos(1 / v) / D2R)),
+    ("asec", _matlab_real_asec),
+    ("asecd", lambda v: _matlab_real_asec(v) / D2R),
     ("asech", _cplx(lambda v: np.arccosh(1 / v))),
     ("asin", _cplx(np.arcsin)), ("asind", _cplx(lambda v: np.arcsin(v) / D2R)),
     ("asinh", np.arcsinh), ("atan", np.arctan),

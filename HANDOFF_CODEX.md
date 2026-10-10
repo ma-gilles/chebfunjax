@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Real-input inverse trig reference correction (2026-10-10; latest)
+
+All 37 native trig predicates pass after correcting four scalar reference
+branches against MATLAB asin/acsc formulas. Original queries and bounds are
+unchanged; production code is unchanged. Agent 9 cases and root 1 aggregate
+case pass. Both broad-sweep failure causes now have focused verification;
+7,248 continuation nodes remain pending. Complex signed-zero native behavior
+and fresh CI remain unqualified. Evidence: docs/trig_reference_cpu_20261010.json.
+
 ## Core regression checkpoint and periodic test correction (2026-10-10)
 
 Fresh frozen sweep stopped after2524 observed nodes:2508pass,14skip,2fail;

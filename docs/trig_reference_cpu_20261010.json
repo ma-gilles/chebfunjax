@@ -1,0 +1,24 @@
+{
+  "scope": "Correct real-input inverse trigonometric scalar references against published MATLAB formulas",
+  "production_changes": false,
+  "native_predicates": 37,
+  "agent_pytest_passes": 9,
+  "root_pytest_passes": 1,
+  "root_seconds": 29.285152041818947,
+  "root_peak_child_rss_kib": 826944,
+  "reference_change": "acsc/asec and degree variants evaluate reciprocal in real arithmetic before complex square root promotion; previous NumPy complex reciprocal selected the opposite branch lip.",
+  "preserved": "Native query construction, domain, all37 operations, 50*vscale*eps bounds and production code unchanged.",
+  "limitations": [
+    "Complex signed-zero MATLAB behavior is not qualified.",
+    "No new native RNG fixture equality claim.",
+    "Broad continuation and current-head CI remain outstanding."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_mirror_branch_diagnosis_20261010/DELIVERY_REFERENCE_v2.json": "a20820ef95bb5815da7248d1c421674f2a99cf0e1196ddf39e34606d5ce6fa0f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_mirror_branch_diagnosis_20261010/REFERENCE_CANDIDATE_v2.patch": "0bb16e37d62745d86c57d570162b86e76b391fc9e61cf50e38d2b8714d487f1e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_reference_root_20261010/delivery_review.json": "858d300ce42a66ba95162ccfaecbdb56b94a68f85c3b44c6c52285e577efd022",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_reference_root_20261010/receipt.json": "7e56b77de2114fe9354ec7ff76960fe50b99390ef49d333820d94de8ca63f0b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_reference_root_20261010/junit.xml": "a1a19ded4f8df72b750623e13c62f04891af97cf336cfecf7136ba245ca90bb9"
+  },
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_reference_root_20261010/static.json"
+}
