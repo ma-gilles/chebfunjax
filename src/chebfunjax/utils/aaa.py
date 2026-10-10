@@ -1303,6 +1303,43 @@ def _trig_residues_source(pol, zj, fj, wj, form):
     return numerator / derivative
 
 
+def _trig_inverse_source(eigenvalues, form):
+    """Native inverse transforms and infinity cutoffs (prztrig.m, 7574c77)."""
+    roots = jnp.asarray(eigenvalues, dtype=jnp.complex128)
+    roots = roots[~jnp.isinf(roots)]
+    if form == "even":
+        mapped = 2*jnp.arctan(roots)
+        upper = jnp.abs(roots-1j) < 1e-10
+        lower = jnp.abs(roots+1j) < 1e-10
+    else:
+        mapped = -1j*jnp.log(roots)
+        upper = jnp.abs(roots) < 1e-10
+        lower = jnp.abs(roots) > 1e10
+    # Construct the components directly: Python's 1j*inf has a NaN real part.
+    imaginary = jnp.where(upper, jnp.inf, -jnp.inf)
+    infinity = jax.lax.complex(jnp.zeros_like(imaginary), imaginary)
+    return jnp.where(upper | lower, infinity, mapped)
+
+
+def _trig_cancel_project_source(poles, zeros):
+    """Cancel first matched infinities, then project as in native prztrig.m."""
+    for sign in (1, -1):
+        pole_mask = (jnp.real(poles) == 0) & (jnp.imag(poles) == sign*jnp.inf)
+        zero_mask = (jnp.real(zeros) == 0) & (jnp.imag(zeros) == sign*jnp.inf)
+        count = int(jnp.minimum(jnp.sum(pole_mask), jnp.sum(zero_mask)))
+        poles = poles[~(pole_mask & (jnp.cumsum(pole_mask) <= count))]
+        zeros = zeros[~(zero_mask & (jnp.cumsum(zero_mask) <= count))]
+
+    def project(values):
+        real = jnp.real(values)
+        # A real positive period rescales only the finite real coordinate;
+        # complex division of an imaginary infinity would introduce NaNs.
+        real = real-2*jnp.pi*jnp.floor(real/(2*jnp.pi))
+        return jax.lax.complex(real, jnp.imag(values))
+
+    return project(poles), project(zeros)
+
+
 def _prztrig_np(
     zj: np.ndarray,
     fj: np.ndarray,
@@ -1328,21 +1365,13 @@ def _prztrig_np(
 
         with np.errstate(divide="ignore", invalid="ignore"):
             polp_eig = spla.eig(Ep, B, right=False)
-        polp = polp_eig[np.isfinite(polp_eig)]
-        pol = -1j * np.log(polp + 0j)
+        pol = _trig_inverse_source(polp_eig, form)
 
         # Zeros
         Ep[0, 1:] = fj * wjp
         with np.errstate(divide="ignore", invalid="ignore"):
             zerp_eig = spla.eig(Ep, B, right=False)
-        zerp = zerp_eig[np.isfinite(zerp_eig)]
-        zer = -1j * np.log(zerp + 0j)
-
-        # Handle poles/zeros at +/-i*Inf
-        zer[np.abs(zerp) < 1e-10] = 1j * np.inf
-        zer[np.abs(zerp) > 1e10] = -1j * np.inf
-        pol[np.abs(polp) < 1e-10] = 1j * np.inf
-        pol[np.abs(polp) > 1e10] = -1j * np.inf
+        zer = _trig_inverse_source(zerp_eig, form)
 
     else:
         # form == "even": cot basis
@@ -1372,8 +1401,7 @@ def _prztrig_np(
 
         with np.errstate(divide="ignore", invalid="ignore"):
             polp_eig = spla.eig(Ep, B, right=False)
-        polp = polp_eig[np.isfinite(polp_eig)]
-        pol = 2 * np.arctan(polp)
+        pol = _trig_inverse_source(polp_eig, form)
 
         cn = np.sum(fj[d_mask] * zjp * wj[d_mask])
         if np.all(d_mask):
@@ -1388,12 +1416,9 @@ def _prztrig_np(
 
         with np.errstate(divide="ignore", invalid="ignore"):
             zerp_eig = spla.eig(Ez, B, right=False)
-        zerp = zerp_eig[np.isfinite(zerp_eig)]
-        zer = 2 * np.arctan(zerp)
+        zer = _trig_inverse_source(zerp_eig, form)
 
-    # Project to [0, 2*pi) and compute residues
-    pol = pol - 2 * np.pi * np.floor(np.real(pol / (2 * np.pi)))
-    zer = zer - 2 * np.pi * np.floor(np.real(zer / (2 * np.pi)))
+    pol, zer = _trig_cancel_project_source(pol, zer)
 
     res = _trig_residues_source(pol, zj, fj, wj, form)
 

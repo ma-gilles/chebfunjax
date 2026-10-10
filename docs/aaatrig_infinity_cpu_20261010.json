@@ -1,0 +1,341 @@
+{
+  "scope": "Native AAAtrig odd/even infinity mapping, cancellation and period projection",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_review": {
+    "native_sha256": "dcce3fcb6291c7e4925220b92fccbc9acc1fac97099060bdb0f944877358534d",
+    "protected_ast_identical": true,
+    "scope": "Restore odd/even inverse-transform infinity thresholds; remove first matched positive then negative imaginary infinities; period projection preserves zero real component of imaginary infinities. Generalized eigenproblem matrix construction and all other methods unchanged.",
+    "representation_adapter": "jax.lax.complex(0,+/-inf) avoids Python imaginary-unit multiplication NaN real component. Project real coordinate separately; no complex division of imaginary infinity.",
+    "source_filter": "Remove only infinite generalized eigenvalues, as native ~isinf does; do not silently remove NaNs.",
+    "tests": "Two eigenvalue-output branch controls with multiplicities and retained finite roots; two actual public rational approximations at both imaginary infinities; prior16 controls unchanged.",
+    "limitations": [
+      "Generalized eigensolver and greedy loop remain inherited NumPy/SciPy.",
+      "All missing AAAtrig public options and complete native suite still open.",
+      "Residues at infinite poles may be undefined as native quotient; not replaced with fabricated zeros."
+    ]
+  },
+  "test_oracle_correction": {
+    "reason": "New public odd control incorrectly required both analytic infinities even though pinned prztrig filters exact infinite generalized eigenvalues before inverse mapping. Actual observed odd zero pencil has3infinite eigenvalues and1nearzero finite root; even finite +/-i roots map to both signed infinities.",
+    "source_line": "prztrig.m zerp=zerp(~isinf(zerp)); then log/atan and source cutoffs",
+    "observed_eigenvalues": {
+      "even": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/eigen_trace_v1/pytest_tmp/test_observe_generalized_eigen1/eigenvalues.json",
+        "sha256": "dc7be49c819301b7714565ebea4bc96a5acd4c44f0aa793f4a693be6f153128a",
+        "data": {
+          "form": "even",
+          "poles_eigenvalues": [
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              -1.2396528181376597e-13,
+              0.5773502691899646
+            ],
+            [
+              -3.395008346303459e-14,
+              -0.5773502691899659
+            ],
+            [
+              -0.3409773057213906,
+              1.3088719922344713e-15
+            ]
+          ],
+          "zeros_eigenvalues": [
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              1.4958360517596607e-13,
+              1.0000000000001183
+            ],
+            [
+              1.4875565450668387e-13,
+              -1.0000000000001183
+            ],
+            [
+              -0.34097730572186763,
+              1.6880718604487198e-17
+            ]
+          ],
+          "support_count": 3,
+          "returned_poles": [
+            [
+              6.283185307179214,
+              1.316957896925833
+            ],
+            [
+              6.283185307179484,
+              -1.316957896925837
+            ],
+            [
+              5.6259567438415,
+              2.3450907785754772e-15
+            ]
+          ],
+          "returned_zeros": [
+            [
+              0.0,
+              Infinity
+            ],
+            [
+              0.0,
+              -Infinity
+            ],
+            [
+              5.6259567438406455,
+              3.0244987875030725e-17
+            ]
+          ],
+          "approximation_error": 1.7763568394002505e-15
+        }
+      },
+      "odd": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/eigen_trace_v1/pytest_tmp/test_observe_generalized_eigen0/eigenvalues.json",
+        "sha256": "a0aae678b18eb6d49221e2b9a16d93e7a828f619bebe5fc633553aa080e74c30",
+        "data": {
+          "form": "odd",
+          "poles_eigenvalues": [
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              3.7320508075688896,
+              -5.068983162286024e-15
+            ],
+            [
+              0.26794919243112175,
+              3.442408592611383e-16
+            ]
+          ],
+          "zeros_eigenvalues": [
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              Infinity,
+              0.0
+            ],
+            [
+              -9.536965166387072e-16,
+              7.800008131688645e-17
+            ]
+          ],
+          "support_count": 3,
+          "returned_poles": [
+            [
+              6.2831853071795845,
+              -1.31695789692482
+            ],
+            [
+              1.28472437680374e-15,
+              1.3169578969248203
+            ]
+          ],
+          "returned_zeros": [
+            [
+              0.0,
+              Infinity
+            ]
+          ],
+          "approximation_error": 1.2212453270876722e-15
+        }
+      }
+    },
+    "change": "Retain required positive infinity and noNaNs for both; require negative infinity for even. Both signs and multiplicity cancellation remain separately qualified by source controls. No production change; all16prior cases unchanged.",
+    "prior_failure_preserved": "candidate_v1:2pass1failed17unrun; root audited2939hashes",
+    "test_sha256_before": "dae3e4ea4577d605799cd73872a7a6078e832c566d7640b447a6734157e7b20d",
+    "test_sha256_after": "7d91df23be60297ce640623bf8f18c9cdab5ddbfc108eda93d66363bdfdb31ab"
+  },
+  "preserved_prior_evidence": {
+    "baseline_expected_failure": {
+      "reviewer": "/root",
+      "scope": "Preserved native imaginary-infinity mapping/cancellation baseline expected failure",
+      "gates": [
+        {
+          "gate": "aaatrig_infinity_source_20261010/baseline_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/baseline_v1/supervision/receipt.json",
+          "receipt_sha256": "5db20d22258e7106d6f05c3a3574cea3c3a1cf23c3094cdfd7e2e5ae470f700f",
+          "runtime_manifest_sha256": "1978f8d180c500d66636539c439fda71a58fd5c27778f235178b7a4eaa216ab6",
+          "runtime_end_sha256": "77b7d16884bb48fce22e1561008ad40d26095d71fe4784a21af343245235c94c",
+          "observed_files_rehashed": 2935,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 572052,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 1,
+          "source_payload_sha256": {},
+          "preserved_outcome": [
+            {
+              "name": "test_native_infinity_multiplicity_and_first_pair_cancellation[odd]",
+              "failures": [
+                "tests/test_utils/test_aaatrig_infinity_source.py:29: in test_native_infinity_multiplicity_and_first_pair_cancellation\n    assert len(p) == len(z) == len(residues) == 2\nE   assert 4 == 2\nE    +  where 4 = len(Array([        nan       +nanj,         nan       +nanj,\\n               nan       +nanj, -4.10479467+2.78140058j],      dtype=complex128))"
+              ]
+            }
+          ],
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "prior_unsupported_test_failure": {
+      "reviewer": "/root",
+      "scope": "Preserved infinity candidatev1:2sourcecontrols pass; newpublic odd expected negative-infinityzero missing;17unrun",
+      "gates": [
+        {
+          "gate": "aaatrig_infinity_source_20261010/candidate_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/candidate_v1/supervision/receipt.json",
+          "receipt_sha256": "c13b267e54e0f6aedc4edf431b4446eb9e0161f0809a0f9f375e950a2815d8c6",
+          "runtime_manifest_sha256": "a117a19fd0e6c3af66b07912e9cb2450068f936a9ee53e1e4e6fa6c76d7eadb3",
+          "runtime_end_sha256": "8fc59332083e756d8a30b138f7164d7c207a3b64046af1ced85945f65b49b28b",
+          "observed_files_rehashed": 2939,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 816668,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 3,
+          "source_payload_sha256": {},
+          "preserved_outcome": [
+            {
+              "name": "test_native_infinity_multiplicity_and_first_pair_cancellation[odd]",
+              "failures": []
+            },
+            {
+              "name": "test_native_infinity_multiplicity_and_first_pair_cancellation[even]",
+              "failures": []
+            },
+            {
+              "name": "test_public_rational_zeros_at_both_imaginary_infinities[odd]",
+              "failures": [
+                "tests/test_utils/test_aaatrig_infinity_source.py:45: in test_public_rational_zeros_at_both_imaginary_infinities\n    assert jnp.any(jnp.isneginf(jnp.imag(zeros)))\nE   assert Array(False, dtype=bool)\nE    +  where Array(False, dtype=bool) = <function any at 0x152320870a40>(Array([False], dtype=bool))\nE    +    where <function any at 0x152320870a40> = jnp.any\nE    +    and   Array([False], dtype=bool) = <function isneginf at 0x15232093bc40>(Array([inf], dtype=float64))\nE    +      where <function isneginf at 0x15232093bc40> = jnp.isneginf\nE    +      and   Array([inf], dtype=float64) = <PjitFunction of <function imag at 0x15232093b060>>(Array([0.+infj], dtype=complex128))\nE    +        where <PjitFunction of <function imag at 0x15232093b060>> = jnp.imag"
+              ]
+            }
+          ],
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    "actual_eigenvalue_observation": {
+      "reviewer": "/root",
+      "scope": "Observe raw generalized eigenvalues with unchanged numerical code, two public forms",
+      "gates": [
+        {
+          "gate": "aaatrig_infinity_source_20261010/eigen_trace_v1",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/eigen_trace_v1/supervision/receipt.json",
+          "receipt_sha256": "477686c9daf277064c49e9c758c4a608d443220f1c2c13fdb2f3d872387aeedf",
+          "runtime_manifest_sha256": "81e0eb1a54fb93ae82830c3c977a3ca6ba427d388033db56067ed8d53613520e",
+          "runtime_end_sha256": "e88a1cbeacbff0cb5f3715e52e92b334484b428cadbc752ad34a0536e456b626",
+          "observed_files_rehashed": 2936,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 755948,
+          "cpu_affinity": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ],
+          "assertion_slots": 2,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  },
+  "candidate_runtime_review": {
+    "reviewer": "/root",
+    "scope": "AAAtrig infinity mapping/cancellation candidate twenty cases",
+    "gates": [
+      {
+        "gate": "aaatrig_infinity_source_20261010/candidate_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaatrig_infinity_source_20261010/candidate_v2/supervision/receipt.json",
+        "receipt_sha256": "d318f26749049fd096ea5f385b1d2c054687aa5e448d66bcd32daa32c8736d2e",
+        "runtime_manifest_sha256": "d04578a82dce1bb403e7bf8065c8c12027abb221dee8e6bfdec246a6e822dca1",
+        "runtime_end_sha256": "16ec082778f123da07521807dde906af982c6c14edaac004066d57c6e6d94183",
+        "observed_files_rehashed": 2939,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 48,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1688028,
+        "cpu_affinity": [
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "assertion_slots": 20,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "cases_passed": 20,
+  "production_bytes_identical_to_prior_diagnostic": true,
+  "protected_module_AST_identical": true,
+  "integrated_sha256": {
+    "src/chebfunjax/utils/aaa.py": "7d975de105d06f26e3d542b079ca394bee44ec166700def06a630d375c85795d",
+    "tests/test_utils/test_aaatrig_infinity_source.py": "7d91df23be60297ce640623bf8f18c9cdab5ddbfc108eda93d66363bdfdb31ab"
+  },
+  "limitations": [
+    "Generalized eigensolver and greedy AAA loop remain inherited NumPy/SciPy.",
+    "New direct controls inject generalized eigenvalues to exercise both signed infinity multiplicities.",
+    "Actual odd pencil produces only positive imaginary infinity after native removal of infinite eigenvalues; no negative infinity is fabricated.",
+    "Complete native AAAtrig tests, missing public options, full current suite and remote CI remain open."
+  ],
+  "full_goal_complete": false
+}

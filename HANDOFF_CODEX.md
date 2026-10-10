@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## AAAtrig infinity mapping and cancellation restored (2026-10-10; latest)
+
+Odd/even inverse transforms now apply native infinity thresholds and cancel
+matched poles/zeros in source order. JAX componentwise projection avoids NaN
+real parts for imaginary infinities. All 20 CPU cases passed; root rehashed
+2,939 runtime files and checked unchanged production bytes against the prior
+diagnostic. The baseline cancellation failure is retained. A new test's
+unsupported odd-form negative-infinity expectation was corrected using actual
+generalized eigenvalues and the native isinf filter; both signed branches
+remain covered by source controls. Evidence: docs/aaatrig_infinity_cpu_20261010.json.
+Inherited host eigensolver/greedy loop, missing options, complete native tests,
+full current suite and remote CI remain unresolved.
+
 ## Continuous conformal mapping restored (2026-10-10; latest)
 
 Conformal mapping accepts native continuous Chebfun boundaries, uses native
