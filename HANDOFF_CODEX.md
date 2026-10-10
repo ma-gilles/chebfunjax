@@ -2,8 +2,12 @@
 
 ## Latest accepted CPU packages (2026-10-09; supersedes status below)
 
-Local implementation head 6a34347a includes:
+Local implementation head 7b63aed3 includes:
 
+- Chebfun3 std3 (7b63aed3): preserves complex mean and centered conjugation;
+  original constant assertion plus five controls pass. Independent runtime
+  audit rehashed 2,939 files; full static gates pass. Evidence:
+  docs/chebfun3_std3_cpu_20261009.json. Complex-factor sum3 remains open.
 - Diskfun native weighted continuous SVD and default/2/fro norm formula
   (462e3342): 14 focused controls and six original deterministic native
   assertions passed. Independent runtime reviews rehashed 2,950/2,951 files.
@@ -36,7 +40,13 @@ now after62 completed constructors/three figures. Start-observed/prebound file
 hashes are clean, but no final runtime report/JUnit survived the cap. Unmatched
 historical RNG inputs and complete page/figure parity remain unresolved.
 SphereHeat still caps during its sixth m150 solve after selection compilation
-changes. Broader numerical staging is under implementation. Full CPU suite, all322 verified pages,68 known figure-size
+changes. Isolated broader addition staging has 74 exact controls passing;
+compiler review, native regressions and the full trajectory remain pending.
+Chebfun3 power passed 48 added controls but failed original multiplication
+statement five: 1.718e-9 versus 2.220e-12. A separately audited diagnostic
+localizes that error to inherited subtraction compression (raw difference
+about 7e-15). Literal active native addition is under implementation; power
+is not integrated. See shared chebfun3_power_candidate_20261009 evidence. Full CPU suite, all322 verified pages,68 known figure-size
 mismatches, remaining source/RNG gaps, publication and exact-head green CI
 remain open. Current worker handles live in the shared checkpoint JSON.
 
