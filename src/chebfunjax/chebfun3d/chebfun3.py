@@ -1221,6 +1221,10 @@ class Chebfun3(eqx.Module):
                            domain=tuple(float(v) for v in x.domain.breakpoints))
         if any(is_colon(v) for v in (x, y, z)):
             return source_colon_feval(self, x, y, z)
+        from ._tensor_feval import source_tensor_grid
+        grid_value = source_tensor_grid(self, x, y, z)
+        if grid_value is not NotImplemented:
+            return grid_value
         return self._evaluate_numeric(x, y, z)
 
     @eqx.filter_jit

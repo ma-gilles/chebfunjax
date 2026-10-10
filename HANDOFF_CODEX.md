@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native Chebfun3 tensor grids, Tucker and rank tests restored (2026-10-10; latest)
+
+Eager tensor-grid evaluation follows all four native recognition patterns,
+permutations and contractions; generic and traced evaluation are unchanged.
+All original Tucker3 predicates passed on full 100-cubed grids, including
+the original nonunit box; all rank6 predicates passed for rational and Airy
+functions at original bounds. Eight CPU gates passed 23 cases, including
+13 grid/fallback/AD controls and five retained legacy tests. Root verified
+128 delivery bindings and each gate runtime (2,936-2,960 files). Evidence:
+docs/chebfun3_tensor_rank_cpu_20261010.json. Empty HOSVD output arity, matrix
+grid optimization, matched performance and complete current-head CI remain
+open; no measured baseline memory improvement is claimed.
+
 ## Conformal plotting/options and full page restored (2026-10-10; latest)
 
 Native plots/numbers options and continuous-boundary page computations now
