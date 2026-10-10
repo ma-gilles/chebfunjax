@@ -1,5 +1,18 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Numeric sequence constructor restored (2026-10-10; latest)
+
+Numeric lists/tuples now convert to JAX arrays before atleast_1d in the
+coefficient, trigonometric-values and Chebyshev-values branches. Adapter
+dtypes are preserved. All27 focused cases passed, including both Chebtech
+kinds, complex inputs, trig samples and native constructor-input tests;
+root independently rehashed2,953runtime files. Evidence:
+docs/numeric_list_constructor_cpu_20261010.json. Broadpart1 previously
+stopped at119passes/1failure; that failed receipt is retained and rerun
+is still required. Corepart0 separately ended unexpectedly with tool exit143
+at roughly41%, without finalreceipt/JUnit; it remains unqualified.
+
+
 ## Sphere rendering integrated (2026-10-10; latest)
 
 Default sphere surfaces now interpolate vertex colors and use source camera

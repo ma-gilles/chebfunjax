@@ -1,0 +1,45 @@
+{
+  "scope": "Numeric list/tuple conversion in coefficient,Trig sampled-value andCheb sampled-value constructorbranches; no forceddtype at adapter",
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Numeric sequence construction threebranches dtypepreserving;27focusedcases",
+    "gates": [
+      {
+        "gate": "chebfun_list_constructor_source_20261010_v3",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_list_constructor_source_20261010_v3/supervision/receipt.json",
+        "receipt_sha256": "1a0e7d231e777ee87a483e350b4a890025076c76f00d2f99eeb17c0e260c92c5",
+        "runtime_manifest_sha256": "f2758012d050aef99c201f4fa00693e559587afa0ac17794d90ad6c5fb47f053",
+        "runtime_end_sha256": "a8ead051b29e42ca33b8505f50fcf58ba877154bf1c7b6598c8d6a5c860c9799",
+        "observed_files_rehashed": 2953,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 60,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 3675228,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 27,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "cases": 27,
+  "integration_hashes": {
+    "src/chebfunjax/chebfun1d/_construction_context.py": "aaae3f3a1133fb5f9474bdf690fd0da1fd645aa18db42b27cacc8bc51008725c",
+    "tests/test_chebfun1d/test_chebfun.py": "9c41a8b72d343e0346365da6f8f525b5fe14b7af6a0fa5c1343131508a7d7e1f"
+  },
+  "earlier_failure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/core_part1_ae896b9c_20261010_v2/RESULT.json",
+  "limitations": "Broadshard119pass1failure retained; fullrerun/CI unresolved. Existing downstreamdtypepolicy unchanged."
+}

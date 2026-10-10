@@ -124,6 +124,53 @@ class TestChebfunConstruction:
         xs = jnp.array([-1.0, 0.0, 1.0], dtype=jnp.float64)
         npt.assert_allclose(np.array(f(xs)), [1.0, 2.0, 3.0], atol=1e-14)
 
+    @pytest.mark.parametrize("values", [
+        (1.0, 2.0, 3.0),
+        jnp.array([1.0, 2.0, 3.0]),
+        [1.0 + 1.0j, 2.0 - 0.5j, -1.0 + 2.0j],
+    ])
+    def test_vector_of_values_sequence_array_and_complex_inputs(self, values):
+        f = chebfun(values)
+        xs = jnp.array([-1.0, 0.0, 1.0], dtype=jnp.float64)
+        npt.assert_allclose(np.array(f(xs)), np.asarray(values),
+                            rtol=0.0, atol=1e-14)
+
+    @pytest.mark.parametrize("kind", [1, 2])
+    def test_numeric_sequence_with_both_chebtech_kinds(self, kind):
+        from chebfunjax.utils.quadrature import chebpts
+
+        values = [1.0, 2.0, 3.0]
+        f = chebfun(values, chebkind=kind)
+        points = chebpts(3, kind=kind)
+        npt.assert_allclose(np.array(f(points)), values,
+                            rtol=0.0, atol=1e-14)
+
+    def test_scalar_value_input(self):
+        f = chebfun(2.5)
+        xs = jnp.array([-1.0, 0.0, 1.0], dtype=jnp.float64)
+        npt.assert_allclose(np.array(f(xs)), [2.5, 2.5, 2.5],
+                            rtol=0.0, atol=1e-14)
+
+    def test_coeffs_list_input_preserves_dtype_and_polynomial(self):
+        for coefficients in ([1.0, -0.5, 0.25],
+                             [1.0 + 0.5j, -0.5 + 0.25j, 0.25 - 0.125j]):
+            f = chebfun(coefficients, coeffs=True)
+            c = jnp.asarray(coefficients)
+            assert f.coeffs.shape == c.shape
+            assert f.coeffs.dtype == c.dtype
+            assert bool(jnp.array_equal(f.coeffs, c))
+            x = jnp.array([-1.0, -0.25, 0.5, 1.0], dtype=jnp.float64)
+            expected = c[0] + c[1] * x + c[2] * (2.0 * x**2 - 1.0)
+            npt.assert_allclose(np.array(f(x)), np.array(expected),
+                                rtol=0.0, atol=1e-14)
+
+    def test_trig_numeric_sequence_uses_equally_spaced_sample_values(self):
+        x = -1.0 + 2.0 * jnp.arange(5, dtype=jnp.float64) / 5.0
+        values = 2.0 + jnp.cos(jnp.pi * x) + 0.5 * jnp.sin(jnp.pi * x)
+        f = chebfun(list(np.asarray(values)), trig=True)
+        npt.assert_allclose(np.asarray(f(x)), np.asarray(values),
+                            rtol=0.0, atol=1e-13)
+
     def test_invalid_domain(self):
         """chebfun with a degenerate domain should raise ValueError."""
         with pytest.raises(ValueError):

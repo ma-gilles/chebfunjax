@@ -198,7 +198,7 @@ def bounded_get_fun(op, interval, data, pref):
         op = funqui(jnp.asarray(op))
     length = fixed_length(pref)
     if data.get('coefficients'):
-        coefficients = jnp.atleast_1d(op)
+        coefficients = jnp.atleast_1d(jnp.asarray(op))
         if cls is Trigtech:
             tech = cls.from_coeffs(coefficients, data=local_data, pref=pref.techPrefs)
         else:
@@ -210,7 +210,7 @@ def bounded_get_fun(op, interval, data, pref):
         if callable(op):
             tech = cls.from_function(op, data=local_data, pref=pref.techPrefs)
         else:
-            tech = cls.from_values(jnp.atleast_1d(op), data=local_data,
+            tech = cls.from_values(jnp.atleast_1d(jnp.asarray(op)), data=local_data,
                                    pref=pref.techPrefs)
     elif callable(op):
         options = dict(n=length, tol=pref.chebfuneps,
@@ -225,7 +225,7 @@ def bounded_get_fun(op, interval, data, pref):
             warnings.filterwarnings('ignore', message=r'Chebtech[12]\.from_function: function did not converge with ')
             tech = cls.from_function(op, **options)
     else:
-        values = jnp.atleast_1d(op)
+        values = jnp.atleast_1d(jnp.asarray(op))
         values = values.astype(jnp.complex128 if jnp.iscomplexobj(values) else jnp.float64)
         if not bool(jnp.all(jnp.isnan(values))) and not bool(jnp.all(jnp.isfinite(values))):
             kind = 2 if cls is Chebtech2 else 1
