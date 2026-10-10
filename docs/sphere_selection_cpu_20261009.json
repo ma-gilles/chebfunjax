@@ -34,8 +34,24 @@
     "src/chebfunjax/spherefun/spherefun.py": "cfe42f0af930ce25daf4295c75d94908969c99cd0589f0bcae618c69090149b5"
   },
   "limitations": [
-    "No full SphereHeat or AnalyticSVD execution/performance evidence with this change.",
+    "Full SphereHeat attempted: five solves completed, capped during sixth at the unchanged 3 GiB limit. No complete trajectory or performance qualification; no AnalyticSVD execution with this change.",
     "No claim this eliminates all indexing events or resolves prior RSS caps.",
     "JAX negative indexing is existing Python adapter behavior, not MATLAB negative-index parity."
-  ]
+  ],
+  "full100_consumer": {
+    "review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_public_source_20261009/gaussian_full100_selection_v1/ROOT_REVIEW.json",
+    "original_handle": 7910,
+    "owner_audit": 20672,
+    "supervisor_exit": 137,
+    "censored_limit": "sampled_summed_RSS_cap",
+    "peak_kib": 3145948,
+    "root_snapshot_and_diagnostic_hashes_checked": 235,
+    "states_completed": 6,
+    "solves_completed": 5,
+    "mean_drift_max": 1.5959455978986625e-16,
+    "event_sha256": "7fe3714fbc5c46bc63e48e5c34fb6b37df04ff9c2a84285d907822ddf9c6c6ef",
+    "receipt_sha256": "d3c4c73b34334d65e775459ff0b9fa8c8b326c27a4341506135bd8e92affeec1",
+    "decision": "Full100 incomplete: RSS cap during solve6. No unchanged retry.",
+    "runtime_scope": "Root independently rehashed snapshot/diagnostic; owner rehashed44113preboundfiles. No imported-provider observation in direct diagnostic."
+  }
 }

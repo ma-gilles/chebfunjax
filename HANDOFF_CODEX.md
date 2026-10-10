@@ -2,7 +2,7 @@
 
 ## Latest accepted CPU packages (2026-10-09; supersedes status below)
 
-Local implementation head f0aa9f83 adds:
+Local implementation head 6a34347a includes:
 
 - Diskfun native weighted continuous SVD and default/2/fro norm formula
   (462e3342): 14 focused controls and six original deterministic native
@@ -15,8 +15,17 @@ Local implementation head f0aa9f83 adds:
   all four runtime groups independently verified. Corrects first-kind endpoint
   carry and restores logarithmic-term rejection. Two cases emit nonconvergence
   warnings despite passing sampled accuracy checks; happiness is unqualified.
-  Broader Chebfun11/12 unmatched-input diagnostics remain separate.
+  Both broader Chebfun11/12 unmatched-input diagnostics passed sampled checks,
+  but returned unhappy length65537 pieces. They do not qualify native RNG,
+  uniform accuracy or convergence.
   Evidence: docs/singfun_cumsum_split_cpu_20261009.json.
+- Chebfun3 empty outputs (6a34347a): restored the original 22-statement
+  MATLAB sequence; 20 pytest cases passed with independent runtime review.
+  Nonempty power remains under implementation. Evidence:
+  docs/chebfun3_empty_cpu_20261009.json.
+- Sphere factor selection (435dcffd): 34 checks passed; the full100 consumer
+  still capped during solve six at 3 GiB after five completed solves.
+  Evidence: docs/sphere_selection_cpu_20261009.json.
 - Chebyshev source barplot data (eb091960): six literal-source controls and
   24 existing source plotting checks pass, with 2,948 runtime hashes reviewed.
   Raster/tick/backend parity remains open. Evidence:
@@ -26,8 +35,8 @@ The latest full AnalyticSVD diagnostic on frozen22f73f99 still capped at4GiB,
 now after62 completed constructors/three figures. Start-observed/prebound file
 hashes are clean, but no final runtime report/JUnit survived the cap. Unmatched
 historical RNG inputs and complete page/figure parity remain unresolved.
-SphereHeat still caps during its sixth m150 solve; selection-compilation work
-is in progress. Full CPU suite, all322 verified pages,68 known figure-size
+SphereHeat still caps during its sixth m150 solve after selection compilation
+changes. Broader numerical staging is under implementation. Full CPU suite, all322 verified pages,68 known figure-size
 mismatches, remaining source/RNG gaps, publication and exact-head green CI
 remain open. Current worker handles live in the shared checkpoint JSON.
 

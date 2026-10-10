@@ -45,9 +45,36 @@
     "Asin analytic and original right-pole controls emit65537 nonconvergence warnings. Sampled checks pass; no happiness qualification. Internalcallsite/flagpropagation conclusions source-derived, not runtime metadata capture.",
     "Native higher-order split uses stale native numFuns; Python existing recursive behavior retained.",
     "Direct Deltafun nonzero-delta plus split list semantics remain unresolved; public Chebfun parent delta carry tested independently.",
-    "No full native Chebfun11/12 qualification; unmatched inputs diagnostics unrun/external.",
+    "No full native Chebfun11/12 qualification: both external unmatched-input diagnostics passed sampled predicates, but returned unhappy length65537 pieces. Native RNG/backend parity, uniform and endpoint accuracy remain unverified.",
     "No JIT/AD-through-singular-construction or general array-valuedSingfun/FFT bit-parity claim."
   ],
   "preserved_failure": "v2 structural firstcase failed nonexistentiszero;12unrun. Preserved receipt/audit unchanged. v3 changes exactzero predicate only; originalbounds unchanged.",
-  "status": "Scoped source integration qualified; full Chebfun singular integration and all-page parity remain incomplete."
+  "status": "Scoped source integration qualified; full Chebfun singular integration and all-page parity remain incomplete.",
+  "unmatched_diagnostics": {
+    "status": "Two external unmatched diagnostics passed; no native RNG or happiness qualification",
+    "frozen_head": "3125055c40eb63dd6163c2fa633e413dad5ebddc",
+    "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_unmatched_root_runtime_review_20261009.json",
+    "cases": {
+      "diagnostic11_v1": {
+        "checks": 1,
+        "peak_kib": 1659108,
+        "unhappy_piece": "middle [-1,0], real Chebtech2 length65537"
+      },
+      "diagnostic12_v1": {
+        "checks": 1,
+        "peak_kib": 2626972,
+        "unhappy_piece": "right [0,1], complex Chebtech2 length65537"
+      }
+    },
+    "scope": [
+      "Exact approved input generation and centered-error predicates preserved. Only first100 seed6178 inputs independently captured from MATLAB; later blocks remain unmatched.",
+      "Observer invokes original cumsum with unchanged args and returns identical result object; it reads metadata only. It observes returned happiness, not internal constructor call stacks.",
+      "Case11 observed exponentDiff and65537 nonconvergence warnings; returned middle[-1,0] Chebtech2 length65537 unhappy, outer happy lengths12/3.",
+      "Case12 observed65537 nonconvergence; left Singfun exponents(.5,0),complex128,length89 happy; right Chebtech2complex128,length65537 unhappy. Interior reference returns two happy complex128 Chebtech2length84.",
+      "Source-derived mechanism11: nonzero incoming carry added to sqrt primitive triggers native plus Case3,min exponents0,reconstruction as nonsmooth Chebtech. Mechanism12: right primitive normalization subtracts nonzero left value; same min-exponent reconstruction. These callsites are inference; no internal stack instrumentation.",
+      "Pinned native plus Case3 reconstructs and native populate permits finite unhappy return; passing centered sample checks do not establish uniform accuracy, endpoint/derivative accuracy, happiness, or native backend equivalence.",
+      "No production/test edits, retries, bounds or RNG substitutions. All handles terminal, both runtime audits clean, no survivors."
+    ],
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_two_endpoint_cumsum_source_20261009/UNMATCHED_DELIVERY_v1.json"
+  }
 }
