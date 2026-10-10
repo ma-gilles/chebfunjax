@@ -1462,9 +1462,11 @@ class Chebfun3(eqx.Module):
         sz = 0.5 * (zb - za)
 
         # Integral of each fiber over [-1, 1]
-        ix = jnp.array([col.sum() for col in self.cols], dtype=jnp.float64)
-        iy = jnp.array([row.sum() for row in self.rows], dtype=jnp.float64)
-        iz = jnp.array([tube.sum() for tube in self.tubes], dtype=jnp.float64)
+        # Infer the dtype from the stored factors: MATLAB sum preserves
+        # complex factor integrals even when the Tucker core is real.
+        ix = jnp.array([col.sum() for col in self.cols])
+        iy = jnp.array([row.sum() for row in self.rows])
+        iz = jnp.array([tube.sum() for tube in self.tubes])
 
         # sum3 = Σ_ijk core[i,j,k] * ix[i] * iy[j] * iz[k]
         # = core x_1 ix x_2 iy x_3 iz  (Tucker triple contraction)

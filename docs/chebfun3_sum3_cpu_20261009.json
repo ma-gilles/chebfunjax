@@ -1,0 +1,139 @@
+{
+  "scope": "Preserve complex Chebfun3 factor integrals in sum3 and restore both original mean3 test assertions",
+  "base": "0657a1aaef15090e3ca02a0ea36dcc2e28b0f7e4",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualification": {
+    "base_commit": "0657a1aaef15090e3ca02a0ea36dcc2e28b0f7e4",
+    "environment": {
+      "backend": "cpu",
+      "cuda_visible_devices": "",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "x64": true
+    },
+    "evidence_hashes": {
+      "guard.json": "375fc22e6aa6b023c629c6b755118516de69fc1c750b0ac4f52b965d78815014",
+      "junit.xml": "460b1907d7074f9c60917da81ec7347d8554f351f1358a97f11e0c9910010344",
+      "manifest.json": "26c79e2697f56138428388418856ed1130fc6826741c3f55335d6fb742549b23",
+      "runtime/end.json": "90f067f1ac8d4abf2624c43f267e2fb7e247b04735cd7f80c5bf4d3d5e4173b0",
+      "runtime/start.json": "a4c1023e62a297fc898d43a6076e5aed327a3b4db12ba97dee68387c935b180f",
+      "supervision/receipt.json": "8c1db95d09bd4e6411b240fe6123803727a08373cb2f9476fd1edf4cd68efcd7"
+    },
+    "interpretation_limits": [
+      "The existing JAX einsum contraction and post-contraction scaling were left unchanged; native sum3 uses sequential x-to-y-to-z txm, so contraction-order parity is not claimed.",
+      "The two native mean3 predicates and one existing r-squared regression passed; this is source assertion coverage, not complete mean3 implementation parity."
+    ],
+    "pytest_cases": {
+      "empty_reductions": 3,
+      "mean3": 3,
+      "std3_nonempty": 5,
+      "sum3": 13
+    },
+    "pytest_summary": "24 passed in 36.84s",
+    "runtime_provenance": {
+      "end_failures": [],
+      "end_native_maps": 237,
+      "end_observed_prebound_files": 2945,
+      "start_failures": [],
+      "start_native_maps": 236,
+      "start_observed_prebound_files": 2923
+    },
+    "source_hashes": {
+      "snapshot/src/chebfunjax/chebfun3d/chebfun3.py": "e7ab9d9ce923f64a98d103655e6aa7031792b7f25c2e9d0389f338df140b3799",
+      "snapshot/tests/test_chebfun3d/test_empty_source_contracts.py": "4a2b85b975a8291880b8c07e626909ab5fd2f48091212cfc56045d16948def2a",
+      "snapshot/tests/test_matlab_port/chebfun3/test_mean3_matlab.py": "5eeec2b21b0948be04e20f0b3f1d7a5254e98fd3c52a95df53f972fbff30afef",
+      "snapshot/tests/test_matlab_port/chebfun3/test_std3_matlab.py": "904b49b2e982d6c923bca1ee1627c93588b5af66c3e703d54f7ea9fa970c35cb",
+      "snapshot/tests/test_matlab_port/chebfun3/test_sum3_matlab.py": "747773dfc427a8573f31d1cc11d628de3da40753ef2ef409b58e7a81481231fd"
+    },
+    "status": "passed",
+    "stderr_note": "JAX emitted a warning that an installed jax_cuda12_plugin 0.11.2 was incompatible with jaxlib 0.11.0 and would not be used; the runtime guard confirmed CPU-only devices.",
+    "supervisor": {
+      "censored_limit": null,
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1434688,
+      "samples": 625,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 80.82208305597305
+    },
+    "test_count": 24
+  },
+  "root_runtime_review": {
+    "reviewer": "/root",
+    "scope": "Chebfun3 sum3 complex factor integrals, restored native mean3 and std3 regressions",
+    "gates": [
+      {
+        "gate": "qualification_v2",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_source_20261009/qualification_v2/supervision/receipt.json",
+        "receipt_sha256": "8c1db95d09bd4e6411b240fe6123803727a08373cb2f9476fd1edf4cd68efcd7",
+        "runtime_manifest_sha256": "26c79e2697f56138428388418856ed1130fc6826741c3f55335d6fb742549b23",
+        "runtime_end_sha256": "90f067f1ac8d4abf2624c43f267e2fb7e247b04735cd7f80c5bf4d3d5e4173b0",
+        "observed_files_rehashed": 2945,
+        "mismatches": [],
+        "runtime_failures": [],
+        "frozen_library_origins": 54,
+        "wrong_library_origins": {},
+        "native_loaded_files": 237,
+        "before_after_identical": true,
+        "peak_kib": 1434688,
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "assertion_slots": 24,
+        "source_payload_sha256": {},
+        "faults": []
+      }
+    ],
+    "decision": "ACCEPT evidence"
+  },
+  "root_source_review": {
+    "reviewer": "/root",
+    "base_head": "0657a1aa",
+    "exact_source_change": "Only three factor-integral dtype=float64 removals; reverse-patch AST proves complete module identity",
+    "bindings": {
+      "src/chebfunjax/chebfun3d/chebfun3.py": "e7ab9d9ce923f64a98d103655e6aa7031792b7f25c2e9d0389f338df140b3799",
+      "tests/test_matlab_port/chebfun3/test_sum3_matlab.py": "747773dfc427a8573f31d1cc11d628de3da40753ef2ef409b58e7a81481231fd",
+      "tests/test_matlab_port/chebfun3/test_mean3_matlab.py": "5eeec2b21b0948be04e20f0b3f1d7a5254e98fd3c52a95df53f972fbff30afef"
+    },
+    "native_sources": [
+      "@chebfun3/sum3.m",
+      "@chebfun3/mean3.m",
+      "tests/chebfun3/test_sum3.m",
+      "tests/chebfun3/test_mean3.m"
+    ],
+    "coverage": "All six source sum3 assertions, both previously omitted source mean3 assertions at100*currentchebfun3eps, added complex factor/core and nonunit-domain controls, accepted std3 regressions",
+    "limits": [
+      "Inherited multioperand einsum differs from native sequential txm arithmetic ordering",
+      "Physical scaling remains postcontraction; no global bitwise MATLAB parity claim",
+      "No full CPU suite or all-page qualification"
+    ],
+    "static": "Only mean3 import order I001; sort on integration, preserve frozen numerical payload"
+  },
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_sum3_source_20261009",
+  "performance_claim": false,
+  "full_parity_claim": false,
+  "integration_formatting": {
+    "file": "tests/test_matlab_port/chebfun3/test_mean3_matlab.py",
+    "change": "Ruff import sort only",
+    "qualified_sha256": "5eeec2b21b0948be04e20f0b3f1d7a5254e98fd3c52a95df53f972fbff30afef",
+    "integrated_sha256": "b318465f398eee0175c15aae48d4ab486310308359242a34f644ad5a875e26ba",
+    "nonimport_ast_identical": true
+  }
+}
