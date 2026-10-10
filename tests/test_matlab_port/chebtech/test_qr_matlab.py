@@ -36,8 +36,8 @@ from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
 
-# MATLAB: seedRNG(6178); x = 2*rand(100,1) - 1.  Any dense sample of [-1, 1]
-# serves the same purpose (the assertions are sup-norm bounds over x).
+# MATLAB uses seedRNG(6178); x = 2*rand(100,1) - 1. This deterministic
+# adapter retains the source predicates; matched native query inputs are pending.
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
 
 # (class, method) -- the four passes of the MATLAB n = 1:4 loop.
@@ -66,7 +66,7 @@ def _check_one_qr(f, method):
 
     # result(2): check that the factorization is accurate.
     err = (Q @ R) - f
-    assert float(jnp.max(jnp.abs(err(X)))) < tol
+    assert float(jnp.linalg.norm(err(X), ord=jnp.inf)) < tol
 
 
 def _check_one_qr_with_perm(f, method):
@@ -79,7 +79,7 @@ def _check_one_qr_with_perm(f, method):
     assert float(jnp.max(jnp.abs(ip - jnp.eye(N)))) < tol
 
     err = (Q @ R) - (f @ E)
-    assert float(jnp.max(jnp.abs(err(X)))) < tol
+    assert float(jnp.linalg.norm(err(X), ord=jnp.inf)) < tol
 
 
 def _scalar(x):

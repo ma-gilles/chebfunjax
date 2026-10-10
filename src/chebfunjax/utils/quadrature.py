@@ -102,8 +102,8 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
     * ``kind=2`` gives the Clenshaw-Curtis weights on 2nd-kind points.
     * ``kind=1`` gives Fejér's first-rule weights on 1st-kind points.
 
-    Both mirror MATLAB ``@chebtech2/quadwts.m`` and ``@chebtech1/quadwts.m``
-    exactly: the weights sum to 2 and integrate polynomials up to the
+    Both implement the rules in MATLAB ``@chebtech2/quadwts.m`` and
+    ``@chebtech1/quadwts.m``: the weights sum to 2 and integrate polynomials up to the
     appropriate degree to machine precision.
 
     For the Gauss-Chebyshev rule (weights ``pi/n`` for the
@@ -221,43 +221,38 @@ def _fejer_first_weights(n: int) -> jnp.ndarray:
 
 
 def _clenshaw_curtis_weights(n: int) -> jnp.ndarray:
-    """Clenshaw-Curtis quadrature weights for n second-kind Chebyshev points.
+    """Native compressed-moment second-kind quadrature, for n >= 2.
 
-    Uses Waldvogel's FFT-based algorithm (BIT 2006).
-    Points: x_k = cos(k*pi/(n-1)), k = 0..n-1 (descending order).
-    Weights satisfy: sum(w) = 2, and integrate polynomials of degree <= n-1 exactly.
-    Returns weights in ascending x order (matching chebpts output).
+    Public chebweights dispatch handles n=0 and n=1 before this helper.
     """
-    if n == 2:
-        return jnp.array([1.0, 1.0], dtype=jnp.float64)
+    even = jnp.arange(2, n, 2, dtype=jnp.float64)
+    return _clenshaw_curtis_weights_core(even, n)
 
-    N = n - 1
 
-    # Chebyshev moments: integral of T_k(x) over [-1,1]
-    # = 2/(1-k^2) for even k, 0 for odd k
-    # Build the first N+1 moments
-    c = jnp.zeros(N + 1, dtype=jnp.float64)
-    k_even = jnp.arange(0, N + 1, 2, dtype=jnp.float64)
-    c = c.at[0::2].set(2.0 / (1.0 - k_even**2))
+@partial(jax.jit, static_argnames=("n",))
+def _clenshaw_curtis_weights_core(even: jnp.ndarray, n: int) -> jnp.ndarray:
+    """Port @chebtech2/quadwts.m at 7574c77680d7e82b79626300bf255498271a72df.
 
-    # Mirror to get a vector of length 2N for IFFT
-    # v = [c[0], c[1], ..., c[N], c[N-1], ..., c[1]]
-    v = jnp.concatenate([c, c[N - 1:0:-1]])
-
-    # IFFT gives weights / N. We want the true CC weights which sum to 2.
-    # The IFFT divides by 2N (length of v), but the DCT-I normalization
-    # needs division by N only, so multiply by 2.
-    w = 2.0 * jnp.real(jnp.fft.ifft(v))
-
-    # Extract the first N+1 values (theta = 0..pi)
-    w = w[:N + 1]
-
-    # Halve the endpoints (trapezoidal rule correction)
-    w = w.at[0].set(w[0] / 2.0)
-    w = w.at[N].set(w[N] / 2.0)
-
-    # Reverse: MATLAB chebpts returns ascending order (-1 to 1)
-    return w[::-1]
+    Copyright 2017 by the University of Oxford and the Chebfun Developers.
+    Retains the native n-1 moment transform and common endpoint assignment.
+    JAX FFT butterfly/normalization bits are not claimed equal to MATLAB.
+    """
+    squared = jax.lax.optimization_barrier(even**2)
+    tail = jax.lax.optimization_barrier(1.0 - squared)
+    denominator = jnp.concatenate([jnp.ones(1, dtype=jnp.float64), tail])
+    numerator = jax.lax.optimization_barrier(jnp.full_like(denominator, 2.0))
+    moments = jax.lax.optimization_barrier(numerator / denominator)
+    # MATLAB c = [c, c(floor(n/2):-1:2)]; one-based indices adapted literally.
+    mirrored = jnp.concatenate([moments, moments[n // 2 - 1:0:-1]])
+    transformed = jax.lax.optimization_barrier(
+        jnp.conj(jnp.fft.fft(jnp.conj(mirrored))))
+    # MATLAB detects exact conjugate symmetry here and returns a real vector.
+    # Use the existing mathematical inverse-DFT scaling adapter. This is
+    # correctly rounded division, not a claim about MATLAB FFT internals.
+    w = _divide_binary64_by_positive_integer(jnp.real(transformed), n - 1)
+    endpoint = w[0] / 2.0
+    # MATLAB w([1,n]) = w(1)/2 expands length n-1 to n, even for n=2.
+    return jnp.concatenate([w.at[0].set(endpoint), endpoint[None]])
 
 
 # ---------------------------------------------------------------------------

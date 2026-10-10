@@ -1,0 +1,592 @@
+{
+  "status": "Ready for root independent review/integration; no publication edits",
+  "integration_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/integration_v3.patch",
+  "payloads": {
+    "src/chebfunjax/utils/quadrature.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable_candidate_v2/src/chebfunjax/utils/quadrature.py",
+      "sha256": "9a26c3097f6c1f5475f571309bcbc802e9ce481d5cd422e73cc64af958c6fded"
+    },
+    "tests/test_matlab_port/chebtech/test_qr_matlab.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable_candidate_v2/tests/test_matlab_port/chebtech/test_qr_matlab.py",
+      "sha256": "1676ead5cc6a4fec3d8a3535fba51f43a795af634d1dd7ac59225efa195b4dee"
+    },
+    "tests/test_compressed_quadwts_source.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable_candidate_v2/tests/test_compressed_quadwts_source.py",
+      "sha256": "f921920c5871751537af875a5e78d0517d86a19e549c35c2edebec4a7ab2b0a5"
+    }
+  },
+  "tested_equality": {
+    "controls6_v2": "production bytes equal final payload",
+    "ir2_v2": "production bytes equal final payload",
+    "native18_v2_corrected": "production bytes equal final payload",
+    "consumers10_v2": "production bytes equal final payload",
+    "portable6_v2": "production bytes equal final payload"
+  },
+  "groups": {
+    "controls6_v2": {
+      "original": 83452,
+      "audit": 54085,
+      "result": {
+        "observed_files": 2931,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 6,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 73.28070288477466,
+          "sampled_peak_summed_rss_kib": 1007928
+        }
+      },
+      "cases": [
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_source_stages[2]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_source_stages[3]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_source_stages[4]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_source_stages[5]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_exact_normalization[5]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_exact_normalization[10]"
+        }
+      ]
+    },
+    "ir2_v2": {
+      "original": 88043,
+      "audit": 21825,
+      "result": {
+        "observed_files": 2931,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 2,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 80.47078206995502,
+          "sampled_peak_summed_rss_kib": 554540
+        }
+      },
+      "cases": [
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_saved_ir[5]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_stages",
+          "name": "test_saved_ir[10]"
+        }
+      ]
+    },
+    "native18_v2_corrected": {
+      "original": 1475,
+      "audit": 51718,
+      "result": {
+        "observed_files": 2934,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 18,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 65.79832366993651,
+          "sampled_peak_summed_rss_kib": 772324
+        }
+      },
+      "cases": [
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_sum_equals_2[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_sum_equals_2[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x2[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x2[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x3[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x3[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x4[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_w_dot_x4[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_0_empty[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_0_empty[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_1_is_2[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_1_is_2[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_2_all_1[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_quadwts_2_all_1[2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_symmetry[1]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_quadpts_matlab.TestChebtechQuadpts",
+          "name": "test_symmetry[2]"
+        }
+      ]
+    },
+    "consumers10_v2": {
+      "original": 95448,
+      "audit": 72728,
+      "result": {
+        "observed_files": 2948,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 10,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 82.11051805596799,
+          "sampled_peak_summed_rss_kib": 1478652
+        }
+      },
+      "cases": [
+        {
+          "class": "tests.test_matlab_port.chebtech.test_qr_matlab.TestChebtechQr",
+          "name": "test_scalar_valued[c2-hh]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_qr_matlab.TestChebtechQr",
+          "name": "test_two_columns[c2-hh]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_qr_matlab.TestChebtechQr",
+          "name": "test_monomial_basis[c2-hh]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_innerProduct_matlab.TestChebtechInnerProduct",
+          "name": "test_orthogonal_sin_cos[Chebtech2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_innerProduct_matlab.TestChebtechInnerProduct",
+          "name": "test_orthogonal_sin_cos4[Chebtech2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_innerProduct_matlab.TestChebtechInnerProduct",
+          "name": "test_exp_times_exp_neg[Chebtech2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_innerProduct_matlab.TestChebtechInnerProduct",
+          "name": "test_exp_times_sin[Chebtech2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebtech.test_innerProduct_matlab.TestChebtechInnerProduct",
+          "name": "test_array_valued_inner_product_matrix[Chebtech2]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebfun.test_norm_matlab",
+          "name": "test_source_predicate[source_11]"
+        },
+        {
+          "class": "tests.test_matlab_port.chebfun.test_norm_matlab",
+          "name": "test_source_predicate[source_12]"
+        }
+      ]
+    },
+    "portable6_v2": {
+      "original": 73971,
+      "audit": 41529,
+      "result": {
+        "observed_files": 2931,
+        "hash_faults": [],
+        "runtime_failures": [],
+        "checks": 6,
+        "failed_skipped": [],
+        "receipt": {
+          "supervisor_exit_code": 0,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null,
+          "wall_seconds": 69.94543398777023,
+          "sampled_peak_summed_rss_kib": 1009924
+        }
+      },
+      "cases": [
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_source_stages[2]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_source_stages[3]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_source_stages[4]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_source_stages[5]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_exact_normalization[5]"
+        },
+        {
+          "class": "tests.test_compressed_quadwts_source",
+          "name": "test_exact_normalization[10]"
+        }
+      ]
+    }
+  },
+  "current_head": "c5f0562cfbd3f719e15185456fe029b5528d66f3",
+  "git_apply_check": true,
+  "static": "Changed production and QR assertion file ruff clean; portable test ruff clean; all3 payload AST parse clean.",
+  "retained_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/DELIVERY_v2.json",
+  "limitations": [
+    "MATLAB internal FFT provider/bit parity not established. Integer normalization is independently qualified mathematical adaptation.",
+    "Portable normalization oracle checks Fraction scaling of runtime forward FFT; no independent FFT accuracy claim.",
+    "QR deterministic linspace substitutes native seeded random samples; native RNG parity remains open.",
+    "No full Newton/Gibbs, complex downstream consumers, large-degree QR, performance or broad downstream qualification."
+  ],
+  "excluded_from_integration": [
+    "external CPU/affinity/runtime-evidence controls",
+    "pinned FFT JSON oracle",
+    "IR dump tests"
+  ],
+  "prior_failure": "v1 strict n10 quadrature sum failure retained; original bounds unchanged in all18 native checks.",
+  "checks_total": 42,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/integration_v3.patch": "b8999ac728e376ab6506c37d2c4f8d9238a62dbc93c3b56c0d35469085ffeb51",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/DELIVERY_v2.json": "93b030b2a8a7d23cdb7aa0e0292d1bce06b639eacf1f6475c4b1fda87b1df949",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/CONSUMER_PLAN_v2.json": "a5b2a4cb7e67ba44bb705ad64d133ab0e9e65421453b3275e943a3b76f652400",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/PORTABLE_PLAN_v2.json": "94659bc57490ee702400e881d900400a5eb749a41bf21d388fc7be7daeb1d935",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ROOT_IR_REVIEW_v2.json": "5c084e6cc77dbe4084513ee0b50745853e776016c1057a70ad1b4531cabc9333",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/controls6_v2_AUDIT.json": "9a1ef2326ee6f0316e692f22eff58f78265ba9e04349fff25897c1bf65506773",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/controls6_v2_BINDINGS.json": "b4cc64f456e3c27e04a15bfb20ec122afd815bffa8fcdf6b3e76365a3de4b086",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2_AUDIT.json": "17c2420cf82ea40af2743556f1012f3a70f809671350d72573565e6fd89e9826",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2_BINDINGS.json": "c3ec9bb0feb4dfcf86bcfa1583ca07802fb5d76228dbdf032f0fe2838368e477",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/native18_v2_corrected_AUDIT.json": "8dda251c24bbeb098ef658ae6070c6b7693e0625f56f0daa3d435df414e6b811",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/native18_v2_corrected_BINDINGS.json": "905319b2118922eb5f516509f35f930d2980688db872621a4875b395178fd61e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/consumers10_v2_AUDIT.json": "f799f39f2183ca6d30c673fab4283b5bb174ef32cc480ab2c0e24557959743aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/consumers10_v2_BINDINGS.json": "30809629ef0ac9da67bf19f67fd6d738ee029996dea1d39a4cb35709e1220045",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable6_v2_AUDIT.json": "ddd981045624029e71beb2e6c71553eaaec206b91bf8d251d0c4bfe576d67757",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable6_v2_BINDINGS.json": "3e77a994537525252d1ec1c63ca7dfe2d09dea54227f1a22aa10c90e60590da6"
+  },
+  "root_reviews": [
+    {
+      "reviewer": "/root",
+      "scope": "Compressed quadrature v2 controls6,IR2,native18 runtime validation; no downstream qualification.",
+      "gates": [
+        {
+          "gate": "controls6_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/controls6_v2/supervision/receipt.json",
+          "receipt_sha256": "c14ce51b98dfbe652dd17b14a12b46aa5cdfb54c37ff0820742482ec2f484abf",
+          "runtime_manifest_sha256": "ed779a699da3bafdf899c3808c47745a5a5f03fc6313364c42e8c9fe06595492",
+          "runtime_end_sha256": "5008611e3a5ee3500f4f44cb4a376a67a39650feb9558d661add342960f1496c",
+          "observed_files_rehashed": 2931,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1007928,
+          "cpu_affinity": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "assertion_slots": 6,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "ir2_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2/supervision/receipt.json",
+          "receipt_sha256": "7b5784287b21c62d0d9fa7622ae2a39f8a5c1b95e421c5b7f4ec28b31e202b8c",
+          "runtime_manifest_sha256": "77730f410b7a506ffbee250e0f9eb92a08d84caabd29de00b68661a54af76b4f",
+          "runtime_end_sha256": "0eacec849a884b78991f472c84cb0aa19fe3cb3f9d5343e8cbb75dd185bfb34b",
+          "observed_files_rehashed": 2931,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 554540,
+          "cpu_affinity": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "assertion_slots": 2,
+          "source_payload_sha256": {},
+          "faults": []
+        },
+        {
+          "gate": "native18_v2_corrected",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/native18_v2_corrected/supervision/receipt.json",
+          "receipt_sha256": "96dd529b583e1a9bdb6acc4cd117a41b2bc9482f64f0f1a257a89c5df4901c3f",
+          "runtime_manifest_sha256": "064c9722a58b64d0de07b0e0dc4853272d440bb056f5fa8207c7aa7ae5f16a77",
+          "runtime_end_sha256": "02078ced32a8b447c7aa55170883e756be1e3e9e8fe04960b71b577153bb0cbd",
+          "observed_files_rehashed": 2934,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 772324,
+          "cpu_affinity": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "assertion_slots": 18,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    {
+      "reviewer": "/root",
+      "scope": "Compressed quadrature real QR, innerProduct and norm direct consumers; restored matrix infinity reconstruction metric.",
+      "gates": [
+        {
+          "gate": "consumers10_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/consumers10_v2/supervision/receipt.json",
+          "receipt_sha256": "48907879a445c632758692c6e8ec44a2d5ae644c02232a0e573227ebf8ba5c23",
+          "runtime_manifest_sha256": "fd75b42e3095a0da0c7c3409f3ebbbdfa60c2818234681f5885f62bd912b8316",
+          "runtime_end_sha256": "9d1e471c09aa90ef302baf678b0a0cf99bacaaf64e4a75bb8fe029c5b6c99bd2",
+          "observed_files_rehashed": 2948,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 57,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1478652,
+          "cpu_affinity": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "assertion_slots": 10,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    },
+    {
+      "reviewer": "/root",
+      "scope": "Portable compressed quadrature stage and exact normalization tests; runtime FFT is an oracle only for represented unscaled values.",
+      "gates": [
+        {
+          "gate": "portable6_v2",
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/portable6_v2/supervision/receipt.json",
+          "receipt_sha256": "2ca62352140966ab1886f69644238d1a171bb66d431b348c1b26d26b8d29ea77",
+          "runtime_manifest_sha256": "ae09342a0db402a0ce47482ca561ed67cd5caf91f0877b602a7e6d9deac26756",
+          "runtime_end_sha256": "0cb3d73043182d17dc1f223e165e9f5167fffd5609d76b61d2e70189450958db",
+          "observed_files_rehashed": 2931,
+          "mismatches": [],
+          "runtime_failures": [],
+          "frozen_library_origins": 48,
+          "wrong_library_origins": {},
+          "native_loaded_files": 237,
+          "before_after_identical": true,
+          "peak_kib": 1009924,
+          "cpu_affinity": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "assertion_slots": 6,
+          "source_payload_sha256": {},
+          "faults": []
+        }
+      ],
+      "decision": "ACCEPT evidence"
+    }
+  ],
+  "root_counted_cases": [
+    {
+      "gate": "controls6_v2",
+      "cases": [
+        "test_source_stages[2]",
+        "test_source_stages[3]",
+        "test_source_stages[4]",
+        "test_source_stages[5]",
+        "test_exact_normalization[5]",
+        "test_exact_normalization[10]"
+      ]
+    },
+    {
+      "gate": "ir2_v2",
+      "cases": [
+        "test_saved_ir[5]",
+        "test_saved_ir[10]"
+      ]
+    },
+    {
+      "gate": "native18_v2_corrected",
+      "cases": [
+        "test_sum_equals_2[1]",
+        "test_sum_equals_2[2]",
+        "test_w_dot_x[1]",
+        "test_w_dot_x[2]",
+        "test_w_dot_x2[1]",
+        "test_w_dot_x2[2]",
+        "test_w_dot_x3[1]",
+        "test_w_dot_x3[2]",
+        "test_w_dot_x4[1]",
+        "test_w_dot_x4[2]",
+        "test_quadwts_0_empty[1]",
+        "test_quadwts_0_empty[2]",
+        "test_quadwts_1_is_2[1]",
+        "test_quadwts_1_is_2[2]",
+        "test_quadwts_2_all_1[1]",
+        "test_quadwts_2_all_1[2]",
+        "test_symmetry[1]",
+        "test_symmetry[2]"
+      ]
+    },
+    {
+      "gate": "consumers10_v2",
+      "cases": [
+        "test_scalar_valued[c2-hh]",
+        "test_two_columns[c2-hh]",
+        "test_monomial_basis[c2-hh]",
+        "test_orthogonal_sin_cos[Chebtech2]",
+        "test_orthogonal_sin_cos4[Chebtech2]",
+        "test_exp_times_exp_neg[Chebtech2]",
+        "test_exp_times_sin[Chebtech2]",
+        "test_array_valued_inner_product_matrix[Chebtech2]",
+        "test_source_predicate[source_11]",
+        "test_source_predicate[source_12]"
+      ]
+    },
+    {
+      "gate": "portable6_v2",
+      "cases": [
+        "test_source_stages[2]",
+        "test_source_stages[3]",
+        "test_source_stages[4]",
+        "test_source_stages[5]",
+        "test_exact_normalization[5]",
+        "test_exact_normalization[10]"
+      ]
+    }
+  ],
+  "case_count_scope": "42 case executions across5groups; includes repeated stage controls, not42distinct native assertions.",
+  "qr_comment_correction": {
+    "executable_AST_identical": true,
+    "integrated_sha256": "2fb4a4b5aa693443f2ed79206a8412d03559f10faebef4a763794319f0fde02f"
+  },
+  "root_source_review": {
+    "decision": "Source and saved StableHLO/optimized HLO support proceeding to unchanged native18 after owner runtime audit closes cleanly. No production integration yet.",
+    "files": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2/runtime/ir/n5.stablehlo.mlir": "8dbce2745119578cc844b13575c185ab2f30764d290d2cba358117ea5acc65a6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2/runtime/ir/n10.optimized_hlo.txt": "2f18258657aca9a129ab7f99822c7831b9b8e65c4ff83fdfee85a3c558b1682b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2/runtime/ir/n10.stablehlo.mlir": "df78ac2e67b11f4a3c75bda09f4a262e89aa631a8fe877e6f913e6432479ac7d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_compressed_quadwts_source_20261009/ir2_v2/runtime/ir/n5.optimized_hlo.txt": "b372b3d282b287c4dca78ac3bf427f17bef8b52e75d4cb2945995f151fbb97e2"
+    },
+    "source_delta_sha256": "9a185eeab4c34338c561ab57b77d38c000060c77b88e4b6bb7ab8bc8f39e1a98",
+    "observations": [
+      "n5/n10 use unscaled complex forward FFT of length4/9 followed by conjugation/real extraction.",
+      "True floating moment division remains before the FFT.",
+      "Post-transform scaling uses binary64 significand integer quotient/remainder with52-step loop; no floating1/9 multiplier substitutes for division.",
+      "Shared half of first normalized entry updates first endpoint and appends last; no sum-fitting correction or output reversal."
+    ],
+    "limits": [
+      "Inspected saved IR, not machine code or MATLAB backend.",
+      "This is mathematical inverse-DFT adaptation, not proven MATLAB bit parity.",
+      "Native18 and downstream consumers remain unqualified."
+    ]
+  }
+}
