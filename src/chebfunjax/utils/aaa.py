@@ -1163,16 +1163,9 @@ def aaatrig(
         J.pop(jj)
 
         # Loewner matrix and SVD
-        J_arr = np.array(J)
-        if len(J_arr) > 0:
-            SF = np.diag(F_np[J_arr])
-            Sf = np.diag(fj)
-            A_sub = SF @ C[J_arr, :] - C[J_arr, :] @ Sf
-            _, _, V = np.linalg.svd(A_sub, full_matrices=False)
-            wj = V[m - 1, :].conj() if V.shape[0] >= m \
-                else V[-1, :].conj()
-        else:
-            wj = np.ones(m, dtype=complex) / np.sqrt(m)
+        J_arr = np.array(J, dtype=int)
+        wj = np.asarray(_trig_greedy_weights_source(
+            jnp.asarray(C[J_arr, :]), jnp.asarray(F_np[J_arr]), jnp.asarray(fj)))
 
         # Evaluate approximant
         with np.errstate(invalid="ignore"):
@@ -1234,6 +1227,22 @@ def aaatrig(
     r = _make_trig_callable(zj_jnp, fj_jnp, wj_jnp, form)
 
     return r, pol_jnp, res_jnp, zer_jnp, zj_jnp, fj_jnp, wj_jnp, errvec
+
+
+@jax.jit
+def _trig_greedy_weights_source(cauchy, values, support_values):
+    """Native greedy Loewner weights, aaatrig.m160-190, Chebfun7574c77.
+
+    The two scaling products preserve SF*C - C*Sf. MATLAB svd(A,0)
+    retains full V for wide matrices; its column m can be a null vector.
+    The inherited host greedy loop and pole eigensolver remain separate.
+    """
+    left = values[:, None]*cauchy
+    right = cauchy*support_values[None, :]
+    matrix = left-right
+    _, _, vh = jnp.linalg.svd(
+        matrix, full_matrices=matrix.shape[0] < matrix.shape[1])
+    return vh[matrix.shape[1]-1, :].conj()
 
 
 @jax.jit

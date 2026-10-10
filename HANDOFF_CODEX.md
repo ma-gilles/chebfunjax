@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native AAAtrig greedy nullspace weights restored (2026-10-10; latest)
+
+JAX row/column scaling preserves the native two-product Loewner expression
+and removes the dense sample-count-squared diagonal allocation. Wide and
+zero-row matrices retain the full right singular basis, selecting native
+column m. The original three-sample failure used three supports instead of
+two; corrected odd/even public and analytic controls now pass. All 54 CPU
+cases passed, including 42 unchanged prior controls; root audited both
+successful gates and the preserved baseline failure, plus 64 bindings.
+Evidence: docs/aaatrig_greedy_cpu_20261010.json. Lawson is unchanged. Infinity
+input constraints, AutoZ/string inputs, host construction/eigenproblems,
+full native tests and current-head CI remain open. No measured performance
+improvement is claimed from the allocation change.
+
 ## Native Chebfun3 tensor grids, Tucker and rank tests restored (2026-10-10; latest)
 
 Eager tensor-grid evaluation follows all four native recognition patterns,
