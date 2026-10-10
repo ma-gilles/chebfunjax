@@ -2,38 +2,49 @@
 
 ## Latest CPU qualification and open failures (2026-10-09)
 
-Latest implementation/test checkpoint 267171e5 remains local only. Compiled
-Chebyshev differentiation passed 29 fixture and 30 inherited regression cases;
-four restored differentiation cases pass on the unchanged d60eeeb2 baseline.
-Native seed6178 query inputs remain unmatched. See the scoped qualification
-records in docs/chebtech_derivative_fusion_cpu_20261009.json and
-docs/diff_assertion_restoration_cpu_20261009.json.
+Local implementation head 6b5a7101 includes two newly qualified packages:
 
-Sphere real-value classification compilation now lets the actual five-Gaussian
-initial condition and first two public m150 Helmholtz solves complete under the
-unchanged 180-second/3-GiB guard: 60.11 seconds of observed computation,
-3,032,620 KiB sampled process-tree peak, and second-step mean drift 2.08e-17.
-All 234 guarded inputs were independently rehashed unchanged; no processes
-survived. This is a two-step computation result, not full trajectory, matched
-MATLAB RNG, dependency-runtime, or figure qualification. Evidence:
-docs/sphere_heat_two_step_cpu_20261009.json. The full 100-step computation is
-prepared; the full native Newton C2 test currently owns the serial heavy lane.
+- Diskfun norm dispatch (4a07afe9): empty-before-dispatch, numeric infinity,
+  native errors and even-order powers, including zero/negative orders.
+  24 dispatch controls and six actual analytic cases passed with independent
+  runtime reviews. Default 2/fro still uses inherited sampled quadrature;
+  native Diskfun SVD/default norm parity remains open. Evidence:
+  docs/disk_even_norm_cpu_20261009.json.
+- Compressed Chebyshev quadrature (6b5a7101): native n-1 moment layout and
+  shared endpoint assignment, with exact integer division for inverse-DFT
+  scaling. All 18 unchanged native port cases and ten direct consumers pass;
+  six source controls, two IR captures and six portable controls also pass
+  (42 executions, including repeated controls). QR reconstruction assertions
+  now use the native matrix infinity norm; matched seed6178 inputs remain
+  pending. Five runtime groups were independently reviewed. The earlier
+  strict n10 failure is retained. MATLAB FFT bit parity is not claimed.
+  Evidence: docs/compressed_quadrature_cpu_20261009.json.
 
-The unintegrated compressed-quadrature port failed the original strict n10
-sum predicate at exactly 2eps. That failure remains preserved. A subsequent
-mathematical inverse-DFT scaling candidate passed six source/normalization
-controls and two compiler-output checks; native tests remain pending. No
-predicate relaxation or production quadrature change has been accepted.
+SphereHeat's two m150 solves complete under 3 GiB, but the attempted full100
+trajectory completed only five solves before the sixth hit the limit. A
+separate compiler/shape/live-array diagnostic capped during the fifth solve;
+its four completed steps expose repeated real-Horner loop compilation and
+about 1 MiB live array payload. Full trajectory, native RNG and figures
+remain unqualified. The next candidate extracts only the unchanged recurrence
+into a persistent compiled helper. Shared evidence: sphere_heat_public_source_20261009/
+gaussian_full100_classification_v1/ROOT_REVIEW.json and
+gaussian_steps_compile_v1/ROOT_REVIEW.json.
 
-AnalyticSVD's corrected diagnostic stopped at the unchanged 4-GiB cap after
-58 completed constructors and three figures. Retained input/runtime-start
-evidence is clean; final runtime coverage and JUnit are absent. The historical
-NumPy A/B inputs are unmatched to MATLAB. No complete page or figure parity
-is established, and the partial figures are not publication replacements.
+The derivative-only full Newton C2 run also capped at 3 GiB. The unchanged
+native test is now running on 6b5a7101 with the accepted quadrature change,
+original 180-second/3-GiB/width1026 limits and original residual predicate.
+No completed Newton result is claimed.
+
+AnalyticSVD's full diagnostic remains capped at 4 GiB after 58 constructions
+and three figures, using unmatched historical NumPy matrices. A distinct
+20-construction/three-figure attribution prefix completed with 2,035 compiler
+calls and under 47 KiB sampled live-array payload. It supports investigation
+of endpoint and evaluation compilation; it does not qualify a complete page,
+MATLAB inputs, visual parity or executable memory ownership.
 
 Full CPU suite, all 322 verified pages, 68 outstanding figure-size mismatches,
-remaining numerical/source gaps, matched MATLAB captures, push and exact-head
-green CI remain unresolved. Live handles are recorded in the shared checkpoint.
+remaining library/source gaps, matched MATLAB captures, push and exact-head
+green CI remain unresolved. Shared checkpoint records current owned handles.
 
 
 ## Latest CPU integration (2026-10-09; supersedes prior checkpoint below)
