@@ -6,14 +6,16 @@
 
 Python translation: [`examples/ode-random/randomswitching.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomswitching.py)
 
+> **Qualification of the Python results.** The prose and MATLAB code below are preserved from the native example. The figures and printed outputs come from the tested Python translation, using JAX key 1 as an explicit adapter rather than reproducing MATLAB `rng(1)`. The realizations differ: the first Python figure peaks near 75 (the native reference stays below 10), and the second Python figure does not show the decay described in the source illustration. The original data and axis limits are retained. The four solves use the native defaults and `maxnorm` setting; the third stops at about 18.27595224 and its continuous solution and squared norm retain a NaN tail. Execution checks passed, but numerical accuracy differences remain unresolved. Rendering also differs in apparent stroke thickness, major and minor grids, and inward top/right ticks; source line widths are retained. These results do not establish MATLAB RNG, numerical, or visual parity.
+
 ## 1. The simplest scalar example
 
-Suppose you have a time-dependent ODE whose coefficients switch randomly between two different values. Interesting effects can arise. The most natural switching rule might involve a Poisson process, but another approach is to switch according to the sign of a function produced by the Chebfun `randnfun` command.
+Suppose you have a time-dependent ODE whose coefficients switch randomly between two different values.  Interesting effects can arise.  The most natural switching rule might involve a Poisson process, but another approach is to switch according to the sign of a function produced by the Chebfun `randnfun` command.
 
-The simplest scalar example would be to switch randomly between $y' = y$ and $y' = -y$. Here is an illustration, showing the large swings of amplitude familiar in stochastic analysis in the related problem known as geometric Brownian motion. On a log scale, this process has no bias upward or downward. On a linear scale it's a bit subtler -- again there is no bias in the sense that for large values of $t$, $y(t)$ is as likely to be $<1$ as $>1$. The expected values of $y(t)$ or of $y(t)^2$, however, diverge to $\infty$ as $t\to\infty$.
+The simplest scalar example would be to switch randomly between $y' = y$ and $y' = -y$.  Here is an illustration, showing the large swings of amplitude familiar in stochastic analysis in the related problem known as geometric Brownian motion. On a log scale, this process has no bias upward or downward. On a linear scale it's a bit subtler -- again there is no bias in the sense that for large values of $t$, $y(t)$ is as likely to be $<1$ as $>1$.  The expected values of $y(t)$ or of $y(t)^2$, however, diverge to $\infty$ as $t\to\infty$.
 
 ```matlab
-rng(0), dom = [0 40]; LW = 'linewidth'; tic
+rng(1), dom = [0 40]; LW = 'linewidth'; tic
 L = chebop(dom); L.lbc = 1;
 c = sign(randnfun(1,dom));
 L.op = @(t,y) diff(y) - c*y;
@@ -24,20 +26,23 @@ y = L\0; plot(y,LW,4), grid on
 
 ## 2. A matrix example of Lawley, Mattingly, and Reed
 
-More remarkable behavior appears when we move from scalars to matrices. Suppose $y(t)$ is a 2-vector for each $t$ and it evolves with random switching between $y'= Ay$ and $y' = By$, with
+More remarkable behavior appears when we move from scalars to matrices.  Suppose $y(t)$ is a 2-vector for each $t$ and it evolves with random switching between $y'= Ay$ and $y' = By$, with
 
 ```matlab
 A = [-1 5; 0 -1], B = [-1 0; -5 -1]
 ```
 
 ```text
-scalar done (10827s)
-lambda=3: max norm^2 = 7.16e+00 (23s)
-lambda=1: max norm^2 = 5.62e+07 (23s)
-lambda=0.333: max norm^2 = 1.48e+01 (96s)
+A =
+    -1     5
+     0    -1
+
+B =
+    -1     0
+    -5    -1
 ```
 
-Note that both matrices have eigenvalues $-1$, in the left half-plane. This means that each matrix individually is stable, and if the random switching is slow, the process will be dominated by the matrices' individual behaviors, and solutions will decay. Here for example is a run with the switching parameter set to the large value $\lambda = 3$, shown on both linear and log scales.
+Note that both matrices have eigenvalues $-1$, in the left half-plane.  This means that each matrix individually is stable, and if the random switching is slow, the process will be dominated by the matrices' individual behaviors, and solutions will decay. Here for example is a run with the switching parameter set to the large value $\lambda = 3$, shown on both linear and log scales.
 
 ```matlab
 L = chebop(dom); L.lbc = @(u,v) [u-1; v-1];
@@ -71,7 +76,7 @@ set(gca,'ytick',10.^[-4:2:4])
 
 ![RandomSwitching figure 03](../../images/ode-random/RandomSwitching_03.png)
 
-With still faster switching, solutions may decay once more. In this limit it is the average of the two matrices $A$ and $B$ that matters, which is stable. Here we show the effect with $\lambda = 1/3$.
+With still faster switching, solutions may decay once more. In this limit it is the average of the two matrices $A$ and $B$ that matters, which is stable.  Here we show the effect with $\lambda = 1/3$.
 
 ```matlab
 lambda = 1/3;
@@ -95,7 +100,7 @@ total_time_in_seconds = toc
 
 ```text
 total_time_in_seconds =
-  10968.975042
+  384.314869
 ```
 
 ## 3. Reference
@@ -104,4 +109,4 @@ total_time_in_seconds =
 
 ---
 
-*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the native example, copyright The University of Oxford and The Chebfun Developers. Printed outputs and figures are chebfunjax's.*

@@ -1,0 +1,22 @@
+{
+  "scope": "Full RandomSwitching source-order public CPU execution and page integration",
+  "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_page_review_20261010/INTEGRATION_V2_AUDIT.json",
+  "audit_sha256": "c9bfc56f72887fb3320f9f335cb7601194afaab23b037b72041f55accc72a4f3",
+  "root_verified_integration_bindings": 14,
+  "root_verified_execution_bindings": 22,
+  "runtime_files": 2974,
+  "original_handle": 19956,
+  "page_seconds": 384.3272757581435,
+  "figures": 4,
+  "figure_size": [
+    600,
+    269
+  ],
+  "source": "Chebfun examples f4b9ea4; MATLAB code uses rng(1), differing from cached older website rng(0)",
+  "limits": [
+    "JAX random stream differs from MATLAB, with explicit page qualification for differing trajectories.",
+    "Numerical accuracy and rendering style parity remain unresolved.",
+    "Generic cached-HTML batches preserve this source-managed page; legacy image category dispatches tested public example.",
+    "No new numerical rerun during artifact integration."
+  ]
+}

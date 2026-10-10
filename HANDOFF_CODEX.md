@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## RandomSwitching full page restored (2026-10-10; latest)
+
+All four source-order public solves complete on CPU in 384.33 seconds, with
+2,974 runtime files audited and four exact 600x269 figures. The script uses
+native defaults, maxnorm events, continuous squared norms and actual printed
+matrices/timing. Original prose and pinned MATLAB code are retained with an
+explicit qualification: JAX realizations differ, and numerical and visual
+parity remain unresolved. Legacy category generation now calls the public
+example; generic cached-HTML batches preserve this source-managed page.
+Evidence: docs/randomswitching_page_cpu_20261010.json. No full parity claim.
+
 ## Direct native linearSystem2 coverage (2026-10-10; latest)
 
 All 12 parameterized native clauses, containing 19 comparisons, pass unchanged

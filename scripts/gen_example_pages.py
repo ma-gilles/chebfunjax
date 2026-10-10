@@ -379,6 +379,10 @@ def main():
     n_ok = 0
     for key in pages:
         cat, stem = key.split("/")
+        if (cat, stem) == ("ode-random", "RandomSwitching"):
+            print(f"{key}: skipped source-managed page; preserve pinned native "
+                  "prose/code and qualified Python stdout/figures")
+            continue
         try:
             has_out, missing, n_imgs, script = generate(cat, stem, args.stdout_dir, args.html_cache,
                                                         dry_run=args.dry_run)

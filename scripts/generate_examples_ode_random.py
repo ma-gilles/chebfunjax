@@ -107,7 +107,7 @@ def gbm():
     """ode-random/GBM — geometric Brownian motion paths."""
     dom = (0.0, 20.0)
     ts = np.linspace(*dom, 4000)
-    mu, sigma = 0.2, 0.4
+    sigma = 0.4
 
     def paths(mu_):
         out = []
@@ -279,74 +279,12 @@ def randomonasphere():
 
 
 def randomswitching():
-    """ode-random/RandomSwitching — switching between two systems."""
-    dom = (0.0, 60.0)
-    ts = np.linspace(*dom, 6000)
-    rng = np.random.default_rng(5)
-    # random telegraph switching times
-    switch_times = np.cumsum(rng.exponential(3.0, 60))
-    switch_times = switch_times[switch_times < 60]
+    """Run the qualified public source-order RandomSwitching example."""
+    import runpy
 
-    def state(t):
-        return int(np.searchsorted(switch_times, t) % 2)
-
-    fig, ax = plt.subplots()
-    sig = np.array([state(t) for t in ts])
-    ax.step(ts, sig, color=CHEBFUN_BLUE, linewidth=0.8)
-    ax.set_ylim(-0.2, 1.2)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("random switching signal", fontsize=10)
-    save(fig, "RandomSwitching_01.png")
-
-    # switch between two stable spirals with different centers
-    A1 = np.array([[-0.1, -1.0], [1.0, -0.1]])
-    A2 = np.array([[-0.1, -2.0], [2.0, -0.1]])
-    c1 = np.array([1.0, 0.0])
-    c2 = np.array([-1.0, 0.0])
-
-    def rhs(t, y):
-        if state(t) == 0:
-            return A1 @ (np.asarray(y) - c1)
-        return A2 @ (np.asarray(y) - c2)
-
-    sol = solve_ivp(rhs, dom, [2.0, 0.0], t_eval=ts, max_step=0.01,
-                    rtol=1e-8)
-    fig, ax = plt.subplots()
-    ax.plot(sol.y[0], sol.y[1], color=CHEBFUN_BLUE, linewidth=0.5)
-    ax.set_aspect("equal")
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("trajectory under random switching", fontsize=10)
-    save(fig, "RandomSwitching_02.png")
-
-    fig, ax = plt.subplots()
-    ax.plot(sol.t, sol.y[0], color=CHEBFUN_BLUE, linewidth=0.7)
-    ax.plot(sol.t, sol.y[1], color=ORANGE, linewidth=0.7)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_xlabel("t")
-    save(fig, "RandomSwitching_03.png")
-
-    # decay-to-consensus panels: contracting switched linear system
-    A1c = np.array([[-0.4, -1.0], [1.0, -0.4]])
-    A2c = np.array([[-0.4, -2.0], [2.0, -0.4]])
-
-    def rhs_c(t, y):
-        A = A1c if state(t) == 0 else A2c
-        return A @ np.asarray(y)
-
-    ts40 = np.linspace(0, 40, 4000)
-    solc = solve_ivp(rhs_c, (0, 40), [2.0, -1.0], t_eval=ts40,
-                     max_step=0.01, rtol=1e-9)
-    nrm = np.linalg.norm(solc.y, axis=0)
-    fig, (ax1, ax2) = plt.subplots(2, 1)
-    ax1.plot(solc.t, solc.y[0], color=CHEBFUN_BLUE, linewidth=0.7)
-    ax1.plot(solc.t, solc.y[1], color=ORANGE, linewidth=0.7)
-    ax1.set_title("u and v on linear scale", fontsize=8)
-    ax2.semilogy(solc.t, np.maximum(nrm, 1e-8), "k", linewidth=0.8)
-    ax2.set_title("norm of (u,v) on log scale", fontsize=8)
-    for a in (ax1, ax2):
-        a.grid(True, alpha=0.4, linewidth=0.4)
-        a.tick_params(labelsize=6)
-    save(fig, "RandomSwitching_04.png")
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "ode-random", "randomswitching.py")
+    runpy.run_path(example, run_name="__main__")
 
 
 def tunnelling():
