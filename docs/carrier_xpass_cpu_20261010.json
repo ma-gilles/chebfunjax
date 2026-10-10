@@ -1,0 +1,40 @@
+{
+  "reviewer": "/root",
+  "scope": "Remove stale strict xfail only; original Carrier inputs, fixture, assertions and tolerances unchanged",
+  "gates": [
+    {
+      "gate": "carrier_xpass_source_20261010/qualification_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/carrier_xpass_source_20261010/qualification_v1/supervision/receipt.json",
+      "receipt_sha256": "605504916733208bd2afd5c232cd6ef2abe300d04c1e609631c12e6edc21e0fa",
+      "runtime_manifest_sha256": "d77f30c058c0e555899b31fb3b5d8abb0e7516398db356df0d5f3d1d1da1f69d",
+      "runtime_end_sha256": "600b2afbb6c64f49c9c053f7c3df3db3b7f453d498a034765b24549a1e2ce407",
+      "observed_files_rehashed": 3037,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 73,
+      "wrong_library_origins": {},
+      "native_loaded_files": 241,
+      "before_after_identical": true,
+      "peak_kib": 3321512,
+      "cpu_affinity": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/carrier_xpass_source_20261010/SOURCE_REVIEW_v1.json",
+  "source_review_sha256": "29d063a490fb458f0d8e23b3d7656b4cb9535a3ddf0bf7ee1de30407f971889f",
+  "limitations": [
+    "Focused evidence only; current full suite, remote publication and CI unresolved."
+  ]
+}

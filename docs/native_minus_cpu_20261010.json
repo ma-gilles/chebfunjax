@@ -1,0 +1,96 @@
+{
+  "reviewer": "/root",
+  "scope": "All three original MATLAB subtraction predicates, continuous norms and original bounds; three fresh serial processes",
+  "gates": [
+    {
+      "gate": "chebfun3_native_minus_restoration_20261010/domain1_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_minus_restoration_20261010/domain1_v1/supervision/receipt.json",
+      "receipt_sha256": "b39fe6e65411c343713bd02501fe2e6427341b99bcf34dce4dc6f6ff2434aa2b",
+      "runtime_manifest_sha256": "a6e62b687e37cf33ed3b57cb4b62ca14507b3bacc4810a88becef31e1298ef9f",
+      "runtime_end_sha256": "664ef61537e6739fe23584dbbc18cec37a07de8fc24a2098ad9b25e678fc8707",
+      "observed_files_rehashed": 2940,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 53,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 1539588,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "chebfun3_native_minus_restoration_20261010/domain2_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_minus_restoration_20261010/domain2_v1/supervision/receipt.json",
+      "receipt_sha256": "a161657751ef42ccf3c2a072cbc1f1c574d3ebc077010b0514da8320b6923b55",
+      "runtime_manifest_sha256": "8b44c4a8ac73f3b1c86c1a75b56194fb092c1e63750c77e39373c369f0021a7c",
+      "runtime_end_sha256": "312a412d0e65dec62a4d71b2d0f3e8646e74a298daa608f9cd6b2720f2f5ac8d",
+      "observed_files_rehashed": 2940,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 53,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 3261056,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    },
+    {
+      "gate": "chebfun3_native_minus_restoration_20261010/near_cancel_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_minus_restoration_20261010/near_cancel_v1/supervision/receipt.json",
+      "receipt_sha256": "1ba6ba1cdb827f1fb07c9af12e704c942850bce5b21c5ea9bbcb00e5e17bd080",
+      "runtime_manifest_sha256": "2c32527bccbe03f86cb8e5b196e64afd5dcba5a663940220b451af85d49db044",
+      "runtime_end_sha256": "c62d49acca0aba217b9a68c186afde1cfd587916a8d4483502b84224a06b4528",
+      "observed_files_rehashed": 2940,
+      "mismatches": [],
+      "runtime_failures": [],
+      "frozen_library_origins": 53,
+      "wrong_library_origins": {},
+      "native_loaded_files": 237,
+      "before_after_identical": true,
+      "peak_kib": 913228,
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "assertion_slots": 1,
+      "source_payload_sha256": {},
+      "faults": []
+    }
+  ],
+  "decision": "ACCEPT evidence",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_native_minus_restoration_20261010/SOURCE_REVIEW.json",
+  "source_review_sha256": "c81ac466c9bd8217fe6a1fcf50e9870736fe22bd637267b62c4afa1784a5e811",
+  "limitations": [
+    "Focused evidence only; current full suite, remote publication and CI unresolved."
+  ]
+}

@@ -47,14 +47,6 @@ class TestChebopNonlinearVsMatlab:
         npt.assert_allclose(np.asarray(u(jnp.asarray(_PTS))), _REF["nl1"],
                             rtol=RTOL, atol=5e-12)
 
-    @pytest.mark.xfail(
-        reason="Carrier equation (famously multi-solution): damped Newton "
-        "from the given N.init fails to converge (honest warning emitted; "
-        "interior residual O(1)) where MATLAB's Deuflhard-style damping "
-        "reaches its oscillatory branch. Remaining solver work tracked "
-        "(needs MATLAB's damping strategy).",
-        strict=True,
-    )
     def test_carrier_with_initial_guess(self):
         # Carrier eps=0.01 driven from a nontrivial initial guess (selects a
         # specific solution of a multi-solution problem).

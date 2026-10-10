@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native subtraction and Carrier gate restored (2026-10-10; latest)
+
+All three original subtraction predicates passed, including the varying
+pi domain and nonzero near-cancellation norm, with native tolerances. Root
+independently rehashed 2,940 runtime files in each of three serial gates.
+Carrier now passes its existing MATLAB fixture comparison without the stale
+strict-xfail marker; its body, inputs and bounds are unchanged. Root verified
+3,037 runtime files. The preceding broad run remains recorded as 251 passes
+and one strict XPASS; its unexecuted suffix still needs completion.
+Evidence: docs/native_minus_cpu_20261010.json and
+docs/carrier_xpass_cpu_20261010.json. Full current tests and remote CI remain open.
+
 ## Six native unary contracts restored (2026-10-10; latest)
 
 Exp/cos/tanh now use the native default constructor. Abs returns positive
