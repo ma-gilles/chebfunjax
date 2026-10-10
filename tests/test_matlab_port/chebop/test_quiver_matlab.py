@@ -34,6 +34,25 @@ import pytest
 from chebfunjax.operators.chebop import Chebop
 
 
+def _shaft_segments(ax):
+    return np.stack(ax.collections[0].get_segments())
+
+
+def _grid(limits, xpts, ypts):
+    x0, x1, y0, y1 = limits
+    return np.meshgrid(np.linspace(x0, x1, xpts),
+                       np.linspace(y0, y1, ypts))
+
+
+def _source_scale(limits, xpts, ypts, u, v, factor=1.0):
+    # Independent literal of MATLAB's fitted scale, with MATLAB's grid
+    # spacing convention (axis span divided by sample count).
+    x0, x1, y0, y1 = limits
+    dx, dy = (x1-x0)/xpts, (y1-y0)/ypts
+    max_length = np.nanmax(np.hypot(u, v))
+    return 1.0 if factor == 0 else factor * np.hypot(dx, dy) / max_length
+
+
 @pytest.fixture(autouse=True)
 def _close():
     yield
@@ -86,73 +105,93 @@ class TestQuiverFieldValues:
         # van der Pol: plane (u, v = u'), field (v, 3(1-u^2)v - u)
         N = Chebop(lambda t, u: u.diff(2) - 3 * (1 - u**2) * u.diff() + u,
                    domain=(0, 100))
-        q = N.quiver([-2.0, 2.0, -3.0, 3.0], xpts=5, ypts=5).collections[0]
-        X, Y = np.asarray(q.X), np.asarray(q.Y)
-        assert q.U == pytest.approx(Y.ravel(), abs=1e-9)
-        assert q.V == pytest.approx((3 * (1 - X**2) * Y - X).ravel(),
-                                    rel=1e-8, abs=1e-8)
+        limits = [-2.0, 2.0, -3.0, 3.0]
+        ax = N.quiver(limits, xpts=5, ypts=5)
+        shafts = _shaft_segments(ax)
+        x, y = shafts[:, 0, 0], shafts[:, 0, 1]
+        du, dv = shafts[:, 1, 0]-x, shafts[:, 1, 1]-y
+        X, Y = _grid(limits, 5, 5)
+        U, V = Y, 3*(1-X**2)*Y-X
+        factor = _source_scale(limits, 5, 5, U, V)
+        np.testing.assert_allclose(du, y*factor, rtol=1e-9, atol=1e-9)
+        np.testing.assert_allclose(dv, (3*(1-x**2)*y-x)*factor,
+                                   rtol=1e-8, atol=1e-8)
 
     def test_coupled_first_order_system_phase_plane(self):
         # Lotka-Volterra: u' = u - uv, v' = -v + uv
         N = Chebop(lambda t, u, v: [u.diff() - u + u * v,
                                     v.diff() + v - u * v], domain=(0, 10))
-        q = N.quiver([0.5, 3.0, 0.5, 3.0], xpts=4, ypts=4).collections[0]
-        X, Y = np.asarray(q.X).ravel(), np.asarray(q.Y).ravel()
-        assert q.U == pytest.approx(X - X * Y, rel=1e-8, abs=1e-8)
-        assert q.V == pytest.approx(-Y + X * Y, rel=1e-8, abs=1e-8)
+        limits = [0.5, 3.0, 0.5, 3.0]
+        ax = N.quiver(limits, xpts=4, ypts=4)
+        shafts = _shaft_segments(ax)
+        x, y = shafts[:, 0, 0], shafts[:, 0, 1]
+        du, dv = shafts[:, 1, 0]-x, shafts[:, 1, 1]-y
+        X, Y = _grid(limits, 4, 4)
+        U, V = X-X*Y, -Y+X*Y
+        factor = _source_scale(limits, 4, 4, U, V)
+        np.testing.assert_allclose(du, (x-x*y)*factor, rtol=1e-8, atol=1e-8)
+        np.testing.assert_allclose(dv, (-y+x*y)*factor, rtol=1e-8, atol=1e-8)
 
     def test_first_order_scalar_is_a_slope_field(self):
         # Plane is (t, u) and the field is (1, u'), so U is all ones.
         N = Chebop(lambda t, u: u.diff() - t.sin() * u, domain=(-3.8, 3.8))
-        q = N.quiver([-3.0, 3.0, -1.0, 1.0], xpts=4, ypts=4).collections[0]
-        assert q.U == pytest.approx(np.ones_like(q.U), abs=1e-12)
+        ax = N.quiver([-3.0, 3.0, -1.0, 1.0], xpts=4, ypts=4)
+        shafts = _shaft_segments(ax)
+        du = shafts[:, 1, 0]-shafts[:, 0, 0]
+        assert np.all(du > 0)
+        assert np.allclose(du, du[0], rtol=1e-12, atol=1e-12)
 
 
 class TestQuiverOptions:
     def test_xpts_and_ypts_set_the_grid_independently(self):
         N = Chebop(lambda t, u: u.diff(2) + u.sin(), domain=(0, 50))
-        q = N.quiver([-1, 1, -1, 1], xpts=7, ypts=3).collections[0]
-        assert len(np.asarray(q.X).ravel()) == 21
-        assert len(np.unique(np.asarray(q.X))) == 7
-        assert len(np.unique(np.asarray(q.Y))) == 3
+        ax = N.quiver([-1, 1, -1, 1], xpts=7, ypts=3)
+        shafts = _shaft_segments(ax)
+        assert len(shafts) == 21
+        assert len(np.unique(shafts[:, 0, 0])) == 7
+        assert len(np.unique(shafts[:, 0, 1])) == 3
 
     def test_default_grid_is_twenty_by_twenty(self):
         N = Chebop(lambda t, u: u.diff(2) + u.sin(), domain=(0, 50))
-        q = N.quiver([-1, 1, -1, 1]).collections[0]
-        assert len(np.asarray(q.X).ravel()) == 400
+        ax = N.quiver([-1, 1, -1, 1])
+        assert len(_shaft_segments(ax)) == 400
 
     def test_normalize_makes_every_arrow_unit_length(self):
-        # Away from the fixed point at the origin, where the field
-        # vanishes and MATLAB's u./nrm is 0/0 too.
+        # Zero-field samples are nonfinite after MATLAB's u./nrm and omitted
+        # from the drawable line geometry.
         N = Chebop(lambda t, u: u.diff(2) - 3 * (1 - u**2) * u.diff() + u,
                    domain=(0, 100))
-        q = N.quiver([-2, 2, -3, 3], xpts=4, ypts=4,
-                     normalize=True).collections[0]
-        nrm = np.hypot(q.U, q.V)
-        assert np.all(np.isfinite(nrm))
-        assert nrm == pytest.approx(np.ones_like(nrm), abs=1e-12)
+        ax = N.quiver([-2, 2, -3, 3], xpts=4, ypts=4, normalize=True)
+        segments = _shaft_segments(ax)
+        lengths = np.linalg.norm(segments[:, 1]-segments[:, 0], axis=1)
+        assert np.all(np.isfinite(lengths))
+        assert np.all(lengths > 0)
+        assert lengths == pytest.approx(np.full_like(lengths, lengths[0]), abs=1e-12)
 
     def test_scale_stretches_the_arrows_proportionally(self):
-        # MATLAB fits the longest arrow in a grid cell then stretches by
-        # S. matplotlib's `scale` is the reciprocal (data units per unit
-        # arrow length), so doubling S must halve it.
+        # MATLAB fits the longest vector to grid spacing then stretches by S.
         N = Chebop(lambda t, u: u.diff(2) - 3 * (1 - u**2) * u.diff() + u,
                    domain=(0, 100))
         got = {}
         for sc in (0.25, 0.5, 1.0, 2.0):
-            got[sc] = N.quiver([-2, 2, -3, 3], xpts=5, ypts=5,
-                               normalize=True, scale=sc).collections[0].scale
-        assert got[0.25] / got[0.5] == pytest.approx(2.0, rel=1e-12)
-        assert got[0.5] / got[1.0] == pytest.approx(2.0, rel=1e-12)
-        assert got[1.0] / got[2.0] == pytest.approx(2.0, rel=1e-12)
+            ax = N.quiver([-2, 2, -3, 3], xpts=5, ypts=5,
+                          normalize=True, scale=sc)
+            seg = _shaft_segments(ax)
+            got[sc] = np.max(np.linalg.norm(seg[:, 1]-seg[:, 0], axis=1))
+            plt.close(ax.figure)
+        assert got[0.5] / got[0.25] == pytest.approx(2.0, rel=1e-12)
+        assert got[1.0] / got[0.5] == pytest.approx(2.0, rel=1e-12)
+        assert got[2.0] / got[1.0] == pytest.approx(2.0, rel=1e-12)
 
     def test_scale_zero_draws_the_raw_vectors(self):
         N = Chebop(lambda t, u: u.diff(2) - 3 * (1 - u**2) * u.diff() + u,
                    domain=(0, 100))
-        q = N.quiver([-2, 2, -3, 3], xpts=5, ypts=5,
-                     scale=0).collections[0]
-        assert q.scale == pytest.approx(1.0)
-        assert q.angles == "xy" and q.scale_units == "xy"
+        ax = N.quiver([-2, 2, -3, 3], xpts=5, ypts=5, scale=0)
+        seg = _shaft_segments(ax)
+        x, y = seg[:, 0, 0], seg[:, 0, 1]
+        np.testing.assert_allclose(seg[:, 1, 0]-x, y, atol=0, rtol=0)
+        np.testing.assert_allclose(seg[:, 1, 1]-y, 3*(1-x**2)*y-x,
+                                   atol=0, rtol=0)
 
     def test_default_axis_limits_are_the_unit_square(self):
         N = Chebop(lambda t, u: u.diff(2) + u.sin(), domain=(0, 50))

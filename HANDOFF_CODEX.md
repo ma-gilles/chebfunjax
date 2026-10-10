@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Chebop quiver source renderer (2026-10-10; latest)
+
+Source Euclidean grid scaling, held axes color cycling and open arrowhead
+geometry replace Matplotlib's incompatible quiver defaults. Normalized zero
+vectors retain native NaNs and are omitted from drawable geometry. Root28
+focused tests pass, including independent scale and head-coordinate controls.
+Only Chebop.quiver changes in production. Full43-solve page and image/content
+parity remain open. Evidence: docs/chebop_quiver_renderer_cpu_20261010.json.
+
 ## Full native Jacobi sweep and restrict error semantics (2026-10-10; latest)
 
 All625 native Jacobi parameter tuples and3 original513x2 cases pass at

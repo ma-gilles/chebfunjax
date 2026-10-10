@@ -1,0 +1,30 @@
+{
+  "scope": "Chebop.quiver source scale, axes color cycle and open-head geometry",
+  "base": "c8270b0a08ac922d1189d40690363ada5de6a8d6",
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebop_quiver_root_20261010",
+  "agent_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebop_quiver_source_candidate_20261010/renderer_delivery_v2/DELIVERY.json",
+  "root_tests": 28,
+  "root_receipt_sha256": "c459cc8031900ba9dbeb43d8ed5fdabdcc6698041e519087bc9d82de579d2e72",
+  "root_junit_sha256": "e353d2ec892848407db5c66a4ecbd07a0aee02f99a5c82263509d7e72509ada2",
+  "elapsed_seconds": 17.19656935101375,
+  "peak_child_rss_kib": 670028,
+  "cpu_affinity": [
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+  ],
+  "source_scope_proof": "Entire module AST unchanged after removing Chebop.quiver",
+  "limitations": [
+    "Full 43-solve page and pixel/content parity remain unverified.",
+    "Builtin geometry follows previously bound R2025b source, without fresh native image capture.",
+    "Root integration gate binds source/test hashes; RSS is measured, not capped; no root runtime-import audit."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebop_quiver_root_20261010/static_v2.json",
+  "post_gate_change": "Ruff reordered two imports in new test only; no assertions or production bytes changed.",
+  "final_new_test_sha256": "ec6e09691885c7b1b0d811f4737940d4b7812d3b330d3209574992d2dc01fdda"
+}

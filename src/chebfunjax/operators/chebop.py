@@ -1164,21 +1164,42 @@ class Chebop:
 
         if ax is None:
             _, ax = plt.subplots()
-        kwargs.setdefault("color", "#0072BD")   # MATLAB ColorOrder(1,:)
 
-        # MATLAB's quiver(X, Y, U, V, S) fits the longest arrow inside one
-        # grid cell and then stretches every arrow by S; S = 0 disables the
-        # fitting and draws the raw vectors.  matplotlib's `scale` is the
-        # reciprocal: data units per unit arrow length.
-        nmax = float(_np.nanmax(_np.hypot(U, V))) if U.size else 0.0
-        if scale and nmax > 0:
-            dl = min((x1 - x0) / max(xpts - 1, 1),
-                     (y1 - y0) / max(ypts - 1, 1))
-            q = nmax / (float(scale) * dl) if dl > 0 else 1.0
+        # MATLAB's built-in quiver uses the shared source scale and open-head
+        # line geometry implemented from createLinesForQuiverStruct. The helper
+        # also consumes one axes ColorOrder entry unless an explicit color was
+        # supplied.
+        from matplotlib.collections import LineCollection
+
+        from chebfunjax._quiver_geometry import quiver_line_geometry
+        from chebfunjax.plotting import (
+            _quiver_line_options,
+            _quiver_source_scale,
+        )
+
+        has_nan_vector = _np.isnan(U) | _np.isnan(V)
+        U_for_scale = jnp.where(has_nan_vector, 0.0, U)
+        V_for_scale = jnp.where(has_nan_vector, 0.0, V)
+        source_scale = _quiver_source_scale(
+            X, Y, U_for_scale, V_for_scale, float(scale))
+
+        # Normalization deliberately leaves zero-field vectors as NaN, as in
+        # MATLAB. Omit those invalid samples from both scale/geometry; do not
+        # replace them with zero-length arrows. Finite vectors retain their
+        # original grid positions and are scaled before native head geometry.
+        valid = (_np.isfinite(X) & _np.isfinite(Y)
+                 & _np.isfinite(U) & _np.isfinite(V))
+        if _np.any(valid):
+            shafts, heads, _ = quiver_line_geometry(
+                X[valid], Y[valid], (U*source_scale)[valid],
+                (V*source_scale)[valid])
         else:
-            q = 1.0
-        ax.quiver(X, Y, U, V, angles="xy", scale_units="xy", scale=q,
-                  **kwargs)
+            shafts = jnp.empty((0, 2, 2), dtype=jnp.float64)
+            heads = jnp.empty((0, 3, 2), dtype=jnp.float64)
+        options = _quiver_line_options(ax, kwargs)
+        ax.add_collection(LineCollection(_np.asarray(shafts), **options))
+        head_options = dict(options, label="_nolegend_")
+        ax.add_collection(LineCollection(_np.asarray(heads), **head_options))
         ax.set_xlim(x0, x1)
         ax.set_ylim(y0, y1)
         return ax
