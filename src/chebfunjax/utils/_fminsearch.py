@@ -2,8 +2,10 @@
 
 This is the fallback dependency for pinned separableApprox.minandmax2, not an
 active-set implementation or an assertion about the historical page's branch.
-Tolerance is exactly binary64 eps as set by the Chebfun caller. Output/display
-callbacks and general dimension/type option parsing are outside this adapter.
+Defaults preserve binary64 eps as set by the Chebfun extrema caller. Explicit
+finite tolerances at least eps also support Needle's TolX=1e-14 and the native
+TolFun default 1e-4. Smaller tolerances, output/display callbacks and general
+dimension/type option parsing are outside this adapter.
 
 Provenance
 ----------
@@ -23,8 +25,8 @@ class SearchResult(NamedTuple):
     evaluations: int
 
 
-def _threshold(value):
-    """max(eps,10*MATLAB_eps(value)), for caller's fixed eps tolerance.
+def _threshold(value, tolerance=None):
+    """max(tolerance,10*MATLAB_eps(value)), for tolerance at least eps.
 
     Spacings below2^-56 cannot affect this maximum. Clamping that exponent
     avoids needing gradual subnormal arithmetic without changing the threshold.
@@ -34,25 +36,48 @@ def _threshold(value):
     _, exponent = jnp.frexp(jnp.abs(value))
     spacing = jnp.ldexp(jnp.asarray(1., dtype=jnp.float64),
                         jnp.maximum(jnp.where(value == 0, -56, exponent-53), -56))
-    result = jnp.maximum(jnp.finfo(jnp.float64).eps, 10*spacing)
+    floor = jnp.finfo(jnp.float64).eps if tolerance is None else tolerance
+    result = jnp.maximum(floor, 10*spacing)
     return jnp.where(jnp.isfinite(value), result, jnp.nan)
 
 
-def _converged(vertices, values):
+def _converged(vertices, values, *, tol_x=None, tol_fun=None):
     fspread = jnp.max(jnp.abs(values[0]-values[1:]))
     xspread = jnp.max(jnp.abs(vertices[:, 1:]-vertices[:, :1]))
     # Native uses eps(max(best coordinates)), not eps(max(abs(coordinates))).
-    return bool((fspread <= _threshold(values[0]))
-                & (xspread <= _threshold(jnp.max(vertices[:, 0]))))
+    return bool((fspread <= _threshold(values[0], tol_fun))
+                & (xspread <= _threshold(jnp.max(vertices[:, 0]), tol_x)))
 
 
-def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400):
+def _checked_tolerance(value, name):
+    """Validate the explicitly supported finite scalar tolerance range."""
+    tolerance = jnp.asarray(jnp.finfo(jnp.float64).eps if value is None else value,
+                            dtype=jnp.float64)
+    if tolerance.shape != () or not bool(jnp.isfinite(tolerance)
+                                         & (tolerance >= jnp.finfo(jnp.float64).eps)):
+        raise ValueError(f"{name} must be a finite scalar at least binary64 eps")
+    return tolerance
+
+
+def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400,
+               tol_x=None, tol_fun=None):
     """Real 2D minimization; explicit caps correspond to native option values.
 
     The source checks limits only at loop entry, allowing a completed branch
     to cross the evaluation limit. Zero exitflag still returns the best point.
     Objective exceptions propagate for the caller's native fallback handling.
+    ``None`` tolerances retain the extrema caller's binary64 eps contract.
+    Native Needle options are ``tol_x=1e-14, tol_fun=1e-4``; tolerances below
+    binary64 eps are outside this adapter's qualified range.
+
+    Provenance
+    ----------
+    MATLAB R2017a and R2025b fminsearch.m simplex and stopping rules.
+    Chebfun caller: @separableApprox/minandmax2.m and examples/opt/Needle.m.
+    Chebfun commit: 7574c77
     """
+    tol_x = _checked_tolerance(tol_x, "tol_x")
+    tol_fun = _checked_tolerance(tol_fun, "tol_fun")
     x = jnp.asarray(x0, dtype=jnp.float64)
     if x.shape != (2,):
         raise ValueError('This source adapter requires a two-coordinate vector')
@@ -66,7 +91,7 @@ def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400):
     values, vertices = values[order], vertices[:, order]
     iterations, evaluations = 1, 3
     while evaluations < max_evaluations and iterations < max_iterations:
-        if _converged(vertices, values):
+        if _converged(vertices, values, tol_x=tol_x, tol_fun=tol_fun):
             break
         centroid = jnp.sum(vertices[:, :2], axis=1)/2
         reflected = 2*centroid-vertices[:, -1]

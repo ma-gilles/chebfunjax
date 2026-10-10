@@ -1,5 +1,25 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## ACA assembly compilation bottleneck removed (2026-10-10; latest)
+
+Final pivots, rows and columns now use bounded JAX stack groups. All 136
+focused controls pass; the saved 485x485 complex ACA call preserves all five
+outputs, 484 pivot pairs and every array bit. Observed call time falls from
+329.93 seconds to 1.953 seconds in separate fresh CPU processes. These are
+shared-host component observations; a full Randfuneig replay remains required.
+Root independently rehashed the three gates and their runtime inputs.
+Evidence: docs/numeric_aca_assembly_cpu_20261010.json.
+
+## Needle optimizer tolerances qualified (2026-10-10; latest)
+
+The private real 2D fminsearch adapter now accepts independent finite TolX
+and TolFun values at least binary64 eps, while retaining the extrema defaults.
+All 21 controls pass, including five fresh native R2025b traces with all 742
+callback points and values bit-exact, plus native iteration/evaluation counts.
+Needle can use its source TolX=1e-14 and native default TolFun=1e-4. Its
+Chebfun objective, cubic contour interpolation and full page still need work.
+Evidence: docs/needle_fminsearch_cpu_20261010.json.
+
 ## AnalyticSVD coefficient-plot labels repaired (2026-10-10; latest)
 
 The final figure now reserves native-style axes margins using the existing

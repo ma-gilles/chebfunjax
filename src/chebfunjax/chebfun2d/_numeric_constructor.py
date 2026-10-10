@@ -75,6 +75,18 @@ def numeric_tolerances(x, y, values, domain, pseudo_level):
     return relative, absolute
 
 
+def _stack_in_blocks(items, axis=0):
+    """Assemble homogeneous ACA arrays with bounded JAX stack input arity.
+
+    Only grouping changes: source array order, dtype, axes, and all pivot
+    arithmetic are unchanged. Blocks contain at most32 inputs to avoid a
+    single high-arity backend compilation for full-rank numeric matrices.
+    """
+    blocks = [jnp.stack(items[start:start + 32], axis=axis)
+              for start in range(0, len(items), 32)]
+    return blocks[0] if len(blocks) == 1 else jnp.concatenate(blocks, axis=axis)
+
+
 def numeric_aca(values, abs_tol, factor=0):
     """Source completeACA, optionally with its adaptive pivot budget.
 
@@ -125,8 +137,8 @@ def numeric_aca(values, abs_tol, factor=0):
         return (jnp.zeros((1,), dtype=jnp.float64), ((0, 0),),
                 jnp.zeros((1, nx), dtype=jnp.float64),
                 jnp.zeros((ny, 1), dtype=jnp.float64), failed)
-    return (jnp.stack(pivots), tuple(positions), jnp.stack(rows),
-            jnp.stack(cols, axis=1), failed)
+    return (_stack_in_blocks(pivots), tuple(positions), _stack_in_blocks(rows),
+            _stack_in_blocks(cols, axis=1), failed)
 
 
 def numeric_factors(values, tech, tolerance, chop=False):

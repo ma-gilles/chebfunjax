@@ -1,0 +1,99 @@
+{
+  "status": "qualified ACA final storage assembly; full Randfuneig replay remains open",
+  "source_base": "217b9ae9e02377e9513de337f3f1b2e994e3ced2",
+  "change": "JAX stacks of at most32 arrays, then concatenate. Pivot arithmetic, stopping bounds, ordered outputs and empty return unchanged.",
+  "qualification": {
+    "scope": "one finalACAstorage assembly change, no arithmetic/pivot/tolerance modifications",
+    "qualified_controls": 136,
+    "native78_sourcebounds_unchanged": true,
+    "direct28bits_unchanged": true,
+    "newboundary30counts": [
+      31,
+      32,
+      33,
+      64,
+      65
+    ],
+    "saved485_outputs": "all5items/484pivotpairs/3leafbytes/recursive metadata exactbaseline0004",
+    "candidate_aca_seconds": 1.9525430290959775,
+    "baseline_nonprofile_aca_seconds": 329.9307618830353,
+    "baseline_profile_aca_wall_seconds": 333.58557286066934,
+    "timing_qualification": "differentfreshprocess source-stage observations, not a controlled benchmark/fullpage timing",
+    "fullpage_status": "original61507 capped; fullRandfuneig notyetqualified; no fullpage pass orruntimeclaim",
+    "rejected_index_candidate": "preservednegative result; notincludedinthispatch",
+    "caps": "native180s4GiB/direct180s2GiB/saved485420s3GiB; nofurtherlaunch",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/PROFILE_RESULT_v2.json": "8280f421e7454993509ef126f501d6b2498215e3e4c721541335ab77bf284d74",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/BLOCK_QUALIFICATION_AUDIT_v2.json": "07a684f475a5215fc5f882918f2b5fd8364744e2b1c0f8048b27361c62421f4c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/AUDIT.json": "a2159a5c2e78c0d951133ae26675ac6a1e69faf503dccc7e1d8def01fcd71faf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/capture/events.jsonl": "d6a77d5bde8ece3915a8458423c9a90faf8e408eea53cdec8d01014bc874a3a6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/capture/0002_section4_call1_numeric_aca_output.json": "8f5743a5c7db248bf6a60fe531895e423ab77d82c7af3aab1a8b7a984c981c34",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/capture/0002_section4_call1_numeric_aca_output.npz": "f78bd131020868e57a3a8e20dbdb1218c40d0940b4773c200211e949751a61e4"
+    }
+  },
+  "gates": [
+    {
+      "root_review_passed": true,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2",
+      "passed_cases": 78,
+      "guard_bindings_rehashed": 42283,
+      "runtime_files_rehashed": 1811,
+      "wall_seconds": 103.82069117808715,
+      "peak_kib": 2972304,
+      "survivors": [],
+      "censored_limit": null,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2/guard.json": "4234965b0539ed5795324e1ab7402f8a85e9af4503386358ccf53756eab88e04",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2/manifest.json": "eb2800fb6314194e9b583964d9855c06fe6bb4eb1e83cfbd46e218a0426ae5f0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2/runtime/end.json": "31707ef0b2dd602e3d4fb14ab3f44a0377a5f878fbcf67bce2ec2cdf6974063c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2/supervision/receipt.json": "cd4e099670bca8ff9b390cc1d7232ed336e7f6e5986e4160acf0a7ded55b7db1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_native_v2/junit.xml": "9f2b63e6655af33f058a0cde38cc551708e782f0a8e134e13c4bf9e35573e617"
+      }
+    },
+    {
+      "root_review_passed": true,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2",
+      "passed_cases": 58,
+      "guard_bindings_rehashed": 42283,
+      "runtime_files_rehashed": 1813,
+      "wall_seconds": 84.09874887159094,
+      "peak_kib": 1010248,
+      "survivors": [],
+      "censored_limit": null,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2/guard.json": "9ded8e1513007654d09abcd5f35fe24048fe4cf52dcb58765f123907662859f2",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2/manifest.json": "390e257e60fe2c841929201cee52a488cded4e088415898e6665e543d982031c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2/runtime/end.json": "f5ae2deece9155670ffc200efaf8898f66949896f76f1ea31479987a8dc959af",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2/supervision/receipt.json": "9bfc8b4bc5c6c7f73adff9c925876dac626f5394fd12f73c109e8bce2af0cc2d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_direct_v2/junit.xml": "22aad856ebbd9b97ede164df487a4c05ea41fad335ba4d1717a1d4b808a6dc86"
+      }
+    },
+    {
+      "root_review_passed": true,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1",
+      "passed_cases": 1,
+      "guard_bindings_rehashed": 42289,
+      "runtime_files_rehashed": 1810,
+      "wall_seconds": 65.68718931032345,
+      "peak_kib": 670288,
+      "survivors": [],
+      "censored_limit": null,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/guard.json": "11207658b907429463c2e1ec58c6e1d528a680e4738597822b36a776af120654",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/manifest.json": "c1fb0b1661f200dfee9e2fd1a7525dc7c5295ba0513b9ece9b1119d8367fd877",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/runtime/end.json": "88debc3761eabf779d8042bd6ceec796e8071a646ef3345caac9113ca296b007",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/supervision/receipt.json": "91bfdc180715ee392d1e76123a4ac69123c65e4200b4367f2a288d3cac80b155",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_constructor_stage_20261010/block_saved485_v1/junit.xml": "0cd9f1c583aa75ce2fdc53f426fadd2c01e6dcd6cdb0243c876e8d2daf966816"
+      }
+    }
+  ],
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/root_needle_aca_review_20261010.json",
+    "sha256": "be6bcbc90bd7f24817271e3cb1ca608b2920f5673d7c9e6e4d48de79069f744e"
+  },
+  "limitations": [
+    "Timing observations came from separate fresh processes on a shared CPU host; not a controlled paired benchmark.",
+    "Saved485 ACA output is bit-exact to the previous JAX baseline, not a claim of full native eigenfunction/page parity.",
+    "The previous full Randfuneig attempt hit its600-second cap; a fresh full source replay remains necessary."
+  ]
+}

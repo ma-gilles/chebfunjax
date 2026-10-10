@@ -1,0 +1,47 @@
+{
+  "status": "qualified private optimizer tolerance extension; full Needle page remains open",
+  "source_base": "217b9ae9e02377e9513de337f3f1b2e994e3ced2",
+  "native_reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_matlab": "R2025b Update 2",
+  "change": "Independent finite TolX/TolFun values at least binary64 eps. Existing extrema defaults remain eps. No simplex arithmetic or branch changes.",
+  "tests": {
+    "passed": 21,
+    "existing_source_controls": 12,
+    "native_full_trace_cases": 5,
+    "native_callbacks_exact": 742,
+    "invalid_tolerance_controls": 4
+  },
+  "native_capture": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_native_contracts_20261010",
+    "original_handle": 72312,
+    "audit_sha256": "281de3dcb6fbef5779dcb1cfe1ce39895ef137a57c3de5f123d2646c66492dc7",
+    "fixture_json_mat_bits_exact": true
+  },
+  "gate": {
+    "root_review_passed": true,
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1",
+    "passed_cases": 21,
+    "guard_bindings_rehashed": 45250,
+    "runtime_files_rehashed": 1812,
+    "wall_seconds": 71.56811006739736,
+    "peak_kib": 767672,
+    "survivors": [],
+    "censored_limit": null,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1/guard.json": "c12e1af88aa3bef13baf1d0f071cd3bb1ec839c9a7efbcffb6198fbd37ff3139",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1/manifest.json": "2ad7c442cdd63c1d92b3f2f32be3cfdb8854042fee6314cb9d694fe143c33e8c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1/runtime/end.json": "38068955b469d4efc622094dce72e47ae3e199a51945630f86a47a462df01f8c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1/supervision/receipt.json": "cde92b8a808acd7140852289a18352d87956ca83bb7933c5a0c2399c2d5bb691",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_fminsearch_tolerances_20261010/gate_v1/junit.xml": "77434dda10e49516a7fc0956daed7ebf47d9cdadc4be618c2f522dd64e8aa02a"
+    },
+    "native_callback_count": 742
+  },
+  "limitations": [
+    "Only the existing private real two-coordinate adapter is qualified; not general fminsearch options or sub-eps tolerances.",
+    "No Needle full objective/grid/optimization/page/figure replay is claimed."
+  ],
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/root_needle_aca_review_20261010.json",
+    "sha256": "be6bcbc90bd7f24817271e3cb1ca608b2920f5673d7c9e6e4d48de79069f744e"
+  }
+}
