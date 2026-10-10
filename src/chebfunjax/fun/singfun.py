@@ -147,7 +147,14 @@ class Singfun(eqx.Module):
 
             smoothPart = Chebtech2.from_function(_const)
         self.smoothPart = smoothPart
-        self.exponents = (float(exponents[0]), float(exponents[1]))
+        # Native no-input objects have no endpoint exponents. Empty Tech storage
+        # is the Python representation of native numeric smoothPart=[].
+        if len(exponents) == 0:
+            if not smoothPart.isempty():
+                raise ValueError("Empty exponents require an empty smooth part")
+            self.exponents = ()
+        else:
+            self.exponents = (float(exponents[0]), float(exponents[1]))
 
     @classmethod
     def from_function(
@@ -309,7 +316,7 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/singfun.m (nargin == 0), @singfun/isempty.m
         Chebfun commit: 7574c77
         """
-        return cls(Chebtech2.empty(), (0.0, 0.0))
+        return cls(Chebtech2.empty(), ())
 
     @classmethod
     def zeroSingFun(cls) -> "Singfun":
@@ -434,6 +441,8 @@ class Singfun(eqx.Module):
     @property
     def issmooth(self) -> bool:
         """True if both exponents are (numerically) zero."""
+        if not self.exponents:
+            return True
         a, b = self.exponents
         return abs(a) < _EXP_TOL and abs(b) < _EXP_TOL
 
@@ -486,6 +495,8 @@ class Singfun(eqx.Module):
         >>> repr(sf)
         'Singfun([-1, 1], n=1, exps=(0.5, 0.5))'
         """
+        if not self.exponents:
+            return "Singfun([-1, 1], n=0, exps=())"
         a, b = self.exponents
         return f"Singfun([-1, 1], n={self.n}, exps=({a}, {b}))"
 
@@ -747,6 +758,9 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/uminus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            # Native negation preserves numeric[]; avoid empty-Tech coefficients.
+            return self
         return Singfun(-self.smoothPart, self.exponents)
 
     def __pos__(self) -> "Singfun":
@@ -762,6 +776,9 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/power.m
         Chebfun commit: 7574c77
         """
+        if not self.exponents:
+            # Preserve the existing Python empty-power adapter.
+            return self
         normalized = self.extractBoundaryRoots()
         a, b = normalized.exponents
         # Empty-object propagation is a Python adapter; the pinned MATLAB
@@ -793,6 +810,9 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/extractBoundaryRoots.m
         Chebfun commit: 7574c77
         """
+        if not self.exponents:
+            # Python empty-Tech adapter; native numeric[] dispatch is unqualified.
+            return self
         if num_roots is None:
             nl = nr = None
         else:
@@ -828,6 +848,9 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/cancelExponents.m
         Chebfun commit: 7574c77
         """
+        if not self.exponents:
+            # Python empty-Tech adapter; native numeric[] dispatch is unqualified.
+            return self
         a, b = self.exponents
         tol = 100.0 * _EPS * float(self.smoothPart.vscale)
         bl = float(jnp.abs(self.smoothPart(jnp.float64(-1.0))))
@@ -846,6 +869,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/simplifyExponents.m
         Chebfun commit: 7574c77
         """
+        if not self.exponents:
+            return self
         tol = 100.0 * _EPS * float(self.smoothPart.vscale)
         exps = [float(e) for e in self.exponents]
         # Snap near-zero and near-integer exponents.
@@ -1049,6 +1074,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/roots.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
         tol = _EPS
         out = [float(r) for r in self.smoothPart.roots()]
         any_roots = len(out) > 0
@@ -1420,6 +1447,9 @@ class Singfun(eqx.Module):
         --------
         Singfun.diff, Chebtech2.sum
         """
+        if not self.exponents:
+            # Native all([] == 0) dispatches to numeric sum([]).
+            return jnp.asarray(0., dtype=jnp.float64)
         a, b = self.exponents
 
         # Trivial case: no singularity
@@ -1503,6 +1533,9 @@ class Singfun(eqx.Module):
 
         Provenance: @singfun/cumsum.m, Chebfun 7574c77.
         """
+        if not self.exponents:
+            # Native issmooth is true, so cumsum(numeric[]) returns numeric[].
+            return jnp.empty((0,), dtype=jnp.float64)
         a, b = self.exponents
         # Native issmooth also recognizes a zero smoothPart.
         if (a == 0 and b == 0) or bool(jnp.all(self.smoothPart.coeffs == 0)):

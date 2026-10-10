@@ -1,0 +1,22 @@
+{
+  "delivery_sha256": "c782447c802e91feeb015b4b5464529957b07538b7d26fa754814c7c058000f0",
+  "bindings": 41,
+  "observed_runtime_files": 2956,
+  "junit_passed": 32,
+  "receipt_sha256": "ab889ca4d7a1f4a0a6b7229ad4f772dcb42f9ee5847d606971adbd3a28dc71c7",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_integration_commit": "4b11f50feaa293b3d33318e458aaa5b516894a77",
+  "qualified_snapshot_base": "7579047a",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_empty_representation_v2_20261010/DELIVERY.json",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_empty_root_source_review_20261010.json",
+  "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singfun_empty_root_static_20261010.json",
+  "coverage": "32cases:15newrepresentation/guardcontrols;originalisempty3,isequal5,emptyguards7;existingPythonempty-power2. Native assertion inputs/predicates unchanged.",
+  "remaining": [
+    "EmptyTech storage remains a Python adapter; complete native numeric[] dispatch for every method is not claimed.",
+    "Native mixed-size exponent isequal, feval, minandmax and chebcoeffs empty/error semantics remain unqualified; no neutral exponent fallback was introduced.",
+    "Constructor14 strict evaluation failure remains preserved separately; no tolerancechange, retry or MATLABcapture.",
+    "No whole-suite or full native Singfun parity claim.",
+    "Nonempty issmooth still uses exponent tolerance rather than native exact-zero/zero-factor predicate; next source correction."
+  ],
+  "integration": "Two integrated payloads byte-identical to qualified snapshot; ten nonempty guarded tails and whole module outside twelve methods independently protected by AST checks. Full current-head suite not run."
+}

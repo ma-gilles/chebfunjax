@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Singfun no-input empty representation restored (2026-10-10; latest)
+
+No-input Singfun stores empty exponents; explicit empty input retains the
+zero exponent pair. Native roots, smoothness, sum/cumsum and negation empty
+routes are restored with Python storage/adapters explicitly documented.
+32 cases pass on the isolated snapshot. Root verified 41 bindings, 2956 runtime
+files and byte-identical integrated payloads; ten nonempty method tails and
+the module outside twelve scoped methods are unchanged. Static checks pass.
+Evidence: docs/singfun_empty_cpu_20261010.json. Constructor assertion14 still
+fails on the adapter query grid; nonempty issmooth source semantics remain open.
+
+
 ## Native Chebtech logical API implemented (2026-10-10; latest)
 
 Both Tech classes now expose logical via source coefficient-to-value
