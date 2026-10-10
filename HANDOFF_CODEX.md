@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Noisy example source output restored (2026-10-10; latest)
+
+Full CPU execution with public doubleLength completes in 22.72 s, peak
+1,448,076 KiB. All five output blocks match cached native output after
+trailing-whitespace normalization: two warnings and lengths 65,32,65.
+This replaces stale page lengths68 and missing/empty warning blocks. All
+seven figures are598x273; exact rendering remains open. Evidence:
+docs/noisy_full_cpu_20261010.json. The global output inventory below predates
+this change; remaining missing blocks are all warnings on four other pages.
+
 ## Fixed-shape skeleton CPU compilation improvement (2026-10-10; latest)
 
 Chebfun2 skeleton elimination now uses full-shape masked JAX updates while

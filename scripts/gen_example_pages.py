@@ -412,6 +412,7 @@ def main():
             ("ode-linear", "Floquet"),
             ("linalg", "EigLandscapes"),
             ("applics", "VanillaOptions"),
+            ("approx", "Noisy"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")

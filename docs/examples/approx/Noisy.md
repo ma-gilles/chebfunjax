@@ -20,6 +20,10 @@ If you try to make a chebfun of `ff`, there is no convergence:
 f = chebfun(ff);
 ```
 
+```text
+Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'?
+```
+
 However, since we know the scale of the noise, it is easy enough to get the right effect by adjusting the Chebfun `eps` parameter:
 
 ```matlab
@@ -30,9 +34,10 @@ f = chebfun(ff,'eps',1e-6)
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[      -1,       1]       68        -1        1
+[      -1,       1]       65        -1        1
 vertical scale =   1
 ```
+
 
 How did we do? Well, one way to see is to construct a chebfun `f2` of twice this degree. Here are the Chebyshev coefficients of that function (black dots) superimposed on the those of `f` (blue circles). The match is very satisfactory.
 
@@ -61,6 +66,7 @@ f =
 vertical scale =   1
 ```
 
+
 ![Noisy figure 02](../../images/approx/Noisy_02.png)
 
 And here we are with `eps` tightened to $10^{-9}$:
@@ -75,9 +81,10 @@ plotcoeffs(f2,'.k',MS,10), hold off
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[      -1,       1]       68        -1        1
+[      -1,       1]       65        -1        1
 vertical scale =   1
 ```
+
 
 ![Noisy figure 03](../../images/approx/Noisy_03.png)
 
@@ -88,8 +95,9 @@ f = chebfun(ff,'eps',1e-12);
 ```
 
 ```text
-
+Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'?
 ```
+
 
 Just for fun let's illustrate what Chebfun achieves by being not completely flexible. Here is a function that is not random, but again has a plateau in its Chebyshev series down at the level of $10^{-6}$: $$ g(x) = \tanh(8(x-{\textstyle{1\over 2}})) + 10^{-6} \sin(200\exp(x)). $$
 

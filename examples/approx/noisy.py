@@ -74,7 +74,7 @@ def run():
     # eps 1e-6 succeeds:
     f = cj.chebfun(ff, eps=1e-6)
     print("f ="); print(repr(f))
-    f2 = cj.chebfun(ff, n=2 * len(f) - 1)   # 'doublelength' reference
+    f2 = cj.chebfun(ff, eps=1e-6, doubleLength=True)
     _coeffplot(f, "Noisy_01.png", ref=f2)
 
     f = cj.chebfun(ff, eps=1e-3)
