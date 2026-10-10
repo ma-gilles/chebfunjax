@@ -1,5 +1,17 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full Randfuneig source execution completed (2026-10-10; latest)
+
+All five sections now complete with the original matrix/grid sizes and public
+construct/restrict/eig calls. The page publishes the actual counts 484 and 401
+and five fresh 600x269 figures. Root rehashed 39,653 input bindings and 1,850
+runtime files; the run finished in 202.42 s including supervision, with peak
+summed RSS 3,204,324 KiB and no cap or survivors. Older partial/capped runs stay
+unqualified. Legacy figure generation now dispatches the public script; the
+page generator preserves its audited output. MATLAB RNG, eigenfunction
+normalization and historical marker/framing parity remain open. Evidence:
+docs/randfuneig_full_cpu_20261010.json.
+
 ## Factor panel compilation bounded (2026-10-10; latest)
 
 Large factor panels now compile in groups of at most 32, using the same whole-axis

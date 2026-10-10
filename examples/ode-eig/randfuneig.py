@@ -7,9 +7,10 @@ the Fredholm integral operator whose kernel is a random bivariate
 function (randnfun2), including a variant with max-norm-bounded
 coefficient support.
 
-Random draws use numpy's generator: MATLAB's randn stream cannot be
-reproduced, and these are statistical illustrations -- each figure
-shows one sample of the same law as the published one.
+Random draws use explicit adapters: section 4 uses the JAX key-based
+randnfun2 adapter; sections 1--3 and 5 use NumPy's generator. These
+streams are not MATLAB RNG-equivalent, so each figure shows one sample
+from the corresponding random model.
 
 Original: https://www.chebfun.org/examples/ode-eig/Randfuneig.html
 Copyright by The University of Oxford and The Chebfun Developers.
@@ -19,7 +20,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,10 +28,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import jax.numpy as jnp
 
+from chebfunjax import chebfun, randnfun2
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.utils.random import randnfun2
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,22 +41,21 @@ FIG = [0]
 
 def _plot_eigs(ei):
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(6.4, 6.0))
+    fig, ax = plt.subplots(figsize=((600 + 1e-6) / 100, (269 + 1e-6) / 100), dpi=100)
     ei = np.asarray(ei)
-    ax.plot(ei.real, ei.imag, 'k.', markersize=4, linestyle='none')
-    th = np.linspace(0, 2 * np.pi, 400)
-    ax.plot(np.cos(th), np.sin(th), lw=1.6)
+    ax.plot(ei.real, ei.imag, 'k.')
+    circle = chebfun(lambda x: jnp.exp(1j * x), domain=(0.0, 2 * jnp.pi))
+    matlab_plot(circle, ax=ax)
     ax.set_aspect('equal')
     ax.set_axis_off()
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Randfuneig_{FIG[0]:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"Randfuneig_{FIG[0]:02d}.png"), size=(600, 269))
     plt.close(fig)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
     rng = np.random.default_rng(2017)
 
     # 1. Circular law for a Gaussian random matrix.
@@ -78,7 +77,7 @@ def run():
 
     # 4. Fredholm eigenvalues of a random bivariate kernel.
     dt = 0.01
-    f = randnfun2(dt, (-1, 1, -1, 1), seed=2017, big=True)
+    f = randnfun2((-1, 1, -1, 1), dt, "norm", seed=2017)
     ei = np.asarray(f.eig())
     print(f"Number of nonzero eigenvalues: {len(ei)}")
     _plot_eigs(ei)
@@ -94,25 +93,8 @@ def run():
     c = c / np.sqrt(np.count_nonzero(c))
     nbig = round(1.2 * 2 / dt + 2)
     dom2 = (-1.0, -1.0 + nbig * dt, -1.0, -1.0 + nbig * dt)
-    Lx = dom2[1] - dom2[0]
-
-    def fser(x, y):
-        # Random periodic Fourier series with the square support,
-        # evaluated separably on the sample grid.
-        x = np.asarray(x, dtype=float)
-        y = np.asarray(y, dtype=float)
-        shp = x.shape
-        xf = x.ravel()
-        yf = y.ravel()
-        Ex = np.exp(2j * np.pi * np.outer(xf - dom2[0],
-                                          np.arange(-nn, nn + 1)) / Lx)
-        Ey = np.exp(2j * np.pi * np.outer(yf - dom2[2],
-                                          np.arange(-nn, nn + 1)) / Lx)
-        out = np.einsum('pk,kl,pl->p', Ex, c.T, Ey).real
-        return jnp.asarray(out.reshape(shp), dtype=jnp.float64)
-
-    f = Chebfun2.from_function(fser, domain=dom2)
-    f = f.restrict((-1, 1, -1, 1)) * (1 / np.sqrt(dt))
+    f = Chebfun2.from_trig_coeffs(c, domain=dom2).real()
+    f = f.restrict((-1, 1, -1, 1)) / np.sqrt(dt)
     ei = np.asarray(f.eig())
     print(f"Number of nonzero eigenvalues: {len(ei)}")
     _plot_eigs(ei)

@@ -208,81 +208,16 @@ def nullspace():
 
 
 def randfuneig():
-    """ode-eig/Randfuneig — eigenvalues of random matrices/operators."""
-    rng = np.random.default_rng(0)
-    n = 1000
-    A = rng.standard_normal((n, n)) / np.sqrt(n)
-    ev = np.linalg.eigvals(A)
-    th = np.linspace(0, 2 * PI, 300)
+    """Dispatch the qualified public source example and its actual outputs."""
+    import importlib.util
 
-    fig, ax = plt.subplots()
-    ax.plot(np.real(ev), np.imag(ev), "k.", markersize=2)
-    ax.plot(np.cos(th), np.sin(th), color=CHEBFUN_BLUE, linewidth=1.2)
-    ax.set_aspect("equal")
-    ax.set_title("circular law", fontsize=10)
-    save(fig, "Randfuneig_01.png")
-
-    # a second Ginibre draw: dots uniform over the disk
-    A2 = rng.standard_normal((n, n)) / np.sqrt(n)
-    ev2 = np.linalg.eigvals(A2 @ A2 * 0 + A2) if False else \
-        np.linalg.eigvals(rng.standard_normal((n, n)) / np.sqrt(n))
-    fig, ax = plt.subplots()
-    ax.plot(np.real(ev2), np.imag(ev2), "k.", markersize=2)
-    ax.plot(np.cos(th), np.sin(th), color=CHEBFUN_BLUE, linewidth=1.2)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    save(fig, "Randfuneig_02.png")
-
-    # matrix sampled from smooth random functions: eigenvalues
-    # cluster near the origin (low numerical rank of smooth kernels)
-    ng2 = n
-    xg2 = np.linspace(-1, 1, ng2)
-    mmodes = 40
-    Cc = rng.standard_normal((mmodes, mmodes))
-    Kf = np.zeros((ng2, ng2))
-    for i in range(mmodes):
-        Kf += np.outer(np.cos(PI * i * xg2),
-                       Cc[i] @ np.cos(PI * np.outer(
-                           np.arange(mmodes), xg2)))
-    Kf = Kf / np.sqrt(ng2) / mmodes * 6
-    # blend: smooth kernel + small white noise keeps a disk outline
-    Af = Kf + 0.9 * rng.standard_normal((ng2, ng2)) / np.sqrt(ng2)
-    evf = np.linalg.eigvals(Af)
-    fig, ax = plt.subplots()
-    ax.plot(np.real(evf), np.imag(evf), "k.", markersize=2)
-    ax.plot(np.cos(th), np.sin(th), color=CHEBFUN_BLUE, linewidth=1.2)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    save(fig, "Randfuneig_03.png")
-
-    # random-function analogue: eigenvalues of a random kernel
-    ng = 300
-    xg = np.linspace(-1, 1, ng)
-    dx = xg[1] - xg[0]
-    fkern = np.zeros((ng, ng))
-    mmodes = 20
-    C = rng.standard_normal((mmodes, mmodes))
-    for i in range(mmodes):
-        for j in range(mmodes):
-            fkern += C[i, j] * np.outer(np.cos(PI * i * xg),
-                                        np.cos(PI * j * xg)) \
-                / (1 + i + j)
-    fkern /= mmodes
-    evk = np.linalg.eigvals(fkern * dx)
-    fig, ax = plt.subplots()
-    ax.plot(np.real(evk), np.imag(evk), "k.", markersize=4)
-    ax.set_title("eigenvalues of a random smooth kernel", fontsize=9)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    save(fig, "Randfuneig_04.png")
-
-    fig, ax = plt.subplots()
-    ax.semilogy(np.arange(1, 41),
-                np.sort(np.abs(evk))[::-1][:40], ".",
-                markersize=7, color=CHEBFUN_BLUE)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("modulus decay of the kernel eigenvalues",
-                 fontsize=9)
-    save(fig, "Randfuneig_05.png")
+    script = os.path.join(os.path.dirname(__file__), "..", "examples",
+                          "ode-eig", "randfuneig.py")
+    spec = importlib.util.spec_from_file_location("randfuneig_public", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module._IMG = os.path.join(DOCS, "ode-eig")
+    module.run()
 
 
 def solarqda():

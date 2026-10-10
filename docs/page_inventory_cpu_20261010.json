@@ -33,5 +33,17 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_figure_reference_audit_20261010_722f898a/report.json": "355ae9919c71c34f83466433748edd381e74e0914b63b1a1ecbf1070ea3257b6",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_alignment_20261010_722f898a.json": "a80cc91b4a1b29fe262fb03ad1a4ed13846c796bb92ab7d032975396c5b4b980",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_20261010_722f898a.json": "8995c1259e5b9a84b1a11bbcc9b8bca3d6a315971e467913df5c1018f697b0d0"
+  },
+  "verified_asset_update": {
+    "source_execution_head": "19e13c49970dc7ce2951506d318734b716000d88",
+    "page": "ode-eig/Randfuneig",
+    "replaced_images": 5,
+    "all_reference_dimensions": [
+      600,
+      269
+    ],
+    "remaining_dimension_mismatches": 12,
+    "basis": "Baseline322page inventory17mismatches minus5verifiedRandfuneig images; otherimagesunchanged. This is a verified delta, not a new fullpixel audit.",
+    "evidence": "docs/randfuneig_full_cpu_20261010.json"
   }
 }

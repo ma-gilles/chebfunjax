@@ -6,6 +6,8 @@
 
 Python translation: [`examples/ode-eig/randfuneig.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/randfuneig.py)
 
+> **Execution qualification.** The figures and printed counts below come from one complete CPU execution of the literal source computations with chebfunjax. Sections 1–3 retain `n=1000`, section 2 uses `m=10000`, and section 5 retains the 401×401 complex coefficient array. The Python script uses explicit NumPy and JAX RNG adapters seeded with 2017; these are not MATLAB RNG streams, so counts and individual spectrum points need not match the published MATLAB sample. Native eigenfunction normalization remains unverified. All five canvases are 600×269 pixels; Matplotlib dots are visibly larger than the reference, and framing and line style can differ. The MATLAB code and original discussion remain below; output blocks contain the actual Python stdout.
+
 ## 1. Eigenvalues of random matrices
 
 As is well known [2,3], eigenvalues of large random matrices are distributed uniformly in a disk. This is called the circular law and it holds very generally (see [4]); the matrix elements are allowed to come from a variety of random variables, as long as they are independent (a property called universality). Here we verify the circular law with a standard Gaussian random matrix. Throughout this example, we scale the entries in the standard fashion so that the asymptotic spectral radius converges to 1.
@@ -79,7 +81,7 @@ axis equal off
 ```
 
 ```text
-Number of nonzero eigenvalues: 416
+Number of nonzero eigenvalues: 484
 ```
 
 ![Randfuneig figure 04](../../images/ode-eig/Randfuneig_04.png)
@@ -113,7 +115,7 @@ axis equal off
 ```
 
 ```text
-Number of nonzero eigenvalues: 416
+Number of nonzero eigenvalues: 401
 ```
 
 ![Randfuneig figure 05](../../images/ode-eig/Randfuneig_05.png)

@@ -1,0 +1,81 @@
+{
+  "execution_head": "19e13c49970dc7ce2951506d318734b716000d88",
+  "patch_base": "19e13c49970dc7ce2951506d318734b716000d88",
+  "delivery_files": {
+    "docs/images/ode-eig/Randfuneig_01.png": "738e7a7f558bffee53e8b6a5e01b5d85789e4e593075d8c90e6a54594f21429d",
+    "docs/images/ode-eig/Randfuneig_03.png": "642489cb40826f25e31cdbce5915d358e3ff1271a72d80db8c7652e7cc943945",
+    "docs/images/ode-eig/Randfuneig_05.png": "33f4cf4db506bedab0f181c5d90044493f39c52b3d11ec06a3140c682903f88c",
+    "docs/images/ode-eig/Randfuneig_04.png": "a0ae06634c548f53bb249b17cf41f35f1b968354bdf009232bd704de987e9c1f",
+    "docs/images/ode-eig/Randfuneig_02.png": "bca7600f6813ae266f6a0e633351d27c3ed71e5c66c62b5ac7cf5803ac03f49a",
+    "docs/examples/ode-eig/Randfuneig.md": "3a98cbd9ccdd396ad57aad95382112f2a014a065ca33dc181e9cbef2ebe50be5",
+    "examples/ode-eig/randfuneig.py": "ee92c77afa4a6d74f1800f3346e4c7e562203847dfe4c7655895aaa512e04c03",
+    "scripts/generate_examples_ode_eig_t1.py": "e50546e33f46a85e33cfb3b95df2f598c014b9d65b58fe52f3e5da8fee7f5fef",
+    "scripts/gen_example_pages.py": "01da4da1b827af31e7dd12caa16311b0e95d7401793b42af9d5246d9bb029291"
+  },
+  "actualstdout": [
+    484,
+    401
+  ],
+  "source_gate": {
+    "selected_test": 1,
+    "all5sections": true,
+    "5finite_spectra": true,
+    "44checkpointpairs": true,
+    "5PNG600x269": true,
+    "resources": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "wall_seconds": 202.41933267982677,
+      "sampled_peak_summed_rss_kib": 3204324
+    }
+  },
+  "page": "5nativeMATLABcodeblocks/prosepreserved; onlytwoactualstdoutblocks replaced andexplicitqualificationadded;5actualimagelinkspaths audited",
+  "generation": "legacyrandfuneig dispatchesqualifiedpublicscript;genericcachedHTMLgenerator skips thissource-managedpage withcontinue, othermethodsunchanged. generator_only.patch separatefromscript/page patch.",
+  "visual": "Viewed all5current+5referenceimages: markerpoints substantiallylarger, frame/unitcirclewidth differ; no observedclipping. RNG samples/484and401counts unmatchednative; allcanvasdimensionsnativeexact. No pixelparity ornormalizationparityclaim.",
+  "ruff": "Publicscript+genericgeneratorpass;6legacydiagnosticsbyteequivalentoutsidechangedfunction remainpreexisting, no unrelatedcleanup.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/AUDIT.json": "f59a8983ed847c3168e75645f674b74d8f6d20798a7884a501b7923523c42f17",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/PAGE_SOURCE_STATIC_REVIEW.json": "d53592b79abe63814951b002ba6a0360a95c6318c2cbf9c342c6ddfe81bfd72b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/PAGE_GENERATOR_SIZE_AUDIT.json": "e02f00c159451352ef0ff8c722cb41e2d3ebfd6cd743b1ba2ff96be7b7390cbb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/RUFF_SCOPE_AUDIT.json": "76cdaef4c62b9ffef2758e5b8d16edcc5adcb84f51d50f548225f62de27983bc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/source_page.patch": "6bfba2e43d2acc1a4f41f1487e87a338c4bb2befa17afb655cfdb4dc5c13bab4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/generator_only.patch": "1c82ccaf6489831759107db5cc2e522c7c544878adf5f6a089a5bdc5ab102d1a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/ACTUAL_STDOUT.txt": "b4f3278efcc489a51f17f5ca3aebba2aba88d039b5afc4b06d50aebd6d7ff220",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/integration_v1/ACTUAL_STDERR.txt": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-eig/Randfuneig_01.png": "dce6e529d3ec9f195cb8f493172043bd3328690fd9f3550432c46a211fef9751",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-eig/Randfuneig_02.png": "7a8750f37f893f9a26ff513c13af45c1e75ad2a585744996829fbb727463eeae",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-eig/Randfuneig_03.png": "e810c0753a2d0871ef2de38c57091b8dcb28b6043a3c54accae3d18c1a7f86b5",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-eig/Randfuneig_04.png": "19817ab28ca35435e7af4b13ae5d5dc20e444ed0e9fc0ba88a1f49a9826fe9ee",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-eig/Randfuneig_05.png": "2dabc8cdcf1303d53e4b549e51fe018c1c45fa6159b19795f9c468ad1953ccdb"
+  },
+  "status": "Full source execution and artifacts qualified; numerical RNG/eigenfunction/rendering parity remains open",
+  "root_review": {
+    "root_review_passed": true,
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4",
+    "passed_cases": 1,
+    "junit_ids": [
+      "tests.test_randfuneig_full_source::test_full_source_page"
+    ],
+    "guard_bindings_rehashed": 39653,
+    "runtime_files_rehashed": 1850,
+    "wall_seconds": 202.41933267982677,
+    "peak_kib": 3204324,
+    "survivors": [],
+    "censored_limit": null,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/guard.json": "7e6bc455c985a4776e9a9c3d7a5daa11468774503577677f6ac9a03521f0a55d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/manifest.json": "7aa9b76dcbbf082993586e560c8181ac84e8bc7ccd16a6c16034d81f035bb0be",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/runtime/end.json": "17e366740b7c413ba7b9cd546bf47df458e3fa468fb1534f4b74f438463d2da5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/supervision/receipt.json": "4089f5e766ed9258ad9cdb2cba3592f7ced5aa138c8de47c95777bf0efc229e2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randfuneig_full_source_replay_v4_20261010/full_v4/junit.xml": "cf6b0a1258f1cd0b7bb46919c027c7ad21362328773575248ef197a091721ab6"
+    },
+    "original_handle": 83599,
+    "agent_audit_sha256": "f59a8983ed847c3168e75645f674b74d8f6d20798a7884a501b7923523c42f17",
+    "scope": "Full5section source replay; no nativeRNG/eigenfunction/rendererparity claim"
+  },
+  "publication_page_note": "Only qualification-note wording simplified after delivery; allsource prose/code/output unchanged",
+  "published_page_sha256": "c3aa9f88923b079974510edbb04c7fa7304b56ce6d0e26869050b5a733e54d63"
+}
