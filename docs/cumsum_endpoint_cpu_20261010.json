@@ -1,0 +1,260 @@
+{
+  "summary": "Restore native polynomial cumsum breakpoint metadata during result assembly",
+  "scope": "For finite polynomial cumsum outputs without remaining deltas, recompute source breakpoint metadata with existing helper before transposition. Native cumsum rebuilds chebfun(funs); repeated integrals follow same route. All coefficients/domain/happiness unchanged.",
+  "qualified_controls": {
+    "tests": 30,
+    "terminal": 0,
+    "input_bindings": 59257,
+    "runtime_files": 1881,
+    "wall_seconds": 102.97198440181091,
+    "peak_kib": 2319876,
+    "survivors": [],
+    "AST_only_Chebfun_cumsum": true,
+    "qualified_source_byte_identity": true
+  },
+  "native_comparisons": "12native cases,11explicit endpoint comparisons exact, callback4.336808689942018e-19. All original bounds unchanged, including10*vscale*eps. Existing tech/public/AD/delta exclusions selected in30.",
+  "limitations": "Saved2090 JAX sum vs native endpoint discrepancy6.011262871367328e-15 persists. No exact summation-order, inverse length/bit, or performance parity claim. No general constructor, periodic, singular or fractional route changes.",
+  "preserved_failures": "A candidate30 had numerical pass but supervisor1 OS-update guard failure, no qualification credit. B preparation failed before test; both retained unchanged. C is fresh prospective OS closure with unchanged scientific/env expectations and fail-closed runtime.",
+  "root_review": {
+    "root_review_passed": true,
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate",
+    "passed_cases": 30,
+    "junit_ids": [
+      "::test_native_public_cumsum",
+      "::test_saved_forward_endpoint_route_diagnostic",
+      "::test_route_exclusions_unchanged[empty]",
+      "::test_route_exclusions_unchanged[order0]",
+      "::test_route_exclusions_unchanged[negative_order]",
+      "::test_route_exclusions_unchanged[periodic]",
+      "::test_route_exclusions_unchanged[remaining_delta]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_dim2_is_column_prefix_sum[Chebtech1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_dim2_is_column_prefix_sum[Chebtech2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_routes_every_nonone_dim_to_columns[Chebtech1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_routes_every_nonone_dim_to_columns[Chebtech2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_scalar_dim2_is_identity[Chebtech1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_scalar_dim2_is_identity[Chebtech2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_empty_sentinel_is_identity[Chebtech1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_empty_sentinel_is_identity[Chebtech2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_object_method_keeps_traced_recurrence[Chebtech1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_public_cumsum_object_method_keeps_traced_recurrence[Chebtech2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_cumsum_coefficient_adapter_jit[1]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_cumsum_coefficient_adapter_jit[2]",
+      "tests.test_tech.test_cheb_cumsum_source_contracts::test_cumsum_coefficient_recurrence_has_finite_exact_linear_gradient",
+      "tests.test_matlab_port.chebfun.test_cumsum_matlab.TestChebfunCumsum::test_empty",
+      "tests.test_matlab_port.chebfun.test_cumsum_matlab.TestChebfunCumsum::test_piecewise_cos",
+      "tests.test_matlab_port.chebfun.test_cumsum_matlab.TestChebfunCumsum::test_transpose_variant",
+      "tests.test_matlab_port.chebfun.test_cumsum_matlab.TestChebfunCumsum::test_array_valued",
+      "tests.test_matlab_port.chebfun.test_cumsum_matlab.TestChebfunCumsum::test_cumsum_of_deriv_recovers",
+      "tests.test_operators.test_ad_cumsum_source::test_source_linear_taylor_controls[1]",
+      "tests.test_operators.test_ad_cumsum_source::test_source_linear_taylor_controls[2]",
+      "tests.test_operators.test_ad_cumsum_source::test_nonlinear_chain_rule_and_jax_action",
+      "tests.test_matlab_port.deltafun.test_cumsum_matlab.TestDeltafunCumsum::test_cumsum_empty",
+      "tests.test_matlab_port.deltafun.test_cumsum_matlab.TestDeltafunCumsum::test_cumsum_heaviside_endpoints"
+    ],
+    "guard_bindings_rehashed": 59257,
+    "runtime_files_rehashed": 1881,
+    "wall_seconds": 102.97198440181091,
+    "peak_kib": 2319876,
+    "survivors": [],
+    "censored_limit": null,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/guard.json": "eae5fa0d0b54d811f924c807930bd7982756e688927af07866bc4e84b98dfd9d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/manifest.json": "d8946d2b3d43c57f256f0566f51fbdc4c9c0e757b37ea703e13ab48a8a5492c9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/runtime/end.json": "2a093421e9933681dbc40cf9a5849ca5fd8f7934f5dcf8523b2160f7c4aff194",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/supervision/receipt.json": "d9cbfc12b6cd14dbfc05456401f181917a3b66f29a0a14b58b4d8512de2788a9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/junit.xml": "30ca974a830400b14cdc66d1cff516a28fd0374e1050591306cd66eeac585b51"
+    },
+    "delivery_packet_sha256": "ade81fc3d092f94b75be1904edf325a2bddc20d1c717a7bc105a2b44afd11c47",
+    "reviewer_correction": "Initial root review assumed per-gate source subdirectory; C intentionally reused exact frozen A source and runtime manifest binds that origin. Source bytes independently matched candidate.",
+    "scope": "Qualified30 gate; portable12test packaging reviewed separately, not executed here"
+  },
+  "portable_packaging_review": {
+    "portable_fixture_matches_retained_native_mat_bits": true,
+    "numeric_leaves": 216,
+    "cases": 12,
+    "omitted_native_intermediate_stages": [
+      "cases/0/stages",
+      "cases/1/stages",
+      "cases/2/stages",
+      "cases/3/stages",
+      "cases/4/stages",
+      "cases/5/stages",
+      "cases/6/stages",
+      "cases/7/stages",
+      "cases/8/stages",
+      "cases/9/stages",
+      "cases/10/stages",
+      "cases/11/stages"
+    ],
+    "helper_AST_identical": [
+      "numeric",
+      "pieces",
+      "restore",
+      "error",
+      "construct"
+    ],
+    "portable_tests_executed": false,
+    "note": "Initial and actual records retained exactly; native12 assertions exercised in qualified external30gate. Portable packaging verified statically and against actual MAT values; no12extra execution credit. First review expected whole native records and rejected intentionally omitted intermediate stages; this review explicitly records those omissions.",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/delivery/test_cumsum_endpoint_source.py": "f76710f22dc5c77ef2799dd96e266fd63b031d807b2a3965d1fb6908ae133231",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/delivery/native_cumsum_endpoints_20261010.json": "329c8782e4b1592098580800be034545976026dfe59e88fa0bfdf96928d6a886",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_native_20261010/native_cumsum.mat": "e84dcd6c0b91c660c6ab851bf2fb78c0d6b611e3d720f939db7cae130c0bbc4f"
+    }
+  },
+  "native_cases": {
+    "baseline": {
+      "constant": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "metadata_present": false
+      },
+      "linear_scaled": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "metadata_present": false
+      },
+      "quartic": {
+        "sample_error": 2.7755575615628914e-17,
+        "endpoint_error": 2.7755575615628914e-17,
+        "metadata_present": false
+      },
+      "complex": {
+        "sample_error": 5.594315114139762e-17,
+        "endpoint_error": 5.594315114139762e-17,
+        "metadata_present": false
+      },
+      "array": {
+        "sample_error": 2.7809732887839817e-17,
+        "endpoint_error": 2.7809732887839817e-17,
+        "metadata_present": false
+      },
+      "piecewise_continuous": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "metadata_present": false
+      },
+      "piecewise_jump": {
+        "sample_error": 2.7755575615628914e-17,
+        "endpoint_error": 2.7755575615628914e-17,
+        "metadata_present": false
+      },
+      "repeat2": {
+        "sample_error": 5.551115123125783e-17,
+        "endpoint_error": 5.551115123125783e-17,
+        "metadata_present": false
+      },
+      "complex_repeat2": {
+        "sample_error": 2.2887833992611187e-16,
+        "endpoint_error": 2.2887833992611187e-16,
+        "metadata_present": false
+      },
+      "transpose_array": {
+        "sample_error": 2.7755575615628914e-17,
+        "endpoint_error": 2.7755575615628914e-17,
+        "metadata_present": false
+      },
+      "point_override": {
+        "sample_error": 2.7755575615628914e-17,
+        "endpoint_error": 2.7755575615628914e-17,
+        "metadata_present": false
+      },
+      "callback": {
+        "sample_error": 4.336808689942018e-19,
+        "endpoint_error": 4.336808689942018e-19,
+        "metadata_present": false
+      }
+    },
+    "candidate": {
+      "constant": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 8.881784197001252e-15,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "linear_scaled": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 4.440892098500626e-15,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "quartic": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 5.396319136549869e-16,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "complex": {
+        "sample_error": 1.3877787807814457e-17,
+        "endpoint_error": 0.0,
+        "source_bound": 1.1212671424691933e-15,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "array": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 5.449582112190088e-16,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "piecewise_continuous": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 1.2212453270876722e-14,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "piecewise_jump": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 1.3498461607734194e-14,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "repeat2": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 8.234154099303245e-16,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "complex_repeat2": {
+        "sample_error": 1.3877787807814457e-17,
+        "endpoint_error": 0.0,
+        "source_bound": 3.4018669938148465e-15,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "transpose_array": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 5.396319136549869e-16,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "point_override": {
+        "sample_error": 0.0,
+        "endpoint_error": 0.0,
+        "source_bound": 5.396319136549869e-16,
+        "coefficients_domain_happiness_unchanged": true
+      },
+      "callback": {
+        "sample_error": 4.336808689942018e-19,
+        "endpoint_error": 4.336808689942018e-19,
+        "source_bound": 6.938893903907228e-17,
+        "coefficients_domain_happiness_unchanged": true
+      }
+    }
+  },
+  "saved2090_diagnostic": {
+    "native": [
+      -5.904998712225051e-15,
+      9.634012138198036
+    ],
+    "source_jax_sum": [
+      1.0626415914227658e-16,
+      9.634012138198033
+    ],
+    "max_sum_difference": 6.011262871367328e-15,
+    "scope": "sum backend diagnostic; no full inverse; public captured metadata evaluation exact"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/DELIVERY_PACKET.json": "ade81fc3d092f94b75be1904edf325a2bddc20d1c717a7bc105a2b44afd11c47",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/ROOT_REVIEW.json": "c0689d7afa5367c0b78d915a763a22b0da63d86dc522a382a257c9ec68f4a7aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/PORTABLE_PACKAGING_REVIEW.json": "d9119b61806857ff154fc120ff68ae72079519f711c57820016f27933e5b9a40",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_endpoint_candidate_20261010/C_candidate/CLOSURE_POLICY.json": "ca40f625d0f8758c121ca962aa15f2fffa76c0cb680c4b28a97736a9c3b966db"
+  }
+}

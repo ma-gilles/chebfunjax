@@ -1,5 +1,32 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## MATLAB mirror execution accounting (2026-10-10; latest)
+
+The frozen e6748499 CPU run selected 52 wrapper tests: 49 passed, one pde15s
+solver-contract failure, one minimax helper-only skip, and one quantumstates
+selector not run because fail-fast stopped its lane. These are separate from
+the 5,575 ordinary and 99 supplemental direct-node ledgers. Root verified the
+four terminal lane receipts, exact ordered selections and 5,675 scratch inputs.
+A subsequent quantumstates attempt stopped before pytest because OS libraries
+had changed; it receives no execution credit. A fresh singleton is now queued.
+The PDE gap includes spatial adaptation, native tolerance mapping and boundary/
+mass-matrix semantics; preserve the native assertion. The separate 80 direct
+3D tests remain unexecuted. Evidence: docs/port_mirror_execution_cpu_20261010.md.
+
+## Polynomial integration endpoint metadata corrected (2026-10-10; latest)
+
+Bounded polynomial cumsum results now rebuild native breakpoint metadata before
+transposition, including repeated integrals. Thirty focused controls pass;
+twelve native cases retain the original bounds, with eleven explicit endpoint
+comparisons exact. Coefficients, domains and happiness flags are unchanged.
+Root independently verified all 59,257 input bindings and 1,881 runtime files.
+The portable twelve-case fixture matches all 216 retained native numeric leaves;
+its new test packaging awaits CI and is not counted as another executed suite.
+Earlier attempts affected by OS updates remain failed; fresh qualification used
+an explicitly rebound, stable OS dependency set. The saved 2090-coefficient
+endpoint still differs by 6.01e-15, so inverse bit/length parity remains open.
+Evidence: docs/cumsum_endpoint_cpu_20261010.json.
+
 ## Needle cubic interpolation kernel qualified (2026-10-10; latest)
 
 A private JAX uniform-grid cubic helper now reproduces all 800 finite native

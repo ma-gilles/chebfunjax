@@ -5578,6 +5578,21 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/cumsum.m
         Chebfun commit: 7574c77
         """
+        def finalize_polynomial(out):
+            # Native cumsum reassembles chebfun(funs), which recomputes
+            # getValuesAtBreakpoints from onefun lval/rval coefficient sums.
+            # Keep this correction local to bounded polynomial outputs.
+            from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+            if (out.funs and not out.deltas
+                    and all(math.isfinite(float(x))
+                            for x in out.domain.breakpoints)
+                    and all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                            for piece in out.funs)):
+                object.__setattr__(out, "_point_values",
+                                   _source_breakpoint_values(
+                                       out.funs, out.domain.breakpoints))
+            return out
+
         if float(k) != int(k):
             return self.fracInt(float(k))
         if int(k) != 1:
@@ -5592,7 +5607,8 @@ class Chebfun(eqx.Module):
                                    [p.interval[1] for p in pieces]))
                       if isinstance(integrated, list) else self.domain)
             return Chebfun._as_transposed(
-                Chebfun(funs=pieces, domain=domain), self.is_transposed)
+                finalize_polynomial(Chebfun(funs=pieces, domain=domain)),
+                self.is_transposed)
 
         # Multi-piece: compute antiderivative on each piece, then shift to
         # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
@@ -5645,11 +5661,12 @@ class Chebfun(eqx.Module):
                         offset = offset + mag
 
         return Chebfun._as_transposed(
-            Chebfun(funs=new_pieces,
-                    domain=(Domain(tuple([new_pieces[0].interval[0]] +
-                                         [p.interval[1] for p in new_pieces]))
-                            if new_pieces else base.domain),
-                    deltas=tuple(lowered)), self.is_transposed)
+            finalize_polynomial(Chebfun(
+                funs=new_pieces,
+                domain=(Domain(tuple([new_pieces[0].interval[0]] +
+                                     [p.interval[1] for p in new_pieces]))
+                        if new_pieces else base.domain),
+                deltas=tuple(lowered))), self.is_transposed)
 
     def sum(self, *args, dim=None):
         r"""Definite integral, subdomain integral, or sum across columns.
