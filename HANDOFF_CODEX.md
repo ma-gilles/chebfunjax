@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Needle cubic interpolation kernel qualified (2026-10-10; latest)
+
+A private JAX uniform-grid cubic helper now reproduces all 800 finite native
+basis entries exactly in eager and compiled/vmapped execution, including edge
+stencils and the outside-grid NaN mask. Seven controls pass, also covering
+native mixed data and translated real/complex quadratics with value derivatives.
+All 45,254 inputs and 1,810 runtime files audit clean. Nonuniform interpolation
+and the full Needle page are not yet qualified. Evidence:
+docs/needle_cubic_cpu_20261010.json.
+
 ## ACA assembly compilation bottleneck removed (2026-10-10; latest)
 
 Final pivots, rows and columns now use bounded JAX stack groups. All 136

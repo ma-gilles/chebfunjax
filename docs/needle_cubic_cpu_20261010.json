@@ -1,0 +1,51 @@
+{
+  "status": "qualified private uniform cubic interpolation helper; full Needle page remains unfinished",
+  "source_base": "7fc474a2a85d0c80669706a9eeae001ebf87ae78",
+  "native_reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "method": "Keys cubic convolution tension -1/2 with quadratic ghost samples at grid boundaries, tensor product; JAX throughout",
+  "audit": {
+    "root_review_passed": true,
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1",
+    "passed_cases": 7,
+    "junit_ids": [
+      "tests.test_utils.test_interp2_cubic_native::test_native_all_25_basis_stencils[False]",
+      "tests.test_utils.test_interp2_cubic_native::test_native_all_25_basis_stencils[True]",
+      "tests.test_utils.test_interp2_cubic_native::test_native_mixed_values[False]",
+      "tests.test_utils.test_interp2_cubic_native::test_native_mixed_values[True]",
+      "tests.test_utils.test_interp2_cubic_native::test_translated_rectangular_quadratic_and_value_derivative[False]",
+      "tests.test_utils.test_interp2_cubic_native::test_translated_rectangular_quadratic_and_value_derivative[True]",
+      "tests.test_utils.test_interp2_cubic_native::test_query_nan_and_shape_validation"
+    ],
+    "guard_bindings_rehashed": 45254,
+    "runtime_files_rehashed": 1810,
+    "wall_seconds": 86.36087241210043,
+    "peak_kib": 904612,
+    "survivors": [],
+    "censored_limit": null,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1/guard.json": "c333268820775d6c751fda7d7ac5ec19aba5d0859ecd0164ccf0875d8cd90cc7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1/manifest.json": "8e21901889b579f9b2dc76efa68b7c199b1a3de414e797e1580c073b0b5ef1d0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1/runtime/end.json": "974d4e883c313ccb63fd291c117fc0028f497e0ff36c86cd27115d7022ac240d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1/supervision/receipt.json": "64f1d286ece4a029aa1ff1d7a29ebaa8dcb0d87aa2cabbed920f42db176523aa",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_cubic_attribution_20261010/gate_v1/junit.xml": "722151b3a11650cfeeb6f6a25e7aa242043de6e0d6bb3dabc9bff1cfa22b064d"
+    },
+    "original_handle": 71132,
+    "native_basis_finite_values_exact_per_mode": 800,
+    "modes": [
+      "eager",
+      "JIT/vmap"
+    ],
+    "scope": "Captured native uniform5x5 stencil and mixed data; analytic translated rectangular real/complex quadratic and value JVP; no full Needle page or general interp2 claim"
+  },
+  "source_hashes": {
+    "src/chebfunjax/utils/_interp2_cubic.py": "5f1e02f378b296aa89dd0743dfdd0382a6151d2118cf6331e38422e3daea2fe6",
+    "tests/test_utils/test_interp2_cubic_native.py": "aa8215440df89928a6f1dccc1d9d2c07895f955b03aeb1bc3b4fccb49198daa6",
+    "tests/test_utils/interp2_cubic_native_r2025b.json": "2288d7fd9c9d3dec2453fedeea5d84ee3fc879249f9c6b424967f4742ee5974d"
+  },
+  "limitations": [
+    "Uniform increasing rectangular grids with at least four nodes per axis; no general interp2 or nonuniform spline claim.",
+    "Native real5x5 basis comparisons are exact; mixed-value comparisons use a declared64eps input-scale rounding bound.",
+    "Complex transformed quadratic/JVP controls are analytic, not native complex captures.",
+    "Needle full source objective, both25x25 grids, optimizer, five figures and page still need qualification."
+  ]
+}
