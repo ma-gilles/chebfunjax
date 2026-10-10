@@ -98,6 +98,19 @@ def jump(f: "Chebfun", x, c: float = 0.0):
 # Piece wrapper: a Chebtech2 together with the physical interval it lives on
 # ============================================================================
 
+@eqx.filter_jit
+def _evaluate_piece_interval(tech, x, a, b, width):
+    """Evaluate with dynamic interval values rather than static JIT keys.
+
+    Provenance
+    ----------
+    MATLAB source: @bndfun/feval.m and @mapping/mapping.m (linear InvHandle).
+    Chebfun commit: 7574c77. Width is computed once from the concrete interval;
+    each division and subtraction follows the source inverse-map expression.
+    """
+    return tech((x - a) / width - (b - x) / width)
+
+
 class _Piece(eqx.Module):
     """A single smooth piece of a Chebfun on a physical interval [a, b].
 
@@ -203,7 +216,6 @@ class _Piece(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate piece at physical point(s) x in [a, b].
 
@@ -229,8 +241,10 @@ class _Piece(eqx.Module):
         else:
             x = x.astype(jnp.float64)
         a, b = self.interval
-        t = _linear_inverse_map(x, a, b)
-        return self.tech(t)
+        return _evaluate_piece_interval(
+            self.tech, x, jnp.asarray(a, dtype=jnp.float64),
+            jnp.asarray(b, dtype=jnp.float64),
+            jnp.asarray(b - a, dtype=jnp.float64))
 
     # ------------------------------------------------------------------
     # Properties
@@ -6053,6 +6067,18 @@ class Chebfun(eqx.Module):
                 global_max_key = k_max
                 global_max_val = f_max
                 global_max_x = x_max
+
+        # Native @chebfun/minandmax.m also compares stored pointValues.
+        # These can differ from FUN limits, including isolated point values.
+        # Strict comparisons preserve the native first-extremum tie rule.
+        if self.isreal():
+            for location, value in zip(self.domain.breakpoints,
+                                       jnp.ravel(self.point_values)):
+                value = float(jnp.real(value))
+                if value < global_min_val:
+                    global_min_x, global_min_val = float(location), value
+                if value > global_max_val:
+                    global_max_x, global_max_val = float(location), value
 
         return (global_min_x, global_min_val), (global_max_x, global_max_val)
 

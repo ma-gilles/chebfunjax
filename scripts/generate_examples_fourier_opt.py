@@ -459,10 +459,20 @@ def rosenbrock():
     save(fig, "opt", "Rosenbrock_06.png")
 
 
+def needle():
+    """Dispatch the source-managed public Needle example."""
+    import runpy
+
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "opt", "needle.py")
+    runpy.run_path(example, run_name="__main__")
+
+
 PAGES = {
     "FejerJackson": fejerjackson,
     "FourierBasedChebfuns": fourierbasedchebfuns,
     "FourierCoefficients": fouriercoefficients,
+    "Needle": needle,
     "Catenary": catenary,
     "ConstrainedExtrema": constrainedextrema,
     "GlobalMinimum": globalminimum,

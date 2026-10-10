@@ -82,7 +82,7 @@ colorbar, title(['min value on grid: ' num2str(min(yy(:)))],FS,14), toc
 ```
 
 ```text
-Elapsed time is 0.175286 seconds.
+Elapsed time is 26.427836 seconds.
 ```
 
 ![Needle figure 03](../../images/opt/Needle_03.png)
@@ -107,7 +107,7 @@ title(['min value on grid: ' num2str(min(min(yy)))],FS,14), toc
 ```
 
 ```text
-Elapsed time is 0.040735 seconds.
+Elapsed time is 10.683169 seconds.
 ```
 
 ![Needle figure 04](../../images/opt/Needle_04.png)
@@ -128,7 +128,9 @@ guess = [.41, -0.2];
 tic, [xvec,yval] = fminsearch(@minfunwrapper,guess,opts); toc
 ```
 
-The optimization timing was not retained in the existing Python output, so no timing value is shown here.
+```text
+Elapsed time is 5.822801 seconds.
+```
 
 So it would seem that to 10 digits or more, the minimal height is around
 
@@ -138,7 +140,7 @@ yval
 
 ```text
 yval =
-   0.076897720345079
+   0.076897745875264
 ```
 
 Here is a closeup of the solution:
@@ -154,6 +156,8 @@ plot(xvec(1),yval,'.k',MS,12), grid on
 ```matlab
 end
 ```
+
+**Qualification.** Source grid coordinates match the captured MATLAB R2025b coordinates bit for bit. Python fminsearch used 128 iterations / 266 evaluations, versus native 136 / 289; final coordinates differ by at most 1.472753891e-9. The palette and layout approximate the reference; historical rendering and pixel parity are unverified. Printed timers include observers on a shared host and are not comparative benchmarks.
 
 ---
 

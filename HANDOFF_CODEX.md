@@ -1,5 +1,41 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Full Needle execution and scalar extrema corrected (2026-10-10; latest)
+
+Needle now uses public Chebfun construction, restriction, simplification and
+extrema throughout both 625-point grids and its full optimization. Stored
+scalar real breakpoint values participate in global extrema; interval endpoints
+are dynamic JIT inputs, preventing compilation for every translated interval.
+The full page passes with 1,519 objective calls and five fresh 600x270 figures.
+All 1,250 grid coordinates match fresh MATLAB exactly; objective differences
+are below 1e-15. Actual output and all three observed timers are published.
+Fifteen portable controls and nine restored strict native scalar extrema tests
+pass. Original bounds are retained. Final rendering preserves every captured
+numerical value and fixes clipped labels/overlapping titles. Native optimizer
+trajectory, exact pixels and array/complex breakpoint extrema remain open.
+Evidence: docs/needle_full_cpu_20261010.json.
+
+## Direct Chebfun3 battery progress (2026-10-10; latest)
+
+Four of 80 direct battery cases pass on frozen e6748499, separately from the
+50 passing mirror wrappers. Root verified parent and spawned-worker provenance,
+stable inputs and no caps/survivors; 76 direct cases remain. These historical
+results do not establish current-main suite success. Evidence:
+docs/port_mirror_execution_cpu_20261010.md.
+
+## Current correctness priority: L1 NaNs (2026-10-10)
+
+The exact CI cosine degree-four polyfitL1 test also fails in isolation on
+f36efb27: all 20 evaluations are NaN. A bounded trace finds four initial residual
+roots, a singular five-column Newton system, huge updates and then nonfinite
+values. Native initial representation is being captured before choosing a fix;
+root filtering itself is not yet a confirmed fault. Preserve the original test.
+Evidence: shared goal scratch l1_evaluable_reproduction_f36efb27_20261010_v6/
+python_gate_cpu0_3/ROOT_FAILURE_REVIEW.json and
+l1_nan_diagnosis_20261010/diagnostic_v2/DIAGNOSIS_AUDIT.json.
+NDF work remains private and incomplete; its two strict controller discrepancies
+and pending controls are recorded in pde15s_ndf_jax_20261010/NDF_HANDOFF.json.
+
 ## Full Randfuneig source execution completed (2026-10-10; latest)
 
 All five sections now complete with the original matrix/grid sizes and public

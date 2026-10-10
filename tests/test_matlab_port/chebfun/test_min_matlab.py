@@ -26,15 +26,36 @@ class TestChebfunMin:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import chebfun
+
         y, x = chebfun().min()
         assert _np.asarray(y).size == 0 and _np.asarray(x).size == 0
 
     def test_global_min_reference(self):
         f = cj.chebfun(_f)
         xmin, fmin = f.min()
-        assert abs(float(fmin) - Y_EXACT) <= 100 * f.vscale * EPS
-        assert abs(float(f(jnp.asarray(float(xmin)))) - Y_EXACT) \
-            <= 100 * f.vscale * EPS
+        assert abs(float(fmin) - Y_EXACT) <= 10 * f.vscale * EPS
+        assert abs(float(f(jnp.asarray(float(xmin)))) - Y_EXACT) <= 10 * f.vscale * EPS
+
+    def test_piecewise_same(self):
+        # tests/chebfun/test_min.m pass(3), Chebfun7574c77.
+        f = cj.chebfun(_f, domain=list(np.linspace(-1, 1, 10)))
+        xmin, fmin = f.min()
+        assert abs(float(fmin) - Y_EXACT) <= 10 * f.vscale * EPS
+        assert abs(float(f(jnp.asarray(float(xmin)))) - Y_EXACT) <= 10 * f.vscale * EPS
+
+    def test_native_constant_point_values(self):
+        # tests/chebfun/test_min.m pass(5)/(6), Chebfun7574c77.
+        f = cj.chebfun(
+            [
+                lambda x: -jnp.ones_like(x),
+                lambda x: jnp.ones_like(x),
+                lambda x: 2 * jnp.ones_like(x),
+            ],
+            domain=[-1.0, 0.0, 1.0, 2.0],
+        )
+        assert f.min()[1] == -1
+        f = f.set_point_values(f.point_values.at[0].set(10.0).at[2].set(-10.0))
+        assert f.min() == (1.0, -10.0)
 
     def test_two_arg_min(self):
         f = cj.chebfun(jnp.sin)
@@ -47,30 +68,31 @@ class TestChebfunMin:
 
     def test_local_minima(self):
         # MATLAB test_min.m pass(7): local minima incl. endpoints.
-        f = cj.chebfun(lambda x: jnp.sin(x) ** 2 + jnp.sin(x ** 2),
-                       domain=[0, 4])
+        f = cj.chebfun(lambda x: jnp.sin(x) ** 2 + jnp.sin(x**2), domain=[0, 4])
         x, y = f.min("local")
         x = np.asarray(x)
         y = np.asarray(y)
-        y_exact = np.array([0.0, -0.342247088203205,
-                            -0.971179645473729, 0.284846700239241])
-        x_exact = np.array([0.0, 2.220599667639221,
-                            3.308480466603983, 4.0])
+        y_exact = np.array([0.0, -0.342247088203205, -0.971179645473729, 0.284846700239241])
+        x_exact = np.array([0.0, 2.220599667639221, 3.308480466603983, 4.0])
         assert len(y) == 4
         assert np.max(np.abs(y - y_exact)) < 10 * f.vscale * EPS
         assert np.max(np.abs(x - x_exact)) < 1e-10
 
     def test_local_minima_array_nan_padded(self):
         # MATLAB test_min.m pass(9)/(10): array-valued local minima padded.
-        op = lambda t: jnp.sin(t) ** 2 + jnp.sin(t ** 2)  # noqa: E731
-        f = cj.chebfun(lambda x: jnp.stack([op(x), op(x / 2)], axis=-1),
-                       domain=[0, 4])
+        op = lambda t: jnp.sin(t) ** 2 + jnp.sin(t**2)  # noqa: E731
+        f = cj.chebfun(lambda x: jnp.stack([op(x), op(x / 2)], axis=-1), domain=[0, 4])
         x, y = f.min("local")
         y = np.asarray(y)
         assert y.shape == (4, 2)
-        assert np.max(np.abs(y[:, 0] - np.array([0.0, -0.342247088203205,
-                                                 -0.971179645473729,
-                                                 0.284846700239241]))) < 1e-10
-        assert np.max(np.abs(y[:2, 1] - np.array([0.0,
-                                                  0.070019315123878]))) < 1e-10
+        assert (
+            np.max(
+                np.abs(
+                    y[:, 0]
+                    - np.array([0.0, -0.342247088203205, -0.971179645473729, 0.284846700239241])
+                )
+            )
+            < 1e-10
+        )
+        assert np.max(np.abs(y[:2, 1] - np.array([0.0, 0.070019315123878]))) < 1e-10
         assert np.all(np.isnan(y[2:, 1]))

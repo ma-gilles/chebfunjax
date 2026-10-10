@@ -1,0 +1,115 @@
+{
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_strict_scalar_gate_20261010/ROOT_REVIEW.json": "fb983f9a46b8dafe68cca3162d490ee7d66a9df66db190cc23ea79ba164989b5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_matched_candidate_20261010/NATIVE_COMPARISON.json": "9f51f4af55487b522d723e8a0df980da4cefa002c2aa135725faff6f7bf41497",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_native_prepare_20261010/A_native_v1/AUDIT.json": "3669a760d67c54c6721d99cb549f76a51f7c6774cf7a4311ca5768b64a591a4d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_rendered_v2_20261010/AUDIT_v1.json": "d39b2a14fa5e450b34410078596ed645060c484f87d0533d560f90f5b7d46e6d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_rendered_v2_20261010/READINESS_PACKET_v1.json": "28c140de70cf80556584c0053a268454a730717843e4794db9cef283e4fa0bda",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_rendered_v2_20261010/ROOT_REVIEW.json": "b571ae95d97d89a096c8bba61da2fef1804e90e450a45bc2613fe49f83e320ac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_packaged_controls_20261010/INDEPENDENT_AUDIT_v1.json": "a91be4433c6aab6dccc21a621edee104f9da8b26352e25fed95305401093594f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_packaged_controls_20261010/ROOT_REVIEW.json": "46f21bbe551a548b8db2c4ffc9743cdb5a92992b85d0747f2110104ae2a9dccd"
+  },
+  "native_comparison": {
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_matched_candidate_20261010/outputs/grid1.npz": "28ef3caa905ef95c531863fc333e39124fb995b98c20d9330e4ccbb11447b68c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_matched_candidate_20261010/outputs/grid2.npz": "320bb9abc0a2d982defa15b9b0359971a89e68a7e264b4196ffac25352e58bcd",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_matched_candidate_20261010/outputs/objectives.jsonl": "72ae4830728408b1a27ed1cd42f44eb4f7f59bf6264eaa7154a7b822f2d15b22",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_matched_candidate_20261010/outputs/optimizer.json": "3cd0fc872cf7ec7853668751b41006b37d234f56d54574e016c60c951f139e06",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/needle_full_native_prepare_20261010/A_native_v1/NATIVE_NUMERICS_BINARY64.json": "68c2a0028e9d17c9a1e0343b5d474a0f2b79afc403ef9940acbeac34dcc5d7dc"
+    },
+    "grid_coordinates": "all1250 x/theta pairs and all500 interpolation/grid axis values bit-exact native",
+    "grids": [
+      {
+        "actual_grid_minimum": 0.08896379611505728,
+        "grid": 1,
+        "interpolated_max_abs_error": 1.1102230246251565e-15,
+        "native_grid_minimum": 0.08896379611505724,
+        "objective_max_abs_error": 9.992007221626409e-16
+      },
+      {
+        "actual_grid_minimum": 0.07767448240839449,
+        "grid": 2,
+        "interpolated_max_abs_error": 9.43689570931383e-16,
+        "native_grid_minimum": 0.07767448240839459,
+        "objective_max_abs_error": 7.216449660063518e-16
+      }
+    ],
+    "objective_bit_exact_count": 206,
+    "objective_max_abs_error": 9.992007221626409e-16,
+    "optimizer": {
+      "actual": {
+        "evaluations": 266,
+        "exitflag": 1,
+        "fun": 0.07689774587526409,
+        "iterations": 128,
+        "options": {
+          "tol_fun": 0.0001,
+          "tol_x": 1e-14
+        },
+        "x": [
+          0.4118609281265173,
+          -0.2052935554213114
+        ]
+      },
+      "final_position_max_abs_difference": 1.47275389106305e-09,
+      "final_value_difference": -1.3877787807814457e-17,
+      "first_coordinate_divergence_zero_based": 185,
+      "first_value_divergence_zero_based": 0,
+      "native_summary": {
+        "exitflag": 1,
+        "grid_count": 2,
+        "grid_objectives": 1250,
+        "objective_calls": 1539,
+        "optimizer_callbacks": 289,
+        "output": {
+          "algorithm": "Nelder-Mead simplex direct search",
+          "funcCount": 289,
+          "iterations": 136,
+          "message": "Optimization terminated:\n the current x satisfies the termination criteria using OPTIONS.TolX of 1.000000e-14 \n and F(X) satisfies the convergence criteria using OPTIONS.TolFun of 1.000000e-04 \n"
+        },
+        "scope": "Numerical source oracle; plotting and plot-only calls omitted",
+        "xvec": [
+          0.41186092683676945,
+          -0.20529355689406528
+        ],
+        "yval": 0.0768977458752641
+      }
+    },
+    "qualification": "Execution and matched-input numerical differences only. No all-grid native test bound or optimizer trajectory/pixel parity claim."
+  },
+  "packaged_controls": {
+    "independent_audit_sha256": "a91be4433c6aab6dccc21a621edee104f9da8b26352e25fed95305401093594f",
+    "original": 84735,
+    "root_review_sha256": "46f21bbe551a548b8db2c4ffc9743cdb5a92992b85d0747f2110104ae2a9dccd",
+    "tests": 15
+  },
+  "remaining_gaps": [
+    "Complex scalar breakpoint handling has not been qualified against the native whole-function squared-magnitude, simplify, and left/right repair operations.",
+    "Global array extrema bypass scalar point-value handling and compare complex values directly across pieces; this package does not claim to fix those routes.",
+    "Visual review of all five final figures is complete: labels are readable and the overlap/clipping is resolved. Palette, fonts, framing and exact historical pixel parity remain unverified.",
+    "Python fminsearch completed 128 iterations and 266 evaluations, versus native 136 and 289; the trajectories differ.",
+    "Timers include observer overhead on a shared host and are not comparative benchmarks.",
+    "Local array value bounds remain 1e-10 instead of native 10*vscale*eps, with native evaluation and location-padding checks omitted. Complex, array, two-argument, dimension and unbounded contracts are not closed by the nine scalar tests."
+  ],
+  "scope": "Full literal Needle page using the qualified scalar extrema fix and public grid helper, CPU only. Native optimizer trajectory and exact pixel parity remain open.",
+  "source_run": {
+    "audit_sha256": "d39b2a14fa5e450b34410078596ed645060c484f87d0533d560f90f5b7d46e6d",
+    "baseline_numerical_capture_bits_identical": true,
+    "figures": 5,
+    "objectives": 1519,
+    "original": 42697,
+    "peak_kib": 1883744,
+    "size": [
+      600,
+      270
+    ],
+    "wall_seconds": 135.77610547002405
+  },
+  "strict_scalar_extrema": {
+    "peak_kib": 1048772,
+    "root_review_sha256": "fb983f9a46b8dafe68cca3162d490ee7d66a9df66db190cc23ea79ba164989b5",
+    "scope": "Native 10*vscale*eps bounds with evaluations at returned extrema positions for smooth and piecewise functions, plus constant/pointValues cases 5/6. No complete array or complex parity claim.",
+    "tests": 9,
+    "wall_seconds": 83.22764602536336
+  }
+}
