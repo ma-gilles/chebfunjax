@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Relational/sign source semantics (2026-10-10; latest)
+
+All20 original lt/le clauses now pass (baseline16failed), with true <=/>=
+identity behavior, crossing pointValues, empty/array error contracts and
+singular/unbounded cases. Sign delegates through native FUN sign and merge;
+Singfun.sign is implemented. addBreaks now restricts once to the complete
+breakpoint vector; join previously shifted a root and lost its zero impulse.
+Root40 tests pass, including9 supplemental controls and existing regression
+modules. Explicit MT uniform adapter is checked against two captured blocks.
+Evidence: docs/relational_sign_cpu_20261010.json. Full parity/CI remain open.
+
 ## Chebop quiver source renderer (2026-10-10; latest)
 
 Source Euclidean grid scaling, held axes color cycling and open arrowhead

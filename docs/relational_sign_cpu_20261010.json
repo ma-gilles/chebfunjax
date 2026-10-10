@@ -1,0 +1,41 @@
+{
+  "scope": "Native relational indicators, source sign construction and exact inserted breakpoints",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "c85c27ab",
+  "root_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/relational_root_20261010",
+  "source_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/relational_native_source_20261010/SOURCE_EVIDENCE_v1.json",
+  "source_evidence_sha256": "4b5b97c207de1a9ac50ed1ffe16c63e1e5aeccd6b973d9d3a8074ff1620f8ffd",
+  "root_receipt_sha256": "14ec849c3ad2b2b15393aaea7afd30636ea9656591f58a5bd0ee414c27e33cd1",
+  "root_junit_sha256": "e259ac58b557af2f1005992f5dbaa8d572ee59f00ea44c3e2d6198b361378282",
+  "passed": 40,
+  "native_clauses": 20,
+  "supplemental_controls": 9,
+  "baseline_native_failures": 16,
+  "baseline_native_passes": 4,
+  "root_seconds": 48.39378222078085,
+  "peak_child_rss_kib": 944588,
+  "cpu_affinity": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "changes": [
+    "True <=/>= semantics including identically equal intervals.",
+    "Native empty and array error contracts; stored crossing pointValues preserved.",
+    "Sign uses root insertion, tech sign, stored point values and merge; handles complex/array/singular/unbounded functions and row orientation.",
+    "Singfun.sign delegates to smoothPart.sign as in source.",
+    "addBreaks uses single vector restriction; no join rounding of breakpoints."
+  ],
+  "verification_limits": [
+    "Twenty lt/le source clauses plus focused regression controls; not all native sign/addBreaks clauses or library parity.",
+    "Second uniform query block is explicitly adapted from MT19937 and validated against retained two-block MATLAB capture; no fresh MATLAB execution.",
+    "Root gate source/test hashes stable; measured RSS without cap and no runtime-import audit.",
+    "Broad core regression stopped on separate periodic Chebfun3 supplemental test failure; fresh full current-head CI remains open."
+  ],
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/relational_root_20261010/static.json"
+}

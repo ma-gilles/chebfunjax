@@ -4408,10 +4408,9 @@ class Chebfun(eqx.Module):
             return self
         pts = sorted(set(_np.asarray(old).tolist())
                      | {float(t) for t in new if a < float(t) < b})
-        out = self.restrict(pts[0], pts[1])
-        for i in range(1, len(pts) - 1):
-            out = out.join(self.restrict(pts[i], pts[i + 1]))
-        return out
+        # Source restricts once to the full domain vector. join translates
+        # intervals and can round a root by one ulp, losing its zero impulse.
+        return self.restrict(pts)
 
     def addBreaksAtRoots(self, tol: float = 0.0) -> "Chebfun":
         """Introduce breakpoints at the interior roots of f
@@ -4935,25 +4934,31 @@ class Chebfun(eqx.Module):
     # (added by Claude Fable 5, MISSING_FEATURES logical-chebfun gap).
     # ------------------------------------------------------------------
 
-    def _indicator(self, other, positive: bool) -> "Chebfun":
-        """Indicator chebfun of {self < other} (positive=False) or
-        {self > other} (positive=True), built from the exact constant
-        pieces of sign(other - self)."""
-        diff = (other - self) if not isinstance(other, (int, float))             else (-self + float(other))
-        sgn = diff.sign() if not positive else (-diff).sign()
-        # map pieces: +1 -> 1, else -> 0 (exact constant pieces)
-        new_funs = []
-        for piece in sgn.funs:
-            val = float(piece(jnp.asarray(
-                0.5 * (piece.interval[0] + piece.interval[1]))))
-            const = 1.0 if val > 0.5 else 0.0
-            new_funs.append(_Piece.from_coeffs(
-                jnp.asarray([const], dtype=jnp.float64),
-                piece.interval[0], piece.interval[1]))
-        return Chebfun(funs=new_funs, domain=sgn.domain)
+    def _indicator(self, other, positive: bool, inclusive: bool = False) -> "Chebfun":
+        """Source lt/le half-value replacement after heaviside."""
+        if self.isempty():
+            return self
+        if isinstance(other, Chebfun) and other.isempty():
+            return other
+        name = "le" if inclusive else "lt"
+        if self.n_columns > 1 or (isinstance(other, Chebfun) and other.n_columns > 1):
+            raise ValueError(f"CHEBFUN:CHEBFUN:{name}:array")
+        difference = self - other if positive else other - self
+        h = difference.heaviside()
+        funs = []
+        for piece in h.funs:
+            # rval-local: evaluate the canonical right endpoint, including
+            # unbounded mappings, without inventing an infinite midpoint.
+            value = piece.tech(jnp.asarray(1.0))
+            funs.append(piece.with_tech(piece.tech * 0 + float(inclusive))
+                        if bool(value == 0.5) else piece)
+        out = Chebfun(funs=funs, domain=h.domain)
+        out = out.set_point_values(jnp.where(h.point_values == 0.5,
+                                            float(inclusive), h.point_values))
+        return self._as_transposed(out.merge(), h.is_transposed)
 
     def lt(self, other) -> "Chebfun":
-        """Indicator chebfun of {f < g} (MATLAB f < g).
+        """Less-than indicator.
 
         Provenance
         ----------
@@ -4963,11 +4968,22 @@ class Chebfun(eqx.Module):
         return self._indicator(other, positive=False)
 
     def gt(self, other) -> "Chebfun":
-        """Indicator chebfun of {f > g} (MATLAB f > g)."""
+        """Greater-than indicator (MATLAB @chebfun/gt.m, 7574c77)."""
         return self._indicator(other, positive=True)
 
-    le = lt   # measure-zero boundary: same indicator a.e.
-    ge = gt
+    def le(self, other) -> "Chebfun":
+        """Less-than-or-equal indicator.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/le.m
+        Chebfun commit: 7574c77
+        """
+        return self._indicator(other, positive=False, inclusive=True)
+
+    def ge(self, other) -> "Chebfun":
+        """Greater-than-or-equal indicator (MATLAB @chebfun/ge.m, 7574c77)."""
+        return self._indicator(other, positive=True, inclusive=True)
 
     def logical_eq(self, other) -> "Chebfun":
         """Pointwise equality as a logical Chebfun (MATLAB ``f == g``).
@@ -5121,47 +5137,17 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.abs, Chebfun.roots
         """
-        out = self._sign_core()
-        # MATLAB @chebfun/sign.m: the point values of sign(f) are
-        # sign(f(breakpoints)), so a root that becomes a breakpoint has
-        # value 0 there (not a one-sided limit).
-        bps = jnp.asarray([float(v) for v in out.domain.breakpoints])
-        try:
-            pv = jnp.sign(jnp.real(self(bps)))
-            object.__setattr__(out, "_point_values", pv)
-        except Exception:
-            out = self._propagate_point_values(out, jnp.sign)
-        return out
+        return self._sign_core()
 
     def _sign_core(self) -> Chebfun:
-        """Root-splitting ``sign(f)`` without pointValues propagation."""
-        roots = self.roots(nojump=True)
-        import numpy as _np
-        existing = _np.array(list(self.domain.breakpoints))
-        new_bps = _np.sort(_np.unique(
-            _np.concatenate([existing, _np.asarray(roots)])
-        ))
-        domain_len = float(self.domain.b - self.domain.a)
-        tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
-        mask = _np.concatenate([[True], _np.diff(new_bps) > tol])
-        new_bps = new_bps[mask]
-
-        if len(new_bps) < 2:
-            return self._apply_fun(jnp.sign)
-
-        new_dom = Domain(tuple(float(b) for b in new_bps))
-        # Each piece is exactly constant: evaluate sign at the interval
-        # MIDPOINT and build an explicit constant piece.  Sampling
-        # sign(f) across the piece hits the roots at the endpoints
-        # (sign(0) = 0) and pollutes the interpolant -- same bug class
-        # as floor/ceil/round before their fix.  (Fable 5 audit.)
-        new_funs = []
-        for sub in new_dom.intervals:
-            mid = 0.5 * (sub.a + sub.b)
-            const = float(jnp.sign(self(jnp.asarray(mid))))
-            new_funs.append(_Piece.from_coeffs(
-                jnp.asarray([const], dtype=jnp.float64), sub.a, sub.b))
-        return Chebfun(funs=new_funs, domain=new_dom)
+        """Source addBreaksAtRoots, FUN sign, pointValues sign, then merge."""
+        if self.isempty():
+            return self
+        split = self.addBreaksAtRoots()
+        out = Chebfun(funs=[p.with_tech(p.tech.sign()) for p in split.funs],
+                      domain=split.domain)
+        out = out.set_point_values(jnp.sign(split.point_values))
+        return self._as_transposed(out.merge(), self.is_transposed)
 
     def sinh(self) -> Chebfun:
         """Hyperbolic sine of the Chebfun.

@@ -332,6 +332,16 @@ class Singfun(eqx.Module):
             (0.0, 0.0),
         )
 
+    def sign(self):
+        """Sign of the smooth part; positive endpoint factors cancel.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/sign.m
+        Chebfun commit: 7574c77
+        """
+        return self.smoothPart.sign()
+
     def isempty(self) -> bool:
         """True when the smooth part is empty (MATLAB ``isempty``).
 
