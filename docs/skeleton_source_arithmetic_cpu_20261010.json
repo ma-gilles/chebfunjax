@@ -1,0 +1,36 @@
+{
+  "base": "5008802a013090b31ffe4167e7f80fe26d9dbe55",
+  "native_source": "Chebfun7574c77 @chebfun2/constructor.m phase2 GE loop",
+  "change": "JAX array refinement divides row values by each pivot before both outer products; preserve full divisor shape to prevent reciprocal reassociation. Loop/pivot rules unchanged.",
+  "original_baseline_control_handle": 86391,
+  "baseline": "rank1 control passes; rank2/3/5 exact source-arithmetic comparisons fail",
+  "first_candidate_control_handle": 19198,
+  "first_candidate": "Preserved failure: scalar divisor broadcast still reassociated division.",
+  "candidate_control_handle": 25787,
+  "candidate": "All four rank1/2/3/5 source-arithmetic controls bit-identical to independent literal NumPy expressions. This is operation-order verification, not full native MATLAB sine/BLAS identity.",
+  "public_controls_handle": 50258,
+  "test_count": 27,
+  "test_scope": "4 exact arithmetic regression cases plus23 unchanged public SeparableApprox tests",
+  "supervisor_seconds": 25.900899115018547,
+  "sampled_peak_summed_rss_kib": 1594120,
+  "censored_limit": null,
+  "survivors": [],
+  "inputs_stable": true,
+  "limitations": [
+    "Focused CPUJAX0.11.0 controls; full current-main suite and CI still required.",
+    "No performance claim or full VanillaOptions rerun.",
+    "The native option curve failure also occurs in MATLAB and is not claimed fixed."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/baseline.json": "749696d912fbd9bb306178280cbc65ed2c425c6eab3d5ced789cffd882905dc3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/candidate.json": "9b01aa8a483fc823e3ada03c1e5a15be1e19d46b59aa0eea432caa7ca39fc7fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/candidate_v2.json": "5034078e8361f8dbeb3925a4a7d4deffb054a8c4224bd68c2e47e751782bded6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/guard_controls.json": "a59a94f0fe2e24430770a635a7b3013351d814db99820869c55212c3c3caea38",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/controls/receipt.json": "e8ebd20ff2a9529c5b3700a4a9fc4e02435ad95ca9f54960bc33d0071e11e9bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/controls.xml": "824cd9945783f6f8a63a7ccd30ee49793e9efebb28262bd0c698b31afda7c4b7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/control.py": "ad3909608ec2a8ebca18e083f0334e729f325358176af31b17267d15be3745a4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/skeleton_source_order_5008802a_20261010/launch_controls.sh": "477ed5c54e4729bb9c333d234ed3da8408666a03dba55e28b1c65c31b6814272"
+  },
+  "publication_test_formatting": "One blank line separates third-party imports from project import after the27-pass run; no executable statement changed.",
+  "published_test_sha256": "601a4b671cdcb5e692b922e742ae2e6b9845aef5378e9890d263a76de6a49ad1"
+}

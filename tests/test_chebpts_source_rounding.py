@@ -2,7 +2,8 @@
 
 Chebfun 7574c77, @chebtech1/chebpts.m and @chebtech2/chebpts.m.
 Copyright 2017 by The University of Oxford and The Chebfun Developers.
-Native4000 capture independently verifies the binary64 argument ordering.
+First-kind source divides before multiplying; second-kind multiplies first.
+The earlier Native4000 capture covered the second-kind argument ordering.
 Sine backend bit identity with MATLAB is deliberately not asserted.
 """
 import math
@@ -23,16 +24,20 @@ def _bits(x):
 @pytest.mark.parametrize("kind", [1, 2])
 @pytest.mark.parametrize("n", [2, 3, 17, 64, 129, 4000])
 def test_source_rounded_grid_arguments(n, kind):
-    """Scalar binary64 multiplication then division, with unchanged JAX sine."""
+    """Literal source binary64 operation order, with unchanged JAX sine."""
     m = n if kind == 1 else n - 1
     start = -n + 1 if kind == 1 else -m
     stop = n if kind == 1 else m + 1
-    expected = jnp.asarray([math.pi * k / (2 * m) for k in range(start, stop, 2)])
+    expected = jnp.asarray([math.pi * (k / (2 * m)) if kind == 1
+                            else math.pi * k / (2 * m)
+                            for k in range(start, stop, 2)])
 
     @jax.jit
     def instrument():
         k = jnp.arange(start, stop, 2, dtype=jnp.float64)
-        angles = _divide_binary64_by_positive_integer(jnp.pi * k, 2 * m)
+        angles = (jnp.pi * _divide_binary64_by_positive_integer(k, 2 * m)
+                  if kind == 1 else
+                  _divide_binary64_by_positive_integer(jnp.pi * k, 2 * m))
         return angles, jnp.sin(angles)
 
     angles, instrumented_nodes = instrument()

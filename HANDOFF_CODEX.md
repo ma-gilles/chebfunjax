@@ -1,5 +1,38 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## First-kind source node and mapping correction (2026-10-10; latest)
+
+First-kind nodes now divide before multiplying by pi, as native source does;
+second-kind operation order is unchanged. The first-kind constructor also
+uses native affine mapping and preserves the reference-interval identity.
+The 138 quadrature/constructor/arithmetic controls and five new public mapping
+controls pass. The old arithmetic test encoded the wrong first-kind formula;
+its failure is retained and its expectation corrected from source. This
+restores the PDE example's initial length 33; the full NDF solver remains
+private and incomplete. Evidence: docs/firstkind_source_nodes_cpu_20261010.json.
+
+
+## Source-ordered JAX skeleton refinement (2026-10-10; latest)
+
+Chebfun2 refinement now divides row values by each pivot before both outer
+products, matching native phase-two elimination. JAX arrays perform all
+helper arithmetic; shaped divisors prevent reciprocal reassociation. Four
+exact arithmetic controls and 23 unchanged public construction/evaluation
+tests pass. The option curve failure is not claimed fixed; native MATLAB
+reproduces it. Evidence: docs/skeleton_source_arithmetic_cpu_20261010.json.
+
+
+## Native VanillaOptions boundary behavior established (2026-10-10; latest)
+
+Pinned MATLAB reproduces the held rate-0.0405 failure: rank 40, slice lengths
+2049x513, curve length 699, minimum time -0.1801654, and maximum direct
+residual 6.5911. Its field error at the diagnostic point is 6.94424e-5, close
+to Python's historical result. Thus neither out-of-domain curves nor that
+field error alone proves a port defect. Preserve the native iteration behavior;
+full page, exact curve and visual parity remain unresolved. Evidence:
+docs/vanillaoptions_native_curve_diagnosis_cpu_20261010.json.
+
+
 ## Default chapter-21 solve and page audit (2026-10-10; latest)
 
 The previously skipped chapter-21 adaptive Dirichlet solve now passes the

@@ -1,0 +1,60 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "original_handle": 12491,
+  "input_case": "VanillaOptions rate0.0405 time-value surface on [.001,25]x[0,100], unmodified public Chebfun2 constructor and roots",
+  "native": {
+    "rank": 40,
+    "rows_length": 2049,
+    "cols_length": 513,
+    "check_point": {
+      "t": 0.002538684118669643,
+      "s": 90.40952099765535,
+      "field": -0.010348600996455296,
+      "callback": -0.010279158598862637
+    },
+    "curves": [
+      {
+        "length": 699,
+        "outside": 236,
+        "total": 4097,
+        "min_t": -0.18016540078295495,
+        "max_t": 24.99999999999105,
+        "min_s": 61.07397172696528,
+        "max_s": 91.81886734663846,
+        "max_field_residual": 6.591125674024071,
+        "max_callback_residual": 6.59112567402439
+      }
+    ],
+    "traces": [
+      {
+        "errors": [
+          0.00046066941588251325,
+          0.00035411914777753545,
+          6.199350283532428e+101
+        ],
+        "accepted_length": 699
+      }
+    ]
+  },
+  "comparison": "Historical Python diagnosis has rank40, lengths2049x513, curve length699, minT=-0.1801909823 and maximum direct residual6.5933159763. Native also exhibits field interpolation error and out-of-domain/nonzero curve. This establishes shared failure behavior, not bitwise curve or full-page parity.",
+  "prior_python_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vanillaoptions_zero_diagnosis_v2_20261008/HANDOFF.md",
+  "native_field_callback_abs_difference": 6.94423975926596e-05,
+  "scope": "Source .m hash guard, native provider/version/profile, supervised CPU12\u201315 run. Not exhaustive runtime loader closure. Numerical diagnostic observations; no passing full-page assertion claimed.",
+  "wall_seconds": 85.22649993281811,
+  "sampled_peak_summed_rss_kib": 1698704,
+  "source_inputs_stable": true,
+  "survivors": [],
+  "censored_limit": null,
+  "preserved_initial_failure": "vnl1 original66306: diagnostic domain(f) adapter invoked wrong native constructor after roots computed; corrected to f.domain, no numerical modifications.",
+  "next": "Retain source failure rather than clip curves. Complete remaining source arithmetic controls and full-page rendering/figure verification.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/ANALYSIS.json": "ee4b980482febd77fbffbffcd6d286c16e8181f16c146196c6af51b4b53a88dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/capture.mat": "e6205ee6157c5a61633b8002710c21d8833a1e91af6f13729d3e3d6e7102c6a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/runtime.mat": "f876bdb467c66b8bfc88588300e4a668b554dd5d7bd497a2f967b168143d4a3d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/capture_option.m": "21deaafa0e29c058a30f5694aaf27d2ff947acfd117e4ca4f3407fc11fd041e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/driver.m": "fe53874bee785652886ad230c14020b24f43947b58235aa4a85676023de8394d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/guard.json": "5f7e3e62254cfc009372d84ce2bd70a324750d8c2300eba0acebe097774230d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vnl2/supervision/receipt.json": "b86a4be2013f61582113f45c0472fe06a4087b70aeb5c369f12b9b789bc30b4e"
+  }
+}

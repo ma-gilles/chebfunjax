@@ -58,13 +58,13 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
 
     if kind == 1:
         # Roots of T_n.  MATLAB @chebtech1/chebpts.m uses the sine form
-        # x = sin(pi*(-n+1:2:n-1)/(2n)) rather than cos((2k-1)pi/(2n)):
+        # x = sin(pi*((-n+1:2:n-1)/(2n))) rather than cos((2k-1)pi/(2n)):
         # the sine construction is exactly antisymmetric (centre node is a
         # bit-exact 0 for odd n) and pairs small-argument sines against the
-        # symmetric endpoints. Preserve the rounded numerator and integer division
-        # against reciprocal reassociation; sine backend bit identity is not claimed.
+        # symmetric endpoints. First-kind source divides before multiplying by pi.
+        # Preserve that rounded quotient; MATLAB sine bit identity is not claimed.
         k = jnp.arange(-n + 1, n, 2, dtype=jnp.float64)
-        x = jnp.sin(_divide_binary64_by_positive_integer(jnp.pi * k, 2 * n))
+        x = jnp.sin(jnp.pi * _divide_binary64_by_positive_integer(k, 2 * n))
     elif kind == 2:
         # Extrema of T_{n-1}.  MATLAB @chebtech2/chebpts.m uses the sine form
         # x = sin(pi*(-m:2:m)/(2m)), m = n-1, instead of cos(k*pi/(n-1)):

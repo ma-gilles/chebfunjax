@@ -10537,7 +10537,7 @@ def _chebfun_build(
             if callable(f):
                 _t = Chebtech1.from_function(
                     lambda y, _f=f, _a=_a, _b=_b:
-                        _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n,
+                        _f(y if (_a, _b) == (-1.0, 1.0) else _b * (y + 1) / 2 + _a * (1 - y) / 2), n=n,
                     tol=None if eps is None else float(eps),
                     turbo=turbo, check=str(_CP().happinessCheck),
                     sample_test=_sample_test,

@@ -159,7 +159,7 @@ def _ge_on_skeleton(
     row_vals: np.ndarray,
     pivot_vals: np.ndarray,
     pivot_pos: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[jax.Array, jax.Array]:
     """Re-apply Gaussian elimination on skeleton column/row slices.
 
     After re-sampling at higher resolution, the col/row values at the new
@@ -181,29 +181,38 @@ def _ge_on_skeleton(
     Returns
     -------
     col_vals_updated, row_vals_updated
-        Same shapes, GE-updated.
+        Same shapes, GE-updated JAX arrays.
 
     Provenance
     ----------
     MATLAB source : @chebfun2/constructor.m  (Phase 2 GE loop, lines ~173-179)
     Chebfun commit: 7574c77
     """
-    col_vals = col_vals.copy()
-    row_vals = row_vals.copy()
+    col_vals = jnp.asarray(col_vals)
+    row_vals = jnp.asarray(row_vals)
+    pivot_vals = jnp.asarray(pivot_vals)
+    pivot_pos = jnp.asarray(pivot_pos)
     r = len(pivot_vals)
 
     for k in range(r - 1):
         piv = pivot_vals[k]
-        row_at_pivot_y = pivot_pos[k + 1 :, 0]  # row indices for later cols
-        col_at_pivot_x = pivot_pos[k + 1 :, 1]  # col indices for later rows
-
-        # Update later columns: col[:, k+1:] -= col[:, k] * (row[k, PP[k+1:, 1]] / piv)
-        scale = row_vals[k, col_at_pivot_x] / piv
-        col_vals[:, k + 1 :] = col_vals[:, k + 1 :] - np.outer(col_vals[:, k], scale)
-
-        # Update later rows: row[k+1:, :] -= col[PP[k+1:, 0], k] * (row[k, :] / piv)
-        scale_r = col_vals[row_at_pivot_y, k] / piv
-        row_vals[k + 1 :, :] = row_vals[k + 1 :, :] - np.outer(scale_r, row_vals[k, :])
+        row_at_pivot_y = pivot_pos[k + 1 :, 0]
+        col_at_pivot_x = pivot_pos[k + 1 :, 1]
+        # Source divides row entries before either outer product. Moving the
+        # division to the column factor changes subsequent elimination steps.
+        # Materialize the divisor shape so XLA does not replace division
+        # with a rounded scalar reciprocal and multiplication.
+        numerator = row_vals[k, col_at_pivot_x]
+        scale = numerator / jnp.full_like(numerator, piv)
+        col_vals = col_vals.at[:, k + 1 :].set(
+            col_vals[:, k + 1 :] - jnp.outer(col_vals[:, k], scale)
+        )
+        numerator = row_vals[k, :]
+        row_scale = numerator / jnp.full_like(numerator, piv)
+        row_vals = row_vals.at[k + 1 :, :].set(
+            row_vals[k + 1 :, :]
+            - jnp.outer(col_vals[row_at_pivot_y, k], row_scale)
+        )
 
     return col_vals, row_vals
 

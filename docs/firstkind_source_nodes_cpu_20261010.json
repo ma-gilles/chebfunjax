@@ -1,0 +1,51 @@
+{
+  "status": "Ready for parent review; no publication edits",
+  "base_head": "5008802a013090b31ffe4167e7f80fe26d9dbe55",
+  "production_changes": [
+    "First-kind nodes: literal source sin(pi*(k/(2*n))) instead of second-kind operation order",
+    "First-kind affine map: source b*(y+1)/2+a*(1-y)/2 and identity on reference interval"
+  ],
+  "test_changes": [
+    "Correct exact arithmetic first-kind expectation to literal native parentheses; second-kind assertions unchanged",
+    "Add exact public callback-map and initial-length controls"
+  ],
+  "unchanged_original_tests": [
+    "tests/test_matlab_port/chebtech1/test_chebpts_matlab.py",
+    "tests/test_matlab_port/chebtech1/test_constructor_matlab.py",
+    "tests/test_utils/test_quadrature.py"
+  ],
+  "qualification": {
+    "new_mapping_controls": 5,
+    "obsolete_arithmetic_diagnostic": "Preserved original129/kind1 fails as expected; n17 coincides and passes",
+    "restart": "Actual source-default NDF33\u219265 passes norm6.0688e-12<2.220446e-11; old failure retained",
+    "original_controls": 138,
+    "controls_description": "138 unchanged quadrature/constructor cases plus corrected source-arithmetic expectations collectively;5 distinct new mapping/initial-length cases. PDE remains private."
+  },
+  "limitations": [
+    "No MATLAB sine backend bit-identity claim",
+    "PDE implementation remains separate private/draft work",
+    "Paired Clenshaw candidate is not included"
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/candidate.patch": "66a111b98c15b168384baea17f3c20b1cbd086fec59ed51e99637d2711e950d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/controls/AUDIT.json": "bef1e2076154401ca63fb9abcea53cdec3a8424fd505a638de09fbb1de7bd322",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/mapping_controls/AUDIT.json": "e7f85113eae69d893c7e09ffeb4e0952170238ccc68ba6e176c704a347ac21db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/original_arithmetic_diagnostic_129/AUDIT.json": "47b9de32cf0f871568389764af9744bcf2c1adf4c86b15cbc36194c19b6d3ac2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_ndf_restart_v1_20261010/gate/AUDIT.json": "1ba255f926ee6811cdec248d1570526a6b80eebf78c48abea4892886787848ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_ndf_restart_v2_20261010/gate/AUDIT.json": "7286cdb266c1b8cfc7bf9e63590bb4c7dbf66919330940a34125211fb0ee260a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/delivery/candidate.patch": "2c963b81ac904ab2dc009944473ec844fb7a99df273d47174f6935d2db218dc3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/delivery/test_firstkind_mapping_source.py": "0c40f61f931c441f182d20d2362e083c6aec5824580689e1be1b2da32d9b6b01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/delivery_controls/AUDIT.json": "f72ecf77d4ea8b8af85fb8da55ce5a16d623753d2f0b476996954f82f2ea9843"
+  },
+  "delivery_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/firstkind_nodes_mapping_candidate_20261010/delivery/candidate.patch",
+  "tested_production_source": "Byte-identical to 138+5 original controls and final 5 formatted controls",
+  "ruff": "Configured Ruff check passed on both changed production files and both delivery test files",
+  "formatted_tests": "Only import blank lines and splitting compound statements changed; 5 final formatted tests passed",
+  "root_review": "All review and nested audit bindings, all three source/test input guards, and exact138/5/5 JUnit cases independently verified. Five final-format cases repeat the same five mapping cases; not additional coverage.",
+  "published_files": {
+    "src/chebfunjax/utils/quadrature.py": "c91a3fe1aa9467af43941fd1aec59cc5b7d4323943095f1607598097d58dfa9b",
+    "src/chebfunjax/chebfun1d/chebfun.py": "745d7a04d32ff4d087ad228ea9eacda376d52168798c0c4e0213a23d8014a0c0",
+    "tests/test_chebpts_source_rounding.py": "c7aea5f7d60b62468bcc6bddb35e0e81c29c9bdc8c235713bcdc4064ac79c3b8",
+    "tests/test_firstkind_mapping_source.py": "0c40f61f931c441f182d20d2362e083c6aec5824580689e1be1b2da32d9b6b01"
+  }
+}
