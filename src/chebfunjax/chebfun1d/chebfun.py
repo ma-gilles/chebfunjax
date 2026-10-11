@@ -11572,22 +11572,20 @@ def polyval(p, x):
     MATLAB source : @chebfun/polyval.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-
-    P = _np.asarray(p, dtype=float)
+    P = jnp.atleast_1d(jnp.asarray(p))
     if P.ndim == 1:
         P = P[:, None]
     xs = [x] if isinstance(x, Chebfun) else list(x)
-    if P.shape[1] > 1 and len(xs) > 1:
+    if P.shape[1] > 1 and sum(xk.n_columns for xk in xs) > 1:
         raise ValueError(
             "CHEBFUN:CHEBFUN:polyval:dimMismatch: Input P must be a column "
             "vector or X must be a scalar-valued CHEBFUN.")
     outs = []
     for col in range(P.shape[1]):
         for xk in xs:
-            y = 0.0 * xk + float(P[0, col])
+            y = 0.0 * xk + P[0, col]
             for j in range(1, P.shape[0]):
-                y = y * xk + float(P[j, col])
+                y = y * xk + P[j, col]
             outs.append(y)
     return outs[0] if len(outs) == 1 else outs
 

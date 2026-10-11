@@ -1342,6 +1342,15 @@ def _roots_subdivide(c):
     return _roots_sampled_subdivision(c)
 
 
+def _matlab_sort_roots(roots: jax.Array) -> jax.Array:
+    """Sort real roots numerically; sort complex roots by magnitude then phase."""
+    roots = jnp.asarray(roots)
+    if jnp.iscomplexobj(roots):
+        order = jnp.lexsort((jnp.angle(roots), jnp.abs(roots)))
+        return roots[order]
+    return jnp.sort(roots)
+
+
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
                      recurse: bool = True, *, zero_fun: bool = True,
@@ -1375,10 +1384,10 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     preserves the separate resultant backend's established policy.
 
     ``filter_callback`` is the optional native ``filter(roots, tech)`` hook.
-    It receives sorted real roots after recursive leaf processing and before
-    top-level pruning; ``filter_object`` is the original Tech passed as its
-    second argument. Nonreal complex roots bypass the callback because the
-    native complex sorting/comparison rules have not been qualified.
+    It receives real roots in ascending numeric order and complex roots in
+    MATLAB magnitude/phase order, after recursive leaf processing and before
+    top-level pruning;
+    ``filter_object`` is the original Tech passed as its second argument.
 
     NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -1424,20 +1433,12 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
                     prune=prune, recurse=recurse, zero_fun=zero_fun)
 
-    # MATLAB roots_scalar sorts the completed root list and applies FILTER
-    # before its nonrecursive top-level Bernstein pruning. Recursive leaf
-    # pruning already happened inside _roots_main. Complex sort/comparison
-    # semantics are not claimed here; preserve the unfiltered complex-root
-    # result until those native semantics are captured.
+    # MATLAB roots_scalar sorts real roots numerically and complex roots by
+    # magnitude then phase, then applies FILTER before top-level Bernstein
+    # pruning. Recursive leaf pruning already happened inside _roots_main.
     if filter_callback is not None:
-        roots_array = jnp.asarray(r)
-        has_nonreal_roots = (
-            jnp.iscomplexobj(roots_array)
-            and bool(jnp.any(jnp.imag(roots_array) != 0))
-        )
-        if not has_nonreal_roots:
-            r = jnp.sort(jnp.real(roots_array))
-            r = filter_callback(r, filter_object)
+        roots_array = _matlab_sort_roots(jnp.asarray(r))
+        r = filter_callback(roots_array, filter_object)
 
     # Prune the roots if requested (MATLAB prunes at the top level only when
     # recurse is off; with recursion the per-leaf prune already ran).
@@ -4340,10 +4341,10 @@ class Chebtech2(eqx.Module):
             MATLAB ``zeroFun``: include a midpoint root for the zero function.
             When False, the zero-function branches return no roots.
         filter : callable or None
-            Optional ``filter(roots, tech)`` callback. It receives sorted real
-            roots after recursive leaf pruning and before top-level pruning.
-            Nonreal complex roots are returned without invoking the callback;
-            MATLAB complex ordering/comparison parity is not yet established.
+            Optional ``filter(roots, tech)`` callback. It receives real roots
+            in ascending numeric order and complex roots by magnitude then
+            phase after recursive leaf pruning and before top-level pruning,
+            matching MATLAB ``sort(r, 'ascend')``.
 
         Returns
         -------

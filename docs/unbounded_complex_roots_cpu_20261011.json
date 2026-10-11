@@ -1,0 +1,405 @@
+{
+  "format": "unbounded-complex-roots-candidate-delivery-v2",
+  "base_commit": "f35cd8b1",
+  "source_and_test_overlay": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v5/overlay",
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/complex_roots_f35_v2.patch",
+    "sha256": "2d13b83d9bd6dd94e65e7dcb197e0c164c6499136e6a82715c2b0dd685e8bd80",
+    "base_file_sha256": {
+      "src/chebfunjax/tech/chebtech.py": "bb793ef686147a873460b2b2183f6f18e7c4d9a0224bcdee71f680a5c95168a5",
+      "src/chebfunjax/fun/unbndfun.py": "462628d40f3276eae6e0cd9b4236c3b3cc2efd3c068f7961855c8de24c57f8c0",
+      "tests/test_chebfun1d/test_unbounded_endpoint_filter.py": "44ac1ca9fb4811ea074c1d9be29e61d134fe3cc119b15e68b81bee9d0eb4d852"
+    },
+    "candidate_file_sha256": {
+      "src/chebfunjax/tech/chebtech.py": "c28d87949cb9dd30e3f6d16ffc0b9501007b6824c93136b23a443509a4589875",
+      "src/chebfunjax/fun/unbndfun.py": "2a5a015834598a4b49f3000a5cef5e5673de58a53dfc95f3b1366f1fc5906761",
+      "tests/test_chebfun1d/test_unbounded_endpoint_filter.py": "4789bea86d056f5ce4d7ad87a7cbd66342d48e53a4beb3a5464a5dd236b7e5ae"
+    }
+  },
+  "native_direct_observation": {
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4",
+    "capture_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4/direct_capture.json",
+    "capture_sha256": "c16d11a7f98f589bbc0f2e777c3cda031ff08099055550c97f9acc3c5474129f",
+    "audit_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4/AUDIT.json",
+    "audit_sha256": "a8ae6bc555baa6b02253bdbdf0d727f5067833f38d643b6e5dc79aeb832cd6f5",
+    "faults": [],
+    "profile_provider_count": 44,
+    "profile_provider_hash_failures": 0,
+    "sortAscend": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        0.2,
+        0.2,
+        0,
+        0,
+        -1,
+        1,
+        1,
+        -1
+      ],
+      "imag": [
+        -0.3,
+        0.3,
+        -1,
+        1,
+        -2,
+        -2,
+        2,
+        2
+      ]
+    },
+    "lessThanZero": {
+      "class": "logical",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "imag": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "greaterThanZero": {
+      "class": "logical",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "imag": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "minComplexSquare": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        -0.04999999999999999,
+        -0.04999999999999999
+      ],
+      "imag": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.12,
+        -0.12
+      ]
+    },
+    "maxComplexSquare": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        -3,
+        -3,
+        -3,
+        -3,
+        -1,
+        -1,
+        1,
+        1
+      ],
+      "imag": [
+        4,
+        -4,
+        -4,
+        4,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "bothInfiniteMap": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        null,
+        null,
+        null,
+        null,
+        0,
+        0,
+        0.7789417136717699,
+        0.7789417136717699
+      ],
+      "imag": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        1.517593338705345,
+        -1.517593338705345
+      ]
+    },
+    "leftInfiniteMap": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        10.5,
+        10.5,
+        18,
+        18,
+        3,
+        3,
+        -5.529411764705882,
+        -5.529411764705882
+      ],
+      "imag": [
+        7.5,
+        -7.5,
+        15,
+        -15,
+        15,
+        -15,
+        5.882352941176471,
+        -5.882352941176471
+      ]
+    },
+    "rightInfiniteMap": {
+      "class": "double",
+      "size": [
+        8,
+        1
+      ],
+      "real": [
+        -13,
+        -13,
+        -5.5,
+        -5.5,
+        2,
+        2,
+        19.876712328767123,
+        19.876712328767123
+      ],
+      "imag": [
+        15,
+        -15,
+        7.5,
+        -7.5,
+        15,
+        -15,
+        12.32876712328767,
+        -12.32876712328767
+      ]
+    },
+    "tieInput": {
+      "class": "double",
+      "size": [
+        4,
+        1
+      ],
+      "real": [
+        0.9238795325112867,
+        0.9238795325112867,
+        0,
+        0
+      ],
+      "imag": [
+        -0.3826834323650898,
+        0.3826834323650898,
+        1,
+        -1
+      ]
+    },
+    "tieSquareMinOne": {
+      "class": "double",
+      "size": [
+        4,
+        1
+      ],
+      "real": [
+        0.7071067811865475,
+        1,
+        1,
+        1
+      ],
+      "imag": [
+        -0.7071067811865476,
+        0,
+        0,
+        0
+      ]
+    },
+    "tieSquareMaxOne": {
+      "class": "double",
+      "size": [
+        4,
+        1
+      ],
+      "real": [
+        1,
+        0.7071067811865475,
+        -1,
+        -1
+      ],
+      "imag": [
+        0,
+        0.7071067811865476,
+        0,
+        0
+      ]
+    },
+    "terminal": {
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4/supervision/receipt.json",
+      "receipt_sha256": "be01ba2486da6e9afdee818b0b967816ec7a7c6e0b2c061004e28fb171ed0223",
+      "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4/supervision/stdout",
+      "stdout_sha256": "6925540fc1137fd1abc87d61d7c7572f6f3c6bbfb029ae177a45f867683faf57",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 121.39724061824381,
+      "sampled_peak_summed_rss_kib": 1471736,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/native_v4/guard.json",
+      "guard_sha256": "d1dcca49e184dee3937e27c6a315a02154d528a5a1e95a378de1b22d994e0bab",
+      "guarded_input_count": 11
+    }
+  },
+  "python_gates": {
+    "v2_original_focused_suite": {
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v2/supervision/receipt.json",
+      "receipt_sha256": "f67b50d30799b5f7995c86169941cee951e68051e737c8ce6a1ff501f8e0552d",
+      "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v2/supervision/stdout",
+      "stdout_sha256": "fee94dc814802c6a32d155c34c19f24948697a0ce1dad6e5a5bf6213c720f6a1",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 40.24743169406429,
+      "sampled_peak_summed_rss_kib": 1993372,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v2/guard.json",
+      "guard_sha256": "1c0c332a94e9513989be47106bb2a28982b1a98362295acfc5f54c838f5bc5a3",
+      "guarded_input_count": 283,
+      "collected": 21,
+      "passed": 20,
+      "failed": 1,
+      "failure_test": "test_complex_unbounded_maps_match_direct_native_table",
+      "failure_reason": "The added map test omitted required endpoint parameters. Existing roots/filter tests and the other new complex controls passed."
+    },
+    "v3_wrong_endpoint_probe": {
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v3/supervision/receipt.json",
+      "receipt_sha256": "a3bb95661cf49fb21878496171c205d2eaed9f1766b87141f83b90098bf28884",
+      "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v3/supervision/stdout",
+      "stdout_sha256": "b7d81ce68bf229b7c6bdc29b800b7fe9dcc74ac0596826600c81af92bfa8f56d",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 8.106703062076122,
+      "sampled_peak_summed_rss_kib": 509324,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v3/guard.json",
+      "guard_sha256": "0d0ba5b3cbb3367b9253755be378cc94a70dc9c9d1d73fc00416b4f3d27961a1",
+      "guarded_input_count": 280,
+      "collected": 1,
+      "passed": 0,
+      "failed": 1,
+      "failure_reason": "The isolated check initially used zero endpoints; the native capture driver actually uses b=3 and a=2. Preserved."
+    },
+    "v4_corrected_map_control": {
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v4/supervision/receipt.json",
+      "receipt_sha256": "06f0a9ca45acfd62d78c0f3b6384bbb96718ba869d488bfcfe514067471ce851",
+      "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v4/supervision/stdout",
+      "stdout_sha256": "c53e91cf430ce938a12048a26da8bea600d959a6a36f79fe19652017b0cf98d3",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.708413015119731,
+      "sampled_peak_summed_rss_kib": 510264,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v4/guard.json",
+      "guard_sha256": "e1b99f29a002405801e7763056c7f1bbbfd0a5bc03574e98eadf9fee0f165027",
+      "guarded_input_count": 280,
+      "collected": 1,
+      "passed": 1,
+      "failed": 0,
+      "test_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v4/test_complex_mapping_capture.py",
+      "test_sha256": "3b26bb8ea9a1551f7b12bcee707b05b0046d544211e88af63de231ef97b939de",
+      "native_endpoints": {
+        "left_b": 3,
+        "right_a": 2
+      }
+    },
+    "distinct_focused_passes": 21
+  },
+  "test_update": {
+    "path": "tests/test_chebfun1d/test_unbounded_endpoint_filter.py",
+    "candidate_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_complex_roots_20261011/candidate_f35_v5/overlay/tests/test_chebfun1d/test_unbounded_endpoint_filter.py",
+    "base_sha256": "44ac1ca9fb4811ea074c1d9be29e61d134fe3cc119b15e68b81bee9d0eb4d852",
+    "candidate_sha256": "4789bea86d056f5ce4d7ad87a7cbd66342d48e53a4beb3a5464a5dd236b7e5ae",
+    "changes": [
+      "replace obsolete nonreal-complex-filter bypass expectation",
+      "replace real-sorted zero-imag complex callback expectation with magnitude/phase complex-order coverage",
+      "add native complex min tie and endpoint-filter relation controls",
+      "add complex mapping values for captured exact endpoints"
+    ]
+  },
+  "scope_and_limits": {
+    "runtime": "Pinned CPU JAX 0.11.0; launchers and guards record the exact environment and source/test hashes.",
+    "validation": "Ruff was clean on initial source/test candidate; later changes only correct test endpoint parameters and clarify docstrings. Focused gate v2 plus corrected one-case v4; no broad suite rerun.",
+    "native_public_scope": "Direct native MATLAB sort/comparison/mapping behavior verified. Public adaptive Unbndfun complex-root execution remains unqualified: native_v1 unsupported-options failure and native_v2/native_v3 timeouts are preserved; native_v4 is direct-only.",
+    "publication_checkout_modified": false
+  }
+}

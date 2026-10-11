@@ -114,38 +114,75 @@ def test_identity_filter_preserves_unfiltered_roots(tech_type):
     np.testing.assert_array_equal(filtered, plain)
 
 
-def test_nonreal_complex_roots_bypass_filter(monkeypatch):
-    import chebfunjax.tech.chebtech as module
+def test_complex_endpoint_filter_uses_matlab_real_part_relations():
+    roots = jnp.asarray([-0.5 + 0.25j, 0.25 + 0.5j, 0.5 - 0.25j])
 
-    roots = jnp.asarray([0.25 + 0.5j, -0.25 - 0.5j])
-    monkeypatch.setattr(module, "_roots_main", lambda *args, **kwargs: roots)
-    tech = Chebtech2(coeffs=jnp.asarray([0.0, 0.0, 1.0]))
-    calls = []
+    class NonzeroTech:
+        vscale = 1.0
 
-    result = tech.roots(
-        all_roots=True,
-        filter=lambda values, _tech: calls.append(values) or values,
+        def __call__(self, x):
+            return jnp.ones_like(x, dtype=jnp.complex128)
+
+    # Exercise the callback directly: endpoint values are nonzero, so this
+    # case verifies complex values survive unchanged and stay in source order.
+    from chebfunjax.fun.unbndfun import _unbounded_endpoint_filter
+    out = _unbounded_endpoint_filter(roots, NonzeroTech())
+    np.testing.assert_array_equal(out, roots)
+
+
+def test_matlab_complex_min_tie_selection_matches_native_capture():
+    from chebfunjax.fun.unbndfun import _matlab_min_complex_one
+
+    theta = np.pi / 8
+    values = jnp.asarray([np.exp(-1j * theta), np.exp(1j * theta), 1j, -1j])
+    got = np.asarray(_matlab_min_complex_one(values**2))
+    expected = np.asarray([np.exp(-1j * np.pi / 4), 1 + 0j, 1 + 0j, 1 + 0j])
+    np.testing.assert_allclose(got, expected, atol=2e-16, rtol=0)
+
+
+def test_complex_unbounded_maps_match_direct_native_table():
+    from chebfunjax.fun.unbndfun import (
+        _forward_both,
+        _forward_left,
+        _forward_right,
     )
 
-    assert calls == []
-    np.testing.assert_array_equal(result, roots)
+    values = jnp.asarray([0.2 + 0.3j, 0.2 - 0.3j])
+    np.testing.assert_allclose(
+        _forward_both(values),
+        [0.7789417136717699 + 1.5175933387053451j,
+         0.7789417136717699 - 1.5175933387053451j],
+        atol=3e-15, rtol=0,
+    )
+    np.testing.assert_allclose(
+        _forward_left(values, 3.0),
+        [-5.529411764705882 + 5.882352941176471j,
+         -5.529411764705882 - 5.882352941176471j],
+        atol=3e-15, rtol=0,
+    )
+    np.testing.assert_allclose(
+        _forward_right(values, 2.0),
+        [19.876712328767123 + 12.328767123287671j,
+         19.876712328767123 - 12.328767123287671j],
+        atol=3e-15, rtol=0,
+    )
 
 
-def test_zero_imaginary_complex_roots_are_real_sorted_before_filter(monkeypatch):
+def test_complex_root_callback_receives_matlab_magnitude_phase_order(monkeypatch):
     import chebfunjax.tech.chebtech as module
 
-    roots = jnp.asarray([0.5 + 0.0j, -0.5 + 0.0j], dtype=jnp.complex128)
-    monkeypatch.setattr(module, "_roots_main", lambda *args, **kwargs: roots)
-    tech = Chebtech2(coeffs=jnp.asarray([0.0, 0.0, 1.0]))
-    observed = []
+    values = jnp.asarray([1 + 2j, 1 - 2j, -1 + 2j, -1 - 2j,
+                          1j, -1j, 0.2 + 0.3j, 0.2 - 0.3j])
+    expected = np.asarray([0.2 - 0.3j, 0.2 + 0.3j, -1j, 1j,
+                           -1 - 2j, 1 - 2j, 1 + 2j, -1 + 2j])
+    tech = Chebtech2(coeffs=jnp.asarray([1.0, 0.0, 1.0]))
+    monkeypatch.setattr(module, "_roots_main", lambda *a, **k: values)
+    seen = []
 
-    def observe(values, _tech):
-        observed.append((values.dtype, np.asarray(values).tolist()))
-        return values
+    def identity(roots, _tech):
+        seen.extend(np.asarray(roots).tolist())
+        return roots
 
-    result = tech.roots(all_roots=True, filter=observe)
-
-    assert len(observed) == 1
-    assert not jnp.issubdtype(observed[0][0], jnp.complexfloating)
-    np.testing.assert_array_equal(observed[0][1], [-0.5, 0.5])
-    np.testing.assert_array_equal(result, [-0.5, 0.5])
+    result = np.asarray(tech.roots(all_roots=True, filter=identity))
+    np.testing.assert_array_equal(np.asarray(seen), expected)
+    np.testing.assert_array_equal(result, expected)

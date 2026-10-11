@@ -44,13 +44,12 @@ def _unbounded_endpoint_filter(roots: jax.Array, tech) -> jax.Array:
     It intentionally uses eager host control flow for the variable-length
     root list; samples and magnitude tests remain JAX arrays.
 
-    Nonreal roots are left unchanged by the Tech callback boundary because
-    MATLAB complex sorting/relational semantics have not been qualified.
+    For complex roots, MATLAB relational comparisons use the real component;
+    the Tech callback supplies roots in MATLAB magnitude/phase sort order.
     """
     roots = jnp.asarray(roots)
-    if jnp.iscomplexobj(roots) and bool(jnp.any(jnp.imag(roots) != 0)):
-        return roots
-    roots = jnp.real(roots)
+    complex_roots = jnp.iscomplexobj(roots)
+    real_parts = jnp.real(roots)
     count = len(roots)
     if count == 0:
         return roots
@@ -61,7 +60,7 @@ def _unbounded_endpoint_filter(roots: jax.Array, tech) -> jax.Array:
 
     if bool(jnp.abs(tech(jnp.asarray(-1.0))) < tol):
         for k in range(count):
-            if bool(roots[k] > 0.0):
+            if bool(real_parts[k] > 0.0):
                 continue
             grid = jnp.linspace(-1.0, roots[k], sample_count)
             if bool(jnp.max(jnp.abs(tech(grid))) < tol):
@@ -71,7 +70,7 @@ def _unbounded_endpoint_filter(roots: jax.Array, tech) -> jax.Array:
 
     if bool(jnp.abs(tech(jnp.asarray(1.0))) < tol):
         for k in range(count - 1, -1, -1):
-            if bool(roots[k] < 0.0):
+            if bool(real_parts[k] < 0.0):
                 continue
             grid = jnp.linspace(roots[k], 1.0, sample_count)
             if bool(jnp.max(jnp.abs(tech(grid))) < tol):
@@ -79,7 +78,8 @@ def _unbounded_endpoint_filter(roots: jax.Array, tech) -> jax.Array:
             else:
                 break
 
-    return roots[~jnp.asarray(remove, dtype=jnp.bool_)]
+    filtered = roots[~jnp.asarray(remove, dtype=jnp.bool_)]
+    return filtered if complex_roots else jnp.real(filtered)
 
 
 def _isdecay(onefun) -> jax.Array:
@@ -198,6 +198,17 @@ def _derivative_left(y: jax.Array) -> jax.Array:
     return _SCALE_SEMI * 2.0 / (y + 1.0) ** 2
 
 
+def _matlab_min_complex_one(value: jax.Array) -> jax.Array:
+    """Elementwise min(value, 1) using MATLAB complex magnitude/phase order."""
+    value = jnp.asarray(value)
+    if not jnp.iscomplexobj(value):
+        return jnp.minimum(value, jnp.float64(1.0))
+    magnitude = jnp.abs(value)
+    phase = jnp.angle(value)
+    choose_value = (magnitude < 1.0) | ((magnitude == 1.0) & (phase < 0.0))
+    return jnp.where(choose_value, value, jnp.ones_like(value))
+
+
 def _forward_both(y: jax.Array) -> jax.Array:
     """Map s ∈ (-1, 1) → x ∈ (-∞, +∞).
 
@@ -212,7 +223,7 @@ def _forward_both(y: jax.Array) -> jax.Array:
     MATLAB source : @mapping/mapping.m ``unbounded`` static method (a==-inf, b==inf branch)
     Chebfun commit: 7574c77
     """
-    y2 = jnp.minimum(y ** 2, jnp.float64(1.0))
+    y2 = _matlab_min_complex_one(y ** 2)
     return _SCALE_BOTH * y / (1.0 - y2)
 
 

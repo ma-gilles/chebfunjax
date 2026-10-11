@@ -1,0 +1,32 @@
+{
+  "scope": "Preserve complex and scalar polynomial coefficients in JAX Horner evaluation; enforce matrix/array-valued dimension guard.",
+  "native_pin": "7574c77",
+  "baseline": {
+    "original": 13886,
+    "failed": 5,
+    "terminal": 1
+  },
+  "candidate": {
+    "original": 77511,
+    "terminal": 0,
+    "passed": 6,
+    "note": "Five new controls plus one existing MATLAB-port test containing four original predicates. Existing seeded Python RNG input equivalence was not separately captured from MATLAB.",
+    "wall_seconds": 15.676199833396822,
+    "peak_rss_kib": 1075656,
+    "inputs_stable": true,
+    "censored": false,
+    "survivors": []
+  },
+  "limits": [
+    "List output remains the existing Python quasimatrix adapter.",
+    "Full-suite/currentCI not claimed."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_baseline_20261011/guard.json": "e177d59af55417dbcf64aa0535c476ed276c7f9cdd404273587cd041f5f68a77",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_baseline_20261011/junit.xml": "9659b463112c29d689de1fe82e86c91e63c46c35218e06259de0e599353bc28c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_baseline_20261011/supervision/receipt.json": "d2f79aaf18850fa3caddc22e4d2b1b7e1fb01d3c27ba6af241936c2583028659",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_candidate_20261011/guard.json": "799eba2839e7991816ea1777fe4572d347904bd952689b8ae8fc63cc032e1936",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_candidate_20261011/junit.xml": "33091b1326ffe2f2334367e2dfc880680e7b14c313c1069954446ff90f78ad8e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyval_complex_candidate_20261011/supervision/receipt.json": "7633454c6b976705101638230b3bda13b9154b1203361b5dc4a5eae94d4bc4c0"
+  }
+}
