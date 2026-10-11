@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Rational-interpolation fitting moved to JAX (2026-10-10)
+
+Ratinterp fitting now uses JAX FFT/SVD/QR and source-order Chebtech transforms.
+Twenty-five retained cases and four new backend checks pass; a repeated
+observational wrapper accounts for the reported total of30. The qualified
+run used2,545,772KiB sampled RSS within the unchanged3GiB cap. The earlier
+memory-capped candidate is preserved. The historical ratinterp59 label has
+no located counterexample and remains unresolved; no speedup is claimed.
+Legacy Pade/trigonometric fitting migration remains open. Evidence:
+docs/ratinterp_jax_cpu_20261010.json.
+
 ## Ballfun multiplication and Nyquist evaluation fixed (2026-10-10)
 
 Multiplication now uses JAX source transforms, summed dimensions and native

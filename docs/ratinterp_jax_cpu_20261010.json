@@ -1,0 +1,75 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "JAX FFT, SVD, matrix assembly, node and symmetry arithmetic replaces host fitting kernels",
+    "Existing native-order Chebtech1/2 whole-column FFT transforms replace legacy dense/column assembly",
+    "JIT groups array-only kernels; arbitrary ChebVander sequential recurrence uses lax.fori_loop"
+  ],
+  "qualified_cases": "25 retained pytest cases plus four distinct backend cases. An observational wrapper repeated two retained methods, yielding30 reported cases; it is not additional unique coverage.",
+  "qualification": {
+    "original": 59026,
+    "faults": [],
+    "source_bindings": 45672,
+    "observed_runtime_files": 3050,
+    "runtime_mismatches": [],
+    "binary_mismatches": [],
+    "wall_seconds": 99.64694783091545,
+    "peak_rss_kib": 2545772,
+    "terminal": 0,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/guard.json": "5dc0312acaf0d436b63cbb4a317029605ba2aaa9eed3e46a7f15eaf59755727b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/manifest.json": "88d07a07cbe5acc7557add3f16f1c217154d9bf41c02e54df1334aca9e5050ea",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/replay.json": "c3ee0079d4c2b375ec86dcd81b3386ffe2ddb64e9b49f44a80b50674817bf626",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/runtime/end.json": "87486f189f504d1cba0f1f7e94c0ef294c60f0e08a1fa8c819b530c99e240d8f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/supervision/receipt.json": "e6cef42aa6aaf86134199f624a1169e8d22694762df2c550573ec0ee5c814940",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/junit.xml": "731ca5090ca6f764fe50463bc16a7b7eda1ca56ad2cc5df6068aab4022213e4e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/test_replay.py": "dc089b3932df965fb3b1a9fcaaadd99559283dd9c5f3da2a4ca03710de75d4c7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v2_gate/launch.sh": "fd369ebe492d057a22933aa11b9ba142a024f2a47939103b2941bc2a89f0d409"
+    }
+  },
+  "baseline": {
+    "original": 53409,
+    "faults": [],
+    "source_bindings": 45668,
+    "observed_runtime_files": 3050,
+    "runtime_mismatches": [],
+    "binary_mismatches": [],
+    "wall_seconds": 95.76540027931333,
+    "peak_rss_kib": 2491856,
+    "terminal": 0,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/guard.json": "34c8dbe76283cde60fd6958b65f59d8d16306db9bd1443fbf353b359f0162913",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/manifest.json": "368d354de92fe01cefa3ea276329905c2da635d689b7f2aeb2cf1802a3925322",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/replay.json": "bf57cd5f94e56f2b2a8e689ab37bbed6a93a2252199ef0e014e46d795a59d33d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/runtime/end.json": "260e64c48fa538308dd33a6fd266a5aa501a759fbf451f753c20b27b5ae13d7b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/supervision/receipt.json": "5333f59cc8a69999fdc76f79d0d5351c1d66e3d649f4c9eba194892481f416b6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/junit.xml": "c8609fc5f2af051e86bfc82e13ea86f556660772401fa2da7b8a704e68ffe757",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/test_replay.py": "4bbb7bb8deef48acd2c823f5423e278d1ab2ce4e1d4527ab047c62592d129cc4",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/baseline/launch.sh": "ecb58e24949857606a59645158245684a8324e64635a981cdc8238d5bb92dbe9"
+    }
+  },
+  "preserved_failure": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_conditioning_20261010/candidate_v1_gate",
+    "original": 75563,
+    "outcome": "3 GiB sampled RSS cap, terminal137; no full qualification",
+    "peak_rss_kib": 3160028
+  },
+  "limits": [
+    "No located ratinterp59 failure and no claim of its repair",
+    "No fresh native MATLAB run for this migration; unchanged retained source-port clauses are used",
+    "Arbitrary-node symmetry sort semantics and near-multiple residue clustering remain previous limitations",
+    "Legacy Pade/trigonometric fitting still uses NumPy",
+    "No performance speedup claim; full bounded gate memory was 2545772 KiB versus baseline2491856 KiB"
+  ],
+  "root_review": {
+    "delivery_sha256": "07476eb555d809aff4b2f1dc7e0d96eaf6fc280195a358fa3816612e91a078cb",
+    "artifact_bindings_rehashed": 25,
+    "production_ast_matches_tested": true,
+    "new_test_function_ast_matches_tested": true,
+    "baseline_matches_preintegration_source": true
+  },
+  "delivery_adjustments": [
+    "Only comment correction relative to tested production source; AST identical",
+    "New test function extracted verbatim AST from qualified gate; original tests unchanged"
+  ]
+}

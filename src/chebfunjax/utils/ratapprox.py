@@ -1,4 +1,5 @@
-# uses-numpy: rational interpolation uses numpy/scipy SVD and eigenvalue solvers (not JIT-safe)
+# uses-numpy: legacy Pade and trigonometric rational fitting retain NumPy kernels.
+# ratinterp fitting uses JAX kernels with eager degree and shape decisions.
 """Rational approximation: Padé, rational interpolation, trig rational interpolation.
 
 Translated from MATLAB Chebfun (commit 7574c77): padeapprox.m, ratinterp.m,
@@ -10,6 +11,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
+from functools import partial
 
 import jax
 import jax.numpy as jnp
@@ -332,9 +334,9 @@ def ratinterp(
     -------
     r_handle : callable
         Function handle for the rational approximant on ``domain``.
-    a : np.ndarray
+    a : JAX array
         Numerator coefficients in the Chebyshev/trigonometric basis.
-    b : np.ndarray
+    b : JAX array
         Denominator coefficients in the Chebyshev/trigonometric basis.
     mu : int
         Exact numerator degree.
@@ -350,6 +352,11 @@ def ratinterp(
 
     Notes
     -----
+    FFTs, SVD, QR and coefficient arithmetic use JAX. Robust degree
+    selection uses eager scalar decisions and produces dynamic output shapes;
+    the fitting adapter is not JIT-transformable. Returned handles retain
+    their existing traced evaluation support.
+
     Developer notes from MATLAB Chebfun (ratinterp.m):
 
     The algorithm is described in Gonnet, Pachon & Trefethen (2011) and
@@ -415,14 +422,14 @@ def ratinterp(
         else:
             raise ValueError(f"ratinterp: unrecognized node type '{xi}'.")
     else:
-        xi_nodes = np.asarray(xi, dtype=complex).ravel()
+        xi_nodes = jnp.asarray(xi, dtype=complex).ravel()
         xi_type = "ARBITRARY"
         if NN is None:
             NN = len(xi_nodes)
 
     # If f is a data vector, infer NN from its length (unless explicitly given).
     if NN is None and not callable(f):
-        f_arr = np.asarray(f, dtype=complex).ravel()
+        f_arr = jnp.asarray(f, dtype=complex).ravel()
         NN = len(f_arr)
     elif NN is None:
         NN = m + n + 1
@@ -438,13 +445,13 @@ def ratinterp(
     # 2.  Generate nodes (scaled to [-1, 1] or complex unit circle)
     # ------------------------------------------------------------------
     if xi_type == "TYPE0":
-        xi_nodes = np.exp(2j * np.pi * np.arange(N1) / N1)
+        xi_nodes = jnp.exp(2j * jnp.pi * jnp.arange(N1) / N1)
     elif xi_type == "TYPE1":
-        xi_nodes = np.array(chebpts(N1, kind=1))
+        xi_nodes = jnp.array(chebpts(N1, kind=1))
     elif xi_type == "TYPE2":
-        xi_nodes = np.array(chebpts(N1, kind=2))
+        xi_nodes = jnp.array(chebpts(N1, kind=2))
     elif xi_type == "EQUI":
-        xi_nodes = np.linspace(-1.0, 1.0, N1)
+        xi_nodes = jnp.linspace(-1.0, 1.0, N1)
     elif xi_type == "ARBITRARY":
         # scale arbitrary nodes from [a, b] to [-1, 1]
         mid = 0.5 * (a_dom + b_dom)
@@ -459,15 +466,15 @@ def ratinterp(
 
     if callable(f):
         x_physical = mid + hd * xi_nodes
-        fvals = np.asarray(f(x_physical), dtype=complex).ravel()
+        fvals = jnp.asarray(f(x_physical), dtype=complex).ravel()
     else:
-        fvals = np.asarray(f, dtype=complex).ravel()
+        fvals = jnp.asarray(f, dtype=complex).ravel()
         if len(fvals) != N1:
             raise ValueError(
                 f"ratinterp: length of f ({len(fvals)}) must equal NN ({N1})."
             )
 
-    ts = tol * np.linalg.norm(fvals, np.inf)
+    ts = tol * jnp.linalg.norm(fvals, jnp.inf)
 
     # ------------------------------------------------------------------
     # 4.  Check symmetries
@@ -580,17 +587,18 @@ def _check_symmetries(f, xi, xi_type, ts):
                 M = N // 2
                 fl = f[1: M + 1]
                 fr = f[N1 - M:]
-                fEven = np.linalg.norm(fl - fr, np.inf) < ts
-                fOdd = np.linalg.norm(fl + fr, np.inf) < ts
+                fEven = jnp.linalg.norm(fl - fr, jnp.inf) < ts
+                fOdd = jnp.linalg.norm(fl + fr, jnp.inf) < ts
         else:  # TYPE1 or TYPE2 Chebyshev
-            M = int(np.ceil(N / 2))
+            M = (N + 1) // 2
             fl = f[:M]
             fr = f[-1:N1 - M - 1:-1]
-            fEven = np.linalg.norm(fl - fr, np.inf) < ts
-            fOdd = np.linalg.norm(fl + fr, np.inf) < ts
-    return fEven, fOdd
+            fEven = jnp.linalg.norm(fl - fr, jnp.inf) < ts
+            fOdd = jnp.linalg.norm(fl + fr, jnp.inf) < ts
+    return bool(fEven), bool(fOdd)
 
 
+@partial(jax.jit, static_argnames=("n", "xi_type", "N1"))
 def _assemble_matrices_rat(f, n, xi, xi_type, N1):
     """Build the Z matrix (and QR factor R for arbitrary nodes)."""
     R_qr = None
@@ -599,16 +607,16 @@ def _assemble_matrices_rat(f, n, xi, xi_type, N1):
     if xi_type.upper().startswith("TYPE"):
         ch = xi_type[4]
         if ch == "0":  # roots of unity
-            row = np.conj(np.fft.fft(np.conj(f))) / N1
-            col = np.fft.fft(f) / N1
-            col[0] = row[0]
+            row = jnp.conj(jnp.fft.fft(jnp.conj(f))) / N1
+            col = jnp.fft.fft(f) / N1
+            col = col.at[0].set(row[0])
             Z = _build_toeplitz_complex(col, row[: n + 1])
         elif ch == "1":  # 1st-kind Chebyshev
             D = _chebtech1_coeffs2vals_matrix(N1)
-            Z = _chebtech1_vals2coeffs_matrix_apply(np.diag(f) @ D[:, : n + 1], N1)
+            Z = _chebtech1_vals2coeffs_matrix_apply(jnp.diag(f) @ D[:, : n + 1], N1)
         else:  # 2nd-kind Chebyshev (TYPE2)
             D = _chebtech2_coeffs2vals_matrix(N1)
-            Z = _chebtech2_vals2coeffs_matrix_apply(np.diag(f) @ D[:, : n + 1], N1)
+            Z = _chebtech2_vals2coeffs_matrix_apply(jnp.diag(f) @ D[:, : n + 1], N1)
     else:  # ARBITRARY nodes — complex Chebyshev Vandermonde and QR
         xi = jnp.asarray(xi)
         f = jnp.asarray(f)
@@ -616,8 +624,11 @@ def _assemble_matrices_rat(f, n, xi, xi_type, N1):
         C = jnp.ones((N1, N1), dtype=dtype)
         if N1 > 1:
             C = C.at[:, 1].set(xi)
-        for k in range(2, N1):
-            C = C.at[:, k].set(2 * xi * C[:, k - 1] - C[:, k - 2])
+        def recurrence(k, columns):
+            return columns.at[:, k].set(
+                2 * xi * columns[:, k - 1] - columns[:, k - 2])
+
+        C = jax.lax.fori_loop(2, N1, recurrence, C)
         Q_qr, R_qr = jnp.linalg.qr(C)
         Z = Q_qr.conj().T @ jnp.diag(f) @ Q_qr[:, : n + 1]
 
@@ -625,66 +636,42 @@ def _assemble_matrices_rat(f, n, xi, xi_type, N1):
 
 
 def _chebtech2_coeffs2vals_matrix(N):
-    """Dense (N x N) matrix: Chebyshev coefficients -> values at 2nd-kind pts."""
-    eye_N = np.eye(N)
-    result = np.zeros((N, N))
-    for j in range(N):
-        result[:, j] = np.array(coeffs2vals(jnp.array(eye_N[:, j], dtype=jnp.float64)))
-    return result
+    """Source transform of the complete identity matrix.
+
+    Provenance: ratinterp.m assembleMatrices, Chebfun 7574c77.
+    """
+    return coeffs2vals(jnp.eye(N, dtype=jnp.float64))
 
 
 def _chebtech2_vals2coeffs_matrix_apply(V, N):
-    """Apply vals2coeffs column-by-column to build Z.
+    """Source whole-column Chebtech2 transform, preserving complex data.
 
-    Z = vals2coeffs(diag(f) @ D) is complex whenever f is; taking
-    np.real here handed the denominator SVD only Re(f), which forces a
-    REAL denominator -- its roots then come in conjugate pairs even when
-    the true poles of a complex-valued f do not (ThreeBodyProblem's
-    poles were all conjugate-paired and 2-5% off).  The real path is
-    bit-identical.
+    Provenance: ratinterp.m assembleMatrices, Chebfun 7574c77.
     """
-    _, ncols = V.shape
-    if np.iscomplexobj(V):
-        result = np.zeros((N, ncols), dtype=complex)
-        for j in range(ncols):
-            result[:, j] = _v2c_any(V[:, j])
-        return result
-    result = np.zeros((N, ncols))
-    for j in range(ncols):
-        result[:, j] = np.array(
-            vals2coeffs(jnp.array(np.real(V[:, j]), dtype=jnp.float64))
-        )
-    return result
+    return vals2coeffs(jnp.asarray(V))
 
 
 def _chebtech1_coeffs2vals_matrix(N):
-    """Dense (N x N) matrix: Chebyshev coefficients -> values at 1st-kind pts."""
-    # DCT-III: c_k -> v_j = sum_k c_k T_k(x_j), x_j = cos((2j-1)*pi/(2N))
-    k = np.arange(N)
-    j = np.arange(N)
-    T = np.cos(np.outer((2 * j[::-1] + 1), k) * np.pi / (2 * N))
-    return T
+    """Source Chebtech1 FFT transform of the identity matrix.
+
+    Provenance: ratinterp.m assembleMatrices, Chebfun 7574c77.
+    """
+    from chebfunjax.tech.chebtech import _chebtech1_coeffs2vals
+
+    return _chebtech1_coeffs2vals(jnp.eye(N, dtype=jnp.float64))
 
 
 def _chebtech1_vals2coeffs_matrix_apply(V, N):
-    """Apply the source Chebtech1 DCT-II matrix to every value column.
+    """Source Chebtech1 FFT transform for all value columns.
 
-    Provenance
-    ----------
-    MATLAB source : @chebtech1/vals2coeffs.m
-    Chebfun commit: 7574c77
+    Provenance: ratinterp.m assembleMatrices, Chebfun 7574c77.
     """
-    V = jnp.asarray(V)
-    k = jnp.arange(N, dtype=jnp.float64)
-    j = jnp.arange(N, dtype=jnp.float64)
-    # DCT-II: c_k = (2/N) * sum_j v_j * cos(k*(2j+1)*pi/(2N)),
-    # with c_0 halved. Preserve the input's complex part.
-    T = jnp.cos(jnp.outer(k, 2 * j[::-1] + 1) * jnp.pi / (2 * N))
-    T_scaled = (2.0 / N) * T
-    T_scaled = T_scaled.at[0, :].multiply(0.5)
-    return T_scaled @ V
+    from chebfunjax.tech.chebtech import _chebtech1_vals2coeffs
+
+    return _chebtech1_vals2coeffs(jnp.asarray(V))
 
 
+@partial(jax.jit, static_argnames=("N1",))
 def _qr_to_cheb_basis(a_hat, b_hat, R_qr, N1):
     """Convert orthogonal-basis coefficients without discarding complex data.
 
@@ -711,12 +698,12 @@ def _build_toeplitz_complex(col, row):
     """Build a Toeplitz matrix (complex) with first column col and first row row."""
     m = len(col)
     nc = len(row)
-    indices = np.arange(m)[:, None] - np.arange(nc)[None, :]
-    col_ext = np.concatenate([col, np.zeros(nc - 1, dtype=complex)])
-    row_ext = np.concatenate([row, np.zeros(m - 1, dtype=complex)])
-    pos_idx = np.abs(indices)
+    indices = jnp.arange(m)[:, None] - jnp.arange(nc)[None, :]
+    col_ext = jnp.concatenate([col, jnp.zeros(nc - 1, dtype=complex)])
+    row_ext = jnp.concatenate([row, jnp.zeros(m - 1, dtype=complex)])
+    pos_idx = jnp.abs(indices)
     mask = indices >= 0
-    result = np.where(mask, col_ext[pos_idx], row_ext[pos_idx])
+    result = jnp.where(mask, col_ext[pos_idx], row_ext[pos_idx])
     return result
 
 
@@ -748,16 +735,16 @@ def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
                 # returns the FULL right factor V, so ``V(:,end)`` (the
                 # trailing/null direction) is numpy's full_matrices Vh[-1].
                 sub = Z[m + 1: N1, : n + 1]
-                _, S, Vh = np.linalg.svd(sub, full_matrices=True)
+                _, S, Vh = jnp.linalg.svd(sub, full_matrices=True)
                 ns = n
                 b = Vh[-1, :].conj()
             else:
                 # svd(Z(m+2+shift:2:N1, 1:2:n+1), 0).
                 sub = Z[m + 1 + shift: N1: 2, 0: n + 1: 2]
-                _, S, Vh = np.linalg.svd(sub, full_matrices=True)
+                _, S, Vh = jnp.linalg.svd(sub, full_matrices=True)
                 ns = n // 2
-                b = np.zeros(n + 1, dtype=complex)
-                b[::2] = Vh[-1, :].conj()
+                b = jnp.zeros(n + 1, dtype=complex)
+                b = b.at[::2].set(Vh[-1, :].conj())
 
             # ssv = S(ns, ns).  S holds min(rows, cols) singular values;
             # the ns-th diagonal entry is zero when ns exceeds that count.
@@ -766,7 +753,7 @@ def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
                 s = S[:ns]
                 ssv = S[ns - 1]
             else:
-                s = np.concatenate([S, np.zeros(ns - k)])
+                s = jnp.concatenate([S, jnp.zeros(ns - k)])
                 ssv = 0.0
 
             if ssv > ts:
@@ -776,61 +763,51 @@ def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
             # Reduce the denominator degree by the number of singular
             # values clustered within ts of the smallest.
             if fEven or fOdd:
-                n = n - 2 * int(np.sum(s - ssv <= ts))
+                n = n - 2 * int(jnp.sum(s - ssv <= ts))
             else:
-                n = n - int(np.sum(s - ssv <= ts))
+                n = n - int(jnp.sum(s - ssv <= ts))
 
             # Terminate on a trivial denominator.
             if n == 0:
-                b = np.array([1.0])
+                b = jnp.array([1.0])
                 break
             elif n == 1:
                 if fEven:
-                    b = np.array([1.0, 0.0])
+                    b = jnp.array([1.0, 0.0])
                     break
                 elif fOdd:
-                    b = np.array([0.0, 1.0])
+                    b = jnp.array([0.0, 1.0])
                     break
     elif n > 0:
         if fEven:
-            b = np.array([1.0, 0.0])
+            b = jnp.array([1.0, 0.0])
         elif fOdd:
-            b = np.array([0.0, 1.0])
+            b = jnp.array([0.0, 1.0])
         else:
-            b = np.array([1.0])
+            b = jnp.array([1.0])
     else:
-        b = np.array([1.0])
+        b = jnp.array([1.0])
 
     return b, n
 
 
 def _c2v_any(c):
-    """coeffs2vals for real OR complex coefficients.
+    """Source real-linear JAX Chebtech2 coefficient transform.
 
-    The transform is linear, so a complex series is handled exactly by
-    transforming its real and imaginary parts separately.  The jnp
-    routines take float64 only, and casting a complex series through
-    them silently discards Im -- which is what made ratinterp wrong for
-    every complex-valued f (ode-nonlin/ThreeBodyProblem).
+    Provenance: ratinterp.m computeNumeratorCoeffs, Chebfun 7574c77.
     """
-    c = np.asarray(c)
-    if np.iscomplexobj(c):
-        return (np.array(coeffs2vals(jnp.array(c.real, dtype=jnp.float64)))
-                + 1j * np.array(
-                    coeffs2vals(jnp.array(c.imag, dtype=jnp.float64))))
-    return np.array(coeffs2vals(jnp.array(c, dtype=jnp.float64)))
+    return coeffs2vals(jnp.asarray(c))
 
 
 def _v2c_any(v):
-    """vals2coeffs for real OR complex values (see :func:`_c2v_any`)."""
-    v = np.asarray(v)
-    if np.iscomplexobj(v):
-        return (np.array(vals2coeffs(jnp.array(v.real, dtype=jnp.float64)))
-                + 1j * np.array(
-                    vals2coeffs(jnp.array(v.imag, dtype=jnp.float64))))
-    return np.array(vals2coeffs(jnp.array(v, dtype=jnp.float64)))
+    """Source real-linear JAX Chebtech2 value transform.
+
+    Provenance: ratinterp.m computeNumeratorCoeffs, Chebfun 7574c77.
+    """
+    return vals2coeffs(jnp.asarray(v))
 
 
+@partial(jax.jit, static_argnames=("m", "n", "xi_type", "fEven", "fOdd", "N", "N1"))
 def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
                                R_qr=None, Q_qr=None):
     """Compute numerator Chebyshev coefficients a (or QR-basis coefficients
@@ -838,26 +815,28 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
     if xi_type.upper().startswith("TYPE"):
         ch = xi_type[4]
         if ch == "0":
-            b_pad = np.zeros(N1, dtype=complex)
-            b_pad[: len(b)] = b
-            a = np.fft.fft(np.fft.ifft(b_pad) * f)
+            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = b_pad.at[: len(b)].set(b)
+            a = jnp.fft.fft(jnp.fft.ifft(b_pad) * f)
             a = a[: m + 1]
         elif ch == "1":
-            b_pad = np.zeros(N1, dtype=complex)
-            b_pad[: len(b)] = b
+            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = b_pad.at[: len(b)].set(b)
             # Evaluate b polynomial at 1st-kind Chebyshev points then multiply by f
             # keep b_pad and f complex: the matrix is real, so the
             # product is exact for a complex operand
-            b_vals = _chebtech1_coeffs2vals_matrix(N1) @ b_pad
-            a_vals = b_vals * np.asarray(f)
+            from chebfunjax.tech.chebtech import _chebtech1_coeffs2vals
+
+            b_vals = _chebtech1_coeffs2vals(b_pad)
+            a_vals = b_vals * jnp.asarray(f)
             # Convert back to coefficients
             a = _chebtech1_vals2coeffs_matrix_apply(a_vals[:, None], N1).ravel()
             a = a[: m + 1]
         else:  # TYPE2
-            b_pad = np.zeros(N1, dtype=complex)
-            b_pad[: len(b)] = b
+            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = b_pad.at[: len(b)].set(b)
             b_vals = _c2v_any(b_pad)
-            a_vals = b_vals * np.asarray(f)
+            a_vals = b_vals * jnp.asarray(f)
             a = _v2c_any(a_vals)
             a = a[: m + 1]
     else:
