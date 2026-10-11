@@ -1,0 +1,37 @@
+{
+  "status": "qualified test-port API correction; no library or tolerance changes",
+  "base": "f88a7818",
+  "native_commit": "7574c77",
+  "source": "tests/chebfun2/test_guide.m pass(6:11)",
+  "cause": "Port still called sum outputs as bivariate functions after library adopted native univariate/scalar return contracts.",
+  "changes": [
+    "Use transposed univariate reference for dimension1 and ordinary univariate reference for dimension2, continuous L2 norms at original1000eps bound.",
+    "Supply analytic zero value at removable singular endpoint in reference handle.",
+    "Nested univariate sum returns scalar; no function call or dimension2 argument needed."
+  ],
+  "gate": {
+    "original_handle": 63710,
+    "cases": 2,
+    "native_clauses": 6,
+    "peak_summed_rss_kib": 1441220,
+    "wall_seconds": 25.126934537664056,
+    "input_count": 320,
+    "terminal": 0,
+    "uncensored": true,
+    "no_survivors": true
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_sum_contract_v2_20261011/gate/guard.json": "7a8def967c9bbefa49af88275469a0c87c9737c1c362220df42482836445f5d9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_sum_contract_v2_20261011/gate/supervision/receipt.json": "a3fa8a1fd81be175f7da9e4f6cbcd15963b335a65bb087cff830b784d666fd1e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_sum_contract_v2_20261011/gate/junit.xml": "2bd06fcd52d0a2081cbe420f779b6e29a249494f8db95da0c0ddb3354ee56d11",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_sum_contract_v2_20261011/snapshot/tests/test_matlab_port/chebfun2/test_guide_matlab.py": "b9927900ebea39a89eb523f8a840f5543f049a79589fd40bde1eda2e51325cc6"
+  },
+  "preserved_failures": [
+    "CI38100782984 and38100464692 original API exceptions, logs in ci_failure_review_20261011.",
+    "Private original58473: clause6 reference omitted native transpose, so failed orientation check before numeric assertion; one other case passed. Corrected fixture in freshv2."
+  ],
+  "limits": [
+    "Only clauses6:11 qualified here; other guide cases retain historical domain/norm/tolerance adaptations and need separate parity review.",
+    "CI on latestmain still required."
+  ]
+}

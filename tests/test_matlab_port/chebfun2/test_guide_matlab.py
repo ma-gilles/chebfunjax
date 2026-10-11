@@ -84,23 +84,17 @@ class TestChebfun2Guide:
         d = (0.0, np.pi / 4, 0.0, 3.0)
         f = Chebfun2.from_function(lambda x, y: jnp.sin(10 * x * y),
                                    domain=d)
-        # pass 6: integrate over y -> function of x
+        # Native sums return a univariate Chebfun and then a scalar.
+        # Supply the analytic removable endpoint value in the reference handle.
         s1 = f.sum(dim=1)
-        xs = np.linspace(1e-8, np.pi / 4, 80)
-        exact_x = np.sin(15 * xs) ** 2 / xs / 5.0
-        v1 = np.asarray(s1(jnp.asarray(xs), jnp.full_like(xs, 1.5)))
-        assert float(np.max(np.abs(v1 - exact_x))) < TOL
-        # pass 7: integrate over x -> function of y
+        xref = chebfun(lambda x: jnp.where(x == 0, 0.,
+                         jnp.sin(15*x)**2 / x / 5.), domain=(0., np.pi/4))
+        assert float((s1 - xref.T).norm()) < TOL  # Native pass(6), continuous norm.
         s2 = f.sum(dim=2)
-        ys = np.linspace(1e-8, 3.0, 80)
-        exact_y = np.sin(5 * np.pi * ys / 4) ** 2 / ys / 5.0
-        v2 = np.asarray(s2(jnp.full_like(ys, 0.4), jnp.asarray(ys)))
-        assert float(np.max(np.abs(v2 - exact_y))) < TOL
-        # pass 8: sum2 == sum(sum).  sum(dim) returns a Chebfun2 flat in
-        # the integrated variable; the scalar is read off at the midpoint.
-        ss = s1.sum(dim=2)
-        mid = (jnp.asarray(np.pi / 8), jnp.asarray(1.5))
-        assert abs(float(f.sum2()) - float(ss(*mid))) < TOL
+        yref = chebfun(lambda y: jnp.where(y == 0, 0.,
+                         jnp.sin(5*np.pi*y/4)**2 / y / 5.), domain=(0., 3.))
+        assert float((s2 - yref).norm()) < TOL  # Native pass(7).
+        assert abs(float(f.sum2()) - float(s1.sum())) < TOL
 
     def test_pass9to11_quad2d_agreement(self):
         from scipy.integrate import dblquad
@@ -113,8 +107,7 @@ class TestChebfun2Guide:
         f = Chebfun2.from_function(
             lambda x, y: jnp.exp(-(x**2 + y**2 + jnp.cos(4 * x * y))))
         I3 = float(f.sum2())
-        ss = f.sum(dim=1).sum(dim=2)
-        I2 = float(ss(jnp.asarray(0.0), jnp.asarray(0.0)))
+        I2 = float(f.sum(dim=1).sum())
         assert abs(I1 - I2) < TOL
         assert abs(I2 - I3) < TOL
         assert abs(I1 - I3) < TOL
