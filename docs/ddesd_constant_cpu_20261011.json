@@ -1,0 +1,248 @@
+{
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddesd_constant_20261011/delivery/DELIVERY.json",
+  "delivery_sha256": "ea707451ed8a9167bb272a26b14a8f0f0d5a9d984b1512559e3d3666b221b5e1",
+  "verified_bindings": 90,
+  "evidence": {
+    "scope": "Reusable JAX forward real binary64 constant-positive-delay DDESD subset. Full MATLAB API and bitwise mesh parity are not claimed. No full page-slot22 completion claim.",
+    "source": {
+      "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/ddesd.m": "3bd907179c297fa6fa6862277389860cb1543d52f3ae7b05d028243e4a4fc56e",
+      "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp3h.m": "5c44de3580a2d15f53ef7551b541b17cb086212a07820c783f31350c3732af31",
+      "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/+matlab/+ode/+internal/+dde/lagvals.m": "4d9f410b5a85ad3df33b9d7f2c77fe917bcddce090b4eadd5aa8b15d2f80e57b",
+      "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/examples/ddex1de.m": "480a9ea5f12e7ce5196a4e8ff128af23ba26baa0f9e83aa51eaf2d9b0cd19421",
+      "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/examples/ddex1hist.m": "6547136c46bf7595202be845091695f12f2f63cd998b888f1033ab48fbf4e6ab"
+    },
+    "api": "ddesd(fun, delays, history, tspan, options=None, *args) returns natural x/y/yp, counts and success. Numeric/JAX-callable history; scalar/vector tolerances; InitialStep, MaxStep, MinStep, InitialY. Reject functional/state-dependent delays, events, continuation histories, callbacks, norm control/refinement, complex/lower precision and matrix-shaped vectors.",
+    "algorithm": "Literal RK4/Hermite delayed history,2 implicit iterations, two source residual points/factor2.1342, fourth-order source controller, endpoint/hmin/failed-step behavior. No ode45/ode113 substitution, native fixture use or arbitrary attempt cap.",
+    "gates": {
+      "kernels_v1": {
+        "original": 69984,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 541096,
+        "wall_seconds": 4.767314461991191,
+        "test_ids": [
+          "test_kernels::test_cubic_hermite_values_and_derivatives",
+          "test_kernels::test_history_order_endpoints_and_unused_capacity",
+          "test_kernels::test_step_controller[True-True-2.0]",
+          "test_kernels::test_step_controller[True-False-1.0]",
+          "test_kernels::test_step_controller[False-True-0.5]",
+          "test_kernels::test_step_controller[False-False-0.5]",
+          "test_kernels::test_rk4_trial_and_implicit_iteration[1.0-6]",
+          "test_kernels::test_rk4_trial_and_implicit_iteration[0.1-10]",
+          "test_kernels::test_unsupported_paths_rejected[events]",
+          "test_kernels::test_unsupported_paths_rejected[function_delays]",
+          "test_kernels::test_unsupported_paths_rejected[continuation]",
+          "test_kernels::test_unsupported_paths_rejected[normcontrol]"
+        ]
+      },
+      "solver_v1": {
+        "original": 66824,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 680196,
+        "wall_seconds": 7.40869865892455,
+        "test_ids": [
+          "test_solver::test_vector_history_and_argument_forwarding",
+          "test_solver::test_real_delayed_polynomial_segments",
+          "test_solver::test_negative_start_and_explicit_fixed_step",
+          "test_solver::test_nonpositive_or_empty_delay_rejected[delays0]",
+          "test_solver::test_nonpositive_or_empty_delay_rejected[delays1]",
+          "test_solver::test_nonpositive_or_empty_delay_rejected[delays2]"
+        ]
+      },
+      "literal_v1": {
+        "original": 94705,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 864680,
+        "wall_seconds": 13.636172397062182
+      },
+      "controls_v2": {
+        "original": 33574,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 755696,
+        "wall_seconds": 9.619371504988521,
+        "test_ids": [
+          "tests_v2.test_kernels::test_cubic_hermite_values_and_derivatives",
+          "tests_v2.test_kernels::test_history_order_endpoints_and_unused_capacity",
+          "tests_v2.test_kernels::test_step_controller[True-True-2.0]",
+          "tests_v2.test_kernels::test_step_controller[True-False-1.0]",
+          "tests_v2.test_kernels::test_step_controller[False-True-0.5]",
+          "tests_v2.test_kernels::test_step_controller[False-False-0.5]",
+          "tests_v2.test_kernels::test_rk4_trial_and_implicit_iteration[1.0-6]",
+          "tests_v2.test_kernels::test_rk4_trial_and_implicit_iteration[0.1-10]",
+          "tests_v2.test_kernels::test_unsupported_paths_rejected[events]",
+          "tests_v2.test_kernels::test_unsupported_paths_rejected[function_delays]",
+          "tests_v2.test_kernels::test_unsupported_paths_rejected[continuation]",
+          "tests_v2.test_kernels::test_unsupported_paths_rejected[normcontrol]",
+          "tests_v2.test_kernels::test_rejected_implicit_trial_retains_predictor_state",
+          "tests_v2.test_scope::test_matrix_vectors_rejected[delays]",
+          "tests_v2.test_scope::test_matrix_vectors_rejected[history]",
+          "tests_v2.test_scope::test_matrix_vectors_rejected[initial]",
+          "tests_v2.test_scope::test_lower_precision_rejected[float16]",
+          "tests_v2.test_scope::test_lower_precision_rejected[float32]",
+          "tests_v2.test_solver::test_vector_history_and_argument_forwarding",
+          "tests_v2.test_solver::test_real_delayed_polynomial_segments",
+          "tests_v2.test_solver::test_negative_start_and_explicit_fixed_step",
+          "tests_v2.test_solver::test_nonpositive_or_empty_delay_rejected[delays0]",
+          "tests_v2.test_solver::test_nonpositive_or_empty_delay_rejected[delays1]",
+          "tests_v2.test_solver::test_nonpositive_or_empty_delay_rejected[delays2]"
+        ]
+      },
+      "scope_v3": {
+        "original": 40868,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 496736,
+        "wall_seconds": 4.125485178083181,
+        "test_ids": [
+          "tests_v3.test_scope::test_matrix_vectors_rejected[delays]",
+          "tests_v3.test_scope::test_matrix_vectors_rejected[history]",
+          "tests_v3.test_scope::test_matrix_vectors_rejected[initial]",
+          "tests_v3.test_scope::test_lower_precision_rejected[float16]",
+          "tests_v3.test_scope::test_lower_precision_rejected[float32]",
+          "tests_v3.test_scope::test_matrix_absolute_tolerance_rejected"
+        ]
+      },
+      "first_slope_v1": {
+        "original": 9327,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 504520,
+        "wall_seconds": 3.9596927789971232
+      },
+      "first_slope_v2": {
+        "original": 51236,
+        "qualified": true,
+        "terminal": 0,
+        "censored": null,
+        "peak_rss_kib": 506152,
+        "wall_seconds": 4.0284235146828
+      }
+    },
+    "permanent_unique_controls": 25,
+    "literal_result": {
+      "success": true,
+      "ddesd_seconds": 8.732103887014091,
+      "nsteps": 909,
+      "nfailed": 26,
+      "nfevals": 5603,
+      "mesh_count": 910,
+      "warnings": [],
+      "source_printed_error_norm": 6.722355950030367e-13,
+      "native_mesh_count": 914,
+      "native_source_printed_error_norm": 4.720800063436232e-12,
+      "native_grid_interpolated_state_max_difference": 6.181721801112872e-13,
+      "coefficient_reconstruction_201_exact": true,
+      "comparison_scope": "Natural mesh/controller rounding may differ; interpolated comparisons are diagnostic observations, not altered production outputs or a relaxed source assertion."
+    },
+    "first_divergence": {
+      "x": {
+        "identical_prefix": 32,
+        "first_native": 0.4045219453039006,
+        "first_jax": 0.4045219467591245
+      },
+      "y": {
+        "identical_prefix": 32,
+        "first_native": [
+          1.4045219453039,
+          1.850873147540256,
+          1.5710116144694481
+        ],
+        "first_jax": [
+          1.4045219467591237,
+          1.850873151045984,
+          1.571011617162883
+        ]
+      },
+      "yp": {
+        "identical_prefix": 28,
+        "first_native": [
+          1.0,
+          2.4,
+          1.84
+        ],
+        "first_jax": [
+          1.0,
+          2.4000000000000004,
+          1.84
+        ]
+      },
+      "retry_predictor_irrelevance_to_literal": {
+        "maximum_accepted_step": 0.05120000000000002,
+        "maximum_trial_bound": 0.11264000000000006,
+        "minimum_delay": 0.2,
+        "initial_step": 0.0004,
+        "reason": "Source accepted controller grows by at most2; endpoint stretch can add a factor1.1. Rejections shrink. The recorded initial step and16eps(t) for t in[0,2] are smaller. Thus all trials are bounded by2.2 times the maximum accepted step, still below delay0.2."
+      },
+      "inputs": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddesd_constant_20261011/literal_v1/ddesd.npz": "9cccaed7748957acb980a58dfff6cfb6b3e81b1a1305649ab5215f4c8812f486",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddsys1/result.json": "4b00d76689d66e0214e9f10badf4a841360eea7ba2e45bde2c0471d3fb787204"
+      }
+    },
+    "identical_input_diagnostic": {
+      "success": true,
+      "index": 28,
+      "t": 0.4000000000000001,
+      "query": 0.20000000000000007,
+      "bracket_index": 14,
+      "bracket": [
+        0.2,
+        0.20040000000000002
+      ],
+      "native_slope": [
+        1.0,
+        2.4,
+        1.84
+      ],
+      "captured_history_jax_slope": [
+        1.0,
+        2.4000000000000004,
+        1.84
+      ],
+      "history_variants": {
+        "complete_source_order": [
+          1.1999999999999997,
+          1.4000000000000001,
+          1.24
+        ],
+        "guarded_jax": [
+          1.1999999999999997,
+          1.4000000000000001,
+          1.24
+        ],
+        "eager_jax": [
+          1.1999999999999997,
+          1.4,
+          1.24
+        ],
+        "fused_jax": [
+          1.1999999999999997,
+          1.4000000000000001,
+          1.24
+        ],
+        "numpy_diagnostic": [
+          1.1999999999999997,
+          1.4,
+          1.24
+        ]
+      },
+      "scope": "Identical captured native mesh/states/slopes; native lagvals intermediate itself was not captured. NumPy is diagnostic only. No production change or mesh tuning."
+    },
+    "review_correction": "Root review identified rejected trial ynew/ypnew must seed the next predictor. Candidate_v2 corrects host forwarding and trial predictor and passes a genuinely rejected implicit two-attempt control. Full literal was explicit throughout, so it was not rerun. Candidate_v3 only adds matrix AbsTol rejection; six input-scope tests pass, numerical kernels unchanged.",
+    "next_diagnosis": "On retained first slope divergence query.20000000000000007, compare intermediate h/s/slope/c/d/terms from compiled JAX and licensed native lagvals/ntrp3h before any production arithmetic change. Complete arithmetic barriers did not fix discrepancy; partial-barrier hypothesis is disproved. No mesh tuning or tolerance changes.",
+    "limits": "910 candidate versus914 native natural mesh points; x/y prefix32 and yp prefix28 bit-identical. Printed errors and interpolated comparisons are observations, not invented acceptance inequalities. Native history intermediates were not captured; JIT/eager cause remains unresolved. Existing native capture is reference-only. Full page output/artifact scope remains open.",
+    "provenance": "Frozen scientific source/test/input hashes with CPU/x64/origin assertions and postruntime source observation. Native ddsys1 uses scientific guard plus postexit provider observation, not exhaustive prospective runtime closure."
+  },
+  "integration": {
+    "library_bytes_exact": true,
+    "test_import_spacing_only_ast_identical": true
+  }
+}

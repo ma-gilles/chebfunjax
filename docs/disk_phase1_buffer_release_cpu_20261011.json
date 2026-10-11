@@ -1,0 +1,271 @@
+{
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/delivery/EVIDENCE.json",
+  "delivery_sha256": "44c9e48ac7eeec99657a97b7f1adbfa5f8ca1f7d457635984695df9222e98518",
+  "verified_bindings": 32,
+  "evidence": {
+    "scope": "Only release unused PhaseI-buffer references before PhaseII; all source-correctness/state-machine/staging changes remain plan only",
+    "native_predicates_restored": 0,
+    "memory_control": "Paired actual default public diskfun(field,polar), finite-valued rank4 input:1+r**2*cos(2t)+.3*r**4*sin(3t)+.2*r**6*cos(5t). This is not a native numerical reference or a finite Chebyshev-support claim. No grid/rank/tol/maxLength modifications.",
+    "proof": {
+      "five_baseline_objects_alive_candidate_objects_dead": true,
+      "actual_PhaseII_grid_tol_pivots_callback_closure_identical": true,
+      "all_final_coefficient_pivot_sample_arrays_dtype_shape_bytes_identical": true,
+      "same_final_parity_pole_pivot_location_metadata": true,
+      "observer_avoids_caller_f_locals_retention": true,
+      "no_donated_or_pivot_view_alias_dependency": true,
+      "baseline_F_owns_NumPy_storage": true,
+      "pivot_arrays_do_not_share_storage_with_F": true,
+      "default_grid": 32,
+      "released_declared_bytes_at_actual_boundary": 51464,
+      "sample_error_unchanged": 8.43769498715119e-15
+    },
+    "numerical_identity": {
+      "col_0": {
+        "shape": [
+          3
+        ],
+        "dtype": "float64",
+        "sha256": "a73e246def3e4bed1c16f763b93e7a99266b5c6603ecba11c921cb75a9bad737"
+      },
+      "col_1": {
+        "shape": [
+          3
+        ],
+        "dtype": "float64",
+        "sha256": "600eb51707ad3d0a81ea5012acb63fd59b149f33ade23122581ac9c208ce89c9"
+      },
+      "col_2": {
+        "shape": [
+          1024
+        ],
+        "dtype": "float64",
+        "sha256": "f2abd4682fbd114b69d304714225d05314033fc99a82eca4b209db9f18eda64d"
+      },
+      "col_3": {
+        "shape": [
+          1024
+        ],
+        "dtype": "float64",
+        "sha256": "b5cc438bac8bf30e63ebc18d4dc6a19b969ad58a730173e2c7a4557a34bde029"
+      },
+      "row_0": {
+        "shape": [
+          1
+        ],
+        "dtype": "float64",
+        "sha256": "3f710ac088db33363087de2b9a657541fe5447821debaa9fe5cbd538eb1a5f29"
+      },
+      "row_1": {
+        "shape": [
+          5
+        ],
+        "dtype": "complex128",
+        "sha256": "929468a763404ca119efcaad1586007d751dfea841c57850cfccefc36d912049"
+      },
+      "row_2": {
+        "shape": [
+          11
+        ],
+        "dtype": "complex128",
+        "sha256": "e15cc6a0c887a40ab41040c1c06f69a8ce50aad1673a61aea85efdccb758fd8f"
+      },
+      "row_3": {
+        "shape": [
+          11
+        ],
+        "dtype": "complex128",
+        "sha256": "4d90de77decf2d97d0954aa47a7e0b50846e2cfeda5b33251443f94d4ad87bc6"
+      },
+      "pivots": {
+        "shape": [
+          4
+        ],
+        "dtype": "float64",
+        "sha256": "503bbffd396b679aa90d74d74606e1efba3f3188a81de647909cb7e97495a2a0"
+      },
+      "theta": {
+        "shape": [
+          31
+        ],
+        "dtype": "float64",
+        "sha256": "882cc6925182b45b49c0269bb9c6a2884ac8eb5010c6a4af45aa6806aac663ec"
+      },
+      "r": {
+        "shape": [
+          31
+        ],
+        "dtype": "float64",
+        "sha256": "3aa72afbb3458eaca1654cae509435400f8974fb4b33e955e8eb07c246bfbaf9"
+      },
+      "samples": {
+        "shape": [
+          31
+        ],
+        "dtype": "float64",
+        "sha256": "0b6193cb912838d8a010cd05f2e26cfb5b218e2b04d7c703e6ad62991a067f1a"
+      }
+    },
+    "source_review": {
+      "only_ast_change": "del F, th2d, r2d, th_j, r_i in Diskfun.from_function before PhaseII",
+      "all_prior_nodes_and_arithmetic_ast_identical": true,
+      "downstream_use": "No later loads of the five names; PhaseII only receives callback,pivot arrays,grid,vscale,maxSample,removePole,tol. Callback closure evaluate captures original/vectorize; Cartesian wrapper captures cart_original. None captures constructor sampling locals. Arbitrary user callbacks may retain their own argument references externally; deletion releases constructor ownership only.",
+      "alias_contract": "F=np.array(...,dtype=float64) has copied NumPy storage. PhaseOne constructs pivot metadata arrays from scalar lists, not donated/views of F. JAX meshgrid/asarray called eagerly; no donate_argnums or donation operation in from_function. PhaseII regenerates grid coordinates and receives no sample/mesh arrays.",
+      "numerical_change": false,
+      "native_source_pin": "7574c77",
+      "closed_gallery_package_unchanged": true
+    },
+    "allocation_estimates": [
+      {
+        "grid": 32,
+        "F_shape": [
+          33,
+          64
+        ],
+        "F_bytes": 16896,
+        "F_two_mesh_two_coordinate_declared_bytes": 51464
+      },
+      {
+        "grid": 64,
+        "F_shape": [
+          65,
+          128
+        ],
+        "F_bytes": 66560,
+        "F_two_mesh_two_coordinate_declared_bytes": 201224
+      },
+      {
+        "grid": 128,
+        "F_shape": [
+          129,
+          256
+        ],
+        "F_bytes": 264192,
+        "F_two_mesh_two_coordinate_declared_bytes": 795656
+      },
+      {
+        "grid": 256,
+        "F_shape": [
+          257,
+          512
+        ],
+        "F_bytes": 1052672,
+        "F_two_mesh_two_coordinate_declared_bytes": 3164168
+      },
+      {
+        "grid": 512,
+        "F_shape": [
+          513,
+          1024
+        ],
+        "F_bytes": 4202496,
+        "F_two_mesh_two_coordinate_declared_bytes": 12619784
+      },
+      {
+        "grid": 1024,
+        "F_shape": [
+          1025,
+          2048
+        ],
+        "F_bytes": 16793600,
+        "F_two_mesh_two_coordinate_declared_bytes": 50405384
+      },
+      {
+        "grid": 2048,
+        "F_shape": [
+          2049,
+          4096
+        ],
+        "F_bytes": 67141632,
+        "F_two_mesh_two_coordinate_declared_bytes": 201474056
+      },
+      {
+        "grid": 4096,
+        "F_shape": [
+          4097,
+          8192
+        ],
+        "F_bytes": 268500992,
+        "F_two_mesh_two_coordinate_declared_bytes": 805601288
+      }
+    ],
+    "limits": [
+      "Object weakref release and declared-array byte estimates; not allocator/PSS or process-RSS attribution.",
+      "PeakRSS baseline1057108KiB,candidate1060408KiB: no measured process-RSS reduction claim.",
+      "Atgrid4096 can release768.281MiB declared buffers; actual sealed gallery cap grids remainunknown.",
+      "No large capped gallery construction rerun; translatepeg/challenge remain resource-unqualified and tiltedpeg savedaccuracyfailure remains unresolved.",
+      "No new library math/helper, threshold, fusion, rank/grid/precision change, donation, global cacheclear or native MATLAB execution.",
+      "External usercallbacks retaining their own input references are not forcibly changed; cleanup removes constructor ownership only."
+    ],
+    "gates": [
+      {
+        "gate": "baseline_v1",
+        "exit": 0,
+        "wall_seconds": 20.190657552797347,
+        "peak_sampled_owned_rss_kib": 1057108,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "weakref_alive_at_PhaseII": {
+          "F": true,
+          "th2d": true,
+          "r2d": true,
+          "th_j": true,
+          "r_i": true
+        }
+      },
+      {
+        "gate": "candidate_v1",
+        "exit": 0,
+        "wall_seconds": 20.45973033690825,
+        "peak_sampled_owned_rss_kib": 1060408,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "weakref_alive_at_PhaseII": {
+          "F": false,
+          "th2d": false,
+          "r2d": false,
+          "th_j": false,
+          "r_i": false
+        }
+      }
+    ],
+    "guard_input_bindings_verified": 816,
+    "original_exec_handles_consumed": [
+      82637,
+      66562
+    ],
+    "sha256_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/guard.json": "604f40cc54f0bce3b7d03bfe6fdbe053d10959145871fa0acd6482367810418e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/observe.py": "4884a94d622f462ff0f765a63ebc3f6ed5b048b02c79900c6833a75ac2db9693",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/launch.sh": "2aedc8645cc9171a1f3ecdc62196939e5db6a3de02df3a0e1fb7fc2b6150f5de",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/RESULT.json": "a44a5b8afa26045ba8e6d8b690d43077dcab82abb27c4fdf8a18e1d051137e7d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/COEFFICIENTS_SAMPLES.npz": "5b919fad72197df0ea2c564a3ee34ffde2de3a2fbc048c8490187fa0627f05a8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/RUNTIME_SOURCE_END.json": "66295ba135cb595e0d18db0b552bd26c6ffa45edff5022f53389400d8b61af3f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/supervision/receipt.json": "ffa0cc72846d73df46fe20b302cdd51ca30ac198afc31cd7cc04650cf9cbd03b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/supervision/manifest.json": "3d16865b191a5414693667c2bd5c7176fbb6a2b67d70a42612dba944904d4c9f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/supervision/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/supervision/guard.json": "394d79e73c2187d479ad6a20899eccbdbf501e5513d729b00169f3d06a7c85fa",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/baseline_v1/snapshot/src/chebfunjax/diskfun/diskfun.py": "8d2ee20f63ff5fbdfb2b8a6959667342b6d74d133ba909729a0b1e22b33fd514",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/guard.json": "891ef892ba364088c64aed7e3c9bda2f0a268a838cfc663abb6a6cb13c6c6297",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/observe.py": "5da3e49304e9c01b72a0d00ebff2f07fa2a56f6100f7791b46e34c19a54c921f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/launch.sh": "c93ad4fad427431cd034e7aa8fac5dafbcdc61e6fe9e02852f1bc0581e7a34d2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/RESULT.json": "abc40d9c56b32efa2037cc6ced115cd86a355f5a64346f2b7886e04aa00bee76",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/COEFFICIENTS_SAMPLES.npz": "5b919fad72197df0ea2c564a3ee34ffde2de3a2fbc048c8490187fa0627f05a8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/RUNTIME_SOURCE_END.json": "d16496637c8a521a77a39f116be178407e96bbb0dba3184abd8dde2d8a5d2a87",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/supervision/receipt.json": "b28a44d0a51e6ce12e3e70e94c585e316309529276c01c2a0a531752491330f8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/supervision/manifest.json": "ca438197e8bae55bed2d21aaf91ca3f45f3408f7f4be9096316ae6f6d276bc99",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/supervision/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/supervision/guard.json": "0f07e21edeb9b637c938982ad0ae6f8b43a888a5c7bf826f30fe554e5ac850d3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate_v1/snapshot/src/chebfunjax/diskfun/diskfun.py": "ac763dfb85aff1b0de48596a28dba8285ce541f79fed3ad0a8381416ccee7e4e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/prepare.py": "98212cfa1534bb1f104857f6bd06510eb19f21efc190372e9e65828159703149",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/prepare_gate.py": "0f099cb496f0880670880c2ea9410b5ef7407a0cdfff48eee2ba86fc9ed6ba99",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/package.py": "74cc9e41c73f5fc0d30cdaed224d4dc0292d15a6b2e84a30c0cbb1065c309a78",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/MEMORY_SOURCE_REVIEW.json": "5ad69c0d4bf1d185321844bd037477ca81931825e6fb715cffff8875ab7984b9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/delivery/disk_phase1_buffer_release.patch": "9f190a3b2d4f11a53981e872ef2a10ac1eed02bc1a7263dcd587698d73f78eee",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/snapshot/src/chebfunjax/diskfun/diskfun.py": "8d2ee20f63ff5fbdfb2b8a6959667342b6d74d133ba909729a0b1e22b33fd514",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase1_buffer_release_20261011/candidate/src/chebfunjax/diskfun/diskfun.py": "ac763dfb85aff1b0de48596a28dba8285ce541f79fed3ad0a8381416ccee7e4e",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@diskfun/constructor.m": "e394f3176bc74593248222d06f34d119083a9aa47a6d5232fc99fdf019e418a2"
+    }
+  }
+}

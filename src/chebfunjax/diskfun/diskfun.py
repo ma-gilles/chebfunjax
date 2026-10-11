@@ -988,6 +988,10 @@ class Diskfun(eqx.Module):
             # (moved there by Opus 4.8 to avoid coarse-grid
             # false-convergence, matching the Spherefun fix).
 
+        # Phase I values and meshes are unused by slice resolution.
+        # Drop their references before Phase II and any sample-test retry.
+        del F, th2d, r2d, th_j, r_i
+
         # Phase 2: resolve slices
         (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
          locs, failure) = _phase_two_disk(
