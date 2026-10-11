@@ -1,0 +1,23 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "original": 59506,
+  "science": "Full original test_complex, all12predicates true; three save-only observers. All actual xr1000/xs100/xu100 arrays byte-identical to sequential NumPy RandomState7681; intervening source constructors did not alter this comparison.",
+  "limitations": "Only this pinned test/seed/runtime. Post-runtime provider observation, not prospective full runtime closure. No global RNG identity claim.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/guard.json": "fe6fa4ae17756f8e8c80bd7a8f85a1c05c94ba95645734f002925f3dddf0c660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/AUDIT.json": "159f6616c67bf222cb61f759e40c7393efc27534a81ebeabd28dac014525d2d9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/RUNTIME_OBSERVATION.json": "4a0004d7796db3ae0b77885527d3fe2e7538b4ff60b8ad029804c7f9f4eb8354",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/driver.m": "13c660dffd0142702b7c9fd1516864462c454c84cf447c2556eb357ed2e815bc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/probe.m": "d758a0fcbdf6cfb469db02f9fef861edbccbb683e25bcfb648e55757c2466ab1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/test_complex.m": "afc06bdc658c2b43b656241d3d8b96eec3c72aa7a754ed8bd65b9b8d9ba8bf80",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/observer.patch": "a43c6632178d563c302298667e146c419b85756ebd25ca9e6dbaa9d307c585f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/xr.mat": "ff499492dc73e023d761104b46d951f1a2b9a36e255cdbeae251702a62d866d1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/xs.mat": "c1f654bddc93d308cd98da0b1f89874a72e982ec3dd01d4fa014c746aeebfba5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/xu.mat": "1802cc54af876412d1ad3dff3f3f4c0461c31883a75db07a0a008120c7a68c55",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/native_predicates.mat": "a229f34b56ae7bc452cc379f9557cab6ac90d39f54f00dc5487763cbac80d1ae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/SOURCE_DRAW_COMPARISON.json": "ad3236e5c5de89157eee8d731104099c0c6136c1eea61a6a8137877177dead37",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dcr2/supervision/receipt.json": "5429d0f8f29fe3d98062bc946c25a35d8ae5d1837938e834eb90fa6e082d4815",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddn1/source/seedRNG.m": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddn1/source/tests/chebfun/test_complex.m": "280f2d4ed1dd452eb047f0feaf24b71931402098ec346fadac455bb9beff47a9"
+  }
+}

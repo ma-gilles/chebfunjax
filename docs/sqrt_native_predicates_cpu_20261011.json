@@ -1,0 +1,138 @@
+{
+  "source_predicates": 11,
+  "values": [
+    {
+      "run": "baseline_v1",
+      "clause": 1,
+      "error": 1.887379141862766e-15,
+      "bound": 2.0618300652374856e-14,
+      "scale": 0.9285657113504825,
+      "shape": [
+        100
+      ],
+      "seconds": 17.301983796060085
+    },
+    {
+      "run": "baseline_v1",
+      "clause": 2,
+      "error": 2.2426505097428162e-14,
+      "bound": 3.140057667078863e-14,
+      "scale": 1.4141562539378236,
+      "shape": [
+        100
+      ],
+      "seconds": 29.802806199993938
+    },
+    {
+      "run": "baseline_v1",
+      "clause": 3,
+      "error": 2.3081536681957004e-13,
+      "bound": 2.2203560660617216e-12,
+      "scale": 0.999959475174539,
+      "shape": [
+        100
+      ],
+      "seconds": 59.043634524103254
+    },
+    {
+      "run": "baseline_v1",
+      "clause": 4,
+      "error": 2.9496959677584e-14,
+      "bound": 2.615397370662115e-12,
+      "scale": 1.1778702623939676,
+      "shape": [
+        100
+      ],
+      "seconds": 31.195966084953398
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 10,
+      "error": 3.524958103184872e-14,
+      "bound": 4.980983287089343e-11,
+      "scale": 2.2432354475674234,
+      "shape": [
+        100
+      ],
+      "seconds": 46.997288568876684
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 11,
+      "error": 7.105427357601002e-15,
+      "bound": 2.7194799110210365e-13,
+      "scale": 12.24744871391589,
+      "shape": [
+        100
+      ],
+      "seconds": 16.314753488171846
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 6,
+      "error": 7.105427357601002e-14,
+      "bound": 1.1150292841573647e-13,
+      "scale": 5.021645468638298,
+      "shape": [
+        100
+      ],
+      "seconds": 39.47254182584584
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 7,
+      "error": 6.661338147750939e-16,
+      "bound": 3.4167237853466196e-14,
+      "scale": 1.5387555966514948,
+      "shape": [
+        100
+      ],
+      "seconds": 16.850449233781546
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 8,
+      "error": 1.6200374375330284e-12,
+      "bound": 1.1102230246255692e-11,
+      "scale": 5.000000000001858,
+      "shape": [
+        100
+      ],
+      "seconds": 18.880133519880474
+    },
+    {
+      "run": "baseline_5_11",
+      "clause": 9,
+      "error": 8.881784197001252e-16,
+      "bound": 4.0749144351735634e-14,
+      "scale": 1.8351783131814314,
+      "shape": [
+        100
+      ],
+      "seconds": 9.62040380295366
+    },
+    {
+      "run": "controls_v1",
+      "clause": 5,
+      "error": 6.672440382216475e-14,
+      "bound": 4.939883259077176e-13,
+      "scale": 2.224725640483372,
+      "shape": [
+        100,
+        2
+      ],
+      "seconds": 15.566225225105882
+    }
+  ],
+  "baseline": "1\u20134 pass before cumulative180s limit; uncensored remaining5\u201311 is1failure/6pass168.77s",
+  "candidate": "Native5 and both root-touch controls pass; scalar source1\u20134/6\u201311 AST-preserved and qualified on original runtime",
+  "new_MATLAB_RNG_identity": false,
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_native11_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "1c71c518cc554de1abbfc93bcb03afcc0681614dff19a4142a1cd6cf34f4e8f6",
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_native11_20261011/sqrt_native11_delivery_v1.zip",
+    "sha256": "02b186b187d6e3baf7fbf6b5c6e9a05ec8d719ae8d357cce9e546b147be401f3",
+    "entries": 72
+  },
+  "publication_review": "Matched all11 native source clauses and original bounds; Ruff import ordering/formatting preserves nonimport AST. Source fix adds only per-column dispatch; full scalar reruns not repeated."
+}

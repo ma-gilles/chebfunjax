@@ -3750,6 +3750,17 @@ class Chebfun(eqx.Module):
                         @singfun/power.m
         Chebfun commit: 7574c77
         """
+        # MATLAB @chebfun/power.m columnPower (general case) separates
+        # array-valued columns before introducing Singfun representations.
+        # Each column can have its own roots and singular exponents.
+        if self.n_columns > 1:
+            from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+            columns = [None] * self.n_columns
+            for index in range(self.n_columns - 1, -1, -1):
+                columns[index] = self[index]._root_power(b, smooth_op)
+            return Quasimatrix(columns, Domain((self.domain.a, self.domain.b)))
+
         import numpy as _np
 
         from chebfunjax.fun.singfun import Singfun
