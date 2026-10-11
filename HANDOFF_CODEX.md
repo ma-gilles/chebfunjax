@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `b651b5b7` is published. Use CPU only. Heavy whole examples run
+main through `f28a0639` is published; the following DDE/realpow batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -74,11 +74,18 @@ page delta througheecb9a63 confirms949 reference/945 local output blocks,
 12 blanks and15 explicit placeholders across15 pages. Delay page has11 verified
 output slots and12 explicitly unresolved slots. Figures08/10 use qualified saved
 solutions at600x270 with reference axes; all other figures and full pixel parity
-remain unqualified. Images09/11 now show actual operator sparsity matrices.09 matches the native
-nonzero mask;11 has4101 versus native4011 nonzeros and remains unresolved.
-Historical marker rendering also differs. Source domain propagation and matrix
-routing pass13 controls and preserve both saved solve8/9 arrays bitwise.
-See docs/dde_sections_8_9_artifacts_cpu_20261011.json. No source output should
+remain unqualified. Images09/11 now show actual operator sparsity matrices;
+both native masks match exactly (1241/4011 nonzeros). Source colon endpoint
+filling and endpoint-product root mapping remove the section9 ownership gap.
+Section8 saved arrays are unchanged; section9 retains native domains and piece
+lengths, with maximum observed value difference5.69e-13 and actual residual
+3.585142615205263e-11. Historical marker rendering still differs. Fifteen colon
+and22 root/AD/matrix controls pass; both native hypot predicates also pass with
+the fused mapping. Mapping microbenchmarks are not full inverse timings.
+See docs/dde_colon_root_mapping_cpu_20261011.json and
+docs/dde_sections_8_9_artifacts_cpu_20261011.json. All eight native realpow
+acceptance/error predicates plus the retained control pass after restoring
+power-before-realness checking; see docs/realpow_native_predicates_cpu_20261011.json. No source output should
 be invented or copied as Python output.
 
 Remaining: every native API/assertion, green full CI, unresolved PDE/DDE and

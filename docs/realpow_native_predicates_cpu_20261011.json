@@ -1,0 +1,30 @@
+{
+  "native_count": 8,
+  "source_gate_type": "Exact error identifier or successful call; no native norm/tolerance",
+  "baseline": "4fail/4pass22.40s722908KiB",
+  "failed_original_indices": [
+    1,
+    2,
+    5,
+    6
+  ],
+  "candidate": "9pass24.86s968580KiB",
+  "candidate_cases": "Native8 + retained sin2/fractionalerror supplemental1",
+  "censoring": "None",
+  "leftover_PIDs": [],
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/realpow_native8_20261011/realpow_native8_delivery_v1.zip",
+    "sha256": "766754ff5708e7a3ec11c8a66704ec03cda204286ca2893a53ef9ec460277b24",
+    "entries": 49
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/realpow_native8_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "0b9fb110d65ed5d5df97c4ad29cf23b437855978a5770a1bd4dbae57c3a516c8",
+  "publication_review": "Matched all eight source error-identifier/acceptance predicates; wrapper computes power before realness check. Test formatting preserves executable AST. Focused qualification uses prior root mapping; no blanket full-suite parity claim.",
+  "combined_root_mapping_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/realpow_root_combined_20261011/run/receipt.json",
+    "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.12.13, pytest-9.0.2, pluggy-1.6.0\nrootdir: /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout\nconfigfile: pyproject.toml\nplugins: timeout-2.4.0, jaxtyping-0.3.11, xdist-3.8.0, cov-7.1.0\ncollected 9 items\n\ntests/test_matlab_port/chebfun/test_realpow_matlab.py .........          [100%]\n\n=============================== warnings summary ===============================\n../../../../../../../home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/plugin_support.py:92\n  /home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/plugin_support.py:92: RuntimeWarning: JAX plugin jax_cuda12_plugin version 0.11.2 is installed, but it is not compatible with the installed jaxlib version 0.11.0, so it will not be used.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=================== 9 passed, 1 warning in 84.01s (0:01:24) ====================\n",
+    "inputs_stable": true,
+    "sampled_peak_summed_rss_kib": 963984,
+    "supervisor_exit_code": 0
+  }
+}

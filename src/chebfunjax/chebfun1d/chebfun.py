@@ -98,6 +98,20 @@ def jump(f: "Chebfun", x, c: float = 0.0):
 # Piece wrapper: a Chebtech2 together with the physical interval it lives on
 # ============================================================================
 
+@jax.jit
+def _map_piece_roots(roots, a, b):
+    """Map root arrays with dynamic endpoints and source operation barriers.
+
+    Provenance
+    ----------
+    MATLAB @classicfun/roots.m and @mapping/mapping.m linear.For.
+    Chebfun commit: 7574c77.
+    """
+    from chebfunjax.domain import _linear_forward_map
+
+    return _linear_forward_map(roots, a, b)
+
+
 @eqx.filter_jit
 def _evaluate_piece_interval(tech, x, a, b, width):
     """Evaluate with dynamic interval values rather than static JIT keys.
@@ -670,7 +684,6 @@ class _Piece(eqx.Module):
         jax.Array, shape (n_roots,)
             Sorted roots in [a, b].
         """
-        import numpy as _np
         a, b = self.interval
         from chebfunjax.fun.singfun import Singfun
         from chebfunjax.tech.chebtech import Chebtech1
@@ -681,12 +694,7 @@ class _Piece(eqx.Module):
             t_roots = self.tech.roots(recurse=False)
         else:
             t_roots = self.tech.roots()
-        # Map t in [-1, 1] to x in [a, b]: x = (b-a)/2 * t + (a+b)/2.
-        # The map runs in numpy: rootfinding is not JIT-safe, and jnp
-        # arithmetic here compiled one program per distinct root count.
-        x_roots = (0.5 * (b - a) * _np.asarray(t_roots)
-                   + 0.5 * (a + b))
-        return jnp.asarray(x_roots)
+        return _map_piece_roots(jnp.asarray(t_roots), a, b)
 
     def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Global min and max of this piece.
@@ -4816,13 +4824,23 @@ class Chebfun(eqx.Module):
         return self.sqrt()
 
     def realpow(self, p) -> "Chebfun":
-        """f**p with a realness guard (MATLAB realpow)."""
-        if float(p) != int(p):
-            (_, fmin), _ = self.minandmax()
-            if float(fmin) < -1e-12 * max(self.vscale, 1.0):
-                raise ValueError(
-                    "realpow: fractional power of a negative function")
-        return self ** p
+        """Compute POWER, then reject a complex result (MATLAB realpow).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/realpow.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+        result = self ** p
+        # Native ISREAL checks every column when POWER returns a quasimatrix.
+        is_real = (all(column.isreal() for column in result.cols)
+                   if isinstance(result, Quasimatrix) else result.isreal())
+        if not is_real:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:realpow:complexRes: REALPOW produced complex result.")
+        return result
 
     def arclength(self) -> jax.Array:
         """Arc length (alias of :meth:`arc_length`; the older

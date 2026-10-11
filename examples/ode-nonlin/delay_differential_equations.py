@@ -269,8 +269,10 @@ def run():
     # ----- 9. Two constant delays --------------------------------------
     _output_slot(9)
     p1, p2 = 1 / 2, 1 / 3
-    dom9 = tuple(sorted(set([k * p1 for k in range(5)]
-                            + [k * p2 for k in range(7)])))
+    from chebfunjax.utils.colon import matlab_colon
+
+    dom9 = tuple(sorted(set(map(float, matlab_colon(0., p1, 2.)))
+                            | set(map(float, matlab_colon(0., p2, 2.)))))
     N = Chebop(lambda t, x: x.diff() - x((t - p1).maximum(0.0))
                - x((t - p2).maximum(0.0)) - x, domain=dom9)
     N.lbc = 1.0

@@ -2,6 +2,7 @@ import jax.numpy as jnp
 import pytest
 
 from chebfunjax.operators.chebop import Chebop
+from chebfunjax.utils.colon import matlab_colon
 
 
 @pytest.mark.parametrize("two_delays, pieces", [(False, 6), (True, 11)])
@@ -10,7 +11,12 @@ def test_piecewise_nonlocal_matrix_source_dimensions(two_delays, pieces):
     # point per interval, with continuity constraints before the endpoint BC.
     p, q = 0.5, 1 / 3
     domain = (
-        tuple(sorted(set([k * p for k in range(5)] + [k * q for k in range(7)])))
+        tuple(
+            sorted(
+                set(map(float, matlab_colon(0.0, p, 2.0)))
+                | set(map(float, matlab_colon(0.0, q, 2.0)))
+            )
+        )
         if two_delays
         else tuple(k * p for k in range(7))
     )

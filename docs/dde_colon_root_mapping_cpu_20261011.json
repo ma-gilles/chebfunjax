@@ -1,0 +1,330 @@
+{
+  "scope": "Source floating colon construction and bounded real _Piece.roots forward map; corrected DDE section9 inputs and spy11 endpoint ownership. No owner or root tolerance changes.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": [
+    "@classicfun/roots.m calls f.mapping.For",
+    "@mapping/mapping.m linear.For uses b*(y+1)/2+a*(1-y)/2",
+    "@chebfun/compose.m:430-438 finds preimages of outer breaks",
+    "MATLAB R2025b toolbox/eml/lib/matlab/ops/colon.m:315-397 paired finite floating grid"
+  ],
+  "source_changes": [
+    "JAX finite-double eager matlab_colon computes source count/endpoint and fills symmetrically; rejects nonfinite inputs explicitly. No integer/single/character/traced dispatch claim.",
+    "_Piece.roots calls a single jitted helper with dynamic endpoints; existing source operation barriers retained. Other root routes unchanged.",
+    "DDE section9 script and matrix contract use general colon rather than k*step."
+  ],
+  "causal_comparison": {
+    "input_domain": {
+      "native_shape": [
+        9
+      ],
+      "python_shape": [
+        9
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "operator_domain": {
+      "native_shape": [
+        12
+      ],
+      "python_shape": [
+        12
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "points": {
+      "native_shape": [
+        121
+      ],
+      "python_shape": [
+        121
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "stage1_domain": {
+      "native_shape": [
+        12
+      ],
+      "python_shape": [
+        12
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "stage2_domain": {
+      "native_shape": [
+        14
+      ],
+      "python_shape": [
+        14
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "stage3_domain": {
+      "native_shape": [
+        14
+      ],
+      "python_shape": [
+        14
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "g1values": {
+      "native_shape": [
+        121
+      ],
+      "python_shape": [
+        121
+      ],
+      "max_abs": 5.551115123125783e-17,
+      "differing": 4
+    },
+    "g2values": {
+      "native_shape": [
+        121
+      ],
+      "python_shape": [
+        121
+      ],
+      "max_abs": 5.551115123125783e-17,
+      "differing": 6
+    },
+    "owners1": {
+      "native_shape": [
+        121
+      ],
+      "python_shape": [
+        121
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "owners2": {
+      "native_shape": [
+        121
+      ],
+      "python_shape": [
+        121
+      ],
+      "max_abs": 0.0,
+      "differing": 0
+    },
+    "E1": {
+      "native_shape": [
+        121,
+        121
+      ],
+      "python_shape": [
+        121,
+        121
+      ],
+      "max_abs": 5.1038496165716345e-15,
+      "differing": 44
+    },
+    "E2": {
+      "native_shape": [
+        121,
+        121
+      ],
+      "python_shape": [
+        121,
+        121
+      ],
+      "max_abs": 1.3610265644190941e-14,
+      "differing": 66
+    }
+  },
+  "matrices": [
+    {
+      "figure": 9,
+      "shape": [
+        66,
+        66
+      ],
+      "native_nnz": 1241,
+      "python_nnz": 1241,
+      "mask_differences": 0,
+      "max_abs": 4.490630090003833e-12
+    },
+    {
+      "figure": 11,
+      "shape": [
+        121,
+        121
+      ],
+      "native_nnz": 4011,
+      "python_nnz": 4011,
+      "mask_differences": 0,
+      "max_abs": 2.745537130977027e-11
+    }
+  ],
+  "solves": [
+    {
+      "section": 8,
+      "old_arrays_byte_identical": true,
+      "native_domain_exact": true,
+      "native_lengths_exact": true,
+      "native_sample_max_abs": 1.1546319456101628e-14,
+      "sample_abscissa_max_abs": 4.440892098500626e-16,
+      "python_residual": 8.494402173854053e-14,
+      "native_residual": 5.881078181477521e-14,
+      "limits": "Native example prints residual without an acceptance inequality; retained source observations, no invented tolerance."
+    },
+    {
+      "section": 9,
+      "old_arrays_byte_identical": false,
+      "native_domain_exact": true,
+      "native_lengths_exact": true,
+      "native_sample_max_abs": 5.684341886080801e-13,
+      "sample_abscissa_max_abs": 2.220446049250313e-16,
+      "python_residual": 3.585142615205263e-11,
+      "native_residual": 3.5924984906474196e-11,
+      "limits": "Native example prints residual without an acceptance inequality; retained source observations, no invented tolerance."
+    }
+  ],
+  "controls": "15 colon +22 mapped/public/AD/matrix tests; final fused leaf ten map tests and every retained native-state array byte-identical to eager leaf; 2 original native hypot assertions pass with combined published hypot candidate. No full inverse rerun.",
+  "gates": {
+    "controls": {
+      "original": 77473,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 506524,
+      "wall_seconds": 4.544591249898076
+    },
+    "mapped_intermediates": {
+      "original": 42687,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1384332,
+      "wall_seconds": 19.834616110194474
+    },
+    "root_controls": {
+      "original": 17260,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 2232124,
+      "wall_seconds": 35.96748134121299
+    },
+    "matrices": {
+      "original": 51127,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1674768,
+      "wall_seconds": 27.29614095017314
+    },
+    "solve8": {
+      "original": 65108,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1576040,
+      "wall_seconds": 25.34626302868128
+    },
+    "solve9": {
+      "original": 17554,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1971368,
+      "wall_seconds": 36.77701549325138
+    },
+    "map_benchmark_legacy": {
+      "original": 6073,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 446968,
+      "wall_seconds": 3.4432713869027793
+    },
+    "map_benchmark_eager": {
+      "original": 79374,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 534948,
+      "wall_seconds": 4.277547006960958
+    },
+    "map_benchmark_fused": {
+      "original": 39882,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 468688,
+      "wall_seconds": 3.4722729828208685
+    },
+    "render": {
+      "original": 80771,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 511256,
+      "wall_seconds": 3.999017704743892
+    },
+    "fused_controls": {
+      "original": 31685,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1386924,
+      "wall_seconds": 20.39275411190465
+    },
+    "hypot_combined": {
+      "original": 4392,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 903632,
+      "wall_seconds": 15.464082860853523
+    }
+  },
+  "performance": {
+    "legacy": {
+      "sum_first_seconds": 0.0007308842614293098,
+      "scalar_warm_median_seconds": 4.737940616905689e-05,
+      "peak_rss_kib": 439248,
+      "all_source_words_equal": false
+    },
+    "eager": {
+      "sum_first_seconds": 0.956342960242182,
+      "scalar_warm_median_seconds": 0.00023338384926319122,
+      "peak_rss_kib": 534540,
+      "all_source_words_equal": true
+    },
+    "fused": {
+      "sum_first_seconds": 0.2160668196156621,
+      "scalar_warm_median_seconds": 1.1856900528073311e-05,
+      "peak_rss_kib": 467680,
+      "all_source_words_equal": true
+    }
+  },
+  "performance_limits": "Fresh serial processes, fixed root-count shapes0,1,2,4,8,16,32,64,128. Input setup excluded. Fused compilation still costs0.216s across9shapes versus legacy host0.00073s; warm scalar faster. No inverse performance parity claim.",
+  "solve_binding": "Solves used source-identical arithmetic with eager leaf; final fused leaf independently preserves all retained intermediate bytes, source barriers and mapped root controls. No repeated solve solely for fusion.",
+  "render": "Actual new section9 coefficients reconstructed byte-exact;201saved evaluations byte-exact;curve10 evaluated at1200points;spy11 uses actual matrix nonzeros with no threshold. Section8 output/figure unchanged.",
+  "limits": [
+    "Native full matrix values differ by up to2.75e-11; masks and interval owners exact.",
+    "Historical native spy marker raster remains smaller than licensed R2025b formula used here; no pixel parity.",
+    "Whole DDE page remains incomplete; only slot9 and figures10/11 refreshed.",
+    "Native runtime capture uses frozen scientific-source guard plus postruntime observations, not prospective full runtime-file closure.",
+    "Root-map forward correction affects finite scalar real-root _Piece path; other array/complex mapping branches are outside this patch."
+  ]
+}
