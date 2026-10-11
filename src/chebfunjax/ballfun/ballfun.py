@@ -1770,90 +1770,29 @@ class Ballfun(eqx.Module):
         return Diskfun.from_function(_mk_cheb_fourier_eval(np.real(A)))
 
     def sum2(self, dims: tuple[int, int] = (2, 3)):
-        """Definite integration over two spherical variables.
+        """Integrate two coordinates with native radial/angular measures.
 
-        ``sum2(F, DIMS)`` integrates over the two variables named by ``DIMS``
-        (any two of ``1`` = r, ``2`` = lambda, ``3`` = theta, with the physical
-        measures ``r^2 dr`` and ``sin(th) dth``) and returns a 1D
-        :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` in the remaining
-        variable.  ``sum2(F)`` defaults to ``DIMS = (2, 3)`` -> a Chebfun in
-        ``r`` on ``[0, 1]``.  Integrating out ``r`` leaves a periodic (trig)
-        Chebfun in ``theta`` or ``lambda`` on ``[-pi, pi]``.
-
-        Parameters
-        ----------
-        dims : tuple of two ints, optional
-            The two variables to integrate over.  Default ``(2, 3)``.
-
-        Returns
-        -------
-        Chebfun
+        The radial survivor uses [-1, 1]. Angular survivors are periodic
+        on [-pi, pi], matching the native coefficient constructors.
 
         Provenance
         ----------
         MATLAB source : @ballfun/sum2.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.chebfun1d.chebfun import Chebfun
-        from chebfunjax.domain import Domain
-
-        d1, d2 = sorted(dims)
-        if (d1, d2) not in ((2, 3), (1, 2), (1, 3)):
-            raise ValueError("Ballfun.sum2: dims must be two of {1, 2, 3}.")
+        from chebfunjax.ballfun._integrals import sum2_coefficients
+        from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
         if self.isempty():
             return Chebfun.empty()
-
-        F = _pad_coeffs_r_theta(np.asarray(self.coeffs))
-        m, n, p = F.shape
-
-        if (d1, d2) == (2, 3):
-            # Integrate over lambda (DC mode) and theta -> Chebfun in r.
-            Frt = F[:, n // 2, :]  # (m, p)
-            Frt = Frt @ _mult_sin_matrix(p).T
-            C = 2.0 * np.pi * _int_fourier_weights(p, np.pi)
-            A = np.real(Frt @ C)  # (m,) Chebyshev coeffs in r
-
-            def ev(r):
-                r = jnp.asarray(r, dtype=jnp.float64)
-                kc = jnp.arange(A.shape[0])
-                tk = jnp.cos(kc * jnp.arccos(jnp.clip(r[..., None], -1.0, 1.0)))
-                return jnp.real(tk.astype(jnp.complex128)
-                                @ jnp.asarray(A, dtype=jnp.complex128))
-
-            return Chebfun.from_function(ev, Domain((0.0, 1.0)))
-
-        if (d1, d2) == (1, 2):
-            # Integrate over r (with r^2) and lambda -> trig Chebfun in theta.
-            F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
-            Frt = 2.0 * np.pi * F[:, n // 2, :]  # (m, p)
-            A = np.real(_int_cheb_weights(m) @ Frt)  # (p,) Fourier coeffs in theta
-            return Chebfun.from_function(
-                _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
-
-        # (1, 3): integrate over r (with r^2) and theta (with sin) -> trig
-        # Chebfun in lambda.  The tensor stores the BMC-III DOUBLED
-        # function (r in [-1,1], theta the full circle), so the
-        # quadrature must run over the PHYSICAL half-domain r in [0,1],
-        # theta in [0,pi]: full-domain coefficient weights cancel
-        # BMC-odd integrands (f = y summed to ~1e-17 instead of
-        # (pi/8) sin(lambda) -- Fable 5 guide20 fig09 audit).
-        idx = np.arange(m)
-        xg, wg = np.polynomial.legendre.leggauss(m + 8)
-        rg = 0.5 * (xg + 1.0)
-        wgr = 0.5 * wg
-        Tg = np.cos(np.outer(np.arccos(np.clip(rg, -1.0, 1.0)), idx))
-        Wr2 = (wgr * rg ** 2) @ Tg                       # int_0^1 T_i r^2 dr
-        kt = np.arange(-(p // 2), -(p // 2) + p)
-        Wth = np.empty(p, dtype=complex)
-        for j, k in enumerate(kt):
-            if abs(k) == 1:
-                Wth[j] = 1j * np.sign(k) * np.pi / 2.0
-            else:
-                Wth[j] = (1.0 + np.cos(np.pi * k)) / (1.0 - k * k)
-        A = np.einsum("i,ikj,j->k", Wr2, F, Wth)         # (n,) Fourier in lambda
-        return Chebfun.from_function(
-            _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
+        dims = tuple(sorted(dims))
+        if dims not in ((1, 2), (1, 3), (2, 3)):
+            raise ValueError("Ballfun.sum2: dims must be two of {1, 2, 3}.")
+        coefficients = sum2_coefficients(self.coeffs, dims)
+        if dims == (2, 3):
+            return chebfun(coefficients, coeffs=True)
+        return chebfun(coefficients, domain=(-jnp.pi, jnp.pi),
+                       coeffs=True, trig=True)
 
     def to_spherefun(self, r: float = 1.0):
         """Extract the spherical shell at radius ``r`` as a Spherefun.
@@ -2454,102 +2393,39 @@ class Ballfun(eqx.Module):
         return Ballfun.from_function(g, spherical=True)
 
     def mean(self, dim: int = 1):
-        """Average over one spherical coordinate (MATLAB mean(f, dim)):
-        dim=1 averages over r and returns a Spherefun; dim=2 averages
-        over lambda and dim=3 over theta, each returning a Diskfun in
-        the surviving coordinates (doubled-angle convention for the
-        colatitude).
+        """Mean using native physical measures r^2 dr and sin(theta) dtheta.
 
         Provenance
         ----------
         MATLAB source : @ballfun/mean.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        xg, wg = _np.polynomial.legendre.leggauss(48)
-
-        def _avg(r_, l_, t_):
-            # Ballfun.__call__ grids 1D args; broadcast to a common
-            # shape and evaluate pointwise via 2D reshape instead.
-            r_, l_, t_ = jnp.broadcast_arrays(r_, l_, t_)
-            shp = r_.shape
-            vals = self(r_.reshape(-1, 1), l_.reshape(-1, 1),
-                        t_.reshape(-1, 1))
-            return jnp.asarray(vals).reshape(shp)
-
+        result = self.sum(dim)
         if dim == 1:
-            from chebfunjax.spherefun.spherefun import Spherefun
-            rq = jnp.asarray((xg + 1.0) / 2.0)
-            wq = jnp.asarray(wg / 2.0)
-
-            def g(lam, th):
-                v = _avg(rq, lam[..., None], th[..., None])
-                return jnp.sum(wq * v, axis=-1)
-
-            return Spherefun.from_function(g)
-
-        from chebfunjax.diskfun.diskfun import Diskfun
+            return result * 3
         if dim == 2:
-            lq = jnp.asarray(_np.pi * xg)
-            wq = jnp.asarray(wg / 2.0)
-
-            def g(t, rr):
-                v = _avg(rr[..., None], lq, jnp.abs(t)[..., None])
-                return jnp.sum(wq * v, axis=-1)
-
-            return Diskfun.from_function(g)
+            return result / (2*jnp.pi)
         if dim == 3:
-            tq = jnp.asarray(_np.pi * (xg + 1.0) / 2.0)
-            wq = jnp.asarray(wg / 2.0)
-
-            def g(t, rr):
-                v = _avg(rr[..., None], t[..., None], tq)
-                return jnp.sum(wq * v, axis=-1)
-
-            return Diskfun.from_function(g)
+            return result / 2
         raise ValueError("dim must be 1, 2, or 3")
 
-    def mean2(self, dims=(1, 2)):
-        """Average over two spherical coordinates, returning a 1D
-        Chebfun in the survivor (MATLAB mean2(f, dims)): r on [0, 1],
-        lambda on [-pi, pi] (trig), theta on [0, pi].
+    def mean2(self, dims=(2, 3)):
+        """Native weighted mean over two coordinates; defaults to angles.
 
         Provenance
         ----------
         MATLAB source : @ballfun/mean2.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-
-        from chebfunjax.chebfun1d.chebfun import chebfun
-        xg, wg = _np.polynomial.legendre.leggauss(48)
-        grids = {
-            1: (jnp.asarray((xg + 1.0) / 2.0),
-                jnp.asarray(wg / 2.0)),
-            2: (jnp.asarray(_np.pi * xg), jnp.asarray(wg / 2.0)),
-            3: (jnp.asarray(_np.pi * (xg + 1.0) / 2.0),
-                jnp.asarray(wg / 2.0)),
-        }
-        doms = {1: (0.0, 1.0), 2: (-_np.pi, _np.pi),
-                3: (0.0, _np.pi)}
-        d1, d2 = int(dims[0]), int(dims[1])
-        surv = ({1, 2, 3} - {d1, d2}).pop()
-        (q1, w1), (q2, w2) = grids[d1], grids[d2]
-
-        def g(t):
-            args = [None, None, None]
-            args[surv - 1] = t[..., None, None]
-            args[d1 - 1] = q1[:, None]
-            args[d2 - 1] = q2[None, :]
-            r_, l_, t_ = jnp.broadcast_arrays(*args)
-            shp = r_.shape
-            vals = jnp.asarray(self(
-                r_.reshape(-1, 1), l_.reshape(-1, 1),
-                t_.reshape(-1, 1))).reshape(shp)
-            return jnp.sum(w1[:, None] * w2[None, :] * vals,
-                           axis=(-2, -1))
-
-        return chebfun(g, domain=doms[surv], trig=(surv == 2))
+        dims = tuple(sorted(dims))
+        result = self.sum2(dims)
+        if dims == (2, 3):
+            return result / (4*jnp.pi)
+        if dims == (1, 2):
+            return 3*result / (2*jnp.pi)
+        if dims == (1, 3):
+            return 3*result / 2
+        raise ValueError("dims must be two of {1, 2, 3}")
 
     def mean3(self) -> float:
         """Average over the whole ball: sum(f) / (4 pi / 3)

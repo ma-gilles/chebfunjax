@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun weighted means and reduction domains fixed (2026-10-10)
+
+Mean methods now delegate to native weighted sums. Sum2 uses JAX coefficient
+algebra, preserves complex values, and returns native radial/periodic domains.
+Mean2 defaults to the angular directions. Twenty distinct checks pass,
+including all nine original mean/mean2/sum2 norm predicates. The old
+supplemental radial r^2 mean oracle was unweighted1/3; native weighting
+gives3/5, now tested without changing its bound. Evidence:
+docs/ballfun_weighted_means_cpu_20261010.json.
+
 ## Rational-interpolation fitting moved to JAX (2026-10-10)
 
 Ratinterp fitting now uses JAX FFT/SVD/QR and source-order Chebtech transforms.

@@ -1,0 +1,69 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": [
+    "@ballfun/mean.m",
+    "@ballfun/mean2.m",
+    "@ballfun/sum2.m"
+  ],
+  "change": "Replace unweighted means with native weighted sum/scaling paths. sum2 now uses JAX coefficient prolongation/matrices with retained complex values, native radial [-1,1] and periodic angular [-pi,pi] output domains; mean2 defaults to angular dimensions(2,3).",
+  "results": "Baseline two mean2 domain failures/eightpasses. Corrected17cases pass17.53s; three additional original sum2 function-norm predicates pass7.72s on identical library.20distinctcases, including nine native norm predicates, complex weighted means, defaults and supplemental controls.",
+  "oracle_correction": "Historical supplemental radial mean of r^2 expected1/3 (unweighted). Native mean.m returns3*sum(f,1) withr^2dr, so exact result is3/5. Bound unchanged; baseline retained. No original MATLAB predicate changed.",
+  "evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_mean_predicates_20261010/baseline",
+      "inputs_rehashed": 355,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 26.327097243163735,
+        "sampled_peak_summed_rss_kib": 1661404,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "ac57fd607227979f02381a869c1f8919edeabb9f0bfd48cac7f04ab3b6d50118",
+        "junit.xml": "196ebbd5cc0424a5bea739d741c81fca4518a7d90ff4ac1ab74943daf4750fd2",
+        "supervision/receipt.json": "0dc539297b88dcaabfe935de5a92bdac03d1998f20b6b2ba98a6ded22333ee97",
+        "supervision/stdout": "f40fa4da1cd5ab68fde1b0966f4a06f9760ed10f2dff0ac54e2aec456e2efbe7"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_means_source_20261010/gate",
+      "inputs_rehashed": 355,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 25.73563198093325,
+        "sampled_peak_summed_rss_kib": 1571736,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "8f019197abf4d4ad36ca3f1bd4c30f938455206baa8e959a27cb16d99bd39497",
+        "junit.xml": "aec8c7e0306c2780bbd5d37cc8597fd5c87eed0d5a5c9726091e1ba28b5ec0fe",
+        "supervision/receipt.json": "06b88453dadded71d06950103c12f55b2b866c368294e98a915c50d958b249c8",
+        "supervision/stdout": "f4c1d8609faa0a140612b08f2e2679897823d9c80513686ddd30e6fee327a0dd"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_means_source_v2_20261010/gate",
+      "inputs_rehashed": 356,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 15.216394145041704,
+        "sampled_peak_summed_rss_kib": 997212,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "3a4f394e875091e900c8c02c81e2448348dc59a6882f0b35ef458b7e982cac95",
+        "junit.xml": "a6c88c363c52a6f49c63367ebecfc0bf86b1bc812c8ebd324756d11adb167f88",
+        "supervision/receipt.json": "9c9506801e16f80d2751df9019de4287b2b5d87eafde62e62fbfe1da9a431073",
+        "supervision/stdout": "c47ff999cbfca8e51289963794e73ca348a8b1c9b4a1014e43e6df40424137ef"
+      }
+    }
+  ],
+  "scope": "New sum2 algebra is JAX; inherited single-direction sum/constructor NumPy debt remains. Full current main suite and example requalification remain open.",
+  "integration": "Only Ruff import-order/spacing changes to three delivered test files; all non-import AST nodes independently identical to qualified snapshot. Library bytes identical."
+}

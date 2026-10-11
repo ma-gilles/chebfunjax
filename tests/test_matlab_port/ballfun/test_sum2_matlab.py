@@ -43,3 +43,26 @@ class TestBallfunSum2:
         lam = np.linspace(-np.pi, np.pi, 23)
         got = np.asarray(g(jnp.asarray(lam)))
         assert np.max(np.abs(got - np.cos(lam) * np.pi / 8.0)) < _TOL
+
+
+import pytest
+
+from chebfunjax.chebfun1d.chebfun import chebfun
+
+
+@pytest.mark.parametrize("clause", [1,2,3])
+def test_native_sum2_norm(clause):
+    if clause == 1:
+        f = _bf(lambda r,l,t: 1)
+        got = f.sum2((2,3))
+        exact = chebfun(lambda r: 4*np.pi+0*r)
+    elif clause == 2:
+        f = _bf(lambda r,l,t: r*jnp.cos(l)*jnp.sin(t))
+        got = f.sum2((3,2))
+        exact = chebfun(lambda r: 0*r)
+    else:
+        f = _bf(lambda r,l,t: r*jnp.sin(t)*jnp.cos(l))
+        got = f.sum2((1,3))
+        exact = chebfun(lambda l: jnp.cos(l)*np.pi/8,
+                        domain=(-np.pi,np.pi), trig=True)
+    assert (got-exact).norm() < _TOL

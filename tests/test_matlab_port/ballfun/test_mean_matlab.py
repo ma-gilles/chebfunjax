@@ -40,8 +40,24 @@ class TestBallfunMean:
             < TOL
 
     def test_radial_mean(self):
-        # mean over r of r^2 is 1/3 on the sphere
+        # Native radial weight: 3*integral_0^1 r^2*r^2 dr = 3/5.
         f = Ballfun.from_function(lambda r, lam, th: r ** 2,
                                   spherical=True)
         assert float(jnp.max(jnp.abs(
-            f.mean(1)(LL, TT) - 1.0 / 3.0))) < TOL
+            f.mean(1)(LL, TT) - 3.0 / 5.0))) < TOL
+
+
+import pytest
+
+from chebfunjax.diskfun.diskfun import Diskfun
+from chebfunjax.spherefun.spherefun import Spherefun
+
+
+@pytest.mark.parametrize("dim", [1,2,3])
+def test_native_mean_norm(dim):
+    f = Ballfun.from_function(lambda x,y,z: dim)
+    if dim == 1:
+        exact = Spherefun.from_function(lambda l,t: 1)
+    else:
+        exact = Diskfun.from_function(lambda t,r: dim+0*t)
+    assert (f.mean(dim)-exact).norm() < np.finfo(float).eps
