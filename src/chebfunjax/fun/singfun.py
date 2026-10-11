@@ -1122,8 +1122,11 @@ class Singfun(eqx.Module):
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
-    def roots(self, *, recurse: bool = True) -> jax.Array:
-        """Real roots of ``f`` in [-1, 1].
+    def roots(self, *args, **kwargs) -> jax.Array:
+        """Roots of ``f``, real and restricted to [-1, 1] by default.
+
+        Root options are forwarded to the smooth part, including the native
+        all-roots, prune, and recursion controls.
 
         The interior roots are those of the smooth part.  A positive exponent
         at an endpoint contributes an extra root there (the singular factor
@@ -1139,29 +1142,29 @@ class Singfun(eqx.Module):
         if self.isempty():
             return jnp.empty((0,), dtype=jnp.float64)
         tol = _EPS
-        out = [float(r) for r in self.smoothPart.roots(recurse=recurse)]
+        out = self.smoothPart.roots(*args, **kwargs)
         any_roots = len(out) > 0
         a, b = self.exponents
 
         if a > 0.0:
             if any_roots:
                 if abs(1.0 + out[0]) < tol:
-                    out[0] = -1.0
+                    out = out.at[0].set(-1.0)
                 else:
-                    out = [-1.0] + out
+                    out = jnp.concatenate((jnp.asarray([-1.0], dtype=out.dtype), out))
             else:
-                out = [-1.0]
+                out = jnp.asarray([-1.0], dtype=out.dtype)
 
         if b > 0.0:
             if any_roots:
                 if abs(1.0 - out[-1]) < tol:
-                    out[-1] = 1.0
+                    out = out.at[-1].set(1.0)
                 else:
-                    out = out + [1.0]
+                    out = jnp.concatenate((out, jnp.asarray([1.0], dtype=out.dtype)))
             else:
-                out = out + [1.0]
+                out = jnp.concatenate((out, jnp.asarray([1.0], dtype=out.dtype)))
 
-        return jnp.asarray(out, dtype=jnp.float64)
+        return out
 
     def minandmax(self):
         """Global minimum and maximum of ``f`` on [-1, 1].

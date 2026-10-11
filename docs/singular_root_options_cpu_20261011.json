@@ -1,0 +1,49 @@
+{
+  "status": "20 focused CPU cases pass; native general root options forwarded by Singfun",
+  "source_head": "0c51e0608d06f76614e869a1b3a3036d9493a777",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Singfun forwards smooth-part root options, retaining complex dtype while inserting native endpoint roots.",
+    "Bounded singular pieces forward norecursion as recurse=False.",
+    "Removed stale missing-method/xfail descriptions from six existing Singfun root tests; numerical assertions unchanged."
+  ],
+  "original_session": 80901,
+  "wall_seconds": 27.512651089578867,
+  "peak_rss_kib": 1499816,
+  "inputs_stable": true,
+  "censored": null,
+  "survivors": [],
+  "guard_count": 283,
+  "cases": [
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents0-options0]",
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents0-options1]",
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents0-options2]",
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents1-options0]",
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents1-options1]",
+    "tests.test_chebfun1d.test_singular_root_options::test_complex_roots_and_endpoint_insertion[exponents1-options2]",
+    "tests.test_chebfun1d.test_singular_root_options::test_bounded_singular_piece_recursion_option[False]",
+    "tests.test_chebfun1d.test_singular_root_options::test_bounded_singular_piece_recursion_option[True]",
+    "tests.test_chebfun1d.test_singular_root_options::test_public_singular_chebfun_complex_roots[all_roots]",
+    "tests.test_chebfun1d.test_singular_root_options::test_public_singular_chebfun_complex_roots[complex_roots]",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_frac_root_left",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_frac_pole_left_many_roots",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_frac_root_right",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_root_at_right_endpoint",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_pole_and_root",
+    "tests.test_matlab_port.singfun.test_roots_matlab.TestSingfunRoots::test_root_close_to_endpoint",
+    "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-False]",
+    "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-True]",
+    "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-False]",
+    "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-True]"
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singular_root_options_20261011/guard.json": "578fda4db7f0c4932e081d57e9cc8faca15ed6a3d014ece16047561355a8525e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singular_root_options_20261011/supervision/receipt.json": "e48cc8c53f4ff257598f8b0f43f874d9c23ac9ff60e59892aea4fac7c274773a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/singular_root_options_20261011/junit.xml": "6fad9ebab24ca2e6128feaa208f322524abb7248ff09f067819cab8aca37e734"
+  },
+  "limits": [
+    "No full current-head CI run is established by these focused controls.",
+    "Unbounded complex-root physical mapping and native endpoint-decay filtering remain separate gaps.",
+    "Source, tests, environment launcher and native reference prebound; full runtime-provider inventory not claimed."
+  ]
+}

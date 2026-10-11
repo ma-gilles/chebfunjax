@@ -1,8 +1,6 @@
 """Port of MATLAB Chebfun tests/singfun/test_roots.m (Opus 4.8).
 
-chebfunjax Singfun implements no ``roots`` method, so every assertion is
-xfailed (the call raises ``AttributeError``).  The analytic exact roots from
-the MATLAB test are preserved in each case for when rootfinding lands.
+The analytic roots and original source tolerances are preserved.
 
 Provenance
 ----------
@@ -23,8 +21,6 @@ A = 0.56
 B = -0.56
 C = 1.28
 D = -1.28
-
-_REASON = "chebfunjax Singfun has no roots() method"
 
 
 def _sf(f, exps):

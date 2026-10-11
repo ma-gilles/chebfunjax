@@ -672,11 +672,12 @@ class _Piece(eqx.Module):
         """
         import numpy as _np
         a, b = self.interval
+        from chebfunjax.fun.singfun import Singfun
         from chebfunjax.tech.chebtech import Chebtech1
         from chebfunjax.tech.trigtech import Trigtech
 
         if norecursion and isinstance(
-                self.tech, (Chebtech1, Chebtech2, Trigtech)):
+                self.tech, (Chebtech1, Chebtech2, Trigtech, Singfun)):
             t_roots = self.tech.roots(recurse=False)
         else:
             t_roots = self.tech.roots()
