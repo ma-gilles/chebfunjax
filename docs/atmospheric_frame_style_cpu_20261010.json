@@ -1,0 +1,27 @@
+{
+  "base_head": "a533e3b5eeb851f9b8ee1303645b37c4ad51451e",
+  "CI_failure": {
+    "run": 38094032719,
+    "job": 114336118107,
+    "commit": "52ddeb4f69bdbd616d3618e4b8df9e6874856877",
+    "assertion": "black frame columns [] instead of [477,515]"
+  },
+  "local_baseline": "Default axes linewidth0.8 passes; actual example chebfun_style linewidth0.5 reproduces same assertion failure.",
+  "fix": "Measured website frame explicitly uses opaque black Agg outline width0.8, independent of global axes defaults. No assertion bounds relaxed.",
+  "qualification": {
+    "original_session": 12385,
+    "tests_passed": 5,
+    "pytest_seconds": 4.93,
+    "scope": "Analytic rendering controls only, under default/example/foreign rc contexts; atmospheric numerical example not rerun.",
+    "runtime": "Pinned JAX/JAXlib0.11.0 CPU environment; shell timeout60s, CPUs12\u201315; not a full runtime provenance closure."
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_frame_ci_20261010/baseline.log": "5233903d79a3ba595030355dc825f8210e45057cb30b02bebbe8bf911f15691a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_frame_ci_20261010/gate.log": "8aabf2e90732c7b85cd2fb7380873e68166991aabae7f19787acb63560203408",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_frame_ci_20261010/junit.xml": "7493201f3045765bb0eb29c0c0e7824b9c86b1faf2b7a92efc22e4f5512b738e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_frame_ci_20261010/STATIC.json": "5dcf8ecfdd47d37d0bc45445c0e0a69301068d0f0bafdf53d628d096ff9e3d95",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/sphere/atmospherictemperature.py": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_spherefun/test_atmospheric_presentation_source_controls.py": "374c0c6ac8b76a257cf5fca251e89dea2ac6a72c76e738fdf09c8f2734c3de9b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_52ddeb4f_core2_20261010.log": "2f7fcf4751c1252b709ced0ae2b044b3c0a0b5ba86f4e40a7cb7e9edeb3d3493"
+  }
+}

@@ -95,7 +95,12 @@ def _website_colorbar_layout(fig, ax, mappable):
         if getattr(artist, "_chebfun_sphere_radius", None) == 1.0:
             artist.set_clip_on(False)
     cax = fig.add_axes((477/600, 31/270, 38/600, 219/270))
-    fig.colorbar(mappable, cax=cax)
+    colorbar = fig.colorbar(mappable, cax=cax)
+    # This measured website adapter needs an opaque one-pixel Agg frame.
+    # Pin the renderer width/color: chebfun_style's thinner axes default
+    # otherwise changes the frame depending on which example ran first.
+    colorbar.outline.set_linewidth(.8)
+    colorbar.outline.set_edgecolor("black")
 
 
 def run(data_path, output_dir=None):

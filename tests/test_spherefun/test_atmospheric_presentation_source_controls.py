@@ -5,11 +5,14 @@ import json
 import sys
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from PIL import Image
 
 from chebfunjax.plotting import (
+    CHEBFUN_RC,
     PARULA,
     contour_sphere,
     matlab_explicit_camera,
@@ -69,7 +72,15 @@ def test_default_single_level_uses_source_endpoint_custom_compatibility():
             plt.close(fig)
 
 
-def test_actual_artist_website_first_figure_layout(tmp_path):
+@pytest.mark.parametrize('style', [{}, CHEBFUN_RC,
+                                  {'axes.linewidth': .1, 'axes.edgecolor': 'red'}],
+                         ids=['default', 'example', 'foreign-style'])
+def test_actual_artist_website_first_figure_layout(tmp_path, style):
+    with mpl.rc_context(style):
+        _assert_actual_artist_website_first_figure_layout(tmp_path)
+
+
+def _assert_actual_artist_website_first_figure_layout(tmp_path):
     fig, ax, mappable = plot_sphere(Field(), n_pts=200, cmap=page._website_jet(),
                                     return_mappable=True)
     geometry = ax.collections[0]._source_vertices.copy()

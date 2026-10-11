@@ -19,6 +19,8 @@ import time
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.markers import MarkerStyle
+from matplotlib.ticker import StrMethodFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
@@ -54,10 +56,16 @@ def run():
     xs = np.linspace(-8, 8, 1200)
     fig, ax = plt.subplots(figsize=(6.8, 4.0))
     ax.plot(xs, np.asarray(g(jnp.asarray(xs))), lw=2)
-    ax.plot(s, np.asarray(g(jnp.asarray(s))), ".r", ms=16)
+    ax.plot(s, np.asarray(g(jnp.asarray(s))), linestyle="none", color="red",
+            marker=MarkerStyle(".").scaled(2/3), ms=16, markeredgewidth=0)
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "HermiteQuad_01.png"), size=(600, 270))
+    ax.set_xlim(-8, 8)
+    ax.set_ylim(-.2, 1)
+    ax.set_xticks(np.arange(-8, 9, 2))
+    ax.set_yticks(np.arange(-.2, 1.01, .2))
+    ax.yaxis.set_major_formatter(StrMethodFormatter("{x:g}"))
+    ax.tick_params(top=True, right=True)
+    _savefig(fig, os.path.join(_IMG, "HermiteQuad_01.png"), size=(600, 270), layout="matlab")
     plt.close(fig)
 
     print("    n        error")
