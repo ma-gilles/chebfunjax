@@ -4927,7 +4927,27 @@ class Chebfun(eqx.Module):
             jnp.asarray(_np.asarray(keep_pv), dtype=jnp.float64))
 
     def logical_ne(self, other) -> "Chebfun":
-        """Indicator of {f ~= g} a.e. (MATLAB ne)."""
+        """Pointwise not-equal indicator (MATLAB ``f ~= g``).
+
+        Python ``!=`` retains object-comparison semantics; this method is
+        the elementwise operator adapter. Empty operands are returned
+        directly, and the native array guard precedes indicator evaluation.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ne.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        if self.isempty():
+            return self
+        if isinstance(other, Chebfun) and other.isempty():
+            return other
+        if self.n_columns > 1 or (
+            isinstance(other, Chebfun) and other.n_columns > 1
+        ):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:ne:array: ~= does not support array-valued CHEBFUN objects."
+            )
         return 1.0 - self.logical_eq(other)
 
     def logical_not(self) -> "Chebfun":

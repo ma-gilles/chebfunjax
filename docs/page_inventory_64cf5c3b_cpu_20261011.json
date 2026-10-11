@@ -1,0 +1,71 @@
+{
+  "scope": "Static committed-source audit; no fresh numerical or image-content qualification",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011",
+  "summary": {
+    "head": "64cf5c3b543269349171c74bd913932fb70dc93b",
+    "canonical_pages": 322,
+    "local_only_pages_excluded": 8,
+    "cached_html_pages": 322,
+    "matlab_input_blocks": 2408,
+    "markdown_matlab_blocks": 2408,
+    "native_output_blocks": 949,
+    "markdown_text_blocks": 948,
+    "reference_figure_slots": 1305,
+    "current_assets_present": 1305,
+    "reference_assets_present": 1305,
+    "dimensions_equal": 1305,
+    "dimension_mismatch": 0,
+    "image_bytes_identical": 0,
+    "issue_page_counts": {
+      "prose_or_header": 19,
+      "equation_text": 15,
+      "formatted_table_pre": 0,
+      "code_text": 0,
+      "output_count": 4,
+      "output_text_observational": 224,
+      "figure_dimensions": 0,
+      "missing_assets": 0,
+      "figure_name_order": 0,
+      "missing_script": 0
+    },
+    "structural_remaining_pages": [
+      "applics/VanillaOptions",
+      "approx/AAAApprox",
+      "approx/Inpainting1D",
+      "approx/MinimaxSqrt",
+      "approx/Pushnitski",
+      "approx2/Gibbs2D",
+      "complex/ConformalSquare",
+      "complex/ZetaZeros",
+      "linalg/AnalyticSVD",
+      "linalg/EigLandscapes",
+      "linalg/TransientGrowth",
+      "ode-eig/Randfuneig",
+      "ode-linear/Floquet",
+      "ode-nonlin/DelayDifferentialEquations",
+      "ode-random/RandomSwitching",
+      "opt/Needle",
+      "roots/RandomPolys",
+      "sphere/LaplaceBall",
+      "sphere/SphereHeatConduction",
+      "stats/ResamplingRandomVariables"
+    ]
+  },
+  "classification": {
+    "all_original_prose_retained_in_order": true,
+    "all_math_equal_ignoring_prose_block_location": true,
+    "additional_qualification_notes": 19,
+    "blank_blocks": 9,
+    "historical_JOGL_only": 4,
+    "algorithm_or_plot_warning_slots": 5
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/SUMMARY.json": "2bd75bcc479d417309831ebe196dfb322b01330e1c8ee78f3cadc8f360a402d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/AUDIT.json": "4261a216a388f0071ff66558bceab6a9b8e2b70e6e0836019cfddf40a884db53",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/OUTPUT_FENCES.json": "32906f694224bd9b8cf4d487e925f92b809ba82ed2a2e83a0f953b00063b7ec3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/PROSE_CLASSIFICATION.json": "698bb538c19023ae110133f50315c98b3b48ba7fc125b75ba5f779627224cc87",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/BLANK_CLASSIFICATION.json": "47eeede4dfdc790c37c8e1e31fbe9f4f87883f938d073965867c089159e4e19e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_64cf5c3b_20261011/supervision/receipt.json": "21e9d7a747d34549a01f13f96ba4334eaacd514bf9b73c44d7e8987e7f588e60"
+  },
+  "remaining": "224 normalized output text differences are observations, not a numerical failure count. All figure dimensions match but visual/coordinate/font parity remains unqualified globally."
+}

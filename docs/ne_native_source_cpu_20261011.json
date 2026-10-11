@@ -1,0 +1,39 @@
+{
+  "base": "761e0a5e9e173ed22811c5c5839c2fcea8e86288",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_test": "tests/chebfun/test_ne.m",
+  "original_predicates": 10,
+  "qualification": "All10 qualified:7nonempty-scalar predicates reused via identicalnumericreturnAST+identicaltestbytes,3guardaffectedpredicates1/7/8 rerunonfinalsnapshot. Originaltolerances/roots+pointValues/maxabsrownorm/errors/singular/unbounded retained; no manualbreakpoints/exclusions or loosenedbounds.",
+  "library_fix": "logical_ne adds nativeemptyidentityreturn beforearrayguard and exactCHEBFUN:CHEBFUN:ne:array erroridentifier. Existing 1-logical_eq numericalbranch unchanged. Pythonlogical_ne is MATLAB~=operatoradapter; Python!=objectcomparison unchanged.",
+  "focused_controls": [
+    "emptyreturnidentitybeforearrayguard",
+    "exactisequaltooldcomplement+pointValues",
+    "existingNEsupplement"
+  ],
+  "first_attempt": "2failed/8pass27.28s becausewrongEQarraymessages, stablefrozencandidate retained; no runtimecandidate mutation",
+  "final_gates": "gate_v2 5passed17.09s; gate_v3empty1passed; bounds120s2GiB, CPU4\u20137, allownedterminalsclosedstable/noPIDs",
+  "runtime": "ObservedJAX/JAXlib0.11.0CPUx64 and actualimportorigins/hashes in eachRUNTIME.json; frozeninitial and finalcandidate source directories remain intact",
+  "rng": "Nativefixture logical_source_matlab.json first100draws6178 used verbatim; second100NumPyMT19937draws checkedexact against capturedsecondfixtureblocky, then mappednative[-100,100]. Existing fixture reused; no newnativeexecution.",
+  "warnings": "IncompatibleCUDAplugin warning beforeobserverinitialimport retained instderr; pytestactualwarnings untouched.",
+  "scope_limits": "SourceNE10 qualified; no blanketNaNpointValue/mixedQuasimatrix/unsupportedpublicEQparity claim. Existinglogical_eqpointValue/root machinery unchanged.",
+  "receipts": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ne_native_source_20261011/gate_v3_empty/supervision/receipt.json",
+      "exit": 0,
+      "sha256": "4c2c8a1e293abcf90c1520cf0afb2dbb398c2ac517749f6957e35562e4b3909a"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ne_native_source_20261011/supervision/receipt.json",
+      "exit": 1,
+      "sha256": "1ce7744766b1a41f8899a29c047615812ab4526138d7b476a1d9fa90269e426d"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ne_native_source_20261011/gate_v2/supervision/receipt.json",
+      "exit": 0,
+      "sha256": "737c23efb4e146d9c562f4b60a1885bb59b519cfb49e6ca2c06b00c2c9a7f351"
+    }
+  ],
+  "reuse": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ne_native_source_20261011/delivery_v1/REUSE.json",
+  "root_checked_bindings": 25,
+  "root_checked_guard_inputs": 905
+}
