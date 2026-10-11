@@ -1,0 +1,139 @@
+{
+  "report": {
+    "base": {
+      "head": "bb02dff7737a69d3b2b7ae55e50b621f7f32f637",
+      "baseline_example_sha256": "723b0077498d5c50d7de81f3cfd114f4cb6d19ca9c7438cd16b03cd218f7f612",
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout"
+    },
+    "source_provenance": {
+      "native_example": "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx/AAAApprox.m",
+      "pinned_aaa": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/aaa.m at7574c77, aaa_autoZ warning guard",
+      "historical_html": "approx_AAAApprox.html output5 unresolved warning; output6 moustache values",
+      "prior_unexecuted_proposal": "S/aaa_auto_warning_capture_draft_v1_20261007"
+    },
+    "gap": "Actual default aaa(abs) warning went to stderr; generator reads stdout and drops unmatched source warning block. No missing displayed computation confirmed.",
+    "change": "Example-only dynamic warning capture, preserve returned tuple identity and other warning category/location; one page fence plus scoped qualification note; no library/source arithmetic changes.",
+    "native_assertions_added": 0,
+    "supplemental_controls": 3,
+    "actual_fit": {
+      "scope": "One actual default abs AAA call through candidate source helper; no full page or paired numerical replay",
+      "stdout": "Warning: Function not resolved using 16385 pts.\n",
+      "stderr": "",
+      "finite_samples": true,
+      "sample_error_observational": 1.1242419409844672e-08,
+      "arrays": {
+        "return_1": {
+          "dtype": "complex128",
+          "shape": [
+            56
+          ],
+          "sha256": "62c090f586df11213da9deb8d189c65844d19964bb7bb5508eb91f53119e6bd8"
+        },
+        "return_2": {
+          "dtype": "complex128",
+          "shape": [
+            56
+          ],
+          "sha256": "802fdec4d75949d241e221bf8af415b0ce3cb0899c3c2f2d55e3ec9d9a41b233"
+        },
+        "return_3": {
+          "dtype": "complex128",
+          "shape": [
+            56
+          ],
+          "sha256": "3e2022a67263c412fbafdeb2e0188cac9726d75efa0c9f03c5d4b2d2381d9f03"
+        },
+        "return_4": {
+          "dtype": "complex128",
+          "shape": [
+            57
+          ],
+          "sha256": "ca6807cd3962fa493bd4ce9c006c1b2355c9bad6d10337e6091fafa081c6be5e"
+        },
+        "return_5": {
+          "dtype": "complex128",
+          "shape": [
+            57
+          ],
+          "sha256": "97d2f9dc5c73dd43de946d829aacb40c4997f47bcbcfa9fcfe481ca02ae21137"
+        },
+        "return_6": {
+          "dtype": "complex128",
+          "shape": [
+            57
+          ],
+          "sha256": "c8b7fa7fa04b5f33464b4d72091fe6f62cda81b7b79ea6f1fdf8ac4efcbc343f"
+        },
+        "query": {
+          "dtype": "float64",
+          "shape": [
+            1001
+          ],
+          "sha256": "872cdd59175ef46e5ec2bb99d43e691095f8c9741a840c43c92d18dab7a025b6"
+        },
+        "samples": {
+          "dtype": "complex128",
+          "shape": [
+            1001
+          ],
+          "sha256": "145720660acf64e9cc946bc3d55bf650390755d0e6e2fb03f93a7d63652bd070"
+        }
+      }
+    },
+    "controls": {
+      "supplemental_controls": 3,
+      "native_assertions_added": 0,
+      "source_function_AST_unchanged_after_adapter_name_normalization": true,
+      "old_five_output_fences_preserved": true,
+      "new_warning_output_slot": 5,
+      "new_output_count": 6,
+      "actual_warning_matches_inserted_text": true,
+      "actual_native_source_output_alignment_equal": true,
+      "no_example_or_graphics_execution": true
+    },
+    "receipts": {
+      "actual_abs_v1": {
+        "command_exit_code": 0,
+        "wall_seconds": 36.67072158725932,
+        "sampled_peak_summed_rss_kib": 1792272,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "controls_v1": {
+        "command_exit_code": 1,
+        "wall_seconds": 5.2019487409852445,
+        "sampled_peak_summed_rss_kib": 49900,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "controls_v2": {
+        "command_exit_code": 0,
+        "wall_seconds": 5.278281724080443,
+        "sampled_peak_summed_rss_kib": 54004,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "guard_inputs_verified": 1623,
+    "final_import_order_only_AST_checked": true,
+    "ruff": "passed",
+    "failed_observer": "controls_v1 passed3mockedtests then used wrong align_outputs argument shape; preserved. controls_v2 uses actual6historical reference blocks and exact6alignedcurrentchunks, no numerical fit repeated.",
+    "original_exec_sessions_consumed": [
+      69438,
+      97161,
+      44743
+    ],
+    "limitations": [
+      "No full page replay, graphic rerender, paired approximation or fresh native warning capture.",
+      "Source-default approximation remains unresolved; sampled error1.1242419409844672e-8 is observational, no bound changed.",
+      "Matching historical warning wording/count is incidental actual output, not fresh native identity.",
+      "Inherited library NumPy/SciPy numerical kernels unchanged; new adapter contains no numerical math.",
+      "Runtime source origins check loaded chebfunjax modules, not recursive external shared-library closure."
+    ]
+  },
+  "delivery_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaa_page_warning_source_20261011/delivery/EVIDENCE.json",
+  "delivery_sha256": "467326f030c0de808f38de7aecd26528b6eb7ad8d2f2eefac1e52519b9927835"
+}

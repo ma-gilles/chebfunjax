@@ -1,0 +1,86 @@
+{
+  "status": "DDE slot22 saved-artifact execution/output qualification restored; no solve repeated",
+  "base": "bb02dff7737a69d3b2b7ae55e50b621f7f32f637",
+  "source": "DDE Example9: dom=0:.2:2;lag[1,.2];public N\\0 default with lbc[1,1,1];literalddex1de/history; DDESD optionsAbsTol/RelTol1e\u221212; numericrowvectornorm2",
+  "patches": [
+    "script.patch",
+    "page.patch"
+  ],
+  "qualified_input_deliveries_rehashed": {
+    "dde_discrete_system_20261011": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_discrete_system_20261011/delivery/DELIVERY.json",
+      "sha256": "f0ca4cfbe2a54e3f440afec9ec6cab100a3acb48986f0777a05c90b47e8de4db",
+      "bindings_verified": 113
+    },
+    "ddesd_constant_20261011": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddesd_constant_20261011/delivery/DELIVERY.json",
+      "sha256": "ea707451ed8a9167bb272a26b14a8f0f0d5a9d984b1512559e3d3666b221b5e1",
+      "bindings_verified": 90
+    }
+  },
+  "result": {
+    "success": true,
+    "no_solve": true,
+    "coefficients_byte_identical": true,
+    "all201samples_byte_identical": true,
+    "stored_point_values_byte_identical": true,
+    "override_metadata_preserved": true,
+    "x_stdout_byte_identical": true,
+    "error_identical_to_source_capture": true,
+    "error_norm": 6.722355950030367e-13,
+    "python_mesh_count": 910,
+    "native_mesh_count": 914,
+    "native_error_norm": 4.720800063436232e-12,
+    "native_grid_interpolated_state_max_difference": 6.181721801112872e-13,
+    "slot": 22,
+    "figure": 23
+  },
+  "preservation": {
+    "original_MATLAB_blocks_byte_identical": true,
+    "other22_output_blocks_byte_identical": true,
+    "script_only_section21_changed": true,
+    "all_helpers_AST_identical_to_rendered": true,
+    "script_other_functions_AST_identical": true,
+    "output_counts_23": 23
+  },
+  "figure_review": "Actual rendered helper vs source cache visually inspected:600x270; three blue Chebop lines plus three red dashed naturalmeshDDESD overlays; axes0..2\u00d70..12. Dash/font/rasterdifferences notfullparity.",
+  "stdout": "x display exactly saved Chebop x.stdout; err recomputed on saved original910naturalmesh exactlysourcecapturednorm. 15digitprintadapter differ fromnativeformattedcachedtext.",
+  "limits": [
+    "Naturalmesh910vs914 remains",
+    "No source assertion bound invented or controller/workload altered",
+    "Positiveconstantdelay realbinary64 forward DDESD subset only, notfull MATLABAPI",
+    "No wholepage execution repeated; every outputblock now has scoped receipts, not fullpage/native/pixelparity",
+    "Initialbuildersetupfailuremissingguard retained; supervisor rejected before numericalchildlaunch"
+  ],
+  "receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 5.902733908966184,
+    "sampled_peak_summed_rss_kib": 619712,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "guard_stable": true,
+  "native_capture_receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 90.10621450096369,
+    "sampled_peak_summed_rss_kib": 1480720,
+    "censored_limit": null,
+    "remaining_owned_pids": [],
+    "stable": true
+  },
+  "native_capture_result": {
+    "success": true,
+    "error_norm": 4.720800063436232e-12,
+    "solve_seconds": 3.345764,
+    "ddesd_seconds": 0.247553,
+    "ddesd_warning": "",
+    "solve_warning": ""
+  },
+  "script_source_figure_mapping_22_to23_verified": true,
+  "root_review": {
+    "delivery_sha256": "f42d1516f780e710812e042a23f2fcf49703fdc506dc03987706542d06af74f2",
+    "verified_bindings": 24,
+    "figure_viewed_against_reference": true,
+    "limits": "Visible dash/raster stroke differences; no fullfigure parity. Added output trailing whitespace stripped; saved raw stdout unchanged."
+  }
+}

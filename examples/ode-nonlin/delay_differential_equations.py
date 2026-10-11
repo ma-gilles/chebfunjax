@@ -152,6 +152,34 @@ def _source_system_display(label, functions):
     print()
 
 
+def _source_ddex1de(t, y, Z):
+    """Literal installed MATLAB DDEX1 derivative callback."""
+    return jnp.array([Z[0, 0], Z[0, 0] + Z[1, 1], y[1]])
+
+
+def _source_ddex1hist(t):
+    """Literal installed MATLAB DDEX1 constant history callback."""
+    return jnp.ones(3)
+
+
+def _source_discrete_delay_system_curve(components, mesh, values):
+    """Render the source Chebop/DDESD overlay on its natural mesh."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    for component in components:
+        matlab_plot(component, "-b", ax=ax)
+    matlab_plot(mesh, np.asarray(values).T, "--r", ax=ax)
+    ax.set(xlim=(0, 2), ylim=(0, 12),
+           xticks=np.arange(0, 2.01, .5), yticks=np.arange(0, 12.01, 2))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_state_dependent_system_curve(exact, numerical):
     """Render the source final state-dependent system with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -674,9 +702,25 @@ def run():
     print(f"res =\n     {res:.15e}")
     _save(_source_interval_boundary_curve(u20), source_axes=True)
 
-    # ----- 21. Three-variable constant-delay system: SKIPPED ----------
+    # ----- 21. Three-variable constant-delay system -------------------
     _output_slot(22)
-    print("section 21 skipped: piecewise-composition performance wall", file=sys.stderr)
+    from chebfunjax.utils.native_ddesd import ddesd
+    dom22 = tuple(float(v) for v in matlab_colon(0., .2, 2.))
+    lag22 = (1., .2)
+    N = Chebop(lambda t, x, y, z: [
+        x.diff() - x((t - lag22[0]).maximum(0.)),
+        y.diff() - x((t - lag22[0]).maximum(0.)) - y((t - lag22[1]).maximum(0.)),
+        z.diff() - y], domain=dom22)
+    N.lbc = [1., 1., 1.]
+    components22 = list(N.solve(0.))
+    x22 = components22[0]
+    _show(x22, "x")
+    sol22 = ddesd(_source_ddex1de, [1., .2], _source_ddex1hist,
+                  [0., dom22[-1]], {"AbsTol": 1e-12, "RelTol": 1e-12})
+    err = float(jnp.linalg.norm(x22(sol22.x) - sol22.y[0]))
+    print(f"err =\n     {err:.15e}")
+    _save(_source_discrete_delay_system_curve(
+        components22, sol22.x, sol22.y), source_axes=True)
 
     # ----- 22. A system with a state-dependent delay ------------------
     _output_slot(23)

@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import warnings
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -34,6 +35,23 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 def _aaa_on_interval(f, dom=(-1.0, 1.0), **kw):
     """MATLAB aaa(handle): automated sample-set choice (aaa_autoZ)."""
     return aaa(f, dom=dom, **kw)
+
+
+
+def _aaa_with_output_warning(f):
+    """Retain the actual unresolved warning in this example's stdout."""
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        result = _aaa_on_interval(f)
+    for item in captured:
+        message = str(item.message)
+        if (message.startswith("Function not resolved using ")
+                and message.endswith(" pts.")):
+            print(f"Warning: {message}")
+        else:
+            warnings.showwarning(item.message, item.category,
+                                 item.filename, item.lineno)
+    return result
 
 
 def _disp_polres(pol, res):
@@ -130,7 +148,7 @@ def run():
     plt.close(fig)
 
     # AAA of |x|
-    r, *_ = _aaa_on_interval(lambda z: jnp.abs(z))
+    r, *_ = _aaa_with_output_warning(lambda z: jnp.abs(z))
     _ezplot(lambda x: abs(x) - np.real(r(np.asarray([x]))[0]),
             (-1, 1), "AAAApprox_06.png", ylim=(-5e-14, 5e-14))
 
