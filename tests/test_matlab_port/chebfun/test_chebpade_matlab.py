@@ -137,11 +137,17 @@ def test_clenshaw_complex_polynomial_zero_denominator_degree():
 
 
 @pytest.mark.parametrize("coefficients", [[1.0, 0.0, 1.0, 0.0], [1.0, 0.0, 0.0, 0.0]])
-def test_exact_singular_hankel_preserves_exception_adapter(coefficients):
-    # m=n=1 => Hankel=[c1]=[0]; four supplied coefficients avoid RNG.
+def test_exact_singular_hankel_matches_native_capture(coefficients):
+    # Native immutable cps1/observations.mat: both length4 inputs return
+    # pcoeffs=[NaN,NaN], qcoeffs=[1,NaN], with no error or lastwarn.
     f = cj.chebfun(jnp.asarray(coefficients), coeffs=True)
-    with pytest.raises(np.linalg.LinAlgError, match="Singular matrix"):
-        cj.chebpade(f, 1, 1)
+    assert len(f) == 4
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        p, q, _ = cj.chebpade(f, 1, 1)
+    np.testing.assert_array_equal(np.asarray(p.chebcoeffs(2)), [np.nan, np.nan])
+    np.testing.assert_array_equal(np.asarray(q.chebcoeffs(2)), [1.0, np.nan])
+    assert captured == []
 
 
 def test_complex_explicit_M_independent_cosine_oracle():
@@ -169,4 +175,39 @@ def test_explicit_M_zero_native_midpoint(coefficients):
     np.testing.assert_array_equal(np.asarray(q.chebcoeffs(1)), [1])
     np.testing.assert_array_equal(
         np.asarray(r(jnp.asarray([-1.0, 1.0, 3.0]))), np.repeat(expected, 3)
+    )
+
+
+def test_maehly_complex_polynomial_coefficients():
+    coefficients = jnp.asarray([1 + 2j, 3 - 1j, -2 + 0.5j])
+    f = cj.chebfun(coefficients, coeffs=True)
+    p, q, _ = cj.chebpade(f, 2, 0, "maehly")
+    np.testing.assert_array_equal(np.asarray(p.chebcoeffs(3)), np.asarray(coefficients))
+    np.testing.assert_array_equal(np.asarray(q.chebcoeffs(1)), [1])
+
+
+@pytest.mark.parametrize("scale", [1.0, 1j])
+def test_maehly_complex_nonzero_denominator_literal_source_formula(scale):
+    a = scale * np.asarray([1 + 2j, 0.3 - 0.2j, 0.7 + 0.1j, -0.2 + 0.4j, 0.5 - 0.3j])
+    # Literal m=2,n=1 native formula, no library assembly/rank/solve oracle.
+    q1 = -2 * a[3] / (a[4] + a[2])
+    expected_p = np.asarray(
+        [
+            a[0] + 0.5 * a[1] * q1,
+            a[1] + 0.5 * (a[2] + 2 * a[0]) * q1,
+            a[2] + 0.5 * (a[3] + a[1]) * q1,
+        ]
+    )
+    expected_q = np.asarray([1.0, q1])
+    f = cj.chebfun(jnp.asarray(a), domain=(-1.0, 3.0), coeffs=True)
+    p, q, r = cj.chebpade(f, 2, 1, "maehly")
+    np.testing.assert_allclose(np.asarray(p.chebcoeffs(3)), expected_p, rtol=0, atol=2e-15)
+    np.testing.assert_allclose(np.asarray(q.chebcoeffs(2)), expected_q, rtol=0, atol=2e-15)
+    sites = np.asarray([-0.5, 0.2, 1.8, 2.5])
+    t = (sites - 1) / 2
+    expected_values = np.polynomial.chebyshev.chebval(
+        t, expected_p
+    ) / np.polynomial.chebyshev.chebval(t, expected_q)
+    np.testing.assert_allclose(
+        np.asarray(r(jnp.asarray(sites))), expected_values, rtol=0, atol=3e-15
     )

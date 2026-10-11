@@ -1,0 +1,12 @@
+{
+  "scope": "Correct stale nonlinear seed routing expectation to existing explicit values selector; numerical bounds and production code unchanged",
+  "ci_failure": "b5215bf2 core2 expected [ultraS,None], observed [ultraS,values]",
+  "tests_passed": 6,
+  "pytest_seconds": 17.639,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_values_seed_contract_20261011/supervision/receipt.json",
+  "receipt_sha256": "a4046668e8dbfe39112c601a9b4d704d8379d0efe20461b5b30d411a2dd72060",
+  "candidate_sha256": "e27512bbc9c47722818676d6ed686af5fd87641c44fe5d683326ff814699591b",
+  "inputs_stable": true,
+  "owned_survivors": false,
+  "limits": "Focused module only; full CI unresolved"
+}

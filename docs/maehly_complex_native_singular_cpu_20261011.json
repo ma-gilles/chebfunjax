@@ -1,0 +1,74 @@
+{
+  "scope": "Relative acceptedCLv3+wrapper: Maehly publicchebcoeffs(len(f)), complexpreserving JAXpadding/outputconstructor; remove nowdisproved Clenshawexactzero exceptionadapter; nativecapture-backed twooutcomecontrols.",
+  "changed_functions": [
+    "_chebpade_maehly",
+    "_from_coeffs_any",
+    "_chebpade_clenshaw_lord"
+  ],
+  "native_singular_evidence": "cps1 observations.mat inspected losslessly: both [1,0,1,0]/[1,0,0,0] retainlength4 return pcoeffs[NaN,NaN],qcoeffs[1,NaN], noerror/lastwarnempty. Source directbackslash. JAXdirectsolve-normalization nowmatches exactcapture. No invented threshold or successclaimfor nonfinite approximation.",
+  "complex_controls": "n0complexpolynomial exactcoefficientidentity; m2n1complexcoefficients and i-scaled variant against literal q1=-2a3/(a4+a2), p0=a0+.5a1q1,p1=a1+.5(a2+2a0)q1,p2=a2+.5(a3+a1)q1, plus4sites independentChebevaluation. No RNGpaddingneeded. Diagnostic tolerances2e-15coefficients/3e-15values are separate from native six bounds.",
+  "qualification": "candidate_v1 all16pytestcases pass with sixunchangednativeclauses, newcomplex3controls; subsequentnative_singular_v2 reruns only affected2singular+3complexcases (5pass). Baseline3complexfailures retained.",
+  "runs": {
+    "baseline_v1": {
+      "wall_seconds": 32.026325011160225,
+      "sampled_peak_summed_rss_kib": 1804492,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "cff7e8bf3b035438afa08fb9a4be6b177979e0f11c8df99bb2d2a693182c0547"
+    },
+    "candidate_v1": {
+      "wall_seconds": 31.556226693093777,
+      "sampled_peak_summed_rss_kib": 1810812,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "1867dcaa1b5baf54152ec100d4098ba61dfafbfc7b0e1258f116b39316e85098"
+    },
+    "native_singular_v2": {
+      "wall_seconds": 12.461176319979131,
+      "sampled_peak_summed_rss_kib": 754112,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "286bd0fdf6170ef533eabf88d28a81abed0eea243db4655eda1a47f5ea7d3258"
+    }
+  },
+  "residuals": [
+    "SinglepiececomplexMaehly qualified; piecewisepublicchebcoeffs dependency not newly qualified (remaining NumPy quadrature, complex support)",
+    "Construction still eager metadata/int rank recursion, not fullJIT API",
+    "NumPy default_rng(0) noise stream retained unchanged adapter; no native RNGidentityclaim",
+    "cf() and shared_coeffs/_resample remain NumPy outside chebpade scope",
+    "General near-singular/nonfiniteHankel behavior not fully qualified; twoexactnativecases now bound"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/maehly_complex_coefficients_20261011/complex_and_native_singular.patch": "8760ebf0d95753d68484c974ff4b7177c4bbd677b27564351f6097e28b10c351",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/maehly_complex_coefficients_20261011/candidate_v2_source/src/chebfunjax/utils/cfpade.py": "bf94f3cfdbbfc323b2911f3ff59b818954045c1b84d1d00428de9c9283736217",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/maehly_complex_coefficients_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_chebpade_matlab.py": "48c17fd78d137c98d7eca08b4792c44a60e8f6df1c8679e6aea65ca1ca43c6a4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cps1/observations.mat": "9088626aba79746bed056482228df4c1a5ca1d100da8e13e250702a1d1df69d9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cps1/probe.m": "aa2888e3cedb2635a749b91cc4ce7f50c0ee187ba8694ec041cc9c9ce65f2629",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cps1/AUDIT.json": "337c3655e96d05d143ba1dccdc6c50dcf5f753e7e69fc9b5922f9126fcffb144",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cps1/guard.json": "025d1525c8b997a867388823bfa1e112c198ee19cca7d9e695955331b05c5edc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cps1/runtime_profile.json": "9115cd0f0f0feb014e82cf826f9ce713e6b86532c0c095f4e2b40e21b35628a1"
+  },
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/maehly_complex_coefficients_20261011/DELIVERY.json",
+  "publication_review": "Complete qualified test file copied because delivered patch omitted baseline-exposure controls; Ruff formatting preserves AST. Singfun source identifier in wrapper retained."
+}

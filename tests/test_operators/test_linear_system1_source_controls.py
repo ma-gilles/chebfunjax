@@ -41,21 +41,21 @@ def test_native_product_linearity_depends_on_initial_state(initial, expected):
     assert _linear_system_by_ad(N, (-1., 1.), 2) is expected
 
 
-def test_nonlinear_operator_keeps_default_seed(monkeypatch):
-    """A nondegenerate nonlinear operator retains the established seed route."""
+def test_nonlinear_operator_keeps_explicit_values_seed(monkeypatch):
+    """The established seed requests values explicitly, independent of session selection."""
     N = Chebop(lambda x, u, v: [u.sin(), v], (-1, 1))
     calls = []
     original = N.solve
 
     def recorded(*args, **kwargs):
         calls.append(kwargs.get('discretization'))
-        if kwargs.get('discretization') is None:
+        if kwargs.get('discretization') == 'values':
             return [chebfun(0.), chebfun(0.)]
         return original(*args, **kwargs)
 
     monkeypatch.setattr(N, 'solve', recorded)
     N.solve(0, n=9, discretization='ultraS')
-    assert calls == ['ultraS', None]
+    assert calls == ['ultraS', 'values']
 
 
 def test_supplied_initial_state_used_for_linearization():

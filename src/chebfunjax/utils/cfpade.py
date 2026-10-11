@@ -294,7 +294,7 @@ def _rational_cf(f, a_rev, m, n, M, dom):
     return p, q, r, s
 
 
-def chebpade(f, m: int, n: int, type: str = "clenshawlord",
+def chebpade(f, m: int, n: int = 0, type: str = "clenshawlord",
              M: int = -1):
     """Chebyshev-Pade approximation of degree (m, n)
     (MATLAB chebpade): returns ``(p, q, r)``.
@@ -305,12 +305,20 @@ def chebpade(f, m: int, n: int, type: str = "clenshawlord",
     Chebfun commit: 7574c77
     """
     if isinstance(type, (int, np.integer)):
-        type, M = "clenshawlord", int(type)
+        type, M = (M, int(type)) if isinstance(M, str) else ("clenshawlord", int(type))
+    from chebfunjax.fun.singfun import Singfun
+    if any(isinstance(piece.tech, Singfun) for piece in f.funs):
+        raise ValueError("CHEBFUN:chebpade:singularFunction: "
+                         "CHEBPADE does not currently support functions with singularities.")
     if type == "clenshawlord":
-        return _chebpade_clenshaw_lord(f, m, n, M)
-    if type == "maehly":
-        return _chebpade_maehly(f, m, n)
-    raise ValueError("type must be 'clenshawlord' or 'maehly'")
+        p, q, r = _chebpade_clenshaw_lord(f, m, n, M)
+    elif type == "maehly":
+        p, q, r = _chebpade_maehly(f, m, n)
+    else:
+        raise ValueError("type must be 'clenshawlord' or 'maehly'")
+    if f.is_transposed:
+        p, q = p.transpose(), q.transpose()
+    return p, q, r
 
 
 def _chebpade_clenshaw_lord(f, m, n, M):
@@ -350,11 +358,6 @@ def _chebpade_clenshaw_lord(f, m, n, M):
         entries = jnp.concatenate([top, bot[1:]])
         indices = jnp.arange(n)[:, None] + jnp.arange(n)[None, :]
         matrix = entries[indices]
-        # Preserve the public NumPy exception adapter for an exact zero LU
-        # determinant; no numerical rank tolerance is introduced.
-        sign, _ = jnp.linalg.slogdet(matrix)
-        if bool(sign == 0):
-            raise np.linalg.LinAlgError("Singular matrix")
         beta = jnp.concatenate(
             [-jnp.linalg.solve(matrix, rhs),
              jnp.ones(1, dtype=c.dtype)])[::-1]
@@ -387,8 +390,8 @@ def _chebpade_clenshaw_lord(f, m, n, M):
 def _from_coeffs_any(ck, dom):
     from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
     from chebfunjax.tech.chebtech import Chebtech2
-    ck = np.atleast_1d(np.asarray(ck))
-    tech = Chebtech2.from_coeffs(jnp.asarray(ck))
+    ck = jnp.atleast_1d(jnp.asarray(ck))
+    tech = Chebtech2.from_coeffs(ck)
     piece = _Piece(tech=tech, interval=(float(dom[0]), float(dom[1])))
     return Chebfun(funs=[piece], domain=Domain((float(dom[0]),
                                                 float(dom[1]))))
@@ -397,16 +400,16 @@ def _from_coeffs_any(ck, dom):
 def _chebpade_maehly(f, m, n):
     dom = (float(f.domain.a), float(f.domain.b))
     tol = 1e-10
-    a = _coeffs(f)
+    # Native chebcoeffs(F, length(F)) preserves complex coefficients.
+    a = f.chebcoeffs(len(f))
     if len(a) < m + 2 * n + 1:
         warnings.warn(
             f"chebpade: not enough coefficients for [{m}/{n}]; "
             "assuming the remainder are noise",
             RuntimeWarning, stacklevel=2)
         rng = np.random.default_rng(0)
-        a = np.concatenate(
-            [a, np.finfo(float).eps
-             * rng.standard_normal(m + 2 * n + 1 - len(a))])
+        pad = np.finfo(float).eps * rng.standard_normal(m + 2 * n + 1 - len(a))
+        a = jnp.concatenate([a, jnp.asarray(pad, dtype=a.dtype)])
 
     # MATLAB rank(D, tol) counts singular values strictly greater than the
     # explicit absolute 1e-10 cutoff; construction and degree selection are eager.
