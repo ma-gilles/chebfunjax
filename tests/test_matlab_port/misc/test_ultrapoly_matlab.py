@@ -1,34 +1,36 @@
-"""Port of MATLAB Chebfun tests/misc/test_ultrapoly.m (Fable 5).
-
-roots(C_n^{(lam)}) must equal the Gauss-Jacobi nodes
-jacpts(n, lam-1/2, lam-1/2).
+"""Native polynomial predicates and source controls.
 
 Provenance
 ----------
-MATLAB source : tests/misc/test_ultrapoly.m
-Chebfun commit: 7574c77
+MATLAB sources: tests/misc/test_jacpoly.m, tests/misc/test_ultrapoly.m.
+Chebfun commit: 7574c77.
+All original numerical bounds retained; fresh MATLAB execution not asserted.
 """
-
-from __future__ import annotations
-
 import numpy as np
-from numpy.polynomial import chebyshev as C
+import pytest
 
-from chebfunjax.utils.polynomials import ultrapoly
+import chebfunjax as cj
 from chebfunjax.utils.quadrature import jacpts
 
-TOL = 1e-12
+
+@pytest.mark.parametrize("n,lam",[(10,2.1),(11,1.9)])
+def test_native_ultraspherical_roots(n,lam):
+    actual=np.asarray(cj.ultrapoly(n,lam).roots()).ravel()
+    exact=np.asarray(jacpts(n,lam-.5,lam-.5)[0])
+    assert np.linalg.norm(np.sort(actual)-np.sort(exact))<1e-14
 
 
-class TestUltrapoly:
-    def test_roots_match_jacpts_even(self):
-        lam = 2.1
-        r = np.sort(np.real(C.chebroots(np.asarray(ultrapoly(10, lam)))))
-        exact = np.sort(np.asarray(jacpts(10, lam - 0.5, lam - 0.5)[0]))
-        assert float(np.max(np.abs(r - exact))) < TOL
+@pytest.mark.parametrize("lam,bound",[(1.9,1e-10),(4.,1e-9)])
+def test_native_ultraspherical_jacobi_ratio(lam,bound):
+    x=np.linspace(-1,1,100)
+    u=cj.ultrapoly(np.arange(16),lam)
+    j=cj.jacpoly(np.arange(16),lam-.5,lam-.5)
+    ratio=np.asarray(u(x))/np.asarray(j(x))
+    assert np.linalg.norm(ratio-np.ones((100,1))*ratio[0,:],2)<bound
 
-    def test_roots_match_jacpts_odd(self):
-        lam = 1.9
-        r = np.sort(np.real(C.chebroots(np.asarray(ultrapoly(11, lam)))))
-        exact = np.sort(np.asarray(jacpts(11, lam - 0.5, lam - 0.5)[0]))
-        assert float(np.max(np.abs(r - exact))) < TOL
+
+def test_native_ultraspherical_selected_coefficients():
+    actual=np.asarray(cj.ultrapoly([0,2,3],.25).chebcoeffs())
+    true=np.array([[1,.0625,0],[0,0,.078125],[0,.3125,0],[0,0,.234375]])
+    assert actual.shape==true.shape
+    assert np.linalg.norm((actual-true).ravel())<1e-14

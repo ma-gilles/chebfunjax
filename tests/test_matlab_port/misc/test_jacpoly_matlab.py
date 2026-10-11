@@ -1,44 +1,25 @@
-"""Port of MATLAB Chebfun tests/misc/test_jacpoly.m (Fable 5).
-
-chebfunjax jacpoly(n, a, b) returns the Chebyshev coefficients of
-P_n^{(a,b)}; MATLAB's exact printed values at x = 0.1 are checked via
-Chebyshev evaluation (numpy.polynomial.chebyshev on tests side only).
+"""Native polynomial predicates and source controls.
 
 Provenance
 ----------
-MATLAB source : tests/misc/test_jacpoly.m
-Chebfun commit: 7574c77
+MATLAB sources: tests/misc/test_jacpoly.m, tests/misc/test_ultrapoly.m.
+Chebfun commit: 7574c77.
+All original numerical bounds retained; fresh MATLAB execution not asserted.
 """
-
-from __future__ import annotations
-
 import numpy as np
-from numpy.polynomial import chebyshev as C
+import pytest
 
-from chebfunjax.utils.polynomials import jacpoly
-
-TOL = 1e-14
-V4 = np.array([1.000000000000000, 0.290000000000000,
-               -0.413700000000000, -0.254186000000000])
+import chebfunjax as cj
 
 
-class TestJacpoly:
-    def test_values_at_reference_point(self):
-        vals = np.array([
-            C.chebval(0.1, np.asarray(jacpoly(n, 0.1, -0.3)))
-            for n in range(4)])
-        assert float(np.max(np.abs(vals - V4))) < TOL
+@pytest.mark.parametrize("domain,reference", [([-1,1], [1,.29,-.4137,-.254186]), ([0,3], [1,-.64,.442244444444444,-.271506962962963])])
+def test_native_jacobi_values(domain,reference):
+    actual=np.asarray(cj.jacpoly(np.arange(4),.1,-.3,domain)(.1)).ravel()
+    assert np.linalg.norm(actual-np.asarray(reference),np.inf)<1e-14
 
-    def test_mapped_domain_via_reference(self):
-        # MATLAB pass(2): same values on [0,3] at the mapped point.
-        # chebfunjax jacpoly has no domain arg; evaluating the [-1,1]
-        # polynomial at the pulled-back point is the same assertion.
-        x = 0.1
-        t = 2 * (x - 0.0) / 3.0 - 1.0
-        vals = np.array([
-            C.chebval(t, np.asarray(jacpoly(n, 0.1, -0.3)))
-            for n in range(4)])
-        ref = np.array([
-            C.chebval(t, np.asarray(jacpoly(n, 0.1, -0.3)))
-            for n in range(4)])
-        assert float(np.max(np.abs(vals - ref))) == 0.0
+
+def test_native_jacobi_selected_coefficients():
+    actual=np.asarray(cj.jacpoly([0,2,3],-.25,-.25).chebcoeffs())
+    true=np.array([[1,.109375,0],[0,0,.150390625],[0,.546875,0],[0,0,.451171875]])
+    assert actual.shape==true.shape
+    assert np.linalg.norm((actual-true).ravel())<1e-14

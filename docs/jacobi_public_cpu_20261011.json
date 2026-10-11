@@ -1,0 +1,43 @@
+{
+  "status": "13 focused CPU cases pass: all three Jacobi and five ultraspherical native predicates plus five source/API cases",
+  "source": "jacpoly.m and ultrapoly.m, MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df",
+  "base": "1b98861c",
+  "changes": [
+    "Add public Chebfun-returning Jacobi and ultraspherical constructors while retaining existing scalar coefficient helper APIs.",
+    "Use source coefficient matrices, parameter scale, domain restriction and requested-degree orientation.",
+    "Replace self-comparison mapped Jacobi test with original independent decimal oracle; restore selected coefficient matrices and original ultraspherical root vector and ratio matrix norm bounds."
+  ],
+  "gates": {
+    "baseline_session": 92155,
+    "baseline": "All eight native predicates fail: missing public APIs.",
+    "initial_session": 44281,
+    "initial": "6 pass; 2 test adapter failures from broadcasting native column roots against Python 1D nodes. Retained evidence.",
+    "final_session": 22387,
+    "final": "13 pass, 16.05s pytest",
+    "sampled_peak_rss_kib": 1223448,
+    "inputs_stable": true,
+    "no_survivors": true,
+    "no_cap": true
+  },
+  "limits": [
+    "No fresh MATLAB run, high-degree/performance or full-suite qualification.",
+    "Scalar degrees and Python 1D degrees are column-valued; explicit column degree arrays request row orientation.",
+    "Invalid/empty degree handling is an explicit Python ValueError adapter, not exact native error-identifier parity.",
+    "Special lambda=.5/1 delegate existing Legendre/Chebyshev public implementations; all their known limitations remain.",
+    "Nondefault Tech preferences and arbitrary parameter extremes not covered by this gate."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_baseline_20261011/guard.json": "0990f2d7013a07f2142fbc0906be5843521dd9f5b0f061e78b8b874df7a1b037",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_baseline_20261011/supervision/receipt.json": "e4678fe72faec6e73ed8ebb0274b3bfac2ea6b272e80dc1a722c03bd22c5f5a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_baseline_20261011/junit.xml": "204afd8dbef178268c34995331849bb9375a8694ff2d9a486363403d9b0abc3a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_baseline_20261011/launch.sh": "b7d022b5986944679bbf70a3a843bc05d90a0b1d2c44c0d1a746b16ab9188d6a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_20261011/guard.json": "be03077cb9868136be9e9df6ed4740a6579c373f6d8942ed68710dcb04d2fbd7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_20261011/supervision/receipt.json": "0250c90a9f0ed6696c8a0fefa00f2b79cd1ceca55ea9eb561fe688ccc38823fe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_20261011/junit.xml": "38a8fb614de78a626d596119a17e0cd76c92cd0770aa8dc32e4f9c7878872c0d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_20261011/launch.sh": "7e4180eb1c3621ba6011beefc2952dbff15f964c807a92b13cfa7635b65b9896",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_v2_20261011/guard.json": "be667b2e406fb0542ce41a786927b55b3e123cec3679a4429bc03764ac24f442",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_v2_20261011/supervision/receipt.json": "af449652df1f8f7c91c7badf6db8a3f711e15f837e37e0a423268c3d4d021a19",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_v2_20261011/junit.xml": "56489c526dd2f379ed6d0709920e96cb0d27c9056175bf892466e4e4c27f2621",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacobi_public_candidate_v2_20261011/launch.sh": "a6b23d7ded577b45dccb3014c24e3b7a34a8334fd36078296f2bb2aa46e7b0b9"
+  }
+}

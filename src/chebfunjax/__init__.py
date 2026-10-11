@@ -75,6 +75,7 @@ from chebfunjax.utils.fasttransforms import (  # noqa: E402
     idlt,
     idst,
 )
+from chebfunjax.utils.jacobi_polynomials import jacpoly, ultrapoly  # noqa: E402
 from chebfunjax.utils.lebesgue_source import lebesgue  # noqa: E402
 from chebfunjax.utils.misc import isSubset  # noqa: E402
 from chebfunjax.utils.nufft import nufft2  # noqa: E402
@@ -337,6 +338,8 @@ __all__ = [
     "residue",
     "fred",
     "volt",
+    "jacpoly",
+    "ultrapoly",
     "hermpoly",
     "lagpoly",
     "trigBary",

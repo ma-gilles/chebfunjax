@@ -741,40 +741,103 @@ def lagpoly_chebfun(n, alp: float = 0.0, domain=None):
 
 
 def chebpolyval(p, x):
-    """Evaluate a Chebyshev series given with the HIGHEST degree first
-    (MATLAB ``chebpolyval(p, x)``): ``p[0] T_n + ... + p[n] T_0`` at
-    numeric ``x`` (Clenshaw), or at a Chebfun ``x`` (composition; one
-    output column per column of ``p``).
+    """Evaluate descending-degree Chebyshev coefficients at numeric or Chebfun X.
+
+    Numeric coefficient columns produce horizontally concatenated value
+    matrices, following CHEBTECH/FEVAL's column-major shape rule. Scalar
+    Chebfun input uses the paired Clenshaw recurrence in Chebfun arithmetic,
+    with one horizontally concatenated result per coefficient column.
+    Complex coefficients and arguments retain their imaginary components.
 
     Provenance
     ----------
-    MATLAB source : chebpolyval.m
-    Chebfun commit: 7574c77
+    MATLAB source: chebpolyval.m, @chebtech/clenshaw.m, @chebtech/feval.m.
+    Chebfun commit: 7574c77.
+    Python one-dimensional coefficient/point arrays represent column vectors;
+    scalar numeric results use the ordinary zero-dimensional JAX convention.
     """
-    P = jnp.asarray(p, dtype=jnp.float64)
-    if P.ndim == 1:
-        P = P[:, None]
-    P = P[::-1, :]  # ascending degree
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.tech.chebtech import _clenshaw
 
-    def _clenshaw(c, t):
-        bk1 = jnp.zeros_like(t)
-        bk2 = jnp.zeros_like(t)
-        for k in range(c.shape[0] - 1, 0, -1):
-            bk1, bk2 = c[k] + 2.0 * t * bk1 - bk2, bk1
-        return c[0] + t * bk1 - bk2
+    try:
+        coefficients = jnp.asarray(p)
+    except (TypeError, ValueError) as exc:
+        raise TypeError(
+            "CHEBFUN:chebpolyval:firstArg: First input argument must be a vector or a matrix."
+        ) from exc
+    if coefficients.ndim > 2 or not jnp.issubdtype(coefficients.dtype, jnp.number):
+        raise TypeError(
+            "CHEBFUN:chebpolyval:firstArg: First input argument must be a vector or a matrix."
+        )
+    if coefficients.ndim == 0:
+        coefficients = coefficients.reshape(1, 1)
+    elif coefficients.ndim == 1:
+        coefficients = coefficients[:, None] if coefficients.size else coefficients.reshape(0, 0)
+    # Promote integer coefficients to floating arithmetic without discarding
+    # complex data or forcing existing floating inputs to a different dtype.
+    coefficients = coefficients.astype(jnp.result_type(coefficients.dtype, 1.0))
+    coefficients = coefficients[::-1, :]
 
-    if hasattr(x, "funs"):
-        cols = []
-        for j in range(P.shape[1]):
-            c = P[:, j]
-            cols.append(x._apply_fun(lambda t, _c=c: _clenshaw(_c, t)))
-        if len(cols) == 1:
-            return cols[0]
-        return cols
-    xv = jnp.asarray(x, dtype=jnp.float64)
-    out = jnp.stack([_clenshaw(P[:, j], xv) for j in range(P.shape[1])],
-                    axis=-1)
-    return out[..., 0] if P.shape[1] == 1 else out
+    if isinstance(x, Chebfun):
+        if x.n_columns > 1:
+            raise ValueError(
+                "CHEBFUN:chebpolyval:columnInput: For non-numeric types CHEBPOLYVAL "
+                "supports only scalar-valued X."
+            )
+        transposed = x.is_transposed
+        x = x.transpose() if transposed else x
+        columns = []
+        for column in range(coefficients.shape[1]):
+            c = coefficients[:, column]
+            bk1 = 0*x
+            bk2 = bk1
+            twice_x = 2*x
+            degree = c.shape[0]-1
+            for k in range(degree, 1, -2):
+                bk2 = c[k] + twice_x*bk1 - bk2
+                bk1 = c[k-1] + twice_x*bk2 - bk1
+            if degree % 2:
+                temporary = bk1
+                bk1 = c[1] + twice_x*bk1 - bk2
+                bk2 = temporary
+            columns.append(c[0] + .5*twice_x*bk1 - bk2)
+        if not columns:
+            return jnp.empty((0,), dtype=coefficients.dtype)
+        result = Chebfun.horzcat(columns)
+        return result.transpose() if transposed else result
+
+    try:
+        points = jnp.asarray(x)
+    except (TypeError, ValueError) as exc:
+        raise TypeError("CHEBPOLYVAL requires numeric points or a scalar-valued Chebfun") from exc
+    if not jnp.issubdtype(points.dtype, jnp.number):
+        raise TypeError("CHEBPOLYVAL requires numeric points or a scalar-valued Chebfun")
+    points = points.astype(jnp.result_type(points.dtype, 1.0))
+    if coefficients.size == 0:
+        return jnp.empty((0,), dtype=coefficients.dtype)
+    count = coefficients.shape[1]
+    if count > 1 and points.ndim > 2:
+        raise ValueError(
+            "CHEBFUN:CHEBTECH:feval:evalArrayAtNDArray: Evaluation of a CHEBTECH "
+            "with more than one column at inputs with more than two dimensions "
+            "is not supported."
+        )
+    flat = jnp.reshape(points, (-1,), order="F")
+    if coefficients.shape[0] > 4000 and flat.size > 4000:
+        from chebfunjax.utils.transforms import ndct
+
+        values = ndct(flat, coefficients)
+    else:
+        values = _clenshaw(coefficients, flat)
+    if count == 1:
+        return jnp.reshape(values[:, 0], points.shape, order="F")
+    rows = points.shape[0] if points.ndim else 1
+    if points.ndim == 1:
+        return values
+    # A row/column matrix of sites concatenates each polynomial's values in
+    # its own column-major block, as reshape(y,sizex(1),m*numel(x)/sizex(1)).
+    columns = count * (points.shape[1] if points.ndim == 2 else 1)
+    return jnp.reshape(values, (rows, columns), order="F")
 
 
 def chebpolyvalm(p, A):

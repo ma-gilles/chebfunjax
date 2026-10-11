@@ -1,0 +1,33 @@
+{
+  "base": "a66837a6",
+  "scope": "Only chebpolyval function changed; all other module AST is identical. Root must merge this function without overwriting adjacent chebpolyvalm work.",
+  "baseline": {
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyval_source_20261011/baseline_v1/AUDIT.json",
+    "sha256": "0878203ed2399436cbf1470b571f74498a1bf43ebaac4deac3a748159a0947b2",
+    "failures": 5
+  },
+  "qualified": {
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyval_source_20261011/controls_v1/AUDIT.json",
+    "sha256": "46d0647d17d7b39e48eea7fc9585380b2c7ba88654cd926fd0cbd5eb632eb635",
+    "controls": 11,
+    "original_handle": 98515
+  },
+  "portable_controls": "Nine exact executed function bodies repackaged as pytest tests; two literal native predicates separately restored.",
+  "bounds": "Native n*10*chebfuneps retained; numeric matrix infinity norm and continuous Chebfun array infinity norm.",
+  "limits": [
+    "No native RNG bit parity claimed.",
+    "Large-series NDCT source dispatch restored statically but not exercised by these bounded controls.",
+    "Single precision class parity is not asserted.",
+    "Python 1D points/coefficients denote column vectors and scalar single-polynomial result uses 0D convention."
+  ],
+  "root_review": {
+    "merged_into": "1b98861c",
+    "checked_bindings": 810,
+    "adjacent_chebpolyvalm_AST_preserved": true,
+    "source_review": "Paired recurrence matches @chebtech/clenshaw.m; numeric shape and NDCT dispatch reviewed against @chebtech/feval.m. No extra numerical rerun."
+  },
+  "delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyval_source_20261011/delivery_v2/DELIVERY.json",
+    "sha256": "47be33c66699cd5552274d3ffa55161ad9c906f99250dbcb6815014cfc3f5265"
+  }
+}
