@@ -703,7 +703,10 @@ class Singfun(eqx.Module):
 
         # Case 1: identical exponents — just add smooth parts
         if abs(fExps[0] - gExps[0]) < _EXP_TOL and abs(fExps[1] - gExps[1]) < _EXP_TOL:
-            return Singfun(self.smoothPart + other.smoothPart, fExps)
+            smooth = self.smoothPart + other.smoothPart
+            if bool(smooth.normest() < 1e3*jnp.finfo(jnp.float64).eps):
+                return Singfun.zeroSingFun()
+            return Singfun(smooth, fExps)
 
         # Case 2: exponents differ by integers — factor out the smaller
         # exponent and add the resulting smooth parts
@@ -748,7 +751,10 @@ class Singfun(eqx.Module):
             else:
                 sp_g = other.smoothPart
 
-            return Singfun(sp_f + sp_g, (new_a, new_b))
+            smooth = sp_f + sp_g
+            if bool(smooth.normest() < 1e3*jnp.finfo(jnp.float64).eps):
+                return Singfun.zeroSingFun()
+            return Singfun(smooth, (new_a, new_b))
 
         # Case 3: source plus.m reconstructs using the original operand
         # scales. This scale matters when cancellation leaves a small result.

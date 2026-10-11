@@ -1,0 +1,148 @@
+{
+  "source_head": "f35cd8b1b8da21be36ff251f3bf634cc8a70f899",
+  "scope": "MATLAB string log/heaviside and exact-real eager product/division storage; dense JAX large-Hankel CF backend",
+  "gates": {
+    "arithmetic_controls_v3": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/arithmetic_controls_v3/AUDIT.json",
+      "audit_sha256": "f92685921361c8950226c1c52e274910825564c857c5b1c57626b4eb7627f9f4",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/arithmetic_controls_v3/supervision/receipt.json",
+      "receipt_sha256": "29c34e577a8377a5d5570a31eb5b7db883b8f9991696adec8267a80f3f855459",
+      "result": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/arithmetic_controls_v3/RESULT.json",
+      "result_sha256": "0e44daf2a91fac80eebd5bea2ad34aed3b4b32bfdc12321340e51279a3ac0068"
+    },
+    "cf_native_controls_v2": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_native_controls_v2/AUDIT.json",
+      "audit_sha256": "d3f7461831ecb8784da18f079362a3f922d2dbea24db5f2b56f95a706e45bfd5",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_native_controls_v2/supervision/receipt.json",
+      "receipt_sha256": "3d4c9b902c890938c6168ee3e5643a0bf6bcd3ec7df6247d697d2cb08dbf7764",
+      "result": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_native_controls_v2/RESULT.json",
+      "result_sha256": "117f9889c9310b9bced4d20cd504f60429dd686264c1e20d86255463839dc80d"
+    },
+    "cf_matched_outputs_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_matched_outputs_v1/AUDIT.json",
+      "audit_sha256": "a3e04f21f0f7b7233059db0d8572fd8a438b9fb8820a35dd91dad17ae4a906e4",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_matched_outputs_v1/supervision/receipt.json",
+      "receipt_sha256": "02c11f17bada9c8d30c82d571176fbea4ae55e3cb3ae6813dc7477647de82567",
+      "result": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_matched_outputs_v1/RESULT.json",
+      "result_sha256": "405da0730e1c5bfee1c76d39142a869ed815d3750ff53ddffab7034b5c1a2fcd"
+    },
+    "dense_hankel_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/dense_hankel_v1/AUDIT.json",
+      "audit_sha256": "3aeff8344c0112792f8b73b3732923234aee31b56bd7add7d7eefec6139b2aea",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/dense_hankel_v1/supervision/receipt.json",
+      "receipt_sha256": "fb6b12be1db404b6e19899c82c2ee49403a73524788c7343d4358baed8d52aaf",
+      "result": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/dense_hankel_v1/RESULT.json",
+      "result_sha256": "62539887092f6e7e15bc41258f10950d9488b4656ff3e0e4f6249af34be3c7c8"
+    },
+    "cf_dense_diagonal_controls_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_dense_diagonal_controls_v1/AUDIT.json",
+      "audit_sha256": "95623ff740d206dfec4fefa68d312488dd3eef2ec464a346edfe197d149768db",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_dense_diagonal_controls_v1/supervision/receipt.json",
+      "receipt_sha256": "04ea531e7310f993aa7f3e33632ef12d0a719f2a878b3dcfc72996fd19bdef8d",
+      "result": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_dense_diagonal_controls_v1/RESULT.json",
+      "result_sha256": "aaab214aabffcec0a942473356da19ef8f10aa21aa45d7a53fbc6c8abe559e8f"
+    }
+  },
+  "native_oracle": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pnx2",
+    "original": 41478,
+    "original_terminal": 0,
+    "scientific_input_drift": false,
+    "whole_process_audit": "Failed: seven executed Symbolic wrappers unbound before launch. Hashes captured post-only; no retroactive clean-process claim. Bound scientific CF/eigs/input sources stable.",
+    "assessment": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pnx2/POST_ONLY_PROVIDER_ASSESSMENT.json",
+    "assessment_sha256": "f66b5f16fd9d08c96c488cd7f30571b98c33eab2abc2c878498487cc38fcbcf3"
+  },
+  "cf_comparisons": {
+    "status": "pass",
+    "cases": [
+      {
+        "degree": 0,
+        "seconds": 9.449023351073265,
+        "error": 0.27884257240233606,
+        "native_error": 0.2788425724023362,
+        "error_difference": -1.1102230246251565e-16,
+        "p_max_difference": 1.3877787807814457e-16,
+        "q_max_difference": 0.0,
+        "sample_max_difference": 1.3877787807814457e-16
+      },
+      {
+        "degree": 1,
+        "seconds": 13.712039167061448,
+        "error": 0.11673595511542688,
+        "native_error": 0.1167359551154268,
+        "error_difference": 8.326672684688674e-17,
+        "p_max_difference": 6.522560269672795e-16,
+        "q_max_difference": 3.497202527569243e-15,
+        "sample_max_difference": 2.1094237467877974e-15
+      },
+      {
+        "degree": 2,
+        "seconds": 10.667514320928603,
+        "error": 0.08643871815989175,
+        "native_error": 0.0864387181598918,
+        "error_difference": -5.551115123125783e-17,
+        "p_max_difference": 5.551115123125783e-15,
+        "q_max_difference": 2.4868995751603507e-14,
+        "sample_max_difference": 1.4432899320127035e-15
+      },
+      {
+        "degree": 3,
+        "seconds": 10.964627237059176,
+        "error": 0.05822741196245217,
+        "native_error": 0.05822741196245209,
+        "error_difference": 8.326672684688674e-17,
+        "p_max_difference": 4.04156708100345e-11,
+        "q_max_difference": 1.2300915841478854e-10,
+        "sample_max_difference": 5.187517082561044e-14
+      }
+    ],
+    "dense_calls": [
+      {
+        "k": 1,
+        "seconds": 7.549630186986178,
+        "max_residual": 1.194573776491828e-16
+      },
+      {
+        "k": 11,
+        "seconds": 7.507898470852524,
+        "max_residual": 2.910707199117595e-16
+      },
+      {
+        "k": 12,
+        "seconds": 7.479285113979131,
+        "max_residual": 2.910707199117595e-16
+      },
+      {
+        "k": 13,
+        "seconds": 7.484835085924715,
+        "max_residual": 2.910707199117595e-16
+      }
+    ],
+    "actual_warnings": [],
+    "comparison_scope": "exact source H and same saved native grid; numerical differences measured without new tolerance; native process has post-only incidental Symbolic provider qualification"
+  },
+  "limitations": [
+    "Eager real negative log uses complex continuation. Traced real negative input retains real NaN; pass complex input for traced continuation. No global JIT/dtype parity claim.",
+    "Product/division collapse only exactly zero imaginary eager outputs. Direct numeric complex-zero inputs and tiny nonzero imaginary parts remain complex. Traced outputs retain static dtype.",
+    "Native uses ARPACK eigs; candidate uses dense JAX eigh preserving signed largest-magnitude order and all source degrees/thresholds. Numerical differences remain; no eigenvector bit parity.",
+    "Dense backend is measured on 4000-square saved input; cubic runtime and quadratic storage do not imply arbitrary-size feasibility.",
+    "Pushnitski monolithic full_v3 was RSS-capped before finishing rational3/3. Separate exact-input rational3/3 and all CF calls completed; page/render delivery remains pending."
+  ],
+  "packaging_ast": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/library_candidate_v2/PACKAGING_AST.json",
+  "packaging_ast_sha256": "d9991df1eb6970e7f81614f1a53cddafcd50834920113d8bb03d9037cc9c4248",
+  "portable_tests_ast": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/library_candidate_v2/PORTABLE_TEST_AST.json",
+    "sha256": "1d1502e886b184a20e10b26d18d5f1ac1a67e4a8a646a281150dc11b94145ba9"
+  },
+  "root_current_source_controls": {
+    "base_head": "da86cd7c9b0960f5dbf93a22a5a6ebc0a184eca5",
+    "original_exec_handle": 37380,
+    "cases_passed": 4,
+    "pytest_seconds": 11.57,
+    "receipt_sha256": "211e1870c6ed78b2a95e8166e60e6ec245017b4b0cace71dd8bfaa832f65e4c5",
+    "inputs_stable": true,
+    "sampled_peak_summed_rss_kib": 842252,
+    "no_cap_or_survivors": true,
+    "root_delivery_validation_bindings": 3725
+  }
+}

@@ -677,68 +677,67 @@ def ultraeval(x: jnp.ndarray, n: int, lam: float) -> jnp.ndarray:
     return C_curr
 
 
-def hermpoly_chebfun(n: int, kind: str = "phys",
-                     domain: tuple[float, float] = (-1.0, 1.0)):
-    """Hermite polynomial H_n as a Chebfun (MATLAB hermpoly).
+def hermpoly_chebfun(n, kind: str = "phys", domain=None):
+    """Hermite polynomials on the source whole-line domain.
 
-    MATLAB represents H_n on [-inf, inf] via blowup technology; the
-    chebfunjax representation is on a finite ``domain`` (the polynomial
-    is exact there, and Clenshaw extrapolation outside the domain is
-    exact for polynomials of the represented degree).
-
-    Parameters
-    ----------
-    n : int
-        Degree.
-    kind : {"phys", "prob"}
-        Physicists' (weight exp(-x^2)) or probabilists'
-        (weight exp(-x^2/2), monic) normalization.
+    ``kind='prob'`` selects probabilists' normalization. An explicit domain
+    is a Python extension; the default is MATLAB's [-inf, inf].
 
     Provenance
     ----------
     MATLAB source : hermpoly.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-    from scipy.special import eval_hermite, eval_hermitenorm
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-    ev = eval_hermitenorm if kind.lower().startswith("p") \
-        and kind.lower() != "phys" else eval_hermite
-    if kind.lower() == "prob":
-        ev = eval_hermitenorm
+    degrees = jnp.asarray(n).reshape(-1)
+    if not degrees.size:
+        return Chebfun.empty()
+    if (jnp.iscomplexobj(degrees) or
+            bool(jnp.any(~jnp.isfinite(degrees) | (degrees < 0) |
+                         (degrees != jnp.floor(degrees))))):
+        raise IndexError('Polynomial degrees must be nonnegative integer indices')
+    domain = (-jnp.inf, jnp.inf) if domain is None else domain
+    x = chebfun(lambda x: x, domain=domain)
+    h0 = chebfun(lambda x: 1+0*x, domain=domain)
+    factor = 1 if kind.lower() == 'prob' else 2
+    columns = [h0, x if factor == 1 else 2*x]
+    for k in range(2, int(jnp.max(degrees))+1):
+        columns.append(factor*x*columns[-1]-factor*(k-1)*columns[-2])
+    return Chebfun.horzcat([columns[int(k)] for k in degrees])
 
-    def f(x):
-        return jnp.asarray(
-            ev(n, _np.asarray(x, dtype=float)), dtype=jnp.float64)
 
-    return Chebfun.from_function(
-        f, Domain((float(domain[0]), float(domain[1]))))
+def lagpoly_chebfun(n, alp: float = 0.0, domain=None):
+    """Generalized Laguerre polynomials on the source [0, inf] domain.
 
-
-def lagpoly_chebfun(n: int, alp: float = 0.0,
-                    domain: tuple[float, float] = (0.0, 1.0)):
-    """Generalized Laguerre polynomial L_n^(alp) as a Chebfun
-    (MATLAB lagpoly).  Finite-domain representation; see
-    :func:`hermpoly_chebfun` for the [0, inf] caveat.
+    An explicit finite domain is retained as a Python extension.
 
     Provenance
     ----------
     MATLAB source : lagpoly.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-    from scipy.special import eval_genlaguerre
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-
-    def f(x):
-        return jnp.asarray(
-            eval_genlaguerre(n, alp, _np.asarray(x, dtype=float)),
-            dtype=jnp.float64)
-
-    return Chebfun.from_function(
-        f, Domain((float(domain[0]), float(domain[1]))))
+    alpha = jnp.asarray(alp)
+    if alpha.size != 1 or jnp.iscomplexobj(alpha):
+        raise ValueError('CHEBFUN:chebfun:lapoly:alp: ALP must be a real-valued scalar')
+    alpha = alpha.reshape(())
+    degrees = jnp.asarray(n).reshape(-1)
+    if not degrees.size:
+        return Chebfun.empty()
+    if (jnp.iscomplexobj(degrees) or
+            bool(jnp.any(~jnp.isfinite(degrees) | (degrees < 0) |
+                         (degrees != jnp.floor(degrees))))):
+        raise IndexError('Polynomial degrees must be nonnegative integer indices')
+    domain = (0., jnp.inf) if domain is None else domain
+    x = chebfun(lambda x: x, domain=domain)
+    columns = [chebfun(lambda x: 1+0*x, domain=domain),
+               chebfun(lambda x: 1+alpha-x, domain=domain)]
+    for k in range(2, int(jnp.max(degrees))+1):
+        columns.append((2+(alpha-1-x)/k)*columns[-1] -
+                       (1+(alpha-1)/k)*columns[-2])
+    return Chebfun.horzcat([columns[int(k)] for k in degrees])
 
 
 def chebpolyval(p, x):

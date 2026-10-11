@@ -1,0 +1,74 @@
+{
+  "scope": "Source Hermite/Laguerre recurrence and unbounded defaults; missing native Singfun plus cancellation rule",
+  "changes": [
+    "Remove SciPy evaluation and finite default surrogate; use public Chebfun recurrence arithmetic on native domains.",
+    "Restore23 original native predicates, including true unbounded norm comparisons and native stale err in Hermite14.",
+    "Case1/2 Singfun addition returns source zeroSingFun when smooth-part normest <1000eps; strict boundary tested.",
+    "Support vector degrees/order, exact prob spelling, scalar-real alpha validation; retain explicit finite-domain Python extension."
+  ],
+  "receipts": {
+    "unbounded_poly_baseline_20261011": {
+      "original_exec_handle": 24314,
+      "receipt_sha256": "80a6bd0b42f265df16540a71d4667497d8f0d3d1365afc00569833235823ea9e",
+      "command_exit_code": 1,
+      "wall_seconds": 9.035824477672577,
+      "sampled_peak_summed_rss_kib": 591744,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_poly_candidate_20261011": {
+      "original_exec_handle": 74338,
+      "receipt_sha256": "45e0acffd3df689d7b2e27fb8af9923fd962c0feb4c71f8f5556b4ccedd85a46",
+      "command_exit_code": 1,
+      "wall_seconds": 28.643812940921634,
+      "sampled_peak_summed_rss_kib": 1594868,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_poly_source_zero_20261011": {
+      "original_exec_handle": 69370,
+      "receipt_sha256": "c5f59576d5b5a6161d3fadb25bc41a44944e14edfc30fe8ee62c490c637cca3b",
+      "command_exit_code": 0,
+      "wall_seconds": 42.059983341023326,
+      "sampled_peak_summed_rss_kib": 2204268,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_poly_api_20261011": {
+      "original_exec_handle": 14923,
+      "receipt_sha256": "b60e0b6968d32cfe3d834dd913b5db2e8528df554d117389a06079b1aa162224",
+      "command_exit_code": 0,
+      "wall_seconds": 22.025286996737123,
+      "sampled_peak_summed_rss_kib": 1388508,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "results": [
+    "Baseline two domain checks fail.",
+    "Initial source recurrence:23pass/2fail; Hermite3/10 produce infinite residual norms.",
+    "Source zero-rule gate:48pass including all23 native predicates and six strict threshold checks.",
+    "API successor:13 additional checks pass; recurrence arithmetic unchanged except precondition validation."
+  ],
+  "unique_passing_cases": 61,
+  "limits": [
+    "No fresh MATLAB execution for this package; source predicates and closed forms supply independent checks.",
+    "High degrees and arbitrary matrix-shaped degree arguments are not newly qualified.",
+    "Native Hermite14 accidentally reuses degree5 error; an additional degree6 assertion is qualified separately.",
+    "Explicit finite-domain argument is a retained Python extension.",
+    "No full-suite/example/CI parity claim."
+  ],
+  "test_packaging": "All permanent test function ASTs, including decorators and assertions, match executed snapshots after splitting native files and formatting.",
+  "publication_sha256": {
+    "src/chebfunjax/utils/polynomials.py": "846b313179bdf903effffc7c997c654e33dd1c5c1cba4e4283e08b543dcf58e6",
+    "src/chebfunjax/fun/singfun.py": "9afef70913e4739b440aaa6d3d60fe609b5d56207288c0acf7bc0b92ce4bbf4c",
+    "tests/test_matlab_port/misc/test_hermpoly_matlab.py": "188c6c89ef39ca17e695ca7c8cd787dac11bf9abf0a234d654f44b97835fe27f",
+    "tests/test_matlab_port/misc/test_lagpoly_matlab.py": "878c682a4dd7533f54769b0842ccac012b2ee05a4b58cef2b672f890bd5f73f5",
+    "tests/test_fun/test_singfun_zero_threshold.py": "5891e021a3082a9250bd7cecf2d482b303e9fb92cd02a1d5eb4edbecab6382db",
+    "tests/test_utils/test_unbounded_polynomial_source.py": "927dcee003011e48993feb560b8b8da6f1e079a4ece4d98a75b386eabad0c21a"
+  }
+}
