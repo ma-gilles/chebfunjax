@@ -1,0 +1,79 @@
+{
+  "scope": "Restore7literalnativefix predicates vs prior1substitutecontrol; retainpriorcontrol+2integerpoint/orientationdiagnostics. Only Chebfun.fix method changed; delegates existing unchanged _integer_step(self,jnp.trunc).",
+  "source_clause_map": {
+    "1": "Emptyfixoutputisempty",
+    "2": "2sin piecewisedomain[-1,-.5,.5,1];100sites; norminf<=10vscale(g)eps",
+    "3": "exp samepiecewisedomain/sites/bound",
+    "4": "i*exp complexcomponentwise truncation, unchangedbound",
+    "5": "(1+i)*exp complexcomponentwise truncation, unchangedbound",
+    "6": "2column[2sin,exp], flattennorminf equivalent globalmaxabs; unchangedbound",
+    "7": "Rawunboundedf=xexp(x) on[-inf,-3pi],100source-range sites[-1e6,-3pi]; compares f NOTfix(f) totruncatedop, strict error<eps*vscale(f). Not a roundingcoverageclaim."
+  },
+  "source_implementation": "@chebfun/fix.m empty,finite,complex split; integerlevels floor(min/max)+1:floor(max); root insertion, techfix, pointvaluesfix, merge. Shared _integer_step provides same construction with jnp.trunc, includingcomplex/array/orientation/empty. Shared floor/ceil/round/roothelper unmodified.",
+  "baseline": "FourconfirmedAPI failures: empty, purelyimaginary, mixedcomplex, arrayvalued; other4casespassed.",
+  "diagnostics": "Exact degree1 coefficient[0,2] domain[-2,2]: endpoints/integercrossings/interiorvalues exacttruncation; bothorientations preserved.",
+  "RNG_qualification": "numpy.RandomState(6178), singleMTstream draws100then100uniformsites preserves source seed/ranges/count/order; not verified MATLAB streamidentity. Sourcebounds unchanged. Source7 rawerror1.2197e-19 vs1.6888e-19 bound, pass only adapterinputqualification.",
+  "runs": {
+    "baseline_v1": {
+      "wall_seconds": 41.66173341823742,
+      "sampled_peak_summed_rss_kib": 2155168,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "d718894648d473ab1d8fc458c72601b7a49bc12f7e7140d8550dfedf113d2c4b"
+    },
+    "candidate_v1": {
+      "wall_seconds": 40.68709718482569,
+      "sampled_peak_summed_rss_kib": 2142140,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "1750edadc8760ad41245306823ea3b937910923aebd332e1dbee8de208d01dea"
+    },
+    "arithmetic_v2": {
+      "wall_seconds": 21.143193336669356,
+      "sampled_peak_summed_rss_kib": 1234520,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "ee2c7d5082a4fc288327701d859b87437a61ad12c2f5bd6930b3bbdbeb920b42"
+    }
+  },
+  "residuals": [
+    "Adaptiveconstruction notfullJIT",
+    "NumPy hostmetadata in existing sharedhelper remains",
+    "No fresh native RNG paritycapture; broad divergence/NaN behavior notnewlyqualified"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/ORIGINAL_TEST.py": "6bea2b307149171dfea303358141fb8249689d9583c29a62e6bc73dabdd2550a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/snapshot/src/chebfunjax/chebfun1d/chebfun.py": "7cd0175533147487b04822c428c7fdfde903bdad9d948163e516b49d48a0b076",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/candidate/src/chebfunjax/chebfun1d/chebfun.py": "a9cea3fbde5ebaf5de4e1c8bf9496de31b8f70638a5ec1163204535476caa485",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/candidate/tests/test_matlab_port/chebfun/test_fix_matlab.py": "8bb418f76a57bb61d4a9c1af6254cfe9f4939c7e4a3787c10fd7c06e752d63b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/fix_native.patch": "b33e07042222e98280e070b5605ca53963d264d121c39b1b8500f8ab9037d474"
+  },
+  "v2_correction": "Native4/5 now derive1j*f andf+1j*f fromexistingrealexpChebfun; finiteconstructorsexplicitChebfunPrefdefault; docstringexplicitMATLABstreamidentityunverified. Sourcehelper/libraryunchanged. Onlyaffected4/5rerun.",
+  "hashes_v2": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/fix_native_v2.patch": "3e06e192ca45279f1466a694848279df08830886de0c112a0fe06ec3c9708ced",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_fix_matlab.py": "98b16f2f747962726a856a7b26ac53c10abff04986fa7b5dd0447d001275a0c6"
+  },
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fix_native_predicates_20261011/DELIVERY_v2.json",
+  "publication_review": "Root matched native norm including flattened array clause6 and raw unbounded clause7; clauses4/5 restored literal public arithmetic, then rerun. Ruff import ordering/formatting preserves executable AST."
+}

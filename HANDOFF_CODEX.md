@@ -3,12 +3,28 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `eecb9a63` is published. Use CPU only. Heavy whole examples run
+main through `df9197f8` is published. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+The twelve interrupted scripts have been reconciled against current hashes:
+ten have reviewed source replacements (including a separately qualified
+Atmospheric frame-only change); DDE and LaplaceBall remain partial. All twelve
+original home files are preserved. Source execution acceptance is not full
+output or image parity. See docs/handoff_twelve_disposition_cpu_20261011.json.
+
+Latest published native corrections restore all eleven sqrt assertions and
+per-column array power dispatch; complex Chebpade coefficients, optional
+arguments, transpose and singular-function handling; and exact singular
+Hankel outcomes from fresh MATLAB captures. Native complex-test random draws
+are verified bitwise, including intervening constructors, for this test/seed.
+Evidence: docs/sqrt_native_predicates_cpu_20261011.json,
+docs/maehly_complex_native_singular_cpu_20261011.json,
+docs/chebpade_public_api_cpu_20261011.json and
+docs/complex_rng_native_cpu_20261011.json. Full CI remains unresolved.
 
 Recent verified packages restore native polynomial construction and Domain
 arguments, barycentric APIs, adaptive direct Fredholm/Volterra actions,

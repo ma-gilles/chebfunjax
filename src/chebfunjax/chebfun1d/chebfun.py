@@ -4851,21 +4851,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/fix.m
         Chebfun commit: 7574c77
         """
-        fl = self.floor()
-        ce = self.ceil()
-        # combine: pieces where the function is negative use ceil
-        import numpy as _np
-        bps = sorted(set([float(v) for v in fl.domain.breakpoints]
-                         + [float(v) for v in ce.domain.breakpoints]
-                         + [float(r) for r in _np.asarray(self.roots(nojump=True))]))
-        funs = []
-        for a_, b_ in zip(bps[:-1], bps[1:]):
-            mid = 0.5 * (a_ + b_)
-            v = float(self(jnp.asarray(mid)))
-            const = float(_np.floor(v) if v >= 0 else _np.ceil(v))
-            funs.append(_Piece.from_coeffs(
-                jnp.asarray([const], dtype=jnp.float64), a_, b_))
-        return Chebfun(funs=funs, domain=Domain(tuple(bps)))
+        return _integer_step(self, jnp.trunc)
 
     def _cummax_or_min(self, use_max: bool) -> "Chebfun":
         import numpy as _np

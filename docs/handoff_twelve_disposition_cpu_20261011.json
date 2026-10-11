@@ -1,0 +1,113 @@
+{
+  "head": "e936c30af61fadb78983151c9a4705eb6e0ab8a5",
+  "scripts": [
+    {
+      "script": "examples/approx/best_approx.py",
+      "publication_sha256": "08af4919fea63ff04f159fe183de3f22b03cba7cc4c441cb74d8fc0336281d13",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "fd0832588ab5cd187ce585f72ff152b5c5676fe3",
+      "status": "accepted source replacement unchanged",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bestapprox_page_root_acceptance_20261008.json"
+    },
+    {
+      "script": "examples/approx/fermi_dirac.py",
+      "publication_sha256": "7ad4985a10e584f2c72708983b39ed04742c18c20775e7effbc0e7c249058012",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "eabdbfa0f28329ba73915dac42031c9ba3cea7fd",
+      "status": "accepted source replacement unchanged",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fermi_dirac_root_acceptance_20261008.json"
+    },
+    {
+      "script": "examples/approx2/localization.py",
+      "publication_sha256": "91ad3afce704fe721ae5dad931e0d0a96aaf31fdc18271e8fd471124e460343c",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "b287e2b8a0052324c94aab8554c5fca63d550113",
+      "status": "accepted source replacement unchanged",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/localization_p123_historical_page_v8_cpu_20261007/postrun_audit.json"
+    },
+    {
+      "script": "examples/fourier/fourier_based_chebfuns.py",
+      "publication_sha256": "b0f6bb037974306a349332387d9c38890418f1fc51e76072c0465ac1b95c4bfc",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "73690e8955b6ddcd0940af7d3bc6502a37ad67da",
+      "status": "accepted source replacement unchanged",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fourier_page_root_acceptance_20261008.json"
+    },
+    {
+      "script": "examples/linalg/vandermonde_arnoldi.py",
+      "publication_sha256": "e0ca9709a7549a5011529fde0e5d372fa1fff6010cbbf822d0d8240569cc338d",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "32bc63d9fe8f7a64eaccc53f0335a20c6dfd261c",
+      "status": "accepted source replacement matches execution review",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vandermonde_full80_root_source_review_20261009.json"
+    },
+    {
+      "script": "examples/ode-nonlin/delay_differential_equations.py",
+      "publication_sha256": "8505ef630c499740864b4b5b2788d0aa1478046f3a426c4c265b73a529cd1fbe",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "eecb9a630c25f01f12c9717f3b8c317820ea7d2b",
+      "status": "partial; full page source execution and parity unresolved"
+    },
+    {
+      "script": "examples/ode-random/randomswitching.py",
+      "publication_sha256": "8dde1c9a53837e73c1da1ab1265c38af6159af9a5f0a119f83cd75eaf9158e39",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "2c70a67b6eb8d48d0274106a263ebe2ba8880156",
+      "status": "accepted source replacement unchanged since reviewed commit",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/randomswitching_page_cpu_20261010.json"
+    },
+    {
+      "script": "examples/pde/trapezoideigs.py",
+      "publication_sha256": "ab8ea8978cd03cf3fbf60a2e14c6e118a78d47a0cfbbfd67a84a40bb6dff7c03",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "5d1673d60f8c4016823e6dc3621eb213b78afdc6",
+      "status": "accepted source replacement matches execution review",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trapezoid_root_integration_20261009.json"
+    },
+    {
+      "script": "examples/roots/marching_squares.py",
+      "publication_sha256": "80534b3ddf1482092e08e44dc7bfc0de6a5f900af5b5100d26a3139dad53ae7a",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "2f05c1cfaa5e09ac76b9aa833e0c19922255be5e",
+      "status": "accepted source replacement unchanged",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marchingsquares_v9_terminal_page_publication_review_20261008/review.json"
+    },
+    {
+      "script": "examples/sphere/atmospherictemperature.py",
+      "publication_sha256": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "e8e7128982b590187d830c8f2ae67361597b0ab5",
+      "status": "accepted source replacement; full executed script plus separately qualified frame-only delta",
+      "evidence": [
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_fullpage_root_runtime_review_20261010.json",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/atmospheric_frame_style_cpu_20261010.json"
+      ],
+      "full_run_script_sha256": "08748272959f1a003bbfc043b4c48d61dc83faac922114d47f10a2c42d6e10ae",
+      "changed_functions_since_full_run": [
+        "_website_colorbar_layout"
+      ],
+      "numerical_run_function_AST_unchanged": true
+    },
+    {
+      "script": "examples/sphere/laplaceball.py",
+      "publication_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "da399f1da474411070f5dfc06b289056499a3da7",
+      "status": "partial; full page source execution and parity unresolved"
+    },
+    {
+      "script": "examples/stats/resampling_random_variables.py",
+      "publication_sha256": "e0309884f0da23e2fd21be5ae1a073fba1c2994c0086db02fdce22c3be86a16d",
+      "original_unchanged_since_oct8": true,
+      "last_script_commit": "7a2e3e2892faea0f5b8d51ec03a514ec9652467b",
+      "status": "accepted source replacement matches execution review",
+      "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/resampling_page_v2_root_integration_20261009.json"
+    }
+  ],
+  "accepted_source_replacements_bound_to_current_bytes": 10,
+  "original_home_files_unchanged": 12,
+  "full_parity_claim": false,
+  "numerical_reruns": false,
+  "home_writes": false,
+  "limitations": "Source execution acceptance is not full output, curve or pixel parity. Older numerical qualifications retain their original library revisions and limitations."
+}
