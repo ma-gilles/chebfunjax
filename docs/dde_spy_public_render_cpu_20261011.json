@@ -1,0 +1,212 @@
+{
+  "status": "accepted after root source/helper and visual review",
+  "scope": "Only _source_delay_spy AST changed; no other example function/import/top-level block changed",
+  "source_policy": "Qualified public chebfunjax.plotting.spy, historical physical-point automatic sizing and one-third MarkerSize dot glyph; edgewidth0. Script keeps original axes/ticks/figure dimensions.",
+  "render": {
+    "rows": [
+      {
+        "figure": 9,
+        "matrix": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/matrix9_public.npy",
+        "shape": [
+          66,
+          66
+        ],
+        "nnz": 1241,
+        "sha256": "5e63a38ae1cb79c63edef181f7173c7787c0b70b095e12913b1374ddecfc39c2",
+        "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/DelayDifferentialEquations_09.png",
+        "reference_sha256": "c182585ac5bfa5eee9145b36c8d9e8724502f09ab2ed3913df60f5cc3673f3ad",
+        "reference_size": [
+          600,
+          270
+        ],
+        "before": {
+          "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_09_before.png",
+          "marker_size": 13.0,
+          "marker_edge_width": 1.0,
+          "point_count": 1241,
+          "xlim": [
+            0.0,
+            67.0
+          ],
+          "ylim": [
+            67.0,
+            0.0
+          ],
+          "xticks": [
+            0.0,
+            20.0,
+            40.0,
+            60.0
+          ],
+          "yticks": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0
+          ],
+          "sha256": "62dcb484dd27bc77cc975fef6fe958b885e2a654c0d9589ca8370794248afdc5"
+        },
+        "after": {
+          "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_09_after.png",
+          "marker_size": 14.0,
+          "marker_edge_width": 0.0,
+          "point_count": 1241,
+          "xlim": [
+            0.0,
+            67.0
+          ],
+          "ylim": [
+            67.0,
+            0.0
+          ],
+          "xticks": [
+            0.0,
+            20.0,
+            40.0,
+            60.0
+          ],
+          "yticks": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0
+          ],
+          "sha256": "64f42c838081f7ce235d020495777ef1a7cc08c405d161f678beef4dd33a41d4"
+        }
+      },
+      {
+        "figure": 11,
+        "matrix": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/matrix11_public.npy",
+        "shape": [
+          121,
+          121
+        ],
+        "nnz": 4011,
+        "sha256": "b83caf16db87052bb54790876d929e079153afe9b0df2ab2a4decb21c02cd685",
+        "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/DelayDifferentialEquations_11.png",
+        "reference_sha256": "2e077b245000c2fd0bada14d770b5b95cdd7733c544c9e1700ce45c1054258d2",
+        "reference_size": [
+          600,
+          270
+        ],
+        "before": {
+          "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_11_before.png",
+          "marker_size": 10.0,
+          "marker_edge_width": 1.0,
+          "point_count": 4011,
+          "xlim": [
+            0.0,
+            122.0
+          ],
+          "ylim": [
+            122.0,
+            0.0
+          ],
+          "xticks": [
+            0.0,
+            50.0,
+            100.0
+          ],
+          "yticks": [
+            0.0,
+            20.0,
+            40.0,
+            60.0,
+            80.0,
+            100.0,
+            120.0
+          ],
+          "sha256": "48451f1e7eb4d9f3775e69c2b24c836a8f65b2c4508177a24b43261290156c6a"
+        },
+        "after": {
+          "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_11_after.png",
+          "marker_size": 8.0,
+          "marker_edge_width": 0.0,
+          "point_count": 4011,
+          "xlim": [
+            0.0,
+            122.0
+          ],
+          "ylim": [
+            122.0,
+            0.0
+          ],
+          "xticks": [
+            0.0,
+            50.0,
+            100.0
+          ],
+          "yticks": [
+            0.0,
+            20.0,
+            40.0,
+            60.0,
+            80.0,
+            100.0,
+            120.0
+          ],
+          "sha256": "87504d9f3c098ed723516aef65f96be35fddd2b7938d3e7a8051ca2494d76e0f"
+        }
+      }
+    ],
+    "status": "passed",
+    "coordinate_order": "native column-major find; exact one-based nonzero coordinates",
+    "claim": "historical marker policy rendering; no pixel parity or scientific solve claim"
+  },
+  "resource": {
+    "wall_seconds": 8.235610446892679,
+    "sampled_peak_summed_rss_kib": 191624,
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ],
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/ORIGINAL_SCRIPT.py": "6886e3b25dfb57b2f6a38ad4c909b7a00c84b69e003d6c53486410346d78057f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/candidate_script.py": "2aab0479573a4497fe03572f6bfe20f309d600f0cbcb53fdd1d008c1305ab163",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/spy_helper.patch": "41644673d77b67c84a3b33e0bdf37b092a01ca5393c1b09c4e1e2adaa75450a0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/build_delivery.py": "4337839acc02a05e58403f7ac6e4620b040412094b53990c567648f497478278",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/observe.py": "2f37c6c039747f6c967eed3f9d8adee257f1a2318b82297ea4e1e6bcb05491b4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/launch.sh": "bdbd376e0f05206866f8321e35f8c353c79b543a709d584dca795b0cb7d0dced",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/RESULT.json": "b4b079ac072b44ff835a7ddc825422681049103cab888b0b2f7da4eea5450cf6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/guard.json": "86599b23c320c815fd14f775c9f8612e6f390014f35a078fa23e24493d2215c3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/supervision/receipt.json": "05bd1b1130cfe450152786bc31f44dc4278a7203fe23214aa34c3f51595e88b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/snapshot/src/chebfunjax/plotting.py": "df0f177510011ea545b24f4e33722416ef6ae7655ee78c8841f551c7014cf954",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prepare_dde_spy_v2.py": "9fb5ab7e7876f9cdc53a9df231ca7a956fd852425581fc11f59905846e4a547d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spy_root_review_v5_20261008.json": "e34fb386bc2f3a2ac3250e01040b231563aba12d827febad20a4c59dd6ddd216",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/result.json": "d0e2b799f2fa3b9cc63d8b5484113de95f2c38b62a9918662e37f42071fab328",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/AUDIT.json": "cf811d97b25c5399db340e23c65182ebb876631929b3b8382f7a5a488fd00fab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/matrix9_public.npy": "5e63a38ae1cb79c63edef181f7173c7787c0b70b095e12913b1374ddecfc39c2",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/DelayDifferentialEquations_09.png": "c182585ac5bfa5eee9145b36c8d9e8724502f09ab2ed3913df60f5cc3673f3ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_09_before.png": "62dcb484dd27bc77cc975fef6fe958b885e2a654c0d9589ca8370794248afdc5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_09_after.png": "64f42c838081f7ce235d020495777ef1a7cc08c405d161f678beef4dd33a41d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_colon_source_20261011/matrices/matrix11_public.npy": "b83caf16db87052bb54790876d929e079153afe9b0df2ab2a4decb21c02cd685",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/DelayDifferentialEquations_11.png": "2e077b245000c2fd0bada14d770b5b95cdd7733c544c9e1700ce45c1054258d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_11_before.png": "48451f1e7eb4d9f3775e69c2b24c836a8f65b2c4508177a24b43261290156c6a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_spy_public_render_20261011/render_v2/DelayDifferentialEquations_11_after.png": "87504d9f3c098ed723516aef65f96be35fddd2b7938d3e7a8051ca2494d76e0f"
+  },
+  "visual_review": [
+    "Both references and candidate600x270",
+    "09stairs and boundary dots,11stairs/internal holes and boundary dots align visually; after removes beforeoversizedoutline",
+    "Native raster/font/subpixel differences remain; no pixelparitythreshold invented"
+  ],
+  "failure_retained": "render_v1 passed image/coordinate assertions but failed JSON serialization of NumPy int64 ticks; render_v2 changes observer serialization only, images byte-identical",
+  "limitations": [
+    "Captured qualified actual public matrices reused; no solves or numerical changes",
+    "Marker policy qualification inherited from spy_root_review_v5_20261008.json13controls; no broad spy rerun",
+    "No blind marker tuning, fresh MATLAB, scientific parity or pixel parity claim",
+    "P untouched; owned render handles consumed; no survivor"
+  ],
+  "publication_review": "Root viewed both600x270candidate/reference pairs. Actual masks retained; historical marker diameter/edge policy removes oversized glyphs. Pixel/font/subpixel differences remain; no full image parity claim."
+}

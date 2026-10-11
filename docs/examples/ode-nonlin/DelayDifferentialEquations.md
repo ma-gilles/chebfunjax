@@ -7,7 +7,7 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 (11 output blocks). The remaining 12 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Marker rendering differs from the historical images. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 and the public Volterra solve in slot 11 (12 output blocks). The remaining 11 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution; its marker glyphs still differ from the reference. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 
@@ -320,7 +320,13 @@ plot(sol, '-', x, '.--', MS, 15)
 ```
 
 ```text
-(no matching output)
+x =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]       13         1     0.89
+vertical scale =   1
+err =
+     2.258310187185802e-15
 ```
 
 ![DelayDifferentialEquations figure 13](../../images/ode-nonlin/DelayDifferentialEquations_13.png)

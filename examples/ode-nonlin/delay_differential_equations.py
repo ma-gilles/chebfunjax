@@ -79,17 +79,32 @@ def _source_delay_curve(points, values, section):
 
 
 def _source_delay_spy(matrix):
-    """Plot exact nonzeros, with marker size from R2025b graphics/math/spy.m."""
-    rows, columns = np.nonzero(matrix)
+    """Render exact nonzeros with the qualified historical public spy helper."""
+    from chebfunjax.plotting import spy
+
     m, n = matrix.shape
-    size = np.clip(np.floor(8 * np.log10(2500 / max(m+1, n+1)) + .5), 4, 14)
     fig = plt.figure(figsize=(6, 2.7))
     ax = fig.add_axes([.13, .11, .775, .815])
-    ax.plot(columns+1, rows+1, ".", markersize=size, linestyle="none")
-    ax.set(xlim=(0, n+1), ylim=(m+1, 0), xlabel=f"nz = {len(rows)}")
+    spy(matrix, ax=ax)
     ax.set_aspect("equal", adjustable="box")
     ax.set_xticks(np.arange(0, n+1, 20 if n == 66 else 50))
     ax.set_yticks(np.arange(0, m+1, 10 if m == 66 else 20))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
+def _source_volterra_curve(sol, numerical):
+    """Render source slot 11 with separate representation-node markers."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(sol, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(.86, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(.86, 1.001, .02))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
     ax.grid(False)
     ax.tick_params(direction="in", top=True, right=True)
     return fig
@@ -316,14 +331,14 @@ def run():
     # our volt kernel is K(x, y) with (Kf)(x) = int K(x,y) f(y) dy;
     # the equation's kernel in that convention is exp(y - x)
     N = Chebop(lambda t, x: x.diff() + av * x
-               - volt(lambda X, Y: np.exp(Y - X), x), domain=dom)
+               - volt(lambda X, Y: jnp.exp(Y - X), x), domain=dom)
     N.lbc = x0
     xc = N.solve(0.0)
-    _show(xc)
+    print(f"x =\n{xc!r}")
     solc = chebfun(sol10, domain=dom)
     err = float((xc - solc).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol10, xc, (0, 1))
+    _save(_source_volterra_curve(solc, xc), source_axes=True)
 
     # ----- 12. A state-dependent delay, Newton by hand -----------------
     _output_slot(12)

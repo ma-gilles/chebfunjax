@@ -80,15 +80,16 @@ runs were cancelled while actual running work was preserved.
 The complete caf673c7 static audit preserves all322 original prose/equation
 pages and2408 MATLAB blocks, with1305 assets at reference dimensions. Committed
 page delta througheecb9a63 confirms949 reference/945 local output blocks,
-12 blanks and15 explicit placeholders across15 pages. Delay page has11 verified
-output slots and12 explicitly unresolved slots. Figures08/10 use qualified saved
+12 blanks and14 explicit placeholders across15 pages after the Volterra output update. Delay page has12 verified
+output slots and11 explicitly unresolved slots. Figures08/10 use qualified saved
 solutions at600x270 with reference axes; all other figures and full pixel parity
 remain unqualified. Images09/11 now show actual operator sparsity matrices;
 both native masks match exactly (1241/4011 nonzeros). Source colon endpoint
 filling and endpoint-product root mapping remove the section9 ownership gap.
 Section8 saved arrays are unchanged; section9 retains native domains and piece
 lengths, with maximum observed value difference5.69e-13 and actual residual
-3.585142615205263e-11. Historical marker rendering still differs. Fifteen colon
+3.585142615205263e-11. Markers now use the qualified historical public spy size/glyph policy; raster
+and font differences remain (docs/dde_spy_public_render_cpu_20261011.json). Fifteen colon
 and22 root/AD/matrix controls pass; both native hypot predicates also pass with
 the fused mapping. Mapping microbenchmarks are not full inverse timings.
 See docs/dde_colon_root_mapping_cpu_20261011.json and
@@ -96,6 +97,14 @@ docs/dde_sections_8_9_artifacts_cpu_20261011.json. All eight native realpow
 acceptance/error predicates plus the retained control pass after restoring
 power-before-realness checking; see docs/realpow_native_predicates_cpu_20261011.json. No source output should
 be invented or copied as Python output.
+
+The public Volterra solve in DDE slot11 now uses existing AD nonlocal blocks,
+reducing adaptive integral actions42 to7. Both native and Python have13
+coefficients; sample difference1.55e-15. Four focused controls pass. Shared-host
+contention prevents a matched speed ratio. Eligible local solves incur an extra
+AD extraction; its cost is under measurement. Figure13 is reconstructed from
+qualified saved coefficients; marker diameter remains a known rendering gap.
+See docs/dde_volterra_public_cpu_20261011.json.
 
 Remaining: every native API/assertion, green full CI, unresolved PDE/DDE and
 masked high-frequency/VDP problems, general quadrature regimes, RNG streams,

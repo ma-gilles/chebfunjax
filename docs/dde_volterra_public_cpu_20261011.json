@@ -1,0 +1,105 @@
+{
+  "scope": "Default finite scalar single-interval linear nonlocal AD route; DDE output slot 11 / figure 13 only.",
+  "base": {
+    "head": "f28a0639e1cc0f02bce4817cf8b236b6365b8e06",
+    "scope": "DDE output slot11, source lines252-258, exact public default solve; slot10 already qualified."
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "example_pin": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+  "source": "@chebop/solvebvpLinear.m:41-47 solves the linearized operator and adds the initial correction; example DelayDifferentialEquations.m:252-258.",
+  "algorithm": "Reuse existing _linearize_scalar_ad/_solve_scalar_linear_ad for nonlocal blocks lacking local coefficient representation, after unchanged classification. Preserve local, periodic, system, general BC and unsupported AD fallback routes. Forward n/n_min/n_max/tol unchanged.",
+  "local_performance_limit": "Every eligible local scalar linear problem now performs one additional _linearize_scalar_ad before falling back. _is_linear returns only a boolean, not reusable linearization data; no existing reliable nonlocal flag was found. No local performance equivalence claimed; avoiding this cost requires separately qualifying shared classification/extraction.",
+  "baseline": "Already successful; no correctness failure claimed. Basis probing made 42 adaptive Volterra actions including 33 column probes. Candidate makes 7 actions.",
+  "comparison": {
+    "native": {
+      "domain": [
+        0,
+        1
+      ],
+      "lengths": 13,
+      "error_norm": 2.447133989220351e-15,
+      "solve_seconds": 1.523626,
+      "warning_message": [],
+      "warning_identifier": []
+    },
+    "baseline": {
+      "success": true,
+      "solve_seconds": 124.99122735718265,
+      "domain": [
+        0.0,
+        1.0
+      ],
+      "lengths": [
+        13
+      ],
+      "error_norm": 1.68739283043838e-14,
+      "sample_error": 2.1094237467877974e-14,
+      "native_sample_max_abs": 2.0761170560490427e-14,
+      "sample_abscissa_max_abs": 1.1102230246251565e-16,
+      "native_coeffs_max_abs": 1.432187701766452e-14
+    },
+    "candidate_gate": {
+      "success": true,
+      "solve_seconds": 32.79111815383658,
+      "domain": [
+        0.0,
+        1.0
+      ],
+      "lengths": [
+        13
+      ],
+      "error_norm": 2.2583101871858016e-15,
+      "sample_error": 4.107825191113079e-15,
+      "native_sample_max_abs": 1.5543122344752192e-15,
+      "sample_abscissa_max_abs": 1.1102230246251565e-16,
+      "native_coeffs_max_abs": 8.534839501805891e-16
+    }
+  },
+  "original_predicate": "Source prints err; there is no source acceptance inequality. Added analytic controls use 1e-11 independently. Retained firstOrderIntegral Python file is an existing proxy, not literal native test parity.",
+  "controls": {
+    "pytest_cases": 4,
+    "new_cases": 3,
+    "retained_cases": 1,
+    "test_overlay_ast_identical": true,
+    "original": 68865
+  },
+  "limits": [
+    "Shared host/filesystem stalls preclude matched timing ratios.",
+    "ddv1 startup wall cap before READY preserved; ddv2 identical science with authorized 300 s startup margin.",
+    "Only source guards plus postruntime native observation; no claim of prospective exhaustive native runtime closure.",
+    "Whole DDE page remains incomplete.",
+    "Figure axes inferred from cached reference, not captured native graphics metadata; font/antialias/marker pixel parity unclaimed."
+  ],
+  "artifact": {
+    "slot": 11,
+    "figure": 13,
+    "png": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/render/DelayDifferentialEquations_13.png",
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/render/slot11.stdout",
+    "reconstruction": "Original coefficients and 201 saved values byte-identical, stdout identical; no solve repeated. Uses public matlab_plot for source representation-node markers.",
+    "page_update": "Replace only slot11 output and figure13; verified blocks 11->12, pending12->11, if current counts unchanged."
+  },
+  "patches": {
+    "library": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/delivery/library.patch",
+    "script": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/delivery/script.patch"
+  },
+  "gates": {
+    "baseline": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/baseline",
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/candidate_gate",
+    "controls": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/controls",
+    "render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/render",
+    "native_failed": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddv1",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddv2"
+  },
+  "delivery_manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/delivery/DELIVERY.json",
+    "sha256": "b705d7f39f1c3777fe46d079c73d4ad36fd69df9a755151242e0962bd05c121a",
+    "verified_bindings": 52
+  },
+  "publication_review": "Root reviewed solvebvpLinear and existing scalar AD helpers, initial/affine/local controls, rendered figure13 and reference. New local extraction overhead is explicit. Figure13 markers are visibly oversized; separate shared matlab_plot historical point-glyph correction is pending, no pixel parity claim.",
+  "local_cost_followup": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/local_cost/REPORT.json",
+    "sha256": "031c1b9da1bfe1ef7799da9ce637c31807344887b754cf4a220ce6af0959be4a",
+    "observation": "Fresh serial local u'-u solve: baseline cold4.926s,warm56.19/53.09ms; candidate cold5.076s,warm71.09/67.93ms. Added extraction326.50ms cold,15.14/14.64ms warm. Error4.885e-15 unchanged. Scoped shared-host observations; per-solve safe metadata reuse follow-up active."
+  },
+  "render_helper_AST_verified": true
+}

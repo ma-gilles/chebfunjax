@@ -6563,7 +6563,28 @@ class Chebop:
         n_max: int,
         tol: float,
     ):
-        """Direct spectral solve for linear operators."""
+        """Direct spectral solve, retaining native nonlocal operator blocks.
+
+        Provenance
+        ----------
+        MATLAB @chebop/solvebvpLinear.m uses the AD-linearized linop rather
+        than evaluating the operator separately on every basis function.
+        Chebfun commit: 7574c77.
+        """
+        if (self._n_vars() == 1 and len(self.domain) == 2
+                and not self._periodic and self._bc_general is None
+                and all(bool(jnp.isfinite(v)) for v in self.domain)):
+            from chebfunjax.operators.chebop_altdisc import (
+                _linearize_scalar_ad,
+                _solve_scalar_linear_ad,
+            )
+            try:
+                data = _linearize_scalar_ad(self, f, tuple(self.domain))
+            except (NotImplementedError, TypeError, AttributeError):
+                data = None
+            if data is not None and data[0].A.blocks[0][0]._coeff_fn is None:
+                return _solve_scalar_linear_ad(
+                    self, data, "chebcolloc2", n, n_min, n_max, tol)[0]
         linop = self._build_linop()
 
         # RHS callable
