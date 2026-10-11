@@ -59,6 +59,8 @@ def _save(fig, *, source_axes=False, spy=False):
     _savefig(fig, os.path.join(
         _IMG, f"DelayDifferentialEquations_{image_id:02d}.png"),
         **({"layout": "matlab"} if spy else {}))
+    if os.environ.get("CHEBFUNJAX_DDE_FIGURE_CAPTURE_DIR"):
+        _capture_figure_data(fig, image_id, sys._getframe(1).f_locals)
     plt.close(fig)
 
 
@@ -310,31 +312,148 @@ def _source_cubic_delay_curve(exact, numerical):
     return fig
 
 
+def _source_legacy_axes(image_id):
+    """Scoped cached published axes, from native automatic plot limits.
+
+    Chebfun examples f4b9ea46, DelayDifferentialEquations figures 1--6,
+    12 and 14. These historical axes are specific to this page.
+    """
+    limits = {
+        1: ((1, 3), np.arange(1, 3.01, .5)),
+        2: ((-.5, 1), np.arange(-.5, 1.01, .5)),
+        3: ((-.5, 1), np.arange(-.5, 1.01, .5)),
+        4: ((-.4, 1), np.arange(-.4, 1.01, .2)),
+        5: ((1, 3), np.arange(1, 3.01, .5)),
+        6: ((1, 2.2), np.arange(1, 2.201, .2)),
+        12: ((.86, 1), np.arange(.86, 1.001, .02)),
+        14: ((.4, 1), np.arange(.4, 1.001, .1)),
+    }
+    ylim, yticks = limits[image_id]
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    ax.set(xlim=(0, 1), ylim=ylim,
+           xticks=np.arange(0, 1.01, .2), yticks=yticks)
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig, ax
+
+
 def _plot_disc(t, x, sol, tt=None):
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
+    """Original numeric line vertices and MarkerSize15 source point geometry."""
+    from chebfunjax.plotting import _source_plot_line_and_points
+
+    image_id = SOURCE_FIGURES[OUTPUT_SLOT[0]]
+    fig, ax = _source_legacy_axes(image_id)
     if tt is None:
-        tt = np.linspace(float(t[0]), float(t[-1]), 1001)
+        # Source figure1 connects the original16 Chebyshev samples.
+        tt = t if image_id == 1 else np.linspace(float(t[0]), float(t[-1]), 1001)
     s = sol(tt) if callable(sol) else sol
-    ax.plot(tt, s, "-")
-    ax.plot(np.asarray(t), np.asarray(x), ".", markersize=12)
-    ax.grid(True)
-    _save(fig)
+    ax.plot(np.asarray(tt), np.asarray(s), "-")
+    _source_plot_line_and_points(
+        ax, np.asarray(t), np.asarray(x), np.asarray(t), np.asarray(x),
+        ".", {"markersize": 15})
+    _save(fig, source_axes=True)
 
 
 def _show(x, label="x"):
-    print(f"{label} =\n   chebfun ({len(x.funs)} smooth piece"
-          f"{'s' if len(x.funs) > 1 else ''}), length {len(x)}, "
-          f"endpoint values {float(x(jnp.float64(x.domain.a))):.4g} "
-          f"{float(x(jnp.float64(x.domain.b))):.4g}")
+    """Display the actual public representation using the source label."""
+    print(f"{label} =\n{x!r}")
 
 
-def _plot_pair(sol_fn, x, dom, extra=None):
-    tt = np.linspace(dom[0], dom[-1], 1001)
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, sol_fn(tt), "-")
-    ax.plot(tt, np.asarray(x(tt)), ".--", markersize=6, markevery=25)
-    ax.grid(True)
-    _save(fig)
+def _plot_pair(sol, x):
+    """Source FUN line grids and actual representation nodes, not markevery."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig, ax = _source_legacy_axes(SOURCE_FIGURES[OUTPUT_SLOT[0]])
+    matlab_plot(sol, "-", x, ".--", ax=ax, markersize=15)
+    _save(fig, source_axes=True)
+
+
+def _capture_figure_data(fig, image_id, source_locals):
+    """Opt-in I/O snapshot after rendering; no evaluation or reconstruction.
+
+    Artist coordinates support future style-only replay. Coefficients and
+    explicit endpoint overrides are copied from current representations.
+    """
+    import hashlib
+    import json
+    from pathlib import Path
+
+    root = Path(os.environ["CHEBFUNJAX_DDE_FIGURE_CAPTURE_DIR"])
+    root.mkdir(parents=True, exist_ok=True)
+    arrays = {}
+    axes_metadata = []
+    for ai, ax in enumerate(fig.axes):
+        lines = []
+        for li, artist in enumerate(ax.lines):
+            key = f"axes{ai}_line{li}"
+            arrays[key + "_xy"] = np.asarray(artist.get_xydata()).copy()
+            marker = artist._marker
+            arrays[key + "_marker_path"] = np.asarray(
+                marker.get_path().transformed(marker.get_transform()).vertices).copy()
+            codes = marker.get_path().codes
+            if codes is not None:
+                arrays[key + "_marker_codes"] = np.asarray(codes).copy()
+            lines.append({
+                "key": key, "class": type(artist).__name__,
+                "color": artist.get_color(), "linestyle": artist.get_linestyle(),
+                "linewidth": artist.get_linewidth(), "markersize": artist.get_markersize(),
+                "marker": str(artist.get_marker()),
+                "markerfacecolor": artist.get_markerfacecolor(),
+                "markeredgecolor": artist.get_markeredgecolor(),
+                "markeredgewidth": artist.get_markeredgewidth(),
+                "clip_on": artist.get_clip_on(), "zorder": artist.get_zorder(),
+                "label": artist.get_label(),
+            })
+        axes_metadata.append({
+            "bounds_fraction": list(ax.get_position().bounds),
+            "xlim": list(ax.get_xlim()), "ylim": list(ax.get_ylim()),
+            "xticks": list(ax.get_xticks()), "yticks": list(ax.get_yticks()),
+            "xscale": ax.get_xscale(), "yscale": ax.get_yscale(),
+            "xlabel": ax.get_xlabel(), "ylabel": ax.get_ylabel(),
+            "title": ax.get_title(), "lines": lines,
+        })
+    representations = []
+
+    def copy_source(name, value):
+        if isinstance(value, (list, tuple)):
+            for i, item in enumerate(value):
+                copy_source(f"{name}_{i}", item)
+        elif hasattr(value, "funs") and hasattr(value, "domain"):
+            pieces = []
+            for i, piece in enumerate(value.funs):
+                key = f"representation_{name}_{i}"
+                arrays[key + "_coeffs"] = np.asarray(piece.tech.coeffs).copy()
+                pieces.append({"key": key, "interval": list(piece.interval),
+                               "tech": type(piece.tech).__name__})
+            override = getattr(value, "_point_values", None)
+            if override is not None:
+                arrays[f"representation_{name}_point_override"] = np.asarray(override).copy()
+            representations.append({"name": name, "domain": list(value.domain.breakpoints),
+                                    "explicit_point_override": override is not None,
+                                    "is_transposed": value.is_transposed, "pieces": pieces})
+        elif isinstance(value, (np.ndarray, jnp.ndarray)):
+            arrays["source_local_" + name] = np.asarray(value).copy()
+
+    for name, value in source_locals.items():
+        copy_source(name, value)
+    stem = f"DelayDifferentialEquations_{image_id:02d}"
+    np.savez(root / (stem + ".npz"), **arrays)
+    png = Path(_IMG) / (stem + ".png")
+    metadata = {"figure": image_id, "source_slot": OUTPUT_SLOT[0],
+                "figure_inches": list(fig.get_size_inches()), "dpi": fig.dpi,
+                "axes": axes_metadata, "representations": representations,
+                "png_sha256": hashlib.sha256(png.read_bytes()).hexdigest(),
+                "capture_scope": "current artists and stored source metadata; no callback evaluation"}
+    def json_scalar(value):
+        if isinstance(value, np.generic):
+            return value.item()
+        raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+    (root / (stem + ".json")).write_text(
+        json.dumps(metadata, indent=2, default=json_scalar))
 
 
 def _output_slot(index):
@@ -391,7 +510,7 @@ def run():
     solc = chebfun(sol_fn, domain=dom)
     err = float((xc - solc).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol_fn, xc, dom)
+    _plot_pair(solc, xc)
 
     # ----- 4. Two pantograph delays ------------------------------------
     _output_slot(4)
@@ -403,11 +522,10 @@ def run():
     _show(xc)
     res = float(N(xc).norm())
     print(f"res =\n     {res:.15e}")
-    tt = np.linspace(0, 1, 1001)
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, np.asarray(xc(tt)), lw=1.4)
-    ax.grid(True)
-    _save(fig)
+    from chebfunjax.plotting import matlab_plot
+    fig, ax = _source_legacy_axes(4)
+    matlab_plot(xc, ax=ax)
+    _save(fig, source_axes=True)
 
     # ----- 5. A two-interval discretization (plain ODE) ---------------
     _output_slot(5)
@@ -558,10 +676,9 @@ def run():
         print(f"ndu =\n   {ndu:.15g}")
         if ndu < 1e-10:
             break
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(t, x, lw=1.4)
-    ax.grid(True)
-    _save(fig)
+    fig, ax = _source_legacy_axes(14)
+    ax.plot(t, x)
+    _save(fig, source_axes=True)
 
     from chebfunjax.chebfun1d.chebfun import Chebfun as _Chebfun
     from chebfunjax.domain import Domain as _Domain
@@ -729,7 +846,7 @@ def run():
         v.diff() + v((1 - v).exp()) * v**2 * (1 - v).exp()], domain=dom5)
     N.lbc = [np.log(1.0), 1.0]
     u22, v22 = N.solve(0.0)
-    _show(u22, "u{1}")
+    _show(u22, "ans")
     from chebfunjax.operators.chebmatrix import ChebMatrix
     exact = [t5.log(), 1 / t5]
     err = ChebMatrix([[u22 - exact[0]], [v22 - exact[1]]], domain=dom5).norm()

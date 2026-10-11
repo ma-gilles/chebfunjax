@@ -1,0 +1,151 @@
+{
+  "base": {
+    "commit": "475fb6093fc967bafb18244daca2f51bb50e9ef7",
+    "scope": "source style/display plus opt-in I/O capture, fullscript not launched"
+  },
+  "candidate_source_sha256": "618c15046a76ac94e22fca0c0212c3b706a48a36ebe2fc127a9bfee3f90083e8",
+  "patch_sha256": "5b30130183e4bf0d8caf80f791804dd96138f6274f831be4a07c64cf1c7341bc",
+  "changes": [
+    "Scoped cached source axes/grid/ticks for legacy1\u20136,12,14",
+    "Original16 numeric linevertices infigure1; originalnumericarrays/1001linegrids elsewhere; source15point geometry/centerclipping",
+    "Actual FUN plotData/representationpoints for3,actualFUNline for4",
+    "Actual repr in_show; slot23native ans label",
+    "Opt-in perfigure currentartist arrays/markerpaths, axes and storedFUNmetadata capture afterrender beforeclose"
+  ],
+  "math_source_AST_unchanged_after_reviewed_presentation_removal": true,
+  "source_helpers_AST_unchanged": [
+    "_source_delay_curve",
+    "_source_delay_spy",
+    "_source_volterra_curve",
+    "_source_state_delay_curve",
+    "_source_pantograph_curve",
+    "_source_system_display",
+    "_source_ddex1de",
+    "_source_ddex1hist",
+    "_source_discrete_delay_system_curve",
+    "_source_state_dependent_system_curve",
+    "_source_system_pantograph_curve",
+    "_source_vanishing_delay_curve",
+    "_source_continuous_delay_curve",
+    "_source_interval_boundary_curve",
+    "_source_two_interval_delay_curve",
+    "_source_second_order_delay_curve",
+    "_source_cubic_delay_curve"
+  ],
+  "controls": [
+    "cached_axes_grid_1",
+    "cached_axes_grid_2",
+    "cached_axes_grid_3",
+    "cached_axes_grid_4",
+    "cached_axes_grid_5",
+    "cached_axes_grid_6",
+    "cached_axes_grid_12",
+    "cached_axes_grid_14",
+    "discrete_source_vertices_capture_1",
+    "discrete_source_vertices_capture_2",
+    "actual_FUN_nodes_and_stored_coefficients_recovered",
+    "actual_repr_native_ans_label",
+    "capture_disabled_by_default"
+  ],
+  "supplemental_control_count": 13,
+  "native_assertion_count": 0,
+  "science_solves": 0,
+  "fullscript_launched": false,
+  "runs": [
+    {
+      "directory": ".",
+      "original_session_id": 84604,
+      "exit_code": 1,
+      "wall_seconds": 10.779028313234448,
+      "sampled_peak_summed_rss_kib": 519152,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    {
+      "directory": "controls_v2",
+      "original_session_id": 2905,
+      "exit_code": 1,
+      "wall_seconds": 10.19200409995392,
+      "sampled_peak_summed_rss_kib": 515756,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    {
+      "directory": "recovery_v3",
+      "original_session_id": 47247,
+      "exit_code": 0,
+      "wall_seconds": 9.623539914377034,
+      "sampled_peak_summed_rss_kib": 194140,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  ],
+  "failure_disposition": "Original84604 assumed4totalmarkerrows; original2905 assumedtrailingNaN. Exact source_join_plot_pieces usesleadingNaN. Preservebothreceipts/captures, recover4finiteactualnodes and coefficientidentity fromcontrols_v2NPZ offline;47247 finishesrepr/disabledcapture, no FUN construction/render repeated.",
+  "serialization_check": "Actual4-coefficient Chebfun.from_coeffs object: two currentFUN references, domain[0,1],pieceinterval[0,1],Chebtech2,coefficientarrays unchanged;captured JSON+NPZ emitted successfully. No solver/callback evaluation by capture.",
+  "limitations": [
+    "Cached bounds are scoped historical observedautomaticaxes, not generalautoscaleparity.",
+    "Current limitedfixtures do not establish all24capture completion: changed fullrun remains necessary.",
+    "No mathematical/nativepixel/font/meshparity claim.",
+    "No fullbinaryclosure claim."
+  ],
+  "proposed_fullrun_after_root_review": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "wall_seconds": 600,
+    "rss_mib": 8192,
+    "await_final_committed_head": true,
+    "capture_env": "CHEBFUNJAX_DDE_FIGURE_CAPTURE_DIR=<private shared run>/figure_captures"
+  },
+  "root_review": {
+    "archive_bindings_verified": 340,
+    "guard_input_bindings_verified": 3139,
+    "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_source_style_display_20261011/delivery/dde_source_style_display_evidence_v1.zip",
+    "archive_sha256": "c0ccebffe5826fe9d48eb00eb10dac07171dabb714c32fc87fd6388ebd9fcaa7",
+    "candidate_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_source_style_display_20261011/delivery/dde_source_style_display.patch"
+  },
+  "metadata_scalar_followup": {
+    "original_full_run": 7318,
+    "terminal": 1,
+    "cause": "Actual source figure8 integer axis ticks were not JSON serializable",
+    "fix": "Convert NumPy scalar metadata with item; reject unsupported objects",
+    "archive_bindings_root_verified": 47,
+    "candidate_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+    "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_capture_metadata_scalar_fix_20261011",
+    "qualified_fullrun": false
+  },
+  "qualified_whole_script": {
+    "library_base": "727322e70956ff33c1d06f3c341734c7bc98d9b9",
+    "script_overlay_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+    "original_handle": 28686,
+    "terminal": 0,
+    "script_seconds": 224.675062,
+    "owned_wall_seconds": 234.17252,
+    "sampled_peak_summed_rss_kib": 4692772,
+    "output_slots": 23,
+    "figures_600x270": 24,
+    "data_captures": 24,
+    "runtime": "JAX/JAXlib0.11.0 CPU x64, observed scoped scientific imports prebound",
+    "source_outputs_and_figures_replaced_together": true,
+    "math_source_overrides": false,
+    "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_full_source_style_public_v2_20261011/delivery/EVIDENCE.json",
+    "root_review": {
+      "archive_sha256": "aa5e5cae27fd585f0747db01de7297caa0bdcb331efc54523bc311874ff2163d",
+      "root_archive_bindings_verified": 425,
+      "root_guard_inputs_verified": 3138,
+      "visual_review": "Actual12/14 now correct source graph mapping/shape/layout. Figure12firstpoint is1ULP above topaxis and strictmarkerclip omits glyph; separately tracked, no pixelparity claim.",
+      "residual_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_figure12_endpoint_clip_diagnosis_20261011/REPORT.json"
+    }
+  },
+  "publication_limits": [
+    "One figure12 boundary dot remains absent because computed endpoint is1ULP above ylim; native graphics comparison pending.",
+    "Reference fonts/raster pixels and fullnative numerical/mesh parity remain incomplete.",
+    "Run is qualified on recorded727librarybase, not a rerun after unrelated later logical/transform APIs."
+  ]
+}

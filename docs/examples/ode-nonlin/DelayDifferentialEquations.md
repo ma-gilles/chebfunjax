@@ -93,9 +93,12 @@ plot(sol, '-', x, '.--', MS, 15)
 
 ```text
 x =
-   chebfun (1 smooth piece), length 4, endpoint values 1 1
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]        4         1        1
+vertical scale =   1
 err =
-     1.343508869424905e-14
+     7.100427943065948e-16
 ```
 
 ![DelayDifferentialEquations figure 03](../../images/ode-nonlin/DelayDifferentialEquations_03.png)
@@ -115,9 +118,12 @@ plot(x), shg
 
 ```text
 x =
-   chebfun (1 smooth piece), length 12, endpoint values 1 0.6051
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]       11         1     0.61
+vertical scale =   1
 res =
-     2.258040540839184e-14
+     1.039917790493470e-13
 ```
 
 ![DelayDifferentialEquations figure 04](../../images/ode-nonlin/DelayDifferentialEquations_04.png)
@@ -202,7 +208,7 @@ x =
 [     0.5,       1]        3       1.5      2.1
 vertical scale = 2.1    Total length = 5
 err =
-     6.805727959764803e-16
+     8.161151581927840e-16
 ```
 
 ![DelayDifferentialEquations figure 07](../../images/ode-nonlin/DelayDifferentialEquations_07.png)
@@ -230,7 +236,7 @@ x =
 [     2.5,       3]        7       6.1      8.7
 vertical scale = 8.7    Total length = 27
 res =
-     8.494402173854053e-14
+     8.488274281704468e-14
 ```
 
 ![DelayDifferentialEquations figure 08](../../images/ode-nonlin/DelayDifferentialEquations_08.png)
@@ -272,7 +278,7 @@ x =
 [     1.8,       2]        9        38       53
 vertical scale =  53    Total length = 92
 res =
-     3.585142615205263e-11
+     3.588109555827821e-11
 ```
 
 ![DelayDifferentialEquations figure 10](../../images/ode-nonlin/DelayDifferentialEquations_10.png)
@@ -333,7 +339,7 @@ x =
 [       0,       1]       13         1     0.89
 vertical scale =   1
 err =
-     2.258310187185802e-15
+     2.269573399399602e-15
 ```
 
 ![DelayDifferentialEquations figure 13](../../images/ode-nonlin/DelayDifferentialEquations_13.png)
@@ -396,7 +402,7 @@ res = norm(diff(x) + x(x))
 
 ```text
 res =
-     3.385446720414506e-15
+     3.385547094559416e-15
 ```
 
 Again, the same problem can be easily solved in Chebfun:
@@ -417,7 +423,7 @@ x =
 [       0,       1]       13         1      0.4
 vertical scale =   1
 res =
-     1.337593504799206e-12
+     1.337617196572124e-12
 ```
 
 ![DelayDifferentialEquations figure 15](../../images/ode-nonlin/DelayDifferentialEquations_15.png)
@@ -448,7 +454,7 @@ y =
 [       0,       1]       21         1      0.5
 vertical scale =   1
 err =
-     2.373408025392045e-14
+     2.373433831204616e-14
 ```
 
 ![DelayDifferentialEquations figure 16](../../images/ode-nonlin/DelayDifferentialEquations_16.png)
@@ -484,7 +490,7 @@ sol =
     {'chebfun'}
 
 err =
-     3.405630653076801e-15
+     2.604404253571972e-15
 ```
 
 ![DelayDifferentialEquations figure 17](../../images/ode-nonlin/DelayDifferentialEquations_17.png)
@@ -552,7 +558,7 @@ y =
 [     4.4,     4.7]        8        26       31
 vertical scale =  31    Total length = 110
 res =
-     2.266523691473095e-11
+     2.266007192433954e-11
 ```
 
 ![DelayDifferentialEquations figure 19](../../images/ode-nonlin/DelayDifferentialEquations_19.png)
@@ -578,7 +584,7 @@ u =
 [       0,      20]       14      0.37      2.7
 vertical scale = 2.7
 err =
-     5.533306144174620e-15
+     1.164954010270043e-14
 ```
 
 ![DelayDifferentialEquations figure 20](../../images/ode-nonlin/DelayDifferentialEquations_20.png)
@@ -604,7 +610,7 @@ y =
 [       0,       1]       14         1     0.14
 vertical scale =   1
 err =
-     1.174821131447273e-15
+     1.015472188115499e-15
 ```
 
 ![DelayDifferentialEquations figure 21](../../images/ode-nonlin/DelayDifferentialEquations_21.png)
@@ -630,7 +636,7 @@ u =
 [       0,    0.33]       11      0.27     0.27
 vertical scale = 0.27
 res =
-     3.430265646773341e-13
+     3.429978914484737e-13
 ```
 
 ![DelayDifferentialEquations figure 22](../../images/ode-nonlin/DelayDifferentialEquations_22.png)
@@ -672,7 +678,7 @@ x =
 [     1.8,       2]        8       3.1      3.5
 vertical scale = 3.5    Total length = 65
 err =
-     6.722355950030367e-13
+     7.217669777424007e-13
 ```
 
 ![DelayDifferentialEquations figure 23](../../images/ode-nonlin/DelayDifferentialEquations_23.png)
@@ -693,13 +699,13 @@ err = norm(u - sol)
 ```
 
 ```text
-u{1} =
+ans =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
 [       1,       5]       32  -1.5e-14      1.6
 vertical scale = 1.6
 err =
-     5.513309591751702e-14
+     5.513756138639666e-14
 ```
 
 ![DelayDifferentialEquations figure 24](../../images/ode-nonlin/DelayDifferentialEquations_24.png)
