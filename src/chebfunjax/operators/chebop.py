@@ -4888,7 +4888,27 @@ class Chebop:
         return [linop.expm(tv, u0, n=n) for tv in ts]
 
     def matrix(self, n: int):
-        """The n x n discretization matrix with BC rows (MATLAB matrix(L,n))."""
+        """Discretize the operator, including endpoint and continuity rows.
+
+        Piecewise scalar linear nonlocal operators use native AD extraction;
+        n is the equation dimension per interval on that path.
+
+        Provenance
+        ----------
+        MATLAB source: @chebop/matrix.m, @chebmatrix/matrix.m,
+        @opDiscretization/matrix.m. Chebfun commit: 7574c77.
+        """
+        if (len(self.domain) > 2 and self._n_vars() == 1
+                and not self._periodic and self._bc_general is None
+                and all(bool(jnp.isfinite(v)) for v in self.domain)):
+            from chebfunjax.operators.chebop_altdisc import _linearize_scalar_ad
+
+            try:
+                data = _linearize_scalar_ad(self, 0.0, tuple(self.domain))
+            except (NotImplementedError, TypeError, AttributeError):
+                data = None
+            if data is not None and data[0].A.blocks[0][0]._coeff_fn is None:
+                return data[0].matrix(n)
         return self._build_linop(value_shift=0.0).matrix(n)
 
     def eigs(

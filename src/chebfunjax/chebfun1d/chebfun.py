@@ -3712,8 +3712,18 @@ class Chebfun(eqx.Module):
         Chebfun.log, Chebfun.realsqrt
         """
         if not self.isreal():
-            raise ValueError("reallog produced complex result.")
-        return self.addBreaksAtRoots().compose(jnp.log, pref=pref)
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:reallog:complex: Reallog produced complex result.")
+
+        def real_log(values):
+            # Numeric MATLAB REALLOG rejects negative real inputs before
+            # returning LOG. COMPOSE also calls this on stored point values.
+            if bool(jnp.any(values < 0)):
+                raise ValueError(
+                    "MATLAB:reallog:complexResult: Reallog produced complex result.")
+            return jnp.log(values)
+
+        return self.addBreaksAtRoots().compose(real_log, pref=pref)
 
     def sqrt(self) -> Chebfun:
         """Square root of the Chebfun.

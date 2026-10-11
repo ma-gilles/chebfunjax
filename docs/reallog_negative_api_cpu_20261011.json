@@ -1,0 +1,24 @@
+{
+  "scope": "Native reallog negative-real callback and complex-input error identifiers; existing root insertion and preferences retained.",
+  "baseline": "10 failed API controls",
+  "candidate": "10 API controls and unchanged native positive reallog assertion pass;86.03s,2054496KiB, stable inputs and no remaining processes.",
+  "native_positive_error": 4.44089e-16,
+  "native_positive_bound": 2.27725e-14,
+  "limits": [
+    "Two existing interior-negative root-construction warnings retained.",
+    "No fresh MATLAB execution; source identifiers verified against pinned Chebfun and installed R2025b.",
+    "These10 API controls are not added clauses of native test_log.m."
+  ],
+  "publication_review": "Ruff import sorting/formatting only; executable AST preserved. Other library functions and existing positive/singular tests unchanged.",
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/reallog_negative_api_20261011/reallog_negative_api_delivery_v1.zip",
+    "sha256": "432157a862f8890a1bc952eafcaa4992848dd6fd80b462c530346779f23b945f",
+    "entries": 46
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/reallog_negative_api_20261011/delivery_v1/REPORT.txt": "43275dd8bcd2e8f1202c8bb3d8cb60af8292a0c37b9dbe7fff855d7de85c39bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/reallog_negative_api_20261011/delivery_v1/SOURCE_MAPPING.json": "d0409ad485dcfc68466d655f8aedf88a1937621bd0e13cf2dc24eb10229f9e23",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/reallog_negative_api_20261011/delivery_v1/STATIC_REVIEW.json": "b75253765717281969d25fa0e85909f8b9dcfc41f033f53c75beef244088a17a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/reallog_negative_api_20261011/delivery_v1/PATCH_BINDINGS.json": "0398adb5cfaa8199b41b121500795bcd3d0f068dc3f46411a84d85101fc332a0"
+  }
+}

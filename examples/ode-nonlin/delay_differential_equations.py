@@ -48,8 +48,9 @@ OUTPUT_SLOT = [0]
 SAVED_IMAGES = set()
 
 
-def _save(fig, *, source_axes=False):
-    image_id = SOURCE_FIGURES[OUTPUT_SLOT[0]]
+def _save(fig, *, source_axes=False, spy=False):
+    mapping = {8: 9, 9: 11} if spy else SOURCE_FIGURES
+    image_id = mapping[OUTPUT_SLOT[0]]
     if image_id in SAVED_IMAGES:
         raise RuntimeError(f"Duplicate source figure {image_id}")
     SAVED_IMAGES.add(image_id)
@@ -57,7 +58,8 @@ def _save(fig, *, source_axes=False):
     if not source_axes:
         fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"DelayDifferentialEquations_{image_id:02d}.png"))
+        _IMG, f"DelayDifferentialEquations_{image_id:02d}.png"),
+        **({"layout": "matlab"} if spy else {}))
     plt.close(fig)
 
 
@@ -71,6 +73,23 @@ def _source_delay_curve(points, values, section):
            xticks=np.arange(0, xmax + .25, .5),
            yticks=np.arange(0, ymax + ystep, ystep))
     ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
+def _source_delay_spy(matrix):
+    """Plot exact nonzeros, with marker size from R2025b graphics/math/spy.m."""
+    rows, columns = np.nonzero(matrix)
+    m, n = matrix.shape
+    size = np.clip(np.floor(8 * np.log10(2500 / max(m+1, n+1)) + .5), 4, 14)
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    ax.plot(columns+1, rows+1, ".", markersize=size, linestyle="none")
+    ax.set(xlim=(0, n+1), ylim=(m+1, 0), xlabel=f"nz = {len(rows)}")
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xticks(np.arange(0, n+1, 20 if n == 66 else 50))
+    ax.set_yticks(np.arange(0, m+1, 10 if m == 66 else 20))
     ax.grid(False)
     ax.tick_params(direction="in", top=True, right=True)
     return fig
@@ -244,6 +263,8 @@ def run():
     tt = np.linspace(0, 3, 1200)
     fig = _source_delay_curve(tt, np.asarray(xc(tt)), 8)
     _save(fig, source_axes=True)
+    fig = _source_delay_spy(np.asarray(N.matrix(10)))
+    _save(fig, source_axes=True, spy=True)
 
     # ----- 9. Two constant delays --------------------------------------
     _output_slot(9)
@@ -261,6 +282,8 @@ def run():
     tt = np.linspace(0, 2, 1200)
     fig = _source_delay_curve(tt, np.asarray(xc(tt)), 9)
     _save(fig, source_axes=True)
+    fig = _source_delay_spy(np.asarray(N.matrix(10)))
+    _save(fig, source_axes=True, spy=True)
 
     # ----- 10. A Volterra integro-differential equation ----------------
     _output_slot(10)

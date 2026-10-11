@@ -202,12 +202,12 @@ class ADChebfun:
             result.func = self.func + other.func
             result.jacobian = self.jacobian + other.jacobian
             result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
-            return result
+            return _update_ad_domain(result)
         else:
             result = _copy_ad(self, other)
             result.func = self.func + other
             # jacobian unchanged
-            return result
+            return _update_ad_domain(result)
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -218,17 +218,17 @@ class ADChebfun:
             result.func = self.func - other.func
             result.jacobian = self.jacobian - other.jacobian
             result.linearity = tuple(a and b for a, b in zip(self.linearity, other.linearity))
-            return result
+            return _update_ad_domain(result)
         else:
             result = _copy_ad(self, other)
             result.func = self.func - other
-            return result
+            return _update_ad_domain(result)
 
     def __rsub__(self, other):
         result = _copy_ad(self)
         result.func = other - self.func
         result.jacobian = -self.jacobian
-        return result
+        return _update_ad_domain(result)
 
     def __neg__(self):
         result = _copy_ad(self)
@@ -1499,9 +1499,11 @@ def _update_ad_domain(result):
     if isinstance(jacobian, Chebfun):
         result.jacobian = jacobian._with_breakpoints(result.domain)
     else:
-        # Power has just composed a new Jacobian, so its domain metadata
-        # can be updated without changing the input AD object's Jacobian.
-        jacobian.domain = result.domain
+        # Addition of a non-AD value may retain the input Jacobian.
+        from copy import copy
+
+        result.jacobian = copy(jacobian)
+        result.jacobian.domain = result.domain
     return result
 
 

@@ -7,7 +7,7 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 (11 output blocks). The remaining 12 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; all other figures retain their existing assets and remain unqualified. The whole page is incomplete.
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 (11 output blocks). The remaining 12 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Figure 09 matches the native nonzero pattern; figure 11 has 4101 nonzeros versus the native 4011 and remains unresolved. Marker rendering differs from the historical images. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 

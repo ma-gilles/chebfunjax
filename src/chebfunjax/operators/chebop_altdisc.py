@@ -432,7 +432,8 @@ def _linearize_scalar_ad(N, forcing, dom):
         return None
     jacobian = output.jacobian if isinstance(output, ADChebfun) else zeros_op(dom)
     residual = output.func if isinstance(output, ADChebfun) else output
-    merged = tuple(sorted(set(dom).union(jacobian.domain)))
+    from chebfunjax.domain import merge
+    merged = tuple(merge(dom, jacobian.domain))
     operator = BlockLinop(jacobian, domain=merged)
     for condition in conditions:
         row = (condition.jacobian if isinstance(condition, ADChebfun)

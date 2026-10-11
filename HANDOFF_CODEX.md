@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `df9197f8` is published. Use CPU only. Heavy whole examples run
+main through `b651b5b7` is published. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -74,8 +74,10 @@ page delta througheecb9a63 confirms949 reference/945 local output blocks,
 12 blanks and15 explicit placeholders across15 pages. Delay page has11 verified
 output slots and12 explicitly unresolved slots. Figures08/10 use qualified saved
 solutions at600x270 with reference axes; all other figures and full pixel parity
-remain unqualified. Historical images09/11 are wrong curves where native code
-shows operator sparsity matrices; matrix routing and replacement are active work.
+remain unqualified. Images09/11 now show actual operator sparsity matrices.09 matches the native
+nonzero mask;11 has4101 versus native4011 nonzeros and remains unresolved.
+Historical marker rendering also differs. Source domain propagation and matrix
+routing pass13 controls and preserve both saved solve8/9 arrays bitwise.
 See docs/dde_sections_8_9_artifacts_cpu_20261011.json. No source output should
 be invented or copied as Python output.
 

@@ -1,0 +1,131 @@
+{
+  "scope": "Source AD add/sub domain updates and scalar piecewise nonlocal public matrix routing; default C2 scope.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Native plus/minus updateDomain synchronizes primal/incoming/Jacobian domains; shallow copy prevents alias mutation.",
+    "Scalar extraction uses domain.merge instead of exact setunion.",
+    "Composition barymat remains unchanged: its existing default already supplies C2 weights.",
+    "Public matrix routes supported finite scalar piecewise nonlocal linear operators through exact AD and projected BlockLinop assembly. Other paths retained."
+  ],
+  "gates": {
+    "native_matrix": 77326,
+    "baseline": 92563,
+    "rejected_first_candidate": 7308,
+    "domain_successor": 88731,
+    "final_matrix": 36044,
+    "retained_controls_11": 86715,
+    "matrix_contracts_2": 41009,
+    "solve8": 87649,
+    "solve9": 4846
+  },
+  "matrix_comparison": [
+    {
+      "figure": 9,
+      "shape": [
+        66,
+        66
+      ],
+      "nnz": 1241,
+      "native_nnz": 1241,
+      "mask_differences": 0,
+      "max_abs_difference": 4.490630090003833e-12,
+      "continuity_collapsed_max_abs_difference": 4.490630090003833e-12
+    },
+    {
+      "figure": 11,
+      "shape": [
+        121,
+        121
+      ],
+      "nnz": 4101,
+      "native_nnz": 4011,
+      "mask_differences": 990,
+      "max_abs_difference": 0.6392453221500023,
+      "continuity_collapsed_max_abs_difference": 3.029754225281067e-11
+    }
+  ],
+  "retained_solves": [
+    {
+      "solve_seconds": 14.786203781608492,
+      "domain": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0
+      ],
+      "lengths": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "linear_used": null,
+      "fastjac_used": null,
+      "left_value": 1.0000000000000044,
+      "residual_norm": 8.494402173854053e-14,
+      "residual_seconds": 4.550701264292002,
+      "section": 8,
+      "all_saved_arrays_byte_identical_previous": true
+    },
+    {
+      "solve_seconds": 22.409820667933673,
+      "domain": [
+        0.0,
+        0.3333333333333333,
+        0.5,
+        0.6666666666666665,
+        0.8333333333333333,
+        1.0,
+        1.1666666666666667,
+        1.333333333333333,
+        1.5,
+        1.6666666666666665,
+        1.8333333333333333,
+        2.0
+      ],
+      "lengths": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9
+      ],
+      "linear_used": null,
+      "fastjac_used": null,
+      "left_value": 0.9999999999995947,
+      "residual_norm": 3.5915980574725803e-11,
+      "residual_seconds": 8.8766412679106,
+      "section": 9,
+      "all_saved_arrays_byte_identical_previous": true
+    }
+  ],
+  "limits": [
+    "Matrix11 native exact mask unresolved:4101vs4011nonzeros,990maskdifferences. Raw maxdifference.639245 collapses to3.03e-11 under duplicate-endpoint continuity. No zero threshold or ownership snap.",
+    "Original source page has no numerical residual assertion; observations are not invented acceptance gates. New constant-action1e-10 test is an added analytic control.",
+    "Spy previews use actual JAX matrices, sourceR2025b marker rule and source layout adapter; cached historical font/marker rasterization not pixel-parity.",
+    "No whole page completion; no broad nonlinear/system/generalBC matrix migration."
+  ],
+  "test_delivery": "Formatting/import-order only; normalized executable AST matches qualified tests.",
+  "delivery_review": {
+    "decision": "Remove redundant explicit C2 weights change; leave blocks.py untouched.",
+    "source": "barymat(w=None) already supplies C2 weights; supported OperatorBlock matrix route uses C2. No generic C1/trig compose extension claimed.",
+    "failed_diagnostic": "disc_weight_controls original93811: two C2 controls pass, hypothetical C1 subclass controls fail because omitted weights remain C2. Preserved; no new regression inferred.",
+    "matrix_byte_identity": {
+      "matrix9_public.npy": "5e63a38ae1cb79c63edef181f7173c7787c0b70b095e12913b1374ddecfc39c2",
+      "matrix11_public.npy": "dd866b30bfef6ead70143402e25551c087695d1199af587a2e7c6faf8c28b642",
+      "matrix9_ad.npy": "5e63a38ae1cb79c63edef181f7173c7787c0b70b095e12913b1374ddecfc39c2",
+      "matrix11_ad.npy": "dd866b30bfef6ead70143402e25551c087695d1199af587a2e7c6faf8c28b642"
+    }
+  }
+}
