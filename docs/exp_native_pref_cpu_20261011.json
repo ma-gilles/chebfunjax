@@ -1,0 +1,34 @@
+{
+  "native_predicates": 2,
+  "retained_controls": 2,
+  "values": [
+    {
+      "method": "exp",
+      "error": 1.3322676295501878e-15,
+      "bound": 4.890633062647226e-14,
+      "vscale": 2.2025453238543875,
+      "shape": [
+        1000
+      ]
+    },
+    {
+      "method": "expm1",
+      "error": 1.1102230246251565e-15,
+      "bound": 2.6697275214207588e-14,
+      "vscale": 1.2023383870651287,
+      "shape": [
+        1000
+      ]
+    }
+  ],
+  "baseline": "2nativeTypeErrorfailures/2retainedpasses11.55s,1037236KiB",
+  "candidate_result": "4 passed in 11.80s",
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/exp_native2_pref_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "8edb73b5a41436b990e78da219a2bc70274c322c14d88547a128fa4cd0102238",
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/exp_native2_pref_20261011/exp_native2_pref_delivery_v1.zip",
+    "sha256": "fe3a54d44203d4e343625792d343732d40e3bcd231986000b1c397d15eec8ba6",
+    "entries": 49
+  },
+  "publication_review": "Root matched literal native public constructor, actual preference, unmasked1000sites and strict source norms/bounds. Only exp/expm1 API forwarding changes. Test formatting/import sorting preserves executable AST."
+}

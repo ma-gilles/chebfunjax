@@ -3528,7 +3528,7 @@ class Chebfun(eqx.Module):
         """
         return self._apply_fun(jnp.cos)
 
-    def exp(self) -> Chebfun:
+    def exp(self, pref=None) -> Chebfun:
         """Exponential of the Chebfun.
 
         Returns a new Chebfun approximating exp(f(x)) on the same domain.
@@ -3546,9 +3546,9 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.log
         """
-        return self._apply_fun(jnp.exp)
+        return self.compose(jnp.exp, pref=pref)
 
-    def expm1(self) -> Chebfun:
+    def expm1(self, pref=None) -> Chebfun:
         """Compute ``exp(f) - 1`` accurately for small ``f``.
 
         Returns
@@ -3570,7 +3570,7 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.exp, Chebfun.log1p
         """
-        return self._apply_fun(jnp.expm1)
+        return self.compose(jnp.expm1, pref=pref)
 
     def log(self, pref=None) -> Chebfun:
         """Natural logarithm of the Chebfun.
