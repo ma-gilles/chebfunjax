@@ -1,0 +1,18 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Restore all six native Chebyshev-Pade predicates at original continuous norms and bounds; retain sampled supplements",
+  "result": "5 passed,21.04s,1129736KiB,stable uncensored CPU run,no owned survivors",
+  "bindings": {
+    "tests/test_matlab_port/chebfun/test_chebpade_matlab.py": {
+      "baseline_sha256": "57e8992dd6747b55e543f727590bfba925f2e485000bae0a97349b48ff71ae07",
+      "candidate_sha256": "d7d63b939c5e0b8d264bdbff99534eb87da85cae5f57e75cc5499722eeab3c95"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpade_native_predicates_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "11ce3bd00ee1fac6c1325629398f7810b56caf6872274d8722ab56577c88de0b",
+  "limits": [
+    "No library edits; legacy NumPy fitting remains",
+    "No fresh MATLAB run or broad rational API parity claim"
+  ],
+  "formatting": "AST-equivalent to executed candidate"
+}
