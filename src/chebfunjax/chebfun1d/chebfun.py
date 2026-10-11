@@ -8832,6 +8832,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/real.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         from chebfunjax.fun.singfun import Singfun
 
         def _real_tech(tech):
@@ -8846,7 +8848,9 @@ class Chebfun(eqx.Module):
             return type(tech).from_values(jnp.real(tech.values))
 
         new_funs = [p.with_tech(_real_tech(p.tech)) for p in self.funs]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        out = Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        return out.set_point_values(jnp.real(self._breakpoint_values()))
 
     def imag(self) -> Chebfun:
         """Imaginary part of the Chebfun (a real Chebfun).

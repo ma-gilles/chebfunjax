@@ -1,0 +1,87 @@
+{
+  "scope": "Restore6literalnative REAL predicates vs2oldsubstitutes, retainold2;4metadata diagnostics. Candidatecodeonlyreal methodchanged. Qualified10casewholegate plus2casepointfocusedgate, finalcodebyteidentical acrossboth. Privatebasecarryacceptedfix/flipudbody, patchdoesnotmodifythem.",
+  "source_clauses": {
+    "1": "real(empty)isempty",
+    "2": "scalar exp(ix)*abs(x-.1), originaldomain[-1,1], defaultpref splittingTrue,1000source-range sites;isreal + flattenednorminf<100vscale(g)eps",
+    "3": "array[exp(ix)abs(x-.1),i exp(-ix)cos(x)];realoracle[cosabs,sincos];isreal +flattenednorminf<1000vscale(g)eps",
+    "4": "i cos(x)abs(x-.1) nativepureimagconstructor, realiszero",
+    "5": "(x+2)^-1.64 on[-2,7], originalexps[-1.64,0],splittingon;publicisequal(real(f),f)",
+    "6": "unboundedcomplex op=xexp(x)+i(1-exp(x))/x on[-inf,-3pi];100sites[-1e6,-3pi];originalrawopreal, maxabs<eps*vscale(originalcomplexf)"
+  },
+  "implementation": "Native@chebfun/real.m returns emptyinput; mapsoriginalpointValues throughreal; orientationpreserved. Existingtech/Singfun/Fourier coefficientarithmeticunchanged; newoutput_as_transposed +set_point_values(real(_breakpoint_values())). Imag/conj/deltas helpers untouched.",
+  "diagnostics": "Independent signarray on[-1,0,1] bothorientations; explicitnativepointValues assignment includesnonpolynomial[7+2j,11+5j] at0; outputexpected[7,11] exact andorientationpreserved. Baselinebothnewcasesfail, candidatebothpass. Priorzeropointcaseonlycaughtrowflag sincezeroequalsdefaultaverage; diagnosticstrengtheningrecorded.",
+  "qualification": "RandomState7681 draws1000then100, preservesnative seed/count/order/ranges; MATLABRNGstreamidentityunverified. Sourcebounds unchanged. Native6err3.937009138837988e-18<2.355836838744053e-17.",
+  "runs": {
+    "baseline_v1": {
+      "wall_seconds": 39.96115889586508,
+      "sampled_peak_summed_rss_kib": 2129664,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "6b20123b7757a9472416570e00bd508eb1dcd69f0bdb78b2366b8c2a657cb466"
+    },
+    "candidate_v1": {
+      "wall_seconds": 40.00862410990521,
+      "sampled_peak_summed_rss_kib": 2134740,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "5d60580e30256f4dfa34280a89eaaab25ca21cf21675c83ab785b71e79c695ac"
+    },
+    "point_baseline_v1": {
+      "wall_seconds": 13.054470451083034,
+      "sampled_peak_summed_rss_kib": 721708,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "776f02aa5c9ff7877dd7816529c9e7e838336a723c4c572fd7fa562abf8f2b70"
+    },
+    "point_candidate_v2": {
+      "wall_seconds": 12.59928515413776,
+      "sampled_peak_summed_rss_kib": 719360,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "d30ce515ec70dade1617d9515b315fd8e6cc25b1db27d94740ffc6a41cb25d94"
+    }
+  },
+  "residuals": [
+    "No newdistribution/deltarealpartqualification",
+    "No fullJIT/adaptiveconstructionclaim",
+    "Publicisequal broadermetadata semantics notnewlyaudited",
+    "NumPyRandomState adapternotnative streamcapture"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/ORIGINAL_TEST.py": "99a3cf54ccd666112eb5ab7647927bd2811f008f3b3c6b9f5de5be10324768ba",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/snapshot/src/chebfunjax/chebfun1d/chebfun.py": "8cf9cd2dff3904dfc875eb8e458a3439cd55b4a505b687895d3408848e47dc8e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/candidate_v2_source/src/chebfunjax/chebfun1d/chebfun.py": "7f50907c43b0da723eb0b64e04276a063f9b2fbfef586c40107eb36e4d31da7d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_real_matlab.py": "2a6925991e803b23465ec41a8957b63ab580353402ba209bc938cbb0dbf513db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/real_native.patch": "17db4fff0b800bdc0be51332f0e81de1231887a12d428b6aa9369281daf708b4"
+  },
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/real_native_predicates_20261011/DELIVERY.json",
+  "publication_review": "Root reviewed all6 native predicates including flattened finite-array norm and f.vscale for unbounded input. Native real pointValues/orientation behavior retained; import sorting/formatting preserves executable AST."
+}
