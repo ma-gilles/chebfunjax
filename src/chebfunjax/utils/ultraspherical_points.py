@@ -258,8 +258,11 @@ def ultra_rule(n, lam, interval=None, method=None):
         v = v / jnp.max(jnp.abs(v))
     if interval is not None:
         a, b = interval
-        x = (x + 1) / 2 * (b - a) + a
-        w = (0.5 * (b - a)) ** (2 * lam) * w
+        # Source rescale skips the canonical interval exactly. Preserve this
+        # branch for both concrete and traced endpoints without a host bool.
+        canonical = (a == -1.0) & (b == 1.0)
+        x = jnp.where(canonical, x, (x + 1) / 2 * (b - a) + a)
+        w = jnp.where(canonical, w, (0.5 * (b - a)) ** (2 * lam) * w)
         if lam == 0 and n > 2:
             # A traced mapped rule has a fixed complex angle dtype, allowing
             # nodes to cross +/-1 as endpoints vary without a Python branch.

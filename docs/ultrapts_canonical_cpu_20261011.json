@@ -1,0 +1,50 @@
+{
+  "status": "Canonical interval source correction qualified",
+  "source": "ultrapts.m rescale lines214\u2013220, Chebfun7574c77",
+  "change": "Skip the canonical[-1,1] affine map for x and w, using JAX predicates to retain dynamic endpoint support. Native already has this branch. No symmetry projection, tolerance or precision change.",
+  "failure": {
+    "original": 86516,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_symmetric_source_v2_20261011/asy_resource_control",
+    "cause": "251-point public Jacobi delegation passed canonical interval into ultrapts, whose redundant(x+1)-1 map broke exact node antisymmetry. Finite/positive outputs and timings preserved."
+  },
+  "qualification": {
+    "original": 45142,
+    "terminal": 0,
+    "inputs_stable": true,
+    "censored": null,
+    "survivors": [],
+    "peak_rss_kib": 1673408,
+    "wall_seconds": 48.68155149370432,
+    "input_count": 278,
+    "bad_hashes": [],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultrapts_canonical_source_20261011/controls/guard.json": "fb121d27ac83a9ebee1dd727e87e884c083ce21a39aff7e9d4c3fdafa9172e02",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultrapts_canonical_source_20261011/controls/supervision/receipt.json": "721fb9544289de0e19695ef5a0c694d6f0f841e042c42e20b897c9e09dd80476",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ultrapts_canonical_source_20261011/controls/junit.xml": "7fa601f2af3e583b491055bcf53752ee300619372e37ba2122734cecdc3aa1e0"
+    },
+    "test_ids": [
+      "test_canonical::test_canonical_interval_is_exact_identity[2-0.6]",
+      "test_canonical::test_canonical_interval_is_exact_identity[42-0.3]",
+      "test_canonical::test_canonical_interval_is_exact_identity[251-0.7]",
+      "test_canonical::test_traced_canonical_interval",
+      "test_ultrapts_mapped_jit_review::test_mapped_static_jit_matches_eager",
+      "test_ultrapts_mapped_jit_review::test_dynamic_interval_jit_matches_eager[0.3]",
+      "test_ultrapts_mapped_jit_review::test_dynamic_interval_jit_matches_eager[0.0]",
+      "test_ultrapts_mapped_jit_review::test_eager_invalid_interval_still_rejected[interval0]",
+      "test_ultrapts_mapped_jit_review::test_eager_invalid_interval_still_rejected[interval1]",
+      "test_ultrapts_mapped_jit_review::test_eager_invalid_interval_still_rejected[interval2]",
+      "test_ultrapts_mapped_jit_review::test_small_asy_source_takes_two_corrections",
+      "test_ultrapts_mapped_jit_review::test_interior_source_stopping_has_no_iteration_cap",
+      "test_ultrapts_mapped_jit_review::test_boundary_underflow_warning_preserved"
+    ],
+    "failures": [],
+    "skips": [],
+    "qualified": true
+  },
+  "tests": "4 new controls (n2,n42,n251 canonical identity/antisymmetry, traced endpoints) plus9 existing mapped-JIT/source regressions.",
+  "limits": [
+    "No100k/200k native clause credit; these original-size gates remain held behind heavy serial examples.",
+    "General nonsymmetric JacobiASY still unported.",
+    "Sizing baseline measured32.76s ASY generation and1,397,824KiB; corrected full13-case gate48.68s/1,673,408KiB. Large rule estimate remains a forecast, not measured qualification."
+  ]
+}
