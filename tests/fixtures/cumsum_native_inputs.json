@@ -1,0 +1,101 @@
+{
+  "xr7681_bitidentical": true,
+  "source_draws": 9,
+  "native_pass": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "mat_sha256": "eebb5aaa6776b88a2d138b1d8e4613f9da17c7da228e13ab087653376579bef6",
+  "warning_state_before_after": [
+    "on",
+    "on"
+  ],
+  "nine_draws_adapter_bitidentity": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "native_source": "tests/chebfun/test_cumsum.m",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture_packet": "cumsum_native_capture_20261011",
+  "native_version": "R2025b",
+  "original_handle": 87226,
+  "xr_native_shape": [
+    1000,
+    1
+  ],
+  "draw_native_shapes": [
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ]
+  ],
+  "storage_adapter": "Portable fixture flattens native column vectors; source numeric vector norms unchanged",
+  "npz_sha256": "b0512b79c908c9a878fc055f5a4efb86f9e44c4748c7a9a39cbf8d3b2aaf3a96"
+}

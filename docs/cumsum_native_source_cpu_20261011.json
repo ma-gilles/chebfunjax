@@ -1,0 +1,201 @@
+{
+  "base": "51a50822dea86e3c62acdf6b4b3637d16342164f",
+  "native_source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_predicate_count": 30,
+  "native_all30_pass": true,
+  "python_all30_assertions_qualified": true,
+  "cohorts": [
+    {
+      "name": "smooth_v2",
+      "original_handle": 91416,
+      "source_slots_qualified": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 1309640,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/smooth_v2/supervision/receipt.json"
+    },
+    {
+      "name": "periodic_v1",
+      "original_handle": 12957,
+      "source_slots_qualified": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "terminal_exit": 1,
+      "failure_scope": "source26 shape adapter failure after earlier assertions",
+      "sampled_peak_rss_kib": 1255804,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/periodic_v1/supervision/receipt.json"
+    },
+    {
+      "name": "periodic_v2",
+      "original_handle": 23432,
+      "source_slots_qualified": [
+        26,
+        27
+      ],
+      "terminal_exit": 1,
+      "failure_scope": "source28 trigpts tuple adapter failure after earlier assertions",
+      "sampled_peak_rss_kib": 696724,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/periodic_v2/supervision/receipt.json"
+    },
+    {
+      "name": "periodic_28_29_v3",
+      "original_handle": 88827,
+      "source_slots_qualified": [
+        28,
+        29
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 673612,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/periodic_28_29_v3/supervision/receipt.json"
+    },
+    {
+      "name": "singular_10_v1",
+      "original_handle": 69582,
+      "source_slots_qualified": [
+        10
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 827356,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/singular_10_v1/supervision/receipt.json"
+    },
+    {
+      "name": "singular_11_12_v1",
+      "original_handle": 7666,
+      "source_slots_qualified": [
+        11,
+        12
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 2984324,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/singular_11_12_v1/supervision/receipt.json"
+    },
+    {
+      "name": "unbounded_13_15_v1",
+      "original_handle": 49287,
+      "source_slots_qualified": [
+        13,
+        14,
+        15
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 1459224,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/unbounded_13_15_v1/supervision/receipt.json"
+    },
+    {
+      "name": "deltas_16_19_v1",
+      "original_handle": 53879,
+      "source_slots_qualified": [
+        16,
+        17
+      ],
+      "terminal_exit": 1,
+      "failure_scope": "source18 Quasimatrix indexing adapter failure after earlier assertions",
+      "sampled_peak_rss_kib": 960760,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/deltas_16_19_v1/supervision/receipt.json"
+    },
+    {
+      "name": "deltas_18_19_v2",
+      "original_handle": 56825,
+      "source_slots_qualified": [
+        18,
+        19
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 844612,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/deltas_18_19_v2/supervision/receipt.json"
+    },
+    {
+      "name": "jacobi_30_v4",
+      "original_handle": 94779,
+      "source_slots_qualified": [
+        30
+      ],
+      "terminal_exit": 0,
+      "failure_scope": null,
+      "sampled_peak_rss_kib": 1237892,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/jacobi_30_v4/supervision/receipt.json"
+    }
+  ],
+  "library_fixes": [
+    "cancelExponents scalarizes singleton endpoint storage only; original100eps*vscale unchanged",
+    "_sing_cumsum normalizes Nx1 scalar recurrence input and restores coefficient column; recurrence AST unchanged",
+    "_root_power retains powered representation; exact-zero exponents use smoothPart, others retainSingfun; original phase preserved"
+  ],
+  "regressions": {
+    "power23_original_handle": 77368,
+    "power33_plus_phase_controls_original_handle": 34153,
+    "fixture_and_warning_controls_original_handle": 14050,
+    "all_terminal0": true
+  },
+  "retained_failures": [
+    {
+      "original_handle": 95595,
+      "terminal": 1,
+      "fault": "singleton endpoint scalar conversion"
+    },
+    {
+      "original_handle": 80563,
+      "terminal": 1,
+      "fault": "singleton coefficient recurrence scatter"
+    },
+    {
+      "original_handle": 83708,
+      "terminal": 124,
+      "cap": "180s wall; peak3621004KiB",
+      "scope": "source30 not qualified by this run; source callback refit recreated unhappy65537-point representation"
+    },
+    {
+      "original_handle": 23265,
+      "terminal": 1,
+      "scope": "supplement expected Nx1 feval despite documented scalarSingfun shape; coefficientNx1 identity passed"
+    }
+  ],
+  "qualification_limits": [
+    "Source11/12 values pass strict bounds but Python unhappy65537-point warnings differ from empty native stdout; no representation/happiness parity claim.",
+    "POWER33 retains observed intermediate129-point unhappy warning, final source representation happy assertion passes.",
+    "Native temporary exponentDiff suppression matched by scoped Python filter; unrelated warnings retained, filters restored.",
+    "No full Python/native output/pixel parity assertion; no invented tolerance.",
+    "Finite-dimension cumsum API remains missing; separately reviewed source plan, outside native30."
+  ],
+  "fixture_copy": {
+    "from": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_20261011/candidate/tests/fixtures/cumsum_native_inputs.npz",
+    "to": "tests/fixtures/cumsum_native_inputs.npz"
+  },
+  "old_mapped_probes_preserved": true,
+  "native_rng_scope": "XR7681 and exact nine sequential6178 columns only, bitidentical; no general stream identity inference",
+  "no_owned_processes": true,
+  "root_review": {
+    "binding_count": 136,
+    "all_current_hashes_match": true,
+    "unique_guarded_inputs_verified": 38393
+  },
+  "root_integration": {
+    "base": "b5cf1c4b",
+    "chebfun_changed_methods": [
+      "_root_power"
+    ],
+    "powered_method_matches_qualified_candidate": true,
+    "test_formatting_ast_unchanged": true,
+    "final_test_ast_unchanged_except_import_order": true
+  }
+}

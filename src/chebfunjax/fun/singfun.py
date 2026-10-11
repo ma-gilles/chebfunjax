@@ -933,8 +933,8 @@ class Singfun(eqx.Module):
             return self
         a, b = self.exponents
         tol = 100.0 * _EPS * float(self.smoothPart.vscale)
-        bl = float(jnp.abs(self.smoothPart(jnp.float64(-1.0))))
-        br = float(jnp.abs(self.smoothPart(jnp.float64(1.0))))
+        bl = float(jnp.asarray(jnp.abs(self.smoothPart(jnp.float64(-1.0)))).reshape(()))
+        br = float(jnp.asarray(jnp.abs(self.smoothPart(jnp.float64(1.0)))).reshape(()))
         nl = -a if (a < 0.0 and abs(bl) < tol) else 0.0
         nr = -b if (b < 0.0 and abs(br) < tol) else 0.0
         if nl > 0.0 or nr > 0.0:
@@ -1945,6 +1945,12 @@ def _sing_cumsum(f: Singfun):
     work = f.flipud() if flip else f
     smooth = work.smoothPart
     tech_type = type(smooth)
+    # MATLAB scalar recurrence uses linear coefficient indexing. Preserve the
+    # Python singleton-column storage shape around the unchanged recurrence.
+    column_storage = smooth.coeffs.ndim == 2 and smooth.coeffs.shape[1] == 1
+    if column_storage:
+        smooth = tech_type.from_coeffs(smooth.coeffs[:, 0])
+        work = Singfun(smooth, work.exponents)
     alpha = jnp.float64(-work.exponents[0])
     # MATLAB round uses nearest integer, ties away from zero. Negative
     # rounded values are all replaced by 1 in this particular expression.
@@ -2002,4 +2008,10 @@ def _sing_cumsum(f: Singfun):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*Non-integer difference.*")
             g = g - g(jnp.float64(-1.0))
+    if column_storage:
+        if isinstance(g, Singfun):
+            part = g.smoothPart
+            g = Singfun(type(part).from_coeffs(part.coeffs[:, None]), g.exponents)
+        else:
+            g = type(g).from_coeffs(g.coeffs[:, None])
     return g

@@ -3625,23 +3625,13 @@ class Chebfun(eqx.Module):
             else:
                 sf = (Singfun.from_chebtech(tech, (0.0, 0.0))
                       .extractBoundaryRoots() ** b).simplifyExponents()
+            # Retain the powered onefun after native simplifyExponents.
+            # Rebuilding the original callback would reintroduce endpoint
+            # singularities whose exponents were simplified to exactly zero.
+            powered = sf.smoothPart if all(e == 0 for e in sf.exponents) else sf
             if _neg:
-                _ph = complex(_np.exp(1j * _np.pi * b))
-                if all(abs(e) < 1e-14 for e in sf.exponents):
-                    new_funs.append(_Piece.from_function(
-                        lambda x, _p=p: _ph * smooth_op(-_p(x)),
-                        p.interval[0], p.interval[1]))
-                else:
-                    new_funs.append(_Piece(tech=sf * _ph, interval=p.interval))
-                continue
-            # A piece with no boundary roots collapses to trivial exponents;
-            # keep it smooth to avoid needless Singfun overhead downstream.
-            if all(abs(e) < 1e-14 for e in sf.exponents):
-                new_funs.append(_Piece.from_function(
-                    lambda x, _p=p: smooth_op(_p(x)),
-                    p.interval[0], p.interval[1]))
-            else:
-                new_funs.append(_Piece(tech=sf, interval=p.interval))
+                powered = powered * complex(_np.exp(1j * _np.pi * b))
+            new_funs.append(_Piece(tech=powered, interval=p.interval))
         return Chebfun(funs=new_funs, domain=fbr.domain)
 
     def abs(self) -> Chebfun:
