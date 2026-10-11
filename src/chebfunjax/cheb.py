@@ -25,6 +25,7 @@ from chebfunjax.utils.gallery2 import gallery2
 from chebfunjax.utils.gallerytrig import gallerytrig
 
 __all__ = [
+    "x", "xy", "xyz", "xydisk", "xyzsphere",
     "bernoulli",
     "bspline",
     "gallery",
@@ -450,3 +451,63 @@ def gallerydisk(name: str | None = None, *, return_handle: bool = False):
         raise ValueError("CHEB:GALLERYDISK:unknown:unknownFunction: Unknown function.")
     f = diskfun(fa, "polar") if polar else diskfun(fa)
     return (f, fa) if return_handle else f
+
+
+def x():
+    """Return the identity Chebfun on the default interval [-1, 1].
+
+    Source: +cheb/x.m, Chebfun 7574c77. Python returns the object rather
+    than assigning MATLAB's base-workspace variable.
+    """
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    return chebfun(lambda x: x)
+
+
+
+def xy():
+    """Return Cartesian coordinate Chebfun2s on the default square.
+
+    Source: +cheb/xy.m, Chebfun 7574c77. Always returns an (x, y) tuple;
+    MATLAB workspace assignment and requested-output truncation are not used.
+    """
+    from chebfunjax.chebfun2d.chebfun2 import chebfun2
+    return chebfun2(lambda x, y: x), chebfun2(lambda x, y: y)
+
+
+
+def xyz():
+    """Return Cartesian coordinate Chebfun3s on the default cube.
+
+    Source: +cheb/xyz.m, Chebfun 7574c77. Always returns an (x, y, z)
+    tuple, replacing MATLAB workspace assignment (including its one-output
+    source branch) with explicit Python return values.
+    """
+    from chebfunjax.chebfun3d.chebfun3 import chebfun3
+    return (chebfun3(lambda x, y, z: x), chebfun3(lambda x, y, z: y),
+            chebfun3(lambda x, y, z: z))
+
+
+
+def xydisk():
+    """Return Cartesian coordinate Diskfuns on the unit disk.
+
+    Source: +cheb/xydisk.m, Chebfun 7574c77 (its declaration mistakenly
+    names xyzsphere). The filename and two-coordinate body define this
+    adapter. Always returns (x, y), without workspace assignment.
+    Diskfun evaluation accepts (angle, radius); use feval_cart for (x, y).
+    """
+    from chebfunjax.diskfun.diskfun import diskfun
+    return diskfun(lambda x, y: x), diskfun(lambda x, y: y)
+
+
+
+def xyzsphere():
+    """Return Cartesian coordinate Spherefuns on the unit sphere.
+
+    Source: +cheb/xyzsphere.m, Chebfun 7574c77. Always returns an (x, y, z)
+    tuple, without workspace assignment. Spherefun evaluation accepts
+    (longitude, colatitude).
+    """
+    from chebfunjax.spherefun import spherefun
+    return (spherefun(lambda x, y, z: x), spherefun(lambda x, y, z: y),
+            spherefun(lambda x, y, z: z))

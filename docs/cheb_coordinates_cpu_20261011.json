@@ -1,0 +1,72 @@
+{
+  "base": "ea5e9d68f085ade8da7e4e841218f1573c1275a2",
+  "status": "5 coordinate constructions pass; no native test count claimed",
+  "old_functions_AST_unchanged": true,
+  "source_mapping": {
+    "x": "identity/default interval",
+    "xy": "Cartesian/default square",
+    "xyz": "Cartesian/default cube",
+    "xydisk": "Cartesian/default unit disk",
+    "xyzsphere": "Cartesian/default unit sphere"
+  },
+  "adapter": "Explicit object/tuple returns replace assignin/nargout; xydisk filename/body takes precedence over erroneous xyzsphere declaration.",
+  "bounds": "32 float64 eps absolute diagnostic coordinate oracle, not native assertion bound",
+  "limitations": [
+    "No new MATLAB capture",
+    "Underlying disk/sphere constructors retain NumPy numerical dependencies",
+    "Gallerydisk concurrent additive export change must be retained",
+    "Marker clipping remains unqualified: markerclip1 cap after READY, no renderer artifacts"
+  ],
+  "controls": [
+    {
+      "name": "test_x",
+      "status": "pass",
+      "seconds": 1.3232286158017814
+    },
+    {
+      "name": "test_xy",
+      "status": "pass",
+      "seconds": 1.8281520251184702
+    },
+    {
+      "name": "test_xyz",
+      "status": "pass",
+      "seconds": 0.5617219270206988
+    },
+    {
+      "name": "test_xydisk",
+      "status": "pass",
+      "seconds": 2.488202148117125
+    },
+    {
+      "name": "test_xyzsphere",
+      "status": "pass",
+      "seconds": 1.9489556699991226
+    }
+  ],
+  "guard_stable": true,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/coordinates.patch": "37abe214f0b048ee1f3aefb55bbc197f89e247434f3a9b772294677a3daad83b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate/src/chebfunjax/cheb.py": "48e36359ffbba767f2df4c58b5ee32f7c2bd6fa3f3af70a9524b3bc79d5a2f86",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate/tests/test_cheb_coordinates_source.py": "3290bad86145bc8fb610782805b38a447253695623593322deddb393145739ed",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate_gate/RESULT.json": "fb5378a93dce668db82a5ea56bdfef1ef72a8d94b721d5be85cfbf1bef43a423",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate_gate/guard.json": "3dd1e1068e1fb3154a0d6a1e82a1bd53467a4a69536e3b43a98c6187cc3bf2c9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate_gate/supervision/receipt.json": "02eedc6aa5feb74c46ac2d5065a9b4f2d527f37a7ddb1a7f8f0eac9b5a9dcfc9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/candidate_gate/RUNTIME_SOURCE_END.json": "04c3799ad205b095408e6be2f5ef6d4c04698b57252bace083b8d647a9913a74",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/x.m": "c1c69519caf76eb9ac49f7c9e81d9b2d3f63c9f64a0ee0511094ee31114c5bd9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/xy.m": "82ea241725ed312ae28529dec9989e8cfa636c48c0e7dc543ddc092c03b15425",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/xyz.m": "6571e0bf39fba6e46e8f54cc69d26ba1f09b18d9f7c868bd694bc88e2626b5d1",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/xydisk.m": "f678935b1e8b1ee10d9721419dd78d7e07fa0f0e973e11bbc9ee62d35448d09e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/xyzsphere.m": "2b565ce1129faa8db1f2f7d01ad1e2c18486f4edfe7758b83f39d5c987f556e7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cheb_coordinates_source_20261011/DEFAULT_SOURCE_CONTROLS.json": "51b9550e78e71099f9a161ad812af7b61a482dacf870d4fde7e57ecf2890a004"
+  },
+  "source_defaults_AST_verified": true,
+  "root_review": {
+    "bindings_verified": 13,
+    "source_bodies_reviewed": true,
+    "additive_integration_all_old_functions_AST_unchanged": true,
+    "five_new_functions_AST_identical_to_qualified_candidate": true,
+    "gallerydisk_preserved": true,
+    "test_format_AST_identity": true
+  }
+}
