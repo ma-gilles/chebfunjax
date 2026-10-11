@@ -85,9 +85,16 @@ def pswf(
     --------
     pswfpts
     """
-    N_arr = np.atleast_1d(np.asarray(N, dtype=int)).ravel()
-    if not (np.all(N_arr >= 0) and np.all(N_arr == np.round(N_arr))):
+    # Source asserts vector/integer/nonnegative orders before using N as
+    # eigenvector indices. Validate original metadata before an integer cast
+    # or flattening can hide fractional orders or an invalid matrix shape.
+    orders = np.asarray(N)
+    if (orders.size == 0 or orders.ndim > 2 or
+            (orders.ndim == 2 and min(orders.shape) > 1) or
+            not np.all(np.isfinite(orders)) or not np.all(orders >= 0) or
+            not np.all(orders == np.round(orders))):
         raise ValueError("N must be non-negative integer(s).")
+    N_arr = np.atleast_1d(orders.astype(int)).ravel()
     if not (np.isscalar(c) and c > 0):
         raise ValueError("c must be a positive scalar.")
 

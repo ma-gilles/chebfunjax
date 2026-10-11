@@ -1,0 +1,22 @@
+{
+  "scope": "PSWF native public Gram operator predicate and original vector/integer order validation before cast",
+  "result": "6 focused tests passed: native Gram plus3 invalid-order and2 valid-vector controls;5.74s;685948KiB; stable inputs/no survivors",
+  "baseline": "fractional positive/negative and2x2 order matrix reached numerical builder",
+  "bindings": {
+    "src/chebfunjax/utils/pswf.py": {
+      "baseline_sha256": "18fe38a468f02b9f2d69a4e359e2757218c43ec5c83cea4868d0f9af083f367c",
+      "candidate_sha256": "568e54757b89a985f4d90871943607f4abfd490b7ed03c9ce4146c935f08cc5f"
+    },
+    "tests/test_matlab_port/misc/test_pswf_matlab.py": {
+      "baseline_sha256": "b9cc718e09a9b60b8330b44a5b126cda1a04857c214b4d707f85225106e26b31",
+      "candidate_sha256": "4680e778585186b65ea20cac0a93fce9506381576dbdadf7437c3c9ec8d7b8aa"
+    },
+    "tests/test_utils/test_pswf_order_validation_source.py": {
+      "baseline_sha256": null,
+      "candidate_sha256": "b46b44bdfb291d84581d4ec77519487b5829165930fb6fabd4b5856b4ebfd459"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pswf_gram_native_source_20261011/delivery_v2/REPORT.txt",
+  "report_sha256": "f40b8e94eb1227ad52183c5e715c56830536bad1e53412aed93e76aa53b1847c",
+  "limitations": "Source clauses2\u20138 audited unchanged but not rerun; legacy NumPy eig/transform calculations unchanged; no full PSWF or fresh MATLAB claim"
+}
