@@ -3,12 +3,20 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `875219bf` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `9133eafa` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+DDE slot21/figure22 is now qualified: source interval boundary condition,
+scalar initial guess1, omitted solver overrides, and residual including both
+differential and boundary norms. Native/Python both length11; observed sample
+difference1.12e-16 and coefficient difference3.39e-17. The savedrepresentation
+renderer preserves explicit point values and matches all201 samples/stdout.
+Page20/23 outputs verified, three pending. No library change. See
+docs/dde_interval_boundary_cpu_20261011.json.
 
 The latest CI rounding failure is diagnosed against native source. Both MATLAB
 and Python put the positive breakpoint of round(identity) one ULP below0.5.

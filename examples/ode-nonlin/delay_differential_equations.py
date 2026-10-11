@@ -201,6 +201,22 @@ def _source_continuous_delay_curve(exact, numerical):
     return fig
 
 
+def _source_interval_boundary_curve(numerical):
+    """Render the source interior-boundary pantograph solution."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(numerical, "-", ax=ax)
+    ax.set(xlim=(0, 1 / 3), ylim=(.258, .270),
+           xticks=np.arange(0, .301, .05), yticks=np.arange(.258, .2701, .002))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_second_order_delay_curve(exact, numerical):
     """Render the source second-order pantograph plot with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -615,16 +631,14 @@ def run():
     g = t3.exp() / 2
     N = Chebop(lambda t, u: u.diff() + u**2 + 2 * u(t / 2), domain=dom3)
     N.bc = lambda t, u: u(0.0) - u(1 / 3)
-    N.init = 1 + 0 * t3
+    N.init = 1
     u20 = N.solve(g)
-    _show(u20, "u")
-    res = float((N(u20) - g).norm())
+    print(f"u =\n{u20!r}")
+    differential = float((N(u20) - g).norm())
+    boundary = float(jnp.abs(N.bc(t3, u20)))
+    res = float(jnp.sqrt(differential**2 + boundary**2))
     print(f"res =\n     {res:.15e}")
-    tt = np.linspace(0, 1 / 3, 400)
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, np.asarray(u20(tt)), lw=1.4)
-    ax.grid(True)
-    _save(fig)
+    _save(_source_interval_boundary_curve(u20), source_axes=True)
 
     # ----- 21. Three-variable constant-delay system: SKIPPED ----------
     _output_slot(22)

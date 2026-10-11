@@ -1,0 +1,129 @@
+{
+  "scope": "DDEsource slot21,figure22: interval boundary condition and pantograph nonlinearity. No librarychange.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "E/ode-nonlin/DelayDifferentialEquations.m Example8, lines408-417",
+  "source_semantics": "Domain[0,1/3],g=exp(t)/2,uprime+u^2+2u(t/2),bc=u(0)-u(1/3),scalarinit1; omittedn/tolerance. Residual includes differential L2 and scalar boundarynorm.",
+  "comparison": {
+    "native_length": 11,
+    "python_lengths": [
+      11
+    ],
+    "native_residual": 3.429921869852298e-13,
+    "python_residual": 3.4302656467733414e-13,
+    "native_boundary": 4.440892098500626e-16,
+    "python_boundary": 4.996003610813204e-16,
+    "sample_coordinate_max_abs": 5.551115123125783e-17,
+    "sample_value_max_abs": 1.1102230246251565e-16,
+    "coeff_max_abs": 3.386098909943791e-17,
+    "scope": "Observed differences, not invented source acceptance bounds."
+  },
+  "python": {
+    "success": true,
+    "solve_seconds": 15.198329080827534,
+    "domain": [
+      0.0,
+      0.3333333333333333
+    ],
+    "lengths": [
+      11
+    ],
+    "residual_norm": 3.4302656467733414e-13,
+    "differential_norm": 3.4302620085616276e-13,
+    "boundary_norm": 4.996003610813204e-16,
+    "warnings": [],
+    "point_values_explicit": true,
+    "pieces": [
+      {
+        "interval": [
+          0.0,
+          0.3333333333333333
+        ],
+        "tech": "Chebtech2",
+        "happy": true,
+        "interval_types": [
+          "float",
+          "float"
+        ]
+      }
+    ]
+  },
+  "render": {
+    "success": true,
+    "no_solve": true,
+    "coefficients_byte_identical": true,
+    "all201samples_byte_identical": true,
+    "stdout_byte_identical": true,
+    "slot": 21,
+    "figure": 22
+  },
+  "gates": {
+    "python": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1425692,
+      "wall_seconds": 22.60636244993657
+    },
+    "render": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 499640,
+      "wall_seconds": 3.970052389893681
+    },
+    "native": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1545200,
+      "wall_seconds": 85.89181275712326
+    }
+  },
+  "native_runtime_source_files": 190,
+  "changed_output_slots": [
+    21
+  ],
+  "stdout_trailing_whitespace_stripped": true,
+  "figure": "600x270 with nativeaxes; computedcurve and reference inspected, no pixel/fontidentity claim",
+  "limits": [
+    "Observed native/local differences, not a source acceptance inequality.",
+    "Full DDE page remains incomplete at20/23 verified outputslots.",
+    "No fullscript rerun; scoped source-default solve and savedrepresentation render qualified."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/probe.py": "0ee1c47d042bb4d498a2a5ab498b403358d3b5b374e13169313a9b634c92cf3c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/launch.sh": "cae25d4732d32dd579a9a343b0687732ad110b13617f0f4afb748949561b443a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/guard.json": "53f0bb7970f8969ef218d86858c45e1b6a9b5184a6097efa13e070e69fffba26",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/RUNTIME_SOURCE.json": "0fc43855e63fcb46dbd71806b0b2f41ab6c52b3a6d42e5ed2f83510c3708f0eb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/solution.npz": "9938ece9f55ff2fa6b3b15c4db5b29f40278e7960b08310845cafde788f72c06",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/result.json": "90bf06049c6c9f80773b6ca0815e3f15b24b89a831db6718c90d91aecd771c1e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/slot21.stdout": "edc8aa55bc3ec105ad998284ca6b773fda342651622262062976323b4778a4ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/baseline/supervision/receipt.json": "08d1ce573f9d0e6d9b443b0713fe8f6c7bb6e43d2ae99be55b1defdcec78b731",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/probe.py": "b3eb952e715eb48e05311baa99fe91211b1348a9e3b45cbd1781aebf1910d288",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/launch.sh": "e31541dcd14163c08fce93d1adde66a0d6ea12d665bfd27301f2211031513399",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/guard.json": "45037d0e99a995c97ea45f56b34ce1114a2b2369486bf9c4cdb2212c4bd98714",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/RUNTIME_SOURCE.json": "115425170a5272ede27b8bd95b1d428112f893f22515a11c77988ed2d7def13d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/result.json": "6d1bf0b18efe4bb16162374329bd597de2d0c8947478c3ffe29ddeaac2fc3dd1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/slot21.stdout": "edc8aa55bc3ec105ad998284ca6b773fda342651622262062976323b4778a4ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/supervision/receipt.json": "a1c016ec05eb1d15b57b7b49bd38fbaa886d813e14941d3f9906f0b61ad146a0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/probe.m": "59a7dd6387f4e55dff6d3a95eacb9f3bd2f46136fb35c6b68e11712225e7d3b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/driver.m": "163fb3dc4bd82dd75b95dee65c06b4ad9be006e0feb0bedd4e68fca936eba291",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/launch.sh": "59e7c676964ab8be2d59840c3079a0873b4d36c46d1b5a5a62f092647d8a10f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/guard.json": "7bdbc93a79130fcf8dafd2557a2f42554c3456897da2c4a9cf0858ef8fdb4145",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/solution.mat": "565088b7c6f65c30b2a5ab9a3222788f390475be5add9974eb15d657e03762b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/solution_before_error.mat": "bc22cce3f0d3a7ff9b03275e5b67d66edee08901e8e6a8317a58e475fffcb967",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/result.json": "8ce50726b781be6bb99fde7aa1d7a3aa3c580c8e3d63ae1cac32b690ea8cf8f4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/supervision/receipt.json": "b0cc869fe45995e7245d0153d32593ba39b814afd18b0dec5809d48d7e4b3aa4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/RUNTIME_OBSERVATION.json": "221ae1584179c997a1b85f921a1fd7eca25194163fe4ab5c6d7fc561ea97c9fb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/script_base.py": "f02d426af906e2bd30bc40f9806661683ba916bcdc0a4669d87fc9b33f0f7127",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/delay_differential_equations.py": "cc1496e6078888a3745cc93dfdb7c68f23a45d95d35487805fab87ecd32a5f2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/COMPARISON.json": "974c7c70eb2f7becf09489dcc589be76b26d615cd8d98d68e54292ac3845a2c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_interval_boundary_20261011/render/DelayDifferentialEquations_22.png": "fc3db0554aaaa0cf7094b070f8a972efb4a65c4ab15a40e469b893913ec592f8"
+  }
+}
