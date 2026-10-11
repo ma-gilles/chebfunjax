@@ -1110,6 +1110,10 @@ class Ballfun(eqx.Module):
         from chebfunjax.ballfun._integrals import coefficient_is_real
 
         coeffs = jnp.asarray(coeffs, dtype=jnp.complex128)
+        # @ballfun/ballfun.m returns empty numeric input before interpreting
+        # coefficient flags, fixed sizes, or coefficient conjugacy.
+        if coeffs.size == 0:
+            return cls.empty()
         traced = isinstance(coeffs, jax.core.Tracer)
         if is_real is None:
             is_real = False if traced else bool(coefficient_is_real(coeffs))

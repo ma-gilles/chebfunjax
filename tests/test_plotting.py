@@ -203,7 +203,14 @@ class TestMatlabStyleRegression:
         assert isinstance(fig, plt.Figure)
         assert getattr(ax, "name", None) == "3d"
         assert len(fig.axes) == 1
-        assert len(ax.collections) == 5
+        from chebfunjax._sphere_surface import InterpolatedSurfaceGroup
+
+        assert len(ax.collections) == 1
+        group = ax.collections[0]
+        assert isinstance(group, InterpolatedSurfaceGroup)
+        assert len(group._source_surfaces) == 5
+        assert all(vertices.shape[:2] == colors.shape[:2]
+                   for vertices, colors in group._source_surfaces)
         plt.close(fig)
 
     @pytest.mark.parametrize(

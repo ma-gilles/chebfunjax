@@ -1,0 +1,51 @@
+{
+  "status": "Native empty numeric constructor early return restored; shared five-surface plotting control corrected",
+  "source_head": "8147bf84968be8a8e6c1ed30a656bdb64f5f4e8f",
+  "source_reference": "@ballfun/ballfun.m lines44-55, Chebfun7574c77",
+  "changes": [
+    "Empty numeric coefficient input returns canonical Ballfun.empty before conjugacy checks, static flags and fixed-size parsing, including traced input.",
+    "Plotting control verifies one shared depth-sorted collection contains all five source surfaces; geometric/vertex-color shape assertions retained."
+  ],
+  "original_session": 48496,
+  "cases": [
+    "tests.test_ballfun.test_isempty_coefficients_source::test_public_coefficient_emptiness_and_nonempty_zero[shape0-True]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_public_coefficient_emptiness_and_nonempty_zero[shape1-True]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_public_coefficient_emptiness_and_nonempty_zero[shape2-True]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_public_coefficient_emptiness_and_nonempty_zero[shape3-True]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_public_coefficient_emptiness_and_nonempty_zero[shape4-False]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[False-shape0]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[False-shape1]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[False-shape2]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[True-shape0]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[True-shape1]",
+    "tests.test_ballfun.test_isempty_coefficients_source::test_empty_input_precedes_flags_and_fixed_size[True-shape2]",
+    "tests.test_matlab_port.ballfun.test_isempty_matlab.TestBallfunIsempty::test_empty_and_nonempty",
+    "tests.test_matlab_port.ballfun.test_isempty_matlab.TestBallfunIsempty::test_empty_numeric_coefficients",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_constructor_realness_even_rows[shape0]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_constructor_realness_even_rows[shape1]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_constructor_realness_even_rows[shape2]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_constructor_realness_even_rows[shape3]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_empty_source_outputs[sentinel]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_empty_source_outputs[radial]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_empty_source_outputs[longitude]",
+    "tests.test_ballfun.test_norm_sum_source_controls::test_empty_source_outputs[theta]",
+    "tests.test_plotting.TestMatlabStyleRegression::test_ballfun_dispatch_uses_five_slice_surfaces"
+  ],
+  "unique_case_count": 22,
+  "wall_seconds": 20.708091580774635,
+  "peak_rss_kib": 1108756,
+  "inputs_stable": true,
+  "censored": null,
+  "survivors": [],
+  "guard_count": 286,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_empty_constructor_20261011/guard.json": "072e5afd3a76316feb4810c7a820db64b612c321cecde2787ff0bf06e8fbe621",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_empty_constructor_20261011/supervision/receipt.json": "2009907c07ab85b7b22a5e5deabb2b72fb60042ca59ab60c7d217f1b4fd86e47",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_empty_constructor_20261011/junit.xml": "a6437125f9275097f141345d2893a9cbbd9a6d1f1a463907085908261d482e7e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_failure_review_20261011/38110886277_114386027612.log": "ec4b3f89164b78589fa7c487f55851ff3f2d35848486dc57a3ca1a09082946e3"
+  },
+  "limits": [
+    "Empty metadata uses the existing Python empty representation (false realness instead of native empty logical array).",
+    "No full suite or current-head CI success inferred from focused controls."
+  ]
+}
