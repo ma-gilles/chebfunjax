@@ -6,6 +6,8 @@
 
 Python translation: [`examples/roots/random_polys.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/random_polys.py)
 
+> Execution qualification: The full degree-30 and ten degree-1000 computations use exact captured MATLAB R2025b `rng('default')` inputs through public chebfunjax transforms, constructors and roots. All ten printed fractions and the mean agree with the cached native output. This is a fixed input replay, not general RNG implementation parity. Figures were repaired from the saved degree-30 state; exact pixel parity and coefficient/root bit parity remain unverified. The final script is qualified against source baseline `b08fbe16`, including the endpoint-mapping correction; its saved numerical arrays and figures are unchanged from the earlier replay.
+
 Recently I heard a talk by Igor Pritsker of Oklahoma State University at which he discussed a theorem of Das in 1971 about the roots of random real polynomials [1,3]. This can be very nicely illustrated in Chebfun.
 
 Das's result asserts that for a random polynomial on $[-1,1]$ with real coefficients, the fraction of roots that lie in $[-1,1]$ will be about $1/\sqrt 3 \approx 0.57735$. By a random polynomial on $[-1,1]$, we mean a linear combination of Legendre polynomials (normalized by 2-norm on $[-1,1]$) with random independent coefficients drawn from the standard normal distribution. For such polynomials, the fraction of roots in $[-1,1]$ approaches $1/\sqrt 3$ as $n\to\infty$ with probability 1.
@@ -57,12 +59,15 @@ end
 
 ```text
 fraction of roots in [-1,1]: 0.592
-fraction of roots in [-1,1]: 0.557
-fraction of roots in [-1,1]: 0.542
 fraction of roots in [-1,1]: 0.566
-fraction of roots in [-1,1]: 0.58
-ans =
-   0.570200000000000
+fraction of roots in [-1,1]: 0.597
+fraction of roots in [-1,1]: 0.581
+fraction of roots in [-1,1]: 0.572
+fraction of roots in [-1,1]: 0.584
+fraction of roots in [-1,1]: 0.575
+fraction of roots in [-1,1]: 0.573
+fraction of roots in [-1,1]: 0.576
+fraction of roots in [-1,1]: 0.575
 ```
 
 The mean for the whole experiment is pretty close to $0.577$,
@@ -72,7 +77,8 @@ mean(data)
 ```
 
 ```text
-
+ans =
+   0.579100000000000
 ```
 
 One could vary these experiments in all kinds of ways, for example defining random polynomials via Chebyshev or more generally Jacobi expansions or by interpolation of random data in Chebyshev or other points. Such more general problems have been treated recently in [2].

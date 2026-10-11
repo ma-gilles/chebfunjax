@@ -425,6 +425,7 @@ def main():
             ("linalg", "EigLandscapes"),
             ("applics", "VanillaOptions"),
             ("approx", "Noisy"),
+            ("roots", "RandomPolys"),
             ("stats", "BivariateNormalDistribution"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "

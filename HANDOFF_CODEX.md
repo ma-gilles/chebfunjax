@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## RandomPolys output and figures reproduced (2026-10-10; latest)
+
+A full run on b08fbe16 takes33.75s and1,329,004KiB sampled peak RSS.
+All ten printed root fractions and mean0.5791 match the cached MATLAB page.
+The script uses10,041captured native rng(default) inputs with provenance;
+this does not implement general MATLAB RNG compatibility. All computations
+use public library operations. Both figures are600x270, readable and retain
+source data; exact pixels and root/coefficient bits against MATLAB remain open.
+Four native code blocks and prose are preserved, and the final mean fence
+is filled. Evidence: docs/randompolys_full_cpu_20261010.json.
+
 ## Native default trigonometric root route (2026-10-10; latest)
 
 Default real roots now use adaptive Chebtech1 construction through the public

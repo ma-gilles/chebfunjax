@@ -146,6 +146,15 @@ def secularroots():
     save(fig, "SecularRoots_02.png")
 
 
+def randompolys():
+    """Dispatch roots/RandomPolys to its qualified source script."""
+    import runpy
+
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "roots", "random_polys.py")
+    runpy.run_path(example, run_name="__main__")
+
+
 def randompolynomials():
     """roots/RandomPolynomials — roots in three bases, 1x2 panels each."""
     rng = np.random.default_rng(1)
@@ -342,7 +351,6 @@ def rootsnearaxis():
     # Bernstein-ellipse-style plot region (chebfun plotregion analogue)
     fig, ax = plt.subplots()
     n = len(c)
-    rho = np.exp(4.0 / n * np.log(1e16) / 4) if False else None
     # Chebfun's chebellipseplot radius: eps^(-1/n)
     rr = (2.2e-16) ** (-1.0 / n)
     th = np.linspace(0, 2 * np.pi, 400)
@@ -377,6 +385,7 @@ PAGES = {
     "BesselRoots": besselroots,
     "NewtonRaphson": newtonraphson,
     "SecularRoots": secularroots,
+    "RandomPolys": randompolys,
     "RandomPolynomials": randompolynomials,
     "RootsSpeed": rootsspeed,
     "Tiger": tiger,
