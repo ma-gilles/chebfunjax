@@ -1,15 +1,10 @@
 """Port of MATLAB Chebfun tests/chebfun2/test_guide.m (Fable 5).
 
-Assertion-for-assertion at the MATLAB tolerances, with these exceptions
-(named per-case below):
-the pass-11/12 string constructor ``chebfun2('exp(...)')`` is replaced
-by the equivalent lambda (the assertion under test is the norm
-identity, not the parser); pass 9's quad2d reference is computed with
-scipy.integrate.dblquad at the same absolute tolerance; pass 13-14 use
-the domain [0.1, 1] x [-1, 1] instead of MATLAB's default square -- the
-integrand exp(-1/(sin(xy)+x)^2) is non-analytic along x = 0 and the
-adaptive constructor (rightly) will not converge across that line, so
-the composition identity is pinned on a domain where f is analytic.
+Uses the original domains, norm predicates and tolerance multipliers. Python
+API adaptations include explicit composition/curve restriction, component
+assembly for Chebfun2v, and scipy.integrate.dblquad for the quad2d reference
+at the same absolute tolerance. The dimensional-sum reference handles supply
+zero at their analytic removable endpoints.
 
 Provenance
 ----------
@@ -30,15 +25,6 @@ from chebfunjax.utils._matlab_linspace import source_grid
 
 EPS = float(np.finfo(np.float64).eps)
 TOL = 1e3 * EPS
-
-
-def _maxdiff2(f, g, dom=(-1.0, 1.0, -1.0, 1.0), n=61):
-    x = np.linspace(dom[0], dom[1], n)
-    y = np.linspace(dom[2], dom[3], n)
-    X, Y = np.meshgrid(x, y)
-    return float(np.max(np.abs(
-        np.asarray(f(jnp.asarray(X), jnp.asarray(Y)))
-        - np.asarray(g(jnp.asarray(X), jnp.asarray(Y))))))
 
 
 class TestChebfun2Guide:
@@ -113,26 +99,20 @@ class TestChebfun2Guide:
         assert abs(I1 - I3) < TOL
 
     def test_pass12_norm_identity(self):
-        # MATLAB builds f from the string 'exp(-(x.^2+y.^2+4*x.*y))';
-        # the equivalent lambda is used (string ctor not implemented).
-        f = Chebfun2.from_function(
-            lambda x, y: jnp.exp(-(x**2 + y**2 + 4 * x * y)))
+        from chebfunjax.chebfun2d.chebfun2 import chebfun2
+        f = chebfun2("exp(-(x.^2+y.^2+4*x.*y))")
         assert abs(float(f.norm()) -
                    float(jnp.sqrt((f ** 2).sum2()))) < TOL
 
     def test_pass13to14_composition(self):
         f = Chebfun2.from_function(
-            lambda x, y: jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2),
-            domain=(0.1, 1.0, -1.0, 1.0))
+            lambda x, y: jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2))
         g = Chebfun2.from_function(
-            lambda x, y: jnp.cos(jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2)),
-            domain=(0.1, 1.0, -1.0, 1.0))
+            lambda x, y: jnp.cos(jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2)))
         h = Chebfun2.from_function(
-            lambda x, y: jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2) ** 5,
-            domain=(0.1, 1.0, -1.0, 1.0))
-        dom = (0.1, 1.0, -1.0, 1.0)
-        assert _maxdiff2(f.compose(jnp.cos), g, dom) < TOL
-        assert _maxdiff2(f ** 5, h, dom) < TOL
+            lambda x, y: jnp.exp(-1.0 / (jnp.sin(x * y) + x) ** 2) ** 5)
+        assert float((f.compose(jnp.cos) - g).norm()) < TOL
+        assert float((f ** 5 - h).norm()) < TOL
 
     def test_pass15to16_runge_mean(self):
         runge = Chebfun2.from_function(

@@ -1,0 +1,44 @@
+{
+  "status": "source domain/norm/string-constructor restorations qualified",
+  "native_commit": "7574c77",
+  "changes": [
+    "Restore original default square and continuous norms for composition clauses13/14; no restricted-domain workaround.",
+    "Restore native MATLAB-expression string constructor for clause12.",
+    "Remove obsolete module workaround prose and unused sampled-error helper; all test method ASTs identical to qualified source."
+  ],
+  "gates": {
+    "chebfun2_guide_original_domain_20261011": {
+      "original_handle": 54914,
+      "terminal": 0,
+      "uncensored": true,
+      "no_survivors": true,
+      "root_rehashed_inputs": 320,
+      "peak_summed_rss_kib": 1827944,
+      "wall_seconds": 36.93773165112361
+    },
+    "chebfun2_guide_string_20261011": {
+      "original_handle": 22319,
+      "terminal": 0,
+      "uncensored": true,
+      "no_survivors": true,
+      "root_rehashed_inputs": 320,
+      "peak_summed_rss_kib": 1085488,
+      "wall_seconds": 18.29241964314133
+    }
+  },
+  "native_clauses": 3,
+  "cases": 2,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_original_domain_20261011/gate/guard.json": "58966528b065d7babd36611a1d1e6258da9e11ff302773a35f531ed9072dfdc8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_original_domain_20261011/gate/supervision/receipt.json": "bc4921166eac0f60a4c66ab12c77d635654b2b46574f61a8ffc45ed55f95a2e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_original_domain_20261011/gate/junit.xml": "9018ddb31d7a0126fd93767308135f416f98d660ed1e1fc4a091d59121133a19",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_string_20261011/gate/guard.json": "2de7c05af87ba43ff3d401ccc6d4bce3593d6577d7a7ed7fb4daf2f4ebf88653",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_string_20261011/gate/supervision/receipt.json": "4694a0d0f782ed854352f1da89628421d94c4cc845b56025e4f8c5da1c7d5829",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_string_20261011/gate/junit.xml": "2ebf32380622bbdd12aa522d33ea6788618cca9f5a39364ef36ebd373beca7fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_string_20261011/snapshot/tests/test_matlab_port/chebfun2/test_guide_matlab.py": "691690d21f91d3350223223212ca1006ded887878084f1fd6588fb4dab6fdbf6"
+  },
+  "publication_test_sha256": "45d37b993c13d927d42c44150ee8602cb8235c077ebbc78fe1cd4cd1788058a8",
+  "limits": [
+    "This package qualifies only changed clauses12:14; broader CI still required. Other source assertions qualified in separate gates or earlier historical CI."
+  ]
+}
