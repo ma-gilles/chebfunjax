@@ -2,12 +2,16 @@
 """All 62 literal predicates from MATLAB tests/misc/test_diffmat.m.
 
 All source inputs are deterministic. No RNG fixture is required.
+Square clauses1-6 additionally use an independent complete Chebyshev basis
+polynomial derivative oracle, so collocation wrapper self-comparison cannot
+certify the square kernel alone.
 
 Provenance
 ----------
 MATLAB source : tests/misc/test_diffmat.m
 Chebfun commit: 7574c77
 """
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -25,126 +29,163 @@ def infnorm(a):
 
 
 def nodes(n, kind, domain=(-1, 1)):
-    if kind == 'leg':
+    if kind == "leg":
         return legpts(n, interval=domain)[0]
-    return chebpts_ab(n, *domain, kind=1 if kind == 'chebkind1' else 2)
+    return chebpts_ab(n, *domain, kind=1 if kind == "chebkind1" else 2)
 
 
-@pytest.mark.parametrize('clause', range(1, 7))
+def square_basis_oracle(n, order, kind, domain):
+    # Independent cosine nodes, polynomial derivatives and basis inversion;
+    # no library quadrature, transforms, diffmat or private kernel calls.
+    theta = (
+        np.pi * (np.arange(n - 1, -1, -1) + 0.5) / n
+        if kind == 1
+        else np.pi * np.arange(n - 1, -1, -1) / (n - 1)
+    )
+    x = np.cos(theta)
+    values = np.polynomial.chebyshev.chebvander(x, n - 1)
+    derivatives = []
+    for degree in range(n):
+        coefficients = np.zeros(n)
+        coefficients[degree] = 1
+        derivative = np.polynomial.chebyshev.chebder(coefficients, m=order)
+        derivatives.append(np.polynomial.chebyshev.chebval(x, derivative))
+    return (
+        (2 / (domain[1] - domain[0])) ** order * np.asarray(derivatives).T @ np.linalg.inv(values)
+    )
+
+
+@pytest.mark.parametrize("clause", range(1, 7))
 def test_source_square(clause):
     c1, c2 = ChebColloc1(5), ChebColloc2(5)
     if clause == 1:
         a, b = diffmat(5), c2.diffmat()
     elif clause == 2:
-        a, b = diffmat(5, [-2, 2]), c2.diffmat()/2
+        a, b = diffmat(5, [-2, 2]), c2.diffmat() / 2
     elif clause == 3:
-        a, b = diffmat(5, 2, [-2, 2]), c2.diffmat(2)/4
+        a, b = diffmat(5, 2, [-2, 2]), c2.diffmat(2) / 4
     elif clause == 4:
-        a, b = diffmat(5, 'chebkind1'), c1.diffmat(1)
+        a, b = diffmat(5, "chebkind1"), c1.diffmat(1)
     elif clause == 5:
-        a, b = diffmat(5, 3, [-.5, .5], 'chebkind1'), c1.diffmat(3)*8
+        a, b = diffmat(5, 3, [-0.5, 0.5], "chebkind1"), c1.diffmat(3) * 8
     else:
-        saved = ChebopPref()
-        ChebopPref.setDefaults('discretization', ChebColloc1)
+        previous = ChebopPref._defaults
+        ChebopPref.setDefaults("discretization", ChebColloc1)
         try:
             a, b = diffmat(5, 3), c2.diffmat(3)
         finally:
-            ChebopPref.setDefaults(saved)
-    assert np.linalg.norm(np.asarray(a-b), ord=2) < TOL
+            ChebopPref._defaults = previous
+    assert np.linalg.norm(np.asarray(a - b), ord=2) < TOL
+    order = {1: 1, 2: 1, 3: 2, 4: 1, 5: 3, 6: 3}[clause]
+    kind = 1 if clause in (4, 5) else 2
+    domain = (-2, 2) if clause in (2, 3) else ((-0.5, 0.5) if clause == 5 else (-1, 1))
+    oracle = square_basis_oracle(5, order, kind, domain)
+    assert np.linalg.norm(np.asarray(a) - oracle, ord=2) < TOL
 
 
-@pytest.mark.parametrize('clause', [7, 8])
+@pytest.mark.parametrize("clause", [7, 8])
 def test_source_legendre_periodic(clause):
     if clause == 7:
         x = legpts(6)[0]
-        got = diffmat(6, 2, 'leg') @ (x**3+1)
-        expected = 6*x
+        got = diffmat(6, 2, "leg") @ (x**3 + 1)
+        expected = 6 * x
     else:
         # Literal source x = diff(dom)/2*(trigpts(N)-dom(1)).
-        x = jnp.pi*(-1+2*jnp.arange(6)/6)
-        got = diffmat(6, 3, 'periodic', [0, 2*jnp.pi]) @ jnp.sin(x)
+        x = jnp.pi * (-1 + 2 * jnp.arange(6) / 6)
+        got = diffmat(6, 3, "periodic", [0, 2 * jnp.pi]) @ jnp.sin(x)
         expected = -jnp.cos(x)
-    assert infnorm(got-expected) < TOL
+    assert infnorm(got - expected) < TOL
 
 
-@pytest.mark.parametrize('clause', range(9, 33))
+@pytest.mark.parametrize("clause", range(9, 33))
 def test_source_rectangular(clause):
     if clause <= 26:
-        group, offset = divmod(clause-9, 6)
-        source, target, n = [('chebkind1', 'chebkind1', 5),
-                             ('chebkind2', 'chebkind1', 5),
-                             ('leg', 'leg', 6)][group]
+        group, offset = divmod(clause - 9, 6)
+        source, target, n = [
+            ("chebkind1", "chebkind1", 5),
+            ("chebkind2", "chebkind1", 5),
+            ("leg", "leg", 6),
+        ][group]
         domain = (-1, 1) if offset == 0 else (-2, 7)
-        m = n-3 if offset == 5 else n-2
+        m = n - 3 if offset == 5 else n - 2
         grids = [source] if source == target else [source, target]
         # Clauses 21/22 explicitly name both Legendre grids.
         if group == 2 and offset in (0, 1):
-            grids = ['leg', 'leg']
-        d = diffmat([m, n], 2, domain, *grids)
+            grids = ["leg", "leg"]
+        d = diffmat([m, n], 2, *grids) if clause in (15, 21) else diffmat([m, n], 2, domain, *grids)
         if offset in (2, 3, 4):
             if offset == 2:
                 dd = diffmat([n, -2], 2, domain, *grids)
             elif offset == 3:
-                dd = diffmat(n, 2, 'rect', domain, *grids)
+                dd = diffmat(n, 2, "rect", domain, *grids)
             else:
-                dd = diffmat(n, 2, domain, 'rect', *grids)
-            assert infnorm(d-dd) < TOL
+                dd = diffmat(n, 2, domain, "rect", *grids)
+            assert infnorm(d - dd) < TOL
             return
     else:
-        source, target = [('leg', 'chebkind1'), ('chebkind1', 'leg'),
-                          ('chebkind2', 'leg'), ('chebkind1', 'chebkind2'),
-                          ('chebkind2', 'chebkind2'), ('leg', 'chebkind2')][clause-27]
+        source, target = [
+            ("leg", "chebkind1"),
+            ("chebkind1", "leg"),
+            ("chebkind2", "leg"),
+            ("chebkind1", "chebkind2"),
+            ("chebkind2", "chebkind2"),
+            ("leg", "chebkind2"),
+        ][clause - 27]
         n, m, domain = 6, 4, (-2, 7)
         d = diffmat([m, n], 2, domain, source, target)
     x, y = nodes(n, source, domain), nodes(m, target, domain)
-    assert infnorm(6*y-d@(x**3+1)) < TOL
+    assert infnorm(6 * y - d @ (x**3 + 1)) < TOL
 
 
-@pytest.mark.parametrize('clause', range(33, 57))
+@pytest.mark.parametrize("clause", range(33, 57))
 def test_source_boundary_conditions(clause):
-    group, offset = divmod(clause-33, 8)
-    source, target = [('chebkind1', 'chebkind1'),
-                      ('chebkind2', 'chebkind1'), ('leg', 'leg')][group]
+    group, offset = divmod(clause - 33, 8)
+    source, target = [("chebkind1", "chebkind1"), ("chebkind2", "chebkind1"), ("leg", "leg")][group]
     p, n, domain = (1 if offset < 2 else 2), 30, (-2, 7)
-    m = n-p
+    m = n - p
     x, y = nodes(n, source, domain), nodes(m, target, domain)
-    lo, hi = jnp.exp(-2.), jnp.exp(7.)
-    left, right = [(['dirichlet'], []), ([], ['dirichlet']),
-                   (['dirichlet'], ['dirichlet']),
-                   (['dirichlet', 'neumann'], []),
-                   ([], ['neumann', 'dirichlet']),
-                   (['dirichlet'], ['neumann']),
-                   (['neumann'], ['dirichlet']),
-                   (['neumann'], ['sum']) if group == 0 else ([], ['sum', 'dirichlet'])][offset]
-    left_values = [hi-lo if bc == 'sum' else lo for bc in left]
-    right_values = [hi-lo if bc == 'sum' else hi for bc in right]
+    lo, hi = jnp.exp(-2.0), jnp.exp(7.0)
+    left, right = [
+        (["dirichlet"], []),
+        ([], ["dirichlet"]),
+        (["dirichlet"], ["dirichlet"]),
+        (["dirichlet", "neumann"], []),
+        ([], ["neumann", "dirichlet"]),
+        (["dirichlet"], ["neumann"]),
+        (["neumann"], ["dirichlet"]),
+        (["neumann"], ["sum"]) if group == 0 else ([], ["sum", "dirichlet"]),
+    ][offset]
+    left_values = [hi - lo if bc == "sum" else lo for bc in left]
+    right_values = [hi - lo if bc == "sum" else hi for bc in right]
     rhs = jnp.concatenate((jnp.asarray(left_values), jnp.exp(y), jnp.asarray(right_values)))
     # Preserve source scalar/cell/empty spellings through strings/lists.
     if clause in (33, 41, 49):
-        boundary = [left if clause == 41 else 'dirichlet']
+        boundary = [left if clause == 41 else "dirichlet"]
     elif clause in (34, 50):
-        boundary = [[], 'dirichlet']
+        boundary = [[], "dirichlet"]
     elif clause == 43:
-        boundary = ['dirichlet', ['dirichlet']]
+        boundary = ["dirichlet", ["dirichlet"]]
     elif clause == 51:
-        boundary = ['dirichlet', 'dirichlet']
+        boundary = ["dirichlet", "dirichlet"]
     elif clause == 54:
-        boundary = ['dirichlet', 'neumann']
+        boundary = ["dirichlet", "neumann"]
     else:
         boundary = [left, right]
     size = [n, -p] if clause in (41, 42, 49, 50) else [m, n]
     grids = [source] if source == target else [source, target]
     d = diffmat(size, p, domain, *grids, *boundary)
     solution = jnp.linalg.solve(d, rhs)
-    factors = ([1, 1, 10, 100, 50, 20, 100, 50],
-               [1, 1, 20, 100, 100, 100, 1000, 10],
-               [1, 1, 10, 100, 100, 100, 100, 10])
-    assert infnorm(solution-jnp.exp(x)) < factors[group][offset]*TOL
+    factors = (
+        [1, 1, 10, 100, 50, 20, 100, 50],
+        [1, 1, 20, 100, 100, 100, 1000, 10],
+        [1, 1, 10, 100, 100, 100, 100, 10],
+    )
+    assert infnorm(solution - jnp.exp(x)) < factors[group][offset] * TOL
 
 
-@pytest.mark.parametrize('clause', range(57, 63))
+@pytest.mark.parametrize("clause", range(57, 63))
 def test_source_exact_symmetry(clause):
     n = 3 if clause < 60 else 4
-    grid = [[], ['chebkind1'], ['leg']][(clause-57) % 3]
+    grid = [[], ["chebkind1"], ["leg"]][(clause - 57) % 3]
     d = diffmat(n, *grid)
-    assert infnorm(d+d[::-1, ::-1]) == 0
+    assert infnorm(d + d[::-1, ::-1]) == 0

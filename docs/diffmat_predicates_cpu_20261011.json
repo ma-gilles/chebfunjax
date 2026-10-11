@@ -1,0 +1,12 @@
+{
+  "change": "Independent square differentiation oracle; restore omitted-domain calls and exact preference identity",
+  "source_predicates": 62,
+  "production_changes": false,
+  "candidate_sha256": "0a55571aeea1236675583dba70ed6167718ea90cd251c87d1f022ad37e48b0c9",
+  "baseline_sha256": "77c59901ce66ce7c83d9d0ae484bf8f15b8d0cbc9f284ec8cf888bebd250d80b",
+  "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diffmat_predicate_audit_20261011/delivery_v1",
+  "report_sha256": "d1a3dff1a8c1a536411773793cca4770cb73c1b153cbd4f57acb9806263d5388",
+  "binding_sha256": "55aa6aa6464e5f017b5bc88e9d443948fb65438aa1c74e79af90b60d2d4c591c",
+  "result": "62 passed; final session identity preserved; stable inputs; no surviving owned processes",
+  "limitations": "Focused CPU gate, no fresh MATLAB or complete-suite claim"
+}

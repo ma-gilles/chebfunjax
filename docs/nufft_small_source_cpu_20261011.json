@@ -1,0 +1,109 @@
+{
+  "head": "530ffe0d4824405fd714b747b815b607f5a5d260",
+  "paths": [
+    "src/chebfunjax/utils/nufft.py",
+    "tests/test_nufft_small_source.py"
+  ],
+  "bindings": {
+    "src/chebfunjax/utils/nufft.py": "89839f976de4c476fac1f5de8a33a0eeea0f191b5d8225ec2f7cdf235c9a060c",
+    "tests/test_nufft_small_source.py": "316c962c6605cadc07d54fefd4ca00ad0a6411c9a25877280ddab7787480de2e"
+  },
+  "change": "Forward nufft default tolerance restored to source machine epsilon; signature default and docstring only. Backend, warnings, inverse solver and other source functions unchanged.",
+  "source_adapters": {
+    "forwardI": "nufft(c,omega/N,nufft_type=1)",
+    "forwardII": "nufft(c,x) default2",
+    "inverseI": "inufft(c,omega/N,nufft_type=1)",
+    "inverseII": "inufft(c,x,nufft_type=2)",
+    "defaultInverse": "inufft(c,x)"
+  },
+  "source_predicates_executed": {
+    "forwardI": [
+      1,
+      10,
+      100
+    ],
+    "forwardI_random": 50,
+    "forwardII": [
+      1,
+      10,
+      100
+    ],
+    "forwardII_random": 50,
+    "forwardII_rectangular": "101coefficients3locations,100eps norm1(c) bound",
+    "inverseI": [
+      1,
+      10,
+      100
+    ],
+    "inverseII": [
+      1,
+      10,
+      100
+    ],
+    "inverseII_default": 100
+  },
+  "baseline_failure": {
+    "name": "forwardII_rect101x3",
+    "status": "fail",
+    "exception": "AssertionError((1.1589480266073298e-12, 1.1547922085356782e-12))",
+    "size": 1
+  },
+  "candidate_rectangular": {
+    "name": "forwardII_rect101x3",
+    "status": "pass",
+    "error": 1.0583569230375067e-12,
+    "bound": 1.1547922085356782e-12,
+    "norm": "inf",
+    "size": 1
+  },
+  "source_count": 16,
+  "controls_count": 0,
+  "runtime": {
+    "wall_seconds": 8.0774549189955,
+    "peak_summed_rss_kib": 398132,
+    "inputs_stable": true,
+    "survivors": [],
+    "caps": {
+      "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/supervision",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/guard.json",
+      "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1",
+      "wall_seconds": 180.0,
+      "rss_mib": 3072.0,
+      "sample_seconds": 0.1,
+      "grace_seconds": 1.0,
+      "command": [
+        "--",
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/observe.py"
+      ]
+    }
+  },
+  "environment_qualification_gap": {
+    "effective_finufft": "2.5.0",
+    "project_requirement": ">=2.5.1,<3",
+    "claim": "Pinned CPU numerical environment only; not current project locked environment. Requalify FINUFFT-backed cases under supported version before full acceptance."
+  },
+  "unresolved": [
+    "JAX-only backend requirement not discharged: current forward backends FINUFFT/NumPy and inverse NumPy dense lstsq remain.",
+    "TypeIII explicit frequencies and forward/inverse reusable plan APIs absent.",
+    "Source large forwardN1000/N10000 and inverseN1000/N4000 not executed.",
+    "Old miscport forward transposition and inverse widenedbounds remain pending full source port restoration; new16case independent regression verifies corrected source operators.",
+    "RNG constructions/seed preserved via NumPyMT adapter; no exact native MATLAB draw equality claimed."
+  ],
+  "large_resource_plan": {
+    "forward_direct_10000": "100million complex entries1.6GB plus real phase outer0.8GB and exponentiation temporaries exceed3GiB safety; direct path forbidden under current cap. Use source lowrank/FFT or bounded blocked reference with exact summation semantics before qualification.",
+    "inverse_4000": "16million complex matrix256MB plus SVD least-squares work; cubic dense runtime not supported by180s estimate. Existing port documents N1000~290s, already beyond180s. Requires source iterative/plan implementation and independent reference strategy."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/default_tolerance.patch": "8c88c2ef0e020e9343ce69aa534e262575a6376438ae128e34e35c1e8f5a5512",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/native_small.py": "70e699a7860becb29dada1f04ca2c2ed86e478fa671255f6aecbd9733028645f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/PLAN.json": "9377c14bbe6c6a45d908f7be6d9c4536583fbd6cb9cfd68608225e3045aae5ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/baseline_v1/RESULT.json": "14c32f9bc2f997706c99ab102193a440bc7dffd46d054e70ca1bd59de4fd97d6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/baseline_v1/supervision/receipt.json": "4865cfa0647163e24594f7d58032f1c02b7c8e7e47947dcdcbd113bc473e9e73",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/RESULT.json": "9fcb8003e7a31b55886fcd2b8917dfd08963401e656deb98d06ca95e0fc7f85d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/CONTRACT_GAPS.json": "fd6ae68134cf494c633105d69531b9a3ab0174f9d13ec3c4be5c6d6784524dad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/supervision/receipt.json": "f2fe7b1f4968324f13ca0e06856110cd29a2d41e2c5f08941a242beb38d54ea5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/candidate_v1/RUNTIME_SOURCE_END.json": "e108805c39db092ff0fc1de9f62797b06210610297729e88fdf7c75b040b179b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft_small_source_20261011/package.py": "c3466e4c7f4ba5992770c0fa7a91550575d3e5f7ac718f3863195149daf53829"
+  }
+}

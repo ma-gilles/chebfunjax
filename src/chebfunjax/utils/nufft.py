@@ -34,7 +34,7 @@ __all__ = ["nufft", "inufft"]
 def nufft(
     c: np.ndarray,
     x: np.ndarray | None = None,
-    tol: float = 1e-12,
+    tol: float = float(np.finfo(np.float64).eps),
     nufft_type: int = 2,
 ) -> np.ndarray:
     r"""Non-uniform fast Fourier transform (NUFFT).
@@ -64,7 +64,8 @@ def nufft(
           the *output* has the same length as *c*.
         - ``None``: uniform FFT (identical to ``np.fft.fft(c)``).
     tol : float, optional
-        Target accuracy.  Default ``1e-12``.
+        Target accuracy.  Default double-precision machine epsilon, as in
+        MATLAB Chebfun. The optional FINUFFT backend has its own accuracy floor.
     nufft_type : {1, 2}
         Transform type.  Default 2.
 
