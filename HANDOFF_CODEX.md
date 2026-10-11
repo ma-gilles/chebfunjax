@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Small Hermite ASY native stages recovered; still open (2026-10-10)
+
+Fresh native n2/4/6/10 public outputs exactly reproduce the retained fixture.
+The audited stage capture exposes the wrong initial complex-acos branch in the
+unpublished Python draft. Correcting that branch still leaves all four n2/4
+output comparisons failing. Matched-argument Airy diagnostics show roundoff
+sensitivity; greater general accuracy alone does not imply matching these
+20-iteration nonconverged source trajectories. No production change or tolerance
+relaxation. Evidence: docs/hermite_small_asy_diagnosis_cpu_20261010.json.
+
 ## Ballfun single-direction sums use JAX source algebra (2026-10-10)
 
 Single-direction integration now uses native coefficient prolongation,

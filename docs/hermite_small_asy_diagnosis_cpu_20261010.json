@@ -1,0 +1,57 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "Open. No production ASY change accepted. Main still rejects explicit ASY below21 except trivial public dispatch.",
+  "native_capture": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1",
+    "orders": [
+      2,
+      4,
+      6,
+      10
+    ],
+    "source_count": 29810,
+    "immutable_runtime_count": 943,
+    "audit_faults": [],
+    "result": "Captured literal source intermediate stages and unmodified public outputs. All four public x/w/v outcomes exactly match the retained physicists fixture. Original20261008 startup failure is retained."
+  },
+  "finding": "Historical unpublished draft initializes orders2/4 with the opposite imaginary acos branch from native MATLAB. Explicit positive-imaginary continuation corrects this initialization but all four strict physicists/probabilists output checks still fail. Candidate remains unpublished; tolerances unchanged.",
+  "same_input_diagnostic": "At exactly native first-iteration theta/airy arguments, value/derivative differences remain around1e-15 to3e-14 relative. All native n2/4/6/10 loops take20iterations. Observations do not prove a complete causal explanation for final mismatch.",
+  "high_precision_diagnostic": "Offline mpmath80digit comparison: n2 JAX Airy relative error~1.3e-14 vs MATLAB~2e-15; at sampled n4/6/10 arguments JAX is closer to the high-precision result. This limited diagnostic does not establish parity or justify replacing source outcomes/tolerances. General accuracy improvements alone cannot guarantee reproduction of a nonconverged source trajectory.",
+  "next": "Compare source arithmetic and actual argument progression; preserve strict native outcomes. Small ASY remains separate from accepted REC and large-order ASY. Do not substitute REC or captured outputs.",
+  "candidate_gates": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_small_branch_20261010/gate",
+      "inputs_rehashed": 311,
+      "result": {
+        "supervisor_exit_code": 1,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "wall_seconds": 11.606668180786073,
+        "sampled_peak_summed_rss_kib": 772440
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_small_branch_20261010/first_stage",
+      "inputs_rehashed": 311,
+      "result": {
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "wall_seconds": 19.315150702837855,
+        "sampled_peak_summed_rss_kib": 909920
+      }
+    }
+  ],
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/AUDIT.json": "461d6f5ee33250f6bf02ef9ac6f0c6fcafce1cefff7557f396b958e5b6517f85",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/SOURCE_REVIEW.json": "60b5b9d4e5206b9b5fc0776650f266c7984e908d5df72abdfb876f91fed6f46c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/oracle.json": "e3a2d9793308dc54ac5654cbfcfe8d205cdb6ae383d0e54909d91a4f2b5f98a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/REFERENCE_REPLAY.json": "1cb0bf844645c0306b072adf5f2d585a11ba2b909e6e0018ece707f57afed4bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/RETAINED_STAGE_COMPARISON.json": "99ddaf28c6ecd93f7bffc5e07ab6440f3e623fffafae0a4b851a4ad8e794b5f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/has1/AIRY_HIGH_PRECISION_DIAGNOSTIC.json": "cf0ec3bba6b3e18c4d60b7263a5155a1d8496d48175cde67759ba787d8daa1e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_small_branch_20261010/first_stage/RESULTS.json": "cacea7a239a3353ebc4bb053b118945a94f1f1a5cfc9729fe5a82f3e6622acc4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_small_branch_20261010/gate/junit.xml": "50fc7fe6ff88252f303cf73b73c058cbe51aaa731e10d7b03256e67e1d486112"
+  }
+}
