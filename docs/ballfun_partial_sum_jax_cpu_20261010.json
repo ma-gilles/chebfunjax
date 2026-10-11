@@ -1,0 +1,26 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": [
+    "@ballfun/sum.m",
+    "tests/ballfun/test_sum.m"
+  ],
+  "change": "Single-direction sums now use JAX source coefficient prolongation, Jacobian matrices and sequential weighted accumulation. Outputs delegate to native numeric coefficient constructors. Retains native real projections and Fourier weights, including source longitude odd-mode weights. Existing no-argument Python triple-sum convenience is unchanged.",
+  "results": "28 cases pass in41.95s: eight sum cases (four native function-norm predicates and four existing sampled controls), plus20 mean/mean2/sum2 cases. No test or tolerance changes.",
+  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_partial_sum_jax_20261010/gate",
+  "inputs_rehashed": 314,
+  "receipt": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 49.87042672699317,
+    "sampled_peak_summed_rss_kib": 1931884,
+    "inputs_stable": true,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "artifacts": {
+    "guard.json": "b242fbcbf5472a66bd7d59f8d05510073444f97802d412d640948316c26327b3",
+    "junit.xml": "d70ac657a839abf2034b25d197c67ffd42f178500cd5bf608dac76262a236728",
+    "supervision/receipt.json": "7b8ebc0d4b1df07c7cc740f3272f68dbfda81ded14c47a3548d59cb2665abcdb",
+    "supervision/stdout": "1b4512f5661b7eaa963569ee509c1c7c28769badb5f623dab652889c47a4eebe"
+  },
+  "scope": "New reduction math is JAX and jitted with a static direction. Public output constructors remain eager. Full-suite and example/figure requalification and green main CI remain open. Existing unrelated host helpers are not claimed migrated."
+}

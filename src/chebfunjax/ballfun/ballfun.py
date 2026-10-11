@@ -1769,26 +1769,12 @@ class Ballfun(eqx.Module):
         if self.isempty():
             return Spherefun.empty() if dim == 1 else Diskfun.empty()
 
-        F = _pad_coeffs_r_theta(np.asarray(self.coeffs))
-        m, n, p = F.shape
+        from chebfunjax.ballfun._integrals import partial_sum_coefficients
 
+        coefficients = partial_sum_coefficients(self.coeffs, dim)
         if dim == 1:
-            # Integrate r^2 * f over r -> Spherefun(lambda, theta).
-            F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
-            A = np.tensordot(_int_cheb_weights(m), F, axes=(0, 0))  # (n, p)
-            return Spherefun.from_function(_mk_fourier_fourier_eval(A))
-
-        if dim == 2:
-            # Integrate f over lambda -> Diskfun(theta, r).
-            C = _int_fourier_weights(n, 2.0 * np.pi)
-            A = np.tensordot(C, F, axes=(0, 1))  # (m, p)
-            return Diskfun.from_function(_mk_cheb_fourier_eval(np.real(A)))
-
-        # dim == 3: integrate sin(theta) * f over theta -> Diskfun(lambda, r).
-        F = (F.reshape(-1, p) @ _mult_sin_matrix(p).T).reshape(m, n, p)
-        C = _int_fourier_weights(p, np.pi)
-        A = np.tensordot(C, F, axes=(0, 2))  # (m, n)
-        return Diskfun.from_function(_mk_cheb_fourier_eval(np.real(A)))
+            return Spherefun.coeffs2spherefun(coefficients.T)
+        return Diskfun.coeffs2diskfun(jnp.real(coefficients))
 
     def sum2(self, dims: tuple[int, int] = (2, 3)):
         """Integrate two coordinates with native radial/angular measures.

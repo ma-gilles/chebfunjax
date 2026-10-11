@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun single-direction sums use JAX source algebra (2026-10-10)
+
+Single-direction integration now uses native coefficient prolongation,
+Jacobian matrices and sequential accumulation, followed by the native sphere
+or disk numeric coefficient constructor. Native real projections are retained.
+All28 sum/mean/mean2/sum2 checks pass, including the four original sum norm
+predicates with unchanged bounds. Full suite and examples remain open.
+Evidence: docs/ballfun_partial_sum_jax_cpu_20261010.json.
+
 ## Diskfun coefficient conversion follows the native grid (2026-10-10)
 
 Native parity padding, Chebtech/Trigtech transforms, real projection and numeric

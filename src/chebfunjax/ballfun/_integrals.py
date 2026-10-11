@@ -121,3 +121,47 @@ def sum2_coefficients(coefficients, dims):
         return wr @ (2*jnp.pi*f[:, n // 2, :])
     f = (f.reshape(-1, p) @ ms.T).reshape(m, n, p)
     return jax.vmap(lambda block: (wr @ block) @ wt, in_axes=1)(f)
+
+
+@partial(jax.jit, static_argnames=("dim",))
+def partial_sum_coefficients(coefficients, dim):
+    """Native sum.m prolongation and sequential weighted accumulation.
+
+    Provenance: @ballfun/sum.m, Chebfun 7574c77.
+    Returned axes are (lambda, theta), (r, theta), or (r, lambda).
+    Projection to real values belongs to the native output constructors.
+    """
+    c = jnp.asarray(coefficients, dtype=jnp.complex128)
+    m0, n, p0 = c.shape
+    m, p = m0 + 2, p0 + 2
+    f = prolong_plot_coefficients(c, (m, n, p))
+    if dim == 1:
+        mr = .5 * jnp.eye(m)
+        for k in range(m):
+            if k + 2 < m:
+                mr = mr.at[k + 2, k].add(.25)
+            mr = mr.at[abs(k - 2), k].add(.25)
+        f = (mr @ f.reshape(m, -1)).reshape(m, n, p)
+        k = jnp.arange(m, dtype=jnp.float64)
+        even = -1 / jnp.where(k*k == 1, 1, k*k - 1)
+        odd3 = -1 / jnp.where(k == 1, 1, k - 1)
+        weights = jnp.where(k % 2 == 0, even,
+                            jnp.where(k % 4 == 1, 1/(k+1), odd3))
+        return jax.lax.fori_loop(0, m,
+            lambda i, a: a + weights[i]*f[i], jnp.zeros((n, p), dtype=f.dtype))
+    if dim == 3:
+        delta = jnp.arange(p)[:, None] - jnp.arange(p)[None, :]
+        ms = jnp.where(delta == -1, .5j, jnp.where(delta == 1, -.5j, 0j))
+        f = (f.reshape(-1, p) @ ms.T).reshape(m, n, p)
+    count = n if dim == 2 else p
+    modes = jnp.arange(count) - count//2
+    weights = (-1j * (jnp.where(modes % 2 == 0, 1., -1.) - 1)
+               / jnp.where(modes == 0, 1, modes))
+    weights = weights.at[count//2].set(2*jnp.pi if dim == 2 else jnp.pi)
+    if dim == 2:
+        return jax.lax.fori_loop(0, n,
+            lambda i, a: a + weights[i]*f[:, i, :],
+            jnp.zeros((m, p), dtype=f.dtype))
+    return jax.lax.fori_loop(0, p,
+        lambda i, a: a + weights[i]*f[:, :, i],
+        jnp.zeros((m, n), dtype=f.dtype))
