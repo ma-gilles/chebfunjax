@@ -1,0 +1,40 @@
+{
+  "scope": "Default real roots now call native adaptive Chebtech1 construction using the public Trigtech evaluator; whole arrays are constructed jointly. Removed fixed Chebtech2 sampling and extra two Newton iterations. Complex branch unchanged.",
+  "qualified": "Five distinct existing real controls; scalar high100pi rootcount >=201 included; array rerun once after correcting joint construction. Bounds unchanged.",
+  "gates": [
+    {
+      "original": 43152,
+      "tests": 4,
+      "seconds": 33.204946944955736,
+      "peak_rss_kib": 1910236
+    },
+    {
+      "original": 18869,
+      "tests": 1,
+      "seconds": 22.483436609152704,
+      "peak_rss_kib": 1407840
+    },
+    {
+      "original": 37344,
+      "tests": 1,
+      "scope": "overlapping array-only successor",
+      "seconds": 11.068068648688495,
+      "peak_rss_kib": 912824
+    }
+  ],
+  "base": "28d59bd7",
+  "integration": "dc206703 changes Domain.forward_map/chebpts_ab; neither is called by this canonical Trigtech\u2192Chebtech1 route. Trigtech and Chebtech source unchanged between bases.",
+  "limits": [
+    "Complex-root source restoration and real/complex storage remain separate unfinished work.",
+    "Five controls are not full native roots/API/figure qualification.",
+    "CPU source/version/module-origin guards; not full native dependency closure."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_roots_source_v2_20261010/candidate.patch": "116a50bc61463c909d843de6251b1490465df01ab24843cc8c01bab11b29cb8c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_roots_source_v2_20261010/real4/AUDIT.json": "2d68bb2255e59be02ecdcb47d5e373babfba5ce9ef440fdb68f3a79d14c99bc2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_roots_source_prepare_20261010/real4/AUDIT.json": "5b51bf58a4457b8e44d464bd194e2c104e529c7e74098a5149c2197a60e2f185",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_real_roots_source_prepare_20261010/high1/AUDIT.json": "0c784feda8468ecb26e987116321fe35613a316f69dd3ddf313b25a19efb5fe4",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@trigtech/roots.m": "84c27e59e80a4a5bd2c6f2d97468a5251ffed325b483cf46b47a646c299326ac",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/trigtech/test_roots.m": "8d6654e2cf92f756e2839648ee1de17413d5448c22ca8008b8033819e8447fcc"
+  }
+}

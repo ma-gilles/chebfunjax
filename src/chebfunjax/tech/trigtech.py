@@ -1168,63 +1168,22 @@ def _trig_chop_cutoff(coeffs: jax.Array,
 # ============================================================================
 
 
-def _trig_roots(coeffs: jax.Array) -> jax.Array:
-    """Find real roots of a trigonometric series in [-1, 1].
-
-    Converts the trigonometric interpolant to a Chebyshev representation
-    by sampling on Chebyshev points, then calls Chebyshev rootfinding.
-    This mirrors MATLAB's default @trigtech/roots.m strategy.
-
-    NOT JIT-safe (variable output size).
-
-    Parameters
-    ----------
-    coeffs : jax.Array, shape (N,) complex
-
-    Returns
-    -------
-    jax.Array, shape (r,) float64
-        Real roots in [-1, 1], sorted.
+def _trig_roots(coeffs: jax.Array, real_columns=None) -> jax.Array:
+    """Use the native adaptive first-kind conversion for real roots.
 
     Provenance
     ----------
-    MATLAB source : @trigtech/roots.m
-    Chebfun commit: 7574c77
+    MATLAB source: @trigtech/roots.m default branch, Chebfun7574c77.
+    The public Trigtech evaluator retains column realness. No fixed-grid
+    sampling or extra Newton polishing is inserted.
     """
-    import numpy as np
+    from chebfunjax.tech.chebtech import Chebtech1
 
-    from chebfunjax.tech.chebtech import Chebtech2
-    from chebfunjax.utils.quadrature import chebpts
-
-    n = coeffs.shape[0]
-    if n == 0:
-        return jnp.array([], dtype=jnp.float64)
-
-    # Sample on Chebyshev-2 points and call Chebtech2.roots()
-    n_sample = max(2 * n + 1, 33)
-    x_cheb = chebpts(n_sample, kind=2)
-    vals = _trig_eval(coeffs, x_cheb, is_real=False)
-    vals = jnp.real(vals)
-
-    g = Chebtech2.from_values(vals.astype(jnp.float64))
-    r = np.asarray(g.roots())
-    if r.size == 0:
-        return jnp.asarray(r, dtype=jnp.float64)
-    # Polish with Newton on Re(f)(x) = 0 using the exact trig derivative:
-    # the Chebyshev resampling of a high-frequency series can leave the
-    # roots ~1e-10 off, but each root is simple, so Newton recovers
-    # machine precision.
-    d1 = _trig_diff_coeffs(coeffs, 1)
-    xr = jnp.asarray(r, dtype=jnp.float64)
-    for _ in range(2):
-        fv = jnp.real(_trig_eval(coeffs, xr, is_real=False))
-        fp = jnp.real(_trig_eval(d1, xr, is_real=False))
-        step = jnp.where(jnp.abs(fp) > 1e-30, fv / fp, 0.0)
-        xr = xr - step
-    rp = np.asarray(xr)
-    # Discard any polished root that left [-1, 1] (spurious) and re-sort.
-    rp = rp[(rp >= -1.0 - 1e-12) & (rp <= 1.0 + 1e-12)]
-    return jnp.asarray(np.sort(rp), dtype=jnp.float64)
+    if coeffs.shape[0] == 0:
+        return jnp.empty((0,), dtype=jnp.float64)
+    f = Trigtech.from_coeffs(coeffs, real_columns=real_columns)
+    g = Chebtech1.from_function(lambda x: f(x))
+    return g.roots()
 
 
 def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
@@ -2264,13 +2223,16 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/roots.m
         Chebfun commit: 7574c77
         """
+        if not complex:
+            return _trig_roots(self.coeffs, self.real_columns)
+
         import numpy as _np
 
         def _one(col, mask):
             if complex:
                 simp = Trigtech.from_coeffs(col, real_columns=mask).simplify()
                 return _np.asarray(_trig_roots_complex(simp.coeffs, prune=True))
-            return _np.asarray(_trig_roots(col))
+            return _np.asarray(_trig_roots(col, mask))
 
         if self.coeffs.ndim == 2:
             cols = [_one(self.coeffs[:, j], (self.real_columns[j],))

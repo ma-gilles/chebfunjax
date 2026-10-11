@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native default trigonometric root route (2026-10-10; latest)
+
+Default real roots now use adaptive Chebtech1 construction through the public
+Trigtech evaluator, with joint array construction. The fixed Chebtech2 grid
+and extra Newton steps are removed. Five distinct existing controls pass,
+including sin(100*pi*x) with at least201real roots; original bounds unchanged.
+Complex-root storage and polynomial-path parity remain separate open work.
+Evidence: docs/trig_real_roots_source_cpu_20261010.json.
+
 ## Source domain mapping and historical battery complete (2026-10-10; latest)
 
 Domain.forward_map and chebpts_ab now retain the native endpoint-weighted
