@@ -48,5 +48,7 @@
   "layout": "R2024b actual normalized subplot positions retained in graphics_layout_v1/layout.json;600x270,dpi72; no tuned offsets. Pixel-perfect font/tick equivalence not claimed.",
   "representation_supplement": "r1 exponents retained from changed_objects_v3; all overlapping coefficients/intervals/domain/pointValues/samples bit-identical to final page; library bytes identical.",
   "renderer_followthrough": "docs/eight_shades_renderer_cpu_20261011.json",
-  "renderer_scope": "Native axes and curve widths, ticks and label formatting; all 22 retained line coordinate arrays unchanged. No exact pixel/font parity claim."
+  "renderer_scope": "Native axes and curve widths, ticks and label formatting; all 22 retained line coordinate arrays unchanged. No exact pixel/font parity claim.",
+  "rational_algorithm_followthrough": "docs/trigremez_rational_source_cpu_20261011.json",
+  "followthrough_scope": "Rational branch corrected after this retained full page run; original13 predicates and independent native controls pass. This does not relabel the retained full page execution as a run of the successor."
 }

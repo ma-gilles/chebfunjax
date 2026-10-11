@@ -1,0 +1,111 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "version": "R2025b",
+  "native_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/native_controls_v1",
+  "trial_query_scope": "Off-reference queries are affine mapped from exact native public sample_x; native trial values reconstructed from captured Fourier coefficients, not directly sampled native trial arrays.",
+  "provisioning_failure": "First JSON metadata write rejected MATLAB empty warning ndarray. MAT/NPZ unchanged; converted empty warning metadata to empty string, no native rerun.",
+  "cases": [
+    {
+      "case": 1,
+      "mat_sha256": "58e1d913dd5e2fd24941fa69d8a9525e343cb7a34a19235db2ad3dc2906df97d",
+      "warning_id": "",
+      "warning_message": "",
+      "status": {
+        "delta": 2.846955531850148e-16,
+        "iter": 5,
+        "diffx": 4.8623327586483356e-12,
+        "xk": [
+          -1.0,
+          -0.9069852852416828,
+          -0.6670342322389704,
+          -0.3329657677610384,
+          -0.09301471475831535,
+          0.0,
+          0.09301471475831824,
+          0.3329657677594928,
+          0.6670342322389724,
+          0.9069852852416783
+        ]
+      },
+      "valid_initial_trial_count": 1
+    },
+    {
+      "case": 2,
+      "mat_sha256": "e43fb1e46359917b479fb63ba3d58e7daab7f7282894e57939d31587566a7876",
+      "warning_id": "",
+      "warning_message": "",
+      "status": {
+        "delta": 3.4110743279615906e-15,
+        "iter": 1,
+        "diffx": 0.23168719089504397,
+        "xk": [
+          -1.0,
+          -0.9092393386261747,
+          -0.8461538461538463,
+          -0.7582683648893005,
+          -0.6923076923076923,
+          -0.5720648871553554,
+          -0.5384615384615383,
+          -0.5034024397337622,
+          -0.3846153846153846,
+          -0.36451274497495534,
+          -0.23076923076923067,
+          -0.22451462954311419,
+          -0.07692307692307687,
+          0.01309249970286891,
+          0.07692307692307687,
+          0.14880554694188852,
+          0.23076923076923067,
+          0.38144063105635123,
+          0.3846153846153846,
+          0.45588268804663984,
+          0.5384615384615383,
+          0.6153846153846154,
+          0.6532033878757764,
+          0.8314483834335489,
+          0.8461538461538463,
+          0.8699066516589826
+        ]
+      },
+      "valid_initial_trial_count": 1
+    },
+    {
+      "case": 3,
+      "mat_sha256": "3768d70a1efe38a24be9a8da2aed27c453e92d3f8580e4888d12cac604237568",
+      "warning_id": "",
+      "warning_message": "",
+      "status": {
+        "delta": 9.851348649688146e-16,
+        "iter": 1,
+        "diffx": 1.2356919458744844,
+        "xk": [
+          2.1747068633857034,
+          2.5314232849733704,
+          2.666666666666667,
+          3.8189796542756116,
+          4.0,
+          4.546667408034265
+        ]
+      },
+      "valid_initial_trial_count": 1
+    },
+    {
+      "case": 4,
+      "mat_sha256": "bda883d1aa63b20f8c1787e08a01a008cee33ea27d3bf7719532600436467feb",
+      "warning_id": "",
+      "warning_message": "",
+      "status": {
+        "delta": 2.478617812220949e-16,
+        "iter": 1,
+        "diffx": 3.2386072332956806,
+        "xk": [
+          -0.9998469770357861,
+          -0.9406200114302545,
+          -0.8969252996467079,
+          -0.5308806998243494
+        ]
+      },
+      "valid_initial_trial_count": 1
+    }
+  ]
+}

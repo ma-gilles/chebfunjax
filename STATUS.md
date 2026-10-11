@@ -1,10 +1,18 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `2fabc1b9` is published. This checkpoint adds the verified
+Main through `afebe363` is published. This checkpoint adds the verified
 EightShades, vector integration and disk arithmetic packages. Full parity
 remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Rational trigremez now follows native root exchange and best-iterate stopping
+  with a JAX finite-pencil solve. All 13 original predicates pass. Independent
+  native comparisons give abs(x) five iterations and exp(sin(pi*x)) one, with
+  no convergence warnings and sample differences1.22e-15/6.22e-15. Persistent
+  tests cover the former zero-iteration bug. Public input/options gaps and
+  roundoff-scale status differences remain open. See
+  `docs/trigremez_rational_source_cpu_20261011.json` and the finite-pencil proof.
 
 - EightShades now executes the actual public approximation calls, with a
   retained full CPU run (191.50 seconds, 4.65 GiB peak), all 20 sampled objects

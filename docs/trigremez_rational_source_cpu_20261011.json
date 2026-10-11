@@ -1,0 +1,159 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@chebfun/trigremez.m",
+  "status": "rational source branch qualified on original13 predicates and independent controls; remaining public API guards explicitly open",
+  "original_terminal_predicates": 13,
+  "original_empty_operation": true,
+  "independent_controls": 6,
+  "source_output_warning_controls": 2,
+  "zero_iteration_adapter_controls": 1,
+  "native_initial_trial_polefree_eigenpair_counts": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "new_library_numerics": "JAX-only",
+  "fullpage_runs": 0,
+  "open_gaps": [
+    "public real/quasimatrix/singular/unbounded/delta guards",
+    "display/plotfcns named options",
+    "roundoff-scale status/extrema equality not claimed",
+    "degenerate eigenspace representation/order equality not claimed",
+    "Finite-precision conditioning for clustered references and degenerate eigenpair selection remain unqualified; exact-arithmetic reduction holds for distinct cyclic references."
+  ],
+  "receipts": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/delivery_v1/RECEIPTS.json",
+  "native_output_comparison": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/delivery_v1/NATIVE_OUTPUT_COMPARISON.json",
+  "source_snapshots": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/delivery_v1/SOURCE_SNAPSHOTS.json",
+  "root_binding_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/delivery_v1/ROOT_REVIEW.json",
+  "reduction_note": "docs/trigremez_finite_pencil_reduction.md",
+  "conditioning": {
+    "scope": "Static double-precision QR/SVD diagnostics on retained exact native/Python reference arrays, no approximation solves or input adjustment. NumPy host diagnostic only; library provider remains JAX.",
+    "records": [
+      {
+        "case": 1,
+        "reference_set": "native_initial",
+        "m": 2,
+        "n": 2,
+        "count": 10,
+        "minimum_cyclic_spacing": 0.6283185307179586,
+        "P_condition_2": 1.4142135623730951,
+        "B_reduced_condition_2": 1.4142135623730951,
+        "B_reduced_minimum_singular_value": 2.23606797749979
+      },
+      {
+        "case": 1,
+        "reference_set": "native_final",
+        "m": 2,
+        "n": 2,
+        "count": 10,
+        "minimum_cyclic_spacing": 0.29221434456047346,
+        "P_condition_2": 1.8864268850050445,
+        "B_reduced_condition_2": 2.419876921053736,
+        "B_reduced_minimum_singular_value": 1.4152369572625956
+      },
+      {
+        "case": 1,
+        "reference_set": "python_final",
+        "m": 2,
+        "n": 2,
+        "count": 10,
+        "minimum_cyclic_spacing": 0.2922143445595453,
+        "P_condition_2": 1.88642688500579,
+        "B_reduced_condition_2": 2.4198769210578277,
+        "B_reduced_minimum_singular_value": 1.4152369572603836
+      },
+      {
+        "case": 2,
+        "reference_set": "native_initial",
+        "m": 6,
+        "n": 6,
+        "count": 26,
+        "minimum_cyclic_spacing": 0.2416609733530608,
+        "P_condition_2": 1.4142135623730958,
+        "B_reduced_condition_2": 1.4142135623730956,
+        "B_reduced_minimum_singular_value": 3.605551275463988
+      },
+      {
+        "case": 2,
+        "reference_set": "native_final",
+        "m": 6,
+        "n": 6,
+        "count": 26,
+        "minimum_cyclic_spacing": 0.009973782458017055,
+        "P_condition_2": 2.3622864900703235,
+        "B_reduced_condition_2": 3.8403825387939428,
+        "B_reduced_minimum_singular_value": 1.3212642961513954
+      },
+      {
+        "case": 2,
+        "reference_set": "python_final",
+        "m": 6,
+        "n": 6,
+        "count": 26,
+        "minimum_cyclic_spacing": 0.006792854972486495,
+        "P_condition_2": 1.921593545012866,
+        "B_reduced_condition_2": 4.915298246060826,
+        "B_reduced_minimum_singular_value": 1.0353248982440457
+      },
+      {
+        "case": 3,
+        "reference_set": "native_initial",
+        "m": 1,
+        "n": 1,
+        "count": 6,
+        "minimum_cyclic_spacing": 1.0471975511965976,
+        "P_condition_2": 1.4142135623730947,
+        "B_reduced_condition_2": 1.4142135623730947,
+        "B_reduced_minimum_singular_value": 1.7320508075688776
+      },
+      {
+        "case": 3,
+        "reference_set": "native_final",
+        "m": 1,
+        "n": 1,
+        "count": 6,
+        "minimum_cyclic_spacing": 0.21243980718715072,
+        "P_condition_2": 2.734770481371662,
+        "B_reduced_condition_2": 3.0886250122191434,
+        "B_reduced_minimum_singular_value": 0.7910843711833583
+      },
+      {
+        "case": 4,
+        "reference_set": "native_initial",
+        "m": 0,
+        "n": 1,
+        "count": 4,
+        "minimum_cyclic_spacing": 1.5707963267948966,
+        "P_condition_2": 1.0,
+        "B_reduced_condition_2": 1.4142135623730956,
+        "B_reduced_minimum_singular_value": 1.414213562373095
+      },
+      {
+        "case": 4,
+        "reference_set": "native_final",
+        "m": 0,
+        "n": 1,
+        "count": 4,
+        "minimum_cyclic_spacing": 0.13727098553991324,
+        "P_condition_2": 1.0,
+        "B_reduced_condition_2": 24.380030297389812,
+        "B_reduced_minimum_singular_value": 0.10773243774474467
+      }
+    ]
+  },
+  "persistent_control_reuse": {
+    "qualified_script": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/source_output_gate_v1/probe.py",
+    "scientific_assignments_calls_AST_equal": [
+      "assert_allclose",
+      "f",
+      "samples",
+      "simplefilter",
+      "trigremez_call",
+      "values",
+      "x"
+    ],
+    "additional_iteration_assertion_scope": "Native5/1 matches already observed qualified Python5/1; metadata observation assertion only, no changed computation/no numerical replay.",
+    "qualified_output_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_rational_source_20261011/source_output_gate_v1/REPORT.json"
+  }
+}
