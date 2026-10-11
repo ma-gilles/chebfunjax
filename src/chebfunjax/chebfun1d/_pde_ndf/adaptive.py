@@ -6,7 +6,7 @@ Chebfun @chebfun/pdeSolve.m adaptiveEvent and spatial setup.
 Native commit: 7574c77680d7e82b79626300bf255498271a72df.
 Original source: Copyright 2017 The University of Oxford and Chebfun Developers.
 
-scalar_happiness is used by the public scalar NDF spatial restart driver.
+scalar_happiness and system_happiness serve the public NDF spatial restart driver.
 The state dataclasses and adaptive_event helper support private source controls;
 the public driver constructs accepted Chebfuns and manages restart state.
 Numerical work uses JAX; shape-changing adaptivity uses Python control flow.
@@ -54,8 +54,23 @@ def scalar_happiness(values: jax.Array, tolerance: float) -> tuple[bool, int]:
         raise NotImplementedError("Only one scalar PDE is qualified")
     if not 0 < tolerance < 1:
         raise ValueError("Tolerance must be between zero and one")
-    c = (1 + jnp.sin(jnp.arange(1, 2, dtype=jnp.float64))).reshape((1, 1))
-    weighted = (values[:, None] @ c / jnp.sum(c))[:, 0]
+    return system_happiness(values[:, None], tolerance)
+
+
+def system_happiness(values: jax.Array, tolerance: float) -> tuple[bool, int]:
+    """Check the native weighted component combination.
+
+    Provenance
+    ----------
+    Chebfun @chebfun/pdeSolve.m adaptiveEvent, native commit 7574c77.
+    """
+    values = jnp.asarray(values)
+    if values.ndim != 2 or values.shape[1] < 1:
+        raise ValueError("Expected spatial rows and component columns")
+    if not 0 < tolerance < 1:
+        raise ValueError("Tolerance must be between zero and one")
+    c = (1 + jnp.sin(jnp.arange(1, values.shape[1] + 1, dtype=jnp.float64)))[:, None]
+    weighted = (values @ c / jnp.sum(c))[:, 0]
     coeffs = Chebtech2.vals2coeffs(weighted)
     reconstructed = Chebtech2.coeffs2vals(coeffs)
     happy, cutoff = Chebtech2.happiness_check(

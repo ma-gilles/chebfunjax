@@ -13,6 +13,10 @@ import os
 ML = "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests"
 PT = "tests/test_matlab_port"
 MARK = {"PRESENT": "[x]", "MASKED": "[ ]", "SKIPPED": "[ ]", "MISSING": "[ ]"}
+COMBINED_PORTS = {
+    ("chebgui", "test_toFile" + kind): "test_toFile_exporters_matlab.py"
+    for kind in ("BVP", "EIG", "IVP", "PDE")
+}
 
 
 def _mark_name(node: ast.AST) -> str:
@@ -49,7 +53,8 @@ def main() -> None:
             continue
         for m in sorted(glob.glob(md + "/test_*.m")):
             name = os.path.basename(m)[:-2]
-            port = os.path.join(PT, d, name + "_matlab.py")
+            filename = COMBINED_PORTS.get((d, name), name + "_matlab.py")
+            port = os.path.join(PT, d, filename)
             status, reason = "MISSING", ""
             if os.path.exists(port):
                 txt = open(port).read()
@@ -85,6 +90,8 @@ def main() -> None:
                 line += f" — {r.strip()}"
             elif s == "MASKED":
                 line += " — " + r
+            if s != "MISSING" and (d, n) in COMBINED_PORTS:
+                line += " — combined port: `" + COMBINED_PORTS[d, n] + "`"
             out.append(line)
     out.append("\n\n# Examples (chebfun.org reproductions)\n")
     out.append("Scripts listed below are present. File presence does not "

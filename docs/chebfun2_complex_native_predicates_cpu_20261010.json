@@ -1,0 +1,65 @@
+{
+  "snapshot": "9e7d5f94d3a79ccdd5ac57fb49992164b3cb3516",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "result": "Six unique selected tests, eleven literal native predicates pass. Existing prior20 not rerun.",
+  "restored_assertions": {
+    "guide4": "100x100 matrix infinity norm of f(xx+i*yy)-f(xx,yy), bound1000eps unchanged.",
+    "guide5": "100x100 matrix infinity norm of approximation minus sin(z)+sinh(z), bound1e6eps unchanged.",
+    "guide19": "Public Chebfun2 norm(diff(real(f))+diff(imag(f),dim2))<1000eps.",
+    "guide20": "Public Chebfun2 norm(diff(real(f),dim2)-diff(imag(f)))<1000eps."
+  },
+  "already_literal": "test_complex two predicates and test_imag two predicates match native. Native tests/chebfun2/test_real.m absent. Complex transpose clauses5/6 preserve1000eps.",
+  "coordinate_adapter": "Guide native linspace100 uses published source_grid adapter instead of NumPy linspace. No new native bit-capture claim.",
+  "actual_adaptive_sizes": {
+    "tests/test_matlab_port/chebfun2/test_guide_matlab.py::TestChebfun2Guide::test_pass3to5_complex_handle_ctor (call)": 65,
+    "tests/test_matlab_port/chebfun2/test_guide_matlab.py::TestChebfun2Guide::test_pass19to20_cauchy_riemann (call)": 33
+  },
+  "adaptive_evidence": "Call-through happiness/getTol observations show n65 for sin(z)-sinh(z) on\u00b12pi and n33 for sin(x+i*y), beyond initial9. Provider arguments/results forwarded unchanged.",
+  "gates": {
+    "complex_imag": {
+      "tests": 3,
+      "wall_seconds": 27.979013314004987,
+      "peak_rss_kib": 1354800,
+      "inputs_verified": 277
+    },
+    "guide": {
+      "tests": 2,
+      "wall_seconds": 28.099072638899088,
+      "peak_rss_kib": 1406540,
+      "inputs_verified": 281
+    },
+    "transpose": {
+      "tests": 1,
+      "wall_seconds": 20.2168165021576,
+      "peak_rss_kib": 1003912,
+      "inputs_verified": 281
+    }
+  },
+  "original_handles": {
+    "complex_imag": 3023,
+    "guide": 68912,
+    "transpose": 13834
+  },
+  "resources": "Serial CPU0\u20131/180s3GiB per fresh process; no caps/survivors; input hashes stable.",
+  "production_changes": "None. Only two existing guide methods plus import/coordinate adapter changed. Tests write observer/JUnit artifacts outside repository.",
+  "remaining_source_gaps": [
+    "Real-input guards in complex(f) remain missing at this test-only change. One-argument storage behavior needs native confirmation because plus short-circuits zero.",
+    "real()/imag() use nonsource1e-9 near-zero snap; next separate package.",
+    "Other guide clauses remain outside this scoped predicate restoration; no fullguide/fullcomplex/fullsuite parity claim."
+  ],
+  "runtime_limit": "Pinned JAX/jaxlib0.11.0/x64 CPU; imported origin/file hashes and interpreter prebound. Not exhaustive native/shared-library dependency closure.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_native_predicates_v1_20261010/complex_imag/AUDIT.json": "d610410013d7eca9a5cf5a3bd542273d16e827747191479cf2efdbbd0873b56a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_native_predicates_v1_20261010/guide/AUDIT.json": "952555de787091fc8ad41a2006361477f8e88b2af8f993049aa816f619acda2c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_native_predicates_v1_20261010/transpose/AUDIT.json": "3bb249b9cdd4c5c423e4488a923cabdcb4a4748851e7a9240499693d83f42172",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_native_predicates_v1_20261010/BASE.json": "3467732db7408388cb1b066ed0a4bea5d8c901e9cb608d36f295a00524cae57b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_native_predicates_v1_20261010/PLAN.json": "e3004ee9182b1c40b2bec48cff3d67dc2294baccd326bb4d4d41f42e4c137545",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun2/test_complex.m": "e1e01d6c76739344f3c89bb102b659fe1d7d2dcf72ae76620bdb209b19cb5144",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun2/test_imag.m": "d8758a05cf4309feebabd7ccfe3cc950aea462cc9614955aba610929e8ffd9ee",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun2/test_guide.m": "6e69256839368f4466ef0093c93f031ba0e8537990ba006add477a31ba5a8ba3",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun2/test_transpose.m": "ea8f54d7bee7161026923a27e81098e49c6d898c8b21842e580b0b00dc3b2d3a",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/complex.m": "bfbe77cf3dabe2256e4ee4a15fff37fe18b81d45eacebf969ec5f4be5f31e2bf",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/real.m": "1702ff04a2a257900bc2d7ae4bb0aee37cb53f8438a5a61f4150c69665f910d9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/imag.m": "9f8170693f540c14998068884ace4c2570629a30d3a7b24fa6f2435487553dec"
+  }
+}

@@ -34,11 +34,11 @@ The v4 lane audit details and timeout-policy hashes remain in `recovery_20261010
 
 Native `tests/misc/test_pde15s.m` compares the same PDE under `chebtech1` and `chebtech2`, with native default solver options, and checks cross-run norm against `1e5*pref.chebfuneps`. Native `pdeSolve.m` sets PDE tolerance to `1e-6` by default, maps ODE tolerances from it, and adaptively refines nonperiodic `chebtech2` spatial grids. The frozen Python test instead supplies `rtol=1e-10`, `atol=1e-12`; its solver uses fixed inferred resolution with no spatial adaptation. Treat this as an open solver implementation/port-contract gap. Do not loosen the assertion or claim a tolerance-only repair. SciPy dependency debt remains separate; this evidence does not establish a JAX-only solver.
 
-## Direct Chebfun3 battery: 56 cases qualified
+## Direct Chebfun3 battery: 72 cases qualified
 
-Fifty-six of the 80 direct cases now pass on the frozen `e6748499` source, separately
+Seventy-two of the 80 direct cases now pass on the frozen `e6748499` source, separately
 from the wrapper results above. The plain battery indices 0–39 and chebfun3f indices 0–15 are qualified;
-24 direct cases remain unexecuted. These results do not establish current-main suite success.
+8 direct cases remain unexecuted. These results do not establish current-main suite success.
 
 | Gate | Original handle | Cases | Wall time | Peak summed RSS |
 |---|---:|---:|---:|---:|
@@ -123,3 +123,20 @@ source controls and remaining systems/Fourier/complex/method limitations.
 The literal 20 minimax predicates are separately qualified in
 `minimax_native_clauses_cpu_20261010.json`. Neither correction changes the
 frozen wrapper failure/skip reported above.
+
+### Further historical direct cases
+
+The v20 and v21 gates add 16 disjoint chebfun3f cases (members16–31),
+bringing the frozen e6748499 total to72/80. Both have eight passes, stable
+inputs and no caps or survivors. Root verified all artifact bindings, JUnit
+results and all cumulative audit hashes for72 unique nodes.
+
+| Gate | Original handle | Wall time | Peak summed RSS |
+|---|---:|---:|---:|
+| execution_v20 |94553|331.82s|1,468,204KiB|
+| execution_v21 |49874|300.08s|1,307,032KiB|
+
+Audits: execution_v20/AUDIT_v20.json (`a8606e403fdb6f31cfa3b6b8ecffb2f52b2978d97dc80e2ccc9873dba0da935b`)
+and execution_v21/AUDIT_v21.json (`5f45c82a4754c028191dd901b6bcdcde5615d400fca13913ef7cbfc2a6ed7fd2`).
+Cumulative record: execution_v21/CUMULATIVE_STATUS_72_OF_80_CANDIDATE.json;
+root review: execution_v21/ROOT_REVIEW.json. These remain historical results.

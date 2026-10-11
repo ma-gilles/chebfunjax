@@ -1,0 +1,48 @@
+{
+  "status": "Reviewable incremental two-component public NDF extension; no publication checkout edits",
+  "base": "9e7d5f94d3a79ccdd5ac57fb49992164b3cb3516",
+  "scope": "Existing pde15s NDF driver generalized to two real array-valued components, handle BCs with one residual per component per side, dependent-only or full (t,x,u,v) callbacks. Scalar arithmetic/order retained. Same JAX NDF/DAE kernels and default tolerance1e-6. FixedN and native weighted spatial restart.",
+  "native": {
+    "nsa2": "terminal0, audited source/runtime, public/observer coefficients exact, grids33/65, component error2.23e-13, no warnings",
+    "private_comparison": "field max6.282863118656223e-12; both projection matrices exact; bound1e-7",
+    "public_driver_comparison": "field max8.717804256264117e-12; grids33/65; bound1e-7"
+  },
+  "gates": [
+    {
+      "original": 40738,
+      "tests": 5,
+      "seconds": 46.8183398200199,
+      "peak_rss_kib": 2348492,
+      "result": "passed; no cap/survivors"
+    },
+    {
+      "original": 64761,
+      "tests": 13,
+      "seconds": 100.5,
+      "peak_rss_kib": 2794304,
+      "result": "passed; no cap/survivors; includes unchanged original MATLAB-port scalar PDE test"
+    }
+  ],
+  "limits": [
+    "Only two real components in system branch; larger systems require native normest1 source branch for >4 algebraic rows.",
+    "Numeric/mixed system boundary conditions and one-independent-variable callback parsing not implemented.",
+    "Fourier PDE evolution, complex finite-difference Jacobians, sparse/variable mass remain unsupported.",
+    "Explicit historical method dispatch remains SciPy; whole-function JAX-only completion is not claimed.",
+    "Native comparison qualifies sampled fields, layout and spatial grids; no exact multistep attempt identity claim."
+  ],
+  "preserved_failure": "nsa1 observer failed direct chebmatrix pdeSolve dispatch; failure audit intact; successor matches native wrapper conversion. No equation/input/tolerance change.",
+  "delivery_identity": "Production files byte-identical to gates; one test import blank-line correction has identical AST, fresh patch-applied Ruff passes.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nsa2/AUDIT.json": "04ad2795de5b9541428f57b981f283322a3ff6569c22bf7cee8c8e3d7a656fa1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nsy1/AUDIT.json": "26066e23bcba8d15079a3c47f383c3d1749ad8895a41b8249223c13e77f08505",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_systems_prepare_20261010/native_comparison_controls/AUDIT.json": "ec80e174cfa7dd5e95773565d4450acb757e5f40bdc4893ebfb88438c96b58af",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_systems_adaptive_v1_20261010/native_comparison_controls/AUDIT.json": "7b63785ece9a1df31a6683135547441a5ea37503f2a25af392fc55be74115a21",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_public_systems_v1_20261010/public_system_controls/AUDIT.json": "c7308b6be9aca9255fa018c40c25b9fcda2cc0c4fcd80d7058c42d1c71147812",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_public_systems_v1_20261010/scalar_regression_controls/AUDIT.json": "c54f134a949b64679f93a802cab85a84ff472e19f46addde3a691f0a1b3db686",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_public_systems_v1_20261010/delivery/PATCH_IDENTITY.json": "2a18b17c3706aacac458cd26369fec204ad1cde5fae8f8d98d64a0c1b8291a66",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_public_systems_v1_20261010/delivery/STATIC_REVIEW.json": "9f49b18db66d4e90483cce9d1dfa62b23a9c4cbf1efc197938acccbaf1a5fcf7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_public_systems_v1_20261010/delivery/candidate.patch": "bed44aed056f2820483f3e09a549f271169cb3deeabd7e74d068ad49c9274e20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde_ndf_systems_prepare_20261010/SOURCE_SCOPE_REVIEW.json": "9b05c24a260a4faab2e52719e3ee81c2c344b9a873665d26a2976c6df669f1be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nsa1/AUDIT.json": "3c52dc0800d75bf48a3a01d127d8846c17ba062b006ad931ff0bf1a4610b5552"
+  }
+}

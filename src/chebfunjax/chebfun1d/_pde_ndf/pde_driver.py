@@ -1,6 +1,7 @@
-"""Scalar polynomial pdeSolve spatial restart driver, JAX arithmetic.
+"""Polynomial pdeSolve spatial restart driver, JAX arithmetic.
 Chebfun 7574c77 pdeSolve/chebdouble, MATLAB R2025b ode15s/daeic12.
-Constant full mass, increasing time, scalar BCs. Fixed N follows pdeset.
+Constant full mass, increasing time, scalar or two-component handle BCs.
+Fixed N follows pdeset. Larger systems and numeric system BCs are unsupported.
 No-BC unconstrained evolution is a Python compatibility extension.
 
 Provenance
@@ -16,14 +17,16 @@ import warnings
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import jax.scipy.linalg as jl
 
 from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.utils.diffmat import diffmat
 from chebfunjax.utils.interpolation import barymat
 from chebfunjax.utils.quadrature import chebpts_ab
 
-from .adaptive import scalar_happiness
+from .adaptive import scalar_happiness, system_happiness
 from .arity import _call_flexible as invoke
+from .arity import _positional_arity
 from .dae_init import dense_numjac, initialize_full_mass
 from .ndf import startup
 from .ndf_segment import segment
@@ -89,6 +92,20 @@ class Values:
         return Values(-self.vals, self.context, self.order, self.dependent)
 
 
+def _invoke_system(fun, t, x, columns):
+    """pdeSolve parseFun: dependent-only or full independent-variable inputs."""
+    arity = _positional_arity(fun)
+    if arity == len(columns):
+        result = fun(*columns)
+    elif arity == len(columns) + 2:
+        result = fun(t, x, *columns)
+    else:
+        raise NotImplementedError("System callbacks require (u,v) or (t,x,u,v)")
+    if not isinstance(result, (tuple, list)) or len(result) != len(columns):
+        raise ValueError("System callbacks must return one expression per component")
+    return result
+
+
 def solve(
     pdefun,
     times,
@@ -106,8 +123,13 @@ def solve(
     times = jnp.asarray(times, dtype=jnp.float64)
     if times.ndim != 1 or times.size < 2 or not bool(jnp.all(jnp.diff(times) > 0)):
         raise ValueError("Increasing output times required")
-    if u0.funs[0].tech.coeffs.ndim != 1:
-        raise NotImplementedError("Only scalar PDE initial data is supported")
+    coefficients = u0.funs[0].tech.coeffs
+    system = coefficients.ndim == 2
+    size = coefficients.shape[1] if system else 1
+    if system and (size != 2 or jnp.iscomplexobj(coefficients)):
+        raise NotImplementedError("System NDF currently supports two real components")
+    if system and (not callable(lbc) or not callable(rbc)):
+        raise NotImplementedError("Systems require a two-residual handle on each boundary")
     if len(u0.funs) != 1:
         # pdeSolve first attempts merge(all, 1025, tol), then rejects pieces.
         u0 = u0.merge("all", max_length=1025, tol=spatial_tol)
@@ -152,11 +174,30 @@ def solve(
         # Traced public evaluation stays in JAX and preserves the stored polynomial.
         initial_values = jax.jit(lambda z: current(z))(x)
         coordinate = Values(x, context, dependent=False)
-        invoke(pdefun, current_time, coordinate, Values(initial_values, context))
-        order = context["order"]
-        if ordered and order != len(ordered):
+        def components(y):
+            matrix = jnp.reshape(y, (n, size), order="F")
+            return [Values(matrix[:, k], context) for k in range(size)]
+
+        if system:
+            initial_values = jnp.reshape(initial_values, (-1,), order="F")
+            prototype = _invoke_system(pdefun, current_time, coordinate, components(initial_values))
+            orders = [v.order if isinstance(v, Values) else 0 for v in prototype]
+            order = sum(orders)
+            if order != 2 * size:
+                raise ValueError("System differential orders must match boundary constraints")
+            for _, spec in ordered:
+                _invoke_system(spec, current_time, coordinate, components(initial_values))
+        else:
+            invoke(pdefun, current_time, coordinate, Values(initial_values, context))
+            order = context["order"]
+        if not system and ordered and order != len(ordered):
             raise ValueError("Scalar differential order must equal number of boundary constraints")
-        if ordered:
+        if system:
+            blocks = [barymat(chebpts_ab(n - k + 2, *domain)[1:-1], x) for k in orders]
+            projection = jnp.concatenate(
+                (jnp.zeros((order, n * size)), jl.block_diag(*blocks)), axis=0
+            )
+        elif ordered:
             interior = chebpts_ab(n - order + 2, *domain)[1:-1]
             projection = jnp.concatenate((jnp.zeros((order, n)), barymat(interior, x)), axis=0)
         else:
@@ -167,6 +208,20 @@ def solve(
         mass = projection
 
         def raw(t, y):
+            if system:
+                columns = components(y)
+                answer = _invoke_system(pdefun, t, coordinate, columns)
+                matrix = jnp.column_stack(
+                    [jnp.broadcast_to(v.vals if isinstance(v, Values) else v, (n,)) for v in answer]
+                )
+                rhs = projection @ jnp.reshape(matrix, (-1,), order="F")
+                row = 0
+                for side, spec in ordered:
+                    for value in _invoke_system(spec, t, coordinate, columns):
+                        value = value.vals if isinstance(value, Values) else jnp.asarray(value)
+                        rhs = rhs.at[row].set(value if value.ndim == 0 else value[side])
+                        row += 1
+                return rhs
             u = Values(y, context)
             answer = invoke(pdefun, t, coordinate, u)
             values = answer.vals if isinstance(answer, Values) else jnp.asarray(answer)
@@ -184,7 +239,7 @@ def solve(
         # pdeSolve.m: BCVALOFFSET = F(BCrows) - q.  q is nonzero only
         # for numeric linear boundary conditions in this scalar API.
         boundary_rhs = jnp.asarray(
-            [spec for _, spec in linear] + [0.0] * len(nonlinear),
+            [spec for _, spec in linear] + [0.0] * (order if system else len(nonlinear)),
             dtype=initial_values.dtype,
         )
         initial_raw = raw(current_time, initial_values)
@@ -236,8 +291,11 @@ def solve(
 
         def callback(t, value):
             nonlocal current, current_time, length
+            if system:
+                value = jnp.reshape(value, (n, size), order="F")
+            happiness = system_happiness if system else scalar_happiness
             happy, cutoff = (
-                (True, None) if fixed_n is not None else scalar_happiness(value, spatial_tol)
+                (True, None) if fixed_n is not None else happiness(value, spatial_tol)
             )
             decisions.append((float(t), happy, cutoff))
             if not happy and fixed_n is None:

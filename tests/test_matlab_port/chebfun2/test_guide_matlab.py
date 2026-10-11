@@ -26,6 +26,7 @@ import numpy as np
 from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+from chebfunjax.utils._matlab_linspace import source_grid
 
 EPS = float(np.finfo(np.float64).eps)
 TOL = 1e3 * EPS
@@ -70,14 +71,14 @@ class TestChebfun2Guide:
         # pass 4-5: f = chebfun2(@(z) sin(z)-sinh(z), 2*pi*[-1 1 -1 1])
         f = chebfun2(lambda z: jnp.sin(z) - jnp.sinh(z),
                      domain=(-2 * np.pi, 2 * np.pi, -2 * np.pi, 2 * np.pi))
-        x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
+        x = np.asarray(source_grid(-2 * np.pi, 2 * np.pi, 100))
         X, Y = np.meshgrid(x, x)
         Z = jnp.asarray(X + 1j * Y)
         v_z = np.asarray(f(Z))
         v_xy = np.asarray(f(jnp.asarray(X), jnp.asarray(Y)))
-        assert float(np.max(np.abs(v_z - v_xy))) < TOL
+        assert float(jnp.linalg.norm(jnp.asarray(v_z - v_xy), ord=jnp.inf)) < TOL
         exact = np.sin(X + 1j * Y) - np.sinh(X + 1j * Y)
-        assert float(np.max(np.abs(v_z - exact))) < 1e3 * TOL
+        assert float(jnp.linalg.norm(jnp.asarray(v_z - exact), ord=jnp.inf)) < 1e3 * TOL
 
     def test_pass6to8_dimensional_sums(self):
         d = (0.0, np.pi / 4, 0.0, 3.0)
@@ -166,8 +167,8 @@ class TestChebfun2Guide:
     def test_pass19to20_cauchy_riemann(self):
         f = Chebfun2.from_function(lambda x, y: jnp.sin(x + 1j * y))
         u, v = f.real(), f.imag()
-        assert _maxdiff2(u.diff(dim=1), -v.diff(dim=2)) < TOL
-        assert _maxdiff2(u.diff(dim=2), v.diff(dim=1)) < TOL
+        assert float((u.diff(dim=1) - (-v.diff(dim=2))).norm()) < TOL
+        assert float((u.diff(dim=2) - v.diff(dim=1)).norm()) < TOL
 
     def test_pass21_parallelogram_law(self):
         d = (0.0, 1.0, 0.0, 2.0)

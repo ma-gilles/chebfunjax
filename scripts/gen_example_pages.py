@@ -272,7 +272,9 @@ def align_outputs(ref_blocks, ours):
     starts = []
     cursor = 0
     for blk in ref_blocks:
-        first = blk[0].rstrip() if blk else ""
+        # fprintf may begin an output cell with a blank line.
+        reference_offset = next((i for i, line in enumerate(blk) if line.strip()), 0)
+        first = blk[reference_offset].rstrip() if blk else ""
         found = None
         if first:
             kf = _key(first)
@@ -281,7 +283,6 @@ def align_outputs(ref_blocks, ours):
                     found = i
                     break
         anchor = found
-        reference_offset = 0
         if found is None and first.lstrip().startswith("Warning:"):
             # MATLAB may warn where Python does not, or use different wording.
             # Anchor the computed output after that warning instead. Only use

@@ -3,37 +3,37 @@
 One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python file exists without a literal skip/xfail marker; `[ ]` means a file is missing or contains a skip/xfail marker. This static inventory does not run tests, check original assertion coverage or bounds, detect every dynamically assigned marker, or establish MATLAB parity. Runtime qualification requires gate evidence. All source suites, including chebgui and adchebfun, count toward the full-parity goal; existing policy skips remain open gaps.
 
 
-**Totals: 1102 MATLAB test files — 1042 present without literal masks, 30 with skip/xfail markers, 26 module-skipped, 4 missing.**
+**Totals: 1102 MATLAB test files — 1100 present without literal masks, 2 with skip/xfail markers, 0 module-skipped, 0 missing.**
 
 
 ## adchebfun  (26/26 Python files present)
 
-- [ ] `test_airy` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_bessel` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_cumprodProd` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_cumsumDiffSumMean` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_deflationFun` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_ellipj` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_erf` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_expLog` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_fevalJump` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_fred` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_innerProduct` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_linearityDetection` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_lintest_rdivide` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_lintest_times` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_norm` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_plusMinus` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_pow2Sqrt` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_power` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_rdivide` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_seed` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_times` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_trig1` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_trig2` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_trig3` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_trig4` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
-- [ ] `test_volt` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
+- [x] `test_airy`
+- [x] `test_bessel`
+- [x] `test_cumprodProd`
+- [x] `test_cumsumDiffSumMean`
+- [x] `test_deflationFun`
+- [x] `test_ellipj`
+- [x] `test_erf`
+- [x] `test_expLog`
+- [x] `test_fevalJump`
+- [x] `test_fred`
+- [x] `test_innerProduct`
+- [x] `test_linearityDetection`
+- [x] `test_lintest_rdivide`
+- [x] `test_lintest_times`
+- [x] `test_norm`
+- [x] `test_plusMinus`
+- [x] `test_pow2Sqrt`
+- [x] `test_power`
+- [x] `test_rdivide`
+- [x] `test_seed`
+- [x] `test_times`
+- [x] `test_trig1`
+- [x] `test_trig2`
+- [x] `test_trig3`
+- [x] `test_trig4`
+- [x] `test_volt`
 
 ## ballfun  (49/49 Python files present)
 
@@ -122,9 +122,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_constructor`
 - [x] `test_createMap`
 - [x] `test_cumsum`
-- [ ] `test_diff` — literal skip/skipif/xfail present; inspect runtime evidence
-- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
-- [ ] `test_innerProduct` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_diff`
+- [x] `test_feval`
+- [x] `test_innerProduct`
 - [x] `test_mldivide`
 - [x] `test_mrdivide`
 - [x] `test_poly`
@@ -151,9 +151,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_addBreaks`
 - [x] `test_addBreaksAtRoots`
 - [x] `test_airy`
-- [ ] `test_all` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_all`
 - [x] `test_and`
-- [ ] `test_any` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_any`
 - [x] `test_arclength`
 - [x] `test_assignColumns`
 - [x] `test_atan2`
@@ -227,8 +227,8 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_inv`
 - [x] `test_isempty`
 - [x] `test_isequal`
-- [ ] `test_isfinite` — literal skip/skipif/xfail present; inspect runtime evidence
-- [ ] `test_isinf` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_isfinite`
+- [x] `test_isinf`
 - [x] `test_isnan`
 - [x] `test_iszero`
 - [x] `test_ivp`
@@ -280,7 +280,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_realpow`
 - [x] `test_realsqrt`
 - [x] `test_removeDeltas`
-- [ ] `test_repmat` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_repmat`
 - [x] `test_residue`
 - [x] `test_restrict`
 - [x] `test_roots`
@@ -340,7 +340,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_emptyObjects`
 - [x] `test_end`
 - [x] `test_equiOption`
-- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_feval`
 - [x] `test_fevalm`
 - [x] `test_gradys_function1`
 - [x] `test_gradys_function2`
@@ -455,12 +455,12 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_diffx`
 - [x] `test_diffy`
 - [x] `test_diffz`
-- [ ] `test_divide` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_divide`
 - [x] `test_domainChck`
 - [x] `test_domainvolume`
 - [x] `test_emptyObjects`
 - [x] `test_equiFlag`
-- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_feval`
 - [x] `test_fevalt`
 - [x] `test_fold_unfold`
 - [x] `test_get`
@@ -507,7 +507,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_subsref`
 - [x] `test_sum`
 - [x] `test_sum2`
-- [ ] `test_sum3` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_sum3`
 - [x] `test_techs`
 - [x] `test_times`
 - [x] `test_trigs`
@@ -560,15 +560,15 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_twocomponents`
 - [x] `test_vertcat`
 
-## chebgui  (3/7 Python files present)
+## chebgui  (7/7 Python files present)
 
 - [x] `test_multipleOutputs`
 - [x] `test_parSimp`
 - [x] `test_stringParser`
-- [ ] `test_toFileBVP` — no port file
-- [ ] `test_toFileEIG` — no port file
-- [ ] `test_toFileIVP` — no port file
-- [ ] `test_toFilePDE` — no port file
+- [x] `test_toFileBVP` — combined port: `test_toFile_exporters_matlab.py`
+- [x] `test_toFileEIG` — combined port: `test_toFile_exporters_matlab.py`
+- [x] `test_toFileIVP` — combined port: `test_toFile_exporters_matlab.py`
+- [x] `test_toFilePDE` — combined port: `test_toFile_exporters_matlab.py`
 
 ## chebmatrix  (15/15 Python files present)
 
@@ -594,14 +594,14 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_adjoint`
 - [x] `test_autoVectorize`
 - [x] `test_basic_arithmetic`
-- [ ] `test_bc` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_bc`
 - [x] `test_bcVectorInput`
 - [x] `test_bcsyntax`
 - [x] `test_carrier_C1`
 - [x] `test_carrier_C2`
 - [x] `test_carrier_US`
 - [x] `test_cellOperator`
-- [ ] `test_chap21` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_chap21`
 - [x] `test_cumsum`
 - [x] `test_deflate_bratu`
 - [x] `test_deflate_herceg`
@@ -609,7 +609,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_determineDiscretization`
 - [x] `test_diff`
 - [x] `test_domain`
-- [ ] `test_eigs_basic` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_eigs_basic`
 - [x] `test_eigs_drum`
 - [x] `test_eigs_foxli`
 - [x] `test_eigs_orrsom`
@@ -715,7 +715,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_rhs2`
 - [x] `test_schrodinger`
 - [x] `test_separableFormat`
-- [ ] `test_squarewaveequation` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_squarewaveequation`
 - [x] `test_subsref`
 - [x] `test_transport`
 - [x] `test_univariate`
@@ -771,7 +771,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_poly`
 - [x] `test_prolong`
 - [x] `test_qr`
-- [ ] `test_quadpts` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_quadpts`
 - [x] `test_rdivide`
 - [x] `test_real`
 - [x] `test_restrict`
@@ -807,16 +807,16 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 ## classicfun  (12/12 Python files present)
 
 - [x] `test_isempty`
-- [ ] `test_isequal` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_isequal`
 - [x] `test_mat2cell`
 - [x] `test_max`
-- [ ] `test_min` — literal skip/skipif/xfail present; inspect runtime evidence
-- [ ] `test_minandmax` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_min`
+- [x] `test_minandmax`
 - [x] `test_minus`
-- [ ] `test_mtimes` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_mtimes`
 - [x] `test_plus`
-- [ ] `test_rdivide` — literal skip/skipif/xfail present; inspect runtime evidence
-- [ ] `test_roots` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_rdivide`
+- [x] `test_roots`
 - [x] `test_times`
 
 ## deltafun  (19/19 Python files present)
@@ -864,7 +864,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_get`
 - [x] `test_grad`
 - [x] `test_harmonic`
-- [ ] `test_helmholtz` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_helmholtz`
 - [x] `test_inherited`
 - [x] `test_integral`
 - [x] `test_integral2`
@@ -977,7 +977,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_conformal`
 - [x] `test_conformal2`
 - [x] `test_cumsummat`
-- [ ] `test_diffmat` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_diffmat`
 - [x] `test_fov`
 - [x] `test_gpr`
 - [x] `test_hermpoly`
@@ -995,7 +995,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_legpoly`
 - [x] `test_legpts`
 - [x] `test_lobpts`
-- [ ] `test_minimax` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_minimax`
 - [x] `test_nufft`
 - [x] `test_nufft2`
 - [x] `test_padeapprox`
@@ -1026,7 +1026,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_chebcoeffs`
 - [x] `test_compose`
 - [x] `test_conj`
-- [ ] `test_cumsum` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_cumsum`
 - [x] `test_diff`
 - [x] `test_feval`
 - [x] `test_flipud`
@@ -1038,7 +1038,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_isnan`
 - [x] `test_make`
 - [x] `test_minandmax`
-- [ ] `test_plus` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_plus`
 - [x] `test_rdivide`
 - [x] `test_real`
 - [x] `test_restrict`

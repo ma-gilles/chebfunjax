@@ -99,3 +99,11 @@ def test_repeated_scalar_labels_remain_in_order(generator):
     actual = ['Residual is 1e-6', 'Residual is 2e-8', 'Residual is 3e-10']
     reference = [['Residual is 4e-6'], ['Residual is 5e-8'], ['Residual is 6e-10']]
     assert generator.align_outputs(reference, actual) == [[line] for line in actual]
+
+
+def test_leading_blank_fprintf_cell_keeps_its_own_values(generator):
+    reference = [['ans =', '7.5e-6'], ['', '  final J[y]: 2.8134302039411909',
+                                            'optimal J[y]: 2.8134302039235082']]
+    actual = ['ans =', '7.515155780849027e-6', '',
+              '  final J[y]: 2.8134302039413677', 'optimal J[y]: 2.8134302039235086']
+    assert generator.align_outputs(reference, actual) == [actual[:2], actual[3:]]

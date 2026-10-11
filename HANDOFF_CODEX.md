@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## CPU systems, Catenary, and literal guide checks (2026-10-10; latest)
+
+Two-component real polynomial PDEs now use the existing JAX NDF driver,
+including native weighted spatial adaptation. Eighteen focused controls pass;
+comparison with native33-to-65 restart fields differs8.72e-12 (bound1e-7).
+Larger systems, numeric system BCs, complex/Fourier and sparse/variable mass
+remain open. Evidence: docs/pde15s_systems_cpu_20261010.json.
+
+Catenary completes all five public solves in96.82s, peak3,849,884KiB.
+Four printed blocks now occupy their source positions, prose/code unchanged,
+and the600x270figure labels fit. Energy differences from cached MATLAB are
+about1.8e-13; exact numerical/pixel parity remains open. The leading-blank
+fprintf alignment fix passes14generator tests. Evidence:
+docs/catenary_full_cpu_20261010.json.
+
+Six Chebfun2 complex/guide/transpose test nodes (11native predicates) pass
+with source matrix-infinity and public Chebfun norms restored. Evidence:
+docs/chebfun2_complex_native_predicates_cpu_20261010.json. Checklist now
+recognizes four GUI exporters in their combined test port:1100present and
+2masked native test files, no missing files; this is presence, not parity.
+Historical directChebfun3 qualification is72/80;8 remain. Current-main CI
+was queued/pending before this publication, and full parity remains open.
+
 ## Bivariate normal source computations and historical3D40/80 (2026-10-10)
 
 The bivariate-normal example now forms the conditional density from computed

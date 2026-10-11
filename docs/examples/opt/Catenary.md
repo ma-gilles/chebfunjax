@@ -113,15 +113,15 @@ end
 
 ```text
 nextJ =
-   2.840828750691889
+   2.840828750691961
 nextJ =
-   2.816226754422303
+   2.816226754422380
 nextJ =
-   2.813551498179470
+   2.813551498179582
 nextJ =
-   2.813430779819884
+   2.813430779819992
 nextJ =
-   2.813430203941231
+   2.813430203941368
 ```
 
 The exact solution is a simple $\cosh$. Here is the error in our solution.
@@ -133,10 +133,7 @@ norm(y - y_exact)
 
 ```text
 ans =
-     7.515155634723200e-06
-
-  final J[y]: 2.8134302039412309
-optimal J[y]: 2.8134302039235082
+     7.515155780849027e-06
 ```
 
 And the values of the energy functional:
@@ -147,7 +144,8 @@ fprintf('optimal J[y]: %.16f\n', J(y_exact))
 ```
 
 ```text
-
+  final J[y]: 2.8134302039413677
+optimal J[y]: 2.8134302039235086
 ```
 
 Finally, a plot of the catenary:

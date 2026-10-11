@@ -13,11 +13,11 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MultipleLocator, StrMethodFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
@@ -43,7 +43,6 @@ def J(y):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     alpha, beta = np.cosh(-1), np.cosh(1)
     y0 = cj.chebfun(jnp.asarray([alpha, beta]), domain=DOM)
@@ -92,11 +91,18 @@ def run():
                  label='exact')
     y.plot(ax=ax, color='k', linewidth=1, label='computed')
     ax.set_aspect('equal', adjustable='datalim')
-    ax.set_title('Solution to the catenary problem', fontsize=9)
-    ax.set_xlabel('x', fontsize=10.5)
-    ax.set_ylabel('y(x)', fontsize=10.5)
-    ax.legend(loc='upper center')
-    fig.tight_layout()
+    ax.set_title('Solution to the catenary problem', fontsize=9, fontweight='bold')
+    ax.set_xlabel('x', fontsize=10.5, labelpad=-4)
+    ax.set_ylabel('y(x)', fontsize=10.5, labelpad=0)
+    ax.legend(loc='upper center', fancybox=False, framealpha=1,
+              fontsize=8, borderpad=.2, labelspacing=.1, handletextpad=.3)
+    ax.set_position((.13, .11, .775, .815))
+    ax.set_xlim(-1, 1)
+    ax.set_xticks(np.linspace(-1, 1, 11))
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.yaxis.set_major_locator(MultipleLocator(.1))
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.tick_params(top=True, right=True)
     _savefig(fig, os.path.join(_IMG, "Catenary_01.png"))
     plt.close(fig)
 
