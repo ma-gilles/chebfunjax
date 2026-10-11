@@ -413,6 +413,7 @@ def main():
             ("linalg", "EigLandscapes"),
             ("applics", "VanillaOptions"),
             ("approx", "Noisy"),
+            ("stats", "BivariateNormalDistribution"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "
                   "prose/code and qualified Python stdout/figures")

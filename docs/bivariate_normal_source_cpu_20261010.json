@@ -1,0 +1,88 @@
+{
+  "library_head": "63a49ffbb2b6b903cd93e3173ad1d6f8e3537b43",
+  "source_computation": "Public p.sum default; conditional p(x,y)/px(x); public Chebfun marginal and conditional L2 norms; original domains. No analytic substitution or sampled quadrature error proxy.",
+  "result": {
+    "integral": 0.9999999999999983,
+    "marginal_error": 1.670577090745858e-15,
+    "conditional_error": 1.381186230323162e-15,
+    "joint_rank": 25,
+    "conditional_rank": 16,
+    "marginal_length": 93,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "elapsed_seconds": 22.361899968702346
+  },
+  "actual_output": [
+    "Integral of pdf 0.9999999999999983",
+    "Error of marginal = 1.671e-15",
+    "Error in conditional pdf is 1.38119e-15"
+  ],
+  "cached_reference_output": [
+    "Integral of pdf 0.9999999999999991",
+    "Error of marginal = 3.518e-15",
+    "Error in conditional pdf is 1.72302e-15"
+  ],
+  "figures": [
+    {
+      "name": "BivariateNormalDistribution_01.png",
+      "sha256": "4f334b5f6b3bb6f00969875210fed06c77966376cae867cafbc83b31cd70ba9e",
+      "size": [
+        600,
+        270
+      ]
+    },
+    {
+      "name": "BivariateNormalDistribution_02.png",
+      "sha256": "8fef43eb26d6f63cdebc8978a735ccdc2fcc06ec07a6533cd1ebe8e263a8ccb3",
+      "size": [
+        600,
+        270
+      ]
+    },
+    {
+      "name": "BivariateNormalDistribution_03.png",
+      "sha256": "63628b2b56ab30f4dd47b6b8b5c3bbcf79f6e7b1449df2eed9d1e7b74cab0cf6",
+      "size": [
+        600,
+        270
+      ]
+    }
+  ],
+  "receipt": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1615888,
+    "wall_seconds": 27.926691339816898
+  },
+  "prose_and_matlab_code_unchanged": true,
+  "replay": {
+    "captures": [
+      {
+        "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/captures/BivariateNormalDistribution_01.pkl",
+        "sha256": "1071b6fd313cac45750bfbbcad661b62fa87ea3510d8cbf7f1ed163b4463eb7a"
+      },
+      {
+        "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/captures/BivariateNormalDistribution_02.pkl",
+        "sha256": "a6d30f3a845704526fcbaa177f9d5ea8bcb480ebb38d597d9f221b0bd089b36c"
+      },
+      {
+        "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/captures/BivariateNormalDistribution_03.pkl",
+        "sha256": "a3e4af8b901b6a52b25c2ff939fc51c851bfbf2307a12295f8152f253f465bd3"
+      }
+    ],
+    "scope": "Only axes typography/ticks/line widths; no scientific recomputation. run AST unchanged."
+  },
+  "limits": "Output roundoff differs from cached MATLAB page; exact pixel, native lighting and plot-box aspect parity remain open. No full raw coefficient equality claimed.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/guard.json": "f3d97e53ae41944a3e7527815eebff831022975c0ff00c4a669e1c68e9a053b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/supervision/receipt.json": "75e7c558090796111be982c627163a47b1492a3ceb6017b15625ca6377bb1962",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/supervision/stdout": "c3dd5f0ec0e2f484bb4c063db6c7462ce58cd4f9448b00833f9fd34c8c0b8cfa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/result.json": "1ca971e9bb683f5ec49f93dc47bf25e33efe0759e6b4e6322fd871f18f3b1086",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bivariate_full_63a49ffb_20261010/REPLAY.json": "b6c6de6d2812b7b6fccf394ac1b8bbad7a23a3214c6a2d2a0ce4078ced4fd7b8",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/stats_BivariateNormalDistribution.html": "ab203ca650322ff4d21c3100853300c1890b199eeccfdffe45f9bb1d302e1e6d"
+  },
+  "published_script_sha256": "0e6fb6b5690b97ee3094c667b6efd7d9987974c5130f606ec5a15fc3e6944c1e"
+}

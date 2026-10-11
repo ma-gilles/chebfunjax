@@ -1,5 +1,20 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Bivariate normal source computations and historical3D40/80 (2026-10-10)
+
+The bivariate-normal example now forms the conditional density from computed
+joint/marginal functions and uses public Chebfun norms. Full CPU execution
+22.36s, peak1,615,888KiB, completes all three outputs and600x270figures.
+Marginal/conditional errors1.67e-15/1.38e-15; cached MATLAB roundoff differs.
+The empty final output fence and misplaced conditional output are repaired.
+Source domains are retained; exact rendering remains open. Evidence:
+docs/bivariate_normal_source_cpu_20261010.json.
+
+Historical frozene6748499 directChebfun3 qualification reaches40/80 cases
+(200nativepredicates);40 remain. Latest eight pass in370.55s, no caps or
+survivors. These are not current-main suite results. Evidence:
+docs/port_mirror_execution_cpu_20261010.md.
+
 ## All twenty native minimax predicates restored (2026-10-10; latest)
 
 Remove nonnative reference-point jitter and retain stored Chebfun breakpoints

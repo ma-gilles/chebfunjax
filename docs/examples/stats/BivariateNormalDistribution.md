@@ -39,7 +39,7 @@ fprintf('Integral of pdf %1.16f\n', integral2(p))
 ```
 
 ```text
-Integral of pdf 0.9999999999999982
+Integral of pdf 0.9999999999999983
 ```
 
 The value above is less than 1 because of numerical error, not because we have restricted the domain of the probability density function to $[-10,10]\times [,10,-10]$.
@@ -65,8 +65,7 @@ fprintf('Error of marginal = %1.3e\n',norm(px-exact'))
 ```
 
 ```text
-Error of marginal = 1.669e-15
-Error in conditional pdf is 1.75935e-16
+Error of marginal = 1.671e-15
 ```
 
 ## Conditional probability distributions
@@ -92,7 +91,7 @@ fprintf('Error in conditional pdf is %1.5e\n',norm(fy(x,:)-exact));
 ```
 
 ```text
-
+Error in conditional pdf is 1.38119e-15
 ```
 
 ## References

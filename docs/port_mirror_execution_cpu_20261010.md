@@ -34,10 +34,10 @@ The v4 lane audit details and timeout-policy hashes remain in `recovery_20261010
 
 Native `tests/misc/test_pde15s.m` compares the same PDE under `chebtech1` and `chebtech2`, with native default solver options, and checks cross-run norm against `1e5*pref.chebfuneps`. Native `pdeSolve.m` sets PDE tolerance to `1e-6` by default, maps ODE tolerances from it, and adaptively refines nonperiodic `chebtech2` spatial grids. The frozen Python test instead supplies `rtol=1e-10`, `atol=1e-12`; its solver uses fixed inferred resolution with no spatial adaptation. Treat this as an open solver implementation/port-contract gap. Do not loosen the assertion or claim a tolerance-only repair. SciPy dependency debt remains separate; this evidence does not establish a JAX-only solver.
 
-## Direct Chebfun3 battery: first thirty-two cases qualified
+## Direct Chebfun3 battery: first forty cases qualified
 
-Thirty-two of the 80 direct cases now pass on the frozen `e6748499` source, separately
-from the wrapper results above. Indices 0–31 cover 160 native predicates; 48 direct
+Forty of the 80 direct cases now pass on the frozen `e6748499` source, separately
+from the wrapper results above. Indices 0–39 cover 200 native predicates; 40 direct
 cases remain unexecuted. These results do not establish current-main suite success.
 
 | Gate | Original handle | Cases | Wall time | Peak summed RSS |
@@ -48,9 +48,10 @@ cases remain unexecuted. These results do not establish current-main suite succe
 | `execution_v14` | 15703 | indices 8–15 | 587.71 s | 3,350,932 KiB |
 | `execution_v15` | 57135 | indices 16–23 | 706.68 s | 3,277,836 KiB |
 | `execution_v16` | 79002 | indices 24–31 | 420.81 s | 2,183,724 KiB |
+| `execution_v17` | 45680 | indices 32–39 | 370.55 s | 1,914,480 KiB |
 
 Each case ran serially in a fresh spawn worker, with its original 600-second
-per-case timeout and a 4 GiB RSS cap. All six runs exited normally, with stable
+per-case timeout and a 4 GiB RSS cap. All seven runs exited normally, with stable
 inputs, no resource cap, and no surviving owned process. The observer records
 worker completion before the pool terminates it; parent and worker module/native
 snapshots all pass. Snapshots do not prove coverage of transient dynamic loads.
@@ -93,3 +94,9 @@ bindings and ordered eight-case JUnit scope. Audit:
 `execution_v16/AUDIT_v16.json`, SHA-256
 `1de5550b6c80d59156620bb2031a44ba3f119fd62850490a21c8ceb0157da60d`.
 Root review: `ROOT_INDICES24_31_REVIEW.json`.
+
+The v17 audit verifies all eight exact nodes and worker completion records.
+Root verified 13 artifact bindings and ordered JUnit indices32–39. Inputs
+remain stable, with no cap or survivors. Audit: `execution_v17/AUDIT_v17.json`,
+SHA-256 `3cfbe5d496bee9cfa4ca23dacaa403e716719810add7d42d3ab3329074cdac05`.
+Root review: `ROOT_INDICES32_39_REVIEW.json`. These remain historical results.
