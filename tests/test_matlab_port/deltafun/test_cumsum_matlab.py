@@ -1,11 +1,9 @@
 """Port of MATLAB Chebfun tests/deltafun/test_cumsum.m (Opus 4.8).
 
-In MATLAB, integrating a Deltafun turns each delta into a Heaviside jump, so
-``cumsum`` returns a (piecewise) chebfun — wrapped in a cell — rather than a
-Deltafun.  chebfunjax's ``Deltafun.cumsum`` instead returns another Deltafun
-whose funPart absorbs the Heaviside contributions using the ``x >= loc``
-convention, so both the return type and the endpoint values diverge from
-MATLAB.  These divergences are captured as xfails.
+The native return is empty Deltafun, a cell/list for interior jumps, or a
+single integrated fun for endpoint-only jumps. The original three predicates
+are retained; independent saved-native and branch controls are in the adjacent
+source-controls module.
 
 Provenance
 ----------
@@ -44,7 +42,7 @@ class TestDeltafunCumsum:
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_cumsum_heaviside_endpoints(self):
-        # pass(3): ~isa(F,'deltafun') && feval(F,-1)~=-1 && feval(F,1)~=-1
+        # pass(3): ~isa(F,'deltafun') && abs(feval(F,-1)+1)<tol && abs(feval(F,1)+1)<tol
         f = Bndfun.from_function(lambda x: jnp.sin(jnp.pi * x), DOM)
         d = Deltafun(f, jnp.array([-1.0, 1.0]), jnp.array([-1.0, 1.0]))
         F = d.cumsum()

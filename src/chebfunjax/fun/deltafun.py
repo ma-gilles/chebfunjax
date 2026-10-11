@@ -913,8 +913,6 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/cumsum.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-
         if self.isempty():
             return Deltafun.empty()
 
@@ -924,16 +922,16 @@ class Deltafun(eqx.Module):
         if not self.has_deltas:
             return self.funPart.cumsum()
 
+        # Native captures the impulse arrays before simplifyDeltas.
+        deltaMag, deltaLoc = self.delta_mags, self.delta_locs
+
         # Clean up delta functions (drop magnitudes below deltaTol).
         f = self.simplify_deltas()
         if f.n_deltas == 0:
             return f.funPart.cumsum()
 
-        deltaMag = _np.asarray(f.delta_mags)  # (M, N)
-        deltaLoc = _np.asarray(f.delta_locs)  # (N,)
-
         # Locations where the first-order deltas introduce jumps.
-        idx = _np.abs(deltaMag[0, :]) >= deltaTol
+        idx = jnp.abs(deltaMag[0, :]) >= deltaTol
         jumpLocs = deltaLoc[idx]
         jumpVals = list(deltaMag[0, idx])
 
@@ -941,7 +939,7 @@ class Deltafun(eqx.Module):
         # are now all-zero (MATLAB deltafun.cleanColumns).
         if deltaMag.shape[0] > 1:
             resMag = deltaMag[1:, :]
-            keep = _np.any(resMag != 0.0, axis=0)
+            keep = ~(jnp.max(jnp.abs(resMag), axis=0) < deltaTol)
             resMag = resMag[:, keep]
             resLoc = deltaLoc[keep]
         else:
@@ -996,20 +994,21 @@ class Deltafun(eqx.Module):
             dk_a, dk_b = breakPts[k], breakPts[k + 1]
             fk = self.funPart.restrict(dk_a, dk_b).cumsum() \
                 + jumpVals[k] + prevFunVal
-            prevFunVal = float(fk(jnp.float64(dk_b)))
+            prevFunVal = fk(jnp.float64(dk_b))
 
             # Higher-order deltas strictly inside [dk_a, dk_b].
             if _has_residual():
                 sel = (resLoc >= dk_a) & (resLoc <= dk_b)
             else:
                 sel = None
-            if sel is not None and bool(_np.any(sel)):
+            if sel is not None and bool(jnp.any(sel)):
                 lk = resLoc[sel]
-                mk = resMag[:, sel].copy()
                 # Split an end-point delta shared with the next fun in half.
                 if k <= nfuns - 2 and lk[-1] == dk_b:
-                    last = int(_np.where(sel)[0][-1])
-                    mk[:, -1] = resMag[:, last] / 2.0
+                    last = int(jnp.flatnonzero(sel)[-1])
+                    # Both neighboring pieces inherit the same half impulse.
+                    resMag = resMag.at[:, last].set(resMag[:, last] / 2.0)
+                mk = resMag[:, sel]
                 g.append(Deltafun(fk, jnp.asarray(lk), jnp.asarray(mk)))
             else:
                 g.append(fk)

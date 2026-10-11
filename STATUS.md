@@ -1,11 +1,16 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `033ff43c` is published; this checkpoint adds the qualified
-constructor-warning, PDE arithmetic and Chebfun2v packages below. Full parity
+Main through `40a1873a` is published; this checkpoint adds the qualified
+Deltafun cumulative-integration corrections below. Full parity
 remains incomplete. Historical checkpoints below retain their original scope.
 Pushes work. This effort qualifies CPU execution only.
 
 Recent verified changes:
+
+- Deltafun integration correctly shares residual derivative impulses between
+  adjacent pieces and preserves complex integration constants. Nine focused
+  checks pass, including three independent MATLAB captures and native branch
+  controls. This method now uses JAX arrays for its numerical bookkeeping.
 
 - The original PDE continuous Frobenius predicate passes at **3.52943e-12**
   against its unchanged **2.22045e-11** bound. Native defaults and C2 nodes
@@ -26,7 +31,7 @@ Recent verified changes:
 Verification still required:
 
 - Full native API and assertion coverage, including the remaining Bessel
-  predicates and finite-delta cumsum behavior.
+  predicates and wider distribution/threshold-edge behavior.
 - Remaining page computations, printed output, random inputs and figure details.
   The frozen `64cf5c3b` inventory finds all **322 pages**, **2,408 MATLAB blocks**,
   original prose/math and **1,305 reference-sized assets**. These static checks

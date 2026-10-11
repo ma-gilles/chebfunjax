@@ -1,0 +1,49 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "40a1873af1f80defa1c06cc71955e0eb3758fa9e",
+  "scope": "Only Deltafun.cumsum method executable AST changes; native persistent shared-boundary residual halving, complex integration carry, source cleanColumns threshold. Numerical operations in this method are JAX-only; constructors/helpers still have legacy NumPy outside this scope.",
+  "native_evidence": {
+    "release": "R2025b Update2",
+    "original_source_predicates": [
+      true,
+      true,
+      true
+    ],
+    "rng": 6178,
+    "independent_cases": [
+      "zero with interior plain+derivative impulse",
+      "complex ix with interior plain+derivative impulse",
+      "exponential with two interior plain+derivative impulses"
+    ],
+    "actual_science_seconds": 0.748224
+  },
+  "baseline": "3 original predicates passed; 3 independent native controls failed: shared residual magnitude too large in following piece, and TypeError converting complex carry to float.",
+  "candidate": "6 passed in12.64s: original3 plus independent native3; identical saved residual weights and locations, regular-part values within unchanged native deltaTol1e-9.",
+  "supplement": "3 passed in3.42s: residual-column threshold, derivative-only, endpoint-only branches. Source-derived controls, not additional MATLAB capture claims.",
+  "runtime": "JAX/JAXlib0.11.0 CPU/x64; source origins in guarded runtime.json",
+  "limitations": [
+    "Original Python random input for source predicate2 differs from the native seeded draw; both test the literal cell return predicate. Independent native controls use exactly matched deterministic inputs.",
+    "Does not qualify all delta constructor, threshold-edge, derivative, array-valued or distribution contracts.",
+    "The native floating-point regular-part sample check uses native deltaTol; no bitwise regular-part claim."
+  ],
+  "receipts": {
+    "native": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delta_cumsum_followthrough_20261011/native/run/receipt.json",
+      "sha256": "596008326df0c1e314e20f453e1cffd8826a43c96c95df9889eb5c3a65a2f355"
+    },
+    "baseline": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delta_cumsum_followthrough_20261011/baseline/run/receipt.json",
+      "sha256": "67c97715d03f4aa5484038630288279b713472f8d7385854ab3ce1a3bc672e70"
+    },
+    "candidate": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delta_cumsum_followthrough_20261011/candidate/run/receipt.json",
+      "sha256": "fdf8b10fe94bd642f2f921cc4363b70aa6d228051be23ea7d4891fadbe6fdf8f"
+    },
+    "supplement": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delta_cumsum_followthrough_20261011/supplement/run/receipt.json",
+      "sha256": "0698d89488eaa7ba475e05eaff479529403e12238c1871ad47ba4fefbaea2db2"
+    }
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delta_cumsum_followthrough_20261011",
+  "publication_formatting": "Ruff formatting/import organization and portable fixture path only; numerical test assertions retained."
+}
