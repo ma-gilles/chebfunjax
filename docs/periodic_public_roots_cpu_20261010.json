@@ -1,0 +1,19 @@
+{
+  "base": "8899809b",
+  "scope": "Public periodic complex/all root technology routing, polynomial route unchanged",
+  "source": "Chebfun 7574c77 @chebfun/roots.m rootsPref and @trigtech/roots.m struct all/prune fields",
+  "tests": 6,
+  "controls": "Shifted cosine roots on3physicaldomains, both public flags; analytic root location and public residual checked",
+  "wall_seconds": 11.919263381976634,
+  "peak_rss_kib": 837964,
+  "inputs_stable": true,
+  "input_count": 283,
+  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_public_complex_roots_20261010/gate_v2",
+  "receipt_sha256": "55bb3b90fef2c0c1cb87be69747f9fc4cc2fc13648cbf83ab572f8ccaf3887a3",
+  "junit_sha256": "c0e289397ab25a09928d5082216b36824816c9f43e193df1ddbbab6ed5220ce6",
+  "limits": [
+    "Focused controls, not full suite or fresh MATLAB capture",
+    "Earlier preparation guard path mismatch occurred before science and is preserved in PREPARATION_FAILURE.json"
+  ],
+  "source_sha256": "11055342ebea2c8c7c78d3beb78523de3303e101a2913c6a8f0d49aa29ad5dbd"
+}

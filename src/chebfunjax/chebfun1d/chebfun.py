@@ -5884,10 +5884,17 @@ class Chebfun(eqx.Module):
                 # per-leaf Bernstein-ellipse pruning; 'all' disables
                 # recursion so a degree-n piece yields exactly n roots
                 # (@chebfun/roots.m flag table)
-                t = _np.asarray(piece.tech.roots(
-                    complex_roots=(complex_roots and not all_roots),
-                    all_roots=all_roots,
-                    recurse=not (all_roots or norecursion)))
+                from chebfunjax.tech.trigtech import Trigtech
+
+                if isinstance(piece.tech, Trigtech):
+                    # @trigtech/roots.m reads all/prune from rootsPref.
+                    t = _np.asarray(piece.tech.roots(
+                        all=True, prune=complex_roots and not all_roots))
+                else:
+                    t = _np.asarray(piece.tech.roots(
+                        complex_roots=(complex_roots and not all_roots),
+                        all_roots=all_roots,
+                        recurse=not (all_roots or norecursion)))
                 # map reference [-1,1] -> physical [a, b]
                 croots.append(0.5 * (b - a) * t + 0.5 * (a + b))
             if not croots:

@@ -2517,11 +2517,13 @@ class Chebfun2(eqx.Module):
         return ((1.0 / (xb - xa)) * ((self - centered_at) ** 2).sum(2)).sqrt()
 
     @classmethod
-    def complex(cls, re: "Chebfun2", im: "Chebfun2" = None) -> "Chebfun2":
+    def complex(cls, re: "Chebfun2", im: "Chebfun2" = None) -> Union["Chebfun2", jax.Array]:
         """Complex Chebfun2 from real (and imaginary) parts (MATLAB complex).
 
-        ``complex(f)`` requires a real f and returns it (f + 0i);
-        ``complex(f, g)`` requires real f, g and returns f + 1i*g.
+        ``complex(f)`` requires real f and returns its existing real storage;
+        ``complex(empty())`` follows MATLAB's scalar-zero result. With two
+        inputs, source ``plus`` returns the nonzero operand when either input
+        is empty or zero, preserving the surviving operand's storage.
 
         Provenance
         ----------
@@ -2535,10 +2537,23 @@ class Chebfun2(eqx.Module):
             if not re.isreal() or not im.isreal():
                 raise ValueError("CHEBFUN:SEPARABLEAPPROX:complex:notReal1: "
                                  "Inputs must be real valued.")
+            if re.isempty():
+                return cls.empty() if im.isempty() else 1j * im
+            if im.isempty():
+                return re
+            # MATLAB @separableApprox/plus short-circuits an exact zero
+            # operand, which also preserves the surviving factor storage.
+            from chebfunjax.chebfun2d._extrema_source import _iszero
+            if _iszero(re.approx):
+                return 1j * im
+            if _iszero(im.approx):
+                return re
             return re + 1j * im
         if not re.isreal():
             raise ValueError("CHEBFUN:SEPARABLEAPPROX:complex:notReal2: "
                              "Input must be real valued.")
+        if re.isempty():
+            return jnp.asarray(0.0, dtype=jnp.float64)
         return re
 
     def isreal(self) -> bool:

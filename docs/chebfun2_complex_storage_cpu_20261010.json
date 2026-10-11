@@ -1,0 +1,51 @@
+{
+  "scope": "Private candidate comparing Python Chebfun2.complex against the runtime-provenanced native table; no publication checkout changes.",
+  "base_commit": "fa6c09012189c17d72cb4c12e2f58fa31182bc55",
+  "base_tree": "e73fe72e15d32d0cabb44eb4f581ac8aa35dccce",
+  "publication_head_when_reported": "8899809ba88f1dc529dbdda1695c08b3324dfcf7",
+  "post_base_src_test_changes": [
+    "src/chebfunjax/chebfun1d/chebfun.py",
+    "tests/test_matlab_port/chebfun/test_roots_norecursion_source.py"
+  ],
+  "candidate_note": "Candidate is an archive of fa6c090. The later publication head has two unrelated source/test changes in chebfun1d and a no-recursion roots test; candidate was intentionally not rebased.",
+  "native_evidence": {
+    "observation_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_storage_20261010/A_native_v2/OBSERVATION_REPORT.json",
+    "observation_report_sha256": "920506102c776e517fc5638539a08bc22d574905d0b25e63e35f2af3556e907b",
+    "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_storage_20261010/A_native_v2/ROOT_REVIEW.json",
+    "root_review_sha256": "2675e1df82956ad7b5f1b400dd070e34500fc63c2dd8e046e601e44668ce5406",
+    "native_audit_sha256": "2988edbb13b458a0112553e3aa896564b60fd0535f4162e8fabb3b420592b18c"
+  },
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_storage_20261010/python_candidate_fa6c090/evidence/complex_storage.patch",
+    "sha256": "f98908faeeb5d68c3cb50b71f564c3278a675a1f7bb663da89a9073575859610",
+    "changed_files": [
+      "src/chebfunjax/chebfun2d/chebfun2.py",
+      "tests/test_chebfun2d/test_chebfun2.py"
+    ],
+    "source_sha256": "bafa7fb2976f4017894a58b3e7c65dd8175d81e6ed1e65bb349db867a8869bb8",
+    "test_sha256": "2a8bbb9b6ff22d155d8c6efd7f852496aefc1ad87268aa5a1ab70c6b3f97fbd6"
+  },
+  "change_summary": [
+    "For one-argument empty Chebfun2, return a scalar float64 zero as observed in MATLAB.",
+    "For two-argument calls, follow source plus empty/zero short-circuits to preserve actual storage behavior.",
+    "Retain nonempty one-argument identity; no forced complex cast.",
+    "Keep original classmethod test and add source-storage case regression covering all ten observed native cases and both original native norm predicates."
+  ],
+  "focused_control": {
+    "nodeids": [
+      "tests/test_chebfun2d/test_chebfun2.py::TestChebfun2Reductions::test_complex_classmethod",
+      "tests/test_chebfun2d/test_chebfun2.py::TestChebfun2Reductions::test_complex_source_storage_cases"
+    ],
+    "result": "2 passed",
+    "pytest_summary": "2 passed, 1 warning in 16.06s",
+    "elapsed_wall_seconds": 17.97,
+    "max_rss_kib": 1246888,
+    "affinity": "0-3",
+    "wall_timeout_seconds": 180,
+    "interpreter": "Python 3.12.13, pinned CPU environment; JAX/JAXLIB 0.11.0, pytest 9.0.2",
+    "warning": "Installed jax_cuda12_plugin 0.11.2 is incompatible with JAXLIB 0.11.0 and was not used; JAX_PLATFORMS=cpu."
+  },
+  "ruff": "All checks passed on both changed files.",
+  "pytest_log_sha256": "7326953dbf4ad8423b2cc019121d531cbf6d135b355c53142e64ae8bb71848be",
+  "qualification": "Focused control only. The native original assertions passed; this is not a full module or full-suite qualification."
+}

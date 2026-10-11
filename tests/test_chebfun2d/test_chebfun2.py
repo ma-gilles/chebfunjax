@@ -572,6 +572,63 @@ class TestChebfun2Reductions:
         _np.testing.assert_allclose(v.imag, 0.15, atol=1e-13)
         assert Chebfun2.complex(f) is f
 
+    def test_complex_source_storage_cases(self):
+        import numpy as _np
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        g = Chebfun2.from_function(lambda x, y: jnp.sin(x) * jnp.cos(y))
+        z = 0 * f
+        empty = Chebfun2.empty()
+        x, y = jnp.asarray(0.3), jnp.asarray(-0.4)
+        fv, gv = complex(f(x, y)), complex(g(x, y))
+
+        # The native one-argument path preserves real storage for a nonempty
+        # function, despite the MATLAB help text describing a complex result.
+        one = Chebfun2.complex(f)
+        assert one is f
+        assert one.isreal()
+        zero_one = Chebfun2.complex(z)
+        assert zero_one is z
+        assert zero_one.isreal()
+
+        # MATLAB complex(empty()) returns scalar double zero, not an empty
+        # Chebfun2. Check its scalar shape and value at the Python boundary.
+        empty_one = Chebfun2.complex(empty)
+        assert jnp.asarray(empty_one).shape == ()
+        assert jnp.asarray(empty_one).dtype == jnp.float64
+        assert float(empty_one) == 0.0
+
+        same = Chebfun2.complex(f, f)
+        distinct = Chebfun2.complex(f, g)
+        zero_real = Chebfun2.complex(z, g)
+        zero_imag = Chebfun2.complex(f, z)
+        empty_real = Chebfun2.complex(empty, g)
+        empty_imag = Chebfun2.complex(f, empty)
+        both_empty = Chebfun2.complex(empty, empty)
+
+        # Retain the two original MATLAB test predicates on the same f.
+        native_tol = 2.2204460492503131e-13
+        assert float((f - one).norm()) < native_tol
+        assert float((f + 1j * f - same).norm()) < native_tol
+
+        assert not same.isreal()
+        assert not distinct.isreal()
+        assert not zero_real.isreal()
+        assert zero_imag.isreal()
+        assert not empty_real.isreal()
+        assert empty_imag.isreal()
+        assert both_empty.isempty() and both_empty.isreal()
+        for actual, expected in (
+            (complex(one(x, y)), fv),
+            (complex(zero_one(x, y)), 0.0),
+            (complex(same(x, y)), fv + 1j * fv),
+            (complex(distinct(x, y)), fv + 1j * gv),
+            (complex(zero_real(x, y)), 1j * gv),
+            (complex(zero_imag(x, y)), fv),
+            (complex(empty_real(x, y)), 1j * gv),
+            (complex(empty_imag(x, y)), fv),
+        ):
+            _np.testing.assert_allclose(actual, expected, atol=1e-13)
+
 
 class TestChebfun2Chebcoeffs2:
     """Bivariate Chebyshev coefficient matrix (chebcoeffs2 / coeffs2)."""
