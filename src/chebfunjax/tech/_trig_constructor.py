@@ -269,7 +269,7 @@ def construct(op, *, pref=None, data=None, n=None, maxpow2=None, coefficients=Fa
         _trig_column_mask,
         _trig_probe_mask,
         _trig_project_values,
-        _trig_vals2coeffs_impl,
+        trig_vals2coeffs,
         trigpts,
     )
 
@@ -298,7 +298,7 @@ def construct(op, *, pref=None, data=None, n=None, maxpow2=None, coefficients=Fa
             result = Trigtech(coeffs=supplied, real_columns=(), ishappy=True,
                              _values=supplied)
         else:
-            coeffs = supplied if coefficients else _trig_vals2coeffs_impl(supplied)
+            coeffs = supplied if coefficients else trig_vals2coeffs(supplied)
             values = _trig_coeffs2vals_impl(coeffs) if coefficients else supplied
             mask = _trig_column_mask(values, data['vscale'])
             result = Trigtech(coeffs=coeffs, real_columns=mask, ishappy=True,
@@ -319,7 +319,7 @@ def construct(op, *, pref=None, data=None, n=None, maxpow2=None, coefficients=Fa
             break
         finite = jnp.where(jnp.isfinite(values), values, 0)
         data['vscale'] = jnp.maximum(jnp.asarray(data['vscale']), jnp.max(jnp.abs(finite), axis=0))
-        coeffs = _trig_vals2coeffs_impl(values)
+        coeffs = trig_vals2coeffs(values)
         result = Trigtech(coeffs=coeffs, real_columns=mask, ishappy=None, _values=values)
         happy, cutoff = happiness(result, op, values, data, pref)
         if happy:

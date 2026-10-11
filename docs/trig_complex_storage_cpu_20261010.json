@@ -1,0 +1,163 @@
+{
+  "status": "ready for parent review",
+  "base": "b08fbe16; parent current 75d059e5 has identical src/tests",
+  "source_snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/snapshot",
+  "delivery_tree": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/patch_applied",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/candidate.patch",
+  "changed_files": {
+    "src/chebfunjax/tech/trigtech.py": "be1dd874c137536c5a890015d72f2b16934ab295ffdc2263a6a916f059f5ecfc",
+    "src/chebfunjax/tech/_trig_constructor.py": "85c492ae0397ed70e06ebd2ba53018f243ff5a7bf46136a09696b45b5aa9a596",
+    "tests/test_matlab_port/trigtech/test_roots_matlab.py": "893735f5c648d46cfc2c714f8eba414065636ed00173dcc4bfdaaa9459de81b2",
+    "tests/test_tech/test_trig_roots_source.py": "45101ef11a84158a276246ec93e75333e94dbdc71bfb6ff2e87c891a7137d7df",
+    "tests/test_tech/test_trig_roots_legacy.py": "c4fa4b0e94cfdd43e2f5fa1c9e433f9560bafec5f237d69e58be9800b13e7746",
+    "tests/test_tech/test_trig_storage_source.py": "8248126431a1b428c270cbe30b8c116232e4913042428deab298e209fef8ad27",
+    "tests/test_tech/trig_storage_native.json": "ec69a9d1e828bea5433d76d4527b4bbccb0f6e5e0690da4714b63260a7ab7d54"
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/candidate.patch": "a07c74a43c93cda5506b232e39c186e3cfae4e6bc3aa3266a2327d575bdbd7b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/source_bindings.json": "d2d729d120cef5ccaebe8610488cca1f652ab376ed5607ae51d747c697103420",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/TESTED_DELIVERY_IDENTITY.json": "a1a75115c9adddd8965ccfb494d292bbe392f2e0d5057d8bc8aae64a13685a92",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/TEST_IDS.json": "12c8b78e012d2f84d8ce1358b3eeae2b227ba3422701a29b0008a4ff6500a349",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/DEFAULT_REAL_IDENTITY.json": "0324ff719c0ceea83155fe1817e9501a0fe5e124c6f80fd6f2dad70601397712",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nts2/AUDIT.json": "a6388988218f9df7adfe7405080012a20d30ddf418ccd8b70b95880aec9db861",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nts2/report.json": "8aa90872d906b3fd8d63930828a54c0185dc85897dc77accef9507fa347a9481",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nts2/report.mat": "dac39db8e98c3960a33f4020fdd3e76f51188f0ccc3a5e43af4a84acf02817c2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nts2/probe_storage.m": "0fca6e6680cc1688f3feaa83ea9037f021fc07bd6f6afdd6de8fea2294c9017a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nts1/AUDIT.json": "41ccf69af05b773b997b60f43c2014f25bc75e2764e1cea95bd267784e59b22c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ntr1/AUDIT.json": "25a255d59334bec06633cc10e4becb385bf6cc1f5c79efc28361ebad81a3d456",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/AUDIT.json": "e4582a14a53fc08b9e5dda997399b9494dd97a1e98186fd8cae4e965342fd822",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/AUDIT.json": "aa813fdbbe340508dfe93e3f44fabd4dcf750fdf0ab74a045d7c462d1854b2d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/AUDIT.json": "af94bada093d3492a96527af7d6e1764b42a2e44f32d58a169a8dd6267bf382f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/delivery/STATIC.json": "ee59092b4b20986f03eec6d92447fba87eb39e1185aaebb11b101b863a7b54dc"
+  },
+  "gates": {
+    "storage_controls": {
+      "original_session": 66922,
+      "command": [
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/run.py"
+      ],
+      "result": "passed",
+      "wall_seconds": 15.748236376792192,
+      "peak_rss_kib": 742344,
+      "cpu_affinity": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "cap": null,
+      "remaining": [],
+      "source_rehashed": 278,
+      "changed_inputs": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/guard.json": "ff2b497d4c7f375b6334737e391a57923ea71d092df7fb1cd2ad3b97d83d547f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/supervision/receipt.json": "3a223a0201c6c27a1f49e841f2c9e3b16222e791f09b1b9e5e89257b38e6b1ae",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/supervision/stdout": "585b7e0544936ffeef8795bf7304a3bb350988a5584b8394285f5b640a5df0f1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/supervision/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/storage_controls/junit.xml": "8a5c002a53e42e282651d9d68d4c4b1f06ff5fe1aaf3bec8002d8df57f5039e9"
+      }
+    },
+    "native_roots_controls": {
+      "original_session": 3764,
+      "command": [
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/run.py"
+      ],
+      "result": "passed",
+      "wall_seconds": 42.002760163042694,
+      "peak_rss_kib": 1108404,
+      "cpu_affinity": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "cap": null,
+      "remaining": [],
+      "source_rehashed": 278,
+      "changed_inputs": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/guard.json": "11647beb7a331d3c41b5b8eda4dcc55332027b318ee3206ecc5ef0cf3e6ef331",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/supervision/receipt.json": "f65171f8d4121a89b38c1dd4e5fc26fb38d95092cbbd0ade1d18a33ea84a81a6",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/supervision/stdout": "18581e3273e3440db93ea9cfca3424df656ed20645bcde06d9eebd199b62f48f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/supervision/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/native_roots_controls/junit.xml": "a83f3ddbf140e197480b77f302666acb14ea6f07842ee7459a4e19a2b09ee936"
+      }
+    },
+    "transform_controls": {
+      "original_session": 37639,
+      "command": [
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/run.py"
+      ],
+      "result": "passed",
+      "wall_seconds": 56.08374346932396,
+      "peak_rss_kib": 1065300,
+      "cpu_affinity": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "cap": null,
+      "remaining": [],
+      "source_rehashed": 283,
+      "changed_inputs": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/guard.json": "ed86d5705ec45a81acb6a093fd3ffda97314e816a9bb1e9b513f8aa9c78e000e",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/supervision/receipt.json": "e31142376267363d9ea1cf7664b29aa30e3b412e03e1311bfafdfab291f058fc",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/supervision/stdout": "b185035ca58e1d20d59808381e88fb9ceca6dafa79687903aaa3179daf8c89f0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/supervision/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/transform_controls/junit.xml": "c29c869e236679f82a9941204c48c75d1773c5df9ab12f2f48a572181f5cceaf"
+      }
+    }
+  },
+  "tests": {
+    "executions": 200,
+    "unique": 199
+  },
+  "source_boundaries": [
+    "from_coeffs preserves real versus explicit complex-zero dtype; real_columns continues to describe function values, not coefficient storage.",
+    "Concrete vals2coeffs returns real storage only for the exact native Hermitian input symmetry; constant/empty transform returns input dtype. Constructor/from_values use this boundary.",
+    "Traced nonconstant vals2coeffs retains complex output dtype because JAX dtype cannot depend on input values; numerical coefficients and symmetry projection are unchanged. No dynamic traced dtype parity claim.",
+    "Prolong preserves input dtype. Simplify models native submatrix extraction: exact zero-imag selected coefficients become real; this is not polynomial-helper input coercion.",
+    "Complex/all roots simplify columns then apply source polynomial roots, principal log, optional source strip pruning and source NaN padding. Polynomial helper remains unchanged and retains explicit complex input dtype.",
+    "Default-real whole-array b08 helper AST is unchanged."
+  ],
+  "native_evidence": {
+    "nts2": "12 storage rows; terminal 0, no cap/survivors, source/runtime audit faults=[]",
+    "ntr1": "Qualified public shifted-cos residual 3.7321494280913334e-16 below unchanged 5.551115123125783e-16 bound; real companion eig path"
+  },
+  "preserved_failures": [
+    "nts1 original 36197: harness passed complex flag without native required flag value; terminal 1, no scientific credit. Audit and artifacts preserved.",
+    "Prior complex source v2 strict shifted-cos residual failure 5.800901825072354e-16; prior scratch unchanged."
+  ],
+  "review_corrections": [
+    "Removed test-only provider-specific eigenvalue inequality per parent review; retained dtype dispatch assertions. Frozen tested snapshot unchanged.",
+    "One prior test import reordered by configured Ruff in delivery; source bytes identical to all scientific gates."
+  ],
+  "limits": [
+    "JAX/LAPACK eigen rounding/order remains provider-dependent; no cross-provider bitwise guarantee.",
+    "Existing unrelated strict masked high-frequency integral failure remains unresolved."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_review": {
+    "packet_bindings_verified": 15,
+    "gate_review_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_storage_source_v2_20261010/ROOT_GATES_REVIEW.json",
+    "gate_review_sha256": "d97feb0fc8a64748292079d2aa476a942632ab4f453f54e95bfa197242421fe0",
+    "delivery_bytes_verified": true,
+    "source_review": "Compared roots, simplify, and storage boundaries to pinned MATLAB source; preserved default real helper.",
+    "integration_note": "Actual repository Ruff required reordering two test import blocks; import multisets and remaining ASTs independently verified identical. First failing static result retained; successor passed. No numerical rerun for import order.",
+    "integrated_file_hashes": {
+      "src/chebfunjax/tech/trigtech.py": "be1dd874c137536c5a890015d72f2b16934ab295ffdc2263a6a916f059f5ecfc",
+      "src/chebfunjax/tech/_trig_constructor.py": "85c492ae0397ed70e06ebd2ba53018f243ff5a7bf46136a09696b45b5aa9a596",
+      "tests/test_matlab_port/trigtech/test_roots_matlab.py": "893735f5c648d46cfc2c714f8eba414065636ed00173dcc4bfdaaa9459de81b2",
+      "tests/test_tech/test_trig_roots_source.py": "8fc04a1aa4619984e36c7dcac2c92ffd5c78849d4aec42173ce0a269736ed016",
+      "tests/test_tech/test_trig_roots_legacy.py": "c4fa4b0e94cfdd43e2f5fa1c9e433f9560bafec5f237d69e58be9800b13e7746",
+      "tests/test_tech/test_trig_storage_source.py": "0f423e1978e5fe21965bfd429c8d14c346b7d9e33419ac8c46cec1e6545fd890",
+      "tests/test_tech/trig_storage_native.json": "ec69a9d1e828bea5433d76d4527b4bbccb0f6e5e0690da4714b63260a7ab7d54"
+    },
+    "static_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_complex_storage_integration_static_v2_20261010.json"
+  }
+}

@@ -14,10 +14,10 @@ Coefficients are stored in *descending wavenumber* order:
   - Even N=2M:   c_{-M}, c_{-M+1}, ..., c_0, ..., c_{M-1}
     (c_0 at index M = N//2)
 
-The coefficients are always stored as complex128 arrays.  For real-valued
-functions the Hermitian symmetry c_{-k} = conj(c_k) holds approximately up
-to floating-point precision; the ``is_real`` flag records whether the original
-function was sampled from real values.
+Coefficient storage distinguishes real float64 from complex128 arrays.
+Explicit complex-zero coefficient inputs remain complex. Function realness
+is separate: the static ``real_columns`` metadata controls real-valued
+evaluation, while coefficient dtype controls polynomial eig dispatch.
 """
 
 from __future__ import annotations
@@ -71,14 +71,26 @@ def _scale_real(c: jax.Array, r: jax.Array) -> jax.Array:
 
 
 def trig_vals2coeffs(values: jax.Array) -> jax.Array:
-    """JAX transform for concrete and traced arrays.
+    """Transform values, preserving native concrete coefficient storage.
 
-    MATLAB source: @trigtech/vals2coeffs.m, Chebfun commit7574c77.
-    Empty/constant, symmetry and nonfinite handling are shared with JIT.
+    Exact Hermitian input produces real coefficients. Traced nonconstant
+    inputs retain complex storage because JAX output dtypes are static;
+    coefficient values and symmetry projection are shared with the kernel.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/vals2coeffs.m
+    Chebfun commit: 7574c77
     """
-    return _trig_vals2coeffs_impl(jnp.asarray(values))
-
-
+    values = jnp.atleast_1d(jnp.asarray(values))
+    coeffs = _trig_vals2coeffs_impl(values)
+    if values.shape[0] <= 1 or isinstance(values, jax.core.Tracer):
+        return coeffs
+    augmented = jnp.concatenate((values, values[:1]), axis=0)
+    hermitian = jnp.all(augmented == jnp.conj(augmented[::-1]))
+    if bool(hermitian):
+        return jnp.real(coeffs)
+    return coeffs
 
 
 @jax.jit
@@ -118,11 +130,12 @@ def _trig_vals2coeffs_impl(values: jax.Array) -> jax.Array:
     Chebfun commit: 7574c77
     """
     input_real = not jnp.iscomplexobj(jnp.asarray(values))
-    values = jnp.asarray(values, dtype=jnp.complex128)
+    values = jnp.asarray(values)
     n = values.shape[0]
 
     if n <= 1:
         return values
+    values = values.astype(jnp.complex128)
 
     # Test the value symmetries the FFT does not preserve bit-exactly
     # (MATLAB @trigtech/vals2coeffs.m): Hermitian values -> exactly real
@@ -784,9 +797,9 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
                          dtype=coeffs.dtype)
     n = coeffs.shape[0]
     if n_out == n:
-        return jnp.asarray(coeffs, dtype=jnp.complex128)
+        return jnp.asarray(coeffs, dtype=jnp.result_type(coeffs, jnp.float64))
 
-    coeffs_cx = jnp.asarray(coeffs, dtype=jnp.complex128)
+    coeffs_cx = jnp.asarray(coeffs, dtype=jnp.result_type(coeffs, jnp.float64))
 
     # If n is even, expand to n+1 by splitting the first (lowest) coefficient
     if n % 2 == 0:
@@ -802,9 +815,9 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
         k_down = (n_out - n) // 2      # floor((n_out-n)/2)
         cols = coeffs_cx.shape[1:]
         coeffs_cx = jnp.concatenate([
-            jnp.zeros((k_up,) + cols, dtype=jnp.complex128),
+            jnp.zeros((k_up,) + cols, dtype=jnp.result_type(coeffs, jnp.float64)),
             coeffs_cx,
-            jnp.zeros((k_down,) + cols, dtype=jnp.complex128),
+            jnp.zeros((k_down,) + cols, dtype=jnp.result_type(coeffs, jnp.float64)),
         ])
     else:
         # Truncate: remove k_up from top (lowest wavenumbers) and k_down from bottom
@@ -1201,46 +1214,19 @@ def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
     MATLAB source : @trigtech/roots.m (useMatlabsRootsCommand branch)
     Chebfun commit: 7574c77
     """
-    import numpy as np
+    from chebfunjax.utils._polynomial_roots_source import polynomial_roots
 
-    c = np.asarray(coeffs, dtype=np.complex128).ravel()
-    # Simplify: strip leading/trailing negligible modes symmetrically is
-    # handled by the caller via simplify(); here just drop the padding.
-    if c.size == 0:
-        return jnp.array([], dtype=jnp.complex128)
-    # Flip coeffs to match MATLAB's roots (descending powers of z).
-    r = np.roots(c[::-1])
-    r = -1j / np.pi * np.log(r)
-    # Polish with complex Newton on f(x) = sum_k c_k e^{i pi k x} = 0
-    # (companion-matrix roots of a long series can carry ~1e-13 error).
-    n = c.size
-    if n % 2 == 1:
-        ks = np.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
-    else:
-        ks = np.arange(-n // 2, n // 2)
-    ck = c
-    dk = (1j * np.pi * ks) * c
-    for _ in range(2):
-        E = np.exp(1j * np.pi * np.outer(r, ks))
-        fv = E @ ck
-        fp = E @ dk
-        with np.errstate(invalid="ignore", divide="ignore"):
-            step = np.where(np.abs(fp) > 1e-300, fv / fp, 0.0)
-        r = r - step
-    # f is 2-periodic in x (e^{i pi k (x+2)} = e^{i pi k x}), so wrap the
-    # real part to (-1, 1]; this fixes the log branch that sends z = -1 to
-    # x = -1 rather than MATLAB's x = 1.
-    rr = np.real(r) - 2.0 * np.ceil((np.real(r) - 1.0) / 2.0)
-    r = rr + 1j * np.imag(r)
+    c = jnp.asarray(coeffs).reshape(-1)
+    # MATLAB roots trims only exact polynomial zeros before companion eig.
+    z = polynomial_roots(c[::-1])
+    # MATLAB log of negative real roots is complex. Preserve signed zeros
+    # and the principal log branch; the source applies no Newton or wrapping.
+    r = (-1j / jnp.pi) * jnp.log(z.astype(jnp.complex128))
     if prune:
-        nnz = np.nonzero(np.abs(c) > 1e-13 * max(np.max(np.abs(c)), 1e-300))[0]
-        if nnz.size == 0:
-            return jnp.array([], dtype=jnp.complex128)
-        N = int(np.ceil(c.size / 2) - 1)
-        N = max(N, 1)
-        a = 1.0 / N / np.pi * np.log(4.0 / (10 * _EPS) + 1.0)
-        r = r[np.abs(np.imag(r)) <= a]
-    return jnp.asarray(r, dtype=jnp.complex128)
+        N = jnp.asarray((c.size + 1) // 2 - 1, dtype=jnp.float64)
+        a = (1.0 / N / jnp.pi) * jnp.log(4.0 / (10 * _EPS) + 1.0)
+        r = r[jnp.abs(jnp.imag(r)) <= a]
+    return r
 
 
 def _trig_minandmax_scalar(f) -> tuple:
@@ -1381,8 +1367,8 @@ class Trigtech(eqx.Module):
 
     Attributes
     ----------
-    coeffs : jax.Array, shape (N,) complex128
-        Fourier coefficients in descending-wavenumber order.
+    coeffs : jax.Array, shape (N,) float64 or complex128
+        Fourier coefficients, preserving source storage independently of function realness.
         Constant mode c_0 is at index ``N // 2``.
     is_real : bool
         True if the underlying function is real-valued. Controls whether
@@ -1533,7 +1519,8 @@ class Trigtech(eqx.Module):
                         @trigtech/vscale.m
         Chebfun commit: 7574c77
         """
-        coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
+        coeffs = jnp.atleast_1d(jnp.asarray(coeffs))
+        coeffs = coeffs.astype(jnp.result_type(coeffs, jnp.float64))
         if pref is not None or data is not None:
             from chebfunjax.tech._trig_constructor import construct
 
@@ -1586,7 +1573,7 @@ class Trigtech(eqx.Module):
                        ishappy=ishappy, _values=result.values)
         values = jnp.atleast_1d(jnp.asarray(values))
         mask = _trig_column_mask(values)
-        coeffs = _trig_vals2coeffs_impl(values)
+        coeffs = trig_vals2coeffs(values)
         return cls(coeffs=coeffs, real_columns=mask, ishappy=ishappy,
                    _values=_trig_project_values(values, mask))
 
@@ -1909,6 +1896,11 @@ class Trigtech(eqx.Module):
         n_keep = max(1, n_keep)
 
         new_coeffs = _trig_prolong_coeffs(self.coeffs, n_keep)
+        # MATLAB's submatrix extraction in simplify.m returns real storage
+        # when the selected coefficients have zero imaginary components.
+        # Keep this source boundary distinct from explicit coefficient input.
+        if jnp.iscomplexobj(new_coeffs) and bool(jnp.all(jnp.imag(new_coeffs) == 0)):
+            new_coeffs = jnp.real(new_coeffs)
         return Trigtech(coeffs=new_coeffs, is_real=self.is_real, real_columns=self.real_columns, ishappy=self.ishappy)
 
     # ------------------------------------------------------------------
@@ -2200,50 +2192,42 @@ class Trigtech(eqx.Module):
     # Roots
     # ------------------------------------------------------------------
 
-    def roots(self, complex: bool = False) -> jax.Array:
-        """Find roots in [-1, 1].
+    def roots(self, complex: bool = False, *, all: bool = False,
+              prune: bool | None = None) -> jax.Array:
+        """Return real roots by default, or polynomial roots with flags.
 
-        By default converts to a Chebyshev representation and calls
-        Chebyshev rootfinding, returning the real roots in [-1, 1].  With
-        ``complex=True`` (MATLAB ``roots(f, 'complex', 1)``) returns all
-        roots -- including complex ones outside [-1, 1] -- via the
-        companion-matrix method, pruned to the strip of analyticity.
-
-        NOT JIT-safe (variable output size).
-
-        Returns
-        -------
-        jax.Array
-            Roots (float64 for the default real path, complex128 for the
-            ``complex=True`` path); array-valued techs return one
-            NaN-padded column per column of ``f``.
+        ``complex=True`` selects the native pruned polynomial path;
+        ``all=True`` selects its unpruned variant. Explicit ``prune`` overrides
+        the default (the value of ``complex``) when either flag is true.
+        These keywords adapt native struct fields; unlike MATLAB's ordered
+        string parser, repeated/ordered flag pairs are not represented.
+        Columns are simplified separately and padded with NaNs. The
+        polynomial eig backend is JAX/LAPACK, not a MATLAB rounding guarantee.
+        The inherited default real-root algorithm is unchanged. Not JIT-safe.
 
         Provenance
         ----------
-        MATLAB source : @trigtech/roots.m
-        Chebfun commit: 7574c77
+        MATLAB source: @trigtech/roots.m. Chebfun commit: 7574c77.
         """
-        if not complex:
+        polynomial = bool(complex or all)
+        do_prune = bool(complex) if prune is None else bool(prune)
+        if not polynomial:
             return _trig_roots(self.coeffs, self.real_columns)
 
-        import numpy as _np
-
         def _one(col, mask):
-            if complex:
-                simp = Trigtech.from_coeffs(col, real_columns=mask).simplify()
-                return _np.asarray(_trig_roots_complex(simp.coeffs, prune=True))
-            return _np.asarray(_trig_roots(col, mask))
+            simp = Trigtech.from_coeffs(col, real_columns=mask).simplify()
+            return _trig_roots_complex(simp.coeffs, prune=do_prune)
 
         if self.coeffs.ndim == 2:
             cols = [_one(self.coeffs[:, j], (self.real_columns[j],))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
-            dtype = _np.complex128 if complex else _np.float64
-            out = _np.full((nmax, len(cols)), _np.nan, dtype=dtype)
+            dtype = jnp.complex128 if polynomial else jnp.float64
+            out = jnp.full((nmax, len(cols)), jnp.nan, dtype=dtype)
             for j, c in enumerate(cols):
-                out[: len(c), j] = c
-            return jnp.asarray(out)
-        return jnp.asarray(_one(self.coeffs, self.real_columns))
+                out = out.at[:len(c), j].set(c)
+            return out
+        return _one(self.coeffs, self.real_columns)
 
     # ------------------------------------------------------------------
     # Happiness check
