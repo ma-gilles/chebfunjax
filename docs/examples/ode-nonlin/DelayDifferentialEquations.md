@@ -7,7 +7,7 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9, the public Volterra solve in slot 11, and the self-composition solve in slot 14, and the nonlinear pantograph solution in slot 15, and the coupled pantograph system in slot 16, and the cubic state-dependent delay in slot 17, and the vanishing-delay solve in slot 18, and the continuous/pantograph integral solve in slot 19 (18 output blocks). Slot 15 stdout was reconstructed from byte-verified saved solution data after an observer failure; Python warning capture is unavailable. The remaining 5 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Figure 16 uses the qualified nonlinear pantograph solution; native sample differences are at most 7.77e-16. Figure 17 uses the qualified two-component system solution and native plotting styles; observed sample differences are at most 1.36e-14. Figure 18 uses the qualified cubic solution; observed sample differences are at most 4.45e-16. Figure 19 uses the qualified vanishing-delay solution; observed sample differences are at most 1.28e-13. Figure 20 uses the qualified continuous/pantograph solution; observed sample differences are at most 3.56e-15. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9, the public Volterra solve in slot 11, and the self-composition solve in slot 14, and the nonlinear pantograph solution in slot 15, and the coupled pantograph system in slot 16, and the cubic state-dependent delay in slot 17, and the vanishing-delay solve in slot 18, and the continuous/pantograph integral solve in slot 19, and the second-order pantograph solve in slot 20 (19 output blocks). Slot 15 stdout was reconstructed from byte-verified saved solution data after an observer failure; Python warning capture is unavailable. The remaining 4 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Figure 16 uses the qualified nonlinear pantograph solution; native sample differences are at most 7.77e-16. Figure 17 uses the qualified two-component system solution and native plotting styles; observed sample differences are at most 1.36e-14. Figure 18 uses the qualified cubic solution; observed sample differences are at most 4.45e-16. Figure 19 uses the qualified vanishing-delay solution; observed sample differences are at most 1.28e-13. Figure 20 uses the qualified continuous/pantograph solution; observed sample differences are at most 3.56e-15. Figure 21 uses the qualified second-order pantograph solution; observed sample differences are at most 1.39e-15. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 
@@ -591,7 +591,13 @@ plot(sol, '-', y, '.--', MS, 15)
 ```
 
 ```text
-(no matching output)
+y =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]       14         1     0.14
+vertical scale =   1
+err =
+     1.174821131447273e-15
 ```
 
 ![DelayDifferentialEquations figure 21](../../images/ode-nonlin/DelayDifferentialEquations_21.png)

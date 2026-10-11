@@ -1,0 +1,36 @@
+{
+  "scope": "Literal source Example7 second-order nonlinear pantograph; outputslot20/figure21. No library change needed.",
+  "base": {
+    "head": "4c14a0e617023bd3a93faa95dfed7a7306e9496c",
+    "source": "Example7 native lines393-403;outputslot20,figure21;[0,1],explicitinit1+x andtwoleftBCs;omittedn/tolerance"
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "example_pin": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+  "source": "DelayDifferentialEquations.m393-403;[0,1],ysecond+y(x)-5*y(x/2)^2=0,N.lbc=[u-1;diff(u)+2],N.init=1+x. Omitted n/tolerance/discretization.",
+  "comparison": {
+    "native_error_norm": 1.4569368823831799e-15,
+    "python_error_norm": 1.1748211314472734e-15,
+    "native_lengths": 14,
+    "python_lengths": [
+      14
+    ],
+    "coefficient_max_abs": 3.3306690738754696e-16,
+    "sample_coordinate_max_abs": 1.1102230246251565e-16,
+    "sample_value_max_abs": 1.3877787807814457e-15,
+    "limits": "Observed differences, not source acceptance inequalities."
+  },
+  "script": "Replace sampledmax by native norm(y-sol), retain source exp(-2*x) Chebfun arithmetic, actualrepr and reference-stylefigure21. Domain reset already integrated withslot19.",
+  "representation": "Both y and sol had explicitpoint overrides, captured separately from computedpointvalues and restored. Pythonfloat interval endpoints recorded. Coefficients/all201samples/stdout byte-exact on first render; no solve repeated.",
+  "gates": {
+    "python": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_second_order_pantograph_20261011/baseline/AUDIT.json",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddso1/AUDIT.json",
+    "render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_second_order_pantograph_20261011/render/AUDIT.json"
+  },
+  "page": "Onlyslot20/figure21;18->19verified,5->4pending. Wholepage incomplete.",
+  "limits": [
+    "Source prints error without acceptance inequality; comparisons are observations.",
+    "Native scientificsource guard plus postruntime observation, not exhaustive prospective runtime closure.",
+    "Font/antialias raster differences remain; no pixelidentity claim.",
+    "No matched performance ratio."
+  ]
+}

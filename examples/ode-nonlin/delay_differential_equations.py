@@ -201,6 +201,22 @@ def _source_continuous_delay_curve(exact, numerical):
     return fig
 
 
+def _source_second_order_delay_curve(exact, numerical):
+    """Render the source second-order pantograph plot with reference axes."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(0, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(0, 1.01, .2))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_cubic_delay_curve(exact, numerical):
     """Render the source cubic state-delay plot with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -586,12 +602,11 @@ def run():
     N.lbc = lambda u: [u - 1, u.diff() + 2]
     N.init = 1 + tcf
     y19 = N.solve(0.0)
-    _show(y19, "y")
-    sol19 = lambda s: np.exp(-2 * s)
-    tt = np.linspace(0, 1, 800)
-    err = float(np.max(np.abs(np.asarray(y19(tt)) - sol19(tt))))
+    print(f"y =\n{y19!r}")
+    sol19 = (-2 * tcf).exp()
+    err = float((y19 - sol19).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol19, y19, (0, 1))
+    _save(_source_second_order_delay_curve(sol19, y19), source_axes=True)
 
     # ----- 20. An interval condition u(0) = u(1/3) --------------------
     _output_slot(21)

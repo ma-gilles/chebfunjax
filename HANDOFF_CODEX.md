@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `4c14a0e6` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `e5258038` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -30,10 +30,24 @@ asymmetric prolongation, original bounds/defaults and captured seeded samples.
 Affected complex Tech2 TIMES23 and PLUS19 clauses also pass against the new
 FFT. No multiplication kernel changed. See docs/tech_times_native_predicates_cpu_20261011.json.
 
-The native Van der Pol test has two1e-10 endpoint predicates. The current port
-still weakens the bound to1e-6 and skipsmu1000. Both current public CPU solves
-now complete without warnings using native ODE113 (mu1:20.92s;mu1000:25.64s).
-Native endpoint verification is running before restoring those assertions.
+The next reviewed batch restores both native Van der Pol endpoint predicates
+at1e-10, including the formerly skippedmu1000 case. Source-default Python
+errors against captured native ode45 references are1.39e-12 and1.93e-13;
+two permanent native checks pass. No solver changes or representation-length
+parity claim. The first native launch failed before science due to a long
+TEMPDIR; the short-path successor passed with91runtime source files verified.
+See docs/vdp_native_predicates_cpu_20261011.json.
+
+Native tech MINUS42 also passes, restoring public isequal, source matrix norms,
+seeded samples and the actual native normal-draw scalar; no library change.
+The scalar is a captured oracle, not Python normal-stream parity.
+See docs/tech_minus_native_predicates_cpu_20261011.json.
+
+DDE slot20/figure21 now has a source-default second-order pantograph solve;
+both native/Python length14, observed sample difference1.39e-15. Representation
+including explicit endpoint overrides is preserved by the artifact renderer;
+all201 samples/stdout match exactly. Page19/23 outputs verified, four pending.
+See docs/dde_second_order_pantograph_cpu_20261011.json.
 
 A reviewed inverse endpoint-fusion patch moves the existing endpoint selection
 into one JIT helper. Ten controls and exact inverse-output byte checks pass;
@@ -65,8 +79,9 @@ CONJ4, SIGN8 and native vals2coeffs8. The first discriminator's two test-file
 post-run guard changes are preserved separately; three qualification gates
 have clean guards. See docs/canonical_complex_dct_cpu_20261011.json.
 
-CI ac91b56c has19 successful jobs and5 running, with no failures at the latest
-check. Current main still needs its complete CI result. Routine work continues
+CI ac91b56c has20 successful jobs,3 running and1 failure at the latest
+check. The failure is a supplemental round() exact-breakpoint assertion;
+source/native diagnosis is in progress, with no tolerance change assumed. Current main still needs its complete CI result. Routine work continues
 on native TIMES predicates and missing gallery3 functions; numerical work next
 addresses DDE slot19. All runtime validation is CPU only.
 

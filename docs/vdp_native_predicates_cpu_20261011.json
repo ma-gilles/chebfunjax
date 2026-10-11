@@ -1,0 +1,105 @@
+{
+  "scope": "Restore both native tests/chebop/test_vdpIVP.m endpoint inequalities at1e-10, remove stiff-case skip. No library change. Historical SciPy test remains supplemental.",
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "reference_adapter": "Captured MATLAB R2025b ode45 endpoint values at source AbsTol1e5*eps/RelTol100*eps; dynamic reference solver replaced by immutable captured values.",
+  "native": {
+    "success": true,
+    "pass": [
+      true,
+      true
+    ],
+    "rows": [
+      {
+        "endpoint": -2.008340782578798,
+        "ode45_endpoint": -2.0083407825769455,
+        "error": 1.852296094284611e-12,
+        "length": 220
+      },
+      {
+        "endpoint": 1.9933149275699937,
+        "ode45_endpoint": 1.9933149275697708,
+        "error": 2.2293278334473143e-13,
+        "length": 633
+      }
+    ],
+    "tol": 1e-10,
+    "alpha_real": -1.1710612811833176,
+    "alpha_imag": -0.11663804393033587,
+    "science_seconds": 3.015627
+  },
+  "comparisons": [
+    {
+      "mu": 1,
+      "python_endpoint": -2.008340782575555,
+      "native_ode45_endpoint": -2.0083407825769455,
+      "error": 1.390443316040546e-12,
+      "source_bound": 1e-10,
+      "pass": true
+    },
+    {
+      "mu": 1000,
+      "python_endpoint": 1.9933149275699635,
+      "native_ode45_endpoint": 1.9933149275697708,
+      "error": 1.9273471707492718e-13,
+      "source_bound": 1e-10,
+      "pass": true
+    }
+  ],
+  "native_audit": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1534812,
+    "wall_seconds": 89.46226801723242,
+    "runtime_source_count": 91,
+    "native_assertions": [
+      true,
+      true
+    ]
+  },
+  "pytest": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1842056,
+    "wall_seconds": 32.908346326090395
+  },
+  "pytest_cases": [
+    {
+      "classname": "snapshot.tests.test_vdpIVP_matlab",
+      "name": "test_native_endpoint[1.0--2.0083407825769455]",
+      "time": "15.293"
+    },
+    {
+      "classname": "snapshot.tests.test_vdpIVP_matlab",
+      "name": "test_native_endpoint[1000.0-1.9933149275697708]",
+      "time": "12.551"
+    }
+  ],
+  "failed_startup": "Original11630 failed before READY/science with explicit TEMPDIR-too-long CEF assertion; all descendants closed. Successor17581 uses short shared temp/pref paths. Preparation twice assumed nonexistent explicit MATLAB end; no process launched then.",
+  "limits": [
+    "No full IVP, uniform representation length, or general solver performance parity claim.",
+    "MATLAB lengths220/633 vsPython218/641; native test requires endpoint errors only."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/junit.xml": "4ef81b8ac1a1cd76f74872125ba8699b7df93acbf161d55192229d6a3f09707e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/guard.json": "9c9243d5e3772f01bc161f743f952c414c457c94958cf0eaf002a0918460136c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/observe.py": "8dff8d972efaeb170215d37fa4b15e0c4171fa280383e6fa9a49deed757ffba7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/RUNTIME_SOURCE_END.json": "8bcaec4ae6ea89d57f6031029a56f9d4a3ec9a541389c9c98243f7bb489aa9ae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/supervision/receipt.json": "656d26c61c12ad97e71bb67aca05763be8bdb8a28bc8f586f64482bb239ca884",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_source_assertions_20261011/snapshot/tests/test_vdpIVP_matlab.py": "9375a48a01fa7fe9966c5ba11ce7c251b939942c18f0356576a5322fc9c4bc13",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/observations.mat": "54f5618452f78dcfd7bd935aca9b8635b229f805c632c306e8b13ffca5790f3f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/probe.m": "b5a6ed75082413a32ea5e79f5d096e90b87a3c6382209bbe234faa616d90cc54",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/driver.m": "20bd92cf89f80035ec936eca1ee017fe4cccf0e36ecd9a981d14457bca518771",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/guard.json": "a89a471a6907761638122ed03c8639a5e232fd529ec36765854ffcbe9ca5b58d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/result.json": "6edf584adff98aafd552901af4b70b841f52545e19b4f068047f562615957a7a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/AUDIT.json": "f94c3ad405786e254f27381dfccfb668cbe033e29c23ebebc0e19b4119dd9a2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/RUNTIME_OBSERVATION.json": "2722be8907c36aeed2ec69745238d687a77269cfbf1b159366a624837398aaee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/runtime_profile.json": "76d788b5c883aea1f1c5715fd09f980fb63db35ead63f6afe1fbf2fa5b28ae20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vdp_native_capture_v2_20261011/test_vdpIVP_original.m": "61b727c45931af00dfb57cc4bd30984f259aad381a5a6b10adde1db566803e5f"
+  }
+}
