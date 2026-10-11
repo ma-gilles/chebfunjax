@@ -1,0 +1,286 @@
+{
+  "status": "completed source computations in bounded stages and captured-output rendering; not a successful monolithic/current-head fullpage gate",
+  "numerical_source_head": "f35cd8b1b8da21be36ff251f3bf634cc8a70f899",
+  "accepted_library_commit": "a66837a6",
+  "fits": [
+    {
+      "cell": "polynomial",
+      "m": 1,
+      "error": 0.07985303964249826,
+      "iterations": 6,
+      "delta": 0.0
+    },
+    {
+      "cell": "polynomial",
+      "m": 2,
+      "error": 0.06975366715062575,
+      "iterations": 6,
+      "delta": 0.0
+    },
+    {
+      "cell": "polynomial",
+      "m": 3,
+      "error": 0.06522546293493453,
+      "iterations": 7,
+      "delta": 9.26688832570234e-16
+    },
+    {
+      "cell": "polynomial",
+      "m": 4,
+      "error": 0.062478156480890945,
+      "iterations": 15,
+      "delta": 0.0
+    },
+    {
+      "cell": "rational",
+      "m": 1,
+      "error": 0.21714724095162605,
+      "iterations": 1,
+      "delta": 0.0
+    },
+    {
+      "cell": "rational",
+      "m": 2,
+      "error": 0.09854682633277906,
+      "iterations": 3,
+      "delta": 0.0
+    },
+    {
+      "cell": "rational",
+      "m": 3,
+      "error": 0.06957330381302865,
+      "iterations": 6,
+      "delta": 9.833737591494401e-12
+    },
+    {
+      "cell": "rational",
+      "m": 4,
+      "error": 0.05070003958742865,
+      "iterations": 3,
+      "delta": 1.3470120273573766e-06,
+      "fit_adapter_status": "fit completed; later capture error recovered without refit"
+    },
+    {
+      "cell": "cf",
+      "m": 1,
+      "error": 0.27884257240233606
+    },
+    {
+      "cell": "cf",
+      "m": 2,
+      "error": 0.11673595511542688
+    },
+    {
+      "cell": "cf",
+      "m": 3,
+      "error": 0.08643871815989175
+    },
+    {
+      "cell": "cf",
+      "m": 4,
+      "error": 0.05822741196245217
+    }
+  ],
+  "execution_gates": {
+    "full_v3": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/full_v3/AUDIT.json",
+      "audit_sha256": "c1e3ead92051e03f5c4788c7b11f8f4506ddedbba39afee1d43bfc79d5fae576",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/full_v3/supervision/receipt.json",
+      "receipt_sha256": "94ee25b7d7bed6298f91851a5ebaecf90b3693ad7ce90578fd9ee976c0ff08ee"
+    },
+    "rational33_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/rational33_v1/AUDIT.json",
+      "audit_sha256": "4e7365fdd277bad2034ae1e549cbe6c1b0bc0bd9681c5aead4564ef3972a8269",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/rational33_v1/supervision/receipt.json",
+      "receipt_sha256": "9b4abc5761cce221d2188a7afe1fe1ec1740f8bb2eb138046593268c0cdb4b0d"
+    },
+    "rational33_capture_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/rational33_capture_v1/AUDIT.json",
+      "audit_sha256": "6efcd8d31a473d024778fe8c497267a746ebce286ffea608c1daad4bf3ee32f4",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/rational33_capture_v1/supervision/receipt.json",
+      "receipt_sha256": "10fe39a8f4d7f24a5954d21ec78319a54aeb7b8a4a1cc24f99959746101b5521"
+    },
+    "cf_matched_outputs_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_matched_outputs_v1/AUDIT.json",
+      "audit_sha256": "a3e04f21f0f7b7233059db0d8572fd8a438b9fb8820a35dd91dad17ae4a906e4",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/cf_matched_outputs_v1/supervision/receipt.json",
+      "receipt_sha256": "02c11f17bada9c8d30c82d571176fbea4ae55e3cb3ae6813dc7477647de82567"
+    },
+    "page_artifact_replay_v1": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_artifact_replay_v1/FAILED_AUDIT.json",
+      "audit_sha256": "4f99a6db972466d09e62d789859a3bce6283bd232f83cbd975cabd65a5a86944",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_artifact_replay_v1/supervision/receipt.json",
+      "receipt_sha256": "ca2bb7ec0dc6e2fec9566fe620cd7e32285cfe0a9538b27622eefcbbeee29c16"
+    },
+    "page_artifact_replay_v2": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_artifact_replay_v2/AUDIT.json",
+      "audit_sha256": "7709410c1af9d7dab4cc708ec494213750298d36903e6d93c2ed6d00b83c4a17",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_artifact_replay_v2/supervision/receipt.json",
+      "receipt_sha256": "9a518931bac6d7ccb473f1f5710c4a5ce81d51aba2bf8c20500bcff8c396cf4c"
+    }
+  },
+  "reuse_scope": {
+    "fixed_piecewise_input": "Coefficient/domain/point-value bits verified in rational33 and final CF/replay gates. It uses a numeric zero and a Python lambda with jnp.log; expression-namespace changes do not reach it.",
+    "polynomial_minimax": "No minimax implementation changes in this package. Four captured results/residuals retained.",
+    "rational_minimax": "Initialization _cf_reference uses explicit50*(m+n) resampling for two-piece inputs. Degrees0..3 produce Hankel dimensions <=300, below changed>1024 dispatch. CDF starts, if reached for these symmetric degree pairs, also stay<=3; observed3/3 branch was AAA-Lawson, not CDF. Small CF arithmetic and minimax source unchanged.",
+    "cf": "All four large source M4000 calls executed anew with accepted dense backend; previous large-CF results are not reused as final evidence.",
+    "source_init_sha256": "b8e1a9414c9a43af4c9b3faa6dca875aef2bb4d732870959b5a45af602af707b",
+    "current_main": "Parent accepted library fixes at a66837a6; final renders/fit outputs remain bound to historical source snapshot, not a fresh current-main fullpage run."
+  },
+  "matched_cf_comparison": {
+    "status": "pass",
+    "cases": [
+      {
+        "degree": 0,
+        "seconds": 9.449023351073265,
+        "error": 0.27884257240233606,
+        "native_error": 0.2788425724023362,
+        "error_difference": -1.1102230246251565e-16,
+        "p_max_difference": 1.3877787807814457e-16,
+        "q_max_difference": 0.0,
+        "sample_max_difference": 1.3877787807814457e-16
+      },
+      {
+        "degree": 1,
+        "seconds": 13.712039167061448,
+        "error": 0.11673595511542688,
+        "native_error": 0.1167359551154268,
+        "error_difference": 8.326672684688674e-17,
+        "p_max_difference": 6.522560269672795e-16,
+        "q_max_difference": 3.497202527569243e-15,
+        "sample_max_difference": 2.1094237467877974e-15
+      },
+      {
+        "degree": 2,
+        "seconds": 10.667514320928603,
+        "error": 0.08643871815989175,
+        "native_error": 0.0864387181598918,
+        "error_difference": -5.551115123125783e-17,
+        "p_max_difference": 5.551115123125783e-15,
+        "q_max_difference": 2.4868995751603507e-14,
+        "sample_max_difference": 1.4432899320127035e-15
+      },
+      {
+        "degree": 3,
+        "seconds": 10.964627237059176,
+        "error": 0.05822741196245217,
+        "native_error": 0.05822741196245209,
+        "error_difference": 8.326672684688674e-17,
+        "p_max_difference": 4.04156708100345e-11,
+        "q_max_difference": 1.2300915841478854e-10,
+        "sample_max_difference": 5.187517082561044e-14
+      }
+    ],
+    "dense_calls": [
+      {
+        "k": 1,
+        "seconds": 7.549630186986178,
+        "max_residual": 1.194573776491828e-16
+      },
+      {
+        "k": 11,
+        "seconds": 7.507898470852524,
+        "max_residual": 2.910707199117595e-16
+      },
+      {
+        "k": 12,
+        "seconds": 7.479285113979131,
+        "max_residual": 2.910707199117595e-16
+      },
+      {
+        "k": 13,
+        "seconds": 7.484835085924715,
+        "max_residual": 2.910707199117595e-16
+      }
+    ],
+    "actual_warnings": [],
+    "comparison_scope": "exact source H and same saved native grid; numerical differences measured without new tolerance; native process has post-only incidental Symbolic provider qualification"
+  },
+  "native_coverage_limit": {
+    "storage_constructor": "Symbolic heaviside wrappers participate in evaluating literal step; their hashes are post-only, so complete runtime provenance remains unqualified. Captured step values at five explicit sites are 0/0/0.5/1/1, independently specified and checked by JAX controls.",
+    "matched_cf": "CF source input is restored from bound exact 4001 coefficients; driver asserts coefficient equality before four native cf calls. The symbolic wrappers do not compute the restored CF input or eigenpairs. All native Chebfun CF/eigs and fixture bindings stayed stable. Whole-process provider coverage still incomplete; no retroactive clean audit.",
+    "rerun": "None justified by observed drift: no bound scientific source changed. pnx3 cancelled pre-spawn per parent instruction."
+  },
+  "figures": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/candidate/docs/images/approx/Pushnitski_01.png",
+      "sha256": "04b70cdc0890fbe4a037dc8e0ba3c855907b68647499e1422a67c05987f76dfe",
+      "size": [
+        600,
+        270
+      ],
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/approx/Pushnitski_01.png",
+      "reference_sha256": "cf09161345fa2695b4ac48056e238f8765e210bb0da71c55b70f0ead710dfdee",
+      "reference_size": [
+        600,
+        270
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/candidate/docs/images/approx/Pushnitski_02.png",
+      "sha256": "7f556953610ffd4334f11cb8319d02d2d3356399ec5b2aa8179b700ad556f48c",
+      "size": [
+        600,
+        270
+      ],
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/approx/Pushnitski_02.png",
+      "reference_sha256": "22c50290a7f1c9bc020e476c49e2553e7dde8843931f817be652065519032df2",
+      "reference_size": [
+        600,
+        270
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/candidate/docs/images/approx/Pushnitski_03.png",
+      "sha256": "649312c119e418683f7d89bdaca8a8d4e7e333161b77d610024744c5bff7945c",
+      "size": [
+        600,
+        270
+      ],
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/approx/Pushnitski_03.png",
+      "reference_sha256": "401cbe87cf77236287febd38cf2e44a854c2750aed79c2f340272b96fadd4adb",
+      "reference_size": [
+        600,
+        270
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/candidate/docs/images/approx/Pushnitski_04.png",
+      "sha256": "cc4fc8b5f838a3918fc6d3269da754dce851aec69f1a47c8a2604786f0246fb0",
+      "size": [
+        600,
+        270
+      ],
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/approx/Pushnitski_04.png",
+      "reference_sha256": "b5fd3c7580e3b73f1870a8dc4455978808e79743452e23a65c9c2f36543d0b8f",
+      "reference_size": [
+        600,
+        270
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/candidate/docs/images/approx/Pushnitski_05.png",
+      "sha256": "748e9d48109ae3e8055eb04bcf8c238dab4965281346025fe3e20ae938bf2685",
+      "size": [
+        600,
+        270
+      ],
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/approx/Pushnitski_05.png",
+      "reference_sha256": "dfca0ba6713c18a46f31355e5c1501de16547cbbe6f005a94ad9eaf9bd90bbac",
+      "reference_size": [
+        600,
+        270
+      ]
+    }
+  ],
+  "visual_review": "Agent inspected all5current/reference; steep real-domain curve fixed; content readable. Historical curves, tick/framing and palette differences remain. Current @chebtech/plotcoeffs defaultdot style differs cached historical line; no pixel-parity claim.",
+  "timing": "Polynomial actual18.124561s. Rational/CF whole-cell timers unavailable; renderer/proxy timers never published.",
+  "warnings": "Two actual log-axis plotting warnings and two captured rational initializer stdout messages retained. Native issym warning not copied to Python.",
+  "prior_failures": "Full_v3 RSS137; rational33 capture adapter failure after completed fit; failed native provider audit and failed explicit point-value restoration replay remain preserved.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/SOURCE_PRESERVATION.json": "4f1ea8ee9cfa7b58f9cd9db9b117c38a239895ed137e4b8e306f0721a2e31e4d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/FIT_REUSE_SCOPE.json": "bb197320338cab2f7cdfdc87875c82e856147ea2bb04496393ff6ce59aa55a0b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/page_delivery_v1/SCRIPT_AST.json": "f38b7c70aeb596c68d8a048d1dca528a1249e6df2e22ab087256f5e302a179eb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/library_candidate_v2/DELIVERY.json": "91a19190811aab780e00b9bea07b2b3dca5301d343fca36fe77f5967989d1aca"
+  }
+}

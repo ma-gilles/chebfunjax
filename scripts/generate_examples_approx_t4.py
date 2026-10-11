@@ -52,72 +52,12 @@ def _chebcoeffs(vals):
 
 
 def pushnitski():
-    """approx/Pushnitski — slow log-decay of -1/log(x) coefficients."""
-    def f_pos(x):
-        x = np.asarray(x, dtype=float)
-        out = np.zeros_like(x)
-        m = x > 0
-        out[m] = -1.0 / np.log(x[m] / 1.0)
-        return out
+    """Run the canonical source-managed Pushnitski example."""
+    import runpy
+    from pathlib import Path
 
-    xs = np.linspace(-0.1, 0.1, 3000)
-
-    fig, ax = plt.subplots()
-    ax.plot(xs, f_pos(xs), color=CHEBFUN_BLUE, linewidth=1.2)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("-heaviside(x)/log(x)", fontsize=10)
-    save(fig, "Pushnitski_01.png")
-
-    # coefficients of the degree-1000 interpolant on [-0.1, 0.1]
-    n = 1000
-    xc = 0.1 * np.cos(PI * np.arange(n) / (n - 1))
-    c = np.abs(_chebcoeffs(f_pos(xc[::-1])[::-1]))
-    fig, ax = plt.subplots()
-    kk = np.arange(1, len(c))
-    ax.loglog(kk, np.maximum(c[1:], 1e-18), ".", color=CHEBFUN_BLUE,
-              markersize=3)
-    ax.set_xlim(1, 500)
-    ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
-    ax.set_title("Chebyshev coefficients (loglog)", fontsize=10)
-    save(fig, "Pushnitski_02.png")
-
-    # coefficients against 1/(k log^2 k) reference lines
-    fig, ax = plt.subplots()
-    ax.loglog(kk, np.maximum(c[1:], 1e-18), ".", color=CHEBFUN_BLUE,
-              markersize=3)
-    ref = 1.0 / (kk * np.log(np.maximum(kk, 2)) ** 2)
-    ax.loglog(kk, ref * c[1] / ref[0], "r", linewidth=1.0)
-    ax.set_xlim(1, 500)
-    ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
-    ax.set_title("coefficients vs C/(k log^2 k)", fontsize=10)
-    save(fig, "Pushnitski_03.png")
-
-    # errors of truncations (very slow convergence)
-    ns = (2 ** np.arange(3, 10)).astype(int)
-    errs = []
-    xe = np.linspace(-0.1, 0.1, 5000)
-    fe = f_pos(xe)
-    for m in ns:
-        xm = 0.1 * np.cos(PI * np.arange(m) / (m - 1))
-        cm = _chebcoeffs(f_pos(xm[::-1])[::-1])
-        vm = np.polynomial.chebyshev.chebval(xe / 0.1, cm)
-        errs.append(np.max(np.abs(fe - vm)))
-    fig, ax = plt.subplots()
-    ax.loglog(ns, errs, ".-", color=CHEBFUN_BLUE, markersize=8,
-              linewidth=1.0)
-    ax.loglog(ns, 1.0 / np.log(ns) ** 1, "r--", linewidth=0.8)
-    ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
-    ax.set_xlabel("n")
-    ax.set_ylabel("max error")
-    save(fig, "Pushnitski_04.png")
-
-    fig, ax = plt.subplots()
-    ax.semilogy(xe, np.maximum(np.abs(
-        fe - np.polynomial.chebyshev.chebval(xe / 0.1, _chebcoeffs(
-            f_pos((0.1 * np.cos(PI * np.arange(256) / 255))[::-1])
-            [::-1]))), 1e-18), "k", linewidth=0.5)
-    ax.set_title("pointwise error, n = 256", fontsize=10)
-    save(fig, "Pushnitski_05.png")
+    script = Path(__file__).resolve().parents[1] / "examples/approx/pushnitski.py"
+    runpy.run_path(str(script), run_name="__main__")
 
 
 def inpainting1d():

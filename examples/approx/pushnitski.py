@@ -1,137 +1,113 @@
-"""Approximation of a log-singular function of Pushnitski.
+"""Approximating Pushnitski's reciprocal log function.
 
-Translation of approx/Pushnitski.m by Nick Trefethen (May 2020):
-polynomial, rational-Remez, and CF approximation of
--heaviside(x)/log(x) on [-0.1, 0.1] — a function with a logarithmic
-flat spot at the origin.
-
+Provenance
+----------
+MATLAB source: approx/Pushnitski.m, Nick Trefethen, November 2016.
+Chebfun commit: 7574c77 (reference library).
 Original: https://www.chebfun.org/examples/approx/Pushnitski.html
-Copyright by The University of Oxford and The Chebfun Developers.
 """
-import matplotlib
-
-matplotlib.use("Agg")
+import json
 import os
-import sys
 import time
-import warnings
+from pathlib import Path
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.plotting import chebfun_style, plotcoeffs, save_chebfun_figure
 from chebfunjax.utils.cfpade import cf
 from chebfunjax.utils.minimax import minimax
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
-
-XS = np.linspace(-0.1, 0.1, 4000)
+_HERE = Path(__file__).resolve().parent
+_IMG = _HERE / '../../docs/images/approx'
+_CAPTURE = os.environ.get('CHEBFUNJAX_CAPTURE_DIR')
 
 
-def fop(x):
-    ax = jnp.where(x > 0, x, 1e-300)
-    return jnp.where(x > 0, -1.0 / jnp.log(ax), 0.0)
+def _capture(name, f):
+    if not _CAPTURE:
+        return
+    arrays = {'domain': np.asarray(f.domain.breakpoints),
+              'point_values': np.asarray(f._breakpoint_values())}
+    for k, piece in enumerate(f.funs):
+        arrays[f'coeffs_{k}'] = np.asarray(piece.coeffs)
+    np.savez(Path(_CAPTURE) / f'{name}.npz', **arrays)
+
+
+def _save(fig, number):
+    fig.tight_layout()
+    save_chebfun_figure(fig, _IMG / f'Pushnitski_{number:02d}.png',
+                       size=(600, 270))
+    plt.close(fig)
 
 
 def run():
-    os.makedirs(_IMG, exist_ok=True)
-
-    f = cj.chebfun(fop, domain=[-0.1, 0.0, 0.1])
-    fv = np.asarray(f(jnp.asarray(XS)))
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(XS, fv, 'k', lw=2)
-    ax.set_ylim(-0.2, 0.5)
+    chebfun_style()
+    _IMG.mkdir(parents=True, exist_ok=True)
+    if _CAPTURE:
+        Path(_CAPTURE).mkdir(parents=True, exist_ok=True)
+    f = cj.chebfun('-heaviside(x)./log(x)', domain=[-.1, .1], splitting=True)
+    _capture('initial_f', f)
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    f.plot(ax=ax, color='k', linewidth=2)
+    ax.set_ylim(-.2, .5)
     ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Pushnitski_01.png"), size=(600, 270))
-    plt.close(fig)
+    _save(fig, 1)
 
-    # Chebyshev coefficients of the length-1000 interpolant decay slowly
-    f1000 = cj.chebfun(fop, domain=(-0.1, 0.1), n=1000)
-    c = np.abs(np.asarray(f1000.coeffs)) + 1e-18
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.loglog(np.arange(1, len(c) + 1), c, '.', ms=4)
-    ax.set_xlim(1, 500)
+    f1000 = cj.chebfun('-heaviside(x)./log(x)', domain=[-.1, .1], n=1000)
+    _capture('f1000', f1000)
+    fig, ax = plt.subplots(figsize=(6, 2.7))
+    plotcoeffs(f1000, ax=ax, loglog=True, source=True)
+    ax.set_xlim(0, 500)
     ax.grid(True)
-    ax.set_xlabel("degree of Chebyshev polynomial")
-    ax.set_ylabel("magnitude of coefficient")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Pushnitski_02.png"), size=(600, 270))
-    plt.close(fig)
+    _save(fig, 2)
 
-    # Polynomial minimax of degrees 4, 8, 12, 16
-    t0 = time.time()
-    fig, axes = plt.subplots(2, 2, figsize=(9.6, 6.2))
-    for m in range(1, 5):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = minimax(fop, 4 * m, domain=(-0.1, 0.1),
-                          breakpoints=[0.0])
-        p = cj.chebfun(jnp.asarray(res.coeffs), coeffs=True,
-                       domain=(-0.1, 0.1))
-        ev = fv - np.asarray(p(jnp.asarray(XS)))
-        ax = axes[(m - 1) // 2, (m - 1) % 2]
-        ax.plot(XS, ev, lw=1.1)
-        ax.grid(True)
-        ax.set_title(f"degree {4*m}", fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Pushnitski_03.png"), size=(600, 270))
-    plt.close(fig)
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
-
-    # Rational minimax of types (0,0)..(3,3)
-    t0 = time.time()
-    fig, axes = plt.subplots(2, 2, figsize=(9.6, 6.2))
-    for m in range(1, 5):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            try:
-                r = minimax(fop, m - 1, rational=True, denom=m - 1,
-                            domain=(-0.1, 0.1))
-                ev = fv - np.asarray(r.r(XS))
-            except Exception:
-                ev = np.full_like(XS, np.nan)
-        ax = axes[(m - 1) // 2, (m - 1) % 2]
-        ax.plot(XS, ev, lw=1.1)
-        ax.grid(True)
-        ax.set_title(f"type ({m-1},{m-1})", fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Pushnitski_04.png"), size=(600, 270))
-    plt.close(fig)
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
-
-    # CF approximation of the same types
-    t0 = time.time()
-    fig, axes = plt.subplots(2, 2, figsize=(9.6, 6.2))
-    for m in range(1, 5):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            try:
-                p, q, rh, s = cf(f1000, m - 1, m - 1, 4000)
-                ev = fv - np.asarray(rh(jnp.asarray(XS)))
-            except Exception:
-                ev = np.full_like(XS, np.nan)
-        ax = axes[(m - 1) // 2, (m - 1) % 2]
-        ax.plot(XS, ev, lw=1.1)
-        ax.grid(True)
-        ax.set_title(f"type ({m-1},{m-1})", fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Pushnitski_05.png"), size=(600, 270))
-    plt.close(fig)
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
+    records = []
+    t0 = time.perf_counter()
+    f = cj.chebfun([0, lambda x: -1 / jnp.log(x)],
+                  domain=[-.1, 0, .1], n=1000)
+    _capture('piecewise_f', f)
+    for cell, number in [('polynomial', 3), ('rational', 4), ('cf', 5)]:
+        if cell != 'polynomial':
+            t0 = time.perf_counter()
+        fig, axes = plt.subplots(2, 2, figsize=(6, 2.7))
+        for m in range(1, 5):
+            if cell == 'polynomial':
+                result = minimax(f, 4*m, domain=(-.1, .1))
+                p = cj.chebfun(result.coeffs, coeffs=True, domain=(-.1, .1))
+                residual = f - p
+                title = f'degree {2*m}'  # Literal native title, degree is 4*m.
+            elif cell == 'rational':
+                result = minimax(f, m-1, rational=True, denom=m-1,
+                                 domain=(-.1, .1))
+                p, q = result.as_chebfuns()
+                residual = f - p/q
+                title = f'type ({m-1},{m-1})'
+            else:
+                p, q, _, error = cf(f, m-1, m-1, 4000)
+                residual = f - p/q
+                title = f'type ({m-1},{m-1})'
+            _capture(f'{cell}_{m}_p', p)
+            if cell != 'polynomial':
+                _capture(f'{cell}_{m}_q', q)
+            _capture(f'{cell}_{m}_residual', residual)
+            record = {'cell': cell, 'm': m}
+            if cell == 'cf':
+                record['error'] = float(error)
+            else:
+                record.update(error=float(result.err), iterations=int(result.iter),
+                              delta=float(result.delta))
+            records.append(record)
+            if _CAPTURE:
+                (Path(_CAPTURE) / 'fits.json').write_text(json.dumps(records, indent=2)+'\n')
+            ax = axes.flat[m-1]
+            residual.plot(ax=ax)
+            ax.grid(True)
+            ax.set_title(title, fontsize=10)
+        _save(fig, number)
+        print(f'Elapsed time is {time.perf_counter()-t0:.6f} seconds.', flush=True)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()

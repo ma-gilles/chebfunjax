@@ -428,6 +428,7 @@ def main():
             ("roots", "RandomPolys"),
             ("complex", "ZetaZeros"),
             ("approx", "MinimaxSqrt"),
+            ("approx", "Pushnitski"),
             ("sphere", "LaplaceBall"),
             ("stats", "BivariateNormalDistribution"),
         }:
