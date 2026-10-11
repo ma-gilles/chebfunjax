@@ -446,104 +446,23 @@ class Bndfun(Classicfun):
     # ------------------------------------------------------------------
 
     def conv(self, g: "Bndfun") -> list:
-        r"""Convolution of two Bndfuns.
+        """Convolve smooth pieces with the source Legendre recurrence.
 
-        Computes
-
-        .. math::
-            h(x) = \int f(t)\, g(x - t)\, dt,
-            \quad x \in [a + c,\, b + d],
-
-        where ``self`` is on ``[a, b]`` and ``g`` is on ``[c, d]``.  The
-        convolution of two smooth functions on bounded intervals is
-        piecewise smooth with breakpoints at the pairwise sums of the
-        endpoints, so the result is returned as a *list* of Bndfun pieces
-        (one per subinterval of ``[a + c, b + d]``), mirroring the cell
-        array returned by MATLAB's ``@bndfun/conv``.
-
-        Each piece is built by adaptive Chebyshev construction, evaluating
-        the convolution integral by Gauss-Kronrod quadrature over the
-        sub-intervals induced by the breakpoints of ``f`` and ``g``.  This
-        is the general quadrature route (MATLAB's ``oldConv`` path); it is
-        exact to quadrature tolerance for arbitrary smooth ``f`` and ``g``.
-
-        Parameters
-        ----------
-        g : Bndfun
-            The second operand, on a bounded domain.
-
-        Returns
-        -------
-        list of Bndfun
-            The convolution pieces, left to right on ``[a + c, b + d]``.
-            An empty input on either side yields an empty list.
-
-        Notes
-        -----
-        NOT JIT-safe (adaptive construction + adaptive quadrature).
+        Returns adjacent Bndfun pieces; an empty operand returns an empty list.
+        The source cost switch uses Gauss quadrature for a very short filter.
 
         Provenance
         ----------
-        MATLAB source : @bndfun/conv.m (Hale & Townsend, 2014); the
-            quadrature fallback follows @chebfun/conv.m ``oldConv``.
-        Chebfun commit: 7574c77
+        @bndfun/conv.m, Chebfun commit: 7574c77.
         """
-        import numpy as _np
-
+        from chebfunjax.chebfun1d._convolution import convolve_pieces
+        from chebfunjax.chebfun1d.chebfun import _Piece
         if self.isempty() or g.isempty():
             return []
-
-        f = self
-        a, b = float(f.domain.a), float(f.domain.b)
-        c, d = float(g.domain.a), float(g.domain.b)
-        if not all(_np.isfinite([a, b, c, d])):
-            raise ValueError("conv: only bounded domains are supported.")
-
-        # Breakpoints of the convolution are the pairwise sums of endpoints.
-        pts = _np.unique(_np.array([a + c, b + c, a + d, b + d]))
-        span = max(abs(pts[0]), abs(pts[-1]))
-        tol = 10.0 * float(_np.finfo(_np.float64).eps) * span
-        if tol == 0.0:
-            tol = 1e-14
-        keep = _np.concatenate([[True], _np.diff(pts) > tol])
-        pts = pts[keep]
-
-        f_bps = _np.array([a, b])
-        g_bps = _np.array([c, d])
-
-        def _conv_at(x_val: float) -> float:
-            from scipy import integrate as _scint
-            a_lim = max(a, x_val - d)
-            b_lim = min(b, x_val - c)
-            if a_lim >= b_lim:
-                return 0.0
-            ends_g = x_val - g_bps
-            int_bps = _np.union1d(f_bps, ends_g)
-            int_bps = int_bps[(int_bps >= a_lim) & (int_bps <= b_lim)]
-            sub_dom = _np.unique(_np.concatenate([[a_lim], int_bps, [b_lim]]))
-            result = 0.0
-            x_jax = jnp.float64(x_val)
-            for j in range(len(sub_dom) - 1):
-                def integrand(t):
-                    t_arr = jnp.atleast_1d(jnp.asarray(t, dtype=jnp.float64))
-                    return float((f(t_arr) * g(x_jax - t_arr))[0])
-                val, _ = _scint.quad(integrand, sub_dom[j], sub_dom[j + 1],
-                                     epsabs=1e-13, epsrel=1e-13, limit=100)
-                result += val
-            return result
-
-        pieces = []
-        for k in range(len(pts) - 1):
-            lo, hi = float(pts[k]), float(pts[k + 1])
-            piece = Bndfun.from_function(
-                lambda x: jnp.array(
-                    [_conv_at(float(xi)) for xi in jnp.atleast_1d(x)],
-                    dtype=jnp.float64,
-                ),
-                Domain((lo, hi)),
-            )
-            pieces.append(piece)
-        return pieces
+        fpiece = _Piece(self.onefun, (float(self.domain.a), float(self.domain.b)))
+        gpiece = _Piece(g.onefun, (float(g.domain.a), float(g.domain.b)))
+        return [Bndfun.from_chebtech(p.tech, Domain(p.interval))
+                for p in convolve_pieces(fpiece, gpiece)]
 
     # ------------------------------------------------------------------
     # Display

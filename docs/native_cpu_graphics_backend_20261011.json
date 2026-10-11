@@ -1,0 +1,102 @@
+{
+  "original_handle": 80613,
+  "preparation_handle": 43581,
+  "command_exit_code": 0,
+  "supervisor_exit_code": 0,
+  "wall_seconds": 109.96538380673155,
+  "science_seconds": 21.243251,
+  "peak_rss_kib": 1931824,
+  "inputs_stable": true,
+  "input_count": 4597,
+  "censored_limit": null,
+  "remaining_owned_pids": [],
+  "version": "R2024b Update3 24.2.0.2806996",
+  "renderer": "MathWorks Painters / Java1.8.0_202",
+  "source_pin": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref": "7574c77680d7e82b79626300bf255498271a72df"
+  },
+  "figures": 5,
+  "png_count": 5,
+  "svg_count": 5,
+  "all_raster_integrity": true,
+  "source_points": 92,
+  "vector_raster_inclusion_agrees": true,
+  "runtime_file_origins": 200,
+  "runtime_prebound_origins": 199,
+  "model_counts": {
+    "float64_data": {
+      "matched": 61,
+      "mismatched": 31
+    },
+    "float32_data_final": {
+      "matched": 87,
+      "mismatched": 5
+    },
+    "float64_normalized": {
+      "matched": 61,
+      "mismatched": 31
+    },
+    "float32_normalized_final": {
+      "matched": 76,
+      "mismatched": 16
+    },
+    "float32_normalized_operations": {
+      "matched": 87,
+      "mismatched": 5
+    },
+    "float64_display": {
+      "matched": 64,
+      "mismatched": 28
+    },
+    "float32_display_final": {
+      "matched": 80,
+      "mismatched": 12
+    },
+    "float32_display_operations": {
+      "matched": 82,
+      "mismatched": 10
+    },
+    "nearest_integer_png_display": {
+      "matched": 89,
+      "mismatched": 3
+    },
+    "nearest_integer_svg_display": {
+      "matched": 89,
+      "mismatched": 3
+    }
+  },
+  "change_prepared": false,
+  "reason": "No tested source-independent simple coordinate conversion predicts alloffsets; do not fit a clipping tolerance",
+  "no_R2025b_or_historical_graphics_claim": true,
+  "no_numerical_runtime_change": true,
+  "publication_modified": false,
+  "original_controls_preserved": [
+    19155,
+    56353,
+    41630
+  ],
+  "root_review": {
+    "archive_sha256": "8d70244f75133bacc9bdb5d657094e645cda931fd1af322daea96a6950957f51",
+    "archive_bindings_verified": 109,
+    "unique_guard_inputs_verified": 4597,
+    "visual_review": "Root independently viewed valid600x270 white Painters raster with cornerorange/interiorblue anchors.",
+    "limits": [
+      "One observed R2024b linspace.m origin not prebound in boundary run; reported honestly, not full closure.",
+      "No tested simple coordinate conversion predicts all92inclusions. No clipping patch qualified.",
+      "Numerical runtime remains R2025b; graphics evidence from R2024b only."
+    ]
+  },
+  "evidence": {
+    "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_marker_precision_r2024b_20261011/graphics_r2024b_evidence.zip",
+    "archive_sha256": "8d70244f75133bacc9bdb5d657094e645cda931fd1af322daea96a6950957f51",
+    "entries": 110,
+    "verified_bindings": 109,
+    "report_sha256": "b246ca28a785d2b87743561d5af1563a1321fb73cf2fa8bf56e3a8a40c4de300",
+    "original_handles": [
+      56353,
+      41630,
+      80613
+    ],
+    "scope": "ThreeactualR2024b control receipts and artifactbytes; external guarded runtime libraries/code are hashbound, not copied into archive."
+  }
+}

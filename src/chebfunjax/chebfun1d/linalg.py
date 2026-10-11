@@ -482,6 +482,16 @@ class Quasimatrix:
         from .mtimes import mtimes
         return mtimes(other, self)
 
+    def conv(self, other, *options):
+        """Convolve columns pairwise or with one broadcast column.
+
+        Provenance
+        ----------
+        @chebfun/conv.m, Chebfun commit: 7574c77.
+        """
+        from chebfunjax.chebfun1d._convolution import convolution
+        return convolution(self, other, *options)
+
     def horzcat(self, other) -> "Quasimatrix":
         cols = list(other.cols) if isinstance(other, Quasimatrix) \
             else [other]
