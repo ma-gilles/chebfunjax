@@ -1386,6 +1386,24 @@ class Chebop:
         # breaks.  Handles both scalar and system BVPs; single-interval
         # domains fall through to the established spectral paths unchanged.
         if len(self.domain) > 2:
+            # Native solvebvp linearizes composition as operator blocks;
+            # local differential monomial probes cannot represent delays.
+            # Reuse that exact source path for supported scalar nonlocal
+            # linear equations, keeping legacy nonlinear/system routes.
+            if (self._n_vars() == 1 and not self._periodic
+                    and self._bc_general is None
+                    and all(bool(jnp.isfinite(v)) for v in self.domain)):
+                from chebfunjax.operators.chebop_altdisc import (
+                    _linearize_scalar_ad,
+                    _solve_scalar_linear_ad,
+                )
+                try:
+                    data = _linearize_scalar_ad(self, f, tuple(self.domain))
+                except (NotImplementedError, TypeError, AttributeError):
+                    data = None  # Unsupported AD syntax retains its old route.
+                if data is not None and data[0].A.blocks[0][0]._coeff_fn is None:
+                    return _solve_scalar_linear_ad(
+                        self, data, "chebcolloc2", n, n_min, n_max, tol)[0]
             # Periodic problems on piecewise domains solve with the
             # piecewise collocation too — the endpoint slots carry
             # wrap-around rows instead of lbc/rbc (PeriodicSystem).

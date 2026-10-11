@@ -1,0 +1,12 @@
+{
+  "scope": "Restore original isSubset source predicates7/8, retain displaced supplemental boxes; no library change",
+  "result": "4 test methods pass covering8 native and2 supplemental assertions;2.13s;470808KiB; stable inputs and no survivors",
+  "bindings": {
+    "path": "tests/test_matlab_port/misc/test_isSubset_matlab.py",
+    "baseline_sha256": "9a333d738bb115b9c1f5f355d682037521373eb88cbae0126fe89e84a5d00669",
+    "candidate_sha256": "c5a5749447664646dfd498518b486a91eea6edb20ce58c3e68257dce9eb9096a"
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/isSubset_native_source_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "97ac7056a47f5dea3f1dc1c82ec9390f5b89f31241d96c028a13e4123bd7f27d",
+  "limits": "Focused CPU gate; existing independently qualified contract controls not repeated"
+}

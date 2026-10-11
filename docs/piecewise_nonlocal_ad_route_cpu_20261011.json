@@ -1,0 +1,201 @@
+{
+  "scope": "Public source AD/C2 route for finite nonperiodic scalar piecewise linear nonlocal operators with endpoint boundary conditions.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "example_pin": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+  "source_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/linearize.m": "35ee0cb907a29e6293332bc8f90c998e4f54783291bcfa4b8ead2eb77f6d3c65",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/solvebvpLinear.m": "5e78ffdff8af7f87f1be960060816b885752e08b29e15d46ef44e31aa832e39a",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebcolloc/compose.m": "7b6d1ffb7e6d7e188f890a0c9db87086d6192d5bc6e0d7d0b97050e77be46c2a",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@adchebfun/adchebfun.m": "02f5beea55cee3d6d4b9975b5e05e3c26d9434b6f24e37a9e1b278bd548ab54c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-nonlin/DelayDifferentialEquations.m": "aa8dcf374ac46d55ee68460d01c6428b2f6b92c09d889276d00a32e3e001995d"
+  },
+  "source_reason": "Native AD compose builds barycentric operator blocks. Legacy local monomial coefficient reconstruction cannot represent delay composition and falls back to repeated expensive residual columns. Reuse existing exact scalar AD linearizer and adaptive second-kind source solver.",
+  "routing": "Only scalar, finite, nonperiodic, multiple-interval, no general BC; linearized output must have no local coefficient-function representation. Unsupported AD syntax keeps prior route; local differential, nonlinear, periodic, general-BC and system cases retain prior route.",
+  "prerequisite": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/DELIVERY.json",
+  "prerequisite_sha256": "5dad958584f2ac80818f6952ba35e2036d58a4c431642f04753f173ef509d82d",
+  "gates": {
+    "legacy_public_profile": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/AUDIT.json",
+      "audit_sha256": "351220cd052e026c4169f0471e95c0c0dafc3a9896f4f7ae6d027172e41b2c94",
+      "summary": {
+        "original": 20561,
+        "terminal": 124,
+        "inputs_stable": true,
+        "censored": "wall_timeout",
+        "survivors": [],
+        "peak_rss_kib": 1610972,
+        "wall_seconds": 181.30816609691828
+      },
+      "observe.py": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/observe.py",
+        "sha256": "f5d6648c229f2b83974998e6688426b97772c5693e2d59f23cd7ef53d6885892"
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      },
+      "profile.pstats": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/profile.pstats",
+        "sha256": "2fc91537ca51175ac72c3af7232182195e8826f70cbe14cb4d9876e1f4773fd8"
+      },
+      "profile.txt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/profile.txt",
+        "sha256": "1f51c5f83b814b527b290987bf9a831af9387881f2a4527183dc5a102520c3ea"
+      }
+    },
+    "public_source_route": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/AUDIT.json",
+      "audit_sha256": "a777fdaca2526bc0c556f9f4fb475c2cf6309035020c767e9e9d164273a33160",
+      "summary": {
+        "original": 84801,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1993408,
+        "wall_seconds": 36.58235906995833
+      },
+      "observe.py": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/observe.py",
+        "sha256": "f5d6648c229f2b83974998e6688426b97772c5693e2d59f23cd7ef53d6885892"
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      },
+      "RESULT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/RESULT.json",
+        "sha256": "cca4a058b7b88f01cefc048d84953ea391c146f4f0a605627bb0ed96cda20979"
+      },
+      "solution.npz": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/solution.npz",
+        "sha256": "6a8f12b93bea672aa622eec0175e587a789b6f9ecd44c84b251f104349a6d281"
+      },
+      "profile.pstats": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/profile.pstats",
+        "sha256": "8154844e7269b20a89921d60423e5b358cb8c95cca73575873f4ccb65aee50fe"
+      },
+      "profile.txt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/public_section9/profile.txt",
+        "sha256": "12db68874d8f986d07699cd6867cf27853f732e21ed69bccf472ff96181153f8"
+      }
+    },
+    "route_controls": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/controls/AUDIT.json",
+      "audit_sha256": "41808fc6d8b7f52084a24ed4a411a07fb04de5fd8b3123351465ea6ddd9c1cdf",
+      "summary": {
+        "original": 86681,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1273336,
+        "wall_seconds": 17.022462617605925
+      },
+      "junit.xml": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_nonlocal_ad_route_20261011/controls/junit.xml",
+        "sha256": "9c37782e27210c7d0a55a2924c6884b9756f087cefb548aafda2dcb47cc32dce"
+      },
+      "test_ids": [
+        "test_piecewise_nonlocal_ad_route::test_one_delay_uses_source_ad_and_matches_analytic_solution",
+        "test_piecewise_nonlocal_ad_route::test_other_piecewise_routes_remain_legacy[local]",
+        "test_piecewise_nonlocal_ad_route::test_other_piecewise_routes_remain_legacy[nonlinear]",
+        "test_piecewise_nonlocal_ad_route::test_other_piecewise_routes_remain_legacy[periodic]",
+        "test_piecewise_nonlocal_ad_route::test_other_piecewise_routes_remain_legacy[general_bc]",
+        "test_piecewise_nonlocal_ad_route::test_other_piecewise_routes_remain_legacy[system]"
+      ]
+    }
+  },
+  "scientific_inputs": {
+    "p1": 0.5,
+    "p2": 0.3333333333333333,
+    "domain": [
+      0.0,
+      0.3333333333333333,
+      0.5,
+      0.6666666666666666,
+      1.0,
+      1.3333333333333333,
+      1.5,
+      1.6666666666666665,
+      2.0
+    ],
+    "domain_hex": [
+      "0x0.0p+0",
+      "0x1.5555555555555p-2",
+      "0x1.0000000000000p-1",
+      "0x1.5555555555555p-1",
+      "0x1.0000000000000p+0",
+      "0x1.5555555555555p+0",
+      "0x1.8000000000000p+0",
+      "0x1.aaaaaaaaaaaaap+0",
+      "0x1.0000000000000p+1"
+    ],
+    "pieces": 8,
+    "jax": "0.11.0",
+    "backend": "cpu",
+    "x64": true
+  },
+  "performance_scope": {
+    "same_public_observer_bytes": true,
+    "baseline": "180s wall cap, no result; profile demonstrates residual/composition column bottleneck.",
+    "candidate_profiled_solve_seconds": 21.475339373108,
+    "no_uncensored_speedup_ratio": true
+  },
+  "observations": {
+    "solve_seconds": 21.475339373108,
+    "domain": [
+      0.0,
+      0.3333333333333333,
+      0.5,
+      0.6666666666666665,
+      0.8333333333333333,
+      1.0,
+      1.1666666666666667,
+      1.333333333333333,
+      1.5,
+      1.6666666666666665,
+      1.8333333333333333,
+      2.0
+    ],
+    "lengths": [
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      9,
+      9,
+      9,
+      9
+    ],
+    "linear_used": null,
+    "fastjac_used": null,
+    "left_value": 0.9999999999995947,
+    "residual_norm": 3.5915980574725803e-11,
+    "residual_seconds": 8.472956056706607
+  },
+  "acceptance": "Six focused tests pass, including added1e-10 one-delay analytic control and5 preserved-route controls. Source section9 prints residual without an assertion; its observed residual is not treated as a new acceptance bound.",
+  "limits": [
+    "No fresh matched native section9 numerical output or timing ratio.",
+    "No whole-page run or figure restoration in this package.",
+    "Other nonlocal/system/nonlinear/periodic routes remain outside qualification.",
+    "Default preferences retained: no explicit n, tolerance or iteration override in section9.",
+    "Initial union9 breakpoints/8 pieces becomes12 breakpoints/11 pieces under composition; prior skip comment conflated these."
+  ],
+  "static": [
+    "P-config Ruff passed source/new test",
+    "P git apply --check passed"
+  ],
+  "environment": {
+    "cpu": "4-7",
+    "wall_seconds": 180,
+    "rss_mib": 3072,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "x64": true,
+    "CUDA_VISIBLE_DEVICES": ""
+  }
+}

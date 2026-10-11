@@ -1,6 +1,7 @@
 """Port of MATLAB Chebfun tests/misc/test_isSubset.m (Fable 5).
 
-FIXED: isSubset added in the Fable 5 audit.
+All eight native predicates retain their literal endpoint pairs and
+100*factory-tech-eps tolerance. Displaced 3D boxes remain supplemental.
 
 Provenance
 ----------
@@ -28,10 +29,15 @@ class TestIsSubset:
 
     def test_2d_domains(self):
         assert cj.isSubset([-0.7, -0.5, 1, 2], [-1, 1, -1, 3], TOL)
-        assert not cj.isSubset([-0.7, -0.5, 1, 2], [-1, 1, -1, 1],
-                               TOL)
+        assert not cj.isSubset([-0.7, -0.5, 1, 2], [-1, 1, -1, 1], TOL)
 
-    def test_3d_domains(self):
+    def test_source_3d_domains(self):
+        # Original pass(7)-(8), including rejection on the second axis.
+        B = [-1, 1, -1, 1, -1, 1]
+        assert cj.isSubset([-1, 1, 0, 1, -1, 1], B, TOL)
+        assert not cj.isSubset([-1, 1, -2, 1, -1, 1], B, TOL)
+
+    def test_supplemental_3d_domains(self):
         A = [0, 1, 0, 1, 0, 1]
         assert cj.isSubset(A, [-1, 2, -1, 2, -1, 2], TOL)
         assert not cj.isSubset(A, [-1, 2, -1, 2, 0.5, 2], TOL)
