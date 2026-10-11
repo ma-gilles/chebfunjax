@@ -651,44 +651,14 @@ def _find_extrema(
         if ai >= bi - 1e-15 * (b - a):
             continue
 
-        # Adaptively sample error on this sub-interval
-        nn = 8   # start with 2^3 Chebyshev-2 pts
-        max_nn = 64
+        from chebfunjax.utils._minimax_rootsdiff_source import rootsdiff
 
-        cU = np.array([], dtype=np.float64)
-        while nn <= max_nn:
-            pts_asc = np.array(chebpts_ab(nn + 1, ai, bi), dtype=np.float64)
+        def error_handle(x):
+            return (f(jnp.asarray(x)) - _eval_poly_bary(
+                np.asarray(x), p_coeffs, a, b))
 
-            fvals_sub = np.asarray(
-                f(jnp.array(pts_asc)), dtype=np.float64
-            ).ravel()
-            p_vals_sub = _eval_poly_bary(pts_asc, p_coeffs, a, b)
-            err_vals = fvals_sub - p_vals_sub  # ascending order
-
-            # vals2coeffs accepts ascending x-order (matching chebpts_ab).
-            c_err = np.array(
-                vals2coeffs(jnp.array(err_vals, dtype=jnp.float64)),
-                dtype=np.float64,
-            )
-
-            # Chebyshev-U derivative coefficients:
-            # d/dx [T_k(x)] = k * U_{k-1}(x)
-            # so cU[k] = c_err[k+1] * (k+1) for k = 0, ..., n-2
-            cU = c_err[1:] * np.arange(1, len(c_err), dtype=np.float64)
-
-            if len(cU) == 0:
-                break
-
-            norm_cU = np.linalg.norm(cU)
-            if norm_cU == 0.0:
-                break
-
-            # Check if coefficients have decayed
-            if abs(cU[-1]) / (norm_cU + 1e-300) < 1e-3:
-                break
-            nn *= 2
-
-        sub_roots = _roots_chebyshevU(cU, ai, bi)
+        points = chebpts_ab(9, ai, bi)
+        sub_roots = rootsdiff(error_handle(points), (ai, bi), error_handle)
         all_roots.extend(sub_roots.tolist())
 
     # Combine with domain endpoints and deduplicate

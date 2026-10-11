@@ -2762,6 +2762,28 @@ class Trigtech(eqx.Module):
         return Trigtech(coeffs=c[:, j], real_columns=(self.real_columns[j],),
                         ishappy=self.ishappy, _values=values[:, j])
 
+    def chebcoeffs(self, n=None, kind=1):
+        """Convert through an adaptive first-kind Chebtech, then take N terms.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/chebcoeffs.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        if n is None or jnp.asarray(n).size == 0:
+            raise ValueError(
+                "CHEBFUN:TRIGTECH:chebcoeffs:input: F does not have a finite "
+                "Chebyshev series. Please input N."
+            )
+        if kind is None or jnp.asarray(kind).size == 0:
+            kind = 1
+        if n <= 0:
+            return jnp.empty((0,), dtype=jnp.float64)
+        from chebfunjax.tech.chebtech import Chebtech1
+
+        converted = Chebtech1.from_function(lambda x: self(x))
+        return converted.chebcoeffs(n, kind)
+
     def minandmax(self):
         """Native full-array adaptive C1 conversion followed by extrema.
 

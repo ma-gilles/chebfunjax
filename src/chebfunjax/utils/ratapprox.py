@@ -428,14 +428,14 @@ def ratinterp(
         else:
             raise ValueError(f"ratinterp: unrecognized node type '{xi}'.")
     else:
-        xi_nodes = jnp.asarray(xi, dtype=complex).ravel()
+        xi_nodes = jnp.asarray(xi).ravel()
         xi_type = "ARBITRARY"
         if NN is None:
             NN = len(xi_nodes)
 
     # If f is a data vector, infer NN from its length (unless explicitly given).
     if NN is None and not callable(f):
-        f_arr = jnp.asarray(f, dtype=complex).ravel()
+        f_arr = jnp.asarray(f).ravel()
         NN = len(f_arr)
     elif NN is None:
         NN = m + n + 1
@@ -472,9 +472,9 @@ def ratinterp(
 
     if callable(f):
         x_physical = mid + hd * xi_nodes
-        fvals = jnp.asarray(f(x_physical), dtype=complex).ravel()
+        fvals = jnp.asarray(f(x_physical)).ravel()
     else:
-        fvals = jnp.asarray(f, dtype=complex).ravel()
+        fvals = jnp.asarray(f).ravel()
         if len(fvals) != N1:
             raise ValueError(
                 f"ratinterp: length of f ({len(fvals)}) must equal NN ({N1})."
@@ -749,7 +749,7 @@ def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
                 sub = Z[m + 1 + shift: N1: 2, 0: n + 1: 2]
                 _, S, Vh = jnp.linalg.svd(sub, full_matrices=True)
                 ns = n // 2
-                b = jnp.zeros(n + 1, dtype=complex)
+                b = jnp.zeros(n + 1, dtype=Z.dtype)
                 b = b.at[::2].set(Vh[-1, :].conj())
 
             # ssv = S(ns, ns).  S holds min(rows, cols) singular values;
@@ -821,12 +821,12 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
     if xi_type.upper().startswith("TYPE"):
         ch = xi_type[4]
         if ch == "0":
-            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = jnp.zeros(N1, dtype=jnp.result_type(b, f, jnp.float64))
             b_pad = b_pad.at[: len(b)].set(b)
             a = jnp.fft.fft(jnp.fft.ifft(b_pad) * f)
             a = a[: m + 1]
         elif ch == "1":
-            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = jnp.zeros(N1, dtype=jnp.result_type(b, f, jnp.float64))
             b_pad = b_pad.at[: len(b)].set(b)
             # Evaluate b polynomial at 1st-kind Chebyshev points then multiply by f
             # keep b_pad and f complex: the matrix is real, so the
@@ -839,7 +839,7 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
             a = _chebtech1_vals2coeffs_matrix_apply(a_vals[:, None], N1).ravel()
             a = a[: m + 1]
         else:  # TYPE2
-            b_pad = jnp.zeros(N1, dtype=complex)
+            b_pad = jnp.zeros(N1, dtype=jnp.result_type(b, f, jnp.float64))
             b_pad = b_pad.at[: len(b)].set(b)
             b_vals = _c2v_any(b_pad)
             a_vals = b_vals * jnp.asarray(f)

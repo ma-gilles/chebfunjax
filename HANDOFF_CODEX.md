@@ -3,7 +3,7 @@
 ## Latest verified CPU checkpoint (2026-10-11)
 
 Read `STATUS.md` for the current published scope and the shared evidence-root
-`CURRENT_GOAL_STATUS.md` for active work. Main through `9f1eb776` is pushed;
+`CURRENT_GOAL_STATUS.md` for active work. Main through `2fabc1b9` is pushed;
 SSH and the CPU environment work. Full parity remains incomplete.
 Latest verified packages restore the original PDE tolerance, constructor warning
 ownership, delta integration, all12 Besselh predicates with a JAX-only kernel,
@@ -16,6 +16,12 @@ semantics; nine native fixtures plus two original clauses pass. An earlier
 default-epsilon routing proposal was rejected and must not be integrated.
 All19 native empty-vector operations pass. Subsequent sections below
 retain earlier evidence and must not be read as current blockers or completion.
+
+The next qualified batch restores EightShades public source computations and
+four reference-size figures, six vector constructor2 clauses and native
+integral/norm dispatch, and JAX disk rank-one arithmetic. Read STATUS.md and
+its linked qualification records for residuals and limits. All focused gates
+retain source tolerances; full parity and current-main CI remain unresolved.
 
 ## Earlier CPU checkpoint (2026-10-11)
 

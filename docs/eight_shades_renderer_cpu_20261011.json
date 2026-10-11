@@ -1,0 +1,175 @@
+{
+  "publication_head_at_delivery": "2fabc1b9a49b750922b9e0d644fb32d58634169b",
+  "base_distinction": "Current unpublished EightShades script overlay copied byte-for-byte into BASE_SCRIPT.py; renderer-only patch against it",
+  "native_version": "24.2.0.2806996 (R2024b) Update 3",
+  "native_math_scope": "Reconstructed retained f and p1 coefficients exactly; no approximations, solves or coefficient refits",
+  "native_properties": {
+    "LineWidth": 0.5,
+    "TickLength": [
+      0.01,
+      0.025
+    ],
+    "TickDir": "in",
+    "Box": "on",
+    "FontName": "Helvetica",
+    "FontSize": 10,
+    "XColor": [
+      0.15,
+      0.15,
+      0.15
+    ],
+    "YColor": [
+      0.15,
+      0.15,
+      0.15
+    ],
+    "XTickLabel": [
+      "-1",
+      "-0.5",
+      "0",
+      "0.5",
+      "1"
+    ],
+    "YTickLabel": [
+      "-0.5",
+      "0",
+      "0.5",
+      "1"
+    ],
+    "Position": [
+      0.13,
+      0.5838372093023255,
+      0.3346590909090909,
+      0.3411627906976745
+    ],
+    "XLim": [
+      -1,
+      1
+    ],
+    "YLim": [
+      -0.5,
+      1.2
+    ],
+    "XTick": [
+      -1,
+      -0.5,
+      0,
+      0.5,
+      1
+    ],
+    "YTick": [
+      -0.5,
+      0,
+      0.5,
+      1
+    ]
+  },
+  "native_line_widths": [
+    0.5,
+    0.5
+  ],
+  "placeholder_box": "off",
+  "repair": [
+    "Curves1.2pt to captured.5pt",
+    "All axes.5pt, inward mirroredtop/right ticks on plotted panels",
+    "TickLength.01 scaled by longest fixed visible axes dimension; default native numericlabels",
+    "Boxoffplaceholder panels retainbottom/left axes"
+  ],
+  "axes_property_source": "https://www.mathworks.com/help/matlab/ref/matlab.graphics.axis.axes-properties.html",
+  "scientific_invariance": {
+    "lines": 22,
+    "identity": "shape/dtype/rawbytes",
+    "files": [
+      "figure_1_axis_0_line_0.npz",
+      "figure_1_axis_0_line_1.npz",
+      "figure_1_axis_1_line_0.npz",
+      "figure_1_axis_1_line_1.npz",
+      "figure_1_axis_2_line_0.npz",
+      "figure_1_axis_2_line_1.npz",
+      "figure_1_axis_3_line_0.npz",
+      "figure_1_axis_3_line_1.npz",
+      "figure_2_axis_0_line_0.npz",
+      "figure_2_axis_0_line_1.npz",
+      "figure_2_axis_1_line_0.npz",
+      "figure_2_axis_1_line_1.npz",
+      "figure_2_axis_2_line_0.npz",
+      "figure_2_axis_2_line_1.npz",
+      "figure_3_axis_0_line_0.npz",
+      "figure_3_axis_0_line_1.npz",
+      "figure_3_axis_1_line_0.npz",
+      "figure_3_axis_1_line_1.npz",
+      "figure_3_axis_2_line_0.npz",
+      "figure_3_axis_2_line_1.npz",
+      "figure_3_axis_3_line_0.npz",
+      "figure_3_axis_3_line_1.npz"
+    ],
+    "all_axes_geometry_exact": true,
+    "no_solve": true
+  },
+  "same_run_arrays_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/python_page_final_v3/captures",
+  "figures": [
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/rendered/EightShades_01.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "3164686e5d54310913941d3cb23d2b6812bbc24413023e77976d74c4013de287"
+    },
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/rendered/EightShades_02.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "8378858d2ce1ef64edd6ec90d97d965131957ec3c40ebe10d8fad3a9a1443c55"
+    },
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/rendered/EightShades_03.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "c32f636f83f9f69e2ea83e77dc95ac4f560b9f646dfd5c30014bc1087b192e56"
+    },
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/rendered/EightShades_04.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "7958fa3c8a74b0c04bf0281fcea5cafc190568e237956af1859e94e2da561238"
+    }
+  ],
+  "scope_limits": [
+    "Only source-specific _figure and oneformatter import; no globalstyle changes",
+    "Nativefigure1 and placeholder4properties observed directly; same sourceplotdefaults appliedfig2/3 without new native rational reconstruction",
+    "Retained numerical/representation differences remain as original EightShades delivery report; no exactpixel or scientificparity claim",
+    "Fonts remain Matplotlib provider rendering rather than native renderer identity"
+  ],
+  "cohorts": {
+    "native_properties": {
+      "original_handle": 68982,
+      "terminal_exit": 0,
+      "wall_seconds": 92.01359218079597,
+      "peak_rss_kib": 1811468,
+      "input_bindings": 311,
+      "rehash_mismatches": [],
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/native_properties/supervision/receipt.json"
+    },
+    "render_gate": {
+      "original_handle": 79427,
+      "terminal_exit": 0,
+      "wall_seconds": 9.518717991188169,
+      "peak_rss_kib": 418756,
+      "input_bindings": 598,
+      "rehash_mismatches": [],
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_renderer_source_20261011/render_gate/supervision/receipt.json"
+    }
+  },
+  "integration": [
+    "Applyrenderer.patch to current unpublished EightShades script",
+    "Copyrendered/EightShades_01..04.png to docs/images/approx",
+    "Save this report separately; do not alter native prose or numerical outputs"
+  ]
+}

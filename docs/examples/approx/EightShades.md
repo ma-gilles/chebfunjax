@@ -6,6 +6,8 @@
 
 Python translation: [`examples/approx/eight_shades.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/eight_shades.py)
 
+Current execution retains the warnings emitted by the pinned Chebfun source. The source calls and figures are restored; numerical comparison still records a near-pole rational interpolation residual and a trigonometric minimax residual. See [`EightShades.qualification.json`](EightShades.qualification.json).
+
 ## 1. Introduction
 
 This example is a work in progress, not yet complete.
@@ -43,6 +45,10 @@ p4 = cf(f,m); subplot(2,2,4)
 plot(f,'k',p4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)
 ```
 
+```text
+Warning: CHEBFUN:CHEBFUN:remez: This command is deprecated. Use minimax instead.
+```
+
 ![EightShades figure 01](../../images/approx/EightShades_01.png)
 
 These curves show some properties that are typical of such approximations. One is that the differences between them are not very great. Another (for smooth functions $f$, at least) is that the minimax and CF approximations, though mathematically distinct, are for practical purposes indisinguishable. We can quantify this effect for the present example by measuring the maximal difference between the two:
@@ -53,7 +59,7 @@ CFerror = norm(p3-p4,inf)
 
 ```text
 CFerror =
-   1.1400e-04
+   1.1401e-04
 ```
 
 Methods P1 and P2 represent two ends of a spectrum. In between, there is a method we could label P1.5:
@@ -93,7 +99,7 @@ set(gca,'xtick',[],'ytick',[])
 ```
 
 ```text
-
+Warning: CHEBFUN:CHEBFUN:trigremez:convergence: Remez algorithm did not converge after 100 iterations to the tolerance 1.5e-14.
 ```
 
 ![EightShades figure 02](../../images/approx/EightShades_02.png)
@@ -128,7 +134,7 @@ plot(f,'k',r4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)
 ```
 
 ```text
-
+Warning: CHEBFUN:CHEBFUN:remez: This command is deprecated. Use minimax instead.
 ```
 
 ![EightShades figure 03](../../images/approx/EightShades_03.png)

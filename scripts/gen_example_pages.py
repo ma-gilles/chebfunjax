@@ -472,6 +472,7 @@ def main():
             ("complex", "ZetaZeros"),
             ("complex", "ConformalSquare"),
             ("approx", "MinimaxSqrt"),
+            ("approx", "EightShades"),
             ("approx", "Pushnitski"),
             ("ode-nonlin", "DelayDifferentialEquations"),
             ("sphere", "LaplaceBall"),

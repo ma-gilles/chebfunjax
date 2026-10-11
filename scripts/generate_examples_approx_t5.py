@@ -262,131 +262,13 @@ def gammafun():
 
 
 def eightshades():
-    """approx/EightShades — 8 flavors of degree-8 approximation."""
-    def f_np(x):
-        return np.exp(-50 * (np.asarray(x) - 0.1) ** 2)
+    """Run the source-managed public EightShades example."""
+    import runpy
 
-    m = 8
-    xs = np.linspace(-1, 1, 2000)
-    fv = f_np(xs)
-    yl = (-0.3, 1.1)
-
-    def cheb_interp(n):
-        xc = np.cos(PI * np.arange(n) / (n - 1))
-        c = _chebcoeffs(f_np(xc[::-1])[::-1])
-        return np.polynomial.chebyshev.chebval(xs, c)
-
-    def cheb_trunc(n):
-        N = 400
-        xc = np.cos(PI * np.arange(N) / (N - 1))
-        c = _chebcoeffs(f_np(xc[::-1])[::-1])[:n]
-        return np.polynomial.chebyshev.chebval(xs, c)
-
-    def trig_interp(n):
-        xg = np.linspace(-1, 1, n, endpoint=False)
-        ck = np.fft.fft(f_np(xg)) / n
-        k = np.fft.fftfreq(n, d=2.0 / n) * 2 * PI / 2
-        out = np.zeros_like(xs, dtype=complex)
-        for j in range(n):
-            out += ck[j] * np.exp(1j * PI * np.fft.fftfreq(n)[j] * n
-                                  * xs)
-        return np.real(out)
-
-    def trig_trunc(n):
-        N = 512
-        xg = np.linspace(-1, 1, N, endpoint=False)
-        ck = np.fft.fft(f_np(xg)) / N
-        keep = np.zeros(N, dtype=bool)
-        keep[:n // 2 + 1] = True
-        keep[-(n // 2):] = True
-        ckt = np.where(keep, ck, 0)
-        out = np.zeros_like(xs, dtype=complex)
-        for j in np.nonzero(keep)[0]:
-            kk = j if j <= N // 2 else j - N
-            out += ckt[j] * np.exp(1j * PI * kk * xs)
-        return np.real(out)
-
-    # figure 1: 2x2 Chebyshev panels (interp / trunc / their errors)
-    ci = cheb_interp(m + 1)
-    ct = cheb_trunc(m + 1)
-    fig, axes = plt.subplots(2, 2)
-    axes[0, 0].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 0].plot(xs, ci, color=CHEBFUN_BLUE, linewidth=0.8)
-    axes[0, 0].set_title("interpolation", fontsize=7)
-    axes[0, 1].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 1].plot(xs, ct, color=CHEBFUN_BLUE, linewidth=0.8)
-    axes[0, 1].set_title("truncation", fontsize=7)
-    axes[1, 0].plot(xs, fv - ci, color=ORANGE, linewidth=0.8)
-    axes[1, 1].plot(xs, fv - ct, color=ORANGE, linewidth=0.8)
-    for a in axes[0]:
-        a.set_ylim(*yl)
-    for a in axes.ravel():
-        a.tick_params(labelsize=6)
-    save(fig, "EightShades_01.png")
-
-    ti = trig_interp(m + 1)
-    tt = trig_trunc(m)
-    fig, axes = plt.subplots(2, 2)
-    axes[0, 0].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 0].plot(xs, ti, "b", linewidth=0.8)
-    axes[0, 0].set_title("trig interpolation", fontsize=7)
-    axes[0, 1].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 1].plot(xs, tt, "b", linewidth=0.8)
-    axes[0, 1].set_title("trig truncation", fontsize=7)
-    axes[1, 0].plot(xs, fv - ti, color=ORANGE, linewidth=0.8)
-    axes[1, 1].plot(xs, fv - tt, color=ORANGE, linewidth=0.8)
-    for a in axes[0]:
-        a.set_ylim(*yl)
-    for a in axes.ravel():
-        a.tick_params(labelsize=6)
-    save(fig, "EightShades_02.png")
-
-    # best (minimax) and least-squares panels
-    from scipy.optimize import linprog
-
-    xg = np.linspace(-1, 1, 1200)
-    fg = f_np(xg)
-    V = np.polynomial.chebyshev.chebvander(xg, m)
-    A = np.block([[V, -np.ones((len(fg), 1))],
-                  [-V, -np.ones((len(fg), 1))]])
-    b = np.concatenate([fg, -fg])
-    cv = np.zeros(m + 2)
-    cv[-1] = 1.0
-    lp = linprog(cv, A_ub=A, b_ub=b,
-                 bounds=[(None, None)] * (m + 1) + [(0, None)],
-                 method="highs")
-    pbest = np.polynomial.chebyshev.chebval(xs, lp.x[:m + 1])
-    cls, *_ = np.linalg.lstsq(V, fg, rcond=None)
-    pls = np.polynomial.chebyshev.chebval(xs, cls)
-
-    fig, axes = plt.subplots(2, 2)
-    axes[0, 0].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 0].plot(xs, pbest, "g", linewidth=0.8)
-    axes[0, 0].set_title("best (minimax)", fontsize=7)
-    axes[0, 1].plot(xs, fv, "k", linewidth=0.8)
-    axes[0, 1].plot(xs, pls, "g", linewidth=0.8)
-    axes[0, 1].set_title("least squares", fontsize=7)
-    axes[1, 0].plot(xs, fv - pbest, color=ORANGE, linewidth=0.8)
-    axes[1, 1].plot(xs, fv - pls, color=ORANGE, linewidth=0.8)
-    for a in axes[0]:
-        a.set_ylim(*yl)
-    for a in axes.ravel():
-        a.tick_params(labelsize=6)
-    save(fig, "EightShades_03.png")
-
-    # all eight error curves overlaid
-    fig, ax = plt.subplots()
-    for vals, color, lbl in ((ci, CHEBFUN_BLUE, "cheb interp"),
-                             (ct, ORANGE, "cheb trunc"),
-                             (ti, "b", "trig interp"),
-                             (tt, "m", "trig trunc"),
-                             (pbest, "g", "minimax"),
-                             (pls, "c", "least sq")):
-        ax.semilogy(xs, np.maximum(np.abs(fv - vals), 1e-18),
-                    color=color, linewidth=0.6, label=lbl)
-    ax.legend(fontsize=6, ncol=2)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    save(fig, "EightShades_04.png")
+    runpy.run_path(
+        os.path.join(os.path.dirname(__file__), "..", "examples", "approx", "eight_shades.py"),
+        run_name="__main__",
+    )
 
 
 def bestl2approximation():

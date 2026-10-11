@@ -15,6 +15,7 @@ from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
 from chebfunjax.chebfun1d.linalg import Quasimatrix
 from chebfunjax.domain import Domain
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2, _clenshaw
+from chebfunjax.tech.trigtech import Trigtech
 from chebfunjax.utils._cf_kernel import _cf_polynomial_jax, cf_rational_small_jax
 from chebfunjax.utils.quadrature import chebpts
 from chebfunjax.utils.transforms import _vals2coeffs_jax
@@ -53,8 +54,8 @@ def _one(f, m, n, degree):
         raise ValueError('CHEBFUN:CHEBFUN:cf:unboundedDomain')
     if any(getattr(p.tech, 'exponents', None) is not None for p in f.funs):
         raise ValueError('CHEBFUN:cf:singularFunction')
-    if not all(isinstance(p.tech, (Chebtech1, Chebtech2)) for p in f.funs):
-        raise NotImplementedError('CF smooth Chebyshev input required')
+    if not all(isinstance(p.tech, (Chebtech1, Chebtech2, Trigtech)) for p in f.funs):
+        raise NotImplementedError('CF smooth Chebyshev or trigonometric input required')
     if len(f.funs) > 1:
         # Source global M+1 interpolation precedes the trivial m>=M return.
         nodes = chebpts(degree+1, kind=2)
@@ -62,7 +63,9 @@ def _one(f, m, n, degree):
         f = _make(_vals2coeffs_jax(_evaluate(f, physical)), domain)
     if m >= degree:
         return f, _make(jnp.ones(1), domain), lambda x: _evaluate(f, x), jnp.asarray(0.)
-    full = jnp.asarray(f.funs[0].coeffs)
+    full = (jnp.asarray(f.chebcoeffs(len(f)))
+            if isinstance(f.funs[0].tech, Trigtech)
+            else jnp.asarray(f.funs[0].coeffs))
     # Source indexes stored coefficients rather than silently padding an
     # unsupported explicit degree beyond the actual single-piece length.
     if degree >= full.shape[0]:

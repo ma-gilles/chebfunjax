@@ -1135,41 +1135,45 @@ class Chebfun2v(eqx.Module):
         """MATLAB size(F): (n_components, inf, inf)."""
         return (len(self.components), float("inf"), float("inf"))
 
-    def norm(self) -> float:
-        """Frobenius norm: sqrt(sum_j ||f_j||^2).
+    def vertcat(self, other) -> "Chebfun2v":
+        """Append a scalar or Chebfun2 using native component-domain promotion.
 
-        Returns
-        -------
-        float
-            The Frobenius (L2) norm of the vector field.
-
-        Provenance
-        ----------
-        MATLAB source : @chebfun2v/norm.m
-        Chebfun commit: 7574c77
+        Provenance: @chebfun2v/vertcat.m, Chebfun commit 7574c77.
+        Python method syntax adapts the native left-associated bracket stack.
         """
+        from .chebfun2 import Chebfun2
+
+        if self.isempty() or (isinstance(other, Chebfun2) and other.isempty()):
+            return Chebfun2v.empty()
+        if isinstance(other, Chebfun2):
+            if other.domain != self.domain:
+                raise ValueError("CHEBFUN:CHEBFUN2V:vertcat:domain: Inconsistent domains.")
+            component = other.approx
+        else:
+            value = _component_numeric_array(other)
+            if value is None or value.size != 1:
+                raise ValueError("CHEBFUN:CHEBFUN2V:vertcat:notSupported: Unsupported object.")
+            scalar = value.reshape(())
+            component = Chebfun2.from_function(
+                lambda x, y: scalar + jnp.zeros_like(x + y), domain=self.domain
+            ).approx
+        return Chebfun2v([*self.components, component])
+
+    def norm(self) -> jax.Array:
+        """Native Frobenius norm from continuous component singular values.
+
+        Provenance: @chebfun2v/norm.m, Chebfun commit 7574c77.
+        The existing empty adapter returns zero rather than native [].
+        """
+        from ._svd import source_svd
+
         if self.isempty():
             return 0.0
-        total = 0.0
-        for c in self.components:
-            # ||f_j||^2 = integral |f_j|^2, computed EXACTLY from the CDR
-            # Gram matrices: for f = sum_j d_j col_j(y) row_j(x),
-            # ||f||^2 = sum_{j,k} d_j conj(d_k) <col_j, col_k><row_j,
-            # row_k> with Chebyshev-coefficient inner products.  No
-            # re-approximation: the previous complex path rebuilt
-            # real()/imag() adaptively, which stalled for minutes when f
-            # was a cancellation residue (structureless ~1e-16 noise).
-            if any(jnp.iscomplexobj(cc.coeffs) for cc in c.cols) or \
-                    any(jnp.iscomplexobj(rr.coeffs) for rr in c.rows) \
-                    or jnp.iscomplexobj(c.pivots):
-                total += _l2norm_sq_separable_gram(c)
-            else:
-                prod = _mul_separable(c, c)
-                total += float(jnp.real(jnp.asarray(
-                    _integral_separable(prod))))
-        # Cancellation can leave total a tiny negative float, and Python's
-        # (-eps)**0.5 silently returns a COMPLEX number — clamp at zero.
-        return float(max(total, 0.0) ** 0.5)
+        total = jnp.asarray(0.0)
+        for component in self.components:
+            values = source_svd(component)
+            total = total + jnp.sum(values**2)
+        return jnp.sqrt(total)
 
     def roots(self, method="ms"):
         """Common zeros of the first two components (MATLAB
@@ -1514,45 +1518,11 @@ def _l2norm_sq_separable_gram(f: SeparableApprox) -> float:
     return max(val, 0.0) * ((xb - xa) / 2.0) * ((yb - ya) / 2.0)
 
 
-def _integral_separable(f: SeparableApprox) -> float:
-    """Compute the integral of a SeparableApprox over its domain.
-
-    integral_[xa,xb]x[ya,yb] f(x,y) dx dy
-    = sum_j d_j * (integral c_j(y) dy) * (integral r_j(x) dx)
-    """
-    xa, xb, ya, yb = f.domain
-    # Scale factors for physical domain
-    scale_x = (xb - xa) / 2.0
-    scale_y = (yb - ya) / 2.0
-
-    total = 0.0
-    for c, r, d in zip(f.cols, f.rows, f.pivots):
-        # Integral of T_k over [-1,1]:
-        # int_{-1}^1 T_k(x) dx = 0 if k odd
-        #                       = 2/(1-k^2) if k even, k != 0
-        #                       = 2 if k = 0
-        int_col = _chebtech_integral(c)
-        int_row = _chebtech_integral(r)
-        total += float(d) * float(int_col) * float(int_row)
-
-    return total * scale_x * scale_y
+def _integral_separable(f: SeparableApprox) -> jax.Array:
+    """Physical-domain integral using each factor's native technology sum."""
+    return f.sum2()
 
 
-def _chebtech_integral(f: "Chebtech2") -> float:
-    """Integral of Chebtech2 over [-1, 1].
-
-    int_{-1}^1 sum_k c_k T_k(x) dx = c_0 * 2 + sum_{k even, k>=2} c_k * 2/(1-k^2)
-    """
-    import numpy as _np
-
-    c = _np.asarray(f.coeffs)
-    n = c.shape[0]
-    if n == 0:
-        return 0.0
-    # vectorized moments; dtype follows the coefficients (complex-safe)
-    k = _np.arange(n)
-    moments = _np.where(k % 2 == 0, 2.0 / (1.0 - k.astype(float) ** 2),
-                        0.0)
-    moments[0] = 2.0
-    total = c @ moments
-    return complex(total) if _np.iscomplexobj(c) else float(total)
+def _chebtech_integral(f: "Chebtech2") -> jax.Array:
+    """Reference-domain integral via the represented technology's sum."""
+    return f.sum()

@@ -1,0 +1,52 @@
+{
+  "status": "source execution qualified with explicit numerical gaps",
+  "native_chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_numerical_version": "R2025b",
+  "native_graphics_version": "R2024b CPU Painters; geometry-only retained data reconstruction",
+  "python": "JAX/JAXlib0.11.0 CPU x64",
+  "source_example_sha256": "5aefeba591680cf58bad21549648ff28cbf8683950f239e64d82b97d51a48f01",
+  "fullpage_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/python_page_final_v3/supervision/receipt.json",
+  "elapsed_seconds": 191.49985629040748,
+  "peak_rss_kib": 4879004,
+  "matched_sampled_objects": 20,
+  "sampled_object_scope": "Same original source query coordinates, not exact numerical agreement. Raw residuals retained in COMPARISON.json.",
+  "warnings": [
+    {
+      "stage": "p3",
+      "message": "CHEBFUN:CHEBFUN:remez: This command is deprecated. Use minimax instead.",
+      "category": "UserWarning",
+      "filename": "examples/approx/eight_shades.py",
+      "lineno": 135
+    },
+    {
+      "stage": "t3",
+      "message": "CHEBFUN:CHEBFUN:trigremez:convergence: Remez algorithm did not converge after 100 iterations to the tolerance 1.5e-14.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/candidate_page_final_v8/src/chebfunjax/utils/trigrational.py",
+      "lineno": 295
+    },
+    {
+      "stage": "r3",
+      "message": "CHEBFUN:CHEBFUN:remez: This command is deprecated. Use minimax instead.",
+      "category": "UserWarning",
+      "filename": "examples/approx/eight_shades.py",
+      "lineno": 170
+    }
+  ],
+  "open_gaps": [
+    "t3 sample residual1.253447623e-10 despite matching actual100-iteration convergence warning",
+    "r1 raw sample residual1.1388535535e-4 at x=0 near denominator pole; real input dtype and exact native sample coordinates preserved",
+    "Rational trigremez retains legacy algorithm; original predicates8\u201313 pass but abs(x) case emits zero-iteration warning; no full rational algorithm parity claim",
+    "R3 p/q both have opposite common sign; raw numerator/denominator errors retained, equivalent quotient error1.67505e-14. Sign diagnostic does not modify output."
+  ],
+  "comparison": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/delivery_v1/COMPARISON.json",
+  "failed_attempts_retained": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/python_page_final_v2/supervision/receipt.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_page_v1/supervision/receipt.json"
+  ],
+  "native_CFerror_scope": "Native observed short display1.1401e-4; fullprecision scalar not captured. Python actual source norm prints same display.",
+  "layout": "R2024b actual normalized subplot positions retained in graphics_layout_v1/layout.json;600x270,dpi72; no tuned offsets. Pixel-perfect font/tick equivalence not claimed.",
+  "representation_supplement": "r1 exponents retained from changed_objects_v3; all overlapping coefficients/intervals/domain/pointValues/samples bit-identical to final page; library bytes identical.",
+  "renderer_followthrough": "docs/eight_shades_renderer_cpu_20261011.json",
+  "renderer_scope": "Native axes and curve widths, ticks and label formatting; all 22 retained line coordinate arrays unchanged. No exact pixel/font parity claim."
+}

@@ -1,9 +1,8 @@
-"""Port of MATLAB Chebfun tests/chebfun2v/test_constructor2.m (Fable 5).
+"""Compatibility probes derived from native test_constructor2.m.
 
-Provenance
-----------
-MATLAB source : tests/chebfun2v/test_constructor2.m
-Chebfun commit: 7574c77
+The literal six native predicates, operands, defaults and continuous bounds
+are preserved in tests/test_chebfun2v_constructor2_source.py. These historical
+sampled probes remain supplementary and are not a literal native port.
 """
 
 from __future__ import annotations

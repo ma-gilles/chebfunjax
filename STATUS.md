@@ -1,16 +1,36 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `9f1eb776` is published. This checkpoint restores source disk
-refinement checks and all19 native empty-vector operations. Full parity
+Main through `2fabc1b9` is published. This checkpoint adds the verified
+EightShades, vector integration and disk arithmetic packages. Full parity
 remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- EightShades now executes the actual public approximation calls, with a
+  retained full CPU run (191.50 seconds, 4.65 GiB peak), all 20 sampled objects
+  and actual warnings compared with native execution. Source polynomial
+  exchange, periodic coefficients, real rational input and division point
+  values are repaired. Four 600-by-270 figures use measured native geometry;
+  renderer corrections preserve all 22 curve arrays. Near-pole, polynomial
+  trig convergence and rational-trig algorithm gaps remain explicit in
+  `docs/examples/approx/EightShades.qualification.json`.
+- Vector integrals delegate to the existing JAX representations; vector norms
+  use the native component SVD formula. All six constructor2 clauses pass,
+  as do the affected 20 constructor and 22 three-component predicates.
+  Empty-norm and complete numeric/cell parser parity remain open. Evidence:
+  `docs/chebfun2v_integral_constructor2_source_cpu_20261011.json`.
+- Disk Phase-II rank-one updates preserve source arithmetic order using JAX.
+  Nine native plus-stage fixtures match bitwise both directly and under JIT;
+  13 focused checks pass. This does not establish full constructor speed or
+  correctness. Evidence: `docs/disk_phase2_rank_one_cpu_20261011.json`.
 
 - Disk refinement now forwards the global scale to the existing JAX slice
   checkers and uses native Fourier cutoff semantics. Nine independent native
   fixture cases plus two original constructor assertions pass. The effective
   Phase-I-derived tolerance is retained; a proposed change to that tolerance
-  was rejected during source review. Tiltedpeg accuracy remains unresolved.
+  was rejected during source review. A subsequent independent native capture also fails the unchanged supplemental
+  tiltedpeg bound; JAX/native samples agree within1.14e-15. Full accuracy and
+  CPU speed remain open; see docs/disk_tiltedpeg_default_cpu_20261011.json.
 - The exact19-operation native empty-vector test passes, restoring omitted
   multiplication calls without changing library behavior.
 

@@ -1,0 +1,70 @@
+{
+  "status": "Native and JAX agree on samples; unchanged supplemental bound fails in both",
+  "provenance": "Chebfun7574c77680d7e82b79626300bf255498271a72df +cheb/gallerydisk.m tiltedpeg, untouched default diskfun constructors; MATLAB R2025b and JAX0.11.0 CPU x64",
+  "predicate": {
+    "native_gallery_standalone_assertions": 0,
+    "supplemental_bound": 2.220446049250313e-13,
+    "supplemental_python_pass": false,
+    "supplemental_native_pass": false,
+    "no_tolerance_changes": true
+  },
+  "python": {
+    "error": 3.281174033444392e-13,
+    "bound": 2.220446049250313e-13,
+    "success": false,
+    "rank": 34,
+    "length": [
+      601,
+      437
+    ],
+    "construction_seconds": 62.71144579490647,
+    "elapsed_seconds": 64.79014676483348,
+    "warnings": []
+  },
+  "native": {
+    "error": 3.2825291252237387e-13,
+    "source_error": 3.2825291252237387e-13,
+    "oracle_difference": 0,
+    "bound": 2.220446049250313e-13,
+    "success": false,
+    "rank": 34,
+    "column_length": 431,
+    "row_length": 601,
+    "construction_seconds": 0.894776,
+    "elapsed_seconds": 1.120989,
+    "warning_message": "",
+    "warning_identifier": "",
+    "default_chebfuneps": 2.220446049250313e-16
+  },
+  "comparison": {
+    "combined_vs_previous_max_abs": 2.220446049250313e-16,
+    "combined_vs_native_max_abs": 1.1379786002407855e-15
+  },
+  "memory": {
+    "python_peak_summed_rss_kib": 3057684,
+    "native_peak_summed_rss_kib": 1368012,
+    "python_limits": "180s/4GiB CPU0-3",
+    "native_limits": "180s/3GiB CPU0-3"
+  },
+  "scope": [
+    "42 identical retained theta/r inputs and unchanged source-formula oracle. Native source callback exactly matches retained oracle at these points.",
+    "The bound2.220446049250313e-13 is supplemental, not an original native standalone gallery assertion. Neither failed result is relabeled as a passing bound.",
+    "This establishes sampled agreement, not coefficient identity, uniform-error equality or a full-gallery result. Native row/column lengths601/431; JAX601/437.",
+    "Source snapshot is2fabc1b9 plus explicitly hashed dirty overlays, including accepted happiness helper and rank-one arithmetic corrections. Effective getTol-derived PhaseII tolerance is retained.",
+    "Reported timings exclude startup/import, but are single observations rather than a repeated paired performance study. Previous pre-correction run usedCPU8-11; no correction speedup or memory-reduction claim."
+  ],
+  "immutable_evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/REPORT.json": "dba759de4683b280cea1ae163f509c4828baa4146f507334705b3b6ebd458010",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/BASELINE.json": "c49f87507a4e7dbe4be37c2f42fdb3debed31cc515b74e28acd8619fba59379a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/RESULT.json": "5ae368b5a3a27a0fc7e9e5a2cab6c7b7c3350b7d32523c95f7d1aeb922a41eec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/NATIVE_RESULT.json": "f84bfd722ac8d9be88ca4f4eb06b2f420675d8ca9f4fc4b0a94223d31f7af802",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/retained_samples.json": "1115983139be205ac21e5c49723b67e8c28b520a019f9838c2afc9a06ade2d59",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/native_result.mat": "bdc3080fcd4887ee71daabcf456d9b70590b223b5f77cdfe78d8ff4c3020931d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/final_factors.npz": "b81b678274762f112b5520087744c829790d296d64181986d1429313a43e3af7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/python_guard.json": "bdff2405c8e4b9a35d98cfeb32657e2ca7c4cb207c8fb25aad512a67abac254a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/native_guard.json": "72d8c47edc876e5283373aa9fcd1f812aa38d98496172c628d58b7776f9cc24e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/python_run/receipt.json": "d98697565a7731b0a2213178ab4034ee4ff68b17d556e0d8572ce723c77b8a94",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/native_run/receipt.json": "649ac3fc34b3812c6d141602782090e4e43db1e61c7f3ef310e3378575f8eb08",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_combined_20261011/RUNTIME_SOURCE.json": "88912ea729d905be56946c120221501cf983f6b50d73841248b46d0f05fb9076"
+  }
+}

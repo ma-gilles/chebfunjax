@@ -242,8 +242,8 @@ def _trig_trial_rational(fk, xk, m, n):
     raise RuntimeError("trigremez: no pole-free approximation found")
 
 
-def trigremez(f, m: int, n: int | None = None, max_iter: int = 40,
-              tol: float = 1e-14):
+def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100,
+              tol: float | None = None):
     """Best trigonometric polynomial approximation of degree m to a
     periodic chebfun by the Remez algorithm (MATLAB trigremez,
     polynomial case).  Returns ``(p, err_max, status)`` where
@@ -256,12 +256,19 @@ def trigremez(f, m: int, n: int | None = None, max_iter: int = 40,
     Original authors: Copyright 2017 by The University of Oxford and
         The Chebfun Developers (algorithm of Javed & Trefethen).
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun as _cf
-    from chebfunjax.utils.trigutils import trigBary
 
     a, b = float(f.domain.a), float(f.domain.b)
     if getattr(f, "isempty", lambda: False)():
         return f
+
+    if m is None:
+        raise TypeError("trigremez requires a degree for nonempty inputs")
+    for degree in (m, 0 if n is None else n):
+        if degree < 0 or degree != round(degree):
+            raise ValueError("CHEBFUN:CHEBFUN:trigremez:parseInputs: "
+                             "Degree of approximation must be a nonnegative integer.")
+    m = int(m)
+    n = None if n is None else int(n)
 
     def to_ref(x):       # [a, b] -> [-pi, pi]
         return -np.pi + 2 * np.pi * (np.asarray(x) - a) / (b - a)
@@ -274,107 +281,16 @@ def trigremez(f, m: int, n: int | None = None, max_iter: int = 40,
     def f_ref(y):
         return np.asarray(f(jnp.asarray(from_ref(y))))
 
-    normf = float(f.norm(np.inf)) or 1.0
+    # Native parseInputs: N = 2*(m+n)+2 and tol = 1e-15*(N/2+10).
+    if tol is None:
+        tol = 1e-15 * (m + (0 if n is None else n) + 11)
+    normf = float(f.norm()) or 1.0
     if n is not None and n > 0:
         return _trigremez_rational(f, m, n, max_iter, tol,
                                    a, b, to_ref, from_ref, f_ref, normf)
-    N = 2 * m + 2
-    xk = -np.pi + 2 * np.pi * np.arange(N) / N
-    xo = xk.copy()
-    sigma = np.ones(N)
-    sigma[1::2] = -1.0
+    from chebfunjax.utils._trigremez_polynomial_source import polynomial_trigremez
 
-    from chebfunjax.utils.trigutils import trigBaryWeights
-
-    best = None
-    deltamin = np.inf
-    delta, diffx = normf, 1.0
-    it = 0
-    while delta / normf > tol and it < max_iter and diffx > 0:
-        fk = f_ref(xk)
-        w = trigBaryWeights(xk)
-        h = float((w @ fk) / (w @ sigma))
-        if h == 0:
-            h = 1e-19
-        pk = fk - h * sigma
-
-        def p_ref(y, pk=pk, xk=xk):
-            return trigBary(np.asarray(y), pk, xk,
-                            (-np.pi, np.pi))
-
-        # error extrema: dense sampling + local refinement (the
-        # MATLAB code uses roots(diff(f - p)); a fine grid with
-        # parabolic refinement reaches the same reference set)
-        yy = np.linspace(-np.pi, np.pi, max(4000, 40 * N),
-                         endpoint=False)
-        ee = f_ref(yy) - p_ref(yy)
-        if float(np.max(np.abs(ee))) <= 1e-13 * normf:
-            # f is itself a trigonometric polynomial of degree <= m:
-            # the interpolant reproduces it and the error curve has no
-            # sign structure to alternate on.
-            best = (pk.copy(), xk.copy(), abs(h),
-                    float(np.max(np.abs(ee))))
-            break
-
-        # candidate extrema: sign changes of the discrete derivative
-        de = np.diff(ee)
-        idx = np.where(np.sign(de[1:]) != np.sign(de[:-1]))[0] + 1
-        rr = yy[idx]
-        er = ee[idx]
-
-        # keep alternating signs, largest magnitude per run
-        # Alternation set.  An extremum where the error is at rounding
-        # level (|e| <= 1e-13 ||f||) counts as a zero-sign point: at the
-        # equispaced starting reference of a function whose maxima sit
-        # exactly on it, the error there is +-1 ulp and its sign is not
-        # information (MATLAB's chebfun-based error curve gives exact 0).
-        _lvl = 1e-13 * normf
-
-        def _sgn(v):
-            return 0.0 if abs(v) <= _lvl else float(np.sign(v))
-        s_pts, s_val = [rr[0]], [er[0]]
-        for r_i, e_i in zip(rr[1:], er[1:]):
-            if _sgn(e_i) == _sgn(s_val[-1]):
-                if abs(e_i) > abs(s_val[-1]):
-                    s_pts[-1], s_val[-1] = r_i, e_i
-            else:
-                s_pts.append(r_i)
-                s_val.append(e_i)
-        s_pts = np.array(s_pts)
-        s_val = np.array(s_val)
-
-        err = float(np.max(np.abs(s_val)))
-        imax = int(np.argmax(np.abs(s_val)))
-        d0 = max(imax - N + 1, 0)
-        if len(s_pts) >= N:
-            xk = np.sort(s_pts[d0: d0 + N])
-        else:
-            break
-
-        diffx = float(np.max(np.abs(np.sort(xo) - np.sort(xk)))) \
-            if len(xo) == len(xk) else 1.0
-        delta = err - abs(h)
-        if delta < deltamin:
-            deltamin = delta
-            best = (pk.copy(), xo.copy(), abs(h), err)
-        xo = xk.copy()
-        it += 1
-
-    if best is None:
-        fk = f_ref(xk)
-        w = trigBaryWeights(xk)
-        h = float((w @ fk) / (w @ sigma))
-        best = (fk - h * sigma, xk.copy(), abs(h),
-                float(np.max(np.abs(fk))))
-    pk_b, xk_b, h_b, err_b = best
-
-    def p_phys(x):
-        return jnp.asarray(trigBary(
-            to_ref(np.asarray(x)), pk_b, xk_b, (-np.pi, np.pi)))
-
-    p = _cf(p_phys, domain=(a, b), trig=True, n=2 * m + 1)
-    status = {"xk": jnp.asarray(from_ref(np.sort(xk_b)))}
-    return p, err_b, status
+    return polynomial_trigremez(f, m, max_iter, tol, normf)
 
 
 def _trigremez_rational(f, m, n, max_iter, tol, a, b,
@@ -460,6 +376,16 @@ def _trigremez_rational(f, m, n, max_iter, tol, a, b,
             if len(xo) == len(xk) else 1.0
         xo = xk.copy()
         it += 1
+
+    if delta / normf > tol:
+        import warnings
+
+        warnings.warn(
+            "CHEBFUN:CHEBFUN:trigremez:convergence: Remez algorithm did not "
+            f"converge after {it} iterations to the tolerance {tol:.2g}.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     if best is None:
         raise RuntimeError("trigremez: rational iteration failed")

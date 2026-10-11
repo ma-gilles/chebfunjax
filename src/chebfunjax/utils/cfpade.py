@@ -340,7 +340,12 @@ def _chebpade_clenshaw_lord(f, m, n, M):
     elif len(f.funs) > 1:
         raise ValueError("piecewise chebfuns require the M argument")
     else:
-        c = f.funs[0].tech.coeffs
+        # Native Clenshaw-Lord extracts Chebyshev coefficients also when F
+        # is stored in a trigonometric representation (@chebfun/chebpade.m130).
+        from chebfunjax.tech.trigtech import Trigtech
+
+        c = (f.chebcoeffs(len(f)) if isinstance(f.funs[0].tech, Trigtech)
+             else f.funs[0].tech.coeffs)
     ell = max(m, n)
     if len(c) < m + 2 * n + 1:
         rng = np.random.default_rng(0)

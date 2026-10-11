@@ -95,6 +95,7 @@ from chebfunjax.utils.ratapprox import (  # noqa: E402
     padeapprox,
     ratinterp,
 )
+from chebfunjax.utils.remez import remez  # noqa: E402
 from chebfunjax.utils.trigrational import trigpade, trigremez  # noqa: E402
 from chebfunjax.utils.trigutils import trigBary  # noqa: E402
 
@@ -358,6 +359,7 @@ __all__ = [
     "trigBary",
     "trigpade",
     "trigremez",
+    "remez",
     "isSubset",
     "nufft2",
     "complex_fun",

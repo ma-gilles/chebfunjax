@@ -1,0 +1,146 @@
+{
+  "base_head": "9f1eb776de186d58d6ac81f19d4f84cb93f1914e",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_files": [
+    "@chebfun2v/norm.m",
+    "@chebfun2v/vertcat.m",
+    "@chebfun2/vertcat.m",
+    "@separableApprox/vertcat.m",
+    "tests/chebfun2v/test_constructor2.m"
+  ],
+  "confirmed_baseline_faults": {
+    "false_divide0": "np.where evaluates excluded k1 denominator",
+    "complex_integral": "float(complex128 pivot) raises TypeError",
+    "periodic_norm": {
+      "observed": 0.8944271909999159,
+      "analytic_expected": "sqrt(2)",
+      "cause": "Chebyshev Gram applied to Fourier coefficients"
+    }
+  },
+  "library_scope": {
+    "modified": [
+      "Chebfun2v.norm",
+      "_integral_separable",
+      "_chebtech_integral"
+    ],
+    "added": [
+      "Chebfun2v.vertcat"
+    ],
+    "implementation": "Technology sum/sum2 and existing continuous source_svd; native norm sum(svd(component)^2) then sqrt; no new numerical kernel",
+    "other_existing_function_AST_unchanged": true,
+    "empty_norm": "Original float0.0 adapter branch retained"
+  },
+  "constructor2_source_mapping": {
+    "1-4": "Original domains/component counts/vectorize; continuous vector norm <100*defaultcheb2eps",
+    "5": "Source u/v arithmetic; ctranspose public matrix product; continuous Chebfun2 infnorm <10tol",
+    "6": "Actual sin5u/cos5v/0 left-associated public stack and n_components3"
+  },
+  "qualification": {
+    "new_native_constructor2_clauses": 6,
+    "affected_existing_native_constructor_clauses": 20,
+    "affected_existing_native_threecomponents_clauses": 22,
+    "supplemental_controls": 9,
+    "historical_norm_compatibility_probe": 1,
+    "threecomponents_note": "21 pytest cases execute22 native clauses because torus case contains21and22",
+    "final_norm_gate": "final_norm:14pass=source1-4+9supplemental+1compatibility",
+    "surface_gate": "constructor2_surface:2pass; unchanged Chebfun2 infnorm and identical append AST after finalnorm revision",
+    "candidate_stage_history": "Initial source_frobenius squared route superseded by literal source_svd square-sum; affected final norm/constructor20/threecomponents rerun. Surface norm uses unchanged Chebfun2 method."
+  },
+  "limits": [
+    "No new native MATLAB runtime capture; source-body analytic controls distinguished from native clauses",
+    "Native empty norm[] vs Python0 adapter remains unchanged",
+    "Append supports scalar or Chebfun2; exact domain equality follows current constructor adapter, tolerant native domainCheck/full concat parser not claimed",
+    "Other NumPy Chebfun2v product/Gram helpers retained; no whole-package JAX claim",
+    "No page/figure/full-example run"
+  ],
+  "cohorts": [
+    {
+      "cohort": "baseline",
+      "original_handle": 69535,
+      "terminal_exit": 1,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/baseline/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/baseline/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/baseline/supervision/stdout",
+      "wall_seconds": 17.016846880316734,
+      "peak_rss_kib": 866364,
+      "pytest_summary": "3 failed, 2 warnings in 9.08s"
+    },
+    {
+      "cohort": "candidate_helpers",
+      "original_handle": 44684,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/candidate_helpers/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/candidate_helpers/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/candidate_helpers/supervision/stdout",
+      "wall_seconds": 17.063438062090427,
+      "peak_rss_kib": 926284,
+      "pytest_summary": "3 passed in 9.06s"
+    },
+    {
+      "cohort": "constructor2_vectorize",
+      "original_handle": 15132,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_vectorize/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_vectorize/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_vectorize/supervision/stdout",
+      "wall_seconds": 15.21981244534254,
+      "peak_rss_kib": 838348,
+      "pytest_summary": "4 passed in 7.62s"
+    },
+    {
+      "cohort": "constructor2_surface",
+      "original_handle": 37290,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_surface/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_surface/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor2_surface/supervision/stdout",
+      "wall_seconds": 36.19167637079954,
+      "peak_rss_kib": 1795676,
+      "pytest_summary": "2 passed in 26.99s"
+    },
+    {
+      "cohort": "supplemental",
+      "original_handle": 65697,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/supplemental/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/supplemental/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/supplemental/supervision/stdout",
+      "wall_seconds": 21.5522614242509,
+      "peak_rss_kib": 1186080,
+      "pytest_summary": "6 passed in 13.29s"
+    },
+    {
+      "cohort": "final_norm",
+      "original_handle": 26266,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/final_norm/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/final_norm/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/final_norm/supervision/stdout",
+      "wall_seconds": 25.863150755874813,
+      "peak_rss_kib": 1401604,
+      "pytest_summary": "14 passed in 17.00s"
+    },
+    {
+      "cohort": "constructor20_regression",
+      "original_handle": 51813,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor20_regression/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor20_regression/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/constructor20_regression/supervision/stdout",
+      "wall_seconds": 45.51093602133915,
+      "peak_rss_kib": 1871584,
+      "pytest_summary": "20 passed in 35.99s"
+    },
+    {
+      "cohort": "threecomponents_regression",
+      "original_handle": 82457,
+      "terminal_exit": 0,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/threecomponents_regression/guard.json",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/threecomponents_regression/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_integral_source_20261011/threecomponents_regression/supervision/stdout",
+      "wall_seconds": 51.44650004198775,
+      "peak_rss_kib": 2258632,
+      "pytest_summary": "21 passed in 41.29s"
+    }
+  ]
+}

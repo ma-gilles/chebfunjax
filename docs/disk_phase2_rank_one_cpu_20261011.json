@@ -1,0 +1,58 @@
+{
+  "status": "Narrow CPU rank-one arithmetic correction ready for review; no fullgallery run",
+  "provenance": "Chebfun7574c77680d7e82b79626300bf255498271a72df @diskfun/constructor.m PhaseTwo, lines558-565,599-602,617-620; MATLAB R2025b retained native capture",
+  "baseline": {
+    "source": "accepted helper-only candidate",
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/DELIVERY_HELPERS.json",
+    "delivery_sha256": "fe7ce79cf6cb5491cd944dae1b9a8e1add028fef4bb9345114a35cf790913324"
+  },
+  "changes": [
+    "Only PhaseII component residual updates changed in existing diskfun.py; source AST scope retains all152 other function definitions.",
+    "Source expression evaluates reciprocal, scales selected row/column values, forms outer product and then subtracts. Old outer-product-then-division and direct selected-column division expressions round differently.",
+    "New JAX helper uses existing qualified binary operations for reciprocal and short scaling vectors. Two loop iterations separate outer multiplication from subtraction, avoiding FMA contraction.",
+    "All plus-only, minus-only and both-component branches call the same helper. Pivot/control flow, tolerance, happiness helpers, final sums and grids unchanged."
+  ],
+  "qualification": {
+    "backend": "JAX0.11.0 CPU x64 on CPU0-3",
+    "native_fixture": "Nine retained plus-component residual stages bit-identical to native in direct and outer-JIT use; no independent minus-component native capture.",
+    "tests": "13passed,1pytest jaxtyping rewrite warning,19.22s; includes2rank-one fixture modes,9previous native happiness checks and original constructor clauses01/04 with unchanged2e3*EPS bounds.",
+    "memory": "Final focused gate peak summedRSS1367468KiB,120s/2GiB cap; closed0,stable,no survivors.",
+    "fixture_scope": "Frozen grid64 nine-pivot intermediate tiltedpeg skeleton; PhaseI was unresolved. Not a completed constructor trajectory.",
+    "fallback": "Other dtypes/backends use ordinary JAX source expression order. No cross-backend or nonfinite bit identity qualification. Public disk constructors sample float64 real values.",
+    "scope_proof": {
+      "changed_functions": [
+        "_phase_two_disk"
+      ],
+      "unchanged_functions": 152,
+      "caller_and_pivot_selection_unchanged": true
+    },
+    "format_proof": {
+      "src/chebfunjax/diskfun/diskfun.py": "Identical non-import AST and import set to tested candidate_v2",
+      "src/chebfunjax/diskfun/_rank_one.py": "Identical non-import AST and import set to tested candidate_v2",
+      "tests/test_diskfun/test_phase2_rank_one_native.py": "Identical non-import AST and import set to tested candidate_v2"
+    }
+  },
+  "prototype_memory": {
+    "qualified_shape": "Retained cols65x9 and rows9x64; both kernels return only two residual matrices. XLA compiled memory estimates, not measured allocation peaks.",
+    "barrier_temp_bytes": 39768,
+    "compact_temp_bytes": 15912,
+    "argument_bytes": 10472,
+    "output_bytes": 9304,
+    "timing_scope": "20 warm synchronized calls in one bounded process, original thencompact: medians51.56us and35.86us. Diagnostic only; no constructor speedup claim.",
+    "limitation": "This compares compact prototype against earlier full-matrix barrier diagnostic, not existing NumPy implementation. No large-grid/full-constructor memory claim."
+  },
+  "retained_rejection": "First candidate had an over-broad import-text insertion causing IndentationError at collection, no numerical tests ran. Its terminal4 receipt and immutable source retained. candidate_v2 corrected import insertion and AST scope proved only PhaseII changed. candidate_v3 only import formatting in new test; no numerical rerun needed.",
+  "open": [
+    "Saved full tiltedpeg supplemental error failure remains open; original-vs-supplemental predicate distinction unchanged.",
+    "No fullgallery, large-grid scaling or broad disk suite qualification.",
+    "Original default-pref stopping inference remains rejected; accepted helper-only package and effective tol_abs routing unchanged."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_rankone_20261011/PROBE.json": "ee9c03233370ea6f56673e5006c7dd61047f43f3e5cd683c6ad9700ba8dd94a8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_rankone_20261011/SOURCE_SCOPE.json": "817dd7e79f5b353c0c62ac87b8b609d4ee28a93e6fd8f5af0e7e7e29633218f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_rankone_20261011/junit_v2.xml": "14f336f456a5f759e9c4ba5d1e7a882d042e036c2d4136b3a8d790f666db045d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_stages.mat": "7b79dd4a98fd2194c3dcc185566abe6db8f9d34faa0c1f7c2f1c413730893e93",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_run/receipt.json": "4893aa4a5505bb40de94be1da99fa88e78081eb71e37cbd5ce055e0623786032",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/ERRATUM_EFFECTIVE_PREF.json": "53f39b5c716adf25f6e6a46743eec3b8b52f8ca326ebd0cd0d5b2eaf982bdfc6"
+  }
+}

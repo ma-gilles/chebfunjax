@@ -1874,8 +1874,8 @@ def main():
 
     for ex in EXAMPLES:
         md_path = docs_dir / f"{ex['name']}.md"
-        # Skip AAAApprox since we wrote it manually
-        if md_path.exists() and ex['name'] == 'AAAApprox':
+        # Preserve manually written and source-managed pages
+        if md_path.exists() and ex['name'] in {'AAAApprox', 'EightShades'}:
             print(f"Skipping {ex['name']} (already exists)")
             continue
         content = TEMPLATE.format(

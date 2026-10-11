@@ -1,0 +1,10 @@
+{
+  "provenance": "MATLAB R2025b native literal @diskfun/constructor.m PhaseTwo expressions, pin7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "CPU float64 nine plus-component stages from frozen grid64 tiltedpeg intermediate skeleton; not completed constructor or all backend qualification. Matrix update shared by plus/minus branches; no independent minus-component native stages in this fixture.",
+  "inputs": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/initial_inputs.npz": "6682f28a14a82fdc9d6942ff5425702dd8f40be74d351137e096317ac0366ebb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_stages.mat": "7b79dd4a98fd2194c3dcc185566abe6db8f9d34faa0c1f7c2f1c413730893e93",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/capture_native.m": "c29ec4de0e7cdfe61b6b505950b8c446b74de0621aaad784795fe43701da5774",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_run/receipt.json": "4893aa4a5505bb40de94be1da99fa88e78081eb71e37cbd5ce055e0623786032"
+  }
+}

@@ -748,14 +748,15 @@ def _real_simple_roots(den: "Chebfun"):
 
     Returns a sorted numpy array of the roots of ``den`` strictly
     inside its domain; endpoint roots are kept too (they become
-    endpoint poles of the quotient).  Complex-valued denominators
-    return an empty array (their zeros are generically off the real
-    line, and MATLAB rdivide only singularises real crossings).
+    endpoint poles of the quotient). Public ROOTS determines real zeros,
+    including complex-valued denominators and complex storage of real data.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/rdivide.m, @chebfun/addBreaksAtRoots.m
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
     import numpy as _np
-    if any(_np.iscomplexobj(_np.asarray(p.tech.coeffs))
-           for p in den.funs):
-        return _np.zeros(0)
     try:
         r = _np.asarray(den.roots())
     except Exception:
@@ -836,7 +837,27 @@ def _divide_with_poles(num, den: "Chebfun", poles) -> "Chebfun":
         sf = Singfun.from_function(op, exponents=(-float(ml),
                                                   -float(mr)))
         new_funs.append(_Piece(tech=sf, interval=(a, b)))
-    return Chebfun(funs=new_funs, domain=Domain(tuple(merged)))
+    from chebfunjax.utils._rdivide_point_values import divide_point_values
+
+    out = Chebfun(funs=new_funs, domain=Domain(tuple(merged)))
+    nodes = jnp.asarray(merged)
+    numerator_values = _num_eval(nodes)
+    denominator_values = den(nodes)
+    if tuple(merged) != den.domain.breakpoints:
+        # ADDBREAKSATROOTS enforces zero impulses when it inserted new breaks.
+        root_mask = jnp.asarray([_mult_at(point) > 0 for point in merged])
+        denominator_values = jnp.where(root_mask, 0., denominator_values)
+    point_values = divide_point_values(numerator_values, denominator_values)
+    if isinstance(num, Chebfun):
+        # Literal source NaN/near-zero-numerator fallback to FUN side averages.
+        fallback = ((jnp.isnan(point_values)
+                     & ~(jnp.isnan(numerator_values) | jnp.isnan(denominator_values)))
+                    | (jnp.isinf(point_values)
+                       & (jnp.abs(numerator_values) < 100*jnp.finfo(jnp.float64).eps*num.vscale)))
+        if bool(jnp.any(fallback)):
+            limits = (out._feval_side(nodes, "left") + out._feval_side(nodes, "right"))/2
+            point_values = jnp.where(fallback, limits, point_values)
+    return out.set_point_values(point_values)
 
 
 def _is_empty_operand(x) -> bool:
@@ -4014,6 +4035,15 @@ class Chebfun(eqx.Module):
         Chebfun.legcoeffs, Chebfun.trigcoeffs
         """
         import numpy as _np
+
+        from chebfunjax.tech.trigtech import Trigtech
+
+        # Native single-FUN dispatch reaches @trigtech/chebcoeffs, which
+        # converts via Chebtech1 rather than returning Fourier coefficients.
+        if not self.isempty() and len(self.funs) == 1 and isinstance(
+            self.funs[0].tech, Trigtech
+        ):
+            return self.funs[0].tech.chebcoeffs(n, kind)
         if kind not in (1, 2):
             raise ValueError("chebcoeffs: 'kind' input must be 1 or 2.")
         if self.isempty():

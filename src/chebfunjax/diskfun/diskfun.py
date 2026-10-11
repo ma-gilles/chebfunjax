@@ -42,6 +42,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.diskfun._rank_one import phase_two_rank_one
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
 from chebfunjax.utils.misc import standard_chop
@@ -492,10 +493,20 @@ def _phase_two_disk(
                 cols_minus_cur[:, minus_count] = cm
                 rows_minus_cur[minus_count, :] = rm
 
-                new_cols_plus -= np.outer(cp, rp[id_cols_cur]) / evp
-                new_rows_plus -= np.outer(cp[id_rows_cur] / evp, rp)
-                new_cols_minus -= np.outer(cm, rm[id_cols_cur]) / evm
-                new_rows_minus -= np.outer(cm[id_rows_cur] / evm, rm)
+                new_cols_plus, new_rows_plus = map(
+                    np.asarray,
+                    phase_two_rank_one(
+                        new_cols_plus, new_rows_plus, cp, rp,
+                        evp, id_rows_cur, id_cols_cur,
+                    ),
+                )
+                new_cols_minus, new_rows_minus = map(
+                    np.asarray,
+                    phase_two_rank_one(
+                        new_cols_minus, new_rows_minus, cm, rm,
+                        evm, id_rows_cur, id_cols_cur,
+                    ),
+                )
 
                 if abs(evp) >= abs(evm):
                     idx_plus_raw.append(pivot_count)
@@ -521,8 +532,13 @@ def _phase_two_disk(
                 cols_plus_cur[:, plus_count] = cp
                 rows_plus_cur[plus_count, :] = rp
 
-                new_cols_plus -= np.outer(cp, rp[id_cols_cur]) / evp
-                new_rows_plus -= np.outer(cp[id_rows_cur] / evp, rp)
+                new_cols_plus, new_rows_plus = map(
+                    np.asarray,
+                    phase_two_rank_one(
+                        new_cols_plus, new_rows_plus, cp, rp,
+                        evp, id_rows_cur, id_cols_cur,
+                    ),
+                )
 
                 idx_plus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evp
@@ -537,8 +553,13 @@ def _phase_two_disk(
                 cols_minus_cur[:, minus_count] = cm
                 rows_minus_cur[minus_count, :] = rm
 
-                new_cols_minus -= np.outer(cm, rm[id_cols_cur]) / evm
-                new_rows_minus -= np.outer(cm[id_rows_cur] / evm, rm)
+                new_cols_minus, new_rows_minus = map(
+                    np.asarray,
+                    phase_two_rank_one(
+                        new_cols_minus, new_rows_minus, cm, rm,
+                        evm, id_rows_cur, id_cols_cur,
+                    ),
+                )
 
                 idx_minus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evm
