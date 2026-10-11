@@ -4836,7 +4836,7 @@ class Chebfun(eqx.Module):
         """
         return jnp.asarray(self.arc_length())
 
-    def hypot(self, other: "Chebfun") -> "Chebfun":
+    def hypot(self, other: "Chebfun", pref=None) -> "Chebfun":
         """sqrt(f^2 + g^2) computed robustly (MATLAB hypot).
 
         Provenance
@@ -4844,13 +4844,17 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/hypot.m
         Chebfun commit: 7574c77
         """
-        f = self
+        from chebfunjax.chebpref import ChebfunPref
 
-        def op(x):
-            return jnp.hypot(f(x), other(x))
-
-        return Chebfun.from_function(
-            op, Domain((float(self.domain.a), float(self.domain.b))))
+        pref = ChebfunPref(pref) if pref is not None else ChebfunPref()
+        # Native addBreaksAtRoots accepts PREF as its tolerance argument;
+        # the existing Python adapter takes the resolved numeric tolerance.
+        tol = float(pref.chebfuneps)
+        f = self.addBreaksAtRoots(tol)
+        if isinstance(other, Chebfun):
+            g = other.addBreaksAtRoots(tol)
+            return f.compose(jnp.hypot, g, pref=pref)
+        return f.compose(lambda values: jnp.hypot(values, other), pref=pref)
 
     def fix(self) -> "Chebfun":
         """Round toward zero (MATLAB fix): floor for f >= 0, ceil for

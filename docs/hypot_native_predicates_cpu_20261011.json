@@ -1,0 +1,63 @@
+{
+  "native_count": 2,
+  "baseline": "2failed40.97s,1566892KiB,2unhappy65537warnings",
+  "candidate": "5passed28.61s,912064KiB,no warnings",
+  "candidate_cases": "Native2 + retained2 + numericother/explicitpref API1",
+  "values": [
+    {
+      "run": "baseline_v1",
+      "clause": 1,
+      "error": 1.2418416527855598e+293,
+      "tested_error": 2.4836833055711196e-08,
+      "bound": 2.220446049250313e-15,
+      "vscale": 4.9999999999999997e+300,
+      "shape": [
+        100,
+        2
+      ]
+    },
+    {
+      "run": "baseline_v1",
+      "clause": 2,
+      "error": 0.00027893513404764203,
+      "tested_error": 0.00027893513404764203,
+      "bound": 1.720011618675513e-14,
+      "vscale": 0.7746243684939964,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "run": "controls_v1",
+      "clause": 1,
+      "error": 7.435084542388915e+284,
+      "tested_error": 1.487016908477783e-16,
+      "bound": 2.220446049250313e-15,
+      "vscale": 5e+300,
+      "shape": [
+        100,
+        2
+      ]
+    },
+    {
+      "run": "controls_v1",
+      "clause": 2,
+      "error": 5.551115123125783e-16,
+      "tested_error": 5.551115123125783e-16,
+      "bound": 1.7196916067647317e-14,
+      "vscale": 0.7744802479417815,
+      "shape": [
+        100
+      ]
+    }
+  ],
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hypot_native2_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "51e2a869cc585cc1cd9955e91770abac4901553d15a5bed09ed212bc03db363f",
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hypot_native2_20261011/hypot_native2_delivery_v1.zip",
+    "sha256": "f7ba0fba7cc3410cc54b4ef6f85f15c820caa3e114aa3a3074e1d0cc816f5288",
+    "entries": 50
+  },
+  "publication_review": "Root matched native extreme array arithmetic, maximum-row-sum norm, vscale normalization and piecewise source predicate. Native addBreaksAtRoots converts pref.techPrefs.chebfuneps to a numeric tolerance; Python forwarding matches. Import sorting/formatting preserves test executable AST.",
+  "pending_dependency": "Future source/JAX root-map candidate must requalify these two native assertions before combined publication. Current accepted roots are unchanged."
+}
