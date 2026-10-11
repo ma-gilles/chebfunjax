@@ -44,7 +44,8 @@ def test_other_piecewise_routes_remain_legacy(monkeypatch, kind):
     elif kind == "general_bc":
         op.bc = lambda x: x(0.0) - 1.0
     else:
-        op.lbc = 1.0
+        # Native parseBC requires one endpoint value per system unknown.
+        op.lbc = [1.0, 1.0] if kind == "system" else 1.0
     received = []
     sentinel = chebfun(1.0, domain=dom)
 

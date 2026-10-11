@@ -1,0 +1,32 @@
+{
+  "head_before_commit": "d9bffa64a425e2eff2db0140620f743797443e28",
+  "issue": "CI194c1e5d Core3 test fixture supplies a single numeric endpoint value for two unknowns; native parseBC rejects mismatched count.",
+  "source": "@chebop/parseBC.m setupNumericalConditions; Chebfun7574c77",
+  "change": "System routing fixture uses [1.0,1.0]; operator, legacy-dispatch assertion, numeric bound and all other cases unchanged. No library modification.",
+  "verification": {
+    "existing_routing_controls": 6,
+    "existing_numeric_boundary_controls": 10,
+    "passed": 16,
+    "original_handle": 78549,
+    "guard_bindings_reverified": 540,
+    "library_runtime_origin_check": "Every imported chebfunjax Python module prebound and hash checked by observer; not complete external runtime closure."
+  },
+  "receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 22.798250581137836,
+    "sampled_peak_summed_rss_kib": 1306180,
+    "inputs_stable": true,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/guard.json": "084cf11b1cb6a5a1f86ca34ffb7f8926743ac2c3727e4d5c0ba6348b16d4f917",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/observe.py": "2c4f5894e41217b22c975a9ef0b0e68f85c69560808c4a8a2dd3b77971715bec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/launch.sh": "af72f236298d9a1e2b77ce1fa44329145dd2254df68ee86d4730ee10c364a189",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/RESULT.json": "563b559e77662785733982c083a8b9dd81b093f3fa70dd3963c1908a31ab6964",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/RUNTIME_SOURCE_END.json": "bdd5e9a3467a7ec85ac987cf1051a93bbe72138e5a596b00f5e21ea833378273",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/supervision/receipt.json": "d2eaa98edeee35005e641f5830c96295db623fb782ae89363e400954c70ce399",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_route_bc_fixture_20261011/supervision/stdout": "921f9b7c3ecc9641d256ee977cbeaaee3798c2373cca09451e4c1227a19935e8"
+  },
+  "ci_failure_log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_194c1e5d_core3_job_api_20261011.log"
+}
