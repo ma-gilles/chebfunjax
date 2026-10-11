@@ -1758,17 +1758,10 @@ class Diskfun(eqx.Module):
     def coeffs2diskfun(cls, X) -> "Diskfun":
         """Construct a Diskfun from a Chebyshev--Fourier coefficient matrix.
 
-        ``F = coeffs2diskfun(X)`` returns the Diskfun whose bivariate
-        coefficient matrix (in the :meth:`coeffs2` convention) is ``X``,
-        i.e.
-
-            f(theta, r) = real( sum_{k, l} X[k, l] T_k(r) exp(1i mu_l theta) )
-
-        with ``k`` the ascending Chebyshev (radial) degree and ``mu_l`` the
-        ascending Fourier (angular) wavenumbers implied by the column count
-        of ``X`` (``[-h, .., h]`` for an odd number of columns,
-        ``[-h, .., h - 1]`` for an even number, matching the Trigtech
-        convention).  This is the inverse of :meth:`coeffs2`.
+        Transform coefficients on the native doubled grid, project its values
+        to real numbers, and construct from the nonnegative-radius half.
+        Odd angular counts are padded to even and even radial counts to odd.
+        Even angular Nyquist coefficients use the Trigtech cosine convention.
 
         Parameters
         ----------
@@ -1791,27 +1784,20 @@ class Diskfun(eqx.Module):
         --------
         coeffs2
         """
+        from chebfunjax.tech.chebtech import Chebtech2
+        from chebfunjax.tech.trigtech import _trig_coeffs2vals_impl
+
         X = jnp.atleast_2d(jnp.asarray(X, dtype=jnp.complex128))
         m, n = X.shape
-        if n % 2 == 1:
-            half = (n - 1) // 2
-            mu = jnp.arange(-half, half + 1, dtype=jnp.float64)
-        else:
-            half = n // 2
-            mu = jnp.arange(-half, half, dtype=jnp.float64)
-        kdeg = jnp.arange(m, dtype=jnp.float64)
-
-        def f(theta, r):
-            theta = jnp.asarray(theta, dtype=jnp.float64)
-            r = jnp.asarray(r, dtype=jnp.float64)
-            # T_k(r) via cos(k arccos r), r in [0, 1] subset of [-1, 1].
-            tk = jnp.cos(
-                kdeg * jnp.arccos(jnp.clip(r, -1.0, 1.0))[..., None]
-            ).astype(jnp.complex128)
-            ex = jnp.exp(1j * theta[..., None] * mu)
-            return jnp.real(jnp.einsum("...k,kl,...l->...", tk, X, ex))
-
-        return cls.from_function(f)
+        if n % 2:
+            X = jnp.concatenate((jnp.zeros((m, 1), dtype=X.dtype), X), axis=1)
+        if m % 2 == 0:
+            m += 1
+            X = Chebtech2.alias(X, m)
+        values = _trig_coeffs2vals_impl(Chebtech2.coeffs2vals(X).T).T
+        # Native conversion projects the source grid to real values and
+        # keeps its nonnegative-radius half before numeric construction.
+        return cls.from_values(jnp.real(values[m // 2:, :]))
 
     def integral(self, curve=None) -> jax.Array:
         """Definite / line integral of the Diskfun.

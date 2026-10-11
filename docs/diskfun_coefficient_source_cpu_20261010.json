@@ -1,0 +1,49 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": [
+    "@diskfun/coeffs2diskfun.m",
+    "tests/diskfun/test_coeffs2diskfun.m"
+  ],
+  "change": "Use native Chebtech/Trigtech transforms, parity padding, real-valued grid projection, and numeric Diskfun construction. Removes adaptive callback and its incorrect imaginary even-Nyquist sine. New math uses JAX.",
+  "results": "Baseline six passes and two failures, with two unresolved-column warnings. Corrected eight passes in 45.62s with no warnings: all six native clauses, retained supplemental accuracy bound, and two source-contract controls. Native clause4 residual truthiness restored alongside the pre-existing accuracy bound.",
+  "evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diskfun_coefficient_source_20261010/baseline",
+      "inputs_rehashed": 357,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 66.83865197468549,
+        "sampled_peak_summed_rss_kib": 2919912,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "c4f0dce6fdc47beff06642d6147a0ca88812f99da612305101ffd70029952593",
+        "junit.xml": "6106dc2e30029ab140be338239e0c1f705508058bf05d654d91d9244e0f743c0",
+        "supervision/receipt.json": "34b9b9aacd98e1f8c41c959b1305627a894589ecee4044487f24afd697e41cec",
+        "supervision/stdout": "216dc0ddc56c024719057b4c723db148f0c45ba2941911bac28790b9c9a495c6"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diskfun_coefficient_source_fixed_20261010/gate",
+      "inputs_rehashed": 357,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 55.2994780712761,
+        "sampled_peak_summed_rss_kib": 2568188,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "caac72d3fbdf3b90be461a2e4b8fd9e9cc8aa1d4e760bc31a52248f9717c2e90",
+        "junit.xml": "69ceaa3f9515f461e473c058f0e012fb06d71651dd01d64499a9e143df215081",
+        "supervision/receipt.json": "6015f64a804be4536d037deaff845769dcd44295dd87fb717f19788f030cebb1",
+        "supervision/stdout": "5de56563cfdb8bf76ee9046fed2dc888694cff75033a888e533a5648b8ad66c5"
+      }
+    }
+  ],
+  "scope": "Focused coefficient-conversion qualification; full suite, downstream examples and green CI remain open. Inherited constructor dependencies remain separate.",
+  "integration": "Library AST identical to qualified candidate after excluding docstrings; test bytes identical."
+}

@@ -11,8 +11,6 @@ coordinates ``(theta, r)`` with ``x = r cos(theta)``, ``y = r sin(theta)``.
 
 from __future__ import annotations
 
-import warnings
-
 import jax.numpy as jnp
 import numpy as np
 
@@ -23,9 +21,7 @@ _TOL = 10 * _EPS
 
 
 def _df(fn):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return Diskfun.from_function(fn)
+    return Diskfun.from_function(fn)
 
 
 class TestDiskfunCoeffs2diskfun:
@@ -55,9 +51,9 @@ class TestDiskfunCoeffs2diskfun:
             )
         )
         g = Diskfun.coeffs2diskfun(f.coeffs2())
-        # MATLAB pass(4) just evaluates norm(f-g) (no explicit bound); we
-        # keep it meaningful and require the round trip to be tight.
-        assert float((f - g).norm()) < _TOL
+        residual = float((f-g).norm())
+        assert bool(residual)  # Literal native pass(4).
+        assert residual < _TOL  # Existing supplemental accuracy control.
 
     def test_explicit_matrix_r_sin_theta(self):
         # pass(5): c = 1i/2 * [0 0 0; 1 0 -1]  ->  r sin(theta)
@@ -78,3 +74,25 @@ class TestDiskfunCoeffs2diskfun:
         )
         f = _df(lambda t, r: r**3 * jnp.cos(3 * t) + r**2 * jnp.sin(t) ** 2)
         assert float((f - Diskfun.coeffs2diskfun(c)).norm()) < _TOL
+
+
+    def test_even_imaginary_nyquist_source_projection(self):
+        # Native coefficient converter realifies values on the even grid;
+        # imaginary Nyquist data is zero at every source grid point.
+        f = Diskfun.coeffs2diskfun(jnp.array([[1j,0]]))
+        assert f.iszero()
+
+    def test_source_numeric_constructor_route(self, monkeypatch):
+        captured = []
+        marker = object()
+        def capture(cls, values, **kwargs):
+            captured.append(values)
+            return marker
+        monkeypatch.setattr(Diskfun, "from_values", classmethod(capture))
+        # T2(r)*cos(theta), radial Cheb count3 and odd Fourier count3.
+        c = jnp.zeros((3,3), dtype=jnp.complex128).at[2,0].set(.5).at[2,2].set(.5)
+        assert Diskfun.coeffs2diskfun(c) is marker
+        # Positive radial nodes [0,1], periodic angular nodes [-pi,-pi/2,0,pi/2].
+        exact = jnp.array([[1.,0.,-1.,0.],[-1.,0.,1.,0.]])
+        assert captured[0].shape == (2,4)
+        assert jnp.max(jnp.abs(captured[0]-exact)) < 10*_EPS

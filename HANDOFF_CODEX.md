@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Diskfun coefficient conversion follows the native grid (2026-10-10)
+
+Native parity padding, Chebtech/Trigtech transforms, real projection and numeric
+construction replace the adaptive callback. This fixes imaginary even Nyquist
+coefficients producing a spurious sine. All six original clauses and two source
+controls pass (eight cases, 45.62s); the two baseline failures and unresolved-column
+warnings are retained. Full downstream examples and CI remain open. Evidence:
+docs/diskfun_coefficient_source_cpu_20261010.json.
+
 ## Ballfun constructor contracts restored (2026-10-10)
 
 All15original constructor EPS predicates pass. Fixed sizes now apply native
