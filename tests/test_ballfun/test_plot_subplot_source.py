@@ -1,4 +1,5 @@
 """Native @ballfun/plot.m changes current axes, not figure subplot spacing."""
+
 import os
 from pathlib import Path
 
@@ -8,20 +9,25 @@ import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: exact Matplotlib host layout assertions.
 import pytest
 
+from chebfunjax._sphere_surface import InterpolatedSurfaceGroup
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.plotting import chebfun_style
 
 
 def _ball():
-    return Ballfun.from_coeffs(jnp.asarray([[[.25]]]), is_real=True)
+    return Ballfun.from_coeffs(jnp.asarray([[[0.25]]]), is_real=True)
 
 
 def _layout(fig):
     return (
-        tuple(getattr(fig.subplotpars, name)
-              for name in ("left", "right", "bottom", "top", "wspace", "hspace")),
-        tuple((tuple(ax.get_position(original=True).bounds),
-               tuple(ax.get_position().bounds)) for ax in fig.axes),
+        tuple(
+            getattr(fig.subplotpars, name)
+            for name in ("left", "right", "bottom", "top", "wspace", "hspace")
+        ),
+        tuple(
+            (tuple(ax.get_position(original=True).bounds), tuple(ax.get_position().bounds))
+            for ax in fig.axes
+        ),
     )
 
 
@@ -38,13 +44,17 @@ def test_supplied_axes_and_siblings_keep_exact_positions(style, count, tmp_path)
         ax = fig.add_subplot(221, projection="3d")
         fig.add_subplot(222)
         fig.add_subplot(223, projection="3d")
-        fig.subplots_adjust(left=.17, right=.89, bottom=.16, top=.88,
-                            wspace=.37, hspace=.31)
+        fig.subplots_adjust(left=0.17, right=0.89, bottom=0.16, top=0.88, wspace=0.37, hspace=0.31)
         fig.canvas.draw()
         before = _layout(fig)
         assert _ball().plot(style, ax=ax) == (fig, ax)
-        assert len(ax.collections) == count
-        assert ax.get_xlim() == ax.get_ylim() == ax.get_zlim() == (-1., 1.)
+        if style == "ball":
+            assert len(ax.collections) == 1
+            assert isinstance(ax.collections[0], InterpolatedSurfaceGroup)
+            assert len(ax.collections[0]._source_surfaces) == count
+        else:
+            assert len(ax.collections) == count
+        assert ax.get_xlim() == ax.get_ylim() == ax.get_zlim() == (-1.0, 1.0)
         aspect = ax.get_box_aspect()
         np.testing.assert_array_equal(aspect, np.full(3, aspect[0]))
         fig.canvas.draw()
@@ -75,7 +85,9 @@ def test_native_ten_subplot_indices_preserve_prior_allocations(tmp_path):
         assert indices == [0, 4, 5, 8, 9, 10, 12, 13, 14, 15]
         assert _layout(fig)[0] == params
         assert len(fig.axes) == 10
-        assert sum(len(ax.collections) for ax in fig.axes) == 50
+        assert all(len(ax.collections) == 1 for ax in fig.axes)
+        assert all(isinstance(ax.collections[0], InterpolatedSurfaceGroup) for ax in fig.axes)
+        assert sum(len(ax.collections[0]._source_surfaces) for ax in fig.axes) == 50
         fig.canvas.draw()
         assert _layout(fig)[1] == previous
         _save(fig, "ten_source_subplot_indices.png", tmp_path)
@@ -87,13 +99,17 @@ def test_standalone_keeps_default_spacing_and_explicit_camera(tmp_path):
     with mpl.rc_context():
         chebfun_style()
         before = dict(mpl.rcParams)
-        expected = tuple(mpl.rcParams[f"figure.subplot.{name}"]
-                         for name in ("left", "right", "bottom", "top", "wspace", "hspace"))
+        expected = tuple(
+            mpl.rcParams[f"figure.subplot.{name}"]
+            for name in ("left", "right", "bottom", "top", "wspace", "hspace")
+        )
         fig, ax = _ball().plot(elev=21, azim=-63)
         try:
             assert _layout(fig)[0] == expected
             assert (ax.elev, ax.azim) == (21, -63)
-            assert len(ax.collections) == 5
+            assert len(ax.collections) == 1
+            assert isinstance(ax.collections[0], InterpolatedSurfaceGroup)
+            assert len(ax.collections[0]._source_surfaces) == 5
             assert dict(mpl.rcParams) == before
             fig.canvas.draw()
             assert _layout(fig)[0] == expected

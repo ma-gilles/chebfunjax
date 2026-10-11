@@ -1,0 +1,36 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft2_native_source_20261011/candidate/tests/test_matlab_port/misc/test_nufft2_matlab.py",
+  "changed_paths": [
+    "tests/test_matlab_port/misc/test_nufft2_matlab.py"
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft2_native_source_20261011/nufft2_test.patch",
+  "source_predicates": 1,
+  "passed": 1,
+  "library_changed": false,
+  "dimensions": {
+    "outputs": [
+      100,
+      103
+    ],
+    "coefficients": [
+      105,
+      101
+    ]
+  },
+  "matrix_norm": "spectral2 both numerator and denominator",
+  "actual": {
+    "clause": 1,
+    "value": 1.6510555410855112e-14,
+    "bound": 2.2870594307278225e-11,
+    "pass_": true
+  },
+  "wall_seconds": 8.373317457735538,
+  "peak_rss_kib": 394552,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nufft2_native_source_20261011/baseline_v1/supervision/receipt.json",
+  "qualification": "FINUFFT2.5.0 effective vs project>=2.5.1,<3 remains environmentgap; dense nufft2 does not invoke FINUFFT. Python default_rng stream differs from native MATLAB rng(0). No locked-environment or MATLAB-output parity claim.",
+  "evidence_hashes": {
+    "candidate": "7d08a55447ca943e898dda7fe457e344d0affaac0ee0433cc0035656465cf6ac",
+    "patch": "ba66631f57f472ff86a9ae0857566ec4a74f4a9cfe22377c67862d086c543236",
+    "receipt": "f58138e48365b52901ee67350b2595e9249ca38fb5b4e286ccb5607bd3a6a4ef"
+  }
+}

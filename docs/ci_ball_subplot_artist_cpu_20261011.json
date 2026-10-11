@@ -1,0 +1,23 @@
+{
+  "scope": "Preserve layout, camera, surface-count and rendering checks while accounting for five native ball surfaces in one shared-depth artist",
+  "ci_failure_log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_a668_core1_114407349509.log",
+  "ci_failure_log_sha256": "83dd048fbec218c7160e1e5849fe60f750ec848e02220757fc592718a5eaa5e5",
+  "tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "5",
+    "time": "10.311",
+    "timestamp": "2026-10-11T03:48:14.634301-04:00",
+    "hostname": "della-mol.princeton.edu"
+  },
+  "qualified_test_sha256": "75970d79826b62eb3d760e7d2538ac17023db7845367166ff7a769fb37e9b5d9",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_ball_subplot_artist_20261011/supervision/receipt.json",
+  "receipt_sha256": "6507616a0ebeaecd2e5d02e94c185244d739845eed8d626030f8cec98420b627",
+  "inputs_stable": true,
+  "remaining_owned_pids": [],
+  "peak_rss_kib": 988252,
+  "wall_seconds": 13.407211750280112,
+  "limitations": "No production change; no native pixel-parity claim. Exact subplot position and five-surface counts preserved; existing source-data bridge tests independently cover grouped geometry."
+}

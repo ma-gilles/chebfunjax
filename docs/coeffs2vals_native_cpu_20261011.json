@@ -1,0 +1,13 @@
+{
+  "scope": "Restore20 original deterministic coeffs2vals predicates with unchanged1000eps vector infinity bounds; retain2 supplements",
+  "result": "22 passed, no skips;7.61s;804920KiB; stable inputs and no owned survivors",
+  "library_changed": false,
+  "bindings": {
+    "path": "tests/test_matlab_port/misc/test_coeffs2vals_matlab.py",
+    "baseline_sha256": "ffb1c9009c0ae8da2395134e6a470f16e22064db7e7d52ec18f57716c150fcc8",
+    "candidate_sha256": "6d31ddf159e5e92cab00952f982a954bb04fd16ec45a2c8cd20adbde848ba402"
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coeffs2vals_native_source_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "95a26025bc86a32e500125f33ead6f0f188ef71439f6fe4bb21ff0b150613a8d",
+  "limitations": "Focused CPU gate, no fresh MATLAB execution"
+}
