@@ -1,0 +1,43 @@
+{
+  "original": 27029,
+  "scope": "v3 accepted mapping/axes plus x-axis %g formatting only",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/page.patch": "ca72cfadc3e0f30040e3c9444807137feba4770387ff9881f6796d5f7c9948fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/DelayDifferentialEquations.md": "e4d8fbbc443901abdfd87b60e03a2c85fbccf599042aa8210b7b4fe0089a26f1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/script.patch": "93b7ed3208e7f8ad8cd51a7f44ca9c51aae809ee8ef16b4db5dcc18a978c3fdc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/STATIC_SAVE_CHECK.json": "14d391e9367773733fbf55756f630217cbd1f4cd0196e8c0a179e2e1c40cc8b5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/FIGURE_MAPPING.json": "90ed84c4c495f2a2bf65f5433ef525fd913daa8ddee2d1d2c67df6f6126f2613",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v4/delay_differential_equations.py": "b73f9610c6381a6f599e84b46afc41d53598678fdf1798de41a9f7f12f1e38c3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/render.py": "bc86dfb06ac1c527b0a89a8c47955249801b737f811a2cf9b77bdf7df13d3d20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/AUDIT.json": "883d66e7cefa618d2cb369a8ef2c913ab4fac9cc605129007b78085a1a9b52ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/DelayDifferentialEquations_10.png": "67726ce206be9964e511878490fb4c2838905d7d435a3813c2221c11bdca8ecd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/section8.stdout": "febaa97a88be06ebd9576e707da448fbba82b5a2f5bb8229e9e794fdff431a8e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/DelayDifferentialEquations_08.png": "f618b0d453bdced9af80a15dc3fb20efa8a7f26cc32a1686af810ff35799077c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/section9_curve.npz": "8f1a8c2e6f5f6fd4c4579ac0dec058b588ae20a6441f6db187be7e1f32b1d56b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/section9.stdout": "99113664b2fea382d83fa51cde480212f4f94a2be24f931834c640ea14b8b99d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/result.json": "a8903c01b60ca4fdddf0ae3f1073578603aa1ed9088ae092e9d2ffc161a3a541",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/guard.json": "72ac9a673c0bb1187cbf36d73743ed5feef871e8f8df4f7d60250c9009f34973",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/section8_curve.npz": "375b18adf644f09ed8423eb73bc25965ffa0459507fad99fe3dfd69826333e8b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/supervision/receipt.json": "95529e7ef625dbf2e085de70c878d3045ee90b87d4a537bb6172c1c8ef99ed2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/supervision/stdout": "d6bc34d475613ef2e474ab6d8271172a427eb38ab019071ebf8419f49592b97e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/render_v4/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_sections_8_9_artifacts_20261011/delivery_v3/DELIVERY.json": "1dda10c3668efa88d148394a39ba185f8371839598d8dbac4c80d1b9a74c3790"
+  },
+  "checks": [
+    "1200curve arrays identical tov3",
+    "201saved values exact",
+    "coefficients exact",
+    "stdout identical tov3",
+    "no solve",
+    "no numerical change"
+  ],
+  "remaining_visual_limits": "Font rasterization/antialiasing and other pixel differences remain; no inferred linewidth modification or pixel identity claim.",
+  "whole_page_complete": false,
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_review": "All delivery bindings rehashed; v3 curves/reference axes visually inspected; v4 adds native integer tick formatting only. All other native prose/code preserved; full-page and pixel equality remain unproven.",
+  "publication_formatting": "Imports sorted with executable AST unchanged; only output-slot8/9 trailing spaces removed to satisfy diff check; captured stdout retained verbatim in evidence",
+  "published_text_hashes": {
+    "examples/ode-nonlin/delay_differential_equations.py": "8505ef630c499740864b4b5b2788d0aa1478046f3a426c4c265b73a529cd1fbe",
+    "docs/examples/ode-nonlin/DelayDifferentialEquations.md": "570352cecb486e134a86a22a0bbb069de21d50bb6ac69a0d014db940178d2c3a"
+  }
+}

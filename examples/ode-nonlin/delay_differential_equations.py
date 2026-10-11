@@ -18,6 +18,7 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import FormatStrFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
@@ -42,16 +43,37 @@ chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-nonlin')
 
-FIG = [0]
+SOURCE_FIGURES = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 10, 10: 12, 11: 13, 12: 14, 14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 20, 20: 21, 21: 22, 22: 23, 23: 24}
+OUTPUT_SLOT = [0]
+SAVED_IMAGES = set()
 
 
-def _save(fig):
-    FIG[0] += 1
+def _save(fig, *, source_axes=False):
+    image_id = SOURCE_FIGURES[OUTPUT_SLOT[0]]
+    if image_id in SAVED_IMAGES:
+        raise RuntimeError(f"Duplicate source figure {image_id}")
+    SAVED_IMAGES.add(image_id)
     fig.set_facecolor("white")
-    fig.tight_layout()
+    if not source_axes:
+        fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"DelayDifferentialEquations_{FIG[0]:02d}.png"))
+        _IMG, f"DelayDifferentialEquations_{image_id:02d}.png"))
     plt.close(fig)
+
+
+def _source_delay_curve(points, values, section):
+    """Render the scoped constant-delay curves with the reference axes."""
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    ax.plot(points, values, lw=1.4)
+    xmax, ymax, ystep = (3, 10, 2) if section == 8 else (2, 60, 10)
+    ax.set(xlim=(0, xmax), ylim=(0, ymax),
+           xticks=np.arange(0, xmax + .25, .5),
+           yticks=np.arange(0, ymax + ystep, ystep))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
 
 
 def _plot_disc(t, x, sol, tt=None):
@@ -83,6 +105,7 @@ def _plot_pair(sol_fn, x, dom, extra=None):
 
 def _output_slot(index):
     """Identify the cached MATLAB output cell during a captured run."""
+    OUTPUT_SLOT[0] = index
     if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
         print(f"@@CHEBFUNJAX_OUTPUT_SLOT:{index}@@", flush=True)
 
@@ -214,25 +237,30 @@ def run():
                domain=tuple(np.arange(0, 3.01, 0.5)))
     N.lbc = 1.0
     xc = N.solve(0.0)
-    _show(xc)
+    print("x =")
+    print(repr(xc))
     res = float(N(xc).norm())
     print(f"res =\n     {res:.15e}")
     tt = np.linspace(0, 3, 1200)
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, np.asarray(xc(tt)), lw=1.4)
-    ax.grid(True)
-    _save(fig)
+    fig = _source_delay_curve(tt, np.asarray(xc(tt)), 8)
+    _save(fig, source_axes=True)
 
-    # ----- 9. Two constant delays: SKIPPED --------------------------
+    # ----- 9. Two constant delays --------------------------------------
     _output_slot(9)
-    # The union domain has eleven pieces, and every probe column of the
-    # assembly applies two compositions to an eleven-piece chebfun.
-    # MATLAB solves this in seconds; our piecewise-composition
-    # evaluation is orders of magnitude too slow (ledgered performance
-    # gap), so this section is skipped rather than left to run for
-    # hours.
-    print("section 9 skipped: piecewise-composition performance wall", file=sys.stderr)
-    FIG[0] += 1
+    p1, p2 = 1 / 2, 1 / 3
+    dom9 = tuple(sorted(set([k * p1 for k in range(5)]
+                            + [k * p2 for k in range(7)])))
+    N = Chebop(lambda t, x: x.diff() - x((t - p1).maximum(0.0))
+               - x((t - p2).maximum(0.0)) - x, domain=dom9)
+    N.lbc = 1.0
+    xc = N.solve(0.0)
+    print("x =")
+    print(repr(xc))
+    res = float(N(xc).norm())
+    print(f"res =\n     {res:.15e}")
+    tt = np.linspace(0, 2, 1200)
+    fig = _source_delay_curve(tt, np.asarray(xc(tt)), 9)
+    _save(fig, source_axes=True)
 
     # ----- 10. A Volterra integro-differential equation ----------------
     _output_slot(10)
@@ -370,7 +398,6 @@ def run():
     # ----- 17. State-dependent 1/t cascade: SKIPPED (same wall) -------
     _output_slot(18)
     print("section 17 skipped: piecewise-composition performance wall", file=sys.stderr)
-    FIG[0] += 1
 
     # ----- 18. Delay + integral terms together ------------------------
     _output_slot(19)
@@ -428,7 +455,6 @@ def run():
     # ----- 21. Three-variable constant-delay system: SKIPPED ----------
     _output_slot(22)
     print("section 21 skipped: piecewise-composition performance wall", file=sys.stderr)
-    FIG[0] += 1
 
     # ----- 22. A system with a state-dependent delay ------------------
     _output_slot(23)

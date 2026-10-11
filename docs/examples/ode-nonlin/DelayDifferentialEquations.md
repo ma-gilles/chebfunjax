@@ -7,7 +7,7 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, and the hand-written Newton iteration (nine output blocks). Remaining output blocks are marked pending because the previous capture placed results under unrelated examples. Figures retain their existing assets and await numerical and visual verification.
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 (11 output blocks). The remaining 12 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; all other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 
@@ -212,7 +212,18 @@ plot(x), shg
 ```
 
 ```text
-(no matching output)
+x =
+   chebfun column (6 smooth pieces)
+       interval       length     endpoint values
+[       0,     0.5]        2         1      1.5
+[     0.5,       1]        3       1.5      2.1
+[       1,     1.5]        4       2.1        3
+[     1.5,       2]        5         3      4.3
+[       2,     2.5]        6       4.3      6.1
+[     2.5,       3]        7       6.1      8.7
+vertical scale = 8.7    Total length = 27
+res =
+     8.494402173854053e-14
 ```
 
 ![DelayDifferentialEquations figure 08](../../images/ode-nonlin/DelayDifferentialEquations_08.png)
@@ -238,7 +249,23 @@ plot(x), shg
 ```
 
 ```text
-(no matching output)
+x =
+   chebfun column (11 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.33]        8         1      2.2
+[    0.33,     0.5]        8       2.2        3
+[     0.5,    0.67]        8         3      4.1
+[    0.67,    0.83]        8       4.1      5.6
+[    0.83,       1]        8       5.6      7.8
+[       1,     1.2]        8       7.8       11
+[     1.2,     1.3]        8        11       15
+[     1.3,     1.5]        9        15       20
+[     1.5,     1.7]        9        20       28
+[     1.7,     1.8]        9        28       38
+[     1.8,       2]        9        38       53
+vertical scale =  53    Total length = 92
+res =
+     3.591598057472580e-11
 ```
 
 ![DelayDifferentialEquations figure 10](../../images/ode-nonlin/DelayDifferentialEquations_10.png)
