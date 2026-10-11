@@ -211,27 +211,31 @@ class TestPde15s:
                             atol=1e-12)
 
     def test_pde15s_robin_bc_exact(self):
-        """Robin boundary condition ``a*u + b*u' = c`` is imposed exactly.
+        """Native AdjustBCs retains an inconsistent initial boundary offset.
 
-        ``lbc=lambda u: u.diff() + 2*u - 1`` imposes ``u'(0) + 2 u(0) = 1``.
-        The residual is linear in ``u`` with a time-invariant slope, so it is
-        slaved algebraically (DAE reduction) and driven to zero to machine
-        precision at every output time.
+        Chebfun 7574c77 / R2025b returns right value 0.5 for this exact input
+        and warns BadIC. The consistent left Robin residual stays zero.
+        Qualified native evidence: nrb1/AUDIT.json; the original zero-right
+        assertion is retained in the corresponding failed native capture.
         """
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.chebfun1d.pde15s import pde15s
 
         u0 = chebfun(lambda x: 0.5 + 0.0 * x, domain=(0.0, 1.0))
-        UU = pde15s(
-            lambda t, x, u: u.diff(2), np.linspace(0.0, 0.3, 4), u0,
-            lbc=lambda u: u.diff() + 2.0 * u - 1.0, rbc=0.0,
-            n=48, rtol=1e-9, atol=1e-11,
-        )
+        with pytest.warns(
+            RuntimeWarning,
+            match=r"CHEBFUN:CHEBFUN:pde15s:BadIC: Initial state may not satisfy the boundary conditions\.",
+        ):
+            UU = pde15s(
+                lambda t, x, u: u.diff(2), np.linspace(0.0, 0.3, 4), u0,
+                lbc=lambda u: u.diff() + 2.0 * u - 1.0, rbc=0.0,
+                n=48, rtol=1e-9, atol=1e-11,
+            )
         for uk in UU:
             resid = (float(uk.diff()(jnp.float64(0.0)))
                      + 2.0 * float(uk(jnp.float64(0.0))) - 1.0)
             assert abs(resid) < 1e-8
-            assert abs(float(uk(jnp.float64(1.0)))) < 1e-8
+            assert abs(float(uk(jnp.float64(1.0))) - 0.5) < 1e-8
 
     def test_pde15s_time_dependent_dirichlet(self):
         """A prescribed time-varying boundary value ``u(0, t) = sin(t)``.

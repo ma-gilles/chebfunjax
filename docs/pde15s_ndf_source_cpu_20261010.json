@@ -1,0 +1,139 @@
+{
+  "status": "documentation and whitespace only successor of qualified v12; ready for root integration review",
+  "base_head": "141d4142d5857d76eb8765cab4bcc4d8bf232b09",
+  "patch_sha256": "f9346c56a64dee7b03f1957104b2f906b6a47783f500404d79b82fc8e526b17f",
+  "baseline_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/arity.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_stages.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/__init__.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_attempt.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_controller.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_segment.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/dae_init.py": null,
+    "src/chebfunjax/chebfun1d/_pde_ndf/adaptive.py": null,
+    "src/chebfunjax/chebfun1d/pde15s.py": "6873e880d1eb22cdefc0bec856e69c9ac6736d5c58112b41c1ad8be0e0ea7e26",
+    "src/chebfunjax/chebfun1d/_pde_legacy.py": null,
+    "tests/test_coverage/test_v13_v18_utils.py": "2756f83a6a84575709fe366944522d2de11372ff4a8e0b8ec533266d42f68837",
+    "tests/test_pde15s_explicit_methods.py": null,
+    "tests/test_pde_ndf_fixed_source.py": null,
+    "tests/test_pde_ndf_compatibility_limits.py": null,
+    "tests/test_pde_ndf_source_contracts.py": null
+  },
+  "candidate_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/arity.py": "fe4143c145c10fb416b708f2a0001359a3da4bc1328624c0474a0cbed5240c4c",
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "a96050439da8a8d8aee0ea645bde1dafe19ba9e8e83bfc2103637df62a25f265",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf.py": "c4fd4732fca740273005ff2d36defe68ba01c1918faeb2ffee6a98f1654c3d99",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_stages.py": "a35b062c53f17c29277d733098ae8701a664d007c6efcea1bedc844b6f653c04",
+    "src/chebfunjax/chebfun1d/_pde_ndf/__init__.py": "8ff627a0ffc2d4052f4b4f6877b91177761e9ddf1b789540278a2d1d044b1de3",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_attempt.py": "98bddb9e46fff4dcd3c4b40824109f296cc7b4272774a386a58783a11050b47c",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_controller.py": "39474cdc6c001ed9706c5ee5987dd51996572e29f560b1e2a7c37b8ba965a1ff",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_segment.py": "d10e39a69516965220127f06eb1663a43ea492167dafa417f63f3c5cc3994056",
+    "src/chebfunjax/chebfun1d/_pde_ndf/dae_init.py": "ebd230283e0c63195617bccd67efef9cef42404e3eaeb2cc4a0f911e5c973476",
+    "src/chebfunjax/chebfun1d/_pde_ndf/adaptive.py": "0889c8f03a9b3c598b13611fb7fd411d2d970b289a3352ce08efb6c0f42227d3",
+    "src/chebfunjax/chebfun1d/pde15s.py": "7b60ed1ef796cb5b202c80f58a1b507128ef6e17c148577f605d755cba96b26a",
+    "src/chebfunjax/chebfun1d/_pde_legacy.py": "6873e880d1eb22cdefc0bec856e69c9ac6736d5c58112b41c1ad8be0e0ea7e26",
+    "tests/test_coverage/test_v13_v18_utils.py": "02f19979ca971cac2627de9e911dc5f22b99995b8b695bf0878d69f5f932fe25",
+    "tests/test_pde15s_explicit_methods.py": "11c7522ec525c1a237db84bce065b8a59ecb951f55f17932181bb3a6db35aee3",
+    "tests/test_pde_ndf_fixed_source.py": "43f8679aa8799f04b5a872d960a2efbf653db4c14e6b4e6045b86c3608315abb",
+    "tests/test_pde_ndf_compatibility_limits.py": "ccd892b1ed8b414464e733a2cc09acd1e55e5904bb7180cb7fbef623ca8d6e9a",
+    "tests/test_pde_ndf_source_contracts.py": "14fc98be2785cf22704435257f0d2b45a6e101b85ebbb0710db2c048f091f4d4"
+  },
+  "production_snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/snapshot",
+  "native_source": {
+    "chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+    "MATLAB": "R2025b ode15s/daeic12"
+  },
+  "scope": [
+    "Default scalar real single-piece polynomial NDF in JAX; dense constant-mass DAE and identity-mass ODE",
+    "Actual spatial happiness and 33-to-65 restart; fixed N follows coefficient prolongation",
+    "Newton failure, stale-Jacobian refresh, rejected-step recovery and minimum-step warning",
+    "Legacy explicit method choices retain byte-identical preexisting SciPy implementation; whole function is not JAX-only"
+  ],
+  "deliberate_native_corrections": [
+    "Default method NDF replaces Radau; default atol=1e-6 replaces Python 1e-8, matching pdeSolve.m lines 17 and 596; explicit tolerances retained",
+    "Default Chebfun spatial size is adaptive; explicit n remains native fixed-N",
+    "BadIC warning and adjusted boundary offset retain inconsistent initial boundary values, as qualified native Robin demonstrates"
+  ],
+  "python_extensions": [
+    "Supplied two times return two outputs",
+    "No-BC input means unconstrained nodal evolution",
+    "Callable initial data uses n_default when n is omitted"
+  ],
+  "limits": [
+    "No systems, periodic Fourier evolution, complex, sparse or variable-mass NDF; smooth pieces merge first and trig initial representations use polynomial collocation",
+    "Increasing time only, scalar tolerance path, at most four algebraic constraints",
+    "No outer JIT/AD qualification; host-controlled adaptivity",
+    "Endpoint/hmin termination with no default attempt cap; public route does not retain diagnostic state history; no full source options/event/output-function API",
+    "Two strict scalar power controller comparisons remain one ULP apart because native libm power differs from correctly rounded reference/JAX; no nextafter adjustment",
+    "All-output native-initialized 126-attempt propagation matches existing bounds; independently finite-differenced initializer has different Newton iteration counts despite accepted output agreement",
+    "Explicit historical methods remain non-JAX outstanding work"
+  ],
+  "qualified_evidence": {
+    "native_robin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nrb1/AUDIT.json",
+    "canonical_original_and_robin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v7_20261010/native_boundary_and_original_controls/AUDIT.json",
+    "all_api_and_explicit_methods": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v9_20261010/api_controls/AUDIT.json",
+    "v10_four_limit_controls": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v10_20261010/compatibility_limit_controls/AUDIT.json",
+    "v11_twelve_passes_one_test_setup_failure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v11_20261010/corrected_source_controls/AUDIT.json",
+    "v12_no_trace_long_step": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v12_20261010/long_step_trace_control/AUDIT.json"
+  },
+  "legacy_exact_copy": true,
+  "next_migration": [
+    "Port genuinely named historical methods and the associated PDE reduction as a separate package",
+    "Do not alias existing Verner ode78/89 to DOP853 or MATLAB ode45 controller to SciPy RK45 parity"
+  ],
+  "input_compatibility_audit": {
+    "legacy_source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/pde15s.py",
+    "systems": "Old solve_ivp receives an unflattened multidimensional y0 and requires 1-D input; no implemented system route. NDF rejects explicitly.",
+    "complex": "Old initial values and every proxy are cast to float64, discarding imaginary parts. Not genuine complex support. NDF real-only.",
+    "trig_initial": "Old code samples all input representations on Chebyshev nodes; this polynomial collocation behavior is now retained. Fourier PDE evolution remains unsupported.",
+    "piecewise": "Old code samples all pieces on one grid. Native source first merges all at max length 1025 and spatial tol, rejecting only if pieces remain. Candidate now implements native merge behavior and tests smooth pieces.",
+    "scalar_rhs": "Old code broadcast scalar returns; candidate now preserves this.",
+    "coordinate_proxy": "Old full-arity callback receives a differentiable coordinate proxy. Candidate preserves x.diff() and tracks PDE differential order only through dependent values.",
+    "termination": "No default numerical attempt cap. Endpoint/hmin/callback govern termination; process limits are external. Optional private diagnostic caps remain.",
+    "trace_memory": "Public NDF disables diagnostic attempt-state history; private source controls retain traces."
+  },
+  "preserved_failure": "v11 12 clauses pass; no-trace assertion failed solely because new keyword was omitted in test call. v12 changes only this test invocation.",
+  "production_identity_v11": "Non-docstring AST identity to v12; v12 production byte identity to v11",
+  "evidence_hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nrb1/AUDIT.json": "bfc4235cb43233a710d079b4afb962087b82ef2d8d0f93c7787ad86aac570423",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v7_20261010/native_boundary_and_original_controls/AUDIT.json": "83509c0f97dcbc359bd3c8dbeb454066490a786e83c909c4cd3443a6a1816ba9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v9_20261010/api_controls/AUDIT.json": "9bc1de364b265fc51666b8139632246aa04f3470c3878beb7fbdd545717a66c2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v10_20261010/compatibility_limit_controls/AUDIT.json": "7356510fb154c6456892bce213ac33cd9b9315ea34dd82dc0e8fae6ba4e5fd92",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v11_20261010/corrected_source_controls/AUDIT.json": "3f45c8bd7774ffea8d3a7e0c5938af66fbb3965f1b87df6523b6a3ba805cb41b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v12_20261010/long_step_trace_control/AUDIT.json": "71d6acbd3e734742a92fafaeaba7488c94a6592352464beef9dbe6d0e1e090b6"
+  },
+  "ruff": "Configured pinned Ruff and F821 passed on all 17 delivered source/test files; whitespace and patch apply checks passed",
+  "apply_check": "git apply --check passes against publication checkout",
+  "documentation_only_proof": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/delivery/DOCSTRING_AST_PROOF.json",
+  "static_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/delivery/STATIC_REVIEW.json",
+  "native_warning_condition": "pdeSolve.m:632 preallocates uOut to numel(tt), so length(uOut)>1 follows from Python validation of at least two times; no numerical change needed",
+  "documentation_evidence_hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/delivery/DOCSTRING_AST_PROOF.json": "217d6950252f56fcd1b6eac14df4a9d9eae1c024f5db0045b57b7bc5a6ae0b07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/delivery/STATIC_REVIEW.json": "080d7ba04edd6338cc6cf223b8e116d8349a8d7f1144067d05fd8c54aa723e92",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_ndf_jax_20261010/finalize_v13.py": "6a4e9dfaabd70c28c9a6edc83b812d57b7def792a51bdc6306ff3b9f06615e7b",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/pdeSolve.m": "17db32dd0029bc0680266824a43f56add281e5c9a42086ba541afb2fb2e2fe66"
+  },
+  "publication_note": "Public function provenance docstring added at integration; no executable AST change. Qualifications and remaining limitations retained. Two test import blocks reformatted by repository Ruff; all 17 published files independently verified non-docstring AST-identical to delivery snapshot.",
+  "published_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/arity.py": "fe4143c145c10fb416b708f2a0001359a3da4bc1328624c0474a0cbed5240c4c",
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "a96050439da8a8d8aee0ea645bde1dafe19ba9e8e83bfc2103637df62a25f265",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf.py": "c4fd4732fca740273005ff2d36defe68ba01c1918faeb2ffee6a98f1654c3d99",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_stages.py": "a35b062c53f17c29277d733098ae8701a664d007c6efcea1bedc844b6f653c04",
+    "src/chebfunjax/chebfun1d/_pde_ndf/__init__.py": "8ff627a0ffc2d4052f4b4f6877b91177761e9ddf1b789540278a2d1d044b1de3",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_attempt.py": "98bddb9e46fff4dcd3c4b40824109f296cc7b4272774a386a58783a11050b47c",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_controller.py": "39474cdc6c001ed9706c5ee5987dd51996572e29f560b1e2a7c37b8ba965a1ff",
+    "src/chebfunjax/chebfun1d/_pde_ndf/ndf_segment.py": "d10e39a69516965220127f06eb1663a43ea492167dafa417f63f3c5cc3994056",
+    "src/chebfunjax/chebfun1d/_pde_ndf/dae_init.py": "ebd230283e0c63195617bccd67efef9cef42404e3eaeb2cc4a0f911e5c973476",
+    "src/chebfunjax/chebfun1d/_pde_ndf/adaptive.py": "0889c8f03a9b3c598b13611fb7fd411d2d970b289a3352ce08efb6c0f42227d3",
+    "src/chebfunjax/chebfun1d/pde15s.py": "fad60ea9a34560a4a67af62da021734e0b36d021b3e6965f98f0bb93e9821afc",
+    "src/chebfunjax/chebfun1d/_pde_legacy.py": "6873e880d1eb22cdefc0bec856e69c9ac6736d5c58112b41c1ad8be0e0ea7e26",
+    "tests/test_coverage/test_v13_v18_utils.py": "02f19979ca971cac2627de9e911dc5f22b99995b8b695bf0878d69f5f932fe25",
+    "tests/test_pde15s_explicit_methods.py": "11c7522ec525c1a237db84bce065b8a59ecb951f55f17932181bb3a6db35aee3",
+    "tests/test_pde_ndf_fixed_source.py": "43f8679aa8799f04b5a872d960a2efbf653db4c14e6b4e6045b86c3608315abb",
+    "tests/test_pde_ndf_compatibility_limits.py": "59b581b2ab131632cffcdf65bfb1dcb67632e3f974670235175afeeca938132b",
+    "tests/test_pde_ndf_source_contracts.py": "ffb0e78484aea9d8635dddd939487ef0f08cb34b3f8dba31978411dc9f818829"
+  },
+  "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_public_ndf_draft_v13_20261010/delivery/ROOT_REVIEW.json"
+}
