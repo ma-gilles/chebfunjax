@@ -1,0 +1,279 @@
+{
+  "source_base": "e69dfee5; three utility files only; current publication utilities checked for clean patch application",
+  "changes": [
+    "Host-only locator grids follow licensed R2025b linspace normal/symmetric/overflow operation order, reusing qualified positive-integer quotient; tiny integer path unchanged.",
+    "C2 node sine uses generic JAX fdlibm polynomial/reduction branches, with sequential source binary-operation schedule. C1 and canonical complex DCT are unchanged.",
+    "Remove only the resolved Bndfun high-frequency xfail; original function AST and numerical bound unchanged."
+  ],
+  "source_provenance": {
+    "origin": "https://netlib.org/fdlibm/",
+    "license": "Sun Microsystems freely grants use/copy/modify/distribute with notice preserved; notices retained verbatim in each source",
+    "files": {
+      "k_rem_pio2.c": "5796209ea3fe1af88e22badeaed0f6a6aa923914e097e227c410527cb5815740",
+      "e_rem_pio2.c": "3a08dd4a38f9f9fc9478a33ca05cb81a6566f1010ab14412e97cae091bede16b",
+      "k_sin.c": "75d391f3c124806ce14893cd038ae5dd10663e40430ffa174d5fddcb33012167",
+      "k_cos.c": "841086c75288f3f9fef03bae2a9dc24e99c3cdb2035e170c69452013a7b5befc",
+      "s_sin.c": "4d5edb75368e4f8e0ac18682d3ae4b6944ba06801637cf0df6f378d6211f4c81",
+      "fdlibm.h": "64113c472c2676499288bc35a821b0867916552930bc52c7445d2c50dddf0e71"
+    },
+    "scope": "Diagnostic compilation, original source bytes, explicit little endian define and symbol rename only via compiler flags"
+  },
+  "licenses": "Sun permissive notice retained. C reference compilation is diagnostic only; production uses JAX only. Chebfun 7574c77 and licensed MATLAB R2025b linspace provenance are distinct.",
+  "scope": [
+    "The fdlibm helper implements the original high-word abs(x)<0x4002d97c branch, not general sine. NaN outside the supported branch. No clipping, input-specific values, output ULP offsets, extra precision or tolerance changes.",
+    "No claim that MATLAB internally uses fdlibm. Unmodified C matches captured native C2 grids 17/33/65/129/65537 and the licensed scalar sine entry point on 8193 independent angles.",
+    "Normal locator arithmetic is source-backed and matches captured edge tape. The historical adjacent subnormal transition fallback remains unqualified for native bitwise parity.",
+    "CPU/x64 qualification only; no GPU or universal backend/compiler parity claim."
+  ],
+  "scientific_outcomes": {
+    "POWER23": "Original predicate plus RNG fixture pass on final candidate (2 tests). Grid-only regression retained.",
+    "POWER33": {
+      "error": 2.8541162998236654e-13,
+      "original_bound": 6.456694513356625e-13,
+      "pieces": 11,
+      "happy": true,
+      "maximum_length": 809
+    },
+    "Bndfun": {
+      "integral": -2.414892608890432e-05,
+      "error": 1.0165059440882251e-14,
+      "bound": 2.220446047361874e-14,
+      "length": 45322
+    },
+    "affected_controls": {
+      "REAL_IMAG_CONJ": 20,
+      "singfun_cancellation_and_DCT": 52,
+      "edge_policy": 14,
+      "permanent_fdlibm": 16,
+      "reused_normal_tiny_grid": 76
+    }
+  },
+  "performance_interpretation": "Correctness improvement with measurable node-generation cost, not a performance improvement. Fresh serial arms on CPU4-7; 30 warm samples, shared-host variation visible. n129 cold .433\u21921.202s/warm45.9\u2192195.0us; n65537 cold .444\u2192.821s/warm11.34\u219228.07ms. No whole-example speed claim.",
+  "failures_preserved": [
+    "Prior baseline POWER33 failure and grid-only POWER23 regression in bound diagnosis_v2.",
+    "v1 compiled helper differed from C; eager evaluation matched. Barriers and compiler-option probes insufficient; sequential lax.scan source arithmetic resolved this without special compiler flags.",
+    "v2 POWER33 failed all-NaN because its guard rejected source-rounded angles just above pi/2 at non-power-of-two lengths. V3 implements actual source reduction branch, not endpoint clipping, and original predicate passes."
+  ],
+  "gates": {
+    "c_reference_v1": {
+      "original": 56834,
+      "terminal": 0,
+      "wall_seconds": 3.158372736070305,
+      "peak_rss_kib": 399716,
+      "input_count": 297,
+      "qualified": true
+    },
+    "jax_controls_v2": {
+      "original": 91784,
+      "terminal": 0,
+      "wall_seconds": 5.373481719754636,
+      "peak_rss_kib": 542400,
+      "input_count": 295,
+      "qualified": true
+    },
+    "jax_controls_v3": {
+      "original": 89601,
+      "terminal": 0,
+      "wall_seconds": 7.94378714915365,
+      "peak_rss_kib": 614524,
+      "input_count": 295,
+      "qualified": true
+    },
+    "power23_v2": {
+      "original": 26512,
+      "terminal": 0,
+      "wall_seconds": 39.714641402009875,
+      "peak_rss_kib": 2138240,
+      "input_count": 287,
+      "qualified": true
+    },
+    "power23_v3": {
+      "original": 47772,
+      "terminal": 0,
+      "wall_seconds": 58.661405332852155,
+      "peak_rss_kib": 2139840,
+      "input_count": 288,
+      "qualified": true
+    },
+    "power33_v3": {
+      "original": 19970,
+      "terminal": 0,
+      "wall_seconds": 55.88762407191098,
+      "peak_rss_kib": 2747316,
+      "input_count": 287,
+      "qualified": true
+    },
+    "tech_controls_v4": {
+      "original": 47515,
+      "terminal": 0,
+      "wall_seconds": 22.213365002069622,
+      "peak_rss_kib": 1426500,
+      "input_count": 288,
+      "qualified": true,
+      "test_ids": [
+        "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal::test_real_of_imaginary_is_zero[Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal::test_real_of_imaginary_is_zero[Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal::test_real_array_of_imaginary_is_zero[Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal::test_real_array_of_imaginary_is_zero[Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_real_matlab::test_native_tech_real_literal_coefficients[False-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_real_matlab::test_native_tech_real_literal_coefficients[False-Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_real_matlab::test_native_tech_real_literal_coefficients[True-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_real_matlab::test_native_tech_real_literal_coefficients[True-Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag::test_imag_of_real_is_zero[Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag::test_imag_of_real_is_zero[Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag::test_imag_array_of_real_is_zero[Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag::test_imag_array_of_real_is_zero[Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab::test_native_tech_imag_literal_coefficients[False-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab::test_native_tech_imag_literal_coefficients[False-Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab::test_native_tech_imag_literal_coefficients[True-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_imag_matlab::test_native_tech_imag_literal_coefficients[True-Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_conj_matlab::test_native_tech_conj_literal_coefficients[False-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_conj_matlab::test_native_tech_conj_literal_coefficients[False-Chebtech2]",
+        "tests.test_matlab_port.chebtech.test_conj_matlab::test_native_tech_conj_literal_coefficients[True-Chebtech1]",
+        "tests.test_matlab_port.chebtech.test_conj_matlab::test_native_tech_conj_literal_coefficients[True-Chebtech2]"
+      ]
+    },
+    "singfun_controls_v4": {
+      "original": 79790,
+      "terminal": 0,
+      "wall_seconds": 136.0514225331135,
+      "peak_rss_kib": 2456244,
+      "input_count": 291,
+      "qualified": true,
+      "test_ids": [
+        "tests.test_fun.test_singfun_equality_source::test_strict_source_exponent_tolerance[0.0-True]",
+        "tests.test_fun.test_singfun_equality_source::test_strict_source_exponent_tolerance[1.05e-11-True]",
+        "tests.test_fun.test_singfun_equality_source::test_strict_source_exponent_tolerance[1.1e-11-False]",
+        "tests.test_fun.test_singfun_equality_source::test_strict_source_exponent_tolerance[1.2e-11-False]",
+        "tests.test_fun.test_singfun_equality_source::test_coefficients_are_exact_and_same_length[coeffs0]",
+        "tests.test_fun.test_singfun_equality_source::test_coefficients_are_exact_and_same_length[coeffs1]",
+        "tests.test_fun.test_singfun_equality_source::test_coefficients_are_exact_and_same_length[coeffs2]",
+        "tests.test_fun.test_singfun_equality_source::test_smooth_promotion",
+        "tests.test_fun.test_singfun_equality_source::test_distinct_equal_bounded_singular_objects",
+        "tests.test_fun.test_singfun_equality_source::test_source_sum_zero_rule_and_column_scales[1]",
+        "tests.test_fun.test_singfun_equality_source::test_source_sum_zero_rule_and_column_scales[2]",
+        "tests.test_fun.test_singfun_equality_source::test_complex_transform_preserves_conjugacy_and_jvp[8]",
+        "tests.test_fun.test_singfun_equality_source::test_complex_transform_preserves_conjugacy_and_jvp[17]",
+        "tests.test_fun.test_singfun_equality_source::test_complex_transform_preserves_conjugacy_and_jvp[33]",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_empty",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_smooth_not_singfun",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_real_smooth",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_real_with_exponents",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_purely_imaginary",
+        "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj::test_complex_smooth_part",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_empty",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_imaginary_smooth_not_singfun",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_real_smooth",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_real_with_exponents",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_purely_imaginary",
+        "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal::test_complex_smooth_part",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_empty",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_real_smooth_not_singfun",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_imaginary_smooth",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_imaginary_with_exponents",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_purely_real",
+        "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag::test_complex_smooth_part",
+        "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal::test_empty_equal",
+        "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal::test_zerosingfun_equal",
+        "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal::test_identical_nonzero_equal",
+        "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal::test_different_exponents_not_equal",
+        "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal::test_different_smoothpart_not_equal",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[real-0]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[real-1]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[real-2]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[real-17]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[imag-0]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[imag-1]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[imag-2]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[imag-17]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[complex-0]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[complex-1]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[complex-2]",
+        "tests.test_utils.test_dct_jax_source::test_components_and_conjugacy_without_host_fft[complex-17]",
+        "tests.test_utils.test_dct_jax_source::test_dense_cosine_reference_and_jvp[2]",
+        "tests.test_utils.test_dct_jax_source::test_dense_cosine_reference_and_jvp[8]",
+        "tests.test_utils.test_dct_jax_source::test_dense_cosine_reference_and_jvp[17]"
+      ]
+    },
+    "edge_controls_v3": {
+      "original": 39307,
+      "terminal": 0,
+      "wall_seconds": 26.599761952180415,
+      "peak_rss_kib": 929892,
+      "input_count": 288,
+      "qualified": true
+    },
+    "permanent_controls_v1": {
+      "original": 88260,
+      "terminal": 0,
+      "wall_seconds": 20.30109498789534,
+      "peak_rss_kib": 616860,
+      "input_count": 287,
+      "qualified": true,
+      "test_ids": [
+        "tests.test_fdlibm_sine_source::test_chebtech2_nodes_match_bound_c_source[17]",
+        "tests.test_fdlibm_sine_source::test_chebtech2_nodes_match_bound_c_source[33]",
+        "tests.test_fdlibm_sine_source::test_chebtech2_nodes_match_bound_c_source[65]",
+        "tests.test_fdlibm_sine_source::test_chebtech2_nodes_match_bound_c_source[129]",
+        "tests.test_fdlibm_sine_source::test_chebtech2_nodes_match_bound_c_source[65537]",
+        "tests.test_fdlibm_sine_source::test_independent_angles_match_bound_c_source",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[14]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[27]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[48]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[53]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[84]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[95]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[100]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[105]",
+        "tests.test_fdlibm_sine_source::test_rounded_endpoint_angles_remain_in_source_reduction_branch[801]",
+        "tests.test_fdlibm_sine_source::test_signed_zero_tiny_and_unsupported_range"
+      ]
+    },
+    "timing_baseline_v1": {
+      "original": 75581,
+      "terminal": 0,
+      "wall_seconds": 6.025473332032561,
+      "peak_rss_kib": 485996,
+      "input_count": 285,
+      "qualified": true
+    },
+    "timing_candidate_v1": {
+      "original": 62964,
+      "terminal": 0,
+      "wall_seconds": 7.0355648482218385,
+      "peak_rss_kib": 599220,
+      "input_count": 286,
+      "qualified": true
+    },
+    "bndfun_v1": {
+      "original": 17647,
+      "terminal": 0,
+      "wall_seconds": 52.36000491725281,
+      "peak_rss_kib": 1117508,
+      "input_count": 286,
+      "qualified": true
+    },
+    "reused_grid_controls_v4": {
+      "original": 91356,
+      "terminal": 0,
+      "wall_seconds": 16.981410831212997,
+      "peak_rss_kib": 1083460,
+      "input_count": 291,
+      "qualified": true
+    }
+  },
+  "test_adaptations": [
+    "Permanent fdlibm tests are unchanged executed predicates relocated with their bound C fixture; import whitespace normalized only.",
+    "New normal-grid source tests retain per-operation expected arithmetic; native edge fixture is an exact extraction of captured MAT endpoints/interior, replacing scratch-relative load path. Its 25 predicates were qualified in reused grid_controls_v4.",
+    "Existing tiny tests unchanged except obsolete normal-dispatch expectation changed from jnp.linspace to independent source reference. Tiny inputs/bounds/oracle tests unchanged.",
+    "Bndfun only xfail decorator and resulting unused pytest import removed."
+  ],
+  "source_byte_relationship": "Final source differs from tested candidate only comments/docstrings/import whitespace; all three non-docstring ASTs identical (AST_IDENTITY.json).",
+  "canonical_transform_sha256": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+  "root_review": {
+    "delivery_bindings_verified": 204,
+    "guard_files": 19,
+    "unique_guard_inputs_verified": 1494,
+    "delivery_sha256": "7b711291928229a05533f5b0f7d1c7137a36eb8fa7044643665f61757136ba3c"
+  }
+}

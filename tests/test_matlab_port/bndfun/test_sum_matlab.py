@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -44,13 +43,6 @@ class TestBndfunSum:
         exact = np.arctan(-A) + np.arctan(B)
         assert abs(float(f.sum()) - exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="Original MATLAB bound unresolved: CPU x64 error 6.519329347198788e-14 "
-        "exceeds 100*vscale*eps = 2.2204460475929105e-14 (n=45326). "
-        "Unmasked source predicate fails; source forward-map diagnostic also "
-        "fails at 2.549069082983385e-14. No tolerance relaxation.",
-        strict=True,
-    )
     def test_spotcheck_high_freq_cos(self):
         f = _bf(lambda x: jnp.cos(1e4 * x))
         exact = (np.sin(1e4 * B) - np.sin(1e4 * A)) / 1e4

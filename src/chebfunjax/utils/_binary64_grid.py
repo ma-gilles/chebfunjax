@@ -4,12 +4,19 @@ Provenance
 ----------
 MATLAB source : @fun/detectEdge.m (findBlowup/zoomIn); installed R2025b linspace.m
 Chebfun commit: 7574c77
-Independently derived integer IEEE arithmetic; fresh MATLAB oracle still required.
+The normal branch follows licensed R2025b operation order; retained native
+edge traces qualify that consumer. The unchanged tiny branch uses independently
+derived integer IEEE arithmetic with retained MATLAB oracle controls. The
+adjacent subnormal transition retains its historical backend fallback and
+remains unqualified for native bitwise parity.
 """
 import jax
 import jax.numpy as jnp
 
 from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
+
+# Reuse the qualified IEEE quotient primitive; cache by array shape/divisor.
+_locator_quotient = jax.jit(_divide_binary64_by_positive_integer, static_argnums=1)
 
 
 def _units(value):
@@ -84,15 +91,56 @@ def tiny_source_grid(a, b, n):
     return result.at[0].set(a).at[-1].set(b)
 
 
-def locator_source_grid(a, b, n):
-    """Host dispatch only: preserve existing normal-range locator grids.
+def _normal_source_grid(a, b, n):
+    """Finite normal-range locator grid in licensed source operation order.
 
     Provenance
     ----------
-    MATLAB source : @fun/detectEdge.m; installed MATLAB R2025b linspace.m
+    MATLAB source: R2025b toolbox/matlab/elmat/linspace.m.
+    Chebfun consumer: @fun/detectEdge.m; Chebfun commit: 7574c77.
+    The caller supplies ordered finite binary64 endpoints and n >= 2.
+    The separate integer path retains gradual underflow near zero.
+    """
+    barrier = jax.lax.optimization_barrier
+    a, b = jnp.asarray(a, jnp.float64), jnp.asarray(b, jnp.float64)
+    n1 = n - 1
+    k = jnp.arange(n, dtype=jnp.float64)
+    width = barrier(b-a)
+    product = barrier(k*width)
+    standard = a + _locator_quotient(product, n1)
+    divided_width = _locator_quotient(width, n1)
+    overflow_product = a + barrier(k*divided_width)
+    bscaled, ascaled = _locator_quotient(b, n1), _locator_quotient(a, n1)
+    overflow_width = barrier(a + barrier(bscaled*k)) - barrier(ascaled*k)
+    c = barrier(width*(n1-1))
+    ordinary = jnp.where(jnp.isinf(c),
+                         jnp.where(jnp.isinf(width), overflow_width,
+                                   overflow_product), standard)
+    symmetric = barrier(2*k-n1) * bscaled
+    y = jnp.where((a == -b) & (n > 2), symmetric, ordinary)
+    if n % 2:
+        y = y.at[n//2].set(jnp.where(a == -b, 0., y[n//2]))
+    y = jnp.where(a == b, a, y)
+    return y.at[0].set(a).at[-1].set(b)
+
+
+def locator_source_grid(a, b, n):
+    """Source locator linspace with a separate gradual-underflow path.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m; licensed R2025b linspace.m
     Chebfun commit: 7574c77
+    Normal grids retain source arithmetic, symmetric and overflow branches.
+    This host-only dispatcher is not a fully native linspace implementation.
     The bounded integer path handles near-zero gradual underflow only.
     """
     if -float.fromhex("0x1p-1020") <= a < b <= float.fromhex("0x1p-1020"):
         return tiny_source_grid(a, b, n)
-    return jnp.linspace(a, b, n)
+    # Outside the proven integer-kernel range, retain the existing grid
+    # for the transition where a 50-point locator may require subnormal
+    # intermediate arithmetic. Source parity is unqualified in this band;
+    # JAX CPU arithmetic may flush such intermediates to zero.
+    if max(abs(a), abs(b)) < 49 * float.fromhex("0x1p-1022"):
+        return jnp.linspace(a, b, n)
+    return _normal_source_grid(a, b, n)

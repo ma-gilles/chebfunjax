@@ -16,6 +16,7 @@ import jax.numpy as jnp
 
 from chebfunjax.domain import _linear_forward_map
 from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
+from chebfunjax.utils._fdlibm_sine import _sin_cheb_angles
 
 
 @partial(jax.jit, static_argnames=("n", "kind"))
@@ -72,10 +73,12 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
         # "Use of sine enforces symmetry" (antisymmetry residual and centre
         # node are bit-exact 0, not ~1e-16 as the cosine form gives).
         # Preserve source-rounded multiplication then division here too;
-        # backend sine evaluations can still differ from MATLAB by an ulp.
+        # C2 uses the bounded, source-ordered fdlibm sine adapter. First-kind
+        # nodes retain their existing backend sine path; general provider
+        # identity and bitwise parity outside the qualified range are unclaimed.
         m = n - 1
         k = jnp.arange(-m, m + 1, 2, dtype=jnp.float64)
-        x = jnp.sin(_divide_binary64_by_positive_integer(jnp.pi * k, 2 * m))
+        x = _sin_cheb_angles(_divide_binary64_by_positive_integer(jnp.pi * k, 2 * m))
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
 

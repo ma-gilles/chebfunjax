@@ -52,13 +52,13 @@ def test_source_separate_rounding(hex_a, hex_b, n):
         assert [struct.pack(">d", v).hex() for v in actual.tolist()] == expected
 
 
-def test_normal_dispatch_preserves_original_grid():
+def test_normal_dispatch_matches_source_grid():
     from chebfunjax.utils._binary64_grid import locator_source_grid
     for a, b in [(-2., 7.), (-1e-200, 2e-200), (0., 1.)]:
         for n in (4, 15, 50):
             actual = locator_source_grid(a, b, n)
-            expected = jnp.linspace(a, b, n)
-            assert actual.tolist() == expected.tolist()
+            expected = reference(a, b, n)
+            assert actual.tolist() == expected
 
 
 @pytest.mark.parametrize("n", [4, 15, 50])
