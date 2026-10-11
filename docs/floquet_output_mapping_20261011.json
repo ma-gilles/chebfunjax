@@ -1,0 +1,157 @@
+{
+  "head": "bb02dff7737a69d3b2b7ae55e50b621f7f32f637",
+  "scope": "Static/source and existing-receipt audit only; no new science, native or numerical rerun",
+  "native_output_count": 4,
+  "current_output_count": 2,
+  "mapping": [
+    {
+      "native_slot": 1,
+      "current_slot": null,
+      "context": "B=logm(PhiT)/T",
+      "type": "mathematical branch diagnostic",
+      "native": "Warning: Principal matrix logarithm is not defined for A with nonpositive real\neigenvalues. A non-principal matrix logarithm is returned. \n",
+      "classification": "SciPy logm emits no native nonpositive-real-spectrum warning; missing diagnostic semantics, not missing calculation"
+    },
+    {
+      "native_slot": 2,
+      "current_slot": 1,
+      "context": "Exponents=diag(D)",
+      "type": "numerical output",
+      "native": "Exponents =\n  0.000000000004853 - 0.268354690535319i\n  0.000000000004853 + 0.268354690535319i\n -0.037475319730416 + 1.000000000000000i\n  0.037475319732382 + 1.000000000000000i\n",
+      "current": "Exponents =\n  0.000000000004850 - 0.268354690535319i\n  0.000000000004850 + 0.268354690535318i\n  -0.037475319730415 + 0.999999999999999i\n  0.037475319732383 + 1.000000000000000i"
+    },
+    {
+      "native_slot": 3,
+      "current_slot": 2,
+      "context": "Multipliers=exp(diag(D)*T)",
+      "type": "numerical output",
+      "native": "Multipliers =\n  0.665180257008794 - 0.746682814665106i\n  0.665180257008793 + 0.746682814665107i\n -0.888934086927188 + 0.000000000000001i\n -1.124942799148266 + 0.000000000000001i\n",
+      "current": "Multipliers =\n  0.665180257008788 - 0.746682814665099i\n  0.665180257008789 + 0.746682814665098i\n  -0.888934086927189 + 0.000000000000002i\n  -1.124942799148267 + 0.000000000000001i"
+    },
+    {
+      "native_slot": 4,
+      "current_slot": null,
+      "context": "construct expmB using vertical Chebfun concatenation",
+      "type": "MATLAB compatibility diagnostic",
+      "native": "Warning: Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX\nThe V4 behaviour can be reproduced using the JOIN() method. \n",
+      "classification": "Explicit Python ChebMatrix constructor does not use deprecated native vertical-concatenation behavior; no corresponding runtime warning warranted"
+    }
+  ],
+  "generator": "Floquet is source-managed and explicitly skipped by gen_example_pages.py. Displays map correctly to native2/3; no current shifted-output bug.",
+  "source_computations": "Current byte-identical qualified script solves4IVPs, constructs16 periodicChebfuns, source matrix exponential products and ten-periodsolution, renders2figures. Sourceconstructor domains/defaults unchanged.",
+  "prior_full_execution": {
+    "handle": 86241,
+    "wall_seconds": 53.73669732315466,
+    "peak_rss_kib": 2504516,
+    "terminal": 0,
+    "censored": null,
+    "survivors": [],
+    "stable": true,
+    "all_artifacts_rehashed": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/result.npz": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/result_summary.json": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/versions.json": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/supervision/receipt.json": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/supervision/stdout": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/supervision/stderr": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/snapshot/docs/images/ode-linear/Floquet_01.png": true,
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/snapshot/docs/images/ode-linear/Floquet_02.png": true
+    },
+    "input_guard_rehash_count": 263,
+    "script_bytes_identical": true,
+    "result": {
+      "full_script_completed": true,
+      "finite_solution": true,
+      "initial_error_sampled": 6.874915747900352e-17,
+      "periodicity_endpoint_error": 1.483826252641656e-15,
+      "solution_lengths": [
+        221,
+        204,
+        224,
+        204
+      ],
+      "resolved": {
+        "periodic": [
+          [
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true
+          ]
+        ],
+        "solution": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "continuation_error_sampled": 4.1932558002521096e-14,
+      "ode_residual_max_sampled": 3.8934405689424944e-10,
+      "rng": "JAX key 0 adapter; native ambient rand stream not reproduced",
+      "scope": "Execution and sampled diagnostics only; no MATLAB numerical or visual parity claim"
+    }
+  },
+  "saved_array_names": [
+    "derivative.npy",
+    "rhs.npy",
+    "t.npy",
+    "solution.npy",
+    "initial_conditions.npy",
+    "B.npy",
+    "exponents.npy",
+    "P0.npy",
+    "PT.npy"
+  ],
+  "logm_semantics": {
+    "licensed_matlab_version": "R2025b; source inspected, not asserted 2017 implementation identity",
+    "source_condition": "Diagonal Schur factor: any real(d)<=0 and imag(d)==0. Nondiagonal: zero eigenvalue or any real(ei)<0 and imag(ei)==0. Negative real spectrum makes principal matrix logarithm undefined and returns complex nonprincipal logarithm with warning.",
+    "current_saved_evidence": "B, exponents and numericaldisplay show multipliers near -0.888934 and -1.124943 with tiny imaginary rounding. Actual PhiT/logm input was not saved. Do not infer exact warning-predicate classification from exp(TB) or cached eigenvalues.",
+    "portable_warning_candidate": "A provider wrapper could inspect actual real-Schur eigenvalues under the exact source condition, preserve SciPy logm output and emit an honest portable RuntimeWarning. Do not synthesize historical warning from saved displays or invent an imaginary threshold."
+  },
+  "stale_claims_corrected": [
+    "FLOQUET_NEXT_PACKAGE_STATIC_20261010.json claims only dense sampled P and missing10periodconstruction: superseded by qualified20261010fullsourceintegration",
+    "Prior attribution MarcusWebbJanuary2015 claim is superseded: currentRichardMikaelSlevinskyOctober2014 matchesnative",
+    "4vs2 output count is observed adapter-diagnostic difference, not proof of missing scientific work"
+  ],
+  "remaining_real_gaps": [
+    "No saved actualPhiT input/output binding for matrix-logarithm branch qualification",
+    "No fresh matched native full numerical/RNG capture; original ambientrand stream differs from JAXkey0",
+    "SciPy/NumPy matrixlog/eigen arithmetic remains provider dependency; this audit establishes no JAX-native logarithm implementation",
+    "Pixel/style differences alreadyexplicit; no full rasterparity claim"
+  ],
+  "recommendation": "Do not rerun Floquet or fabricate two warnings for count parity. Next coherent package: source-facing numeric matrix-logarithm diagnostic contract with independently captured actualPhiT and exact source condition; separate JAX matrix-logarithm migration plan if requested. Current computations/artifacts retain their historical source-bound execution qualification, not a fresh current-library wholeexample claim.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/ode-linear_Floquet.html": "26acb72aefe5b13f617ccc6d34de17a689af9cd0cdcde6c039a2b8948c839d4e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-linear/Floquet.m": "8130c6c4945070c21c2546811dfa45727769ccc8ee80b6e04e7454da7d8fcf9d",
+    "/usr/licensed/matlab-R2025b/toolbox/matlab/matfun/logm.m": "f72785db870883ee2d20bcf2f3f01e0cbb13e3764200e866bb895cf5e4a0074d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_output_mapping_20261011/committed/examples/ode-linear/floquet.py": "eee243f373667208f3e482e6468dfd77f49380041711df6b78d79439fc3684ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_output_mapping_20261011/committed/docs/examples/ode-linear/Floquet.md": "cfe1c61cd7a26d0a7159c1ea78c372cd8b412e21efa902f0119c14b3aefa4751",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_output_mapping_20261011/committed/scripts/gen_example_pages.py": "d897f406c375f9e59dab6f7ea9a8ba90ca540abb7aa2e3fcb7ddfc67ea652ed6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/snapshot/examples/ode-linear/floquet.py": "eee243f373667208f3e482e6468dfd77f49380041711df6b78d79439fc3684ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/run_full.py": "967d3b755b7ffc148a01a14dc01ad5033cc673c0bdae1068cba1fb87d88636c2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/guard.json": "c6b04a336893805972d29ae83afb30df34fe749a14edf8c720f56763f9972430",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/supervision/receipt.json": "218fa55b7da79d98c5205e18e3bec8e9429bbe06cbf118b042529d20bda97be4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/ROOT_EXECUTION_AUDIT.json": "61670a602a0457f78a5d34a3e4fb12792c47e639c6f8e7bc5831d61eb7f36f89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/result.npz": "29906ed8e543e8281c21204b4cf9834bad03bd70a0fde676f746f830097fb3fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_full_source_rendered_v2_20261010/full_cpu_v1/result_summary.json": "0158f855c36a158e0b85146fe124d1330cc1566a8e6de5eff8411df94804dc9a"
+  }
+}

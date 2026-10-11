@@ -1,0 +1,64 @@
+{
+  "audit": {
+    "head": "606f6817d3f96dc1c69e560a9759477b5e2763d2",
+    "inputs": {
+      "script": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/linalg/transient_growth.py",
+        "sha256": "1c703b4af8b498d0f5de88e46ee02ac26d9f2b1a31acbc876180538ad85cd0ad"
+      },
+      "page": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/examples/linalg/TransientGrowth.md",
+        "sha256": "b4b623d9a44586ddd8e17d2d08b161241413bcf4e1c2093429ac13d2347ed320"
+      },
+      "html": {
+        "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/linalg_TransientGrowth.html",
+        "sha256": "1a213cb790293bdbe5e177ab99daedbedba99febab6ff4cde07b096d47dafd6c"
+      },
+      "matlab": {
+        "path": "/scratch/gpfs/GILLES/mg6942/chebfun_examples/linalg/TransientGrowth.m",
+        "sha256": "d14f885792d5d28725eeb94ba1a1536c833f35c64f57516e99cd6ae46103206a"
+      }
+    },
+    "native_output_count": 4,
+    "current_output_count": 3,
+    "mapping": [
+      {
+        "native": 1,
+        "current": 1,
+        "meaning": "7x7 A display"
+      },
+      {
+        "native": 2,
+        "current": null,
+        "meaning": "Warning: Function not resolved using 6050 pts.",
+        "classification": "Native construction resolution diagnostic. Current blanket warning suppression prevents attributing its absence to a resolved Python construction."
+      },
+      {
+        "native": 3,
+        "current": 2,
+        "meaning": "Maximum energy",
+        "native_text": "358147.98785176",
+        "current_text": "358147.98785177"
+      },
+      {
+        "native": 4,
+        "current": 3,
+        "meaning": "Elapsed time",
+        "classification": "Provider/runtime dependent; unequal timings are not verified numerical faults."
+      }
+    ],
+    "source_operations": "Exact matrix, spectral 2-norm of SciPy expm(t*A) host callback, domain[0,2.5], splitting=True, e squared and public max present. Host callback is an adapter/provider limitation. 900 sites are render grid only.",
+    "qualification": "No bound retained runtime/source receipt located in scoped runtime inventory; page printed maximum alone does not qualify interpolation happiness or continuum accuracy. No numerical run performed. Warning does not itself establish scientific failure.",
+    "patch": "Remove blanket warning suppression and unused import; all remaining AST identical. No invented warning, page output, source bound, or numerical change.",
+    "next_action": "If full construction qualification is prioritized, one guarded CPU12\u201315 source-default run should record actual warnings, piece happiness/lengths/domain, coefficients, and independent expm comparisons. Existing page54s is an unbound historical estimate, not a runtime guarantee. No heavy run authorized here.",
+    "historical_stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/stdout/linalg_transient_growth.txt",
+      "sha256": "dcda3cff8a9d059cc80f5d31852df2415874aeb0c4684ef3677efa7c1eaaedd5",
+      "text": "A =\n  Columns 1 through 6\n          -1           0           0           0           0           0\n           0          -1         -30         400           0           0\n          -2           0          -1           0           0           0\n           5          -1           5          -1           0           0\n          11           1          25         -10          -1           1\n         200           0           0        -150        -100          -1\n           1           0           0           0           0           0\n  Column 7\n        -625\n         250\n          30\n         200\n        -200\n       -1000\n          -1\nMaximum energy = 358147.98785177\nElapsed time is 54.072340 seconds.\n",
+      "qualification": "Historical artifact only; no current bound numerical oracle/guard receipt. Inventory agent independently confirms no current qualification packet known."
+    }
+  },
+  "verified_bindings": 3,
+  "delivery_sha256": "f563ce933fd39e260656f33deb3291f48f495d0ac2186662eeebb2bfaeb6ee31",
+  "scope": "Remove blanket warning suppression; no new scientific execution/output qualification. Existing missing native warning remains observational until actual current construction is qualified."
+}

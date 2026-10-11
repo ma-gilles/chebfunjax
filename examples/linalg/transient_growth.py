@@ -14,7 +14,6 @@ matplotlib.use("Agg")
 import os
 import sys
 import time
-import warnings
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -43,7 +42,6 @@ A = np.array([
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
     t0 = time.time()
 
     # MATLAB's display of A (format long, 7 columns wrap at 6).
