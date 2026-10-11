@@ -55,12 +55,12 @@ class TestChebfun2Guide:
         y2 = Chebfun2.from_function(lambda x, y: y + 0 * x, domain=d)
         g = 2.0 + (0.25 + x2**2 * y2 + y2**2).compose(jnp.cos)
         f = 1.0 / g
-        xs = np.linspace(-2.0, 3.0, 100)
-        ys = np.linspace(-4.0, 4.0, 100)
+        xs = np.asarray(source_grid(-2., 3., 100))
+        ys = np.asarray(source_grid(-4., 4., 100))
         X, Y = np.meshgrid(xs, ys)
         op = 1.0 / (2.0 + np.cos(0.25 + X**2 * Y + Y**2))
-        err = float(np.max(np.abs(
-            np.asarray(f(jnp.asarray(X), jnp.asarray(Y))) - op)))
+        err = float(jnp.linalg.norm(
+            f(jnp.asarray(X), jnp.asarray(Y)) - jnp.asarray(op), ord=jnp.inf))
         assert err < 200 * TOL
 
     def test_pass3to5_complex_handle_ctor(self):
@@ -137,18 +137,18 @@ class TestChebfun2Guide:
     def test_pass15to16_runge_mean(self):
         runge = Chebfun2.from_function(
             lambda x, y: 1.0 / (0.01 + x**2 + y**2))
-        assert abs(float(runge.mean2()) - 3.796119578934828) < 1e4 * TOL
+        assert abs(float(runge.mean2()) - 3.796119578934828) < TOL
         m = runge.mean(dim=1)
-        mm = m.sum()
-        assert abs(float(mm) / 2.0
-                   - 3.796119578934828) < 1e4 * TOL
+        mm = m.mean()
+        assert abs(float(mm)
+                   - 3.796119578934828) < TOL
 
     def test_pass17_cumsum2(self):
         f = Chebfun2.from_function(
             lambda x, y: jnp.exp(-(x**2 + 3 * x * y + y**2)))
         c1 = f.cumsum(dim=1).cumsum(dim=2)
         c2 = f.cumsum2()
-        assert _maxdiff2(c1, c2) < TOL
+        assert float((c1 - c2).norm()) < TOL
 
     def test_pass18_curve_restriction(self):
         f = Chebfun2.from_function(
@@ -174,7 +174,7 @@ class TestChebfun2Guide:
         G = Chebfun2v([f.approx, g.approx])
         plaw = abs(2 * F.norm()**2 + 2 * G.norm()**2
                    - ((F + G).norm()**2 + (F - G).norm()**2))
-        assert plaw < 1e2 * TOL
+        assert plaw < TOL
 
     def test_pass22_gradient_line_integral(self):
         f = Chebfun2.from_function(

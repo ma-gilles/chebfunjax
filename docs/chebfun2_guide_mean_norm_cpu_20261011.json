@@ -1,0 +1,33 @@
+{
+  "status": "original native thresholds restored and pass",
+  "source": "tests/chebfun2/test_guide.m, commit7574c77, clauses15,16,21",
+  "changes": [
+    "Runge mean and nested means use native1000eps rather than inherited10000000eps.",
+    "Parallelogram law uses native1000eps rather than inherited100000eps.",
+    "Nested means now call public mean directly. No library change."
+  ],
+  "gate": {
+    "original_handle": 23637,
+    "cases": 2,
+    "native_clauses": 3,
+    "terminal": 0,
+    "inputs_rehashed": 320,
+    "uncensored": true,
+    "survivors": [],
+    "peak_summed_rss_kib": 1440532,
+    "wall_seconds": 25.039058486931026
+  },
+  "warnings": [
+    "Inherited Chebfun2v.norm NumPy where evaluates unused singular division for k=1; divide-by-zero RuntimeWarning retained. Numerical assertions pass; warning/JAX migration separate."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_mean_norm_20261011/gate/guard.json": "da85b5149592ed2caf169a5f78b16d87300749082bd13d83bda50179a49dc5f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_mean_norm_20261011/gate/supervision/receipt.json": "d0f98e91cc6579ae98f7a6dac9962d1df3c90fb3345418e1e9f12c483f627fd7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_mean_norm_20261011/gate/junit.xml": "b8aa772c4cb3a22a05480003694418aa790bcdff85f344fea3a0ebd0c572c70a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_mean_norm_20261011/gate/supervision/stdout": "778430e217d69d4eac2f69491110e1e123d7ca3180f00359d859c8c0032c9d32",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_mean_norm_20261011/snapshot/tests/test_matlab_port/chebfun2/test_guide_matlab.py": "b3e604c0a2658d0de2401886d118a065e8b710fc3b526cec645dbba8997ea11b"
+  },
+  "limits": [
+    "Other guide sampled norms/domain/parser adaptations remain unqualified at exact native contracts."
+  ]
+}

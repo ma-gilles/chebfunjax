@@ -1,0 +1,28 @@
+{
+  "status": "original native norm predicates restored and pass",
+  "source": "tests/chebfun2/test_guide.m, commit7574c77, clauses2,17",
+  "changes": [
+    "Clause2 uses source linspace grids and matrix infinity norm rather than elementwise max. Bound remains200*1000eps.",
+    "Clause17 uses continuous function norm rather than maximum on61x61sample grid. Bound remains1000eps. No library changes."
+  ],
+  "gate": {
+    "original_handle": 64303,
+    "cases": 2,
+    "native_clauses": 2,
+    "terminal": 0,
+    "inputs_rehashed": 320,
+    "uncensored": true,
+    "survivors": [],
+    "peak_summed_rss_kib": 2144052,
+    "wall_seconds": 46.46023243991658
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_matrix_cumsum_20261011/gate/guard.json": "d62f2a807ae5a30dbf477d5996a8c1486897d1391f359bfa19ff820608b79395",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_matrix_cumsum_20261011/gate/supervision/receipt.json": "433688109654d692c123437d368515ad0676642f1cfa27c5f7e3c8f62fbd517d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_matrix_cumsum_20261011/gate/junit.xml": "387a441a4759a987ac56c9c1433d56951c7ae86439be6b70c740416bbcf41321",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_guide_matrix_cumsum_20261011/snapshot/tests/test_matlab_port/chebfun2/test_guide_matlab.py": "9fb136bf413f6815e9c9f40201a8425120fe98fdd7c2ec4d9e0a3cbd5650c934"
+  },
+  "limits": [
+    "Composition clauses13/14 still use restricted domain and sampled norms; string constructor clauses12 and coordinate arithmetic in23 retain adaptations. Full guide parity remains open."
+  ]
+}
