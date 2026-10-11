@@ -1543,76 +1543,40 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/plus.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, (int, float, complex)):
-            # Add scalar to DC coefficient (index [0, n//2, p//2])
-            new_coeffs = self.coeffs
-            m, n, p = self.shape
-            dc_idx_n = n // 2
-            dc_idx_p = p // 2
-            new_coeffs = new_coeffs.at[0, dc_idx_n, dc_idx_p].add(complex(other))
-            return Ballfun(coeffs=new_coeffs, is_real=self.is_real, domain=self.domain)
+        from chebfunjax.ballfun._integrals import coefficient_is_real
+
+        if not isinstance(other, (Ballfun, int, float, complex)):
+            return NotImplemented
+        if self.isempty():
+            if isinstance(other, Ballfun):
+                return other
+            # Native empty + scalar calls the ordinary scalar constructor.
+            return Ballfun.from_function(lambda x, y, z: other + 0*x)
+        if isinstance(other, Ballfun) and other.isempty():
+            return self
+
         if isinstance(other, Ballfun):
-            # Pad to common size
-            c1, c2 = self.coeffs, other.coeffs
-            m1, n1, p1 = c1.shape
-            m2, n2, p2 = c2.shape
-            m = max(m1, m2)
-            n = max(n1, n2)
-            p = max(p1, p2)
-            # Make m odd, n/p even
-            m = m + 1 - m % 2
-            n = n + n % 2
-            p = max(4, p + p % 2)
+            shape = tuple(max(a, b) for a, b in zip(self.shape, other.shape))
 
-            def _pad_coeffs(c: jax.Array, target_m: int, target_n: int, target_p: int) -> jax.Array:
-                cm, cn, cp = c.shape
-                # Pad m (append zeros at end)
-                if cm < target_m:
-                    c = jnp.concatenate(
-                        [c, jnp.zeros((target_m - cm, cn, cp), dtype=c.dtype)], axis=0
-                    )
-                # Pad n (align the k = 0 Fourier mode: it sits at index
-                # size//2 for BOTH parities, so the left pad is the
-                # difference of the two k=0 positions -- dn//2 misaligns
-                # odd-length inputs, e.g. simplify-trimmed tensors)
-                if cn < target_n:
-                    dn = target_n - cn
-                    left = target_n // 2 - cn // 2
-                    right = dn - left
-                    c = jnp.concatenate(
-                        [
-                            jnp.zeros(
-                                (target_m, left, target_p if cp == target_p else cp), dtype=c.dtype
-                            ),
-                            c,
-                            jnp.zeros(
-                                (target_m, right, target_p if cp == target_p else cp), dtype=c.dtype
-                            ),
-                        ],
-                        axis=1,
-                    )
-                # Pad p (insert zeros symmetrically in Fourier)
-                cp_new = c.shape[2]
-                if cp_new < target_p:
-                    dp = target_p - cp_new
-                    low = target_p // 2 - cp_new // 2
-                    high = dp - low
-                    c = jnp.concatenate(
-                        [
-                            jnp.zeros((target_m, target_n, low), dtype=c.dtype),
-                            c,
-                            jnp.zeros((target_m, target_n, high), dtype=c.dtype),
-                        ],
-                        axis=2,
-                    )
-                return c
+            def pad(c):
+                m, n, p = c.shape
+                left_n = shape[1] // 2 - n // 2
+                left_p = shape[2] // 2 - p // 2
+                return jnp.pad(c, ((0, shape[0] - m),
+                    (left_n, shape[1] - n - left_n),
+                    (left_p, shape[2] - p - left_p)))
 
-            c1_pad = _pad_coeffs(c1, m, n, p)
-            c2_pad = _pad_coeffs(c2, m, n, p)
-            new_coeffs = c1_pad + c2_pad
-            new_is_real = self.is_real and other.is_real
-            return Ballfun(coeffs=new_coeffs, is_real=new_is_real, domain=self.domain)
-        return NotImplemented
+            new_coeffs = pad(self.coeffs) + pad(other.coeffs)
+        else:
+            _, n, p = self.shape
+            new_coeffs = self.coeffs.at[0, n // 2, p // 2].add(other)
+        # Native plus reconstructs through the coefficient constructor, whose
+        # realness check includes cancellation and the even Nyquist modes.
+        # Under tracing the static metadata cannot depend on array values;
+        # retaining complex evaluation preserves every computed coefficient.
+        new_is_real = (False if isinstance(new_coeffs, jax.core.Tracer)
+                       else bool(coefficient_is_real(new_coeffs)))
+        return Ballfun(coeffs=new_coeffs, is_real=new_is_real, domain=self.domain)
 
     def __radd__(self, other: "float | int") -> "Ballfun":
         return self.__add__(other)

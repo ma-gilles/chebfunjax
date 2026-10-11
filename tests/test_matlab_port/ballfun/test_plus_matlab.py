@@ -55,3 +55,46 @@ class TestNativePlusPredicates:
         f = Ballfun.from_function(lambda x, y, z: 0) + 1
         exact = Ballfun.from_function(lambda x, y, z: 1)
         assert (f - exact).norm() < 1e4*EPS
+
+
+class TestNativePlusEdgeContracts:
+    # Direct source contracts from @ballfun/plus.m and constructor.m.
+    def test_exact_maximum_shape(self):
+        a = jnp.zeros((2, 3, 3), dtype=jnp.complex128).at[0, 1, 1].set(1)
+        b = jnp.zeros((1, 1, 1), dtype=jnp.complex128).at[0, 0, 0].set(2)
+        result = Ballfun.from_coeffs(a) + Ballfun.from_coeffs(b)
+        assert result.shape == (2, 3, 3)
+        assert jnp.array_equal(result.coeffs, a.at[0, 1, 1].add(2))
+
+    def test_complex_scalar(self):
+        f = Ballfun.from_coeffs(jnp.ones((1, 1, 1)))
+        result = f + 2j
+        assert not result.is_real
+        assert abs(result.feval(0., 0., 0.) - (1+2j)) < 1e4*EPS
+
+    def test_complex_cancellation(self):
+        f = Ballfun.from_coeffs(jnp.full((1, 1, 1), 1+2j), is_real=False)
+        g = Ballfun.from_coeffs(jnp.full((1, 1, 1), 2-2j), is_real=False)
+        assert (f + g).is_real
+        assert (f - 2j).is_real
+
+    def test_empty_identity(self):
+        e = Ballfun.empty()
+        f = Ballfun.from_coeffs(jnp.ones((1, 1, 1)))
+        assert e + f is f
+        assert f + e is f
+        assert (e + e).isempty()
+        assert abs((e + 2j).feval(0., 0., 0.) - 2j) < 1e4*EPS
+        assert abs((3 + e).feval(0., 0., 0.) - 3) < 1e4*EPS
+        small = e + 2e-10j
+        assert not small.is_real
+        assert abs(small.feval(0., 0., 0.) - 2e-10j) < 1e4*EPS
+
+
+    def test_compiled_complex_evaluation(self):
+        import jax
+        def evaluate(c):
+            f = Ballfun.from_coeffs(c)
+            return (f + 2j).feval(0., 0., 0.)
+        c = jnp.ones((1, 1, 1), dtype=jnp.complex128)
+        assert abs(jax.jit(evaluate)(c) - (1+2j)) < 1e4*EPS

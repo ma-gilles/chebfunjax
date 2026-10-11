@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun addition source contracts fixed (2026-10-10)
+
+Addition now retains native maximum coefficient dimensions, handles empty
+identities and scalar construction, and preserves complex values while
+recognizing eager complex cancellation. Four baseline failures are fixed;
+17 cases pass, plus a focused final empty-constructor check. Under JIT,
+static realness metadata conservatively retains complex evaluation.
+Evidence: docs/ballfun_plus_contract_cpu_20261010.json.
+
 ## Original Ballfun arithmetic predicates restored (2026-10-10)
 
 Twelve CPU cases pass, including all ten native plus/times/mtimes predicates

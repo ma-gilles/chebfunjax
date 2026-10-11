@@ -1,0 +1,63 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@ballfun/plus.m and constructor.m coefficient realness and ordinary scalar construction",
+  "change": "Preserve exact componentwise maximum coefficient dimensions and centered Fourier modes. Handle empty identity and scalar construction. Recompute native coefficient realness after eager addition, including complex scalar and cancellation. All new arithmetic is JAX.",
+  "results": "Baseline four edge-contract failures and 12 passes. Fixed candidate17 passes including all original arithmetic assertions and compiled complex evaluation. Final candidate changes only empty-scalar construction to the source ordinary constructor; focused expanded empty test passes2.42s, including2e-10j input. Prior17-case gate reused for unchanged paths.",
+  "evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_plus_contract_20261010/baseline",
+      "inputs_rehashed": 348,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 47.37572631472722,
+        "sampled_peak_summed_rss_kib": 2883560,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "a322a08eae88b894aefa46438121a79b18e04be9ff47713cba0d72f1a5e2ff3a",
+        "junit.xml": "221e3fa02a782b63caa2a5ce1f3d4cd8aeb802c4271289e2d8ef2b8b8bb62456",
+        "supervision/receipt.json": "6d43dd050c42dea739f0bff6384c55a50e7c411ad5d060b8d7843c50246a5122",
+        "supervision/stdout": "2bef5a775434f027ce5d1810261b48834295e0e63e02787c5e985720f0002b10"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_plus_contract_fixed_20261010/gate",
+      "inputs_rehashed": 348,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 46.80660993931815,
+        "sampled_peak_summed_rss_kib": 2816360,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "8922504a75182270c84a7450e614f9ec13c70456fce9fa0deddf71be1951f9ed",
+        "junit.xml": "82377eae11d511b7b26a4e9ffed8bab865c34cb4fd6912f8617f67fd55107803",
+        "supervision/receipt.json": "e8168d57627494b01d5bafbfb3eff4d5d358c750a2dc1bceaeca293218499261",
+        "supervision/stdout": "203b74c409e7709823a42b8d323fa5a8675ed617039c181dec343f8be67c2e4d"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_plus_contract_fixed_v2_20261010/gate",
+      "inputs_rehashed": 348,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 9.23946859082207,
+        "sampled_peak_summed_rss_kib": 665356,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "f46d4466b0620877cc54b0d8e792b746fd8483b10b9526487611b3144c05735f",
+        "junit.xml": "8e611e754ec8d89ceaf45e93f53bb4da14ef0e07fcabba70376506c9ad2ca924",
+        "supervision/receipt.json": "6b80f6a75c4d271cba7e91c21f783edb439f216b524ea10ad4a8b99206d6597e",
+        "supervision/stdout": "37631e0b5a50039e1546726f40baabd94c0b1688402de51d8795f0368a6d428b"
+      }
+    }
+  ],
+  "scope": "JIT retains complex evaluation because Equinox realness metadata is static and cannot depend on traced coefficients; eager native flag verified. Full main suite, all constructor contracts, multiplication source dimensions and full example requalification remain open."
+}
