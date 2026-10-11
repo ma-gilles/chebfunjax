@@ -1,0 +1,124 @@
+{
+  "native_predicates": 10,
+  "pytest": "10 passed in55.44s",
+  "sampled_peak_summed_rss_kib": 900452,
+  "values": [
+    {
+      "method": "erf",
+      "array": false,
+      "error": 1.9139615530883696e-16,
+      "bound": 2.220446049250313e-15,
+      "vscale_h": 0.7659613425401111,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "method": "erfinv",
+      "array": false,
+      "error": 3.070618635274892e-16,
+      "bound": 2.220446049250313e-15,
+      "vscale_h": 0.9970461083504316,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "method": "erfc",
+      "array": false,
+      "error": 0.0,
+      "bound": 2.220446049250313e-15,
+      "vscale_h": 1.7659613425401115,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "method": "erfcx",
+      "array": false,
+      "error": 8.996736815131352e-16,
+      "bound": 2.220446049250313e-15,
+      "vscale_h": 3.5850364106020756,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "method": "erfcinv",
+      "array": false,
+      "error": 3.8587954214862637e-16,
+      "bound": 2.220446049250313e-15,
+      "vscale_h": 0.9970461083504317,
+      "shape": [
+        100
+      ]
+    },
+    {
+      "method": "erf",
+      "array": true,
+      "error": 3.325077122509251e-16,
+      "bound": 1.774860001906468e-15,
+      "vscale_h": 0.7993258843220767,
+      "shape": [
+        100,
+        3
+      ]
+    },
+    {
+      "method": "erfinv",
+      "array": true,
+      "error": 6.467211401776245e-16,
+      "bound": 2.620126267796249e-15,
+      "vscale_h": 1.1799999683310836,
+      "shape": [
+        100,
+        3
+      ]
+    },
+    {
+      "method": "erfc",
+      "array": true,
+      "error": 4.055519963491231e-16,
+      "bound": 3.9212218861719695e-15,
+      "vscale_h": 1.7659613425401115,
+      "shape": [
+        100,
+        3
+      ]
+    },
+    {
+      "method": "erfcx",
+      "array": true,
+      "error": 1.0709733126302458e-15,
+      "bound": 7.960379934339902e-15,
+      "vscale_h": 3.5850364106020756,
+      "shape": [
+        100,
+        3
+      ]
+    },
+    {
+      "method": "erfcinv",
+      "array": true,
+      "error": 7.97163180723956e-16,
+      "bound": 2.620126267796249e-15,
+      "vscale_h": 1.1799999683310836,
+      "shape": [
+        100,
+        3
+      ]
+    }
+  ],
+  "candidate_equals_executed_executable_AST": true,
+  "library_changes": 0,
+  "supplemental_methods_retained": 6,
+  "supplemental_rerun": false,
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/erfX_native10_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "5358a30b12b9b5bc2dba9fed8b05faa02de73826b7ee103069da828593f611f0",
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/erfX_native10_20261011/erfX_native10_delivery_v1.zip",
+    "sha256": "3d26abbe88538bdc56f01f63754aff3005468067779912cfea8262abfb21ec46",
+    "entries": 32
+  },
+  "publication_review": "Root matched source public constructors, erfcinv(f+1), constructed differences, scalar and matrix infinity norms, and original bounds. Import sorting/formatting preserves executable AST. No library changes."
+}
