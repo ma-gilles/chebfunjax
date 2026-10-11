@@ -1,0 +1,55 @@
+{
+  "status": "Column-by-row multiplication forwards to existing native outer-product backend",
+  "source_head": "4d28f3dfddb32fe1893299bdf45ac3854da0d3fa",
+  "source_reference": "@chebfun/mtimes.m and @chebfun2/outerProduct.m, Chebfun7574c77",
+  "change": "Replace stale unsupported column*row branch with same mtimes factor-preserving implementation used by @. Same-orientation scaling and inner-product paths unchanged.",
+  "original_session": 24923,
+  "cases": [
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_row_times_column_is_inner_product",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_ctranspose_times_column_conjugates",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_same_orientation_is_pointwise",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_column_times_row_outer_product[domain0-False]",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_column_times_row_outer_product[domain0-True]",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_column_times_row_outer_product[domain1-False]",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_column_times_row_outer_product[domain1-True]",
+    "tests.test_chebfun1d.test_chebfun_transpose.TestMtimesDispatch::test_scalar_scaling_preserves_orientation",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[0-0]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[0-1]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[0-2]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[0-3]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[1-0]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[1-1]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[1-2]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[1-3]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[2-0]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[2-1]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[2-2]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[2-3]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[3-0]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[3-1]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[3-2]",
+    "tests.test_matlab_port.chebfun.test_mtimes_matlab::test_source_64_79[3-3]"
+  ],
+  "unique_case_count": 24,
+  "native_predicates": "Original test_mtimes.m64\u201379, all16 unchanged bounds; eight orientation/API controls including four real/complex/different-domain outer cases.",
+  "wall_seconds": 34.722308959811926,
+  "peak_rss_kib": 1893668,
+  "inputs_stable": true,
+  "censored": null,
+  "survivors": [],
+  "guard_count": 286,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_outer_multiply_v2_20261011/guard.json": "b261ee07d1e10d7b2a33fd1248a8032c480c0df6d971be2577d10f633e7c5f07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_outer_multiply_v2_20261011/supervision/receipt.json": "708bee00928eae62480df4343cb48d4b49231775701a33ffaaedbe4925625941",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_outer_multiply_v2_20261011/junit.xml": "341008be670fb93a2772fa16fb7bba20aad5a257e528dfd84c968882e476040c"
+  },
+  "preserved_failure": {
+    "original_session": 96406,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_outer_multiply_20261011",
+    "cause": "Collection failed because isolated snapshot omitted import-time logical_source_matlab.json fixture; no test results. Fresh successor supplies fixture; numerical source/test code unchanged."
+  },
+  "limits": [
+    "Piecewise outer factors still unsupported by existing separable storage; this does not qualify that branch.",
+    "No full current-head CI success inferred."
+  ]
+}

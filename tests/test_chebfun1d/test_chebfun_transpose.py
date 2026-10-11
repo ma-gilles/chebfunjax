@@ -112,11 +112,21 @@ class TestMtimesDispatch:
         assert prod.is_transposed
         assert float(jnp.max(jnp.abs(prod(XS) - (f(XS) * g(XS))))) < 1e3 * EPS
 
-    def test_column_times_row_unsupported(self):
-        f = cj.chebfun(jnp.sin)
-        g = cj.chebfun(jnp.cos)
-        with pytest.raises(NotImplementedError):
-            _ = f * g.T
+    @pytest.mark.parametrize("complex_input", [False, True])
+    @pytest.mark.parametrize("domain", [(-1., 1.), (0., 2.)])
+    def test_column_times_row_outer_product(self, complex_input, domain):
+        # @chebfun2/outerProduct.m keeps f(y) and g(x), without conjugating
+        # a plain transpose. Test different physical domains on the two axes.
+        factor = 1j if complex_input else 1.
+        f = cj.chebfun(lambda y: (1 + factor*y), domain=domain)
+        g = cj.chebfun(jnp.cos, domain=(-2., 3.))
+        result = f * g.T
+        x = jnp.asarray([-1.5, 0., 2.5])
+        y = jnp.linspace(domain[0], domain[1], 3)
+        expected = (1 + factor*y) * jnp.cos(x)
+        np.testing.assert_allclose(result(x, y), expected, rtol=0, atol=32*EPS)
+        np.testing.assert_array_equal(result(x, y), (f @ g.T)(x, y))
+        assert result.domain == (-2., 3., *domain)
 
     def test_scalar_scaling_preserves_orientation(self):
         f = _col().T

@@ -2951,8 +2951,8 @@ class Chebfun(eqx.Module):
           MATLAB computes ``innerProduct(conj(f), g)`` to undo the
           conjugation that ``innerProduct`` applies to its first factor; the
           equivalent here is ``conj(f).inner(g)``.
-        - column * row: the rank-1 outer product (a Chebfun2), which
-          chebfunjax does not yet provide.
+        - column * row: the outer product (a Chebfun2), using the same
+          factor-preserving implementation as ``@``.
 
         Provenance
         ----------
@@ -2999,10 +2999,8 @@ class Chebfun(eqx.Module):
                 # its first argument, so conj(f).inner(g) == int f*g.
                 return self.conj().inner(other)
             # Column * row -> rank-1 outer product (a Chebfun2).
-            raise NotImplementedError(
-                "column * row (rank-1 outer product / Chebfun2) is not "
-                "supported in chebfunjax."
-            )
+            from .mtimes import mtimes
+            return mtimes(self, other)
         # If other is not a scalar/array, defer to other's __rmul__.
         # np.float64 subclasses float and so passed already, but
         # np.int64 and a 0-d np.ndarray did not, and with
