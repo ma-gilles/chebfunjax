@@ -54,7 +54,7 @@ def run():
     xs = np.linspace(-8, 8, 1200)
     fig, ax = plt.subplots(figsize=(6.8, 4.0))
     ax.plot(xs, np.asarray(g(jnp.asarray(xs))), lw=2)
-    ax.plot(s, np.asarray(g(jnp.asarray(s))), ".r", ms=12)
+    ax.plot(s, np.asarray(g(jnp.asarray(s))), ".r", ms=16)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "HermiteQuad_01.png"), size=(600, 270))
@@ -68,18 +68,16 @@ def run():
         In = float(jnp.sum(h * g(sg)))              # trapezoidal sum
         print(f"{n:3d} {In - exact:19.15f}")
 
-    # tic, [s,w] = hermpts(n); toc  for n = 1000, 10000, 100000.
-    # Our hermpts is Golub-Welsch only (dense O(n^3) eigh); Chebfun's
-    # GLR/ASY fast paths for large n are a library gap, so n = 100000
-    # (an 80 GB dense Jacobi matrix) is not attempted.
-    for n in (1000, 10000):
+    # Native default fast Hermite method at all three source sizes.
+    for n in (1000, 10000, 100000):
         t0 = time.perf_counter()
         s, w = hermpts(n)
         s.block_until_ready()
+        w.block_until_ready()
         print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
 
     n = 10000
-    s = np.asarray(s)                               # s = hermpts(n)
+    s = np.asarray(hermpts(n)[0])
     tail_points = s[np.exp(-s ** 2) < np.finfo(float).eps]
     print("ratio =")
     print(f"    {len(tail_points) / n:.4f}")

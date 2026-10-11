@@ -76,7 +76,7 @@ end
   9   0.000000000000174
  10  -0.000000000000002
  11   0.000000000000001
- 12   0.000000000000000
+ 12  -0.000000000000000
 ```
 
 All you need are 11 or 12 points to get full precision! And since $g$ is even, you only need half as many function evaluations as that -- an effect that carries over to many applications where the integrand may be expensive to evaluate but known to be even.
@@ -110,12 +110,12 @@ end
     n        error
   3   0.042363958855155
   6  -0.000513739182282
-  9   0.000007261885987
+  9   0.000007261885988
  12  -0.000000082766157
  15   0.000000000965252
  18  -0.000000000011277
  21   0.000000000000118
- 24  -0.000000000000002
+ 24  -0.000000000000001
 ```
 
 Beautiful convergence again! -- but Hermite is about twice as fast.
@@ -131,10 +131,9 @@ tic, [s,w]= hermpts(100000); toc
 ```
 
 ```text
-Elapsed time is 0.537443 seconds.
-Elapsed time is 136.055978 seconds.
-ratio =
-    0.9460
+Elapsed time is 3.082495 seconds.
+Elapsed time is 2.996372 seconds.
+Elapsed time is 2.995513 seconds.
 ```
 
 This raises questions. Most of the points in these large-$n$ formulas correspond to values of $x$ where $\exp(-x^2)$ is very small. For example, with $n = 10000$, here is the fraction of quadrature nodes for which $\exp(-x^2)$ is smaller than machine precision:
@@ -148,7 +147,8 @@ ratio = length(tail_points)/n
 ```
 
 ```text
-
+ratio =
+    0.9460
 ```
 
 Perhaps there are applications where Hermite quadrature in such a regime makes sense, but we suspect they are rare. Indeed, when $n$ is large, Townsend et al. propose to throw away most of the quadrature points; they call this process "subsampling".
