@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `1108b680` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `f869964d` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -30,16 +30,20 @@ observed sample differences are at most1.28e-13. Five adapter tests pass.
 The page has17 of23 output slots verified, six pending; raster/font parity
 remains incomplete. See docs/dde_vanishing_delay_cpu_20261011.json.
 
-The restored native REAL/IMAG predicates expose two Tech2 REAL failures:
-construction produces16 coefficients versus native15. IMAG8 passes.
-Native REAL8 passes; identical-input chopping agrees with literal source.
-Split-component FFT rounding is implicated, and a canonical complex FFT
-candidate is under qualification. Do not pad comparisons or change REAL.
+The next reviewed transform correction fixes the two Tech2 REAL construction
+failures without changing REAL or chopping. A per-column canonical conjugate
+orientation uses one complex IFFT, preserving exact conjugacy while restoring
+the native length15 on the exposed input. This is an explicit backend numerical
+adapter, not a claim of general bitwise MATLAB FFT parity. All94 checks pass:
+REAL8/IMAG8, strict singfun cancellation, transverse JVPs, independent columns,
+CONJ4, SIGN8 and native vals2coeffs8. The first discriminator's two test-file
+post-run guard changes are preserved separately; three qualification gates
+have clean guards. See docs/canonical_complex_dct_cpu_20261011.json.
 
-CI ac91b56c has15 successful jobs and9 running, with no failures at the latest
+CI ac91b56c has19 successful jobs and5 running, with no failures at the latest
 check. Current main still needs its complete CI result. Routine work continues
-on native TIMES predicates and missing gallery3 functions; numerical work owns
-the transform correction. All runtime validation is CPU only.
+on native TIMES predicates and missing gallery3 functions; numerical work next
+addresses DDE slot19. All runtime validation is CPU only.
 
 The twelve interrupted scripts have been reconciled against current hashes:
 ten have reviewed source replacements (including a separately qualified

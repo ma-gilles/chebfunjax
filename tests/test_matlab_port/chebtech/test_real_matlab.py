@@ -1,21 +1,11 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_real.m (Fable 5).
+"""Source coefficient predicates for Chebfun tests/chebtech/test_real.m.
 
-Chebtech now provides a ``real()`` method and represents complex-valued
-functions (scalar and array-valued) via ``from_function``, so the MATLAB
-assertions are ported as real checks against direct construction.
-
-MATLAB ``norm(h.coeffs - g.coeffs, inf)`` -> the inf-norm of the coefficient
-difference after zero-padding to a common length.
-
-FIXED (Fable 5): ``vals2coeffs`` now mirrors MATLAB's purely-imaginary branch
-(``coeffs = 1i*real(ifft(imag(tmp)))``), so a purely imaginary construction has
-a bit-exactly-zero real part and ``real()`` collapses the all-zero result to a
-length-1 constant on Chebtech2 as well.  Passes 3 and 4 hold on both techs.
-
-Provenance
-----------
-MATLAB source : tests/chebtech/test_real.m
-Chebfun commit: 7574c77
+Chebfun commit 7574c77. All eight native predicates are runnable: new literal
+coefficient comparisons cover source clauses 1/2 for both tech classes, and
+the existing zero-result checks cover clauses 3/4. Historical padded probes
+remain supplemental. REAL uses direct coefficient shapes; IMAG explicitly
+prolongs the result to the reference length. Native array comparisons use
+the matrix infinity norm and preserve the original vscale/epsilon bounds.
 """
 
 from __future__ import annotations
@@ -27,6 +17,7 @@ import pytest
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
+
 
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
@@ -56,14 +47,10 @@ class TestChebtechReal:
     def test_real_array(self, Tech):
         # pass(n, 2): real([exp(1i*x)+1i*sin(x), -exp(1i*x)]) == [cos(x), -real(exp(1i*x))].
         f = Tech.from_function(
-            lambda x: jnp.stack(
-                [jnp.exp(1j * x) + 1j * jnp.sin(x), -jnp.exp(1j * x)], axis=-1
-            )
+            lambda x: jnp.stack([jnp.exp(1j * x) + 1j * jnp.sin(x), -jnp.exp(1j * x)], axis=-1)
         )
         g = Tech.from_function(
-            lambda x: jnp.stack(
-                [jnp.cos(x), -jnp.real(jnp.exp(1j * x))], axis=-1
-            )
+            lambda x: jnp.stack([jnp.cos(x), -jnp.real(jnp.exp(1j * x))], axis=-1)
         )
         h = f.real()
         assert _coeff_ninf_diff(h.coeffs, g.coeffs) < 10 * h.vscale * EPS
@@ -85,6 +72,51 @@ class TestChebtechReal:
             lambda x: 1j * jnp.stack([jnp.cos(x), jnp.sin(x), jnp.exp(x)], axis=-1)
         )
         g = f.real()
-        assert g.coeffs.shape == (1, 3) and bool(
-            jnp.all(jnp.asarray(g.coeffs) == 0)
+        assert g.coeffs.shape == (1, 3) and bool(jnp.all(jnp.asarray(g.coeffs) == 0))
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+@pytest.mark.parametrize("array", [False, True])
+def test_native_tech_real_literal_coefficients(Tech, array):
+    """Native1/2×two techclasses; existingzeroresult methods cover3/4."""
+    if array:
+        f = Tech.from_function(
+            lambda x: jnp.stack((jnp.exp(1j * x) + 1j * jnp.sin(x), -jnp.exp(1j * x)), axis=-1)
         )
+        g = Tech.from_function(
+            lambda x: jnp.stack((jnp.cos(x), -jnp.real(jnp.exp(1j * x))), axis=-1)
+        )
+    else:
+        f = Tech.from_function(lambda x: jnp.exp(1j * x) + 1j * jnp.sin(x))
+        g = Tech.from_function(lambda x: jnp.cos(x))
+    h = f.real()
+    before_shape = h.coeffs.shape
+    # REAL source uses direct coefficient shapes without prolongation.
+    print(
+        {
+            "native_type": Tech.__name__,
+            "component": "real",
+            "array": array,
+            "input_shape": list(f.coeffs.shape),
+            "unprolonged_shape": list(before_shape),
+            "actual_shape": list(h.coeffs.shape),
+            "reference_shape": list(g.coeffs.shape),
+        },
+        flush=True,
+    )
+    assert h.coeffs.shape == g.coeffs.shape
+    error = float(jnp.linalg.norm(h.coeffs - g.coeffs, ord=jnp.inf))
+    bound = (
+        10 * float(jnp.max(jnp.asarray(h.vscale) * EPS)) if array else 10 * float(h.vscale) * EPS
+    )
+    print(
+        {
+            "native_type": Tech.__name__,
+            "component": "real",
+            "array": array,
+            "error": error,
+            "bound": bound,
+        },
+        flush=True,
+    )
+    assert error < bound

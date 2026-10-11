@@ -41,12 +41,27 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
         return values
     tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
     if jnp.iscomplexobj(values):
-        # The cosine transform is real-linear. Two real FFTs preserve
-        # conjugacy exactly; a general complex FFT can mix roundoff between
-        # components and violate the source's strict cancellation predicate.
-        # This is a numerical adaptation of @chebtech2/vals2coeffs.m's IFFT.
-        coeffs = (jnp.real(jnp.fft.ifft(jnp.real(tmp), axis=0))
-                  + 1j*jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0)))
+        # DCT-I has a real matrix. Canonicalize each conjugate pair to
+        # one FFT input so backend roundoff preserves exact conjugacy.
+        # This is a numerical adapter of the source general-complex IFFT,
+        # not a claim that MATLAB uses this orientation convention.
+        imaginary = jnp.imag(values)
+        first = jnp.argmax(imaginary != 0, axis=0, keepdims=True)
+        negative = jnp.take_along_axis(imaginary, first, axis=0)[0] < 0
+        canonical = jnp.where(negative, jnp.conj(tmp), tmp)
+        pure_imaginary = jnp.all(jnp.real(values) == 0, axis=0)
+        pure_real = jnp.all(imaginary == 0, axis=0)
+        # Rotate pure imaginary columns onto the real source branch.
+        rotated = jnp.where(pure_imaginary, -1j * canonical, canonical)
+        coeffs = jnp.fft.ifft(rotated, axis=0)
+        projected = jnp.where(pure_real | pure_imaginary,
+                              jnp.real(coeffs), coeffs)
+        # Enforce source primal storage without discarding transverse
+        # complex tangents at real/pure-imaginary inputs.
+        correction = jnp.where(jnp.isfinite(coeffs), projected - coeffs, 0.)
+        coeffs = coeffs + jax.lax.stop_gradient(correction)
+        coeffs = jnp.where(pure_imaginary, 1j * coeffs, coeffs)
+        coeffs = jnp.where(negative, jnp.conj(coeffs), coeffs)
     else:
         coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
     coeffs = coeffs[:n]

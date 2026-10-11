@@ -1,0 +1,574 @@
+{
+  "scope": "Canonical single-IFFT complex DCT-I numerical adapter; _vals2coeffs_jax only. Real dtype and inverse transform unchanged.",
+  "base": "1108b68000f48f4d76b94d163b3fc274519b6e5d",
+  "source": "Chebfun7574c77 @chebtech2/vals2coeffs.m: generalcomplex IFFT, real/pureimag branches, exact even/odd corrections.",
+  "reason": "Split real/imag FFT preserved strict conjugacy but produces cutoff16 on retained33point REAL input, whereas native constructor gives15. Literal generalcomplex IFFT yields15 but violates exactconjugacy by1.9864e-16. Canonical orientation yields15 and preserves conjugacy.",
+  "algorithm": "Per-column first nonzero imaginary sample chooses conjugation; canonical pairs share one FFT input. Pureimag columns rotate onto real branch; finite primal real projection uses stop_gradient so transverse complex tangents remain. Undo rotation/conjugation, retain prior source even/odd correction. One IFFT.",
+  "source_boundary": "Orientation is explicit numerical backend adaptation based on real DCT matrix conjugacy; MATLAB does not implement this convention. No blanket bitwise native FFT or cutoff parity claim.",
+  "controls": [
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal",
+      "name": "test_real_of_imaginary_is_zero[Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal",
+      "name": "test_real_of_imaginary_is_zero[Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal",
+      "name": "test_real_array_of_imaginary_is_zero[Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab.TestChebtechReal",
+      "name": "test_real_array_of_imaginary_is_zero[Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab",
+      "name": "test_native_tech_real_literal_coefficients[False-Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab",
+      "name": "test_native_tech_real_literal_coefficients[False-Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab",
+      "name": "test_native_tech_real_literal_coefficients[True-Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_real_matlab",
+      "name": "test_native_tech_real_literal_coefficients[True-Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag",
+      "name": "test_imag_of_real_is_zero[Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag",
+      "name": "test_imag_of_real_is_zero[Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag",
+      "name": "test_imag_array_of_real_is_zero[Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab.TestChebtechImag",
+      "name": "test_imag_array_of_real_is_zero[Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab",
+      "name": "test_native_tech_imag_literal_coefficients[False-Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab",
+      "name": "test_native_tech_imag_literal_coefficients[False-Chebtech2]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab",
+      "name": "test_native_tech_imag_literal_coefficients[True-Chebtech1]"
+    },
+    {
+      "gate": "native16_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_imag_matlab",
+      "name": "test_native_tech_imag_literal_coefficients[True-Chebtech2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_transverse_jvp[real]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_transverse_jvp[imag]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_transverse_jvp[zero]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_transverse_jvp[mixed]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_independent_columns_and_conjugate_pairs"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "",
+      "name": "test_nonfinite_not_hidden"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[real-0]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[real-1]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[real-2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[real-17]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[imag-0]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[imag-1]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[imag-2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[imag-17]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[complex-0]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[complex-1]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[complex-2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_components_and_conjugacy_without_host_fft[complex-17]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_dense_cosine_reference_and_jvp[2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_dense_cosine_reference_and_jvp[8]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_utils.test_dct_jax_source",
+      "name": "test_dense_cosine_reference_and_jvp[17]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_strict_source_exponent_tolerance[0.0-True]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_strict_source_exponent_tolerance[1.05e-11-True]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_strict_source_exponent_tolerance[1.1e-11-False]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_strict_source_exponent_tolerance[1.2e-11-False]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_coefficients_are_exact_and_same_length[coeffs0]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_coefficients_are_exact_and_same_length[coeffs1]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_coefficients_are_exact_and_same_length[coeffs2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_smooth_promotion"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_distinct_equal_bounded_singular_objects"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_source_sum_zero_rule_and_column_scales[1]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_source_sum_zero_rule_and_column_scales[2]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_complex_transform_preserves_conjugacy_and_jvp[8]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_complex_transform_preserves_conjugacy_and_jvp[17]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_fun.test_singfun_equality_source",
+      "name": "test_complex_transform_preserves_conjugacy_and_jvp[33]"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_empty"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_smooth_not_singfun"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_real_smooth"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_real_with_exponents"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_purely_imaginary"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_conj_matlab.TestSingfunConj",
+      "name": "test_complex_smooth_part"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_empty"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_imaginary_smooth_not_singfun"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_real_smooth"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_real_with_exponents"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_purely_imaginary"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_real_matlab.TestSingfunReal",
+      "name": "test_complex_smooth_part"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_empty"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_real_smooth_not_singfun"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_imaginary_smooth"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_imaginary_with_exponents"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_purely_real"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_imag_matlab.TestSingfunImag",
+      "name": "test_complex_smooth_part"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal",
+      "name": "test_empty_equal"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal",
+      "name": "test_zerosingfun_equal"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal",
+      "name": "test_identical_nonzero_equal"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal",
+      "name": "test_different_exponents_not_equal"
+    },
+    {
+      "gate": "regressions_gate",
+      "classname": "tests.test_matlab_port.singfun.test_isequal_matlab.TestSingfunIsequal",
+      "name": "test_different_smoothpart_not_equal"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_conj_matlab",
+      "name": "test_native_tech_conj_literal_coefficients[False-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_conj_matlab",
+      "name": "test_native_tech_conj_literal_coefficients[False-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_conj_matlab",
+      "name": "test_native_tech_conj_literal_coefficients[True-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_conj_matlab",
+      "name": "test_native_tech_conj_literal_coefficients[True-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[positive-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[positive-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[negative-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[negative-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[complex-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[complex-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[array-Chebtech1]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech.test_sign_matlab",
+      "name": "test_native_tech_sign[array-Chebtech2]"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_single_value"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_real_branch"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_real_no_imag"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_imaginary_branch"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_imaginary_no_real"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_general_branch"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_array_input"
+    },
+    {
+      "gate": "native20_gate",
+      "classname": "tests.test_matlab_port.chebtech2.test_vals2coeffs_matlab.TestChebtech2Vals2Coeffs",
+      "name": "test_symmetry_preservation"
+    }
+  ],
+  "gates": {
+    "native16_gate": {
+      "original": 92267,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 2275,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1390016,
+      "wall_seconds": 21.637666889000684,
+      "result": {
+        "success": true,
+        "pytest_exit": 0
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native16_gate/guard.json": "f2305a2eb0678edd1073a4c63520504fd7210e6e64a42253270034abca27df8a",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native16_gate/supervision/receipt.json": "9ae395a373eb151723678d7b84f087b668fda4e15b02d586168ff14eb4d9bbbb",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native16_gate/supervision/stdout": "dd2edb71d0d959a46dd07f6f023beb2c3de751d8b657f5975244731a9caa8477",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native16_gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native16_gate/result.json": "d111f1ead2081b1791d33a0bd1d116bafa1872b050267eac1d40027bb285684c"
+      },
+      "qualified": true
+    },
+    "regressions_gate": {
+      "original": 24296,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 2276,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 2437244,
+      "wall_seconds": 45.56448811106384,
+      "result": {
+        "success": true,
+        "pytest_exit": 0
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/regressions_gate/guard.json": "e2f86724b666b3619c535eb0fc93df1ea079381a411475cbb02cf7ce4ff7ece6",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/regressions_gate/supervision/receipt.json": "9828dd45b74b99fc9f5bb9312b8f422b47b3b35ce262915815e2677121b19f27",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/regressions_gate/supervision/stdout": "9c181adfb820a61a07fc8b2f17b9fbbbca682a920fd90fc0c905d8465ce03ce4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/regressions_gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/regressions_gate/result.json": "d111f1ead2081b1791d33a0bd1d116bafa1872b050267eac1d40027bb285684c"
+      },
+      "qualified": true
+    },
+    "native20_gate": {
+      "original": 45585,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 2276,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1733428,
+      "wall_seconds": 29.16642309864983,
+      "result": {
+        "success": true,
+        "pytest_exit": 0
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native20_gate/guard.json": "2d3e7b39de8e648f353a5e78a1625c7014d842524f68eb239336f508c2c79346",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native20_gate/supervision/receipt.json": "6955dd795d5848a7e3821da40e73d87919ab461769c4c3bbe667dbab1a98a61c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native20_gate/supervision/stdout": "cb67f392cb571cad863f4747952a36df5772ef3a217068cd7182774a6d7c435f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native20_gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/native20_gate/result.json": "d111f1ead2081b1791d33a0bd1d116bafa1872b050267eac1d40027bb285684c"
+      },
+      "qualified": true
+    }
+  },
+  "discriminator_caveat": {
+    "scope": "Explicit post-closure test-file mutation reconciliation; original audit remains failed.",
+    "changed_files": [
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/snapshot/tests/test_matlab_port/chebtech/test_imag_matlab.py",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/canonical_complex_dct_20261011/snapshot/tests/test_matlab_port/chebtech/test_real_matlab.py"
+    ],
+    "runtime_source_unchanged": true,
+    "reason": "Worker literal REAL/IMAG tests copied after numerical discriminator terminal receipt, before audit. Those tests were not imported or executed by discriminator. Native16 successor bound new versions before execution.",
+    "original_audit_sha256": "75721e82495449997db085490270cdac36fbbeaf7c09a6f17187490cd5f4bd4b",
+    "result_sha256": "d0b2d7d3fc2912f6772cf85be31ff2827e750698d18afa337ed9609830495884"
+  },
+  "native_reference": "S/trreal1 original60702 all8nativeREAL pass; scalar/array bothtechlength15; frozen source guard and postruntime observation.",
+  "limitations": [
+    "First discriminator broad post-audit failed only because two unexecuted testfiles were replaced after terminal closure; retained source/input/runtime hashes unchanged. Originalfailed audit preserved. Later three testgates have clean guards.",
+    "No performance benchmark or full inverse rerun; real dtype path unchanged.",
+    "NaN/Inf remain nonfinite; exactconjugacy not claimed for nonfinite values.",
+    "Branch changes can alter floating rounding; no tolerance changes.",
+    "Pure storage handling is percolumn for column independence; no native globalbranch bitwise equivalence claim."
+  ],
+  "test_ownership": "REAL8/IMAG8 literal files supplied unchanged by cumsummat_source candidate; their independent testdelivery belongs to root. Thispackage adds only six adapter controls."
+}
