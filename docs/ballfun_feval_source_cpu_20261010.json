@@ -1,0 +1,63 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "summary": "Add source-shaped pointwise Cartesian/spherical feval and explicit coord call dispatch; restore all ten native evaluation test predicates.",
+  "native_predicates": "First gate: ten pass; supplemental empty/JIT test fails at empty return. Second gate: supplemental test passes after only empty return dtype repair. Nonempty paths and native predicates unchanged.",
+  "native_clause_10": "Source stores residual without comparison: nonzero residual is truthy. Literal predicate retained plus independent accuracy bound1e4eps; Python residual1.5543122660729238e-15. This is a native test defect, not a meaningful native accuracy bound.",
+  "limitations": [
+    "Default three-argument __call__ remains legacy spherical/grid; use feval for native Cartesian default. Full implicit-call migration remains open.",
+    "Radial slice clauses use existing to_spherefun adapter; colon syntax is not implemented.",
+    "Native ndgrid detection optimization is not implemented; equal-shaped arrays use pointwise vmap.",
+    "Cartesian outside-ball error is eager only; traced calls require valid points.",
+    "Existing NumPy/SciPy code in Ballfun remains unchanged."
+  ],
+  "gates": [
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_feval_source_20261010",
+      "inputs_rehashed": 335,
+      "receipt": {
+        "command_exit_code": 1,
+        "supervisor_exit_code": 1,
+        "wall_seconds": 28.100112936925143,
+        "sampled_peak_summed_rss_kib": 1547688,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "junit_sha256": "ca9ffe6399e87a4e0857df2ba5fbda2bcfb9c34a4fc333eaef850b2ec12d759c",
+      "stdout_sha256": "6b65bc8f6e0a45ca68df3209843fee605fb66ebdac353ea4462605c8bd5b34f2",
+      "receipt_sha256": "e17ed64a51e1aae380b5c22d9d70dcc590c902d9b9231e5c6146dfeb4ba59887"
+    },
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_feval_source_v2_20261010",
+      "inputs_rehashed": 335,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 9.293892032001168,
+        "sampled_peak_summed_rss_kib": 655168,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "junit_sha256": "fb16fd0777cfe079019ec5e3e47ddd12e362b5067b095329b9b01af11bcb2969",
+      "stdout_sha256": "afb171236c2aa6c3d5f2cffd7928e42238a23ea8f497e227143bff3334c1dfc7",
+      "receipt_sha256": "e37225706ddb90f7071a72abca10879f40d114c54338d5199aa146fa6ddf21cd"
+    }
+  ],
+  "integrated_sha256": {
+    "src/chebfunjax/ballfun/ballfun.py": "af77b2e5941341234594488e2660eed14dc633b6d4658b01c2296d59a52239ed",
+    "tests/test_matlab_port/ballfun/test_feval_matlab.py": "21c457e8b3a20fb55bf14b23ab90e5e796b95ff4a21c5269b77541c2bbbef79a"
+  }
+}

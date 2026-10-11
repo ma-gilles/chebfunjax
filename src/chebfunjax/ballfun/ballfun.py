@@ -1420,13 +1420,55 @@ class Ballfun(eqx.Module):
             vals = jnp.real(vals)
         return vals
 
+    def feval(self, x, y, z, coord="cartesian") -> jax.Array:
+        """Evaluate at equally shaped points, in Cartesian coordinates by default.
+
+        ``coord="spherical"`` (or ``"polar"``) interprets the arguments as
+        radius, longitude and colatitude. Unlike the legacy three-argument
+        ``__call__``, vectors are evaluated pointwise; use ``fevalm`` for grids.
+        The Cartesian outside-ball check is eager; traced calls require valid
+        input points. Native ndgrid fast-path detection is not implemented.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/feval.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        if coord not in ("cartesian", "spherical", "polar"):
+            raise ValueError("coord must be cartesian, spherical or polar")
+        x, y, z = (jnp.asarray(v, dtype=jnp.float64) for v in (x, y, z))
+        if x.shape != y.shape or x.shape != z.shape:
+            raise ValueError("Evaluation points should all be the same dimension")
+        if coord == "cartesian":
+            rho = jnp.hypot(x, y)
+            r = jnp.hypot(rho, z)
+            if not isinstance(r, jax.core.Tracer) and bool(jnp.any(r > 1 + 1e-8)):
+                raise ValueError("Evaluation points must lie sufficiently close to the unit ball")
+            lam = jnp.arctan2(y, x)
+            th = jnp.pi / 2 - jnp.arctan2(z, rho)
+        else:
+            r, lam, th = x, y, z
+
+        def evaluate(ri, li, ti):
+            return self.fevalm(ri[None], li[None], ti[None])[0, 0, 0]
+
+        if r.ndim == 0:
+            return evaluate(r, lam, th)
+        return jax.vmap(evaluate)(r.ravel(), lam.ravel(), th.ravel()).reshape(r.shape)
+
     def __call__(
         self,
         r: jax.Array,
         lam: jax.Array,
         th: jax.Array,
+        coord: str | None = None,
     ) -> jax.Array:
         """Evaluate f at spherical coordinates (r, lam, th).
+
+        An explicit ``coord`` delegates to pointwise :meth:`feval`. The default
+        retains the legacy spherical/grid convention for existing callers.
 
         Accepts scalar or array inputs of the same shape, or 1D arrays
         (in which case a tensor-product grid is used via ``fevalm``).
@@ -1451,6 +1493,9 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/feval.m
         Chebfun commit: 7574c77
         """
+        if coord is not None:
+            return self.feval(r, lam, th, coord)
+
         r = jnp.asarray(r, dtype=jnp.float64)
         lam = jnp.asarray(lam, dtype=jnp.float64)
         th = jnp.asarray(th, dtype=jnp.float64)
