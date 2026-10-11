@@ -1,0 +1,122 @@
+{
+  "base": "875219bf",
+  "native_tech_POWER_test_count": 0,
+  "qualified_test_AST_identity": true,
+  "docstring_cleanup": "Preference test header updated; all tested functions/logic unchanged.",
+  "scope": "Two public __pow__ methods only; preserved all other module AST and existing integer source tests.",
+  "qualification": {
+    "candidate_v2": 28,
+    "retained_real_integer": 3,
+    "new_supplemental": 20,
+    "native_observation_binding": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/NATIVE_BINDING.json"
+  },
+  "faults_fixed": [
+    "Tech1 array exponent0 losescolumns",
+    "BothTechs exponent0 fail native semanticempty behavior",
+    "BothTechs omit source complex extrapolate preference; Tech2 lowerone-sidedendpoint sqrt chooseswrongbranch"
+  ],
+  "retained_evidence_and_errata": [
+    "Initial baseline3fail includes two scalarbase errors subsequently shown native MATLAB errors too; they are not paritybugs. No __rpow__ implemented.",
+    "First shape candidate regressed Tech1empty to AttributeError; retained candidate_zero evidence, fixed using native tpow1 empty observations.",
+    "Native scalarbase errors MATLAB:structRefFromNonStruct; Python unsupporteddunder TypeError remains error adapter."
+  ],
+  "branch_oracle": "f=-1\u00b1i(1+x)(1+T32/4); q>=.75, |f|>=1, imaginarysignfixedinterior; onlyleftendpointoncut. Independent rationalizedonesidedsqrt oracle; supplemental100epsscaledbound3.64355e-14, no native testthreshold claimed.",
+  "branch_results": {
+    "baseline_Tech2_lower_error": 1.9999999999636202,
+    "baseline_Tech2_lower_length": 65537,
+    "candidate_max_error": 1.8089482144245893e-14,
+    "candidate_Tech2_length": 423,
+    "candidate_Tech1_length": 452,
+    "note": "UpperTech2 error increases1.13e-15 to1.81e-14 with sourceextrapolation, stillbelow unchanged diagnosticbound."
+  },
+  "remaining_limits": [
+    "No accuracy claim for functions vanishing or crossingnegativeaxis ininterior",
+    "Python semanticempty sentinel differs nativecoeffstorage17x0",
+    "RealTech1 fractional route unchanged; broader sourcecomposition policy parity not claimed",
+    "Adaptive powers not JIT-safe; no RNG changes"
+  ],
+  "patches": [
+    "power_zero_v2.patch",
+    "power_complex_preference_v2.patch (apply afterzero)",
+    "power_combined_v2.patch (completealternative)"
+  ],
+  "cohorts": [
+    {
+      "name": "baseline",
+      "exit": 1,
+      "wall_seconds": 9.8114627529867,
+      "sampled_peak_summed_rss_kib": 472084
+    },
+    {
+      "name": "candidate_zero",
+      "exit": 1,
+      "wall_seconds": 23.840446099173278,
+      "sampled_peak_summed_rss_kib": 1174348
+    },
+    {
+      "name": "preference_discriminator",
+      "exit": 1,
+      "wall_seconds": 9.470197744201869,
+      "sampled_peak_summed_rss_kib": 448060
+    },
+    {
+      "name": "branch_baseline",
+      "exit": 1,
+      "wall_seconds": 30.688023331109434,
+      "sampled_peak_summed_rss_kib": 1371764
+    },
+    {
+      "name": "candidate_v2_gate",
+      "exit": 0,
+      "wall_seconds": 39.50077733723447,
+      "sampled_peak_summed_rss_kib": 1900880
+    },
+    {
+      "name": "real_integer_regression",
+      "exit": 0,
+      "wall_seconds": 10.534411564934999,
+      "sampled_peak_summed_rss_kib": 566524
+    }
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpow1/observations.mat": "b945f91605d16f6654dbedd03c1ce9bfdc596ba347d3f9a7d232100e061fb601",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpow1/result.json": "6ec457f060e7b1812ebbd6160de75b863633fb78402ce139a23215775073e3e8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpow1/probe.m": "ddba7f48a98edaf3cb854c88b2307ec3ffe4d807c80f7c96d2de9c323904814e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpow1/guard.json": "158526397f72c0a8e976d68f6729d9dd3d766a92b08d4c0a1dc1ad161288e088",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tpow1/supervision/receipt.json": "c3d825dfbba386b6c2d9f42f45f21e3126912b3ca2b380c7412eaa73bdb420cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/baseline/supervision/receipt.json": "e31d1a9628ff07b3819945a72d7fb4e74480317739c0a7bd6797d91d8ecabb87",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/baseline/supervision/stdout": "c408aca0908854ca6d2cad250a054c94b18551af0585b87964cd36a09961b8cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/baseline/RUNTIME_SOURCE_END.json": "e9137c696307c69f5e405176a4bff479b9a05e418d705d7534a713291ff7e6dc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_zero/supervision/receipt.json": "46ff6486d4d89a76e275572b8ef24948fa68d2c391fb52013a46e25daba820bf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_zero/supervision/stdout": "e14e178aed52a1670d9facbaf62c0672bc3b5345bbfbbf746dcaa19a6fb43172",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_zero/RUNTIME_SOURCE_END.json": "8ba7ffddb74a200ad5500cee82e17fcd093deffdcd2648ec409a8e0f07629c0e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/preference_discriminator/supervision/receipt.json": "01579591988b58b42e44cc4575f09a41cbd9331442238b5d593f7c029cdbedd2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/preference_discriminator/supervision/stdout": "09bac0d93d643a4ba8f7df8ca788ed9af36287767099a3f9d454ea17b0b53bc1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/preference_discriminator/RUNTIME_SOURCE_END.json": "1e694da502945b35a532d8777208a8b7065348d41279e2295c772714e4bf15f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/branch_baseline/supervision/receipt.json": "69c80d378a77a86f058dafcf0ba54d65d38dcb4254422e3126c7fbb95e6e8e23",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/branch_baseline/supervision/stdout": "d8db2214063e29bfc0b9cdabc854b3130694dd2ab358b13a0600fa732821deb2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/branch_baseline/RUNTIME_SOURCE_END.json": "79f3146f2fcf8fb4ba4af3729d096bfef70f1ebef96c1eddc2996a79cd17c417",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2_gate/supervision/receipt.json": "bce186d4e558fd6d2a5e8671f8e6242bfe221ddf3214ac78a88bc8e1c82e46ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2_gate/supervision/stdout": "7bb8d963d14514a6641a646cff74e29275ed2b5134c005c0ac68ef8fc614a55e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2_gate/RUNTIME_SOURCE_END.json": "82569d98a350a25ce6dd6723dcb4a504ee0103f324478161a333d8cc3defb63c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/real_integer_regression/supervision/receipt.json": "08f953500dd5ac0f18ebd00158fc579f82516ffc3d64be90d9ae2dec1a812ac9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/real_integer_regression/supervision/stdout": "f7686bfa03e553a5bc6a5b55ea5d04dd0a3e81f0baf4bf50a948b05438d48862",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/real_integer_regression/RUNTIME_SOURCE_END.json": "2b7263e9d10f39a49ec58581512e03b828f96c1f2b5e8633f0e8a55413d5812f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2/src/chebfunjax/tech/chebtech.py": "40e837dd9bac6fe1ce0befd589e257b175493d17fa119b6c2d491f9359c5c867",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/NATIVE_BINDING.json": "3e50ccfdcac74a4fa96fb536c3b55b269f0ed12e5ffd3b0b74644fb5859f7228",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/power_zero_v2.patch": "e977ba7ef572fb96240a544a8f4b2dbef800a513a9ee3cd36ad88269c46ada0a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/power_complex_preference_v2.patch": "917ab68fec8466099e41e6fb6382ad4af4314e3cf7da3e870e7338a3cecf2765",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/power_combined_v2.patch": "e582610a26c2d65bc217808a5e345148d47ab319a0c44b837ce192d8f6c48747",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/build_delivery.py": "56684ea73fc3115a7ef7ca484dde0a6d6e130c96d2ea7f444ea00f503229d4a5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2/tests/test_power_zero_shape_source_controls.py": "aff15e875957620e1fc23616fec680cf43292c03b2ec5f9169b61b03b1de4cb1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2/tests/test_power_complex_preference_discriminator.py": "334fee6afb6a77523616d3bd6133afb823598f9f3896337397f8841694d29359",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_power_api_audit_875219bf_20261011/candidate_v2/tests/test_power_near_endpoint_branch_controls.py": "b6b999aee5b781fae21c642fdd3ff0cfcf79d65e11445c04a4763571a570514e"
+  },
+  "root_review": {
+    "all_sha256_bindings_verified": 32,
+    "library_bytes_matched_qualified_candidate_before_format": true,
+    "formatter_all_file_AST_identity": true,
+    "source_review": "Pinned @chebtech/power.m explicitly forwards extrapolate for complex bases; one-sided branch fixture satisfies source assumptions.",
+    "base_publication": "722debd1"
+  }
+}
