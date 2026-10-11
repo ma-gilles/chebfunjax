@@ -9695,17 +9695,28 @@ def wronskian(*args) -> Chebfun:
     return Chebfun.from_function(w, Domain((a, b)))
 
 
-def complex_fun(f: Chebfun, g: Chebfun) -> Chebfun:
-    """complex(f, g) = f + 1i*g for real chebfuns (MATLAB complex).
+def complex_fun(f: Chebfun | float, g: Chebfun | float | None = None):
+    """Construct complex Chebfuns from real parts, or preserve one real input.
+
+    Either input may be a real scalar. Omitting g returns f unchanged.
 
     Provenance
     ----------
     MATLAB source : @chebfun/complex.m
     Chebfun commit: 7574c77
     """
-    for h in (f, g) if isinstance(g, Chebfun) else (f,):
-        if any(jnp.iscomplexobj(p.tech.coeffs) for p in h.funs):
-            raise ValueError("complex: inputs must be real")
+    # Native validates A and B separately, including numeric scalar inputs.
+    for h, identifier, part in ((f, "AisNotReal", "Real"),
+                                (g, "BisNotReal", "Imaginary")):
+        if h is None:
+            continue
+        is_real = h.isreal() if isinstance(h, Chebfun) else not jnp.iscomplexobj(h)
+        if not is_real:
+            raise ValueError(
+                f"CHEBFUN:CHEBFUN:complex:{identifier}: {part} input must be real."
+            )
+    if g is None:
+        return f
     return f + g * 1j
 
 

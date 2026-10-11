@@ -1,0 +1,50 @@
+{
+  "scope": "Only _chebpade_maehly arithmetic migrated; all six original source predicates unchanged in five pytest methods. No publication checkout writes.",
+  "native_rank": "@chebfun/chebpade.m explicit tol=1e-10; rank counts singular values strictly >tol (absolute threshold), no default relative rank tolerance.",
+  "implementation": "JAX array indexing/matrix assembly, SVD rank, linear solve, diagonal scatter and numerator product. Eager integer rank drives existing recursive degree reduction; full Chebfun construction is not claimed JIT.",
+  "source_orientation": "Native m==1 transpose corrects MATLAB vector-index orientation. Python broadcast assembly already gives1xn row; unchanged.",
+  "qualification": {
+    "baseline_v1": {
+      "wall_seconds": 23.52139730611816,
+      "sampled_peak_summed_rss_kib": 1133752,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "output": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 1, 'continuous_L2_sum': 2.1068059382639593e-15, 'source_bound': np.float64(4.734950324181196e-13)}\n.{'native_clause': 2, 'continuous_L2_sum': 8.962656215208663e-15, 'source_bound': np.float64(4.734950324181196e-13)}\n.{'native_clause': 3, 'continuous_supremum': 9.730194439896817e-16, 'source_bound': 2e-15}\n..{'native_clause': 6, 'continuous_L2': 9.31314496513062e-05, 'source_bound': 0.0002}\n.\n5 passed in 15.17s"
+    },
+    "candidate_v1": {
+      "wall_seconds": 25.050415419973433,
+      "sampled_peak_summed_rss_kib": 1267352,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "output": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 1, 'continuous_L2_sum': 2.1539685376156273e-15, 'source_bound': np.float64(4.734950324181196e-13)}\n.{'native_clause': 2, 'continuous_L2_sum': 8.633982766137986e-15, 'source_bound': np.float64(4.734950324181196e-13)}\n.{'native_clause': 3, 'continuous_supremum': 9.730194439896817e-16, 'source_bound': 2e-15}\n..{'native_clause': 6, 'continuous_L2': 9.31314496513062e-05, 'source_bound': 0.0002}\n.\n5 passed in 16.95s"
+    }
+  },
+  "remaining_dependencies": [
+    "NumPy _coeffs extraction boundary and _from_coeffs_any construction boundary",
+    "NumPy default_rng(0) padding retained as existing adapter; not native randn stream parity",
+    "Default Clenshaw-Lord still NumPy/SciPy",
+    "Existing warning-before-recursion ordering retained; native warns after recursion"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_maehly_jax_20261011/snapshot/src/chebfunjax/utils/cfpade.py": "9c35fe01aa3f5c30bc69e2b6ec78575d4a68d35bcb83cf7dad38cbd55f328426",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_maehly_jax_20261011/candidate/src/chebfunjax/utils/cfpade.py": "98ef1193b8e296235fad2fe16feaf9144efb9e4ad98076334b20dc23268c5de1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_maehly_jax_20261011/maehly_jax.patch": "57e46f50cf535dfc204c00e0e7f025c4b38694bc0ec12e2b0481b8fee1cabe3a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_maehly_jax_20261011/prepare_gate.py": "79ebb90e7f1a0878a900824b8516bec862f388a10d44a3b1c6a8b6ed034155e2"
+  },
+  "notes": "Baseline/candidate overlapped briefly on same CPU affinity; timings are resource receipts, not paired speed comparisons.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df"
+}

@@ -1,0 +1,23 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "All12 native complex predicates plus2 retained supplements; unary identity,scalar-left input,public realness and distinct A/B source errors",
+  "baseline": "4 failed,10 passed; native clauses6/8/9/10 exposed missing behavior",
+  "candidate": "14 passed,21.47s,1581888KiB,CPU8\u201311,stable uncensored,no owned survivors",
+  "bindings": {
+    "src/chebfunjax/chebfun1d/chebfun.py": {
+      "baseline_sha256": "f7c8aed32592263abd452ac5572bf7db04920c1163763377bed9d9fe80f6b2de",
+      "candidate_sha256": "eb6b17ea91703dcd6d97d2d7ef492f782e747e237d0b92e5f1e4490e7c7778f4"
+    },
+    "tests/test_matlab_port/chebfun/test_complex_matlab.py": {
+      "baseline_sha256": "932f6a9c0f10df2782fff16e07c1c30f4d550872b49a25bf1c448be68dcb3d64",
+      "candidate_sha256": "20b97716213343a8ce7cee6cc025ffc84b31e4384518c44acedb21ebf0f34c5b"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_native_contract_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "ed794270b1363b70c43ee3c4988a0f646b6dd4429842bdafeaf6b1fc8b4d2a66",
+  "limits": [
+    "NumPy RandomState7681 uniform adapter retains source sizes/order; native draw identity not yet verified",
+    "No singular/unbounded arithmetic changes; only complex_fun changed",
+    "Test formatting AST-equivalent to executed inputs"
+  ]
+}

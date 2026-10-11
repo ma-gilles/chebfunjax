@@ -393,13 +393,17 @@ def _chebpade_maehly(f, m, n):
             [a, np.finfo(float).eps
              * rng.standard_normal(m + 2 * n + 1 - len(a))])
 
-    row = np.arange(1, n + 1)
-    col = np.arange(m + 1, m + n + 1)[:, None]
-    D = a[col + row[None, :]] + a[np.abs(col - row[None, :])]
+    # MATLAB rank(D, tol) counts singular values strictly greater than the
+    # explicit absolute 1e-10 cutoff; construction and degree selection are eager.
+    a = jnp.asarray(a)
+    row = jnp.arange(1, n + 1)
+    col = jnp.arange(m + 1, m + n + 1)[:, None]
+    D = a[col + row[None, :]] + a[jnp.abs(col - row[None, :])]
     if n > m:
-        D = D + a[0] * np.diag(np.ones(n - m), m)[:n, :n]
+        D = D + a[0] * jnp.diag(jnp.ones(n - m), m)[:n, :n]
 
-    if np.linalg.matrix_rank(D, tol) < min(D.shape):
+    rank = int(jnp.sum(jnp.linalg.svd(D, compute_uv=False) > tol)) if n else 0
+    if rank < min(D.shape):
         if m > 1:
             warnings.warn(
                 f"chebpade: singular matrix; computing "
@@ -412,15 +416,16 @@ def _chebpade_maehly(f, m, n):
             return chebpade(f, m, n - 1, "maehly")
         raise ValueError("chebpade: singular matrix; cannot compute "
                          "[1/1] approximation")
-    qk = np.concatenate(
-        [[1.0], -np.linalg.solve(D, 2 * a[m + 1: m + n + 1])])
+    qk = jnp.concatenate(
+        [jnp.ones(1, dtype=a.dtype),
+         -jnp.linalg.solve(D, 2 * a[m + 1: m + n + 1])])
 
-    colB = np.arange(1, m + 1)[:, None]
-    B = a[colB + row[None, :]] + a[np.abs(colB - row[None, :])]
+    colB = jnp.arange(1, m + 1)[:, None]
+    B = a[colB + row[None, :]] + a[jnp.abs(colB - row[None, :])]
     dmin = min(m, n)
-    for i in range(dmin):
-        B[i, i] += a[0]
-    B = np.vstack([a[1: n + 1][None, :], B]) if m >= 1 \
+    diagonal = jnp.arange(dmin)
+    B = B.at[diagonal, diagonal].add(a[0])
+    B = jnp.vstack([a[1: n + 1][None, :], B]) if m >= 1 \
         else a[1: n + 1][None, :]
     if B.size == 0:
         pk = qk[0] * a[: m + 1]

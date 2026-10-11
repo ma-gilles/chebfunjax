@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `46c1b09c` is published. Use CPU only. Heavy whole examples run
+main through `eecb9a63` is published. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -16,17 +16,23 @@ Newton preference routing, tolerance-aware domain merging and source AD for
 piecewise scalar linear nonlocal equations. Public DelayDifferentialEquations
 section9 now completes in36.16s (profiled solve21.48s), versus the previous
 180s cap; observed residual3.5916e-11. Six route/analytic controls pass. Fresh
-MATLAB comparison and page restoration are being packaged separately; this
-is not whole-page or matched-performance acceptance. See
+MATLAB sections8/9 comparisons preserve piece lengths and small observed
+value differences. Outputs8/9 and curves08/10 are now published; this is not
+whole-page, exact-pixel or matched-performance acceptance. See
 `docs/piecewise_nonlocal_ad_route_cpu_20261011.json` and
 `docs/domain_merge_source_cpu_20261011.json`.
 
 Exact native tests restored in recent batches include diffmat62, GPR21,
-continuous FOV5, coeffs2vals20, native-sized NUFFT2, isSubset8 and trigBary9.
+continuous FOV5, coeffs2vals20, native-sized NUFFT2, isSubset8, trigBary9, ratinterp23 and chebpade6.
+The restored pde15s native Frobenius predicate exposed incorrect interpretation
+of second-kind nodes under a first-kind session preference. Explicit output
+technology fixes error0.1635 to1.146e-11 below the original2.220e-11 bound.
 Counts denote source assertions, not distinct new pytest functions. Each
 package records unchanged bounds, adapters and focused CPU results in
 `docs/*_cpu_20261011.json`. Native trigBary n2500 checks only weight length;
-stable JAX weights now pass finite n2500 and bounded JIT controls. Forward
+stable JAX weights now pass finite n2500 and bounded JIT controls. Public
+trigBary uses JAX and preserves native complex/endpoint/partial-column NaN
+semantics. Native machine-epsilon uniformity classification is restored. Forward
 NUFFT default matches machine epsilon. Exact locked FINUFFT2.5.1 ships Python
 metadata2.5.0; artifact hashes confirm the installed FINUFFT core matches. An
 isolated exact locked FINUFFT/FFTW provider passes16 small source cases and
@@ -34,7 +40,11 @@ a direct provider smoke check. Full environment qualification remains open;
 see docs/finufft_locked_artifact_cpu_20261011.json. Legacy NumPy/SciPy/FINUFFT
 mathematics remain.
 
-CI is not green. Completed earlier shards exposed stale tests assuming a2D
+CI is not green. Active b521 review has failures at Chebop.solve domain-length
+selection for Chebfun RHS/init. The Domain.breakpoints adapter fix is published
+1249696f and passes eight unchanged alternate-backend controls; full post-fix
+CI is pending. See docs/ci_domain_selection_cpu_20261011.json.
+Completed earlier shards exposed stale tests assuming a2D
 Chebfun2.sum result and five separate ball drawing artists; corrections now
 pass six marginal and five layout/rendering checks, retaining numerical
 bounds and surface counts. Evidence: `docs/ci_sum1d_api_cpu_20261011.json` and
@@ -44,11 +54,14 @@ runs were cancelled while actual running work was preserved.
 
 The complete caf673c7 static audit preserves all322 original prose/equation
 pages and2408 MATLAB blocks, with1305 assets at reference dimensions. Committed
-page delta through87485d8e confirms949 reference/945 local output blocks,
-12 blanks and17 explicit placeholders across15 pages. Pixel/curve parity is
-unverified. Delay page has9 verified output slots and14 explicit unresolved
-slots; fresh section9 science above has not yet replaced its placeholder or
-script skip. No source output should be invented or copied as Python output.
+page delta througheecb9a63 confirms949 reference/945 local output blocks,
+12 blanks and15 explicit placeholders across15 pages. Delay page has11 verified
+output slots and12 explicitly unresolved slots. Figures08/10 use qualified saved
+solutions at600x270 with reference axes; all other figures and full pixel parity
+remain unqualified. Historical images09/11 are wrong curves where native code
+shows operator sparsity matrices; matrix routing and replacement are active work.
+See docs/dde_sections_8_9_artifacts_cpu_20261011.json. No source output should
+be invented or copied as Python output.
 
 Remaining: every native API/assertion, green full CI, unresolved PDE/DDE and
 masked high-frequency/VDP problems, general quadrature regimes, RNG streams,
