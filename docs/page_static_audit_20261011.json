@@ -1,0 +1,90 @@
+{
+  "scope": "Static audit of immutable committed47bb90e1 pages and cached primary HTML; no fresh numerical or pixel acceptance",
+  "summary": {
+    "head": "47bb90e1110432bc77791948e467b245f1c97609",
+    "canonical_pages": 322,
+    "local_only_pages_excluded": 8,
+    "cached_html_pages": 322,
+    "matlab_input_blocks": 2408,
+    "markdown_matlab_blocks": 2408,
+    "native_output_blocks": 949,
+    "markdown_text_blocks": 945,
+    "reference_figure_slots": 1305,
+    "current_assets_present": 1305,
+    "reference_assets_present": 1305,
+    "dimensions_equal": 1305,
+    "dimension_mismatch": 0,
+    "image_bytes_identical": 0,
+    "issue_page_counts": {
+      "prose_or_header": 13,
+      "equation_text": 9,
+      "formatted_table_pre": 0,
+      "code_text": 0,
+      "output_count": 5,
+      "output_text_observational": 224,
+      "figure_dimensions": 0,
+      "missing_assets": 0,
+      "figure_name_order": 0,
+      "missing_script": 1
+    },
+    "structural_remaining_pages": [
+      "applics/VanillaOptions",
+      "approx/AAAApprox",
+      "approx/Inpainting1D",
+      "approx2/Gibbs2D",
+      "complex/ZetaZeros",
+      "linalg/AnalyticSVD",
+      "linalg/EigLandscapes",
+      "linalg/TransientGrowth",
+      "ode-eig/Randfuneig",
+      "ode-linear/Floquet",
+      "ode-random/RandomSwitching",
+      "opt/Needle",
+      "roots/RandomPolys",
+      "sphere/LaplaceBall",
+      "sphere/SphereHeatConduction",
+      "stats/ResamplingRandomVariables"
+    ]
+  },
+  "prose_classification": {
+    "all_original_prose_retained_in_order": true,
+    "all_math_equal_ignoring_prose_block_location": true,
+    "pages_with_inserted_prose_only": 13
+  },
+  "output_fences": {
+    "pages": 322,
+    "reference_blocks": 949,
+    "local_blocks": 945,
+    "empty_local_blocks": 27,
+    "blank_local_blocks": 21,
+    "placeholder_local_blocks": 6
+  },
+  "source_url_followup": {
+    "page": "complex/ZetaZeros",
+    "script": "examples/complex/zeta_zeros.py",
+    "change": "Restore original source URL in docstring so generator discovery finds existing script. No missing implementation; no script rerun.",
+    "finder_check": "find_script(complex,ZetaZeros) returns examples/complex/zeta_zeros.py after metadata-only change"
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/COMMITTED_BLOBS.json": "f0c0743bf3cc4b2ae7ad4a03197e786c6255775bf3c337d876410c7cde0b91fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/AUDIT.json": "0367e0fa82343e76b312b696cb19d0d5786ada199418673ced59debb607b789a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/SUMMARY.json": "381c1a424433435052a216f185b2cea7de12a8407c7315869c902cdcaca3fec9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/PROSE_CLASSIFICATION.json": "bb0a0dc160088f4f07659ad6c751dd7a939819bfaaa2a7eaabc2b44f5a596fdd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/OUTPUT_FENCES.json": "df4661bbba577ced6735d09fe67434dfd27c75207a7b9a45c717ee459adb0987",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/audit_v2.py": "6e86c2400e13b3ad13184be1c88508310e48e0f31739b940cd802dddf0150837",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_gap_refresh_47bb90e1_20261011/classify_prose.py": "0259eb1f453e65f6059e1bba46311b738459710625b5732ea9ce69f6471a3e6e"
+  },
+  "remaining_output_count_pages": [
+    "approx/AAAApprox",
+    "complex/ZetaZeros",
+    "linalg/TransientGrowth",
+    "ode-linear/Floquet",
+    "stats/ResamplingRandomVariables"
+  ],
+  "limitations": [
+    "224 pages have differing output text; this includes timing, formatting, warnings, random inputs and numerical differences and is not a count of confirmed library bugs.",
+    "All1305 reference assets are now present via the retained reference/retrieval roots; the earlier445-missing status was stale.",
+    "All1305 image dimensions match but no exact pixel parity established.",
+    "Static matching does not certify execution or all library/native assertion coverage."
+  ]
+}
