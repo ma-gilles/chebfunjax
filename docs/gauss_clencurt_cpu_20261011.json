@@ -1,0 +1,96 @@
+{
+  "status": "Three source-sequenced figures and six actual output blocks restored; numerical and pixel parity remain incomplete",
+  "head": "1c5eeb0be2abf2116c78486efadad32c24814ab4",
+  "original_session": 21865,
+  "command_exit": 0,
+  "wall_seconds": 70.19984825979918,
+  "peak_summed_rss_kib": 2048552,
+  "inputs_stable": true,
+  "censored_limit": null,
+  "survivors": [],
+  "guard_count": 278,
+  "stdout": "Ichebfun =\n   0.336732834781728\nNpts =\n   652\nIclenshawcurtis =\n   0.336732834781727\nIgauss =\n   0.336732834781727\nElapsed time is 27.981786 seconds.\nElapsed time is 22.494884 seconds.\n",
+  "changes": [
+    "JAX quadrature arithmetic and library Chebfun plotting",
+    "Separate Gauss figure02 and overlaid figure03 in native computation order; both actual timings recorded",
+    "Removed artificial error floor; zero values masked on log plots",
+    "Saved-data export at reference600x270 geometry; all plotted x/y bytes unchanged during rendering"
+  ],
+  "rendering": {
+    "original_handles": [
+      96992,
+      47480,
+      57750
+    ],
+    "all_terminal_zero": true,
+    "scientific_run_AST_equal_after_removing_save_calls": true,
+    "data_checks": [
+      {
+        "name": "GaussClenCurt_01.png",
+        "line_data_hashes": [
+          "47f7e1f4bb8d6f0d351547a4a6547819da6b192aecde8f01322fa6c26e09f7ec"
+        ]
+      },
+      {
+        "name": "GaussClenCurt_02.png",
+        "line_data_hashes": [
+          "93ac8d9ed7c68a72dd5218d1e2239375fb4e61fc0d5bdd0d11daf500d6e984a6"
+        ]
+      },
+      {
+        "name": "GaussClenCurt_03.png",
+        "line_data_hashes": [
+          "93ac8d9ed7c68a72dd5218d1e2239375fb4e61fc0d5bdd0d11daf500d6e984a6",
+          "9929bd2c40ef80c7ab913da9f08df1fe57c69506493cb5f6b6a5e45dc18f9916"
+        ]
+      }
+    ],
+    "limits": "Page-specific export font/marker sizes and geometry; historical font rasterization and pixel equality unqualified."
+  },
+  "figures": [
+    {
+      "name": "GaussClenCurt_01.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "171c18723f6dcf91dbde1d95edd00ffd8f8c44e5bbed3ef44b43c96c19475f17",
+      "reference_sha256": "1c986de9cc4a71d666504ad7c94f48e94717abe67513a08af90901f9be5cf6ff"
+    },
+    {
+      "name": "GaussClenCurt_02.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "4e449ba75060aacc8d5fea9cf2d2543bdec71999177f7547217da3e3ca237a1a",
+      "reference_sha256": "9f977d9e590f4e4f3479ef67ae176b97f770bd7bec16316b2b3b198e69fe2c56"
+    },
+    {
+      "name": "GaussClenCurt_03.png",
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "68a6fd2a1505815ab1eb7e9de8ed7415478e020b2dc0bff6341da04c5db429ae",
+      "reference_sha256": "83905699872434bbb2f487d6401d143e1410a800a5c3488090e74f83ccf7a04b"
+    }
+  ],
+  "limits": [
+    "Native cached polynomial length659 versus actual652: constructor/transcendental rounding discrepancy remains open.",
+    "Iclenshawcurtis printed0.336732834781727 versus native0.336732834781728; Ichebfun and Igauss printed values match.",
+    "Observed elapsed times include Python/JAX compilation; historical MATLAB page timings are not matched hardware benchmarks.",
+    "No fresh MATLAB array capture or whole-curve numerical tolerance qualification.",
+    "Fullruntimeprovider inventory not claimed; scientific sources/test configuration/launcher prebound."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/guard.json": "dc44850ff91b635db70f3c7262fdee6a21d6428eead0472715bd49d4e3c35cb9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/supervision/receipt.json": "2a0cb30b03d61524eac6befc65ee539366de215b60b23594553f003576bf4967",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/supervision/stdout": "5a82b1e87bb9138d8d1e59adbaf23caace5eaa420e92fe5c5beca9aa7bd07070",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/driver.py": "2653f9dd0cff351181ec1a287b78c300a21277b3aeafe0d63e1dbc54a9cf041f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/render_saved.py": "cc6d8c248d8722e964e711cdc8d56e7e253e35c1d1eeb6c3ff210d19dd60c13a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/RENDER_DATA_CHECKS.json": "008d0750c7298ade1876bb6c1e048ac6dd7285fd74a76134e936e347b424eb3f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/quad/gauss_clen_curt.py": "18cdc5ec852863ad47c9d09f1dee1bfc260f57f94205a35a7a24a0433bd3beec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/examples/quad/GaussClenCurt.md": "4a8a6796a3ba6dbf0534367090caed80953b472f39d5a37bd53614015d9fb3db"
+  }
+}

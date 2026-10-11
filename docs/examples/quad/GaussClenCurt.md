@@ -51,7 +51,7 @@ Iclenshawcurtis = w*f(s)
 
 ```text
 Iclenshawcurtis =
-   0.336732834781728
+   0.336732834781727
 ```
 
 Or we could try Gauss quadrature with the same number of points and weights.
@@ -85,7 +85,7 @@ title('Gauss quadrature convergence',FS,16), toc
 ```
 
 ```text
-
+Elapsed time is 27.981786 seconds.
 ```
 
 ![GaussClenCurt figure 02](../../images/quad/GaussClenCurt_02.png)
@@ -105,7 +105,7 @@ legend('Gauss','Clenshaw-Curtis','location','southwest'), toc
 ```
 
 ```text
-
+Elapsed time is 22.494884 seconds.
 ```
 
 ![GaussClenCurt figure 03](../../images/quad/GaussClenCurt_03.png)

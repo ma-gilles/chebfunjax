@@ -13,15 +13,15 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import time
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.quadrature import chebpts, chebweights, legpts
 
@@ -30,17 +30,55 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'quad')
 
 
+def _publish(fig, name):
+    """Apply the cached page's export geometry to the computed plot.
+
+    MATLAB font/marker points and Matplotlib export points have different
+    visible sizes here. These are page rendering choices; numerical arrays
+    and the source plotting calls below retain their original values.
+    Historical font rasterization and exact pixel parity remain unqualified.
+    """
+    ax = fig.axes[0]
+    ax.set_position([.13, .11, .775, .815])
+    ax.title.set_fontsize(11)
+    ax.title.set_fontweight('bold')
+    ax.xaxis.label.set_fontsize(8.5)
+    ax.yaxis.label.set_fontsize(8.5)
+    ax.tick_params(labelsize=8, top=True, right=True)
+    for line in ax.lines:
+        line.set_linewidth(.9 if name.endswith('01.png') else .75)
+        if line.get_marker() == '.':
+            line.set_markersize(4)
+    if not name.endswith('01.png'):
+        ax.set_xlim(0, 500)
+        ax.set_xticks(range(0, 501, 50))
+        ax.set_yscale('log', nonpositive='mask')
+        ax.set_yticks([1, 1e-5, 1e-10, 1e-15])
+        ax.grid(True, color='#b0b0b0', alpha=.35, linewidth=.5)
+        legend = ax.get_legend()
+        if legend is not None:
+            for text in legend.get_texts():
+                text.set_fontsize(8)
+                text.set_fontfamily('Arial')
+            for line in legend.get_lines():
+                line.set_markersize(4)
+                line.set_linewidth(.75)
+    for text in [ax.title, ax.xaxis.label, ax.yaxis.label,
+                 *ax.get_xticklabels(), *ax.get_yticklabels()]:
+        text.set_fontfamily('Arial')
+    _savefig(fig, os.path.join(_IMG, name), size=(600, 270))
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     f = lambda x: x * jnp.sin(2 * jnp.exp(2 * jnp.sin(2 * jnp.exp(2 * x))))
     fc = cj.chebfun(f)
-    xs = np.linspace(-1, 1, 2000)
     fig, ax = plt.subplots(figsize=(6.8, 4.0))
-    ax.plot(xs, np.asarray(fc(jnp.asarray(xs))), lw=1.0)
+    matlab_plot(fc, ax=ax, linewidth=1.2)
     ax.set_title("Function f", fontsize=16)
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "GaussClenCurt_01.png"), size=(600, 270))
+    _publish(fig, "GaussClenCurt_01.png")
     plt.close(fig)
 
     Icheb = float(fc.sum())
@@ -49,36 +87,44 @@ def run():
     N = len(fc)
     print("Npts =")
     print(f"   {N}")
-    s = np.asarray(chebpts(N))
-    w = np.asarray(chebweights(N))
+    s = chebpts(N)
+    w = chebweights(N)
     print("Iclenshawcurtis =")
-    print(f"   {float(w @ np.asarray(f(jnp.asarray(s)))):.15f}")
-    sg, wg = (np.asarray(v) for v in legpts(N))
+    print(f"   {float(w @ f(s)):.15f}")
+    sg, wg = legpts(N)
     print("Igauss =")
-    print(f"   {float(wg @ np.asarray(f(jnp.asarray(sg)))):.15f}")
+    print(f"   {float(wg @ f(sg)):.15f}")
 
-    NN = np.arange(10, 501, 10)
-    errG, errC = [], []
-    for Npts in NN:
-        sg, wg = (np.asarray(v) for v in legpts(int(Npts)))
-        errG.append(abs(float(wg @ np.asarray(f(jnp.asarray(sg))))
-                        - Icheb))
-        s = np.asarray(chebpts(int(Npts)))
-        w = np.asarray(chebweights(int(Npts)))
-        errC.append(abs(float(w @ np.asarray(f(jnp.asarray(s)))) - Icheb))
+    # Source has two successive figures: Gauss alone, then both rules.
     fig, ax = plt.subplots(figsize=(6.8, 4.4))
-    ax.semilogy(NN, np.maximum(errG, 1e-18), ".-", ms=8, label="Gauss")
-    ax.semilogy(NN, np.maximum(errC, 1e-18), ".-r", ms=8,
-                label="Clenshaw-Curtis")
+    tic = time.perf_counter()
+    NN = range(10, 501, 10)
+    errG = []
+    for Npts in NN:
+        sg, wg = legpts(Npts)
+        errG.append(abs(float(wg @ f(sg)) - Icheb))
+    ax.semilogy(NN, errG, ".-", lw=1, ms=16, label="Gauss")
     ax.set_ylim(1e-18, 1)
     ax.grid(True)
     ax.set_xlabel("Npts", fontsize=12)
     ax.set_ylabel("Error", fontsize=12)
-    ax.set_title("Gauss and Clenshaw-Curtis", fontsize=16)
-    ax.legend(loc="lower left")
+    ax.set_title("Gauss quadrature convergence", fontsize=16)
+    print(f"Elapsed time is {time.perf_counter() - tic:.6f} seconds.")
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "GaussClenCurt_02.png"), size=(600, 270))
+    _publish(fig, "GaussClenCurt_02.png")
+
+    tic = time.perf_counter()
+    errC = []
+    for Npts in NN:
+        s = chebpts(Npts)
+        w = chebweights(Npts)
+        errC.append(abs(float(w @ f(s)) - Icheb))
+    ax.semilogy(NN, errC, ".-r", lw=1, ms=16, label="Clenshaw-Curtis")
+    ax.set_title("Gauss and Clenshaw-Curtis", fontsize=16)
+    ax.legend(loc="lower left")
+    print(f"Elapsed time is {time.perf_counter() - tic:.6f} seconds.")
+    _publish(fig, "GaussClenCurt_03.png")
     plt.close(fig)
     return True
 
