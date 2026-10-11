@@ -1,0 +1,28 @@
+{
+  "changed_paths": [
+    "tests/test_matlab_port/misc/test_fov_matlab.py"
+  ],
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fov_clause_source_20261011/final_candidate/tests/test_matlab_port/misc/test_fov_matlab.py",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fov_clause_source_20261011/fov_test.patch",
+  "library_changed": false,
+  "source_predicates": 5,
+  "passed_source_predicates": 5,
+  "unchanged_sampled_supplement_assertions": 3,
+  "supplement_run": "Not rerun; preserved original Hermitian supplement verbatim except explicit sampled_fov import alias.",
+  "wall_seconds": 38.02083145594224,
+  "peak_rss_kib": 2054568,
+  "results": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fov_clause_source_20261011/baseline_v3/RESULT.json",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fov_clause_source_20261011/baseline_v3/supervision/receipt.json",
+  "adapter_runs": {
+    "v1": "Test adapter TypeError: Chebfun.max returns(location,value); no source predicate completed.",
+    "v2": "Owned process stopped immediately after source inspection caught wrongtuple index; no source predicate completed. Receipt retained.",
+    "v3": "Correct index1; all five source predicates pass, stable inputs, no owned processes remain."
+  },
+  "qualification": "Native fov tests contain no RNG; no MATLAB execution or pixel parity claimed.",
+  "evidence_hashes": {
+    "candidate": "f529fe5511532f41cccbaaba6fd690c859bb3acf99b03b1dd6e360649a67b0db",
+    "patch": "878d8fb1afc5a3ac5d0f5e2cd9386c8ded5a41e6e458e60d14c0b532f15fa241",
+    "receipt": "4b13f3db2de6838948dc2511388314e1d16079db7d7df79658ea825b18a79a64",
+    "results": "eb5ad460ff31b537ba46325f9d92a5f242dde56d0b886c2d7e8524fc80ed45bb"
+  }
+}

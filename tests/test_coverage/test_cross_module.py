@@ -45,7 +45,7 @@ class TestChebfun2Sum1D:
         expected_scale = 2.0 * float(jnp.sin(jnp.float64(1.0)))
         xs = _eval_pts()
         for xi in xs[::5]:
-            g_val = float(g(float(xi), 0.0))
+            g_val = float(g(float(xi)))
             expected = float(jnp.sin(xi)) * expected_scale
             assert abs(g_val - expected) < ATOL_TIGHT, (
                 f"sum(dim=1) mismatch at x={float(xi):.3f}: "
@@ -53,14 +53,14 @@ class TestChebfun2Sum1D:
             )
 
     def test_sum_dim2_separable_exp_poly(self):
-        """int_{-1}^{1} exp(x) * x^2 dx  evaluated as 1D function of y."""
-        f = chebfun2(lambda x, y: jnp.exp(x) * y ** 2)
+        """Integrate exp(x)*y^2 over x, leaving a function of y."""
+        f = chebfun2(lambda x, y: jnp.exp(x) * y**2)
         # Integrate over x: int exp(x) dx from -1 to 1 = exp(1) - exp(-1)
         g = f.sum(dim=2)
         exp_integral = float(jnp.exp(jnp.float64(1.0)) - jnp.exp(jnp.float64(-1.0)))
         ys = _eval_pts()
         for yi in ys[::5]:
-            g_val = float(g(0.0, float(yi)))
+            g_val = float(g(float(yi)))
             expected = exp_integral * float(yi) ** 2
             assert abs(g_val - expected) < ATOL_TIGHT, (
                 f"sum(dim=2) mismatch at y={float(yi):.3f}: "
@@ -68,9 +68,10 @@ class TestChebfun2Sum1D:
             )
 
     def test_sum2_agrees_with_sum_then_sum(self):
-        """f.sum2() == f.sum(dim=1).sum(dim=2) for a separable function."""
+        """f.sum2() equals the integral of its one-dimensional marginal."""
         f = chebfun2(lambda x, y: jnp.sin(x) * jnp.cos(y))
         double_integral = float(f.sum2())
+        assert abs(float(f.sum(dim=1).sum()) - double_integral) < ATOL_TIGHT
         # Analytical: int sin(x) dx from -1 to 1 = 0, so double integral = 0
         assert abs(double_integral) < ATOL_TIGHT
 
@@ -82,26 +83,23 @@ class TestChebfun2Sum1D:
 
     def test_sum2_product_function(self):
         """int_(-1)^1 int_(-1)^1 x^2 * y^2 dx dy = (2/3)^2 = 4/9."""
-        f = chebfun2(lambda x, y: x ** 2 * y ** 2)
+        f = chebfun2(lambda x, y: x**2 * y**2)
         val = float(f.sum2())
         expected = (2.0 / 3.0) ** 2
         assert abs(val - expected) < ATOL_TIGHT
 
     def test_sum_dim1_dimension_check(self):
-        """After sum(dim=1), evaluation at fixed y values should be x-independent."""
+        """The y integral is a one-dimensional Chebfun of x."""
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
         f = chebfun2(lambda x, y: jnp.exp(x) * jnp.cos(y))
         g = f.sum(dim=1)
-        # g(x, y) should be constant in y for fixed x
-        # g(x, .) = cos(.) integrated over [-1,1] * exp(x)
-        # = 2*sin(1) * exp(x)
+        assert isinstance(g, Chebfun)
+        assert tuple(g.domain.breakpoints) == (-1.0, 1.0)
         scale = 2.0 * float(jnp.sin(jnp.float64(1.0)))
-        xs = _eval_pts(n=5)
-        for xi in xs:
+        for xi in _eval_pts(n=5):
             expected = scale * float(jnp.exp(xi))
-            # Check at y=0 and y=0.5
-            for yi in [0.0, 0.5]:
-                g_val = float(g(float(xi), yi))
-                assert abs(g_val - expected) < ATOL_TIGHT
+            assert abs(float(g(float(xi))) - expected) < ATOL_TIGHT
 
 
 # ============================================================================
@@ -115,6 +113,7 @@ class TestODESatisfiesEquation:
     def test_bvp_harmonic_oscillator_satisfies_ode(self):
         """u'' + u = 0 on [0, pi], u(0)=0, u(pi)=0 => verify u'' + u ≈ 0."""
         import jax.numpy as jnp
+
         domain = (0.0, float(jnp.pi))
         u = bvp(
             lambda x, u: u.diff(2) + u,
@@ -130,6 +129,7 @@ class TestODESatisfiesEquation:
     def test_bvp_boundary_conditions_met(self):
         """u'' + u = 0 on [0, pi]: verify u(0) ≈ 0 and u(pi) ≈ 0."""
         import jax.numpy as jnp
+
         domain = (0.0, float(jnp.pi))
         u = bvp(
             lambda x, u: u.diff(2) + u,
@@ -143,6 +143,7 @@ class TestODESatisfiesEquation:
     def test_bvp_solution_is_sin(self):
         """u'' + u = 0, u(0)=0, u(pi)=0, normalised to u(pi/2)=1 => u = sin(x)."""
         import jax.numpy as jnp
+
         pi = float(jnp.pi)
         u = bvp(
             lambda x, u: u.diff(2) + u,
@@ -194,7 +195,7 @@ class TestODESatisfiesEquation:
         residual = np.array(u.diff(2)(xs)) + np.ones(len(xs))
         npt.assert_allclose(residual, np.zeros_like(residual), atol=ATOL_MED)
         # Also compare to exact solution
-        expected = np.array((1.0 - xs ** 2) / 2.0)
+        expected = np.array((1.0 - xs**2) / 2.0)
         npt.assert_allclose(np.array(u(xs)), expected, atol=ATOL_MED)
 
     def test_eigs_laplacian_values(self):
