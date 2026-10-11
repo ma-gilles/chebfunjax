@@ -2636,6 +2636,41 @@ class Chebfun(eqx.Module):
         """Unary plus (identity)."""
         return self
 
+    def times(self, other):
+        """Pointwise multiplication, the Python adapter for MATLAB ``.*``.
+
+        Python ``*`` retains this library's matrix orientation dispatch.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/times.m, @chebfun/dimCheck.m
+        Chebfun commit: 7574c77
+        """
+        from .linalg import Quasimatrix
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
+        if isinstance(other, Quasimatrix):
+            return other.times(self)
+        if isinstance(other, Chebfun):
+            if self.is_transposed != other.is_transposed:
+                raise ValueError("CHEBFUN:CHEBFUN:times:matdim: "
+                                 "Matrix dimensions must agree. (One input is transposed).")
+            if (self.n_columns != other.n_columns and
+                    self.n_columns != 1 and other.n_columns != 1):
+                raise ValueError("CHEBFUN:CHEBFUN:dimCheck:dim: Matrix dimensions must agree.")
+        else:
+            try:
+                numeric = jnp.asarray(other)
+            except (TypeError, ValueError):
+                raise TypeError("CHEBFUN:CHEBFUN:times:unknown: Undefined function times.") from None
+            if numeric.dtype.kind not in "biufc":
+                raise TypeError("CHEBFUN:CHEBFUN:times:unknown: Undefined function times.")
+        out = self * other
+        values = jnp.asarray(out.point_values)
+        values = jnp.where(jnp.abs(values) < 10*out.vscale*_EPS, 0., values)
+        object.__setattr__(out, "_point_values", values)
+        return out
+
     def __mul__(self, other) -> Chebfun:
         """Matrix-style multiplication (MATLAB ``*``/``mtimes``).
 
@@ -8793,51 +8828,30 @@ class Chebfun(eqx.Module):
         return not self.funs or self.funs[0].tech.isempty()
 
     def isequal(self, other: Chebfun) -> bool:
-        """Equality test: True if self and other have identical coefficients.
-
-        Checks domain equality, the number of pieces, and then compares
-        Chebyshev coefficients of each corresponding piece.
-
-        Parameters
-        ----------
-        other : Chebfun
-
-        Returns
-        -------
-        bool
+        """Compare source breakpoint values and exact underlying FUNs.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/isequal.m
+        MATLAB source : @chebfun/isequal.m, @classicfun/isequal.m
         Chebfun commit: 7574c77
         """
-        if self.is_transposed != other.is_transposed:
-            # A column and a row Chebfun are never equal (MATLAB isequal).
+        from .linalg import Quasimatrix
+        if isinstance(other, Quasimatrix):
+            return other.isequal(self)
+        if not isinstance(other, Chebfun):
             return False
-        if self.domain != other.domain:
+        if self.isempty() or other.isempty():
+            return self.isempty() and other.isempty()
+        if (self.domain != other.domain
+                or self.is_transposed != other.is_transposed
+                or self.n_columns != other.n_columns
+                or len(self.funs) != len(other.funs)):
             return False
-        if len(self.funs) != len(other.funs):
+        if bool(jnp.max(jnp.abs(self.point_values - other.point_values)) > 10*_EPS):
             return False
-        tol = 10.0 * _EPS
-        for pf, pg in zip(self.funs, other.funs):
-            cf = pf.coeffs
-            cg = pg.coeffs
-            if cf.shape[1:] != cg.shape[1:]:
-                # Different column counts -> not equal (array-valued mismatch).
-                return False
-            # Pad the shorter coefficient array with zeros along the *degree*
-            # axis only (axis 0).  A bare ``(0, k)`` pad width applies to every
-            # axis, which for array-valued (n, m) coeffs wrongly grows the
-            # column axis too -- e.g. (13, 2) -> (14, 3) -- and raised a
-            # broadcasting error whenever two pieces had different lengths.
-            n = max(cf.shape[0], cg.shape[0])
-            pad_f = [(0, n - cf.shape[0])] + [(0, 0)] * (cf.ndim - 1)
-            pad_g = [(0, n - cg.shape[0])] + [(0, 0)] * (cg.ndim - 1)
-            cf_pad = jnp.pad(cf, pad_f)
-            cg_pad = jnp.pad(cg, pad_g)
-            if float(jnp.max(jnp.abs(cf_pad - cg_pad))) > tol:
-                return False
-        return True
+        return all(pf.interval == pg.interval
+                   and pf.tech.isequal(pg.tech)
+                   for pf, pg in zip(self.funs, other.funs))
 
     def __eq__(self, other) -> bool:
         """Equality shortcut: delegates to :meth:`isequal`."""

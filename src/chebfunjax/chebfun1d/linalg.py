@@ -336,6 +336,55 @@ class Quasimatrix:
     def __rsub__(self, other):
         return self._zip(other, lambda a, b: b - a)
 
+    def isequal(self, other) -> bool:
+        """Compare source columns, including mixed array/quasimatrix inputs.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isequal.m, @chebfun/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Quasimatrix):
+            columns = other.cols
+        elif isinstance(other, Chebfun):
+            if other.isempty():
+                return False
+            columns = [other] if other.n_columns == 1 else other.mat2cell()
+        else:
+            return False
+        return (len(self.cols) == len(columns)
+                and all(left.isequal(right)
+                        for left, right in zip(self.cols, columns)))
+
+    def times(self, other):
+        """Multiply source quasimatrix columns pointwise (MATLAB ``.*``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/times.m, @chebfun/dimCheck.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, (Chebfun, Quasimatrix)):
+            if isinstance(other, Chebfun) and other.isempty():
+                return Chebfun.empty()
+            if self.is_transposed != other.is_transposed:
+                raise ValueError("CHEBFUN:CHEBFUN:times:matdim: Matrix dimensions must agree.")
+            count = len(other.cols) if isinstance(other, Quasimatrix) else other.n_columns
+            if len(self.cols) != count and len(self.cols) != 1 and count != 1:
+                raise ValueError("CHEBFUN:CHEBFUN:dimCheck:dim: Matrix dimensions must agree.")
+        else:
+            try:
+                value = jnp.asarray(other)
+            except (TypeError, ValueError):
+                raise TypeError("CHEBFUN:CHEBFUN:times:unknown: Undefined function times.") from None
+            if value.size == 0:
+                return Chebfun.empty()
+            if value.dtype.kind not in "biufc":
+                raise TypeError("CHEBFUN:CHEBFUN:times:unknown: Undefined function times.")
+            if value.size != 1:
+                raise ValueError("CHEBFUN:CHEBFUN:times:dim: Matrix dimensions must agree.")
+        return self._zip(other, lambda a, b: a.times(b))
+
     def __mul__(self, other):
         return self._zip(other, lambda a, b: a * b)
 

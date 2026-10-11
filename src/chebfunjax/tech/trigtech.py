@@ -2399,6 +2399,21 @@ class Trigtech(eqx.Module):
     def __pos__(self) -> "Trigtech":
         return self
 
+    def isequal(self, other) -> bool:
+        """Compare exact shapes, values, and coefficients as in native TRIGTECH.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(other, Trigtech):
+            return False
+        return (self.coeffs.shape == other.coeffs.shape
+                and self.values.shape == other.values.shape
+                and bool(jnp.all(self.values == other.values))
+                and bool(jnp.all(self.coeffs == other.coeffs)))
+
     def __mul__(self, other) -> "Trigtech":
         """Multiply using the source prolong, simplify, positivity sequence.
 
