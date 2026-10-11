@@ -1,0 +1,54 @@
+{
+  "base": "e2259da854cad60eee4939ba295aea03b58c892c",
+  "source36_reuse": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_source_20261011/DELIVERY.json",
+  "native_source36_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_native_capture_20261011",
+  "current_combined": {
+    "original_handle": 49059,
+    "terminal": 0,
+    "pytest_summary": "15 passed, 6 warnings in 33.06s",
+    "peak_summed_rss_kib": 1906932,
+    "stable": true,
+    "cap": false,
+    "remaining_owned_pids": []
+  },
+  "coverage": [
+    "MAT2CELLsource grouping/erroridentifier/flatlist/storedcomplexvalues contracts",
+    "publishedVERTCAT8executedsourceassertions plusrowcomplex/storagecontrols",
+    "oldmappedMAT2CELL andVERTCAT retained",
+    "actualproductionrowarrayconvolution original40epsbound"
+  ],
+  "unchanged": "current VERTCAT/cumsum/isequal/cumprod/sum/otherChebfun andQuasi methods; current _vertcat/_horzcat/_convolution bytes",
+  "source36_rerun": false,
+  "AST_reuse": "sourcequalifiedmat2cell methods/helper/fixture identical; comparedtoqualifiedcandidate onlyChebfun.vertcat method differs, now exercised",
+  "loaded_module_differences_from_prior_source36": {
+    "finite_gate_loaded_module_byte_changes": [
+      "chebfunjax.utils.fov",
+      "chebfunjax.chebfun1d.chebfun",
+      "chebfunjax.chebfun1d._mat2cell"
+    ],
+    "unbounded_gate_loaded_module_byte_changes": [
+      "chebfunjax.utils.fov",
+      "chebfunjax.chebfun1d.chebfun",
+      "chebfunjax.chebfun1d._mat2cell"
+    ]
+  },
+  "all_handles_consumed": true,
+  "limits": "MAT2CELL prior adapter limitations unchanged; oldmappedrandominputs treatedsupplemental, notnative36 qualification",
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_integration_e2259da8_20261011/DELIVERY.json": "db8eaf153c9dad2aa48a1fbd198d696b511b5c7e1e18531adf35aaf879a6a3b7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_integration_e2259da8_20261011/AST_REUSE.json": "96517adcf56b2cd041c57c93c96226c5a705475c72bbd8493ca43d01122512f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_integration_e2259da8_20261011/INTEGRATION.json": "9e80f1dda90a1562ee024f692f0acbff210c5aae65017575d265b011f273e5bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_source_20261011/DELIVERY.json": "1e5140a79656cd47dad570618984f7527ffc8f46a46c58eed2958b5fda128cee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/blasius_page_source_20261011/PUBLICATION_REVIEW.json": "0236193d98478b06423d6950593b1fa8f23a72e13ea74a612bbb1d0b47367cae"
+  },
+  "agent_preintegration_P_untouched": true,
+  "source_slots": 36,
+  "meaningful_predicates": 35,
+  "source_constant_true_slots": 1,
+  "adapters": [
+    "Flat list-compatible CellList with shape metadata, preserving existing indexing and iteration.",
+    "Explicit Quasimatrix collection replaces native quasimatrix constructor syntax.",
+    "Source error identifier retained in ValueError; parser rejects invalid noninteger/nonfinite/complex sizes explicitly."
+  ],
+  "publication": "Applied narrow methods/helper/tests/fixture; normalized required provenance docstrings without arithmetic change."
+}

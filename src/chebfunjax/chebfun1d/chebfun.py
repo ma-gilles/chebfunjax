@@ -7559,88 +7559,30 @@ class Chebfun(eqx.Module):
         return Chebfun._as_transposed(out, self.is_transposed)
 
     def mat2cell(self, sizes=None, n=None) -> list:
-        """Split an array-valued Chebfun by column counts (MATLAB
-        ``mat2cell(f, sizes)`` / ``mat2cell(f, 1, sizes)``).  An empty
-        Chebfun returns a single-cell list holding the empty Chebfun.
+        """Split components, preserving coefficients and stored point values.
 
-        Parameters
-        ----------
-        sizes : sequence of int or None, optional
-            Component counts, which must sum to the number of columns
-            (rows, for a row Chebfun).  ``None`` splits into single
-            components.  In the three-argument MATLAB form this is ``M``.
-        n : sequence of int or None, optional
-            Present only for MATLAB's three-argument
-            ``mat2cell(F, M, N)`` form.  For a column Chebfun ``sizes``
-            must then be the scalar 1 and ``n`` carries the counts; for a
-            row Chebfun the roles are reversed.
-
-        Returns
-        -------
-        list of Chebfun
-
-        Raises
-        ------
-        ValueError
-            If the requested sizes do not sum to the number of components
-            (MATLAB ``CHEBFUN:CHEBFUN:mat2cell:size``).
+        Returns a flat list-compatible CellList; its ``shape`` records the
+        native cell-array layout (1-by-K for columns, K-by-1 for rows).
 
         Provenance
         ----------
         MATLAB source : @chebfun/mat2cell.m
         Chebfun commit: 7574c77
         """
+        from ._mat2cell import CellList, source_sizes
         if self.isempty():
-            return [Chebfun.empty()]
-        # For a row (transposed) chebfun the split is along the rows; operate
-        # on the underlying columns and re-tag every cell as a row chebfun so
-        # each cell's size is (size(k), inf) rather than (inf, size(k)).
+            return CellList([self])
         row = self.is_transposed
         base = self.transpose() if row else self
-        n_cols = base.n_columns
-
-        def _as_sizes(v, what):
-            try:
-                seq = [int(t) for t in
-                       (v if hasattr(v, "__len__") else (v,))]
-            except (TypeError, ValueError):
-                raise ValueError(
-                    f"mat2cell: {what} must be numeric; got {v!r}."
-                ) from None
-            if any(t < 0 for t in seq):
-                raise ValueError(
-                    f"mat2cell: {what} must be non-negative.")
-            return seq
-
-        if n is not None:
-            # MATLAB mat2cell(F, M, N): the dimension that is not split
-            # must be the scalar 1.
-            m_seq = _as_sizes(sizes, "M")
-            n_seq = _as_sizes(n, "N")
-            free, fixed = (m_seq, n_seq) if row else (n_seq, m_seq)
-            if fixed != [1]:
-                raise ValueError(
-                    "mat2cell: input arguments, M and N, must sum to each "
-                    f"dimension of the input size, [1,{n_cols}].")
-            sizes = free
-        elif sizes is not None:
-            sizes = _as_sizes(sizes, "sizes")
-
-        if sizes is None:
-            # MATLAB mat2cell(F): split into single components (ones vector).
-            sizes = [1] * n_cols
-        elif sum(sizes) != n_cols:
-            raise ValueError(
-                "mat2cell: input arguments, M and N, must sum to each "
-                f"dimension of the input size, [1,{n_cols}].")
+        counts = source_sizes(base.n_columns, row, sizes, n)
         out = []
         j = 0
-        for s in sizes:
-            cols = j if s == 1 else list(range(j, j + s))
+        for count in counts:
+            cols = j if count == 1 else list(range(j, j + count))
             cell = base.extract_columns(cols)
             out.append(Chebfun._as_transposed(cell, row))
-            j += s
-        return out
+            j += count
+        return CellList(out, row=row)
 
     def repmat(self, m, n=None):
         """Tile finite columns/rows with source ``(m,n)`` or ``[m,n]`` syntax.

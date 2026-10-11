@@ -670,6 +670,33 @@ class Quasimatrix:
                 columns[index] = columns[index] + columns[index - 1]
         return Quasimatrix(columns, self.domain)
 
+    def mat2cell(self, sizes=None, n=None):
+        """Group existing quasimatrix columns using native component sizes.
+
+        The flat CellList adapter records native layout with ``shape``;
+        groups of multiple columns retain the Quasimatrix representation.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        from ._mat2cell import CellList, source_sizes
+        counts = source_sizes(len(self.cols), self.is_transposed, sizes, n)
+        cells = []
+        start = 0
+        for count in counts:
+            group = self.cols[start:start + count]
+            if count == 1:
+                cell = group[0]
+            elif count == 0:
+                cell = Chebfun._as_transposed(Chebfun.empty(), self.is_transposed)
+            else:
+                cell = Quasimatrix(group, self.domain)
+            cells.append(cell)
+            start += count
+        return CellList(cells, row=self.is_transposed)
+
     def cumprod(self):
         """Indefinite product integral, independently for each column.
 

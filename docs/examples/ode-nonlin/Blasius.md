@@ -28,7 +28,7 @@ u   = N\0
 u =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,      11]       43  -7.8e-16      9.3
+[       0,      11]       38  -5.4e-13      9.3
 vertical scale = 9.3
 ```
 
@@ -50,12 +50,12 @@ bc_residuals = bc(0,u)     % Residuals of boundary conditions
 
 ```text
 op_residual =
-     4.510332583906023e-10
+     2.447748939632071e-08
 bc_residuals =
-   1.0e-13 *
-  -0.017763568394003
-   0.031086244689504
-  -3.462785613805863
+   1.0e-11 *
+  -0.053827062146004
+  -2.747413407888644
+  -0.592537130472692
 ```
 
 One quantity of interest is the second derivative of the solution $u$ at the origin. The exact value to sixteen decimal places is supplied by Boyd [1]. Let's test Chebfun's accuracy for this quantity.
@@ -68,7 +68,7 @@ a_exact - a_computed
 
 ```text
 ans =
-    -1.824740358813415e-11
+    -1.801208959761880e-09
 ```
 
 Noticing that the Blasius function approaches a linear polynomial away from the origin, the reader may wonder, what is the limiting value $u(x) - x$ as $x \to \infty$? The answer again is supplied to high accuracy by Boyd, so let us see how Chebfun performs.
@@ -88,7 +88,7 @@ b_exact - b_computed
 
 ```text
 ans =
-    -2.294195944330113e-10
+    -2.280411415256367e-10
 ```
 
 A special property of the Blasius function is that its power series representation only includes every third term, that is,
@@ -104,19 +104,12 @@ coeffs(end:-1:end-5)'
 
 ```text
 ans =
-  -0.000000000000586
-   0.000000000127034
-   0.166028663522975
-   0.000000066104530
-  -0.000000507105967
-  -0.000457023555236
-Please try supplying a better initial guess via the .init field
-of the chebop.
-v =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[    -5.6,      11]      768        67      9.3
-vertical scale =  67
+  -0.000000000000536
+  -0.000000000027476
+   0.166028669008202
+  -0.000000012971153
+   0.000000106033639
+  -0.000459974645887
 ```
 
 The nonzero coefficients in the power series expansion alternate in sign, which suggests that convergence is limited by a singularity on the negative $x$-axis. Indeed this is the case, and the singularity's location is known to be approximately $x_0 = -5.6900380545$. We can see the singularity in Chebfun by extending the domain of the chebop to somewhere near $x_0$, whereupon the boundary conditions at $x=0$ become interior point conditions. (The resulting function is not fully accurate, as Chebfun warns.)
@@ -129,7 +122,12 @@ title('A singularity of the Blasius function')
 ```
 
 ```text
-
+Warning: chebop scalar Newton iteration failed: linear solve or damping did not converge
+v =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[    -5.6,      11]      224        67      9.3
+vertical scale =  67
 ```
 
 ![Blasius figure 03](../../images/ode-nonlin/Blasius_03.png)

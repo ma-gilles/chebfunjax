@@ -15,9 +15,12 @@ Copyright by The University of Oxford and The Chebfun Developers.
 import matplotlib
 
 matplotlib.use("Agg")
+import json
 import os
 import sys
+import time
 import warnings
+from pathlib import Path
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -37,8 +40,18 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-nonlin')
 
 def _save(fig, k):
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Blasius_{k:02d}.png"))
+    fig.set_size_inches(600 / 72, 270 / 72)
+    fig.set_dpi(72)
+    fig.axes[0].set_position((.13, .11, .775, .815))
+    capture = os.environ.get("CHEBFUNJAX_CAPTURE_DIR")
+    if capture:
+        arrays = {}
+        for ai, ax in enumerate(fig.axes):
+            arrays[f"axes_{ai}_limits"] = np.asarray(ax.axis())
+            for li, line in enumerate(ax.lines):
+                arrays[f"axes_{ai}_line_{li}"] = line.get_xydata()
+        np.savez(Path(capture) / f"Blasius_{k:02d}.npz", **arrays)
+    _savefig(fig, os.path.join(_IMG, f"Blasius_{k:02d}.png"), dpi=72)
 
 
 def _col_long(v):
@@ -54,9 +67,30 @@ def _col_long(v):
         print(f"{t:20.15f}")
 
 
+def _solve_capture(operator, label):
+    started = time.monotonic()
+    with warnings.catch_warnings(record=True) as events:
+        warnings.simplefilter("always")
+        solution = operator.solve(0.0)
+    for event in events:
+        print(f"Warning: {event.message}")
+    capture = os.environ.get("CHEBFUNJAX_CAPTURE_DIR")
+    if capture:
+        dest = Path(capture)
+        meta = {"seconds": time.monotonic() - started,
+                "domain": list(solution.domain.breakpoints),
+                "warnings": [str(w.message) for w in events]}
+        arrays = {"point_values": np.asarray(solution.point_values)}
+        for i, piece in enumerate(solution.funs):
+            if hasattr(piece, "tech"):
+                arrays[f"piece_{i}_coeffs"] = np.asarray(piece.tech.coeffs)
+        np.savez(dest / f"{label}_solution.npz", **arrays)
+        (dest / f"{label}_metadata.json").write_text(json.dumps(meta, indent=2))
+    return solution
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     dom = (0.0, 11.0)
     op = lambda u: 2 * u.diff(3) + u * u.diff(2)  # noqa: E731
@@ -65,7 +99,8 @@ def run():
         return [u(0.0), u.diff()(0.0), u.diff()(dom[1]) - 1]
     N = Chebop(op, domain=dom)
     N.bc = bc
-    u = N.solve(0.0)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:1@@")
+    u = _solve_capture(N, "u")
     print("u =")
     print(repr(u))
 
@@ -74,6 +109,7 @@ def run():
     ax.set_title("The Blasius function")
     _save(fig, 1)
 
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:2@@")
     print("op_residual =")                    # Residual of the ODE
     print(f"     {float(op(u).norm()):.15e}")
     print("bc_residuals =")                   # Residuals of the BCs
@@ -81,6 +117,7 @@ def run():
 
     a_exact = 0.33205733621519630
     a_computed = float(u.diff(2)(jnp.array(0.0)))
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:3@@")
     print("ans =")
     print(f"    {a_exact - a_computed:.15e}")
 
@@ -91,23 +128,19 @@ def run():
 
     b_exact = -1.720787657520503
     b_computed = float((u - x)(jnp.array(dom[1])))
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:4@@")
     print("ans =")
     print(f"    {b_exact - b_computed:.15e}")
 
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:5@@")
     coeffs = poly(u)
     print("ans =")
     _col_long(coeffs[::-1][:6])
 
     N2 = Chebop(op, domain=(-5.6, 11.0))
     N2.bc = bc
-    with warnings.catch_warnings(record=True) as wlist:
-        warnings.simplefilter("always")
-        v = N2.solve(0.0)
-    if any("Newton" in str(w.message) for w in wlist):
-        print("Warning: Newton iteration failed.")
-        print("Please try supplying a better initial guess via the .init "
-              "field")
-        print("of the chebop. ")
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:6@@")
+    v = _solve_capture(N2, "v")
     print("v =")
     print(repr(v))
     fig, ax = plt.subplots(figsize=(6.0, 2.7))
@@ -116,6 +149,7 @@ def run():
     ax.set_title("A singularity of the Blasius function")
     _save(fig, 3)
     plt.close(fig)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:0@@")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+{
+  "native_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_native_capture_20261011",
+  "original_handle": 81397,
+  "native_pin": "7574c77",
+  "native_results": "all36true",
+  "mat_sha256": "53790d1fdfa74257e8258bd55f0176e60c807de768c2efd7c560affde2671599",
+  "rng": "seed7681\u21921000uniform\u2192100uniform, literal source scaledinputs; these exact arrays only",
+  "RandomState_qualified_bitidentity": true
+}
