@@ -80,6 +80,7 @@ def sum_coefficients(coefficients, is_real):
     return jnp.where(is_real, jnp.real(result), result)
 
 
+@jax.jit
 def norm_coefficients(coefficients):
     """Native exact doubled dimensions and coefficient-constructor realness."""
     c = jnp.asarray(coefficients, dtype=jnp.complex128)

@@ -13,21 +13,20 @@ from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.spherefun.spherefun import Spherefun
 
 
-def test_original_slots_1_3():
+@pytest.mark.parametrize("l", range(11))
+def test_original_slots_1_3(l):
     tol = 1e6 * ChebfunPref().techPrefs.chebfuneps
     max_difference = max_norm = max_laplacian = 0.
-    for l in range(11):
-        for m in range(-l, l + 1):
-            harmonic = Ballfun.solharm(l, m)
-            surface = harmonic.to_spherefun(1) / float(jnp.sqrt(2*l+3))
-            reference = Spherefun.sphharm(l, m)
-            max_difference = max(float((surface-reference).norm()), max_difference)
-            max_norm = max(abs(float(harmonic.norm())-1), max_norm)
-            max_laplacian = max(float(harmonic.laplacian().norm()), max_laplacian)
+    for m in range(-l, l + 1):
+        harmonic = Ballfun.solharm(l, m)
+        surface = harmonic.to_spherefun(1) / float(jnp.sqrt(2*l+3))
+        reference = Spherefun.sphharm(l, m)
+        max_difference = max(float((surface-reference).norm()), max_difference)
+        max_norm = max(abs(float(harmonic.norm())-1), max_norm)
+        max_laplacian = max(float(harmonic.laplacian().norm()), max_laplacian)
     assert max_difference < tol  # original1
     assert max_norm < tol  # original2
     assert max_laplacian < tol  # original3
-
 
 @pytest.mark.parametrize("l,m,slot", [(0, 0, 4), (1, -1, 5), (1, 0, 6), (1, 1, 7),
                                      (2, -2, 8), (2, -1, 9), (2, 0, 10), (2, 1, 11), (2, 2, 12)])

@@ -1,0 +1,373 @@
+{
+  "format": "chebfunjax-norm-jit-delivery-v1",
+  "status": "review-ready private candidate; not applied to publication checkout",
+  "publication_baseline": {
+    "head": "141232f24f3f1cf7d5df183f9031d19f6150ba60",
+    "working_tree_clean": true,
+    "integrals_source": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/ballfun/_integrals.py",
+      "sha256": "c8423bf26abd7fb62022f102d2b12beee426321a6bf48c49f69c71374f9bc8a6"
+    },
+    "norm_test": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/ballfun/test_norm_matlab.py",
+      "sha256": "71057d0fef1e7f120e3e0e462777b148194a72ff24b467da9c5287df2263f369"
+    },
+    "solharm_test": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/ballfun/test_solharm_matlab.py",
+      "sha256": "f27aa9334238398dc729cf50030d7e629067daccebe2931890cf326cb5fd28c8"
+    }
+  },
+  "candidate": {
+    "integrals_file": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/delivery_candidate/src/chebfunjax/ballfun/_integrals.py",
+      "sha256": "7e331d02c4ba99066e93c026fafec4998baf9abfb12b9fa2104107d7a6dc26bd"
+    },
+    "integrals_patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/norm_coefficients_jit_decorator.patch",
+      "sha256": "cfe994feae91b96601074a34de3459b2d2cb83a2e41e8d5cef349ada28e406d8"
+    },
+    "change": "one decorator line `@jax.jit` immediately above norm_coefficients; the function body and all formulas are byte-identical.",
+    "parametrized_test_file": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/delivery_candidate/tests/test_matlab_port/ballfun/test_solharm_matlab.py",
+      "sha256": "15277ccf48a1352a41c143b489aee8219abf1187dfc765f8e0acc207a52230cf"
+    },
+    "parametrization_patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/solharm_degree_parametrization.patch",
+      "sha256": "208f4edf53ef32cdf5e0b88567bbd7cd71ae252f5e3dd35e283f39414b0332df"
+    },
+    "change_summary": "Parametrize original degree l=0..10 as 11 pytest cases, retain inner m=-l..l loop and all original calculations/assertions; this maps 121 degree/order pairs to 11 bounded selectors.",
+    "structural_review": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/PARAMETRIZATION_AST_REVIEW.json",
+      "sha256": "d510a37546d1351562cc7d9dd786c3dc44a4466fdfe07f7d60176cae018372ef"
+    },
+    "ruff_f821": "passed",
+    "collect_only": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/param_candidate/collection.txt",
+      "sha256": "ea53b183b662967e879c2fad116dbf01f9bf108d640eba8c7806c27926c2b820",
+      "items": 22,
+      "parameterized_degree_cases": 11,
+      "native_degree_order_pairs_preserved": 121,
+      "numeric_tests_run": false
+    }
+  },
+  "norm_benchmark": {
+    "source_head": "47bb90e1110432bc77791948e467b245f1c97609",
+    "source_integrals_sha256": "c8423bf26abd7fb62022f102d2b12beee426321a6bf48c49f69c71374f9bc8a6",
+    "eager_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/eager-supervision/receipt.json",
+      "sha256": "b7343271a4aada67fca8372e500835d3ef909d06de13dc0e791c404ca77bc511"
+    },
+    "jit_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/jit-supervision/receipt.json",
+      "sha256": "171da97adb55a1bb0448ed07a38af1220194d3a3c14620790a8d23206bc686b8"
+    },
+    "eager_results": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/eager-results.json",
+      "sha256": "34bf53f9270d0d894356e606f76b4e4054f496f303dd61accc026e63674b28be"
+    },
+    "jit_results": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/jit-results.json",
+      "sha256": "220210cdb0dabe7086b285e2843507aeae30a39119b357bc7752b431ff628b94"
+    },
+    "report": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/REPORT.json",
+      "sha256": "a72e32591f8c3eae59061d421d9eb5ada9bbeb2fcd452411894cd5cb1134b58c"
+    },
+    "modes": [
+      {
+        "degree": 10,
+        "order": 0,
+        "coeff_shape": [
+          11,
+          1,
+          21
+        ],
+        "coeff_sha256_eager": "f85c59dd40680adb4508624a62acef7f32fd6697227588065482c5ae2c55e49c",
+        "coeff_sha256_jit": "f85c59dd40680adb4508624a62acef7f32fd6697227588065482c5ae2c55e49c",
+        "same_inputs": true,
+        "eager_cold_s": 3.316125037148595,
+        "jit_cold_s": 0.5336866257712245,
+        "cold_speedup": 6.213618398918092,
+        "eager_warm_s": 0.034160750918090343,
+        "jit_warm_s": 0.00036336295306682587,
+        "warm_speedup": 94.01275124436766,
+        "eager_value": 0.9999999999999987,
+        "jit_value": 0.9999999999999987,
+        "absolute_delta": 0.0,
+        "native_tolerance": 2.220446049250313e-10,
+        "both_within_original_norm_predicate": true
+      },
+      {
+        "degree": 10,
+        "order": 10,
+        "coeff_shape": [
+          11,
+          21,
+          21
+        ],
+        "coeff_sha256_eager": "97b54b1b8a9d8f96f8ba1d10fe5e90ee68382649aa2e45375fc25f2327b5f9f2",
+        "coeff_sha256_jit": "97b54b1b8a9d8f96f8ba1d10fe5e90ee68382649aa2e45375fc25f2327b5f9f2",
+        "same_inputs": true,
+        "eager_cold_s": 3.5759652932174504,
+        "jit_cold_s": 0.7563265962526202,
+        "cold_speedup": 4.728070268763951,
+        "eager_warm_s": 0.03939659288153052,
+        "jit_warm_s": 0.001285055186599493,
+        "warm_speedup": 30.657510504106522,
+        "eager_value": 0.9999999999999992,
+        "jit_value": 0.9999999999999992,
+        "absolute_delta": 0.0,
+        "native_tolerance": 2.220446049250313e-10,
+        "both_within_original_norm_predicate": true
+      }
+    ],
+    "eager_session": 40582,
+    "jit_session": 50468,
+    "both_clean_terminal": true,
+    "run_bindings": {
+      "shared_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/guard.json",
+        "sha256": "9a9e7f6235d2d06d62dc145f19f8cb954c062d0d39b5603aa7199da2ff3f29b3"
+      },
+      "eager_supervisor_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/eager-supervision/guard.json",
+        "sha256": "fd453834df6f6985790d16e0c63733c119296d06755ead095d47276e1600196f"
+      },
+      "jit_supervisor_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/jit-supervision/guard.json",
+        "sha256": "fd453834df6f6985790d16e0c63733c119296d06755ead095d47276e1600196f"
+      },
+      "launch_script": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate/launch.sh",
+        "sha256": "4727f6ac5ce0e3539cd00ac25455f2c12c9c42dbd78aab32b23ecd98e6e5721f"
+      }
+    }
+  },
+  "laplacian_near_zero": {
+    "eager_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/eager-supervision/receipt.json",
+      "sha256": "9c8dc539d4cb405330d4f2d8dadc322ec81c51b8ec95a49d8dc4790e623c529b"
+    },
+    "jit_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit-supervision/receipt.json",
+      "sha256": "50ebae8800296f7919b3e027f4d8bfbd5d9f479f36b46ba50b0a7584aa9b5c87"
+    },
+    "eager_results": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/eager-laplacian-results.json",
+      "sha256": "6b4ac61e8c9b29b670c3720df680b1322f44200ba107c10067400c12ae19a010"
+    },
+    "jit_results": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit-laplacian-results.json",
+      "sha256": "dcb9c3a18454cd210d88d4d1a0a36e05e6ce5f2c4b92c7e4a19e55a7cbccc860"
+    },
+    "eager_runtime_end": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/eager-runtime/end.json",
+      "sha256": "b36e1ab646c11a940b923d92f5fbcdc4fb850ab523386936b3164fb67f6070a9"
+    },
+    "jit_runtime_end": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit-runtime/end.json",
+      "sha256": "570eb887869a88e2967b4c4afbf1ca3750eb4a51c0176049391c9b5f90beffaf"
+    },
+    "eager_session": 30355,
+    "jit_session": 93938,
+    "eager": [
+      {
+        "arm": "eager",
+        "order": 0,
+        "laplacian_coeff_shape": [
+          16,
+          5,
+          26
+        ],
+        "laplacian_coeff_sha256": "db4bbc4c9cea20766c8df3dbd16d9e56cfb70e3b3490ca7d8c896208cdfc8676",
+        "timings_seconds": {
+          "cold": 4.139019522815943,
+          "warm": 0.046962284948676825
+        },
+        "values": [
+          3.6719056792071953e-13,
+          3.6719056792071953e-13
+        ],
+        "unchanged_norm_tolerance": 2.220446049250313e-10,
+        "within_original_laplacian_norm_predicate": true
+      },
+      {
+        "arm": "eager",
+        "order": 10,
+        "laplacian_coeff_shape": [
+          16,
+          25,
+          26
+        ],
+        "laplacian_coeff_sha256": "7d509ce1678483776e95891383087c4a855aef5e6a9df150db329d143be89d84",
+        "timings_seconds": {
+          "cold": 4.146103468257934,
+          "warm": 0.054277956020087004
+        },
+        "values": [
+          1.5702250478929184e-12,
+          1.5702250478929184e-12
+        ],
+        "unchanged_norm_tolerance": 2.220446049250313e-10,
+        "within_original_laplacian_norm_predicate": true
+      }
+    ],
+    "jit": [
+      {
+        "arm": "jit",
+        "order": 0,
+        "laplacian_coeff_shape": [
+          16,
+          5,
+          26
+        ],
+        "laplacian_coeff_sha256": "db4bbc4c9cea20766c8df3dbd16d9e56cfb70e3b3490ca7d8c896208cdfc8676",
+        "timings_seconds": {
+          "cold": 0.9222116647288203,
+          "warm": 0.0011161076836287975
+        },
+        "values": [
+          3.6719056792071953e-13,
+          3.6719056792071953e-13
+        ],
+        "unchanged_norm_tolerance": 2.220446049250313e-10,
+        "within_original_laplacian_norm_predicate": true
+      },
+      {
+        "arm": "jit",
+        "order": 10,
+        "laplacian_coeff_shape": [
+          16,
+          25,
+          26
+        ],
+        "laplacian_coeff_sha256": "7d509ce1678483776e95891383087c4a855aef5e6a9df150db329d143be89d84",
+        "timings_seconds": {
+          "cold": 1.064198347274214,
+          "warm": 0.004800593014806509
+        },
+        "values": [
+          1.5702250478929184e-12,
+          1.5702250478929184e-12
+        ],
+        "unchanged_norm_tolerance": 2.220446049250313e-10,
+        "within_original_laplacian_norm_predicate": true
+      }
+    ],
+    "unchanged_norm_tolerance": 2.220446049250313e-10,
+    "both_clean_terminal": true,
+    "run_bindings": {
+      "shared_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/guard.json",
+        "sha256": "bc7c96c5364c94e58050dabc8372eeaa2bcb540d803ef92c2cb55d51618e21b7"
+      },
+      "eager_supervisor_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/eager-supervision/guard.json",
+        "sha256": "37c0dd0281db460edc5b10b27011be152ea2dd08beb407109dd1af8f335b1eee"
+      },
+      "jit_supervisor_guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit-supervision/guard.json",
+        "sha256": "37c0dd0281db460edc5b10b27011be152ea2dd08beb407109dd1af8f335b1eee"
+      },
+      "launch_script": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/launch.sh",
+        "sha256": "c356fa530d7b860f995987b26e3284f178cb61f5b734057894b2b97204964117"
+      },
+      "manifest": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/manifest.json",
+        "sha256": "2e0ee07e763d071858ec8071fa1a3bfccb23e63ac6539354886049553f82da21"
+      }
+    }
+  },
+  "existing_norm_tests": {
+    "report": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/NORM_TESTS_RUN_REPORT.json",
+      "sha256": "f2c77e636c3e71318465ceb4bc40bac3dedc314bcb9ec37b126a66d85adaa391"
+    },
+    "folder": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1",
+    "original_session": 49157,
+    "nodes": [
+      "tests/test_matlab_port/ballfun/test_norm_matlab.py::TestBallfunNorm::test_norm_of_x",
+      "tests/test_matlab_port/ballfun/test_norm_matlab.py::TestBallfunNorm::test_norm_of_one",
+      "tests/test_matlab_port/ballfun/test_norm_matlab.py::test_original_norm"
+    ],
+    "result": "3 passed in 23.04s",
+    "original_assertions_unchanged": true,
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/supervision/receipt.json",
+      "sha256": "a839dbe515637376c2ded8890391ac669b8b6eff46d1fcc9edb4ef714416b003"
+    },
+    "stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/supervision/stdout",
+      "sha256": "f1f2d28970c2d791f14c9fdf2fffa3cda26837add71a9eb52faa8453ec1dad58"
+    },
+    "stderr": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/supervision/stderr",
+      "sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b"
+    },
+    "provider_observations": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/provider_observations.json",
+      "sha256": "c835e3c476ff7fb03a2df2cee902e3c6cb6cd2420645bf8f5da3663a5a78b71f"
+    },
+    "provider_scope_limit": "Third-party provider hashes are post-run observations only; source/test Python trees, pinned environment script, interpreter, launcher and harness plugins were guarded before and after.",
+    "run_bindings": {
+      "guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/guard.json",
+        "sha256": "f6fba8cf34e6b0756c25c2440e3cb5a9876bd2dcdf34deabc506fbc0a70cada1"
+      },
+      "preparation": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/PREPARATION.json",
+        "sha256": "7a725fa1c3bc0274ce1ccf6a6a4d69b75391816d132d32ac1e9fe0959aa93656"
+      },
+      "launcher": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/launch.sh",
+        "sha256": "8bdaeb8a5a3105c87f618edd9e576ae1b968b0340cdc4cd44edacd5fd0e1c450"
+      },
+      "jit_substitution": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/norm_jit_substitution.py",
+        "sha256": "94df1023da7453dc2efb755bed8c27c7c058df6884fae12307c0581c385f601e"
+      },
+      "provider_observer": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_direct_v1/provider_observer.py",
+        "sha256": "a2916903166a4e3cfe3b433651054fe641a0d6d3ab84b03a54ed76fdda1ec5c6"
+      }
+    }
+  },
+  "preserved_failures": [
+    {
+      "artifact": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/JIT_NORM_TEST_PREFLIGHT_FAILURE.json",
+        "sha256": "c5b4d6782c18bbb2237931dc60ce0ce506c26f6e16e385676cd28ae603c42240"
+      },
+      "classification": "strict runtime gate stopped before scientific tests due omitted incidental Python provider; no test credit"
+    },
+    {
+      "artifact": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit_norm_tests-runtime/failure.json",
+        "sha256": "26bcfbd0f914f2b92c2ff40695209ed1c1445db9f2513311092c47dc30743e34"
+      },
+      "classification": "strict runtime gate stopped before collection/science due tests package modules; no test credit"
+    },
+    {
+      "artifact": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_laplacian_v3/jit_norm_tests-supervision/receipt.json",
+        "sha256": "cf9864a52f573183c74e153f9739f584711d5b89a95424af27aaa3871a2677ef"
+      },
+      "classification": "supervisor confirms command/supervisor exit 4 before collection, stable inputs, no survivors; preserved"
+    },
+    {
+      "artifact": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_coefficients_jit_benchmark_20261011/gate_norm_tests_v4/collect-supervision/receipt.json",
+        "sha256": "52c419b1962f531c94c6c9b65cf4ccb744f69debde198a8862a1140164d2984d"
+      },
+      "classification": "strict collect-only attempt stopped before collection/science; preserved"
+    }
+  ],
+  "source_applicability": "Publication checkout is clean at main 141232f24f3f1cf7d5df183f9031d19f6150ba60. Its _integrals.py SHA matches the tested profile_v5 snapshot; test_norm and test_solharm source hashes also match the frozen test files. The private decorator candidate is therefore based on byte-identical source at this head. No production patch was applied and no test tolerances were changed.",
+  "root_review": {
+    "independently_rehashed_paths": 4404,
+    "production_change_verified": "Exactly one decorator; function/module AST otherwise unchanged.",
+    "test_change_verified": "Original121 pairs, complete inner body and all predicates preserved; outer degree loop parameterized. No numerical full121-case rerun.",
+    "publication_status": "Integrated after successful bounded CPU controls; full CI remains pending."
+  }
+}
