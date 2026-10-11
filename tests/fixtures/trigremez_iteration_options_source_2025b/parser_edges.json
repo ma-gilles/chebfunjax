@@ -1,0 +1,116 @@
+{
+  "source": "Literal extracted native parseInputs,no constructor/approximation",
+  "native_version": "R2025b",
+  "cases": {
+    "1": {
+      "case": 1,
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "2": {
+      "case": 2,
+      "error_id": "",
+      "error_message": "",
+      "m": 1,
+      "n": 0,
+      "N": 4,
+      "rational_mode": 0,
+      "opts": {
+        "tol": 1.2000000000000001e-14,
+        "maxIter": 100,
+        "displayIter": 1,
+        "plotIter": 0
+      },
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "3": {
+      "case": 3,
+      "error_id": "",
+      "error_message": "",
+      "m": 1,
+      "n": 0,
+      "N": 4,
+      "rational_mode": 0,
+      "opts": {
+        "tol": 1.2000000000000001e-14,
+        "maxIter": 100,
+        "displayIter": 0,
+        "plotIter": 1
+      },
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "4": {
+      "case": 4,
+      "error_id": "MATLAB:badsubscript",
+      "error_message": "Index exceeds the number of array elements. Index must not exceed 1.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "5": {
+      "case": 5,
+      "error_id": "MATLAB:badsubscript",
+      "error_message": "Index exceeds the number of array elements. Index must not exceed 1.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "6": {
+      "case": 6,
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "7": {
+      "case": 7,
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "8": {
+      "case": 8,
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:badInput",
+      "error_message": "Unrecognized sequence of input parameters.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "9": {
+      "case": 9,
+      "error_id": "",
+      "error_message": "",
+      "m": 1,
+      "n": 1,
+      "N": 6,
+      "rational_mode": 1,
+      "opts": {
+        "tol": 0.002,
+        "maxIter": 100,
+        "displayIter": 0,
+        "plotIter": 0
+      },
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "10": {
+      "case": 10,
+      "error_id": "",
+      "error_message": "",
+      "m": 1,
+      "n": 0,
+      "N": 4,
+      "rational_mode": 0,
+      "opts": {
+        "tol": 1.2000000000000001e-14,
+        "maxIter": 100,
+        "displayIter": 1,
+        "plotIter": 1
+      },
+      "warning_id": "",
+      "warning_message": ""
+    }
+  }
+}

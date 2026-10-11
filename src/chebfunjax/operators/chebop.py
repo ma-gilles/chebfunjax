@@ -6827,45 +6827,25 @@ class Chebop:
         max_iter: int,
         newton_tol: float,
     ):
-        """Globalized damped-Newton solve for a deflated operator.
+        """Use source scalar Newton on a single finite interval.
 
-        Solves ``G(u) = M(u; r) N(u) = f`` (usually ``f = 0``) with the
-        attached scalar boundary conditions and returns a solution of the
-        *undeflated* problem distinct from every deflated root.  Three
-        deflation-specific robustness features are layered on top of the
-        adaptive-resolution strategy of :meth:`_solve_nonlinear`:
-
-        * **Damped Newton from the start.**  A monotone backtracking line
-          search keeps the iteration in the basin of a new solution; plain
-          undamped Newton from a zero guess diverges on these problems.
-        * **Boundary-condition satisfying default guess.**  When ``N.init`` is
-          unset the iteration starts from
-          :meth:`_deflation_default_init_vals` (matching MATLAB's default
-          initial guess -- essential for non-homogeneous BCs such as
-          Painleve's ``u(L) = sqrt(L)``).
-        * **Multi-start fallback.**  If the default guess stalls at a
-          non-root, or converges onto an already-deflated solution, the solve
-          retries from a spread of constant guesses
-          (:meth:`_deflation_const_candidates`) until a genuine *distinct*
-          root is found.  A candidate that stalls or rediscovers a known root
-          is abandoned immediately rather than refined, so the fallback stays
-          cheap.
-
-        The Jacobian is the exact product-rule Jacobian assembled by
-        :meth:`_jacobian_matrix_deflated`.
+        Native deflate.m changes the operator residual and its AD Jacobian;
+        solvebvpNonlinear then uses its normal correction resolution, damping
+        and error stopping. Other domains retain the legacy restarted
+        collocation adapter below.
 
         Provenance
         ----------
-        MATLAB source : @chebop/deflate.m, @chebop/solvebvpNonlinear.m,
-            @chebop/newtonBVP.m
-        Chebfun commit: 7574c77
-
-        References
-        ----------
-        P. E. Farrell, A. Birkisson, S. W. Funke, "Deflation techniques for
-        finding distinct solutions of nonlinear partial differential
-        equations", SIAM J. Sci. Comput. 37 (2015).
+        MATLAB source: @chebop/deflate.m, @chebop/solvebvpNonlinear.m,
+            @adchebfun/adchebfun.m (deflationFun).
+        Chebfun commit: 7574c77.
         """
+        if len(self.domain) == 2 and all(
+                bool(jnp.isfinite(float(x))) for x in self.domain):
+            return self._solve_nonlinear(
+                f, n=n, n_min=n_min, n_max=n_max, tol=tol,
+                max_iter=max_iter, newton_tol=newton_tol)
+
         from chebfunjax.chebfun1d.chebfun import Chebfun
         from chebfunjax.tech.chebtech import Chebtech2
 
@@ -9322,12 +9302,13 @@ def _make_deflated_op(orig_op, roots, p, alp, norm_type):
     returned callable always has an ``(x, u)`` signature; it dispatches on the
     original operator's arity to support both ``@(u)`` and ``@(x, u)`` forms.
     """
+    from chebfunjax.operators.deflation import deflation_fun
+
     nargs = _op_arity(orig_op, 2)
 
     def deflated_op(x, u):
         nu = orig_op(u) if nargs == 1 else orig_op(x, u)
-        factor = _deflation_factor(u, roots, p, alp, norm_type)
-        return nu * factor
+        return deflation_fun(nu, u, roots, p, alp, norm_type)
 
     return deflated_op
 

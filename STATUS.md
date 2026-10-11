@@ -1,9 +1,34 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `e68553a8` is published; this checkpoint adds the packages below.
+Main through `6885a0cd` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Finite scalar Chebop deflation now uses the existing source Newton solver and
+  preserves the nonlocal AD derivative. The original Painleve test passes:
+  solution lengths 38/75 match native, and sampled differences are below 6.3e-15.
+  Seventeen AD controls, 15 small public controls and the original Bratu and
+  Herceg tests pass. Two further public end-to-end controls pass. A legacy
+  restart-warning expectation is replaced with the source unsuccessful-Newton
+  contract; retained-root replay reproduces the original result exactly and
+  verifies failure history. The full edited test was not rerun locally.
+  Explicit `n` now follows scalar Newton's equation-point convention; the
+  finite route uses its source tolerance instead of legacy `newton_tol`.
+  Other backend/domain dispatches are documented separately; this is not
+  a qualification of every solver route. See
+  `docs/painleve_deflation_source_cpu_20261011.json`.
+- Trigremez now accepts source name/value options and emits the native iteration
+  display and plotting callbacks. Thirty-one focused controls pass, with native
+  numeric, parser and graphics captures. Existing numerical-provider arithmetic
+  is unchanged. A symmetric polynomial exchange-reference difference and
+  automatic axes/layout parity remain open. See
+  `docs/trigremez_iteration_options_source_cpu_20261011.json`.
+- Floquet now emits the native matrix-logarithm warning for its actual endpoint
+  matrix. Seven native controls qualify the diagnostic while preserving SciPy
+  output bytes and other warnings. The page includes the captured warning;
+  historical random trajectories and full figure parity remain open. See
+  `docs/floquet_logm_warning_cpu_20261011.json`.
 
 - Disk cutoff compilation is now reused across completed FFT magnitude buffers
   without changing FFT lengths, active source lengths or tolerances. A second

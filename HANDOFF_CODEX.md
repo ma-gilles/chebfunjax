@@ -2,6 +2,16 @@
 
 ## Integration followthrough (2026-10-11)
 
+Finite scalar deflation now follows source Newton with its nonlocal AD
+derivative. Painleve, Bratu and Herceg original tests pass; see STATUS.md and
+`docs/painleve_deflation_source_cpu_20261011.json` for compatibility and
+regression scope. Original residual bounds are unchanged.
+
+The latest package adds source trigremez iteration options (31 focused controls)
+and the actual Floquet matrix-logarithm warning (7 native controls). See
+STATUS.md and the linked qualification records. Polynomial reference selection,
+Floquet historical RNG/figures and full main CI remain unresolved.
+
 Subsequent source-reviewed work adds disk active-length cutoff reuse
 (29.19 to17.80second controlledstage), numeric/cell vector construction
 (35focused checks plus native captures), and Lorenz complex-coordinate

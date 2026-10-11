@@ -17,6 +17,8 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.utils._trigremez_iteration_options import OPTION_OMITTED
+
 __all__ = ["trigpade", "trigremez"]
 
 
@@ -256,8 +258,9 @@ class TrigRemezError(ValueError):
         super().__init__(f"{identifier}: {message}")
 
 
-def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100,
-              tol: float | None = None):
+def trigremez(f, m: int | None = None, n: int | None = None, *options,
+              max_iter: int = 100, tol: float | None = None,
+              display=OPTION_OMITTED, plotfcns=OPTION_OMITTED, ax=None, hold=False):
     """Best real trigonometric polynomial or rational approximation.
 
     Polynomial outputs are ``(p, error, status)``; positive denominator
@@ -266,7 +269,10 @@ def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100
     identifiers on ``TrigRemezError``. An empty input returns itself.
 
     ``max_iter`` and ``tol`` adapt native ``'maxiter'`` and ``'tol'`` options.
-    Native display/plotfcns callbacks have no Python adapter yet.
+    Native case-insensitive name/value pairs are also accepted. Display
+    and plotfcns enable iteration presentation whenever supplied, matching
+    native option presence semantics. ``ax`` and ``hold`` expose native
+    current axes and hold state; plots use the source 5000-point error grid.
 
     Provenance
     ----------
@@ -305,12 +311,11 @@ def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100
         f = columns[0]
     a, b = float(f.domain.a), float(f.domain.b)
 
+    from chebfunjax.utils._trigremez_iteration_options import iteration_hook, parse_options
+
     if m is None:
         raise TypeError("trigremez requires a degree for nonempty inputs")
-    for degree in (m, 0 if n is None else n):
-        if degree < 0 or degree != round(degree):
-            raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:parseInputs",
-                                 "Degree of approximation must be a nonnegative integer.")
+    n, max_iter, tol, show, plot = parse_options(m, n, options, max_iter, tol, display, plotfcns)
     m = int(m)
     n = None if n is None else int(n)
 
@@ -328,16 +333,21 @@ def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100
     # Native parseInputs: N = 2*(m+n)+2 and tol = 1e-15*(N/2+10).
     if tol is None:
         tol = 1e-15 * (m + (0 if n is None else n) + 11)
+    callback = iteration_hook(show, plot, ax=ax, hold=hold)
     if n is not None and n > 0:
-        return _trigremez_rational(f, m, n, max_iter, tol,
-                                   a, b, to_ref, from_ref, f_ref, normf)
+        arguments = (f, m, n, max_iter, tol, a, b, to_ref, from_ref, f_ref, normf)
+        if callback is None:
+            return _trigremez_rational(*arguments)
+        return _trigremez_rational(*arguments, iteration_callback=callback)
     from chebfunjax.utils._trigremez_polynomial_source import polynomial_trigremez
 
-    return polynomial_trigremez(f, m, max_iter, tol, normf)
+    if callback is None:
+        return polynomial_trigremez(f, m, max_iter, tol, normf)
+    return polynomial_trigremez(f, m, max_iter, tol, normf, iteration_callback=callback)
 
 
 def _trigremez_rational(f, m, n, max_iter, tol, a, b,
-                        to_ref, from_ref, f_ref, normf):
+                        to_ref, from_ref, f_ref, normf, iteration_callback=None):
     """Rational (m, n) trig Remez main loop (MATLAB trigremez).
 
     Returns ``(p, q, r_handle, err, status)`` mirroring MATLAB's
@@ -350,4 +360,6 @@ def _trigremez_rational(f, m, n, max_iter, tol, a, b,
     """
     from chebfunjax.utils._trigremez_rational_source import rational_trigremez
 
-    return rational_trigremez(f, m, n, max_iter, tol, normf)
+    if iteration_callback is None:
+        return rational_trigremez(f, m, n, max_iter, tol, normf)
+    return rational_trigremez(f, m, n, max_iter, tol, normf, iteration_callback=iteration_callback)

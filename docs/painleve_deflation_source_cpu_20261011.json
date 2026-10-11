@@ -1,0 +1,958 @@
+{
+  "title": "Finite scalar Chebop deflation uses source Newton and nonlocal AD",
+  "baseline": {
+    "head": "6885a0cd7ad60743a9cb7cff6aa71ce537e1f2b8",
+    "git_status": ""
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_scope": {
+    "changed_functions": [
+      "Chebop._solve_deflated",
+      "_make_deflated_op"
+    ],
+    "unchanged_functions": 241,
+    "baseline_sha256": "ea80aa3b47b6aef98dc340281f864ffcd294aa89e768ce1fd8e7f000aad43f0d",
+    "candidate_sha256": "8996358303e72985e6e9a03a88a736ca877464b8b9fdb58ed6898fe1ebc5e00d"
+  },
+  "cause": "The public solve dispatch bypassed scalar Newton for a legacy restarted collocation solve with genuine_tol=1e-6; its operator wrapper also coerced the deflation factor to float and lost AD. Native deflate only wraps the residual, and ordinary nonlinear solving then applies the nonlocal AD Jacobian.",
+  "change": "For one finite interval route _solve_deflated to existing _solve_nonlinear, and build its residual using existing qualified deflation_fun. Existing scalar Newton implementation and defaults are unchanged. Public finite deflated solve behavior deliberately changes from the legacy restart solver to scalar Newton correction resolution, damping and stopping. Original Painleve predicates remain unchanged.",
+  "qualification": {
+    "ad": {
+      "original_handle": 57544,
+      "tests": 17,
+      "seconds": 25.3,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/ad_run/receipt.json"
+    },
+    "painleve": {
+      "original_handle": 52567,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/painleve_run/receipt.json",
+      "observations": {
+        "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/candidate/src/chebfunjax/__init__.py",
+        "jax": "0.11.0",
+        "backend": "cpu",
+        "x64": true,
+        "r0": {
+          "seconds": 27.78199416399002,
+          "length": 38,
+          "residual": 7.263340527573825e-11,
+          "boundary_values": [
+            -1.6190040436772495e-13,
+            3.1622776601683023
+          ],
+          "info": {
+            "normDelta": [
+              2.2151489117137864,
+              0.5032018935286082,
+              0.0368181692220356,
+              0.00023590910719445098,
+              1.070260430032083e-08,
+              1.3915097770692353e-15
+            ],
+            "error": 1.3915097770692587e-15,
+            "converged": true,
+            "dampingHistory": [
+              {
+                "lambda": 1.0,
+                "contraction": 0.45447144635492387,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.22716391248807638,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.07316778751338782,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.006407410041813264,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 4.536749101211712e-05,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 1.3001599779107243e-07,
+                "dimension": 32,
+                "damping": false
+              }
+            ],
+            "linearDimensions": [
+              32,
+              64,
+              64,
+              32,
+              64,
+              32,
+              64,
+              32,
+              64,
+              32,
+              64,
+              32
+            ],
+            "linearDiscretizations": [
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              }
+            ],
+            "boundaryResidual": [
+              -1.6190040436772495e-13,
+              -7.72715225139109e-14
+            ],
+            "iterationHistory": [
+              {
+                "iteration": 1,
+                "normDelta": 2.2151489117137864,
+                "contraction": 0.45447144635492387,
+                "lambda": 1.0,
+                "lenDelta": 29,
+                "lenU": 29
+              },
+              {
+                "iteration": 2,
+                "normDelta": 0.5032018935286082,
+                "contraction": 0.22716391248807638,
+                "lambda": 1,
+                "lenDelta": 38,
+                "lenU": 38
+              },
+              {
+                "iteration": 3,
+                "normDelta": 0.0368181692220356,
+                "contraction": 0.07316778751338782,
+                "lambda": 1,
+                "lenDelta": 37,
+                "lenU": 38
+              },
+              {
+                "iteration": 4,
+                "normDelta": 0.00023590910719445098,
+                "contraction": 0.006407410041813264,
+                "lambda": 1,
+                "lenDelta": 35,
+                "lenU": 38
+              },
+              {
+                "iteration": 5,
+                "normDelta": 1.070260430032083e-08,
+                "contraction": 4.536749101211712e-05,
+                "lambda": 1,
+                "lenDelta": 21,
+                "lenU": 38
+              },
+              {
+                "iteration": 6,
+                "normDelta": 1.3915097770692353e-15,
+                "contraction": 1.3001599779107243e-07,
+                "lambda": 1,
+                "lenDelta": 1,
+                "lenU": 38
+              }
+            ],
+            "exactInitial": false,
+            "bvpTol": 5e-13,
+            "newtonTolerance": 1e-10
+          }
+        },
+        "warnings": [],
+        "r1": {
+          "seconds": 36.72130702389404,
+          "length": 75,
+          "residual": 2.6118376967773634e-10,
+          "boundary_values": [
+            2.191045861300782e-13,
+            3.1622776601680607
+          ],
+          "info": {
+            "normDelta": [
+              1.3842633795757386,
+              8.929679447508533,
+              7.328980671768072,
+              7.345069110082235,
+              2.4142392334772853,
+              0.6904000448624747,
+              0.05646070721384706,
+              0.00042830595683944717,
+              3.0231404652528015e-08,
+              8.503068248538839e-12
+            ],
+            "error": 8.503068921221722e-12,
+            "converged": true,
+            "dampingHistory": [
+              {
+                "lambda": 1.0,
+                "contraction": 0.6548479927022988,
+                "dimension": 64,
+                "damping": true
+              },
+              {
+                "lambda": 0.15258439389137696,
+                "contraction": 0.8567901751129638,
+                "dimension": 64,
+                "damping": true
+              },
+              {
+                "lambda": 0.1679978322406512,
+                "contraction": 0.8336808520149817,
+                "dimension": 128,
+                "damping": true
+              },
+              {
+                "lambda": 0.20288624070095168,
+                "contraction": 0.693310492351901,
+                "dimension": 128,
+                "damping": true
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.5650233326371155,
+                "dimension": 128,
+                "damping": true
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.07227655145816657,
+                "dimension": 128,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.0817796980663491,
+                "dimension": 128,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.007585912008101886,
+                "dimension": 128,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 7.058366611478258e-05,
+                "dimension": 64,
+                "damping": false
+              },
+              {
+                "lambda": 1,
+                "contraction": 0.0002812660657442457,
+                "dimension": 32,
+                "damping": false
+              }
+            ],
+            "linearDimensions": [
+              32,
+              64,
+              64,
+              32,
+              64,
+              64,
+              64,
+              32,
+              64,
+              64,
+              128,
+              32,
+              64,
+              128,
+              128,
+              32,
+              64,
+              128,
+              128,
+              32,
+              64,
+              128,
+              128,
+              32,
+              64,
+              128,
+              32,
+              64,
+              128,
+              32,
+              64,
+              32
+            ],
+            "linearDiscretizations": [
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 128,
+                "functionPoints": 130,
+                "equationPoints": 128,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 64,
+                "functionPoints": 66,
+                "equationPoints": 64,
+                "diffOrder": 2
+              },
+              {
+                "dimension": 32,
+                "functionPoints": 34,
+                "equationPoints": 32,
+                "diffOrder": 2
+              }
+            ],
+            "boundaryResidual": [
+              2.191045861300782e-13,
+              -3.1885605267234496e-13
+            ],
+            "iterationHistory": [
+              {
+                "iteration": 1,
+                "normDelta": 1.3842633795757386,
+                "contraction": 0.6548479927022988,
+                "lambda": 1.0,
+                "lenDelta": 29,
+                "lenU": 29
+              },
+              {
+                "iteration": 2,
+                "normDelta": 8.929679447508533,
+                "contraction": 0.8567901751129638,
+                "lambda": 0.15258439389137696,
+                "lenDelta": 39,
+                "lenU": 39
+              },
+              {
+                "iteration": 3,
+                "normDelta": 7.328980671768072,
+                "contraction": 0.8336808520149817,
+                "lambda": 0.1679978322406512,
+                "lenDelta": 50,
+                "lenU": 50
+              },
+              {
+                "iteration": 4,
+                "normDelta": 7.345069110082235,
+                "contraction": 0.693310492351901,
+                "lambda": 0.20288624070095168,
+                "lenDelta": 65,
+                "lenU": 65
+              },
+              {
+                "iteration": 5,
+                "normDelta": 2.4142392334772853,
+                "contraction": 0.5650233326371155,
+                "lambda": 1,
+                "lenDelta": 74,
+                "lenU": 74
+              },
+              {
+                "iteration": 6,
+                "normDelta": 0.6904000448624747,
+                "contraction": 0.07227655145816657,
+                "lambda": 1,
+                "lenDelta": 78,
+                "lenU": 78
+              },
+              {
+                "iteration": 7,
+                "normDelta": 0.05646070721384706,
+                "contraction": 0.0817796980663491,
+                "lambda": 1,
+                "lenDelta": 78,
+                "lenU": 78
+              },
+              {
+                "iteration": 8,
+                "normDelta": 0.00042830595683944717,
+                "contraction": 0.007585912008101886,
+                "lambda": 1,
+                "lenDelta": 70,
+                "lenU": 78
+              },
+              {
+                "iteration": 9,
+                "normDelta": 3.0231404652528015e-08,
+                "contraction": 7.058366611478258e-05,
+                "lambda": 1,
+                "lenDelta": 42,
+                "lenU": 78
+              },
+              {
+                "iteration": 10,
+                "normDelta": 8.503068248538839e-12,
+                "contraction": 0.0002812660657442457,
+                "lambda": 1,
+                "lenDelta": 13,
+                "lenU": 78
+              }
+            ],
+            "exactInitial": false,
+            "bvpTol": 5e-13,
+            "newtonTolerance": 1e-10
+          }
+        },
+        "distance": 4.289387063920014
+      }
+    },
+    "native": {
+      "original_handle": 25048,
+      "observations": {
+        "residual0": 7.26143443650085e-11,
+        "residual1": 2.6124260441183823e-10,
+        "distance": 4.289387063920016,
+        "length0": 38,
+        "length1": 75,
+        "seconds0": 1.691808,
+        "seconds1": 0.51946,
+        "warning0": "",
+        "warning1": "",
+        "id0": "",
+        "id1": "",
+        "version": "25.2.0.3055257 (R2025b) Update 2"
+      },
+      "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_remaining_20261011/painleve_native/ROOT_REVIEW.json"
+    },
+    "native_array_comparison": {
+      "r0": {
+        "x_max_abs_difference": 1.7763568394002505e-15,
+        "values_max_abs_difference": 1.7763568394002505e-15,
+        "coefficients_max_abs_difference": 6.661338147750939e-16
+      },
+      "r1": {
+        "x_max_abs_difference": 1.7763568394002505e-15,
+        "values_max_abs_difference": 6.217248937900877e-15,
+        "coefficients_max_abs_difference": 1.6653345369377348e-15
+      }
+    },
+    "comparison_note": "Independent linspace implementations differ by at most1.78e-15 in abscissae. Array differences are observations, not additional source predicates. Timings are observations, not paired performance claims."
+  },
+  "original_predicates": {
+    "residual0_less_than": 1e-09,
+    "residual1_less_than": 1e-09,
+    "distance_greater_than": 1.0,
+    "all_pass": true
+  },
+  "limitations": "Qualification covers CPU/x64/JAX0.11 finite scalar single-interval Painleve solve and independent L2/H1 nonlocal AD controls. Piecewise/unbounded legacy solver behavior is not newly qualified.",
+  "test_payload_note": "Only provenance docstring differs from executed new test; executable AST identical.",
+  "dispatch_scope": {
+    "type": "Static dispatch audit, no additional runtime qualification",
+    "source_sha256": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/candidate/src/chebfunjax/operators/chebop.py": "8996358303e72985e6e9a03a88a736ca877464b8b9fdb58ed6898fe1ebc5e00d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/candidate/src/chebfunjax/operators/scalar_newton.py": "2e127c6e2f23ae1f3ac09b70557aa16f5e6ebd5eeb58d6a0f4f92ffbd4f4046e"
+    },
+    "finite_single_interval_default_backend": "New _solve_deflated branch calls existing scalar Newton. Original Painleve runtime qualified; affected regression gates separately owned by times_source.",
+    "explicit_n": "Forwarded unchanged to scalar Newton; n now counts equation points, n+diff_order unknown points. Fixed single-item correction schedule. Legacy deflated solver counted n total points. This is an explicit extension semantic change, not original native default behavior.",
+    "newton_tol": "Finite source path accepts but ignores legacy newton_tol; err_tol remains200*bvpTol, as established ordinary scalar Newton.",
+    "alternate_backends": "Public solve routes ultraS/chebcolloc1 to solve_bvp_altdisc before _solve_impl, so these do not execute new _solve_deflated dispatch. All backends see new AD-preserving residual wrapper. No new alternate-backend solve qualification.",
+    "piecewise": "len(domain)>2, detected coefficient/RHS breaks, and general jump BCs route to existing piecewise solver before deflation dispatch. Wrapper change still applies.",
+    "periodic": "Periodic dispatch occurs before deflation branch. Wrapper change still applies.",
+    "nonfinite": "Single interval with nonfinite endpoint fails new eligibility and retains old restarted deflated solve adapter. No new runtime qualification.",
+    "source_unchanged_outside_two_functions": true
+  },
+  "legacy_test_review": {
+    "status": "Original test failure preserved; source-bound successor qualified by exact retained-state final-call replay.",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "legacy_test": "tests/test_operators/test_chebop_deflation.py::TestEndToEnd::test_multistart_fallback_exhausts",
+    "finding": "Test requires an exhaustive restart policy absent from native deflate/solvebvpNonlinear. Public finite scalar solve now deliberately uses ordinary native-style Newton.",
+    "native_failure_contract": {
+      "counter_increment_line": 185,
+      "history_append_line": 189,
+      "maxIter_comparison_line": 206,
+      "comparison": "newtonCounter > maxIter",
+      "maxIter_warning_lines": [
+        236,
+        239
+      ],
+      "notConvergent_warning_lines": [
+        240,
+        245
+      ],
+      "returned_history_line": 248,
+      "returned_convergence_flag_line": 250
+    },
+    "explicit_n_extension": "Fixed n is a Python extension. Its existing scalar-Newton convention is n equation points; source disc input adjustment=max differential order, giving n+2 unknown points for this Bratu operator. Do not call this a literal native fixed-n assertion.",
+    "decision": "Preserve same setup/n12/max_iter3 in a source-bound failure regression if actual source outcome confirms failure. Assert unsuccessful state and useful history rather than legacy restart wording. Original test failure and warnings must remain immutable evidence.",
+    "source_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/deflate.m": "4a444eeec8ae1128982c146b074cfbb05b231d6808b4f1491883cf1a9b367692",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/solvebvpNonlinear.m": "aa238e4608c839a164403e4233bdae960c733c2c5cdca1b6bac8be053d6ccaa0",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@opDiscretization/getDimAdjust.m": "f73324b0e5a80df099828c73e96c7934a031cbe3985e815a04c075b1a1481b64",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@opDiscretization/extractBlock.m": "1e9cbae06e93753dbbcc9a4e135e2f9b7a4edaa449bb9af69cca862c98fafdac",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebcolloc/reduce.m": "4cf65040ec33895eab6f6b5fcbd92e59a2021e70a987083a1afa9252ba055ffa"
+    }
+  },
+  "successor_note": "Production source unchanged from frozen qualified candidate. This successor replaces one unsupported legacy restart-policy test, preserving its two-root setup and n12/max_iter3. Other core tests unchanged.",
+  "failure_regression": {
+    "original_handle": 10578,
+    "original_result": "Expected legacy UserWarning absent; actual RuntimeWarning reports maximum iterations exceeded; returned Chebfun length11.",
+    "replay_handle": 2660,
+    "replay_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/deflation_failure_successor_20261011/v2/run/receipt.json",
+    "replay_result": {
+      "retained_r2_coefficients_exact": true,
+      "point_values_exact": true,
+      "warnings": [
+        {
+          "category": "RuntimeWarning",
+          "message": "chebop scalar Newton iteration failed: maximum number of iterations exceeded"
+        }
+      ],
+      "info": {
+        "normDelta": [
+          3.043973122980114,
+          5.602121682021697,
+          6.600648085197334,
+          9.148877025150277
+        ],
+        "error": NaN,
+        "converged": false,
+        "dampingHistory": [
+          {
+            "lambda": 1.0,
+            "contraction": 0.48047844444929644,
+            "dimension": 12,
+            "damping": false
+          },
+          {
+            "lambda": 0.1919768758543931,
+            "contraction": 0.837999069028591,
+            "dimension": 12,
+            "damping": true
+          },
+          {
+            "lambda": 0.4013015359306128,
+            "contraction": 0.7120022230863836,
+            "dimension": 12,
+            "damping": true
+          },
+          {
+            "lambda": 0.30582677521769935,
+            "contraction": 0.7653156323468718,
+            "dimension": 12,
+            "damping": true
+          }
+        ],
+        "linearDimensions": [
+          12,
+          12,
+          12,
+          12,
+          12,
+          12,
+          12,
+          12,
+          12
+        ],
+        "linearDiscretizations": [
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          },
+          {
+            "dimension": 12,
+            "functionPoints": 14,
+            "equationPoints": 12,
+            "diffOrder": 2
+          }
+        ],
+        "boundaryResidual": [
+          1.6308252798191702e-05,
+          1.6308252797303524e-05
+        ],
+        "iterationHistory": [
+          {
+            "iteration": 1,
+            "normDelta": 3.043973122980114,
+            "contraction": 0.48047844444929644,
+            "lambda": 1.0,
+            "lenDelta": 12,
+            "lenU": 12
+          },
+          {
+            "iteration": 2,
+            "normDelta": 5.602121682021697,
+            "contraction": 0.837999069028591,
+            "lambda": 0.1919768758543931,
+            "lenDelta": 12,
+            "lenU": 12
+          },
+          {
+            "iteration": 3,
+            "normDelta": 6.600648085197334,
+            "contraction": 0.7120022230863836,
+            "lambda": 0.4013015359306128,
+            "lenDelta": 12,
+            "lenU": 12
+          },
+          {
+            "iteration": 4,
+            "normDelta": 9.148877025150277,
+            "contraction": 0.7653156323468718,
+            "lambda": 0.30582677521769935,
+            "lenDelta": 12,
+            "lenU": 12
+          }
+        ],
+        "exactInitial": false,
+        "bvpTol": 5e-13,
+        "newtonTolerance": 1e-10
+      }
+    },
+    "validation_scope": "Two root solves reused from original actual test, not rerun. Replay restores saved coefficients/domain/pointvalues and executes same deflate(N,[r0,r1],1,0).solve(0,n12,max_iter3). Returned coefficients exactly match original r2; new unsuccessfulinfo/history assertions executed in replay and checked from receipt. The full edited test was not rerun.",
+    "unchanged_other_test_methods": 17,
+    "initial_observer_failure": "98697 failed before solve reading trusted retained Domain object array with allow_pickle=False; preserved. Successor allows trusted local pickle and extracts Domain.item()."
+  },
+  "affected_public_regressions": {
+    "status": "source predicates pass; existing legacy multistart expectation fails",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/painleve_deflation_source_20261011/candidate",
+    "chebop_sha256": "8996358303e72985e6e9a03a88a736ca877464b8b9fdb58ed6898fe1ebc5e00d",
+    "receipts": [
+      {
+        "name": "small_run",
+        "exit": 0,
+        "wall_seconds": 38.12354694632813,
+        "peak_GiB": 1.6357307434082031,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      {
+        "name": "source_run",
+        "exit": 137,
+        "wall_seconds": 149.51523633114994,
+        "peak_GiB": 4.002292633056641,
+        "censored_limit": "sampled_summed_RSS_cap",
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      {
+        "name": "herceg_run",
+        "exit": 0,
+        "wall_seconds": 148.47349678492174,
+        "peak_GiB": 3.9146156311035156,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      {
+        "name": "core_run",
+        "exit": 1,
+        "wall_seconds": 79.241850590799,
+        "peak_GiB": 2.894947052001953,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    ],
+    "source_results": {
+      "Bratu": "Original residual bounds1e-8 and distinctness>1 passed before combined RSS cap; repeated core Bratu also passed.",
+      "Herceg": "Original allthree residual bounds1e-9 and allpair distances>.1 passed in isolated successor.",
+      "Painleve": "Not repeated; separately qualified by Astra."
+    },
+    "core_results": {
+      "passed": 17,
+      "failed": 1,
+      "failure": "test_multistart_fallback_exhausts expects unsupported legacy UserWarning/could not locate a new; actual RuntimeWarning/chebop scalar Newton iteration failed: maximum number of iterations exceeded; returned Chebfun length11."
+    },
+    "retained_failure_state": "multistart_retained.npz stores r0/r1/r2 domain,pointValues,exact coefficients from original test failure; core_states.jsonl N._last_info belongs only to original r0 solve, not temporary deflated operator.",
+    "warnings": "Actual JAX plugin0.11.2 incompatibility with pinnedjaxlib0.11.0 warning retained; CPU runtime. Actual scalar Newton maxiteration warning retained.",
+    "input_scope": "Every candidate Python source and copied original tests hash guarded; runtime chebop origin actually observed by failure/report hook in isolatedHerceg/core gates. First small/combined gates have script-established PYTHONPATH, not retrospective whole-runtime origin claim.",
+    "unused_guarded_launcher_note": "During isolatedHerceg runtime unused core_launch.sh was briefly edited for plugin preparation then restored byte-for-byte before terminal; this launcher was not executed by Herceg. Separate core_launch_v2.sh used subsequently. No source, executedHerceg launcher, test predicate or loaded observation hook changed.",
+    "no_library_or_predicate_changes": true,
+    "followup_owner": "inverse_cpu_followthrough preparing approved native-policy test replacement with retained roots.",
+    "report_scope": "Historical report of original unmodified tests; failure replaced by separately qualified successor below.",
+    "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/deflation_public_regressions_20261011/ROOT_REVIEW.json"
+  }
+}

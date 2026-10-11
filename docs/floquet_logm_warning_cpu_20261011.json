@@ -1,0 +1,126 @@
+{
+  "scope": "Actual Floquet logm mathematical diagnostic on freshly captured sourcePhiT; warning-only example adapter, no new librarylogm or fullpage replay",
+  "base": {
+    "head": "e68553a89f9b7d85a30e98fb786fa2c8e617a0a8",
+    "source": "Committed git archive only; excludes pending publication edits",
+    "script_sha256": "eee243f373667208f3e482e6468dfd77f49380041711df6b78d79439fc3684ab",
+    "scope": "Exact source fourIVPs+endpointPhiT+singleSciPylogm; no periodic/tenperiod construction/render"
+  },
+  "source_prefix": {
+    "original_handle": 11060,
+    "terminal_exit": 0,
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_logm_source_20261011/source_prefix_v1",
+    "source_seconds": 17.85315700620413,
+    "sampled_peak_rss_kib": 1167904,
+    "four_IVP_defaults_unchanged": true,
+    "saved_actual_PhiT_and_B": true,
+    "saved_happy_component_coefficients": 16,
+    "warnings": []
+  },
+  "matched_native": {
+    "original_handle": 49336,
+    "terminal_exit": 0,
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_logm_source_20261011/native_v1",
+    "cases": 7,
+    "actual_source_warning_id": "MATLAB:logm:nonPosRealEig",
+    "no_native_IVPs_or_figures": true,
+    "sampled_peak_rss_kib": 1409684
+  },
+  "helper_controls": {
+    "original_handle": 33477,
+    "terminal_exit": 0,
+    "pass": 7,
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_logm_source_20261011/helper_controls_v1",
+    "all_SciPy_logm_outputs_rawbyte_unchanged": true,
+    "captured_source_B_rawbyte_unchanged": true,
+    "existing_provider_warnings_preserved": true
+  },
+  "warning_condition": "Actual Schur spectrum: real(lambda)<=0 and imag(lambda)==0; exactzero/negative-real native predicate, no imaginary tolerance.",
+  "observed_warning": {
+    "message": "Principal matrix logarithm is not defined for A with nonpositive real eigenvalues. A non-principal matrix logarithm is returned.",
+    "category": "RuntimeWarning",
+    "condition_input": "actual fresh source PhiT",
+    "scope": "Captured warning event on saved actualsourceinput; not a full source replay"
+  },
+  "page": {
+    "native_output_blocks": 4,
+    "previous_output_blocks": 2,
+    "new_output_blocks": 3,
+    "only_added_block": "Actual captured mathematical warning event after sourceBcall",
+    "qualification_metadata_removed": "Obsolete non-source blockquote moved to this separate report",
+    "original_prose_MATLAB_and_existing_output_fences_preserved": true,
+    "deprecated_vertcat_warning": "Explicit PythonChebMatrix construction has no corresponding deprecatedMATLAB operation; no fabricated diagnostic."
+  },
+  "AST": {
+    "qualified_helper_script_exact": true,
+    "all_source_functions_exact_after_renaming_helper_call_to_logm": true,
+    "no_changes_to_constructor_domains_preferences_summation_eigen_or_plotting": true,
+    "permanent_test_recorder_path_only_fix": "Use pytesttmp_path for recorder files; normalizedAST exactly equals qualifiedsnapshot after removing fixturearg and restoring originaloutputpath. Scientificcalls/assertions/fixtures unchanged; no numerical replay."
+  },
+  "numerical_observations": {
+    "comparisons": [
+      {
+        "name": "actual_PhiT",
+        "max_abs_difference_on_shared_finite_entries": 1.8782832048248946e-15,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      },
+      {
+        "name": "positive_diagonal",
+        "max_abs_difference_on_shared_finite_entries": 0.0,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      },
+      {
+        "name": "negative_diagonal",
+        "max_abs_difference_on_shared_finite_entries": 1.807312143953211e-15,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      },
+      {
+        "name": "zero_diagonal",
+        "max_abs_difference_on_shared_finite_entries": 0.0,
+        "nonfinite_mask_differs": true,
+        "provider_existing_warnings": [
+          "The logm input matrix is exactly singular."
+        ]
+      },
+      {
+        "name": "negative_real_rotation_pair",
+        "max_abs_difference_on_shared_finite_entries": 4.440892098500626e-16,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      },
+      {
+        "name": "negative_with_nonzero_imaginary",
+        "max_abs_difference_on_shared_finite_entries": 0.0,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      },
+      {
+        "name": "negative_nondiagonal",
+        "max_abs_difference_on_shared_finite_entries": 1.807312143953211e-15,
+        "nonfinite_mask_differs": false,
+        "provider_existing_warnings": []
+      }
+    ],
+    "fresh_B_vs_prior_fullrun_max_abs_difference": 0.0,
+    "scope": "Observational values only; no new bound or failure threshold. SciPy singular-logarithm adapter difference remains."
+  },
+  "limitations": [
+    "Warning formatter text comes from the captured runtime event on actualPhiT, not new whole-script stdout.",
+    "No fullFloquet rerun or pixel/RNG parity claim; prior fullsource execution remains separately qualified.",
+    "Inherited denseSciPy logm and NumPy eig are example adapters outside libraryJAX-only qualification.",
+    "SciPy singular-matrix output differs from native and emits an extra diagnostic; preserved, not suppressed or claimed native numerical parity.",
+    "General matrixlogarithm/Schur provider equivalence is not claimed beyond these exact captured controls.",
+    "Native ambientrand remains distinct from existing JAXkey0 adapter."
+  ],
+  "supersedes": "Only the missing negative-spectrum warning claim in priorfloquet_full_cpu_20261010.json; other numerical/RNG/visual qualifications remain unchanged.",
+  "permanent_test_portability": {
+    "reason": "Local saved source_B byte equality is an observation, not a portable cross-provider CI requirement. scipy.linalg.logm is provider/version/hardware dependent; source has no bitwise cross-provider numerical assertion.",
+    "assertion": "Permanent test compares exact same-run helper and provider division by T, preserving wrapper numerical identity and warning predicates.",
+    "original_local_evidence": "Original helper_controls_v1 qualified local source_B byte equality remains immutable in original receipt and report; source_B fixture retained as evidence.",
+    "review_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_logm_portability_followup_20261011/REPORT.json",
+    "old_test_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_logm_portability_followup_20261011/root_preintegration_test.py"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_release": "R2025b",
+  "cases": {
+    "1": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "CHEBFUN:CHEBFUN:trigremez:convergence",
+      "warning_message": "Remez algorithm did not converge after 1 iterations to the tolerance 1.2e-14.",
+      "display_row": "0        1.0526e-01        1.0000e-19        1.2891e-01        8.8069e-01"
+    },
+    "2": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "CHEBFUN:CHEBFUN:trigremez:convergence",
+      "warning_message": "Remez algorithm did not converge after 1 iterations to the tolerance 1.5e-14.",
+      "display_row": "0        3.2512e-02        1.1434e-02        2.5816e-02        3.2382e-01"
+    },
+    "3": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:badInput",
+      "error_message": "Unrecognized sequence of input parameters.",
+      "warning_id": "",
+      "warning_message": ""
+    },
+    "4": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "CHEBFUN:CHEBFUN:trigremez:convergence",
+      "warning_message": "Remez algorithm did not converge after 1 iterations to the tolerance 1.2e-14.",
+      "display_row": "0        1.0526e-01        1.0000e-19        1.2891e-01        8.8069e-01"
+    },
+    "5": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "CHEBFUN:CHEBFUN:trigremez:convergence",
+      "warning_message": "Remez algorithm did not converge after 1 iterations to the tolerance 0.001.",
+      "display_row": "0        1.0526e-01        1.0000e-19        1.2891e-01        8.8069e-01"
+    }
+  }
+}

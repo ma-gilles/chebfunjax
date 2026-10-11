@@ -47,7 +47,7 @@ def _exchange(f, p, xk, h, method, count):
     return (locations[first : first + count] if count <= locations.size else locations), error
 
 
-def polynomial_trigremez(f, degree, max_iter, tol, normf):
+def polynomial_trigremez(f, degree, max_iter, tol, normf, iteration_callback=None):
     """Run native polynomial loop with public representations and root finding."""
     degree = int(degree)
     count = 2 * degree + 2
@@ -78,6 +78,10 @@ def polynomial_trigremez(f, degree, max_iter, tol, normf):
         if bool(delta < best_delta):
             best = p, error, xk
             best_delta = delta
+        if iteration_callback is not None:
+            iteration_callback(
+                iteration, error, h, delta, normf, diffx, old, xk, target, p, original_domain
+            )
         old = xk
         iteration += 1
     if best is None:

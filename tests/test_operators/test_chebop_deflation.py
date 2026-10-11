@@ -3,11 +3,12 @@
 Exercises the deflation surface outside the MATLAB-port tree so the core
 coverage gate sees it: the deflation factor (L2 + H1), the exact
 product-rule Newton Jacobian, an end-to-end second-root find, the
-multi-start fallback, and the guard / routing paths.
+source Newton failure contract, and the guard / routing paths.
 
 Provenance
 ----------
-MATLAB source : @chebop/deflate.m, @chebmatrix/deflationFun.m
+MATLAB source : @chebop/deflate.m, @chebmatrix/deflationFun.m,
+    @chebop/solvebvpNonlinear.m
 Chebfun commit: 7574c77
 """
 
@@ -169,21 +170,28 @@ class TestEndToEnd:
         assert np.allclose(np.asarray(a(pts)), np.asarray(b(pts)),
                            rtol=1e-8, atol=1e-9)
 
-    # ~400 s of Newton solves (drifted up from ~100 s as construction
-    # numerics evolved); headroom beyond the local 300 s default.
     @pytest.mark.timeout(890)
-    def test_multistart_fallback_exhausts(self):
-        # Bratu has exactly two solutions below the critical parameter;
-        # deflating BOTH leaves no third root, so the multi-start fallback
-        # sweeps every candidate and warns rather than returning a stale root.
-        # A small fixed size and iteration cap keep the exhaustive sweep cheap.
+    def test_deflated_newton_iteration_limit(self):
+        # Native deflate modifies the residual; ordinary scalar Newton warns
+        # and returns an unsuccessful iterate when maxIter is exceeded.
+        # Preserve the original two-root setup and fixed n/max_iter values.
         N = Chebop(lambda x, u: u.diff(2) + 2.0 * u.exp(), DOM, 0.0, 0.0)
         r0 = N.solve(0.0)
         r1 = deflate(N, r0, 1, 0).solve(0.0)
-        with pytest.warns(UserWarning, match="could not locate a new"):
-            r2 = deflate(N, [r0, r1], 1, 0).solve(0.0, n=12, max_iter=3)
-        # A Chebfun is still returned (best effort).
+        Nd = deflate(N, [r0, r1], 1, 0)
+        with pytest.warns(RuntimeWarning, match="maximum number of iterations exceeded"):
+            r2 = Nd.solve(0.0, n=12, max_iter=3)
         assert isinstance(r2, Chebfun)
+        info = Nd._last_info
+        assert not info["converged"]
+        # solvebvpNonlinear checks counter > maxIter after recording the step.
+        assert len(info["normDelta"]) == 4
+        assert [row["iteration"] for row in info["iterationHistory"]] == [1, 2, 3, 4]
+        # Fixed n is a Python extension using the source discretization's
+        # equation-point convention; second order adds two unknown points.
+        assert info["linearDiscretizations"]
+        assert all(row["equationPoints"] == 12 and row["functionPoints"] == 14
+                   for row in info["linearDiscretizations"])
 
 
 class TestGuardsAndRouting:

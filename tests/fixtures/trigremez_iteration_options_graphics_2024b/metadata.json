@@ -1,0 +1,292 @@
+{
+  "version": "R2024b",
+  "renderer": "CPU Painters",
+  "source": "Pinned native doPlotIter, retained R2025b numeric observations, no solves",
+  "cases": {
+    "1": {
+      "held_before": 0,
+      "held_after": 0,
+      "position": [
+        0.13,
+        0.11,
+        0.775,
+        0.8150000000000001
+      ],
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        -0.15000000000000002,
+        0.15000000000000002
+      ],
+      "xtick": [
+        -1.0,
+        -0.8,
+        -0.6,
+        -0.3999999999999999,
+        -0.19999999999999996,
+        0.0,
+        0.20000000000000018,
+        0.40000000000000013,
+        0.6000000000000001,
+        0.8,
+        1.0
+      ],
+      "ytick": [
+        -0.15000000000000002,
+        -0.1,
+        -0.05,
+        0.0,
+        0.05000000000000002,
+        0.10000000000000003,
+        0.15000000000000002
+      ],
+      "fontsize": 10,
+      "axeslinewidth": 0.5,
+      "tickdir": "in",
+      "legend": [
+        "Current Ref.",
+        "Next Ref.",
+        "Error"
+      ],
+      "lines": [
+        {
+          "color": [
+            1,
+            0,
+            0
+          ],
+          "marker": "o",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "marker": "*",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0.929,
+            0.694,
+            0.125
+          ],
+          "marker": "none",
+          "markersize": 6,
+          "linewidth": 0.5,
+          "linestyle": "-",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        }
+      ]
+    },
+    "2": {
+      "held_before": 0,
+      "held_after": 0,
+      "position": [
+        0.13,
+        0.11,
+        0.775,
+        0.8150000000000001
+      ],
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        -0.04,
+        0.04
+      ],
+      "xtick": [
+        -1.0,
+        -0.8,
+        -0.6,
+        -0.3999999999999999,
+        -0.19999999999999996,
+        0.0,
+        0.20000000000000018,
+        0.40000000000000013,
+        0.6000000000000001,
+        0.8,
+        1.0
+      ],
+      "ytick": [
+        -0.04,
+        -0.03,
+        -0.02,
+        -0.010000000000000002,
+        0.0,
+        0.010000000000000002,
+        0.019999999999999997,
+        0.030000000000000006,
+        0.04
+      ],
+      "fontsize": 10,
+      "axeslinewidth": 0.5,
+      "tickdir": "in",
+      "legend": [
+        "Current Ref.",
+        "Next Ref.",
+        "Error"
+      ],
+      "lines": [
+        {
+          "color": [
+            1,
+            0,
+            0
+          ],
+          "marker": "o",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "marker": "*",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0.929,
+            0.694,
+            0.125
+          ],
+          "marker": "none",
+          "markersize": 6,
+          "linewidth": 0.5,
+          "linestyle": "-",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        }
+      ]
+    },
+    "3": {
+      "held_before": 1,
+      "held_after": 1,
+      "position": [
+        0.13,
+        0.11,
+        0.775,
+        0.8150000000000001
+      ],
+      "xlim": [
+        -1,
+        1
+      ],
+      "ylim": [
+        -0.5,
+        4.0
+      ],
+      "xtick": [
+        -1.0,
+        -0.8,
+        -0.6,
+        -0.3999999999999999,
+        -0.19999999999999996,
+        0.0,
+        0.20000000000000018,
+        0.40000000000000013,
+        0.6000000000000001,
+        0.8,
+        1.0
+      ],
+      "ytick": [
+        -0.5,
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "fontsize": 10,
+      "axeslinewidth": 0.5,
+      "tickdir": "in",
+      "legend": [
+        "Current Ref.",
+        "Next Ref.",
+        "Error"
+      ],
+      "lines": [
+        {
+          "color": [
+            0.0,
+            0.447,
+            0.741
+          ],
+          "marker": "none",
+          "markersize": 6,
+          "linewidth": 0.5,
+          "linestyle": "-",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            1,
+            0,
+            0
+          ],
+          "marker": "o",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "marker": "*",
+          "markersize": 12,
+          "linewidth": 0.5,
+          "linestyle": "none",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        },
+        {
+          "color": [
+            0.494,
+            0.184,
+            0.556
+          ],
+          "marker": "none",
+          "markersize": 6,
+          "linewidth": 0.5,
+          "linestyle": "-",
+          "markeredgecolor": "auto",
+          "markerfacecolor": "none"
+        }
+      ]
+    }
+  }
+}

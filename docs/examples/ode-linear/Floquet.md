@@ -6,8 +6,6 @@
 
 Python translation: [`examples/ode-linear/floquet.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/floquet.py)
 
-> **Python execution qualification.** The four initial-value problems, all 16 periodic matrix entries, and the ten-period solution have been executed. The initial conditions use JAX key 0, which differs from MATLAB’s ambient `rand` stream. SciPy `logm` and the explicit `ChebMatrix` construction do not emit the native warnings about the negative-spectrum matrix logarithm and deprecated vertical concatenation. RNG and exact pixel parity are unverified.
-
 ```matlab
 clear all;
 LW = 'linewidth'; lw = 2.0;
@@ -63,6 +61,10 @@ for i = 1:n
     end
 end
 B = logm(PhiT)/T;
+```
+
+```text
+Warning: Principal matrix logarithm is not defined for A with nonpositive real eigenvalues. A non-principal matrix logarithm is returned.
 ```
 
 This warning reveals something genuine and interesting. Over on period, one or more eigenvalues of the fundamental matrix at the end of the period $\Phi(T)$ may become negative. Therefore, the matrix logarithm returns complex results. One could avoid the complex arithmetic by solving over two periods [2], which is not explored here.

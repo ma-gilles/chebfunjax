@@ -68,7 +68,7 @@ def rational_trial(values, reference, m, n):
     return result
 
 
-def rational_trigremez(f, m, n, max_iter, tol, normf):
+def rational_trigremez(f, m, n, max_iter, tol, normf, iteration_callback=None):
     """Run source full exchange, best-result selection and status reporting.
 
     Provenance
@@ -96,6 +96,11 @@ def rational_trigremez(f, m, n, max_iter, tol, normf):
         if bool(delta < best_delta):
             best = p, q, error, reference
             best_delta = delta
+        if iteration_callback is not None:
+            iteration_callback(
+                iteration, error, h, delta, normf, diffx, old, reference,
+                target, lambda x, p=p, q=q: p(x) / q(x), original_domain
+            )
         old = reference
         iteration += 1
     if best is None:

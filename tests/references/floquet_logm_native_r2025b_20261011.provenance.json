@@ -1,0 +1,8 @@
+{
+  "native_original_handle": 49336,
+  "python_prefix_original_handle": 11060,
+  "native_mat_sha256": "01a04e574e784b1e8ad764e355380e6f7da857479b180d1fcd4d414397c78ef5",
+  "native_probe_sha256": "ccfcbe033df133fb8990f7b799b8a8649e69940e439a808c332d4b2b6cec3297",
+  "actual_source_matrix_sha256": "90697ebcabb177835ec29ced8bb6dfc279a46cf9ce7efd718f5f3974edd63ef0",
+  "scope": "Native actualsource4x4 logm warning plus six tiny discriminators; no native IVP or fullFloquet replay"
+}

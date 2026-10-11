@@ -14,12 +14,13 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import warnings
 
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.linalg import logm
+from scipy.linalg import eigvals, logm, schur
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
@@ -62,6 +63,27 @@ def _exponential_matrix(eigenvalues, vectors, inverse_vectors, domain, sign):
     return left * diagonal * right
 
 
+def _source_logm(matrix):
+    """Preserve SciPy logm arithmetic and the source branch diagnostic.
+
+    This dense example adapter uses the exact MATLAB nonpositive-real
+    Schur-spectrum condition. It does not implement a library matrix logm.
+    Other SciPy diagnostics remain observable.
+    """
+    data = np.asarray(matrix)
+    if (data.ndim == 2 and data.shape[0] == data.shape[1]
+            and data.size and np.all(np.isfinite(data))):
+        is_real = np.isrealobj(data)
+        factor, _ = schur(data, output="real" if is_real else "complex")
+        spectrum = eigvals(factor) if is_real else np.diag(factor)
+        if np.any((np.real(spectrum) <= 0) & (np.imag(spectrum) == 0)):
+            warnings.warn(
+                "Principal matrix logarithm is not defined for A with "
+                "nonpositive real eigenvalues. A non-principal matrix "
+                "logarithm is returned.", RuntimeWarning, stacklevel=2)
+    return logm(matrix)
+
+
 def run(initial_conditions=None):
     os.makedirs(_IMG, exist_ok=True)
 
@@ -72,7 +94,7 @@ def run(initial_conditions=None):
         for j in range(n):
             PhiT[i, j] = float(Phi[j][i](jnp.asarray(T)))
 
-    B = logm(PhiT) / T
+    B = _source_logm(PhiT) / T
     lam, V = np.linalg.eig(B)
     invV = np.linalg.inv(V)
 
