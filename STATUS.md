@@ -1,3 +1,51 @@
+# Current CPU parity checkpoint — 2026-10-11
+
+Main through `d953e6ff` is published. Full parity remains incomplete; the
+older checkpoints below describe their original dates and are superseded here.
+Pushes work. CPU is the only qualified execution target in this effort.
+
+Recent verified changes:
+
+- Delta-convolution CI crash and noncanonical Dirac storage repaired; all
+  13 existing delta-operation tests plus one mixed-derivative control pass.
+
+- Native endpoint reduction fixes both strict unbounded-constructor CI
+  regressions at their original bounds; 93 focused checks pass.
+- MAT2CELL, VERTCAT and FLIPLR native predicates restored, including missing
+  quasimatrix behavior. FLIPLR retains all 11 original predicates.
+- FOV uses JAX numerical kernels and captured native random inputs. FOV and
+  Blasius pages contain actual captured output and reference-sized figures;
+  Blasius preserves the real Newton failure on its extended interval.
+- Inverse construction honors native noVectorCheck. All 30 controls pass,
+  with byte-identical retained coefficients and roundtrip values. The measured
+  pair shows no speedup; cold compilation remains under investigation.
+- Dot-marker geometry matches 72 independent R2024b CPU/Painters cases;
+  zero-size Python markers retain their prior behavior. This does not establish
+  complete font or pixel parity.
+
+Verification still required:
+
+- Complete native API and assertion coverage, including finite-delta cumsum.
+- Remaining page computations, random inputs, printed output and figure details.
+  The frozen `1174d23e` static audit found all 322 pages, all 2,408 MATLAB
+  blocks and original prose/math, and all 1,305 reference-sized assets. Its
+  224 normalized output differences are observations, not a numerical failure
+  count. FOV and Blasius subsequently repaired two blank output slots.
+- CPU cold-path performance, remaining disk/Hermite correctness and memory
+  issues, general DDE behavior, and remaining JAX-only migration.
+- Complete green CI on current main. Last observed older run had 16 passing
+  jobs, seven running and one failed shard. That shard reported the endpoint
+  failure already fixed in `88a41f52` and the delta-convolution crash fixed
+  in this batch. Current-head CI is queued. No green-main claim.
+
+Evidence: `docs/inverse_no_vector_check_cpu_20261011.json`,
+`docs/source_dot_geometry_cpu_20261011.json`,
+`docs/fliplr_source_cpu_20261011.json`, and the other dated qualification
+records in `docs/`. Live work and original process handles are tracked in
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/CURRENT_GOAL_STATUS.md`.
+
+---
+
 # Parity status — 2026-10-09
 
 ## Latest CPU qualification and open failures (2026-10-09)

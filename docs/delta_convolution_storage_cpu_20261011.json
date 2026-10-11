@@ -1,0 +1,38 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "d953e6ff93ef00d94545cb16f6a601f96abc1687",
+  "fault": "Delta-by-delta convolution called an instance helper as a class function, causing a TypeError. First correction exposed noncanonical plain-Dirac storage.",
+  "fix": "Bind _attach_deltas to the result; store order-zero rows as (location,magnitude), derivative rows as triples, and sort locations/orders. Existing magnitude filtering and numerical accumulation unchanged.",
+  "verification": {
+    "tests_passed": 14,
+    "existing_delta_operation_tests": 13,
+    "added_control": "Independent mixed derivative orders, location ordering, magnitudes, zero integral and operand immutability.",
+    "cpu_runtime": {
+      "jax": "0.11.0",
+      "backend": "cpu",
+      "x64": true
+    },
+    "verified_input_hashes": 296,
+    "original_handle": 36048,
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "peak_rss_kib": 1304616,
+    "wall_seconds": 19.231394790112972,
+    "no_caps_or_survivors": true,
+    "scope": "Frozen project sources, test files, observer and launcher; no exhaustive external runtime closure claim."
+  },
+  "limits": [
+    "This repairs the observed dispatch/storage failure, not all deltafun source parity.",
+    "Native per-FUN delta wrapper ownership and finite-delta cumsum remain open.",
+    "Native convDeltas uses deltaTol filtering; this patch preserves the prior Python exact-zero accumulator filter and does not qualify threshold-edge parity.",
+    "First candidate failed one test (12 passed) after fixing the crash; retained receipt records the storage defect."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_delta_conv_binding_v2_20261011/ROOT_REVIEW.json": "8765727574b3363f9fb5bc6388bb3907055ead54cf177e080365df80ce8aeaae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_delta_conv_binding_v2_20261011/guard.json": "cb7d56d57a46253369cf93cbfbdeb77390c7a34b54ea79e08d5ae4b498d64865",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_delta_conv_binding_v2_20261011/supervision/receipt.json": "78ea83c457c2e0570c7804cf806fa0bd287e73ef527527285bd2c6dc27e73334",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_delta_conv_binding_v2_20261011/supervision/stdout": "c2bbb6fd4bc719e92a95ec6a8c1f850418b72a203966dbf53b870943f497b75d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_delta_conv_binding_20261011/supervision/receipt.json": "6309ea0d2604dd4895a4b3a14be924f3dfa387047c6a20911afc6b4b25502527",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_294_chebfun_a_20261011.log": "b0fdc580984163e5d29d57c5b5ae0e3bb12500b1961945ba6f991fdcea4ef869"
+  }
+}

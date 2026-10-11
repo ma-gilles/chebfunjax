@@ -321,8 +321,12 @@ def convolution(f, g, *options):
                     gl, gm, go = _delta_row(gr)
                     key = (fl + gl, fo + go)
                     accum[key] = accum.get(key, 0) + fm * gm
-            h = Chebfun._attach_deltas(
-                h, tuple((loc, mag, order) for (loc, order), mag in accum.items() if mag != 0)
+            h = h._attach_deltas(
+                h,
+                tuple(
+                    (loc, mag) if order == 0 else (loc, mag, order)
+                    for (loc, order), mag in sorted(accum.items()) if mag != 0
+                ),
             )
         values = jnp.asarray(h.point_values)
         for k, point in enumerate(h.domain.breakpoints[1:-1], 1):
