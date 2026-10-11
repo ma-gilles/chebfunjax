@@ -39,7 +39,7 @@ class TestBallfunCoeffs3:
         F = np.array(f.coeffs3(3, 4, 5))
         exact = np.zeros((3, 4, 5), dtype=complex)
         exact[0, 2, 2] = 1.0
-        assert np.max(np.abs(F - exact)) < 1e-14  # pass(1)
+        assert np.array_equal(F, exact)  # Literal native pass(1).
 
         # Example 2
         exact_f = _heavy()

@@ -908,9 +908,8 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/isempty.m
         Chebfun commit: 7574c77
         """
-        obj = object.__new__(cls)
-        object.__setattr__(obj, "_is_empty_object", True)
-        return obj
+        return cls(coeffs=jnp.empty((0, 0, 0), dtype=jnp.complex128),
+                   is_real=False, domain=())
 
     def isempty(self) -> bool:
         """True for the empty Ballfun (MATLAB isempty).
@@ -1573,8 +1572,6 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/plus.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.ballfun._integrals import coefficient_is_real
-
         if not isinstance(other, (Ballfun, int, float, complex)):
             return NotImplemented
         if self.isempty():
@@ -1600,13 +1597,8 @@ class Ballfun(eqx.Module):
         else:
             _, n, p = self.shape
             new_coeffs = self.coeffs.at[0, n // 2, p // 2].add(other)
-        # Native plus reconstructs through the coefficient constructor, whose
-        # realness check includes cancellation and the even Nyquist modes.
-        # Under tracing the static metadata cannot depend on array values;
-        # retaining complex evaluation preserves every computed coefficient.
-        new_is_real = (False if isinstance(new_coeffs, jax.core.Tracer)
-                       else bool(coefficient_is_real(new_coeffs)))
-        return Ballfun(coeffs=new_coeffs, is_real=new_is_real, domain=self.domain)
+        # Native plus calls ballfun(X, 'coeffs'), including its simplification.
+        return Ballfun.from_coeffs(new_coeffs)
 
     def __radd__(self, other: "float | int") -> "Ballfun":
         return self.__add__(other)
@@ -2052,7 +2044,7 @@ class Ballfun(eqx.Module):
     def __abs__(self) -> "Ballfun":
         return self.abs()
 
-    def iszero(self) -> bool:
+    def iszero(self) -> jax.Array:
         """True iff f is exactly the zero function (MATLAB iszero:
         ``nnz(coeffs) == 0``).
 
@@ -2061,7 +2053,7 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/iszero.m
         Chebfun commit: 7574c77
         """
-        return bool(np.count_nonzero(np.asarray(self.coeffs)) == 0)
+        return jnp.count_nonzero(self.coeffs) == 0
 
     def isequal(self, other: "Ballfun") -> bool:
         """True iff f == g, i.e. ``iszero(f - g)`` (MATLAB isequal).
@@ -2154,70 +2146,32 @@ class Ballfun(eqx.Module):
         """
         if self.isempty():
             return self
-        cfs = np.array(self.coeffs)
-        vscale = float(np.max(np.abs(cfs)))
-        if vscale == 0.0:
-            return self
-
-        # MATLAB compresses the DIMENSIONS of the coefficient tensor:
-        # collapse to a max-abs profile along each dimension, run the
-        # corresponding tech's chop on it, and trim.  The global value
-        # scale enters through the tolerance so that slices that are
-        # small relative to the whole function chop more aggressively
-        # (MATLAB passes data.vscale = max(1, max|vals|) to
-        # happinessCheck).
         from chebfunjax.tech.chebtech import Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
 
-        vals = _coeffs2vals_3d(cfs)
-        vscl = max(1.0, float(np.max(np.abs(vals))))
-        base = _EPS if tol is None else float(tol)
-
-        def _slice_tol(profile):
-            scl = float(np.max(profile))
-            if scl == 0.0:
-                return None
-            return min(0.5, base * max(1.0, vscl / scl))
-
-        r_cfs = np.max(np.abs(cfs), axis=(1, 2))
-        l_cfs = np.max(np.abs(cfs), axis=(0, 2))
-        t_cfs = np.max(np.abs(cfs), axis=(0, 1))
-
-        # Radial (Chebyshev): trim trailing coefficients.
-        rt = Chebtech2.from_coeffs(jnp.asarray(r_cfs, dtype=jnp.float64))
-        cutoff_r = rt.simplify(_slice_tol(r_cfs)).coeffs.shape[0]
-        cfs = cfs[: min(cutoff_r, cfs.shape[0]), :, :]
-
-        # Fourier dims: trim symmetrically about the zero mode, exactly
-        # as MATLAB slices mid-floor(c/2) : mid+c-floor(c/2)-1.
-        def _trig_window(profile, size):
-            # MATLAB: [resolved, cutoff] = happinessCheck(trigtech(profile))
-            # (standardCheck: standardChop on the paired magnitudes, the
-            # count rounded UP to odd, 2*floor(c/2)+1) and the centred
-            # slice only when resolved.
-            from chebfunjax.tech.trigtech import _trig_chop_cutoff
-            tol_p = _slice_tol(profile)
-            if tol_p is None:
-                return 0, size
-            cutoff, _ = _trig_chop_cutoff(
-                jnp.asarray(profile, dtype=jnp.complex128), tol_p)
-            if not cutoff < size:
-                return 0, size
-            width = cutoff + 1 if cutoff % 2 == 0 else cutoff
-            width = min(width, size)
-            mid = size // 2
-            lo = mid - width // 2
-            return lo, lo + width
-
-        lo, hi = _trig_window(l_cfs, cfs.shape[1])
-        cfs = cfs[:, lo:hi, :]
-        lo, hi = _trig_window(t_cfs, cfs.shape[2])
-        cfs = cfs[:, :, lo:hi]
-
-        return Ballfun(
-            coeffs=jnp.asarray(cfs, dtype=jnp.complex128),
-            is_real=self.is_real,
-            domain=self.domain,
-        )
+        cfs = self.coeffs
+        values = Ballfun.coeffs2vals(cfs)
+        vscale = jnp.maximum(1., jnp.max(jnp.abs(values)))
+        radial = jnp.max(jnp.abs(cfs), axis=(1, 2))
+        longitude = jnp.max(jnp.abs(cfs), axis=(0, 2))
+        colatitude = jnp.max(jnp.abs(cfs), axis=(0, 1))
+        base = _EPS if tol is None else tol
+        resolved_r, cutoff_r = Chebtech2.happiness_check(
+            radial, Chebtech2.coeffs2vals(radial), tol=base,
+            vscale=vscale, sample_test=False)
+        resolved_l, cutoff_l = Trigtech.happiness_check(
+            longitude, Trigtech.coeffs2vals(longitude), tol=base, vscale=vscale)
+        resolved_t, cutoff_t = Trigtech.happiness_check(
+            colatitude, Trigtech.coeffs2vals(colatitude), tol=base, vscale=vscale)
+        if resolved_r:
+            cfs = cfs[:cutoff_r]
+        if resolved_l:
+            mid = cfs.shape[1]//2
+            cfs = cfs[:, mid-cutoff_l//2:mid+cutoff_l-cutoff_l//2, :]
+        if resolved_t:
+            mid = cfs.shape[2]//2
+            cfs = cfs[:, :, mid-cutoff_t//2:mid+cutoff_t-cutoff_t//2]
+        return Ballfun(coeffs=cfs, is_real=self.is_real, domain=self.domain)
 
     # ------------------------------------------------------------------
     # Representation

@@ -10,18 +10,19 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax.numpy as jnp
+
 from chebfunjax.ballfun.ballfun import Ballfun
 
 
 class TestBallfunIszero:
     def test_all_matlab_assertions(self):
         # f - f is exactly zero.
-        f = Ballfun.from_function(lambda x, y, z: 1.0 + 0.0 * x)
+        f = Ballfun.from_values(jnp.ones((21, 20, 22)))
         assert (f - f).iszero()
 
         # 1e-20 is a (tiny) nonzero constant.
-        assert not Ballfun.from_function(
-            lambda x, y, z: 1e-20 + 0.0 * x).iszero()
+        assert not Ballfun.from_values(1e-20).iszero()
 
         # The zero function.
-        assert Ballfun.from_function(lambda x, y, z: 0.0 * x).iszero()
+        assert Ballfun.from_values(0.0).iszero()
