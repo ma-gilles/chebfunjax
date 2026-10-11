@@ -504,6 +504,8 @@ def merge(*domains):
     use 100*eps times the largest domain norm (an infinite norm counts as1).
     Retain the smallest representative and discard points strictly below
     representative+tol, as in the native loop. Domains are concrete metadata.
+    A finite representative whose cutoff does not advance raises ValueError
+    instead of repeating forever (a safety adapter for the native loop).
 
     Provenance
     ----------
@@ -537,7 +539,13 @@ def merge(*domains):
         result.append(value)
         if value == float("inf"):
             break
-        vectors = [[v for v in d if v != -float("inf") and not v < value+tol]
+        cutoff = value + tol
+        if value != -float("inf") and cutoff <= value:
+            raise ValueError(
+                "domain.merge tolerance must advance each finite breakpoint; "
+                "representative + tolerance rounded to representative"
+            )
+        vectors = [[v for v in d if v != -float("inf") and not v < cutoff]
                    for d in vectors]
         vectors = [d for d in vectors if d]
     return result

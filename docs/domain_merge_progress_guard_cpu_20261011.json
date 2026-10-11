@@ -1,0 +1,29 @@
+{
+  "candidate_paths": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate/src/chebfunjax/domain.py",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate/tests/test_domain_merge_progress_guard.py"
+  ],
+  "changed_paths": [
+    "src/chebfunjax/domain.py",
+    "tests/test_domain_merge_progress_guard.py"
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/progress_guard.patch",
+  "original_checks": 6,
+  "native_source_test_cases": 1,
+  "retained_source_contract_regression_cases": 5,
+  "new_adapter_safety_cases": 4,
+  "pytest_passed": 10,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate_v1/supervision/receipt.json",
+  "wall_seconds": 8.59151359880343,
+  "peak_rss_kib": 424596,
+  "ast_changed_functions": [
+    "merge"
+  ],
+  "qualification": "Positive tolerance not advancing finitecutoff raises ValueError; native loop alsohangs. Knownhangingbaseline/native not executed. +infhandledbeforeguard; -infremoval retained. Strict normalcutoff behavior unchanged.",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate/src/chebfunjax/domain.py": "ca21c9392357683a48c7d2fcff01434ecc67cedfb92f345c8df88c7fe076f431",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate/tests/test_domain_merge_progress_guard.py": "c1aa3586fd5716d8bd6279772142184c93a1d34846e156f148dba204a9e69e15",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/progress_guard.patch": "a6dba16613dc0e324539c17e3a8db8ae5f427e14f3cbc9e38c1c11aeaa759ed5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_progress_guard_20261011/candidate_v1/supervision/receipt.json": "f4e5880d5f0d2398c7f53a424c3be72b70db188891939a743f2eeca9aa71e3cb"
+  }
+}
