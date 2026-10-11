@@ -965,17 +965,14 @@ class BlockLinop:
     def _merged_domain(self, entries, dom=None):
         """The operator domain enriched with the breakpoints of the
         given functions (MATLAB ``domain.merge``)."""
-        base = tuple(float(v) for v in (dom if dom is not None
-                                        else self.domain))
-        merged = set(base)
+        from chebfunjax.domain import merge
+
+        domains = [dom if dom is not None else self.domain]
         for entry in entries:
             edom = getattr(entry, "domain", None)
             if edom is not None:
-                bps = (edom.breakpoints if hasattr(edom, "breakpoints")
-                       else edom)
-                merged.update(float(v) for v in bps)
-        return tuple(sorted(v for v in merged
-                            if base[0] <= v <= base[-1]))
+                domains.append(edom)
+        return tuple(merge(*domains))
 
     def _expm_altdisc(self, t, u0, n, discretization):
         """Operator exponential under the ultraS / chebcolloc1 backends:

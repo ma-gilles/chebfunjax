@@ -1,0 +1,30 @@
+{
+  "changed_paths": [
+    "tests/test_matlab_port/misc/test_gpr_matlab.py"
+  ],
+  "library_changed": false,
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_clause_source_20261011/candidate/tests/test_matlab_port/misc/test_gpr_matlab.py",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_clause_source_20261011/gpr_test.patch",
+  "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_gpr.m",
+  "source_predicates": 21,
+  "passed": 21,
+  "controls": 0,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_clause_source_20261011/baseline_v1/supervision/receipt.json",
+  "results": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_clause_source_20261011/baseline_v1/RESULT.json",
+  "warnings": "Unresolved construction at65537pts and incompatible unusedCUDAplugin preserved in stderr; no warnings suppressed.",
+  "qualification": "CPU JAX/JAXLIB0.11.0 x64; Python RNG streams differ from MATLAB. No native MATLAB or identical stochastic paths claim.",
+  "relocation": "Publication-shaped candidate copy has identical bytes; original guarded candidate path retained.",
+  "evidence_hashes": {
+    "patch": "cbf456b79dbd1d9846ddf6746c7643ded9881a78b9580cadc24c149a5521af44",
+    "candidate": "19df0876ca0f898ddc0160fcedb026212abb86facaffd2ecdde15fa25616355c",
+    "native_source": "90a53435cbb3693cb51cf0fd3c8244ea1ea14837a83fd69cca1642e9aee1b651",
+    "receipt": "a545211d287099d0f429cab9aa8ca7c8a2fc6896cf0d678d06b2c97dde6835c0",
+    "results": "0c9f613a6eb2e55222b19faa70a571e0d2471c4c0f1f3107bd0246c9c85db7a0"
+  },
+  "runtime_summary": {
+    "wall_seconds": 51.99156081303954,
+    "sampled_peak_summed_rss_kib": 2502480,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}

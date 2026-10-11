@@ -1,0 +1,217 @@
+{
+  "scope": "Native tolerance-aware domain.merge and adaptive operator-domain assembly; no public DDE routing change.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/SOURCE_REVIEW.json",
+  "source_review_sha256": "c1d8e8227e68d3898a5b5d017c5c0eca42f6bb670736cd2cd8a6851d7695e87b",
+  "gates": {
+    "public_profile_crash": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline/AUDIT.json",
+      "audit_sha256": "85fea5af39db2b356f09e3f7351a676080052c6ed78a12fc9b689f32c5f74e20",
+      "summary": {
+        "original": 12906,
+        "terminal": -11,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1323300,
+        "wall_seconds": 23.551648593042046
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      }
+    },
+    "public_profile_cap": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/AUDIT.json",
+      "audit_sha256": "351220cd052e026c4169f0471e95c0c0dafc3a9896f4f7ae6d027172e41b2c94",
+      "summary": {
+        "original": 20561,
+        "terminal": 124,
+        "inputs_stable": true,
+        "censored": "wall_timeout",
+        "survivors": [],
+        "peak_rss_kib": 1610972,
+        "wall_seconds": 181.30816609691828
+      },
+      "profile.pstats": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/profile.pstats",
+        "sha256": "2fc91537ca51175ac72c3af7232182195e8826f70cbe14cb4d9876e1f4773fd8"
+      },
+      "profile.txt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/profile.txt",
+        "sha256": "1f51c5f83b814b527b290987bf9a831af9387881f2a4527183dc5a102520c3ea"
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/baseline_v2/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      }
+    },
+    "ad_probe_cap": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/ad_reuse_probe/AUDIT.json",
+      "audit_sha256": "1363f44ca55148fa25764253f12f4c84ab7da03598750c88d340912ce46fe356",
+      "summary": {
+        "original": 29910,
+        "terminal": 137,
+        "inputs_stable": true,
+        "censored": "sampled_summed_RSS_cap",
+        "survivors": [],
+        "peak_rss_kib": 3179424,
+        "wall_seconds": 56.723169782198966
+      },
+      "profile.pstats": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/ad_reuse_probe/profile.pstats",
+        "sha256": "2502cfe88d1a11b6e15931c7c837355e795947033e5928189f20e8bc3ae39cc4"
+      },
+      "profile.txt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/ad_reuse_probe/profile.txt",
+        "sha256": "cc88785769ef9ecc2d75f067e0524b6c31cd94ace5ddb34f9fefd74f5f1b4068"
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/ad_reuse_probe/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      },
+      "LINEARIZATION.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/delay_two_constants_diagnosis_20261011/ad_reuse_probe/LINEARIZATION.json",
+        "sha256": "66f75d3146a05a5e5a25dc627f81673c81d622eb78526f40551805743c0e0032"
+      }
+    },
+    "collection_failure": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/controls/AUDIT.json",
+      "audit_sha256": "0b4d74496ec660531c6a98b4f6b076835fbc1a59fb0dd93f2ab662a07894be4e",
+      "summary": {
+        "original": 7103,
+        "terminal": 2,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 193636,
+        "wall_seconds": 3.980515574105084
+      },
+      "junit.xml": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/controls/junit.xml",
+        "sha256": "931fad9c31f3f3571ec5de8a5c923dd2d4a79fda175f37ad6af00d96ac5708a5"
+      },
+      "test_ids": [
+        "::test_domain_merge_source"
+      ]
+    },
+    "merge_controls": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/controls_v2/AUDIT.json",
+      "audit_sha256": "deba4448484d8a353ab705ea3839900ff6f82bf28f5f013c66aecc001b7a83a0",
+      "summary": {
+        "original": 3207,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 192316,
+        "wall_seconds": 3.436551657039672
+      },
+      "junit.xml": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/controls_v2/junit.xml",
+        "sha256": "c0a356d71adf1b4dc50d350995444920d8b08762c8e7355b6417f519e3bebc9c"
+      },
+      "test_ids": [
+        "test_domain_merge_source::test_retained_near_breaks_do_not_make_microintervals",
+        "test_domain_merge_source::test_native_representative_strict_boundary_and_no_transitive_cluster",
+        "test_domain_merge_source::test_default_scale_is100eps_and_keeps_smallest",
+        "test_domain_merge_source::test_native_infinite_scale_is_one",
+        "test_domain_merge_source::test_source_incompatible_endpoints_identifier",
+        "test_merge_matlab.TestDomainMerge::test_breakpoint_union"
+      ]
+    },
+    "ad_probe_corrected": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/AUDIT.json",
+      "audit_sha256": "4ca1a3784a5aa38dbfeb4d418e91bffbcc5008d7fea1c937bde32a6d4b573d03",
+      "summary": {
+        "original": 90129,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1969704,
+        "wall_seconds": 35.744703366886824
+      },
+      "profile.pstats": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/profile.pstats",
+        "sha256": "939abc27c5ba0d657c271e8dfa5a1a478475ab5ce32b69ff7b80bb088a5f2555"
+      },
+      "profile.txt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/profile.txt",
+        "sha256": "bce566429417da2abe0f00d0147733825b2ac8f724bac2daebf826a3e2e0509b"
+      },
+      "INPUT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/INPUT.json",
+        "sha256": "0c72d37a74b497ceb095bdfbddfc0020cb0b3358f8629a38103021c582dad480"
+      },
+      "LINEARIZATION.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/LINEARIZATION.json",
+        "sha256": "ffe7eb85c38de6a3e23ec2207bbadba8368b17b9daa5ed0afd4b8e142a79792d"
+      },
+      "DISCRETIZATION.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/DISCRETIZATION.json",
+        "sha256": "a3293b2248eec36ff802c6f7fa2ce84e7b849c733acbef18a7c4caab7d433c81"
+      },
+      "RESULT.json": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/RESULT.json",
+        "sha256": "0cee21f5ae6723f094da2c9f1146d6754d4b1e22412b8e9723709f68e3ee3305"
+      },
+      "solution.npz": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/ad_reuse_probe/solution.npz",
+        "sha256": "6a8f12b93bea672aa622eec0175e587a789b6f9ecd44c84b251f104349a6d281"
+      }
+    },
+    "retained_controls": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/retained_controls/AUDIT.json",
+      "audit_sha256": "333bdf8da63618a7cd7854921b5916b4d03c4492eb037bba2d066197b55fde69",
+      "summary": {
+        "original": 15301,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 850912,
+        "wall_seconds": 13.558046694844961
+      },
+      "junit.xml": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_merge_source_20261011/retained_controls/junit.xml",
+        "sha256": "11800ebdb69b47024792c5e938c9f31a6c6fb1dd77dc405d326ef6160f2a997e"
+      },
+      "test_ids": [
+        "test_linear_adaptive_representation_controls::test_coefficient_breakpoints_merge_even_when_operator_domain_is_coarse[chebcolloc1]",
+        "test_linear_adaptive_representation_controls::test_coefficient_breakpoints_merge_even_when_operator_domain_is_coarse[ultraS]"
+      ]
+    }
+  },
+  "tests": "8 passed: original native domain merge,5 added source/retained-input controls,2 unchanged coefficient-breakpoint regressions. Failed collection observer preserved separately.",
+  "causal_result": {
+    "same_observer_bytes": true,
+    "source_edit_only": "domain helper and two exact-set domain assembly consumers",
+    "before": "AD probe hit3GiB cap after4 adaptive assemblies",
+    "after": "Native happiness passed at initial32 per piece on11 intervals; no refinement.",
+    "solve_seconds": 20.891505442094058,
+    "observed_residual_norm": 3.5915980574725803e-11,
+    "residual_acceptance": "Observed only; source page prints residual without threshold. No fresh matched native output or new residual predicate claimed.",
+    "initial_value": 0.9999999999995947
+  },
+  "environment": {
+    "cpu": "4-7",
+    "wall_cap_seconds": 180,
+    "rss_cap_mib": 3072,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "x64": true,
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "static": [
+    "P-config Ruff passed",
+    "P git apply --check passed"
+  ],
+  "limits": [
+    "Concrete domain metadata only; no new traced domain support.",
+    "Positive explicit tolerance supported; nonpositive tolerance is rejected to avoid source loop nontermination; old Python helper did not support scalar tolerance.",
+    "Empty/no-input merge retains prior Python empty-list behavior.",
+    "No independent native section9 output captured yet.",
+    "Default public DDE route remains legacy and still has the profiled performance limitation."
+  ]
+}

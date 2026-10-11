@@ -498,16 +498,46 @@ _HTOL = 5.0 * _EPS  # Horizontal tolerance (matches chebpy's htol)
 
 
 def merge(*domains):
-    """Union of breakpoint vectors (MATLAB domain.merge): the sorted
-    union of all breakpoints, keeping infinite endpoints.
+    """Merge domain breakpoints with the source horizontal tolerance.
+
+    The optional final scalar is an explicit positive tolerance. Otherwise
+    use 100*eps times the largest domain norm (an infinite norm counts as1).
+    Retain the smallest representative and discard points strictly below
+    representative+tol, as in the native loop. Domains are concrete metadata.
 
     Provenance
     ----------
-    MATLAB source : @domain/merge.m
+    MATLAB source : @domain/merge.m (including signed endpoint comparison).
     Chebfun commit: 7574c77
     """
-    pts = set()
-    for d in domains:
-        seq = d.breakpoints if hasattr(d, "breakpoints") else d
-        pts.update(float(t) for t in seq)
-    return sorted(pts)
+    if not domains:
+        return []
+    last = domains[-1]
+    explicit = isinstance(last, (int, float)) or getattr(last, "ndim", None) == 0
+    inputs = domains[:-1] if explicit else domains
+    vectors = [[float(v) for v in (d.breakpoints if hasattr(d, "breakpoints") else d)]
+               for d in inputs]
+    vectors = [d for d in vectors if d]
+    if not vectors:
+        return []
+    if explicit:
+        tol = float(last)
+    else:
+        scales = [max(abs(v) for v in d) for d in vectors]
+        scales = [1.0 if scale == float("inf") else scale for scale in scales]
+        tol = 100*_EPS*max(scales)
+    if not tol > 0:
+        raise ValueError("domain.merge requires a positive tolerance")
+    first = vectors[0]
+    if any(d[0]-first[0] > tol or d[-1]-first[-1] > tol for d in vectors):
+        raise ValueError("CHEBFUN:DOMAIN:merge:incompat -- Incompatible domains.")
+    result = []
+    while vectors:
+        value = min(min(d) for d in vectors)
+        result.append(value)
+        if value == float("inf"):
+            break
+        vectors = [[v for v in d if v != -float("inf") and not v < value+tol]
+                   for d in vectors]
+        vectors = [d for d in vectors if d]
+    return result

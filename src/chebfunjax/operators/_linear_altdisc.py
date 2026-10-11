@@ -17,7 +17,7 @@ from jax.scipy.linalg import lu_factor, lu_solve
 from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece, chebfun
 from chebfunjax.discretization.ultras import convertmat, multmat
 from chebfunjax.discretization.ultras import diffmat as ultra_diffmat
-from chebfunjax.domain import Domain
+from chebfunjax.domain import Domain, merge
 from chebfunjax.operators._native_values import FirstKindDisc
 from chebfunjax.operators.blocks import OperatorBlock
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2, _clenshaw
@@ -328,7 +328,7 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
                     if isinstance(coefficient, Chebfun))
     domain = L._merged_domain(entries+coefficient_functions)
     if native_domains:
-        domain = tuple(sorted(set(domain).union(native_domains)))
+        domain = tuple(merge(domain, sorted(set(native_domains))))
     schedule = _dimension_values(n_min, n_max, backend)
     if n is not None:
         dimensions = tuple(L._sizes(n, domain))
