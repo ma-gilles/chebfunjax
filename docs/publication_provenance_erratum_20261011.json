@@ -1,0 +1,6 @@
+{
+  "commit": "c76c3126a9c868f2b62e986669216b31bfc43b8c",
+  "correction": "This published commit accidentally omitted the required model co-author trailer. Its changes were authored and reviewed by the same root GPT-6 agent as surrounding commits.",
+  "intended_trailer": "Co-Authored-By: GPT-6 <noreply@openai.com>",
+  "resolution": "Additive provenance record; published main history retained without force push."
+}

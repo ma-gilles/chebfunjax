@@ -1,0 +1,29 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_source_20261011/candidate/tests/test_matlab_port/misc/test_trigBary_matlab.py",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_source_20261011/trigbary_test.patch",
+  "changed_paths": [
+    "tests/test_matlab_port/misc/test_trigBary_matlab.py"
+  ],
+  "source_predicates": 9,
+  "passed": 9,
+  "library_changed": false,
+  "restored": [
+    6,
+    7,
+    8,
+    9
+  ],
+  "clause5_correction": "eight unsorted nodes, single seeded stream consumed in source order; replaces nine sorted nodes with separate seed7",
+  "original_bounds_unchanged": true,
+  "qualification": "Python default_rng3453 differs from native MATLABseedRNG3453. Source7 is only exact length2500, not finite weights. Numerical warnings retained; no global weights reliability claim.",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_source_20261011/exact_v2/supervision/receipt.json",
+  "wall_seconds": 9.223957640118897,
+  "peak_rss_kib": 494864,
+  "audit_secondary": "chebvar3/3 source clauses match, no change",
+  "prior_receipt": "baseline_v1 structural predicate encoded as integerdifference<.5; exact_v2 uses literal equality to avoid representing source structural clause as invented numerical tolerance.",
+  "hashes": {
+    "candidate": "2517748d19a17be93b984dd800a952f19d82355b0d3016cecb1cf36d92654245",
+    "patch": "ec6933cb73f7539a7d51253cabe53ed68c605233a318aeda27bb9628d9a92d74",
+    "receipt": "f79dbb6cdda85c49d83769ca547a6c478b171c4da82fdeb490a1cdea54260582"
+  }
+}
