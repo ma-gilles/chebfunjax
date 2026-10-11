@@ -1,0 +1,143 @@
+{
+  "base": "75d059e5c55a98139820e8389a20a57e935c06cd",
+  "packaging_against": "fa6c09012189c17d72cb4c12e2f58fa31182bc55",
+  "controls": {
+    "tests": 12,
+    "original": 1313,
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/controls_cpu_v1/AUDIT.json"
+  },
+  "full": {
+    "faults": [],
+    "original": 29512,
+    "terminal": 0,
+    "survivors": [],
+    "wall_seconds": 14.280677842907608,
+    "script_timer_seconds": 7.322813,
+    "pytest_seconds": 7.35,
+    "peak_rss_kib": 965356,
+    "source_bindings": 286,
+    "actual_stdout": [
+      "ans =",
+      "   1.082323233711138",
+      "exact =",
+      "   1.082323233711138",
+      "f =",
+      "   chebfun column (1 smooth piece)",
+      "       interval       length     endpoint values  ",
+      "[       5,      50]       75     complex values ",
+      "vertical scale = 1.1 ",
+      "            Chebfun                          Exact",
+      " 0.5000000008 + 14.1347251414i    0.5000000000 + 14.1347251417i",
+      " 0.5000000000 + 21.0220396388i    0.5000000000 + 21.0220396388i",
+      " 0.5000000000 + 25.0108575801i    0.5000000000 + 25.0108575801i",
+      " 0.5000000000 + 30.4248761259i    0.5000000000 + 30.4248761259i",
+      " 0.5000000001 + 32.9350615877i    0.5000000000 + 32.9350615877i",
+      " 0.4999999999 + 37.5861781588i    0.5000000000 + 37.5861781588i",
+      " 0.4999999995 + 40.9187190118i    0.5000000000 + 40.9187190121i",
+      " 0.5000000020 + 43.3270732798i    0.5000000000 + 43.3270732809i",
+      "Elapsed time is 7.322813 seconds."
+    ],
+    "actual_composition_warning": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/snapshot/src/chebfunjax/chebfun1d/chebfun.py:4078: UserWarning: CHEBFUN:CHEBFUN:compose:composeTwoChebfuns:complex: F should be real valued to construct G(F). Results may be inaccurate if G is not a polynomial.",
+    "native_comparison": {
+      "f_length": 75,
+      "root_count": 8,
+      "max_absolute_error_against_source_10decimal_constants": 2.3169648471547077e-09,
+      "computed_roots": [
+        [
+          0.5000000007588072,
+          14.13472514141665
+        ],
+        [
+          0.500000000049666,
+          21.022039638838617
+        ],
+        [
+          0.5000000000496159,
+          25.010857580145526
+        ],
+        [
+          0.4999999999561302,
+          30.424876125896763
+        ],
+        [
+          0.5000000000601363,
+          32.9350615877035
+        ],
+        [
+          0.49999999987623145,
+          37.58617815878888
+        ],
+        [
+          0.49999999947675855,
+          40.918719011831946
+        ],
+        [
+          0.500000002019219,
+          43.327073279763745
+        ]
+      ],
+      "order_source": "Physical root magnitude ascending, phase tie-break; source @chebfun/roots.m columnRoots sort(r,1)",
+      "printed_max_absolute_difference_vs_cached_native_computed_rows": 1.000000082740371e-10
+    },
+    "images": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/figures/ZetaZeros_01.png",
+        "pixels": [
+          600,
+          270
+        ],
+        "sha256": "9ea45b5387b420445cffc22c4fe2c468a245db31ff3225e135b737461b488090"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/figures/ZetaZeros_02.png",
+        "pixels": [
+          600,
+          270
+        ],
+        "sha256": "9070fd9adbcd6db66e3cecf128fe53c086ddfd929484ce5fb5bf03c12d5cb946"
+      }
+    ],
+    "scope": "Full literal descending100000-term sum, adaptivepublicChebfun construction andcomplexnorecursionroots, publicpolynomialcomposition oncritical line. Actual8-rowtable/order restored; no manuallyprovided roots/analyticreplacement. Numericconstants are originalsourcecomparisonvalues. Timerssharedhostobserver notbenchmark. No nativecoefficient/rootbit/pixelparity claim. Runtimeversions/moduleoriginhashes rather than exhaustiveOSclosure.",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/junit.xml": "f1aa2cec7de4396028927789dd0f86baefa5748209857e2b02715371f1ddfe9b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/ACTUAL_COMPOSITION_WARNING.txt": "5fc869607078521c35ef48af05cb1ebc20d75fc4621c1ba030fb0f215df29acb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/ACTUAL_PAGE_STDOUT.txt": "5c8f7d9deed391e364211fd98fe90fe2af9058bcf11fd617e1acc21114b00c7b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/VERSIONS.json": "899f840997893e6246e3db91d30cad0fd9e8916c853d8bcb6eac7e0106e18486",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/launch.sh": "3667b5c6915fe14f6f963d26529cf3df894006beb56e995338a45aa48091548f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/test_full_page.py": "985beb352b297b8996ea44f027679ea74e9697ddbd4e2d513e1e03b7f4af2ab3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/guard.json": "341e9670d2adaead17c42d260c31ed0e7dc95277165a48c9133a5836aa854101",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/runner.py": "3f082e2a1ecb861dace8deb67f99d9cebc796d3faafd3ce853de6fcc69b25fb0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/supervise.py": "6fd3bb74e73fff1a2f4c59c0723024762d8d6e5cf3c3214834d11cfbe4279a25",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/samples.jsonl": "f2a983f8644eef43647111879b1bc3798ca171e6057e1762d22e2bfb91a28e65",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/stdout": "8d4ce7c7d027f7a0304ba8f2ac1e942519f816b0c680bb56d28d5e5484940b3b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/guard.json": "0291ef61f0b0cda14a7bc932876c9b167e8fb6b8988926b68fea3db6d8b5fe63",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/manifest.json": "09cc145d3857abb9d66210d7888f15c539a05aca3bf5c6a5436cab34a9b94a34",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/supervision/receipt.json": "48893b50ad60ab0b8a2298436346d69193ee696d5e8043c4605f4983fa85c76a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/continuation.npz": "bb8e90f0f39fa58c01cbc8d80a86db3b0d995bdcfdbf735ea1ecd76ef82c9871",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_01.npz": "905ae74d7b46bf348ac3612e1b4b71af4f1e5a5dd4712ae17d241dc892b62a60",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_02.npz": "266d38fae9b886ef701d101de200db30dcafb78bfd5fe1d9355f5c06f76c8899",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_05.npz": "4d05014851cdbe49b4932a970b620c24944b8cd9eb26e1dc0694fc5a21e9b53e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_07.npz": "073431243f9b78e865f37404c83e73bbd5b8226206c3a1cb3a7ae6ef2079a421",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/critical_line.npz": "3dbbaf775766a2b2dababe8b92c10c6b669e3f8eeac1892d168b26abd3a83320",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_06.npz": "16ebd61595b42e41cfa9be75d615bfb1908397f0996279439226265a66164486",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_03.npz": "87deeec092e66078ac1d1ec7e9cf694c625acf769867bc4695150431b57cd1f1",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/captures/construction_04.npz": "16b211e84b1a6cf905bd5b80c6aededdca60500960594a98781537bbb84acf87",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/figures/ZetaZeros_02.png": "9070fd9adbcd6db66e3cecf128fe53c086ddfd929484ce5fb5bf03c12d5cb946",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_full_source_v4_20261010/full_cpu_v1/figures/ZetaZeros_01.png": "9ea45b5387b420445cffc22c4fe2c468a245db31ff3225e135b737461b488090"
+    }
+  },
+  "pytest_duration_erratum": "The full audit inherited 7.35 seconds; authoritative pytest stdout is 7.34 seconds. Supervision and source timings are unchanged.",
+  "packaging": "Only a Provenance docstring was added to the qualified core; AST excluding docstrings is identical. Prose and MATLAB blocks preserved exactly; all other legacy generator functions AST-identical.",
+  "remaining_gaps": [
+    "Printed values differ in last digits from cached native rows; no full numeric or pixel parity claim.",
+    "Preexisting periodic complex roots forwards unsupported kwargs to Trigtech.roots; untouched.",
+    "Preexisting host NumPy orchestration and midpoint mapping remain unchanged.",
+    "Runtime audit binds sources and in-process versions/origins, not exhaustive transient shared-library closure."
+  ],
+  "preserved_attempts": [
+    "v1 control expectation failure",
+    "v2 unsorted table full capture",
+    "v3 control-only capture"
+  ]
+}

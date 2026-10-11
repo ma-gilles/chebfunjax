@@ -45,7 +45,7 @@ f = chebfun(@(t) zeta(s(t)),[5 50],'vectorize')
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       5,      50]       81     complex values
+[       5,      50]       75     complex values
 vertical scale = 1.1
 ```
 
@@ -75,14 +75,14 @@ fprintf(ss,[real(zeros_s) imag(zeros_s) ...
 
 ```text
             Chebfun                          Exact
- 0.5000000002 + 14.1347251416i    0.5000000000 + 14.1347251417i
- 0.5000000002 + 21.0220396392i    0.5000000000 + 21.0220396388i
- 0.4999999882 + 25.0108575698i    0.5000000000 + 25.0108575801i
- 0.4999999941 + 32.9350615884i    0.5000000000 + 30.4248761259i
- 0.4999999991 + 37.5861781589i    0.5000000000 + 32.9350615877i
- 0.4999999992 + 40.9187190133i    0.5000000000 + 37.5861781588i
- 0.4999999981 + 43.3270732793i    0.5000000000 + 40.9187190121i
-Elapsed time is 12.777713 seconds.
+ 0.5000000008 + 14.1347251414i    0.5000000000 + 14.1347251417i
+ 0.5000000000 + 21.0220396388i    0.5000000000 + 21.0220396388i
+ 0.5000000000 + 25.0108575801i    0.5000000000 + 25.0108575801i
+ 0.5000000000 + 30.4248761259i    0.5000000000 + 30.4248761259i
+ 0.5000000001 + 32.9350615877i    0.5000000000 + 32.9350615877i
+ 0.4999999999 + 37.5861781588i    0.5000000000 + 37.5861781588i
+ 0.4999999995 + 40.9187190118i    0.5000000000 + 40.9187190121i
+ 0.5000000020 + 43.3270732798i    0.5000000000 + 43.3270732809i
 ```
 
 Here is a plot of the real and imaginary parts along the critical line. The black dots at their intersections are the computed zeros.
@@ -107,12 +107,22 @@ toc
 ```
 
 ```text
-
+Elapsed time is 7.322813 seconds.
 ```
 
 Reference:
 
 1. L. N. Trefethen, *Approximation Theory and Approximation Practice, Extended Edition*, SIAM, 2019.
+
+## Execution qualification
+
+The full 100000-term construction, eight complex roots with recursion disabled, and public Chebfun composition were executed with JAX 0.11.0 on CPU. The computed function has length 75. The eight printed computed rows differ from cached native rows by at most 1.000000082740371e-10; the full computed roots differ from the source ten-decimal comparison constants by at most 2.3169648471547077e-9. JAX reduction and complex-power rounding can differ from MATLAB. Exact coefficient, root-bit and pixel parity remain unverified. Both figures were visually reviewed for readable content. The 7.322813-second source timer is a shared-host observation, not a benchmark.
+
+The actual public composition emitted this warning:
+
+```text
+UserWarning: CHEBFUN:CHEBFUN:compose:composeTwoChebfuns:complex: F should be real valued to construct G(F). Results may be inaccurate if G is not a polynomial.
+```
 
 ---
 

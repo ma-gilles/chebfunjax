@@ -426,6 +426,7 @@ def main():
             ("applics", "VanillaOptions"),
             ("approx", "Noisy"),
             ("roots", "RandomPolys"),
+            ("complex", "ZetaZeros"),
             ("stats", "BivariateNormalDistribution"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "

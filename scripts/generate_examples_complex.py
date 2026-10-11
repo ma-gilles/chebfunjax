@@ -216,55 +216,12 @@ def closedcontours():
 
 
 def zetazeros():
-    """complex/ZetaZeros — zeta on the critical strip."""
-    import mpmath
+    """Dispatch ZetaZeros to the qualified public source example."""
+    import runpy
 
-    # Fig 1: ellipse-region view with the computed complex zeros
-    # zeros of zeta(1/2 + it) for t in [5, 50] via mpmath (honest values)
-    zeros_t = []
-    t0 = 5.0
-    while t0 < 50.0 and len(zeros_t) < 12:
-        try:
-            z = mpmath.zetazero(len(zeros_t) + 1)
-            t_im = float(mpmath.im(z))
-            if 5.0 <= t_im <= 50.0:
-                zeros_t.append(t_im)
-            elif t_im > 50.0:
-                break
-            t0 = t_im
-        except Exception:
-            break
-    zeros_t = np.array(zeros_t)
-    fig, ax = plt.subplots()
-    th = np.linspace(0, 2 * PI, 400)
-    # stylized Chebfun ellipse for the interval [5, 50]
-    rr = 1.3
-    ez = 0.5 * (rr * np.exp(1j * th) + 1.0 / (rr * np.exp(1j * th)))
-    ez = 22.5 * (ez + 1.0) + 5.0 - 22.5 * 0
-    ez = 5 + 22.5 * (np.real(ez - np.mean(np.real(ez))) / 22.5 + 1) \
-        + 1j * np.imag(ez) * 22.5 if False else 27.5 + 22.5 * np.real(
-            0.5 * (rr * np.exp(1j * th) + np.exp(-1j * th) / rr)) \
-        + 22.5j * np.imag(0.5 * (rr * np.exp(1j * th)
-                                 + np.exp(-1j * th) / rr))
-    ax.plot(np.real(ez), np.imag(ez), color=CHEBFUN_BLUE, linewidth=1.0)
-    ax.plot(zeros_t, np.zeros_like(zeros_t), "or", markersize=5,
-            markerfacecolor="none")
-    ax.plot([-5, 60], [0, 0], "k-", linewidth=0.6)
-    ax.set_xlim(-5, 60)
-    ax.set_aspect("equal")
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    save(fig, "ZetaZeros_01.png")
-
-    # Fig 2: real/imag parts of zeta(3.5i + t) ... actually
-    # zeta(1/2 + it) along t in [5, 50]
-    tt = np.linspace(5.0, 50.0, 900)
-    vals = np.array([complex(mpmath.zeta(0.5 + 1j * t)) for t in tt])
-    fig, ax = plt.subplots()
-    ax.plot(tt, np.imag(vals), color=CHEBFUN_BLUE, linewidth=1.2)
-    ax.plot(tt, np.real(vals), color=ORANGE, linewidth=1.2)
-    ax.set_title("Real and imaginary parts of zeta on the critical line",
-                 fontsize=9)
-    save(fig, "ZetaZeros_02.png")
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "complex", "zeta_zeros.py")
+    runpy.run_path(example, run_name="__main__")
 
 
 def keyholecontour():

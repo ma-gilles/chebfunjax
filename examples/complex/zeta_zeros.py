@@ -1,110 +1,149 @@
-"""Zeros of the Riemann zeta function.
+"""Zeros of zeta(s) by polynomial analytic continuation.
 
-Translation of complex/ZetaZeros.m by Nick Trefethen (October
-2011): computing zeros of zeta(s) in the critical strip by analytic
-continuation of a chebfun on the line Re(s) = 4 and complex
-rootfinding.
-
-Original: https://www.chebfun.org/examples/complex/ZetaZeros.html
-Copyright by The University of Oxford and The Chebfun Developers.
+Provenance
+----------
+MATLAB source : complex/ZetaZeros.m, Nick Trefethen and Mohsin Javed,
+July 2015. Reference Chebfun library commit: 7574c77.
+The full descending 100000-term source sum is retained. JAX binary64
+reduction/complex-power arithmetic can differ from MATLAB; no coefficient,
+root-bit or pixel parity is claimed.
 """
-import matplotlib
-
-matplotlib.use("Agg")
 import os
 import sys
 import time
 
+import matplotlib
+
+matplotlib.use("Agg")
+import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
+    chebfun_style,
+    plotregion,
+    save_chebfun_figure,
+)
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'complex')
+_IMG = os.environ.get("ZETAZEROS_IMAGE_DIR") or os.path.join(
+    _HERE, "..", "..", "docs", "images", "complex"
+)
 
-KK = np.arange(1e5, 0, -1)
+
+@jax.jit
+def _zeta_scalar(s):
+    terms = jnp.arange(100000, 0, -1, dtype=jnp.float64)
+    return jnp.sum(terms ** (-jnp.asarray(s, dtype=jnp.complex128)))
 
 
 def zeta(s):
-    s = np.asarray(s, dtype=complex)
-    return np.sum(KK[None, :] ** (-np.atleast_1d(s)[:, None]),
-                  axis=1).reshape(np.shape(s))
+    """Literal descending Dirichlet sum, scalar-vectorized as native source.
+
+    Provenance
+    ----------
+    MATLAB source : complex/ZetaZeros.m, zeta handle and vectorize constructor.
+    Chebfun commit: 7574c77 (reference library; example caller).
+    """
+    values = jnp.asarray(s, dtype=jnp.complex128)
+    return jnp.stack([_zeta_scalar(value) for value in values.ravel()]).reshape(
+        values.shape
+    )
 
 
 def run():
+    """Execute all original ZetaZeros computation and display cells.
+
+    Provenance
+    ----------
+    MATLAB source : complex/ZetaZeros.m, Nick Trefethen and Mohsin Javed.
+    Chebfun commit: 7574c77 (reference library; example caller).
+    """
     os.makedirs(_IMG, exist_ok=True)
-    t_start = time.time()
-
-    v = complex(zeta(4.0))
+    capture = os.environ.get("ZETAZEROS_CAPTURE_DIR")
+    if capture:
+        os.makedirs(capture, exist_ok=True)
+    started = time.perf_counter()
+    value = zeta(4.0)
     print("ans =")
-    print(f"   {v.real:.15f}")
+    print(f"   {float(jnp.real(value)):.15f}")
     print("exact =")
-    print(f"   {np.pi**4/90:.15f}")
+    print(f"   {float(jnp.pi**4 / 90):.15f}")
 
-    # chebfun of zeta(4 + it) on t in [5, 50]
-    def fop(t):
-        arr = np.atleast_1d(np.asarray(t, dtype=np.float64))
-        vals = zeta(4.0 + 1j * arr.ravel())
-        return jnp.asarray(vals.reshape(arr.shape))
+    s = cj.chebfun(lambda t: 4.0 + 1j * t, domain=[5.0, 50.0])
+    call_count = [0]
 
-    f = cj.chebfun(fop, domain=(5.0, 50.0))
+    def observed(t):
+        arguments = s(t)
+        values = zeta(arguments)
+        if capture:
+            call_count[0] += 1
+            np.savez(os.path.join(capture, f"construction_{call_count[0]:02d}.npz"),
+                     t=np.asarray(t), s=np.asarray(arguments), values=np.asarray(values))
+        return values
+
+    f = cj.chebfun(observed, domain=[5.0, 50.0])
     print("f =")
     print(repr(f))
+    zeros_t = np.asarray(f.roots(complex_roots=True, norecursion=True))
 
-    # complex roots of the chebfun = zeros of zeta continued into the
-    # strip (t complex; s = 4 + i t maps them to the critical line)
-    zt = np.asarray(f.roots(complex_roots=True))
-    # zeta zeros at s = 1/2 + i*gamma map to t = gamma + 3.5i
-    zt = zt[(np.real(zt) > 5) & (np.real(zt) < 50)
-            & (np.imag(zt) > 2) & (np.imag(zt) < 5)]
-    zt = zt[np.argsort(np.real(zt))]
-    zeros_s = 4.0 + 1j * zt
-
-    ts = np.linspace(5, 50, 2000)
-    fv = np.asarray(f(jnp.asarray(ts)))
-    fig, ax = plt.subplots(figsize=(9.6, 4.6))
-    ax.plot(ts, np.zeros_like(ts), 'k:', lw=0.8)
-    ax.plot(zt.real, zt.imag, '.r', ms=10)
-    ax.plot([0], [3], 'xk', ms=12)
+    fig, ax = plt.subplots(figsize=(6, 2.7), dpi=100)
+    plotregion(f, ax=ax, title="")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
     ax.set_xlim(-5, 60)
+    ax.set_aspect("equal", adjustable="datalim")
+    ends = np.asarray(f.domain.breakpoints)
+    ax.plot(ends, np.zeros_like(ends), "k+-")
+    ax.plot(zeros_t.real, zeros_t.imag, ".r", markersize=3)
+    ax.plot(0, 3, "xk", markersize=12)
     ax.set_yticks(range(-12, 13, 4))
     ax.grid(True)
-    ax.set_title("complex roots of the chebfun (red)", fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "ZetaZeros_01.png"), size=(600, 270))
+    save_chebfun_figure(fig, os.path.join(_IMG, "ZetaZeros_01.png"), layout="matlab")
     plt.close(fig)
 
-    zeros_exact = 0.5 + 1j * np.array([
+    zeros_s = np.asarray(s(jnp.asarray(zeros_t)))
+    zeros_exact = 0.5 + 1j * np.asarray([
         14.1347251417, 21.0220396388, 25.0108575801, 30.4248761259,
-        32.9350615877, 37.5861781588, 40.9187190121, 43.3270732809])
+        32.9350615877, 37.5861781588, 40.9187190121, 43.3270732809,
+    ])
+    if capture:
+        np.savez(os.path.join(capture, "continuation.npz"),
+                 s_coeffs=np.asarray(s.chebcoeffs()),
+                 f_coeffs=np.asarray(f.chebcoeffs()), zeros_t=zeros_t,
+                 zeros_s=zeros_s, zeros_exact=zeros_exact)
+    # Source fprintf requires matching rows; never silently truncate/filter roots.
+    if len(zeros_s) != len(zeros_exact):
+        raise RuntimeError(f"Source table has {len(zeros_s)} computed roots, expected eight rows")
     print("            Chebfun                          Exact")
-    for zc, ze in zip(zeros_s[:len(zeros_exact)], zeros_exact):
-        print(f"{zc.real:13.10f} + {zc.imag:13.10f}i   "
-              f"{ze.real:13.10f} + {ze.imag:13.10f}i")
+    for computed, exact in zip(zeros_s, zeros_exact, strict=True):
+        print(f"{computed.real:13.10f} + {computed.imag:13.10f}i   "
+              f"{exact.real:13.10f} + {exact.imag:13.10f}i")
 
-    # real/imag parts along the critical line (t shifted by 3.5i)
-    ftv = np.asarray([complex(zeta(4 + 1j * (tt + 3.5j)))
-                      for tt in ts])
-    fig, ax = plt.subplots(figsize=(9.6, 4.4))
-    ax.plot(ts, ftv.imag, lw=1.2)
-    ax.plot(ts, ftv.real, lw=1.2)
-    ax.plot(zt.real, np.zeros(len(zt)), '.k', ms=10)
+    t = cj.chebfun(lambda x: 3.5j + x, domain=[5.0, 50.0])
+    ft = f(t)
+    imaginary = ft.imag()
+    real = ft.real()
+    fig, ax = plt.subplots(figsize=(6, 2.7), dpi=100)
+    imaginary.plot(ax=ax, color=CHEBFUN_BLUE)
+    real.plot(ax=ax, color="#D95319")  # Native second default ColorOrder entry.
+    ax.set_title("Real and imaginary parts of zeta(s) along critical line", fontsize=10)
+    ax.plot(zeros_t.real, (zeros_t - 3.5j).imag, ".k", markersize=3)
     ax.grid(True)
-    ax.set_title("Real and imaginary parts of zeta(s) along critical "
-                 "line", fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "ZetaZeros_02.png"), size=(600, 270))
+    save_chebfun_figure(fig, os.path.join(_IMG, "ZetaZeros_02.png"), layout="matlab")
     plt.close(fig)
-    print(f"Elapsed time is {time.time()-t_start:.6f} seconds.")
+    if capture:
+        np.savez(os.path.join(capture, "critical_line.npz"),
+                 t_coeffs=np.asarray(t.chebcoeffs()), ft_coeffs=np.asarray(ft.chebcoeffs()),
+                 imaginary_coeffs=np.asarray(imaginary.chebcoeffs()),
+                 real_coeffs=np.asarray(real.chebcoeffs()))
+    print(f"Elapsed time is {time.perf_counter() - started:.6f} seconds.")
 
 
 if __name__ == "__main__":

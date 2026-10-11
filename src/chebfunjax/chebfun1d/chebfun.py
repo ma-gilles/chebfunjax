@@ -655,10 +655,15 @@ class _Piece(eqx.Module):
             return (conj_sf * og).sum() * jnp.float64(scale)
         return self.tech.inner(other.tech) * jnp.float64(scale)
 
-    def roots(self) -> jax.Array:
+    def roots(self, *, norecursion: bool = False) -> jax.Array:
         """Real roots in [a, b] via Chebtech2.roots (colleague matrix).
 
         Maps roots from the reference interval [-1, 1] back to [a, b].
+
+        Provenance
+        ----------
+        MATLAB @classicfun/roots.m, @chebfun/roots.m and @chebtech/roots.m.
+        Chebfun commit: 7574c77.
 
         Returns
         -------
@@ -667,7 +672,12 @@ class _Piece(eqx.Module):
         """
         import numpy as _np
         a, b = self.interval
-        t_roots = self.tech.roots()
+        from chebfunjax.tech.chebtech import Chebtech1
+
+        if norecursion and isinstance(self.tech, (Chebtech1, Chebtech2)):
+            t_roots = self.tech.roots(recurse=False)
+        else:
+            t_roots = self.tech.roots()
         # Map t in [-1, 1] to x in [a, b]: x = (b-a)/2 * t + (a+b)/2.
         # The map runs in numpy: rootfinding is not JIT-safe, and jnp
         # arithmetic here compiled one program per distinct root count.
@@ -5815,7 +5825,8 @@ class Chebfun(eqx.Module):
     def roots(self, complex_roots: bool = False,
               all_roots: bool = False,
               nojump: bool = False,
-              nozerofun: bool = False) -> jax.Array:
+              nozerofun: bool = False,
+              norecursion: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
 
         With ``complex_roots=True`` returns the complex roots of the
@@ -5841,6 +5852,11 @@ class Chebfun(eqx.Module):
             MATLAB's ``'nojump'``: suppress the roots reported at
             breakpoints where the Chebfun changes sign through a jump
             discontinuity.
+        norecursion : bool, optional
+            Disable Chebtech colleague root subdivision while retaining
+            complex-root Bernstein-ellipse pruning, as MATLAB
+            ``roots(f, 'complex', 'norecursion')``. Other technologies
+            do not use Chebtech subdivision.
         nozerofun : bool, optional
             MATLAB's ``'nozerofun'``: suppress the single root reported at
             the midpoint of any piece on which the Chebfun is identically
@@ -5871,12 +5887,24 @@ class Chebfun(eqx.Module):
                 t = _np.asarray(piece.tech.roots(
                     complex_roots=(complex_roots and not all_roots),
                     all_roots=all_roots,
-                    recurse=not all_roots))
+                    recurse=not (all_roots or norecursion)))
                 # map reference [-1,1] -> physical [a, b]
                 croots.append(0.5 * (b - a) * t + 0.5 * (a + b))
             if not croots:
                 return jnp.array([], dtype=jnp.complex128)
-            return jnp.asarray(_np.concatenate(croots), dtype=jnp.complex128)
+            combined = jnp.asarray(_np.concatenate(croots))
+            # @chebfun/roots.m columnRoots: sort physical roots per column.
+            # MATLAB complex sort compares magnitude, then phase; real
+            # root arrays retain signed numeric ordering.
+            if jnp.iscomplexobj(combined):
+                order = jnp.lexsort((jnp.angle(combined), jnp.abs(combined)), axis=0)
+                combined = jnp.take_along_axis(combined, order, axis=0)
+            else:
+                combined = jnp.sort(combined, axis=0)
+            # Native columnRoots removes rows containing only padded NaNs.
+            nonempty = (~jnp.isnan(combined) if combined.ndim == 1
+                        else ~jnp.all(jnp.isnan(combined), axis=1))
+            return combined[nonempty].astype(jnp.complex128)
 
         domain_len = float(self.domain.b - self.domain.a)
         dedup_tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
@@ -5913,10 +5941,15 @@ class Chebfun(eqx.Module):
                         else:
                             ct = type(piece.tech)(coeffs=jnp.asarray(pc[:, j]))
                         a_, b_ = piece.interval
-                        t_r = _np.asarray(ct.roots())
+                        from chebfunjax.tech.chebtech import Chebtech1
+
+                        if norecursion and isinstance(ct, (Chebtech1, Chebtech2)):
+                            t_r = _np.asarray(ct.roots(recurse=False))
+                        else:
+                            t_r = _np.asarray(ct.roots())
                         col = a_ + (b_ - a_) * (t_r + 1.0) / 2.0
                     else:
-                        r = _np.asarray(piece.roots())
+                        r = _np.asarray(piece.roots(norecursion=norecursion))
                         col = r[:, j] if r.ndim == 2 else r
                     rj.append(col[_np.isfinite(col)])
                 combined = (_np.sort(_np.concatenate(rj))
@@ -5936,7 +5969,7 @@ class Chebfun(eqx.Module):
                 pc = _np.asarray(piece.tech.coeffs)
                 if pc.size and bool(jnp.all(jnp.asarray(pc) == 0)):
                     continue
-            r = piece.roots()
+            r = piece.roots(norecursion=norecursion)
             if r.shape[0] > 0:
                 all_roots.append(r)
         combined = (_np.sort(_np.concatenate(
