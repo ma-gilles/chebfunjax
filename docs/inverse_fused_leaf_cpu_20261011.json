@@ -1,0 +1,41 @@
+{
+  "scope": "Fuse existing default root leaf matrix/eigenspectrum JIT wrappers with runtime finite-matrix branch",
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_fused_leaf_20261011/DELIVERY.json",
+  "delivery_sha256": "a730c5c0b6b69479e692ac5e758776944be9dcfcb64366d892a6b5c6ea9203b0",
+  "focused_tests": "53 existing/new focused cases pass; preserved prior test instrumentation failures in delivery",
+  "root_review": "863 source/evidence bindings plus160 raw benchmark captures rehashed; outputs,domains,targets,normalized inputs identical across six calls per arm",
+  "root_test_repair": "New nonfinite runtime observer explicitly clears fused cache before and after scoped patch, preventing prior cached shapes from making observation vacuous. Seven focused cases pass on current publication sources.",
+  "root_original_exec_handle": 27922,
+  "root_receipt_sha256": "ade02fe13ad2a23a5edc83a3bd060960af73f39b6e8736efdff53fc76f15421a",
+  "root_receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 9.042107190005481,
+    "sampled_peak_summed_rss_kib": 576924,
+    "inputs_stable": true,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "measurements": {
+    "benchmark_baseline": {
+      "first_inverse_seconds": 18.52907301299274,
+      "warm_median_seconds": 0.6088809999637306,
+      "first_call_backend_compile_count": 270,
+      "first_call_backend_compile_cumulative_seconds": 11.134708352,
+      "input_sha256": "9e9b84d1ff8804252922a6c93076ab83adb8a10a61be93123a3ecca503639390",
+      "roundtrip_error": 8.881784197001252e-16
+    },
+    "benchmark_candidate": {
+      "first_inverse_seconds": 17.9538616752252,
+      "warm_median_seconds": 0.6118592689745128,
+      "first_call_backend_compile_count": 244,
+      "first_call_backend_compile_cumulative_seconds": 10.799079516,
+      "input_sha256": "9e9b84d1ff8804252922a6c93076ab83adb8a10a61be93123a3ecca503639390",
+      "roundtrip_error": 8.881784197001252e-16
+    }
+  },
+  "limits": [
+    "Single sequential matched CPU observation, first inverse after shared setup; not process-cold or general performance guarantee.",
+    "Warm median essentially unchanged; full MATLAB performance parity remains open.",
+    "No current full-suite or CI success claim."
+  ]
+}

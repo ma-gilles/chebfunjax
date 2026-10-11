@@ -89,13 +89,22 @@ def test_actual_eig_interface_and_analytic_roots(case):
 
 
 @pytest.mark.parametrize('invalid', [float('nan'), float('inf'), -float('inf')])
-def test_adapter_nonfinite_input_prevents_solver(monkeypatch, invalid):
-    def forbidden(_):
+def test_adapter_nonfinite_input_prevents_solver(monkeypatch, invalid, isolated_eig_metadata):
+    invoked = []
+    original = module._roots_eigvals_jax
+
+    def forbidden_at_runtime(_):
+        invoked.append(True)
         raise AssertionError('solver must not run for nonfinite matrix')
-    monkeypatch.setattr(module, '_roots_eigvals_jax', forbidden)
-    monkeypatch.setattr(module, '_roots_eig_and_metadata_jax', forbidden)
+
+    def observed(matrix):
+        jax.debug.callback(forbidden_at_runtime, matrix)
+        return original(matrix)
+
+    monkeypatch.setattr(module, '_roots_eigvals_jax', observed)
     with pytest.raises(LinAlgError, match='infs or NaNs'):
         module._roots_default_eigenvalues(jnp.asarray([invalid, 1., 1.]))
+    assert invoked == []
 
 
 @pytest.mark.parametrize('invalid', [complex(float('nan'), 0), complex(float('inf'), 0),
@@ -122,7 +131,9 @@ def test_adapter_preserves_injected_order_and_dtype(monkeypatch, complex_input, 
 def isolated_eig_metadata():
     """Injection must retrace phase2; do not reuse a provider from another case."""
     module._roots_eig_and_metadata_jax.clear_cache()
+    module._roots_matrix_eig_and_metadata_jax.clear_cache()
     try:
         yield
     finally:
         module._roots_eig_and_metadata_jax.clear_cache()
+        module._roots_matrix_eig_and_metadata_jax.clear_cache()

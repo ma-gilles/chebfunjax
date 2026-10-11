@@ -1512,6 +1512,35 @@ def _roots_eig_and_metadata_jax(matrix: jax.Array):
             jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
 
 
+@jax.jit
+def _roots_matrix_eig_and_metadata_jax(c: jax.Array):
+    """Build the native matrix and conditionally compute its eigenspectrum.
+
+    The finite-input predicate gates the eigensolver with ``lax.cond`` so
+    invalid matrices retain the host adapter's pre-eig failure behavior.
+    Matrix, eig and metadata arithmetic are delegated unchanged to the
+    qualified helpers above.
+    """
+    matrix = _roots_colleague_matrix_jax(c)
+    matrix_finite = jnp.all(jnp.isfinite(matrix))
+
+    def eig_branch(value):
+        roots = _roots_eigvals_jax(value)
+        return (roots, jnp.all(jnp.isfinite(roots)),
+                jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
+
+    def skipped_branch(value):
+        del value
+        n = c.shape[0] - 1
+        return (jnp.zeros((n,), dtype=jnp.complex128),
+                jnp.asarray(False), jnp.asarray(False),
+                jnp.zeros((n,), dtype=jnp.float64))
+
+    roots, roots_finite, has_imaginary, real_roots = jax.lax.cond(
+        matrix_finite, eig_branch, skipped_branch, matrix)
+    return matrix_finite, roots, roots_finite, has_imaginary, real_roots
+
+
 def _roots_default_eigenvalues(c):
     """JAX default leaf with explicit Python failure, dtype and ownership adapters.
 
@@ -1526,17 +1555,17 @@ def _roots_default_eigenvalues(c):
 
     # Preserve non-array coercion while avoiding eager host-array conversion JITs.
     c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
-    matrix, matrix_finite = _roots_matrix_and_finite_jax(c)
+    matrix_finite, roots, roots_finite, has_imaginary, real_roots = (
+        _roots_matrix_eig_and_metadata_jax(c))
     if not bool(matrix_finite):
         raise LinAlgError("Array must not contain infs or NaNs")
-    roots, roots_finite, has_imaginary, real_roots = _roots_eig_and_metadata_jax(matrix)
     # Public JAX eig returns NaNs when LAPACK reports failure and does not expose
     # INFO. Reject nonfinite output before the host filters can discard it.
     if not bool(roots_finite):
         raise LinAlgError("Eigenvalues did not converge (nonfinite JAX eig output)")
     # NumPy returns real dtype for a real matrix with an entirely real spectrum.
     # Keep complex matrix outputs complex and preserve the solver's own order.
-    if (not jnp.issubdtype(matrix.dtype, jnp.complexfloating)
+    if (not jnp.issubdtype(c.dtype, jnp.complexfloating)
             and not bool(has_imaginary)):
         roots = real_roots
     return jax.device_get(roots).copy()
