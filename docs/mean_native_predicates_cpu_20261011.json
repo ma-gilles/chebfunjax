@@ -1,0 +1,169 @@
+{
+  "source_native_predicates": 18,
+  "retained_previous_controls": 3,
+  "only_changed_Chebfun_methods": [
+    "mean"
+  ],
+  "gates": {
+    "finite_baseline_v1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 18.327533479314297,
+      "sampled_peak_summed_rss_kib": 966792,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\nFF..{'native_clause': 5, 'error': 0.0, 'bound': np.float64(2.220446049250313e-16)}\n.{'native_clause': 6, 'error': 0.0, 'bound': np.float64(2.220446049250313e-16)}\n.{'native_clause': 7, 'error': 0.0, 'bound': np.float64(1.3322676295501878e-15)}\n.{'native_clause': 8, 'error': 0.0, 'bound': np.float64(1.3322676295501878e-15)}\n.FFF.F...\n=================================== FAILURES ===================================\n_________________ TestNativeMeanFinite.test_two_inputs[False] __________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanFinite object at 0x1503844356d0>\narray = False\n\n    @pytest.mark.parametrize(\"array\",[False,True])\n    def test_two_inputs(self,array):\n        p=ChebfunPref()\n        if array:\n            f=cj.chebfun(lambda x:jnp.stack([jnp.sin(x),jnp.cos(x)],axis=-1),pref=p)\n            g=cj.chebfun(lambda x:jnp.stack([jnp.cos(x),1j*jnp.exp(x)],axis=-1),pref=p)\n            h=.5*(f+g)\n        else:\n            f=cj.chebfun(jnp.sin,pref=p);g=cj.chebfun(jnp.cos,pref=p)\n            h=cj.chebfun(lambda x:.5*(jnp.sin(x)+jnp.cos(x)),pref=p)\n>       error=normest(f.mean(g)-h)\n                      ^^^^^^^^^\nE       TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:34: TypeError\n__________________ TestNativeMeanFinite.test_two_inputs[True] __________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanFinite object at 0x15036f5434d0>\narray = True\n\n    @pytest.mark.parametrize(\"array\",[False,True])\n    def test_two_inputs(self,array):\n        p=ChebfunPref()\n        if array:\n            f=cj.chebfun(lambda x:jnp.stack([jnp.sin(x),jnp.cos(x)],axis=-1),pref=p)\n            g=cj.chebfun(lambda x:jnp.stack([jnp.cos(x),1j*jnp.exp(x)],axis=-1),pref=p)\n            h=.5*(f+g)\n        else:\n            f=cj.chebfun(jnp.sin,pref=p);g=cj.chebfun(jnp.cos,pref=p)\n            h=cj.chebfun(lambda x:.5*(jnp.sin(x)+jnp.cos(x)),pref=p)\n>       error=normest(f.mean(g)-h)\n                      ^^^^^^^^^\nE       TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:34: TypeError\n___________________ TestNativeMeanDimensions.test_source[14] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanDimensions object at 0x15036e6d8c50>\nclause = 14\n\n    @pytest.mark.parametrize(\"clause\",[14,15,16,17,18])\n    def test_source(self,clause):\n        x=cj.chebfun(\"x\")\n        if clause in (14,15):\n            f=type(x).horzcat(x,3*x)\n>           if clause==14:assert float((f.mean(2)-2*x).norm())<100*EPS\n                                        ^^^^^^^^^\nE           TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:105: TypeError\n___________________ TestNativeMeanDimensions.test_source[15] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanDimensions object at 0x15036e916870>\nclause = 15\n\n    @pytest.mark.parametrize(\"clause\",[14,15,16,17,18])\n    def test_source(self,clause):\n        x=cj.chebfun(\"x\")\n        if clause in (14,15):\n            f=type(x).horzcat(x,3*x)\n            if clause==14:assert float((f.mean(2)-2*x).norm())<100*EPS\n>           else:assert float(np.linalg.norm(np.asarray(f.mean(1)-f.mean())))==0\n                                                        ^^^^^^^^^\nE           TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:106: TypeError\n___________________ TestNativeMeanDimensions.test_source[16] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanDimensions object at 0x15036e915580>\nclause = 16\n\n    @pytest.mark.parametrize(\"clause\",[14,15,16,17,18])\n    def test_source(self,clause):\n        x=cj.chebfun(\"x\")\n        if clause in (14,15):\n            f=type(x).horzcat(x,3*x)\n            if clause==14:assert float((f.mean(2)-2*x).norm())<100*EPS\n            else:assert float(np.linalg.norm(np.asarray(f.mean(1)-f.mean())))==0\n>       elif clause==16:assert abs(complex(np.asarray(x.mean(1)-x.transpose().mean(2))))==0\n                                                      ^^^^^^^^^\nE       TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:107: TypeError\n___________________ TestNativeMeanDimensions.test_source[18] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanDimensions object at 0x15036f638b60>\nclause = 18\n\n    @pytest.mark.parametrize(\"clause\",[14,15,16,17,18])\n    def test_source(self,clause):\n        x=cj.chebfun(\"x\")\n        if clause in (14,15):\n            f=type(x).horzcat(x,3*x)\n            if clause==14:assert float((f.mean(2)-2*x).norm())<100*EPS\n            else:assert float(np.linalg.norm(np.asarray(f.mean(1)-f.mean())))==0\n        elif clause==16:assert abs(complex(np.asarray(x.mean(1)-x.transpose().mean(2))))==0\n        elif clause==17:assert abs(complex(np.asarray(x.ctranspose().mean())))<100*EPS\n>       else:assert float((x.ctranspose().mean(1)-x.ctranspose()).norm())==0\n                           ^^^^^^^^^^^^^^^^^^^^^^\nE       TypeError: Chebfun.mean() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:109: TypeError\n=========================== short test summary info ============================\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanFinite::test_two_inputs[False]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanFinite::test_two_inputs[True]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanDimensions::test_source[14]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanDimensions::test_source[15]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanDimensions::test_source[16]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanDimensions::test_source[18]\n6 failed, 10 passed, 5 deselected in 10.45s\n"
+    },
+    "singular_baseline_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 108.7579806460999,
+      "sampled_peak_summed_rss_kib": 3122548,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 9, 'mean': '(7.79807330540505e-19-0.012735220164433327j)', 'length': 820, 'pieces': 10}\n{'error': 2.673208990219868e-15, 'source_bound': np.float64(2.827786930045484e-13)}\n.{'native_clause': 10, 'mean': '(inf+0j)', 'length': 816, 'pieces': 10}\n.{'native_clause': 11, 'mean': '(nan+0j)', 'length': 861, 'pieces': 12}\n.\n=============================== warnings summary ===============================\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[9]\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[10]\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[11]\n  /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/singular_baseline_v1/snapshot/src/chebfunjax/tech/chebtech.py:2899: UserWarning: Chebtech2.from_function: function did not converge with 129 points. Returning unhappy representation.\n    return _adaptive_refine_construct(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n3 passed, 18 deselected, 3 warnings in 96.29s (0:01:36)\n"
+    },
+    "unbounded_baseline_v1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 45.8616405907087,
+      "sampled_peak_summed_rss_kib": 2347956,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n.{'native_clause': 13, 'error': nan, 'bound': np.float64(3.548467854027647e-14), 'point_values': 'array([0.75      , 0.74978552, 0.74999978, 0.75      , 0.75      ])'}\nF\n=================================== FAILURES ===================================\n_________________ TestNativeMeanUnbounded.test_halfline_limit __________________\n\nself = <tests.test_matlab_port.chebfun.test_mean_matlab.TestNativeMeanUnbounded object at 0x150858d43e30>\n\n    def test_halfline_limit(self):\n        op=lambda x:.75+jnp.sin(10*x)/jnp.exp(x)\n        f=cj.chebfun(op,domain=(0.,jnp.inf),splitting=\"on\")\n        error=abs(complex(np.asarray(f.mean()))-.75);bound=100*EPS*f.vscale\n        print({'native_clause':13,'error':error,'bound':bound,'point_values':repr(np.asarray(f.point_values))},flush=True)\n>       assert error<bound\nE       assert nan < np.float64(3.548467854027647e-14)\n\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py:97: AssertionError\n=========================== short test summary info ============================\nFAILED snapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanUnbounded::test_halfline_limit\n1 failed, 1 passed, 19 deselected in 36.12s\n"
+    },
+    "finite_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 18.498946098145097,
+      "sampled_peak_summed_rss_kib": 1013460,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 1, 'error': 9.639391811847847e-17, 'bound': np.float64(2.220446049250313e-15)}\n.{'native_clause': 2, 'error': 0.0, 'bound': np.float64(2.220446049250313e-15)}\n...{'native_clause': 5, 'error': 0.0, 'bound': np.float64(2.220446049250313e-16)}\n.{'native_clause': 6, 'error': 0.0, 'bound': np.float64(2.220446049250313e-16)}\n.{'native_clause': 7, 'error': 0.0, 'bound': np.float64(1.3322676295501878e-15)}\n.{'native_clause': 8, 'error': 0.0, 'bound': np.float64(1.3322676295501878e-15)}\n.........\n16 passed, 5 deselected in 10.66s\n"
+    },
+    "unbounded_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 40.93232752382755,
+      "sampled_peak_summed_rss_kib": 2149468,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n.{'native_clause': 13, 'error': 0.0, 'bound': np.float64(3.548467854027647e-14), 'point_values': 'array([0.75      , 0.74978552, 0.74999978, 0.75      , 0.75      ])'}\n.\n2 passed, 19 deselected in 31.66s\n"
+    },
+    "singular9_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 117.15130448900163,
+      "sampled_peak_summed_rss_kib": 2136548,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 9, 'mean': '(7.79807330540505e-19-0.012735220164433327j)', 'length': 820, 'pieces': 10}\n{'error': 2.673208990219868e-15, 'source_bound': np.float64(2.827786930045484e-13)}\n.\n=============================== warnings summary ===============================\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[9]\n  /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/singular9_candidate_v1/snapshot/src/chebfunjax/tech/chebtech.py:2899: UserWarning: Chebtech2.from_function: function did not converge with 129 points. Returning unhappy representation.\n    return _adaptive_refine_construct(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 82.37s (0:01:22)\n"
+    },
+    "singular10_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 106.02132585598156,
+      "sampled_peak_summed_rss_kib": 2029632,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 10, 'mean': '(inf+0j)', 'length': 816, 'pieces': 10}\n.\n=============================== warnings summary ===============================\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[10]\n  /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/singular10_candidate_v1/snapshot/src/chebfunjax/tech/chebtech.py:2899: UserWarning: Chebtech2.from_function: function did not converge with 129 points. Returning unhappy representation.\n    return _adaptive_refine_construct(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 92.92s (0:01:32)\n"
+    },
+    "singular11_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 74.07796023972332,
+      "sampled_peak_summed_rss_kib": 1897680,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 11, 'mean': '(nan+0j)', 'length': 861, 'pieces': 12}\n.\n=============================== warnings summary ===============================\nsnapshot/tests/test_matlab_port/chebfun/test_mean_matlab.py::TestNativeMeanSingular::test_original[11]\n  /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/singular11_candidate_v1/snapshot/src/chebfunjax/tech/chebtech.py:2899: UserWarning: Chebtech2.from_function: function did not converge with 129 points. Returning unhappy representation.\n    return _adaptive_refine_construct(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 61.49s (0:01:01)\n"
+    }
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/candidate/src/chebfunjax/chebfun1d/chebfun.py": "49aa086acfa412324c06ceceed9c350a1442f6810d7ae79731fb25740ce0c168",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/candidate/tests/test_matlab_port/chebfun/test_mean_matlab.py": "f3dcdb4d74778aef2e13739bfb048844135117fc09b22a1e45fd8e6af91de2b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/ORIGINAL_TEST.py": "8a0739989e3f2185cc330e8e8931ba283b94f86fed35a71e727883934d4c74f6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/mean_native.patch": "9002d7e9cc359b1245457d69528d0a2bc8d97db6aba9cbe8da3b71dc75c3cadf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/prepare_gate.py": "bef488370b6a7f79a63c916f335417b01df3020fe118c652121dbaf53d60df1c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/prepare_single_singular.py": "b974f943ccb2edd35b24903b7e4ad7dde848d79259256d169d0b9c342ca4e05c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/launch_singular_serial.sh": "b117da425806edd43125f52de7fd5dbdebe2b3502077330c5dd6068a6cf458a6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mean_native_predicates_20261011/build_delivery.py": "5e388ca2d6365d6621c9db8a0f65a9fe514984501ba5b3464c61d6fa832d28a7",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_mean.m": "bc938bfb149db4fe016de4b88277061fd0eab4ae9bc98d4fe28c012a951caf0f",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/mean.m": "bf6f64f8909e8cbf82426ebbc95b30bc11342817e67f31102137684b4dc072b8",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/sum.m": "839b95b54f3993002f303586a3218d9d5ec14453d8c775e8e98e82a3039b7208",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/sum.m": "be3901774240a4fd8d0ec54c66cf3c933bb8b88d2c5eb72eabfebdcee45ef275"
+  },
+  "changes": [
+    "Restore two-input mean and native dimension dispatch, transpose input/output semantics",
+    "Finite-domain integral/width; unbounded native stored endpoint means, strict native endpoint agreement threshold",
+    "Restore all eighteen literal native assertion paths, sizes, constructors and bounds; row numeric infinity norms use sum(abs), column norms max(abs), normest Nx2 uses maximum row sum"
+  ],
+  "baseline_failures": [
+    "Native1/2 missing two-input API",
+    "Native14/15/16/18 missing dimension/row API",
+    "Native13 half-line asymptote returns NaN from integral/Inf instead of endpoint value"
+  ],
+  "qualification": [
+    "Pinned CPU JAX/JAXLIB0.11 x64, affinity12\u201315; each owned gate180s/3072MiB; no surviving owned process",
+    "Native clauses9\u201311 retain constructor warnings; original bounds unchanged",
+    "NumPy RandomState6178/100 uniform sites is a Python adapter; MATLAB RNG stream identity unverified",
+    "Numeric vector mean output shape normalizes existing Python shape adapter; row transposes give Nx1; Python numeric dimensions1/2 supported, dynamic JIT dimension dispatch not claimed",
+    "Only mean edited; no sum, Singfun, roots, arithmetic or constructor algorithms changed; private base includes qualified real delta; no publication checkout writes"
+  ],
+  "publication_review": "Root matched source mean and all eighteen native predicates, including row matrix infinity norms, original singular/unbounded constructors and bounds. Twelve evidence hashes verified. Test import sorting/formatting preserves executable AST. No root/constructor/sum modifications; full suite remains open."
+}

@@ -1,0 +1,36 @@
+{
+  "native_count": 8,
+  "source_predicate_type": "Native exacterrorID or successfulcall, no invented norms/bounds",
+  "baseline": "6fail/2pass27.26s879956KiB",
+  "failed_source_indices": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8
+  ],
+  "candidate_v1": "3fail/6pass43.48s1030608KiB, localQMvscale adapter mistake; trace preserved",
+  "final_candidate": "9pass142.78s1008668KiB",
+  "final_cases": "Native8+retainedpositive/negativecontrol1",
+  "censoring": "None",
+  "leftover_PIDs": [],
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/realsqrt_native8_20261011/realsqrt_native8_delivery_v1.zip",
+    "sha256": "978800316efa76132b1004d3bc911c3ad6a978ea427ebea872dded3c4a496362",
+    "entries": 70
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/realsqrt_native8_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "d9b22f4787089659f9c6995af98e2f10dc06da3570841af89f17cf3252bb367e",
+  "root_mapping_binding": {
+    "already_in_private_base": true,
+    "mapping": "Accepted fused endpoint product via _map_piece_roots\u2192_linear_forward_map",
+    "function_AST_sha256": {
+      "_map_piece_roots": "1d7bb2f7576109536556af68de823de442d460908886f58fba4dfe4e13fbe639",
+      "_linear_forward_map": "03040fefbb3d339b5e14206c80d4cabf13325e51fac292e7e21ea7712cd7debc"
+    },
+    "qualification": "Baseline/allcandidates include mapping; finalnative8+retainedcontrol qualify it with acceptedrealpowdelta",
+    "no_new_mapping_edits": true
+  },
+  "publication_review": "Source input realness, sqrt, imaginary normest projection threshold and final error identifier matched. Only wrapper changes; all eight native acceptance/error checks plus retained supplement pass with final root mapping. Test formatting preserves executable AST."
+}

@@ -4811,17 +4811,31 @@ class Chebfun(eqx.Module):
         return lg.ceil()
 
     def realsqrt(self) -> "Chebfun":
-        """sqrt with a realness guard (MATLAB realsqrt).
+        """Real square root with native input/result realness guards.
 
         Provenance
         ----------
         MATLAB source : @chebfun/realsqrt.m
         Chebfun commit: 7574c77
         """
-        (_, fmin), _ = self.minandmax()
-        if float(fmin) < -1e-12 * max(self.vscale, 1.0):
-            raise ValueError("realsqrt: function is negative somewhere")
-        return self.sqrt()
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+        error = (
+            "CHEBFUN:CHEBFUN:realsqrt:complexRes: REALSQRT produced complex result.")
+        if not self.isreal():
+            raise ValueError(error)
+        result = self.sqrt()
+        # Source NORMEST delegates to each FUN, including Singfun's smooth
+        # part; source MAX selects the largest column vscale.
+        scales = result.vscale() if isinstance(result, Quasimatrix) else result.vscale
+        tolerance = 100 * float(jnp.max(_EPS * jnp.asarray(scales)))
+        if float(result.imag().normest()) < tolerance:
+            result = result.real()
+        is_real = (all(column.isreal() for column in result.cols)
+                   if isinstance(result, Quasimatrix) else result.isreal())
+        if not is_real:
+            raise ValueError(error)
+        return result
 
     def realpow(self, p) -> "Chebfun":
         """Compute POWER, then reject a complex result (MATLAB realpow).
@@ -5830,23 +5844,48 @@ class Chebfun(eqx.Module):
         from .norms import continuous_norm
         return continuous_norm(self, p, return_location=return_location)
 
-    def mean(self) -> jax.Array:
-        """Mean value of the function over the domain.
+    def mean(self, g=OMITTED):
+        """Mean along the continuous dimension, across columns, or of two functions.
 
-        mean(f) = (1 / (b - a)) * int_a^b f(x) dx
-
-        Returns
-        -------
-        jax.Array (scalar)
+        ``mean(1)``/``mean(2)`` select MATLAB dimensions; row Chebfuns swap
+        dimensions. Numeric column results retain Python's vector convention,
+        while transposed array results have native column-matrix shape.
+        Infinite-domain means use the stored endpoint values, as native mean.
 
         Provenance
         ----------
         MATLAB source : @chebfun/mean.m
         Chebfun commit: 7574c77
         """
-        a, b = self.domain.a, self.domain.b
-        domain_len = jnp.float64(b - a)
-        return self.sum() / domain_len
+        dimension = (g is not OMITTED and not isinstance(g, Chebfun)
+                     and isinstance(g, numbers.Number) and g in (1, 2))
+        if self.is_transposed:
+            if g is OMITTED:
+                g, dimension = 2, True
+            h = self.transpose().mean(3 - g if dimension else
+                                       g.transpose() if isinstance(g, Chebfun) else g)
+            if isinstance(h, Chebfun):
+                return h.transpose()
+            h = jnp.asarray(h)
+            return h if h.ndim == 0 else h.reshape((-1, 1)) if h.ndim == 1 else h.T
+        if g is not OMITTED:
+            if dimension and g == 2:
+                return self.sum(2) / self.n_columns
+            if dimension and g == 1:
+                return self.mean()
+            return 0.5 * (self + g)
+        a, b = float(self.domain.a), float(self.domain.b)
+        if math.isfinite(a) and math.isfinite(b):
+            return self.sum() / jnp.float64(b - a)
+        # Native pointValues(1)/pointValues(end) use column-major linear indices.
+        values = jnp.reshape(self.point_values.T, (-1,))
+        if math.isinf(a) and not math.isinf(b):
+            return values[0]
+        if not math.isinf(a) and math.isinf(b):
+            return values[-1]
+        tolerance = self.vscale * jnp.finfo(jnp.float64).eps
+        return jnp.where(jnp.abs(values[0] - values[-1]) < tolerance,
+                         values[0], jnp.nan)
 
     # ------------------------------------------------------------------
     # Rootfinding and extrema
