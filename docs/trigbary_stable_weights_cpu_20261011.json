@@ -1,0 +1,64 @@
+{
+  "candidate_paths": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/final_candidate_v3/src/chebfunjax/utils/trigutils.py",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/final_candidate_v3/tests/test_utils/test_trigbary_weight_stability.py"
+  ],
+  "changed_paths": [
+    "src/chebfunjax/utils/trigutils.py",
+    "tests/test_utils/test_trigbary_weight_stability.py"
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/stable_weights_v3.patch",
+  "source_predicates": 9,
+  "source_passed": 9,
+  "diagnostic_controls": 7,
+  "controls_passed": 7,
+  "revision": "Quadratic work inside lax.cond slowbranch; largeuniform16384 JITcontrol passes. mp.workdps80 restores caller contextidentity/precision.",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/candidate_v3/supervision/receipt.json",
+  "runtime_hashes": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/candidate_v3/RUNTIME_SOURCE_END.json",
+  "controls": [
+    {
+      "control": "2500finite",
+      "pass_": true,
+      "finite_count": 2500
+    },
+    {
+      "control": "2500nonzero_normalization",
+      "pass_": true
+    },
+    {
+      "control": "mp80directproduct_n16",
+      "absolute_normalized_error": 1.2212453270876722e-15,
+      "diagnostic_roundoff_budget": 2.2737367544323206e-13,
+      "pass_": true
+    },
+    {
+      "control": "mp80directproduct_n31",
+      "absolute_normalized_error": 3.3306690738754696e-15,
+      "diagnostic_roundoff_budget": 4.405364961712621e-13,
+      "pass_": true
+    },
+    {
+      "control": "mp_context_identity_precision_restored",
+      "pass_": true
+    },
+    {
+      "control": "jaxjit_fastpath_exact",
+      "pass_": true
+    },
+    {
+      "control": "large_uniform_fastpath_16384",
+      "pass_": true,
+      "n": 16384
+    }
+  ],
+  "wall_seconds": 14.530519203748554,
+  "peak_rss_kib": 706056,
+  "qualification": "Supersedes v2 candidate, earlier immutable receipts retained. Publicweights JAX/JIT; trigBary NumPyeager. Existingfastpathcriterion unchanged; original9thresholdsunchanged. No native MATLABfiniteweight or illconditioned2500interpolation claim.",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/final_candidate_v3/src/chebfunjax/utils/trigutils.py": "757d4c319c2a6d860ce4052f7758ca0da65676aec9a81a41c2a7e48fd97d81da",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/final_candidate_v3/tests/test_utils/test_trigbary_weight_stability.py": "20cd6b4a7cdb4ee8caaba8bbe3291e8902cfadbd7aa0b5101393705e02d13582",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/stable_weights_v3.patch": "383c7056ad761425dea163fe1bf83bea3aa04f59ff36771d0e8709d652385b23",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/candidate_v3/supervision/receipt.json": "311d2346d6a4295f0a98c54919dabaf111339bfaf7a5d5c33d258206a1d8c18a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_stable_weights_20261011/candidate_v3/RUNTIME_SOURCE_END.json": "fa5dae4b1bd24ff3f4cf1d977ec0411cf7b99fedd36f187a0e94ecbd8037c3fc"
+  }
+}

@@ -315,19 +315,25 @@ def trigBaryWeights(xk):
     MATLAB source : trigBaryWeights.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-    x = _np.asarray(xk, dtype=float).ravel()
+    # Weight magnitudes share a common factor. Normalize their logarithms
+    # before exponentiation to avoid 0 -> inf -> NaN for clustered nodes.
+    x = jnp.asarray(xk, dtype=jnp.float64).ravel()
     n = len(x)
-    if n > 1 and _np.all(_np.abs(_np.diff(x) - 2 * _np.pi / n)
-                         < max(_np.max(_np.abs(x)), 1.0) * 1e-14):
-        w = _np.ones(n)
-        w[1::2] = -1.0
-        return w
-    V = _np.sin(0.5 * (x[:, None] - x[None, :]))
-    _np.fill_diagonal(V, 1.0)
-    VV = _np.exp(_np.sum(_np.log(_np.abs(V)), axis=0))
-    w = 1.0 / (_np.prod(_np.sign(V), axis=0) * VV)
-    return w / _np.max(_np.abs(w))
+    equispaced = (n > 1) & jnp.all(jnp.abs(jnp.diff(x) - 2*jnp.pi/n)
+                     < jnp.maximum(jnp.max(jnp.abs(x)), 1.0) * 1e-14)
+    import jax
+
+    def arbitrary_nodes(nodes):
+        V = jnp.sin(0.5 * (nodes[:, None] - nodes[None, :]))
+        V = V.at[jnp.diag_indices(n)].set(1.0)
+        log_weights = -jnp.sum(jnp.log(jnp.abs(V)), axis=0)
+        signs = jnp.prod(jnp.sign(V), axis=0)
+        return signs * jnp.exp(log_weights - jnp.max(log_weights))
+
+    def uniform_nodes(nodes):
+        return jnp.where(jnp.arange(n) % 2, -1.0, 1.0)
+
+    return jax.lax.cond(equispaced, uniform_nodes, arbitrary_nodes, x)
 
 
 def trigBary(x, fvals, xk=None, dom=None):
@@ -367,7 +373,7 @@ def trigBary(x, fvals, xk=None, dom=None):
         fvals = fvals[:-1, :]
         xk = xk[:-1]
         n -= 1
-    vk = trigBaryWeights(xk)
+    vk = _np.asarray(trigBaryWeights(xk))
     if n == 1:
         out = _np.repeat(fvals, len(xm), axis=0)
         return out[:, 0] if squeeze else out
