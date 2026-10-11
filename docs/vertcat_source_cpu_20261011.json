@@ -1,0 +1,46 @@
+{
+  "library_base": "294e4141cf6b02ec4abda9936089dcf5dd79e3e9",
+  "native_source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Chebfun public VERTCAT source dispatch and assertion restoration",
+  "original_executed_assertions": 8,
+  "original_result_slots": 7,
+  "pass4_overwrite": "array then Quasimatrix are both executed and qualified",
+  "original_runtime_native_capture": false,
+  "supplemental_controls": [
+    "row array scalar-block coefficient retention",
+    "literal complex row final conjugate transpose",
+    "production row-array convolution original40eps bound",
+    "existing mapped test retained",
+    "legacy domain-join probes migrated to actual join"
+  ],
+  "gate": {
+    "original_handle": 34982,
+    "terminal": 0,
+    "pytest_tests": 8,
+    "peak_summed_rss_kib": 1431828,
+    "stable": true,
+    "cap": false,
+    "survivors": []
+  },
+  "regression_evidence": "cumsum/isequal/cumprod/_root_power/sum AST identical; linalg/summation/_horzcat bytes identical; unrelated v08/v12 tests AST identical",
+  "adapters": [
+    "single list/tuple unwrapped as operand collection",
+    "one-dimensional numeric operands are columns",
+    "Python warnings do not permanently disable source join warning globally"
+  ],
+  "known_limits": [
+    "No fresh native runtime claim",
+    "finite-delta cumsum remains separate metadata gap",
+    "complex row conjugation follows literal source apostrophe",
+    "generic ChebMatrix API unchanged"
+  ],
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vertcat_integration_294e4141_20261011/DELIVERY.json": "661356a1a33d56007bc71f45033e8c0c636e774108506d235ea5bb3e5f8c8d8f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vertcat_integration_294e4141_20261011/AST_REUSE.json": "fb32249636850f9dfe5b72062ac4ac20613834438d0a02306cbc6c05cf905b6d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vertcat_integration_294e4141_20261011/INTEGRATION.json": "3cab2ac3f82abcd13bea3e6b32d8a021de5361f221b00d46008171e15d198d12",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vertcat_integration_294e4141_20261011/combined_gate/supervision/receipt.json": "3fee1802a95e71e4c997a989307e9d185e7fa356d433ccaa91c1d5bbbf86ad98",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vertcat_integration_294e4141_20261011/combined_gate/supervision/stdout": "0137201dd1117129e4cc4d5185087cf1b5af610df42e8ab0e56bd6bc490a14c0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fov_jax_source_20261011/new read-only-review/PUBLICATION_REVIEW.json": "9b66b96b524347ed2d077842d0b384f1bb3b0fc02800e261bfab7e952787bbd3"
+  },
+  "publication_adapter": "Only imports/formatting and required provenance docstrings normalized after qualified snapshot; executable AST reuse checked separately."
+}

@@ -1,4 +1,3 @@
-# uses-numpy: eigenvalue decomposition at each theta is not JIT-safe
 """Field of values (numerical range) of a matrix.
 
 Translated from MATLAB Chebfun (commit 7574c77): fov.m.
@@ -13,7 +12,8 @@ References
 
 from __future__ import annotations
 
-import numpy as np
+import jax
+import jax.numpy as jnp
 
 # ===========================================================================
 # Public API
@@ -21,9 +21,9 @@ import numpy as np
 
 
 def fov(
-    A: np.ndarray,
+    A: jax.Array,
     n_theta: int = 512,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[jax.Array, jax.Array]:
     """Field of values (numerical range) of a matrix.
 
     The field of values W(A) is the set
@@ -45,9 +45,9 @@ def fov(
 
     Returns
     -------
-    theta : np.ndarray, shape (n_theta,)
+    theta : jax.Array, shape (n_theta,)
         Angles in [0, 2*pi] at which the boundary is sampled.
-    boundary : np.ndarray, complex, shape (n_theta,)
+    boundary : jax.Array, complex, shape (n_theta,)
         Complex numbers tracing the boundary of W(A).
 
     Notes
@@ -68,23 +68,24 @@ def fov(
 
     Examples
     --------
-    >>> import numpy as np
-    >>> rng = np.random.default_rng(0)
-    >>> A = rng.standard_normal((4, 4))
+    >>> import jax.numpy as jnp
+    >>> A = jnp.array([[0., 2.], [0., 0.]])
     >>> theta, bdy = fov(A)
     >>> bdy.shape
     (512,)
 
     See Also
     --------
-    numpy.linalg.eig
+    jax.numpy.linalg.eigh
     """
-    A = np.asarray(A, dtype=complex)
+    A = jnp.asarray(A, dtype=complex)
     if A.ndim != 2 or A.shape[0] != A.shape[1]:
         raise ValueError("A must be a square 2-D array.")
 
-    theta = np.linspace(0.0, 2.0 * np.pi, n_theta, endpoint=False)
-    boundary = np.array([_fov_point(t, A) for t in theta])
+    theta = jnp.linspace(0.0, 2.0 * jnp.pi, n_theta, endpoint=False)
+    from chebfunjax.chebfun1d.fov import _fov_curve
+
+    boundary = _fov_curve(theta, A)
     return theta, boundary
 
 
@@ -93,13 +94,8 @@ def fov(
 # ===========================================================================
 
 
-def _fov_point(theta: float, A: np.ndarray) -> complex:
+def _fov_point(theta: float, A: jax.Array) -> complex:
     """Compute one boundary point of fov(A) at angle theta."""
-    r = np.exp(1j * theta)
-    B = r * A
-    H = 0.5 * (B + B.conj().T)
-    # Hermitian part; eigenvalues are real
-    eigvals, eigvecs = np.linalg.eigh(H)
-    k = np.argmax(eigvals.real)
-    v = eigvecs[:, k]
-    return complex(v.conj() @ A @ v / (v.conj() @ v))
+    from chebfunjax.chebfun1d.fov import _fov_curve
+
+    return _fov_curve(jnp.asarray(theta), jnp.asarray(A))[0]

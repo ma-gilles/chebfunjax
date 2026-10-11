@@ -33,7 +33,7 @@ The numerical abscissa of A is the maximum real part of its field of values:
 
 ```text
 alpha =
-   5.423505100596425
+   5.556701165271412
 maxtheta =
      0
 ```
@@ -54,7 +54,7 @@ alpha = max(eig((A+A')/2))
 
 ```text
 alpha =
-   5.423505100596421
+   5.556701165271407
 ```
 
 Now let's consider a matrix B defined as a diagonal matrix with the same eigenvalues as A. In this case the boundary of the field of values is a polygon:
@@ -78,21 +78,19 @@ FB
 
 ```text
 FB =
-   chebfun column (12 smooth pieces)
+   chebfun column (10 smooth pieces)
        interval       length     endpoint values
-[       0,     0.8]        1     complex values
-[     0.8,     1.3]        1     complex values
-[     1.3,     1.4]        1     complex values
-[     1.4,     2.3]        1     complex values
-[     2.3,     2.6]        1     complex values
-[     2.6,     3.1]        1     complex values
-[     3.1,     3.7]        1     complex values
-[     3.7,       4]        1     complex values
-[       4,     4.9]        1     complex values
-[     4.9,       5]        1     complex values
-[       5,     5.5]        1     complex values
-[     5.5,     6.3]        1     complex values
-vertical scale = 4.5    Total length = 12
+[       0,    0.33]        1       3.7      3.7
+[    0.33,     1.2]        1     complex values
+[     1.2,     2.3]        1     complex values
+[     2.3,     2.4]        1     complex values
+[     2.4,     3.1]        1     complex values
+[     3.1,     3.9]        1     complex values
+[     3.9,       4]        1     complex values
+[       4,     5.1]        1     complex values
+[     5.1,       6]        1     complex values
+[       6,     6.3]        1       3.7      3.7
+vertical scale = 4.5    Total length = 10
 ```
 
 Finally, here's an example where the boundary of the field of values mixes smooth curves with straight segments:
@@ -111,6 +109,17 @@ C =
     -3     0     0     0
      0     0     0     3
      0     0     1     1
+```
+
+![FieldOfValues figure 04](../../images/linalg/FieldOfValues_04.png)
+
+Here is a listing of FOV. Note that the numerical computations are carried out in just about 10 lines of code.
+
+```matlab
+type fov
+```
+
+```text
 """Field of values (numerical range) of a matrix as a complex Chebfun.
 
 ``fov(A)`` returns the boundary curve of the field of values of ``A`` as a
@@ -130,73 +139,65 @@ Original authors: Copyright 2017 by The University of Oxford and The
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
-import numpy as np  # uses-numpy: dense eigensolves of the Hermitian parts
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
-def _fov_curve(theta, A: np.ndarray) -> np.ndarray:
-    """MATLAB ``fovCurve``: for each angle the point ``v'Av / v'v`` where
-    ``v`` is the eigenvector of the largest eigenvalue of the Hermitian
-    part of ``exp(i theta) A``."""
-    th = np.atleast_1d(np.asarray(theta, dtype=np.float64))
-    z = np.empty(th.shape, dtype=np.complex128)
-    for j, t in enumerate(th.ravel()):
-        B = np.exp(1j * t) * A
-        H = (B + B.conj().T) / 2
-        w, X = np.linalg.eigh(H)
-        v = X[:, int(np.argmax(w))]
-        z.flat[j] = (v.conj() @ A @ v) / (v.conj() @ v)
-    return z
+@jax.jit
+def _fov_curve(theta, A):
+    """Literal Johnson Rayleigh quotient, mapped serially over angles."""
+    th = jnp.atleast_1d(theta)
 
-def fov(A, line_segments: bool = False):
+    def point(t):
+        B = jnp.exp(1j * t) * A
+        H = (B + B.conj().T) / 2
+        w, X = jnp.linalg.eigh(H, symmetrize_input=False)
+        v = X[:, jnp.argmax(w)]
+        return ((v.conj() @ A) @ v) / (v.conj() @ v)
+
+    # Native source processes one angle at a time. A mapped loop also avoids
+    # materializing a large stack of eigensystems during adaptive refinement.
+    return jax.lax.map(point, th.reshape(-1)).reshape(th.shape)
+
+def fov(A, line_segments: bool = False, *, pref=None):
     """Field of values boundary of the matrix ``A`` (MATLAB ``fov``).
 
     Parameters
     ----------
     A : array_like, shape (n, n)
+    pref : optional
+        Constructor preferences; domain and splitting follow native FOV overrides.
     line_segments : bool
         If True return ``(f, lineSegs, theta)`` like MATLAB's three-output
-        form: ``lineSegs`` is an array-valued Chebfun on [-1, 1] whose
-        columns are the line segments joining the left and right limits
-        of ``f`` at its jumps, and ``theta`` the angles of those jumps.
+        form. The Python adapter returns ``lineSegs`` as a list of scalar
+        Chebfuns on [-1, 1], each joining the left and right limits of
+        ``f`` at a jump; ``theta`` contains the angles of those jumps.
 
     Provenance
     ----------
     MATLAB source : fov.m
     Chebfun commit: 7574c77
     """
-    A = np.asarray(A)
-    f = chebfun(lambda t: jnp.asarray(_fov_curve(np.asarray(t), A)),
-                domain=(0.0, 2.0 * np.pi), splitting=True)
+    A = jnp.atleast_2d(jnp.asarray(A))
+    f = chebfun(lambda t: _fov_curve(t, A), pref=pref,
+                domain=(0.0, 2.0 * jnp.pi), splitting=True)
     f = f.merge()
     if not line_segments:
         return f
-    ends = np.asarray(list(f.domain.breakpoints), dtype=np.float64)
+    ends = jnp.asarray(list(f.domain.breakpoints), dtype=jnp.float64)
     delta = 1e-14
-    if np.any(np.diff(ends) < delta):
-        delta = float(np.min(np.diff(ends))) / 3
-    left = np.asarray(f(jnp.asarray(ends[:-1]), "left")).ravel().astype(np.complex128)
-    left[0] = complex(np.asarray(f(jnp.asarray(ends[-1]), "left")).ravel()[0])
-    right = np.asarray(f(jnp.asarray(ends[:-1]), "right")).ravel().astype(np.complex128)
-    tol = 10 * delta * np.maximum(np.abs(left), np.abs(right))
-    discont = np.abs(left - right) > tol
+    if jnp.any(jnp.diff(ends) < delta):
+        delta = float(jnp.min(jnp.diff(ends))) / 3
+    left = jnp.asarray(f(jnp.asarray(ends[:-1]), "left")).ravel().astype(jnp.complex128)
+    left = left.at[0].set(jnp.asarray(f(ends[-1], "left")).reshape(()))
+    right = jnp.asarray(f(jnp.asarray(ends[:-1]), "right")).ravel().astype(jnp.complex128)
+    tol = 10 * delta * jnp.maximum(jnp.abs(left), jnp.abs(right))
+    discont = jnp.abs(left - right) > tol
     theta = ends[:-1][discont]
     cols = [Chebfun.from_values(jnp.asarray([lv, rv]), domain=(-1.0, 1.0))
             for lv, rv in zip(left[discont], right[discont])]
     return f, cols, theta
-```
-
-![FieldOfValues figure 04](../../images/linalg/FieldOfValues_04.png)
-
-Here is a listing of FOV. Note that the numerical computations are carried out in just about 10 lines of code.
-
-```matlab
-type fov
-```
-
-```text
-
 ```
 
 ## References

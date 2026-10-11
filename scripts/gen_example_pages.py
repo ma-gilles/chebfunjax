@@ -230,6 +230,7 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
     chunks = align_outputs(ref_blocks, ours, require_slots=(cat, stem) in {
         ("ode-nonlin", "DelayDifferentialEquations"),
         ("linalg", "SOR"), ("ode-nonlin", "GulfStream"), ("ode-nonlin", "Carrier"),
+        ("linalg", "FieldOfValues"),
     })
     for idx, k in pending:
         if ours is not None and not chunks[k] and ref_blocks[k] and \

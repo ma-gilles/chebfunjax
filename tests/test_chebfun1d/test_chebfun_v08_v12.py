@@ -61,11 +61,12 @@ class TestHorzcat:
         assert result.isempty()
 
 
-class TestVertcat:
+class TestDomainJoin:
+    # These legacy probes described domain JOIN, not native VERTCAT.
     def test_two_pieces(self):
         f = chebfun(jnp.sin, domain=(-1.0, 0.0))
         g = chebfun(jnp.sin, domain=(0.0, 1.0))
-        h = Chebfun.vertcat([f, g])
+        h = f.join(g)
         # h should have two pieces and cover [-1, 1]
         assert h.domain.a == pytest.approx(-1.0)
         assert h.domain.b == pytest.approx(1.0)
@@ -76,14 +77,19 @@ class TestVertcat:
 
     def test_single_chebfun(self):
         f = chebfun(jnp.sin)
-        result = Chebfun.vertcat([f])
+        result = f.join()
         assert result is f
 
-    def test_contiguity_error(self):
+    def test_gap_is_rebased_by_source_join(self):
         f = chebfun(jnp.sin, domain=(-1.0, 0.0))
-        g = chebfun(jnp.sin, domain=(0.1, 1.0))  # gap
-        with pytest.raises(ValueError, match="does not match"):
-            Chebfun.vertcat([f, g])
+        g = chebfun(jnp.sin, domain=(0.1, 1.0))
+        h = f.join(g)
+        assert h.domain.breakpoints == (-1.0, 0.0, 0.9)
+        # Source JOIN rebases the interval while retaining coefficient data;
+        # the new breakpoint point value can average its two one-sided limits.
+        assert h.funs[1].interval == (0.0, 0.9)
+        npt.assert_array_equal(np.array(h.funs[1].tech.coeffs),
+                               np.array(g.funs[0].tech.coeffs))
 
 
 class TestSize:

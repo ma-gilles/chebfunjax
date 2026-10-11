@@ -6494,74 +6494,21 @@ class Chebfun(eqx.Module):
         return source_horzcat(operands)
 
     @staticmethod
-    def vertcat(chebfuns: list[Chebfun]) -> list[Chebfun]:
-        """Vertical concatenation: concatenate Chebfuns by stacking domains.
+    def vertcat(*operands):
+        """Stack scalar blocks for columns, or concatenate row Chebfuns.
 
-        Each successive Chebfun is appended after the previous one in the
-        x-direction.  The domains must be compatible:
-        ``chebfuns[k].domain.b == chebfuns[k+1].domain.a``.
-
-        Parameters
-        ----------
-        chebfuns : list[Chebfun]
-            Row Chebfuns (in domain order) to concatenate.
-
-        Returns
-        -------
-        Chebfun
-            A single piecewise Chebfun on the union domain.
-
-        Raises
-        ------
-        ValueError
-            If successive domains are not contiguous.
+        A single list/tuple is a Python operand-container adapter; use
+        ``join`` to concatenate function domains.
 
         Provenance
         ----------
         MATLAB source : @chebfun/vertcat.m
         Chebfun commit: 7574c77
         """
-        if not chebfuns:
-            raise ValueError("vertcat: input list is empty.")
-        if len(chebfuns) == 1:
-            return chebfuns[0]
-        # Row chebfuns (MATLAB [x.'; x.']): stacking transposed chebfuns
-        # on a SHARED domain builds an array-valued row chebfun; mixing
-        # a row with a column is an error (@chebfun/vertcat.m).
-        trans = [bool(getattr(f, "is_transposed", False)) for f in chebfuns]
-        if any(trans):
-            if not all(trans):
-                raise ValueError(
-                    "vertcat: cannot concatenate a column chebfun with "
-                    "a row chebfun.")
-            cols = [f.transpose() for f in chebfuns]
-            dom = cols[0].domain
-            for c in cols[1:]:
-                if (float(c.domain.a) != float(dom.a)
-                        or float(c.domain.b) != float(dom.b)):
-                    raise ValueError(
-                        "vertcat: row chebfuns must share a domain.")
-            arr = Chebfun.from_function(
-                lambda x: jnp.stack([c(x) for c in cols], axis=-1), dom)
-            return arr.transpose()
-        # Validate contiguity and collect all pieces
-        all_funs: list[_Piece] = []
-        all_bps: list[float] = [chebfuns[0].domain.a]
-        for k, f in enumerate(chebfuns):
-            if k > 0:
-                prev_b = all_bps[-1]
-                if abs(f.domain.a - prev_b) > 100 * _EPS:
-                    raise ValueError(
-                        f"vertcat: chebfuns[{k}].domain.a = {f.domain.a} does not "
-                        f"match chebfuns[{k-1}].domain.b = {prev_b}."
-                    )
-            for piece in f.funs:
-                all_funs.append(piece)
-            # Append internal breakpoints except the first one (already added)
-            bps = list(f.domain.breakpoints)
-            all_bps.extend(bps[1:])
-        new_domain = Domain(tuple(float(x) for x in all_bps))
-        return Chebfun(funs=all_funs, domain=new_domain)
+        from chebfunjax.chebfun1d._vertcat import source_vertcat
+        if len(operands) == 1 and isinstance(operands[0], (list, tuple)):
+            operands = tuple(operands[0])
+        return source_vertcat(operands)
 
     def size(self, dim: int | None = None):
         """Size of the Chebfun (quasimatrix notion).

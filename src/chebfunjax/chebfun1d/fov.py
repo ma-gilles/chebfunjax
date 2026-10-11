@@ -17,59 +17,63 @@ Original authors: Copyright 2017 by The University of Oxford and The
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
-import numpy as np  # uses-numpy: dense eigensolves of the Hermitian parts
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
 
-def _fov_curve(theta, A: np.ndarray) -> np.ndarray:
-    """MATLAB ``fovCurve``: for each angle the point ``v'Av / v'v`` where
-    ``v`` is the eigenvector of the largest eigenvalue of the Hermitian
-    part of ``exp(i theta) A``."""
-    th = np.atleast_1d(np.asarray(theta, dtype=np.float64))
-    z = np.empty(th.shape, dtype=np.complex128)
-    for j, t in enumerate(th.ravel()):
-        B = np.exp(1j * t) * A
+@jax.jit
+def _fov_curve(theta, A):
+    """Literal Johnson Rayleigh quotient, mapped serially over angles."""
+    th = jnp.atleast_1d(theta)
+
+    def point(t):
+        B = jnp.exp(1j * t) * A
         H = (B + B.conj().T) / 2
-        w, X = np.linalg.eigh(H)
-        v = X[:, int(np.argmax(w))]
-        z.flat[j] = (v.conj() @ A @ v) / (v.conj() @ v)
-    return z
+        w, X = jnp.linalg.eigh(H, symmetrize_input=False)
+        v = X[:, jnp.argmax(w)]
+        return ((v.conj() @ A) @ v) / (v.conj() @ v)
+
+    # Native source processes one angle at a time. A mapped loop also avoids
+    # materializing a large stack of eigensystems during adaptive refinement.
+    return jax.lax.map(point, th.reshape(-1)).reshape(th.shape)
 
 
-def fov(A, line_segments: bool = False):
+def fov(A, line_segments: bool = False, *, pref=None):
     """Field of values boundary of the matrix ``A`` (MATLAB ``fov``).
 
     Parameters
     ----------
     A : array_like, shape (n, n)
+    pref : optional
+        Constructor preferences; domain and splitting follow native FOV overrides.
     line_segments : bool
         If True return ``(f, lineSegs, theta)`` like MATLAB's three-output
-        form: ``lineSegs`` is an array-valued Chebfun on [-1, 1] whose
-        columns are the line segments joining the left and right limits
-        of ``f`` at its jumps, and ``theta`` the angles of those jumps.
+        form. The Python adapter returns ``lineSegs`` as a list of scalar
+        Chebfuns on [-1, 1], each joining the left and right limits of
+        ``f`` at a jump; ``theta`` contains the angles of those jumps.
 
     Provenance
     ----------
     MATLAB source : fov.m
     Chebfun commit: 7574c77
     """
-    A = np.asarray(A)
-    f = chebfun(lambda t: jnp.asarray(_fov_curve(np.asarray(t), A)),
-                domain=(0.0, 2.0 * np.pi), splitting=True)
+    A = jnp.atleast_2d(jnp.asarray(A))
+    f = chebfun(lambda t: _fov_curve(t, A), pref=pref,
+                domain=(0.0, 2.0 * jnp.pi), splitting=True)
     f = f.merge()
     if not line_segments:
         return f
-    ends = np.asarray(list(f.domain.breakpoints), dtype=np.float64)
+    ends = jnp.asarray(list(f.domain.breakpoints), dtype=jnp.float64)
     delta = 1e-14
-    if np.any(np.diff(ends) < delta):
-        delta = float(np.min(np.diff(ends))) / 3
-    left = np.asarray(f(jnp.asarray(ends[:-1]), "left")).ravel().astype(np.complex128)
-    left[0] = complex(np.asarray(f(jnp.asarray(ends[-1]), "left")).ravel()[0])
-    right = np.asarray(f(jnp.asarray(ends[:-1]), "right")).ravel().astype(np.complex128)
-    tol = 10 * delta * np.maximum(np.abs(left), np.abs(right))
-    discont = np.abs(left - right) > tol
+    if jnp.any(jnp.diff(ends) < delta):
+        delta = float(jnp.min(jnp.diff(ends))) / 3
+    left = jnp.asarray(f(jnp.asarray(ends[:-1]), "left")).ravel().astype(jnp.complex128)
+    left = left.at[0].set(jnp.asarray(f(ends[-1], "left")).reshape(()))
+    right = jnp.asarray(f(jnp.asarray(ends[:-1]), "right")).ravel().astype(jnp.complex128)
+    tol = 10 * delta * jnp.maximum(jnp.abs(left), jnp.abs(right))
+    discont = jnp.abs(left - right) > tol
     theta = ends[:-1][discont]
     cols = [Chebfun.from_values(jnp.asarray([lv, rv]), domain=(-1.0, 1.0))
             for lv, rv in zip(left[discont], right[discont])]
