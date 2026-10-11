@@ -8,21 +8,23 @@ from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.spherefun import Spherefun
 
 
-@pytest.mark.parametrize('sizes,kind,expected', [
-    ((), 'dirichlet', (39, 40, 41)),
-    ((10,), 'dirichlet', (10, 10, 10)),
-    ((10,), 'neumann', (11, 10, 10)),
-    ((10, 9, 7), 'dirichlet', (10, 9, 7)),
-    ((10, 9, 7), 'neumann', (11, 9, 7)),
+@pytest.mark.parametrize('sizes,kind,expected,public_shape', [
+    ((), 'dirichlet', (39, 40, 41), (1, 1, 1)),
+    ((10,), 'dirichlet', (10, 10, 10), (10, 1, 1)),
+    ((10,), 'neumann', (11, 10, 10), (11, 1, 1)),
+    ((10, 9, 7), 'dirichlet', (10, 9, 7), (10, 1, 1)),
+    ((10, 9, 7), 'neumann', (11, 9, 7), (11, 1, 1)),
 ])
-def test_source_dimension_dispatch(monkeypatch, sizes, kind, expected):
+def test_source_dimension_dispatch(monkeypatch, sizes, kind, expected, public_shape):
     module = importlib.import_module('chebfunjax.ballfun.ballfun')
     def solver(cfs, frequency, boundary, neumann):
         assert cfs.shape == expected
         return jnp.zeros(expected, dtype=jnp.complex128)
     monkeypatch.setattr(module, '_ballfun_helmholtz_spectral', solver)
     f = Ballfun.from_coeffs(jnp.zeros((1, 1, 1)))
-    assert Ballfun.helmholtz(f, 0, None, *sizes, bc_type=kind).shape == expected
+    result = Ballfun.helmholtz(f, 0, None, *sizes, bc_type=kind)
+    assert result.shape == public_shape
+    assert jnp.all(result.coeffs == 0)
 
 
 def test_complex_boundary_retains_imaginary_solution(monkeypatch):

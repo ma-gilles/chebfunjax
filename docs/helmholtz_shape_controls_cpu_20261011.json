@@ -1,0 +1,165 @@
+{
+  "format": "helmholtz-dimension-control-diagnosis-v1",
+  "base_head": "0c51e0608d06f76614e869a1b3a3036d9493a777",
+  "correction_to_prior_v2": "Prior diagnosis that MATLAB coefficient construction returns an unsimplified object was incomplete. parseInputs converts CFS to a ballfun, then the outer constructor detects that object and calls simplify.",
+  "native_path": [
+    {
+      "source": "@ballfun/helmholtz.m",
+      "lines": "229-234",
+      "fact": "Permutes CFS back, then returns u = ballfun(CFS, 'coeffs')."
+    },
+    {
+      "source": "@ballfun/constructor.m",
+      "lines": "18,316-340",
+      "fact": "parseInputs recognizes coeffs, constructs a ballfun object, assigns CFS directly, and determines reality."
+    },
+    {
+      "source": "@ballfun/constructor.m",
+      "lines": "33-36",
+      "fact": "After parseInputs returns, outer constructor sees op is a ballfun and calls simplify(op) before returning."
+    }
+  ],
+  "classification": "The five current CI failures are a test expectation bug, not a Helmholtz solver or constructor source fault. The test double asserts the unsimplified solve-grid dimensions inside the mocked spectral solver. Its second assertion incorrectly expects those input dimensions to remain the public representation after zero coefficients are simplified.",
+  "test_correction": {
+    "preserved_intent": "Keep the in-mock cfs.shape == expected assertion, which verifies each requested internal grid exactly.",
+    "public_expectations": {
+      "requested_grid_shapes": [
+        [
+          39,
+          40,
+          41
+        ],
+        [
+          10,
+          10,
+          10
+        ],
+        [
+          11,
+          10,
+          10
+        ],
+        [
+          10,
+          9,
+          7
+        ],
+        [
+          11,
+          9,
+          7
+        ]
+      ],
+      "simplified_public_shapes": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          10,
+          1,
+          1
+        ],
+        [
+          11,
+          1,
+          1
+        ],
+        [
+          10,
+          1,
+          1
+        ],
+        [
+          11,
+          1,
+          1
+        ]
+      ],
+      "additional_assertion": "All returned coefficients are zero."
+    },
+    "patch_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/helmholtz_shape_controls.patch",
+    "patch_sha256": "db82ea3f36ed35adc8473c067144b4fa2719366ece00388cc83f550a1bc6f9e8"
+  },
+  "focused_execution": {
+    "selected": "tests/test_ballfun/test_helmholtz_source_controls.py -k test_source_dimension_dispatch",
+    "pytest_result": "5 passed, 3 deselected, 1 warning in 12.89 s",
+    "supervisor": {
+      "original_exec_session": 58426,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 18.85939463507384,
+      "sampled_peak_summed_rss_kib": 1195472,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "censored_limit": null,
+      "cpu_child_command": "taskset -c 12-15 pinned Python 3.12.13 / pytest 9.0.2; JAX 0.11.0 CPU"
+    },
+    "warning": "Installed jax_cuda12_plugin 0.11.2 is incompatible with jaxlib 0.11.0 and was not used; JAX_PLATFORMS=cpu.",
+    "source_scope": "Fresh git archive of base head 0c51e0608d06f76614e869a1b3a3036d9493a777; only the focused test file differs in the snapshot. No source code modified; no P edits."
+  },
+  "bindings": {
+    "test_original": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_ballfun/test_helmholtz_source_controls.py",
+      "sha256": "c6b762feba84f7811ee169fb2397512553623b1ac1cb32460b073a63d19db4ac"
+    },
+    "test_candidate": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/snapshot/tests/test_ballfun/test_helmholtz_source_controls.py",
+      "sha256": "6d0dbdb619263e4ee79168ba288b579b4944cd5eb9721c00051aa95a3c70ee5b"
+    },
+    "patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/helmholtz_shape_controls.patch",
+      "sha256": "db82ea3f36ed35adc8473c067144b4fa2719366ece00388cc83f550a1bc6f9e8"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/guard.json",
+      "sha256": "733c8880a3542655027ba57ea1ac1da6daed0fe4922d5229e3091bb5041e9187"
+    },
+    "launcher": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/launch.sh",
+      "sha256": "5a996858ca34221b2afd66e10df130bc39cf5a0e0b58dd52488669b9b46d55b6"
+    },
+    "supervisor_wrapper": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/supervise.sh",
+      "sha256": "fe70ae482f7700401881edde6e8c2c138022e79926490cc22f3422d682abe9b0"
+    },
+    "supervision_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/supervision/receipt.json",
+      "sha256": "ff8aee4c2eb6af1046303a39a1f81ac2dd5e49fd5285796569598f987418f3d2"
+    },
+    "stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/supervision/stdout",
+      "sha256": "0f0d5243767df8f811c80438f9fa29ea4e37af4796f0574c6d8fef807e2fae51"
+    },
+    "stderr": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/supervision/stderr",
+      "sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b"
+    },
+    "manifest": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/supervision/manifest.json",
+      "sha256": "ede7801761de607454424f26fedda6e7b584c747cbca6d913aabef5a4c47d945"
+    },
+    "prelaunch_failure_record": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/PRELAUNCH_GUARD_FAILURE.json",
+      "sha256": "dd1541aee4f3121f072130e11204de7a87bed9becacf12819701552f0349c8b3"
+    },
+    "matlab_helmholtz": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@ballfun/helmholtz.m",
+      "sha256": "3fea7f3ea2e5f0f247f94707af446a3362742acd98e111d892cb606fa18907b7"
+    },
+    "matlab_constructor": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@ballfun/constructor.m",
+      "sha256": "f71a3ae3817d8888077d17b356a6fafd853b6462bee62674e85c16b311c54dce"
+    },
+    "python_ballfun": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/helmholtz_shape_control_0c51/snapshot/src/chebfunjax/ballfun/ballfun.py",
+      "sha256": "340e5c8accca822a10555bab3c0821fb363f548f99aaa4fc4e6e700170423200"
+    },
+    "ci_log": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_failure_review_20261011/38109519340_114381987486.log",
+      "sha256": "8f1053918d4c46f8b34fdb88e6397c1b522f9e2963de390db9378414307836ae"
+    }
+  },
+  "supersedes": "The earlier RECENT_FAILURE_RECONCILIATION_v2 Helmholtz diagnosis. It was inaccurate on the outer MATLAB constructor path. Its file remains unchanged."
+}
