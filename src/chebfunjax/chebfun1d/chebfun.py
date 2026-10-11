@@ -4512,7 +4512,8 @@ class Chebfun(eqx.Module):
             # Source addBreaksAtRoots sets pointValues=0 at original roots,
             # only after an actual new breakpoint was introduced.
             ends = jnp.asarray(out.domain.breakpoints)
-            values = _source_breakpoint_values(out.funs, out.domain.breakpoints, op=self)
+            point_function = self.transpose() if self.is_transposed else self
+            values = _source_breakpoint_values(out.funs, out.domain.breakpoints, op=point_function)
             values2 = values[:, None] if values.ndim == 1 else values
             roots2 = r_all[:, None] if r_all.ndim == 1 else r_all
             at_root = jnp.any(ends[:, None, None] == roots2[None, :, :], axis=1)
@@ -5227,14 +5228,46 @@ class Chebfun(eqx.Module):
         return self.logical_eq(0.0)
 
     def logical_and(self, other) -> "Chebfun":
-        """Indicator of {f ~= 0 and g ~= 0} via the product of
-        nonzero-indicators (MATLAB &)."""
-        return self.logical_ne(0.0) * other.logical_ne(0.0)
+        """Source root-split logical AND.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/and.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d._logical import logical_and
+        return logical_and(self, other)
+
+    def __and__(self, other):
+        """Boolean AND operator.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/and.m
+        Chebfun commit: 7574c77
+        """
+        return self.logical_and(other)
 
     def logical_or(self, other) -> "Chebfun":
-        """Indicator of {f ~= 0 or g ~= 0} (MATLAB |)."""
-        p = self.logical_ne(0.0) + other.logical_ne(0.0)             - self.logical_and(other)
-        return p
+        """Source root-split logical OR.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/or.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d._logical import logical_or
+        return logical_or(self, other)
+
+    def __or__(self, other):
+        """Boolean OR operator.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/or.m
+        Chebfun commit: 7574c77
+        """
+        return self.logical_or(other)
 
     def __lt__(self, other):
         return self.lt(other)
@@ -9049,32 +9082,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/logical.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        roots = self.roots(nojump=True)
-        existing = _np.array(list(self.domain.breakpoints))
-        if roots.shape[0] > 0:
-            new_bps = _np.sort(_np.unique(
-                _np.concatenate([existing, _np.asarray(roots)])
-            ))
-        else:
-            new_bps = existing
-        domain_len = float(self.domain.b - self.domain.a)
-        tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
-        mask = _np.concatenate([[True], _np.diff(new_bps) > tol])
-        new_bps = new_bps[mask]
-        if len(new_bps) < 2:
-            return self._apply_fun(lambda x: jnp.where(x != 0.0, jnp.ones_like(x), jnp.zeros_like(x)))
-        new_dom = Domain(tuple(float(bp) for bp in new_bps))
-        f = self
-        eps = float(self.vscale) * _EPS if self.vscale > 0 else _EPS
-        new_funs = [
-            _Piece.from_function(
-                lambda x, _f=f, _e=eps: jnp.where(jnp.abs(_f(x)) > _e, jnp.ones_like(x), jnp.zeros_like(x)),
-                sub.a, sub.b,
-            )
-            for sub in new_dom.intervals
-        ]
-        return Chebfun(funs=new_funs, domain=new_dom)
+        from chebfunjax.chebfun1d._logical import logical
+        return logical(self)
 
     def any(self, dim: int = 1):
         """MATLAB ``any(f, dim)``.

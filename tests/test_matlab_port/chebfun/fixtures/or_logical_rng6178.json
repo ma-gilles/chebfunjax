@@ -1,0 +1,53 @@
+{
+  "native_original_handle": 1158,
+  "native_terminal": 0,
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_observations_mat_sha256": "34a12eb73c96789564ffcd9f0dc49da18337852bc56eadd4a8f27fc43c563546",
+  "fixture_sha256": "25932bf2caa2bd63e39acb7761625967c11160c3f5c3e870db5aeb8908d5f6c1",
+  "sampling": "Exact three sequential source seedRNG6178 uniform100draws perOR/LOGICAL function; originalinterveningconstructors/roots retained",
+  "adapter": "MAT100x1 columns flattened toPython100vectors; values/dtype unchanged; do not infer normalstream identity",
+  "arrays": {
+    "or_x1": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "a961271dd88d513329de012e0e7d0da51859d9de0f2950a8a0df2b43be22432a"
+    },
+    "or_x2": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "dbecd6010500007dee4014a9f94b292262bfd55b54026827bf68349275876f65"
+    },
+    "or_x3": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "fc83ba247f9260025fb34dbc1d3c1b6021e4d8daee48ebabe8bb5a09654e618d"
+    },
+    "logical_x1": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "a961271dd88d513329de012e0e7d0da51859d9de0f2950a8a0df2b43be22432a"
+    },
+    "logical_x2": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "dbecd6010500007dee4014a9f94b292262bfd55b54026827bf68349275876f65"
+    },
+    "logical_x3": {
+      "shape": [
+        100
+      ],
+      "dtype": "float64",
+      "bytes_sha256": "fc83ba247f9260025fb34dbc1d3c1b6021e4d8daee48ebabe8bb5a09654e618d"
+    }
+  }
+}

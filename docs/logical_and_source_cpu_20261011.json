@@ -37,5 +37,11 @@
     "JAX math in new logical operation; existing root/restriction/merge helper NumPy migration remains separate.",
     "These12clauses establish this native AND test, not complete logical OR/NOT or all API coverage."
   ],
-  "formatting": "Imported-symbol sets and non-import ASTs unchanged after Ruff helper/test formatting."
+  "formatting": "Imported-symbol sets and non-import ASTs unchanged after Ruff helper/test formatting.",
+  "publication_erratum": {
+    "affected_commit": "6788a09cd3dfa93c7aa16827636f333cb1d498ab",
+    "finding": "Helper and tests published, but whole-file transform overlay omitted qualified logical_and/__and__ delegation and transposed addBreaksAtRoots callback. Original45505 qualified frozen candidate only; not published combined head.",
+    "detected_by": "New literal OR row clause and supplemental public AND integration control. Committed bytes independently inspected.",
+    "correction_status": "Restored public delegation/operator and row callback; all12 original AND assertions executed in three successor cohorts on combined AND/OR/logical candidate. See logical_or_conversion_source_cpu_20261011.json."
+  }
 }

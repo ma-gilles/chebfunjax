@@ -1,0 +1,131 @@
+{
+  "source_counts": {
+    "OR": 12,
+    "LOGICAL": 9,
+    "AND_final_integration": 12,
+    "total": 33
+  },
+  "qualified_source_predicates": 33,
+  "source_bounds": "Originalnorms/exactequalities/counts/defaultconstructors/exps andsourceRNGdraws retained; no numericaltolerancechange.",
+  "completed_cohorts": [
+    {
+      "original": 58243,
+      "scope": "baselineOR1\u20137 fails source5rowcallback",
+      "source_pass": 0,
+      "gate": "or_gate_v1",
+      "terminal": 1,
+      "wall_seconds": 23.47401337698102,
+      "peak_KiB": 1335204
+    },
+    {
+      "original": 20770,
+      "scope": "OR1\u20137 sourcepassed; freshANDcontrolfailed missingpublishedbinding",
+      "source_pass": 7,
+      "gate": "or_1_7_v2",
+      "terminal": 1,
+      "wall_seconds": 26.261549273040146,
+      "peak_KiB": 1456360
+    },
+    {
+      "original": 11756,
+      "scope": "freshrow breakpointassertionspassed thenoldANDdispatch failed; supplemental only",
+      "source_pass": 0,
+      "gate": "fresh_row_v3",
+      "terminal": 1,
+      "wall_seconds": 13.310239332262427,
+      "peak_KiB": 783092
+    },
+    {
+      "original": 40511,
+      "scope": "OR8\u201311",
+      "source_pass": 4,
+      "gate": "or_8_11_v2",
+      "terminal": 0,
+      "wall_seconds": 48.56389128463343,
+      "peak_KiB": 2353272
+    },
+    {
+      "original": 92807,
+      "scope": "OR12",
+      "source_pass": 1,
+      "gate": "or_12_v2",
+      "terminal": 0,
+      "wall_seconds": 20.070676130708307,
+      "peak_KiB": 960904
+    },
+    {
+      "original": 83818,
+      "scope": "LOGICAL1\u20136+old2tinyclasses+freshrowcontrol",
+      "source_pass": 6,
+      "gate": "logical_1_6_v2",
+      "terminal": 0,
+      "wall_seconds": 29.209515509195626,
+      "peak_KiB": 1476372
+    },
+    {
+      "original": 4123,
+      "scope": "LOGICAL7\u20138",
+      "source_pass": 2,
+      "gate": "logical_7_8_v2",
+      "terminal": 0,
+      "wall_seconds": 45.89066796703264,
+      "peak_KiB": 2248072
+    },
+    {
+      "original": 51662,
+      "scope": "LOGICAL9",
+      "source_pass": 1,
+      "gate": "logical_9_v2",
+      "terminal": 0,
+      "wall_seconds": 17.98342305328697,
+      "peak_KiB": 872108
+    },
+    {
+      "original": 56516,
+      "scope": "restoredpublicAND1\u20137+oldtinyclass",
+      "source_pass": 7,
+      "gate": "and_1_7_v2",
+      "terminal": 0,
+      "wall_seconds": 23.696237556636333,
+      "peak_KiB": 1360424
+    },
+    {
+      "original": 49939,
+      "scope": "restoredpublicAND8\u201311",
+      "source_pass": 4,
+      "gate": "and_8_11_v2",
+      "terminal": 0,
+      "wall_seconds": 49.780895181931555,
+      "peak_KiB": 2375496
+    },
+    {
+      "original": 46189,
+      "scope": "restoredpublicAND12",
+      "source_pass": 1,
+      "gate": "and_12_v2",
+      "terminal": 0,
+      "wall_seconds": 16.449238230008632,
+      "peak_KiB": 865892
+    }
+  ],
+  "failure_correction": "ORsource5 fresh row root insertion previously fed transposed2xn callback to n\u00d72 breakpointstorage. Canonicalcolumncallback normalizes ONLY storedvalueevaluation; roots/merge/gap/zeroimpulses returnedorientation unchanged.",
+  "integration_erratum": "NativeAND45505 qualified privatecandidate only. Published6788a09c/b9a7ba34 omittedANDpublicdelegate/__and__/rowcallback. Originalpublished passingAND claim invalid. Minimal classbindings now restored and all12sourceclauses qualified.13publishedtransformaliases/allothermethods ASTunchanged.",
+  "failed_receipts": "58243,20770,11756 terminal1 preserved.20770 OR1\u20137 passed before supplementaryANDintegration failure; no repetition of unchanged completedORscience. FreshANDcontrol subsequently clean83818.",
+  "AND_helper": "Generalizedlogical_and specialization exactoriginalpublishedhelperAST; no ANDnumericalalgorithmchange.",
+  "historical_probes": "Threeoldmappedtinyclasses ASTidentical retained; tested.",
+  "native_capture": "Exactfixture6arrays fromnative1158 three sequentialsource6178draws perOR/LOGICAL; original21nativepassresults true. MATcolumn\u2192Pythonvector adapter documented, no normalstreamidentity claim.",
+  "supplements": "Fresh row linear2column function with no existing interiorbreaks, insertedroots\u2212.5/.25, canonicalstoredpointValues androworientation preserved; existingpublicAND validated. Supplemental numericalprobes not countednativepredicates.",
+  "limitations": "No allrepo suite run. Existing sourceconstructor/root legacyNumPy dependencies separate; newlogical arithmetic JAX. Originalsingularcohorts warning retained instdout; no globalwarning suppression or happinessparityclaim.",
+  "publication": "Narrow patch applied on35675b3d; entire published Chebfun class and helper AST verified against qualified candidate before documentation-only provenance updates.",
+  "root_review": {
+    "delivery_bindings_verified": 107,
+    "unique_guard_inputs_verified": 3478,
+    "terminal_review": "OR first7 passed inside preserved terminal1 supplemental failure; independent later supplemental clean. Other8source cohorts terminal0. No whole-suite claim."
+  },
+  "final_publication_ast": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/logical_or_conversion_source_20261011/FINAL_PUBLICATION_AST.json",
+    "sha256": "e5dbcf820752eeb5b1c453357f65a151aa90dab90b93b13c2d2ac4419703f408",
+    "count": 287,
+    "scope": "All candidate library modules plus3changed tests compared to final publication; only docstrings and import order normalized."
+  }
+}
