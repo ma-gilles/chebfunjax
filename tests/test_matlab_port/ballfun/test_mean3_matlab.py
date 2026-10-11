@@ -28,3 +28,10 @@ class TestBallfunMean3:
         g = Ballfun.from_function(
             lambda x, y, z: x ** 2 + y ** 2 + z ** 2)
         assert abs(g.mean3() - 3.0 / 5.0) < TOL
+
+
+def test_original_mean3():
+    from chebfunjax.chebpref import ChebfunPref
+    f = Ballfun.from_function(lambda r, lam, th: 1, spherical=True)
+    tol = 1e4 * ChebfunPref().techPrefs.chebfuneps
+    assert abs(f.mean3() - 1) < tol

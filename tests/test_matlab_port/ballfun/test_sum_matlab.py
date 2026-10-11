@@ -64,3 +64,31 @@ class TestBallfunSum:
         got = np.asarray(g(jnp.asarray(LAM), jnp.asarray(R)))
         exact = R * np.cos(LAM) * np.pi / 2.0
         assert np.max(np.abs(got - exact)) < _TOL
+
+
+class TestLiteralSumPredicates:
+    """Original four function-norm comparisons; sampled controls above are supplemental."""
+
+    def test_radial_linear(self):
+        from chebfunjax.spherefun.spherefun import Spherefun
+        f = _bf(lambda r, lam, th: r*jnp.cos(lam)*jnp.sin(th))
+        exact = Spherefun.from_function(lambda lam, th: jnp.cos(lam)*jnp.sin(th)/4)
+        assert (f.sum(1) - exact).norm() < _TOL
+
+    def test_radial_constant(self):
+        from chebfunjax.spherefun.spherefun import Spherefun
+        f = _bf(lambda r, lam, th: 1)
+        exact = Spherefun.from_function(lambda lam, th: 1/3)
+        assert (f.sum(1) - exact).norm() < _TOL
+
+    def test_longitude(self):
+        from chebfunjax.diskfun.diskfun import Diskfun
+        f = _bf(lambda r, lam, th: (r*jnp.sin(lam)*jnp.sin(th))**2)
+        exact = Diskfun.from_function(lambda th, r: jnp.pi*r**2*jnp.sin(th)**2)
+        assert (f.sum(2) - exact).norm() < _TOL
+
+    def test_colatitude(self):
+        from chebfunjax.diskfun.diskfun import Diskfun
+        f = _bf(lambda r, lam, th: r*jnp.cos(lam)*jnp.sin(th))
+        exact = Diskfun.from_function(lambda lam, r: r*jnp.cos(lam)*jnp.pi/2)
+        assert (f.sum(3) - exact).norm() < _TOL

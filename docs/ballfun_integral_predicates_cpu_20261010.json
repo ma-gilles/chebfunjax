@@ -1,0 +1,52 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_change": "Port spherefun constructor corner probe and scalar callable vectorization op(ll,tt)+0*ll before both adaptive phases/sample test. Native constructor.m lines87\u201392.",
+  "test_change": "Restore all four original ballfun/test_sum.m function-norm assertions and test_mean3.m scalar-constant assertion with unchanged1e4eps; retain former sampled controls as supplemental. Native norm andsum3 literal tests already present and unchanged.",
+  "results": "Initial73821 fourpass/onefailure: Spherefun scalar constant lacks matrix shape. Fixed72007 fivepass16.48s; stableinputs, no cap/survivors.",
+  "preparation_failure": "v2 source copy stopped on Errno122 quota before scientific launch or candidate edits; preserved incomplete directory/PREPARATION_FAILURE.json. v3/gate was unlaunched; v3/gate_v2 binds corrected supervisor.",
+  "gates": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_integral_predicates_20261010/gate",
+      "inputs_rehashed": 335,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 22.423214201815426,
+        "sampled_peak_summed_rss_kib": 1397436,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "4e22d64e25a4e13bcac19923a1ecd9594854b343056102c1d75d589422df7746",
+        "junit.xml": "da4aed04e59e5a2e0067280c9be8033e3283e24e8cda42ae0473eb9838ca9553",
+        "supervision/stdout": "4c806faa7506d5bc7a94042c03b7600314b18bb6b960151fc00268a03bd0e5c6",
+        "supervision/receipt.json": "1c7c3e4216935dc908e450993d4bb9f270e896fd7b9ec680b0de37d824c1b197"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_integral_predicates_v3_20261010/gate_v2",
+      "inputs_rehashed": 337,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 27.06482987990603,
+        "sampled_peak_summed_rss_kib": 1499924,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "d0e95047effae0f208057dc67f347231ee6594fa3d69683ae5dff7c5b1cd74b7",
+        "junit.xml": "4c48a5e3f3151cb76c8e952ac20ffa69adde73be0d09d7613c2cc3ba15f8ed39",
+        "supervision/stdout": "c05eb0e41bab2c042321ee7534af93dbf2d381ea2ff6ad0666f64fe6e20deac3",
+        "supervision/receipt.json": "0f68a7687ddbabaccbc82f3335ff3b23eb70ffd9f7b930b8a0088eb7c2f53dad"
+      }
+    }
+  ],
+  "integrated_sha256": {
+    "src/chebfunjax/spherefun/spherefun.py": "ebfe0b69c39af9d68116cac8c9b870d29f967d596e8f2e6e699fea424c5092d5",
+    "tests/test_matlab_port/ballfun/test_sum_matlab.py": "742745c34d162220b6607ee6f80c897f252c7d0a47e084d237a175a2d19f9234",
+    "tests/test_matlab_port/ballfun/test_mean3_matlab.py": "4e5141ae5093e11cdfd3b6bbfafae362eed0b03c464d6718cbe88b28ef8d142a"
+  },
+  "scope": "Five original integral predicates; not a full current-main Spherefun/Ballfun suite qualification.",
+  "infrastructure": "GILLES fileset quota recovered by moving four closed archives to permitted shared CRYOEM storage with SHA verification and original symlinks. Scratch supervisor v2 separately qualified four cases including disk-write failure/cleanup; original v1 unchanged."
+}

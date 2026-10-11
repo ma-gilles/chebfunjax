@@ -1035,6 +1035,16 @@ class Spherefun(eqx.Module):
             and The Chebfun Developers.
         Algorithm: Townsend, Wilber, Wright, SISC 38(4) 2016.
         """
+        # Native constructor probes the domain corners and vectorizes scalar
+        # callable outputs before both adaptive phases and the sample test.
+        corner_lam, corner_th = jnp.meshgrid(
+            jnp.asarray([-jnp.pi, jnp.pi]), jnp.asarray([0.0, jnp.pi]))
+        if jnp.asarray(f(corner_lam, corner_th)).size == 1:
+            original_f = f
+
+            def f(lam, th):
+                return original_f(lam, th) + 0 * lam
+
         alpha = 100.0
         min_sample = 4
         factor = 8.0
