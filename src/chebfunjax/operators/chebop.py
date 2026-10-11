@@ -496,6 +496,15 @@ class SystemSolution(list):
         return tuple(out)
 
 
+class _SourceNonlinearSystemSolution(SystemSolution):
+    """Coupled nonlinear output already simplified at source bvpTol.
+
+    Native solvebvp.m simplifies nonlinear components independently. This
+    private return tag prevents the generic linear/legacy finalizer from
+    prolonging them back to a common length.
+    """
+
+
 # ===========================================================================
 # Chebop
 # ===========================================================================
@@ -1326,6 +1335,8 @@ class Chebop:
     @staticmethod
     def _simplify_solution(out):
         from chebfunjax.chebfun1d.chebfun import Chebfun
+        if isinstance(out, _SourceNonlinearSystemSolution):
+            return out
         if isinstance(out, Chebfun):
             # A blowup solution (maxnorm event) carries a NaN padding
             # piece; simplify would mangle it.
@@ -1540,6 +1551,15 @@ class Chebop:
                         return self._solve_ivp_system_highorder(f)
                 except Exception:
                     pass
+                # Positive symbolic nonlocal classification rules out the
+                # endpoint marcher. Reuse exact coupled AD/Newton blocks;
+                # unsupported syntax retains the established fallback.
+                from chebfunjax.operators._coupled_ivp import classify_local_operator
+                from chebfunjax.operators._coupled_newton import solve_coupled, supported
+                if classify_local_operator(self) is False and supported(self):
+                    return solve_coupled(
+                        self, f, n=n, max_iter=max_iter, bvp_tol=tol,
+                        n_min=n_min, n_max=n_max)
             if self._bc_general is not None:
                 from chebfunjax.operators._coupled_newton import (
                     CoupledParameterVariables,
@@ -2526,6 +2546,11 @@ class Chebop:
         from scipy.integrate import solve_ivp as _sivp
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.operators._coupled_ivp import classify_local_operator
+        if classify_local_operator(self) is not True:
+            raise ValueError(
+                "ivp system: operator locality is not established; "
+                "marching may drop nonlocal terms")
         m = self._n_vars()
         a, b = float(self.domain[0]), float(self.domain[-1])
         x_fun = Chebfun.identity(Domain(self.domain))
@@ -2644,10 +2669,10 @@ class Chebop:
 
             try:
                 d = (_ev_at(shift, tmid) - _ev_at(base, tmid)) / _eps_shift
-            except Exception:
-                d = None   # cannot probe: assume a local operator
-            if d is None:
-                raise _SkipDelayProbe()
+            except Exception as exc:
+                raise ValueError(
+                    "ivp system: delay probe failed; locality is not established"
+                ) from exc
             # each equation is affine in its own derivative with the
             # slope the marcher itself extracts from the 0/1 probe; for
             # the unit-coefficient form that slope is 1 per equation.

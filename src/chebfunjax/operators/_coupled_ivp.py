@@ -16,6 +16,10 @@ class UnsupportedStructure(NotImplementedError):
     """Expression cannot be established structurally in the supported grammar."""
 
 
+class NonlocalStructure(UnsupportedStructure):
+    """An unknown function is evaluated away from its current argument."""
+
+
 @dataclass(frozen=True)
 class _Expr:
     value: object
@@ -43,7 +47,7 @@ class _Expr:
         raise UnsupportedStructure('state-dependent Python branching is unsupported')
 
     def __call__(self, *args):
-        raise UnsupportedStructure('nonlocal evaluation of an unknown is unsupported')
+        raise NonlocalStructure('nonlocal evaluation of an unknown is unsupported')
 
     def diff(self, order=1):
         if order == 0:
@@ -308,3 +312,23 @@ def solve(op, plan):
     if op._n_vars() == 1:
         return array.extract_columns(0)
     return SystemSolution([array.extract_columns(k) for k in range(op._n_vars())])
+
+
+def classify_local_operator(op):
+    """Establish locality with the existing symbolic expression grammar.
+
+    True means the full operator was represented without evaluating unknown
+    functions. False identifies nonlocal evaluation; None means unsupported
+    syntax, which cannot establish locality for a time-marching adapter.
+    """
+    count = op._n_vars()
+    variables = [_Expr(lambda t, y, k=k: y[k], variable=k, state=True)
+                 for k in range(count)]
+    time = _Expr(lambda t, y: t)
+    try:
+        [_Expr.coerce(v) for v in _entries(op._call_op(time, variables))]
+    except NonlocalStructure:
+        return False
+    except (UnsupportedStructure, TypeError, AttributeError):
+        return None
+    return True

@@ -1,0 +1,337 @@
+{
+  "packages": {
+    "DELIVERY_AD_ARTIFACTS.json": {
+      "sha256": "54d3eb4b8d2d9abc5d52a9b566e6059319243129ead4cc62969097f6d20a2a6b",
+      "verified_bindings": 30,
+      "report": {
+        "status": "Source-default DDE slot23 accuracy qualified; exact representation/full figure parity unverified",
+        "patch_order": [
+          "locality_candidate.patch (independent routing correctness guard)",
+          "nonlocal_route.patch (AD route on guard baseline)",
+          "script.patch",
+          "page.patch"
+        ],
+        "source_head": "47b52da891147d8ba8b8e90e5c8d324f7c542117",
+        "unchanged_defaults": "N.solve(0.0), dom(1,5), initNone, no n/tol override; existing solve_coupled used with unchanged source defaults",
+        "source_count": "Slot23 only; page22/23 output blocks after this update, source slot22 remains pending",
+        "source_result": {
+          "success": true,
+          "solve_seconds": 51.64317547995597,
+          "domain": [
+            1.0,
+            5.0
+          ],
+          "error_norm": 5.513309591751702e-14,
+          "components": [
+            {
+              "domain": [
+                1.0,
+                5.0
+              ],
+              "lengths": [
+                34
+              ],
+              "point_values_explicit": true
+            },
+            {
+              "domain": [
+                1.0,
+                5.0
+              ],
+              "lengths": [
+                34
+              ],
+              "point_values_explicit": true
+            },
+            {
+              "domain": [
+                1.0,
+                5.0
+              ],
+              "lengths": [
+                35
+              ],
+              "point_values_explicit": true
+            },
+            {
+              "domain": [
+                1.0,
+                5.0
+              ],
+              "lengths": [
+                40
+              ],
+              "point_values_explicit": true
+            }
+          ],
+          "warnings": []
+        },
+        "comparison": {
+          "sample_grid_maxdiff": 8.881784197001252e-16,
+          "component201_sample_maxdiff": [
+            6.661338147750939e-16,
+            1.1102230246251565e-15
+          ],
+          "native_error": 5.516682541185865e-14,
+          "python_error": 5.513309591751702e-14,
+          "native_lengths": [
+            [
+              32
+            ],
+            [
+              34
+            ]
+          ],
+          "python_lengths": [
+            [
+              34
+            ],
+            [
+              34
+            ],
+            [
+              35
+            ],
+            [
+              40
+            ]
+          ]
+        },
+        "render": {
+          "success": true,
+          "no_solve": true,
+          "coefficients_byte_identical": true,
+          "all201samples_byte_identical": true,
+          "stdout_byte_identical": true,
+          "point_values_metadata_preserved": true,
+          "error_norm": 5.513309591751702e-14,
+          "slot": 23,
+          "figure": 24
+        },
+        "source_preservation": {
+          "page_original_matlab_blocks_unchanged": true,
+          "other22_outputs_byte_identical": true,
+          "helper_AST_equals_rendered": true,
+          "script_other_functions_AST_unchanged": true,
+          "changed_script_function": [
+            "run"
+          ],
+          "only_run_section22_modified": true
+        },
+        "simplify_diagnostic": [
+          {
+            "component": 1,
+            "native_source_bvpTol": 5e-13,
+            "before_length": 34,
+            "after_length": 32,
+            "coefficients_identical": false,
+            "point_values_identical": true,
+            "sample_maxdiff": 0.0
+          },
+          {
+            "component": 2,
+            "native_source_bvpTol": 5e-13,
+            "before_length": 34,
+            "after_length": 34,
+            "coefficients_identical": true,
+            "point_values_identical": true,
+            "sample_maxdiff": 0.0
+          }
+        ],
+        "representation_diagnosis": "Exact coupled Newton returns individually simplified components, but outer Chebop._simplify_solution commonizes their lengths. Native nonlinear solvebvp.m244 simplifies output independently, whereas linear single-output source test requires common lengths. Saved-data simplify at unchanged bvpTol gives32/34 with zero observed201sample differences; no representation fix applied.",
+        "limitations": [
+          "Python34/34 vs native32/34 retained in actualdisplay/markers",
+          "Boundary glyph clipping differs from cache; no raster/font/pixel parity claim",
+          "Engine AD/Newton/operators untouched; routing adapter positively establishes nonlocal syntax only",
+          "Guard-only legacy FD source rerun capped and retained",
+          "Comparison grids differ by at most8.89e\u221216; sample agreement is not coefficient bitidentity"
+        ],
+        "receipts": {
+          "route_controls": {
+            "command_exit_code": 0,
+            "wall_seconds": 18.622477527707815,
+            "sampled_peak_summed_rss_kib": 1060140,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          },
+          "route_source_gate": {
+            "command_exit_code": 0,
+            "wall_seconds": 59.81693425681442,
+            "sampled_peak_summed_rss_kib": 2870180,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          },
+          "render": {
+            "command_exit_code": 0,
+            "wall_seconds": 6.587614247109741,
+            "sampled_peak_summed_rss_kib": 645908,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          },
+          "simplify": {
+            "command_exit_code": 0,
+            "wall_seconds": 9.103683551307768,
+            "sampled_peak_summed_rss_kib": 527648,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          }
+        }
+      }
+    },
+    "DELIVERY_FINALIZATION_V2.json": {
+      "sha256": "0bd5c77cd967d47414473f6d70a0c103cbabaef363207c565aed54452d20a5ca",
+      "verified_bindings": 25,
+      "report": {
+        "status": "Finalization correction qualified from saved coefficients; no new full source solve",
+        "supersedes": "DELIVERY_AD_ARTIFACTS.json figure/page/display34/34 only; retains original source solve, native capture, guard/route qualification and capped FD evidence",
+        "apply_order": [
+          "locality_candidate.patch",
+          "nonlocal_route.patch",
+          "nonlinear_finalization.patch",
+          "script.patch",
+          "page_v2.patch (replace old page.patch)"
+        ],
+        "base": "47b52da891147d8ba8b8e90e5c8d324f7c542117",
+        "source_contract": "Native @chebop/solvebvp.m244 simplifies nonlinear component functions at pref.bvpTol. Exact coupled nonlinear return already does this; private SystemSolution tag prevents later generic commonization. Linear/legacy and distinct solver finalization unchanged.",
+        "finalization_scope": {
+          "old_engine_statements_AST_unchanged": true,
+          "only_nonlinear_return_tagged": true,
+          "linear_early_return_AST_unchanged": true,
+          "public_SystemSolution_interface_preserved": true,
+          "no_new_solve": true,
+          "original_source_bvpTol": 5e-13,
+          "finalized_lengths": [
+            32,
+            34
+          ],
+          "legacy_plain_list_tuple_SystemSolution_commonization_preserved": true,
+          "controls": [
+            {
+              "name": "test_saved_independent_finalization_and_metadata",
+              "status": "pass",
+              "seconds": 3.4346828437410295
+            },
+            {
+              "name": "test_public_dispatch_preserves_finalized_tag",
+              "status": "pass",
+              "seconds": 3.0370873720385134
+            },
+            {
+              "name": "test_linear_and_legacy_finalization_unchanged",
+              "status": "pass",
+              "seconds": 0.16981186904013157
+            }
+          ]
+        },
+        "no_new_solve": true,
+        "actual_full_source_run": "Retained route_source_gate original37721: source defaults,51.643s solve/publicerror5.513309591751702e-14; pre-fix outer finalization commonized32/34\u219234/34. This correction changes storage/display/marker locations only.",
+        "focused_public_dispatch": "N.solve(0) executed with solver stub returning correctly source-finalized saved result; tag survives actual public wrapping path. Numerical solver not rerun.",
+        "comparison": {
+          "sample_grid_maxdiff": 8.881784197001252e-16,
+          "component201_sample_maxdiff": [
+            6.661338147750939e-16,
+            1.1102230246251565e-15
+          ],
+          "native_error": 5.516682541185865e-14,
+          "python_error": 5.513309591751702e-14,
+          "native_lengths": [
+            [
+              32
+            ],
+            [
+              34
+            ]
+          ],
+          "python_lengths": [
+            [
+              32
+            ],
+            [
+              34
+            ]
+          ]
+        },
+        "render": {
+          "success": true,
+          "no_solve": true,
+          "coefficients_preserved_prefix": true,
+          "source_tol_finalization_applied": true,
+          "all201samples_byte_identical": true,
+          "stdout_from_finalized_saved_coefficients": true,
+          "point_values_metadata_preserved": true,
+          "error_norm": 5.513309591751702e-14,
+          "slot": 23,
+          "figure": 24
+        },
+        "page_other22_outputs_and_all_MATLAB_blocks_unchanged": true,
+        "limits": [
+          "No native coefficient-bit/raster/font identity claim",
+          "Boundary glyph clipping still differs from cache and remains open",
+          "No full end-to-end numerical rerun after tag change; engine statements AST unchanged, saved controls and stub publicdispatch qualified"
+        ],
+        "receipts": {
+          "finalization": {
+            "command_exit_code": 0,
+            "wall_seconds": 15.45155215729028,
+            "sampled_peak_summed_rss_kib": 855324,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          },
+          "render_v2": {
+            "command_exit_code": 0,
+            "wall_seconds": 7.472366537898779,
+            "sampled_peak_summed_rss_kib": 700512,
+            "censored_limit": null,
+            "remaining_owned_pids": [],
+            "stable": true
+          }
+        }
+      }
+    },
+    "DELIVERY_PORTABLE_V3.json": {
+      "sha256": "0d0d0986c5b8b1f8cd63b541a727baa8f5d35aea0ad16db418e77fcd8b191f9b",
+      "verified_bindings": 7,
+      "report": {
+        "status": "Portable permanent contracts qualified; replace nonlinear_finalization.patch with nonlinear_finalization_portable.patch",
+        "source_bytes_identical_to_qualified_finalization_v2": {
+          "src/chebfunjax/operators/chebop.py": "5424a7606e1a194da69800439a4671c1af1e4a91269140e9d3eb6eef2bf87fee",
+          "src/chebfunjax/operators/_coupled_newton.py": "ef51cadb5d977a716dec9a8e08cfc56be169be621d0315a202da790ecee57dcc"
+        },
+        "test_substitution": "Portable exact dyadic polynomial lengths3/5 replaces external saved-data fixture and removes fixed-bit error constant. Behavior tests changed; path-only AST identity not claimed. Original native/source saved-array diagnostic unchanged externally.",
+        "controls": [
+          {
+            "name": "test_independent_finalization_and_metadata",
+            "status": "pass",
+            "seconds": 0.9122985899448395
+          },
+          {
+            "name": "test_public_dispatch_preserves_finalized_tag",
+            "status": "pass",
+            "seconds": 2.8578317961655557
+          },
+          {
+            "name": "test_linear_and_legacy_finalization_unchanged",
+            "status": "pass",
+            "seconds": 0.15190708404406905
+          }
+        ],
+        "receipt": {
+          "command_exit_code": 0,
+          "wall_seconds": 12.548609090037644,
+          "sampled_peak_summed_rss_kib": 737468,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "stable": true,
+        "artifacts": "V2 figure/page/display bindings remain qualified unchanged; no rerender/no numerical solve after test substitution"
+      }
+    }
+  },
+  "integration": "Reference-sized figure viewed against native; boundary clipping and raster differences retained. Page output trailing whitespace stripped for git policy; saved raw stdout unchanged.",
+  "integration_ast": "Qualified library bytes matched before import sorting; all non-import AST nodes and imported symbols unchanged after test formatting/import sorting."
+}

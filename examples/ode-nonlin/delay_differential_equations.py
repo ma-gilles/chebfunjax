@@ -152,6 +152,24 @@ def _source_system_display(label, functions):
     print()
 
 
+def _source_state_dependent_system_curve(exact, numerical):
+    """Render the source final state-dependent system with reference axes."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact[0], "-b", exact[1], "-b",
+                numerical[0], ".r", numerical[1], ".r",
+                ax=ax, markersize=15)
+    ax.set(xlim=(1, 5), ylim=(0, 2),
+           xticks=np.arange(1, 5.01, .5), yticks=np.arange(0, 2.01, .5))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_system_pantograph_curve(exact, numerical):
     """Source ChebMatrix plot styles expanded over its two scalar blocks."""
     from chebfunjax.plotting import matlab_plot
@@ -670,17 +688,11 @@ def run():
     N.lbc = [np.log(1.0), 1.0]
     u22, v22 = N.solve(0.0)
     _show(u22, "u{1}")
-    tt = np.linspace(1, 5, 800)
-    err = float(np.hypot(
-        np.max(np.abs(np.asarray(u22(tt)) - np.log(tt))),
-        np.max(np.abs(np.asarray(v22(tt)) - 1 / tt))))
+    from chebfunjax.operators.chebmatrix import ChebMatrix
+    exact = [t5.log(), 1 / t5]
+    err = ChebMatrix([[u22 - exact[0]], [v22 - exact[1]]], domain=dom5).norm()
     print(f"err =\n     {err:.15e}")
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, np.log(tt), "-b", tt, 1 / tt, "-b")
-    ax.plot(tt, np.asarray(u22(tt)), ".r", markevery=30)
-    ax.plot(tt, np.asarray(v22(tt)), ".r", markevery=30)
-    ax.grid(True)
-    _save(fig)
+    _save(_source_state_dependent_system_curve(exact, [u22, v22]), source_axes=True)
 
     _output_slot(0)
 

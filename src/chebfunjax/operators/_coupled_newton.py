@@ -320,4 +320,5 @@ def solve_coupled(op, f=0, n=None, max_iter=25, bvp_tol=5e-13,
                      'bvpTol': bvp_tol, 'newtonTolerance': err_tol}
     if backend != 'chebcolloc2':
         op._last_info['discretization'] = backend
-    return [v.simplify(tol=bvp_tol) for v in u]
+    from chebfunjax.operators.chebop import _SourceNonlinearSystemSolution
+    return _SourceNonlinearSystemSolution(v.simplify(tol=bvp_tol) for v in u)
