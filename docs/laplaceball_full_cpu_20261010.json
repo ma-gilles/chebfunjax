@@ -193,5 +193,14 @@
     "evidence": "docs/ball_surface_rendering_cpu_20261011.json",
     "current_figure2_sha256": "fbfcad55bab9b03798d0e386372510eb76030cdc291144b3bc529e54fbc74442",
     "scope": "Saved actual mesh arrays, no repeated solve. Previous v6 image bindings retained as historical evidence."
+  },
+  "later_palette_update": {
+    "evidence": "docs/laplaceball_palette_cpu_20261011.json",
+    "images": {
+      "docs/images/sphere/LaplaceBall_01.png": "b961ebec7c3cc16fd3d19d9694ff0f8c06afe5d51f407680c8038adec75496f8",
+      "docs/images/sphere/LaplaceBall_02.png": "d275d99f370ae0b95f4812aef65163cfb7033173085549cf643ae082ee08b19f",
+      "docs/images/sphere/LaplaceBall_03.png": "424042ef82b47d45a82976f76b78540ea62b634ab4dd8a178d75a049073387f8"
+    },
+    "scope": "Saved actual CData recolored; earlier execution/image bindings remain historical."
   }
 }

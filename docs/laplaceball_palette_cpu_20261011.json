@@ -1,0 +1,63 @@
+{
+  "status": "passed CPU renderer-only replay; full visual parity remains open",
+  "source_head": "466e1574",
+  "original_session": 62796,
+  "wall_seconds": 11.007710997015238,
+  "peak_rss_kib": 828536,
+  "guard_inputs": 279,
+  "independently_rehashed_delivery_and_guard_files": 872,
+  "inputs_stable": true,
+  "censored": null,
+  "survivors": [],
+  "render_result": {
+    "scope": "Only actual saved CData recolored with explicit source64 palette. No solver, transform or Spherefun evaluation repeated.",
+    "rows": [
+      {
+        "figure": 1,
+        "source_cdata_sha256": "83abcc5004ab77340a05e8fc4f9c3162fa5cba48bba6a17a27d466dd080a0567",
+        "vertices_sha256": "24f8d56df2cd195cb55a8faabf9067409eb1626de18d527e9f4ad5d0e01ded26",
+        "clim": [
+          -2.0,
+          2.0
+        ],
+        "input_pickle_sha256": "0fdf2c54495407039dd586e3627b1c6c63b7955e0b7934f8fef770b536ab18aa"
+      },
+      {
+        "figure": 2,
+        "source_mesh_sha256": "a3c254350b84258829f150b0e76a8c00cea1f1b14ff1165fa16df6ac7ffd9b2a",
+        "input_pickle_sha256": "7f0575e56cf5fe2dae495ef91a128bb9aefb1de74e0a7b0265e3682bf384b1a8",
+        "cdata_unchanged": true
+      },
+      {
+        "figure": 3,
+        "source_cdata_sha256": "f1a71547926807e029c91d9420abf775871063ff24f05562a5d40f648d498b69",
+        "vertices_sha256": "24f8d56df2cd195cb55a8faabf9067409eb1626de18d527e9f4ad5d0e01ded26",
+        "clim": [
+          -0.08002023605743876,
+          0.060316419013511965
+        ],
+        "input_pickle_sha256": "76bc3aff2b4a05ae9b5f6c15d153cff908c0e9d3205b86f83c9e68b948691ad2"
+      }
+    ],
+    "palette_size": 64,
+    "global_palette_changed": false
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_palette_prepare_20261011/render_cpu_v1/guard.json": "ba31e366e9300ef7a94d97736bf56fdb56b4899bd841df530b926aeba1806a92",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_palette_prepare_20261011/render_cpu_v1/supervision/receipt.json": "cb5af824615906f9d309acc1959362dcc9d15edd3e1552d66f6be922c5e85074",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_palette_prepare_20261011/render_cpu_v1/RECOLOR_RESULT.json": "6cdd3b8089901347196dbdf93fd06f86bee6e9798ae2567a923aefe65a103ec4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_palette_prepare_20261011/render_cpu_v1/recolor.py": "3ab68a3d4261151fb033408fcbb98818bf1d81d83bfa1f4c871d63faf568feb3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_palette_prepare_20261011/render_cpu_v1/laplaceball.py": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/DELIVERY.json": "199ec7cd68df20e9653f4cae5e35bbe7948baed727ff0dfa62a490fb0f90f64c"
+  },
+  "published_images": {
+    "docs/images/sphere/LaplaceBall_01.png": "b961ebec7c3cc16fd3d19d9694ff0f8c06afe5d51f407680c8038adec75496f8",
+    "docs/images/sphere/LaplaceBall_02.png": "d275d99f370ae0b95f4812aef65163cfb7033173085549cf643ae082ee08b19f",
+    "docs/images/sphere/LaplaceBall_03.png": "424042ef82b47d45a82976f76b78540ea62b634ab4dd8a178d75a049073387f8"
+  },
+  "limits": [
+    "Existing scientific qualification retained; no Poisson solve or function evaluation repeated.",
+    "R2018a and palette length inferred from retained source/PNG evidence; no explicit native runtime tag.",
+    "Native camera, exact Figure02 CLim, historical Phong shading and exact pixel parity remain open."
+  ]
+}

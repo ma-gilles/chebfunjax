@@ -28,6 +28,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
+from chebfunjax._colormaps import parula_colormap
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.chebfun1d.randfuns import randnfunsphere
 from chebfunjax.plotting import chebfun_style, plot_ball_slices
@@ -120,20 +121,22 @@ def _sphere_layout(ax, cb):
 def _render(h, u, uinner):
     """Render the three source figures from actual retained functions."""
     _IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    # Cached page uses the exact R2017a-era parula table with 64 entries.
+    palette = parula_colormap(64)
     fig = plt.figure(figsize=(6.0, 2.53))
     ax = fig.add_subplot(111, projection="3d")
-    fig, ax, mappable = h.plot(ax=ax, clim=(-2, 2), return_mappable=True)
+    fig, ax, mappable = h.plot(ax=ax, clim=(-2, 2), cmap=palette, return_mappable=True)
     cb = fig.colorbar(mappable, ax=ax, fraction=0.046, pad=0.04)
     _sphere_layout(ax, cb)
     ax.set_axis_off()
     _save(fig)
     fig = plt.figure(figsize=(6.0, 2.53))
     ax = fig.add_subplot(111, projection="3d")
-    plot_ball_slices(u, ax=ax, azim=-127.5)
+    plot_ball_slices(u, ax=ax, azim=-127.5, cmap=palette)
     _save(fig)
     fig = plt.figure(figsize=(6.0, 2.53))
     ax = fig.add_subplot(111, projection="3d")
-    fig, ax, mappable = uinner.plot(ax=ax, return_mappable=True)
+    fig, ax, mappable = uinner.plot(ax=ax, cmap=palette, return_mappable=True)
     cb = fig.colorbar(mappable, ax=ax, fraction=0.046, pad=0.04)
     _sphere_layout(ax, cb)
     ax.set_xticks([-1, 0, 1])

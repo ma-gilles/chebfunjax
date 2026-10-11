@@ -1,0 +1,721 @@
+{
+  "status": "ready for scoped explicit palette use; global PARULA unchanged",
+  "api": {
+    "parula_colors(m)": "JAX float64 m-by3 table; explicit m,0 empty,1 finalcolor",
+    "parula_colormap(m)": "Matplotlib ListedColormap adapter; mpositiveexplicit"
+  },
+  "source": "MATLAB R2018a graph3d/parula.m, complete256-row postR2017a table and interp1(linspace(1,256,m))",
+  "qualification": {
+    "unique_passed_cases": 9,
+    "test_ids": [
+      "tests.test_parula_source::test_invalid_lengths",
+      "tests.test_parula_source::test_jit_explicit_size",
+      "tests.test_parula_source::test_linear_interpolation[255]",
+      "tests.test_parula_source::test_linear_interpolation[64]",
+      "tests.test_parula_source::test_scaled_listed_indices_and_clamping",
+      "tests.test_parula_source::test_source_table_and_endpoints[0]",
+      "tests.test_parula_source::test_source_table_and_endpoints[1]",
+      "tests.test_parula_source::test_source_table_and_endpoints[256]",
+      "tests.test_parula_source::test_source_table_and_endpoints[2]"
+    ],
+    "first_gate_status": "terminal1 with8 completedpassing cases and1 adapter failure, immutable preserved",
+    "final_gate": {
+      "original": 85743,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 517980,
+      "wall_seconds": 7.996727606747299,
+      "input_count": 285,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/adapter_control/guard.json": "0e899c85aa7be15dca22c4976fbbdc8cc37bcaeece519e48f61dd79052fdfa38",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/adapter_control/supervision/receipt.json": "88e563b8ba37947c4eef227fca8c8867f25c991b8e3331501b7918e365bae9bc",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/adapter_control/junit.xml": "46ac4e959d72703817240640d64c1cfdc6aad77536bd84f501d2653c8a2e300d"
+      },
+      "test_ids": [
+        "tests.test_parula_source::test_scaled_listed_indices_and_clamping"
+      ],
+      "failures": [],
+      "skips": [],
+      "qualified": true
+    },
+    "reuse": "Only renderer boundary changes JAX array to Python list; all table/interpolation/validation code and testbytes identical. Eight prior passes reused; failing adapter case rerunpasses.",
+    "numerical_limit": "All256table entries exactlychecked against parsed licensed source; interpolated64/255 values checked against independent50-digit decimal arithmetic to1e-15. No MATLAB runtime interpolation bitwise claim."
+  },
+  "reference_palette_analysis": {
+    "kind": "offline retained artifact/source analysis",
+    "reference_png_comment": "> In matlab.graphics.shape.internal.AxesLayoutManager>@(~,~)(hObj.MarkDirty('all'))\n  In matlab.graphics.illustration.ColorBar/attachAxesListeners>@(h,e)delete(hObj)\n  In claNotify\n  In cla (line 42)\n  In newplot>ObserveAxesNextPlot (line 148)\n  In newplot (line 89)\n  In slice (line 44)\n  In ballfun/plot>plotBall (line 102)\n  In ballfun/plot (line 33)\n  In LaplaceBall (line 76)\n  In evalmxdom>instrumentAndRun (line 115)\n  In evalmxdom (line 21)\n  In publish\n  In webPublish (line 18)\n  In make_example (line 56)\n",
+    "release_fingerprints": {
+      "R2016a": {
+        "newplot": [
+          [
+            89,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            124,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            140,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            148,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            150,
+            "cla(ax, hsave);"
+          ],
+          [
+            153,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            29,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            109,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      },
+      "R2016b": {
+        "newplot": [
+          [
+            89,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            124,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            140,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            148,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            150,
+            "cla(ax, hsave);"
+          ],
+          [
+            153,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            29,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            109,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      },
+      "R2017a": {
+        "newplot": [
+          [
+            89,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            124,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            140,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            148,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            150,
+            "cla(ax, hsave);"
+          ],
+          [
+            153,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            42,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            109,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      },
+      "R2017b": {
+        "newplot": [
+          [
+            89,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            124,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            140,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            148,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            150,
+            "cla(ax, hsave);"
+          ],
+          [
+            153,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            42,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            109,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      },
+      "R2018a": {
+        "newplot": [
+          [
+            89,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            124,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            140,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            148,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            150,
+            "cla(ax, hsave);"
+          ],
+          [
+            153,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            42,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            115,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      },
+      "R2018b": {
+        "newplot": [
+          [
+            93,
+            "ax = ObserveAxesNextPlot(ax, hsave);"
+          ],
+          [
+            128,
+            "function ax = ObserveAxesNextPlot(ax, hsave)"
+          ],
+          [
+            144,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            152,
+            "cla(ax, 'reset', hsave);"
+          ],
+          [
+            154,
+            "cla(ax, hsave);"
+          ],
+          [
+            157,
+            "cla(ax, hsave);"
+          ]
+        ],
+        "cla": [
+          [
+            42,
+            "claNotify(ax,extra{:});"
+          ]
+        ],
+        "evalmxdom": [
+          [
+            109,
+            "text = evalc(evalstr);"
+          ]
+        ]
+      }
+    },
+    "release_inference": "R2018a uniquely matches checked local releases: newplot89/148,cla42,evalmxdom115; not an explicit runtime-version tag.",
+    "colorbar_sample": {
+      "x": 513,
+      "y_start_inclusive": 19,
+      "y_stop_exclusive": 227
+    },
+    "palette_node_matches": {
+      "32": {
+        "exact_palette_nodes_present": 3,
+        "missing_nodes": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ]
+      },
+      "64": {
+        "exact_palette_nodes_present": 63,
+        "missing_nodes": [
+          63
+        ]
+      },
+      "128": {
+        "exact_palette_nodes_present": 23,
+        "missing_nodes": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          11,
+          13,
+          15,
+          16,
+          17,
+          19,
+          20,
+          21,
+          22,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          45,
+          46,
+          47,
+          48,
+          50,
+          52,
+          53,
+          54,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          104,
+          105,
+          106,
+          108,
+          109,
+          110,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          120,
+          124,
+          126,
+          127
+        ]
+      },
+      "256": {
+        "exact_palette_nodes_present": 43,
+        "missing_nodes": [
+          1,
+          2,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          46,
+          47,
+          48,
+          49,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          64,
+          66,
+          68,
+          69,
+          70,
+          71,
+          72,
+          74,
+          75,
+          78,
+          79,
+          80,
+          82,
+          83,
+          84,
+          86,
+          87,
+          88,
+          90,
+          91,
+          92,
+          94,
+          95,
+          96,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          155,
+          156,
+          157,
+          159,
+          160,
+          161,
+          163,
+          164,
+          165,
+          167,
+          168,
+          169,
+          171,
+          172,
+          173,
+          175,
+          176,
+          177,
+          179,
+          180,
+          181,
+          183,
+          185,
+          186,
+          187,
+          188,
+          189,
+          191,
+          192,
+          193,
+          194,
+          195,
+          196,
+          198,
+          199,
+          200,
+          201,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          209,
+          210,
+          211,
+          212,
+          213,
+          214,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          222,
+          224,
+          225,
+          226,
+          227,
+          228,
+          229,
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          237,
+          238,
+          241,
+          242,
+          244,
+          246,
+          248,
+          249,
+          250,
+          252,
+          253,
+          254,
+          255
+        ]
+      }
+    },
+    "palette_inference": "63/64 exact R2018a64-color nodes observed; final endpoint is covered by top border/antialiasing. This supports64, not exact pixel-renderer parity.",
+    "clim_limit": "Figure01 source explicitly caxis([-2,2]); Figure02 has no retained nativeFIG/CLim-property capture. Source newplot reset and automatic CData extrema support current range, but its exact nativeCLim is inferred.",
+    "official_documents": [
+      "https://www.mathworks.com/help/matlab/ref/parula.html",
+      "https://www.mathworks.com/help/matlab/creating_plots/change-mapping-of-data-values-into-the-colormap.html"
+    ],
+    "bindings": {
+      "/usr/licensed/matlab-R2018a/toolbox/matlab/graph3d/parula.m": "67031d19b498ffe85a4e20ded5dc0d257a3294d47dddd1bf9bc2ae1fda8eec4b",
+      "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/sphere/LaplaceBall_01.png": "c86a2c4e9ab20583e0f001c7669d9cc157d9376528763e0285dc4d32f3ea542e",
+      "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/sphere/LaplaceBall_02.png": "1cc8179f76b3b8e3ebc5f12ed4780129d3aa73f251062357407fe7404285fec2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_20261011/analyze_reference.py": "08f84f0eca811abdb2f5c4b96b5c4aa5348fc1674355710c46bb58922bd92ae5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_20261011/SOURCE_TABLE.json": "463495a476fd3dc75bf8613d7eeb95b3c718a4ccbb8371468e1208e4fe86791c",
+      "/usr/licensed/matlab-R2016a/toolbox/matlab/graphics/newplot.m": "50dd9457771eca10127476820fdf8b725f0852eec25400b2e97b6260eb75d908",
+      "/usr/licensed/matlab-R2016a/toolbox/matlab/graphics/cla.m": "f1dcf18e0bbb4dce86db28c9ea0c7db5b8c0a94944989053abef69066bde8174",
+      "/usr/licensed/matlab-R2016a/toolbox/matlab/codetools/private/evalmxdom.m": "0a23f10d23741d3fad7fcaeb09b28087eb14bbb5cead1441793648111b9d681c",
+      "/usr/licensed/matlab-R2016b/toolbox/matlab/graphics/newplot.m": "879eef244d290d70803cf10f153d2ff801097fa4d4657cbe514ba2393e1ce91f",
+      "/usr/licensed/matlab-R2016b/toolbox/matlab/graphics/cla.m": "6b807bcb9666f29463451c4af4f067e017ff7af43a985dd0b1f11308d02380b0",
+      "/usr/licensed/matlab-R2016b/toolbox/matlab/codetools/private/evalmxdom.m": "0a23f10d23741d3fad7fcaeb09b28087eb14bbb5cead1441793648111b9d681c",
+      "/usr/licensed/matlab-R2017a/toolbox/matlab/graphics/newplot.m": "7fd207eb0499de0b03eb31310a7b71bf6760024f72c17d62f075f5a3c1f58af3",
+      "/usr/licensed/matlab-R2017a/toolbox/matlab/graphics/cla.m": "acd7ad44f03cbc812bd4564f677f40436533b563add49a76a3b2b7e637f45999",
+      "/usr/licensed/matlab-R2017a/toolbox/matlab/codetools/private/evalmxdom.m": "b1dc8b1bbcd2f95966464cc93f22f6d2edae00271b3df12a10484d2ca6843ea2",
+      "/usr/licensed/matlab-R2017b/toolbox/matlab/graphics/newplot.m": "7fd207eb0499de0b03eb31310a7b71bf6760024f72c17d62f075f5a3c1f58af3",
+      "/usr/licensed/matlab-R2017b/toolbox/matlab/graphics/cla.m": "acd7ad44f03cbc812bd4564f677f40436533b563add49a76a3b2b7e637f45999",
+      "/usr/licensed/matlab-R2017b/toolbox/matlab/codetools/private/evalmxdom.m": "f5d9184a668ce4fafd3565a22149faa188bb2f58b94a85d2073a90ab3fab8fe8",
+      "/usr/licensed/matlab-R2018a/toolbox/matlab/graphics/newplot.m": "921c1840356b653b6a77e6cc9b7da40661dd57e9e497d782bbde05c6ca50b199",
+      "/usr/licensed/matlab-R2018a/toolbox/matlab/graphics/cla.m": "acd7ad44f03cbc812bd4564f677f40436533b563add49a76a3b2b7e637f45999",
+      "/usr/licensed/matlab-R2018a/toolbox/matlab/codetools/private/evalmxdom.m": "9e75de5389909f3ed1bc301634d4a0b83e9f611ad65784ec9e838fc342fe56fc",
+      "/usr/licensed/matlab-R2018b/toolbox/matlab/graphics/newplot.m": "d2a4b053acbbf1ae1dcb3adb1f64aed7f91a291a5b17b6dd10cfd5dff538fe3f",
+      "/usr/licensed/matlab-R2018b/toolbox/matlab/graphics/cla.m": "f2166478b1504f5f513415800809b1a544c498e95484bd54309bd16a1b69215d",
+      "/usr/licensed/matlab-R2018b/toolbox/matlab/codetools/private/evalmxdom.m": "f5d9184a668ce4fafd3565a22149faa188bb2f58b94a85d2073a90ab3fab8fe8"
+    }
+  },
+  "artifact_recolor_plan": "Explicitly pass parula_colormap(64) only to LaplaceBall calls. Saved sphere figures retain sourceCData/vertexindices; Ball02 meshNPZ retained. Repaint RGBA/colorbar only with unchanged normalization/geometry/lighting, no solver or function evaluation.",
+  "limits": [
+    "R2018a release inferred from matchingPNGstack, notexplicit runtime tag.",
+    "R2025b table delegated to unavailable internal values; no direct current runtime table capture claimed. Official history supports post2017a scheme anddefault256 since2019b.",
+    "Exact native Figure02 CLim property not retained; source reset/autoCData minmax only.",
+    "Pixel antialiasing, camera and lighting remain separate gaps; no imagepixel hardcoding."
+  ],
+  "global_plotting_sha256_unchanged": "df0f177510011ea545b24f4e33722416ef6ae7655ee78c8841f551c7014cf954",
+  "ruff": "passes configured check",
+  "patch_apply_check": 0,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/delivery.patch": "b4bb85779a5feec8525980ca9f8a45e69faf7a4bfc67e8e7bfd307918fd5474e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_20261011/controls/AUDIT.json": "927c971dfc1b6b3c2eefe029aafdb3cc78dedae8cab9773db0089ba4ec0cecbc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/adapter_control/AUDIT.json": "19c8034700f8a880824864c64db3f6814ff35e98de43da4ef4521e06a2284720",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_20261011/REFERENCE_PALETTE_ANALYSIS.json": "c6025f74d11f92efc628f67adb0b1849d5db34e3fba58d44d7935473e5116dd1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_20261011/analyze_reference.py": "08f84f0eca811abdb2f5c4b96b5c4aa5348fc1674355710c46bb58922bd92ae5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/RETAINED_FIGURE_METADATA.json": "da6dfe79cf821b51e1c40532f70472f86a2e618d658a89632b5f87eb682bdf29",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/snapshot/src/chebfunjax/_colormaps.py": "efab770e41d404cd4e5ae7382cc8ed87fd7b578f3f9f3304d028d79cb3f8c5b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/snapshot/tests/test_parula_source.py": "23e587db42f82aa9c84594cc7065fa07143ac6b3f6dc6e698c4dee93e88ff204",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/parula_source_candidate_v2_20261011/snapshot/tests/fixtures/parula_r2018a.json": "463495a476fd3dc75bf8613d7eeb95b3c718a4ccbb8371468e1208e4fe86791c"
+  }
+}
