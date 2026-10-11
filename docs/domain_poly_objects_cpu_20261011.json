@@ -1,0 +1,28 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Normalize actual Domain arguments in poly/polyfit; restore13 native API predicates plus2 tuple/list compatibility controls",
+  "qualified_bindings": {
+    "src/chebfunjax/chebfun1d/chebfun.py": {
+      "baseline_sha256": "26e392dc3c3ecfe425e868b578407a1c682d5f32013faffabe94ec741435f439",
+      "candidate_sha256": "f7c8aed32592263abd452ac5572bf7db04920c1163763377bed9d9fe80f6b2de"
+    },
+    "tests/test_matlab_port/domain/test_poly_matlab.py": {
+      "baseline_sha256": "1fcfed52ed1bdf978507bc26e9512e1abe500e8d3533aeb5d0351aef104a5bd5",
+      "candidate_sha256": "56a251c222fec62d9a2d39a3b6b856bf4756022e2eed123d164745d450675339"
+    },
+    "tests/test_matlab_port/domain/test_polyfit_matlab.py": {
+      "baseline_sha256": "7d3eed747ef077a0557303397e5e5a3261627794d7a7f8437fb2734ba52e3c53",
+      "candidate_sha256": "e9158f73e187406984d0e8f5ba8edfca8c934f3c9cbe7bae8494932fb304d682"
+    },
+    "tests/test_chebfun1d/test_domain_object_dispatch_source.py": {
+      "baseline_sha256": null,
+      "candidate_sha256": "c9ec3e8986389c7305ae75b7a1c09f7e8c8e417210a632fac0680428a02ce811"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/domain_poly_object_source_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "0cda608c415d9e287bc3a7b3b263d565f5f2b9131186072d8c86328662540a71",
+  "result": "15 passed, no skips;8.04 seconds;864060KiB peak; stable inputs; no owned survivors",
+  "baseline": "13 source Domain-object calls failed TypeError",
+  "formatting": "Test function AST unchanged; import order formatted",
+  "limits": "No fresh MATLAB execution or new RNG stream equality claim; focused CPU validation only"
+}

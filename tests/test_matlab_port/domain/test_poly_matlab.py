@@ -1,20 +1,18 @@
-"""Port of MATLAB Chebfun tests/domain/test_poly.m (Fable 5).
+"""Five literal MATLAB tests/domain/test_poly.m predicates.
 
 Provenance
 ----------
-MATLAB source : tests/domain/test_poly.m
-Chebfun commit: 7574c77
+Chebfun pin7574c77. Domain arguments are native Domain objects; procedural
+poly dispatch is the Python adapter for MATLAB domain/POLY. Bounds, scalar
+signed errors, matrix spectral norm, lengths and column counts are native.
 """
 
-from __future__ import annotations
-
-import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.chebfun1d.chebfun import poly
-
-jax.config.update("jax_enable_x64", True)
+from chebfunjax.domain import Domain
 
 EPS = np.finfo(float).eps
 
@@ -24,27 +22,28 @@ def _vs(f):
 
 
 class TestDomainPoly:
-    def test_all_matlab_assertions(self):
-        f = poly(0.0, (-1, 1))
-        assert float(f(0.0)) < 100 * EPS * _vs(f)  # pass(1)
-        f = poly(0.1, (-1, 1))
-        assert len(f) == 2 and float(f(0.1)) < 100 * EPS * _vs(f)  # pass(2)
-        x = np.array([-0.1, 0.1])
-        f = poly(x, (-1, 1))
-        assert len(f) == 3 and np.linalg.norm(np.asarray(f(jnp.asarray(x)))) < 100 * EPS * _vs(
-            f
-        )  # pass(3)
-        x = np.array([[-0.1, 0.1], [-0.5, 0.9]])
-        for dom in ((-1, 1), (-1, 2)):
-            fs = poly(x, dom)
-            err = np.linalg.norm(
-                np.column_stack(
-                    [
-                        np.asarray(fs.extract_columns(0)(jnp.asarray(x[:, 0]))),
-                        np.asarray(fs.extract_columns(1)(jnp.asarray(x[:, 1]))),
-                    ]
-                ),
-                ord=2,
+    @pytest.mark.parametrize("clause", range(1, 6))
+    def test_matlab_clause(self, clause):
+        domain = Domain((-1, 2) if clause == 5 else (-1, 1))
+        if clause <= 2:
+            x = 0.0 if clause == 1 else 0.1
+            f = poly(x, domain)
+            if clause == 2:
+                assert len(f) == 2
+            assert float(f(x)) < 100 * EPS * _vs(f)
+        elif clause == 3:
+            x = np.array([-0.1, 0.1])
+            f = poly(x, domain)
+            assert len(f) == 3
+            assert np.linalg.norm(np.asarray(f(jnp.asarray(x)))) < 100 * EPS * _vs(f)
+        else:
+            x = np.array([[-0.1, 0.1], [-0.5, 0.9]])
+            f = poly(x, domain)
+            values = np.column_stack(
+                [
+                    np.asarray(f.extract_columns(0)(jnp.asarray(x[:, 0]))),
+                    np.asarray(f.extract_columns(1)(jnp.asarray(x[:, 1]))),
+                ]
             )
-            vs = _vs(fs)
-            assert len(fs) == 3 and fs.size(2) == 2 and err < 100 * EPS * vs  # pass(4)-(5)
+            assert len(f) == 3 and f.size(2) == 2
+            assert np.linalg.norm(values, ord=2) < 100 * EPS * _vs(f)

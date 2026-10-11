@@ -11378,6 +11378,8 @@ def poly(v, domain=(-1.0, 1.0)):
     """
     from chebfunjax.utils.quadrature import chebpts_ab
 
+    if isinstance(domain, Domain):
+        domain = domain.breakpoints
     V = jnp.asarray(v)
     V = V.astype(jnp.result_type(V, jnp.float64))
     dv = (float(domain[0]), float(domain[-1]))
@@ -11422,6 +11424,8 @@ def polyfit(x, y, n: int, domain=(-1.0, 1.0)):
     """
     import jax.scipy.linalg as jsl
 
+    if isinstance(domain, Domain):
+        domain = domain.breakpoints
     x = jnp.atleast_1d(jnp.asarray(x))
     if x.ndim > 2 or (x.ndim == 2 and min(x.shape) > 1):
         raise ValueError("CHEBFUN:DOMAIN:polyfit:xIn: X should be a real-valued column vector")
