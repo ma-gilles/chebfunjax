@@ -1,0 +1,32 @@
+{
+  "changed_paths": [
+    "src/chebfunjax/utils/trigutils.py",
+    "tests/test_utils/test_trigbary_native_fastpath.py"
+  ],
+  "candidate_paths": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_fastpath_20261011/candidate/src/chebfunjax/utils/trigutils.py",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_fastpath_20261011/candidate/tests/test_utils/test_trigbary_native_fastpath.py"
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_fastpath_20261011/native_fastpath.patch",
+  "ast_changed_function": "trigBaryWeights",
+  "ast_changed_statements": 1,
+  "source_passed": 9,
+  "retained_weight_diagnostics": 7,
+  "retained_consumer_diagnostics": 17,
+  "new_classification_diagnostics": 3,
+  "named_regression": "existing trigandnonequispaced twoassertions pass",
+  "baseline_reference_error": 6.150635556423367e-14,
+  "candidate_reference_error": 6.661338147750939e-16,
+  "native_classification": "all(abs(diff(x)-2pi/n)<max(abs(x))*eps)",
+  "consumer_unchanged": true,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_native_fastpath_20261011/candidate_v1/supervision/receipt.json",
+  "wall_seconds": 32.02304172189906,
+  "peak_rss_kib": 894740,
+  "qualification": "New80digitcontrol budget10eps diagnostic, source9 unchanged; no nativeMATLABrun claim.16384uniform nativecutoffstillaccepts; no hugequadraticbaseline run.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "published_hashes": {
+    "src/chebfunjax/utils/trigutils.py": "04804f02fa3bfd08d75e72bac79167ebb6ace25f25ec883ab5579ebbb15c636a",
+    "tests/test_utils/test_trigbary_native_fastpath.py": "b3c29469ab2473f77269e14250406b0eb2b4c98cff143e83d1dc8e10926fc890"
+  },
+  "formatting": "Test body AST unchanged; imports sorted and unused import removed"
+}

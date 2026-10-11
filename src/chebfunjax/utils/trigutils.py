@@ -319,8 +319,8 @@ def trigBaryWeights(xk):
     # before exponentiation to avoid 0 -> inf -> NaN for clustered nodes.
     x = jnp.asarray(xk, dtype=jnp.float64).ravel()
     n = len(x)
-    equispaced = (n > 1) & jnp.all(jnp.abs(jnp.diff(x) - 2*jnp.pi/n)
-                     < jnp.maximum(jnp.max(jnp.abs(x)), 1.0) * 1e-14)
+    equispaced = jnp.all(jnp.abs(jnp.diff(x) - 2*jnp.pi/n)
+                     < jnp.max(jnp.abs(x)) * jnp.finfo(jnp.float64).eps)
     import jax
 
     def arbitrary_nodes(nodes):
