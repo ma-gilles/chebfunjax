@@ -1,0 +1,73 @@
+{
+  "scope": "All11nativeflipud predicates restored; existing2substitutecontrols retained,2additionalexactbreakpointcontrols.11pytestcases total:7nativefixturecases cover11predicates,2oldcontrols,2pointvaluecontrols. Privatebase includesapprovedpendingfixbody; patchonlyflipud/test_flipud changes.",
+  "source_clause_mapping": {
+    "1": "emptyflipudisempty",
+    "2/3": "column scalar sin(x)abs(x-.1) exactreflection, strict10vscaleeps, structuraldoubleflipisequal",
+    "4/5": "column array[sinabs,cos(x)sign(x+.2)] withoriginalsign operand/sourcebreakpoints, strict100vscaleeps + structuraldoubleflip",
+    "6/7": "row scalar isidentity; originalvalues strict10vscaleeps + structuraldoubleflip",
+    "8/9": "row array reversecolumns; strict100vscaleeps + structuraldoubleflip",
+    "10": "Singfunrow identity strictsumabs(error)<eps*sumabs(values), literal1x100matrixinfinitynorm; notaccuracyclaim.",
+    "11": "Singfuncolumnsameoperator/domain/exps,splittingoff; literalreflectednegative-basecomplexpoweroracle, strict1e4epsnorminfexactvalues"
+  },
+  "implementation": "Source@chebfun/flipud.m emptyreturn; row fliplr(F.transpose()).transpose(); column reversespointValues. Existingpolynomialparity andSingfunexponentswap unmodified. No fliplr/tech/helper changes.",
+  "baseline": "FouractualAPI failures: empty,scalarrow,arrayrow,Singfunrow;5baselinecasespass. Candidateall11pytestcasespass.",
+  "qualification": "Nativecomplexpowernegativebase implicitpromotion implemented +0j, scalarevaluationrow1D adapter retained. DefaultfiniteprefexplicitChebfunPref splittingTrue; originaldomains/operators retained. RNGseed7681/6178 count50/100 viaRandomState adapter, MATLABstreamidentityunverified.",
+  "warning": "Source10constructionunhappy129pointwarning notsuppressed; identity assertion doesnotqualifyaccuracyofoscillatoryfunction. Source11 error1.7079671010833408e-12<1.3813828937363605e-11 originalbound.",
+  "runs": {
+    "baseline_v1": {
+      "wall_seconds": 60.00463555799797,
+      "sampled_peak_summed_rss_kib": 2899348,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "cb57d1997ce75b4a0b775f901d16eb5be711f82caaa745c058e7ca4afb46ac92"
+    },
+    "candidate_v1": {
+      "wall_seconds": 59.43262743204832,
+      "sampled_peak_summed_rss_kib": 2871552,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "df7e408a57dfa3e102d0468f6e16787eacabf335b3f4b4208623f964f547d253"
+    }
+  },
+  "residuals": [
+    "No newdeltadistributionreflectionqualification",
+    "Nativeisequal calls publicPythonisequal; broaderpublicisequal semantics notnewlyaudited",
+    "Existingflipud docstring describescolumnreflection and couldexplicitlymentionnewlyrestoredrowrouting",
+    "No fullJIT/adaptiveconstruction/backend orMATLABRNGstreamclaim"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/ORIGINAL_TEST.py": "9eba2028fa1f23aec8c55283555c231a51dde575efbf450d528d5cf4b5ef32b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/snapshot/src/chebfunjax/chebfun1d/chebfun.py": "3b7b98689c5394f0a740b661d66c93765d6ae7f6d646b864d7b06548b07b2b89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/candidate/src/chebfunjax/chebfun1d/chebfun.py": "571b9ec647376770a2b46122fdd023846153d4fd66c227d73aea7facbfff704f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/candidate/tests/test_matlab_port/chebfun/test_flipud_matlab.py": "e946e6e233aa21b83404c5d66a17658029914851663b3ac1cd67fe31ae53a2b7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/flipud_native.patch": "41af9253bfed5bcb2e6e49433ea709902ae7ef2fac7c786bc80fce1b88613453"
+  },
+  "v2_correction": "Native10 row1x100 matrixinfnorm is sumabs forerror andscale; changed both frommax. UnusedXSremoved. No rerun needed: retainedmaxerror0 provesall100differenceszero hence sumerror0; retainedmaxscaleeps>0 provessumscaleeps>=maxscaleeps>0. Correct bound liesbetweenoldbound and100oldbound for100finitevalues.",
+  "proof": {
+    "retained_line": ".{'source_clause': 10, 'error': 0.0, 'source_bound': np.float64(2.0005358206986806e-15)}",
+    "sum_error": 0,
+    "sum_bound_lower": 2.0005358206986806e-15,
+    "sum_bound_upper": 2.0005358206986805e-13,
+    "qualified_math_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/candidate_v1/supervision/receipt.json"
+  },
+  "hashes_v2": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/flipud_native_v2.patch": "dd080d609035e73ec89d4f54486bc5e5582d15b499d7c510432d7a9949207187",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_flipud_matlab.py": "f4ee6e8093ec8db2043235d9361baecd080bed9a1c535d1867aa1a292bcedc2d"
+  },
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/DELIVERY_v2.json",
+  "publication_review": "Root reviewed all native clauses. Native10 uses row matrix infinity norm (sumabs), restored with proof from recorded zero error; no redundant rerun. Formatting and import sorting preserve executable AST."
+}

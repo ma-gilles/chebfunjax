@@ -7457,6 +7457,10 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/flipud.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
+        if self.is_transposed:
+            return self.transpose().fliplr().transpose()
         a, b = float(self.domain.a), float(self.domain.b)
         mid = a + b  # a + b - x maps [a,b] -> [a,b]
         # Reverse the order of pieces and flip each piece's interval
@@ -7500,8 +7504,8 @@ class Chebfun(eqx.Module):
         for p in new_funs:
             bps = bps + (p.interval[1],)
         new_domain = Domain(bps)
-        return Chebfun._as_transposed(
-            Chebfun(funs=new_funs, domain=new_domain), self.is_transposed)
+        out = Chebfun(funs=new_funs, domain=new_domain)
+        return out.set_point_values(self.point_values[::-1])
 
     def fliplr(self) -> Chebfun:
         """Flip/reverse a Chebfun.
