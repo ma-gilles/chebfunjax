@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Native one-dimensional marginal integration restored (2026-10-10; latest)
+
+Chebfun2/SeparableApprox.sum now defaults to integration over y and returns
+a row Chebfun; dim2 returns a column Chebfun. Mean/std use these native
+contracts. Thirty distinct controls pass, including all seven original sum
+predicates, complex/trig/empty cases and affected consumers. The former port
+omitted three source checks and relaxed the double-integral bound; restored.
+Evidence: docs/separable_sum_source_cpu_20261010.json. Full suite and the
+BivariateNormalDistribution page rerun remain open.
+
 ## Noisy example source output restored (2026-10-10; latest)
 
 Full CPU execution with public doubleLength completes in 22.72 s, peak

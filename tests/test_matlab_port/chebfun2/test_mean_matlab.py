@@ -23,5 +23,5 @@ class TestChebfun2Mean:
     def test_mean_over_y(self):
         f = Chebfun2.from_function(lambda x, y: x + y * y)
         m = f.mean(dim=1)   # average over y: x + 1/3
-        v = float(m(jnp.asarray(0.4), jnp.asarray(0.0)))
+        v = float(m(jnp.asarray(0.4)))
         assert abs(v - (0.4 + 1.0 / 3.0)) < 1e-12

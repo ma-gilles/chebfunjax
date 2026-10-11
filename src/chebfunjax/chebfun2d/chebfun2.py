@@ -969,93 +969,18 @@ class Chebfun2(eqx.Module):
         )
         return Chebfun2(approx=new_approx)
 
-    def sum(self, dim: Optional[int] = None) -> Union["Chebfun2", jax.Array]:
-        """Integrate f over one or both dimensions.
-
-        Parameters
-        ----------
-        dim : int or None, optional
-            - ``dim=None``: double integral (returns scalar).  Same as ``sum2()``.
-            - ``dim=1``: integrate over y; returns a Chebfun2 with rank equal
-              to the original rank, but where each column slice has been replaced
-              by its integral (a constant), effectively returning a function of
-              x only.  The result evaluates to g(x) = Σ_j d_j * int_ya^yb c_j(y) dy * r_j(x).
-            - ``dim=2``: integrate over x; returns a function of y only.
-
-        Returns
-        -------
-        Chebfun2 or jax.Array (scalar)
-            - If ``dim=None``: a scalar (double integral).
-            - If ``dim=1`` or ``dim=2``: a ``Chebfun2`` with collapsed
-              col/row slices representing the 1D result.
-
-        Raises
-        ------
-        ValueError
-            If dim is not None, 1, or 2.
-
-        Notes
-        -----
-        For ``dim=1`` or ``dim=2``, the returned Chebfun2 has flat slices in
-        one direction (all column slices are constant=1, or all row slices are
-        constant=1) and the accumulated integral weights are absorbed into the
-        remaining pivots.  Evaluation along the collapsed dimension always
-        returns the same value (the integral), as expected.
+    def sum(self, dim=None):
+        """Integrate over y (default/1) or x (2), returning a Chebfun.
 
         Provenance
         ----------
         MATLAB source : @separableApprox/sum.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        sum2, diff
         """
-        if dim is None:
-            return self.sum2()
-        if dim not in (1, 2):
-            raise ValueError(
-                f"Chebfun2.sum: dim must be None, 1 (integrate over y), "
-                f"or 2 (integrate over x), got dim={dim}."
-            )
-
-        xa, xb, ya, yb = self.domain
-        r = self.approx.rank
-
-        if dim == 1:
-            # Integrate over y: g(x) = Σ_j d_j * int_ya^yb c_j(y) dy * r_j(x)
-            # Compute col integrals (scalars)
-            col_integrals = jnp.array(
-                [float(_chebtech_integral(self.approx.cols[j], ya, yb)) for j in range(r)],
-                dtype=jnp.float64,
-            )
-            # New pivots absorb the column integrals: d_j' = d_j * int(c_j)
-            # New columns: constant = 1 (Chebtech2 with coeffs = [1])
-            # New rows: same as before
-            new_pivots = self.approx.pivots * col_integrals
-            one_coeffs = jnp.ones(1, dtype=jnp.float64)
-            new_cols = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
-            new_rows = list(self.approx.rows)
-        else:
-            # Integrate over x: g(y) = Σ_j d_j * int_xa^xb r_j(x) dx * c_j(y)
-            row_integrals = jnp.array(
-                [float(_chebtech_integral(self.approx.rows[j], xa, xb)) for j in range(r)],
-                dtype=jnp.float64,
-            )
-            new_pivots = self.approx.pivots * row_integrals
-            one_coeffs = jnp.ones(1, dtype=jnp.float64)
-            new_cols = list(self.approx.cols)
-            new_rows = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
-
-        new_approx = SeparableApprox(
-            cols=new_cols,
-            rows=new_rows,
-            pivots=new_pivots,
-            domain=self.domain, pivot_values=None,
-        )
-        return Chebfun2(approx=new_approx)
+        from ._sum_source import source_sum
+        if self.isempty():
+            return jnp.asarray([])
+        return source_sum(self.approx, dim)
 
     def sum2(self) -> jax.Array:
         """Double integral of f over its domain.
@@ -1793,12 +1718,20 @@ class Chebfun2(eqx.Module):
         xa, xb, ya, yb = self.approx.domain
         return self.sum2() / ((xb - xa) * (yb - ya))
 
-    def mean(self, dim: int = 1) -> "Chebfun2":
-        """Average over one variable (MATLAB mean; constant in the
-        averaged variable, like sum(dim) normalized)."""
-        xa, xb, ya, yb = self.approx.domain
-        L = (yb - ya) if dim == 1 else (xb - xa)
-        return self.sum(dim=dim) * (1.0 / L)
+    def mean(self, dim: int = 1):
+        """Mean along y (1/default) or x (2), as a Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/mean.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        if self.isempty():
+            return Chebfun.empty()
+        xa, xb, ya, yb = self.domain
+        width = (yb - ya) if dim == 1 else (xb - xa)
+        return self.sum(dim) / width
 
     def std2(self) -> jax.Array:
         """Standard deviation over the domain (MATLAB std2)."""
@@ -2565,11 +2498,7 @@ class Chebfun2(eqx.Module):
         return self._extremum(g, dim, lambda v, ax: jnp.min(v, axis=ax))
 
     def std(self, flag=None, dim: int = 1):
-        """Standard deviation along one variable, as a 1D Chebfun.
-
-        ``std(f)`` (``dim=1``) is the y-standard-deviation, a function of
-        x; ``dim=2`` the x-standard-deviation, a function of y.  ``flag``
-        is accepted and ignored to mirror MATLAB's ``std(f, flag, dim)``.
+        """Standard deviation along y (1/default) or x (2).
 
         Provenance
         ----------
@@ -2577,27 +2506,20 @@ class Chebfun2(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun
-        from chebfunjax.domain import Domain
-        from chebfunjax.utils.quadrature import chebpts_ab
-
+        if self.isempty():
+            return Chebfun.empty()
         if dim not in (1, 2):
             raise ValueError("std dim must be 1 or 2.")
         xa, xb, ya, yb = self.domain
-        m = self.mean(dim=dim)
-        width = (yb - ya) if dim == 1 else (xb - xa)
-        var = ((self - m) ** 2).sum(dim=dim) * (1.0 / width)
-        # var is a Chebfun2 flat in the averaged variable; sample it along
-        # the remaining variable and take the pointwise square root.
-        n = 513
+        marginal = self.mean(dim)
         if dim == 1:
-            t = chebpts_ab(n, xa, xb, kind=2)
-            v = var(t, jnp.full_like(t, 0.5 * (ya + yb)))
-            dom = Domain((xa, xb))
-        else:
-            t = chebpts_ab(n, ya, yb, kind=2)
-            v = var(jnp.full_like(t, 0.5 * (xa + xb)), t)
-            dom = Domain((ya, yb))
-        return Chebfun.from_values(jnp.sqrt(jnp.maximum(v, 0.0)), dom)
+            centered_at = Chebfun2.from_function(
+                lambda x, y: marginal.T(x), domain=self.domain)
+            result = ((1.0 / (yb - ya)) * ((self - centered_at) ** 2).sum(1)).sqrt()
+            return result.T
+        centered_at = Chebfun2.from_function(
+            lambda x, y: marginal(y), domain=self.domain)
+        return ((1.0 / (xb - xa)) * ((self - centered_at) ** 2).sum(2)).sqrt()
 
     @classmethod
     def complex(cls, re: "Chebfun2", im: "Chebfun2" = None) -> "Chebfun2":
@@ -3760,8 +3682,8 @@ from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 make_empty_aware(Chebfun2, [
     "__add__", "__radd__", "__sub__", "__rsub__", "__mul__",
     "__rmul__", "__truediv__", "__pow__", "__neg__",
-    "sqrt", "sum", "norm", "squeeze", "diff", "cos", "sin", "exp",
-    "log", "tanh", "abs", "diag_fun", "trace", "mean", "mean2",
+    "sqrt", "norm", "squeeze", "diff", "cos", "sin", "exp",
+    "log", "tanh", "abs", "diag_fun", "trace", "mean2",
     "std2", "fliplr", "flipud",
     "cumsum", "cumsum2", "sum2", "integral2", "restrict", "compose",
 ])

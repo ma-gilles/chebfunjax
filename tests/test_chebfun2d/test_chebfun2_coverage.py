@@ -223,7 +223,7 @@ class TestChebfun2Statistics:
     def test_mean_dim1(self):
         f = _coscos()
         g = f.mean(1)  # average over y -> cos(x) * sin(1)
-        npt.assert_allclose(_f(g, 0.3, 0.0), math.cos(0.3) * math.sin(1.0), atol=1e-8)
+        npt.assert_allclose(float(g(0.3)), math.cos(0.3) * math.sin(1.0), atol=1e-8)
 
     def test_diag_and_trace(self):
         f = _coscos()

@@ -1171,62 +1171,16 @@ class SeparableApprox(eqx.Module):
             domain=self.domain,
         )
 
-    def sum(self, dim: int | None = None):
-        """Integrate the approximation over one or both dimensions.
-
-        Parameters
-        ----------
-        dim : int or None, optional
-            - None: double integral (scalar).
-            - 1: integrate over y, return SeparableApprox (function of x).
-            - 2: integrate over x, return SeparableApprox (function of y).
-
-        Returns
-        -------
-        SeparableApprox or jax.Array (scalar)
+    def sum(self, dim=None):
+        """Integrate over y (default/1) or x (2), returning a Chebfun.
 
         Provenance
         ----------
         MATLAB source : @separableApprox/sum.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
         """
-        if dim is None:
-            return self.sum2()
-        if dim not in (1, 2):
-            raise ValueError(
-                f"SeparableApprox.sum: dim must be None, 1, or 2, got dim={dim}."
-            )
-
-        xa, xb, ya, yb = self.domain
-        r = self.rank
-
-        if dim == 1:
-            col_integrals = jnp.array(
-                [float(c.sum() * jnp.float64((yb - ya) / 2.0)) for c in self.cols],
-                dtype=jnp.float64,
-            )
-            new_pivots = self.pivots * col_integrals
-            one_coeffs = jnp.ones(1, dtype=jnp.float64)
-            new_cols = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
-            new_rows = list(self.rows)
-        else:
-            row_integrals = jnp.array(
-                [float(rw.sum() * jnp.float64((xb - xa) / 2.0)) for rw in self.rows],
-                dtype=jnp.float64,
-            )
-            new_pivots = self.pivots * row_integrals
-            one_coeffs = jnp.ones(1, dtype=jnp.float64)
-            new_cols = list(self.cols)
-            new_rows = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
-
-        return SeparableApprox(
-            cols=new_cols,
-            rows=new_rows,
-            pivots=new_pivots,
-            domain=self.domain, pivot_values=None,
-        )
+        from ._sum_source import source_sum
+        return source_sum(self, dim)
 
     def sum2(self) -> jax.Array:
         """Double integral over the domain.

@@ -281,30 +281,29 @@ class TestChebfun2Sum:
         expected = 4.0 * float(jnp.sin(jnp.array(1.0, dtype=jnp.float64)) ** 2)
         npt.assert_allclose(float(result), expected, rtol=1e-13)
 
-    def test_sum_no_arg_equals_sum2(self):
-        """sum() with no argument equals sum2()."""
+    def test_sum_no_arg_equals_sum_dim1(self):
+        """sum() defaults to integration over y."""
         f = Chebfun2.from_function(lambda x, y: jnp.cos(x + y))
-        npt.assert_allclose(float(f.sum()), float(f.sum2()), rtol=1e-15)
+        npt.assert_allclose(f.sum()(jnp.array([0.2, 0.7])), f.sum(1)(jnp.array([0.2, 0.7])), rtol=1e-15)
 
-    def test_sum_dim1_returns_chebfun2(self):
-        """sum(dim=1) returns a Chebfun2."""
+    def test_sum_dim1_returns_row_chebfun(self):
+        """sum(dim=1) returns a row Chebfun."""
         f = Chebfun2.from_function(lambda x, y: x * y)
         g = f.sum(dim=1)
-        assert isinstance(g, Chebfun2)
+        assert hasattr(g, "funs")
 
-    def test_sum_dim2_returns_chebfun2(self):
-        """sum(dim=2) returns a Chebfun2."""
+    def test_sum_dim2_returns_column_chebfun(self):
+        """sum(dim=2) returns a column Chebfun."""
         f = Chebfun2.from_function(lambda x, y: x * y)
         g = f.sum(dim=2)
-        assert isinstance(g, Chebfun2)
+        assert hasattr(g, "funs")
 
     def test_sum_dim1_x_times_y(self):
         """sum over y of x*y: int_{-1}^{1} x*y dy = 0 (odd in y)."""
         f = Chebfun2.from_function(lambda x, y: x * y)
         g = f.sum(dim=1)  # integrate over y, returns function of x
         x_test = jnp.array([0.2, -0.5, 0.7], dtype=jnp.float64)
-        y_test = jnp.zeros(3, dtype=jnp.float64)  # y value doesn't matter for g
-        got = g(x_test, y_test)
+        got = g(x_test)
         # int_{-1}^{1} x*y dy = x * [y^2/2]_{-1}^{1} = x * (1/2 - 1/2) = 0
         npt.assert_allclose(np.array(got), np.zeros(3), atol=1e-13)
 
@@ -312,9 +311,8 @@ class TestChebfun2Sum:
         """sum over x of x*y: int_{-1}^{1} x*y dx = 0 (odd in x)."""
         f = Chebfun2.from_function(lambda x, y: x * y)
         g = f.sum(dim=2)  # integrate over x, returns function of y
-        x_test = jnp.zeros(3, dtype=jnp.float64)  # x value doesn't matter for g
         y_test = jnp.array([0.2, -0.5, 0.7], dtype=jnp.float64)
-        got = g(x_test, y_test)
+        got = g(y_test)
         # int_{-1}^{1} x*y dx = y * [x^2/2]_{-1}^{1} = y * (1/2 - 1/2) = 0
         npt.assert_allclose(np.array(got), np.zeros(3), atol=1e-13)
 
@@ -326,8 +324,7 @@ class TestChebfun2Sum:
         f = Chebfun2.from_function(lambda x, y: jnp.sin(x) * jnp.cos(y))
         g = f.sum(dim=1)  # integrate over y
         x_test = jnp.linspace(-1.0, 1.0, 8, dtype=jnp.float64)
-        y_test = jnp.zeros(8, dtype=jnp.float64)  # y value doesn't matter for g
-        got = g(x_test, y_test)
+        got = g(x_test)
         # int_{-1}^{1} cos(y) dy = 2*sin(1)
         expected = jnp.sin(x_test) * 2.0 * jnp.sin(jnp.array(1.0, dtype=jnp.float64))
         npt.assert_allclose(np.array(got), np.array(expected), rtol=RTOL)
@@ -335,7 +332,7 @@ class TestChebfun2Sum:
     def test_sum_invalid_dim(self):
         """sum with invalid dim raises ValueError."""
         f = Chebfun2.from_function(lambda x, y: x + y)
-        with pytest.raises(ValueError, match="dim must be None"):
+        with pytest.raises(ValueError, match="Undefined dimension"):
             f.sum(dim=3)
 
     def test_sum2_custom_domain(self):

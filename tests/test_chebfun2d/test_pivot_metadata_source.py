@@ -261,8 +261,8 @@ def test_unsupported_vector_adapters_explicitly_drop_metadata():
     f = represented([2.], [poly(1, 1)], [poly(1, 1)])
     assert _diff_separable(f.approx).pivot_values is None
     assert _mul_separable(f.approx, f.approx).pivot_values is None
-    assert f.sum(1).approx.pivot_values is None
-    assert f.approx.sum(1).pivot_values is None
+    assert hasattr(f.sum(1), "funs")
+    assert hasattr(f.approx.sum(1), "funs")
 
 
 def test_pytree_jit_and_coefficient_parameter_gradient():

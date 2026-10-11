@@ -1,0 +1,53 @@
+{
+  "native7": {
+    "tests_passed": 1,
+    "rss_kib": 999076,
+    "receipt_sha256": "79d8bd27ad998d8ff47301b7295dfb3f7f1f67fedb1e449f44d4ca67aac3f615",
+    "xml_sha256": "c0245d31e881ce9a0eac16c4ad4525d946449e3a73f757ba3cec96369d0725be"
+  },
+  "controls_v3": {
+    "tests_passed": 26,
+    "rss_kib": 2457540,
+    "receipt_sha256": "418e682ed2b14e95b1bc384e9a04a7720d8927f27dd581b50a3a891c55c0a11b",
+    "xml_sha256": "f30c52cb08507aa3a30cd5a56bf3fa910f1ae9c740edaa3acea3bff701e0d03b"
+  },
+  "consumers_v3": {
+    "tests_passed": 3,
+    "rss_kib": 1334272,
+    "receipt_sha256": "81ec4241c44ede33bbb250ad3bd14352b8a9528220c4cd1fe86c2d933346a86f",
+    "xml_sha256": "b973984897bb371d640d00e023cd3ab45d19348600c2f6f93d9bc53ba3b71570"
+  },
+  "empty_v4": {
+    "tests_passed": 1,
+    "rss_kib": 482064,
+    "receipt_sha256": "ef3ad7500663e685426e5e7a0c3afed71bda60503432e6fd3befbd57fd733506",
+    "xml_sha256": "803c0416fd48db5ef61017fe4d29ebcd992c7a5c584b4372a2fb2346ec4b8854"
+  },
+  "limits": "30 distinct controls pass, including one method covering7native predicates; 4stdcontrols repeated after source operation-order correction. Full current-main suite and bivariate page run remain unqualified.",
+  "std_v5": {
+    "tests_passed": 4,
+    "receipt_sha256": "48b967c03cc518113c8bc08bf71e86370e30c330afbf69fbf051f67e4e4898c6",
+    "xml_sha256": "bf0a7b95b98bda5ec35ff654535cc285d97d0913b779d1881b2c4365c7a7b7b6",
+    "rss_kib": 1107796
+  },
+  "distinct_controls": 30,
+  "source_contract": "sum defaults to dim1 and returns native row Chebfun; dim2 returns column. Mean and std retain native return types and source operations. Empty sum returns numeric []; mean/std return empty Chebfun.",
+  "native_test_restoration": "Restores seven original predicates, including three omitted syntax/default checks and original integral bound30tol (previously multiplied by1719).",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/separable_sum_source_53eb9098_20261010",
+  "production_files": {
+    "src/chebfunjax/chebfun2d/_sum_source.py": "b0229519fc779ff394464a7f707b70eda9eb031c2a0be55046ac0f12c97ed81e",
+    "src/chebfunjax/chebfun2d/chebfun2.py": "96a4da07628732ff69350d491034a1adb91b76e64f92480548af2810489826bf",
+    "src/chebfunjax/chebfun2d/separable_approx.py": "fc87ae9684877fe263e7fbbceb1c6adececd124fd83f5721d0d49a11a1b08e7b",
+    "tests/test_chebfun2d/test_chebfun2.py": "734964dad81a5136bb08f041a96184fb26c6640c0c96428efa65f6337fe50e9f",
+    "tests/test_chebfun2d/test_chebfun2_coverage.py": "eed3fad38ae4c8ba123b20bf791cfd54b55f68b39a2d933fa26e4572d81cab40",
+    "tests/test_chebfun2d/test_pivot_metadata_source.py": "4cf7fbf2501c7f40a36dfd6dd7cb5de96ca132aed5f3fca87370af5bc159e871",
+    "tests/test_chebfun2d/test_sum_source.py": "5db0c84cd057adbba27e75207588e24054368af0516e2a6afc3d1e770092dc85",
+    "tests/test_matlab_port/chebfun2/test_emptyObjects_matlab.py": "7b0aeaeca11b0a63400017303a88266530677ccd162de94210789bbc13984224",
+    "tests/test_matlab_port/chebfun2/test_guide_matlab.py": "c51bcbe4a3aa78ba32aa8d314cb2f595eb0645a07af069e7c13b97c4c0d7c3f3",
+    "tests/test_matlab_port/chebfun2/test_mean_matlab.py": "165d02bd545ada322f420a8b3fc7bb5d1fca8f8f2ae00db931c0fa6f1efd6b41",
+    "tests/test_matlab_port/chebfun2/test_std_matlab.py": "b6b89a7899f7e51ce8e7b4ff94197774f7d308cc5ad5a42590f31d4ed375c0dc",
+    "tests/test_matlab_port/chebfun2/test_sum_matlab.py": "71283c6716768b7bea19589898fda79f13a804771d3e807c0216f8e8020f9667"
+  },
+  "failed_candidate": "v2 had10failures from singleton-array representation and missing empty dispatch; preserved unchanged.",
+  "review": "v3/v5 AST equal outside std; final std4passes. Four relocated test functions AST equal. Guard input hashes reverified."
+}

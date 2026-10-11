@@ -145,8 +145,8 @@ class TestChebfun2Guide:
             lambda x, y: 1.0 / (0.01 + x**2 + y**2))
         assert abs(float(runge.mean2()) - 3.796119578934828) < 1e4 * TOL
         m = runge.mean(dim=1)
-        mm = m.sum(dim=2)
-        assert abs(float(mm(jnp.asarray(0.0), jnp.asarray(0.0))) / 2.0
+        mm = m.sum()
+        assert abs(float(mm) / 2.0
                    - 3.796119578934828) < 1e4 * TOL
 
     def test_pass17_cumsum2(self):
