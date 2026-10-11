@@ -3572,7 +3572,7 @@ class Chebfun(eqx.Module):
         """
         return self._apply_fun(jnp.expm1)
 
-    def log(self) -> Chebfun:
+    def log(self, pref=None) -> Chebfun:
         """Natural logarithm of the Chebfun.
 
         Returns a new Chebfun approximating log(f(x)) on the same domain.
@@ -3592,9 +3592,9 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.exp, Chebfun.sqrt
         """
-        return self._apply_fun(jnp.log)
+        return self.addBreaksAtRoots().compose(jnp.log, pref=pref)
 
-    def log10(self) -> Chebfun:
+    def log10(self, pref=None) -> Chebfun:
         """Base-10 logarithm of the Chebfun.
 
         Breakpoints are introduced at the interior roots of ``f`` before
@@ -3619,9 +3619,9 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.log, Chebfun.log2
         """
-        return self.addBreaksAtRoots()._apply_fun(jnp.log10)
+        return self.addBreaksAtRoots().compose(jnp.log10, pref=pref)
 
-    def log2(self) -> Chebfun:
+    def log2(self, pref=None) -> Chebfun:
         """Base-2 logarithm of the Chebfun.
 
         Breakpoints are introduced at the interior roots of ``f`` before
@@ -3646,9 +3646,9 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.log, Chebfun.log10
         """
-        return self.addBreaksAtRoots()._apply_fun(jnp.log2)
+        return self.addBreaksAtRoots().compose(jnp.log2, pref=pref)
 
-    def log1p(self) -> Chebfun:
+    def log1p(self, pref=None) -> Chebfun:
         """Compute ``log(1 + f)`` accurately for small ``f``.
 
         Breakpoints are introduced at the interior roots of ``f + 1``
@@ -3679,9 +3679,9 @@ class Chebfun(eqx.Module):
         gap = 100 * float(_np.finfo(float).eps) * max(abs(a), abs(b), 1.0)
         r = r[(r > a + gap) & (r < b - gap)]
         base = self if len(r) == 0 else self.addBreaks(r)
-        return base._apply_fun(jnp.log1p)
+        return base.compose(jnp.log1p, pref=pref)
 
-    def reallog(self) -> Chebfun:
+    def reallog(self, pref=None) -> Chebfun:
         """Real natural logarithm of the Chebfun.
 
         Errors if ``f`` is complex-valued (MATLAB raises
@@ -3713,7 +3713,7 @@ class Chebfun(eqx.Module):
         """
         if not self.isreal():
             raise ValueError("reallog produced complex result.")
-        return self.addBreaksAtRoots()._apply_fun(jnp.log)
+        return self.addBreaksAtRoots().compose(jnp.log, pref=pref)
 
     def sqrt(self) -> Chebfun:
         """Square root of the Chebfun.

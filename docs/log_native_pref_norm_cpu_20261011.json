@@ -1,0 +1,23 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Five logarithm wrappers accept source preference API and root-break composition; restore all5 native predicates with public input construction and strict100*vscale*eps",
+  "baseline": "5 source TypeErrors from unsupported preference argument",
+  "candidate": "11 passed,13.61s,1139392KiB,stable uncensored CPU8\u201311,no survivors",
+  "bindings": {
+    "src/chebfunjax/chebfun1d/chebfun.py": {
+      "baseline_sha256": "eb6b17ea91703dcd6d97d2d7ef492f782e747e237d0b92e5f1e4490e7c7778f4",
+      "candidate_sha256": "7cd0175533147487b04822c428c7fdfde903bdad9d948163e516b49d48a0b076"
+    },
+    "tests/test_matlab_port/chebfun/test_log_matlab.py": {
+      "baseline_sha256": "771eba706ec8edf224884b67f06256b4fc577f6e82131c2f51e8097c7241d1ee",
+      "candidate_sha256": "7179999a4c74ea476f80c338745ab92396699f5be3f1d755954d511c6b879395"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/log_native_pref_norm_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "47b5f46a4470313e8fc9ed63e7acd95faea27eea987e47915501ab2b0951812c",
+  "limits": [
+    "1000uniform RandomState7681 sites preserve source sizes, exact native draw identity not yet claimed",
+    "Composition/numerical log kernels unchanged; no broader singular/branch-cut acceptance",
+    "Six prior controls retained; test formatting AST-equivalent"
+  ]
+}

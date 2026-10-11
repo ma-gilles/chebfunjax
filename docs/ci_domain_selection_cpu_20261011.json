@@ -17,5 +17,17 @@
   "limits": [
     "Focused CPU gate; full CI remains in progress",
     "No solver algebra or numerical bounds changed"
-  ]
+  ],
+  "additional_route_qualification": {
+    "revision": "f5d8d7fa",
+    "scope": "Native periodic clauses05/06/27/29 and existing scalar/parameter/coupled undamped zero-iteration controls, all unchanged",
+    "passed": 7,
+    "pytest_seconds": 26.156,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_domain_route_controls_20261011/supervision/receipt.json",
+    "receipt_sha256": "3cef083d9b103c69365d803702d71e7dd364df7d24996c6bbefa09a71bf346e8",
+    "process_seconds": 30.463688571937382,
+    "peak_sampled_RSS_KiB": 1934748,
+    "inputs_stable": true,
+    "owned_survivors": false
+  }
 }

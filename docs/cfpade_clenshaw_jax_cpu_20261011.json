@@ -1,0 +1,74 @@
+{
+  "scope": "Whole v3 relative accepted Maehly: v2 fixes plus M=0 midpoint; prior v2sixnativeclauses+6diagnostics passed unchanged; v3 only affectednativeclause6 and2midpointdiagnostics rerun.",
+  "singular_source": "Native directly invokes Hankel backslash, no explicit rank threshold; no native MATLAB execution available; exact singular warning/returned values therefore not claimed. Preserve previous public NumPy LinAlgError adapter instead.",
+  "singular_fix": "JAX slogdet sign==0 detects exact LU determinant zero; raises np.linalg.LinAlgError(\"Singular matrix\") before solve. No small-singular-value bound or rank tolerance introduced. Two public m=n=1 inputs provide four coefficients: [1,0,1,0] and [1,0,0,0], Hankel=[0], rhs=[1] or[0], no padding.",
+  "complex_M_source_fault": "Native first replaces F by M+1 interpolation then extracts those coefficients. Existing Python _resample discarded imaginary components, then unconditionally reset c to original full coefficients for complex F. Both removed from ClenshawLord path; local JAX FFT-I construction preserves complex values and M+1 coefficients; shared cf helpers unchanged.",
+  "complex_oracle": "Degree7 complex polynomial, M=m=3,n=0; independent dense cosine collocation solve at native4Lobatto nodes, atol3e-15 diagnostic (not source gate). Fixed source values/padding unchanged.",
+  "runs": {
+    "edge_baseline_v1": {
+      "wall_seconds": 30.089705486781895,
+      "sampled_peak_summed_rss_kib": 1642020,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 1,
+      "stdout_sha256": "0ae54dc91a6aee7c77f37415b6f06fc1d98f1ea54d045d1b255a3c241f2b7cf5"
+    },
+    "candidate_v2": {
+      "wall_seconds": 30.23055522190407,
+      "sampled_peak_summed_rss_kib": 1656688,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "1a4fae0b6fd3cc8a24b39520b4044b5d4efbf7192f05836022c00adce02ebf0c"
+    },
+    "midpoint_v3": {
+      "wall_seconds": 15.761188494972885,
+      "sampled_peak_summed_rss_kib": 904428,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "command_exit_code": 0,
+      "stdout_sha256": "1e1a0acb9b98c9a9c58e93e9aaa9bc19c5c188c6f1178c670e4dde1d58f36172"
+    }
+  },
+  "remaining": [
+    "NumPy RNG padding adapter unchanged, not native random stream parity",
+    "Eager Chebfun construction and exact-singular Python exception not JIT API",
+    "NumPy output construction boundary; cf() and shared helpers unchanged",
+    "Nonfinite input and numerically singular-but-nonzero-LU cases not fully qualified/native singular-backslash warnings/output unverified"
+  ],
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/clenshaw_jax_v2.patch": "5754df07ad4a1e3c6c3bf73184252c5af5ad35f4723f8ea73a6777566854b449",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/candidate_v2_source/src/chebfunjax/utils/cfpade.py": "066cec37ae49ed7c5ac0b970886626e071cbe4f516b5345417e0bbc4b97e3838",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_chebpade_matlab.py": "cb0963acc49c616e5292b162bdb2f899e633acc63eccd4d753ce699abc08e9a2"
+  },
+  "midpoint": "Native @chebtech2/chebpts.m25 singlepoint x=0 maps domainmidpoint. M0 now evaluates solevalue; m/n epsilon padding follows unchanged. Real/complex degree2 inputs on[-1,3], expected c0-c2; exact p/q/threeevaluations checked.",
+  "native_singular_capture": "Requested /root/l1_nan_diagnosis; successor to current RNG packet, pending.",
+  "hashes_v3": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/clenshaw_jax_v3.patch": "5813f2f947b2f7d5aa729e56ed5a32a6ff4f18710d6fd47658a50bdeab3a49a9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/prepare_m0_gate.py": "615d3cc6faf3fe6027ee7bfcc1facc98008f780b77b26503578a2cc482ca9815",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/candidate_v3_source/src/chebfunjax/utils/cfpade.py": "1d541d2b712daad88439df87621ac941d373cf506704f296b360d42f13b2374c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/candidate_v3_source/tests/test_matlab_port/chebfun/test_chebpade_matlab.py": "3687eaa7a47946c73b070f5b3dbfb7fb58e21721a19452c5d5ced269e524f03c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech2/chebpts.m": "295d7717d27b6612de8476815b3ef3c698ae672b2aa25d39f0dada6cfd5334d1"
+  },
+  "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cfpade_clenshaw_jax_20261011/DELIVERY_v3.json",
+  "delivery_sha256": "fd5232c7f22ba87f6b5ba9eedc62013afd2ec12b1b9c74ed9c67c51004dd8387",
+  "publication_formatting": "Test AST-equivalent to qualified candidate"
+}

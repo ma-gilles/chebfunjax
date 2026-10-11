@@ -315,55 +315,70 @@ def chebpade(f, m: int, n: int, type: str = "clenshawlord",
 
 def _chebpade_clenshaw_lord(f, m, n, M):
     dom = (float(f.domain.a), float(f.domain.b))
-    length = max(len(_coeffs(f)) if len(f.funs) == 1 else 0, 0)
     if M >= 0:
-        c = _resample(f, M + 1)
+        # Native fixed-length Chebfun interpolation preserves complex values.
+        if M == 0:
+            c = jnp.atleast_1d(f(jnp.asarray((dom[0] + dom[1]) / 2)))
+        else:
+            theta = jnp.pi * jnp.arange(M + 1) / M
+            xp = dom[0] + (dom[1] - dom[0]) * (jnp.cos(theta) + 1) / 2
+            values = f(xp)
+            extension = jnp.concatenate([values, values[-2:0:-1]])
+            transformed = jnp.fft.fft(extension) / M
+            c = transformed[:M + 1]
+            if not jnp.iscomplexobj(values):
+                c = c.real
+            c = c.at[0].divide(2).at[-1].divide(2)
     elif len(f.funs) > 1:
         raise ValueError("piecewise chebfuns require the M argument")
     else:
-        c = _coeffs(f)
-    c = np.asarray(c, dtype=complex) \
-        if np.iscomplexobj(np.asarray(f.funs[0].tech.coeffs)) \
-        else np.asarray(c, dtype=float)
-    if np.iscomplexobj(np.asarray(f.funs[0].tech.coeffs)):
-        c = np.asarray(f.funs[0].tech.coeffs)
+        c = f.funs[0].tech.coeffs
     ell = max(m, n)
     if len(c) < m + 2 * n + 1:
         rng = np.random.default_rng(0)
         pad = np.finfo(float).eps * rng.standard_normal(
             m + 2 * n + 1 - len(c))
-        c = np.concatenate([c, pad.astype(c.dtype)])
-    c = c.copy()
-    c[0] = 2 * c[0]
+        c = jnp.concatenate([jnp.asarray(c), jnp.asarray(pad, dtype=c.dtype)])
+    c = jnp.asarray(c)
+    c = c.at[0].multiply(2)
 
     if n > 0:
-        top = c[np.abs(np.arange(m - n + 1, m + 1))]
-        bot = c[np.arange(m, m + n)]
-        rhs = c[np.arange(m + 1, m + n + 1)]
-        beta = np.concatenate(
-            [-np.linalg.solve(hankel(top, bot), rhs), [1.0]])[::-1]
+        top = c[jnp.abs(jnp.arange(m - n + 1, m + 1))]
+        bot = c[jnp.arange(m, m + n)]
+        rhs = c[jnp.arange(m + 1, m + n + 1)]
+        # The Hankel anti-diagonals are top followed by bot[1:].
+        entries = jnp.concatenate([top, bot[1:]])
+        indices = jnp.arange(n)[:, None] + jnp.arange(n)[None, :]
+        matrix = entries[indices]
+        # Preserve the public NumPy exception adapter for an exact zero LU
+        # determinant; no numerical rank tolerance is introduced.
+        sign, _ = jnp.linalg.slogdet(matrix)
+        if bool(sign == 0):
+            raise np.linalg.LinAlgError("Singular matrix")
+        beta = jnp.concatenate(
+            [-jnp.linalg.solve(matrix, rhs),
+             jnp.ones(1, dtype=c.dtype)])[::-1]
     else:
-        beta = np.array([1.0], dtype=c.dtype)
+        beta = jnp.array([1.0], dtype=c.dtype)
 
-    c[0] = c[0] / 2
-    alpha = np.convolve(c[: ell + 1], beta)[: ell + 1]
+    c = c.at[0].divide(2)
+    alpha = jnp.convolve(c[: ell + 1], beta)[: ell + 1]
 
-    D = np.zeros((ell + 1, ell + 1), dtype=c.dtype)
-    D[:, : n + 1] = alpha[:, None] * beta[None, :]
-    pk = np.zeros(m + 1, dtype=c.dtype)
-    pk[0] = np.trace(D)
+    D = jnp.zeros((ell + 1, ell + 1), dtype=c.dtype)
+    D = D.at[:, : n + 1].set(alpha[:, None] * beta[None, :])
+    pk = jnp.zeros(m + 1, dtype=c.dtype)
+    pk = pk.at[0].set(jnp.trace(D))
     for k in range(1, m + 1):
-        pk[k] = np.trace(D, k) + np.trace(D, -k)
+        pk = pk.at[k].set(jnp.trace(D, k) + jnp.trace(D, -k))
 
-    qk = np.zeros(n + 1, dtype=c.dtype)
+    qk = jnp.zeros(n + 1, dtype=c.dtype)
     for k in range(1, n + 2):
         u = beta[: n + 2 - k]
         v = beta[k - 1:]
-        qk[k - 1] = u @ v
+        qk = qk.at[k - 1].set(u @ v)
     pk = pk / qk[0]
     qk = 2 * qk / qk[0]
-    qk[0] = 1.0
-    _ = length
+    qk = qk.at[0].set(1.0)
     p = _from_coeffs_any(pk, dom)
     q = _from_coeffs_any(qk, dom)
     return p, q, (lambda x: p(x) / q(x))
@@ -405,15 +420,17 @@ def _chebpade_maehly(f, m, n):
     rank = int(jnp.sum(jnp.linalg.svd(D, compute_uv=False) > tol)) if n else 0
     if rank < min(D.shape):
         if m > 1:
+            result = chebpade(f, m - 1, n, "maehly")
             warnings.warn(
                 f"chebpade: singular matrix; computing "
                 f"[{m - 1}/{n}]", RuntimeWarning, stacklevel=2)
-            return chebpade(f, m - 1, n, "maehly")
+            return result
         if n > 1:
+            result = chebpade(f, m, n - 1, "maehly")
             warnings.warn(
                 f"chebpade: singular matrix; computing "
                 f"[{m}/{n - 1}]", RuntimeWarning, stacklevel=2)
-            return chebpade(f, m, n - 1, "maehly")
+            return result
         raise ValueError("chebpade: singular matrix; cannot compute "
                          "[1/1] approximation")
     qk = jnp.concatenate(
