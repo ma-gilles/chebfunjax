@@ -35,6 +35,53 @@ _SLOW_DECAY_WARNING_MESSAGE = (
 )
 
 
+def _unbounded_endpoint_filter(roots: jax.Array, tech) -> jax.Array:
+    """Remove roots explained by endpoint-scale decay of the smooth Tech.
+
+    Port of MATLAB ``@unbndfun/roots.m``'s ``unbndFilter``. This callback
+    runs on roots in the Tech interval ``[-1, 1]``, before Singfun inserts
+    exponent roots and before the Tech applies its top-level Bernstein prune.
+    It intentionally uses eager host control flow for the variable-length
+    root list; samples and magnitude tests remain JAX arrays.
+
+    Nonreal roots are left unchanged by the Tech callback boundary because
+    MATLAB complex sorting/relational semantics have not been qualified.
+    """
+    roots = jnp.asarray(roots)
+    if jnp.iscomplexobj(roots) and bool(jnp.any(jnp.imag(roots) != 0)):
+        return roots
+    roots = jnp.real(roots)
+    count = len(roots)
+    if count == 0:
+        return roots
+
+    tol = 10.0 * _EPS * tech.vscale
+    sample_count = max(count, 20)
+    remove = [False] * count
+
+    if bool(jnp.abs(tech(jnp.asarray(-1.0))) < tol):
+        for k in range(count):
+            if bool(roots[k] > 0.0):
+                continue
+            grid = jnp.linspace(-1.0, roots[k], sample_count)
+            if bool(jnp.max(jnp.abs(tech(grid))) < tol):
+                remove[k] = True
+            else:
+                break
+
+    if bool(jnp.abs(tech(jnp.asarray(1.0))) < tol):
+        for k in range(count - 1, -1, -1):
+            if bool(roots[k] < 0.0):
+                continue
+            grid = jnp.linspace(roots[k], 1.0, sample_count)
+            if bool(jnp.max(jnp.abs(tech(grid))) < tol):
+                remove[k] = True
+            else:
+                break
+
+    return roots[~jnp.asarray(remove, dtype=jnp.bool_)]
+
+
 def _isdecay(onefun) -> jax.Array:
     """Dispatch to the native Tech/Singfun endpoint-decay method."""
     return onefun.isdecay()
@@ -1324,6 +1371,10 @@ class Unbndfun(eqx.Module):
         # the native RECURSE flag. Preserve explicit low-level options.
         if norecursion:
             kwargs["recurse"] = False
+        # Native @unbndfun/roots always replaces a caller-supplied filter with
+        # its endpoint-decay filter. Tech invokes it on sorted roots in
+        # [-1,1], before singular endpoint insertion and top-level pruning.
+        kwargs["filter"] = _unbounded_endpoint_filter
         r = self.onefun.roots(*args, **kwargs)
         return self.forward_map(jnp.asarray(r))
 

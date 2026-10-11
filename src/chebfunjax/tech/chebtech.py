@@ -1345,7 +1345,9 @@ def _roots_subdivide(c):
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
                      recurse: bool = True, *, zero_fun: bool = True,
-                     normalization_scale: float | jax.Array | None = None) -> jax.Array:
+                     normalization_scale: float | jax.Array | None = None,
+                     filter_callback: Callable | None = None,
+                     filter_object=None) -> jax.Array:
     import numpy as np
     """Find roots of a Chebyshev expansion in [-1, 1].
 
@@ -1371,6 +1373,12 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     ``normalization_scale`` is supplied only by public Tech callers from
     their original representation-grid vscale. The coefficient-only default
     preserves the separate resultant backend's established policy.
+
+    ``filter_callback`` is the optional native ``filter(roots, tech)`` hook.
+    It receives sorted real roots after recursive leaf processing and before
+    top-level pruning; ``filter_object`` is the original Tech passed as its
+    second argument. Nonreal complex roots bypass the callback because the
+    native complex sorting/comparison rules have not been qualified.
 
     NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -1415,6 +1423,21 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
 
     r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
                     prune=prune, recurse=recurse, zero_fun=zero_fun)
+
+    # MATLAB roots_scalar sorts the completed root list and applies FILTER
+    # before its nonrecursive top-level Bernstein pruning. Recursive leaf
+    # pruning already happened inside _roots_main. Complex sort/comparison
+    # semantics are not claimed here; preserve the unfiltered complex-root
+    # result until those native semantics are captured.
+    if filter_callback is not None:
+        roots_array = jnp.asarray(r)
+        has_nonreal_roots = (
+            jnp.iscomplexobj(roots_array)
+            and bool(jnp.any(jnp.imag(roots_array) != 0))
+        )
+        if not has_nonreal_roots:
+            r = jnp.sort(jnp.real(roots_array))
+            r = filter_callback(r, filter_object)
 
     # Prune the roots if requested (MATLAB prunes at the top level only when
     # recurse is off; with recursion the per-leaf prune already ran).
@@ -4284,7 +4307,8 @@ class Chebtech2(eqx.Module):
 
     def roots(self, qz: bool = False, *, complex_roots: bool = False,
               all_roots: bool = False, prune: bool = False,
-              recurse: bool = True, zero_fun: bool = True) -> jax.Array:
+              recurse: bool = True, zero_fun: bool = True,
+              filter: Callable | None = None) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe (variable output size, recursive subdivision).
@@ -4315,6 +4339,11 @@ class Chebtech2(eqx.Module):
         zero_fun : bool, default True
             MATLAB ``zeroFun``: include a midpoint root for the zero function.
             When False, the zero-function branches return no roots.
+        filter : callable or None
+            Optional ``filter(roots, tech)`` callback. It receives sorted real
+            roots after recursive leaf pruning and before top-level pruning.
+            Nonreal complex roots are returned without invoking the callback;
+            MATLAB complex ordering/comparison parity is not yet established.
 
         Returns
         -------
@@ -4345,6 +4374,8 @@ class Chebtech2(eqx.Module):
         kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
                   zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
+            if filter is not None:
+                kw["filter"] = filter
             return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
@@ -4353,7 +4384,8 @@ class Chebtech2(eqx.Module):
                     else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
-        return _roots_colleague(self.coeffs, normalization_scale=scale, **kw)
+        return _roots_colleague(self.coeffs, normalization_scale=scale,
+                                filter_callback=filter, filter_object=self, **kw)
 
     def minandmax(self):
         """Native continuous extrema and locations; roots remain eager.
@@ -5949,7 +5981,8 @@ class Chebtech1(eqx.Module):
 
     def roots(self, qz: bool = False, *, complex_roots: bool = False,
               all_roots: bool = False, prune: bool = False,
-              recurse: bool = True, zero_fun: bool = True) -> jax.Array:
+              recurse: bool = True, zero_fun: bool = True,
+              filter: Callable | None = None) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe.  See :meth:`Chebtech2.roots` for the full option
@@ -5967,6 +6000,8 @@ class Chebtech1(eqx.Module):
         kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
                   zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
+            if filter is not None:
+                kw["filter"] = filter
             return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
@@ -5975,7 +6010,8 @@ class Chebtech1(eqx.Module):
                     else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
-        return _roots_colleague(self.coeffs, normalization_scale=scale, **kw)
+        return _roots_colleague(self.coeffs, normalization_scale=scale,
+                                filter_callback=filter, filter_object=self, **kw)
 
     # ------------------------------------------------------------------
     # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)

@@ -1,0 +1,83 @@
+{
+  "format": "unbounded-endpoint-filter-delivery-v2",
+  "base_commit": "8147bf84968be8a8e6c1ed30a656bdb64f5f4e8f",
+  "base_source_sha256": {
+    "src/chebfunjax/tech/chebtech.py": "49e96b1841e4e9a5539f7adb56d08776d1f25e18902b3a6f2c85f2ddab42494a",
+    "src/chebfunjax/fun/unbndfun.py": "a74be950eecaa35e688cdb551290fa2aaade4b907373ac9a7ce6b23fd194fcd8",
+    "tests/test_chebfun1d/test_unbounded_endpoint_filter.py": null
+  },
+  "private_snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/snapshot",
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/unbounded_filter_jax_complex_v1.patch",
+    "sha256": "fe12a3acba0e5ced6deed8dd36e853b665deb4982f4bee10ea8f2f6a695db36d"
+  },
+  "candidate_files": {
+    "src/chebfunjax/tech/chebtech.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/snapshot/src/chebfunjax/tech/chebtech.py",
+      "sha256": "bb793ef686147a873460b2b2183f6f18e7c4d9a0224bcdee71f680a5c95168a5"
+    },
+    "src/chebfunjax/fun/unbndfun.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/snapshot/src/chebfunjax/fun/unbndfun.py",
+      "sha256": "462628d40f3276eae6e0cd9b4236c3b3cc2efd3c068f7961855c8de24c57f8c0"
+    },
+    "tests/test_chebfun1d/test_unbounded_endpoint_filter.py": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/snapshot/tests/test_chebfun1d/test_unbounded_endpoint_filter.py",
+      "sha256": "44ac1ca9fb4811ea074c1d9be29e61d134fe3cc119b15e68b81bee9d0eb4d852"
+    }
+  },
+  "implementation": {
+    "complex_predicate": "Uses jnp.iscomplexobj, jnp.imag and jnp.any, then an explicit eager bool for variable-length host control; no new NumPy arithmetic.",
+    "callback_semantics": "Nonreal complex roots bypass callback; zero-imaginary complex root arrays are converted to real, sorted, then passed to callback.",
+    "placement": "After root engine/per-leaf processing and root sorting, before top-level Bernstein prune. Unbndfun injects the callback before forward map; Singfun inserts endpoint roots afterward.",
+    "arrays_and_constants": "Array roots forward the callback per scalar column and preserve NaN padding; constant early return bypasses the callback.",
+    "limitation": "Native MATLAB complex ordering/relational behavior remains unqualified; nonreal roots are intentionally not filtered."
+  },
+  "qualification": {
+    "selected": [
+      "tests/test_chebfun1d/test_roots_unbounded_source.py",
+      "tests/test_chebfun1d/test_unbounded_root_options.py",
+      "tests/test_chebfun1d/test_unbounded_endpoint_filter.py"
+    ],
+    "collected": 19,
+    "passed": 19,
+    "pytest_seconds": 29.47,
+    "supervisor_wall_seconds": 36.42134672123939,
+    "sampled_peak_summed_rss_kib": 1937328,
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "original_exec_session": 61124,
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/supervision/receipt.json",
+      "sha256": "1ea8d7650497f6cccd54014d0b18aa83f32efde4d053b54f435551ce57b894d9"
+    },
+    "stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/supervision/stdout",
+      "sha256": "595ff2962e01485b2813995ef355b5ee57a26d2dc72c0991056c5b713f58f704"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v3/candidate_v3_guard.json",
+      "sha256": "36e5bfce504ca2d6f7b300c04be8fa19157779784466d9637aa9de96265d39f2"
+    },
+    "static_ruff": "passed on candidate source files and focused test file"
+  },
+  "prior_17_test_gate": {
+    "preserved_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_9788_v4",
+    "result": "17 passed on initial implementation before JAX-only complex predicate was added; preserved unchanged."
+  },
+  "prelaunch_failures": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v1/PRELAUNCH_FAILURE.json",
+      "error": "environment guard mismatch due stale PYTHONPATH in copied guard; no pytest ran",
+      "sha256": "bff43a8e36a0e1d0b1ffff4126421009580b7669a74a218967f64e76f6f90c31"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_filter_source_20261011/candidate_8147_v2/PRELAUNCH_FAILURE.json",
+      "error": "supervisor wrapper pointed to missing candidate_v1_guard.json; no pytest ran",
+      "sha256": "cc36168db7bcc0eb7ab8ca2b8009383d26b20f0775368534ba805d90df6f6f94"
+    }
+  ],
+  "publication_checkout_edits": false
+}
