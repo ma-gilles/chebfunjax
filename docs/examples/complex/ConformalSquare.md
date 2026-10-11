@@ -6,6 +6,8 @@
 
 Python translation: [`examples/complex/conformal_square.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/complex/conformal_square.py)
 
+The figures and printed results below use the original four-factor derivative with public Chebfun power and integration. A fresh pinned MATLAB numerical run and retained-array comparison qualify the curves; current piece boundaries differ between implementations. The Python run emits 18 warnings (14 unhappy representations and four exponent-difference warnings), while MATLAB emits four exponent-difference warnings. This warning-policy difference remains open. [Qualification record](../../conformal_square_source_cpu_20261011.json).
+
 An analytic function creates a conformal map between regions of the complex plane. These maps distort lengths but exactly preserve all angles. These maps turn out to be useful in some classical physics applications, most notably those using the 2D Laplace equation.
 
 While analytic functions, and hence conformal maps, are hardly rare, finding the conformal map between two given regions is an old and interesting problem. A major breakthrough was discovered in the 1860's simultaneously by Schwarz and Christoffel and is known now as the Schwarz-Christoffel formula.
@@ -34,13 +36,14 @@ w = cumsum( fprime(z) )
 ```
 
 ```text
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
 w =
    chebfun column (3 smooth pieces)
        interval       length     endpoint values
-[       0,    0.25]       14     complex values
-[    0.25,    0.88]       42     complex values
-[    0.88,       1]    65538     complex values
-vertical scale = 1.3    Total length = 65594
+[       0,    0.25]       13     complex values
+[    0.25,    0.88]       37     complex values
+[    0.88,       1]    65537     complex values
+vertical scale = 1.3    Total length = 65587
 ```
 
 In fact, the resulting expression is essentially real.
@@ -67,6 +70,16 @@ for t = linspace(0,2*pi,33)
     subplot(1,2,1), plot(real(z),imag(z),'b',LW,1.5)
     subplot(1,2,2), plot( cumsum(fprime(z)*exp(1i*t)), 'b',LW,1.5 )
 end
+```
+
+The Python run also emits the following warnings while integrating the rays. These unhappy-representation warnings remain a library warning-policy difference from the pinned MATLAB run.
+
+```text
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
 ```
 
 ![ConformalSquare figure 02](../../images/complex/ConformalSquare_02.png)
@@ -105,7 +118,18 @@ subplot(1,2,2), plot(f,'k',LW,2)
 ```
 
 ```text
-
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
+UserWarning: CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.
+UserWarning: Chebtech2.from_function: function did not converge with 65537 points. Returning unhappy representation.
 ```
 
 ![ConformalSquare figure 05](../../images/complex/ConformalSquare_05.png)

@@ -9108,22 +9108,41 @@ class Chebfun(eqx.Module):
 # Factory function — the main user-facing entry point
 # ============================================================================
 
-def getValuesAtBreakpoints(f: "Chebfun", op=None) -> jax.Array:
-    """Values at the breakpoints of f (MATLAB
-    chebfun.getValuesAtBreakpoints): op (default f itself) evaluated
-    at every breakpoint.
+def getValuesAtBreakpoints(f, ends=None, op=None) -> jax.Array:
+    """Determine breakpoint values from adjacent FUN limits or a callable.
+
+    Accepts native ``(funs, ends, op)`` arguments and the Python shorthand
+    ``(chebfun, op)``. Without a callable, interior values average the two
+    one-sided limits. Callable NaNs are replaced by these same limits.
+    Explicit Chebfun point-value overrides are not inputs to this helper.
 
     Provenance
     ----------
     MATLAB source : @chebfun/getValuesAtBreakpoints.m
     Chebfun commit: 7574c77
     """
-    breaks = [float(p.interval[0]) for p in f.funs] \
-        + [float(f.domain.b)]
-    xb = jnp.asarray(breaks, dtype=jnp.float64)
-    if op is None:
-        return f(xb)
-    return jnp.asarray(op(xb), dtype=xb.dtype)
+    if isinstance(f, Chebfun):
+        if op is None:
+            op = ends
+        ends = f.domain.breakpoints
+        funs = f.funs
+    else:
+        funs = f
+    if not funs:
+        return jnp.empty((0,), dtype=jnp.float64)
+    if ends is None:
+        ends = [p.interval[0] for p in funs] + [funs[-1].interval[1]]
+    xb = jnp.asarray(ends, dtype=jnp.float64)
+    limits = [funs[0](xb[0])]
+    for k in range(1, len(funs)):
+        limits.append((funs[k-1](xb[k]) + funs[k](xb[k])) / 2)
+    limits.append(funs[-1](xb[-1]))
+    fallback = jnp.stack(limits)
+    if not callable(op):
+        return fallback
+    values = jnp.asarray(op(xb))
+    values = jnp.broadcast_to(values, fallback.shape)
+    return jnp.where(jnp.isnan(values), fallback, values)
 
 
 def kron(f, g, mode=None):

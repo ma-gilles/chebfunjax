@@ -470,6 +470,7 @@ def main():
             ("approx", "Noisy"),
             ("roots", "RandomPolys"),
             ("complex", "ZetaZeros"),
+            ("complex", "ConformalSquare"),
             ("approx", "MinimaxSqrt"),
             ("approx", "Pushnitski"),
             ("ode-nonlin", "DelayDifferentialEquations"),

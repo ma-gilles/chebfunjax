@@ -1,0 +1,37 @@
+{
+  "base": {
+    "head": "d67cbc9744bd31ed38b4526b5c4e7b95befb07e2"
+  },
+  "native_source": "tests/chebfun/test_getValuesAtBreakpoints.m",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_predicates": 6,
+  "supplemental_tests": 3,
+  "retained_old_tests": 2,
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoint_values_source_20261011",
+  "runs": [
+    {
+      "name": "baseline",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoint_values_source_20261011/baseline/supervision/receipt.json",
+      "sha256": "fbe5308255a343e690e092c1e8785c917120b7ca26a907c08b7d0484ad5f9729",
+      "exit": 1,
+      "stdout": "p.asarray(op(xb), dtype=xb.dtype)\n                           ^^^^^^\nE       TypeError: 'list' object is not callable\n\nsnapshot/src/chebfunjax/chebfun1d/chebfun.py:9126: TypeError\n=========================== short test summary info ============================\nFAILED snapshot/test_source.py::test_source_2 - TypeError: 'list' object is n...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 1 passed in 4.22s\n"
+    },
+    {
+      "name": "candidate",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoint_values_source_20261011/candidate/supervision/receipt.json",
+      "sha256": "0762418f0a1ae07a106762b933837fc3ec00741e2fdca6d8ef8db51e520e6459",
+      "exit": 1,
+      "stdout": "                           ^^^^^^^^^^^^\nE       TypeError: Chebfun.__init__() missing 2 required positional arguments: 'funs' and 'domain'\n\nsnapshot/test_source.py:57: TypeError\n=========================== short test summary info ============================\nFAILED snapshot/test_source.py::test_supplemental_nan_complex_and_empty - Typ...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 7 passed in 23.09s\n"
+    },
+    {
+      "name": "supplement_v2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoint_values_source_20261011/supplement_v2/supervision/receipt.json",
+      "sha256": "95630c68e607d44207a853197286d4cb230f153356cf3473d6dd51ab72c777b4",
+      "exit": 0,
+      "stdout": ".....                                                                    [100%]\n5 passed, 6 deselected in 6.14s\n"
+    }
+  ],
+  "production_ast_equal_to_tested": true,
+  "limitations": "Native original predicates restored by source inspection; no new MATLAB execution for this helper. Retains Python scalar-valued one-dimensional output convention.",
+  "failures": "Baseline pass2 fails list callable; candidate original six plus stored-override supplement pass, final supplement fails only nonexistent no-argument class constructor in harness; corrected factory harness and array-valued supplement pass with identical library AST."
+}

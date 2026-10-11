@@ -1,0 +1,74 @@
+{
+  "task": "ConformalSquare source-faithful CPU page",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "numerical_runtime": "MATLAB R2025b Update2 and JAX/JAXlib0.11.0 CPU x64",
+  "graphics_runtime": "MATLAB R2024b Update3 CPU Painters layout; Matplotlib saved-XY rerender",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011",
+  "numerical_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/delivery_v2/REPORT.json",
+  "warnings": {
+    "native": 4,
+    "python": 18,
+    "initial": 1,
+    "ray_loop": 5,
+    "final_boundary": 12,
+    "open_gap": "14 additional Python unhappy-representation warnings; native internal chebtech populate returns unhappy silently; no suppression",
+    "events": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/WARNING_COMPARISON.json"
+  },
+  "output_slots": "Source-managed page has three fences: initial representation+warning, additional ray warnings, final boundary warnings. Native historical page has two; actual additional emissions retained. Generic regeneration skips this page.",
+  "comparisons": {
+    "integrated_max_abs_error": 1.7175974e-09,
+    "raw_derivative_pole_error": 21101334.0,
+    "source_quarter_grid_regular_derivative_max": 9.379628796144147e-13,
+    "regular_count": 496,
+    "not_full_parity": "Current representations differ and Python warning policy remains open.",
+    "matched_sampled_objects": 123,
+    "coordinate_matching": "123 retained Python objects evaluated at exact captured native sample coordinates; values compared with reported errors, not exact numerical agreement."
+  },
+  "production": [
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/examples/complex/conformal_square.py",
+      "destination": "examples/complex/conformal_square.py",
+      "sha256": "fa31706f0060e4b65d1bdeb03c422e69ee4b14bdc8aaa517c3974d5203438cc6"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/examples/complex/ConformalSquare.md",
+      "destination": "docs/examples/complex/ConformalSquare.md",
+      "sha256": "32677b4c872eff1bb50c7427473753ed1ae9798fd3f7efd0abcd59254629b8d9",
+      "published_sha256": "dacd87b4f1407759347e82e7b012ee49b892a63fb4feb8600c799d8d6646f940"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/images/complex/ConformalSquare_05.png",
+      "destination": "docs/images/complex/ConformalSquare_05.png",
+      "sha256": "af9ec6008e509b77ca196c4de0b9949b0c7ea1620ce362c477cee5426f888965"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/images/complex/ConformalSquare_04.png",
+      "destination": "docs/images/complex/ConformalSquare_04.png",
+      "sha256": "1b613f07fdf7ff2d25a8870d7f9b2f3bbb3a7a606102ec3d25e1eadc08b86ca9"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/images/complex/ConformalSquare_01.png",
+      "destination": "docs/images/complex/ConformalSquare_01.png",
+      "sha256": "3a8b48bae663c8c1e8cb26b139859951f422e9e4f68964fefd43f5405ca2c64c"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/images/complex/ConformalSquare_03.png",
+      "destination": "docs/images/complex/ConformalSquare_03.png",
+      "sha256": "72d7ea086193a10706c23a5455bc35644919799bd24cacfa3ab835ac08bea371"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/docs/images/complex/ConformalSquare_02.png",
+      "destination": "docs/images/complex/ConformalSquare_02.png",
+      "sha256": "2db79091a9ee823291a9bb36fb15b0a838c69bfe03258eb8ae18bd48b702d195"
+    },
+    {
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/publication_v1/scripts/gen_example_pages.py",
+      "destination": "scripts/gen_example_pages.py",
+      "sha256": "6ffbe3fd839426661eb229994d676e1f9006481fbe536541f230d84623c09311"
+    }
+  ],
+  "original_matlab_cells_unchanged": true,
+  "new_numerical_runs": 0,
+  "root_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_source_20261011/ROOT_PUBLICATION_REVIEW.json",
+  "publication_format": "Trailing whitespace removed from displayed repr lines for git whitespace gate; original stdout retained."
+}
