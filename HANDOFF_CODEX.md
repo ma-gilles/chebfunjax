@@ -1,5 +1,16 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## All twenty native minimax predicates restored (2026-10-10; latest)
+
+Remove nonnative reference-point jitter and retain stored Chebfun breakpoints
+in polynomial extrema panels and candidates, clipped to requested domain.
+All twenty original native predicates pass, including full rational30/30,
+plus an analytic subset-domain regression. Independent clauses restore
+previously skipped execution and weakened public norm/root predicates.
+Native RNG sites use a captured portable fixture. Coefficients/reference
+points/iteration counts still differ; no full minimax parity claim. Evidence:
+docs/minimax_native_clauses_cpu_20261010.json.
+
 ## Native one-dimensional marginal integration restored (2026-10-10; latest)
 
 Chebfun2/SeparableApprox.sum now defaults to integration over y and returns

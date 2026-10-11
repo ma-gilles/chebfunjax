@@ -292,18 +292,17 @@ def minimax(
     if max_iter is None:
         max_iter = 30
 
-    # ---- Extra breakpoints (deprecated no-op) ----
-    # The ``breakpoints`` argument is a non-MATLAB extension.  MATLAB's minimax
-    # has no such option: it detects kinks automatically through the chebfun
-    # ``splitting`` representation.  Passing kink locations here forced them to
-    # be sub-interval boundaries in ``_find_extrema``; because the colleague
-    # matrix excludes roots at sub-interval endpoints, the extremum AT the kink
-    # (where the error typically peaks) was dropped, so the reference stalled at
-    # a non-equioscillating set and the reported error was far below the true
-    # sup error (e.g. |x-0.5|, n=1 reported 0.25 vs the exact 0.375).  The plain
-    # algorithm already resolves kinks correctly via adaptive sampling, so the
-    # argument is now ignored.
-    extra_bkpts: list[float] = []
+    # Native findExtrema includes the stored Chebfun domain in both its
+    # panel partition and candidate extrema (minimax.m lines1274/1307).
+    # Explicit caller breakpoints remain a deprecated extension; source
+    # representation breakpoints are retained independently of that option.
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+
+    extra_bkpts = (
+        [float(value) for value in f.domain.breakpoints
+         if a <= float(value) <= b]
+        if isinstance(f, Chebfun) else []
+    )
     if breakpoints is not None:
         warnings.warn(
             "minimax: the 'breakpoints' argument is deprecated and now ignored. "
@@ -335,20 +334,6 @@ def minimax(
     else:
         # Chebyshev-2 pts on [a, b] (ascending order from chebpts_ab)
         xk = np.array(chebpts_ab(n_ref, a, b), dtype=np.float64)
-        # Break the exact symmetry of the reference.  For an even f on a
-        # bit-exactly symmetric reference the Remez exchange stalls: the error
-        # of the interpolant is even with a central feature, so its extrema
-        # collapse to only n+1 alternating points and the trial solve
-        # h = (w . f)/(w . sigma) degenerates (w . f cancels to ~0).  quadfix's
-        # sine chebpts (1c3fd5e) are bit-exactly antisymmetric, so |x| (and any
-        # even f) hits this; the cosine form used before carried ~1e-16
-        # asymmetry that incidentally avoided it.  A tiny *monotone* jitter of
-        # the interior points restores the generic (asymmetric) reference the
-        # algorithm expects; it washes out as the reference converges to the
-        # true equioscillation set (endpoints untouched).
-        if n_ref > 2:
-            jitter = 1e3 * np.finfo(np.float64).eps * (b - a)
-            xk[1:-1] = xk[1:-1] + jitter * np.arange(1, n_ref - 1, dtype=np.float64)
 
     xo = xk.copy()
 
@@ -704,7 +689,7 @@ def _find_extrema(
 
     # Combine with domain endpoints and deduplicate
     all_roots_arr = np.unique(
-        np.array([a, b] + all_roots, dtype=np.float64)
+        np.array([a, b] + (extra_bkpts or []) + all_roots, dtype=np.float64)
     )
     return np.sort(all_roots_arr)
 

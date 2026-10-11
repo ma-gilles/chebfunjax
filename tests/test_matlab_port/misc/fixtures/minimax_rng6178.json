@@ -1,0 +1,31 @@
+{
+  "source": "seedRNG(6178); xx=2*rand(100,1)-1; no prior draw",
+  "native_test_source": "tests/misc/test_minimax.m",
+  "Chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "dtype": "<f8",
+  "shape": [
+    100
+  ],
+  "binary64_hex": "00e4af9bac5fd23f88ab8168f538c4bf325e92851482e7bf50add49de005d53f402faff34bb3ab3f006f9be1ab127b3f90cad3e8b930dabf1c7dc0ee6ed8debfc4119f41865ae0bf0cf8f81c1e21ed3f462e52f329c2ebbf7860ff7657e8eebf3edbc7f20704e7bff40bd2ec2bb2efbfb6ddeff79e67ec3fa6cd24e721dbe73f38627287be94ed3f5e6dd39bc155e9bffcd69e47624fe7bf70cde5caf2edb83f684c11321b3fca3f9eb9f7ed34bee03f1825ac60e872c8bfd85c856cdd73e8bfd81f470d6964eb3f40b916a0ef68b83fbc36a07e0813e3bfa274e3a43816eb3f8839b268248acb3f8ad5b4db0196e0bfb034ac3067d8e73fd83e1f82b86dc73f9017ba790beeb93f6e294a67fadde9bf123b349aaf55edbf00770ff89efdccbf28dad279e199e3bf6c375bdafd1fe13ff89d7f18a185e43ffc2685b4e116ecbfe8df954e7fdfd73fbc6111770cfbdd3ffcd26f56c18ad13f00697b910abfd2bf80c25034756adfbf78919fe393e6c53ff80f10fd628dd93f38c07591a67bcebfa01bfd5ceb87a23f800249bc44af81bfec5f0118dffdefbf88c897ac7c12c4bf28464238e81ee1bf3c2c7432f4c7d43fe8bf70fd88f5c1bfa4b05e2dc4e5de3ffaa6a6d431a2ec3f6064a646d8f8eb3f2612244ccb0ce13fe82553786e4cd63f287c9775428bc8bf4e65de6e2ed1eebfbafacca99335e1bf7c4952347415eabfd809d52f5c8eedbff6b0c1a23bf4e8bf26c916e87594edbf467d92fddf93e83fb68c5ac3c82ded3fb04a2e6264c6b5bf00c1784612acbabf323fc922814fe83fbc86c25ff165d13f08d5c2bd4faaecbf98323c9d591cd13f9843afd364bbddbfdc1b0a9b0943debf9817fe50cdf5e93f34915ffe5d68e93f26f7d96d233fe83f00c00aa9d5d185bfb0962667fd7fb0bf6e1705cda3b6ee3f0c8bac86d032e23fe061add04f3aba3f76cba24d3a8ae2bf94a56c9aef5ae5bf9062285d9573ed3f84a92215e487e5bf44cc7337aca1d83f6a39904479bfe73fd44a2ae516c7e9bf2ec66ee3cfe6ecbf881b19f1072bebbf1c24b881f67fdabfac9b4d00369dee3f66cce3ae9335e23fdcaf5855ac68ed3fa0a1e415d007b0bf10acd4dcd711b6bf",
+  "captured_mat_sha256": "077888d130865b9013efe55d95c750358423ed873f83ba672f6c926c940a3b71",
+  "native_driver_sha256": "a295a265519f99a93f064acf6a290edaee50776b99b726514e71fb466ceaf87b",
+  "historical_receipt": {
+    "command": "module load matlab/R2025b && matlab -singleCompThread -nodisplay -nosplash -batch \"addpath('/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006'); rng_20261006_120434Z\"",
+    "driver": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006/rng_20261006_120434Z.m",
+    "driver_sha256": "a295a265519f99a93f064acf6a290edaee50776b99b726514e71fb466ceaf87b",
+    "seedRNG_source_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+    "source_head": "7574c77680d7e82b79626300bf255498271a72df",
+    "timeout_seconds": 120,
+    "timed_out": false,
+    "exit_code": 0,
+    "elapsed_seconds": 70.15493753226474,
+    "stdout_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006/rng_20261006_120434Z_stdout.raw",
+    "stdout_sha256": "ca1f78ca6f0f5aec5ce4880dd3587e97102c27727b7ad4bb3b63ac5cf3129581",
+    "stderr_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006/rng_20261006_120434Z_stderr.raw",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006/rng_20261006_120434Z.mat",
+    "mat_sha256": "077888d130865b9013efe55d95c750358423ed873f83ba672f6c926c940a3b71",
+    "TMPDIR": "/scratch/gpfs/GILLES/mg6942/tmp/m87",
+    "MATLAB_PREFDIR": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_end_rng6178_source_oracle_20261006/rng_20261006_120434Z_pref"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_snapshot": "5008802a013090b31ffe4167e7f80fe26d9dbe55",
+  "status": "All 20 original native predicates qualified; additional subset-domain regression qualified.",
+  "source_fix": "Delete nonsource polynomial reference jitter. Retain stored Chebfun breakpoints in extrema panels and candidates, filtered to the requested approximation interval.",
+  "test_restoration": "Restore independent execution of all 20 clauses, literal public norm and numerator/denominator root comparisons, unchanged scientific bounds, and a portable 100-site native seed fixture. No xfail or skip masks.",
+  "qualification_structure": "Nineteen clauses passed on the unfiltered breakpoint fix. The final filter provably retains the identical breakpoint list for those full-domain cases. Clause 13 and the analytic subset regression passed on the final filtered source. No redundant suite was run solely for this metadata-equivalent filter.",
+  "native_oracle": "R2025b original unchanged test_minimax passes all 20 clauses. Captured constructor state, grid, polynomial coefficients, reference points, error estimates, and runtime providers are preserved.",
+  "limits": "Passing source predicates does not establish complete minimax parity. Adaptive sampling stopping, fixed-grid final error, norm scaling, and near-endpoint root filtering still differ. Native16 polynomial coefficient and reference differences remain explicit. Runtime evidence covers source/executable guards and module/provider hashes, not exhaustive dependency closure.",
+  "native16": {
+    "err": 0.1692749203559048,
+    "samplemax": 0.1692749199629202,
+    "relative_error": 2.3215759811815787e-09,
+    "iterations": 8,
+    "f_domain": [
+      -1.0,
+      0.1,
+      1.0
+    ],
+    "f_point_values": [
+      1.0488088481701516,
+      0.0,
+      0.9486832980505139
+    ],
+    "coeff_max_abs_difference_native": 9.67194185852449e-10,
+    "xk_max_abs_difference_native": 3.134168921115066e-05,
+    "grid_bitidentity_native": true,
+    "f_grid_max_difference_native": 4.7618159415563355e-15
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_source_fix_v1_20261010/EXTENDED_CONTROL_AUDIT.json": "68b6c2f95e100979608ba4bde4d6dc4b7ff84aece1fcf17d3eb3cb66ee913ff8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_source_fix_v1_20261010/NATIVE16_COMPARISON.json": "e136e98438bb9b808a29ca7e7d2ef6fe0f92912150b4139f475c851c4d5ea273",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_source_fix_v1_20261010/REMAINING_SOURCE_GAPS_v2.json": "e568eb00615a0e6ada9f03236352ccfc4298dd3f79c3f5fd8f26c9fd01aec2de",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/FULL_DOMAIN_FILTER_PROOF.json": "7f6a9b9db0fd03f464b7526735e02298fd0e375a044866a8aa5271ef9e66bf6b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/control_subset/AUDIT.json": "1395888e120f06f2d6238378a23ae1f2cea5196e7e5d63563694b6d8db613825",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/EXTENDED_CONTROL_AUDIT.json": "ac28e21511763c35e6746d297131e9b60ed816903066cc76bc7f5486afb1dfb4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mm20v4/AUDIT.json": "26dec68d731442129977674c47b16a8e2f88c6f89d15af78224f8fa2ca725d81",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_native_clauses_prepare_20261010/EXTENDED_CONTROL_AUDIT.json": "3b0f6f2fb02a95138faa58c569afc62db10fbe8be5fd24eb120e4ebbf96f72c8"
+  },
+  "audit_erratum": {
+    "scope": "Documentation erratum; no scientific rerun or audit mutation",
+    "stale_label": "EXTENDED_CONTROL_AUDIT.json inherits top-level clause13=Not launched; held heavy30/30 from the generic audit script. This label is stale.",
+    "authoritative_result": "The same audit controls[13] and passed list record a pass. Original12239 terminal exit0; exact native_13 JUnit case passed. Receipt shows stable inputs, no cap, and no owned survivors.",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/EXTENDED_CONTROL_AUDIT.json": "ac28e21511763c35e6746d297131e9b60ed816903066cc76bc7f5486afb1dfb4",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/control_13/supervision/receipt.json": "15ef7d55f7f0cfc401ab33a4e08e873be159400ac4bb1619ead5b27d435ed4a9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_breakpoint_subset_v2_20261010/control_13/junit.xml": "615bf4ae9faae7cc28edd15d9c8b4f9f8a88a2789c06109063fd9ea4e9de920a"
+    }
+  },
+  "publication_test_formatting": {
+    "change": "Ruff import-order correction only; all non-import AST statements unchanged.",
+    "sha256": "3ac1237e6e7f4f5b08911e1922bef34f1f8fbb9b520b1f66a23cc7b63b79c649"
+  }
+}
