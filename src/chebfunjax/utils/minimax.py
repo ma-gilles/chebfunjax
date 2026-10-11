@@ -36,6 +36,7 @@ import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Sequence
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from scipy.linalg import eig
@@ -296,12 +297,15 @@ def minimax(
     # panel partition and candidate extrema (minimax.m lines1274/1307).
     # Explicit caller breakpoints remain a deprecated extension; source
     # representation breakpoints are retained independently of that option.
-    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
+    # Source minimax.m constructs splitting-on metadata for callable inputs,
+    # while retaining the original callable as its function-value handle.
+    source = f if isinstance(f, Chebfun) else chebfun(
+        f, domain=(a, b), splitting=True)
     extra_bkpts = (
-        [float(value) for value in f.domain.breakpoints
+        [float(value) for value in source.domain.breakpoints
          if a <= float(value) <= b]
-        if isinstance(f, Chebfun) else []
     )
     if breakpoints is not None:
         warnings.warn(
@@ -877,8 +881,8 @@ def _exchange(
     r_merge = r_merge[sort_idx]
     er_merge = er_merge[sort_idx]
 
-    # Remove duplicates (keep the one with larger absolute error)
-    unique_mask = np.concatenate([[True], np.diff(r_merge) != 0])
+    # Source deletes the earlier member of each duplicate pair.
+    unique_mask = np.concatenate([np.diff(r_merge) != 0, [True]])
     r_merge = r_merge[unique_mask]
     er_merge = er_merge[unique_mask]
 
@@ -1297,7 +1301,7 @@ def _exchange_rat(
     idx = np.argsort(r, kind="stable")
     r = r[idx]
     er = er[idx]
-    keep = np.concatenate([[True], np.diff(r) != 0])
+    keep = np.concatenate([np.diff(r) != 0, [True]])
     r = r[keep]
     er = er[keep]
 
@@ -1322,34 +1326,50 @@ def _exchange_rat(
     return s, norme, 0
 
 
-def _make_reval(
-    xsupport: np.ndarray, wN: np.ndarray, wD: np.ndarray
-) -> Callable:
-    """Barycentric evaluator ``r = N/D`` with support ``xsupport``.
+@jax.jit
+def _reval_source(xsupport, wN, wD, zz):
+    """Native sequential barycentric sums and support-point NaN repair.
 
     Provenance
     ----------
-    MATLAB source : reval (sub-function of minimax.m), Chebfun commit 7574c77
+    MATLAB source : minimax.m, computeTrialFunctionRational and reval.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    xs = np.asarray(xsupport, dtype=np.float64)
-    wN = np.asarray(wN, dtype=np.float64).ravel()
-    wD = np.asarray(wD, dtype=np.float64).ravel()
+    dtype = jnp.result_type(xsupport, wN, wD, zz)
+    zero = jnp.zeros(zz.shape, dtype=dtype)
+
+    def accumulate(i, state):
+        numerator, denominator = state
+        difference = zz - xsupport[i]
+        return numerator + wN[i] / difference, denominator + wD[i] / difference
+
+    numerator, denominator = jax.lax.fori_loop(
+        0, xsupport.size, accumulate, (zero, zero))
+    result = numerator / (-denominator)
+    if xsupport.size:
+        matches = zz[..., None] == xsupport
+        index = jnp.argmax(matches, axis=-1)
+        repair = jnp.isnan(result) & jnp.any(matches, axis=-1)
+        result = jnp.where(repair, -wN[index] / wD[index], result)
+    return result
+
+
+def _make_reval(
+    xsupport: np.ndarray, wN: np.ndarray, wD: np.ndarray
+) -> Callable:
+    """Barycentric evaluator retaining the native division and addition order.
+
+    Provenance
+    ----------
+    MATLAB source : reval and computeTrialFunctionRational in minimax.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    xs = jnp.asarray(xsupport)
+    numerator = jnp.asarray(wN).ravel()
+    denominator = jnp.asarray(wD).ravel()
 
     def rh(zz):
-        zz = np.asarray(zz, dtype=np.float64)
-        shape = zz.shape
-        zv = zz.ravel()
-        with np.errstate(divide="ignore", invalid="ignore"):
-            CC = 1.0 / (zv[:, None] - xs[None, :])
-            N = CC @ wN
-            D = -(CC @ wD)  # note the sign flip in D
-            r = N / D
-        bad = np.where(~np.isfinite(r))[0]
-        for j in bad:
-            match = np.where(zv[j] == xs)[0]
-            if len(match) > 0:
-                r[j] = -wN[match[0]] / wD[match[0]]
-        return r.reshape(shape)
+        return _reval_source(xs, numerator, denominator, jnp.asarray(zz))
 
     return rh
 

@@ -1,0 +1,195 @@
+{
+  "status": "integrated after root source review and hash verification; full parity incomplete",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_base": "85cbba8c snapshot plus accepted CF paired evaluator; minimax.py base unchanged on current publication checkout",
+  "changed_functions": {
+    "minimax": "For polynomial callable input, construct source splitting-on Chebfun metadata while retaining original callable handle; include source representation breakpoints in extrema partition. Existing rational adapter already does this.",
+    "_exchange and _exchange_rat": "Retain last duplicate sorted point, matching native repeated=diff(r)==0; r(repeated)=[] deletion of earlier entries.",
+    "_make_reval and new _reval_source": "Sequential JAX weight/division sums with global array-only JIT helper, followed by native NaN repair at support points; preserve shape and complex queries."
+  },
+  "source_locations": [
+    "minimax.m:82-110 callable-input construction",
+    "minimax.m:1095-1104 sequential numerator/denominator handles",
+    "minimax.m:1143-1160 reval shape/NaN-support behavior",
+    "minimax.m:1230-1233 duplicate removal",
+    "minimax.m:1274/1307 source-domain extrema partition and candidates"
+  ],
+  "ci_diagnosis": {
+    "original_handle": 69425,
+    "original_failures": [
+      "test_equioscillation_absx[6]",
+      "test_equioscillation_absx[8]"
+    ],
+    "observed": "Both returned initial interpolating polynomial at iteration0 and reported ~eps reference-only error; missing cusp metadata plus incorrect duplicate priority prevented an alternating exchange.",
+    "metadata_only_attempt": {
+      "original": 37037,
+      "outcome": "Both still failed; preserved."
+    },
+    "source_last_successor": {
+      "original": 35909,
+      "outcome": "Both unchanged tests pass; repeated within broader final14-case gate."
+    }
+  },
+  "degree7_diagnosis": {
+    "normalization_scale": 1.0,
+    "normalization_causal": false,
+    "remaining_cf_gaps": "The current corrected degree7 path rejects CF and discards its reference. Its reciprocal cosine-node and degree+1 denominator construction shortcuts therefore do not determine this selected fallback outcome; they remain independent source-order gaps, not targets for forcing this warning.",
+    "native_input_first_trial_matrix": "Cstar differs7.1054e-14, alignedQ1.8874e-15, QSQ2.0539e-15. Literal product regrouping did not remove the QSQ difference on retained nativeQ; backend/reduction effects remain.",
+    "evaluator_isolation": "Same retained native support/weights/reference: old evaluator changes residual up to5.95924e-12 and matches8/16; source-order JAX evaluator, including compiled production helper, matches16/16 bitwise.",
+    "native_completed_fit": {
+      "error": 4.620751611015411e-05,
+      "delta": 3.7979859313321746e-07,
+      "iterations": 14,
+      "warning": "minimax algorithm did not converge after 14 iterations to the tolerance 0.0001."
+    },
+    "preceding_cf_only_fit": {
+      "error": 4.603659275786553e-05,
+      "iterations": 11,
+      "warnings": []
+    },
+    "current_fit": {
+      "degree": 7,
+      "err": 4.619600582269484e-05,
+      "delta": 3.557668080211866e-07,
+      "iterations": 14,
+      "success": true,
+      "warnings": [
+        {
+          "category": "RuntimeWarning",
+          "message": "minimax algorithm did not converge after 14 iterations to the tolerance 0.0001."
+        }
+      ]
+    },
+    "interpretation": "Combined source-order corrections restore native iteration/warning outcome naturally; no tolerance changes, error envelopes, snapped zeros, or warning suppression."
+  },
+  "qualification": {
+    "unique_tests": 25,
+    "unchanged_original_tests": 17,
+    "new_analytic_evaluator_contracts": 8,
+    "literal_native_clauses": [
+      1,
+      3,
+      4,
+      5,
+      6,
+      8,
+      14,
+      15,
+      20
+    ],
+    "test_ids": [
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_01]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_03]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_04]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_05]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_06]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_08]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_14]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_15]",
+      "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax::test_matlab_clause[native_20]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[10]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[20]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[2]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[4]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[6]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_absx[8]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_sin[10]",
+      "tests.test_utils.test_minimax.TestMinimaxEquioscillation::test_equioscillation_sin[4]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[False-shape0]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[False-shape1]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[False-shape2]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[True-shape0]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[True-shape1]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_linear_rational_shape_and_complex_query[True-shape2]",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_pole_outside_support_is_not_repaired",
+      "tests.test_utils.test_minimax_barycentric_source_contracts::test_support_values_and_nan_input"
+    ],
+    "cpu": "4-7",
+    "gates": {
+      "polynomial_controls": {
+        "original": 37623,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 2033352,
+        "wall_seconds": 41.72364640701562,
+        "input_count": 359,
+        "qualified": true
+      },
+      "rational_controls": {
+        "original": 2694,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 2680304,
+        "wall_seconds": 52.840583882294595,
+        "input_count": 360,
+        "qualified": true
+      },
+      "native_reval16": {
+        "original": 71617,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 510728,
+        "wall_seconds": 6.3552827392704785,
+        "input_count": 356,
+        "qualified": true
+      },
+      "fit7": {
+        "original": 39965,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1828132,
+        "wall_seconds": 34.904697990976274,
+        "input_count": 353,
+        "qualified": true
+      }
+    },
+    "static": "Exact delivery-patch application reproduces tested source/new-test bytes; configured Ruff passes in full source-tree context; outside targeted functions/import AST unchanged; apply-check on publication checkout passes."
+  },
+  "limits": [
+    "Residual error difference from native completed7/7 fit is1.1510287459275e-8. Exact matrix/backend numerical parity remains open.",
+    "No claim that either evaluator ordering or duplicate priority alone explains the completed-fit warning change; both are literal source fixes with independent local evidence.",
+    "The rest of minimax still contains NumPy/SciPy arithmetic; only the rational evaluator is migrated to JAX here.",
+    "No full MinimaxSqrt rerun; retained116-slot baseline remains tied to its earlier source. Worker receives dependency map for scoped requalification.",
+    "Early two-case CI auxiliary gates omitted conftest files from their input hash list; the final broader polynomial/rational gates explicitly bind all conftest files and repeat the unchanged CI cases. Only final gates supply the25 unique qualified-test count.",
+    "Preserve original69425 failures, metadata-only37037 failures, and prior CF capped probes."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/delivery.patch": "c09c848f24b4d692dac1e3967af22172115e61f6d940f353a79e8a74ac8b1601",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/snapshot/src/chebfunjax/utils/minimax.py": "bf61de366b78395744e80df75530265a2f377a3e89e63bd7bdd3741ddcaecb39",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/snapshot/tests/test_utils/test_minimax_barycentric_source_contracts.py": "89d31025afc55b863fb02f2e60d23d5a0d1dea465a6e3466c612fd0eab6f6202",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/STATIC_REVIEW.json": "63c8be6c8fe2077778d6717c89fc37a395d6f36259b51be1b5a26889f9a5aa1a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/polynomial_controls/AUDIT.json": "ac24aa357e5f58c8492670ec5cb0f065fd5fae606a34b09e48528fb97ac0d64f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/rational_controls/AUDIT.json": "232d4345f6526663f3a963eef248ef71f562d39bc431fbaa3b653ff6482f3ebc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/native_reval16/AUDIT.json": "61bc81e73c20db933b4c08e7e136e798573f4273a9f2ae02f6c08cfdb491baf7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/fit7/AUDIT.json": "01318b70cc26c8230c6cc48a702f13c28ac4394f549459ad7a4921b32d89a2f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/native_reval16/report.json": "3ad8097a0a45790161cec0dfb4601b7858e11128d9a97520750107ec94715413",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/fit7/report.json": "aa485e05d02c7e4a5a2af7ce0e86b1d3f895b4c5743e943b6e5262009e3531aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmt1/AUDIT.json": "2da37807d8b36318797394a2b40b59af951d26335e3b22be16aea835daa3c5e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmt1/OBSERVER_DIFF.patch": "ac76d8992b77968d17c2c5e92305d14cb6511dc8eff251e0f379e0ee99223958",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmt1/capture.mat": "13a2ae3ed67fc52fec533fe4223fbe6f81223e6f2518f5cbf7fc030f3580cfe6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/native_reference_first_trial_v1/AUDIT.json": "77cfdceffa6c8592f54f7a052e2cb682c98437475f905300d8724c5b63f0cd73",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/trial_matrix_comparison_v1/AUDIT.json": "dbb4d4b13d85c6e9a9e0e06c66e2e039738f6a50bb6f502bbf67ce21579f5942",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/trial_matrix_comparison_v1/report.json": "24ddd747e06b0c991657ac97e77132df3dc76a790f681d82205a6f1fdda3e7be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/absx_ci_original_v1/AUDIT.json": "3ba2cb8b846fac9322ab657ea199765d933c37df90ea79b158423974500c0c7e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/absx_ci_original_v1/failure_6.json": "4bb24505d4ee2c8e8e9799fc18c4114df047456d18b802f156fda2b0fcf97f89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_post_cf_diagnosis_20261010/absx_ci_original_v1/failure_8.json": "d83bc5790d45732fe0f2d6c1e36dd2579a8abdb5b57351f5dc7fc482a4917616",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_20261011/absx_ci/AUDIT.json": "ea581205bd7ab7f6095447c28f1baf88dfcc5000d0d7cfb8e5a5e6b44851a3cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/snapshot/tests/test_utils/test_minimax.py": "28d113216fd1a92bb6061cdaa582e65d76e63e1f52f4932a9124a84fae22b926",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_source_evaluation_candidate_v2_20261011/snapshot/tests/test_matlab_port/misc/test_minimax_matlab.py": "3ac1237e6e7f4f5b08911e1922bef34f1f8fbb9b520b1f66a23cc7b63b79c649"
+  },
+  "root_guard_rehash_counts": {
+    "polynomial_controls": 359,
+    "rational_controls": 360,
+    "native_reval16": 356,
+    "fit7": 353
+  },
+  "integration_head_before_commit": "5593331144a2e3ab69ea1e1b901a2b3ce3df6009"
+}
