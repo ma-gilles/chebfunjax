@@ -1,0 +1,60 @@
+{
+  "scope": "finite scalar Newton text display and true accepted-step lengths; Newton arithmetic unchanged by reviewed additive delta",
+  "unchanged_function_AST": {
+    "_norm": true,
+    "_add": true,
+    "_divide": true,
+    "_constraint_solve": true,
+    "fit_scalar_bcs": true,
+    "_validate_initial": true
+  },
+  "format_controls": 9,
+  "public_original_handle": 75024,
+  "public_original_terminal": 1,
+  "public_original_wall_seconds": 26.198980446904898,
+  "public_peak_KiB": 1391556,
+  "public_science": "source scalarODE clause1 off/iter bound assertions, exact coefficients/full info/warnings invariance completed; recorder failed after saving stdout/coefficients",
+  "public_residual_value": "not persisted",
+  "full_Carrier": "not run; page/figures not updated",
+  "resource_plan": {
+    "first_literal_Carrier_only": "Propose CPU12\u201315,180s,4GiB after review; existing second-init/backend qualification peaked3321512KiB, so3GiB is unsupported",
+    "whole_three_case_Carrier": "Forecast CPU12\u201315,600s,8GiB, not measured; retained compilation caches may accumulate. No launch before root approval."
+  },
+  "limitations": [
+    "Only finite scalar public text route; coupled/piecewise/GUI display not qualified",
+    "No new native capture or exact Carrier table claim",
+    "Complex fprintf real-component formatting is an explicit adapter, not captured native qualification",
+    "Conditional Carrier output protocol/page alignment deferred until actual source run produces its table"
+  ],
+  "amendment": "boundary-error diagnostic arithmetic now exclusively JAX; host conversion only formatting",
+  "source_recheck": {
+    "exactInitial": "strcmpi(display,iter) matches case-insensitive adapter; uppercase test added",
+    "init_iter": "strcmpi; preserved",
+    "final": "strcmp iter/final is case-sensitive; preserved",
+    "boundary": "solvebvpNonlinear normBCres endpoint evaluations squared without conjugation; general vector norm2 squared; sqrt of total; original callbacks evaluated once with groups recording source endpoint/general distinction"
+  },
+  "scope_unchanged": "finite scalar vector general-BC contract; no periodic/coupled adapter claim",
+  "production_solver_byte_identity_to_actual_public_v1": true,
+  "original_receipts": "public75024 terminal1 and recovery_v1 terminal1 (bad stderr filename), recovery_v2 terminal0 retained unmodified",
+  "new_gate": "format_v2 only; no solve repeat",
+  "new_gate_result": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 9.50660529686138,
+    "sampled_peak_summed_rss_kib": 495440,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "root_review": {
+    "review_bindings_verified": 47,
+    "original_public_guard_inputs_verified": 546,
+    "review_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/REVIEW_V2.json",
+    "review_sha256": "061b2e585fa411dd0c4ad83999f007ce2508b61f89b5c970ea70432cea0c9d7f",
+    "scope": "Source display helper and additive scalar Newton events reviewed; original recorder terminal1 retained; full Carrier pending.",
+    "additional_guard_inputs_verified": {
+      "format_v2": 546,
+      "recovery_v2": 546
+    },
+    "formatting": "Import ordering and test formatting only; five non-import ASTs and import sets unchanged."
+  }
+}

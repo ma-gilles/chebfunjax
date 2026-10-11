@@ -19,6 +19,7 @@ from jax.scipy.linalg import lu_factor, lu_solve
 
 from chebfunjax.autodiff.adchebfun import ADChebfun
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+from chebfunjax.operators._scalar_display import boundary_error, format_display_info
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.utils.interpolation import barymat
 from chebfunjax.utils.quadrature import chebpts
@@ -34,19 +35,28 @@ def _add(left, right, factor=1):
     return [a + factor * b for a, b in zip(left, right)]
 
 
+def _iteration_info(u, delta, iteration, norm_delta, contraction, lam):
+    """Native displayInfoIter fields from the actual accepted functions."""
+    return {'iteration': iteration, 'normDelta': norm_delta,
+            'contraction': contraction, 'lambda': lam,
+            'lenDelta': len(delta[0]),
+            'lenU': max(len(v) if isinstance(v, Chebfun) else 1 for v in u)}
+
+
 def _divide(a, b):
     # Match IEEE MATLAB arithmetic, including zero-denominator predictions.
     return float(jnp.asarray(a) / jnp.asarray(b))
 
 
 
-def _conditions(op, u):
+def _conditions(op, u, *, group_lengths=None):
     """Source parseBC/linearize: evaluate endpoint and general conditions."""
     result = []
     for callback, point in ((op._lbc_raw, op.domain[0]),
                             (op._rbc_raw, op.domain[-1])):
         if callback is None:
             continue
+        start = len(result)
         if callable(callback):
             rows = callback(u)
         else:
@@ -56,13 +66,18 @@ def _conditions(op, u):
             is_function = (isinstance(row.func, Chebfun) if
                            isinstance(row, ADChebfun) else callable(row))
             result.append(row(point) if is_function else row)
+        if group_lengths is not None:
+            group_lengths.append(("endpoint", start, len(result)))
     if op._bc_general is not None:
+        start = len(result)
         callback = op._bc_general
         if len(inspect.signature(callback).parameters) > 1:
             rows = callback(chebfun(lambda t: t, domain=op.domain), u)
         else:
             rows = callback(u)
         result.extend(rows if isinstance(rows, (tuple, list)) else [rows])
+        if group_lengths is not None:
+            group_lengths.append(("general", start, len(result)))
     return result
 
 
@@ -186,6 +201,7 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     from chebfunjax.chebpref import ChebopPref
 
     preferences = ChebopPref()
+    display = preferences.display
     lambda_min = preferences.lambdaMin
     domain = tuple(op.domain)
     _validate_initial(op, domain, n_min)
@@ -330,6 +346,8 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
             vscale = max(vscale, float(full.vscale))
 
     history, damping_history = [], []
+    iteration_history = []
+    exact_initial = False
     damping = bool(getattr(op, "damping", preferences.damping))
     pref_damping = damping
     lam = 1.0
@@ -352,7 +370,11 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
             history = [norm_delta]
             error = float('nan')
             success = True
+            exact_initial = True
+            print(format_display_info("exactInitial", display), end="")
             break
+        if counter == 0:
+            print(format_display_info("init", display), end="")
         if damping:
             contraction = float("nan")
             prediction = True
@@ -413,6 +435,9 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
         damping_history.append({'lambda': lam, 'contraction': contraction,
                                 'dimension': size, 'damping': damping})
         norm_old = norm_delta
+        step = _iteration_info(u, delta, counter, norm_delta, contraction, lam)
+        iteration_history.append(step)
+        print(format_display_info("iter", display, step=step), end="")
         if error < err_tol:
             success = True
         if success or counter > max_iter or give_up == 1:
@@ -422,10 +447,17 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                       ('linear solve or damping did not converge' if give_up else
                        'maximum number of iterations exceeded'), RuntimeWarning,
                       stacklevel=2)
+    boundary_groups = []
+    boundary_values = [value(c) for c in _conditions(op, u[0], group_lengths=boundary_groups)]
+    if success and not exact_initial:
+        print(format_display_info("final", display, iterations=counter,
+                                  backend=backend, error=error,
+                                  boundary_error=boundary_error(boundary_values, boundary_groups)), end="")
     op._last_info = {'normDelta': history, 'error': error, 'converged': success,
                      'dampingHistory': damping_history, 'linearDimensions': grid_history,
                      'linearDiscretizations': discretization_history,
-                     'boundaryResidual': [value(c) for c in conditions(u)],
+                     'boundaryResidual': boundary_values,
+                     'iterationHistory': iteration_history, 'exactInitial': exact_initial,
                      'bvpTol': bvp_tol, 'newtonTolerance': err_tol}
     if backend != 'chebcolloc2':
         op._last_info['discretization'] = backend
