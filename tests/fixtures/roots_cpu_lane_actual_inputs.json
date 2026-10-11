@@ -1,0 +1,25 @@
+{
+  "scope": "Retained original generic CPU JAX/JAXlib0.11.0 transform outputs from matched inverse sourcepair. No recomputation or manually prescribed reduction oracle.",
+  "cases": [
+    {
+      "n": 60,
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/source_baseline/transform_83.npz",
+      "sha256": "0d50e72d76424a63a1290a27bdff4a07279ca3e3df11ee76bb52101f11f44820"
+    },
+    {
+      "n": 51,
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/source_baseline/transform_19.npz",
+      "sha256": "b3139a2ade0125f59be8b4e4ef4cef1622fb89371e4e0a9b841d18d4684d98d7"
+    },
+    {
+      "n": 53,
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/source_baseline/transform_32.npz",
+      "sha256": "d00e62257a5e3f30b7a75cf2e42ce24f65889d24f24193c2cc5b763b79261333"
+    },
+    {
+      "n": 54,
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/source_baseline/transform_11.npz",
+      "sha256": "f7cd2507fdc6c33f680ecf94ec09413d2b96f7051166e59bd47a68ad0aac01d8"
+    }
+  ]
+}

@@ -463,6 +463,18 @@ class Quasimatrix:
         """
         return self.cols[0].is_transposed
 
+    def permute(self, order):
+        """Apply the pinned Chebfun numeric-order rule to this collection.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/permute.m
+        Chebfun commit: 7574c77
+        """
+        from ._permutation import source_transposes
+
+        return self.transpose() if source_transposes(order) else self
+
     def transpose(self):
         """Non-conjugate transpose of a quasimatrix.
 

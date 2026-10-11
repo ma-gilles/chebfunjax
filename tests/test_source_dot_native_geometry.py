@@ -31,7 +31,14 @@ def test_independent_native_dot_geometry(native):
             [0],
             [0],
             ".k",
-            {"markersize": native["size"], "linewidth": native["line_width"]},
+            {
+                "markersize": native["size"],
+                "linewidth": native["line_width"],
+                # Builtin native plot outline width is represented explicitly;
+                # Chebfun's parser routes curve LineWidth separately.
+                "markeredgewidth": native["line_width"]
+                if "outer_annulus_radius" in native else 0,
+            },
         )
         artist = ax.lines[0]
         marker = artist._marker
@@ -56,7 +63,7 @@ def test_source_line_defaults_and_edge_override():
         )
         assert ax.lines[0].get_linewidth() == 1.6
         assert ax.lines[1].get_markersize() == 24
-        assert ax.lines[1].get_markeredgewidth() == 1.6
+        assert ax.lines[1].get_markeredgewidth() == 0.5
     finally:
         plt.close(fig)
     fig, ax = plt.subplots()
@@ -89,5 +96,27 @@ def test_zero_size_keeps_invisible_python_marker():
         assert ax.lines[0].get_markersize() == 0
         assert ax.lines[0].get_markeredgewidth() == 0
         fig.canvas.draw()
+    finally:
+        plt.close(fig)
+
+
+def test_public_chebfun_line_width_does_not_change_dot_outline():
+    import numpy as np
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    from chebfunjax.plotting import matlab_plot
+    from chebfunjax.tech.chebtech import Chebtech2
+    # Literal low-degree coefficients avoid any function approximation/solve.
+    f = Chebfun(funs=[_Piece(tech=Chebtech2.from_coeffs(np.array([0., 1.])),
+                            interval=(-1., 1.))], domain=Domain((-1., 1.)))
+    fig, ax = matlab_plot(f, 'b.-', numpts=9, linewidth=1.6, markersize=24)
+    try:
+        lines = [a for a in ax.lines if a.get_marker() in (None, 'None', '')]
+        points = [a for a in ax.lines if a.get_marker() not in (None, 'None', '')]
+        assert lines and points
+        assert all(a.get_linewidth() == 1.6 for a in lines)
+        assert all(a.get_markeredgewidth() == .5 for a in points)
+        assert all(a.get_markersize() == 24 for a in points)
     finally:
         plt.close(fig)

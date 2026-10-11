@@ -1,0 +1,167 @@
+{
+  "original_pass": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "cases": [
+    {
+      "case": 0,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 1,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": true
+    },
+    {
+      "case": 2,
+      "order_shape": [
+        1,
+        3
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 3,
+      "order_shape": [
+        1,
+        3
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": true
+    },
+    {
+      "case": 4,
+      "order_shape": [
+        1,
+        3
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 5,
+      "order_shape": [
+        1,
+        3
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 6,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "float64",
+      "success": false,
+      "identifier": "MATLAB:permute:badIndex"
+    },
+    {
+      "case": 7,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "uint8",
+      "success": false,
+      "identifier": "MATLAB:permute:repeatedIndex"
+    },
+    {
+      "case": 8,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "uint8",
+      "success": false,
+      "identifier": "MATLAB:permute:badIndex"
+    },
+    {
+      "case": 9,
+      "order_shape": [
+        2,
+        2
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 10,
+      "order_shape": [
+        2,
+        1
+      ],
+      "order_dtype": "uint8",
+      "success": true,
+      "identifier": "",
+      "is_transposed": false
+    },
+    {
+      "case": 11,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "complex128",
+      "success": false,
+      "identifier": "MATLAB:permute:complexIndex"
+    },
+    {
+      "case": 12,
+      "order_shape": [
+        1,
+        2
+      ],
+      "order_dtype": "complex128",
+      "success": false,
+      "identifier": "MATLAB:permute:complexIndex"
+    },
+    {
+      "case": 13,
+      "order_shape": [
+        0,
+        0
+      ],
+      "order_dtype": "uint8",
+      "success": false,
+      "identifier": "MATLAB:permute:tooFewIndices"
+    }
+  ],
+  "scope": "offline MAT observations verification; original MATLAB process exit1 JSON complex recorder failure retained",
+  "native_mat_sha256": "bf52856daa6a3807abfc6329c1d4d38078c91d7da76ad06d4e1e64ef6c5c2a92",
+  "source_native_process_scientific_order": "MAT saved after original4/cases/inputimmutability assertion; profile/endmaps written before failed JSON encoder",
+  "native_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_native_capture_20261011",
+  "offline_observer": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_native_recovery_20261011",
+  "native_original_handle": 87211,
+  "native_original_exit": 1,
+  "recovery_handle": 80602,
+  "recovery_exit": 0
+}

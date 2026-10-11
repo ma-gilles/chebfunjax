@@ -1059,25 +1059,18 @@ class Chebfun(eqx.Module):
         return self.ctranspose()
 
     def permute(self, order) -> "Chebfun":
-        """Permute the two Chebfun array dimensions.
+        """Validate numeric ORDER and apply pinned nonconjugate transpose rule.
 
-        Since a Chebfun has exactly two dimensions, ``order`` must be
-        ``[1, 2]`` (identity) or ``[2, 1]`` (transpose, ``F.'``).
+        Valid trailing dimensions are accepted; only a first index of two transposes.
 
         Provenance
         ----------
         MATLAB source : @chebfun/permute.m
         Chebfun commit: 7574c77
         """
-        order = tuple(int(o) for o in order)
-        if order == (1, 2):
-            return self
-        if order == (2, 1):
-            return self.transpose()
-        raise ValueError(
-            "ORDER must be a permutation of [1, 2] for a Chebfun "
-            f"(got {list(order)})."
-        )
+        from ._permutation import source_transposes
+
+        return self.transpose() if source_transposes(order) else self
 
     # ------------------------------------------------------------------
     # pointValues — the MATLAB explicit-value-at-breakpoints field

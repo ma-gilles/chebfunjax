@@ -1,7 +1,7 @@
 {
   "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
   "scope": "Observed MATLAB R2024b CPU/Painters dot geometry; not universal renderer or full raster/font parity.",
-  "change": "Preserve nominal marker and line properties; match independently captured dot radii and outlines. Branch selection matches float32 rounding of MarkerSize at 21. Nonpositive/nonfinite Python sizes retain the prior adapter.",
+  "change": "Match captured builtin dot geometry while retaining Chebfun style routing: curve LineWidth does not set the separate point outline; large dots use native default 0.5. Explicit Python markeredgewidth is authoritative. MarkerSize branch matches float32 rounding at 21; nonpositive/nonfinite sizes retain prior adapter.",
   "validation": {
     "independent_native_geometry_cases": 72,
     "v3_checks_passed": 75,
@@ -44,6 +44,39 @@
     {
       "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v4_20261011/ROOT_PUBLICATION_REVIEW.json",
       "sha256": "145e30e67a3dab736b5bde8d4085b646c23b915d06a09bbb14e5c5bda27689a9"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_dot_point_linewidth_v2_20261011/REPORT.json",
+      "sha256": "a33c1f46d49d439406738770f54cb47d22a7f9e017dc7d452e33e35d82ae868d"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_dot_point_linewidth_v2_20261011/SOURCE_EVIDENCE.json",
+      "sha256": "ded26e805dbfb1995668b9f47c3a9d54f099d557ac0a66819bcf1f20a54a0def"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_dot_point_linewidth_v2_20261011/BINDINGS.json",
+      "sha256": "6db4da74ab58f50c97f8992d7a70e1b4bb6f1336103033c06a38cac078c4d300"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_dot_point_linewidth_v2_20261011/ROOT_REVIEW.json",
+      "sha256": "22df88d1d27f5ac26b955edbc2d250fdfc9105ab4fe153f336cf6f44d71e3b1b"
     }
-  ]
+  ],
+  "source_style_correction": {
+    "tests_passed": 75,
+    "seconds": 4.04,
+    "native_geometry_cases": 72,
+    "public_style_control": true,
+    "fixture_scope": "Builtin native outline widths mapped through explicit Python markeredgewidth; separate public Chebfun control establishes curve/point routing.",
+    "FOV_images": "Unchanged; relevant point calls omit linewidth.",
+    "root_review": {
+      "bindings_verified": 312,
+      "guard_inputs_verified": 295,
+      "production_bytes_equal": true,
+      "test_AST_equal_except_import_formatting": true,
+      "receipt_terminal": 0,
+      "inputs_stable": true,
+      "no_caps_or_survivors": true
+    }
+  }
 }

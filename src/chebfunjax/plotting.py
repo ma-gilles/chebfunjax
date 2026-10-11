@@ -4482,7 +4482,9 @@ def _source_plot_line_and_points(
             point_kw.setdefault("markeredgewidth", 0)
         else:
             point_kw["marker"] = MarkerStyle("o").scaled(22/75)
-            point_kw.setdefault("markeredgewidth", props.get("linewidth", 0.5))
+            # parsePlotStyle.m routes LineWidth to the curve artist only.
+            # plot.m creates its separate point artist with native default 0.5.
+            point_kw.setdefault("markeredgewidth", 0.5)
     line_visible = line_style not in (None, "", "none", "None")
     marker_visible = marker not in (None, "", "none", "None")
     draw_points = marker_visible and not suppress_points

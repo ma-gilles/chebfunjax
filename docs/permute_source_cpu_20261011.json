@@ -1,0 +1,75 @@
+{
+  "native_source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime_base": {
+    "base": "88a41f5266d368ea765a155b57b1759a37531793",
+    "pending_overlay": "acceptedQuasimatrix.fliplr rowonly branch fromfliplr_source delivery applied privately"
+  },
+  "source_predicates": {
+    "original": 4,
+    "qualified": 4,
+    "predicate": "explicit default pref, public continuous norm exactly zero for identity/nonconjugate transpose, original two error clauses"
+  },
+  "source_confirmed_fault": "Valid trailing-dimension permutations rejected; integer casting silently changed invalid numeric inputs; collection lacked permute.",
+  "native_observations": {
+    "cases": 14,
+    "successes": 8,
+    "original_handle": 87211,
+    "original_terminal": 1,
+    "recorder_failure": "Complex JSON encoding after MAT/profile/endmaps; original exit1 retained.",
+    "offline_observer_handle": 80602,
+    "offline_terminal": 0,
+    "original4_in_saved_MAT": true,
+    "project_capture_hashes_guardmatched": 70,
+    "scope": "MAT native values/identifiers verified without rerunning MATLAB; not a clean whole native process claim"
+  },
+  "cohorts": {
+    "candidate_gate": {
+      "original_handle": 81965,
+      "scope": "original4 passed before supplemental harness failure",
+      "terminal": 1,
+      "peak_rss_kib": 716264,
+      "wall_seconds": 14.109626001212746,
+      "stable": true,
+      "cap": null,
+      "survivors": []
+    },
+    "candidate_gate_v2": {
+      "original_handle": 86522,
+      "scope": "21 passed:14captured+collection+6historical tests",
+      "terminal": 0,
+      "peak_rss_kib": 840732,
+      "wall_seconds": 14.969754954334348,
+      "stable": true,
+      "cap": null,
+      "survivors": []
+    },
+    "stored_gate": {
+      "original_handle": 43806,
+      "scope": "1passed explicit stored point-value identity",
+      "terminal": 0,
+      "peak_rss_kib": 588644,
+      "wall_seconds": 11.108463154174387,
+      "stable": true,
+      "cap": null,
+      "survivors": []
+    }
+  },
+  "algorithm_scope": "JAX numeric order validation and literal source first-index==2 nonconjugate transpose; no approximation/numerical-kernel changes. Trailing and matrix-shaped orders preserve native observed dispatch.",
+  "supplemental_controls": "14 captured validation/storage orders, collection nonconjugate storage, explicit stored point-value retention; no added native assertion count.",
+  "retained_failures": {
+    "baseline77068": "valid [1,2,3] rejected",
+    "candidate81965": "original4 passed, then supplemental harness spelling pointValues instead of public point_values; no library fault"
+  },
+  "limitations": [
+    "Unsupported Python object classes and unobserved combinations of invalid indices do not have full MATLAB builtin validation-priority qualification.",
+    "Function-constructor coefficients are not compared bitwise across MATLAB and JAX providers; invariance is verified within each provider.",
+    "No axis data permutation beyond pinned first-index rule is inferred."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_source_20261011/REPORT.json": "0968ececf9ddf2731422afed7ddc491d3a56ba1f09602b835eff637cf875cb50",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_source_20261011/DELIVERY.json": "d9caf23164d3fb3c0901b437905616dd99447eef294779e2dbd47b3cf7d92d66",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_source_20261011/METHOD_SCOPE.json": "d9cb2e2c9e3e7a3752c13912f45b9c87f733c785a0435604525d958ae59b609c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_permute_dot_method_scope_20261011.json": "341bc3661e41b4db88051ef3ab78fb929766ad36700c12da0cf25cfd7fdf30c3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/permute_source_20261011/ROOT_EVIDENCE_REVIEW.json": "439fc9444a6430c9490cc2a13d1c9b730d9c8fe7c86015db09d286ebf0b5a9bf"
+  }
+}

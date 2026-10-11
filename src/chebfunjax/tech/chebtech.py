@@ -1309,6 +1309,50 @@ def _roots_cached_transforms(device, x64_enabled):
     return matrices
 
 
+
+@lru_cache(maxsize=None)
+def _roots_cached_lane_transforms(device, x64_enabled):
+    """Cache only the existing source-fixed transform constants."""
+    with jax.default_device(device):
+        left, right = _roots_cached_transforms(device, x64_enabled)
+        return jnp.stack((left, right))
+
+
+@jax.jit
+def _roots_apply_transforms_cpu_lanes(c, matrices, n):
+    """CPU float64 prefix GEMV using fixed shapes and dynamic prefix length.
+
+    Reproduce the observed four-lane CPU GEMV reduction and its four-row
+    epilogue. Products stay separate from additions. This is an eager roots
+    adapter optimization, not a portable bitwise contract for every CPU.
+    Native mathematical operation: @chebtech/roots.m n-by-n transform prefix,
+    Chebfun pin7574c77. Generic JIT/AD/device paths retain the original dot.
+    """
+
+    def step(i, acc):
+        columns = jax.lax.dynamic_slice(matrices, (0, 0, 4 * i), (2, 513, 4))
+        values = jax.lax.dynamic_slice(c, (4 * i,), (4,))
+        product = jax.lax.optimization_barrier(columns * values[None, None, :])
+        return acc + product
+
+    acc = jax.lax.fori_loop(0, n // 4, step, jnp.zeros((2, 513, 4), dtype=c.dtype))
+
+    def tail_step(i, acc):
+        column = jax.lax.dynamic_slice(matrices, (0, 0, i), (2, 513, 1))[:, :, 0]
+        product = jax.lax.optimization_barrier(column * c[i])
+        return acc + product
+
+    tail = jax.lax.fori_loop(4 * (n // 4), n, tail_step, jnp.zeros((2, 513), dtype=c.dtype))
+    h1 = jax.lax.optimization_barrier(acc[:, :, 0] + acc[:, :, 2])
+    h2 = jax.lax.optimization_barrier(acc[:, :, 1] + acc[:, :, 3])
+    ordinary = jax.lax.optimization_barrier(h1 + h2)
+    adjacent1 = jax.lax.optimization_barrier(acc[:, :, 0] + acc[:, :, 1])
+    adjacent2 = jax.lax.optimization_barrier(acc[:, :, 2] + acc[:, :, 3])
+    adjacent = jax.lax.optimization_barrier(adjacent1 + adjacent2)
+    special = (n % 8 == 4) & (jnp.arange(513) >= n - 4)
+    return (jnp.where(special[None, :], adjacent, ordinary) + tail, jnp.all(jnp.isfinite(c)))
+
+
 @jax.jit
 def _roots_apply_transforms(c, left, right):
     """Apply the exact source n by n prefixes to dynamic coefficients.
@@ -1349,11 +1393,29 @@ def _roots_subdivide(c):
     MATLAB source : @chebtech/roots.m, roots_main subdivision branches
     Chebfun commit: 7574c77
     """
+    # Preserve host storage for the fixed-shape CPU transfer adapter below.
+    host_c = c if isinstance(c, np.ndarray) else None
     # Concrete host arrays need a transfer, not a shape-specific conversion JIT.
     c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
     if isinstance(c, jax.core.Tracer):
         raise ValueError("roots subdivision dispatch requires eager coefficients")
     if c.shape[0] <= 513:
+        n = c.shape[0]
+        if (host_c is not None and host_c.ndim == 1
+                and host_c.dtype == np.dtype('float64')
+                and c.dtype == jnp.float64 and c.device.platform == 'cpu'
+                and jax.config.x64_enabled and 50 < n <= 513):
+            # NumPy only owns transfer storage; numerical work is entirely JAX.
+            padded = np.zeros(513, dtype=host_c.dtype)
+            padded[:n] = host_c
+            matrices = _roots_cached_lane_transforms(c.device, True)
+            result, finite = _roots_apply_transforms_cpu_lanes(
+                jax.device_put(padded, c.device), matrices,
+                jnp.asarray(n, dtype=jnp.int64))
+            if bool(finite):
+                result = jax.device_get(result)
+                return result[0, :n].copy(), result[1, :n].copy()
+            # Preserve the generic IEEE/failure path for nonfinite inputs.
         left, right = _roots_cached_transforms(c.device, jax.config.x64_enabled)
         return _roots_apply_transforms(c, left, right)
     if c.shape[0] > 4000:

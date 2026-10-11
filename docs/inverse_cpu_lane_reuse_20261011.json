@@ -1,0 +1,56 @@
+{
+  "base": "88a41f52 plus qualified noVectorCheck overlay; source snapshot guard bound. Subsequent rootd953e6ff unrelated changes were not rebased.",
+  "scope": "Only host-origin one-dimensional realfloat64 coefficients on CPU/x64 with51<=n<=513 enter fixed-shape JAX GEMV. Numerical matrix-prefix algorithm/threshold/tolerances unchanged; NumPy owns transfer buffers only. Nonfinite coefficients return to generic dot; devicearrays,complex,float32,matrix,small andlarge inputs preserve existingpath. Generic JIT/AD dot remains unchanged.",
+  "implementation": "Four interleaved accumulation lanes, separately rounded products, separate scalar tail. Optimized LLVM proves parity horizontal fold except n%8==4 finalfourrows use adjacentpair fold. Matrix constants cached bydevice/x64; no coefficient-dependent values cached.",
+  "qualification": {
+    "candidate_v1": "58passed:17newcontrols+17unchangedsubdivisioncontrols+24unchangedinversecases",
+    "final_v2": "18passed:17prioradaptercontrols+matrixfallback; only additional ndim==1 eligibility conjunct. Numericalhelper/cache ASTs identical and entire file otherwise byte-identical to qualifiedv1.",
+    "captured_kernel_identity": "All95actual transforminstances/68shapes pass correctedV3 bitidentity",
+    "final_scientific_identity": "All111npz files byte-identical across sourcepair:106subdivision input/outputcaptures+4inversecoeff/domain/pointValuescaptures+129-point roundtripcapture",
+    "lint": "ruffcheck final twofiles passes"
+  },
+  "retained_failures": [
+    "Initial scratch lane probe failed int64/int32 dynamic_slice index agreement; nextprobe fixed scalarindex dtype.",
+    "Initial full scratch prototype had10transformcaptures different only in finalfourrows,n%8==4, errors<=8.9684e-44; completeinverse still matched. LLVM epilogue analysis then fixed arithmetic, all95cases/111finalcaptures match."
+  ],
+  "limits": [
+    "Observed firstafterfixtureconstruction19.7982s->17.5543s in one serial sharedhost pair; no universal speedup or confidenceinterval. Threewarmmedians.595602s/.589800s do not establish warm improvement.",
+    "Same exact forwardfixture sha8033c9b6ce0ba262a9be5a28795e0166c7a8d03f9891f143bf0099323775f382; no nativeMATLABtiming or processstartupcomparison.",
+    "Fourlane byteidentity is scoped to observed JAX/JAXlib0.11.0 CPUbackend. Other CPUtarget/compiler reduction orders have not been qualified for byteidentity or performance.",
+    "No GPU/complex/AD fastpath claim; existinggenericpaths retained. Sourcegatebounds unchanged. Fullsuite/CI remain open.",
+    "Final one-dimensional eligibility hardening was validated by18focusedcases; fullscientificpair remains qualifiedv1 with invariant1Dinputs and identical numericalhelpers, not falsely relabeled a finalv2 rerun."
+  ],
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "benchmark": {
+    "first_seconds": [
+      19.798194160219282,
+      17.5543
+    ],
+    "warm_median_seconds": [
+      0.595602270681411,
+      0.5898
+    ],
+    "scope": "One matched serial CPU pair from the identical saved forward fixture; not a confidence interval or general CPU/MATLAB speed claim.",
+    "inverse_length": 8878,
+    "all_111_saved_npz_byte_identical": true
+  },
+  "root_golden_controls": {
+    "tests_passed": 4,
+    "seconds": 6.57,
+    "cases": [
+      60,
+      51,
+      53,
+      54
+    ],
+    "scope": "Portable retained actual generic baseline outputs exercise multiple terms, final-four-row epilogue and scalar tails; no manually encoded reduction oracle."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/DELIVERY.json": "930d742f9251a8096a1790c2480a1d605c3caca9b165c98345813bd015db1550",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/cpu_inverse_lane_reuse.patch": "47dcddbfbe666173f7fecc6f5777531ce32b1b113d6b197a6c026c0aa6e8720d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_lane_fixture_gate_20261011/ROOT_REVIEW.json": "9f01a3014f731abeb207341a52a77f562b2d1502103e98f84c734bb312948e59",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_lane_fixture_gate_20261011/supervision/receipt.json": "f220b4b2b09a60e8be88afe03c453492bde67972646fc5396d34de840a6a4cf4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_permute_dot_method_scope_20261011.json": "341bc3661e41b4db88051ef3ab78fb929766ad36700c12da0cf25cfd7fdf30c3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matvec_lanes_20261011/ROOT_EVIDENCE_REVIEW.json": "96a415e844974b06f59c106f011f1c4895fcfde43fb2f544ea784151d5dfcb33"
+  }
+}
