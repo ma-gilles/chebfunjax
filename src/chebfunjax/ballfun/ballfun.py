@@ -36,6 +36,7 @@ Reference:
 from __future__ import annotations
 
 import warnings
+from functools import partial
 from typing import Callable
 
 import equinox as eqx
@@ -44,6 +45,29 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.utils.misc import standard_chop
+
+
+@partial(jax.jit, static_argnames=("m", "n", "p"))
+def _alias_coeffs3(coeffs, m, n, p):
+    """Alias tensor columns in native lambda, radial, then theta order.
+
+    Provenance
+    ----------
+    MATLAB source: @ballfun/coeffs3.m.
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import Chebtech2
+    from chebfunjax.tech.trigtech import Trigtech
+
+    F = jnp.asarray(coeffs)
+    mf, nf, pf = F.shape
+    # Independent columns share the source lambda -> r -> theta alias
+    # ordering. Reshaping batches columns without reducing across them.
+    G = Trigtech.alias(F.transpose(1, 0, 2).reshape(nf, mf*pf), n)
+    G = G.reshape(n, mf, pf).transpose(1, 0, 2)
+    G = Chebtech2.alias(G.reshape(mf, n*pf), m).reshape(m, n, pf)
+    C = Trigtech.alias(G.transpose(2, 1, 0).reshape(pf, n*m), p)
+    return C.reshape(p, n, m).transpose(2, 1, 0)
 
 
 def _matlab_trig_count(cutoff: int) -> int:
@@ -912,6 +936,7 @@ class Ballfun(eqx.Module):
         op: Callable,
         *,
         spherical: bool = False,
+        vectorize: bool = False,
         fixed_size: tuple[int, int, int] | None = None,
         tol: float = _EPS,
         max_sample: int = 2**16,
@@ -925,17 +950,18 @@ class Ballfun(eqx.Module):
             coordinates ``(x, y, z)`` as JAX arrays. If ``spherical=True``,
             should accept spherical coordinates ``(r, lambda, theta)`` as JAX
             arrays, where r in [0,1], lambda in [-pi, pi], theta in [0, pi].
-            The callable must be vectorized (handle array inputs).
+            With vectorize=True, map the callable over scalar inputs.
         spherical : bool, optional
             If True, ``op`` is in spherical coordinates (r, lam, th).
             Default False (Cartesian).
+        vectorize : bool, optional
+            Map a JAX-compatible scalar callable over the evaluation grid.
         fixed_size : tuple of 3 ints or None, optional
-            If given as (m, n, p), use a fixed grid of that size without
-            adaptive refinement.
+            After adaptive construction, alias coefficients to exactly this size.
         tol : float, optional
             Target tolerance. Default is machine epsilon (~2.2e-16).
         max_sample : int, optional
-            Maximum total grid size m*n*p. Default 2^16.
+            Maximum pairwise grid product. Default 2^16.
 
         Returns
         -------
@@ -958,21 +984,19 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/constructor.m
         Chebfun commit: 7574c77
         """
-        # --- Fixed size case ---
-        if fixed_size is not None:
-            m, n, p = int(fixed_size[0]), int(fixed_size[1]), int(fixed_size[2])
-            # Enforce parity constraints
-            m = m + 1 - m % 2  # odd
-            n = n + n % 2  # even
-            p = max(4, p + p % 2)  # even >= 4
-            vals, is_real = _evaluate_on_grid(op, m, n, p, is_spherical=spherical)
-            cfs = _vals2coeffs_3d(vals)
-            cfs_jax = jnp.asarray(cfs, dtype=jnp.complex128)
-            return cls(
-                coeffs=cfs_jax,
-                is_real=bool(is_real),
-                domain=(0.0, 1.0, -float(np.pi), float(np.pi), 0.0, float(np.pi)),
-            )
+        if isinstance(op, cls):
+            result = op.simplify()
+            if fixed_size is not None:
+                result = cls(coeffs=result.coeffs3(*map(int, fixed_size)),
+                             is_real=result.is_real, domain=result.domain)
+            return result
+        if vectorize:
+            scalar_op = op
+
+            def op(a, b, c):
+                shape = jnp.broadcast_shapes(a.shape, b.shape, c.shape)
+                args = [jnp.broadcast_to(v, shape).reshape(-1) for v in (a, b, c)]
+                return jax.vmap(scalar_op)(*args).reshape(shape)
 
         # --- Adaptive construction ---
         # Initial grid sizes: MATLAB @ballfun/constructor.m starts every
@@ -1047,26 +1071,33 @@ class Ballfun(eqx.Module):
             cfs = cfs[:, :, mid_p - half_th : mid_p + c_th - half_th]
 
         cfs_jax = jnp.asarray(cfs, dtype=jnp.complex128)
-        # MATLAB @ballfun/constructor.m ends with f = simplify(f), which
-        # compresses the coefficient-tensor dimensions to their minimal
-        # resolved sizes (a constant is 1x1x1, x is 2x3x3, ...).
-        return cls(
+        # Native callable construction retains its happiness cutoffs, then
+        # applies the requested coefficient size without parity adjustment.
+        result = cls(
             coeffs=cfs_jax,
             is_real=bool(is_real),
-            domain=(0.0, 1.0, -float(np.pi), float(np.pi), 0.0, float(np.pi)),
-        ).simplify()
+            domain=(0.0, 1.0, -float(jnp.pi), float(jnp.pi), 0.0, float(jnp.pi)),
+        )
+        if fixed_size is not None:
+            result = cls(coeffs=result.coeffs3(*map(int, fixed_size)),
+                         is_real=result.is_real, domain=result.domain)
+        return result
 
     @classmethod
-    def from_coeffs(cls, coeffs: jax.Array, *, is_real: bool = True) -> "Ballfun":
+    def from_coeffs(cls, coeffs: jax.Array, *, is_real: bool | None = None,
+                    fixed_size: tuple[int, int, int] | None = None) -> "Ballfun":
         """Construct a Ballfun directly from CFF coefficients.
 
         Parameters
         ----------
         coeffs : jax.Array, shape (m, n, p)
-            Chebyshev-Fourier-Fourier coefficients. m should be odd, n and p
-            should be even.
+            Chebyshev-Fourier-Fourier coefficients, with arbitrary parity.
         is_real : bool, optional
-            Whether the function is real-valued. Default True.
+            Explicit realness metadata. By default infer the native coefficient
+            conjugacy predicate. Traced inputs retain complex evaluation and
+            their static shape; eager inputs are simplified as in the source.
+        fixed_size : tuple of 3 ints or None, optional
+            Alias the result to this exact coefficient size.
 
         Returns
         -------
@@ -1074,15 +1105,26 @@ class Ballfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @ballfun/ballfun.m  (coeffs flag)
+        MATLAB source : @ballfun/constructor.m (parseInputs, fixTheSize)
         Chebfun commit: 7574c77
         """
+        from chebfunjax.ballfun._integrals import coefficient_is_real
+
         coeffs = jnp.asarray(coeffs, dtype=jnp.complex128)
-        return cls(
+        traced = isinstance(coeffs, jax.core.Tracer)
+        if is_real is None:
+            is_real = False if traced else bool(coefficient_is_real(coeffs))
+        result = cls(
             coeffs=coeffs,
             is_real=bool(is_real),
-            domain=(0.0, 1.0, -float(np.pi), float(np.pi), 0.0, float(np.pi)),
+            domain=(0.0, 1.0, -float(jnp.pi), float(jnp.pi), 0.0, float(jnp.pi)),
         )
+        if not traced:
+            result = result.simplify()
+        if fixed_size is not None:
+            result = cls(coeffs=result.coeffs3(*map(int, fixed_size)),
+                         is_real=result.is_real, domain=result.domain)
+        return result
 
     # ------------------------------------------------------------------
     # Shape / size
@@ -1128,28 +1170,7 @@ class Ballfun(eqx.Module):
             p = m
         elif p is None:
             p = n
-        from chebfunjax.tech.chebtech import Chebtech2
-        from chebfunjax.tech.trigtech import Trigtech
-
-        F = np.array(self.coeffs)
-        mf, nf, pf = F.shape
-        # Alias each theta-slice: trig in lambda (dim 1), Chebyshev in r
-        # (dim 0), then trig in theta (dim 2), exactly as MATLAB.
-        G = np.zeros((m, n, pf), dtype=complex)
-        for k in range(pf):
-            sl = np.empty((mf, n), dtype=complex)
-            for i in range(mf):
-                sl[i, :] = np.array(
-                    Trigtech.alias(jnp.asarray(F[i, :, k]), n))
-            for j in range(n):
-                G[:, j, k] = np.array(
-                    Chebtech2.alias(jnp.asarray(sl[:, j]), m))
-        C = np.zeros((m, n, p), dtype=complex)
-        for i in range(m):
-            for j in range(n):
-                C[i, j, :] = np.array(
-                    Trigtech.alias(jnp.asarray(G[i, j, :]), p))
-        return jnp.asarray(C, dtype=jnp.complex128)
+        return _alias_coeffs3(self.coeffs, m, n, p)
 
     @property
     def vscale(self) -> float:

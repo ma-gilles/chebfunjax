@@ -1,0 +1,366 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Callable fixed_size uses coefficient aliasing after adaptive construction, retaining exact requested shape",
+    "Copy construction simplifies then aliases, preserving metadata",
+    "Coefficient construction infers native realness by existing coefficient_is_real; eager simplify then resize",
+    "Explicit vectorize maps JAX scalar callbacks",
+    "coeffs3 batches independent columns through existing native-order JAX aliases under array-only JIT",
+    "Remove extra callable simplify absent native source branch"
+  ],
+  "native_qualification": {
+    "unique_cases": 23,
+    "native_original_clauses": 15,
+    "existing_eval": 1,
+    "coefficient_contracts": 6,
+    "scalar_callback": 1,
+    "unchanged_tolerance": "native predicates norm(f-exact) < float64 EPS",
+    "test_function_AST_identical": true
+  },
+  "native_audits": [
+    {
+      "original": 13122,
+      "faults": [],
+      "input_count": 355,
+      "bad_hashes": [],
+      "tests": [
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[13]",
+          "time": "9.730"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[14]",
+          "time": "5.037"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[15]",
+          "time": "5.562"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_inferred_constant[1.0-True]",
+          "time": "0.330"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_inferred_constant[1j-False]",
+          "time": "0.052"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_explicit_realness",
+          "time": "0.032"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_traced_default_preserves_complex",
+          "time": "0.154"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_coeffs3_source_axis_order[shape0]",
+          "time": "1.644"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_constructor_contracts",
+          "name": "test_coeffs3_source_axis_order[shape1]",
+          "time": "0.527"
+        }
+      ],
+      "wall_seconds": 31.272005275823176,
+      "peak_rss_kib": 2060184,
+      "versions": {
+        "jax": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+          "sha256": "1298a9c3253f21f4c7c6c553991c171c76de90eb87733676ec6f0b641c7391dd"
+        },
+        "jaxlib": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+          "sha256": "2a5b37b2bc9802769f45ca43de7cdc1a8b532f0afd2bf9542131ab68f649c4a3"
+        },
+        "numpy": {
+          "version": "2.4.3",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/numpy/__init__.py",
+          "sha256": "2e8da3e4385e79c4885b3f7324a8b957e6f01732b239e99e266a12c62a008b8d"
+        },
+        "pytest": {
+          "version": "9.0.2",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/pytest/__init__.py",
+          "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+        },
+        "chebfunjax": {
+          "version": "0.1.0",
+          "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2/src/chebfunjax/__init__.py",
+          "sha256": "db56d711ac3ea7b425b883ef8b01cfa7cafa6e0d0df57755010d2f0bc1d1a277"
+        },
+        "devices": [
+          "cpu:0"
+        ],
+        "x64": true
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/guard.json": "81e8581a7d4abe76cd612b52d13cce7cbb5699bbb0f498998df3af037026b641",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/supervision/receipt.json": "29b078fd5b0e9cb103d41b605b247f1e608658f73cf0c4ff0c801337cdf5721c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/junit.xml": "bfce9c7d6f43fc62f74fd0dacd9d292d6482c8bc20e75f3d207b23d45be12042",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/VERSIONS.json": "b0293f62c6f08c3df391a8462ffc188d938dd0264c5896a1b2ff90550fd00de4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/runner.py": "105175e23736cecdbb5b94a04534b101a7a4f08895f556e74626a4b1f59f40fa",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_fixed/launch.sh": "f1b86694142cb21e847257c4c05dd7eba3f3170f8ed588af76d17a3d9081c2d4"
+      }
+    },
+    {
+      "original": 15392,
+      "faults": [],
+      "input_count": 355,
+      "bad_hashes": [],
+      "tests": [
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab.TestBallfunBallfun",
+          "name": "test_construction_and_eval",
+          "time": "2.006"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[1]",
+          "time": "3.651"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[2]",
+          "time": "0.038"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[3]",
+          "time": "2.218"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[4]",
+          "time": "3.571"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[5]",
+          "time": "8.772"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[6]",
+          "time": "5.183"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[7]",
+          "time": "5.998"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[8]",
+          "time": "0.830"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[9]",
+          "time": "0.037"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[10]",
+          "time": "0.168"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[11]",
+          "time": "2.531"
+        },
+        {
+          "classname": "tests.test_matlab_port.ballfun.test_ballfun_matlab",
+          "name": "test_native_constructor_clause[12]",
+          "time": "4.464"
+        }
+      ],
+      "wall_seconds": 48.77555392682552,
+      "peak_rss_kib": 2762884,
+      "versions": {
+        "jax": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+          "sha256": "1298a9c3253f21f4c7c6c553991c171c76de90eb87733676ec6f0b641c7391dd"
+        },
+        "jaxlib": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+          "sha256": "2a5b37b2bc9802769f45ca43de7cdc1a8b532f0afd2bf9542131ab68f649c4a3"
+        },
+        "numpy": {
+          "version": "2.4.3",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/numpy/__init__.py",
+          "sha256": "2e8da3e4385e79c4885b3f7324a8b957e6f01732b239e99e266a12c62a008b8d"
+        },
+        "pytest": {
+          "version": "9.0.2",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/pytest/__init__.py",
+          "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+        },
+        "chebfunjax": {
+          "version": "0.1.0",
+          "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2/src/chebfunjax/__init__.py",
+          "sha256": "db56d711ac3ea7b425b883ef8b01cfa7cafa6e0d0df57755010d2f0bc1d1a277"
+        },
+        "devices": [
+          "cpu:0"
+        ],
+        "x64": true
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/guard.json": "3f955479e3556fb57ed25bd77835ad4444e40ae6526844242abe4425c3946e6a",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/supervision/receipt.json": "9ad5c3cef414aa318067ff124a6ed97b55783c3d3514aa0f46af9812ac5ff6e7",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/junit.xml": "bd328510aa3aa99edccf02eaa7525541ab5ee52ac80ed761ee348aeb2544acf5",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/VERSIONS.json": "b0293f62c6f08c3df391a8462ffc188d938dd0264c5896a1b2ff90550fd00de4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/runner.py": "105175e23736cecdbb5b94a04534b101a7a4f08895f556e74626a4b1f59f40fa",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_basic/launch.sh": "2e449d76bc1b8c4bd863ae3115cfe26c6c1bf41a7610a150c6629876a18424f7"
+      }
+    },
+    {
+      "original": 71567,
+      "faults": [],
+      "input_count": 356,
+      "bad_hashes": [],
+      "tests": [
+        {
+          "classname": "scalar_vectorize.test_scalar",
+          "name": "test_scalar_callback",
+          "time": "5.183"
+        }
+      ],
+      "wall_seconds": 12.303669020999223,
+      "peak_rss_kib": 833572,
+      "versions": {
+        "jax": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+          "sha256": "1298a9c3253f21f4c7c6c553991c171c76de90eb87733676ec6f0b641c7391dd"
+        },
+        "jaxlib": {
+          "version": "0.11.0",
+          "origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+          "sha256": "2a5b37b2bc9802769f45ca43de7cdc1a8b532f0afd2bf9542131ab68f649c4a3"
+        },
+        "numpy": {
+          "version": "2.4.3",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/numpy/__init__.py",
+          "sha256": "2e8da3e4385e79c4885b3f7324a8b957e6f01732b239e99e266a12c62a008b8d"
+        },
+        "pytest": {
+          "version": "9.0.2",
+          "origin": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/pytest/__init__.py",
+          "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+        },
+        "chebfunjax": {
+          "version": "0.1.0",
+          "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2/src/chebfunjax/__init__.py",
+          "sha256": "db56d711ac3ea7b425b883ef8b01cfa7cafa6e0d0df57755010d2f0bc1d1a277"
+        },
+        "devices": [
+          "cpu:0"
+        ],
+        "x64": true
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/guard.json": "7aa5fec86e2cecd095ac8bcacb2ce8d4c502178150974f2c771f5d48e3bf1420",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/supervision/receipt.json": "80363fc735bf94363a546d050d4f7ecf7fb4c689b4a0d661f42bc69db8be72ef",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/junit.xml": "2f417b934589b76f061c617e58e6a5e2755b7cb80897cf9e3e7fcb904f39e2a4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/VERSIONS.json": "b0293f62c6f08c3df391a8462ffc188d938dd0264c5896a1b2ff90550fd00de4",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/runner.py": "105175e23736cecdbb5b94a04534b101a7a4f08895f556e74626a4b1f59f40fa",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/scalar_vectorize/launch.sh": "52b8ed00b0226b19722c1d1dec3047eaa25659998f744a8114c6f341a9251e1f"
+      }
+    }
+  ],
+  "baseline_failure": "10 passed/6 failed; native8/11/12/14 missing vectorize,15 missing fixed_size,13 norm8.369667464596477e-16 > EPS",
+  "preserved_censored": [
+    {
+      "original": 70498,
+      "peak_rss_kib": 3254608,
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v1_gate2"
+    },
+    {
+      "original": 55912,
+      "peak_rss_kib": 3149996,
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_predicates_20261010/candidate_v2_gate"
+    }
+  ],
+  "scope_limits": [
+    "No full combined-suite <=3GiB claim; qualified with two disjoint cohorts plus tiny scalar callback control",
+    "Existing BMC, happiness, transforms and simplify still contain NumPy; this is not full JAX-only Ballfun constructor completion",
+    "Explicit is_real supported; traced default uses complex evaluation and retains static shape instead of value-dependent simplify",
+    "Native automatic vectorCheck warning/fallback and string constructors remain outside this scope",
+    "No change to root-owned mean/mean2/sum2 methods"
+  ],
+  "root_delivery_review": {
+    "bindings_rehashed": 32,
+    "delivery_sha256": "b792c26dfedad19f710a363b54908bda96781f609afef29eb5434f44007bcb16",
+    "integration": "Patch applied to1dce121a source, preservingrootmean methods. Supplementalplus exactshape fixture nowexplicitlyrequests its paddedshape because nativecoefficientconstruction simplifies bydefault. Assertionunchanged."
+  },
+  "integration": "Constructor method ASTs identical to qualified delivery; weighted reduction method ASTs identical to published1dce121a. Merged20means+22arithmetic+11evaluation cases passed; original23constructor cases reused. All76distinct cases verified across bounded processes, not one combined-memory qualification.",
+  "integration_evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_merged_20261010/means",
+      "inputs_rehashed": 357,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 25.949540198314935,
+        "sampled_peak_summed_rss_kib": 1586480,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "c2db077633103cf665d0bf1ce84416c384fce6b332e690aec8ab5324b434bff1",
+        "junit.xml": "2e501be64f0f1ce4402a98f4ffbe52f1fcf161b74560e835322c6b08cc0614ef",
+        "supervision/receipt.json": "674b56bbc35ca47c621ea9b324118d44a1c7af97d1b3d8c198eacca7f866aa8d",
+        "supervision/stdout": "d941425d6ce699f8a5dc0b4025871a49fd1224ec8a4349ac3ed450bf9c76a320"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_merged_20261010/arithmetic",
+      "inputs_rehashed": 357,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 53.16310845967382,
+        "sampled_peak_summed_rss_kib": 2740848,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "c5d383ad5559e6be1c6ccc21f0b64652dc8ad388b42732b0f1a9d2f3de834072",
+        "junit.xml": "2130be19504c3bff7683baabeaddba1e99717303dde722633f894219c8ad6061",
+        "supervision/receipt.json": "7f876334a3e8caeaeaa9653dc281ad0f74f2eb8888a75a5cb726ab6208d59432",
+        "supervision/stdout": "e429e8ebf73654eeb8d9abf864d472760b58dec9a2023ce7673fae078bbc2f52"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_constructor_merged_20261010/evaluation",
+      "inputs_rehashed": 357,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 23.923352209851146,
+        "sampled_peak_summed_rss_kib": 1444688,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "c42b00d0355ef813e803d9292b45d9a388d8528acb0287b9fb4c0930f57dfbcb",
+        "junit.xml": "102ae2b9d6e22cf2dd7c0aa44281baa644bf16112d714318824f0913d27d0d94",
+        "supervision/receipt.json": "055dd3b7457e96aa44ffbe9df6b38f190e808b63ebbf6f043c0f45922ee0a80e",
+        "supervision/stdout": "007d29b0b15632c38c71a71fb9eb33a57d59b6c13d7d33564da2eac0d9909ada"
+      }
+    }
+  ]
+}

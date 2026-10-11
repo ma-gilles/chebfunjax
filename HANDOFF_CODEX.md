@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun constructor contracts restored (2026-10-10)
+
+All15original constructor EPS predicates pass. Fixed sizes now apply native
+coefficient aliasing after adaptive construction; copy, explicit vectorize
+and inferred coefficient realness are implemented. Eight additional controls
+and53merged arithmetic/evaluation/mean checks pass across bounded cohorts.
+The two3GiB-capped combined attempts are retained. Legacy constructor NumPy
+helpers and automatic vectorization fallback remain open. Evidence:
+docs/ballfun_constructor_contracts_cpu_20261010.json.
+
 ## Ballfun weighted means and reduction domains fixed (2026-10-10)
 
 Mean methods now delegate to native weighted sums. Sum2 uses JAX coefficient

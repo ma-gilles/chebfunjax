@@ -62,7 +62,7 @@ class TestNativePlusEdgeContracts:
     def test_exact_maximum_shape(self):
         a = jnp.zeros((2, 3, 3), dtype=jnp.complex128).at[0, 1, 1].set(1)
         b = jnp.zeros((1, 1, 1), dtype=jnp.complex128).at[0, 0, 0].set(2)
-        result = Ballfun.from_coeffs(a) + Ballfun.from_coeffs(b)
+        result = Ballfun.from_coeffs(a, fixed_size=a.shape) + Ballfun.from_coeffs(b)
         assert result.shape == (2, 3, 3)
         assert jnp.array_equal(result.coeffs, a.at[0, 1, 1].add(2))
 
