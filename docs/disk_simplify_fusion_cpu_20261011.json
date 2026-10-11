@@ -1,0 +1,341 @@
+{
+  "status": "Qualified source-preserving CPU disk slice simplification fusion",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_scope": {
+    "changed_functions": [
+      "_simplify_global"
+    ],
+    "unchanged_functions": 152,
+    "slice_lengths_padding_tolerances_unchanged": true
+  },
+  "mechanism": "Fuse existing per-slice prolong/noisy FFT/standardChop pipeline under JAX jit. Original individual input/padding/FFT lengths, source transforms, tolerance arithmetic and host output selection preserved. No common-length padding introduced.",
+  "eligibility": "CPU scalar one-dimensional happy nonempty Chebtech2 float64 or real-valued Trigtech float64/complex128, scalar tolerance strictly between0and1. All other cases use original tech.simplify. Public tech methods unchanged. AD and non-CPU bit identity not qualified.",
+  "profile": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_tiltedpeg_profile_20261011/DIAGNOSIS.json",
+    "constructor_seconds_instrumented": 70.882,
+    "simplify_seconds": 52.951,
+    "backend_compile_calls": 1477,
+    "backend_compile_seconds": 47.151
+  },
+  "matched_stage": {
+    "all_68_outputs_bit_identical": true,
+    "metadata_identical": true,
+    "also_identical_to_retained_first_baseline": true,
+    "seconds": {
+      "baseline": 45.781954345759004,
+      "candidate": 29.405690071173012
+    },
+    "rss_kib": {
+      "baseline": 2360808,
+      "candidate": 1331648
+    },
+    "time_reduction_fraction": 0.3577012931974801,
+    "rss_reduction_fraction": 0.43593549327179504,
+    "scope": "One fresh-process controlled CPU0\u20133 paired retained simplification stage measurement. Root and both routine agents explicitly held compute. No full-constructor speedup claim. Earlier matched_baseline overlapped native58540 and is excluded.",
+    "postprocessing": "Identity with first baseline transfers POSTPROCESS.json proof: original prune/fixrank/project gives completed-constructor 68 factors and 42 samples byte-identically. Initial compare_run failed by comparing pre- vs post-projection factors; retained unchanged."
+  },
+  "whole_constructor": {
+    "observation": {
+      "name": "tiltedpeg",
+      "predicate_status": "supplemental; pinned gallerydisk has no standalone native predicate",
+      "error": 3.281174033444392e-13,
+      "bound": 2.220446049250313e-13,
+      "success": false,
+      "rank": 34,
+      "length": [
+        601,
+        437
+      ],
+      "construction_seconds": 46.99061740189791,
+      "elapsed_seconds": 48.80619191983715,
+      "warnings": [],
+      "theta": [
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ],
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ],
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ],
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ],
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ],
+        [
+          -3.141592653589793,
+          -2.1,
+          -0.3,
+          0.0,
+          0.7,
+          2.2,
+          3.141592653589793
+        ]
+      ],
+      "r": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11
+        ],
+        [
+          0.37,
+          0.37,
+          0.37,
+          0.37,
+          0.37,
+          0.37,
+          0.37
+        ],
+        [
+          0.63,
+          0.63,
+          0.63,
+          0.63,
+          0.63,
+          0.63,
+          0.63
+        ],
+        [
+          0.87,
+          0.87,
+          0.87,
+          0.87,
+          0.87,
+          0.87,
+          0.87
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      ],
+      "actual": [
+        [
+          1.0,
+          1.0000000000000002,
+          1.0,
+          1.0,
+          1.0,
+          0.9999999999999999,
+          1.0
+        ],
+        [
+          0.9999999999999294,
+          1.0,
+          0.999999999999992,
+          0.9999999999999294,
+          0.9999999999999927,
+          0.9999999999999847,
+          0.9999999999999294
+        ],
+        [
+          0.9975812961689315,
+          0.9999883654961802,
+          0.9997290231978586,
+          0.9975812961689315,
+          0.9997440103672669,
+          0.9994770367151475,
+          0.9975812961689315
+        ],
+        [
+          0.009735101473430832,
+          0.6635938828734942,
+          0.08082529314282372,
+          0.009735101473430787,
+          0.08515458696258378,
+          0.043568941267061,
+          0.009735101473430739
+        ],
+        [
+          1.545284053414243e-05,
+          0.00012611166748995837,
+          0.0001334303835939747,
+          1.545284053414242e-05,
+          0.00014022441841534894,
+          7.141524646137977e-05,
+          1.545284053414241e-05
+        ],
+        [
+          9.536733965857586e-07,
+          4.987013787074528e-07,
+          5.397373273253361e-06,
+          9.536733965857585e-07,
+          5.304153363435067e-06,
+          4.240243039802984e-06,
+          9.536733965857587e-07
+        ]
+      ],
+      "expected": [
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          0.9999999999999294,
+          0.9999999999999998,
+          0.999999999999992,
+          0.9999999999999294,
+          0.9999999999999925,
+          0.9999999999999847,
+          0.9999999999999294
+        ],
+        [
+          0.9975812961689317,
+          0.9999883654961748,
+          0.9997290231978924,
+          0.9975812961689317,
+          0.9997440103673251,
+          0.9994770367151894,
+          0.9975812961689317
+        ],
+        [
+          0.009735101473430966,
+          0.6635938828734926,
+          0.0808252931428196,
+          0.009735101473430966,
+          0.0851545869625769,
+          0.04356894126705892,
+          0.009735101473430966
+        ],
+        [
+          1.5452840534291905e-05,
+          0.00012611166750800556,
+          0.00013343038357727086,
+          1.5452840534291905e-05,
+          0.00014022441838323357,
+          7.14152464566045e-05,
+          1.5452840534291905e-05
+        ],
+        [
+          9.536733964266657e-07,
+          4.987013753139944e-07,
+          5.397373463460205e-06,
+          9.536733964266657e-07,
+          5.30415369155247e-06,
+          4.2402431691356446e-06,
+          9.536733964266657e-07
+        ]
+      ]
+    },
+    "identity": {
+      "all_factor_arrays_exact": true,
+      "all_42_values_exact": true,
+      "rank_length_warnings_exact": true,
+      "supplemental_predicate_still_fails": true
+    },
+    "qualification": "One actual default candidate construction observation, not paired whole-path speedup. Original retained baseline already independently compared with native. All final factors and samples identical; unchanged supplemental analytic bound remains failed for both native and JAX. Source gallery has no standalone assertion."
+  },
+  "tests": {
+    "passed": 10,
+    "seconds": 22.17,
+    "cases": "Eight retained actual slices plus unchanged native constructor clauses01 and04 at2e3eps. Raw uncapped cutoffs also asserted, so unchanged final capped coefficients alone cannot conceal bypassing noisy roundtrip.",
+    "fixture_oracle": "Retained unfused JAX pipeline, not native coefficient oracle. CPU JAX0.11 binary64 exactness qualification.",
+    "format_proof": {
+      "test_nonimport_ast_identical": true,
+      "test_import_set_identical": true,
+      "production_source_byte_identical": true
+    }
+  },
+  "rejected_or_excluded_evidence": [
+    "compare_run failed because it compared pre-projection factors with completed-constructor post-projection factors. Preserved unchanged. POSTPROCESS.json applies original prune/fixrank/project and proves final68factors and42samples identical.",
+    "First prototype pair overlapped root native small-matrix capture in candidate arm; timing excluded from final qualification.",
+    "matched_baseline_run88733 overlapped native58540; excluded. Controlled baseline15669/candidate35240 run only after root and both routine agents confirmed no active compute and held new work.",
+    "No full gallery, new native replay, tolerance relaxation, changed samples, noisy FFT removal or padded common-length FFT used."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/BASELINE.json": "56dbee951aeb15470069fb3dcb6286438bf7907956af2f260919d968e59d6299",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/PRE_SIMPLIFY.json": "71733f7a160970145c1dda4fbeffd50dbf88a0713d021978946c6d696d44bd5f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/presimplify.npz": "3230ed26830f0528f036053fd9a9e970fb6c369b3ffa879ee7a6f3981bd0b832",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/FUSION_PROBE.json": "cbf4103e8e18c98a7d55de7033ab9a3f7e85879b0d888fdfc5011651261a5f90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/POSTPROCESS.json": "11726caef917ec28658fe7057a2e6530366a15b2c86b809fa54c37389645dc94",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/QUALIFIED_PAIR.json": "64f1d7688f4fe480dd235ab764e4889640638e88b2e6967894b24563227505fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/SOURCE_SCOPE.json": "225fdf13a283505cb9a62b40008efe5972a641f71cf75bf56c9670f14c6ba835",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/FORMAT_PROOF.json": "6e723e71a8bc476729497f0b237b30e9a60456e1951742ddc66e54e2c9bdb1ee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/INTEGRATION_RESULT.json": "f4d3a263d834007131a47661b87e2c37b5c716465cdb8de74a971d5a6fe36886",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/INTEGRATION_IDENTITY.json": "5671c86c07a0a28dfec40f8aa30d7b8f9474960666d2182823f6b17230b0d683",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/INTEGRATION_RUNTIME.json": "ba23776649738b043803afe63f18b8820ffa181781ee3a6871030e3a2131379d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/source.patch": "b69a4e32dd206dcdb87f62182457dda79e1c0b550d4c94e8aa15706c125857ee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/junit.xml": "c65cc4cbdda310605fa7bb1c572b8b16c7c7acb070b83525ebe03d319d45217f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/capture_run/receipt.json": "4c0b3da731d3ffd160e822024cf5d7b82788cb0cde13bc23a41f68db99fa7418",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/capture_run/stdout": "dfac09717451fb57474249c3968ea92693f4e315658a0328fbfdca20202a5869",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/probe_run/receipt.json": "e1a9f9a3a713637f5fbc93549c80c31dfc37e274c634043b4f0b9df5e3fef3ed",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/probe_run/stdout": "efedccf26d8a9ee55fccf06246f0f633dbfa7aaa8bd19fa7b7c2ad79c964a8f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/baseline_run/receipt.json": "f16287bdfb5e427573941acaa1fbed51bab150843d46cac15175e4c7d84735cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/baseline_run/stdout": "680dc839e621615a3ebe0ed97b9c4c861dc4c746b0edc17aad67510fd40fb4ce",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/candidate_run/receipt.json": "03004d19932b4b661069ef2dce86d6220dd93aa969a8236af47e0b50af8ee110",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/candidate_run/stdout": "76862759ab6bf9567d5409cd620dd1852bfa46975a71d1ce098b7f8511a5785b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/compare_run/receipt.json": "c9879772c1f36b9e3538ca27026a0b810dc2688944c43eef0512a5ac3c16eb44",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/compare_run/stdout": "bac69a2c8329b8da8b651b18485f1174180e8639c712329a1f1e39cef4a25fb3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/postprocess_run/receipt.json": "5f1447b8e1d22c64ef08106003210446be8a9abd59da76977a56427442485aec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/postprocess_run/stdout": "aa4208610310275e010550072ab4fc20d84d65e0507f66193cf2d2cb020a9f3a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/matched_baseline_run/receipt.json": "e0e7e65112506c0fa3b2e011292c72f3e610420489e2664814c466cd52b01dc9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/matched_baseline_run/stdout": "9d701be0c01d0d821ea689526cba7efbdb165f9b5210c2c7092ccba8a5cb9424",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/controlled_baseline_run/receipt.json": "d4e0dbc97eab77a6e3d20ba29fb5a1d47493bf2d2b11f12b32f9eba0c4385cf6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/controlled_baseline_run/stdout": "a0604a659677b9c64b0958d0592ff8d047b6d42edd6bdf3d1a93cfd94132ba82",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/controlled_candidate_run/receipt.json": "4ac5523812a5f5cb3caf7647ef571d9d9fbf24cf9b81676366e0d47db70147e7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/controlled_candidate_run/stdout": "49dbea2672a7567b8bd6bfec068bb3f051aa872ace794ff66be1883e1a8d3f42",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/extract_run/receipt.json": "28eec897355ff6468a012c8f458c37fd1e013ceb8038261257da5e31970b3c6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/extract_run/stdout": "3ded7dd18c0170a90f146018bea4aa14a7c89e72b1f0fe1ad88673cdc92598ff",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/test_run/receipt.json": "ec80d8b5cec3ce1913573f2497f0221271f4550f605bee20bc3564e5295113fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/test_run/stdout": "0a740cee857ac6ec39f6e3a1f778e2e68ce4049dfbd783bd4a29ffffc92609a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/integration_run/receipt.json": "9acfc9e64478cbc50e341233dfba53863b2dfa9b1db1e51d25fa3e6a0015776c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/integration_run/stdout": "2c260c8c29c06af3331f6be4d3ea409a5d5922d34cf05769f4f9d22c27fc7b37"
+  }
+}

@@ -2,7 +2,7 @@
 
 Provenance
 ----------
-MATLAB source : tests/classicfun/test_rdivide.m, tests/seedRNG.m
+MATLAB source : tests/classicfun/test_rdivide.m, seedRNG.m
 Chebfun commit: 7574c77
 Uniform sites use MT19937 seed 6178. The first 100 draws are independently
 checked against captured MATLAB logical-test inputs; the remaining draws are

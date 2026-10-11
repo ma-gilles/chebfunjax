@@ -1,0 +1,228 @@
+{
+  "provenance": "Actual tiltedpeg default constructor slices saved before simplification; expected coefficients and raw cutoffs are retained unfused JAX baseline outputs, not native coefficient oracles. Native full constructor sample agreement and its unchanged supplemental failure are separately qualified.",
+  "scope": "JAX 0.11 CPU binary64 retained-input regression; bit identity is backend qualified, not promised across FFT implementations.",
+  "cases": [
+    {
+      "kind": "cols",
+      "index": 0,
+      "input_length": 407,
+      "noisy_fft_length": 514,
+      "tol": 2.220446049250313e-16,
+      "baseline_cutoff": 407,
+      "fused_cutoff": 407,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "float64"
+        }
+      },
+      "tech_metadata": {
+        "n": 407,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 1,
+      "input_length": 401,
+      "noisy_fft_length": 506,
+      "tol": 2.4760280278351465e-16,
+      "baseline_cutoff": 401,
+      "fused_cutoff": 401,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "float64"
+        }
+      },
+      "tech_metadata": {
+        "n": 401,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 11,
+      "input_length": 437,
+      "noisy_fft_length": 551,
+      "tol": 5.666449984008733e-12,
+      "baseline_cutoff": 551,
+      "fused_cutoff": 551,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "float64"
+        }
+      },
+      "tech_metadata": {
+        "n": 437,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 33,
+      "input_length": 367,
+      "noisy_fft_length": 464,
+      "tol": 0.00012668709262472614,
+      "baseline_cutoff": 464,
+      "fused_cutoff": 464,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "float64"
+        }
+      },
+      "tech_metadata": {
+        "n": 367,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 0,
+      "input_length": 1,
+      "noisy_fft_length": 17,
+      "tol": 2.220446049250313e-16,
+      "baseline_cutoff": 1,
+      "fused_cutoff": 1,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        },
+        "pairs": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        }
+      },
+      "tech_metadata": {
+        "n": 1,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 1,
+      "input_length": 313,
+      "noisy_fft_length": 396,
+      "tol": 2.474582535250151e-16,
+      "baseline_cutoff": 397,
+      "fused_cutoff": 397,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        },
+        "pairs": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        }
+      },
+      "tech_metadata": {
+        "n": 313,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 11,
+      "input_length": 449,
+      "noisy_fft_length": 566,
+      "tol": 5.606759292728396e-12,
+      "baseline_cutoff": 567,
+      "fused_cutoff": 567,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        },
+        "pairs": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        }
+      },
+      "tech_metadata": {
+        "n": 449,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 33,
+      "input_length": 601,
+      "noisy_fft_length": 756,
+      "tol": 0.0001238872039524252,
+      "baseline_cutoff": 757,
+      "fused_cutoff": 757,
+      "intermediates": {
+        "noisy": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        },
+        "pairs": {
+          "max_abs": 0.0,
+          "different_components_bits": 0,
+          "baseline_dtype": "float64",
+          "candidate_dtype": "complex128"
+        }
+      },
+      "tech_metadata": {
+        "n": 601,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    }
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/presimplify.npz": "3230ed26830f0528f036053fd9a9e970fb6c369b3ffa879ee7a6f3981bd0b832",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/PRE_SIMPLIFY.json": "71733f7a160970145c1dda4fbeffd50dbf88a0713d021978946c6d696d44bd5f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/baseline_output.npz": "028eda2ee2d81ac7135fd37d1521687475178971eac8bc785c80f488681a8649",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/FUSION_PROBE.json": "cbf4103e8e18c98a7d55de7033ab9a3f7e85879b0d888fdfc5011651261a5f90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/SCALES.json": "a6d13282de81291a58d5907f9a8a7e836c45e863a362abbbee060f2959704a6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/snapshot/src/chebfunjax/tech/chebtech.py": "a143092634be69666e623f0c9455cdf2e92d087b4e67c20fb5112c8ef60a6317",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/snapshot/src/chebfunjax/tech/trigtech.py": "bd8fddcf35355106f492cad77055af75696ce09044a1689b765520a90d1ecba4"
+  },
+  "fixture_sha256": "a3512197f253f410ad927366a84740cced417cc2c8ad6272f7f04b783d59f63e"
+}

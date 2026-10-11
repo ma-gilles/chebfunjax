@@ -72,9 +72,11 @@ def test_vertcat_identity_domain_control():
     )
 
 
-def test_empty_norm_adapter_control():
-    assert Chebfun2v.empty().norm() == 0.0
-    assert type(Chebfun2v.empty().norm()) is float
+def test_empty_norm_source_contract():
+    # @chebfun2v/norm.m (7574c77) returns [] before inspecting components.
+    result = Chebfun2v.empty().norm()
+    assert result.shape == (0,)
+    assert result.dtype == jnp.float64
 
 
 def test_mixed_zero_component_norm_control():

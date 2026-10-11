@@ -273,8 +273,9 @@ class Ballfunv(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @ballfunv/HelmholtzDecomposition.m
-        Chebfun commit: 7574c77
+        Python extension: Dirichlet Poisson plus gradient/remainder split.
+        This return contract differs from the native scalar F/P/T contract;
+        use ``HelmholtzDecomposition`` for the Chebfun7574c77 API.
         """
         phi = Ballfun.poisson(self.div(), lmax=lmax, nr=nr)
         g = phi.grad()

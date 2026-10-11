@@ -1,9 +1,9 @@
-"""Port of MATLAB Chebfun tests/diskfunv/test_divergence.m (Fable 5).
+"""Analytic polynomial disk-vector divergence controls.
 
-Provenance
-----------
-MATLAB source : tests/diskfunv/test_divergence.m
-Chebfun commit: 7574c77
+These are supplemental Python checks, not translated native test assertions.
+The formerly cited native test file does not exist at Chebfun7574c77.
+The corresponding library operation is documented in @diskfunv/divergence.m;
+the analytic formulas and diagnostic bounds below are supplemental oracles.
 """
 
 from __future__ import annotations

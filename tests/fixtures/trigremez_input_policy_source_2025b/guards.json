@@ -1,0 +1,254 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_binary": "/usr/licensed/matlab-R2025b/bin/matlab",
+  "source_inputs": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v1/case1.mat": "ce17f62e78d41f8113dd8d43b00020fd71e8c6e300c701438ba9d0e14a2bb3f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v1/case2.mat": "4f723c0b9679d8c8f6af59e6c179cd31311d9381d10fd259444d4d5c1d9231a3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case3.mat": "a1fc8f20ff3736ed185ffefb3a984824dd4a1c805dfa2e81a033e241f8e478ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case4.mat": "c7be30e93538e97d31280039926440482212f6c12ef9712664eb6ee698dd7cfb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case5.mat": "b06f2386ff98c742425e5b7190af86033123cfc9e89292b6b3ce98f875da55ce",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case6.mat": "c697a7b0b81953f957ea1a17ddd75432e571a3a8409580fa559299fefbbd9471",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case7.mat": "e6b30fc0de6ef5fb6e78753e7ed4a861cd93159068f310ff183f76e53ba231f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case8.mat": "46aafd54af01be429bd4b4564075a95125dbd4a44c3206d4ab20e9dd543c426a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case9.mat": "7898928398bdebc22ad7bbc276d1aa207573ef41c9d9fdc2b9872ae42c873206",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case10.mat": "a8d437de6460f36a61b352aec58e612b901725c6cf919785f1e07ad1089296f3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case11.mat": "3b2adbfd8f4994b4a17da49c8212c01a3878f115a81b903febd20b7c707d5aed",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v2/case12.mat": "db8434ac739a01bca7d28c10a26f98d66c77a5ddc22e47c33258f0e028cfce10",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v3/case13.mat": "4d7f145ce2a922d6107d010a52934993a3136eafe3923726ca63f52dcfa7707a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v3/case14.mat": "b9ef650455ed0341b1fa4be496bb5138918fbff8d2d1c1ff6d51dcb3bd8b85b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v3/case15.mat": "63ccd97f76a15f10e9795a2c91de6ca9ac2653b7f9bf03827950c4fe8248f3ac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_input_policy_source_20261011/native_guards_v3/case16.mat": "9c75d3373e2ab424cab5d66c330bf04b3cbf4e0e766b3b57a01470e50ecfc323"
+  },
+  "cases": {
+    "1": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:real",
+      "error_message": "TRIGREMEZ only supports real-valued functions.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 0,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "2": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:quasi",
+      "error_message": "TRIGREMEZ does not currently support quasimatrices.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 2,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "3": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:quasi",
+      "error_message": "TRIGREMEZ does not currently support quasimatrices.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": [],
+      "is_delta": [],
+      "num_columns": 2,
+      "domain": []
+    },
+    "4": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:singularFunction",
+      "error_message": "TRIGREMEZ does not currently support functions with singularities.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 1,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "5": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:unboundedDomain",
+      "error_message": "Function must be defined on a bounded domain.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    "6": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:deltaFunctions",
+      "error_message": "Function must not have any delta functions.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 1,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "7": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:real",
+      "error_message": "TRIGREMEZ only supports real-valued functions.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 0,
+      "is_singular": [],
+      "is_delta": [],
+      "num_columns": 2,
+      "domain": []
+    },
+    "8": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:real",
+      "error_message": "TRIGREMEZ only supports real-valued functions.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 0,
+      "is_singular": 1,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "9": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "10": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "11": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "12": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:parseInputs",
+      "error_message": "Degree of approximation must be a nonnegative integer.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        1
+      ]
+    },
+    "13": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 1,
+      "is_real": 1,
+      "is_singular": [],
+      "is_delta": [],
+      "num_columns": 0,
+      "domain": []
+    },
+    "14": {
+      "error_id": "CHEBFUN:CHEBFUN:trigremez:real",
+      "error_message": "TRIGREMEZ only supports real-valued functions.",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 0,
+      "is_singular": [],
+      "is_delta": [],
+      "num_columns": 2,
+      "domain": []
+    },
+    "15": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "CHEBFUN:CHEBFUN:trigremez:convergence",
+      "warning_message": "Remez algorithm did not converge after 1 iterations to the tolerance 1.5e-14.",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        0,
+        1
+      ]
+    },
+    "16": {
+      "error_id": "",
+      "error_message": "",
+      "warning_id": "",
+      "warning_message": "",
+      "is_empty": 0,
+      "is_real": 1,
+      "is_singular": 0,
+      "is_delta": 0,
+      "num_columns": 1,
+      "domain": [
+        -1,
+        0,
+        1
+      ]
+    }
+  }
+}

@@ -1,12 +1,10 @@
-"""Port of MATLAB Chebfun tests/ballfunv/test_helmholtz_decomposition.m
-(Fable 5).
+"""Supplemental controls for the Python Dirichlet Hodge decomposition.
 
-F = curl-free + div-free; the curl-free part is grad(poisson(div F)).
-
-Provenance
-----------
-MATLAB source : tests/ballfunv/test_helmholtz_decomposition.m
-Chebfun commit: 7574c77
+The lowercase helmholtz_decomposition extension returns a scalar potential,
+curl-free field and divergence-free remainder. It is not the native
+@ballfunv/HelmholtzDecomposition.m API, whose scalar F/P/T outputs are tested
+separately in test_HelmholtzDecomposition_matlab.py (Chebfun7574c77).
+The formerly cited lowercase native test file does not exist.
 """
 
 from __future__ import annotations

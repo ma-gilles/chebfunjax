@@ -1163,12 +1163,12 @@ class Chebfun2v(eqx.Module):
         """Native Frobenius norm from continuous component singular values.
 
         Provenance: @chebfun2v/norm.m, Chebfun commit 7574c77.
-        The existing empty adapter returns zero rather than native [].
+        Native [] uses the Python empty-array convention, shape (0,).
         """
         from ._svd import source_svd
 
         if self.isempty():
-            return 0.0
+            return jnp.zeros((0,), dtype=jnp.float64)
         total = jnp.asarray(0.0)
         for component in self.components:
             values = source_svd(component)

@@ -524,7 +524,7 @@ class Chebfun3v(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return None
+            return jnp.zeros((0,), dtype=jnp.float64)
         total = 0.0
         for c in self.components:
             total += float(jnp.real(c.norm())) ** 2

@@ -242,31 +242,75 @@ def _trig_trial_rational(fk, xk, m, n):
     raise RuntimeError("trigremez: no pole-free approximation found")
 
 
-def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100,
-              tol: float | None = None):
-    """Best trigonometric polynomial approximation of degree m to a
-    periodic chebfun by the Remez algorithm (MATLAB trigremez,
-    polynomial case).  Returns ``(p, err_max, status)`` where
-    ``status["xk"]`` is the final reference (equioscillation) set.
+class TrigRemezError(ValueError):
+    """Public source diagnostic with a MATLAB-compatible identifier.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/trigremez.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford and
-        The Chebfun Developers (algorithm of Javed & Trefethen).
+    MATLAB source: @chebfun/trigremez.m, validation and parseInputs.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
     """
 
-    a, b = float(f.domain.a), float(f.domain.b)
-    if getattr(f, "isempty", lambda: False)():
+    def __init__(self, identifier, message):
+        self.identifier = identifier
+        super().__init__(f"{identifier}: {message}")
+
+
+def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100,
+              tol: float | None = None):
+    """Best real trigonometric polynomial or rational approximation.
+
+    Polynomial outputs are ``(p, error, status)``; positive denominator
+    degree returns ``(p, q, evaluator, error, status)``. Native guards run
+    after the default L2 norm and before degree parsing, with source error
+    identifiers on ``TrigRemezError``. An empty input returns itself.
+
+    ``max_iter`` and ``tol`` adapt native ``'maxiter'`` and ``'tol'`` options.
+    Native display/plotfcns callbacks have no Python adapter yet.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/trigremez.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    """
+
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    from chebfunjax.fun.deltafun import Deltafun
+    from chebfunjax.fun.singfun import Singfun
+
+    if not isinstance(f, Quasimatrix) and f.isempty():
         return f
+    # Native computes the default L2 norm before validating the input.
+    normf = float(f.norm()) or 1.0
+    columns = f.cols if isinstance(f, Quasimatrix) else [f]
+    if not all(column.isreal() for column in columns):
+        raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:real",
+                             "TRIGREMEZ only supports real-valued functions.")
+    count = f.n_cols if isinstance(f, Quasimatrix) else f.n_columns
+    if count > 1:
+        raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:quasi",
+                             "TRIGREMEZ does not currently support quasimatrices.")
+    if any(isinstance(piece.tech, Singfun) for column in columns for piece in column.funs):
+        raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:singularFunction",
+                             "TRIGREMEZ does not currently support functions with singularities.")
+    if bool(jnp.any(jnp.isinf(jnp.abs(jnp.asarray(f.domain.breakpoints))))):
+        raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:unboundedDomain",
+                             "Function must be defined on a bounded domain.")
+    if any(column.deltas or any(isinstance(piece, Deltafun) for piece in column.funs)
+           for column in columns):
+        raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:deltaFunctions",
+                             "Function must not have any delta functions.")
+    # A one-column Python Quasimatrix is the native scalar-column adapter.
+    if isinstance(f, Quasimatrix):
+        f = columns[0]
+    a, b = float(f.domain.a), float(f.domain.b)
 
     if m is None:
         raise TypeError("trigremez requires a degree for nonempty inputs")
     for degree in (m, 0 if n is None else n):
         if degree < 0 or degree != round(degree):
-            raise ValueError("CHEBFUN:CHEBFUN:trigremez:parseInputs: "
-                             "Degree of approximation must be a nonnegative integer.")
+            raise TrigRemezError("CHEBFUN:CHEBFUN:trigremez:parseInputs",
+                                 "Degree of approximation must be a nonnegative integer.")
     m = int(m)
     n = None if n is None else int(n)
 
@@ -284,7 +328,6 @@ def trigremez(f, m: int | None = None, n: int | None = None, max_iter: int = 100
     # Native parseInputs: N = 2*(m+n)+2 and tol = 1e-15*(N/2+10).
     if tol is None:
         tol = 1e-15 * (m + (0 if n is None else n) + 11)
-    normf = float(f.norm()) or 1.0
     if n is not None and n > 0:
         return _trigremez_rational(f, m, n, max_iter, tol,
                                    a, b, to_ref, from_ref, f_ref, normf)

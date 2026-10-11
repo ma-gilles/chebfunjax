@@ -43,6 +43,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.diskfun._rank_one import phase_two_rank_one
+from chebfunjax.diskfun._simplify import simplify_slice
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
 from chebfunjax.utils.misc import standard_chop
@@ -3919,9 +3920,9 @@ def _simplify_global(techs, tol=None):
     out = []
     for t, sc in zip(techs, scales):
         if sc == 0.0 or vs == 0.0:
-            out.append(t.simplify(base))
+            out.append(simplify_slice(t, base))
         else:
-            out.append(t.simplify(min(0.5, max(base, base * vs / sc))))
+            out.append(simplify_slice(t, min(0.5, max(base, base * vs / sc))))
     return out
 
 

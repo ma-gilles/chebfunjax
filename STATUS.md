@@ -1,10 +1,35 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `cd2a1335` is published. This checkpoint adds the verified
-EightShades, vector integration and disk arithmetic packages. Full parity
-remains incomplete. Pushes work; qualification is CPU only.
+Main through `508ac405` is published; this checkpoint adds the packages below.
+Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Disk slice simplification fuses the existing JAX operations while retaining
+  each slice's FFT length and tolerance. One controlled CPU stage pair improves
+  45.78 to 29.41 seconds, with 43.6% lower sampled memory; all 68 output factors
+  are bit-identical. Ten focused checks pass. The actual default constructor
+  preserves all factors/samples and its known supplemental accuracy failure;
+  no whole-constructor paired speed claim. See
+  `docs/disk_simplify_fusion_cpu_20261011.json`.
+- Public trigremez input validation now preserves native guard ordering and
+  diagnostic identifiers. Sixteen native cases and six existing adapters pass.
+  Display, plotting and general name/value options remain in progress. See
+  `docs/trigremez_input_policy_source_cpu_20261011.json`.
+- Empty Chebfun2v/Chebfun3v norms now return empty JAX arrays, matching the
+  native empty result and existing Diskfunv convention. Twelve focused checks
+  pass. Three supplemental norm tests no longer skip errors; all three pass.
+  The refreshed inventory contains all 1,102 native filenames with no literal
+  masks in mapped files; this is not assertion-completeness or runtime parity.
+  Eleven false native-test path claims were corrected. See
+  `docs/empty_vector_norm_inventory_cpu_20261011.json`.
+- TransientGrowth now has two 600-by-270 figures using source plotting and
+  measured native geometry. Full source runs agree on the printed maximum;
+  the renderer preserves all 56 coefficient arrays and recorded samples.
+  Font rasterization and plot-grid differences remain explicit. See
+  `docs/transient_growth_renderer_cpu_20261011.json`.
+- DDE is now verified at all 23 output slots (24 figures). Earlier 20/23
+  checkpoints are historical; this does not establish pixel-identical plots.
 
 - Two supplemental CI expectations are reconciled with native behavior.
   Single-component vectors are valid. The variable-coefficient cubic solve's
@@ -27,13 +52,15 @@ Recent verified changes:
   and actual warnings compared with native execution. Source polynomial
   exchange, periodic coefficients, real rational input and division point
   values are repaired. Four 600-by-270 figures use measured native geometry;
-  renderer corrections preserve all 22 curve arrays. Near-pole, polynomial
-  trig convergence and rational-trig algorithm gaps remain explicit in
-  `docs/examples/approx/EightShades.qualification.json`.
+  renderer corrections preserve all 22 curve arrays. Near-pole and polynomial
+  trig convergence gaps remain explicit in
+  `docs/examples/approx/EightShades.qualification.json`. Source inventory confirms
+  this page has only polynomial trigremez; its rational slot is a placeholder.
 - Vector integrals delegate to the existing JAX representations; vector norms
   use the native component SVD formula. All six constructor2 clauses pass,
   as do the affected 20 constructor and 22 three-component predicates.
-  Empty-norm and complete numeric/cell parser parity remain open. Evidence:
+  Complete numeric/cell parser parity remains open. The empty-norm successor
+  is qualified above. Earlier evidence:
   `docs/chebfun2v_integral_constructor2_source_cpu_20261011.json`.
 - Disk Phase-II rank-one updates preserve source arithmetic order using JAX.
   Nine native plus-stage fixtures match bitwise both directly and under JIT;

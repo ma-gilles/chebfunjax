@@ -1,11 +1,9 @@
-"""Port of MATLAB Chebfun tests/chebfun2/test_trace.m (Fable 5).
+"""Independent quadrature control for a diagonal integral.
 
-FIXED: Chebfun2.trace added in the Fable 5 audit.
-
-Provenance
-----------
-MATLAB source : tests/chebfun2/test_trace.m
-Chebfun commit: 7574c77
+These are supplemental Python checks, not translated native test assertions.
+The formerly cited native test file does not exist at Chebfun7574c77.
+The corresponding library operation is documented in @chebfun2/trace.m;
+the analytic formulas and diagnostic bounds below are supplemental oracles.
 """
 
 from __future__ import annotations

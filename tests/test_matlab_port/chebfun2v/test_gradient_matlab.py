@@ -1,9 +1,9 @@
-"""Port of MATLAB Chebfun tests/chebfun2v/test_gradient.m (Fable 5).
+"""Scalar polynomial partial-derivative controls via diff.
 
-Provenance
-----------
-MATLAB source : tests/chebfun2v/test_gradient.m
-Chebfun commit: 7574c77
+These are supplemental Python checks, not translated native test assertions.
+The formerly cited native test file does not exist at Chebfun7574c77.
+The corresponding library operation is documented in @separableApprox/diff.m;
+the analytic formulas and diagnostic bounds below are supplemental oracles.
 """
 
 from __future__ import annotations

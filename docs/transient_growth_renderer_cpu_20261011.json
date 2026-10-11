@@ -1,0 +1,75 @@
+{
+  "scope": "Source plotting-only followthrough from retained full-run representations; no full-script replay",
+  "full_python_source_run": {
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/transient_growth_full_source_20261011/baseline_capture_v3",
+    "original_handle": 65438,
+    "terminal_exit": 0,
+    "printed_elapsed_seconds": 120.908346,
+    "observer_wall_seconds": 120.90983760077506,
+    "warnings": [],
+    "maximum_energy": 358147.98785177
+  },
+  "native_source_run": {
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/transient_growth_full_source_20261011/native",
+    "original_handle": 45581,
+    "terminal_exit": 0,
+    "warnings": [],
+    "maximum_energy": 358147.98785177
+  },
+  "render_only_run": {
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/transient_growth_renderer_source_20261011/python_render_v4",
+    "original_handle": 92568,
+    "terminal_exit": 0,
+    "no_expm_or_constructor_replay": true,
+    "coefficient_arrays_rawbyte_preserved": 56,
+    "old900_and101_samples_rawbyte_preserved": true
+  },
+  "native_graphics": {
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/transient_growth_renderer_source_20261011/native_lines",
+    "original_handle": 47143,
+    "terminal_exit": 0,
+    "actual_curves": "Hidden Line objects found with findall; findobj captured legend dummy lines only",
+    "true_curve_lengths": [
+      26187,
+      27192
+    ]
+  },
+  "python_public_plot_grid_lengths": [
+    25912,
+    27306
+  ],
+  "point_values": {
+    "input": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/transient_growth_renderer_source_20261011/python_render_v3/fresh_point_values.npz",
+    "sha256": "84e73f58e4fbdb3c3d677e646a6203ff6024605732ffc1b60aa32234c3dec601",
+    "prior_original_handle": 65966,
+    "prior_terminal_exit": 1,
+    "prior_scope": "All 29 source breakpoint callbacks and saved-representation assertions completed before a plotting keyword adapter failure; retained output reused without callbacks",
+    "source_op_AST_sha256": "044788cd1edc8d07ac336d3c91eb94f1657c65f16bceda8ea38c77a0e5c87419",
+    "source_A_AST_sha256": "e63f1c6433213074485b13535f9ebafede123bee666300862cd1c21bf4cb27e7",
+    "limitation": "Fresh callback values are not original stored interior point-value byte observations"
+  },
+  "limitations": [
+    "Interior Python stored point values were not captured by the full-run observer. Fresh literal 29-breakpoint callback values are reused; only outer two breakpoint values have original byte observations.",
+    "Plot grids differ between native and Python representations; no pixel identity or full numerical parity claim.",
+    "Fonts and math glyph rasterization differ between MATLAB and Matplotlib.",
+    "Observed source-specific bounds and ticks are applied only to this example.",
+    "SciPy example callback is outside library JAX-only qualification; no full locked-provider claim."
+  ],
+  "historical_output_count_gap": "Cached historical page has an extra diagnostic fence; both actual current native and Python source runs emitted no warnings. No warning text fabricated.",
+  "tick_length_source": "https://www.mathworks.com/help/matlab/ref/matlab.graphics.axis.axes-properties.html",
+  "retained_failed_runs": [
+    {
+      "handle": 25261,
+      "scope": "Import adapter failed before callback"
+    },
+    {
+      "handle": 86903,
+      "scope": "Piece constructor argument adapter failed before callback"
+    },
+    {
+      "handle": 65966,
+      "scope": "29 callback and saved-representation assertions passed; plotting property syntax failed",
+      "terminal_exit": 1
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python file exists without a literal skip/xfail marker; `[ ]` means a file is missing or contains a skip/xfail marker. This static inventory does not run tests, check original assertion coverage or bounds, detect every dynamically assigned marker, or establish MATLAB parity. Runtime qualification requires gate evidence. All source suites, including chebgui and adchebfun, count toward the full-parity goal; existing policy skips remain open gaps.
 
 
-**Totals: 1102 MATLAB test files — 1100 present without literal masks, 2 with skip/xfail markers, 0 module-skipped, 0 missing.**
+**Totals: 1102 MATLAB test files — 1102 present without literal masks, 0 with skip/xfail markers, 0 module-skipped, 0 missing.**
 
 
 ## adchebfun  (26/26 Python files present)
@@ -130,7 +130,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_poly`
 - [x] `test_qr`
 - [x] `test_restrict`
-- [ ] `test_sum` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_sum`
 
 ## cheb  (8/8 Python files present)
 
@@ -685,7 +685,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python fil
 - [x] `test_system3`
 - [x] `test_uminusOp`
 - [x] `test_undampedNewton`
-- [ ] `test_vdpIVP` — literal skip/skipif/xfail present; inspect runtime evidence
+- [x] `test_vdpIVP`
 - [x] `test_vectorizeOp`
 - [x] `test_wronskian`
 - [x] `test_zerothOrder`

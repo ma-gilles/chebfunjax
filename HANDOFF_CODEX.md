@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Integration followthrough (2026-10-11)
+
+The current batch adds verified disk simplification fusion (controlled stage
+45.78 to29.41seconds, all68factors unchanged), source trigremez input guards,
+empty vector norm parity, honest native-test inventory and TransientGrowth
+source figures. See STATUS.md and its qualification records. DDE is qualified
+at23/23output slots; earlier20/23notes below are historical. Full parity and
+latest-main green CI remain open. Active agents continue disk compilation,
+trigremez display/plot options, and Lorenz complex-coordinate plotting.
+
 ## Latest verified CPU checkpoint (2026-10-11)
 
 Read `STATUS.md` for the current published scope and the shared evidence-root

@@ -1,0 +1,78 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Empty vector norm behavior and honest native-test inventory/provenance",
+  "change": "Chebfun2v and Chebfun3v now return JAX float64 empty arrays (0,) for native []; existing Diskfunv contract is the control.",
+  "native_branch": "Each native norm.m explicitly returns [] for isempty before component calculations; direct source branch establishes the oracle.",
+  "nonempty_norm_AST_unchanged": {
+    "src/chebfunjax/chebfun2d/chebfun2v.py": true,
+    "src/chebfunjax/chebfun3d/chebfun3v.py": true
+  },
+  "gates": {
+    "norm_gate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.275948135182261,
+      "sampled_peak_summed_rss_kib": 1065800,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "stdout": "3 passed, 1 warning in 10.77s",
+      "qualified_input_count": 317,
+      "historical_input_resolution": [
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/pre_empty_norm/chebfun2v.py",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/pre_empty_norm/chebfun3v.py"
+      ]
+    },
+    "empty_norm_gate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 20.998509224969894,
+      "sampled_peak_summed_rss_kib": 1241928,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "stdout": "12 passed, 1 warning in 17.62s",
+      "qualified_input_count": 316,
+      "historical_input_resolution": []
+    }
+  },
+  "inventory": {
+    "native_files_present": 1102,
+    "native_files_total": 1102,
+    "mapped_files_with_literal_masks": 0,
+    "limitation": "Static filename presence and literal-mask inventory only; neither assertion completeness nor runtime parity.",
+    "supplemental_norm_tests": "Three tests now fail on errors instead of skipping; analytic oracles unchanged. Native norm test files do not exist for these types.",
+    "provenance_corrections": "Eleven false literal native-test path claims corrected; four existing explicit absence explanations retained; nine additional files have docstring-only AST changes."
+  },
+  "doc_only_AST_proof": {
+    "tests/test_matlab_port/chebfun2v/test_gradient_matlab.py": true,
+    "tests/test_matlab_port/chebfun2v/test_div_matlab.py": true,
+    "tests/test_matlab_port/diskfunv/test_divergence_matlab.py": true,
+    "tests/test_matlab_port/ballfunv/test_div_matlab.py": true,
+    "tests/test_matlab_port/ballfunv/test_ballfunv_matlab.py": true,
+    "tests/test_matlab_port/chebfun2/test_trace_matlab.py": true,
+    "tests/test_matlab_port/ballfunv/test_helmholtz_decomposition_matlab.py": true,
+    "tests/test_matlab_port/classicfun/test_rdivide_matlab.py": true,
+    "src/chebfunjax/ballfun/ballfunv.py": true
+  },
+  "supersedes_empty_norm_adapter_in": "docs/chebfun2v_integral_constructor2_source_cpu_20261011.json",
+  "limitations": [
+    "Python empty array uses (0,) rather than MATLAB 0-by-0 shape.",
+    "No GPU execution. CPU runs report an installed incompatible CUDA plugin warning; JAX platform was explicitly CPU.",
+    "Complete API, native assertion and page parity remain unresolved."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/SOURCE_HISTORY.json": "17a3bb7ed432821e6c505d0d06e02fea2fd5aacca0dec538750de3fe3f67aa72",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/DOC_SCOPE.json": "dced834fa0a4bbd5a3735a702d70731daee88228917f44c4a2cb30692f82942f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/NONEXISTENT_NATIVE_TEST_CLAIMS.json": "e50e134ac2572447bf6681f61f1b8108fc8f771d0b14569b8fc24650adc71857",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/norm_gate/run/receipt.json": "1a56d0f7206c8af2c180450acf8dcf01803541e13a32fc44c399136fe3ca9c7f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/norm_gate/run/stdout": "e6ed1caebd67ee20092e9b8618612c851c5b9ed2ab3da73845dc828eda60e856",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/norm_gate/guard.json": "13061de2bec8f0954caeacf71ac8833f8254bee378a3f9eb45f0b8d0a958952b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/empty_norm_gate/run/receipt.json": "dfcdbd3f37c7c490856496631d4b18db0e471c950d105ddf8a083fc92d432aff",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/empty_norm_gate/run/stdout": "1f888962a8cfea75a8c9e1109774be5f2e68c60e331ee6eb70304f1e368c639d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/test_inventory_refresh_20261011/empty_norm_gate/guard.json": "f30f143d473607cdb29aae176d81b5f1ead49aa4fc4864a437b09f2842cd9f5f",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun2v/norm.m": "7fb06575afe1d8791314c1307f69dc2312bebb2e0ecd6fc0a07dab71cf750dbc",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3v/norm.m": "724261601599f4f7fac38f0a81a1efc82121ef7721afdcb7fa0223dc17641609",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@diskfunv/norm.m": "0458865be3dc1f9dc70fa37e501fcaea4a78e44bf636d429b1b4d674ae7cd7aa"
+  }
+}
