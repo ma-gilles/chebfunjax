@@ -34,11 +34,11 @@ The v4 lane audit details and timeout-policy hashes remain in `recovery_20261010
 
 Native `tests/misc/test_pde15s.m` compares the same PDE under `chebtech1` and `chebtech2`, with native default solver options, and checks cross-run norm against `1e5*pref.chebfuneps`. Native `pdeSolve.m` sets PDE tolerance to `1e-6` by default, maps ODE tolerances from it, and adaptively refines nonperiodic `chebtech2` spatial grids. The frozen Python test instead supplies `rtol=1e-10`, `atol=1e-12`; its solver uses fixed inferred resolution with no spatial adaptation. Treat this as an open solver implementation/port-contract gap. Do not loosen the assertion or claim a tolerance-only repair. SciPy dependency debt remains separate; this evidence does not establish a JAX-only solver.
 
-## Direct Chebfun3 battery: first forty cases qualified
+## Direct Chebfun3 battery: 56 cases qualified
 
-Forty of the 80 direct cases now pass on the frozen `e6748499` source, separately
-from the wrapper results above. Indices 0–39 cover 200 native predicates; 40 direct
-cases remain unexecuted. These results do not establish current-main suite success.
+Fifty-six of the 80 direct cases now pass on the frozen `e6748499` source, separately
+from the wrapper results above. The plain battery indices 0–39 and chebfun3f indices 0–15 are qualified;
+24 direct cases remain unexecuted. These results do not establish current-main suite success.
 
 | Gate | Original handle | Cases | Wall time | Peak summed RSS |
 |---|---:|---:|---:|---:|
@@ -100,3 +100,26 @@ Root verified 13 artifact bindings and ordered JUnit indices32–39. Inputs
 remain stable, with no cap or survivors. Audit: `execution_v17/AUDIT_v17.json`,
 SHA-256 `3cfbe5d496bee9cfa4ca23dacaa403e716719810add7d42d3ab3329074cdac05`.
 Root review: `ROOT_INDICES32_39_REVIEW.json`. These remain historical results.
+
+The v18 and v19b audits add 16 disjoint `chebfun3f` cases, indices 0–15
+(combined historical selectors 40–55). Both gates finished with eight passes,
+no errors/skips/caps/survivors and 42,902 unchanged guarded inputs. Root
+verified their artifact bindings, JUnit results and all nine cumulative audit
+hashes for 56 distinct nodes. Evidence under the same frozen gate root:
+
+| Gate | Original handle | Wall time | Peak summed RSS | Audit SHA-256 |
+|---|---:|---:|---:|---|
+| `execution_v18` | 10445 | 307.04 s | 1,274,512 KiB | `664e4b5722bae230d792886bd425bf372628a341d19d6e31a4a4fce7e558352a` |
+| `execution_v19b` | 25308 | 317.60 s | 1,435,196 KiB | `c241ed3a48e8592981b5247a7251cb42af1cf320b60e721f3cdc9df68701abb0` |
+
+Cumulative source record: `execution_v19b/CUMULATIVE_STATUS_56_OF_80_CANDIDATE.json`;
+root review: `execution_v19b/ROOT_REVIEW.json`.
+
+### Later corrections do not rewrite the historical results
+
+Current main has a separately qualified scalar JAX NDF PDE default and native
+spatial adaptation (`5b9d8c14`); see `pde15s_ndf_source_cpu_20261010.json` for
+source controls and remaining systems/Fourier/complex/method limitations.
+The literal 20 minimax predicates are separately qualified in
+`minimax_native_clauses_cpu_20261010.json`. Neither correction changes the
+frozen wrapper failure/skip reported above.

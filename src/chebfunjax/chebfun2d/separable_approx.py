@@ -269,7 +269,7 @@ def _is_happy_trig(values: np.ndarray, tol: float) -> bool:
     """
     from chebfunjax.tech.trigtech import trig_vals2coeffs
 
-    v = np.asarray(values, dtype=np.float64)
+    v = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
     vscale = float(np.max(np.abs(v)))
     if vscale == 0.0:
         return True
@@ -337,7 +337,7 @@ def _std_check_cheb(values: np.ndarray, rel_tol: float, hscale: float,
     ``tol = relTol * max(hscale, vscale / vscale_slice)``."""
     from chebfunjax.utils.transforms import vals2coeffs
 
-    v = np.asarray(values, dtype=np.float64)
+    v = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
     n = v.shape[0]
     vscale_f = float(np.max(np.abs(v)))
     if vscale_f == 0.0:
@@ -352,7 +352,7 @@ def _std_check_trig(values: np.ndarray, rel_tol: float, vscale: float) -> bool:
     folded spectrum with ``tol = relTol * vscale / vscale_slice``."""
     from chebfunjax.tech.trigtech import trig_vals2coeffs
 
-    v = np.asarray(values, dtype=np.float64)
+    v = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
     n = v.shape[0]
     vscale_f = float(np.max(np.abs(v)))
     if vscale_f == 0.0:
@@ -375,7 +375,7 @@ def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float) -> list:
     once through values (@chebtech/simplify.m)."""
     from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
 
-    V = np.asarray(vals, dtype=np.float64)
+    V = np.asarray(vals, dtype=np.complex128 if jnp.iscomplexobj(vals) else np.float64)
     nold, r = V.shape
     C = np.asarray(vals2coeffs(jnp.asarray(V)))
     vsc = np.max(np.abs(V), axis=0)
@@ -401,7 +401,7 @@ def _simplify_trig_slices(vals: np.ndarray, rel_tol: float) -> list:
     vscale_j``."""
     from chebfunjax.tech.trigtech import Trigtech
 
-    V = np.asarray(vals, dtype=np.float64)
+    V = np.asarray(vals, dtype=np.complex128 if jnp.iscomplexobj(vals) else np.float64)
     nold, r = V.shape
     vsc = np.max(np.abs(V), axis=0)
     vmax = float(np.max(vsc)) if r else 0.0
@@ -736,7 +736,8 @@ class SeparableApprox(eqx.Module):
             xx, yy = np.meshgrid(x_pts, y_pts)  # shape (ny, nx)
             xx_j = jnp.asarray(xx, dtype=jnp.float64)
             yy_j = jnp.asarray(yy, dtype=jnp.float64)
-            vals = np.array(f(xx_j, yy_j), dtype=np.float64)
+            values = jnp.asarray(f(xx_j, yy_j))
+            vals = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
             if vals.shape != xx.shape:
                 # MATLAB: a handle returning a scalar/short array on the
                 # tensor grid is treated as vectorised over the grid.
@@ -749,7 +750,8 @@ class SeparableApprox(eqx.Module):
             y_pts = _pts_y(ny)
             xx_j = jnp.full(ny, x_pivot, dtype=jnp.float64)
             yy_j = jnp.asarray(y_pts, dtype=jnp.float64)
-            vals = np.array(f(xx_j, yy_j), dtype=np.float64)
+            values = jnp.asarray(f(xx_j, yy_j))
+            vals = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
             return vals
 
         def _sample_row(y_pivot: float, nx: int) -> np.ndarray:
@@ -757,7 +759,8 @@ class SeparableApprox(eqx.Module):
             x_pts = _pts_x(nx)
             xx_j = jnp.asarray(x_pts, dtype=jnp.float64)
             yy_j = jnp.full(nx, y_pivot, dtype=jnp.float64)
-            vals = np.array(f(xx_j, yy_j), dtype=np.float64)
+            values = jnp.asarray(f(xx_j, yy_j))
+            vals = np.asarray(values, dtype=np.complex128 if jnp.iscomplexobj(values) else np.float64)
             return vals
 
         # ================================================================
@@ -866,11 +869,11 @@ class SeparableApprox(eqx.Module):
                     failure = True
                     break
                 # Resample columns at new y-resolution
-                col_vals_new = np.zeros((ny, r))
+                col_vals_new = np.zeros((ny, r), dtype=vals.dtype)
                 for j in range(r):
                     col_vals_new[:, j] = _sample_col(float(piv_x_phys[j]), ny)
             else:
-                col_vals_new = np.zeros((ny, r))
+                col_vals_new = np.zeros((ny, r), dtype=vals.dtype)
                 for j in range(r):
                     col_vals_new[:, j] = _sample_col(float(piv_x_phys[j]), ny)
 
@@ -885,11 +888,11 @@ class SeparableApprox(eqx.Module):
                     )
                     failure = True
                     break
-                row_vals_new = np.zeros((r, nx))
+                row_vals_new = np.zeros((r, nx), dtype=vals.dtype)
                 for j in range(r):
                     row_vals_new[j, :] = _sample_row(float(piv_y_phys[j]), nx)
             else:
-                row_vals_new = np.zeros((r, nx))
+                row_vals_new = np.zeros((r, nx), dtype=vals.dtype)
                 for j in range(r):
                     row_vals_new[j, :] = _sample_row(float(piv_y_phys[j]), nx)
 

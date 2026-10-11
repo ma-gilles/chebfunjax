@@ -1,0 +1,61 @@
+{
+  "base_source": "141d4142d5857d76eb8765cab4bcc4d8bf232b09; prepatch two core files also byte-identical current P a533e3b5 at packaging read",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "result": "20 unique selected controls pass across four fresh CPU-only processes; no cap/survivors; all bound source inputs stable.",
+  "causal_fault": "Nonsource real/imag split reconstructed O(eps) imaginary product noise with absTol2.39e-30, forcing high-rank grid refinement. Whole-complex native GE uses full function scale.",
+  "fix": "Preserve complex values through adaptive GE/skeleton/happiness/simplification; std2 uses native h*conj(h) without float(mean) conversion.",
+  "numerical_scope": "ACA/JAX arithmetic, pivots, thresholds and stopping limits unchanged. Existing NumPy host adaptive scaffolding remains; this is not a JAX-only adaptive-driver rewrite.",
+  "native_assertions": "All seven literal mean/std and three literal conj predicates unchanged; source default/shape control1, analytic std2 controls4, existing real std2 consumer1, Cheb/trig real/complex constructor controls4.",
+  "native_std2_test": "No pinned tests/chebfun2/test_std2.m exists; std2 source formula and supplemental analytic controls are labeled explicitly.",
+  "gates": {
+    "std2": {
+      "tests": 5,
+      "wall_seconds": 32.36280727898702,
+      "peak_rss_kib": 1731344,
+      "inputs_verified": 347
+    },
+    "mean_std": {
+      "tests": 8,
+      "wall_seconds": 32.33145311800763,
+      "peak_rss_kib": 1678968,
+      "inputs_verified": 347
+    },
+    "conj": {
+      "tests": 3,
+      "wall_seconds": 35.726445390842855,
+      "peak_rss_kib": 1601520,
+      "inputs_verified": 347
+    },
+    "constructor": {
+      "tests": 4,
+      "wall_seconds": 16.175612233113497,
+      "peak_rss_kib": 1008968,
+      "inputs_verified": 347
+    }
+  },
+  "limits": "Each gate CPU0\u20131/180s3GiB, serial fresh worker/private bytecode cache.",
+  "runtime_provenance": "Pinned JAX/jaxlib0.11.0, x64 CPU; imported module origin/file hashes recorded in-process and independently rehashed. Literal interpreter path recorded in receipt. Not exhaustive dependency/loaded-library closure; interpreter binary was not a prebound input.",
+  "packaging": "Public std2 Provenance heading added only in delivery copy; entire module AST excluding docstrings equals frozen qualified source.",
+  "qualified_source_hashes": {
+    "src/chebfunjax/chebfun2d/chebfun2.py": "e80b9b72149d5722a2a1a902355f393a63537f798f06b26e62c3bd27abb0c1bf",
+    "src/chebfunjax/chebfun2d/separable_approx.py": "ef9b2116fc0e56079a92d91bef1541c471ba6bb8f6a40b1e108dbf9541be9404",
+    "tests/test_matlab_port/chebfun2/test_std2_complex_source.py": "66d93e96d7947fee02112f2a30c7167d7519e3b2f94ad490deae049e45ded025",
+    "tests/test_matlab_port/chebfun2/test_complex_constructor_source.py": "e2d6e81dba5f4d85e30ed2e533626ef94d237d1924f39c31696ed851472ad7a1"
+  },
+  "remaining_gaps": [
+    "No full suite, all-complex constructor or native bitwise parity claim.",
+    "Legacy _is_happy_trig dtype is also preserved, but adaptive driver uses _std_check_trig.",
+    "Other complex arithmetic/reduction consumers are outside this focused qualification."
+  ],
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/std2/AUDIT.json": "a10dd0dcab34850bd005cf68167d24597b07ee900f4cde01d9d22636413ef7c7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/mean_std/AUDIT.json": "4c84833cda9a006b20ab79cd15a923eba1be18c5e5505922fe735753921d06b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/conj/AUDIT.json": "949b15b414864d825690010942a91fb5772b924e05f3087736f254cd2576b5e0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/constructor/AUDIT.json": "fc38085db55c9ef601cdc837f9278fa8c5dec492311395ef10f4ace0f9658ce9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/SOURCE_ASSERTION_MAP.json": "12f06cec19bb3ac23d94e121857eb979a9f697b87599d5d0deeb23294a5d43ee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_complex_constructor_source_v1_20261010/SOURCE_SCOPE_AUDIT.json": "adb94ae3b36e9be9d44cf742c9d1665853a30a03bb1f28b521e0b65a8580f6e8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_std2_complex_source_v1_20261010/FAILED_AUDIT.json": "0e272b5ba47a35d7ef1cdced8902fcc828ee648e69f15952e4608de7eed15ee6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_std2_complex_attribution_v1_20261010/AUDIT.json": "f326d245d3cf896bdc154be9592c0e76b3c94a826d40fa144389838074e81ffc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_std2_complex_attribution_v2_20261010/AUDIT.json": "be6f88e23cd842f02d25dac2b9e4c7be37655468517f3dec540705d709f11c63"
+  }
+}

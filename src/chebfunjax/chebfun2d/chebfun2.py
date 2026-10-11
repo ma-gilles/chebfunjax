@@ -248,19 +248,9 @@ class Chebfun2(eqx.Module):
         if trig or trigx or trigy:
             kwargs["techs"] = ("trig" if (trig or trigx) else "cheb",
                                "trig" if (trig or trigy) else "cheb")
-        # Complex-valued functions: the GE constructor real-casts, so
-        # build real and imaginary parts separately and recombine
-        # exactly (f = re + 1j*im).  Found in the Fable 5 audit: complex
-        # Chebfun2s previously silently dropped their imaginary part.
-        xa, xb, ya, yb = (float(v) for v in domain)
-        xprobe = jnp.asarray([[0.5 * (xa + xb) + 0.25 * (xb - xa)]])
-        yprobe = jnp.asarray([[0.5 * (ya + yb) + 0.25 * (yb - ya)]])
-        if jnp.iscomplexobj(jnp.asarray(f(xprobe, yprobe))):
-            fre = cls(approx=SeparableApprox.from_function(
-                lambda x, y: jnp.real(f(x, y)), **kwargs))
-            fim = cls(approx=SeparableApprox.from_function(
-                lambda x, y: jnp.imag(f(x, y)), **kwargs))
-            return fre + fim * 1j
+        # Native constructor keeps complex values in one GE construction;
+        # getTol therefore uses the full function scale, including roundoff
+        # in a small real or imaginary component.
         approx = SeparableApprox.from_function(f, **kwargs)
         return cls(approx=approx)
 
@@ -1734,10 +1724,15 @@ class Chebfun2(eqx.Module):
         return self.sum(dim) / width
 
     def std2(self) -> jax.Array:
-        """Standard deviation over the domain (MATLAB std2)."""
-        mu = float(self.mean2())
-        var = (self - mu) * (self - mu)
-        return jnp.sqrt(var.mean2())
+        """Standard deviation over the domain (MATLAB std2).
+
+        Provenance
+        ----------
+        MATLAB source: @separableApprox/std2.m
+        Chebfun commit: 7574c77
+        """
+        h = self - self._const_like(self.mean2())
+        return jnp.sqrt((h * h.conj()).mean2())
 
     def diag_fun(self):
         """The 1-D chebfun g(x) = f(x, x) on the diagonal (MATLAB diag).
