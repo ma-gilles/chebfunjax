@@ -40,7 +40,19 @@ xlim([1 length(nrmdu)]), grid on
 ```
 
 ```text
-(no matching output)
+Iter.   || du ||   Contraction    stepsize   len(du)   len(u)
+--------------------------------------------------------------
+ 01     9.78e-01     6.68e-01      1.0000      37        37
+ 02     2.67e-01     8.70e-02      1.0000      53        53
+ 03     2.85e-02     1.07e-01      1.0000      51        53
+ 04     3.92e-04     1.38e-02      1.0000      51        53
+ 05     7.98e-08     2.03e-04      1.0000      37        53
+ 06     1.01e-13     1.26e-06      1.0000       1        53
+--------------------------------------------------------------
+Newton's method converged in 6 iterations.
+Discretization basis used: Values.
+Final error estimate: 1.01e-13 (differential equation)
+                      0.00e+00 (boundary conditions).
 ```
 
 ![Carrier figure 01](../../images/ode-nonlin/Carrier_01.png)
@@ -53,7 +65,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     1.815537191070530e-13
+     3.959290092139387e-11
 ```
 
 Running from a different initial guess gives a different solution:
@@ -71,7 +83,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     1.708015855409538e-12
+     4.374437912494763e-10
 ```
 
 ![Carrier figure 02](../../images/ode-nonlin/Carrier_02.png)
@@ -97,7 +109,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     9.097829459844235e-12
+     2.340740805910356e-10
 ```
 
 ![Carrier figure 03](../../images/ode-nonlin/Carrier_03.png)

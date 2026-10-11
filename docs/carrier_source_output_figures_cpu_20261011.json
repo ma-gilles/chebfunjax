@@ -1,0 +1,147 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "CPU source computation, actual output and saved-array figure update; not full historical output or pixel parity",
+  "root_verification": {
+    "delivery_counts": {
+      "scalar_newton_display_source_20261011/carrier_full_v1": 22,
+      "carrier_full_artifacts_20261011": 6,
+      "carrier_saved_style_20261011": 15,
+      "carrier_or_logical_native_capture_20261011": 17
+    },
+    "unique_guard_inputs": 3998,
+    "status": "verified"
+  },
+  "whole_script": {
+    "original_handle": 48775,
+    "terminal": 0,
+    "wall_seconds": 133.14036925509572,
+    "science_seconds": 120.38097304711118,
+    "peak_KiB": 4079052,
+    "stable": true,
+    "cap": null,
+    "survivors": [],
+    "source_slots": 4,
+    "source_solve_count": 3,
+    "residuals": [
+      3.959290092139387e-11,
+      4.374437912494763e-10,
+      2.3407408059103557e-10
+    ],
+    "captures": [
+      {
+        "case": 1,
+        "arrays": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_01.npz",
+        "metadata": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_01.json",
+        "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/snapshot/docs/images/ode-nonlin/Carrier_01.png",
+        "coefficient_lengths": [
+          53
+        ],
+        "point_values_override": true,
+        "metadata_scope": "axes/figsize are before-save helper resizing",
+        "converged": true
+      },
+      {
+        "case": 2,
+        "arrays": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_02.npz",
+        "metadata": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_02.json",
+        "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/snapshot/docs/images/ode-nonlin/Carrier_02.png",
+        "coefficient_lengths": [
+          185
+        ],
+        "point_values_override": true,
+        "metadata_scope": "axes/figsize are before-save helper resizing",
+        "converged": true
+      },
+      {
+        "case": 3,
+        "arrays": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_03.npz",
+        "metadata": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/captures/Carrier_03.json",
+        "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/snapshot/docs/images/ode-nonlin/Carrier_03.png",
+        "coefficient_lengths": [
+          193
+        ],
+        "point_values_override": true,
+        "metadata_scope": "axes/figsize are before-save helper resizing",
+        "converged": true
+      }
+    ],
+    "warnings": [],
+    "stdout_extraction": "Removed only observer print(result) final line; full supervised stdout retained. First4slots source actual print calls, observer summary not appended to slot4.",
+    "metadata_scope": "Actual public point_values and explicit _point_values override recorded for all3cases; fig/axes metadata BEFORE savehelper resize. First standalone case pointmetadata remains unqualified; not retroactively repaired.",
+    "limits": [
+      "No native full3case or coefficient/output/pixel parity claim",
+      "Current tightlayout/rawsemilogy marker styling unqualified against reference; captures allow stylefollowup without solves",
+      "Actual residual publicnorm observations, no invented example pass thresholds"
+    ],
+    "source_base": {
+      "base": "b9a7ba3488773d64bc8adbbaf09fc5736d2237cf",
+      "libraries": "exact committed blobs",
+      "explicit_uncommitted_Carrier_overlay": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/ode-nonlin/carrier.py",
+        "sha256": "b1019ce9f5087602092fa0b4380792f0599f031aa406a3bd78f55e5b5c2c38ee"
+      },
+      "authorization": "full3case once600s8GiB; defaults unchanged"
+    }
+  },
+  "style_successor": {
+    "render_original_handle": 12108,
+    "terminal": 0,
+    "wall_seconds": 7.9403305682353675,
+    "peak_KiB": 179884,
+    "stable": true,
+    "survivors": [],
+    "scope": "Savedactualartistxy/nrmdu only, noChebfunconstruction/refit/solve",
+    "style_source": "Carrier.m exactlinewidth1.6/markersize16/titlefontsize14; existing _source_plot_line_and_points pointglyph usesqualifiedMarkerStyle(.)scaled2/3(edge0), no arbitrarymarker-sizeadjustment. Nativepageboldtitles/inwardtoprightticks/leftnogrid/rightmajorgrid.",
+    "page_specific_adapter": "Cachedsourceaxes normalized(.13,.11,.334659090909,.815),(.57034090909,.11,.334659090909,.815) confirmedgreybordersx77/279 and341/543 y19/240 on600x270. Explicit cachedlimits/ticks forfirst6vsother10/11 steps areCarrierpage adapter, notgenericautoscale.72dpi export retainsliteralFS14/MS16 physicalpoint dimensions forhistoricalpage typography; this ispage-specificrender adapter, no nativegraphics-runtime qualification.",
+    "identity": "nrmdu/artistcoords preserved all3; no storedcoeff/stdout changes; originalfullrunstdout retainedexact.",
+    "review": "All3newfigures visuallyreviewed againstall3cachedfigures: correctqualitativesolution/convergence,layoutanddotglyphnowcloser. Actualfinalconvergencevalues differ from historical cache; numerical values not tuned. Ticknumberdecimalformat/fontmetrics/rasterantialias differ; no fullpixelparityclaim.",
+    "candidate": "carrier_v2.py addsfuture numericdomainrecorderconversion tuple(u.domain); originalclosedrenderguardcarrier.py bytesrestoredexact. RendererhelperAST unchanged betweencandidatev1/v2; no repeatedrender necessary for recorder-onlychange.",
+    "domain_capture_erratum": "Fullrun originaldomain field isobjectarraynp.asarray(Domain), notportablenumeric; actualFUNinterval_0 retainednumericandusedoffline; no pickleload/mutation/solve. Futurecapturefix included sourcepatch."
+  },
+  "matched_native": {
+    "scope": "Matched source-default captured outputs, no tolerance/pass classification; Python201 samples offlineactualcoeffs+capturedpoint_values, not new solve/publicfeval runtime",
+    "capture_domain_erratum": "np.asarray(Domain) created objectarray; no pickleload. ActualnumericFUNinterval_0 used for endpoints. Originalrecordretained; futurecapturefix np.asarray(tuple(u.domain)).",
+    "rows": [
+      {
+        "case": 1,
+        "coeff_length": 53,
+        "coeff_max_abs_difference": 1.1102230246251565e-15,
+        "offline_201_sample_max_abs_difference": 3.1086244689504383e-15,
+        "normDelta_length": 6,
+        "normDelta_max_abs_difference": 4.9960036108132044e-15
+      },
+      {
+        "case": 2,
+        "coeff_length": 185,
+        "coeff_max_abs_difference": 4.384598202994564e-15,
+        "offline_201_sample_max_abs_difference": 2.1566082253343666e-14,
+        "normDelta_length": 10,
+        "normDelta_max_abs_difference": 2.5135449277513544e-13
+      },
+      {
+        "case": 3,
+        "coeff_length": 193,
+        "coeff_max_abs_difference": 1.3884726701718364e-14,
+        "offline_201_sample_max_abs_difference": 6.439293542825908e-14,
+        "normDelta_length": 11,
+        "normDelta_max_abs_difference": 3.1254998589247407e-12
+      }
+    ]
+  },
+  "prose": "Non-output Markdown unchanged",
+  "remaining": [
+    "Historical cached tables and residuals differ from both current pinned native and Python outputs.",
+    "Font metrics, tick formatting and antialiasing differ; pixel parity unqualified.",
+    "Whole-script qualification used original capture domain object array; numeric interval_0 retained. Published future recorder uses tuple(domain). Style changes qualified using saved actual arrays without another solve."
+  ],
+  "evidence_deliveries": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_newton_display_source_20261011/carrier_full_v1/DELIVERY.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/carrier_full_artifacts_20261011/DELIVERY.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/carrier_saved_style_20261011/DELIVERY.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/carrier_or_logical_native_capture_20261011/DELIVERY.json"
+  ],
+  "publication_adapters": [
+    "Ruff import ordering only: AST and imported names verified unchanged.",
+    "Trim trailing spaces inside published output fences only; original stdout retained byte-exact in evidence."
+  ]
+}
