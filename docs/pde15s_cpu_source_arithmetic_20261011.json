@@ -1,0 +1,92 @@
+{
+  "status": "Original pde15s Frobenius CI gap resolved by source arithmetic; ready for parent review",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_snapshot": "449f363a frozen CPU source; current publication versions of both edited existing source files still match",
+  "contract": {
+    "norm": "Continuous quasimatrix Frobenius",
+    "bound": 2.220446049250313e-11,
+    "rtol": 1e-06,
+    "atol": 1e-06,
+    "qualified_C2_nodes": "retained",
+    "original_test": "unchanged",
+    "library_numerics": "JAX only"
+  },
+  "numerical_results": {
+    "baseline_frobenius": 2.9595920649182056e-11,
+    "candidate_v4_frobenius": 3.529426658432734e-12,
+    "retained_native_frobenius": 7.518954463785951e-12,
+    "native_matrices": {
+      "sizes": [
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        16,
+        17,
+        31,
+        32,
+        33,
+        63,
+        64,
+        65,
+        100,
+        129
+      ],
+      "orders": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "eager": 68,
+      "jit": 8,
+      "different_uint64_entries": 0
+    },
+    "actual_native_RHS_states": 200,
+    "RHS_intermediates": [
+      "first derivative",
+      "second derivative",
+      "combined PDE expression",
+      "projection",
+      "boundary-adjusted RHS"
+    ],
+    "RHS_uint64_eager_and_jit": "all equal",
+    "focused_tests": {
+      "v4": {
+        "passed": 140,
+        "failed": 1,
+        "failure": "supplemental scope test API assumption, not a numerical predicate"
+      },
+      "final_corrected_scope_test": "1 passed",
+      "total_distinct_covered": 141,
+      "original_diffmat_predicates": 62,
+      "new_native_and_fallback_controls": 47,
+      "existing_source_and_singleton_controls": 32
+    }
+  },
+  "scope": {
+    "diffmat": "C2 square construction, CPU platform, JAX x64, 2 <= n <= 129; generic implementation elsewhere. Bounded matrix provider workspace motivates the size limit. Other public APIs retain existing x64 requirements.",
+    "PDE_GEMV": "Private PDE Values.diff and scalar projection only: real float64 finite inputs, each matrix dimension in [2,258], CPU platform; generic matmul fallback otherwise. System projection and general Chebfun coefficient differentiation unchanged.",
+    "binary_operators": "Private PDE Values add/subtract/multiply/divide with both operands float64 and finite, CPU platform; generic arithmetic elsewhere. Multiplication by one in a separate loop iteration preserves signed zeros and prevents consumer contraction.",
+    "qualification": "JAX/jaxlib0.11.0 CPU x64 and captured MATLAB R2025b Update2 oneMKL2024.1 default SSE DGEMV; no blanket native BLAS/CPU/release bitwise parity claim."
+  },
+  "mechanism": [
+    "Native D matrices require source-rounded integer angle division, bounded sine and sequential row sums.",
+    "Direct calls to the mapped licensed MATLAB DGEMV provider reproduce all 200 captured derivative states. This provider is reference-only, never a library dependency.",
+    "GDB identifies the default SSE kernel; its aligned output path has serial columns and separate multiply/add.",
+    "The ordinary JAX loop emits vfmadd213sd despite an optimization_barrier; the retained optimized LLVM alone does not reveal this contraction.",
+    "Two-phase JAX GEMV and explicit binary operation loops preserve native rounding."
+  ],
+  "final_version": "candidate_v6; numerical source AST equals passing v4 ignoring docstrings and import order; final test correction changes only the supplemental scope expectation. Full PDE was run on v4, not falsely claimed as a v6 rerun.",
+  "limitations": [
+    "No performance speedup claim. Separate observed full PDE supervisor times are 34.81s baseline and40.21s candidate on a shared host; they are not a paired performance qualification.",
+    "Large C2 matrices retain the generic implementation to bound unmeasured fdlibm matrix workspace.",
+    "The public C2 grid already rejects disabled-x64 mode; tests preserve that inherited behavior."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_blas_stage_20261011",
+  "evidence_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_blas_stage_20261011/REPORT.json",
+  "evidence_report_sha256": "72bf22320c4400c5829ab1ace36ed298ee762221f4706e98afbdf89bea3d8984"
+}

@@ -15,6 +15,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -100,8 +102,10 @@ class TestChebtech1Constructor:
         # pass(7): the real adaptive minSamples=maxLength=8 source options.
         # standardChop cannot resolve fewer than17 coefficients, so source
         # populate gives up; the original assertion only checks no crash.
-        with pytest.warns(UserWarning, match="did not converge"):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
             g = Chebtech1.from_function(jnp.sin, min_samples=8, max_length=8)
+        assert not caught  # Native low-level populate returns silently.
         assert g.coeffs.shape == (8,)
 
     def test_logical_true(self):

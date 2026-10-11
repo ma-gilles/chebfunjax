@@ -12,8 +12,11 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 
+from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
+from chebfunjax.utils._fdlibm_sine import _sin_cheb_angles
 from chebfunjax.utils.quadrature import chebpts, chebweights
 
 # ============================================================================
@@ -112,7 +115,7 @@ def _cheb1_angles(n: int) -> jnp.ndarray:
 # ============================================================================
 
 def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
-                  t: jnp.ndarray | None = None) -> jnp.ndarray:
+                  t: jnp.ndarray | None = None, *, source_cpu: bool = False) -> jnp.ndarray:
     """Barycentric differentiation matrix.
 
     Given interpolation nodes ``x`` and barycentric weights ``w``, returns
@@ -169,6 +172,14 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
     if k == 0:
         return jnp.eye(n, dtype=jnp.float64)
 
+    def row_sum(matrix):
+        if source_cpu:
+            # MATLAB sum(D,2) advances along columns for each matrix row.
+            return jax.lax.fori_loop(
+                0, n, lambda j, total: total + matrix[:, j],
+                jnp.zeros(n, dtype=matrix.dtype))
+        return jnp.sum(matrix, axis=1)
+
     ii = jnp.arange(n)  # diagonal indices
 
     # --- Pairwise differences Dx ---
@@ -177,8 +188,20 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
         # MATLAB flips t before using: t = flipud(t)
         t_flip = t[::-1]
         # Dx[i,j] = 2*sin((t_i + t_j)/2)*sin((t_i - t_j)/2)
-        Dx = 2.0 * jnp.sin((t_flip[:, None] + t_flip[None, :]) / 2.0) * \
-                    jnp.sin((t_flip[:, None] - t_flip[None, :]) / 2.0)
+        if source_cpu:
+            # Source divides each angle before the pairwise sum/difference.
+            half_angles = t_flip / 2.0
+            plus = half_angles[:, None] + half_angles[None, :]
+            minus = half_angles[:, None] - half_angles[None, :]
+            # The flipping trick retains only |angle| <= pi/2. Preserve a
+            # generic sine outside that proven bounded provider interval.
+            def sine(angle):
+                return jnp.where(jnp.abs(angle) <= jnp.pi / 2,
+                                 _sin_cheb_angles(angle), jnp.sin(angle))
+            Dx = 2.0 * (sine(plus) * sine(minus))
+        else:
+            Dx = 2.0 * jnp.sin((t_flip[:, None] + t_flip[None, :]) / 2.0) * \
+                        jnp.sin((t_flip[:, None] - t_flip[None, :]) / 2.0)
     else:
         Dx = x[:, None] - x[None, :]
 
@@ -204,7 +227,7 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
     D = Dw * Dxi
     # Negative sum trick: set diagonal so that each row sums to zero
     D = D.at[ii, ii].set(0.0)
-    D = D.at[ii, ii].set(-jnp.sum(D, axis=1))
+    D = D.at[ii, ii].set(-row_sum(D))
 
     # Forcing symmetry for even N:
     # D(ii(end:-1:N-floor(N/2)+1)) = -D(ii(1:floor(N/2)))
@@ -222,7 +245,7 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
     # --- k = 2 ---
     D = 2.0 * D * (jnp.diag(D)[:, None] - Dxi)
     D = D.at[ii, ii].set(0.0)
-    D = D.at[ii, ii].set(-jnp.sum(D, axis=1))
+    D = D.at[ii, ii].set(-row_sum(D))
 
     if k == 2:
         return D
@@ -231,7 +254,7 @@ def _bary_diffmat(x: jnp.ndarray, w: jnp.ndarray, k: int = 1,
     for order in range(3, k + 1):
         D = order * Dxi * (Dw * jnp.diag(D)[:, None] - D)
         D = D.at[ii, ii].set(0.0)
-        D = D.at[ii, ii].set(-jnp.sum(D, axis=1))
+        D = D.at[ii, ii].set(-row_sum(D))
 
     return D
 
@@ -313,8 +336,18 @@ def _square_cheb_diffmat(n: int, p: int = 1,
     elif kind == 2:
         x = chebpts(n, kind=2)
         w = _cheb2_barywts(n)
-        t = _cheb2_angles(n)
-        D = _bary_diffmat(x, w, p, t)
+        def generic(x, w):
+            return _bary_diffmat(x, w, p, _cheb2_angles(n))
+        if jax.config.x64_enabled and n <= 129:
+            # Bound the O(n^2) fdlibm operand stacks to the qualified small
+            # CPU matrix range; larger shapes keep the generic implementation.
+            def source_cpu(x, w):
+                angles = _divide_binary64_by_positive_integer(
+                    jnp.arange(n - 1, -1, -1, dtype=jnp.float64) * jnp.pi, n - 1)
+                return _bary_diffmat(x, w, p, angles, source_cpu=True)
+            D = jax.lax.platform_dependent(x, w, cpu=source_cpu, default=generic)
+        else:
+            D = generic(x, w)
     elif kind == 1:
         x = chebpts(n, kind=1)
         w = _cheb1_barywts(n)

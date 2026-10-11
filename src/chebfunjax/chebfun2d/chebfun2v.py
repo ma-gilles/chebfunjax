@@ -404,35 +404,38 @@ class Chebfun2v(eqx.Module):
         """Unary plus: +F."""
         return self
 
-    def __add__(self, other: "Chebfun2v | float | int") -> "Chebfun2v":
-        """Componentwise addition.
-
-        Parameters
-        ----------
-        other : Chebfun2v or scalar
-            If scalar, adds to each component.
+    def __add__(self, other):
+        """Componentwise source addition, including numeric vectors.
 
         Provenance
         ----------
-        MATLAB source : @chebfun2v/plus.m
-        Chebfun commit: 7574c77
+        MATLAB source: @chebfun2v/plus.m, Chebfun commit 7574c77.
         """
-        if self.isempty():
-            return self
-        if isinstance(other, (int, float)):
-            new_comps = [_add_scalar_separable(c, float(other)) for c in self.components]
-            return Chebfun2v(new_comps)
+        if self.isempty() or (isinstance(other, Chebfun2v) and other.isempty()):
+            return Chebfun2v.empty()
         if isinstance(other, Chebfun2v):
             if other.n_components != self.n_components:
-                raise ValueError(
-                    f"Cannot add Chebfun2v with {self.n_components} components "
-                    f"to one with {other.n_components} components."
-                )
-            new_comps = [
-                _add_separable(c1, c2) for c1, c2 in zip(self.components, other.components)
-            ]
-            return Chebfun2v(new_comps)
-        return NotImplemented
+                raise ValueError("CHEBFUN:CHEBFUN2V:plus:components: Component mismatch.")
+            if other.is_transposed != self.is_transposed:
+                raise ValueError("CHEBFUN:CHEBFUN2V:plus:transposed: Dimension mismatch.")
+            components = [_add_separable(a, b) for a, b in zip(self.components, other.components)]
+        elif isinstance(other, SeparableApprox) or hasattr(other, "approx"):
+            scalar_field = other if isinstance(other, SeparableApprox) else other.approx
+            components = [_add_separable(a, scalar_field) for a in self.components]
+        else:
+            values = _component_numeric_array(other)
+            if values is None:
+                return NotImplemented
+            if values.size == 0:
+                return Chebfun2v.empty()
+            if values.size not in (1, self.n_components):
+                raise ValueError("CHEBFUN:CHEBFUN2V:plus:doubleSize: Dimension mismatch.")
+            values = values.reshape(-1, order="F")
+            components = [_add_scalar_separable(a, values[0 if values.size == 1 else k])
+                          for k, a in enumerate(self.components)]
+        out = Chebfun2v(components)
+        object.__setattr__(out, "_row", self.is_transposed)
+        return out
 
     def __radd__(self, other: "float | int") -> "Chebfun2v":
         return self.__add__(other)
@@ -454,47 +457,110 @@ class Chebfun2v(eqx.Module):
     def __rsub__(self, other: "float | int") -> "Chebfun2v":
         return self.__neg__().__add__(other)
 
-    def __mul__(self, other: "float | int") -> "Chebfun2v":
-        """Scalar multiplication.
+    def times(self, other):
+        """Source elementwise multiplication, including numeric columns.
 
         Provenance
         ----------
-        MATLAB source : @chebfun2v/times.m
-        Chebfun commit: 7574c77
+        MATLAB source: @chebfun2v/times.m, Chebfun commit 7574c77.
         """
         if self.isempty() or (isinstance(other, Chebfun2v) and other.isempty()):
             return Chebfun2v.empty()
-        if isinstance(other, Chebfun2v) and self.is_transposed:
-            return self.dot(other)          # MATLAB F' * G
-        if isinstance(other, (int, float, complex)):
-            # complex scalars keep complex pivots (MATLAB 1i*F)
-            s = complex(other) if isinstance(other, complex) \
-                else float(other)
-            new_comps = [_scale_separable(c, s)
-                         for c in self.components]
-            return Chebfun2v(new_comps)
         if isinstance(other, Chebfun2v):
-            # Component-wise .* (MATLAB @chebfun2v/times.m)
-            if len(self.components) != len(other.components):
-                raise ValueError(
-                    "Chebfun2v .* requires matching component counts")
-            new_comps = [
-                _mul_separable(a, b)
-                for a, b in zip(self.components, other.components)
-            ]
-            return Chebfun2v(new_comps)
-        if isinstance(other, SeparableApprox):
-            # scalar-field .* vector field: scale every component
-            new_comps = [_mul_separable(c, other)
-                         for c in self.components]
-            return Chebfun2v(new_comps)
-        if hasattr(other, "approx") and isinstance(
-                getattr(other, "approx"), SeparableApprox):
-            return self.__mul__(other.approx)
-        return NotImplemented
+            if other.n_components != self.n_components:
+                raise ValueError("CHEBFUN:CHEBFUN2V:times:times: Components mismatch.")
+            components = [_mul_separable(a, b) for a, b in zip(self.components, other.components)]
+        elif isinstance(other, SeparableApprox) or hasattr(other, "approx"):
+            scalar_field = other if isinstance(other, SeparableApprox) else other.approx
+            components = [_mul_separable(a, scalar_field) for a in self.components]
+        else:
+            values = _component_numeric_array(other)
+            if values is None:
+                return NotImplemented
+            if values.size == 0:
+                return Chebfun2v.empty()
+            # Python 1D literals adapt a native column; explicit 2D arrays
+            # retain MATLAB row/column validation, including linear indexing.
+            if values.ndim == 1:
+                values = values[:, None]
+            rows = values.shape[0] if values.ndim else 1
+            cols = values.shape[1] if values.ndim > 1 else 1
+            if values.size != 1 and rows != self.n_components and not (
+                    self.is_transposed and cols == self.n_components):
+                raise ValueError("CHEBFUN:CHEBFUN2V:times:double: Numeric size mismatch.")
+            values = values.reshape(-1, order="F")
+            components = [_scale_separable(a, values[0 if values.size == 1 else k])
+                          for k, a in enumerate(self.components)]
+        out = Chebfun2v(components)
+        object.__setattr__(out, "_row", self.is_transposed)
+        return out
 
-    def __rmul__(self, other: "float | int") -> "Chebfun2v":
-        return self.__mul__(other)
+    def __mul__(self, other):
+        """Elementwise product, retaining the existing row-field dot shorthand."""
+        if self.isempty() or (isinstance(other, Chebfun2v) and other.isempty()):
+            return Chebfun2v.empty()
+        if isinstance(other, Chebfun2v) and self.is_transposed:
+            return self.dot(other)
+        return self.times(other)
+
+    def __rmul__(self, other):
+        return self.times(other)
+
+    def __matmul__(self, other):
+        """Native MTIMES; Python ``@`` distinguishes it from TIMES.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun2v/mtimes.m, Chebfun commit 7574c77.
+        """
+        from .chebfun2 import Chebfun2
+
+        if self.isempty() or (isinstance(other, Chebfun2v) and other.isempty()):
+            return Chebfun2v.empty()
+        if isinstance(other, Chebfun2v):
+            if self.is_transposed and not other.is_transposed:
+                return Chebfun2(approx=self.dot(other))
+            raise ValueError("CHEBFUN:CHEBFUN2V:mtimes:sizes: Dimensions mismatch.")
+        values = _component_numeric_array(other)
+        if values is None:
+            return NotImplemented
+        if values.size == 0:
+            return Chebfun2v.empty()
+        if self.is_transposed:
+            return self.transpose().__rmatmul__(values.T)
+        if values.size == 1:
+            return self.times(values)
+        raise ValueError("CHEBFUN:CHEBFUN2V:mtimes:double2: Numeric size mismatch.")
+
+    def __rmatmul__(self, other):
+        """Numeric matrix times a vector field, following native MTIMES.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun2v/mtimes.m, Chebfun commit 7574c77.
+        """
+        from .chebfun2 import Chebfun2
+
+        values = _component_numeric_array(other)
+        if values is None:
+            return NotImplemented
+        if self.isempty() or values.size == 0:
+            return Chebfun2v.empty()
+        if self.is_transposed:
+            return (self.transpose() @ values.T).transpose()
+        if values.size == 1:
+            return self.times(values)
+        if values.ndim == 1:
+            values = values[None, :]
+        if values.ndim != 2 or values.shape[1] != self.n_components:
+            raise ValueError("CHEBFUN:CHEBFUN2V:mtimes:double1: Dimension mismatch.")
+        results = []
+        for row in values:
+            total = _scale_separable(self.components[0], row[0])
+            for k in range(1, self.n_components):
+                total = _add_separable(total, _scale_separable(self.components[k], row[k]))
+            results.append(total)
+        return Chebfun2(approx=results[0]) if len(results) == 1 else Chebfun2v(results)
 
     def __truediv__(self, other: "float | int") -> "Chebfun2v":
         """Divide by scalar.
@@ -1154,6 +1220,20 @@ def _neg_separable(f: SeparableApprox) -> SeparableApprox:
     return _negate(f)
 
 
+def _component_numeric_array(value):
+    """Adapt native DOUBLE inputs without a host numerical dependency.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun2v/{plus,times,mtimes}.m, Chebfun commit 7574c77.
+    Python numeric sequences and typed arrays adapt native numeric matrices.
+    """
+    if isinstance(value, (int, float, complex, list, tuple)) or (
+            hasattr(value, "dtype") and hasattr(value, "shape")):
+        return jnp.asarray(value)
+    return None
+
+
 def _scale_separable(f: SeparableApprox, scalar: float) -> SeparableApprox:
     """Multiply a SeparableApprox by a scalar."""
     from chebfunjax.chebfun2d._pivot_metadata import _scale
@@ -1174,7 +1254,7 @@ def _add_scalar_separable(f: SeparableApprox, scalar: float) -> SeparableApprox:
     const_col = Chebtech2.from_coeffs(jnp.ones(1, dtype=jnp.float64))
     const_row = Chebtech2.from_coeffs(jnp.ones(1, dtype=jnp.float64))
     # New pivot = scalar (so the term is scalar * 1 * 1)
-    new_pivots = jnp.concatenate([f.pivots, jnp.array([float(scalar)], dtype=jnp.float64)])
+    new_pivots = jnp.concatenate([f.pivots, jnp.asarray(scalar).reshape(1).astype(jnp.result_type(f.pivots, scalar))])
     new_cols = list(f.cols) + [const_col]
     new_rows = list(f.rows) + [const_row]
     return SeparableApprox(

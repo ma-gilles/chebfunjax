@@ -30,6 +30,7 @@ from .arity import _positional_arity
 from .dae_init import dense_numjac, initialize_full_mass
 from .ndf import startup
 from .ndf_segment import segment
+from .source_arithmetic import binary, matvec
 
 
 class Values:
@@ -47,7 +48,7 @@ class Values:
         if self.dependent:
             self.context["order"] = max(self.context["order"], self.order + k)
         return Values(
-            self.context["scale"] ** k * (self.context["D"][k] @ self.vals),
+            self.context["scale"] ** k * matvec(self.context["D"][k], self.vals),
             self.context,
             self.order + k if self.dependent else 0,
             self.dependent,
@@ -57,30 +58,31 @@ class Values:
         values = barymat(jnp.atleast_1d(x), self.context["x"]) @ self.vals
         return values[0] if jnp.ndim(x) == 0 else values
 
-    def _bin(self, other, fn):
+    def _bin(self, other, fn, operation=None):
         values = other.vals if isinstance(other, Values) else other
         order = max(self.order, other.order) if isinstance(other, Values) else self.order
         dependent = self.dependent or (isinstance(other, Values) and other.dependent)
-        return Values(fn(self.vals, values), self.context, order, dependent)
+        result = fn(self.vals, values) if operation is None else binary(self.vals, values, operation)
+        return Values(result, self.context, order, dependent)
 
     def __add__(self, v):
-        return self._bin(v, lambda a, b: a + b)
+        return self._bin(v, lambda a, b: a + b, 1)
 
     __radd__ = __add__
 
     def __sub__(self, v):
-        return self._bin(v, lambda a, b: a - b)
+        return self._bin(v, lambda a, b: a - b, 2)
 
     def __rsub__(self, v):
         return self._bin(v, lambda a, b: b - a)
 
     def __mul__(self, v):
-        return self._bin(v, lambda a, b: a * b)
+        return self._bin(v, lambda a, b: a * b, 0)
 
     __rmul__ = __mul__
 
     def __truediv__(self, v):
-        return self._bin(v, lambda a, b: a / b)
+        return self._bin(v, lambda a, b: a / b, 3)
 
     def __rtruediv__(self, v):
         return self._bin(v, lambda a, b: b / a)
@@ -225,7 +227,7 @@ def solve(
             u = Values(y, context)
             answer = invoke(pdefun, t, coordinate, u)
             values = answer.vals if isinstance(answer, Values) else jnp.asarray(answer)
-            rhs = projection @ jnp.broadcast_to(values, y.shape)
+            rhs = matvec(projection, jnp.broadcast_to(values, y.shape))
             for i, (side, spec) in enumerate(ordered):
                 if callable(spec):
                     value = invoke(spec, t, coordinate, u)

@@ -1,0 +1,62 @@
+{
+  "base": {
+    "head": "033ff43cf46fb081af2ebee763c1e611664c47a0"
+  },
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_test": "tests/chebfun2v/test_threecomponents.m",
+  "original_predicates": 22,
+  "original_predicates_qualified": "1\u201315 candidate gate pass;16\u201322 calculus gate pass (torus test includes21and22). Final empty-operand guard changes only previously exceptionalemptycases; all original source arithmetic operands nonempty, numericalbranches unchanged.",
+  "library_changes": [
+    "Native numeric component addition and elementwise multiplication, preserving orientation",
+    "Native matrix multiplication via Python @, distinct from elementwise *; existing row-vector dot shorthand retained",
+    "Numeric matrix-to-field combination, source dimensions/errors and empty ordering",
+    "Scalar addition preserves complex numeric values using JAX dtype promotion"
+  ],
+  "controls": "Complex addition, roworientation, numericmatrixproduct, source dimensionerrors, emptyordering and4retainedexistingtests. Finalfocused6passed17.64s.",
+  "source_oddity": "Literal native mtimes first transpose branch turns rowfield@scalar into columnfield; initial supplemental expectation of rowpreservation was wrong and corrected by source inspection, not a numericalpatch.",
+  "warnings": "Existing NumPy integral helper emits divisionbyzero runtimewarnings during norms; retained and outside this arithmetic patch. No blanket JAX-only migration claim.",
+  "limits": "No new native MATLAB runtime capture. Literalsource predicates/norms preserved; Python public constructors/components and @ operator adapters documented. Global Chebfun2v norm/normal/other APIs not fully qualified by this package.",
+  "runs": [
+    {
+      "name": "baseline",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/threecomponents_source_20261011/baseline/supervision/receipt.json",
+      "sha256": "6f5aa8130e90d7000123e50ce348ec75b8a5671cafaa905057eea839211ff6b4",
+      "exit": 1,
+      "sampled_peak_summed_rss_kib": 804136,
+      "summary": "8 failed, 7 passed, 2 warnings in 7.11s"
+    },
+    {
+      "name": "candidate",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/threecomponents_source_20261011/candidate/supervision/receipt.json",
+      "sha256": "5e46d5cd752fb12c38db7f0fde737910fadd1e3e00279fee273f7ff52725f278",
+      "exit": 0,
+      "sampled_peak_summed_rss_kib": 898304,
+      "summary": "15 passed, 2 warnings in 7.96s"
+    },
+    {
+      "name": "calculus_gate",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/threecomponents_source_20261011/calculus_gate/supervision/receipt.json",
+      "sha256": "55206c2f3f8fc4c0f611fc392f1c93a29a73a6408a9711541b4d66260f55aeb9",
+      "exit": 1,
+      "sampled_peak_summed_rss_kib": 2025832,
+      "summary": "1 failed, 6 passed, 15 deselected, 1 warning in 37.52s"
+    },
+    {
+      "name": "supplement_final",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/threecomponents_source_20261011/supplement_final/supervision/receipt.json",
+      "sha256": "e201d96f8eff98ba6ebc2639d5d19d64203a1bf9e63c337f383daef1dc094b8b",
+      "exit": 0,
+      "sampled_peak_summed_rss_kib": 761328,
+      "summary": "1 passed, 21 deselected in 6.26s"
+    },
+    {
+      "name": "final_regression",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/threecomponents_source_20261011/final_regression/supervision/receipt.json",
+      "sha256": "93cc1c026abcde9b732016aa04f099277a048299dbb2a44370e13313530be150",
+      "exit": 0,
+      "sampled_peak_summed_rss_kib": 1273708,
+      "summary": "6 passed, 21 deselected, 2 warnings in 17.64s"
+    }
+  ],
+  "production_library_sha256": "59e646a4a1db3cb54cba33c5aa8a716698dfa8050dc3e061a631c43195f90d7b"
+}

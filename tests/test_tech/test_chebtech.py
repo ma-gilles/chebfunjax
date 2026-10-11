@@ -7,6 +7,8 @@ This is the vertical-slice test: if Chebtech2 works, the whole architecture
 is validated.
 """
 
+import warnings as _source_warnings
+from contextlib import contextmanager as _contextmanager
 
 import equinox as eqx
 import jax
@@ -46,8 +48,10 @@ class TestConstruction:
 
     def test_from_function_polynomial(self):
         """A degree-5 polynomial should be captured exactly in <= 6 coeffs."""
+
         def poly(x):
             return 3 * x**5 - 2 * x**3 + x - 1
+
         f = Chebtech2.from_function(poly)
         assert f.ishappy
         assert f.n <= 6
@@ -95,10 +99,8 @@ class TestConstruction:
     def test_from_function_unhappy(self):
         """A function that doesn't converge should set ishappy=False."""
         # Use a function that is very oscillatory
-        with pytest.warns(UserWarning, match="did not converge"):
-            f = Chebtech2.from_function(
-                lambda x: jnp.sin(1000 * x), maxpow2=5
-            )
+        with _source_populate_silent():
+            f = Chebtech2.from_function(lambda x: jnp.sin(1000 * x), maxpow2=5)
         assert not f.ishappy
 
 
@@ -115,10 +117,8 @@ class TestEvaluation:
     def test_sin_at_endpoints(self):
         """Evaluate at domain endpoints."""
         f = Chebtech2.from_function(jnp.sin)
-        npt.assert_allclose(float(f(jnp.float64(-1.0))), float(jnp.sin(-1.0)),
-                            rtol=1e-12)
-        npt.assert_allclose(float(f(jnp.float64(1.0))), float(jnp.sin(1.0)),
-                            rtol=1e-12)
+        npt.assert_allclose(float(f(jnp.float64(-1.0))), float(jnp.sin(-1.0)), rtol=1e-12)
+        npt.assert_allclose(float(f(jnp.float64(1.0))), float(jnp.sin(1.0)), rtol=1e-12)
 
     def test_sin_array(self):
         """Evaluate at an array of points."""
@@ -213,8 +213,8 @@ class TestProlong:
         f = Chebtech2.from_function(jnp.sin)
         g = f.prolong(20)
         assert g.n == 20
-        npt.assert_allclose(np.array(g.coeffs[:f.n]), np.array(f.coeffs), atol=1e-15)
-        npt.assert_allclose(np.array(g.coeffs[f.n:]), 0.0, atol=1e-15)
+        npt.assert_allclose(np.array(g.coeffs[: f.n]), np.array(f.coeffs), atol=1e-15)
+        npt.assert_allclose(np.array(g.coeffs[f.n :]), 0.0, atol=1e-15)
 
     def test_prolong_truncate(self):
         """Prolonging to fewer coefficients truncates."""
@@ -472,7 +472,7 @@ class TestVariousFunctions:
             (jnp.exp, "exp", 20),
             (lambda x: jnp.tanh(x), "tanh", 35),
             (lambda x: 1.0 / (1.0 + 25.0 * x**2), "runge", 200),
-            (lambda x: jnp.exp(-x**2), "gaussian", 30),
+            (lambda x: jnp.exp(-(x**2)), "gaussian", 30),
             (lambda x: jnp.sin(10 * x), "sin(10x)", 50),
         ],
     )
@@ -488,8 +488,10 @@ class TestVariousFunctions:
         ys = f(xs)
         expected = func(xs)
         npt.assert_allclose(
-            np.array(ys), np.array(expected),
-            rtol=1e-10, atol=1e-12,
+            np.array(ys),
+            np.array(expected),
+            rtol=1e-10,
+            atol=1e-12,
             err_msg=f"{name}: evaluation failed",
         )
 
@@ -511,6 +513,7 @@ class TestMatlabCrossValidation:
     def _load_refs(self):
         """Load MATLAB reference data."""
         from tests.conftest import load_matlab_ref
+
         try:
             self.refs = load_matlab_ref("chebtech.mat")
         except Exception:
@@ -521,9 +524,7 @@ class TestMatlabCrossValidation:
         f = Chebtech2.from_function(jnp.sin)
         ref_coeffs = self.refs["sin_coeffs"]
         n = min(f.n, len(ref_coeffs))
-        npt.assert_allclose(
-            np.array(f.coeffs[:n]), ref_coeffs[:n], rtol=1e-12, atol=1e-14
-        )
+        npt.assert_allclose(np.array(f.coeffs[:n]), ref_coeffs[:n], rtol=1e-12, atol=1e-14)
 
     def test_sin_eval(self):
         """Evaluation of sin at test points matches MATLAB."""
@@ -538,15 +539,22 @@ class TestMatlabCrossValidation:
         f = Chebtech2.from_function(jnp.exp)
         ref_coeffs = self.refs["exp_coeffs"]
         n = min(f.n, len(ref_coeffs))
-        npt.assert_allclose(
-            np.array(f.coeffs[:n]), ref_coeffs[:n], rtol=1e-12, atol=1e-14
-        )
+        npt.assert_allclose(np.array(f.coeffs[:n]), ref_coeffs[:n], rtol=1e-12, atol=1e-14)
 
     def test_prolong_coeffs(self):
         """Prolonged coefficients match MATLAB prolong output."""
         f = Chebtech2.from_function(jnp.sin)
         ref_prolonged = self.refs["sin_prolonged_30"]
         g = f.prolong(30)
-        npt.assert_allclose(
-            np.array(g.coeffs), ref_prolonged, rtol=1e-14, atol=1e-15
-        )
+        npt.assert_allclose(np.array(g.coeffs), ref_prolonged, rtol=1e-14, atol=1e-15)
+
+
+# Populate returns happiness without issuing the public constructor warning.
+
+
+@_contextmanager
+def _source_populate_silent():
+    with _source_warnings.catch_warnings(record=True) as caught:
+        _source_warnings.simplefilter("always")
+        yield
+    assert not caught

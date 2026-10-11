@@ -8,7 +8,6 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import math
-import warnings
 from functools import lru_cache, partial
 from typing import Callable
 
@@ -2288,11 +2287,6 @@ def _adaptive_refine_construct(
         # nested refinement reuses original bad samples, never extrapolations.
         old_values = jnp.where(bad_nan, jnp.nan, values)
         old_values = jnp.where(bad_inf, jnp.inf, old_values)
-    warnings.warn(
-        f"{tech_cls.__name__}.from_function: function did not converge with "
-        f"{coeffs.shape[0]} points. Returning unhappy representation.",
-        stacklevel=2,
-    )
     return tech_cls(coeffs=coeffs, ishappy=False)
 
 

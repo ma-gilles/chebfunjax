@@ -11966,15 +11966,13 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
             piece = _Piece(
                 tech=Chebtech2.from_coeffs(coeffs), interval=(left, right))
         else:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                piece = _Piece.from_function(
-                    f, left, right, maxpow2=maxpow2, tol=tol, turbo=turbo,
-                    extrapolate=True, vscale=vscale_g,
-                    hscale=hscale_g / (right - left),
-                    sample_test=sample_test, check=check,
-                    min_samples=min_samples, max_length=raw_split_length,
-                    refinement_function=refinement_function)
+            piece = _Piece.from_function(
+                f, left, right, maxpow2=maxpow2, tol=tol, turbo=turbo,
+                extrapolate=True, vscale=vscale_g,
+                hscale=hscale_g / (right - left),
+                sample_test=sample_test, check=check,
+                min_samples=min_samples, max_length=raw_split_length,
+                refinement_function=refinement_function)
         if piece.ishappy:
             vscale_g = float(jnp.maximum(vscale_g, jnp.max(piece.vscale)))
         return piece

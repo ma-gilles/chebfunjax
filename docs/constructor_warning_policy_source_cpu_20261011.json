@@ -1,0 +1,33 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source warning ownership: low-level chebtech silent, public constructor owns unresolved warnings; callback warnings preserved",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_policy_source_20261011",
+  "native_controls": "8 native Chebtech1/2 controls: lowlevel silent; single/multiple interval public constructor once; splitting limit once",
+  "python_tests": "20passed17.03s; sampled nodes/coefficient arrays bit-identical before/after",
+  "native_capture_failure": "First recorder incorrectly called chebcoeffs on piecewise Chebfun; retained terminalfailure. Second uses perpiece extraction, same science.",
+  "bindings_checked": 63,
+  "guard_inputs_unique": 8707,
+  "receipts": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_native_v2_20261011/supervision/receipt.json",
+      "exit": 0,
+      "sha256": "fd66d8cb39a620b43ceb3cbe412fb7d60349fd1ea2fd72cd6db769edded2f4bc"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_native_20261011/supervision/receipt.json",
+      "exit": 1,
+      "sha256": "7723955cba237499d333338a3854ba26b5c901416344d5769ed113f0063db4ea"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_policy_source_20261011/baseline/supervision/receipt.json",
+      "exit": 1,
+      "sha256": "97794a453818d76a1f06db90679530ffe3ad2a9d499e705fff292c6f30b6e219"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_policy_source_20261011/candidate_gate/supervision/receipt.json",
+      "exit": 0,
+      "sha256": "94479dbf4d1b48f66ed534a9666198673e17cc324a5fe80650ff8ad23db0603f"
+    }
+  ],
+  "limits": "Trigtech separate warning behavior remains outside this patch. No ConformalSquare warning-count or fullpage parity claim; actual page rerun pending."
+}

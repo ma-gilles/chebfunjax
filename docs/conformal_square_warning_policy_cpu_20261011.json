@@ -1,0 +1,102 @@
+{
+  "base": "033ff43cf46fb081af2ebee763c1e611664c47a0",
+  "overlay": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_warning_policy_source_20261011/warning_ownership_source.patch",
+  "original_handle": 12109,
+  "terminal_exit": 0,
+  "science_seconds": 175.54020435502753,
+  "peak_rss_KiB": 4685148,
+  "actual_source_warnings": [
+    {
+      "message": "CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_warning_qualification_20261011/candidate/examples/complex/../../src/chebfunjax/fun/singfun.py",
+      "line": 678,
+      "derivative_call": 41
+    },
+    {
+      "message": "CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_warning_qualification_20261011/candidate/examples/complex/../../src/chebfunjax/fun/singfun.py",
+      "line": 678,
+      "derivative_call": 41
+    },
+    {
+      "message": "CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_warning_qualification_20261011/candidate/examples/complex/../../src/chebfunjax/fun/singfun.py",
+      "line": 678,
+      "derivative_call": 41
+    },
+    {
+      "message": "CHEBFUN:SINGFUN:plus:exponentDiff: Non-integer difference in the exponents of the two SINGFUN objects: The result may not be accurate.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_square_warning_qualification_20261011/candidate/examples/complex/../../src/chebfunjax/fun/singfun.py",
+      "line": 678,
+      "derivative_call": 41
+    }
+  ],
+  "source_origins_guard_verified": 91,
+  "array_comparison": {
+    "files": 128,
+    "arrays": 1222,
+    "all_bit_identical": true
+  },
+  "images": {
+    "count": 5,
+    "byte_and_pixel_identical": true,
+    "replacement_required": false
+  },
+  "page": {
+    "source_MATLAB_cells_unchanged": true,
+    "cells": 8,
+    "figure_slots_unchanged": true,
+    "figure_slots": 5,
+    "old_output_fences": 3,
+    "new_output_fences": 2,
+    "cached_native_output_fences": 2,
+    "removed_obsolete_added_paragraphs": [
+      "The figures and printed results below use the original four-factor derivative with public Chebfun power and integration. A fresh pinned MATLAB numerical run and retained-array comparison qualify the curves; current piece boundaries differ between implementations. The Python run emits 18 warnings (14 unhappy representations and four exponent-difference warnings), while MATLAB emits four exponent-difference warnings. This warning-policy difference remains open. [Qualification record](../../conformal_square_source_cpu_20261011.json).",
+      "The Python run also emits the following warnings while integrating the rays. These unhappy-representation warnings remain a library warning-policy difference from the pinned MATLAB run."
+    ],
+    "actual_warning_count": 4,
+    "warning_slots": {
+      "1": 0,
+      "2": 0,
+      "3": 4
+    },
+    "native_prose_unchanged_except_removed_added_paragraphs": true
+  },
+  "retained_prior_numeric_qualification": {
+    "package": "Source-faithful ConformalSquare",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "native_numerical": "R2025b Update2 numerical capture;123states and native public plotData arrays; terminal0 stable, numerical12.512s peak1.53GiB",
+    "python": "JAX/JAXlib0.11.0 CPU x64; fullpage terminal0 stable186.42s peak4.46GiB; literal public four-factor power+cumsum, actual warnings retained",
+    "plotting": "R2024b Update3 CPU Painters600x270 subplot geometry only, captured retained numerical arrays; terminal0 stable peak1.83GiB. SavedPython XY rerender terminal0 stable peak.234GiB; 5PNGs600x270. No solve repeated.",
+    "comparisons": "123objects evaluated from retainedPython coefficients on exactnative501samples. Integratedcurves max1.7175974e-9. Rawderivativepole error2.1101334e7 remains explicit. Sourcequartergrid496regularderivativepoints max9.3796288e-13. Native/Python currentbreakpoints differ; no historicalbreakpointforcing.",
+    "warnings": "Native4exponentDiff finalboundary, Python4exponentDiff+14unhappy. Confirmed internal chebtech warning-policy gap (native populate.m returns ishappyfalse without warning, Python from_function warns). No page-level suppression. Warning details and stage mappings WARNING_COMPARISON.json.",
+    "failures_preserved": [
+      "native_v1 firstcapture failed before numericalpage due missing tech.values; corrected coeffs2vals in native_v2",
+      "failedpreparation duplicategraphics audit beforewrite; actual launchedsource independentlystripauditedexact",
+      "analysis bookkeeping KeyError python_values casing; corrected Python_values; no scientific rerun"
+    ],
+    "outputs": [
+      "conformal_square.py",
+      "conformal_square.patch",
+      "images/ConformalSquare_01.png..05.png",
+      "conformal_square_native_layout.json"
+    ],
+    "page_integration": "Parent retains historical source equations/prose and owns generator. Use actual Python stdout/outputslot1 repr and actual warnings. No obsolete power-workaround prose; current source computation demonstrated. Source listing outputslot handled by parent."
+  },
+  "limits": [
+    "Only warning ownership/output claims supersede prior report. All numerical and representation limitations remain. No new numerical acceptance bounds or full parity claim.",
+    "CPU plugin startup warning is provider diagnostic outside source warning observer.",
+    "Initial w remains unhappy, three pieces of lengths13/37/65537; warning silence does not repair representation.",
+    "No new native graphics qualification or matched performance comparison."
+  ],
+  "integration": [
+    "Apply page_warning_outputs.patch.",
+    "Copy docs/conformal_square_warning_policy_cpu_20261011.json into repository docs.",
+    "No image changes. Warning library patch is already applied by root."
+  ],
+  "publication_formatting": "Trailing whitespace stripped from Markdown output lines for git whitespace gate; original stdout retained unchanged in evidence."
+}

@@ -14,6 +14,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -143,9 +145,11 @@ class TestChebtech2Constructor:
 
     def test_minsamples_equals_maxlength(self):
         # pass(16): real adaptive options; source only requires no crash.
-        with pytest.warns(UserWarning, match="did not converge"):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
             g = Chebtech2.from_function(jnp.sin, min_samples=8, max_length=8,
                                        refinement_function="resampling")
+        assert not caught  # Native low-level populate returns silently.
         assert g.coeffs.shape == (8,)
 
     def test_logical_true(self):

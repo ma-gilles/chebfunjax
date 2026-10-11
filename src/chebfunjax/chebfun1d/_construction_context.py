@@ -221,9 +221,7 @@ def bounded_get_fun(op, interval, data, pref):
                        vscale=data['vscale'], hscale=local_data['hscale'])
         if cls is Chebtech2:
             options['extrapolate'] = pref.extrapolate
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', message=r'Chebtech[12]\.from_function: function did not converge with ')
-            tech = cls.from_function(op, **options)
+        tech = cls.from_function(op, **options)
     else:
         values = jnp.atleast_1d(jnp.asarray(op))
         values = values.astype(jnp.complex128 if jnp.iscomplexobj(values) else jnp.float64)
@@ -349,8 +347,20 @@ def public_construct(op, domain, pref, options):
         legacy.pop('trunc', None)
         legacy.pop('vscale', None)
         legacy.pop('vector_check', None)
-        return _chebfun_build(current.op, domain=current.domain,
-                             _construction_context=current, **legacy)
+        result = _chebfun_build(current.op, domain=current.domain,
+                               _construction_context=current, **legacy)
+        # Native constructor owns one no-split warning, including legacy
+        # singular/unbounded fits. Recursive interval builders stay silent.
+        if (not current.pref.splitting and result is not current.op
+                and (callable(current.op) or current.is_cell)
+                and any(not piece.ishappy for piece in result.funs)):
+            remedy = ("a non-trig representation"
+                      if selected_tech(current.pref).__name__ == "Trigtech"
+                      else "'splitting on'")
+            warnings.warn(
+                f"Function not resolved using {current.pref.maxLength} pts. "
+                f"Have you tried {remedy}?", UserWarning, stacklevel=2)
+        return result
 
     result = build(context)
     if context.double_length:

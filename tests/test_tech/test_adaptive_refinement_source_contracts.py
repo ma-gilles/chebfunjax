@@ -4,6 +4,10 @@ MATLAB provenance: Chebfun commit 7574c77680d7e82b79626300bf255498271a72df,
 @chebtech1/refine.m, @chebtech2/refine.m, @chebtech/populate.m and
 @chebtech/techPref.m. Sampling batches are compared to the literal source grids.
 """
+
+import warnings as _source_warnings
+from contextlib import contextmanager as _contextmanager
+
 import jax.numpy as jnp
 import pytest
 
@@ -117,10 +121,13 @@ def test_chebtech2_extrapolate_resampling_marks_endpoints_for_populate():
     _assert_same(f.calls[0], chebpts(17, kind=2)[1:-1])
 
 
-@pytest.mark.parametrize("tech,cap,batches,n", [
-    (Chebtech1, 40, [17, 40], 40),
-    (Chebtech2, 40, [17, 16], 33),
-])
+@pytest.mark.parametrize(
+    "tech,cap,batches,n",
+    [
+        (Chebtech1, 40, [17, 40], 40),
+        (Chebtech2, 40, [17, 16], 33),
+    ],
+)
 def test_public_constructor_respects_nested_callback_and_cap_contract(tech, cap, batches, n):
     calls = []
 
@@ -128,7 +135,7 @@ def test_public_constructor_respects_nested_callback_and_cap_contract(tech, cap,
         calls.append(x)
         return jnp.cos(80 * x)
 
-    with pytest.warns(UserWarning, match="did not converge"):
+    with _source_populate_silent():
         result = tech.from_function(op, max_length=cap, sample_test=False)
     assert not result.ishappy
     assert result.n == n
@@ -147,9 +154,10 @@ def test_public_constructor_resampling_preferences_use_full_grids(tech, kind):
         calls.append(x)
         return jnp.cos(80 * x)
 
-    with pytest.warns(UserWarning, match="did not converge"):
-        result = tech.from_function(op, refinement_function="ReSaMpLiNg",
-                                   min_samples=18, max_length=65, sample_test=False)
+    with _source_populate_silent():
+        result = tech.from_function(
+            op, refinement_function="ReSaMpLiNg", min_samples=18, max_length=65, sample_test=False
+        )
     assert not result.ishappy
     assert result.n == 65
     assert [x.size for x in calls] == [33, 65]
@@ -189,9 +197,10 @@ def test_custom_refiner_receives_restored_whole_nonfinite_rows(tech, kind):
         assert jnp.all(jnp.isposinf(old[1:3, :]))
         return old, True
 
-    with pytest.warns(UserWarning, match="did not converge"):
-        result = tech.from_function(op, refinement_function=refine,
-                                   max_length=17, sample_test=False)
+    with _source_populate_silent():
+        result = tech.from_function(
+            op, refinement_function=refine, max_length=17, sample_test=False
+        )
     assert not result.ishappy
     assert len(calls) == 2
     assert jnp.all(jnp.isfinite(result.coeffs))
@@ -234,10 +243,21 @@ def test_single_sample_constant_has_bounded_unhappy_python_exit(tech):
     # Source standardCheck requires cutoff<n. At n=1 it is unhappy;
     # Tech2's source nested loop would then never increase its grid. Python
     # bounds that degenerate case by giving up, preserving the sampled tech.
-    with pytest.warns(UserWarning, match="did not converge"):
+    with _source_populate_silent():
         result = tech.from_function(op, min_samples=1, max_length=1)
     assert not result.ishappy
     assert result.n == 1
     assert [x.size for x in calls] == [1]
     _assert_same(calls[0], [0.0])
     _assert_same(result.coeffs, [3.0])
+
+
+# Populate returns happiness without issuing the public constructor warning.
+
+
+@_contextmanager
+def _source_populate_silent():
+    with _source_warnings.catch_warnings(record=True) as caught:
+        _source_warnings.simplefilter("always")
+        yield
+    assert not caught
