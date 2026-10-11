@@ -1,0 +1,110 @@
+{
+  "scope": "Eight native chebtech SIGN assertions plus three supplemental API/point-value controls",
+  "source": "tests/chebtech/test_sign.m at Chebfun 7574c77",
+  "change": "Chebtech1 optional extrapolate forwarding; first-kind numerical behavior unchanged",
+  "native_restoration": "Literal normest, 50 sites, actual ff=f(xx), numeric matrix infinity norm and original bounds; eight earlier probes retained",
+  "evidence": {
+    "baseline_v1": {
+      "rows": [
+        {
+          "native_type": "Chebtech1",
+          "branch": "positive",
+          "error": 0.0,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "native_type": "Chebtech2",
+          "branch": "positive",
+          "error": 0.0,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "native_type": "Chebtech1",
+          "branch": "negative",
+          "error": 0.0,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "native_type": "Chebtech2",
+          "branch": "negative",
+          "error": 0.0,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "native_type": "Chebtech1",
+          "branch": "complex",
+          "error": 2.978570892305128e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "native_type": "Chebtech2",
+          "branch": "complex",
+          "error": 4.757977693581735e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "native_type": "Chebtech1",
+          "branch": "array",
+          "error": 8.082545620880531e-16,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "native_type": "Chebtech2",
+          "branch": "array",
+          "error": 1.0547118733938987e-15,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "supplement": "tech1_stored_zero_limits",
+          "stored_zero": true,
+          "limit_error": 1.5700924586837752e-16
+        }
+      ],
+      "pytest_summary": "2 failed, 9 passed, 8 deselected in 23.19s",
+      "wall_seconds": 31.90740838414058,
+      "peak_summed_rss_kib": 1706764,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "warnings_visible": false
+    },
+    "candidate_v1": {
+      "rows": [
+        {
+          "native_type": "Chebtech1",
+          "branch": "complex",
+          "error": 2.978570892305128e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "native_type": "Chebtech1",
+          "branch": "array",
+          "error": 8.082545620880531e-16,
+          "bound": 2.220446049250313e-15
+        },
+        {
+          "supplement": "tech1_extrapolate_api",
+          "endpoint_phase_error": 1.5700924586837752e-16
+        },
+        {
+          "supplement": "tech1_stored_zero_limits",
+          "stored_zero": true,
+          "limit_error": 1.5700924586837752e-16
+        }
+      ],
+      "pytest_summary": "5 passed, 14 deselected in 16.43s",
+      "wall_seconds": 24.513182954862714,
+      "peak_summed_rss_kib": 1365144,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "warnings_visible": false
+    }
+  },
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_sign_native8_api_20261011/tech_sign_native8_api_delivery_v1.zip",
+    "sha256": "1d877b9f5e7bd5c57b8498b73044764ddc58c36cf3c46f21249be4427335a3f7",
+    "entries": 54
+  },
+  "root_review": "Native source independently read; archive hash/ZIP integrity verified; patch reviewed. Six unaffected native branches use baseline results, affected branches and supplemental controls pass candidate."
+}

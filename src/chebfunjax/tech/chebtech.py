@@ -2043,6 +2043,15 @@ def _refine_chebtech2_resampling(
     return _refine_sample(op, chebpts(n, kind=2), extrapolate=extrapolate), False
 
 
+@jax.jit
+def _interleave_chebtech2_nested_values(values, new_values):
+    """Reuse sampled values by exact movement onto the doubled nested grid."""
+    n = 2 * values.shape[0] - 1
+    out = jnp.empty((n,) + values.shape[1:], dtype=jnp.result_type(values, new_values))
+    out = out.at[::2].set(values)
+    return out.at[1:-1:2].set(new_values)
+
+
 def _refine_chebtech2_nested(
     op, values=None, *, max_length=65537, min_samples=17, extrapolate=False
 ):
@@ -2059,10 +2068,7 @@ def _refine_chebtech2_nested(
         return values, True
     # MATLAB x(2:2:end-1), translated from 1-based indexing.
     new_values = _as_fun_dtype(op(chebpts(n, kind=2)[1:-1:2]))
-    out = jnp.empty((n,) + values.shape[1:], dtype=jnp.result_type(values, new_values))
-    out = out.at[::2].set(values)
-    out = out.at[1:-1:2].set(new_values)
-    return out, False
+    return _interleave_chebtech2_nested_values(values, new_values), False
 
 
 def _refine_chebtech1_resampling(
@@ -5162,7 +5168,7 @@ class Chebtech1(eqx.Module):
         cls, f, maxpow2=16, start_pow2=4, tol=None, check="standard",
         vscale=0.0, sample_test=True, hscale=1.0,
         refinement_function="nested", max_length=None, min_samples=None,
-        use_turbo=False, fixed_length=None,
+        use_turbo=False, fixed_length=None, extrapolate=False,
     ) -> "Chebtech1":
         """Source-shaped nested/resampling adaptive population.
 
@@ -5176,6 +5182,7 @@ class Chebtech1(eqx.Module):
             refinement_function=refinement_function,
             tol=tol, check=check, vscale=vscale, sample_test=sample_test,
             hscale=hscale, use_turbo=use_turbo, fixed_length=fixed_length,
+            extrapolate=extrapolate,
         )
 
     # ------------------------------------------------------------------
@@ -6088,13 +6095,16 @@ class Chebtech1(eqx.Module):
         g: "Chebtech1 | None" = None,
         *,
         maxpow2: int = 16,
+        extrapolate: bool = False,
     ) -> "Chebtech1":
         """Compose an operator with this Chebtech1.
 
         ``self.compose(op)`` returns ``op(self(x))``; with a second tech
         ``g`` it returns ``op(self(x), g(x))``; ``self.compose(g)`` for a
         Chebtech1 ``g`` returns ``g(self(x))``.  Result is adaptively
-        constructed on a 1st-kind grid.  NOT JIT-safe.
+        constructed on a 1st-kind grid. The source extrapolate preference
+        is forwarded; first-kind composition samples interior nodes and
+        does not replace endpoint samples. NOT JIT-safe.
 
         Provenance
         ----------
@@ -6131,6 +6141,7 @@ class Chebtech1(eqx.Module):
             # MATLAB @chebtech1/compose.m uses complete-grid resampling.
             refinement_function="resampling",
             sample_test=False,
+            extrapolate=extrapolate,
         )
 
     def restrict(self, a, b: float | None = None):
@@ -6230,7 +6241,7 @@ class Chebtech1(eqx.Module):
             if self.coeffs.ndim == 2:
                 return Chebtech1(coeffs=jnp.atleast_1d(s)[None, :])
             return Chebtech1.from_coeffs(jnp.atleast_1d(s))
-        return self.compose(lambda x: x / jnp.abs(x))
+        return self.compose(lambda x: x / jnp.abs(x), extrapolate=True)
 
     def poly(self) -> jax.Array:
         """Monomial (power-basis) coefficients (highest degree first).

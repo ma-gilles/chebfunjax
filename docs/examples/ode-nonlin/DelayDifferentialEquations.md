@@ -7,7 +7,7 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9 the public Volterra solve in slot 11, and the self-composition solve in slot 14 (13 output blocks). The remaining 10 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 8 and 9, the public Volterra solve in slot 11, and the self-composition solve in slot 14, and the nonlinear pantograph solution in slot 15 (14 output blocks). Slot 15 stdout was reconstructed from byte-verified saved solution data after an observer failure; Python warning capture is unavailable. The remaining 9 output blocks are pending. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Figure 16 uses the qualified nonlinear pantograph solution; native sample differences are at most 7.77e-16. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 
@@ -435,7 +435,13 @@ err = norm(y - sol)
 ```
 
 ```text
-(no matching output)
+y =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]       21         1      0.5
+vertical scale =   1
+err =
+     2.373408025392045e-14
 ```
 
 ![DelayDifferentialEquations figure 16](../../images/ode-nonlin/DelayDifferentialEquations_16.png)

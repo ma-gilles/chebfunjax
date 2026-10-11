@@ -1,0 +1,42 @@
+{
+  "scope": "DDE nonlinear pantograph example1, scriptsection14/outputslot15/figure16 only.",
+  "base": {
+    "head": "16c18811c9f718d5adeb9ad2ffa9576c3c156eec",
+    "scope": "Output15/scriptsection14/figure16 nonlinear pantograph, q=.5, [0,1], source320-330, no explicit init,n,tolerance; source norm error not sampled max."
+  },
+  "source_pins": {
+    "Chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+    "examples": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c"
+  },
+  "source_inputs": "q=.5,[0,1], g=-2*t/(1+t^2)^2-1/(1+(q*t)^2)^2; N(y)=diff(y)-y(q*t)^2,lbc1,RHSg; omitted init,n,tolerance. Source320-330.",
+  "baseline_status": "Original29993 completed solve and saved arrays, then commandfailed on observer-only _Piece.isreal access. No successful-command credit. Exact source imports verified initially and runtime module hashes verified in finally. No numerical solve repeated.",
+  "recovery": "Reconstruct retained coefficients and point_values, assert coefficient and all201sample bytes identical; recompute source norm error from retained y and analytic solution coefficients. Stdout is reconstructed, not original command output. Warning list was not persisted, remains unknown.",
+  "comparison": {
+    "native_length": 21,
+    "python_length": 21,
+    "native_error_norm": 2.3736573244777578e-14,
+    "recovered_python_error_norm": 2.373408025392045e-14,
+    "coefficient_max_difference": 4.440892098500626e-16,
+    "sample_max_difference": 7.771561172376096e-16,
+    "abscissa_max_difference": 1.1102230246251565e-16,
+    "native_warning": "",
+    "python_warning": "not retained; unknown",
+    "scope": "Observed source output, no original inequality. OriginalPythoncommandfailed after solve; recovery bytechecks passed; no numerical solve repeated."
+  },
+  "original_predicate": "Source prints norm(y-sol); no numerical assertion. Previous script sampled max error is replaced with source norm.",
+  "library_change": "None; source outcome rather than a library failure.",
+  "native_provenance": "Frozen source guards plus postruntime observation, not prospective exhaustive runtime closure.",
+  "artifacts": {
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_nonlinear_pantograph_20261011/recovery_render/slot15.stdout",
+    "png": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_nonlinear_pantograph_20261011/recovery_render/DelayDifferentialEquations_16.png",
+    "no_repeated_solve": true,
+    "axes": "Cached reference600x270 normalizedaxes.13,.11,.775,.815; limits0..1/.4..1; no captured graphics metadata or pixel equality claim."
+  },
+  "page_update": "Only slot15 output andfigure16. If current13verified/10pending, becomes14verified/9pending. Whole page remains incomplete.",
+  "gates": {
+    "failed_baseline": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_nonlinear_pantograph_20261011/baseline",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddp1",
+    "recovery_render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_nonlinear_pantograph_20261011/recovery_render"
+  },
+  "root_review": "Reviewed source and narrow patch; all delivery bindings verified. Focused acceptance only; full parity and CI remain open."
+}

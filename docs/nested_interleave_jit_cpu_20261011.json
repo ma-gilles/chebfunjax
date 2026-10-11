@@ -1,0 +1,242 @@
+{
+  "status": "qualified scoped private JIT helper and exact callsite replacement",
+  "changed_existing_function": "_refine_chebtech2_nested only",
+  "added_helper": "@jax.jit _interleave_chebtech2_nested_values",
+  "arithmetic": "Exactlyexisting allocation/result_type/two.at.set operations; values interleaved onto doubledgrid withsameinputshape/dtype. No op,newnodeevaluation,refinementpolicy,rootengine,mapping,otherChebtechmethod changed.",
+  "diagnostic_cases": 14,
+  "diagnostic_mapping": {
+    "8": "Literal independent NumPyinterleaving plusoldJAXeager bitidentity:real/complex/scalar/3columns/mixeddtypes, NaN/Inf/\u22120 andexplicitNaNpayloads",
+    "4": "Existingnestedreuse callbackgrid, maxlength sourcepolicies,2nativeconstructorcallback-cap controls",
+    "2": "Singlepointnongrowth andmaxlengthstop exactreturnedobject/no callback"
+  },
+  "gates": {
+    "controls_candidate_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 13.923009829130024,
+      "sampled_peak_summed_rss_kib": 775648,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "pytest_exit": 0
+      }
+    },
+    "benchmark_baseline_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 43.1363373817876,
+      "sampled_peak_summed_rss_kib": 1847468,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "status": "passed",
+        "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+        "setup_seconds": 16.978496533818543,
+        "calls": [
+          {
+            "phase": "inverse_first",
+            "seconds": 15.854442023206502,
+            "length": 8878
+          },
+          {
+            "phase": "inverse_warm",
+            "seconds": 0.5726500623859465,
+            "length": 8878
+          }
+        ],
+        "roundtrip_error": 8.881784197001252e-16,
+        "output_hashes": [
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ],
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ]
+        ],
+        "roundtrip_values_sha256": "53a876a61216e0eb41620e3c0968b89bafe20b563323f9bb36c43049747686b0",
+        "affinity": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "x64": true,
+        "persistent_cache_dir": null
+      }
+    },
+    "benchmark_candidate_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 40.687712993938476,
+      "sampled_peak_summed_rss_kib": 1661164,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "status": "passed",
+        "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+        "setup_seconds": 15.30674910498783,
+        "calls": [
+          {
+            "phase": "inverse_first",
+            "seconds": 15.24368675518781,
+            "length": 8878
+          },
+          {
+            "phase": "inverse_warm",
+            "seconds": 0.5667814509943128,
+            "length": 8878
+          }
+        ],
+        "roundtrip_error": 8.881784197001252e-16,
+        "output_hashes": [
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ],
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ]
+        ],
+        "roundtrip_values_sha256": "53a876a61216e0eb41620e3c0968b89bafe20b563323f9bb36c43049747686b0",
+        "affinity": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "x64": true,
+        "persistent_cache_dir": null
+      }
+    },
+    "stop_candidate_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 9.229019701946527,
+      "sampled_peak_summed_rss_kib": 467932,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "pytest_exit": 0
+      }
+    },
+    "compile_baseline_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 9.241164794191718,
+      "sampled_peak_summed_rss_kib": 485104,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "candidate": false,
+        "compile_count": 27,
+        "modules": [
+          "\"jit_empty\"",
+          "\"jit_convert_element_type\"",
+          "\"jit_iota\"",
+          "\"jit_multiply\"",
+          "\"jit_add\"",
+          "\"jit_broadcast_in_dim\"",
+          "\"jit__squeeze\"",
+          "\"jit_scatter\"",
+          "\"jit_iota\"",
+          "\"jit_multiply\"",
+          "\"jit_add\"",
+          "\"jit_broadcast_in_dim\"",
+          "\"jit__squeeze\"",
+          "\"jit_scatter\"",
+          "\"jit_empty\"",
+          "\"jit_iota\"",
+          "\"jit_multiply\"",
+          "\"jit_add\"",
+          "\"jit_broadcast_in_dim\"",
+          "\"jit__squeeze\"",
+          "\"jit_scatter\"",
+          "\"jit_iota\"",
+          "\"jit_multiply\"",
+          "\"jit_add\"",
+          "\"jit_broadcast_in_dim\"",
+          "\"jit__squeeze\"",
+          "\"jit_scatter\""
+        ],
+        "input_old_lengths": [
+          4097,
+          8193
+        ],
+        "scope": "isolated allocation/twoassignment compiler count; no performance claim from observer",
+        "repeat_calls_per_shape": 2
+      }
+    },
+    "compile_candidate_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 8.722102601081133,
+      "sampled_peak_summed_rss_kib": 474552,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "candidate": true,
+        "compile_count": 2,
+        "modules": [
+          "\"jit__interleave_chebtech2_nested_values\"",
+          "\"jit__interleave_chebtech2_nested_values\""
+        ],
+        "input_old_lengths": [
+          4097,
+          8193
+        ],
+        "scope": "isolated allocation/twoassignment compiler count; no performance claim from observer",
+        "repeat_calls_per_shape": 2
+      }
+    }
+  },
+  "compiler_scope": "Separateisolatedcoldinterleaving allocation/twoassignments exactoriginalinverseoldlengths4097/8193,2callsper shape. Baseline27modules=24assignmentprimitives+2empty+1scalarconvert; candidate2jittedmodules. Rootattribution24assignmentcompiles distinctscope; no totalinversecompilecount extrapolation.",
+  "performance_scope": "One serialfreshprocess matchedCPU12\u201315 baseline/candidatepair, no compilerobserver orpersistentcache; measuredfirst/warm only, notstatistical/general speedupclaim. Setupbaseline16.9785s/candidate15.3067s; first15.8544\u219215.2437s; warm.572650\u2192.566781s.",
+  "output_identity": "Bothlength8878,coeffshaac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643 equalsrootretainedcapture; first/warmallcoeffbytes+129roundtripvaluesbytes identical; error8.8818e-16 unchanged (rootbound1e-10 retained).",
+  "limitations": [
+    "Bit/schedulercontrols diagnostics distinctfromnativepredicatecounts",
+    "Existing unrelatedroot/mapping algorithms unchanged; no numerical parity improvementclaim",
+    "UnusedincompatibleCUDAplugin warning retained; effectiveCPUJAX/JAXLIB0.11+x64 verified, no fullenvironmentlockclaim",
+    "Allgates180s/3GiB,ownedhandlesconsumed/inputsstable/no survivors; P untouched"
+  ],
+  "root_review": "Reviewed source and narrow patch; all delivery bindings verified. Focused acceptance only; full parity and CI remain open.",
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nested_interleave_jit_20261011/DELIVERY.json"
+}

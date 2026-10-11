@@ -128,6 +128,22 @@ def _source_state_delay_curve(hand_t, hand_x, numerical):
     return fig
 
 
+def _source_pantograph_curve(exact, numerical):
+    """Source slot15 Chebfun lines and representation-node markers."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(.4, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(.4, 1.001, .1))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _plot_disc(t, x, sol, tt=None):
     fig, ax = plt.subplots(figsize=(7.6, 4.0))
     if tt is None:
@@ -408,12 +424,11 @@ def run():
     N = Chebop(lambda t, y: y.diff() - y(q * t)**2, domain=dom)
     N.lbc = 1.0
     y = N.solve(g)
-    _show(y, "y")
-    sol14 = lambda s: 1 / (1 + s**2)
-    err = float(np.max(np.abs(np.asarray(y(np.linspace(0, 1, 800)))
-                              - sol14(np.linspace(0, 1, 800)))))
+    print(f"y =\n{y!r}")
+    exact = 1 / (1 + tcf**2)
+    err = float((y - exact).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol14, y, (0, 1))
+    _save(_source_pantograph_curve(exact, y), source_axes=True)
 
     # ----- 15. A delayed system ----------------------------------------
     _output_slot(16)
