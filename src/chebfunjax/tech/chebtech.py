@@ -4305,6 +4305,15 @@ class Chebtech2(eqx.Module):
         --------
         sum, norm
         """
+        # MATLAB checks emptiness before validating either input's class.
+        other_data = other.coeffs if isinstance(other, (Chebtech1, Chebtech2)) else other
+        other_empty = (getattr(other_data, "size", None) == 0 or
+                       (isinstance(other_data, (list, tuple)) and len(other_data) == 0))
+        if self.coeffs.size == 0 or other_empty:
+            return jnp.empty((0,), dtype=jnp.float64)
+        if not isinstance(other, (Chebtech1, Chebtech2)):
+            raise ValueError("CHEBFUN:CHEBTECH:innerProduct:input: "
+                             "innerProduct() only operates on two CHEBTECH objects.")
         out = _inner_product(self.coeffs, other.coeffs)
         return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 
@@ -5994,6 +6003,15 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/innerProduct.m
         Chebfun commit: 7574c77
         """
+        # MATLAB checks emptiness before validating either input's class.
+        other_data = other.coeffs if isinstance(other, (Chebtech1, Chebtech2)) else other
+        other_empty = (getattr(other_data, "size", None) == 0 or
+                       (isinstance(other_data, (list, tuple)) and len(other_data) == 0))
+        if self.coeffs.size == 0 or other_empty:
+            return jnp.empty((0,), dtype=jnp.float64)
+        if not isinstance(other, (Chebtech1, Chebtech2)):
+            raise ValueError("CHEBFUN:CHEBTECH:innerProduct:input: "
+                             "innerProduct() only operates on two CHEBTECH objects.")
         out = _inner_product(self.coeffs, other.coeffs)
         return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 

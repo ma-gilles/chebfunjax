@@ -8438,24 +8438,35 @@ def _fourier_diffmat(n: int, length: float, order: int):
 
 
 def _as_system_bc(bc_raw, m: int):
-    """Normalize a system boundary-condition spec to a callable.
+    """Normalize numeric system endpoint values without narrowing dtype.
 
-    For a system, MATLAB's ``N.lbc = [.01; .02]`` prescribes one value
-    per UNKNOWN (x(0) = .01, y(0) = .02) -- unlike the scalar case,
-    where a list gives successive derivatives.  Returns ``bc_raw``
-    unchanged when it is already callable or not a plain list of
-    numbers.
+    Provenance
+    ----------
+    MATLAB @chebop/parseBC.m numeric branch and setupNumericalConditions
+    prescribe one value per unknown and require matching condition count.
+    Chebfun commit: 7574c77
     """
     if m < 2 or bc_raw is None or callable(bc_raw):
         return bc_raw
-    if isinstance(bc_raw, (list, tuple)) and all(
-            isinstance(v, (int, float)) for v in bc_raw):
-        vals = [float(v) for v in bc_raw]
+    try:
+        vals = jnp.asarray(bc_raw)
+    except (TypeError, ValueError):
+        return bc_raw
+    if not jnp.issubdtype(vals.dtype, jnp.number):
+        return bc_raw
+    if vals.ndim > 2 or (vals.ndim == 2 and min(vals.shape) > 1):
+        return bc_raw
+    vals = vals.reshape(-1)
+    if vals.size == 0:
+        return None
+    if vals.size != m:
+        raise ValueError(
+            "CHEBFUN:CHEBOP:parseBC:numberOfConditions: "
+            "numeric system boundary conditions require one value per unknown")
 
-        def _bc(*us, _v=tuple(vals)):
-            return [u - c for u, c in zip(us, _v)]
-        return _bc
-    return bc_raw
+    def _bc(*us):
+        return [u - vals[k] for k, u in enumerate(us)]
+    return _bc
 
 
 def _commonize_system(outs):

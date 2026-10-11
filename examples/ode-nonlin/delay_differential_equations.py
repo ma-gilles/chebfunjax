@@ -144,6 +144,32 @@ def _source_pantograph_curve(exact, numerical):
     return fig
 
 
+def _source_system_display(label, functions):
+    """Format the native column ChebMatrix display for source slot16."""
+    print(f"{label} =\n   {len(functions)} x 1 chebmatrix of block types:\n")
+    for function in functions:
+        print("    {'" + type(function).__name__.lower() + "'}")
+    print()
+
+
+def _source_system_pantograph_curve(exact, numerical):
+    """Source ChebMatrix plot styles expanded over its two scalar blocks."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact[0], "-b", exact[1], "-b",
+                numerical[0], ".--r", numerical[1], ".--r",
+                ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(0, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(0, 1.01, .2))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _plot_disc(t, x, sol, tt=None):
     fig, ax = plt.subplots(figsize=(7.6, 4.0))
     if tt is None:
@@ -441,19 +467,15 @@ def run():
         u.diff() - (t.sin() * u(q * t) + t.cos() * v(q * t)),
         v.diff() - (-t.cos() * u(q * t) + t.sin() * v(q * t))],
         domain=dom)
-    N.lbc = [np.sin(0.0), np.cos(0.0)]
+    N.lbc = [jnp.sin(0.0), jnp.cos(0.0)]
     u, v = N.solve([g1, g2])
-    tt = np.linspace(0, 1, 800)
-    err = float(np.hypot(
-        np.max(np.abs(np.asarray(u(tt)) - np.sin(tt))),
-        np.max(np.abs(np.asarray(v(tt)) - np.cos(tt)))))
-    print(f"delayed system err =\n     {err:.15e}")
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.plot(tt, np.sin(tt), "-b", tt, np.cos(tt), "-b")
-    ax.plot(tt, np.asarray(u(tt)), ".--r", markevery=30)
-    ax.plot(tt, np.asarray(v(tt)), ".--r", markevery=30)
-    ax.grid(True)
-    _save(fig)
+    from chebfunjax.operators.chebmatrix import ChebMatrix
+    exact = [tcf.sin(), tcf.cos()]
+    _source_system_display("y", [u, v])
+    _source_system_display("sol", exact)
+    err = ChebMatrix([[u - exact[0]], [v - exact[1]]]).norm()
+    print(f"err =\n     {err:.15e}")
+    _save(_source_system_pantograph_curve(exact, [u, v]), source_axes=True)
 
     # ----- 16. A state-dependent y(y) with known solution --------------
     _output_slot(17)

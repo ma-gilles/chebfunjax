@@ -9020,21 +9020,15 @@ class Chebfun(eqx.Module):
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
         return self._propagate_point_values(out, jnp.conj)
 
-    def angle(self) -> Chebfun:
-        """Phase angle atan2(imag f, real f), constructed adaptively.
+    def angle(self, pref=None) -> Chebfun:
+        """Phase angle from real and imaginary parts with preferences.
 
         Provenance
         ----------
         MATLAB source : @chebfun/angle.m
         Chebfun commit: 7574c77
         """
-        # MATLAB: angle(f) = atan2(imag(f), real(f)), which introduces
-        # breakpoints where the curve crosses the negative real axis (the
-        # branch cut of atan2) so that unwrap() can remove the 2*pi jumps
-        # (NonsmoothFOV example: a = 2*pi + unwrap(angle(c))).
-        if not jnp.iscomplexobj(self.funs[0].tech.coeffs):
-            return atan2(self * 0.0, self)
-        return atan2(self.imag(), self.real())
+        return atan2(self.imag(), self.real(), pref)
 
     def logical(self) -> Chebfun:
         """Convert to a logical (0/1) Chebfun.

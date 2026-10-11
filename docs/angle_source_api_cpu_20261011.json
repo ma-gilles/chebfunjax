@@ -1,0 +1,81 @@
+{
+  "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/angle_source_api6_20261011/angle_source_api6_delivery_v1.zip",
+  "sha256": "e9aec9009a4d65dc4ce7b4a17d08dde0986cb3e65467e71221710390f79ac3b1",
+  "entries": 67,
+  "root_review": "Pinned angle.m independently read; archive hash and ZIP integrity verified; only method route/signature changed. Six explicitly supplemental controls; no native assertion count claimed.",
+  "numerical_evidence": {
+    "baseline_v1": {
+      "rows": [
+        {
+          "supplement": "real_negative_constant",
+          "error": 0.0,
+          "bound": 2.220446049250313e-14
+        }
+      ],
+      "pytest_summary": "6 failed in 9.27s",
+      "wall_seconds": 16.722907170187682,
+      "peak_summed_rss_kib": 885808,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "warnings_visible": false
+    },
+    "baseline_v2": {
+      "rows": [
+        {
+          "supplement": "real_negative_constant",
+          "error": 0.0,
+          "bound": 2.220446049250313e-14
+        }
+      ],
+      "pytest_summary": "6 failed in 8.58s",
+      "wall_seconds": 16.05851079709828,
+      "peak_summed_rss_kib": 886484,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "warnings_visible": false
+    },
+    "candidate_v1": {
+      "rows": [
+        {
+          "supplement": "explicit_pref_smooth_phase",
+          "error": 2.220446049250313e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "supplement": "first_real_later_complex_False",
+          "error": 2.220446049250313e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "supplement": "first_real_later_complex_True",
+          "error": 2.220446049250313e-16,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "supplement": "real_FUNs_complex_stored_point_False",
+          "error": 0.0,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "supplement": "real_FUNs_complex_stored_point_True",
+          "error": 0.0,
+          "bound": 2.220446049250313e-14
+        },
+        {
+          "supplement": "real_negative_constant",
+          "error": 0.0,
+          "bound": 2.220446049250313e-14
+        }
+      ],
+      "pytest_summary": "6 passed in 9.13s",
+      "wall_seconds": 16.481118564959615,
+      "peak_summed_rss_kib": 939672,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "warnings_visible": false
+    }
+  }
+}

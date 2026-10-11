@@ -3,21 +3,22 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `10e6fd34` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `194cd394` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
 
-The next reviewed batch restores eight literal Chebtech SIGN predicates and
-first-kind extrapolate API forwarding, with unchanged first-kind mathematics.
-Nested-grid interleaving fusion preserves all coefficient bytes and reduces
-isolated cold compiles from 27 to 2; one whole-inverse timing pair is observational.
-DDE output slot 15 and figure 16 are reconstructed from byte-verified saved
-solution data after an observer failure; Python warnings were not retained.
-DDE now has 14 of 23 output slots verified, with nine pending. See
-docs/{tech_sign_native_predicates,nested_interleave_jit,dde_nonlinear_pantograph}_cpu_20261011.json.
+The next reviewed batch restores ANGLE preference forwarding and source real/imag
+routing, fixing mixed FUNs, isolated complex point values and negative-real stored
+phase. Six supplemental controls pass. Native tech innerProduct error identifiers
+now pass for both classes; four empty/JIT controls preserve source dispatch order.
+Numeric system boundary conditions now accept JAX scalar lists and vectors,
+preserve complex values and enforce native condition counts. Ten controls and
+DDE source slot16 pass; figure17 and actual block-norm output are restored.
+DDE now has 15 of 23 output slots verified, with eight pending. See
+corresponding docs/{angle_source_api,tech_inner_input_contract,dde_system_pantograph}_cpu_20261011.json.
 
 The twelve interrupted scripts have been reconciled against current hashes:
 ten have reviewed source replacements (including a separately qualified

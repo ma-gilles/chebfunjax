@@ -19,9 +19,7 @@ gaps:
   branch (innerProduct.m lines 37-41).
 * The array-valued exact-matrix case (pass 10) is a real test now that
   ``inner`` returns the (m, m') pairwise column Gram matrix.
-* Sub-test 11 checks that ``<f, non-tech>`` errors.  chebfunjax has no MATLAB
-  error identifiers (``CHEBFUN:CHEBTECH:innerProduct:input``), so the ported
-  test asserts only that an exception is raised.
+* Sub-test 11 checks the native innerProduct input error identifier.
 
 Provenance
 ----------
@@ -173,13 +171,10 @@ class TestChebtechInnerProduct:
 
     @pytest.mark.parametrize("Tech", BOTH)
     def test_inner_product_with_non_tech_errors(self, Tech):
-        # pass(n, 11): innerProduct(f, 2) must error.  MATLAB checks the id
-        # 'CHEBFUN:CHEBTECH:innerProduct:input'; chebfunjax has no MATLAB error
-        # identifiers, so we assert only that it raises (it currently surfaces
-        # as AttributeError from the missing .coeffs attribute).
+        # Native pass(n, 11): preserve the exact source error identifier.
         f = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError, match='CHEBFUN:CHEBTECH:innerProduct:input'):
             f.inner(2)
 
 
@@ -190,3 +185,25 @@ def test_chebtech1_rejects_complex():
         warnings.simplefilter("ignore")
         f = Chebtech1.from_function(lambda x: 1.0 / (1 + 1j * x ** 2))
     assert f.ishappy
+
+
+@pytest.mark.parametrize("Tech", BOTH)
+def test_source_inner_empty_precedes_input_validation(Tech):
+    """Supplemental @chebtech/innerProduct.m empty-input source contract."""
+    f = Tech.from_coeffs(jnp.asarray([1.]))
+    empty = Tech.from_coeffs(jnp.asarray([]))
+    for other in [empty, [], (), jnp.asarray([]), jnp.empty((2, 0))]:
+        assert f.inner(other).shape == (0,)
+    assert empty.inner(2).shape == (0,)
+    assert empty.inner(f).shape == (0,)
+
+
+@pytest.mark.parametrize("Tech", BOTH)
+def test_source_inner_valid_tech_inputs_remain_jittable(Tech):
+    """Supplemental valid scalar and mixed-tech input dispatch control."""
+    import jax
+    f = Tech.from_coeffs(jnp.asarray([1.]))
+    for Other in BOTH:
+        g = Other.from_coeffs(jnp.asarray([1.]))
+        assert float(f.inner(g)) == 2.
+        assert float(jax.jit(lambda a, b: a.inner(b))(f, g)) == 2.

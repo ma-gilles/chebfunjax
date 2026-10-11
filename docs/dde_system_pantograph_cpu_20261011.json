@@ -1,0 +1,68 @@
+{
+  "scope": "Numeric system endpoint BC normalization; DDE slot16/figure17 source example2 only.",
+  "base": {
+    "head": "10e6fd3438ac91e9daa7219e5a3e472e12a7e4d4",
+    "scope": "Output16/scriptsection15/figure17 system pantograph, q=.7,[0,1],source335-347; no explicit init,n,tolerance; ChebMatrix source norm, not sampledmax."
+  },
+  "source_pins": {
+    "Chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+    "examples": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c"
+  },
+  "source_algorithm": "@chebop/parseBC.m19-36 numeric vectors prescribe each unknown endpoint; setupNumericalConditions requires count equal to unknowns. Empty input is absent BC.",
+  "fault": "Baseline29982 JAX sin(0)/cos(0) scalar list remained a list and raised TypeError in bc_rows. This is the JAX numeric BC API defect, not proof the old page NumPy scalar list failed.",
+  "change": "_as_system_bc normalizes numeric scalar/list/vector arrays with JAX, preserves numeric dtype (including complex), checks count with native identifier, maps empty to absent BC; scalar-problem and callable paths unchanged. No solver grid/tolerance changes.",
+  "limits": [
+    "General multidimensional numeric BC matrices not newly supported.",
+    "Complex value normalization tested, not a claim that the preexisting real system matrix solver supports complex systems.",
+    "Existing system solver contains legacy NumPy numerical paths; this package adds only JAX normalization, not a complete solver migration.",
+    "Source prints block Frobenius error, no numerical acceptance assertion.",
+    "Native runtime observation is posthoc, no prospective exhaustive closure claim.",
+    "Timing is not a matched performance ratio."
+  ],
+  "comparison": {
+    "rows": [
+      {
+        "component": 0,
+        "coefficient_max_difference": 2.4875934645507414e-15,
+        "sample_max_difference": 1.0103029524088925e-14
+      },
+      {
+        "component": 1,
+        "coefficient_max_difference": 4.524158825347513e-15,
+        "sample_max_difference": 1.354472090042691e-14
+      }
+    ],
+    "native_error_norm": 2.102428123114064e-15,
+    "python_error_norm": 3.405630653076801e-15,
+    "native_lengths": [
+      12,
+      12
+    ],
+    "python_lengths": [
+      [
+        12
+      ],
+      [
+        12
+      ]
+    ],
+    "source_predicate": "Printed ChebMatrix block Frobenius norm, no numerical assertion."
+  },
+  "controls": "10 cases: Python/JAX scalar lists,row/column vectors,count errors,callable/scalar distinction,empty,complexdtype; original public DDE solve unchanged source sizes/defaults.",
+  "artifacts": {
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/render/slot16.stdout",
+    "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/render/DelayDifferentialEquations_17.png",
+    "provenance": "Reconstructed actual coefficients/pointvalues, all201samples per component byte-identical. Source ChebMatrix display layout over actual block types; source norm retained. No repeated solve.",
+    "limits": "Axes inferred from cached reference, no captured graphics metadata or pixel identity claim."
+  },
+  "page_update": "Slot16 only: current14verified/9pending becomes15verified/8pending if accepted. Whole page remains incomplete.",
+  "gates": {
+    "failed_baseline": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/baseline",
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/candidate_gate",
+    "controls": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/controls",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddq1",
+    "render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_system_pantograph_20261011/render"
+  },
+  "root_review": "Pinned source example and parseBC numeric/count branch independently checked; all55 bindings verified. Viewed figure17; data/style qualification only, pixel/font parity remains open.",
+  "delivery_sha256": "64d5469fe8bb63d2cf70f236c90597233688962a80f3d3801a13b27c7cd4b616"
+}

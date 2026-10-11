@@ -1,0 +1,39 @@
+{
+  "scope": "Restore native innerProduct input-error predicate11 for Chebtech1 and Chebtech2; four supplemental empty/JIT dispatch cases",
+  "native_source": "@chebtech/innerProduct.m and tests/chebtech/test_innerProduct.m at7574c77",
+  "change": "Honor source empty-before-type-validation order and exact input error identifier; existing numerical kernel unchanged",
+  "baseline": "Two restored source predicates fail with accidental AttributeError",
+  "candidate": "Two native error predicates and four supplemental cases pass. Empty tech, numeric arrays, list/tuple, empty-self invalid-other; valid/mixed tech JIT inputs covered. No whole22 native assertion rerun claim.",
+  "source_origin": "Explicit snapshot import assertion and final runtime module hash guards",
+  "gates": {
+    "baseline": {
+      "command_exit_code": 1,
+      "wall_seconds": 14.414854947011918,
+      "sampled_peak_summed_rss_kib": 799580,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "candidate": {
+      "command_exit_code": 0,
+      "wall_seconds": 13.984655932057649,
+      "sampled_peak_summed_rss_kib": 755272,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/baseline/supervision/receipt.json": "78ec418c5f2d169b8852025602919b311d6c5016c9dbe887839c2265b89c6345",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/baseline/supervision/stdout": "d449e641fccc145f1cc3940c0326d37fbb5976aec757c4f0f0f13db39862639c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/baseline/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/baseline/guard.json": "73abd9a38119d374a285e6154df84affa7094c26372a1e89633313a0ec6e67d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/baseline/RUNTIME_SOURCE_END.json": "468e560e47fe67358caf203c92dadfb4756143d7b02fb296918d382aff3a2a74",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/candidate/supervision/receipt.json": "da910606e6b911b88d4f2979755b9bf87ad931ebe2e5b68b98117b9e9758ce0b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/candidate/supervision/stdout": "a71566b94bd1e28ce5a820ba4e7757b808e960da9e235c2644450c3be038169a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/candidate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/candidate/guard.json": "f087980e77c2b6bee3757673b3a1efa755a7dfe43e8ebb1ba088fd14c4cac440",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_inner_input_contract_20261011/candidate/RUNTIME_SOURCE_END.json": "a167f329a227eb27929b498ae77a5515c8009de5bbb1f6066d8ed97dcd111916"
+  },
+  "warnings": "pytest reports already-imported jaxtyping assertion-rewrite warning; no warnings suppressed."
+}
