@@ -1,0 +1,186 @@
+{
+  "baseline_v1": {
+    "rows": [
+      {
+        "clauses": [
+          1,
+          2
+        ],
+        "error": 5.950795411990839e-14,
+        "bound": 2.220446049250313e-13,
+        "endpoint_error_L2": 8.038323094726198e-14,
+        "endpoint_bound": 4.440892098500626e-15,
+        "vscale": 3.141592653589248
+      },
+      {
+        "clauses": [
+          3,
+          4
+        ],
+        "error": 3.1452618287630685e-13,
+        "bound": 6.97573699592173e-13,
+        "endpoint_error_L2": 8.776044403206731e-14,
+        "endpoint_bound": 6.97573699592173e-13,
+        "vscale": 3.141592653546769
+      },
+      {
+        "clause": 5,
+        "error": 0.0009556907847272367,
+        "bound": 6.9757369960172675e-15,
+        "vscale": 3.141592653589795
+      },
+      {
+        "clause": 6,
+        "error": 0.0,
+        "bound": 3.4878684980086318e-15,
+        "vscale": 1.5707963267948966
+      }
+    ],
+    "pytest_summary": "2 failed, 2 passed, 1 deselected, 1 warning in 27.67s",
+    "wall_seconds": 36.76796043198556,
+    "peak_summed_rss_kib": 1740004,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "candidate_v1": {
+    "rows": [
+      {
+        "clauses": [
+          1,
+          2
+        ],
+        "error": 3.863576125695545e-14,
+        "bound": 2.220446049250313e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 4.440892098500626e-15,
+        "vscale": 3.1415926535898793
+      },
+      {
+        "clauses": [
+          3,
+          4
+        ],
+        "error": 1.4876988529977098e-14,
+        "bound": 6.97573699601681e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 6.97573699601681e-13,
+        "vscale": 3.141592653589589
+      },
+      {
+        "clause": 5,
+        "error": 0.0,
+        "bound": 6.9757369960172635e-15,
+        "vscale": 3.141592653589793
+      },
+      {
+        "clause": 6,
+        "error": 0.0,
+        "bound": 3.4878684980086318e-15,
+        "vscale": 1.5707963267948966
+      }
+    ],
+    "pytest_summary": "4 passed, 1 deselected in 30.29s",
+    "wall_seconds": 39.67737521510571,
+    "peak_summed_rss_kib": 1961636,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "controls_v2": {
+    "rows": [
+      {
+        "clauses": [
+          1,
+          2
+        ],
+        "error": 3.863576125695545e-14,
+        "bound": 2.220446049250313e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 4.440892098500626e-15,
+        "vscale": 3.1415926535898793
+      },
+      {
+        "clauses": [
+          3,
+          4
+        ],
+        "error": 1.4876988529977098e-14,
+        "bound": 6.97573699601681e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 6.97573699601681e-13,
+        "vscale": 3.141592653589589
+      },
+      {
+        "clause": 5,
+        "error": 0.0,
+        "bound": 6.9757369960172635e-15,
+        "vscale": 3.141592653589793
+      },
+      {
+        "clause": 6,
+        "error": 0.0,
+        "bound": 3.4878684980086318e-15,
+        "vscale": 1.5707963267948966
+      }
+    ],
+    "pytest_summary": "1 failed, 5 passed in 31.79s",
+    "wall_seconds": 40.85907338373363,
+    "peak_summed_rss_kib": 2020824,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "controls_v3": {
+    "rows": [
+      {
+        "clauses": [
+          1,
+          2
+        ],
+        "error": 3.863576125695545e-14,
+        "bound": 2.220446049250313e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 4.440892098500626e-15,
+        "vscale": 3.1415926535898793
+      },
+      {
+        "clauses": [
+          3,
+          4
+        ],
+        "error": 1.4876988529977098e-14,
+        "bound": 6.97573699601681e-13,
+        "endpoint_error_L2": 0.0,
+        "endpoint_bound": 6.97573699601681e-13,
+        "vscale": 3.141592653589589
+      },
+      {
+        "clause": 5,
+        "error": 0.0,
+        "bound": 6.9757369960172635e-15,
+        "vscale": 3.141592653589793
+      },
+      {
+        "clause": 6,
+        "error": 0.0,
+        "bound": 3.4878684980086318e-15,
+        "vscale": 1.5707963267948966
+      }
+    ],
+    "pytest_summary": "6 passed in 33.23s",
+    "wall_seconds": 42.289019090123475,
+    "peak_summed_rss_kib": 2123680,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atan2_native6_20261011/atan2_native6_delivery_v1.zip",
+    "sha256": "a1d08c1e4d5fb16373375c5f15690bca88077812846db6c70bb77591f91c0a43",
+    "entries": 85
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atan2_native6_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "a127f0b3740973e7914040b5018cca6821f6dfe562178d057f42b95bc6d9c45c",
+  "publication_review": "Root matched native source overlap, x<=tol filtering, zero FUN roots, iterative earlier-root deletion, restrict/extrapolating binary compose and stored point values. Six native predicates, retained supplement and pref/error API control pass. Test formatting preserves executable AST; top-level wrapper provenance docstring added. Full array/raster/CI parity remains open."
+}

@@ -1436,6 +1436,18 @@ def detect_linearity(
     Chebfun commit: 7574c77
     """
 
+    return _detect_linearity_metadata(op, u0, domain)[0]
+
+
+def _detect_linearity_metadata(op, u0, domain=None):
+    """Return the existing classification and a positive local-block flag.
+
+    The result is per-call metadata only. Its probe residual is never used
+    as the initial residual of a solve.
+
+    Provenance: @chebop/linearize.m retains the derivative produced during
+    classification. Chebfun commit: 7574c77.
+    """
     if domain is None:
         bpts = u0.domain.breakpoints
         domain = tuple(float(point) for point in bpts)
@@ -1454,9 +1466,10 @@ def detect_linearity(
         result_ad = op(x_fun, ad_u)
 
     if isinstance(result_ad, ADChebfun):
-        return result_ad.is_linear
+        return (result_ad.is_linear,
+                getattr(result_ad.jacobian, "_coeff_fn", None) is not None)
     # Scalar result — trivially linear
-    return True
+    return True, False
 
 
 # ===========================================================================

@@ -1,0 +1,85 @@
+{
+  "status": "qualified bounded artist controls and coefficient-only DDE13 render",
+  "changed_function": "_source_plot_line_and_points only",
+  "source": "Local R2013a help/matlab/ref/line_props.html MarkerSize paragraph: point marker one-third specifiedsize; qualified spy uses samegeometry",
+  "fix": "Dot MarkerStyle scaled2/3 to convert Matplotlibhalfdiameter into nativethirddiameter; defaultedgewidth0 via setdefault, explicitedgewidth retained. MarkerSize value and all line/style/othermarker branches preserved.",
+  "controls": {
+    "status": "passed",
+    "focused_artist_controls": 5,
+    "controls": [
+      {
+        "format": ".",
+        "options": {},
+        "edgewidth": 0,
+        "normalized_glyph_diameter": 0.3333333333333333
+      },
+      {
+        "format": ".--",
+        "options": {
+          "markersize": 15
+        },
+        "edgewidth": 0,
+        "normalized_glyph_diameter": 0.3333333333333333
+      },
+      {
+        "format": ".",
+        "options": {
+          "markeredgewidth": 2
+        },
+        "edgewidth": 2,
+        "normalized_glyph_diameter": 0.3333333333333333
+      },
+      {
+        "format": "o",
+        "options": {},
+        "edgewidth": 1.0,
+        "normalized_glyph_diameter": 1.0
+      },
+      {
+        "public_array_plot": "passed",
+        "artists": 4
+      }
+    ],
+    "no_solve": true,
+    "coefficients_byte_identical": true,
+    "saved201values_byte_identical": true,
+    "stdout_identical": true,
+    "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_v1/DelayDifferentialEquations_13.png",
+    "markersize": 15,
+    "markeredgewidth": 0,
+    "claim": "native historical point glyph geometry; no pixel parity claim"
+  },
+  "resource": {
+    "wall_seconds": 13.486044538207352,
+    "sampled_peak_summed_rss_kib": 777512,
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ],
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/ORIGINAL_plotting.py": "df0f177510011ea545b24f4e33722416ef6ae7655ee78c8841f551c7014cf954",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_plotting.py": "9058b1deb94eccf5b1b6c77df0432448580307b0629a0ae69adbf5187637e252",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/point_glyph.patch": "326efca3b8a7bd810f8edaf8a78dfb1efc62a557916943e43ee3b18d741bb32b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/build_delivery.py": "5acd45f866a9ee13d3e9e73f2b098eedbe17d5e4aceaefb77c783d5efce85ecf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_v1/observe.py": "fd698540b08b78a4bf7d91131316b5dfc6c325183e66ca6773c669851364e50a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_v1/guard.json": "b8269ff8fc806c380357ca8e0e528d7aae5b9ae6b56cab075bef617915e8d540",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_v1/RESULT.json": "03a5229bfacbdbdd53019c58f2e91d5fa76f7264fc2f12ba764bfb843888ca13",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_point_glyph_20261011/candidate_v1/DelayDifferentialEquations_13.png": "17459f1e6b6f6094a167ef1b0e634d4126fb39ae5899b8863e433b267a335e1b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prepare_matlab_point_glyph.py": "5576381ab83974fbec50e7b5222f6ce7d68aa63dea4088f622ce5970298dd8fc",
+    "/usr/licensed/matlab-R2013a/help/matlab/ref/line_props.html": "ed5aa468b03407b38ce683a270e909b1343775ef11b42197b6a02af8c9652ec2"
+  },
+  "visual_review": "Viewednew600x270DDE13 againstcachedreference: smaller dots alignvisually, line/nodeplacements unchanged; font/raster/minorline differences remain, no pixelparityclaim",
+  "limitations": [
+    "Fivefocuseddiagnosticartistcontrols, not nativeassertioncount",
+    "ExactretainedDDE13helper AST, unchanged15markersize, coefficients201values/stdout byte-identical, no solves",
+    "Eager Matplotlibadapter; explicit markeredgewidth remains userextension",
+    "No P or example source changes"
+  ],
+  "publication_review": "Root viewed correctedDDE13againstcachedreference; source MarkerSize15 preserved, known oversized-dot discrepancy corrected through shared historical geometry. Residual fonts/raster differences remain. All bound inputs verified."
+}

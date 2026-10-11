@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `1de182d7` is published. DDE/realpow, realsqrt and mean fixes are qualified. Use CPU only. Heavy whole examples run
+main through `ef1c3731` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -15,6 +15,14 @@ ten have reviewed source replacements (including a separately qualified
 Atmospheric frame-only change); DDE and LaplaceBall remain partial. All twelve
 original home files are preserved. Source execution acceptance is not full
 output or image parity. See docs/handoff_twelve_disposition_cpu_20261011.json.
+
+All six original atan2 predicates now pass with source extrapolating composition,
+including endpoints and zero FUNs; native bounds are restored. Covariance now
+passes all ten native clauses plus two supplemental complex single-input/row
+controls that exposed and fixed imaginary cross-term loss from JAX indexed
+assignment. Scalar/two-input paths and real dtype behavior are preserved.
+See docs/atan2_native_predicates_cpu_20261011.json and
+docs/cov_native_predicates_cpu_20261011.json.
 
 All eight native realsqrt assertions and all eighteen mean assertions now pass,
 along with retained controls. Source input/result realness and mean dimensions,
@@ -101,9 +109,14 @@ be invented or copied as Python output.
 The public Volterra solve in DDE slot11 now uses existing AD nonlocal blocks,
 reducing adaptive integral actions42 to7. Both native and Python have13
 coefficients; sample difference1.55e-15. Four focused controls pass. Shared-host
-contention prevents a matched speed ratio. Eligible local solves incur an extra
-AD extraction; its cost is under measurement. Figure13 is reconstructed from
-qualified saved coefficients; marker diameter remains a known rendering gap.
+contention prevents a matched speed ratio. A follow-up reuses per-solve classification metadata
+and removes the extra local AD extraction (warm55.50/52.30ms versus
+71.09/67.93ms before; scoped shared-host measurements). No persistent cache
+or initial-state probe residual substitution. Ten focused controls pass;
+see docs/local_linear_classification_reuse_cpu_20261011.json. Figure13 is reconstructed from
+qualified saved coefficients; shared matlab_plot now applies historical dot
+diameter (docs/matlab_point_glyph_cpu_20261011.json), with font/raster differences
+still unqualified.
 See docs/dde_volterra_public_cpu_20261011.json.
 
 Remaining: every native API/assertion, green full CI, unresolved PDE/DDE and

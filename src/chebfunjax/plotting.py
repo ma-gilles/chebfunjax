@@ -4401,6 +4401,12 @@ def _source_plot_line_and_points(
 
     line_kw.update(linestyle=line_style, marker="None")
     point_kw.update(linestyle="None", marker=marker)
+    if marker == ".":
+        from matplotlib.markers import MarkerStyle
+        # R2013a Line MarkerSize documentation: MATLAB's point glyph has
+        # one-third the specified diameter; Matplotlib's point is one-half.
+        point_kw["marker"] = MarkerStyle(".").scaled(2/3)
+        point_kw.setdefault("markeredgewidth", 0)
     line_visible = line_style not in (None, "", "none", "None")
     marker_visible = marker not in (None, "", "none", "None")
     draw_points = marker_visible and not suppress_points

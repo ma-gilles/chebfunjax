@@ -1626,8 +1626,11 @@ class Chebop:
                 pass
 
         # Try to detect linearity by checking if operator is an OperatorBlock
-        if self._is_linear():
-            return self._solve_linear(f, n=n, n_min=n_min, n_max=n_max, tol=tol)
+        is_linear, known_local = self._is_linear(_with_local=True)
+        if is_linear:
+            return self._solve_linear(
+                f, n=n, n_min=n_min, n_max=n_max, tol=tol,
+                _known_local=known_local)
         else:
             return self._solve_nonlinear(
                 f, n=n, n_min=n_min, n_max=n_max, tol=tol,
@@ -5585,7 +5588,7 @@ class Chebop:
     # Linearity detection
     # ------------------------------------------------------------------
 
-    def _is_linear(self) -> bool:
+    def _is_linear(self, *, _with_local=False):
         """Linearity detection using ADChebfun symbolic AD.
 
         First tries the exact ``detect_linearity`` approach using ADChebfun
@@ -5594,11 +5597,14 @@ class Chebop:
 
         This is conservative: if in doubt, returns ``False``.
         """
+        def result(linear, local=False):
+            return (linear, local) if _with_local else linear
+
         # A deflated operator carries a nonlinear multiplicative factor
         # M(u; r) and is never linear (probing it with AD would trip over the
         # norm reductions inside M).
         if self._deflation is not None:
-            return False
+            return result(False)
         # Source @chebop/linearize.m includes every BC linearity flag.
         # Restrict this adapter to the qualified scalar/general-BC domain;
         # other system, periodic and piecewise classifications are unchanged.
@@ -5615,13 +5621,13 @@ class Chebop:
             seed = ADChebfun(initial).seed(1, (True,))
             if any(isinstance(row, ADChebfun) and not row.is_linear
                    for row in _conditions(self, seed)):
-                return False
+                return result(False)
         # If op is already an OperatorBlock, definitely linear
         if isinstance(self.op, OperatorBlock):
-            return True
+            return result(True)
         # Try exact symbolic linearity detection via ADChebfun
         try:
-            from chebfunjax.autodiff.adchebfun import detect_linearity
+            from chebfunjax.autodiff.adchebfun import _detect_linearity_metadata
             from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
             a, b = float(self.domain[0]), float(self.domain[-1])
             u_probe = _chebfun(
@@ -5629,14 +5635,15 @@ class Chebop:
                 domain=self.domain,
                 n=8,
             )
-            return detect_linearity(self.op, u_probe, domain=self.domain)
+            return result(*_detect_linearity_metadata(
+                self.op, u_probe, domain=self.domain))
         except Exception:
             pass
         # Fall back to numerical probe
         try:
-            return self._probe_linearity()
+            return result(self._probe_linearity())
         except Exception:
-            return False
+            return result(False)
 
     def _probe_linearity(self) -> bool:
         """Numerical linearity probe.
@@ -6562,6 +6569,8 @@ class Chebop:
         n_min: int,
         n_max: int,
         tol: float,
+        *,
+        _known_local: bool = False,
     ):
         """Direct spectral solve, retaining native nonlocal operator blocks.
 
@@ -6571,7 +6580,7 @@ class Chebop:
         than evaluating the operator separately on every basis function.
         Chebfun commit: 7574c77.
         """
-        if (self._n_vars() == 1 and len(self.domain) == 2
+        if (not _known_local and self._n_vars() == 1 and len(self.domain) == 2
                 and not self._periodic and self._bc_general is None
                 and all(bool(jnp.isfinite(v)) for v in self.domain)):
             from chebfunjax.operators.chebop_altdisc import (

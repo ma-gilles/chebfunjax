@@ -170,10 +170,16 @@ def atan(f: Chebfun) -> Chebfun:
     return f.atan()
 
 
-def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
-    """Four-quadrant arctangent.  See :func:`chebfunjax.chebfun1d.chebfun.atan2`."""
+def atan2(y: Chebfun, x: Chebfun, pref=None) -> Chebfun:
+    """Four-quadrant arctangent with optional Chebfun preferences.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/atan2.m
+    Chebfun commit: 7574c77
+    """
     from chebfunjax.chebfun1d.chebfun import atan2 as _atan2
-    return _atan2(y, x)
+    return _atan2(y, x, pref)
 
 
 # New functions

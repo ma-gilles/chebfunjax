@@ -1,0 +1,42 @@
+{
+  "source": "Chebfun 7574c77 @chebop/solvebvp.m109 retains L,residual,isLinear and208 consumes L in solvebvpLinear.",
+  "scope": "Retain existing classification decision and Jacobian local-block flag in an explicit per-solve tuple; no persistent object cache.",
+  "semantics": [
+    "Existing sinusoidal probe and symbolic/numerical classification fallback unchanged.",
+    "Only positive local coefficient representation bypasses the extra actual-initial extraction. Unknown/nonlocal metadata still extracts actual initial/forcing/BCs.",
+    "Probe residual is never substituted into solve.",
+    "Direct _solve_linear callers default to existing extraction behavior.",
+    "No broad Newton/IVP/default backend change."
+  ],
+  "controls": "6 added cases plus3 prior local/nonlocal route cases plus1 unchanged historical integral proxy, total10. Added1e-11 analytic controls are not page assertions.",
+  "gates": {
+    "controls": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/local_linear_classification_reuse_20261011/controls",
+    "timing": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/local_linear_classification_reuse_20261011/timing"
+  },
+  "baseline_timing": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_volterra_public_20261011/local_cost/REPORT.json",
+  "limitations": "Only narrow n19 scalar local timing, serial CPU4\u20137; shared-host timing limitations remain. Existing single-interval/system/periodic/nonlocal support limits unchanged.",
+  "timing_result": {
+    "success": true,
+    "rows": [
+      {
+        "repeat": 0,
+        "solve_seconds": 4.769438175018877,
+        "error": 4.884981308350689e-15
+      },
+      {
+        "repeat": 1,
+        "solve_seconds": 0.055498870089650154,
+        "error": 4.884981308350689e-15
+      },
+      {
+        "repeat": 2,
+        "solve_seconds": 0.052301870193332434,
+        "error": 4.884981308350689e-15
+      }
+    ],
+    "extraction_seconds": []
+  },
+  "conclusion": "Added extraction count is zero; warm solves55.50/52.30ms versus original56.19/53.09ms and redundant-extraction71.09/67.93ms. Restores narrow measured baseline performance; no broader claim.",
+  "root_review": "Checked same classification control flow, per-solve local flag, no persistent cache or initial-state residual substitution. Ten focused controls include mutation and affine/nonlocal initial state. New test formatting preserves AST;22delivery bindings verified.",
+  "delivery_sha256": "400dbf55ecfacd0bd409dba91a1f633384ef05b4bbf0b102fa29748f582a6710"
+}

@@ -4534,6 +4534,54 @@ class Chebfun(eqx.Module):
         """
         return jnp.sqrt(self.var())
 
+    def cov(self, g=OMITTED, *normalization) -> jax.Array:
+        """Covariance of columns, with native nonconjugate row transpose.
+
+        A scalar input delegates to var. Two inputs must have matching
+        column counts and orientation. Normalization arguments are rejected.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cov.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.asarray(jnp.nan)
+        if normalization:
+            raise ValueError("CHEBFUN:CHEBFUN:cov:nargin: "
+                             "CHEBFUN/COV does not support normalization.")
+        if g is not OMITTED and (
+                not isinstance(g, Chebfun)
+                or self.n_columns != g.n_columns
+                or self.is_transposed != g.is_transposed):
+            raise ValueError("CHEBFUN:CHEBFUN:cov:size: "
+                             "CHEBFUN dimensions do not agree.")
+        if self.is_transposed:
+            out = self.transpose().cov() if g is OMITTED else self.transpose().cov(g.transpose())
+            return jnp.asarray(out).T
+        if g is OMITTED and self.n_columns == 1:
+            return self.var()
+        centered = self - self.mean()
+        columns = centered.mat2cell()
+        if g is OMITTED:
+            out = jnp.diag(jnp.atleast_1d((centered * centered.conj()).mean()))
+            # MATLAB assignment promotes a real diagonal for complex cross
+            # covariances; JAX indexed updates retain the destination dtype.
+            dtype = jnp.result_type(out.dtype, *[
+                piece.tech.coeffs.dtype for piece in centered.funs
+            ])
+            out = out.astype(dtype)
+            for j in range(len(columns)):
+                for k in range(j + 1, len(columns)):
+                    value = (columns[j] * columns[k].conj()).mean()
+                    out = out.at[j, k].set(value)
+                    out = out.at[k, j].set(jnp.conj(value))
+            return out
+        other = (g - g.mean()).mat2cell()
+        return jnp.stack([jnp.stack([
+            (left * right.conj()).mean() for right in other
+        ]) for left in columns])
+
     def merge(self, index=None, *, maxpow2: int | None = None,
               tol: float | None = None, sample_test: bool = True,
               min_samples: int | None = None,
@@ -9958,130 +10006,50 @@ def overlap(f: Chebfun, g: Chebfun) -> tuple[Chebfun, Chebfun]:
     return Chebfun._overlap(f, g)
 
 
-def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
-    r"""Two-argument arctangent of two Chebfuns: ``atan2(y, x)``.
-
-    Computes the four-quadrant inverse tangent of the Chebfun pair ``(y, x)``,
-    returning values in ``(-pi, pi]``.  Breakpoints are introduced where
-    ``y = 0`` and ``x < 0`` (the cut of the standard ``atan2``).
-
-    Parameters
-    ----------
-    y : Chebfun
-        Numerator (the "y" component).
-    x : Chebfun
-        Denominator (the "x" component).
-
-    Returns
-    -------
-    Chebfun
-        ``atan2(y, x)`` on the same domain.
-
-    Notes
-    -----
-    Implementation follows MATLAB Chebfun's ``@chebfun/atan2.m``:
-
-    1. Find roots of ``y`` where ``x < 0`` (discontinuities of atan2).
-    2. Add those as breakpoints to the domain.
-    3. Compose with ``jnp.arctan2`` pointwise, extrapolating the piece
-       endpoints (which lie on the roots of ``y``) so the branch cut is
-       not sampled directly.  This mirrors MATLAB's
-       ``pref.techPrefs.extrapolate = true`` and is required for
-       eps-level accuracy: at a root ``y`` is numerically +/-0 and
-       ``atan2`` returns the wrong branch, injecting a spurious ``2*pi``
-       jump that otherwise defeats the adaptive constructor.
-
-    NOT JIT-safe (root-finding and adaptive construction).
+def atan2(y: Chebfun, x: Chebfun, pref=None) -> Chebfun:
+    """Four-quadrant arctangent with independently stored point values.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/atan2.m
+    MATLAB source : @chebfun/atan2.m (columnAtan)
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
-
-    See Also
-    --------
-    Chebfun.atan
-
-    Examples
-    --------
-    >>> import jax.numpy as jnp
-    >>> from chebfunjax.chebfun1d.chebfun import chebfun, atan2
-    >>> x = chebfun(lambda t: jnp.cos(t))
-    >>> y = chebfun(lambda t: jnp.sin(t))
-    >>> f = atan2(y, x)
-    >>> abs(float(f(jnp.float64(0.0)))) < 1e-12  # atan2(0, 1) = 0
-    True
     """
     import numpy as _np
 
-    if y.domain != x.domain:
-        raise ValueError(
-            "atan2: y and x must have the same domain. "
-            f"Got {y.domain} and {x.domain}."
-        )
+    from chebfunjax.chebpref import ChebfunPref
 
-    # Find breakpoints: roots of y where x < 0
+    if not y.isreal() or not x.isreal():
+        raise ValueError("CHEBFUN:CHEBFUN:atan2:real: Inputs must be real.")
+    if y.n_columns != x.n_columns:
+        raise ValueError("CHEBFUN:CHEBFUN:atan2:dim: Column counts must agree.")
+    if y.n_columns > 1:
+        return Chebfun.horzcat(*(atan2(y[:, k], x[:, k], pref)
+                                for k in range(y.n_columns)))
+    pref = ChebfunPref(pref) if pref is not None else ChebfunPref()
+    pref.techPrefs.extrapolate = True
+    tol = 2 * _EPS * max(float(y.vscale), float(x.vscale))
+    x, y = Chebfun._overlap(x, y)
+    # Host arrays carry root and breakpoint metadata; all function math is JAX.
     ry = _np.asarray(y.roots(), dtype=_np.float64)
-    # Keep only those where x(ry) < 0
-    if len(ry) > 0:
-        xvals_at_ry = _np.asarray(x(jnp.array(ry)), dtype=_np.float64)
-        tol = 2.0 * _EPS * max(float(y.vscale), float(x.vscale))
-        ry = ry[xvals_at_ry < tol]  # keep roots where x <= 0
-
-    # Also find roots of x where y changes sign (kinks in angle)
-    # Simplified: just use the roots of y (main discontinuities)
-    existing = _np.array(list(y.domain.breakpoints), dtype=_np.float64)
-    if len(ry) > 0:
-        new_bps = _np.sort(_np.unique(_np.concatenate([existing, ry])))
-        tol_merge = 1e6 * _EPS * max(float(y.domain.b - y.domain.a), 1.0)
-        mask = _np.concatenate([[True], _np.diff(new_bps) > tol_merge])
-        new_bps = new_bps[mask]
-    else:
-        new_bps = existing
-
-    if len(new_bps) < 2:
-        new_bps = existing
-
-    new_dom = Domain(tuple(float(b) for b in new_bps))
-    _y = y
-    _x = x
-
-    def _piece_fun(sub_a, sub_b):
-        # MATLAB's atan2.m sets pref.techPrefs.extrapolate = true: the
-        # subinterval endpoints are the roots of y where the atan2 branch
-        # cut lives, so y is numerically +/-0 there and atan2 returns the
-        # WRONG branch (e.g. -pi instead of the +pi the interior
-        # approaches) whenever the root's rounding sign disagrees with the
-        # limit.  Sampled directly, that single flipped endpoint value
-        # injects a spurious 2*pi jump at the piece boundary, giving 1/n
-        # Chebyshev decay and a construction that never resolves.  We
-        # emulate extrapolation by pulling the (only troublesome) endpoint
-        # samples an infinitesimal step inside the subinterval, so atan2 is
-        # evaluated on the correct branch; the shift is O(1e-11) of the
-        # width, far below the construction tolerance.
-        width = sub_b - sub_a
-        # Nudge ONLY the two endpoint nodes off the roots of y where the
-        # atan2 branch cut lives.  A tolerance band (1e-10 of the width)
-        # catches them robustly despite the reference->physical mapping
-        # rounding, yet is far tighter than the gap to the nearest interior
-        # Chebyshev node at the degrees needed here, so the interior samples
-        # -- including atan2's steep g=0 crossings -- are left untouched.
-        # The inward step (1e-12 of the width) lifts y well above its
-        # roundoff floor while shifting the endpoint value by < ~1e-12.
-        tol_e = 1e-10 * width
-        step = 1e-12 * width
-
-        def fn(t, sa=sub_a, sb=sub_b, te=tol_e, d=step):
-            x = jnp.where(jnp.abs(t - sa) < te, sa + d, t)
-            x = jnp.where(jnp.abs(x - sb) < te, sb - d, x)
-            return jnp.arctan2(_y(x), _x(x))
-
-        return _Piece.from_function(fn, sub_a, sub_b)
-
-    new_funs = [_piece_fun(sub.a, sub.b) for sub in new_dom.intervals]
-    return Chebfun(funs=new_funs, domain=new_dom)
+    if ry.size:
+        ry = ry[_np.asarray(x(jnp.asarray(ry))) <= tol]
+    rx = [_np.asarray(x.funs[k].roots(), dtype=_np.float64)
+          for k, piece in enumerate(y.funs) if piece.tech.iszero()]
+    r = _np.unique(_np.concatenate([ry, *rx]))
+    # Native logical deletion removes the earlier root of each close pair.
+    while r.size > 1 and _np.any(_np.diff(r) < tol):
+        r = r[_np.concatenate((_np.diff(r) >= tol, [True]))]
+    if r.size:
+        new_domain = _np.unique(_np.concatenate((x.domain.breakpoints, r)))
+        x = x.restrict(new_domain)
+        y = y.restrict(new_domain)
+    result = x.compose(lambda x, y: jnp.arctan2(y, x), y, pref=pref)
+    if r.size:
+        zero = (jnp.abs(x.point_values) < tol) & (jnp.abs(y.point_values) < tol)
+        result = result.set_point_values(jnp.where(zero, 0, result.point_values))
+    return result
 
 
 # ============================================================================
