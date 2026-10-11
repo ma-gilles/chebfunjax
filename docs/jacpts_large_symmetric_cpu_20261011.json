@@ -1,0 +1,109 @@
+{
+  "scope": "Test-only original-size native clauses23,26,27; production source already published1c5eeb0b. No original24 credit (disabled upstream).",
+  "source_matches_current_publication": true,
+  "source_differences": [],
+  "execution": "Standalone guarded probes ran exact public calls and literal bounds. Permanent pytest wrappers below were transcribed after those runs; they were statically reviewed, not separately rerun. No duplicate large rules.",
+  "test_ids": [
+    "tests/test_matlab_port/misc/test_jacpts_large_source.py::test_native_clause_23",
+    "tests/test_matlab_port/misc/test_jacpts_large_source.py::test_native_clauses_26_27"
+  ],
+  "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_jacpts.m",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "gates": {
+    "200000": {
+      "original": 16055,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 279,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1497620,
+      "wall_seconds": 37.81201656488702,
+      "result": {
+        "n": 200000,
+        "a": 0.2,
+        "b": 0.2,
+        "science_seconds": 31.78785713482648,
+        "first_moment": -3.469446951953614e-18,
+        "mass_minus_four_thirds": 0.45771041640553456,
+        "second_moment_minus_four_fifteenths": 0.2601109067859417,
+        "predicates": {
+          "23": true
+        },
+        "finite": true,
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "backend": "cpu",
+        "x64": true,
+        "affinity": [
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/guard.json": "cb90abe78ef058456494218bb612b0139a1142287a9e8b6e053adda1e43ec50f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/supervision/receipt.json": "db0bd4b8121dcb55df67e8625047b8741549fbd7177a4db4abd530a10f8d0ebf",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/supervision/stdout": "49641aef81be6cba80f9ebfdd5a877ec8a8c7d0a72a2060cc0ce11dc43a61b13",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/result.json": "4fbc1da27f234b71bb2dffe11a11800f9c9a09adfb95b0ad2618f3a7a6187614"
+      },
+      "qualified": true
+    },
+    "100000": {
+      "original": 95852,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 279,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1619776,
+      "wall_seconds": 48.7312716729939,
+      "result": {
+        "n": 100000,
+        "a": 1.0,
+        "b": 1.0,
+        "science_seconds": 42.75142585719004,
+        "first_moment": 0.0,
+        "mass_minus_four_thirds": -2.220446049250313e-16,
+        "second_moment_minus_four_fifteenths": -1.1102230246251565e-16,
+        "predicates": {
+          "26": true,
+          "27": true
+        },
+        "finite": true,
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "backend": "cpu",
+        "x64": true,
+        "affinity": [
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/guard.json": "96189cd99bf3fa9b3d50a041419920a8051583b1b21aa19b3e49f51525144526",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/supervision/receipt.json": "8a08897e2244ddff712252841934c5c6a3ce6cf6b9717ad69670375b94cec5e2",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/supervision/stdout": "6ddec485432f553141e61482f946464a89f0d67960b301e6d13ce5ae39c54b64",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/result.json": "e6ae002ab51ffef7a77e81d1875b5b7629ab55dccd4caa66050a1873f18327e9"
+      },
+      "qualified": true
+    }
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/delivery/tests/test_matlab_port/misc/test_jacpts_large_source.py": "463ed2c3e0c6c97c744c13eeb793b874f20391af2a0de58e3a925a01afddf167",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/candidate.patch": "51e31c858768045508336f72a38235020995c215ce553a5559f3237a3a8ee7ac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/probe.py": "3076d44e88a5ed090cb607ad7d94c398d9400c5f3fe236c4b4bd41c9f1cea21b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/audit.py": "9fadd74a968a0599b7647285660791f917e832b06a45d0aac30783e90a78086e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/200000/AUDIT.json": "8bde2c27bc518fa1133a797559e3a6e2af411862b64feb0cd339c78c5de7f395",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_large_symmetric_20261011/100000/AUDIT.json": "94ce1c26b5e83395bc448434c2c5ae83017c44a26ffc8bd8ae56c3ce172e20c2"
+  }
+}
