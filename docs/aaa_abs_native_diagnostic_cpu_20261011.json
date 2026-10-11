@@ -1,0 +1,159 @@
+{
+  "status": "Diagnostic source-default cusp counterexample reproduced by native; no confirmed evaluator fault, no library correction proposed",
+  "native": {
+    "success": true,
+    "fit_seconds": 1.361459,
+    "supports": 57,
+    "minimum_support_distance_to0": 1.061999999052432e-08,
+    "max_1001_query_error": 1.2309211373990663e-08,
+    "max_error_location": 0,
+    "warning_message": "Function not resolved using 16385 pts.",
+    "warning_identifier": "AAA:notResolved",
+    "default_options_unchanged": true,
+    "science_seconds": 1.605117
+  },
+  "cross": {
+    "scope": "Same-query/evaluator cross discriminator; not numerical acceptance or full-parity claim",
+    "fits": {
+      "native_fit_native_eval": {
+        "at0": 1.2309211373990663e-08,
+        "max_error": 1.2309211373990663e-08,
+        "max_error_excluding0": 7.360778653264788e-14,
+        "value_at0_real": 1.2309211373990663e-08,
+        "value_at0_imag": 0.0
+      },
+      "Python_fit_Python_eval": {
+        "at0": 1.1242419409844672e-08,
+        "max_error": 1.1242419409844672e-08,
+        "max_error_excluding0": 2.885885974635016e-14,
+        "value_at0_real": 1.1242419409844672e-08,
+        "value_at0_imag": -0.0
+      },
+      "Python_fit_native_eval": {
+        "at0": 1.1242419414096604e-08,
+        "max_error": 1.1242419414096604e-08,
+        "max_error_excluding0": 2.884498195854235e-14,
+        "value_at0_real": 1.1242419414096604e-08,
+        "value_at0_imag": 0.0
+      },
+      "native_fit_Python_eval": {
+        "at0": 1.230921137429972e-08,
+        "max_error": 1.230921137429972e-08,
+        "max_error_excluding0": 7.30526750203353e-14,
+        "value_at0_real": 1.230921137429972e-08,
+        "value_at0_imag": 0.0
+      }
+    },
+    "Python_fit_evaluator_difference": 8.881784197001252e-16,
+    "native_fit_evaluator_difference": 1.6653345369377348e-15,
+    "fit_difference_same_native_evaluator": 1.066791959894059e-09,
+    "native_support_count": 57,
+    "Python_support_count": 57,
+    "native_min_support_abs": 1.061999999052432e-08,
+    "Python_min_support_abs": 1.061999999052432e-08,
+    "array_identity": {
+      "query": {
+        "shape": [
+          1001
+        ],
+        "dtype": "float64",
+        "sha256": "872cdd59175ef46e5ec2bb99d43e691095f8c9741a840c43c92d18dab7a025b6"
+      },
+      "central_queries": {
+        "shape": [
+          9
+        ],
+        "dtype": "float64",
+        "sha256": "28173573ac2d2ba19161dc0bf040b8361e68547f93f05c242eb91e6044a64b41"
+      },
+      "native_fit_native_eval": {
+        "shape": [
+          1001
+        ],
+        "dtype": "float64",
+        "sha256": "7b4a81ee97467836f7201cb43c161b596c7261634bf8322801d90ef7ac1f7350"
+      },
+      "Python_fit_Python_eval": {
+        "shape": [
+          1001
+        ],
+        "dtype": "complex128",
+        "sha256": "145720660acf64e9cc946bc3d55bf650390755d0e6e2fb03f93a7d63652bd070"
+      },
+      "Python_fit_native_eval": {
+        "shape": [
+          1001
+        ],
+        "dtype": "float64",
+        "sha256": "d348556a732ee067bee366dc4e885540da68306d24d3e14ba47492e633ddca6b"
+      },
+      "native_fit_Python_eval": {
+        "shape": [
+          1001
+        ],
+        "dtype": "float64",
+        "sha256": "bb157e4317b3568cc01f1c408b0c3908a2456459838b4b1e68f60898549789d0"
+      },
+      "native_central_native_eval": {
+        "shape": [
+          9
+        ],
+        "dtype": "float64",
+        "sha256": "09371c38b11fed2c7bcd3580bc544c28154db69d9efbf65ac23a8d27f33ebbc9"
+      },
+      "native_central_Python_eval": {
+        "shape": [
+          9
+        ],
+        "dtype": "float64",
+        "sha256": "01d3449e3f6ddfbcb7961d123247d1c7896ddb533b7865c2647efea228827928"
+      }
+    }
+  },
+  "receipts": {
+    "aaabs1": {
+      "wall_seconds": 80.90525524457917,
+      "sampled_peak_summed_rss_kib": 1244740,
+      "command_exit_code": -15,
+      "censored_limit": "root_exited_with_live_descendants",
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "aaabs2": {
+      "wall_seconds": 86.27705960767344,
+      "sampled_peak_summed_rss_kib": 1493472,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "cross_v1": {
+      "wall_seconds": 8.588112534023821,
+      "sampled_peak_summed_rss_kib": 485876,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "guard_input_bindings_verified": 7424,
+  "runtime_profile_prebound_sources": 3,
+  "runtime_MathWorks_provider_sources_observed_after_capture": 16,
+  "limitations": [
+    "No new accuracy acceptance bound; historical5e-14 figure scale and3000queryplot excluding0 do not establish cusp or supremum bound",
+    "Native/Python fits differ by1.0668e-9 at0; source policies/supportcount closestnode match, full coefficient/support/pivot equivalence unclaimed",
+    "Existing original source clauses remain unchanged; no snapping/tolerance/sample changes",
+    "Initial aaabs1 malformedTMP beforeREADY was stopped and retained; aaabs2 is the first actualnativefit, not a repeat",
+    "MathWorks provider files were postcapture observed hashes; no prebound complete native runtime/recursivebinaryclosure claim"
+  ],
+  "original_exec_handles_consumed": [
+    84901,
+    40812,
+    86788
+  ],
+  "reviewed_evidence": {
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/aaa_abs_saved_fit_audit_20261011/delivery/EVIDENCE.json",
+    "sha256": "ba00b6daeff008d24ed99d2ebb3fec11f514e52c0516335fde045f95038b7641",
+    "bindings_verified": 339
+  }
+}

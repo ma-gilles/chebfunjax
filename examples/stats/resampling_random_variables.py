@@ -14,6 +14,7 @@ Copyright by The University of Oxford and The Chebfun Developers.
 """
 import os
 import sys
+import warnings
 
 import jax.numpy as jnp
 import matplotlib
@@ -27,6 +28,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 import chebfunjax as cj
+from chebfunjax.chebpref import splitting
 from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.matlab_hist import matlab_hist_counts
@@ -83,8 +85,25 @@ def _ans_vec(values, name="ans"):
         print(f"{float(value):20.15f}")
 
 
+def _splitting_with_output_warning(state):
+    """Capture the source toggle's actual warning for the page output."""
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        result = splitting(state)
+    for item in captured:
+        message = str(item.message)
+        if (item.category is FutureWarning
+                and message.startswith("The syntax 'splitting on' is deprecated.")):
+            print(f"Warning: {message}")
+        else:
+            warnings.showwarning(item.message, item.category,
+                                 item.filename, item.lineno)
+    return result
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
+    _splitting_with_output_warning("off")
     rng = np.random.RandomState(5489)  # Python MT19937 adapter; not MATLAB-stream parity.
 
     # von Mises distribution. MATLAB source: f / sum(f).
@@ -134,6 +153,7 @@ def run():
 
     # MATLAB cdf{a,b} calls restrict then simplify (@chebfun/subsref.m).
     # Preserve that source operation using the public ChebfunJAX APIs.
+    _splitting_with_output_warning("on")
     cdfinv2 = (cdf2.restrict(0.5, 1 - 1e-3).simplify()
                .inv(splitting=True))
     fig, ax = plt.subplots()

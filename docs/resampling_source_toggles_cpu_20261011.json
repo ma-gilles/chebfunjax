@@ -1,0 +1,70 @@
+{
+  "base": {
+    "head": "194c1e5da636eefdc1cd4b545c48fc7c393f41af",
+    "baseline_example_sha256": "e0309884f0da23e2fd21be5ae1a073fba1c2994c0086db02fdce22c3be86a16d"
+  },
+  "supersedes": "resampling_output_countgap_20261011 doc-only mappingnote: current library already has qualified native toggle API, so restore source calls instead",
+  "change": "Source public splittingoff at run start and splittingon before second inverse, preserving original arithmetic/functionAST and explicit args; dynamic actualwarning capturedstdoutonce, otherwarningcategory/location retained. Sessiondefault leaveson as source. No production flag reset or preferences restoration.",
+  "source": "MATLAB splitting.m and examples/stats/ResamplingRandomVariables.m,7574c77/f4b9ea46",
+  "controls": {
+    "native_assertions_added": 0,
+    "supplemental_adapter_controls": 3,
+    "actual_source_toggles": [
+      "off",
+      "on"
+    ],
+    "actual_warning": "Warning: The syntax 'splitting on' is deprecated.\nPlease see CHEBFUNPREF documentation for further details.\n",
+    "once_flag_remains_true": true,
+    "exact_previous_preferences_restored_in_observer_finally": true,
+    "only_splitting_pref_differs_between_stages": true,
+    "original_function_AST_equal_after_removing_two_toggle_statements": true,
+    "no_flag_assignment_in_production": true,
+    "no_example_fit_or_graphics_execution": true
+  },
+  "permanent_tests": {
+    "permanent_supplemental_tests": 3,
+    "native_assertions_added": 0,
+    "output_count_native": 2,
+    "output_count_current": 2,
+    "exact_retained_numeric_fence_preserved": true,
+    "actual_warning_fence_matches_captured_API_warning": true,
+    "exact_historical_outputslot_alignment_matches_current2chunks": true,
+    "all9nativecodefences_preserved": true,
+    "no_full_example_numerical_or_graphics_execution": true
+  },
+  "receipts": {
+    "controls_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 7.765336324926466,
+      "sampled_peak_summed_rss_kib": 167444,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "tests_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 8.6410968368873,
+      "sampled_peak_summed_rss_kib": 175520,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "guard_inputs_verified": 1078,
+  "original_exec_handles_consumed": [
+    4356,
+    17865
+  ],
+  "ruff": "passed",
+  "limitations": [
+    "No full numericalexample replay or graphical rerender; retained numericoutput from accepted fullpage_v2 exact.",
+    "New actualwarning from focused sourceoff/on API sequence, no cached warningtext synthesis.",
+    "Same effective first-stage factory/off and second explicitTrue inverse preferences established by source inspection and pref comparison; no assertion of every constructor representation/global numericalparity.",
+    "Native assertions added0;3supplemental permanent adaptertests.",
+    "Warning once flag reset exists only testfixture via monkeypatch; actualproduction helper never resets it.",
+    "External runtime recursive binaryclosure unqualified."
+  ],
+  "reviewed_evidence": {
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/resampling_source_toggles_20261011/delivery/EVIDENCE.json",
+    "sha256": "593253838fa86d9afbaf6709af6e54df1a86c87371192a70c0f920ac73669691",
+    "bindings_verified": 902
+  }
+}
