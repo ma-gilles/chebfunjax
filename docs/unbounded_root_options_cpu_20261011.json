@@ -1,0 +1,105 @@
+{
+  "status": "Four existing CI regressions and four recursion/mapped-root controls pass",
+  "source_head": "da399f1d",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Translate piece norecursion=True to native onefun recurse=False; consume norecursion=False at piece boundary. Singfun forwards recurse to its smooth part.",
+  "qualification": [
+    {
+      "original_session": 56312,
+      "terminal": 1,
+      "wall_seconds": 35.5387741709128,
+      "peak_rss_kib": 1848172,
+      "inputs_stable": true,
+      "guard_count": 280,
+      "tests": [
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_fractional_power_source_controls::test_fractional_power_keeps_unbounded_domain_mapping[False]",
+          "passed": true
+        },
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_fractional_power_source_controls::test_fractional_power_keeps_unbounded_domain_mapping[True]",
+          "passed": true
+        },
+        {
+          "id": "tests.test_chebfun1d.test_power_singular_unbounded_source_assertions::test_source_pass34_whole_line_bounded_positive_fractional_power",
+          "passed": true
+        },
+        {
+          "id": "tests.test_chebfun1d.test_power_singular_unbounded_source_assertions::test_source_pass35_whole_line_blowup_positive_fractional_power",
+          "passed": true
+        },
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-False]",
+          "passed": false
+        },
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-True]",
+          "passed": false
+        },
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-False]",
+          "passed": false
+        },
+        {
+          "id": "tests.test_chebfun1d.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-True]",
+          "passed": false
+        }
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_cpu_20261011/guard.json": "a427c1bf41d0f110387a1b4e5f6b17f18e002abfa82bb68bcd3bacd5774a159a",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_cpu_20261011/supervision/receipt.json": "8ba6f58cf0f54b08280c2a486904eef99d521338d88ffa5c1211daa7ce53d016",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_cpu_20261011/junit.xml": "df9b146bbe351c5f2dbf4c56e1fd3de8a02198a5bf9ba7ede153ad28ac2d7643"
+      }
+    },
+    {
+      "original_session": 72889,
+      "terminal": 0,
+      "wall_seconds": 9.985543948132545,
+      "peak_rss_kib": 542588,
+      "inputs_stable": true,
+      "guard_count": 282,
+      "tests": [
+        {
+          "id": "unbounded_root_option_controls_v2_20261011.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-False]",
+          "passed": true
+        },
+        {
+          "id": "unbounded_root_option_controls_v2_20261011.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[False-True]",
+          "passed": true
+        },
+        {
+          "id": "unbounded_root_option_controls_v2_20261011.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-False]",
+          "passed": true
+        },
+        {
+          "id": "unbounded_root_option_controls_v2_20261011.test_unbounded_root_options::test_mapped_real_root_and_recursion_option[True-True]",
+          "passed": true
+        }
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_controls_v2_20261011/guard.json": "5a8aa3b78769e2e88aeb8dd9ca08e2fca93b0b598fa4053f13676e379bfa18ee",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_controls_v2_20261011/supervision/receipt.json": "4a38f11624c6c92676f5475802b2cec72d03dd9ae54bd242667ea4b6068f3281",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_option_controls_v2_20261011/junit.xml": "d17fe0b7a7df2cf15e82dd411abd79d7c206ee8c71026d4c3863c30eb09b5aae"
+      }
+    }
+  ],
+  "preserved_initial_failure": "Four new analytic controls initially expected8/3 instead of4/3; native whole-line map scale5 requires4/3. All four original failing CI tests already passed in that gate. Only the analytic expectation was corrected for successor; no library or tolerance change.",
+  "ci_source_comparison": {
+    "src/chebfunjax/fun/unbndfun.py": {
+      "ci_head_sha256": "e3cb95bd3189d24a49f6335a12bc70736943d91f5498c498bd21024e2e1f4750",
+      "current_sha256": "e3cb95bd3189d24a49f6335a12bc70736943d91f5498c498bd21024e2e1f4750",
+      "unchanged_since_failed_CI": true
+    },
+    "src/chebfunjax/fun/singfun.py": {
+      "ci_head_sha256": "19e90164db5514b8e2dfafb7e895f4191b91311f5a5d83a49d1478ac4952abe7",
+      "current_sha256": "19e90164db5514b8e2dfafb7e895f4191b91311f5a5d83a49d1478ac4952abe7",
+      "unchanged_since_failed_CI": true
+    }
+  },
+  "limits": [
+    "Native unbounded endpoint-decay root filter is not implemented by this change.",
+    "Singfun complex/all/prune option support and bounded-piece norecursion forwarding remain outside this correction.",
+    "Guard binds scientific source, selected tests, MATLAB source, config, and launch; not a complete runtime provider inventory.",
+    "Focused CPU tests are not full current-head CI qualification."
+  ]
+}

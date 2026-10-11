@@ -1122,7 +1122,7 @@ class Singfun(eqx.Module):
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
+    def roots(self, *, recurse: bool = True) -> jax.Array:
         """Real roots of ``f`` in [-1, 1].
 
         The interior roots are those of the smooth part.  A positive exponent
@@ -1139,7 +1139,7 @@ class Singfun(eqx.Module):
         if self.isempty():
             return jnp.empty((0,), dtype=jnp.float64)
         tol = _EPS
-        out = [float(r) for r in self.smoothPart.roots()]
+        out = [float(r) for r in self.smoothPart.roots(recurse=recurse)]
         any_roots = len(out) > 0
         a, b = self.exponents
 

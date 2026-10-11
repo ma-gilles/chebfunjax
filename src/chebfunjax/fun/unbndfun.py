@@ -1311,7 +1311,7 @@ class Unbndfun(eqx.Module):
         ``_Piece._apply_fun``; MATLAB @unbndfun/compose.m)."""
         return Unbndfun.from_function(lambda x: op(self(x)), self.domain)
 
-    def roots(self, *args, **kwargs) -> jax.Array:
+    def roots(self, *args, norecursion: bool = False, **kwargs) -> jax.Array:
         """Roots on the unbounded domain: the onefun's roots in [-1, 1]
         pushed through the nonlinear forward map (NOT JIT-safe).
 
@@ -1320,6 +1320,10 @@ class Unbndfun(eqx.Module):
         MATLAB source : @unbndfun/roots.m
         Chebfun commit: 7574c77
         """
+        # The piece protocol names the option norecursion; the onefun uses
+        # the native RECURSE flag. Preserve explicit low-level options.
+        if norecursion:
+            kwargs["recurse"] = False
         r = self.onefun.roots(*args, **kwargs)
         return self.forward_map(jnp.asarray(r))
 
