@@ -1,0 +1,33 @@
+{
+  "scope": "Literal source Example5 continuous/pantograph/integral delay; outputslot19 andfigure20 only. No library change required.",
+  "base": {
+    "head": "67f340cd5c722c2048b633e1108cd181e22a5541"
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "example_pin": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+  "source": "DelayDifferentialEquations.m379-390; [0,20],q=.5,N.lbc=exp(-1),no init/n/tolerance/discretization overrides; source err=norm(sol-u).",
+  "comparison": {
+    "native_error_norm": 7.100686961648395e-15,
+    "python_error_norm": 5.53330614417462e-15,
+    "native_lengths": 14,
+    "python_lengths": [
+      14
+    ],
+    "coefficient_max_abs": 1.1145598333150986e-15,
+    "sample_coordinate_max_abs": 3.552713678800501e-15,
+    "sample_value_max_abs": 3.552713678800501e-15,
+    "limits": "Observed differences on slightly different query grids, not native acceptance inequalities."
+  },
+  "python_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_continuous_pantograph_20261011/baseline/AUDIT.json",
+  "native_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddcp1/AUDIT.json",
+  "render_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_continuous_pantograph_20261011/render_v2/AUDIT.json",
+  "profile": "Default nonlocal AD route already works;3adaptive Volterra actions,6operator calls. Cold51.89s solve includes30.29s backend compilation; no matched performance ratio or optimization claim.",
+  "script": "Replace sampledmax error with source Chebfun norm, actualurepr, reference-stylefigure20. Also restore native Example7 explicit [0,1]domain/x reset before slot20, preventing newly restored slot18 cascade variables leaking into later example. This reset is static source correction, notslot20 scientific credit.",
+  "page": "Onlyslot19/figure20:17->18verified,6->5pending; allotherprose/output/figures preserved. Wholepage incomplete.",
+  "limits": [
+    "No source acceptance inequality exists; error values are observations.",
+    "Native guard binds scientific source with postruntime observation, not exhaustive prospective providerclosure.",
+    "First render15488 failed endpoint0 bytecheck because computed point_values were incorrectly imposed as explicit overrides. Diagnostic85584 isolated5.55e-17 scalar/vector endpoint arithmetic. Finalrender8490 retains original no-override representation: coefficients/201savedvalues/stdout byte-exact; no solve repeated.",
+    "Font/antialias raster differences remain; no pixelidentity claim."
+  ]
+}

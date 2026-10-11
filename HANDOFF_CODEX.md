@@ -3,12 +3,20 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `67f340cd` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `4c14a0e6` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+DDE slot19/figure20 now has a source-default CPU solve and native comparison:
+both length14 with no warnings; observed sample differences3.56e-15. The script
+uses the source L2 error and resets the domain before slot20. The page has18 of23
+output slots verified, five pending. A failed renderer imposed computed endpoint
+values as explicit overrides; the corrected rendering preserves the original
+no-override representation and matches all201 saved values and stdout exactly.
+See docs/dde_continuous_pantograph_cpu_20261011.json.
 
 The next reviewed batch adds the21 missing gallery3 entries, including source
 formulas, domains, lattice trig mode and the existing Python return_handle

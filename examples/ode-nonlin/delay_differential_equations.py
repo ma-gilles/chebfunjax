@@ -185,6 +185,22 @@ def _source_vanishing_delay_curve(y):
     return fig
 
 
+def _source_continuous_delay_curve(exact, numerical):
+    """Render the source continuous and pantograph delay plot with reference axes."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 20), ylim=(0, 3),
+           xticks=np.arange(0, 21, 5), yticks=np.arange(0, 3.01, .5))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_cubic_delay_curve(exact, numerical):
     """Render the source cubic state-delay plot with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -547,23 +563,24 @@ def run():
     q = 0.5
 
     def op18(x, u):
-        vt = volt(lambda T, S: (T / q - S), u)
         return (u.diff() - 1 / 100 * (q * x - x - 10) * u(q * x)
-                - 1 / 100 * (x + 20) * np.exp(-1.0)
-                - 1 / 100 * u.cumsum() - 1 / 1000 * vt(q * x))
+                - 1 / 100 * (x + 20) * jnp.exp(-1.)
+                - 1 / 100 * u.cumsum()
+                - 1 / 1000 * volt(lambda t, s: t / q - s, u)(q * x))
 
     N = Chebop(op18, domain=dom20)
-    N.lbc = np.exp(-1.0)
-    u18 = N.solve(0.0)
-    _show(u18, "u")
-    sol18 = lambda s: np.exp(s / 10 - 1)
-    tt = np.linspace(0, 20, 800)
-    err = float(np.max(np.abs(np.asarray(u18(tt)) - sol18(tt))))
+    N.lbc = jnp.exp(-1.)
+    u18 = N.solve(0.)
+    print(f"u =\n{u18!r}")
+    sol18 = chebfun(lambda x: jnp.exp(x / 10 - 1), domain=dom20)
+    err = float((sol18 - u18).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol18, u18, (0, 20))
+    _save(_source_continuous_delay_curve(sol18, u18), source_axes=True)
 
     # ----- 19. A second-order equation with delays --------------------
     _output_slot(20)
+    dom = (0., 1.)
+    tcf = chebfun(lambda x: x, domain=dom)
     N = Chebop(lambda t, y: y.diff(2) + y(t) - 5 * y(t / 2)**2,
                domain=dom)
     N.lbc = lambda u: [u - 1, u.diff() + 2]
