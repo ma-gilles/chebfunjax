@@ -1,0 +1,60 @@
+{
+  "status": "Reviewable source endpoint-map correction; high-frequency strict failure explicitly unresolved",
+  "base": "28d59bd7e5698edb1d318d44b8a7bbfa41d59cb3",
+  "changes": [
+    "One JAX helper preserves native endpoint sums, products and divisions with optimization barriers.",
+    "Domain.forward_map and chebpts_ab use source arithmetic, preserving canonical interval identity.",
+    "No changes to the high-frequency test marker, assertion, bound, input or sampling refinement."
+  ],
+  "source": [
+    "Chebfun @mapping/mapping.m line 130, linear.For",
+    "Chebfun chebpts.m scaleNodes lines 126-136, including reference interval skip",
+    "Chebfun @bndfun/bndfun.m skips map on reference interval"
+  ],
+  "gates": [
+    {
+      "original": 20721,
+      "count": 186,
+      "seconds": 43.86649392032996,
+      "peak_rss_kib": 2192456,
+      "result": "passed"
+    },
+    {
+      "original": 62679,
+      "seconds": 21.52667879499495,
+      "peak_rss_kib": 1306136,
+      "result": "preserved unchanged unmasked assertion failure",
+      "error": 2.549069082983385e-14,
+      "bound": 2.220446047510404e-14,
+      "length": 45320
+    },
+    {
+      "original": 50732,
+      "count": 4,
+      "peak_rss_kib": 3113504,
+      "result": "passed: unchanged original scalar PDE, two analytic systems and qualified native adaptive system fields",
+      "native_field_error": 2.2605806115905125e-12,
+      "bound": 1e-07
+    }
+  ],
+  "static": {
+    "patch_applied_to_fresh_base": true,
+    "all_changed_files_byte_identical_to_frozen_snapshot": true,
+    "configured_ruff": "All checks passed",
+    "git_apply_whitespace_error_check": "passed"
+  },
+  "limitations": [
+    "Backend sine values remain different from native at 2,250 of 65,537 nodes; the source map correction does not repair that difference.",
+    "Even diagnostic correctly-rounded sine misses the original strict integral bound; no higher-precision or host-library production route is proposed.",
+    "Full repository scientific suite not rerun; focused original domain/quadrature/Bndfun and scalar/system PDE regressions passed."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_forward_map_candidate_20261010/source_controls/AUDIT.json": "95a70b6361f92c8fde2d5e8def2146d19fb32bc3d51d5e9c747d34501b192126",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_forward_map_candidate_20261010/unmasked_highfreq_gate/AUDIT.json": "25f1e56ffaf84caf87f7ec258399879cee0f07357c2592adf6fe72c62e1ec7b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_forward_map_candidate_20261010/pde_regression_controls/AUDIT.json": "90cf185e7e4771cee0ff9607067e2220117bae52f85a783c7bd1c8e839721919",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_forward_map_candidate_20261010/delivery/PATCH_IDENTITY.json": "825c3d5a274eea1f523f1ebbf434d644cdf0c8b53ff08050ef543af8c7f743a7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_forward_map_candidate_20261010/delivery/candidate.patch": "194174fa838ba539482cad4662af05a3afd131e1b688d6ae0c45850eb40abbba",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/highfreq_native_comparison_20261010/CONCLUSION.json": "f781896bb8ca5ac79ec6239ab398aec29ad76df20b10757a32a07203583b6e28",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/nhi1/AUDIT.json": "c4937b4b21c7e4124c4faee84c6c2d3fe322c193214fc6761cd33b7f15a8dbf4"
+  }
+}

@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Source domain mapping and historical battery complete (2026-10-10; latest)
+
+Domain.forward_map and chebpts_ab now retain the native endpoint-weighted
+operation order under eager execution and JIT. 190controls pass, including
+original domain/quadrature/Bndfun and scalar/system PDE regressions.
+The unchanged strict high-frequency integral still fails (2.549e-14 versus
+2.220e-14); native sine-node rounding differs and even correctly rounded
+sine does not close that bound. No tolerance, test marker or sampling change.
+Evidence: docs/source_forward_map_cpu_20261010.json.
+
+The historical e6748499 direct Chebfun3 battery is now80/80passed and
+independently audited. This is not current-main/full-suite qualification.
+Evidence: docs/port_mirror_execution_cpu_20261010.md.
+
 ## Small complex parts preserved (2026-10-10; latest)
 
 Remove the nonsource1e-9 real/imag snap, retain empty inputs and independent

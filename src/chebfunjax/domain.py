@@ -16,7 +16,22 @@ import itertools
 from typing import Iterator
 
 import equinox as eqx
+import jax
 import jax.numpy as jnp
+
+
+def _linear_forward_map(y, a, b):
+    """Preserve source endpoint products and sums under eager and traced calls.
+
+    Provenance
+    ----------
+    MATLAB @mapping/mapping.m linear.For and chebpts.m scaleNodes.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    """
+    barrier = jax.lax.optimization_barrier
+    right = barrier(b * barrier(y + 1))
+    left = barrier(a * barrier(1 - y))
+    return barrier(right / 2) + barrier(left / 2)
 
 
 def _linear_inverse_map(x, a, b):
@@ -177,7 +192,8 @@ class Domain(eqx.Module):
     def forward_map(self, y: jnp.ndarray) -> jnp.ndarray:
         """Map from the reference interval [-1, 1] to [a, b].
 
-        Computes ``0.5 * ((b - a) * y + (b + a))``.
+        Uses the source endpoint-weighted expression and preserves rounded
+        intermediate products under JIT. The reference interval is unchanged.
 
         Only valid for single-interval domains. For piecewise domains,
         iterate over ``self.intervals`` and map each sub-interval.
@@ -199,7 +215,7 @@ class Domain(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @domain/domain.m (mapping utilities)
+        MATLAB source : @mapping/mapping.m linear.For, @bndfun/bndfun.m
         Chebfun commit: 7574c77
         """
         if self.n_intervals != 1:
@@ -209,7 +225,9 @@ class Domain(eqx.Module):
                 f"Iterate over self.intervals instead."
             )
         a, b = self.a, self.b
-        return 0.5 * ((b - a) * y + (b + a))
+        if a == -1.0 and b == 1.0:
+            return y
+        return _linear_forward_map(y, a, b)
 
     def inverse_map(self, x: jnp.ndarray) -> jnp.ndarray:
         """Map from [a, b] to the reference interval [-1, 1].

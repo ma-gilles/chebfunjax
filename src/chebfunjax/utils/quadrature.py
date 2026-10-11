@@ -14,6 +14,7 @@ from math import isinf
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.domain import _linear_forward_map
 from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
 
 
@@ -88,11 +89,12 @@ def chebpts_ab(n: int, a: float, b: float, kind: int = 2) -> jnp.ndarray:
     ----------
     MATLAB source : chebpts.m, local scaleNodes function
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
-    The affine map is evaluated in an algebraically equivalent midpoint form;
-    bitwise identity with the source endpoint-weighted expression is not claimed.
+    Endpoint products follow source operation order under eager and JIT calls.
+    Backend sine evaluations can still differ from native node values.
     """
     x = chebpts(n, kind)
-    return 0.5 * ((b - a) * x + (b + a))
+    mapped = _linear_forward_map(x, a, b)
+    return jnp.where((a == -1.0) & (b == 1.0), x, mapped)
 
 
 def chebweights(n: int, kind: int = 2) -> jnp.ndarray:

@@ -34,11 +34,11 @@ The v4 lane audit details and timeout-policy hashes remain in `recovery_20261010
 
 Native `tests/misc/test_pde15s.m` compares the same PDE under `chebtech1` and `chebtech2`, with native default solver options, and checks cross-run norm against `1e5*pref.chebfuneps`. Native `pdeSolve.m` sets PDE tolerance to `1e-6` by default, maps ODE tolerances from it, and adaptively refines nonperiodic `chebtech2` spatial grids. The frozen Python test instead supplies `rtol=1e-10`, `atol=1e-12`; its solver uses fixed inferred resolution with no spatial adaptation. Treat this as an open solver implementation/port-contract gap. Do not loosen the assertion or claim a tolerance-only repair. SciPy dependency debt remains separate; this evidence does not establish a JAX-only solver.
 
-## Direct Chebfun3 battery: 72 cases qualified
+## Direct Chebfun3 battery: 80 cases qualified
 
-Seventy-two of the 80 direct cases now pass on the frozen `e6748499` source, separately
+All 80 direct cases now pass on the frozen `e6748499` source, separately
 from the wrapper results above. The plain battery indices 0–39 and chebfun3f indices 0–15 are qualified;
-8 direct cases remain unexecuted. These results do not establish current-main suite success.
+No direct cases remain unexecuted in this historical80-case battery. These results do not establish current-main suite success.
 
 | Gate | Original handle | Cases | Wall time | Peak summed RSS |
 |---|---:|---:|---:|---:|
@@ -147,3 +147,16 @@ and unchanged. The correction supplement maps actual frozen source AST formulas:
 `execution_v21/SELECTED_MEMBER_METADATA_CORRECTION.json`, SHA-256
 `aa532e0eec46045644d3e3885cb2d8af6e38ff8b612917aec3944e3cddecedf5`.
 No test counts or frozen audits were changed.
+
+### Historical direct battery complete
+
+The final v22 gate passes all eight remaining chebfun3f members32–39:
+original90297,317.16s, peak1,326,472KiB, stable inputs and no cap/survivors.
+Root verified all artifact hashes, exact JUnit scope, terminal receipt and
+all cumulative audit hashes for80distinct nodes. This qualifies frozen
+e6748499 only; current-main/full-suite parity remains unresolved.
+Audit: execution_v22/AUDIT_v22.json, SHA-256
+`47753f6ec46a3458ddd811b8e9bfd07cbcce270a75887ff9031c535bbcb7e7ee`.
+Cumulative: execution_v22/CUMULATIVE_STATUS_80_OF_80_CANDIDATE.json, SHA-256
+`acdae40167a74e44dee2c96b033b0a60114f2547f7067d392b3c04b2dfc70b83`.
+Independent review: execution_v22/ROOT_REVIEW.json.
