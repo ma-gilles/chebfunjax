@@ -199,6 +199,11 @@ def prepare_preferences(domain=OMITTED, pref=None, *, operand_domain=None,
 
     This is a draft context primitive, not a replacement for all parseInputs
     modifiers. Remaining modifier ownership is documented in PARSE_BOUNDARY.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/chebfun.m (parseInputs), @chebfun/constructor.m.
+    Chebfun commit: 7574c77.
     """
     from chebfunjax.chebpref import ChebfunPref
 
@@ -229,8 +234,8 @@ def prepare_preferences(domain=OMITTED, pref=None, *, operand_domain=None,
         private.enableFunqui = True
     if options.get('trunc') is not None:
         private.splitting = True
-    if options.get('resampling'):
-        private.refinementFunction = 'resampling'
+    if 'resampling' in options and options['resampling'] is not None:
+        private.refinementFunction = 'resampling' if options['resampling'] else 'nested'
     if domain is OMITTED or domain is None or jnp.asarray(domain).size == 0:
         domain = operand_domain if operand_domain is not None else private.domain
     points = tuple(float(x) for x in domain)
@@ -248,4 +253,7 @@ def prepare_preferences(domain=OMITTED, pref=None, *, operand_domain=None,
             raise ValueError('CHEBFUN:parseInputs:periodic')
     hscale = jnp.max(jnp.abs(jnp.asarray(points)))
     hscale = jnp.where(jnp.isinf(hscale), 1., hscale)
-    return private, points, {'hscale': hscale, 'vscale': 0.}, explicit_periodic
+    # parseInputs stores the supplied scale; constructor defaults only empty.
+    vscale = options.get('vscale')
+    vscale = 0. if vscale is None or jnp.asarray(vscale).size == 0 else jnp.asarray(vscale)
+    return private, points, {'hscale': hscale, 'vscale': vscale}, explicit_periodic

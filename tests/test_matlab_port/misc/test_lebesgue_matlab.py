@@ -1,46 +1,79 @@
-"""Port of MATLAB Chebfun tests/misc/test_lebesgue.m (Fable 5).
+"""Literal eleven predicates from MATLAB's source test.
 
-MATLAB lebesgue(x, dom) -> (L, C); chebfunjax exposes
-lebesgue_constant / lebesgue_function.
+Python adapters: trigpts/legpts return (nodes, weights), max/min return
+(location, value), and return_constant replaces MATLAB's second output.
 
 Provenance
 ----------
-MATLAB source : tests/misc/test_lebesgue.m
+MATLAB source: tests/misc/test_lebesgue.m
 Chebfun commit: 7574c77
 """
 
-from __future__ import annotations
+import jax.numpy as jnp
 
-import numpy as np
+from chebfunjax import lebesgue
+from chebfunjax.utils.quadrature import chebpts, legpts, trigpts
 
-from chebfunjax.utils.lebesgue import lebesgue_constant
-from chebfunjax.utils.quadrature import chebpts, legpts
-
-EPS = float(np.finfo(np.float64).eps)
+EPS = float(jnp.finfo(jnp.float64).eps)
 
 
-class TestLebesgue:
-    def test_three_chebyshev_points(self):
-        C = float(lebesgue_constant(np.asarray(chebpts(3))))
-        assert abs(C - 5 / 4) < 10 * EPS * 10
+def test_polynomial_1():
+    L, C = lebesgue(chebpts(3), return_constant=True)
+    assert abs(C - 5 / 4) < 10 * EPS
 
-    def test_three_legendre_points(self):
-        x, _ = legpts(3)
-        C = float(lebesgue_constant(np.asarray(x)))
-        assert abs(C - 7 / 3) < 1e-8
 
-    def test_equispaced_shifted(self):
-        C = float(lebesgue_constant(np.linspace(5, 9, 3),
-                                    domain=(5.0, 9.0)))
-        assert abs(C - 5 / 4) < 1e-10
+def test_polynomial_2():
+    L, C = lebesgue(legpts(3)[0], [-1, 1], return_constant=True)
+    assert abs(C - 7 / 3) < 11 * EPS
 
-    def test_two_points_wide_interval(self):
-        # MATLAB: L = lebesgue([1 2], [0 7]); norm(L, inf) == 11
-        C = float(lebesgue_constant(np.array([1.0, 2.0]),
-                                    domain=(0.0, 7.0)))
-        assert abs(C - 11.0) < 1e-8
 
-    def test_three_points_asymmetric(self):
-        C = float(lebesgue_constant(np.array([-1.0, 0.0, 1.0]),
-                                    domain=(-1.0, 2.0)))
-        assert abs(C - 7.0) < 1e-8
+def test_polynomial_3():
+    L, C = lebesgue(jnp.linspace(5, 9, 3), 5, 9, return_constant=True)
+    assert abs(C - 5 / 4) < 10 * EPS
+
+
+def test_polynomial_4():
+    L = lebesgue([1, 2], [0, 7])
+    assert abs(L.norm(jnp.inf) - 11) < 100 * EPS
+
+
+def test_polynomial_5():
+    L, C = lebesgue([-1, 0, 1], [-1, 2], return_constant=True)
+    assert jnp.max(jnp.abs(jnp.array([7, 7]) - jnp.array([C, L.max()[1]]))) < 100 * EPS
+
+
+def test_polynomial_6():
+    s = jnp.linspace(0.25, 1, 17)
+    L, C = lebesgue(jnp.concatenate((-s, s)), return_constant=True)
+    assert L.min()[1] > 0.999
+
+
+def test_polynomial_7():
+    L = lebesgue(jnp.linspace(-1, 1, 40))
+    assert len(L) < 1560
+
+
+def test_trig_8():
+    L, C = lebesgue(trigpts(3)[0], "trig", return_constant=True)
+    assert abs(C - 5 / 3) < 10 * EPS
+
+
+def test_trig_9():
+    L, C = lebesgue(
+        jnp.linspace(-jnp.pi, jnp.pi, 4)[:-1], [-jnp.pi, jnp.pi], "trig", return_constant=True
+    )
+    assert abs(C - 5 / 3) < 10 * EPS
+
+
+def test_trig_10():
+    L, C = lebesgue(jnp.linspace(-jnp.pi, jnp.pi, 4), -jnp.pi, jnp.pi, "trig", return_constant=True)
+    assert abs(C - 5 / 3) < 10 * EPS
+
+
+def test_trig_11():
+    try:
+        lebesgue(trigpts(4)[0], "trig")
+    except ValueError as e:
+        assert str(e) == "CHEBFUN:lebesgue:trigLebesgue:evenLengthGrid"
+        return
+    raise AssertionError("missing evenLengthGrid error")

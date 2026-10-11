@@ -1,0 +1,78 @@
+{
+  "base_head": "6676455ab886afa3889cdb9ca1f562ca5cdb78e9",
+  "paths": [
+    "src/chebfunjax/utils/interpolation.py",
+    "tests/test_matlab_port/misc/test_bary_matlab.py",
+    "tests/test_utils/test_bary_source_controls.py"
+  ],
+  "bindings": {
+    "src/chebfunjax/utils/interpolation.py": "664253f38b5057da2cfbb062791d66f804b80bf7648219e4fc956ab740078ebb",
+    "tests/test_matlab_port/misc/test_bary_matlab.py": "490153914ec1b00f11c61812b05a49f75daf68b13250ecaa25635c43998d2552",
+    "tests/test_utils/test_bary_source_controls.py": "924c85e1e2cd78bb489a4210715f596aabd698403543e3a8409d0d5611234fd2"
+  },
+  "changes": "Only bary body/signature/docstring altered; restore scalar/shaped x, horizontal array-valued blocks, optional second-kind nodes/weights, source >2D multiple-polynomial rejection. All other top-level AST declarations unchanged.",
+  "source_predicates": 14,
+  "source_bounds": "1e-14 on predicates1\u201313; native complex181-node100x100 no-crash predicate14",
+  "baseline": {
+    "pass": [
+      1,
+      3,
+      8,
+      10
+    ],
+    "fail": [
+      2,
+      4,
+      5,
+      6,
+      7,
+      9,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  "candidate_pass": 26,
+  "supplemental_controls": "exact node plus11 JIT/default-node/horizontal-block/one-column/ND-error/non-nodal autodiff controls",
+  "limitations": [
+    "Native RNG seed7681 mapped to NumPy RandomState; draws are not MATLAB matched inputs.",
+    "Clause14 verifies no crash as native source; no complex-grid accuracy or finite-value threshold added.",
+    "No new performance comparison or MATLAB execution.",
+    "Delivery copies only three named paths; candidate src includes baseline snapshot and must not overwrite concurrent root changes."
+  ],
+  "unchanged_lebesgue_snapshot_hashes": {
+    "src/chebfunjax/utils/lebesgue.py": "7e443a758189cf43b7c43224f21f3b38f5770ca82c1f6b2c5690b2bbf28620fb",
+    "src/chebfunjax/utils/lebesgue_source.py": "c273b82b78830fdfdcc329c6e6b38274dcf179d10bc95d2b89a7471b90290d75"
+  },
+  "runtime": {
+    "wall_seconds": 14.265196657273918,
+    "peak_summed_rss_kib": 722168,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "caps": {
+      "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/supervision",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/guard.json",
+      "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1",
+      "wall_seconds": 180.0,
+      "rss_mib": 3072.0,
+      "sample_seconds": 0.1,
+      "grace_seconds": 1.0,
+      "command": [
+        "--",
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/observe.py"
+      ]
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/RESULT.json": "5d9e02e9b58dd82d5ce34d8887e39677ae6b410dd277f438664c559e778640c4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/supervision/receipt.json": "97adaee6139bf2207541513b4d12d6a340d601a17f794e30e1e853c929963ccb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls_v1/RUNTIME_SOURCE_END.json": "7bdf3605282f0d27f76dce3bed2e57d4d7b7db5890e300b357ef85ade00aec4e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/bary.patch": "a24d9721fb8d31830ce1de99499deefcc9a49e4599146f8a52c2e870cd371804",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/tests.patch": "971e8400187c06957e6a95bb1dc945944ca8a08b0bc1022efd4698d2ee1d0c50",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/native_tests.py": "7262ac249161ae6c4dfad2f0bbc51270cf71e557367ba4f0f86015598f1f25b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/controls.py": "41f0e7ae20355bb6c4ee576e625d0476bc33e820636ca1bdecf1a16723754ad1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bary_source_20261011/package.py": "0695ac045ce7b382306f8454abbf6a4aa644be5cbb904cdaa349f0f52aaca465"
+  }
+}

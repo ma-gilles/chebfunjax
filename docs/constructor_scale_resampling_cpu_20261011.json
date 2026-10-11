@@ -1,0 +1,68 @@
+{
+  "delivery": {
+    "files": {
+      "src/chebfunjax/chebfun1d/_construction.py": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/delivery_v2/candidate/src/chebfunjax/chebfun1d/_construction.py",
+        "sha256": "c43fb44c1bd6e2a0f6ce3ff34fd656582481f623e406ae6fc641cf36cef97b24"
+      },
+      "src/chebfunjax/chebfun1d/_construction_context.py": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/delivery_v2/candidate/src/chebfunjax/chebfun1d/_construction_context.py",
+        "sha256": "eacf2c5a9fe20fc202204b2f384ae35c2b0dc436eef237fd9d9b786dd8a63625"
+      },
+      "tests/test_constructor_scale_resampling_source.py": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/delivery_v2/candidate/tests/test_constructor_scale_resampling_source.py",
+        "sha256": "815879ce9a9525fb7c15721a4f67b01d71b5105059531a2e86c93a8646b2d52e"
+      }
+    },
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/delivery_v2/candidate.patch": "0993fdfae0b69b884f49f703a6ea7e659e2358188d5c2a7516dd2354c8858f43",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/delivery_v2/EVIDENCE.json": "ce953639f181ac9e1b861cac45bb0eab6a4389f294daa289b9d918c6df3c568c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/SOURCE.json": "f96b3ac81470491bc3529eee686be9b347f1c909814e31c9391f3561d0b24da2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/controls_v2/AUDIT.json": "e18847d2bfc761133b54568987acf7ab7d2ffa457c39c29e2085662d36052e14",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/baseline_v1/AUDIT.json": "27db37269c49a8ede5a93ec7c9243f719b764bf5c59588bcec9d5b5d14b81593",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/controls_v1/FAILURE_NOTE.json": "e69e2b411fb09892ac65f0e976f0d79f6ca5faa2c2277b70f572c710fea90c3c"
+    },
+    "scope_functions": [
+      "prepare_preferences",
+      "public_construct"
+    ]
+  },
+  "evidence": {
+    "base": "6676455ab886afa3889cdb9ca1f562ca5cdb78e9",
+    "scope": "Only prepare_preferences modifier values and public_construct context-owned vscale validation/delegation; unrelated function AST unchanged.",
+    "native_source": "Chebfun7574c77 @chebfun/chebfun.m642\u2013644/671\u2013676 and @chebfun/constructor.m48\u201350.",
+    "qualified": {
+      "original_handle": 81217,
+      "controls": 8,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/controls_v2/AUDIT.json",
+      "sha256": "e18847d2bfc761133b54568987acf7ab7d2ffa457c39c29e2085662d36052e14"
+    },
+    "baseline": {
+      "original_handle": 98495,
+      "failures": 2,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/baseline_v1/AUDIT.json",
+      "sha256": "27db37269c49a8ede5a93ec7c9243f719b764bf5c59588bcec9d5b5d14b81593"
+    },
+    "preserved_failed_public_gate": {
+      "original_handle": 60983,
+      "note": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/constructor_scale_resampling_source_20261011/controls_v1/FAILURE_NOTE.json"
+    },
+    "changes": [
+      "Store supplied vscale in construction data; only omitted/None/empty becomes0.",
+      "Explicit resampling=False selects nested even with resampling preference; explicitTrue preserves resampling.",
+      "vscale is accepted as context-owned data modifier, excluded from legacy-signature validation and removed from legacy kwargs; unknown keys still rejected."
+    ],
+    "bounds": "Independent polynomial checks retain10eps; no existing source assertion altered.",
+    "limits": [
+      "No FRED/VOLT adaptive-action implementation or operator/eigs/proxy changes.",
+      "Broader singular/unbounded constructor numerical qualification not claimed.",
+      "Existing eager constructor scaffolding retained."
+    ],
+    "packaging_ast_proof": {
+      "src/chebfunjax/chebfun1d/_construction.py": "All function/class bodies excluding docstrings identical to qualified gate.",
+      "src/chebfunjax/chebfun1d/_construction_context.py": "All function/class bodies excluding docstrings identical to qualified gate.",
+      "tests/test_constructor_scale_resampling_source.py": "All function/class bodies excluding docstrings identical to qualified gate."
+    }
+  },
+  "root_review": "Delivery and evidence bindings verified; unrelated function ASTs unchanged."
+}

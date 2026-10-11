@@ -41,25 +41,21 @@ def _integral_result(action, domain, normv):
 
 
 def fred(K: Callable, f, onevar=None, *, n: int = 128) -> "Chebfun":
-    r"""Apply int_a^b K(x,y)f(y)dy with JAX Gauss-Legendre quadrature.
+    r"""Apply the native adaptive inner/outer Fredholm construction.
 
-    Each smooth input interval receives n nodes, retaining piecewise domains
-    and real or complex scalar/array values. The outer Chebfun is adaptive.
-    The fixed inner rule is an explicit numerical adaptation of the source's
-    adaptive inner Chebfun construction; increase n for unresolved kernels.
-    As in @chebfun/fred.m, onevar affects AD operator matrices only; direct
-    action still calls the two-argument kernel. Adaptive outer construction
-    is eager; the quadrature arithmetic is JAX.
+    The retained n keyword is a legacy Python compatibility parameter;
+    direct integration is adaptive and does not use a fixed n-point rule.
+    onevar is accepted but unused in native direct action. Existing AD and
+    Fourier-proxy dispatches remain separate.
 
     Provenance
     ----------
     MATLAB source: @chebfun/fred.m, @adchebfun/adchebfun.m (fred).
-    Chebfun commit: 7574c77
+    Chebfun commit: 7574c77.
     """
     from chebfunjax.autodiff.adchebfun import ADChebfun
     from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.operators.chebop import _FourierProxy
-    from chebfunjax.utils.quadrature import legpts
 
     if isinstance(K, Chebfun):
         K, f = f, K
@@ -67,73 +63,35 @@ def fred(K: Callable, f, onevar=None, *, n: int = 128) -> "Chebfun":
         return f.fred(K, onevar)
     if isinstance(f, _FourierProxy):
         return f.fred(K)
-    domain = tuple(float(x) for x in f.domain.breakpoints)
-    column = f.transpose() if f.is_transposed else f
-    normv = float(column.norm())
-    nodes, weights = legpts(n)
-    y = jnp.concatenate([a+(b-a)*(nodes+1)/2 for a, b in zip(domain[:-1], domain[1:])])
-    w = jnp.concatenate([(b-a)*weights/2 for a, b in zip(domain[:-1], domain[1:])])
-    values = column(y)
-    weighted = w.reshape(w.shape+(1,)*(values.ndim-1))*values
+    from chebfunjax.operators._integral_direct_source import adaptive_action
 
-    def action(x):
-        x = jnp.asarray(x)
-        X, Y = jnp.meshgrid(x.ravel(), y, indexing="ij")
-        kernel = jnp.broadcast_to(jnp.asarray(K(X, Y)), X.shape)
-        result = jnp.tensordot(kernel, weighted, axes=((-1,), (0,)))
-        return result.reshape(x.shape+values.shape[1:])
-
-    result = _integral_result(action, domain, normv)
-    return Chebfun._as_transposed(result, f.is_transposed)
+    return adaptive_action(K, f, volterra=False)
 
 
 def volt(K: Callable, f, onevar=None, *, n: int = 128) -> "Chebfun":
-    r"""Apply int_a^x K(x,y)f(y)dy with JAX interval-wise quadrature.
+    r"""Apply native adaptive Volterra integration on [a,x].
 
-    Each smooth input interval is intersected with [a,x] and receives n/2
-    Gauss-Legendre nodes (at least one). The source zero endpoint is exact.
-    Complex/array values and input domain breaks are retained. As in fred,
-    the inner fixed rule adapts the source adaptive Chebfun quadrature.
-    Outer Chebfun construction remains eager, while numeric integration
-    uses broadcast JAX operations without scalar Python evaluation loops.
+    Retains source breakpoints, exact zero at a, and full domain at b.
+    The legacy n compatibility keyword no longer selects a fixed inner rule.
+    onevar is accepted but unused in native direct action; AD dispatch stays
+    separate. Eager host callbacks control adaptive construction; numerical
+    arithmetic and integrals use public JAX Chebfun routes.
 
     Provenance
     ----------
     MATLAB source: @chebfun/volt.m, @adchebfun/adchebfun.m (volt).
-    Chebfun commit: 7574c77
+    Chebfun commit: 7574c77.
     """
     from chebfunjax.autodiff.adchebfun import ADChebfun
     from chebfunjax.chebfun1d.chebfun import Chebfun
-    from chebfunjax.utils.quadrature import legpts
 
     if isinstance(K, Chebfun):
         K, f = f, K
     if isinstance(f, ADChebfun):
         return f.volt(K, onevar)
-    domain = tuple(float(x) for x in f.domain.breakpoints)
-    column = f.transpose() if f.is_transposed else f
-    normv = float(column.norm())
-    nodes, weights = legpts(n//2 if n > 1 else 1)
+    from chebfunjax.operators._integral_direct_source import adaptive_action
 
-    def action(x):
-        x = jnp.asarray(x)
-        flat = x.ravel()
-        total = None
-        for a, b in zip(domain[:-1], domain[1:]):
-            half = jnp.clip(flat-a, 0, b-a)/2
-            y = a+half[:, None]*(nodes[None, :]+1)
-            values = column(y)
-            kernel = jnp.broadcast_to(jnp.asarray(K(flat[:, None], y)), y.shape)
-            weighted = half[:, None]*weights[None, :]*kernel
-            weighted = weighted.reshape(weighted.shape+(1,)*(values.ndim-2))
-            contribution = jnp.sum(weighted*values, axis=1)
-            active = (half != 0).reshape(half.shape+(1,)*(contribution.ndim-1))
-            contribution = jnp.where(active, contribution, 0)
-            total = contribution if total is None else total+contribution
-        return total.reshape(x.shape+total.shape[1:])
-
-    result = _integral_result(action, domain, normv)
-    return Chebfun._as_transposed(result, f.is_transposed)
+    return adaptive_action(K, f, volterra=True)
 
 
 # ===========================================================================

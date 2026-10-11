@@ -81,11 +81,18 @@ def _plot_pair(sol_fn, x, dom, extra=None):
     _save(fig)
 
 
+def _output_slot(index):
+    """Identify the cached MATLAB output cell during a captured run."""
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print(f"@@CHEBFUNJAX_OUTPUT_SLOT:{index}@@", flush=True)
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
     # ----- 1. An ODE by explicit spectral discretization --------------
+    _output_slot(1)
     a, x0 = 1.0, 1.0
     dom = (0.0, 1.0)
     n = 16
@@ -104,6 +111,7 @@ def run():
     _plot_disc(t, x, lambda s: np.exp(a * s) * x0)
 
     # ----- 2. The pantograph equation, discretized --------------------
+    _output_slot(2)
     a, b, q = 1.0, -8.0, 0.5
     tau = q * t
     E = np.asarray(barymat(jnp.asarray(tau), jnp.asarray(t)), dtype=float)
@@ -119,6 +127,7 @@ def run():
     _plot_disc(t, x, sol_fn)
 
     # ----- 3. The pantograph equation, chebop --------------------------
+    _output_slot(3)
     N = Chebop(lambda t, x: x.diff() - a * x - b * x(q * t), domain=dom)
     N.lbc = x0
     xc = N.solve(0.0)
@@ -129,6 +138,7 @@ def run():
     _plot_pair(sol_fn, xc, dom)
 
     # ----- 4. Two pantograph delays ------------------------------------
+    _output_slot(4)
     q1, q2 = 1 / 2, 1 / 3
     N = Chebop(lambda t, x: x.diff() - a * x - b * x(q1 * t) - x(q2 * t),
                domain=dom)
@@ -144,6 +154,7 @@ def run():
     _save(fig)
 
     # ----- 5. A two-interval discretization (plain ODE) ---------------
+    _output_slot(5)
     n = 10
     p = 0.5
     domL, domR = (0.0, p), (p, 2 * p)
@@ -168,6 +179,7 @@ def run():
     _plot_disc(t2, x, lambda s: np.exp(a * s) * x0)
 
     # ----- 6. A constant delay, discretized ----------------------------
+    _output_slot(6)
     tauL = np.maximum(tL - p, 0)
     tauR = tR - p
     EL = np.asarray(barymat(jnp.asarray(tauL), jnp.asarray(tL)), dtype=float)
@@ -183,6 +195,7 @@ def run():
     _plot_disc(t2, x, solv, tt=t2)
 
     # ----- 7. The same delay problem through chebop --------------------
+    _output_slot(7)
     N = Chebop(lambda t, x: x.diff() - x((t - p).maximum(0.0)),
                domain=(0.0, 0.5, 1.0))
     N.lbc = 1.0
@@ -196,6 +209,7 @@ def run():
     _plot_pair(sol7, xc, (0, 1))
 
     # ----- 8. Longer domain: six pieces --------------------------------
+    _output_slot(8)
     N = Chebop(lambda t, x: x.diff() - x((t - p).maximum(0.0)),
                domain=tuple(np.arange(0, 3.01, 0.5)))
     N.lbc = 1.0
@@ -210,16 +224,18 @@ def run():
     _save(fig)
 
     # ----- 9. Two constant delays: SKIPPED --------------------------
+    _output_slot(9)
     # The union domain has eleven pieces, and every probe column of the
     # assembly applies two compositions to an eleven-piece chebfun.
     # MATLAB solves this in seconds; our piecewise-composition
     # evaluation is orders of magnitude too slow (ledgered performance
     # gap), so this section is skipped rather than left to run for
     # hours.
-    print("section 9 skipped: piecewise-composition performance wall")
+    print("section 9 skipped: piecewise-composition performance wall", file=sys.stderr)
     FIG[0] += 1
 
     # ----- 10. A Volterra integro-differential equation ----------------
+    _output_slot(10)
     f = lambda s, tv: np.exp(tv - s)
     n = 16
     t = chebpts_dom(n, dom)
@@ -243,6 +259,7 @@ def run():
     _plot_disc(t, x, sol10)
 
     # ----- 11. The same through chebop + volt --------------------------
+    _output_slot(11)
     # our volt kernel is K(x, y) with (Kf)(x) = int K(x,y) f(y) dy;
     # the equation's kernel in that convention is exp(y - x)
     N = Chebop(lambda t, x: x.diff() + av * x
@@ -256,6 +273,7 @@ def run():
     _plot_pair(sol10, xc, (0, 1))
 
     # ----- 12. A state-dependent delay, Newton by hand -----------------
+    _output_slot(12)
     n = 16
     t = chebpts_dom(n, dom)
     D = np.asarray(diffmat(n, 1, dom), dtype=float)
@@ -281,10 +299,12 @@ def run():
     from chebfunjax.chebfun1d.chebfun import Chebfun as _Chebfun
     from chebfunjax.domain import Domain as _Domain
     xc12 = _Chebfun.from_values(jnp.asarray(x), _Domain(dom))
+    _output_slot(13)
     res = float((xc12.diff() + xc12(xc12)).norm())
     print(f"res =\n     {res:.15e}")
 
     # ----- 13. x' + x(x) = 0 through chebop ----------------------------
+    _output_slot(14)
     N = Chebop(lambda t, x: x.diff() + x(x), domain=dom)
     N.lbc = 1.0
     xc = N.solve(0.0)
@@ -293,6 +313,7 @@ def run():
     print(f"res =\n     {res:.15e}")
 
     # ----- 14. A pantograph problem with known solution ----------------
+    _output_slot(15)
     q = 0.5
     tcf = chebfun(lambda t: t, domain=dom)
     g = -2 * tcf / (1 + tcf**2)**2 - 1 / (1 + (q * tcf)**2)**2
@@ -307,6 +328,7 @@ def run():
     _plot_pair(sol14, y, (0, 1))
 
     # ----- 15. A delayed system ----------------------------------------
+    _output_slot(16)
     q = 0.7
     g1 = (tcf.cos() - (q * tcf).cos() * tcf.cos()
           - (q * tcf).sin() * tcf.sin())
@@ -331,6 +353,7 @@ def run():
     _save(fig)
 
     # ----- 16. A state-dependent y(y) with known solution --------------
+    _output_slot(17)
     xcf = chebfun(lambda x: x, domain=dom)
     mu = 0.0
     g = (3 + mu) * xcf**(2 + mu) - xcf**((3 + mu)**2)
@@ -345,10 +368,12 @@ def run():
     _plot_pair(sol16, y, (0, 1))
 
     # ----- 17. State-dependent 1/t cascade: SKIPPED (same wall) -------
-    print("section 17 skipped: piecewise-composition performance wall")
+    _output_slot(18)
+    print("section 17 skipped: piecewise-composition performance wall", file=sys.stderr)
     FIG[0] += 1
 
     # ----- 18. Delay + integral terms together ------------------------
+    _output_slot(19)
     dom20 = (0.0, 20.0)
     q = 0.5
 
@@ -369,6 +394,7 @@ def run():
     _plot_pair(sol18, u18, (0, 20))
 
     # ----- 19. A second-order equation with delays --------------------
+    _output_slot(20)
     N = Chebop(lambda t, y: y.diff(2) + y(t) - 5 * y(t / 2)**2,
                domain=dom)
     N.lbc = lambda u: [u - 1, u.diff() + 2]
@@ -382,6 +408,7 @@ def run():
     _plot_pair(sol19, y19, (0, 1))
 
     # ----- 20. An interval condition u(0) = u(1/3) --------------------
+    _output_slot(21)
     dom3 = (0.0, 1 / 3)
     t3 = chebfun(lambda t: t, domain=dom3)
     g = t3.exp() / 2
@@ -399,10 +426,12 @@ def run():
     _save(fig)
 
     # ----- 21. Three-variable constant-delay system: SKIPPED ----------
-    print("section 21 skipped: piecewise-composition performance wall")
+    _output_slot(22)
+    print("section 21 skipped: piecewise-composition performance wall", file=sys.stderr)
     FIG[0] += 1
 
     # ----- 22. A system with a state-dependent delay ------------------
+    _output_slot(23)
     dom5 = (1.0, 5.0)
     t5 = chebfun(lambda t: t, domain=dom5)
     N = Chebop(lambda t, u, v: [
@@ -422,6 +451,8 @@ def run():
     ax.plot(tt, np.asarray(v22(tt)), ".r", markevery=30)
     ax.grid(True)
     _save(fig)
+
+    _output_slot(0)
 
 
 if __name__ == "__main__":

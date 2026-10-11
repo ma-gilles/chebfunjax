@@ -971,26 +971,41 @@ class Chebop:
         self,
         f=0.0,
         n: int | None = None,
-        n_min: int = 32,
-        n_max: int = 4096,
-        tol: float = 5e-13,
+        n_min: int | None = None,
+        n_max: int | None = None,
+        tol: float | None = None,
         max_iter: int | None = None,
         newton_tol: float = 5e-13,
         discretization: str | None = None,
         ivp_solver: str | None = None,
     ):
-        """Solve using the session Newton limit unless explicitly overridden.
+        """Solve using session preferences unless explicitly overridden.
+
+        Omitted ``tol``, ``max_iter``, ``n_min`` and ``n_max`` use
+        ``bvpTol``, ``maxIter``, ``minDimension`` and ``maxDimension``.
+        Explicit ``n`` selects a fixed grid in the existing solver route;
+        dimension limits continue to govern adaptive routes.
 
         Provenance
         ----------
         MATLAB source: @chebop/solvebvp.m parseInputs;
-            @chebop/solvebvpNonlinear.m maxIter preference.
+            @chebop/solvebvpNonlinear.m bvpTol and maxIter preferences;
+            @valsDiscretization/valsDiscretization.m dimensionValues;
+            @coeffsDiscretization/coeffsDiscretization.m dimensionValues.
         Chebfun commit: 7574c77
         """
-        if max_iter is None:
+        if max_iter is None or tol is None or n_min is None or n_max is None:
             from chebfunjax.chebpref import ChebopPref
 
-            max_iter = ChebopPref().maxIter
+            preferences = ChebopPref()
+            if max_iter is None:
+                max_iter = preferences.maxIter
+            if tol is None:
+                tol = preferences.bvpTol
+            if n_min is None:
+                n_min = preferences.minDimension
+            if n_max is None:
+                n_max = preferences.maxDimension
         if (getattr(self, "_periodic", False) and len(self.domain) == 2
                 and discretization in ("coeffs", "trigspec")
                 and self._n_vars() == 1 and self._is_linear()):

@@ -207,8 +207,8 @@ def trig_bary_weights(x: jnp.ndarray) -> jnp.ndarray:
 @jax.jit
 def bary(x: jnp.ndarray,
          fvals: jnp.ndarray,
-         xk: jnp.ndarray,
-         vk: jnp.ndarray) -> jnp.ndarray:
+         xk: jnp.ndarray | None = None,
+         vk: jnp.ndarray | None = None) -> jnp.ndarray:
     """Barycentric interpolation formula (2nd form).
 
     Evaluates the polynomial interpolant of the data ``(xk, fvals)`` at the
@@ -219,14 +219,15 @@ def bary(x: jnp.ndarray,
 
     Parameters
     ----------
-    x : jnp.ndarray, shape (m,)
-        Evaluation points.
-    fvals : jnp.ndarray, shape (n,)
-        Function values at the interpolation nodes ``xk``.
-    xk : jnp.ndarray, shape (n,)
-        Interpolation nodes.
-    vk : jnp.ndarray, shape (n,)
-        Barycentric weights corresponding to ``xk``.
+    x : jnp.ndarray
+        Scalar or shaped evaluation points; scalar-valued results preserve shape.
+    fvals : jnp.ndarray, shape (n,) or (n, columns)
+        Values at the interpolation nodes. Multiple polynomials are returned
+        in adjacent horizontal blocks for two-dimensional evaluation inputs.
+    xk : jnp.ndarray, shape (n,), optional
+        Interpolation nodes; defaults to second-kind Chebyshev points.
+    vk : jnp.ndarray, shape (n,), optional
+        Weights; defaults to second-kind Chebyshev barycentric weights.
 
     Returns
     -------
@@ -261,6 +262,21 @@ def bary(x: jnp.ndarray,
     --------
     bary_weights, cheb_bary_weights, barymat, trig_bary
     """
+    x = jnp.asarray(x)
+    fvals = jnp.asarray(fvals)
+    input_shape = x.shape
+    if fvals.ndim == 2 and fvals.shape[1] > 1 and x.ndim > 2:
+        raise ValueError("CHEBFUN:bary:evalArrayAtNDArray")
+    n = fvals.shape[0]
+    if xk is None:
+        from chebfunjax.utils.quadrature import chebpts
+        xk = chebpts(n, kind=2)
+    if vk is None:
+        vk = cheb_bary_weights(n)
+    xk = jnp.asarray(xk).reshape(-1)
+    vk = jnp.asarray(vk).reshape(-1)
+    # Column-major order preserves MATLAB's horizontal polynomial blocks.
+    x = x.reshape(-1, order="F")
     # diff[i, k] = x[i] - xk[k], shape (m, n)
     diff = x[:, None] - xk[None, :]
 
@@ -288,7 +304,12 @@ def bary(x: jnp.ndarray,
     fx = jnp.where(
         has_match.reshape((-1,) + (1,) * (fvals.ndim - 1)),
         matched_val, fx)
-    return fx
+    if fvals.ndim == 1 or (fvals.ndim == 2 and fvals.shape[1] == 1):
+        return fx.reshape(input_shape, order="F")
+    if len(input_shape) == 2:
+        rows, cols = input_shape
+        return fx.reshape((rows, cols * fvals.shape[1]), order="F")
+    return fx.reshape(input_shape + fvals.shape[1:], order="F")
 
 
 # ---------------------------------------------------------------------------

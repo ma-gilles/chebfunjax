@@ -1,0 +1,64 @@
+{
+  "paths": [
+    "src/chebfunjax/utils/lebesgue.py",
+    "tests/test_matlab_port/misc/test_lebesgue_matlab.py",
+    "tests/test_utils/test_lebesgue_jax_controls.py"
+  ],
+  "native_source_changed": false,
+  "source_findings": "Native public constructor was already exported in P. Baseline_v2 independently executes all eleven native predicates; only sampled helper tracing fails. baseline_v1 is rejected for passing trigpts tuple rather than nodes.",
+  "changes": "Sampled helpers now use JAX and share native evaluator; signatures/grid/approximate constant and unnormalised weights preserved. JAX arrays replace NumPy arrays. Eleven native port predicates replace five weak sampled checks.",
+  "source_mapping": {
+    "parseInputs": "lebesgue_source._parse retains source overloads/domain validation",
+    "polyLebesgue": "capacity weights, unique node/end breakpoints, fixed n, sampleTest=false, simplify retained",
+    "polyLebesgueFun": "_values exact-node membership and sum(abs(w/delta))/abs(sum(w/delta))",
+    "trigLebesgue": "affine map, endpoint removal, odd-grid error, trig weights and adaptive construction retained",
+    "trigBaryWeights": "equispaced sign fast path and matrix/large loop source branches retained",
+    "constant": "continuous L.norm(inf) via return_constant=True; sampled helper stays approximate"
+  },
+  "original_predicates": {
+    "1": "5/4,10eps",
+    "2": "7/3,11eps",
+    "3": "5/4 shifted,10eps",
+    "4": "11,100eps",
+    "5": "C and maximum7,100eps",
+    "6": "min>.999",
+    "7": "40-point total length<1560",
+    "8": "trigpts3 constant5/3,10eps",
+    "9": "pi-domain three nodes5/3,10eps",
+    "10": "periodic endpoint four nodes5/3,10eps",
+    "11": "evenLengthGrid source identifier string"
+  },
+  "controls": 24,
+  "wall_seconds": 29.97009567404166,
+  "sampled_peak_summed_rss_kib": 1640636,
+  "caps": {
+    "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lebesgue_jax_source_20261011/controls_v2/supervision",
+    "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lebesgue_jax_source_20261011/controls_v2/guard.json",
+    "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lebesgue_jax_source_20261011/controls_v2",
+    "wall_seconds": 180.0,
+    "rss_mib": 3072.0,
+    "sample_seconds": 0.1,
+    "grace_seconds": 1.0,
+    "command": [
+      "--",
+      "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lebesgue_jax_source_20261011/controls_v2/observe.py"
+    ]
+  },
+  "survivors": [],
+  "inputs_stable": true,
+  "limitations": [
+    "No fresh MATLAB execution or timing.",
+    "Native construction is eager, evaluation uses JAX.",
+    "Sampled constant retains finite-grid approximation and float host return; n_eval is static for JIT.",
+    "Public array results change from NumPy arrays to JAX arrays to satisfy JAX-only arithmetic.",
+    "Default chebtech source route qualified; arbitrary alternate preferences and large-node source branches not newly executed."
+  ],
+  "bindings": {
+    "delivery_v1/REPORT.json": "84c8cbebae30679d6e171a6771c76f0da0449e56fb33221c38edf53352009936",
+    "delivery_v1/change.patch": "a8db4705e070ed68fdbe7cfe8ce3f872c946530fa0bbcab4b710017f3671ca43",
+    "delivery_v1/evidence.zip": "83a835d15d5d86627d6e974d4a518d064924011b3b39f9623d22288f64b11bcc",
+    "delivery_v1/MANIFEST.json": "b990ce0ca70c5a115879198355f1b8b3e9af04524aed210ac166009842e703ec"
+  },
+  "root_review": "Verified1738 manifest bindings in1741-entry archive; retained original Oxford attribution in module docstring. Numerical/test bodies unchanged."
+}

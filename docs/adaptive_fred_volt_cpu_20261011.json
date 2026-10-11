@@ -1,0 +1,47 @@
+{
+  "delivery": {
+    "status": "qualified",
+    "packaging": "Only Ruff import spacing; full file AST identical to qualified gate.",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/candidate/tests/test_adaptive_integral_scalar_source.py": "4d36495f6ee006cf91d7674d267708e752805a4df89e11fbb1021abae5fa1875",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/candidate/tests/test_matlab_port/chebfun/test_volt_matlab.py": "c354dfe68aa05869dcce37726b1b6d52fc8d48547268e6725cd222e2afaef349",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/candidate/src/chebfunjax/operators/_integral_direct_source.py": "97251c6730478e80ed262e5306fe9e8f2908977a2fca8d5a1a5f5f2c985a36f6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/candidate/src/chebfunjax/operators/integral.py": "9860a4040bf9973a98a9bff8b99bfffac94cdc1580a7c6941c4572f0e1123789",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/candidate.patch": "92a5bc5158d3e569abddb0e8c7104b9d473952cb25dbd7000bed4d099df9249e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/delivery_v1/REPORT.json": "4559aedfe7b563b30ee15a379d1c28aa158d1d2c6bcf21fd37ad2366ebec5a28",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/controls_v1/AUDIT.json": "d799e4aea4760414a783878be8fc1beef1ca3cd9dad8c2511f7f77eb68262ea8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/controls_v1/RESULT.json": "63edeecf3dd81897251ccb1581b100d0ab9333ed44a57e874834658e4ee9e62d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/baseline_v1/AUDIT.json": "2337a185c5e28888d2aa541457d2401d780ec0ac644e80ece1549863c9179212",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/controls_v1/supervision/receipt.json": "65df6cf2aee8248091728f03ed0d9c545015ad204a023057d6a36de02b143889",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/controls_v1/guard.json": "525a169bce396d0565dbbc9855515ef1c22276056d4e424b965827f2ba8bd7e5"
+    }
+  },
+  "report": {
+    "base": {
+      "base": "6676455ab886afa3889cdb9ca1f562ca5cdb78e9",
+      "constructor_overlay": {
+        "src/chebfunjax/chebfun1d/_construction.py": "a8565b83b462e6568d01a05a59a946cc16b3f890d62eebf5a820d8ee787a366f",
+        "src/chebfunjax/chebfun1d/_construction_context.py": "5fb406023c7cc315d9ff1e16ede86e015d8a0c09059455fa95f919ca41f3a738"
+      },
+      "scope": "Only direct fred/volt bodies + private helper; dispatches/eigenoperator code untouched."
+    },
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/adaptive_fred_volt_source_20261011/controls_v1",
+    "original_handle": 46345,
+    "baseline_handle": 22249,
+    "controls": "Two scalar-x regression tests plus all six original Fred/Volt native clauses; original Volt bound restored to 10*vscale(F)*eps.",
+    "scope": "Only direct Fred/Volt actions; all other integral.py function ASTs unchanged. Constructor prerequisite overlays must be integrated first.",
+    "limitations": [
+      "Existing adaptive constructor has host Python scaffolding; new integrand arithmetic is JAX.",
+      "Python array columns use native quasimatrix column-wise interpretation.",
+      "Compatibility n keyword retained but does not select fixed quadrature; native direct action is adaptive.",
+      "No eigenoperator, Fourier proxy, AD behavior, complex or broad quasimatrix qualification claimed."
+    ],
+    "raw_source_hashes": {
+      "src/chebfunjax/operators/integral.py": "9860a4040bf9973a98a9bff8b99bfffac94cdc1580a7c6941c4572f0e1123789",
+      "src/chebfunjax/operators/_integral_direct_source.py": "97251c6730478e80ed262e5306fe9e8f2908977a2fca8d5a1a5f5f2c985a36f6",
+      "tests/test_matlab_port/chebfun/test_volt_matlab.py": "c354dfe68aa05869dcce37726b1b6d52fc8d48547268e6725cd222e2afaef349",
+      "tests/test_adaptive_integral_scalar_source.py": "a65810adbcd19e27726cece370d159b0ad4e8cf34078209316a5882171548d40"
+    }
+  },
+  "root_review": "Verified delivery/evidence hashes and unrelated function AST equality. Constructor prerequisites integrated. Added original Oxford attribution to module docstring only."
+}

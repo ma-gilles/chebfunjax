@@ -289,6 +289,11 @@ def public_construct(op, domain, pref, options):
     Native @chebfun/chebfun.m177–251, pin7574c77. Legacy singular/unbounded
     algorithms are retained by _chebfun_build, receiving the same normalized
     context rather than probing the operator again.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/chebfun.m (parseInputs/constructor dispatch).
+    Chebfun commit: 7574c77.
     """
     from chebfunjax.chebfun1d._construction import values_at_breakpoints
     from chebfunjax.chebfun1d.chebfun import Chebfun, _chebfun_build
@@ -321,7 +326,9 @@ def public_construct(op, domain, pref, options):
         store_metadata(result)
         return result
     # Parser validation follows the native empty and FUN-cell fast paths.
-    inspect.signature(_chebfun_build).bind(op, domain=domain, **options)
+    # VSCALE belongs to native construction data, not the legacy signature.
+    signature_options = {key: value for key, value in options.items() if key != 'vscale'}
+    inspect.signature(_chebfun_build).bind(op, domain=domain, **signature_options)
     # Python's coeffs=True adapter represents MATLAB's bare 'coeffs' mode,
     # which is accepted only for numeric coefficient input. Reject a callable
     # before vector_check invokes it or the coefficient builder treats the
@@ -340,6 +347,7 @@ def public_construct(op, domain, pref, options):
         legacy = dict(options)
         legacy.pop('doubleLength', None)
         legacy.pop('trunc', None)
+        legacy.pop('vscale', None)
         return _chebfun_build(current.op, domain=current.domain,
                              _construction_context=current, **legacy)
 

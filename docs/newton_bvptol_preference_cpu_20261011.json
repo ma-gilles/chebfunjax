@@ -1,0 +1,73 @@
+{
+  "scope": "Forward session ChebopPref.bvpTol only when public tol omitted; explicit tolerance retains precedence",
+  "base": {
+    "base": {
+      "head": "caf673c750a0d2db02c788243954db6858986bb6"
+    },
+    "overlay": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/DELIVERY.json",
+    "overlay_sha256": "f20107de4c6516f97cff3434b716c90c9a0df9b2f9f40d9d92bd10817e0a3646",
+    "reason": "maxIter pending parent integration; new patch stacks on that qualified public solve boundary"
+  },
+  "source": "@chebop/solvebvp.m parseInputs; solvebvpNonlinear.m28-31 and110-116 at7574c77",
+  "baseline": {
+    "original": 96880,
+    "result": "Session .01 ignored; actual bvpTol5e-13",
+    "seconds": 62.91,
+    "peak_kib": 977912
+  },
+  "candidate": {
+    "original": 36246,
+    "result": "24pass",
+    "seconds": 47.16,
+    "peak_kib": 1408756,
+    "unique_test_ids": [
+      "test_source_bvptol_preference_and_explicit_override[0.01-None-scalar]",
+      "test_source_bvptol_preference_and_explicit_override[0.01-None-parameter]",
+      "test_source_bvptol_preference_and_explicit_override[0.01-None-coupled]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-None-scalar]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-None-parameter]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-None-coupled]",
+      "test_source_bvptol_preference_and_explicit_override[0.01-5e-13-scalar]",
+      "test_source_bvptol_preference_and_explicit_override[0.01-5e-13-parameter]",
+      "test_source_bvptol_preference_and_explicit_override[0.01-5e-13-coupled]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-0.01-scalar]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-0.01-parameter]",
+      "test_source_bvptol_preference_and_explicit_override[5e-13-0.01-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[0-None-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[0-None-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[0-None-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-coupled]"
+    ],
+    "scope": "12 manufactured quadratic initial-acceptance/explicit-precedence cases across3adapters plus12 unchanged maxIter cases"
+  },
+  "change": "Public tol defaultsNone and resolves the session bvpTol alongside maxIter from one preference object. Factory5e-13 preserved; no changes to source200*bvpTol, stopping logic, constructor bounds, or explicit tolerance values.",
+  "static": "Configured Ruff passed source and new test; incremental patch applicability checked on recorded maxIter predecessor",
+  "limits": [
+    "Incremental delivery depends on reviewed maxIter package; do not apply standalone to pre-maxIter solve signature",
+    "No Carrier/full-suite/native rerun",
+    "Test .01 is deliberately chosen session input to exercise source initial-acceptance branch, not a relaxation of existing predicates",
+    "Session min/max dimensions and default discretization remain separate omissions"
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate/guard.json": "6d5a2f9e700658c7c3dde1a96980b5e91f1ab431279f04f287e7dcfd1f942839",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate/AUDIT.json": "0dae869d9c712a6d3d0532636c2a4bac6f19e074d6447bb7f3125286bf504b3d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate/junit.xml": "d8a44fee8644b6b8846c3c9f5ff1222630c75b4ca78581da34512b3db6fbcfa7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate/supervision/receipt.json": "965b448ad1922900d623eebcf766506ccc65e618a36e08775f5d6f8e605b5328",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate/supervision/stdout": "d8be78aab76c46e9fd3b2d69f003a65c72e6c1138838afd314e491a844f07719",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/baseline/guard.json": "62ed550f3c2df83d3a844d39d61c720c593330ac0145456344d767ab041c15e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/baseline/AUDIT.json": "cb1c3379ca40aebf574335647c948959cf22ce11b5d846e6665a1d33c9b94340",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/baseline/junit.xml": "de1387760dfc1f21a87137220ff1ed1f7050b2eef52665bb2d95840c3828fd42",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/baseline/supervision/receipt.json": "f4440dcf41f08ad9b8379ba4a47a6abe80038ceac4dbbc2c5fb11973d8f35e27",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/baseline/supervision/stdout": "4574260b824c833ba3166579f554e79e1954fe0acb3f45cce403fb12ea91d6f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/candidate.patch": "cc0a99af6c9901af799900e12e72ee5497771bb356bba070af9d66bd901f28e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/BASE.json": "23001ce223da81e67b956ff8703c9b6919e352f37add035670411156de9e86a9"
+  }
+}

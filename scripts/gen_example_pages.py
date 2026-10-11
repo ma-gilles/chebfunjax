@@ -227,7 +227,8 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
                     parts.append(_clean_para(txt))
 
     walk(root)
-    chunks = align_outputs(ref_blocks, ours)
+    chunks = align_outputs(ref_blocks, ours, require_slots=(cat, stem) ==
+                           ("ode-nonlin", "DelayDifferentialEquations"))
     for idx, k in pending:
         if ours is not None and not chunks[k] and ref_blocks[k] and \
                 ref_blocks[k][0].lstrip().startswith("Warning:"):
@@ -263,9 +264,48 @@ def _key(line: str) -> str:
     return s
 
 
-def align_outputs(ref_blocks, ours):
+def align_output_slots(ref_blocks, ours):
+    """Use explicit source slot markers; never infer section from value/label.
+
+    A captured run must print @@CHEBFUNJAX_OUTPUT_SLOT:N@@ before each
+    output cell, with one-based cached HTML output indices. Slot 0 closes
+    the final cell. Missing slots remain empty. Markers convey structure;
+    immutable source/run receipts are required separately for publication.
+    """
+    chunks = [[] for _ in ref_blocks]
+    active = None
+    seen = set()
+    for line in ours:
+        match = re.fullmatch(r"@@CHEBFUNJAX_OUTPUT_SLOT:(\d+)@@", line.strip())
+        if match:
+            slot = int(match.group(1))
+            if slot == 0:
+                active = None
+                continue
+            if not 1 <= slot <= len(ref_blocks) or slot in seen:
+                raise ValueError(f"invalid or repeated captured output slot {slot}")
+            seen.add(slot)
+            active = slot - 1
+        elif active is not None:
+            chunks[active].append(line.rstrip())
+        elif line.strip():
+            raise ValueError("captured stdout outside explicit output slot")
+    for chunk in chunks:
+        while chunk and not chunk[-1].strip():
+            chunk.pop()
+    return chunks
+
+
+def align_outputs(ref_blocks, ours, *, require_slots=False):
     """Split our stdout lines into one chunk per reference output block."""
     if ours is None:
+        return [[] for _ in ref_blocks]
+    marked = any(re.fullmatch(r"@@CHEBFUNJAX_OUTPUT_SLOT:\d+@@", ln.strip())
+                 for ln in ours)
+    if marked:
+        return align_output_slots(ref_blocks, ours)
+    if require_slots:
+        # Ambiguous repeated labels on this page cannot bind source sections.
         return [[] for _ in ref_blocks]
     lines = [ln.rstrip() for ln in ours]
     keys = [_key(ln) for ln in lines]
@@ -429,6 +469,7 @@ def main():
             ("complex", "ZetaZeros"),
             ("approx", "MinimaxSqrt"),
             ("approx", "Pushnitski"),
+            ("ode-nonlin", "DelayDifferentialEquations"),
             ("sphere", "LaplaceBall"),
             ("stats", "BivariateNormalDistribution"),
         }:

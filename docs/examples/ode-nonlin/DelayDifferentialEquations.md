@@ -6,6 +6,9 @@
 
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
+
+CPU output has been verified for the explicit discretizations, the first two pantograph solves, and the hand-written Newton iteration (nine output blocks). Remaining output blocks are marked pending because the previous capture placed results under unrelated examples. Figures retain their existing assets and await numerical and visual verification.
+
 ## Introduction
 
 Delay differential equations (DDEs) arise in a variety of areas, notably population dynamics, epidemiology, and control theory [1,2]. DDEs are typically first order initial value problems of the form $x'(t) = f(t, x(t), x(\tau(t)))$ with $\tau(t) \le t$, but there are also applications involving other delay types, as well as second- and higher-order DDEs and DDE boundary value problems [3,4].
@@ -92,7 +95,7 @@ plot(sol, '-', x, '.--', MS, 15)
 x =
    chebfun (1 smooth piece), length 4, endpoint values 1 1
 err =
-     8.097755411862403e-15
+     1.343508869424905e-14
 ```
 
 ![DelayDifferentialEquations figure 03](../../images/ode-nonlin/DelayDifferentialEquations_03.png)
@@ -114,7 +117,7 @@ plot(x), shg
 x =
    chebfun (1 smooth piece), length 12, endpoint values 1 0.6051
 res =
-     4.200003615415616e-14
+     2.258040540839184e-14
 ```
 
 ![DelayDifferentialEquations figure 04](../../images/ode-nonlin/DelayDifferentialEquations_04.png)
@@ -192,10 +195,7 @@ plot(sol, '-', x, '.--', MS, 15)
 ```
 
 ```text
-x =
-   chebfun (2 smooth pieces), length 5, endpoint values 1 2.125
-err =
-     5.454596774256970e-10
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 07](../../images/ode-nonlin/DelayDifferentialEquations_07.png)
@@ -212,13 +212,7 @@ plot(x), shg
 ```
 
 ```text
-x =
-   chebfun (6 smooth pieces), length 27, endpoint values 1 8.678
-res =
-     2.490939455865944e-11
-section 9 skipped: piecewise-composition performance wall
-err =
-     3.122471417077495e-15
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 08](../../images/ode-nonlin/DelayDifferentialEquations_08.png)
@@ -244,8 +238,7 @@ plot(x), shg
 ```
 
 ```text
-x =
-   chebfun (1 smooth piece), length 13, endpoint values 1 0.8865
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 10](../../images/ode-nonlin/DelayDifferentialEquations_10.png)
@@ -283,21 +276,7 @@ err = norm(x - sol(t))
 
 ```text
 err =
-     2.021291558840558e-14
-ndu =
-   2.30960247147036
-ndu =
-   0.631236336901686
-ndu =
-   0.0994971908120973
-ndu =
-   0.000357774713549831
-ndu =
-   2.79143041040969e-08
-ndu =
-   6.20026836750792e-16
-res =
-     3.393186493055684e-15
+     3.122471417077495e-15
 ```
 
 ![DelayDifferentialEquations figure 12](../../images/ode-nonlin/DelayDifferentialEquations_12.png)
@@ -314,8 +293,7 @@ plot(sol, '-', x, '.--', MS, 15)
 ```
 
 ```text
-x =
-   chebfun (1 smooth piece), length 16, endpoint values 1 0.4044
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 13](../../images/ode-nonlin/DelayDifferentialEquations_13.png)
@@ -353,7 +331,18 @@ plot(t, x), shg
 ```
 
 ```text
-(no matching output)
+ndu =
+   2.30960247147036
+ndu =
+   0.631236336901686
+ndu =
+   0.0994971908120973
+ndu =
+   0.000357774713549831
+ndu =
+   2.79143041040969e-08
+ndu =
+   6.20026836750792e-16
 ```
 
 ![DelayDifferentialEquations figure 14](../../images/ode-nonlin/DelayDifferentialEquations_14.png)
@@ -367,7 +356,7 @@ res = norm(diff(x) + x(x))
 
 ```text
 res =
-     1.929124857620418e-15
+     3.385446720414506e-15
 ```
 
 Again, the same problem can be easily solved in Chebfun:
@@ -407,12 +396,7 @@ err = norm(y - sol)
 ```
 
 ```text
-y =
-   chebfun (1 smooth piece), length 24, endpoint values 1 0.5
-err =
-     5.551115123125783e-16
-delayed system err =
-     4.261463489958990e-14
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 16](../../images/ode-nonlin/DelayDifferentialEquations_16.png)
@@ -435,15 +419,7 @@ err = norm(y - [sin(t);cos(t)])
 ```
 
 ```text
-y =
-   chebfun (1 smooth piece), length 4, endpoint values 0 1
-err =
-     4.440892098500626e-16
-section 17 skipped: piecewise-composition performance wall
-u =
-   chebfun (1 smooth piece), length 14, endpoint values 0.3679 2.718
-err =
-     1.865174681370263e-14
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 17](../../images/ode-nonlin/DelayDifferentialEquations_17.png)
@@ -464,10 +440,7 @@ err = norm(y - sol)
 ```
 
 ```text
-y =
-   chebfun (1 smooth piece), length 15, endpoint values 1 0.1353
-err =
-     2.893074668719464e-12
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 18](../../images/ode-nonlin/DelayDifferentialEquations_18.png)
@@ -511,15 +484,7 @@ err = norm(sol-u)
 ```
 
 ```text
-u =
-   chebfun (1 smooth piece), length 12, endpoint values 0.2683 0.2683
-res =
-     1.152459774258225e-15
-section 21 skipped: piecewise-composition performance wall
-u{1} =
-   chebfun (1 smooth piece), length 39, endpoint values 8.882e-16 1.609
-err =
-     1.170021796579212e-15
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 20](../../images/ode-nonlin/DelayDifferentialEquations_20.png)
@@ -539,7 +504,7 @@ plot(sol, '-', y, '.--', MS, 15)
 ```
 
 ```text
-
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 21](../../images/ode-nonlin/DelayDifferentialEquations_21.png)
@@ -559,7 +524,7 @@ plot(u), shg
 ```
 
 ```text
-
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 22](../../images/ode-nonlin/DelayDifferentialEquations_22.png)
@@ -586,7 +551,7 @@ err = norm(x(sol.x) - sol.y(1,:))
 ```
 
 ```text
-
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 23](../../images/ode-nonlin/DelayDifferentialEquations_23.png)
@@ -607,7 +572,7 @@ err = norm(u - sol)
 ```
 
 ```text
-
+(no matching output)
 ```
 
 ![DelayDifferentialEquations figure 24](../../images/ode-nonlin/DelayDifferentialEquations_24.png)

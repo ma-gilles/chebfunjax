@@ -1,0 +1,162 @@
+{
+  "scope": "Public Chebop.solve session minDimension/maxDimension forwarding only; no Newton arithmetic, tolerance, discretization or private schedule changes.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "predecessor": {
+    "predecessor": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_bvptol_preference_20261011/DELIVERY.json",
+    "sha256": "ea5ba6114da708517adffa63c4a1b2446573be087293280fbc74a617b9aa27df"
+  },
+  "gates": {
+    "baseline": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/baseline/AUDIT.json",
+      "audit_sha256": "cce570c5aa6a8e8b2593f4bb523f5649dfa87460dfed44dc34c6bb17268c94a1",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/baseline/junit.xml",
+      "junit_sha256": "7898c75b4cf3c84dcf73546077d297a6f7aaee05cbe14d5c5b2c09db2a69e054",
+      "summary": {
+        "original": 58152,
+        "terminal": 1,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 981700,
+        "wall_seconds": 13.186623761896044
+      },
+      "passed_ids": [],
+      "failed_ids": [
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-scalar]"
+      ]
+    },
+    "candidate": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/candidate/AUDIT.json",
+      "audit_sha256": "e8414f84b5165a6fa3b69e5cb3e0951701ee7ea254676a8a8d1fd47bcf75dbb2",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/candidate/junit.xml",
+      "junit_sha256": "0027a5da4e46dddbf6601629ed358230fac4f961403f331e4a736c7c3803b298",
+      "summary": {
+        "original": 83779,
+        "terminal": 1,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1580240,
+        "wall_seconds": 26.30827440880239
+      },
+      "passed_ids": [
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-parameter]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs0-expected0]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs1-expected1]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs2-expected2]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs3-expected3]",
+        "test_newton_dimension_preference::test_factory_dimensions_unchanged",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-None-scalar]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-None-parameter]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-None-coupled]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-None-scalar]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-None-parameter]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-None-coupled]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-5e-13-scalar]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-5e-13-parameter]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[0.01-5e-13-coupled]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-0.01-scalar]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-0.01-parameter]",
+        "test_newton_bvptol_preference::test_source_bvptol_preference_and_explicit_override[5e-13-0.01-coupled]"
+      ],
+      "failed_ids": [
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-coupled]"
+      ]
+    },
+    "candidate_v2": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/candidate_v2/AUDIT.json",
+      "audit_sha256": "dad005e827e857831a693728c410a7c10c51c7908a161c86c11b1bb70ac3ef82",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/candidate_v2/junit.xml",
+      "junit_sha256": "d248438033d0875a0ff28e3a31cdf00be8ef9303ef59d436ded3b2a500b612bd",
+      "summary": {
+        "original": 20970,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1570748,
+        "wall_seconds": 24.476792030967772
+      },
+      "passed_ids": [
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[8-kwargs0-8-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs1-16-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs2-8-coupled]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-scalar]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-parameter]",
+        "test_newton_dimension_preference::test_session_dimensions_actual_newton_grid[16-kwargs3-8-coupled]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs0-expected0]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs1-expected1]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs2-expected2]",
+        "test_newton_dimension_preference::test_independent_public_dimension_precedence[kwargs3-expected3]",
+        "test_newton_dimension_preference::test_factory_dimensions_unchanged"
+      ],
+      "failed_ids": []
+    },
+    "resolved_control": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/resolved_control/AUDIT.json",
+      "audit_sha256": "057a25584a93fe19c687496f03aace382e13715c3cb9885862ecef5da5fa8242",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/resolved_control/junit.xml",
+      "junit_sha256": "29e4169fe810780efd682c622cd68674822d0b3ce808e96e6e3cf3e7c07dcebb",
+      "summary": {
+        "original": 8608,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 1275340,
+        "wall_seconds": 23.732347505632788
+      },
+      "passed_ids": [
+        "test_newton_dimension_resolved::test_session_dimensions_resolved_newton_grid[scalar]",
+        "test_newton_dimension_resolved::test_session_dimensions_resolved_newton_grid[parameter]",
+        "test_newton_dimension_resolved::test_session_dimensions_resolved_newton_grid[coupled]"
+      ],
+      "failed_ids": []
+    }
+  },
+  "qualified_unique_tests": 32,
+  "qualification_detail": "20 new dimension controls (17 corrected source exhaustion/precedence tests and3 actual converged grid32 tests), plus12 unchanged bvpTol controls passed within preserved first candidate gate. Candidate library bytes identical across all candidate gates.",
+  "source_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/SOURCE_ROUTING_REVIEW.json",
+    "sha256": "f084332c49acc89daefc8048a76042ee30c261bcd4da99378b03b408bf1acc76"
+  },
+  "test_correction": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/TEST_CORRECTION.json",
+    "sha256": "d4d4af3ee65e25bd95493761c16b264ed9c13aa2fe781ee363e896f7dd872dd4"
+  },
+  "environment": {
+    "cpu_affinity": "4-7",
+    "wall_cap_seconds": 180,
+    "rss_cap_mib": 3072,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "x64": true,
+    "cuda_visible_devices": "",
+    "env_script": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pinned_cpu_env.sh"
+  },
+  "static_checks": [
+    "P-config Ruff passed changed source and both delivered test files",
+    "git apply --check against P passed; no P edits"
+  ],
+  "limits": [
+    "No native execution or Carrier rerun needed for direct source preference assignment.",
+    "Legacy piecewise/system fallback kwargs remain incomplete; source routing review records exact scope.",
+    "Session discretization remains a separate omission; factory periodic routing must be preserved."
+  ]
+}

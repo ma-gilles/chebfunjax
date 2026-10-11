@@ -23,7 +23,7 @@ class TestChebfunVolt:
 
         f = cj.chebfun(jnp.sin)
         F = cj.volt(K, f)
-        vs = max(float(F.vscale), 0.3)
+        vs = float(F.vscale)
         # pass(1)-(2): V4 reference values
         assert abs(float(F(jnp.asarray(0.5))) - (-0.013808570536509)) \
             < 10 * vs * np.finfo(float).eps
