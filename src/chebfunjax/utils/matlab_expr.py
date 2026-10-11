@@ -15,7 +15,30 @@ Original authors: Copyright 2017 by The University of Oxford
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
+
+
+def _source_log(x):
+    """MATLAB numeric log, including eager negative-real continuation.
+
+    Eager values preserve MATLAB's data-dependent real/complex dtype.
+    Real traced values retain the fixed-real JAX contract: negative traced
+    values produce NaN; pass complex inputs for traced complex continuation.
+    This avoids silently changing positive-domain traced output storage.
+
+    Provenance
+    ----------
+    MATLAB source: numeric log used by @chebfun/chebfun.m string operators.
+    Chebfun commit: 7574c77.
+    Eager dtype dispatch follows utils/_ratbary.py's source log fallback.
+    """
+    x = jnp.asarray(x)
+    if not isinstance(x, jax.core.Tracer) and not jnp.iscomplexobj(x):
+        if bool(jax.device_get(jnp.any(x < 0))):
+            x = x.astype(jnp.result_type(x, 1j))
+    return jnp.log(x)
+
 
 _FUNS = {name: getattr(jnp, jname) for name, jname in [
     ("sin", "sin"), ("cos", "cos"), ("tan", "tan"), ("exp", "exp"),
@@ -23,7 +46,12 @@ _FUNS = {name: getattr(jnp, jname) for name, jname in [
     ("sinh", "sinh"), ("cosh", "cosh"), ("tanh", "tanh"),
     ("asin", "arcsin"), ("acos", "arccos"), ("atan", "arctan"),
 ]}
+_FUNS["log"] = _source_log
 _FUNS["pi"] = jnp.pi
+# MATLAB numeric heaviside has half value at zero; source @chebfun/
+# heaviside.m likewise uses 0.5*(sign(f)+1). Register the name so
+# _string_op does not mistake it for the expression variable.
+_FUNS["heaviside"] = lambda x: jnp.heaviside(x, 0.5)
 
 
 def matlab_expression(expr: str, var_names: tuple[str, ...]):

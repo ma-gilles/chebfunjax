@@ -1,0 +1,17 @@
+{
+  "scope": "Eager numeric MATLAB log continuation and heaviside registration for string constructors.",
+  "base_head": "f35cd8b1b8da21be36ff251f3bf634cc8a70f899",
+  "control_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/namespace_controls_v1",
+  "controls": "Nine scoped checks within one process; primitive positive/negative/mixed/zero/complex, positive/traced-negative JIT contract, two string operators and actual positive/negative fixed Chebfun constructors.",
+  "scientific_assertion_AST": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/integration_candidate/PACKAGING_AST.json",
+  "limits": [
+    "Traced real negative log remains fixed-real JAX NaN; use complex traced inputs for continuation. No global JIT parity claim.",
+    "Pushnitski fullpage remains incomplete at4GiB cap; this namespace qualification does not qualify its12fits."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/namespace_controls_v1/AUDIT.json": "2891712aad72df73ba605d4ff1f215ce3613bbbec88673bf5aa9ed4a6a201fdd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/namespace_controls_v1/RESULT.json": "4ab59c40893b7a3ea326c525e405837a3b84a91e3023277c0b2a678f2522c683",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/namespace_controls_v1/guard.json": "4beb872c3438591a77947a734a3f94edb0595bcbf24725798a2982480b55bcaf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pushnitski_full_source_20261011/integration_candidate/PACKAGING_AST.json": "a98465c3444aeaba4c46284805227f1985884aa70dbf9400bc678e06c2e3648d"
+  }
+}
