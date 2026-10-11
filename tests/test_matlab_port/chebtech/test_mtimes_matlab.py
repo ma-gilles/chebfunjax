@@ -1,6 +1,8 @@
 """Port of MATLAB Chebfun tests/chebtech/test_mtimes.m (Fable 5).
 
-All12 MATLAB assertion groups are ported for both tech kinds. Python ``@``
+Supplemental variants cover12 assertion groups for both tech kinds.
+The exact native seed stream and sequential matrix inputs are covered in
+``test_mtimes_native_source.py``. Python ``@``
 spells MATLAB MTIMES; Python ``*`` retains pointwise TIMES, including numeric
 row-vector column scaling. Error checks preserve both the source identifier
 and the exact source message. Numeric-left and Tech-left empty arguments are

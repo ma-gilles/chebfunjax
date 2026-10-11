@@ -1,0 +1,63 @@
+{
+  "scope": "12 native MTIMES predicate groups perTech,24total",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_base": "47b52da8",
+  "native_all24_pass": true,
+  "python_all24_pass": true,
+  "input_restoration": [
+    "Native seed6178 uniform100 replaces legacy evenly spaced samplegrid",
+    "Native normal2 complexalpha replaces fixedscalar",
+    "Two sequential native3x3normal matrices replace independent NumPy draws",
+    "Source two-column f retained for tech-product/uint8 errorclauses"
+  ],
+  "contracts": "Publicisequal,exactzero coefficients,source vscale bounds,maximumabsolute entries and erroridentifiers/messages retained. Python @ spellsMATLABMTIMES. Nx1vectors use1Dstorage.",
+  "tests": "Original alternate-input probes remain with executableAST unchanged; newsource24 file formatted with exact ASTidentity.",
+  "runtime": {
+    "pytest_exit": 0,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "x64": true
+  },
+  "native_runtime_guarded_files": 34,
+  "limits": "Captured RNG inputs are test fixtures only. No production RNG implementation or full native library parity claim. Profile observes runtime source files rather than exhaustive prospective licensed closure.",
+  "cohorts": {
+    "native": {
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": [],
+      "wall_seconds": 88.17399480892345,
+      "sampled_peak_summed_rss_kib": 1487800
+    },
+    "python": {
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": [],
+      "wall_seconds": 15.639085304923356,
+      "sampled_peak_summed_rss_kib": 1162276
+    }
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/guard.json": "bf3e7d1b656e88112b6e89793467aff2036d6d0b246cc12020c4fbb27b1d1551",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/observe.py": "650e097707e3b1ffe8a43ef9ebc13f3fc8c3a693215fd25bfc5b273b182c9e19",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/launch.sh": "742e7ed91d081d7f50521d6e164fbbfb0556d44e9c69e30e48317b6b5e81a804",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/supervision/receipt.json": "550c068853c1caa9847f124622c22c3c937c20a374b93944aff3ebbe0aa79151",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/supervision/stdout": "721d21664c24e9802dd0d32b661417179880b3f942d8c1b029ab7b416c5930f6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/RESULT.json": "90ccd3bd3f4d2a15387ddea0b2cd4f047c08a4de6e7be00859ffcbc52a85902c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/gate/RUNTIME_SOURCE_END.json": "3b2aa98fea1acd2dbe191cc6ce80585b209020347a983ef81a5ae3024a910ae7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/capture.mat": "0eab8077d4b97ad6ccaf24acbe661af10e76001c43819ccfaa857574ad511268",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/result.json": "85b6ec39e82b01ba277a74749d20e07d006721629d616fb7e739cee65cc885ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/capture_mtimes.m": "9a32eff251b6a79895a4cc7050b735eb27668c2c8a448a864bedab907fd2e619",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/probe.m": "243d686d32be9d025dc4b0ba5df0954e8f53ac7bd3025bb722904d6b8e80c353",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/driver.m": "8dcfbfb7c0e097648b9f8b8914a3b25bc5cd0572f0f2ea8bda7fd8fc0eb9c498",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/guard.json": "ef342576ed094678540824d3b2107c8c4c97e79e5900031d645538fcec5769b2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/INSTRUMENTATION.json": "dbba7fa2404bfff08a85789f70337b3f33576f93993f0112fa40478c887a5e67",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/AUDIT.json": "dc61128221af4e31ddbe22f4538a13c34284ba978a9acc5acf09e44e897309fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/runtime_profile.json": "d08b50a06ff3887a396a1214aac3cfa121d74803baef72e6442c57a2e245ac63",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tmt1/supervision/receipt.json": "1c4def4aa808277c23f800006b57e8e9e14cc92d3fb4c9a960419ac872edf702",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/candidate/tests/test_mtimes_native_source.py": "4f2fb3a61d6a696f373b29da14332a8688eeda2d3cbebfc97b70899dcf338e2d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_mtimes_native24_20261011/candidate/tests/fixtures/mtimes_native_rng.json": "784ad28edd96d8550004d3ea7ad937a4524f665dab17157cf674384bd7d2f0f6"
+  }
+}
