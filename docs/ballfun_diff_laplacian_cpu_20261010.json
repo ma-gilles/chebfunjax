@@ -1,0 +1,45 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Restore all eight ballfun/test_diff.m function-norm predicates with unchanged100eps, and test_laplacian.m norm predicate with unchanged1e6eps. Retain historical sampled point controls as supplemental.",
+  "source": "Library unchanged in this package; qualified frozenb2d20df7.",
+  "results": "Original57908 eightpass28.03spytest; original38996 onepass8.48s. Nine original predicates total; no skips, no caps, no survivors.",
+  "gates": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_diff_predicates_20261010/gate",
+      "inputs_rehashed": 338,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 36.478153785225004,
+        "sampled_peak_summed_rss_kib": 2161596,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "17335f6e61ea3ec77deabb0ca01b67518a272b3deb5586322e65c19818762e99",
+        "junit.xml": "2044d2b4ded2a7ce6c493706b5b0a8f822a00b7c4b7ffa34b0f2ad28089ee276",
+        "supervision/stdout": "fc93e054a33ab1067f01177b13b2a51f39241a0e8e66ee84dc06b1a941b8ed8a",
+        "supervision/receipt.json": "a56df7b525e6c7fbb9e98b78022e62a7733ab46fc6fb3277e2af2f66b7eda3ce"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_laplacian_predicate_20261010/gate",
+      "inputs_rehashed": 339,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 15.65931244706735,
+        "sampled_peak_summed_rss_kib": 1059808,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "feaae6c903036d295f38800494fdbd859196682bd5e073a62da0fb6563573061",
+        "junit.xml": "98047e87994e65704350f07fd230ff1a1aa94b68e09c76867af7aaf791e8234f",
+        "supervision/stdout": "fc555f0a0781e8f795865cdf372aea7b0a7acceb65f6febcfd8d85c1beccbb6e",
+        "supervision/receipt.json": "51aa14784d90d990db9c940fa074bec69ef94a4ea2f7a9121c792557ce3cf80b"
+      }
+    }
+  ],
+  "scope": "These native predicates only; full current main suite and all MATLAB test parity remain open."
+}

@@ -27,3 +27,11 @@ class TestBallfunLaplacian:
         # lap(r^2) = 6
         f = Ballfun.from_function(lambda x, y, z: x * x + y * y + z * z)
         assert abs(val(f.laplacian()) - 6.0) < 1e-8
+
+
+def test_original_laplacian():
+    from chebfunjax.chebpref import ChebfunPref
+    tol = 1e6 * ChebfunPref().techPrefs.chebfuneps
+    f = Ballfun.from_function(lambda x, y, z: x**2+y**2+z**2)
+    exact = Ballfun.from_function(lambda x, y, z: 6)
+    assert (f.laplacian() - exact).norm() < tol
