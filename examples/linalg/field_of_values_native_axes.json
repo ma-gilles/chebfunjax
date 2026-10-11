@@ -9,7 +9,11 @@
       "MS18": 3,
       "MS24": 3.52
     },
-    "marker_adapter_residual": "Public adapter MS24 radius4 differs native3.52; left unchanged pending source-derived rule"
+    "marker_adapter_residual": "Resolved by independently qualified R2024b CPU/Painters geometry adapter; original3.52 is filled disk radius, fullMS24extent3.77 includes outline.",
+    "native_svg_dot_full_radii": {
+      "MS18": 3,
+      "MS24_default_LineWidth0.5": 3.77
+    }
   },
   "figures": {
     "1": {

@@ -1,0 +1,49 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Observed MATLAB R2024b CPU/Painters dot geometry; not universal renderer or full raster/font parity.",
+  "change": "Preserve nominal marker and line properties; match independently captured dot radii and outlines. Branch selection matches float32 rounding of MarkerSize at 21. Nonpositive/nonfinite Python sizes retain the prior adapter.",
+  "validation": {
+    "independent_native_geometry_cases": 72,
+    "v3_checks_passed": 75,
+    "v3_pytest_seconds": 2.79,
+    "v4_focused_checks_passed": 2,
+    "v4_pytest_seconds": 2.11,
+    "reuse": "Positive branch AST identical to v3; no repeated native calculations. Four FOV images rendered from retained actual Python XY; only images 2 and 3 changed.",
+    "bound": "5.1e-5 points accounts for native SVG coordinates exported to four decimal places; no numerical-library tolerance changed."
+  },
+  "limitations": [
+    "Initial native sweep saved all graphics and MAT data before a redundant JSON serializer failed. First boundary attempt failed before exports; corrected successor completed. Failed receipts retained.",
+    "MarkerSize remains double in native handles; downstream float32 branch selection is inferred from midpoint probes.",
+    "Geometry qualified at 72 and 144 dpi, not every MATLAB version or graphics backend."
+  ],
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v3_20261011/REPORT.json",
+      "sha256": "303e75fb956f5e4f76a9e9daecbe75d5dfbcdd0b6e7139d466565ac1ce426d08"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v3_20261011/BINDINGS.json",
+      "sha256": "f3591b94caa76a25e11d208775ca2b37926d8b538c7511f7638041151d874794"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v4_20261011/REPORT.json",
+      "sha256": "59bccecdf9b87ed49707623365da41b6ab3ff19d81722cf6257d9be272962a62"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v4_20261011/BINDINGS.json",
+      "sha256": "c592d7797167db1d80f8ae13354a01b08182c68cc61f0d67ae656d91fa5b2aec"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v4_20261011/AST_REUSE.json",
+      "sha256": "28d294671f7c85a320713e4ce20100ddcecd8f47d8dfe8a2d1e4b7d54556e746"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v3_20261011/ROOT_PUBLICATION_REVIEW.json",
+      "sha256": "42abc061f82848f8d7717701ed64a0d1ba92e3bb2ad23210b7baa5b0107d608f"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_adapter_delivery_v4_20261011/ROOT_PUBLICATION_REVIEW.json",
+      "sha256": "145e30e67a3dab736b5bde8d4085b646c23b915d06a09bbb14e5c5bda27689a9"
+    }
+  ]
+}

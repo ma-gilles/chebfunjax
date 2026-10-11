@@ -1,0 +1,198 @@
+{
+  "status": "Integrated over88a41f52; source AST matches qualified candidate, new test import ordering normalized.",
+  "base_commit": "72fb0089",
+  "scope": "Restore native noVectorCheck in public compositional inverse, using existing constructor normalization flag and permitting it through public parser validation. No numerical algorithm/tolerance changes.",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_no_vector_check_20261011/inverse_no_vector_check.patch",
+  "native_reference": "@chebfun/inv.m pin7574c77, all six constructor algorithm branches pass noVectorCheck",
+  "gates": {
+    "reproducer": {
+      "command_exit_code": 1,
+      "wall_seconds": 8.76765467878431,
+      "sampled_peak_summed_rss_kib": 686960,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "qualification": {
+      "command_exit_code": 1,
+      "wall_seconds": 25.934096760116518,
+      "sampled_peak_summed_rss_kib": 1333736,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "qualification_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 56.38649518508464,
+      "sampled_peak_summed_rss_kib": 2258284,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "benchmark_baseline_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 41.09332208707929,
+      "sampled_peak_summed_rss_kib": 1746596,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "benchmark_candidate_v2_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 41.19516600109637,
+      "sampled_peak_summed_rss_kib": 1740208,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "test_result": "30 passed: 6 new dispatch controls and24 unchanged original/existing inverse cases",
+  "retained_failures": "Baseline control fails at native-forbidden vectorCheck. Candidate v1 fails27 due dormant vector_check flag rejected by public signature validation; v2 fixes parser-only option forwarding.",
+  "benchmark": {
+    "baseline": {
+      "status": "passed",
+      "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+      "setup_seconds": 17.727369057014585,
+      "calls": [
+        {
+          "phase": "inverse_first",
+          "seconds": 18.17654670588672,
+          "length": 8878
+        },
+        {
+          "phase": "inverse_warm",
+          "seconds": 0.5671299579553306,
+          "length": 8878
+        }
+      ],
+      "roundtrip_error": 1.0547118733938987e-15,
+      "output_hashes": [
+        [
+          "5a7e4acd194df2cbda5286d1ffa8be1cde7769a5e6b4f7b98417f456df61eb36"
+        ],
+        [
+          "5a7e4acd194df2cbda5286d1ffa8be1cde7769a5e6b4f7b98417f456df61eb36"
+        ]
+      ],
+      "roundtrip_values_sha256": "d0e3396e2e902cb7f06514c37966a5c5aca65bf7e46f86ac15601a37a71931db",
+      "affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "x64": true,
+      "persistent_cache_dir": null,
+      "brent_batches": [
+        [
+          2
+        ],
+        [
+          4097
+        ],
+        [
+          4096
+        ],
+        [
+          8192
+        ],
+        [
+          2
+        ],
+        [
+          2
+        ],
+        [
+          4097
+        ],
+        [
+          4096
+        ],
+        [
+          8192
+        ],
+        [
+          2
+        ]
+      ],
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_no_vector_check_20261011/baseline/src/chebfunjax/__init__.py"
+    },
+    "candidate": {
+      "status": "passed",
+      "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+      "setup_seconds": 17.76594144338742,
+      "calls": [
+        {
+          "phase": "inverse_first",
+          "seconds": 18.39085330022499,
+          "length": 8878
+        },
+        {
+          "phase": "inverse_warm",
+          "seconds": 0.572475076187402,
+          "length": 8878
+        }
+      ],
+      "roundtrip_error": 1.0547118733938987e-15,
+      "output_hashes": [
+        [
+          "5a7e4acd194df2cbda5286d1ffa8be1cde7769a5e6b4f7b98417f456df61eb36"
+        ],
+        [
+          "5a7e4acd194df2cbda5286d1ffa8be1cde7769a5e6b4f7b98417f456df61eb36"
+        ]
+      ],
+      "roundtrip_values_sha256": "d0e3396e2e902cb7f06514c37966a5c5aca65bf7e46f86ac15601a37a71931db",
+      "affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "x64": true,
+      "persistent_cache_dir": null,
+      "brent_batches": [
+        [
+          4097
+        ],
+        [
+          4096
+        ],
+        [
+          8192
+        ],
+        [
+          2
+        ],
+        [
+          4097
+        ],
+        [
+          4096
+        ],
+        [
+          8192
+        ],
+        [
+          2
+        ]
+      ],
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_no_vector_check_20261011/candidate_v2/src/chebfunjax/__init__.py"
+    }
+  },
+  "identity": "All three retained npz files byte-identical across arms; same inverse coefficients and129 roundtrip values. Actual Brent batch prefix2 removed each call.",
+  "limits": [
+    "One serial shared-host pair; no latency improvement observed (candidate first18.3909s vs18.1765s baseline; warm0.57248s vs0.56713s).",
+    "No compiler profiling, statistical speed claim, fresh MATLAB timing or full-suite claim.",
+    "Flower forward construction uses same code and expression across arms; forward coefficients were not separately captured.",
+    "Source and test Python files plus driver were guarded; pytest pyproject copied unchanged but not included in original runtime guards."
+  ],
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_no_vector_check_20261011/DELIVERY.json": "6326db53a87eb68dfba1171241c5a3c86e7c6c81a0c072998820242ebcdf2fcb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_no_vector_check_20261011/ROOT_REVIEW.json": "3f96053939e8b42d2c62f90c176fd47d8b14cf0b3bd01db4e7a0ae19fb113ec0"
+  }
+}

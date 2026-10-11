@@ -1,0 +1,558 @@
+{
+  "backend": "MATLAB R2024b CPU Painters",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_inputs": [
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_size_sweep_r2024b_20261011",
+      "guard_sha256": "26526e46ab1281e8900969f5348cf79162d8749799c505c116a22e338419abe8",
+      "receipt_sha256": "dd35e47a20db5da5a128940bf7c1a3afdbdc6e66e3222a3b14132f57b7bfd0f7"
+    },
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_boundary_v2_r2024b_20261011",
+      "guard_sha256": "cf5a36195cd4fee9d5e641a7ff219b169a2465bbf96e5f27aabd1fa0e211d977",
+      "receipt_sha256": "2af9ec1ec22d5cfe27b43bf6991cead51586893088f04052f2ed2fcd6895e687"
+    },
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_threshold_r2024b_20261011",
+      "guard_sha256": "5fff68f6cb52a8d904fe6228383d897e848da808cfa7acfaf18fcc5cac43bac7",
+      "receipt_sha256": "7fa7d1475b64711808d271de93a8520a09c78ce3a06a8bab16f8edebe6852acc"
+    },
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_dot_float_boundary_r2024b_20261011",
+      "guard_sha256": "de9d20c314405953450e923fac9638033db0f788b12943828ff0a3cc439d19d1",
+      "receipt_sha256": "185fd37ea4bcfb9bd2abd17b010f7dbac73a7feedc42064ed3cc18c6c3fcbe64"
+    }
+  ],
+  "geometry": [
+    {
+      "size": 1,
+      "line_width": 0.5,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 2,
+      "line_width": 0.5,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 4,
+      "line_width": 0.5,
+      "circle_radius": 0.6667,
+      "outer_extent_radius": 0.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 6,
+      "line_width": 0.5,
+      "circle_radius": 1.0,
+      "outer_extent_radius": 1.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 8,
+      "line_width": 0.5,
+      "circle_radius": 1.3333,
+      "outer_extent_radius": 1.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 12,
+      "line_width": 0.5,
+      "circle_radius": 2.0,
+      "outer_extent_radius": 2.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 16,
+      "line_width": 0.5,
+      "circle_radius": 2.6667,
+      "outer_extent_radius": 2.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 18,
+      "line_width": 0.5,
+      "circle_radius": 3.0,
+      "outer_extent_radius": 3.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 20,
+      "line_width": 0.5,
+      "circle_radius": 3.3333,
+      "outer_extent_radius": 3.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 24,
+      "line_width": 0.5,
+      "circle_radius": 3.52,
+      "outer_extent_radius": 3.77,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 3.27,
+      "outer_annulus_radius": 3.77
+    },
+    {
+      "size": 30,
+      "line_width": 0.5,
+      "circle_radius": 4.4,
+      "outer_extent_radius": 4.65,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 4.15,
+      "outer_annulus_radius": 4.65
+    },
+    {
+      "size": 36,
+      "line_width": 0.5,
+      "circle_radius": 5.28,
+      "outer_extent_radius": 5.53,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 5.03,
+      "outer_annulus_radius": 5.53
+    },
+    {
+      "size": 1,
+      "line_width": 1.6,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 2,
+      "line_width": 1.6,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 4,
+      "line_width": 1.6,
+      "circle_radius": 0.6667,
+      "outer_extent_radius": 0.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 6,
+      "line_width": 1.6,
+      "circle_radius": 1.0,
+      "outer_extent_radius": 1.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 8,
+      "line_width": 1.6,
+      "circle_radius": 1.3333,
+      "outer_extent_radius": 1.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 12,
+      "line_width": 1.6,
+      "circle_radius": 2.0,
+      "outer_extent_radius": 2.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 16,
+      "line_width": 1.6,
+      "circle_radius": 2.6667,
+      "outer_extent_radius": 2.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 18,
+      "line_width": 1.6,
+      "circle_radius": 3.0,
+      "outer_extent_radius": 3.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 20,
+      "line_width": 1.6,
+      "circle_radius": 3.3333,
+      "outer_extent_radius": 3.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 24,
+      "line_width": 1.6,
+      "circle_radius": 3.52,
+      "outer_extent_radius": 4.32,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 2.72,
+      "outer_annulus_radius": 4.32
+    },
+    {
+      "size": 30,
+      "line_width": 1.6,
+      "circle_radius": 4.4,
+      "outer_extent_radius": 5.2,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 3.6,
+      "outer_annulus_radius": 5.2
+    },
+    {
+      "size": 36,
+      "line_width": 1.6,
+      "circle_radius": 5.28,
+      "outer_extent_radius": 6.08,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 4.48,
+      "outer_annulus_radius": 6.08
+    },
+    {
+      "size": 1,
+      "line_width": 1.0,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 2,
+      "line_width": 1.0,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 4,
+      "line_width": 1.0,
+      "circle_radius": 0.6667,
+      "outer_extent_radius": 0.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 6,
+      "line_width": 1.0,
+      "circle_radius": 1.0,
+      "outer_extent_radius": 1.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 8,
+      "line_width": 1.0,
+      "circle_radius": 1.3333,
+      "outer_extent_radius": 1.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 12,
+      "line_width": 1.0,
+      "circle_radius": 2.0,
+      "outer_extent_radius": 2.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 16,
+      "line_width": 1.0,
+      "circle_radius": 2.6667,
+      "outer_extent_radius": 2.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 18,
+      "line_width": 1.0,
+      "circle_radius": 3.0,
+      "outer_extent_radius": 3.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 20,
+      "line_width": 1.0,
+      "circle_radius": 3.3333,
+      "outer_extent_radius": 3.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 24,
+      "line_width": 1.0,
+      "circle_radius": 3.52,
+      "outer_extent_radius": 4.02,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 3.02,
+      "outer_annulus_radius": 4.02
+    },
+    {
+      "size": 30,
+      "line_width": 1.0,
+      "circle_radius": 4.4,
+      "outer_extent_radius": 4.9,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 3.9,
+      "outer_annulus_radius": 4.9
+    },
+    {
+      "size": 36,
+      "line_width": 1.0,
+      "circle_radius": 5.28,
+      "outer_extent_radius": 5.78,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 4.78,
+      "outer_annulus_radius": 5.78
+    },
+    {
+      "size": 1,
+      "line_width": 3.0,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 2,
+      "line_width": 3.0,
+      "circle_radius": 0.5,
+      "outer_extent_radius": 0.5,
+      "primitive": "disk"
+    },
+    {
+      "size": 4,
+      "line_width": 3.0,
+      "circle_radius": 0.6667,
+      "outer_extent_radius": 0.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 6,
+      "line_width": 3.0,
+      "circle_radius": 1.0,
+      "outer_extent_radius": 1.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 8,
+      "line_width": 3.0,
+      "circle_radius": 1.3333,
+      "outer_extent_radius": 1.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 12,
+      "line_width": 3.0,
+      "circle_radius": 2.0,
+      "outer_extent_radius": 2.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 16,
+      "line_width": 3.0,
+      "circle_radius": 2.6667,
+      "outer_extent_radius": 2.6667,
+      "primitive": "disk"
+    },
+    {
+      "size": 18,
+      "line_width": 3.0,
+      "circle_radius": 3.0,
+      "outer_extent_radius": 3.0,
+      "primitive": "disk"
+    },
+    {
+      "size": 20,
+      "line_width": 3.0,
+      "circle_radius": 3.3333,
+      "outer_extent_radius": 3.3333,
+      "primitive": "disk"
+    },
+    {
+      "size": 24,
+      "line_width": 3.0,
+      "circle_radius": 3.52,
+      "outer_extent_radius": 5.02,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 2.02,
+      "outer_annulus_radius": 5.02
+    },
+    {
+      "size": 30,
+      "line_width": 3.0,
+      "circle_radius": 4.4,
+      "outer_extent_radius": 5.9,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 2.9,
+      "outer_annulus_radius": 5.9
+    },
+    {
+      "size": 36,
+      "line_width": 3.0,
+      "circle_radius": 5.28,
+      "outer_extent_radius": 6.78,
+      "primitive": "disk+annulus",
+      "inner_annulus_radius": 3.78,
+      "outer_annulus_radius": 6.78
+    },
+    {
+      "size": 20,
+      "line_width": 0.5,
+      "circle_radius": 3.3333,
+      "outer_extent_radius": 3.3333
+    },
+    {
+      "size": 20.5,
+      "line_width": 0.5,
+      "circle_radius": 3.4167,
+      "outer_extent_radius": 3.4167
+    },
+    {
+      "size": 21,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.5,
+      "line_width": 0.5,
+      "circle_radius": 3.1533,
+      "outer_extent_radius": 3.4033,
+      "inner_annulus_radius": 2.9033,
+      "outer_annulus_radius": 3.4033
+    },
+    {
+      "size": 22,
+      "line_width": 0.5,
+      "circle_radius": 3.2267,
+      "outer_extent_radius": 3.4767,
+      "inner_annulus_radius": 2.9767,
+      "outer_annulus_radius": 3.4767
+    },
+    {
+      "size": 22.5,
+      "line_width": 0.5,
+      "circle_radius": 3.3,
+      "outer_extent_radius": 3.55,
+      "inner_annulus_radius": 3.05,
+      "outer_annulus_radius": 3.55
+    },
+    {
+      "size": 23,
+      "line_width": 0.5,
+      "circle_radius": 3.3733,
+      "outer_extent_radius": 3.6233,
+      "inner_annulus_radius": 3.1233,
+      "outer_annulus_radius": 3.6233
+    },
+    {
+      "size": 23.5,
+      "line_width": 0.5,
+      "circle_radius": 3.4467,
+      "outer_extent_radius": 3.6967,
+      "inner_annulus_radius": 3.1967,
+      "outer_annulus_radius": 3.6967
+    },
+    {
+      "size": 24,
+      "line_width": 0.5,
+      "circle_radius": 3.52,
+      "outer_extent_radius": 3.77,
+      "inner_annulus_radius": 3.27,
+      "outer_annulus_radius": 3.77
+    },
+    {
+      "size": 21,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.000000000000004,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.01,
+      "line_width": 0.5,
+      "circle_radius": 3.0815,
+      "outer_extent_radius": 3.3315,
+      "inner_annulus_radius": 2.8315,
+      "outer_annulus_radius": 3.3315
+    },
+    {
+      "size": 21.1,
+      "line_width": 0.5,
+      "circle_radius": 3.0947,
+      "outer_extent_radius": 3.3447,
+      "inner_annulus_radius": 2.8447,
+      "outer_annulus_radius": 3.3447
+    },
+    {
+      "size": 21.25,
+      "line_width": 0.5,
+      "circle_radius": 3.1167,
+      "outer_extent_radius": 3.3667,
+      "inner_annulus_radius": 2.8667,
+      "outer_annulus_radius": 3.3667
+    },
+    {
+      "size": 21.49,
+      "line_width": 0.5,
+      "circle_radius": 3.1519,
+      "outer_extent_radius": 3.4019,
+      "inner_annulus_radius": 2.9019,
+      "outer_annulus_radius": 3.4019
+    },
+    {
+      "size": 21,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.000000476837158,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.000000953674313,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.000000953674316,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 21.00000095367432,
+      "line_width": 0.5,
+      "circle_radius": 3.08,
+      "outer_extent_radius": 3.33,
+      "inner_annulus_radius": 2.83,
+      "outer_annulus_radius": 3.33
+    },
+    {
+      "size": 21.000001907348633,
+      "line_width": 0.5,
+      "circle_radius": 3.08,
+      "outer_extent_radius": 3.33,
+      "inner_annulus_radius": 2.83,
+      "outer_annulus_radius": 3.33
+    },
+    {
+      "size": 21.00001,
+      "line_width": 0.5,
+      "circle_radius": 3.08,
+      "outer_extent_radius": 3.33,
+      "inner_annulus_radius": 2.83,
+      "outer_annulus_radius": 3.33
+    },
+    {
+      "size": 20.999999046325684,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    },
+    {
+      "size": 20.999998092651367,
+      "line_width": 0.5,
+      "circle_radius": 3.5,
+      "outer_extent_radius": 3.5
+    }
+  ]
+}

@@ -4466,10 +4466,23 @@ def _source_plot_line_and_points(
     point_kw.update(linestyle="None", marker=marker)
     if marker == ".":
         from matplotlib.markers import MarkerStyle
-        # R2013a Line MarkerSize documentation: MATLAB's point glyph has
-        # one-third the specified diameter; Matplotlib's point is one-half.
-        point_kw["marker"] = MarkerStyle(".").scaled(2/3)
-        point_kw.setdefault("markeredgewidth", 0)
+        # Observed MATLAB R2024b CPU/Painters point glyph rule, with
+        # Chebfun plot semantics from commit 7574c77. Independent size,
+        # boundary, line-width and 72/144 dpi captures qualify this backend:
+        # float32(MS) <= 21 is a disk of radius max(0.5, MS/6) points;
+        # float32(MS) > 21 is a disk of radius 11*MS/75 plus a LineWidth outline.
+        # Keep the source MarkerSize and line properties unchanged.
+        size = float(point_kw.setdefault("markersize", 6))
+        if not np.isfinite(size) or size <= 0:
+            # Preserve the previous Python adapter for unqualified sizes.
+            point_kw["marker"] = MarkerStyle(".").scaled(2/3)
+            point_kw.setdefault("markeredgewidth", 0)
+        elif np.float32(size) <= np.float32(21):
+            point_kw["marker"] = MarkerStyle(".").scaled(max(2/3, 2/size))
+            point_kw.setdefault("markeredgewidth", 0)
+        else:
+            point_kw["marker"] = MarkerStyle("o").scaled(22/75)
+            point_kw.setdefault("markeredgewidth", props.get("linewidth", 0.5))
     line_visible = line_style not in (None, "", "none", "None")
     marker_visible = marker not in (None, "", "none", "None")
     draw_points = marker_visible and not suppress_points

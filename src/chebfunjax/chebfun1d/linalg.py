@@ -775,6 +775,15 @@ class Quasimatrix:
         return self._map(lambda c: c.abs())
 
     def fliplr(self) -> "Quasimatrix":
+        """Reverse column components, or reflect each row component.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        if self.is_transposed:
+            return self._map(lambda column: column.fliplr())
         return Quasimatrix(list(self.cols[::-1]), self.domain)
 
     def qr(self):

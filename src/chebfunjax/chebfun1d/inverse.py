@@ -513,7 +513,8 @@ def _inverse(f, pref=None, *, algorithm="brent", eps=None,
                   else pref.refinementFunction)
     inverse = chebfun(values, domain=tuple(domain), eps=tol, splitting=split,
                      min_samples=len(f), max_length=pref.maxLength,
-                     sample_test=False, refinement_function=refinement)
+                     sample_test=False, refinement_function=refinement,
+                     vector_check=False)
     if _onoff(rangecheck):
         (xmin, vmin), (xmax, vmax) = inverse.minandmax()
         x = Chebfun.identity(inverse.domain)

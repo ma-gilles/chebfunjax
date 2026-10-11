@@ -326,8 +326,8 @@ def public_construct(op, domain, pref, options):
         store_metadata(result)
         return result
     # Parser validation follows the native empty and FUN-cell fast paths.
-    # VSCALE belongs to native construction data, not the legacy signature.
-    signature_options = {key: value for key, value in options.items() if key != 'vscale'}
+    # VSCALE and VECTOR_CHECK belong to construction data, not the legacy signature.
+    signature_options = {key: value for key, value in options.items() if key not in ('vscale', 'vector_check')}
     inspect.signature(_chebfun_build).bind(op, domain=domain, **signature_options)
     # Python's coeffs=True adapter represents MATLAB's bare 'coeffs' mode,
     # which is accepted only for numeric coefficient input. Reject a callable
@@ -348,6 +348,7 @@ def public_construct(op, domain, pref, options):
         legacy.pop('doubleLength', None)
         legacy.pop('trunc', None)
         legacy.pop('vscale', None)
+        legacy.pop('vector_check', None)
         return _chebfun_build(current.op, domain=current.domain,
                              _construction_context=current, **legacy)
 

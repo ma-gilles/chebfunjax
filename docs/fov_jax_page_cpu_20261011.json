@@ -86,7 +86,7 @@
     "source_listing": "slot5 regenerated from actual final source bytes after documentation correction; slots1\u20134 retained from completed page_style_v2 execution"
   },
   "remaining_limits": [
-    "No full pixel/font/rendering parity claim. MS24 native SVG radius3.52 versus Python adapter radius4 remains unresolved.",
+    "No full pixel/font/rendering parity claim. Earlier MS24 geometry gap resolved in source_dot_geometry_cpu_20261011.json; filled primitive3.52 plus0.25outline gives3.77full radius.",
     "Native output roundoff differs historical cached page.",
     "Native lineSegments array is represented by existing Python list of scalar Chebfuns; dynamic splitting and constructor remain eager.",
     "Measured runtime is descriptive, not matched MATLAB speed qualification.",

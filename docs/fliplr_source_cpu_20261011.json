@@ -1,0 +1,45 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Restore all 11 native FLIPLR predicates and fix row Quasimatrix.fliplr to reflect each component in place. Column quasimatrices retain component reversal.",
+  "restored": [
+    "cos(x)*sign(x+.2) in clauses 4/5/8/9",
+    "Native splitting preferences, breakpoints, singular row clause 11 and original norms/bounds",
+    "Captured native uniform prefixes instead of PCG64 samples"
+  ],
+  "validation": {
+    "native_predicates": 11,
+    "smooth_pytest_tests_passed": 5,
+    "smooth_seconds": 11.2,
+    "singular_pytest_tests_passed": 2,
+    "singular_seconds": 41.71,
+    "row_bug_baseline": "Fails exact independent coefficient reflection.",
+    "row_fix_controls_passed": 2,
+    "row_fix_seconds": 2.06,
+    "controls": "Exact reflected coefficients and complex point values, row/column orientation, input immutability.",
+    "receipts": "All owned handles terminal, no caps or survivors; intermediate 129-point unhappy warning retained."
+  },
+  "limitations": [
+    "Native source predicates ported; no fresh full native FLIPLR runtime or representation/happiness/warning parity claim.",
+    "Seed 7681 first 50 uniforms use captured prefix; seed 6178 first 100 uniforms recovered exactly from captured 2U-1 before applying source 9U-2.",
+    "Principal complex power promotion and scalar array shape are documented Python adapters.",
+    "Agent report P_untouched describes its delivery stage, before root integration."
+  ],
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fliplr_source_20261011/REPORT.json",
+      "sha256": "e51cefd68f3eb686dad957385034a970549f2b436e334d3483dcdaabb740f608"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fliplr_source_20261011/DELIVERY.json",
+      "sha256": "772fabd5d27edd8544dd21807f9fcc0cb0310d02c5c9869a5927f1d13770cbf2"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fliplr_source_20261011/METHOD_SCOPE.json",
+      "sha256": "0882c8058c0bfede5263ddcca42324b8087e365fd1c44f332d384dba4bb8e9ce"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fliplr_source_20261011/ROOT_PUBLICATION_REVIEW.json",
+      "sha256": "dfd533284c42bded6a4a9429dfa79a2c19aa436aa32cb33b79cf12a97a5510b1"
+    }
+  ]
+}

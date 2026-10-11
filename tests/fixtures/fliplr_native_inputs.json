@@ -1,0 +1,12 @@
+{
+  "7681": "first50 prefix of source seed7681first1000 unchanged streamorder and same2U-1 formula",
+  "7681_native_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_native_capture_20261011",
+  "6178": "trreal1 captures2U-1 immediately afterexplicitseed6178; inverseaffine recoversU bitidentical toqualifiedRandomStatefirst100; literal9U-2 source transform",
+  "6178_native_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1",
+  "input_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mat2cell_native_capture_20261011/observations.mat": "53790d1fdfa74257e8258bd55f0176e60c807de768c2efd7c560affde2671599",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/observations.mat": "1d57cc3879e35b606c1bd63d4071ff309db64ed1b9c6bab5f52cfd523663159d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/RNG_COMPARISON.json": "14ea9c641aa8e460a2883a3fbea5250e2503f146f808fff398c517a0b2bdeb5e"
+  },
+  "no_other_stream_claim": true
+}
