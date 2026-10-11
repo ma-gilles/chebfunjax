@@ -1,0 +1,34 @@
+{
+  "status": "completed_frozen_source_calls_with_unresolved_numerical_parity",
+  "source_commit": "288e3ddfe6253d43ea5e7fd8fbedf90e98bd2e13",
+  "fresh_fits": 116,
+  "old_fit_credit": 0,
+  "public_source_constructors": 7,
+  "worker_caps": {
+    "cpu": "0-1",
+    "wall_seconds": 240,
+    "rss_mib": 4096
+  },
+  "whole_parent_wall_seconds": 3824.584468907211,
+  "peak_owned_tree_rss_kib": 3629764,
+  "declared_nonconvergence": 11,
+  "warning_free_fits": 105,
+  "rational_success_scope": "interpSuccess; not convergence",
+  "execution_scope": "Seven public constructors, exact full-state restoration and116 fresh public calls, source order/settings preserved. Monolithic script process not qualified.",
+  "known_residuals": [
+    "Three nonmonotone raw rational error transitions retained.",
+    "Matched native6/6+7/7 errors differ; no full116 native table/tolerance assertion available.",
+    "Current-head public roots dedup change not requalified; final xk alone cannot establish applicability.",
+    "Native matrixconditioning warnings differ; actual warning cells retained.",
+    "Exact renderer/pixel parity unverified."
+  ],
+  "outer_raw_receipt_flag": "root_exited_with_live_descendants; retained and classified as sampled-root exit race, no signals/events/surviving identities; not a blank censor claim",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/targets_cpu_v1/AUDIT.json": "6507863736ad78e0152c2d43872378e1f862f828f97ce9414f2cf411ac814d6a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/serial_cpu_v1/FINAL_AUDIT_v1.json": "50718d7dd711f157c8f08d1a65629f5b8a357ba3151ea4ea13600ae89c44860a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/FINAL_CLOSURE_CLASSIFICATION_v1.json": "6798e1117095ef5c9d53b6659722fa446c2ed2fd91b3f5205c6988f8ad575e84",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/NUMERICAL_REFERENCE_REPORT_v2.json": "c67361b850dde55589b436b9bd550205853b29586227f22a01462b30b4e8dea1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/ROOTS_CURRENT_HEAD_APPLICABILITY_v1.json": "b13e61e9d6103f1ed38f7f7da677ef5c6cfc946a3a76910c2b83f9d6d6233ace",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/render_v1/RENDER_AUDIT_v1.json": "8584945da035f7f16d1b13f67ea377fd84adf0f303cf84bb76c836968849d2bd"
+  }
+}

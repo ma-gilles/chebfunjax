@@ -1,139 +1,105 @@
-"""Minimax approximation of sqrt(x).
+"""Approximating square and fifth roots by polynomials and rational functions.
 
-Translation of approx/MinimaxSqrt.m by Yuji Nakatsukasa and Nick
-Trefethen (October 2019): polynomial vs rational minimax approximation
-of sqrt on [a,1] as a shrinks to 0 — rational approximations barely
-degrade while polynomials fall apart.
-
+Translation of approx/MinimaxSqrt.m by Yuji Nakatsukasa, May 2019.
 Original: https://www.chebfun.org/examples/approx/MinimaxSqrt.html
 Copyright by The University of Oxford and The Chebfun Developers.
 """
+import os
+from pathlib import Path
+
 import matplotlib
 
 matplotlib.use("Agg")
-import os
-import sys
-import warnings
-
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
-from chebfunjax.plotting import chebfun_style
-from chebfunjax.plotting import save_chebfun_figure as _savefig
+import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style, save_chebfun_figure
 from chebfunjax.utils.minimax import minimax
 
-chebfun_style()
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
-
-F = lambda x: jnp.sqrt(x)  # noqa: E731
+_HERE = Path(__file__).resolve().parent
+_IMG = Path(os.environ.get("MINIMAXSQRT_IMAGE_DIR", _HERE.parent.parent / "docs/images/approx"))
 
 
-def _errs(a, ns):
-    perrs, rerrs = [], []
-    for n in ns:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            try:
-                perrs.append(minimax(F, n, domain=(a, 1.0)).err)
-            except Exception:
-                perrs.append(np.nan)
-            try:
-                rerrs.append(minimax(F, n // 2, rational=True,
-                                     denom=n // 2,
-                                     domain=(a, 1.0)).err)
-            except Exception:
-                rerrs.append(np.nan)
-    return np.array(perrs), np.array(rerrs)
+def _sweep(f, a, ns, *, silent=False, separate=False):
+    """Execute the native loop order, preserving solver failures and warnings."""
+    p, r = [], []
+
+    def polynomial(n):
+        return minimax(f, int(n), domain=(a, 1.)).err
+
+    def rational(n):
+        return minimax(f, int(n)//2, rational=True, denom=int(n)//2,
+                       domain=(a, 1.), silent=silent).err
+
+    if separate:
+        p = [polynomial(n) for n in ns]
+        r = [rational(n) for n in ns]
+    else:
+        for n in ns:
+            p.append(polynomial(n))
+            r.append(rational(n))
+    return np.asarray(p), np.asarray(r)
 
 
-def _figure(a, ns, perrs, rerrs, fname):
-    fig, ax = plt.subplots(figsize=(8.8, 4.6))
-    ax.semilogy(ns, perrs, 'b*-', lw=1.2)
-    ax.text(ns[-1] + 0.4, perrs[-1], f"poly a={a:g}", color='b')
-    ax.semilogy(ns, rerrs, 'r*-', lw=1.2)
-    ax.text(ns[-1] + 0.4, rerrs[-1], f"rat a={a:g}", color='r')
+def _draw(ax, a, ns, errors, *, pad, styles=("b*-", "r*-"), label_factor=1.):
+    perrs, rerrs = errors
+    ax.semilogy(ns, perrs, styles[0])
+    ax.text(ns[-1]+pad, perrs[-1]*label_factor, f"poly a={a:g}", color="b")
+    ax.semilogy(ns, rerrs, styles[1])
+    ax.text(ns[-1]+pad, rerrs[-1], f"rat a={a:g}", color="r")
     ax.grid(True)
-    ax.set_xlim(0, ns[-1] + (2 if ns[-1] <= 8 else 7))
-    ax.set_title(f"sqrt(x) on [a,1], a = {a:g}", fontsize=12)
+    ax.set_xlim(0, ns[-1]+(2 if ns[-1] == 8 else 7))
     ax.set_xlabel("DOF")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
-    plt.close(fig)
+    ax.set_title(f"sqrt(x) on [a,1], a = {a:g}")
+
+
+def _save(fig, number):
+    save_chebfun_figure(fig, _IMG/f"MinimaxSqrt_{number:02d}.png", size=(600, 270), layout="matlab")
 
 
 def run():
-    os.makedirs(_IMG, exist_ok=True)
+    """Execute all seven literal approximation sweeps and six source plots.
 
-    ns_small = np.arange(2, 9, 2)
-    for i, a in enumerate((0.8, 0.1)):
-        p, r = _errs(a, ns_small)
-        _figure(a, ns_small, p, r, f"MinimaxSqrt_{i+1:02d}.png")
-
-    ns_big = np.arange(2, 21, 2)
-    data = {}
-    for i, a in enumerate((1e-3, 1e-5)):
-        p, r = _errs(a, ns_big)
-        data[a] = (p, r)
-        _figure(a, ns_big, p, r, f"MinimaxSqrt_{i+3:02d}.png")
-
-    # a = 0: genuinely singular endpoint
-    p0, r0 = _errs(0.0, ns_big)
-    fig, ax = plt.subplots(figsize=(8.8, 4.6))
-    p5, r5 = data[1e-5]
-    ax.semilogy(ns_big, p5, 'b*-', lw=1.2)
-    ax.semilogy(ns_big, r5, 'r*-', lw=1.2)
-    ax.semilogy(ns_big, p0, 'bo--', lw=1.2)
-    ax.semilogy(ns_big, r0, 'ro--', lw=1.2)
-    ax.text(ns_big[-1] + 0.5, p5[-1], "poly a=1e-05", color='b')
-    ax.text(ns_big[-1] + 0.5, r5[-1], "rat a=1e-05", color='r')
-    ax.text(ns_big[-1] + 0.5, p0[-1] * 1.3, "poly a=0", color='b')
-    ax.text(ns_big[-1] + 0.5, r0[-1], "rat a=0", color='r')
-    ax.grid(True)
-    ax.set_xlim(0, ns_big[-1] + 7)
-    ax.set_title("sqrt(x) on [a,1], a = 0", fontsize=12)
-    ax.set_xlabel("DOF")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "MinimaxSqrt_05.png"), size=(600, 270))
+    Provenance
+    ----------
+    Chebfun example approx/MinimaxSqrt.m, Yuji Nakatsukasa, May 2019.
+    MATLAB reference library Chebfun commit: 7574c77.
+    """
+    chebfun_style()
+    _IMG.mkdir(parents=True, exist_ok=True)
+    captures = {}
+    for i, a in enumerate((.8, .1, 1e-3, 1e-5, 0.), 1):
+        ns = np.arange(2, 9 if i <= 2 else 21, 2)
+        if i <= 2:
+            x = cj.chebfun("x", domain=(a, 1.))
+            f = cj.sqrt(x)
+        else:
+            f = cj.chebfun(lambda x: jnp.sqrt(x), domain=(a, 1.), splitting=i >= 4)
+        errors = _sweep(f, a, ns, silent=i >= 3)
+        captures[f"sqrt_{i}_poly"], captures[f"sqrt_{i}_rat"] = errors
+        if i != 5:
+            fig, ax = plt.subplots()
+        _draw(ax, a, ns, errors, pad=.25 if i <= 2 else .5,
+              styles=("bo--", "ro--") if i == 5 else ("b*-", "r*-"),
+              label_factor=1.3 if i == 5 else 1.)
+        _save(fig, i)
+        if i != 4:
+            plt.close(fig)
+    fig, ax = plt.subplots()
+    for i, a in enumerate((1e-5, 0.)):
+        f = cj.chebfun(lambda x: x**(1/5), domain=(a, 1.), splitting=True)
+        errors = _sweep(f, a, ns, silent=True, separate=True)
+        captures[f"fifth_{i}_poly"], captures[f"fifth_{i}_rat"] = errors
+        _draw(ax, a, ns, errors, pad=.2,
+              styles=("b*-", "r*-") if i == 0 else ("bo--", "ro--"))
+    ax.set_title("fifth root of x on [a,1], a = 0 and 1e-5")
+    _save(fig, 6)
     plt.close(fig)
-
-    # Fifth root: qualitatively the same
-    F5 = lambda x: x ** (1.0 / 5)  # noqa: E731
-    fig, ax = plt.subplots(figsize=(8.8, 4.6))
-    styles = {1e-5: ('b*-', 'r*-'), 0.0: ('bo--', 'ro--')}
-    for a in (1e-5, 0.0):
-        perrs, rerrs = [], []
-        for n in ns_big:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                try:
-                    perrs.append(minimax(F5, n, domain=(a, 1.0)).err)
-                except Exception:
-                    perrs.append(np.nan)
-                try:
-                    rerrs.append(minimax(F5, n // 2, rational=True,
-                                         denom=n // 2,
-                                         domain=(a, 1.0)).err)
-                except Exception:
-                    rerrs.append(np.nan)
-        ps, rs_ = styles[a]
-        ax.semilogy(ns_big, perrs, ps, lw=1.2)
-        ax.text(ns_big[-1] + 0.2, perrs[-1], f"poly a={a:g}", color='b')
-        ax.semilogy(ns_big, rerrs, rs_, lw=1.2)
-        ax.text(ns_big[-1] + 0.2, rerrs[-1], f"rat a={a:g}", color='r')
-    ax.grid(True)
-    ax.set_xlim(0, ns_big[-1] + 7)
-    ax.set_xlabel("DOF")
-    ax.set_title("fifth root of x on [a,1], a = 0 and 1e-5", fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "MinimaxSqrt_06.png"), size=(600, 270))
-    plt.close(fig)
+    if directory := os.environ.get("MINIMAXSQRT_CAPTURE_DIR"):
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        np.savez(Path(directory)/"errors.npz", **captures)
 
 
 if __name__ == "__main__":

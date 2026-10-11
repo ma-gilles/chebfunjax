@@ -427,6 +427,7 @@ def main():
             ("approx", "Noisy"),
             ("roots", "RandomPolys"),
             ("complex", "ZetaZeros"),
+            ("approx", "MinimaxSqrt"),
             ("sphere", "LaplaceBall"),
             ("stats", "BivariateNormalDistribution"),
         }:

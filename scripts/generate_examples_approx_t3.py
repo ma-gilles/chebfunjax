@@ -236,66 +236,12 @@ def _minimax_sweep(fn, a, ns):
 
 
 def minimaxsqrt():
-    """approx/MinimaxSqrt — polynomial vs rational best approximation.
+    """Dispatch MinimaxSqrt to the literal public source example."""
+    import runpy
 
-    Faithful port of the chebfun.org approx/MinimaxSqrt example:
-    convergence (max error vs degrees-of-freedom) of best polynomial
-    (blue) and best type-(n/2, n/2) rational (red) approximation of
-    sqrt(x) on [a, 1] as a -> 0 (figures 1-4), an a=0 vs a=1e-5 overlay
-    (figure 5), and the same study for the fifth root of x (figure 6).
-    The rational approximant converges root-exponentially while the
-    polynomial one stalls, the point of the example.
-    """
-    sqrt_fn = lambda x: np.sqrt(np.asarray(x, dtype=float))  # noqa: E731
-
-    def draw(ax, fn, a, ns, xpad, pstyle, rstyle, label_dy=1.0):
-        """Add one (poly, rational) convergence pair + text labels."""
-        perrs, rerrs = _minimax_sweep(fn, a, ns)
-        astr = _num2str(a)
-        ax.semilogy(ns, perrs, pstyle, markersize=7, linewidth=1.0)
-        ax.text(ns[-1] + xpad, perrs[-1] * label_dy, f"poly a={astr}",
-                color="b", fontsize=9)
-        ax.semilogy(ns, rerrs, rstyle, markersize=7, linewidth=1.0)
-        ax.text(ns[-1] + xpad, rerrs[-1], f"rat a={astr}",
-                color="r", fontsize=9)
-        ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
-        ax.set_xlim(0, ns[-1] + (2 if ns[-1] <= 8 else 7))
-        ax.set_xlabel("DOF")
-
-    ns_short = np.arange(2, 9, 2)
-    ns_long = np.arange(2, 21, 2)
-
-    # Figures 1-2: sqrt on [a,1], a = 0.8, 0.1 (short DOF range)
-    for a, name in ((0.8, "MinimaxSqrt_01.png"), (0.1, "MinimaxSqrt_02.png")):
-        fig, ax = plt.subplots()
-        draw(ax, sqrt_fn, a, ns_short, 0.25, "b*-", "r*-")
-        ax.set_title(f"sqrt(x) on [a,1], a = {_num2str(a)}", fontsize=10)
-        save(fig, name)
-
-    # Figure 3: a = 0.001 (long DOF range)
-    fig, ax = plt.subplots()
-    draw(ax, sqrt_fn, 1e-3, ns_long, 0.5, "b*-", "r*-")
-    ax.set_title("sqrt(x) on [a,1], a = 0.001", fontsize=10)
-    save(fig, "MinimaxSqrt_03.png")
-
-    # Figure 4: a = 1e-5, then figure 5 overlays a = 0 (dashed) on the
-    # SAME axes (MATLAB omits `hold off` between them).
-    fig, ax = plt.subplots()
-    draw(ax, sqrt_fn, 1e-5, ns_long, 0.5, "b*-", "r*-")
-    ax.set_title("sqrt(x) on [a,1], a = 1e-05", fontsize=10)
-    save(fig, "MinimaxSqrt_04.png")
-
-    draw(ax, sqrt_fn, 0.0, ns_long, 0.5, "bo--", "ro--", label_dy=1.3)
-    ax.set_title("sqrt(x) on [a,1], a = 0", fontsize=10)
-    save(fig, "MinimaxSqrt_05.png")
-
-    # Figure 6: fifth root of x, a = 1e-5 (solid) and a = 0 (dashed)
-    fifth = lambda x: np.asarray(x, dtype=float) ** (1.0 / 5.0)  # noqa: E731
-    fig, ax = plt.subplots()
-    draw(ax, fifth, 1e-5, ns_long, 0.2, "b*-", "r*-")
-    draw(ax, fifth, 0.0, ns_long, 0.2, "bo--", "ro--")
-    ax.set_title("fifth root of x on [a,1], a = 0 and 1e-5", fontsize=10)
-    save(fig, "MinimaxSqrt_06.png")
+    example = os.path.join(os.path.dirname(__file__), "..", "examples",
+                           "approx", "minimax_sqrt.py")
+    runpy.run_path(example, run_name="__main__")
 
 
 def galleries():

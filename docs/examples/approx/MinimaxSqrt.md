@@ -6,6 +6,8 @@
 
 Python translation: [`examples/approx/minimax_sqrt.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/minimax_sqrt.py)
 
+> **Execution qualification:** Seven public source constructors and all 116 approximation calls completed on frozen commit `288e3ddf`, using a fresh serial worker for each fit. The plots retain actual errors and all 11 nonconvergence warnings; no cumulative minimum or fallback approximation replaces them. The 6/6 and 7/7 matched-input native errors differ slightly, and no full native error table or pixel parity is established. This qualifies the recorded source calls, not one completed monolithic script process or the newer current-head roots implementation. Native matrix-conditioning warnings are not emitted by this backend.
+
 Rational functions outperform polynomials for approximating functions with (near-)singularities. The absolute value function is a typical example, for which polynomials converge only algebraically $O(1/n)$ whereas rationals root-exponentially $O(\exp(-\pi\sqrt{n}))$.
 
 A closely related function is the square root. When we work on the interval $[a,1]$ for $0<a<1$, $\sqrt{x}$ is analytic on the interval, so both polynomials and rational functions would converge exponentially. Indeed for $a$ close to $1$ we don't see much difference. We compute the best polynomial and rational approximants using `minimax`.
@@ -98,7 +100,7 @@ xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
 ```
 
 ```text
-
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
 ```
 
 ![MinimaxSqrt figure 04](../../images/approx/MinimaxSqrt_04.png)
@@ -127,7 +129,9 @@ xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
 ```
 
 ```text
-
+RuntimeWarning: minimax algorithm did not converge after 13 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
 ```
 
 ![MinimaxSqrt figure 05](../../images/approx/MinimaxSqrt_05.png)
@@ -163,7 +167,13 @@ end
 ```
 
 ```text
-
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 13 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 13 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 14 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 15 iterations to the tolerance 0.0001.
+RuntimeWarning: minimax algorithm did not converge after 15 iterations to the tolerance 0.0001.
 ```
 
 ![MinimaxSqrt figure 06](../../images/approx/MinimaxSqrt_06.png)
