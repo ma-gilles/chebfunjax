@@ -801,8 +801,10 @@ def _extrapolate_values(values, x, w):
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford and The
     Chebfun Developers. Modified weights, row masks, and interpolation ratio
-    follow the source. Compensated reductions are a numerical adaptation,
-    independently qualified, not an assertion about MATLAB internals.
+    follow the source. A narrowly scoped real endpoint product follows the
+    independently observed native CPU order. Other products and denominators
+    use compensated reductions; these are qualified numerical adaptations,
+    not assertions about universal MATLAB or BLAS internals.
 
     Data-dependent construction routine; host boolean decisions are allowed.
     All sample, weight and replacement arithmetic stays in JAX.
@@ -829,7 +831,28 @@ def _extrapolate_values(values, x, w):
         replacements = []
         for k in range(xbad.size):
             w2 = wmod / (xbad[k] - xgood)
-            numerator = _compensated_sum_axis0(w2[:, None] * vgood)
+            # Source extrapolate uses a row times column product. The
+            # independently qualified CPU order matters for cancellation
+            # at one missing second-kind endpoint. Restrict this arithmetic
+            # adapter to its demonstrated structural domain; keep general
+            # weights, multiple bad rows, complex and matrix data unchanged.
+            # Provider dispatch beyond the observed 128 good rows is unqualified.
+            source_endpoint = (
+                jax.default_backend() == "cpu"
+                and xbad.size == 1
+                and bool(mask[0] | mask[-1])
+                and bool((xr[0] == -1.0) & (xr[-1] == 1.0))
+                and vgood.shape[1] == 1
+                and w2.size <= 128
+                and vgood.dtype == jnp.float64
+                and bool(jnp.all((jnp.abs(w2) == 1.0) | (jnp.abs(w2) == 0.5)))
+            )
+            if source_endpoint:
+                from chebfunjax.utils._cpu_endpoint_dot import _cpu_endpoint_dot
+
+                numerator = _cpu_endpoint_dot(w2, vgood[:, 0])[None]
+            else:
+                numerator = _compensated_sum_axis0(w2[:, None] * vgood)
             denominator = _compensated_sum_axis0(w2)
             replacements.append(numerator / denominator)
         v = v.at[mask].set(jnp.stack(replacements).astype(v.dtype))

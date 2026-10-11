@@ -1,0 +1,53 @@
+{
+  "scope": "Bounded source CPU endpoint reduction fixes two strict unbounded constructor CI failures",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "integration_base": "72fb0089",
+  "changed_existing_function": "chebtech._extrapolate_values",
+  "integration_reuse": "Final qualified source/helper/test/fixture bytes identical in publication; other chebtech top-level AST nodes unchanged. Existing test predicates/inputs/tolerances unmodified.",
+  "tests": {
+    "supplemental_control_tests": 51,
+    "actual_native_scalar_observations": 15359,
+    "existing_consumer_tests": 42,
+    "skipped": 0,
+    "failures": 0
+  },
+  "failures_fixed": [
+    {
+      "test": "unbndfun/test_diff_matlab.py raw x*exp(x)",
+      "before": 2.0328790734103208e-19,
+      "after": 1.0842021724855044e-19,
+      "original_bound": 1.6888158308277572e-19
+    },
+    {
+      "test": "chebfun/test_fix_matlab.py raw clause7",
+      "before": 2.1006417091906648e-19,
+      "after": 1.0164395367051604e-19,
+      "original_bound": 1.6888158308277572e-19
+    }
+  ],
+  "eligibility": [
+    "CPU-only qualified runtime",
+    "real float64 one-column data",
+    "one missing second-kind endpoint",
+    "exact signed-unit/half weights",
+    "at most128good rows"
+  ],
+  "algorithm": "Observed native CPU adjacent pairs through50 products, odd first seed; above50 eight lanes, two alternating remainder lanes and even/odd horizontal groups. JAX-only with rounded-operation barriers.",
+  "preserved": "Compensated helper, denominator, complex/matrix/kind1/interior/multiplebad/larger/generalweight routes",
+  "review": "Independent Astra numerical review found no blocking defect; routine hash audit verified222bindings/223archiveentries and all five final files byte-identical.",
+  "limitations": [
+    "Observed R2025b Update2 CPU arithmetic, not universal MATLAB/BLAS architecture identity.",
+    "Default-backend guard does not establish explicit array placement in a mixed-backend process; this task is CPU-only.",
+    "Existing diff port query linspace differs native seed6178third100uniform block; input adapter gap remains, unaltered by fix.",
+    "Supplemental observations are not additional native test clause count.",
+    "Retained harness failures and retrospective native helper/source scope recorded in RUN_LEDGER and REPORT."
+  ],
+  "evidence_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/REPORT.md": "b0b2f278fb7935c072574f2dc8f13e8d96e8c5825b46e39fcaf1346f6c2ce15d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/DELIVERY.json": "7daeeb63f8b58d7f2716f026d9cf1246dbd021751edb19c031e9eac32704289d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/BINDINGS.json": "39f90c4b0ffac9eed3ce039717ac9e3e5f53eba5210ebfdfffa2aec85d93c8f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/ARCHIVE.json": "dbb0a62543732884e850d1a8d4e35d800de7948e51ed829943eddaf8e4cccd17",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/RUN_LEDGER.json": "39c6e1c9b906fcf4b88e4ac8314751e76633facf90b45942f816d033a0cec5c2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/delivery/ROOT_HASH_REVIEW.json": "2609fef822e62ba0a09891f15354d32fc80495b08bf65d32b9a341ce0add399d"
+  }
+}

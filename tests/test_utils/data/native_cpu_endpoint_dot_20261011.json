@@ -1,0 +1,78 @@
+{
+  "fixture_sha256": "7ff59a62a58d876e689ed72dbe48659b9eb61393c12ddabd351faa4faf98202d",
+  "source": "Chebfun7574c77 @chebtech/extrapolate.m row times one real column",
+  "runtime": "MATLAB R2025bUpdate2 CPU,25.2.0.3055257",
+  "counts": {
+    "16": 133,
+    "32": 127,
+    "64": 2549,
+    "48": 741,
+    "63": 1286,
+    "65": 1328,
+    "80": 1253,
+    "128": 2021,
+    "3": 2,
+    "4": 4,
+    "5": 9,
+    "6": 12,
+    "7": 20,
+    "8": 24,
+    "9": 35,
+    "10": 40,
+    "11": 45,
+    "12": 50,
+    "13": 55,
+    "14": 60,
+    "15": 65,
+    "17": 75,
+    "49": 240,
+    "50": 240,
+    "51": 245,
+    "52": 250,
+    "53": 255,
+    "54": 260,
+    "55": 265,
+    "56": 270,
+    "57": 275,
+    "58": 280,
+    "59": 285,
+    "60": 290,
+    "61": 295,
+    "62": 300,
+    "66": 325,
+    "67": 330,
+    "68": 335,
+    "69": 340,
+    "70": 345
+  },
+  "count_total": 15359,
+  "origins": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/native_reduction_intermediates/basis.mat",
+      "sha256": "953511cfc8293996ea6dbba9d8a0f67cc387cae9cb191ea942a75094992f7ae1"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/native_partition_basis/basis.mat",
+      "sha256": "f7223070f924953c04c07bbd0d6d6e6cca51d39e5dcd6e4d29753b4b339b6eb4"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/native_transition_products/basis.mat",
+      "sha256": "ed6fec0ee1a51c9fc73e4e8418d4b286350ff6b019be3970d4c82d7be7a728c9"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/native_transition_products/fma.mat",
+      "sha256": "19641e98b9e7cf902314c57466a8e095f7c36a5bcdc0a26f0c2b0279d4a5d285"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_unbounded_accuracy_20261011/native_transition_products/nonpower.mat",
+      "sha256": "71d350c5ec2e2af9fe054ea7c2576915061e07ac7b2d312373c5e7de9112099c"
+    }
+  ],
+  "qualification_scope": "Observed nativeCPU operation order, not universalBLAS identity. Diagnostic basis/FMA/nonpower cases are supplementalsourceAPI controls, not originalnativeChebfunclauses.",
+  "original_handles": [
+    7576,
+    4946,
+    30745
+  ],
+  "retrospective_scope": "7576 source/data guardsstable; producerbinarybindings retrospective.4946/30745 preboundobservedproducerpaths. Nofullrecursivebinaryclosureclaim."
+}
