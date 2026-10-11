@@ -87,14 +87,12 @@ def _check_rdivide_shape(coeffs: jax.Array, other) -> None:
         return
     ncols = coeffs.shape[1] if coeffs.ndim == 2 else 1
     ok = (arr.ndim == 1 and arr.shape[0] == ncols) or (
-        arr.ndim == 2 and arr.shape[0] == 1 and arr.shape[1] == ncols
-    )
+        arr.ndim == 2 and arr.shape[0] == 1 and arr.shape[1] == ncols)
     if not ok:
         raise ValueError(
             "CHEBFUN:CHEBTECH:rdivide:size: matrix dimensions must agree; "
             f"cannot divide a tech with {ncols} column(s) by an array of "
-            f"shape {tuple(arr.shape)}."
-        )
+            f"shape {tuple(arr.shape)}.")
 
 
 def _defers_binary(other) -> bool:
@@ -150,14 +148,15 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     # trailing column axis (Fable 5 array-valued support).
     multi = coeffs.ndim == 2
     if multi:
-        x = jnp.asarray(x)[..., None]  # (..., 1) vs (n, m) rows
+        x = jnp.asarray(x)[..., None]      # (..., 1) vs (n, m) rows
 
     # Edge cases
     if n == 0:
         return jnp.zeros_like(x, dtype=jnp.float64)
     if n == 1:
         if multi:
-            return jnp.broadcast_to(coeffs[0], x.shape[:-1] + coeffs.shape[1:])
+            return jnp.broadcast_to(
+                coeffs[0], x.shape[:-1] + coeffs.shape[1:])
         return jnp.broadcast_to(coeffs[0], x.shape)
 
     x2 = 2.0 * x
@@ -166,7 +165,6 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     # steps per loop, keeping the intermediate state inside the loop body.
     # The degree and remainder are static, including under JIT/AD.
     degree = n - 1
-
     def body(i, state):
         bk1, bk2 = state
         k = degree - 2 * i
@@ -177,7 +175,8 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     # Carry dtype must match the series dtype (complex chebfuns give a
     # complex recurrence; a float64 carry breaks the lax scan/loop typing).
     out_dtype = jnp.result_type(coeffs.dtype, x.dtype)
-    carry_shape = jnp.broadcast_shapes(x.shape, coeffs.shape[1:] if multi else ())
+    carry_shape = jnp.broadcast_shapes(
+        x.shape, coeffs.shape[1:] if multi else ())
     init = (
         jnp.zeros(carry_shape, dtype=out_dtype),
         jnp.zeros(carry_shape, dtype=out_dtype),
@@ -235,10 +234,9 @@ def _source_sum_coeffs(f, g, fc, gc):
     fv = f.coeffs2vals(fc)
     gv = g.coeffs2vals(gc)
     tol = jnp.finfo(jnp.float64).eps * jnp.maximum(
-        jnp.max(jnp.abs(fv), axis=0), jnp.max(jnp.abs(gv), axis=0)
-    )
+        jnp.max(jnp.abs(fv), axis=0), jnp.max(jnp.abs(gv), axis=0))
     result = fc + gc
-    if bool(jnp.all(jnp.abs(result) < 0.2 * tol)):
+    if bool(jnp.all(jnp.abs(result) < .2*tol)):
         return jnp.zeros((1,) + result.shape[1:], dtype=result.dtype)
     return result
 
@@ -283,7 +281,9 @@ def _alias_chebtech2(coeffs, m: int):
         raise ValueError("m must be a nonnegative static integer")
     n, ncols = c.shape
     if m > n:
-        out = jnp.concatenate((c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0)
+        out = jnp.concatenate(
+            (c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0
+        )
     elif m == 0:
         out = c[:0]
     elif m == 1:
@@ -300,7 +300,6 @@ def _alias_chebtech2(coeffs, m: int):
             target = jnp.abs(jnp.mod(r + m - 2, 2 * m - 2) - m + 2)
             out = out.at[target, :].add(c[m:, :], mode="drop")
         else:
-
             def add_one(i, acc):
                 r = i + m
                 target = jnp.abs(jnp.mod(r + m - 2, 2 * m - 2) - m + 2)
@@ -330,7 +329,9 @@ def _alias_chebtech1(coeffs, m: int):
         raise ValueError("m must be a nonnegative static integer")
     n, ncols = c.shape
     if m > n:
-        out = jnp.concatenate((c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0)
+        out = jnp.concatenate(
+            (c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0
+        )
     elif m == 0:
         out = c[:0]
     elif m == 1:
@@ -346,7 +347,6 @@ def _alias_chebtech1(coeffs, m: int):
             sign = jnp.where(jnp.floor((r + m) / (2 * m)) % 2 == 0, 1, -1)
             out = out.at[target, :].add(sign[:, None] * c[m:, :], mode="drop")
         else:
-
             def add_one(i, acc):
                 r = i + m
                 target = jnp.abs(jnp.mod(r + m - 1, 2 * m) - m + 1)
@@ -454,10 +454,12 @@ def _chop_columns(coeffs: jax.Array, tol: float | jax.Array | None) -> int:
     else:
         tol_array = jnp.asarray(tol)
         tol_values = jnp.ravel(tol_array)
-        if tol_values.size != ncols or (tol_array.ndim > 1 and tol_array.shape[-1] != ncols):
+        if (tol_values.size != ncols
+                or (tol_array.ndim > 1 and tol_array.shape[-1] != ncols)):
             tol_values = jnp.full((ncols,), jnp.max(tol_values))
         tolerances = [float(tol_values[j]) for j in range(ncols)]
-    return max(standard_chop(coeffs[:, j], tolerances[j]) for j in range(ncols))
+    return max(standard_chop(coeffs[:, j], tolerances[j])
+               for j in range(ncols))
 
 
 def _round_half_away(x: float) -> int:
@@ -609,7 +611,9 @@ def _classic_check(coeffs, values, points, vscale, hscale, epslevel) -> tuple[bo
 
     safe_scales = jnp.where(scales == 0, 1.0, scales)
     ac = jnp.abs(c) / safe_scales[None, :]
-    test_length, eps_values = _happiness_requirements(v, c, x, safe_scales, hscale, eps_values)
+    test_length, eps_values = _happiness_requirements(
+        v, c, x, safe_scales, hscale, eps_values
+    )
 
     tail = ac[n - test_length :, :]
     if not bool(jnp.all(jnp.max(tail, axis=0) < eps_values)):
@@ -680,29 +684,24 @@ def _happiness_check_impl(
 
     if check == "plateau":
         from chebfunjax.utils.plateau import _plateau_check
-
-        ishappy, cutoff = _plateau_check(coeffs, values, global_scales, float(jnp.max(tolerances)))
+        ishappy, cutoff = _plateau_check(
+            coeffs, values, global_scales, float(jnp.max(tolerances)))
     elif coeffs.ndim == 2 and check in {"strict", "classic"}:
         scales = jnp.broadcast_to(global_scales, (column_count,))
         if check == "strict":
             ishappy, cutoff = _strict_check(coeffs, scales, tolerances)
         else:
             points = chebpts(n, kind)
-            ishappy, cutoff = _classic_check(coeffs, values, points, scales, hscale, tolerances)
+            ishappy, cutoff = _classic_check(
+                coeffs, values, points, scales, hscale, tolerances
+            )
     elif coeffs.ndim == 2:
         scales = jnp.broadcast_to(global_scales, (column_count,))
         results = [
             _happiness_check_impl(
-                tech_cls,
-                kind,
-                coeffs[:, column],
-                values[:, column],
-                None,
-                float(tolerances[column]),
-                float(scales[column]),
-                hscale,
-                check,
-                sample_test=False,
+                tech_cls, kind, coeffs[:, column], values[:, column], None,
+                float(tolerances[column]), float(scales[column]), hscale,
+                check, sample_test=False,
             )
             for column in range(column_count)
         ]
@@ -716,7 +715,9 @@ def _happiness_check_impl(
             ishappy, cutoff = _strict_check(coeffs, vscale, scalar_tol)
         elif check == "classic":
             points = chebpts(n, kind)
-            ishappy, cutoff = _classic_check(coeffs, values, points, vscale, hscale, scalar_tol)
+            ishappy, cutoff = _classic_check(
+                coeffs, values, points, vscale, hscale, scalar_tol
+            )
         elif check == "standard":
             if vscale_local > 0:
                 scaled_tol = scalar_tol * max(hscale, vscale / vscale_local)
@@ -731,7 +732,9 @@ def _happiness_check_impl(
             )
 
     if ishappy and op is not None and sample_test:
-        xeval = jnp.array([-0.357998918959666, 0.036785641195074], dtype=jnp.float64)
+        xeval = jnp.array(
+            [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
+        )
         keep = n if cutoff is None else max(1, min(int(cutoff), n))
         f_test = tech_cls(coeffs=coeffs[:keep])
         v_fun = f_test(xeval)
@@ -817,7 +820,7 @@ def _extrapolate_values(values, x, w):
         good = ~mask
         xgood = xr[good]
         if xgood.size == 0:
-            raise ValueError("CHEBFUN:CHEBTECH:extrapolate:nansInfs: Too many NaNs/Infs to handle.")
+            raise ValueError('CHEBFUN:CHEBTECH:extrapolate:nansInfs: Too many NaNs/Infs to handle.')
         xbad = xr[mask]
         wmod = wr[good].astype(jnp.float64)
         for k in range(xbad.size):
@@ -971,7 +974,8 @@ def _cumsum_coeffs(c: jax.Array) -> jax.Array:
     # Pad with two zeros so that c_{n} = c_{n+1} = 0
     # (dtype follows the series: complex chebfuns stay complex;
     # trailing singleton axes broadcast over array-valued columns)
-    cp = jnp.concatenate([c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)])
+    cp = jnp.concatenate(
+        [c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)])
 
     b = jnp.zeros((n + 1,) + c.shape[1:], dtype=c.dtype)
 
@@ -1003,7 +1007,9 @@ def _cumsum_lval(coeffs: jax.Array) -> jax.Array:
 
 
 @partial(jax.jit, static_argnames=("dim",))
-def _cumsum_coeffs_by_dim(coeffs: jax.Array, *, dim: int = 1) -> jax.Array:
+def _cumsum_coeffs_by_dim(
+    coeffs: jax.Array, *, dim: int = 1
+) -> jax.Array:
     """JIT adapter for continuous integration or coefficient-column sums.
 
     ``dim`` is static because it selects source branches with different
@@ -1129,7 +1135,8 @@ def _scalar_inner_storage(fc, gc, out):
         return jnp.abs(out)
     if not isinstance(fc, jax.core.Tracer) and not isinstance(gc, jax.core.Tracer):
         n = fc.shape[0] + gc.shape[0]
-        same = jnp.all(jnp.pad(fc, (0, n - fc.shape[0])) == jnp.pad(gc, (0, n - gc.shape[0])))
+        same = jnp.all(jnp.pad(fc, (0, n-fc.shape[0])) ==
+                       jnp.pad(gc, (0, n-gc.shape[0])))
         if bool(same):
             return jnp.abs(out)
     return out
@@ -1175,8 +1182,10 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
     # Pad both to length mn (dtype follows the operands so complex
     # chebfun products keep their imaginary parts)
     out_dtype = jnp.result_type(fc.dtype, gc.dtype)
-    f = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:nf].set(jnp.broadcast_to(fc, (nf,) + cols))
-    g = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:ng].set(jnp.broadcast_to(gc, (ng,) + cols))
+    f = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:nf].set(
+        jnp.broadcast_to(fc, (nf,) + cols))
+    g = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:ng].set(
+        jnp.broadcast_to(gc, (ng,) + cols))
 
     # Embed into circulant: double the first coefficient
     t = jnp.concatenate([2.0 * f[:1], f[1:]])
@@ -1185,7 +1194,9 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
     # Circulant multiply via FFT (axis=0 keeps columns independent)
     t_ext = jnp.concatenate([t, t[-1:0:-1]])
     x_ext = jnp.concatenate([x, x[-1:0:-1]])
-    product = jnp.fft.ifft(jnp.fft.fft(t_ext, axis=0) * jnp.fft.fft(x_ext, axis=0), axis=0)
+    product = jnp.fft.ifft(
+        jnp.fft.fft(t_ext, axis=0) * jnp.fft.fft(x_ext, axis=0),
+        axis=0)
     if not jnp.iscomplexobj(f):
         product = jnp.real(product)
 
@@ -1209,7 +1220,6 @@ def _prune_spurious_roots(r, rho):
     as complex so the square root is well defined for real ``|r| < 1``.
     """
     import numpy as np
-
     r = np.asarray(r)
     rho_roots = np.abs(r + np.sqrt(r.astype(np.complex128) ** 2 - 1.0))
     rho_roots = np.where(rho_roots < 1.0, 1.0 / rho_roots, rho_roots)
@@ -1239,7 +1249,7 @@ def _roots_build_transforms():
     Chebfun commit: 7574c77
     """
     matrices = []
-    for a, b in ((-1.0, -0.004849834917525), (-0.004849834917525, 1.0)):
+    for a, b in ((-1., -0.004849834917525), (-0.004849834917525, 1.)):
         x = _roots_mapped_points(513, a, b)
         values = jnp.ones((513, 513), dtype=x.dtype).at[:, 1].set(x)
 
@@ -1250,9 +1260,8 @@ def _roots_build_transforms():
         values = jax.lax.fori_loop(2, 513, step, values)
         reflected = jnp.concatenate((values[512:0:-1, :], values[:512, :]), axis=0)
         transformed = jnp.real(jnp.fft.fft(reflected, axis=0) / 512)
-        matrix = jnp.concatenate(
-            (0.5 * transformed[:1], transformed[1:512], 0.5 * transformed[512:513]), axis=0
-        )
+        matrix = jnp.concatenate((.5 * transformed[:1], transformed[1:512],
+                                  .5 * transformed[512:513]), axis=0)
         matrices.append(jnp.triu(matrix))
     return tuple(matrices)
 
@@ -1300,8 +1309,8 @@ def _roots_sampled_subdivision(c):
     Chebfun commit: 7574c77
     """
     n = c.shape[0]
-    left = _roots_mapped_points(n, -1.0, -0.004849834917525)
-    right = _roots_mapped_points(n, -0.004849834917525, 1.0)
+    left = _roots_mapped_points(n, -1., -0.004849834917525)
+    right = _roots_mapped_points(n, -0.004849834917525, 1.)
     points = jnp.concatenate((left, right))
     values = _clenshaw(c, points) if n <= 4000 else ndct(points, c)
     return _vals2coeffs_jax(values[:n]), _vals2coeffs_jax(values[n:])
@@ -1329,7 +1338,6 @@ def _roots_subdivide(c):
         # that dependency here, outside tracing, so no module-global tracer
         # can escape the compiled sampled-subdivision call below.
         from chebfunjax.utils import ndct_fast
-
         del ndct_fast
     return _roots_sampled_subdivision(c)
 
@@ -1343,20 +1351,13 @@ def _matlab_sort_roots(roots: jax.Array) -> jax.Array:
     return jnp.sort(roots)
 
 
-def _roots_colleague(
-    coeffs: jax.Array,
-    qz: bool = False,
-    all_roots: bool = False,
-    prune: bool = False,
-    recurse: bool = True,
-    *,
-    zero_fun: bool = True,
-    normalization_scale: float | jax.Array | None = None,
-    filter_callback: Callable | None = None,
-    filter_object=None,
-) -> jax.Array:
+def _roots_colleague(coeffs: jax.Array, qz: bool = False,
+                     all_roots: bool = False, prune: bool = False,
+                     recurse: bool = True, *, zero_fun: bool = True,
+                     normalization_scale: float | jax.Array | None = None,
+                     filter_callback: Callable | None = None,
+                     filter_object=None) -> jax.Array:
     import numpy as np
-
     """Find roots of a Chebyshev expansion in [-1, 1].
 
     Uses recursive subdivision for coefficient count > 50 and colleague
@@ -1422,16 +1423,15 @@ def _roots_colleague(
     if normalization_scale is None:
         vscl = np.max(np.abs(c))
         if vscl == 0.0:
-            return jnp.asarray([0.0] if zero_fun else [], dtype=jnp.float64)
+            return jnp.asarray([0.] if zero_fun else [], dtype=jnp.float64)
         c_scaled = c / vscl
     else:
         # Preserve source division, including zero/nonfinite outcomes. There
         # is no denominator floor or fallback to coefficient scaling.
         c_scaled = np.asarray(jnp.asarray(c) / jnp.asarray(normalization_scale))
 
-    r = _roots_main(
-        c_scaled, htol, qz=qz, all_roots=all_roots, prune=prune, recurse=recurse, zero_fun=zero_fun
-    )
+    r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
+                    prune=prune, recurse=recurse, zero_fun=zero_fun)
 
     # MATLAB roots_scalar sorts real roots numerically and complex roots by
     # magnitude then phase, then applies FILTER before top-level Bernstein
@@ -1488,6 +1488,7 @@ def _roots_eigvals_jax(matrix: jax.Array) -> jax.Array:
     return jnp.linalg.eigvals(matrix)
 
 
+
 @jax.jit
 def _roots_matrix_and_finite_jax(c: jax.Array):
     """Native colleague matrix plus the Python adapter's finite-input flag.
@@ -1507,7 +1508,8 @@ def _roots_eig_and_metadata_jax(matrix: jax.Array):
     Classification does not filter or reorder the provider's eigenvalues.
     """
     roots = _roots_eigvals_jax(matrix)
-    return (roots, jnp.all(jnp.isfinite(roots)), jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
+    return (roots, jnp.all(jnp.isfinite(roots)),
+            jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
 
 
 @jax.jit
@@ -1524,21 +1526,18 @@ def _roots_matrix_eig_and_metadata_jax(c: jax.Array):
 
     def eig_branch(value):
         roots = _roots_eigvals_jax(value)
-        return (roots, jnp.all(jnp.isfinite(roots)), jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
+        return (roots, jnp.all(jnp.isfinite(roots)),
+                jnp.any(jnp.imag(roots) != 0), jnp.real(roots))
 
     def skipped_branch(value):
         del value
         n = c.shape[0] - 1
-        return (
-            jnp.zeros((n,), dtype=jnp.complex128),
-            jnp.asarray(False),
-            jnp.asarray(False),
-            jnp.zeros((n,), dtype=jnp.float64),
-        )
+        return (jnp.zeros((n,), dtype=jnp.complex128),
+                jnp.asarray(False), jnp.asarray(False),
+                jnp.zeros((n,), dtype=jnp.float64))
 
     roots, roots_finite, has_imaginary, real_roots = jax.lax.cond(
-        matrix_finite, eig_branch, skipped_branch, matrix
-    )
+        matrix_finite, eig_branch, skipped_branch, matrix)
     return matrix_finite, roots, roots_finite, has_imaginary, real_roots
 
 
@@ -1557,8 +1556,7 @@ def _roots_default_eigenvalues(c):
     # Preserve non-array coercion while avoiding eager host-array conversion JITs.
     c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
     matrix_finite, roots, roots_finite, has_imaginary, real_roots = (
-        _roots_matrix_eig_and_metadata_jax(c)
-    )
+        _roots_matrix_eig_and_metadata_jax(c))
     if not bool(matrix_finite):
         raise LinAlgError("Array must not contain infs or NaNs")
     # Public JAX eig returns NaNs when LAPACK reports failure and does not expose
@@ -1567,22 +1565,15 @@ def _roots_default_eigenvalues(c):
         raise LinAlgError("Eigenvalues did not converge (nonfinite JAX eig output)")
     # NumPy returns real dtype for a real matrix with an entirely real spectrum.
     # Keep complex matrix outputs complex and preserve the solver's own order.
-    if not jnp.issubdtype(c.dtype, jnp.complexfloating) and not bool(has_imaginary):
+    if (not jnp.issubdtype(c.dtype, jnp.complexfloating)
+            and not bool(has_imaginary)):
         roots = real_roots
     return jax.device_get(roots).copy()
 
 
-def _roots_main(
-    c,
-    htol: float,
-    qz: bool = False,
-    all_roots: bool = False,
-    prune: bool = False,
-    recurse: bool = True,
-    zero_fun: bool = True,
-):
+def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
+                prune: bool = False, recurse: bool = True, zero_fun: bool = True):
     import numpy as np
-
     """Host-driven recursive root-finding engine (not JIT-safe).
 
     Follows MATLAB Chebfun's roots.m strategy:
@@ -1599,14 +1590,15 @@ def _roots_main(
     tail_max = 5.0 * np.finfo(np.float64).eps * np.linalg.norm(c, 1)
     idx = np.where(np.abs(c) > tail_max)[0]
     if idx.size == 0:
-        return jax.device_get(jnp.asarray([0.0] if zero_fun else [], dtype=jnp.float64)).copy()
+        return jax.device_get(jnp.asarray(
+            [0.] if zero_fun else [], dtype=jnp.float64)).copy()
     n = int(idx[-1]) + 1
     c = c[:n]
 
     # Trivial cases
     if n == 1:
         if zero_fun and c[0] == 0.0:
-            return jax.device_get(jnp.asarray([0.0], dtype=jnp.float64)).copy()
+            return jax.device_get(jnp.asarray([0.], dtype=jnp.float64)).copy()
         return np.array([], dtype=np.float64)
 
     if n == 2:
@@ -1616,11 +1608,9 @@ def _roots_main(
             # Native linear rejection is strict: equality at the imaginary
             # or expanded domain bounds is retained. The eig leaf below has
             # its own intentionally strict imaginary acceptance predicate.
-            reject = (
-                (jnp.abs(jnp.imag(r)) > htol)
-                | (jnp.real(r) < -(1.0 + htol))
-                | (jnp.real(r) > (1.0 + htol))
-            )
+            reject = ((jnp.abs(jnp.imag(r)) > htol)
+                      | (jnp.real(r) < -(1.0 + htol))
+                      | (jnp.real(r) > (1.0 + htol)))
             r = jnp.clip(jnp.real(r[~reject]), -1.0, 1.0)
         # Explicit writable host adapter for the inherited recursive engine.
         # All arithmetic, rejection and clipping in this branch are JAX.
@@ -1654,7 +1644,6 @@ def _roots_main(
             c_scaled[-2] = c_scaled[-2] + 0.5 * B[0, 0]
             A[:, 0] = c_scaled[::-1]
             import scipy.linalg as _sla
-
             rts = _sla.eig(A, B, right=False)
         else:
             rts = _roots_default_eigenvalues(c)
@@ -1682,24 +1671,10 @@ def _roots_main(
     c_left, c_right = np.asarray(c_left), np.asarray(c_right)
 
     # Recurse
-    r_left = _roots_main(
-        c_left,
-        2.0 * htol,
-        qz=qz,
-        all_roots=all_roots,
-        prune=prune,
-        recurse=recurse,
-        zero_fun=zero_fun,
-    )
-    r_right = _roots_main(
-        c_right,
-        2.0 * htol,
-        qz=qz,
-        all_roots=all_roots,
-        prune=prune,
-        recurse=recurse,
-        zero_fun=zero_fun,
-    )
+    r_left = _roots_main(c_left, 2.0 * htol, qz=qz, all_roots=all_roots,
+                         prune=prune, recurse=recurse, zero_fun=zero_fun)
+    r_right = _roots_main(c_right, 2.0 * htol, qz=qz, all_roots=all_roots,
+                          prune=prune, recurse=recurse, zero_fun=zero_fun)
 
     # Map back to original interval
     r_left_mapped = (SPLIT_POINT - 1.0) / 2 + (SPLIT_POINT + 1.0) / 2 * r_left
@@ -1735,15 +1710,13 @@ def _roots_array_columns(f, **options):
     Preserve each original technology and its scalar normalization/ordering.
     Variable root counts make this an eager adapter, not a JIT promise.
     """
-    columns = [
-        type(f)(coeffs=f.coeffs[:, j], ishappy=f.ishappy).roots(**options)
-        for j in range(f.coeffs.shape[1])
-    ]
+    columns = [type(f)(coeffs=f.coeffs[:, j], ishappy=f.ishappy).roots(**options)
+               for j in range(f.coeffs.shape[1])]
     count = max((len(column) for column in columns), default=0)
     dtype = jnp.complex128 if any(jnp.iscomplexobj(c) for c in columns) else jnp.float64
     result = jnp.full((count, len(columns)), jnp.nan, dtype=dtype)
     for j, column in enumerate(columns):
-        result = result.at[: len(column), j].set(column)
+        result = result.at[:len(column), j].set(column)
     return result
 
 
@@ -1775,7 +1748,9 @@ def _poly_coeffs(coeffs: jax.Array) -> jax.Array:
     """
     c = jnp.atleast_1d(coeffs)
     if c.ndim == 2:
-        return jnp.stack([_poly_coeffs(c[:, j]) for j in range(c.shape[1])], axis=0)
+        return jnp.stack(
+            [_poly_coeffs(c[:, j]) for j in range(c.shape[1])], axis=0
+        )
     n = c.shape[0]
     dt = jnp.result_type(c.dtype, jnp.float64)
     c = c.astype(dt)
@@ -1783,11 +1758,11 @@ def _poly_coeffs(coeffs: jax.Array) -> jax.Array:
         return c
     # Accumulate p(x) = sum_k c[k] T_k(x) in the power basis (ascending),
     # using T_0 = 1, T_1 = x, T_k = 2 x T_{k-1} - T_{k-2}.
-    tkm2 = jnp.zeros(n, dtype=dt).at[0].set(1.0)  # T_0
+    tkm2 = jnp.zeros(n, dtype=dt).at[0].set(1.0)          # T_0
     p = c[0] * tkm2
     if n == 1:
         return p[::-1]
-    tkm1 = jnp.zeros(n, dtype=dt).at[1].set(1.0)  # T_1
+    tkm1 = jnp.zeros(n, dtype=dt).at[1].set(1.0)          # T_1
     p = p + c[1] * tkm1
     for k in range(2, n):
         # x * tkm1  == shift power coeffs up by one index
@@ -1796,7 +1771,7 @@ def _poly_coeffs(coeffs: jax.Array) -> jax.Array:
         p = p + c[k] * tk
         tkm2 = tkm1
         tkm1 = tk
-    return p[::-1]  # highest degree first
+    return p[::-1]                                        # highest degree first
 
 
 def _chebT_to_chebU_coeffs(cT: jax.Array) -> jax.Array:
@@ -1819,7 +1794,9 @@ def _chebT_to_chebU_coeffs(cT: jax.Array) -> jax.Array:
     twod = cT.ndim == 2
     c = cT if twod else cT[:, None]
     # Pad two zero rows: coeff of U_n needs T_n and T_{n+2}.
-    cU = jnp.concatenate([c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)], axis=0)
+    cU = jnp.concatenate(
+        [c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)], axis=0
+    )
     cU = cU.at[0].set(2.0 * c[0])
     top = 0.5 * (cU[:-2] - cU[2:])
     cU = jnp.concatenate([top, cU[-2:]], axis=0)
@@ -1879,13 +1856,20 @@ def _peel_boundary_factor(c, active, sgn):
     def solve_row(k, solution):
         i = size - 1 - k
         diagonal = jnp.where(i == 0, 1.0, 0.5).astype(c.real.dtype)
-        value = (work[i] - sgn * solution[i + 1] - 0.5 * solution[i + 2]) / diagonal
+        value = (work[i] - sgn * solution[i + 1]
+                 - 0.5 * solution[i + 2]) / diagonal
         return solution.at[i].set(value)
 
-    solution = lax.fori_loop(0, size, solve_row, jnp.zeros_like(work))[:size]
+    solution = lax.fori_loop(
+        0, size, solve_row, jnp.zeros_like(work)
+    )[:size]
     divided = sgn * solution
-    updated = c.at[:-1, :].set(jnp.where(active[None, :], divided, c[:-1, :]))
-    return updated.at[-1, :].set(jnp.where(active, jnp.zeros((), dtype=c.dtype), c[-1, :]))
+    updated = c.at[:-1, :].set(
+        jnp.where(active[None, :], divided, c[:-1, :])
+    )
+    return updated.at[-1, :].set(
+        jnp.where(active, jnp.zeros((), dtype=c.dtype), c[-1, :])
+    )
 
 
 def _extract_boundary_roots(coeffs, vscale, num_roots=None):
@@ -1919,10 +1903,8 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
     rootsRight = jnp.zeros((m,), dtype=jnp.int32)
     tol = _boundary_root_tolerance(vscale, m)
 
-    nr = (
-        None
-        if num_roots is None
-        else jnp.reshape(jnp.asarray(num_roots, dtype=jnp.float64), (2, m))
+    nr = None if num_roots is None else jnp.reshape(
+        jnp.asarray(num_roots, dtype=jnp.float64), (2, m)
     )
 
     endValues = _boundary_end_values(c)
@@ -1936,7 +1918,6 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
             return c, rootsLeft, rootsRight
 
         if nr is None:
-
             def cond(state):
                 _c, _left, _right, ends, _tol = state
                 return jnp.any(jnp.min(ends, axis=0) <= _tol)
@@ -1945,7 +1926,9 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
                 coeff, left, right, ends, current_tol = state
                 do_left = jnp.any(ends[0] <= current_tol)
                 sgn = jnp.where(do_left, 1.0, -1.0)
-                active = jnp.where(do_left, ends[0] <= current_tol, ends[1] <= current_tol)
+                active = jnp.where(
+                    do_left, ends[0] <= current_tol, ends[1] <= current_tol
+                )
                 coeff = _peel_boundary_factor(coeff, active, sgn)
                 left = left + (active & do_left).astype(left.dtype)
                 right = right + (active & ~do_left).astype(right.dtype)
@@ -1987,11 +1970,7 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
                 def mismatched(d):
                     coeff, left, right, ends, current_tol, requested = d
                     return (
-                        coeff,
-                        left,
-                        right,
-                        ends,
-                        current_tol,
+                        coeff, left, right, ends, current_tol,
                         requested.at[side].set(jnp.zeros_like(requested[side])),
                     )
 
@@ -2042,7 +2021,9 @@ def _refine_sample(op, x, *, extrapolate: bool):
     if not extrapolate:
         return _as_fun_dtype(op(x))
     values = _as_fun_dtype(op(x[1:-1]))
-    nan_rows = jnp.full((1,) + values.shape[1:], jnp.nan, dtype=values.dtype)
+    nan_rows = jnp.full(
+        (1,) + values.shape[1:], jnp.nan, dtype=values.dtype
+    )
     return jnp.concatenate((nan_rows, values, nan_rows), axis=0)
 
 
@@ -2077,10 +2058,7 @@ def _refine_chebtech2_nested(
     """Refine Chebtech2 with nested points, reusing old values exactly."""
     if values is None or values.shape[0] == 0:
         return _refine_chebtech2_resampling(
-            op,
-            None,
-            max_length=max_length,
-            min_samples=min_samples,
+            op, None, max_length=max_length, min_samples=min_samples,
             extrapolate=extrapolate,
         )
     old_n = values.shape[0]
@@ -2093,7 +2071,9 @@ def _refine_chebtech2_nested(
     return _interleave_chebtech2_nested_values(values, new_values), False
 
 
-def _refine_chebtech1_resampling(op, values=None, *, max_length=65537, min_samples=17):
+def _refine_chebtech1_resampling(
+    op, values=None, *, max_length=65537, min_samples=17
+):
     """Refine Chebtech1 by resampling the complete grid at each length."""
     if values is None or values.shape[0] == 0:
         n = _initial_resampling_n(min_samples)
@@ -2107,7 +2087,9 @@ def _refine_chebtech1_resampling(op, values=None, *, max_length=65537, min_sampl
     return _as_fun_dtype(op(chebpts(n, kind=1))), False
 
 
-def _refine_chebtech1_nested(op, values=None, *, max_length=65537, min_samples=17):
+def _refine_chebtech1_nested(
+    op, values=None, *, max_length=65537, min_samples=17
+):
     """Refine Chebtech1 on 17*3^q grids, reusing old samples between calls."""
     if values is None or values.shape[0] == 0:
         return _refine_chebtech1_resampling(
@@ -2124,7 +2106,9 @@ def _refine_chebtech1_nested(op, values=None, *, max_length=65537, min_samples=1
         # x(3:3:end), followed by placement of old values in x(2:3:end).
         left_new = _as_fun_dtype(op(x[::3]))
         right_new = _as_fun_dtype(op(x[2::3]))
-        out = jnp.empty((n,) + values.shape[1:], dtype=jnp.result_type(values, left_new, right_new))
+        out = jnp.empty(
+            (n,) + values.shape[1:], dtype=jnp.result_type(values, left_new, right_new)
+        )
         out = out.at[::3].set(left_new)
         out = out.at[2::3].set(right_new)
         out = out.at[1::3].set(values)
@@ -2140,21 +2124,9 @@ def _update_running_vscale(values, vscale):
 
 
 def _adaptive_refine_construct(
-    tech_cls,
-    kind,
-    op,
-    *,
-    max_length,
-    min_samples,
-    refinement_function,
-    tol,
-    check,
-    vscale,
-    sample_test,
-    hscale,
-    extrapolate=False,
-    use_turbo=False,
-    fixed_length=None,
+    tech_cls, kind, op, *, max_length, min_samples, refinement_function,
+    tol, check, vscale, sample_test, hscale, extrapolate=False,
+    use_turbo=False, fixed_length=None,
 ):
     """Populate from source nested/resampling batches, including sentinels.
 
@@ -2181,24 +2153,18 @@ def _adaptive_refine_construct(
         # source field names, and None for the initial empty sample array.
         if not callable(refinement_function):
             raise TypeError("refinement_function must be a string or callable")
-
         def refine(function, values, **prefs):
-            return refinement_function(
-                function,
-                values,
-                {
-                    "maxLength": prefs["max_length"],
-                    "minSamples": prefs["min_samples"],
-                    "extrapolate": prefs.get("extrapolate", False),
-                    "chebfuneps": _EPS if tol is None else tol,
-                    "fixedLength": math.nan if fixed_length is None else fixed_length,
-                    "sampleTest": sample_test,
-                    "refinementFunction": refinement_function,
-                    "happinessCheck": check,
-                    "useTurbo": use_turbo,
-                },
-            )
-
+            return refinement_function(function, values, {
+                "maxLength": prefs["max_length"],
+                "minSamples": prefs["min_samples"],
+                "extrapolate": prefs.get("extrapolate", False),
+                "chebfuneps": _EPS if tol is None else tol,
+                "fixedLength": math.nan if fixed_length is None else fixed_length,
+                "sampleTest": sample_test,
+                "refinementFunction": refinement_function,
+                "happinessCheck": check,
+                "useTurbo": use_turbo,
+            })
     kwargs = {"max_length": max_length, "min_samples": min_samples}
     if kind == 2:
         kwargs["extrapolate"] = extrapolate
@@ -2225,18 +2191,12 @@ def _adaptive_refine_construct(
         values = sampled
         n = values.shape[0]
         if not bool(jnp.all(jnp.isfinite(values))):
-            values = _extrapolate_values(values, chebpts(n, kind=kind), tech_cls.barywts(n))[0]
+            values = _extrapolate_values(
+                values, chebpts(n, kind=kind), tech_cls.barywts(n))[0]
         coeffs = tech_cls.vals2coeffs(values)
         happy, cutoff = tech_cls.happiness_check(
-            coeffs,
-            values,
-            op=op,
-            tol=tol,
-            vscale=scales,
-            check=check,
-            hscale=hscale,
-            sample_test=sample_test,
-        )
+            coeffs, values, op=op, tol=tol, vscale=scales, check=check,
+            hscale=hscale, sample_test=sample_test)
         if happy:
             return tech_cls(coeffs=coeffs[:cutoff], ishappy=True)
         # Source populate restores NaN/Inf flags after an unhappy check, so
@@ -2336,6 +2296,7 @@ def _tech_mtimes(tech, other):
     return cls(coeffs=out, ishappy=tech.ishappy)
 
 
+
 def _tech_numeric_times(tech, other):
     """Source numeric TIMES: scalar scaling, bsxfun rows, or column contraction.
 
@@ -2402,8 +2363,7 @@ def _tech_object_times(tech, other):
     right_columns = 1 if other.coeffs.ndim == 1 else other.coeffs.shape[1]
     if left_columns != right_columns and left_columns != 1 and right_columns != 1:
         raise _TechOperationError(
-            "CHEBFUN:CHEBTECH:times:dim2",
-            "Inner matrix dimensions must agree.",
+            "CHEBFUN:CHEBTECH:times:dim2", "Inner matrix dimensions must agree.",
         )
     n = max(tech.n, other.n)
     left = _columns(_prolong_coeffs(tech.coeffs, n))
@@ -2412,10 +2372,12 @@ def _tech_object_times(tech, other):
     # condition after prolongation and scalar-column broadcasting.
     positive = bool(jnp.all(left == jnp.conj(right)))
     coeffs = _coeff_multiply(tech.coeffs, other.coeffs)
-    result = type(tech).from_coeffs(coeffs, ishappy=tech.ishappy and other.ishappy).simplify()
+    result = type(tech).from_coeffs(
+        coeffs, ishappy=tech.ishappy and other.ishappy).simplify()
     if positive:
         values = jnp.abs(type(result).coeffs2vals(result.coeffs))
-        result = type(result).from_coeffs(type(result).vals2coeffs(values), ishappy=result.ishappy)
+        result = type(result).from_coeffs(
+            type(result).vals2coeffs(values), ishappy=result.ishappy)
     return result
 
 
@@ -2452,7 +2414,8 @@ def _tech_cell2mat(cls, techs):
     for t in kept:
         coefficients = t.prolong(n).coeffs
         columns.append(coefficients if coefficients.ndim == 2 else coefficients[:, None])
-    return cls(coeffs=jnp.concatenate(columns, axis=1), ishappy=all(t.ishappy for t in kept))
+    return cls(coeffs=jnp.concatenate(columns, axis=1),
+               ishappy=all(t.ishappy for t in kept))
 
 
 def _tech_series_count(n, default):
@@ -2554,11 +2517,8 @@ class Chebtech2(eqx.Module):
 
         coefficients = _tech_series_data(self)
         count = _tech_series_count(n, coefficients.shape[0])
-        converted = (
-            jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
-            if coefficients.ndim == 2
-            else cheb2leg(coefficients)
-        )
+        converted = (jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else cheb2leg(coefficients))
         return _prolong_coeffs(converted, count)
 
     def jaccoeffs(self, *args):
@@ -2585,11 +2545,8 @@ class Chebtech2(eqx.Module):
         def convert(column):
             return cheb2jac(column, alpha, beta)
 
-        converted = (
-            jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
-            if coefficients.ndim == 2
-            else convert(coefficients)
-        )
+        converted = (jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else convert(coefficients))
         return _prolong_coeffs(converted, count)
 
     def isfinite(self) -> jax.Array:
@@ -2614,7 +2571,8 @@ class Chebtech2(eqx.Module):
         from chebfunjax.tech._fractional import fractional_smooth_coefficients
 
         coefficients = fractional_smooth_coefficients(_tech_series_data(self), mu, b)
-        return type(self)(coeffs=coefficients, ishappy=getattr(self, "ishappy", True))
+        return type(self)(coeffs=coefficients,
+                          ishappy=getattr(self, "ishappy", True))
 
     def isdecay(self) -> jax.Array:
         """Test decay faster than a single root at each endpoint.
@@ -2642,7 +2600,8 @@ class Chebtech2(eqx.Module):
         else:
             nonzero = (values != 0) & ~jnp.isnan(values)
             result = jnp.any(nonzero, axis=0, keepdims=True)
-        return type(self)(coeffs=result, ishappy=getattr(self, "ishappy", True))
+        return type(self)(coeffs=result,
+                          ishappy=getattr(self, "ishappy", True))
 
     def any(self, dim: int = 1):
         """Reduce nonzero values down columns or across rows.
@@ -2660,7 +2619,8 @@ class Chebtech2(eqx.Module):
             if getattr(self, "_is_empty_object", False):
                 return jnp.asarray(False)
             coefficients = self.coeffs
-            if coefficients.size == 0 and (coefficients.ndim == 1 or coefficients.shape == (0, 0)):
+            if coefficients.size == 0 and (coefficients.ndim == 1
+                                           or coefficients.shape == (0, 0)):
                 return jnp.asarray(False)
             nonzero = (coefficients != 0) & ~jnp.isnan(coefficients)
             if coefficients.ndim == 2 and coefficients.shape[0] == 1:
@@ -2672,7 +2632,8 @@ class Chebtech2(eqx.Module):
             point = jnp.asarray(0.1273881594, dtype=jnp.float64)
             values = self(point)
             result = jnp.any((values != 0) & ~jnp.isnan(values))
-            return type(self)(coeffs=jnp.reshape(result, (1,)), ishappy=self.ishappy)
+            return type(self)(coeffs=jnp.reshape(result, (1,)),
+                              ishappy=self.ishappy)
         raise ValueError("CHEBFUN:CHEBTECH:any:dim: DIM input must be 1 or 2.")
 
     def isinf(self) -> jax.Array:
@@ -2749,7 +2710,8 @@ class Chebtech2(eqx.Module):
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_coeffs(cls, coeffs: jax.Array, ishappy: bool = True) -> "Chebtech2":
+    def from_coeffs(cls, coeffs: jax.Array,
+                    ishappy: bool = True) -> "Chebtech2":
         """Construct a Chebtech2 from Chebyshev coefficients.
 
         Parameters
@@ -2885,22 +2847,14 @@ class Chebtech2(eqx.Module):
             # the Bernstein ellipse is fixed from the adaptive length while the
             # number of computed coefficients is ``fixedLength`` (here ``n``)
             # or ``2*length`` otherwise.
-            plain = cls._adaptive_construct(
-                f,
-                maxpow2,
-                tol=tol,
-                check=check,
-                vscale=vscale,
-                extrapolate=extrapolate,
-                start_pow2=start_pow2,
-                sample_test=sample_test,
-                refinement_function=refinement_function,
-                max_length=max_length,
-                min_samples=min_samples,
-                hscale=hscale,
-                use_turbo=True,
-                fixed_length=n,
-            )
+            plain = cls._adaptive_construct(f, maxpow2, tol=tol,
+                                            check=check, vscale=vscale,
+                                            extrapolate=extrapolate,
+                                            start_pow2=start_pow2,
+                                            sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, hscale=hscale,
+                use_turbo=True, fixed_length=n)
             # Source constructors turbocharge only happy representations.
             if not plain.ishappy:
                 return plain
@@ -2909,26 +2863,17 @@ class Chebtech2(eqx.Module):
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n, extrapolate=extrapolate)
-        return cls._adaptive_construct(
-            f,
-            maxpow2,
-            tol=tol,
-            check=check,
-            vscale=vscale,
-            extrapolate=extrapolate,
-            start_pow2=start_pow2,
-            sample_test=sample_test,
-            refinement_function=refinement_function,
-            max_length=max_length,
-            min_samples=min_samples,
-            hscale=hscale,
-        )
+        return cls._adaptive_construct(f, maxpow2, tol=tol, check=check,
+                                       vscale=vscale,
+                                       extrapolate=extrapolate,
+                                       start_pow2=start_pow2,
+                                       sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, hscale=hscale)
 
     @classmethod
     def _fixed_construct(
-        cls,
-        f: Callable[[jax.Array], jax.Array],
-        n: int,
+        cls, f: Callable[[jax.Array], jax.Array], n: int,
         extrapolate: bool = False,
     ) -> "Chebtech2":
         """Fixed-length construction on an n-point Chebyshev-2 grid."""
@@ -2946,21 +2891,11 @@ class Chebtech2(eqx.Module):
 
     @classmethod
     def _adaptive_construct(
-        cls,
-        f,
-        maxpow2=16,
-        start_pow2=4,
-        tol=None,
-        check="standard",
-        vscale=0.0,
-        sample_test=True,
-        hscale=1.0,
+        cls, f, maxpow2=16, start_pow2=4, tol=None, check="standard",
+        vscale=0.0, sample_test=True, hscale=1.0,
         extrapolate: bool = False,
-        refinement_function="nested",
-        max_length=None,
-        min_samples=None,
-        use_turbo=False,
-        fixed_length=None,
+        refinement_function="nested", max_length=None, min_samples=None,
+        use_turbo=False, fixed_length=None,
     ) -> "Chebtech2":
         """Source-shaped nested/resampling adaptive population.
 
@@ -2968,20 +2903,13 @@ class Chebtech2(eqx.Module):
         Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
         return _adaptive_refine_construct(
-            cls,
-            2,
-            f,
-            max_length=2**maxpow2 + 1 if max_length is None else max_length,
-            min_samples=2**start_pow2 + 1 if min_samples is None else min_samples,
+            cls, 2, f,
+            max_length=2**maxpow2+1 if max_length is None else max_length,
+            min_samples=2**start_pow2+1 if min_samples is None else min_samples,
             refinement_function=refinement_function,
-            tol=tol,
-            check=check,
-            vscale=vscale,
-            sample_test=sample_test,
-            hscale=hscale,
-            extrapolate=extrapolate,
-            use_turbo=use_turbo,
-            fixed_length=fixed_length,
+            tol=tol, check=check, vscale=vscale, sample_test=sample_test,
+            hscale=hscale, extrapolate=extrapolate,
+            use_turbo=use_turbo, fixed_length=fixed_length,
         )
 
     # ------------------------------------------------------------------
@@ -3017,11 +2945,9 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
-        if (
-            not isinstance(x, jax.core.Tracer)
-            and not isinstance(self.coeffs, jax.core.Tracer)
-            and self.coeffs.shape[0] <= 4096
-        ):
+        if not isinstance(x, jax.core.Tracer) and \
+                not isinstance(self.coeffs, jax.core.Tracer) and \
+                self.coeffs.shape[0] <= 4096:
             # chebval loops once per coefficient in Python; past a few
             # thousand coefficients the compiled Clenshaw is faster, and
             # huge-length Chebtechs are rare enough not to threaten the
@@ -3029,17 +2955,20 @@ class Chebtech2(eqx.Module):
             import numpy.polynomial.chebyshev as _ncheb
 
             xn = np.asarray(x)
-            xn = xn.astype(np.complex128 if np.iscomplexobj(xn) else np.float64)
+            xn = xn.astype(np.complex128 if np.iscomplexobj(xn)
+                           else np.float64)
             c = np.asarray(self.coeffs)
             if c.shape[0] == 0:
-                return jnp.zeros(xn.shape + c.shape[1:], dtype=c.dtype if c.size else np.float64)
+                return jnp.zeros(xn.shape + c.shape[1:],
+                                 dtype=c.dtype if c.size else np.float64)
             if xn.ndim == 0 and c.ndim == 1 and c.shape[0] <= 4096:
                 # Scalar point, 1-D coefficients: Clenshaw with Python
                 # scalars.  chebval's per-coefficient numpy scalar ops
                 # cost ~0.13 ms for a length-40 series — the ODE marcher
                 # evaluates coefficient chebfuns one scalar at a time.
                 cl = c.tolist()
-                xf = complex(xn) if (np.iscomplexobj(xn) or np.iscomplexobj(c)) else float(xn)
+                xf = complex(xn) if (np.iscomplexobj(xn)
+                                     or np.iscomplexobj(c)) else float(xn)
                 x2 = 2.0 * xf
                 b1 = b2 = 0.0
                 for ck in cl[:0:-1]:
@@ -3049,7 +2978,8 @@ class Chebtech2(eqx.Module):
             # chebval returns c.shape[1:] + x.shape; the traced path
             # returns x.shape + c.shape[1:].
             if c.ndim > 1:
-                val = np.moveaxis(val, range(c.ndim - 1), range(-(c.ndim - 1), 0))
+                val = np.moveaxis(val, range(c.ndim - 1),
+                                  range(-(c.ndim - 1), 0))
             return jnp.asarray(val)
         return self._call_traced(x)
 
@@ -3168,7 +3098,9 @@ class Chebtech2(eqx.Module):
         """
         v = jnp.asarray(values)
         n = v.shape[0]
-        new_values, _, _ = _extrapolate_values(v, chebpts(n, kind=2), Chebtech2.barywts(n))
+        new_values, _, _ = _extrapolate_values(
+            v, chebpts(n, kind=2), Chebtech2.barywts(n)
+        )
         return new_values
 
     @staticmethod
@@ -3188,9 +3120,8 @@ class Chebtech2(eqx.Module):
         from chebfunjax.utils.interpolation import bary as _bary
 
         n = gvals.shape[0]
-        return _bary(
-            jnp.asarray(x, dtype=gvals.dtype), gvals, chebpts(n, kind=2), _cheb2_barywts(n)
-        )
+        return _bary(jnp.asarray(x, dtype=gvals.dtype), gvals,
+                     chebpts(n, kind=2), _cheb2_barywts(n))
 
     @staticmethod
     def angles(n: int) -> jax.Array:
@@ -3349,7 +3280,8 @@ class Chebtech2(eqx.Module):
             padded = jnp.concatenate(
                 [
                     self.coeffs,
-                    jnp.zeros((n - m,) + self.coeffs.shape[1:], dtype=self.coeffs.dtype),
+                    jnp.zeros((n - m,) + self.coeffs.shape[1:],
+                              dtype=self.coeffs.dtype),
                 ]
             )
             return Chebtech2(coeffs=padded, ishappy=self.ishappy)
@@ -3490,8 +3422,7 @@ class Chebtech2(eqx.Module):
                 # enforce the contract explicitly.
                 raise ValueError(
                     "Chebtech2.compose: cannot compose two array-valued "
-                    "techs g(f) (MATLAB CHEBTECH:compose:arrval)."
-                )
+                    "techs g(f) (MATLAB CHEBTECH:compose:arrval).")
             op_cheb = op
             composed_func = lambda x: op_cheb(self(x))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
@@ -3598,21 +3529,22 @@ class Chebtech2(eqx.Module):
             brk = [float(t) for t in jnp.asarray(a).reshape(-1)]
             if len(brk) < 2:
                 raise ValueError(
-                    "CHEBFUN:CHEBTECH:restrict:badInterval: need at least two breakpoints."
-                )
-            if (
-                brk[0] < -1.0
-                or brk[-1] > 1.0
-                or any(right <= left for left, right in zip(brk, brk[1:]))
-            ):
-                raise ValueError("CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: "
+                    "need at least two breakpoints.")
+            if (brk[0] < -1.0 or brk[-1] > 1.0
+                    or any(right <= left for left, right in zip(brk, brk[1:]))):
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
             if len(brk) == 2:
                 return self.restrict(brk[0], brk[1])
-            return [self.restrict(brk[i], brk[i + 1]) for i in range(len(brk) - 1)]
+            return [self.restrict(brk[i], brk[i + 1])
+                    for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
         if a < -1.0 or b > 1.0 or a >= b:
-            raise ValueError("CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval."
+            )
         # Trivial case: full interval
         if a == -1.0 and b == 1.0:
             return self
@@ -3707,15 +3639,7 @@ class Chebtech2(eqx.Module):
         standard_chop
         """
         return _happiness_check_impl(
-            Chebtech2,
-            2,
-            coeffs,
-            values,
-            op,
-            tol,
-            vscale,
-            hscale,
-            check,
+            Chebtech2, 2, coeffs, values, op, tol, vscale, hscale, check,
             sample_test,
         )
 
@@ -3744,8 +3668,8 @@ class Chebtech2(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech2.from_coeffs(
-                _source_sum_coeffs(self, other, fc, gc), ishappy=self.ishappy and other.ishappy
-            )
+                _source_sum_coeffs(self, other, fc, gc),
+                ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition: only the c_0 coefficient changes. Promote the
             # coefficient dtype first — scattering a complex scalar into a
@@ -3858,7 +3782,8 @@ class Chebtech2(eqx.Module):
         """
         if self.coeffs.ndim == 1:
             return self
-        return Chebtech2(coeffs=self.coeffs[:, ::-1], ishappy=self.ishappy)
+        return Chebtech2(coeffs=self.coeffs[:, ::-1],
+                         ishappy=self.ishappy)
 
     def flipud(self) -> "Chebtech2":
         """Return g with g(x) = f(-x): negate the odd coefficients.
@@ -3868,7 +3793,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/flipud.m
         Chebfun commit: 7574c77
         """
-        return type(self)(coeffs=self.coeffs.at[1::2].multiply(-1.0), ishappy=self.ishappy)
+        return type(self)(coeffs=self.coeffs.at[1::2].multiply(-1.0),
+                          ishappy=self.ishappy)
 
     def real(self) -> "Chebtech2":
         """Real part (a zero tech if the input was purely imaginary).
@@ -3880,7 +3806,8 @@ class Chebtech2(eqx.Module):
         """
         c = jnp.real(self.coeffs)
         if not bool(jnp.any(c)):
-            c = jnp.zeros((1,) + self.coeffs.shape[1:], dtype=jnp.float64)
+            c = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.float64)
             return type(self)(coeffs=c, ishappy=True)
         return type(self)(coeffs=c, ishappy=self.ishappy)
 
@@ -3894,7 +3821,8 @@ class Chebtech2(eqx.Module):
         """
         c = jnp.imag(self.coeffs)
         if not bool(jnp.any(c)):
-            c = jnp.zeros((1,) + self.coeffs.shape[1:], dtype=jnp.float64)
+            c = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.float64)
             return type(self)(coeffs=c, ishappy=True)
         return type(self)(coeffs=c, ishappy=self.ishappy)
 
@@ -3906,9 +3834,11 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/conj.m
         Chebfun commit: 7574c77
         """
-        return type(self)(coeffs=jnp.conj(self.coeffs), ishappy=self.ishappy)
+        return type(self)(coeffs=jnp.conj(self.coeffs),
+                          ishappy=self.ishappy)
 
-    def qr(self, mode: str = "matrix", method: str = "built-in", want_e: bool = False):
+    def qr(self, mode: str = "matrix", method: str = "built-in",
+           want_e: bool = False):
         """QR factorisation ``f = Q R`` of an array-valued tech.
 
         ``Q`` is a tech with the same number of columns as ``f`` whose
@@ -4072,13 +4002,16 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/mat2cell.m
         Chebfun commit: 7574c77
         """
-        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        c = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
         out = []
         j = 0
         for s in sizes:
-            block = c[:, j : j + s]
+            block = c[:, j:j + s]
             j += s
-            out.append(type(self)(coeffs=block[:, 0] if s == 1 else block, ishappy=self.ishappy))
+            out.append(type(self)(
+                coeffs=block[:, 0] if s == 1 else block,
+                ishappy=self.ishappy))
         return out
 
     @classmethod
@@ -4103,7 +4036,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/assignColumns.m
         Chebfun commit: 7574c77
         """
-        fc = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        fc = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
         cols = [cols] if isinstance(cols, int) else list(cols)
         if g is None:
             keep = [j for j in range(fc.shape[1]) if j not in cols]
@@ -4111,9 +4045,11 @@ class Chebtech2(eqx.Module):
         gc = g.coeffs if g.coeffs.ndim == 2 else g.coeffs[:, None]
         n = max(fc.shape[0], gc.shape[0])
         fc = _prolong_coeffs(fc, n)
-        gc = _prolong_coeffs(gc, n).astype(jnp.result_type(fc.dtype, gc.dtype))
+        gc = _prolong_coeffs(gc, n).astype(
+            jnp.result_type(fc.dtype, gc.dtype))
         out = fc.astype(gc.dtype).at[:, jnp.asarray(cols)].set(gc)
-        return type(self)(coeffs=out, ishappy=self.ishappy and g.ishappy)
+        return type(self)(coeffs=out,
+                          ishappy=self.ishappy and g.ishappy)
 
     def __truediv__(self, other) -> "Chebtech2":
         """Division: Chebtech2 / scalar or Chebtech2 / Chebtech2.
@@ -4237,11 +4173,13 @@ class Chebtech2(eqx.Module):
         if dim != 1:
             if self.coeffs.ndim == 1:
                 return Chebtech2(
-                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype), ishappy=self.ishappy
-                )
-            return Chebtech2(coeffs=jnp.diff(self.coeffs, n=k, axis=1), ishappy=self.ishappy)
+                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
+                    ishappy=self.ishappy)
+            return Chebtech2(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
+                             ishappy=self.ishappy)
         if k >= self.coeffs.shape[0]:
-            return Chebtech2.from_values(jnp.zeros((1,) + self.coeffs.shape[1:], dtype=jnp.float64))
+            return Chebtech2.from_values(jnp.zeros(
+                (1,) + self.coeffs.shape[1:], dtype=jnp.float64))
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
@@ -4295,7 +4233,9 @@ class Chebtech2(eqx.Module):
         new_coeffs = _cumsum_coeffs(self.coeffs)
         if isinstance(self.coeffs, jax.core.Tracer):
             return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
-        result = Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy).simplify()
+        result = Chebtech2.from_coeffs(
+            new_coeffs, ishappy=self.ishappy
+        ).simplify()
         if result.isempty() or result.coeffs.size == 0:
             return result
         corrected = result.coeffs.at[0].add(-_cumsum_lval(result.coeffs))
@@ -4336,7 +4276,8 @@ class Chebtech2(eqx.Module):
         if dim == 2:
             if self.coeffs.ndim == 1:
                 return self
-            return Chebtech2(coeffs=jnp.sum(self.coeffs, axis=1), ishappy=self.ishappy)
+            return Chebtech2(coeffs=jnp.sum(self.coeffs, axis=1),
+                             ishappy=self.ishappy)
         return _definite_integral(self.coeffs)
 
     def inner(self, other: "Chebtech2") -> jax.Array:
@@ -4370,16 +4311,13 @@ class Chebtech2(eqx.Module):
         """
         # MATLAB checks emptiness before validating either input's class.
         other_data = other.coeffs if isinstance(other, (Chebtech1, Chebtech2)) else other
-        other_empty = getattr(other_data, "size", None) == 0 or (
-            isinstance(other_data, (list, tuple)) and len(other_data) == 0
-        )
+        other_empty = (getattr(other_data, "size", None) == 0 or
+                       (isinstance(other_data, (list, tuple)) and len(other_data) == 0))
         if self.coeffs.size == 0 or other_empty:
             return jnp.empty((0,), dtype=jnp.float64)
         if not isinstance(other, (Chebtech1, Chebtech2)):
-            raise ValueError(
-                "CHEBFUN:CHEBTECH:innerProduct:input: "
-                "innerProduct() only operates on two CHEBTECH objects."
-            )
+            raise ValueError("CHEBFUN:CHEBTECH:innerProduct:input: "
+                             "innerProduct() only operates on two CHEBTECH objects.")
         out = _inner_product(self.coeffs, other.coeffs)
         return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 
@@ -4419,17 +4357,10 @@ class Chebtech2(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(
-        self,
-        qz: bool = False,
-        *,
-        complex_roots: bool = False,
-        all_roots: bool = False,
-        prune: bool = False,
-        recurse: bool = True,
-        zero_fun: bool = True,
-        filter: Callable | None = None,
-    ) -> jax.Array:
+    def roots(self, qz: bool = False, *, complex_roots: bool = False,
+              all_roots: bool = False, prune: bool = False,
+              recurse: bool = True, zero_fun: bool = True,
+              filter: Callable | None = None) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe (variable output size, recursive subdivision).
@@ -4492,23 +4423,21 @@ class Chebtech2(eqx.Module):
         if complex_roots:
             all_roots = True
             prune = True
-        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse, zero_fun=zero_fun)
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
+                  zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
             if filter is not None:
                 kw["filter"] = filter
             return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
-            return (
-                jnp.asarray([0.0], dtype=jnp.float64)
-                if zero_fun and bool(self.coeffs[0] == 0)
-                else jnp.empty((0,), dtype=jnp.float64)
-            )
+            return (jnp.asarray([0.], dtype=jnp.float64)
+                    if zero_fun and bool(self.coeffs[0] == 0)
+                    else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
-        return _roots_colleague(
-            self.coeffs, normalization_scale=scale, filter_callback=filter, filter_object=self, **kw
-        )
+        return _roots_colleague(self.coeffs, normalization_scale=scale,
+                                filter_callback=filter, filter_object=self, **kw)
 
     def minandmax(self):
         """Native continuous extrema and locations; roots remain eager.
@@ -4522,7 +4451,6 @@ class Chebtech2(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.tech._chebtech_extrema import minandmax
-
         return minandmax(self, kind=2)
 
     def min(self) -> tuple[jax.Array, jax.Array]:
@@ -4585,7 +4513,8 @@ class Chebtech2(eqx.Module):
             return Chebtech2.empty()
         if not jnp.iscomplexobj(self.coeffs):
             arbitrary_point = 0.1273881594
-            fx = self(jnp.array([-1.0, arbitrary_point, 1.0], dtype=jnp.float64))
+            fx = self(jnp.array([-1.0, arbitrary_point, 1.0],
+                                dtype=jnp.float64))
             meanfx = jnp.mean(fx, axis=0)
             s = jnp.sign(meanfx)
             if self.coeffs.ndim == 2:
@@ -4630,7 +4559,9 @@ class Chebtech2(eqx.Module):
             if self.coeffs.ndim == 1:
                 return self, zeros[0], zeros[0]
             return self, zeros, zeros
-        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale_columns, num_roots)
+        c, l, r = _extract_boundary_roots(
+            self.coeffs, self.vscale_columns, num_roots
+        )
         g = Chebtech2(coeffs=c, ishappy=self.ishappy).simplify()
         return g, l, r
 
@@ -4712,9 +4643,8 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     # final jnp.real would silently DROP the imaginary part -- Fable 5
     # audit, bug #6).  Split like MATLAB @chebtech1/vals2coeffs.m.
     if jnp.iscomplexobj(values):
-        return _chebtech1_vals2coeffs(jnp.real(values)) + 1j * _chebtech1_vals2coeffs(
-            jnp.imag(values)
-        )
+        return (_chebtech1_vals2coeffs(jnp.real(values))
+                + 1j * _chebtech1_vals2coeffs(jnp.imag(values)))
     # MATLAB vals2coeffs: tmp = [values(n:-1:1); values]
     # values is ascending (left-to-right); values(n:-1:1) is descending.
     # In Python (values ascending): tmp = [values[::-1], values]
@@ -4789,9 +4719,8 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     # assumes real data; jnp.real dropped the imaginary part -- Fable 5
     # audit, bug #6).
     if jnp.iscomplexobj(coeffs):
-        return _chebtech1_coeffs2vals(jnp.real(coeffs)) + 1j * _chebtech1_coeffs2vals(
-            jnp.imag(coeffs)
-        )
+        return (_chebtech1_coeffs2vals(jnp.real(coeffs))
+                + 1j * _chebtech1_coeffs2vals(jnp.imag(coeffs)))
     if n <= 1:
         return coeffs.astype(jnp.float64)
 
@@ -4802,23 +4731,21 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     # Special entries: w[0] = 2*w[0] = 1, w[n] = 0, w[n+1:] flipped sign
     w = w.at[0].set(1.0)
     w = w.at[n].set(0.0)
-    w = w.at[n + 1 :].multiply(-1.0)
+    w = w.at[n + 1:].multiply(-1.0)
     w = w.reshape((2 * n,) + (1,) * (coeffs.ndim - 1))
 
     # Mirror: [c; 1; c_{n-1}, ..., c_1]   (MATLAB convention, descending coeffs)
-    c_mirror = jnp.concatenate(
-        [
-            coeffs,
-            jnp.ones((1,) + coeffs.shape[1:], dtype=jnp.float64),
-            coeffs[-1:0:-1],
-        ]
-    ).astype(jnp.complex128)
+    c_mirror = jnp.concatenate([
+        coeffs,
+        jnp.ones((1,) + coeffs.shape[1:], dtype=jnp.float64),
+        coeffs[-1:0:-1],
+    ]).astype(jnp.complex128)
 
     c_weighted = c_mirror * w
     values_complex = jnp.fft.fft(c_weighted, axis=0)
 
     # Truncate to n entries; MATLAB returns in descending order (flip to ascending)
-    values = jnp.real(values_complex[n - 1 :: -1])
+    values = jnp.real(values_complex[n - 1::-1])
 
     # Enforce symmetries exactly (MATLAB @chebtech1/coeffs2vals.m
     # lines 75-77): odd coeffs zero -> even values, even coeffs zero ->
@@ -4930,11 +4857,8 @@ class Chebtech1(eqx.Module):
 
         coefficients = _tech_series_data(self)
         count = _tech_series_count(n, coefficients.shape[0])
-        converted = (
-            jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
-            if coefficients.ndim == 2
-            else cheb2leg(coefficients)
-        )
+        converted = (jax.vmap(cheb2leg, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else cheb2leg(coefficients))
         return _prolong_coeffs(converted, count)
 
     def jaccoeffs(self, *args):
@@ -4961,11 +4885,8 @@ class Chebtech1(eqx.Module):
         def convert(column):
             return cheb2jac(column, alpha, beta)
 
-        converted = (
-            jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
-            if coefficients.ndim == 2
-            else convert(coefficients)
-        )
+        converted = (jax.vmap(convert, in_axes=1, out_axes=1)(coefficients)
+                     if coefficients.ndim == 2 else convert(coefficients))
         return _prolong_coeffs(converted, count)
 
     def isfinite(self) -> jax.Array:
@@ -4990,7 +4911,8 @@ class Chebtech1(eqx.Module):
         from chebfunjax.tech._fractional import fractional_smooth_coefficients
 
         coefficients = fractional_smooth_coefficients(_tech_series_data(self), mu, b)
-        return type(self)(coeffs=coefficients, ishappy=getattr(self, "ishappy", True))
+        return type(self)(coeffs=coefficients,
+                          ishappy=getattr(self, "ishappy", True))
 
     def isdecay(self) -> jax.Array:
         """Test decay faster than a single root at each endpoint.
@@ -5018,7 +4940,8 @@ class Chebtech1(eqx.Module):
         else:
             nonzero = (values != 0) & ~jnp.isnan(values)
             result = jnp.any(nonzero, axis=0, keepdims=True)
-        return type(self)(coeffs=result, ishappy=getattr(self, "ishappy", True))
+        return type(self)(coeffs=result,
+                          ishappy=getattr(self, "ishappy", True))
 
     def any(self, dim: int = 1):
         """Reduce nonzero values down columns or across rows.
@@ -5036,7 +4959,8 @@ class Chebtech1(eqx.Module):
             if getattr(self, "_is_empty_object", False):
                 return jnp.asarray(False)
             coefficients = self.coeffs
-            if coefficients.size == 0 and (coefficients.ndim == 1 or coefficients.shape == (0, 0)):
+            if coefficients.size == 0 and (coefficients.ndim == 1
+                                           or coefficients.shape == (0, 0)):
                 return jnp.asarray(False)
             nonzero = (coefficients != 0) & ~jnp.isnan(coefficients)
             if coefficients.ndim == 2 and coefficients.shape[0] == 1:
@@ -5048,7 +4972,8 @@ class Chebtech1(eqx.Module):
             point = jnp.asarray(0.1273881594, dtype=jnp.float64)
             values = self(point)
             result = jnp.any((values != 0) & ~jnp.isnan(values))
-            return type(self)(coeffs=jnp.reshape(result, (1,)), ishappy=self.ishappy)
+            return type(self)(coeffs=jnp.reshape(result, (1,)),
+                              ishappy=self.ishappy)
         raise ValueError("CHEBFUN:CHEBTECH:any:dim: DIM input must be 1 or 2.")
 
     def isinf(self) -> jax.Array:
@@ -5125,7 +5050,8 @@ class Chebtech1(eqx.Module):
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_coeffs(cls, coeffs: jax.Array, ishappy: bool = True) -> "Chebtech1":
+    def from_coeffs(cls, coeffs: jax.Array,
+                    ishappy: bool = True) -> "Chebtech1":
         """Construct a Chebtech1 from Chebyshev coefficients.
 
         Parameters
@@ -5216,19 +5142,10 @@ class Chebtech1(eqx.Module):
             # construction is adaptive; only the number of computed
             # coefficients is fixed by ``n`` (fixedLength).
             plain = cls._adaptive_construct(
-                f,
-                maxpow2,
-                check=check,
-                sample_test=sample_test,
-                refinement_function=refinement_function,
-                max_length=max_length,
-                min_samples=min_samples,
-                tol=tol,
-                vscale=vscale,
-                hscale=hscale,
-                use_turbo=True,
-                fixed_length=n,
-            )
+                f, maxpow2, check=check, sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, tol=tol, vscale=vscale, hscale=hscale,
+                use_turbo=True, fixed_length=n)
             # Source constructors turbocharge only happy representations.
             if not plain.ishappy:
                 return plain
@@ -5238,20 +5155,14 @@ class Chebtech1(eqx.Module):
         if n is not None:
             return cls._fixed_construct(f, n)
         return cls._adaptive_construct(
-            f,
-            maxpow2,
-            check=check,
-            sample_test=sample_test,
-            refinement_function=refinement_function,
-            max_length=max_length,
-            min_samples=min_samples,
-            tol=tol,
-            vscale=vscale,
-            hscale=hscale,
-        )
+            f, maxpow2, check=check, sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, tol=tol, vscale=vscale, hscale=hscale)
 
     @classmethod
-    def _fixed_construct(cls, f: Callable[[jax.Array], jax.Array], n: int) -> "Chebtech1":
+    def _fixed_construct(
+        cls, f: Callable[[jax.Array], jax.Array], n: int
+    ) -> "Chebtech1":
         """Fixed-length construction on an n-point Chebyshev-1 grid."""
         if n == 0:
             return _fixed_zero_construct(cls, f, 1)
@@ -5267,21 +5178,10 @@ class Chebtech1(eqx.Module):
 
     @classmethod
     def _adaptive_construct(
-        cls,
-        f,
-        maxpow2=16,
-        start_pow2=4,
-        tol=None,
-        check="standard",
-        vscale=0.0,
-        sample_test=True,
-        hscale=1.0,
-        refinement_function="nested",
-        max_length=None,
-        min_samples=None,
-        use_turbo=False,
-        fixed_length=None,
-        extrapolate=False,
+        cls, f, maxpow2=16, start_pow2=4, tol=None, check="standard",
+        vscale=0.0, sample_test=True, hscale=1.0,
+        refinement_function="nested", max_length=None, min_samples=None,
+        use_turbo=False, fixed_length=None, extrapolate=False,
     ) -> "Chebtech1":
         """Source-shaped nested/resampling adaptive population.
 
@@ -5289,19 +5189,12 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
         """
         return _adaptive_refine_construct(
-            cls,
-            1,
-            f,
-            max_length=2**maxpow2 + 1 if max_length is None else max_length,
-            min_samples=2**start_pow2 + 1 if min_samples is None else min_samples,
+            cls, 1, f,
+            max_length=2**maxpow2+1 if max_length is None else max_length,
+            min_samples=2**start_pow2+1 if min_samples is None else min_samples,
             refinement_function=refinement_function,
-            tol=tol,
-            check=check,
-            vscale=vscale,
-            sample_test=sample_test,
-            hscale=hscale,
-            use_turbo=use_turbo,
-            fixed_length=fixed_length,
+            tol=tol, check=check, vscale=vscale, sample_test=sample_test,
+            hscale=hscale, use_turbo=use_turbo, fixed_length=fixed_length,
             extrapolate=extrapolate,
         )
 
@@ -5431,7 +5324,9 @@ class Chebtech1(eqx.Module):
         """
         v = jnp.asarray(values)
         n = v.shape[0]
-        new_values, _, _ = _extrapolate_values(v, chebpts(n, kind=1), Chebtech1.barywts(n))
+        new_values, _, _ = _extrapolate_values(
+            v, chebpts(n, kind=1), Chebtech1.barywts(n)
+        )
         return new_values
 
     @staticmethod
@@ -5451,9 +5346,8 @@ class Chebtech1(eqx.Module):
         from chebfunjax.utils.interpolation import bary as _bary
 
         n = gvals.shape[0]
-        return _bary(
-            jnp.asarray(x, dtype=gvals.dtype), gvals, chebpts(n, kind=1), _cheb1_barywts(n)
-        )
+        return _bary(jnp.asarray(x, dtype=gvals.dtype), gvals,
+                     chebpts(n, kind=1), _cheb1_barywts(n))
 
     @staticmethod
     def angles(n: int) -> jax.Array:
@@ -5576,10 +5470,12 @@ class Chebtech1(eqx.Module):
             return self
         if n > m:
             padded = jnp.concatenate(
-                [self.coeffs, jnp.zeros((n - m,) + self.coeffs.shape[1:], dtype=self.coeffs.dtype)]
+                [self.coeffs,
+                 jnp.zeros((n - m,) + self.coeffs.shape[1:],
+                           dtype=self.coeffs.dtype)]
             )
             return Chebtech1(coeffs=padded, ishappy=self.ishappy)
-        return Chebtech1(coeffs=self.coeffs[: max(n, 0)], ishappy=self.ishappy)
+        return Chebtech1(coeffs=self.coeffs[:max(n, 0)], ishappy=self.ishappy)
 
     def simplify(self, tol: float | jax.Array | None = None) -> "Chebtech1":
         """Return a new Chebtech1 with trailing coefficients chopped.
@@ -5596,7 +5492,9 @@ class Chebtech1(eqx.Module):
         nold = self.n
         N = max(17, _round_half_away(nold * 1.25 + 5))
         prolonged_c = jnp.concatenate(
-            [self.coeffs, jnp.zeros((N - nold,) + self.coeffs.shape[1:], dtype=self.coeffs.dtype)]
+            [self.coeffs,
+             jnp.zeros((N - nold,) + self.coeffs.shape[1:],
+                       dtype=self.coeffs.dtype)]
         )
         # MATLAB @chebtech/simplify.m uses the Chebtech2 transforms for this
         # plateau round-trip, including for Chebtech1 inputs.
@@ -5627,8 +5525,8 @@ class Chebtech1(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech1.from_coeffs(
-                _source_sum_coeffs(self, other, fc, gc), ishappy=self.ishappy and other.ishappy
-            )
+                _source_sum_coeffs(self, other, fc, gc),
+                ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition changes only c_0.  Promote the coefficient
             # dtype first — scattering a complex scalar into a float64
@@ -5737,7 +5635,8 @@ class Chebtech1(eqx.Module):
         """
         if self.coeffs.ndim == 1:
             return self
-        return Chebtech1(coeffs=self.coeffs[:, ::-1], ishappy=self.ishappy)
+        return Chebtech1(coeffs=self.coeffs[:, ::-1],
+                         ishappy=self.ishappy)
 
     def flipud(self) -> "Chebtech1":
         """Return g with g(x) = f(-x): negate the odd coefficients.
@@ -5773,7 +5672,8 @@ class Chebtech1(eqx.Module):
         """
         return Chebtech2.assign_columns(self, cols, g)
 
-    def qr(self, mode: str = "matrix", method: str = "built-in", want_e: bool = False):
+    def qr(self, mode: str = "matrix", method: str = "built-in",
+           want_e: bool = False):
         """QR factorisation ``f = Q R`` of an array-valued tech.
 
         ``Q`` is a tech with the same number of columns as ``f`` whose
@@ -6035,11 +5935,13 @@ class Chebtech1(eqx.Module):
         if dim != 1:
             if self.coeffs.ndim == 1:
                 return Chebtech1(
-                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype), ishappy=self.ishappy
-                )
-            return Chebtech1(coeffs=jnp.diff(self.coeffs, n=k, axis=1), ishappy=self.ishappy)
+                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
+                    ishappy=self.ishappy)
+            return Chebtech1(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
+                             ishappy=self.ishappy)
         if k >= self.coeffs.shape[0]:
-            return Chebtech1.from_values(jnp.zeros((1,) + self.coeffs.shape[1:], dtype=jnp.float64))
+            return Chebtech1.from_values(jnp.zeros(
+                (1,) + self.coeffs.shape[1:], dtype=jnp.float64))
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
@@ -6078,7 +5980,9 @@ class Chebtech1(eqx.Module):
         new_coeffs = _cumsum_coeffs(self.coeffs)
         if isinstance(self.coeffs, jax.core.Tracer):
             return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
-        result = Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy).simplify()
+        result = Chebtech1.from_coeffs(
+            new_coeffs, ishappy=self.ishappy
+        ).simplify()
         if result.isempty() or result.coeffs.size == 0:
             return result
         corrected = result.coeffs.at[0].add(-_cumsum_lval(result.coeffs))
@@ -6097,7 +6001,8 @@ class Chebtech1(eqx.Module):
         if dim == 2:
             if self.coeffs.ndim == 1:
                 return self
-            return Chebtech1(coeffs=jnp.sum(self.coeffs, axis=1), ishappy=self.ishappy)
+            return Chebtech1(coeffs=jnp.sum(self.coeffs, axis=1),
+                             ishappy=self.ishappy)
         return _definite_integral(self.coeffs)
 
     def inner(self, other: "Chebtech1") -> jax.Array:
@@ -6110,16 +6015,13 @@ class Chebtech1(eqx.Module):
         """
         # MATLAB checks emptiness before validating either input's class.
         other_data = other.coeffs if isinstance(other, (Chebtech1, Chebtech2)) else other
-        other_empty = getattr(other_data, "size", None) == 0 or (
-            isinstance(other_data, (list, tuple)) and len(other_data) == 0
-        )
+        other_empty = (getattr(other_data, "size", None) == 0 or
+                       (isinstance(other_data, (list, tuple)) and len(other_data) == 0))
         if self.coeffs.size == 0 or other_empty:
             return jnp.empty((0,), dtype=jnp.float64)
         if not isinstance(other, (Chebtech1, Chebtech2)):
-            raise ValueError(
-                "CHEBFUN:CHEBTECH:innerProduct:input: "
-                "innerProduct() only operates on two CHEBTECH objects."
-            )
+            raise ValueError("CHEBFUN:CHEBTECH:innerProduct:input: "
+                             "innerProduct() only operates on two CHEBTECH objects.")
         out = _inner_product(self.coeffs, other.coeffs)
         return _scalar_inner_storage(self.coeffs, other.coeffs, out)
 
@@ -6145,17 +6047,10 @@ class Chebtech1(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(
-        self,
-        qz: bool = False,
-        *,
-        complex_roots: bool = False,
-        all_roots: bool = False,
-        prune: bool = False,
-        recurse: bool = True,
-        zero_fun: bool = True,
-        filter: Callable | None = None,
-    ) -> jax.Array:
+    def roots(self, qz: bool = False, *, complex_roots: bool = False,
+              all_roots: bool = False, prune: bool = False,
+              recurse: bool = True, zero_fun: bool = True,
+              filter: Callable | None = None) -> jax.Array:
         """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe.  See :meth:`Chebtech2.roots` for the full option
@@ -6170,23 +6065,21 @@ class Chebtech1(eqx.Module):
         if complex_roots:
             all_roots = True
             prune = True
-        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse, zero_fun=zero_fun)
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse,
+                  zero_fun=zero_fun)
         if self.coeffs.ndim == 2:
             if filter is not None:
                 kw["filter"] = filter
             return _roots_array_columns(self, **kw)
         # Native roots_scalar returns constants before asking for vscale.
         if self.n == 1:
-            return (
-                jnp.asarray([0.0], dtype=jnp.float64)
-                if zero_fun and bool(self.coeffs[0] == 0)
-                else jnp.empty((0,), dtype=jnp.float64)
-            )
+            return (jnp.asarray([0.], dtype=jnp.float64)
+                    if zero_fun and bool(self.coeffs[0] == 0)
+                    else jnp.empty((0,), dtype=jnp.float64))
         # The n == 0 coefficient-only compatibility path is unchanged.
         scale = self.vscale if self.n > 1 else None
-        return _roots_colleague(
-            self.coeffs, normalization_scale=scale, filter_callback=filter, filter_object=self, **kw
-        )
+        return _roots_colleague(self.coeffs, normalization_scale=scale,
+                                filter_callback=filter, filter_object=self, **kw)
 
     # ------------------------------------------------------------------
     # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)
@@ -6216,15 +6109,7 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         return _happiness_check_impl(
-            Chebtech1,
-            1,
-            coeffs,
-            values,
-            op,
-            tol,
-            vscale,
-            hscale,
-            check,
+            Chebtech1, 1, coeffs, values, op, tol, vscale, hscale, check,
             sample_test,
         )
 
@@ -6307,21 +6192,22 @@ class Chebtech1(eqx.Module):
             brk = [float(t) for t in jnp.asarray(a).reshape(-1)]
             if len(brk) < 2:
                 raise ValueError(
-                    "CHEBFUN:CHEBTECH:restrict:badInterval: need at least two breakpoints."
-                )
-            if (
-                brk[0] < -1.0
-                or brk[-1] > 1.0
-                or any(right <= left for left, right in zip(brk, brk[1:]))
-            ):
-                raise ValueError("CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: "
+                    "need at least two breakpoints.")
+            if (brk[0] < -1.0 or brk[-1] > 1.0
+                    or any(right <= left for left, right in zip(brk, brk[1:]))):
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
             if len(brk) == 2:
                 return self.restrict(brk[0], brk[1])
-            return [self.restrict(brk[i], brk[i + 1]) for i in range(len(brk) - 1)]
+            return [self.restrict(brk[i], brk[i + 1])
+                    for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
         if a < -1.0 or b > 1.0 or a >= b:
-            raise ValueError("CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval.")
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:restrict:badInterval: Not a valid interval."
+            )
         if a == -1.0 and b == 1.0:
             return self
         n = self.n
@@ -6340,7 +6226,6 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.tech._chebtech_extrema import minandmax
-
         return minandmax(self, kind=1)
 
     def min(self):
@@ -6377,7 +6262,8 @@ class Chebtech1(eqx.Module):
             return Chebtech1.empty()
         if not jnp.iscomplexobj(self.coeffs):
             arbitrary_point = 0.1273881594
-            fx = self(jnp.array([-1.0, arbitrary_point, 1.0], dtype=jnp.float64))
+            fx = self(jnp.array([-1.0, arbitrary_point, 1.0],
+                                dtype=jnp.float64))
             meanfx = jnp.mean(fx, axis=0)
             s = jnp.sign(meanfx)
             if self.coeffs.ndim == 2:
@@ -6414,7 +6300,9 @@ class Chebtech1(eqx.Module):
             if self.coeffs.ndim == 1:
                 return self, zeros[0], zeros[0]
             return self, zeros, zeros
-        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale_columns, num_roots)
+        c, l, r = _extract_boundary_roots(
+            self.coeffs, self.vscale_columns, num_roots
+        )
         g = Chebtech1(coeffs=c, ishappy=self.ishappy).simplify()
         return g, l, r
 
@@ -6465,7 +6353,8 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
     coeffs = f.coeffs if f.coeffs.ndim == 2 else f.coeffs[:, None]
     n, m = coeffs.shape
     if n < m:
-        coeffs = jnp.concatenate([coeffs, jnp.zeros((m - n, m), dtype=coeffs.dtype)], axis=0)
+        coeffs = jnp.concatenate(
+            [coeffs, jnp.zeros((m - n, m), dtype=coeffs.dtype)], axis=0)
         n = m
 
     if n <= 4000:
@@ -6480,7 +6369,8 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
         if want_e:
             from jax.scipy.linalg import qr as scipy_qr
 
-            Qd, R, permutation = scipy_qr(weighted_values, mode="economic", pivoting=True)
+            Qd, R, permutation = scipy_qr(
+                weighted_values, mode="economic", pivoting=True)
         else:
             Qd, R = jnp.linalg.qr(weighted_values, mode="reduced")
         s = _unit_sign(jnp.diagonal(R))
@@ -6497,7 +6387,8 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
         if want_e:
             from jax.scipy.linalg import qr as scipy_qr
 
-            Qd, R, permutation = scipy_qr(converted, mode="economic", pivoting=True)
+            Qd, R, permutation = scipy_qr(
+                converted, mode="economic", pivoting=True)
         else:
             Qd, R = jnp.linalg.qr(converted, mode="reduced")
         s = _unit_sign(jnp.diagonal(R))
@@ -6507,7 +6398,8 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
         # algorithm throughout the matrix-free QR branch: the direct
         # recurrence loses enough accuracy for 4001 <= n < 5000 to violate
         # the unchanged QR reconstruction regression bound.
-        Q_coeffs = leg2cheb(_legendre_idlt(legendre_values, force_fast=True))
+        Q_coeffs = leg2cheb(
+            _legendre_idlt(legendre_values, force_fast=True))
 
     # Enforce a nonnegative real diagonal while preserving Q @ R.
     R = jnp.conj(s)[:, None] * R
@@ -6529,11 +6421,9 @@ def _tech_qr_householder(f, want_e: bool, mode: str):
     tol = _EPS * f.vscale
 
     new_n = 2 * max(n, m)
-    padded = (
-        jnp.concatenate([coeffs, jnp.zeros((new_n - n, m), dtype=coeffs.dtype)], axis=0)
-        if new_n > n
-        else coeffs[:new_n]
-    )
+    padded = jnp.concatenate(
+        [coeffs, jnp.zeros((new_n - n, m), dtype=coeffs.dtype)], axis=0) \
+        if new_n > n else coeffs[:new_n]
     A = cls.coeffs2vals(padded)
 
     x = chebpts(new_n, kind=kind)
@@ -6547,7 +6437,8 @@ def _tech_qr_householder(f, want_e: bool, mode: str):
     if m > 1:
         cols.append(x)
     for k in range(3, m + 1):
-        cols.append(((2 * k - 3) * x * cols[k - 2] - (k - 2) * cols[k - 3]) / (k - 1))
+        cols.append(((2 * k - 3) * x * cols[k - 2]
+                     - (k - 2) * cols[k - 3]) / (k - 1))
     E = jnp.stack(cols, axis=1)
     E = E * jnp.sqrt((2.0 * jnp.arange(1, m + 1) - 1.0) / 2.0)[None, :]
     E = E.astype(A.dtype)
@@ -6574,10 +6465,12 @@ def _tech_qr_perm(m: int, mode: str, permutation=None):
     return jnp.eye(m, dtype=jnp.float64)[:, permutation]
 
 
-def _tech_qr(f, mode: str = "matrix", method: str = "built-in", want_e: bool = False):
+def _tech_qr(f, mode: str = "matrix", method: str = "built-in",
+             want_e: bool = False):
     """Shared implementation of MATLAB ``@chebtech/qr``."""
     if _is_empty_tech(f):
-        return (f, jnp.zeros((0, 0)), jnp.zeros((0, 0))) if want_e else (f, jnp.zeros((0, 0)))
+        return (f, jnp.zeros((0, 0)), jnp.zeros((0, 0))) if want_e \
+            else (f, jnp.zeros((0, 0)))
 
     cls = type(f)
     if f.coeffs.ndim == 1 or f.coeffs.shape[1] == 1:
@@ -6615,8 +6508,7 @@ def _tech_mldivide(A, B):
         raise ValueError(
             "CHEBFUN:CHEBTECH:mldivide:chebtechMldivideUnknown: "
             "arguments to chebtech mldivide must both be chebtech objects "
-            "of the same type."
-        )
+            "of the same type.")
     Q, R = _tech_qr(A, method="built-in")
     ip = jnp.reshape(jnp.asarray(Q.inner(B)), (R.shape[0], -1))
     X = jnp.linalg.solve(R, ip)
@@ -6630,25 +6522,25 @@ def _tech_mrdivide(A, B):
 
     if A_tech and B_tech:
         raise ValueError(
-            "CHEBFUN:CHEBTECH:mrdivide:chebtechDivChebtech: use ./ to divide by a chebtech."
-        )
+            "CHEBFUN:CHEBTECH:mrdivide:chebtechDivChebtech: "
+            "use ./ to divide by a chebtech.")
 
     if A_tech:
         if isinstance(B, bool) or not isinstance(
-            B, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)
-        ):
+                B, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)):
             raise ValueError(
                 "CHEBFUN:CHEBTECH:mrdivide:badArg: "
-                f"chebtech/{type(B).__name__} is not well-defined."
-            )
+                f"chebtech/{type(B).__name__} is not well-defined.")
         Bd = jnp.asarray(B)
         m = A.coeffs.shape[1] if A.coeffs.ndim == 2 else 1
         b_cols = Bd.shape[-1] if Bd.ndim >= 1 else 1
         if Bd.size > 1 and b_cols != m:
-            raise ValueError("CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
         if not bool(jnp.any(Bd != 0)):
             nan_row = jnp.full((1, m), jnp.nan, dtype=jnp.float64)
-            return type(A)(coeffs=nan_row[:, 0] if m == 1 else nan_row, ishappy=True)
+            return type(A)(coeffs=nan_row[:, 0] if m == 1 else nan_row,
+                           ishappy=True)
         if Bd.size == 1:
             return A * (1.0 / jnp.reshape(Bd, ()))
         Q, R = _tech_qr(A, method="built-in")
@@ -6659,16 +6551,15 @@ def _tech_mrdivide(A, B):
 
     if B_tech:
         if isinstance(A, bool) or not isinstance(
-            A, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)
-        ):
+                A, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)):
             raise ValueError(
                 "CHEBFUN:CHEBTECH:mrdivide:badArg: "
-                f"{type(A).__name__}/chebtech is not well-defined."
-            )
+                f"{type(A).__name__}/chebtech is not well-defined.")
         Am = jnp.atleast_2d(jnp.asarray(A))
         m = B.coeffs.shape[1] if B.coeffs.ndim == 2 else 1
         if Am.shape[-1] != m:
-            raise ValueError("CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
         Q, R = _tech_qr(B, method="built-in")
         # A / R  ==  (R.' \ A.').'
         AR = jnp.linalg.lstsq(R.T, Am.T)[0].T
