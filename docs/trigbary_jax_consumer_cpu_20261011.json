@@ -1,0 +1,32 @@
+{
+  "changed_paths": [
+    "src/chebfunjax/utils/trigutils.py",
+    "tests/test_utils/test_trigbary_jax_consumer.py"
+  ],
+  "candidate_paths": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_jax_consumer_20261011/final_candidate_v4/src/chebfunjax/utils/trigutils.py",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_jax_consumer_20261011/final_candidate_v4/tests/test_utils/test_trigbary_jax_consumer.py"
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_jax_consumer_20261011/trigbary_jax_consumer_v4.patch",
+  "source_predicates": 9,
+  "source_passed": 9,
+  "consumer_diagnostic_controls": 17,
+  "consumer_controls_passed": 17,
+  "retained_weight_diagnostics": 7,
+  "retained_weight_controls_passed": 7,
+  "named_regression": "existing TestTrigBary.test_trig_and_nonequispaced(twoassertions) passes",
+  "source_correction": "MATLAB if(any(isnan(fvals))) onmatrix means all(any(isnan(data),axis0)); partialcolumn NaNs continue interpolation and firstcolumnNaN exactnode cleanup restores rows. No postcleanup percolumnmask. Exactmembership targets==knots[j], nothalfdelta==0.",
+  "baseline_nan_failures": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_jax_consumer_20261011/nan_baseline_v1/CONSUMER_CONTROLS_RESULT.json",
+  "shape_adapter_retained": "Constant/NaN earlyreturn outputshapes normalized forPython; value semantics literal nativeallcolumns earlycondition. Scalar0D andexisting explicitdomain defaultnodesextension retained.",
+  "validation_limit": "Eagerinvalidnode range errors; tracednodevalue range cannotraisePythonexception. ValidnodeJIT qualified.",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigbary_jax_consumer_20261011/candidate_v4/supervision/receipt.json",
+  "wall_seconds": 34.630886528175324,
+  "peak_rss_kib": 889568,
+  "qualification": "Supersedes held v3consumer; original9bounds unchanged; independentliteralnativeformula(notactualMATLABexecution) NaNfixtures pass. No broad nativeNaNdtype/shapeidentity claim.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_hashes": {
+    "src/chebfunjax/utils/trigutils.py": "57149f6af80f39da94e4ea4f916aafc956c04d2d37f6eb3847feab453ca0e182",
+    "tests/test_utils/test_trigbary_jax_consumer.py": "5e45f1b9d746ca2d5601aa85eef59cd53d5ba9cd830a32372336f73002e7e55b"
+  },
+  "test_formatting": "Executed controls unchanged by AST; pytest assertion wrapper added; imports sorted"
+}

@@ -1022,6 +1022,8 @@ class Chebop:
             for entry in entries:
                 domain = getattr(entry, "domain", None)
                 if domain is not None:
+                    if isinstance(domain, Domain):
+                        domain = domain.breakpoints
                     length_dom = max(length_dom, len(domain))
         from chebfunjax.chebpref import ChebopPref
 

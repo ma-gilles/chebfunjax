@@ -337,69 +337,93 @@ def trigBaryWeights(xk):
 
 
 def trigBary(x, fvals, xk=None, dom=None):
-    """Trigonometric barycentric interpolation (MATLAB trigBary):
-    evaluate the trig interpolant of data {xk, fvals} at x.
+    """Evaluate the native second-form trigonometric interpolant with JAX.
+
+    Scalar data preserve the evaluation shape; two-dimensional evaluation
+    arrays of multiple polynomials use native horizontal column stacking.
+    Domain and nodes may be traced. Eager invalid nodes raise ValueError;
+    node range validation cannot raise a Python exception for traced values.
+    Default nodes span the explicit domain (existing Python extension).
+    Constant/NaN data use the same final shape adapter as ordinary data;
+    native early-return shape quirks are normalized for Python callers.
 
     Provenance
     ----------
-    MATLAB source : trigBary.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+    MATLAB source: trigBary.m, Chebfun commit 7574c77.
+    Original authors: Copyright 2017 by The University of Oxford.
     """
-    import numpy as _np
-    fvals = _np.asarray(fvals, dtype=float)
-    if fvals.ndim == 1:
-        fvals = fvals[:, None]
-        squeeze = True
-    else:
-        squeeze = False
-    n = fvals.shape[0]
-    x = _np.asarray(x, dtype=float).ravel()
-    if dom is None:
-        dom = (-_np.pi, _np.pi)
-    a, b = float(dom[0]), float(dom[1])
-    if xk is None:
-        xk = a + (b - a) * _np.arange(n) / n
-    xk = _np.asarray(xk, dtype=float).ravel()
-    # map to [-pi, pi]
-    xk = _np.pi / (b - a) * (2 * xk - a - b)
-    xm = _np.pi / (b - a) * (2 * x - a - b)
-    # remove periodic endpoint
-    if n > 1 and abs(xk[0] + _np.pi) + abs(xk[-1] - _np.pi) \
-            < 4 * _np.pi * 1e-15:
-        fvals = fvals.copy()
-        fvals[0, :] = 0.5 * (fvals[0, :] + fvals[-1, :])
-        fvals = fvals[:-1, :]
-        xk = xk[:-1]
-        n -= 1
-    vk = _np.asarray(trigBaryWeights(xk))
-    if n == 1:
-        out = _np.repeat(fvals, len(xm), axis=0)
-        return out[:, 0] if squeeze else out
-    if n % 2 == 0:
-        s = _np.sum(xk)
-        # MATLAB rem keeps the sign of s -- np.fmod, NOT np.remainder
-        c = 0.0 if abs(_np.fmod(s, _np.pi)) < 4 * _np.pi * 1e-15 \
-            else 1.0 / _np.tan(s / 2.0)
+    import jax
 
-        def ctsc(t):
-            return 1.0 / _np.tan(t) + c
+    x = jnp.asarray(x, dtype=jnp.float64)
+    values = jnp.asarray(fvals)
+    values = values.astype(jnp.result_type(values.dtype, jnp.float64))
+    scalar_data = values.ndim == 1
+    if scalar_data:
+        values = values[:, None]
+    if values.ndim != 2 or values.shape[0] == 0:
+        raise ValueError("trigBary requires a nonempty vector or matrix of values")
+    original_n, m = values.shape
+    if m > 1 and x.ndim > 2:
+        raise ValueError("CHEBFUN:trigBary:evalArrayAtNDArray")
+    domain = jnp.asarray((-jnp.pi, jnp.pi) if dom is None else dom)
+    a, b = domain[0], domain[1]
+    if xk is None:
+        xk = a + (b-a)*jnp.arange(original_n)/original_n
+    nodes = jnp.asarray(xk, dtype=jnp.float64)
+    if nodes.ndim > 2 or (nodes.ndim == 2 and min(nodes.shape) > 1):
+        raise ValueError("CHEBFUN:trigBary:xVector -- xk must be a vector")
+    nodes = nodes.ravel()
+    if nodes.shape[0] != original_n:
+        raise ValueError("trigBary node and value lengths must agree")
+    nodes = jnp.pi/(b-a)*(2*nodes-a-b)
+    if not isinstance(nodes, jax.core.Tracer):
+        if bool(jnp.any((nodes > jnp.pi+10*jnp.finfo(jnp.float64).eps)
+                       | (nodes < -jnp.pi-10*jnp.finfo(jnp.float64).eps))):
+            raise ValueError("CHEBFUN:trigbary:invalidNodes")
+    if x.size == 0:
+        return x
+    targets = (jnp.pi/(b-a)*(2*x-a-b)).ravel(order="F")
+
+    def evaluate(args):
+        knots, data = args
+        weights = trigBaryWeights(knots)
+        # Native n is captured before periodic endpoint removal.
+        s = jnp.sum(knots)
+        c = jnp.where(jnp.abs(jnp.fmod(s,jnp.pi)) < 4*jnp.pi*jnp.finfo(jnp.float64).eps,
+                      0., 1/jnp.tan(s/2))
+        def step(j,state):
+            num,den,matched,at_nodes = state
+            delta = (targets-knots[j])/2
+            member = targets == knots[j]
+            kernel = (1/jnp.tan(delta)+c if original_n%2 == 0
+                      else 1/jnp.sin(delta))
+            ratio = weights[j]*kernel
+            at_nodes = jnp.where((member & ~matched)[:,None],data[j],at_nodes)
+            return (num+ratio[:,None]*data[j],den+ratio,
+                    matched|member,at_nodes)
+        initial = (jnp.zeros((targets.size,m),dtype=values.dtype),
+                   jnp.zeros(targets.size),jnp.zeros(targets.size,dtype=bool),
+                   jnp.zeros((targets.size,m),dtype=values.dtype))
+        num,den,matched,at_nodes = jax.lax.fori_loop(0,knots.size,step,initial)
+        out = num/den[:,None]
+        cleanup = jnp.isnan(out[:,0]) & matched
+        out = jnp.where(cleanup[:,None],at_nodes,out)
+        # MATLAB if(any(isnan(fvals))) requires every entry of the row
+        # condition to be true: every data column contains a NaN.
+        nan_early_return = jnp.all(jnp.any(jnp.isnan(data),axis=0))
+        return jnp.where(nan_early_return,jnp.nan,out)
+
+    if original_n == 1:
+        out = jnp.broadcast_to(values,(targets.size,m))
     else:
-        def ctsc(t):
-            return 1.0 / _np.sin(t)
-    num = _np.zeros((len(xm), fvals.shape[1]))
-    den = _np.zeros((len(xm), 1))
-    with _np.errstate(divide="ignore", invalid="ignore"):
-        for j in range(n):
-            tmp = vk[j] * ctsc((xm - xk[j]) / 2.0)
-            num += tmp[:, None] * fvals[j, :][None, :]
-            den += tmp[:, None]
-        out = num / den
-    # clean up NaNs at exact nodes
-    bad = _np.nonzero(~_np.isfinite(out[:, 0]))[0]
-    for k in bad:
-        idx = _np.nonzero(xm[k] == xk)[0]
-        if len(idx):
-            out[k, :] = fvals[idx[0], :]
-    return out[:, 0] if squeeze else out
+        periodic = jnp.linalg.norm(jnp.array([nodes[0]+jnp.pi,nodes[-1]-jnp.pi])) < 2*jnp.pi*jnp.finfo(jnp.float64).eps
+        def dropped(args):
+            knots,data = args
+            data = data.at[0].set((data[0]+data[-1])/2)
+            return evaluate((knots[:-1],data[:-1]))
+        out = jax.lax.cond(periodic,dropped,evaluate,(nodes,values))
+    if m == 1 and (scalar_data or x.ndim > 1):
+        return out[:,0].reshape(x.shape,order="F")
+    if x.ndim == 2:
+        return out.reshape((x.shape[0],x.shape[1]*m),order="F")
+    return out.reshape(x.shape+(m,))

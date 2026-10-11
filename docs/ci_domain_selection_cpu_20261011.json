@@ -1,0 +1,21 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Normalize Chebfun RHS and initial-guess Domain to breakpoints before discretization selection; existing eight scalar linear alternate-backend controls unchanged",
+  "baseline": "b5215bf2 CI core1:4 Domain TypeErrors,1727 passes,1 skip",
+  "ci_log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_b521_core1_114420760644.log",
+  "candidate_sha256": "08e862cf7d84374c4f9997ac02b787657115989e5cdda611c130b107f21fa542",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_domain_selection_20261011/supervision/receipt.json",
+  "qualification": {
+    "command_exit_code": 0,
+    "wall_seconds": 30.211836645845324,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null,
+    "sampled_peak_summed_rss_kib": 1784640
+  },
+  "tests_passed": 8,
+  "limits": [
+    "Focused CPU gate; full CI remains in progress",
+    "No solver algebra or numerical bounds changed"
+  ]
+}
