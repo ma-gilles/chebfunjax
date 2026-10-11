@@ -1,0 +1,30 @@
+{
+  "scope": "Restore all four original tests/chebfun/test_residue.m predicates, including five boolean inequalities, public normest/vscale and actual empty Chebfun third argument.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_commit": "b130d322b391d784d370198443e81a49e2d9b20c",
+  "original_session": 95891,
+  "terminal": 0,
+  "pytest_cases": 1,
+  "native_predicates": 4,
+  "pytest_seconds": 13.61,
+  "wall_seconds": 16.283672939054668,
+  "peak_rss_kib": 923976,
+  "inputs_stable": true,
+  "censored": false,
+  "survivors": [],
+  "corrections": [
+    "Replace sampled interior errors by public Chebfun normest and vscale.",
+    "Remove extra factor11 from native quotient bound10tol.",
+    "Use actual empty Chebfun instead of None for final syntax check.",
+    "Stop suppressing all warnings."
+  ],
+  "limits": [
+    "No library change. Existing residue backend uses NumPy/SciPy; JAX migration remains open.",
+    "No full-suite or current CI claim."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_native_assertions_20261011/guard.json": "e0896006c615457258387c197461585fc9b5273ebecd5a130194838e1239ec1c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_native_assertions_20261011/junit.xml": "b5a38aafb22579d0328c31b200068700122a42d41e9ae2c05f93d0a46f7aa917",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_native_assertions_20261011/supervision/receipt.json": "5c251c71c5b6953fec00809bc22c45120c4e0c45bbfaa7247d76ad0929c5ce69"
+  }
+}
