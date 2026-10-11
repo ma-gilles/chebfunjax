@@ -1,0 +1,208 @@
+{
+  "initial_policy_and_render_evidence": {
+    "base_current_head": "194c1e5da636eefdc1cd4b545c48fc7c393f41af",
+    "base_plotting_sha256": "9058b1deb94eccf5b1b6c77df0432448580307b0629a0ae69adbf5187637e252",
+    "source_url": "https://www.mathworks.com/help/matlab/creating_plots/clipping-in-plots-and-graphs.html",
+    "source_section": "Clipping and Markers",
+    "source_scope": "Entire glyph when center within x/y limits; ordinary line clipping preserved. Current online docs fetched2026-10-11, document semantics only, not native runtime/historical pixel claim.",
+    "implementation": "Private point-only Line2D subclass, draw-time ephemeral data/style copy with outside/nonfinite centers NaN, copy bboxclip off; source-eligible representation points only. Custom clip path/box or explicit clipoff delegate to normal Line2D. Dynamic axes/reversal/log recomputed; no callbacks/permanent filtering.",
+    "ast_preservation": {
+      "changed_existing_nodes": [
+        "_source_plot_line_and_points"
+      ],
+      "added_nodes": [
+        "_source_marker_artist",
+        "_SourceMarkerLine"
+      ],
+      "all_other_existing_functions_classes_identical": true
+    },
+    "controls": "25 passed:9 new document-backed controls +16 existing source marker controls. Prior progress note10+15 was a count-label error; total25 correct.",
+    "images": [
+      {
+        "slot": 7,
+        "figure": 7,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/render7_v2/DelayDifferentialEquations_07.png",
+        "size": [
+          600,
+          270
+        ],
+        "changed_pixels_vs_prior": 49,
+        "changed_bbox_xy": [
+          [
+            75,
+            31
+          ],
+          [
+            546,
+            243
+          ]
+        ],
+        "source_stdout_unchanged": true,
+        "result": {
+          "success": true,
+          "no_solve": true,
+          "coefficients_byte_identical": true,
+          "all201samples_byte_identical": true,
+          "stdout_byte_identical": true,
+          "point_values_metadata_preserved": true,
+          "error_norm": 6.805727959764803e-16,
+          "slot": 7,
+          "figure": 7
+        }
+      },
+      {
+        "slot": 23,
+        "figure": 24,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/render23_v3/DelayDifferentialEquations_24.png",
+        "size": [
+          600,
+          270
+        ],
+        "changed_pixels_vs_prior": 79,
+        "changed_bbox_xy": [
+          [
+            75,
+            60
+          ],
+          [
+            546,
+            242
+          ]
+        ],
+        "source_stdout_unchanged": true,
+        "result": {
+          "success": true,
+          "no_solve": true,
+          "coefficients_preserved_prefix": true,
+          "source_tol_finalization_applied": true,
+          "all201samples_byte_identical": true,
+          "stdout_from_finalized_saved_coefficients": true,
+          "point_values_metadata_preserved": true,
+          "error_norm": 5.513309591751702e-14,
+          "slot": 23,
+          "figure": 24
+        }
+      }
+    ],
+    "native_graphics_limitations": {
+      "markerclip1": "RSS cap after READY, no qualifying images",
+      "markerclip2": "terminal0 but corrupt/black softwareGL PNGs; no visual inference"
+    },
+    "visual_review": "DDE7 and23 full boundary glyphs now agree qualitatively with cached complete-dot behavior. Dash/fonts and other raster differences persist; no full historical raster parity claim. No solves run.",
+    "setup_rejections": {
+      "render7": "guard preparation KeyError: environment absent in historical guard; supervisor rejected missing guard before spawning science; no numerical child",
+      "render23_v2": "Supervisor input guard declined stale predecessor publication script hash before child launch. No numerical child. Fresh immutable committed script helper AST matches both rendered helper bodies."
+    },
+    "runs": [
+      {
+        "name": "controls_v1",
+        "command_exit_code": 0,
+        "wall_seconds": 13.020486456807703,
+        "sampled_peak_summed_rss_kib": 693904,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      {
+        "name": "render7_v2",
+        "command_exit_code": 0,
+        "wall_seconds": 5.879144856706262,
+        "sampled_peak_summed_rss_kib": 630656,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      {
+        "name": "render23_v3",
+        "command_exit_code": 0,
+        "wall_seconds": 7.665017361752689,
+        "sampled_peak_summed_rss_kib": 696476,
+        "censored_limit": null,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      }
+    ]
+  },
+  "callback_correction": {
+    "supersedes_source_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/marker_clipping.patch",
+    "source_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/marker_clipping_v2.patch",
+    "baseline_robustness": {
+      "actual_legend_repeated_draw": "pass",
+      "legend_artist_types": [
+        "Line2D"
+      ],
+      "original_data_and_callbacks_identity": "preserved",
+      "default_draw_pchanged_events": [
+        {
+          "original_artist": true,
+          "class": "_SourceMarkerLine"
+        },
+        {
+          "original_artist": true,
+          "class": "_SourceMarkerLine"
+        },
+        {
+          "original_artist": true,
+          "class": "_SourceMarkerLine"
+        }
+      ],
+      "custom_clip_cases": [
+        {
+          "kind": "path",
+          "draw_events": [],
+          "original_clip_identity": true
+        },
+        {
+          "kind": "box",
+          "draw_events": [],
+          "original_clip_identity": true
+        }
+      ]
+    },
+    "candidate_robustness": {
+      "actual_legend_repeated_draw": "pass",
+      "legend_artist_types": [
+        "Line2D"
+      ],
+      "original_data_and_callbacks_identity": "preserved",
+      "default_draw_pchanged_events": [],
+      "custom_clip_cases": [
+        {
+          "kind": "path",
+          "draw_events": [],
+          "original_clip_identity": true
+        },
+        {
+          "kind": "box",
+          "draw_events": [],
+          "original_clip_identity": true
+        }
+      ]
+    },
+    "controls": "26 passed:10 document-backed robustness/clipping tests including actual legend and callbacks +16 existing marker controls.",
+    "correction": "Temporary copy has independent pchanged callback registry and no stale_callback. Original observer/callback/data identities retained; repeated draw emits no fake original-artist notifications.",
+    "ast_identity": "After removing exactly two new temporary-copy attribute assignments, v2 production AST equals v1; numerical data and render style/masking/clipping computations unchanged.",
+    "saved_renders": "Existing render7_v2 and render23_v3 remain numerically and visually qualified v1 saved-data artifacts. No rerenders/solves repeated because callback isolation changes no draw data/style computation. New exact-pixel oracle controls passed for v2.",
+    "native_limitations": "Source-doc policy only; capped/corrupt native probes do not qualify runtime visuals or historical raster parity.",
+    "receipt": {
+      "command_exit_code": 0,
+      "wall_seconds": 13.29276104643941,
+      "sampled_peak_summed_rss_kib": 697552,
+      "censored_limit": null,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "root_review": {
+    "initial_bindings_verified": 33,
+    "transitive_bindings_verified": 7190,
+    "v2_bindings_verified": 22,
+    "manifests": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/REVIEW.json": "59084af6c848515d1f135008ddda26064211877bb5ca49cab2fe720848b31691",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/DELIVERY.json": "d9561acf801381056e511e7a07698a6b690f38036613201a601a685f52e762ed",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/REVIEW_V2.json": "32d1f756763ac83e108de036b3c014e81cb52e4335e94d3c543ab5e061686206"
+    },
+    "whole_example_not_yet_run": true
+  },
+  "warning_visibility": "Removed blanket ignore filter from DDE script; actual warnings will remain observable in upcoming whole-script qualification."
+}

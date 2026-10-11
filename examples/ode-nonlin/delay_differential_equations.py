@@ -14,7 +14,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -347,7 +346,6 @@ def _output_slot(index):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     # ----- 1. An ODE by explicit spectral discretization --------------
     _output_slot(1)

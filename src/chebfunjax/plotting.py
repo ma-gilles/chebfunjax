@@ -4348,6 +4348,67 @@ def _marker_requested(fmt, kw):
     return marker not in (None, "", "none", "None")
 
 
+class _SourceMarkerLine(matplotlib.lines.Line2D):
+    """Draw complete glyphs whose centers lie inside the current axes.
+
+    MathWorks, ``Clipping in Plots and Graphs``, Clipping and Markers.
+    This applies only to source representation points, never ordinary lines.
+    """
+
+    def draw(self, renderer):
+        import copy
+
+        axes = self.axes
+        if (axes is None or not self.get_clip_on()
+                or self.get_clip_path() is not None
+                or self.get_clip_box() is not self._source_axes_clip_box):
+            return super().draw(renderer)
+        xy = self.get_xydata()
+        inside = np.isfinite(xy).all(axis=1)
+        if self.get_transform() == axes.transData:
+            xmin, xmax = sorted(axes.get_xlim())
+            ymin, ymax = sorted(axes.get_ylim())
+            inside &= ((xy[:, 0] >= xmin) & (xy[:, 0] <= xmax)
+                       & (xy[:, 1] >= ymin) & (xy[:, 1] <= ymax))
+            if axes.get_xscale() == "log":
+                inside &= xy[:, 0] > 0
+            if axes.get_yscale() == "log":
+                inside &= xy[:, 1] > 0
+        else:
+            display = self.get_transform().transform(xy)
+            bbox = axes.bbox
+            inside &= (np.isfinite(display).all(axis=1)
+                       & (display[:, 0] >= bbox.xmin)
+                       & (display[:, 0] <= bbox.xmax)
+                       & (display[:, 1] >= bbox.ymin)
+                       & (display[:, 1] <= bbox.ymax))
+        # A temporary copy keeps original data, metadata and legend handles
+        # intact, and recomputes eligibility after limits/transforms change.
+        artist = copy.copy(self)
+        # Copy setters must not notify observers of the original artist or
+        # propagate temporary state changes through its axes stale callback.
+        artist._callbacks = matplotlib.cbook.CallbackRegistry(signals=["pchanged"])
+        artist.stale_callback = None
+        visible = np.where(inside[:, None], xy, np.nan)
+        artist.set_data(visible[:, 0], visible[:, 1])
+        artist.set_clip_on(False)
+        matplotlib.lines.Line2D.draw(artist, renderer)
+
+
+def _source_marker_artist(ax, x, y, kw):
+    props = dict(kw)
+    # Use the same property-cycle defaults as Axes.plot.
+    ax._get_lines._setdefaults(ax._get_lines._getdefaults(props), props)
+    artist = _SourceMarkerLine(x, y, **props)
+    ax.add_line(artist)
+    artist._source_axes_clip_box = (
+        artist.get_clip_box() if "clip_box" not in props
+        and "clip_path" not in props else None
+    )
+    ax._request_autoscale_view()
+    return artist
+
+
 def _source_plot_line_and_points(
     ax,
     line_x,
@@ -4432,7 +4493,7 @@ def _source_plot_line_and_points(
                     column_kw["color"] = line_artists[j].get_color()
                 if label is not None:
                     column_kw["label"] = "_nolegend_"
-                ax.plot(px, py, **column_kw)
+                _source_marker_artist(ax, px, py, column_kw)
     elif draw_points:
         if label is not None:
             point_kw["label"] = label
@@ -4440,7 +4501,7 @@ def _source_plot_line_and_points(
             column_kw = dict(point_kw)
             if label is not None and j > 0:
                 column_kw["label"] = "_nolegend_"
-            ax.plot(px, py, **column_kw)
+            _source_marker_artist(ax, px, py, column_kw)
 
 
 
