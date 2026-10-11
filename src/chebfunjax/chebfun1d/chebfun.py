@@ -11336,43 +11336,18 @@ def _vectorize_op(f):
     return _f
 
 
-def chebpoly(n, domain=(-1.0, 1.0), kind: int = 1) -> Chebfun:
-    """Chebyshev polynomial(s) ``T_n`` (``kind=1``) or ``U_n`` (``kind=2``)
-    as a Chebfun on ``domain`` (MATLAB ``chebpoly(N, D, KIND)``); a
-    vector ``n`` gives an array-valued Chebfun with one column per
-    degree.  (The coefficient-vector version lives in
-    :mod:`chebfunjax.utils.polynomials`.)
+def chebpoly(n, domain=None, kind: int = 1) -> Chebfun:
+    """Construct Chebyshev polynomial Chebfuns on the preferred domain.
 
     Provenance
     ----------
-    MATLAB source : chebpoly.m
-    Chebfun commit: 7574c77
+    MATLAB source: chebpoly.m.
+    Chebfun commit: 7574c77.
+    The coefficient-vector helper remains utils.polynomials.chebpoly.
     """
-    import numpy as _np
+    from chebfunjax.utils._chebpoly_public import chebpoly_public
 
-    from chebfunjax.utils.polynomials import chebpoly as _cheb_coeffs
-    ns = _np.atleast_1d(_np.asarray(n, dtype=int)).ravel()
-    if _np.any(ns < 0):
-        raise ValueError("CHEBFUN:chebpoly:integern: The first argument "
-                         "must be a vector of nonnegative integers.")
-    if kind not in (1, 2):
-        raise ValueError("CHEBFUN:chebpoly:kind: CHEBPOLY(N, KIND) only "
-                         "supports KIND = 1 or KIND = 2.")
-    dv = [float(v) for v in domain]
-    if any(not math.isfinite(v) for v in dv):
-        raise ValueError("CHEBFUN:chebpoly:infdomain: Chebyshev "
-                         "polynomials are not defined over an unbounded "
-                         "domain.")
-    N = int(ns.max()) + 1
-    C = _np.zeros((N, ns.size))
-    for j, k in enumerate(ns):
-        c = _np.asarray(_cheb_coeffs(int(k), kind))
-        C[:c.shape[0], j] = c
-    coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
-    f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
-    if len(dv) > 2:
-        f = f._restrict_breaks(dv)
-    return f
+    return chebpoly_public(n, domain, kind)
 
 
 def legpoly(n, domain=(-1.0, 1.0), normalize=False) -> Chebfun:

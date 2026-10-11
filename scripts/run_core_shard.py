@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PARTS = 3
+PARTS = 6
 
 
 def inventory():

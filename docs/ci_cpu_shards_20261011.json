@@ -1,0 +1,44 @@
+{
+  "old_run": 38112886725,
+  "timeout_jobs": [
+    114391932195,
+    114391932305,
+    114391932314
+  ],
+  "reason": "GitHub check annotations: exceeded maximum execution time1h30m0s",
+  "partial_progress": {
+    "chebfun": "69%",
+    "chebfun3d": "58%",
+    "core0": "log blob unavailable; timeout annotation available"
+  },
+  "changes": "Core3\u21926 complete file partitions; chebfun andchebfun3d each1\u21923 modulo file partitions. Same job90min cap, per-test timeouts, assertions and aggregate79%coverage threshold.",
+  "verified_port_files": 1198,
+  "core_files": 672,
+  "core_partition_counts": [
+    112,
+    112,
+    112,
+    112,
+    112,
+    112
+  ],
+  "port_partition_counts": {
+    "chebfun-a": 107,
+    "chebfun-b": 107,
+    "chebfun-c": 106,
+    "techs": 203,
+    "chebfun2d": 129,
+    "chebfun3d-a": 41,
+    "chebfun3d-b": 41,
+    "chebfun3d-c": 41,
+    "sphere-scalar": 45,
+    "sphere-vector": 24,
+    "disk-ball": 154,
+    "operators-a": 38,
+    "operators-b": 37,
+    "operators-c": 37,
+    "operators-2": 88
+  },
+  "qualification": "Static exact inventory equality/disjointness only; new current-head CI must finish.",
+  "source_head": "9b18196f"
+}

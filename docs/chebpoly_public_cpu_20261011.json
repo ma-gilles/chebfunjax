@@ -1,0 +1,27 @@
+{
+  "base": "1b98861c",
+  "scope": "Merge only chebfun.py::chebpoly; new implementation private module; coefficient helper API unchanged.",
+  "native_source": "chebpoly.m, tests/misc/test_chebpoly.m, commit7574c77",
+  "controls": 12,
+  "native_clauses": 6,
+  "native_bound": "1e-14 unchanged; original max/min/linear combination/100000-degree routes retained.",
+  "baseline_failures": 4,
+  "prior_candidate_failure": "Extra scalar-output singleton axis; preserved controls_v1 failure, six original predicates passed.",
+  "jax_scope": "New coefficient construction/conversion uses JAX only. Existing public Chebfun constructor scaffolding is reused.",
+  "qualification": "Column orientation, empty, noninteger/kind errors, interior breaks, preferred-domain defaults.",
+  "remaining_limits": [
+    "No general JIT construction claim; degrees determine static allocation.",
+    "No new native capture or random-stream claim.",
+    "Python one-dimensional degrees represent MATLAB row vectors."
+  ],
+  "root_review": {
+    "merged_into": "9b18196f",
+    "checked_bindings": 817,
+    "adjacent_legpoly_AST_preserved": true,
+    "source_review": "Native coefficient assignment, kind2 parity inverse, preferred domain and orientation checked. Source duplicate-row assignment retained; generic invalid-type Python guards are adapters."
+  },
+  "delivery": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpoly_public_source_20261011/delivery_v3/DELIVERY.json",
+    "sha256": "18051a419e066b7a7b72d0dc0be505d25acc3ffc6a51a33a58af43529ae0807b"
+  }
+}
