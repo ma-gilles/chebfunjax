@@ -1,0 +1,54 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "randnfunsphere uses the native fixed2deg+2 longitude/latitude grid and numeric Spherefun constructor, followed by simplify. Invalid explicit mode arguments now raise.",
+  "verification": "Original27057: native five predicates pass unchanged inside one pytest case; four argument cases and monochrome grid control pass; white-grid control failed. Successor12628: both grid controls pass with exact array equality using source grid API. Library unchanged between gates.",
+  "retained_failure": "First supplemental oracle replaced source trigpts/linspace by separately rounded NumPy grids. Max difference5.32907052e-15 exceeded its4.44089210e-15 bound. Corrected test calls source grid routines and exact array equality; no library change or relaxed native tolerance. This is an API/grid-route control, not an independent harmonic accuracy proof.",
+  "limitations": [
+    "NumPy normal stream still differs from MATLAB; native rng1 fixture capture pending, no page-parity claim.",
+    "Existing harmonic helper uses NumPy/SciPy; this change adds only JAX grid arithmetic, does not eliminate existing library debt.",
+    "Five native predicates passed using NumPy seed0 rather than identical MATLAB RNG0 stream. Exact random-source parity remains open."
+  ],
+  "gates": [
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfunsphere_grid_source_20261010",
+      "inputs_rehashed": 286,
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 31.20621595485136,
+        "sampled_peak_summed_rss_kib": 1576344,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "1336c5f1a9bac28f92c982ca3b567ad840a13613116b75a5b54fff61a9b327ad",
+        "supervision/receipt.json": "4772cf64cd15cad436332f290d75657c7d8c8df51cf2b5abd745dd53314a592e",
+        "supervision/stdout": "eafe42a444615ad7529e4c8ab4f00947bec02735b002917ea39c724fb5497bfe",
+        "junit.xml": "3fcebb7bbb3632ce5addd501ffdf28eefd3e3fb3c680fb1785c4d4f0a017af87"
+      }
+    },
+    {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfunsphere_grid_source_v2_20261010",
+      "inputs_rehashed": 286,
+      "receipt": {
+        "command_exit_code": 0,
+        "wall_seconds": 12.338688355870545,
+        "sampled_peak_summed_rss_kib": 808324,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "56f420c54fbfe4f2b0ce99ee4e8cc8ffc4b11de2e6bcb82d7f9d34f56e2d4afd",
+        "supervision/receipt.json": "88704db030788cf6d215fb315c8bdf498b66446721d99e5bf6326bc08cebeba2",
+        "supervision/stdout": "7d172903fcfc0bffba685675bbd4640a32d2a59ad146a65dab729dc8ed6f5d70",
+        "junit.xml": "746f66f645f8a556b2a82989583e627a36d107d395f0dc6f4fd5a0d8394970f6"
+      }
+    }
+  ],
+  "integrated_sha256": {
+    "src/chebfunjax/chebfun1d/randfuns.py": "1a642384e5743170fdcd2fb71c9587405e6e8e96830a5f3ecaff672f712d7bce",
+    "tests/test_matlab_port/misc/test_randnfunsphere_matlab.py": "2481f92c6062cb7e1e8dc14a892cae561db583e089680c7b77bc18c18bb05a4b"
+  },
+  "integration": "Only the two independent local imports were reordered for Ruff after qualification; all other source bytes match frozen candidate."
+}

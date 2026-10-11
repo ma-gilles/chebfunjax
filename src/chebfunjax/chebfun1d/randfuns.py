@@ -150,10 +150,16 @@ def randnfunsphere(lam: float = 1.0, type_: str | None = None):
     Chebfun commit: 7574c77
     """
     from chebfunjax.spherefun.spherefun import Spherefun
+    from chebfunjax.utils.quadrature import trigpts
     from chebfunjax.utils.random import _sph_harm_sum, _sph_harm_sum_fixed_deg
+
     if isinstance(lam, str):
+        if type_ is not None or not lam.lower().startswith("m"):
+            raise ValueError("Input must be a wavelength or monochromatic")
         type_, lam = lam, 1.0
-    mono = type_ is not None and str(type_).lower().startswith("m")
+    if type_ is not None and (not isinstance(type_, str) or not type_.lower().startswith("m")):
+        raise ValueError("The only second argument is monochromatic")
+    mono = type_ is not None
     deg = int(math.floor(2 * math.pi / float(lam)))
     if mono:
         c = np.random.randn(2 * deg + 1)
@@ -164,16 +170,10 @@ def randnfunsphere(lam: float = 1.0, type_: str | None = None):
         c = math.sqrt(4 * math.pi / np.count_nonzero(c)) * c
         _sum = _sph_harm_sum
 
-    def _op(ll, tt):
-        # The constructor samples on a (theta, lambda) meshgrid; the
-        # harmonic sum takes the 1-D axes and returns (n_theta, n_lam).
-        ll = np.asarray(ll)
-        tt = np.asarray(tt)
-        if ll.ndim == 2:
-            lam1 = ll[0, :]
-            th1 = tt[:, 0]
-            return jnp.asarray(_sum(lam1, th1, deg, np.asarray(c)))
-        return jnp.asarray(np.diag(_sum(ll.ravel(), tt.ravel(), deg,
-                                        np.asarray(c))))
-    f = Spherefun.from_function(_op)
-    return f.simplify() if hasattr(f, "simplify") else f
+    # Native randnfunsphere.m uses a fixed grid that resolves degree deg.
+    # Adaptive construction changes sampling, rank and rounding history.
+    count = 2 * deg + 2
+    ll = trigpts(count, interval=(-jnp.pi, jnp.pi))[0]
+    tt = jnp.linspace(0.0, jnp.pi, count)
+    values = jnp.asarray(_sum(ll, tt, deg, c))
+    return Spherefun.from_values(values).simplify()
