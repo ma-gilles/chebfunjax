@@ -1,10 +1,18 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `afebe363` is published. This checkpoint adds the verified
+Main through `cd2a1335` is published. This checkpoint adds the verified
 EightShades, vector integration and disk arithmetic packages. Full parity
 remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Two supplemental CI expectations are reconciled with native behavior.
+  Single-component vectors are valid. The variable-coefficient cubic solve's
+  analytic100eps bound also fails in MATLAB; exact projection and independent
+  native LU comparisons now separate projection from conditioned solve error,
+  retaining100eps for native comparisons. All14 focused checks pass; the old
+  failures remain recorded in `docs/piecewise_assembly_ci_cpu_20261011.json`.
+  No library behavior or original native-test bound changed.
 
 - Rational trigremez now follows native root exchange and best-iterate stopping
   with a JAX finite-pencil solve. All 13 original predicates pass. Independent

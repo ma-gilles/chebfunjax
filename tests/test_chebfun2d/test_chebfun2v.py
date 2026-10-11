@@ -66,11 +66,13 @@ class TestConstruction:
         with pytest.raises(ValueError, match="domain"):
             Chebfun2v([f, g])
 
-    def test_too_few_components_raises(self):
-        """Fewer than 2 components raises ValueError."""
+    def test_single_component_preserves_native_representation(self):
+        """Native @chebfun2v/chebfun2v.m (7574c77) accepts one component."""
         f = SeparableApprox.from_function(lambda x, y: x)
-        with pytest.raises(ValueError):
-            Chebfun2v([f])
+        field = Chebfun2v([f])
+        assert field.n_components == 1
+        assert field.components[0] is f
+        assert field.domain == f.domain
 
     def test_repr(self):
         """repr includes n_components and domain."""

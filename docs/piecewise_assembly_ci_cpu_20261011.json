@@ -1,0 +1,49 @@
+{
+  "status": "Two supplemental CI assertions corrected against pinned native semantics; no library change",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ci_run": 38160607615,
+  "one_component": {
+    "prior_test": "Required ValueError for one component",
+    "native_source": "@chebfun2v/chebfun2v.m permits one component and retains an existing object; the component-count guard rejects more than3. The separate no-argument branch returns empty.",
+    "new_checks": "Component count, object identity and domain; all5construction checks pass"
+  },
+  "piecewise": {
+    "original_supplemental_analytic_solve_bound": 2.220446049250313e-14,
+    "native_independent_assembly_analytic_error": 9.026113190202523e-14,
+    "jax_jit_analytic_error": 3.064215547965432e-14,
+    "matrix_condition": 422516.6855103656,
+    "same_matrix_comparison": {
+      "jax_vs_native_same_matrix_solution_max_abs": 2.220446049250313e-15,
+      "projected_same_matrix_solution_max_abs": 2.211780313086578e-15,
+      "jax_vs_native_independent_matrix_solution_max_abs": 5.984102102729594e-14,
+      "native_analytic_error": 9.026113190202523e-14,
+      "same_matrix_native_analytic_error": 3.272382365082649e-14,
+      "original_supplemental_bound": 2.220446049250313e-14
+    },
+    "replacement_scope": "Existing assembly and backward matrix-action checks retained. Solve backward residual and exact-cubic projection tested independently. New raw/projected solve comparisons use independent native LU on both native-built and retained JAX-built matrices, all at unchanged100eps. This replaces an unsupported supplemental forward-accuracy assertion; no original native assertion or tolerance is relaxed.",
+    "limits": "Fixed two panels/base8,13 and scalar second-order variable coefficients. No adaptive/public-solver or arbitrary-conditioned-system claim."
+  },
+  "verification": {
+    "passed": 14,
+    "pytest_seconds": 33.68,
+    "peak_rss_kib": 2151312,
+    "original_handle": 37099,
+    "exit_code": 0,
+    "bindings_verified": 4372,
+    "original_test_bytes_recovered_from": "cd2a1335; INPUT_HISTORY.json",
+    "native_version": "R2025b",
+    "runtime": "JAX/JAXlib0.11.0 CPU x64"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/114532951532.log": "9f3646f2e30f78205d4a783d06116659934b6e6acdef08b1e3618b3b451959b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/114532951660.log": "2020dbe32fe5cc4b74cacd0d9363e2f83fdf49966a9e071e1ae332b240ffe740",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/INPUT_HISTORY.json": "5785f274581143e7bec1e227d0dba5ee23c060264f5d0136a742b87443e546ae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/SAME_MATRIX_COMPARISON.json": "6b436494a7b6edbd342d1488812a4c237ad1cd5ab9a8e44113778a9e7970ebd4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/capture.mat": "5c931ad9c8175c585cd7479c0620b0cc93b31f75af5e727943e0811877ba8c60",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/driver.m": "3f8878dd3b0e27ca0221f2b0afd3a500190ba899e8f5ec5711062331d6b89161",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/source_contract_gate/run/receipt.json": "0a61dd5919ea7cb55e64fd8067a67e9823f0e4fec664c23934faa9a3bb7b64e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/source_contract_gate/run/stdout": "8db0fdb0074cfd742e31d07a10c182e1188a08fe96d408ac1de0b947cd2eb6f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/local_focused/run/receipt.json": "60e3fe88421904646dbef44491bfa018401f3a08f89279fbff4bda4e09d509a6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/matrix_diagnosis/REPORT.json": "a71625e4b961cd07f8a6fe16096a0d6518b9d1db1d18baf8b86bcc12216d15cc"
+  }
+}

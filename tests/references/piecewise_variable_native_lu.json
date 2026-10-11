@@ -1,0 +1,23 @@
+{
+  "native_source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "R2025b",
+  "fixture_sha256": "64f069f97b3aee65611b9b1ed3e422aadca95b40174490bfc7e0848db609c341",
+  "domains": [
+    -1,
+    -0.3,
+    1
+  ],
+  "base_dimensions": [
+    8,
+    13
+  ],
+  "source": "@valsDiscretization/points.m, @chebcolloc/reduce.m, @valsDiscretization/mldivide.m; native chebtech1/2 nodes, diffmat, barymat and LU",
+  "capture_scope": "Native independently assembled matrix and native LU on both native and retained JAX matrices. Scalar order-two helper, no adaptive/public-solver claim.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/driver.m": "3f8878dd3b0e27ca0221f2b0afd3a500190ba899e8f5ec5711062331d6b89161",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/capture.mat": "5c931ad9c8175c585cd7479c0620b0cc93b31f75af5e727943e0811877ba8c60",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/guard.json": "37bc3cf97e618eb80575dd42e4e56a49f684764d745d2296fd96b2adff40b668",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/native_matrix/run/receipt.json": "71b5b0bc6eb69e1cd39cc8ad7719986a68db0ac817cf793591dc316b56a93f47",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_9f1_core14_20261011/matrix_diagnosis/arrays.npz": "90910599079b4067e28cbff1f84a24afe567c1582a2d8cd18cfb6b46389c6ec0"
+  }
+}

@@ -18,10 +18,13 @@ extraction and public solver dispatch are not tested here.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from chebfunjax.operators.chebop import _piecewise_row_scaled_solve
 from chebfunjax.operators.piecewise_linear import (
@@ -194,7 +197,14 @@ def test_unequal_panel_variable_coefficients_and_jit_builder():
     assert float(jnp.linalg.norm(jit_matrix @ raw - expected_action, ord=jnp.inf)) <= 100 * EPS * action_scale
 
     solution = _piecewise_row_scaled_solve(jit_matrix, jit_rhs)
-    projected = _project_scalar_raw_solution(jnp.asarray(DOMAINS), BASE, solution)
+    solve_scale = max(1.0, float(jnp.linalg.norm(jit_matrix, ord=jnp.inf))
+                      * float(jnp.linalg.norm(solution, ord=jnp.inf)))
+    assert float(jnp.linalg.norm(jit_matrix @ solution - jit_rhs, ord=jnp.inf)) <= 100 * EPS * solve_scale
+    # Project the independent exact cubic separately from the conditioned solve.
+    # The former analytic solve bound also fails in native MATLAB (9.03e-14).
+    # Native same-matrix solve comparisons retain 100eps below; no native
+    # assertion is replaced. See docs/piecewise_assembly_ci_cpu_20261011.json.
+    projected = _project_scalar_raw_solution(jnp.asarray(DOMAINS), BASE, raw)
     for a, b, d, values in zip(DOMAINS[:-1], DOMAINS[1:], BASE, projected):
         xi = chebpts(d, kind=1)
         x = b * (xi + 1.0) / 2.0 + a * (1.0 - xi) / 2.0
@@ -340,3 +350,19 @@ def test_coefficient_gradient_matches_analytic_second_derivative_action():
         got, expected, rtol=0,
         atol=100 * EPS * max(1.0, action_roundoff_scale),
     )
+
+
+@pytest.mark.parametrize("origin", ["native", "jax"])
+def test_row_scaled_solve_matches_independent_native_lu(origin):
+    """Pinned MATLAB LU oracle on independently native and JAX-built matrices."""
+    fixture = Path(__file__).parents[1] / "references/piecewise_variable_native_lu.npz"
+    with np.load(fixture) as reference:
+        matrix = jnp.asarray(reference[origin + "_matrix"])
+        rhs = jnp.asarray(reference[origin + "_rhs"])
+        solution = _piecewise_row_scaled_solve(matrix, rhs)
+        expected = reference[origin + "_native_solution"]
+        npt.assert_allclose(solution, expected, rtol=0, atol=100 * EPS)
+        projected = _project_scalar_raw_solution(jnp.asarray(DOMAINS), BASE, solution)
+        expected_values = reference["native_projection"] @ expected
+        npt.assert_allclose(jnp.concatenate(projected), expected_values,
+                            rtol=0, atol=100 * EPS)

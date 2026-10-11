@@ -3,7 +3,7 @@
 ## Latest verified CPU checkpoint (2026-10-11)
 
 Read `STATUS.md` for the current published scope and the shared evidence-root
-`CURRENT_GOAL_STATUS.md` for active work. Main through `afebe363` is pushed;
+`CURRENT_GOAL_STATUS.md` for active work. Main through `cd2a1335` is pushed;
 SSH and the CPU environment work. Full parity remains incomplete.
 Latest verified packages restore the original PDE tolerance, constructor warning
 ownership, delta integration, all12 Besselh predicates with a JAX-only kernel,
@@ -26,6 +26,11 @@ retain source tolerances; full parity and current-main CI remain unresolved.
 Rational trigremez now has a source exchange/JAX finite-pencil successor,
 all13 original predicates and independent native output/warning controls.
 Its qualification record preserves remaining public API and conditioning gaps.
+
+Two later CI supplemental assertions were inconsistent with the native
+constructor/conditioned solve. Their corrected14-check gate and both original
+failures are recorded in docs/piecewise_assembly_ci_cpu_20261011.json.
+No library behavior or original native tolerance changed.
 
 ## Earlier CPU checkpoint (2026-10-11)
 
