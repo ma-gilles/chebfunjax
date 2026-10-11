@@ -1,0 +1,230 @@
+{
+  "qualification": {
+    "native_predicates": 46,
+    "technologies": [
+      "Chebtech1",
+      "Chebtech2"
+    ],
+    "per_technology": 23,
+    "pytest_cases": 8,
+    "result": "All46 exact source predicates pass; tests-only package; no kernel fault exposed.",
+    "source_mapping": {
+      "1": "empty sums",
+      "2-3": "sin plus complex scalar/public isequal/scalar sample Inf",
+      "4-11": "zero,exp plus Lorentz/cos1e4/complex sinh; public isequal and source1e4 bound",
+      "12-13": "array zeros and matrix infinity norm",
+      "14-15": "array sin/cos/exp plus scalar, matrix maximum row-sum norm",
+      "16-17": "array cosh/Airy Ai/sinh, matrix maximum row-sum norm",
+      "18": "modern MATLAB successful implicit expansion/no error",
+      "19": "direct coefficient shape(15,) and unpadded Inf comparison<10eps",
+      "20-21": "default sqrt unhappy length65537, sum happiness both orders; warnings unsuppressed",
+      "22-23": "row-vector expansion/three-column shape/flattened Inf strict10eps"
+    },
+    "limitations": [
+      "RandomState6178 first100 random draws are provisional; MATLAB stream identity unverified",
+      "SciPy Airy Ai host input adapter",
+      "Native default techPref adapted by public constructor defaults; scalar Nx1 arrays represented1D"
+    ],
+    "unchanged_original_probes": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebtech/test_plus_matlab.py",
+    "cohorts": [
+      {
+        "name": "baseline_t1_scalar",
+        "wall_seconds": 28.599050644785166,
+        "sampled_peak_summed_rss_kib": 1483948
+      },
+      {
+        "name": "baseline_t1_array",
+        "wall_seconds": 19.255160680040717,
+        "sampled_peak_summed_rss_kib": 1099172
+      },
+      {
+        "name": "baseline_t1_unhappy",
+        "wall_seconds": 23.512230899184942,
+        "sampled_peak_summed_rss_kib": 1221224
+      },
+      {
+        "name": "baseline_t1_expansion",
+        "wall_seconds": 15.951642498373985,
+        "sampled_peak_summed_rss_kib": 893784
+      },
+      {
+        "name": "baseline_t2_scalar",
+        "wall_seconds": 23.56476837489754,
+        "sampled_peak_summed_rss_kib": 1102040
+      },
+      {
+        "name": "baseline_t2_array",
+        "wall_seconds": 15.846069852355868,
+        "sampled_peak_summed_rss_kib": 834244
+      },
+      {
+        "name": "baseline_t2_unhappy",
+        "wall_seconds": 20.835009061731398,
+        "sampled_peak_summed_rss_kib": 975684
+      },
+      {
+        "name": "baseline_t2_expansion",
+        "wall_seconds": 12.25926702003926,
+        "sampled_peak_summed_rss_kib": 676328
+      },
+      {
+        "name": "candidate_t1_scalar",
+        "wall_seconds": 28.430782937910408,
+        "sampled_peak_summed_rss_kib": 1486168
+      },
+      {
+        "name": "candidate_t1_array",
+        "wall_seconds": 20.028359178919345,
+        "sampled_peak_summed_rss_kib": 1096752
+      },
+      {
+        "name": "candidate_t1_unhappy",
+        "wall_seconds": 25.198235963936895,
+        "sampled_peak_summed_rss_kib": 1222440
+      },
+      {
+        "name": "candidate_t1_expansion",
+        "wall_seconds": 15.829166254028678,
+        "sampled_peak_summed_rss_kib": 894932
+      },
+      {
+        "name": "candidate_t2_scalar",
+        "wall_seconds": 23.034745662938803,
+        "sampled_peak_summed_rss_kib": 1096552
+      },
+      {
+        "name": "candidate_t2_array",
+        "wall_seconds": 15.784592372830957,
+        "sampled_peak_summed_rss_kib": 835952
+      },
+      {
+        "name": "candidate_t2_unhappy",
+        "wall_seconds": 21.312243424821645,
+        "sampled_peak_summed_rss_kib": 983680
+      },
+      {
+        "name": "candidate_t2_expansion",
+        "wall_seconds": 12.42491720477119,
+        "sampled_peak_summed_rss_kib": 677924
+      }
+    ],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_scalar/supervision/receipt.json": "f9653fefcd1e0297e0a35d4c17c599535e3c8d81e8947a55af5911ed629c57ee",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_scalar/supervision/stdout": "2b826ba7b267e912f1938344bb263d33acba7559f22b112515e375e8001d0970",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_scalar/RUNTIME_SOURCE_END.json": "e22cafaa2ab6e1b911560df6f7a598a41c3c47d8e0801307f1fa78a1677f90bb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_scalar/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_array/supervision/receipt.json": "38b35bca32a63b3f16b4e73c49a6dd1c80e6ddae558699cabc8945328cf28d15",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_array/supervision/stdout": "87e3eba3aebee13f4548b6640febd8cf196da0d7f219d1f1dd33ba27ed1a6c1d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_array/RUNTIME_SOURCE_END.json": "7dd4a6a3914cc6e44eba30b04c8f37de13bbbddbda9b9f1c427dd4bec571e100",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_array/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_unhappy/supervision/receipt.json": "ae215ec5e47d4d90fb960c87be5e50cfdc5e39a07d33a5d0da352c34ea2cacf0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_unhappy/supervision/stdout": "803c91e85210d86bbb257d7770665024f91be9e2c42ce7cd5de7ef28ac8fedf9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_unhappy/RUNTIME_SOURCE_END.json": "c79a79d6da0c3753b90a275bfb120e7e66ed23b14472c0d8e6175f0fb463b94a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_unhappy/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_expansion/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_expansion/supervision/receipt.json": "f5d3ba048a87e7913055e6c87765f52c498121a8a0fd83bdb4912d6f2a6ec22b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_expansion/supervision/stdout": "ecff96835d1ac61292a5fbb05638564f38b56d2ceb2ccc03918d59c690aed5b3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_expansion/RUNTIME_SOURCE_END.json": "97ece57b67500529c21b7607c117a11598e143e453093479512da8bf258bf517",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t1_expansion/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_scalar/supervision/receipt.json": "4732f09a1af54c757fcf622baf634a669906ed5188eb89715c167698af55544d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_scalar/supervision/stdout": "4ec1deba22ad5f926e459278bdc4aba98fdf97e7a7f10c99029192d0639d9749",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_scalar/RUNTIME_SOURCE_END.json": "62b55b757998921436fe17382c50852e00b15d99efda28fd3af8cd91969e8cb0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_scalar/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_array/supervision/receipt.json": "c8780ff4864a903455565c088280137eb48fd8ac86dc8f15f72f3546df4ab795",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_array/supervision/stdout": "1fab4f944e05bc811dd8736aab52e299cef4f43b3e7dad44a2e2187a51627535",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_array/RUNTIME_SOURCE_END.json": "4355924547883232dbd38094dfa10b936a2c4ae8eb4af40dc175424b4e907316",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_array/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_unhappy/supervision/receipt.json": "2d8e3af0cff080eb57ec5b5ce6f3c96f50dad489a480e9fb475d52093aac8db0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_unhappy/supervision/stdout": "9b539c917a6b0fec7d772e36a9653f612fc744e29904681ab16203afcc2c109c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_unhappy/RUNTIME_SOURCE_END.json": "354f8d1ba07f27b1eca22a9c6c0b7ed3f83029274faa0fbd5f100827a8e6c03f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_unhappy/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_expansion/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_expansion/supervision/receipt.json": "2590654761c254de46fcb1cdaeac23fedd90b796c4b6b20630e19cf847f294d7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_expansion/supervision/stdout": "5015171138ef2593428b349cf5be80e5c4b3cde40d80eac643a91cf7bbb9c81c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_expansion/RUNTIME_SOURCE_END.json": "9dd992db76d8f67c089123fbdbe1726d381056edba462623236e0493680d4c42",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/baseline_t2_expansion/snapshot/tests/test_plus_native_source.py": "1c7f52f48fa8ad4b86aa886b9a3ba2877c4e832eb755e3251861a242f70fe224",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_scalar/supervision/receipt.json": "64145276bf12e474f712053ef1ca7657e673f0dbfdfffa820f5ebec70e7a0696",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_scalar/supervision/stdout": "da89f4150d62728ee821467357085da72e02d23834eb0a6f579e79f53d09470e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_scalar/RUNTIME_SOURCE_END.json": "157abd98cef6fe8474bc24c880087a8b1da4504d3e8c5f6c9024e5e787ba8e90",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_scalar/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_array/supervision/receipt.json": "b1022900786ecfe77bae5c943a86034a698f487f7bbfa4a66017920d224f0091",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_array/supervision/stdout": "7ee80cd4af02f263a5e910cc7ec6ba561b93a28c7a1d48c662d5b12640e070fa",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_array/RUNTIME_SOURCE_END.json": "1ce0da19533d709ad9344181768c2198957e5dad626621d2a9db70a25e7df634",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_array/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_unhappy/supervision/receipt.json": "1550775f57cd364eeeb166c158455afafdd53435727020d5d4d86f0e1e530b40",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_unhappy/supervision/stdout": "dabd25efd7bde65e486c564c1a16f9699da1770463c8994acdf17d2ec57fff6a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_unhappy/RUNTIME_SOURCE_END.json": "0a67690960fde1193a1c6272c83ddc45c83f741dfa643ee9be41e9b53c8b7163",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_unhappy/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_expansion/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_expansion/supervision/receipt.json": "4b8e4c08ab5454af0f12ff8b13b4f5eb065a75d464f8dfcd1c3849c4208c36e6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_expansion/supervision/stdout": "a00ff7387cbac54af739ee770b6bc1b2f29d88536fc1e766afd77a9a0b454209",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_expansion/RUNTIME_SOURCE_END.json": "58d39c04f70c6aad20122e31e22126d4ed5c40ff9a2832dc39b0aa35c92b4ea7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t1_expansion/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_scalar/supervision/receipt.json": "4ed2a326c5876ae5fc0866ccf600b5f549902ca5a484f260811c337eb4b60c5b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_scalar/supervision/stdout": "41423a5b71eb8a280fece62c3b8720ec9d098ad83dcc4461895a14c1d61aa873",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_scalar/RUNTIME_SOURCE_END.json": "935c751de8a3aeec31d34157df0a71c7082845a0a174ecc143150527ced38efa",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_scalar/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_array/supervision/receipt.json": "a9f613dbf0830cad33544fcfdef1f9c244d15de152efceee95870228d5443872",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_array/supervision/stdout": "9eafdbbd02becf93fd62dfeb72aeb6019214a997e0c523f9b2440002ff0036f2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_array/RUNTIME_SOURCE_END.json": "3d52f4bbaa72cf1e48dbf1cab9825b3d7eb01ca6cd97a5dad8cd83d50dbd3395",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_array/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_unhappy/supervision/receipt.json": "c3dbd8cdc5e57a895db13fffb85140051cc24867383944f9c3feac32a622e64a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_unhappy/supervision/stdout": "b23d3163eafbd4ab02149ac637500e77a4408f71342f7c1fb1132ab45389d397",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_unhappy/RUNTIME_SOURCE_END.json": "0c2d430cddfb530b5bf2e30394e0366620da5c4dfbbc5cd04d83b9689d81a5c2",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_unhappy/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_expansion/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_expansion/supervision/receipt.json": "90f2ab49c40819874c367eaee6f5af7dcbabf83f982f1643ebfda14d854fe072",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_expansion/supervision/stdout": "f67ff55524cbf9fcd27b0050378a6b028bb71e1e8dd151d8d202ba614a71f45b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_expansion/RUNTIME_SOURCE_END.json": "8fcc809efeca14e7b177a750840456c2c2cd1063bcc7eb3f55104dd437345cfb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate_t2_expansion/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/candidate/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/plus_native46.patch": "936aa56c06c06c2f318f658912cec530c8d326cea59489bfbba575f9adc23c1a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/SOURCE_PLAN.json": "9c269c0bf9d9d8a3ce29341842166ef39c91c2d7e25c5a9e44e3a5ed7188e993",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/build_delivery.py": "29d2e2b9d0a8cfbf8362a8f2e7ee45df237fa8b9afd721494c390f1c1d9d02c4"
+    }
+  },
+  "rng_addendum": {
+    "native_predicates": 46,
+    "unchanged_qualification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/DELIVERY.json",
+    "rng_qualification": {
+      "seed": 6178,
+      "count": 100,
+      "formula": "2*rand(100,1)-1",
+      "array_equal": true,
+      "max_abs_error": 0.0,
+      "native_shape": [
+        100
+      ],
+      "native_mat_sha256": "1d57cc3879e35b606c1bd63d4071ff309db64ed1b9c6bab5f52cfd523663159d",
+      "scope": "First100 after explicit seed; this is exactly PLUS source sampling before constructors. No intervening constructor stream identity claim.",
+      "native_rng_before_type": "twister"
+    },
+    "correction": "PLUS first100 RNG adapter is now bound to exact native capture; original test module docstring/delivery provisional labels are superseded by this evidence. No unchanged numerical tests rerun.",
+    "retained_adapters": [
+      "SciPy host Airy Ai callback",
+      "scalar Nx1 arrays represented1D"
+    ],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/observations.mat": "1d57cc3879e35b606c1bd63d4071ff309db64ed1b9c6bab5f52cfd523663159d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/RNG_COMPARISON.json": "14ea9c641aa8e460a2883a3fbea5250e2503f146f808fff398c517a0b2bdeb5e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/probe.m": "2280cdd9b0e9ab79b3f67ee33848d2792379136139cbe892c24087b16d88938a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/AUDIT.json": "456b538b303450b392e72eb4643f52f804746bba39b2b9efb551828d9ae39aa0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/guard.json": "875b1f11cd03f25b4d729992a892cf8f8167c45c55366e5cb87ec847c0b937f7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/RUNTIME_OBSERVATION.json": "62dc534107d801d93b10ef7cde6fd81f3ff229005ac05658a7a8e97f28503243",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/DELIVERY.json": "bab07d7f1f59e874b884251b339d0689869b9a48d65c0f33310df3b1a5ed9f2c"
+    }
+  },
+  "note": "RNG addendum supersedes provisional label in original qualification; only captured first100 draws are qualified."
+}

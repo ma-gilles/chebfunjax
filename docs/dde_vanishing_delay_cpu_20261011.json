@@ -1,0 +1,425 @@
+{
+  "scope": "DDE literal vanishing-delay source example, output slot18 / figure19; private default-double scalar fzero adapter. No solver algorithm change.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "example_pin": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+  "source": "E/ode-nonlin/DelayDifferentialEquations.m:362\u2013378; MATLAB R2025b optimfun/optimfun/fzero.m scalar interval search344\u2013437 and interpolation459\u2013550.",
+  "api_scope": "_fzero_default is a private MATLAB builtin-helper adapter, not an upstream Chebfun method. Finite real default-double scalar/two-point inputs only; no options, callbacks, single precision or nonfinite recovery claim. No arbitrary iteration cap; external supervisor caps execution.",
+  "input_qualification": "All10sequential roots, fvals, interval/main iteration counts and funcCounts exactly match native. Five independent scalar/bracket controls plus5permanent pytest cases pass.",
+  "solve_qualification": "Public discriminator uses captured native domain, exactly equal to independently source-generated domain. Same equation, BC, init1+t, omitted n/tolerance. No repeated solve solely to change domain construction.",
+  "comparison": {
+    "native_residual": 2.2668479093641403e-11,
+    "python_residual": 2.2665236914730954e-11,
+    "lengths_equal": true,
+    "output_domain_max_abs": 4.440892098500626e-16,
+    "coefficients_max_abs": 7.815970093361102e-14,
+    "sample_coordinates_max_abs": 8.881784197001252e-16,
+    "sample_values_max_abs": 1.2789769243681803e-13,
+    "limits": "Observed differences, not source acceptance inequalities; query grids and output domains differ slightly."
+  },
+  "gates": {
+    "root_controls": {
+      "original": 59053,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 286,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 504108,
+      "wall_seconds": 4.097149834036827,
+      "result": {
+        "success": true,
+        "native_rows": [
+          {
+            "value": -2.220446049250313e-16,
+            "iterations": 5.0,
+            "intervaliterations": 8.0,
+            "funcCount": 22.0,
+            "exitflag": 1.0,
+            "bracket": [
+              1.1002631123499285,
+              2.1358048651498613
+            ],
+            "root": 2.0952939852239143,
+            "native_root": 2.0952939852239143
+          },
+          {
+            "value": 0.0,
+            "iterations": 4.0,
+            "intervaliterations": 7.0,
+            "funcCount": 19.0,
+            "exitflag": 1.0,
+            "bracket": [
+              1.6211830778539251,
+              2.5694048925939037
+            ],
+            "root": 2.4959439998341906,
+            "native_root": 2.4959439998341906
+          },
+          {
+            "value": 4.440892098500626e-16,
+            "iterations": 5.0,
+            "intervaliterations": 6.0,
+            "funcCount": 18.0,
+            "exitflag": 1.0,
+            "bracket": [
+              2.09659295986072,
+              2.895295039807661
+            ],
+            "root": 2.847169959075709,
+            "native_root": 2.847169959075709
+          },
+          {
+            "value": 0.0,
+            "iterations": 4.0,
+            "intervaliterations": 5.0,
+            "funcCount": 15.0,
+            "exitflag": 1.0,
+            "bracket": [
+              2.52504944943522,
+              3.1692904687161985
+            ],
+            "root": 3.1632959308069997,
+            "native_root": 3.1632959308069997
+          },
+          {
+            "value": 0.0,
+            "iterations": 4.0,
+            "intervaliterations": 5.0,
+            "funcCount": 15.0,
+            "exitflag": 1.0,
+            "bracket": [
+              2.805409850235249,
+              3.5211820113787504
+            ],
+            "root": 3.452906976461304,
+            "native_root": 3.452906976461304
+          },
+          {
+            "value": 4.440892098500626e-16,
+            "iterations": 4.0,
+            "intervaliterations": 4.0,
+            "funcCount": 13.0,
+            "exitflag": 1.0,
+            "bracket": [
+              3.1766744183443993,
+              3.7291395345782083
+            ],
+            "root": 3.7216080303711316,
+            "native_root": 3.7216080303711316
+          },
+          {
+            "value": 0.0,
+            "iterations": 4.0,
+            "intervaliterations": 4.0,
+            "funcCount": 13.0,
+            "exitflag": 1.0,
+            "bracket": [
+              3.423879387941441,
+              4.019336672800822
+            ],
+            "root": 3.973288709314904,
+            "native_root": 3.973288709314904
+          },
+          {
+            "value": 4.440892098500626e-16,
+            "iterations": 5.0,
+            "intervaliterations": 4.0,
+            "funcCount": 14.0,
+            "exitflag": 1.0,
+            "bracket": [
+              3.6554256125697115,
+              4.291151806060096
+            ],
+            "root": 4.21077469973445,
+            "native_root": 4.21077469973445
+          },
+          {
+            "value": -8.881784197001252e-16,
+            "iterations": 4.0,
+            "intervaliterations": 3.0,
+            "funcCount": 11.0,
+            "exitflag": 1.0,
+            "bracket": [
+              3.9725773121959715,
+              4.448972087272928
+            ],
+            "root": 4.436193196131759,
+            "native_root": 4.436193196131759
+          },
+          {
+            "value": 0.0,
+            "iterations": 4.0,
+            "intervaliterations": 3.0,
+            "funcCount": 11.0,
+            "exitflag": 1.0,
+            "bracket": [
+              4.185244212800688,
+              4.68714217946283
+            ],
+            "root": 4.651191852746926,
+            "native_root": 4.651191852746926
+          }
+        ],
+        "independent_checks": [
+          {
+            "root": 2.0,
+            "expected": 2.0
+          },
+          {
+            "root": 1.414213562373095,
+            "expected": 1.4142135623730951
+          },
+          {
+            "root": -3.0,
+            "expected": -3.0
+          },
+          {
+            "root": 1.0,
+            "expected": 1.0
+          },
+          {
+            "root": 0.0,
+            "expected": 0.0
+          }
+        ]
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/root_controls/guard.json": "7b5809a5ba3e94fa72b9737b641ea1ddc4c113b42ccaca3fa6d673167c68e52b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/root_controls/supervision/receipt.json": "4d6671bab068539344ad8bcf906199b09516085dc25ddd0b9be25762cfd86473",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/root_controls/supervision/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/root_controls/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/root_controls/result.json": "885d12066c552ff64e8a5d2ea77f931e63372c632e86e0fad1ba64656d82fbd1"
+      },
+      "qualified": true
+    },
+    "native_domain_discriminator": {
+      "original": 5431,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 286,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 2394644,
+      "wall_seconds": 48.65842590108514,
+      "result": {
+        "success": true,
+        "solve_seconds": 30.98606551112607,
+        "domain": [
+          0.0,
+          1.0000000000000004,
+          1.618033988749895,
+          2.0952939852239143,
+          2.4959439998341906,
+          2.8471699590757087,
+          3.1632959308069997,
+          3.452906976461304,
+          3.721608030371131,
+          3.973288709314904,
+          4.210774699734449,
+          4.436193196131759,
+          4.651191852746926
+        ],
+        "lengths": [
+          2,
+          13,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "residual_norm": 2.2665236914730954e-11,
+        "input_domain": [
+          0,
+          1.618033988749895,
+          2.0952939852239143,
+          2.4959439998341906,
+          2.847169959075709,
+          3.1632959308069997,
+          3.452906976461304,
+          3.7216080303711316,
+          3.973288709314904,
+          4.21077469973445,
+          4.436193196131759,
+          4.651191852746926
+        ],
+        "diagnostic": "Captured native input domain; root adapter qualified separately",
+        "warnings": [],
+        "pieces": [
+          {
+            "interval": [
+              0.0,
+              1.0000000000000004
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              1.0000000000000004,
+              1.618033988749895
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              1.618033988749895,
+              2.0952939852239143
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              2.0952939852239143,
+              2.4959439998341906
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              2.4959439998341906,
+              2.8471699590757087
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              2.8471699590757087,
+              3.1632959308069997
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              3.1632959308069997,
+              3.452906976461304
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              3.452906976461304,
+              3.721608030371131
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              3.721608030371131,
+              3.973288709314904
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              3.973288709314904,
+              4.210774699734449
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              4.210774699734449,
+              4.436193196131759
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          },
+          {
+            "interval": [
+              4.436193196131759,
+              4.651191852746926
+            ],
+            "tech": "Chebtech2",
+            "happy": true
+          }
+        ]
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/native_domain_discriminator/guard.json": "5fb42882fa7b94694a3ef60ff82fbce0efbdabc97d9092a8c6b63ed0e063374c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/native_domain_discriminator/supervision/receipt.json": "6cdaf058f53ee8230918da87cb782618ffc280a123e1b761680112faaf1ab122",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/native_domain_discriminator/supervision/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/native_domain_discriminator/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/native_domain_discriminator/result.json": "3e9724cb68211c67cdf3dbdcacde7668075412f6049873c8aa8bc8ad87452a41"
+      },
+      "qualified": true
+    },
+    "render": {
+      "original": 8065,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 290,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 591776,
+      "wall_seconds": 7.901871270034462,
+      "result": {
+        "success": true,
+        "no_solve": true,
+        "coefficients_byte_identical": true,
+        "all201samples_byte_identical": true,
+        "stdout_byte_identical": true,
+        "render_points": 1200
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/render/guard.json": "4a92674aba0f79246471708687136506e4ea9923bac52f34694146b1b7bc252f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/render/supervision/receipt.json": "755cec48ad711e791b568578487ed3e42e01b230d3cf139433253491d8a56e88",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/render/supervision/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/render/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/render/result.json": "43b604e0b42c9eed3c0f68b0ba25eccd4e4f4b20b4eaa55d1f45466a6fc63cec"
+      },
+      "qualified": true
+    },
+    "tests_gate": {
+      "original": 4646,
+      "terminal": 0,
+      "command_exit": 0,
+      "inputs_stable": true,
+      "bad_hashes": [],
+      "input_count": 287,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 509272,
+      "wall_seconds": 4.897342087235302,
+      "result": null,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/tests_gate/guard.json": "655fa6c4397dae47a92b1af621594f71ee927ef2a8af1b7e96edb24587e55d65",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/tests_gate/supervision/receipt.json": "5cafe5c62be0045e4f01ae9ea981f4dc160a86e3c1beef84c626b44d36b24673",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/tests_gate/supervision/stdout": "3afd01e7e6f7c6665de4e39c9534dfbc462cab4d2f5e914c2477ba4f9205fd85",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_vanishing_delay_20261011/tests_gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b"
+      },
+      "qualified": true
+    }
+  },
+  "native_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddvdelay1/AUDIT.json",
+  "render": "Reconstructed all12pieces and point_values; exact coefficientbytes, all201savedvalues, actualstdout. Figure19 evaluated1200points,600x270,referenceaxes. No solve repeated.",
+  "page": "Onlyslot18/figure19 newly qualified:16->17verified,7->6pending. Preserve allotherpagecontent. Wholepage incomplete.",
+  "limits": [
+    "Output breakpoint differences up to4.44e-16 retained; no snapping.",
+    "Source page prints residual without acceptance inequality; observations are not invented tests.",
+    "No MATLAB/JAX performance ratio from unmatched startup/provider conditions.",
+    "Antialias/font raster differences remain; no pixelidentity claim.",
+    "Frozen scientific-source guard and postruntime observer, not exhaustive prospective native runtime closure.",
+    "Script has preexisting Ruff E731/F841 diagnostics; new source/test files pass configured Ruff."
+  ]
+}

@@ -170,6 +170,21 @@ def _source_system_pantograph_curve(exact, numerical):
     return fig
 
 
+def _source_vanishing_delay_curve(y):
+    """Render the source vanishing-delay solution with reference axes."""
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    points = jnp.linspace(y.domain.breakpoints[0], y.domain.breakpoints[-1], 1200)
+    ax.plot(np.asarray(points), np.asarray(y(points)))
+    ax.set(xlim=(0, y.domain.breakpoints[-1]), ylim=(0, 35),
+           xticks=np.arange(0, 4.51, .5), yticks=np.arange(0, 36, 5))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_cubic_delay_curve(exact, numerical):
     """Render the source cubic state-delay plot with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -507,9 +522,24 @@ def run():
     print(f"err =\n     {err:.15e}")
     _save(_source_cubic_delay_curve(exact, y), source_axes=True)
 
-    # ----- 17. State-dependent 1/t cascade: SKIPPED (same wall) -------
+    # ----- 17. State-dependent 1/t cascade ----------------------------
     _output_slot(18)
-    print("section 17 skipped: piecewise-composition performance wall", file=sys.stderr)
+    from chebfunjax.utils._matlab_fzero import _fzero_default
+
+    dom = [0., float((1 + jnp.sqrt(jnp.asarray(5.))) / 2)]
+    for _ in range(10):
+        previous = dom[-1]
+        root, _info = _fzero_default(lambda x: x - 1 / x - previous, previous)
+        dom.append(float(root))
+    tcf = chebfun(lambda x: x, domain=dom)
+    N = Chebop(lambda t, y: y.diff() - y((t - 1 / t).maximum(0.)), domain=dom)
+    N.lbc = 1.
+    N.init = 1 + tcf
+    y = N.solve(0.)
+    print(f"y =\n{y!r}")
+    res = float(N(y).norm())
+    print(f"res =\n     {res:.15e}")
+    _save(_source_vanishing_delay_curve(y), source_axes=True)
 
     # ----- 18. Delay + integral terms together ------------------------
     _output_slot(19)

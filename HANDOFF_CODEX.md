@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `e5fb82b2` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `1108b680` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -17,23 +17,29 @@ shows no first-call improvement (15.187 to 15.232 seconds), so this is only a
 compile/dispatch simplification. Inherited subnormal comparison behavior is
 explicitly documented. See docs/inverse_endpoint_fusion_cpu_20261011.json.
 
-A newly restored native REAL test exposes a Chebtech2 coefficient-length
-mismatch (16 versus 15). The native REAL operation does not trim nonzero
-coefficients; native capture and construction-tail diagnosis are pending.
-Do not hide this by padding coefficient comparisons or changing REAL.
+The next reviewed batch restores all46 native tech PLUS predicates. All pass,
+including public isequal, direct coefficient shapes, matrix infinity norms,
+native high-frequency construction and unhappy defaults. The first100 draws
+from seed6178 match the native capture exactly. Old probes remain retained.
+See docs/tech_plus_native_predicates_cpu_20261011.json.
 
-The next reviewed batch restores eight native Chebtech ABS predicates using
-normest and four CONJ predicates using direct coefficient shapes and the
-numeric matrix infinity norm. All pass without library changes. DDE source
-slot17/figure18 now uses the public norm and qualified cubic solution; native
-sample differences are at most 4.44e-16. DDE has 16 of 23 output slots verified,
-with seven pending. See docs/{tech_abs_native_predicates,tech_conj_native_predicates,dde_cubic_state_delay}_cpu_20261011.json.
+DDE source slot18/figure19 now has qualified breakpoint construction using a
+private finite-real/default-double MATLAB fzero adapter. All ten roots and
+iteration/function counts exactly match native. The public solve has12pieces;
+observed sample differences are at most1.28e-13. Five adapter tests pass.
+The page has17 of23 output slots verified, six pending; raster/font parity
+remains incomplete. See docs/dde_vanishing_delay_cpu_20261011.json.
 
-The next DDE example has eleven intervals and native fzero-generated breaks;
-a captured-breakpoint solve is only a discriminator until public breakpoint
-construction is implemented and qualified. Current CI ac91b56c has thirteen
-successful jobs and eleven running, with no failures at the latest check;
-current main still needs its complete CI result.
+The restored native REAL/IMAG predicates expose two Tech2 REAL failures:
+construction produces16 coefficients versus native15. IMAG8 passes.
+Native REAL8 passes; identical-input chopping agrees with literal source.
+Split-component FFT rounding is implicated, and a canonical complex FFT
+candidate is under qualification. Do not pad comparisons or change REAL.
+
+CI ac91b56c has15 successful jobs and9 running, with no failures at the latest
+check. Current main still needs its complete CI result. Routine work continues
+on native TIMES predicates and missing gallery3 functions; numerical work owns
+the transform correction. All runtime validation is CPU only.
 
 The twelve interrupted scripts have been reconciled against current hashes:
 ten have reviewed source replacements (including a separately qualified
