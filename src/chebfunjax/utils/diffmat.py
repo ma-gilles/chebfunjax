@@ -590,70 +590,82 @@ def diffmat(n, *args, p: int = 1,
 # Public: cumsummat
 # ============================================================================
 
-def cumsummat(n: int,
-              domain: tuple[float, float] = (-1.0, 1.0),
-              kind: int = 2) -> jnp.ndarray:
-    """Indefinite integration (cumulative sum) matrix on Chebyshev points.
+def cumsummat(n: int, domain=None, kind=2, *, disc=None) -> jnp.ndarray:
+    """Indefinite integration matrix, with source domain/selector parsing.
 
-    Returns the ``n x n`` matrix ``Q`` such that ``Q @ f_values`` gives the
-    values of the antiderivative of the interpolating polynomial at the same
-    Chebyshev points, with the convention that the antiderivative is zero at
-    the left endpoint.
+    ``cumsummat(n, domain, disc)`` and ``cumsummat(n, disc)`` accept the
+    ``ChebColloc1``/``ChebColloc2`` classes, their instances, the corresponding
+    strings, or a factory/object providing ``cumsummat(n)``. The existing
+    numeric ``kind=1``/``kind=2`` API also selects the collocation family.
+    Python collocation instances select a family; n and domain determine the
+    requested matrix size and scale independently of the instance state.
 
-    Parameters
-    ----------
-    n : int
-        Number of Chebyshev points.
-    domain : (float, float), default (-1, 1)
-        Interval ``[a, b]``. The matrix is scaled by ``(b - a) / 2``.
-    kind : {1, 2}, default 2
-        1 for Chebyshev points of the 1st kind, 2 for the 2nd kind.
-
-    Returns
-    -------
-    Q : jnp.ndarray, shape (n, n)
-        Integration matrix.
-
-    Notes
-    -----
-    The matrix is constructed via the coefficient-space integration recurrence:
-
-    1. ``T_inv``: values -> Chebyshev coefficients
-    2. ``B``: coefficient integration operator (truncating the highest mode)
-    3. ``T``: coefficients -> values
-
-    Then ``Q = T @ B @ T_inv``, with boundary correction so that ``Q[0, :] = 0``
-    (for kind=2, ensuring the antiderivative vanishes at -1).
+    An omitted domain comes from ``ChebopPref().domain``. As in the source,
+    the default family is explicitly second-kind even when session
+    discretization preferences select another family. Breakpoints warn and
+    use the domain support. The highest integrated mode is truncated before
+    enforcing the zero value at the left endpoint.
 
     Provenance
     ----------
-    MATLAB source : cumsummat.m, @chebcolloc2/cumsummat.m,
-        @chebcolloc1/cumsummat.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    See Also
-    --------
-    diffmat, intmat, introw
+    MATLAB source: cumsummat.m, @chebcolloc1/chebcolloc1.m60-105,
+        @chebcolloc2/chebcolloc2.m60-114; Chebfun commit: 7574c77.
+    Copyright 2017 by The University of Oxford and The Chebfun Developers.
     """
+    import warnings
+
+    from ..chebpref import ChebopPref
+    from ..discretization.chebcolloc import ChebColloc1, ChebColloc2
+
+    def is_selector(value):
+        return (isinstance(value, str) or callable(value)
+                or hasattr(value, 'cumsummat'))
+
+    selector = kind if disc is None else disc
+    if is_selector(domain):
+        if disc is not None or not isinstance(kind, int) or kind != 2:
+            raise TypeError('Discretization supplied twice')
+        selector, domain = domain, None
+    if domain is None:
+        domain = ChebopPref().domain
+    if hasattr(domain, 'support'):
+        domain = domain.support
+    if len(domain) < 2:
+        raise ValueError('cumsummat domain requires at least two endpoints')
+    if len(domain) > 2:
+        warnings.warn('cumsummat does not support domains with breakpoints; '
+                      'using the first and last endpoints', UserWarning,
+                      stacklevel=2)
+    scale = .5*(domain[-1]-domain[0])
+
+    if callable(selector) and selector not in (ChebColloc1, ChebColloc2):
+        selector = selector()
+    if isinstance(selector, str):
+        names = {'chebcolloc1': 1, 'chebcolloc2': 2}
+        try:
+            family = names[selector.lower().lstrip('@')]
+        except KeyError:
+            raise ValueError(f'Unsupported cumsummat discretization {selector!r}') from None
+    elif isinstance(selector, ChebColloc1) or selector is ChebColloc1:
+        family = 1
+    elif isinstance(selector, ChebColloc2) or selector is ChebColloc2:
+        family = 2
+    elif isinstance(selector, int):
+        if selector not in (1, 2):
+            raise ValueError('cumsummat kind must be 1 or 2')
+        family = selector
+    else:
+        # Source converts a constructor handle before invoking DISC.CUMSUMMAT.
+        obj = selector
+        if not hasattr(obj, 'cumsummat'):
+            raise TypeError('cumsummat discretization must provide cumsummat(n)')
+        return scale*jnp.asarray(obj.cumsummat(n))
+
     if n <= 0:
-        return jnp.array([], dtype=jnp.float64).reshape(0, 0)
+        return jnp.zeros((0, 0), dtype=jnp.float64)
     if n == 1:
-        # Q maps a single value to its integral from the left endpoint.
-        # Convention: the antiderivative at -1 is 0, so Q(1) = 1 for the
-        # trivial case. (MATLAB returns 1 for N-1=0.)
-        a, b = domain
-        scl = 0.5 * (b - a)
-        return jnp.array([[1.0]], dtype=jnp.float64) * scl
-
-    # Build in the standard domain [-1, 1], then scale.
-    Q = _cumsummat_standard(n, kind)
-
-    # Scale to domain
-    a, b = domain
-    scl = 0.5 * (b - a)
-    return scl * Q
+        return scale*jnp.ones((1, 1), dtype=jnp.float64)
+    return scale*_cumsummat_standard(n, family)
 
 
 def _cumsummat_standard(n: int, kind: int = 2) -> jnp.ndarray:

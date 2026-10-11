@@ -1,0 +1,73 @@
+{
+  "base_head": "6676455ab886afa3889cdb9ca1f562ca5cdb78e9",
+  "paths": [
+    "tests/test_matlab_port/misc/test_padeapprox_matlab.py"
+  ],
+  "bindings": {
+    "tests/test_matlab_port/misc/test_padeapprox_matlab.py": "30fdee3d18b95ee96b44ff500a1492a03a4a85672b953975586d82881b674ac1"
+  },
+  "changes": "Test restoration only. Clause3 uses source vector Euclidean norms instead of elementwise max. Exact Python-vector dimensions reject extra/misoriented coefficients,poles,residues; singleton pole/residue errors check all entries. Clauses1/2 preserve original asserted values.",
+  "source_clause_mapping": {
+    "1": "mu4,nu2 and sorted poles[-3.2,2.2] max error<1e-10; supplemental a5,b3,residues2 shapes",
+    "2": "a1 and b second entry-i errors<1e-10; supplemental a1,b2,poles1,residues1 shapes",
+    "3": "mu1,nu1; norm2(a-[0,1]),norm2(b-[1,-1])<1e-10; complete scalar pole1/residue-1 errors<1e-10; supplemental exact vector shapes"
+  },
+  "source_predicates_pass": 3,
+  "synthetic_control_pass": 5,
+  "library_changed": false,
+  "baseline_diagnostic": {
+    "a": [
+      "0j",
+      "(1+0j)"
+    ],
+    "b": [
+      "(1+0j)",
+      "(-1.0000000000000002+0j)"
+    ],
+    "mu": 1,
+    "nu": 1,
+    "pole_errors": [
+      2.220446049250313e-16
+    ],
+    "residue_errors": [
+      2.875588656081618e-11
+    ],
+    "a_2norm": 0.0,
+    "b_2norm": 2.220446049250313e-16
+  },
+  "runtime": {
+    "wall_seconds": 8.795684657990932,
+    "peak_summed_rss_kib": 396764,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "caps": {
+      "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/supervision",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/guard.json",
+      "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1",
+      "wall_seconds": 180.0,
+      "rss_mib": 3072.0,
+      "sample_seconds": 0.1,
+      "grace_seconds": 1.0,
+      "command": [
+        "--",
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/observe.py"
+      ]
+    }
+  },
+  "limitations": [
+    "Shape checks enforce documented Python1D vector representation; native vectors are MATLAB columns.",
+    "Synthetic controls establish stricter predicate behavior only, not additional numerical parity.",
+    "No fresh MATLAB execution.",
+    "Unasserted native clause1 coefficient/residue numerical values are not fabricated or added."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/RESULT.json": "bbf0ea39a02554a4df2eb0415744fbdca7b28885e199455b66885e841c83cf9c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/DIAGNOSTIC.json": "296ec865e0159687e00b21f275cd7f0a0a5cf4421223c5d04f6bcbc8c054e0ca",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/RUNTIME_SOURCE_END.json": "7faae4a978af37fb90c66a6dc7f6bc99a33c2aefbde3a14f9b2fea92145439b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/baseline_v1/supervision/receipt.json": "803a5628aade6e265037d0feeefbc152144dcbd83473967b514fabae4a0cd412",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/tests.patch": "c887bd612ef54e1737bba0dd2541e477552cfdd535fb6acd519c6db887270c45",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/native_tests.py": "30fdee3d18b95ee96b44ff500a1492a03a4a85672b953975586d82881b674ac1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pade_clause_source_20261011/package.py": "3a9500e3fa7b6abe2343e73cfa911100f6edb4d473c6b2a3c643e283d0258a2a"
+  }
+}

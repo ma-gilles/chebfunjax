@@ -511,7 +511,10 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
     if not linear_system:
         # Preserve the established nonlinear continuation seed.
         try:
-            sol = N.solve(f)
+            # This legacy seed intentionally uses the values backend. An
+            # inherited coefficient session preference must not recurse into
+            # this alternative-backend continuation.
+            sol = N.solve(f, discretization="values")
             if isinstance(sol, _Chebfun):
                 cand = [sol]
             else:

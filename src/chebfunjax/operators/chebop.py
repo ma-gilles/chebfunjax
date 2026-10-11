@@ -984,17 +984,22 @@ class Chebop:
         Omitted ``tol``, ``max_iter``, ``n_min`` and ``n_max`` use
         ``bvpTol``, ``maxIter``, ``minDimension`` and ``maxDimension``.
         Explicit ``n`` selects a fixed grid in the existing solver route;
-        dimension limits continue to govern adaptive routes.
+        dimension limits continue to govern adaptive routes. Omitted
+        ``discretization`` uses the session setting; explicit selectors take
+        precedence. Legacy routes retain their existing support limits.
 
         Provenance
         ----------
         MATLAB source: @chebop/solvebvp.m parseInputs;
             @chebop/solvebvpNonlinear.m bvpTol and maxIter preferences;
             @valsDiscretization/valsDiscretization.m dimensionValues;
-            @coeffsDiscretization/coeffsDiscretization.m dimensionValues.
+            @coeffsDiscretization/coeffsDiscretization.m dimensionValues;
+            @chebop/determineDiscretization.m; @cheboppref/cheboppref.m
+            parseDiscretization.
         Chebfun commit: 7574c77
         """
-        if max_iter is None or tol is None or n_min is None or n_max is None:
+        if (max_iter is None or tol is None or n_min is None or n_max is None
+                or discretization is None):
             from chebfunjax.chebpref import ChebopPref
 
             preferences = ChebopPref()
@@ -1006,24 +1011,38 @@ class Chebop:
                 n_min = preferences.minDimension
             if n_max is None:
                 n_max = preferences.maxDimension
+            if discretization is None:
+                discretization = preferences.discretization
+        # Source chooses from operator, RHS and initial-guess domains. The
+        # existing default route discovers coefficient-induced breaks later;
+        # retain that route for values instead of forcing periodic collocation.
+        length_dom = len(self.domain)
+        for value in (f, self.init):
+            entries = value if isinstance(value, (list, tuple)) else (value,)
+            for entry in entries:
+                domain = getattr(entry, "domain", None)
+                if domain is not None:
+                    length_dom = max(length_dom, len(domain))
+        from chebfunjax.chebpref import ChebopPref
+
+        selection = self.determine_discretization(
+            length_dom, ChebopPref(discretization=discretization)).discretization
         if (getattr(self, "_periodic", False) and len(self.domain) == 2
-                and discretization in ("coeffs", "trigspec")
+                and selection == "trigspec"
                 and self._n_vars() == 1 and self._is_linear()):
             from chebfunjax.operators.periodic import solve_coefficients
             return self._simplify_solution(
                 solve_coefficients(self, f, n, n_max, tol, n_min=n_min))
-        if discretization is not None and str(discretization) in (
-                "ultraS", "chebcolloc1"):
+        if selection in ("ultraS", "chebcolloc1"):
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
             from chebfunjax.operators.chebop_altdisc import (
                 solve_bvp_altdisc,
             )
-            out = solve_bvp_altdisc(self, f, str(discretization), n=n,
+            out = solve_bvp_altdisc(self, f, selection, n=n,
                                     tol=tol, max_iter=max_iter,
                                     n_min=n_min, n_max=n_max)
             return out[0] if len(out) == 1 else out
-        if (discretization is not None
-                and str(discretization).lower() in ("chebcolloc2", "colloc2")
+        if (selection == "chebcolloc2" and length_dom == 2
                 and getattr(self, "_periodic", False)):
             # MATLAB: pref.discretization = @chebcolloc2 on a periodic
             # problem solves by Chebyshev collocation with wrap-around
@@ -7947,6 +7966,15 @@ class Chebop:
         out = ChebopPref(pref)
         disc = out.discretization
         key = disc.lower() if isinstance(disc, str) else disc
+        aliases = {"ultraspherical": "ultras", "collocation": "chebcolloc2",
+                   "colloc2": "chebcolloc2", "colloc1": "chebcolloc1",
+                   "periodic": "trigcolloc"}
+        key = aliases.get(key, key)
+        concrete = {"ultras": "ultraS", "chebcolloc1": "chebcolloc1",
+                    "chebcolloc2": "chebcolloc2", "trigcolloc": "trigcolloc",
+                    "trigspec": "trigspec"}
+        if key in concrete:
+            out.discretization = concrete[key]
         is_per = self._periodic and int(length_dom) < 3
         if key == "values":
             out.discretization = "trigcolloc" if is_per else "chebcolloc2"

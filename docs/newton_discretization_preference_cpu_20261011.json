@@ -1,0 +1,126 @@
+{
+  "scope": "Session/explicit public Chebop discretization normalization and existing backend dispatch; preserve factory periodic routing.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "predecessor": {
+    "predecessor": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_dimension_preference_20261011/DELIVERY.json",
+    "sha256": "d51467d349be9207c36b914a3e2e18e526c4a8b4152be8a497b427aabdaa4a80"
+  },
+  "source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/SOURCE_REVIEW.json",
+  "source_review_sha256": "cd35451df5cd2c5841539ff668bfa06561b8b32ec6587e21289dbdffaa906c21",
+  "gates": {
+    "baseline": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/baseline/AUDIT.json",
+      "audit_sha256": "a0c09095c819c365442d5d3a2f2e959629c48e1c31eb3328e6a58ce1a4949e11",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/baseline/junit.xml",
+      "junit_sha256": "01c50c0e02906c40dc8232f03ee6c8d2ebd8f0175dcaeedcdd4ad28775b25991",
+      "summary": {
+        "original": 66994,
+        "terminal": 1,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 578272,
+        "wall_seconds": 6.1925558731891215
+      },
+      "passed_ids": [],
+      "failed_ids": [
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-False-None-ultraS]"
+      ]
+    },
+    "candidate": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/candidate/AUDIT.json",
+      "audit_sha256": "56b6d363e86e94376e95b18cb08d13fb1a0f9a48e073d34005dde632599fb3e6",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/candidate/junit.xml",
+      "junit_sha256": "c417c4f6fedb46874620c683ba130870793fc0b99fc8a1d62866d85974adbed6",
+      "summary": {
+        "original": 5193,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 2403432,
+        "wall_seconds": 44.57137705385685
+      },
+      "passed_ids": [
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-False-None-ultraS]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-None-False-None-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-None-True-None-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-True-None-trigspec]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-values-True-None-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-coeffs-False-None-ultraS]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-chebcolloc2-True-None-periodic_c2]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[chebcolloc1-None-False-None-chebcolloc1]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[ULTRASPHERICAL-None-False-None-ultraS]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-COLLOC1-False-None-chebcolloc1]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-collocation-True-None-periodic_c2]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-periodic-True-None-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-None-True-domain-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-True-domain-ultraS]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-None-True-rhs-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-True-rhs-ultraS]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[values-None-True-init-default]",
+        "test_newton_discretization_preference::test_native_public_selector_routes[coeffs-None-True-init-ultraS]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[domain-trigcolloc]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[domain-trigspec]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[domain-periodic]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[rhs-trigcolloc]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[rhs-trigspec]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[rhs-periodic]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[init-trigcolloc]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[init-trigspec]",
+        "test_newton_discretization_preference::test_native_explicit_trig_rejects_breaks[init-periodic]",
+        "test_newton_discretization_preference::test_actual_dirichlet_session_backend[coeffs]",
+        "test_newton_discretization_preference::test_actual_dirichlet_session_backend[chebcolloc1]",
+        "test_newton_discretization_preference::test_actual_dirichlet_session_backend[values]",
+        "test_newton_discretization_preference::test_actual_periodic_session_backend[values-Trigtech]",
+        "test_newton_discretization_preference::test_actual_periodic_session_backend[coeffs-Trigtech]",
+        "test_newton_discretization_preference::test_actual_periodic_session_backend[chebcolloc2-Chebtech2]",
+        "test_determineDiscretization_matlab.TestChebopDeterminediscretization::test_all_matlab_assertions"
+      ],
+      "failed_ids": []
+    },
+    "seed_control": {
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/seed_control/AUDIT.json",
+      "audit_sha256": "95b608d14840511b254424b81d2b1e215a3bdad419bc2d5cf265488fa83b8e93",
+      "junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_discretization_preference_20261011/seed_control/junit.xml",
+      "junit_sha256": "c06536a90d0bc7fa56ee2d1a1acd63e37f23174b953803f87191f6bb3c735d3a",
+      "summary": {
+        "original": 75504,
+        "terminal": 0,
+        "inputs_stable": true,
+        "censored": null,
+        "survivors": [],
+        "peak_rss_kib": 526868,
+        "wall_seconds": 4.837225290946662
+      },
+      "passed_ids": [
+        "test_newton_discretization_seed::test_legacy_alternative_seed_requests_values"
+      ],
+      "failed_ids": []
+    }
+  },
+  "unique_passed_cases": 35,
+  "test_detail": "18 source route cases +9 known-break rejection cases +6 tiny actual solves +1 retained original test containing12 native clauses +1 legacy seed recursion control.",
+  "environment": {
+    "cpu": "4-7",
+    "wall_seconds": 180,
+    "rss_mib": 3072,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "x64": true,
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "static": [
+    "P-config Ruff passed both source files and delivered tests",
+    "P git apply --check passed"
+  ],
+  "limits": [
+    "No earlier full linearization added: hidden operator-coefficient breakpoints are still discovered later by default _solve_impl, not fully bound before coeffs/concrete trig selection.",
+    "Known RHS/init breakpoints select native backend policy; complete propagation of those breaks through all legacy solver backends remains unqualified.",
+    "Periodic nonlinear trigspec and some alternative periodic/system combinations retain existing unsupported/fallback behavior; selector correction does not implement those solvers.",
+    "Python concrete selector strings retain historical no-deprecation-warning behavior, unlike native deprecated string aliases; native class handles are represented by strings.",
+    "IVP time-marching and legacy piecewise/system preference discards are separate scopes.",
+    "No whole Carrier solve, no fresh native execution, no tolerance changes; six tiny actual solves use1e-10 inherited comparison envelope."
+  ],
+  "publication": "No P edits; private source and test bytes frozen before runs."
+}

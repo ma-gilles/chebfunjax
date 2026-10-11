@@ -1,0 +1,22 @@
+{
+  "scope": "Six native integration-matrix predicates and selector parsing; unchanged coefficient-space kernel",
+  "controls": "11 pass; existing regressions43 pass,1 preexisting skip,159 deselected",
+  "bindings": {
+    "src/chebfunjax/utils/diffmat.py": {
+      "baseline_sha256": "eafcfb187abf340d93ef23885064f92635ffab70492f75de05c03f5aa5681cc4",
+      "candidate_sha256": "bbf55bb9cc65efafffe6606421e49c9c31c35f7ebea5c4d0a90e1f44771ded46"
+    },
+    "tests/test_matlab_port/misc/test_cumsummat_matlab.py": {
+      "baseline_sha256": "dff9dfeb3f7d551d4d213187e66360b591976dd7f2f66c929cb41881e6f85154",
+      "candidate_sha256": "9fb27a5817b780ebfcd58657233149ceb7e625a31a6ace61bb7fab1bacfe7b38"
+    }
+  },
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsummat_source_20261011/cumsummat_source_delivery_v2.zip",
+    "sha256": "9d3be1020fdd4e563feeb848bbb991f40b8a8b4995efbfb0718e9e5b44a18632",
+    "entries": 58
+  },
+  "report_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsummat_source_20261011/delivery_v2/REPORT.txt",
+  "report_sha256": "64e368a48f5b262430f8e985baa2f89e5dc6b90c52f94353516dcd85c6d005d1",
+  "limits": "No fresh MATLAB execution; Python colloc instance selectors use public n/domain; n0/n1 behavior retained as compatibility extensions."
+}
