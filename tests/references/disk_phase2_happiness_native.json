@@ -1,0 +1,132 @@
+{
+  "provenance": "MATLAB R2025b, Chebfun7574c77680d7e82b79626300bf255498271a72df, native happinessCheck on retained slices",
+  "scope": "Frozen grid64 nine-pivot intermediate skeleton refined128/256/512, not completed constructor. Unscaled cases use effective getTol preference; power-of-two amplitude controls hold that preference fixed and are not full scaled constructors.",
+  "effective_preference": 2.420446306763839e-13,
+  "erratum": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/ERRATUM_EFFECTIVE_PREF.json",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_native_run/receipt.json",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_cases.mat": "c00ee912c5448a294cddc204fca028996e403b30d939cf3b59c881b5e2293f2c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_helpers.mat": "c4205f20aa6a3b39a0572ff1ed6f027f5aca70d992fa9e30c37cbb3c86663eb0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/capture_helpers.m": "76fadae2bd3e16fbef38a26c2c07431b2c0c64fef17023821e4504eb6d29ba02",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_native_guard.json": "a35d05d4c62c700ec2ceae8ba85f41b73ed0979059861fc6c438d07f9a0151ad"
+  },
+  "cases": [
+    {
+      "case": 0,
+      "grid": 128,
+      "scale": 1.0,
+      "expected": [
+        false,
+        false
+      ],
+      "old": [
+        false,
+        false
+      ]
+    },
+    {
+      "case": 1,
+      "grid": 128,
+      "scale": 1048576.0,
+      "expected": [
+        false,
+        false
+      ],
+      "old": [
+        false,
+        false
+      ]
+    },
+    {
+      "case": 2,
+      "grid": 128,
+      "scale": 9.5367431640625e-07,
+      "expected": [
+        false,
+        false
+      ],
+      "old": [
+        true,
+        false
+      ]
+    },
+    {
+      "case": 3,
+      "grid": 256,
+      "scale": 1.0,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        true
+      ]
+    },
+    {
+      "case": 4,
+      "grid": 256,
+      "scale": 1048576.0,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        false
+      ]
+    },
+    {
+      "case": 5,
+      "grid": 256,
+      "scale": 9.5367431640625e-07,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        true
+      ]
+    },
+    {
+      "case": 6,
+      "grid": 512,
+      "scale": 1.0,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        true
+      ]
+    },
+    {
+      "case": 7,
+      "grid": 512,
+      "scale": 1048576.0,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        true
+      ]
+    },
+    {
+      "case": 8,
+      "grid": 512,
+      "scale": 9.5367431640625e-07,
+      "expected": [
+        true,
+        true
+      ],
+      "old": [
+        true,
+        true
+      ]
+    }
+  ]
+}

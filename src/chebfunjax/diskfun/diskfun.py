@@ -343,7 +343,7 @@ def _phase_two_disk(
     remove_poles : bool
         Whether to handle the origin pole.
     tol : float
-        Construction tolerance.
+        Effective one-dimensional preference from Phase I getTol.
 
     Returns
     -------
@@ -585,7 +585,7 @@ def _phase_two_disk(
         )
         # Doubled-up column values on [-1, 1]: [flipud(temp2); temp1[1:]]
         col_vals_doubled = np.concatenate([temp2[::-1], temp1[1:]])
-        happy_cols = _is_happy_cheb(col_vals_doubled, tol)
+        happy_cols = _is_happy_cheb(col_vals_doubled, tol, vscale)
 
         # Happiness check for rows (Trigtech-style in theta)
         rp_sum = np.sum(
@@ -601,7 +601,7 @@ def _phase_two_disk(
             axis=0,
         )
         row_vals_doubled = np.concatenate([rp_sum, rm_sum])
-        happy_rows = _is_happy_trig(row_vals_doubled, tol)
+        happy_rows = _is_happy_trig(row_vals_doubled, tol, vscale)
 
         if fixed:
             # Values-matrix mode: accept the single-pass slices.
@@ -711,31 +711,22 @@ def _phase_two_disk(
 # ============================================================================
 
 
-def _is_happy_cheb(values: np.ndarray, tol: float) -> bool:
-    """Check if Chebyshev-2 values are resolved."""
+def _is_happy_cheb(values: np.ndarray, tol: float, vscale: float = 0.0) -> bool:
+    """Apply the source one-dimensional check with the disk's global scale."""
     v = jnp.asarray(values, dtype=jnp.float64)
     c = vals2coeffs(v)
-    vscale = float(jnp.max(jnp.abs(v)))
-    if vscale == 0.0:
-        return True
-    rel_tol = max(tol / vscale, _EPS)
-    cutoff = standard_chop(c, rel_tol)
-    return int(cutoff) < c.shape[0]
+    happy, _ = Chebtech2.happiness_check(
+        c, v, tol=tol, vscale=vscale, hscale=1.0, sample_test=False
+    )
+    return bool(happy)
 
 
-def _is_happy_trig(values: np.ndarray, tol: float) -> bool:
-    """Check if trigonometric values are resolved."""
+def _is_happy_trig(values: np.ndarray, tol: float, vscale: float = 0.0) -> bool:
+    """Apply source scaling and compare cutoff with the original FFT length."""
     v = jnp.asarray(values, dtype=jnp.float64)
     c = trig_vals2coeffs(v.astype(jnp.complex128))
-    vscale = float(jnp.max(jnp.abs(v)))
-    if vscale == 0.0:
-        return True
-    from chebfunjax.tech.trigtech import _trig_abs_coeffs_for_chop
-
-    chop_in = _trig_abs_coeffs_for_chop(c)
-    rel_tol = max(tol / vscale, _EPS)
-    cutoff = standard_chop(chop_in.astype(jnp.float64), rel_tol)
-    return int(cutoff) < chop_in.shape[0]
+    happy, _ = Trigtech.happiness_check(c, v, tol=tol, vscale=vscale)
+    return bool(happy)
 
 
 # ============================================================================

@@ -1,0 +1,108 @@
+{
+  "status": "Narrow helper-only source correction; no full-gallery closure",
+  "provenance": "Native Chebfun7574c77680d7e82b79626300bf255498271a72df, @diskfun/constructor.m lines118-119,148,644-661 and @chebtech/@trigtech happinessCheck/standardCheck",
+  "baseline": {
+    "publication_head": "036823a3fedbbf40cade8a6c476474e022c95b3d"
+  },
+  "erratum": {
+    "status": "WITHDRAWN: candidate and source_stopping.patch must not be integrated",
+    "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@diskfun/constructor.m",
+    "source_sha256": "e394f3176bc74593248222d06f34d119083a9aa47a6d5232fc99fdf019e418a2",
+    "correction": "Pinned constructor line119 sets pref.chebfuneps=tol from getTol before PhaseTwo call line148. Effective PhaseTwo preference is the PhaseI-derived tol. Existing public tol_abs routing is correct.",
+    "rejected": [
+      "pseudo_level routing in candidate and candidate_v2",
+      "two constructor routing tests expecting pseudo_level",
+      "claim that default-pref happiness replay represents native caller",
+      "claim that grid256 early stopping versus default EPS diagnoses a constructor defect"
+    ],
+    "retained_evidence": "All captures and receipts remain immutable. native_happiness.mat fields wrong_phaseI_* actually use the effective caller tolerance on this frozen intermediate skeleton. Default-pref fields are isolated diagnostic controls only. Both original and effective native checks accept grid256 and512 and reject128. No stopping discrepancy on these retained unscaled vectors.",
+    "scope": "Grid64 is an unhappy PhaseI intermediate skeleton, not a complete actual native constructor trajectory. Native effective source preference follows directly from caller source; native wrong_phaseI_* outputs evaluate that preference on retained vectors. No native PhaseTwo entry interception has been done.",
+    "remaining_audit": "Local/global vscale and trig cutoff comparison with original sample count are independent source differences. Retain tol_abs caller in any successor candidate.",
+    "no_publication": true
+  },
+  "new_behavior": [
+    "PhaseII supplies its global vscale to existing source-faithful Chebtech2 and Trigtech happiness checks.",
+    "Tolerance is scaled by max(global,local)/local, with Chebtech hscale1, rather than dividing by local alone.",
+    "Trig happiness compares raw expanded chop cutoff against original Fourier sample count, not expanded coefficient length."
+  ],
+  "preserved_behavior": [
+    "The caller passes getTol-derived tol_abs to PhaseII, exactly as the native constructor overwrites pref.chebfuneps before PhaseTwo. Public constructor function AST unchanged.",
+    "PhaseI tolerance, sampleTest, rank-one arithmetic, grid/refinement policy and public defaults unchanged."
+  ],
+  "source_scope": {
+    "changed_functions": [
+      "_phase_two_disk",
+      "_is_happy_cheb",
+      "_is_happy_trig"
+    ],
+    "unchanged_functions": 150,
+    "from_function_AST_unchanged": true,
+    "baseline_sha256": "ac763dfb85aff1b0de48596a28dba8285ce541f79fed3ad0a8381416ccee7e4e",
+    "helper_candidate_sha256": "fc99ac0c1f145772402e9484de4a94793a3cb4e3fbd044b6e3a31d19c35b099f"
+  },
+  "numerical_scope": {
+    "unscaled": "Same frozen intermediate nine-pivot tiltedpeg skeleton refined to128/256/512. Native effective-preference flags agree with old helpers and candidate: false/false,true/true,true/true.",
+    "supplemental": "Exact power-of-two amplitude rescalings at fixed effective preference are primitive checker controls, not scaled-function full constructors. Native controls distinguish premature radial happiness at128 with2^-20 and premature trig unhappiness at256 with2^20.",
+    "bound": "Original two constructor clauses retain2e3*EPS bounds. No fitted tolerance. Saved full tiltedpeg3.2799665e-13 against2.2204460e-13 is a supplemental failure and remains open.",
+    "arithmetic": "Original numpy rank-one ordering differs from native at second pivot; diagnostic source-ordered JAX barriers match nine native stages. No production arithmetic change. FFT differences persist at roundoff scale; no bitwise FFT/cutoff claim.",
+    "capture": "Initial matrices were captured before tolerance-dependent work with an EPS argument; this does not make EPS the native effective caller preference. Grid64 PhaseI was unhappy; this is not a completed constructor trajectory."
+  },
+  "qualification": {
+    "checks": 11,
+    "native_fixture_cases": 9,
+    "original_constructor_clauses": [
+      "01",
+      "04"
+    ],
+    "resources": "CPU0-3, JAX0.11.0 CPU x64, tests180s/2GiB cap",
+    "no_claims": [
+      "Full gallery accuracy",
+      "General constructor suite qualification",
+      "Performance improvement",
+      "Tiltedpeg failure resolved"
+    ]
+  },
+  "evidence": {
+    "INITIAL_CAPTURE.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/INITIAL_CAPTURE.json",
+      "sha256": "c87158bc1ad68bf020f408203ba035bf13eea0640fba729f0747d49b12e04a73"
+    },
+    "CAPTURE_SCOPE.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/CAPTURE_SCOPE.json",
+      "sha256": "920433d62f8295c5099fdd281aaefd952bc37842e3a34d227f72b43444f433db"
+    },
+    "COMPARISON.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/COMPARISON.json",
+      "sha256": "ff62f761d42e9f3a161ce856a6881e856c4ec02368b5063adc1d82425609243e"
+    },
+    "REFINEMENT.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/REFINEMENT.json",
+      "sha256": "2f12c360c92bc5d02825e9e629279e587745747ca1ec754d22ff4df42d4c5a53"
+    },
+    "ERRATUM_EFFECTIVE_PREF.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/ERRATUM_EFFECTIVE_PREF.json",
+      "sha256": "53f39b5c716adf25f6e6a46743eec3b8b52f8ca326ebd0cd0d5b2eaf982bdfc6"
+    },
+    "HELPERS_PROBE.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/HELPERS_PROBE.json",
+      "sha256": "d02279b164fc4cf84752a5551547e008143b9f20a86b7777e03389c74b2d40bc"
+    },
+    "helpers_cases.mat": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_cases.mat",
+      "sha256": "c00ee912c5448a294cddc204fca028996e403b30d939cf3b59c881b5e2293f2c"
+    },
+    "native_helpers.mat": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/native_helpers.mat",
+      "sha256": "c4205f20aa6a3b39a0572ff1ed6f027f5aca70d992fa9e30c37cbb3c86663eb0"
+    },
+    "helpers_only.patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_only.patch",
+      "sha256": "89fa7d8a5553b2458b67e9ab576cc38a25cb98f857201466f11cba78ca545cce"
+    },
+    "helpers_junit.xml": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_phase2_arithmetic_20261011/helpers_junit.xml",
+      "sha256": "efad400525a5b05e82d51c444ef53dfd67288eee590dfb992d25142042265d16"
+    }
+  },
+  "retained_failure": "compare_run failed in dtype restoration for compact MATLAB arrays before arithmetic comparisons; corrected compare_run_v2 retained. Rejected candidate/candidate_v2 and receipts remain immutable and are not deliverables."
+}

@@ -1,0 +1,13 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Literal19 empty-vector operations comprising native single no-error predicate. Restore missing matrix multiplication and replace scalar multiplication with source F.*F; curl unconditional. No library change.",
+  "result": "1 passed in0.12s; all19 source operations executed",
+  "original_handle": 77381,
+  "peak_RSS_KiB": 446656,
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_empty_source_20261011/candidate/run/receipt.json",
+  "guard_inputs_verified": 298,
+  "stable": true,
+  "limits": [
+    "No fresh MATLAB execution; exact pinned source reviewed. Native test only checks absence of errors, not result values."
+  ]
+}

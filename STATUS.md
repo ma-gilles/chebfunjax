@@ -1,12 +1,18 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `036823a3` is published; this checkpoint adds all six
-original Chebfun2 rank checks, including the Airy case and strict minimum
-factor-length bound, plus source vector-field construction. Full parity
-remains incomplete. Historical checkpoints below retain their original scope.
-Pushes work. This effort qualifies CPU execution only.
+Main through `9f1eb776` is published. This checkpoint restores source disk
+refinement checks and all19 native empty-vector operations. Full parity
+remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Disk refinement now forwards the global scale to the existing JAX slice
+  checkers and uses native Fourier cutoff semantics. Nine independent native
+  fixture cases plus two original constructor assertions pass. The effective
+  Phase-I-derived tolerance is retained; a proposed change to that tolerance
+  was rejected during source review. Tiltedpeg accuracy remains unresolved.
+- The exact19-operation native empty-vector test passes, restoring omitted
+  multiplication calls without changing library behavior.
 
 - All20 native Chebfun2v constructor checks and18 compatibility/source-body
   controls pass. Existing components retain their representations; omitted

@@ -3,14 +3,18 @@
 ## Latest verified CPU checkpoint (2026-10-11)
 
 Read `STATUS.md` for the current published scope and the shared evidence-root
-`CURRENT_GOAL_STATUS.md` for active work. Main through `036823a3` is pushed;
+`CURRENT_GOAL_STATUS.md` for active work. Main through `9f1eb776` is pushed;
 SSH and the CPU environment work. Full parity remains incomplete.
 Latest verified packages restore the original PDE tolerance, constructor warning
 ownership, delta integration, all12 Besselh predicates with a JAX-only kernel,
 and all10 vector-composition predicates. New rank tests restore all6 native
 cases and the strict minimum-factor-length bound. Vector construction now
 passes all20 original checks plus18 controls, including component preservation
-and one-component composition. Subsequent sections below
+and one-component composition. New disk helper checks preserve the native
+getTol-derived preference, correcting only global scale and FFT cutoff
+semantics; nine native fixtures plus two original clauses pass. An earlier
+default-epsilon routing proposal was rejected and must not be integrated.
+All19 native empty-vector operations pass. Subsequent sections below
 retain earlier evidence and must not be read as current blockers or completion.
 
 ## Earlier CPU checkpoint (2026-10-11)
