@@ -1216,13 +1216,14 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/vals2coeffs.m
         Chebfun commit: 7574c77
         """
-        V = np.asarray(X)
-        shape = V.shape
-        while V.ndim < 3:
-            V = V[..., None]
-        C = _vals2coeffs_3d(
-            V.astype(np.float64 if np.isrealobj(V) else np.complex128))
-        return jnp.asarray(C.reshape(shape), dtype=jnp.complex128)
+        from chebfunjax.ballfun._integrals import values_to_coefficients
+
+        values = jnp.asarray(X)
+        if values.size == 0:
+            return values
+        shape = values.shape
+        padded_shape = shape + (1,) * (3-values.ndim)
+        return values_to_coefficients(values.reshape(padded_shape)).reshape(shape)
 
     @staticmethod
     def coeffs2vals(C) -> jax.Array:
@@ -1234,12 +1235,15 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/coeffs2vals.m
         Chebfun commit: 7574c77
         """
-        Cc = np.asarray(C, dtype=complex)
-        shape = Cc.shape
-        while Cc.ndim < 3:
-            Cc = Cc[..., None]
-        V = _coeffs2vals_3d(Cc)
-        return jnp.asarray(V.reshape(shape), dtype=jnp.complex128)
+        from chebfunjax._ball_plot_data import source_coefficients_to_values
+
+        coefficients = jnp.asarray(C)
+        if coefficients.size == 0:
+            return coefficients
+        shape = coefficients.shape
+        padded_shape = shape + (1,) * (3-coefficients.ndim)
+        return source_coefficients_to_values(
+            coefficients.reshape(padded_shape)).reshape(shape)
 
     @classmethod
     def from_values(cls, values) -> "Ballfun":

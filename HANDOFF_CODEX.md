@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Public Ballfun transforms use JAX and preserve empty inputs (2026-10-10)
+
+vals2coeffs and coeffs2vals now delegate to literal native JAX CFF transforms.
+Seven cases pass, covering all five original MATLAB predicates and new JIT,
+complex-mode and empty-shape contracts. Five baseline failures are retained;
+original bounds and the100x150x200native grid are unchanged. Adaptive/numeric
+constructor host dependencies remain open. Evidence:
+docs/ballfun_public_transforms_cpu_20261010.json.
+
 ## Small Hermite ASY native stages recovered; still open (2026-10-10)
 
 Fresh native n2/4/6/10 public outputs exactly reproduce the retained fixture.
