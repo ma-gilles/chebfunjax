@@ -30,6 +30,7 @@ __all__ = [
     "gallery",
     "gallery2",
     "gallery3",
+    "gallerydisk",
     "gallerytrig",
     "galleryball",
     "normal2",
@@ -386,4 +387,66 @@ def gallery3(name: str | None = None, *, return_handle: bool = False):
         kwargs['trig'] = True
     fa = entries[key]
     f = chebfun3(fa, **kwargs)
+    return (f, fa) if return_handle else f
+
+
+def gallerydisk(name: str | None = None, *, return_handle: bool = False):
+    """Return a native disk gallery entry, optionally with its defining handle.
+
+    ``return_handle=True`` adapts MATLAB's two outputs to a Python tuple.
+    Handles take Cartesian ``(x, y)`` or polar ``(theta, r)`` coordinates
+    according to the native constructor route. For ``poisson``, the second
+    output is the constructed Diskfun itself. No-argument selection uses
+    Python's random stream over the native nine-entry selection list.
+
+    Provenance
+    ----------
+    MATLAB source : +cheb/gallerydisk.m
+    Chebfun commit: 7574c77
+    """
+    import random
+
+    from chebfunjax.diskfun.diskfun import Diskfun, diskfun
+
+    names = ("challenge", "flower", "poisson", "ellipsepeg", "roundpeg",
+             "squarepeg", "tiltedpeg", "wave", "yinyang")
+    if name is None:
+        name = random.choice(names)
+    key = name.lower()
+    polar = False
+    if key == "challenge":
+        fa = lambda x, y: (jnp.exp(jnp.sin(50*x/3)) + jnp.sin(60*jnp.exp(y/3))  # noqa: E731
+                          + jnp.sin(70*jnp.sin(x/3)) + jnp.sin(jnp.sin(80*y/3))
+                          - jnp.sin(10*((x+y)/3)) + (x**2+y**2)/(4*3**2))
+    elif key == "ellipsepeg":
+        fa = lambda t, r: 1/(1+(4*((r*jnp.cos(t))**2+.5*(r*jnp.sin(t))**2))**20)  # noqa: E731
+        polar = True
+    elif key == "flower":
+        fa = lambda t, r: jnp.sin(21*jnp.pi*(1+jnp.cos(jnp.pi*r))  # noqa: E731
+                                *(r**2-2*r**5*jnp.cos(5*(t-.11))))
+        polar = True
+    elif key == "poisson":
+        rhs = lambda t, r: (-jnp.exp(-40*(r**2-1)**4)  # noqa: E731
+                           *jnp.sinh(5*(1-r**11*jnp.cos(11*(t-1/jnp.sqrt(2))))))
+        bc = lambda t: 0*t+1  # noqa: E731
+        f = Diskfun.poisson(rhs, bc, 512)
+        return (f, f) if return_handle else f
+    elif key == "roundpeg":
+        fa = lambda t, r: 1/(1+(2*r)**100)  # noqa: E731
+        polar = True
+    elif key == "translatepeg":
+        fa = lambda x, y: 1/(1+(2*((x-.2)**2+x**2)**20))  # noqa: E731
+    elif key == "squarepeg":
+        fa = lambda x, y: 1/((1+(2*x)**20)*(1+(2*y)**20))  # noqa: E731
+    elif key == "tiltedpeg":
+        fa = lambda x, y: 1/((1+(2*x+.4*y)**20)*(1+(2*y-.4*x)**20))  # noqa: E731
+    elif key == "wave":
+        fa = lambda x, y: jnp.cos(20*x+5*y)**2*(1-(x**2+y**2))  # noqa: E731
+    elif key == "yinyang":
+        fa = lambda t, r: -jnp.cos((jnp.sin(jnp.pi*r)*jnp.cos(t)  # noqa: E731
+                                  +jnp.sin(2*jnp.pi*r)*jnp.sin(t))/4)
+        polar = True
+    else:
+        raise ValueError("CHEB:GALLERYDISK:unknown:unknownFunction: Unknown function.")
+    f = diskfun(fa, "polar") if polar else diskfun(fa)
     return (f, fa) if return_handle else f

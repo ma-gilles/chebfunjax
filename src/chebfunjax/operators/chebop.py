@@ -1035,6 +1035,36 @@ class Chebop:
             from chebfunjax.operators.periodic import solve_coefficients
             return self._simplify_solution(
                 solve_coefficients(self, f, n, n_max, tol, n_min=n_min))
+        if (selection == "chebcolloc2" and length_dom > 2
+                and self._n_vars() > 1 and not self._periodic
+                and self._n_equations() == self._n_vars()
+                and self._bc_general is None
+                and all(bool(jnp.isfinite(v)) for v in self.domain)):
+            # Native linearize -> solvebvpLinear retains nonlocal Jacobian
+            # blocks; local monomial coefficients cannot represent delays.
+            from chebfunjax.operators.chebop_altdisc import (
+                _linear_system_by_ad,
+                _linearize_coupled_ad,
+                _solve_linear_system_ad,
+            )
+            count = self._n_vars()
+            dom = tuple(self.domain)
+            if _linear_system_by_ad(self, dom, count):
+                rhs = list(f) if isinstance(f, (list, tuple)) else [f]*count
+                data = _linearize_coupled_ad(self, rhs, dom, count)
+                rows = data[0].A.blocks
+                # Native linearize isParam: an undifferentiated column in
+                # an otherwise differential system denotes a parameter.
+                differential = any(not block.isnotdiffint
+                                   for row in rows for block in row)
+                parameters = differential and any(
+                    all(row[j].isnotdiffint for row in rows)
+                    for j in range(count))
+                if (not parameters and any(block._coeff_fn is None
+                                           for row in rows for block in row)):
+                    return self._simplify_solution(_solve_linear_system_ad(
+                        self, rhs, dom, count, selection, n, n_min, n_max,
+                        tol, data=data))
         if selection in ("ultraS", "chebcolloc1"):
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
             from chebfunjax.operators.chebop_altdisc import (
@@ -4368,6 +4398,11 @@ class Chebop:
                 out = [out]
             return list(out)
 
+        # parseBC normalizes numeric endpoint vectors for systems before
+        # boundary evaluation, as on the single-interval solve routes.
+        lbc = _as_system_bc(self._lbc_raw, m)
+        rbc = _as_system_bc(self._rbc_raw, m)
+
         def bc_res(bc_raw, us, x0):
             if bc_raw is None:
                 return []
@@ -4463,8 +4498,8 @@ class Chebop:
             n_l = len(wrap_conds)
             n_r = 0
         else:
-            n_l = len(bc_res(self._lbc_raw, us_zero, bps[0]))
-            n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
+            n_l = len(bc_res(lbc, us_zero, bps[0]))
+            n_r = len(bc_res(rbc, us_zero, bps[-1]))
         if wrap_conds:
             # One wrap row per (var, deriv); alternate between the two
             # end pieces so neither end is starved of collocation rows.
@@ -4597,10 +4632,10 @@ class Chebop:
                           us[j].funs[-1](jnp.asarray(bps[-1])))
                     R[l_rows[i]] = float(ua) - float(ub)
             else:
-                for i, v in enumerate(bc_res(self._lbc_raw, us,
+                for i, v in enumerate(bc_res(lbc, us,
                                              bps[0])):
                     R[l_rows[i]] = v
-                for i, v in enumerate(bc_res(self._rbc_raw, us,
+                for i, v in enumerate(bc_res(rbc, us,
                                              bps[-1])):
                     R[r_rows[i]] = v
             for (rr, j, d, bp, p_l, p_r) in c_rows:
@@ -8882,8 +8917,9 @@ class _EqOrderSniffer:
     def cumsum(self, *a):
         return self
 
-    def __call__(self, *a, **k):
-        return self
+    def __call__(self, argument, *args, **kwargs):
+        # Native adchebfun.compose sums the outer and inner Jacobians.
+        return self._comb(argument)
 
     def __getattr__(self, name):
         # Never answer the array protocol. numpy probes for
@@ -8942,6 +8978,12 @@ class _SysOrderSniffer:
             for i, depth in o._depths.items():
                 depths[i] = max(depths.get(i, 0), depth)
         return _SysOrderSniffer(self.orders, depths, depths)
+
+    def __call__(self, argument, *args, **kwargs):
+        # Composition and multiplication blocks have differential order zero;
+        # the chain rule therefore retains both input Jacobian orders.
+        # Source: @adchebfun/adchebfun.m compose; @operatorBlock plus/compose.
+        return self._combine(argument)
 
     def __add__(self, o):
         return self._combine(o)

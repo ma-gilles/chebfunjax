@@ -369,7 +369,10 @@ def _linearize_coupled_ad(N, f_list, dom, count):
             residual = output
         rhs.append(f_list[i]-residual)
     L = linop(ChebMatrix(rows))
-    for callback, point in ((N._lbc_raw, dom[0]), (N._rbc_raw, dom[-1])):
+    from chebfunjax.operators.chebop import _as_system_bc
+
+    for callback, point in ((_as_system_bc(N._lbc_raw, count), dom[0]),
+                            (_as_system_bc(N._rbc_raw, count), dom[-1])):
         if callback is None:
             continue
         if callable(callback):
@@ -391,11 +394,13 @@ def _linearize_coupled_ad(N, f_list, dom, count):
     return L, rhs, initial
 
 
-def _solve_linear_system_ad(N, f_list, dom, count, backend, n, n_min, n_max, tol):
+def _solve_linear_system_ad(N, f_list, dom, count, backend, n, n_min, n_max, tol,
+                            *, data=None):
     """Source solvebvpLinear correction with exact AD differential blocks."""
     from chebfunjax.operators._linear_altdisc import solve_operator
 
-    L, rhs, initial = _linearize_coupled_ad(N, f_list, dom, count)
+    L, rhs, initial = (_linearize_coupled_ad(N, f_list, dom, count)
+                       if data is None else data)
     correction, _disc, _converged = solve_operator(
         L, rhs, backend=backend, n=n, n_min=n_min, n_max=n_max, tol=tol)
     if N.init is None:
