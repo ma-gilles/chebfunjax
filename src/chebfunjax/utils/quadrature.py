@@ -1467,15 +1467,16 @@ def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False
     """Gauss-Jacobi nodes, quadrature weights and optional barycentric weights.
 
     The fourth argument accepts an interval or a method string; the fifth
-    accepts a method after an interval, matching MATLAB. REC and GW are
-    supported. Default nonsymmetric rules below 100 use source REC; larger
-    default rules retain the existing GW fallback pending the ASY port.
-    Explicit nonsymmetric ASY is not implemented. Outputs use Python one-dimensional
-    vectors in place of MATLAB row/column vectors.
+    accepts a method after an interval, matching MATLAB. REC, GW and ASY
+    are supported. Default nonsymmetric rules below 100 use source REC;
+    larger default rules use the source interior and boundary ASY formulas.
+    Explicit ASY uses those formulas from n=20, matching source dispatch.
+    Outputs use Python one-dimensional vectors in place of MATLAB rows
+    and columns.
 
     Provenance
     ----------
-    MATLAB source: jacpts.m, rec, rec_main, eval_Jac and gw.
+    MATLAB source: jacpts.m, rec, rec_main, eval_Jac, gw, asy1 and asy2.
     Chebfun commit: 7574c77
     Original authors: Nick Trefethen, Nick Hale and Alex Townsend.
     """
@@ -1525,17 +1526,19 @@ def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False
         use_rec = n < 20 or (n < 100 and not method_set) or method == 'rec'
         if use_rec:
             x, w, v = _jacobi_rec(n, a, b)
-            if method != 'gw':
-                if n >= 100:
-                    c = 2**(a+b+1)*(_jacobi_ratio(n+1., b)/_jacobi_ratio(n+a+1., b))
-                else:
-                    c = 2**(a+b+1)*jnp.exp(jsp.gammaln(n+a+1)-jsp.gammaln(n+a+b+1)
-                                            +jsp.gammaln(n+b+1)-jsp.gammaln(n+1.))
-                w = c*w
-        else:
-            if method in ('asy', 'default') and method_set:
-                raise NotImplementedError("The explicit Jacobi ASY algorithm is not yet ported")
+        elif method == 'gw':
             x, w, v = _jacpts_gw(n, a, b, bary=True)
+        else:
+            from .jacobi_asy import _jacobi_asy
+
+            x, w, v = _jacobi_asy(n, a, b)
+        if method != 'gw':
+            if n >= 100:
+                c = 2**(a+b+1)*(_jacobi_ratio(n+1., b)/_jacobi_ratio(n+a+1., b))
+            else:
+                c = 2**(a+b+1)*jnp.exp(jsp.gammaln(n+a+1)-jsp.gammaln(n+a+b+1)
+                                        +jsp.gammaln(n+b+1)-jsp.gammaln(n+1.))
+            w = c*w
         v = jnp.abs(v)*jnp.where(jnp.arange(n) % 2, -1., 1.)
         v = v/jnp.max(jnp.abs(v))
         if tuple(interval) != (-1., 1.):

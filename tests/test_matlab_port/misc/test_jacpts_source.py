@@ -1,6 +1,7 @@
 """Literal bounded clauses from tests/misc/test_jacpts.m, native 7574c77.
 Python vectors adapt MATLAB row/column vectors to one dimension.
-Clauses 23,26,27 (100k/200k), 29 (ASY), and disabled 24 are excluded.
+Large symmetric clauses 23,26,27 are in test_jacpts_large_source.py;
+clause 29 is in test_jacpts_asy_source.py. Clause 24 is disabled upstream.
 """
 import jax.numpy as jnp
 import pytest

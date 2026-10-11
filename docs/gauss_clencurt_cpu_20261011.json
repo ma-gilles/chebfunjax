@@ -77,11 +77,11 @@
     }
   ],
   "limits": [
-    "Native cached polynomial length659 versus actual652: constructor/transcendental rounding discrepancy remains open.",
-    "Iclenshawcurtis printed0.336732834781727 versus native0.336732834781728; Ichebfun and Igauss printed values match.",
+    "Native659 versus Python652 representation difference remains; same-value transform/chop localizes this case to callback evaluation rounding, not a forced native cutoff.",
+    "Historical CC printed728 differs from both fresh native and published Python727; no historical array capture is available.",
     "Observed elapsed times include Python/JAX compilation; historical MATLAB page timings are not matched hardware benchmarks.",
-    "No fresh MATLAB array capture or whole-curve numerical tolerance qualification.",
-    "Fullruntimeprovider inventory not claimed; scientific sources/test configuration/launcher prebound."
+    "Fresh native constructor/query arrays captured; no full50+50 native convergence-curve capture or wholecurve tolerance qualification.",
+    "Runtime scope remains explicit; native primaryprocess snapshots do not cover all transient/helper loads."
   ],
   "bindings": {
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/guard.json": "dc44850ff91b635db70f3c7262fdee6a21d6428eead0472715bd49d4e3c35cb9",
@@ -91,6 +91,33 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/render_saved.py": "cc6d8c248d8722e964e711cdc8d56e7e253e35c1d1eeb6c3ff210d19dd60c13a",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_full_20261011/RENDER_DATA_CHECKS.json": "008d0750c7298ade1876bb6c1e048ac6dd7285fd74a76134e936e347b424eb3f",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/quad/gauss_clen_curt.py": "18cdc5ec852863ad47c9d09f1dee1bfc260f57f94205a35a7a24a0433bd3beec",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/examples/quad/GaussClenCurt.md": "4a8a6796a3ba6dbf0534367090caed80953b472f39d5a37bd53614015d9fb3db"
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/examples/quad/GaussClenCurt.md": "4a8a6796a3ba6dbf0534367090caed80953b472f39d5a37bd53614015d9fb3db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gcn1/AUDIT.json": "470c959bf90290c9acf40c6ca8e67e8b8e5f414506743aa1f7f38037b289ed87",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gcn1/result.json": "b3887e824b4fe7d475fd0bdf832878159c124ca9715cd9a01b4057f1271a7cf4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gcn1/native_constructor.mat": "235173e81ada4118473aba61b0c74f36aef10f752161a10a9941e8010f32117b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_matched_diagnostic_v2_20261011/AUDIT.json": "2941ac332444dd5c904723630ab08fa2e073c0c8838ce6fd61d5bbe37f9bf716",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_matched_diagnostic_v2_20261011/RESULT.json": "44cb03ce62b4da58c39e1db8622104e370cd8b8e1efbc1e95892a1c18578732c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_matched_diagnostic_v2_20261011/arrays.npz": "5331f91bc09a4416d3772a899a9fc4a9e025615ff92576520f187271f9266090",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gauss_clencurt_matched_diagnostic_v2_20261011/VERSIONS_PREFLIGHT.json": "75bdaca164a7ca4d9941eb0208b8e88a6696c52a01c9018d29694effc858ab9a"
+  },
+  "constructor_attribution": {
+    "fresh_native": "R2025bUpdate2, Chebfun7574c77",
+    "native_length": 659,
+    "published_python_length": 652,
+    "same_native_values_JAX_transform_and_chop": 659,
+    "same_native_grid_JAX_values_transform_and_chop": 652,
+    "max_float64_callback_difference": 1.887379141862766e-14,
+    "max_2049_query_function_difference": 1.930400284066991e-14,
+    "max_leading659_native_coefficient_difference_from_samevalueJAXtransform": 1.7889335846010823e-17,
+    "finding": "Callback evaluation differences at identical native coordinates suffice to reproduce the length gap; no forced cutoff or changed tolerance. Native fullunchopped coefficients were not captured, so no bitwise FFT parity claim.",
+    "integer_probe_scope": "Native int16[-1,1] vectorization probe returned float64; JAX callback returned float32 (difference1.8716433990428882e-6). This is separate fromfloat64interpolationgrids.",
+    "native_current_CC": 0.33673283478172744,
+    "native_current_CC_printed": "0.336732834781727",
+    "historical_cached_CC_printed": "0.336732834781728",
+    "CC_finding": "Current native printed CC value agrees with published Python; historical lastdigit discrepancy is not isolated evidence of Python quadrature fault.",
+    "diagnostic_source_commit": "4d28f3dfddb32fe1893299bdf45ac3854da0d3fa",
+    "full_page_reruns": 0,
+    "new_python_constructors": 0,
+    "runtime_scope": "Pinned JAX/jaxlib0.11 CPU/x64/imported source hashes for matched diagnostic; native executable/source/943runtime bindings audited, helper/transient mapping coverage remains limited."
   }
 }

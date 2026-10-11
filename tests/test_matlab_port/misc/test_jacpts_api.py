@@ -30,7 +30,7 @@ def test_rec_jit_parameters():
     assert abs(x[36]-.912883347814032) < 1e-12
 
 
-@pytest.mark.parametrize('method', ['ASY', 'GLR', 'invalid'])
+@pytest.mark.parametrize('method', ['GLR', 'invalid'])
 def test_unsupported_methods_are_explicit(method):
     with pytest.raises((ValueError, NotImplementedError)):
         jacpts(42, -.1, .3, method)

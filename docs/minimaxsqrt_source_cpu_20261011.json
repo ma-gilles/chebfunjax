@@ -29,6 +29,8 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/FINAL_CLOSURE_CLASSIFICATION_v1.json": "6798e1117095ef5c9d53b6659722fa446c2ed2fd91b3f5205c6988f8ad575e84",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/NUMERICAL_REFERENCE_REPORT_v2.json": "c67361b850dde55589b436b9bd550205853b29586227f22a01462b30b4e8dea1",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/ROOTS_CURRENT_HEAD_APPLICABILITY_v1.json": "b13e61e9d6103f1ed38f7f7da677ef5c6cfc946a3a76910c2b83f9d6d6233ace",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/render_v1/RENDER_AUDIT_v1.json": "8584945da035f7f16d1b13f67ea377fd84adf0f303cf84bb76c836968849d2bd"
-  }
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/render_v1/RENDER_AUDIT_v1.json": "8584945da035f7f16d1b13f67ea377fd84adf0f303cf84bb76c836968849d2bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimaxsqrt_requalification_prepare_20261011/RENDER_RUNTIME_SCOPE_ADDENDUM_v1.json": "775e03ae014aef787c22fce6158cb0bb503da78a1cd7fb4fb0889a56ceab80c7"
+  },
+  "artifact_renderer_runtime_limit": "Artifact-only rendering used saved error arrays and executed zero constructors/fits. Its incidental imported JAX version was not pinned; this does not change the separately qualified JAX/jaxlib0.11 numerical fits. Six published image bytes are unchanged."
 }

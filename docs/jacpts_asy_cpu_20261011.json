@@ -1,0 +1,86 @@
+{
+  "scope": "Actual source Jacobi ASY interior and boundary kernels plus public dispatch; no GW fallback substituted for ASY.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_files": [
+    "src/chebfunjax/utils/jacobi_asy.py",
+    "src/chebfunjax/utils/quadrature.py"
+  ],
+  "changed_files": [
+    "src/chebfunjax/utils/jacobi_asy.py",
+    "src/chebfunjax/utils/quadrature.py",
+    "tests/test_matlab_port/misc/test_jacpts_asy_source.py",
+    "tests/test_matlab_port/misc/test_jacpts_api.py",
+    "tests/test_matlab_port/misc/test_jacpts_source.py",
+    "tests/test_matlab_port/misc/jacpts_n20_native.json"
+  ],
+  "original_clauses_qualified": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    25,
+    29
+  ],
+  "qualification_note": "Exact guarded standalone public-call probes executed original clauses; permanent original29 pytest wrapper is an equivalent transcription, not a separate duplicate scientific run. Existing11\u201320/25 tests retained. Additional n42 test passed in preserved partial gate10776; its AST is identical in delivery. Native20 parity test92144 passed.",
+  "gates": {
+    "clause29": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/clause29/AUDIT.json",
+    "default251": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/default251/AUDIT.json",
+    "default114": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/default114/AUDIT.json",
+    "dispatch_controls": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/dispatch_controls/AUDIT.json",
+    "n20_arrays": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/n20_arrays/AUDIT.json",
+    "n20_native_parity": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/n20_native_parity/AUDIT.json"
+  },
+  "source_native_n20": {
+    "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jga1",
+    "original": 8299,
+    "command_terminal": 0,
+    "provenance": "224 guarded source/test inputs,943 startup immutable runtime files and909 endmaps verified. Two observed M-file providers meshgrid.m andpascal.m absent from prospective guard; explicitly limited provenance, postexit hashes retained. No original-native-test-pass credit.",
+    "overlap": "Numerical observation overlapped routine bounded native capture on disjoint cores; no paired performance claim."
+  },
+  "n20_error_semantics": "Native andJAX ASY-vsREC node norms both~1.976e\u221212. Permanent test compares native arrays at unchanged added1e\u221212 bound and asserts both source approximation gaps>1e\u221212; failed ideal-accuracy diagnostic immutable.",
+  "literal_clause25_note": "Original one-sided sum(w)\u22122sqrt2<10eps preserved; signed error\u22121.021405182655144e\u221214 is not an absolute10eps claim.",
+  "preserved_failures": [
+    "v2 original92485 Python-int factorial overflow; corrected to native double accumulator in v3.",
+    "v3 original10776 n20 ideal1e\u221212 diagnostic fails identically in native approximation behavior."
+  ],
+  "no_publication_edits": true,
+  "limits": [
+    "Host/static n, a and b and public interval validation retained; no new tracer-compatible public API claimed.",
+    "Fresh native n20 ASY/REC arrays are retained with explicit meshgrid/pascal prospective provider omissions. Other ASY qualification uses original native reference constants and REC comparison.",
+    "Extreme a/b outside original test coverage and source theta warning branch not independently qualified.",
+    "Clause24 disabled upstream; million-node disabled assertion not claimed."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/candidate.patch": "680bf27200fc6787cee6f7c825c7093d9d7807a2982a07ed2ab8553910c66db0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/REVIEW.json": "30abcf50f34410a57cb1c9eb118c6f3a430cb59a0b86dd9b11a304c53088d81e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/AST_REVIEW.json": "41219bdb0c8b05fbaf49d59dc5a4f40673fd65fa9099762aed209a68d1ccfb2f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/SOURCE_MAP.json": "dd7728c1f623f704dbacf24b2124c17b605a95637b2a05acf4305925ddec3d81",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/N20_COMPARISON.json": "913f57361fbf3e4d7fd1574999f7b739ca5fc1c9e96b56326194c6f15a4227ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/PREDECESSOR.json": "f9b29d675891ac1450c002d980648bc00a846396972d49e3618767714a44738f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/CHANGED_FILES.json": "4f5f9293f54015d3be0e445f5d48d654d55d5c464cb4e26c3892f93d62ff671c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/src/chebfunjax/utils/jacobi_asy.py": "ee7b8f6e06f29b3daaaa480face9f0bb0c84309c8af18b6baed2e8cb5f422987",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/src/chebfunjax/utils/quadrature.py": "51d33f800c4d92aba21c4865d08f38aed4713396f566755d2aeee4db044ccd20",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/tests/test_matlab_port/misc/test_jacpts_asy_source.py": "0bfe3666b03473593561843eb4367ec6e2fede7f77088e700a8ec12575a488bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/tests/test_matlab_port/misc/test_jacpts_api.py": "2b84efc09d6d27ebd5db98a06dfae2d9636b6283087a1fd8efc1c5b5c682e247",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/tests/test_matlab_port/misc/test_jacpts_source.py": "2c8456c0ec0524a678166c4c56334dba38377d84928865cafa97f0635bbf83dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/delivery/tests/test_matlab_port/misc/jacpts_n20_native.json": "ce95f8ae4a4693c7c7422b2750cab06b8bef3851813f397a1068bfe76352f715",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/clause29/AUDIT.json": "64ec3751af74196144c860390b04f0c6190e6fe0016ec08c88beed63a1d539cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/default251/AUDIT.json": "9f38cdbd16e87b6c5bdcb2d4bea03ad563297df5e9959946048f23c8567f54a0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/default114/AUDIT.json": "9f4289a11df31273cd10f103fb543b3f159efcabb05772146d613c7d1759c853",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/dispatch_controls/AUDIT.json": "6ff9fc5664a17cf7afc2e3bcc028efddd51e9625edb0813e34ad6a67f9d73fd2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v3_20261011/n20_arrays/AUDIT.json": "38c732ac44bf61d61d83bae0123ee2e0cf0884fca4cc65acd64c9b05a3f8c6e3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v4_20261011/n20_native_parity/AUDIT.json": "a3a27567bf42c80077c4a0a6e6e998405a11ddda0b8003cacca790d64a8c2c98",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jga1/AUDIT.json": "b7cb2af93c21105de50fa4fa57ad8d458015acfdc509f924122ca8d3ce49e302",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jga1/PROVIDER_LIMITATION.json": "7c5bf3abe2f2c95b0f66f390c719e06ce44eeb43d0343228059cabdd60c28636",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jga1/result.json": "4eb2223536b87b2659be8ccacab7fcada761f94ade5e44d5aa3536aff6824be3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jga1/native_result.mat": "c063ca2d759011da982a5abba1cbe6f72de0e949338b3102a6955cb77269ef71",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_asy_source_v2_20261011/clause29/AUDIT.json": "edb27fcfc2b69b02f2ce4143740b8972b220ae4b802535d09e90a5ae3e1fdeeb"
+  },
+  "root_integration_note": "Restored preexisting test-local import order required by publication Ruff configuration; no numerical or assertion change."
+}
