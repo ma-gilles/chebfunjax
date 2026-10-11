@@ -1,0 +1,103 @@
+{
+  "slot": 7,
+  "page_qualified_outputs": "21/23",
+  "render": {
+    "success": true,
+    "no_solve": true,
+    "coefficients_byte_identical": true,
+    "all201samples_byte_identical": true,
+    "stdout_byte_identical": true,
+    "point_values_metadata_preserved": true,
+    "error_norm": 6.805727959764803e-16,
+    "slot": 7,
+    "figure": 7
+  },
+  "comparison": {
+    "native_lengths": [
+      2,
+      3
+    ],
+    "python_lengths": [
+      2,
+      3
+    ],
+    "corresponding201_sample_max_abs": 3.552713678800501e-15,
+    "corresponding201_grid_max_abs": 1.1102230246251565e-16,
+    "piece_coeff_max_abs": [
+      1.3322676295501878e-15,
+      2.220446049250313e-15
+    ],
+    "native_public_error_norm": 1.4280770748698794e-15,
+    "python_public_error_norm": 6.805727959764803e-16,
+    "native_warning_message": "",
+    "native_warning_identifier": "",
+    "scope": "Observed differences on corresponding captured source-default grids; no acceptance bound or bit/pixel parity claim."
+  },
+  "scope": "No solves or native reruns; only slot7 source helper/block and page slot7 output/qualification changed. Original MATLAB code and other outputs preserved.",
+  "visual_review": "Sourcecurve/axes/colors/glyphsizes visually match reference; native edge/cornerdots appear full while Matplotlib bboxclips boundaryglyphs. No full pixel/figure parity claim.",
+  "clipping_mapping": "Native @chebfun/plot.m lines314/327 has noClipping override; R2013a LineClipping defaulton. Python likewise inheritsclip_onTrue. Cached fullglyphs do not establish global nativeclippingoff.",
+  "generic_clipping_candidate": "Future shared pointartist drawpolicy: clip center locations to currentaxes while drawing whole glyph for in-bounds centers; retain line clipping. Needs nativeedge/corner/outside-center controls before implementation. No change here.",
+  "retained_non_scientific_issue": "Initial standalone savedMAT comparison JSON serialization of empty warning ndarray failed; corrected adapter in compare.py, no sourcearrays/render changes.",
+  "cohorts": [
+    {
+      "cohort": "python_solve",
+      "wall_seconds": 17.832055063918233,
+      "sampled_peak_summed_rss_kib": 1309284
+    },
+    {
+      "cohort": "native_solve",
+      "wall_seconds": 86.36691200872883,
+      "sampled_peak_summed_rss_kib": 1515984
+    },
+    {
+      "cohort": "render",
+      "wall_seconds": 5.897110006771982,
+      "sampled_peak_summed_rss_kib": 626060
+    }
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/supervision/receipt.json": "d7a445bb459ba737d8e4bcc5cedaff7497baeefaa4ceee1bbe0e5ecaff50f9ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/guard.json": "65489d8726187bed95e61d99ce59a6142f336e1f38ea62d87b69abc7e73b1ac2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/result.json": "14621a8bcaccb85e29b43bcef63270c99dc60ebbf0d89a764212d3574a09661a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/supervision/receipt.json": "2f31a5c86cafca884984ba827e893b5ba25d559f46fbfbdfb56c417e2d5c98f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/guard.json": "7e8c222aaa3dd424acc1950f86d35630524ed8fc0d22528f263cd3edc62cd42c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/result.json": "1db3b16221b1606e5949dba9485d0147177300e7275ffb603d3b79c3d5ee9d37",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/supervision/receipt.json": "c8b67a1c0c6c72a3e9bbe97623b0a23304c259537af01f91f8812af461cd596c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/guard.json": "93ed554a2d799e4bf8e81859640b2929913e3bde7d797900fd099ff9b239fd29",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/result.json": "b6716bc27f5df38535a7dc8031a7746145e31a59cdd0d7c9b440bda47ad851f1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/RUNTIME_SOURCE.json": "90fd5a63835e38e8fe39b25188743d3ccfc8f5383726cb54df6065b4ccd0e240",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/RUNTIME_SOURCE.json": "cdd0bb798c712f548f1fa5a434f07e5dff53f605cdcebf75812a401a4feb50b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/solution.mat": "91199ec73050f00bc91e2a3ef703ca1f440794ba333b3ef4d1326ec9b07f4b0f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/probe.m": "7fd7da930933191ce201e5b1a8b623fd29150df99ce365d49b4a1975ad344b07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddtwo1/runtime_profile.json": "06aaefaa3da733f5b11287e4d8b178438cdb9d3a787fa7225251afde3d8ea26c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/solution.npz": "845696df265d665be13ef2b93f9c89ac3d0c2aa5f1d94a8ef9b342ab01f7a2dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_public_20261011/baseline/slot7.stdout": "6556f9f78833054d243a48cdbf7c7309900f744c15c2629f69c130d44c80e077",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/slot7.stdout": "6556f9f78833054d243a48cdbf7c7309900f744c15c2629f69c130d44c80e077",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/DelayDifferentialEquations_07.png": "28f6ca369ccc3628b45c740120e0ff8c1bfc78fa5e600f9473ca19d3ab644f43",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/render/probe.py": "38efb92ee9c22d93502b8e783affd436d0f35dbde8a034a3f39696eb09526cd2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/COMPARISON.json": "3892039c686a548f1921dbb4c53be311c5fe10737fa9b5c4cb7b023e163cb754",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/compare.py": "02325514ea642d4f3734d59cd648822b1cca1a75eb3abcf4a3709718d22227bf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/delay_differential_equations.py": "f31a600d8625dd725884d4ae973b663b65073e2ece19059c866bcbf6220ea45f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/script_base.py": "cc1496e6078888a3745cc93dfdb7c68f23a45d95d35487805fab87ecd32a5f2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/page_base.md": "c359f582513ea591a4303f3098375b710234b8e70676a0e38e86b2286b97b060",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/DelayDifferentialEquations.md": "26a801a090b57c3b034054aebaf2fe2dd1d8f59597dccc0632ebd71068cd1974",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/delivery/script.patch": "8f56f980617c642212e55723138016500d05cd362aeead1b29ee777569b2eb3e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_two_interval_artifacts_20261011/delivery/page.patch": "b94db7b4207b615075f9da9468b15297c502aedaef000e96ee96432363a9e510",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-nonlin/DelayDifferentialEquations.m": "aa8dcf374ac46d55ee68460d01c6428b2f6b92c09d889276d00a32e3e001995d",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/DelayDifferentialEquations_07.png": "6bbe0915a85e5ed42453823feaa33fccf1a850388b6f2708edb19fe5e5854dc9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/plot.m": "4534d5c739810ae9a1e2b1c4b8ccf2bbe32845f4f56487786fa0831aa02da3df",
+    "/usr/licensed/matlab-R2013a/help/matlab/ref/line_props.html": "ed5aa468b03407b38ce683a270e909b1343775ef11b42197b6a02af8c9652ec2"
+  },
+  "script_AST_scope_verified": "Only newhelper and run slot7block differ; all other script AST identical.",
+  "figure_dimensions": [
+    600,
+    270
+  ],
+  "root_review": {
+    "verified_bindings": 31,
+    "both_figures_visually_reviewed": true,
+    "confirmed_boundary_clipping_difference": true,
+    "no_full_figure_parity_claim": true,
+    "page_output_adapter": "Strip trailing spaces in new slot7 Markdown fence for repository diff gate; raw saved stdout and render remain byte-identical."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "commit": "f3c943f1",
+  "status": "unresolved",
+  "scope": "All 12 current Bndfun sum predicates with --runxfail; original bounds unchanged.",
+  "result": "11 passed, 1 failed, no mask applied in this qualification.",
+  "high_frequency": {
+    "error": 2.549069082983385e-14,
+    "bound": 2.220446047510404e-14,
+    "length": 45320,
+    "integral": -2.414892607357869e-05
+  },
+  "interpretation": "Current source forward mapping preserves the previously diagnosed failure. Canonical complex DCT and power changes did not resolve it. Native/JAX node-rounding discrepancy remains the measured upstream cause; no tolerance relaxation, extra refinement or input-specific correction is introduced.",
+  "runtime": {
+    "pytest_exit": 1,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "x64": true
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/guard.json": "f6542f56061085c510606d3a2d48334a8ede3f80775e9167c073da29415a857c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/observe.py": "aba1e01e3253b814a0229d815d9265da4fc9ee0c0cb6d8c7d51b54547f6140ae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/launch.sh": "60451b691a9155ce285f1b5c5ed317036817d1ee0da437a8f715276c45838824",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/supervision/receipt.json": "1c27fdfce7264c5c815a14e2f93b8c4fee74d941467219e269f5bf61975530d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/supervision/stdout": "878b56f21b15a153e347a2d973df989d382636704fd0ef4fc2fff5da219517de",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/RESULT.json": "e56821040f2dae619a75ebe5a7f454729dd641e6baf6aea425dc5633b582266e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bndfun_sum_current_f3c943f1_20261011/RUNTIME_SOURCE_END.json": "fa31c666a94a801aeaddd75d5541bab02d8fa9a8c40cd08cbc75f07b564e69cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/highfreq_native_comparison_20261010/CONCLUSION.json": "f781896bb8ca5ac79ec6239ab398aec29ad76df20b10757a32a07203583b6e28"
+  }
+}

@@ -217,6 +217,22 @@ def _source_interval_boundary_curve(numerical):
     return fig
 
 
+def _source_two_interval_delay_curve(exact, numerical):
+    """Render the source two-interval constant-delay plot with reference axes."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(1, 2.2),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(1, 2.21, .2))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _source_second_order_delay_curve(exact, numerical):
     """Render the source second-order pantograph plot with reference axes."""
     from chebfunjax.plotting import matlab_plot
@@ -396,13 +412,13 @@ def run():
                domain=(0.0, 0.5, 1.0))
     N.lbc = 1.0
     xc = N.solve(0.0)
-    _show(xc)
-    sol7 = lambda s: np.where(s <= p, s + 1,
-                              (a * p + 1) + a * (s - p) * (.5 * a * (s - p) + 1))
-    tt = np.linspace(0, 1, 1001)
-    err = float(np.max(np.abs(np.asarray(xc(tt)) - sol7(tt))))
+    print(f"x =\n{xc!r}")
+    sol7 = chebfun([lambda t: t + 1,
+                   lambda t: (a * p + 1) + a * (t - p) * (.5 * a * (t - p) + 1)],
+                  domain=(0.0, 0.5, 1.0))
+    err = float((xc - sol7).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol7, xc, (0, 1))
+    _save(_source_two_interval_delay_curve(sol7, xc), source_axes=True)
 
     # ----- 8. Longer domain: six pieces --------------------------------
     _output_slot(8)
