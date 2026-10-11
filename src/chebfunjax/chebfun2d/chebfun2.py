@@ -2530,9 +2530,35 @@ class Chebfun2(eqx.Module):
         """
         if im is not None:
             if not isinstance(im, Chebfun2):
-                raise TypeError("Second input must be a Chebfun2.")
+                raise TypeError("CHEBFUN:SEPARABLEAPPROX:complex:inputs: "
+                                "Second input must be a CHEBFUN2.")
+            if not re.isreal() or not im.isreal():
+                raise ValueError("CHEBFUN:SEPARABLEAPPROX:complex:notReal1: "
+                                 "Inputs must be real valued.")
             return re + 1j * im
+        if not re.isreal():
+            raise ValueError("CHEBFUN:SEPARABLEAPPROX:complex:notReal2: "
+                             "Input must be real valued.")
         return re
+
+    def isreal(self) -> bool:
+        """Return the source storage-real predicate for this representation.
+
+        Provenance
+        ----------
+        MATLAB source: @separableApprox/isreal.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return True
+        raw = self.approx.pivot_values
+        if raw is None:
+            # Inverse-only adapters preserve the scalar storage dtype;
+            # inspect it without reconstructing unavailable raw pivots.
+            raw = self.approx.pivots
+        return (not jnp.iscomplexobj(raw)
+                and all(bool(t.isreal())
+                        for t in (*self.approx.cols, *self.approx.rows)))
 
     def vscale(self) -> float:
         """Vertical scale: max abs value on a sampled grid.
@@ -2770,7 +2796,7 @@ class Chebfun2(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun2/real.m
+        MATLAB source : @separableApprox/real.m
         Chebfun commit: 7574c77
         """
         return self._part_or_zero(jnp.real)
@@ -2780,43 +2806,22 @@ class Chebfun2(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun2/imag.m
+        MATLAB source : @separableApprox/imag.m
         Chebfun commit: 7574c77
         """
         return self._part_or_zero(jnp.imag)
 
     def _part_or_zero(self, op) -> "Chebfun2":
-        """Re-approximate ``op(f)`` with a near-zero snap.
+        """Apply native unary compose without snapping nonzero parts."""
+        if self.isempty():
+            return self
+        from chebfunjax.tech.trigtech import Trigtech
 
-        Re-approximating the real/imaginary part of a cancellation
-        residue (a ~1e-16-magnitude complex field, e.g. inside
-        Chebfun2v.norm of ``conj(F)-G``) is pathological: the part is
-        structureless noise, invisible to any resolution test, and the
-        constructor's sample-test escalation costs minutes before giving
-        up.  As in Spherefun._binary, a coarse pre-scan snaps a part
-        that is <=1e-9 of the field's own scale to the exact zero
-        function; genuinely small-but-structured parts above that
-        survive and re-approximate normally.
-        """
-        import numpy as _np
-
-        xa, xb, ya, yb = self.approx.domain
-        xs = jnp.asarray(_np.linspace(xa, xb, 17))
-        ys = jnp.asarray(_np.linspace(ya, yb, 17))
-        X, Y = jnp.meshgrid(xs, ys)
-        vals = self(X, Y)
-        scale = float(jnp.max(jnp.abs(vals)))
-        part = float(jnp.max(jnp.abs(op(vals))))
-        if _np.isfinite(scale) and part <= 1e-9 * max(scale, 1e-300):
-            return Chebfun2.from_function(
-                lambda x, y: jnp.zeros(
-                    jnp.broadcast_shapes(jnp.asarray(x).shape,
-                                         jnp.asarray(y).shape),
-                    dtype=jnp.float64),
-                domain=self.approx.domain)
+        trigx = all(isinstance(t, Trigtech) for t in self.approx.rows)
+        trigy = all(isinstance(t, Trigtech) for t in self.approx.cols)
         return Chebfun2.from_function(
             lambda x, y: op(self(x, y)),
-            domain=self.approx.domain, trig=self.isPeriodicTech())
+            domain=self.approx.domain, trigx=trigx, trigy=trigy)
 
     def conj(self) -> "Chebfun2":
         """Complex conjugate.

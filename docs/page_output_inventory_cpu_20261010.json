@@ -1,0 +1,246 @@
+{
+  "head": "04747d0afb64a9f489c05bbfe545dfc6062890e0",
+  "scope": "Static output fence inventory only; nonempty does not imply numerical parity",
+  "summary": {
+    "pages": 322,
+    "reference_blocks": 949,
+    "local_blocks": 944,
+    "empty_local_blocks": 29,
+    "blank_local_blocks": 23,
+    "placeholder_local_blocks": 6
+  },
+  "inventory_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/output_inventory_04747d0a_20261010.json",
+  "inventory_sha256": "14c041dfaa512ff8907af8b66ee2814cbd32f631019891918866e8ecac249d20",
+  "unresolved": [
+    {
+      "page": "approx/AAAApprox",
+      "reference_blocks": 6,
+      "local_blocks": 5,
+      "empty_local_blocks": 0,
+      "sha256": "0b64262b549bb2197f43082e19d0f89e7f8dbaf17ab08846b2065a0af0594aa9",
+      "reference_sha256": "7a6b48438d1eb2f187bb0e5173214c6dd3038f438bf434dc75dbd6969324aec9",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "approx/EightShades",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "empty_local_blocks": 2,
+      "sha256": "c399db0ad927b5a68d8206eb1939e9dafe3d858a0ba894eace1deafb54058478",
+      "reference_sha256": "f9af66f337a2962bcddc91cb9309bd08bc4fe68c3e34796c74dd6f621dcf27e7",
+      "blank_local_blocks": 2,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "approx/MinimaxSqrt",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "empty_local_blocks": 3,
+      "sha256": "a9430f6e89ce066e9bbaf73ec9f845fd0d959697368da50a1671d11fdc80699b",
+      "reference_sha256": "daa3d58469b448b5faa3de5ca6407801a85e2720c0e5d7aeeb242f377cbaca38",
+      "blank_local_blocks": 3,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "complex/ConformalSquare",
+      "reference_blocks": 2,
+      "local_blocks": 2,
+      "empty_local_blocks": 1,
+      "sha256": "e7b7dad8f834355d2428b38c5f9512e4806f7db4607cccbd122b42a8d36a6b82",
+      "reference_sha256": "e23d105ae2a7e4e0ac43c023eaf326359e0db1f59974f5d1145aee4c29d89699",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "complex/ZetaZeros",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "48b3d50e67ecb6216614b5c333087888d0cbb589dd036960de46e5d0162b4e5a",
+      "reference_sha256": "0e38bcd7994c92569a8ba5f52fd8c55ed707d9e2ef9f31f40a118123d67bd12f",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "geom/Ellipses",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "1fdcff77aaa7e979e3b63d0e260843577531b4cb12a11a7febfc60f70b597e53",
+      "reference_sha256": "42f8cedcf8300eaa704bee0d6b3b2c4a8390a649289f56929b3d82b58ba18f37",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "linalg/ConstrainedLeastSquares",
+      "reference_blocks": 10,
+      "local_blocks": 10,
+      "empty_local_blocks": 1,
+      "sha256": "f6296a408e4e31aaf827492e0865ff977003697f9c9478fa814a3178fae981e8",
+      "reference_sha256": "07df0c2506f15880934c2898f19b5ca8b024e18da82ce4a8ea1cded7e83248a8",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "linalg/FieldOfValues",
+      "reference_blocks": 5,
+      "local_blocks": 5,
+      "empty_local_blocks": 1,
+      "sha256": "299d36c52c7d5a257c8a770fa4776a65ae48183a3ec6e40df4077ba66e84deb8",
+      "reference_sha256": "23602469eddf720bd233115f39015695d7fbb2e55a58ee6b48525d199b182e99",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "linalg/SOR",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "empty_local_blocks": 1,
+      "sha256": "45be13e3a81adedb7f0d84a005c74337b5919c3c6ab51f9be6d2cc3d6356bdb5",
+      "reference_sha256": "80cefc4935c42a12eead545764017a0cadbb23dca6807b9ef7adb29d8e3187c7",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 1
+    },
+    {
+      "page": "linalg/TransientGrowth",
+      "reference_blocks": 4,
+      "local_blocks": 3,
+      "empty_local_blocks": 0,
+      "sha256": "b4b623d9a44586ddd8e17d2d08b161241413bcf4e1c2093429ac13d2347ed320",
+      "reference_sha256": "1a213cb790293bdbe5e177ab99daedbedba99febab6ff4cde07b096d47dafd6c",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-eig/Drum",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "01c023e21e7e4187b5a40a458ae975ffd7cde8fe8015717b58b66b2180679c6e",
+      "reference_sha256": "c4cd97fe07b7a43171bcb1bb1d89fdf4e046a6a0781d649a4269c2177ee9ef43",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-linear/DawsonIntegral",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "c14791568f601a194517693ac884ede84a4adeb69a53e0015f8f3d7276114f91",
+      "reference_sha256": "af3d68c4a73d4339ae56eb574a3d487a59651ea8bc9b1caadd4901a925d2d8bb",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-linear/Floquet",
+      "reference_blocks": 4,
+      "local_blocks": 2,
+      "empty_local_blocks": 0,
+      "sha256": "cfe1c61cd7a26d0a7159c1ea78c372cd8b412e21efa902f0119c14b3aefa4751",
+      "reference_sha256": "26acb72aefe5b13f617ccc6d34de17a689af9cd0cdcde6c039a2b8948c839d4e",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-nonlin/Blasius",
+      "reference_blocks": 6,
+      "local_blocks": 6,
+      "empty_local_blocks": 1,
+      "sha256": "b627cf62086a4ce20f3ea237f47ce4f81b089614b68ecab4886928ea4116e3ff",
+      "reference_sha256": "0ad7a9e0df75dc0daf791190f4a4ea1fa9dcd24f63a5bc4fec923a4fd4eb26d7",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-nonlin/Bloodhound",
+      "reference_blocks": 1,
+      "local_blocks": 1,
+      "empty_local_blocks": 1,
+      "sha256": "ebb34b567ebd0e2788f11a6f98f30025f10c481a791c2970fbfb85c1486b05f0",
+      "reference_sha256": "47d3342ada16ffe2a0b445436ddec7d71bf47f42afe8be6c3a52b58c0ac5ed0e",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-nonlin/Carrier",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "c6c66c5280caf1f4267e538a7414c9e6c4dbd4d31384c59223b2e7344a0255fd",
+      "reference_sha256": "f6597229bbd9f681c271ef77cfacb7f85e52009d600a1970ba230cf268b00ab0",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 1
+    },
+    {
+      "page": "ode-nonlin/DelayDifferentialEquations",
+      "reference_blocks": 23,
+      "local_blocks": 23,
+      "empty_local_blocks": 7,
+      "sha256": "c88905815862df3e947f93fa22a2a6134d81085eed8dc850ac426c061ae4918b",
+      "reference_sha256": "a2f78be954ddc28de476dc3a03ef8bbc44ab6cfbca81ec7495063908075f4c87",
+      "blank_local_blocks": 4,
+      "placeholder_local_blocks": 3
+    },
+    {
+      "page": "ode-nonlin/GulfStream",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "empty_local_blocks": 1,
+      "sha256": "45dd6527be05c9214501e63d91d78550ff97cb3603b08157ab0189221c599c32",
+      "reference_sha256": "ff005b89f931d9c0c9fac26af1c9886556f893475273b005f18bc498fb379c66",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 1
+    },
+    {
+      "page": "ode-nonlin/LorenzAttractor",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "empty_local_blocks": 1,
+      "sha256": "03caae34d2d45bc1fa23cad5f615e32444a7e11bb3d125813e575cc6f04a01c6",
+      "reference_sha256": "c6cdc2e2226933ccff66c35ed5f471fe4f5cc3bd694dea9dae7f032de798fb8c",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "ode-nonlin/ThreePlanets",
+      "reference_blocks": 1,
+      "local_blocks": 1,
+      "empty_local_blocks": 1,
+      "sha256": "e052f19e5c7587fbfa50b704ad87d59f208c6411779659897b795974aa90aa9f",
+      "reference_sha256": "9c7a077755367771bf76b8715e0cfca720db3c80b18efb37d89d76e4d2820ec4",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "quad/GaussClenCurt",
+      "reference_blocks": 6,
+      "local_blocks": 6,
+      "empty_local_blocks": 2,
+      "sha256": "7d4bd8ebcd654f47ef7fdd29d842ecd90a2068930a9f3630a5f6daf60a76f8d4",
+      "reference_sha256": "d2cfc37fb1aceef471d75518c1a07a30055bd363f6e6d56c192850d7af50fbb7",
+      "blank_local_blocks": 2,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "roots/RandomPolys",
+      "reference_blocks": 2,
+      "local_blocks": 2,
+      "empty_local_blocks": 1,
+      "sha256": "211009096a36601d96d0e1b6b4d8e4db2d81561b0711f7146665faaee667b5bd",
+      "reference_sha256": "a37e6fa778af47cbfdd31704174f751bde89a4f390dbe52a63dc8f3ff77dd3ca",
+      "blank_local_blocks": 1,
+      "placeholder_local_blocks": 0
+    },
+    {
+      "page": "stats/ResamplingRandomVariables",
+      "reference_blocks": 2,
+      "local_blocks": 1,
+      "empty_local_blocks": 0,
+      "sha256": "10a6bf82cfeecbe963f79ec55774d09b786dfcc3e3b06b3a86087df6b68ee424",
+      "reference_sha256": "599f84e0346926d46f9d842f5e7033433d65f6791d91e0ff98f767c5c674f9d3",
+      "blank_local_blocks": 0,
+      "placeholder_local_blocks": 0
+    }
+  ]
+}

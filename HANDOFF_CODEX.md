@@ -1,5 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Small complex parts preserved (2026-10-10; latest)
+
+Remove the nonsource1e-9 real/imag snap, retain empty inputs and independent
+periodic axes, and restore complex real-input guards/messages. Seventeen
+controls pass; six baseline failures are preserved. One-input complex storage
+semantics remain under native review. Evidence:
+docs/chebfun2_parts_complex_contract_cpu_20261010.json.
+
+Fresh output inventory at04747d0a:322pages,949native/944local output blocks,
+23blank plus6placeholder blocks unresolved (29withoutactualoutput). The prior
+26blank count excluded placeholders. Five absent warning blocks remain across
+four pages. Nonempty output is not proof of numeric parity. Evidence:
+docs/page_output_inventory_cpu_20261010.json.
+
 ## CPU systems, Catenary, and literal guide checks (2026-10-10; latest)
 
 Two-component real polynomial PDEs now use the existing JAX NDF driver,

@@ -140,3 +140,10 @@ Audits: execution_v20/AUDIT_v20.json (`a8606e403fdb6f31cfa3b6b8ecffb2f52b2978d97
 and execution_v21/AUDIT_v21.json (`5f45c82a4754c028191dd901b6bcdcde5615d400fca13913ef7cbfc2a6ed7fd2`).
 Cumulative record: execution_v21/CUMULATIVE_STATUS_72_OF_80_CANDIDATE.json;
 root review: execution_v21/ROOT_REVIEW.json. These remain historical results.
+
+The v20/v21 plans contain incorrect descriptive formula labels. Their exact
+node IDs, runtime collections, JUnit cases and task-end identities are correct
+and unchanged. The correction supplement maps actual frozen source AST formulas:
+`execution_v21/SELECTED_MEMBER_METADATA_CORRECTION.json`, SHA-256
+`aa532e0eec46045644d3e3885cb2d8af6e38ff8b612917aec3944e3cddecedf5`.
+No test counts or frozen audits were changed.

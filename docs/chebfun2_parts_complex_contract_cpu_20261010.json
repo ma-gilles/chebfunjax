@@ -1,0 +1,78 @@
+{
+  "snapshot": "9e7d5f94d3a79ccdd5ac57fb49992164b3cb3516",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline": "Six preserved failures: real/imag snapped legitimate 1e-10 constants to zero; three missing real-input guards; one error-message case mismatch. No cap or survivors.",
+  "fix": "Remove the sampled 1e-9 snap entirely. Retain empty input identity and independent periodic row/column flags. Add source storage-isreal dependency and literal native complex guard order/messages.",
+  "source_operation": "real/imag follow @separableApprox real.m/imag.m empty branches and @chebfun2/compose.m unary construction. Complex two-input numerical result remains A+i*B.",
+  "one_input_limit": "One-input complex retains its existing value/storage return after the new guard. Native complex.m help says isreal(complex(A)) is false, but its A+0i route and plus.m zero shortcuts need actual native capture, including empty inputs, before changing output/storage behavior. No exact one-input storage or empty-complex claim.",
+  "source_scope": {
+    "body_AST_changed_functions": [
+      "complex",
+      "_part_or_zero"
+    ],
+    "body_AST_added_functions": [
+      "isreal"
+    ],
+    "other_function_bodies_identical": true,
+    "real_imag_docstrings": "Inherited @separableApprox source paths corrected.",
+    "operation_order": [
+      "real/imag: native empty return, then unary constructor with independently inherited row/column periodicity.",
+      "complex with two inputs: second-input type guard, then both real-input guards, then A+i*B.",
+      "complex with one input: real-input guard, then existing zero-part/value behavior; exact native zero-addition output/storage remains unresolved.",
+      "isreal: empty returns true; inspect pivot storage and every public tech isreal predicate without numerical sampling."
+    ],
+    "inverse_only_adapter": "If raw pivots are unavailable, inspect stored weight dtype without reconstructing raw pivot values; this adapter metadata behavior lacks paired native capture.",
+    "baseline_audit_sha256": "31c354839f7bfce794fe84df1c3b2a074608647cd6e0a6152bbc483e035cf9fe"
+  },
+  "results": "17 unique selected controls pass: six corrected fault controls, seven empty/technology/isreal controls, four relevant native regression nodes (six unchanged native predicates). No full-suite or additional unique historical-suite count claim.",
+  "gates": {
+    "fix": {
+      "tests": 6,
+      "wall_seconds": 11.83469250285998,
+      "peak_rss_kib": 739992,
+      "inputs_verified": 280
+    },
+    "technology": {
+      "tests": 7,
+      "wall_seconds": 19.220236440189183,
+      "peak_rss_kib": 1174192,
+      "inputs_verified": 280
+    },
+    "native_regression": {
+      "tests": 4,
+      "wall_seconds": 37.69823075970635,
+      "peak_rss_kib": 1731940,
+      "inputs_verified": 282
+    }
+  },
+  "original_handles": {
+    "baseline": 58581,
+    "fix": 30436,
+    "technology": 71940,
+    "native_regression": 61042
+  },
+  "resources": "Serial fresh CPU0\u20131/180s3GiB per process; no caps or survivors; all bound inputs stable.",
+  "math": "No new NumPy/SciPy numerical operations. Existing host adaptive constructor scaffolding remains; JAX ACA arithmetic and thresholds are unchanged.",
+  "test_bounds": "Tiny constant analytic bound is 1000eps times component magnitude and is labeled supplemental. Native complex/imag/Cauchy\u2013Riemann bounds are unchanged.",
+  "guide_dependency": "Native regression uses the independently qualified restored guide test from the separate complex-predicate packet. This package does not own or overwrite that file.",
+  "remaining_gaps": [
+    "Exact one-input complex output/storage and empty-complex arithmetic need native capture.",
+    "Inverse-only adapter storage metadata is not paired against native raw-pivot storage.",
+    "Complex cancellation-noise reconstruction has no synthetic snap; pathological fields remain subject to existing bounded source stopping limits.",
+    "No all-complex, JIT or full-suite parity claim."
+  ],
+  "runtime_limit": "Pinned JAX/jaxlib0.11.0, x64 CPU, imported module origin/file hashes and interpreter binary binding verified. Not an exhaustive loaded/shared-library closure.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/BASELINE_AUDIT.json": "31c354839f7bfce794fe84df1c3b2a074608647cd6e0a6152bbc483e035cf9fe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/SOURCE_SCOPE_AUDIT.json": "97679797b92cc51bc3b64871b5eb757a6aea97ec529a77616bf13d7c59e5bc2d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/SOURCE_DIFF.patch": "e277009a367b007c5765ce6eb7c6c51cfc783278b57aa704ecb4d396c5fbb84d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/fix/AUDIT.json": "c2c368ddaa60995cdb4e67af3140fc11479341c445a0cb7cd40346297394cbab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/technology/AUDIT.json": "581ea2f2a9808701a68b8ffd025fac3c954fff76589d19aa553ae7b3dcda9516",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_parts_complex_contract_v1_20261010/native_regression/AUDIT.json": "d67bd4531b20b85c9aa98765feea46c76d4b4c9373f5417046969d73c1d17136",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/real.m": "1702ff04a2a257900bc2d7ae4bb0aee37cb53f8438a5a61f4150c69665f910d9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/imag.m": "9f8170693f540c14998068884ace4c2570629a30d3a7b24fa6f2435487553dec",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/complex.m": "bfbe77cf3dabe2256e4ee4a15fff37fe18b81d45eacebf969ec5f4be5f31e2bf",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@separableApprox/isreal.m": "b5176036c711a4cddc75539030bf44c664be580c19b2242da2a76fc9b4f0009c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun2/compose.m": "35f7336c84ace80b63cb4b832d9a4e784659ddab4e363d2919e9a1b56d72316a"
+  }
+}
