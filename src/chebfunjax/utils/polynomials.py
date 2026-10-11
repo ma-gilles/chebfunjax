@@ -787,12 +787,12 @@ def chebpolyvalm(p, A):
     MATLAB source : chebpolyvalm.m
     Chebfun commit: 7574c77
     """
-    A = jnp.asarray(A)
+    A = jnp.atleast_2d(jnp.asarray(A))
     if A.ndim != 2 or A.shape[0] != A.shape[1]:
         raise ValueError("CHEBFUN:chebpolyvalm:square: Matrix must be "
                          "square")
     P = jnp.asarray(p)
-    if P.ndim != 1 and min(P.shape) != 1:
+    if P.size == 0 or P.ndim > 2 or (P.ndim == 2 and min(P.shape) != 1):
         raise ValueError("CHEBFUN:chebpolyvalm:vector: P must be a vector.")
     c = P.ravel()[::-1]
     c = c.at[0].set(2.0 * c[0])

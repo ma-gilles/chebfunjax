@@ -39,10 +39,10 @@ class TestMiscChebpolyvalm:
         p_poly = _C.cheb2poly(p_cheb)[::-1]               # poly(f): highest first
         tol = 100 * ChebfunPref().chebfuneps
         err = np.linalg.norm(_polyvalm(p_poly, A)
-                             - np.asarray(chebpolyvalm(p_cheb[::-1], A)))
+                             - np.asarray(chebpolyvalm(p_cheb[::-1], A)), 2)
         assert err < tol                                            # pass(1)
         err = np.linalg.norm(_polyvalm(p_poly, A)
-                             - np.asarray(chebpolyvalm(p_cheb[::-1].reshape(1, -1), A)))
+                             - np.asarray(chebpolyvalm(p_cheb[::-1].reshape(1, -1), A)), 2)
         assert err < tol                                            # pass(2)
 
         with pytest.raises(ValueError, match="chebpolyvalm:square"):

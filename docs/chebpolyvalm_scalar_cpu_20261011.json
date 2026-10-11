@@ -1,0 +1,39 @@
+{
+  "status": "Nine focused CPU cases pass; not full-suite or fresh native qualification",
+  "base": "05c7653c",
+  "source": "chebpolyvalm.m at Chebfun 7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Treat scalar matrix argument as 1x1 and accept scalar coefficient without min(empty shape).",
+    "Reject empty coefficients and genuinely multidimensional coefficient arrays through vector error.",
+    "Restore matrix spectral norm in original two accuracy predicates; same 100eps bound."
+  ],
+  "tests": {
+    "baseline_original_session": 43572,
+    "baseline": "6 fail, 3 pass; original four-predicate translation already passed",
+    "candidate_original_session": 90705,
+    "candidate": "9 pass in 6.70s pytest / 8.9737s supervised wall",
+    "candidate_peak_sampled_rss_kib": 646140,
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "limits": [
+    "No fresh MATLAB execution or exact random stream parity; existing RandomState fixture retained.",
+    "Python arrays with ndim>2 rejected, including trailing singleton dimensions MATLAB may erase.",
+    "Explicit empty row/column distinctions and integer-storage behavior not qualified.",
+    "JAX0.11.0 CPU; incompatible installed GPU plugin warning retained, no GPU workload."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_baseline_20261011/guard.json": "85b7b5a9d46b6b436457d9650e49c65aa4ef4f30380a403cf6ed0bfc59aa35e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_baseline_20261011/supervision/receipt.json": "e8d03c4dcf30340ed2b00be5ac0d43eb9d4d7a1a23003a50102061fae32111a6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_baseline_20261011/junit.xml": "93de447b6428809eba321fb82e6a5889c5ab0442155006ace9fe4ceae207b5c7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_baseline_20261011/launch.sh": "a84d3ca64353c422f7ab3fcc6c70576fce39fa463f6a853755742a6bdb6867a6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_candidate_20261011/guard.json": "8b567a37447daf9112b75e82bfd16192fb21fc54965fcd2e82afc3d04bdc0a57",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_candidate_20261011/supervision/receipt.json": "56ce20809dea6c2daccf19e008825d61fc2c827a58c01a10e0eba5a60e762ff6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_candidate_20261011/junit.xml": "3785723afd06606ecf3a2c53cdc35465dab003f9496ea8c4bd1e793dd66cf359",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpolyvalm_scalar_candidate_20261011/launch.sh": "b63d46514f200721139ee7e98a9d772636f14329e514bf260b9488afd30fdffa"
+  }
+}
