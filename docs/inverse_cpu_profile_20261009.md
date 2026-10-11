@@ -1,4 +1,6 @@
-# Current inverse CPU profile
+# Inverse CPU profile at d7c2c8d0
+
+A newer [MATLAB/JAX comparison](inverse_matlab_cpu_20261010.json) measures public flower inversion at fa6c0901: warmed medians 0.584467s JAX and 0.630269s MATLAB; first after setup 17.779799s and 0.767396s. Adaptive representation lengths still differ. These are observations from a shared host, not a universal performance ratio.
 
 Frozen commit d7c2c8d066df2dc355b229058f8deb7bb1d23c69. Both fresh processes terminal0/stable/uncensored/no survivors; each2964runtimefiles rehashed clean. Inverse80 and derivative14 binary captures verified. Quiet window released after final audit; no numerical process remains.
 

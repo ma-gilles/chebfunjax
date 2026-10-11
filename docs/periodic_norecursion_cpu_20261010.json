@@ -1,0 +1,34 @@
+{
+  "status": "private candidate; no publication checkout edits",
+  "base_commit": "f87e246eba9b30e1a9b85bcc3c989cdab126ef29",
+  "latest_publication_head_checked": "c75c4f84",
+  "head_relationship": "Relevant source and test files for this change are byte-identical between f87e246e and c75c4f84; c75 only adds unrelated Ballfun work.",
+  "native_source": {
+    "trigtech_roots": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@trigtech/roots.m",
+    "trigtech_roots_sha256": "84c27e59e80a4a5bd2c6f2d97468a5251ffed325b483cf46b47a646c299326ac",
+    "chebtech_roots": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech/roots.m",
+    "chebtech_roots_sha256": "f978c915751188190da00e54b85a48c4bdbd585b2ff9d832243618a90baa2936",
+    "contract": "@trigtech/roots.m default branch constructs chebtech1(@(x) f.feval(x)) then calls roots(g,varargin{:}); the 'all'/'complex' branch is separate."
+  },
+  "change": "Forward norecursion through the public piece wrapper to Trigtech.roots(recurse=False), then through the default real helper to adaptive Chebtech1.roots(recurse=False). The public array-valued per-column path does the same. Trigtech complex/all polynomial dispatch does not use recurse.",
+  "tests": {
+    "command": "taskset -c 0-3 env PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=<private>/pycache PYTHONPATH=<private>/src <pinned-python3.12> -m pytest -q tests/test_matlab_port/chebfun/test_roots_norecursion_source.py tests/test_matlab_port/trigtech/test_roots_matlab.py",
+    "result": "21 passed in 76.88s",
+    "collect_list": "collected_nodes.txt",
+    "collect_list_sha256": "034dece8c8eb4772d9158e73ff41dc4c4ef78869baae348a59e94b9c7c198a9d",
+    "coverage": "Existing Chebfun recursion/pruning/order controls and all eight original Trigtech root tests, plus scalar and array-valued periodic norecursion forwarding and a complex polynomial-branch control.",
+    "initial_setup_failure": "INITIAL_TEST_CONSTRUCTION_FAILURE.json; initial attempt collected 20, with 19 tests passing and one test failing at construction because it used unsupported Chebfun(..., type=\"trig\"). Only that test failed before root construction; the other 19 did execute. It was corrected to public chebfun(..., trig=True) before the final 21/21 run.",
+    "stdout_artifacts": "No stdout file, JUnit XML, or pytest log was captured for the final run. The 21-passed result and 76.88s duration are from the exec tool output in this conversation; no rerun was performed for this correction."
+  },
+  "static_checks": "Ruff passed on the two source files and added test file.",
+  "modified_file_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "5d2d488583f8af881fb83ca619bf972665e6958a9722cb8751f96c22a572e06d",
+    "src/chebfunjax/tech/trigtech.py": "1c6805395b1d82028b5a459401bc463ea29730bcabb8e0a27ba1bc3abfd62dc9",
+    "tests/test_matlab_port/chebfun/test_roots_norecursion_source.py": "cda833a0198ce8fcfb91a94384aa4968fa0fef4411c5a49a68d44633a392a22a"
+  },
+  "limits": "MATLAB runtime was not launched in this task; the forwarding contract is grounded in the pinned MATLAB source and original native root predicates ported in the focused suite.",
+  "root_review": "Source forwarding and changed-file hashes verified. Final21-pass execution reported by worker from retained tool output; no durable stdout/JUnit artifact was captured. This focused result is not a full-suite qualification.",
+  "report_sha256": "e7278d1d7db02acf94044d7d9e8ae990b504db631ce153d594cccad826ce2f4e",
+  "failure_record_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_roots_norecursion_f87e246_20261010/INITIAL_TEST_CONSTRUCTION_FAILURE.json",
+  "failure_record_sha256": "dbc8a5966f0367445d975eb9e6124ca40e673d31da37b240a1d75fe36ae569dc"
+}

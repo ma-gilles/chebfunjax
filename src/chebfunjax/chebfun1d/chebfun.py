@@ -673,8 +673,10 @@ class _Piece(eqx.Module):
         import numpy as _np
         a, b = self.interval
         from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.tech.trigtech import Trigtech
 
-        if norecursion and isinstance(self.tech, (Chebtech1, Chebtech2)):
+        if norecursion and isinstance(
+                self.tech, (Chebtech1, Chebtech2, Trigtech)):
             t_roots = self.tech.roots(recurse=False)
         else:
             t_roots = self.tech.roots()
@@ -5949,8 +5951,10 @@ class Chebfun(eqx.Module):
                             ct = type(piece.tech)(coeffs=jnp.asarray(pc[:, j]))
                         a_, b_ = piece.interval
                         from chebfunjax.tech.chebtech import Chebtech1
+                        from chebfunjax.tech.trigtech import Trigtech
 
-                        if norecursion and isinstance(ct, (Chebtech1, Chebtech2)):
+                        if norecursion and isinstance(
+                                ct, (Chebtech1, Chebtech2, Trigtech)):
                             t_r = _np.asarray(ct.roots(recurse=False))
                         else:
                             t_r = _np.asarray(ct.roots())

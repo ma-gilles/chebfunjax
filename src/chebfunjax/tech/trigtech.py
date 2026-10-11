@@ -1181,7 +1181,8 @@ def _trig_chop_cutoff(coeffs: jax.Array,
 # ============================================================================
 
 
-def _trig_roots(coeffs: jax.Array, real_columns=None) -> jax.Array:
+def _trig_roots(coeffs: jax.Array, real_columns=None,
+                recurse: bool = True) -> jax.Array:
     """Use the native adaptive first-kind conversion for real roots.
 
     Provenance
@@ -1196,7 +1197,7 @@ def _trig_roots(coeffs: jax.Array, real_columns=None) -> jax.Array:
         return jnp.empty((0,), dtype=jnp.float64)
     f = Trigtech.from_coeffs(coeffs, real_columns=real_columns)
     g = Chebtech1.from_function(lambda x: f(x))
-    return g.roots()
+    return g.roots(recurse=recurse)
 
 
 def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
@@ -2193,7 +2194,8 @@ class Trigtech(eqx.Module):
     # ------------------------------------------------------------------
 
     def roots(self, complex: bool = False, *, all: bool = False,
-              prune: bool | None = None) -> jax.Array:
+              prune: bool | None = None,
+              recurse: bool = True) -> jax.Array:
         """Return real roots by default, or polynomial roots with flags.
 
         ``complex=True`` selects the native pruned polynomial path;
@@ -2204,6 +2206,8 @@ class Trigtech(eqx.Module):
         Columns are simplified separately and padded with NaNs. The
         polynomial eig backend is JAX/LAPACK, not a MATLAB rounding guarantee.
         The inherited default real-root algorithm is unchanged. Not JIT-safe.
+        ``recurse`` controls only subdivision in the default real-root path;
+        the polynomial ``complex``/``all`` branches do not use it.
 
         Provenance
         ----------
@@ -2212,7 +2216,8 @@ class Trigtech(eqx.Module):
         polynomial = bool(complex or all)
         do_prune = bool(complex) if prune is None else bool(prune)
         if not polynomial:
-            return _trig_roots(self.coeffs, self.real_columns)
+            return _trig_roots(self.coeffs, self.real_columns,
+                               recurse=recurse)
 
         def _one(col, mask):
             simp = Trigtech.from_coeffs(col, real_columns=mask).simplify()

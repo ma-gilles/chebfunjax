@@ -10,7 +10,8 @@ import numpy as np
 import pytest
 
 import chebfunjax as cj
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+from chebfunjax.tech.trigtech import Trigtech
 
 
 @pytest.mark.parametrize("complex_roots", [False, True])
@@ -85,3 +86,50 @@ def test_complex_root_array_nan_padding_and_all_nan_rows(monkeypatch):
     monkeypatch.setattr(Chebtech2, "roots", lambda self, **kwargs: supplied)
     expected = np.asarray([[-1j, 1.0], [1j, 2.0], [np.nan, 3.0]])
     np.testing.assert_array_equal(f.roots(all_roots=True), expected)
+
+
+def test_periodic_norecursion_reaches_adaptive_chebtech1(monkeypatch):
+    f = cj.chebfun(lambda x: jnp.cos(5 * jnp.pi * x),
+                   domain=(-1.0, 1.0), trig=True)
+    calls = []
+    original = Chebtech1.roots
+
+    def observed(self, *args, **kwargs):
+        calls.append(dict(kwargs))
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Chebtech1, "roots", observed)
+    actual = np.asarray(f.roots(norecursion=True))
+    expected = np.arange(-0.9, 1.0, 0.2)
+    np.testing.assert_allclose(actual, expected, atol=2e-13, rtol=0)
+    assert calls and all(call.get("recurse") is False for call in calls)
+
+
+def test_periodic_array_norecursion_reaches_each_column(monkeypatch):
+    f = cj.chebfun(
+        lambda x: jnp.stack([jnp.sin(jnp.pi * x),
+                             jnp.cos(jnp.pi * x)], axis=-1),
+        trig=True)
+    calls = []
+    original = Chebtech1.roots
+
+    def observed(self, *args, **kwargs):
+        calls.append(dict(kwargs))
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Chebtech1, "roots", observed)
+    actual = np.asarray(f.roots(norecursion=True))
+    np.testing.assert_allclose(actual[:3, 0], [-1.0, 0.0, 1.0],
+                               atol=2e-13, rtol=0)
+    np.testing.assert_allclose(actual[:2, 1], [-0.5, 0.5],
+                               atol=2e-13, rtol=0)
+    assert np.isnan(actual[2, 1])
+    assert len(calls) == 2 and all(
+        call.get("recurse") is False for call in calls)
+
+
+def test_periodic_polynomial_roots_ignore_real_recurse_flag():
+    tech = Trigtech.from_function(lambda x: jnp.cos(5 * jnp.pi * x))
+    default_complex = np.asarray(tech.roots(complex=True))
+    flagged_complex = np.asarray(tech.roots(complex=True, recurse=False))
+    np.testing.assert_array_equal(flagged_complex, default_complex)

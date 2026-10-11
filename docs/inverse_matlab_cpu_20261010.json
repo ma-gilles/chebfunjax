@@ -1,0 +1,157 @@
+{
+  "status": "qualified public-operation measurement; no production source changes",
+  "python_revision": "fa6c09012189c17d72cb4c12e2f58fa31182bc55",
+  "native_revision": "7574c77680d7e82b79626300bf255498271a72df",
+  "originals": {
+    "native": 85722,
+    "python": 69002
+  },
+  "audits": {
+    "native": {
+      "faults": [],
+      "source_files": 29803,
+      "runtime_files": 943,
+      "peak_rss_kib": 1455984
+    },
+    "python": {
+      "original": 69002,
+      "faults": [],
+      "source_bindings": 45655,
+      "observed_runtime_files": 3066,
+      "runtime_mismatches": [],
+      "binary_mismatches": [],
+      "wall_seconds": 98.72872778400779,
+      "peak_rss_kib": 1965348,
+      "terminal": 0,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/guard.json": "6c766984d5e39f0133927d459cb4939d6131401e3fcaa19712cb9181e402386d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/manifest.json": "e61a5a975ea92d4f6467b56eb189b858165bff5a875d0edc3dd3de93b4cd3df1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/measurement.json": "8817ab58a11c6b64184ee90d4835b743ca964c6f101c7c67b02a83c2dd9ab57c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/runtime/end.json": "a73da58aedd5c929df4074855d6d24ee90748f6e5efa174e9da6c5dda23be190",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/supervision/receipt.json": "d81ba96297f6cda04434916e7991ff3e302c060c2a31710d9315c02627691917",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/junit.xml": "574371fc5bc26efff2900eddbdf422dd8ae01d5b1af4dae678c31ea9ff694c7b",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/test_measurement.py": "6e33e7aa697b891a6c7daadaa8e1fa1965941e8a82f97e6a4931a75e7c83a422",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/launch.sh": "7220a083411665b99c45a8943690d3ff19902ce4359a9d00f7272aee7de44648",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/warm_profile.stats": "b9ae0158528474533f4f0582fad2c7a40c32067be5f2dd6ef58322056c000c42"
+      }
+    }
+  },
+  "timing": {
+    "python_timing": {
+      "setup": 18.43837052723393,
+      "first": 17.77979931794107,
+      "warm": [
+        0.5839612009003758,
+        0.584467472974211,
+        0.6120571750216186,
+        0.6038991999812424,
+        0.5809228699654341
+      ],
+      "warm_median": 0.584467472974211,
+      "warm_min": 0.5809228699654341,
+      "warm_max": 0.6120571750216186
+    },
+    "native_timing": {
+      "setup": 0.827787,
+      "first": 0.767396,
+      "warm": [
+        0.601226,
+        0.623365,
+        0.630269,
+        0.650574,
+        0.647831
+      ],
+      "warm_median": 0.630269,
+      "warm_min": 0.601226,
+      "warm_max": 0.650574
+    },
+    "descriptive_ratio_python_over_native": {
+      "setup": 22.274293419966643,
+      "first": 23.169001816456003,
+      "warm_median": 0.9273301923055252
+    }
+  },
+  "roundtrip": {
+    "python": 8.881784197001252e-16,
+    "native": 6.661338147750939e-16,
+    "unchanged_bound": 1e-10
+  },
+  "lengths": {
+    "flower": {
+      "python": 63,
+      "native": 62
+    },
+    "speed": {
+      "python": 2841,
+      "native": 2813
+    },
+    "forward": {
+      "python": 2090,
+      "native": 2016
+    },
+    "derivative": {
+      "python": 2089,
+      "native": 2015
+    },
+    "inverse": {
+      "python": 8878,
+      "native": 8706
+    }
+  },
+  "findings": [
+    "No large warm inverse performance gap in this capture: Python median 0.584467 s vs native 0.630269 s.",
+    "First-after-setup is 17.779799 s vs native 0.767396 s; current ratio 23.169 is descriptive, not a cross-hardware or pristine-cold guarantee.",
+    "First observed representation divergence is flower 63 vs native 62, before speed/integral/inverse. It is not yet attributed to an algorithm bug.",
+    "Warm JAX cumulative profile: inverse values ~0.4699 s, domain discovery ~0.1244 s. Rows overlap; device work/dispatch is not split. Native separate diagnostic inverse ~0.8361 s includes Brent ~0.7072 s and minandmax ~0.0717 s. Profiled and unprofiled timings are kept distinct.",
+    "Current inverse length 8878 differs from historical 8880; historical runs are not matched speedup baselines."
+  ],
+  "limits": [
+    "Ratios describe one fresh process each on shared host with identical public construction, not identical forward coefficient inputs.",
+    "Setup and first-after-setup distinct; first is not pristine cold.",
+    "Profiler is separate from timing and cumulative rows overlap.",
+    "Coefficient differences/lengths are observations; only unchanged prior roundtrip bound is an assertion.",
+    "Native uses -singleCompThread; both arms OMP/OpenBLAS1 and affinity CPU4\u20137, but JAX/XLA internal pool size is not claimed equal to one.",
+    "Agent lanes were coordinated serially; host is shared and not exclusive.",
+    "Current Python first-call compilation was not instrumented; historical compiler attribution motivates the next measurement, not a new causal timing claim."
+  ],
+  "preserved_failures": [
+    "Old inherited Python runtime inventory referenced removed OS libraries; prepare-only rejection.",
+    "ivn1 original81166 failed environment guard before spawning MATLAB; corrected packet/environment paths in ivn2, scientific script identical.",
+    "Python original63875 failed runtime preflight before setup on unbound existing stdlib bytecode; successor prospectively bound 4655 existing caches for already-bound source files. No scientific execution or timing credit for predecessors."
+  ],
+  "next_plan": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/NEXT_PLAN.json",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/PLAN.json": "be287882be8baca0c69c9b3a88f99f5f917ddb34e3e670167009a5afa19fa00b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/SOURCE_NOTES.json": "aa97f513e72b51fb64a764aa15c5eae565b933823ffe2642c5398aea0f9b803f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/RESOURCE_LIMIT_NOTE.json": "65b19353b19fa1cd0c876d2c5ecf2ed8805fe5e956c4a93acdd37a9a66e3a702",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/COMPARISON.json": "a6cfc414622d4cbbfd8e4650db8417f7a58c251ccc749313d891dcc9aca71da9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/CAPTURE_REVIEW.json": "36bd3716562e02d3fbe6b2160507af8d01dcf944a9fbf72e98bfd0b7658bcde1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/NEXT_PLAN.json": "b9c4c89823d1874fbd459e27c73a834da660ff6506c9123ea5c0b20a9698ea11",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/PREPARATION_FAILURE.json": "ef5e16c856c1e56be72c3fd9db88ca89ea8e6064fcf3e65188f2234ad9e1db27",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/BYTECODE_PREFLIGHT_DELTA.json": "86bfd9c0e01340c3a06f225d823d1b4445ab6a56fb9d611426f1c244d89ec506",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/compare.py": "462b8d0be105192ff7bf67be85a232d5120531d3fe6d55b33ece9686772912d5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/audit_python.py": "f2a77e738b5c1aee59be0c35828ba3188d0cbb6b691ad5ee301424cf21a67d73",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/test_measurement.py": "6e33e7aa697b891a6c7daadaa8e1fa1965941e8a82f97e6a4931a75e7c83a422",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn1/PRE_SCIENCE_FAILURE.json": "495f7ddf6955a0bdadc897bf0e03fb7d38b2eddfab4c269be21596ed7e48c7bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/AUDIT.json": "fa431cbb4415faa07333d5261da4c9b719fbdffa4a723babf96c297479d303a2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/report.mat": "d1aa88324e55bd8bbe4b29e8b9279505a4973d6cb03cd835d99ae80a155c3e8b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/report.json": "594e714b25d7b190384b76f54ad08147227e2ea5074dbc9b725e2e19e6da1db2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/runtime_profile.json": "6163d0fb151dccfbbb81bdbdf33fd3988bc7f9ac564f1fce8fe39e60ad3f6076",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/probe_inverse.m": "f64316a2d6539461facbc75a4f7158d3f5929d59a6c5f6f9602d052ca88f946e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/guard.json": "8bee941c2768ad54f4f74a91745254df27537afa2b7a31ffd62144c944a8f258",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivn2/launch.sh": "f1336d4e536b61945bd9293caf44279110a95973e1d5b52401e0cba415bc5a05",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate/PRE_SCIENCE_FAILURE.json": "cfe088499659baadaf7eaef28cdcbaa85c01a18ae6e452c2dbeb9abb1a0757df",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/AUDIT.json": "823f18c12ba82727fd00a2d3ec79504299066eb8ec0f3920dae60018e3fdb284",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/measurement.json": "8817ab58a11c6b64184ee90d4835b743ca964c6f101c7c67b02a83c2dd9ab57c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/test_measurement.py": "6e33e7aa697b891a6c7daadaa8e1fa1965941e8a82f97e6a4931a75e7c83a422",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/guard.json": "6c766984d5e39f0133927d459cb4939d6131401e3fcaa19712cb9181e402386d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/manifest.json": "e61a5a975ea92d4f6467b56eb189b858165bff5a875d0edc3dd3de93b4cd3df1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/python_gate_v2/launch.sh": "7220a083411665b99c45a8943690d3ff19902ce4359a9d00f7272aee7de44648"
+  },
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_20261010/ROOT_REVIEW.json",
+    "sha256": "db27949066931c6935c288e96c54423df3a3664d8da8f5649fc161e19432e362",
+    "rehashed_inputs_and_artifacts": 75499,
+    "limits": "Timings describe one shared-host process per implementation and different adaptively constructed coefficients. This is not a universal speedup or representation parity claim."
+  }
+}
