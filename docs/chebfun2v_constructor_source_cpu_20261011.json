@@ -1,0 +1,86 @@
+{
+  "base": "036823a3",
+  "baseline_head": "036823a3fedbbf40cade8a6c476474e022c95b3d",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": "tests/chebfun2v/test_constructor.m",
+  "native_slots": 10,
+  "executed_native_checks": 20,
+  "source_loop": "Ten clauses run on each of two original domains; upstream pass array overwrites first-loop entries but both sets execute.",
+  "passed_native_checks": 20,
+  "tolerance": "100*ChebfunPref().cheb2Prefs.chebfun2eps, unchanged",
+  "constructors": "cos(x*y), sin(x)+cos(y), exp(x)-exp(-y)+x; two/three components with all original mixed callable/Chebfun2 combinations.",
+  "norm": "Actual public continuous Frobenius norm, not point samples or coefficientmax.",
+  "supplemental_controls": 18,
+  "cohorts": [
+    {
+      "name": "candidate_default",
+      "original": 47836,
+      "passed": 14,
+      "science_seconds": 15.92,
+      "peak_RSS_KiB": 1123328,
+      "native_checks": 10
+    },
+    {
+      "name": "candidate_nondefault",
+      "original": 56614,
+      "passed": 14,
+      "science_seconds": 18.9,
+      "peak_RSS_KiB": 1201424,
+      "native_checks": 10
+    },
+    {
+      "name": "candidate_compose",
+      "original": 50816,
+      "passed": 8,
+      "science_seconds": 33.78,
+      "peak_RSS_KiB": 1467588,
+      "native_checks": 0
+    },
+    {
+      "name": "candidate_scalar_edges",
+      "original": 43583,
+      "passed": 2,
+      "science_seconds": 11.49,
+      "peak_RSS_KiB": 1060876,
+      "native_checks": 0
+    }
+  ],
+  "baseline": {
+    "original": 2778,
+    "exit": 1,
+    "source_clause1_passed": true,
+    "existing_component_identity_failed": true,
+    "source_math_unchanged_between_baseline_head_and036": true
+  },
+  "changes": [
+    "Preserve existing Chebfun2/SeparableApprox component representations, including when vectorize flag is supplied.",
+    "Infer omitted domain from last existing component; callable-only default domain unchanged.",
+    "Allow one component in explicit Python component containers/from_functions.",
+    "Native scalar coordinate composition maps real/imag to Cartesian pair for Chebfun2/2v outers; other real scalar composition delegates to Chebfun2, other complex outers reject."
+  ],
+  "source_scope": {
+    "changed_methods": [
+      "__init__",
+      "from_functions",
+      "compose"
+    ],
+    "unchanged_methods": 53,
+    "constructor_baseline_AST_equal_across_heads": true,
+    "source_norm_helper_AST_unchanged": true
+  },
+  "all_original_handles_terminal": true,
+  "caps": null,
+  "survivors": [],
+  "inputs_stable": true,
+  "warnings": "Existing NumPy _chebtech_integral emits divide-by-zero RuntimeWarnings from excluded odd k=1 in where. Baseline1 and candidate10+10+2 norm calls retain these. No filters; helper unchanged and separate followup planned.",
+  "limits": [
+    "No native MATLAB process was needed/run. These are literal source predicates and source-body supplemental contracts, not fresh native-run parity.",
+    "Python keyword-domain/list component adapters retained. Full native numeric/cell/argument parsing and tolerant domainCheck are outside this package.",
+    "Legacy vectorize host callback adapter remains unchanged for callable inputs; arithmetic construction/evaluation follows existing JAX path."
+  ],
+  "integration": [
+    "Apply constructor_source.patch.",
+    "Copy docs/chebfun2v_constructor_source_cpu_20261011.json.",
+    "Historical mapped probe retained unchanged. Integral-helper patch separate."
+  ]
+}

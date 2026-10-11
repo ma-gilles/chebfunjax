@@ -1,4 +1,7 @@
-"""Port of MATLAB Chebfun tests/chebfun2v/test_constructor.m (Fable 5).
+"""Historical Chebfun2v constructor compatibility point probe (Fable 5).
+
+The literal 20 native constructor checks are preserved separately in
+tests/test_chebfun2v_constructor_source.py. This file is not that literal port.
 
 Provenance
 ----------

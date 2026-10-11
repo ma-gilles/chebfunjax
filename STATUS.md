@@ -1,11 +1,18 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `da09a9c8` is published; this checkpoint adds qualified
-Besselh and vector-field composition corrections. Full parity
+Main through `036823a3` is published; this checkpoint adds all six
+original Chebfun2 rank checks, including the Airy case and strict minimum
+factor-length bound, plus source vector-field construction. Full parity
 remains incomplete. Historical checkpoints below retain their original scope.
 Pushes work. This effort qualifies CPU execution only.
 
 Recent verified changes:
+
+- All20 native Chebfun2v constructor checks and18 compatibility/source-body
+  controls pass. Existing components retain their representations; omitted
+  domains are inferred, and one-component complex coordinate composition
+  follows the source real/imaginary dispatch. Full numeric/cell parsing remains
+  outside this package. All6 native Chebfun2 rank predicates also pass.
 
 - Besselh now uses a JAX-only complex Hankel kernel and honors native scaling,
   output preferences and zero-error identifiers. All12 native predicates,
@@ -15,7 +22,7 @@ Recent verified changes:
 - All10 native Chebfun2v composition predicates pass, restoring 3D vector
   operands, periodic outputs and direct call dispatch. Seven additional
   compatibility/domain/complex-value controls pass. One-component constructor
-  and composition behavior remain under source audit.
+  and composition source branches are now covered by the constructor package.
 
 - Deltafun integration correctly shares residual derivative impulses between
   adjacent pieces and preserves complex integration constants. Nine focused
@@ -40,8 +47,8 @@ Recent verified changes:
 
 Verification still required:
 
-- Full native API and assertion coverage, including mixed vector-field
-  constructor clauses and wider distribution/threshold-edge behavior.
+- Full native API and assertion coverage, including full vector-field
+  argument parsing and wider distribution/threshold-edge behavior.
 - Remaining page computations, printed output, random inputs and figure details.
   The frozen `64cf5c3b` inventory finds all **322 pages**, **2,408 MATLAB blocks**,
   original prose/math and **1,305 reference-sized assets**. These static checks

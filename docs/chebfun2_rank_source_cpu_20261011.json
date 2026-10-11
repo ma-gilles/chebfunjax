@@ -1,0 +1,19 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "snapshot_head": "036823a3fedbbf40cade8a6c476474e022c95b3d",
+  "scope": "Restore all6 native tests/chebfun2/test_rank.m inputs and literal rank<=min(m,n) predicate. Prior port omittedAirycase5 and weakenedmin tomax; its non-nativepositive-rankassertion replaced bysourcepredicate. No librarychanges.",
+  "result": "6passed84.47s, JAX/JAXlib0.11.0 CPU/x64",
+  "source_adapter": "MATLAB airy(z) maps to existing JAX airy_all(z)[0], preserving bothreal operators. MATLAB one-outputlength maps to f.rank, two-outputlength maps to f.length().",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_rank_source_20261011/candidate/run/receipt.json",
+  "receipt_sha256": "91fc27d14d91ff17b44a315de835fae623fddc50ac6a61c7b7bbcf57e663fd2b",
+  "original_handle": 54656,
+  "sampled_peak_summed_rss_kib": 1449264,
+  "all_inputs_stable": true,
+  "guard_input_count": 298,
+  "remaining_owned_pids": [],
+  "limitations": [
+    "No new numericalaccuracy/figure/performanceclaim; native acceptancepredicate only checksrankbound.",
+    "No freshMATLABexecution; exactpinnedsourcecasesandpredicate reviewed."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_rank_source_20261011"
+}

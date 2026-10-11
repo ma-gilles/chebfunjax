@@ -1,6 +1,19 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
-## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
+## Latest verified CPU checkpoint (2026-10-11)
+
+Read `STATUS.md` for the current published scope and the shared evidence-root
+`CURRENT_GOAL_STATUS.md` for active work. Main through `036823a3` is pushed;
+SSH and the CPU environment work. Full parity remains incomplete.
+Latest verified packages restore the original PDE tolerance, constructor warning
+ownership, delta integration, all12 Besselh predicates with a JAX-only kernel,
+and all10 vector-composition predicates. New rank tests restore all6 native
+cases and the strict minimum-factor-length bound. Vector construction now
+passes all20 original checks plus18 controls, including component preservation
+and one-component composition. Subsequent sections below
+retain earlier evidence and must not be read as current blockers or completion.
+
+## Earlier CPU checkpoint (2026-10-11)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
 main through `9133eafa` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run

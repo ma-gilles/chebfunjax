@@ -1,6 +1,6 @@
-"""Chebfun2v — 2D vector-valued function [f; g] on a rectangle.
+"""Chebfun2v — one to three component functions on a 2D rectangle.
 
-A Chebfun2v represents a 2- or 3-component vector field on a 2D domain
+A Chebfun2v represents a one, two or three component field on a 2D domain
 [xa, xb] x [ya, yb], where each component is a SeparableApprox (Chebfun2)
 object.
 
@@ -55,7 +55,7 @@ def _field_ode_rhs(t, state, field):
 
 
 class Chebfun2v(eqx.Module):
-    """2D vector field with 2 or 3 Chebfun2 (SeparableApprox) components.
+    """2D field with one to three Chebfun2 (SeparableApprox) components.
 
     Represents a smooth vector field F = [f_1; f_2] (or [f_1; f_2; f_3])
     on a rectangle [xa, xb] x [ya, yb], where each component f_j is a
@@ -64,7 +64,7 @@ class Chebfun2v(eqx.Module):
     Attributes
     ----------
     components : list of SeparableApprox
-        The component functions. Length 2 or 3.
+        The component functions. Length one to three.
     domain : tuple of 4 floats
         (xa, xb, ya, yb). Static field (must agree for all components).
 
@@ -86,7 +86,7 @@ class Chebfun2v(eqx.Module):
     SeparableApprox
     """
 
-    components: list  # list of SeparableApprox, length 2 or 3
+    components: list  # list of SeparableApprox, length one to three
     domain: tuple = eqx.field(static=True)  # (xa, xb, ya, yb)
 
     # ------------------------------------------------------------------
@@ -99,12 +99,12 @@ class Chebfun2v(eqx.Module):
         Parameters
         ----------
         components : list of SeparableApprox
-            2 or 3 component functions, all with the same domain.
+            1, 2 or 3 component functions, all with the same domain.
 
         Raises
         ------
         ValueError
-            If fewer than 2 or more than 3 components are given, or if
+            If fewer than 1 or more than 3 components are given, or if
             component domains do not match.
 
         Provenance
@@ -112,8 +112,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/chebfun2v.m
         Chebfun commit: 7574c77
         """
-        if len(components) < 2 or len(components) > 3:
-            raise ValueError(f"Chebfun2v requires 2 or 3 components, got {len(components)}.")
+        if len(components) < 1 or len(components) > 3:
+            raise ValueError(f"Chebfun2v requires 1, 2 or 3 components, got {len(components)}.")
         # Check domains match
         dom0 = components[0].domain
         for j, c in enumerate(components[1:], 1):
@@ -131,21 +131,23 @@ class Chebfun2v(eqx.Module):
     def from_functions(
         cls,
         *fns: Callable,
-        domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+        domain: tuple[float, float, float, float] | None = None,
         tol: float = 2.220446049250313e-16,
         vectorize: bool = False,
     ) -> "Chebfun2v":
-        """Construct from 2 or 3 function handles.
+        """Construct from 1, 2 or 3 callables or existing Chebfun2 components.
 
         Parameters
         ----------
-        *fns : callables
-            2 or 3 functions of (x, y). Each must be vectorized: accepts 2D
+        *fns : callables, Chebfun2 or SeparableApprox
+            1, 2 or 3 functions of (x, y). Each must be vectorized: accepts 2D
             arrays from meshgrid broadcasting. Signature: f(x, y) -> array.
         domain : tuple of 4 floats, optional
-            (xa, xb, ya, yb). Default (-1, 1, -1, 1).
+            (xa, xb, ya, yb). If omitted, use the last existing component
+            domain, or (-1, 1, -1, 1) when all inputs are callables.
         tol : float, optional
-            Target relative tolerance. Default is machine epsilon.
+            Target relative tolerance for callable construction. Existing components
+            are retained unchanged. Default is machine epsilon.
 
         Returns
         -------
@@ -160,26 +162,41 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/chebfun2v.m
         Chebfun commit: 7574c77
         """
-        if len(fns) < 2 or len(fns) > 3:
-            raise ValueError(f"Chebfun2v.from_functions requires 2 or 3 callables, got {len(fns)}.")
+        if len(fns) < 1 or len(fns) > 3:
+            raise ValueError(
+                f"Chebfun2v.from_functions requires 1, 2 or 3 callables, got {len(fns)}."
+            )
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
+        # Native constructor scans existing components for an omitted domain
+        # and preserves their representation instead of evaluating/refitting.
+        if domain is None:
+            domain = (-1.0, 1.0, -1.0, 1.0)
+            for f in fns:
+                if isinstance(f, (Chebfun2, SeparableApprox)):
+                    domain = f.domain
         if vectorize:
             # MATLAB 'vectorize' flag: wrap scalar-only handles with an
             # UNtraced numpy loop (see chebfun3, same rationale).
             import numpy as _onp
 
             def _wrap(fn):
-                vec = _onp.vectorize(
-                    lambda a, b: float(fn(a, b)))
+                vec = _onp.vectorize(lambda a, b: float(fn(a, b)))
                 return lambda a, b: jnp.asarray(
-                    vec(_onp.asarray(a), _onp.asarray(b)),
-                    dtype=jnp.float64)
-            fns = tuple(_wrap(f) for f in fns)
-        # Route through Chebfun2.from_function, which splits complex
-        # handles into re + 1j*im exactly; calling SeparableApprox
-        # directly silently dropped imaginary parts (audit 2026-07-31).
-        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-        comps = [Chebfun2.from_function(f, domain=domain, tol=tol).approx
-                 for f in fns]
+                    vec(_onp.asarray(a), _onp.asarray(b)), dtype=jnp.float64
+                )
+
+            fns = tuple(f if isinstance(f, (Chebfun2, SeparableApprox)) else _wrap(f) for f in fns)
+        # Callable input uses the public Chebfun2 constructor; existing
+        # Chebfun2 inputs retain their exact approximation.
+        comps = [
+            f.approx
+            if isinstance(f, Chebfun2)
+            else f
+            if isinstance(f, SeparableApprox)
+            else Chebfun2.from_function(f, domain=domain, tol=tol).approx
+            for f in fns
+        ]
         return cls(comps)
 
     @classmethod
@@ -1023,7 +1040,7 @@ class Chebfun2v(eqx.Module):
         return tuple(box)
 
     def compose(self, g):
-        """Compose a two- or three-component field with a scalar/vector field.
+        """Compose a field with a scalar/vector field.
 
         Provenance
         ----------
@@ -1037,28 +1054,40 @@ class Chebfun2v(eqx.Module):
         from chebfunjax.chebpref import ChebfunPref
 
         count = len(self.components)
-        if count not in (2, 3):
-            raise ValueError("compose: F must have two or three components.")
         components = [Chebfun2(approx=c) for c in self.components]
+        if count == 1 and isinstance(g, (Chebfun2, Chebfun2v)):
+            # Native compose.m19-24 interprets a complex scalar component
+            # as Cartesian real/imag coordinates before ordinary dispatch.
+            coordinates = Chebfun2v([components[0].real().approx, components[0].imag().approx])
+            return coordinates.compose(g)
         if not all(c.isreal() for c in components):
-            raise ValueError("CHEBFUN:CHEBFUN2V:COMPOSE:Complex: "
-                             "The first CHEBFUN2V object must be real-valued.")
+            raise ValueError(
+                "CHEBFUN:CHEBFUN2V:COMPOSE:Complex: The first CHEBFUN2V object must be real-valued."
+            )
+        if count == 1:
+            return components[0].compose(g)
+        if count not in (2, 3):
+            raise ValueError("compose: F must have one, two or three components.")
         scalar_type, vector_type = (Chebfun2, Chebfun2v) if count == 2 else (Chebfun3, Chebfun3v)
         if isinstance(g, vector_type):
-            outers = ([Chebfun2(approx=c) for c in g.components]
-                      if count == 2 else g.components)
+            outers = [Chebfun2(approx=c) for c in g.components] if count == 2 else g.components
             return Chebfun2v([self.compose(c).approx for c in outers])
         if not isinstance(g, scalar_type):
             raise ValueError(f"CHEBFUN:CHEBFUN2V:COMPOSE:OP{count}: OP not recognized.")
         if count == 3:
             return compose_chebfun2v_three(self, g)
-        tolerance = (100 * ChebfunPref().cheb2Prefs.chebfun2eps
-                     * max(*(c.vscale() for c in components), g.vscale())
-                     * max(abs(v) for v in self.domain))
+        tolerance = (
+            100
+            * ChebfunPref().cheb2Prefs.chebfun2eps
+            * max(*(c.vscale() for c in components), g.vscale())
+            * max(abs(v) for v in self.domain)
+        )
         _check_image(components, g, tolerance, "CHEBFUN:CHEBFUN2V:COMPOSE:DomainMismatch2")
         return Chebfun2.from_function(
             lambda x, y: g(*(c(x, y) for c in components)),
-            domain=self.domain, trig=self.is_periodic_tech())
+            domain=self.domain,
+            trig=self.is_periodic_tech(),
+        )
 
     def laplacian(self) -> "Chebfun2v":
         """Componentwise vector Laplacian.
