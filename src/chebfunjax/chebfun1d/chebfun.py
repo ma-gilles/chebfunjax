@@ -13317,3 +13317,16 @@ def _merge_fun_source(left, right, **options):
     if ea or eb:
         onefun = Singfun(onefun, (ea, eb))
     return frame.with_tech(onefun)
+
+
+# MATLAB static transform methods and the Python factory share one implementation.
+from chebfunjax.utils.fasttransforms import dct, dst, idct, idst  # noqa: E402
+
+Chebfun.dct = staticmethod(dct)  # type: ignore[attr-defined]
+Chebfun.idct = staticmethod(idct)  # type: ignore[attr-defined]
+Chebfun.dst = staticmethod(dst)  # type: ignore[attr-defined]
+Chebfun.idst = staticmethod(idst)  # type: ignore[attr-defined]
+chebfun.dct = dct  # type: ignore[attr-defined]
+chebfun.idct = idct  # type: ignore[attr-defined]
+chebfun.dst = dst  # type: ignore[attr-defined]
+chebfun.idst = idst  # type: ignore[attr-defined]

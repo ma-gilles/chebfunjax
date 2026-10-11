@@ -1,58 +1,174 @@
-# uses-numpy: dct/idct/dst/idst retain their existing SciPy implementations
 """Discrete cosine/sine/Legendre transforms (MATLAB chebfun.dct family).
 
-Added by Claude Fable 5 (MISSING_FEATURES named-utilities sweep).
+Cosine and sine transforms use the source Chebtech/FFT reductions in JAX.
 
 Provenance
 ----------
-MATLAB source : chebfun.dct / chebfun.dst / chebfun.dlt / chebfun.idlt
+MATLAB source : @chebfun/dct.m, idct.m, dst.m, idst.m, dlt.m, idlt.m
 Chebfun commit: 7574c77
+Original authors: Copyright 2017 by The University of Oxford and the
+Chebfun Developers.
 """
 
 from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 from jax import lax
-from scipy.fft import dct as _sdct
-from scipy.fft import dst as _sdst
 
 __all__ = ["dct", "idct", "dst", "idst", "dlt", "idlt"]
 
 
+def _transform_columns(x):
+    """Interpret vectors as columns; preserve explicit matrix columns."""
+    u = jnp.asarray(x)
+    shape = u.shape
+    if u.ndim > 2:
+        raise ValueError("Transform input must be a scalar, vector or column matrix")
+    if u.ndim < 2:
+        u = u.reshape((-1, 1))
+    if not u.shape[0]:
+        raise ValueError("Transform input must have at least one row")
+    return u.astype(jnp.result_type(u.dtype, jnp.float64)), shape
+
+
 def dct(x, kind: int = 2):
-    """Discrete cosine transform, MATLAB chebfun.dct normalization
-    (plain unnormalized sums, types I-IV)."""
-    x = np.asarray(x, dtype=float)
-    return _sdct(x, type=kind, axis=0, norm=None) / 2.0 \
-        if kind in (2, 3) else _sdct(x, type=kind, axis=0, norm=None) / 2.0
+    """Columnwise discrete cosine transform, source types I through VIII.
+
+    Uses Chebfun's unnormalized convention, not orthonormal toolbox scaling.
+    ``kind`` must be static when tracing with JAX.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/dct.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    u, shape = _transform_columns(x)
+    n, m = u.shape
+    if kind == 1:
+        ends = jnp.asarray([0, n - 1])
+        y = Chebtech2.coeffs2vals(u.at[ends].set(.5 * u[ends]))[::-1]
+    elif kind == 2:
+        y = (n / 2) * Chebtech1.vals2coeffs(u[::-1])
+        y = y.at[0].set(2 * y[0])
+    elif kind == 3:
+        y = Chebtech1.coeffs2vals(u.at[0].set(.5 * u[0]))[::-1]
+    elif kind == 4:
+        v = jnp.zeros((2 * n, m), dtype=u.dtype).at[1::2].set(u)
+        y = dct(v, 3)[:n]
+    elif kind == 5:
+        v = jnp.concatenate((2 * u[:1], u[1:], jnp.zeros((n, m), u.dtype)))
+        y = dct(v, 1)[::2]
+    elif kind == 6:
+        y = dct(jnp.concatenate((u, jnp.zeros((n - 1, m), u.dtype))), 2)[::2]
+    elif kind == 7:
+        v = jnp.zeros((2 * n - 1, m), u.dtype).at[::2].set(u)
+        y = dct(v.at[0].set(2 * v[0]), 3)[:n]
+    elif kind == 8:
+        y = dct(jnp.concatenate((u, jnp.zeros((n + 1, m), u.dtype))), 2)[1::2]
+    else:
+        raise ValueError("CHEBEFUN:CHEBFUN:dct:type: Unknown DCT type.")
+    return y.reshape(shape)
 
 
 def idct(x, kind: int = 2):
-    """Inverse DCT (the inverse of :func:`dct` of the same kind)."""
-    x = np.asarray(x, dtype=float)
-    n = x.shape[0]
-    inv_kind = {1: 1, 2: 3, 3: 2, 4: 4}[kind]
-    scale = {1: 2.0 / max(n - 1, 1), 2: 2.0 / n, 3: 2.0 / n,
-             4: 2.0 / n}[kind]
-    return _sdct(x, type=inv_kind, axis=0, norm=None) * scale / 2.0
+    """Inverse source DCT of the same type, I through VIII.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/idct.m
+    Chebfun commit: 7574c77
+    """
+    u, shape = _transform_columns(x)
+    n = u.shape[0]
+    if kind in (1, 2, 3, 4):
+        inverse = {1: 1, 2: 3, 3: 2, 4: 4}[kind]
+        denominator = jnp.asarray(n - 1 if kind == 1 else n, jnp.float64)
+        y = (2 / denominator) * dct(u, inverse)
+    elif kind == 5:
+        y = (4 / (2 * n - 1)) * dct(u.at[0].set(u[0] / 2), 5)
+        y = y.at[0].set(y[0] / 2)
+    elif kind == 6:
+        y = (4 / (2 * n - 1)) * dct(u.at[0].set(u[0] / 2), 7)
+        y = y.at[-1].set(y[-1] / 2)
+    elif kind == 7:
+        y = (4 / (2 * n - 1)) * dct(u.at[-1].set(u[-1] / 2), 6)
+        y = y.at[0].set(y[0] / 2)
+    elif kind == 8:
+        y = (4 / (2 * n + 1)) * dct(u, 8)
+    else:
+        raise ValueError("CHEBEFUN:CHEBFUN:idct:type: Unknown IDCT type.")
+    return y.reshape(shape)
 
 
 def dst(x, kind: int = 1):
-    """Discrete sine transform (unnormalized sums)."""
-    x = np.asarray(x, dtype=float)
-    return _sdst(x, type=kind, axis=0, norm=None) / 2.0
+    """Columnwise discrete sine transform, source types I through VIII.
+
+    Type I deliberately preserves the source's unusual pure-imaginary branch:
+    it returns ``imag(y)`` as a real array. Traced complex inputs keep a complex
+    storage dtype, with the same selected numeric values.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/dst.m
+    Chebfun commit: 7574c77
+    """
+    u, shape = _transform_columns(x)
+    n, m = u.shape
+    if kind == 1:
+        z = jnp.zeros((1, m), u.dtype)
+        y = jnp.fft.fft(jnp.concatenate((z, u, z, -u[::-1])), axis=0)
+        y = -1j * (y[2 * n + 1:n + 1:-1] / 2)
+        if not jnp.iscomplexobj(u):
+            y = jnp.real(y)
+        elif isinstance(u, jax.core.Tracer):
+            y = jnp.where(jnp.all(jnp.real(u) == 0), jnp.imag(y), y)
+        elif bool(jnp.all(jnp.real(u) == 0)):
+            y = jnp.imag(y)
+    elif kind in (2, 3):
+        v = u.at[::2].set(-u[::2])
+        y = dct(v[::-1], kind)
+        y = y.at[::2].set(-y[::2])[::-1]
+    elif kind == 4:
+        y = dct(u[::-1], 4)
+        y = y.at[1::2].set(-y[1::2])
+    elif kind == 5:
+        y = dst(jnp.concatenate((u, jnp.zeros((n, m), u.dtype))), 1)[1::2]
+    elif kind == 6:
+        v = jnp.zeros((2 * n, m), u.dtype).at[::2].set(u)
+        y = dst(v, 1)[:n]
+    elif kind == 7:
+        y = dst(jnp.concatenate((u, jnp.zeros((n, m), u.dtype))), 1)[::2]
+    elif kind == 8:
+        y = dst(jnp.concatenate((u, jnp.zeros((n + 1, m), u.dtype))), 2)[:2*n:2]
+    else:
+        raise ValueError("CHEBEFUN:CHEBFUN:dct:type: Unknown DST type.")
+    return y.reshape(shape)
 
 
 def idst(x, kind: int = 1):
-    """Inverse DST of the same kind."""
-    x = np.asarray(x, dtype=float)
-    n = x.shape[0]
-    inv_kind = {1: 1, 2: 3, 3: 2, 4: 4}[kind]
-    scale = {1: 2.0 / (n + 1), 2: 2.0 / n, 3: 2.0 / n,
-             4: 2.0 / n}[kind]
-    return _sdst(x, type=inv_kind, axis=0, norm=None) * scale / 2.0
+    """Inverse source DST I through VII; type VIII raises the native error.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/idst.m
+    Chebfun commit: 7574c77
+    """
+    u, shape = _transform_columns(x)
+    n = u.shape[0]
+    if kind in (1, 2, 3, 4):
+        inverse = {1: 1, 2: 3, 3: 2, 4: 4}[kind]
+        y = (2 / (n + 1 if kind == 1 else n)) * dst(u, inverse)
+    elif kind in (5, 6, 7):
+        inverse = {5: 5, 6: 7, 7: 6}[kind]
+        y = (4 / (2 * n + 1)) * dst(u, inverse)
+    elif kind == 8:
+        raise ValueError("CHEBFUN:CHEBFUN:IDST:EIGHT: Not implemented")
+    else:
+        raise ValueError("CHEBFUN:CHEBFUN:idct:type: Unknown IDST type.")
+    return y.reshape(shape)
 
 
 def dlt(c):
