@@ -1,0 +1,99 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Restore native pde15s session-tech comparison, default tolerances and continuous quasimatrix Frobenius predicate; reconstruct second-kind evolution nodes explicitly as Chebtech2",
+  "bindings": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": {
+      "baseline_sha256": "c55062449f72c662630078e810bb59d16d98743d7b70097a647be5b0fd2eb3e2",
+      "candidate_sha256": "1f4de8bbdd8f1d773bb0dc587fed13c1d0655232d1eb6cc239a3693e53f2ba46"
+    },
+    "tests/test_matlab_port/misc/test_pde15s_matlab.py": {
+      "baseline_sha256": "ad4137e302a99e0e1dc30f49e0a2188464377eed94d5da755f1075137f5aa3b9",
+      "candidate_sha256": "eec1beedb7d990b3fdd96b486c6ec76d45c0f17acb842515740a0414130826d9"
+    }
+  },
+  "numerical_evidence": {
+    "baseline_v1": {
+      "frobenius_error": 0.16350763656991416,
+      "max_column_error": 0.08045933490267645,
+      "source_bound": 2.220446049250313e-11,
+      "column_L2_errors": [
+        1.6164405442819648e-15,
+        0.08045933490267645,
+        0.07093653900391961,
+        0.06197495859748792,
+        0.054027618551974126,
+        0.047387693786525305,
+        0.04210564515469105,
+        0.03796618906310969,
+        0.034580996994579956,
+        0.03155109311758821,
+        0.028599716781073398
+      ],
+      "first_run_techs": [
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1",
+        "Chebtech1"
+      ]
+    },
+    "controls_v1": {
+      "frobenius_error": 1.1461212719246314e-11,
+      "max_column_error": 5.732415176326231e-12,
+      "source_bound": 2.220446049250313e-11,
+      "column_L2_errors": [
+        1.6164405442819648e-15,
+        5.740900369827627e-13,
+        7.618048020190925e-13,
+        6.600734491481657e-13,
+        1.7934282025330027e-12,
+        4.882352487287444e-12,
+        5.732415176326231e-12,
+        5.481343355170162e-12,
+        4.3059779445400876e-12,
+        3.667084826522074e-12,
+        2.839956875577645e-12
+      ],
+      "first_run_techs": [
+        "Chebtech1",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2",
+        "Chebtech2"
+      ],
+      "pytest_result": "1 passed"
+    }
+  },
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_native_frobenius_20261011/pde15s_native_frobenius_delivery_v1.zip",
+    "sha256": "e822361620b2c99e710bd85c4d0a2a0929a4abb20fd30112e8381ee3a6867bf2",
+    "entries": 48
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pde15s_native_frobenius_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "dccd19bdb46dc2479593f81da76db06236be777d80658b85d9f538a67b0d9a20",
+  "qualification": {
+    "result": "1 passed",
+    "seconds": 28.95,
+    "peak_sampled_KiB": 1682220,
+    "cpu_only": true,
+    "inputs_stable": true,
+    "owned_survivors": false
+  },
+  "limits": [
+    "No fresh MATLAB run or whole-PDE/plot parity claim",
+    "Python list outputs, boundary keywords, no-plot returning API and binary64 arange time grid are documented adapters",
+    "Evolution kernels unchanged; only output node interpretation corrected"
+  ]
+}

@@ -398,6 +398,12 @@ def ratinterp(
     --------
     padeapprox, trigratinterp, aaa
     """
+    # MATLAB ratinterp.m:184-190 converts its supported DOMAIN object before
+    # using endpoint arithmetic. This is eager input metadata, not fitting math.
+    from chebfunjax.domain import Domain
+
+    if isinstance(domain, Domain):
+        domain = domain.breakpoints
     a_dom, b_dom = float(domain[0]), float(domain[1])
 
     # ------------------------------------------------------------------

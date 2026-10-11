@@ -1,0 +1,23 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Restore23 native ratinterp clauses through15 focused cases: public denominator roots, full complex errors, Domain equality, public p/q lengths; normalize actual Domain input",
+  "result": "15 passed;50.55 seconds;2531348KiB; stable source inputs; no owned survivors",
+  "baseline": "14 passed, Domain predicate20 failed TypeError",
+  "bindings": {
+    "src/chebfunjax/utils/ratapprox.py": {
+      "baseline_sha256": "e3091c2f2dbfda10f533b948f1aff3dab27255b8e053a844694f5b87793fa708",
+      "candidate_sha256": "60ff0a643ac803a657a9878d6f6eacd8fa4ddf60e3c0cf45762aea3236ff4f16"
+    },
+    "tests/test_matlab_port/misc/test_ratinterp_matlab.py": {
+      "baseline_sha256": "93620d8026e7764d3b5e343e9d9ec646465f31bc3088324bc8e107f1f948ed66",
+      "candidate_sha256": "1748bbcd2e52eb102004c32a8a556d1d1f08e36c7c85469a7fa0a6a4b3191033"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_native_predicates_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "002c1fe5249a91c6ebdf87d03ee8451a80def06debd63c2c7ad214b64f1dd6fe",
+  "limits": [
+    "Fitting math unchanged; existing12 complex supplemental tests retained but deselected in this focused gate",
+    "No fresh MATLAB execution or general high-degree complex pole parity claim",
+    "Native Domain deprecation warning is not emitted by this adapter"
+  ]
+}

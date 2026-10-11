@@ -26,9 +26,13 @@ continuous FOV5, coeffs2vals20, native-sized NUFFT2, isSubset8 and trigBary9.
 Counts denote source assertions, not distinct new pytest functions. Each
 package records unchanged bounds, adapters and focused CPU results in
 `docs/*_cpu_20261011.json`. Native trigBary n2500 checks only weight length;
-nonfinite weights remain under active diagnosis. Forward NUFFT default now
-matches machine epsilon, but FINUFFT2.5.0 versus required>=2.5.1 is an explicit
-environment qualification gap. Legacy NumPy/SciPy/FINUFFT mathematics remain.
+stable JAX weights now pass finite n2500 and bounded JIT controls. Forward
+NUFFT default matches machine epsilon. Exact locked FINUFFT2.5.1 ships Python
+metadata2.5.0; artifact hashes confirm the installed FINUFFT core matches. An
+isolated exact locked FINUFFT/FFTW provider passes16 small source cases and
+a direct provider smoke check. Full environment qualification remains open;
+see docs/finufft_locked_artifact_cpu_20261011.json. Legacy NumPy/SciPy/FINUFFT
+mathematics remain.
 
 CI is not green. Completed earlier shards exposed stale tests assuming a2D
 Chebfun2.sum result and five separate ball drawing artists; corrections now

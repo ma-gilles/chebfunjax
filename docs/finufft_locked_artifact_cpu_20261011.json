@@ -1,0 +1,34 @@
+{
+  "artifact": "finufft-2.5.1-py312h3699259_1.conda",
+  "sha256": "3c683f1c07d03b999a7d1d76c16b00a7d15ec78a0ea14b6f77ad22f3fb7ac3e8",
+  "artifact_conda_version": "2.5.1",
+  "shipped_python_and_dist_info_version": "2.5.0",
+  "corrected_previous_claim": "Observed Python2.5.0 didnotprove FINUFFTprovider mismatch: existingold/P threecorePythonfiles and libfinufft.so byteidentical exactlockedartifact.",
+  "fftw": "ExactlockedFFTWartifact SHA6fd5d681fba20adaca771f138ac52dbf0a52e0dc2ac31b9ce7406068d102a9a7 extracted into provider_v2; oldcoreFFTWbinaries differ fromartifact, so notclaimedidentical.",
+  "source_predicates": 16,
+  "passed": 16,
+  "provider_smoke": {
+    "finite": true,
+    "error2": 5.379039326381228e-15,
+    "reference_norm2": 14.27863912765794,
+    "scope": "Direct FINUFFT1d2 invocation; diagnostic provider smoke, not additional native predicate"
+  },
+  "scope": "ExactlockedFINUFFT+FFTWartifacts with boundGCC/stdcpp/gomp dependencies; notfullpixilock.",
+  "remaining_provider_qualification": "SciPy1.17.1 user-sitepip provider vslockedconda; pinnedcachedJAX/JAXLIB0.11.0wheelversions matchlock; ignoredincompatibleCUDAplugin0.11.2 persists. Python3.12.13/NumPy2.4.3/packaging26.0 oldenvversions matchlock; systemiclibc. RuntimeC++/gccbaseenv matchescopiedcachedlibs.",
+  "numerical_gaps": "Sixteen smallcasesmostlydirectfallback; actualFINUFFTsmoke invokesprovider separately. TypeIII/plan/large sourcecases/JAX-onlybackend unresolved.",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/qualification_v5/supervision/receipt.json",
+  "wall_seconds": 25.214187372941524,
+  "peak_rss_kib": 417936,
+  "libraries": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/libgomp.so.1": "fb3a0f069de0eecc09e8bf8fb040f99dad4588fb6d2632873829e3f332e5104b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/libfftw3_omp.so.3.7.11": "51ae4ea013aea1cf78f21ccec468a019e4ed696b9dce2ac4a3420e506e9a7d00",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/libfftw3f_omp.so.3.7.11": "4b1f11ec8b10f0bfbd788ffbafa1707e50d30cf1f299a64ec6c7d54c38473b2d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/libfftw3.so.3.7.11": "d4c8dcb28be5c66895a3c99f86609dd32d358a219a53917cf689e604e067df17",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/libfftw3f.so.3.7.11": "327598eefe7e98c4ca3791efa69a14729fdae2c65cf00553805d50d0f3592d99",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finufft_locked_artifact_20261011/provider_v2/lib/python3.12/site-packages/finufft/libfinufft.so": "0101536ef5ace546b2df8cc7bcd7b13c8ba1e7093cad56fd57a07cac18543427",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/libgcc_s.so.1": "25dd0774b7b2774e922a56971a2aef67f79b73373b77a06e7c7fa540f90541bc",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/libstdc++.so.6.0.34": "38e5308c07cbb5f4858fda88461b336ddffc44caa227ee22bd2e0d8a09e51374"
+  },
+  "earlier_attempts": "v1environmentguarddeclined;v2all16passed butreportwrongkey;v3qualifiedexistingcopiedFFTW;v4hashguarddeclinedaliasSHAafterproviderreplacement;v5 finalexactFFTWqualification. Allreceipts preserved, originalhandles consumed.",
+  "disk": "Twoisolatedproviderprefixes~188MiB, artifacts3.1MiB plusboundedprivatecopies; noCUDA/fullenv install and no shared envmutation."
+}

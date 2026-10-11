@@ -301,7 +301,9 @@ def solve(
             if not happy and fixed_n is None:
                 length = 2 * length - 1
                 return True
-            current = chebfun(value, domain=domain)
+            # pdeSolve.m578-580/130/176 explicitly constructs nonperiodic
+            # outputs with Chebtech2, matching this second-kind nodal grid.
+            current = chebfun(value, domain=domain, chebkind=2)
             if fixed_n is None:
                 current = current.simplify()
             current_time = float(t)
