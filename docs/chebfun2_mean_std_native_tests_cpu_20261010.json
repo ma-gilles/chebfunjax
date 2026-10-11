@@ -1,0 +1,19 @@
+{
+  "base": {
+    "head": "141d4142d5857d76eb8765cab4bcc4d8bf232b09",
+    "mean_std_fix_ancestor": "63a49ffbb2b6b903cd93e3173ad1d6f8e3537b43"
+  },
+  "files": {
+    "tests/test_matlab_port/chebfun2/test_mean_matlab.py": "df1cefd7191269ca1abaa1872092b0e86f447a5785c33f4a3fcb676ad64ed29a",
+    "tests/test_matlab_port/chebfun2/test_std_matlab.py": "fa9be7b100a0072dc4ec105aca14efc54fc926caca74ef2e0d99c3bd64112d21",
+    "tests/test_matlab_port/chebfun2/test_mean_std_contracts.py": "702943ff3f79e0b1323abff7b840c9acb9c4c29a6c19fa9bab3392dab30e00dc"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_mean_std_native_tests_v2_20261010/AUDIT.json": "1cb6db2d430d6cb11907a87afaa03a8958c71c22f59fc7384ee2c12f0d8c1f07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_mean_std_native_tests_v2_20261010/SOURCE_ASSERTION_MAP.json": "b3c1aa5880d18313ddb126b218291efcd60e8484c60be1315782b9fa070e28fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_mean_std_native_tests_v2_20261010/delivery_v1/tests.patch": "127fadb93bfc9c29f66f035bf508c4eda30e495ee0e0bb6aa1dd69ca65214b7a"
+  },
+  "qualification": "8 exact selected tests pass; original 32009 terminal0; no remaining owned processes. No library changes.",
+  "scope": "Seven literal native predicates plus one source-contract control. CPU0\u20131/180s3GiB. Source/version/origin audit is not exhaustive runtime closure.",
+  "root_review": "All delivered file hashes, source assertion map/native source hashes, nested evidence bindings and eight JUnit cases independently verified."
+}
