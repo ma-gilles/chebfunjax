@@ -11466,37 +11466,37 @@ def poly(v, domain=(-1.0, 1.0)):
     MATLAB source : @domain/poly.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
+    from chebfunjax.utils.quadrature import chebpts_ab
 
-    from chebfunjax.utils.quadrature import chebpts
-    V = _np.asarray(v, dtype=complex if _np.iscomplexobj(v) else float)
-    dv = [float(domain[0]), float(domain[-1])]
+    V = jnp.asarray(v)
+    V = V.astype(jnp.result_type(V, jnp.float64))
+    dv = (float(domain[0]), float(domain[-1]))
     if V.ndim == 2 and min(V.shape) > 1:
         return [poly(V[:, k], domain) for k in range(V.shape[1])]
     V = V.reshape(-1)
     N = V.size
-    V = V[~_np.isinf(V)]
-    if _np.any(_np.isnan(V)):
-        return chebfun(lambda x: jnp.full_like(x, jnp.nan), domain=tuple(dv))
+    V = V[~jnp.isinf(V)]
+    if bool(jnp.any(jnp.isnan(V))):
+        return chebfun(jnp.nan, domain=dv)
     if N == 0:
-        return Chebfun.empty() if hasattr(Chebfun, "empty") else \
-            chebfun(lambda x: 0.0 * x, domain=tuple(dv))
-    # Leja ordering of the roots (MATLAB poly.m)
-    vv = list(V)
-    j = int(_np.argmax(_np.abs(vv)))
-    z = [vv.pop(j)]
+        return Chebfun.empty()
+    # Source retains N from before filtering infinities, then indexes N roots.
+    # A removed infinity therefore causes an indexing error in native POLY.
+    if V.size != N:
+        raise IndexError("Source POLY Leja ordering indexes removed infinite roots")
+    j = int(jnp.argmax(jnp.abs(V)))
+    z = [V[j]]
+    remaining = jnp.delete(V, j)
     for _k in range(1, N):
-        if not vv:
-            break
-        P = [_np.prod([zz - vl for zz in z]) for vl in vv]
-        j = int(_np.argmax(_np.abs(P)))
-        z.append(vv.pop(j))
-    x = _np.asarray(chebpts(N + 1, dv[0], dv[1]) if False else
-                    dv[0] + (dv[1] - dv[0]) * (_np.asarray(chebpts(N + 1)) + 1) / 2)
-    pvals = _np.ones(N + 1, dtype=complex if _np.iscomplexobj(V) else float)
+        products = jnp.prod(jnp.stack(z)[:, None]-remaining[None, :], axis=0)
+        j = int(jnp.argmax(jnp.abs(products)))
+        z.append(remaining[j])
+        remaining = jnp.delete(remaining, j)
+    x = chebpts_ab(N+1, *dv, kind=2)
+    pvals = jnp.ones(N+1, dtype=V.dtype)
     for zk in z:
-        pvals = pvals * (x - zk)
-    return chebfun(jnp.asarray(pvals), domain=tuple(dv))
+        pvals = pvals*(x-zk)
+    return chebfun(pvals, domain=dv, tech=Chebtech2)
 
 
 def polyfit(x, y, n: int, domain=(-1.0, 1.0)):

@@ -26,16 +26,25 @@ def _vs(f):
 class TestDomainPoly:
     def test_all_matlab_assertions(self):
         f = poly(0.0, (-1, 1))
-        assert abs(float(f(0.0))) < 100 * EPS * _vs(f)                       # pass(1)
+        assert float(f(0.0)) < 100 * EPS * _vs(f)  # pass(1)
         f = poly(0.1, (-1, 1))
-        assert len(f) == 2 and abs(float(f(0.1))) < 100 * EPS * _vs(f)       # pass(2)
-        x = np.array([-.1, 0.1])
+        assert len(f) == 2 and float(f(0.1)) < 100 * EPS * _vs(f)  # pass(2)
+        x = np.array([-0.1, 0.1])
         f = poly(x, (-1, 1))
-        assert len(f) == 3 and np.linalg.norm(np.asarray(f(jnp.asarray(x)))) < 100 * EPS * _vs(f)  # pass(3)
-        x = np.array([[-.1, 0.1], [-.5, .9]])
+        assert len(f) == 3 and np.linalg.norm(np.asarray(f(jnp.asarray(x)))) < 100 * EPS * _vs(
+            f
+        )  # pass(3)
+        x = np.array([[-0.1, 0.1], [-0.5, 0.9]])
         for dom in ((-1, 1), (-1, 2)):
             fs = poly(x, dom)
-            err = np.linalg.norm(np.column_stack([np.asarray(fs[0](jnp.asarray(x[:, 0]))),
-                                                  np.asarray(fs[1](jnp.asarray(x[:, 1])))]))
+            err = np.linalg.norm(
+                np.column_stack(
+                    [
+                        np.asarray(fs[0](jnp.asarray(x[:, 0]))),
+                        np.asarray(fs[1](jnp.asarray(x[:, 1]))),
+                    ]
+                ),
+                ord=2,
+            )
             vs = max(_vs(fs[0]), _vs(fs[1]))
             assert len(fs[0]) == 3 and len(fs) == 2 and err < 100 * EPS * vs  # pass(4)-(5)

@@ -1,0 +1,50 @@
+{
+  "scope": "JAX roots-to-Chebfun constructor @domain/poly.m; Chebfun 7574c77",
+  "baseline": "3 failures, 1 pass: technology preference, filtered infinity indexing, NaN construction",
+  "candidate": "5 pytest cases pass: 4 source-contract cases plus all 5 native assertions in one test",
+  "changes": [
+    "JAX Leja ordering and pointwise product",
+    "Explicit Chebtech2 construction",
+    "Numeric NaN construction and source infinite-root indexing failure",
+    "Restore signed scalar comparisons and matrix spectral norms in native test port"
+  ],
+  "receipts": {
+    "domain_poly_jax_baseline_20261011": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 14.427468366920948,
+      "sampled_peak_summed_rss_kib": 759692,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "original_exec_handle": 60550,
+      "receipt_sha256": "5cd257fe279d02bb0cf9abf143414c80c2add1a29402dfa2b7d3c43f62ac256d",
+      "manifest_sha256": "c14d147619d655c9dee554a6da1433db64fa3481b16bbf3065e4d3779335dda1"
+    },
+    "domain_poly_jax_candidate_20261011": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.753032381646335,
+      "sampled_peak_summed_rss_kib": 756648,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "original_exec_handle": 4523,
+      "receipt_sha256": "887dc9efa22e1c67c9e87c714f288cab040b6186943160a4907265c00d775148",
+      "manifest_sha256": "936eaedd4cdb4ad112d164c082309f35305966dd2a4a3d4cddc2726d826909ce"
+    }
+  },
+  "limitations": [
+    "Matrix root input retains the existing list-of-Chebfuns adapter rather than native quasimatrix return.",
+    "Leja ordering uses eager host shape/control decisions; no new JIT qualification.",
+    "No fresh MATLAB execution or bitwise reduction-order claim.",
+    "No full suite, example or CI parity claim."
+  ],
+  "candidate_library_sha256": "df7e09879368b66d82c251554c4d052da51d332cb78a94a2a666a88495620f83",
+  "publication_test_function_AST_matches_executed_snapshot": true,
+  "publication_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "df7e09879368b66d82c251554c4d052da51d332cb78a94a2a666a88495620f83",
+    "tests/test_chebfun1d/test_domain_poly_source.py": "73c215a3f1cf8d924847e37ec84043b7d5dfb7240fd2292737cf5702c0a4e937",
+    "tests/test_matlab_port/domain/test_poly_matlab.py": "6a567888ebf069e075778e41de7dd43509deaa1bb7b14e8257f60be05baf0107"
+  }
+}
