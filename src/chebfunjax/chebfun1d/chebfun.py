@@ -7551,6 +7551,23 @@ class Chebfun(eqx.Module):
         out = Chebfun(funs=new_funs, domain=f2.domain).set_point_values(values)
         return Chebfun._as_transposed(out, self.is_transposed)
 
+    def num2cell(self):
+        """Return one cell per source column, retaining CellList orientation.
+
+        Python cells retain flat list iteration/indexing and native shape metadata.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/num2cell.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self.mat2cell()
+        sizes = [1] * self.n_columns
+        if self.is_transposed:
+            return self.mat2cell(sizes, 1)
+        return self.mat2cell(1, sizes)
+
     def mat2cell(self, sizes=None, n=None) -> list:
         """Split components, preserving coefficients and stored point values.
 

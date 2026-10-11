@@ -682,6 +682,21 @@ class Quasimatrix:
                 columns[index] = columns[index] + columns[index - 1]
         return Quasimatrix(columns, self.domain)
 
+    def num2cell(self):
+        """Return one cell per source column, retaining CellList orientation.
+
+        Python cells retain flat list iteration/indexing and native shape metadata.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/num2cell.m
+        Chebfun commit: 7574c77
+        """
+        sizes = [1] * len(self.cols)
+        if self.is_transposed:
+            return self.mat2cell(sizes, 1)
+        return self.mat2cell(1, sizes)
+
     def mat2cell(self, sizes=None, n=None):
         """Group existing quasimatrix columns using native component sizes.
 
