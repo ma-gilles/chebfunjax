@@ -64,3 +64,18 @@ def test_source_fixed_grid(monkeypatch, mono):
     assert captured[0].shape == (6, 6)
     np.testing.assert_array_equal(captured[0], expected)
     assert f.rank == (3 if mono else 4)
+
+
+@pytest.mark.parametrize("degree,order,expected", [
+    (1, 0, lambda t: np.sqrt(1.5)*np.cos(t)),
+    (1, 1, lambda t: np.sqrt(.75)*np.sin(t)),
+    (2, 0, lambda t: np.sqrt(5/8)*(3*np.cos(t)**2-1)),
+    (2, 1, lambda t: np.sqrt(15)/2*np.cos(t)*np.sin(t)),
+    (2, 2, lambda t: np.sqrt(15)/4*np.sin(t)**2),
+])
+def test_matlab_normalized_legendre_phase(degree, order, expected):
+    # Independent low-degree formulas for MATLAB legendre(..., 'norm').
+    from chebfunjax.utils.random import _norm_legendre
+    theta = np.array([0., .4, np.pi/2, 2.2, np.pi])
+    got = np.asarray(_norm_legendre(degree, order, theta))
+    assert np.max(np.abs(got - expected(theta))) < 20*np.finfo(float).eps

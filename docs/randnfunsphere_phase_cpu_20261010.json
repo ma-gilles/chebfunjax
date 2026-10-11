@@ -1,0 +1,43 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Correct odd-order signs in normalized associated Legendre evaluation: MATLAB legendre(..., 'norm') removes the Condon\u2013Shortley phase retained by SciPy spherical harmonics.",
+  "results": "12 pytest cases passed (five original native predicates plus argument, construction and analytic controls). Captured 1024 native normal inputs through public randnfunsphere match native x-axis/Oxford/mean values within 3.34e-15. Baseline Oxford mismatch was 2.7522396542405785.",
+  "evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfunsphere_legendre_phase_20261010/gate",
+      "inputs_rehashed": 288,
+      "result": {
+        "wall_seconds": 31.737117262091488,
+        "sampled_peak_summed_rss_kib": 1562496,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "supervision/receipt.json": "327eab7cf0a0c8f1e9ad0cbaf86a0f6150598de67f1f0c9acf77faf96cc31bdd",
+        "supervision/stdout": "51402bf0456460b75bcdb4f13e801e72c0586c84cc70e3757c2ef67e5c8b37a6",
+        "guard.json": "d99fd7baf49883417fbfe7e08004180837a0c9f03ed58142accc024ba90b7f18",
+        "junit.xml": "40029d35d60617ceb4f00fc49ef0ee894acb3c368f8f0751d93795b34206926e"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randnfunsphere_legendre_phase_20261010/boundary_probe_v1",
+      "inputs_rehashed": 285,
+      "result": {
+        "wall_seconds": 12.272687334101647,
+        "sampled_peak_summed_rss_kib": 817636,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "supervision/receipt.json": "887689789b1f0f7fc531ae47223ffa7cf52ec8a11eb7b763cfab6a471715c1e6",
+        "supervision/stdout": "3ca702fb58d444240f8599494c7766934716929c0210411f1db865d3a887a237",
+        "guard.json": "04a9ee6109168318e625bdcf18c875eb3f5daa4fa4b425cdf581c9df9097b2eb",
+        "probe_report.json": "c5abe1ec2aa2f37879a3c17091fb31c005b75ed0b3c6641f017b30390cdeff4b",
+        "POSTEXIT_AUDIT.json": "850cee570344e7bc7001ab48ac049271e440ef0955d728e46a03216dead8d48a"
+      }
+    }
+  ],
+  "open": "Representation length Python [65,65] versus native [65,63]; general MATLAB RNG compatibility; inherited NumPy/SciPy implementation; full LaplaceBall solve, page and figures; affected random sphere pages need qualification. No output substitution or loosened tolerance."
+}

@@ -1,5 +1,15 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Random sphere associated-Legendre phase corrected (2026-10-10)
+
+MATLAB normalized Legendre functions remove the Condon–Shortley phase.
+The random sphere helper now applies that sign correction. Twelve CPU test
+cases pass. With 1,024 captured native normal draws, public boundary values
+and mean agree within 3.34e-15; representation lengths still differ
+([65,65] versus [65,63]). Full LaplaceBall solve/render, general RNG parity,
+and inherited NumPy/SciPy removal remain open. Evidence:
+docs/randnfunsphere_phase_cpu_20261010.json.
+
 ## RandomPolys output and figures reproduced (2026-10-10; latest)
 
 A full run on b08fbe16 takes33.75s and1,329,004KiB sampled peak RSS.

@@ -366,13 +366,24 @@ def randnfunsphere(
     return jnp.array(F, dtype=jnp.float64)
 
 
-def _norm_legendre(l_deg: int, m: int, theta: np.ndarray) -> np.ndarray:
-    """``sqrt((2l+1)/2 * (l-m)!/(l+m)!) * P_l^m(cos theta)`` (Condon-Shortley
-    phase), evaluated stably as ``sqrt(2 pi) Re Y_l^m(theta, 0)``: the
-    factorial / unnormalized ``lpmv`` form overflows beyond degree ~85
-    (randnfunsphere(0.03) in the SpherefunRotate example needs ~210)."""
+def _norm_legendre(l_deg: int, m: int, theta: np.ndarray) -> jax.Array:
+    """MATLAB fully normalized associated Legendre function (no CS phase).
+
+    The existing SciPy spherical harmonic evaluator includes the
+    Condon--Shortley factor. MATLAB ``legendre(n,x,'norm')`` cancels that
+    factor, so the harmonic value needs an additional ``(-1)**m``.
+    This preserves the stable degree-210 evaluator used by SpherefunRotate;
+    replacing the existing SciPy dependency remains separate work.
+
+    Provenance
+    ----------
+    MATLAB source : randnfunsphere.m, sphHarmSum/sphHarmSumFixedDeg
+    Chebfun commit: 7574c77
+    Normalization: MATLAB legendre(..., 'norm') definition.
+    """
     from scipy.special import sph_harm_y
-    return np.sqrt(2.0 * np.pi) * np.real(sph_harm_y(l_deg, m, np.asarray(theta), 0.0))
+    cs_value = np.sqrt(2.0 * np.pi) * np.real(sph_harm_y(l_deg, m, np.asarray(theta), 0.0))
+    return jnp.asarray(cs_value) * (-1 if m % 2 else 1)
 
 
 def _sph_harm_sum(
