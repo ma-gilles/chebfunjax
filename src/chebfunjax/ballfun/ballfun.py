@@ -1399,6 +1399,9 @@ class Ballfun(eqx.Module):
         ks_lam = jnp.arange(n, dtype=jnp.float64) - n_mid  # wavenumbers
         # E_lam[i, k] = exp(i * k * lam[i])
         E_lam = jnp.exp(1j * jnp.outer(lam, ks_lam))  # (Nlam, n)
+        # Native fevalm horner_vec_cmplx stores an even Nyquist as cosine.
+        if n % 2 == 0:
+            E_lam = E_lam.at[:, 0].set(jnp.cos((n // 2) * lam))
 
         # G has shape (Nr, n, p); for each (r_idx, th_idx) evaluate at all lam
         # Reshape G to (Nr*p, n), multiply by E_lam^T to get (Nr*p, Nlam), reshape to (Nr, p, Nlam)
@@ -1410,6 +1413,8 @@ class Ballfun(eqx.Module):
         p_mid = p // 2
         ks_th = jnp.arange(p, dtype=jnp.float64) - p_mid
         E_th = jnp.exp(1j * jnp.outer(th, ks_th))  # (Nth, p)
+        if p % 2 == 0:
+            E_th = E_th.at[:, 0].set(jnp.cos((p // 2) * th))
 
         # H has shape (Nr, p, Nlam); for each (r_idx, lam_idx) evaluate at all th
         H_rl = H.transpose(0, 2, 1).reshape(Nr * Nlam, p)  # (Nr*Nlam, p)
@@ -1635,52 +1640,33 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/times.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax._ball_plot_data import (
+            prolong_plot_coefficients,
+            source_coefficients_to_values,
+        )
+        from chebfunjax.ballfun._integrals import (
+            coefficient_is_real,
+            values_to_coefficients,
+        )
+
         if isinstance(other, (int, float, complex)):
-            return Ballfun(
-                coeffs=self.coeffs * complex(other),
-                is_real=self.is_real and isinstance(other, (int, float)),
-                domain=self.domain,
-            )
-        if isinstance(other, Ballfun):
-            # Multiply via physical space (inverse transform, multiply, transform)
-            c1 = np.array(self.coeffs)
-            c2 = np.array(other.coeffs)
-            m1, n1, p1 = c1.shape
-            m2, n2, p2 = c2.shape
-            # Use common size (at least the sum for convolution accuracy)
-            m = max(m1 + m2 - 1, m1, m2)
-            n = n1 + n2
-            p = p1 + p2
-            m = m + 1 - m % 2
-            n = n + n % 2
-            p = max(4, p + p % 2)
-
-            # Pad both to (m, n, p)
-            def _pad_np(c: np.ndarray, tm: int, tn: int, tp: int) -> np.ndarray:
-                cm, cn, cp = c.shape
-                out = np.zeros((tm, tn, tp), dtype=complex)
-                # Align the k = 0 Fourier mode (index size//2 for both
-                # parities); (tn-cn)//2 misaligns odd-length inputs.
-                r_start = 0
-                n_start = tn // 2 - cn // 2
-                p_start = tp // 2 - cp // 2
-                out[r_start : r_start + cm, n_start : n_start + cn, p_start : p_start + cp] = c
-                return out
-
-            c1p = _pad_np(c1, m, n, p)
-            c2p = _pad_np(c2, m, n, p)
-
-            v1 = _coeffs2vals_3d(c1p)
-            v2 = _coeffs2vals_3d(c2p)
-            v_prod = v1 * v2
-            c_prod = _vals2coeffs_3d(v_prod)
-            new_is_real = self.is_real and other.is_real
-            return Ballfun(
-                coeffs=jnp.asarray(c_prod, dtype=jnp.complex128),
-                is_real=new_is_real,
-                domain=self.domain,
-            )
-        return NotImplemented
+            c_prod = self.coeffs * other
+        elif isinstance(other, Ballfun):
+            # Native times uses the sum of all three dimensions and coeffs3
+            # prolongation, including even-grid Fourier Nyquist splitting.
+            shape = tuple(a + b for a, b in zip(self.shape, other.shape))
+            c1 = prolong_plot_coefficients(self.coeffs, shape)
+            c2 = prolong_plot_coefficients(other.coeffs, shape)
+            v1 = source_coefficients_to_values(c1)
+            v2 = source_coefficients_to_values(c2)
+            c_prod = values_to_coefficients(v1 * v2)
+        else:
+            return NotImplemented
+        # The native coefficient constructor recomputes realness after both
+        # scalar and function products, including complex cancellation.
+        is_real = (False if isinstance(c_prod, jax.core.Tracer)
+                   else bool(coefficient_is_real(c_prod)))
+        return Ballfun(coeffs=c_prod, is_real=is_real, domain=self.domain)
 
     def __rmul__(self, other: "float | int | complex") -> "Ballfun":
         return self.__mul__(other)

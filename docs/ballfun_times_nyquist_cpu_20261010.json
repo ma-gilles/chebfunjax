@@ -1,0 +1,87 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Ballfun multiplication uses JAX source coefficient prolongation (exact summed dimensions and even Nyquist splitting), source inverse/forward transforms, and native coefficient realness. Native fevalm cosine evaluation of even Nyquist modes restored on both angular axes.",
+  "sources": [
+    "@ballfun/times.m",
+    "@ballfun/mtimes.m",
+    "@ballfun/coeffs3.m",
+    "@ballfun/fevalm.m",
+    "@trigtech/alias.m"
+  ],
+  "results": "Baseline17passes/fourfailures. Firstcandidate20passes/onefailure exposed existing even Nyquist evaluation fault. Correctedcandidate22passes46.39s; original evaluation regression11passes17.90s. Total33distinct passing cases, original bounds unchanged, no caps/survivors.",
+  "evidence": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_times_contract_20261010/baseline",
+      "inputs_rehashed": 346,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 49.124964545015246,
+        "sampled_peak_summed_rss_kib": 2980192,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "f8701ba3760f6769ba78ca7961895d7ed03ff76fca34d0570c7d6bb48a028e6c",
+        "junit.xml": "3aa2eda5ed4271f8e6dfc194631aacd97f25f65f3d8529a6dac551f84c59fb0a",
+        "supervision/receipt.json": "943be3c4bcb4d2ebc4c9b6ff6680c80432ec2b6c596361753e4117eb32e6fc99",
+        "supervision/stdout": "18dfc65e97a3dc51f91496338abae2f3fd4fd678a2ead05bb2852cb46a58aa33"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_times_contract_fixed_20261010/gate",
+      "inputs_rehashed": 346,
+      "receipt": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 55.11115391179919,
+        "sampled_peak_summed_rss_kib": 3192956,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "ccb91b86039c844aeb2b1e2e8b04f6fd43b2eb4ce4d65ef31f5fe8215eeda9ab",
+        "junit.xml": "0d04ba2394f230f920b232c82ca29834e1e964262bc2a5213f80d2cfc2323edb",
+        "supervision/receipt.json": "ecef76640c408696c79d0bf340e2258993d47aca3e066cded1271321a0db3942",
+        "supervision/stdout": "ae67ada8a01b2514c3cb040998325d25aed14060202b0a750daea092ef6a7e04"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_times_contract_fixed_v2_20261010/gate",
+      "inputs_rehashed": 349,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 56.19160472974181,
+        "sampled_peak_summed_rss_kib": 3358440,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "71c4de0917cd24276374d5637edf4c79a14ee8d6f9f4d1b60c8675f4c3d0b6f8",
+        "junit.xml": "3e62b9cd419d73e1083e46140952015623c86fdc1be952f97306f4288f15a201",
+        "supervision/receipt.json": "57562aa00505c4db0afeb285d48c1f03012f1e53f66ad1eb3f3ece1b224ca043",
+        "supervision/stdout": "5cbd2a627ddc16413551f5e93e9d84746c62a8de4f6ff201b9613115a96e55db"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_times_contract_fixed_v2_20261010/feval_gate",
+      "inputs_rehashed": 350,
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 26.812383285723627,
+        "sampled_peak_summed_rss_kib": 1551944,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "artifacts": {
+        "guard.json": "3b46f115e2e5c315dbf78ed5bb2be0b63613da618b989c5504b6100801f75cae",
+        "junit.xml": "108d8297afbc6d54a77c70138735957c8a89ac8a60953cb6c49c92541d845247",
+        "supervision/receipt.json": "98fec95206b19b0e89665f4090cffa07547ac814054a1f352fe2212c5013daac",
+        "supervision/stdout": "975a9c00d02ab9e4fab89b115f705b0357fdc74d9c31aecfe756d94165d7831d"
+      }
+    }
+  ],
+  "scope": "New multiplication arithmetic and transforms entirely JAX; inherited construction/other library NumPy debt remains. Eager native realness flags verified; traced evaluation retains complex values because metadata is static. Full main suite, Ballfun vector dispatch, all constructors and example requalification remain open."
+}

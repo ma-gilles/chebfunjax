@@ -1,5 +1,14 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Ballfun multiplication and Nyquist evaluation fixed (2026-10-10)
+
+Multiplication now uses JAX source transforms, summed dimensions and native
+Fourier coefficient prolongation. Both angular evaluation axes now treat
+even Nyquist coefficients as cosines. Thirty-three distinct CPU checks
+pass, including the original arithmetic/evaluation predicates and JIT.
+Four baseline failures and the intermediate evaluation failure are retained.
+Evidence: docs/ballfun_times_nyquist_cpu_20261010.json.
+
 ## Ballfun addition source contracts fixed (2026-10-10)
 
 Addition now retains native maximum coefficient dimensions, handles empty
