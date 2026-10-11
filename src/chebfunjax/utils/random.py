@@ -9,6 +9,8 @@ Developers.  See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -366,14 +368,146 @@ def randnfunsphere(
     return jnp.array(F, dtype=jnp.float64)
 
 
+@partial(jax.jit, static_argnames=("lmax",))
+def _matlab_norm_legendre_row(n: jax.Array, x: jax.Array, lmax: int) -> jax.Array:
+    """One degree row of MATLAB's normalized Legendre recurrence."""
+    sin_theta = jnp.sqrt(jnp.maximum(1.0 - x * x, 0.0))
+    count = x.size
+    points = jnp.arange(count, dtype=jnp.int32)
+    orders = jnp.arange(lmax + 1, dtype=jnp.int32)
+    tol = jnp.sqrt(jnp.finfo(x.dtype).tiny)
+    eps = jnp.finfo(x.dtype).eps
+
+    def degree_zero(_):
+        row = jnp.zeros((lmax + 1, count), dtype=x.dtype)
+        return row.at[0].set(jnp.ones_like(x) / jnp.sqrt(2.0))
+
+    def positive_degree(_):
+        n_float = n.astype(x.dtype)
+        sn = jnp.power(-sin_theta, n)
+        underflow = (n > 0) & (sin_theta > 0.0) & (jnp.abs(sn) <= tol)
+        regular = (n > 0) & (x != 1.0) & (jnp.abs(sn) >= tol)
+
+        # MATLAB's estimated start order for the underflow branch.
+        safe_s = jnp.where(sin_theta > 0.0, sin_theta, 1.0)
+        safe_n = jnp.maximum(n_float, 1.0)
+        v = 9.2 - jnp.log(tol) / (safe_n * safe_s)
+        w = 1.0 / jnp.log(v)
+        m1_real = 1.0 + safe_n * safe_s * v * w * (
+            1.0058 + w * (3.819 - w * 12.173)
+        )
+        m1 = jnp.minimum(n, jnp.floor(m1_real).astype(jnp.int32))
+
+        seed_sign = jnp.where((m1 % 2) == 0, -1.0, 1.0)
+        seed_sign = jnp.where(
+            x < 0.0,
+            jnp.where(((n + 1) % 2) == 0, -1.0, 1.0),
+            seed_sign,
+        )
+        values = jnp.zeros((lmax + 3, count), dtype=x.dtype)
+        seed_index = jnp.clip(m1 - 1, 0, lmax + 2)
+        values = values.at[seed_index, points].set(
+            jnp.where(underflow, seed_sign * eps, 0.0)
+        )
+        sumsq = jnp.where(underflow, tol, 0.0)
+
+        # Source initialization for |(-sin(theta))**n| >= sqrt(realmin).
+        def product_step(k, product):
+            factor = jnp.where(
+                k <= n, 1.0 - 1.0 / (2.0 * k.astype(x.dtype)), 1.0
+            )
+            return product * factor
+
+        c = jax.lax.fori_loop(
+            1, lmax + 1, product_step, jnp.asarray(1.0, dtype=x.dtype)
+        )
+        p_nn = jnp.sqrt(c) * sn
+        safe_s_for_cot = jnp.where(sin_theta > 0.0, sin_theta, 1.0)
+        twocot = -2.0 * x / safe_s_for_cot
+        p_n_nm1 = p_nn * twocot * n_float / jnp.sqrt(2.0 * n_float)
+        values = values.at[n].set(jnp.where(regular, p_nn, values[n]))
+        nm1_index = jnp.maximum(n - 1, 0)
+        values = values.at[nm1_index].set(
+            jnp.where(regular, p_n_nm1, values[nm1_index])
+        )
+
+        def down_step(step, carry):
+            current, accumulated = carry
+            m = n - 2 - step
+            m_safe = jnp.clip(m, 0, max(lmax - 2, 0))
+            active_underflow = underflow & (m >= 0) & (m <= m1 - 2)
+            active_regular = regular & (m >= 0)
+            active = active_underflow | active_regular
+            numerator = (
+                current[m_safe + 1] * twocot * (m_safe + 1).astype(x.dtype)
+                - current[m_safe + 2]
+                * jnp.sqrt((n + m_safe + 2).astype(x.dtype))
+                * jnp.sqrt((n - m_safe - 1).astype(x.dtype))
+            )
+            denominator = (
+                jnp.sqrt((n + m_safe + 1).astype(x.dtype))
+                * jnp.sqrt((n - m_safe).astype(x.dtype))
+            )
+            p_m = numerator / denominator
+            idx = jnp.clip(m, 0, lmax + 2)
+            current = current.at[idx].set(jnp.where(active, p_m, current[idx]))
+            accumulated = jnp.where(
+                active_underflow, p_m * p_m + accumulated, accumulated
+            )
+            return current, accumulated
+
+        values, sumsq = jax.lax.fori_loop(
+            0, lmax, down_step, (values, sumsq)
+        )
+        underflow_scale = 1.0 / jnp.sqrt(2.0 * sumsq - values[0] * values[0])
+        values = values * jnp.where(underflow, underflow_scale, 1.0)[None, :]
+
+        # MATLAB replaces the polar m=0 value before the final normalization.
+        polar = sin_theta == 0.0
+        p0 = jnp.where(polar, jnp.power(x, n), values[0])
+        values = values.at[0].set(p0)
+        phase = jnp.where((orders % 2) == 0, 1.0, -1.0)
+        row = jnp.sqrt(n_float + 0.5) * values[:lmax + 1]
+        row = phase[:, None] * row
+        return jnp.where(orders[:, None] <= n, row, 0.0)
+
+    return jax.lax.cond(n == 0, degree_zero, positive_degree, operand=None)
+
+
+@partial(jax.jit, static_argnames=("lmax",))
+def _norm_legendre_triangle(lmax: int, theta: jax.Array) -> jax.Array:
+    """Return all MATLAB fully normalized degrees through ``lmax``."""
+    theta = jnp.asarray(theta, dtype=jnp.float64).reshape(-1)
+    x = jnp.cos(theta)
+    rows = jnp.zeros((lmax + 1, lmax + 1, theta.size), dtype=theta.dtype)
+
+    def degree_step(n, triangle):
+        row = _matlab_norm_legendre_row(n, x, lmax)
+        return triangle.at[n].set(row)
+
+    return jax.lax.fori_loop(0, lmax + 1, degree_step, rows)
+
+
+@partial(jax.jit, static_argnames=("l_deg", "m"))
+def _norm_legendre_one(l_deg: int, m: int, theta: jax.Array) -> jax.Array:
+    """Evaluate one order with MATLAB's source traversal and scaling."""
+    theta = jnp.asarray(theta, dtype=jnp.float64).reshape(-1)
+    row = _matlab_norm_legendre_row(l_deg, jnp.cos(theta), l_deg)
+    return row[m]
+
+
 def _norm_legendre(l_deg: int, m: int, theta: np.ndarray) -> jax.Array:
     """MATLAB fully normalized associated Legendre function (no CS phase).
 
-    The existing SciPy spherical harmonic evaluator includes the
-    Condon--Shortley factor. MATLAB ``legendre(n,x,'norm')`` cancels that
-    factor, so the harmonic value needs an additional ``(-1)**m``.
-    This preserves the stable degree-210 evaluator used by SpherefunRotate;
-    replacing the existing SciPy dependency remains separate work.
+    The values follow MATLAB ``legendre.m``: backward order recursion on the
+    Schmidt semi-normalized associated functions, with MATLAB's distinct
+    underflow start-order and sum-of-squares scaling branch. The final
+    ``sqrt(n+1/2)`` scale and ``(-1)^m`` row phase reproduce MATLAB's ``'norm'``
+    convention. The 2D degree triangle is batched in JAX; no SciPy evaluator is
+    used by this routine.
+
+    Other ``randnfunsphere`` code still uses NumPy for coefficient draws and
+    host-side grid/sum bookkeeping; this function itself is JAX-only.
 
     Provenance
     ----------
@@ -381,9 +515,12 @@ def _norm_legendre(l_deg: int, m: int, theta: np.ndarray) -> jax.Array:
     Chebfun commit: 7574c77
     Normalization: MATLAB legendre(..., 'norm') definition.
     """
-    from scipy.special import sph_harm_y
-    cs_value = np.sqrt(2.0 * np.pi) * np.real(sph_harm_y(l_deg, m, np.asarray(theta), 0.0))
-    return jnp.asarray(cs_value) * (-1 if m % 2 else 1)
+    l_deg = int(l_deg)
+    m = int(m)
+    if l_deg < 0 or m < 0 or m > l_deg:
+        raise ValueError("require 0 <= m <= l_deg")
+    theta = jnp.asarray(theta, dtype=jnp.float64)
+    return _norm_legendre_one(l_deg, m, theta)
 
 
 def _sph_harm_sum(
@@ -402,16 +539,15 @@ def _sph_harm_sum(
     c_idx += 1
     F += (1.0 / np.sqrt(4 * np.pi)) * c
 
+    legendre = _norm_legendre_triangle(deg, jnp.asarray(theta, dtype=jnp.float64))
+
     for l_deg in range(1, deg + 1):
         m_vals = np.arange(l_deg + 1)
         # Normalization: a[m] = (-1)^m / sqrt((1 + delta_{m,0}) * pi)
         a = ((-1.0) ** m_vals) / np.sqrt((1.0 + (m_vals == 0).astype(float)) * np.pi)
 
         # Associated Legendre: G[m, theta]
-        G = np.zeros((l_deg + 1, len(theta)))
-        for m_idx, m_val in enumerate(m_vals):
-            # normalized: sqrt((2l+1)/(4pi) * (l-m)!/(l+m)!) * P_l^m
-            G[m_idx, :] = _norm_legendre(l_deg, int(m_val), theta)
+        G = np.asarray(legendre[l_deg, :l_deg + 1, :])
 
         # Extract coefficients for this degree
         n_this = 2 * l_deg + 1
@@ -452,9 +588,8 @@ def _sph_harm_sum_fixed_deg(
     m_vals = np.arange(l_deg + 1)
     a = ((-1.0) ** m_vals) / np.sqrt((1.0 + (m_vals == 0).astype(float)) * np.pi)
 
-    G = np.zeros((l_deg + 1, len(theta)))
-    for m_idx, m_val in enumerate(m_vals):
-        G[m_idx, :] = _norm_legendre(l_deg, int(m_val), theta)
+    legendre = _norm_legendre_triangle(l_deg, jnp.asarray(theta, dtype=jnp.float64))
+    G = np.asarray(legendre[l_deg, :l_deg + 1, :])
 
     Gp = G
     Gn = G[1:, :]

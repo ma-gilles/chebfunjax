@@ -1,0 +1,184 @@
+{
+  "status": "qualified source recurrence integrated; full sphere parity remains open",
+  "native_commit": "7574c77",
+  "source_sha256": "7f255fb42777e95f1d2b7cac6d08de2e920b138fdd2a6f4f589875f7aa280924",
+  "qualification": {
+    "schema": "random_legendre_jax.qualification_report.v1",
+    "label": "isolated scratch qualification; no publication checkout edits",
+    "source_archive_head": "993f5474c16142a1d3148f22ff7ccb496de57f96",
+    "source_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/snapshot/src/chebfunjax/utils/random.py",
+    "source_sha256": "7f255fb42777e95f1d2b7cac6d08de2e920b138fdd2a6f4f589875f7aa280924",
+    "source_matches_v4": false,
+    "patch_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/PATCH_FROM_F88A7818.patch",
+    "patch_sha256": "47c5c88ccfc3ed79f73cfb65a29f9a1e66e01b432be727bdb3d905568fa22398",
+    "contract_changes": {
+      "production_recurrence": "JAX implementation follows MATLAB legendre.m normalized backward-order recurrence, including MATLAB underflow start-order/sumsq scaling, polar branch, final normalization and phase",
+      "original_native_predicates": "unchanged",
+      "supplemental_degree210": "only replaced authored universal 2e-13 SciPy comparator; now finite stress plus pointwise exact-native-input comparison against 80-digit MATLAB-source recurrence reference",
+      "scope_limit": "single exact native input and all orders 0..210; no universal accuracy bound"
+    },
+    "exact_point_result": {
+      "theta_hex": "3f89bc65b68b71c3",
+      "x_ieee754_hex": "3fefff5a6aee007f",
+      "candidate_max_abs_error_from_high_precision": "1.46286914353648621316332e-15",
+      "candidate_max_error_order": 2,
+      "native_max_abs_error_from_high_precision": "2.5393216814071177513437e-13",
+      "native_max_error_order": 0
+    },
+    "execution": {
+      "original_exec_session_id": 9741,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 42.26790982624516,
+      "sampled_peak_summed_rss_kib": 1743388,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "caps": {
+        "output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/supervision",
+        "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/guard.json",
+        "cwd": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/snapshot",
+        "wall_seconds": 180.0,
+        "rss_mib": 3072.0,
+        "sample_seconds": 0.1,
+        "grace_seconds": 1.0,
+        "command": [
+          "--",
+          "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+          "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/runner.py"
+        ]
+      }
+    },
+    "collection": {
+      "planned_count": 14,
+      "actual_count": 14,
+      "exact_ordered_match": true,
+      "junit_cases": 14,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skips": 0
+    },
+    "runtime_provenance": {
+      "passed": true,
+      "module_count": 1113,
+      "unbound_or_changed": 0,
+      "python": "0.1.0",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "numpy": "2.4.3",
+      "scipy": "1.17.1",
+      "device": [
+        "cpu:0"
+      ],
+      "x64": true
+    },
+    "frozen_artifacts": {
+      "manifest_sha256": "ff9f1eacc88274e095967ae8af1a9db7239903b2185d4e35ffa5ea9ff3e1048b",
+      "guard_sha256": "c423df1e2a2f95975128ec779f6818ebcd2a4662cf5a6a6c6cec673528de9ef6",
+      "launcher_sha256": "7c6689b1351b09414797c82fd331aa9a88dfd667fcc3fddeede54f9286c4abc1",
+      "runner_sha256": "64f2774b9cc01274797948a7fb0c2243d3bddc69d88269ad3febaf3b054a9a94",
+      "plan_sha256": "309c8e49b6cd9aefab8f1307af5f301184fe3d82e84b89ba49b5dfad465239ae",
+      "reference_sha256": "d9ce8f665a51efc13b33d5bf8edbed491ef1339ced9aef1e608ae49829f64256",
+      "receipt_sha256": "ccc7871c1ab407979546d1d7672dfff911cc622556c09fb96f968a85ec24357e",
+      "junit_sha256": "5cfe87f6f1631336dbed99b93cc0b54399df91857b0d374cff1bebfd34208e6b",
+      "actual_collection_sha256": "715c662e8dc8c9f0282fd5a515d2e9c61f81bac0a411919fd9f5a1d85b3fd92f",
+      "runtime_modules_sha256": "75d2c8ef2a2412154352869f609b2d9e8b520b04dd750b5b9642203d617e60b6",
+      "runtime_audit_sha256": "2327322aa16e0496f00509a3c7f5d331b21bfc83a3f6169c64912f9912067944",
+      "versions_sha256": "0df9d87df44a3ba0e1a0a9654d781b5a9e38c498568fc5b4789d7641b1edc7f1"
+    },
+    "preserved_prior_failures": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v2_20261010/gate/POSTRUN_AUDIT_v2.json",
+        "status": "failed authored universal 2e-13 SciPy comparator; unchanged"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v3_20261010/gate",
+        "status": "pre-science scan carry/xs argument-order failure; unchanged"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v1_20261010/gate",
+        "status": "MATLAB startup TEMPDIR path-length failure; unchanged"
+      }
+    ],
+    "notes": [
+      "CPU-only device selected; a CUDA plugin incompatibility warning was emitted but no CUDA device loaded.",
+      "Earlier collection cwd mistake and missing-path freezer attempt were pre-science setup failures and remain in the gate directory."
+    ],
+    "patch_base": "publication commit f88a7818 (not the preserved v2 experimental candidate)",
+    "patch_target_path": "src/chebfunjax/utils/random.py"
+  },
+  "qualification_erratum": {
+    "schema": "random_legendre_jax.qualification_report_erratum.v1",
+    "report_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/QUALIFICATION_REPORT.json",
+    "report_sha256": "4f03783e2a619065c3ae00235a7acfea089aa318ca83e749f9dc13da6fd4730c",
+    "corrections": [
+      {
+        "field": "runtime_provenance.python",
+        "reported": "0.1.0",
+        "correct": "Python 3.12.13",
+        "reason": "The report accidentally used chebfunjax.__version__ for the python field. VERSIONS.json identifies the package version 0.1.0; supervision/stdout and pinned interpreter identify Python 3.12.13."
+      },
+      {
+        "field": "preserved_prior_failures[2]",
+        "reported_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v1_20261010/gate",
+        "correct_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_20261010/gate/supervision/receipt.json",
+        "correct_status": "The original JAX gate was censored by the sampled summed RSS cap: command exit -15, supervisor exit 137, peak 3,163,360 KiB, limit 3,072 MiB. The earlier description as a MATLAB TEMPDIR startup failure was incorrect and belongs to a separate native capture."
+      },
+      {
+        "field": "preserved_prior_failures[1]",
+        "reported_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v3_20261010/gate",
+        "correct_status": "This directory preserves the pre-science carry/xs argument-order failure as gate-source artifacts; no supervisor receipt was present in that directory at report time. No test credit."
+      }
+    ],
+    "qualification_result_unchanged": true,
+    "qualification_artifacts_unchanged": true
+  },
+  "root_rehashed_gate_inputs": 1422,
+  "repository_test": {
+    "original_handle": 3467,
+    "tests": 1,
+    "terminal": 0,
+    "inputs_stable": true,
+    "uncensored": true,
+    "survivors": [],
+    "peak_summed_rss_kib": 590508,
+    "wall_seconds": 9.380727928131819,
+    "root_rehashed_inputs": 5475,
+    "files": {
+      "tests/test_utils/test_random_legendre_matlab_source.py": "cfe89a30edb7c5f169b8fafc0ae5078d6c6b20126978e3297faba029c40382d6",
+      "tests/references/random_legendre_degree210_native_point.json": "ae2131cbb9a3988705387365b66d5871ca41f003c665df98b0ba498bd5bcf9fc"
+    }
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/QUALIFICATION_REPORT.json": "4f03783e2a619065c3ae00235a7acfea089aa318ca83e749f9dc13da6fd4730c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/QUALIFICATION_REPORT_ERRATUM.json": "a3b946efdc21a8a76b086a8e666b1cca8a90e4446ad1431a76332ab86691e02b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/guard.json": "c423df1e2a2f95975128ec779f6818ebcd2a4662cf5a6a6c6cec673528de9ef6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/supervision/receipt.json": "ccc7871c1ab407979546d1d7672dfff911cc622556c09fb96f968a85ec24357e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/gate/RUNTIME_PROVENANCE_AUDIT.json": "2327322aa16e0496f00509a3c7f5d331b21bfc83a3f6169c64912f9912067944",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/repository_supplement/supervised_run_v2/guard.json": "602ea56ac4660e4563d720557ef50b82ff2d834fafeea1a0b6568e8b26e1aae9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/repository_supplement/supervised_run_v2/supervision/receipt.json": "f135f61085a40d0ff71bda9de9615044de809f210d91184f2a13d266d105c1aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/repository_supplement/supervised_run_v2/supervision/stdout": "f7e73e2e9faa96c8befe86cbf89e31452e31f4b10a44f8c24534438594cbfcca",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/boundary_probe/probe_report.json": "94a408fca5926f0d0e56f583c56f4270d9028f3b4d2429f0ffb75aa7380ae54e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random_legendre_jax_v5_20261010/boundary_probe/supervision/receipt.json": "04c2033409d89ca3c6072098d1812094e854910fc24143661025f6bc347d72b3"
+  },
+  "limits": [
+    "One exact native degree210 input controls the measured error envelope, not a universal accuracy bound. Original native assertions unchanged.",
+    "Boundary captured1024draw probe still gives65x65 vs native65x63; mean difference5.20e-17 and x-axis2.22e-15. No general RNG or representation parity.",
+    "Remaining random module NumPy draws/hostbookkeeping and other routines are inherited debt; new Legendre recurrence math is JAX.",
+    "Corrected repo test first unsupervised run has no supervisor receipt. First supervised attempt passed scientific assertion but failed input guard on pytest cache mutation; both preserved, only fresh clean retry3467 qualifies repo test.",
+    "Historical plan selectors still mention v2 scratch test; qualified runner/actual collection bind v5 test."
+  ],
+  "publication_transplant": {
+    "qualification_test_sha256": "cfe89a30edb7c5f169b8fafc0ae5078d6c6b20126978e3297faba029c40382d6",
+    "publication_test_sha256": "0e71afc7fab8cdf445017b0cd911fc5f7c744ff15248416990ec43f167d71ba4",
+    "logic_AST_identical": true,
+    "difference": "Ruff import sorting only after copying exact qualified file",
+    "preserved_packaging_fault": "SUPPLEMENTAL_CONTROLS.patch stale hunk count omitted final assertion when applied. Root static caught unused variables before push; verified source directly copied. Unpublished local commit amended; flawed patch retained."
+  }
+}
