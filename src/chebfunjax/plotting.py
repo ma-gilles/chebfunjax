@@ -4393,6 +4393,8 @@ class _SourceMarkerLine(matplotlib.lines.Line2D):
         artist.set_data(visible[:, 0], visible[:, 1])
         artist.set_clip_on(False)
         matplotlib.lines.Line2D.draw(artist, renderer)
+        if self.get_visible():
+            self.stale = False
 
 
 def _source_marker_artist(ax, x, y, kw):

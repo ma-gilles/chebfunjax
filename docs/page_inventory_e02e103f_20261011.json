@@ -1,0 +1,373 @@
+{
+  "head": "e02e103f99117b2b62ffdd00ec7295a90d4e701f",
+  "canonical": {
+    "head": "e02e103f99117b2b62ffdd00ec7295a90d4e701f",
+    "canonical_pages": 322,
+    "local_only_pages_excluded": 8,
+    "cached_html_pages": 322,
+    "matlab_input_blocks": 2408,
+    "markdown_matlab_blocks": 2408,
+    "native_output_blocks": 949,
+    "markdown_text_blocks": 947,
+    "reference_figure_slots": 1305,
+    "current_assets_present": 1305,
+    "reference_assets_present": 1305,
+    "dimensions_equal": 1305,
+    "dimension_mismatch": 0,
+    "image_bytes_identical": 0,
+    "issue_page_counts": {
+      "prose_or_header": 18,
+      "equation_text": 14,
+      "formatted_table_pre": 0,
+      "code_text": 0,
+      "output_count": 3,
+      "output_text_observational": 224,
+      "figure_dimensions": 0,
+      "missing_assets": 0,
+      "figure_name_order": 0,
+      "missing_script": 0
+    },
+    "structural_remaining_pages": [
+      "applics/VanillaOptions",
+      "approx/AAAApprox",
+      "approx/Inpainting1D",
+      "approx/MinimaxSqrt",
+      "approx/Pushnitski",
+      "approx2/Gibbs2D",
+      "complex/ZetaZeros",
+      "linalg/AnalyticSVD",
+      "linalg/EigLandscapes",
+      "linalg/TransientGrowth",
+      "ode-eig/Randfuneig",
+      "ode-linear/Floquet",
+      "ode-nonlin/DelayDifferentialEquations",
+      "ode-random/RandomSwitching",
+      "opt/Needle",
+      "roots/RandomPolys",
+      "sphere/LaplaceBall",
+      "sphere/SphereHeatConduction",
+      "stats/ResamplingRandomVariables"
+    ]
+  },
+  "outputs": {
+    "pages": 322,
+    "reference_blocks": 949,
+    "local_blocks": 947,
+    "blank_blocks": 12,
+    "placeholder_blocks": 3,
+    "pages_with_blanks_or_placeholders": 14
+  },
+  "prior_head": "e69dfee5209697c111eb99aeca1ca17212a90d28",
+  "delta_e69": {
+    "blanks": [
+      12,
+      12
+    ],
+    "placeholders": [
+      5,
+      3
+    ],
+    "count_gap_pages": [
+      5,
+      3
+    ],
+    "current_text_fences": [
+      945,
+      947
+    ]
+  },
+  "prose": {
+    "original_order_retained": true,
+    "all_equations_equal_ignoring_insertion_positions": true
+  },
+  "count_gap_classifications": [
+    {
+      "page": "complex/ZetaZeros",
+      "native": 4,
+      "current": 5,
+      "classification": "Additional captured public Chebfun composition warning appended in executionqualification; source4outputs alreadypresent. No missingcomputation."
+    },
+    {
+      "page": "linalg/TransientGrowth",
+      "native": 4,
+      "current": 3,
+      "classification": "Missingnative construction resolutionwarning6050pts. Python warning suppression justremoved; currentabsence doesnotprove resolvedconstruction, but no missing source computation."
+    },
+    {
+      "page": "ode-linear/Floquet",
+      "native": 4,
+      "current": 2,
+      "classification": "Native logm negative-real-spectrum branchwarning anddeprecated verticalconcatenationwarning absent. Exactmatrix logarithm branchinputnotretained in priorpacket; no fabricatedwarning/providerthreshold. FourIVPs/periodicP/tenperiodcontinuation alreadyqualified."
+    }
+  ],
+  "remaining_blocks": [
+    {
+      "page": "approx/EightShades",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "blank_slots": [
+        2,
+        3
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "c399db0ad927b5a68d8206eb1939e9dafe3d858a0ba894eace1deafb54058478",
+      "reference_sha256": "f9af66f337a2962bcddc91cb9309bd08bc4fe68c3e34796c74dd6f621dcf27e7",
+      "reference_text": [
+        {
+          "slot": 2,
+          "text": "Warning: Remez algorithm did not converge after 100 iterations to the tolerance\n1.1e-10."
+        },
+        {
+          "slot": 3,
+          "text": "Warning: Remez algorithm did not converge after 20 iterations to the tolerance\n4.6e-15."
+        }
+      ]
+    },
+    {
+      "page": "complex/ConformalSquare",
+      "reference_blocks": 2,
+      "local_blocks": 2,
+      "blank_slots": [
+        2
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "e7b7dad8f834355d2428b38c5f9512e4806f7db4607cccbd122b42a8d36a6b82",
+      "reference_sha256": "e23d105ae2a7e4e0ac43c023eaf326359e0db1f59974f5d1145aee4c29d89699",
+      "reference_text": [
+        {
+          "slot": 2,
+          "text": "Warning: Non-integer difference in the exponents of the two SINGFUN objects: The\nresult may not be accurate.\nWarning: Non-integer difference in the exponents of the two SINGFUN objects: The\nresult may not be accurate.\nWarning: Non-integer difference in the exponents of the two SINGFUN objects: The\nresult may not be accurate.\nWarning: Non-integer difference in the exponents of the two SINGFUN objects: The\nresult may not be accurate."
+        }
+      ]
+    },
+    {
+      "page": "geom/Ellipses",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "blank_slots": [
+        4
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "1fdcff77aaa7e979e3b63d0e260843577531b4cb12a11a7febfc60f70b597e53",
+      "reference_sha256": "42f8cedcf8300eaa704bee0d6b3b2c4a8390a649289f56929b3d82b58ba18f37",
+      "reference_text": [
+        {
+          "slot": 4,
+          "text": "Couldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters"
+        }
+      ]
+    },
+    {
+      "page": "linalg/ConstrainedLeastSquares",
+      "reference_blocks": 10,
+      "local_blocks": 10,
+      "blank_slots": [
+        10
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "f6296a408e4e31aaf827492e0865ff977003697f9c9478fa814a3178fae981e8",
+      "reference_sha256": "07df0c2506f15880934c2898f19b5ca8b024e18da82ce4a8ea1cded7e83248a8",
+      "reference_text": [
+        {
+          "slot": 10,
+          "text": "Couldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters"
+        }
+      ]
+    },
+    {
+      "page": "linalg/FieldOfValues",
+      "reference_blocks": 5,
+      "local_blocks": 5,
+      "blank_slots": [
+        5
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "299d36c52c7d5a257c8a770fa4776a65ae48183a3ec6e40df4077ba66e84deb8",
+      "reference_sha256": "23602469eddf720bd233115f39015695d7fbb2e55a58ee6b48525d199b182e99",
+      "reference_text": [
+        {
+          "slot": 5,
+          "text": "function [f, lineSegs, theta] = fov(A, pref)\n%FOV   Field of values (numerical range) of matrix A.\n%   F = FOV(A), where A is a square matrix, returns a CHEBFUN F with domain [0\n%   2*pi]. The image F([0 pi]) is a curve describing the extreme points of the\n%   boundary of the field of values A, a convex region in the complex plane.\n%\n%   For a generic matrix, the boundary of the field of values is smooth and all\n%   boundary points are extreme points. If A is normal, the field of values is\n%   the convex hull of the eigenvalues of A, so the extreme points consist only\n%   of the eigenvalues and hence F has one constant piece for each eigenvalue,\n%   so it is not continuous on [0, 2*pi].\n%\n%   The numerical abscissa of A is equal to max(real(F)), though this is much\n%   better computed as max(real(eig(A + A')))/2.\n%\n%   The algorithm used is that of C. R. Johnson, Numerical determination of the\n%   field of values of a general complex matrix, SIAM J. Numer. Anal. 15 (1978),\n%   595-602.\n%\n%   F = FOV(A, PREF) allows the preferences in the CHEBFUNPREF structure PREF to\n%   be used in constructing F. Note that PREF.splitting will always be set to\n%   TRUE by FOV and the domain will always be [0, 2*pi].\n%\n%   [F, LINESEGS, THETA] = FOV(A) also returns a quasimatrix LINESEGS whose\n%   columns are CHEBFUN objects defining the line segments connecting up the\n%   extreme points and a vector THETA specifying the values in [0, 2*pi] where\n%   the discontinuities in F occur.\n%\n% Example 1 (smooth boundary)\n%   A = randn(5);\n%   F = fov(A);\n%   hold off, plot(F, '-b')\n%   e = eig(A);\n%   hold on, plot(e, '*k'), hold off, axis equal\n%\n% Example 2 (boundary has a corner)\n%   A = [0 1 0 ; 0 0 0 ; 0 0 1];\n%   [F, lineSegs] = fov(A);\n%   plot(F, '-b'), hold on\n%   plot(lineSegs, '-r')\n%   e = eig(A);\n%   plot(complex(e), '*k'), hold off, axis equal\n\n% Copyright 2014 by The University of Oxford and The Chebfun Developers.\n% See http://www.chebfun.org/ for Chebfun information.\n\nif ( nargin < 2 )\n    % Obtain preferences:\n    pref = chebfunpref();\nend\n\n% Set splitting to 'on' and the domain to [0, 2*pi].\npref.splitting = true;\npref.domain = [0, 2*pi];\n\n% Construct a CHEBFUN of the FOV curve:\nf = chebfun(@(theta) fovCurve(theta, A), pref);\n\nif ( nargout == 1 )\n    return\nend\n\n%% LINESEGS - implemented by Michael Overton\n% Look for possible discontinuities at any break points. The boundary of the\n% field of values may have corners, but it is continuous: hence the need\n% sometimes for linear interpolation connecting up the sets of extreme points.\n\nends = f.domain;      % Break points are between 0 and 2*pi.\ndelta = 1e-14;        % Must be bigger than machine precision but not much\n                      % bigger: if it is too small spurious line segments will\n                      % have tiny length, which hardly matters.\nif ( any(diff(ends) < delta) )\n    delta = min(diff(ends))/3;\nend\nm = length(ends) - 1; % Number of pieces\n\n% Get the values to the left and right of break points. The first break point is\n% zero, which wraps around to 2*pi and needs special treatment. Exclude the\n% right end point 2*pi.\nlVal = feval(f, ends(1:end-1), 'left');  % Values to left of break points.\nlVal(1) = feval(f, ends(end),  'left');  % Value to left of 2*pi.\nrVal = feval(f, ends(1:end-1), 'right'); % Values to right of break points.\n\n% Determine which points correspond to discontinuities:\ntol = 10*delta*max(abs([lVal, rVal]), [], 2);\ndiscont = abs(lVal - rVal) > tol;\n\n% Define additional CHEBFUNs for the line segments joining discontinuities.\n% (First idea was to do this by inserting tiny intervals with steep slopes into\n% the CHEBFUN f, but this leads to loss of accuracy.) Each column of lineSegs\n% represents a line in the complex plane connecting the points lVal(j) and\n% rVal(j) to each other, along with the corresponding theta value in [0,2*pi].\ntheta = ends(discont);\nlineSegs = chebfun([lVal(discont) ; rVal(discont)], [-1 1], 'tech', @chebtech2);\n\nend\n\nfunction z = fovCurve(theta, A)\nz = NaN(size(theta));\nfor j = 1:length(theta)\n    r = exp(1i*theta(j));\n    B = r*A;\n    H = (B + B')/2;\n    [X, D] = eig(H);\n    [ignored, k] = max(diag(D));\n    v = X(:,k);\n    z(j) = v'*A*v/(v'*v);\nend\nend"
+        }
+      ]
+    },
+    {
+      "page": "linalg/SOR",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "blank_slots": [],
+      "placeholder_slots": [
+        2
+      ],
+      "markdown_sha256": "45be13e3a81adedb7f0d84a005c74337b5919c3c6ab51f9be6d2cc3d6356bdb5",
+      "reference_sha256": "80cefc4935c42a12eead545764017a0cadbb23dca6807b9ef7adb29d8e3187c7",
+      "reference_text": [
+        {
+          "slot": 2,
+          "text": "rho_opt =\n   0.560387921274775\nomega_opt =\n   1.560387921274774"
+        }
+      ]
+    },
+    {
+      "page": "ode-eig/Drum",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "blank_slots": [
+        4
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "01c023e21e7e4187b5a40a458ae975ffd7cde8fe8015717b58b66b2180679c6e",
+      "reference_sha256": "c4cd97fe07b7a43171bcb1bb1d89fdf4e046a6a0781d649a4269c2177ee9ef43",
+      "reference_text": [
+        {
+          "slot": 4,
+          "text": "Couldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters"
+        }
+      ]
+    },
+    {
+      "page": "ode-linear/DawsonIntegral",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "blank_slots": [
+        4
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "c14791568f601a194517693ac884ede84a4adeb69a53e0015f8f3d7276114f91",
+      "reference_sha256": "af3d68c4a73d4339ae56eb574a3d487a59651ea8bc9b1caadd4901a925d2d8bb",
+      "reference_text": [
+        {
+          "slot": 4,
+          "text": "Couldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters\nCouldn't create JOGL canvas--using painters"
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/Blasius",
+      "reference_blocks": 6,
+      "local_blocks": 6,
+      "blank_slots": [
+        6
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "b627cf62086a4ce20f3ea237f47ce4f81b089614b68ecab4886928ea4116e3ff",
+      "reference_sha256": "0ad7a9e0df75dc0daf791190f4a4ea1fa9dcd24f63a5bc4fec923a4fd4eb26d7",
+      "reference_text": [
+        {
+          "slot": 6,
+          "text": "Warning: Newton iteration failed.\nPlease try supplying a better initial guess via the .init field\nof the chebop.\nv =\n   chebfun column (1 smooth piece)\n       interval       length     endpoint values\n[    -5.6,      11]      224        67      9.3\nvertical scale =  67"
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/Bloodhound",
+      "reference_blocks": 1,
+      "local_blocks": 1,
+      "blank_slots": [
+        1
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "ebb34b567ebd0e2788f11a6f98f30025f10c481a791c2970fbfb85c1486b05f0",
+      "reference_sha256": "47d3342ada16ffe2a0b445436ddec7d71bf47f42afe8be6c3a52b58c0ac5ed0e",
+      "reference_text": [
+        {
+          "slot": 1,
+          "text": "Warning: Newton iteration failed.\nPlease try supplying a better initial guess via the .init field\nof the chebop."
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/Carrier",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "blank_slots": [],
+      "placeholder_slots": [
+        1
+      ],
+      "markdown_sha256": "c6c66c5280caf1f4267e538a7414c9e6c4dbd4d31384c59223b2e7344a0255fd",
+      "reference_sha256": "f6597229bbd9f681c271ef77cfacb7f85e52009d600a1970ba230cf268b00ab0",
+      "reference_text": [
+        {
+          "slot": 1,
+          "text": "Iter.   || du ||   Contraction    stepsize   len(du)   len(u)\n--------------------------------------------------------------\n 01     9.78e-01     6.68e-01      1.0000      64        64\n 02     2.67e-01     8.70e-02      1.0000      64        64\n 03     2.85e-02     1.07e-01      1.0000      64        64\n 04     3.92e-04     1.38e-02      1.0000      64        64\n 05     7.98e-08     2.03e-04      1.0000      64        64\n 06     3.57e-15     4.48e-08      1.0000     128       128\n--------------------------------------------------------------\nNewton's method converged in 6 iterations.\nDiscretization method used: Collocation.\nFinal error estimate: 3.57e-15 (differential equation)\n                      0.00e+00 (boundary conditions)."
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/GulfStream",
+      "reference_blocks": 3,
+      "local_blocks": 3,
+      "blank_slots": [],
+      "placeholder_slots": [
+        2
+      ],
+      "markdown_sha256": "45dd6527be05c9214501e63d91d78550ff97cb3603b08157ab0189221c599c32",
+      "reference_sha256": "ff005b89f931d9c0c9fac26af1c9886556f893475273b005f18bc498fb379c66",
+      "reference_text": [
+        {
+          "slot": 2,
+          "text": "I =\n   0.499999999999915\nI_error =\n     8.482103908136196e-14"
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/LorenzAttractor",
+      "reference_blocks": 4,
+      "local_blocks": 4,
+      "blank_slots": [
+        4
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "03caae34d2d45bc1fa23cad5f615e32444a7e11bb3d125813e575cc6f04a01c6",
+      "reference_sha256": "c6cdc2e2226933ccff66c35ed5f471fe4f5cc3bd694dea9dae7f032de798fb8c",
+      "reference_text": [
+        {
+          "slot": 4,
+          "text": "Warning: Imaginary parts of complex X and/or Y arguments ignored"
+        }
+      ]
+    },
+    {
+      "page": "ode-nonlin/ThreePlanets",
+      "reference_blocks": 1,
+      "local_blocks": 1,
+      "blank_slots": [
+        1
+      ],
+      "placeholder_slots": [],
+      "markdown_sha256": "e052f19e5c7587fbfa50b704ad87d59f208c6411779659897b795974aa90aa9f",
+      "reference_sha256": "9c7a077755367771bf76b8715e0cfca720db3c80b18efb37d89d76e4d2820ec4",
+      "reference_text": [
+        {
+          "slot": 1,
+          "text": "Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'?"
+        }
+      ]
+    }
+  ],
+  "scoped_alignment_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_e02e103f_20261011/alignment/alignment.patch",
+  "after_private_alignment_only": {
+    "blanks": 12,
+    "placeholders": 1,
+    "remaining_placeholder": "Carrier slot1: source live Newton iterationdisplay, not missing solvedsolution."
+  },
+  "next_recommendation": "Carrier: restore literal source display=iter public diagnostic pathway using actual per-iteration continuousL2 norm/contraction/stepsize/lengths from source scalarNewton info. Inspect retained source-policy receipts before running. Do not print cached6iteration table or infer metadata absent from receipts. Inventory identifies no proved missing numerical computation among remaining output gaps; next numerical correctness qualification should be source-default TransientGrowth constructor happiness/warnings and independent expm norm checks, after resource/provenance review.",
+  "stale_claim_corrected": "Old GulfStream83s/35updates/57coeff/1.605e-9 packet superseded by accepted scalarNewton5updates/45coeff/8.47655e-14 packet; current printedvalues match latterexactly. No valuesreverted/recomputed.",
+  "static_receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 8.932507894001901,
+    "sampled_peak_summed_rss_kib": 53352,
+    "inputs_stable": true,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "limitations": "Outputtimings/RNG/provider/warnings differences are observations, not verifiedbugs. Assetdimensions not pixelparity. No examples/numericalscience/figuresrecomputed/Pwrites. Allactualaudit inputs and tools hashed; immutable committedgitblobarchive.",
+  "root_review": {
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_e02e103f_20261011/AUDIT.json",
+    "audit_sha256": "174e7d7303e9e0b6db34ca31f24ce9c4f90e1f39c4d10d78f90ac1669811b4d3",
+    "root_verified_audit_inputs": 4571,
+    "root_verified_review_bindings": 31,
+    "scope": "Static inventory at e02e103f; no scientific/figure pixel parity claim."
+  },
+  "scope_note": "Inventory is frozen e02e103f, before the alignment and complete SOR matrix output corrections delivered with this document."
+}

@@ -159,3 +159,17 @@ def test_actual_legend_repeated_draw_does_not_notify_original_callbacks():
     np.testing.assert_array_equal(artist.get_xdata(), [0.0, 0.5, 1.0])
     np.testing.assert_array_equal(artist.get_ydata(), [0.0, 0.5, 1.0])
     plt.close(fig)
+
+
+def test_visible_draw_clears_stale_and_hidden_draw_preserves_it():
+    fig, ax = plt.subplots()
+    source = _source_marker_artist(ax, [0.0, 1.0], [0.0, 1.0], dict(marker="o", linestyle="None"))
+    (ordinary,) = ax.plot([0.0, 1.0], [0.0, 1.0], "o")
+    fig.canvas.draw()
+    assert not source.stale and not ordinary.stale
+    source.set_visible(False)
+    ordinary.set_visible(False)
+    assert source.stale and ordinary.stale
+    fig.canvas.draw()
+    assert source.stale and ordinary.stale
+    plt.close(fig)

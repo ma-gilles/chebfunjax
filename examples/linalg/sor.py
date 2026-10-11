@@ -36,11 +36,12 @@ def run():
 
     col = np.concatenate([[2.0, -1.0], np.zeros(N - 3)])
     A = sla.toeplitz(col)
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:1@@")
     print("A =")
     with np.printoptions(formatter={'float': lambda v: f"{int(v):6d}"}):
-        for row in A[:7]:
-            print("  " + "".join(f"{int(v):6d}" for v in row))
-        print("   ...")
+        for row in A:
+            print("".join(f"{int(v):6d}" for v in row))
     L = np.tril(A, -1)
     D = np.diag(np.diag(A))
     U = np.triu(A, 1)
@@ -71,12 +72,16 @@ def run():
     plt.close(fig)
 
     pos, val = f.min()
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:2@@")
     print("rho_opt =")
     print(f"   {float(val):.15f}")
     print("omega_opt =")
     print(f"   {float(pos):.15f}")
 
     omega_exact = 2 / (1 + np.sin(np.pi / N))
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:3@@")
     print("omega_exact =")
     print(f"   {omega_exact:.15f}")
     print("rho_exact =")

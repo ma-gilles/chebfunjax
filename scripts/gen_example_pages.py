@@ -227,8 +227,10 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
                     parts.append(_clean_para(txt))
 
     walk(root)
-    chunks = align_outputs(ref_blocks, ours, require_slots=(cat, stem) ==
-                           ("ode-nonlin", "DelayDifferentialEquations"))
+    chunks = align_outputs(ref_blocks, ours, require_slots=(cat, stem) in {
+        ("ode-nonlin", "DelayDifferentialEquations"),
+        ("linalg", "SOR"), ("ode-nonlin", "GulfStream"),
+    })
     for idx, k in pending:
         if ours is not None and not chunks[k] and ref_blocks[k] and \
                 ref_blocks[k][0].lstrip().startswith("Warning:"):

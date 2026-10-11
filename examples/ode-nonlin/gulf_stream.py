@@ -98,6 +98,8 @@ def run():
     ax.set_title("Slippery or stress-free b. c.")
     _save(fig)
 
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:1@@")
     print("N_residual =")
     print(f"     {float(_op(u).norm()):.15e}")
     print("lbc_residuals =")
@@ -120,10 +122,14 @@ def run():
 
     I = float((u.diff(2)**2
                - 3 * LAM * (u * u.diff() * u.diff(2))).sum())
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:2@@")
     print("I =")
     print(f"   {I:.15f}")
     print("I_error =")
     print(f"     {abs(I - 0.5):.15e}")
+    if os.environ.get("CHEBFUNJAX_OUTPUT_SLOTS") == "1":
+        print("@@CHEBFUNJAX_OUTPUT_SLOT:3@@")
     print("total_time_for_this_example =")
     print(f"   {time.time() - t0:.15f}")
 

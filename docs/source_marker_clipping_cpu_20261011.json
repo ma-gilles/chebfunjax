@@ -204,5 +204,71 @@
     },
     "whole_example_not_yet_run": true
   },
-  "warning_visibility": "Removed blanket ignore filter from DDE script; actual warnings will remain observable in upcoming whole-script qualification."
+  "warning_visibility": "Removed blanket ignore filter from DDE script; actual warnings will remain observable in upcoming whole-script qualification.",
+  "draw_state_followup": {
+    "scope": "One focused actualsource AST drawing state control, no solves or DDErerenders.",
+    "finding": "Original visible markerartist stayedstaleTrue after ephemeralcopydraw; ordinaryLine2D clearsFalse.",
+    "fix": "After temporarydraw, clearoriginalself.stale onlywhenvisible. HiddenartistsretainstaleTrue matchingstandardLine2D. No fakecallbacknotifications/data mutation.",
+    "ast": "Deletingonly finalvisibleguard/self.staleFalse makescandidateAST exactlybaseline; allrender/data/clipping arithmetic unchanged.",
+    "pixels": "Baseline/candidate200x200 legend/marker/ordinaryline canvas arrays byteidentical; savedDDEnumericalfigures unchanged.",
+    "receipt": {
+      "command_exit_code": 0,
+      "wall_seconds": 5.903768481686711,
+      "sampled_peak_summed_rss_kib": 86232,
+      "censored_limit": null,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "bindings": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_followup.patch",
+        "sha256": "aef18705b732ec9a0a545db283c39a5f85ac83d1157c8485b1d18c5dc5572f9e"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_body.py",
+        "sha256": "caad42a4b7e0c46cb44a0608f7c48765d9f42d66717150fa6e1da110a85b6719"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_candidate/src/chebfunjax/plotting.py",
+        "sha256": "4a16fea58be83003142e889c000288d83b708a5db734ecef7ef325fd454a6370"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_candidate/baseline_plotting.py",
+        "sha256": "f8b953ded8bad0358ecb262ec44b59f2a826b4caab3891612d641c519dd9b91d"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_candidate/tests/test_source_marker_clipping.py",
+        "sha256": "9ebfbdd860dba8bcff505f891df83c69bc732bd473c5b13f64661a02f0951414"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/RESULT.json",
+        "sha256": "0399e85d33e37d63c8fdfb97ea0f1031f427185e1a09b317f46e58e81ce27679"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/pixels.npz",
+        "sha256": "7e6cf731d15fc7ed226c1d5a0f8fce099379bfbbccc319c68e6edb90fd7ab8e8"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/observe.py",
+        "sha256": "79bb17a3973cc404f1a6433914f00dd67bc8d754f61f1d29f2091b3dd07fa48a"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/guard.json",
+        "sha256": "bcdba65acf3cae824744f3e24583662d7e170f6546c8417438236ccc302d78a7"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/supervision/receipt.json",
+        "sha256": "6af75387e76ca73499388962e38f52703324aa0f57b80bb2cb41f5b1a50b9183"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/supervision/manifest.json",
+        "sha256": "dc184bad23092659e13c133526fa5543aeb96b71e4be1e460f033799370e0e74"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marker_clipping_source_20261011/stale_control/supervision/stdout",
+        "sha256": "0fa9ac34e0436abd0d8f64c7839031339eefdd83a0d15c7ad592fe9901013ded"
+      }
+    ],
+    "root_bindings_verified": 12
+  }
 }

@@ -1,0 +1,63 @@
+{
+  "rows": [
+    {
+      "page": "linalg/SOR",
+      "capture": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/stdout/linalg_sor.txt",
+      "capture_sha256": "086624d02840b43b04befa960ee7fca59f997e071ca775ecd88ec431a105d5e8",
+      "values_and_all_captured_content_lines_preserved": true,
+      "script_ast_identical_except_slot_prints": true,
+      "matlab_blocks_preserved": true,
+      "prior_placeholder_slot": 2,
+      "qualification": "SOR retained historical actual stdout only, not fresh current scientific qualification.",
+      "exact_updated_generator_render_matches_page_fences": true,
+      "env_absent_stdout_exact": true,
+      "env_enabled_marked_stdout_exact": true,
+      "source_output_scope": "Full original captured text preserved; SOR A display intentionally retains current7rows+ellipsis truncation, not full native A display parity."
+    },
+    {
+      "page": "ode-nonlin/GulfStream",
+      "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/scalar_nonlinear_source_20261008/gulf_artifacts_v4/ode-nonlin_gulf_stream.txt",
+      "capture_sha256": "fc9cd4460ef7265f96eb9abddc0840b27ede904fd9b14060f5b40b1380070151",
+      "values_and_all_captured_content_lines_preserved": true,
+      "script_ast_identical_except_slot_prints": true,
+      "matlab_blocks_preserved": true,
+      "prior_placeholder_slot": 2,
+      "qualification": "Gulf accepted scalar Newton source-policy cohort:5updates45coeffs, integral error8.476552793013070e-14; supersedes older35update packet. No source rerun.",
+      "exact_updated_generator_render_matches_page_fences": true,
+      "env_absent_stdout_exact": true,
+      "env_enabled_marked_stdout_exact": true,
+      "source_output_scope": "Full original captured text preserved; SOR A display intentionally retains current7rows+ellipsis truncation, not full native A display parity."
+    }
+  ],
+  "generator_gate": "Explicit source slots required for SOR/Gulf/DDE; marked retained capture chunks align exactly. Standalone envabsent retainsoldstdout.",
+  "source_provenance_correction": "Gulf83s cohort superseded by accepted scalarNewton5updates45coeffcapture; no numerical values changed.",
+  "root_evidence": {
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/page_inventory_e02e103f_20261011/REVIEW_ALIGNMENT_V2.json",
+    "sha256": "1efe1248b042b8fdfb08c28c393a9a6674ae72c9a9ea85484516386a05af2fa7",
+    "bindings_verified": 14
+  },
+  "sor_full_matrix_followup": {
+    "scope": "Actual matrix construction only, then print-only formatting from same saved matrix; no eigenvalue/constructor/minimization/figure rerun",
+    "native_first_output_exact_text_equal": true,
+    "matrix_shape": [
+      10,
+      10
+    ],
+    "all10rows_emitted": true,
+    "source_capture_v2": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/ACTUAL_STDOUT_V2.txt",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/ACTUAL_STDOUT.txt": "89aaee9d58fecd62967cc880a9f4c70e349f56c78df0ab462d4f72ee6651e36a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/ACTUAL_STDOUT_V2.txt": "ce1aec4b80c9977cd178e0cafd7029f8452ca05e86e3185408013b5cdd1d4029",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/matrix_prefix.py": "e249a1ab1d47606debb54a921bfaa1fb3d258dcc427a645219ef515077dafa8b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/PLAN.json": "01c96da18c0200f8f22546d0f6170db9b45f17236fd92df3abead113be4816ef",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/candidate.py": "6cc145ef86146018488c072f77f3809aadb43a58653a8076c76bfd940ba22c26",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/candidate_v2.py": "847997b93ca860009fcfe6a908d44213e2a32f0a78b48ef0b48805d5b2bfdc22",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/RESULT.json": "8f703df3605a3b3cedd1b204c85c65ae2ed2b91defdf7249f600455515294fd0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/before.py": "d45b107c4f3a88e115e6760882ebf364b1ac933178a91507a359ccd8392d5dc3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/print_saved_matrix.py": "96d2ea5a255d717cf4143495e58548c99abe4e6d3587b9252b8a45214a484cf7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sor_full_matrix_display_20261011/A.npy": "cb0d0203d51fbcb500da8185782c25163604eec765a286443a60e0430353cee2"
+    },
+    "prior_numerical_optima_unchanged": true
+  },
+  "scope_note": "The alignment report describes retained seven-row matrix display before the root follow-up. Current SOR prints all ten rows with exact cached native first-block text. Numerical optima and Gulf results unchanged; no full-example replay."
+}
