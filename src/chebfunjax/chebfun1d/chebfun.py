@@ -5915,8 +5915,12 @@ class Chebfun(eqx.Module):
                         else ~jnp.all(jnp.isnan(combined), axis=1))
             return combined[nonempty].astype(jnp.complex128)
 
-        domain_len = float(self.domain.b - self.domain.a)
-        dedup_tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+        # @chebfun/hscale.m defines unbounded horizontal scale as one.
+        # An infinite duplicate tolerance discards every root after the first.
+        hscale = max(abs(float(self.domain.a)), abs(float(self.domain.b)))
+        if _np.isinf(hscale):
+            hscale = 1.0
+        dedup_tol = 100 * _np.finfo(_np.float64).eps * hscale
 
         def _dedup(combined):
             if combined.shape[0] <= 1:
@@ -5993,9 +5997,7 @@ class Chebfun(eqx.Module):
         # jump; a pole flip gives -inf and qualifies), unless it is
         # already within tolerance of a computed root.
         if not nojump and len(self.funs) > 1:
-            htol = 100 * _np.finfo(_np.float64).eps * max(
-                abs(float(self.domain.a)), abs(float(self.domain.b)),
-                1.0)
+            htol = dedup_tol
             jumps = []
             with _np.errstate(all="ignore"):
                 for k in range(len(self.funs) - 1):

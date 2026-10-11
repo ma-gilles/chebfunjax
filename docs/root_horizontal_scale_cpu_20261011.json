@@ -1,0 +1,111 @@
+{
+  "status": "Six native root clauses11\u201316 pass with original bounds",
+  "change": "Root duplicate and jump tolerances use100eps*hscale; native hscale=max(abs(domain endpoints)), or1 for unbounded domains. The former infinite domain-length tolerance dropped all roots after the first.",
+  "source_head": "87182af5 (snapshot includes identical roots-option correction)",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "gates": [
+    {
+      "original_session": 2971,
+      "exit_code": 1,
+      "wall_seconds": 33.49933295883238,
+      "peak_rss_kib": 1727468,
+      "cases": [
+        {
+          "name": "test_original_unbounded_roots[11]",
+          "passed": true
+        },
+        {
+          "name": "test_original_unbounded_roots[12]",
+          "passed": false
+        },
+        {
+          "name": "test_original_unbounded_roots[13]",
+          "passed": false
+        }
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_original_roots_20261011/guard.json": "72ec44b629a31013f343bc4b25621df10807c36b12387e5192ee75b2444500ee",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_original_roots_20261011/supervision/receipt.json": "dba108ef98feb1e71080eafa9c0ba23132242496117dd5e727bc4e80b8fe33a1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_original_roots_20261011/junit.xml": "4ab038b30ddc17f12069500b9ae681c744a5c7a087c6079e2a5aa39705999535",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_original_roots_20261011/supervision/stdout": "8d83b135998973dd770bb8a30649e1e10d815bcfd91f8a0975357a41949ab567"
+      }
+    },
+    {
+      "original_session": 3538,
+      "exit_code": 0,
+      "wall_seconds": 33.876510648056865,
+      "peak_rss_kib": 1779384,
+      "cases": [
+        {
+          "name": "test_original_unbounded_roots[11]",
+          "passed": true
+        },
+        {
+          "name": "test_original_unbounded_roots[12]",
+          "passed": true
+        },
+        {
+          "name": "test_original_unbounded_roots[13]",
+          "passed": true
+        },
+        {
+          "name": "test_original_scale_invariance_14_16[1.0]",
+          "passed": true
+        },
+        {
+          "name": "test_original_scale_invariance_14_16[1e+50]",
+          "passed": true
+        },
+        {
+          "name": "test_original_scale_invariance_14_16[1e-50]",
+          "passed": true
+        }
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_v2_20261011/guard.json": "08db708d5a6af5fba988bb7db9040761fe84c1188bb2986c022109b21692e905",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_v2_20261011/supervision/receipt.json": "7595e1505d645af28afa5579977db1d6b526725c0485a34c9dbc91fca5fee081",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_v2_20261011/junit.xml": "4a3006dbbe761168e7b8be4d86d319e62f10b6e709a11fef52b43e9fed41f3c7",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_v2_20261011/supervision/stdout": "6439d3153718d30727199bf828a35895f470a42fc128f5a61e6e01fd898eac65"
+      }
+    },
+    {
+      "original_session": 52175,
+      "exit_code": 0,
+      "wall_seconds": 10.745740313082933,
+      "peak_rss_kib": 698508,
+      "cases": [
+        {
+          "name": "test_original_scale_invariance_14_16[1.0]",
+          "passed": true
+        },
+        {
+          "name": "test_original_scale_invariance_14_16[1e+50]",
+          "passed": true
+        },
+        {
+          "name": "test_original_scale_invariance_14_16[1e-50]",
+          "passed": true
+        }
+      ],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_literal_v3_20261011/guard.json": "99a47039c4d855b7fd8ec08b06934aac1cc370e9bea129b193f3d837b6f7a346",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_literal_v3_20261011/supervision/receipt.json": "40021429bed51ba83ada1da229bf413f0e49f12d77367d15c957a9e45fbf2e31",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_literal_v3_20261011/junit.xml": "81dcb3ec12af8e4eee5a411a27afd23adc0c2fe0faad60327105512acd70cd29",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unbounded_root_scale_literal_v3_20261011/supervision/stdout": "a42a344fc037f0eb721a0c03630fd93af6520597dd9107fab9a2fffc69bfc7f2"
+      }
+    }
+  ],
+  "observations": {
+    "clause11": "Baseline predicate vacuously passed with no finite roots; corrected output is one root1.1102230246251565e-15.",
+    "clause12": "Returns both expected roots, max error5.484501741648273e-14 <5.551115123129912e-13.",
+    "clause13": "Returns all6 expected roots, max error3.3306690738754696e-15 <2.2402246520127335e-14."
+  },
+  "reuse": "Clauses11\u201313 unchanged AST in final test file. Initial scale controls used exp(x/scale); successor runs literal native multiplier*x for14\u201316 and checks singleton output. Six unique source clauses, not9distinct tests.",
+  "limits": [
+    "Native endpoint-decay root filtering remains separate.",
+    "Existing global deduplication across sorted roots is retained; native source trims duplicates when adjoining pieces.",
+    "No current-head full CI pass claimed.",
+    "Scientific source/tests/config and MATLAB source prebound; complete runtime-provider inventory not claimed."
+  ],
+  "publication_test_formatting": "Header range and import blank line corrected after gate; non-docstring AST unchanged."
+}
