@@ -1,0 +1,7 @@
+{
+  "native_handle": 86164,
+  "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lorenz_plot_coordinates_source_20261011/native_v1/driver.m",
+  "source_sha256": "16d57ab18ffb7d293fed867c6ffa9917eb6b93b1ce0771dd55be86f51d2e0c3c",
+  "native_mat_sha256": "b82a2f5a21223dd720bcbfbe67d8c6877fec094178a124c5b1abf0f15ed304d8",
+  "scope": "Native builtin plot discriminator, supplemental source-body controls; no native Chebfun assertion count and no Lorenz numerical replay"
+}

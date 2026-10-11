@@ -1,9 +1,30 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `508ac405` is published; this checkpoint adds the packages below.
+Main through `e68553a8` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Disk cutoff compilation is now reused across completed FFT magnitude buffers
+  without changing FFT lengths, active source lengths or tolerances. A second
+  controlled CPU pair measures29.19 to17.80seconds and12.1% lower sampledRSS;
+  all68factors/cutoffs are preserved and15tests pass. This is stage performance,
+  not a new whole-constructor timing. See `docs/disk_chop_active_cpu_20261011.json`.
+  A separate scale fusion preserves all68scales/factors, passes11checks, and
+  improves its controlled stage17.92 to15.15seconds with13.4%lower sampledRSS.
+  Cached values and tolerance arithmetic are unchanged. See
+  `docs/disk_scale_fusion_cpu_20261011.json`.
+- Vector construction now handles one-level cell inputs and numeric scalar/
+  matrix components through existing JAX constructors. All35focused checks pass
+  (20original constructor predicates,4original vectorize clauses,11controls).
+  Native numeric/cell captures agree with analytic targets within4.45e-16.
+  General argument parsing, empty numeric inputs and exact diagnostic adapters
+  remain open. See `docs/chebfun2v_numeric_cell_cpu_20261011.json`.
+- Public plotting now reproduces native complex-coordinate warnings and creates
+  separate point artists for scalar/vector coordinate pairs. Lorenz uses that
+  public path and no longer suppresses all warnings. Seventeen scoped controls
+  pass; full-matrix input retains its prior behavior. No Lorenz trajectory or
+  pole-table parity claim. See `docs/lorenz_plot_coordinate_cpu_20261011.json`.
 
 - Disk slice simplification fuses the existing JAX operations while retaining
   each slice's FFT length and tolerance. One controlled CPU stage pair improves

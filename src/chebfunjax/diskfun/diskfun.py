@@ -43,7 +43,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.diskfun._rank_one import phase_two_rank_one
-from chebfunjax.diskfun._simplify import simplify_slice
+from chebfunjax.diskfun._simplify import simplify_slice, slice_scale
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
 from chebfunjax.utils.misc import standard_chop
@@ -3915,7 +3915,7 @@ def _simplify_global(techs, tol=None):
     """Chop each slice relative to the global vertical scale of the
     quasimatrix (MATLAB ``simplify(f.cols, pseudoLevel)``)."""
     base = _EPS if tol is None else float(tol)
-    scales = [float(jnp.max(jnp.abs(jnp.asarray(t.values)))) for t in techs]
+    scales = [slice_scale(t) for t in techs]
     vs = max(scales) if scales else 0.0
     out = []
     for t, sc in zip(techs, scales):

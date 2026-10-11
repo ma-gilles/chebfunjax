@@ -1,0 +1,100 @@
+{
+  "provenance": "Actual retained default tiltedpeg inputs; scalar expectations from original unfused JAX local-scale calculations. Uses coefficients in existing disk_simplify_retained_cpu.npz. Not a native scale oracle.",
+  "source_binding": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/SCALES.json": "a6d13282de81291a58d5907f9a8a7e836c45e863a362abbbee060f2959704a6e"
+  },
+  "cases": [
+    {
+      "kind": "cols",
+      "index": 0,
+      "scale": 1.0000000000000002,
+      "metadata": {
+        "n": 407,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 1,
+      "scale": 0.8967774291277735,
+      "metadata": {
+        "n": 401,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 11,
+      "scale": 3.918584043831016e-05,
+      "metadata": {
+        "n": 437,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "cols",
+      "index": 33,
+      "scale": 1.7527010867853307e-12,
+      "metadata": {
+        "n": 367,
+        "ishappy": true
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 0,
+      "scale": 1.0,
+      "metadata": {
+        "n": 1,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 1,
+      "scale": 0.8973012690505602,
+      "metadata": {
+        "n": 313,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 11,
+      "scale": 3.9603020806156026e-05,
+      "metadata": {
+        "n": 449,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    },
+    {
+      "kind": "rows",
+      "index": 33,
+      "scale": 1.792312667015233e-12,
+      "metadata": {
+        "n": 601,
+        "ishappy": true,
+        "is_real": true,
+        "real_columns": [
+          true
+        ],
+        "has_values": false
+      }
+    }
+  ]
+}

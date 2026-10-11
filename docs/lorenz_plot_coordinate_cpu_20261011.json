@@ -1,0 +1,64 @@
+{
+  "scope": "Native coordinate-warning and scalar-coordinate artist adapter; no Lorenz trajectory/rational approximation replay",
+  "base_head": "e68553a89f9b7d85a30e98fb786fa2c8e617a0a8",
+  "native": {
+    "original_handle": 86164,
+    "terminal_exit": 0,
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lorenz_plot_coordinates_source_20261011/native_v1",
+    "observed_cases": 8,
+    "matched_adapter_cases": 7,
+    "warning_identifier": "MATLAB:plot:IgnoreImaginaryXYPart",
+    "complex_zero_storage_warns": true,
+    "scalarY_vectorX_has_three_scalar_point_artists": true,
+    "single_complex_vector_plots_real_vs_imag_without_warning": true
+  },
+  "baseline": {
+    "original_handle": 66749,
+    "terminal_exit": 1,
+    "failed_controls": 7,
+    "scope": "Scalar-coordinate shape failure and mismatched complex-coordinate warnings; retained failure"
+  },
+  "candidate": {
+    "original_handle": 26220,
+    "terminal_exit": 0,
+    "pass_controls": 13,
+    "native_direct_controls": 7,
+    "existing_complex_chebfun_controls": 6
+  },
+  "supplements": {
+    "original_handle": 57997,
+    "terminal_exit": 0,
+    "pass_controls": 2,
+    "scope": "Symmetric scalar-X adapter (not directly native captured) and unrelated input-warning preservation"
+  },
+  "method_scope": [
+    "matlab_plot discrete XY only"
+  ],
+  "library_AST_exact_to_qualified": true,
+  "scientific_script_AST_unchanged_except_final_plot_and_warning_filter_removal": true,
+  "test_function_AST_exact_after_formatting": true,
+  "changes": [
+    "Discrete XY complex storage warns with native message then projects each coordinate to real.",
+    "Scalar/vector coordinate pairs produce separate point artists.",
+    "Lorenz final plot now passes original complex roots and scalar0 through the public adapter; blanket warning suppression removed."
+  ],
+  "limitations": [
+    "No new Lorenz source run or page warning fence; no cached warning inserted.",
+    "Existing Lorenz pole/table differences and image differences remain unresolved.",
+    "Single discrete complex-vector argument support is not added; existing complex-Chebfun routing remains qualified.",
+    "Symmetric scalar-X behavior is a supplemental Python adapter control, not one of seven matched native cases.",
+    "Python RuntimeWarning category is an adapter for MATLAB warning identifier.",
+    "Native plot property values were captured without raster exports; no graphics pixel claim."
+  ],
+  "fixture_formatting_only": "Final portable JSON adds trailing newline; parsed fixture identical to qualified native data.",
+  "final_library_qualification": "Exact frozen matrix_fallback_v2 AST; prior13+2 controls preserve exact executed paths because captured inputs are1D. Final change only adds vector-rank predicates to scalar expansion branches.",
+  "matrix_fallback": {
+    "original_handle": 77382,
+    "terminal_exit": 0,
+    "pass_controls": 2,
+    "scope": "Structural full2D scalar-pair inputs retain existing _plot_curve fallback with original shapes; no native fullmatrix semantics claim."
+  },
+  "total_controls": 17,
+  "original_delivery_manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lorenz_plot_coordinates_source_20261011/DELIVERY.json",
+  "original_binding_recovery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lorenz_plot_coordinates_source_20261011/V1_BINDING_RECOVERY.json"
+}

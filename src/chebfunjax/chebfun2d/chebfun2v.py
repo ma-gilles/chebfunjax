@@ -135,13 +135,15 @@ class Chebfun2v(eqx.Module):
         tol: float = 2.220446049250313e-16,
         vectorize: bool = False,
     ) -> "Chebfun2v":
-        """Construct from 1, 2 or 3 callables or existing Chebfun2 components.
+        """Construct from callables, numeric values or existing components.
 
         Parameters
         ----------
-        *fns : callables, Chebfun2 or SeparableApprox
+        *fns : callables, numeric arrays, Chebfun2 or SeparableApprox
             1, 2 or 3 functions of (x, y). Each must be vectorized: accepts 2D
             arrays from meshgrid broadcasting. Signature: f(x, y) -> array.
+            Lists/tuples adapt native cell inputs and are unwrapped once.
+            Numeric matrices use the native tensor Chebyshev value grid.
         domain : tuple of 4 floats, optional
             (xa, xb, ya, yb). If omitted, use the last existing component
             domain, or (-1, 1, -1, 1) when all inputs are callables.
@@ -162,10 +164,6 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/chebfun2v.m
         Chebfun commit: 7574c77
         """
-        if len(fns) < 1 or len(fns) > 3:
-            raise ValueError(
-                f"Chebfun2v.from_functions requires 1, 2 or 3 callables, got {len(fns)}."
-            )
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
         # Native constructor scans existing components for an omitted domain
@@ -175,6 +173,14 @@ class Chebfun2v(eqx.Module):
             for f in fns:
                 if isinstance(f, (Chebfun2, SeparableApprox)):
                     domain = f.domain
+        # Native domain discovery precedes one-level cell unwrapping. Use
+        # JAX arrays for numeric matrices; Python lists/tuples denote cells.
+        fns = tuple(component for f in fns
+                    for component in (f if isinstance(f, (list, tuple)) else (f,)))
+        if len(fns) < 1 or len(fns) > 3:
+            raise ValueError(
+                f"Chebfun2v.from_functions requires 1, 2 or 3 components, got {len(fns)}."
+            )
         if vectorize:
             # MATLAB 'vectorize' flag: wrap scalar-only handles with an
             # UNtraced numpy loop (see chebfun3, same rationale).
@@ -186,7 +192,8 @@ class Chebfun2v(eqx.Module):
                     vec(_onp.asarray(a), _onp.asarray(b)), dtype=jnp.float64
                 )
 
-            fns = tuple(f if isinstance(f, (Chebfun2, SeparableApprox)) else _wrap(f) for f in fns)
+            fns = tuple(_wrap(f) if callable(f) and not isinstance(
+                f, (Chebfun2, SeparableApprox)) else f for f in fns)
         # Callable input uses the public Chebfun2 constructor; existing
         # Chebfun2 inputs retain their exact approximation.
         comps = [
@@ -195,6 +202,8 @@ class Chebfun2v(eqx.Module):
             else f
             if isinstance(f, SeparableApprox)
             else Chebfun2.from_function(f, domain=domain, tol=tol).approx
+            if callable(f)
+            else Chebfun2.from_values(f, domain=domain, tol=tol).approx
             for f in fns
         ]
         return cls(comps)

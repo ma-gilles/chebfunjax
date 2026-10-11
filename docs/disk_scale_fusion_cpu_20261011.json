@@ -1,0 +1,150 @@
+{
+  "status": "Qualified separate CPU disk local-scale fusion",
+  "baseline": "Frozen active-length cutoff candidate; exact source hashes below. This package is separate from the preceding active-length delivery.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_semantics": "Pinned @chebfun/simplify.m obtains local scales before global-tolerance adjustment. The translated scale expression max(abs(tech.values)) is unchanged, now JIT compiled as one unit for qualified scalar CPU techs. Stored Trigtech values remain authoritative through the original .values property. Global max, base tolerance, multiplication/division order and clipping remain original host operations.",
+  "eligibility": "CPU one-dimensional nonempty Chebtech2 float64 or real-valued Trigtech float64/complex128. Other shapes/types/dtypes/backend use exactly the original eager scale expression. No tech method, FFT length, cutoff, tolerance, default or pivot change.",
+  "source_proof": {
+    "src/chebfunjax/diskfun/_simplify.py": {
+      "changed_existing_defs": [],
+      "added_defs": [
+        "_slice_scale_kernel",
+        "slice_scale"
+      ],
+      "unchanged_defs": 5
+    },
+    "src/chebfunjax/diskfun/diskfun.py": {
+      "changed_existing_defs": [
+        "_simplify_global"
+      ],
+      "added_defs": [],
+      "unchanged_defs": 152
+    }
+  },
+  "raw_scales": {
+    "all_68_scales_bits_identical": true,
+    "scales": {
+      "cols": [
+        1.0000000000000002,
+        0.8967774291277735,
+        0.28117942966701337,
+        0.19793903149027142,
+        0.042786867564827455,
+        0.015465849745019092,
+        0.008024396930699668,
+        0.004993956477318831,
+        0.0007736803343680956,
+        0.00020612398035413295,
+        8.348055942638886e-05,
+        3.918584043831016e-05,
+        7.651518583813141e-06,
+        5.442958123789636e-06,
+        1.3551964162607401e-06,
+        4.738787073262902e-07,
+        1.410488345384394e-07,
+        7.83212525968788e-08,
+        3.28241906439505e-08,
+        2.8976629815701853e-08,
+        1.4308755144121396e-08,
+        7.3634822703618384e-09,
+        5.15108184786754e-09,
+        2.8685120954325546e-09,
+        1.8081261712261384e-09,
+        4.346101309180588e-10,
+        2.4356685304144555e-10,
+        1.2028437533381517e-10,
+        4.7172582067975785e-11,
+        2.200684042036354e-11,
+        7.56943761890356e-12,
+        2.8750428996314356e-12,
+        1.927305527939172e-12,
+        1.7527010867853307e-12
+      ],
+      "rows": [
+        1.0,
+        0.8973012690505602,
+        0.28110121121249837,
+        0.1980496246710703,
+        0.042865937447219275,
+        0.0156052077882205,
+        0.00803477254449176,
+        0.0049881752522674015,
+        0.0007741271836954411,
+        0.0002073698051103198,
+        8.340203947861078e-05,
+        3.9603020806156026e-05,
+        7.74221675875825e-06,
+        5.956443647528277e-06,
+        1.358635323043939e-06,
+        4.731873961571233e-07,
+        1.4168585435757098e-07,
+        7.8426086135732e-08,
+        3.2890143073444494e-08,
+        2.9092918571103072e-08,
+        1.487896856234358e-08,
+        7.327415103245536e-09,
+        5.153101239928127e-09,
+        2.8545850143059847e-09,
+        1.8490636067926557e-09,
+        4.356741562757904e-10,
+        2.454466286182197e-10,
+        1.2003089191655045e-10,
+        4.951553492599217e-11,
+        2.1829910146178628e-11,
+        7.707638562461323e-12,
+        3.2069857001351885e-12,
+        1.9443739761356075e-12,
+        1.792312667015233e-12
+      ]
+    }
+  },
+  "paired_stage": {
+    "all_68_output_shapes_dtypes_bits_identical": true,
+    "metadata_identical": true,
+    "also_equal_prior_active_length_candidate": true,
+    "seconds": {
+      "baseline": 17.916599596850574,
+      "candidate": 15.153620158787817
+    },
+    "rss_kib": {
+      "baseline": 1167780,
+      "candidate": 1011640
+    },
+    "time_reduction_fraction": 0.15421338313261412,
+    "rss_reduction_fraction": 0.13370669132884616,
+    "scope": "One controlled fresh-process retained-stage CPU0\u20133 pair. Root and both routine agents held compute until terminal. Baseline active-length source, candidate additionally fuses local scale only. No whole-constructor paired speed claim.",
+    "accuracy": "Same68 raw scales and same68 final simplification outputs imply unchanged tolerances and unchanged postprocessing; prior actual constructor factor/sample identity retained. Existing supplemental failure remains failed; no new native or whole-constructor run."
+  },
+  "tests": {
+    "passed": 11,
+    "pytest_seconds": 15.16,
+    "cases": "8 retained scales,1 stored Trigtech values control,2 unchanged original native constructor clauses01/04 at2e3eps. All68 raw scales additionally compared bitwise before pytest.",
+    "fixture_oracle": "Retained unfused JAX local scales on actual source constructor inputs; not a native scale oracle. Uses existing committed disk_simplify_retained_cpu.npz."
+  },
+  "accuracy_scope": "No new native/full construction run. Same68raw scales and same68final outputs preserve the earlier actual constructor factor/sample identity transitively. Original supplemental bound2.220446049250313e-13 remains failed by JAX3.281174033444392e-13 and independent native3.2825291252237387e-13. No altered tolerance or accuracy-pass claim.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/SOURCE_PROOF.json": "df237b4a4190727e2bfe5144079ec9266ae35ca1a33c3675af8b98f2cf5d12f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/ALL_SCALES.json": "474a89c0b84dac84a1a470d2d4c2b91e2adc8b316bcd7fef5c9883c700a894e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/PAIRED_RESULT.json": "721230145b3cb5e0294e4514d475d6b2b7aeec764a0bc221712766d24105ed8b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/junit.xml": "de8109693d49fbf363638f8bc7a54615cba1c616e50335ed1810c2062ccfe79b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/source.patch": "e4cbfe584c61f62b45012171cff69657cc393d5033270a70a28287ced2c0e1a0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/test_run/receipt.json": "fc11ae0ec147321ca3533d60bafd631f8e9752604b6a06c53f7f10ab65b608c8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/test_run/stdout": "29505fd4c26954d84203528828f5878231b20dee6657c8653934ab8cd1cfa0d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/test_run/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_baseline_run/receipt.json": "d60c40ce200473aa287cd3f2bdd5a062d9941042e8f88f0b8c964cd4527cdcd6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_baseline_run/stdout": "7b31999a3842f9ff3f5e3850b46de5b5e01f6a481737c669ae260c47f4f5983c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_baseline_run/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_candidate_run/receipt.json": "b454265785dd0dfcdbe1d4125214ee8446ebf5fdc34513620509e25b11a93769",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_candidate_run/stdout": "80c9704dda8cfd6ca8d60031e4938c214476ed5fed697532aaf9b70f0a536d97",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/paired_candidate_run/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/compare_run/receipt.json": "46bb2f3d0878d82947ca0507cf4b3cb590dc15cda95a68d3c3bfa593430fe5d8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/compare_run/stdout": "2adf37a6cfec9192888907f5e847d0b81f23efe55a513c6ff062688173d3c5cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_scale_fusion_20261011/compare_run/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_remaining_20261011/DELIVERY.json": "1b15723bdde89817123f905bf764a25b32e7b0fa17db65684fe32a6ecd1678dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/INTEGRATION_RESULT.json": "f4d3a263d834007131a47661b87e2c37b5c716465cdb8de74a971d5a6fe36886",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/INTEGRATION_IDENTITY.json": "5671c86c07a0a28dfec40f8aa30d7b8f9474960666d2182823f6b17230b0d683",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/SCALES.json": "a6d13282de81291a58d5907f9a8a7e836c45e863a362abbbee060f2959704a6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_simplify_fusion_20261011/presimplify.npz": "3230ed26830f0528f036053fd9a9e970fb6c369b3ffa879ee7a6f3981bd0b832",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pinned_cpu_env.sh": "b1e8b3566c8e7e95e99345cc0998c32f7a637bdf86bf852e5651305e88e57f87"
+  }
+}

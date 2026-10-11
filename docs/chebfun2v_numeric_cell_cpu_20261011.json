@@ -1,0 +1,106 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_head": "e68553a89f9b7d85a30e98fb786fa2c8e617a0a8",
+  "scope": "Chebfun2v.from_functions numeric and one-level cell input dispatch",
+  "changes": [
+    "Unwrap Python lists/tuples as native cells after existing top-level domain discovery.",
+    "Delegate numeric scalars/matrices to existing Chebfun2.from_values, preserving tensor-grid orientation.",
+    "Apply vectorize only to callable inputs, preserving numeric and existing component inputs."
+  ],
+  "source_scope": {
+    "only_existing_method_changed": "from_functions",
+    "all_other_AST_identical": true,
+    "new_numerical_kernel": false
+  },
+  "python_gate": {
+    "original_handle": 51644,
+    "passed": 35,
+    "seconds": 45.14,
+    "original_constructor_predicates": 20,
+    "original_vectorize_predicates": 4,
+    "existing_adapter_controls": 6,
+    "new_analytic_numeric_cell_controls": 5,
+    "tolerance": "Original predicates unchanged; added analytic controls use100eps, explicitly supplemental."
+  },
+  "native_capture": {
+    "original_handle": 91657,
+    "method": "Unmodified public constructors and public feval on two domains, complex numeric constants with vectorize, a3x5value matrix, and four-component rejection.",
+    "analytic_max_abs_error": 4.440892098500626e-16,
+    "four_component_error_id": "CHEBFUN:CHEBFUN2V:chebfun2v:arrayValued",
+    "native_version": "25.2.0.3055257 (R2025b) Update 2"
+  },
+  "retained_failures": {
+    "baseline_handle": 15515,
+    "baseline_result": "5failed3.68s; missing numeric/cell dispatch.",
+    "first_native_handle": 58661,
+    "first_native_result": "Observer chained F.components{2} indexing failed after firstconstruction. Native subsref recursively reindexes chained property requests; successor uses public feval. No first-run output parity claim."
+  },
+  "receipts": {
+    "baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 5.167674243915826,
+      "sampled_peak_summed_rss_kib": 492812,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "candidate_gate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 49.43064198596403,
+      "sampled_peak_summed_rss_kib": 2328392,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "native": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 82.94832064304501,
+      "sampled_peak_summed_rss_kib": 1447808,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "native_v2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 82.23579650605097,
+      "sampled_peak_summed_rss_kib": 1336904,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "limitations": [
+    "Python keyword domain and list/tuple cell adapters remain; numeric matrices use JAX arrays.",
+    "General native argument parsing, empty numeric components and exact error-identifier adapters remain outside this package.",
+    "Existing callable vectorize uses a legacy NumPy host adapter; this patch introduces no numerical kernel or new NumPy computation.",
+    "Native capture records concrete R2025b results and guards3437inputs, not proprietary binary/backend parity."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/baseline/run/receipt.json": "253acd3e2fca63b11d2c871110ec95292f9137b6716fc7f9d8a9af69211013a3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/baseline/run/stdout": "b08f60a4c090c7970a3c39f4c5a3fd87ce4505c710ec88a33e3592c95a0a446f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/baseline/run/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/baseline/guard.json": "d5d887d9cc4ca12ae5abb6e4c5f273b5dd3c64855c092df519d20e3a8404a757",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/candidate_gate/run/receipt.json": "e0f963c2a41dd45ad99c524d6524d2c77cbddc765bc1eb4d8ab55da37bc34332",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/candidate_gate/run/stdout": "a7a6268bd1746ebaa9f61132a866063ae9db7e7eabcaccab61641a7722279ee9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/candidate_gate/run/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/candidate_gate/guard.json": "839a675a3c80ad40ab9eeda6d2aa9c54c7e7cee87d5d4829cb12b6a049aa81e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native/run/receipt.json": "95d438dcaf263280f95f44e7a75fcc457a0c6f86f6a74bc26d92c928058462f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native/run/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native/run/stderr": "fc5bb4bab5a73455289585c336facca1fa07eb751e6acc88ecf5c727723a9ec9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native/guard.json": "71d6581893a124f61a872476e10ba3ab132e9146180934845bf320113335c28b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/run/receipt.json": "35c6d8ead5f5535a28c1bdf34eafecdcbd2e3bdd724d09bd87892cdc6c22a8ce",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/run/stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/run/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/guard.json": "d36ec5f9c9d07c628c6d7d2dae936456d41e20d9825b3da7a8346d6998624d9a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/original_chebfun2v.py": "eb574d7e1ddb91195c302f707c007190f92086955c24fee82e7e9bffc44aa3ff",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/observations.json": "508f9818da6116ad16190f0538e4fdd48e01b7961472601136e6b731701f266e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/native_v2/driver.m": "ca85772278feabf891eba2a71b3acf57cf6f184bdb44da9152c411bffc3777d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/root_second_integration_review_20261011.json": "7b009de3145fad5b99b363a2b265db2ff86ad910840aee636da2ed2ac725bcb7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/ROOT_GUARD_REVIEW.json": "48a3afac7784acdccf38fa99850e9a68e3b56c7c0cf1085d474465308b6cf63e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_numeric_cell_20261011/ROOT_GUARD_REVIEW_POST_INTEGRATION.json": "af4a135c3fd7390209219321aed41e31bd7eeb634af3217d6db2bd86852e8fa1"
+  }
+}

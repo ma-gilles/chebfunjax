@@ -2,6 +2,12 @@
 
 ## Integration followthrough (2026-10-11)
 
+Subsequent source-reviewed work adds disk active-length cutoff reuse
+(29.19 to17.80second controlledstage), numeric/cell vector construction
+(35focused checks plus native captures), and Lorenz complex-coordinate
+plotting diagnostics (17scoped controls). See current STATUS.md qualification
+records. None closes full constructor speed, page/pole or native API parity.
+
 The current batch adds verified disk simplification fusion (controlled stage
 45.78 to29.41seconds, all68factors unchanged), source trigremez input guards,
 empty vector norm parity, honest native-test inventory and TransientGrowth

@@ -4917,14 +4917,35 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
             i = j
         else:
             # Discrete data group: x, y[, style]
-            xd = np.asarray(obj, dtype=float)
+            xd = np.asarray(obj)
             yd = np.asarray(items[i + 1])
+            # MATLAB builtin plot warns on complex storage, including zero
+            # imaginary values, when both X and Y are supplied. Native
+            # R2025b discriminator: MATLAB:plot:IgnoreImaginaryXYPart.
+            if np.iscomplexobj(xd) or np.iscomplexobj(yd):
+                import warnings
+                warnings.warn(
+                    "Imaginary parts of complex X and/or Y arguments ignored.",
+                    RuntimeWarning, stacklevel=2)
+            xd = np.real(xd)
+            yd = np.real(yd)
             fmt = None
             j = i + 2
             if j < len(items) and isinstance(items[j], str):
                 fmt = items[j]
                 j += 1
-            _plot_curve(ax, xd, yd, fmt, kw)
+            # A scalar paired with a vector produces separate point artists
+            # in MATLAB, rather than a connected broadcast curve.
+            if (xd.size == 1 and yd.size > 1
+                    and (yd.ndim == 1 or (yd.ndim == 2 and 1 in yd.shape))):
+                for value in yd.ravel(order="F"):
+                    _plot_curve(ax, xd.ravel(), np.asarray([value]), fmt, kw)
+            elif (yd.size == 1 and xd.size > 1
+                  and (xd.ndim == 1 or (xd.ndim == 2 and 1 in xd.shape))):
+                for value in xd.ravel(order="F"):
+                    _plot_curve(ax, np.asarray([value]), yd.ravel(), fmt, kw)
+            else:
+                _plot_curve(ax, xd, yd, fmt, kw)
             i = j
     if saw_plain:
         _apply_matlab_lims(ax, agg_x, agg_y, agg_default, entry_lims)

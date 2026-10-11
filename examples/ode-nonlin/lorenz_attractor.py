@@ -14,7 +14,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
 import matplotlib.pyplot as plt
 
@@ -28,7 +27,7 @@ import jax.numpy as jnp
 import chebfunjax as cj
 from chebfunjax import ratinterp
 from chebfunjax.chebfun1d.chebfun import ode113
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -68,7 +67,6 @@ def _rat(a, b):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     def fun(t, u):
         return jnp.array([10 * (u[1] - u[0]),
@@ -160,7 +158,7 @@ def run():
     ax.set_xlabel('Re(t)')
     ax.set_ylabel('Im(t)')
     zr = np.asarray(p.roots(complex_roots=True))
-    ax.plot(zr.real, np.zeros(len(zr)), 'ok', ms=12 * 0.6, mfc='none')
+    matlab_plot(zr, 0, 'ok', markersize=12 * 0.6, markerfacecolor='none', ax=ax)
     ax.set_title('Poles and Zeros of the Rational Interpolant', fontsize=14)
     _save(fig)
 
