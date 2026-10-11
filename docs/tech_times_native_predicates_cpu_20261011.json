@@ -1,0 +1,193 @@
+{
+  "qualification": {
+    "native_predicates": 50,
+    "per_technology": 25,
+    "pytest_cases": 8,
+    "result": "All50 native source predicates pass existing library; tests-only delta. No library fault exposed.",
+    "source_mapping": {
+      "1-3,6,8-11": "empty,scalar public isequal and exact norm,constant/ones/exp times Lorentz/cos1e4/complexsinh",
+      "4-5,7,12-15": "array scalar public isequal, true matrixInf samples, literal unpadded coefficient spectralnorm, flattened error bounds, exact dimension error identifier",
+      "16-22,25": "complexsquare/conjugate positivity,real square positivity, asymmetric public prolong(h2,len(h1)),native8/20column cell2mat construction,polynomial length8/7",
+      "23-24": "default unhappy sqrt length65537 and happiness both orders; warning suppression scoped as native"
+    },
+    "rng_binding": "SOURCE_PLAN binds trreal1 first100 seeded6178, exact source order before constructors; no other stream identity claimed.",
+    "adapters": [
+      "Nx1 scalar samples represented1D",
+      "Native default techPref through public default constructors; numerical eps/minSamples/maxLength unchanged"
+    ],
+    "cohorts": [
+      {
+        "name": "baseline_t1_scalar",
+        "wall_seconds": 31.468950918875635,
+        "sampled_peak_summed_rss_kib": 1616192
+      },
+      {
+        "name": "baseline_t1_array",
+        "wall_seconds": 19.58667495008558,
+        "sampled_peak_summed_rss_kib": 1094984
+      },
+      {
+        "name": "baseline_t1_special",
+        "wall_seconds": 27.27314735064283,
+        "sampled_peak_summed_rss_kib": 1533960
+      },
+      {
+        "name": "baseline_t1_unhappy",
+        "wall_seconds": 23.08047130005434,
+        "sampled_peak_summed_rss_kib": 1234852
+      },
+      {
+        "name": "baseline_t2_scalar",
+        "wall_seconds": 25.954570439178497,
+        "sampled_peak_summed_rss_kib": 1230404
+      },
+      {
+        "name": "baseline_t2_array",
+        "wall_seconds": 17.870867332909256,
+        "sampled_peak_summed_rss_kib": 929140
+      },
+      {
+        "name": "baseline_t2_special",
+        "wall_seconds": 20.318892238661647,
+        "sampled_peak_summed_rss_kib": 1152416
+      },
+      {
+        "name": "baseline_t2_unhappy",
+        "wall_seconds": 21.783618515823036,
+        "sampled_peak_summed_rss_kib": 1024092
+      }
+    ],
+    "unchanged_original_probes": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebtech/test_times_matlab.py",
+    "library_sha256": "54e109b9ccdca29a2554fece8bed6b943e33df97bdc657fbcbf442155fac03e6",
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_scalar/supervision/receipt.json": "7991ebb53bece50fef226b7ae22f922b33dd71a6ccca869963de42524677dbfe",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_scalar/supervision/stdout": "ef6ddd6a6c9412e310ba95775e8789a20fee1bbd7efc158baaaed1a543a7e0c0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_scalar/RUNTIME_SOURCE_END.json": "73ae9f58d58a3b483226752d7b0f6c51d32b29d8732da419c2b6ab562f7bca39",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_scalar/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_array/supervision/receipt.json": "750b0e5b9219eea4dc28c7fd06c659121ba9e494319903674998b1b8d72c966f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_array/supervision/stdout": "c628c96f022cca90036c1d3362d0978f238faaa26f0f9c8c4f7dfcfdfd94a987",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_array/RUNTIME_SOURCE_END.json": "8f76a016fe1a65b1df6584ca04f8be5d7b4f4c252959e18728189307bffb76bd",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_array/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_special/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_special/supervision/receipt.json": "97e9eec3365ebb1748312d5744dac6bf6e58b73ba9382e63ae2367c436a1a7f5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_special/supervision/stdout": "5ab7a98e44da84a3c2c35f5d50d4664b16a48045df634876258ac1cf01acc8f1",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_special/RUNTIME_SOURCE_END.json": "7365355200ad8acb44f5d27bcae8f3109dea95d87881c1462c18c7058c1506c7",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_special/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_unhappy/supervision/receipt.json": "9215a948061137b1f8ef8ed3b45c5a1afa607dadb89b13beb2471ddf73b20e86",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_unhappy/supervision/stdout": "17b1dced69d85142da25d13c60c1b732639eaef702ea1ac12e890ae1626c81e3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_unhappy/RUNTIME_SOURCE_END.json": "31f9b21e82c8b618251f6af4064a227eb869503caa161057a0b1ef9c74cb8d8d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t1_unhappy/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_scalar/supervision/receipt.json": "89248fd2cac9dd8c1aebc6955e5ed2ecbae48f0ed1b96cfeefff4ebe9ed14f85",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_scalar/supervision/stdout": "db47fffa3edf0b969c9f30cbfe5eb9d811772cb5199e709e47d546ee4324a0fb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_scalar/RUNTIME_SOURCE_END.json": "69064f29fdce6cf92662452a0a161e3bcae4ccf929b7efbba7d864c75c92f8d1",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_scalar/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_array/supervision/receipt.json": "8e352b6cd2257ecab9463e8cec046e66da5b24aa4469a5ac0f93f4455e9a5ce3",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_array/supervision/stdout": "0bb0d226503abcc9125278ffda01b01a0e1e33fa05e24376115793062fa87d77",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_array/RUNTIME_SOURCE_END.json": "c067e2c04dc448a1853f79ddcbed817ce36a348c81124f44ea54aa8238a169bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_array/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_special/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_special/supervision/receipt.json": "a75b3bc28541ea46a3aed6dc7e7c0086728d7614a802231726741ef13635151a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_special/supervision/stdout": "056d3eeaf94abd8f263dc5b97fd648c07ff55b12b8699d28a000058655415adb",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_special/RUNTIME_SOURCE_END.json": "776f67429e714f7b096849fa5540d512b20b70ed86d0bab7d2f8850df7c07b58",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_special/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_unhappy/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_unhappy/supervision/receipt.json": "1fd88360b22aa352dcb357f30c894537b5f5dffa8c08b2a192a065e88bca8959",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_unhappy/supervision/stdout": "e0dd43b8148238d6f9149e9e137f5e4485852e99177fd5a91ce24b52b3d7661a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_unhappy/RUNTIME_SOURCE_END.json": "13bc94ded02b33924c6e68166d41409fac1f2eaac5ad815cbdf7e9e44099cca8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/baseline_t2_unhappy/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/times_native50.patch": "fe2fcf4f878476cffdb8b907e5b7f83f9fe69f1b00e4210574b619d3ea7e3a43",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/SOURCE_PLAN.json": "02d95702851c7a3a9918e242b974f08fbba20a860eba39dc197d662c65880ff6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/ORIGINAL_TEST.py": "fb63f612edfb9a9564ac84a166f0cdfd7dd8dcc58f6f2c5e5c81f15786e7405f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/build_delivery.py": "49a330aa207c4c979afa8d83cc9f49d1060f090e5979e6de60472dd929dbba8b"
+    }
+  },
+  "complex_fft_addendum": {
+    "head": "67f340cd5c722c2048b633e1108cd181e22a5541",
+    "result": "Five impacted Tech2 shards pass canonical complex singleFFT transform correction; no library/test changes required.",
+    "native_predicates_requalified": {
+      "TIMES": 23,
+      "PLUS": 19
+    },
+    "unchanged_prior_qualification": "Original Tech1 and real unhappy/expansion gates retained, not rerun. Full package totals TIMES50 and PLUS46 remain qualified by original deliveries plus this addendum.",
+    "cohorts": [
+      {
+        "package": "times",
+        "group": "scalar",
+        "wall_seconds": 73.18390224920586,
+        "sampled_peak_summed_rss_kib": 1222440
+      },
+      {
+        "package": "times",
+        "group": "array",
+        "wall_seconds": 45.77122946968302,
+        "sampled_peak_summed_rss_kib": 929796
+      },
+      {
+        "package": "times",
+        "group": "special",
+        "wall_seconds": 24.457148896995932,
+        "sampled_peak_summed_rss_kib": 1154788
+      },
+      {
+        "package": "plus",
+        "group": "scalar",
+        "wall_seconds": 51.78817364666611,
+        "sampled_peak_summed_rss_kib": 1095204
+      },
+      {
+        "package": "plus",
+        "group": "array",
+        "wall_seconds": 18.87802627403289,
+        "sampled_peak_summed_rss_kib": 832240
+      }
+    ],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/snapshot/src/chebfunjax/tech/chebtech.py": "54e109b9ccdca29a2554fece8bed6b943e33df97bdc657fbcbf442155fac03e6",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_plus_native46_20261011/DELIVERY.json": "bab07d7f1f59e874b884251b339d0689869b9a48d65c0f33310df3b1a5ed9f2c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_times_native50_20261011/DELIVERY.json": "39887ba7935abb5d44ee652e315e3286c1f8a8abc9458c3de8affaecd6e48ac0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebtech/test_plus_native_source.py": "ccdf708561a8b780792dd3e2cb69ea26faf7dddc698e75a73b68ae43bc2413ce",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/supervision/receipt.json": "3aafd602bd7012d9487fb2ba0fcd6477a6555541e8119f5cf98f361c3905652f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/supervision/stdout": "c4720b0e321b1d52e7a5dd6a45536e8d84e32f94df949148c4d9b1dbf20ad10f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/RUNTIME_SOURCE_END.json": "6a0888001a2c152737ccecf704ad742193b0823fe619e6d668a24c120b472d8b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_scalar/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/supervision/receipt.json": "e1bf1c763e2464281253c6d8edafe183464752e6bb2649a067d0ef37bb91ceb9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/supervision/stdout": "293f5520fbcb7434907497af5d48f6663e5041d451357bffe83a3639eb462fac",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/RUNTIME_SOURCE_END.json": "9a92f0b6abe2843fd283366a21b2d0c8889a2484aac45fd0e3f75fee26fc5d76",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_array/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/supervision/receipt.json": "73c7f3b843d3b26f6a5628363fd504f1b600eaaea3c82a47075cb01cb7309624",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/supervision/stdout": "df63feb82dae287b2316b24abbe22483df849b964fcecb433cdcf0237d680a67",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/RUNTIME_SOURCE_END.json": "aa694ddedd55888c7b13d22413bf66cc6d577287bdfd559539fc5d1706fec570",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/snapshot/tests/test_times_native_source.py": "9de3e835e34d6a313f0e35980c761f4e7f61a61e623c3623b38d45913a89016c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_times_special/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/supervision/receipt.json": "5594c0b46df8d7bc6460b43c91ec0948b4f385edbfb19ded1b0cfb067e456fb8",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/supervision/stdout": "746a57bf7ad613333e641d0ad05355586ed02baeda1ef190df01189fef638950",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/RUNTIME_SOURCE_END.json": "72b0b4e71f5a815b9c0ee326ebfe14c04c635192ffb74f842093be29bee40f93",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_scalar/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/supervision/receipt.json": "2d2dc66c15226e3ca3a4379076f7b458a3010dde10bf6e0eee671cf00e709d88",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/supervision/stdout": "e735b67138340e3b05f1be1684a04c26601c391de7046c05ca30427b8f1873c9",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/RUNTIME_SOURCE_END.json": "d7b60e3cce88724ae221dcd675267f61222c5f9afd7ad029b525643a255de17d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/snapshot/tests/test_plus_native_source.py": "22749bd3ea6c7e86df34ae98035c91f31b62744b109e5b5750daea6d307777bf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/gate_plus_array/snapshot/src/chebfunjax/utils/transforms.py": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/INPUTS.json": "90f9f775763a2e757feb02e827797945d4d665920222fa1eeb25e2749b9c1d37",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plus_times_tech2_complex_67f340cd_20261011/build_addendum.py": "26fd459f9740551858930a703ecfc15d51e38eb1871862f0ca9acdaa99840cde"
+    }
+  }
+}

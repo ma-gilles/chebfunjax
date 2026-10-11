@@ -3,12 +3,29 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `f869964d` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `67f340cd` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+The next reviewed batch adds the21 missing gallery3 entries, including source
+formulas, domains, lattice trig mode and the existing Python return_handle
+convention. All22 callbacks pass source-expression and JIT checks; four actual
+default constructions pass. The other18 actual constructions are being checked
+serially; no blanket construction/plot/RNG parity claim. These28 controls are
+supplemental, not native test assertions. See docs/gallery3_source_api_cpu_20261011.json.
+
+All50 native tech TIMES predicates now pass with source norms, direct shapes,
+asymmetric prolongation, original bounds/defaults and captured seeded samples.
+Affected complex Tech2 TIMES23 and PLUS19 clauses also pass against the new
+FFT. No multiplication kernel changed. See docs/tech_times_native_predicates_cpu_20261011.json.
+
+The native Van der Pol test has two1e-10 endpoint predicates. The current port
+still weakens the bound to1e-6 and skipsmu1000. Both current public CPU solves
+now complete without warnings using native ODE113 (mu1:20.92s;mu1000:25.64s).
+Native endpoint verification is running before restoring those assertions.
 
 A reviewed inverse endpoint-fusion patch moves the existing endpoint selection
 into one JIT helper. Ten controls and exact inverse-output byte checks pass;

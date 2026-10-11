@@ -265,16 +265,125 @@ def galleryball(name: str | None = None):
     return f, fa
 
 
-def gallery3(name):
-    """Construct the three-dimensional Runge gallery function.
+def gallery3(name: str | None = None, *, return_handle: bool = False):
+    """Return a named Chebfun3 gallery function.
+
+    ``return_handle=True`` also returns its defining callable, matching the
+    adjacent gallery2 adapter for MATLAB's ``[F, FA]`` output. With no name,
+    choose a random entry using Python's random stream. Constructors retain
+    their defaults, explicit source domains, and the lattice trig flag.
+    Python's returned-object API does not reproduce MATLAB's no-output plots.
 
     Provenance
     ----------
-    MATLAB source : +cheb/gallery3.m (runge case)
+    MATLAB source : +cheb/gallery3.m, all 22 cases
     Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
     """
-    from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+    import random
 
-    if name.lower() != "runge":
-        raise NotImplementedError(f"gallery3 entry {name!r} is not implemented")
-    return Chebfun3.from_function(lambda x, y, z: 1 / (1 + x*x + y*y + z*z))
+    from chebfunjax.chebfun3d.chebfun3 import chebfun3
+
+    r = .6
+    p = (jnp.sqrt(jnp.asarray(5.)) + 1) / 2
+
+    def barth10(x, y, z):
+        a = 1
+        return (8*(x**2 - p**4*y**2)*(y**2 - p**4*z**2)
+                * (z**2 - p**4*x**2)
+                * (x**4 + y**4 + z**4 - 2*x**2*y**2
+                   - 2*x**2*z**2 - 2*y**2*z**2)
+                + a*(3 + 5*p)*(x**2 + y**2 + z**2 - a)**2
+                * (x**2 + y**2 + z**2 - (2-p)*a)**2)
+
+    def bessel(x, y, z):
+        from chebfunjax.utils.besselj import besselj
+        return besselj(0, 10*jnp.sqrt(x**2 + y**2 + z**2))
+
+    def clebsch(x, y, z):
+        return (81*(x**3 + y**3 + z**3)
+                - 189*(x**2*y + x**2*z + y**2*x + y**2*z
+                       + z**2*x + z**2*y)
+                + 54*x*y*z + 126*(x*y + x*z + y*z)
+                - 9*(x**2 + y**2 + z**2) - 9*(x + y + z) + 1)
+
+    def levy(x, y, z):
+        return (jnp.sin(jnp.pi*(1 + (x-1)/4))**2
+                + ((z-1)/4)**2*(1 + jnp.sin(2*jnp.pi*(z-1)/4)**2)
+                + ((x-1)/4)**2
+                * (1 + 10*jnp.sin(jnp.pi*(1 + (x-1)/4) + 1)**2)
+                + ((y-1)/4)**2
+                * (1 + 10*jnp.sin(jnp.pi*(1 + (y-1)/4) + 1)**2))
+
+    def shubert_factor(x):
+        # The final source term is 5*cos(4*x+5), not the usual Shubert term.
+        return (jnp.cos(2*x+1) + 2*jnp.cos(3*x+2) + 3*jnp.cos(4*x+3)
+                + 4*jnp.cos(5*x+4) + 5*jnp.cos(4*x+5))
+
+    def wagon(x, y, z):
+        return (jnp.exp(jnp.sin(50*x))
+                + jnp.sin(60*jnp.exp(y))*jnp.sin(60*z)
+                + jnp.sin(70*jnp.sin(x))*jnp.cos(10*z)
+                + jnp.sin(jnp.sin(80*y)) - jnp.sin(10*(x+z))
+                + (x**2 + y**2 + z**2)/4)
+
+    entries = {
+        'aurentz': lambda x, y, t: jnp.exp(
+            -((x-r*jnp.cos(jnp.pi*t))**2
+              + (y-r*jnp.sin(jnp.pi*t))**2)/.1),
+        'barth10': barth10,
+        'bessel': bessel,
+        'cassini': lambda x, y, z: ((x-.4)**2+y**2)*((x+.4)**2+y**2)-z**4,
+        'clebsch': clebsch,
+        'doublehelix': lambda x, y, z: jnp.abs(
+            ((x+1j*y)*jnp.exp(1j*z))**2-1)**2,
+        'genz1': lambda x, y, z: jnp.cos(jnp.pi+5*(x+y+z)),
+        'genz2': lambda x, y, z: 1/(16+5*(x+y+z)),
+        'genz3': lambda x, y, z: jnp.exp(-25*(x**2+y**2+z**2)),
+        'genz4': lambda x, y, z: 1/((.04+x**2)*(.04+y**2)*(.04+z**2)),
+        'griewank': lambda x, y, z: (
+            x**2/4000+y**2/4000+z**2/4000
+            - jnp.cos(x)*jnp.cos(y/jnp.sqrt(2))*jnp.cos(z/jnp.sqrt(3))+1),
+        'hoop': lambda x, y, z: z**2+.5*(x**2+y**2-.5)**2,
+        'kummer': lambda x, y, z: (
+            x**4+y**4+z**4-.1*(x**2+y**2+z**2)
+            - .5*(x**2*y**2+x**2*z**2+y**2*z**2)+.1*x*y*z-1),
+        'lattice': lambda x, y, z: (
+            jnp.cos(2*jnp.pi*x)**2+jnp.cos(2*jnp.pi*y)**2
+            + jnp.cos(2*jnp.pi*z)**2),
+        'levy': levy,
+        'octant': lambda x, y, z: jnp.sqrt(x**2+y**2+z**2),
+        'rastrigin': lambda x, y, z: (
+            30+(x**2-10*jnp.cos(2*jnp.pi*x))
+            + (y**2-10*jnp.cos(2*jnp.pi*y))
+            + (z**2-10*jnp.cos(2*jnp.pi*z))),
+        'rosenbrock': lambda x, y, z: (
+            100*(y-x**2)**2+(x-1)**2+100*(z-y**2)**2+(y-1)**2),
+        'runge': lambda x, y, z: 1/(1+x**2+y**2+z**2),
+        'shubert': lambda x, y, z: (
+            shubert_factor(x)*shubert_factor(y)*shubert_factor(z)),
+        'toyfunction': lambda x, y, z: (
+            3*x**7*z+y*z+y*z**2+jnp.log(2+y)*z**3-2*z**5),
+        'wagon': wagon,
+    }
+    if name is None:
+        name = random.choice(tuple(entries))
+    key = str(name).lower()
+    if key not in entries:
+        raise ValueError('CHEB:GALLERY3:unknown:unknownFunction: Unknown function.')
+    domains = {
+        'doublehelix': (-1.5, 1.5, -1.5, 1.5, -6, 6),
+        'griewank': (-50, 50, -50, 50, -50, 50),
+        'levy': (-10, 10, -10, 10, -10, 10),
+        'octant': (0, 1, 0, 1, 0, 1),
+        'rosenbrock': (-2, 2, -2, 2, -2, 2),
+    }
+    kwargs = {}
+    if key in domains:
+        kwargs['domain'] = domains[key]
+    if key == 'lattice':
+        kwargs['trig'] = True
+    fa = entries[key]
+    f = chebfun3(fa, **kwargs)
+    return (f, fa) if return_handle else f

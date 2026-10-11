@@ -1,0 +1,87 @@
+{
+  "scope": "Gallery3 source API completeness",
+  "native_test_assertions": 0,
+  "native_catalog_names": 22,
+  "previous_catalog_names": 1,
+  "candidate_catalog_names": 22,
+  "supplemental_pytest_cases": 28,
+  "changes": "Onlycheb.gallery3 function; literal22formulas/domains, publicchebfun3 defaults, lattice trigTrue, gallery2return_handle tuple, casing, omittedname Pythonrandom adapter, sourceunknownID",
+  "oracle": "LiteralMATsourceanonymous expressions extractedbeforeimplementation, NumPy/SciPy evaluations atscalar/broadcastpoints; notnative numericalcapture. JAXcallbacks JITtested. SourceShubert finalcos(4*x+5) preserved.",
+  "baseline": "24API casesfail, retained",
+  "candidate": "24handle/API+3easyactualdefault+1actualperiodiclattice pass",
+  "bounds": "Supplemental64EPS*max(1,sourcevalues) forhandles;1000EPS*max(1,expectedvalues) actualconstructs. Declaredbeforequalification; nonative boundclaim.",
+  "metrics": {
+    "baseline_handles_v1": {
+      "wall_seconds": 9.640677893999964,
+      "sampled_peak_summed_rss_kib": 417412,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "candidate_handles_v1": {
+      "wall_seconds": 13.070891759824008,
+      "sampled_peak_summed_rss_kib": 663452,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "candidate_actual_v1": {
+      "wall_seconds": 16.862970722839236,
+      "sampled_peak_summed_rss_kib": 874336,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "candidate_lattice_v1": {
+      "wall_seconds": 52.84171425038949,
+      "sampled_peak_summed_rss_kib": 861620,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "AST_bindings": {
+    "baseline_handles_v1": {
+      "executed_test_sha256": "ead28ce4dfa23ed8d9f9d97244d45d7355d7c18892610be973ee50d377d36a20",
+      "final_test_sha256": "0ef6d384a04794410a4f34b5048fac96eb61a12492013290a04b1c630db81a51",
+      "each_existing_function_AST_identical": true
+    },
+    "candidate_handles_v1": {
+      "executed_test_sha256": "ead28ce4dfa23ed8d9f9d97244d45d7355d7c18892610be973ee50d377d36a20",
+      "final_test_sha256": "0ef6d384a04794410a4f34b5048fac96eb61a12492013290a04b1c630db81a51",
+      "each_existing_function_AST_identical": true
+    },
+    "candidate_actual_v1": {
+      "executed_test_sha256": "ead28ce4dfa23ed8d9f9d97244d45d7355d7c18892610be973ee50d377d36a20",
+      "final_test_sha256": "0ef6d384a04794410a4f34b5048fac96eb61a12492013290a04b1c630db81a51",
+      "each_existing_function_AST_identical": true
+    },
+    "candidate_lattice_v1": {
+      "executed_test_sha256": "e1f27de1fd55a701a144c48187bb98a4b360a608132a1540e840f88dcebbc544",
+      "final_test_sha256": "0ef6d384a04794410a4f34b5048fac96eb61a12492013290a04b1c630db81a51",
+      "each_existing_function_AST_identical": true
+    }
+  },
+  "other_library_AST_unchanged": true,
+  "base_sha256": "ad7d979f496d0305a2191b4e638fd4f75d5059a2cb411f2ef4cdd72b5ee7a3d8",
+  "candidate_sha256": "addf8c33d55af992fae33e4cc542eba89a17b6b5f5a0f37a797e82b80b12e6f0",
+  "limits": [
+    "18catalog entries handles/dispatch only; expensiveactualconstructs notrun",
+    "NoMATLAB RNG ornooutputplot parity",
+    "Existingtrigconversion reused; no3Dengine edits",
+    "CPU8-11/JAX0.11.0/x64,180s3072MiB, original10798/85305/46660/85441 closed; noMATLAB"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_source22_20261011/gallery3_source22_evidence_v1.zip",
+    "sha256": "9bbe99fd8e5f698dedc636512c98cf1a579f59911e427bed045de06385fc9bbc",
+    "entries_verified": 67
+  }
+}
