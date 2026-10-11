@@ -63,5 +63,5 @@ class TestDomainPolyfit:
         x = np.linspace(-1, 1, 10)
         y = np.column_stack([x ** 2, x ** 3])
         f = polyfit(x, y, 3, dom)
-        err = np.linalg.norm(np.asarray(f(jnp.asarray(x))) - y, axis=0)
+        err = np.linalg.norm(np.asarray(f(jnp.asarray(x))) - y, ord=2)
         assert np.all(err < 10 * _vs(f) * EPS)                                # pass(8)

@@ -1,0 +1,49 @@
+{
+  "format": "ballfun-plot-bridge-group-test-delivery-v1",
+  "base_commit": "2b687f9c205d9f8d0e1bce97c4398a86858d4229",
+  "ci_failure_log": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_failure_review_20261011/38112886725_114391932251.log",
+    "sha256": "d644ec77cd9ac832cec6dad85290f1ec0ce34581f29dad48684086505fde920d",
+    "failed_cases": [
+      "test_public_default_source_data_and_real_five_surface_artist[plot]",
+      "test_public_default_source_data_and_real_five_surface_artist[surf]",
+      "test_public_default_source_data_and_real_five_surface_artist[dispatch]",
+      "test_complex_public_default_warns_and_passes_only_real_cdata"
+    ],
+    "cause": "The plot path now constructs one InterpolatedSurfaceGroup containing five independently retained source surfaces; old tests expected five plot_surface calls and five Axes collections."
+  },
+  "test_change": {
+    "relative_path": "tests/test_ballfun/test_plot_data_public_bridge.py",
+    "candidate_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/snapshot/tests/test_ballfun/test_plot_data_public_bridge.py",
+    "base_sha256": "a1775b97d19174ab08a5bd0f0db76124005498de7b25a03520dd2047d9051b69",
+    "candidate_sha256": "039d3856838cc5701039091c203c1f507ed10d5b5e94563b08782bea279820f6",
+    "patch_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/plot_bridge_group_test.patch",
+    "patch_sha256": "3706dc80ca055368e2543cf074f728f5e1d284d1de2aec4194f65719cfc19c55",
+    "assertions": "Retains exact source coordinate checks, source-value normalizer input checks, complex real-projection check, equal axes/aspect and actual render checks; additionally verifies one group contains five grids and preserves each grid XYZ/RGBA."
+  },
+  "qualification": {
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/gate_v1",
+    "launch_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/gate_v1/launch.sh",
+    "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/gate_v1/guard.json",
+    "guard_sha256": "e3c5be02184f13f9c7b01b3ca959d1c07821f821d91202de08168168208d3c23",
+    "guarded_input_count": 281,
+    "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/gate_v1/supervision/receipt.json",
+    "receipt_sha256": "aa3ae77db8c795bf85d5d5d3478ac21019295c2140481b81e191c08386b3a5fb",
+    "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plot_bridge_group_ci_20261011/gate_v1/supervision/stdout",
+    "stdout_sha256": "a804d25d589f1ddeb9a72b7e251bd2c0472e85f2d520acfce51bdf9207bc9652",
+    "stderr_sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "collected": 8,
+    "passed": 8,
+    "failed": 0,
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 16.962799712084234,
+    "sampled_peak_summed_rss_kib": 1068736,
+    "censored_limit": null,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "Ruff": "passed"
+  },
+  "source_change": false,
+  "publication_checkout_modified": false
+}

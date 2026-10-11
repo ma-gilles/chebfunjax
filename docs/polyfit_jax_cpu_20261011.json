@@ -1,0 +1,64 @@
+{
+  "scope": "JAX discrete-data polyfit retains complex values, rejects matrix abscissae and follows source unconditional second Vandermonde column for n=0. Underdetermined solves retain pivoted-QR basic solutions.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "2b687f9c",
+  "unique_cases": 6,
+  "gates": {
+    "polyfit_jax_baseline_20261011": {
+      "original": 21087,
+      "terminal": 1,
+      "wall_seconds": 8.74248599121347,
+      "peak_rss_kib": 592200,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": []
+    },
+    "polyfit_jax_candidate_20261011": {
+      "original": 66354,
+      "terminal": 0,
+      "wall_seconds": 12.415531469974667,
+      "peak_rss_kib": 827768,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": []
+    },
+    "polyfit_jax_complex_basic_20261011": {
+      "original": 13296,
+      "terminal": 0,
+      "wall_seconds": 8.422558560967445,
+      "peak_rss_kib": 600308,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": []
+    },
+    "polyfit_jax_native_norm_20261011": {
+      "original": 17440,
+      "terminal": 0,
+      "wall_seconds": 10.930737480986863,
+      "peak_rss_kib": 735960,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": []
+    }
+  },
+  "limits": [
+    "Overdetermined least-squares retains the prior SVD algorithm through JAX; exact MATLAB backslash provider/rounding and rank-deficient conventions are not newly qualified.",
+    "Existing seeded RandomState inputs for native clause5 were retained; MATLAB RNG bit-equivalence was not newly captured.",
+    "No full-suite/current CI or global JIT claim."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_baseline_20261011/guard.json": "309abb320c1ddc43677f4c5a600f3af01ed5b9ca5b59ad356a8be7f0b1b0261a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_baseline_20261011/junit.xml": "4b1023d6ff33d89825e4816270bc36ec7c7695d2c4881c9a65befb98f1c29b14",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_baseline_20261011/supervision/receipt.json": "d25c4708f5e77a724020dbb2b92e5d7a01a1cf3382f9227d1cb22c863d9d0865",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_candidate_20261011/guard.json": "854129fdb22d897f1a4ec307d17177f9f5d5c36e6df7ee533c1e6149430491a1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_candidate_20261011/junit.xml": "a88c069e18945a8a46a3f6e10f0b1e1e2fe31e1b38e5c0a477048683b2109577",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_candidate_20261011/supervision/receipt.json": "495032a877b2d52727743c6a5b5cae54cdcd6a438bb41e19b019c52cb21de743",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_complex_basic_20261011/guard.json": "bcd2350a2d6a812bd3418c1528861432db1cc4e23edba99eefde2b346bf63510",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_complex_basic_20261011/junit.xml": "c8c9ddfa0d40ba9501d7d2dbf4a70cd06f4402fd7fbbfd685023772e593c1ec8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_complex_basic_20261011/supervision/receipt.json": "918cc4dc4e0fe8dc864ff9b0f6e96e78c5699a08bed55b472dd847ca46654e35",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_native_norm_20261011/guard.json": "8b5425cfb0fea0c4bb42154d4786251292300392c3a82873635779a4536e84f9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_native_norm_20261011/junit.xml": "524fd2fbb046710d0d5bc98dc146db19680f30a9aa56acaabcc5f4d0e1bffc0e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/polyfit_jax_native_norm_20261011/supervision/receipt.json": "e88814ccc4d6bb88c5872054d8d5ecedd4f8d7dd1918fce028b32c355b469170"
+  },
+  "assertion_restoration": "Original matrix-data clause8 uses matrix2norm, not per-column norms; restored and all eight existing original predicates rerun at unchanged bounds."
+}

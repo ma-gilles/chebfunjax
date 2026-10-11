@@ -11510,9 +11510,13 @@ def polyfit(x, y, n: int, domain=(-1.0, 1.0)):
     MATLAB source : @domain/polyfit.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-    x = _np.asarray(x, dtype=float).reshape(-1)
-    y = _np.asarray(y, dtype=float)
+    import jax.scipy.linalg as jsl
+
+    x = jnp.atleast_1d(jnp.asarray(x))
+    if x.ndim > 2 or (x.ndim == 2 and min(x.shape) > 1):
+        raise ValueError("CHEBFUN:DOMAIN:polyfit:xIn: X should be a real-valued column vector")
+    x = x.reshape(-1)
+    y = jnp.atleast_1d(jnp.asarray(y))
     if y.ndim == 1:
         y = y.reshape(-1, 1)
     if y.shape[0] != x.shape[0]:
@@ -11523,24 +11527,20 @@ def polyfit(x, y, n: int, domain=(-1.0, 1.0)):
                              "must be the same size.")
     a, b = float(domain[0]), float(domain[-1])
     xm = 2 * (x - a) / (b - a) - 1
-    T = _np.zeros((x.size, n + 1))
-    T[:, 0] = 1.0
-    if n >= 1:
-        T[:, 1] = xm
+    # Source writes column two unconditionally, even when n=0.
+    T = jnp.zeros((x.size, max(n + 1, 2)), dtype=jnp.result_type(xm, 1.0))
+    T = T.at[:, 0].set(1.0).at[:, 1].set(xm)
     for k in range(2, n + 1):
-        T[:, k] = 2 * xm * T[:, k - 1] - T[:, k - 2]
+        T = T.at[:, k].set(2 * xm * T[:, k - 1] - T[:, k - 2])
     if T.shape[0] >= T.shape[1]:
-        c = _np.linalg.lstsq(T, y, rcond=None)[0]
+        c = jnp.linalg.lstsq(T, y, rcond=None)[0]
     else:
-        # MATLAB's backslash on an underdetermined system: the basic
-        # solution from a column-pivoted QR (at most m nonzero
-        # coefficients), not the minimum-norm one.
-        import scipy.linalg as _sla
-        Q, R, piv = _sla.qr(T, mode="economic", pivoting=True)
+        # Retain the basic pivoted-QR solution, rather than minimum norm.
+        Q, R, piv = jsl.qr(T, mode="economic", pivoting=True)
         m = T.shape[0]
-        c = _np.zeros((T.shape[1], y.shape[1]))
-        c[piv[:m], :] = _sla.solve_triangular(R[:, :m], Q.T @ y)
-    coeffs = jnp.asarray(c[:, 0] if c.shape[1] == 1 else c)
+        c = jnp.zeros((T.shape[1], y.shape[1]), dtype=jnp.result_type(T, y))
+        c = c.at[piv[:m], :].set(jsl.solve_triangular(R[:, :m], Q.conj().T @ y))
+    coeffs = c[:, 0] if c.shape[1] == 1 else c
     return chebfun(coeffs, domain=(a, b), coeffs=True)
 
 

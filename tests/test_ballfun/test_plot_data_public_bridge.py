@@ -7,9 +7,9 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: Matplotlib host artist/data assertions.
 import pytest
-from mpl_toolkits.mplot3d import Axes3D
 
 import chebfunjax._ball_plot_data as data_module
+import chebfunjax._sphere_surface as sphere_surface
 import chebfunjax.plotting as plotting
 from chebfunjax.ballfun.ballfun import Ballfun
 
@@ -38,11 +38,12 @@ def test_public_default_source_data_and_real_five_surface_artist(monkeypatch, ro
     def forbidden_fevalm(*args, **kwargs):
         raise AssertionError("default source data must use coefficient transforms")
 
-    original_surface = Axes3D.plot_surface
+    original_group = sphere_surface.InterpolatedSurfaceGroup
 
-    def surface_spy(ax, x, y, z, **kwargs):
-        surfaces.append(tuple(np.asarray(v).copy() for v in (x, y, z)))
-        return original_surface(ax, x, y, z, **kwargs)
+    def group_spy(items):
+        surfaces.append(tuple(tuple(np.asarray(v).copy() for v in item)
+                               for item in items))
+        return original_group(items)
 
     original_normalize = plotting._normalize_values
 
@@ -52,7 +53,7 @@ def test_public_default_source_data_and_real_five_surface_artist(monkeypatch, ro
 
     monkeypatch.setattr(data_module, "ball_plot_data", source_spy)
     monkeypatch.setattr(Ballfun, "fevalm", forbidden_fevalm)
-    monkeypatch.setattr(Axes3D, "plot_surface", surface_spy)
+    monkeypatch.setattr(sphere_surface, "InterpolatedSurfaceGroup", group_spy)
     monkeypatch.setattr(plotting, "_normalize_values", normalize_spy)
     fig = plt.figure(figsize=(2, 2), dpi=96)
     try:
@@ -61,11 +62,22 @@ def test_public_default_source_data_and_real_five_surface_artist(monkeypatch, ro
                   else getattr(ball, route)(ax=ax))
         assert result == (fig, ax)
         assert len(source_records) == 1
-        assert len(surfaces) == len(ax.collections) == 5
+        assert len(surfaces) == 1
+        assert len(surfaces[0]) == 5
+        assert len(ax.collections) == 1
+        artist = ax.collections[0]
+        assert isinstance(artist, original_group)
+        assert len(artist._source_surfaces) == 5
         data = source_records[0]
-        for captured, source in zip(surfaces, data.surfaces):
-            for actual, expected in zip(captured, (source.x, source.y, source.z)):
+        for captured, source, (stored_xyz, stored_rgba) in zip(
+                surfaces[0], data.surfaces, artist._source_surfaces):
+            for actual, expected in zip(captured[:3], (source.x, source.y, source.z)):
                 assert actual.tobytes() == np.asarray(expected).tobytes()
+            np.testing.assert_array_equal(
+                np.stack(captured[:3], axis=-1), stored_xyz)
+            np.testing.assert_array_equal(captured[3], stored_rgba)
+            assert captured[3].shape == np.asarray(source.values).shape + (4,)
+            assert np.all(np.isfinite(captured[3]))
         expected_values = np.concatenate([np.asarray(s.values).ravel() for s in data.surfaces])
         assert len(normalizer_inputs) == 1
         assert normalizer_inputs[0].tobytes() == expected_values.tobytes()
@@ -138,6 +150,9 @@ def test_complex_public_default_warns_and_passes_only_real_cdata(monkeypatch):
             ball.plot(ax=ax)
         assert len(captured) == 1
         np.testing.assert_array_equal(captured[0], .25)
-        assert len(ax.collections) == 5
+        assert len(ax.collections) == 1
+        artist = ax.collections[0]
+        assert isinstance(artist, sphere_surface.InterpolatedSurfaceGroup)
+        assert len(artist._source_surfaces) == 5
     finally:
         plt.close(fig)
