@@ -1,0 +1,102 @@
+{
+  "primary": {
+    "base": "9b18196ff8e4b08b8614cc0c4d1bde67a7de5b2f",
+    "scope": "SciPy residue/invres removed; source-driven JAX private numeric backend and source wrapper guards/fixed-size construction. poly/fred/volt AST unchanged.",
+    "original_predicates": 4,
+    "original_inequalities": 5,
+    "additional_controls": 10,
+    "gate": {
+      "handle": 90013,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/controls_v2/AUDIT.json",
+      "sha256": "18b21912a37ddfc36997fe3aaac6ea6acf2395df3b0d58aded8479793cc78613"
+    },
+    "baseline": {
+      "handle": 45629,
+      "failures": 3,
+      "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/baseline_v1/AUDIT.json",
+      "sha256": "386d660921404f2fee7c808d4e8df9662de14f0fb6e1c0ba720585ff7f6407ec"
+    },
+    "origins": {
+      "chebfun": "MIT @chebfun/residue.m; pin7574c77",
+      "numerical_algorithms": "Licensed MATLAB R2025b residue/mpoles/resi2/poly/polyder/polydiv references; no long proprietary comments copied."
+    },
+    "source_changes": [
+      "Native relative MPOLES ordering/grouping, repeated-pole averaging and RESI2 deflation/derivatives.",
+      "Inverse nonadjacent repeat grouping and ascending pole powers.",
+      "POLYDIV impulse-response state arithmetic; JAX roots and polynomial recurrence.",
+      "Exact-conjugate root realness instead of np.real_if_close threshold.",
+      "Public native shape/multiple-FUN/nonfinite guards, fixed-length reconstruction."
+    ],
+    "extensions": [
+      "Preserves current denominator/k domain; native defaults to preferred reconstruction domain.",
+      "Optional None/numeric quotient inverse convenience retained."
+    ],
+    "limits": [
+      "No general JIT contract: grouping and polynomial output lengths are data dependent.",
+      "No bitwise MATLAB eigenvalue claim; repeated-pole problems remain ill-conditioned.",
+      "Finite pole inputs qualified; nonfinite pole-vector behavior is not qualified."
+    ],
+    "packaging": "Ruff formatting only; all implementation/test function AST matches executed source. Original test bytes untouched."
+  },
+  "grouping_amendment": {
+    "scope": "Only MPOLES grouping helper changed; unconditional final singleton source exit plus explicit no-progress Python error adapter. All arithmetic and other functions AST identical to prior full gate.",
+    "gate_handle": 1793,
+    "controls": 9,
+    "full_gate_preserved": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/controls_v2/AUDIT.json",
+    "limits": "NaN/Inf direct singleton metadata follows source exit; no public nonfinite-residue numerical parity claim. Multi-pole non-progress raises an explicit Python error instead of hanging.",
+    "fixture_erratum": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_amendment_v1/FIXTURE_NOTE.json",
+    "fixture_cause": "Smallest subnormal is treated as zero by pinned CPU comparison, so multi-input selected the absolute threshold. Smallest normal exercises >0 followed by relative-threshold underflow; original singleton subnormal test retained.",
+    "baseline_policy": "Old helper was never invoked on known hanging input.",
+    "AST": "All implementation function AST matches fresh qualified snapshot; other functions AST equals prior delivered helper."
+  },
+  "deliveries": [
+    {
+      "files": {
+        "src/chebfunjax/utils/polyops.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/candidate/src/chebfunjax/utils/polyops.py",
+          "sha256": "78408f523da144feba33e7de809e5d459619b48e8646c13aa433c301777f4e42"
+        },
+        "src/chebfunjax/utils/_residue_source.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/candidate/src/chebfunjax/utils/_residue_source.py",
+          "sha256": "2f1c528a260d40660d173db5aba51df30e4d972c00b966d1099cc15cca7907e7"
+        },
+        "tests/test_matlab_port/chebfun/test_residue_matlab.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/candidate/tests/test_matlab_port/chebfun/test_residue_matlab.py",
+          "sha256": "99b0efd9914a90fa082a79bfec5d801f94ea0ce159b670e899ec17151f50629c"
+        },
+        "tests/test_matlab_port/chebfun/test_residue_source_controls.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/candidate/tests/test_matlab_port/chebfun/test_residue_source_controls.py",
+          "sha256": "5df0a13b835c7a59ee6d215daaae4cef0b7a471b7c8e03570ff99b205741bb40"
+        }
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/candidate.patch": "6ce656911dc5cbc2e7688363009cf470d52730120bd38777dfcdb38cbc37d369",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/delivery_v1/EVIDENCE.json": "f95d2ffaa7bbef7fd2ad3163f61d9892d0b00858f290c9b636bc62d5ad329c47",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/controls_v2/AUDIT.json": "18b21912a37ddfc36997fe3aaac6ea6acf2395df3b0d58aded8479793cc78613",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/baseline_v1/AUDIT.json": "386d660921404f2fee7c808d4e8df9662de14f0fb6e1c0ba720585ff7f6407ec",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/PLAN.json": "6bff1e1391123676c4d43cf865c3672ae36b879aa7e7941e0946942541b09790"
+      },
+      "unrelated_function_ast_identical": true
+    },
+    {
+      "files": {
+        "src/chebfunjax/utils/_residue_source.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_delivery_v1/candidate/src/chebfunjax/utils/_residue_source.py",
+          "sha256": "2df48c74a2295e3276877a483b7d536c616dce566eb927b4bf2b5e79987c1cf4"
+        },
+        "tests/test_matlab_port/chebfun/test_residue_grouping_boundaries.py": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_delivery_v1/candidate/tests/test_matlab_port/chebfun/test_residue_grouping_boundaries.py",
+          "sha256": "12d7eb6e8e52551e647cd803c26ad3ec23a4bc3c1f9f67862f1727f6bb9cb29c"
+        }
+      },
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_delivery_v1/candidate.patch": "01550244c6b48482cbf1e43aa582a84672e77a4f2e64256abb4924cc721c83c1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_delivery_v1/EVIDENCE.json": "b044558b98ed5a61a0338f7416d76dd46dff39f3c25945e6911dc24cf479dfbb",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_amendment_v2/AUDIT.json": "51dea8989a448758c62f3a6ab22d46433c0e2b5ee8cc1949b6a43e8988876d77",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/grouping_amendment_v1/FIXTURE_NOTE.json": "4a108b9f449a902829c64b55c6a7288be282ed020e1bc8382a406c5848978242",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_jax_source_20261011/controls_v2/AUDIT.json": "18b21912a37ddfc36997fe3aaac6ea6acf2395df3b0d58aded8479793cc78613"
+      }
+    }
+  ],
+  "root_review": "Verified delivery hashes; residue and its polynomial reconstruction helper changed in polyops; only _mpoles changed in amendment. No whole-suite or fresh native claim."
+}

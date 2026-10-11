@@ -12,9 +12,11 @@ from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402  # noqa: 
     Chebfun,
     cell2quasi,
     chebfun,
+    chebpoly,
     complex_fun,
     getValuesAtBreakpoints,
     kron,
+    legpoly,
     ode15s,
     ode45,
     ode78,
@@ -80,6 +82,7 @@ from chebfunjax.utils.lebesgue_source import lebesgue  # noqa: E402
 from chebfunjax.utils.misc import isSubset  # noqa: E402
 from chebfunjax.utils.nufft import nufft2  # noqa: E402
 from chebfunjax.utils.ode_solution import odesol  # noqa: E402
+from chebfunjax.utils.polynomials import chebpolyval, chebpolyvalm  # noqa: E402
 from chebfunjax.utils.polynomials import (  # noqa: E402
     hermpoly_chebfun as hermpoly,
 )
@@ -338,6 +341,10 @@ __all__ = [
     "residue",
     "fred",
     "volt",
+    "chebpoly",
+    "legpoly",
+    "chebpolyval",
+    "chebpolyvalm",
     "jacpoly",
     "ultrapoly",
     "hermpoly",

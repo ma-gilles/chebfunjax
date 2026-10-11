@@ -11350,84 +11350,19 @@ def chebpoly(n, domain=None, kind: int = 1) -> Chebfun:
     return chebpoly_public(n, domain, kind)
 
 
-def legpoly(n, domain=(-1.0, 1.0), normalize=False) -> Chebfun:
-    """Legendre polynomial(s) ``P_n`` as a Chebfun on ``domain`` (MATLAB
-    ``legpoly(N, D, 'norm')``); a vector ``n`` gives an array-valued
-    Chebfun.  With ``normalize`` the columns are orthonormal on the
-    domain.
+def legpoly(n, domain=(-1.0, 1.0), normalize=None, method=None) -> Chebfun:
+    """Legendre Chebfuns with source recurrence, weighted QR or transform.
+
+    A column vector of degrees returns a row Chebfun. The optional fourth
+    argument selects methods 1, 2 or 3; 'norm' requests normalization.
 
     Provenance
     ----------
     MATLAB source : legpoly.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-
-    from chebfunjax.utils.polynomials import legpoly as _leg_coeffs
-    if isinstance(domain, str):
-        normalize, domain = domain, (-1.0, 1.0)
-    if isinstance(normalize, str):
-        normalize = normalize.lower().startswith("norm")
-    ns = _np.atleast_1d(_np.asarray(n, dtype=int)).ravel()
-    dv = [float(v) for v in domain]
-    if any(not math.isfinite(v) for v in dv):
-        raise ValueError("CHEBFUN:legpoly:infdomain: Legendre polynomials "
-                         "are not defined over an unbounded domain.")
-    N = int(ns.max()) + 1
-    nmax = int(ns.max())
-    # MATLAB legpoly.m method selection: method 3 (leg2cheb) for
-    # nMax > 1000, falling back to the recurrence (method 1) when many
-    # degrees are requested; method 2 (weighted QR on a Chebyshev grid of
-    # twice the size) otherwise.
-    if nmax <= 1000:
-        # MATLAB legpoly.m method 2: weighted QR of the Chebyshev
-        # Vandermonde matrix on a Chebyshev grid of twice the size.
-        from chebfunjax.utils.quadrature import chebweights
-        pts = 2 * N
-        w = _np.asarray(chebweights(pts, kind=2), dtype=float)
-        theta = _np.pi * _np.arange(pts - 1, -1, -1) / (pts - 1)
-        A = _np.cos(_np.outer(theta, _np.arange(nmax + 1)))
-        Q, _R = _np.linalg.qr(_np.sqrt(w)[:, None] * A)
-        P = Q / _np.sqrt(w)[:, None]
-        if normalize:
-            PP = P[:, ns] * (_np.sqrt(2.0 / (dv[-1] - dv[0]))
-                             * _np.sign(P[-1, ns]))
-        else:
-            PP = P[:, ns] * (1.0 / P[-1, ns])
-        from chebfunjax.tech.chebtech import Chebtech2
-        C = _np.asarray(Chebtech2.vals2coeffs(jnp.asarray(PP)))[:N, :]
-        coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
-        f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
-    elif ns.size > nmax / 5:
-        # MATLAB legpoly.m method 1: the three-term recurrence evaluated
-        # at nmax+1 Chebyshev points (accurate to ~1e-13 at degree 1000
-        # where the leg2cheb transform is only ~1e-12).
-        from chebfunjax.utils.quadrature import chebpts
-        x = _np.asarray(chebpts(N, kind=2), dtype=float)
-        want = {int(k): j for j, k in enumerate(ns)}
-        V = _np.zeros((N, ns.size))
-        L0 = _np.ones_like(x)
-        L1 = x.copy()
-        for k in range(0, nmax + 1):
-            if k in want:
-                scl = (_np.sqrt((2 * k + 1) / (dv[-1] - dv[0]))
-                       if normalize else 1.0)
-                V[:, want[k]] = L0 * scl
-            L0, L1 = L1, ((2 * k + 3) * x * L1 - (k + 1) * L0) / (k + 2)
-        vals = jnp.asarray(V[:, 0] if ns.size == 1 else V)
-        f = chebfun(vals, domain=(dv[0], dv[-1]))
-    else:
-        C = _np.zeros((N, ns.size))
-        for j, k in enumerate(ns):
-            c = _np.asarray(_leg_coeffs(int(k)))
-            if normalize:
-                c = c * _np.sqrt((2 * k + 1) / (dv[-1] - dv[0]))
-            C[:c.shape[0], j] = c
-        coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
-        f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
-    if len(dv) > 2:
-        f = f._restrict_breaks(dv)
-    return f
+    from chebfunjax.chebfun1d._legpoly import source_legpoly
+    return source_legpoly(n, domain, normalize, method)
 
 
 def poly(v, domain=(-1.0, 1.0)):

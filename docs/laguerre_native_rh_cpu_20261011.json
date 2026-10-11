@@ -1,0 +1,119 @@
+{
+  "scope": "Fresh native qualification of previously interpreted general-alpha Laguerre RH outcomes; no algorithm/test-bound changes",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "gates": [
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2",
+      "original": 52627,
+      "outcomes": [
+        {
+          "n": 42,
+          "alpha": 0.3,
+          "method": "RH",
+          "status": "error",
+          "identifier": "CHEBFUN:lagpts:converge",
+          "message": "Newton method may not have converged.",
+          "warning_message": "",
+          "warning_identifier": ""
+        },
+        {
+          "n": 100,
+          "alpha": 0.3,
+          "method": "RH",
+          "status": "ok",
+          "moments": [
+            0.8974706963062773,
+            1.16671190519829,
+            2.683437381956126
+          ],
+          "length": 100,
+          "warning_message": "",
+          "warning_identifier": ""
+        }
+      ],
+      "science_seconds": 0.505757,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/result.json": "821e6939704b76d4ce7ce2146afa9822360003857076357d77ffc6a747d29279",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/AUDIT.json": "a345f3f25ca242e4b0c27406156eaf91c1a2925d7d3cbd396bf1417c7ff17e5d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/RUNTIME_OBSERVATION.json": "57274276f6da65477d9093595763529d758d7ee2ed941b65f40ef417b7aa38d1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/guard.json": "de11198e9e0cda842dd47b5d0099385d5b401c1297e02f8f02b2707b8be7359e",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/supervision/receipt.json": "7a1bebac93bce8554842accd1a1906338693f415f2ceba010991e12517baf2cd",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/probe.m": "65844bd704fcb3d2cb84602fcd3b5a77af2601123e08e853fd4fcca02cdf45c3",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/source/lagpts.m": "de429e146df41e4b26fc183ed958876600072d39f6d980654eb2dd2635151cb9",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/source/besselroots.m": "66c83c7039655b03f12fa461cfe17621cd9aaa0bb161c409ec556c509139d3dd"
+      }
+    },
+    {
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3",
+      "original": 18392,
+      "outcomes": [
+        {
+          "n": 3000,
+          "alpha": 20.3,
+          "method": "RH",
+          "status": "error",
+          "identifier": "CHEBFUN:lagpts:converge",
+          "message": "Newton method may not have converged.",
+          "warning_message": "",
+          "warning_identifier": ""
+        }
+      ],
+      "science_seconds": 0.855376,
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/result.json": "7a52caf708bc629a559596727041e67691c3019f04d0f07820aa8b27a6f77769",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/AUDIT.json": "d5b0ea617f57fdb3d3e86cb3cec55b4676b1ee36d27c550a55d8065e89828aa8",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/RUNTIME_OBSERVATION.json": "0b648298e5ef4b72761be9fb336ee2d43c08815f569980a1f25f17e17b39b6f0",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/guard.json": "545c632984dcb8d056063b242c647ae38b944b611138300f0918635cf4a43da6",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/supervision/receipt.json": "af9da014529c6dfb537e84a4e208852dd6222ee646badb7810c9af7ffe5c77b8",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/probe.m": "4a1f21fe703a8ff21f194c55e84fc1b33505ae01c3674f6e9c5fbc71cb513e44",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/source/lagpts.m": "de429e146df41e4b26fc183ed958876600072d39f6d980654eb2dd2635151cb9",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/source/besselroots.m": "66c83c7039655b03f12fa461cfe17621cd9aaa0bb161c409ec556c509139d3dd"
+      }
+    }
+  ],
+  "n100_comparison": {
+    "n": 100,
+    "native_status": "ok",
+    "interpreted_status": "ok",
+    "node_max_abs_error": 2.2737367544323206e-13,
+    "weight_max_relative_error": 1.382277426798646e-12,
+    "native_length": 100,
+    "native_moments": [
+      0.8974706963062773,
+      1.16671190519829,
+      2.683437381956126
+    ]
+  },
+  "existing_predicates": "n42alpha.3 requires source convergence error; n100alpha.3 uses inherited node8e-10 absolute and weight4e-9 relative envelopes; n3000alpha20.3 requires source nine-iteration convergence error. Native confirms public error identifiers, not internal iteration/node attribution.",
+  "coverage": "Original tests/misc/test_lagpts.m has14clauses already translated. These RH cases are additional API/source controls. No new literal-original test-pass count is claimed.",
+  "limitations": [
+    "No duplicate Python rerun; historical qualified controls remain their own evidence",
+    "Observed runtime/provider hashes are postexit, not prospectively complete provider closure",
+    "n42/n3000 failure index and iteration count remain source-interpreter attribution, not instrumented native internals",
+    "General arbitrary-alpha special-function accuracy/performance remains unqualified"
+  ],
+  "preserved_failure": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr1/SCIENCE_REJECTION.json",
+    "sha256": "56aab72007787a766195632637b0b585a0bfcfa199c779c69c23d292f186f948"
+  },
+  "hermite_correction": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_argument_chain_20261011/BOUNDS_NARRATIVE_ERRATUM.json",
+    "sha256": "7cd84a62e94bc8dcbb40152b69ce801d6c0bda23723585f5c5a603027b47144d"
+  },
+  "existing_test_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_utils/test_laguerre_rh_source_guard.py": "1f63a6687ea3e9d7236caf7211b327a049faf6aab9743b0ee5b9a04bd16cf53f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_utils/test_laguerre_rh_small_source.py": "6ba0734842097a887322865ad17cdfa686a26c91430ec03119d6a1bd05b3bce9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/misc/test_lagpts_matlab.py": "b5ef1ccd4af640c45f88811fd9800c3f59605426a3c5b3a1f5b776af634b6dfc"
+  },
+  "root_review": {
+    "verified_binding_count": 232,
+    "additional_capture_bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/intermediates.json": "08d001f35b5b67b5f47dfa1c25f19f162a10910b9c8796b05d613663f0f6002f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/intermediates.mat": "10ace8c7d09a4064d5150d2a1647400b1493c9cffc9194c3dd7fc31d9d5eb99b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr2/RETAINED_COMPARISON.json": "9279e4a75206618a82e6325043a10beb2583f5dbf33e6e8012a31b771395081b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/intermediates.json": "5af1e3c4c34c2e8c79ad1917d7cfa577eb6d874f18752624dc168c967f22b809",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lgr3/intermediates.mat": "e66e0f5452333517e5f698d6117c4cb03ce9f5b6ed47de0fd619a1b50cc0925d"
+    },
+    "qualification": "Source-stable native outcomes accepted; provider observations postexit as disclosed. No new Python runs or full arbitrary-alpha claim."
+  }
+}

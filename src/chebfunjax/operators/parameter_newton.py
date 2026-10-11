@@ -67,8 +67,9 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
     from chebfunjax.chebpref import ChebopPref
     from chebfunjax.operators.chebop import SystemSolution
 
-    # Native solvebvpNonlinear.m75 captures this preference once per solve.
-    lambda_min = ChebopPref().lambdaMin
+    # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
+    preferences = ChebopPref()
+    lambda_min = preferences.lambdaMin
     domain = tuple(op.domain)
     x = chebfun(lambda t: t, domain=domain)
     m = op._n_vars()
@@ -203,7 +204,7 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
             vscale = max(vscale, float(full.vscale))
 
     history, damping_history = [], []
-    damping = bool(getattr(op, "damping", True))
+    damping = bool(getattr(op, "damping", preferences.damping))
     pref_damping = damping
     lam = 1.0
     give_up = 0

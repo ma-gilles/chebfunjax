@@ -1,0 +1,16 @@
+{
+  "status": "Three parametrized CPU tests pass (list/NumPy/JAX empties), exact output equality, original supervisor terminal0",
+  "change": "Empty normalize becomes0 before normalized short-form routing; empty fourth method selects default.",
+  "source_quirk": "Three-argument normalized short form with empty third argument selects invalid method0. Python ValueError retained instead of native undefined-C fallout. Parent initial default2 instruction corrected after agent source review; v1 rejected and preserved.",
+  "scope": "No numerical recurrence/QR/transform changes; full39 gate from main package remains separate.",
+  "sampled_peak_rss_kib": 611580,
+  "wall_seconds": 8.35251227999106,
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v2_20261011/amendment.patch": "27aa437dd634d96ba0812a080a6cd0caf22cdfe567817144a6ae8caa905bec03",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v2_20261011/controls/guard.json": "6182f675a139021a12060e3a079dbff3b2a01010dda3eecf2cdd15fb37f6413d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v2_20261011/controls/junit.xml": "192cce55ada7186d0fb88766f51bc45713ba60fb35bab33a2f574b0e25840902",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v2_20261011/controls/supervision/receipt.json": "f629dae8894c2d93811fe6f4564f570186c7f9fa976ac8241059fa776193a240",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v2_20261011/SOURCE_ORDER.txt": "c8c235a3ac1535c39a1c1e2ffbe9d5d54836a45b0df2aefe65dfe145642c31dc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_empty_amendment_v1_20261011/REJECTED_SOURCE_ORDER.txt": "f0b966dec69a84c8abed35d61295c0a3305e0a91a1674bb69041eade48719926"
+  }
+}

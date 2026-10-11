@@ -182,10 +182,11 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     """
     if backend not in ("chebcolloc2", "chebcolloc1", "ultraS"):
         raise ValueError(f"Unsupported scalar Newton backend {backend!r}")
-    # Native solvebvpNonlinear.m75 captures this preference once per solve.
+    # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
     from chebfunjax.chebpref import ChebopPref
 
-    lambda_min = ChebopPref().lambdaMin
+    preferences = ChebopPref()
+    lambda_min = preferences.lambdaMin
     domain = tuple(op.domain)
     _validate_initial(op, domain, n_min)
     x = chebfun(lambda t: t, domain=domain)
@@ -329,7 +330,7 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
             vscale = max(vscale, float(full.vscale))
 
     history, damping_history = [], []
-    damping = bool(getattr(op, "damping", True))
+    damping = bool(getattr(op, "damping", preferences.damping))
     pref_damping = damping
     lam = 1.0
     give_up = 0

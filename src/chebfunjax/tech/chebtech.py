@@ -3547,7 +3547,10 @@ class Chebtech2(eqx.Module):
         # Chebyshev points of the 2nd kind on [-1, 1]
         x = chebpts(n, kind=2)
         # Map x from [-1, 1] into [a, b]:  y = (b-a)/2 * x + (a+b)/2
-        y = 0.5 * (b - a) * x + 0.5 * (a + b)
+        # Match MATLAB @chebtech/restrict.m mapped-grid operation order.
+        # The affine-equivalent form can differ by one ULP and materially
+        # change coefficients after restriction of high-degree polynomials.
+        y = 0.5 * (1.0 - x) * a + 0.5 * (1.0 + x) * b
         # Evaluate self at the mapped points
         new_values = self(y)
         # Convert to coefficients

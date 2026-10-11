@@ -1,4 +1,3 @@
-# uses-numpy: polynomial coefficient manipulation is one-shot numpy/scipy
 """Polynomial residue and integral-operator utilities (MATLAB residue,
 fred, volt).
 
@@ -13,9 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
-from scipy.signal import invres
-from scipy.signal import residue as _sresidue
 
 __all__ = ["poly", "residue", "fred", "volt"]
 
@@ -73,57 +69,64 @@ def poly(f, n=None):
 
 
 def _poly_chebfun(coeffs_desc, domain=(-1.0, 1.0)):
-    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-    cd = np.atleast_1d(np.asarray(coeffs_desc))
-    if cd.size == 0:
-        cd = np.zeros(1)
-    if np.iscomplexobj(cd):
-        return Chebfun.from_function(
-            lambda x: jnp.polyval(jnp.asarray(cd), x),
-            Domain((float(domain[0]), float(domain[1]))))
-    return Chebfun.from_function(
-        lambda x: jnp.polyval(jnp.asarray(cd, dtype=jnp.float64), x),
-        Domain((float(domain[0]), float(domain[1]))))
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    coefficients = jnp.atleast_1d(jnp.asarray(coeffs_desc))
+    if coefficients.size == 0:
+        coefficients = jnp.zeros(1, dtype=coefficients.dtype)
+    return chebfun(lambda x: jnp.polyval(coefficients, x), domain=domain,
+                   n=max(coefficients.size, 1))
 
 
 def residue(u, v, k=None):
-    """Partial-fraction expansion (MATLAB residue, both directions).
+    """Source partial fractions with ascending repeated-pole powers.
 
-    ``residue(g, f)`` with chebfun inputs returns ``(r, p, k)``:
-    residues, poles, and the polynomial quotient as a chebfun, such
-    that g/f = sum r_j/(x - p_j) + k(x).
-
-    ``residue(r, p, k)`` with vector inputs (k a chebfun or None)
-    returns ``(B, A)``: numerator/denominator chebfuns.
+    Forward Chebfun inputs return residues, poles and a quotient Chebfun.
+    Numeric residues/poles and optional quotient return numerator/denominator.
+    Denominator/quotient domains and numeric/None inverse convenience are
+    retained Python extensions; native reconstructs on its preferred domain.
 
     Provenance
     ----------
-    MATLAB source : @chebfun/residue.m
-    Chebfun commit: 7574c77
+    MIT Chebfun source: @chebfun/residue.m, commit 7574c77.
+    Numeric algorithm references: licensed MATLAB R2025b residue.m,
+    mpoles.m, resi2.m, poly.m, polyder.m and polydiv.m.
+    Numerical operations use JAX; grouping and output lengths are eager.
     """
-    if hasattr(u, "funs"):  # forward: chebfun numerator/denominator
-        g, f = u, v
-        bb = np.asarray(poly(g))
-        aa = np.asarray(poly(f))
-        r, p, kk = _sresidue(bb, aa)
-        dom = (float(f.domain.a), float(f.domain.b))
-        return jnp.asarray(r), jnp.asarray(p), _poly_chebfun(kk, dom)
-    # inverse: vectors (+ optional chebfun quotient)
-    r = np.atleast_1d(np.asarray(u))
-    p = np.atleast_1d(np.asarray(v))
-    if k is None or (hasattr(k, "funs") and len(k.funs) == 0):
-        kk = np.array([])
-        dom = (-1.0, 1.0)
+    from chebfunjax.utils._residue_source import forward, inverse
+
+    def check_function(function, check_columns=True):
+        if check_columns and function.n_columns > 1:
+            raise ValueError("CHEBFUN:CHEBFUN:residue:quasi: Residue does not support CHEBFUN objects with multiple columns.")
+        if len(function.funs) > 1:
+            raise ValueError("CHEBFUN:CHEBFUN:residue:multipleFuns: Residue does not support CHEBFUNs consisting of multiple FUNs.")
+        if not function.isfinite():
+            raise ValueError("CHEBFUN:CHEBFUN:residue:inf: Residue does not support unbounded functions.")
+
+    for argument in (u, v):
+        if not hasattr(argument, "funs"):
+            shape = jnp.asarray(argument).shape
+            if len(shape) > 1 and min(shape) > 1:
+                raise ValueError("CHEBFUN:CHEBFUN:residue:quasi: Residue does not support objects with multiple columns.")
+
+    if hasattr(u, "funs"):
+        check_function(u)
+        check_function(v)
+        residues, poles, quotient = forward(poly(u), poly(v))
+        domain = (float(v.domain.a), float(v.domain.b))
+        return residues, poles, _poly_chebfun(quotient, domain)
+    if k is None or (hasattr(k, "funs") and k.isempty()):
+        quotient = jnp.empty(0)
+        domain = (-1.0, 1.0)
     elif hasattr(k, "funs"):
-        kk = np.asarray(poly(k))
-        dom = (float(k.domain.a), float(k.domain.b))
+        check_function(k, check_columns=False)
+        quotient = poly(k)
+        domain = (float(k.domain.a), float(k.domain.b))
     else:
-        kk = np.atleast_1d(np.asarray(k))
-        dom = (-1.0, 1.0)
-    bb, aa = invres(r, p, kk)
-    B = _poly_chebfun(np.real_if_close(bb), dom)
-    A = _poly_chebfun(np.real_if_close(aa), dom)
-    return B, A
+        quotient = jnp.atleast_1d(jnp.asarray(k))
+        domain = (-1.0, 1.0)
+    numerator, denominator = inverse(jnp.asarray(u), jnp.asarray(v), quotient)
+    return _poly_chebfun(numerator, domain), _poly_chebfun(denominator, domain)
 
 
 def fred(kernel, f, onevar=None):

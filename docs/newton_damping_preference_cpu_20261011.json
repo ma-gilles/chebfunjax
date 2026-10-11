@@ -1,0 +1,62 @@
+{
+  "scope": "Consume session ChebopPref.damping in three source Newton adapters; preserve explicit op.damping override and default True",
+  "base": {
+    "head": "caf673c750a0d2db02c788243954db6858986bb6"
+  },
+  "source": "@chebop/solvebvpNonlinear.m33-36 and75 at7574c77",
+  "change": "Capture one ChebopPref instance per solve, retaining lambdaMin capture and using damping as fallback instead of hardcoded True. No Newton arithmetic, thresholds, stopping, refinement, or history structure changed.",
+  "baseline": {
+    "original": 35104,
+    "result": "One manufactured source-branch assertion failed: sessionFalse returned0.75, expected1",
+    "pytest_seconds": 13.02,
+    "peak_kib": 1079468
+  },
+  "candidate": {
+    "original": 73632,
+    "cases": 18,
+    "pytest_seconds": 20.44,
+    "peak_kib": 1407236,
+    "test_ids": [
+      "test_source_damping_preference_and_explicit_override[False-None-scalar]",
+      "test_source_damping_preference_and_explicit_override[False-None-parameter]",
+      "test_source_damping_preference_and_explicit_override[False-None-coupled]",
+      "test_source_damping_preference_and_explicit_override[True-None-scalar]",
+      "test_source_damping_preference_and_explicit_override[True-None-parameter]",
+      "test_source_damping_preference_and_explicit_override[True-None-coupled]",
+      "test_source_damping_preference_and_explicit_override[False-True-scalar]",
+      "test_source_damping_preference_and_explicit_override[False-True-parameter]",
+      "test_source_damping_preference_and_explicit_override[False-True-coupled]",
+      "test_source_damping_preference_and_explicit_override[True-False-scalar]",
+      "test_source_damping_preference_and_explicit_override[True-False-parameter]",
+      "test_source_damping_preference_and_explicit_override[True-False-coupled]",
+      "test_scalar_threshold_actual_solve[fallback]",
+      "test_scalar_threshold_actual_solve[reduced]",
+      "test_parameter_threshold_actual_solve[fallback]",
+      "test_parameter_threshold_actual_solve[reduced]",
+      "test_coupled_threshold_actual_solve[fallback]",
+      "test_coupled_threshold_actual_solve[reduced]"
+    ],
+    "result": "All12 preference/override cases and6 unchanged lambdaMin cases passed; stable guards/no caps/survivors"
+  },
+  "static_checks": "Configured P pyproject Ruff passed for three changed modules and new test",
+  "limits": [
+    "No Carrier/full-suite rerun; historical Carrier and C2 corrections remain intact",
+    "Manufactured exact polynomial systems establish source branch behavior, not fresh MATLAB execution",
+    "Legacy periodic/piecewise routes outside the three source adapters are unchanged and not qualified by this package",
+    "Other ChebopPref consumers such as maxIter/display are outside this package"
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate/guard.json": "2f9680dde3ec7b58c7eb2370519298d6096479faed174a2d193aa20b3a8b8f07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate/AUDIT.json": "d21b9141ff6de5412a8a90681a64d8767abe7287cb73fc144be9257bf224ce98",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate/junit.xml": "e31242405c32604739783bd8f3ceda0faad0f946e51f8dea2d5d2679e49aa95a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate/supervision/receipt.json": "ca508997fb1e1e5733c1491b15ffa02e00f1fa8284d7a697b29444933a083b75",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate/supervision/stdout": "477f55e4bd38dbd5b5c90c7b358d5ef0270f25187f9ab14925552074d05053b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/baseline/guard.json": "f0ad5c91072459fd765a0808ea0376101a43b158b0f57a3cbcce367723c924a4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/baseline/AUDIT.json": "e1def285c64d5192aeb28052acc47151ffd607a449d568f6c3cc366160ee372a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/baseline/junit.xml": "ab129d377ddf9cb7edeb68c4d4d23b1083bbc915f334ff00779532d101181771",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/baseline/supervision/receipt.json": "316a95b6f24b38d9c339e05ae330f2a2e222bf59a98c610e0cff440d5e09c5b0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/baseline/supervision/stdout": "8f5396db6808c1614d68191a25510f7fe0f6f2ed36b84c18e516f83ee5ebb544",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/candidate.patch": "a710027a1ac209be74ae3b3a30292e13100677875264750d5086aa0308c2b222",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_damping_preference_20261011/BASE.json": "2531a9bcccc3308ac94e3e9acced4656a65df58c23d30d1933359ee89911b6ef"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "base_head": "caf673c750a0d2db02c788243954db6858986bb6",
+  "candidate_files": {
+    "src/chebfunjax/chebfun1d/_legpoly.py": "56e457065281a86528662d4b835b2d8c8970d901d8a7cd8afc26f71258f0f62c",
+    "src/chebfunjax/chebfun1d/chebfun.py": "26e392dc3c3ecfe425e868b578407a1c682d5f32013faffabe94ec741435f439",
+    "src/chebfunjax/tech/chebtech.py": "f9954b980a63b319d0e057e3a7ff8637ac55656041da792f5a10f40b81796814",
+    "test_legpoly_native_predicates.py": "7a7ac33861e827260a5a53971811c6b12ca38c496d3c9cfb1cd822c01db76756",
+    "test_legpoly_source.py": "b453c295f4e14059a2432dd0af5b7c29c27223394871029e89b49c438804e1ce"
+  },
+  "causal_restriction_finding": {
+    "change": "Chebtech2 restriction mapping uses MATLAB operation ordering 0.5*(1-x)*a + 0.5*(1+x)*b.",
+    "evidence": "The former affine-equivalent expression changed 34\u201347 of 101 mapped points by one ULP in the investigated case; replayed native values/weights reproduce Gram to ~6.82e-18 and transform difference is ~1.74e-16.",
+    "matrix_norm_reconciliation": "Earlier ~6.73e-15 and ~3.524e-15 measurements were Frobenius norms. Native and Python comparison is MATLAB spectral norm: native 1.781511888565687e-15, Python Gram from native coefficients ~1.7871e-15; native clause bound remains 2.2204460492504077e-15."
+  },
+  "delivery_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_source_candidate_v6_20261011/delivery_v1",
+  "explicit_unqualified_adapters": [
+    "method=[] default-selection behavior (source isempty(method) leaves default selection); current candidate treats it as invalid.",
+    "Empty normalize adapter equivalence is not qualified."
+  ],
+  "not_run": "Formatting-only v7 delivery test copies were not rerun. Every test function/class AST including decorators is identical to qualified v6; only import order differs. No publication files changed for packaging.",
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_source_candidate_v6_20261011/delivery_v1/legpoly_delivery.patch",
+    "sha256": "33e45a1dc31f40262ca318e0cdf997f186e3618dac5a55b780c3ccd7d98b7ea3"
+  },
+  "prior_attempts": "Earlier path/preflight errors and v5/v6 superseded gates are retained under the candidate directory; v6 full_controls_v1 is final 39-test gate.",
+  "publication_checkout_untouched": true,
+  "qualified_candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_source_candidate_v6_20261011/snapshot",
+  "qualified_gate": {
+    "actual_collection_sha256": "a66c7cbe9715876a288cc4164fc44e7987686458b25f0eb5b13892a57d883dd7",
+    "censored_limit": null,
+    "command_exit_code": 0,
+    "errors": 0,
+    "failures": 0,
+    "guard_sha256": "8834940b99e75f944506879c81f107f9c94e8badbae5e3a6fec7c6b06bfcc074",
+    "junit_sha256": "6ba340f6662f0a37be9d0f0d668fd7b3cd5b7ca641cf8a2928ff3bd1240c7863",
+    "junit_tests": 39,
+    "launch_sha256": "332c3dcced07c587d959d342c28823c92551f9816b1d6ca4691360000e15a304",
+    "original_exec_session_id": 1898,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/legpoly_source_candidate_v6_20261011/full_controls_v1",
+    "plan_sha256": "9a6c60efc66351a3bbfeef61a2852772cd185fdaf1ee4546984b8b6d62e52f24",
+    "receipt_sha256": "031cf821b1af6a0116ecb955f4cac028c857bbe080373785dbf9d35866d6e4a0",
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1916536,
+    "scope_count": 39,
+    "skips": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 31.92933267308399
+  },
+  "scope": {
+    "additional_source_controls": 7,
+    "endpoint_oracle": "At x exactly +/-1 use exact Legendre endpoint identity validated against retained native legendre.m output; no bound was widened.",
+    "existing_restriction_controls": 5,
+    "method1_duplicate_order_control": 1,
+    "native_source": "tests/misc/test_legpoly.m",
+    "native_source_sha256": "d284f4288df3bf9c6ff768df31654aec104d3a98e194f94d0910d46f9b64a8fe",
+    "norm_semantics": "MATLAB matrix norm(A) means spectral 2-norm; translated matrix predicates use jnp.linalg.norm(...,ord=2), vector checks infinity norm.",
+    "original_tolerance_changes": false,
+    "translated_original_predicates": 26
+  },
+  "test_ast_copy_check": {
+    "test_legpoly_native_predicates.py": {
+      "formatted_sha256": "7a7ac33861e827260a5a53971811c6b12ca38c496d3c9cfb1cd822c01db76756",
+      "function_and_class_asts_identical_including_decorators": true,
+      "function_count": 31,
+      "only_module_change": "import order (ruff)",
+      "v6_sha256": "bc76d0ed7463700a53e60602a2614f773a58bbf18e698554ba316b4e6468619a"
+    },
+    "test_legpoly_source.py": {
+      "formatted_sha256": "b453c295f4e14059a2432dd0af5b7c29c27223394871029e89b49c438804e1ce",
+      "function_and_class_asts_identical_including_decorators": true,
+      "function_count": 5,
+      "only_module_change": "import order (ruff)",
+      "v6_sha256": "66299eb278e99ef1699483ebd359f98ef5660af7f7fd26ec79357a51e3a06455"
+    }
+  },
+  "root_review": {
+    "source_review": "Pinned legpoly method selection, sparse selected-degree recurrence workspace, preference forwarding, normalization and orientation reviewed. Restriction map matches source weighted endpoints.",
+    "binding_count": 299,
+    "permanent_test_function_AST_equal": true,
+    "public_exports": "Top-level chebpoly/legpoly/chebpolyval/chebpolyvalm identities smoke-checked with pinned CPU import, session92641 terminal0.",
+    "permanent_test_paths": [
+      "tests/test_matlab_port/misc/test_legpoly_matlab.py",
+      "tests/test_utils/test_legpoly_source.py"
+    ],
+    "limitations": "Optional-empty adapters tracked separately; formatting-only copies not re-executed."
+  },
+  "root_optional_empty_followup": "Initial full39 gate remains unchanged. Empty-option preprocessing separately qualified by three exact-output CPU cases in docs/legpoly_empty_options_cpu_20261011.json; normalized short-form source-order erratum retained."
+}

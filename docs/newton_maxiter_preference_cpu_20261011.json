@@ -1,0 +1,71 @@
+{
+  "scope": "Forward session ChebopPref.maxIter when public max_iter is omitted, preserve explicit argument precedence",
+  "base": {
+    "head": "caf673c750a0d2db02c788243954db6858986bb6"
+  },
+  "source": "@chebop/solvebvp.m parseInputs + solvebvpNonlinear.m27,207 at7574c77",
+  "baseline": {
+    "original": 69165,
+    "result": "session maxIter0 ignored;26 recorded iterations rather than1",
+    "seconds": 14.59,
+    "peak_kib": 1141632
+  },
+  "candidate": {
+    "original": 4044,
+    "result": "18pass",
+    "seconds": 20.33,
+    "peak_kib": 1398952,
+    "unique_test_ids": [
+      "test_source_maxiter_preference_and_explicit_override[0-None-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[0-None-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[0-None-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[1-None-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[1-0-coupled]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-scalar]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-parameter]",
+      "test_source_maxiter_preference_and_explicit_override[0-1-coupled]",
+      "test_scalar_threshold_actual_solve[fallback]",
+      "test_scalar_threshold_actual_solve[reduced]",
+      "test_parameter_threshold_actual_solve[fallback]",
+      "test_parameter_threshold_actual_solve[reduced]",
+      "test_coupled_threshold_actual_solve[fallback]",
+      "test_coupled_threshold_actual_solve[reduced]"
+    ],
+    "scope": "12 manufactured source-limit cases across scalar/parameter/coupled plus6 unchanged lambdaMin cases; source first-undamped-iteration and counter>maxIter policy retained"
+  },
+  "preference_audit": {
+    "maxIter": "Fixed by this public solve-boundary package; explicit argument overrides session",
+    "damping": "Separate delivered three-adapter preference correction; explicit op override preserved",
+    "lambdaMin": "Previously source-correct capture at adapter entry",
+    "bvpTol": "Still public tol=5e-13 by default; session override not automatically forwarded",
+    "minDimension/maxDimension": "Still public n_min32/n_max4096 defaults; session overrides not automatically forwarded",
+    "discretization": "Explicit argument routes correctly; omitted default does not resolve the session selection at solve boundary",
+    "initial guess": "op.init forwarded by each source adapter; zero validation/BC fitting behavior retained",
+    "display/plotting": "Native callback display protocol not implemented in these adapters; private info history exists"
+  },
+  "static": "Configured Ruff passed source/new test; patch applicability checked against P",
+  "limits": [
+    "No whole Carrier or full-suite rerun",
+    "Manufactured source-branch controls, not fresh native numerical capture",
+    "Fixed n8 is existing explicit adapter; adaptive refinement arithmetic unchanged",
+    "Other Newton preference omissions remain as recorded"
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate/guard.json": "381c9a5c089405954665f81c8b008d7b799650fcc8d934dc4d96f502dbe68af0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate/AUDIT.json": "7945a22c5abb4dfba240705a2e6cd45e84f4a725393cace48583cf4beeb44474",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate/junit.xml": "250c744803107ebf2e951fb66830c796d89f0387db10f52e99c06bee83a57b5c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate/supervision/receipt.json": "3a708538999bbde6e9760ea0d700fe80d8048aa2b960e9c5d88558bae368333b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate/supervision/stdout": "42dad9220ded00b7e622c95fb5932854c7af45918f5c312d349a1af105ddfc52",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/baseline/guard.json": "25200c69d538777b94a2b470998023e9b8cd2e6bdcbeb5c2a711c413af9bc71c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/baseline/AUDIT.json": "d4fe8a8d74d1ae75457b07bd425fde2ec577dd05f79fdd075b12aaecfde1f3d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/baseline/junit.xml": "00d42662f16185c43202e52acc6e58b4f39f784673df8e67a963edb7a76e9277",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/baseline/supervision/receipt.json": "0bf1f22d6aa61448803911fccedef6676327c6bc810ccd60fb44a540ca1a426d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/baseline/supervision/stdout": "2a500bc194d4d1baf09560fda86986b61d5ed70f2e59dd1871067dc472a13565",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/candidate.patch": "c21b15dac7974c276638fd5ef2ee02bd409e706c0a6860e5f3afb0071b597903",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/newton_maxiter_preference_20261011/BASE.json": "2531a9bcccc3308ac94e3e9acced4656a65df58c23d30d1933359ee89911b6ef"
+  }
+}

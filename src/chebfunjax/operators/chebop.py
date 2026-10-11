@@ -974,11 +974,23 @@ class Chebop:
         n_min: int = 32,
         n_max: int = 4096,
         tol: float = 5e-13,
-        max_iter: int = 25,
+        max_iter: int | None = None,
         newton_tol: float = 5e-13,
         discretization: str | None = None,
         ivp_solver: str | None = None,
     ):
+        """Solve using the session Newton limit unless explicitly overridden.
+
+        Provenance
+        ----------
+        MATLAB source: @chebop/solvebvp.m parseInputs;
+            @chebop/solvebvpNonlinear.m maxIter preference.
+        Chebfun commit: 7574c77
+        """
+        if max_iter is None:
+            from chebfunjax.chebpref import ChebopPref
+
+            max_iter = ChebopPref().maxIter
         if (getattr(self, "_periodic", False) and len(self.domain) == 2
                 and discretization in ("coeffs", "trigspec")
                 and self._n_vars() == 1 and self._is_linear()):

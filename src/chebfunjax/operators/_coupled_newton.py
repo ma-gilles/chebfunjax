@@ -171,10 +171,11 @@ def fit_bcs(L):
 def solve_coupled(op, f=0, n=None, max_iter=25, bvp_tol=5e-13,
                   n_min=32, n_max=4096, backend='chebcolloc2'):
     """Source Newton on coupled function blocks using the shared adaptive solve."""
-    # Native solvebvpNonlinear.m75 captures this preference once per solve.
+    # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
     from chebfunjax.chebpref import ChebopPref
 
-    lambda_min = ChebopPref().lambdaMin
+    preferences = ChebopPref()
+    lambda_min = preferences.lambdaMin
     domain = tuple(op.domain)
     u = _initial(op, op.init)
     L0, _, flags = linearize(op, u)
@@ -221,7 +222,7 @@ def solve_coupled(op, f=0, n=None, max_iter=25, bvp_tol=5e-13,
         return [-entry for entry in entries], max(disc.dimensions), happy
 
     history, damping_history = [], []
-    damping = bool(getattr(op, "damping", True))
+    damping = bool(getattr(op, "damping", preferences.damping))
     pref_damping = damping
     lam = 1.0
     give_up = 0

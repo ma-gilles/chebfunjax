@@ -1,0 +1,11 @@
+{
+  "correction": "Earlier reports and summaries calling n2/n4 direct-native array envelopes original bounds were imprecise. These are added parity tests using envelopes borrowed from selected-entry ASY251 original predicates. The original test_hermpts.m covers REC42 and ASY251 only; it has no explicit small ASY n2/n4 predicate.",
+  "affected_evidence": [
+    "full_n2_v1",
+    "full_n2_log_v2",
+    "earlier small-AS Y diagnostic summaries and root/worker messages"
+  ],
+  "unchanged": "All numerical results, saved bounds, failure receipts, and source files remain unchanged. Neither private full n2 failure is an original MATLAB test failure.",
+  "current_status": "Small explicit ASY native-output parity remains open. Native small outputs fail added analytical moment diagnostics, which likewise are not original source predicates.",
+  "audit": "ORIGINAL_PREDICATE_AUDIT.json"
+}

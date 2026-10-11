@@ -1,115 +1,213 @@
-"""Port of MATLAB Chebfun tests/misc/test_legpoly.m (Fable 5).
-
-MATLAB ``norm(matrix)`` is the spectral 2-norm (``ord=2`` here).
-
-MATLAB's chebfun-valued ``legpoly`` is
-:func:`chebfunjax.chebfun1d.chebfun.legpoly`; ``p'*p`` is the Gram matrix
-of the columns and ``legendre(n, x)`` (first row) is the stable Clenshaw
-evaluation ``numpy.polynomial.legendre.legval`` (SciPy's
-``eval_legendre`` is only accurate to ~6e-12 at degree 900).
-
-Provenance
-----------
-MATLAB source : tests/misc/test_legpoly.m
-Chebfun commit: 7574c77
-"""
-
-from __future__ import annotations
-
-import jax
+"""Direct translations of the 26 unchanged predicates in tests/misc/test_legpoly.m."""
 import jax.numpy as jnp
 import numpy as np
-from numpy.polynomial import legendre as _L
 
 from chebfunjax.chebfun1d.chebfun import legpoly
 
-jax.config.update("jax_enable_x64", True)
 
-EPS = np.finfo(float).eps
-
-
-def _gram(p):
-    """Gram matrix of the columns, p' * p, the way MATLAB's
-    chebfun/innerProduct computes it: per piece, both factors prolonged
-    (in coefficient space) to len(f) + len(g) points and integrated by
-    Clenshaw-Curtis quadrature, summed over the pieces."""
-    from chebfunjax.tech.chebtech import Chebtech2
-    from chebfunjax.utils.quadrature import chebweights
-    bp = [float(v) for v in p.domain.breakpoints]
-    G = None
-    for k, piece in enumerate(p.funs):
-        a, b = bp[k], bp[k + 1]
-        C = np.asarray(piece.tech.coeffs)
-        if C.ndim == 1:
-            C = C[:, None]
-        n = C.shape[0]
-        N = 2 * n
-        Cp = np.zeros((N, C.shape[1]), dtype=C.dtype)
-        Cp[:n] = C
-        V = np.asarray(Chebtech2.coeffs2vals(jnp.asarray(Cp)))
-        w = np.asarray(chebweights(N)) * (b - a) / 2.0
-        Gk = (V * w[:, None]).T @ V
-        G = Gk if G is None else G + Gk
-    return G
+def _legendre(degree, x):
+    coefficients = np.zeros(degree + 1)
+    coefficients[-1] = 1.0
+    x = np.asarray(x)
+    values = np.polynomial.legendre.legval(x, coefficients)
+    # The exact endpoint identity P_n(±1)=(±1)^n avoids recurrence
+    # roundoff in the test oracle at degree 1500; MATLAB legendre.m returns
+    # these exact endpoint values in the retained native capture.
+    values = np.where(x == 1.0, 1.0, values)
+    values = np.where(x == -1.0, (-1.0)**degree, values)
+    return values
 
 
-def eval_legendre(n, x):
-    return _L.legval(np.asarray(x), np.eye(int(n) + 1)[-1])
+def _gram(f):
+    # MATLAB p'*p: conjugate transpose times the quasimatrix.
+    return f.H @ f
 
 
-def _vs(p):
-    return float(np.max(np.atleast_1d(np.asarray(p.vscale))))
+def _eps():
+    return jnp.finfo(jnp.float64).eps
 
 
-class TestMiscLegpoly:
-    def test_all_matlab_assertions(self):
-        xx = jnp.asarray(np.linspace(-1, 1, 10))
-        big = np.arange(900, 1101)
+def _vscale(f):
+    return float(f.vscale)
 
-        p = legpoly(big, (-1.0, 1.0), 0)
-        P = eval_legendre(900, np.asarray(xx))
-        err = np.max(np.abs(np.asarray(p.extract_columns(0)(xx)) - P))
-        assert err < 5e3 * EPS * _vs(p)                             # pass(1)
-        G = _gram(p)
-        assert np.linalg.norm(G - np.diag(np.diag(G)), 2) < 5e1 * EPS * _vs(p)  # pass(2)
 
-        p = legpoly(big, (-1.0, 1.0), "normalize")
-        assert np.linalg.norm(_gram(p) - np.eye(201), 2) < 5e3 * EPS * _vs(p)  # pass(3)
+def test_01_method1_legendre_evaluation():
+    p = legpoly(range(900, 1101), [-1, 1], 0, 1)
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p[:, 0](x) - _legendre(900, x), ord=jnp.inf)
+    assert err < 5e3 * _eps() * _vscale(p)
 
-        p = legpoly(big, (-1.0, 1.0), 0)
-        err = np.max(np.abs(np.asarray(p.extract_columns(0)(xx)) - P))
-        assert err < 5e3 * EPS * _vs(p)                             # pass(4)
-        G = _gram(p)
-        assert np.linalg.norm(G - np.diag(np.diag(G)), 2) < 5e1 * EPS * _vs(p)  # pass(5)
 
-        p = legpoly(big, "normalize")
-        assert np.linalg.norm(_gram(p) - np.eye(201), 2) < 5e3 * EPS * _vs(p)  # pass(6)
+def test_02_method1_orthogonality():
+    p = legpoly(range(900, 1101), [-1, 1], 0, 1)
+    gram = _gram(p)
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 5e1 * _eps() * _vscale(p)
 
-        p = legpoly(big, (0.0, 10000.0), "normalize")
-        G = _gram(p)
-        assert np.linalg.norm(G - np.diag(np.diag(G)), 2) < 1e5 * EPS * _vs(p)  # pass(7)
-        assert np.linalg.norm(G - np.eye(201), 2) < 1e5 * EPS * _vs(p)          # pass(8)
 
-        p = legpoly(40, (-1.0, 0.2, 1.0))
-        P = eval_legendre(40, np.asarray(xx))
-        assert np.max(np.abs(np.asarray(p(xx)) - P)) < 50 * EPS * _vs(p)     # pass(9)
+def test_03_method1_orthonormality():
+    p = legpoly(range(900, 1101), [-1, 1], 'normalize', 1)
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(201), ord=2)
+    assert err < 5e3 * _eps() * _vscale(p)
 
-        p = legpoly(np.arange(1, 101), (-1.0, -0.2, 0.3, 1.0))
-        G = _gram(p)
-        # MATLAB's own margin here is 1.2x (R2025b: err 1.85e-15 vs tol
-        # 2.22e-15): the restricted pieces are re-expanded by Clenshaw
-        # evaluation and the off-diagonal Gram entries are pure rounding.
-        # The identical algorithm (weighted-QR legpoly, chebtech restrict,
-        # innerProduct on the 2n grid) gives 5.9e-15 with numpy/OpenBLAS
-        # rounding, so the bound is 30*eps here instead of 10*eps.
-        assert np.linalg.norm(G - np.diag(np.diag(G)), 2) < 30 * EPS * _vs(p)   # pass(10)
 
-        p = legpoly(np.arange(1, 101), (-1.0, 0.145, 1.0), "normalize")
-        assert np.linalg.norm(_gram(p) - np.eye(100), 2) < 100 * EPS * _vs(p)   # pass(11)
+def test_04_method1_legendre_evaluation_no_domain():
+    p = legpoly(range(900, 1101), [-1, 1], 0, 1)
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p[:, 0](x) - _legendre(900, x), ord=jnp.inf)
+    assert err < 5e3 * _eps() * _vscale(p)
 
-        p = legpoly(40)
-        assert np.max(np.abs(np.asarray(p(xx)) - P)) < 50 * EPS * _vs(p)     # pass(12)
 
-        p = legpoly(np.arange(1, 101))
-        G = _gram(p)
-        assert np.linalg.norm(G - np.diag(np.diag(G)), 2) < 10 * EPS * _vs(p)   # pass(13)
+def test_05_method1_orthogonality_no_domain():
+    p = legpoly(range(900, 1101), [-1, 1], 0, 1)
+    gram = _gram(p)
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 5e1 * _eps() * _vscale(p)
+
+
+def test_06_method1_orthonormality_no_domain():
+    p = legpoly(range(900, 1101), 'normalize', 1)
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(201), ord=2)
+    assert err < 5e3 * _eps() * _vscale(p)
+
+
+def test_07_method1_orthogonality_mapped_domain():
+    p = legpoly(range(900, 1101), [0, 10000], 'normalize', 1)
+    gram = _gram(p)
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 1e5 * _eps() * _vscale(p)
+
+
+def test_08_method1_orthonormality_mapped_domain():
+    p = legpoly(range(900, 1101), [0, 10000], 'normalize', 1)
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(201), ord=2)
+    assert err < 1e5 * _eps() * _vscale(p)
+
+
+def test_09_method2_legendre_evaluation_with_breaks():
+    p = legpoly(40, [-1, .2, 1])
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p(x) - _legendre(40, x), ord=jnp.inf)
+    assert err < 50 * _eps() * _vscale(p)
+
+
+def test_10_method2_orthogonality_with_breaks():
+    p = legpoly(range(1, 101), [-1, -.2, .3, 1])
+    gram = _gram(p)
+    # MATLAB norm(A) uses the matrix 2-norm, not the Frobenius norm.
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 10 * _eps() * _vscale(p)
+
+
+def test_11_method2_orthonormality_with_breaks():
+    p = legpoly(range(1, 101), [-1, .145, 1], 'normalize')
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(100), ord=2)
+    assert err < 100 * _eps() * _vscale(p)
+
+
+def test_12_method2_legendre_evaluation_no_domain():
+    p = legpoly(40)
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p(x) - _legendre(40, x), ord=jnp.inf)
+    assert err < 50 * _eps() * _vscale(p)
+
+
+def test_13_method2_orthogonality_no_domain():
+    p = legpoly(range(1, 101))
+    gram = _gram(p)
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 10 * _eps() * _vscale(p)
+
+
+def test_14_method2_orthonormality_no_domain():
+    p = legpoly(range(1, 101), 'normalize')
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(100), ord=2)
+    assert err < 100 * _eps() * _vscale(p)
+
+
+def test_15_method2_orthogonality_mapped_domain():
+    p = legpoly(range(1, 101), [0, 155, 3333, 10000])
+    gram = _gram(p)
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 1e6 * _eps() * _vscale(p)
+
+
+def test_16_method2_orthonormality_mapped_domain():
+    p = legpoly(range(1, 101), [0, 3333, 10000], 'normalize')
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(100), ord=2)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_17_method3_legendre_evaluation_with_breaks():
+    p = legpoly(1500, [-1, -.5, -.3, 1])
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p(x) - _legendre(1500, x), ord=jnp.inf)
+    assert err < 1e6 * _eps() * _vscale(p)
+
+
+def test_18_method3_normalization_with_breaks():
+    p = legpoly(1500, [-1, 0, 1], 'normalize')
+    err = jnp.linalg.norm(_gram(p) - 1)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_19_method3_legendre_evaluation_no_domain():
+    p = legpoly(1500)
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p(x) - _legendre(1500, x), ord=jnp.inf)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_20_method3_normalization_no_domain():
+    p = legpoly(1500, 'normalize')
+    err = jnp.linalg.norm(_gram(p) - 1)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_21_method3_vectorized_degree_1000():
+    p = legpoly([1000, 1500])
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p[:, 0](x) - _legendre(1000, x), ord=jnp.inf)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_22_method3_vectorized_degree_1500():
+    p = legpoly([1000, 1500])
+    x = jnp.linspace(-1, 1, 10)
+    err = jnp.linalg.norm(p[:, 1](x) - _legendre(1500, x), ord=jnp.inf)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_23_method3_vectorized_orthonormality():
+    p = legpoly([1000, 1500], 'normalize')
+    err = jnp.linalg.norm(_gram(p) - jnp.eye(2), ord=2)
+    assert err < 1e4 * _eps() * _vscale(p)
+
+
+def test_24_method2_row_input_orthogonality():
+    p = legpoly(jnp.arange(1, 11)[:, None], [-1, .2, 1])
+    assert p.is_transposed
+    gram = p @ p.H
+    err = jnp.linalg.norm(gram - jnp.diag(jnp.diag(gram)), ord=2)
+    assert err < 5 * _eps() * _vscale(p)
+
+
+def test_25_method2_row_input_orthonormality():
+    p = legpoly(jnp.arange(1, 11)[:, None], [-1, .6, 1], 'normalize')
+    assert p.is_transposed
+    err = jnp.linalg.norm(p @ p.H - jnp.eye(10), ord=2)
+    assert err < 10 * _eps() * _vscale(p)
+
+
+def test_26_empty_normalized():
+    p = legpoly([], [-1, .66, 1], 'normalize')
+    assert p.isempty()
+
+
+def test_method1_unsorted_duplicate_degree_columns():
+    degrees = [3, 1, 3, 0, 1]
+    p = legpoly(degrees, [-1, 1], 0, 1)
+    x = jnp.linspace(-1, 1, 17)
+    for column, degree in enumerate(degrees):
+        err = jnp.max(jnp.abs(p[:, column](x) - _legendre(degree, x)))
+        assert err < 50 * _eps() * _vscale(p)
