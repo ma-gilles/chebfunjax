@@ -3,12 +3,24 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `50cb5df9` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `e5fb82b2` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+A reviewed inverse endpoint-fusion patch moves the existing endpoint selection
+into one JIT helper. Ten controls and exact inverse-output byte checks pass;
+isolated cold compiles fall from eight to four. The single whole-inverse pair
+shows no first-call improvement (15.187 to 15.232 seconds), so this is only a
+compile/dispatch simplification. Inherited subnormal comparison behavior is
+explicitly documented. See docs/inverse_endpoint_fusion_cpu_20261011.json.
+
+A newly restored native REAL test exposes a Chebtech2 coefficient-length
+mismatch (16 versus 15). The native REAL operation does not trim nonzero
+coefficients; native capture and construction-tail diagnosis are pending.
+Do not hide this by padding coefficient comparisons or changing REAL.
 
 The next reviewed batch restores eight native Chebtech ABS predicates using
 normest and four CONJ predicates using direct coefficient shapes and the

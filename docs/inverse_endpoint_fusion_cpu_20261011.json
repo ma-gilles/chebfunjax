@@ -1,0 +1,229 @@
+{
+  "status": "Reviewed for publication",
+  "scope": "Only _inverse callback endpoint-return callsite changed; exact nestedwhere/equality return AST moved into@jax.jit helper. All otherfunctions/imports/algorithmbranches unchanged.",
+  "source_backend_cost": {
+    "trace_compiles": 7,
+    "backend_compile_seconds": 0.1694335276260972,
+    "scope": "Rootinverse_first line501 only, excludesBrentline500"
+  },
+  "diagnostic_controls": 10,
+  "control_scope": "Nine independent NumPyassignment endpointoracles plusold-eagerJAXbitidentity:normal/decreasing, exact\u00b10andfa-firstdoublematches, NaNpayload/unmatchedNaNendpoint,Inf, scalar/matrix/emptyshape; oneinheritedsubnormalJAXadapteridentity.",
+  "retained_failure": "controls_candidate_v1:3fail/6pass againstNumPyoracle atsmallestpositivesubnormal. BothoriginaleagerandfusedJAXequate\u00b1subnormaltozero; NumPydistinguishes. V2independentnormaloracles useadjacentnormal.5, retainsseparatesubnormalfullbitidentityrecord. No newcandidatefault/no nativeIEEEsubnormalparityclaim.",
+  "gates": {
+    "controls_candidate_v1": {
+      "command_exit_code": 1,
+      "wall_seconds": 9.64832081599161,
+      "sampled_peak_summed_rss_kib": 477992,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "pytest_exit": 1
+      }
+    },
+    "controls_candidate_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 9.527637084946036,
+      "sampled_peak_summed_rss_kib": 481104,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "pytest_exit": 0
+      }
+    },
+    "compile_baseline_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 8.48919021198526,
+      "sampled_peak_summed_rss_kib": 469132,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "candidate": false,
+        "compile_count": 8,
+        "modules": [
+          "\"jit_equal\"",
+          "\"jit__where\"",
+          "\"jit_equal\"",
+          "\"jit__where\"",
+          "\"jit_equal\"",
+          "\"jit__where\"",
+          "\"jit_equal\"",
+          "\"jit__where\""
+        ],
+        "target_shapes": [
+          2,
+          4097,
+          4096,
+          8192
+        ],
+        "repeat_calls_per_shape": 2,
+        "scope": "isolatedcoldendpoint selection; compilerobserver notperformance timing"
+      }
+    },
+    "compile_candidate_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 8.230948706157506,
+      "sampled_peak_summed_rss_kib": 466116,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "candidate": true,
+        "compile_count": 4,
+        "modules": [
+          "\"jit__restore_inverse_endpoints\"",
+          "\"jit__restore_inverse_endpoints\"",
+          "\"jit__restore_inverse_endpoints\"",
+          "\"jit__restore_inverse_endpoints\""
+        ],
+        "target_shapes": [
+          2,
+          4097,
+          4096,
+          8192
+        ],
+        "repeat_calls_per_shape": 2,
+        "scope": "isolatedcoldendpoint selection; compilerobserver notperformance timing"
+      }
+    },
+    "benchmark_baseline_v1": {
+      "command_exit_code": 0,
+      "wall_seconds": 40.71471246890724,
+      "sampled_peak_summed_rss_kib": 1658208,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "status": "passed",
+        "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+        "setup_seconds": 15.429982009343803,
+        "calls": [
+          {
+            "phase": "inverse_first",
+            "seconds": 15.186979121062905,
+            "length": 8878
+          },
+          {
+            "phase": "inverse_warm",
+            "seconds": 0.5781181319616735,
+            "length": 8878
+          }
+        ],
+        "roundtrip_error": 8.881784197001252e-16,
+        "output_hashes": [
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ],
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ]
+        ],
+        "roundtrip_values_sha256": "53a876a61216e0eb41620e3c0968b89bafe20b563323f9bb36c43049747686b0",
+        "affinity": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "x64": true,
+        "persistent_cache_dir": null
+      }
+    },
+    "benchmark_candidate_v2": {
+      "command_exit_code": 0,
+      "wall_seconds": 40.61953709414229,
+      "sampled_peak_summed_rss_kib": 1662720,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "result": {
+        "status": "passed",
+        "scope": "freshprocess CPU baseline/candidate paired science; no compiler observer",
+        "setup_seconds": 15.430806429125369,
+        "calls": [
+          {
+            "phase": "inverse_first",
+            "seconds": 15.231962848920375,
+            "length": 8878
+          },
+          {
+            "phase": "inverse_warm",
+            "seconds": 0.5679189176298678,
+            "length": 8878
+          }
+        ],
+        "roundtrip_error": 8.881784197001252e-16,
+        "output_hashes": [
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ],
+          [
+            "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+          ]
+        ],
+        "roundtrip_values_sha256": "53a876a61216e0eb41620e3c0968b89bafe20b563323f9bb36c43049747686b0",
+        "affinity": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "x64": true,
+        "persistent_cache_dir": null
+      }
+    }
+  },
+  "compiler_scope": "Isolatedcold4exacttargetshapes2/4097/4096/8192,2callsper shape:8old(equal+where)\u21924fusedmodules. Rootactual7becauseonewherealreadycached. No fullinversecompilecount extrapolation.",
+  "performance_scope": "One serialmatchedCPU12\u201315freshprocesspair,no compilerobserver/persistentcache. Smallhistoricalbackendcost.1694s, so expectedpayoffmodest; reportedtimes empirical only, no statisticalspeedupclaim.",
+  "output_identity": "Allfirst/warmcoefficientsbyte-identical, length8878/rootac4dhashmatches;129roundtripvalues/pointsbytesidentical/error8.8818e-16 unchanged, rootbound1e-10 unchanged.",
+  "limitations": [
+    "Source numericaltolerance/algorithm dispatch/op evaluations/rootengine/constructor/mapping unchanged",
+    "Controlsdiagnostic, not newnativepredicates; inheritedsubnormalequalitygap documented",
+    "CPUJAX/JAXLIB0.11+x64; no fullenvironmentlock/GPU claim",
+    "Allownprocessesclosed/stable/no survivors;180s/3GiBguards;Preadonly"
+  ],
+  "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_endpoint_fusion_20261011/DELIVERY.json",
+  "root_review": "All53 delivery hashes verified; literal return expression moved unchanged into JIT helper. Public inverse library file matches qualified bytes; formatted diagnostic executable AST preserved. No cold latency improvement observed; accepted as bounded compile/dispatch reduction, not performance parity."
+}

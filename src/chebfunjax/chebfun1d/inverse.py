@@ -19,6 +19,12 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 _ALGORITHMS = ("roots", "newton", "bisection", "regulafalsi", "illinois", "brent")
 
 
+@jax.jit
+def _restore_inverse_endpoints(y, result, fa, fb, a, b):
+    """Preserve callback endpoint equality and the existing fa-first priority."""
+    return jnp.where(y == fa, a, jnp.where(y == fb, b, result))
+
+
 def tol_union(A, B, tol=None):
     """Sorted union of real breakpoint vectors with MATLAB's tolerance merge.
 
@@ -498,7 +504,7 @@ def _inverse(f, pref=None, *, algorithm="brent", eps=None,
             result = _false_position(f, y, a, b, algorithm == "illinois")
         else:
             result = _brent(f, y, a, b)
-        return jnp.where(y == fa, a, jnp.where(y == fb, b, result))
+        return _restore_inverse_endpoints(y, result, fa, fb, a, b)
 
     # MATLAB parseInputs sets these on a local preference copy: every inverse
     # disables the off-grid sample test and Newton uses resampling refinement.
