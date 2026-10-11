@@ -6388,7 +6388,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/ceil.m
         Chebfun commit: 7574c77
         """
-        return _integer_step(self, jnp.ceil)
+        return -(-self).floor()
 
     def round(self) -> Chebfun:
         """Pointwise round-to-nearest-integer, piecewise-constant Chebfun.
@@ -12468,46 +12468,100 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     return out
 
 def _integer_step(f: "Chebfun", op, half_offset: bool = False):
-    """Piecewise-constant floor/ceil/round of a Chebfun (Opus 4.8, #14).
+    """Round shifted pieces sequentially, retaining breakpoint values.
 
-    Breakpoints are the points where ``f`` (or ``f - 1/2`` for round)
-    crosses an integer; between them ``op(f)`` is constant.
+    Provenance
+    ----------
+    MATLAB source: @chebfun/{round,floor,ceil,addBreaksAtRoots,getRootsForBreaks,
+    addBreaks}.m and @chebtech/{round,floor,ceil}.m.
+    Chebfun commit: 7574c77.
     """
+    import math
+
     if f.isempty():
-        return Chebfun.empty()
-    import numpy as _np
+        return f
+    if not f.isfinite():
+        raise ValueError("Integer rounding is not defined for divergent functions.")
+    if not f.isreal():
+        return (_integer_step(f.real(), op, half_offset)
+                + 1j * _integer_step(f.imag(), op, half_offset))
 
-    a = float(f.domain.a)
-    b = float(f.domain.b)
-    # sample to bound the range of f
-    xs = _np.linspace(a, b, 257)
-    fv = _np.asarray(f(jnp.asarray(xs)))
-    lo = int(_np.floor(fv.min())) - 1
-    hi = int(_np.ceil(fv.max())) + 1
+    def apply(values):
+        # MATLAB round uses ties away from zero.
+        if half_offset:
+            return jnp.sign(values) * jnp.floor(jnp.abs(values) + 0.5)
+        return op(values)
 
-    brks = set(float(x) for x in f.domain.breakpoints)
-    shift = 0.5 if half_offset else 0.0
-    for k in range(lo, hi + 1):
-        # crossings of f = k + shift
-        r = _np.asarray((f - (k + shift)).roots())
-        for rr in r:
-            rr = float(rr)
-            if a + 1e-12 < rr < b - 1e-12:
-                brks.add(rr)
-    brks = sorted(x for x in brks if a + 1e-12 < x < b - 1e-12)
-    domain = _np.array([a, *brks, b])
+    minimum, maximum = f.minandmax()
+    lo = math.floor(float(jnp.min(jnp.asarray(minimum[1]))))
+    hi = math.floor(float(jnp.max(jnp.asarray(maximum[1]))))
+    for k in range(lo + 1, hi + 1 + int(half_offset)):
+        shifted = f - k
+        if half_offset:
+            shifted = shifted + 0.5
+        shifted = _integer_breaks_at_roots(shifted)
+        f = shifted + k
+        if half_offset:
+            f = f - 0.5
 
-    # Each piece is exactly constant = op(f(midpoint)); build the pieces
-    # directly as degree-0 Chebtechs so shared breakpoints (which sit on
-    # the jump) don't corrupt the fit.
-    mids = 0.5 * (domain[:-1] + domain[1:])
-    consts = _np.asarray(op(f(jnp.asarray(mids))), dtype=_np.float64)
-    funs = [
-        _Piece.from_coeffs(jnp.array([float(consts[i])], dtype=jnp.float64),
-                           float(domain[i]), float(domain[i + 1]))
-        for i in range(len(consts))
-    ]
-    return Chebfun(funs=funs, domain=Domain(tuple(float(x) for x in domain)))
+    pieces = []
+    for piece in f.funs:
+        values = piece.tech(jnp.array([-1.0, 0.1273881594, 1.0]))
+        constant = apply(jnp.mean(values, axis=0))
+        pieces.append(_Piece.from_coeffs(jnp.atleast_1d(constant)[None, :]
+                      if constant.ndim else jnp.reshape(constant, (1,)),
+                      *piece.interval))
+    out = Chebfun(funs=pieces, domain=f.domain)
+    out = out.set_point_values(apply(f.point_values))
+    if f.is_transposed:
+        object.__setattr__(out, "_is_transposed", True)
+    return out.merge()
+
+
+def _integer_breaks_at_roots(f):
+    """Native nojump/nozerofun/nobreaks root insertion for integer maps.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/{getRootsForBreaks,addBreaksAtRoots,addBreaks}.m.
+    Chebfun commit: 7574c77.
+    """
+    ncols = max(piece.tech.coeffs.shape[1] if piece.tech.coeffs.ndim == 2
+                else 1 for piece in f.funs)
+    column_roots = []
+    for column in range(ncols):
+        scalar = f.extract_columns(column) if ncols > 1 else f
+        roots = []
+        for piece in scalar.funs:
+            if bool(jnp.all(piece.tech.coeffs == 0)):
+                continue
+            roots.append(jnp.asarray(piece.roots()).reshape(-1))
+        column_roots.append(jnp.concatenate(roots) if roots
+                            else jnp.empty((0,), dtype=jnp.float64))
+    all_roots = jnp.concatenate(column_roots)
+    sorted_roots = jnp.sort(all_roots[~jnp.isnan(all_roots)])
+    if not sorted_roots.size:
+        return f
+    eps = jnp.finfo(jnp.float64).eps
+    root_tol = eps * max(abs(float(f.domain.a)), abs(float(f.domain.b)))
+    keep = jnp.concatenate((jnp.array([True]), jnp.diff(sorted_roots) >= root_tol))
+    candidates = sorted_roots[keep]
+    old = list(f.domain.breakpoints)
+    break_tol = 100 * eps * max(min(b-a for a, b in zip(old, old[1:])), 1)
+    new = [float(x) for x in candidates if bool(jnp.isfinite(x))
+           and all(abs(float(x)-y) >= break_tol for y in old)]
+    if not new:
+        return f
+    out = f.restrict(sorted(set(old + new)))
+    values = out.point_values
+    for i, x in enumerate(out.domain.breakpoints):
+        for column, roots in enumerate(column_roots):
+            if bool(jnp.any(roots == x)):
+                if values.ndim == 1:
+                    values = values.at[i].set(0)
+                else:
+                    values = values.at[i, column].set(0)
+    return out.set_point_values(values)
 
 
 def _ode_solve(method, odefun, tspan, y0, options=None, *, rtol=None,

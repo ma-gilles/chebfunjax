@@ -1,0 +1,394 @@
+{
+  "status": "ready for review: 21 unique passing Python controls; audited native observations with harness failure, zero native test-pass credit",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_changes": [
+    "Sequential f-k+.5 insertion and restoration for round; sequential f-k for floor.",
+    "Native minandmax range; eps*hscale root separation and 100*eps*max(minwidth,1) existing-break exclusion.",
+    "Existing restriction converts periodic source after first inserted break.",
+    "Per-column exact root point values set to zero before restoring threshold.",
+    "Three-point native Chebtech mean at -1,0.1273881594,1; MATLAB ties-away integer rounding.",
+    "Round explicit point values then merge; preserve transpose.",
+    "Ceil delegates -floor(-f)."
+  ],
+  "test_count_unique": 21,
+  "test_ids_unique": [
+    "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_empty",
+    "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_floor_of_exp",
+    "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_floor_of_sin",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_array_root_point_values_are_column_specific",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_ceil_point_values_source_identity",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[1]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[2]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[3]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[4]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[5]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[6]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[-0.5--1.0]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[0.5-1.0]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[2.5-3.0]",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_inserted_point_values",
+    "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_transpose",
+    "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_empty",
+    "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_round_of_exp",
+    "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_round_of_sin",
+    "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_floor_ceil_cast_to_cheb",
+    "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_round_casts_to_cheb"
+  ],
+  "gates": [
+    {
+      "original": 8588,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1590524,
+      "wall_seconds": 35.02475463086739,
+      "input_count": 282,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_20261011/ci_round/guard.json": "acc3fd0b265378c2403e1b786da96625e9226dec560ced0c7205def912584204",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_20261011/ci_round/supervision/receipt.json": "f8a687de83cdbc282d376f66d4d1d28e0df5632333f2c9057957bfb545cf097a",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_20261011/ci_round/junit.xml": "a413f36f6bbba1f4b9ed0fed991666e9810c99ca1dfa11cc1d3a3eafc1ad6fae"
+      },
+      "test_ids": [
+        "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_round_casts_to_cheb"
+      ],
+      "failures": [],
+      "skips": [],
+      "qualified": true
+    },
+    {
+      "original": 91932,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 2713884,
+      "wall_seconds": 50.132479382678866,
+      "input_count": 286,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v2_20261011/controls/guard.json": "8d3e987edd4a8441e14f73da0270504ed350d26597b657a06b0175d6984c5c47",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v2_20261011/controls/supervision/receipt.json": "3db98222c8403246295cf9e2d13f3c0cac6da38bc2051d04b345a1f414ad05d1",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v2_20261011/controls/junit.xml": "eef0b9888eb3f2cb27ce2ecc6558aa09773eb13b8aae5febdea31892e8e6c8fc"
+      },
+      "test_ids": [
+        "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_empty",
+        "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_round_of_sin",
+        "tests.test_matlab_port.chebfun.test_round_matlab.TestChebfunRound::test_round_of_exp",
+        "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_empty",
+        "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_floor_of_sin",
+        "tests.test_matlab_port.chebfun.test_floor_matlab.TestChebfunFloor::test_floor_of_exp",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[1]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[2]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[3]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[4]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[5]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_original_round_clause[6]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[0.5-1.0]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[-0.5--1.0]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_constant_ties[2.5-3.0]",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_inserted_point_values",
+        "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_round_casts_to_cheb",
+        "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_floor_ceil_cast_to_cheb"
+      ],
+      "failures": [],
+      "skips": [],
+      "qualified": true
+    },
+    {
+      "original": 43954,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1992668,
+      "wall_seconds": 34.18659538216889,
+      "input_count": 286,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/final_routes/guard.json": "7630cec76974ae6caade07233413ee53af83cde6d04f5f04fb3d28a091b60b8c",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/final_routes/supervision/receipt.json": "58d06a606f24e6af39b8b2f741d941673107811f28c5104447c991aab3bb2306",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/final_routes/junit.xml": "e72bf4b068c36f1c3768db3cb1212a51119e72e5d610835e1cbba900a9ee2b55"
+      },
+      "test_ids": [
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_ceil_point_values_source_identity",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_round_transpose",
+        "tests.test_matlab_port.chebfun.test_integer_step_source_contracts::test_array_root_point_values_are_column_specific",
+        "tests.test_matlab_port.chebfun.test_trigcasting_matlab.TestChebfunTrigcasting::test_floor_ceil_cast_to_cheb"
+      ],
+      "failures": [],
+      "skips": [],
+      "qualified": true
+    },
+    {
+      "original": 82173,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 1582748,
+      "wall_seconds": 26.25075482390821,
+      "input_count": 287,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/guard.json": "d9ebdae757e93a27c86d4493c7ba588997cb2bd09f1c1cfc5624a9840f6a0d0d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/supervision/receipt.json": "a0d3e291bcbb953ac2238c175b63da41317f9d4ce5fc05a0e5c819402b2f0bd2",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/probe.py": "f83a535a8ef57e36f73fb4ea21fa6e0e60b3d97e0351a23d10bb1d92c4aac28d",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/report.json": "25da1da847a1d3648c9ef475dc31ec7e434426d24c0874a02e23f42ff39c53fe"
+      },
+      "qualified": true
+    }
+  ],
+  "reuse": "Exact source delta comprises ceil delegation and an is_transposed metadata assignment before merge. All reused v2 nontransposed round/floor controls take the unchanged branch and have identical input/source dependencies. The changed ceil and transposed paths pass final_routes; the final observer repeats unchanged round CI arithmetic.",
+  "preserved_failures": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigcasting_round_ci_triage_20261011.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer/AUDIT.json"
+  ],
+  "limitations": [
+    "No whole-suite claim. Existing technology root and restriction backends remain unchanged.",
+    "Finite bounded functions tested; unbounded-domain rounding behavior is not qualified.",
+    "New arithmetic and insertion logic uses JAX; existing public dependencies retain their prior host code.",
+    "Integer output pieces retain the pre-existing Chebtech2 construction; broader Chebtech1 technology identity is outside this scoped correction."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/delivery.patch": "8bf5bbb92bcb65dc1d23c3c8f3f652f4adfe1fa398032c3554a849dc020ba458",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/STATIC_REVIEW.json": "030b4c288d0848214955991df03fd2f5e9c6be00be2acff9e6e1fe6bbc2e5654",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/snapshot/src/chebfunjax/chebfun1d/chebfun.py": "90a86cddce28287d9f28be009bb7b8ff2584e4077aa5f30d30acbd6b96f98406",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/snapshot/tests/test_matlab_port/chebfun/test_integer_step_source_contracts.py": "00ecc90f4e0673b4db64e400f317001af074d6de4a3f6a46f7d71a0d3cfba7d7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigcasting_round_ci_triage_20261011.json": "f9f0b562d5faef1277f722df87a4be243e20763f502b8c42c3b57c7a34048974",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer/AUDIT.json": "4c9dafbdb88f009de4f59c92abdfb6063614c639c4b0fb30ca7f5b3646d12db7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_20261011/ci_round/AUDIT.json": "2dceed16397830ec6764a206a1f31a29825ef3c9ef931b42ca2c66c7daf1a198",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v2_20261011/controls/AUDIT.json": "f33edc29dc2f7a22e84f40bef37ad9b6148518b8203b52e9cd9478519229791b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/final_routes/AUDIT.json": "b7519812d3d83cff8824e259f99ba1355770ba6c5180f9b3a13a3ce36dbbb295",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/AUDIT.json": "72a558f484e070f2d1e74e1beb342680d197d2805c5968ce842f213b797b8d08",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/report.json": "25da1da847a1d3648c9ef475dc31ec7e434426d24c0874a02e23f42ff39c53fe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/NATIVE_COMPARISON.json": "707c258ac31fa9d2979f4e26b9ea13768025b42b52d8f66909269fea9e65b466",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/NATIVE_TRACE.json": "4f0f1a9d253ceeb2465345fc750a23a92c8383951e8db57819ead6e1e4dab32c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/RECONCILIATION.json": "ac90708e9357cce2acff713f7e87638f3a762c8aad07cbfec3da76b296befc84",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/EXTRACTION_MANIFEST.json": "89a5d307aa6f87680604b1b5845e5d14a29142989bfb46f27e2796f0ff225e8d"
+  },
+  "native_comparison": {
+    "native_artifact_status": "audited retained observations from command exit1: complex JSON serialization failed after MAT save; computed original predicates true, original assertion statements not reached; ZERO native test-pass credit",
+    "numpy_version": "2.4.3",
+    "scipy_version": "1.17.1",
+    "scipy_path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/scipy/__init__.py",
+    "native_computed_pass14": true,
+    "native_computed_pass15": true,
+    "native_replay_domain_exact": true,
+    "native_replay_sum_exact": true,
+    "native_sum_trig": 7.804057538903815,
+    "native_sum_cheb": 7.804057538903848,
+    "native_sum_abs_delta": 3.2862601528904634e-14,
+    "python_sum_abs_delta": 9.769962616701378e-15,
+    "native_sum_bound": 6.02695261674273e-14,
+    "python_sum_bound": 6.026952616742728e-14,
+    "trig_final_domain": {
+      "shape_native": [
+        8
+      ],
+      "shape_python": [
+        8
+      ],
+      "max_abs_difference": 9.325873406851315e-15
+    },
+    "trig_final_point_values": {
+      "shape_native": [
+        8
+      ],
+      "shape_python": [
+        8
+      ],
+      "max_abs_difference": 0.0
+    },
+    "stages": [
+      {
+        "threshold": 0.5,
+        "shifted_domain": {
+          "shape_native": [
+            2
+          ],
+          "shape_python": [
+            2
+          ],
+          "max_abs_difference": 0.0
+        },
+        "shifted_point_values": {
+          "shape_native": [
+            2
+          ],
+          "shape_python": [
+            2
+          ],
+          "max_abs_difference": 0.0
+        },
+        "native_post_types": [
+          "chebtech2",
+          "chebtech2",
+          "chebtech2"
+        ],
+        "python_inserted_types": [
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2"
+        ],
+        "post_domain": {
+          "shape_native": [
+            4
+          ],
+          "shape_python": [
+            4
+          ],
+          "max_abs_difference": 9.325873406851315e-15
+        }
+      },
+      {
+        "threshold": 1.5,
+        "shifted_domain": {
+          "shape_native": [
+            4
+          ],
+          "shape_python": [
+            4
+          ],
+          "max_abs_difference": 9.325873406851315e-15
+        },
+        "shifted_point_values": {
+          "shape_native": [
+            4
+          ],
+          "shape_python": [
+            4
+          ],
+          "max_abs_difference": 0.0
+        },
+        "native_post_types": [
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2"
+        ],
+        "python_inserted_types": [
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2"
+        ],
+        "post_domain": {
+          "shape_native": [
+            6
+          ],
+          "shape_python": [
+            6
+          ],
+          "max_abs_difference": 9.325873406851315e-15
+        }
+      },
+      {
+        "threshold": 2.5,
+        "shifted_domain": {
+          "shape_native": [
+            6
+          ],
+          "shape_python": [
+            6
+          ],
+          "max_abs_difference": 9.325873406851315e-15
+        },
+        "shifted_point_values": {
+          "shape_native": [
+            6
+          ],
+          "shape_python": [
+            6
+          ],
+          "max_abs_difference": 0.0
+        },
+        "native_post_types": [
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2",
+          "chebtech2"
+        ],
+        "python_inserted_types": [
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2",
+          "Chebtech2"
+        ],
+        "post_domain": {
+          "shape_native": [
+            8
+          ],
+          "shape_python": [
+            8
+          ],
+          "max_abs_difference": 9.325873406851315e-15
+        }
+      }
+    ],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2/native_result.mat": "ba725c364dba93d662b8afdc7e2e01320e28c70e5e0540aa60d88a3c7c66f830",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/threshold_observer_v2/report.json": "25da1da847a1d3648c9ef475dc31ec7e434426d24c0874a02e23f42ff39c53fe",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/integer_step_source_candidate_v3_20261011/compare_native.py": "262082538b1a1ac8ddbed03398610ebc73af84dc1da2e2f0bcadf3cf68592d34",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/NATIVE_TRACE.json": "4f0f1a9d253ceeb2465345fc750a23a92c8383951e8db57819ead6e1e4dab32c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/RECONCILIATION.json": "ac90708e9357cce2acff713f7e87638f3a762c8aad07cbfec3da76b296befc84",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2_offline_v2/EXTRACTION_MANIFEST.json": "89a5d307aa6f87680604b1b5845e5d14a29142989bfb46f27e2796f0ff225e8d"
+    }
+  },
+  "native_run": {
+    "censored_limit": null,
+    "checks": {
+      "all_profile_provider_paths_bound": true,
+      "failure_end_map_audit_clean": true,
+      "native_public_booleans": {
+        "pass14": true,
+        "pass15": true
+      },
+      "outer_guard_hashes_stable": true,
+      "replay_matches_public": {
+        "domain": true,
+        "sum": true
+      },
+      "runtime_dependency_hashes_stable": true
+    },
+    "failure": {
+      "identifier": "MATLAB:json:UnsupportedComplexDataType",
+      "message": "Unable to encode complex-valued objects of class double as JSON-formatted text."
+    },
+    "failure_end_audit_sha256": "7b620b7924686cef359d5197d93c71d90d02a1a7ccf8d2b65dfa7893b4f6cfd5",
+    "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trig_round_native_capture_20261011_v2",
+    "inputs_stable": true,
+    "mat_sha256": "ba725c364dba93d662b8afdc7e2e01320e28c70e5e0540aa60d88a3c7c66f830",
+    "offline_trace_sha256": "4f0f1a9d253ceeb2465345fc750a23a92c8383951e8db57819ead6e1e4dab32c",
+    "outer_guard_sha256": "7a41ebde3146656505f298feafcd2446882c0d4b41e515df9aa473730e58d73f",
+    "outer_hash_mismatches": [],
+    "outer_input_count": 3656,
+    "output_json_empty_due_jsonencode_complex": true,
+    "postexit_audit_script_error": "Original bound postexit_audit.py could not parse empty native_result.json and exited before producing POSTEXIT_AUDIT.json; this reconciliation independently checks the retained receipt, hashes, end-map audit and profile providers.",
+    "profile_provider_count": 198,
+    "qualification_limit": "The unchanged MATLAB pass values were computed and retained in MAT, but the assertion lines were not reached because JSON serialization failed; this is not a completed native test pass.",
+    "receipt_sha256": "d6c395e19511a832a1f05189e9a87354e3d1e3175a4a5f3b198d39684b6ff617",
+    "remaining_owned_pids": [],
+    "runtime_guard_sha256": "a42ad6ec2bc3e5326f3a05f36b362bfe77794dc440fab761527ee3a913507c3a",
+    "runtime_hash_mismatches": [],
+    "runtime_payload_count": 948,
+    "runtime_profile_sha256": "9f5faa3b9eb211f73d72bf0cb21373ee0e44d77b7c67c8d5dbf3a287e0f8b9cb",
+    "sampled_peak_summed_rss_kib": 1526996,
+    "schema": "trig_round_native_capture_reconciliation.v1",
+    "status": "audited_diagnostic_with_harness_failure_no_test_credit",
+    "supervisor_command_exit_code": 1,
+    "supervisor_exit_code": 1,
+    "unbound_profile_providers": [],
+    "wall_seconds": 119.29135998291895
+  },
+  "summary": "The source-order round correction resolves the unchanged CI integral predicate: Python trig/Cheb difference9.769962616701378e-15 <6.026952616742728e-14. Native retained computed predicate also true, difference3.2862601528904634e-14. Threshold technology sequence and point values agree; roots are not bitwise identical."
+}
