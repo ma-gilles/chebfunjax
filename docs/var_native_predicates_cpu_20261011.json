@@ -1,0 +1,73 @@
+{
+  "native_source_predicates": 3,
+  "diagnostic_controls": 2,
+  "native_std_1d_test_exists": false,
+  "only_changed_Chebfun_methods": [
+    "var"
+  ],
+  "gates": {
+    "baseline_v1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 24.49864672217518,
+      "sampled_peak_summed_rss_kib": 1286192,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'clause': 1, 'error': 2.220446049250313e-16, 'bound': np.float64(6.035798146750804e-15)}\n.{'clause': 2, 'error': 2.220446049250313e-16, 'bound': np.float64(6.035798146750804e-15)}\n.FF.\n=================================== FAILURES ===================================\n___________________________ TestNativeVar.test_array ___________________________\n\nself = <tests.test_matlab_port.chebfun.test_var_matlab.TestNativeVar object at 0x14f6637aa510>\n\n    def test_array(self):\n     f=cj.chebfun(lambda x:jnp.stack([jnp.sin(x),jnp.cos(x),jnp.exp(x)],axis=-1),domain=(-1.,-.5,0.,.5,1.),pref=ChebfunPref())\n     exact=np.array([(1-np.sin(2)/2)/2,(1+np.sin(1)*np.cos(1))/2-np.sin(1)**2,(1-np.exp(-2))/2])\n>    error=np.sum(np.abs(np.asarray(f.var()).reshape(-1)-exact));bound=10*f.vscale*EPS\n                                    ^^^^^^^\n\nsnapshot/tests/test_matlab_port/chebfun/test_var_matlab.py:19: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsnapshot/src/chebfunjax/chebfun1d/chebfun.py:4524: in var\n    else self - float(m)\n                ^^^^^^^^\n/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/array.py:299: in __float__\n    core.check_scalar_conversion(self)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\narr = Array([0.        , 0.84147098, 1.17520119], dtype=float64)\n\n    def check_scalar_conversion(arr: Array):\n      if arr.ndim > 0:\n>       raise TypeError(\"Only scalar arrays can be converted to Python scalars; \"\n                        f\"got {arr.ndim=}\")\nE       TypeError: Only scalar arrays can be converted to Python scalars; got arr.ndim=1\n\n/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/core.py:939: TypeError\n_______________________ TestDiagnosticStd.test_array_row _______________________\n\nself = <tests.test_matlab_port.chebfun.test_var_matlab.TestDiagnosticStd object at 0x14f6637aa810>\n\n    def test_array_row(self):\n>    f=cj.chebfun(lambda x:jnp.stack([x,1j*x],axis=-1),pref=ChebfunPref());out=np.asarray(f.transpose().var())\n                                                                                          ^^^^^^^^^^^^^^^^^^^\n\nsnapshot/tests/test_matlab_port/chebfun/test_var_matlab.py:24: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsnapshot/src/chebfunjax/chebfun1d/chebfun.py:4523: in var\n    d = self - complex(m) if jnp.iscomplexobj(jnp.asarray(m)) \\\n               ^^^^^^^^^^\n/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/array.py:307: in __complex__\n    core.check_scalar_conversion(self)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\narr = Array([[0.+0.j],\n       [0.+0.j]], dtype=complex128)\n\n    def check_scalar_conversion(arr: Array):\n      if arr.ndim > 0:\n>       raise TypeError(\"Only scalar arrays can be converted to Python scalars; \"\n                        f\"got {arr.ndim=}\")\nE       TypeError: Only scalar arrays can be converted to Python scalars; got arr.ndim=2\n\n/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/core.py:939: TypeError\n=========================== short test summary info ============================\nFAILED snapshot/tests/test_matlab_port/chebfun/test_var_matlab.py::TestNativeVar::test_array\nFAILED snapshot/tests/test_matlab_port/chebfun/test_var_matlab.py::TestDiagnosticStd::test_array_row\n2 failed, 3 passed in 16.52s\n"
+    },
+    "candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 26.844211162999272,
+      "sampled_peak_summed_rss_kib": 1424560,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'clause': 1, 'error': 2.220446049250313e-16, 'bound': np.float64(6.035798146750804e-15)}\n.{'clause': 2, 'error': 2.220446049250313e-16, 'bound': np.float64(6.035798146750804e-15)}\n.{'clause': 3, 'error': np.float64(1.8735013540549517e-16), 'bound': np.float64(6.035798146750804e-15)}\n...\n5 passed in 18.58s\n"
+    }
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/candidate/src/chebfunjax/chebfun1d/chebfun.py": "8f1eb429dbe4d57e07ac1a1960f7c9b8b2080151ee1936894c3f119c51e47b7a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/candidate/tests/test_matlab_port/chebfun/test_var_matlab.py": "2077078f98a16e68bed87246fb557c6522d14987b7361acca84360a1866f0e33",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/ORIGINAL_TEST.py": "e1fe45eb00f1ef098b2308753fea4b246f39ae4f45a16991cd40decd8c2bc760",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/var_native.patch": "39adfefa2aaf63b542daaadefbdec8593d0bc836f18594a089966ff62fd99f12",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/prepare_gate.py": "0926f5766491042c5dab15cecd5e32b92fe42189e86525e91cd8aa67c1a20e69",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/edit_candidate.py": "8961f6851e4b7cbd9ed43c43fc60e5721b1a67c20851a78b7c5948bc59b331cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/var_native_predicates_20261011/build_delivery.py": "e60e3ffe3f8f69099dd6eda0f5d7a79ce1a89ce9c7c0c10a5f5a41446e75a970",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_var.m": "340af2a42737739ae51ff1225d7276ade526b2042be9939d3fa5c90a87edec57",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/var.m": "d450d9932a79ad53aee988317aa5dc7f3e4d910990691c00359b6777a14d90f9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/std.m": "7e90eeecba5ed3f4e38d9b1a1f3f9ca503205ad53d6d95bad1c4c044e475dcca",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/mean.m": "bf6f64f8909e8cbf82426ebbc95b30bc11342817e67f31102137684b4dc072b8"
+  },
+  "source_clause_mapping": {
+    "1": "Literal three-cell complex/real operators, [-1,0,.5,1], explicit default pref; full complex absolute error <10*vscale*eps",
+    "2": "Same object public nonconjugate transpose, same bound",
+    "3": "Single array Chebfun [sin,cos,exp], exact five breakpoints/defaultpref; original analytic variance row and sum(abs(error)) matrix infinity norm <10*vscale*eps"
+  },
+  "confirmed_fault": "Literal native3 fails because var converts array-valued mean to Python float/complex. Scalar native1/2 already pass. Row array diagnostic fails same conversion.",
+  "fix": "Native transpose recursion, vector mean subtraction via qualified existing arithmetic, literal centered*conj(centered) mean; no Python scalarization or imaginary-part discard. Std remains native sqrt(var).",
+  "diagnostics": [
+    "Independent row complex [x,i*x] variance1/3, Nx1 shape, error<2eps (diagnostic bound, not native)",
+    "Pure imaginary scalar std sqrt(1/3), error<2eps (diagnostic bound, not native)"
+  ],
+  "limitations": [
+    "Private dependency includes qualified mean delta; patch changes var only and requires mean restoration for row-vector output shape",
+    "No source std 1D test; higher-dimensional std tests outside scope",
+    "Eager Chebfun construction/metadata remain; no full JIT claim",
+    "No constructor, roots, sum, std, hypot, arithmetic edits; P untouched"
+  ],
+  "publication_review": "Root matched pinned @chebfun/var.m and all three native assertions: cell operations, transpose, array construction/domain, full complex error and row numeric infinity norm; original source bounds. Test formatting preserves executable AST. Mean dependency is already qualified/published; std unchanged."
+}

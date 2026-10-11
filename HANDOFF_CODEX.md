@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `f28a0639` is published; the following DDE/realpow batch is qualified. Use CPU only. Heavy whole examples run
+main through `1de182d7` is published. DDE/realpow, realsqrt and mean fixes are qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -15,6 +15,14 @@ ten have reviewed source replacements (including a separately qualified
 Atmospheric frame-only change); DDE and LaplaceBall remain partial. All twelve
 original home files are preserved. Source execution acceptance is not full
 output or image parity. See docs/handoff_twelve_disposition_cpu_20261011.json.
+
+All eight native realsqrt assertions and all eighteen mean assertions now pass,
+along with retained controls. Source input/result realness and mean dimensions,
+row orientation and unbounded endpoint behavior are restored. The next qualified
+variance batch restores all three original assertions and fixes array variance
+without scalarizing its mean. See docs/realsqrt_native_predicates_cpu_20261011.json,
+docs/mean_native_predicates_cpu_20261011.json and
+docs/var_native_predicates_cpu_20261011.json.
 
 Latest published native corrections restore all eleven sqrt assertions and
 per-column array power dispatch; complex Chebpade coefficients, optional
@@ -56,10 +64,11 @@ a direct provider smoke check. Full environment qualification remains open;
 see docs/finufft_locked_artifact_cpu_20261011.json. Legacy NumPy/SciPy/FINUFFT
 mathematics remain.
 
-CI is not green. Active b521 review has failures at Chebop.solve domain-length
+CI is not green. Completed b521 review has failures at Chebop.solve domain-length
 selection for Chebfun RHS/init. The Domain.breakpoints adapter fix is published
 1249696f and passes eight unchanged alternate-backend controls; full post-fix
-CI is pending. See docs/ci_domain_selection_cpu_20261011.json.
+CI is in progress on ac91b56c. Final old Core3 failures have the same cause;
+disk-ball passed. See docs/ci_domain_selection_cpu_20261011.json.
 Completed earlier shards exposed stale tests assuming a2D
 Chebfun2.sum result and five separate ball drawing artists; corrections now
 pass six marginal and five layout/rendering checks, retaining numerical

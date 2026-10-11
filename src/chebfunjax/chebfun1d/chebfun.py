@@ -4511,20 +4511,18 @@ class Chebfun(eqx.Module):
         return out
 
     def var(self) -> jax.Array:
-        """Variance over the domain: mean(|f - mean(f)|^2)
-        (MATLAB var).
+        """Variance over the domain: mean((f-mean(f))*conj(f-mean(f))).
 
         Provenance
         ----------
         MATLAB source : @chebfun/var.m
         Chebfun commit: 7574c77
         """
-        m = self.mean()
-        d = self - complex(m) if jnp.iscomplexobj(jnp.asarray(m)) \
-            else self - float(m)
-        if any(jnp.iscomplexobj(p.tech.coeffs) for p in self.funs):
-            return jnp.real((d * d.conj()).mean())
-        return (d * d).mean()
+        if self.is_transposed:
+            out = jnp.asarray(self.transpose().var())
+            return out if out.ndim == 0 else out.reshape((-1, 1)) if out.ndim == 1 else out.T
+        centered = self - self.mean()
+        return (centered * centered.conj()).mean()
 
     def std(self) -> jax.Array:
         """Standard deviation: sqrt(var(f)) (MATLAB std).
