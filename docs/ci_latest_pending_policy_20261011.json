@@ -1,0 +1,10 @@
+{
+  "scope": "One running workflow and newest pending revision per workflow/ref; running CI preserved. Parallel job matrix and all gates unchanged.",
+  "official_source": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency",
+  "reason": "Observed40 active jobs across prior revisions with newer main workflows wholly queued; actual account concurrency ceiling not inferred.",
+  "existing_runs": "Older workflows lack this group and need separate freshness-checked cleanup only when wholly queued. Four terminal-only aggregate candidates finalized naturally before root action; zero cancellations issued for them.",
+  "before_sha256": "44784c83e963000a5e32fa2213cd63d0ea5771de36dd59beb448784382f3e757",
+  "after_sha256": "6cd372f28627135e846383090e3c1489957b7438f37b3c58702eb2f7bc5f52db",
+  "prior_snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_backlog_24c05ff7_20261011T072612Z/REPORT.md",
+  "root_cleanup": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_terminal_aggregate_cleanup_20261011.json"
+}

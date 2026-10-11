@@ -9,6 +9,11 @@ on:
 # CI is the sole reviewer. If all jobs pass, the PR is safe to auto-merge.
 # Configure branch protection to require all these jobs (scripts/setup-branch-protection.sh).
 
+# Preserve the active review and keep only the newest pending revision per ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   lint:
     name: Lint (ruff)
