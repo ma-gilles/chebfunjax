@@ -317,6 +317,16 @@ class Deltafun(eqx.Module):
         object.__setattr__(obj, "_is_empty_object", True)
         return obj
 
+    def chebcoeffs(self, *args, **kwargs):
+        """Return FUNPART coefficients; delta locations and magnitudes are ignored.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/chebcoeffs.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        return self.funPart.chebcoeffs(*args, **kwargs)
+
     def isempty(self) -> bool:
         """True for an empty Deltafun: no deltas AND an empty funPart.
 

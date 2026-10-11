@@ -2,8 +2,8 @@
 
 Source pin7574c77. Native seeded uniform prefixes qualify retained inputs;
 principal complex powers explicitly promote MATLAB negative-real bases.
-Python singleton scalar values use1-D arrays; native row matrix infinity
-norm for singular clause11 remains the absolute row sum, not max.
+Python singleton scalar values use1-D arrays; native vector infinity
+norm for singular clause11 is maxabs, as for column vectors.
 """
 
 from pathlib import Path
@@ -67,8 +67,8 @@ def test_native_singular_clauses10_11(row):
         expected = (
             (dom[0] - X + 0j) ** power * jnp.sin(100 * (sum(dom) - X)) * (dom[1] - X + 0j) ** power
         )
-        error = float(jnp.sum(jnp.abs(out(X) - expected)))
-        bound = 1e4 * EPS * float(jnp.sum(jnp.abs(expected)))
+        error = float(jnp.max(jnp.abs(out(X) - expected)))
+        bound = 1e4 * EPS * float(jnp.max(jnp.abs(expected)))
     else:
         expected = f(X)
         error = float(jnp.max(jnp.abs(expected - out(X))))

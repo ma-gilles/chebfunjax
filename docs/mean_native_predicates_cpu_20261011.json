@@ -165,5 +165,9 @@
     "Numeric vector mean output shape normalizes existing Python shape adapter; row transposes give Nx1; Python numeric dimensions1/2 supported, dynamic JIT dimension dispatch not claimed",
     "Only mean edited; no sum, Singfun, roots, arithmetic or constructor algorithms changed; private base includes qualified real delta; no publication checkout writes"
   ],
-  "publication_review": "Root matched source mean and all eighteen native predicates, including row matrix infinity norms, original singular/unbounded constructors and bounds. Twelve evidence hashes verified. Test import sorting/formatting preserves executable AST. No root/constructor/sum modifications; full suite remains open."
+  "publication_review": "Root matched source mean and all eighteen native predicates, including row matrix infinity norms, original singular/unbounded constructors and bounds. Twelve evidence hashes verified. Test import sorting/formatting preserves executable AST. No root/constructor/sum modifications; full suite remains open.",
+  "vector_norm_erratum_20261011": {
+    "qualification": "docs/norm_vector_semantics_cpu_20261011.json",
+    "correction": "MATLAB treats singleton rows and columns as vectors: infinity norm=maxabs. Earlier row-sum assertion claims superseded; retained evidence and corrected gates/proofs in referenced package."
+  }
 }

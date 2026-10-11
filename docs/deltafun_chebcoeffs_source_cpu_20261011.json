@@ -1,0 +1,33 @@
+{
+  "base_head": "761e0a5e9e173ed22811c5c5839c2fcea8e86288",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Deltafun.chebcoeffs forwards to new Classicfun.chebcoeffs which forwards to existing JAX Chebtech provider. No numerical implementation/coefficients changed.",
+  "source": [
+    "@deltafun/chebcoeffs.m9",
+    "@classicfun/chebcoeffs.m11",
+    "tests/deltafun/test_chebcoeffs.m16"
+  ],
+  "original_predicates_restored": 1,
+  "independent_controls": 4,
+  "controls": "Scalar/array/complex exact coefficients, truncate/pad, secondkind independentclosedform, []N/kinddefaults, exactbadKindID and argument/resultidentity",
+  "empty_scope": "NativeemptyDeltafun stores numeric[]funPart and coefficientprovider delegation has no globalnumericchebcoeffs in reference. No new syntheticemptyreturn; argumentemptydefaults qualifyexistingtech behavior.",
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/deltafun_chebcoeffs_source_20261011/supervision/receipt.json",
+    "sha256": "fd7e674269950cd408b4a8ba865e77deca4d0d18ce0c09f634aea87e734b66e4",
+    "passed": 5,
+    "pytest_seconds": 7.03,
+    "peak_sampled_rss_kib": 725456,
+    "inputs_stable": true
+  },
+  "runtime_scope": "Pinned CPUenv JAX/JAXlib0.11.0+x64 requested bylauncher; frozen entirecandidate sourceguard stable. No retrospectiveactualimportmap captured in pytest gate, so no observed-runtimeorigin claim.",
+  "actual_warnings": "Installed incompatible CUDAplugin warning retained, even CUDA_VISIBLE_DEVICES empty. No ignored warnings added.",
+  "production": [
+    "src/chebfunjax/fun/classicfun.py",
+    "src/chebfunjax/fun/deltafun.py",
+    "tests/test_matlab_port/deltafun/test_chebcoeffs_matlab.py",
+    "tests/test_deltafun_chebcoeffs_forwarding.py"
+  ],
+  "next_selected_package": "NE10 literal sourcepredicates, preserving RNG6178 captured logicalsourcefixture, domain/pointValues/errorIDs/singular/unbounded contracts. No NE implementation yet.",
+  "root_bindings_checked": 10,
+  "root_guard_inputs_checked": 294
+}

@@ -26,7 +26,7 @@ class TestNativeProdArray:
             fa = fa.transpose()
         actual = np.asarray(fa.prod())
         exact = np.full((2, 1) if row else (2,), 27 * np.exp(-2))
-        error = np.max(np.abs(actual - exact)) if row else np.sum(np.abs(actual - exact))
+        error = np.max(np.abs(actual - exact))
         print({"native_clause": 5 if row else 3, "error": error, "bound": TOL}, flush=True)
         assert error < TOL
         assert np.array_equal(actual, np.asarray(fa.prod(2 if row else 1)))
@@ -59,7 +59,7 @@ class TestNativeProdQuasi:
             fq = fq.transpose()
         actual = np.asarray(fq.prod())
         exact = np.full((2, 1) if row else (2,), 27 * np.exp(-2))
-        error = np.max(np.abs(actual - exact)) if row else np.sum(np.abs(actual - exact))
+        error = np.max(np.abs(actual - exact))
         print({"native_clause": 9 if row else 7, "error": error, "bound": TOL}, flush=True)
         assert error < TOL
         assert np.array_equal(actual, np.asarray(fq.prod(2 if row else 1)))

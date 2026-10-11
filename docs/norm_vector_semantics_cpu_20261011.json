@@ -1,0 +1,51 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_discriminator": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/builtin_norm_vector_native_20261011/result.json",
+  "builtin_result": {
+    "success": true,
+    "row_inf": 3,
+    "column_inf": 3,
+    "matrix_inf": 15,
+    "row_one": 6,
+    "column_one": 6,
+    "row_two": 3.741657386773941,
+    "column_two": 3.741657386773941,
+    "complex_row_inf": 3,
+    "complex_column_inf": 3,
+    "science_seconds": 1.702808
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_vector_semantics_correction_20261011",
+  "root_review": {
+    "bindings": 76,
+    "guard_inputs_unique": 13681,
+    "receipts": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/builtin_norm_vector_native_20261011/supervision/receipt.json",
+        "exit": 0
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_vector_semantics_correction_20261011/cell_gate/supervision/receipt.json",
+        "exit": 0
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_vector_semantics_correction_20261011/fliplr_gate/supervision/receipt.json",
+        "exit": 0
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_vector_semantics_correction_20261011/flipud_gate/supervision/receipt.json",
+        "exit": 1
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/norm_vector_semantics_correction_20261011/flipud_gate_v2/supervision/receipt.json",
+        "exit": 0
+      }
+    ],
+    "review": "Native row and column builtin norm fixture proves maxabs. Source thresholds unchanged. Affected scaled-error tests rerun; error-only sum->max preserves passing inequalities by domination. Old artifacts retained as errata."
+  },
+  "corrections": [
+    "CELL2QUASI numeric promotion with first Chebfun template and source domain validation,6tests pass",
+    "FLIPLR11 and FLIPUD10 source vector error/scale norms corrected and rerun pass",
+    "VAR3/PROD3,7/MEAN5,7 error-only sumabs->maxabs: prior passing inequalities imply corrected predicates, unchanged bounds"
+  ],
+  "remaining_scope": "DLT/IDLT singleton-row helper gap recorded in report; exercised Nx1/Nx2 shapes unaffected. Numeric vector-cell promotion remains unqualified."
+}

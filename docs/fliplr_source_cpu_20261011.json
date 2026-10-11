@@ -41,5 +41,9 @@
       "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fliplr_source_20261011/ROOT_PUBLICATION_REVIEW.json",
       "sha256": "dfd533284c42bded6a4a9429dfa79a2c19aa436aa32cb33b79cf12a97a5510b1"
     }
-  ]
+  ],
+  "vector_norm_erratum_20261011": {
+    "qualification": "docs/norm_vector_semantics_cpu_20261011.json",
+    "correction": "MATLAB treats singleton rows and columns as vectors: infinity norm=maxabs. Earlier row-sum assertion claims superseded; retained evidence and corrected gates/proofs in referenced package."
+  }
 }

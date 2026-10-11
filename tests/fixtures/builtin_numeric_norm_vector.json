@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "row_inf": 3,
+  "column_inf": 3,
+  "matrix_inf": 15,
+  "row_one": 6,
+  "column_one": 6,
+  "row_two": 3.741657386773941,
+  "column_two": 3.741657386773941,
+  "complex_row_inf": 3,
+  "complex_column_inf": 3,
+  "science_seconds": 1.702808,
+  "provenance": "MATLAB R2025b actual builtin packet18333; vector versus genuine matrix norm"
+}

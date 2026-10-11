@@ -38,7 +38,7 @@ class TestNativeVar:
                 (1 - np.exp(-2)) / 2,
             ]
         )
-        error = np.sum(np.abs(np.asarray(f.var()).reshape(-1) - exact))
+        error = np.max(np.abs(np.asarray(f.var()).reshape(-1) - exact))
         bound = 10 * f.vscale * EPS
         print({"clause": 3, "error": error, "bound": bound}, flush=True)
         assert error < bound

@@ -82,12 +82,10 @@ class TestChebfunFlipud:
             * jnp.sin(100 * (sum(dom) - x))
             * (dom[1] - x + 0j) ** power
         )
-        # Native row feval is1x100: matrix infinity norm is the absolute row sum.
-        error = float(
-            jnp.sum(jnp.abs(g(x) - expected)) if row else jnp.max(jnp.abs(g(x) - expected))
-        )
+        # MATLAB treats 1x100 feval as a vector: infinity norm is maxabs.
+        error = float(jnp.max(jnp.abs(g(x) - expected)))
         bound = (
-            EPS * float(jnp.sum(jnp.abs(expected)))
+            EPS * float(jnp.max(jnp.abs(expected)))
             if row
             else 1e4 * EPS * float(jnp.max(jnp.abs(expected)))
         )

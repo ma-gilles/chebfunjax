@@ -33,5 +33,13 @@
   ],
   "production_ast_equal_to_tested": true,
   "limitations": "Native original predicates restored by source inspection; no new MATLAB execution for this helper. Retains Python scalar-valued one-dimensional output convention.",
-  "failures": "Baseline pass2 fails list callable; candidate original six plus stored-override supplement pass, final supplement fails only nonexistent no-argument class constructor in harness; corrected factory harness and array-valued supplement pass with identical library AST."
+  "failures": "Baseline pass2 fails list callable; candidate original six plus stored-override supplement pass, final supplement fails only nonexistent no-argument class constructor in harness; corrected factory harness and array-valued supplement pass with identical library AST.",
+  "endpoint_followthrough": {
+    "source": "@chebtech/lval.m and rval.m use signed/plain coefficient sums, not physical endpoint interpolation",
+    "implementation": "Reuse existing _construction.values_at_breakpoints for native limits and assignment shape validation; retains Python scalar output shape.",
+    "tests": "All12pass24.15s, including coefficient cancellation, scalar assignment and invalid singleton-row output shape.",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoint_values_source_20261011/endpoint_delegation/supervision/receipt.json",
+    "sha256": "a4cb1773f3cfd898a1b157bb89a68469c37d5daff03db06d05d19489c92fc730",
+    "inputs_stable": true
+  }
 }

@@ -89,3 +89,17 @@ class TestChebfunGetValuesAtBreakpoints:
         v2 = np.asarray(cj.getValuesAtBreakpoints(f, jnp.sign))
         np.testing.assert_allclose(v2, [-1.0, 0.0, 1.0, 1.0],
                                    atol=1e-15)
+
+
+def test_supplemental_coefficient_limits_and_assignment_shape():
+    import pytest
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    coeffs = jnp.array([1e16, 1., -1e16, 3., 2.])
+    f = Chebfun(funs=[_Piece.from_coeffs(coeffs, -1., 1.)], domain=Domain((-1., 1.)))
+    expected = jnp.array([jnp.sum(coeffs.at[1::2].set(-coeffs[1::2])), jnp.sum(coeffs)])
+    assert jnp.array_equal(cj.getValuesAtBreakpoints(f), expected)
+    assert jnp.array_equal(cj.getValuesAtBreakpoints(f, lambda x: 42), jnp.array([42., 42.]))
+    with pytest.raises(ValueError, match='dimensions'):
+        cj.getValuesAtBreakpoints(f, lambda x: jnp.ones((1, 2)))

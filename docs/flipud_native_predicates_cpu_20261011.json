@@ -69,5 +69,9 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_flipud_matlab.py": "f4ee6e8093ec8db2043235d9361baecd080bed9a1c535d1867aa1a292bcedc2d"
   },
   "immutable_delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/flipud_native_predicates_20261011/DELIVERY_v2.json",
-  "publication_review": "Root reviewed all native clauses. Native10 uses row matrix infinity norm (sumabs), restored with proof from recorded zero error; no redundant rerun. Formatting and import sorting preserve executable AST."
+  "publication_review": "Root reviewed all native clauses. Native10 uses row matrix infinity norm (sumabs), restored with proof from recorded zero error; no redundant rerun. Formatting and import sorting preserve executable AST.",
+  "vector_norm_erratum_20261011": {
+    "qualification": "docs/norm_vector_semantics_cpu_20261011.json",
+    "correction": "MATLAB treats singleton rows and columns as vectors: infinity norm=maxabs. Earlier row-sum assertion claims superseded; retained evidence and corrected gates/proofs in referenced package."
+  }
 }

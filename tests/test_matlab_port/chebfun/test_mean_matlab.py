@@ -1,6 +1,6 @@
 """All18literalnative MEAN predicates; no MATLAB RNG stream identity claim.
 Native tests/chebfun/test_mean.m commit7574c77. Matrix infinity norms retain
-native row/column shapes instead of vector max substitutions.
+native matrix shapes; singleton dimensions use MATLAB vector maxabs.
 """
 
 import jax.numpy as jnp
@@ -19,6 +19,8 @@ def matrix_inf(values, row_vector=False):
         return float(abs(a))
     if a.ndim == 1:
         a = a.reshape((1, -1) if row_vector else (-1, 1))
+    if 1 in a.shape:
+        return float(np.max(np.abs(a)))
     return float(np.max(np.sum(np.abs(a), axis=1)))
 
 

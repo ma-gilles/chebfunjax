@@ -1,9 +1,8 @@
 """Port of MATLAB Chebfun tests/deltafun/test_chebcoeffs.m (Opus 4.8).
 
-MATLAB ``chebcoeffs(df)`` delegates to the Chebyshev coefficients of the
-Deltafun's smooth part.  chebfunjax has no ``chebcoeffs`` method on Deltafun,
-but exposes the same coefficients via ``df.funPart.coeffs``; the constructor
-must leave those coefficients untouched.
+Literal original predicate calls both public coefficient methods.
+The Python constructor uses labeled location/magnitude positions matching
+native data.deltaLoc/data.deltaMag; scalar coefficient vectors stay1D.
 
 Provenance
 ----------
@@ -30,4 +29,4 @@ class TestDeltafunChebcoeffs:
         mag = 0.9 * (a + (b - a) * np.random.rand(3, 3))
         loc = 0.9 * (a + (b - a) * np.random.rand(3))
         df = Deltafun(f, jnp.asarray(loc), jnp.asarray(mag))
-        npt.assert_array_equal(np.array(df.funPart.coeffs), np.array(f.coeffs))
+        npt.assert_array_equal(np.asarray(df.chebcoeffs()), np.asarray(f.chebcoeffs()))

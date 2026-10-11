@@ -361,6 +361,16 @@ class Classicfun(eqx.Module):
         """Number of Chebyshev coefficients."""
         return self.onefun.n
 
+    def chebcoeffs(self, *args, **kwargs):
+        """Return the ONEFUN coefficients with native argument forwarding.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/chebcoeffs.m
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+        """
+        return self.onefun.chebcoeffs(*args, **kwargs)
+
     @property
     def coeffs(self) -> jax.Array:
         """Chebyshev coefficients of the underlying onefun."""

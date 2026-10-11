@@ -69,5 +69,9 @@
     "Eager Chebfun construction/metadata remain; no full JIT claim",
     "No constructor, roots, sum, std, hypot, arithmetic edits; P untouched"
   ],
-  "publication_review": "Root matched pinned @chebfun/var.m and all three native assertions: cell operations, transpose, array construction/domain, full complex error and row numeric infinity norm; original source bounds. Test formatting preserves executable AST. Mean dependency is already qualified/published; std unchanged."
+  "publication_review": "Root matched pinned @chebfun/var.m and all three native assertions: cell operations, transpose, array construction/domain, full complex error and row numeric infinity norm; original source bounds. Test formatting preserves executable AST. Mean dependency is already qualified/published; std unchanged.",
+  "vector_norm_erratum_20261011": {
+    "qualification": "docs/norm_vector_semantics_cpu_20261011.json",
+    "correction": "MATLAB treats singleton rows and columns as vectors: infinity norm=maxabs. Earlier row-sum assertion claims superseded; retained evidence and corrected gates/proofs in referenced package."
+  }
 }

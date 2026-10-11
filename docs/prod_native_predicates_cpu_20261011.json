@@ -110,5 +110,9 @@
     "Noemptyprod orfullJIT/newprecision claim; no unrelated numericalkernel edits",
     "P untouched; all ownhandlesconsumed/stable/no survivingPID"
   ],
-  "root_review": "Matched @chebfun/prod.m dimension dispatch and direct discrete product loop, and original18tests including source17 reference to prior array result. Python Quasimatrix scalar-column adapter explicit. Evidence hashes verified; formatted tests preserve executable AST; new method provenance docstrings normalized."
+  "root_review": "Matched @chebfun/prod.m dimension dispatch and direct discrete product loop, and original18tests including source17 reference to prior array result. Python Quasimatrix scalar-column adapter explicit. Evidence hashes verified; formatted tests preserve executable AST; new method provenance docstrings normalized.",
+  "vector_norm_erratum_20261011": {
+    "qualification": "docs/norm_vector_semantics_cpu_20261011.json",
+    "correction": "MATLAB treats singleton rows and columns as vectors: infinity norm=maxabs. Earlier row-sum assertion claims superseded; retained evidence and corrected gates/proofs in referenced package."
+  }
 }

@@ -9132,17 +9132,12 @@ def getValuesAtBreakpoints(f, ends=None, op=None) -> jax.Array:
         return jnp.empty((0,), dtype=jnp.float64)
     if ends is None:
         ends = [p.interval[0] for p in funs] + [funs[-1].interval[1]]
-    xb = jnp.asarray(ends, dtype=jnp.float64)
-    limits = [funs[0](xb[0])]
-    for k in range(1, len(funs)):
-        limits.append((funs[k-1](xb[k]) + funs[k](xb[k])) / 2)
-    limits.append(funs[-1](xb[-1]))
-    fallback = jnp.stack(limits)
-    if not callable(op):
-        return fallback
-    values = jnp.asarray(op(xb))
-    values = jnp.broadcast_to(values, fallback.shape)
-    return jnp.where(jnp.isnan(values), fallback, values)
+    from ._construction import values_at_breakpoints
+
+    # Reuse source lval/rval coefficient limits and MATLAB assignment shape
+    # rules, including scalar expansion and per-entry NaN replacement.
+    values = values_at_breakpoints(funs, ends, op)
+    return values[:, 0] if values.ndim == 2 and values.shape[1] == 1 else values
 
 
 def kron(f, g, mode=None):
@@ -9404,17 +9399,42 @@ def complex_fun(f: Chebfun | float, g: Chebfun | float | None = None):
 
 
 def cell2quasi(cells):
-    """Build a Quasimatrix from a list of chebfuns (MATLAB cell2quasi).
+    """Convert Python cells to a source quasimatrix, promoting numeric entries.
 
-    Provenance
-    ----------
-    MATLAB source : @chebfun/cell2quasi.m
-    Chebfun commit: 7574c77
+    Source: @chebfun/cell2quasi.m, pin 7574c77. Lists and tuples are the
+    Python cell adapter. Numeric promotion uses zero times the first Chebfun,
+    retaining its domain, representation and orientation. Non-scalar numeric
+    vector cells require separate representation qualification.
     """
     from chebfunjax.chebfun1d.linalg import Quasimatrix
-    if not cells:
-        raise ValueError("cell2quasi: empty input")
-    return Quasimatrix(list(cells), cells[0].domain)
+
+    message = "Input must be a cell array of scalar CHEBFUN objects."
+    if not isinstance(cells, (list, tuple)):
+        raise ValueError("CHEBFUN:CHEBFUN:cell2quasi:notacell: " + message)
+    chebs = [f for f in cells if isinstance(f, Chebfun)]
+    if not chebs:
+        raise ValueError("CHEBFUN:CHEBFUN:cell2quasi:notacheb: " + message)
+    for f in cells:
+        if isinstance(f, Chebfun):
+            smallest = f.n_columns
+        else:
+            shape = jnp.asarray(f).shape
+            smallest = min(shape) if len(shape) > 1 else 1
+        if smallest > 1:
+            raise ValueError("CHEBFUN:CHEBFUN:cell2quasi:notascalar: " + message)
+    template = chebs[0]
+    # domainCheck(dom, f) receives a numeric row as its first argument.
+    # MATLAB treats both endpoint rows as vectors: infinity norm is maxabs.
+    ends = jnp.asarray([template.domain.a, template.domain.b])
+    for f in chebs:
+        other = jnp.asarray([f.domain.a, f.domain.b])
+        hs = jnp.max(jnp.abs(other))
+        hs = jnp.where(jnp.isinf(hs), 1.0, hs)
+        if not bool(jnp.max(jnp.abs(ends - other)) < 1e-15 * hs):
+            raise ValueError("CHEBFUN:CHEBFUN:cell2quasi:domaion: Inconsistent domains.")
+    zero = 0 * template
+    promoted = [f if isinstance(f, Chebfun) else zero + f for f in cells]
+    return Quasimatrix(promoted, template.domain)
 
 
 _DEG2RAD = jnp.pi / 180.0
