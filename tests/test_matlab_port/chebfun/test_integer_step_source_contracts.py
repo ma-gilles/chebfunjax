@@ -54,7 +54,14 @@ def test_round_constant_ties(value, expected):
 
 def test_round_inserted_point_values():
     g = cj.chebfun(lambda x: x).round()
-    assert tuple(g.domain.breakpoints) == (-1., -.5, .5, 1.)
+    # After inserting -.5, the right FUN lives on [-.5, 1] and the
+    # shifted coefficients are [-.25, .75], with canonical root 1/3.
+    # Native mapping/linear.For uses this endpoint-weighted order.
+    # Its positive breakpoint is one ULP below .5; stored root values
+    # are still set to zero before shifting back and rounding.
+    root = 1. / 3.
+    positive_break = 1. * (root + 1.) / 2. + (-.5) * (1. - root) / 2.
+    assert tuple(g.domain.breakpoints) == (-1., -.5, positive_break, 1.)
     assert bool(jnp.all(g.point_values == jnp.array([-1., -1., 1., 1.])))
 
 

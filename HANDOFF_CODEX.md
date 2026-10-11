@@ -3,12 +3,29 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `e5258038` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `875219bf` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
+
+The latest CI rounding failure is diagnosed against native source. Both MATLAB
+and Python put the positive breakpoint of round(identity) one ULP below0.5.
+The supplemental expectation now uses the literal endpoint-weighted source
+mapping, retaining exact equality and exact stored point values. All13contracts
+pass, as do all6native round clauses; no library or tolerance change.
+See docs/round_identity_breakpoint_cpu_20261011.json.
+
+Native tech RDIVIDE30 passes with original norms, shapes, source sample points,
+prolongation and error identifiers, including full-size high-frequency cases.
+No library change. See docs/tech_rdivide_native_predicates_cpu_20261011.json.
+
+All22 gallery3 default constructions now pass scoped source sample checks.
+The remaining18 use32points each; thirteen have complete representation metadata,
+five recover original saved samples after reporting failures without repeated
+solves. Their ranks/lengths/happiness are unavailable. No global error, native
+representation or performance parity claim. See docs/gallery3_remaining18_cpu_20261011.json.
 
 DDE slot19/figure20 now has a source-default CPU solve and native comparison:
 both length14 with no warnings; observed sample differences3.56e-15. The script
@@ -81,7 +98,8 @@ have clean guards. See docs/canonical_complex_dct_cpu_20261011.json.
 
 CI ac91b56c has20 successful jobs,3 running and1 failure at the latest
 check. The failure is a supplemental round() exact-breakpoint assertion;
-source/native diagnosis is in progress, with no tolerance change assumed. Current main still needs its complete CI result. Routine work continues
+native diagnosis confirms the exact source mapping; test-only correction above
+is qualified. Current main still needs complete CI. Current main still needs its complete CI result. Routine work continues
 on native TIMES predicates and missing gallery3 functions; numerical work next
 addresses DDE slot19. All runtime validation is CPU only.
 

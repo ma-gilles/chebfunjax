@@ -1,0 +1,1502 @@
+{
+  "scope": "Remaining18 actual gallery3 defaultconstructions; evidence only, no additional source/test edits",
+  "pin": "7574c77",
+  "native_test_assertions": 0,
+  "remaining_entries": 18,
+  "passing_sample_bounds": 18,
+  "fresh_complete_metadata": 13,
+  "offline_recovered_samples": 5,
+  "source_api_library_sha256": "addf8c33d55af992fae33e4cc542eba89a17b6b5f5a0f37a797e82b80b12e6f0",
+  "bound": "1000EPS*max(1,maxabs(sourcevalues)), unchanged from initial actualcontrols",
+  "sampling": "32deterministic points:27three-level tensorpoints plus5offdiagonalpoints; originalsource domains/defaultconstructors, no n/tol/rank reductions",
+  "oracle": "LiteralMATLAB gallery3 expressions evaluated NumPy/SciPy hostadapter; no native numericcapture claim",
+  "rows": [
+    {
+      "name": "runge",
+      "success": true,
+      "qualification": "Original32samples recovered offline; no construction rerun",
+      "sample_error": 1.7208456881689926e-15,
+      "sample_bound": 2.220446049250313e-13,
+      "sample_count": 32,
+      "construction_seconds": 4.329852170776576,
+      "source_domain": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "domain_and_nonperiodic_assertions": "Executed before saved samples under bound original driver",
+      "ranks": null,
+      "lengths": null,
+      "factor_happiness": null,
+      "metadata_limit": "Not serialized before reporting fault; unavailable",
+      "warnings": [],
+      "original_command_exit": 1,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge",
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 13.417126470245421,
+        "sampled_peak_summed_rss_kib": 703808,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "name": "kummer",
+      "success": true,
+      "qualification": "Original32samples recovered offline; no construction rerun",
+      "sample_error": 4.996003610813204e-16,
+      "sample_bound": 2.2541589927982386e-13,
+      "sample_count": 32,
+      "construction_seconds": 3.824132911860943,
+      "source_domain": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "domain_and_nonperiodic_assertions": "Executed before saved samples under bound original driver",
+      "ranks": null,
+      "lengths": null,
+      "factor_happiness": null,
+      "metadata_limit": "Not serialized before reporting fault; unavailable",
+      "warnings": [],
+      "original_command_exit": 1,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer",
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 12.516676899045706,
+        "sampled_peak_summed_rss_kib": 693260,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "name": "clebsch",
+      "success": true,
+      "qualification": "Original32samples recovered offline; no construction rerun",
+      "sample_error": 4.547473508864641e-13,
+      "sample_bound": 2.7000623958883807e-10,
+      "sample_count": 32,
+      "construction_seconds": 3.7821876979433,
+      "source_domain": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "domain_and_nonperiodic_assertions": "Executed before saved samples under bound original driver",
+      "ranks": null,
+      "lengths": null,
+      "factor_happiness": null,
+      "metadata_limit": "Not serialized before reporting fault; unavailable",
+      "warnings": [],
+      "original_command_exit": 1,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch",
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 12.513844555709511,
+        "sampled_peak_summed_rss_kib": 687960,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "name": "barth10",
+      "success": true,
+      "qualification": "Original32samples recovered offline; no construction rerun",
+      "sample_error": 3.637978807091713e-12,
+      "sample_bound": 1.1366476733542544e-09,
+      "sample_count": 32,
+      "construction_seconds": 5.697893141768873,
+      "source_domain": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "domain_and_nonperiodic_assertions": "Executed before saved samples under bound original driver",
+      "ranks": null,
+      "lengths": null,
+      "factor_happiness": null,
+      "metadata_limit": "Not serialized before reporting fault; unavailable",
+      "warnings": [],
+      "original_command_exit": 1,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10",
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 14.05831664474681,
+        "sampled_peak_summed_rss_kib": 785440,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "name": "toyfunction",
+      "success": true,
+      "qualification": "Original32samples recovered offline; no construction rerun",
+      "sample_error": 3.552713678800501e-15,
+      "sample_bound": 1.5543122344752192e-12,
+      "sample_count": 32,
+      "construction_seconds": 7.413008463103324,
+      "source_domain": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "domain_and_nonperiodic_assertions": "Executed before saved samples under bound original driver",
+      "ranks": null,
+      "lengths": null,
+      "factor_happiness": null,
+      "metadata_limit": "Not serialized before reporting fault; unavailable",
+      "warnings": [],
+      "original_command_exit": 1,
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction",
+      "receipt": {
+        "command_exit_code": 1,
+        "wall_seconds": 15.938686339650303,
+        "sampled_peak_summed_rss_kib": 881240,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    {
+      "name": "rastrigin",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 4.443006096873432,
+      "total_seconds": 4.635805643163621,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        2,
+        2,
+        2
+      ],
+      "lengths": [
+        27,
+        27,
+        29
+      ],
+      "core_shape": [
+        2,
+        2,
+        2
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 2.1316282072803006e-14,
+      "sample_bound": 9.6531863112346e-12,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2",
+      "receipt": {
+        "wall_seconds": 13.555500940419734,
+        "sampled_peak_summed_rss_kib": 734612,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "genz1",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 3.298664894886315,
+      "total_seconds": 3.4900825740769506,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        2,
+        2,
+        2
+      ],
+      "lengths": [
+        26,
+        26,
+        26
+      ],
+      "core_shape": [
+        2,
+        2,
+        2
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 2.4424906541753444e-15,
+      "sample_bound": 2.220446049250313e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2",
+      "receipt": {
+        "wall_seconds": 12.199694811366498,
+        "sampled_peak_summed_rss_kib": 678668,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "genz3",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 3.3266095081344247,
+      "total_seconds": 3.4700424200855196,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        67,
+        67,
+        67
+      ],
+      "core_shape": [
+        1,
+        1,
+        1
+      ],
+      "factor_happiness": [
+        [
+          true
+        ],
+        [
+          true
+        ],
+        [
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 2.220446049250313e-16,
+      "sample_bound": 2.220446049250313e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2",
+      "receipt": {
+        "wall_seconds": 12.194303106050938,
+        "sampled_peak_summed_rss_kib": 663224,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "genz4",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 3.705234730616212,
+      "total_seconds": 3.879494884982705,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        185,
+        185,
+        187
+      ],
+      "core_shape": [
+        1,
+        1,
+        1
+      ],
+      "factor_happiness": [
+        [
+          true
+        ],
+        [
+          true
+        ],
+        [
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 2.7284841053187847e-12,
+      "sample_bound": 1.5914894275016577e-09,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2",
+      "receipt": {
+        "wall_seconds": 12.525854092091322,
+        "sampled_peak_summed_rss_kib": 685208,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "shubert",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 3.1335607329383492,
+      "total_seconds": 3.282385620754212,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        26,
+        26,
+        26
+      ],
+      "core_shape": [
+        1,
+        1,
+        1
+      ],
+      "factor_happiness": [
+        [
+          true
+        ],
+        [
+          true
+        ],
+        [
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 2.2737367544323206e-13,
+      "sample_bound": 1.1820190220437406e-10,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2",
+      "receipt": {
+        "wall_seconds": 11.650155924726278,
+        "sampled_peak_summed_rss_kib": 659032,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "doublehelix",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 5.748622654005885,
+      "total_seconds": 5.990821707062423,
+      "domain": [
+        -1.5,
+        1.5,
+        -1.5,
+        1.5,
+        -6.0,
+        6.0
+      ],
+      "periodic": false,
+      "ranks": [
+        4,
+        4,
+        3
+      ],
+      "lengths": [
+        5,
+        5,
+        38
+      ],
+      "core_shape": [
+        4,
+        4,
+        3
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 4.263256414560601e-14,
+      "sample_bound": 5.790735948974815e-12,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2",
+      "receipt": {
+        "wall_seconds": 14.894922086037695,
+        "sampled_peak_summed_rss_kib": 803632,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "griewank",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 5.650581013876945,
+      "total_seconds": 5.933569106739014,
+      "domain": [
+        -50.0,
+        50.0,
+        -50.0,
+        50.0,
+        -50.0,
+        50.0
+      ],
+      "periodic": false,
+      "ranks": [
+        3,
+        3,
+        3
+      ],
+      "lengths": [
+        89,
+        71,
+        63
+      ],
+      "core_shape": [
+        3,
+        3,
+        3
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 1.0880185641326534e-14,
+      "sample_bound": 5.600634051019473e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2",
+      "receipt": {
+        "wall_seconds": 14.871353298891336,
+        "sampled_peak_summed_rss_kib": 797204,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "levy",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 6.024846559856087,
+      "total_seconds": 6.228347473777831,
+      "domain": [
+        -10.0,
+        10.0,
+        -10.0,
+        10.0,
+        -10.0,
+        10.0
+      ],
+      "periodic": false,
+      "ranks": [
+        2,
+        2,
+        2
+      ],
+      "lengths": [
+        45,
+        45,
+        67
+      ],
+      "core_shape": [
+        2,
+        2,
+        2
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ],
+        [
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 1.1368683772161603e-13,
+      "sample_bound": 3.8889029308751196e-11,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2",
+      "receipt": {
+        "wall_seconds": 15.175283690914512,
+        "sampled_peak_summed_rss_kib": 829512,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "genz2",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 4.969072105828673,
+      "total_seconds": 5.442403658758849,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        16,
+        16,
+        16
+      ],
+      "lengths": [
+        91,
+        91,
+        91
+      ],
+      "core_shape": [
+        16,
+        16,
+        16
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 1.0512424264419451e-14,
+      "sample_bound": 2.220446049250313e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2",
+      "receipt": {
+        "wall_seconds": 14.148251911159605,
+        "sampled_peak_summed_rss_kib": 761448,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "bessel",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 13.222684795036912,
+      "total_seconds": 13.545638320036232,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        10,
+        10,
+        10
+      ],
+      "lengths": [
+        65,
+        65,
+        65
+      ],
+      "core_shape": [
+        10,
+        10,
+        10
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 1.1102230246251565e-15,
+      "sample_bound": 2.220446049250313e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2",
+      "receipt": {
+        "wall_seconds": 22.66082825884223,
+        "sampled_peak_summed_rss_kib": 849036,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "aurentz",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 14.833144139032811,
+      "total_seconds": 16.039039187133312,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        24,
+        24,
+        61
+      ],
+      "lengths": [
+        91,
+        91,
+        182
+      ],
+      "core_shape": [
+        24,
+        24,
+        61
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 7.093468946451666e-15,
+      "sample_bound": 2.220446049250313e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2",
+      "receipt": {
+        "wall_seconds": 25.191764649003744,
+        "sampled_peak_summed_rss_kib": 1224288,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "wagon",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 13.217666921205819,
+      "total_seconds": 13.490326628088951,
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        4,
+        3,
+        5
+      ],
+      "lengths": [
+        705,
+        1025,
+        129
+      ],
+      "core_shape": [
+        4,
+        3,
+        5
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 6.927791673660977e-14,
+      "sample_bound": 9.70489772737753e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2",
+      "receipt": {
+        "wall_seconds": 22.37364593986422,
+        "sampled_peak_summed_rss_kib": 1093792,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    },
+    {
+      "name": "octant",
+      "constructed": true,
+      "success": true,
+      "construction_seconds": 7.818996649235487,
+      "total_seconds": 8.872412933968008,
+      "domain": [
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ],
+      "periodic": false,
+      "ranks": [
+        38,
+        38,
+        38
+      ],
+      "lengths": [
+        513,
+        513,
+        513
+      ],
+      "core_shape": [
+        38,
+        38,
+        38
+      ],
+      "factor_happiness": [
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      ],
+      "all_factor_happy": true,
+      "sample_count": 32,
+      "sample_error": 1.8540724511240114e-14,
+      "sample_bound": 3.8459253727671276e-13,
+      "warnings": [],
+      "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2",
+      "receipt": {
+        "wall_seconds": 17.533520882949233,
+        "sampled_peak_summed_rss_kib": 890868,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "qualification": "Freshprocess completed source-bound assertions and metadata"
+    }
+  ],
+  "max_owned_wall_seconds": 25.191764649003744,
+  "max_peak_rss_kib": 1224288,
+  "warnings": [],
+  "caps": [],
+  "scientific_library_failures": [],
+  "retained_reporting_failures": "First5 driverJSON rejected NumPybool aftersavingall32actual/sourcevalues. Originalcommand1, drivers/runtime/sourcebindings/samplebytes retained. Offlinegate repeats onlysourceoracle/boundchecks; no constructionreruns. Rank/length/happiness metadata unavailable for those5. Toyfunctionoriginalexecuteddriver/guard restored exactly againstsupervisorbefore hashes.",
+  "retained_prelaunch_failure": "Originalrastrigin attempt refusedhashguard duringprepared-driver correction; noscientificchild/receipt. Successfulfreshrastrigin_v2 separatelybound.",
+  "original_exec_handles": {
+    "first_serial": 48682,
+    "fresh_serial": 7922,
+    "offline_recovery": 71547,
+    "all_terminal_consumed": true
+  },
+  "limits": [
+    "Samples and happyfactors whereavailable are bounded checks, notwhole-domain error certification.",
+    "No MATLAB R2025b executions, RNG equivalence or performance ratio claimed.",
+    "First5 missingmetadata not fabricated or regenerated.",
+    "Deliveredcandidate/tests remain frozen; no publication edits."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/observe.py": "7bb376806b7cc22e61714ac6ec7c212a9a5a2eabc44377d832f2bde4efe93681",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/launch.sh": "6fdb865cc5c81af881cb8a58ad3593d61e549514c42a7e23f4969b9cc66ee73b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/guard.json": "4de49e73084306ba433e99346246cb3d583c1ff7d8d2aa2f45a126310e2814d6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/SAMPLES.json": "d7a38beabdc3cdc55b33d1a576753b77f69500f2725d0b86f36ee142b4631f03",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/PROGRESS.json": "5b9491ded6e3d0498da2f054399a2eba35fc880a5b805c1d9494be859630b4e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/FAILURE.json": "f792dc824c998f7a6a5c5753e5b9d938b5ffa1cb3e881e1343d29ad4389df7e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/supervision/receipt.json": "48b16d6b6962514cec4465c32a7b0100315d78b8b516ba2afa6fe6e2ed74273d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/supervision/manifest.json": "8a6a5be38c86d461a8971be4f0b2df11f442cf005c6bba289b7cdf05bfc7a25b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/supervision/guard.json": "376f1d59a095c0475c8f7639fb20567ff2954fb36836f471e1b4bc7caae215ea",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/supervision/stdout": "14ba2c3d86ebbb237b4d814a996c6d14986784cea98c2f09848b16f550db16ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/runge/supervision/stderr": "e00ef7d304d5325fbd30cc5bb22f2a07ac14b7db27b2ba9b7a4def5b3df74ff6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/observe.py": "44030f556a9ae4685bcffd35d4a3925083993e10041e222ee20cfda040c5e67e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/launch.sh": "05cf86f82c07c82bffcaadabf3e0b3ba313a0ffe612c876ce7fd281e4b000898",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/guard.json": "5ddbca68505f9eaf50627cadd1abe2889c294ed7e8576683c77a6bb6d319ba29",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/SAMPLES.json": "1f796aed0c68d69853700652fb0a83659650ced69ce2ae43403d94b6db1451b0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/PROGRESS.json": "85c59908e995ea27a09c97d6aedc40c8f43bd465b40822f6f6ecd5fe68d6d430",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/FAILURE.json": "1abcbcda19f2cbdb0f67781a319cb55a1c2c51d65d2598b25c23dc871d3a5fd2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/supervision/receipt.json": "301031e1207b917f8b84dfea97e513132da91a8aae9b8208c239a961227815d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/supervision/manifest.json": "47cbbe7d0870f292e318b627e9892564a66cce1f47e050abc1253bdcb8654990",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/supervision/guard.json": "e040f095ec6c2cff8e53041eb36c4c5b4d472719c9ba49f49840fe277e93c5f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/supervision/stdout": "3606e56522d19d427147b07349cc3196c935c2455d65a845b9fdbc66b1bef9ba",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/kummer/supervision/stderr": "585dff6c5bcc9489398275e692c2a08f38cab9f74fecbb3e9eefdcb2a8cef136",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/observe.py": "e927a2b9c9f222a424b67c8249573b45ca6eb09a03e47d0ae6673bfbe5f7ee01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/launch.sh": "08ef3b38c0d03d5f06d85b17c51d14ce1067bf3238a7912c3aaa3dcdd15e4e92",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/guard.json": "353385e2c7115575fb9f04e1ed93a1289285472dbba91c6ce8f2c79b3db7dd01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/SAMPLES.json": "5ca5584d3a4df29be87316b7c0b43556667991315a65e65a662a644cc82bf18b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/PROGRESS.json": "cf1b7d3ce83a0c94e3de1d28ab615b549e4875fa00413eb59e090ccc7818ea09",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/FAILURE.json": "02a492582dfda8432b0879322df6a445a7b4af759a1e0c07aa4fcfc345335fa9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/supervision/receipt.json": "f6f607038e55a6004aad2cb142550a2df47f892bf09a48b9c7859281546a1e81",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/supervision/manifest.json": "c8fc04c675e56221a157bb6e1bb872f1dd4c4525dffcfc7a9a99a2bb0ba3d892",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/supervision/guard.json": "21f548e717527b51d8dbe0c4b9ea80a815c13ff6699152366552525d51675108",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/supervision/stdout": "52f73ba17367b9e23656fa4d720e82efb05ea062e1edf3ceff43e8d6fb42440b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/clebsch/supervision/stderr": "92714022ec621a662636a863b090d9baa791ea1658d961dea22eb07b6900bc41",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/observe.py": "becaa4313c9b0008de4eccb385bd0dda3245a7b5bec71a10e7507be2386a0fc8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/launch.sh": "2b84e5e969a8ca93695415ce30811c4e5118bf8cd558800f9c8008249eb6a2b2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/guard.json": "cafcf787646ce26a118e9e4e8b593ff985796c688fbdf8794e8358449dab75b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/SAMPLES.json": "564a7dd1fbfc5aa3e64e17af48f5159c16493f175a8bf5cec5cfb46ab6e379ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/PROGRESS.json": "adddbdd28fc02f9c9c637c1a8c1b59fea028dc11e05b362d3d48ff8a6a655b48",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/FAILURE.json": "863f32163c0aad60b41f7edf6957b2b62587132890d3367c994072056cb86d34",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/supervision/receipt.json": "8caae76a549b6b4613023a5bbc057376e241c15c1deafcca05563c371e066232",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/supervision/manifest.json": "6a890f5ffd6e4e2772dba0254d974b3b273edb08855f91fbe5f7aadd7770b590",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/supervision/guard.json": "9efbdd2193aafcc7ef901f6c183d57f22e6643cb377fe3dd2ed2128fc73d143b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/supervision/stdout": "e6376a80577bfd198939f059e6adf97612f1e2c5533458d8afe92b4e2239d1f6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/barth10/supervision/stderr": "0cb010e771d13fc2be0ae47cdfb06111dccd7499df6036b24a0d53d325ad55a2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/observe.py": "8f341357aec6ea81bcee6aa579d6017b657c82532f71c25d0424c1b0f8e79183",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/launch.sh": "f27a03f5f0d00a6529e8edf650f90e1765ddd362e2aa8bd1a5c1d2e32a910c6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/guard.json": "14680e36b149b5537eb6a15af66d3c99884f06c920a9b65c0afde41e213edc1b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/SAMPLES.json": "cc7be82a8e9753068b32051fb0414ad05ab768e1607dfea3906a018f265b5f04",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/PROGRESS.json": "a78972f0ce4e408d71e1fea45eba98bd2266ed32d659359b86c1f30be2d61b2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/FAILURE.json": "8c1f49a0ef4e25408bd06546e80846ece5a6bddb260e624208dd6fd12006703f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/supervision/receipt.json": "1ae77b49e46a27759107f61beb7a4e66b34c98d23c8c2253295a659210581c85",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/supervision/manifest.json": "600f3b95a0bacfd83e1c31a63e743f9c88c3025c393c932db80999a506cda586",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/supervision/guard.json": "14680e36b149b5537eb6a15af66d3c99884f06c920a9b65c0afde41e213edc1b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/supervision/stdout": "2e1bcc46eb6d733d2b39adb638613be6fd14ecf4c308a688be140fdcf4b14835",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/toyfunction/supervision/stderr": "dfacf327fb0bb39c70d66b7df1d8999d9f015813f0f1f9e06498fb3da6af58aa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/observe.py": "4bd83bd73357742a5fcd5f829c6a30f23221c5f16d6fa13e4d4a3cd52c3361c5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/launch.sh": "fe835fc261aed95367db41ff296ee4dacdf703d1a260fd20fd8239e70e6f0758",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/guard.json": "400a7efe934af1064c2ba104bb1d742f4bdf6255809c2291d127a1c500530512",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/RESULT.json": "6b867db12d129fd03a1eed0df8b0fad3e9e84222c0d01b7acefc1730b676094b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/SAMPLES.json": "889a98bf2b2635ab381d37e59efead9c45c4678b127a8a33b3b876f39ff76046",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/PROGRESS.json": "bc6e687bf84e37aab28502651ea1ec175457fce9018ff677ac321f0b79b30955",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/supervision/receipt.json": "b9d98de0270f81958b32645334e1865ee42e537ecc8ca13f96e8062b124425ad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/supervision/manifest.json": "d5e7c2b95610fd880f0a64a0aaa10fb2efeee81d2cbd57a4246d29d7ab9042a5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/supervision/guard.json": "9979488fcd493cbb314f6143a8315bf40239ad36b8afa98f7a2b9c70b852591e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/supervision/stdout": "e54e9a466f47524a9b6bdac1a14dc7a3efe5afd73ebca8fdbf15a5443d150e3e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/rastrigin_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/observe.py": "729da6e70b5ed2d6fbcea6382b3ab82f35598815ac73dd4ee9680743f55a6420",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/launch.sh": "1f9b9069396f70656234906cead81dde0c4eef1f44c503276ad0a03a3316adf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/guard.json": "67f324684073464b098ce5e035354c13724f8153e79fa1c83c7731549a8548b4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/RESULT.json": "ab09e8b7af6300d50f31c3af1063f2a649008d74c47b36137619cabaec8d031a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/SAMPLES.json": "11d0f482a50a4d290054484f2a673e41a952e408ca62edbdabd1e49f36a31528",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/PROGRESS.json": "bb357e5d061fbaac96a53b5a82384563be105611d652eb2f1a82a281585dbf46",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/supervision/receipt.json": "240c09ae81372bc28242836357082c2ce431413bf4469edc2685ffc847f18854",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/supervision/manifest.json": "a1c29b61c81fd2fdb53f5ad55eaf2675eeafb4529038dfe1a84020fff44730be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/supervision/guard.json": "315e66cb381740c8ba64fdc64654134315a0bed19e6f1fb16d34ec8d5388531c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/supervision/stdout": "8a35cd4fb5ac0b65d0cc68d6e771c00cc743dc569bea8d2305cecfcdde77383f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz1_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/observe.py": "9b1911a4a36e4eb19493fb0b6cac3acaabc59e2f0b21a3529b24ea5ebcc6831b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/launch.sh": "46fa5cd528762382299d16e706a856f4537eb1fd43338d5a0ddb1eba2ab4dc6f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/guard.json": "fa9f65ccec46a193d2d654365d85324b6a5181cf98508b9dff923a8d97e57a87",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/RESULT.json": "a6e5c95e223d48963de4a9c49617a08af4f026239677dd91a076b32cab56d5a7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/SAMPLES.json": "1c58fe15587d1a247138ab80f934a27cb7243d667f2a5acfa9b88f01563c8c19",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/PROGRESS.json": "cdd9b5671b2e09951745006b7234672f31ccac217eaa25dddcca44bce9fe6caf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/supervision/receipt.json": "312a3f50b882680e1f2ba2e7412ca3c5ba59907091004629f857afcb808a13d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/supervision/manifest.json": "1848724b0a57651c039aa4ec58c5d1a821a18d015a7aa5b17abcc87f205ba8ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/supervision/guard.json": "ea075e2dbb45514e1bcd97cbe5ec7fbf8d75fdc886da12d532484304c38732e9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/supervision/stdout": "3d1b5bf4bd74b3a01316e7ba59e052c2c350eceeee187984606012774b86b8d2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz3_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/observe.py": "5e6e275557902da160860c84fd43deef906210d231c8a3acfeb4c7dc576ba2e7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/launch.sh": "33ec74bb405664329aac3a6ff2f1f7b2c92a2570ef86516ac93e288ceeb7aef0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/guard.json": "2c3e898f38a0f552e9bb071366316af2046041682156a30d07aa1f1e480ddd65",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/RESULT.json": "d09412a51d78e629c6d3a1e0eed83c5c27b72b8f95867739384fae30f7c51a24",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/SAMPLES.json": "f9321fddfcc1b21ad7d7c4644e95eb2f8928c192a2f170d369bb9b4cf7b8d149",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/PROGRESS.json": "ca9335ac2b373055ec9b3523d353fe6cce5eec314de130b20a15e440e261d61e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/supervision/receipt.json": "e83c026298da5a93e2090da4e426c824a3bfe33b93473584e6e9a4239e8f037b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/supervision/manifest.json": "80972652881d612ef9f833aa5298b642915dc4489b7d5eb14460688abce98e91",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/supervision/guard.json": "403a6b1f899952e8b5f5edf19bb7ec810daad672b7b1384a1ebc55dff92ceae4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/supervision/stdout": "a95301091852324893a521a958859594558391564e347b35d9bc018620ce6a63",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz4_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/observe.py": "5e8dbf752c49c3fb64a2dc268a43f97949cca631ecde0b7bdaa091b96a87a746",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/launch.sh": "5f3fb07f80059080c51f893507f4dbabbbda9f884ddeb77e722614ce4417ac37",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/guard.json": "2f8968df23712283bfd6659068618419bb6dd9fccecbc8b9bc07cd9f52e3bb13",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/RESULT.json": "55fc6b165a3146da4a3d1d73afa7beb3a79902beb5762df9bc9b38bb52c29e9c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/SAMPLES.json": "228a68ae18a7584a5ff8fa8e51a978dd2546a2b9434df5aaea4cb43707e0c63e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/PROGRESS.json": "6c0fd7506f307025b7b0a00068f17982aa0cd6648978ba75531104fc5f0abfd0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/supervision/receipt.json": "0fed29175c6898a6585e1b74a7fadb6330680b01d3946db5497faed41af1ec2b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/supervision/manifest.json": "37b272f1c23b3681961d969761753cf3a240e584b7961efaa08bc26df6dd46d7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/supervision/guard.json": "92d8b93b0270e451a0b530364d9a2520f1c5fc2aed3f70b241e42625ad1f2c8e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/supervision/stdout": "b6c65fb7eaf3263fe02ff58ac5ece7b158277fc8748976724215ac21fdb11adf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/shubert_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/observe.py": "2b2f7236ccc4ab6ad2282cf13af4c53c6e19ccba189b9e78a5b4ae5d15bb8016",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/launch.sh": "b3639c8347f5434c3eedea7daf24209117382135bf5343abc88bc6090c3ce55c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/guard.json": "b6ad251eef546657a88688164acbc82fc14e539b735f509b338d14e47b420398",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/RESULT.json": "45dc9d39c95268516a0b4745f71a5b4a0deb94d58c2cb316fb6c056fbcee3c1e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/SAMPLES.json": "3727d4bca3f87806bf506382d512d31f9a248467338be5693c522f84d56f60bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/PROGRESS.json": "8e4d0923410e7b1df853ab2b17346c2e321a10702a36bddb72366982d78ee23c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/supervision/receipt.json": "b25e526865bbfc8e087d1004eebc4d214f54545bd1b1e97ff39964ba7c255f3c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/supervision/manifest.json": "2d33ab96ec8cabfe694625a949a83ec844bac2f0c119a4887597dff5df9a9a28",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/supervision/guard.json": "3485343614827c1a21109a6f06ae51b686dee5e77e40f27e96e455bb36752358",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/supervision/stdout": "eba8c03c004e46d1da0a5eceb2423215823c7f428c528ef066de42b5155e7eee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/doublehelix_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/observe.py": "67dd98f544f7220b084a193b5d40f58e8d99ae0311e78bb5c1c596b3dc73c157",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/launch.sh": "be596e675bbfbc04c36403458bc6f320f33352577e810dd8c1d1df8f1e22e81f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/guard.json": "1836c7570372f2ea29744d2182fe43b46f521dad04a5956f2919705c7a8fb244",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/RESULT.json": "68b94e264aeae388b61a1ba095169d752358b135dd79955a8f7a1eff6ed89eb0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/SAMPLES.json": "5791afcf312034a154074971783a36ac9123aa33759aee20326d31625b27952e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/PROGRESS.json": "ffb8cc1178bc5b637a47fdaa2fd7e17169b30094c29765a0c2f3f5566fbd5316",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/supervision/receipt.json": "47464cc547007e88906d96cd21bfab43feff192c577c1b12642571b930c05e60",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/supervision/manifest.json": "e6bc05555924cdaa40696b820b1b6b847e340cbd624501c1bafdd936a13106ee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/supervision/guard.json": "6bf27e7336968f69e5cee0f3f3123a2b0267f3999efa7748cc8f325424c60164",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/supervision/stdout": "ef6d0ff3ab8ee838b6e696d41d1bfc79c8c50c9a407f8d367433c874891def12",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/griewank_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/observe.py": "75583a46064d6f18eeb4dfdbdc0438653a218472fa9e9bf52d26f057313399f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/launch.sh": "d91378626a25fa497303537914e9147dbf2e2907b4c9f6314769c8860c3caad8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/guard.json": "6014a44e41f57ece92f1ead58854a803272aa08876403277dd1fccc979af6c45",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/RESULT.json": "b1d29bb428b31a6cb872d2326be5f7fda346df23b4bfd7f4661eea1930033b61",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/SAMPLES.json": "8f98897a96e5a6383a8ab13e1f853712bb2345657d5489b2748f2359d54bcf1f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/PROGRESS.json": "0159f2058fa907a27765ff1b415f28435fef05c193b81e22ba681022c7eb4ced",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/supervision/receipt.json": "09d0ee022324e923abb301eed4b855aef6a63c74ebfc03d7beb461977be9fe47",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/supervision/manifest.json": "c0a143d0c7e5ee300eccf4a75c5c6d5e27f6c35422d0f23d8641e2621a8eb15e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/supervision/guard.json": "2d44d06399e85ce18c283b9c0e897028a86002a257767e6352624814746fa9f4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/supervision/stdout": "c24d3738b64b30ee07fc03b87cca3303f9a09091c22f5b5eda04ff8a8eef0675",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/levy_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/observe.py": "854fdaeb3aa82972742a2016696187fde0e580f067468a57b1d7fb1f294206e7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/launch.sh": "a22342a39f784ff2f666792b4bbbd00bbf8e39dbb458969186c2d2522970a4bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/guard.json": "f67dc785b356ea9b3dcfefafa0a3dff970e74ebd9adf6c3d1f22b3ac71ffe582",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/RESULT.json": "c0b989c797bee63186042fdc9066011b2e1494e90245fcc4fc65fccacfee513c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/SAMPLES.json": "1a68fdd044171e3d96af319ac4ac2b035f5363550dce5961997900d8917223be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/PROGRESS.json": "c87a9c22a3ced9609a75da335bd5979b0dc79a519b0538606fd28bc5bfea9276",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/supervision/receipt.json": "c4d7a4be7defd68ccdf8079fac155779fb255323256644571c3bc6f048b1797b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/supervision/manifest.json": "495ec0ad55d194f010077fedd7344ff44c9699c67ba0e66b8563cb7510c2daf7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/supervision/guard.json": "313291dabca4b18aff753b58911cb3b3325fcfa31320a926e545ffaf3c83ee8a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/supervision/stdout": "ed22d12ef5e62d16b04bf722873749baf0d21343252bee28e67d382f539b9bf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/genz2_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/observe.py": "99369b1aa6e3e88da030a48bc761482b93290daf9e59e1eac18b223066fb395c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/launch.sh": "6d54377f1caa57379e1f4da07eb2b3c22e7c6ea0f0fc1570f3649963325d2b1d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/guard.json": "06d3ccf779d41325002d607e2b07209026aa1a6763169e00660f31c1d6b362d0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/RESULT.json": "1e121ae1b7d8ca8f85ce8dd7e23a7a6ed12bee760519cb79b12d3d395824b8b9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/SAMPLES.json": "1ca501172e11ae54e36cb774d7a2ba430bb605d1b6ed56a4f2d55dcfcaaf039c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/PROGRESS.json": "08ee05730816685c2cf1ffcef5e64cd9827704f4d73af8d378ef0e430bfffb83",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/RUNTIME_SOURCE_END.json": "9a06c4e864ad22e154c549af9d0deed72bf10cec66a6a4149f19747a73d51fc3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/supervision/receipt.json": "b44cca198de5d0617462b36d20c1204cf95b32cbbc8a942d9129921b82606481",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/supervision/manifest.json": "0321d03d8d0f2294ecbafe3392026508cc01b7efc3b33a574fdd43b99e19066e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/supervision/guard.json": "5eb6759b043b56393852b18f91923800919aaa9781ea8a5f488fc8d816ddea32",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/supervision/stdout": "8f7c94bdee0c5147f29b22d3b61a0ed4aea0baa120426637c15ee700f3040e30",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bessel_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/observe.py": "1397b054a78b936998a623fdd156b193af61b11a015c386772472b1c7a971fa6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/launch.sh": "2d87efacf5ccc98a3d38968506a50f8620e67db3748e5c38258f35524ef07c01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/guard.json": "b95043d9919c8028b6b88a6595b7519e38919ef44f5bd5786ffc48bb6d1de0cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/RESULT.json": "0f0ac72a3cc444c407a18aa8aec5aaf205dbe9f1beb1dba377742812043f347a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/SAMPLES.json": "d30dd3388ccfb3e0412fe1f5fdb8c500ff65592957bbcf33de0b52fe84b4913d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/PROGRESS.json": "b83a167f3e8767cdc565c1305f70d4b94ca7379ab72c208bf087d63f50bd798d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/supervision/receipt.json": "1c38817cbf088c3bab3466b1667deeba05136b6f8dfb11c099f95aff74d59b62",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/supervision/manifest.json": "dd01fc623236f75cf36112e32829520b559082abc5de6eb5e2ebf514b9fbb291",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/supervision/guard.json": "54f529c228cf639f445f30e25ecfcefa269c382beac9b281e77b8de81f51c679",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/supervision/stdout": "1f81206da4fa0b4ce8ed62f4095d753620f327b9da3ab25caacf72eab1ff53ef",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/aurentz_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/observe.py": "b41c722f4b424377df97cecc02629e5dc08bd0fa66e1c6a9ff1f54b8d518f186",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/launch.sh": "0266ac1f222c8bdb7e4d56b68f2bab3a40bb502dc59792ab979b79401de48d88",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/guard.json": "c8c28864345598a751e545ed5eb5184b7487597c06dce0260227daa615f2e5bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/RESULT.json": "785d640f858dafd4cb0b318340269345009c134ced01fae2bb45df6e1d72f15e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/SAMPLES.json": "f54a7f22c2c3fe2b95b37bbf462a1dfda9dfa4c3592e85d4090b51c6cb85ebf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/PROGRESS.json": "f638e6d99279ebe7a49428bee952df7b83b464eb39a7c33481a23dcefd15a370",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/supervision/receipt.json": "fc810c1e31cfe9087b3057edeed4e992fbdf7cba670977f66736651b9e902756",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/supervision/manifest.json": "0ff473ef5dd5909f9a75133258be138e6a4f34210a1b27d4a46f6b9207f3851d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/supervision/guard.json": "53e82be15049aed082f5ae0fd82fd3912ad4740b7eb2f23a083426b9b94174d1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/supervision/stdout": "b6aa6b842b80b0ab48299568a7481c759f924baf54d6ec5054f577119da23f89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/wagon_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/observe.py": "5a1371915db9c0410c06f0d8d33b0a927e9b841e3c9283faa82b30376d174c8f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/launch.sh": "c0561cc865e2bdc1dec12b67345bb9da226e7672d0d0afe4e7b1559e9fadb984",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/guard.json": "09c826fe3ebe7c5e8b6970687bc3c9ab547bb64bf94ea256e93a1984f593e231",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/RESULT.json": "3a4e33a91d65734e74986d33f37d08155afe395b8b403cd1798149b1726c36ed",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/SAMPLES.json": "9d5ab4f934d7b3cbf7465c6f0dca40883569c27e2121bdcf1f56ccf4b197acbe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/PROGRESS.json": "c21850c5c5e203d6f8ad0071a9da52508bead968760712bf9e68767aa94cfaac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/RUNTIME_SOURCE_END.json": "818e041862a6d64f34c617ee22b840a90f1225b0f1fa72916c2be2fefede7660",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/supervision/receipt.json": "24e00c60709d3ee1bfa08c6abd1cdca6a39e6e5c76e9d95665677ccbf01e5710",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/supervision/manifest.json": "c40af37cc74a50ac14fd593feb7b9494e31567452232ede9b9c384525a3e64a2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/supervision/guard.json": "7fcd8354bea816ce62c5080f098bc1eb77fe3e2d3d0406f879368ab014a90e97",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/supervision/stdout": "22cc26141a58ccfec98633e0e968896135dd8a448b28fd280559deffc1c525da",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/octant_v2/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/observe.py": "ebe40c7474f73dbf90827c85d37c659027b0a73f6840ee97f9a4a2ff8a05dee4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/launch.sh": "b0da323d36ae16a5699562175addf34fe55ee5937c4cee39351f3f31258b0587",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/guard.json": "8abd219645f30f1476c522d87c377762b1ff282e487f6d1622f1da40c77fc71a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/RESULT.json": "5d1b780aeacef985540e9b73c0dcb73a2aee0f73c3b668f6a1d1ec8eed41df90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/RUNTIME_SOURCE_END.json": "cf846cbd1aa4f1942aa1dd8c3632f62430a791d36e5cc057884eafb02e7863bf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/supervision/receipt.json": "dc8189107bb6a546cd3fccaa45c7d8a2987910c2a0cc8897a3e9bfb0ca8fae84",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/supervision/manifest.json": "51a565de1efe6184eea61d89f8949ee1531331d449e2454c0f1f93dc9bda680a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/supervision/guard.json": "3b87c0394053ae6d4499dc6e4851277820fc7b99a80abe5bd6a9c2b50a3b2cf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/supervision/stdout": "3e5a8506deede5a4aed74ff10ba73cae41478c200651f30e41d930df673f9c35",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery3_remaining18_20261011/bound_recovery_v1/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b"
+  }
+}

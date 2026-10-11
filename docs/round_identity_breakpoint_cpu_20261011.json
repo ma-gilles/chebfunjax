@@ -1,0 +1,48 @@
+{
+  "scope": "Test-only correction of added round(identity) exact breakpoint expectation; no library change or tolerance relaxation.",
+  "base": "e5258038c38d4a5a0900daea29e63ec9a2211f66",
+  "CI": "ac91 chebfun-a failure in test_round_inserted_point_values; preserved original12pass1fail baseline11194.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": [
+    "@chebfun/round.m sequential f=addBreaksAtRoots(f-k+.5)+k-.5",
+    "@mapping/mapping.m linear.For b*(y+1)/2+a*(1-y)/2",
+    "@chebfun/addBreaksAtRoots.m sets insertedpointValues=0",
+    "tests/chebfun/test_round.m sixoriginalclauses unchanged"
+  ],
+  "cause": "After-.5 split,rightpiece coefficients[.25,.75] on[-.5,1]. Next shifted root1/3 maps by native endpoint-weighted arithmetic to0.49999999999999994. Added test incorrectly requiredexact0.5, corresponding to alternate affine operationorder. Public currentlibrary matchesnative.",
+  "native_result": "rndx1 original60190 callableidentity and stringidentity giveexact same domains/storedvalues; all6native original round tests pass.",
+  "comparison": {
+    "domain_exact": true,
+    "point_values_exact": true,
+    "states": [
+      {
+        "k": 0,
+        "domain_exact": true,
+        "roots_exact": true,
+        "point_values_exact": true,
+        "coefficients_exact": true
+      },
+      {
+        "k": 1,
+        "domain_exact": true,
+        "roots_exact": true,
+        "point_values_exact": true,
+        "coefficients_exact": true
+      },
+      {
+        "k": 2,
+        "domain_exact": true,
+        "roots_exact": true,
+        "point_values_exact": true,
+        "coefficients_exact": true
+      }
+    ]
+  },
+  "correction": "Expectedpositivebreak computed independently by literalnative map expression. Exact domain tuple assertion preserved; exactstored[-1,-1,1,1] and allother assertions unchanged. No nextafter, snapping, bound widening or librarychange.",
+  "gates": {
+    "baseline": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/round_breakpoint_ci_20261011/baseline/AUDIT.json",
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/round_breakpoint_ci_20261011/candidate_gate/AUDIT.json",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rndx1/AUDIT.json"
+  },
+  "limits": "Fresh native guard binds scientificsource and postruntime observations, not exhaustive prospective runtimeclosure. This added pointvalue test is distinct from original sixroundclauses."
+}

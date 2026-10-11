@@ -1,0 +1,97 @@
+{
+  "head": "e5258038",
+  "native_predicates": 30,
+  "per_technology": 15,
+  "pytest_cases": 6,
+  "result": "All30 native source predicates pass existing library; tests-only delta, no fault exposed.",
+  "source_mapping": {
+    "1-9,11": "source100grid,scalar/function/array quotients; native3true matrixInf, publicisnan2/4/6 and literal per-column NaNs6; native5unscaled10eps matrixInf",
+    "10": "native cos1e4/exp, original1e4vscaleeps bound, full native sizes",
+    "12-13": "full native error identifier token in existing Python ValueError text adapter",
+    "14": "direct coefficient shape/unpaddedInf<100eps",
+    "15": "literal public prolong both to maxlength, coefficientInf<100eps"
+  },
+  "rng_scope": "Source seed6178 then first100uniform before constructors; verified trreal1 capture. No normal/other streams claimed.",
+  "preserved": [
+    "Historical port including extra coefficient nonfinite checks2/4",
+    "Existing compose/rdivide source-contract supplements"
+  ],
+  "adapters": [
+    "Nx1scalar samples represented1D",
+    "Native default techPref via default constructors",
+    "MATLAB error identifier exposed in ValueError text"
+  ],
+  "cohorts": [
+    {
+      "name": "baseline_t1_small",
+      "wall_seconds": 25.851929121650755,
+      "sampled_peak_summed_rss_kib": 1383728
+    },
+    {
+      "name": "baseline_t1_highfreq",
+      "wall_seconds": 23.728753739967942,
+      "sampled_peak_summed_rss_kib": 1212084
+    },
+    {
+      "name": "baseline_t1_errors_direct",
+      "wall_seconds": 16.07800404680893,
+      "sampled_peak_summed_rss_kib": 902432
+    },
+    {
+      "name": "baseline_t2_small",
+      "wall_seconds": 16.61315972590819,
+      "sampled_peak_summed_rss_kib": 871532
+    },
+    {
+      "name": "baseline_t2_highfreq",
+      "wall_seconds": 19.774237588979304,
+      "sampled_peak_summed_rss_kib": 897032
+    },
+    {
+      "name": "baseline_t2_errors_direct",
+      "wall_seconds": 13.4022013572976,
+      "sampled_peak_summed_rss_kib": 700532
+    }
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/ORIGINAL_TEST.py": "ed42884e7a5570a3d02f5303a23550b11d769140a08ea95fd1f779306440d483",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/ORIGINAL_SUPPLEMENTS.py": "2549194121fe772beb8db6403bcd37e642dae7006fa071c9901c3f8aa7beb826",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/observations.mat": "1d57cc3879e35b606c1bd63d4071ff309db64ed1b9c6bab5f52cfd523663159d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trreal1/RNG_COMPARISON.json": "14ea9c641aa8e460a2883a3fbea5250e2503f146f808fff398c517a0b2bdeb5e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebtech/test_rdivide.m": "c40ed13018c4f2988aa7f37dc5816584cfab9460319a11c7c4705756d294759f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_small/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_small/supervision/receipt.json": "192a1eb4252fa309c1aebc2ab548ae01e6254cc8e74ba3db6b87ee2f6cff28fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_small/supervision/stdout": "a868757a54a6272b28f13686f8211f6b13b924c28ebf2ec89edae121e2fcb08b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_small/RUNTIME_SOURCE_END.json": "bb08cd862e856ad427ffc3d1dfa90dbe75e6fe0a7f52a9b9943421ec562a5e65",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_small/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_highfreq/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_highfreq/supervision/receipt.json": "bb3c29f7d76e56c3865a4cba3639ddb1f2cea27b1adc1da6549ac03ee0c5ffec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_highfreq/supervision/stdout": "9204c7f7daa6129d04d344e61346cc75697b48ac1cf3efc7dd755c4c9fcc079d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_highfreq/RUNTIME_SOURCE_END.json": "e1e14973bd8f1e9c3391affabf0eae4396e93cf26d9570484937de6d700afbf6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_highfreq/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_errors_direct/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_errors_direct/supervision/receipt.json": "04d09e73568d9cbf807c103bee54f24a68b1872ed4dd277c898ec3370f90b61f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_errors_direct/supervision/stdout": "8fa3c4707a987fb390699caa739d9f97b660f3b844b4db92d18b9bf3a4041e9b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_errors_direct/RUNTIME_SOURCE_END.json": "8df5cfd5df77f75d821f5bddab2546ece4d84c4081ffb59368e2b5afe3a1975c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t1_errors_direct/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_small/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_small/supervision/receipt.json": "60c2b3ae27e33d6ea143ebbe451a0993d9194330fd3ffe8842e626650f73a1e6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_small/supervision/stdout": "0d4684dbc06af6a3e2551a78dc1fd9e27e3b3fc5cb5e72b1d89b7456ef675bb1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_small/RUNTIME_SOURCE_END.json": "ed2f347d14c05c4856a8cbdb7bd30fb27d69ef8116a9eb6b9b394eca9ab438e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_small/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_highfreq/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_highfreq/supervision/receipt.json": "2eecdcf68113797b967adedf9c5de439ada2911607dcb0f51569f63d601676fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_highfreq/supervision/stdout": "2414c6743ccd743c77980c6c45439bf7c0568ab69b097a59efebf59da462a0e3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_highfreq/RUNTIME_SOURCE_END.json": "883546e9b92363d770f23feb76540355ed1a5f1a4c31bad86dd1233bc90afbe1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_highfreq/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_errors_direct/RESULT.json": "feca2c05d27de049be951949db97a64537a09a3ddf2b853bbb4740fd8d5fb171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_errors_direct/supervision/receipt.json": "3f54bc31b819e33900f0171e8e18d4f04313aa647761d9c3f5429eb0d2f023a4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_errors_direct/supervision/stdout": "a32f66b7b08cb6bb55ede40bb7cfe43539e244d8ca8acffe2689ec2810067d50",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_errors_direct/RUNTIME_SOURCE_END.json": "77b8bc16b357c0ff47d4940e3759c41c7fa0f611373b4307f9b1f5a92a7b7edc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/baseline_t2_errors_direct/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/snapshot/tests/test_rdivide_native_source.py": "721f775247fb1d34af619fa57f67a04638f5a0565f37d91798bd70835d458ef5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/rdivide_native30.patch": "9ddb2507e008d4b40d6fa9858ae4854597bf1b8548fe0d37f92ba63d325ce261",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/SOURCE_PLAN.json": "ed024d1032191b49146adfe82f909bf35556df4ee84c792fb0453ee87a6eb46c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_rdivide_native30_20261011/build_delivery.py": "6015663aed78c97e743faa295fcb02c999aa2447fd8656a23dfd5a89d5f1f6d5"
+  }
+}
