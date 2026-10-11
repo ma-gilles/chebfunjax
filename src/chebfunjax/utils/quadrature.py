@@ -549,7 +549,7 @@ def _jacpts_core(n: int, a: float, b: float,
     return x, w
 
 
-def _jacpts_gw(n: int, a: float, b: float,
+def _jacpts_gw(n: int, a: float, b: float, *, bary=False
                ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Golub-Welsch eigenvalue method for Gauss-Jacobi nodes and weights.
 
@@ -574,12 +574,9 @@ def _jacpts_gw(n: int, a: float, b: float,
     abj = 2.0 * j + ab
     bb_vals = 2.0 * jnp.sqrt(j * (j + a) * (j + b) * (j + ab)
                               / (abj * abj - 1.0)) / abj
-    if abs(ab + 1.0) < 1e-14:
-        # Removable 0/0 at j=1 when a+b = -1 (e.g. the Chebyshev weight
-        # a=b=-1/2): (j+ab)/(2j+ab-1) -> 1, so
-        # beta_1 = 2*sqrt((1+a)(1+b)/(3+ab)) / (2+ab).
-        b1 = 2.0 * jnp.sqrt((1.0 + a) * (1.0 + b) / (3.0 + ab)) / (2.0 + ab)
-        bb_vals = bb_vals.at[0].set(b1)
+    # Source uses the analytically cancelled first entry for every a,b.
+    b1 = 2.0 * jnp.sqrt((1.0 + a) * (1.0 + b) / (3.0 + ab)) / (2.0 + ab)
+    bb_vals = bb_vals.at[0].set(b1)
 
     # Build tridiagonal Jacobi matrix
     T = jnp.diag(aa) + jnp.diag(bb_vals, 1) + jnp.diag(bb_vals, -1)
@@ -592,6 +589,8 @@ def _jacpts_gw(n: int, a: float, b: float,
         jsp.gammaln(a + 1.0) + jsp.gammaln(b + 1.0)
         - jsp.gammaln(ab + 2.0))
 
+    if bary:
+        return x, w, jnp.sqrt(1-x*x)*jnp.abs(eigvecs[0, :])
     return x, w
 
 
@@ -1464,21 +1463,90 @@ def legpts(
     return x, w
 
 
-def jacpts(n: int, a: float, b: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
-    """See ``_jacpts_core``.  With ``bary=True`` also returns the
-normalized barycentric weights (MATLAB's third output).
+def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False):
+    """Gauss-Jacobi nodes, quadrature weights and optional barycentric weights.
+
+    The fourth argument accepts an interval or a method string; the fifth
+    accepts a method after an interval, matching MATLAB. REC and GW are
+    supported. Default nonsymmetric rules below 100 use source REC; larger
+    default rules retain the existing GW fallback pending the ASY port.
+    Explicit ASY and explicit symmetric methods are not implemented. Outputs use Python one-dimensional
+    vectors in place of MATLAB row/column vectors.
 
     Provenance
     ----------
-    MATLAB source : hermpts.m, ASY weight and barycentric normalization
-    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
-    JAX binary64 representation adaptation; source libm bit identity is not claimed.
+    MATLAB source: jacpts.m, rec, rec_main, eval_Jac and gw.
+    Chebfun commit: 7574c77
+    Original authors: Nick Trefethen, Nick Hale and Alex Townsend.
     """
-    out = _jacpts_core(n, a, b, interval)
-    if not bary:
-        return out
-    x, w = out
-    return x, w, _bary_weights_gauss(x, flip=False)
+    import jax.scipy.special as jsp
+
+    from chebfunjax.utils.jacobi_points import (
+        _jacobi_mass_gammaln,
+        _jacobi_ratio,
+        _jacobi_rec,
+    )
+
+    if isinstance(interval, str):
+        if method is not None:
+            raise ValueError("A method follows an interval, not another method")
+        method, interval = interval, None
+    method_set = method is not None
+    method = 'default' if method is None else method.lower()
+    if method not in ('default', 'gw', 'rec', 'asy'):
+        raise ValueError("The GLR algorithm is no longer supported" if method == 'glr'
+                         else f"Unrecognised input string: {method}")
+    if int(n) != n or n < 0:
+        raise ValueError("First input should be a nonnegative integer")
+    n = int(n)
+    if a <= -1 or b <= -1:
+        raise ValueError("Alpha and beta must be greater than -1.")
+    interval = (-1., 1.) if interval is None else interval
+    if any(isinf(float(t)) for t in interval):
+        raise ValueError("JACPTS() does not yet support infinite intervals")
+    if len(interval) > 2:
+        warnings.warn("Piecewise intervals are not supported and will be ignored.",
+                      UserWarning, stacklevel=2)
+        interval = (interval[0], interval[-1])
+    if n == 0:
+        x = w = v = jnp.array([], dtype=jnp.float64)
+    elif n == 1:
+        width = interval[1]-interval[0]
+        x0 = (b-a)/(a+b+2)
+        x = jnp.asarray([width/2*(x0+1)+interval[0]], dtype=jnp.float64)
+        w = jnp.asarray([width**(a+b+1)*jnp.exp(_jacobi_mass_gammaln(a+1.)
+                                               +_jacobi_mass_gammaln(b+1.)
+                                               -_jacobi_mass_gammaln(a+b+2.))])
+        v = jnp.ones(1, dtype=jnp.float64)
+    elif a == b:
+        # Preserve existing symmetric dispatch until its separate source port.
+        if method_set and method != 'default':
+            raise NotImplementedError("Explicit symmetric Jacobi methods are not yet ported")
+        x, w = _jacpts_core(n, a, b, interval)
+        v = _bary_weights_gauss(x, flip=False)
+    else:
+        use_rec = n < 20 or (n < 100 and not method_set) or method == 'rec'
+        if use_rec:
+            x, w, v = _jacobi_rec(n, a, b)
+            if method != 'gw':
+                if n >= 100:
+                    c = 2**(a+b+1)*(_jacobi_ratio(n+1., b)/_jacobi_ratio(n+a+1., b))
+                else:
+                    c = 2**(a+b+1)*jnp.exp(jsp.gammaln(n+a+1)-jsp.gammaln(n+a+b+1)
+                                            +jsp.gammaln(n+b+1)-jsp.gammaln(n+1.))
+                w = c*w
+        else:
+            if method in ('asy', 'default') and method_set:
+                raise NotImplementedError("The explicit Jacobi ASY algorithm is not yet ported")
+            x, w, v = _jacpts_gw(n, a, b, bary=True)
+        v = jnp.abs(v)*jnp.where(jnp.arange(n) % 2, -1., 1.)
+        v = v/jnp.max(jnp.abs(v))
+        if tuple(interval) != (-1., 1.):
+            c1 = .5*(interval[0]+interval[1])
+            c2 = .5*(interval[1]-interval[0])
+            w = c2**(a+b+1)*w
+            x = c1+c2*x
+    return (x, w, v) if bary else (x, w)
 
 
 def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
