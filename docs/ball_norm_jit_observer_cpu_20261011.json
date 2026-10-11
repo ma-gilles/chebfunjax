@@ -1,0 +1,20 @@
+{
+  "scope": "CI trace observer for Ballfun norm doubled dimensions",
+  "failure_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_failure_review_20261011/CORE1_TRIAGE_20261011.json",
+  "fix": "Clear only norm_coefficients JIT cache before monkeypatch observation and in finally; restore monkeypatch via local context. Shape and numerical predicates unchanged.",
+  "result": "19 existing tests pass,25.55 pytest seconds",
+  "original_exec_handle": 23418,
+  "receipt_sha256": "956a6643d3105bbb0afcf5b1964eea0c6aafa351ab3618fd0a5536b469a0d0c6",
+  "publication_test_sha256": "ac607a47906877b253dcb370139fbdcb05d7018ad34100e2ef980bc8b51dacaf",
+  "receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 29.408367654774338,
+    "sampled_peak_summed_rss_kib": 1455728,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "limitations": [
+    "Test-only change; no new library numerical or CI-wide qualification."
+  ]
+}

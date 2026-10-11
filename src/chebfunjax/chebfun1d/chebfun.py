@@ -11459,7 +11459,7 @@ def poly(v, domain=(-1.0, 1.0)):
     """Monic polynomial with the given roots as a Chebfun (MATLAB
     ``poly(v, domain)``): the roots are Leja-ordered and the product
     formed on ``chebpts(N+1)``.  A matrix of roots gives one column per
-    root vector (a list of Chebfuns).
+    root vector (an array-valued Chebfun).
 
     Provenance
     ----------
@@ -11472,7 +11472,7 @@ def poly(v, domain=(-1.0, 1.0)):
     V = V.astype(jnp.result_type(V, jnp.float64))
     dv = (float(domain[0]), float(domain[-1]))
     if V.ndim == 2 and min(V.shape) > 1:
-        return [poly(V[:, k], domain) for k in range(V.shape[1])]
+        return Chebfun.horzcat([poly(V[:, k], domain) for k in range(V.shape[1])])
     V = V.reshape(-1)
     N = V.size
     V = V[~jnp.isinf(V)]

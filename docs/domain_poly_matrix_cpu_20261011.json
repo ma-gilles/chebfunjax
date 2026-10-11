@@ -1,0 +1,35 @@
+{
+  "scope": "Native @domain/poly.m matrix roots return via public horzcat",
+  "baseline": "4 pass,1 fail because list lacks Chebfun column operations",
+  "candidate": "5 pytest cases pass, covering four focused controls plus all five original MATLAB predicates",
+  "receipts": {
+    "domain_poly_matrix_baseline_20261011": {
+      "command_exit_code": 1,
+      "wall_seconds": 11.111051753163338,
+      "sampled_peak_summed_rss_kib": 755704,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "original_exec_handle": 38350,
+      "receipt_sha256": "9ba3b53399acab8f58946baf3b2e18c3d84c255736014c99685673ad158d25f2"
+    },
+    "domain_poly_matrix_candidate_20261011": {
+      "command_exit_code": 0,
+      "wall_seconds": 10.893611160106957,
+      "sampled_peak_summed_rss_kib": 784348,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "original_exec_handle": 80120,
+      "receipt_sha256": "42646bf658fa6c09188775b4b2762e1528a3e36c6ca1f58da8d21edee6f657d8"
+    }
+  },
+  "limitations": [
+    "No fresh MATLAB execution or full suite/CI parity claim.",
+    "Eager control and numerical reduction-order limitations of prior JAX constructor remain."
+  ],
+  "publication_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "7503289ffbd88116a78d7a680b44ece0a2fda228ea5be2e573be334f97e6dfae",
+    "tests/test_matlab_port/domain/test_poly_matlab.py": "1fcfed52ed1bdf978507bc26e9512e1abe500e8d3533aeb5d0351aef104a5bd5"
+  }
+}

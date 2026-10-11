@@ -40,11 +40,11 @@ class TestDomainPoly:
             err = np.linalg.norm(
                 np.column_stack(
                     [
-                        np.asarray(fs[0](jnp.asarray(x[:, 0]))),
-                        np.asarray(fs[1](jnp.asarray(x[:, 1]))),
+                        np.asarray(fs.extract_columns(0)(jnp.asarray(x[:, 0]))),
+                        np.asarray(fs.extract_columns(1)(jnp.asarray(x[:, 1]))),
                     ]
                 ),
                 ord=2,
             )
-            vs = max(_vs(fs[0]), _vs(fs[1]))
-            assert len(fs[0]) == 3 and len(fs) == 2 and err < 100 * EPS * vs  # pass(4)-(5)
+            vs = _vs(fs)
+            assert len(fs) == 3 and fs.size(2) == 2 and err < 100 * EPS * vs  # pass(4)-(5)

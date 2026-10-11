@@ -77,10 +77,19 @@ def test_exact_doubled_dimensions(monkeypatch):
         shapes.append(shape)
         return original(c, shape)
 
-    monkeypatch.setattr(module, 'prolong_plot_coefficients', observe)
-    c = jnp.ones((1, 1, 1), dtype=jnp.complex128)
-    Ballfun.from_coeffs(c).norm()
-    assert shapes == [(2, 2, 2), (4, 2, 4)]
+    # Observe tracing even when an earlier test compiled this exact shape.
+    # Clear the instrumented executable afterward so later calls recompile
+    # against the restored module function.
+    module.norm_coefficients.clear_cache()
+    with monkeypatch.context() as patch:
+        patch.setattr(module, 'prolong_plot_coefficients', observe)
+        try:
+            c = jnp.ones((1, 1, 1), dtype=jnp.complex128)
+            Ballfun.from_coeffs(c).norm()
+            assert shapes == [(2, 2, 2), (4, 2, 4)]
+        finally:
+            module.norm_coefficients.clear_cache()
+
 
 
 @pytest.mark.parametrize('axis', [1, 2])
