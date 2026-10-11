@@ -1,0 +1,22 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Restore native Ballfun plus (six), times (two), mtimes (two conjuncts) predicates, including exact numeric input grid sizes and function norms. Retain original bounds and supplemental sampled controls. Library unchanged.",
+  "result": "12 pytest cases passed in 37.35 seconds; ten original native predicates included.",
+  "gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_arithmetic_predicates_20261010/gate_v2",
+  "inputs_rehashed": 348,
+  "receipt": {
+    "wall_seconds": 46.43141980934888,
+    "sampled_peak_summed_rss_kib": 2957564,
+    "inputs_stable": true,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "artifacts": {
+    "guard.json": "5110de5411949995818fa185fc1c964b01f00fc3ee35b7d3b2837ad38d69a8b9",
+    "junit.xml": "fe14104cba97fc389fde9f811ba423f55b6e83c360962f451f388666dc9e16e0",
+    "supervision/receipt.json": "43cb38aa1507307c20318210d97dda42e27bbf9ebbfef37841d3372d60fa882f",
+    "supervision/stdout": "95929665a44b9bc2fc8a178b3af39dc744c1e68b57faa872e697e2a0e53caca6"
+  },
+  "scope": "These original tests cover real arithmetic only. Complex scalar flags, empty addition and exact output dimensions need separate source-contract tests. Not full arithmetic or main-suite qualification.",
+  "prelaunch_failure": "Original gate failed environment guard before child launch due to template paths; preserved gate/PRELAUNCH_FAILURE.txt. Corrected gate_v2 used for science."
+}

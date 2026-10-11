@@ -10,6 +10,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax.numpy as jnp
+
 from chebfunjax.ballfun.ballfun import Ballfun
 
 from ._helpers import EPS, X0, Y0, val
@@ -20,9 +22,9 @@ TOL = 1e4 * EPS
 class TestBallfunTimes:
     def test_all_matlab_assertions(self):
         # Constants: 2 * 3 = 6.
-        f = Ballfun.from_function(lambda x, y, z: 2.0 + 0.0 * x)
-        g = Ballfun.from_function(lambda x, y, z: 3.0 + 0.0 * x)
-        h = Ballfun.from_function(lambda x, y, z: 6.0 + 0.0 * x)
+        f = Ballfun.from_values(2*jnp.ones((21, 12, 22)))
+        g = Ballfun.from_values(3*jnp.ones((23, 20, 24)))
+        h = Ballfun.from_values(6*jnp.ones((25, 20, 10)))
         assert (f * g - h).norm() < TOL
         assert (g * f - h).norm() < TOL
 

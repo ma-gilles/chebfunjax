@@ -1,5 +1,12 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Original Ballfun arithmetic predicates restored (2026-10-10)
+
+Twelve CPU cases pass, including all ten native plus/times/mtimes predicates
+with the original numeric grid sizes, function norms and bounds. Library
+unchanged. Complex scalar, empty and exact shape contracts require separate
+checks. Evidence: docs/ballfun_arithmetic_predicates_cpu_20261010.json.
+
 ## Random sphere associated-Legendre phase corrected (2026-10-10)
 
 MATLAB normalized Legendre functions remove the Condon–Shortley phase.
