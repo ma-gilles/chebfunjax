@@ -1,0 +1,46 @@
+{
+  "scope": "DDE sourceexample3/outputslot17/figure18 only.",
+  "base": {
+    "head": "194cd394882cba87cc7dd36ae5e40f174de054c9",
+    "scope": "Output17/sourceexample3/figure18; [0,1],mu0,g=3x^2-x^9,N(y)=diff(y)-y(y),lbc0,defaultsolve. Source prints norm(y-x^3). No explicit init,n,tolerance."
+  },
+  "source_pins": {
+    "Chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+    "examples": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c"
+  },
+  "inputs": "[0,1],mu0,g=3*x\u00b2-x\u2079,N(y)=diff(y)-y(y),lbc0; omitted init,n,tolerance. Source lines351-360.",
+  "outcome": "Existing public scalar nonlinear route succeeds; no library fault or library patch.",
+  "comparison": {
+    "native_length": 4,
+    "python_lengths": [
+      4
+    ],
+    "native_error_norm": 1.4190759792593148e-14,
+    "python_error_norm": 1.434821005191519e-14,
+    "coefficient_max_difference": 1.6653345369377348e-16,
+    "sample_max_difference": 4.440892098500626e-16,
+    "abscissa_max_difference": 1.1102230246251565e-16,
+    "native_warning": "",
+    "python_warnings": [],
+    "native_solve_seconds": 1.602085,
+    "python_solve_seconds": 36.12369966506958,
+    "source_predicate": "Printed error norm; no inequality."
+  },
+  "predicates": "Native source prints norm(y-x\u00b3), no inequality. Scoped script replaces sampled maximum with exact source norm and native-style actual repr.",
+  "artifacts": {
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_cubic_state_delay_20261011/render/slot17.stdout",
+    "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_cubic_state_delay_20261011/render/DelayDifferentialEquations_18.png",
+    "exact_reconstruction": "coefficients, stored pointvalues,all201samples and stdout bytes match saved solve; no solve repeated.",
+    "limits": "Axes from cached reference, not captured graphics metadata; no pixel identity claim."
+  },
+  "provenance": "Python source-origin assertion and postruntime hashes; native frozen-source guard and postruntime observation, no prospective exhaustive runtime closure.",
+  "timing_limit": "No paired speed ratio claimed under shared-host conditions.",
+  "page_update": "Current15verified/8pending ->16verified/7pending if accepted; only slot17/figure18 changed, whole page incomplete.",
+  "gates": {
+    "python": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_cubic_state_delay_20261011/baseline",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddc1",
+    "render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_cubic_state_delay_20261011/render"
+  },
+  "root_review": "All35 bindings verified; source example inspected; only source slot17 norm/representation/figure replaced. Whole page and exact pixels remain unqualified. Published plotting helper AST matches qualified source; figure18 visually inspected.",
+  "delivery_sha256": "1e8a30a07307c1989b652d91d6fd712281d5be88c24b874662dbb6af648c9a15"
+}

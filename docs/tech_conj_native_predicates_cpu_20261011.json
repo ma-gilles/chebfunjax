@@ -1,0 +1,55 @@
+{
+  "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_conj_native4_20261011/tech_conj_native4_delivery_v1.zip",
+  "sha256": "866a57f81ad340b9374922a349bd5a652ad4d9e27d165ee33c1f97450840b99a",
+  "entries": 31,
+  "scope": "Restore four literal native CONJ predicates, retain four earlier padded probes. No library change.",
+  "root_review": "Native source independently read; direct coefficient shape and numeric matrix infinity norm restored; archive hash/ZIP verified; formatting AST identical.",
+  "evidence": {
+    "rows": [
+      {
+        "native_type": "Chebtech1",
+        "array": false,
+        "coefficient_shape": [
+          15
+        ],
+        "error": 0.0,
+        "bound": 2.220446049250313e-15
+      },
+      {
+        "native_type": "Chebtech2",
+        "array": false,
+        "coefficient_shape": [
+          16
+        ],
+        "error": 0.0,
+        "bound": 2.2204460492503135e-15
+      },
+      {
+        "native_type": "Chebtech1",
+        "array": true,
+        "coefficient_shape": [
+          15,
+          2
+        ],
+        "error": 0.0,
+        "bound": 2.220446049250313e-15
+      },
+      {
+        "native_type": "Chebtech2",
+        "array": true,
+        "coefficient_shape": [
+          16,
+          2
+        ],
+        "error": 0.0,
+        "bound": 2.2204460492503135e-15
+      }
+    ],
+    "pytest_summary": "4passed4deselected11.04s",
+    "owned_wall_seconds": 18.57544175395742,
+    "peak_summed_rss_kib": 1007888,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}

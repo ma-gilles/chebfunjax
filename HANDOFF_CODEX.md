@@ -3,22 +3,25 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `194cd394` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `50cb5df9` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
 Read its `CURRENT_GOAL_STATUS.md` for subsequent in-progress work. Historical
 SSH failures and incomplete environment repairs below are not current blockers.
 
-The next reviewed batch restores ANGLE preference forwarding and source real/imag
-routing, fixing mixed FUNs, isolated complex point values and negative-real stored
-phase. Six supplemental controls pass. Native tech innerProduct error identifiers
-now pass for both classes; four empty/JIT controls preserve source dispatch order.
-Numeric system boundary conditions now accept JAX scalar lists and vectors,
-preserve complex values and enforce native condition counts. Ten controls and
-DDE source slot16 pass; figure17 and actual block-norm output are restored.
-DDE now has 15 of 23 output slots verified, with eight pending. See
-corresponding docs/{angle_source_api,tech_inner_input_contract,dde_system_pantograph}_cpu_20261011.json.
+The next reviewed batch restores eight native Chebtech ABS predicates using
+normest and four CONJ predicates using direct coefficient shapes and the
+numeric matrix infinity norm. All pass without library changes. DDE source
+slot17/figure18 now uses the public norm and qualified cubic solution; native
+sample differences are at most 4.44e-16. DDE has 16 of 23 output slots verified,
+with seven pending. See docs/{tech_abs_native_predicates,tech_conj_native_predicates,dde_cubic_state_delay}_cpu_20261011.json.
+
+The next DDE example has eleven intervals and native fzero-generated breaks;
+a captured-breakpoint solve is only a discriminator until public breakpoint
+construction is implemented and qualified. Current CI ac91b56c has thirteen
+successful jobs and eleven running, with no failures at the latest check;
+current main still needs its complete CI result.
 
 The twelve interrupted scripts have been reconciled against current hashes:
 ten have reviewed source replacements (including a separately qualified

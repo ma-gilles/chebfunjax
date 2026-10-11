@@ -1,0 +1,74 @@
+{
+  "scope": "Eight literal native tech ABS predicates at Chebfun7574c77; original eight alternate-norm probes retained",
+  "source": "tests/chebtech/test_abs.m",
+  "correction": "Use public normest on actual difference tech for every scalar and array assertion; source defaults, operands and bounds unchanged",
+  "library_change": "None",
+  "gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 26.502027207054198,
+    "sampled_peak_summed_rss_kib": 1379764,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "native_results": [
+    {
+      "native_tech": "Chebtech1",
+      "branch": "positive",
+      "error": 3.800303903891691e-16,
+      "bound": 2.220446049250313e-15
+    },
+    {
+      "native_tech": "Chebtech2",
+      "branch": "positive",
+      "error": 0.0,
+      "bound": 2.220446049250313e-15
+    },
+    {
+      "native_tech": "Chebtech1",
+      "branch": "negative",
+      "error": 3.800303903891691e-16,
+      "bound": 2.220446049250313e-15
+    },
+    {
+      "native_tech": "Chebtech2",
+      "branch": "negative",
+      "error": 0.0,
+      "bound": 2.220446049250313e-15
+    },
+    {
+      "native_tech": "Chebtech1",
+      "branch": "complex",
+      "error": 1.6791164506655915e-16,
+      "bound": 2.220446049250313e-14
+    },
+    {
+      "native_tech": "Chebtech2",
+      "branch": "complex",
+      "error": 4.286694456191576e-16,
+      "bound": 2.220446049250313e-14
+    },
+    {
+      "native_tech": "Chebtech1",
+      "branch": "array",
+      "error": 1.4206858398690402e-15,
+      "bound": 2.220446049250313e-15
+    },
+    {
+      "native_tech": "Chebtech2",
+      "branch": "array",
+      "error": 1.0044022131538546e-15,
+      "bound": 2.220446049250313e-15
+    }
+  ],
+  "warnings": "Only pytest already-imported jaxtyping assertion-rewrite warning; no suppressed warnings",
+  "root_review": "Pinned native source independently read; source normest=max(vscale) verified; old eight probe ASTs preserved, all formatted test ASTs match qualification",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/supervision/receipt.json": "bc6fec9083aeb648a26afa7551b5c30d80953c61cd70da9bf8d7dbf59be0350d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/supervision/stdout": "fa0f47c0575f53443db17a50758f3a4e0d393b0664b66a735ae5d1e48b28c6b4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/supervision/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/guard.json": "c52af03eb9d218a229223384e153647acc1765d0a5d713484edb364424c6d9b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/RUNTIME_SOURCE_END.json": "20bf2373a54ce5e7b8914313a3e39256f66f438015b70ec528b15f0923385b33",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/tech_abs_native8_20261011/gate/snapshot/tests/test_matlab_port/chebtech/test_abs_matlab.py": "7e4e8e04016f1f555c8ee278184831476c0cb19f748d46bdcad8b3687493c829"
+  }
+}

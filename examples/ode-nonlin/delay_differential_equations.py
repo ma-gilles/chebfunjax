@@ -170,6 +170,22 @@ def _source_system_pantograph_curve(exact, numerical):
     return fig
 
 
+def _source_cubic_delay_curve(exact, numerical):
+    """Render the source cubic state-delay plot with reference axes."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(exact, "-", numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(-.2, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(-.2, 1.01, .2))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _plot_disc(t, x, sol, tt=None):
     fig, ax = plt.subplots(figsize=(7.6, 4.0))
     if tt is None:
@@ -485,12 +501,11 @@ def run():
     N = Chebop(lambda t, y: y.diff() - y(y), domain=dom)
     N.lbc = 0.0
     y = N.solve(g)
-    _show(y, "y")
-    sol16 = lambda s: s**(3 + mu)
-    err = float(np.max(np.abs(np.asarray(y(np.linspace(0, 1, 800)))
-                              - sol16(np.linspace(0, 1, 800)))))
+    print(f"y =\n{y!r}")
+    exact = xcf**(3 + mu)
+    err = float((y - exact).norm())
     print(f"err =\n     {err:.15e}")
-    _plot_pair(sol16, y, (0, 1))
+    _save(_source_cubic_delay_curve(exact, y), source_axes=True)
 
     # ----- 17. State-dependent 1/t cascade: SKIPPED (same wall) -------
     _output_slot(18)

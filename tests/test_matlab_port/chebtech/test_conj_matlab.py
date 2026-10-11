@@ -1,11 +1,8 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_conj.m (Fable 5).
+"""All4 literal tests/chebtech/test_conj.m predicates, Chebfun7574c77.
 
-Chebtech now provides a ``conj()`` method and represents complex-valued
-functions (scalar and array-valued) via ``from_function``, so both MATLAB
-assertions are ported as real checks against direct construction.
-
-MATLAB ``norm(h.coeffs - g.coeffs, inf)`` -> the inf-norm of the coefficient
-difference after zero-padding to a common length.
+Native checks use direct equal coefficient shapes and vector/matrix infinity
+norms at the source bounds. Earlier padded/max-element probes are retained
+separately as supplemental controls.
 
 Provenance
 ----------
@@ -52,12 +49,42 @@ class TestChebtechConj:
     def test_conj_array(self, Tech):
         # pass(n, 2): conj([cos+1i*sin, -exp(1i*x)]) == [cos-1i*sin, -conj(exp(1i*x))].
         f = Tech.from_function(
-            lambda x: jnp.stack(
-                [jnp.cos(x) + 1j * jnp.sin(x), -jnp.exp(1j * x)], axis=-1
-            )
+            lambda x: jnp.stack([jnp.cos(x) + 1j * jnp.sin(x), -jnp.exp(1j * x)], axis=-1)
         )
         g = Tech.from_function(lambda x: jnp.cos(x) - 1j * jnp.sin(x))
         h = f.conj()
         gc = jnp.asarray(g.coeffs)
         target = jnp.stack([gc, -gc], axis=-1)
         assert _coeff_ninf_diff(h.coeffs, target) < 10 * h.vscale * EPS
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+@pytest.mark.parametrize("array", [False, True])
+def test_native_tech_conj_literal_coefficients(Tech, array):
+    """All4 literal sourcepredicates: directcoeffshape and actualinf norm."""
+    if array:
+        f = Tech.from_function(
+            lambda x: jnp.stack((jnp.cos(x) + 1j * jnp.sin(x), -jnp.exp(1j * x)), axis=-1)
+        )
+    else:
+        f = Tech.from_function(lambda x: jnp.cos(x) + 1j * jnp.sin(x))
+    g = Tech.from_function(lambda x: jnp.cos(x) - 1j * jnp.sin(x))
+    h = f.conj()
+    expected = jnp.stack((g.coeffs, -g.coeffs), axis=-1) if array else g.coeffs
+    # Native raw subtraction does not pad unequal coefficient lengths.
+    assert h.coeffs.shape == expected.shape
+    error = float(jnp.linalg.norm(h.coeffs - expected, ord=jnp.inf))
+    bound = (
+        10 * float(jnp.max(jnp.asarray(h.vscale) * EPS)) if array else 10 * float(h.vscale) * EPS
+    )
+    print(
+        {
+            "native_type": Tech.__name__,
+            "array": array,
+            "coefficient_shape": list(h.coeffs.shape),
+            "error": error,
+            "bound": bound,
+        },
+        flush=True,
+    )
+    assert error < bound

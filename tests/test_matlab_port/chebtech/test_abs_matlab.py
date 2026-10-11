@@ -1,27 +1,8 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_abs.m (Opus 4.8).
+"""Eight literal native ABS predicates, Chebfun commit7574c77.
 
-Self-validating: ``abs(f)`` is checked against the analytic |f| at the SAME
-tolerance MATLAB uses.  The MATLAB file loops ``for type = 1:2`` over
-``{chebtech1(), chebtech2()}``; each assertion is parametrized over both.
-
-MATLAB uses ``normest(h - f)`` (an operator-norm estimate that ~0 => the
-functions agree).  chebfunjax has no ``normest``; the faithful equivalent
-used here is ``float((h - f).norm(jnp.inf))`` — the L-infinity norm of the
-difference on a fine grid — which is exactly the "is this ~0" check MATLAB's
-normest performs at these tolerances.
-
-Gaps vs MATLAB (honest xfail/skip):
-- Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals, so it cannot
-  represent complex-valued functions; the complex ``abs`` case xfails on
-  Chebtech1 (Chebtech2 passes).
-- Array-valued ``abs``: Chebtech now supports (n, m) coefficient matrices, so
-  the complex array-valued abs case (pass 4) is ported.  Complex columns are
-  preserved on both classes, so it holds for Chebtech1 too.
-
-Provenance
-----------
-MATLAB source : tests/chebtech/test_abs.m
-Chebfun commit: 7574c77
+Source tests/chebtech/test_abs.m uses normest for all scalar/array cases.
+The original eight L-infinity probes are retained separately below.
+Default from_function adapts native make with default tech preferences.
 """
 
 from __future__ import annotations
@@ -71,9 +52,39 @@ class TestChebtechAbs:
             )
         )
         g = Tech.from_function(
-            lambda x: jnp.stack(
-                [2 + jnp.sin(x), 2 + jnp.sin(x), 2 + jnp.sin(x)], axis=-1
-            )
+            lambda x: jnp.stack([2 + jnp.sin(x), 2 + jnp.sin(x), 2 + jnp.sin(x)], axis=-1)
         )
         h = abs(f)
         assert float((h - g).norm(jnp.inf)) < 1e1 * EPS
+
+
+@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
+@pytest.mark.parametrize("branch", ["positive", "negative", "complex", "array"])
+def test_native_abs_normest(Tech, branch):
+    if branch == "positive":
+        f = Tech.from_function(lambda x: jnp.sin(x) + 2)
+        difference = abs(f) - f
+        bound = 10 * EPS
+    elif branch == "negative":
+        f = Tech.from_function(lambda x: -(jnp.sin(x) + 2))
+        difference = abs(f) + f
+        bound = 10 * EPS
+    elif branch == "complex":
+        f = Tech.from_function(lambda x: jnp.exp(1j * jnp.pi * x))
+        difference = abs(f) - 1
+        bound = 100 * EPS
+    else:
+
+        def op(x):
+            z = (2 + jnp.sin(x)) * jnp.exp(1j * jnp.pi * x)
+            return jnp.stack((z, -z, 2 + jnp.sin(x)), axis=-1)
+
+        f = Tech.from_function(op)
+        g = Tech.from_function(lambda x: jnp.stack((2 + jnp.sin(x),) * 3, axis=-1))
+        difference = abs(f) - g
+        bound = 10 * EPS
+    error = float(difference.normest())
+    print(
+        {"native_tech": Tech.__name__, "branch": branch, "error": error, "bound": bound}, flush=True
+    )
+    assert error < bound
