@@ -1,0 +1,38 @@
+{
+  "base": "f87e246e",
+  "change": "Source Poisson wrapper forwards f, boundary, grid and boundary type to Helmholtz at zero frequency. Explicit legacy lmax/nr keywords retained via unchanged private homogeneous implementation.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_sources": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@ballfun/poisson.m": "d125642ffdafdba7f232ea0fbeb5239640e969dac1408f782162f3a94a4004c3",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/ballfun/test_poisson.m": "bb74492dd9150fae57f96339c9e44ebe8c8b9d60105b8d084c93e1af4343a49a"
+  },
+  "tests": {
+    "count": 3,
+    "native_cases": 2,
+    "native_scalar_predicates": 4,
+    "native_tolerance": "1e7 * ChebfunPref().techPrefs.chebfuneps",
+    "retained_manufactured_controls": 1,
+    "original_session": 58230,
+    "wall_seconds": 44.941686471924186,
+    "peak_rss_kib": 2290824,
+    "input_count": 285,
+    "stable_inputs": true,
+    "no_cap_or_survivors": true
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_poisson_source_20261010/gate/supervision/receipt.json": "ae1169675235ff41dd1bf66d99f7159f7d475ebaab188fa63cc100358bfb3978",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_poisson_source_20261010/gate/junit.xml": "16c88558da79722b54a9c31d169f0664353c20df1454485992a4809eabe78b27",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_poisson_source_20261010/gate/supervision/stdout": "ae4edaaf83aeb3e627bf32b50c3be5c4c7005e529e58fc29a207de3cad08800c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ballfun_poisson_source_20261010/gate/guard.json": "b3eede03cdeaad87779ab3274be6d290b986aacfb556cb0c09dd69c2d470e024"
+  },
+  "tested_source_hashes": {
+    "src/chebfunjax/ballfun/ballfun.py": "f6a8127817590be94a1b897e346448669d329a478f2234afcee39951b598ff43",
+    "tests/test_matlab_port/ballfun/test_poisson_matlab.py": "4948bb68e8c52201027bf92f217bdbf9ec1a39916d76e27b9eb023dd8d398a09"
+  },
+  "limits": [
+    "Full LaplaceBall random boundary page remains a different unfinished task.",
+    "No new whole-module/full-suite or native timing qualification.",
+    "Existing Helmholtz host NumPy orchestration and no-size Python defaults remain unchanged."
+  ],
+  "integration": "Ruff reordered two independent local test import groups; ASTs with imports normalized were checked identical. Production source bytes unchanged."
+}

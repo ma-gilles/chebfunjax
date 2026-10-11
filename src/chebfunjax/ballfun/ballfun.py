@@ -2365,7 +2365,30 @@ class Ballfun(eqx.Module):
         return ax
 
     @staticmethod
-    def poisson(f, lmax: int = 8, nr: int = 24) -> "Ballfun":
+    def poisson(f, bc=None, m: int | None = None,
+                n: int | None = None, p: int | None = None,
+                bc_type: str = "dirichlet", *,
+                lmax: int | None = None, nr: int | None = None) -> "Ballfun":
+        """Solve the Poisson equation with the native boundary/grid arguments.
+
+        Dirichlet and Neumann problems delegate to ``helmholtz`` with zero
+        frequency, as in MATLAB. Explicit ``lmax`` or ``nr`` keywords retain
+        the older Python homogeneous spherical-harmonic solver.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/poisson.m
+        Chebfun commit: 7574c77
+        """
+        if lmax is not None or nr is not None:
+            if bc is not None or any(size is not None for size in (m, n, p)) or bc_type != "dirichlet":
+                raise ValueError("Legacy lmax/nr cannot be combined with boundary/grid arguments.")
+            return Ballfun._poisson_homogeneous(
+                f, 8 if lmax is None else lmax, 24 if nr is None else nr)
+        return Ballfun.helmholtz(f, 0, bc, m, n, p, bc_type)
+
+    @staticmethod
+    def _poisson_homogeneous(f, lmax: int = 8, nr: int = 24) -> "Ballfun":
         r"""Solve the Poisson equation :math:`\\nabla^2 u = f` on the ball.
 
         Homogeneous Dirichlet boundary condition ``u = 0`` on ``r = 1``.
