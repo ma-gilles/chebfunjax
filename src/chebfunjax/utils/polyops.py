@@ -20,26 +20,56 @@ from scipy.signal import residue as _sresidue
 __all__ = ["poly", "residue", "fred", "volt"]
 
 
-def poly(f):
-    """Monomial coefficients of a (polynomial) chebfun, in DESCENDING
-    powers — MATLAB poly(f).
+def poly(f, n=None):
+    """Descending polynomial coefficients of the selected FUN (one-based).
 
     Provenance
     ----------
-    MATLAB source : @chebfun/poly.m
-    Chebfun commit: 7574c77
+    MATLAB source: @chebfun/poly.m, @bndfun/poly.m, @chebtech/poly.m.
+    Chebfun commit: 7574c77.
+    Scalar output uses a Python vector; array-valued output retains rows.
     """
-    a = float(f.domain.a)
-    b = float(f.domain.b)
-    c = np.asarray(f.funs[0].tech.coeffs)
-    # trim trailing (numerically zero) Chebyshev coefficients
-    mag = np.abs(c)
-    tol = 1e-13 * max(mag.max(), 1.0)
-    nz = np.nonzero(mag > tol)[0]
-    c = c[: nz[-1] + 1] if len(nz) else c[:1]
-    T = np.polynomial.Chebyshev(c, domain=[a, b])
-    p = T.convert(kind=np.polynomial.Polynomial)
-    return p.coef[::-1]  # descending
+    import warnings
+
+    from jax.scipy.special import gammaln
+
+    from chebfunjax.fun.singfun import Singfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    if n is None:
+        if len(f.funs) > 1:
+            warnings.warn('F has more than one FUN. Only the polynomial '
+                          'coefficients of the first FUN are returned.',
+                          UserWarning, stacklevel=2)
+        n = 1
+    index = jnp.asarray(n)
+    if index.ndim != 0 or not bool(jnp.isfinite(index)) or float(index) != int(index) or int(index) < 1:
+        raise ValueError('N should be a positive scalar integer.')
+    if int(index) > len(f.funs):
+        raise ValueError(f'Chebfun only has {len(f.funs)} FUNS')
+    piece = f.funs[int(index)-1]
+    a, b = piece.interval
+    if not bool(jnp.isfinite(a) & jnp.isfinite(b)):
+        raise ValueError('POLY does not support UNBNDFUN objects.')
+    tech = piece.tech
+    if isinstance(tech, Singfun):
+        raise ValueError('POLY does not support SINGFUN objects.')
+    out = tech.poly()
+    # Native constant array-valued CHEBTECH returns its coefficient row.
+    if isinstance(tech, (Chebtech1, Chebtech2)) and tech.coeffs.ndim == 2 and tech.n == 1:
+        out = tech.coeffs
+    scalar = out.ndim == 1
+    out = jnp.atleast_2d(out)
+    if a != -1.0 or b != 1.0:
+        alpha, beta = 2/(b-a), -(b+a)/(b-a)
+        out = out[:, ::-1]
+        for j in range(out.shape[1]):
+            k = jnp.arange(j, out.shape[1])
+            binom = jnp.round(jnp.exp(gammaln(k+1.)-gammaln(k-j+1.)-gammaln(j+1.)))
+            bba = binom*beta**(k-j)*alpha**j
+            out = out.at[:, j].set(jnp.sum(out[:, j:]*bba, axis=1))
+        out = out[:, ::-1]
+    return out[0] if scalar else out
 
 
 def _poly_chebfun(coeffs_desc, domain=(-1.0, 1.0)):

@@ -1,0 +1,50 @@
+{
+  "scope": "Public poly(f,n) uses source FUN selection and JAX polynomial coefficients without tolerance trimming; mapped, complex, array and trig coefficients supported.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_base": "f35cd8b1b8da21be36ff251f3bf634cc8a70f899",
+  "baseline": {
+    "original": 83379,
+    "terminal": 1,
+    "passed": 1,
+    "failed": 3,
+    "failures": [
+      "Small stored coefficient discarded",
+      "Array-valued coefficients rejected",
+      "Piece selection absent"
+    ]
+  },
+  "candidate": {
+    "original": 13063,
+    "terminal": 0,
+    "passed": 4
+  },
+  "final": {
+    "original": 6724,
+    "terminal": 0,
+    "passed": 14,
+    "pytest_seconds": 11.34,
+    "peak_rss_kib": 956640,
+    "inputs_stable": true,
+    "censored": false,
+    "survivors": [],
+    "wall_seconds": 13.855924527160823
+  },
+  "limits": [
+    "These are source-derived public contract controls plus the existing residue regression; no fresh MATLAB execution was required or claimed.",
+    "Existing residue and inverse-residue algorithms still use NumPy/SciPy and need a separate JAX port.",
+    "Full-suite and downstream example parity remain unqualified.",
+    "Python vectors adapt native scalar row outputs; constant array-valued native coefficient row is preserved."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_baseline_20261011/guard.json": "b78057bcb93d1193981ac4a8cf0cc364a67cb5348147769f68804fd1787ae342",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_baseline_20261011/junit.xml": "de19d0130dc59b4d0cb471e252b4b7c47e684258bc8f5d6e61fb3cc115a38e35",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_baseline_20261011/supervision/receipt.json": "8a5641d65fabfd127001fca2f56fc8ab67a295c8b9d2a3951906354d95cc6168",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_candidate_20261011/guard.json": "44243df4f8b201e063c943cdbd3828013b57c8d9f403e9f82deb16fe9b7c1f6a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_candidate_20261011/junit.xml": "f027bcf62fc1f031307b34bd02b57ef505bc53f9e09438a5b6bdb833d8189340",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_candidate_20261011/supervision/receipt.json": "33878aa882342126793246ece63a4e12f2b2203b042fc944c7b4896ac06ac520",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_controls_20261011/guard.json": "cd5c06e74c243320629a9855bd168deee02b1087c3c145611c327630f140fb79",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_controls_20261011/junit.xml": "843de88ab5b3de5af88f52178e91116d6fd41ec0f51ef22fd559eb70354db067",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/poly_public_source_controls_20261011/supervision/receipt.json": "3fe540b626ee0bce323a1a8d83fe4074b6792b6b321dc852eb9914cc29022d6b"
+  },
+  "integration": "Added provenance and formatting to exact tested test bodies; library source unchanged from qualified snapshot."
+}
