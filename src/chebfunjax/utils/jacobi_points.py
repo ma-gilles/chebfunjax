@@ -205,3 +205,64 @@ def _jacobi_mass_gammaln(x):
     index = jnp.clip(x-1, 0, 99).astype(jnp.int32)
     table = jnp.asarray(_GAMMALN_INTEGERS, dtype=jnp.float64)
     return jnp.where(use_table, table[index], gammaln(x))
+
+
+
+def _jacobi_symmetric(n, a, interval, method):
+    """Native jacpts symmetric special cases, including method forwarding."""
+    from .quadrature import chebpts, ultrapts
+
+    if a not in (0., -.5, .5):
+        # Native ignores jacpts METHOD here and calls ultrapts default.
+        return ultrapts(n, a+.5, interval, bary=True)
+    if a == 0.:
+        if n <= 20 or method == 'rec':
+            from .legendre_rec import _legpts_rec
+            x, w, v = _legpts_rec(n)
+        elif method == 'gw':
+            k = jnp.arange(1, n, dtype=jnp.float64)
+            beta = .5/jnp.sqrt(1-(2*k)**(-2))
+            matrix = jnp.diag(beta, 1)+jnp.diag(beta, -1)
+            x, vectors = jnp.linalg.eigh(matrix)
+            w = 2*vectors[0]**2
+            v = jnp.sqrt(1-x*x)*jnp.abs(vectors[0])
+            m = n//2
+            vmid = v[m:m+1]
+            x, w, v = x[:m], w[:m], v[:m]
+            if n % 2:
+                x = jnp.concatenate((x, jnp.zeros(1), -x[::-1]))
+                w = jnp.concatenate((w, jnp.asarray([2-jnp.sum(2*w)]), w[::-1]))
+                v = jnp.concatenate((v, vmid, v[::-1]))
+            else:
+                x, w, v = (jnp.concatenate((x, -x[::-1])),
+                           jnp.concatenate((w, w[::-1])),
+                           jnp.concatenate((v, v[::-1])))
+            v = jnp.abs(v)/jnp.max(jnp.abs(v))*jnp.where(jnp.arange(n)%2, -1., 1.)
+        else:
+            # legpts(n, 'default') treats the string as an explicit method;
+            # therefore it selects ASY above20, even below100.
+            from .legendre_fast import _legpts_asy_with_theta
+            x, w, v, _ = _legpts_asy_with_theta(n)
+    elif a == -.5:
+        x = chebpts(n, 1)
+        w = jnp.full(n, jnp.pi/n)
+        # chebtech1.barywts uses the opposite initial sign for even n and
+        # does not normalize the maximum to1.
+        v = jnp.sin((jnp.arange(n-1, -1, -1, dtype=jnp.float64)+.5)*jnp.pi/n)
+        m = n//2
+        v = v.at[:m].set(v[-m:][::-1])
+        v = v*jnp.where((n-1-jnp.arange(n))%2, -1., 1.)
+        if tuple(interval) != (-1., 1.):
+            from chebfunjax.domain import _linear_forward_map
+            x = _linear_forward_map(x, interval[0], interval[1])
+        return x, w, v  # width exponent2a+1 is zero.
+    else:
+        x = chebpts(n+2, 2)[1:-1]
+        w = jnp.pi/(n+1)*(1-x*x)
+        v = (1-x*x)*jnp.where(jnp.arange(n)%2, -1., 1.)
+    if tuple(interval) != (-1., 1.):
+        c1 = .5*(interval[0]+interval[1])
+        c2 = .5*(interval[1]-interval[0])
+        x = c1+c2*x
+        w = c2**(2*a+1)*w
+    return x, w, v

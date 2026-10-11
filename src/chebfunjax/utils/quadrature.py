@@ -1470,7 +1470,7 @@ def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False
     accepts a method after an interval, matching MATLAB. REC and GW are
     supported. Default nonsymmetric rules below 100 use source REC; larger
     default rules retain the existing GW fallback pending the ASY port.
-    Explicit ASY and explicit symmetric methods are not implemented. Outputs use Python one-dimensional
+    Explicit nonsymmetric ASY is not implemented. Outputs use Python one-dimensional
     vectors in place of MATLAB row/column vectors.
 
     Provenance
@@ -1485,6 +1485,7 @@ def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False
         _jacobi_mass_gammaln,
         _jacobi_ratio,
         _jacobi_rec,
+        _jacobi_symmetric,
     )
 
     if isinstance(interval, str):
@@ -1519,11 +1520,7 @@ def jacpts(n: int, a: float, b: float, interval=None, method=None, *, bary=False
                                                -_jacobi_mass_gammaln(a+b+2.))])
         v = jnp.ones(1, dtype=jnp.float64)
     elif a == b:
-        # Preserve existing symmetric dispatch until its separate source port.
-        if method_set and method != 'default':
-            raise NotImplementedError("Explicit symmetric Jacobi methods are not yet ported")
-        x, w = _jacpts_core(n, a, b, interval)
-        v = _bary_weights_gauss(x, flip=False)
+        x, w, v = _jacobi_symmetric(n, a, interval, method)
     else:
         use_rec = n < 20 or (n < 100 and not method_set) or method == 'rec'
         if use_rec:

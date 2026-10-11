@@ -1,0 +1,85 @@
+{
+  "status": "Focused symmetric source dispatch qualified in Python; matched native observations carry one provider provenance limitation",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_publication": "0c51e0608d06f76614e869a1b3a3036d9493a777",
+  "changes": [
+    "a=b=0 forwards method to native Legendre dispatch, including explicit default selectingASY above20. Native LegendreASY formulas unchanged; guard expands fromn>=100 to source domainn>20.",
+    "a=b=-.5 and+.5 use exact Chebyshev rules and original barycentric sign/magnitude semantics.",
+    "Other symmetric parameters delegate native ultrapts(n,a+.5,interval), intentionally ignoring Jacobi method as source does. No denseGW substitute is used for large symmetric default rules."
+  ],
+  "python": {
+    "original": 74924,
+    "terminal": 0,
+    "inputs_stable": true,
+    "censored": null,
+    "survivors": [],
+    "peak_rss_kib": 779756,
+    "wall_seconds": 13.169622312299907,
+    "input_count": 281,
+    "bad_hashes": [],
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_symmetric_source_v2_20261011/controls/guard.json": "50c73b24f325e9050e94c6da0068057e44fa87c2e6153b8a1f0193a8e3bfab9f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_symmetric_source_v2_20261011/controls/supervision/receipt.json": "e424deda2c43d056c59d71199b62d8c71588d0854ba936eb749e7ba7c5f2556b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_symmetric_source_v2_20261011/controls/junit.xml": "08c63af94ae279cb15fd03fd81b78fcff894a20fdd06dbc43bc3ba5f5f377871"
+    },
+    "test_ids": [
+      "test_symmetric::test_native_legendre_42_references[None]",
+      "test_symmetric::test_native_legendre_42_references[default]",
+      "test_symmetric::test_native_legendre_42_references[REC]",
+      "test_symmetric::test_native_legendre_42_references[GW]",
+      "test_symmetric::test_native_legendre_42_references[ASY]",
+      "test_symmetric::test_legendre_dispatch_boundaries[20]",
+      "test_symmetric::test_legendre_dispatch_boundaries[21]",
+      "test_symmetric::test_legendre_dispatch_boundaries[99]",
+      "test_symmetric::test_legendre_dispatch_boundaries[100]",
+      "test_symmetric::test_ultraspherical_native_method_ignored[0.2]",
+      "test_symmetric::test_ultraspherical_native_method_ignored[1.0]",
+      "test_symmetric::test_chebyshev_special_cases[-0.5-41]",
+      "test_symmetric::test_chebyshev_special_cases[-0.5-42]",
+      "test_symmetric::test_chebyshev_special_cases[0.5-41]",
+      "test_symmetric::test_chebyshev_special_cases[0.5-42]",
+      "test_symmetric::test_matched_native_public_arrays[20]",
+      "test_symmetric::test_matched_native_public_arrays[21]",
+      "test_symmetric::test_matched_native_public_arrays[42]",
+      "test_symmetric::test_matched_native_public_arrays[99]",
+      "test_symmetric::test_matched_native_public_arrays[100]"
+    ],
+    "failures": [],
+    "skips": [],
+    "qualified": true
+  },
+  "native_observation": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jsy1",
+    "original": 73334,
+    "terminal": 0,
+    "sizes": [
+      20,
+      21,
+      42,
+      99,
+      100
+    ],
+    "default_equals_explicit_asy": true,
+    "n21_mass_error": -3.674838211509268e-12,
+    "provider_limitation": {
+      "executed_provider": "/usr/licensed/matlab-R2025b/toolbox/matlab/polyfun/polyval.m",
+      "postexit_sha256": "4b41ef2b720ca2a51e01335b2b87b992b2442338fca05a25ea1053af2969db8e",
+      "prospectively_bound": false,
+      "limitation": "polyval.m was discovered in the executed profile after science and had no prospective hash. Do not count this as full prospective-provider qualification. Native array observation and all other source/runtime audits retained; no rerun solely for this omission."
+    },
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jsy1/AUDIT.json",
+    "native_original_file_test_pass_credit": 0
+  },
+  "tests": "20 focused cases; five method variants reuse original42-node Legendre reference quantities at unchanged1e-14 bounds. Five matched-native whole-array controls use1e-14; method boundaries and Chebyshev/ultraspherical contracts included.",
+  "preserved_failure": {
+    "original": 1851,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jacpts_symmetric_source_20261011/small_controls",
+    "result": "14pass,1failure in newly added n21 ideal-mass diagnostic at1e-12. Native gives the same\u22123.674838211509268e-12 error; retain diagnostic, test source output parity instead of inventing stronger native convergence."
+  },
+  "limits": [
+    "General nonsymmetric JacobiASY is still unported; defaultlarge nonsymmetric rules retainGW fallback, explicitASY unsupported.",
+    "Native100k/200k symmetric clauses23/26/27 not run yet; clause24 disabled in source. No reduced-size control credited as those assertions.",
+    "Endpoint compile/cache resource estimate required before original large rules; next plan records Bessel/Taylor/interior dependencies.",
+    "Native capture has one actual provider polyval.m not prospectively hashed. Its current source is post-bound, which does not erase the missing prebinding. Source67 and runtime943/end894 mappings clean; no incidental-audit-only rerun."
+  ]
+}

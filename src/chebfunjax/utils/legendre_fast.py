@@ -13,7 +13,7 @@ Legendre transforms: Alex Townsend and Nick Hale; ASY quadrature: Ignace Bogaert
 The fast Leg2Cheb operation retains a static pivoted-Cholesky workspace bound
 for JIT-compatible shapes. It returns a completion flag; callers must not use
 an incomplete result as source-equivalent. The ASY quadrature helper supports
-n >= 100. The IDLT Taylor correction accepts the ASY angle vector explicitly.
+n > 20, including explicit ASY rules below the default cutoff. The IDLT Taylor correction accepts the ASY angle vector explicitly.
 """
 
 from __future__ import annotations
@@ -285,7 +285,7 @@ def _bessel12_at_j0_roots_jax(m: int) -> jax.Array:
 
 @partial(jax.jit, static_argnames=("n",))
 def _legpts_asy_with_theta(n: int):
-    """Return source ASY ``(x, w, v, theta)`` on [-1,1] for n>=100.
+    """Return source ASY ``(x, w, v, theta)`` on [-1,1] for n>20.
 
     Arrays use Python's one-dimensional convention and ascending x order.
     ``theta`` is the source ASY angle, aligned with x; it is computed directly
@@ -294,15 +294,15 @@ def _legpts_asy_with_theta(n: int):
     signs, matching the third output of legpts.m.
 
     This implements MATLAB's default/explicit ASY branch, selected by default
-    for n>=100. It does not implement interval mapping, method dispatch, or
-    trivial n<100 cases.
+    for n>20. It does not implement interval mapping, method dispatch, or
+    trivial n<=20 cases.
 
     Provenance:
         MATLAB legpts.m local ``asy`` and ``bessel12atj0k``, and besselroots.m.
         Chebfun commit 7574c77680d7e82b79626300bf255498271a72df.
     """
-    if n < 100:
-        raise ValueError("source ASY helper requires n >= 100")
+    if n <= 20:
+        raise ValueError("source ASY helper requires n > 20")
 
     m = (n + 1) // 2
     jk = _besselroots0_jax(m)
