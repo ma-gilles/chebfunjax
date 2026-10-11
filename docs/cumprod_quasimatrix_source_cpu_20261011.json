@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "handle": 69137,
+    "terminal": 1,
+    "fault": "missing Quasimatrix.cumprod",
+    "peak_rss_kib": 640444
+  },
+  "candidate": {
+    "handle": 15460,
+    "terminal": 0,
+    "tests": 2,
+    "peak_rss_kib": 1391544
+  },
+  "scope": "source-defined column-loop API restoration; supplemental controls only; no native CUMPROD original assertion count",
+  "unchanged": "Chebfun.cumprod numerical algorithm, PROD18 tests and all other methods",
+  "no_native_runtime_claim": true,
+  "no_P_edits": true,
+  "all_handles_consumed": true,
+  "root_review": {
+    "artifact_bindings": 17,
+    "verified_unique_guarded_inputs": 5181,
+    "publication_base": "1174d23e",
+    "integration": "Literal newmethod inserted adjacent to updatedcumsum; existingmethods unchanged bythisaddition."
+  }
+}

@@ -5422,7 +5422,7 @@ class Chebfun(eqx.Module):
             object.__setattr__(out, "_point_values", self._point_values)
         return self._attach_deltas(out, getattr(self, "deltas", ()))
 
-    def cumsum(self, k: float = 1) -> Chebfun:
+    def cumsum(self, k: float = 1, dim: int | None = None) -> Chebfun:
         """Antiderivative satisfying F(a) = 0 at the left endpoint.
 
         For a piecewise Chebfun, the antiderivative is computed on each piece
@@ -5439,6 +5439,13 @@ class Chebfun(eqx.Module):
             ``cumsum(f, alpha)`` semantics, dispatching to
             :meth:`fracInt`).
 
+        dim : int or None, default None
+            Continuous dimension is 1 for columns, 2 for rows. Fractional
+            orders ignore this selector, as in the native source. Other
+            dimensions retain the pinned ordinary-array TooManyInputs error;
+            this method does not silently repair that upstream argument bug.
+            Delta-bearing finite sums remain explicitly unqualified.
+
         Returns
         -------
         Chebfun
@@ -5449,6 +5456,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/cumsum.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
+
         def finalize_polynomial(out):
             # Native cumsum reassembles chebfun(funs), which recomputes
             # getValuesAtBreakpoints from onefun lval/rval coefficient sums.
@@ -5465,7 +5475,18 @@ class Chebfun(eqx.Module):
             return out
 
         if float(k) != int(k):
+            # Native fractional dispatch precedes dimension selection.
             return self.fracInt(float(k))
+        continuous_dim = 2 if self.is_transposed else 1
+        if dim is not None and dim != continuous_dim:
+            if self.deltas:
+                raise NotImplementedError(
+                    "Finite-dimension cumsum requires native per-FUN delta "
+                    "wrapper metadata; Python Chebfun stores global deltas. "
+                    "Some native results also contain unevaluable nested FUN cells.")
+            # The pinned finite-array branch passes (fun, k, 2) to the
+            # two-argument classicfun methods and raises upstream.
+            raise TypeError("MATLAB:TooManyInputs: Too many input arguments.")
         if int(k) != 1:
             out = self
             for _ in range(int(k)):
@@ -5571,6 +5592,9 @@ class Chebfun(eqx.Module):
             _loc, _mag, _order = _delta_row(row)
             if _order == 0:
                 total = total + jnp.float64(_mag)
+        # Native sumFullDom replaces invalid results by real NaN. Preserve
+        # JAX's static result dtype while clearing the imaginary NaN component.
+        total = jnp.where(jnp.isnan(total), jnp.asarray(jnp.nan, dtype=total.dtype), total)
         if self.is_transposed and self.n_columns > 1:
             return jnp.reshape(total, (-1, 1))
         return total
@@ -8827,6 +8851,49 @@ class Chebfun(eqx.Module):
         """
         return not self.funs or self.funs[0].tech.isempty()
 
+    def domain_check(self, other) -> bool:
+        """Compare source outer endpoints, including numeric endpoint arrays.
+
+        One-dimensional Python numeric arrays adapt MATLAB row vectors.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/domainCheck.m, @chebfun/hscale.m
+        Chebfun commit: 7574c77
+        """
+        from .linalg import Quasimatrix
+        if isinstance(other, Quasimatrix):
+            other = other.cols[0]
+        empty = self.isempty()
+        other_empty = _is_empty_operand(other) or (isinstance(other, str) and other == "")
+        if empty or other_empty:
+            return empty and other_empty
+        ends = jnp.asarray([self.domain.a, self.domain.b])
+        scale = jnp.max(jnp.abs(ends))
+        scale = jnp.where(jnp.isinf(scale), 1., scale)
+        if isinstance(other, Chebfun):
+            other_ends = jnp.asarray([other.domain.a, other.domain.b])
+            other_scale = jnp.max(jnp.abs(other_ends))
+            other_scale = jnp.where(jnp.isinf(other_scale), 1., other_scale)
+            error = ends - other_ends
+            return bool(jnp.all((jnp.abs(error) < 1e-15*jnp.maximum(scale, other_scale))
+                                | jnp.isnan(error)))
+        try:
+            values = jnp.asarray(other)
+        except (TypeError, ValueError):
+            return False
+        if values.dtype.kind not in "biufc":
+            return False
+        flat = values.reshape(-1)
+        selected = flat[jnp.asarray([0, values.size-1])]
+        if values.ndim == 2 and values.shape[1] == 1 and values.shape[0] > 1:
+            # Native vector indexing retains a column input's orientation;
+            # implicit expansion then forms a matrix for norm(..., inf).
+            error = jnp.max(jnp.sum(jnp.abs(ends[None, :] - selected[:, None]), axis=1))
+        else:
+            error = jnp.max(jnp.abs(ends - selected))
+        return bool(error < 1e-15*scale)
+
     def isequal(self, other: Chebfun) -> bool:
         """Compare source breakpoint values and exact underlying FUNs.
 
@@ -8838,11 +8905,17 @@ class Chebfun(eqx.Module):
         from .linalg import Quasimatrix
         if isinstance(other, Quasimatrix):
             return other.isequal(self)
+        if self.isempty() and (_is_empty_operand(other)
+                               or (isinstance(other, str) and other == "")):
+            return True
         if not isinstance(other, Chebfun):
+            if self.domain_check(other):
+                raise TypeError("MATLAB:structRefFromNonStruct: "
+                                "Dot indexing is not supported for variables of this type.")
             return False
         if self.isempty() or other.isempty():
             return self.isempty() and other.isempty()
-        if (self.domain != other.domain
+        if (not self.domain_check(other)
                 or self.is_transposed != other.is_transposed
                 or self.n_columns != other.n_columns
                 or len(self.funs) != len(other.funs)):

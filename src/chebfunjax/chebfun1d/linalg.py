@@ -351,7 +351,7 @@ class Quasimatrix:
                 return False
             columns = [other] if other.n_columns == 1 else other.mat2cell()
         else:
-            return False
+            return self.cols[0].isequal(other)
         return (len(self.cols) == len(columns)
                 and all(left.isequal(right)
                         for left, right in zip(self.cols, columns)))
@@ -644,8 +644,41 @@ class Quasimatrix:
         """
         return self._map(lambda c: c.fracDiff(mu, kind))
 
-    def cumsum(self) -> "Quasimatrix":
-        return self._map(lambda c: c.cumsum())
+    def cumsum(self, k: float = 1, dim: int | None = None) -> "Quasimatrix":
+        """Source continuous integration or finite cumulative column updates.
+
+        Finite sums retain
+        the literal native loop endpoint ``numCols-j``, including its
+        unchanged final column. This is not a standard complete prefix sum.
+        The Python collection type is retained for continuous integration.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cumsum.m
+        Chebfun commit: 7574c77
+        """
+        if float(k) != int(k):
+            return self.fracInt(float(k))
+        continuous_dim = 2 if self.is_transposed else 1
+        if dim is None:
+            dim = continuous_dim
+        if dim == continuous_dim or len(self.cols) == 1:
+            return self._map(lambda column: column.cumsum(k, dim))
+        columns = list(self.cols)
+        for order in range(1, int(k) + 1):
+            for index in range(1, len(columns) - order):
+                columns[index] = columns[index] + columns[index - 1]
+        return Quasimatrix(columns, self.domain)
+
+    def cumprod(self):
+        """Indefinite product integral, independently for each column.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cumprod.m
+        Chebfun commit: 7574c77
+        """
+        return self._map(lambda column: column.cumprod())
 
     def prod(self, dim=None):
         """Native product integral or pointwise product of scalar columns.

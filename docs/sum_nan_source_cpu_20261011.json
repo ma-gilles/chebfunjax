@@ -1,0 +1,43 @@
+{
+  "scope": "one source-confirmed sumFullDom invalid-result cleanup; supplemental contracts, not new original SUM36 qualification",
+  "original36": "mapped tests already literal, preserved unchanged; no redundant replay",
+  "baseline": {
+    "handle": 13912,
+    "terminal": 1,
+    "fault": "nan+nanj imaginary cleanup missing",
+    "stable": true,
+    "cap": false
+  },
+  "candidate": {
+    "handle": 85940,
+    "terminal": 0,
+    "tests": 2,
+    "peak_rss_kib": 518704,
+    "stable": true,
+    "cap": false
+  },
+  "adapter": "complex dtype retained under JAX static dtype; native real NaN value represented as complex NaN+0j",
+  "limits": [
+    "No fresh native capture or fullSUM36 rerun",
+    "Finite-delta cumsum remains independently unresolved",
+    "Source29 warning-on identifier typo differs from normal Python warning scoping"
+  ],
+  "root_review": {
+    "verified_artifact_bindings": 41,
+    "verified_unique_guarded_inputs": 6057,
+    "qualified_methods_match_final_publication": true,
+    "combined_gate": {
+      "original_handle": 72826,
+      "tests": 17,
+      "pytest_seconds": 17.87,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finite_sum_equality_combined_cpu_20261011/supervision/receipt.json",
+      "receipt_sha256": "c90c16d9d9ea9f37d6d3cb334bb22aa29363f15d0f8fe51888da0554f0caf395",
+      "inputs_stable": true,
+      "exit_code": 0,
+      "peak_rss_kib": 1347708,
+      "remaining_owned_pids": []
+    },
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/delivery_v1/ROOT_REVIEW.json",
+    "manifest_sha256": "1b2ae1c0710475cdbf83ff9f43c58b74c9545d85567ec3a21246192e80f7f71b"
+  }
+}

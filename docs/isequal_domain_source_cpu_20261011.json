@@ -1,0 +1,119 @@
+{
+  "status": "qualified_original12_and_native_numeric_domain_dispatch",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_original_slots": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    7,
+    8,
+    9,
+    10
+  ],
+  "source_predicate_count": 12,
+  "native_final_vector_length": 10,
+  "native_original_results": "native_v1 all12 assignments true, final10 slots true; exact source strip-audit SOURCE_CAPTURE.json",
+  "native_shape_results": "native_shapes_v2 row/matrix matchingnumericdomain errors, columnmismatchfalse, narrowcolumndomaintrue, Quasisameerror, emptychartrue",
+  "original_python_coverage": {
+    "bounded_v1": "7 original bounded predicates +4 focused +7 existingtimes/equality controls,18passed",
+    "mixed_v2": "4 original unbounded/array predicates +3 focused +1 existingmergehscale control,8passed",
+    "singular_v2": "1 overwrittenoriginalsingular predicate,1passed; one actual129pointunhappywarning"
+  },
+  "final_numeric_coverage": "numeric_final_v3 8 passed, including all nativecaptured cases plus exact NaNcoefficients and boundedno-unit-floorhscale controls",
+  "source_fixes": [
+    "Public domain_check adapts genuinely missing native domainCheck utility: outerendpoints, sourcehscale, strict1e-15 tolerance, bothChebfun NaNfrominf-inf acceptance, numeric norm branch, row/column/matrix shape handling.",
+    "isequal empty numeric/char values accepted beforetypeguard; matchingnonChebfun numericdomain raises native MATLAB:structRefFromNonStruct; mismatching/NaNnumericdomains false.",
+    "Quasimatrix numericinput equality delegates firstscalarcolumn to same native dispatch."
+  ],
+  "domain_tolerance_assessment": "Exact entireDomain check was stricter than native initialdomainCheck, but no changed validChebfun equality-result gap was confirmed: later exact classicfun domains still reject shiftedintervals. Public domain_check now preserves native tolerant predicate directly; originaleps-shift predicate6 remainsfalse.",
+  "nan_semantics": "NaNpointValues make native norm comparison false, permitting identicalFUNs even if another pointValue differs greatly; equalInfpointValues also accepted. NaNcoefficients stillfail exactIEEE coefficient equality, even selfcomparison. Actual NaNnorm verified from native result.mat because JSON encodesNaN asnull.",
+  "existing_domain_tests": "No existing Chebfun domainCheck publiccallable or testfile found. Closest existing hscale test is tests/test_merge_global_unbounded_hscale.py; it passed. Existing broadoperatorhscale arithmetic unchanged.",
+  "snapshot_scope": "Python snapshot_v1/v2/v3 paths retained, every gate sourceorigin immutable; guardstability and runtime observed JAX/JAXlib0.11.0 CPU x64true CUDAempty. Native liveM guarded directinputs; profileorigins retrospective, not prospectivefull-runtimeclosure.",
+  "reuse_deltas": [
+    {
+      "from": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/snapshot_v1",
+      "to": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/snapshot_v3",
+      "changed_source_files": [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "src/chebfunjax/chebfun1d/linalg.py"
+      ],
+      "exact_delta": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/delivery_v1/snapshot_v1_to_final_source.patch",
+      "sha256": "e5e2b37bd4e04abf49940c05ab99d89277c25e4b6a055f265d47ca5430375c17",
+      "reuse": "Original12 use Chebfun operands; final changes only numeric/emptychar domain_check branches. Quasimatrix numericdelegation and all numericshape/NaN cases rechecked in numeric_final_v3."
+    },
+    {
+      "from": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/snapshot_v2",
+      "to": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/snapshot_v3",
+      "changed_source_files": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
+      "exact_delta": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/delivery_v1/snapshot_v2_to_final_source.patch",
+      "sha256": "990e6d7b9d96f4022643699b1b6c9e3f73b5f01d4850da4975b59565b0cd34cf",
+      "reuse": "Original12 use Chebfun operands; final changes only numeric/emptychar domain_check branches. Quasimatrix numericdelegation and all numericshape/NaN cases rechecked in numeric_final_v3."
+    }
+  ],
+  "no_unchanged_times31_repeat": true,
+  "previous_times_recovered_inputs": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/recovered_snapshots/INDEX.json",
+  "previous_times_exact_reuse_deltas": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/recovered_snapshots/FINAL_REUSE_DELTAS.json",
+  "gates": [
+    {
+      "name": "native_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/native_v1/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/native_v1/supervision/stdout",
+      "runtime": null
+    },
+    {
+      "name": "bounded_v1",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/bounded_v1/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/bounded_v1/supervision/stdout",
+      "runtime": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/bounded_v1/RUNTIME.json"
+    },
+    {
+      "name": "mixed_v2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/mixed_v2/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/mixed_v2/supervision/stdout",
+      "runtime": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/mixed_v2/RUNTIME.json"
+    },
+    {
+      "name": "singular_v2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/singular_v2/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/singular_v2/supervision/stdout",
+      "runtime": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/singular_v2/RUNTIME.json"
+    },
+    {
+      "name": "native_shapes_v2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/native_shapes_v2/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/native_shapes_v2/supervision/stdout",
+      "runtime": null
+    },
+    {
+      "name": "numeric_final_v3",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/numeric_final_v3/supervision/receipt.json",
+      "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/numeric_final_v3/supervision/stdout",
+      "runtime": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/numeric_final_v3/RUNTIME.json"
+    }
+  ],
+  "root_review": {
+    "verified_artifact_bindings": 41,
+    "verified_unique_guarded_inputs": 6057,
+    "qualified_methods_match_final_publication": true,
+    "combined_gate": {
+      "original_handle": 72826,
+      "tests": 17,
+      "pytest_seconds": 17.87,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finite_sum_equality_combined_cpu_20261011/supervision/receipt.json",
+      "receipt_sha256": "c90c16d9d9ea9f37d6d3cb334bb22aa29363f15d0f8fe51888da0554f0caf395",
+      "inputs_stable": true,
+      "exit_code": 0,
+      "peak_rss_kib": 1347708,
+      "remaining_owned_pids": []
+    },
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/times_source_20261011/isequal_followup/delivery_v1/ROOT_REVIEW.json",
+    "manifest_sha256": "1b2ae1c0710475cdbf83ff9f43c58b74c9545d85567ec3a21246192e80f7f71b"
+  }
+}

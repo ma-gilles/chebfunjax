@@ -1,0 +1,8 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@chebfun/cumsum.m source-derived API observations, not original30",
+  "native_packet": "cumsum_finite_native_capture_20261011",
+  "native_mat_sha256": "b8b0dc7c0099aaf8b6070814242e0ac06f8de406376fe3526427ed8ba1287f5b",
+  "coefficient_metadata_not_captured": true,
+  "values_saved_before_recorder_error": true
+}

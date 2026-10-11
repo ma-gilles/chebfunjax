@@ -1,0 +1,99 @@
+{
+  "base": "51a50822dea86e3c62acdf6b4b3637d16342164f",
+  "dependency": "accepted cumsum30_source.patch (Singfun and _root_power bytes preserved)",
+  "original_cumsum30_replayed": false,
+  "original_native_test_predicate_count": 0,
+  "source_derived_control_methods": 7,
+  "native_api_observations": 22,
+  "library_scope": [
+    "Chebfun.cumsum",
+    "Quasimatrix.cumsum"
+  ],
+  "supported_contracts": [
+    "Columncontinuousdim1,rowcontinuousdim2; no-selector defaults unchanged",
+    "Fractional-order dispatch precedesdim; emptyChebfun return precedesorderparse",
+    "Quasimatrix m-orderfiniteupdates use literal j1:m,k2:numCols-j; finalcolumnunchanged",
+    "Ordinarynon-delta scalar/array finitebranch preserves capturedMATLAB:TooManyInputs (PythonTypeError adapter)",
+    "Native numel1 singletonstorage routes ordinarybranch; two-columnQuasimatrix finiteupdate unchanged"
+  ],
+  "unresolved_finite_delta_gap": {
+    "python_behavior": "ExplicitNotImplementedError, not a fabricated valid finite sum",
+    "native_interior_dirac": "m0/1/2 androw return unevaluable nested FUNcells; feval MATLAB:feval:argMustBeStringOrHandle",
+    "native_valid_outputs": [
+      "delta-prime returns Deltafun",
+      "right-edge Dirac returns Bndfun",
+      "mixedpiecewiseDeltaFUNs integrate each FUN independently with endpoint halfownership"
+    ],
+    "representation_difference": "PythonChebfun globaldelta tuples do not retain native per-FUN Deltafun wrapper and halfownership metadata; cannot claim full class-dependent finite parity",
+    "next_scope": "Represent native per-FUN wrappers/ownership before general finite-delta dispatch, preserve upstream invalidnestedcell distinction"
+  },
+  "native_first_capture_recorder_erratum": "66284 terminal0 captures actualcalls,values,empty,numel; g(1).isTransposed metadata index error occurs afterwards, so no nativecoeff/transposemetadata claim; RECORDER_ERRATUM.json bound",
+  "baseline": {
+    "original_handle": 61204,
+    "terminal_exit": 1,
+    "fault": "Quasimatrix.cumsum missingorder/dim signature; source construction succeeded"
+  },
+  "qualified_cohorts": [
+    {
+      "name": "candidate_v1",
+      "original_handle": 42470,
+      "terminal_exit": 0,
+      "tests": 4,
+      "pytest_seconds": 7.94,
+      "peak_rss_kib": 876928
+    },
+    {
+      "name": "final_controls_v2",
+      "original_handle": 82538,
+      "terminal_exit": 0,
+      "tests": 3,
+      "pytest_seconds": 7.71,
+      "peak_rss_kib": 868128
+    }
+  ],
+  "paired_affine_max_difference": 2.7755575615628914e-17,
+  "paired_affine_scope": "actualsame-source affine inputs and fivecapturecases; measured difference, no invented native threshold/fullbitparityclaim",
+  "continuous_body_ast_preserved": true,
+  "default_continuous_dirac_matches_saved_native_values": true,
+  "default_polynomial_coefficients_exact": true,
+  "native_processes": [
+    {
+      "original_handle": 66284,
+      "terminal_exit": 0,
+      "peak_rss_kib": 1476612,
+      "science_seconds": 1.154454
+    },
+    {
+      "original_handle": 45423,
+      "terminal_exit": 0,
+      "peak_rss_kib": 1362212,
+      "science_seconds": 1.189135
+    }
+  ],
+  "fixture_copy": {
+    "from": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_finite_dimension_source_20261011/candidate/tests/fixtures/cumsum_finite_native_values.npz",
+    "to": "tests/fixtures/cumsum_finite_native_values.npz"
+  },
+  "no_owned_processes": true,
+  "no_publication_edits": true,
+  "root_review": {
+    "publication_base": "1174d23e",
+    "verified_delivery_bindings": 55,
+    "verified_unique_input_hashes": 11069,
+    "only_cumsum_methods_changed": true,
+    "qualified_candidate_method_asts_equal_except_provenance_docstring": true,
+    "delivery": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_finite_dimension_source_20261011/DELIVERY.json",
+    "delivery_sha256": "4bd58c0eccffe5b43e7bcb58ed62147dc276602e208968f4585b69e69af4ae7e"
+  },
+  "root_combined_gate": {
+    "original_handle": 72826,
+    "tests": 17,
+    "pytest_seconds": 17.87,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/finite_sum_equality_combined_cpu_20261011/supervision/receipt.json",
+    "receipt_sha256": "c90c16d9d9ea9f37d6d3cb334bb22aa29363f15d0f8fe51888da0554f0caf395",
+    "inputs_stable": true,
+    "exit_code": 0,
+    "peak_rss_kib": 1347708,
+    "remaining_owned_pids": []
+  }
+}
