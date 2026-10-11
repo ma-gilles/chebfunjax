@@ -6,6 +6,8 @@
 
 Python translation: [`examples/sphere/laplaceball.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/sphere/laplaceball.py)
 
+> Execution qualification: The full public boundary construction, Poisson solve on the source-derived grid (65 in each direction), and inner-sphere extraction were executed using one captured MATLAB R2025b `rng(1)` input vector. This fixture does not establish general RNG parity. The boundary length is 65×65 versus the captured native 65×63; printed Oxford, origin, and inner-mean values differ in their final digits. The Python Cartesian boundary point is evaluated through its equivalent longitude/polar coordinates. Figures were replayed from the saved actual functions and figure objects; colorbars are present, but lighting, framing, and exact pixel parity remain unverified.
+
 ## 1. The Laplace problem
 
 Suppose we are given a function $h(x,y,z)$ on the unit sphere $S$ and we want to solve the Laplace equation in the unit ball $B$ with $h$ as boundary data, $$ \Delta u = 0, \quad u = h \hbox{ on } S. $$ Here we illustrate how this might be done in Ballfun.
@@ -29,7 +31,7 @@ h(1,0,0)
 
 ```text
 ans =
-   0.221205743932281
+  -0.761180229121337
 ```
 
 Alternatively, you can call it with two arguments, which are interpreted as longitude and polar angles (the latter measured down from the north pole):
@@ -40,7 +42,7 @@ h(0,pi/2)
 
 ```text
 ans =
-   0.221205743932281
+  -0.761180229121337
 ```
 
 The mean of $h$ is small but nonzero:
@@ -51,7 +53,7 @@ meanh = mean2(h)
 
 ```text
 meanh =
-   0.050760792614476
+  -0.020281680162226
 ```
 
 ## 2. Solution with the `poisson` command
@@ -74,9 +76,9 @@ u(1,0,0)
 
 ```text
 ans =
-   0.221205743932281
+  -0.761180229121337
 ans =
-   0.221205743932281
+  -0.761180229121336
 ```
 
 Here, using spherical coordinates, we confirm that it matches the boundary data at the longitude and latitude coordinates of Oxford.
@@ -89,9 +91,9 @@ u(1, long, pi/2-lat,'spherical')
 
 ```text
 ans =
-   1.621293992830437
+  -1.847977702024466
 ans =
-   1.621293992830445
+  -1.847977702024466
 ```
 
 Another check we can carry out concerns mean values. The value of $u$ at the origin should equal the mean of the boundary data:
@@ -103,9 +105,9 @@ u(0,0,0)
 
 ```text
 meanh =
-   0.050760792614476
+  -0.020281680162226
 ans =
-   0.050760792614465
+  -0.020281680162227
 ```
 
 ## 3. The solution on an inner sphere
@@ -136,9 +138,9 @@ mean2(uinner)
 
 ```text
 meanh =
-   0.050760792614476
+  -0.020281680162226
 ans =
-   0.050760792614475
+  -0.020281680162227
 ```
 
 ---

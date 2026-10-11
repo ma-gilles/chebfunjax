@@ -186,44 +186,21 @@ def solidharmonics():
 
 
 def laplaceball():
-    """sphere/LaplaceBall — Poisson solve in the ball via harmonics."""
-    TH, PH = sphere_grid()
-    # boundary data g = Y_3^2 + 0.5 Y_1^0; harmonic extension is
-    # r^l Y_lm; plot boundary data and two interior slices
-    G = (np.real(sph_harm_y(3, 2, TH, PH))
-         + 0.5 * np.real(sph_harm_y(1, 0, TH, PH)))
-    sphere_surf(G, TH, PH, "LaplaceBall_01.png",
-                title="Dirichlet boundary data")
+    """Dispatch the canonical full public LaplaceBall source example."""
+    import runpy
+    from pathlib import Path
 
-    # interior slice z = 0 plane: u(r, phi) in polar coordinates
-    rr = np.linspace(0, 1, 100)
-    pp = np.linspace(0, 2 * PI, 200)
-    RR, PP = np.meshgrid(rr, pp, indexing="ij")
-    TH0 = PI / 2 * np.ones_like(PP)
-    U = (RR**3 * np.real(sph_harm_y(3, 2, TH0, PP))
-         + 0.5 * RR * np.real(sph_harm_y(1, 0, TH0, PP)))
-    fig, ax = plt.subplots()
-    cs = ax.contourf(RR * np.cos(PP), RR * np.sin(PP), U, levels=20,
-                     cmap=PARULA)
-    plt.colorbar(cs, ax=ax, fraction=0.045)
-    ax.set_aspect("equal")
-    ax.set_title("harmonic extension on the plane z = 0",
-                 fontsize=9)
-    save(fig, "LaplaceBall_02.png")
-
-    # radial profile along a chosen direction
-    th0, ph0 = 1.1, 0.7
-    prof = (rr**3 * np.real(sph_harm_y(3, 2, np.full_like(rr, th0),
-                                       np.full_like(rr, ph0)))
-            + 0.5 * rr * np.real(sph_harm_y(
-                1, 0, np.full_like(rr, th0), np.full_like(rr, ph0))))
-    fig, ax = plt.subplots()
-    ax.plot(rr, prof, linewidth=1.4)
-    ax.set_xlabel("r")
-    ax.set_title("radial profile of the harmonic extension",
-                 fontsize=9)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    save(fig, "LaplaceBall_03.png")
+    path = Path(__file__).resolve().parents[1] / "examples/sphere/laplaceball.py"
+    previous = os.environ.get("LAPLACEBALL_IMAGE_DIR")
+    os.environ["LAPLACEBALL_IMAGE_DIR"] = str(Path(DOCS) / "sphere")
+    try:
+        namespace = runpy.run_path(str(path))
+        namespace["run"]()
+    finally:
+        if previous is None:
+            os.environ.pop("LAPLACEBALL_IMAGE_DIR", None)
+        else:
+            os.environ["LAPLACEBALL_IMAGE_DIR"] = previous
 
 
 def gravity():

@@ -427,6 +427,7 @@ def main():
             ("approx", "Noisy"),
             ("roots", "RandomPolys"),
             ("complex", "ZetaZeros"),
+            ("sphere", "LaplaceBall"),
             ("stats", "BivariateNormalDistribution"),
         }:
             print(f"{key}: skipped source-managed page; preserve pinned native "

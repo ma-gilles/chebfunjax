@@ -1,0 +1,192 @@
+{
+  "status": "completed_full_public_source_with_qualified_source_overlay_and_renderer_only_replay",
+  "source_head": "f6b964518be5bab13d504d011da528bb1f29b4fd",
+  "qualified_dirty_random_sha256": "7f255fb42777e95f1d2b7cac6d08de2e920b138fdd2a6f4f589875f7aa280924",
+  "source_snapshot_binding": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/full_cpu_v1/SOURCE_SNAPSHOT.json",
+    "sha256": "79f8af601fca5ab735afb2a7c8b8daab6b779e5d38133a707bf6412afc6a5580"
+  },
+  "full_audit_binding": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/full_cpu_v1/FULL_SOURCE_AUDIT.json",
+    "sha256": "e4985d25f153414d1f2f1635df142753d3a90c670c2d79d877890fe1378a629c"
+  },
+  "full_receipt": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/full_cpu_v1/supervision/receipt.json",
+    "sha256": "c51940d0d06aea7185a7d44e5c9139e272cddb6aac3a5d14ee3b19bec7a7e413"
+  },
+  "renderer_receipt": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/supervision/receipt.json",
+    "sha256": "78a7d57d4b5b59433976cb6e7459d67952779ef51131aa7f13bce9b6bdd41616"
+  },
+  "renderer_source": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/laplaceball.py",
+    "sha256": "1eec3afefa0600bf398924f9d12b9119d7baeb96cf37f1c9d7503f99c511696f"
+  },
+  "cached_native_html": {
+    "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/sphere_LaplaceBall.html",
+    "sha256": "bd153eab45ee2514b8386083b22dc5e14df7e255fb4a5e8f557488a3d6c83a9e"
+  },
+  "printed_comparison": [
+    {
+      "index": 0,
+      "actual_printed": -0.761180229121337,
+      "cached_native_printed": -0.761180229121337,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 1,
+      "actual_printed": -0.761180229121337,
+      "cached_native_printed": -0.761180229121337,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 2,
+      "actual_printed": -0.020281680162226,
+      "cached_native_printed": -0.020281680162226,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 3,
+      "actual_printed": -0.761180229121337,
+      "cached_native_printed": -0.761180229121337,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 4,
+      "actual_printed": -0.761180229121336,
+      "cached_native_printed": -0.761180229121336,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 5,
+      "actual_printed": -1.847977702024466,
+      "cached_native_printed": -1.847977702024471,
+      "absolute_difference": 4.884981308350689e-15
+    },
+    {
+      "index": 6,
+      "actual_printed": -1.847977702024466,
+      "cached_native_printed": -1.847977702024464,
+      "absolute_difference": 1.9984014443252818e-15
+    },
+    {
+      "index": 7,
+      "actual_printed": -0.020281680162226,
+      "cached_native_printed": -0.020281680162226,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 8,
+      "actual_printed": -0.020281680162227,
+      "cached_native_printed": -0.020281680162149,
+      "absolute_difference": 7.800010637382115e-14
+    },
+    {
+      "index": 9,
+      "actual_printed": -0.020281680162226,
+      "cached_native_printed": -0.020281680162226,
+      "absolute_difference": 0.0
+    },
+    {
+      "index": 10,
+      "actual_printed": -0.020281680162227,
+      "cached_native_printed": -0.020281680162215,
+      "absolute_difference": 1.1997347559855598e-14
+    }
+  ],
+  "images": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/images/LaplaceBall_02.png": {
+      "sha256": "83cbb27daebdebc1064bdcde5e9a77721c40fd163e05a9f81b0f1dd12e654e5a",
+      "size": [
+        600,
+        253
+      ]
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/images/LaplaceBall_01.png": {
+      "sha256": "93be0a1edbce9a51025ac831e6a8cf31224e09a49b5c9e071549b64f95dad275",
+      "size": [
+        600,
+        253
+      ]
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/images/LaplaceBall_03.png": {
+      "sha256": "6a65786f6c19a41356b2584e18850da23bc521b19833b24e569163118280e371",
+      "size": [
+        600,
+        253
+      ]
+    }
+  },
+  "remaining_gaps": [
+    "Boundary representation length65\u00d765 versus native65\u00d763.",
+    "Captured-input agreement does not implement general MATLAB random streams.",
+    "Scalar printed differences do not establish full solution/error-norm parity.",
+    "Source Cartesian Spherefun overload remains absent; page uses equivalent angular point.",
+    "Renderer lighting, framing, and pixel parity remain open.",
+    "Actual startup plugin/tight_layout warnings retained in evidence."
+  ],
+  "renderer_audit": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplaceball_current_source_prepare_20261010/render_v6/RENDER_AUDIT.json",
+    "sha256": "a7f49c62b513f365f9c66acfd2b72992731d998e960c827b03f483439a673db3"
+  },
+  "reference_figure_bindings": {
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/sphere/LaplaceBall_02.png": "1cc8179f76b3b8e3ebc5f12ed4780129d3aa73f251062357407fe7404285fec2",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/sphere/LaplaceBall_01.png": "c86a2c4e9ab20583e0f001c7669d9cc157d9376528763e0285dc4d32f3ea542e",
+    "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/sphere/LaplaceBall_03.png": "b773b1563e72a6065c31f0b867f9ab9f23796971bab1ec2d596bc5bb4529f73d"
+  },
+  "framing_measurements": {
+    "reference": {
+      "bbox": [
+        200,
+        56,
+        333,
+        188
+      ],
+      "center": [
+        266.5,
+        122.0
+      ],
+      "pixel_extent": [
+        134,
+        133
+      ]
+    },
+    "current": {
+      "bbox": [
+        201,
+        57,
+        333,
+        189
+      ],
+      "center": [
+        267.0,
+        123.0
+      ],
+      "pixel_extent": [
+        133,
+        133
+      ]
+    }
+  },
+  "publication_applicability": {
+    "publication_head": "288e3ddfe6253d43ea5e7fd8fbedf90e98bd2e13",
+    "packet_sha256": "a175c81e9facaf9567f768f81ce910e45a28c3a6c63dab5b7453976fa4d24aa3",
+    "verified_bindings": 7,
+    "verified_files": {
+      "docs/laplaceball_full_cpu_20261010.json": "29d8e3dec0d40cd77f899b6f4a092e6a877df3c9b6837f65e2e58dcace99506e",
+      "docs/images/sphere/LaplaceBall_02.png": "83cbb27daebdebc1064bdcde5e9a77721c40fd163e05a9f81b0f1dd12e654e5a",
+      "docs/images/sphere/LaplaceBall_01.png": "93be0a1edbce9a51025ac831e6a8cf31224e09a49b5c9e071549b64f95dad275",
+      "docs/images/sphere/LaplaceBall_03.png": "6a65786f6c19a41356b2584e18850da23bc521b19833b24e569163118280e371",
+      "docs/examples/sphere/LaplaceBall.md": "c4289da8f8c14a008fb3a8270e57f7e6b51d1a5cd3f297020864f54ae172c2bd",
+      "examples/sphere/laplaceball.py": "92a4a066a0e91fe682b5fcd7d94381a426adaeb27a91ec0c9a8c03368002aca0",
+      "examples/sphere/laplaceball_inputs_r2025b.json": "31b6cb48cded7130a4fa683dea8c3daf50bb90438583c8f683bab436ccb2f4a5",
+      "examples/sphere/laplaceball_inputs_r2025b.npz": "eba1d7ef321fc672e9b1b591adf26ddbb6345d13586a9594aace672ba9da4b54",
+      "scripts/generate_examples_sphere_t1.py": "956ac46d381a9d23a29e07ac1d68be4bb1f2a8d9da0f3090da8257fb6ddf7ebc",
+      "scripts/gen_example_pages.py": "abd741dad89003cc6355604e8e6d095d5e4b235312f69abaca2585c5d81310ba"
+    },
+    "library_difference_since_execution": [
+      "src/chebfunjax/utils/minimax.py"
+    ],
+    "applicability": "Evidence qualifies the frozen f6b96451 source with random.py overlay. Current minimax changes are separate; no claim of a new execution at publication head. LaplaceBall does not call minimax. Full pixel and solution parity remain open."
+  }
+}

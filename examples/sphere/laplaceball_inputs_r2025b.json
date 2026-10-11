@@ -1,0 +1,51 @@
+{
+  "fixture_kind": "captured native random inputs only; no coefficients or outputs substituted",
+  "fixture_sha256": "eba1d7ef321fc672e9b1b591adf26ddbb6345d13586a9594aace672ba9da4b54",
+  "limitations": [
+    "The frozen input vector reproduces this captured MATLAB sample only. It does not implement or claim general MATLAB RNG parity.",
+    "Python randnfunsphere remains the producer: the fixture injects its normal draws at np.random.randn and does not substitute coefficients or outputs."
+  ],
+  "native_observations": {
+    "cartesian_xaxis": -0.7611802291213392,
+    "coeffs2_all_finite": true,
+    "coeffs2_size": [
+      63,
+      65
+    ],
+    "domain": [
+      -3.141592653589793,
+      3.141592653589793,
+      0,
+      3.141592653589793
+    ],
+    "length_mn": [
+      65,
+      63
+    ],
+    "mean2": -0.02028168016222637,
+    "oxford_spherical": -1.847977702024473,
+    "rank": 62,
+    "spherical_xaxis": -0.7611802291213392
+  },
+  "provenance": {
+    "matlab_source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "native_audit_sha256": "6764f7eb92e724d623ceaf9f21553d0b5e246987dd83ec7ab23cd0ff59f60390",
+    "native_capture_mat_sha256": "f6ddb2cfc55b0e35fd42ee8ae1c93addbe88258ee1e771d7d9572955b37cce52",
+    "native_capture_summary_sha256": "4944c7e7380eafa2673d494cff14bc47579ae016e123c75db49dabbbaaa99ee8",
+    "native_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lbb3",
+    "native_receipt_sha256": "5e26fe44dbeb3aee3c37dd0949a72ca3302024a2aeb5ac90b63aff3e4dfcbf81",
+    "randnfunsphere_m_sha256": "fa5a3e723c0a02a26bc929ae7df84599afa4868e9afd7e98c27d961f1ad6f0d1",
+    "release": "2025b"
+  },
+  "sampling": {
+    "degree": 31,
+    "lambda": 0.2,
+    "matlab_call": "rng(1); randnfunsphere(0.2)",
+    "normal_draw_count": 1024,
+    "normal_draws_sha256_little_endian_float64": "8e2281527c4c04edd5164ce1db0216fb81566e44004e4eca79154daab4f0f258",
+    "post_draw_rng_state_matches_function": true,
+    "reset_vectors_equal": true
+  },
+  "schema": "laplaceball.input_fixture.r2025b.v1"
+}
