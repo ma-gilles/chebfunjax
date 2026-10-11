@@ -75,3 +75,27 @@ def test_warning_led_repeated_label_keeps_all_values(generator):
     chunks = generator.align_outputs(reference, actual)
     assert chunks == [actual[:2], actual[2:5], actual[5:]]
     assert sum(chunks, []) == actual
+
+
+def test_different_computed_scalars_keep_separate_source_cells(generator):
+    reference = [['Integral of pdf 1.000000000000000'],
+                 ['Error of marginal = 1.8e-15'],
+                 ['Error in conditional pdf is 1.7e-15'],
+                 ['final J[y]: 2.3']]
+    actual = ['Integral of pdf 0.9999999999999983',
+              'Error of marginal = 1.671e-15',
+              'Error in conditional pdf is 1.38119e-15',
+              'final J[y]: -2.1e+02']
+    assert generator.align_outputs(reference, actual) == [[line] for line in actual]
+
+
+@pytest.mark.parametrize('line', ['1.7e-15', '1 2 3', 'Columns 1 through 5',
+                                  'Column 2', 'x2', 'Warning: iteration failed'])
+def test_numeric_values_and_matrix_headers_are_not_scalar_labels(generator, line):
+    assert generator._key(line) == line
+
+
+def test_repeated_scalar_labels_remain_in_order(generator):
+    actual = ['Residual is 1e-6', 'Residual is 2e-8', 'Residual is 3e-10']
+    reference = [['Residual is 4e-6'], ['Residual is 5e-8'], ['Residual is 6e-10']]
+    assert generator.align_outputs(reference, actual) == [[line] for line in actual]

@@ -243,12 +243,23 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
 
 def _key(line: str) -> str:
     """Alignment key of an output line: timings match any timing, and
-    ``name = value`` lines match on ``name =``."""
+    ``name = value`` lines match on ``name =``. Text labels followed by a
+    scalar match independently of the computed scalar's value."""
     s = line.strip()
     if s.startswith("Elapsed time is"):
         return "Elapsed time is"
     if "=" in s and not s.startswith("="):
         return s.split("=", 1)[0].rstrip() + " ="
+    # Printed diagnostics can have no equals sign (BivariateNormalDistribution
+    # and Catenary). Keep their actual values in the output, but anchor by the
+    # label so roundoff differences cannot merge adjacent output cells.
+    # MATLAB matrix column headings identify different panels, not values.
+    if not re.match(r"Columns?\s+\d", s):
+        labelled = re.fullmatch(
+            r"([A-Za-z].*?\s)[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eEdD][+-]?\d+)?", s
+        )
+        if labelled:
+            return labelled.group(1).rstrip() + " <scalar>"
     return s
 
 
