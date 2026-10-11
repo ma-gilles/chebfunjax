@@ -1,0 +1,18 @@
+{
+  "provenance": "MATLAB direct builtin values; no candidate outputs used as oracle",
+  "providers": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "besselh": "built-in (/usr/licensed/matlab-R2025b/toolbox/matlab/specfun/besselh)",
+    "chebfun_besselh": []
+  },
+  "chebfun_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/capture_native.m",
+  "native_capture_sha256": "9306242fce4bedb8b011182e880f2797c89fd9865f797775ceaa62855b4773da",
+  "native_mat_sha256": "5e455c7c9e582c021a406e9d059a97fba5ee887676c78787dca10836aca9d042",
+  "native_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/native_run/receipt.json",
+  "fixture_sha256": "9ebc2837455df00ab720bc7e8859ecf0b516ca1c667380a7d7b0e12c94d2c21b",
+  "source_order": 1.663,
+  "source_z_ordering": "exp(xr), exp(-xr), 1/(1+25*(xr-.1)^2), exp(4*pi*i*xr[xr<=0]), exp(xr[xr>0])",
+  "source_rng": "MATLAB rng(6178,twister); xr=2*rand(100,1)-1",
+  "qualification_gate": "2e-12 relative supplemental kernel control; original native Chebfun predicates remain separate and unchanged"
+}

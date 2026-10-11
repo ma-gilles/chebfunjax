@@ -197,9 +197,9 @@ def besselj(nu, f, scale=0):
     return f.besselj(nu, scale)
 
 
-def besselh(f: Chebfun, nu: float, k: int = 1, *, scale: int = 0):
-    """Hankel function of f.  Returns ``(H_re, H_im)`` pair of Chebfuns.  Equivalent to ``f.besselh(nu, k, scale=scale)``."""
-    return f.besselh(nu, k, scale=scale)
+def besselh(f: Chebfun, nu: float, k: int = 1, *, scale: int = 0, pref=None):
+    """Hankel function of f.  Returns ``(H_re, H_im)`` pair of Chebfuns.  Equivalent to ``f.besselh(nu, k, scale=scale, pref=pref)``."""
+    return f.besselh(nu, k, scale=scale, pref=pref)
 
 
 def besselk(f: Chebfun, nu: float, *, scale: int = 0) -> Chebfun:

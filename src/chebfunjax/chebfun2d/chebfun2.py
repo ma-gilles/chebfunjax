@@ -458,13 +458,7 @@ class Chebfun2(eqx.Module):
                 lambda s, t: self._eval_xy(x._eval_xy(s, t), y._eval_xy(s, t)),
                 domain=x.approx.domain)
         if y is None and type(x).__name__ == "Chebfun2v":
-            F1, F2 = x.components[0], x.components[1]
-            _dom2 = getattr(F1, "domain", None)
-            if _dom2 is None:
-                _dom2 = F1.approx.domain
-            return Chebfun2.from_function(
-                lambda s, t: self._eval_xy(F1(s, t), F2(s, t)),
-                domain=tuple(float(v) for v in _dom2))
+            return x.compose(self)
         _c3 = type(x).__name__
         if _c3 in ("Chebfun3", "Chebfun3v") or (
                 y is not None and type(y).__name__ == "Chebfun3"):

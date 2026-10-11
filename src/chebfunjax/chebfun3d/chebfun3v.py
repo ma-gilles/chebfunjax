@@ -231,6 +231,9 @@ class Chebfun3v(eqx.Module):
         from chebfunjax.chebfun1d.linalg import Quasimatrix
         if y is None and z is None and isinstance(x, (Chebfun, Quasimatrix)):
             return x.compose(self)
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        if y is None and z is None and isinstance(x, Chebfun2v):
+            return x.compose(self)
         return self.feval(x, y, z)
 
     # ------------------------------------------------------------------

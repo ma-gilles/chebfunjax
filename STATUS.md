@@ -1,11 +1,21 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `40a1873a` is published; this checkpoint adds the qualified
-Deltafun cumulative-integration corrections below. Full parity
+Main through `da09a9c8` is published; this checkpoint adds qualified
+Besselh and vector-field composition corrections. Full parity
 remains incomplete. Historical checkpoints below retain their original scope.
 Pushes work. This effort qualifies CPU execution only.
 
 Recent verified changes:
+
+- Besselh now uses a JAX-only complex Hankel kernel and honors native scaling,
+  output preferences and zero-error identifiers. All12 native predicates,
+  9 compatibility controls and29 kernel controls pass. Integer, near-integer,
+  half-integer and complex inputs have retained native oracles; arbitrary
+  extreme orders/arguments remain outside the numerical qualification.
+- All10 native Chebfun2v composition predicates pass, restoring 3D vector
+  operands, periodic outputs and direct call dispatch. Seven additional
+  compatibility/domain/complex-value controls pass. One-component constructor
+  and composition behavior remain under source audit.
 
 - Deltafun integration correctly shares residual derivative impulses between
   adjacent pieces and preserves complex integration constants. Nine focused
@@ -30,8 +40,8 @@ Recent verified changes:
 
 Verification still required:
 
-- Full native API and assertion coverage, including the remaining Bessel
-  predicates and wider distribution/threshold-edge behavior.
+- Full native API and assertion coverage, including mixed vector-field
+  constructor clauses and wider distribution/threshold-edge behavior.
 - Remaining page computations, printed output, random inputs and figure details.
   The frozen `64cf5c3b` inventory finds all **322 pages**, **2,408 MATLAB blocks**,
   original prose/math and **1,305 reference-sized assets**. These static checks

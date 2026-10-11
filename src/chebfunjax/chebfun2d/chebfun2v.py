@@ -356,8 +356,8 @@ class Chebfun2v(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    def __call__(self, x: jax.Array, y: jax.Array) -> jax.Array:
-        """Evaluate the vector field at point(s) (x, y).
+    def __call__(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
+        """Evaluate at points (x, y), or compose with a Chebfun2v argument.
 
         Parameters
         ----------
@@ -380,6 +380,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/feval.m
         Chebfun commit: 7574c77
         """
+        if y is None and isinstance(x, Chebfun2v):
+            return x.compose(self)
         if self.isempty():
             return jnp.zeros((0,))
         vals = jnp.stack([c(x, y) for c in self.components], axis=-1)
@@ -1021,40 +1023,42 @@ class Chebfun2v(eqx.Module):
         return tuple(box)
 
     def compose(self, g):
-        """Composition ``g(F)`` for scalar or vector ``g`` (MATLAB compose).
-
-        For a Chebfun2 ``g`` returns the Chebfun2 ``g(F1, F2)``; for a
-        Chebfun2v ``G`` returns the componentwise composition (a
-        Chebfun2v).  ``F`` must have 2 components whose range lies in
-        ``g``'s domain.
+        """Compose a two- or three-component field with a scalar/vector field.
 
         Provenance
         ----------
-        MATLAB source : @chebfun2v/compose.m
-        Chebfun commit: 7574c77
+        MATLAB source: @chebfun2v/compose.m; Chebfun commit 7574c77.
+        The inner field determines the output domain and periodic technology.
         """
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun3d._subsref import _check_image, compose_chebfun2v_three
         from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-        if len(self.components) == 3 and isinstance(g, Chebfun3):
-            from chebfunjax.chebfun3d._subsref import compose_chebfun2v_three
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+        from chebfunjax.chebpref import ChebfunPref
+
+        count = len(self.components)
+        if count not in (2, 3):
+            raise ValueError("compose: F must have two or three components.")
+        components = [Chebfun2(approx=c) for c in self.components]
+        if not all(c.isreal() for c in components):
+            raise ValueError("CHEBFUN:CHEBFUN2V:COMPOSE:Complex: "
+                             "The first CHEBFUN2V object must be real-valued.")
+        scalar_type, vector_type = (Chebfun2, Chebfun2v) if count == 2 else (Chebfun3, Chebfun3v)
+        if isinstance(g, vector_type):
+            outers = ([Chebfun2(approx=c) for c in g.components]
+                      if count == 2 else g.components)
+            return Chebfun2v([self.compose(c).approx for c in outers])
+        if not isinstance(g, scalar_type):
+            raise ValueError(f"CHEBFUN:CHEBFUN2V:COMPOSE:OP{count}: OP not recognized.")
+        if count == 3:
             return compose_chebfun2v_three(self, g)
-        if len(self.components) != 2:
-            raise ValueError(
-                "compose: F must have exactly 2 components.")
-        F1 = Chebfun2(approx=self.components[0])
-        F2 = Chebfun2(approx=self.components[1])
-        dom = self.domain
-        if isinstance(g, Chebfun2v):
-            comps = [
-                Chebfun2.from_function(
-                    lambda x, y, _gc=Chebfun2(approx=gc): _gc(
-                        F1(x, y), F2(x, y)),
-                    domain=dom).approx
-                for gc in g.components
-            ]
-            return Chebfun2v(components=comps)
+        tolerance = (100 * ChebfunPref().cheb2Prefs.chebfun2eps
+                     * max(*(c.vscale() for c in components), g.vscale())
+                     * max(abs(v) for v in self.domain))
+        _check_image(components, g, tolerance, "CHEBFUN:CHEBFUN2V:COMPOSE:DomainMismatch2")
         return Chebfun2.from_function(
-            lambda x, y: g(F1(x, y), F2(x, y)), domain=dom)
+            lambda x, y: g(*(c(x, y) for c in components)),
+            domain=self.domain, trig=self.is_periodic_tech())
 
     def laplacian(self) -> "Chebfun2v":
         """Componentwise vector Laplacian.

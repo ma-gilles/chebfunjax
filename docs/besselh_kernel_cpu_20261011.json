@@ -1,0 +1,143 @@
+{
+  "task": "JAX principal-branch Hankel kernel for Chebfun source adapter",
+  "baseline": {
+    "baseline_commit": "40a1873af1f80defa1c06cc71955e0eb3758fa9e",
+    "tracked_source_files": 292,
+    "mismatches": []
+  },
+  "scope": "CPU binary64 numerical qualification, static finite real order; production numerical path is JAX only",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "algorithm": [
+    "Rotate upper-half-plane H1 to K at w=-i*z with Re(w)>=0; use conjugation for recessive H2.",
+    "Reduce K order to mu in [-0.5,0.5], evaluate Temme small-argument series or Thompson/Barnett CF2, then stable upward K recurrence.",
+    "Stable log-Gamma even/odd series avoids integer and near-integer order cancellation.",
+    "Use existing JAX Bessel J only to recover the growing Hankel counterpart; real-axis counterpart uses conjugation.",
+    "Apply principal-branch continuation for the left half-plane and order reflection; analytic JVP uses neighboring orders."
+  ],
+  "loop_bounds": {
+    "temme": "80 terms (initial term plus k=1..79), restricted to |w|<=2.5. Coefficient recurrence contains (w*w/4)/k and the special-function recurrence supplies another inverse-k decay; this avoids using the power series where cancellation is large. These are computational truncation bounds, not relaxed predicate tolerances.",
+    "cf2": "400 total steps (initial k=1 and k=2..400). Freeze all carried values once |Q*delta| < binary64_epsilon*|S|. Evaluated only for |w|>2.5 in the right half-plane, including its imaginary boundary. The fixed cap bounds work; no universal convergence guarantee beyond sampled controls is claimed.",
+    "gamma": "60 log-Gamma series terms for |mu|<=1/2; evaluate even and divided odd sums directly, avoiding subtraction of nearly equal gamma values."
+  },
+  "qualification": {
+    "native_orders": [
+      1.663,
+      0,
+      1,
+      -1,
+      2,
+      10,
+      0.99999999,
+      1.00000001,
+      0.999999999999,
+      1.000000000001,
+      0.5
+    ],
+    "native_values_both_kinds": 1218,
+    "source_inputs": 400,
+    "native_max_relative": 5.244187998473684e-14,
+    "independent_scipy_complex_grid_values": 7260,
+    "grid_radius_range": [
+      0.01,
+      64
+    ],
+    "grid_max_relative": 1.548673924859613e-13,
+    "independent_derivative_values": 16,
+    "derivative_max_relative": 2.219579225052703e-15,
+    "supplemental_relative_only_gate": 2e-12,
+    "permanent_controls": "29 passed in 28.00 s; no numerical warning, one preexisting pytest assertion-rewrite warning",
+    "source_predicates": "Separate routine-agent adapter qualification: all12 original predicates plus9 compatibility controls passed; see its delivery. No original predicate bound/default/norm changed."
+  },
+  "half_integer": "nu=0.5 included in native both-kind controls and full complex grid. Its reduced mu=-0.5 makes initial CF a=0; the k=2 update makes a=-2 before the recurrence divides by a. Controls passed.",
+  "limitations": [
+    "Not a uniform asymptotic implementation at arbitrary order/argument. Qualification covers the recorded finite nonzero inputs, not extreme/subnormal/overflow regimes.",
+    "Direct zero and nonfinite arguments are not qualified for native exceptional-value identity. Arithmetic may produce NaNs/infinities. Public adapter retains native roots(nojump,nozerofun) checking; original ordinary rooted-input error predicate passes.",
+    "Growing sectors inherit the bounded accuracy/overflow behavior of the existing JAX Bessel J evaluator.",
+    "No performance speedup or non-CPU qualification claim.",
+    "Native direct builtin provider/version was captured; Chebfun source driver/test files were guarded. which(chebfun.besselh) returned empty because this direct builtin capture did not dispatch the Chebfun method."
+  ],
+  "rejected": [
+    "Naive J_nu/J_-nu connection formula is accurate on source inputs but catastrophically loses near-integer and recessive large-complex values; CONNECTION.json retained.",
+    "First fixture extraction completed binary output but failed JSON serialization of an empty native-provider array; v2 serialized metadata arrays explicitly. No numerical change."
+  ],
+  "evidence": {
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/native_controls.mat",
+    "native_driver": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/capture_native.m",
+    "qualified_driver": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/qualify_v2.py",
+    "qualification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/QUALIFICATION_V2.json",
+    "formatting_AST": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/AST_V3.json",
+    "pytest_junit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/kernel_junit.xml"
+  },
+  "receipts": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/native_run/receipt.json",
+      "sha256": "3c3996f3d77ac66c09d39302ce2952aeefec0b60aa73bf9527cc11d66156bc58",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 57.69714362407103,
+      "sampled_peak_summed_rss_kib": 1398284,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/connection_run/receipt.json",
+      "sha256": "4a331fa9275ed3dafba14bbda8c3b871793fb46632e9e2acdb392bf200195d64",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.154885686933994,
+      "sampled_peak_summed_rss_kib": 568548,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/prototype_run/receipt.json",
+      "sha256": "cac504a05cf06576823791f24cb71870244c5b1ab972e43832b1d2d9c11ebeab",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 24.2455495307222,
+      "sampled_peak_summed_rss_kib": 818784,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/qualification_run_v2/receipt.json",
+      "sha256": "8150d5a86b3579ae18d43ca3aa62a3d67cdb899ee34f980c0a22f06704639b35",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 61.82094734208658,
+      "sampled_peak_summed_rss_kib": 745000,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/fixture_run/receipt.json",
+      "sha256": "e83487c3a109a84a487f1891b99a8ad43279c9b2a38d206d817184c0801ab870",
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 0.9280693926848471,
+      "sampled_peak_summed_rss_kib": 36652,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/fixture_run_v2/receipt.json",
+      "sha256": "789ef0896b089b85d76925a0bef62fce5da882481729c6db4b5bb7c9ed504109",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 0.9302888526581228,
+      "sampled_peak_summed_rss_kib": 35716,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/tests_run/receipt.json",
+      "sha256": "b11cf05d8e87aefb868c18aff324094a73abe8504cb192aefccef627231fbd12",
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 32.08818776905537,
+      "sampled_peak_summed_rss_kib": 899700,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  ]
+}

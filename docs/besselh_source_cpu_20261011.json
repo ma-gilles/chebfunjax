@@ -1,0 +1,115 @@
+{
+  "base": "40a1873a",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_clauses": {
+    "1": "scalar default Hankel1,100eps*vscale",
+    "2": "default vs explicitkind1,normest10eps*maxscale",
+    "3": "default vs explicitkind1/scale0,same normest",
+    "4": "scalar kind2,100eps*vscale",
+    "5": "scalar kind1 scale1,100eps*vscale",
+    "6": "array default,flattenedinf1000eps*vscale",
+    "7": "array default vs kind1,normest10eps*maxscale",
+    "8": "array default vs explicitscale0,same normest",
+    "9": "array kind2,flattenedinf100eps*vscale",
+    "10": "array scaledkind1,flattenedinf10eps*vscale",
+    "11": "complexpiecewise/splittingpref,100eps*vscale",
+    "12": "rootserror nativeidentifier"
+  },
+  "original_source_predicates": 12,
+  "source_predicates_passed": 12,
+  "supplemental_controls_passed": 9,
+  "cohorts": [
+    {
+      "name": "candidate_scalar",
+      "handle": 65958,
+      "source_clauses": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "passed": 5,
+      "seconds": 22.2,
+      "peak_rss_KiB": 1355812
+    },
+    {
+      "name": "candidate_array",
+      "handle": 64982,
+      "source_clauses": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "passed": 5,
+      "seconds": 31.52,
+      "peak_rss_KiB": 1740380
+    },
+    {
+      "name": "candidate_complex",
+      "handle": 11962,
+      "source_clauses": [
+        11,
+        12
+      ],
+      "passed": 11,
+      "seconds": 45.18,
+      "peak_rss_KiB": 2054784,
+      "supplements": "existing coretuple7, oldmapped1, publicpref forwarding1"
+    }
+  ],
+  "all_original_handles_terminal": true,
+  "all_caps": null,
+  "all_inputs_stable": true,
+  "survivors": [],
+  "baseline_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_source_20261011/REPORT.json",
+  "confirmed_faults_corrected": [
+    "scale previously ignored",
+    "complex input previously narrowed to float",
+    "native zero error identifier absent",
+    "explicit outputpref unsupported"
+  ],
+  "source_adapter": "Public tuple of real/imag Chebfuns remains; observation reassembles complex value. Native default/explicitkind/scale calls distinguished. Composition uses exact default or explicitpref; scaling follows unscaled compose. Roots use source nojump/nozerofun.",
+  "oracle": "Portable direct MATLAB builtin values at original seeded source points. Native full Chebfun12 test was not rerun. xr is bit-equal to qualified RandomState6178 first100.",
+  "kernel": "Astra candidate_v3 JAX Hankel utility, source and Boost license included. Independent numerical kernel report QUALIFICATION_V2.json; permanent kernelcontrols delivered separately by Astra.",
+  "limitations": [
+    "Kernel qualification is bounded, not uniform arbitrary-order/argument accuracy. Fixed series/continued-fraction iteration caps and halfinteger branch limits remain documented by kernel owner.",
+    "No heavy example run or new native graphics qualification.",
+    "Timing is cohort runtime, not matched performance measurement."
+  ],
+  "source_scope": {
+    "src/chebfunjax/chebfun1d/chebfun.py": {
+      "changed": [
+        "Chebfun.besselh"
+      ],
+      "same": 338
+    },
+    "src/chebfunjax/__init__.py": {
+      "changed": [
+        "besselh"
+      ],
+      "same": 27
+    }
+  },
+  "formatting": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "full AST identical after scoped formatting",
+    "src/chebfunjax/__init__.py": "full AST identical after scoped formatting",
+    "tests/test_besselh_source.py": "nonimport AST/import sets identical"
+  },
+  "runtime_origins": "82 loaded modules matched actual guard in each cohort",
+  "ci_snapshot": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_source_20261011/CI_LATEST.json",
+  "ci_summary": "Latest observed main da09a9c8 CI pending, no jobs yet; documentation success. No completed failures in inspected runs.",
+  "integration": [
+    "Apply besselh_source.patch (includes only two existing methods/wrapper changes plus new utility/license/test/provenance).",
+    "Copy candidate/tests/fixtures/besselh_source_native_20261011.npz to same repository-relative path.",
+    "Copy docs/besselh_source_cpu_20261011.json.",
+    "Merge Astra permanent kernel controls separately; no source12 replay required if utility bytes unchanged."
+  ],
+  "root_review": {
+    "artifact": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_integration_root_review_20261011.json",
+    "historical_generator_exception": "Initial harness-only failure guarded earlier setup-generator version. Exact earlier bytes recovered and match originalSHA256; only pytest-x differed. All frozen scientific inputs match.",
+    "generator_history": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_source_20261011/generator_history/REPORT.json"
+  }
+}

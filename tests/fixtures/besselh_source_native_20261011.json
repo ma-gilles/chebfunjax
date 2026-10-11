@@ -1,0 +1,11 @@
+{
+  "native_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/native_controls.mat",
+  "native_mat_sha256": "5e455c7c9e582c021a406e9d059a97fba5ee887676c78787dca10836aca9d042",
+  "probe": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselh_kernel_20261011/capture_native.m",
+  "probe_sha256": "9306242fce4bedb8b011182e880f2797c89fd9865f797775ceaa62855b4773da",
+  "fixture_sha256": "667257d2eb417280de90e52f0a9ddb410a910be279c9683eb425d0bd7a32c973",
+  "scope": "Direct native builtin Hankel values at literal test_besselh input points; not native full Chebfun test execution.",
+  "nu": 1.663,
+  "xr_numpy_RandomState6178_bit_equal": true,
+  "complex_reordering": "Restore original xr order from source mask<=0 followed by mask>0."
+}

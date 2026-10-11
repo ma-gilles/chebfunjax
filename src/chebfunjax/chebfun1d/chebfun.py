@@ -7786,83 +7786,35 @@ class Chebfun(eqx.Module):
                 result = (-(2/3)*(self**1.5).real().abs()).exp()*result
         return result
 
-    def besselh(self, nu: float, k: int = 1, *, scale: int = 0) -> "tuple[Chebfun, Chebfun]":
-        r"""Hankel (Bessel of the third kind) function :math:`H^{(k)}_\nu(f(x))`.
+    def besselh(
+        self, nu: float, k: int = 1, *, scale: int = 0, pref=None
+    ) -> "tuple[Chebfun, Chebfun]":
+        r"""Compose the Hankel function, retaining the public real/imag pair adapter.
 
-        Because jaxchebfun uses real float64 storage, the complex Hankel
-        function is returned as a *pair* ``(H_re, H_im)`` of real Chebfuns
-        representing the real and imaginary parts respectively.  This follows
-        the relationship :math:`H^{(1)}_\nu = J_\nu + i Y_\nu` and
-        :math:`H^{(2)}_\nu = J_\nu - i Y_\nu`.
-
-        Parameters
-        ----------
-        nu : float
-            Order (real).
-        k : int, default 1
-            Which Hankel function: 1 for :math:`H^{(1)}_\nu`, 2 for
-            :math:`H^{(2)}_\nu`.
-        scale : int, default 0
-            Scaling flag (reserved; currently ignored for the real/imag split).
-
-        Returns
-        -------
-        H_re : Chebfun
-            Real part of :math:`H^{(k)}_\nu(f(x))` — equals
-            :math:`J_\nu(f(x))`.
-        H_im : Chebfun
-            Imaginary part of :math:`H^{(k)}_\nu(f(x))` — equals
-            :math:`\pm Y_\nu(f(x))` (``+`` for k=1, ``-`` for k=2).
-
-        Raises
-        ------
-        ValueError
-            If ``k`` is not 1 or 2.
-        ValueError
-            If the Chebfun passes through zero.
-
-        Notes
-        -----
-        Uses ``scipy.special.jv`` / ``scipy.special.yv``.
-        NOT JIT-safe.
+        ``scale=1`` applies exp(-i*f) for kind1 and exp(+i*f) for kind2
+        after the unscaled composition, as in the native source. ``pref``
+        controls that composition. Complex inputs retain both components.
 
         Provenance
         ----------
         MATLAB source : @chebfun/besselh.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        besselj, bessely, besselk
         """
-        # uses-numpy: scipy.special.jv / yv use NumPy arrays
-        import numpy as _np
-        import scipy.special as _ss
+        from chebfunjax.chebpref import ChebfunPref
+        from chebfunjax.utils.besselh import besselh
 
         if k not in (1, 2):
             raise ValueError("besselh: k must be 1 or 2.")
-
-        # Check for zeros in the domain (Hankel undefined at origin)
-        r = self.roots(nojump=True)
+        r = self.roots(nojump=True, nozerofun=True)
         if r.shape[0] > 0:
             raise ValueError(
-                "besselh: the Chebfun passes through zero in its domain; "
-                "Hankel functions are undefined at the origin."
+                "CHEBFUN:CHEBFUN:besselh:zero: the Chebfun passes through zero in its domain."
             )
-
-        # H^(1)_nu = J_nu + i Y_nu,  H^(2)_nu = J_nu - i Y_nu
-        # Real part is always J_nu
-        H_re = self._apply_fun(
-            lambda x: jnp.asarray(_ss.jv(nu, _np.asarray(x)), dtype=jnp.float64)
-        )
-        # Imaginary part: +Y for k=1, -Y for k=2
-        sign = 1.0 if k == 1 else -1.0
-        H_im = self._apply_fun(
-            lambda x: jnp.asarray(sign * _ss.yv(nu, _np.asarray(x)), dtype=jnp.float64)
-        )
-        return H_re, H_im
+        pref = ChebfunPref() if pref is None else pref
+        g = self.compose(lambda x: besselh(nu, x, k=k), pref=pref)
+        if scale == 1:
+            g = (((-1) ** k * 1j * self).exp()) * g
+        return g.real(), g.imag()
 
     def besselk(self, nu: float, *, scale: int = 0) -> "Chebfun":
         r"""Modified Bessel function of the second kind :math:`K_\nu(f(x))`.

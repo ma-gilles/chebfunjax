@@ -1,0 +1,38 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "da09a9c8e9d84f738d5564c6124d519ffb45a4fc",
+  "original_predicates": "All10 tests/chebfun2v/test_compose.m clauses: source continuous norms1\u20136 at1000*chebfun2eps; actualpubliccall andperiodicity7\u201310. Prior mapped2pointprobes retained as supplements.",
+  "baseline": "5passed5failed in71.34s; clauses5/6 unsupported3v operand,7periodictechnology lost,8/10missing public vectorcall dispatch.",
+  "candidate": "10passed91.99s, unchangedsourcebounds/norms/inputs.",
+  "contracts": "7passed:5 source-derived error/periodicnumeric controls plus2retainedlegacychecks.",
+  "scope": [
+    "Chebfun2v.compose for2/3components, recursive scalar/vector outerfields, native2Ddomain andrealvaluevalidation, periodicconstruction.",
+    "Chebfun2/Chebfun2v/Chebfun3v directcall dispatch delegates innerChebfun2v composition.",
+    "Existing three-coordinate scalarhelper retained unchanged."
+  ],
+  "runtime": "JAX/JAXlib0.11.0 CPU/x64; sourceorigins recorded in runtime.json; alloriginalhandles terminal/stable/no survivors.",
+  "limitations": [
+    "One-component constructor/complex-map composition and empty edge behavior still need separate source qualification; not a completecomposeAPIclaim.",
+    "Existing continuousvectornorm emits NumPy divide-by-zero warning from eagerwhere; unchanged and retained in logs.",
+    "No fresh native MATLAB execution for this package; literal pinnedsourcepredicates plus qualified existingnorm APIs."
+  ],
+  "receipts": {
+    "baseline": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_compose_source_20261011/baseline/run/receipt.json",
+      "sha256": "9bdbdc73fa0087fadcdfb5b34d8123ff30d27139cdcac86d80229cc9649ed97f",
+      "peak_rss_kib": 1063188
+    },
+    "candidate": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_compose_source_20261011/candidate/run/receipt.json",
+      "sha256": "d2423f6be408368affb06ff79db2422e29de78e8f892f9e1e87498707261d96d",
+      "peak_rss_kib": 1190644
+    },
+    "contracts": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_compose_source_20261011/contracts/run/receipt.json",
+      "sha256": "6e2338fda4ad01e0b5344bd7337fc4040554e0203cc6c874f6c85dd3be0aa80c",
+      "peak_rss_kib": 977744
+    }
+  },
+  "verified_guard_inputs": 887,
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2v_compose_source_20261011"
+}
