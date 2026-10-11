@@ -1,0 +1,116 @@
+{
+  "status": "source correction integrated after root hash and source review; full parity remains open",
+  "base_commit": "85cbba8c",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changed_source": [
+    "src/chebfunjax/utils/_cf_kernel.py"
+  ],
+  "change": "Only _cheb_eval: replace forward T_k summation with existing native-order paired _clenshaw. No tolerance, iteration, node, root, eigenvalue, coefficient, zero snapping or output repair changes.",
+  "source_evidence": [
+    "@chebfun/cf.m rationalCF constructs qRecip using 1./feval(q,x)",
+    "@chebfun/feval.m -> @bndfun/feval.m -> @chebtech/feval.m -> @chebtech/clenshaw.m",
+    "Forward T_k sum is algebraically equivalent but is not the source evaluation algorithm; ill-conditioned denominator makes this materially change CF initialization."
+  ],
+  "causal_observations": {
+    "native_cf7": "all numerator coefficients NaN; 42 reciprocal samples infinite at 19400 source nodes; exchange flag0 -> polynomial fallback",
+    "baseline_python_cf7": "finite numerator; forward sum has no exact zero samples; exchange flag1 with infinite error; accepts bad CF reference",
+    "candidate_cf7": "all numerator coefficients NaN naturally; polynomial fallback; first h -2.074026912500654e-13 versus native -2.0634277074397858e-13",
+    "degree7_fit": {
+      "baseline_err": 0.0008111782018846124,
+      "baseline_iterations": 14,
+      "baseline_warning": "Failed to converge (tol = 0.0001)",
+      "native_err": 4.620751611015411e-05,
+      "native_iterations": 14,
+      "native_warning": "Failed to converge (tol = 0.0001)",
+      "candidate_err": 4.603659275786553e-05,
+      "candidate_delta": 1.4960530928376515e-12,
+      "candidate_iterations": 11,
+      "candidate_warnings": [],
+      "retained_degree6_err": 0.00010751651656322123
+    }
+  },
+  "qualification": {
+    "unchanged_tests": 18,
+    "native_literal_clauses": 8,
+    "test_ids": [
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause1_exp_polynomial_error",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause2_mapped_exp_polynomial_error",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause3_cosine_degree_adjustment",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause4_abs_continuous_l2",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause5_exp_exp_vector_two_norm",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause6_noncanonical_domain_infinity_norm",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause7_array_output_counts",
+      "tests.test_matlab_port.chebfun.test_cf_literal_matlab::test_clause8_transposed_quasimatrix_output_orientation",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_nonzero_imaginary_warns_then_real_polynomial",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_complex_dtype_real_values_has_no_complex_warning",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_trivial_return_precedes_complex_coefficient_warning",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_empty_denominator_order_matches_source_polynomial[order0]",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_empty_denominator_order_matches_source_polynomial[order1]",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_scalar_handle_extrapolation_and_stored_endpoints",
+      "tests.test_matlab_port.chebfun.test_cf_public_controls::test_piecewise_evaluator_uses_default_breakpoint_value",
+      "tests.test_matlab_port.chebfun.test_cf_public_output_contracts::test_rational_public_normalization_and_handle[canonical]",
+      "tests.test_matlab_port.chebfun.test_cf_public_output_contracts::test_rational_public_normalization_and_handle[mapped]",
+      "tests.test_matlab_port.chebfun.test_cf_public_output_contracts::test_mapped_polynomial_denominator_and_error"
+    ],
+    "original_handles": {
+      "native_fits": 40394,
+      "native_cf_initialization": 95398,
+      "native_cf_stages": 7705,
+      "native_q_samples": 81006,
+      "jax_saved_cf_exchange": 59287,
+      "jax_cf_stages": 53239,
+      "jax_source_map_evaluation": 35256,
+      "candidate_initializer": 57120,
+      "candidate_cf_regressions": 75136,
+      "candidate_fit7": 35168
+    },
+    "cpu": "4-7",
+    "candidate_caps": "240 seconds / 4096 MiB",
+    "candidate_initializer_peak_kib": 1738668,
+    "candidate_regressions_peak_kib": 3197920,
+    "candidate_fit7_peak_kib": 1838008,
+    "static": "Configured Ruff on changed source passed; git apply --check against publication checkout passed."
+  },
+  "limits": [
+    "Exact native warning/iteration/trajectory parity is not established; native warns at14 while candidate converges at11. All observed warnings preserved.",
+    "Same native q coefficients/nodes with literal source inverse map yield42 paired zero samples but locations differ; 15579/19400 evaluated values match bitwise. No zero-location targeting.",
+    "Candidate fallback reference differs from native by max5.049559148456728e-6.",
+    "CF root-product denominator construction and cosine reciprocal-node shortcut remain separate source-order gaps; this patch does not alter them.",
+    "No full MinimaxSqrt page rerun or other retained-slot replacement; original serial36157 remains immutable.",
+    "Failed mmr1 input reconstruction and capped cf_observer_v1/cf_observer_7_v2 preserved.",
+    "Inherited native audit prose corrected by bound scope errata; scientific/runtime checks themselves passed."
+  ],
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/candidate.patch": "3f321c2b8343a8b4eb2f294dd456b184cf2eb93dd1cecc28b3963e3dcfe9231a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/snapshot/src/chebfunjax/utils/_cf_kernel.py": "1879d2a0d1da520f6e136178fd0a6dbe9c0d2287000ca1e3151f15c1ffaf21ae",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/snapshot/tests/test_matlab_port/chebfun/test_cf_literal_matlab.py": "40d98682f0ab4e58c6f19fd1854c45637cb1247c8044e7eedb58eee369b672de",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/snapshot/tests/test_matlab_port/chebfun/test_cf_public_controls.py": "eba57679b33ae77a1c1a92cc1dd51222d193f33679075c6abcf27888129ffa7d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/snapshot/tests/test_matlab_port/chebfun/test_cf_public_output_contracts.py": "7cfa0a17084bb5a6ea8cd0aa4f0b68728c823a9e1f28be6ab36d563b81ae0183",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/original_cf_controls/AUDIT.json": "e01650bc6ae7a1c7a2f53f9f59c211d2968d3d0cacc72d6fcc327fd9276504dc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/initializer7/AUDIT.json": "00d7cf677ac5b6f105c44bd2796aa987bc382642099b340ea4bcf1fdad0b8347",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/initializer7/NATIVE_COMPARISON.json": "afadc1334c13289798adf1ebfe9d6eee24aa81ac3b9abcf5cd114e4e3576fb5a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/fit7/AUDIT.json": "c60f57aa7df44e0ba4790b6104612e71f270fc0bb898b8421ee2fbf872e8ffb8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cf_paired_evaluation_candidate_20261010/fit7/report.json": "60da2d50e912955ffdece85ef45aa37e7e99b26a909e8f19be43035028aae574",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmr2/AUDIT.json": "7925a3e3ecf9ec767c268f0103f4569accb23238e804647b262afae983295eb4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmr2/result.json": "0038ce115a8c3fa8c9b304750875a74015ecfaa16c9459914dfad12eab40cb5e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc1/AUDIT.json": "583918d3a5e291027366da094d8373387fe9d04f3badf7e1d0711f06cb72a736",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc1/result.json": "7c858ad220f2e87d0c799ef43adc27884d8d3f940af2e57254c003f9b9738fa3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc2/AUDIT.json": "ca33a64363298456e6b8c48d386fcfee21a382a2441e8883ede6c46385b06d9d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc2/AUDIT_SCOPE_ERRATUM.json": "6f63ac31d0dcdea1a3723fcbdee29af2f485895ff19f93a5fded8b04b1255609",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc2/OBSERVER_DIFF.patch": "dc32588fa2c4d6f2c344a25bfaec49023095293e558372f75f2053003b0a1780",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc3/AUDIT.json": "304ffe486feeb45c41f285b0cd0df7a7ad341ee1ac89446b495092ae60c90508",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc3/AUDIT_SCOPE_ERRATUM.json": "83a23b96b0b5b4ac922e7c3097394740bb5e54f8813435031a60d47123100bda",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mmc3/result.json": "1f7cf4583080f2e4e90615ff267259e0f095366da4d32814749a0579ca8a2786",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/exchange_saved_cf7_v1/AUDIT.json": "983b191047391415a44fafcc28188e1246da8d7ab434d799b5a67ed0273a92f8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/exchange_saved_cf7_v1/report.json": "756797e223e416750bf243565951aa577a083f2f0ffb09fc7e6b97ccc16205b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/cf_stages_jax_v1/AUDIT.json": "91b0fe778f9d0c52bdd9a10e3c123b9b8989ed3fe9fc8faac732c5803b91f352",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/q_evaluation_v1/AUDIT.json": "c6ee0e1d902a0aeeea0c3001e231bbb3e75222cd44027dc704cdda19048e0793",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/q_evaluation_source_map_v2/AUDIT.json": "72e187f7b56c7d6e5474338a9747ea2657c933d6632c79f3990eef4874d92e2a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_sqrt_retained_probe_20261010/q_evaluation_source_map_v2/report.json": "9a707f962d0b31b22e80f0b635a5fd1cfe72dbe4402fea13c70d2d302e59b437"
+  },
+  "root_guard_rehash_counts": {
+    "original_cf_controls": 358,
+    "initializer7": 353,
+    "fit7": 353
+  }
+}

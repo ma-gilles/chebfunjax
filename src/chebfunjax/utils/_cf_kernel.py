@@ -102,17 +102,17 @@ def chebfun_source_coefficients_jax(f, M: int | None = None):
 
 
 def _cheb_eval(coeffs, x):
-    """Evaluate a Chebyshev series using the source T_k convention."""
-    x = jnp.asarray(x)
-    t0 = jnp.ones_like(x)
-    if coeffs.shape[0] == 1:
-        return coeffs[0] * t0
-    t1 = x
-    result = coeffs[0] * t0 + coeffs[1] * t1
-    for k in range(2, coeffs.shape[0]):
-        t0, t1 = t1, 2 * x * t1 - t0
-        result = result + coeffs[k] * t1
-    return result
+    """Evaluate the reciprocal denominator with native Clenshaw ordering.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/cf.m rationalCF qRecip construction delegates
+    through @chebfun/feval.m to @chebtech/clenshaw.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    from ..tech.chebtech import _clenshaw
+
+    return _clenshaw(jnp.asarray(coeffs), jnp.asarray(x))
 
 
 def _denominator_coeffs_from_roots(roots):
