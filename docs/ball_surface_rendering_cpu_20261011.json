@@ -1,0 +1,124 @@
+{
+  "status": "partial renderer correction; exact figure parity remains open",
+  "changes": [
+    "Five source surfaces share global triangle depth ordering; original vertices retained.",
+    "JAX source Cartesian normals and dull local headlight replace inappropriate heightfield shading.",
+    "Default Ballfun ball style only; existing wedge and explicit customization paths unchanged."
+  ],
+  "analytic_controls": {
+    "status": "eight analytic controls passed; renderer integration not run",
+    "api": {
+      "surface_vertex_normals(x,y,z)": "JAX grid_shape+(3,) unit normals, zero at degeneracies; grids at least3x3",
+      "dull_headlight_rgb(rgb,normals,x,y,z,camera_position,*,backface=lit)": "JAX RGB; backface lit or reverselit; unit normals required"
+    },
+    "source": "MATLAB R2025b graph3d/surfnorm.m quadratic ghost/centered stencils/cross product, material.m dull .3/.8/0, camlight.m local camera position",
+    "documentation": [
+      "https://www.mathworks.com/help/matlab/ref/matlab.graphics.chart.primitive.surface-properties.html",
+      "https://www.mathworks.com/help/matlab/creating_plots/reflectance-characteristics-of-graphics-objects.html"
+    ],
+    "limitations": [
+      "SURFNORM arithmetic is ported; identity to native graphics automatic normal generation is unproven.",
+      "White ambient/light colors and clipping are explicit renderer assumptions.",
+      "Caller provides camera position in matching Cartesian coordinates; native camera/autolayout not qualified.",
+      "Vertex lighting/Gouraud output does not establish historical Phong or z-buffer/pixel parity.",
+      "No PDE solve, function evaluation, native MATLAB execution or whole-renderer qualification performed in this gate."
+    ],
+    "gate": {
+      "original": 52344,
+      "terminal": 0,
+      "inputs_stable": true,
+      "censored": null,
+      "survivors": [],
+      "peak_rss_kib": 673960,
+      "wall_seconds": 11.080452358815819,
+      "input_count": 284,
+      "bad_hashes": [],
+      "bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/analytic_controls/guard.json": "dde55fd91986515748f0d412f74c15944c1f92ab7f0cdf2d9bed4330c651db29",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/analytic_controls/supervision/receipt.json": "df633ee7885c7d4eac6f0e6ba16f03297e194fb75c23709d28e43102846e0707",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/analytic_controls/junit.xml": "4e6f6d0226fe08e28ca01f170cc657b0626875df3119d4e904e2ad5048fa3f4c"
+      },
+      "test_ids": [
+        "tests.test_surface_lighting_source::test_plane_orientation[False]",
+        "tests.test_surface_lighting_source::test_plane_orientation[True]",
+        "tests.test_surface_lighting_source::test_quadratic_boundary_normals",
+        "tests.test_surface_lighting_source::test_degenerate_surface",
+        "tests.test_surface_lighting_source::test_shape_contracts",
+        "tests.test_surface_lighting_source::test_local_headlight_material_and_backface[False]",
+        "tests.test_surface_lighting_source::test_local_headlight_material_and_backface[True]",
+        "tests.test_surface_lighting_source::test_no_specular_and_bounded_output"
+      ],
+      "failures": [],
+      "skips": [],
+      "qualified": true
+    },
+    "ruff": "configured check passes on exact frozen module and test",
+    "apply_check": 0,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/delivery.patch": "1bde624ac139e294901e745638f640c19a6cdd646dea88040a35c8c200ef49b5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/analytic_controls/AUDIT.json": "7c34d163ddcfc1f6b6ae8ab7ff8292d17ae12861d4dcde74b43be9199dbded51",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/snapshot/src/chebfunjax/_surface_lighting.py": "b6da1277f32a5b94fa02faabd9dd8c32d9c684cbda2181b1388a1921fc7d4626",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/snapshot/tests/test_surface_lighting_source.py": "38e1c5f7706870b42aee3497eee05b725394be461c8aadcb472ecc6e0a9ec5df",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/docstring_delivery/src/chebfunjax/_surface_lighting.py": "42105409e644208e6ccf3c19971d25a89f27d80fa2121ebb2dfa31269f078fa0",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/docstring_delivery/tests/test_surface_lighting_source.py": "38e1c5f7706870b42aee3497eee05b725394be461c8aadcb472ecc6e0a9ec5df",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_lighting_source_candidate_20261011/docstring_delivery/delivery.patch": "c97c336c94fd4efc3417201de0f59e424bd6f5f2437a61c20937e15db023fd14"
+    },
+    "docstring_overlay": {
+      "non_docstring_ast_identical": true,
+      "tested_helper_sha256": "b6da1277f32a5b94fa02faabd9dd8c32d9c684cbda2181b1388a1921fc7d4626",
+      "delivered_helper_sha256": "42105409e644208e6ccf3c19971d25a89f27d80fa2121ebb2dfa31269f078fa0",
+      "reason": "Add literal Chebfun commit to each public function provenance; frozen gate remains untouched.",
+      "ruff": "All checks passed!\n",
+      "ruff_context": "Initial sparse overlay misclassified local import; check passes with unchanged full package context and identical source/test bytes."
+    }
+  },
+  "renderer_gates": [
+    {
+      "original": 58871,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ball_surface_group_candidate_20261011/render_cpu_v1/supervision/receipt.json",
+      "receipt_sha256": "75fc479a0e3d985ddd639b9d57008469df64179db5f6bde4e70777d81144ab78",
+      "wall_seconds": 10.860429549124092,
+      "sampled_peak_summed_rss_kib": 704324,
+      "inputs_stable": true,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "original": 82201,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ball_surface_group_candidate_20261011/camera_controls/supervision/receipt.json",
+      "receipt_sha256": "bec961a166ee4735dc09c71b89a0ea4913fbf82c94269346ff14167d7a3b3561",
+      "wall_seconds": 7.000908857211471,
+      "sampled_peak_summed_rss_kib": 568492,
+      "inputs_stable": true,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  ],
+  "independently_rehashed_bindings": 566,
+  "source_head_before": "05eaa68b2aba25b43ef6997fbfc215b3696e700e",
+  "delivered_source_hashes": {
+    "plotting.py": "df0f177510011ea545b24f4e33722416ef6ae7655ee78c8841f551c7014cf954",
+    "_sphere_surface.py": "dd3b47cbe9cb742f152c69cac062eeea1f254044d1689da2ebbbd9a6cf2c86b9",
+    "_surface_lighting.py": "42105409e644208e6ccf3c19971d25a89f27d80fa2121ebb2dfa31269f078fa0"
+  },
+  "image_sha256": "fbfcad55bab9b03798d0e386372510eb76030cdc291144b3bc529e54fbc74442",
+  "image_size": [
+    600,
+    253
+  ],
+  "renderer_result": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ball_surface_group_candidate_20261011/render_cpu_v1/RENDER_RESULT.json",
+    "sha256": "4c0defb4ecaa5df39f2e92c4dd5c550d0ac93d12652b54d6fe66532143cd575c"
+  },
+  "limitations": [
+    "Renderer gate injects retained actual surface arrays at data-provider boundary; no PDE solve or function evaluation repeated.",
+    "Runtime Python provider hashes recorded after rendering, not all prebound by renderer guard.",
+    "Automatic native normal generation, historical Phong shading, native camera/layout, exact colormap and pixel parity remain open.",
+    "Mean-depth painter ordering does not implement a per-pixel depth buffer.",
+    "Other Ballfun example figures have not yet been regenerated."
+  ]
+}

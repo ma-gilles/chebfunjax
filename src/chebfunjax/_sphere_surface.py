@@ -64,3 +64,30 @@ class InterpolatedSphereSurface(Poly3DCollection):
         finally:
             gc.restore()
         self.stale = False
+
+
+class InterpolatedSurfaceGroup(InterpolatedSphereSurface):
+    """Order triangles from intersecting surface grids in one collection.
+
+    Each input is an ``(x, y, z, rgba)`` tuple. Vertex colors and triangulation
+    are preserved independently for each grid; normals are never averaged
+    across intersections. Mean-depth ordering remains a painter algorithm,
+    so intersecting triangles do not have native OpenGL pixel visibility.
+
+    Provenance
+    ----------
+    MATLAB source: @ballfun/plot.m, plotBall surface loop.
+    Chebfun commit: 7574c77.
+    """
+
+    def __init__(self, surfaces, **kwargs):
+        surfaces = tuple(surfaces)
+        if not surfaces:
+            raise ValueError("at least one surface grid is required")
+        super().__init__(*surfaces[0], **kwargs)
+        parts = [self, *(InterpolatedSphereSurface(*item)
+                         for item in surfaces[1:])]
+        self._source_surfaces = tuple((part._source_vertices,
+                                       part._source_rgba) for part in parts)
+        self._triangle_xyz = np.concatenate([part._triangle_xyz for part in parts])
+        self._triangle_rgba = np.concatenate([part._triangle_rgba for part in parts])

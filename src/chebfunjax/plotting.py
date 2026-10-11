@@ -2844,7 +2844,8 @@ def plot_ball_slices(
     """Slice plot of a Ballfun inside the unit ball (MATLAB Chebfun style).
 
     Default slice data follows ``plotBall`` from @ballfun/plot.m.
-    The existing flat-face/heightfield lighting remains an approximate renderer.
+    Default surfaces share triangle depth ordering and Cartesian vertex lighting.
+    Gouraud interpolation and mean-depth sorting remain approximate rendering.
     Produces 5 surfaces: 1 sphere at r≈0.5, 2 constant-elevation slices,
     2 constant-lambda half-planes. Coordinates use MATLAB's sph2cart
     convention where theta is elevation [-pi/2, pi/2].
@@ -2862,6 +2863,14 @@ def plot_ball_slices(
     Returns
     -------
     fig, ax
+
+    Provenance
+    ----------
+    MATLAB source: @ballfun/plot.m; material.m and camlight.m (R2025b).
+    Chebfun commit: 7574c77.
+    Default Cartesian normals, dull material and local headlight replace the
+    old heightfield-lighting approximation. Native auto camera, Phong pixels
+    and depth-buffer visibility remain separate qualification gaps.
     """
     import jax.numpy as jnp
 
@@ -2976,24 +2985,53 @@ def plot_ball_slices(
     all_values = np.concatenate([surface[3].ravel() for surface in surfaces])
     norm = _normalize_values(all_values)
 
-    for xs, ys, zs, cdata in surfaces:
-        facecolors = cmap_obj(norm(cdata))
-        ls = LightSource(azdeg=315, altdeg=45)
-        facecolors = facecolors.copy()
-        facecolors[:, :, :3] = ls.shade_rgb(facecolors[:, :, :3], zs)
-        ax.plot_surface(
-            xs,
-            ys,
-            zs,
-            facecolors=facecolors,
-            rstride=1,
-            cstride=1,
-            linewidth=0,
-            antialiased=True,
-            shade=False,
-            **kw,
-        )
+    if style_name == "ball" and not kw:
+        from chebfunjax._sphere_surface import InterpolatedSurfaceGroup
+        from chebfunjax._surface_lighting import dull_headlight_rgb, surface_vertex_normals
 
+        # Native headlight is local at the camera. Map Matplotlib's normalized
+        # plot-box eye back to data coordinates; native automatic camera and
+        # aperture remain separate renderer contracts.
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(-1.0, 1.0)
+        ax.set_zlim(-1.0, 1.0)
+        ax.set_box_aspect([1, 1, 1])
+        ax.view_init(elev=elev, azim=azim)
+        elevation, azimuth = jnp.deg2rad(jnp.asarray([ax.elev, ax.azim]))
+        direction = jnp.array([jnp.cos(elevation) * jnp.cos(azimuth),
+                               jnp.cos(elevation) * jnp.sin(azimuth),
+                               jnp.sin(elevation)])
+        focal = ax._focal_length if np.isfinite(ax._focal_length) else 1.0
+        camera = 2 * ax._dist * focal * direction / jnp.asarray(ax.get_box_aspect())
+        colored_surfaces = []
+        for xs, ys, zs, cdata in surfaces:
+            rgba = cmap_obj(norm(cdata))
+            normals = surface_vertex_normals(xs, ys, zs)
+            rgba[..., :3] = np.asarray(dull_headlight_rgb(
+                rgba[..., :3], normals, xs, ys, zs, camera,
+                backface="reverselit"))
+            colored_surfaces.append((xs, ys, zs, rgba))
+        artist = InterpolatedSurfaceGroup(colored_surfaces)
+        artist._chebfun_headlight_position = np.asarray(camera)
+        ax.add_collection3d(artist, autolim=False)
+    else:
+        for xs, ys, zs, cdata in surfaces:
+            facecolors = cmap_obj(norm(cdata))
+            ls = LightSource(azdeg=315, altdeg=45)
+            facecolors = facecolors.copy()
+            facecolors[:, :, :3] = ls.shade_rgb(facecolors[:, :, :3], zs)
+            ax.plot_surface(
+                xs,
+                ys,
+                zs,
+                facecolors=facecolors,
+                rstride=1,
+                cstride=1,
+                linewidth=0,
+                antialiased=True,
+                shade=False,
+                **kw,
+            )
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
     ax.set_zlim(-1.0, 1.0)

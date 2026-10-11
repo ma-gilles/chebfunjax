@@ -6,7 +6,7 @@
 
 Python translation: [`examples/sphere/laplaceball.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/sphere/laplaceball.py)
 
-> Execution qualification: The full public boundary construction, Poisson solve on the source-derived grid (65 in each direction), and inner-sphere extraction were executed using one captured MATLAB R2025b `rng(1)` input vector. This fixture does not establish general RNG parity. The boundary length is 65×65 versus the captured native 65×63; printed Oxford, origin, and inner-mean values differ in their final digits. The Python Cartesian boundary point is evaluated through its equivalent longitude/polar coordinates. Figures were replayed from the saved actual functions and figure objects; colorbars are present, but lighting, framing, and exact pixel parity remain unverified.
+> Execution qualification: The full public boundary construction, Poisson solve on the source-derived grid (65 in each direction), and inner-sphere extraction were executed using one captured MATLAB R2025b `rng(1)` input vector. This fixture does not establish general RNG parity. The boundary length is 65×65 versus the captured native 65×63; printed Oxford, origin, and inner-mean values differ in their final digits. The Python Cartesian boundary point is evaluated through its equivalent longitude/polar coordinates. Figures were replayed from the saved actual functions and figure objects; colorbars are present. Ball slices now use shared triangle depth ordering and Cartesian vertex lighting; native camera, palette, historical Phong shading, and exact pixel parity remain unverified.
 
 ## 1. The Laplace problem
 

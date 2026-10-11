@@ -188,5 +188,10 @@
       "src/chebfunjax/utils/minimax.py"
     ],
     "applicability": "Evidence qualifies the frozen f6b96451 source with random.py overlay. Current minimax changes are separate; no claim of a new execution at publication head. LaplaceBall does not call minimax. Full pixel and solution parity remain open."
+  },
+  "later_renderer_update": {
+    "evidence": "docs/ball_surface_rendering_cpu_20261011.json",
+    "current_figure2_sha256": "fbfcad55bab9b03798d0e386372510eb76030cdc291144b3bc529e54fbc74442",
+    "scope": "Saved actual mesh arrays, no repeated solve. Previous v6 image bindings retained as historical evidence."
   }
 }
