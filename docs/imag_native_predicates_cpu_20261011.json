@@ -1,0 +1,51 @@
+{
+  "native_predicates": 6,
+  "supplemental_controls": 2,
+  "library_changes": 0,
+  "test_only_patch": true,
+  "source_clause_mapping": {
+    "1": "Empty nativepublicconstructor imagisempty",
+    "2/3": "Literal scalar/array publicconstructor original[-1,1], pref.splittingTrue, 1000uniform draw sites, isreal andstrictflattenedmaxabs <10/100vscale(g)eps",
+    "4": "Native literallyreal(pureimagcosabs).iszero; retained, not miscounted as imaginary-value predicate",
+    "5": "Original1i*(x+2)^-1.64 Singfun construction[-2,7],exps[-1.64,0],splittingon, strictisequalimagf to\u22121if",
+    "6": "Originalcomplexunboundedconstructor[-Inf,-3pi],100drawsites[-1e6,-3pi] after1000draws, strictmaxabs<30epsvscale(originalf)"
+  },
+  "supplementals": "ExplicitnondefaultpointValues atbreakpoint differfromFUNlimit averages; imagvaluesandorientation exact for2column col/row objects",
+  "gap_fixed": "Old3methodport private_piececonstructedfinitekink andsubstituteREALcontrol; nativearray/pureimagreal/singular/unboundedclauses absent andfiniteboundweakened. Restorednative6 withexactconstructor paths/norms/bounds.",
+  "resource": {
+    "wall_seconds": 38.71801881771535,
+    "sampled_peak_summed_rss_kib": 2072968,
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ],
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n.{'native_clause': 2, 'error': 2.220446049250313e-16, 'bound': np.float64(2.055285016153011e-15)}\n.{'native_clause': 3, 'error': 3.885780586188048e-16, 'bound': np.float64(2.2195586386903658e-14)}\n...{'native_clause': 6, 'error': 3.978280819192954e-17, 'bound': np.float64(7.067510516232159e-16)}\n...\n8 passed in 29.50s\n",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/snapshot/src/chebfunjax/chebfun1d/chebfun.py": "36d0900b67f78c0e43fece1798b0cdf2e24d60944b3c20f53789246c68fa21f3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/snapshot/tests/test_matlab_port/chebfun/test_imag_matlab.py": "a255ffcb79111a8acca64777e464fc8552d8539b0cb0743221aa8a249e07b66e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/ORIGINAL_TEST.py": "5a9e2afeaf0d81b4f965e37e14a431489e5a5c07169a467349c36b9f2c903ecb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/imag_native.patch": "dbb4a027def36bad2670ea2029e38a7df6346955bf5784676e870f7229fe42c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/build_delivery.py": "2d3d7536069365fb35036642ce20faf8a80380cf743045bf7e0d650ddaf4faaa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/prepare_gate.py": "418f9b81713d633fc16c7b37b47cc7341affaf178d98a10812fb251621d9f406",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/baseline_v1/observe.py": "9e0a087c76a4765d9d73024f5c6f75012d9e7cd652be00c97b5a246e48ceb525",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/baseline_v1/launch.sh": "4788e08f867245e881f24035732a2cc196d798ac5f15fbe2b494bbf768d20bb4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/imag_native_predicates_20261011/baseline_v1/RESULT.json": "388c406a400307c30bbb60621a668de01a44741a77d5aa77d1cce205fe566c6a",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_imag.m": "5bd8c1c9e010fb8d0b513464666f46dd0bdd1da353c11169de8582bebdc8b1b0",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/imag.m": "9ca2b731108a24d224d3188e39f485384e9aab6608a3d4a3f4a64666780be255",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/imag.m": "fdfef48c82845b97ec60fd68635aa44fbf93881bcf2ac1fe3dafa2fdb478f12e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/real.m": "34147fe078aa323eefcc4ebfb8d46e010290d97c5a695a6e2f4e44992390a09b"
+  },
+  "limitations": [
+    "RandomState7681 seed/count/ranges/order adapter; MATLABRNGstreamidentityunverified",
+    "No numerical/libraryfaultconfirmed; productionimag alreadyhonorspointValues/orientation. No duplicatecandidate/broad rerun",
+    "Nativeemptyreturnsoriginalobject; Pythoncurrentimag reconstructsempty butnativeisemptyassertpasses; objectidentitynot nativepredicateclaim",
+    "No P edits, roots/arithmetic/atan2/sign/Chebop changes; allownedhandlesconsumed/no survivors"
+  ],
+  "root_review": "Matched nativeimag six clauses including literal real(f).iszero clause4, flattened infinity errors, singular isequal and continuing100uniformdraws after initial1000. Two explicitpoint-value/orientation controls strengthenmetadata contract. Testonly; no libraryfault claimed."
+}

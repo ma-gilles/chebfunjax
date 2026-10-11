@@ -1,0 +1,291 @@
+{
+  "scope": "Observed compiler source-stack attribution on frozen16c18811 source; instrumented wall timings are not matched performance qualification",
+  "runtime": {
+    "status": "passed",
+    "scope": "instrumented source-stack attribution; wall timings include observer overhead, not performance qualification",
+    "setup_seconds": 16.959844406228513,
+    "calls": [
+      {
+        "phase": "inverse_first",
+        "seconds": 15.56624063802883,
+        "length": 8878
+      },
+      {
+        "phase": "inverse_warm",
+        "seconds": 0.5715514863841236,
+        "length": 8878
+      }
+    ],
+    "roundtrip_error": 8.881784197001252e-16,
+    "output_hashes": [
+      [
+        "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+      ],
+      [
+        "ac4d248876565b224802a44c6f1b8cb10e3b290a2421f4e23ac5021083b8d643"
+      ]
+    ],
+    "compile_count": 775,
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "phase_counts": {
+    "setup": 523,
+    "inverse_first": 247,
+    "roundtrip": 5
+  },
+  "first_call_compile_seconds": 10.557304038666189,
+  "top_source_groups": [
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        1559,
+        "_roots_default_eigenvalues"
+      ],
+      "count": 26,
+      "seconds": 2.668341429438442,
+      "modules": {
+        "\"jit__roots_matrix_eig_and_metadata_jax\"": 26
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        1335,
+        "_roots_subdivide"
+      ],
+      "count": 67,
+      "seconds": 2.303945210762322,
+      "modules": {
+        "\"jit__roots_apply_transforms\"": 67
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        1342,
+        "_roots_subdivide"
+      ],
+      "count": 11,
+      "seconds": 1.9813756495714188,
+      "modules": {
+        "\"jit__roots_sampled_subdivision\"": 11
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/chebfun1d/inverse.py",
+        500,
+        "values"
+      ],
+      "count": 4,
+      "seconds": 0.5465477029792964,
+      "modules": {
+        "\"jit__brent\"": 4
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/utils/misc.py",
+        104,
+        "standard_chop"
+      ],
+      "count": 2,
+      "seconds": 0.511698697693646,
+      "modules": {
+        "\"jit__standard_chop_kernel\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/chebfun1d/_construction_context.py",
+        193,
+        "op"
+      ],
+      "count": 15,
+      "seconds": 0.3104674178175628,
+      "modules": {
+        "\"jit_add\"": 6,
+        "\"jit_multiply\"": 3,
+        "\"jit_true_divide\"": 3,
+        "\"jit_subtract\"": 3
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        2061,
+        "_refine_chebtech2_nested"
+      ],
+      "count": 4,
+      "seconds": 0.2278216751292348,
+      "modules": {
+        "\"jit_chebpts\"": 2,
+        "\"jit_slice\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        2063,
+        "_refine_chebtech2_nested"
+      ],
+      "count": 12,
+      "seconds": 0.1904609426856041,
+      "modules": {
+        "\"jit_iota\"": 2,
+        "\"jit_multiply\"": 2,
+        "\"jit_add\"": 2,
+        "\"jit_broadcast_in_dim\"": 2,
+        "\"jit__squeeze\"": 2,
+        "\"jit_scatter\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        2064,
+        "_refine_chebtech2_nested"
+      ],
+      "count": 12,
+      "seconds": 0.1845543053932488,
+      "modules": {
+        "\"jit_iota\"": 2,
+        "\"jit_multiply\"": 2,
+        "\"jit_add\"": 2,
+        "\"jit_broadcast_in_dim\"": 2,
+        "\"jit__squeeze\"": 2,
+        "\"jit_scatter\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/chebfun1d/inverse.py",
+        501,
+        "values"
+      ],
+      "count": 7,
+      "seconds": 0.1694335276260972,
+      "modules": {
+        "\"jit_equal\"": 4,
+        "\"jit__where\"": 3
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/utils/transforms.py",
+        172,
+        "coeffs2vals"
+      ],
+      "count": 2,
+      "seconds": 0.15237455675378442,
+      "modules": {
+        "\"jit__coeffs2vals_jax\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/chebfun1d/inverse.py",
+        70,
+        "tol_union"
+      ],
+      "count": 13,
+      "seconds": 0.13771713292226195,
+      "modules": {
+        "\"jit_concatenate\"": 2,
+        "\"jit__unique_sorted_mask\"": 2,
+        "\"jit__moveaxis\"": 2,
+        "\"jit_add\"": 1,
+        "\"jit_select_n\"": 1,
+        "\"jit__broadcast_arrays\"": 1,
+        "\"jit_convert_element_type\"": 1,
+        "\"jit_broadcast_in_dim\"": 2,
+        "\"jit_gather\"": 1
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        2116,
+        "_update_running_vscale"
+      ],
+      "count": 4,
+      "seconds": 0.10530958557501435,
+      "modules": {
+        "\"jit_isfinite\"": 2,
+        "\"jit__where\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        942,
+        "_diff_coeffs"
+      ],
+      "count": 1,
+      "seconds": 0.10088611813262105,
+      "modules": {
+        "\"jit__diff_coeffs_once\"": 1
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        3188,
+        "vscale"
+      ],
+      "count": 4,
+      "seconds": 0.09507294604554772,
+      "modules": {
+        "\"jit_abs\"": 2,
+        "\"jit__reduce_max\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/utils/transforms.py",
+        135,
+        "vals2coeffs"
+      ],
+      "count": 2,
+      "seconds": 0.09171116258949041,
+      "modules": {
+        "\"jit__vals2coeffs_jax\"": 2
+      }
+    },
+    {
+      "caller": [
+        "chebfunjax/tech/chebtech.py",
+        2187,
+        "_adaptive_refine_construct"
+      ],
+      "count": 2,
+      "seconds": 0.0789089584723115,
+      "modules": {
+        "\"jit__reduce_all\"": 2
+      }
+    }
+  ],
+  "next_action": "Fuse exact allocation/interleaving in _refine_chebtech2_nested, currently24primitivecompiles across2shapes. Independent bitidentity and source refinement checks plus serial baseline/candidate benchmark required; no speedup yet claimed. Agent package in progress.",
+  "receipt": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 37.369751010555774,
+    "sampled_peak_summed_rss_kib": 1837480,
+    "remaining_owned_pids": [],
+    "inputs_stable": true
+  },
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/REPORT.json": "f14b7689536b040c3b97fd22c42add76364eecc0c7ba965cafd98150be1caaab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/GROUPED.json": "a7c4d1e24484d77cbb1ca28d74b73386ea2884fdf4c1595c018d915153ea0c1a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/observe.py": "f3322ec644a23ac934f0b755f9fee9799a3e25be841f573bf95b3436c5f1e071",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/compiles.jsonl": "a72e6c2069f2f1acba8a41c4ead257397dcf5580e7495504e2898e21b76e4c01",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/guard.json": "e470066a2ac069e58b16e551e6e07ab590cd7df0905e29fc529dc49dab93ee95",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_compile_stack_attribution_20261011/run/receipt.json": "a5f624f1644c3b17573c6d9d611ea7f8b2e8ef286b3fac81ec3deb3bfee0006b"
+  }
+}

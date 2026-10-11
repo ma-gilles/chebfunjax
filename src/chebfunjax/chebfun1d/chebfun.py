@@ -4079,15 +4079,25 @@ class Chebfun(eqx.Module):
         """
         return self.log().cumsum().exp()
 
-    def prod(self) -> jax.Array:
-        """Integral product: exp(sum(log(f))) (MATLAB prod).
+    def prod(self, dim=OMITTED):
+        """Product integral in the continuous dimension; product otherwise.
 
+        Discrete products multiply columns directly, preserving zeros.
         Provenance
         ----------
         MATLAB source : @chebfun/prod.m
         Chebfun commit: 7574c77
         """
-        return jnp.exp(self.log().sum())
+        continuous_dim = 2 if self.is_transposed else 1
+        if dim is OMITTED:
+            dim = continuous_dim
+        if dim == continuous_dim:
+            return jnp.exp(self.log().sum(dim))
+        columns = self.mat2cell()
+        product = columns[0]
+        for column in columns[1:]:
+            product = product * column
+        return product
 
     def compose(self, op, g: "Chebfun" = None, *, pref=None) -> "Chebfun":
         """Compose a pointwise operator on each overlapping input interval.

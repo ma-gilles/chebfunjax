@@ -3,7 +3,7 @@
 ## Current CPU goal checkpoint (2026-10-11; supersedes historical status)
 
 Full parity with MATLAB Chebfun `7574c77` remains incomplete. Pushes work;
-main through `ef1c3731` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
+main through `16c18811` is published. The following parity batch is qualified. Use CPU only. Heavy whole examples run
 serially; two routine agents and one numerical agent handle bounded independent
 work. Current shared publication checkout and evidence root:
 `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`.
@@ -15,6 +15,14 @@ ten have reviewed source replacements (including a separately qualified
 Atmospheric frame-only change); DDE and LaplaceBall remain partial. All twelve
 original home files are preserved. Source execution acceptance is not full
 output or image parity. See docs/handoff_twelve_disposition_cpu_20261011.json.
+
+The next qualified batch restores all18 prod assertions (including Quasimatrix),
+all17 distinct sign expressions and all6 imag assertions. Complex Chebtech2
+sign now forwards the native extrapolate flag; the failing source complex
+case passes its original length-scaled bound. Real singular construction
+warnings remain recorded. Prod dimensions and direct discrete products are
+restored; imag needs test restoration only. See corresponding
+docs/{prod,sign,imag}_native_predicates_cpu_20261011.json.
 
 All six original atan2 predicates now pass with source extrapolating composition,
 including endpoints and zero FUNs; native bounds are restored. Covariance now
@@ -88,8 +96,8 @@ runs were cancelled while actual running work was preserved.
 The complete caf673c7 static audit preserves all322 original prose/equation
 pages and2408 MATLAB blocks, with1305 assets at reference dimensions. Committed
 page delta througheecb9a63 confirms949 reference/945 local output blocks,
-12 blanks and14 explicit placeholders across15 pages after the Volterra output update. Delay page has12 verified
-output slots and11 explicitly unresolved slots. Figures08/10 use qualified saved
+12 blanks and13 explicit placeholders across15 pages after the self-composition output update. Delay page has13 verified
+output slots and10 explicitly unresolved slots. Figures08/10 use qualified saved
 solutions at600x270 with reference axes; all other figures and full pixel parity
 remain unqualified. Images09/11 now show actual operator sparsity matrices;
 both native masks match exactly (1241/4011 nonzeros). Source colon endpoint
@@ -118,6 +126,15 @@ qualified saved coefficients; shared matlab_plot now applies historical dot
 diameter (docs/matlab_point_glyph_cpu_20261011.json), with font/raster differences
 still unqualified.
 See docs/dde_volterra_public_cpu_20261011.json.
+
+DDE slot14 self-composition is qualified without a library change: native and
+Python both length13, sample difference5.55e-16. Actual output and figure15
+overlay restored from saved data. Source omits N.init. Captured endpoint values
+are required to reconstruct all201savedvalues bitwise; failed renders and a
+source-path erratum are preserved. See docs/dde_self_composition_cpu_20261011.json.
+Inverse compile-stack attribution identifies247 first-call kernels and no warm
+compilation; exact nested-value interleaving fusion is under qualification.
+See docs/inverse_compile_stack_attribution_cpu_20261011.json.
 
 Remaining: every native API/assertion, green full CI, unresolved PDE/DDE and
 masked high-frequency/VDP problems, general quadrature regimes, RNG streams,

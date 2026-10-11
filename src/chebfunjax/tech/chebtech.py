@@ -4501,7 +4501,7 @@ class Chebtech2(eqx.Module):
             if self.coeffs.ndim == 2:
                 return Chebtech2(coeffs=jnp.atleast_1d(s)[None, :])
             return Chebtech2.from_coeffs(jnp.atleast_1d(s))
-        return self.compose(lambda x: x / jnp.abs(x))
+        return self.compose(lambda x: x / jnp.abs(x), extrapolate=True)
 
     def poly(self) -> jax.Array:
         """Monomial (power-basis) coefficients of the function.

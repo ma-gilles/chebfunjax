@@ -110,6 +110,24 @@ def _source_volterra_curve(sol, numerical):
     return fig
 
 
+def _source_state_delay_curve(hand_t, hand_x, numerical):
+    """Source hold-on overlay using the retained hand-Newton curve."""
+    from chebfunjax.plotting import matlab_plot
+
+    fig = plt.figure(figsize=(6, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    ax.plot(hand_t, hand_x, "-")
+    time = chebfun(lambda t: t, domain=(0, 1))
+    matlab_plot(time, numerical, ".--", ax=ax, markersize=15)
+    ax.set(xlim=(0, 1), ylim=(.4, 1),
+           xticks=np.arange(0, 1.01, .2), yticks=np.arange(.4, 1.001, .1))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+    ax.grid(False)
+    ax.tick_params(direction="in", top=True, right=True)
+    return fig
+
+
 def _plot_disc(t, x, sol, tt=None):
     fig, ax = plt.subplots(figsize=(7.6, 4.0))
     if tt is None:
@@ -376,9 +394,11 @@ def run():
     N = Chebop(lambda t, x: x.diff() + x(x), domain=dom)
     N.lbc = 1.0
     xc = N.solve(0.0)
-    _show(xc)
+    print(f"x =\n{xc!r}")
     res = float(N(xc).norm())
     print(f"res =\n     {res:.15e}")
+
+    _save(_source_state_delay_curve(t, x, xc), source_axes=True)
 
     # ----- 14. A pantograph problem with known solution ----------------
     _output_slot(15)

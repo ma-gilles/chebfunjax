@@ -1,0 +1,114 @@
+{
+  "native_source_predicates": 18,
+  "qualified_predicates": 18,
+  "pytest_cases": 10,
+  "supplemental_controls": 0,
+  "cohorts": {
+    "array_scalar": "Native1\u20136,11\u201314 (10predicates/6cases), candidatev1",
+    "quasimatrix": "Native7\u201310,15\u201318 (8predicates/4cases), candidatev2"
+  },
+  "gates": {
+    "array_baseline_v1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 15.449462096206844,
+      "sampled_peak_summed_rss_kib": 821988,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n..{'native_clause': 3, 'error': np.float64(1.7763568394002505e-15), 'bound': np.float64(2.220446049250313e-14)}\nF{'native_clause': 5, 'error': np.float64(8.881784197001252e-16), 'bound': np.float64(2.220446049250313e-14)}\nFFF\n=================================== FAILURES ===================================\n_______________ TestNativeProdArray.test_array_continuous[False] _______________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdArray object at 0x146a41126690>\nrow = False\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_array_continuous(self,row):\n     f=cj.chebfun(lambda x:x+2,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     if row:fa=fa.transpose()\n     actual=np.asarray(fa.prod());exact=np.full((2,1) if row else (2,),27*np.exp(-2))\n     error=np.max(np.abs(actual-exact)) if row else np.sum(np.abs(actual-exact))\n     print({'native_clause':5 if row else 3,'error':error,'bound':TOL},flush=True)\n     assert error<TOL\n>    assert np.array_equal(actual,np.asarray(fa.prod(2 if row else 1)))\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^\nE    TypeError: Chebfun.prod() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:22: TypeError\n_______________ TestNativeProdArray.test_array_continuous[True] ________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdArray object at 0x146a41126720>\nrow = True\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_array_continuous(self,row):\n     f=cj.chebfun(lambda x:x+2,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     if row:fa=fa.transpose()\n     actual=np.asarray(fa.prod());exact=np.full((2,1) if row else (2,),27*np.exp(-2))\n     error=np.max(np.abs(actual-exact)) if row else np.sum(np.abs(actual-exact))\n     print({'native_clause':5 if row else 3,'error':error,'bound':TOL},flush=True)\n     assert error<TOL\n>    assert np.array_equal(actual,np.asarray(fa.prod(2 if row else 1)))\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^\nE    TypeError: Chebfun.prod() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:22: TypeError\n________________ TestNativeProdArray.test_array_discrete[False] ________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdArray object at 0x146a41126c00>\nrow = False\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_array_discrete(self,row):\n     f=cj.chebfun(lambda x:x,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     if row:f=f.transpose();fa=fa.transpose()\n>    actual=fa.prod(1 if row else 2)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\nE    TypeError: Chebfun.prod() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:27: TypeError\n________________ TestNativeProdArray.test_array_discrete[True] _________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdArray object at 0x146a41126c90>\nrow = True\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_array_discrete(self,row):\n     f=cj.chebfun(lambda x:x,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     if row:f=f.transpose();fa=fa.transpose()\n>    actual=fa.prod(1 if row else 2)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\nE    TypeError: Chebfun.prod() takes 1 positional argument but 2 were given\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:27: TypeError\n=========================== short test summary info ============================\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdArray::test_array_continuous[False]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdArray::test_array_continuous[True]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdArray::test_array_discrete[False]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdArray::test_array_discrete[True]\n4 failed, 2 passed in 7.78s\n"
+    },
+    "array_candidate_v1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 16.565889297053218,
+      "sampled_peak_summed_rss_kib": 940872,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n..{'native_clause': 3, 'error': np.float64(1.7763568394002505e-15), 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 5, 'error': np.float64(8.881784197001252e-16), 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 12, 'error': 0.0, 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 14, 'error': 0.0, 'bound': np.float64(2.220446049250313e-14)}\n.\n6 passed in 9.04s\n"
+    },
+    "quasi_baseline_v1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 11.96040926175192,
+      "sampled_peak_summed_rss_kib": 634920,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\nFFFF\n=================================== FAILURES ===================================\n__________________ TestNativeProdQuasi.test_continuous[False] __________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdQuasi object at 0x147b69c97920>\nrow = False\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_continuous(self,row):\n     f=cj.chebfun(lambda x:x+2,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     # Explicit Python Quasimatrix adapter of native cheb2quasi column extraction.\n     fq=Quasimatrix(fa.mat2cell(),fa.domain)\n     if row:fq=fq.transpose()\n>    actual=np.asarray(fq.prod());exact=np.full((2,1) if row else (2,),27*np.exp(-2))\n                       ^^^^^^^\nE    AttributeError: 'Quasimatrix' object has no attribute 'prod'\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:41: AttributeError\n__________________ TestNativeProdQuasi.test_continuous[True] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdQuasi object at 0x147b69c979b0>\nrow = True\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_continuous(self,row):\n     f=cj.chebfun(lambda x:x+2,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     # Explicit Python Quasimatrix adapter of native cheb2quasi column extraction.\n     fq=Quasimatrix(fa.mat2cell(),fa.domain)\n     if row:fq=fq.transpose()\n>    actual=np.asarray(fq.prod());exact=np.full((2,1) if row else (2,),27*np.exp(-2))\n                       ^^^^^^^\nE    AttributeError: 'Quasimatrix' object has no attribute 'prod'\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:41: AttributeError\n___________________ TestNativeProdQuasi.test_discrete[False] ___________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdQuasi object at 0x147b69c97da0>\nrow = False\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_discrete(self,row):\n     f=cj.chebfun(lambda x:x,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     fq=Quasimatrix(fa.mat2cell(),fa.domain)\n     if row:\n      pfat2=fa.transpose().prod(1)\n      f=f.transpose();fq=fq.transpose()\n>    actual=fq.prod(1 if row else 2)\n            ^^^^^^^\nE    AttributeError: 'Quasimatrix' object has no attribute 'prod'\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:53: AttributeError\n___________________ TestNativeProdQuasi.test_discrete[True] ____________________\n\nself = <tests.test_matlab_port.chebfun.test_prod_matlab.TestNativeProdQuasi object at 0x147b69c97e60>\nrow = True\n\n    @pytest.mark.parametrize('row',[False,True])\n    def test_discrete(self,row):\n     f=cj.chebfun(lambda x:x,pref=ChebfunPref());fa=type(f).horzcat(f,f)\n     fq=Quasimatrix(fa.mat2cell(),fa.domain)\n     if row:\n      pfat2=fa.transpose().prod(1)\n      f=f.transpose();fq=fq.transpose()\n>    actual=fq.prod(1 if row else 2)\n            ^^^^^^^\nE    AttributeError: 'Quasimatrix' object has no attribute 'prod'\n\nsnapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py:53: AttributeError\n=========================== short test summary info ============================\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdQuasi::test_continuous[False]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdQuasi::test_continuous[True]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdQuasi::test_discrete[False]\nFAILED snapshot/tests/test_matlab_port/chebfun/test_prod_matlab.py::TestNativeProdQuasi::test_discrete[True]\n4 failed, 6 deselected in 4.48s\n"
+    },
+    "quasi_candidate_v2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.808682789094746,
+      "sampled_peak_summed_rss_kib": 846300,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "stdout": "{'jax': '0.11.0', 'jaxlib': '0.11.0', 'backend': 'cpu', 'x64': True}\n{'native_clause': 7, 'error': np.float64(1.7763568394002505e-15), 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 9, 'error': np.float64(8.881784197001252e-16), 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 16, 'error': 0.0, 'bound': np.float64(2.220446049250313e-14)}\n.{'native_clause': 18, 'error': 0.0, 'bound': np.float64(2.220446049250313e-14)}\n.\n4 passed, 6 deselected in 7.68s\n"
+    }
+  },
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/candidate_v2_source/src/chebfunjax/chebfun1d/chebfun.py": "3705c203b697530fb40ffcd0fc8e8873cd5e20d5c35d2127e933742109b8a9f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/candidate_v2_source/src/chebfunjax/chebfun1d/linalg.py": "101e8b5ee7f64bafc24bfc6fb7947f24942ec151d9d17ce5eb790fda74d9ccb7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/candidate_v2_source/tests/test_matlab_port/chebfun/test_prod_matlab.py": "146737769ec3ef024a16faed0bd6455943060cd9c632106a4939358de8aa74d7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/ORIGINAL_TEST.py": "452d0e5f0e6a4036d89a38959e4d83dfd5e0734d3bc4296ed467b3cf6ed3e2c8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/prod_native.patch": "850bf28fba3a6c217e9939779c31c83791918d8cba3eada276f612db35c7868c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/build_delivery.py": "48a2eebcd37b9ed49084b086a2f18f9b45a4e8f08b6e0dc248d9a48b67bb6006",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/prepare_gate.py": "bb7dfdb9bc1702385794b4e8e6caaa44fbe7a22612b5c609f179e12bbf73b1c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/edit_array_candidate.py": "ee3f4a077020ac9158057f7c5101de6acfe056493075f622ea485ff13b72a9ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/prod_native_predicates_20261011/edit_quasi_candidate.py": "830ccf8c3a6248f7f419df3da11748b5b4cb14ca56f081832177e04b260e8cb8",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_prod.m": "4a059b75fd8df1684b256ae1a75b07285d84c080abd61b98a02bf3f589b5f95d",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/prod.m": "fa708a49fad88bbf76150de91b405ecaf060a56d896cc41c3a5e27f14cd5adfe",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/cheb2quasi.m": "4df1578f532a9c5c476365fc2c637de00d2620fc8a4e9f7e5847162f033d1432",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/cumprod.m": "d0581577e7fbdf65349062af2a5fb3f49680be160726d721b1b26b8f7d4b441c",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_diff.m": "3af711a6ad868c0097ae20953a5351abaf15a2deac38c2e716e9f2a9296a7890"
+  },
+  "source_clause_mapping": {
+    "1/2": "Literalx+2 defaultpref scalar andtranspose, abs(product\u221227exp\u22122)<100eps",
+    "3/4/5/6": "Literal[f f] publichorzcat; numericrowInf=sumabs, transposednumericcolInf=maxabs, strict100eps; exactdefaultdimensionisequal",
+    "7/8/9/10": "Same fa columns explicitlyextracted intoPythonQuasimatrix asnativecheb2quasiadapter, numericnorms/dimensionidentityexact",
+    "11/12/13/14": "Literalx f/fa, discreteprod2 orrowprod1, explicitnativeorientation and continuousInf norm(f\u00b2\u2212prod)<100eps",
+    "15/16/17/18": "Nativequasiconversion anddiscreteproduct; clause17 literallychecks previousarraypfat2 flag (source typo) preserved, not counted asquasiorientationpredicate"
+  },
+  "fix": [
+    "Chebfun.prod nativecontinuousdimension1(column)/2(row), defaultcontinuous integralexp(sum(log)), discrete directcolumnmultiply preservingzeros",
+    "Quasimatrix.prod missingAPI added; samecontinuouspercolumn native arithmetic/JAXstack withrowNx1, discrete source multiplication loop. Existingmethodsunchanged."
+  ],
+  "static_adjacent_audit": [
+    "No nativechebfun/test_cumprod.m exists atpin; nativecumprod wrapper literalexp(cumsum(log)) includingexplicitTODOrowsemantics, currentChebfunwrappermatchesexpression; ADtestoutsideapprovedscope",
+    "Nativechebfun/test_diff.m11predicates; current187lineport includes nativepiecewise/singularity/unbounded/array/dimension tests andseparateJIT/quasicontrols; not numericallyreaudited orclaimfullyfaithful inthispackage"
+  ],
+  "limitations": [
+    "Onlysmall originalsizes2columns; no scientificgrid/count/bound substitutions",
+    "PythonQuasimatrix adapter distinctfromliteral array-valuedChebfun; construction usesnativecolumnextractionsemantics viaqualifiedmat2cell",
+    "Noemptyprod orfullJIT/newprecision claim; no unrelated numericalkernel edits",
+    "P untouched; all ownhandlesconsumed/stable/no survivingPID"
+  ],
+  "root_review": "Matched @chebfun/prod.m dimension dispatch and direct discrete product loop, and original18tests including source17 reference to prior array result. Python Quasimatrix scalar-column adapter explicit. Evidence hashes verified; formatted tests preserve executable AST; new method provenance docstrings normalized."
+}

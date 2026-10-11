@@ -1,0 +1,189 @@
+{
+  "baseline_array_v1": {
+    "rows": [
+      {
+        "clause": "3,1/2",
+        "FUN_count": 6,
+        "normest": 0.0,
+        "bound": 2.220446049250313e-15
+      },
+      {
+        "clause": "3,3/4",
+        "FUN_count": 6,
+        "normest": 0.0,
+        "bound": 2.220446049250313e-16
+      }
+    ],
+    "pytest_summary": "1 passed, 14 deselected in 10.19s",
+    "wall_seconds": 17.713138238992542,
+    "peak_summed_rss_kib": 1019548,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "baseline_complex_v1": {
+    "rows": [
+      {
+        "clause": "4",
+        "normest": 1.1591365947537116,
+        "bound": 2.9104274545943554e-07,
+        "length": 131074
+      },
+      {
+        "clause": "5",
+        "error": 8.95090418262362e-16,
+        "bound": 2.2204460492503137e-14
+      }
+    ],
+    "pytest_summary": "1 failed, 1 passed, 13 deselected, 1 warning in 30.61s",
+    "wall_seconds": 39.875607495196164,
+    "peak_summed_rss_kib": 2009532,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": true
+  },
+  "baseline_real_v1": {
+    "rows": [
+      {
+        "clause": "2,1/2",
+        "FUN_count": 6,
+        "normest": 0.0,
+        "bound": 2.220446049250313e-16
+      },
+      {
+        "clause": "2,3/4",
+        "FUN_count": 6,
+        "normest": 0.0,
+        "bound": 2.220446049250313e-14
+      }
+    ],
+    "pytest_summary": "1 passed, 14 deselected in 7.83s",
+    "wall_seconds": 15.41826036106795,
+    "peak_summed_rss_kib": 875840,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "baseline_simple_v1": {
+    "rows": [
+      {
+        "clause": "1,1",
+        "all_one": true
+      },
+      {
+        "clause": "1,2",
+        "original_endpoint_count": 100,
+        "all_negative_one": true
+      },
+      {
+        "clause": "1,3",
+        "normest": 0.0,
+        "bound": 2.220446049250313e-16
+      },
+      {
+        "clause": "1,4",
+        "normest": 0.0,
+        "bound": 2.220446049250313e-16
+      }
+    ],
+    "pytest_summary": "4 passed, 11 deselected in 12.79s",
+    "wall_seconds": 20.795248036272824,
+    "peak_summed_rss_kib": 1184656,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "baseline_singular_complex_v1": {
+    "rows": [
+      {
+        "clause": "7",
+        "error": 1.0532500405730103e-15,
+        "bound": 2.2204460492503147e-15
+      }
+    ],
+    "pytest_summary": "1 passed, 14 deselected in 9.09s",
+    "wall_seconds": 16.678627088665962,
+    "peak_summed_rss_kib": 912688,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "baseline_singular_real_v1": {
+    "rows": [
+      {
+        "clause": "6",
+        "error": 0.0,
+        "bound": 2.220446049250313e-16
+      }
+    ],
+    "pytest_summary": "1 passed, 14 deselected, 2 warnings in 40.43s",
+    "wall_seconds": 50.122575799934566,
+    "peak_summed_rss_kib": 2439756,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": true
+  },
+  "baseline_unbounded_v1": {
+    "rows": [
+      {
+        "clause": "8",
+        "error": 0.0,
+        "required_zero": true
+      }
+    ],
+    "pytest_summary": "1 passed, 14 deselected in 16.40s",
+    "wall_seconds": 24.632236951962113,
+    "peak_summed_rss_kib": 1332304,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "candidate_complex_v1": {
+    "rows": [
+      {
+        "clause": "4",
+        "normest": 7.698329586941715e-11,
+        "bound": 2.4646951146678475e-09,
+        "length": 1110
+      },
+      {
+        "clause": "5",
+        "error": 1.315365889942592e-15,
+        "bound": 2.2204460492503137e-14
+      },
+      {
+        "clause": "7",
+        "error": 8.95090418262362e-16,
+        "bound": 2.2204460492503135e-15
+      },
+      {
+        "clause": "supplemental_complex_zero",
+        "stored_zero": true,
+        "limit_error": 0.0,
+        "bound": 2.220446049250313e-14
+      }
+    ],
+    "pytest_summary": "4 passed, 12 deselected in 25.15s",
+    "wall_seconds": 34.07054928224534,
+    "peak_summed_rss_kib": 1800060,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "warnings_visible": false
+  },
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sign_native17_20261011/sign_native17_delivery_v1.zip",
+    "sha256": "666b96be4be27bd321bc74494652393a37ee506cc40fb934aa45d12dba0c5abe",
+    "entries": 150
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sign_native17_20261011/delivery_v1/REPORT.txt",
+  "report_sha256": "abcbff5f6ee7f735e61851118de2e88a485ceb0f2bad7f07c50b7d34f3d98918",
+  "root_review": "Matched native17distinctexpressions, original data/norm/length-scaled bounds and genericChebtech SIGN extrapolation requirement. One-line complexChebtech2 fix leaves real branch unchanged. Originalreal/singularconstructor warnings preserved; no all-happy or globalRNGclaim."
+}

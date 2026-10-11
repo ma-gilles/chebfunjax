@@ -1,0 +1,47 @@
+{
+  "scope": "DDE public self-composition, scriptsection13/outputslot14/figure15. Preserve already-qualified outputslot13 hand-Newton residual.",
+  "base": {
+    "head": "ef1c37316783326fbe637f254688fa76e8ad195c",
+    "scope": "Output14 (scriptsection13), default public self-composition solve, source308-313, no explicit init/grid/tolerance. Source prints residual, no assertion.",
+    "render_head": "16c18811",
+    "script_initialization": "No N.init assignment in pinned source; initial task-message inference corrected before gate construction."
+  },
+  "source_pins": {
+    "Chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+    "examples": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c"
+  },
+  "literal_inputs": "[0,1], N(x)=diff(x)+x(x), lbc1, RHS0, no explicit init,n,tolerance. Example lines308-313.",
+  "outcome": "Current public solve succeeds, no numerical library correction required. Source prints residual, no acceptance inequality.",
+  "comparison": {
+    "native_length": 13,
+    "python_lengths": [
+      13
+    ],
+    "coefficient_max_difference": 3.3306690738754696e-16,
+    "sample_max_difference": 5.551115123125783e-16,
+    "abscissa_max_difference": 1.1102230246251565e-16,
+    "native_residual": 1.3376553269994081e-12,
+    "python_residual": 1.3375935047992064e-12,
+    "native_solve_seconds": 1.603538,
+    "python_solve_seconds": 18.493422847706825,
+    "assertion": "None: source prints residual. Observed matching behavior, no invented acceptance bound."
+  },
+  "native_observer": "Source guard plus postruntime observation, not prospective exhaustive runtime closure.",
+  "timing_limit": "Independent runs under shared-host contention; no paired performance ratio claim.",
+  "artifacts": {
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_self_composition_20261011/render_v4/slot14.stdout",
+    "figure": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_self_composition_20261011/render_v4/DelayDifferentialEquations_15.png",
+    "method": "Reconstruct original coefficients, restore captured endpoint point values, assert all201 saved values and stdout byte-identical. Overlay retained slot12 t/x on source public parametric plot; neither solve repeated.",
+    "render_head": "16c18811, including public MATLAB point-glyph correction.",
+    "limits": "Axes from cached reference image, not captured graphics metadata; no pixel identity claim. First render failed strict endpoint byte check; successors v2/v3 had source-path prefix defect and are excluded from scientific interpretation. All failures and erratum preserved. Finalv4 asserts imported snapshot origin and passes all byte checks after restoring captured endpoint ownership."
+  },
+  "page_update": "Only slot14 output and figure15; verified12->13,pending11->10 if counts unchanged; whole page incomplete.",
+  "gates": {
+    "python": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_self_composition_20261011/baseline",
+    "native": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dds1",
+    "render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_self_composition_20261011/render_v4",
+    "failed_render": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dde_self_composition_20261011/render"
+  },
+  "root_review": "Root viewed figure15 and native reference; correct retainedhandNewton/public overlay, font/raster parity remains open. All62deliverybindings verified. Default omittedinit source confirmed independently. Native/Python coefficients andsampledifferences observed; no invented source residual inequality. Failedrender/sourcepatherratum retained.",
+  "delivery_sha256": "e2b061ef9851536abc3053c4bd6f9fc7053b74a790a6cbc740502d69c29502fd"
+}

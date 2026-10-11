@@ -588,6 +588,26 @@ class Quasimatrix:
     def cumsum(self) -> "Quasimatrix":
         return self._map(lambda c: c.cumsum())
 
+    def prod(self, dim=None):
+        """Native product integral or pointwise product of scalar columns.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/prod.m
+        Chebfun commit: 7574c77
+        Python Quasimatrix stores native scalar-valued components explicitly.
+        """
+        continuous_dim = 2 if self.is_transposed else 1
+        if dim is None:
+            dim = continuous_dim
+        if dim == continuous_dim:
+            out = jnp.stack([column.prod(dim) for column in self.cols])
+            return out.reshape((-1, 1)) if self.is_transposed else out
+        product = self.cols[0]
+        for column in self.cols[1:]:
+            product = product * column
+        return product
+
     def sum(self, *args, dim=None):
         """Integrate columns or sum the discrete dimension, with source limits.
 
