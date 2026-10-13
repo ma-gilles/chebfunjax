@@ -1,3 +1,21 @@
+## Named left division and Random2D lighting — 2026-10-13
+
+Added Chebfun3T `ldivide` and `mldivide` adapters with native direction,
+empty-input handling and type-error identifiers. At least one operand must be
+Chebfun3T; Python numeric literals adapt MATLAB double literals. Three private
+and three merged CPU controls pass. See `docs/chebfun3t_leftdivide_cpu_20261013.json`.
+
+Random2D now uses the source 200-point surface grid, Parula, and captured local
+light/material properties. The full CPU script completes with all seven
+600-by-270 figures; eight private and eight merged controls pass. The page
+records remaining JAX-versus-MATLAB random stream, color interpolation and
+surface framing differences. This is a qualified rendering improvement, not
+pixel parity. See `docs/random2d_lighting_cpu_20261014.json` and
+`docs/random2d_lighting_integration_cpu_20261013.json`.
+
+Full native assertions, constructor accuracy, page/figure parity, remaining
+speed gaps and green final-main CI remain unresolved.
+
 ## Chebfun3 constructor defaults and session preferences — 2026-10-13
 
 The public factory now starts with the native 17-point grid instead of9 and

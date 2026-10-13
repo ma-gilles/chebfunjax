@@ -1,0 +1,113 @@
+{
+  "status": "bounded source-informed Python rendering qualified; pixel parity not claimed",
+  "candidate_base": "a31b705df1231a91ffa98cf6b481fabf5aae8aaa",
+  "native_chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_graphics": "MATLAB R2024b Update 3, software renderer",
+  "runtime": "Python 3.12, JAX/JAXlib 0.11.0 CPU, x64",
+  "example": {
+    "path": "examples/approx2/random2d.py",
+    "current_sha256": "6072795b04a14bf6a6b3ab2969fec9dc85951daecd9453fe137fed17e72cab8d",
+    "full_run_source_sha256": "37292d8476207aa1ceaa7bcc129fd252148aad4517ba884802f87115eefa14d1",
+    "full_run_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_full_render_20261014/run2/supervision/receipt.json",
+    "full_run_receipt_sha256": "0d35a0a808019c7302ddb1c550080f131190d9cb62702f587f856b0b01a17221",
+    "elapsed_seconds": 131.5,
+    "peak_rss_kib": 4553656,
+    "exit_code": 0,
+    "printed_output": "zero-contour components: 19"
+  },
+  "focused_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_lighting_gate_20261014/run4/supervision/receipt.json",
+    "receipt_sha256": "a5269dc6143887c42c3b0622596d1e7c71e73e1d551dff839024e715698a8eed",
+    "result": "8 passed",
+    "pytest_seconds": 8.21,
+    "peak_rss_kib": 642244
+  },
+  "native_material_capture": {
+    "json": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_material_capture_20261014/capture.json",
+    "json_sha256": "c813ee4daa501140ef41eefd27ec6b6a0f84753eedd48116434777ab486dd712",
+    "mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_material_capture_20261014/capture.mat",
+    "mat_sha256": "25a3dd3365a967d4745c5ab254090c61d6dcc15952120aa9028eb225343b9164",
+    "material": {
+      "FaceLighting": "flat",
+      "AmbientStrength": 0.3,
+      "DiffuseStrength": 0.6,
+      "SpecularStrength": 0.9,
+      "SpecularExponent": 10,
+      "BackFaceLighting": "reverselit",
+      "SpecularColorReflectance": 1.0
+    }
+  },
+  "current_source": {
+    "lighting_helper": "src/chebfunjax/_surface_lighting.py",
+    "lighting_helper_sha256": "ade340935b69371198057b3423b9f30d3fd8c50c55bdf6995e77e78b83b0e4e6",
+    "focused_test": "tests/test_matlab_random2d_lighting.py",
+    "focused_test_sha256": "1d4906761cff124d489bf16cf62ce1d787a708f28bc81720f38689ebd817925b",
+    "camera_test": "tests/test_matlab_camlight_position.py",
+    "camera_test_sha256": "09b11ce1acb4151ece82bf09434de550ee4d13bbfafab699ce721cad825b61ea"
+  },
+  "rendering_scope": [
+    "200x200 surf sample grid from @separableApprox/surf.m",
+    "Parula LUT on surface panel",
+    "captured local camlight-left placement and measured MATLAB surface material",
+    "camera/light calculation derives from current Matplotlib axes projection and aspect; no forced equal aspect or fixed camera radius"
+  ],
+  "open_differences": [
+    "MATLAB seeds once with rng(0) and advances one stream; this translation uses seeded JAX PRNG keys and resets separate seeds for each new random function. Random morphology differs.",
+    "MATLAB FaceColor interp is approximated with per-quad face colors; exact interpolation and raster pixels are unqualified.",
+    "Surface frame remains narrow: approximately 200 px wide versus approximately 500 px in reference; framing parity is not claimed."
+  ],
+  "full_run_vs_final_source_note": "After the full run, only the helper default-radius parameter and the example docstring changed. The successful call already passed radius=float(ax._dist), so its numerical path and figures are unchanged. Focused gate run4 binds current helper hash.",
+  "figures": [
+    {
+      "path": "docs/images/approx2/Random2D_01.png",
+      "sha256": "a1ca1b19d30431f075a5b9463038c7cf0cd7f60d9c0e72d4dabd546f8a554231",
+      "bytes": 8076,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_02.png",
+      "sha256": "d16650507c57e3e71e2c69c025eb7c28863f71a2553f6a3375005b9a430ee6f3",
+      "bytes": 186100,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_03.png",
+      "sha256": "49402e584984e34a74c0c56b7e06a89f4c62484e9c3d86f3959e1b8a26ffd033",
+      "bytes": 36438,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_04.png",
+      "sha256": "f71807905dcf62622474019ae22449b12dfa4588ebe871d4b1c3f3ea5aeb93a9",
+      "bytes": 60377,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_05.png",
+      "sha256": "eacbb2ac09dff0bfd8a00b7d9a0fdbefa708a7bd6e7c0a759b91cc2b2547706f",
+      "bytes": 7488,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_06.png",
+      "sha256": "6a56ea6ea643e078b6cddacdae95f163457fa7b29bdf4df0a3a2d766af660340",
+      "bytes": 11110,
+      "width": 600,
+      "height": 270
+    },
+    {
+      "path": "docs/images/approx2/Random2D_07.png",
+      "sha256": "eb5ddb688f590685a48b64e4a7c88cb59048de5292ab51ec67f920494dbd0630",
+      "bytes": 17095,
+      "width": 600,
+      "height": 270
+    }
+  ],
+  "page": "docs/examples/approx2/Random2D.md",
+  "page_sha256": "25beb2c312ad3d446aab5df30c6c63b4777fab3c8c1b4b27ea36a0191572957b"
+}

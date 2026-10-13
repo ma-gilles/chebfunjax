@@ -98,6 +98,87 @@ def _from_callable(f, op: Callable, domain):
     return chebfun3t(op, domain)
 
 
+def ldivide(A, B):
+    """MATLAB ``A .\\ B``: pointwise left division, implemented as ``B / A``.
+
+    This named operation is separate from Python's ``/`` operator, which
+    follows MATLAB ``rdivide`` ordering. At least one operand must be a
+    Chebfun3T. Nonempty values delegate to the existing right-division
+    implementation with operands reversed.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebfun3t/ldivide.m``, ``rdivide.m``
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and the
+        Chebfun Developers.
+    """
+    from chebfunjax.chebfun3d.chebfun3t import Chebfun3T
+
+    template = next((x for x in (A, B) if isinstance(x, Chebfun3T)), None)
+    if template is None:
+        raise TypeError("ldivide requires at least one Chebfun3T operand")
+    if _is_empty_operand(A, template) or _is_empty_operand(B, template):
+        return type(template).empty()
+    return B / A
+
+
+def mldivide(A, B):
+    r"""MATLAB ``A \ B`` for the scalar-left Chebfun3T contract.
+
+    Native left division only supports a built-in double on the left. It
+    returns the first empty operand unchanged, checks that left operand type,
+    then delegates to ``ldivide``. Built-in Python numeric literals are
+    treated as MATLAB double literals. Explicit JAX arrays must use float64
+    or complex128. At least one operand must be a Chebfun3T; this is not a
+    general numeric matrix-division function. Python's ``A / B`` remains
+    right pointwise division.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebfun3t/mldivide.m``, ``ldivide.m``
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and the
+        Chebfun Developers.
+    """
+    from chebfunjax.chebfun3d.chebfun3t import Chebfun3T
+
+    template = next((x for x in (A, B) if isinstance(x, Chebfun3T)), None)
+    if template is None:
+        raise TypeError("mldivide requires at least one Chebfun3T operand")
+    if _is_empty_operand(A, template):
+        return A
+    if _is_empty_operand(B, template):
+        return B
+    if isinstance(A, Chebfun3T):
+        raise Chebfun3TArithmeticError(
+            "Division must be by a scalar.",
+            "CHEBFUN:CHEBFUN3T:mldivide:nonScalar",
+        )
+    # A builtin numeric literal is the Python adapter for MATLAB's default
+    # double literal. Explicit array/scalar dtypes retain their declared
+    # class: single, integer, and logical values are not native doubles.
+    if isinstance(A, (int, float, complex)) and not isinstance(A, bool):
+        left_dtype = jnp.asarray(
+            A, dtype=jnp.float64 if not isinstance(A, complex)
+            else jnp.complex128
+        ).dtype
+        native_double = True
+    else:
+        try:
+            left_dtype = jnp.asarray(A).dtype
+            native_double = left_dtype in (jnp.dtype(jnp.float64),
+                                           jnp.dtype(jnp.complex128))
+        except (TypeError, ValueError):
+            native_double = False
+    if not native_double:
+        raise Chebfun3TArithmeticError(
+            "Division must be by a scalar.",
+            "CHEBFUN:CHEBFUN3T:mldivide:nonScalar",
+        )
+    return ldivide(A, B)
+
+
 class Chebfun3TArithmeticMixin:
     """Source-shaped arithmetic for a dense ``Chebfun3T`` class.
 

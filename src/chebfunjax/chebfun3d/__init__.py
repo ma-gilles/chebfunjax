@@ -1,5 +1,6 @@
 """chebfunjax.chebfun3d — 3D function approximation via Tucker decomposition."""
 
+from chebfunjax.chebfun3d._chebfun3t_arithmetic import ldivide, mldivide
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3, chebfun3
 from chebfunjax.chebfun3d.chebfun3t import Chebfun3T, chebfun3t
 
@@ -8,4 +9,6 @@ __all__ = [
     "chebfun3",
     "Chebfun3T",
     "chebfun3t",
+    "ldivide",
+    "mldivide",
 ]

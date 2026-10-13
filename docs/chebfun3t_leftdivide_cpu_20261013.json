@@ -1,0 +1,61 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Named Chebfun3T ldivide and mldivide adapters; at least one operand must be Chebfun3T. Python / remains rdivide.",
+  "source_contract": [
+    "ldivide reverses arguments into existing rdivide, including source empty and domain behavior.",
+    "mldivide returns first empty argument, then second, and rejects non-double left operands using the native identifier before ldivide.",
+    "Python numeric literals adapt native double literals; explicit JAX single/integer/logical dtypes remain rejected. No new shape restriction beyond existing rdivide."
+  ],
+  "controls": "Three test functions cover direction, Python integer literal, native type/error identifiers, zero denominator, empty arrays/objects/string/None, mismatched domains, and rejection of numeric-only calls.",
+  "native_evidence": "R2025b captures record scalar direction, domain error, single/int/logical rejection, empty char and empty Chebfun3T branches. Numeric-only mldivide(2,[]) belongs to MATLAB builtin dispatch and is excluded from class claims.",
+  "gates": {
+    "private_final": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 6.461143241729587,
+      "sampled_peak_summed_rss_kib": 611856,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "merged": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.470776515081525,
+      "sampled_peak_summed_rss_kib": 611724,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "native_additional": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 80.14948482485488,
+      "sampled_peak_summed_rss_kib": 1286172,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "source_hashes": {
+    "src/chebfunjax/chebfun3d/__init__.py": "375cbb37f309d3549ac45a0264596cdcee7679e939e5bcf5d73f958f0bc0d0a6",
+    "src/chebfunjax/chebfun3d/_chebfun3t_arithmetic.py": "67a8d17fbbb41adce4133ea0a41d0b3c518b95046b11c1e8af58203698c83780",
+    "tests/test_chebfun3d/test_chebfun3t_leftdivide_source_controls.py": "d1c38477a610a8f92cf64fc4e526a5db05ed0b9d70946746ed6fe9c70921a7fa"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_leftdivide_candidate_v2_20261013/HANDOFF.md": "2991a60f4fc619604e4ebe8780f82c2d8c13ca10a2ef55da6ec00cfe0baf4ad7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_leftdivide_candidate_v2_20261013/run4/receipt.json": "a7cc4bf873949f101558a22ed655051d7c0781f679bbf408eedbc7a2f6625188",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_ldivide_audit_20261013/capture.mat": "417ffa8c41a250839b2bc7a9b6d50a4cdd4394dbea314f7c5b0b7f6da7b18f78",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_ldivide_audit_20261013/capture_v2.mat": "f9ec289964f0b10e6962fb18182749a68620b3fec5909fb43b75e75d73097b0f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_ldivide_audit_20261013/run_v3/receipt.json": "e56b769e9e463ca6cc718a4474a881f5ff53890f720b6db3d0a5241891b3c0e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/leftdivide_publication_20261013/run/receipt.json": "585df463edcdbbe90beb9fdfe17d75cfd2b0883281b3c4bf8c52e9c09edf4012",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/leftdivide_publication_20261013/run/stdout": "534e20e11a690a63aef324eaf0d645dd649b339caad61a665c7173ca99613827",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/leftdivide_publication_20261013/guard.json": "13ede0f5b458c8f9092f94b3d45226bd573cf0792b58236bda0f3419ebf7f962",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/leftdivide_publication_20261013/candidate_bindings.json": "f38b171bd31313439ec0d393cb7e1c8ab86e9b6c8206e5d98cc528ce3bea5e8a"
+  },
+  "limits": [
+    "No general builtin numeric matrix division implementation.",
+    "Full native assertion/API, numerical/page/raster parity and current-main green CI remain unresolved.",
+    "Dense constructor original predicate7 remains a strict expected failure."
+  ]
+}

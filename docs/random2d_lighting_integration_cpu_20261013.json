@@ -1,0 +1,20 @@
+{
+  "scope": "Merged Random2D camera/material controls; supplements private/full-run evidence in random2d_lighting_cpu_20261014.json.",
+  "merged_gate": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 13.813846549019217,
+    "sampled_peak_summed_rss_kib": 638616,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "result": "8 passed",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_publication_20261013/run/receipt.json": "8ce8ae684d043bca094fb05905f6280890a1445f859b21b2b70f2b69c4b8f431",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_publication_20261013/run/stdout": "3ee6ad1aed1e806f9292d8b7c67fb75443253db85d19cf1b38798a0e961b83c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_publication_20261013/guard.json": "97dc59c87d179337ecbcfad08126d70e865f06909aa9a6d985b244ebaeabc9b2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_publication_20261013/bindings.json": "0ca923509baa64833771aac53190331f8cb344e8d2fb1913cffd58280cacdbea"
+  },
+  "limits": "Native RNG stream, interpolated colors, camera framing and raster parity remain open. Fullrun invocation unchanged by final docstring/default-parameter cleanup; see package record."
+}
