@@ -1,0 +1,27 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "fb1bb98e",
+  "change": "TreeVar Ai evaluation reuses existing JAX airy_all instead of scipy.special.airy; numerical kernel itself unchanged.",
+  "native_capture": "tests/fixtures/treevar_unary_native_20261014.json",
+  "private_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_airy_jax_20261014/run/gate_v1",
+    "tests_passed": 25,
+    "scope": "Native captured TreeVar Ai clause, previous unary Ai port, existing23 general JAX Airy controls.",
+    "receipt_sha256": "3d77ee3597a0ffdd9626a5d566eb21ec997ff585cff951eb7c2dbf01d8729b28"
+  },
+  "merged_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_airy_publication_20261014/run",
+    "tests_passed": 2,
+    "scope": "Native captured Ai clause and current independent-reference original Ai test; original10eps bound unchanged.",
+    "receipt_sha256": "21522204e004c58abfab6e4e7d3cf363db7a70146fef6cbbc010c9c36653b505",
+    "wall_seconds": 9.882647583261132,
+    "sampled_peak_summed_rss_kib": 740680,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "limits": [
+    "No general TreeVar JIT claim; existing other unary NumPy operations and runtime casts remain until separately qualified.",
+    "Full native/API/page/performance/CI parity incomplete."
+  ]
+}

@@ -61,8 +61,8 @@ _DEG = np.pi / 180.0
 
 
 def _airy(x):
-    import scipy.special  # uses-numpy: concrete special-function eval
-    return scipy.special.airy(x)[0]
+    from chebfunjax.utils.airy_general import airy_all
+    return airy_all(jnp.asarray(x))[0]
 
 
 def _reciprocal_inverse_trig(x, cosine=False):

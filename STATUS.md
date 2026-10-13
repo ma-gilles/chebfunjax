@@ -1,3 +1,12 @@
+## TreeVar Airy uses the existing JAX kernel — 2026-10-14
+
+Removed the TreeVar SciPy Airy runtime call in favor of the qualified JAX
+airy_all kernel. Private25 checks pass, including existing JIT/complex kernel
+controls. Both affected merged TreeVar checks pass at the original10eps bound:
+9.88seconds, sampled peak740,680KiB, stable/no survivors.
+This is one numerical dependency removal; general TreeVar tracing and remaining
+host operations are still open. Evidence: `docs/treevar_airy_jax_cpu_20261014.json`.
+
 ## Division cancellation, native seeded indices and unary branches — 2026-10-14
 
 Merged CPU gate:84 tests pass in49.86seconds wall, sampled peak
