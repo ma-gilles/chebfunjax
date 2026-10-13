@@ -1,3 +1,12 @@
+## SH source random tensor initialization — 2026-10-14
+
+SH now uses the shared advancing JAX normal stream for the source0.1*32³
+random tensor, followed by numeric periodic Chebfun3 construction. Source
+parameters, grid recovery, real representation and a short solve pass in
+both private and public-import gates. MATLAB normal-stream identity and
+full SH evolution remain unresolved.
+Evidence: `docs/spinop3_sh_random_cpu_20261014.json`.
+
 ## Original Chebfun3 constructor syntax predicates — 2026-10-14
 
 Added the original callback/string/domain/lower-variable-dependency cases,

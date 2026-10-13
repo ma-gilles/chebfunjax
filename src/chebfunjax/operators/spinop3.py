@@ -131,8 +131,9 @@ def _preset(pdechar: str):
                 [(1.0,), (10.0,)], [("lap",), ("lap",)], [n1, n2], True, 2)
     if key == "SH":
         # Swift-Hohenberg on [0,25]^3: u_t = -2 lap(u) - biharm(u) - .9 u - u^3.
-        # MATLAB seeds u0 = chebfun3(.1*randn(32,32,32), dom, 'trig'); the
-        # trig interpolant of a fixed-seed normal field stands in.
+        # Native SH uses .1*randn(32,32,32) followed by numeric trig
+        # Chebfun3 construction. Reuse the shared JAX normal stream, matching
+        # the GL adapter; MATLAB randn samples are not claimed bit-identical.
         G = 25.0
         dom = (0.0, G, 0.0, G, 0.0, G)
         lin = FuncHandle(None, "@(u)-2*lap(u)-biharm(u)")
@@ -141,8 +142,11 @@ def _preset(pdechar: str):
         def nonlin_vals(u):
             return -0.9 * u - u ** 3
 
-        vals = 0.1 * np.random.RandomState(0).randn(32, 32, 32)
-        u0 = _make_trig_interp(vals, [(0.0, G), (0.0, G), (0.0, G)])
+        from chebfunjax.chebfun3d.chebfun3 import chebfun3
+        from chebfunjax.utils import _randnfun
+        vals = 0.1 * _randnfun._normal_draw(
+            _randnfun._next_key(), 32**3, 1).reshape((32, 32, 32), order="F")
+        u0 = chebfun3(vals, dom, trig=True)
         return (dom, (0.0, 800.0), lin, nonlin, u0, (-2.0, -1.0),
                 ("lap", "biharm"), nonlin_vals, True, 1)
     raise ValueError(
