@@ -22,6 +22,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.chebfun3d._chebfun3t_arithmetic import Chebfun3TArithmeticMixin
+from chebfunjax.chebfun3d._chebfun3t_plotting import Chebfun3TPlotMixin
 from chebfunjax.chebfun3d._chebfun3t_utilities import Chebfun3TUtilitiesMixin
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
 from chebfunjax.chebpref import ChebfunPref
@@ -108,7 +109,12 @@ def _evaluate(coeffs, domain, x, y, z):
     )
 
 
-class Chebfun3T(Chebfun3TUtilitiesMixin, Chebfun3TArithmeticMixin, eqx.Module):
+class Chebfun3T(
+    Chebfun3TPlotMixin,
+    Chebfun3TUtilitiesMixin,
+    Chebfun3TArithmeticMixin,
+    eqx.Module,
+):
     """Full tensor of Chebyshev coefficients on a rectangular domain.
 
     Broadcasting of query arrays is a Python extension to native vector and

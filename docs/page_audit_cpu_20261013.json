@@ -1,0 +1,32 @@
+{
+  "audited_head": "a651cd06c26e7811475d27ef0dbe2e5e0ded33f4",
+  "canonical_pages": 322,
+  "matched_matlab_code_blocks": 2408,
+  "matched_figure_slots_order_and_dimensions": 1305,
+  "added_page_specific_prose_notes": 18,
+  "printed_output_differences": [
+    "Floquet",
+    "TransientGrowth",
+    "ZetaZeros",
+    "EightShades"
+  ],
+  "interpretation": [
+    "Static structure does not prove numerical execution or raster identity",
+    "TransientGrowth and EightShades warning differences traced to historical HTML versus retained native runs",
+    "Floquet missing native concatenation warning has no corresponding Python operation; current table precision matches retained source-native display",
+    "Fresh ZetaZeros comparison is recorded separately in zetazeros_native_comparison_cpu_20261013.json",
+    "Random2D -110 Matplotlib azimuth correctly maps source -20; prior contrary audit claim retracted in linked supplement",
+    "Random2D/Zebra random streams differ; lighting remains under investigation",
+    "Disk k7 original predicate qualified at3a69ee84, current relevant method bodies/test match; no redundant current runtime claim",
+    "Vandermonde historical7.7e7 is superseded by qualified October9 full-source run; old source is unbound"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout_page_audit_20261013_a651cd06/REPORT.md": "1b3d9216eea0d72d12620cadfdb10b5de9c3c8ce7f994e5f95452f7d77b14d5f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout_page_audit_20261013_a651cd06/BINDINGS.json": "42b2bab14d02125898cfb53c9e5229294957fef1aa4d23b8206ed38a5cfdf171",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout_page_audit_20261013_a651cd06/WARNING_AUDIT.md": "7cd421c602626daa980b3c5e5edd15ff5474e9748c2081a1ee41409babcf1f81",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout_page_audit_20261013_a651cd06/WARNING_BINDINGS.json": "457c52d58d29fff7f0dbe106ab8a55a9420242210a33741806a3ddb137147938",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_camera_review_a31b705d/RANDOM2D_CAMERA_REVIEW.md": "8185edac7f9e85261799aba31bc9855921975679368063e592071c7c11b56a77",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/disk_k7_source_audit_20261013/REPORT.md": "f06486fc7ac9491c3b5fed0f4b91851186b0dfcc461a26c669be5a59fbabb673",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vandermonde_continuous_qr_review_20261013/HISTORICAL_SCALE_PROVENANCE.md": "08fbbe429fbac2fff71bb466149581068ee7d3be19924a28a1bfdb069c0ae94f"
+  }
+}

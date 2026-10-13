@@ -2233,6 +2233,34 @@ def _update_running_vscale(values, vscale):
     return jnp.maximum(vscale, jnp.max(jnp.abs(sampled_finite), axis=0))
 
 
+@jax.jit
+def _adaptive_sample_metadata(sampled, scales):
+    """Reuse compilation for source sample scales and nonfinite row flags.
+
+    MATLAB source: @chebtech/populate.m, Chebfun commit 7574c77.
+    The running scale uses finite entries before extrapolation. NaN and Inf
+    flags cover whole rows for array-valued samples; Inf restoration has
+    priority when a row contains both kinds of nonfinite entries.
+    """
+    scales = _update_running_vscale(sampled, scales)
+    bad_nan = jnp.isnan(sampled)
+    bad_inf = jnp.isinf(sampled)
+    if sampled.ndim == 2:
+        bad_nan = jnp.any(bad_nan, axis=1, keepdims=True)
+        bad_inf = jnp.any(bad_inf, axis=1, keepdims=True)
+    return scales, bad_nan, bad_inf, jnp.all(jnp.isfinite(sampled))
+
+
+@jax.jit
+def _restore_refinement_sentinels(values, bad_nan, bad_inf):
+    """Restore source NaN then Inf flags before nested sample reuse.
+
+    MATLAB source: @chebtech/populate.m, Chebfun commit 7574c77.
+    """
+    values = jnp.where(bad_nan, jnp.nan, values)
+    return jnp.where(bad_inf, jnp.inf, values)
+
+
 def _adaptive_refine_construct(
     tech_cls, kind, op, *, max_length, min_samples, refinement_function,
     tol, check, vscale, sample_test, hscale, extrapolate=False,
@@ -2290,17 +2318,11 @@ def _adaptive_refine_construct(
                 raise ValueError("custom refiner gave up before sampling the function")
             break
         sampled = _as_fun_dtype(sampled)
-        scales = _update_running_vscale(sampled, scales)
-        # MATLAB extrapolate flags whole rows, even when only one column
-        # contains a nonfinite sample; populate restores every column there.
-        bad_nan = jnp.isnan(sampled)
-        bad_inf = jnp.isinf(sampled)
-        if sampled.ndim == 2:
-            bad_nan = jnp.any(bad_nan, axis=1, keepdims=True)
-            bad_inf = jnp.any(bad_inf, axis=1, keepdims=True)
+        scales, bad_nan, bad_inf, all_finite = _adaptive_sample_metadata(
+            sampled, scales)
         values = sampled
         n = values.shape[0]
-        if not bool(jnp.all(jnp.isfinite(values))):
+        if not bool(all_finite):
             values = _extrapolate_values(
                 values, chebpts(n, kind=kind), tech_cls.barywts(n))[0]
         coeffs = tech_cls.vals2coeffs(values)
@@ -2311,8 +2333,7 @@ def _adaptive_refine_construct(
             return tech_cls(coeffs=coeffs[:cutoff], ishappy=True)
         # Source populate restores NaN/Inf flags after an unhappy check, so
         # nested refinement reuses original bad samples, never extrapolations.
-        old_values = jnp.where(bad_nan, jnp.nan, values)
-        old_values = jnp.where(bad_inf, jnp.inf, old_values)
+        old_values = _restore_refinement_sentinels(values, bad_nan, bad_inf)
     return tech_cls(coeffs=coeffs, ishappy=False)
 
 

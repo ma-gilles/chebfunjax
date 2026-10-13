@@ -1,3 +1,28 @@
+## CPU compilation reuse, coefficient plotting and native page evidence — 2026-10-13
+
+Adaptive sample metadata now groups existing JAX operations into reusable
+compilations. Twenty captured sample batches and complete forward/inverse
+coefficients and point values remain byte-identical. All32 private controls and
+five merged controls pass. One coordinated serial CPU pair reduces setup plus
+first inverse30.34→29.00seconds and compiler events594→541. Warm medians are
+0.6044/0.6073seconds; no warm-speed or general performance guarantee is claimed.
+See `docs/inverse_sample_metadata_cpu_20261013.json`.
+
+Added Chebfun3T coefficient plotting with source index order, zero floors,
+log colors, and native-captured scatter properties. Camera conversion is applied
+through the existing MATLAB adapter. Four private and four merged controls pass.
+This qualifies data/artist contracts, not raster identity. See
+`docs/chebfun3t_plotcoeffs_cpu_20261013.json`.
+
+Fresh full-source ZetaZeros runs on current Python and pinned MATLAB both emit
+the same composition warning. Seven of eight printed root rows match; the last
+differs in its tenth decimal. Coefficient counts match, but critical-line
+coefficient differences still need diagnosis. The322-page static audit confirms
+all2408 MATLAB code blocks and1305 figure slot/dimension matches; numerical and
+raster parity remain incomplete. See `docs/zetazeros_native_comparison_cpu_20261013.json`
+and `docs/page_audit_cpu_20261013.json`. Full native coverage, known constructor
+failure, remaining correctness/speed gaps and current-main green CI stay open.
+
 ## Dense Chebfun3T degree tangent and display — 2026-10-13
 
 Added the missing `tand` and `display` methods. Degree reduction preserves

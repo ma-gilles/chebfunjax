@@ -1,0 +1,111 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_head": "a31b705df1231a91ffa98cf6b481fabf5aae8aaa",
+  "scope": "Full unchanged native ZetaZeros numerical example and current Python counterpart; native invisible figures created but not saved for raster qualification",
+  "native_runtime": "MATLAB R2024b, singleCompThread CPU, software Painters",
+  "python_runtime": "Pinned JAX/JAXlib0.11.0 x64 CPU",
+  "comparison": {
+    "f_coeffs": {
+      "native_shape": [
+        75,
+        1
+      ],
+      "python_shape": [
+        75
+      ],
+      "same_length": true,
+      "max_abs_difference": 6.774311733017762e-17,
+      "bit_identical": false
+    },
+    "s_coeffs": {
+      "native_shape": [
+        2,
+        1
+      ],
+      "python_shape": [
+        2
+      ],
+      "same_length": true,
+      "max_abs_difference": 4.440892098500626e-16,
+      "bit_identical": false
+    },
+    "ft_coeffs": {
+      "native_shape": [
+        73,
+        1
+      ],
+      "python_shape": [
+        73
+      ],
+      "same_length": true,
+      "max_abs_difference": 6.344504820432615e-06,
+      "bit_identical": false
+    },
+    "zeros_t": {
+      "native_shape": [
+        8,
+        1
+      ],
+      "python_shape": [
+        8
+      ],
+      "same_length": true,
+      "max_abs_difference": 2.8149545154128974e-11,
+      "bit_identical": false
+    },
+    "zeros_s": {
+      "native_shape": [
+        8,
+        1
+      ],
+      "python_shape": [
+        8
+      ],
+      "same_length": true,
+      "max_abs_difference": 2.8149712130722376e-11,
+      "bit_identical": false
+    },
+    "exact_print_rows": 7,
+    "native_rows": [
+      " 0.5000000008 + 14.1347251414i    0.5000000000 + 14.1347251417i",
+      " 0.5000000000 + 21.0220396388i    0.5000000000 + 21.0220396388i",
+      " 0.5000000000 + 25.0108575801i    0.5000000000 + 25.0108575801i",
+      " 0.5000000000 + 30.4248761259i    0.5000000000 + 30.4248761259i",
+      " 0.5000000001 + 32.9350615877i    0.5000000000 + 32.9350615877i",
+      " 0.4999999999 + 37.5861781588i    0.5000000000 + 37.5861781588i",
+      " 0.4999999995 + 40.9187190118i    0.5000000000 + 40.9187190121i",
+      " 0.5000000020 + 43.3270732797i    0.5000000000 + 43.3270732809i"
+    ],
+    "python_rows": [
+      " 0.5000000008 + 14.1347251414i    0.5000000000 + 14.1347251417i",
+      " 0.5000000000 + 21.0220396388i    0.5000000000 + 21.0220396388i",
+      " 0.5000000000 + 25.0108575801i    0.5000000000 + 25.0108575801i",
+      " 0.5000000000 + 30.4248761259i    0.5000000000 + 30.4248761259i",
+      " 0.5000000001 + 32.9350615877i    0.5000000000 + 32.9350615877i",
+      " 0.4999999999 + 37.5861781588i    0.5000000000 + 37.5861781588i",
+      " 0.4999999995 + 40.9187190118i    0.5000000000 + 40.9187190121i",
+      " 0.5000000020 + 43.3270732798i    0.5000000000 + 43.3270732809i"
+    ],
+    "warning_native": "['CHEBFUN:CHEBFUN:compose:composeTwoChebfuns:complex']",
+    "warning_python_present": true,
+    "bindings": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_native_full_20261013/capture.mat": "e31318c405d128d8a4498286feda1bad52a9e2820de4b4d76b699dfa2303c14e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/captures/continuation.npz": "62c7c78557b1814b6745a16f8c33afe5130a812079b774bb5dba1ebb43d87217",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/captures/critical_line.npz": "748ec0107867adca3e447b6eb2f7585231a596d751c200c8a2780810bb7bc807",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/run/receipt.json": "7476d9855c0d0afbc3bd170953315aacffeb0697db1e52e51d923277d27b2da5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/run/stdout": "35513a8e207e01a602e6216569a1fbc2fe9fdb9609e91eb842380e7d80863645",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/run/stderr": "61a46d2f574d2c05f6e75e7fa6753d6667f1b4eabfa5c40cf419a7ac1f3283b1"
+    }
+  },
+  "limits": [
+    "Seven of eight printed root rows match; final imaginary printed digit differs by1e-10",
+    "Both f coefficient counts75 and composed ft counts73 match, but coefficients are not bit-identical",
+    "Critical-line coefficient difference6.34e-6 is not isolated yet; roundoff amplification is a hypothesis being tested with matched-coefficient controls",
+    "New current Python figures retained in scratch, no complete raster-parity claim"
+  ],
+  "receipts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_native_full_20261013/run/receipt.json": "f681992ade82e53a23d859201969a100b5cb7ace708ecb64a562b3672530b79f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/run/receipt.json": "7476d9855c0d0afbc3bd170953315aacffeb0697db1e52e51d923277d27b2da5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_native_full_20261013/REPORT.md": "e70e6a14542fb43126cfdaf5cb2bf9bfa4a5acbff6243ab760135d4a0a074b00"
+  }
+}

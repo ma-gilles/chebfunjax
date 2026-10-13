@@ -1,0 +1,46 @@
+{
+  "base": "a651cd06c26e7811475d27ef0dbe2e5e0ded33f4",
+  "integration_base": "a31b705df1231a91ffa98cf6b481fabf5aae8aaa",
+  "change": "JIT-group existing adaptive finite scales, nonfinite row flags and sentinel restoration; grids, thresholds and callback order unchanged",
+  "correctness": {
+    "private_tests_passed": 32,
+    "captured_sample_batches_bitwise_equal": 20,
+    "merged_controls_passed": 5,
+    "forward_inverse_coefficients_and_pointvalues": "byte-identical baseline/candidate"
+  },
+  "coordinated_cpu_pair": {
+    "setup_seconds": [
+      17.6922,
+      16.5403
+    ],
+    "first_inverse_after_setup_seconds": [
+      12.6502,
+      12.462
+    ],
+    "warm_median_seconds_3_calls": [
+      0.604411,
+      0.60725
+    ],
+    "setup_and_first_compiler_events": [
+      594,
+      541
+    ],
+    "interpretation": "One serial pair, about4.4% setup+first reduction; no confidence interval or warm-speed improvement claim",
+    "environment": "JAX/JAXlib0.11.0 x64 CPU16\u201319, other agents held numerical work"
+  },
+  "limits": [
+    "Root eigensolver shape compilation and most first-call cost remain",
+    "No current MATLAB performance comparison in this pair",
+    "Full parity and green main CI remain unresolved"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/QUALIFICATION.md": "3384b03f524ffd8ec68ad54debb4ccece9c8a3c8c2ce9395d4636301a41d9d5b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/CHANGED_PATHS.json": "8aa260db1f873543092ad1c0e7af53158d20a220d2f22cbaee4aa77284572341",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/PAIRED_COMPARISON.json": "6207eae266e899973d0cb0e72bd48e7327b6284d9576a4f4131bad370e2efe34",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/REPLAY.json": "30e57125c7854039ba3e2c825a1e4a991f2c180ab24b9590fa69d056574a1e0b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/gate_supervision/receipt.json": "5eeb29867609e5077c2832d355b95f391318bf8eecb2ca5157ee4e4c379a956c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/paired_baseline_supervision/receipt.json": "2b785a604bd98081def6a53e15c615158821461f1322f47a0e79821d45067932",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_sample_metadata_review_20261013/paired_candidate_supervision/receipt.json": "0ede5da732a330d7735f93fe024db6500cbe86aaa48bc064e48691ba1e381a0f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_metadata_publication_20261013/run/receipt.json": "936dada4668d9b8d9015ae12d3a831246cc237eb6ae3d44072685fd52656f97b"
+  }
+}

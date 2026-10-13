@@ -1,0 +1,31 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Public Chebfun3T.plotcoeffs source geometry, data and captured MATLAB scatter properties",
+  "implementation": [
+    "JAX magnitude/epsilon floor/log colors; NumPy only at renderer boundary",
+    "One-based ndgrid F-order coordinates and data",
+    "Filled size36 circles, no edges, linewidth0.5, Parula256, no synthetic depth alpha shading",
+    "Source-equivalent camera via matlab_view(-30,35), grid and colorbar",
+    "Empty input and integer coefficient adapter controls"
+  ],
+  "tests": {
+    "private": 4,
+    "merged": 4,
+    "CPU_only": true,
+    "guards_stable": true,
+    "survivors": []
+  },
+  "limits": [
+    "Native requested-output path references undefined h; Python fig/ax return is a documented adapter",
+    "No full MATLAB renderer or pixel parity claim",
+    "Earlier startup cap and unsupported-property capture error retained, excluded from scientific results"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_candidate_20261013/HANDOFF_v3.md": "f439de26f706329253feaab38137cef333d6d6fd05a0275179a95174b9269dd9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_candidate_20261013/evidence/native_scatter_defaults.m": "8e75231523a4af24c9fdfd0c8b047cd825864f41a9c69448b55eaf44679bf376",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_candidate_20261013/evidence/native_scatter_run_v3/receipt.json": "5586bbc8c1e558b0a2b5ba0da45fc47ce234acef914cd68da1c2b7ea11f0c3df",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_candidate_20261013/evidence/native_scatter_run_v3/stdout": "fa35e7babf354294d46150cfa3437c38c958970561d1342082a6b8d763b3bac1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_candidate_20261013/evidence/run8/receipt.json": "9a3b00cadf37e797605a83438dbe95abf85eeedd84292090dcc171075eaca071",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_plotcoeffs_publication_20261013/run/receipt.json": "6d3b506ef6192337f78b1e7752e3797fdf1fcb8ea9a48eede6b12592eb9a63a2"
+  }
+}
