@@ -540,6 +540,14 @@ def _compile(tree, index_start, is_coeff):
         return lambda t, u: 0.0
     if not _is_tree(tree):
         leaf = tree
+        if is_coeff:
+            # Native tree2infix composes Chebfun leaves with the independent
+            # Chebfun; scalar leaves stay scalar. Do not classify a function
+            # as constant from a fixed set of point evaluations.
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            if isinstance(leaf, Chebfun):
+                return lambda t, u: t.compose(leaf)
+            return lambda t, u: leaf
         return lambda t, u: _leaf_eval(leaf, t)
     n_args = tree["numArgs"]
     if n_args == 0:
@@ -547,6 +555,10 @@ def _compile(tree, index_start, is_coeff):
         return lambda t, u: u[idx]
     if n_args == 1:
         inner = _compile(tree["center"], index_start, is_coeff)
+        if is_coeff and tree["method"] == "uminus":
+            return lambda t, u: -inner(t, u)
+        if is_coeff and tree["method"] == "uplus":
+            return lambda t, u: +inner(t, u)
         fn = _UNARY_FNS[tree["method"]]
         return lambda t, u: fn(inner(t, u))
     if tree["method"] == "diff":
@@ -677,23 +689,9 @@ def to_first_order(fun_in, rhs, domain, num_args=None, cell_arg=False):
         coeff_arg = np.zeros(n_state_der)
         coeff_arg[one_idx] = 1.0
 
-        def coeff_fun(tv, _cc=coeff_closure, _ca=coeff_arg):
-            return _cc(tv, _ca)
-
-        # Represent the coefficient as a scalar when it is constant,
-        # a Chebfun otherwise (probe like MATLAB's compose(t, .)).
-        probes = np.linspace(domain[0], domain[-1], 7)[1:-1]
-        vals = np.asarray([coeff_fun(p) for p in probes])
-        if np.allclose(vals, vals[0], rtol=1e-14, atol=1e-14):
-            coeffs[max_der_loc] = float(vals[0])
-        else:
-            coeffs[max_der_loc] = chebfun(
-                lambda x, _cf=coeff_fun: jnp.asarray(
-                    np.asarray([_cf(float(v))
-                                for v in np.atleast_1d(
-                                    np.asarray(x))])).reshape(
-                    jnp.shape(x)),
-                domain=problem_dom)
+        # Source evaluates coeffFun(t, coeffArg) with a Chebfun t, retaining
+        # its actual representation and avoiding a sampled constancy oracle.
+        coeffs[max_der_loc] = coeff_closure(t_cheb, coeff_arg)
 
         rhs_minus = _tree("minus", 2, left=rhs_k,
                           right=0.0 if new_tree is None else new_tree,

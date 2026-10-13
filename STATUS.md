@@ -1,3 +1,15 @@
+## Preserve leading coefficients in first-order conversion — 2026-10-14
+
+Fixed a source-backed numerical fault: a nonconstant quintic equal at five
+fixed probes was replaced by a scalar coefficient, changing the ODE. Native
+coefficient-tree evaluation now composes Chebfun leaves directly, preserving
+constant-function representation too and removing host sampled reconstruction.
+Both baseline controls fail before the fix;24 merged checks pass afterward,
+including all98 original expressions and3 controls. Wall27.60seconds,
+sampled peak1,634,096KiB, stable guards/no survivors.
+Inherited RHS host evaluation and broader TreeVar/CI parity remain open.
+Evidence: `docs/treevar_coefficient_source_cpu_20261014.json`.
+
 ## Complete original first-order conversion checks — 2026-10-14
 
 Restored all98 native treeVar/toFirstOrder expressions across19 problems and
