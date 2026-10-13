@@ -31,16 +31,20 @@ def _same_norm(a, b):
 
 @pytest.mark.slow
 class TestChebfun3tCompose:
-    def test_all_matlab_assertions(self):
+    def test_native_product_callback_predicate(self):
+        # Native predicate 1 reconstructs the composed product from a
+        # callback that evaluates the already-constructed Chebfun3T f.
         f = chebfun3t(_f)
+        g = chebfun3t(lambda x, y, z: _f(x, y, z)
+                      * jnp.sin((x - 0.1) * (y + 0.4) * (z + 0.8)))
+        composed = chebfun3t(
+            lambda x, y, z: f(x, y, z)
+            * jnp.sin((x - 0.1) * (y + 0.4) * (z + 0.8))
+        )
+        assert _same_norm(g, composed) < TOL
 
-        def exact_mul(x, y, z):
-            return _f(x, y, z) * jnp.sin((x - 0.1) * (y + 0.4) * (z + 0.8))
-
-        g = chebfun3t(exact_mul)
-        h = chebfun3t(lambda x, y, z:
-                      jnp.sin((x - 0.1) * (y + 0.4) * (z + 0.8)))
-        assert _same_norm(g, f * h) < TOL
+    def test_remaining_matlab_assertions(self):
+        f = chebfun3t(_f)
 
         g = chebfun3t(lambda x, y, z: jnp.sin(_f(x, y, z)))
         assert _same_norm(g, f.sin()) < TOL

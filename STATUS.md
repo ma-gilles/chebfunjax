@@ -1,3 +1,27 @@
+## Direct periodic Chebfun3 construction — 2026-10-13
+
+Periodic Chebfun3 now samples native half-open grids and builds Fourier factors
+directly, with source envelope happiness, refinement and simplification. Copied
+explicit preferences and selected session fields control technology, epsilon,
+sample testing and constructor dispatch. The merged CPU gate passes25 controls,
+including native off-grid queries and independent complex/nonunit-domain values;
+new controls forbid postconversion. Default C2 controls still pass.
+
+Unsupported C1 preference construction, classic construction, numeric Fourier
+tensors and custom preference routes remain explicit gaps. The old explicit
+C1 keyword keeps its legacy conversion behavior. Shared ACA/QR implementation
+and full native algorithm parity are not qualified by this package. Evidence:
+`docs/chebfun3_direct_trig_cpu_20261013.json`.
+
+The dense Chebfun3T composition test now executes original predicate1's callback
+construction, replacing a different product-of-approximations test. The isolated
+original predicate passes private and merged CPU gates with its original bound;
+remaining predicates2-9 are unchanged and are not claimed freshly rerun. See
+`docs/chebfun3t_compose_predicate_cpu_20261013.json`.
+
+Full native assertions, known dense accuracy failure, pages/figures, remaining
+CPU speed gaps and green final-main CI remain unresolved.
+
 ## Named left division and Random2D lighting — 2026-10-13
 
 Added Chebfun3T `ldivide` and `mldivide` adapters with native direction,

@@ -1,0 +1,77 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Direct periodic Chebfun3 construction through native half-open grids and selected-tech factor construction; copied explicit pref and selected session fields.",
+  "changes": [
+    "Dispatch trig/periodic flags and trig technology before sampling instead of postconverting Chebyshev factors.",
+    "Use source periodic gradient spacing, envelope happiness, nested2m refinement, direct Fourier factors and both source simplifications; use Fourier evaluation for sample testing.",
+    "Reuse existing binary64 integer division for native grid arithmetic; initial3-node exact-grid mismatch retained as failed evidence, corrected without tolerance change.",
+    "Propagate periodic selection through scalar/zero/complex/restart paths and honor cheb3Prefs.sampleTest."
+  ],
+  "gates": {
+    "private_combined20": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 45.1770829167217,
+      "sampled_peak_summed_rss_kib": 2445308,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "final_dispatch7": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 11.58878718689084,
+      "sampled_peak_summed_rss_kib": 899372,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "merged25": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 54.462949751876295,
+      "sampled_peak_summed_rss_kib": 2449936,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "independent_controls": [
+    "Original native technology3-6 with direct pref, plus default grid/session epsilon controls.",
+    "Native captured off-origin trig queries; independent asymmetric complex multimode function on nonunit domain.",
+    "Postconversion forbidden in new controls. Exact callback grid, session sampleTest, scalar zero/complex and preference dispatch controls.",
+    "Nine retained native primitive happiness/cutoff decisions match; coefficient differences at most1.11e-16."
+  ],
+  "compatibility": {
+    "supported": "Default C2, explicit C2 pref, direct trig flag/keyword/explicit or session pref, explicit eps/tol precedence, sampleTest, native classic/fallback constructor selection with explicit chebfun3f override.",
+    "legacy_preserved": "Explicit tech=chebtech1 without pref retains earlier factor postconversion; this is not literal native C1 construction.",
+    "rejected": "Explicit/session C1 preference, explicit unknown tech, classic constructor without chebfun3f override, unsupported happiness selections and periodic nonscalar numeric tensors.",
+    "not_consumed": "Other custom fixedLength/extrapolate/refinement preferences; full preference parity not claimed.",
+    "identity": "Existing Chebfun3 input returns unchanged before unsupported backend validation."
+  },
+  "limits": [
+    "Native C1 capture warns at restart limit and has off-origin error6.81e-6 despite near-zero original predicate passing; C1 not fixed or qualified here.",
+    "Shared ACA/QR uses inherited NumPy paths; new numerical helpers JAX-only. Full ACA ordering, complex QR operation order, C2 phase-two stopping and refinement caps remain open.",
+    "No full40-function battery, numeric Fourier tensor, classic constructor or large3D example qualification.",
+    "Full library/native assertions, dense constructor known failure, pages/figures/speed and green final-main CI remain unresolved."
+  ],
+  "source_hashes": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "14b53cf1f23e425aa47d53f355e232068c77cfb1ed12b6f8c42b3d9e2d7c2da0",
+    "src/chebfunjax/chebfun3d/_chebfun3f_tech.py": "816b3190d69fe28bf871ce18035e282c0f2e9f4c126a1d9c863dbf1b90fdd586",
+    "tests/test_matlab_port/chebfun3/test_direct_trig_source.py": "1f83a83b764f0e276421d8ef784897255b483520c77fabbac1198264e6b22b86",
+    "tests/test_matlab_port/chebfun3/fixtures/trig_source_queries.json": "f5d2f93509064aae7d08448734551f2da9d0ca7a7e3313a8fd28d3a36fb60eb1"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/QUALIFICATION.md": "bbfe2bbde4a426a1fc29fa0a8a8141ef803560a74b9b64e0911bff79d22ff098",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/CHANGED_PATHS.json": "95921999412f736d099839f6364f7f2bd3f8ceb351bb7c699d39020eddb5a3e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/DELIVERY_HASHES.json": "24821ac250fe06fae3bb21351b194a840df1a5e23809dd686cbd029adad4c479",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/NATIVE_SUMMARY.json": "63598b18fd27913c684b3c466765fc6a65fef1b35b05322efd24d1f738bf9cad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/PRIMITIVES.json": "afa4775368a7c5db0d07ca96f83f24a9dc1743690bd7278229c9062f42983b13",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/STYLE_SUCCESSOR.json": "658e11d56a04f8a3adc2e937f117fe8c5c69a35582675c8d689a458452f00874",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/final_run/receipt.json": "431cc45521e5fcb208103900311a5fb831b778cc7c227a47cfe3c3ebc63cfe9f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_technology_review_20261013/dispatch_run/receipt.json": "49c34bd8cfcb23dcad8ac06a2c166cbee4e913caa631f9639b444a1d61d3344e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/direct_trig_publication_20261013/run/receipt.json": "33e89bdc2121d6911d8873dec91252e5ebcff33cee9f12626ef1bc6cb02e109d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/direct_trig_publication_20261013/run/stdout": "7cbd4588f8a33467224d1b288bb26de59789fe8074b73cdf578837eaaaece9b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/direct_trig_publication_20261013/guard.json": "62a4c9f36f540ada30169cef060085ba32ebc309b296d2ddc6f381f76a00e5b7"
+  }
+}

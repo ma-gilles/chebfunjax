@@ -1,0 +1,35 @@
+{
+  "source": "tests/chebfun3t/test_compose.m, predicate1",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Restore direct reconstruction callback evaluating existing f, rather than multiplying separately approximated f and sine factors. Predicate1 is now separately selectable and executes once; original predicates2-9 remain verbatim in a second test.",
+  "bound": "Original1000*eps unchanged. No production source change.",
+  "gates": {
+    "private": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 25.534767927136272,
+      "sampled_peak_summed_rss_kib": 1212764,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "merged": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 29.88076236611232,
+      "sampled_peak_summed_rss_kib": 1050540,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "qualification": "Original predicate1 passes on both private and merged CPU checkouts. Prior full compose attempt hit3GiB memory cap before result; not a pass. Unchanged remaining predicates retain previous qualification, not a fresh full-suite claim.",
+  "source_sha256": "ea749ef4d0c255fa61f73d9ab1e916f03fab064f8dd561f4916d401eccbe8176",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_compose_predicate1_20261013/HANDOFF.md": "c89bcc85908f8b7aaa93665b4f61823bde798fd361e0bf39368ecd430f94b3b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_compose_predicate1_20261013/run_final/receipt.json": "989a36ff8a1dea9f3cd33fa395272ee17d5611dad8123510be46a74a050086e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_predicate_publication_20261013/run/receipt.json": "2ea07cf756dc1d2f67642ea131762fc0a6247a1de0579be0318e764b5b29cb7c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_predicate_publication_20261013/run/stdout": "602334fc1e057b40643a57faaa92badc87d25030a90ec510cc64ec66f2f4e509",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose_predicate_publication_20261013/guard.json": "1ce17873d0452eb7477bbc35f68be55395913d43780f463487316166bfba30a5"
+  }
+}
