@@ -1,3 +1,14 @@
+## CPU JIT breakpoint equality — 2026-10-13
+
+Stored point values now use exact IEEE comparisons under CPU JIT, including
+subnormal queries, signed zero, complex offsets and float32 widening. The
+compiler previously rewrote integer zero canonicalization into floating equality;
+uint32 word comparisons pass the public reproducer and all12 focused tests.
+Original eight test bodies/bounds are unchanged. Eager explicit override behavior
+is unchanged. See `docs/feval_jit_breakpoint_equality_cpu_20261013.json` for
+receipts and scope. General subnormal piece routing, tensor shape parity and full
+main CI remain open. This is not a full feval parity qualification.
+
 # Current CPU parity checkpoint — 2026-10-13
 
 Main through `d8e079cb` is published; this checkpoint adds the packages below.

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import math
 import numbers
+import struct
 from typing import TYPE_CHECKING, Callable
 
 import equinox as eqx
@@ -45,6 +46,90 @@ def _delta_row(row):
     if len(row) == 2:
         return float(row[0]), row[1], 0
     return float(row[0]), row[1], int(row[2])
+
+
+def _float32_to_float64_bits(value):
+    """Exactly widen binary32 words to binary64 words, including subnormals."""
+    bits = jax.lax.bitcast_convert_type(jnp.asarray(value, dtype=jnp.float32),
+                                        jnp.uint32)
+    sign = (bits >> jnp.uint32(31)).astype(jnp.uint64) << jnp.uint64(63)
+    exponent = (bits >> jnp.uint32(23)) & jnp.uint32(0xff)
+    fraction = bits & jnp.uint32(0x007fffff)
+    normal = (exponent != 0) & (exponent != 0xff)
+    subnormal = (exponent == 0) & (fraction != 0)
+    highest = jnp.uint32(31) - jax.lax.clz(fraction)
+    sub_exp = (highest + jnp.uint32(874)).astype(jnp.uint64)
+    sub_fraction = ((fraction.astype(jnp.uint64)
+                     << (jnp.uint32(52) - highest))
+                    & jnp.uint64(0x000fffffffffffff))
+    normal_exp = exponent.astype(jnp.uint64) + jnp.uint64(896)
+    normal_fraction = fraction.astype(jnp.uint64) << jnp.uint64(29)
+    special_fraction = fraction.astype(jnp.uint64) << jnp.uint64(29)
+    out_exp = jnp.where(normal, normal_exp,
+                        jnp.where(subnormal, sub_exp,
+                                  jnp.where(exponent == 0xff,
+                                            jnp.uint64(0x7ff), jnp.uint64(0))))
+    out_fraction = jnp.where(normal, normal_fraction,
+                             jnp.where(subnormal, sub_fraction,
+                                       jnp.where(exponent == 0xff,
+                                                 special_fraction, jnp.uint64(0))))
+    return sign | (out_exp << jnp.uint64(52)) | out_fraction
+
+
+def _ieee_float64_bits_equal(abits, bbits):
+    """IEEE numeric equality for binary64 words; signed zeros compare equal.
+
+    Compare the 32-bit words directly.  Canonicalizing signed zero in a
+    uint64 with ``where`` may be optimized by CPU XLA into a floating-point
+    comparison; on this target that comparison flushes subnormals to zero.
+    Keeping zero and NaN classification in uint32 operations prevents that
+    rewrite while preserving IEEE equality semantics.
+    """
+    alo = abits.astype(jnp.uint32)
+    blo = bbits.astype(jnp.uint32)
+    ahi = (abits >> jnp.uint64(32)).astype(jnp.uint32)
+    bhi = (bbits >> jnp.uint64(32)).astype(jnp.uint32)
+    amag = ahi & jnp.uint32(0x7fffffff)
+    bmag = bhi & jnp.uint32(0x7fffffff)
+    both_zero = ((alo == 0) & (blo == 0) & (amag == 0) & (bmag == 0))
+    a_nan = (amag > jnp.uint32(0x7ff00000)) | (
+        (amag == jnp.uint32(0x7ff00000)) & (alo != 0))
+    b_nan = (bmag > jnp.uint32(0x7ff00000)) | (
+        (bmag == jnp.uint32(0x7ff00000)) & (blo != 0))
+    return (((alo == blo) & (ahi == bhi)) | both_zero) & ~a_nan & ~b_nan
+
+
+def _exact_breakpoint_equal(x, breakpoint):
+    """Native numeric equality without XLA subnormal flush-to-zero compares."""
+    x = jnp.asarray(x)
+    if isinstance(breakpoint, numbers.Real):
+        breakpoint_bits = jnp.asarray(
+            struct.unpack(">Q", struct.pack(">d", float(breakpoint)))[0],
+            dtype=jnp.uint64)
+    else:
+        breakpoint = jnp.asarray(breakpoint)
+        if breakpoint.dtype == jnp.float32:
+            breakpoint_bits = _float32_to_float64_bits(breakpoint)
+        else:
+            breakpoint_bits = jax.lax.bitcast_convert_type(
+                jnp.asarray(breakpoint, dtype=jnp.float64), jnp.uint64)
+    if jnp.issubdtype(x.dtype, jnp.complexfloating):
+        if x.dtype == jnp.complex64:
+            real_bits = _float32_to_float64_bits(jnp.real(x))
+            imag_bits = _float32_to_float64_bits(jnp.imag(x))
+        else:
+            real_bits = jax.lax.bitcast_convert_type(jnp.real(x), jnp.uint64)
+            imag_bits = jax.lax.bitcast_convert_type(jnp.imag(x), jnp.uint64)
+        return (_ieee_float64_bits_equal(real_bits, breakpoint_bits)
+                & _ieee_float64_bits_equal(imag_bits, jnp.uint64(0)))
+    if x.dtype == jnp.float32:
+        value_bits = _float32_to_float64_bits(x)
+    elif x.dtype == jnp.float64:
+        value_bits = jax.lax.bitcast_convert_type(x, jnp.uint64)
+    else:
+        value_bits = jax.lax.bitcast_convert_type(
+            jnp.asarray(x, dtype=jnp.float64), jnp.uint64)
+    return _ieee_float64_bits_equal(value_bits, breakpoint_bits)
 
 
 # One-sided-evaluation recording: while a list is installed here, every
@@ -2060,18 +2145,20 @@ class Chebfun(eqx.Module):
         # Preserve a complex argument (MATLAB feval evaluates a real
         # Chebfun at complex points, routing pieces by real(x));
         # everything else is promoted to float64.
-        x = jnp.asarray(x)
+        x_match = jnp.asarray(x)
+        x = x_match
         if jnp.issubdtype(x.dtype, jnp.complexfloating):
             x = x.astype(jnp.complex128)
         else:
             x = x.astype(jnp.float64)
         scalar_input = x.ndim == 0
         x = jnp.atleast_1d(x)
+        x_match = jnp.atleast_1d(x_match)
 
         if len(self.funs) == 1:
             # Single piece — fully JIT-able.
             result = self.funs[0](x)
-            result = self._apply_point_values(result, x)
+            result = self._apply_point_values(result, x_match)
             if scalar_input:
                 result = result[0]
             return self._orient_values(result)
@@ -2107,7 +2194,7 @@ class Chebfun(eqx.Module):
             maskE = mask.reshape(mask.shape + (1,) * len(cols))
             out = jnp.where(maskE, vals, out)
 
-        out = self._apply_point_values(out, x)
+        out = self._apply_point_values(out, x_match)
         if scalar_input:
             out = out[0]
         return self._orient_values(out)
@@ -2124,7 +2211,7 @@ class Chebfun(eqx.Module):
             return values
         point_values = self._breakpoint_values()
         for index, breakpoint in enumerate(self.domain.breakpoints):
-            mask = x == breakpoint
+            mask = _exact_breakpoint_equal(x, breakpoint)
             mask = mask.reshape(mask.shape + (1,) * (values.ndim - x.ndim))
             values = jnp.where(mask, point_values[index], values)
         return values
