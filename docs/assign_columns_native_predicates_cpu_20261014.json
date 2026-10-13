@@ -1,0 +1,65 @@
+{
+  "scope": "Restore original array-valued assignment clauses1\u201315 across mapped and focused modules. Genuine Quasimatrix loop remains separate.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Captured native initial probes and exact continuing probes for13",
+    "Source breakpoint layouts and matrix shape of row constants",
+    "Exact isequal in6 and source identifiers9\u201311",
+    "Source matrix infinity norm in13; literal function norm and horzcat operands in14",
+    "Previously qualified literal piecewise15 retained"
+  ],
+  "gates": {
+    "run": {
+      "wall_seconds": 26.34880160400644,
+      "sampled_peak_summed_rss_kib": 1654096,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "tests_passed": 14,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/assign_columns_finite_publication_20261014/run/receipt.json",
+      "sha256": "74d4679eb84054575976e869b6282d5bd879453ea67e9758c6d425a3203377e8"
+    },
+    "run_delete": {
+      "wall_seconds": 9.328352707903832,
+      "sampled_peak_summed_rss_kib": 672044,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "tests_passed": 1,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/assign_columns_finite_publication_20261014/run_delete/receipt.json",
+      "sha256": "85422cd876c27b8b575c4b95bc8ad24395c27e9d6a7d3f003ed9d034242f9c1e"
+    },
+    "run_unbounded": {
+      "wall_seconds": 17.122982101049274,
+      "sampled_peak_summed_rss_kib": 1013528,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "tests_passed": 1,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/assign_columns_finite_publication_20261014/run_unbounded/receipt.json",
+      "sha256": "c617c090c8a9cb6a04669b94be032e63c34b60cc845846f274bec9f204941d66"
+    }
+  },
+  "raw_review": {
+    "all_10_fields_equal_raw_native": true,
+    "existing_initial_probes_match": true,
+    "x_query_adapter": "Native100x1 becomes existing Python1D query; values/norm remain100x3 matrix",
+    "raw_sha256": {
+      "k1_checkpoint.mat": "10af8e9319277fa466ff283852c01b7576c0c3d1ae0388126cee74e112c08987",
+      "k2_checkpoint.mat": "98ea2814a3df209a1c6bb32a27bf2ff2fc91137192cd17c9090e9dc46d8a4bb9",
+      "driver.m": "2e5c6f0eb7446effda00fefa460a615f3f2481d5528ed7f45f0fcdb41866e6c0",
+      "fixture_inputs.npz": "4adc8b350e5ef65c4a55fb663b53f1807f1551ff4f3fe1f894674296c1d25164"
+    }
+  },
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "55c3459c187e07298e5cb7fc3e7350496e83c0c26fc92c89b1de7683b3801691",
+    "tests/test_matlab_port/chebfun/test_assignColumns_matlab.py": "4f9d8d6f7fc8b522dbfa896035f6bea29e72c460e4b521dea4688944454c7341",
+    "tests/test_matlab_port/chebfun/fixtures/assign_columns_native_queries.npz": "4adc8b350e5ef65c4a55fb663b53f1807f1551ff4f3fe1f894674296c1d25164"
+  },
+  "native_gate": {
+    "wall_seconds": 81.81650224886835,
+    "sampled_peak_summed_rss_kib": 1352432,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0,
+    "clauses": "1\u201313 both k=1 andk=2 all true",
+    "receipt_sha256": "95afdabd1dc5532b539897925ed31e775ba027eacba78231c05da0488b61d8d2"
+  }
+}

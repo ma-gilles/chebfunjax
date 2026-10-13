@@ -7973,18 +7973,21 @@ class Chebfun(eqx.Module):
 
         if self.is_transposed != g.is_transposed:
             raise ValueError(
-                "assign_columns: subscripted assignment dimension mismatch "
+                "CHEBFUN:CHEBFUN:assignColumns:numCols: "
+                "Subscripted assignment dimension mismatch "
                 "(operands have different orientations).")
         if len(idx) != g.n_columns:
             raise ValueError(
-                "assign_columns: subscripted assignment dimension mismatch "
+                "CHEBFUN:CHEBFUN:assignColumns:numCols: "
+                "Subscripted assignment dimension mismatch "
                 f"({len(idx)} columns selected, {g.n_columns} supplied).")
         htol = 1e-14 * max(abs(float(self.domain.a)),
                            abs(float(self.domain.b)), 1.0)
         if (abs(float(self.domain.a) - float(g.domain.a)) > htol
                 or abs(float(self.domain.b) - float(g.domain.b)) > htol):
             raise ValueError(
-                "assign_columns: inconsistent domains; "
+                "CHEBFUN:CHEBFUN:assignColumns:domain: "
+                "Inconsistent domains; "
                 "domain(f) != domain(g).")
 
         # Source's full ordered assignment returns g, including its breaks

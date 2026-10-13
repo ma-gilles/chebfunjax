@@ -1,3 +1,15 @@
+## Original array-valued assignment predicates and native RNG — 2026-10-14
+
+Restored original array-valued assignColumns clauses1–15 across the mapped and
+focused modules: exact native seed6178/continuation probes, source breakpoint
+layouts, exact equality, native error identifiers, and literal deletion norm.
+Unbounded clause13 now uses the original100x3 matrix infinity norm, with its
+unchanged100*vscale*eps bound. Root14 finite/adapter checks and separate literal
+14 and unbounded13 checks pass. Native1–13 passes for both loop kinds; all10
+extracted fixture fields independently checked against retained raw MAT files.
+The genuine Python Quasimatrix assignment loop remains separate work.
+Evidence: `docs/assign_columns_native_predicates_cpu_20261014.json`.
+
 ## Complex column assignment and native quasimatrix collation — 2026-10-14
 
 Numeric column assignment now preserves complex dtype through the JAX constant
