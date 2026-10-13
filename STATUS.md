@@ -1,3 +1,19 @@
+## TreeVar dtype-stable unary JAX kernels; unbounded division predicate — 2026-10-14
+
+Sixteen unary runtime primitives now stay in JAX, bypassing the eager NumPy
+fallback. Baseline sin JIT failed; private118 checks pass afterward, including
+unchanged49 unary and98 first-order expressions. Merged81 checks pass:32 new
+real/complex JIT/analytic derivative controls plus49 original unary tests.
+Value-dependent real-to-complex branches remain eager; no tolerance/reference
+changes. Evidence: `docs/treevar_unary16_jax_cpu_20261014.json`.
+
+Native mrdivide1–9 prefix replay passes and supplies actual clause9 probes
+after intervening constructors. The original unbounded100x3 matrix-norm
+predicate passes on guarded publication source in12.75seconds/914,872KiB.
+Root independently checked all8 extracted MAT/NPZ fields; raw capture and driver
+are retained. Evidence: `docs/mrdivide_unbounded_source_cpu_20261014.json`.
+This does not close general LS flags, all unary branches, or final CI.
+
 ## Numeric evaluation columns and empty column slices — 2026-10-14
 
 Added zero-based numeric component selection: f(x,1) or f(x,columns=1)

@@ -1,0 +1,111 @@
+{
+  "scope": "Sixteen dtype-stable unary RHS primitives use JAX directly, bypassing eager NaN/complex fallback.",
+  "names": [
+    "abs",
+    "conj",
+    "real",
+    "imag",
+    "sin",
+    "cos",
+    "tan",
+    "sinh",
+    "cosh",
+    "tanh",
+    "exp",
+    "expm1",
+    "asinh",
+    "atan",
+    "uminus",
+    "uplus"
+  ],
+  "base_publication": "272a009fcdd8aa2bff0027f77ed79028f4584a3f",
+  "private_git_base": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "refresh": {
+    "publication_head": "272a009fcdd8aa2bff0027f77ed79028f4584a3f",
+    "files": [
+      {
+        "path": "src/chebfunjax/operators/treevar.py",
+        "sha256": "4e63b3e506b5ed2eff69b3dc5fc2eb84bb5ec0f55aa87fd9149515228f3ca82d"
+      },
+      {
+        "path": "tests/test_matlab_port/treeVar/test_univariate_matlab.py",
+        "sha256": "5c558a0d932d9088f662dd7e90e472490af90955c3d2dc6a43f06b3918dc1240"
+      },
+      {
+        "path": "tests/test_matlab_port/treeVar/test_univariate_airy_source.py",
+        "sha256": "c891d1028a13fb7fe410d40f094627bc17b5e90df645d4d3e745de903653b1af"
+      }
+    ]
+  },
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/unary16_candidate.patch",
+  "patch_sha256": "ab1580fd2dd918ca6ce58cb5d2fead5b84070b8c037b762b14cb2ae604294c11",
+  "changed_paths": [
+    {
+      "path": "src/chebfunjax/operators/treevar.py",
+      "sha256": "33a391d92a9e53f13c8bbdf821c855e2a70f9958b9e7bd9899f0b6b6655e66d8",
+      "applied_sha256": "33a391d92a9e53f13c8bbdf821c855e2a70f9958b9e7bd9899f0b6b6655e66d8"
+    },
+    {
+      "path": "tests/test_matlab_port/treeVar/test_unary_jax_runtime_source.py",
+      "sha256": "990c2575b7c6c09c32c12824a8ef3e6963a96f4751dbdda570c7d785a88b38c3",
+      "applied_sha256": "990c2575b7c6c09c32c12824a8ef3e6963a96f4751dbdda570c7d785a88b38c3"
+    }
+  ],
+  "validation": {
+    "worktree": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_unary16_patch_validation_sparse_20261014",
+    "clean_before_apply": true,
+    "git_apply_check": true,
+    "git_apply": true,
+    "all_path_hashes_match": true,
+    "git_diff_check": true
+  },
+  "qualification": {
+    "baseline": "Current published source sin JIT: TracerArrayConversionError,1 failed/31 deselected,3.93s pytest; receipt preserved.",
+    "final": "118 passed:32 new real/complex JIT/analytic derivative tests,49 unchanged unary source predicates,21 original first-order nodes carrying98 assertions,15 existing RHS controls,1 native Airy clause.",
+    "native_bound": "Original49 10eps and original first-order bounds unchanged; tests copied byte-for-byte from publication.",
+    "runtime": {
+      "wall_seconds": 49.0664266878739,
+      "sampled_peak_summed_rss_kib": 1601620,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native16_diagnostic_max_manual_rhs_residual": 4.440892098500626e-16,
+    "native16_diagnostic_max_converted_rhs_residual": 4.440892098500626e-16,
+    "native_residual_scope": "Diagnostic residuals against existing captured R2025b source point0.4; no fitted or new acceptance bound.",
+    "static": "Ruff and diff-check passed."
+  },
+  "preserved": [
+    "Tree recording, expand/split/compile algorithms, coefficient ownership and source derivatives unchanged.",
+    "All remaining unary functions retain current eager fallback, including qualified Airy and reciprocal inverse branch helpers.",
+    "No forced complex promotion. No source tolerance or test oracle changed."
+  ],
+  "limits": [
+    "JIT/AD qualified at finite regular real/complex points; abs checked away from zero.",
+    "Complex conjugation/abs/real/imag controls use real-linear JVPs, not holomorphic gradients.",
+    "Complex numeric values are checked independently with JAX primitives; retained native comparison is real source point0.4 only.",
+    "No universal TreeVar JIT claim, dynamic real-to-complex branch support, or nonfinite/native branch parity claim.",
+    "Degree functions, reciprocal functions, logs/sqrt and remaining inverse functions deferred."
+  ],
+  "evidence_hashes": {
+    "unary16_candidate_run/receipt.json": "b120cc149544a1a11dd771855aa03a20b7a8b3e12f3f3a95898bf98cf00e752b",
+    "unary16_baseline_run/receipt.json": "1ae3fa575410eadb45defba4ecd77a290b34bf4bd20f84828f8e4158638c4d0c",
+    "unary16_native_residual.json": "f1ca3885358dad9b410faf2416d319122bc41c17c7e2e70cf6a56926955ce337",
+    "unary16_current_preimage_0.py": "4e63b3e506b5ed2eff69b3dc5fc2eb84bb5ec0f55aa87fd9149515228f3ca82d"
+  },
+  "integration": "Apply only unary16_candidate.patch. It excludes prior RHS/abs/numeric-selector changes and contains no edits to existing tests.",
+  "merged_gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 20.08580476278439,
+    "sampled_peak_summed_rss_kib": 857804,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "tests": "81 passed:32 new JIT/analytic derivative controls + unchanged49 original unary tests."
+  },
+  "merged_evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unary16_publication_20261014/run/receipt.json": "1b562d99191f578f95552d3a07bc98a1c99e2794eef50274c1c8d8d1cfd36a24",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/UNARY16_DELIVERY.json": "f0d93eb557f219b32e622375a00d77ce393453a921f60cc18f19e2c6f0d4bde7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/operators/treevar.py": "33a391d92a9e53f13c8bbdf821c855e2a70f9958b9e7bd9899f0b6b6655e66d8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/treeVar/test_unary_jax_runtime_source.py": "990c2575b7c6c09c32c12824a8ef3e6963a96f4751dbdda570c7d785a88b38c3"
+  }
+}

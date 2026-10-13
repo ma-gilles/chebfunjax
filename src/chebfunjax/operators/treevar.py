@@ -78,7 +78,7 @@ def _reciprocal_inverse_trig(x, cosine=False):
 
 
 _UNARY_FNS_RAW = {
-    "abs": np.abs, "acos": np.arccos,
+    "abs": jnp.abs, "acos": np.arccos,
     "acosd": lambda x: np.arccos(x) / _DEG,
     "acot": lambda x: np.arctan(1.0 / x),
     "acoth": lambda x: np.arctanh(1.0 / x),
@@ -90,25 +90,25 @@ _UNARY_FNS_RAW = {
     "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
     "asech": lambda x: np.arccosh(1.0 / x),
     "asin": np.arcsin, "asind": lambda x: np.arcsin(x) / _DEG,
-    "asinh": np.arcsinh, "atan": np.arctan,
+    "asinh": jnp.arcsinh, "atan": jnp.arctan,
     "atand": lambda x: np.arctan(x) / _DEG,
-    "atanh": np.arctanh, "conj": np.conj, "cos": np.cos,
-    "cosd": lambda x: np.cos(_DEG * x), "cosh": np.cosh,
+    "atanh": np.arctanh, "conj": jnp.conj, "cos": jnp.cos,
+    "cosd": lambda x: np.cos(_DEG * x), "cosh": jnp.cosh,
     "cot": lambda x: 1.0 / np.tan(x),
     "cotd": lambda x: 1.0 / np.tan(_DEG * x),
     "coth": lambda x: 1.0 / np.tanh(x),
     "csc": lambda x: 1.0 / np.sin(x),
     "cscd": lambda x: 1.0 / np.sin(_DEG * x),
     "csch": lambda x: 1.0 / np.sinh(x),
-    "exp": np.exp, "expm1": np.expm1, "imag": np.imag,
+    "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
     "log": np.log, "log10": np.log10, "log1p": np.log1p,
-    "log2": np.log2, "pow2": lambda x: np.exp2(x), "real": np.real,
+    "log2": np.log2, "pow2": lambda x: np.exp2(x), "real": jnp.real,
     "sec": lambda x: 1.0 / np.cos(x),
     "secd": lambda x: 1.0 / np.cos(_DEG * x),
     "sech": lambda x: 1.0 / np.cosh(x),
-    "sin": np.sin, "sind": lambda x: np.sin(_DEG * x),
-    "sinh": np.sinh, "sqrt": np.sqrt, "tan": np.tan,
-    "tand": lambda x: np.tan(_DEG * x), "tanh": np.tanh,
+    "sin": jnp.sin, "sind": lambda x: np.sin(_DEG * x),
+    "sinh": jnp.sinh, "sqrt": np.sqrt, "tan": jnp.tan,
+    "tand": lambda x: np.tan(_DEG * x), "tanh": jnp.tanh,
     "uminus": lambda x: -x, "uplus": lambda x: +x,
 }
 
@@ -127,7 +127,15 @@ def _complex_fallback(fn):
     return wrapped
 
 
-_UNARY_FNS = {name: _complex_fallback(fn)
+# These primitives preserve real input dtype over their real domain and
+# have no value-dependent real-to-complex promotion. Native TreeVar records
+# their names and evaluates the corresponding numeric primitive directly.
+# Bypass the eager NaN/complex retry so numeric RHS tracing remains in JAX.
+# Other unary branches retain their existing eager promotion behavior.
+_DTYPE_STABLE_UNARY = frozenset(
+    "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
+    "asinh atan uminus uplus".split())
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 
 _BINARY_FNS = {

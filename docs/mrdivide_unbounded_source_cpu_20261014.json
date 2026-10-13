@@ -1,0 +1,34 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Original mrdivide9 unbounded three-column/scalar least-squares predicate. Native clauses1\u20139 passed in retained prefix capture.",
+  "native_capture": {
+    "raw_mat": "tests/fixtures/mrdivide9_native_capture_20261014.mat",
+    "driver": "tests/fixtures/mrdivide9_native_capture_20261014.m",
+    "input": "Actual100x1 second seed6178 sample after source constructor/QR prefix; no stream-consumption assumption.",
+    "norm": "Matrix infinity norm of100x3 error; original100eps*max(vscale) bound.",
+    "raw_review": "All8 MAT/NPZ fields checked for identical shape,dtype,bytes by root."
+  },
+  "python_gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 12.75062634376809,
+    "sampled_peak_summed_rss_kib": 914872,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "integration": "Test numerical AST unchanged; Ruff reordered standard-library imports only. Exact fixture/raw capture copied. No redundant numerical rerun; later TreeVar-only production edits do not affect this route.",
+  "limits": [
+    "Python two-argument mrdivide is existing LS adapter for native explicit ls mode; full flag API remains open.",
+    "Default native zero-division clause10 has semantic route coverage elsewhere, not a new direct clause10 test.",
+    "One unbounded predicate does not prove general unbounded-array parity."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide9_source_capture_20261014/REPORT.md": "cda54670b8383eb30eb3ee8f67f2ef6c39d6a58dd41c511a63ab3e34c1adcb5c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide9_source_capture_20261014/run_v2/receipt.json": "d16ac931829205b459c919ccff36463118ef0baeaa667a7ee29e67d3f086d668",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide9_source_capture_20261014/python_gate_v1/receipt.json": "5796f606b703e867937d60a34301216868bd94affc7d2483f46d0f44b7d4f3ee",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/unary16_publication_20261014/mrdivide9_raw_review.json": "6a1b1a487e5cd35a8cf125329aa286708898d0df8179b73c167579d488cbee08",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_mrdivide_unbounded_clause9.py": "65d53144bc4db4801b700006341df466177a957198e39c0eddd386e9b8e75dad",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/fixtures/mrdivide9_native_values.npz": "fc9edada820a2f3df6344cb34657de71196c3289df43f7820ae2da3bf8e3c2f7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/mrdivide9_native_capture_20261014.mat": "c100e634dafefa44617374fa501dae363ef557c2e0bfab8fa111c7458ba7b8c5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/mrdivide9_native_capture_20261014.m": "c36939e24c3c2b94080d8854f457eac57050b58fa078b6f9c3a08829d96c3392"
+  }
+}
