@@ -1,0 +1,52 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Native QR least-squares branches for scalar Singfun and array-valued Chebfun, Hermitian numeric dual. Legacy list adapter retained.",
+  "source": [
+    "@chebfun/mldivide.m",
+    "@chebfun/mrdivide.m"
+  ],
+  "source_predicates": [
+    "mldivide7\u20139",
+    "mrdivide1\u20138"
+  ],
+  "changes": [
+    "Avoid mat2cell reconstruction of scalar Singfun in continuous QR.",
+    "Use native QR of Hermitian row view and conjugate triangular solve.",
+    "Add numeric-matrix/row-Chebfun QR branch with conjugated Q columns.",
+    "Use true numeric conjugate transpose, preserve result orientation and validate dimensions."
+  ],
+  "tests": {
+    "singular": {
+      "command_exit_code": 0,
+      "wall_seconds": 49.28457884816453,
+      "sampled_peak_summed_rss_kib": 2541084,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "passed": 8
+    },
+    "array": {
+      "command_exit_code": 0,
+      "wall_seconds": 20.65522339893505,
+      "sampled_peak_summed_rss_kib": 1259432,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "passed": 2
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/final_v2/handoff/candidate.patch": "1f0594a91530e28d070e5e2c60edd4717c9cc6cc77f5e836d80590234fbfe4f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/final_v2/handoff/HANDOFF.md": "b1d5094c9a1b8b0760122f9f044703173c8455e393ee37d68dc15a348000989e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/final_v2/handoff/manifest.json": "48db573b9b8e30d5c092f7ff1b4d4a525379c73c67c8033813f7a9d40b1f5e57",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/chebfun.py": "a3461d0b668cd618bccfb32a70b86957e57536e3406b09040283466d0bd4cead",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_singfun_division_ls_source.py": "80db1f3efe844fee6bd4d1d47d132d62f447c22f1d747ffea6d0be468ab2baf2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_mrdivide_array_source.py": "414482dcf09dfabb9c799d5de043b28018ae87ea0bdecb0c4485cc60c8943c9a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_ls_publication_20261014/singular/receipt.json": "954248174e1409bef6e913856b14c5dd20d2230b70204c15009013bd16c9c18a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_ls_publication_20261014/array/receipt.json": "3f8f9f6e3e170ddb47f15896aa7842e8257fe453fec8fd67dce14882fd34fe93"
+  },
+  "limits": [
+    "Native full flag parser and inherited list/host paths remain outside this package.",
+    "Earlier combined private run crossed2GiB; separate current-source root gates below both pass.",
+    "Array source tests use actual array-valued Chebfuns and original normest/matrix norms, replacing list substitutes as qualification.",
+    "Full main CI remains pending."
+  ]
+}

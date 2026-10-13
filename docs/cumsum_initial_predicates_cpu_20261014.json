@@ -1,0 +1,88 @@
+{
+  "base_head": "7451af3ca0a473c96ac5a8e9f26333e7f68c91b1",
+  "coverage": {
+    "details": {
+      "2": "piecewise scalar cumsum, native seed/bound",
+      "3": "row scalar cumsum, native seed/bound and shape",
+      "4": "retained three-column predicate with native probe shape",
+      "5": "three-column transposed cumsum",
+      "6": "two-column array cumsum",
+      "7": "twice-integrated scalar source formula",
+      "8": "repeated native predicate 7 executed independently",
+      "9": "twice-integrated three-column source formula"
+    },
+    "predicates": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  "files": {
+    "candidate_test": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/tests/test_cumsum_matlab.py",
+      "sha256": "aa447f314b4db456a623fc742c057346ac0e5aa6a8a95c17435dc236a3f98416"
+    },
+    "existing_native_probe_fixture": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/repmat_matlab_inputs.json",
+      "sha256": "11334a6aa3e0d1626c9150c8ef5fc9098f78e5e0771aafcee68dbcb3a0921d74"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/guard.json",
+      "sha256": "7a1dbc6f2e0c1e1de56cf22cbb9423b6af3ff84f4a7fcfb81fbf695522df174a"
+    },
+    "native_cumsum_impl": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/cumsum.m",
+      "sha256": "ef88815df12c98ef55a8a1a8e570c68938f5e0fd21e989e3d5abf00c5a7f1dd5"
+    },
+    "native_cumsum_test": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_cumsum.m",
+      "sha256": "eb67d036d744e3cc5e9aef04ffd07a1c4ef32ba671182c635b16fce7a580b209"
+    },
+    "patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/PATCH.diff",
+      "sha256": "ac232ae2a6d9e2cbef029287e15ac55021bb7742372e5120df6a132cddf9bdc5"
+    },
+    "python_chebfun_source": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/chebfun.py",
+      "sha256": "a3461d0b668cd618bccfb32a70b86957e57536e3406b09040283466d0bd4cead"
+    },
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/run/native_tests/receipt.json",
+      "sha256": "e4b1a1465f324c4ebf284f9567e35f964d1954d434a4cb7f203623d5bfb33d8d"
+    },
+    "report": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/REPORT.md",
+      "sha256": "76a26b1d7ac2c44ca010c79433e778679e42e376d9b9bf0740794bafe91f78fe"
+    },
+    "stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cumsum_source_candidate_20261014/run/native_tests/stdout",
+      "sha256": "0ea6695eb279fab1bb6f259d69e6bd1ac84a6d57d5c036b432158fa5fd1401c7"
+    }
+  },
+  "gate": {
+    "censored_limit": null,
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "pytest": "10 passed, 1 optional CUDA plugin warning",
+    "pytest_seconds": 18.58,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1399760,
+    "supervisor_exit_code": 0,
+    "supervisor_seconds": 21.22339321486652
+  },
+  "pass_06_oracle_note": "Native helper masks endpoint/breakpoint values to zero; the analytic formula is equivalent on all captured native probes. None equals -1,-0.5,0.5,1; no endpoint behavior is claimed.",
+  "scope": "Chebfun test_cumsum predicates 2-9; no production edits",
+  "source_snapshot": "dirty source snapshot whose full src hashes are bound in guard.json (includes root LS patch)",
+  "integration": {
+    "test_hash": "aa447f314b4db456a623fc742c057346ac0e5aa6a8a95c17435dc236a3f98416",
+    "fixture_exact_match": true,
+    "report_sha256": "76a26b1d7ac2c44ca010c79433e778679e42e376d9b9bf0740794bafe91f78fe",
+    "numerical_gate": "Private overlay executed exact current guarded publication sources, including pending LS patch. No redundant numerical rerun.",
+    "scope": "Original cumsum1\u20139 + retained supplemental derivative/integral check. Source10\u201330 not newly qualified in this package."
+  }
+}

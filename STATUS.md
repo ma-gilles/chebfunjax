@@ -1,3 +1,22 @@
+## Restore initial cumulative-integration source predicates — 2026-10-14
+
+Original cumsum1–9 now use native seed7681 probes and source bounds; added
+missing array-transpose, two-column and repeated-integration checks. Ten tests
+pass (nine native plus retained supplemental control) on exact guarded current
+publication source:21.22seconds/1,399,760KiB, stable/no survivors. This is test
+coverage restoration with no cumsum library edits. Later native10–30 are outside
+this gate. Evidence: `docs/cumsum_initial_predicates_cpu_20261014.json`.
+
+## Native matrix division for Singfun and array-valued inputs — 2026-10-14
+
+Restored native QR/adjoint branches and avoided scalar Singfun reconstruction
+through mat2cell. Numeric matrix adjoints and complex Q columns are conjugated;
+row/column output orientation follows the source. Root current-source gates pass
+separately:8 singular/adjoint checks and2 grouped array/complex checks, stable
+inputs/no survivors. Original mldivide7–9 and mrdivide1–8 are represented with
+source operands and bounds. Inherited list adapters/full flag API and main CI
+remain open. Evidence: `docs/matrix_division_native_cpu_20261014.json`.
+
 ## Preserve complex abs breakpoints; complete subtraction predicates — 2026-10-14
 
 Complex abs now follows native addBreaksAtRoots, per-FUN abs, point-value abs,

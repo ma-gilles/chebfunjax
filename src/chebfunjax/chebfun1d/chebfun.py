@@ -9527,12 +9527,31 @@ def mldivide(A, B):
     from chebfunjax.chebfun1d.linalg import Quasimatrix, chebfun_qr
     from chebfunjax.chebfun1d.mtimes import _columns
 
+    # Native transposed-A branch factors A' (the conjugate transpose) before
+    # solving its triangular system.  A scalar-valued row Chebfun is already
+    # one continuous column, so no matrix-to-cell extraction is needed.
+    if isinstance(A, Chebfun) and A.is_transposed and A.n_columns == 1:
+        try:
+            rhs_scalar = jnp.asarray(B)
+        except (TypeError, ValueError):
+            rhs_scalar = None
+        if (rhs_scalar is not None and rhs_scalar.ndim == 0
+                and rhs_scalar.dtype.kind in "biufc"):
+            column = A.H
+            Q, R = chebfun_qr([column])
+            coefficient = jnp.linalg.solve(
+                jnp.conj(R.T), rhs_scalar.reshape((1,))
+            )[0]
+            return Q * coefficient
+
     if isinstance(A, (Chebfun, Quasimatrix)) and not A.is_transposed:
-        acols = A.cols if isinstance(A, Quasimatrix) else A.mat2cell()
+        acols = (A.cols if isinstance(A, Quasimatrix) else
+                 ([A] if A.n_columns == 1 else A.mat2cell()))
         if not isinstance(B, (Chebfun, Quasimatrix)) or B.is_transposed:
             raise ValueError("CHEBFUN:CHEBFUN:mldivide:agree: "
                              "Matrix dimensions must agree.")
-        bcols = B.cols if isinstance(B, Quasimatrix) else B.mat2cell()
+        bcols = (B.cols if isinstance(B, Quasimatrix) else
+                 ([B] if B.n_columns == 1 else B.mat2cell()))
         # Domain.union supplies the existing source endpoint tolerance.
         A.domain.union(B.domain)
         Q, R = chebfun_qr(list(acols))
@@ -9540,6 +9559,29 @@ def mldivide(A, B):
                               for q in _columns(Q)])
         result = jnp.linalg.solve(R, products)
         return result[:, 0] if len(bcols) == 1 else result
+
+    # Native @chebfun/mldivide's row-quasimatrix branch factors A' and
+    # solves R' X = B.  A transposed array-valued Chebfun is represented by
+    # its scalar columns plus the orientation flag, so use its Hermitian
+    # column view for the continuous QR.
+    if isinstance(A, Chebfun) and A.is_transposed:
+        from chebfunjax.chebfun1d.mtimes import _columns
+        cols = _columns(A.H)
+        Q, R = chebfun_qr(cols)
+        rhs = jnp.asarray(B)
+        if rhs.ndim == 0:
+            rhs = rhs.reshape((1,))
+        if rhs.ndim == 1:
+            rhs = rhs.reshape((-1, 1))
+        if rhs.ndim != 2 or rhs.shape[0] != len(cols):
+            raise ValueError("CHEBFUN:CHEBFUN:mldivide:agree: "
+                             "Matrix dimensions must agree.")
+        coeffs = jnp.linalg.solve(jnp.conj(R.T), rhs)
+        qcols = _columns(Q)
+        outputs = [_lincomb(qcols, coeffs[:, k])
+                   for k in range(coeffs.shape[1])]
+        return outputs[0] if len(outputs) == 1 else Quasimatrix(
+            outputs, A.domain)
 
     import numpy as _np
     if isinstance(A, (int, float, complex)):
@@ -9555,6 +9597,30 @@ def mldivide(A, B):
         C = _np.linalg.solve(G, Bv)          # (m, k)
         cols = [_lincomb(A, C[:, j]) for j in range(C.shape[1])]
         return cols[0] if len(cols) == 1 else cols
+    # Numeric A, row-quasimatrix B: [Q,R] = qr(B',0), then
+    # X = (A\\R')*Q'.  Array-valued Chebfuns retain their columns in one
+    # object; split those columns only for the continuous QR calculation.
+    if isinstance(B, Chebfun) and B.is_transposed:
+        from chebfunjax.chebfun1d.mtimes import _columns
+        bcols = _columns(B.H)
+        Q, R = chebfun_qr(bcols)
+        Am = jnp.asarray(A)
+        if Am.ndim == 0:
+            Am = Am.reshape((1, 1))
+        elif Am.ndim == 1:
+            Am = Am.reshape((-1, 1))
+        if Am.ndim != 2 or Am.shape[0] != len(bcols):
+            raise ValueError("CHEBFUN:CHEBFUN:mldivide:agree: "
+                             "Matrix dimensions must agree.")
+        coeffs = jnp.linalg.lstsq(Am, jnp.conj(R.T), rcond=None)[0]
+        qcols = _columns(Q)
+        # Q' conjugates each continuous basis column in MATLAB.
+        qrow = [column.conj() for column in qcols]
+        outputs = [_lincomb(qrow, coeffs[k, :])
+                   for k in range(coeffs.shape[0])]
+        return outputs[0].T if len(outputs) == 1 else Quasimatrix(
+            outputs, B.domain).T
+
     # Numeric A, row-quasimatrix B: X = pinv(A) @ B.
     Am = _np.atleast_2d(_np.asarray(A, dtype=float))
     Bl = B if isinstance(B, list) else [B]
@@ -9564,6 +9630,30 @@ def mldivide(A, B):
     P = _np.linalg.pinv(Am)                   # (n, m)
     out = [_lincomb(Bl, P[j, :]) for j in range(P.shape[0])]
     return out[0] if len(out) == 1 else out
+
+
+def _mrdivide_adjoint(value):
+    """Conjugate transpose for the supported operands of the dual path.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/mrdivide.m, @chebfun/mldivide.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+    if isinstance(value, (Chebfun, Quasimatrix)):
+        return value.H
+    array = jnp.asarray(value)
+    if array.ndim == 0:
+        return jnp.conj(array)
+    if array.ndim == 1:
+        # A MATLAB row vector becomes a column under conjugate transpose.
+        return jnp.conj(array.reshape((-1, 1)))
+    if array.ndim == 2:
+        return jnp.conj(array.T)
+    raise ValueError(
+        "CHEBFUN:CHEBFUN:mrdivide:dimensions: Matrix dimensions must agree.")
 
 
 def mrdivide(A, B):
@@ -9577,12 +9667,38 @@ def mrdivide(A, B):
     MATLAB source : @chebfun/mrdivide.m
     Chebfun commit: 7574c77
     """
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+
     if isinstance(B, (int, float, complex)):
         if isinstance(A, list):
             return [a * (1.0 / B) for a in A]
         return A * (1.0 / B)
-    # X B = A  <=>  B' \ A'  (mldivide with the orientations swapped).
-    return mldivide(B, A)
+    # Existing list-based quasimatrix inputs retain their established adapter
+    # path; the explicit conjugate-transpose dual below is for Chebfun objects.
+    if isinstance(A, list) or isinstance(B, list):
+        return mldivide(B, A)
+    # Preserve native's early dimension predicate for explicit numeric
+    # matrix denominators against a scalar Chebfun. Vector/list adapters above
+    # keep their established orientation behavior.
+    if isinstance(A, Chebfun):
+        try:
+            denominator = jnp.asarray(B)
+        except (TypeError, ValueError):
+            denominator = None
+        if (denominator is not None and denominator.ndim == 2
+                and denominator.shape[1] != A.size(2)):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:mrdivide:dimensions: "
+                "Matrix dimensions must agree.")
+    # X B = A  <=>  X' = B' \ A'.  Transpose both operands and the
+    # least-squares result, matching @chebfun/mrdivide.m's QR orientation.
+    left = _mrdivide_adjoint(B)
+    right = _mrdivide_adjoint(A)
+    result = mldivide(left, right)
+    if isinstance(result, (Chebfun, Quasimatrix)):
+        return result.H
+    result = jnp.asarray(result)
+    return jnp.conj(result.T) if result.ndim == 2 else jnp.conj(result)
 
 
 def gmres(L, f, tol: float = 1e-10, maxiter: int = 36):
