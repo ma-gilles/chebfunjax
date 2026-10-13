@@ -1,0 +1,47 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "a651cd06c26e7811475d27ef0dbe2e5e0ded33f4",
+  "scope": [
+    "Chebfun3T.tand and JAX degree tangent for captured binary64 cases",
+    "Chebfun3T.display with explicit Python name/spacing arguments"
+  ],
+  "changes": [
+    "Degree-space fmod magnitude reduction and sign restoration, exact captured 45-degree values, poles and signed zeros, cotangent near poles",
+    "Gradual scaling for tiny real/complex components; analytic custom JVP",
+    "Native empty/nonempty display with integer/fractional domain formatting and compact/loose spacing",
+    "Correct repr provenance: native display.m, not nonexistent disp.m"
+  ],
+  "verification": {
+    "native_display_comparisons": 4,
+    "merged_pytest_passed": 16,
+    "supervisor": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 23.944246781989932,
+      "sampled_peak_summed_rss_kib": 1269624,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "environment": "CPU, x64, pinned JAX/JAXlib 0.11.0"
+  },
+  "limits": [
+    "No complete MATLAB libm bit-identity or all-dtype claim",
+    "Other classes retain their existing degree tangent implementation",
+    "Dense constructor predicate 7 remains a strict expected failure at its unchanged native tolerance",
+    "Full native assertion coverage, pages, figures, speed and green main CI remain unresolved"
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005",
+  "sha256": {
+    "tand_degree_impl_candidate_20261013/HANDOFF.md": "9cc3d8bb5a8c04e7530bc7c829817df2752220ab94456fdc093ce2e4417ee26b",
+    "tand_degree_impl_candidate_20261013/run_v4/receipt.json": "ab3520e49a0514d005d8711c65419df46f08bfbfa3ad9b1bfd85df3ab70d54fb",
+    "tand_degree_contract_review_20261013/negative_capture.m": "9a6e26a25c5480397ab10d30e127f21d4e16d1d2f426dc8a3ffd40433f8cae83",
+    "tand_degree_contract_review_20261013/complex_capture.json": "0a262049d9d7006762e16ed23f68aade5e2c6cf8660023e2184792eacb5b3047",
+    "tand_degree_contract_review_20261013/run/negative_native/receipt.json": "7dd5618aa5286c1890fb1ab0a9aa689cb1a9d5679c58a9918ef90994ec42e1e3",
+    "tand_degree_contract_review_20261013/run/complex_native/receipt.json": "bf254405efc169bb80d3b7f2fcbd3aec435bf332417967372e93183d85532ee5",
+    "chebfun3t_display_review_20261013/capture.m": "51790aad13281af78b293bd26b1384fb33f3c66dd33706084393308eb9b41759",
+    "chebfun3t_display_review_20261013/native.json": "439f7211c423d5a3805157dcdd135d7fd4f3ae437c2f44ff19f12c204eac9220",
+    "chebfun3t_display_review_20261013/native_run/receipt.json": "abde511688d13082d39f281a8b8a6f75dd79d0f3be2357cd4275f50e35e52420",
+    "chebfun3t_display_review_20261013/jax_run/receipt.json": "b7776385b694d249e3676b1e3543cc815c654f63f0b6f776537b4c8baf0c2900",
+    "chebfun3t_api_stage_20261013/integration_run/receipt.json": "c81f2de76d487cdb3b696430b789fba2425763c0cc8a0f9326ed9e6123c6271e",
+    "chebfun3t_api_stage_20261013/comparison.json": "83e9c7dcf1713f95f371152a22d48d7e82111e7c54b66b0ce689f79ed2addba7"
+  }
+}

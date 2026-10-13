@@ -367,7 +367,7 @@ class Chebfun3T(Chebfun3TUtilitiesMixin, Chebfun3TArithmeticMixin, eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun3t/disp.m
+        MATLAB source : @chebfun3t/display.m
         Chebfun commit: 7574c77
         """
         return f"Chebfun3T(shape={self.coeffs.shape}, domain={self.domain})"

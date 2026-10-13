@@ -49,6 +49,43 @@ class Chebfun3TUtilitiesMixin:
 
     coeffs: object
 
+    def display(self, name="", *, spacing="loose"):
+        """Print the native tensor summary.
+
+        ``name`` and ``spacing`` explicitly represent MATLAB's caller-variable
+        name and global FormatSpacing setting; Python has neither equivalent.
+
+        Provenance
+        ----------
+        MATLAB source: ``@chebfun3t/display.m``
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and the
+            Chebfun Developers.
+        """
+        if spacing not in ("compact", "loose"):
+            raise ValueError("spacing must be 'compact' or 'loose'")
+        loose = spacing == "loose"
+        if loose:
+            print(" ")
+        print(f"{name} =")
+        if loose:
+            print(" ")
+        if self.isempty():
+            print("    empty chebfun3t")
+        else:
+            print("   chebfun3t object ")
+            m, n, p = self.coeffs.shape
+            print(f"   coeffs: {m} x {n} x {p} ")
+            integral_domain = all(math.floor(x) == x for x in self.domain)
+            bounds = [str(int(x)) if integral_domain else format(x, ".3g")
+                      for x in self.domain]
+            print("   domain: " + " x ".join(
+                f"[{bounds[i]}, {bounds[i + 1]}]" for i in (0, 2, 4)
+            ))
+            print(f"   vertical scale = {float(self.vscale):.2g}")
+        if loose:
+            print()
+
     def norm(self, p="fro"):
         """Return the native Frobenius-like norm.
 

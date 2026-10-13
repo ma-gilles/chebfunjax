@@ -1,3 +1,17 @@
+## Dense Chebfun3T degree tangent and display — 2026-10-13
+
+Added the missing `tand` and `display` methods. Degree reduction preserves
+captured exact signed zeros, poles and unit values, finite neighboring poles,
+large angles, and tiny complex components. Review corrected cancellation for
+negative angles before integration. JIT and analytic derivative controls pass.
+The display matches four native compact/loose, empty/nonempty transcripts exactly.
+
+Merged CPU gate: 16 tests pass plus four exact native display comparisons;
+pinned JAX/JAXlib0.11.0, x64, stable inputs and no surviving processes. Full static
+checks pass. Evidence: `docs/chebfun3t_tand_display_cpu_20261013.json`.
+This is scoped API progress; the existing dense constructor expected failure,
+complete native coverage, page/figure parity and green main CI remain open.
+
 ## Dense Chebfun3T source representation — 2026-10-13
 
 Chebfun3T now stores the native full coefficient tensor and uses source adaptive

@@ -8,7 +8,7 @@ without putting operator implementations into the dense storage module.
 Provenance
 ----------
 MATLAB source : ``@chebfun3t/{plus,minus,uminus,mtimes,times,rdivide,
-    power,domainCheck,vertscale,sin,cos,exp,tan,sinh,cosh,tanh}.m``
+    power,domainCheck,vertscale,sin,cos,exp,tan,tand,sinh,cosh,tanh}.m``
 Chebfun commit: 7574c77
 Original authors: Copyright 2017 by The University of Oxford and the
 Chebfun Developers.
@@ -108,7 +108,7 @@ class Chebfun3TArithmeticMixin:
     Provenance
     ----------
     MATLAB source : ``@chebfun3t/{plus,minus,uminus,mtimes,times,rdivide,
-        power,domainCheck,vertscale,sin,cos,exp,tan,sinh,cosh,tanh}.m``
+        power,domainCheck,vertscale,sin,cos,exp,tan,tand,sinh,cosh,tanh}.m``
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford and the
         Chebfun Developers.
@@ -428,6 +428,22 @@ class Chebfun3TArithmeticMixin:
             Chebfun Developers.
         """
         return self._compose_unary(jnp.tan)
+
+    def tand(self):
+        """Compose MATLAB's tangent in degrees over this dense tensor.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3t/tand.m
+        Chebfun commit: 7574c77
+        The source preserves empty input and resamples nonempty input on its
+        current domain using the MATLAB degree tangent.
+        """
+        from chebfunjax.utils.degree_tangent import degree_tangent
+
+        if self.isempty():
+            return self
+        return self._compose_unary(degree_tangent)
 
     def sinh(self):
         """Compose hyperbolic sine by adaptive callable reconstruction.
