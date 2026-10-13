@@ -1,3 +1,12 @@
+## Original Chebfun3 constructor syntax predicates — 2026-10-14
+
+Added the original callback/string/domain/lower-variable-dependency cases,
+rank/domain clauses8–13, and existing-object preference clause14 using the
+source sin(x*y*z) object on[-2,1]^3. Nine isolated CPU cases pass with
+unchanged source predicates and stable inputs. Python keyword adapters are
+explicit; native split-domain positional clause1 and positional character
+selectors remain unported. Evidence: `docs/chebfun3_constructor_syntax_cpu_20261014.json`.
+
 ## Native spin3 numeric output and Nyquist correction — 2026-10-14
 
 Public spin3 now returns native numeric periodic Chebfun3 outputs through
