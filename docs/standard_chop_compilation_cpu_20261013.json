@@ -1,0 +1,149 @@
+{
+  "scope": "CPU compilation reuse preserving native standardChop active length. Source formulas and tolerances unchanged; no FFT padding.",
+  "base_head": "427ca844",
+  "integrated_onto": "7f815cd3",
+  "source_manifest": {
+    "base": "427ca844",
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_candidate_20261013",
+    "paths": {
+      "src/chebfunjax/utils/misc.py": "0125137574191976b2bb042bf651fa78db35d14007982553246807368fbb5b4c",
+      "src/chebfunjax/diskfun/_chop_active.py": "45b5d635ede81d7cbd94cb55a9be00e4a756f67a4f49383a715340c70ef507af",
+      "tests/test_utils/test_standard_chop_buckets.py": "9b9e6a304abdcee20a33f04ae851ca0a657cf95e74fc2262ae00510c8bd80e88"
+    }
+  },
+  "focused_tests_passed": 74,
+  "full_retained_T_pair": {
+    "baseline": {
+      "seconds": {
+        "T_first": 7.384705657605082,
+        "T_repeat_warmed": 0.046660371124744415,
+        "minres_setup": 27.376533607952297,
+        "source_operator_construction": 9.27452334202826
+      },
+      "compile_regions": {
+        "ALL": {
+          "count": 1288,
+          "seconds": 33.005335812,
+          "chop": {
+            "count": 23,
+            "seconds": 4.149775029
+          },
+          "pads": null
+        },
+        "FIRST": {
+          "count": 188,
+          "seconds": 5.496109964000001,
+          "chop": {
+            "count": 4,
+            "seconds": 0.9104735850000001
+          },
+          "pads": null
+        },
+        "WARM": {
+          "count": 0,
+          "seconds": 0,
+          "chop": null,
+          "pads": null
+        }
+      },
+      "checks": {
+        "input_check": true,
+        "first_output_check": true,
+        "warmed_output_check": true,
+        "repeat_check": true
+      },
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 49.478865802288055,
+        "sampled_peak_summed_rss_kib": 2520308,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    "candidate": {
+      "seconds": {
+        "T_first": 6.375914360862225,
+        "T_repeat_warmed": 0.04627529578283429,
+        "minres_setup": 24.680512708146125,
+        "source_operator_construction": 9.190358888823539
+      },
+      "compile_regions": {
+        "ALL": {
+          "count": 1294,
+          "seconds": 30.218945976000004,
+          "chop": {
+            "count": 6,
+            "seconds": 1.1244251730000001
+          },
+          "pads": {
+            "count": 22,
+            "seconds": 0.43807172800000005
+          }
+        },
+        "FIRST": {
+          "count": 189,
+          "seconds": 4.873539444999999,
+          "chop": {
+            "count": 1,
+            "seconds": 0.252744436
+          },
+          "pads": {
+            "count": 4,
+            "seconds": 0.08593726199999999
+          }
+        },
+        "WARM": {
+          "count": 0,
+          "seconds": 0,
+          "chop": null,
+          "pads": null
+        }
+      },
+      "checks": {
+        "input_check": true,
+        "first_output_check": true,
+        "warmed_output_check": true,
+        "repeat_check": true
+      },
+      "receipt": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 49.121546474751085,
+        "sampled_peak_summed_rss_kib": 2489380,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    }
+  },
+  "limitations": [
+    "Retained Tcall14 application and setup; not a full Krylov solve/page or general performance guarantee.",
+    "Single observed pair with compilation logging, not statistical latency qualification.",
+    "Four isolated warmed chop calls add approximately0.332ms; total compile-event counts can rise from inexpensive pads even while compiler time falls."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/REPORT.md": "ee297edca219895c3f5aaa738b01299736cc8ee7205b75742cf1d9cc2c7321b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/source.patch": "77ebd2e683dad23a1231167d8336b5f6277cadacc6474d4987edaf52fd0f62bd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/focused_v3/receipt.json": "f66a722218b2f3e0e31f0cd23ce1b6b856e325c6a458c495a32cd621ab6593e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/T_replay/SUMMARY.json": "41e93617abbf8c8872b946fc85d9a8a9da7a2c05c60d6c27e3dfb48aebdbd3f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/changed_paths_manifest.json": "98b32aad4b23e2ceabe0c0a984060a5e737a2b2666bf5900dd79af42e5c44b93",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_review_20261013/replay/supervision/receipt.json": "27021431db260c4be50653acdbdebeeedaee76244719a453e1cf93b56e461262",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_integration_20261013/guard.json": "009be8d02c407941bb410edf3d027f9bb205a8c6d7426606ea2e3769f7e6926d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_integration_20261013/supervision/receipt.json": "91d371ebee421519a8351003aebb5245e6e59a0e8904c1806020151f2af2d64a"
+  },
+  "publication_integration": {
+    "scope": "New bucket and existing disk active-length checks; arithmetic identical to candidate. __all__ documents private re-export; test imports sorted for Ruff.",
+    "receipt": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 18.108448683749884,
+      "sampled_peak_summed_rss_kib": 826688,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chop_bucket_integration_20261013/guard.json",
+    "tests_passed": 25
+  },
+  "publication_hashes": {
+    "src/chebfunjax/utils/misc.py": "0125137574191976b2bb042bf651fa78db35d14007982553246807368fbb5b4c",
+    "src/chebfunjax/diskfun/_chop_active.py": "ba739869f04b3e18e525d662364b92ef0d78ace6caf7734f640fc85b089b4b75",
+    "tests/test_utils/test_standard_chop_buckets.py": "a721b0f2827df035a5833a6c8863e7afb3195771ce1f0f474247e03b5e85d5aa"
+  }
+}

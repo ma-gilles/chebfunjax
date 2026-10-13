@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from chebfunjax import plotting
+from chebfunjax._sphere_surface import InterpolatedSurface
 
 
 class SampledFunction:
@@ -37,20 +38,17 @@ def test_source_uniform_plot_grid(kind, count):
 
 
 @pytest.mark.parametrize('amplitude,flatten', [(1e-11, True), (3e-11, False)])
-def test_surf_uses_matrix_infinity_norm_for_roundoff_color(monkeypatch, amplitude, flatten):
+def test_surf_uses_matrix_infinity_norm_for_roundoff_color(amplitude, flatten):
     f = SampledFunction(lambda x, y: 1 + amplitude*(x+2)/5)
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
-    captured = []
-    original = ax.plot_surface
-
-    def record(x, y, z, **options):
-        captured.append(np.asarray(z))
-        return original(x, y, z, **options)
-
-    monkeypatch.setattr(ax, 'plot_surface', record)
     try:
-        plotting.surf(f, ax=ax, n_pts=10)
+        fig, ax = plotting.surf(f, ax=ax, n_pts=10)
+        artist = ax.collections[0]
+        assert isinstance(artist, InterpolatedSurface)
+        # The native default renderer stores per-vertex CData on its custom
+        # artist instead of calling Axes3D.plot_surface.
+        captured = [np.asarray(artist._source_scalar_values)]
         if flatten:
             assert np.all(captured[0] == 1)
         else:

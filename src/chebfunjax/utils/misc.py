@@ -101,21 +101,44 @@ def standard_chop(coeffs: jnp.ndarray, tol: float | None = None) -> int:
     coeffs = jnp.ravel(jnp.atleast_1d(jnp.asarray(coeffs)))
     if coeffs.size < 17:
         return int(coeffs.size)
-    return int(_standard_chop_kernel(coeffs, jnp.asarray(tol, dtype=jnp.float64)))
+    # Capacity is a compilation detail; n must still bound every source step.
+    n = coeffs.size
+    capacity = 1 << (n - 1).bit_length()
+    if capacity != n:
+        coeffs = jnp.pad(coeffs, (0, capacity - n))
+    return int(_standard_chop_kernel(
+        coeffs, jnp.asarray(tol, dtype=jnp.float64),
+        jnp.asarray(n, dtype=jnp.int64),
+    ))
 
 
 @jax.jit
-def _standard_chop_kernel(coeffs: jnp.ndarray, tol: jnp.ndarray) -> jnp.ndarray:
-    """JAX implementation of standardChop's three source-indexed steps."""
-    n = coeffs.size
+def _standard_chop_kernel(
+    coeffs: jnp.ndarray, tol: jnp.ndarray, n: jnp.ndarray | None = None,
+) -> jnp.ndarray:
+    """Apply source steps to n active coefficients in a zero-padded buffer.
+
+    Provenance
+    ----------
+    MATLAB source : standardChop.m
+    Chebfun commit: 7574c77
+
+    Inactive magnitudes are masked to the maximum identity, minus infinity.
+    Active n bounds plateau windows, fallback cutoffs, endpoint gathers and threshold
+    counts. The latter mask matters when the threshold underflows to zero.
+    Omitting n retains the original unpadded private-kernel interface.
+    """
+    capacity = coeffs.size
+    n = capacity if n is None else n
     magnitudes = jnp.asarray(jnp.abs(coeffs), dtype=jnp.float64)
+    magnitudes = jnp.where(jnp.arange(capacity) < n, magnitudes, -jnp.inf)
     envelope = jax.lax.associative_scan(jnp.maximum, magnitudes, reverse=True)
     scale = envelope[0]
     envelope = envelope / jnp.where(scale == 0, 1.0, scale)
 
     # MATLAB uses half-away rounding. For positive source indices this exact
     # integer expression is round(1.25*j + 5), including j=6,14,22,... ties.
-    j = jnp.arange(2, n + 1)
+    j = jnp.arange(2, capacity + 1)
     windows = (5 * j + 22) // 4
     e1 = envelope[j - 1]
     e2 = envelope[jnp.minimum(windows - 1, n - 1)]
@@ -127,13 +150,13 @@ def _standard_chop_kernel(coeffs: jnp.ndarray, tol: jnp.ndarray) -> jnp.ndarray:
     window = jnp.minimum((5 * first + 22) // 4, n)
 
     threshold = tol ** (7.0 / 6.0)
-    j3 = jnp.sum(envelope >= threshold)
+    j3 = jnp.sum((jnp.arange(capacity) < n) & (envelope >= threshold))
     shortened = j3 < window
     window = jnp.where(shortened, j3 + 1, window)
     envelope = envelope.at[window - 1].set(
         jnp.where(shortened, threshold, envelope[window - 1])
     )
-    indices = jnp.arange(n)
+    indices = jnp.arange(capacity)
     bias = indices * ((-1.0 / 3.0) * jnp.log10(tol)) / (window - 1)
     cc = jnp.where(indices < window, jnp.log10(envelope) + bias, jnp.inf)
     cutoff = jnp.maximum(jnp.argmin(cc), 1)

@@ -1,0 +1,36 @@
+{
+  "scope": "Repair obsolete surface test observation, preserving original matrix-infinity-norm numerical assertions. No renderer/library change.",
+  "failed_ci": {
+    "commit": "f6a50aaa",
+    "run": 38432003009,
+    "job": 115419743713,
+    "failures": 2,
+    "passes": 1650,
+    "skips": 1
+  },
+  "private_qualification": {
+    "tests_passed": 26,
+    "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_surface_test_fix_20261013/delivery/REPORT.md",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_surface_test_fix_20261013/diagnostics/surf_color_test_fix_20261013/run2/receipt.json"
+  },
+  "root_qualification": {
+    "tests_passed": 2,
+    "base_head": "7f815cd3",
+    "scope": "Both original failing parameterizations; surf invocation kept inside try/finally for cleanup.",
+    "receipt": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.1911393268965185,
+      "sampled_peak_summed_rss_kib": 466992,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_ci_integration_20261013/supervision/receipt.json": "5c17cea75674b5e0be333d94a5dc1bdf7b526690df5525b10a82b305988fd9c7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_ci_integration_20261013/guard.json": "1e93236ad9becc692a53e0b8edd11a7b515a6a1aa8e2ebb280476189ff8ce40f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/surface_ci_integration_20261013/run.py": "216c396d2cde6a08c75f03046e04df5ee3df683d16ba9edfb11f129862d782cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_separable_plot_source.py": "25e6ec8c2cfb897f4089cc1247bd844065fe743825609f4d73d16c4acd8671a4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_surface_test_fix_20261013/delivery/surf_color_test_fix.patch": "5468661cbf61526e90a615f4703352158d7de90da64e2307164b1342bbec2abe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_surface_test_fix_20261013/delivery/REPORT.md": "626d30777d9edc72f59c71a10e9d7256d686cda0b0c8e922aa2d0d812b81d153"
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/__init__.py",
+  "jax": "0.11.0",
+  "backend": "cpu",
+  "forward": {
+    "poles": 46,
+    "support": 47,
+    "seconds": 11.587637425865978,
+    "max_sample_error": 4.5508868807178365e-06,
+    "native_inputs_pole_matching": {
+      "method": "minimum total absolute complex distance assignment; descriptive, no acceptance bound",
+      "max_absolute": 0.09273594004830567,
+      "max_scaled_by_max_1_abs_reference": 0.035269132288317975
+    },
+    "example_inputs_pole_matching": {
+      "method": "minimum total absolute complex distance assignment; descriptive, no acceptance bound",
+      "max_absolute": 0.09240645530245349,
+      "max_scaled_by_max_1_abs_reference": 0.03595485588772515
+    }
+  },
+  "inverse": {
+    "poles": 69,
+    "support": 70,
+    "seconds": 6.1904923021793365,
+    "max_sample_error": 5.9927352516804515e-06,
+    "native_inputs_pole_matching": {
+      "method": "minimum total absolute complex distance assignment; descriptive, no acceptance bound",
+      "max_absolute": 2.9913026187373274e-11,
+      "max_scaled_by_max_1_abs_reference": 9.989533090385379e-12
+    },
+    "example_inputs_pole_matching": {
+      "method": "minimum total absolute complex distance assignment; descriptive, no acceptance bound",
+      "max_absolute": 1.994546360205008,
+      "max_scaled_by_max_1_abs_reference": 1.9849759581204502
+    }
+  },
+  "example": {
+    "poles": 46,
+    "inverse_poles": 69,
+    "boundary_err": 5.202719787766874e-07,
+    "native_input_deltas": {
+      "Z": 1.3355533471426973e-15,
+      "W": 7.610323927022909e-08,
+      "A": 8.681889974808998e-14,
+      "U": 1.4432899320127035e-15,
+      "c": 81081.05986163522,
+      "V": 0.002681828739856229
+    }
+  },
+  "fit_diagnostics": {
+    "native": {
+      "matrix_shape": [
+        427,
+        81
+      ],
+      "largest_singular_value": 26.836188454763146,
+      "smallest_singular_value": 1.179676006902691e-15,
+      "condition_number": 2.2748778730545804e+16,
+      "coefficient_l2_norm": 159796.35267755127,
+      "residual_inf_recomputed_in_python": 5.126978870895194e-07
+    },
+    "python_example": {
+      "matrix_shape": [
+        427,
+        81
+      ],
+      "largest_singular_value": 26.836188454763164,
+      "smallest_singular_value": 1.2761421884194624e-15,
+      "condition_number": 2.102915231413243e+16,
+      "coefficient_l2_norm": 85949.56846306728,
+      "residual_inf_recomputed_in_python": 5.202719787766874e-07
+    }
+  },
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_head": "7f815cd3",
+  "scope": "ConformalL exact computational prefix before plotting, plus public Python AAA on exact native boundary data. Pole-count symptom not reproduced; no general numerical or page/figure parity claim.",
+  "native": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "origin": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/aaa.m",
+    "boundary_err": 5.126976502511926e-07,
+    "poles": 46,
+    "inverse_poles": 69,
+    "elapsed": 0.571237
+  },
+  "receipts": {
+    "conformal_native_run_20261013": {
+      "supervisor_exit_code": 1,
+      "wall_seconds": 104.73354529868811,
+      "sampled_peak_summed_rss_kib": 1197548,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "conformal_native_run_v2_20261013": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 82.08422898920253,
+      "sampled_peak_summed_rss_kib": 1297908,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "conformal_python_run_20261013": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 26.237413409166038,
+      "sampled_peak_summed_rss_kib": 1633636,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_run_20261013/receipt.json": "bb9e62a2fb76b0f8a48528f34cf78e76d715e08f9f48f49f7059eb126b8ad3e6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_run_v2_20261013/receipt.json": "d45b54ecca3630a7e1ee601a1f53f3563f16f1483c982214fb268842aa6b5d09",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_run_20261013/receipt.json": "83397c696dd09fca7f927b9b5253987ad62a16a61470f19179366e258b589797",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/launch.sh": "26ee13fb7357dfaee364b41fc9c6e1a2a196a129718e6b397c21da1038c15613",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/native.mat": "2ab35bd8530a10d2da6aba88170d195ffc1ddfe517099a8ab3e45655dd9ebccb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/driver.m": "7e4ba59bdfd0dce0dd12490f7d83e3ad5dc78952794874fa864d1001d5fbc2b6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/native.json": "14f82ba18bd1778de5e742286470297f1dc677062290b245e0d4247ec7e850d8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/guard.json": "126937df4e6213ae442bb61a1e19b8604f2e5438b88215005e2717c52e5008cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/launch.sh": "62b586c882e129ae5d6c0e9764dfbfe6d0b9bb800ca41c5465ed061a506815fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/inverse_exact_native_inputs.npz": "769769c87349e0adddfa0b3efc52cb49da4a0fb0729a6622bd21bf40ae214901",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/example_prefix.npz": "eb08a8ee285d9a36e4d746b1b01b3ea57dceeba8236fe1d7a1ff97531be7493d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/result.json": "0e4601efdf42abfd20ebd85e14c8fbf04df0df90882385db4a08ffe75999b280",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/forward_exact_native_inputs.npz": "19920e9aa45609aa333744335b444924fc952a910510fbd9307e5dee2ad628e2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/guard.json": "6297a15efdc86a9a926912b467af1a7f6dbb2946ead35c338692d24a1fd23014",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_python_stage_20261013/driver.py": "53f15901dd8f861d361739878236b7f5923a4933d3e14f08412f363cafce5699"
+  },
+  "limitations": [
+    "First native attempt failed from launcher quoting before numerical execution; retained separately.",
+    "Boundary least squares is ill-conditioned and the current example uses inherited NumPy scientific arithmetic; no fit-algorithm attribution or JAX-only qualification follows.",
+    "Pole locations differ despite matching counts; reported assignment errors are observations, not relaxed tolerances.",
+    "Historical cached figure/output match and fresh full-page rendering are not qualified."
+  ]
+}

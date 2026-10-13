@@ -1,3 +1,31 @@
+## CPU truncation compilation reuse — 2026-10-13
+
+standard_chop now shares compiled kernels across nearby lengths while retaining
+the original active length in every source stopping rule. The disk helper uses
+the same kernel. Seventy-four focused checks pass in the private candidate;
+no source bounds or tolerances changed. Retained Krylov Tcall14 input and both
+outputs remain byte-identical. Observed first-call time falls from 7.385s to
+6.376s; warm repeat remains near 46ms. Setup compiler time also falls, but total
+supervised wall time is nearly unchanged and this is not a full Krylov solve.
+Four isolated warm chops cost about 0.332ms more. See
+`docs/standard_chop_compilation_cpu_20261013.json` for scope and evidence.
+
+## Surface CI tests and ConformalL diagnosis — 2026-10-13
+
+Two f6a50aaa CI surface-color failures came from tests intercepting the old
+plot_surface path. The tests now inspect the actual interpolated artist's
+source scalar data, preserving both numerical assertions. Related private
+checks pass26/26; the two original failures pass in the publication checkout.
+See `docs/surface_color_ci_test_cpu_20261013.json`. Full CI remains unresolved.
+
+Fresh pinned MATLAB and current Python both return46 forward and69 inverse
+ConformalL poles, superseding the old extra-poles symptom. With exact MATLAB
+boundary inputs, inverse poles agree to approximately3e-11 in absolute distance,
+but forward poles differ by up to0.093. The current example's ill-conditioned
+boundary fit also differs; matching counts do not establish full parity.
+Native supports/weights are being captured to separate greedy-selection from
+pole-extraction differences. See `docs/conformal_l_native_cpu_20261013.json`.
+
 ## Root powers and IVP page refresh — 2026-10-13
 
 Root-split powers now map stored point values and preserve transposed orientation,
