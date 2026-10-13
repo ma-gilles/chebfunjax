@@ -1,0 +1,109 @@
+{
+  "base_commit": "7c750029a54dea7c5e554dc99c502d34a157944d",
+  "scope": "Reduce core CI file load and preserve per-test progress for diagnosing remaining overruns. No assertion, per-test timeout, worker-count or aggregate coverage relaxation.",
+  "observed_run": {
+    "run_id": 38402535328,
+    "core_job_id": 115320972422,
+    "conclusion": "cancelled at 90-minute job limit",
+    "collected": 1786,
+    "last_logged_item_progress_percent": 92,
+    "other_successful_jobs": 23,
+    "limitation": "Quiet log does not identify last node ID. Item progress does not estimate remaining execution time."
+  },
+  "partition_review": {
+    "head": "7c750029a54dea7c5e554dc99c502d34a157944d",
+    "files": 797,
+    "partitions": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      99,
+      99,
+      99
+    ],
+    "disjoint_exhaustive": true,
+    "matrix_matches": true
+  },
+  "plugin_smoke": {
+    "status": "PASS_EXPECTED_PYTEST_FAILURE",
+    "scope": "Dependency-free pytest plugin smoke only; no Chebfun/JAX/numerical code imported or executed.",
+    "pytest_exit_code": 1,
+    "supervisor_exit_code": 1,
+    "test_summary": "1 failed, 1 passed in 0.47s; the intentional assertion failure remained exit code 1.",
+    "workers": [
+      "gw0",
+      "gw1"
+    ],
+    "node_events": [
+      {
+        "file": "gw0.jsonl",
+        "event": "test-start",
+        "nodeid": "tests/test_progress_smoke.py::test_progress_passes",
+        "pid": 2696418,
+        "time_unix": 1791904511.1151376
+      },
+      {
+        "file": "gw0.jsonl",
+        "duration_seconds": 0.0016294526867568493,
+        "event": "test-finish",
+        "nodeid": "tests/test_progress_smoke.py::test_progress_passes",
+        "pid": 2696418,
+        "time_unix": 1791904511.1167378
+      },
+      {
+        "file": "gw1.jsonl",
+        "event": "test-start",
+        "nodeid": "tests/test_progress_smoke.py::test_progress_fails",
+        "pid": 2696422,
+        "time_unix": 1791904511.1150713
+      },
+      {
+        "file": "gw1.jsonl",
+        "duration_seconds": 0.07902978733181953,
+        "event": "test-finish",
+        "nodeid": "tests/test_progress_smoke.py::test_progress_fails",
+        "pid": 2696422,
+        "time_unix": 1791904511.1941013
+      }
+    ],
+    "controller_session_record": {
+      "file": "controller.jsonl",
+      "event": "session-configured",
+      "nodeid": null,
+      "pid": 2696416,
+      "time_unix": 1791904510.7283163
+    },
+    "runtime_bounds": {
+      "wall_seconds": 3.4549625371582806,
+      "wall_limit_seconds": 60,
+      "sampled_peak_summed_rss_kib": 94616,
+      "rss_limit_mib": 1024,
+      "cpu_affinity": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "source_files": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/pytest_progress_plugin.py": "b9a4b0723d8b9397326a1bcedc72cc40441bcbddee6268641397b85df01797f5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/smoke/scripts/pytest_progress_plugin.py": "b9a4b0723d8b9397326a1bcedc72cc40441bcbddee6268641397b85df01797f5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/smoke/tests/test_progress_smoke.py": "5b32eed7f0c2c54b6b837969bd8024be7271aa58c645a5cd4735ba78bd9e9d7f"
+    },
+    "plugin_review": "No code change needed: both worker-specific start and finish records appeared with node IDs and durations, and the plugin did not swallow or alter pytest failure status."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/core0.log": "8d0dcbf9edd880655b8411869b88e5e490401baf0aae0fd3cdb7bc20d59e4a29",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/root_partition_review.json": "68541b80a73eded5756d9f6579e046a31f8d2f8bd5e339901368835aba05cacd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/static.json": "27771284847e985f7672767518894b69c39546ab2103d9624f4f5e684ec39f6a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/MANIFEST_8SHARDS.json": "340c5b147bd109fc64d7fda04bd4245caf18f6a5bf279a7ea2b548f6c1314fc4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/PLUGIN_SMOKE.json": "ebe66aac9fecae3cb4039699d4f34a68434fc58eeb4b07e73f23a2ae5c7288e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_993_timeout_review_20261013/candidate_8shards/smoke/supervision/receipt.json": "f5cf652c04baf2c2e96439792553f5aaf7a072b82a28aafae82afe73750c4e2a"
+  },
+  "limitations": [
+    "Static round-robin file counts do not guarantee balanced runtimes.",
+    "Actual new full CI and aggregate coverage result remain pending."
+  ]
+}

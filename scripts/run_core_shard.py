@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PARTS = 6
+PARTS = 8
 
 
 def inventory():
@@ -53,7 +53,7 @@ def main():
                 'files': selected, 'returncode': None}
     manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
     env = dict(os.environ, COVERAGE_FILE=f'.coverage.core-{args.part}')
-    command = [sys.executable, '-m', 'pytest', *selected,
+    command = [sys.executable, '-m', 'pytest', '-p', 'scripts.pytest_progress_plugin', *selected,
                '--ignore=tests/test_matlab_port', '-q', '--tb=short', '--timeout=600',
                '-n', '2', '--cov=chebfunjax', '--cov-report=', '--cov-fail-under=0']
     print(f'Core shard {args.part+1}/{PARTS}: {len(selected)}/{len(files)} files', flush=True)

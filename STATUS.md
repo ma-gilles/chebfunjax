@@ -1,3 +1,17 @@
+## Core CI partition and progress diagnostics — 2026-10-13
+
+Core CI now uses eight shards instead of six. All 797 current core test files
+are assigned exactly once; per-test timeout (600 seconds), two workers per
+shard, complete manifest checks and aggregate 79% coverage remain unchanged.
+Worker logs retain test start/finish node IDs in separate shard directories.
+The local plugin smoke preserved the expected failing-test exit status.
+See `docs/ci_core_partition_progress_20261013.json` for checks and evidence.
+
+This follows run 38402535328 reaching its 90-minute limit in core shard 0.
+Its quiet log reached 92% of items but does not identify the last test or
+predict remaining runtime. Eight file-based shards do not guarantee balanced
+runtimes. Full current-main CI is still pending; parity is incomplete.
+
 ## Ordered CPU evaluation and empty functions — 2026-10-13
 
 The final JAX revision passed 83 tests together in the publication checkout.
