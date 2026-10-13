@@ -1,3 +1,15 @@
+## Native logarithm branches and JAX magnitude accuracy — 2026-10-14
+
+TreeVar log/log1p/log2/log10 now use JAX with native exact-axis branch and
+real-storage behavior. Baseline47/144 captured boundary checks failed;
+144 native,49 original unary and20 independent Decimal controls now pass.
+Root228 merged checks pass; all144 fixture records independently match raw
+MATLAB capture. A compensated log1p identity fixes an additional accuracy
+error found by the independent controls. Base logarithms use polar magnitude;
+this is a qualified mathematical implementation, not inspected MATLAB builtin
+code. Storage selection remains eager; generic JIT/global Chebfun branches
+remain separate. Evidence: `docs/treevar_log_family_cpu_20261014.json`.
+
 ## SH source random tensor initialization — 2026-10-14
 
 SH now uses the shared advancing JAX normal stream for the source0.1*32³

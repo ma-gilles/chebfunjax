@@ -1,0 +1,3038 @@
+{
+  "source": "MATLAB R2025b Update 2 unary primitive boundary capture",
+  "capture_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+  "layout": "methods-fastest in source; extracted in input-major order",
+  "methods": [
+    "log",
+    "log10",
+    "log1p",
+    "log2"
+  ],
+  "input_count": 36,
+  "records": [
+    {
+      "method": "log",
+      "input": {
+        "label": "real_ninf",
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_ninf",
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_ninf",
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_ninf",
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_n2",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_n2",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_n2",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_n2",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_n1",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_n1",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_n1",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_n1",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_n0",
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_n0",
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_n0",
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_n0",
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_p0",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_p0",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_p0",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_p0",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_p1",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_p1",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_p1",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_p1",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_p2",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_p2",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_p2",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff193ea7aad030a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_p2",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_pinf",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_pinf",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_pinf",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_pinf",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_nan",
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_nan",
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_nan",
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_nan",
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff8000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "real_point4",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfed5240f0e0e077",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "real_point4",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfd977d95ec10c02",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "real_point4",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd588c2d9133490",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "real_point4",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bff5269e12f346e2",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "imag_p1",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "8000000000000000",
+        "imag_hex": "3ff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "imag_p1",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3fe5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "imag_p1",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd62e42fefa39ef",
+        "imag_hex": "3fe921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "imag_p1",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "40022123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "imag_n1",
+        "real_hex": "8000000000000000",
+        "imag_hex": "bff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "8000000000000000",
+        "imag_hex": "bff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "imag_n1",
+        "real_hex": "8000000000000000",
+        "imag_hex": "bff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "bfe5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "imag_n1",
+        "real_hex": "8000000000000000",
+        "imag_hex": "bff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd62e42fefa39ef",
+        "imag_hex": "bfe921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "imag_n1",
+        "real_hex": "8000000000000000",
+        "imag_hex": "bff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "c0022123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "regular_pp",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfe62e42fefa39ef",
+        "imag_hex": "3fe4978fa3269ee0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "regular_pp",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfd34413509f79ff",
+        "imag_hex": "3fd1e2d1dd082bcc",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "regular_pp",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd6f88b286b22f2",
+        "imag_hex": "3fcb051b394c33ab",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "regular_pp",
+        "real_hex": "3fd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bff0000000000000",
+        "imag_hex": "3fedb54149cfc5ad",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "regular_np",
+        "real_hex": "bfd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfe62e42fefa39ef",
+        "imag_hex": "4003fc176b7a8560",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "regular_np",
+        "real_hex": "bfd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfd34413509f79ff",
+        "imag_hex": "3ff15bc7d570f0ad",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "regular_np",
+        "real_hex": "bfd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bfd98d60031b821c",
+        "imag_hex": "3fddac670561bb4f",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "regular_np",
+        "real_hex": "bfd999999999999a",
+        "imag_hex": "3fd3333333333333",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "bff0000000000000",
+        "imag_hex": "400cd4f5b642ca6c",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_-2_+9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "400921fb54442918",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_-2_+9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "3ff5d47c4cb2f826",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_-2_+9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "400921fb54442518",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_-2_+9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "40122123045b5b09",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_-2_-9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "c00921fb54442918",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_-2_-9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "bff5d47c4cb2f826",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_-2_-9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "c00921fb54442518",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_-2_-9e-13",
+        "real_hex": "c000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "c0122123045b5b09",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_-2_pzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_-2_pzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_-2_pzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_-2_pzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_-2_nzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_-2_nzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_-2_nzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_-2_nzero",
+        "real_hex": "c000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_-1_+9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "400921fb54442518",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_-1_+9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff5d47c4cb2f4ad",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_-1_+9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c03bb9d3beb8c86b",
+        "imag_hex": "3ff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_-1_+9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "40122123045b5826",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_-1_-9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "c00921fb54442518",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_-1_-9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "bff5d47c4cb2f4ad",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_-1_-9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c03bb9d3beb8c86b",
+        "imag_hex": "bff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_-1_-9e-13",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "c0122123045b5826",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_-1_pzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_-1_pzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_-1_pzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_-1_pzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_-1_nzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "400921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_-1_nzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3ff5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_-1_nzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_-1_nzero",
+        "real_hex": "bff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "40122123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_0_+9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c03bb9d3beb8c86b",
+        "imag_hex": "3ff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_0_+9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c028151824c7587f",
+        "imag_hex": "3fe5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_0_+9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_0_+9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c044000000000000",
+        "imag_hex": "40022123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_0_-9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c03bb9d3beb8c86b",
+        "imag_hex": "bff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_0_-9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c028151824c7587f",
+        "imag_hex": "bfe5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_0_-9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_0_-9e-13",
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "c044000000000000",
+        "imag_hex": "c0022123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_0_pzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_0_pzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_0_pzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_0_pzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_0_nzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_0_nzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_0_nzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_0_nzero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_1_+9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_1_+9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d5bcb7b1526e50d",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_1_+9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "3d60000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_1_+9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "3d771547652b82fe",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_1_-9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ae0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_1_-9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd5bcb7b1526e50d",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_1_-9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "bd60000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_1_-9e-13",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "bd771547652b82fe",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_1_pzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_1_pzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_1_pzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_1_pzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_1_nzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_1_nzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_1_nzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_1_nzero",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_2_+9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "3d60000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_2_+9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "3d4bcb7b1526e50d",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_2_+9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff193ea7aad030a",
+        "imag_hex": "3d55555555555555",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_2_+9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "3d70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "3d671547652b82fe",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "lip_2_-9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "bd60000000000000",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "lip_2_-9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "bd4bcb7b1526e50d",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "lip_2_-9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff193ea7aad030a",
+        "imag_hex": "bd55555555555555",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "lip_2_-9e-13",
+        "real_hex": "4000000000000000",
+        "imag_hex": "bd70000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "bd671547652b82fe",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_2_pzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_2_pzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_2_pzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff193ea7aad030a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_2_pzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_2_nzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fe62e42fefa39ef",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_2_nzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3fd34413509f79ff",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_2_nzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff193ea7aad030a",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_2_nzero",
+        "real_hex": "4000000000000000",
+        "imag_hex": "8000000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_inf_1",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_inf_1",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_inf_1",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_inf_1",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "isreal": true,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log",
+      "input": {
+        "label": "complex_1_inf",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "7ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log10",
+      "input": {
+        "label": "complex_1_inf",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "7ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3fe5d47c4cb2fba0",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log1p",
+      "input": {
+        "label": "complex_1_inf",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "7ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "3ff921fb54442d18",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "method": "log2",
+      "input": {
+        "label": "complex_1_inf",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "7ff0000000000000",
+        "isreal": false,
+        "class": "double"
+      },
+      "expected": {
+        "ok": true,
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "40022123045b5dec",
+        "isreal": false,
+        "class": "double",
+        "shape": [
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "scope": "TreeVar LOG/LOG10/LOG1P/LOG2 JAX adapters; eager value-dependent storage, no global Chebfun helper change or all-JIT claim.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_branch_review_20261014/candidate_final.patch",
+  "manifest_sha256": "75f8a588e2c4c619df4871df2bf0dbf7de6a688f11b3fadb6c9797103d75874f",
+  "changes": [
+    "Exact negative real axis chooses+pi regardless imaginary signed zero; nonaxis phase retains atan2 sign. Entirely real results collapse to real storage. Natural log at purely imaginary unit inputs retains captured negative-zero real component.",
+    "Natural log magnitude uses near-unit log1p identity and scaled largest/smallest expression outside the well-scaled range. LOG1P retains original real x in x*(x+2)+y*y near zero.",
+    "Compensated real log1p: u=round(1+x), log(u)*x/(u-1), exact u==1 returns x, positive infinity explicit. No tolerance, fitted constants, or bound changes.",
+    "LOG2/LOG10 use mathematical polar decomposition log_base(hypot(re,im)) plus scaled phase. Rounded magnitude matches captured native zero behavior. Correspondence to native internal implementation is inferred; opaque built-ins have no inspected numerical source."
+  ],
+  "qualification": {
+    "final": "213 passed:144 unchanged native boundary records,49 unchanged original unary expressions,20 independent500-digit Decimal magnitude controls.",
+    "fixture_test_bound": "Existing8eps*max(1,abs(target)), exact finitezero sign/storage and nonfinite classes retained.",
+    "original_bound": "Original native10eps converted-RHS assertions unchanged.",
+    "independent_controls": "500-digit Decimal exact input floats, regular/large/tiny complex magnitudes; four nonzero tiny-magnitude results additionally checked at8eps relative. These supplemental checks do not replace native predicates.",
+    "static": "Ruff source and tests clean; final Git patch actually applied to clean directory, all4path hashes match, preimage currentP equal.",
+    "fixture_provenance": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_fixture_tests_20261013/REPORT.md"
+  },
+  "negative_evidence": [
+    "Existing baseline47fail97pass retained in treevar_log_fixture_tests_20261013/test_run_v2.",
+    "First common natural-log base candidate181pass12fail: captured LOG2/LOG10 expected exactpositivezero at unit/lips but common stable natural log retained tiny values or negativezero. Source archived treevar_common_natural_log_candidate.py.",
+    "Polar candidate193pass, then independent accuracy control exposes log(-.7+.31i) realpart error7.049916206369744e-15, bound8eps. Receipt final_run212pass1fail and source treevar_before_compensated_log1p.py retained. Compensated identity fixes it; no bound relaxation. Error mechanism consistent with negative log1p primitive accuracy, but no separate primitive-only attribution run is claimed."
+  ],
+  "limitations": [
+    "Only captured real/complex branch/nonfinite cases plus independent finite controls qualified; no blanket arbitrary IEEE subnormal or mixed NaN/infinity coverage.",
+    "Eager boolean checks choose real versus complex storage; these four functions do not become generically JIT-compatible.",
+    "Signed zero pure-imaginary unit convention is a captured native contract, not inferred from mathematical real-zero sign.",
+    "No new MATLAB run and no production dependency beyond JAX."
+  ],
+  "receipts": {
+    "run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_branch_review_20261014/run/receipt.json",
+      "sha256": "f06a91fa22692c8aa5b6ad4445af0dac05cb8ce5799fef97dff5f49e96df2e0e",
+      "command_exit_code": 1,
+      "wall_seconds": 17.15151275228709,
+      "sampled_peak_summed_rss_kib": 762512,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "================== 12 failed, 181 passed, 1 warning in 14.44s =================="
+    },
+    "run_v2": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_branch_review_20261014/run_v2/receipt.json",
+      "sha256": "f7fea20464cd0178eaf7e1a12d9283da664ee0fe763759d6b0636bdc8a869f12",
+      "command_exit_code": 0,
+      "wall_seconds": 16.717670874204487,
+      "sampled_peak_summed_rss_kib": 770336,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "======================= 193 passed, 1 warning in 14.13s ========================"
+    },
+    "final_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_branch_review_20261014/final_run/receipt.json",
+      "sha256": "a5da9592bc1763181bb56af9d9aab15dd017d54e7b40fb42a8be32b3365aec01",
+      "command_exit_code": 1,
+      "wall_seconds": 18.273890401236713,
+      "sampled_peak_summed_rss_kib": 756684,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "================== 1 failed, 212 passed, 1 warning in 15.72s ==================="
+    },
+    "final_v2_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_branch_review_20261014/final_v2_run/receipt.json",
+      "sha256": "cab1dee45512c8341cd6fcce8f6add98ac587debf3eb778e3ad532c9ca63cfcc",
+      "command_exit_code": 0,
+      "wall_seconds": 18.828128926921636,
+      "sampled_peak_summed_rss_kib": 769624,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "======================= 213 passed, 1 warning in 16.12s ========================"
+    }
+  },
+  "root_review": {
+    "all144_fixture_records_exact_raw": true,
+    "raw_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_publication_20261014/raw_review.json",
+    "raw_review_sha256": "cc702f6640644d78094b186e6e2c583fa0e42de72d0252f4355d0bf71ec07294",
+    "merged_pass": 228,
+    "pytest_seconds": 21.15,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_log_publication_20261014/run/receipt.json",
+    "receipt_sha256": "1948442add8b4d96b49e5bf0eca732edc88d8d713891f43eadc0a69d45ea639a",
+    "peak_summed_rss_kib": 962420,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}

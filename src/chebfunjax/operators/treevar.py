@@ -188,6 +188,87 @@ def _sqrt_branch(x):
     return result
 
 
+def _log1p_real(value):
+    """Compensated log(1+x), retaining x when the rounded sum equals one.
+
+    The ratio x/(u-1), u=round(1+x), compensates the rounded addition.
+    Endpoints are handled without a tolerance or fitted switching constant.
+    """
+    rounded = 1 + value
+    result = jnp.log(rounded) * (value/(rounded-1))
+    result = jnp.where(rounded == 1, value, result)
+    return jnp.where(jnp.isposinf(value), value, result)
+
+
+def _complex_log_magnitude(real, imag):
+    """Stable log-hypotenuse, retaining small changes near the unit circle."""
+    largest = jnp.maximum(jnp.abs(real), jnp.abs(imag))
+    smallest = jnp.minimum(jnp.abs(real), jnp.abs(imag))
+    correction = (largest-1)*(largest+1) + smallest*smallest
+    near_unit = .5*_log1p_real(correction)
+    scaled = jnp.log(largest) + .5*_log1p_real((smallest/largest)**2)
+    result = jnp.where((largest >= .5) & (largest <= 1.5), near_unit, scaled)
+    result = jnp.where(jnp.isinf(largest), jnp.inf, result)
+    # Native's pure imaginary unit-axis logarithm stores a negative real zero.
+    # Real-axis log(1) is handled separately and retains positive zero.
+    return jnp.where((real == 0) & (jnp.abs(imag) == 1),
+                     jnp.copysign(jnp.zeros_like(result), -1.), result)
+
+
+def _log_branch(x, *, base=None, increment=False):
+    """MATLAB logarithm branches with stable complex magnitude evaluation.
+
+    The exact negative real axis uses +pi for either imaginary signed zero;
+    off-axis values retain their principal phase. Real results use real
+    storage. LOG1P preserves its original real input in the near-zero
+    magnitude identity x*(x+2)+y*y, avoiding rounded formation of 1+x.
+    Value-dependent storage selection is eager, as for the other adapters.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric LOG/LOG10/LOG1P/LOG2 dispatch.
+    Chebfun commit: 7574c77. Branch and signed-zero conventions qualified by
+    the retained R2025b primitive boundary capture. Magnitude identities are
+    algebraic log(hypot) and log1p identities, not a port of opaque built-ins.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    real, imag = jnp.real(values), jnp.imag(values)
+    shifted = real + 1 if increment else real
+    on_axis = imag == 0
+    negative = shifted < 0
+    if increment:
+        axis_magnitude = jnp.where(negative, jnp.log(-shifted), _log1p_real(real))
+    else:
+        axis_magnitude = jnp.log(jnp.abs(real))
+    if bool(jnp.all(on_axis)) and not bool(jnp.any(negative)):
+        if base == 2 and not increment:
+            return jnp.log2(jnp.abs(real))
+        if base == 10 and not increment:
+            return jnp.log10(jnp.abs(real))
+        return axis_magnitude
+    magnitude = _complex_log_magnitude(shifted, imag)
+    if increment:
+        near_origin = .5*_log1p_real(real*(real+2)+imag*imag)
+        magnitude = jnp.where((jnp.abs(real) <= .5) & (jnp.abs(imag) <= .5),
+                              near_origin, magnitude)
+    magnitude = jnp.where(on_axis, axis_magnitude, magnitude)
+    phase = jnp.where(on_axis, jnp.where(negative, jnp.pi, 0.),
+                      jnp.arctan2(imag, shifted))
+    if base is not None:
+        # Polar base-log identity: round the modulus before applying its
+        # real base logarithm. This differs from scaling complex natural log
+        # near the unit circle; native LOG2/LOG10 exhibit that distinction.
+        modulus = jnp.hypot(shifted, imag)
+        magnitude = jnp.log2(modulus) if base == 2 else jnp.log10(modulus)
+        denominator = jnp.log(jnp.asarray(base, dtype=real.dtype))
+        phase = phase/denominator
+    if bool(jnp.all(phase == 0)):
+        return magnitude
+    return lax.complex(magnitude, phase)
+
+
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: np.arccos(x) / _DEG,
@@ -212,8 +293,9 @@ _UNARY_FNS_RAW = {
     "cscd": lambda x: 1.0 / np.sin(_DEG * x),
     "csch": lambda x: 1.0 / np.sinh(x),
     "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
-    "log": np.log, "log10": np.log10, "log1p": np.log1p,
-    "log2": np.log2, "pow2": lambda x: np.exp2(x), "real": jnp.real,
+    "log": _log_branch, "log10": lambda x: _log_branch(x, base=10),
+    "log1p": lambda x: _log_branch(x, increment=True),
+    "log2": lambda x: _log_branch(x, base=2), "pow2": lambda x: np.exp2(x), "real": jnp.real,
     "sec": lambda x: 1.0 / np.cos(x),
     "secd": lambda x: 1.0 / np.cos(_DEG * x),
     "sech": lambda x: 1.0 / np.cosh(x),
@@ -246,7 +328,7 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt")
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 
