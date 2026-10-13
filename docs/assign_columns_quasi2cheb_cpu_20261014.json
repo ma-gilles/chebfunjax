@@ -1,0 +1,30 @@
+{
+  "scope": "Preserve complex numeric assignment constants; apply native quasi2cheb breakpoint union and restriction before orientation-aware concatenation. Singleton shortcut retained.",
+  "native_sources": [
+    "@chebfun/assignColumns.m",
+    "@chebfun/quasi2cheb.m",
+    "tests/chebfun/test_assignColumns.m"
+  ],
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "private_patch_sha256": "1789f8cba038135e433673808a8a5778b79dcac58794ad450c38b00a8a51b196",
+  "private_gate": "11 tests passed; baseline complex scalar assignment TypeError recorded.",
+  "root_gate": {
+    "wall_seconds": 42.43617355171591,
+    "sampled_peak_summed_rss_kib": 2277212,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "tests_passed": 23,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/assign_columns_publication_20261014/run/receipt.json",
+    "receipt_sha256": "020d14fcbd1e41399ced63fd6dceb6b66b5e7b8e9b98ba734754645d5ea11847"
+  },
+  "limits": [
+    "Native array-valued pass15 is restored literally; genuine Quasimatrix assignment remains unimplemented.",
+    "Mapped original assignment module still has RNG/input/predicate fidelity gaps; these are separately audited.",
+    "No full assignment or global division parity claim."
+  ],
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "44e38cf6973a4a5d742b45f5e35ee991282a579909218e7aaced3eab01d6c76d",
+    "src/chebfunjax/chebfun1d/linalg.py": "b88c24c2c9c574b6a7846190f9bbf3d49319c226170184eb44868f72c97a06dc",
+    "tests/test_matlab_port/chebfun/test_assign_columns_focus_source.py": "2d150e27bbd0c25d3f3474dc18156eaa0c0adfda7eb163c3fe300dd441ce34a3"
+  }
+}

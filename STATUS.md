@@ -1,3 +1,15 @@
+## Complex column assignment and native quasimatrix collation — 2026-10-14
+
+Numeric column assignment now preserves complex dtype through the JAX constant
+constructor. The shared quasi2cheb helper unifies and restricts breakpoints
+before concatenation, including native periodic-to-regular conversion; singleton
+inputs remain unchanged. Literal array-valued assignment pass15 and complex
+partial/full-row controls pass, together with division regressions. Private11
+and merged23 checks pass with stable inputs/no survivors. Original bounds are
+unchanged. Source/RNG fidelity gaps in the older assignment module and genuine
+Quasimatrix assignment remain open, explicitly audited separately.
+Evidence: `docs/assign_columns_quasi2cheb_cpu_20261014.json`.
+
 ## Native TreeVar sqrt signed-zero and storage branches — 2026-10-14
 
 Sqrt now follows the native positive imaginary branch on the negative real

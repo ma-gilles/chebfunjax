@@ -7952,18 +7952,18 @@ class Chebfun(eqx.Module):
 
         if not isinstance(g, Chebfun):
             # Numeric operand: an array-valued constant on f's domain.
-            vals = _np.atleast_1d(_np.asarray(g, dtype=float)).ravel()
+            vals = jnp.atleast_1d(jnp.asarray(g)).reshape(-1)
             if len(vals) != len(idx):
                 raise ValueError(
                     "assign_columns: subscripted assignment dimension "
                     f"mismatch ({len(idx)} columns selected, {len(vals)} "
                     "values given).")
-            cvals = jnp.asarray(vals, dtype=jnp.float64)
+            cvals = vals.astype(jnp.result_type(vals.dtype, jnp.float64))
 
             def _const_op(x, _v=cvals):
                 xa = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64))
                 if _v.shape[0] == 1:
-                    return jnp.full(xa.shape, _v[0], dtype=jnp.float64)
+                    return jnp.full(xa.shape, _v[0], dtype=_v.dtype)
                 return jnp.broadcast_to(_v, xa.shape + (_v.shape[0],))
 
             # MATLAB transposes the numeric operand to match f's orientation.

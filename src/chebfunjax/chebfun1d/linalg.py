@@ -1146,16 +1146,23 @@ class Quasimatrix:
 
 
 def _source_quasi2cheb(columns):
-    """Attempt the native quasi2cheb concatenation on scalar columns.
+    """Apply native quasi2cheb restriction and concatenation to columns.
 
-    Native chooses cat(2) for column-oriented inputs and cat(1) for
-    transposed inputs. The latter maps to concatenating normalized columns
-    then restoring the row orientation, which preserves an array-valued
-    Chebfun when the scalar columns are compatible.
+    Native leaves a singleton quasimatrix unchanged. For multiple columns it
+    unions their domains and restricts every column before concatenating.
+    This restriction is significant even for identical domains because it
+    converts periodic technology to regular technology. Native chooses
+    cat(2) for column-oriented inputs and cat(1) for transposed inputs.
     """
     from .chebfun import Chebfun
 
     columns = list(columns)
+    if len(columns) < 2:
+        return columns[0]
+    domain = columns[0].domain
+    for column in columns[1:]:
+        domain = domain.union(column.domain)
+    columns = [column.restrict(domain.breakpoints) for column in columns]
     if not columns[0].is_transposed:
         return Chebfun.horzcat(columns)
     normalized = [column.T for column in columns]
