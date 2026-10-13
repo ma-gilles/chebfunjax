@@ -16,6 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.operators.spinop2 import Spinop2, func2str, spin2
 from chebfunjax.operators.spinop3 import Spinop3, spin3
 
@@ -34,6 +35,33 @@ class TestSpinop2Surface:
         z = 0.3 + 0.4j
         got = complex(S.nonlin(z))
         assert got == pytest.approx(z - (1.0 + 1.5j) * z * abs(z) ** 2)
+
+    def test_preset_gl_source_random_initial_object(self, monkeypatch):
+        from chebfunjax.utils import random
+
+        source_randnfun2 = random.randnfun2
+        calls = []
+
+        def fixed_seed_randnfun2(*args, **kwargs):
+            calls.append((args, kwargs.copy()))
+            return source_randnfun2(*args, seed=53, **kwargs)
+
+        monkeypatch.setattr(random, "randnfun2", fixed_seed_randnfun2)
+        S = Spinop2("GL")
+        assert calls == [((4.0, (0.0, 100.0, 0.0, 100.0)), {"trig": True})]
+        assert isinstance(S.init, Chebfun2)
+        assert S.init.domain == S.domain
+        assert S.init.isPeriodicTech()
+        assert S.init.isreal()
+        assert abs(float(S.init.norm("inf")) - 1.0) <= 32 * np.finfo(float).eps
+
+        reference = source_randnfun2(
+            4.0, (0.0, 100.0, 0.0, 100.0), trig=True, seed=53)
+        reference = reference / reference.norm("inf")
+        x = np.asarray([0.0, 11.25, 50.0, 93.75])
+        y = np.asarray([100.0, 71.0, 25.0, 3.125])
+        np.testing.assert_allclose(S.init(x, y), reference(x, y),
+                                   rtol=0.0, atol=2e-14)
 
     def test_dom_tspan_constructor(self):
         dom = [0.0, 2 * np.pi, 0.0, 2 * np.pi]

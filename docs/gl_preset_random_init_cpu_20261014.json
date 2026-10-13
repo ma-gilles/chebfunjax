@@ -1,0 +1,60 @@
+{
+  "scope": "Native GL preset construction parameters, periodic real object, infinity normalization; no MATLAB normal-stream or full-evolution parity claim",
+  "manifest": {
+    "candidate_base_head": "61822843135c4628c3ecad06cdaedab49f47c6ed",
+    "changed_paths": {
+      "src/chebfunjax/operators/spinop2.py": "bb2e6936b50e610860f1b0a7e3fa9bcf53e484880f85e60e4577e9f25c3ac4a0",
+      "tests/test_spin/test_operators_spinop23.py": "1a426e04baeb91a1a86c3fbe95387f97c3eb8e6d33018f04ce46fce43231e984"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gl_preset_native_candidate_20261013/evidence/guard.json",
+      "sha256": "8c963d2d9f03e2b7039a306b07da37578d8aea828b45e86ddd90b2184f563139"
+    },
+    "native_source_hashes": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spinop2/spinop2.m": "61384b6034feb7a7b0cb191043742129ed7f542ced652a4d115160bdd1fbab0b",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/randnfun2.m": "e4e29888190a4a8929ad37cc643b8ff522b17bca5ea955e3c9a13dadaf9135a5"
+    },
+    "patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gl_preset_native_candidate_20261013/evidence/source.patch",
+      "sha256": "082ef5ef5507dea71c0a2240e2ca68b4e842c45c97ffcbb41292fb9bb2a04f0b"
+    },
+    "runs": {
+      "run_preset_constructor/receipt.json": "88568f3b68d968114e54d83eff1b3037f7dcaf315671e03ed7f1fb747c8e283c",
+      "run_preset_constructor/stdout": "1f2b3f3e5fb4edb91871c8b1fcaa5e0ec172e684f5bfaf3880f8b64555538743",
+      "run_short_spin2/receipt.json": "fa5985365bdcac2e2ccfb5b2926c42749b06d7dfc7cb2e4142e88b8f6759500c",
+      "run_short_spin2/stdout": "455bd27f3a0a810b879aaa9153b7f7d3108e5675511802350b96c9784d1dfebb"
+    },
+    "scope": "GL preset source construction and focused initial-object integration only; no full time evolution",
+    "source_manifest": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gl_preset_native_candidate_20261013/evidence/source_manifest.json",
+      "sha256": "60c24883a8cbafbfd9cae5823c815d05c0b83f218e03a8c49b19806389ca630b"
+    }
+  },
+  "gates": {
+    "run_preset_constructor": {
+      "wall_seconds": 49.11454088613391,
+      "sampled_peak_summed_rss_kib": 2418480,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "supervisor_exit_code": 0,
+      "receipt_sha256": "88568f3b68d968114e54d83eff1b3037f7dcaf315671e03ed7f1fb747c8e283c"
+    },
+    "run_short_spin2": {
+      "wall_seconds": 39.32147496473044,
+      "sampled_peak_summed_rss_kib": 2202564,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "supervisor_exit_code": 0,
+      "receipt_sha256": "fa5985365bdcac2e2ccfb5b2926c42749b06d7dfc7cb2e4142e88b8f6759500c"
+    },
+    "run_spin2_source_convergence": {
+      "wall_seconds": 41.40885500982404,
+      "sampled_peak_summed_rss_kib": 2290840,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "supervisor_exit_code": 0,
+      "receipt_sha256": "df78fe48dccfce1b9b8f42d7821f88cd512f864b780377522a19c5077355b0df"
+    }
+  },
+  "root_review": "Applied source and constructor test byte-identical to qualified private candidate. Existing convergence test shares same initial object across both time steps. No tolerance changes."
+}

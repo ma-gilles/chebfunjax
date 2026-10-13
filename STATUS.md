@@ -1,3 +1,21 @@
+## Native inverse-trig branches and GL preset initialization — 2026-10-14
+
+TreeVar asin/acos now follow native real-axis branches, including signed zero
+and nonfinite cases. Private146 and merged125 checks pass; root independently
+verified all72 compact fixture records against retained native capture. Original
+49 unary and98 first-order assertions/bounds are unchanged. Dtype-changing
+paths remain eager; degree wrappers and other inverse functions remain separate.
+Evidence: `docs/treevar_asin_acos_cpu_20261014.json`.
+
+The GL preset now constructs a real periodic randnfun2(4, domain, trig=True)
+object and normalizes its infinity norm, matching native construction order.
+Constructor, short solver and unchanged original convergence gates each pass
+in separate bounded CPU processes. Source/test hashes match reviewed candidate;
+convergence uses one shared initial object for both time steps. The test's stale
+deterministic-initialization description is corrected. MATLAB normal-stream
+identity and full GL evolution/raster parity remain open.
+Evidence: `docs/gl_preset_random_init_cpu_20261014.json`.
+
 ## Restore native derivative probes and literal unbounded callback — 2026-10-14
 
 Derivative tests now use captured native seed7681 probes and actual sequential

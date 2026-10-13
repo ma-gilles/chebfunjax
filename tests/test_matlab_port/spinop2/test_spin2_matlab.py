@@ -1,20 +1,12 @@
 """Port of MATLAB Chebfun tests/spinop2/test_spin2.m (Fable 5).
 
-The MATLAB test is a self-convergence (Cauchy) check: solve the GL
-equation with time-step DT and DT/2 at N=128 grid points, then compare
-the two solutions on a 50x50 grid.  MATLAB tolerance ``tol = 1e-4``.
-
-MATLAB seeds a shared random initial condition via ``rng``/``randnfun2``;
-chebfunjax has no ``randnfun2``, so the GL preset supplies a
-deterministic low-frequency trig field instead (both solves share it,
-which is exactly what the self-convergence check needs).
-
-Measured self-convergence error (this port, fully deterministic):
-    GL: 7.9e-5  (the genuine 4th-order ETDRK4 error at N=128, dt=0.1 --
-        essentially independent of the init amplitude, and the same
-        error MATLAB incurs, hence the shared 1e-4 threshold is kept
-        as-is; the result is bit-reproducible so there is no flakiness
-        despite the sub-2x nominal margin).
+The MATLAB test is a self-convergence check: solve the GL equation with
+steps ``dt`` and ``dt/2`` at ``N=128``, then compare on a 50x50 grid. Its
+source tolerance is ``1e-4``. MATLAB saves and restores the random state
+between solves, so both use the same initial condition. This port likewise
+constructs one GL preset and reuses it for both solves. The preset creates
+its initial field with the JAX ``randnfun2`` implementation; this test does
+not claim MATLAB seeded-normal-stream parity.
 
 Provenance
 ----------

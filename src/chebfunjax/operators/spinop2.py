@@ -38,21 +38,6 @@ __all__ = ["Spinop2", "spin2", "Spin2SolutionMatrix", "func2str", "FuncHandle"]
 # ---------------------------------------------------------------------------
 
 
-def _gl_init(x, y):
-    """Deterministic smooth initial condition standing in for MATLAB's
-    ``randnfun2(4, dom, 'trig')`` on the GL domain ``[0, 100]^2``.
-
-    MATLAB seeds a band-limited random trig field; chebfunjax has no
-    ``randnfun2``, so a deterministic low-frequency field is used
-    instead.  The spin2 self-convergence test only compares two solves
-    that share this same init, so determinism (not randomness) is what
-    the port requires.
-    """
-    return (0.5 * jnp.cos(2 * jnp.pi * x / 100.0)
-            + 0.5j * jnp.sin(2 * jnp.pi * y / 100.0)
-            + 0.3 * jnp.cos(4 * jnp.pi * (x + y) / 100.0))
-
-
 def _preset(pdechar: str):
     """Return the constructor fields for a named 2D PDE, mirroring
     @spinop2/spinop2.m parseInputs.
@@ -71,6 +56,11 @@ def _preset(pdechar: str):
     key = pdechar.upper()
     if key == "GL":
         # Ginzburg-Landau: u_t = lap(u) + u - (1+1.5i) u |u|^2 on [0,100]^2.
+        dom = (0.0, 100.0, 0.0, 100.0)
+        from chebfunjax.utils.random import randnfun2
+
+        init = randnfun2(4.0, dom, trig=True)
+        init = init / init.norm("inf")
         lin = FuncHandle(None, "@(u)lap(u)")
         nonlin = FuncHandle(
             lambda u: u - (1.0 + 1.5j) * u * (abs(u) ** 2),
@@ -79,9 +69,9 @@ def _preset(pdechar: str):
         def nonlin_vals(u):
             return u - (1.0 + 1.5j) * u * jnp.abs(u) ** 2
         return (
-            (0.0, 100.0, 0.0, 100.0),   # domain
+            dom,                        # domain
             (0.0, 100.0),               # tspan
-            lin, nonlin, _gl_init,
+            lin, nonlin, init,
             (1.0, 0.0, 0.0, 0.0, 0.0),  # lin_coeffs (A*lap)
             nonlin_vals, 1, False,
         )

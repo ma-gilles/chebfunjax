@@ -1,0 +1,76 @@
+{
+  "scope": "Direct TreeVar asin/acos only, using explicit native real-axis branch and JAX complex kernels off the axis.",
+  "base": {
+    "head": "61822843135c4628c3ecad06cdaedab49f47c6ed",
+    "source_sha256": "33a391d92a9e53f13c8bbdf821c855e2a70f9958b9e7bd9899f0b6b6655e66d8"
+  },
+  "source_method": "For real-axis |x|>1, asin(x)=sign(x)*(pi/2-i*acosh(abs(x))); acos has real0/pi and imaginary copysign(acosh(abs(x)),x). In-domain real-axis input uses direct real kernel. Complex values are assembled from separate real and imaginary components to preserve Inf classification.",
+  "dtype_semantics": "Eager all-real-axis and outside-domain checks preserve ordinary real outputs and captured native real storage for complex-zero in-domain inputs. This intentionally does not promise JIT on value-dependent dtype paths.",
+  "tests": {
+    "result": "146 passed:72 native scalar primitive records +4 public RHS outside-domain controls +49 unchanged original unary predicates +21 first-order nodes carrying98 assertions.",
+    "original_bounds": "Original49 oracle and10eps absolute norm, and original98 first-order bounds unchanged.",
+    "new_fixture_controls": "NaN/positiveInf/negativeInf classes, real/complex storage, exact zero values and zero signs checked exactly. Finite nonzero components use8eps*max(1,abs(native component)), chosen before first gate, not changed after observing results.",
+    "supplemental_bound_scope": "A small scaled floating comparison budget for elementary double operations on retained cases; not a native original predicate or universal libm theorem. No tolerance was fitted to a failure.",
+    "wall_seconds": 33.37710078712553,
+    "sampled_peak_summed_rss_kib": 1581392,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "exit_code": 0
+  },
+  "preserved": [
+    "All other unary evaluators, including acosd/asind, remain unchanged.",
+    "Previously migrated16 direct JAX functions and RHS assembly unchanged.",
+    "No global Chebfun primitive claims: Chebfun.asin/acos and reciprocal helper still have separate branch/nonfinite debt.",
+    "No whole pipeline forced complex promotion."
+  ],
+  "evidence": {
+    "native_boundary_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/UNARY_BOUNDARY_REPORT.json",
+    "native_capture_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+    "receipt_sha256": "64d5d04f259a4a6fc40caffd678bf94201f880fb6b97ce967a92f7c26f73d783",
+    "original49_test_sha256": "5c558a0d932d9088f662dd7e90e472490af90955c3d2dc6a43f06b3918dc1240"
+  },
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/asin_acos_candidate.patch",
+  "patch_sha256": "445afe1df8ce781f20c2e0bd57c5018f4513ad2bf7d9802642eabff81d994ff7",
+  "changed_paths": [
+    {
+      "path": "src/chebfunjax/operators/treevar.py",
+      "sha256": "e2f70cf3747b8759ef553808c11c1720b2558e1a24ba68b11880e50a9d9b023c",
+      "applied_sha256": "e2f70cf3747b8759ef553808c11c1720b2558e1a24ba68b11880e50a9d9b023c"
+    },
+    {
+      "path": "tests/test_matlab_port/treeVar/test_asin_acos_branch_source.py",
+      "sha256": "0c42776fbca32aa1154ce1cb64d0e359ce07b3348fc50821eea6665eea2eb70d",
+      "applied_sha256": "0c42776fbca32aa1154ce1cb64d0e359ce07b3348fc50821eea6665eea2eb70d"
+    },
+    {
+      "path": "tests/test_matlab_port/treeVar/data/asin_acos_boundary_native.json",
+      "sha256": "235858fceb9f9b3ef24d996f388b11942f9a14e5760a13177a7e6a3d24e977b8",
+      "applied_sha256": "235858fceb9f9b3ef24d996f388b11942f9a14e5760a13177a7e6a3d24e977b8"
+    }
+  ],
+  "validation": {
+    "worktree": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_asin_acos_patch_validation_sparse_20261014",
+    "clean_base_and_source_preimage_checked": true,
+    "git_apply_check": true,
+    "git_apply": true,
+    "all_path_hashes_match": true,
+    "git_diff_check": true
+  },
+  "limits": [
+    "Scalar retained branch packet qualified; no fresh matrix-native or arbitrary complex branch sweep.",
+    "Dynamic dtype-changing tracing remains unsupported; ordinary complex kernels are not separately exposed as a new JIT API.",
+    "Degrees and reciprocal inverse wrappers are intentionally separate follow-up packages."
+  ],
+  "private_worktree_git_base": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "qualification_tree": "Existing private candidate plus prior qualified abs/selector changes; TreeVar source refreshed exactly from publication61822843 before this patch. Full runtime sources bound by guard; root merged gate still required.",
+  "root_gate": {
+    "wall_seconds": 15.552538625895977,
+    "sampled_peak_summed_rss_kib": 764548,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0,
+    "tests_passed": 125,
+    "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/asin_acos_publication_20261014",
+    "native_fixture_records_verified": 72
+  }
+}

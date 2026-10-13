@@ -77,8 +77,46 @@ def _reciprocal_inverse_trig(x, cosine=False):
     return evaluate(jnp.asarray(x), cosine=cosine)
 
 
+def _inverse_trig_branch(x, cosine=False):
+    """Evaluate MATLAB's ASIN/ACOS real-axis branch using JAX primitives.
+
+    Nonzero imaginary inputs use the complex kernel. Exact real-axis inputs,
+    including either imaginary signed zero, use the real-domain convention:
+    asin(x) = sign(x)*(pi/2 - i*acosh(abs(x))) outside [-1, 1].
+    Ordinary in-domain real outputs remain real. Dtype selection is eager.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m ASIN/ACOS numeric dispatch.
+    Chebfun commit: 7574c77. MATLAB R2025b primitive branch capture:
+    treevar_rhs_jax_review_20261014/unary_boundary_native/capture.json.
+    Complex assembly uses separate components, avoiding 0*Inf contamination.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    real = jnp.real(values)
+    on_axis = jnp.imag(values) == 0
+    outside = jnp.abs(real) > 1
+    op = jnp.arccos if cosine else jnp.arcsin
+    if bool(jnp.all(on_axis)) and not bool(jnp.any(outside)):
+        return op(real)
+    ordinary = op(real)
+    height = jnp.arccosh(jnp.abs(real))
+    if cosine:
+        axis_real = jnp.where(outside, jnp.where(real < 0, jnp.pi, 0.), ordinary)
+        axis_imag = jnp.where(outside, jnp.copysign(height, real), 0.)
+    else:
+        axis_real = jnp.where(outside, jnp.copysign(jnp.pi/2, real), ordinary)
+        axis_imag = jnp.where(outside, -jnp.copysign(height, real), 0.)
+    axis_value = lax.complex(axis_real, axis_imag)
+    if bool(jnp.all(on_axis)):
+        return axis_value
+    return jnp.where(on_axis, axis_value, op(values))
+
+
 _UNARY_FNS_RAW = {
-    "abs": jnp.abs, "acos": np.arccos,
+    "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: np.arccos(x) / _DEG,
     "acot": lambda x: np.arctan(1.0 / x),
     "acoth": lambda x: np.arctanh(1.0 / x),
@@ -89,7 +127,7 @@ _UNARY_FNS_RAW = {
     "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
     "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
     "asech": lambda x: np.arccosh(1.0 / x),
-    "asin": np.arcsin, "asind": lambda x: np.arcsin(x) / _DEG,
+    "asin": _inverse_trig_branch, "asind": lambda x: np.arcsin(x) / _DEG,
     "asinh": jnp.arcsinh, "atan": jnp.arctan,
     "atand": lambda x: np.arctan(x) / _DEG,
     "atanh": np.arctanh, "conj": jnp.conj, "cos": jnp.cos,
@@ -135,7 +173,8 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY else _complex_fallback(fn)
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos")
+              else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 
 _BINARY_FNS = {
