@@ -100,12 +100,22 @@
   "limits": [
     "Seven of eight printed root rows match; final imaginary printed digit differs by1e-10",
     "Both f coefficient counts75 and composed ft counts73 match, but coefficients are not bit-identical",
-    "Critical-line coefficient difference6.34e-6 is not isolated yet; roundoff amplification is a hypothesis being tested with matched-coefficient controls",
+    "Critical-line coefficient difference traced with matched-coefficient control below; original representation/output differences remain",
     "New current Python figures retained in scratch, no complete raster-parity claim"
   ],
   "receipts": {
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_native_full_20261013/run/receipt.json": "f681992ade82e53a23d859201969a100b5cb7ace708ecb64a562b3672530b79f",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_current_a31b705d_20261013/run/receipt.json": "7476d9855c0d0afbc3bd170953315aacffeb0697db1e52e51d923277d27b2da5",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_native_full_20261013/REPORT.md": "e70e6a14542fb43126cfdaf5cb2bf9bfa4a5acbff6243ab760135d4a0a074b00"
+  },
+  "matched_coefficient_followup": {
+    "native_f_to_native_ft_max_coeff_difference": 1.5411319289072724e-14,
+    "python_f_to_python_ft": "exact coefficient equality",
+    "interpretation": "Matched coefficients reproduce corresponding continuation; no separate composition defect found in this control. Original f rounding perturbations amplify under complex continuation. General sensitivity bounds and pixel parity remain unproved.",
+    "evidence": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_compose_diagnosis_20261013/REPORT.md": "e857a0ad253d00528194b55e9dd0b368e5031b38de19e17fb6626ab2d37bbc5e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_compose_diagnosis_20261013/result.json": "ad71271e4373fe65f2ecd1f37149b0ebba8973fc3a991e3b697d26b207bf0e46",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/zetazeros_compose_diagnosis_20261013/run4/receipt.json": "af81c543615926ee077114ea52671d5c7dc2ce9c361f602ba8282e11a3c89bde"
+    }
   }
 }

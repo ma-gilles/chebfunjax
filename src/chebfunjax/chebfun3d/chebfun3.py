@@ -593,7 +593,7 @@ class Chebfun3(eqx.Module):
             Maximum rank in each mode.  Default 128.
         min_samples : int, optional
             Minimum number of grid points per direction in Phase 1.
-            Default 9.
+            Default 17, matching the native chebtech minimum sample count.
 
         Returns
         -------
@@ -3315,9 +3315,9 @@ def chebfun3(
     domain: tuple[float, float, float, float, float, float] = (
         -1.0, 1.0, -1.0, 1.0, -1.0, 1.0,
     ),
-    tol: float = _EPS,
+    tol: float | None = None,
     max_rank: int = 128,
-    min_samples: int = 9,
+    min_samples: int = 17,
     rank=None,
     *,
     coeffs: bool = False,
@@ -3341,11 +3341,13 @@ def chebfun3(
     domain : 6-tuple of floats, optional
         (xa, xb, ya, yb, za, zb).  Default is (-1, 1, -1, 1, -1, 1).
     tol : float, optional
-        Target relative tolerance.  Default is machine epsilon (~2.2e-16).
+        Target relative tolerance.  If omitted, use the current session
+        ``ChebfunPref().cheb3Prefs.chebfun3eps`` (factory default machine
+        epsilon). Explicit ``eps`` takes precedence over ``tol``.
     max_rank : int, optional
         Maximum rank in each mode.  Default 128.
     min_samples : int, optional
-        Minimum grid points per direction in Phase 1.  Default 9.
+        Minimum grid points per direction in Phase 1.  Default 17, matching the native chebtech minimum sample count.
 
     Returns
     -------
@@ -3376,6 +3378,10 @@ def chebfun3(
     dv = tuple(float(v) for v in domain)
     if eps is not None:
         tol = float(eps)
+    elif tol is None:
+        from chebfunjax.chebpref import ChebfunPref
+
+        tol = float(ChebfunPref().cheb3Prefs.chebfun3eps)
     if equi:
         raise ValueError("CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag "
                          "is valid only when constructing from numeric "

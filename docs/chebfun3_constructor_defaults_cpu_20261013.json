@@ -1,0 +1,39 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "integration_base": "d589da31030fab6c64e85432a365d442efe01adf",
+  "changes": [
+    "Public chebfun3 default initial sample count9\u219217, matching native default tech preferences and existing low-level factory",
+    "Omitted/None tol now reads session cheb3Prefs.chebfun3eps; explicit tol and higher-priority eps retain existing behavior"
+  ],
+  "verification": {
+    "baseline_failures": [
+      "Public callback first tensor9,6,6 rather than17,6,6",
+      "Session epsilon ignored: lengths23,23,45 vs explicit11,12,14"
+    ],
+    "private_controls_each": 6,
+    "merged_controls_passed": 12,
+    "unchanged_native_predicates": [
+      "constructor8\u201311",
+      "constructor2 13\u201314"
+    ],
+    "session_vs_explicit": "exact core/factor arrays, lengths and ranks",
+    "environment": "Pinned JAX/JAXlib0.11.0 CPU/x64; guards stable, no survivors"
+  },
+  "limits": [
+    "No full constructor battery or performance claim",
+    "Global technology/explicit preference parsing, constructor/sampleTest selection, ACA ordering and phase-two source algorithm remain under audit",
+    "Direct low-level from_function retains its explicit numeric tolerance default",
+    "Earlier staging manifest-key error started no numerical process; retained separately"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_constructor_review_20261013/REPORT.md": "d0ce3944ccac2dd46476ca2069dafe7046e44502c942d15a28685cfbc55a6476",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_constructor_review_20261013/CHANGED_PATHS.json": "3d36debe700285dbd0d73932c647c560165f0f25ccad9d9dbc1eb373a942c5e1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_constructor_review_20261013/baseline/receipt.json": "6a47bdc3fdf9e2a2ec4f66b8f2c5987960ec65eabfdefd5a0c3dc7fda9260a8c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_constructor_review_20261013/candidate/receipt.json": "64053b4c83cea80f9353f9fed8759bb2016c7709d7e52c07b433cf069a23abac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_epsilon_review_20261013/REPORT.md": "f1e287dc2531733ea30db09266aaa3cbc1e5f38cba79ee572953224eb545cd6e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_epsilon_review_20261013/CHANGED_PATHS.json": "85d709f0859c4314441cf7fc071547b6d529b7888159b52f057726692e003220",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_epsilon_review_20261013/baseline/receipt.json": "4767a3f143ec4ecc21cc5f179b610a68d3dc8a450af8af18b99d85372e4a35d3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_epsilon_review_20261013/candidate/receipt.json": "48965f10d87c6b2d6bd01e1fead951e2dacb856f56ae75edf48bf0d24ac393be",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_defaults_publication_v2_20261013/run/receipt.json": "716f65a507e19fdfd2b7827d572b99bfc85888fa192a4397620ec9042ac72672"
+  }
+}

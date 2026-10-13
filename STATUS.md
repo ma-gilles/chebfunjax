@@ -1,3 +1,21 @@
+## Chebfun3 constructor defaults and session preferences — 2026-10-13
+
+The public factory now starts with the native 17-point grid instead of9 and
+reads the session Chebfun3 epsilon when tolerance is omitted. Explicit tolerance
+and eps override precedence are preserved. Baseline controls reproduce both
+faults. The combined CPU gate passes12 checks, including unchanged original
+constructor clauses8–11 and constructor2 clauses13–14. Global preferences are
+restored after each test. Evidence: `docs/chebfun3_constructor_defaults_cpu_20261013.json`.
+
+The ZetaZeros matched-coefficient control reproduces native continuation
+coefficients to1.55e-14 and Python continuation coefficients exactly. The larger
+between-run continuation difference follows the initial coefficient perturbation;
+no separate composition defect was found. Updated evidence is in
+`docs/zetazeros_native_comparison_cpu_20261013.json`.
+
+Full constructor technology/preference semantics, native coverage, pages/figures,
+remaining numerical issues and current-main green CI remain unresolved.
+
 ## CPU compilation reuse, coefficient plotting and native page evidence — 2026-10-13
 
 Adaptive sample metadata now groups existing JAX operations into reusable
