@@ -16,8 +16,18 @@ import pytest
 
 from chebfunjax.chebfun3d._chebfun3double import complete_aca2, tensor_axes
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3, chebfun3
+from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech
+
+
+@pytest.fixture(autouse=True)
+def restore_preferences():
+    original = ChebfunPref()
+    ChebfunPref.setDefaults("factory")
+    yield
+    ChebfunPref.setDefaults(original)
+
 
 EPS = np.finfo(float).eps
 
@@ -55,7 +65,10 @@ def test_numeric_constant_and_singleton_dimensions(periodic, shape):
     result = Chebfun3.from_values(values, tech=technology)
     np.testing.assert_allclose(result(.23, -.17, .39), 2.+1j,
                                atol=100*EPS*abs(2.+1j), rtol=0)
-    assert all(isinstance(t, technology) for group in
+    # Native chebfun3double resets scalar inputs through the session default;
+    # non-scalar numeric tensors retain the selected tensor technology.
+    expected_technology = Chebtech2 if np.prod(shape) == 1 else technology
+    assert all(isinstance(t, expected_technology) for group in
                (result.cols, result.rows, result.tubes) for t in group)
 
 

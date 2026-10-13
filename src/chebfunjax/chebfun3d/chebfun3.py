@@ -1794,11 +1794,15 @@ class Chebfun3(eqx.Module):
 
     @property
     def rank(self) -> tuple[int, int, int]:
-        """Tucker rank (rx, ry, rz) of the approximation (all zero for
-        the zero function, as in MATLAB)."""
-        if self.iszero():
+        """Native Tucker core dimensions, all zero when the core is zero.
+
+        This differs from the full iszero predicate, which also checks
+        factors. MATLAB source: @chebfun3/rank.m, Chebfun7574c77.
+        """
+        # Native rank checks the core only; full iszero also checks factors.
+        if bool(jnp.all(self.core == 0)):
             return (0, 0, 0)
-        return (len(self.cols), len(self.rows), len(self.tubes))
+        return tuple(self.core.shape) + (1,) * max(0, 3-self.core.ndim)
 
     def length(self) -> tuple[int, int, int]:
         """Polynomial degrees ``(m, n, p)`` of the Tucker factors.
@@ -1964,9 +1968,16 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/chebfun3double.m (numeric input)
         Chebfun commit: 7574c77
         """
+        values = jnp.asarray(V)
+        if values.size == 1:
+            # @chebfun3/chebfun3double.m returns through constructor with no
+            # explicit preference for a non-equispaced scalar. That recursive
+            # call uses session defaults and drops call-local tech/tolerance.
+            return chebfun3(values.reshape(()), domain=domain)
+
         from chebfunjax.chebfun3d._chebfun3double import construct
 
-        return construct(V, domain, tol, tech=tech)
+        return construct(values, domain, tol, tech=tech)
 
     @property
     def cols_quasi(self):
@@ -2328,7 +2339,9 @@ class Chebfun3(eqx.Module):
         """
         if self.isempty():
             return True
-        return float(jnp.max(jnp.abs(self.core))) == 0.0
+        from chebfunjax.chebfun3d._plus import _source_iszero
+
+        return _source_iszero(self)
 
     def isequal(self, other: "Chebfun3") -> bool:
         """True if f and g are the same function (MATLAB isequal).
@@ -3608,6 +3621,21 @@ def chebfun3(
         # Native parseInputs samples once on chebpts3 before numeric dispatch.
         # Python keywords use the final domain regardless of keyword order.
         f = f(*chebpts3(*lengths, domain=dv))
+    if not equi and not callable(f):
+        scalar_values = jnp.asarray(f)
+        if scalar_values.size == 1:
+            # @chebfun3/chebfun3double.m: for a non-equispaced scalar, the
+            # native constructor recursively calls constructor without passing
+            # the parsed pref. The recursive call therefore uses current
+            # session defaults, ignoring local tech/trig/eps preferences.
+            # Apply fixed rank only after that numeric constructor returns.
+            constant = scalar_values.reshape(())
+            result = chebfun3(
+                lambda x, y, z, _constant=constant:
+                    jnp.full(x.shape, _constant),
+                domain=dv,
+            )
+            return result if rank is None else result.fix_the_rank(rank)
     direct_first_kind = ((pref is not None or tech is None)
                          and key in ("chebtech1", "1", "1st") and not direct_periodic)
     if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:

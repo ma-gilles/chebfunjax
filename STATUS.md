@@ -1,3 +1,14 @@
+## Scalar preference reset and public Chebfun3 zero semantics — 2026-10-14
+
+Scalar numeric construction now drops call-local technology/tolerance and uses
+session defaults, as confirmed by native preference/coefficient captures.
+Fixed-length scalar callbacks follow the same route. Public iszero now checks
+zero factors after its core/sample checks; rank retains native core-only
+semantics and length uses full iszero. Three zero-factor baseline failures
+are fixed. Root98 merged checks plus all4 literal original iszero predicates
+pass; raw native MAT and driver are retained. Equi remains unimplemented.
+Evidence: `docs/chebfun3_scalar_zero_cpu_20261014.json`.
+
 ## Native inverse reciprocal hyperbolic branches — 2026-10-14
 
 ACOTH/ACSCH/ASECH now use JAX reciprocal and inverse-function compositions

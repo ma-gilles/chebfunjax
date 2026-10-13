@@ -1,6 +1,6 @@
 """Port of MATLAB Chebfun tests/chebfun3/test_iszero.m (Fable 5).
 
-FIXED (Fable 5): Chebfun3.iszero added in the audit.
+FIXED (Fable 5): Original scalar, empty and callback constructions are preserved.
 
 Provenance
 ----------
@@ -10,21 +10,21 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
 
 
 class TestChebfun3Iszero:
     def test_all_matlab_assertions(self):
         # chebfun3(0): the zero function.
-        f = Chebfun3.from_function(lambda x, y, z: 0.0 * x)
+        f = chebfun3(0)
         assert f.iszero()
 
         # chebfun3([]): the empty object is treated as zero.
-        assert Chebfun3.empty().iszero()
+        assert chebfun3([]).iszero()
 
         # chebfun3(2): a nonzero constant.
-        f = Chebfun3.from_function(lambda x, y, z: 2.0 + 0.0 * x)
+        f = chebfun3(2)
         assert not f.iszero()
 
-        f = Chebfun3.from_function(lambda x, y, z: x + y - z)
+        f = chebfun3(lambda x, y, z: x + y - z)
         assert not f.iszero()

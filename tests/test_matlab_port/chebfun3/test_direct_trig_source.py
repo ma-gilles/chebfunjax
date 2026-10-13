@@ -100,10 +100,32 @@ def test_sample_test_preference_and_session_tech():
 
 
 @pytest.mark.parametrize("value", [0., 1.+2j])
-def test_numeric_scalar_periodic(value):
+def test_numeric_scalar_periodic_uses_session_technology(value):
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    # Native chebfun3double recurses without the parsed local preference for
+    # scalar values, so the default session technology wins over `trig`.
     f = chebfun3(value, trig=True)
-    assert all(isinstance(t, Trigtech) for group in (f.cols, f.rows, f.tubes) for t in group)
+    assert all(isinstance(t, Chebtech2) for group in
+               (f.cols, f.rows, f.tubes) for t in group)
     assert abs(complex(f(.13, -.21, .37))-value) < 10000*2**-52
+
+
+def test_numeric_scalar_drops_call_local_preferences_but_uses_session_default():
+    ChebfunPref.setDefaults("tech", "trigtech")
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    explicit_c2 = ChebfunPref(tech="chebtech2")
+    for f in (
+        chebfun3(3., tech="chebtech2"),
+        Chebfun3.from_values(jnp.asarray(3.), tech=Chebtech2),
+        chebfun3(3., trig=False, eps=1e-8),
+        chebfun3(3., pref=explicit_c2),
+        chebfun3(3., coeffs=True, pref=explicit_c2),
+    ):
+        assert all(isinstance(t, Trigtech) for group in
+                   (f.cols, f.rows, f.tubes) for t in group)
+        assert abs(float(f(.13, -.21, .37))-3.) < 100*np.finfo(float).eps*3
 
 
 def test_explicit_chebtech2_preference_original_3_4():
@@ -145,9 +167,22 @@ def test_explicit_unsupported_preferences(field, value):
         chebfun3(lambda x, y, z: x+y+z, pref=pref)
 
 
-def test_periodic_flag_overrides_explicit_c1_preference():
+def test_scalar_periodic_flag_is_dropped_with_call_local_preference():
+    from chebfunjax.tech.chebtech import Chebtech2
+
     pref = ChebfunPref()
     pref.tech = "chebtech1"
     f = chebfun3(1., pref=pref, trig=True)
-    assert isinstance(f.cols[0], Trigtech)
+    # The native scalar recursion drops both the explicit preference and the
+    # trig flag, then uses the current default C2 technology.
+    assert isinstance(f.cols[0], Chebtech2)
     assert pref.tech == "chebtech1"
+
+
+def test_fixed_length_scalar_callback_also_resets_local_technology():
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    f = chebfun3(lambda x, y, z: 3., n=(5, 4, 3), trig=True)
+    assert f.length() == (1, 1, 1)
+    assert all(isinstance(t, Chebtech2) for group in
+               (f.cols, f.rows, f.tubes) for t in group)

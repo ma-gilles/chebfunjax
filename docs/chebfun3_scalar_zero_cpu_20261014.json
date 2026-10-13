@@ -1,0 +1,49 @@
+{
+  "reference_commit": "7574c77",
+  "scope": [
+    "Scalar numeric Chebfun3 uses session constructor preferences, dropping call-local tech/tolerance as native recursion",
+    "Public iszero checks core then10\u00b3sample then factors; rank independently uses corezero only; length uses fulliszero",
+    "All four original iszero construction predicates restored literally"
+  ],
+  "source": [
+    "@chebfun3/chebfun3double.m scalar branch",
+    "@chebfun3/{iszero,rank,length}.m",
+    "tests/chebfun3/test_iszero.m"
+  ],
+  "root_review": [
+    "Relocated scalar reset after fixed-n sampling and added regression: scalar callback with n andtrig must resettechnology too",
+    "Restored zero-factor checks with storedfactorlength3 and nonzerocore; native rank1 remains while publiclength1",
+    "Cancellation-only zero sample retains native false when no entire factor group iszero",
+    "Native seven preference/coeffs/equi variants independently read from rawMAT; equi remains unimplemented"
+  ],
+  "verification": {
+    "merged_pass": 98,
+    "pytest_seconds": 108.92,
+    "peak_summed_rss_kib": 2707204,
+    "inputs_stable": true,
+    "survivors": [],
+    "original_iszero_test_pass": 1,
+    "original_predicates": 4,
+    "original_pytest_seconds": 5.62,
+    "original_peak_summed_rss_kib": 761092,
+    "zero_baseline": "3failed/3passed",
+    "private_scalar_tests": 12
+  },
+  "native_artifacts": [
+    "tests/fixtures/chebfun3_scalar_preferences_native_20261014.mat",
+    "tests/fixtures/chebfun3_scalar_preferences_native_20261014.m"
+  ],
+  "limitations": [
+    "Equispaced constructor remains unimplemented",
+    "Exactzero numeric tensor native bug and Python supportedzero difference remain explicit",
+    "Fullgoal and finalgreenCI remain unresolved"
+  ],
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_scalar_zero_publication_20261014/run/receipt.json": "e688797552dacede8fdd4229e085173cfeafe807ec63aff0e3509a3b2f0e6c8d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_scalar_zero_publication_20261014/run/stdout": "4f071a5142079e01580955bfdd456d88c9df35e68f1c55b9c3f37fa56c224bb9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_scalar_zero_publication_20261014/original_run/receipt.json": "c4a26285c644440fa750d49f5398648bc62ae506f3c1a02214aa437997ce30c3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_scalar_zero_publication_20261014/native_raw_review.json": "fc2b6c6c817573b99e1e1bfbfc6e06c3bd3e16233d7ac1acb50eb3ba32946611",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_scalar_tech_private_gate_20261014/HANDOFF.json": "d22e814e7467925b0d21dddb0b07b95d23a1f0b953d005ff35b100694952ca55",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_iszero_rank_audit_20261013/baseline/receipt.json": "1238a2118c67badc64689d3c5f025203f993e8adeba32195a11a60f6581eef00"
+  }
+}
