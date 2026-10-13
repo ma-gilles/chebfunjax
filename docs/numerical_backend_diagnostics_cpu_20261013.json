@@ -1,0 +1,34 @@
+{
+  "status": "Open diagnosis; no library or tolerance changes",
+  "polynomial": {
+    "jax_ifft": {
+      "native_max_abs": 3.377628580471248e-17,
+      "exact_native": false
+    },
+    "numpy_ifft": {
+      "native_max_abs": 3.377628580471248e-17,
+      "exact_native": false
+    },
+    "scipy_ifft": {
+      "native_max_abs": 1.3877787807814457e-17,
+      "exact_native": false
+    },
+    "surrounding_operations_exact": true,
+    "input_even": false,
+    "input_odd": false
+  },
+  "polynomial_scope": "Identical retained native values at33nodes. Literal source operations surrounding ifft match production exactly; JAX/NumPy/SciPy transforms all differ from native capture. No non-JAX substitution made.",
+  "lu": {
+    "ci_max_difference": 7.84095011e-14,
+    "unchanged_bound": 2.220446049250313e-14,
+    "local_tests_passed": 2,
+    "local_seconds": 5.33,
+    "unchanged_assertion_calls": 15,
+    "change": "Only failure diagnostics: compressed exact scaled inputs/output and backend versions in CI log, followed by re-raise of original assertion. Cause of CI/local difference unresolved."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_conversion_stage_source_20261011/FFT_COMPARISON.json": "796b86aa5b123770f74abdc5f9ed8127088b49ea0eedc7b936e6b56202ee9446",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_conversion_stage_source_20261011/fft_compare.py": "13aef1c8b1c8a28b292723f5a489106952ab87281749d13ee4722ed94a3695c1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_lu_portability_20261013/diagnostic_test_junit.xml": "c6ffe0fa13f81ba49e1a322fdf9f38160359942d940d323293539f61a1c62016"
+  }
+}

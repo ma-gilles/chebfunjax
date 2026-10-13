@@ -18,6 +18,9 @@ extraction and public solver dispatch are not tested here.
 
 from __future__ import annotations
 
+import base64
+import io
+import json
 from pathlib import Path
 
 import jax
@@ -26,7 +29,10 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from chebfunjax.operators.chebop import _piecewise_row_scaled_solve
+from chebfunjax.operators.chebop import (
+    _piecewise_row_scaled_solve,
+    _piecewise_row_scaled_system,
+)
 from chebfunjax.operators.piecewise_linear import (
     _build_scalar_projected_system,
     _panel_projection,
@@ -361,7 +367,24 @@ def test_row_scaled_solve_matches_independent_native_lu(origin):
         rhs = jnp.asarray(reference[origin + "_rhs"])
         solution = _piecewise_row_scaled_solve(matrix, rhs)
         expected = reference[origin + "_native_solution"]
-        npt.assert_allclose(solution, expected, rtol=0, atol=100 * EPS)
+        try:
+            npt.assert_allclose(solution, expected, rtol=0, atol=100 * EPS)
+        except AssertionError:
+            # Preserve the failing backend's exact scaled inputs and output.
+            # CI captures this only on failure; neither assertion nor bound
+            # changes. The fixture is a fixed public 25x25 numerical system.
+            scaled_a, scaled_b = _piecewise_row_scaled_system(matrix, rhs)
+            archive = io.BytesIO()
+            np.savez_compressed(archive, matrix=np.asarray(matrix), rhs=np.asarray(rhs),
+                                scaled_matrix=np.asarray(scaled_a),
+                                scaled_rhs=np.asarray(scaled_b),
+                                solution=np.asarray(solution), expected=expected)
+            print("PIECEWISE_LU_DIAGNOSTIC " + json.dumps({
+                "origin": origin, "jax_version": jax.__version__,
+                "numpy_version": np.__version__, "backend": jax.default_backend(),
+                "npz_base64": base64.b64encode(archive.getvalue()).decode("ascii"),
+            }))
+            raise
         projected = _project_scalar_raw_solution(jnp.asarray(DOMAINS), BASE, solution)
         expected_values = reference["native_projection"] @ expected
         npt.assert_allclose(jnp.concatenate(projected), expected_values,
