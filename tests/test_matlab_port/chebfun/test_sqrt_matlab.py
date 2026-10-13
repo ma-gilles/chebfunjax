@@ -158,6 +158,31 @@ def test_sqrt_negative_unbounded_root_split_uses_principal_branch():
     print({"negative_unbounded_root_max_error": float(jnp.max(jnp.abs(actual - expected)))})
 
 
+@pytest.mark.parametrize("transposed", [False, True])
+def test_root_split_power_maps_overridden_point_values(transposed):
+    """Native power maps stored values even when it inserts a root break."""
+    f = cj.chebfun(lambda x: x - 0.25, domain=(-1.0, 1.0))
+    f = f.define_point(-0.5, 4.0)
+    source = f.T if transposed else f
+
+    result = source.sqrt()
+
+    assert result.is_transposed is transposed
+    assert tuple(result.domain.breakpoints) == (-1.0, -0.5, 0.25, 1.0)
+    values = result.point_values
+    assert values.shape == (4,)
+    # MATLAB @chebfun/power.m:215 applies .^b to pointValues. The assigned
+    # non-root value 4 therefore remains 2, despite the smooth value -0.75.
+    # A negative real stored value follows the principal complex branch.
+    assert bool(jnp.isfinite(values[0]))
+    assert bool(jnp.imag(values[0]) > 0)
+    assert complex(values[1]) == 2.0 + 0.0j
+    # The root inserted by addBreaksAtRoots keeps its source point value zero.
+    assert complex(values[2]) == 0.0 + 0.0j
+    evaluated = jnp.ravel(result(-0.5))[0]
+    assert complex(evaluated) == 2.0 + 0.0j
+
+
 class TestChebfunSqrt:
     def test_runge_reciprocal(self):
         f = cj.chebfun(lambda x: 1.0 / (1 + 25 * x**2), domain=(-2.0, 7.0))

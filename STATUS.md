@@ -1,3 +1,19 @@
+## Root powers and IVP page refresh — 2026-10-13
+
+Root-split powers now map stored point values and preserve transposed orientation,
+following native power.m. Both new regression cases pass in the publication
+checkout; the private candidate also passed the focused native sqrt/power
+controls at unchanged bounds. See `docs/sqrt_pointvalues_cpu_20261013.json`.
+
+All three IVPCapabilities solves and four 600×270 figures completed in a guarded
+CPU run (126.33s, peak summed RSS 4,122,476 KiB). The regenerated page matches
+seven source input blocks and seventeen prose paragraphs and prints actual
+execution output. It uses source marker size and MATLAB default insets.
+Exact parity remains open: coefficient count 3881 versus 3765, timings,
+automatic Y limits/ticks, typography and raster differences. The execution
+snapshot is 2f47429e; later root-power and input-promotion changes were not part
+of this full-page run. See `docs/ivp_capabilities_page_cpu_20261013.json`.
+
 ## Unbounded sqrt and exact query promotion — 2026-10-13
 
 Root powers now retain unbounded FUN mappings and classify the principal

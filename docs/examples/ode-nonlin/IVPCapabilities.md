@@ -34,7 +34,7 @@ tic, u = N\0; toc
 ```
 
 ```text
-Elapsed time is 166.651309 seconds.
+Elapsed time is 22.419261 seconds.
 ```
 
 The output from an IVP solution is, of course, a chebfun:
@@ -57,25 +57,10 @@ u
 
 ```text
 u =
-   chebfun column (16 smooth pieces)
+   chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,     3.1]      156       0.1     -1.4
-[     3.1,     6.2]      242      -1.4      1.9
-[     6.2,     9.4]       23       1.9      1.3
-[     9.4,      12]      247       1.3     -1.8
-[      12,      16]       26      -1.8     -1.1
-[      16,      19]      236      -1.1      1.8
-[      19,      22]       39       1.8     0.78
-[      22,      25]      201      0.78     -1.7
-[      25,      28]       59      -1.7     0.47
-[      28,      31]      119      0.47      1.6
-[      31,      34]      159       1.6       -2
-[      34,      38]       43        -2     -1.5
-[      38,      41]      213      -1.5        2
-[      41,      44]       31         2      1.4
-[      44,      47]      242       1.4     -1.9
-[      47,      50]       23      -1.9     -1.3
-vertical scale =   2    Total length = 2059
+[       0,      50]     3881       0.1     -1.3
+vertical scale =   2
 ```
 
 For a phase portrait, we plot $u'$ against $u$, revealing the limit cycle of the oscillator. We also superimpose a chebop "quiver" vector field on the plot:
@@ -120,7 +105,7 @@ cheboppref.setDefaults('factory');
 ```
 
 ```text
-Elapsed time is 28.381862 seconds.
+Elapsed time is 83.584983 seconds.
 ```
 
 ![IVPCapabilities figure 04](../../images/ode-nonlin/IVPCapabilities_04.png)

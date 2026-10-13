@@ -1,0 +1,108 @@
+{
+  "candidate_head": "2f47429e30d7e992730be31ee8e8e064e650b31a",
+  "inputs": 7,
+  "prose_paragraphs": 17,
+  "outputs": 3,
+  "source_input_order_content_match": true,
+  "prose_order_normalized_match": true,
+  "outputs_match_actual_stdout": true,
+  "source_output_normalized_matches": [
+    false,
+    false,
+    false
+  ],
+  "figures": [
+    {
+      "file": "IVPCapabilities_01.png",
+      "generated": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/docs/images/ode-nonlin/IVPCapabilities_01.png",
+      "sha256": "df91067dc35af024a09c3cc7ed03608ba961db3dd45c98e480832e5f7266309b",
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/IVPCapabilities_01.png",
+      "reference_sha256": "70c80d457ea506231926860743a2150880da757933e0192d3d5e2fc34fed0424",
+      "size": [
+        600,
+        270
+      ],
+      "reference_size": [
+        600,
+        270
+      ],
+      "rgb_mean_absolute_error": 6.503139917695473,
+      "pixel_identical": false
+    },
+    {
+      "file": "IVPCapabilities_02.png",
+      "generated": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/docs/images/ode-nonlin/IVPCapabilities_02.png",
+      "sha256": "617ab852d88933798f5f3a1ab5c4b5b4a08c3ae668c584139ff8da3f6a40c24c",
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/IVPCapabilities_02.png",
+      "reference_sha256": "409c9187499b917ab011558b215c8a9e0d312b3ea2d89338f42a8d923208ba48",
+      "size": [
+        600,
+        270
+      ],
+      "reference_size": [
+        600,
+        270
+      ],
+      "rgb_mean_absolute_error": 7.9991666666666665,
+      "pixel_identical": false
+    },
+    {
+      "file": "IVPCapabilities_03.png",
+      "generated": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/docs/images/ode-nonlin/IVPCapabilities_03.png",
+      "sha256": "093518d8a677e9bba7164f25df0a35a139abc3e6630724dfac09dc2ee20b2e06",
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/IVPCapabilities_03.png",
+      "reference_sha256": "68c78e6e9ccf27e25e6f951968509b981d5152ca7ecd9d1ec9ba85dc184cabf9",
+      "size": [
+        600,
+        270
+      ],
+      "reference_size": [
+        600,
+        270
+      ],
+      "rgb_mean_absolute_error": 8.994512345679013,
+      "pixel_identical": false
+    },
+    {
+      "file": "IVPCapabilities_04.png",
+      "generated": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/docs/images/ode-nonlin/IVPCapabilities_04.png",
+      "sha256": "78afb8f5745aec5101233ec5af36d3179508eac892b20a54f3384a255e21e331",
+      "reference": "/scratch/gpfs/CRYOEM/gilleslab/chebfunjax_audit_20260702/refs/docs/images/ode-nonlin/IVPCapabilities_04.png",
+      "reference_sha256": "43f829fac945cb4a84402858a7c5c451d4a5b9b03bb75d596ae871ad704f3df8",
+      "size": [
+        600,
+        270
+      ],
+      "reference_size": [
+        600,
+        270
+      ],
+      "rgb_mean_absolute_error": 4.049748971193416,
+      "pixel_identical": false
+    }
+  ],
+  "receipt": {
+    "wall_seconds": 126.33331213193014,
+    "sampled_peak_summed_rss_kib": 4122476,
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/docs/examples/ode-nonlin/IVPCapabilities.md": "98ba1981aff32acee629b78852c583d6a3c93d953ff355634ea76393bc411a99",
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/ode-nonlin_IVPCapabilities.html": "6e21f003372954349b36a5d939dce39db039534979056bf685508a72764a8301",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_run_20261013/supervision/receipt.json": "4a175eaec8e8224d935e9daa90a194cb1395e1ff9c3963250c24bee1806d61cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_run_20261013/guard.json": "3a12202aa1205a49eaac62d21b940225b00772fadb73b0ff01f604b731279b05",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_run_20261013/stdout/ode-nonlin_ivp_capabilities.txt": "d3ca1d4323b96a214c4b32ea2a99928ba5a771ab494cc6a3f478fb4a6c30a346",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_candidate_20261013/examples/ode-nonlin/ivp_capabilities.py": "e86808e095c58feda20a9872a569fced752d8d4c0a9732d40ad4d0e0884d4f62",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_page_layout_run_20261013/audit.py": "b5d3252bdbf0fe3c57b685e453d5ada13a4b8a1949319b1eb3bd398dc6387a55"
+  },
+  "limitations": [
+    "Fresh source output length3881 differs from native/cached3765; timing lines reflect actual execution.",
+    "Four reference-sized figures are not pixel identical; source inset geometry now uses existing qualified layout adapter.",
+    "Visual comparison retains tick-density/typography/line-raster differences; no per-page fitted tick or font overrides.",
+    "Full native forced/collocation solve comparison is not supplied by this page execution.",
+    "Figure03 automatic Y limits differ (Python approximately [-8,8], reference [-10,10]); generic MATLAB automatic-axis behavior remains unresolved. No fitted per-page limits were introduced."
+  ],
+  "integration_scope": "Execution is frozen at candidate head2f47429e with source layout edits, not a full numerical execution of later main. Subsequent427 changes concern query float32/complex64 promotion and root-split fractional powers; page uses float64 and integer powers."
+}

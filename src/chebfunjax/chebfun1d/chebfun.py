@@ -3928,7 +3928,17 @@ class Chebfun(eqx.Module):
             # Preserve the source FUN family: in particular a right/left
             # infinite tail remains an Unbndfun with its nonlinear map.
             new_funs.append(p.with_tech(powered))
-        return Chebfun(funs=new_funs, domain=fbr.domain)
+        result = Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=fbr.domain), self.is_transposed)
+        # @chebfun/power.m keeps the source pointValues while powering each
+        # FUN, then applies the same principal power to those stored values.
+        # Promote negative real pointValues before a fractional power, as
+        # MATLAB does, so a stored override does not become NaN.
+        point_values = fbr.point_values
+        if (not jnp.iscomplexobj(point_values) and b != int(b)
+                and bool(jnp.any(point_values < 0))):
+            point_values = point_values.astype(jnp.complex128)
+        return result.set_point_values(jnp.power(point_values, b))
 
     def abs(self) -> Chebfun:
         """Absolute value of the Chebfun.

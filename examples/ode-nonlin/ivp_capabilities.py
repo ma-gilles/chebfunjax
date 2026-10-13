@@ -1,7 +1,7 @@
 """IVP capabilities of chebop.
 
 Translation of ode-nonlin/IVPCapabilities.m by Asgeir Birkisson
-(May 2016): the van der Pol oscillator solved as an initial-value
+(February 2015): the van der Pol oscillator solved as an initial-value
 problem by time marching, its phase plane and limit cycle, a forced
 variant, and the same equation solved instead by collocation.
 
@@ -37,9 +37,8 @@ FIG = [0]
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"IVPCapabilities_{FIG[0]:02d}.png"))
+        _IMG, f"IVPCapabilities_{FIG[0]:02d}.png"), layout="matlab")
     plt.close(fig)
 
 
@@ -60,7 +59,7 @@ def run():
     matlab_plot(u, ax=ax, lw=1.2, color="#0072BD")
     if breaks:
         ax.plot(breaks, np.asarray(u(jnp.asarray(breaks))), 'k.',
-                ms=10)
+                ms=14)
     ax.set_title("Van der Pol oscillator")
     _save(fig)
 
