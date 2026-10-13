@@ -136,9 +136,29 @@ def abs(f: Chebfun) -> Chebfun:  # noqa: A001 (shadows builtin intentionally)
     return f.abs()
 
 
-def sign(f: Chebfun) -> Chebfun:
-    """Sign function of a Chebfun.  Equivalent to ``f.sign()``."""
-    return f.sign()
+def sign(value):
+    """Return the sign of a Chebfun or numeric array.
+
+    Objects with a callable ``sign`` method retain method dispatch. Real
+    floating arrays use IEEE words so CPU XLA comparisons do not treat
+    subnormals as zero. Complex and integer inputs retain JAX semantics.
+    """
+    sign_method = getattr(value, "sign", None)
+    if callable(sign_method):
+        return sign_method()
+
+    import jax.numpy as jnp
+
+    x = jnp.asarray(value)
+    if jnp.issubdtype(x.dtype, jnp.complexfloating):
+        return jnp.sign(x)
+    if jnp.issubdtype(x.dtype, jnp.integer):
+        return jnp.sign(x)
+    if not jnp.issubdtype(x.dtype, jnp.floating):
+        raise TypeError(f"sign expects a numeric array or Chebfun, got {x.dtype}.")
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    return real_sign(x)
 
 
 def sinh(f: Chebfun) -> Chebfun:

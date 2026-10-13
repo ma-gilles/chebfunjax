@@ -38,6 +38,10 @@ def _three_column_fun():
 
 
 class TestFevalNativeFiniteShapes:
+    def test_pass_1_literal_scalar_empty_matrix(self):
+        f = cj.chebfun(lambda x: x)
+        assert np.asarray(f(jnp.zeros((0, 4)))).shape == (0, 4)
+
     def test_pass_1_empty_matrix_shape_before_component_packing(self):
         exact = lambda x: jnp.stack((x, x**2, jnp.sin(x)), axis=-1)
         f = cj.chebfun(exact).transpose()

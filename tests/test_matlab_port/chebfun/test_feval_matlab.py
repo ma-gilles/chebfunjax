@@ -53,7 +53,9 @@ class TestChebfunFeval:
     def test_side_string_one_sided_limits(self):
         # MATLAB pass(6,7): feval(f, x, 'left'/'-') and 'right'/'+' at a
         # jump.  f = sign under splitting; x = [-0.5, 0, 0.5].
-        f = cj.chebfun(jnp.sign, domain=[-1.0, 1.0], splitting=True)
+        # Use native numeric sign semantics: CPU jnp.sign flushes subnormals
+        # during adaptive jump localization and constructs a different split.
+        f = cj.chebfun(cj.sign, domain=[-1.0, 1.0], splitting=True)
         x = jnp.asarray([-0.5, 0.0, 0.5])
         for s in ("left", "-"):
             got = np.asarray(f(x, side=s))

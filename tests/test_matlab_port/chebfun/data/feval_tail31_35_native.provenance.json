@@ -1,0 +1,13 @@
+{
+  "artifact": "feval_tail31_35_native.mat",
+  "artifact_sha256": "5765517efe0df34ea984a45eb1ea446adbcebe196a25b30d2ffe83b71f712671",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_source": "tests/chebfun/test_feval.m",
+  "matlab_source_sha256": "34f768d6b735df1482e4a396d9481a8735319a7a09f42ee99a32d0fd407cf619",
+  "seedRNG_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+  "driver": "feval_tail31_35_capture.m",
+  "driver_sha256": "77cd50f55b6d4056c26c1b72a0e6efc3e74844cca3d8a4ebc2cceb8b3c97aa2d",
+  "native_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_capture_20261013/supervised_capture_v2/receipt.json",
+  "native_receipt_sha256": "3c93f6b29f217e4b1d4a9111a9233b8ccd9410b54fcf09a1608916e3874fa944",
+  "description": "Native sequential seedRNG(6178) execution of source clauses31\u201335, including intervening constructors. Clause33 reuses x32. Captures native queries, exact operator evaluations, Chebfun values, vscales, endpoint predicates and all five native pass flags. Python tests retain original inequalities and cap candidate bounds by native captured bounds. No Python-generated golden values."
+}

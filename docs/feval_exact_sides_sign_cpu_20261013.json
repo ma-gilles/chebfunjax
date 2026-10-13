@@ -1,0 +1,137 @@
+{
+  "baseline_commit": "2a8d3d52ef29f730b97ed51e8aa3c6d75111fbcd",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "JAX/JAXlib0.11.0 CPU, x64 enabled; CUDA visibility empty",
+  "changes": [
+    "Exact one-sided breakpoint replacement; nearby and complex queries no longer snapped/cast to real; native stored endpoint ownership.",
+    "Numeric cj.sign real IEEE implementation handles subnormal nonzeros even under fused CPU JIT; callable sign dispatch retained; complex/integer dispatch unchanged.",
+    "Chebfun.sign stored real breakpoint values use same IEEE helper.",
+    "Native feval clauses2\u201313 and31\u201335 added; earlier1,14\u201330 shape coverage retained, literal scalar empty case1 added alongside supplemental array empty control."
+  ],
+  "qualification": {
+    "finite_integration": 69,
+    "literal_scalar_empty": 1,
+    "oscillatory_clause12": 1,
+    "singular_unbounded_clauses": 5,
+    "native_fixture_metadata": 1,
+    "native_sign_regressions": 16,
+    "ieee_robustness": "24 dtype/operation/shape combinations, exhaustive16bit and65536samples each32/64. Reviewed helper AST identical except module provenance docstring.",
+    "one_sided_baseline": "All8 added controls fail on baseline2a8; all8 pass final source.",
+    "native_predicates": "All35 numbered feval source cases now represented. MATLAB column shapes and matrix infinity norm retained. Tail31\u201335 uses native captured exact operator arrays and bounds capped at native captured bounds. Numeric callbacks map MATLAB sign to cj.sign.",
+    "test_change_scope": "Old side-limit test jnp.sign callback changed to cj.sign after native sign split capture; assertion bounds unchanged. Scalar empty source1 added after69-test gate; tested alone. Tail metadata corrected to source33 reusing x32.",
+    "final_candidate_pytest_total": 93
+  },
+  "receipts": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_final_integration_20261013/finite/receipt.json",
+      "sha256": "bd67ee8788074a3d73db0767afba622717560e6b0a294b0bc1695b4206bb7db1",
+      "wall_seconds": 79.12348578916863,
+      "peak_summed_rss_kib": 2013832
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_literal_empty_final_20261013/run/receipt.json",
+      "sha256": "b874def1ef4f8c7c0819ffb099cdd3abd4bf007992f7676703977d8242e86847",
+      "wall_seconds": 5.189719099085778,
+      "peak_summed_rss_kib": 565652
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_feval_clause12_final_20261013/receipt.json",
+      "sha256": "11837a25e7b3438923fc69886d78bf4bc9f4f696943b7203d530f0fbbfbe3da6",
+      "wall_seconds": 19.253128456883132,
+      "peak_summed_rss_kib": 1073300
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/v2/clause31/receipt.json",
+      "sha256": "b50ea32e8d2a0c7bd220fe165244e5d189510b53c006b09139b417aad78df704",
+      "wall_seconds": 34.47494650632143,
+      "peak_summed_rss_kib": 1902156
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/v2/clause32/receipt.json",
+      "sha256": "e69bd4a6887898e4a9a2f81db3174acd3559c91a475e10d9a2d7a97017043b17",
+      "wall_seconds": 15.798770248889923,
+      "peak_summed_rss_kib": 1072608
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/v2/clause33/receipt.json",
+      "sha256": "6084d1186a5433647a72a5f5ba5780f595c7c7f313c0941268e562271c9711a5",
+      "wall_seconds": 16.083268188405782,
+      "peak_summed_rss_kib": 1091112
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/v2/clause34/receipt.json",
+      "sha256": "e401a4c5e12e35583b601e19637e471d158de5ab970e09f3f02f029e98f9ceb4",
+      "wall_seconds": 11.558659722097218,
+      "peak_summed_rss_kib": 901908
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/v2/clause35/receipt.json",
+      "sha256": "a64ae707ceff9f845f6598b1d973c1b3b33a437cfec7ceff47f482b1eec2fd74",
+      "wall_seconds": 12.141988257877529,
+      "peak_summed_rss_kib": 912536
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sign_ieee_diagnosis_20261013/robust_run/receipt.json",
+      "sha256": "0685d45fe29cdd467f38398e37b41fb97c8656bfd77a2f2ea0a6a0b795a9489d",
+      "wall_seconds": 5.283939294051379,
+      "peak_summed_rss_kib": 524836
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_sign_batch1_20261013/receipt.json",
+      "sha256": "99535f99d90514982dfe31a156901071c6a11859b4263952410e1469dda80ff5",
+      "wall_seconds": 14.84786980226636,
+      "peak_summed_rss_kib": 1138900
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_sign_batch2_20261013/receipt.json",
+      "sha256": "dc9c1d042281750ddc0e00c2a3256093560bb13e0682ff9e6a14ec0f1eb0de3a",
+      "wall_seconds": 17.294486567843705,
+      "peak_summed_rss_kib": 1292272
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_sign_batch3_20261013/receipt.json",
+      "sha256": "f705426c86bd1f5b3c3dbcd0d68047554c88bafe3d3c27753ea8dd617878e34f",
+      "wall_seconds": 37.752408205065876,
+      "peak_summed_rss_kib": 2187296
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/public_sign_matlab_remaining_final_20261013/receipt.json",
+      "sha256": "fbcaca4644619e3949ab1705a1c57372bc57446ee6747f67fca2fe7de3bcbc3f",
+      "wall_seconds": 86.56647839816287,
+      "peak_summed_rss_kib": 2512956
+    }
+  ],
+  "files": {
+    "src/chebfunjax/__init__.py": "a03b9436b3d5575b3f3dbe85c053f0173311ac742112dd3473de10490288939e",
+    "src/chebfunjax/chebfun1d/chebfun.py": "36c60b67c6e989ddd64faeedeb37318df4102ebb1161b086247813135059c7a8",
+    "src/chebfunjax/utils/numeric_sign.py": "16deb3de5e320f7cb9c22f1d3914a4a4c700a562026f52d0f7609c7df750c83e",
+    "tests/test_chebfun1d/test_exact_side_values.py": "a8ec0459493e04598135f16aea821e7bbc09659e8ee07911aa35a8dc4393aa48",
+    "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py": "8274fd89acf9aaf52d291ebcddf669934d1ad5725f7a652a71723963b4777136",
+    "tests/test_matlab_port/chebfun/test_feval_matlab.py": "ce923ae0e57916915aaeeef6bb3c0d78007ff48bb7417994c77f3532a1b4df86",
+    "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py": "a391be6425e9d4c77ac53243009a43887f1499490ed392555671109fdc1188ab",
+    "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py": "651baf84401e6ee42bc78f1ba5e0e56bdc946c98b5003cda359d88c9b53bf77a"
+  },
+  "supplemental_reports": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sign_ieee_diagnosis_20261013/REVIEW.json": "e1f5828be0d879eecfb2b143aab793158d52ef62bf6172bea0267c1d47423e0c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_exact_sides_evidence_20261013/REVIEW.json": "b0899dcdf63893cf0d2f0816681d27ebf813a8123428a54f7ef3ddc566dc9430",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_unbounded_final_gate_20261013/FINAL_31_35.md": "7fd4fad42e93dbef762999677716e67819627b269272502da3b21ae4d49a4ca3"
+  },
+  "limitations": [
+    "Pinned CPU compiler only; no GPU or future-compiler guarantee.",
+    "Arbitrary jnp.sign callbacks still inherit XLA subnormal behavior; use mapped cj.sign for native MATLAB primitive.",
+    "General traced subnormal piece routing remains open.",
+    "Empty function evaluation, further public feval aliases and singular/unbounded one-sided limits not comprehensively qualified.",
+    "Existing concrete evaluation NumPy paths remain legacy debt; new sign helper is JAX-only.",
+    "Full repository assertions, page/output/figure parity, performance and current-main CI remain incomplete."
+  ],
+  "censored_runs": [
+    "Initial final-P full sign suite exceeded3GiB after12 tests; all16 subsequently passed in four clean batches.",
+    "Earlier2GiB sign-suite run exceeded cap; not counted as passing suite."
+  ],
+  "ci_at_preparation": {
+    "main": "2a8d3d52",
+    "CI": 38408149290,
+    "status": "pending",
+    "documentation": "success"
+  }
+}

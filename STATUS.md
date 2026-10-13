@@ -1,3 +1,19 @@
+## Exact one-sided evaluation and native feval coverage — 2026-10-13
+
+This package has 93 passing CPU checks across bounded fresh processes, covering
+all 35 numbered MATLAB `test_feval` cases and 16 sign regressions. The tail uses
+captured native MATLAB queries and operator values with original inequalities;
+no source tolerance was relaxed. One-sided evaluation now preserves nearby and
+complex queries and native endpoint ownership. Numeric `cj.sign` preserves real
+subnormal signs, including fused CPU JIT; 24 additional IEEE robustness checks
+passed. See `docs/feval_exact_sides_sign_cpu_20261013.json` for hashes, receipts,
+native fixture provenance, adaptations and limits.
+
+The initial large sign run hit its memory cap; all tests subsequently passed
+in smaller batches. General traced subnormal piece routing remains open, as do
+full repository assertion coverage, page/figure parity, speed qualification and
+green CI on current main. The preceding main CI run is pending; docs passed.
+
 ## Native feval matrix and tensor shapes — 2026-10-13
 
 All18 source cases1,14–30 now pass using captured MATLAB seedRNG(7681)

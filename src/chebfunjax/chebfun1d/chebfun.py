@@ -2285,10 +2285,10 @@ class Chebfun(eqx.Module):
     def _feval_side(self, x, side: str):
         """One-sided evaluation at ``x`` (see :meth:`__call__`).
 
-        Selects the piece on the requested side of every point and
-        evaluates that piece's polynomial there, so a breakpoint returns
-        the left- or right-hand limit rather than the default (which favours
-        the right piece).
+        Evaluate the containing piece at each query, substituting the
+        requested one-sided values only at exact domain breakpoints. Native
+        endpoint ownership preserves the stored left endpoint for left-sided
+        calls and the stored right endpoint for right-sided calls.
 
         Provenance
         ----------
@@ -2308,41 +2308,22 @@ class Chebfun(eqx.Module):
             raise FevalError(
                 "CHEBFUN:CHEBFUN:feval:leftRight",
                 "Unknown input argument.")
-        xa = jnp.asarray(x, dtype=jnp.float64)
-        input_ndim = xa.ndim
-        input_shape = xa.shape
-        scalar_input = xa.ndim == 0
-        xa = jnp.ravel(xa)
-        tol = 1e-12 * max(1.0, abs(float(self.domain.b) - float(self.domain.a)))
-        n_pieces = len(self.funs)
-
-        def pick_piece(xi: float) -> int:
-            # First pass: an interior breakpoint match on the requested side
-            # (left limit -> piece whose right end is xi; right limit ->
-            # piece whose left end is xi) takes priority over containment.
-            for i, piece in enumerate(self.funs):
-                a, b = float(piece.interval[0]), float(piece.interval[1])
-                if want_left and abs(xi - b) <= tol:
-                    return i
-                if not want_left and abs(xi - a) <= tol:
-                    return i
-            # Second pass: the piece containing xi, else the nearest endpoint.
-            for i, piece in enumerate(self.funs):
-                a, b = float(piece.interval[0]), float(piece.interval[1])
-                if a - tol <= xi <= b + tol:
-                    return i
-            return n_pieces - 1 if xi >= float(self.funs[-1].interval[1]) else 0
-
-        vals = []
-        for xi in xa:
-            i = pick_piece(float(xi))
-            vals.append(self.funs[i](jnp.asarray(xi, dtype=jnp.float64)))
-        out = jnp.stack(vals)
-        if scalar_input:
-            out = out[0]
+        # Native columnFeval first evaluates the containing pieces, then
+        # replaces only exact breakpoint members with local endpoint values.
+        # A one-sided flag never moves a nearby or complex query to a knot.
+        stored = self._breakpoint_values()
+        if want_left:
+            point_values = jnp.stack([stored[0]] + [
+                piece(jnp.asarray(piece.interval[1])) for piece in self.funs])
         else:
-            out = out.reshape(input_shape + out.shape[1:])
-        return self._format_feval_values(out, input_ndim)
+            point_values = jnp.stack([
+                piece(jnp.asarray(piece.interval[0])) for piece in self.funs]
+                + [stored[-1]])
+        base = Chebfun(funs=self.funs, domain=self.domain)
+        base = base.set_point_values(point_values)
+        if self.is_transposed:
+            base = base.transpose()
+        return base(x)
 
     def _format_feval_values(self, values, input_ndim):
         """Pack component values as MATLAB ``feval`` does for matrix inputs.
@@ -5220,7 +5201,17 @@ class Chebfun(eqx.Module):
         split = self.addBreaksAtRoots()
         out = Chebfun(funs=[p.with_tech(p.tech.sign()) for p in split.funs],
                       domain=split.domain)
-        out = out.set_point_values(jnp.sign(split.point_values))
+        # Use the numeric IEEE sign helper for stored breakpoint values too:
+        # CPU XLA float comparisons can otherwise classify real subnormals
+        # as zero. The local import keeps package initialization acyclic.
+        from chebfunjax.utils.numeric_sign import real_sign
+
+        point_values = split.point_values
+        if jnp.issubdtype(point_values.dtype, jnp.floating):
+            point_values = real_sign(point_values)
+        else:
+            point_values = jnp.sign(point_values)
+        out = out.set_point_values(point_values)
         return self._as_transposed(out.merge(), self.is_transposed)
 
     def sinh(self) -> Chebfun:
