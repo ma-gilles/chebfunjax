@@ -1,0 +1,42 @@
+{
+  "scope": "TreeVar acosd/asind/atand/acot JAX native branches",
+  "base_head": "e8a8d15e",
+  "private_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/circular_inverse_degree_impl_20261014/REVISION_REPORT.md",
+  "independent_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/circular_inverse_degree_impl_20261014/independent_review/REPORT.md",
+  "baseline": "53 of144 native boundary cases fail",
+  "root_gate": {
+    "passed": 250,
+    "pytest_seconds": 24.79,
+    "peak_kib": 1024404,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/circular_inverse_degree_publication_20261014/run/receipt.json",
+    "receipt_sha256": "1f717bbedcfe0b4ac46c4a6f4393720bbb1ad9f3d93467cbab269a5c4bf52735",
+    "stable": true,
+    "no_survivors": true
+  },
+  "raw_fixture_review": {
+    "methods": [
+      "acosd",
+      "acot",
+      "asind",
+      "atand"
+    ],
+    "inputs_exact": 36,
+    "records_exact": 144,
+    "raw_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+    "compact_sha256": "a2cb5389171ae654920c7faa881d1a96beb32a43a1f6f77a98dcf6f2f4da2fa2",
+    "inspection_note": "Initial iteration over raw49 names corrected to compact4 outputs; no inputs changed."
+  },
+  "negative_preserved": "Initial candidate broke original complex atan JIT; successor preserves raw atan and all runtime/JVP controls pass.",
+  "post_gate_doc_only_correction": {
+    "old_sha256": "df1a3ce8b2176263ed869dcc1833bdd8155e465925f26246ceb12df479f39e34",
+    "new_sha256": "1475a4114bf382161be733f490d97b284c598dafb0e2351af3892660ce922e7f",
+    "executable_ast_unchanged": true,
+    "reason": "Independent audit locates NaN in complex degree multiplication, not raw JAX atan."
+  },
+  "limits": [
+    "Eager value-dependent storage adapters, not whole-function JIT",
+    "acotd absent from native packet",
+    "Extreme reciprocal CPU subnormal underflow unqualified",
+    "Mathematical compositions qualify captured behavior; opaque builtin internals not inspected"
+  ]
+}

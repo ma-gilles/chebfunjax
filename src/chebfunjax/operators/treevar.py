@@ -115,6 +115,88 @@ def _inverse_trig_branch(x, cosine=False):
     return jnp.where(on_axis, axis_value, op(values))
 
 
+def _degrees_from_radians(value):
+    """Scale angular components independently for captured degree outputs.
+
+    Separate component scaling is mathematically equivalent for finite angles
+    and avoids ``0*Inf`` cross terms of complex multiplication. It matches the
+    captured native infinity classifications.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/acosd.m, asind.m and atand.m delegate to MATLAB
+        builtins; @treeVar/univariate.m records method names, commit 7574c77.
+        The componentwise calculation is a mathematical composition.
+    R2025b behavior: compact raw36 fixture in the private implementation
+        candidate, derived from the existing captured packet.
+    """
+    value = jnp.asarray(value)
+    factor = 180.0 / jnp.pi
+    if jnp.issubdtype(value.dtype, jnp.complexfloating):
+        from jax import lax
+        return lax.complex(jnp.real(value) * factor,
+                           jnp.imag(value) * factor)
+    return value * factor
+
+
+def _atand_radians(x):
+    """Eager atan kernel for TreeVar ``atand`` captured pole behavior.
+
+    The captured atand output has a positive zero real component and signed
+    infinite imaginary part at exactly +/-1j. Canonicalize that pole before
+    componentwise degree scaling; complex scaling can otherwise produce NaN
+    through a zero-times-infinity cross term. Neighboring inputs are unchanged. This value-dependent adapter is eager and makes no JIT
+    guarantee.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/atand.m delegates to the opaque MATLAB builtin;
+        @treeVar/univariate.m records its method name, commit 7574c77.
+        The pole values are from the existing R2025b raw36 capture.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    if not jnp.issubdtype(values.dtype, jnp.complexfloating):
+        return jnp.arctan(values)
+    real, imag = jnp.real(values), jnp.imag(values)
+    exact_pole = (real == 0) & (jnp.abs(imag) == 1)
+    result = jnp.arctan(values)
+    pole = lax.complex(jnp.zeros_like(real),
+                       jnp.copysign(jnp.inf, imag))
+    result = jnp.where(exact_pole, pole, result)
+    if bool(jnp.all(jnp.imag(result) == 0)):
+        return jnp.real(result)
+    return result
+
+
+def _acot_branch(x):
+    """Eager reciprocal-atan composition matching captured acot outputs.
+
+    At pure-imaginary inputs +/-1j, the captured output canonicalizes the real
+    zero to positive zero. This value-dependent adapter makes no JIT promise.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/acot.m delegates to the opaque MATLAB builtin;
+        @treeVar/univariate.m records its name, commit 7574c77. The reciprocal
+        atan identity is the implementation composition; tested outputs are
+        from the existing R2025b raw36 packet.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    result = jnp.arctan(1.0 / values)
+    if jnp.issubdtype(values.dtype, jnp.complexfloating):
+        real, imag = jnp.real(values), jnp.imag(values)
+        exact_pole = (real == 0) & (jnp.abs(imag) == 1)
+        corrected = lax.complex(jnp.zeros_like(real), jnp.imag(result))
+        result = jnp.where(exact_pole, corrected, result)
+        if bool(jnp.all(jnp.imag(result) == 0)):
+            return jnp.real(result)
+    return result
+
+
 def _atanh_branch(x):
     """Evaluate ATANH with MATLAB's exact real-axis branch using JAX.
 
@@ -340,8 +422,8 @@ def _reciprocal_hyperbolic_branch(x, method):
 
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
-    "acosd": lambda x: np.arccos(x) / _DEG,
-    "acot": lambda x: np.arctan(1.0 / x),
+    "acosd": lambda x: _degrees_from_radians(_inverse_trig_branch(x, cosine=True)),
+    "acot": _acot_branch,
     "acoth": lambda x: _reciprocal_hyperbolic_branch(x, "acoth"),
     "acsc": _reciprocal_inverse_trig,
     "acscd": lambda x: _reciprocal_inverse_trig(x) / _DEG,
@@ -350,9 +432,10 @@ _UNARY_FNS_RAW = {
     "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
     "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
     "asech": lambda x: _reciprocal_hyperbolic_branch(x, "asech"),
-    "asin": _inverse_trig_branch, "asind": lambda x: np.arcsin(x) / _DEG,
+    "asin": _inverse_trig_branch,
+    "asind": lambda x: _degrees_from_radians(_inverse_trig_branch(x)),
     "asinh": jnp.arcsinh, "atan": jnp.arctan,
-    "atand": lambda x: np.arctan(x) / _DEG,
+    "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
     "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
     "cosd": lambda x: np.cos(_DEG * x), "cosh": jnp.cosh,
     "cot": lambda x: 1.0 / np.tan(x),
@@ -397,7 +480,10 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
+# These value-dependent adapters retain captured output storage choices but
+# are eager and make no tracing guarantee.
+_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot".split())
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 

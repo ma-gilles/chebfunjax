@@ -1,3 +1,14 @@
+## Native inverse degree and cotangent branches — 2026-10-14
+
+TreeVar acosd/asind/atand/acot now use JAX with captured branch/storage/pole
+behavior and componentwise angular scaling. Baseline53/144 native cases fail;
+root250 merged boundary, original unary and JIT/JVP/RHS checks now pass24.79s.
+All144 compact records independently match the retained native packet. Review
+caught an initial raw-atan JIT regression; the successor preserves that typed
+primitive and qualifies the new value-dependent adapters as eager. Opaque
+builtin internals, acotd and extreme reciprocal underflow remain unqualified.
+Evidence: `docs/treevar_inverse_degree_cpu_20261014.json`.
+
 ## Public spin3 JAX integration and native time outputs — 2026-10-14
 
 Public scalar/system stepping now uses the shared JAX exponential integrator,
