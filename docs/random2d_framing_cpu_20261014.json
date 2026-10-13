@@ -1,0 +1,114 @@
+{
+  "status": "full Random2D rerun passed for source-backed structural framing updates; pixel parity remains unqualified",
+  "base_commit": "29cacc104d89474ac5356b0cd648da7e950a6129",
+  "final_candidate_source_hashes": {
+    "examples/approx2/random2d.py": "76a4f26428cbb875530be3488fa9a45c371e09327dff36de4b136a920a532a71",
+    "src/chebfunjax/plotting.py": "68ebc9fb1498682d7d0146806362d482e3eb3e24d4374298a252252bff041029",
+    "src/chebfunjax/_surface_lighting.py": "ade340935b69371198057b3423b9f30d3fd8c50c55bdf6995e77e78b83b0e4e6",
+    "src/chebfunjax/utils/random.py": "7f255fb42777e95f1d2b7cac6d08de2e920b138fdd2a6f4f589875f7aa280924"
+  },
+  "run": {
+    "wrapper": "run/full_example.py",
+    "wrapper_sha256": "686840aa10d7bc84b67267f4a0df1db7986614b15a1e2bd876a7d15448422abd",
+    "launcher": "run/full.sh",
+    "launcher_sha256": "67cc4ec6504999309bfed891bca99509cd19a2072e2a57b4dd09c0ea82a36287",
+    "supervision_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_framing_successor_20261014/run/full/supervision/receipt.json",
+    "receipt_sha256": "28bd475e0b478832b500ae9dece4ae1a1ca5bd39f3ef594ee6a3eed72062b068",
+    "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_framing_successor_20261014/run/full/guard.json",
+    "guard_sha256": "1ad387abc24d79161ed6f1b0adc67c8cbd5de57593c6635c6b6a790a9bbaa4fb",
+    "guarded_source_input_count": 316,
+    "exit_code": 0,
+    "wall_seconds": 125.1604280769825,
+    "sampled_peak_summed_rss_kib": 4543516,
+    "runtime": {
+      "python": "3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "backend": "cpu",
+      "x64": true
+    },
+    "printed_output": "zero-contour components: 19"
+  },
+  "source_geometry": {
+    "native_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/random2d_framing_capture_20261014_v1/native/capture.json",
+    "native_capture_sha256": "918e29c899161a06365e6c82d78424694f091c5c4284d1592aa434fe2ff84047",
+    "native_capture_mat_sha256": "863a88528c789e9465a4712ac9273126399704a6d97e2f7916f30012990b44b1",
+    "matlab": "R2024b Update 3; software Painters renderer",
+    "fixed_mesh_only_records": {
+      "formula": "Z=.3*X+.2*Y+.4*X.*Y+.15*X.^2-.1*Y.^2",
+      "grid_shape": [
+        200,
+        200
+      ],
+      "domain": [
+        0,
+        2,
+        0,
+        1
+      ],
+      "view_azimuth_elevation": [
+        -20,
+        50
+      ],
+      "axes_normalized_position": [
+        0.13,
+        0.11,
+        0.775,
+        0.815
+      ],
+      "axes_pixel_position": [
+        79,
+        30.7,
+        465,
+        220.05
+      ],
+      "projection": "orthographic",
+      "camera_view_angle": 10.71715194277881,
+      "data_aspect_ratio": [
+        2,
+        1,
+        2.1
+      ],
+      "plot_box_aspect_ratio": [
+        1,
+        0.588263241443824,
+        0.4961790491690223
+      ],
+      "xlim": [
+        0,
+        2
+      ],
+      "xlim_mode": "manual",
+      "ylim": [
+        0,
+        1
+      ],
+      "ylim_mode": "manual",
+      "zlim": [
+        0,
+        2.1
+      ],
+      "zlim_mode": "auto"
+    },
+    "transfer_scope": "Normalized axes position, orthographic projection, and manual source x/y domain bounds were used. Fixed-mesh camera position, aperture, data aspect and plot-box aspect were not copied into the random example."
+  },
+  "page": {
+    "path": "docs/examples/approx2/Random2D.md",
+    "sha256": "143531bfac56311d6ad57d3829910043d8d7d1f5e70a446cf4cca89370bc36fb",
+    "original_prose_and_matlab_blocks_preserved": true
+  },
+  "changed_figure": {
+    "path": "docs/images/approx2/Random2D_04.png",
+    "sha256": "56e2966a319cee87468b7c0f33dd9afbe5ec80de4a420d78352de3bbcd8fc4a7",
+    "bytes": 88859,
+    "width": 600,
+    "height": 270,
+    "previous_sha256": "f71807905dcf62622474019ae22449b12dfa4588ebe871d4b1c3f3ea5aeb93a9"
+  },
+  "remaining_limits": [
+    "automatic camera aperture and data-aspect framing for this random surface are unqualified",
+    "MATLAB RNG stream differs from seeded JAX stream",
+    "interpolated face colors are represented by per-quad face colors",
+    "no pixel-parity claim"
+  ]
+}

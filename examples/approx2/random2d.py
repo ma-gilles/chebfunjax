@@ -30,7 +30,7 @@ from chebfunjax._surface_lighting import (
     matlab_camera_and_camlight_left,
     matlab_flat_face_lighting,
 )
-from chebfunjax.plotting import PARULA, chebfun_style
+from chebfunjax.plotting import PARULA, _SurfaceFrameAxes, chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.random import randnfun2
 
@@ -109,7 +109,7 @@ def run():
     # 3D surface: Chebfun surf(f) requests interpolated colors, no edges,
     # then MATLAB's default colormap and a local camlight left.
     fig = plt.figure(figsize=(9.0, 5.4))
-    ax = fig.add_subplot(projection="3d")
+    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0], axes_class=_SurfaceFrameAxes)
     # @separableApprox/surf.m samples each domain axis at minPlotNum=200.
     surface_x = np.linspace(0.0, 2.0, 200)
     surface_y = np.linspace(0.0, 1.0, 200)
@@ -122,6 +122,11 @@ def run():
     quads = np.stack((vertices[:-1, :-1], vertices[:-1, 1:],
                       vertices[1:, 1:], vertices[1:, :-1]), axis=2)
     ax.auto_scale_xyz(xs, ys, zs)
+    # Native Chebfun surf sets the sampled x/y domain limits exactly; z remains
+    # automatic. MATLAB's captured axes use orthographic projection.
+    ax.set_xlim3d(0.0, 2.0)
+    ax.set_ylim3d(0.0, 1.0)
+    ax.set_proj_type("ortho")
     ax.view_init(50, -20 - 90)
     limits = np.array([ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()])
     target = np.mean(limits, axis=1)
@@ -149,8 +154,7 @@ def run():
         "DiffuseStrength": 0.6, "SpecularStrength": 0.9,
         "SpecularExponent": 10, "BackFaceLighting": "reverselit"}
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Random2D_04.png"))
+    _savefig(fig, os.path.join(_IMG, "Random2D_04.png"), layout="matlab")
     plt.close(fig)
 
     # periodic random function

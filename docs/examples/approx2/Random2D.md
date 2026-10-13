@@ -54,7 +54,7 @@ view(-20,50), camlight left
 
 ![Random2D figure 04](../../images/approx2/Random2D_04.png)
 
-**Python rendering note.** The 3D panel now uses the source-derived 200-point surface grid, Parula colors, and measured `camlight left` material/light settings. It remains an approximation: Python uses seeded JAX PRNG keys rather than MATLAB `rng(0)`. MATLAB seeds once and advances one stream; this translation resets separate seeds for each new random function, and maps interpolated vertex colors to per-quad face colors. Its surface frame is also still narrow (about 200 px across, compared with about 500 px in the reference image). These differences mean the panel is not pixel-equivalent to the MATLAB page.
+**Python rendering note.** The 3D panel uses the source-derived 200-point surface grid, Parula colors, and measured `camlight left` material/light settings. Its viewport now follows the captured MATLAB normalized axes position, uses orthographic projection, and sets the sampled x/y domain limits explicitly. Automatic camera aperture and data-aspect framing for this random surface remain unqualified; no camera constants from a different test mesh are used. Python uses seeded JAX PRNG keys rather than MATLAB `rng(0)`: MATLAB seeds once and advances one stream, while this translation resets separate seeds for each new random function. Interpolated vertex colors are represented by per-quad face colors. These differences mean the panel is not pixel-equivalent to the MATLAB page.
 
 Here for comparison is a periodic random function.
 

@@ -1,0 +1,57 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "tests/chebfun/test_abs.m",
+  "scope": "Restore30 smooth source predicates (rows1-5) and2 periodic predicates (rows12-13); retain one supplemental scalar value check.",
+  "preserved": [
+    "Exact source four-callback reference [sin,-sin,sin,-sin] on -2:2.",
+    "Complex expectation sqrt(2)*existing reference; array expectation uses duplicated evaluation of existing reference.",
+    "PointValues sequence: cos(3x), add2, restrict sorted native x, set unsorted native x, then abs.",
+    "Native piece counts, exact pointValues, isreal, normest/infinity norm, source epsilon bounds and domain scales.",
+    "Exact consecutive seed6178 native x(100),x2(300),x3(100), from fresh R2025b capture; initial x agrees bitwise with prior fixture."
+  ],
+  "review_correction": "Initial candidate substituted reference construction and later RNG vectors; rejected and never published. Its passing supplemental gates do not count as native parity.",
+  "gates": {
+    "private_smooth": "Eight bounded processes, nine tests pass; per-case receipts and hashes in linked manifest.",
+    "merged_smooth9": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 40.01047848490998,
+      "sampled_peak_summed_rss_kib": 1600552,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "merged_periodic1test_2predicates": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 21.005208828952163,
+      "sampled_peak_summed_rss_kib": 1223828,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "remaining": "Native row6 identity conversion, both overwritten row7 assignments, piecewise singular and unbounded rows8-11 remain unqualified. Complete library/page/figure/speed and final-main CI remain unresolved.",
+  "native_capture": {
+    "native_test_source_sha256": "4b8ceb6f9ee899b59b478197ce7142280321a80f65d921bcb48e003b85dd4f94",
+    "native_capture_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_source_rng_capture_20261013/capture.mat",
+    "native_capture_mat_sha256": "549f8b9520d24a1c9cec042312ff1a3675e71b00785a095e4409d842e7a43331",
+    "native_capture_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_source_rng_capture_20261013/run/receipt.json",
+    "native_capture_receipt_sha256": "e6aacb99b9d153954e8fcea232f5c872caa96fbccfdb12d1cd3529bd839afa7f"
+  },
+  "source_hashes": {
+    "tests/test_matlab_port/chebfun/test_abs_matlab.py": "e06e718e8c4b470f7fae584ee4405e8d97504b5ee237c2964f75e533759ebbe7",
+    "tests/test_matlab_port/chebfun/test_abs_trig_source.py": "89bf81837606247190eb8502c08813564c196f61ec8b1032c8e81d4ee0cc2ea0",
+    "tests/test_matlab_port/chebfun/fixtures/abs_seed6178_native.json": "e987d8ca190426ac477891707566268247518fa1074fb55c77a32a9ee14be830"
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_smooth_predicates_v2_20261013/HANDOFF.md": "18fc33741aa9c57c2e29aa1adc303ed2d312f4ed858d8bea5d385dabbeb82b57",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_smooth_predicates_v2_20261013/manifest.json": "906f3df6f3d23c138c1c9f3e0841a73ff823322cf301099cd9b97ffc26a1ee0e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_smooth_publication_20261013/run/receipt.json": "d3f5439627e06fea64477d8603a53a2152c4387fbac3e9130e29b7b8af6e6a30",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_smooth_publication_20261013/run/stdout": "1f7960c12462e4c7901bd63ada29796d3ad1707cb16ac4bdd5d5c69128dd9bc6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_smooth_publication_20261013/guard.json": "334735de678b8b6612804b3f85741b52ac8fbf606f6bf702f5a5aa928bea3303",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_trig_source_publication_20261013/run/receipt.json": "806d388dd90d893c450f354a784305be4ebc89a06eab90d37723978f6e204055",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_trig_source_publication_20261013/run/stdout": "fa88c0b56d70d63795a05ec0ca718ddfb334cc49821f8a9dbe85f1e899e361d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_trig_source_publication_20261013/guard.json": "4ce3ae9a6b28fe6ab57fe0e0bf59f97b178fb26d4132acef3b33ab7b7fb1bf94"
+  }
+}

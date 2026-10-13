@@ -1,3 +1,22 @@
+## Native absolute-value assertions and surface framing — 2026-10-13
+
+Restored30 smooth Chebfun abs predicates with original reference construction,
+operation order, exact native random probes and unchanged bounds. Nine merged
+CPU tests pass, including the retained supplemental check. Two original periodic
+predicates pass in a separate test. Earlier substituted-reference/probe tests
+were rejected before publication. Remaining identity-conversion, singular and
+unbounded predicates are still open. See `docs/chebfun_abs_native_cpu_20261013.json`.
+
+Random2D now uses the native rectangular viewport, orthographic projection,
+explicit x/y limits and source inset layout. The full CPU example passes in
+125.16seconds and emits all seven600-by-270 figures; only panel4 changes.
+Native fixed-mesh property captures support these structural changes. Automatic
+camera aperture/data aspect for the random surface, RNG stream and color
+interpolation remain unqualified. See `docs/random2d_framing_cpu_20261014.json`.
+
+Full native assertion coverage, known dense constructor failure, remaining
+page/figure and speed gaps, and green final-main CI remain required.
+
 ## Direct periodic Chebfun3 construction — 2026-10-13
 
 Periodic Chebfun3 now samples native half-open grids and builds Fourier factors
