@@ -1,3 +1,15 @@
+## GL3 random initial field and native dealiasing default — 2026-10-14
+
+GL3 now constructs the source0.1*randn(32,32,32) numeric trig field using
+the advancing JAX normal stream. This exposed a spin3 default mismatch:
+native dealiasing is off, while Python had enabled it. Corrected both public
+scalar/system adapters; explicit on remains available. Same-input original
+convergence error fell from0.0252037 to0.000114790 against unchanged0.01.
+Nine combined constructor, routing and original convergence checks pass.
+MATLAB normal-stream/full-evolution parity, SH preset and low-level separate
+solver API remain outside this qualification.
+Evidence: `docs/spinop3_gl_random_dealias_cpu_20261014.json`.
+
 ## Fixed-length Chebfun3 callback construction — 2026-10-14
 
 Added n=(nx,ny,nz), sampling a callable once on the native second-kind

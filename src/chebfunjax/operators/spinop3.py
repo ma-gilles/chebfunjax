@@ -39,21 +39,6 @@ __all__ = ["Spinop3", "spin3", "func2str", "FuncHandle"]
 # ---------------------------------------------------------------------------
 
 
-def _gl_init(x, y, z):
-    """Deterministic smooth initial condition standing in for MATLAB's
-    random ``chebfun3(vals, dom, 'trig')`` on the GL domain
-    ``[0, 50]^3``.
-
-    chebfunjax has no random 3D trig field constructor, so a
-    deterministic low-frequency field is used.  The spin3
-    self-convergence test only compares two solves that share this same
-    init, so determinism (not randomness) is what the port requires.
-    """
-    return (0.5 * jnp.cos(2 * jnp.pi * x / 50.0)
-            + 0.5j * jnp.sin(2 * jnp.pi * y / 50.0)
-            + 0.3 * jnp.cos(4 * jnp.pi * z / 50.0))
-
-
 def _preset(pdechar: str):
     """Return the constructor fields for a named 3D PDE, mirroring
     @spinop3/spinop3.m parseInputs.
@@ -76,10 +61,19 @@ def _preset(pdechar: str):
         )
         def nonlin_vals(u):
             return u - (1.0 + 1.5j) * u * jnp.abs(u) ** 2
+        from chebfunjax.chebfun3d.chebfun3 import chebfun3
+        from chebfunjax.utils import _randnfun
+
+        domain = (0.0, 50.0, 0.0, 50.0, 0.0, 50.0)
+        # Source uses .1*randn(32,32,32). The shared JAX normal stream
+        # advances once per preset; its samples are not MATLAB stream parity.
+        values = .1 * _randnfun._normal_draw(
+            _randnfun._next_key(), 32**3, 1).reshape((32, 32, 32), order="F")
+        initial = chebfun3(values, domain, trig=True)
         return (
-            (0.0, 50.0, 0.0, 50.0, 0.0, 50.0),   # domain
+            domain,                              # domain
             (0.0, 100.0),                         # tspan
-            lin, nonlin, _gl_init,
+            lin, nonlin, initial,
             (1.0,), ("lap",),                     # lin_scales, lin_ops (A*lap)
             nonlin_vals, False, 1,
         )
@@ -392,12 +386,13 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
     The heavy lifting is the golden-ref-tested ETDRK4 solver in
     :func:`chebfunjax.spin.solver3.spin3`; this wrapper adapts the
     :class:`Spinop3` constructor surface to it and wraps the returned
-    value grid in a trigonometric interpolant.  Plotting arguments
+    value grid in a trigonometric interpolant. Dealiasing defaults to off,
+    as in native spinpref3; explicit on remains available. Plotting arguments
     (``'plot', 'off'``) are accepted and ignored.
 
     Provenance
     ----------
-    MATLAB source : spin3.m, @spinoperator/solvepde.m,
+    MATLAB source : spin3.m, @spinpref3/spinpref3.m, @spinoperator/solvepde.m,
         @expinteg/{computeCoeffs,oneStep}.m
     Chebfun commit: 7574c77
     Algorithm: Kassam & Trefethen, SISC 26 (2005); Montanelli &
@@ -412,7 +407,7 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
 
     if getattr(S, "_n_vars", 1) > 1:
         from chebfunjax.operators.spinop import _parse_scheme as _ps
-        _da0 = kwargs.get("dealias", True)
+        _da0 = kwargs.get("dealias", False)
         _al0 = list(args)
         for _i in range(len(_al0) - 1):
             if isinstance(_al0[_i], str) and _al0[_i].lower() == "dealias":
@@ -428,7 +423,7 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
         is_real=bool(S._is_real) and _init_is_real(S.init, S.domain),
     )
     from chebfunjax.operators.spinop import _parse_scheme
-    _da = kwargs.get("dealias", True)
+    _da = kwargs.get("dealias", False)
     _al = list(args)
     for i in range(len(_al) - 1):
         if isinstance(_al[i], str) and _al[i].lower() == "dealias":

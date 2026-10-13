@@ -5,17 +5,10 @@ equation with time-step DT and DT/2 at N=32 grid points, then compare
 the two solutions on a 20x20x20 trig tensor grid.  MATLAB tolerance
 ``tol = 1e-2``.
 
-MATLAB seeds a shared random initial condition via ``rng``/random
-``chebfun3(vals, dom, 'trig')``; chebfunjax has no random 3D trig
-constructor, so the GL preset supplies a deterministic low-frequency
-trig field (both solves share it, which is what the self-convergence
-check needs).
-
-Measured self-convergence error (this port, fully deterministic):
-    GL: 7.4e-3  (the genuine 4th-order ETDRK4 error at N=32, dt=0.1 --
-        the same error MATLAB incurs, hence the shared 1e-2 threshold
-        is kept as-is; bit-reproducible, so no flakiness despite the
-        sub-2x nominal margin).
+The preset draws a 32x32x32 normal tensor and constructs its periodic
+Chebfun3 interpolant. Both solves share that single initial field. Python
+uses its shared JAX normal stream; MATLAB normal-stream identity is not
+claimed. The source grid, times, time steps, and bound remain unchanged.
 
 Provenance
 ----------

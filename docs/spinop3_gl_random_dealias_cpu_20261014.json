@@ -1,0 +1,112 @@
+{
+  "scope": "Public Spinop3 GL normal-tensor initialization plus source-default dealias correction. No source tolerance or scientific predicate changed.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spinop3/spinop3.m": "46ac36d455fe59ea1397424c49dd049819a1500ab9958cc8738a8582d193e486",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spinpref3/spinpref3.m": "39e346a7e840d8fa2be2bd064475469083c1071d80a211697a477a4c5bdc61b9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spinop3/test_spin3.m": "b99ed9debff31f282964a9046a95f6ce29da65694066d485e637e5c9f385c5d6",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spinop3/test_spinop3.m": "7e5f1bdd1ccd0b2db4b9be269949b01fdeb1219decc43825923209ca869f7ede"
+  },
+  "manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/MANIFEST_FINAL.json",
+    "sha256": "251ec076168d91da47c0f15f47e31298708564febfa12cc4c70f36ffcf5f5c31"
+  },
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/candidate_final.patch",
+    "sha256": "4ded17f2a82915591326aa67796256dbbd9f8709b0dafbe494b0ef5480bb9ed5"
+  },
+  "changes": [
+    "GL now constructs chebfun3(.1*normal32x32x32,domain,trig=True). JAX normal samples use existing advancing default-key stream and column-major adapter; constructor no longer uses deterministic smooth stand-in.",
+    "Public spin3 defaults dealias=False in scalar and system branches, matching native spinpref3.m:76. Explicit on via keyword and native trailing pair retained.",
+    "Original test documentation corrected; AST equality apart from module docstring verified. Native N32,t10,dt.1/.05,20cubedquery grid and tolerance1e-2 unchanged."
+  ],
+  "diagnosis": {
+    "seed": 6178,
+    "seed_scope": "Reproducible JAX stream only, not MATLAB rng identity. Same preset instance and initial field for both dt arms.",
+    "prior_dealias_true_error": 0.025203746820281953,
+    "explicit_native_dealias_false_error": 0.00011478950804191496,
+    "final_actual_default_error": 0.00011478950804191496,
+    "native_bound": 0.01,
+    "cause_scope": "Same-input explicit setting isolates source-default error for this field. Not general solver parity proof. The old smooth stand-in concealed the broadband first-step masking effect."
+  },
+  "qualification": [
+    "Final9nodes passed: unchanged original convergence, original4 constructor predicates, supplemental full32cubed normal-grid reconstruction/shared RNG advancement/2stepN8solve, six scalar/system default/explicit-option routing controls.",
+    "Source original constructor and convergence predicates retained; normal stream not compared with native.",
+    "Ruff source/newtest clean; actual Git patch apply and all three output SHA checks pass; both preimages equal current publication at packaging.",
+    "All frozen numeric-constructor six paths remain byte-identical to previous delivered manifest."
+  ],
+  "receipts": {
+    "small_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/small_run/receipt.json",
+      "sha256": "71fde64814ee2af7a5956cb65e86b378250148a023b0b7a4781839db30b64ac6",
+      "command_exit_code": 0,
+      "wall_seconds": 15.153165340423584,
+      "sampled_peak_summed_rss_kib": 882448,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_summary": "======================== 2 passed, 1 warning in 12.20s ========================="
+    },
+    "original_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/original_run/receipt.json",
+      "sha256": "86465a1353038b912969938da04c079c784bdea8caf6d25ff6558316287fe900",
+      "command_exit_code": 1,
+      "wall_seconds": 19.153714099898934,
+      "sampled_peak_summed_rss_kib": 1017440,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_summary": "======================== 1 failed, 1 warning in 15.14s =========================",
+      "source_result": {
+        "seed": 6178,
+        "error": 0.025203746820281953,
+        "scale": 1.020568800824721
+      }
+    },
+    "explicit_off_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/explicit_off_run/receipt.json",
+      "sha256": "42e6acb620dfaacdb2a4d56534b73dbc6e414faad4e1663e228561f4675dcfeb",
+      "command_exit_code": 0,
+      "wall_seconds": 17.459910362958908,
+      "sampled_peak_summed_rss_kib": 998332,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_summary": "======================== 1 passed, 1 warning in 13.29s =========================",
+      "source_result": {
+        "seed": 6178,
+        "error": 0.00011478950804191496,
+        "scale": 0.9950388243149414
+      }
+    },
+    "final_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_gl_numeric_review_20261014/final_run/receipt.json",
+      "sha256": "7228b7153adcbcbc09828da9593785a261b32d5ce3bceee6a4c2f7c57b5dac5d",
+      "command_exit_code": 0,
+      "wall_seconds": 26.96437111310661,
+      "sampled_peak_summed_rss_kib": 980692,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_summary": "======================== 9 passed, 1 warning in 22.77s =========================",
+      "source_result": {
+        "seed": 6178,
+        "error": 0.00011478950804191496,
+        "scale": 0.9950388243149414
+      }
+    }
+  },
+  "limits": [
+    "One seeded original convergence control; no cross-MATLAB field/evolution parity or general random-seed guarantee.",
+    "Separate low-level solver3 default remains unchanged; public wrapper explicitly supplies source-correct default.",
+    "SH fixed-seed NumPy/interpolant preset remains separate debt; other preset construction and solver NumPy runtime debt untouched.",
+    "No performance comparison. Timings are observational CPU16-19 qualification only."
+  ],
+  "retained_negatives": [
+    "original_run preserves unchanged original assertion failure with prior defaultTrue.",
+    "spinop3_preset_only.py and candidate.patch preserve pre-defaultfix candidate; final delivery is candidate_final.patch."
+  ],
+  "root_review": {
+    "all_applied_hashes_match": true,
+    "original_test_ast_unchanged_except_docstring": true,
+    "source_review": "Native spinpref3 default off; GL .1*randn(32,32,32) numeric trig tensor; shared JAX advancing key explicit normal stream limitation",
+    "reviewed_at_base": "7780eef4",
+    "repeat_gate": "Not repeated: exact three tested paths applied; numeric constructor changes since private source only optional n=None adapter and public default behavior unchanged."
+  }
+}
