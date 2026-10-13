@@ -1,0 +1,47 @@
+{
+  "base": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "scope": "Bounded scalar complex Chebtech1/2 abs only. Existing real scalar branch and other representations unchanged.",
+  "patch_sha256": "819a9a0237df795235dd666343e67949f1bb31612f088c83fb5e45d490a3d669",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/abs_complex_candidate.patch",
+  "changed_paths": [
+    {
+      "path": "src/chebfunjax/chebfun1d/chebfun.py",
+      "sha256": "fcae9a09258d3d16b1297de3c0e9ab0008747360ace7964eb5e806076a3b1968",
+      "applied_sha256": "fcae9a09258d3d16b1297de3c0e9ab0008747360ace7964eb5e806076a3b1968"
+    },
+    {
+      "path": "tests/test_matlab_port/chebfun/test_abs_complex_breaks_source.py",
+      "sha256": "0ad3106a49f7257ef814058c2cae03307336beb348084e8aa67acd879fd50e33",
+      "applied_sha256": "0ad3106a49f7257ef814058c2cae03307336beb348084e8aa67acd879fd50e33"
+    }
+  ],
+  "clean_sparse_validation": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_complex_patch_validation_sparse_20261014",
+  "git_apply_check_and_hash_comparison": true,
+  "source": "Native @chebfun/abs.m addBreaksAtRoots, per-FUN abs, pointValues abs, simplify.",
+  "compatibility": "Preserves original breakpoints, map/interval, C1/C2 technology and transpose. Existing qualified RHS changes excluded from patch.",
+  "baseline": "CI original bound failure preserved; local baseline passes bound but replaces breakpoint0 by -6.66e-16, independently violating native retention. See ABS_CI_DIAGNOSIS.json.",
+  "tests": "8 passed: four C1/C2 row/column breakpoint/type/map/PV/off-grid controls plus unchanged native scalar/real/imaginary/complex abs nodes.",
+  "receipt": {
+    "wall_seconds": 21.329574185889214,
+    "sampled_peak_summed_rss_kib": 1366308,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "receipt_sha256": "847a77ee4386d5091edd7b7042224d52cd85945dc4a5fdb04586f100fda5d43d",
+  "static": "Ruff and git diff --check passed.",
+  "limits": "CI host-specific error not reproduced locally; source defect fixed independently. No tolerance changes or full abs-suite rerun.",
+  "merged_gate": {
+    "wall_seconds": 33.06625638529658,
+    "sampled_peak_summed_rss_kib": 1799944,
+    "inputs_stable": true,
+    "command_exit_code": 0,
+    "remaining_owned_pids": [],
+    "tests": "13 passed: four new branch controls plus all9 existing test_abs_matlab nodes."
+  },
+  "merged_evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_complex_publication_20261014/run/receipt.json": "9885c919f2cf1aa0d671ba9eef88627b055007f4c37cb89bf8a2b023a795e4db",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/ABS_CI_DIAGNOSIS.json": "61a266713d55d2563183260d93d039d376d9a40e0722dbf97466c70027fcbeb8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/chebfun.py": "b076a2fa0f46bcc65d4bb7a6358300a31b6ac90b30ed7958cf2e9afee10ab1fc"
+  }
+}

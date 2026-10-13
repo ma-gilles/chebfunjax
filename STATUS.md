@@ -1,3 +1,20 @@
+## Preserve complex abs breakpoints; complete subtraction predicates — 2026-10-14
+
+Complex abs now follows native addBreaksAtRoots, per-FUN abs, point-value abs,
+and simplify for bounded scalar C1/C2 inputs. This prevents a nearby computed
+root replacing an existing breakpoint and triggering global resampling.
+Merged13 checks pass at unchanged bounds, with stable guards/no survivors.
+CI's exact numerical abs failure was not reproduced locally; the breakpoint
+fault was independently demonstrated. Fresh CI still must review this fix.
+Evidence: `docs/complex_abs_breakpoints_cpu_20261014.json`.
+
+All15 meaningful native subtraction assertions (1–14,17) now pass in4 grouped
+checks on guarded publication source:41.32seconds/2,356,064KiB sampled RSS.
+Native matrix/vector infinity norms, output shapes and seed6178 probes are
+preserved. Original15–16 are vacuous unconditional-success error blocks, not
+meaningful rejection checks. Superseded weaker matrix and overly strong row
+norm diagnostics are retained. Evidence: `docs/minus_original_predicates_cpu_20261014.json`.
+
 ## TreeVar scalar leaves and RHS assembly use JAX — 2026-10-14
 
 Preserved complex coefficients and RHS leaves, accepted JAX scalar coefficients,

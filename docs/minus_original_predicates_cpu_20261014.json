@@ -1,0 +1,67 @@
+{
+  "base_head": "fcad54d7b0c8e266485e1fe3edba6bdb3d0150c4",
+  "existing_fixture_reused": {
+    "path": "tests/fixtures/times_source_matlab.json",
+    "sha256": "5fc6ad78c4fa7318a78dd0c09f41ae83175f56ec4b2274bcfdd5dc5519858cc5"
+  },
+  "files": {
+    "DELIVERY_v3.md": "5fd1fc3afd63e1b797d914984f59147d44ef0b434f650e76a80a6c4db725b6b6",
+    "PATCH_v3.diff": "941fe7a111b4a3ac0be16b49a2bac1e82113561e6f6f7942159da29d48d6cf29",
+    "guard_v3.json": "0bb897062f6bc0abaf6849eb8804f4dc82d80f7734bfe05552619a3faf2bac2a",
+    "run/final/guard.json": "0bb897062f6bc0abaf6849eb8804f4dc82d80f7734bfe05552619a3faf2bac2a",
+    "run/final/manifest.json": "ed7045a5b3466dcf0591e0fa4e20409b50dda8a9973f3e09ae48b3ed1bfeb170",
+    "run/final/receipt.json": "96daeb0c19bf461bcc4b884df0fd2ae9102547be53cc2fcfb3ff679fecf0c817",
+    "run/final/stdout": "2867ac14990c5a6598167f75d44d6ce72087952f88ccd26bee5c10fbf68e6a37",
+    "tests/test_minus_remaining_source.py": "ee5583c94c430099f5c14f87863edae8ce2bb35a8b5ebb92e596b8d79481dcef"
+  },
+  "native_predicate_mapping": {
+    "meaningful_predicate_count": 15,
+    "native_error_blocks_15_16": "present in source but vacuous/unconditional-success catch clauses; intentionally not claimed as meaningful error checks",
+    "test_source_minus_array_and_transposed_predicates_07_14": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "test_source_minus_empty_predicates_01_02": [
+      1,
+      2
+    ],
+    "test_source_minus_scalar_predicates_03_06": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "test_source_minus_unbounded_left_domain_predicate_17": [
+      17
+    ]
+  },
+  "native_source": {
+    "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_minus.m",
+    "sha256": "b9bc80f794fa46728a25115a1074171d79cc64e0c22eccaf0c68191beac05e41"
+  },
+  "qualification": {
+    "censored_limit": null,
+    "inputs_stable": true,
+    "pytest_seconds": 37.49,
+    "sampled_peak_summed_rss_kib": 2356064,
+    "supervisor_seconds": 41.31630681781098,
+    "survivors": [],
+    "tests": "4 passed"
+  },
+  "superseded": {
+    "v1": "weaker and incomplete: omitted predicates 1-6 and 11-14; used max(abs(error)) on 100x2 matrix.",
+    "v2": "superseded diagnostic: correct genuine-matrix row-sum norm, but incorrectly applied matrix norm to singleton row vector; stronger-than-source check."
+  },
+  "integration": {
+    "test_sha256": "ee5583c94c430099f5c14f87863edae8ce2bb35a8b5ebb92e596b8d79481dcef",
+    "native_fixture_exact_copy": true,
+    "qualification_scope": "Final private overlay imported guarded publication source fcad54d7. Later complex abs-only change does not alter minus execution; no redundant root numerical rerun.",
+    "delivery_sha256": "5fd1fc3afd63e1b797d914984f59147d44ef0b434f650e76a80a6c4db725b6b6"
+  }
+}

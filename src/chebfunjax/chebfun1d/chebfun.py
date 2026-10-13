@@ -4032,6 +4032,20 @@ class Chebfun(eqx.Module):
                     point_values = point_values.at[i].set(0.0)
             return out.set_point_values(point_values)
 
+        if self.n_columns == 1 and all(
+                isinstance(p.tech, (Chebtech1, Chebtech2))
+                and all(math.isfinite(float(v)) for v in p.interval)
+                for p in self.funs):
+            # Native @chebfun/abs.m preserves existing breakpoints when a
+            # computed complex root is nearby. Apply canonical FUN abs after
+            # addBreaksAtRoots instead of rebuilding through physical queries.
+            restricted = self.addBreaksAtRoots()
+            out = Chebfun._as_transposed(Chebfun(
+                funs=[piece.abs() for piece in restricted.funs],
+                domain=restricted.domain), self.is_transposed)
+            out = out.set_point_values(jnp.abs(restricted.point_values))
+            return out.simplify()
+
         # Find roots where the function changes sign and add them as
         # breakpoints, then apply |·| piecewise for smoothness.  Jump
         # roots are excluded: a sign flip through a jump or pole sits
