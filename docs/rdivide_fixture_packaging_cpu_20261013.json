@@ -1,0 +1,18 @@
+{
+  "ci_run": 38166054214,
+  "ci_job": 114551139720,
+  "failure": "Ten tests referenced uncommitted external native MAT files.",
+  "fix": "Package original native captures and drivers; resolve paths relative to tests/fixtures. Numerical assertions unchanged.",
+  "result": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "10",
+    "time": "10.275",
+    "timestamp": "2026-10-13T07:52:01.021783-04:00",
+    "hostname": "della-mol.princeton.edu"
+  },
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_fixture_packaging_20261013/run/receipt.json",
+  "log_sha256": "1464e2c7ee60e1c5b245e370f41be2d4d196215fd17e542c07437cc0ec05aa45"
+}

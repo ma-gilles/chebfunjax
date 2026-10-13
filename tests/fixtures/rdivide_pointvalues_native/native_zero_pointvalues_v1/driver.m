@@ -1,0 +1,2 @@
+restoredefaultpath;addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref');g=chebfun([0;1],'coeffs');nums={1,-1,1i,1+1i,complex(1,0),0};
+for k=1:numel(nums),h=nums{k}./g;rec=struct('numerator',nums{k},'domain',h.domain,'pointValues',h.pointValues);save(fullfile('/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1',sprintf('case%d.mat',k)),'rec','-v7');end;exit;

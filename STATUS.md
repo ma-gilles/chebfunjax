@@ -1,10 +1,37 @@
 # Current CPU parity checkpoint — 2026-10-11
 
-Main through `6885a0cd` is published; this checkpoint adds the packages below.
+Main through `22f8f3c9` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
 
+- Ten division tests now load packaged native MATLAB fixtures on CI instead
+  of external scratch paths. All ten pass locally; assertions are unchanged.
+  See `docs/rdivide_fixture_packaging_cpu_20261013.json`.
+- CPU inverse subdivision reuses compilation across sampled grid sizes. The
+  controlled stage improves 5.69 to 2.87 seconds; all 106 subdivision outputs
+  and the complete inverse representation remain identical. Original accuracy
+  passes, with 11 additional same-backend portability controls. This is a stage
+  timing claim, not a matched whole-inverse speed claim. See
+  `docs/inverse_sampled_cpu_reuse_qualification_20261011.json`.
+- Polynomial Trigremez exchange now retains true jump roots, matching native
+  `roots(..., "nobreaks")`. Original polynomial predicates 1–7 and three native
+  root controls pass. The symmetric extremum-selection discrepancy remains
+  open; retained-stage analysis traces its first observed difference to
+  trigonometric-to-Chebyshev conversion. See
+  `docs/trigremez_polynomial_exchange_source_cpu_20261011.json`.
+- Floquet now has a complete fresh matched-input numerical capture: all 16
+  periodic entries differ from native samples by at most 7.22e-15 and trajectory
+  samples by 6.79e-14. These are observations, since the example defines no
+  acceptance bound. The original final recorder failure and offline recovery
+  are retained. Representation lengths, historical RNG and figure differences
+  remain open. See `docs/floquet_matched_math_cpu_20261011.json`.
+- Empty numeric/cell/existing Chebfun2 inputs now follow native vector-field
+  construction: all-empty inputs yield an empty field; mixed empty/nonempty
+  components raise the source domain error. All 12 native controls failed
+  before the fix; the candidate passes 51 focused controls, including existing
+  constructor and empty-operation tests. General parser and empty-object storage
+  parity remain open. See `docs/chebfun2v_empty_inputs_cpu_20261011.json`.
 - Finite scalar Chebop deflation now uses the existing source Newton solver and
   preserves the nonlocal AD derivative. The original Painleve test passes:
   solution lengths 38/75 match native, and sampled differences are below 6.3e-15.

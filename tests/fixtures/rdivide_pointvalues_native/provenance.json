@@ -1,0 +1,54 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "purpose": "Package original native captures needed by existing tests; numerical assertions unchanged.",
+  "files": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_complex_denominator_v1/case4.mat": {
+      "sha256": "8f316f303725cdd4dfe00915a1e9458fec4eab70f7dff5d04b09325bd5c6ff17",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_complex_denominator_v1/case4.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_complex_denominator_v1/case3.mat": {
+      "sha256": "62ac7260c2b14555702dd055449891b2f97018b3c31a3053f2751176a2c01d56",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_complex_denominator_v1/case3.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_complex_denominator_v1/case1.mat": {
+      "sha256": "d87c1f784fdaacbc627b57af202097cfe7b6b2b9a63ae5f143b4b58a7c02b6b8",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_complex_denominator_v1/case1.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_complex_denominator_v1/case2.mat": {
+      "sha256": "d04f99d580c8e9d7ee6f5b1c35b73e8b7fbd4d0dd0943964ef2c0c7eaf507beb",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_complex_denominator_v1/case2.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_complex_denominator_v1/driver.m": {
+      "sha256": "f8a53ed6ebe30d48c9ecf9e7989d6212b47b2c23f8266a94ca5d3ea7e689bca3",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_complex_denominator_v1/driver.m"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case5.mat": {
+      "sha256": "88c997b4407bcb514a4f78c8b58f5d140ccf63f3bf38aed86099b7638b2cf159",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case5.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case4.mat": {
+      "sha256": "4127e713c9f683b4560af38c4826a19080c8e8293738339d77df31658fcefbd0",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case4.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case3.mat": {
+      "sha256": "1342b4aa140eae7b07ed8af681ddefa0bb455b5748ebca8566c6739822a65f0b",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case3.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case1.mat": {
+      "sha256": "871ce89d7421b69160ea50e1dbb8dc7a3d1ff3ace3fa4c79a269e7535274f2e6",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case1.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case2.mat": {
+      "sha256": "6e8a39f5f96fefe0295b3f63543ce839cc2b169bdf6ef03f3594c71953eb5041",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case2.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/case6.mat": {
+      "sha256": "f6f3e5f90d9406739cc722ca1e2c5ee4bfb1ea288054ce1de213811d6ac4be11",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/case6.mat"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/eight_shades_source_20261011/native_zero_pointvalues_v1/driver.m": {
+      "sha256": "c55727dc198b7486c60321f485b94fb908523e7fd9e0f6167bd2c73b9fce9619",
+      "repository_path": "tests/fixtures/rdivide_pointvalues_native/native_zero_pointvalues_v1/driver.m"
+    }
+  }
+}

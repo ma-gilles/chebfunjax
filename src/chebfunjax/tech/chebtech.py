@@ -1417,6 +1417,32 @@ def _roots_subdivide(c):
             # Preserve the generic IEEE/failure path for nonfinite inputs.
         left, right = _roots_cached_transforms(c.device, jax.config.x64_enabled)
         return _roots_apply_transforms(c, left, right)
+    if (host_c is not None and host_c.ndim == 1
+            and host_c.dtype == np.dtype('float64')
+            and c.dtype == jnp.float64 and c.device.platform == 'cpu'
+            and jax.config.x64_enabled and 513 < c.shape[0] <= 4000):
+        from chebfunjax.tech._roots_sampled_cpu import (
+            finish_subdivision,
+            grid_and_states,
+        )
+        n = c.shape[0]
+        capacity = 1 << (n - 1).bit_length()
+        # NumPy owns transfer storage only; all numerical work remains JAX.
+        padded = np.zeros(capacity, dtype=host_c.dtype)
+        padded[:n] = host_c
+        coeffs = jax.device_put(padded, c.device)
+        # Exact integer normalization metadata for the original denominator;
+        # no floating-point grid values are computed or cached on the host.
+        divisor = 2 * (n - 1)
+        k = divisor.bit_length() - 1
+        normalized = divisor << (52 - k)
+        points, b1, b2, finite = grid_and_states(
+            coeffs, jnp.asarray(n, dtype=jnp.int64),
+            jnp.asarray(k, dtype=jnp.int64),
+            jnp.asarray(normalized, dtype=jnp.uint64))
+        if bool(finite):
+            return finish_subdivision(coeffs, points, b1, b2, n)
+        # Nonfinite inputs retain the generic IEEE/failure path below.
     if c.shape[0] > 4000:
         # Public ndct lazily imports its fixed JAX Bessel table. Initialize
         # that dependency here, outside tracing, so no module-global tracer

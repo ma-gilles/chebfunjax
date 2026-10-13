@@ -1,0 +1,312 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline": {
+    "publication_head": "22f8f3c9cda1c00813e2e70a61c096f8bfa4255f",
+    "provider_sha256": "b6b57d30b7c8c101926d7003321fcd8c19036fed4fc63d1dda253467a603aadb",
+    "change": "source nobreaks root option adapter only; arithmetic/tie/stop unchanged"
+  },
+  "production_change": "Only polynomial _exchange roots call nojump=True -> roots() to adapt native nobreaks under current scalar roots behavior. No defaultpublicroots change, no tie/tolerance/stop arithmetic change.",
+  "qualified_tests": {
+    "original_polynomial_predicates": "1\u20137 passed unchanged (3pytestcases)",
+    "new_controls": 3,
+    "result": "6passed across finalgate and frozen-source reuse; persistent successor removes only saved Python output oracle, with unchanged source-call/remaining-assertion AST proof and no replay.",
+    "rational_predicates": "Not replayed; rational providers unchanged."
+  },
+  "numerical_findings": {
+    "coefficient_stages": [
+      {
+        "stage": "converted_trial",
+        "piece": 0,
+        "native_shape": [
+          32
+        ],
+        "python_shape": [
+          32
+        ],
+        "exact": false,
+        "max_abs_diff": 3.377628580471248e-17
+      },
+      {
+        "stage": "aligned_target",
+        "piece": 0,
+        "native_shape": [
+          2
+        ],
+        "python_shape": [
+          2
+        ],
+        "exact": true,
+        "max_abs_diff": 0.0
+      },
+      {
+        "stage": "aligned_target",
+        "piece": 1,
+        "native_shape": [
+          2
+        ],
+        "python_shape": [
+          2
+        ],
+        "exact": true,
+        "max_abs_diff": 0.0
+      },
+      {
+        "stage": "aligned_trial",
+        "piece": 0,
+        "native_shape": [
+          32
+        ],
+        "python_shape": [
+          32
+        ],
+        "exact": false,
+        "max_abs_diff": 1.1102230246251565e-16
+      },
+      {
+        "stage": "aligned_trial",
+        "piece": 1,
+        "native_shape": [
+          32
+        ],
+        "python_shape": [
+          32
+        ],
+        "exact": false,
+        "max_abs_diff": 8.326672684688674e-17
+      },
+      {
+        "stage": "difference",
+        "piece": 0,
+        "native_shape": [
+          32
+        ],
+        "python_shape": [
+          32
+        ],
+        "exact": false,
+        "max_abs_diff": 1.1102230246251565e-16
+      },
+      {
+        "stage": "difference",
+        "piece": 1,
+        "native_shape": [
+          32
+        ],
+        "python_shape": [
+          32
+        ],
+        "exact": false,
+        "max_abs_diff": 8.326672684688674e-17
+      },
+      {
+        "stage": "derivative",
+        "piece": 0,
+        "native_shape": [
+          31
+        ],
+        "python_shape": [
+          31
+        ],
+        "exact": false,
+        "max_abs_diff": 7.271960811294775e-15
+      },
+      {
+        "stage": "derivative",
+        "piece": 1,
+        "native_shape": [
+          31
+        ],
+        "python_shape": [
+          31
+        ],
+        "exact": false,
+        "max_abs_diff": 6.413875913802321e-15
+      }
+    ],
+    "matched_query_evaluations": {
+      "target_values": {
+        "max_abs_diff": 0.0,
+        "native_hex": [
+          "0x1.8f87b00fa115cp-1",
+          "0x1.c1e13fc17ba7cp-3",
+          "0x0.0p+0",
+          "0x1.c1e13fc17baa8p-3",
+          "0x1.8f87b00fa1158p-1",
+          "0x1.8f87b00fa1148p-1",
+          "0x1.c1e13fc17ba8cp-3",
+          "0x1.c1e13fc17ba7cp-3",
+          "0x1.8f87b00fa1148p-1"
+        ],
+        "python_hex": [
+          "0x1.8f87b00fa115cp-1",
+          "0x1.c1e13fc17ba7cp-3",
+          "0x0.0p+0",
+          "0x1.c1e13fc17baa8p-3",
+          "0x1.8f87b00fa1158p-1",
+          "0x1.8f87b00fa1148p-1",
+          "0x1.c1e13fc17ba8cp-3",
+          "0x1.c1e13fc17ba7cp-3",
+          "0x1.8f87b00fa1148p-1"
+        ]
+      },
+      "trial_values": {
+        "max_abs_diff": 0.0,
+        "native_hex": [
+          "0x1.c56be93ecbf08p-1",
+          "0x1.d4a0b609a0788p-4",
+          "-0x1.0000000000000p-53",
+          "0x1.d4a0b609a07dcp-4",
+          "0x1.c56be93ecbf04p-1",
+          "0x1.c56be93ecbef4p-1",
+          "0x1.d4a0b609a07a8p-4",
+          "0x1.d4a0b609a0788p-4",
+          "0x1.c56be93ecbef4p-1"
+        ],
+        "python_hex": [
+          "0x1.c56be93ecbf08p-1",
+          "0x1.d4a0b609a0788p-4",
+          "-0x1.0000000000000p-53",
+          "0x1.d4a0b609a07dcp-4",
+          "0x1.c56be93ecbf04p-1",
+          "0x1.c56be93ecbef4p-1",
+          "0x1.d4a0b609a07a8p-4",
+          "0x1.d4a0b609a0788p-4",
+          "0x1.c56be93ecbef4p-1"
+        ]
+      },
+      "errors": {
+        "max_abs_diff": 0.0,
+        "native_hex": [
+          "-0x1.af21c97956d60p-4",
+          "0x1.af21c97956d70p-4",
+          "0x1.0000000000000p-53",
+          "0x1.af21c97956d74p-4",
+          "-0x1.af21c97956d60p-4",
+          "-0x1.af21c97956d60p-4",
+          "0x1.af21c97956d70p-4",
+          "0x1.af21c97956d70p-4",
+          "-0x1.af21c97956d60p-4"
+        ],
+        "python_hex": [
+          "-0x1.af21c97956d60p-4",
+          "0x1.af21c97956d70p-4",
+          "0x1.0000000000000p-53",
+          "0x1.af21c97956d74p-4",
+          "-0x1.af21c97956d60p-4",
+          "-0x1.af21c97956d60p-4",
+          "0x1.af21c97956d70p-4",
+          "0x1.af21c97956d70p-4",
+          "-0x1.af21c97956d60p-4"
+        ]
+      }
+    },
+    "native_queries": [
+      -2.451485562215248,
+      -0.6901070913745432,
+      0.0,
+      0.6901070913745468,
+      2.4514855622152467,
+      -2.4514855622152414,
+      -0.6901070913745444,
+      0.6901070913745433,
+      2.4514855622152414
+    ]
+  },
+  "interpretation": "Target/trial coefficients exact. First captured difference: global periodic\u2192Chebyshev trial conversion (32coeffs max3.3776e-17), alignment up to1.11e-16, derivative up to7.27e-15, rootcoordinates differ. At all9 matched native/Python root queries target/trial/error evaluation is bit-identical. Native positive error exceeds negative4ULPs; Python own roots give exacttie. Source strict pruning explains differingreference. No policy repair or parityclaim; exact underlying constructorgrid/sample/transform divergence remains unlocalized.",
+  "open_gaps": [
+    "Symmetricfirstreference native+.69010709 vsPython\u2212.69010709 remainsnumericalparitygap.",
+    "Pythonpublicdefaultroots doesnotinclude isolatedstoredpointValueszero unlike native default; localexchange adaptsnobreaks which explicitlyexcludes it.",
+    "No universalbitidentity or symmetricreference-tiepolicy claim."
+  ],
+  "instrumentation_controls": "Native uninstrumented first then fulltrace outputs exactcoeff/error/status/warningID; Python instrumented successor exactstored uninstrumentedoutput. Retained native/Python derivative exact original trace and repeated difference expression.",
+  "failures_retained": [
+    "Pythonv1 Domainnotiterable diagnosticserializer (baseline saved).",
+    "Retainednativev1 cellcoeffconstructorreject beforedifference.",
+    "Retainednativev2 rebuiltpointValuesmismatch beforedifference; v3 exactsource3pointtrialconstructor restores fullinput identity.",
+    "Pythonflag originalobserver included absconstructor root; 5passed/1failed retained; successor onlyfailedcase passed."
+  ],
+  "receipts": [
+    {
+      "stage": "native_v1",
+      "exit": 0,
+      "wall_seconds": 80.23075101291761,
+      "peak_GiB": 1.4047355651855469,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "python_v1",
+      "exit": 1,
+      "wall_seconds": 14.252192542888224,
+      "peak_GiB": 1.0247383117675781,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "python_v2",
+      "exit": 0,
+      "wall_seconds": 13.269075139891356,
+      "peak_GiB": 0.9987220764160156,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "retained_native_v1",
+      "exit": 1,
+      "wall_seconds": 78.94631335511804,
+      "peak_GiB": 1.2393455505371094,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "retained_native_v2",
+      "exit": 1,
+      "wall_seconds": 78.52349704829976,
+      "peak_GiB": 1.2646255493164062,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "retained_native_v3",
+      "exit": 0,
+      "wall_seconds": 79.25998516008258,
+      "peak_GiB": 1.3939590454101562,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "retained_python_v1",
+      "exit": 1,
+      "wall_seconds": 59.52494862489402,
+      "peak_GiB": 2.8023910522460938,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    },
+    {
+      "stage": "python_flag_successor_v1",
+      "exit": 0,
+      "wall_seconds": 17.081334528978914,
+      "peak_GiB": 1.0200271606445312,
+      "stable": true,
+      "survivors": [],
+      "censored_limit": null
+    }
+  ],
+  "warnings": "ActualnativeRemezwarning, pinnedJAXpluginincompatibility, diagnosticEqxstaticarraywarnings and pytestalreadyimportedrewritewarning retained in rawartifacts. No blanket suppression.",
+  "binding_scope": "Frozen exact scientific input/provider/test guards and observedPythonmodule origin; sourcepin plus literalnativeproviders. Not prospective entire runtimeclosure.",
+  "persistent_test_successor": {
+    "trigremez_call_AST_identical": true,
+    "remaining_three_assertions_AST_identical": true,
+    "removed_assertions": "Only saved Python coefficient/error/status/xk equality oracle; one-time passing source gate92964 remains immutable.",
+    "new_function_name": "test_public_polynomial_exchange_includes_true_jump_root",
+    "test_warning_context_AST_identical": true,
+    "numerical_replay": false
+  }
+}

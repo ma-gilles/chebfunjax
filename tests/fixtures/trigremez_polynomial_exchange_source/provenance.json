@@ -1,0 +1,9 @@
+{
+  "matlab": "R2025b CPU",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@chebfun/roots.m flags and breakpoint/jump insertion",
+  "native_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_polynomial_exchange_diagnostic_20261011/retained_native_v3/root_controls.mat",
+  "native_capture_sha256": "e8a37cecadab5107b414f83ba43317ae04116f199d65a2e7390fe19975bf972f",
+  "baseline_python_reference": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigremez_polynomial_exchange_diagnostic_20261011/python_v1/baseline.npz",
+  "purpose": "native nobreaks mapping; symmetric selection gap remainsopen"
+}

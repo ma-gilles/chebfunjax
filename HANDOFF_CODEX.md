@@ -2,6 +2,19 @@
 
 ## Integration followthrough (2026-10-11)
 
+CPU inverse sampled subdivision now has a qualified compilation-reuse path:
+5.69 to 2.87 seconds in the controlled stage, full inverse representation
+unchanged and original accuracy bound passing. See STATUS.md for scope.
+
+Polynomial Trigremez exchange now retains native true jump roots. Original
+polynomial predicates 1–7 and three native controls pass; the separate
+symmetric reference-selection gap remains open. See STATUS.md qualification.
+
+Empty vector-field construction now passes 12 actual native input controls
+and 51 focused regression checks. Empty numeric/cell/existing objects follow
+the source empty/domain-error behavior; general parser parity remains open.
+See `docs/chebfun2v_empty_inputs_cpu_20261011.json`.
+
 Finite scalar deflation now follows source Newton with its nonlocal AD
 derivative. Painleve, Bratu and Herceg original tests pass; see STATUS.md and
 `docs/painleve_deflation_source_cpu_20261011.json` for compatibility and

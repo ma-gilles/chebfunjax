@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "title": "CPU sampled subdivision shared grid and recurrence compilation",
+  "base": {
+    "head": "22f8f3c9cda1c00813e2e70a61c096f8bfa4255f",
+    "status": ""
+  },
+  "source": {
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "native_files": [
+      "@chebtech/roots.m",
+      "@chebtech/clenshaw.m",
+      "@chebtech2/chebpts.m"
+    ],
+    "change": "Share padded grid and recurrence-state compilation by power-of-two capacity. Supply integer divisor normalization as dynamic metadata. Preserve exact quotient/remainder rounding, fdlibm sine, dynamic-endpoint affine helper, original recurrence degree, and original-n final epilogue/reflection/FFT. No tolerance, pivot, FFT length, or global division API changes.",
+    "scope": {
+      "changed_existing_definitions": [
+        "_roots_subdivide"
+      ],
+      "unchanged_existing_definitions": 102,
+      "baseline_sha256": "a143092634be69666e623f0c9455cdf2e92d087b4e67c20fb5112c8ef60a6317",
+      "candidate_sha256": "900aacb27c7170272234cc187a817773bccb006349cb2e23c32943ef34699fcb",
+      "eligibility": "CPU concretehost1Dfloat64,x64,513<n<=4000,finite;hostonlyintegernormalization/transferstorage",
+      "generic_fallback": "Nonfinite,otherdtype,devicearray,NDCToriginalrange; eagertracerrejection unchanged",
+      "global_binary64_changed": false
+    },
+    "numerics": "JAX numerical operations only. Host integer shape metadata and transfer storage only. No result cache or warmup."
+  },
+  "qualification": {
+    "backend": "CPU/x64 JAX and jaxlib0.11.0; byte identity is qualified on this backend/hardware, not a cross-compiler guarantee.",
+    "grids": "All 11 original active grids raw-bit identical.",
+    "dispatch": "All 106 retained actual subdivision outputs byte-identical through production dispatch.",
+    "regressions": "12 passed: 3 retained output cases, 3 original-grid cases, 5 fallback cases, unchanged source roots-inverse exp range/monocheck case.",
+    "whole_inverse": {
+      "scope": "One current frozen-source first inverse from retained exact forward coefficients. Compiler stack observer+cProfile+root capture overhead present; not performance qualification and not same setup warmth as formula construction.",
+      "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011/candidate/src/chebfunjax/__init__.py",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "cpu": "cpu",
+      "x64": true,
+      "affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "persistent_cache_dir": null,
+      "fixture_sha256": "8033c9b6ce0ba262a9be5a28795e0166c7a8d03f9891f143bf0099323775f382",
+      "setup_seconds": 0.11630161898210645,
+      "instrumented_inverse_seconds": 16.807829606812447,
+      "length": 8878,
+      "roundtrip_error": 1.0547118733938987e-15,
+      "coefficient_hashes": {
+        "coeffs_0": "5a7e4acd194df2cbda5286d1ffa8be1cde7769a5e6b4f7b98417f456df61eb36"
+      },
+      "subdivision_calls": 106,
+      "subdivision_lengths": [
+        51,
+        53,
+        54,
+        56,
+        58,
+        59,
+        60,
+        61,
+        62,
+        64,
+        65,
+        66,
+        67,
+        68,
+        72,
+        73,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        84,
+        87,
+        88,
+        89,
+        90,
+        92,
+        95,
+        100,
+        101,
+        102,
+        104,
+        113,
+        119,
+        122,
+        130,
+        132,
+        139,
+        142,
+        144,
+        145,
+        146,
+        149,
+        150,
+        155,
+        157,
+        166,
+        167,
+        168,
+        169,
+        189,
+        191,
+        192,
+        199,
+        237,
+        268,
+        274,
+        276,
+        277,
+        293,
+        294,
+        347,
+        349,
+        375,
+        384,
+        528,
+        539,
+        555,
+        557,
+        745,
+        755,
+        1051,
+        1061,
+        1484,
+        1491,
+        2091
+      ],
+      "leaf_calls": 107,
+      "leaf_lengths": [
+        23,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "whole_representation_exact": true,
+      "performance_scope": "Single instrumented integration observation; not matched whole-path performance."
+    },
+    "receipts": {
+      "production_controls": {
+        "original_handle": 59303,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011/run/receipt.json",
+        "sha256": "4f4b4da07f0211ad68ef9828e746c5e31d5f9856c722669c23b6f9066b1e2082",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 997384
+      },
+      "baseline_stage": {
+        "original_handle": 7985,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011/baseline_timing_run/receipt.json",
+        "sha256": "aeb71949907374959a3f24cab0a87e112e6b82433a01c90b7762648415c40dbe",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 625688
+      },
+      "candidate_stage": {
+        "original_handle": 5489,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011/candidate_timing_run/receipt.json",
+        "sha256": "e7bb2f1cfd243fe87165607492e2b0d1fb828717870bf9f883c6d723a0758c20",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 559512
+      },
+      "whole_inverse": {
+        "original_handle": 1092,
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011/whole/run/receipt.json",
+        "sha256": "382a24f811f2c187e661bd2c927aed601cb7f8d60b991af5ccb9affa11712368",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 953968
+      }
+    }
+  },
+  "performance": {
+    "scope": "Matched sequential fresh-process retained 11-input stage. All other local agent compute held. Backend initialized before stage; identical lightweight compiler observer. No whole inverse claim.",
+    "baseline_seconds": 5.687204664107412,
+    "candidate_seconds": 2.8688616496510804,
+    "stage_reduction_percent": 49.55585706706164,
+    "baseline_compile_modules": 11,
+    "candidate_compile_modules": 16,
+    "baseline_compile_seconds": 4.3031691098585725,
+    "candidate_compile_seconds": 2.135918962303549,
+    "candidate_compile_groups": {
+      "grid_and_states": {
+        "modules": 3,
+        "seconds": 0.979655459523201
+      },
+      "original_n_finish_fft": {
+        "modules": 11,
+        "seconds": 1.1439446089789271
+      },
+      "scalar_conversion": {
+        "modules": 2,
+        "seconds": 0.012318893801420927
+      }
+    },
+    "sampled_rss_kib": [
+      625688,
+      559512
+    ],
+    "sampled_rss_reduction_percent": 10.576517369679461,
+    "limitations": "Single matched fresh-process pair for retained stage. Whole inverse runtime is instrumented observation only. No native timing, general inverse speedup, or module-count reduction claim."
+  },
+  "rejected_predecessors": {
+    "state_only": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_state_candidate_20261011/REJECTION_REPORT.json",
+    "constant_folded_affine": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_grid_20261011/GRID_RESULT.json",
+    "reason": "State-only exact variant increased cold time; first dynamic grid variant changed affine contraction. Both preserved. Accepted successor retains original nested dynamic endpoint boundary."
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_candidate_20261011",
+  "root_review": {
+    "delivery_bindings_verified": 996,
+    "portable_test_guard_inputs_verified": 306,
+    "portable_tests": 11,
+    "portable_test_seconds": 8.706,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_portable_tests_20261011/run/receipt.json",
+    "test_scope": "Same-run raw-bit comparison with untouched original provider; captured fixture supplies inputs. Full inverse and original bound remain qualified by prior actual gate."
+  }
+}

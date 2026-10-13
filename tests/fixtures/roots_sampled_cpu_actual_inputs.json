@@ -1,0 +1,14 @@
+{
+  "source_package": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_remaining_cold_20261011",
+  "source_sha256": {
+    "subdivision_88.npz": "cca3945595354c2de32bf053a47039cfa4f704c14dab02295f70f1a67cc20068",
+    "subdivision_4.npz": "885bf5dcaad3910d10eb0f4d6db371256d971f61f25c4f375f164dc704b71574",
+    "subdivision_0.npz": "e6fd1e071b57a1cee23e5810b949b0a309c06fdb4c65f10f835d19312eea02f1"
+  },
+  "scope": "Unmodified CPU JAX0.11/x64 sampled-subdivision outputs from actual inverse forward fixture; not an independent native FFT oracle. Original source algorithm tolerances unchanged.",
+  "original_grid_bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_grid_20261011/v2/subdivision_88_grid.npz": "f87c0ee61a4f4a3731b17720f9405b9c5a87c49918a375a4b573d37cf163dd09",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_grid_20261011/v2/subdivision_4_grid.npz": "1f593fbd48105f7693c60fe9401257c7e18e8be2d4b34bbb192b823653b8400d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_dynamic_grid_20261011/v2/subdivision_0_grid.npz": "3c0dc7b4d6f6e118e13ffdd217432a4370c23d4fcf6a84acd34beadeeb64bd07"
+  }
+}

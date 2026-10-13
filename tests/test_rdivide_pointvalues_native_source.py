@@ -15,7 +15,7 @@ from chebfunjax.chebfun1d.chebfun import Chebfun
     enumerate(([0.0, 1.0], [0.0 + 0j, 1.0 + 0j], [0.0, 1.0 + 1j], [1j, 1.0]), 1),
 )
 def test_native_complex_denominator_pointvalues(index, coefficients):
-    r = Path(__file__).resolve().parents[2] / "native_complex_denominator_v1"
+    r = Path(__file__).parent / "fixtures" / "rdivide_pointvalues_native" / "native_complex_denominator_v1"
     native = loadmat(r / f"case{index}.mat", simplify_cells=True)["rec"]
     quotient = 1 / Chebfun.from_coeffs(jnp.asarray(coefficients))
     np.testing.assert_allclose(quotient.point_values, native["pointValues"], rtol=0, atol=2e-14)
@@ -26,7 +26,7 @@ def test_native_complex_denominator_pointvalues(index, coefficients):
 
 @pytest.mark.parametrize("index,numerator", enumerate((1, -1, 1j, 1 + 1j, complex(1, 0), 0), 1))
 def test_native_scalar_numerator_zero_pointvalues(index, numerator):
-    r = Path(__file__).resolve().parents[2] / "native_zero_pointvalues_v1"
+    r = Path(__file__).parent / "fixtures" / "rdivide_pointvalues_native" / "native_zero_pointvalues_v1"
     native = loadmat(r / f"case{index}.mat", simplify_cells=True)["rec"]
     quotient = numerator / Chebfun.from_coeffs(jnp.asarray([0.0, 1.0]))
     np.testing.assert_allclose(quotient.domain.breakpoints, native["domain"], rtol=0, atol=0)

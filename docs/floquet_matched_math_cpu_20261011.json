@@ -1,0 +1,50 @@
+{
+  "actual_frozen_head": "22f8f3c9cda1c00813e2e70a61c096f8bfa4255f",
+  "scientific_execution": "One targeted exact-current-source four-IVP state-recovery run followed by unchanged suffix on the same objects, public initial_conditions argument equals fresh native x0. No endpoint substitution/reconstructed functions used.",
+  "actual_source_original_handle": 69800,
+  "actual_source_outcome": "terminal1 AFTER all source math/two renders/source.stdout and state artifacts were saved; recorder failed native sample shape comparison. This receipt is not relabeled clean.",
+  "offline_recovery_original_handle": 95085,
+  "offline_recovery_outcome": "terminal0; no IVP/periodic/trajectory reconstruction; verifies288 saved arrays raw-identical, corrects nativefeval shape adapter and records independent actualPhiT warning event.",
+  "timing": "Original observer pytest reports50.79s including source/capture/failed comparison; owned wall61.0202s, peak2446768KiB. No pure-source wall was durably recorded, so do not invent exact source elapsed or separate IVP timings.",
+  "native_comparison_maxabs": {
+    "solution_maxabs": 6.781225342402306e-14,
+    "PhiT_maxabs": 3.58046925441613e-15,
+    "B_maxabs": 1.7862819696113195e-15,
+    "P_0_0_maxabs": 4.229880516439846e-15,
+    "P_0_1_maxabs": 2.171330583734304e-15,
+    "P_0_2_maxabs": 4.4027596229255e-15,
+    "P_0_3_maxabs": 3.1268957261523853e-15,
+    "P_1_0_maxabs": 6.663419490763065e-15,
+    "P_1_1_maxabs": 3.8581248494806475e-15,
+    "P_1_2_maxabs": 7.177272003241502e-15,
+    "P_1_3_maxabs": 3.701495052593046e-15,
+    "P_2_0_maxabs": 4.679778539269842e-15,
+    "P_2_1_maxabs": 2.900988810386711e-15,
+    "P_2_2_maxabs": 3.824331575279093e-15,
+    "P_2_3_maxabs": 2.5724867117069778e-15,
+    "P_3_0_maxabs": 7.217783939387126e-15,
+    "P_3_1_maxabs": 3.745666090146335e-15,
+    "P_3_2_maxabs": 6.218240129447692e-15,
+    "P_3_3_maxabs": 4.510174284062423e-15
+  },
+  "bounds": "Original example has no numerical acceptance predicate; reported differences remain observations, not invented tolerance claims.",
+  "representation_gap": "Python xsol component coefficients222/202/222/202; native array-valued xsol221\u00d74. PointValues/nodal states now saved completely for this fresh run.",
+  "prior_prefix_PhiT_B_raw_equal": {
+    "PhiT": true,
+    "B": true
+  },
+  "warning_scope": "Source helper is present in exact22f8 bytes. Original catch-recorded warning metadata was not saved before observer comparison failure. Recovery separately evaluates helper on actual saved PhiT and observes one source warning, provider/division rawbytes preserved. No deprecatedvertcat warning fabricated.",
+  "historical_limits": [
+    "Fresh native initial vector/RNG state is not historical cached-image state.",
+    "Both renderedfigures are600\u00d7270 with unchanged frozen source-specific geometry, plottingmath/functions exact22f8. They have been visually inspected against cached refs; trajectory and some periodic-plot appearances differ.",
+    "No native graphics capture or historicalpixelparity claim.",
+    "Old coefficient-only rebuild right-endpoint discrepancy8.58e-13 and all failed/diagnostic receipts preserved. Restoring known savedright endpoints was diagnostic only, never finalpagepath."
+  ],
+  "publication": "Qualification record only; no code, page output or figure replacement from this matched numeric capture. Native graphics followthrough remains in progress.",
+  "root_review": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_retained_suffix_20261011/ROOT_REVIEW.json",
+    "sha256": "c8c8ae993a7377cb37777933c714980c138850ad566d47e546599f2ba89c0af6",
+    "delivery_sha256": "805b258440a7d5b6c8a1455d774751cb75d0736ce42d1706c28e5d480feaa6ae",
+    "verified_bindings": 49
+  }
+}

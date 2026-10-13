@@ -157,7 +157,9 @@ class Chebfun2v(eqx.Module):
 
         Notes
         -----
-        Construction is NOT JIT-safe.
+        Construction is NOT JIT-safe. No arguments or all-empty components
+        return the canonical empty field. Mixed empty/nonempty components
+        raise the native domain error. An empty cell is a distinct invalid input.
 
         Provenance
         ----------
@@ -166,18 +168,29 @@ class Chebfun2v(eqx.Module):
         """
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
+        if not fns:
+            return cls.empty()
+
         # Native constructor scans existing components for an omitted domain
         # and preserves their representation instead of evaluating/refitting.
         if domain is None:
             domain = (-1.0, 1.0, -1.0, 1.0)
             for f in fns:
                 if isinstance(f, (Chebfun2, SeparableApprox)):
-                    domain = f.domain
+                    # Empty Chebfun2 has no approximation in the Python
+                    # representation. Empty-component compatibility is checked
+                    # after all components have been constructed below.
+                    if not isinstance(f, Chebfun2) or not f.isempty():
+                        domain = f.domain
         # Native domain discovery precedes one-level cell unwrapping. Use
         # JAX arrays for numeric matrices; Python lists/tuples denote cells.
         fns = tuple(component for f in fns
                     for component in (f if isinstance(f, (list, tuple)) else (f,)))
-        if len(fns) < 1 or len(fns) > 3:
+        if not fns:
+            # An empty native cell never initializes the local fh variable;
+            # it is distinct from a numeric empty or a no-argument call.
+            raise ValueError("MATLAB:UndefinedFunction: Unrecognized function or variable 'fh'.")
+        if len(fns) > 3:
             raise ValueError(
                 f"Chebfun2v.from_functions requires 1, 2 or 3 components, got {len(fns)}."
             )
@@ -196,16 +209,23 @@ class Chebfun2v(eqx.Module):
                 f, (Chebfun2, SeparableApprox)) else f for f in fns)
         # Callable input uses the public Chebfun2 constructor; existing
         # Chebfun2 inputs retain their exact approximation.
-        comps = [
-            f.approx
-            if isinstance(f, Chebfun2)
-            else f
-            if isinstance(f, SeparableApprox)
-            else Chebfun2.from_function(f, domain=domain, tol=tol).approx
-            if callable(f)
-            else Chebfun2.from_values(f, domain=domain, tol=tol).approx
-            for f in fns
-        ]
+        def component(f):
+            if isinstance(f, SeparableApprox):
+                return f
+            if not isinstance(f, Chebfun2):
+                f = (Chebfun2.from_function(f, domain=domain, tol=tol)
+                     if callable(f) else Chebfun2.from_values(f, domain=domain, tol=tol))
+            return None if f.isempty() else f.approx
+
+        comps = [component(f) for f in fns]
+        empty = [c is None or (not c.cols and not c.rows) for c in comps]
+        # Native domainCheck accepts two empties and rejects exactly one
+        # empty, even when their nominal rectangle would otherwise match.
+        if all(empty):
+            return cls.empty()
+        if any(empty):
+            raise ValueError("CHEBFUN:CHEBFUN2V:chebfun2v:domainCheck: "
+                             "All chebfun2 objects need to have the same domain.")
         return cls(comps)
 
     @classmethod

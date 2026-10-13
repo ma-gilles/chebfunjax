@@ -1,0 +1,10 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_handle": 61046,
+  "version": "25.2.0.3055257 (R2025b) Update 2",
+  "driver": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_empty_inputs_20261011/driver.m",
+  "driver_sha256": "a03a2dc8177399f48f064e7524eb8455af29e330ccab3d809b3408b610e78fda",
+  "objects_sha256": "2bed18d3e55457dfe5ceff7eebf8c09803a42c4a2d40156d8f7147975be63af1",
+  "observations_sha256": "b3fd00032e0cedbd349f553e8ff40688dba012c09044d51bf540229ee0db427f",
+  "scope": "Twelve actual empty numeric/cell/existing constructor controls; public isempty and errors. Empty subsref returns [] for field access, so metadata is not a private-storage inventory."
+}
