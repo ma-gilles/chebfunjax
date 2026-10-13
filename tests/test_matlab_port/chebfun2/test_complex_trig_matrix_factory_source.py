@@ -1,4 +1,4 @@
-"""Independent complex periodic matrix-constructor control (draft; unrun).
+"""Independent complex periodic matrix-constructor control.
 
 The sampled matrix uses MATLAB's trig grid on a non-square physical domain.
 An analytic Fourier sum supplies independent source-grid and off-grid

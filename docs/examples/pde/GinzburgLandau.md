@@ -72,7 +72,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-  18.333291047951207
+  16.550083621870726
 ```
 
 ## 3. Beginnings of chaos
@@ -111,7 +111,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-  15.312884354032576
+  7.131884404923767
 ```
 
 ## 4. Chaos
@@ -149,7 +149,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-  21.205988133093342
+  17.020547407213598
 ```
 
 ## 5. A bigger canvas
@@ -197,7 +197,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-  17.804129149066284
+  27.351599600631744
 ```
 
 ## 6. References

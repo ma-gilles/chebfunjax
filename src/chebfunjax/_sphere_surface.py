@@ -1,6 +1,7 @@
-"""Vertex-color interpolation for source sphere surfaces.
+"""Vertex-color interpolation for source gridded surfaces.
 
-Source @spherefun/surf.m7574c77 requests FaceColor interp, EdgeColor none.
+Sources @spherefun/surf.m and @separableApprox/surf.m7574c77 request
+FaceColor interp, EdgeColor none.
 Matplotlib plot_surface paints a constant color per polygon. This adapter
 retains the input vertices and RGBA, splits each quad along a fixed diagonal,
 and submits depth-ordered Gouraud triangles to the output renderer. Native
@@ -34,7 +35,21 @@ class InterpolatedSphereSurface(Poly3DCollection):
         self._triangle_rgba = rgba.reshape(-1, 4)[indices]
         super().__init__([], edgecolors="none", **kwargs)
 
+    def set_vertex_scalars(self, values, cmap, norm):
+        """Attach scaled CData for colorbars and later cmap/clim updates."""
+        values = np.asarray(values)
+        if values.shape != self._source_vertices.shape[:2]:
+            raise ValueError("vertex scalar data must match the coordinate grid")
+        self._source_scalar_values = values.copy()
+        self.set_cmap(cmap)
+        self.set_norm(norm)
+        self.set_array(values.ravel())
+
     def do_3d_projection(self):
+        if hasattr(self, "_source_scalar_values"):
+            rgba = self.to_rgba(self._source_scalar_values)
+            self._source_rgba = rgba
+            self._triangle_rgba = rgba.reshape(-1, 4)[self._triangle_indices]
         xyz = self._triangle_xyz.reshape(-1, 3)
         x, y, z = proj3d.proj_transform(xyz[:, 0], xyz[:, 1], xyz[:, 2], self.axes.M)
         xy = np.stack((x, y), axis=-1).reshape(-1, 3, 2)
@@ -64,6 +79,12 @@ class InterpolatedSphereSurface(Poly3DCollection):
         finally:
             gc.restore()
         self.stale = False
+
+
+# Generic name for the same Cartesian-grid implementation; retain the original
+# sphere name for existing renderer callers. No radius or spherical topology
+# enters its projection, triangulation, or vertex-color interpolation.
+InterpolatedSurface = InterpolatedSphereSurface
 
 
 class InterpolatedSurfaceGroup(InterpolatedSphereSurface):

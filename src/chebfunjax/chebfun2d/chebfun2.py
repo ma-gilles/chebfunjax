@@ -2713,19 +2713,39 @@ class Chebfun2(eqx.Module):
         Chebfun2.exp, Chebfun2.sin, Chebfun2v
         """
         dom = self.approx.domain
+        tech_x, tech_y = self.approx.techs
+        periodic_tech = {
+            "trigx": tech_x == "trig",
+            "trigy": tech_y == "trig",
+        }
         n_out = _compose_arity(op)
         if n_out == 1:
             return Chebfun2.from_function(
                 lambda x, y: op(self(x, y)), domain=dom,
-                trig=self.isPeriodicTech())
+                **periodic_tech)
         from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 
-        comps = [
-            Chebfun2.from_function(
-                (lambda x, y, _k=k: op(self(x, y))[..., _k]), domain=dom
-            ).approx
-            for k in range(n_out)
-        ]
+        # MATLAB @chebfun2/compose.m composes each column of an
+        # array-valued outer Chebfun separately. This also avoids assuming
+        # that a packed multi-column evaluation places components on its
+        # trailing axis: Chebfun feval preserves MATLAB's column-first
+        # layout for some query shapes.
+        if hasattr(op, "extract_columns") and hasattr(op, "n_columns"):
+            comps = []
+            for k in range(n_out):
+                op_column = op.extract_columns(k)
+                comps.append(Chebfun2.from_function(
+                    lambda x, y, _op=op_column: _op(self(x, y)),
+                    domain=dom, **periodic_tech).approx)
+        else:
+            # Chebfun2v callables expose components on the trailing axis.
+            comps = [
+                Chebfun2.from_function(
+                    (lambda x, y, _k=k: op(self(x, y))[..., _k]),
+                    domain=dom, **periodic_tech)
+                .approx
+                for k in range(n_out)
+            ]
         return Chebfun2v(comps)
 
     def isPeriodicTech(self) -> bool:
@@ -2850,9 +2870,15 @@ class Chebfun2(eqx.Module):
             trig=self.isPeriodicTech())
 
     def plot(self, **kwargs):
-        """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""
-        from chebfunjax.plotting import surf
-        return surf(self, **kwargs)
+        """Real surface or complex phase portrait.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/plot.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        from chebfunjax.plotting import plot_chebfun2
+        return plot_chebfun2(self, **kwargs)
 
     def surf(self, **kwargs):
         """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""

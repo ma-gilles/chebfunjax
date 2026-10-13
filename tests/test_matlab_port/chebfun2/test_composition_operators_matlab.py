@@ -5,10 +5,9 @@ composition operators (cos/cosh/sin/sinh/...), ``compose`` with a
 Chebfun, an array-valued Chebfun (giving a Chebfun2v), and a Chebfun2,
 plus ``isPeriodicTech``.
 
-MATLAB pass(11-13, 15, 16) build 'trig' Chebfun2s; the trigonometric
-tech option is not wired into the Chebfun2 constructor (the
-SeparableApprox techs field exists but only 'cheb' is reachable), so
-those five assertions are not ported -- see test_trig_matlab.py.
+The source pass(13) periodic array-valued composition is covered below,
+including its inherited periodic technology. The other periodic composition
+assertions (pass(11-12, 15-16)) remain unported.
 
 Provenance
 ----------
@@ -101,6 +100,49 @@ class TestChebfun2Compositionoperators:
                                           lambda x, y: (x + y) ** 2)
         assert H.n_components == 2
         assert float((H - H_true).norm()) < TOL
+
+    def test_array_valued_compose_preserves_one_axis_periodicity(self):
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(jnp.pi * x) + y, trigx=True)
+        G = cj.chebfun(lambda t: jnp.stack([t, t ** 2], axis=-1),
+                       domain=(-2.0, 2.0))
+
+        H = f.compose(G)
+
+        assert H.n_components == 2
+        assert [component.techs for component in H.components] == [
+            ("trig", "cheb"), ("trig", "cheb")]
+        H_true = Chebfun2v.from_functions(
+            lambda x, y: jnp.cos(jnp.pi * x) + y,
+            lambda x, y: (jnp.cos(jnp.pi * x) + y) ** 2)
+        assert float((H - H_true).norm()) < TOL
+
+    def test_scalar_compose_preserves_one_axis_periodicity(self):
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(jnp.pi * x) + y, trigx=True)
+        g = cj.chebfun(lambda t: t ** 2, domain=(-2.0, 2.0))
+
+        h = f.compose(g)
+
+        assert h.approx.techs == ("trig", "cheb")
+        h_true = Chebfun2.from_function(
+            lambda x, y: (jnp.cos(jnp.pi * x) + y) ** 2, trigx=True)
+        assert float((h - h_true).norm()) < TOL
+
+    def test_array_valued_compose_periodic_native_pass13(self):
+        # Native tests/chebfun2/test_composition_operators.m pass(13).
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(jnp.pi * x) * jnp.sin(y),
+            domain=(-1.0, 1.0, -jnp.pi, jnp.pi), trig=True)
+        G = cj.chebfun(lambda t: jnp.stack([t, jnp.cos(t)], axis=-1),
+                       domain=(-1.0, 1.0))
+
+        H = f.compose(G)
+
+        assert H.n_components == 2
+        assert all(component.techs == ("trig", "trig")
+                   for component in H.components)
+        assert H.is_periodic_tech()
 
     def test_compose_complex_with_chebfun2(self):
         # pass(14): compose(x + 1i*y, g) evaluates g at (x, y).

@@ -29,7 +29,8 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, phaseplot, surf
+from chebfunjax._colormaps import parula_colormap
+from chebfunjax.plotting import chebfun_style, matlab_axis_equal, matlab_view, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.spin.solver2d import spin2 as _spin2
 from chebfunjax.spin.spinop2 import SpinOp2
@@ -62,13 +63,8 @@ def spinop2(dom, tspan):
 
 
 def _values2chebfun2(U, dom):
-    """chebfun2(vals, dom, 'trig') for the complex solution values.
-
-    cj.chebfun2 of a COMPLEX value matrix with trig=True returns wrong
-    values, so the real and imaginary parts are built separately."""
-    V = np.asarray(U).T                      # rows = y, as MATLAB
-    return (cj.chebfun2(V.real, domain=dom, trig=True)
-            + 1j * cj.chebfun2(V.imag, domain=dom, trig=True))
+    """Source complex matrix constructor; rows=y, columns=x."""
+    return cj.chebfun2(np.asarray(U).T, domain=dom, trig=True)
 
 
 def spin2(S, npts, dt):
@@ -87,9 +83,11 @@ def spin2(S, npts, dt):
 def _plot(u):
     """plot(u), view(0,90), axis equal, axis off."""
     FIG[0] += 1
-    fig, ax = surf(u, n_pts=200)
-    ax.view_init(elev=90, azim=-90)
-    ax.set_box_aspect((1, 1, 1e-3))
+    # Official R2016a table at the historical64-color length: matched-field
+    # controls support reference compatibility, not the cached PNG's release.
+    fig, ax = surf(u, n_pts=200, cmap=parula_colormap(64, version="R2016a"))
+    matlab_view(ax, 0, 90)
+    matlab_axis_equal(ax)
     ax.set_axis_off()
     fig.set_facecolor("white")
     _savefig(fig, os.path.join(_IMG, f"GinzburgLandau_{FIG[0]:02d}.png"))
@@ -99,10 +97,7 @@ def _plot(u):
 def _plot_phase(u):
     """plot(u) for a complex chebfun2: phase portrait of angle(-u)."""
     FIG[0] += 1
-    dom = [float(v) for v in u.domain]
-    fig, ax = phaseplot(lambda z: -np.asarray(u(jnp.asarray(z.real),
-                                                 jnp.asarray(z.imag))),
-                        region=dom, n_pts=500)
+    fig, ax = u.plot()
     ax.set_axis_off()
     fig.set_facecolor("white")
     _savefig(fig, os.path.join(_IMG, f"GinzburgLandau_{FIG[0]:02d}.png"))

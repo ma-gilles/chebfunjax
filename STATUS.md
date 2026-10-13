@@ -1,3 +1,59 @@
+## Chebfun2 composition CI repair — 2026-10-13
+
+Array-valued outer Chebfuns now compose one scalar column at a time, as in
+the MATLAB source, preserving native matrix-query output layout. Scalar and
+vector composition also inherit periodicity separately on each axis.
+Thirteen focused private controls passed; the merged publication checkout
+passed nine composition/phase-plot integration tests in 37.26s, with stable
+source guards and no surviving processes. The original CI predicate passes
+with its unchanged 1000-epsilon bound. See
+`docs/chebfun2_compose_array_cpu_20261013.json`.
+
+A second failure in preceding-main CI is now identified: unbounded logical
+inequality returns NaNs because logical equality rebuilds bounded pieces on
+an infinite domain. That source-based repair is in progress. Core shard3 also stopped on a runner shutdown signal (no assertion failure
+shown); the coverage dependency gate consequently failed. Current-main CI,
+full native assertion coverage, and complete page/figure parity remain open.
+
+## Surface and complex phase rendering — 2026-10-13
+
+Source-based surface rendering now interpolates vertex colors, uses the exact
+Parula table, and preserves equal physical units in topdown views. Complex
+Chebfun2 plots now follow the native 500-by-500 phase-portrait branch with
+HSV(600). The graphics candidate passed 61 focused CPU controls, including
+existing sphere/camera tests and colorbar/custom-option compatibility.
+
+The full Ginzburg–Landau candidate completed in 102.46s with nine 600-by-270
+figures and stable input guards. Its first spiral now closely matches cached
+reference geometry and palette. The final phase portrait still differs in
+its evolved field; matched native state/coefficient replays demonstrate roundoff amplification
+but do not establish late-field parity. See
+`docs/gl_evolution_roundoff_cpu_20261013.md` for evidence.
+The explicit R2016a palette is a reference-compatibility inference, not proof
+of the reference's generating runtime. Exact pixels and broader page figure
+parity remain open. See `docs/gl_surface_phase_cpu_20261013.json`.
+
+CI run 38421149742 on preceding main e73957d4 reported one Chebfun2 composition
+failure with 454 tests passing in that shard. The array-valued composition
+caller repair is qualified above; the separate unbounded logical failure
+is still under repair. Full goal completion remains open.
+
+## Fresh Krylov indefinite source comparison — 2026-10-13
+
+The exact indefinite MINRES clause from `ode-linear/Krylov.m` now has fresh
+CPU captures against MATLAB Chebfun 7574c77. Both use breakpoints [-1,0,1]
+and identical piece lengths; solution samples differ by at most 1.34e-14.
+The source quantity `norm(u_minres-u_colloc)` is 3.13e-15 in Python and
+1.37e-14 in MATLAB. The example defines no acceptance threshold for this
+quantity, so these are observations, not a newly invented pass criterion.
+
+Both completed captures exited successfully with stable source guards and
+no surviving owned processes. Resource and harness failures remain recorded;
+run timings are unpaired observations. See
+`docs/krylov_indefinite_native_cpu_20261013.json` for hashes and comparisons.
+The complete page, preconditioned variable-coefficient clause, residual plots,
+full parity, and current-main CI remain unresolved.
+
 ## Fresh public inverse CPU measurements — 2026-10-13
 
 At 7c750029, Python and pinned MATLAB Chebfun independently constructed the

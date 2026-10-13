@@ -297,8 +297,11 @@ def parula_colors(m):
     return (1-fraction[:, None])*values[left] + fraction[:, None]*values[left+1]
 
 
-def parula_colormap(m):
+def parula_colormap(m, *, version="R2018a"):
     """Build a renderer palette with exactly m listed colors.
+
+    ``version="R2018a"`` retains the default post-R2017a table. Select
+    ``version="R2016a"`` explicitly for the official pre-R2017a table.
 
     Provenance
     ----------
@@ -308,6 +311,11 @@ def parula_colormap(m):
     but cannot provide a usable renderer palette.
     Chebfun commit: 7574c77.
     """
+    if version == "R2016a":
+        from chebfunjax._parula_2016a import parula_2016a_colormap
+        return parula_2016a_colormap(m)
+    if version != "R2018a":
+        raise ValueError("supported Parula versions are R2016a and R2018a")
     from matplotlib.colors import ListedColormap
 
     m = operator.index(m)

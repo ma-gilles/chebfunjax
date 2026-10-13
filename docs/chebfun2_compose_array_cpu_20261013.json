@@ -1,0 +1,144 @@
+{
+  "base_head": "e73957d4626f47f0895ddd5d99f05bb4d4dc6da6",
+  "baseline_failure": {
+    "actual_norm": 4.50184972865172,
+    "ci_summary": "1 failed, 454 passed",
+    "failure_node": "tests/test_matlab_port/chebfun2/test_composition_operators_matlab.py::TestChebfun2Compositionoperators::test_compose_with_array_valued_chebfun",
+    "log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_e739_failure_20261013/chebfun2d.log",
+    "sha256": "2cf9ff02384a80a6dda3fae2f1666074ef8694c5860c1305f3e5fdcb35c96732",
+    "unchanged_assertion_bound": 2.220446049250313e-13
+  },
+  "candidate_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013",
+  "changed_file_sha256": {
+    "src/chebfunjax/chebfun2d/chebfun2.py": "27e55175d2fbc3204e4a03412a0538cc1ce7f264faafa95f9b86acf953e482db",
+    "tests/test_matlab_port/chebfun2/test_composition_operators_matlab.py": "268386e4ae8fd0e47ae0878e7253e2c64a86103b682766140ec1d9329b3a9727"
+  },
+  "changed_files": [
+    "src/chebfunjax/chebfun2d/chebfun2.py",
+    "tests/test_matlab_port/chebfun2/test_composition_operators_matlab.py"
+  ],
+  "fix_summary": [
+    "For array-valued 1D Chebfuns, extract each scalar outer column before composing, matching @chebfun2/compose.m and avoiding component-axis assumptions in packed matrix-query output.",
+    "Preserve source periodic technology per axis (trigx/trigy) for scalar, array-valued Chebfun, and Chebfun2v output construction."
+  ],
+  "focused_tests": [
+    "Original CI array-valued Chebfun composition regression (same assertion and unchanged tolerance).",
+    "Array-valued composition with trigx-only input; tests exact per-axis tech preservation.",
+    "Scalar Chebfun composition with trigx-only input; covers source periodic inheritance in n_out==1.",
+    "Native tests/chebfun2/test_composition_operators.m pass(13), periodic array-valued Chebfun composition.",
+    "Existing complex Chebfun2 composition, independent periodic-axis/real-imag source controls, and Chebfun2v scalar/vector compose control."
+  ],
+  "gates": [
+    {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "name": "gate_A2",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/gate_A2/supervisor/receipt.json",
+      "receipt_sha256": "6eca88718327af49a55894f05cab7b3d653752b0e4dee1198099fe04ee51865d",
+      "remaining_owned_pids": [],
+      "rss_mib_cap": 3072.0,
+      "runtime": {
+        "backend": "cpu",
+        "cpus": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "import_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/src/chebfunjax/__init__.py",
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "numpy": "2.4.3",
+        "phase": "runtime_import_assertions_passed",
+        "python": "3.12.13",
+        "scipy": "1.17.1",
+        "x64": true
+      },
+      "sampled_peak_summed_rss_kib": 2342892,
+      "summary": "======================== 5 passed, 1 warning in 36.32s =========================",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 45.62820318387821
+    },
+    {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "name": "gate_B",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/gate_B/supervisor/receipt.json",
+      "receipt_sha256": "412bd577189233a92e1a6e694453e24557af5507ceaf41520ee155a5058eecca",
+      "remaining_owned_pids": [],
+      "rss_mib_cap": 3072.0,
+      "runtime": {
+        "backend": "cpu",
+        "cpus": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "import_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/src/chebfunjax/__init__.py",
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "numpy": "2.4.3",
+        "phase": "runtime_import_assertions_passed",
+        "python": "3.12.13",
+        "scipy": "1.17.1",
+        "x64": true
+      },
+      "sampled_peak_summed_rss_kib": 1434572,
+      "summary": "======================== 8 passed, 1 warning in 16.48s =========================",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 22.71027474012226
+    }
+  ],
+  "limitations": "Private focused qualification only. No full example, plotting-output comparison, or publication integration gate has run. Parent requested a separate combined gate after integrating into P.",
+  "patch_file": "compose_array_fix.patch",
+  "patch_sha256": "25716d2145af5d6ca7bd08c36c11afbd195f2aed5707b01fd0213e874945bc51",
+  "separate_failed_attempts": [
+    {
+      "censored_limit": "sampled_summed_RSS_cap",
+      "completed_test_dots_before_censor": 8,
+      "name": "initial_19_selection",
+      "reason_for_split": "The combined candidate selection accumulated JAX memory to the 3072 MiB sampled RSS cap; focused shards below each pass fresh-process guards.",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/gate_run/supervisor/receipt.json",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3168648,
+      "supervisor_exit_code": 137,
+      "tests_collected": 19,
+      "wall_seconds": 74.05477683106437
+    },
+    {
+      "detail": "Three candidate tests passed; pass(13) test used nonexistent camel-case H.isPeriodicTech on Chebfun2v. Corrected to is_periodic_tech before final gates.",
+      "name": "first_group_A_test_authoring_error",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun2_compose_array_candidate_20261013/gate_A/supervisor/receipt.json",
+      "supervisor_exit_code": 1
+    }
+  ],
+  "source_basis": {
+    "M_HEAD": "7574c77680d7e82b79626300bf255498271a72df",
+    "P_HEAD": "e73957d4626f47f0895ddd5d99f05bb4d4dc6da6",
+    "matlab_compose_sha256": "35f7336c84ace80b63cb4b832d9a4e784659ddab4e363d2919e9a1b56d72316a",
+    "matlab_composition_tests_sha256": "4fdac2490de124ccfca0051b6aeab49208894e9c49a40aea2c105943d0adf8fd"
+  },
+  "state": "private_candidate_no_publication_edits",
+  "static_checks": {
+    "bash_n_launcher": "passed",
+    "git_diff_check": "passed",
+    "python_ast_parse": "passed",
+    "ruff_f821": "passed"
+  },
+  "publication_integration": {
+    "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/graphics_compose_integration_20261013/supervision_v2/receipt.json",
+    "receipt_sha256": "ce8c2c9f63efe63c2973ee77c24409f346deba86c9c2ee8435a72ccca55c8ffc",
+    "tests_passed": 9,
+    "pytest_seconds": 37.26,
+    "supervisor_wall_seconds": 46.39209284679964,
+    "sampled_peak_summed_rss_kib": 2476944,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "scope": "Combined publication composition and phase-plot dispatch controls on merged source.",
+    "initial_harness_attempt": "Supervisor rejected mismatched inherited environment guard before launching any test; successor supplied explicit CPU/x64/CUDA settings."
+  },
+  "publication_chebfun2_sha256": "f901edf3d13d863df873b6f66f5ac5c7b52990f9c35e3f388c92defd5ff702ca"
+}

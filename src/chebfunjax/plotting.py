@@ -248,26 +248,18 @@ def _eval_2d_vectorized(f2, XX: np.ndarray, YY: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 def _make_parula_cmap():
-    """Build a close approximation of MATLAB's parula colormap.
+    """Return the exact 256-row reference-era Parula renderer table.
 
-    Parula goes from dark blue -> teal -> yellow.  This 9-anchor
-    linear-segment approximation is visually indistinguishable from the
-    real thing at typical monitor resolutions.
+    The R2018a table is also available at explicit lengths through
+    ``parula_colormap(m)``. Its historical default length was 64; this
+    renderer retains its established 256-color default. Constructing the
+    listed table requires no device initialization at module import.
     """
-    from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.colors import ListedColormap
 
-    _parula_data = [
-        (0.2422, 0.1504, 0.6603),
-        (0.2810, 0.3228, 0.9579),
-        (0.1786, 0.5289, 0.9682),
-        (0.0689, 0.6948, 0.8394),
-        (0.1280, 0.7890, 0.5920),
-        (0.4676, 0.7804, 0.3723),
-        (0.7914, 0.7314, 0.1725),
-        (0.9763, 0.8312, 0.0538),
-        (0.9769, 0.9839, 0.0805),
-    ]
-    return LinearSegmentedColormap.from_list("parula", _parula_data, N=256)
+    from chebfunjax._colormaps import _PARULA_R2018A
+
+    return ListedColormap(_PARULA_R2018A, name="parula_r2018a_256", N=256)
 
 
 PARULA = _make_parula_cmap()
@@ -356,9 +348,73 @@ class _SurfaceFrameAxes(Axes3D):
     """
 
     def apply_aspect(self, position=None):
+        topdown_fit = (getattr(self, "_chebfun_topdown_autofit", False)
+                       and abs(float(self.elev)) == 90.0
+                       and self._focal_length == np.inf)
+        if self.get_aspect() != "auto" and not topdown_fit:
+            # Equal data units require Matplotlib's physical-square projection
+            # frame. A rectangular viewport otherwise stretches that frame.
+            return super().apply_aspect(position)
         if position is None:
             position = self.get_position(original=True)
         self._set_position(position, 'active')
+        if topdown_fit:
+            self._fit_equal_topdown_limits()
+
+    def _fit_equal_topdown_limits(self):
+        """Native axis-equal auto limits, from source spans and physical box."""
+        xlim, ylim, zlim = self._chebfun_equal_source_limits
+        width, height = self.bbox.width, self.bbox.height
+        dx, dy = xlim[1] - xlim[0], ylim[1] - ylim[0]
+        if width <= 0 or height <= 0 or dx <= 0 or dy <= 0:
+            return
+        if dx / width < dy / height:
+            center = sum(xlim) / 2.0
+            span = dy * width / height
+            xlim = (center - span/2.0, center + span/2.0)
+        else:
+            center = sum(ylim) / 2.0
+            span = dx * height / width
+            ylim = (center - span/2.0, center + span/2.0)
+        self.set_xlim3d(xlim)
+        self.set_ylim3d(ylim)
+        self.set_box_aspect((xlim[1]-xlim[0], ylim[1]-ylim[0], zlim[1]-zlim[0]))
+
+    def get_proj(self):
+        matrix = super().get_proj()
+        if not (getattr(self, "_chebfun_topdown_autofit", False)
+                and self.get_aspect() != "auto"
+                and abs(float(self.elev)) == 90.0
+                and self._focal_length == np.inf):
+            return matrix
+        # Orthographic topdown equal-unit camera fit. Use the actual data
+        # rectangle and current axes viewport, so resize/save needs no fixed
+        # zoom or pixel constants. Preserve the depth row and real z values.
+        from mpl_toolkits.mplot3d import proj3d
+        # The normal projection assumes equally scaled projection coordinates.
+        # Compensate their current physical pixel scales before fitting. Keep
+        # the original rectangular viewport, including nonsquare domains.
+        basis = self.transData.transform([[0., 0.], [1., 0.], [0., 1.]])
+        unit_pixels = np.linalg.norm(basis[1:] - basis[0], axis=1)
+        matrix = matrix.copy()
+        matrix[0] *= unit_pixels[1] / unit_pixels[0]
+        x0, x1 = self.get_xlim3d()
+        y0, y1 = self.get_ylim3d()
+        zmid = sum(self.get_zlim3d()) / 2.0
+        x, y, _ = proj3d.proj_transform(
+            np.array([x0, x1, x1, x0]), np.array([y0, y0, y1, y1]),
+            np.full(4, zmid), matrix)
+        lo = np.array([np.min(x), np.min(y)])
+        hi = np.array([np.max(x), np.max(y)])
+        target = self.transData.inverted().transform(self.bbox.get_points())
+        spans = hi - lo
+        if np.all(np.isfinite(spans)) and np.all(spans > 0):
+            scale = float(np.min((target[1] - target[0]) / spans))
+            shift = (target[0] + target[1] - scale * (lo + hi)) / 2.0
+            matrix = matrix.copy()
+            matrix[0] = scale * matrix[0] + shift[0] * matrix[3]
+            matrix[1] = scale * matrix[1] + shift[1] * matrix[3]
+        return matrix
 
 
 def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
@@ -862,6 +918,48 @@ def _plotcoeffs_source(f, ax=None, title=None, color=None,
 # 2-D surface plot
 # ---------------------------------------------------------------------------
 
+def _draw_separable_surface(ax, x, y, z, cdata, cmap, **kwargs):
+    """Render native default FaceColor=interp without synthetic lighting.
+
+    Explicit Matplotlib surface options retain their existing plot_surface
+    path. The default and uniform artist properties use vertex RGB colors.
+    """
+    color_map = _coerce_cmap(cmap)
+    norm = kwargs.pop("norm", None)
+    vmin, vmax = kwargs.pop("vmin", None), kwargs.pop("vmax", None)
+    if norm is not None and (vmin is not None or vmax is not None):
+        raise ValueError("pass color limits through norm or vmin/vmax, not both")
+    if norm is None:
+        norm = _normalize_values(cdata)
+        if vmin is not None:
+            norm.vmin = vmin
+        if vmax is not None:
+            norm.vmax = vmax
+    rgba = color_map(norm(cdata))
+    if set(kwargs) <= {"alpha", "zorder", "rasterized", "visible"}:
+        from chebfunjax._sphere_surface import InterpolatedSurface
+        artist = InterpolatedSurface(x, y, z, rgba, **kwargs)
+        artist.set_vertex_scalars(cdata, color_map, norm)
+        ax.add_collection3d(artist, autolim=False)
+        ax.auto_scale_xyz(x, y, z)
+        return artist
+    options = dict(rstride=1, cstride=1, linewidth=0,
+                   antialiased=False, shade=False)
+    options.update(kwargs)
+    explicit_colors = "facecolors" in options
+    colors = options.pop("facecolors", rgba)
+    artist = ax.plot_surface(x, y, z, facecolors=colors, **options)
+    if not explicit_colors:
+        # plot_surface chooses the first vertex color of each sampled patch.
+        # Retain those same scalar values for colorbars and later clim updates.
+        rows = np.arange(0, cdata.shape[0]-1, options["rstride"])
+        cols = np.arange(0, cdata.shape[1]-1, options["cstride"])
+        artist.set_cmap(color_map)
+        artist.set_norm(norm)
+        artist.set_array(np.asarray(cdata)[np.ix_(rows, cols)].ravel())
+    return artist
+
+
 def surf(
     f2,
     g2=None,
@@ -874,10 +972,11 @@ def surf(
 ) -> tuple[plt.Figure, Any]:
     """Surface plot of a Chebfun2 (MATLAB Chebfun style).
 
-    Renders a smooth surface with the parula colormap, no axis labels,
-    light gray grid, and thin box edges. New axes use a rectangular
-    orthographic viewport. Native lighting, plot-box aspect and exact pixels
-    are not reproduced by this adapter.
+    Default faces interpolate vertex colors using the exact 256-row Parula
+    table, with no edges or added lighting. Explicit Matplotlib surface
+    options use plot_surface. New axes use a rectangular orthographic
+    viewport until equal data aspect is requested. Native automatic camera
+    fitting, depth-buffer visibility and exact pixels remain separate limits.
 
     Parameters
     ----------
@@ -924,10 +1023,7 @@ def surf(
         Xp = _eval_2d_vectorized(f2, XX, YY)
         Yp = _eval_2d_vectorized(g2, XX, YY)
         Zp = _eval_2d_vectorized(h2, XX, YY)
-        ax.plot_surface(Xp, Yp, Zp, cmap=cmap,
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True,
-                        shade=True, **kw)
+        _draw_separable_surface(ax, Xp, Yp, Zp, Zp, cmap, **kw)
         _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
         if title:
             ax.set_title(title, fontsize=10, pad=0)
@@ -935,13 +1031,9 @@ def surf(
     if g2 is not None:
         # surf(f, g): height from f, colouring from g (MATLAB).
         CC = _eval_2d_vectorized(g2, XX, YY)
-        cmap_obj2 = _coerce_cmap(cmap)
-        norm = _normalize_values(CC)
-        ax.plot_surface(XX, YY, ZZ,
-                        facecolors=cmap_obj2(norm(CC)),
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True,
-                        shade=False, **kw)
+        _draw_separable_surface(ax, XX, YY, ZZ, CC, cmap, **kw)
+        ax.set_xlim(float(x0), float(x1))
+        ax.set_ylim(float(y0), float(y1))
         _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
         if title:
             ax.set_title(title, fontsize=10, pad=0)
@@ -953,15 +1045,63 @@ def surf(
     if bool(jnp.linalg.norm(sampled - sampled[0, 0], ord=jnp.inf) < 1e-10):
         ZZ = np.asarray(jnp.full_like(sampled, sampled[0, 0]))
 
-    ax.plot_surface(XX, YY, ZZ, cmap=cmap,
-                    rstride=1, cstride=1,
-                    linewidth=0, antialiased=True,
-                    shade=True, **kw)
+    _draw_separable_surface(ax, XX, YY, ZZ, ZZ, cmap, **kw)
+    ax.set_xlim(float(x0), float(x1))
+    ax.set_ylim(float(y0), float(y1))
 
     _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)
+    return fig, ax
+
+
+def plot_chebfun2(f2, *args, ax=None, title="", n_pts=None, **kwargs):
+    """Native real surface or complex phase portrait of a Chebfun2.
+
+    Source @separableApprox/plot.m7574c77 uses a 500x500 Cartesian grid,
+    angle(-f), fixed color limits [-pi,pi], hsv(600), flat faces without
+    edges, and topdown equal axes for a complex object. Explicit positional
+    surface forms and real objects retain the surface adapter.
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/plot.m, complex branch lines 128-145.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    """
+    if f2.isreal() or args:
+        if n_pts is not None:
+            kwargs["n_pts"] = n_pts
+        return surf(f2, *args, ax=ax, title=title, **kwargs)
+    from chebfunjax._hsv_colormap import hsv_colormap
+    count = 500 if n_pts is None else n_pts
+    x0, x1, y0, y1 = map(float, f2.domain)
+    xx, yy = np.meshgrid(np.linspace(x0, x1, count),
+                         np.linspace(y0, y1, count))
+    sampled = _eval_2d_vectorized(f2, xx, yy)
+    angles = np.asarray(jnp.angle(-jnp.asarray(sampled)))
+    zz = np.zeros_like(xx)
+    fig, ax = _setup_3d_axes(ax, None, surface_frame=True)
+    palette = hsv_colormap(600)
+    norm = Normalize(-np.pi, np.pi)
+    colors = palette(norm(angles))
+    options = dict(rstride=1, cstride=1, linewidth=0,
+                   edgecolor="none", antialiased=False, shade=False)
+    options.update(kwargs)
+    colors = options.pop("facecolors", colors)
+    artist = ax.plot_surface(xx, yy, zz, facecolors=colors, **options)
+    artist.set_cmap(palette)
+    artist.set_norm(norm)
+    artist.set_array(angles[:-1, :-1].ravel())
+    artist._source_phase_cdata = angles
+    artist._source_phase_grid = (xx, yy)
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(y0, y1)
+    matlab_view(ax, 0, 90)
+    matlab_axis_equal(ax)
+    ax.set_axis_off()
+    if title:
+        ax.set_title(title)
     return fig, ax
 
 
@@ -3421,7 +3561,7 @@ def plot_dispatch(obj, *args, **kwargs):
         else:
             return quiver_2d(obj, *args, **kwargs)
     elif isinstance(obj, Chebfun2):
-        return surf(obj, *args, **kwargs)
+        return plot_chebfun2(obj, *args, **kwargs)
     elif isinstance(obj, Spherefunv):
         return quiver_sphere(obj, *args, **kwargs)
     elif isinstance(obj, Spherefun):
@@ -5694,7 +5834,13 @@ def trig_plot_data(f, *, max_length: int = 65536):
 
 
 def matlab_axis_equal(ax):
-    """Fit equal 2D Cartesian data units to the existing axes box, preserving its position.
+    """Request equal Cartesian data units on 2D or 3D axes.
+
+    For 3D axes derive physical box proportions from data spans. Surface axes additionally expand automatic topdown limits
+    to preserve equal units in the current rectangular viewport and fit the
+    resulting orthographic data box; oblique cameras keep their prior
+    projection. Native oblique camera fitting remains a separate limit.
+    The 2D branch preserves its box.
 
     This opt-in graphics adapter follows MATLAB R2024b axis.m LocSetEqual:
     reset the unconstrained limit mode to automatic based on the existing
@@ -5708,6 +5854,15 @@ def matlab_axis_equal(ax):
     Used by Chebfun complex/RoucheTheorem.m (axis equal).
     Chebfun commit: 7574c77
     """
+    if isinstance(ax, Axes3D):
+        # Preserve data limits and derive box proportions from actual x/y/z
+        # spans. In particular, do not flatten z by an example-specific value.
+        ax.set_aspect("equal", adjustable="box")
+        if isinstance(ax, _SurfaceFrameAxes):
+            ax._chebfun_equal_source_limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+            ax._chebfun_topdown_autofit = True
+            ax.apply_aspect()
+        return ax
     fig = ax.get_figure()
     pos = ax.get_position(original=True)
     width = pos.width * fig.get_figwidth()
