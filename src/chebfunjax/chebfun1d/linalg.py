@@ -22,6 +22,7 @@ References
 from __future__ import annotations
 
 import numbers
+import operator
 from typing import Sequence
 
 import jax.numpy as jnp
@@ -183,6 +184,127 @@ class Quasimatrix:
     def __getitem__(self, idx: int) -> Chebfun:
         """Return the idx-th column as a Chebfun."""
         return self.cols[idx]
+
+    def assign_columns(self, cols, g):
+        """Assign or remove scalar columns without array-valued collapse.
+
+        Indices are zero-based Python adapters for native
+        ``assignColumns(f, colIdx, g)``. Columnwise updates remain a
+        Quasimatrix; assigning all columns in order returns ``g`` itself,
+        matching the native trivial-case shortcut.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/assignColumns.m, @chebfun/cheb2quasi.m
+        Chebfun commit: 7574c77
+        """
+        from .chebfun import Chebfun
+
+        def is_boolean_index(value):
+            return (isinstance(value, bool)
+                    or getattr(getattr(value, "dtype", None), "kind", None) == "b")
+
+        if isinstance(cols, str):
+            if cols.strip() != ":":
+                raise ValueError("assign_columns: use ':' or integer indices")
+            indices = list(range(len(self.cols)))
+        else:
+            if is_boolean_index(cols):
+                raise TypeError("column indices must be integers, not booleans")
+            try:
+                indices = [operator.index(cols)]
+            except TypeError:
+                try:
+                    columns = list(cols)
+                    if any(is_boolean_index(index) for index in columns):
+                        raise TypeError(
+                            "column indices must be integers, not booleans")
+                    indices = [operator.index(index) for index in columns]
+                except (TypeError, ValueError) as exc:
+                    if isinstance(exc, TypeError) and "booleans" in str(exc):
+                        raise
+                    raise TypeError("column indices must be integers") from exc
+        ncols = len(self.cols)
+        normalized = []
+        for index in indices:
+            if index < 0:
+                index += ncols
+            if index < 0:
+                raise IndexError("column index out of range")
+            normalized.append(index)
+        indices = normalized
+
+        def delete_selected():
+            if any(index >= ncols for index in indices):
+                raise IndexError("column index out of range")
+            removed = set(indices)
+            keep = [column for i, column in enumerate(self.cols)
+                    if i not in removed]
+            return (Quasimatrix(keep, self.domain) if keep
+                    else Chebfun.empty())
+
+        if g is None or (isinstance(g, str) and g == ""):
+            return delete_selected()
+        if isinstance(g, (Chebfun, Quasimatrix)):
+            if g.isempty():
+                return delete_selected()
+            replacement = g
+        else:
+            try:
+                values = jnp.asarray(g)
+            except (TypeError, ValueError):
+                raise TypeError(
+                    "assign_columns requires Chebfun, Quasimatrix, or numeric values") from None
+            if values.size == 0:
+                return delete_selected()
+            if values.dtype.kind not in "biufc":
+                raise TypeError("assign_columns requires numeric replacement values")
+            values = jnp.ravel(values)
+
+            def constant(x, _values=values):
+                x = jnp.asarray(x, dtype=jnp.float64)
+                if _values.size == 1:
+                    return jnp.full(x.shape, _values[0], dtype=_values.dtype)
+                return jnp.broadcast_to(_values, x.shape + (_values.size,))
+
+            replacement = Chebfun.from_function(constant, domain=self.domain)
+            if self.is_transposed:
+                replacement = replacement.T
+
+        if isinstance(replacement, Quasimatrix):
+            replacement_columns = replacement.cols
+            replacement_domain = replacement.cols[0]
+        else:
+            replacement_columns = ([replacement] if replacement.n_columns == 1
+                                   else replacement.mat2cell())
+            replacement_domain = replacement
+
+        if self.is_transposed != replacement_columns[0].is_transposed:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:assignColumns:numCols: "
+                "Subscripted assignment dimension mismatch (orientation).")
+        if len(indices) != len(replacement_columns):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:assignColumns:numCols: "
+                "Subscripted assignment dimension mismatch (column count).")
+        if not self.cols[0].domain_check(replacement_domain):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:assignColumns:domain: "
+                "Inconsistent domains; domain(f) ~= domain(g).")
+
+        if indices == list(range(ncols)):
+            return replacement
+
+        target_size = max(indices, default=-1) + 1
+        result = list(self.cols)
+        if target_size > ncols:
+            zero = Chebfun.from_function(jnp.zeros_like, domain=self.domain)
+            if self.is_transposed:
+                zero = zero.T
+            result.extend([zero] * (target_size - ncols))
+        for index, column in zip(indices, replacement_columns):
+            result[index] = column
+        return Quasimatrix(result, self.domain)
 
     # ------------------------------------------------------------------
     # Evaluation

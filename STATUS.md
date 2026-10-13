@@ -1,3 +1,13 @@
+## Genuine Quasimatrix column assignment — 2026-10-14
+
+Added column replacement, repeated indices, deletion and zero-padded growth
+with native error identifiers and row orientation. All15 original k=2
+assignment clauses pass with captured native queries and unchanged bounds;
+28 merged assignment/division checks pass (50.56seconds, CPU only).
+Python retains its singleton Quasimatrix wrapper convention; native singleton
+isQuasi metadata and general numeric shape parity remain separate gaps.
+Evidence: `docs/quasimatrix_assign_columns_cpu_20261014.json`.
+
 ## Original array-valued assignment predicates and native RNG — 2026-10-14
 
 Restored original array-valued assignColumns clauses1–15 across the mapped and

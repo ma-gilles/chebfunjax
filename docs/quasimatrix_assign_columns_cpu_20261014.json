@@ -1,0 +1,31 @@
+{
+  "scope": "Genuine Python Quasimatrix assign_columns and original MATLAB test_assignColumns clauses 1\u201315 (k=2)",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Ordered and repeated replacement, deletion, zero-padded growth, row orientation and complex numeric JAX constants",
+    "Native error identifiers for orientation/count/domain; exact native RNG query fixture reused"
+  ],
+  "verification": {
+    "merged_tests": 28,
+    "pytest_seconds": 50.56,
+    "wall_seconds": 59.24039258714765,
+    "peak_summed_rss_kib": 2373016,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "runtime": "JAX/JAXlib 0.11.0 CPU x64; child affinity 8\u201311; import preflight passed",
+    "private_tests": 5,
+    "source_bounds": "Original 10*vscale*eps and 100*vscale*eps, with native matrix infinity norm for clause13"
+  },
+  "post_gate_review": "Removed three supplemental isinstance(reduced, Quasimatrix) assertions only; executable source and native scientific assertions unchanged. MATLAB singleton isQuasi false whereas Python retains existing singleton Quasimatrix wrapper convention. No native representation parity claim.",
+  "limitations": [
+    "General numeric orientation/shape and singleton representation require further audit",
+    "Full goal and latest-main CI remain unresolved"
+  ],
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_assign_publication_20261014/run/receipt.json": "febb3fd3cde86697297970b93dfed84c3271181bb29b599b0f1794b065c4fc6c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_assign_publication_20261014/run/stdout": "eb58dd5efcff46f3f55dcecbe40e17236d41383cfbc6732c57666cdbb6c71efc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_assign_publication_20261014/static.json": "17e05df035c417e14fcf4a73a2d9fdbd6617988d9359feaa33349898d295f6fd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extract_columns_empty_candidate_20261014/handoff/quasimatrix_assign_columns_v2.patch": "526009ee02cfaa296ee63da7c1bb6fe9b829ac9ac383eb5aa047f6389cd834e5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extract_columns_empty_candidate_20261014/handoff/quasimatrix_assign_columns_test_v2.patch": "1f026e051b24d59c86d10b8f1c633b43f356f5b74db70d60cc9f1b96e1b00ae8"
+  }
+}
