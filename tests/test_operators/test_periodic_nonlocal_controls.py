@@ -161,16 +161,22 @@ def test_legacy_numeric_coordinate_callback_never_enters_ad(monkeypatch, backend
     assert (result-exact).norm(jnp.inf) < 1e-10
 
 
-def test_nonlinear_sum_marker_retains_legacy_route(monkeypatch):
+def test_nonlinear_sum_marker_selects_source_scalar_route(monkeypatch):
+    from chebfunjax.operators import scalar_newton
+
     calls = []
-    def legacy(self, *args, **kwargs):
+
+    def source_solver(self, *args, **kwargs):
         calls.append(kwargs)
         return 42
-    monkeypatch.setattr(Chebop, '_solve_periodic_nonlinear', legacy)
+
+    monkeypatch.setattr(scalar_newton, 'solve_scalar', source_solver)
     op = Chebop(lambda u: u.diff(2)+u*u.sum())
     op.bc = 'periodic'
     assert op.solve(1., n=8) == 42
     assert len(calls) == 1
+    assert calls[0]['backend'] == 'trigcolloc'
+    assert calls[0]['n'] == 8
 
 
 @pytest.mark.parametrize('backend, requested', [(None, 'trigcolloc'), ('coeffs', 'trigspec')])

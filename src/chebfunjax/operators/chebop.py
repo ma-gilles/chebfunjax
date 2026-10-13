@@ -1039,6 +1039,18 @@ class Chebop:
         selection = self.determine_discretization(
             length_dom, ChebopPref(discretization=discretization)).discretization
         if (getattr(self, "_periodic", False) and len(self.domain) == 2
+                and selection == "trigcolloc" and self._n_vars() == 1):
+            from chebfunjax.operators.scalar_newton import (
+                _prepare_periodic_scalar,
+                solve_scalar,
+            )
+            periodic_data = _prepare_periodic_scalar(self)
+            if periodic_data is not None:
+                return solve_scalar(self, f, n=n, max_iter=max_iter,
+                                    bvp_tol=tol, n_min=n_min, n_max=n_max,
+                                    backend="trigcolloc",
+                                    _periodic_data=periodic_data)
+        if (getattr(self, "_periodic", False) and len(self.domain) == 2
                 and selection == "trigspec"
                 and self._n_vars() == 1 and self._is_linear()):
             from chebfunjax.operators.periodic import solve_coefficients

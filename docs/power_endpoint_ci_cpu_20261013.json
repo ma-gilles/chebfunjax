@@ -1,0 +1,78 @@
+{
+  "candidate_head": "7c7843cbdf076c53f7d50bdf2c5632f68d2383b3",
+  "conclusion": "stale supplemental endpoint expectation; native value is zero; test-only correction passes",
+  "evidence": {
+    "baseline_test_failure_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_20261013/supervision/receipt.json",
+      "sha256": "3caedcf2179e086b66e6e7dc9480b8a831738817f56a750dbe3cd61a653a97af"
+    },
+    "baseline_test_failure_stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_20261013/supervision/stdout",
+      "sha256": "1fea76b943aa4b594da7cea33348fd797fca245e96b218e46cd09272b2eec736"
+    },
+    "corrected_test": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_candidate_20261013/tests/test_power_retained_onefun.py",
+      "sha256": "c3efdf68fa6ce16eb583c653c002608576266010df5caf061494b79e2dc97d34"
+    },
+    "corrected_test_guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_20261013/guard_v2.json",
+      "sha256": "42d8c811bd210f858637c785d37a7d8e7be4e87176e3fc843e1a123fe6d76350"
+    },
+    "corrected_test_success_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_20261013/supervision_guarded_v2/receipt.json",
+      "sha256": "e4a7318721d3fc7f162082cf42503095a8d3f6bad26d6a7798cf225e8fb7666b"
+    },
+    "corrected_test_success_stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_repro_20261013/supervision_guarded_v2/stdout",
+      "sha256": "683816b7d862b2d423d392580f4aabce6b5e7eb0a09daa2424b12d4b23fde155"
+    },
+    "native_capture": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_native_20261013/capture.mat",
+      "sha256": "77df8068db664a2ed3216665be4abe40a96d0c8cd68fb7c17cfcacacb8bab171"
+    },
+    "native_driver": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_native_20261013/driver.m",
+      "sha256": "bdc22929c328a72fb2dc781eb5c07ce8568480316b644738229b868a97583021"
+    },
+    "native_guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_native_20261013/guard.json",
+      "sha256": "8f60a5455ce23d846163480f0db2145e705603a8c10515005001e4f2278c9835"
+    },
+    "native_power_source": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/power.m",
+      "sha256": "80d1a1228717a63846cac28103e47aaaecb567601e30434eb6db5de72ef45843"
+    },
+    "native_singfun_power_source": {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@singfun/power.m",
+      "sha256": "e42a2bbfacd6afe8aa0e1186fc36538465812b7ca30fec57860dcaf27561b947"
+    },
+    "native_success_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_native_20261013/run_v3/receipt.json",
+      "sha256": "9ac8b7a30a3d0097f71208ba6d250e99c63b24c70479e3b957af36b36bc1d58a"
+    },
+    "native_success_stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/power_endpoint_native_20261013/run_v3/stdout",
+      "sha256": "6f15453423e6181b20af4614401d76798ceb63ff4a53cc1d41f08e42539b9118"
+    }
+  },
+  "publication_modified": false,
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Correct supplemental endpoint expectation after direct native capture; no library changes.",
+  "native": {
+    "g_endpoint": 0,
+    "h_endpoint": 0,
+    "point_values": [
+      1,
+      0
+    ],
+    "g_singfun_exponents": [
+      0,
+      0
+    ],
+    "h_singfun_exponents": [
+      0,
+      1e-13
+    ]
+  },
+  "limitation": "Python smooth Tech versus native zero-exponent Singfun wrapper remains a representation distinction; not full representation parity."
+}

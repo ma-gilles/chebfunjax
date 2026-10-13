@@ -3,7 +3,8 @@
 Provenance: Chebfun 7574c77 @chebop/solvebvpNonlinear.m,
 @chebop/dampingErrorBased.m, @linop/linsolve.m and
 @opDiscretization/testConvergence.m. The public adapter currently supports
-one scalar function on one finite interval. The Newton loop follows the
+one scalar function on one finite interval, including periodic trigcolloc.
+The Newton loop follows the
 qualified parameter_newton implementation; that separate path is unchanged.
 
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
@@ -184,18 +185,58 @@ def _validate_initial(op, domain, n_min):
                          'guess (non-finite residual); supply N.init.')
 
 
+def _prepare_periodic_scalar(op):
+    """Select and retain the source initial scalar nonlinear AD block.
+
+    Provenance
+    ----------
+    MATLAB source: @chebop/linearize.m, @chebop/solvebvp.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Numeric JAX coordinate callbacks unsupported by continuous AD retain
+    their proxy route. Other callback/construction errors propagate.
+    """
+    domain = tuple(op.domain)
+    if len(domain) != 2 or not all(math.isfinite(x) for x in domain):
+        return None
+    initial = op.init if op.init is not None else 0
+    initial = (initial if isinstance(initial, Chebfun) else
+               chebfun(initial, domain=domain))
+    coordinate = chebfun(lambda x: x, domain=domain)
+    seed = ADChebfun(initial).seed(1, (True,))
+    try:
+        out = op._call_op(coordinate, [seed])
+    except TypeError as exc:
+        message = str(exc)
+        if ("requires ndarray or scalar arguments" in message
+                and "chebfunjax." in message):
+            return None
+        raise
+    if isinstance(out, (tuple, list)) and len(out) == 1:
+        out = out[0]
+    if (not isinstance(out, ADChebfun) or out.is_linear
+            or not isinstance(out.func, Chebfun)
+            or out.jacobian._values_capability is None):
+        return None
+    return initial, coordinate, (out, [], {})
+
+
 def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
-                    bvp_tol=5e-13, n_min=32, n_max=4096, backend="chebcolloc2"):
+                    bvp_tol=5e-13, n_min=32, n_max=4096, backend="chebcolloc2",
+                 _periodic_data=None):
     """Resolve each correction before source damping and L2 error stopping.
 
     Provenance
     ----------
     MATLAB source: @chebop/solvebvpNonlinear.m,
-        @chebop/dampingErrorBased.m, @linop/linsolve.m.
+        @chebop/dampingErrorBased.m, @linop/linsolve.m,
+        @trigcolloc/toFunctionOut.m, @opDiscretization/testConvergence.m.
     Chebfun commit: 7574c77
     Fixed n is an explicit nonadaptive extension; n counts equation points.
+    Periodic trigcolloc uses the same Newton recurrence with Fourier AD
+    matrices, no boundary rows, and native periodic output conversion.
+    Trigspec, periodic systems and piecewise domains use separate adapters.
     """
-    if backend not in ("chebcolloc2", "chebcolloc1", "ultraS"):
+    if backend not in ("chebcolloc2", "chebcolloc1", "ultraS", "trigcolloc"):
         raise ValueError(f"Unsupported scalar Newton backend {backend!r}")
     # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
     from chebfunjax.chebpref import ChebopPref
@@ -203,14 +244,17 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     preferences = ChebopPref()
     display = preferences.display
     lambda_min = preferences.lambdaMin
+    periodic = backend == "trigcolloc"
     domain = tuple(op.domain)
     _validate_initial(op, domain, n_min)
-    x = chebfun(lambda t: t, domain=domain)
+    x = (_periodic_data[1] if _periodic_data is not None else
+         chebfun(lambda t: t, domain=domain))
     m = 1
     flags = (True,)
-    guess = initial if initial is not None else op.init
+    guess = (_periodic_data[0] if _periodic_data is not None else
+             initial if initial is not None else op.init)
     if guess is None:
-        guess = fit_scalar_bcs(op)
+        guess = chebfun(0, domain=domain) if periodic else fit_scalar_bcs(op)
     u = [guess if isinstance(guess, Chebfun) else chebfun(guess, domain=domain)]
     err_tol = 200 * bvp_tol
     low, high = math.log2(n_min), math.log2(n_max)
@@ -234,7 +278,7 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     discretization_history = []
 
     def conditions(us):
-        return _conditions(op, us[0])
+        return [] if periodic else _conditions(op, us[0])
 
     def operator(us):
         out = op._call_op(x, us)
@@ -256,6 +300,39 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
         """Resolve a correction with frozen differential and BC Jacobians."""
         out, bc, cache = linear
         order = max(0, out.jacobian.diff_order)
+        if periodic:
+            from chebfunjax.operators._periodic_nonlocal import (
+                PeriodicDisc,
+                output_function,
+            )
+            from chebfunjax.tech.trigtech import Trigtech
+
+            schedule = ([int(n)] if n is not None else dimensions if start is None
+                        else [start] + [d for d in dimensions if d > start])
+            for size in schedule:
+                grid_history.append(size)
+                discretization_history.append({'dimension': size,
+                    'functionPoints': size, 'equationPoints': size,
+                    'diffOrder': order, 'backend': backend})
+                if size not in cache:
+                    disc = PeriodicDisc(size, domain)
+                    matrix = out.jacobian._values_capability.realize(disc)
+                    scaling = 1 / jnp.maximum(1, jnp.max(jnp.abs(matrix), axis=1))
+                    cache[size] = (disc.points, scaling,
+                                   lu_factor(scaling[:, None] * matrix))
+                points, scaling, factors = cache[size]
+                rhs = residual(points) if callable(residual) else jnp.full(size, residual)
+                vals = lu_solve(factors, scaling * rhs)
+                if not bool(jnp.all(jnp.isfinite(vals))):
+                    return None, size, False
+                full = output_function(vals, domain, backend)
+                tech = full.funs[0].tech
+                vscale = max(vscale, float(full.vscale))
+                happy, cutoff = Trigtech.happiness_check(
+                    tech.coeffs, tech.values, tol=bvp_tol, vscale=vscale)
+                if happy or n is not None or size == schedule[-1]:
+                    update = -output_function(vals, domain, backend, cutoff)
+                    return [update], size, happy or n is not None
         if backend != "chebcolloc2":
             from chebfunjax.operators._linear_altdisc import solve_operator
             from chebfunjax.operators.blocklinop import BlockLinop
@@ -345,6 +422,13 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                 return update, size, happy or n is not None
             vscale = max(vscale, float(full.vscale))
 
+    # Native solvebvp linearizes before changeTech, then retains that first L.
+    first_linear = (_periodic_data[2] if _periodic_data is not None else
+                    linearize(u) if periodic else None)
+    if periodic:
+        u = [u[0].change_tech("trigtech")]
+        if isinstance(f, Chebfun):
+            f = f.change_tech("trigtech")
     history, damping_history = [], []
     iteration_history = []
     exact_initial = False
@@ -359,7 +443,8 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
     norm_old = None
     counter = 0
     while True:
-        linear = linearize(u)
+        linear = first_linear if first_linear is not None else linearize(u)
+        first_linear = None
         residual = value(linear[0]) - f
         delta, size, resolved = linsolve(linear, residual, scale(u)[0])
         if not resolved:
@@ -448,7 +533,12 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                        'maximum number of iterations exceeded'), RuntimeWarning,
                       stacklevel=2)
     boundary_groups = []
-    boundary_values = [value(c) for c in _conditions(op, u[0], group_lengths=boundary_groups)]
+    boundary_values = ([] if periodic else [value(c) for c in
+                       _conditions(op, u[0], group_lengths=boundary_groups)])
+    if periodic:
+        boundary_values = [u[0].diff(k)(domain[-1]) - u[0].diff(k)(domain[0])
+                           for k in range(max(0, linear[0].jacobian.diff_order) + 1)]
+        boundary_groups = [("endpoint", 0, len(boundary_values))]
     if success and not exact_initial:
         print(format_display_info("final", display, iterations=counter,
                                   backend=backend, error=error,
@@ -461,4 +551,8 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                      'bvpTol': bvp_tol, 'newtonTolerance': err_tol}
     if backend != 'chebcolloc2':
         op._last_info['discretization'] = backend
-    return u[0].simplify(tol=bvp_tol)
+    result = u[0].simplify(tol=bvp_tol)
+    if periodic:
+        from chebfunjax.operators._periodic_nonlocal import real_if_small
+        result = real_if_small(result, bvp_tol)
+    return result

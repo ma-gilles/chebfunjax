@@ -1,0 +1,50 @@
+{
+  "scope": "Finite single-interval scalar periodic trigcolloc with supported continuous AD values capabilities; shared native Newton recurrence.",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "private_base": "0a312fa0fa1865a0947db21fd83c91fe41d7c1aa",
+  "merged_base": "7c7843cb",
+  "native_comparison": {
+    "first_order_coefficients": 43,
+    "native_and_python_updates": 8,
+    "python_residual": 6.760793812163484e-13,
+    "native_residual": 6.703773734670007e-13,
+    "max_33_sample_difference": 2.248201624865942e-15,
+    "max_normDelta_difference": 2.042810365310288e-14,
+    "interpretation": "Descriptive; original residual/endpoint bound1e-8 unchanged; intermediate cutoff87native/79Python differs."
+  },
+  "qualification": [
+    "28 final source/preferences/dispatch/shared-scalar controls pass",
+    "Original first-order clauses2\u20134 pass on frozen final selector",
+    "Original second-order clauses5\u20138 and nonlinear integral clause8 pass before selector correction with identical Newton arithmetic; final route controls establish selector",
+    "Merged publication gate: original first-order test and native constant history test both pass,58.48s pytest"
+  ],
+  "integration_receipt": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 66.16516848420724,
+    "sampled_peak_summed_rss_kib": 3320324,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "limitations": [
+    "Unsupported numeric-coordinate callbacks retain legacy proxy solvers",
+    "Trigspec,periodic systems,piecewise domains and complex trajectories unqualified",
+    "Merged real constant control emits existing JAX complex-to-real scatter warnings; no complex trajectory or future-JAX guarantee",
+    "No performance parity or full-suite/CI claim"
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_scalar_newton_review_20261013/REPORT.md": "bdbe686fdf05e8ca9c703dc47a9b5a699bf22188ad48c3c0019e649b515549a9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_scalar_newton_review_20261013/changed_paths_manifest.json": "6f839d74567d6a049dd4850c352b24b9aa0c308ee6f524855dfabf3dd2eb128b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_scalar_newton_review_20261013/RECEIPTS.json": "14f08e68105ee39c30986a2a0cbd66150b37bd9843a7a364bb8105c0d9aa6d68",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_scalar_newton_review_20261013/source.patch": "b64cbdd96ef388b68498d760c04137b463a1ec2d31bfd32988942a3200f064ea",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_ci_publication_stage_20261013/run/receipt.json": "462424b405eb304c62769223a658416727811ef8aa9ed348ec6ca0bc0369ca1e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_ci_publication_stage_20261013/run/stdout": "0588593024dd2f76e0e49c74edd08ae9630f7650e46cf7624971bf7a5dc03a04",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_ci_publication_stage_20261013/guard.json": "40053a5c623ee236270da3035d537fa64782f57ed7b0d4cc66cabb490c93e11a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/periodic_ci_publication_stage_20261013/run_integration.py": "f2365dde047d45381a39a8dafaeac1e28a25eb405fdae3936580a212d1748c1f"
+  },
+  "changed_paths": {
+    "src/chebfunjax/operators/chebop.py": "f47c35614ff236e71a017e3760410fa25449e264161c0cb43407bc991b8f9a64",
+    "src/chebfunjax/operators/scalar_newton.py": "7cef89663d79b7ab5b784e5424b044fffc1cd30a4018250c32d9008f33dec67b",
+    "tests/test_operators/test_periodic_nonlocal_controls.py": "bcfa6ab0b6fc7cd90ef882be5bcc7be945d49528c3c2636dcba526c32b9c45c7",
+    "tests/test_periodic_scalar_newton_source.py": "f20345449cb15126c144134ce94b3445f9cfdd32ad3d676f5076646b0460ef8b"
+  }
+}

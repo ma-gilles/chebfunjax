@@ -1,3 +1,26 @@
+## Scalar periodic source Newton and endpoint CI repair — 2026-10-13
+
+Supported scalar periodic trigcolloc problems now use continuous AD and the
+source Newton recurrence, correction resolution, preferences and history.
+Final28controls pass; original first-/second-order and nonlinear integral
+predicates pass unchanged within the documented selector qualification scope.
+The merged checkout passes the original first-order and native constant-history
+tests (58.48s pytest), with stable inputs/no survivors. Matched native first-order
+results have43coefficients/eightupdates, sampledelta2.25e-15. Intermediate cutoff
+and unsupported numeric callbacks remain different; systems/trigspec/complex
+trajectories are unqualified. See `docs/periodic_scalar_newton_cpu_20261013.json`.
+
+The CI tiny-power endpoint failure was a stale supplemental assertion. A clean
+native capture gives g(1)=0 and pointValues=[1,0], even while its smooth factor
+is1. The test-only correction passes; native zero-exponent Singfun versus Python
+smooth Tech remains a representation distinction. See
+`docs/power_endpoint_ci_cpu_20261013.json`. Full CI remains unresolved.
+
+Restoring exact chebfun3t constructor grids/bounds in a private test package
+exposes nativepass7 error1.01e-11 versus2.22e-14. Native chebfun3t is dense;
+current Python delegates to low-rank chebfun3. Diagnosis/qualification are open;
+no tolerance weakening or full constructor parity is claimed.
+
 ## Native multiplication errors and plain-data point glyphs — 2026-10-13
 
 Trigtech matrix multiplication now reports the exact native error identifiers

@@ -15,7 +15,9 @@ def test_tiny_endpoint_power_retains_source_simplified_factor():
     assert len(g) == 1
     assert not isinstance(g.funs[0].tech, Singfun)
     np.testing.assert_array_equal(np.asarray(g.funs[0].tech.coeffs).reshape(-1), np.ones(1))
-    assert float(g(1.0)) == 1.0
+    # Native power preserves the endpoint override: 0**eps remains 0 even
+    # when the smooth representation simplifies to the constant one.
+    assert float(g(1.0)) == 0.0
     h = (1 - x) ** 1e-13
     assert isinstance(h.funs[0].tech, Singfun)
     assert h.funs[0].tech.exponents[1] == 1e-13
