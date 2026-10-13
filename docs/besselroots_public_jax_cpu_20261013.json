@@ -1,0 +1,33 @@
+{
+  "scope": "Public besselroots delegates numerical work to existing JAX Piessens/McMahon kernel, removing duplicate NumPy implementation. No refinement or source tolerance change.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source_sha256": "66c83c7039655b03f12fa461cfe17621cd9aaa0bb161c409ec556c509139d3dd",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/besselroots_public_jax_20261013",
+  "files": {
+    "src/chebfunjax/utils/specfun.py": "8b0c5b3f81addc87b27a8a280f3bb01c4f5ff94e038fd10c7262b12eafe27c15",
+    "tests/test_utils/test_besselroots_public_source.py": "aa9e3a46251eef1ebb9bfa33eced7fca6580343636c1b826e107385b5ae78f06",
+    "tests/test_utils/test_missing_functions.py": "d2b67a74f201691c7d844a77b4adc53ba4a6cf6e12f3deccb82320c8152e79fb"
+  },
+  "gate": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 9.699860156979412,
+    "sampled_peak_summed_rss_kib": 655868,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "tests": "36 passed in 4.62s: six unchanged native predicates, 17 wrapper controls, seven existing general-kernel seed controls, six existing public cases.",
+  "runtime": "Pinned CPU JAX/JAXlib0.11.0 environment; actual candidate import path logged. Incompatible unused CUDA plugin warning retained.",
+  "validation": "Exact native inputN identifier/message; fractional count no longer truncated; one-element arrays accepted; nonempty all-zero arrays return before count/order validation, following MATLAB if semantics. Static Python scalar order/count JIT qualified.",
+  "root_review": "All seven final guard paths rehashed without mismatches; gammaratio AST unchanged; existing kernel and native six-predicate test bytes identical to main. Original old negative-count regex changed to source identifier. No agent STATUS replacement integrated.",
+  "evidence_hashes": {
+    "evidence/gate_v6/receipt.json": "a4dd7551975c7d8f019e3c9c7df1d46bb5b3ec18b3205c04acab562db2549659",
+    "evidence/gate_v6/stdout": "8080b100ca23d65caacca966a3d6dc10407c53b70b321abc47f5aca580b6f745",
+    "evidence/run_gate.sh": "53c38eb197de5bf4ac1eec9e7a086d536ad96cfe45de546fbfbb2eb5d7066625"
+  },
+  "history": "Prior gates retained. gate_v4 exposed old generic negative-count regex, now corrected; source numerical bounds unchanged. Agent provenance current_sha256 section describes initial v3, not final files; authoritative final hashes are in this record and v6 guard.",
+  "limitations": [
+    "No fresh MATLAB numerical capture for this package; source plus original residual predicates qualify migration.",
+    "Dynamic order/count JIT and general complex count semantics remain unqualified.",
+    "Full library, example and figure parity and green CI remain open."
+  ]
+}

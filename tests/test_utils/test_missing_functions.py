@@ -470,7 +470,7 @@ class TestBesselroots:
     def test_negative_n_raises(self):
         """besselroots raises for negative n."""
         from chebfunjax.utils import besselroots
-        with pytest.raises(ValueError, match="non-negative"):
+        with pytest.raises(ValueError, match="CHEBFUN:besselroots:inputN"):
             besselroots(0, -1)
 
 

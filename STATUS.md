@@ -1,9 +1,15 @@
-# Current CPU parity checkpoint — 2026-10-11
+# Current CPU parity checkpoint — 2026-10-13
 
-Main through `22f8f3c9` is published; this checkpoint adds the packages below.
+Main through `4f81fd28` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Public Bessel roots now use the existing JAX Piessens/McMahon kernel,
+  removing duplicate NumPy execution. Native count validation and early return
+  are preserved; 36 CPU checks pass, including all six original numerical
+  predicates with unchanged bounds. Dynamic JIT parameters and complex counts
+  remain unqualified. See `docs/besselroots_public_jax_cpu_20261013.json`.
 
 - Legacy `utils.transforms.dst/idst` now use the existing source JAX provider.
   This corrects the former SciPy factor-two forward scaling, inverse scaling
