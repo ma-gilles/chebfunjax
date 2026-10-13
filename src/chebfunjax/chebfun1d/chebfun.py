@@ -3150,6 +3150,12 @@ class Chebfun(eqx.Module):
                     "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZero: "
                     "Division by zero.")
             return self * (1 / other)
+        # Native columnRdivide rejects any zero numeric column, including
+        # a partly zero divisor vector, before applying numeric division.
+        if not isinstance(other, jax.core.Tracer) and bool(jnp.any(other == 0)):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZero: "
+                "Division by zero.")
         new_funs = [
             piece._apply_unary(piece.tech / other)
             for piece in self.funs

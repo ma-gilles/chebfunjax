@@ -1,0 +1,67 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline_main": "d0a0a0bfc854da70baa2340987579868a987da88",
+  "environment": "CPU only, JAX/JAXlib0.11.0, x64; four pinned CPU cores",
+  "changes": [
+    "Restore rdivide original predicates1\u20137, native first seed6178 probes and 10*vscale*eps bounds. Retain one labeled supplemental sine/cosine control.",
+    "Restore original25\u201326: numeric divisor with any zero column must raise the source divisionByZero identifier. Both fail on baseline; JAX eager guard fixes them. Value-dependent Python exceptions remain unavailable for traced numeric operands, as with existing scalar route. Nonzero vector arithmetic unchanged.",
+    "SVD Trigtech numeric action remains eager because native zero-result storage length is value dependent. Polynomial action retains compilation. No native Trigtech zero branch removed."
+  ],
+  "ci_failure": {
+    "run": 38455454274,
+    "job": 115503732068,
+    "log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_a651_core0_20261014/job.log",
+    "sha256": "3d9a30b5bf268cf4621f14bd35c9cff8e73632de7ed677cd3d7344d7e97ba218",
+    "tests": [
+      "mixed_axes_physical_scaling[Chebtech1-Trigtech]",
+      "mixed_axes_physical_scaling[Trigtech-Chebtech2]",
+      "analytic_singular_functions_and_norm[False]"
+    ],
+    "cause": "TracerBoolConversionError in Trigtech.__matmul__ native zero-result branch under _svd._action filter_jit"
+  },
+  "qualification": {
+    "rdivide_smooth_publication_20261014": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_smooth_publication_20261014/run/receipt.json",
+      "sha256": "77eb0006508b2c4f9c54d9c9ef0098c83bcebebdc1d3a36782a647de42ceed11",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 18.203177174087614,
+      "sampled_peak_summed_rss_kib": 1075532,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "rdivide_zero_baseline_20261014": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_zero_baseline_20261014/run/receipt.json",
+      "sha256": "5d1f76620359cba47493cb426fc713d6a3d999b40c570fed9632a9c28d8b05c2",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 19.98399422876537,
+      "sampled_peak_summed_rss_kib": 700172,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "rdivide_svd_ci_successor_20261014": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_svd_ci_successor_20261014/run/receipt.json",
+      "sha256": "1ffa2270124d4ef6f4b1d6af23c3bae663f9807f0434574282071f628ce98407",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 62.21225751796737,
+      "sampled_peak_summed_rss_kib": 2887864,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "final_gate": "46 pass:10 rdivide (9 native predicates plus1 supplemental),22 2D SVD controls,14 disk SVD controls; original tolerances unchanged. 47.65s pytest.",
+  "files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "f08acb52faabd6b85eebfb1859c7297a8cf15ad745398eb060a6904bb5b77ffb",
+    "src/chebfunjax/chebfun2d/_svd.py": "d121c5bd888da76b554adddb554cbd32247d8dc02bf501a88a4dcd59ae2911fd",
+    "tests/test_matlab_port/chebfun/test_rdivide_matlab.py": "3aa5c86baada0df7f4a1b3ac42223a387951f6ebe30778ffa65422095fcb0711",
+    "tests/test_matlab_port/chebfun/fixtures/abs_seed6178_native.json": "e987d8ca190426ac477891707566268247518fa1074fb55c77a32a9ee14be830"
+  },
+  "post_gate_change": "Only rdivide module docstring updated to include25\u201326; executable AST identical, verified.",
+  "limits": [
+    "Full rdivide assertions remain incomplete.",
+    "Full main CI pending; no green CI claim.",
+    "No performance measurement or whole-library JAX claim."
+  ]
+}

@@ -1,5 +1,17 @@
 ## Native absolute-value assertions and surface framing — 2026-10-13
 
+## Division source predicates and SVD CI repair — 2026-10-14
+
+Restored native rdivide predicates1–7 with exact captured seed6178 inputs and
+original bounds, plus25–26 for zero entries in numeric divisor vectors. Both
+zero-vector predicates failed before the JAX guard. The unchanged original
+SVD CI failures now pass: Trigtech numeric action runs eagerly to preserve its
+value-dependent native zero-result storage; polynomial action stays compiled.
+Merged46-check CPU gate passes (10 division,22 two-dimensional SVD,14 disk SVD),
+62.21seconds wall, sampled peak2,887,864KiB, stable guards/no survivors.
+Full division coverage and green main CI remain open. Evidence:
+`docs/rdivide_svd_ci_cpu_20261014.json`.
+
 Restored30 smooth Chebfun abs predicates with original reference construction,
 operation order, exact native random probes and unchanged bounds. Nine merged
 CPU tests pass, including the retained supplemental check. Two original periodic

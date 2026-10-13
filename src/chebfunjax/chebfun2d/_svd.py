@@ -159,9 +159,20 @@ def _axis_qr(panel, interval):
     return _as_fun(q, interval), jnp.reshape(r, (1, 1))
 
 
-@eqx.filter_jit
 def _action(panel, matrix):
-    """Native FUN numeric mtimes, retaining Trig cached values."""
+    """Native FUN numeric mtimes, retaining Trig cached values.
+
+    Trigtech's native zero-result branch changes the stored row count, so
+    its dispatch must remain eager. Keep the polynomial action compiled.
+    """
+    if isinstance(panel, Trigtech):
+        return panel @ matrix
+    return _polynomial_action(panel, matrix)
+
+
+@eqx.filter_jit
+def _polynomial_action(panel, matrix):
+    """Fixed-shape polynomial FUN action used by the source SVD."""
     return panel @ matrix
 
 
