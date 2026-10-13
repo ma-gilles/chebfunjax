@@ -81,6 +81,8 @@ def test_pass_32_entire_line_removable_singularity_and_limits():
     dom = tuple(np.asarray(_CAPTURE["dom32"]).reshape(-1))
     op = lambda x: (1 - jnp.exp(-x**2)) / x
     f = cj.chebfun(op, domain=dom)
+    # Native isempty.m pass(11) uses this exact operator and domain.
+    assert not f.isempty()
     x = jnp.asarray(_column("x32"))
     exact = np.asarray(_CAPTURE["exact32"])
     got = np.asarray(f(x))
@@ -100,6 +102,8 @@ def test_pass_33_entire_line_blowup_exponents_and_limits():
     dom = tuple(np.asarray(_CAPTURE["dom33"]).reshape(-1))
     op = lambda x: x**2 * (1 - jnp.exp(-x**2))
     f = cj.chebfun(op, domain=dom, exps=(2, 2))
+    # Native isempty.m pass(12) uses this exact operator/domain/exponents.
+    assert not f.isempty()
     x = jnp.asarray(_column("x32"))
     exact = np.asarray(_CAPTURE["exact33"])
     got = np.asarray(f(x))
@@ -138,6 +142,8 @@ def test_pass_35_left_half_line_array_norm_and_limits():
         (jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x), axis=-1
     )
     f = cj.chebfun(op, domain=dom)
+    # Native isempty.m pass(13) uses this exact three-column operator/domain.
+    assert not f.isempty()
     x = jnp.asarray(_column("x35"))
     exact = np.asarray(_CAPTURE["exact35"])
     got = np.asarray(f(x))

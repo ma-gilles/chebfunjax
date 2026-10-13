@@ -188,12 +188,14 @@ class Quasimatrix:
     # Evaluation
     # ------------------------------------------------------------------
 
-    def __call__(self, x) -> jnp.ndarray:
+    def __call__(self, x, side=None) -> jnp.ndarray:
         """Evaluate each column at ``x``.
 
         Rank-one inputs retain the Python ``(npoints, n_cols)`` convention.
-        For matrices and higher-rank arrays, follow MATLAB ``feval`` and
-        concatenate each column's result along axis 1.
+        For matrices and higher-rank arrays, concatenate each column's
+        result along axis 1, then transpose the first two axes once for a
+        row quasimatrix, as in MATLAB ``feval``. Empty queries keep their
+        input shape.
 
         Provenance
         ----------
@@ -202,13 +204,42 @@ class Quasimatrix:
         """
         if isinstance(x, (Chebfun, Quasimatrix)):
             return x.compose(self)
+        if isinstance(x, str):
+            key = x.lower()
+            if key not in ("left", "start", "-", "right", "end", "+"):
+                return self.cols[0](x)
+            values = jnp.stack([
+                (col.transpose() if col.is_transposed else col)(key)
+                for col in self.cols
+            ])
+            return values.reshape((-1, 1)) if self.is_transposed else values
         x_array = jnp.asarray(x)
-        results = [col(x_array) for col in self.cols]
+        if x_array.size == 0:
+            return jnp.zeros(x_array.shape, dtype=jnp.float64)
         if x_array.ndim < 2:
+            results = [col(x_array, side=side) for col in self.cols]
             values = jnp.stack(results, axis=-1)
             return values.T if self.is_transposed else values
-        # MATLAB cell2mat joins each scalar column's matrix along dimension2.
-        return jnp.concatenate(results, axis=1)
+        columns = ([col.transpose() if col.is_transposed else col
+                    for col in self.cols]
+                   if self.is_transposed else self.cols)
+        results = [col(x_array, side=side) for col in columns]
+        values = jnp.concatenate(results, axis=1)
+        return jnp.swapaxes(values, 0, 1) if self.is_transposed else values
+
+    def isempty(self) -> bool:
+        """Return whether this represented Chebfun array is empty.
+
+        Native ``isempty`` returns false for arrays with multiple Chebfuns
+        and delegates to the first Chebfun for a scalar object. Quasimatrix
+        construction requires at least one nonempty scalar column.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return False if len(self.cols) > 1 else self.cols[0].isempty()
 
     # ------------------------------------------------------------------
     # Inner product (continuous L2)

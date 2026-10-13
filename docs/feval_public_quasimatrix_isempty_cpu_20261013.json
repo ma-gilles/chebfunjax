@@ -1,0 +1,66 @@
+{
+  "baseline_commit": "bd1a5670445310260e0a0ba00761f0b717b20d24",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Export public cj.feval with callable, extra argument, endpoint, side and composition dispatch.",
+    "Quasimatrix evaluation supports endpoints and side flags. Empty queries keep their input shape. Matrix and tensor evaluation concatenates along axis 1 before applying row orientation once.",
+    "Quasimatrix.isempty follows native array and first-column semantics.",
+    "All 13 native isempty predicates are represented, using literal pi and horizontal concatenation. Unbounded predicates 11\u201313 reuse the exact feval 32/33/35 constructors."
+  ],
+  "baseline_evidence": [
+    "Public feval: four missing-attribute failures.",
+    "Corrected quasimatrix baseline: one pass, four failures (transposed shape, empty shape, endpoints, missing isempty). Earlier component-last matrix expectations were rejected.",
+    "Root literal native isempty predicate 9 exposed missing Quasimatrix.isempty. An initial adaptive callback surrogate had hidden it and was replaced by actual horizontal concatenation."
+  ],
+  "qualification": {
+    "combined_publication_tests": 27,
+    "existing_quasimatrix_tests": 2,
+    "unbounded_isempty_predicates": 3,
+    "total_distinct_passing_tests": 32,
+    "final_test_formatting": "Only import order and trailing whitespace changed after the combined gate; non-import test AST unchanged.",
+    "source": "Publication source byte-identical to guarded source; tail tests byte-identical to qualified isolated tests. The public wrapper does not change existing entry points."
+  },
+  "receipts": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_api_isempty_integration_20261013/final/receipt.json",
+      "sha256": "14778e1d667f8f9236208cc13bfad33270631e4dee0861cbbf8cd35f7a3d5c62",
+      "wall_seconds": 33.59072067402303,
+      "peak_summed_rss_kib": 1813020
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_feval_native_20261013/runs/supervised_existing/receipt.json",
+      "sha256": "554fc580026a63eda1a0976045a6554d1466b7c972b49371d7314f1e0b5dbc71",
+      "wall_seconds": 8.92158081335947,
+      "peak_summed_rss_kib": 691752
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_isempty_native_20261013/runs/supervised_tail_isempty/receipt.json",
+      "sha256": "a2f203520616a36517acdaab464a86c3bf245a8260248f183bb554a78bd34c5c",
+      "wall_seconds": 23.2533677672036,
+      "peak_summed_rss_kib": 1449176
+    }
+  ],
+  "supplemental_bounds": "New quasimatrix analytic controls use 20 eps * max(1, expected scale), not an original MATLAB test bound. Existing assertion bounds are unchanged. Public wrapper controls use exact arrays or 4 eps / 10 eps analytic bounds.",
+  "compatibility": [
+    "Python scalar and rank-one component-last conventions are retained; row Q rank-one evaluation returns (ncols, npoints).",
+    "Column endpoint results retain the Python vector convention; row endpoints return (ncols, 1)."
+  ],
+  "limitations": [
+    "Empty Chebfun evaluation remains open in a separate candidate.",
+    "JIT subnormal routing and nonfinite boundaries remain in a separate candidate.",
+    "Full native API, assertions, pages, figures, performance and current-main CI remain incomplete."
+  ],
+  "source_hashes": {
+    "@chebfun/feval.m": "e631fe0234de819a8dc0f6846424121808dc52d54d5a483ad6e998cf9ce452a6",
+    "@chebfun/isempty.m": "2475c89d63bfa5facee469b538ab7d44efc1189c31e81765b5ae6061141d555d",
+    "tests/chebfun/test_isempty.m": "339998b5ebd3dc0620ee1e74512be710d061a50f32dc33a1ee800e333678bf60"
+  },
+  "files": {
+    "src/chebfunjax/__init__.py": "38df6093adc82dc16ef2452293d6ceaaae6fe578c8c13ade5012fcdb1c427812",
+    "src/chebfunjax/chebfun1d/linalg.py": "738ea1836931a8561c90f8681a2be2781bd1fc2b02d749db3a79b5fc444db346",
+    "tests/test_matlab_port/chebfun/test_feval_public_api.py": "8183989e4ee25b144064335ab621823a8a32fa6cf2ccae29aa75f15ec1d36729",
+    "tests/test_matlab_port/chebfun/test_isempty_matlab.py": "81290da344b9f0ba714b5fdcf8dbff361ca0b88a67af5d1e4dff1710d7b5a31a",
+    "tests/test_matlab_port/chebfun/test_quasimatrix_feval_source_controls.py": "6b2589c402eca279dae4280de58608397eb0a7118bf4d5ace4ea62392c1b7c94",
+    "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py": "b1fd1b4d600f26d465a7e4366cf29703bb79f9b16ee53933aaaa226e784dc651"
+  }
+}

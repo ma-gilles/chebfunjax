@@ -1,3 +1,17 @@
+## Public evaluation and quasimatrix source semantics — 2026-10-13
+
+Public `cj.feval` now supports documented evaluation syntax. Quasimatrices
+handle endpoint strings and one-sided values, preserve empty query shapes,
+and apply row orientation once after native component packing. Their missing
+`isempty` method is implemented. All 13 numbered native `isempty` predicates
+are represented, including literal horizontal concatenation and singular and
+unbounded constructors. The package has 32 distinct passing CPU checks;
+27 ran together in the publication checkout. See
+`docs/feval_public_quasimatrix_isempty_cpu_20261013.json` for scope and receipts.
+
+Empty scalar Chebfun evaluation and JIT subnormal/nonfinite routing are still
+under separate repair. Full parity and green CI on current main remain open.
+
 ## Exact one-sided evaluation and native feval coverage — 2026-10-13
 
 This package has 93 passing CPU checks across bounded fresh processes, covering

@@ -106,6 +106,21 @@ plot = plot_dispatch
 # Top-level special functions: cj.sin(f) is equivalent to f.sin()
 # ---------------------------------------------------------------------------
 
+def feval(f, x, *args):
+    """Evaluate a Chebfun or callable using MATLAB's ``feval`` syntax.
+
+    Endpoint strings, one-sided limits and Chebfun composition dispatch to
+    the object's evaluation method. Extra positional arguments are forwarded
+    to function handles, as in the native implementation.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/feval.m
+    Chebfun commit: 7574c77
+    """
+    return f(x, *args)
+
+
 def sin(f: Chebfun) -> Chebfun:
     """Sine of a Chebfun.  Equivalent to ``f.sin()``."""
     return f.sin()
@@ -311,6 +326,7 @@ def pdeSolve(pdefun, t, u0, **kwargs):
 __all__ = [
     "Chebfun",
     "chebfun",
+    "feval",
     "odesol",
     "constructODEsol",
     "ode45",
