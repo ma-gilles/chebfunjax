@@ -480,6 +480,119 @@ class Quasimatrix:
             return NotImplemented
         return self._map(lambda col: col.__rpow__(base))
 
+    def __truediv__(self, other):
+        """Pointwise right division, dispatched over true scalar columns.
+
+        Chebfun operands are split into scalar columns and paired with native
+        singleton-column expansion. Numeric scalar/vector operands follow the
+        source columnRdivide dispatch. Chebfun/Chebfun output remains a
+        Quasimatrix. A single function divided by a numeric vector expands
+        into an array-valued Chebfun; constant./Quasimatrix also attempts
+        quasi2cheb assembly in :meth:`__rtruediv__`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m, columnRdivide
+        Chebfun commit: 7574c77
+        """
+        from .chebfun import Chebfun
+
+        if isinstance(other, Quasimatrix):
+            return _source_quasimatrix_rdivide(self.cols, other.cols)
+        if isinstance(other, Chebfun):
+            if other.isempty():
+                return Chebfun.empty()
+            other_cols = [other] if other.n_columns == 1 else other.mat2cell()
+            return _source_quasimatrix_rdivide(self.cols, other_cols)
+
+        try:
+            values = jnp.asarray(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if values.size == 0:
+            return Chebfun.empty()
+        if values.dtype.kind not in "biufc":
+            return NotImplemented
+        if values.size == 1:
+            return self._map(lambda col: col / values.reshape(()))
+        if values.ndim > 2 or (values.ndim == 2 and min(values.shape) != 1):
+            raise ValueError("CHEBFUN:CHEBFUN:rdivide:dim: "
+                             "Chebfun quasimatrix dimensions must agree.")
+        flat = jnp.ravel(values)
+        if len(self.cols) == 1:
+            # Native columnRdivide permits scalar-function ./ numeric vector,
+            # yielding one array-valued Chebfun rather than a Quasimatrix.
+            if bool(jnp.any(flat == 0)):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZero: "
+                    "Division by zero.")
+            return _source_quasi2cheb(
+                [self.cols[0] / flat[k] for k in range(flat.size)])
+        if flat.size != len(self.cols):
+            raise ValueError("CHEBFUN:CHEBFUN:rdivide:dim: "
+                             "Chebfun quasimatrix dimensions must agree.")
+        return Quasimatrix(
+            [self.cols[k] / flat[k] for k in range(len(self.cols) - 1, -1, -1)][::-1],
+            self.domain)
+
+    def __rtruediv__(self, other):
+        """Pointwise numeric/Chebfun numerator divided by these columns.
+
+        The constant-over-Quasimatrix branch attempts the native
+        ``quasi2cheb`` concatenation after column division. For Chebfun
+        operands, the native columnwise result remains a Quasimatrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m, constant ./ CHEBFUN and
+            CHEBFUN ./ CHEBFUN column branches
+        Chebfun commit: 7574c77
+        """
+        from .chebfun import Chebfun
+
+        if isinstance(other, Chebfun):
+            if other.isempty():
+                return Chebfun.empty()
+            numerators = [other] if other.n_columns == 1 else other.mat2cell()
+            return _source_quasimatrix_rdivide(numerators, self.cols)
+
+        try:
+            values = jnp.asarray(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if values.size == 0:
+            return Chebfun.empty()
+        if values.dtype.kind not in "biufc":
+            return NotImplemented
+        if not bool(jnp.any(values)):
+            # Native numeric zero ./ CHEBFUN exits as 0*g, preserving the
+            # Quasimatrix representation and avoiding quasi2cheb assembly.
+            return self * 0
+        if values.size == 1:
+            numerators = [values.reshape(())] * len(self.cols)
+        else:
+            if values.ndim > 2 or (values.ndim == 2 and min(values.shape) != 1):
+                raise ValueError("CHEBFUN:CHEBFUN:rdivide:dim: "
+                                 "Chebfun quasimatrix dimensions must agree.")
+            flat = jnp.ravel(values)
+            if len(self.cols) == 1:
+                return _source_quasi2cheb(
+                    [flat[k] / self.cols[0] for k in range(flat.size)])
+            elif flat.size == len(self.cols):
+                numerators = list(flat)
+            else:
+                raise ValueError("CHEBFUN:CHEBFUN:rdivide:dim: "
+                                 "Chebfun quasimatrix dimensions must agree.")
+        divided = [numerators[k] / self.cols[k]
+                   for k in range(len(self.cols) - 1, -1, -1)]
+        result = Quasimatrix(list(reversed(divided)), self.domain)
+        # Native constant./CHEBFUN calls quasi2cheb and keeps the original
+        # quasimatrix if collating its scalar columns is not possible.
+        try:
+            return _source_quasi2cheb(result.cols)
+        except (TypeError, ValueError):
+            return result
+
     def __neg__(self):
         return self._map(lambda c: -c)
 
@@ -1030,6 +1143,56 @@ class Quasimatrix:
         a, b = self.domain.a, self.domain.b
         col_word = "column" if n == 1 else "columns"
         return f"Quasimatrix [{a}, {b}] with {n} {col_word}"
+
+
+def _source_quasi2cheb(columns):
+    """Attempt the native quasi2cheb concatenation on scalar columns.
+
+    Native chooses cat(2) for column-oriented inputs and cat(1) for
+    transposed inputs. The latter maps to concatenating normalized columns
+    then restoring the row orientation, which preserves an array-valued
+    Chebfun when the scalar columns are compatible.
+    """
+    from .chebfun import Chebfun
+
+    columns = list(columns)
+    if not columns[0].is_transposed:
+        return Chebfun.horzcat(columns)
+    normalized = [column.T for column in columns]
+    assembled = Chebfun.horzcat(normalized)
+    if isinstance(assembled, Chebfun):
+        return assembled.T
+    if isinstance(assembled, Quasimatrix):
+        return Quasimatrix([column.T for column in assembled.cols],
+                           assembled.domain)
+    return assembled
+
+
+def _source_quasimatrix_rdivide(numerators, denominators):
+    """Apply native Chebfun rdivide independently to matching columns.
+
+    Native ``@chebfun/rdivide.m`` permits singleton-column expansion and checks
+    incompatible multi-column counts before column operations. Singleton
+    expansion assigns from left to right; equal-width Quasimatrix division
+    processes from right to left. Each scalar Chebfun operation then keeps the
+    source denominator-first zero/domain/orientation error ordering.
+    """
+    if (len(numerators) != len(denominators)
+            and len(numerators) != 1 and len(denominators) != 1):
+        raise ValueError(
+            "CHEBFUN:CHEBFUN:rdivide:quasi: "
+            "Chebfun quasimatrix dimensions must agree.")
+    count = max(len(numerators), len(denominators))
+    result = [None] * count
+    # Native singleton-column expansion assigns columns in ascending order;
+    # the equal-column Quasimatrix branch loops from the last column down.
+    order = (range(count) if len(numerators) != len(denominators)
+             else range(count - 1, -1, -1))
+    for k in order:
+        numerator = numerators[0 if len(numerators) == 1 else k]
+        denominator = denominators[0 if len(denominators) == 1 else k]
+        result[k] = numerator / denominator
+    return Quasimatrix(result, denominators[0].domain)
 
 
 # ============================================================================

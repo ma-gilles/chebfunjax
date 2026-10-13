@@ -1,3 +1,14 @@
+## Quasimatrix division and native error predicates — 2026-10-14
+
+Native rdivide8–12 and both13 assignments plus14–15 now pass with original
+operands and bounds. Added native Quasimatrix column dispatch, numeric-zero
+representation preservation, singleton expansion and row-oriented array assembly.
+Root source review corrected earlier orientation and error-order controls.
+The merged22-test CPU gate passes in22.69seconds, sampled peak1,276,416KiB,
+stable guards/no survivors:18 native predicates plus4 supplemental groups.
+Later16–24 numerical predicates and full main CI remain under qualification.
+Evidence: `docs/rdivide_quasimatrix_cpu_20261014.json`.
+
 ## Native absolute-value assertions and surface framing — 2026-10-13
 
 ## Complete original abs expressions and unbounded fixes — 2026-10-14

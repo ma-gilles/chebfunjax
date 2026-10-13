@@ -1,0 +1,36 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "556eb0bc48479a4ce3442c90a8769168a2331f45",
+  "scope": "Native rdivide predicates8\u201312 and error predicates13 (both assignments),14,15; original1\u20137,25\u201326 regressions retained.",
+  "changes": [
+    "Quasimatrix division preserves native singleton expansion, equal-width reverse evaluation order and representation.",
+    "Numeric zero shortcut and one-column numeric-vector expansion; transposed constant division returns directly evaluable row-oriented Chebfun.",
+    "Original errors tested with native operands and identifiers."
+  ],
+  "merged_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_quasi_publication_20261014/run2",
+    "receipt_sha256": "dd25399f71def8011cfcbb570ebc9093cc9454086ce22069916c8c3620449ece",
+    "passed_tests": 22,
+    "original_predicates": 18,
+    "supplemental_test_groups": 4,
+    "wall_seconds": 22.688869830220938,
+    "sampled_peak_summed_rss_kib": 1276416,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/linalg.py": "b88cdadc0f0805b2791d177f11cea95248aba1b2266bbcd18dd546ea46894f86",
+    "tests/test_matlab_port/chebfun/test_rdivide_quasimatrix_source.py": "8127cb282a958d9443fbfa1e45c675718c768356a5524ee54aecf5c5e0bb85b4",
+    "tests/test_matlab_port/chebfun/test_rdivide_errors_source.py": "6874236e8b3a090b6933f3d175cef7c0f4d3e1f437ea605b0e8e93b233b74243"
+  },
+  "superseded": [
+    "Initial root invocation used nonexistent test_rdivide.py; exit4 without collection, retained at /scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_quasi_publication_20261014/run",
+    "Agent earlier controls and payloads preserved under rdivide_quasimatrix_candidate_20261014; v8 fixes transposed return type and uses direct evaluation."
+  ],
+  "limits": [
+    "Later rdivide16\u201324 numerical predicates tracked separately.",
+    "Full native division API and full main CI not claimed.",
+    "Native strict tolerance, seeded probe values, and operations retained; no performance comparison claimed."
+  ]
+}
