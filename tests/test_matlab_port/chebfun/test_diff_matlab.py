@@ -1,4 +1,7 @@
-"""Port of MATLAB Chebfun tests/chebfun/test_diff.m (Fable 5).
+"""Port of MATLAB Chebfun tests/chebfun/test_diff.m.
+
+Seeded query vectors use captured MATLAB ``seedRNG`` fixtures for the source
+sequences; the test formulas and original error bounds are retained.
 
 Provenance
 ----------
@@ -8,15 +11,22 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import jax
 import jax.numpy as jnp
 import numpy as np
+from scipy.io import loadmat
 
 import chebfunjax as cj
 
 EPS = float(np.finfo(np.float64).eps)
-RNG = np.random.default_rng(7681)
-XR = jnp.asarray(2 * RNG.uniform(size=1000) - 1)
+_DATA = Path(__file__).with_name("data")
+XR = jnp.asarray(loadmat(
+    _DATA / "feval_seedRNG_7681_xr.mat")["xr"]).reshape(-1)
+_DIFF_QUERIES = np.load(_DATA / "diff_seedRNG_6178_queries.npz")
+X10 = jnp.asarray(_DIFF_QUERIES["x10"])
+X11 = jnp.asarray(_DIFF_QUERIES["x11"])
 
 
 class TestChebfunDiff:
@@ -126,7 +136,8 @@ class TestChebfunDiff:
         pow_ = -0.5
         op = lambda x: (x - dom[0]) ** pow_ * jnp.sin(200 * x)
         f = cj.chebfun(op, domain=dom, exps=(pow_, 0.0), splitting=True)
-        x = jnp.linspace(dom[0] + 0.1, dom[1] - 0.1, 100)
+        # Native pass(10): seedRNG(6178), captured source query vector.
+        x = X10
         got = f.diff()(x)
         exact = (x - dom[0]) ** (pow_ - 1) * (
             pow_ * jnp.sin(200 * x) + 200 * (x - dom[0]) * jnp.cos(200 * x))
@@ -134,13 +145,12 @@ class TestChebfunDiff:
 
     def test_native_unbounded_derivative_predicate(self):
         def op(x):
-            safe_x = jnp.where(x == 0, 1.0, x)
-            value = (1 - jnp.exp(-x**2)) / safe_x
-            return jnp.where(x == 0, 0.0, value)
+            return (1 - jnp.exp(-x**2)) / x
         f = cj.chebfun(op, domain=(-jnp.inf, jnp.inf), splitting=True)
-        x = jnp.linspace(-100.0, 100.0, 100)
+        # Native pass(11): captured continuation after pass(10), no reseed.
+        x = X11
         got = f.diff()(x)
-        exact = 2 * jnp.exp(-x**2) + (jnp.exp(-x**2) - 1) / jnp.where(x == 0, 1.0, x**2)
+        exact = 2 * jnp.exp(-x**2) + (jnp.exp(-x**2) - 1) / x**2
         assert float(jnp.max(jnp.abs(got - exact))) < 1e3 * EPS * f.diff().vscale
 
 

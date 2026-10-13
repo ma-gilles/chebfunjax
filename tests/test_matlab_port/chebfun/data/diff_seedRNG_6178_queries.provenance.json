@@ -1,0 +1,36 @@
+{
+  "artifact": "diff_seedRNG_6178_queries.npz",
+  "artifact_sha256": "97cfa07fc1628bd67531bb11ccdd9a4ee92834b8a6ab05008d38e3ec28411b93",
+  "arrays": {
+    "x10": {
+      "shape": [
+        100,
+        1
+      ],
+      "dtype": "float64"
+    },
+    "x11": {
+      "shape": [
+        100,
+        1
+      ],
+      "dtype": "float64"
+    }
+  },
+  "source_test": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_diff.m",
+  "source_test_sha256": "3af711a6ad868c0097ae20953a5351abaf15a2deac38c2e716e9f2a9296a7890",
+  "rng_helper": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/seedRNG.m",
+  "rng_helper_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+  "capture_driver": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_capture_20261014/driver.m",
+  "capture_driver_sha256": "fbc3de4f379eb39b91e31e353ae66a6c08605fba6a9f30f4094cfb963096a9f9",
+  "capture_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_capture_20261014/capture.mat",
+  "capture_mat_sha256": "41f5252675d5a66877f5f6c9d025ac1c2329bbf0c91b681084aa6e2435cc2e06",
+  "native_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_capture_20261014/supervision2/receipt.json",
+  "native_receipt_sha256": "eb673b147ba3817bf8843fd297d6dc3823bd26582247eef4e3f813823871180d",
+  "semantics": "Replays seedRNG(6178), draws x10, executes native clause 10 function construction/evaluation, then draws x11 without reseeding, matching source clause 11 RNG continuation.",
+  "native_predicates": {
+    "clause10": true,
+    "clause11": true
+  },
+  "matlab": "R2025b, pinned source commit 7574c77680d7e82b79626300bf255498271a72df"
+}

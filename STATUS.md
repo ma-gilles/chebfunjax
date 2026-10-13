@@ -1,3 +1,14 @@
+## Restore native derivative probes and literal unbounded callback — 2026-10-14
+
+Derivative tests now use captured native seed7681 probes and actual sequential
+seed6178 draws for singular/unbounded clauses10–11. Removed the test's manual
+zero-limit workaround: the literal native unbounded callback and derivative
+pass at the original bound. Native10/11 captures pass; private focused7+2
+input gates and affected literal11 successor pass. Root13 finite/adapter tests
+also pass on the integrated file, with stable inputs/no survivors. No library
+behavior change; no tolerance changes. Raw native capture/driver are retained.
+Evidence: `docs/diff_native_queries_cpu_20261014.json`.
+
 ## TreeVar dtype-stable unary JAX kernels; unbounded division predicate — 2026-10-14
 
 Sixteen unary runtime primitives now stay in JAX, bypassing the eager NumPy

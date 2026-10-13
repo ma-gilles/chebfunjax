@@ -1,0 +1,43 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Use existing exact native seed7681 points in established Python1D query convention.",
+    "Replace clause10/11 linspace sites with actual native sequential6178captures after source construction.",
+    "Restore literal clause11 callback and derivative expression without manually replacing the zero limit."
+  ],
+  "qualification": {
+    "private_finite": "7 nodes passed at originalbounds.",
+    "private_singular": "Source10 passed withnewinputs; originalunboundednodepassed beforeliteralcallbackrestoration.",
+    "private_literal_unbounded": "Affected source11 node passed23.82s/1,355,432KiB afterliteralcallbackrestoration.",
+    "root_merged": {
+      "command_exit_code": 0,
+      "wall_seconds": 18.28328894916922,
+      "sampled_peak_summed_rss_kib": 1064468,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "root_merged_tests": "13 non-singular/non-unbounded tests passed, including all additional consumers ofchangedglobalXR."
+  },
+  "native": "Both source10/11 native predicates pass. Rawcapture anddriver retained. Root independently matched x10/x11 shape,dtype,bytes toNPZ.",
+  "limits": [
+    "No library fault reproduced; this repairs test inputs and masked constructor expression.",
+    "Native7681 points flattened for establishedPythonshapeadapter; notnewnativecolumnshapequalification.",
+    "Source10/11 privategates rununchangedscientificsource relativecurrentP; no redundantrootheavyrepeat.",
+    "Original startupfailure and shape-broadcast diagnostic failures preserved inprivateevidence."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_source_publication_20261014/run/receipt.json": "3f96c9a7c50f61da2fbb09f968c270c1e0b4ff79b6e4c6e0f30675bebc04ce8b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_source_publication_20261014/raw_review.json": "69058a6b9e80b8f3495f6f5bf04aaca4b36b446e403a0f9db958c4b79ad7f4f5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_candidate_v2_20261014/gates/diff_literal_source_20261014/REPORT_v2.md": "afd76ee83627a4cf4c8c439743f5f59a97819604855cd7ad9d696c415010a342",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_candidate_v2_20261014/gates/diff_literal_source_20261014/manifest_v2.json": "f816b7d2fb071805f5339bc880d87bfb2a9ac10f650845dfb7df87e5fb50293d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_candidate_v2_20261014/gates/diff_literal_source_20261014/run/receipt.json": "ea16425b6d5961f3e1ce9928e422a01985e789df944e90cdc1bee14ab35bf8b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_candidate_20261014/gates/diff_source_20261014/run_7681_v2/receipt.json": "5865b09643e236352a56ce4ba4325b39a37571a21a3c6ac76b3282b80f50a346",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_candidate_20261014/gates/diff_source_20261014/run_6178_v2/receipt.json": "226c74d821c0dac9bfd10153e5d91ea5d366550c00424059d7b2f3fd1f39c5d6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diff_rng_capture_20261014/supervision2/receipt.json": "eb673b147ba3817bf8843fd297d6dc3823bd26582247eef4e3f813823871180d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_diff_matlab.py": "4b238c44f038df6b29b76ae78fd3f067b42d06ee8bb4427ed9a41e748a32daed",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/data/diff_seedRNG_6178_queries.npz": "97cfa07fc1628bd67531bb11ccdd9a4ee92834b8a6ab05008d38e3ec28411b93",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/data/diff_seedRNG_6178_queries.provenance.json": "e9f67da2b57161354f161635d91b1270ba0f6d17ea76a21561e421ee46a493ab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/diff_native_capture_20261014.mat": "41f5252675d5a66877f5f6c9d025ac1c2329bbf0c91b681084aa6e2435cc2e06",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/diff_native_capture_20261014.m": "fbc3de4f379eb39b91e31e353ae66a6c08605fba6a9f30f4094cfb963096a9f9"
+  }
+}
