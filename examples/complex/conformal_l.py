@@ -24,7 +24,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils._basic_lstsq import _basic_lstsq
 from chebfunjax.utils.aaa import aaa
@@ -94,7 +94,7 @@ def run():
     ax.axis(list(1.1 * np.array([-1, 1, -1, 1])))
     ax.set_aspect("equal")
     ax.set_axis_off()
-    ax.plot(pol.real, pol.imag, '.r', ms=10)
+    matlab_plot(pol.real, pol.imag, '.r', ax=ax, ms=10)
     ray = np.asarray(chebpts(100))
     ray = ray[ray >= 0]
     circ = np.exp(2j * np.pi * np.arange(0, 201) / 200)
@@ -114,7 +114,7 @@ def run():
     ax.axis(list(1.4 * np.array([-1, 1, -1, 1])))
     ax.set_aspect("equal")
     ax.set_axis_off()
-    ax.plot(polinv.real, polinv.imag, '.r', ms=10)
+    matlab_plot(polinv.real, polinv.imag, '.r', ax=ax, ms=10)
     for th in 2 * np.pi * np.arange(1, 13) / 12:
         v = np.exp(1j * th) * ray
         ax.plot(v.real, v.imag, 'k', lw=0.5)
@@ -129,8 +129,9 @@ def run():
     distances = np.sort(np.abs(
         pol[(pol.real > 0) & (pol.imag > 0)]))
     fig, ax = plt.subplots(figsize=(8.6, 5.4))
-    ax.semilogy(np.arange(1, len(distances) + 1), distances, '.-',
-                ms=12, lw=0.5)
+    matlab_plot(np.arange(1, len(distances) + 1), distances, '.-',
+                ax=ax, ms=12, lw=0.5)
+    ax.set_yscale('log')
     ax.grid(True)
     ax.set_title("distances of poles to singularity")
     _save(fig)

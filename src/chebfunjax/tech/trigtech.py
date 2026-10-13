@@ -39,6 +39,14 @@ from chebfunjax.utils.misc import standard_chop
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
 
+class _TrigtechMtimesError(ValueError):
+    """MATLAB-compatible mtimes diagnostic with an error identifier."""
+
+    def __init__(self, identifier: str, message: str):
+        super().__init__(message)
+        self.identifier = identifier
+
+
 # ============================================================================
 # FFT-based transforms (JIT-safe)
 # ============================================================================
@@ -2640,27 +2648,107 @@ class Trigtech(eqx.Module):
         """
         if self.isempty():
             return Trigtech.empty()
+        if isinstance(other, Trigtech) and other.isempty():
+            return Trigtech.empty()
+        if isinstance(other, Trigtech):
+            raise _TrigtechMtimesError(
+                "CHEBFUN:TRIGTECH:mtimes:trigtechMtimesTrigtech",
+                "Use .* to multiply TRIGTECH objects.",
+            )
         try:
             A = jnp.asarray(other)
-        except (TypeError, ValueError) as exc:
-            # MATLAB @trigtech/mtimes.m: 'Use OP(f, c) to multiply a
-            # TRIGTECH by an object of class <cls>.'
-            raise TypeError(
-                "Trigtech mtimes: cannot multiply a Trigtech by an "
-                f"object of class {type(other).__name__}.") from exc
-        if not jnp.issubdtype(A.dtype, jnp.number):
-            raise TypeError(
-                "Trigtech mtimes: cannot multiply a Trigtech by an "
-                f"object of class {type(other).__name__}.")
-        if A.size == 0:
-            # MATLAB @trigtech/mtimes.m: f * [] is empty.
+        except (TypeError, ValueError):
+            A = None
+        if A is None:
+            class_name = type(other).__name__
+        elif A.size == 0:
+            # MATLAB checks isempty(c) before its numeric-class dispatch.
             return Trigtech.empty()
-        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        return Trigtech(coeffs=c @ A.astype(jnp.complex128),
-                        is_real=self.is_real and bool(jnp.isrealobj(A)),
-                        ishappy=self.ishappy,
-                        _values=(self.values if self.values.ndim == 2
-                                 else self.values[:, None]) @ A)
+        elif isinstance(other, (int, float, complex, list, tuple)) and not isinstance(other, bool):
+            # Python scalar/list literals stand for MATLAB double inputs. Infer
+            # complex first so Python complex sequences retain their values.
+            dtype = jnp.complex128 if jnp.issubdtype(A.dtype, jnp.complexfloating) else jnp.float64
+            A = A.astype(dtype)
+            class_name = None
+        elif A.dtype in (jnp.float64, jnp.complex128):
+            class_name = None
+        else:
+            class_name = "logical" if A.dtype == jnp.bool_ else str(A.dtype)
+        if class_name is not None:
+            raise _TrigtechMtimesError(
+                "CHEBFUN:TRIGTECH:mtimes:trigtechMtimesUnknown",
+                "mtimes does not know how to multiply a TRIGTECH and a "
+                f"{class_name}.",
+            )
+        if A.size == 1:
+            scalar = A.reshape(())[()]
+            coeffs = self.coeffs * scalar
+            values = self.values * scalar
+        else:
+            if A.ndim > 2:
+                raise _TrigtechMtimesError(
+                    "CHEBFUN:TRIGTECH:mtimes:size2",
+                    "Inner matrix dimensions must agree.",
+                )
+            ncols = 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+            nrows = A.shape[0]
+            if ncols != nrows:
+                raise _TrigtechMtimesError(
+                    "CHEBFUN:TRIGTECH:mtimes:size2",
+                    "Inner matrix dimensions must agree.",
+                )
+            c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+            vals = self.values if self.values.ndim == 2 else self.values[:, None]
+            coeffs = c @ A.astype(jnp.complex128)
+            values = vals @ A
+        # MATLAB isreal(c) follows the explicit complex storage class, even
+        # when every stored imaginary component happens to be zero.
+        multiplier_is_real = bool(jnp.isrealobj(A))
+        if bool(jnp.max(jnp.abs(values)) == 0.0):
+            # @trigtech/mtimes.m collapses every all-zero result to one row.
+            nout = 1 if coeffs.ndim == 1 else coeffs.shape[1]
+            return Trigtech(
+                coeffs=jnp.zeros((1, nout), dtype=coeffs.dtype),
+                is_real=self.is_real and multiplier_is_real,
+                ishappy=self.ishappy,
+            )
+        return Trigtech(
+            coeffs=coeffs,
+            is_real=self.is_real and multiplier_is_real,
+            ishappy=self.ishappy,
+            _values=values,
+        )
+
+    def __rmatmul__(self, other):
+        """MATLAB mtimes dispatch when the numeric operand is on the left.
+
+        @trigtech/mtimes.m first handles either empty operand, then rejects
+        nonscalar left numeric operands, and finally swaps a scalar left
+        operand into the ordinary Trigtech-times-numeric path.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return Trigtech.empty()
+        if isinstance(other, Trigtech):
+            if other.isempty():
+                return Trigtech.empty()
+            return NotImplemented
+        try:
+            A = jnp.asarray(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if A.size == 0:
+            return Trigtech.empty()
+        if A.size > 1:
+            raise _TrigtechMtimesError(
+                "CHEBFUN:TRIGTECH:mtimes:size",
+                "Inner matrix dimensions must agree.",
+            )
+        return self.__matmul__(other)
 
     def fliplr(self) -> "Trigtech":
         """Reverse the column order of an array-valued tech (no-op for

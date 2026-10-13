@@ -1,0 +1,56 @@
+{
+  "scope": "Trigtech mtimes native error predicates11\u201314, scalar/empty dispatch and resulting zero storage; Python @ adapter.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "905dbd10091ee3b8aceed4693c81a20893d99e4f",
+  "qualification": "v7 full19checks passed before final storage-based isreal correction; v8 requalifies the affected complex-zero/nonfinite control (1pass). No unchanged-final full19run claim.",
+  "review_fixes": [
+    "Retain complex Python sequence values",
+    "Empty operands precede size/type errors",
+    "Scalar and singleton @ both sides",
+    "Collapse only resulting zeros, not zero input times nonfinite multiplier",
+    "Preserve storage-based MATLAB isreal(c) metadata"
+  ],
+  "files": [
+    {
+      "path": "src/chebfunjax/tech/trigtech.py",
+      "sha256": "56df4e102931f6c89e5f237fd6aa128085c86b8ed49903ca765a8c72fe144b47"
+    },
+    {
+      "path": "tests/test_matlab_port/trigtech/test_mtimes_matlab.py",
+      "sha256": "ab59cf42eeeaf6f96bd5205a5260d85d5d729f1ac08ed81d644bc8584f54fff8"
+    },
+    {
+      "path": "tests/test_matlab_port/trigtech/test_mtimes_adapter_source_controls.py",
+      "sha256": "a4c58bce111a1940198826a0638b9eff9a915f255be2785a41f9133cea1901c7"
+    }
+  ],
+  "receipts": {
+    "v7": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 37.8538693129085,
+      "sampled_peak_summed_rss_kib": 2178460,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigtech_mtimes_contract_candidate_20261013/gates/v7/run/receipt.json",
+      "sha256": "2d2a07b17b3e6b0553fea8a2156429629e8bee7d9e4f91aa84a520ade65ea080"
+    },
+    "v8": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 25.36166820395738,
+      "sampled_peak_summed_rss_kib": 1517168,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigtech_mtimes_contract_candidate_20261013/gates/v8/run/receipt.json",
+      "sha256": "46ae483964e453ed748ca6d2322007c45a2eafc9ebfad358cf834be7f7f03147"
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigtech_mtimes_contract_candidate_20261013/DELIVERY_v4.md": "d2a7b636f0f3f2dcc9ea7c43c4b30da062b1dc7743bcad04640713530547d920",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigtech_mtimes_contract_candidate_20261013/changed_paths_manifest_v4.json": "e88182fa74f11ca6a12fc9788f6735f985b39f73d1136a581f5bb6ac799ffa2b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigtech_mtimes_contract_candidate_20261013/gates/trigtech_mtimes_error_contract_v4.patch": "ed77b878102bdff30e87d4e117b8549c9343eedbe490f5261538fa30c349af69"
+  },
+  "limitations": [
+    "General full test suite/CI unresolved",
+    "Non-native Python literal sequences map to MATLAB double as documented adapter"
+  ]
+}

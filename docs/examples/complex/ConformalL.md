@@ -147,7 +147,7 @@ total_time_for_this_example = toc
 
 ```text
 total_time_for_this_example =
-    20.4106
+    18.8077
 ```
 
 [1] A. Gopal and L. N. Trefethen, Representation of conformal maps by rational functions, *Numer. Math.* 142 (2019), 359-382.

@@ -4561,13 +4561,19 @@ def _source_plot_line_and_points(
     kw,
     *,
     suppress_points=False,
+    small_dot_only=False,
 ):
     """Plot line and representation points as separately styled artists.
 
     ``line_x/line_y`` and ``point_x/point_y`` are already NaN-joined across
-    pieces. The caller only uses this for source-eligible bounded Chebtech
-    pieces. It is called only if a marker was requested, so the no-marker
-    P56 path remains byte-for-byte unchanged.
+    pieces, or are equal-shaped discrete arrays. Chebfun callers use it for
+    source-eligible bounded pieces; the plain-data caller uses its parsed
+    style for equal-shaped vectors/matrices and accepts only the native
+    small-dot range (float32 MarkerSize <= 21). With ``small_dot_only=True``
+    it returns False before adding artists for other markers, nonfinite sizes,
+    or larger dots, leaving those cases on the existing Matplotlib path.
+    MarkerSize zero remains eligible and invisible, matching the existing
+    Matplotlib behavior. This keeps the no-marker P56 path unchanged.
     Provenance: Chebfun source commit 7574c77, ``@chebfun/plot.m`` and the
     scalar/array ``plotData.m`` methods.
     """
@@ -4583,6 +4589,11 @@ def _source_plot_line_and_points(
     marker = props.pop("marker", fmt_marker)
     color = props.pop("color", fmt_color)
     label = props.pop("label", None)
+    if small_dot_only:
+        size = float(props.get("markersize", mpl.rcParams["lines.markersize"]))
+        if (marker != "." or not np.isfinite(size) or size < 0
+                or np.float32(size) > np.float32(21)):
+            return False
 
     # Matplotlib's parser returns (None, None, color) for color-only formats
     # such as "red" and "C2". MATLAB retains the ordinary default line in
@@ -4659,6 +4670,7 @@ def _source_plot_line_and_points(
             if label is not None and j > 0:
                 column_kw["label"] = "_nolegend_"
             _source_marker_artist(ax, px, py, column_kw)
+    return True
 
 
 
@@ -5085,7 +5097,21 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 for value in xd.ravel(order="F"):
                     _plot_curve(ax, np.asarray([value]), yd.ravel(), fmt, kw)
             else:
-                _plot_curve(ax, xd, yd, fmt, kw)
+                # Discrete builtin data uses the same source-qualified small
+                # dot glyph as Chebfun representation markers. The adapter
+                # parses and resolves the style once; unsupported marker
+                # sizes/styles retain the established Matplotlib path.
+                matching_columns = (
+                    xd.ndim in (1, 2) and yd.ndim in (1, 2)
+                    and xd.shape == yd.shape
+                )
+                handled = False
+                if matching_columns:
+                    handled = _source_plot_line_and_points(
+                        ax, xd, yd, xd, yd, fmt, kw, small_dot_only=True
+                    )
+                if not handled:
+                    _plot_curve(ax, xd, yd, fmt, kw)
             i = j
     if saw_plain:
         _apply_matlab_lims(ax, agg_x, agg_y, agg_default, entry_lims)

@@ -1,0 +1,169 @@
+{
+  "base_head": "905dbd10091ee3b8aceed4693c81a20893d99e4f",
+  "focused_gate": {
+    "exit_code": 0,
+    "failed": 0,
+    "inputs_stable": true,
+    "no_survivors": true,
+    "passed": 92,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_run_20261013/focused_supervision_v3/receipt.json",
+    "sampled_peak_summed_rss_kib": 536620,
+    "wall_seconds": 8.489742796868086
+  },
+  "amended_color_cycle_control": {
+    "exit_code": 0,
+    "failed": 0,
+    "inputs_stable": true,
+    "no_survivors": true,
+    "passed": 1,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_run_20261013/amended_test_supervision/receipt.json",
+    "sampled_peak_summed_rss_kib": 392540,
+    "wall_seconds": 6.266241287812591
+  },
+  "full_example": {
+    "cap_mib": 3072,
+    "exit_code": 0,
+    "guarded_inputs": 315,
+    "inputs_stable": true,
+    "no_survivors": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_page_run_20261013/example_supervision_v2/receipt.json",
+    "sampled_peak_summed_rss_kib": 1670684,
+    "wall_seconds": 25.37834866112098
+  },
+  "page_generation": {
+    "cap_mib": 1536,
+    "exit_code": 0,
+    "guarded_inputs": 315,
+    "inputs_stable": true,
+    "no_survivors": true,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_page_run_20261013/pagegen_supervision_v4/receipt.json",
+    "rss_sample_captured": false,
+    "sampled_peak_summed_rss_kib": 0,
+    "wall_seconds": 0.7225684826262295
+  },
+  "runtime": {
+    "backend": "cpu",
+    "candidate_origin_asserted": true,
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "page_command_cpu_affinity": "taskset -c 12-15",
+    "x64": true
+  },
+  "sha256": {
+    "amended_test_receipt": "927fc153a0c09b7c52ee61ccd97b7def2543c002373b7e674bc54f9bea2643af",
+    "amended_test_stdout": "0024ddffcdc480db34d27dcb9940943569c3cfffc836b7ecb90814b23bc0d2d9",
+    "audit": "116c14baf3190c4af3246d0c3b24df90676be0c8ace07683f2e36f52e8f58e5c",
+    "example_receipt": "4e80cca169870dad306fa9397f8ebb1028aa601063a2c04a185020c9f45f676e",
+    "example_source": "80592b63d48d0b2a9703c3f1f29d15b4d17f6ff048d6fbd7b7def4de6ab8efbf",
+    "example_stdout": "c331321b39ee15f009a82c03d7047c0853e4fbe610d430a0ae47087f4b77a15b",
+    "focused_receipt": "0f626c12209c8befca4aa180b08f4de876381a412795e7bd07af134f44eec455",
+    "focused_stdout": "dd74538a50420791a2f949dbf8f4a7d618ee382bd1b09348223baae55f8a09a4",
+    "generated_figure_1": "9ad28b69ab1fa48fd64a3964973f932bd2361e375721b09f1f48708509958738",
+    "generated_figure_2": "3ad26dc6bf6ccbfa1184825efd0ef3ba1696d1bfd09322ad0099f8cf75106fca",
+    "generated_figure_3": "2651cedd0056d37ed453c6d908a8677ed7438398c938df485c4a527bd463dee9",
+    "generated_markdown": "008268c2f9b7075d73946e2b3ce9248f40794aad6f53964de4aaef30d28a3950",
+    "generator_receipt": "da8f06f94e5799bf3b27ba85a1d048c74c08c6c5e9a8d111b4b76a0cc74d41e8",
+    "generator_stdout": "27bcb60442d989d2903ce7412142c6218527971393ace6940822095aa4fcfefb",
+    "html_cache": "9316d53dc302e32a5036b3185c3829bf3f82a1581dc064ed9074ce0590ba5c82",
+    "integration_patch": "befd3c101e66ed52152c5a79f7307ef5d5160b8287015dc6b16a4a8fbfb58eb6",
+    "native_capture": "14f82ba18bd1778de5e742286470297f1dc677062290b245e0d4247ec7e850d8",
+    "native_fixture": "d0ccef6113bf7959bba697efe017aa17fe065e512e1b3f0b8aa28d7799cd6e18",
+    "new_test": "ea3479cf4cb23b46ae55c05e422540340ef950d01d368ce501edbae326b7e242",
+    "page_guard_before_full_example": "d3873c6335adb1f86476589ca03aafcf1d60dde0ff735ec0a618e3f0cdb47e35",
+    "page_guard_for_final_generator": "dd8380457de901ba54faecb429988690c686f3aa5dab6e9a157da9cf943b8e8e",
+    "plotting_source": "68ebc9fb1498682d7d0146806362d482e3eb3e24d4374298a252252bff041029",
+    "reference_figure_1": "305500acc8d06a80102e83ac56133c019eb3ce713517fed29d2b337b78043be5",
+    "reference_figure_2": "410603623382cfc6af742550dff1a5908fd0bf19358621e4057001f6235e2256",
+    "reference_figure_3": "e6b3ceb905a46f3ab1580987b82ea538fe7384feff04878d983a63fbc6ddd229",
+    "report": "2ece8fea9235c72fa9892031c77c37455cfc9aceb6886feeeae4cce1383b78b9"
+  },
+  "limitations": [
+    "The full example guard predates the test-only active-cycle expectation edit; plotting implementation, example, and native fixture remained unchanged. The amended test alone passed afterward.",
+    "The page generator used the fresh stdout and rewrote all five Markdown output slots; cached HTML retains historical output slots.",
+    "No pixel parity claim. Larger dot sizes and non-dot marker styles remain on prior Matplotlib rendering route."
+  ],
+  "source_scope": [
+    "src/chebfunjax/plotting.py",
+    "examples/complex/conformal_l.py",
+    "tests/test_matlab_plot_plain_dot_native.py",
+    "docs/examples/complex/ConformalL.md",
+    "docs/images/complex/ConformalL_01.png",
+    "docs/images/complex/ConformalL_02.png",
+    "docs/images/complex/ConformalL_03.png"
+  ],
+  "audit": {
+    "checks": {
+      "code_blocks_match_source_order": true,
+      "image_slots_match": true,
+      "outputs_match_fresh_stdout": true,
+      "prose_matches_source_order_normalized": true
+    },
+    "figures": [
+      {
+        "file": "ConformalL_01.png",
+        "generated_sha256": "9ad28b69ab1fa48fd64a3964973f932bd2361e375721b09f1f48708509958738",
+        "pixel_identical": false,
+        "reference_sha256": "305500acc8d06a80102e83ac56133c019eb3ce713517fed29d2b337b78043be5",
+        "reference_size": [
+          600,
+          270
+        ],
+        "rgb_mean_absolute_error": 2.545753086419753,
+        "size": [
+          600,
+          270
+        ]
+      },
+      {
+        "file": "ConformalL_02.png",
+        "generated_sha256": "3ad26dc6bf6ccbfa1184825efd0ef3ba1696d1bfd09322ad0099f8cf75106fca",
+        "pixel_identical": false,
+        "reference_sha256": "410603623382cfc6af742550dff1a5908fd0bf19358621e4057001f6235e2256",
+        "reference_size": [
+          600,
+          270
+        ],
+        "rgb_mean_absolute_error": 2.4347798353909464,
+        "size": [
+          600,
+          270
+        ]
+      },
+      {
+        "file": "ConformalL_03.png",
+        "generated_sha256": "2651cedd0056d37ed453c6d908a8677ed7438398c938df485c4a527bd463dee9",
+        "pixel_identical": false,
+        "reference_sha256": "e6b3ceb905a46f3ab1580987b82ea538fe7384feff04878d983a63fbc6ddd229",
+        "reference_size": [
+          600,
+          270
+        ],
+        "rgb_mean_absolute_error": 9.815090534979424,
+        "size": [
+          600,
+          270
+        ]
+      }
+    ],
+    "source_page_blocks": {
+      "figures": 3,
+      "matlab_inputs": 6,
+      "output_blocks": 5,
+      "prose_paragraphs": 14
+    },
+    "fresh_stdout": "boundary_err =\n   5.1268e-07\nnumber_of_poles_of_f =\n    46\nnumber_of_poles_of_finv =\n    67\nratios =\n    18.8115\n    3.9765\n    2.7747\n    2.5037\n    2.3872\n    2.2353\n    2.1073\n    1.9633\n    1.8047\n    1.7333\n    1.7002\n    1.6879\n    1.6591\n    1.6464\n    1.6367\n    1.6390\n    1.6298\n    1.6290\n    1.5899\n    1.5527\n    1.5267\n    1.5120\n    1.5070\n    1.5044\n    1.4865\n    1.4656\n    1.4449\n    1.4272\n    1.4166\n    1.4053\n    1.3941\n    1.3862\n    1.3835\n    1.3854\n    1.3913\n    1.4216\n    1.5656\ntotal_time_for_this_example =\n    18.8077\n",
+    "fresh_native_capture": {
+      "boundary_err": 5.126976502511926e-07,
+      "poles_f": 46,
+      "poles_finv": 69,
+      "sha256": "14f82ba18bd1778de5e742286470297f1dc677062290b245e0d4247ec7e850d8",
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/native.json"
+    }
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_page_run_20261013/REPORT.md",
+  "manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/plain_dot_glyph_page_run_20261013/manifest.json",
+    "sha256": "834aebb87837fd4c70a7f5b14d67e299eb94d6f41e235cfc014f67b14b36af85"
+  },
+  "integration": "Seven files byte-identical to qualified candidate; integrated Trigtech changes were independently qualified, not part of this page run."
+}

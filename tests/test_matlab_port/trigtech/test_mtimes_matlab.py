@@ -5,11 +5,9 @@ multiply ``f*A`` maps to chebfunjax ``f @ A`` (matmul); array-valued trigtechs
 are now supported, so the array scalar (pass 5-7) and matrix (pass 8-10) cases
 are real assertions (FIXED, Fable 5, Big-Three array-valued epic).
 
-The MATLAB size/type error paths (pass 11-13) do raise in chebfunjax, but as a
-generic ``TypeError`` rather than MATLAB's typed identifiers/messages
-(``CHEBFUN:TRIGTECH:mtimes:size`` etc.), so those are ported as assert-raises.
-pass 1 (empty-argument arithmetic) and pass 14 (``TRIGTECH*uint8`` message) have
-no chebfunjax analogue and stay xfail with precise reasons.
+The MATLAB size/type error paths (pass 11-14) preserve the native identifiers
+and messages. Python ``@`` is the matrix-multiplication adapter for MATLAB
+``*``; an explicit ``uint8`` operand preserves its source numeric class.
 
 Provenance
 ----------
@@ -144,34 +142,46 @@ class TestTrigtechMtimes:
         assert _ninf(g(X) - gex) < 100 * g.vscale * EPS
 
     def test_error_nonscalar_double_times_trigtech(self):
-        # pass(11): [1 2 3]*f (non-scalar double times trigtech) is a dimension
-        # mismatch.  FIXED (Fable 5, Big-Three array-valued epic): chebfunjax
-        # raises a generic TypeError (no MATLAB 'mtimes:size' identifier).
+        # pass(11): [1 2 3]*f (non-scalar double times trigtech).
         f = Trigtech.from_function(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
-        with pytest.raises(Exception):
-            jnp.array([1.0, 2.0, 3.0]) @ f
+        with pytest.raises(ValueError) as caught:
+            jnp.array([[1.0, 2.0, 3.0]]) @ f
+        assert caught.value.identifier == "CHEBFUN:TRIGTECH:mtimes:size"
+        assert str(caught.value) == "Inner matrix dimensions must agree."
 
     def test_error_trigtech_times_mismatched_double(self):
-        # pass(12): f*[1;2;3] with a 2-column f is a dimension mismatch.
-        # FIXED (Fable 5, Big-Three array-valued epic): raises (see pass 11).
+        # pass(12): f*[1;2;3], with source's two-column f.
         f = Trigtech.from_function(
             lambda x: jnp.stack([jnp.sin(10 * jnp.pi * x), jnp.cos(20 * jnp.pi * x)], axis=-1)
         )
-        with pytest.raises(Exception):
-            f @ jnp.array([1.0, 2.0, 3.0])
+        with pytest.raises(ValueError) as caught:
+            f @ jnp.array([[1.0], [2.0], [3.0]])
+        assert caught.value.identifier == "CHEBFUN:TRIGTECH:mtimes:size2"
+        assert str(caught.value) == "Inner matrix dimensions must agree."
 
     def test_error_trigtech_times_trigtech(self):
-        # pass(13): f*g of two trigtechs via mtimes (@) is forbidden.
-        # FIXED (Fable 5, Big-Three array-valued epic): chebfunjax raises a
-        # TypeError (MATLAB emits a "Use .* to multiply" message instead).
-        f = Trigtech.from_function(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
+        # pass(13): reuse the two-column f and multiply by scalar g.
+        f = Trigtech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(10 * jnp.pi * x), jnp.cos(20 * jnp.pi * x)], axis=-1
+            )
+        )
         g = Trigtech.from_function(lambda x: jnp.cos(20 * jnp.pi * x))
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError) as caught:
             f @ g
+        assert caught.value.identifier == "CHEBFUN:TRIGTECH:mtimes:trigtechMtimesTrigtech"
+        assert str(caught.value) == "Use .* to multiply TRIGTECH objects."
 
     def test_error_unknown_type(self):
-        # pass(14): multiplying a TRIGTECH by an unsupported object raises
-        # a typed error naming the operand class.
-        f = _tt(lambda x: jnp.sin(jnp.pi * x))
-        with pytest.raises(TypeError, match="class object"):
-            _ = f @ object()
+        # pass(14): retain the native uint8 class in the diagnostic.
+        f = Trigtech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(10 * jnp.pi * x), jnp.cos(20 * jnp.pi * x)], axis=-1
+            )
+        )
+        with pytest.raises(ValueError) as caught:
+            _ = f @ jnp.uint8(128)
+        assert caught.value.identifier == "CHEBFUN:TRIGTECH:mtimes:trigtechMtimesUnknown"
+        assert str(caught.value) == (
+            "mtimes does not know how to multiply a TRIGTECH and a uint8."
+        )

@@ -1,3 +1,19 @@
+## Native multiplication errors and plain-data point glyphs — 2026-10-13
+
+Trigtech matrix multiplication now reports the exact native error identifiers
+and messages for predicates11–14. Scalar, complex-sequence, empty-operand and
+result-zero contracts are covered. The19-check gate passed before the final
+storage-isreal correction; its affected complex-zero/nonfinite control passed
+again afterward. See `docs/trigtech_mtimes_cpu_20261013.json`.
+
+Plain-data matlab_plot now reuses qualified small-dot geometry while retaining
+source marker sizes, coordinates and color-cycle behavior. Related92checks
+pass; an amended cycle test also passes independently. The full ConformalL
+rerun completed cleanly in25.38s. All6inputs/14proseparagraphs preserve source
+order, all5outputblocks match actual stdout, and all3figures are600×270.
+Oversized dots are corrected; historical counts/location/figure differences
+remain. See `docs/plain_dot_glyph_cpu_20261013.json`. Full CI remains unresolved.
+
 ## Rectangular basic least squares and ConformalL — 2026-10-13
 
 ConformalL now uses a JAX pivoted-QR basic solution for its rectangular fit,
