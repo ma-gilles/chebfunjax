@@ -1,3 +1,12 @@
+## Quasimatrix numeric replacement domains — 2026-10-14
+
+Numeric replacement columns now use only the original domain endpoints, as
+in native assignColumns; logical values are rejected by the numeric branch.
+Five assignment groups pass, including piecewise row/column domain,
+orientation and value controls. Published source/tests exactly match the
+qualified private candidate. Singleton wrapper differences remain explicit.
+Evidence: `docs/quasimatrix_numeric_endpoints_cpu_20261014.json`.
+
 ## Numeric Chebfun3 source constructor — 2026-10-14
 
 Fixed numeric tensor construction now follows native complete ACA and block-term

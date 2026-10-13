@@ -92,6 +92,21 @@ def test_quasimatrix_assign_columns_clauses_6_to_8():
     error = jnp.max(jnp.abs(jnp.ravel(row(X) - expected)))
     assert float(error) < 10.0 * float(jnp.max(row.vscale())) * EPS
 
+    # Native numeric replacements are constructed on domain(f, 'ends'),
+    # even when the Quasimatrix has interior breakpoints.
+    piecewise = _q([jnp.sin, jnp.cos, jnp.exp], Domain((-1.0, 0.0, 1.0)))
+    replaced = piecewise.assign_columns(1, [4.0])
+    assert tuple(replaced.cols[1].domain.breakpoints) == (-1.0, 1.0)
+    assert len(replaced.cols[1].funs) == 1
+    assert jnp.all(replaced(X)[:, 1] == 4.0)
+
+    row_replaced = piecewise.T.assign_columns([1, 2], [4.0, 5.0])
+    assert row_replaced.is_transposed
+    assert tuple(row_replaced.cols[1].domain.breakpoints) == (-1.0, 1.0)
+    assert tuple(row_replaced.cols[2].domain.breakpoints) == (-1.0, 1.0)
+    assert jnp.all(row_replaced(X)[1] == 4.0)
+    assert jnp.all(row_replaced(X)[2] == 5.0)
+
 
 def test_quasimatrix_assign_columns_errors_and_growth_clauses_9_to_12():
     f = _f()
@@ -116,6 +131,10 @@ def test_quasimatrix_assign_columns_errors_and_growth_clauses_9_to_12():
         f.assign_columns(True, g)
     with pytest.raises(TypeError, match="booleans"):
         f.assign_columns(jnp.asarray([True, False]), g)
+    with pytest.raises(TypeError, match="logical replacements are not numeric"):
+        f.assign_columns(0, True)
+    with pytest.raises(TypeError, match="logical replacements are not numeric"):
+        f.assign_columns(0, jnp.asarray([True]))
 
     # Row Quasimatrix growth pads with a row-oriented zero column, retaining
     # its orientation and source column order.

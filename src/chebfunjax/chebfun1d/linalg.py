@@ -257,8 +257,10 @@ class Quasimatrix:
                     "assign_columns requires Chebfun, Quasimatrix, or numeric values") from None
             if values.size == 0:
                 return delete_selected()
-            if values.dtype.kind not in "biufc":
-                raise TypeError("assign_columns requires numeric replacement values")
+            if values.dtype.kind not in "iufc":
+                raise TypeError(
+                    "assign_columns requires numeric replacement values; "
+                    "logical replacements are not numeric")
             values = jnp.ravel(values)
 
             def constant(x, _values=values):
@@ -267,7 +269,10 @@ class Quasimatrix:
                     return jnp.full(x.shape, _values[0], dtype=_values.dtype)
                 return jnp.broadcast_to(_values, x.shape + (_values.size,))
 
-            replacement = Chebfun.from_function(constant, domain=self.domain)
+            # Native numeric replacement uses domain(f, 'ends'), dropping
+            # any interior breakpoints from the source Quasimatrix domain.
+            endpoint_domain = Domain((self.domain.a, self.domain.b))
+            replacement = Chebfun.from_function(constant, domain=endpoint_domain)
             if self.is_transposed:
                 replacement = replacement.T
 
