@@ -102,19 +102,32 @@ def test_spin3_system_matches_matlab(case, k):
         assert np.max(np.abs(v - r)) / np.max(np.abs(r)) < 1e-11
 
 
-def test_spin3_multistep_consistent_with_etdrk4():
-    """PECEC736 vs ETDRK4 in 3-D (a 7th- vs 4th-order scheme at a small
-    step agree to the ETDRK4 error); MATLAB's own 3-D multistep does
-    not, so this is pinned as self-consistency."""
+def test_spin3_multistep_source_startup_output():
+    """Native q6/tf5dt skips the main loop and retains initial output.
+
+    Replaces a supplemental self-consistency test explicitly contrary to
+    MATLAB; the old failure is retained in the package evidence. The four
+    independent native alternate-scheme assertions above are unchanged.
+    """
+    from pathlib import Path
+
+    data = Path(__file__).parents[1] / "test_matlab_port/spinop3/data"
     S = Spinop3("SCHNAK")
-    dt = 1e-3
-    N = 16
-    S.tspan = (0.0, 5 * dt)
-    u = spin3(S, N, dt, "dealias", "off", scheme="etdrk4")
-    v = spin3(S, N, dt, "dealias", "off", scheme="pecec736")
-    g = jnp.asarray(np.arange(0, N, 2) / N * float(S.domain[1]))
-    XX, YY, ZZ = jnp.meshgrid(g, g, g)
-    for c in range(2):
-        a = np.asarray(u.components[c](XX, YY, ZZ))
-        b = np.asarray(v.components[c](XX, YY, ZZ))
-        assert np.max(np.abs(a - b)) / np.max(np.abs(a)) < 1e-9
+    S.tspan = (0., .005)
+    solution, times = spin3(S, 16, .001, "dealias", "off",
+                           scheme="pecec736", return_times=True)
+    np.testing.assert_array_equal(times, [0.])
+    assert solution.shape == (2, 1)
+    g = jnp.arange(16) / 16 * float(S.domain[1])
+    grid = jnp.meshgrid(g, g, g)
+    with np.load(data / "startup_q6_native.npz") as native:
+        for k in range(2):
+            actual = np.asarray(solution[k, 0](*grid))
+            expected = native["output_grid"][..., k]
+            assert np.max(np.abs(actual-expected)) / np.max(np.abs(expected)) < 1e-11
+            initial = np.asarray(S.init[k](*grid))
+            assert np.max(np.abs(actual-initial)) / np.max(np.abs(initial)) < 1e-11
+            query = [jnp.asarray(native["query_"+axis]) for axis in "xyz"]
+            actual = np.asarray(solution[k, 0](*query))
+            expected = native["output_query"][k]
+            assert np.max(np.abs(actual-expected)) / np.max(np.abs(expected)) < 1e-11

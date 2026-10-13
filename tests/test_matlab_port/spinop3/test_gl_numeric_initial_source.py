@@ -6,8 +6,6 @@ MATLAB source: @spinop3/spinop3.m, GL parseInputs branch.
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
 These are supplemental controls, not a MATLAB normal-stream oracle.
 """
-import importlib
-
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -49,28 +47,27 @@ def test_gl_initial_field_and_short_solve(monkeypatch):
 
 
 @pytest.mark.parametrize('system', [False, True])
-@pytest.mark.parametrize('options, keywords, expected', [
+@pytest.mark.parametrize('options, keywords, masked', [
     ((), {}, False), (('dealias', 'on'), {}, True), ((), {'dealias': True}, True),
 ])
-def test_public_dealias_default_and_explicit_on(system, options, keywords, expected,
-                                              monkeypatch):
-    module = importlib.import_module('chebfunjax.operators.spinop3')
-    operator = Spinop3((0., 1., 0., 1., 0., 1.), (0., .01))
-    operator.init = lambda x, y, z: x*0
-    operator._lin_scales = (1.,)
-    operator._lin_ops = ('lap',)
-    operator._nonlin_vals = lambda u: u*0
-    operator._is_real = False
-    observed = []
+def test_public_dealias_default_and_explicit_on(system, options, keywords, masked):
+    # Native masks a central Fourier cube at output, not high-frequency strips.
+    domain = (0., 2*jnp.pi, 0., 2*jnp.pi, 0., 2*jnp.pi)
+    operator = Spinop3(domain, (0., .01))
+    def low(x, y, z):
+        return jnp.sin(x)+.2*jnp.cos(3*x)
+    def initial(x, y, z):
+        return low(x,y,z)+.1*jnp.cos(3*x)*jnp.cos(3*y)*jnp.cos(3*z)
     if system:
-        operator._n_vars = 2
-        def solve_system(s, n, dt, scheme, dealias):
-            observed.append(dealias)
-        monkeypatch.setattr(module, '_spin3_system', solve_system)
+        operator.lin = '@(u,v) [0*lap(u);0*lap(v)]'
+        operator.nonlin = [lambda u,v: 0*u, lambda u,v: 0*v]
+        operator.init = [initial, lambda x,y,z: 2*initial(x,y,z)]
     else:
-        def solve_scalar(s, n, dt, *, dealias, scheme):
-            observed.append(dealias)
-            return None, .01, jnp.zeros((4, 4, 4))
-        monkeypatch.setattr(module, '_core_spin3', solve_scalar)
-    spin3(operator, 4, .01, *options, **keywords)
-    assert observed == [expected]
+        operator.lin = '@(u) 0*lap(u)'
+        operator.nonlin = lambda u: 0*u
+        operator.init = initial
+    solution = spin3(operator, 8, .01, *options, **keywords)
+    components = solution.components if system else [solution]
+    expected = (low if masked else initial)(.31,.27,.19)
+    for index, component in enumerate(components):
+        assert abs(complex(component(.31,.27,.19))-(index+1)*complex(expected)) < 1e-12

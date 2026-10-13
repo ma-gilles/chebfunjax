@@ -1,3 +1,17 @@
+## Public spin3 JAX integration and native time outputs — 2026-10-14
+
+Public scalar/system stepping now uses the shared JAX exponential integrator,
+with continuous checkpoint collection, native output-only cube dealiasing and
+numeric Chebfun3 results. Multiple times/systems return an indexed function
+matrix; return_times exposes saved times. Seven native cases agree within
+2.61e-15; root independently verified all fixture fields. Root27 merged tests
+pass48.85s, stable inputs/no survivors; original GL error .000114705<.01.
+The q6 startup end case is captured natively and replaces an explicitly
+source-inconsistent supplemental assertion; four native scheme tests unchanged.
+Named-PDE/default-argument dispatch, full Chebmatrix algebra, movie output and
+separate low-level solver host paths remain open.
+Evidence: `docs/spin3_public_jax_cpu_20261014.json`.
+
 ## Scalar preference reset and public Chebfun3 zero semantics — 2026-10-14
 
 Scalar numeric construction now drops call-local technology/tolerance and uses

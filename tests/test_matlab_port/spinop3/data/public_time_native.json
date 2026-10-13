@@ -1,0 +1,668 @@
+{
+  "revision": "7574c77",
+  "N": 8,
+  "dt": 0.01,
+  "cases": [
+    {
+      "name": "scalar_endpoints_off",
+      "model": "scalar",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0.0,
+        0.02
+      ],
+      "nvars": 1,
+      "nout": 1,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v1",
+        "status": "complete",
+        "summary": {
+          "name": "scalar_endpoints_off",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "scalar",
+          "tspan": [
+            0,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebfun3",
+          "output_size": [
+            null,
+            null,
+            null
+          ],
+          "returned_times": [
+            0,
+            0.02
+          ],
+          "num_vars": 1,
+          "lin_string": "@(u).1*lap(u)",
+          "nonlin_string": "@(u)u-u.^3",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/native_capture.mat",
+        "mat_sha256": "1f745c8b569fa605956d497873b89e5558007fbb46af78dc07f7ce9648978f60",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/supervision_v1/receipt.json",
+        "receipt_sha256": "dcd3658d9a6fea83075025df8eaea7aa97d30ff7066737e46cf47c36637fed39"
+      }
+    },
+    {
+      "name": "complex_linear_endpoints",
+      "model": "complex",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0.0,
+        0.02
+      ],
+      "nvars": 1,
+      "nout": 1,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v1",
+        "status": "complete",
+        "summary": {
+          "name": "complex_linear_endpoints",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "complex",
+          "tspan": [
+            0,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebfun3",
+          "output_size": [
+            null,
+            null,
+            null
+          ],
+          "returned_times": [
+            0,
+            0.02
+          ],
+          "num_vars": 1,
+          "lin_string": "@(u)(.1+.05i)*lap(u)",
+          "nonlin_string": "@(u).2*u",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/native_capture.mat",
+        "mat_sha256": "1f745c8b569fa605956d497873b89e5558007fbb46af78dc07f7ce9648978f60",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/supervision_v1/receipt.json",
+        "receipt_sha256": "dcd3658d9a6fea83075025df8eaea7aa97d30ff7066737e46cf47c36637fed39"
+      }
+    },
+    {
+      "name": "scalar_rectangular_domain",
+      "model": "rectangular",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        -3.141592653589793,
+        9.42477796076938,
+        1.0,
+        7.0
+      ],
+      "tspan": [
+        0.0,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0.0,
+        0.02
+      ],
+      "nvars": 1,
+      "nout": 1,
+      "query": {
+        "x": [
+          0.12566370614359174,
+          1.1938052083641213,
+          4.209734155810323
+        ],
+        "y": [
+          -2.5132741228718345,
+          1.8849555921538759,
+          7.28849495632832
+        ],
+        "z": [
+          1.42,
+          4.12,
+          6.46
+        ]
+      },
+      "source": {
+        "run": "v1",
+        "status": "complete",
+        "summary": {
+          "name": "scalar_rectangular_domain",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "rectangular",
+          "tspan": [
+            0,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebfun3",
+          "output_size": [
+            null,
+            null,
+            null
+          ],
+          "returned_times": [
+            0,
+            0.02
+          ],
+          "num_vars": 1,
+          "lin_string": "@(u).1*lap(u)",
+          "nonlin_string": "@(u)u-u.^3",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              -3.141592653589793,
+              9.42477796076938,
+              1,
+              7
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/native_capture.mat",
+        "mat_sha256": "1f745c8b569fa605956d497873b89e5558007fbb46af78dc07f7ce9648978f60",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/supervision_v1/receipt.json",
+        "receipt_sha256": "dcd3658d9a6fea83075025df8eaea7aa97d30ff7066737e46cf47c36637fed39"
+      }
+    },
+    {
+      "name": "scalar_aligned_off",
+      "model": "scalar",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "nvars": 1,
+      "nout": 3,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v2",
+        "status": "complete",
+        "summary": {
+          "name": "scalar_aligned_off",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "scalar",
+          "tspan": [
+            0,
+            0.01,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebmatrix",
+          "output_size": [
+            1,
+            3
+          ],
+          "returned_times": [
+            0,
+            0.01,
+            0.02
+          ],
+          "num_vars": 1,
+          "lin_string": "@(u).1*lap(u)",
+          "nonlin_string": "@(u)u-u.^3",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.01,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/native_capture.mat",
+        "mat_sha256": "528734eefdd692a8e0b47457ba797f610e58dc91730ef681da433edd38bfec54",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/supervision_v2/receipt.json",
+        "receipt_sha256": "edb2d24e603efa18901fcc821f032ab6de76bafb7461132f6901614873cdf377"
+      }
+    },
+    {
+      "name": "scalar_aligned_on",
+      "model": "scalar",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "dealias": "on",
+      "times": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "nvars": 1,
+      "nout": 3,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v2",
+        "status": "complete",
+        "summary": {
+          "name": "scalar_aligned_on",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "scalar",
+          "tspan": [
+            0,
+            0.01,
+            0.02
+          ],
+          "dealias": "on",
+          "output_class": "chebmatrix",
+          "output_size": [
+            1,
+            3
+          ],
+          "returned_times": [
+            0,
+            0.01,
+            0.02
+          ],
+          "num_vars": 1,
+          "lin_string": "@(u).1*lap(u)",
+          "nonlin_string": "@(u)u-u.^3",
+          "pref": {
+            "plot": "off",
+            "dealias": "on",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.01,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/native_capture.mat",
+        "mat_sha256": "528734eefdd692a8e0b47457ba797f610e58dc91730ef681da433edd38bfec54",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/supervision_v2/receipt.json",
+        "receipt_sha256": "edb2d24e603efa18901fcc821f032ab6de76bafb7461132f6901614873cdf377"
+      }
+    },
+    {
+      "name": "scalar_offstep",
+      "model": "scalar",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.015,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0
+      ],
+      "nvars": 1,
+      "nout": 1,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v2",
+        "status": "complete",
+        "summary": {
+          "name": "scalar_offstep",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "scalar",
+          "tspan": [
+            0,
+            0.015,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebmatrix",
+          "output_size": [
+            1,
+            1
+          ],
+          "returned_times": 0,
+          "num_vars": 1,
+          "lin_string": "@(u).1*lap(u)",
+          "nonlin_string": "@(u)u-u.^3",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.015,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 1
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/native_capture.mat",
+        "mat_sha256": "528734eefdd692a8e0b47457ba797f610e58dc91730ef681da433edd38bfec54",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v2/supervision_v2/receipt.json",
+        "receipt_sha256": "edb2d24e603efa18901fcc821f032ab6de76bafb7461132f6901614873cdf377"
+      }
+    },
+    {
+      "name": "system_aligned_off",
+      "model": "system",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586,
+        0.0,
+        6.283185307179586
+      ],
+      "tspan": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "dealias": "off",
+      "times": [
+        0.0,
+        0.01,
+        0.02
+      ],
+      "nvars": 2,
+      "nout": 3,
+      "query": {
+        "x": [
+          0.13,
+          1.17,
+          4.2
+        ],
+        "y": [
+          0.31,
+          2.07,
+          5.19
+        ],
+        "z": [
+          0.41,
+          3.27,
+          5.77
+        ]
+      },
+      "source": {
+        "run": "v3",
+        "status": "complete",
+        "summary": {
+          "name": "system_aligned_off",
+          "ok": true,
+          "stage": "complete",
+          "error_identifier": "",
+          "error_message": "",
+          "model": "system",
+          "tspan": [
+            0,
+            0.01,
+            0.02
+          ],
+          "dealias": "off",
+          "output_class": "chebmatrix",
+          "output_size": [
+            2,
+            3
+          ],
+          "returned_times": [
+            0,
+            0.01,
+            0.02
+          ],
+          "num_vars": 2,
+          "lin_string": "@(u,v)[.1*lap(u);.2*lap(v)]",
+          "nonlin_string": "@(u,v)[.3*v;-.2*u]",
+          "pref": {
+            "plot": "off",
+            "dealias": "off",
+            "scheme": "etdrk4",
+            "M": 32,
+            "tspan": [
+              0,
+              0.01,
+              0.02
+            ],
+            "domain": [
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586,
+              0,
+              6.283185307179586
+            ],
+            "numVars": 2
+          }
+        },
+        "mat_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v3/native_capture.mat",
+        "mat_sha256": "43aef0728cbdd2e586b6bdff24869bbbff9fe71e3dda18a252db2fbe57aa1ea6",
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/v3/supervision_v3/receipt.json",
+        "receipt_sha256": "ae98617a6bdac5df5d61e245575a948a53c58495a65b1c6f02567202c7bf60e3"
+      }
+    }
+  ]
+}

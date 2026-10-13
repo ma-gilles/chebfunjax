@@ -1,0 +1,20 @@
+{
+  "revision": "7574c77",
+  "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_time_native_capture_20261013/q6_startup_v1/native_capture.mat",
+  "sha256": "a5058d6e535e7e8aba69999c2e6a33440f4a0f1f4d6c4dd9c6cd9a5d3f0917ef",
+  "q": 6,
+  "N": 16,
+  "dt": 0.001,
+  "tspan": [
+    0,
+    0.005
+  ],
+  "times": [
+    0
+  ],
+  "shape": [
+    2,
+    1
+  ],
+  "native_initial_output_grid_delta": 1.3322676295501878e-15
+}

@@ -1,16 +1,11 @@
-# uses-numpy: ETDRK4 Fourier time-stepping is a one-shot host-side solve per
-# call (delegated to chebfunjax.spin.solver3, which runs on numpy), and the
-# output trig interpolant is evaluated with numpy FFT weights -- matching the
-# numpy pattern of operators/spinop.py and operators/spinopsphere.py; no JIT,
-# no device management.
 """Spinop3 -- stiff semilinear PDEs on a 3D periodic domain,
 u_t = L u + N(u) with L a polynomial in the Laplacian, solved by
 spin3() with the ETDRK4 exponential integrator on a 3D Fourier grid.
 
 Added by Claude Fable 5 (spinop3 port).  The constructor surface
 (named presets, ``func2str`` of the nonlinear part, domain/tspan
-plumbing) mirrors @spinop3/spinop3.m; the actual time-stepping is the
-golden-ref-tested ETDRK4 solver in :mod:`chebfunjax.spin.solver3`.
+plumbing) mirrors @spinop3/spinop3.m; public time-stepping and saved
+outputs use the shared JAX exponential-integrator engine.
 
 Provenance
 ----------
@@ -25,13 +20,11 @@ Original authors: Copyright 2017 by The University of Oxford and
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
 
+from chebfunjax.operators._spin3_public import Spin3SolutionMatrix
 from chebfunjax.operators.spinopsphere import FuncHandle, func2str
-from chebfunjax.spin.solver3 import spin3 as _core_spin3
-from chebfunjax.spin.spinop3 import SpinOp3 as _CoreSpinOp3
 
-__all__ = ["Spinop3", "spin3", "func2str", "FuncHandle"]
+__all__ = ["Spinop3", "spin3", "Spin3SolutionMatrix", "func2str", "FuncHandle"]
 
 
 # ---------------------------------------------------------------------------
@@ -353,122 +346,25 @@ def _make_trig_interp(V, domain_triples):
 # ---------------------------------------------------------------------------
 
 
-def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
-    """Solve the 3D periodic PDE specified by ``S`` with ``N`` grid
-    points per direction and time-step ``dt`` (MATLAB
-    ``spin3(S, N, dt, 'plot', 'off')``); returns the solution at
-    ``tspan(end)`` as a periodic Chebfun3
-    ``u(x, y, z)``.
+def spin3(S: Spinop3, N: int, dt: float, *args, return_times=False, **kwargs):
+    """Solve a periodic 3D PDE with source checkpoint and output semantics.
 
-    The heavy lifting is the golden-ref-tested ETDRK4 solver in
-    :func:`chebfunjax.spin.solver3.spin3`; this wrapper adapts the
-    :class:`Spinop3` constructor surface to it and wraps the returned
-    value grid in a trigonometric interpolant. Dealiasing defaults to off,
-    as in native spinpref3; explicit on remains available. Plotting arguments
-    (``'plot', 'off'``) are accepted and ignored.
+    Scalar two-endpoint solves return the final periodic Chebfun3. Systems
+    or multiple requested times return a bounded Spin3SolutionMatrix with
+    unknown rows and saved-time columns. ``return_times=True`` expresses
+    MATLAB's second output. Only step-aligned requested times are saved;
+    checkpoints come from one continuous integration. Preferences accept
+    SpinPref3, native name/value pairs, or keywords. Headless numerical
+    execution uses the shared JAX exponential-integrator engine; plotting
+    preferences are accepted without displaying a movie.
 
     Provenance
     ----------
-    MATLAB source : spin3.m, @spinpref3/spinpref3.m, @spinoperator/solvepde.m,
-        @expinteg/{computeCoeffs,oneStep}.m
-    Chebfun commit: 7574c77
-    Algorithm: Kassam & Trefethen, SISC 26 (2005); Montanelli &
-        Bootland, 2D/3D exponential integrators.
+    MATLAB source: spin3.m, @spinpref3/spinpref3.m,
+        @spinoperator/solvepde.m, @spinop3/discretize.m,
+        @expinteg/{computeCoeffs,oneStep,startMultistep}.m
+    Chebfun commit: 7574c77.
     """
-    if S._lin_scales is None:
-        raise ValueError(
-            "Spinop3 has no numerics (construct from a preset, e.g. "
-            "Spinop3('GL'), or set the linear/nonlinear parts).")
-    if S.init is None:
-        raise ValueError("Spinop3 has no initial condition (set S.init).")
+    from chebfunjax.operators._spin3_public import solve_public
 
-    if getattr(S, "_n_vars", 1) > 1:
-        from chebfunjax.operators.spinop import _parse_scheme as _ps
-        _da0 = kwargs.get("dealias", False)
-        _al0 = list(args)
-        for _i in range(len(_al0) - 1):
-            if isinstance(_al0[_i], str) and _al0[_i].lower() == "dealias":
-                _da0 = str(_al0[_i + 1]).lower() in ("on", "true", "1")
-        return _spin3_system(S, N, dt, _ps(args, kwargs, None), bool(_da0))
-    core = _CoreSpinOp3(
-        lin_scales=S._lin_scales,
-        lin_ops=S._lin_ops,
-        nonlin_vals=S._nonlin_vals,
-        domain=tuple(float(v) for v in S.domain),
-        tspan=tuple(float(v) for v in S.tspan),
-        u0=S.init,
-        is_real=bool(S._is_real) and _init_is_real(S.init, S.domain),
-    )
-    from chebfunjax.operators.spinop import _parse_scheme
-    _da = kwargs.get("dealias", False)
-    _al = list(args)
-    for i in range(len(_al) - 1):
-        if isinstance(_al[i], str) and _al[i].lower() == "dealias":
-            _da = str(_al[i + 1]).lower() in ("on", "true", "1")
-    _grids, _t, u_final = _core_spin3(core, N, dt, dealias=bool(_da),
-                                      scheme=_parse_scheme(args, kwargs, None))
-    ax, bx, ay, by, az, bz = core.domain
-    # The solver's value grid is meshgrid-'xy' (axes y, x, z); the
-    # interpolant builder takes ndgrid layout (x, y, z).  (Before this
-    # transpose spin3's output was x/y-swapped relative to its initial
-    # condition -- MATLAB's is not.)
-    return _make_trig_interp(jnp.transpose(jnp.asarray(u_final), (1, 0, 2)),
-                             [(ax, bx), (ay, by), (az, bz)])
-
-
-from chebfunjax.operators.spinop2 import _init_is_real  # noqa: E402
-
-
-def _spin3_system(S: "Spinop3", N: int, dt: float, scheme, dealias: bool,
-                  M: int = 32):
-    """spin3 for a system of unknowns (MATLAB spinop3 'GS'/'Schnak'):
-    the coefficient blocks are stacked along the first axis
-    ``(nVars*N, N, N)`` and stepped by the generic expinteg engine
-    (any scheme, ETDRK4 by default)."""
-    from chebfunjax.operators.expinteg_engine import Expinteg, integrate
-    from chebfunjax.operators.spinop2 import _TrigInterpVector
-
-    n_vars = S._n_vars
-    dom = tuple(float(v) for v in S.domain)
-    x0, x1, y0, y1, z0, z1 = dom
-    cores = [_CoreSpinOp3(lin_scales=S._lin_scales[i], lin_ops=S._lin_ops[i],
-                          nonlin_vals=S._nonlin_vals[i], domain=dom,
-                          tspan=tuple(float(v) for v in S.tspan),
-                          u0=S.init[i], is_real=S._is_real)
-             for i in range(n_vars)]
-    x = np.linspace(x0, x1, N, endpoint=False)
-    y = np.linspace(y0, y1, N, endpoint=False)
-    z = np.linspace(z0, z1, N, endpoint=False)
-    xx, yy, zz = np.meshgrid(x, y, z, indexing="xy")
-    L = np.concatenate([np.asarray(c.build_linear_eigenvalues(N), dtype=complex)
-                        for c in cores], axis=0)
-    is_real = bool(np.allclose(np.imag(L), 0.0))
-    if is_real:
-        L = np.real(L)
-    u0 = np.concatenate([np.asarray(np.fft.fftn(np.asarray(
-        S.init[i](xx, yy, zz), dtype=complex)), dtype=complex)
-        for i in range(n_vars)], axis=0)
-    mask = None
-    if dealias:
-        m3 = np.asarray(cores[0].dealias_mask(N), dtype=float)
-        mask = np.concatenate([m3] * n_vars, axis=0)
-        u0 = u0 * mask
-    nonlin = S._nonlin_vals
-
-    def _Nv(vals):
-        parts = [vals[k * N:(k + 1) * N] for k in range(n_vars)]
-        return np.concatenate([np.asarray(nonlin[k](*parts))
-                               for k in range(n_vars)], axis=0)
-
-    t0, tf = (float(v) for v in S.tspan)
-    nsteps = int(round((tf - t0) / dt))
-    post = (lambda u: u * mask) if mask is not None else None
-    u = integrate(Expinteg(scheme or "etdrk4"), dt, L, M, is_real,
-                  np.ones_like(L, dtype=float), _Nv, np.fft.ifftn, np.fft.fftn,
-                  n_vars, u0, nsteps, post=post)
-    comps = []
-    for k in range(n_vars):
-        val = np.fft.ifftn(u[k * N:(k + 1) * N])
-        val = np.transpose(np.real(val) if S._is_real else val, (1, 0, 2))
-        comps.append(_make_trig_interp(val, [(x0, x1), (y0, y1), (z0, z1)]))
-    return _TrigInterpVector(comps)
+    return solve_public(S, N, dt, args, kwargs, return_times=return_times)

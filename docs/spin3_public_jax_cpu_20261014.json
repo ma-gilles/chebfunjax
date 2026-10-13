@@ -1,0 +1,138 @@
+{
+  "scope": "Public spin3 scalar/system JAX scientific path and source checkpoint/time outputs; lowlevel solver3 API unchanged",
+  "candidate_head": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "publication_review_head": "14e22e9dad894c9344558e113629eeb99f802092",
+  "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/MANIFEST.json",
+  "manifest_sha256": "f2e378f4a78a981c6536b0f9e39a06a9f1de5af394dd39a86dfcfb21e5cde409",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/candidate.patch",
+  "patch_sha256": "440ece9c83af7c6fb0919f0e765bc422b7e137a1b6bbd56c4b52e66eaa1e45ab",
+  "clean_apply_all_hashes": true,
+  "gates": {
+    "baseline_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/baseline_run/receipt.json",
+      "sha256": "9464738a920affce262c64eb3d1b6bd0b3bafe2a7f821b146b72225ae5c773f5",
+      "wall_seconds": 14.045479306019843,
+      "peak_kib": 695572,
+      "stable": true,
+      "exit_code": 1,
+      "terminal_summary": "========================= 4 failed, 1 warning in 8.67s ========================="
+    },
+    "controls_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/controls_run/receipt.json",
+      "sha256": "84c388067dc3b686a6f8f427a2ea9b3255ae0907efcc229da756762d4dd769ca",
+      "wall_seconds": 30.194271504878998,
+      "peak_kib": 1341724,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "======================== 13 passed, 1 warning in 22.91s ========================"
+    },
+    "startup_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/startup_run/receipt.json",
+      "sha256": "3803cbf6ef1e5852d6177fd6fe3e51c5ae48f6c28d6bd1d818886390a5f12976",
+      "wall_seconds": 24.57631499087438,
+      "peak_kib": 763332,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "================= 2 passed, 4 deselected, 1 warning in 12.60s =================="
+    },
+    "schemes_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/schemes_run/receipt.json",
+      "sha256": "e0b369c3982a4f54efcebb6d126ff1bc1c0f8ca027885429308bb5c1e8a5ba33",
+      "wall_seconds": 26.028197281993926,
+      "peak_kib": 1408920,
+      "stable": true,
+      "exit_code": 1,
+      "terminal_summary": "============ 1 failed, 4 passed, 39 deselected, 1 warning in 23.35s ============"
+    },
+    "native_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/native_run/receipt.json",
+      "sha256": "9068f4453db0c8250c3a4710ce402dda3b758d17e37df09da088bd0589a45262",
+      "wall_seconds": 28.439785331953317,
+      "peak_kib": 1374688,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "======================== 7 passed, 1 warning in 20.40s ========================="
+    },
+    "compat_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/compat_run/receipt.json",
+      "sha256": "1cfa564fb31cf38b761f88e8902032624f8a0da8386584e1cbc68c964ae2cc3e",
+      "wall_seconds": 40.28291221195832,
+      "peak_kib": 1350232,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "================= 5 passed, 5 deselected, 1 warning in 30.64s =================="
+    },
+    "original_gl_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/original_gl_run/receipt.json",
+      "sha256": "c8b503a40fdd596dd180d5bf3c7a4624a23aa7b5a2fcaede886d0672f269830a",
+      "wall_seconds": 28.884588481858373,
+      "peak_kib": 1038372,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "======================== 1 passed, 1 warning in 22.18s ========================="
+    },
+    "startup_native_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/startup_native_run/receipt.json",
+      "sha256": "5ca3894206cd9e372e8cf22eab586d4a330496f1404bf28b4dd8ef6420893f47",
+      "wall_seconds": 13.005312737077475,
+      "peak_kib": 925504,
+      "stable": true,
+      "exit_code": 0,
+      "terminal_summary": "================= 1 passed, 43 deselected, 1 warning in 11.17s ================="
+    }
+  },
+  "native_relative_grid_max": 2.6106291716240273e-15,
+  "native_relative_query_max": 1.5507147976589508e-15,
+  "native_fixture_bound": 1e-11,
+  "native_fixture_bound_scope": "Supplemental convention matching existing native scheme fixtures; not original MATLAB source assertion",
+  "original_gl": {
+    "error": 0.00011470508285948244,
+    "bound": 0.01,
+    "N": 32,
+    "t_final": 10,
+    "dt": [
+      0.1,
+      0.05
+    ],
+    "seed": 6178,
+    "normal_stream": "JAX, not MATLAB normal parity",
+    "same_initial_instance": true
+  },
+  "negative_preserved": "Legacy PECEC736-vs-ETDRK4 supplemental assertion failed (~.01317 relative) because it intentionally contradicted native startup/output behavior. Replaced only this test by independently captured q6/tf5dt native initial-output contract; four native scheme assertions unchanged.",
+  "dependencies": {
+    "identical": [
+      "shared expinteg",
+      "Spin2SolutionMatrix",
+      "spinpref",
+      "spinop parser",
+      "numeric ACA constructor",
+      "Trigtech",
+      "quadrature",
+      "_plus"
+    ],
+    "different": "Chebfun3 wrapper has newer n/scalar/zero/rank metadata branches on publication; stepping/numeric tensor arithmetic unchanged. See reconstruction_dependencies.json and patch."
+  },
+  "limitations": [
+    "Headless plotting preferences; no movie implementation",
+    "Function matrix indexing/components only, not general Chebmatrix algebra",
+    "Eager public orchestration; not whole adaptive-constructor JIT",
+    "Named-PDE/default N/default dt shortcuts remain outside current wrapper scope",
+    "No broad all-scheme native parity claim beyond captured and existing fixture cases",
+    "Separate lowlevel spin/solver3.py NumPy debt unchanged"
+  ],
+  "source_frozen": true,
+  "root_merged": {
+    "checks_passed": 27,
+    "pytest_seconds": 48.85,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_jax_publication_20261014/run/receipt.json",
+    "receipt_sha256": "7714b6c6e6213bcc7edebeaf6f17404801d884209464ea9c0894af42b78756fc",
+    "peak_kib": 2595260,
+    "stable": true,
+    "no_survivors": true
+  },
+  "root_raw_reviews": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_public_jax_review_20261014/root_raw_review.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_jax_publication_20261014/startup_raw_review.json"
+  ],
+  "root_source_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_jax_publication_20261014/root_source_review.md"
+}
