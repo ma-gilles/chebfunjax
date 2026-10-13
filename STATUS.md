@@ -1,3 +1,14 @@
+## Native inverse reciprocal hyperbolic branches — 2026-10-14
+
+ACOTH/ACSCH/ASECH now use JAX reciprocal and inverse-function compositions
+with native real-axis/storage behavior. Baseline44/108 captured checks failed;
+all108 native controls,49 original unary and6 precision/storage checks pass.
+Root178 merged checks pass and all108 fixture records match the raw capture.
+Native ASECH(-0)=NaN is retained explicitly. Builtin internals remain opaque;
+these are qualified mathematical compositions with eager storage selection,
+not blanket JIT or extreme-reciprocal qualification.
+Evidence: `docs/treevar_reciprocal_hyperbolic_cpu_20261014.json`.
+
 ## Native logarithm branches and JAX magnitude accuracy — 2026-10-14
 
 TreeVar log/log1p/log2/log10 now use JAX with native exact-axis branch and

@@ -269,18 +269,87 @@ def _log_branch(x, *, base=None, increment=False):
     return lax.complex(magnitude, phase)
 
 
+def _reciprocal_axis_value(x):
+    """Scaled complex reciprocal with a separate exact-real-axis operation."""
+    from jax import lax
+
+    values = jnp.asarray(x)
+    real, imag = jnp.real(values), jnp.imag(values)
+    on_axis = imag == 0
+    if bool(jnp.all(on_axis)):
+        return 1/real
+    scale = jnp.maximum(jnp.abs(real), jnp.abs(imag))
+    r, i = real/scale, imag/scale
+    # Infinite complex arguments have a zero reciprocal; avoid Inf/Inf.
+    r = jnp.where(jnp.isinf(scale), jnp.where(jnp.isinf(real),
+                  jnp.copysign(1., real), jnp.copysign(0., real)), r)
+    i = jnp.where(jnp.isinf(scale), jnp.where(jnp.isinf(imag),
+                  jnp.copysign(1., imag), jnp.copysign(0., imag)), i)
+    denominator = r*r+i*i
+    ordinary = lax.complex((r/denominator)/scale, (-i/denominator)/scale)
+    axis = lax.complex(1/real, jnp.zeros_like(real))
+    return jnp.where(on_axis, axis, ordinary)
+
+
+def _reciprocal_hyperbolic_branch(x, method):
+    """Reciprocal inverse hyperbolic functions with native axis branches.
+
+    ACOTH composes the qualified ATANH branch with a reciprocal. ACSCH uses
+    real ASINH on-axis and -i*ASIN(i/z) elsewhere. ASECH uses ACOSH(1/z),
+    with explicit real-axis pieces and complex ACOSH off-axis. Native's
+    ASECH(-0)=NaN is retained as a captured endpoint convention.
+    Storage selection is eager; mathematical compositions do not assert
+    knowledge of the opaque MATLAB built-in implementations.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m ACSCH/ASECH/ACOTH numeric dispatch.
+    Chebfun commit: 7574c77. Native R2025b boundary capture in
+    treevar_rhs_jax_review_20261014/unary_boundary_native/capture.json.
+    """
+    from jax import lax
+
+    inverse = _reciprocal_axis_value(x)
+    real, imag = jnp.real(inverse), jnp.imag(inverse)
+    on_axis = imag == 0
+    if method == 'acoth':
+        result = _atanh_branch(inverse)
+    elif method == 'acsch':
+        axis = jnp.arcsinh(real)
+        if bool(jnp.all(on_axis)):
+            return axis
+        rotated = lax.complex(-imag, real)
+        asin = _inverse_trig_branch(rotated)
+        ordinary = lax.complex(jnp.imag(asin), -jnp.real(asin))
+        result = jnp.where(on_axis, lax.complex(axis, jnp.zeros_like(real)), ordinary)
+    else:
+        outside = jnp.abs(real) > 1
+        height = jnp.where(outside, jnp.arccosh(jnp.abs(real)), 0.)
+        phase = jnp.where(outside, jnp.where(real < 0, jnp.pi, 0.),
+                          jnp.arccos(real))
+        # Propagate real NaN, plus the native negative-zero endpoint failure.
+        height = jnp.where(jnp.isnan(real) | jnp.isneginf(real), jnp.nan, height)
+        phase = jnp.where(jnp.isnan(real) | jnp.isneginf(real), 0., phase)
+        axis = lax.complex(height, phase)
+        ordinary = jnp.arccosh(lax.complex(real, imag))
+        result = jnp.where(on_axis, axis, ordinary)
+    if bool(jnp.all(jnp.imag(result) == 0)):
+        return jnp.real(result)
+    return result
+
+
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: np.arccos(x) / _DEG,
     "acot": lambda x: np.arctan(1.0 / x),
-    "acoth": lambda x: np.arctanh(1.0 / x),
+    "acoth": lambda x: _reciprocal_hyperbolic_branch(x, "acoth"),
     "acsc": _reciprocal_inverse_trig,
     "acscd": lambda x: _reciprocal_inverse_trig(x) / _DEG,
-    "acsch": lambda x: np.arcsinh(1.0 / x),
+    "acsch": lambda x: _reciprocal_hyperbolic_branch(x, "acsch"),
     "airy": _airy,
     "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
     "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
-    "asech": lambda x: np.arccosh(1.0 / x),
+    "asech": lambda x: _reciprocal_hyperbolic_branch(x, "asech"),
     "asin": _inverse_trig_branch, "asind": lambda x: np.arcsin(x) / _DEG,
     "asinh": jnp.arcsinh, "atan": jnp.arctan,
     "atand": lambda x: np.arctan(x) / _DEG,
@@ -328,7 +397,7 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2")
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 

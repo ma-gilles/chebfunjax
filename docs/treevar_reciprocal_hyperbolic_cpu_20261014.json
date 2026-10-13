@@ -1,0 +1,88 @@
+{
+  "scope": "TreeVar ACOTH/ACSCH/ASECH reciprocal inverse hyperbolic JAX evaluation, no changes to shared Chebfun methods or other unary helpers.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_dispatch": "@treeVar/treeVar.m records and dispatches these numeric built-ins; @chebfun/{acoth,acsch,asech}.m composes built-ins. MATLAB built-in numerical implementations are opaque; the JAX mathematical compositions are qualified against retained native outputs, not claimed literal builtin-code ports.",
+  "manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_hyperbolic_review_20261014/MANIFEST.json",
+    "sha256": "0479fefd54ae0844aac863cb890b7738274bd4724b94ad36ea8aacac4280939c"
+  },
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_hyperbolic_review_20261014/candidate.patch",
+    "sha256": "043936a648bb9a5780ee72c53acc6e1008679469ab3208b967a520822eb8bc74"
+  },
+  "changes": [
+    "Separate exact-real-axis reciprocal preserves real signed zero and avoids complex 0/0 contamination. Off-axis reciprocal scales real/imaginary components and handles infinite inputs without Inf/Inf.",
+    "ACOTH evaluates qualified atanh branch at reciprocal. ACSCH uses real asinh on axis and -i*asin(i/z) off-axis, preserving native pure-imaginary cut convention.",
+    "ASECH uses acosh reciprocal off-axis and explicit real-domain pieces: real acosh outside unit interval, acos phase inside; native ASECH(-0)=NaN real retained as captured endpoint quirk.",
+    "Final all-zero imaginary outputs collapse to real storage; complex64/float32 precision retained through component assembly. Dtype selection remains eager."
+  ],
+  "qualification": {
+    "baseline": "44fail64pass on108 native cases.",
+    "final": "163passed:108native records,49 unchanged original unary assertions,6 float32/complex64 shape/storage adapter controls.",
+    "bounds": "Native comparison retains8eps*max(1,abs(target)), exact signed-zero/storage/nonfinite checks. Original converted-RHS10eps bound unchanged.",
+    "fixture_verification": {
+      "records": 108,
+      "field_for_field": true,
+      "raw_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+      "fixture_sha256": "47c83a6ecb14b354f04b0f18cfa8f98ba2e52b9b6e0118beeaf33803984df923"
+    },
+    "static": "Ruff source/test clean; actual Git apply in clean minimal directory and all3path hashes match; source preimage equals current publication."
+  },
+  "receipts": {
+    "baseline_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_hyperbolic_review_20261014/baseline_run/receipt.json",
+      "sha256": "b1659d3758407a0f24abd3a299e8215287c7478be2d530b450c40abe9aa1c576",
+      "command_exit_code": 1,
+      "wall_seconds": 4.6077732727862895,
+      "sampled_peak_summed_rss_kib": 473468,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "=================== 44 failed, 64 passed, 1 warning in 2.18s ==================="
+    },
+    "candidate_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_hyperbolic_review_20261014/candidate_run/receipt.json",
+      "sha256": "f0b1575b513cbac1c11a97ff9b6b1a6ff3ff057922cc8796969ada2ea16a1e05",
+      "command_exit_code": 0,
+      "wall_seconds": 16.69817588524893,
+      "sampled_peak_summed_rss_kib": 849676,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "======================= 157 passed, 1 warning in 13.92s ========================"
+    },
+    "final_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_hyperbolic_review_20261014/final_run/receipt.json",
+      "sha256": "b9723e004ce212bf5a7814ed44b42167d77cc7f767e785cb9482716795cad1c4",
+      "command_exit_code": 0,
+      "wall_seconds": 17.497355845291167,
+      "sampled_peak_summed_rss_kib": 921808,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "summary": "======================= 163 passed, 1 warning in 14.91s ========================"
+    }
+  },
+  "limitations": [
+    "No blanket JIT/AD claim: eager boolean checks implement value-dependent real/complex storage.",
+    "Single-precision controls qualify precision/shape/storage only, not MATLAB single-precision numerical parity.",
+    "Finite/nonfinite behavior qualified on retained36inputs perfunction; arbitrary mixed NaN/Inf and IEEE subnormal cases not exhaustively qualified.",
+    "ASECH(-0) is a native reference endpoint quirk, not the continuous limiting value from negative reals.",
+    "No new MATLAB capture, no original source bounds changed, no performance claim."
+  ],
+  "archives": [
+    "Baseline failure receipt retained.",
+    "treevar_first_passing_candidate.py retains initial157pass source before replacing explicitcomplex128 with precision-preserving component assembly.",
+    "Previously delivered log source and patch remain archived; this patch is incremental against final log source."
+  ],
+  "root_review": {
+    "all108_fixture_records_exact_raw": true,
+    "raw_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_publication_20261014/raw_review.json",
+    "raw_review_sha256": "70c7032923f47d88d94c89dfb129921689c163c5091534fffe7a162b630f5377",
+    "merged_pass": 178,
+    "pytest_seconds": 20.77,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_publication_20261014/run/receipt.json",
+    "receipt_sha256": "9510b20c63b33778c1e890915655a3e788c6a8ac05e520af4bf011c09ba64f76",
+    "peak_summed_rss_kib": 965092,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "scope_limit": "Captured inputs and original source tests; general extreme reciprocal underflow/overflow behavior not blanket-qualified."
+  }
+}
