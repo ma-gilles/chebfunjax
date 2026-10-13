@@ -22,26 +22,23 @@ import sys
 import time
 import warnings
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax._colormaps import parula_colormap
+from chebfunjax.operators.spinop2 import Spinop2, spin2
 from chebfunjax.plotting import chebfun_style, matlab_axis_equal, matlab_view, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.spin.solver2d import spin2 as _spin2
-from chebfunjax.spin.spinop2 import SpinOp2
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'pde')
 FIG = [0]
 
-# S = spinop2('gl'): MATLAB's display of the built-in operator.  Our
-# SpinOp2 has no MATLAB-style display; the text is Chebfun's.
+# S = spinop2('gl'): MATLAB's display of the built-in operator. The
+# text below is Chebfun's display for the public Spinop2 object.
 S_GL_DISPLAY = """\
   spinop2 with properties:
 
@@ -55,29 +52,11 @@ S_GL_DISPLAY = """\
 
 
 def spinop2(dom, tspan):
-    """spinop2(dom, tspan) with S.lin = @(u) lap(u) and
-    S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2)."""
-    return SpinOp2(lin_coeffs=(1.0, 0.0, 0.0, 0.0, 0.0),
-                   nonlin_vals=lambda u: u - (1 + 1.5j) * u * jnp.abs(u) ** 2,
-                   n_vars=1, domain=dom, tspan=tspan, u0=None, is_real=False)
-
-
-def _values2chebfun2(U, dom):
-    """Source complex matrix constructor; rows=y, columns=x."""
-    return cj.chebfun2(np.asarray(U).T, domain=dom, trig=True)
-
-
-def spin2(S, npts, dt):
-    """u = spin2(S, npts, dt, 'plot', 'off').  For tspan = [t0 t1 ... tk]
-    returns the list of chebfun2s at t0, t1, ..., tk (MATLAB's u{j})."""
-    ts = [float(v) for v in S.tspan]
-    out = [S.u0]
-    for a, b in zip(ts[:-1], ts[1:]):
-        op = SpinOp2(S.lin_coeffs, S.nonlin_vals, 1, S.domain, (a, b),
-                     out[-1], is_real=False)
-        _, _, _, U = _spin2(op, npts, dt, dealias=False)
-        out.append(_values2chebfun2(U, S.domain))
-    return out[-1] if len(ts) == 2 else out
+    """Create the public Spinop2 for the Ginzburg-Landau equation."""
+    S = Spinop2(dom, tspan)
+    S.lin = "@(u)lap(u)"
+    S.nonlin = "@(u)u-(1+1.5i)*u.*(abs(u).^2)"
+    return S
 
 
 def _plot(u):
@@ -113,7 +92,7 @@ def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    S = SpinOp2.from_name('gl')
+    S = Spinop2('gl')
     print("S = ")
     print(S_GL_DISPLAY, flush=True)
 
@@ -124,42 +103,42 @@ def run():
     x = cj.chebfun2(lambda x, y: x, domain=dom)
     y = cj.chebfun2(lambda x, y: y, domain=dom)
     u1 = (1j * x + y) * cj.exp(-.03 * (x ** 2 + y ** 2))
-    S.u0 = u1
+    S.init = u1
     npts = 80
     dt = 4 / npts
     t0 = time.perf_counter()
-    u = spin2(S, npts, dt)
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
 
     u2 = (x + y) * cj.exp(-.03 * (x ** 2 + y ** 2))
-    S.u0 = u2
-    u = spin2(S, npts, dt)
+    S.init = u2
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
     _toc(t0)
 
     tspan = (0.0, 48.0)
     S = spinop2(dom, tspan)
-    S.u0 = u1
+    S.init = u1
     t0 = time.perf_counter()
-    u = spin2(S, npts, dt)
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
 
-    S.u0 = u2
-    u = spin2(S, npts, dt)
+    S.init = u2
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
     _toc(t0)
 
     tspan = (0.0, 96.0)
     S = spinop2(dom, tspan)
-    S.u0 = u1
-    u = spin2(S, npts, dt)
+    S.init = u1
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
 
     npts = 128
     dt = 4 / npts
     t0 = time.perf_counter()
-    S.u0 = u2
-    u = spin2(S, npts, dt)
+    S.init = u2
+    u = spin2(S, npts, dt, 'plot', 'off')
     _plot(u.real())
     _toc(t0)
 
@@ -171,14 +150,14 @@ def run():
     u1 = ((1j * (x - 8) + (y - 2))
           * cj.exp(-.03 * ((x - 8) ** 2 + (y - 2) ** 2))
           + ((x + 8) - (y + 2)) * cj.exp(-.03 * ((x + 8) ** 2 + (y + 2) ** 2)))
-    S.u0 = u1
+    S.init = u1
     npts = 128
     dt = 8 / npts
     t0 = time.perf_counter()
-    u = spin2(S, npts, dt)
-    _plot(u[1].real())
-    _plot(u[2].real())
-    _plot_phase(u[2])
+    u = spin2(S, npts, dt, 'plot', 'off')
+    _plot(u[0, 1].real())
+    _plot(u[0, 2].real())
+    _plot_phase(u[0, 2])
     _toc(t0)
 
 

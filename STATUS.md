@@ -1,3 +1,29 @@
+## Logical comparison CI repair — 2026-10-13
+
+Equality and inequality now follow their separate native source paths,
+preserving unbounded FUN mappings and native singular pointValue behavior.
+The private candidate passed 23 distinct focused tests. The publication
+checkout passed all 12 native-ne tests, including the original CI failure,
+with stable guards and no surviving processes. No tolerance was widened.
+The native singular capture saved its scientific results before a shutdown
+wall cap; it is not claimed as a clean native process gate. See
+`docs/logical_eq_ne_cpu_20261013.json`.
+
+## Public continuous spin2 example path — 2026-10-13
+
+Ginzburg–Landau now calls the existing public Spinop2/spin2 API directly,
+including continuous multi-time stepping and native matrix output indexing.
+The example-local reconstruction/restart wrapper is removed. A guarded full
+candidate run completed in 119.74s at 3,714,812 KiB sampled RSS, with stable
+inputs and no survivors. Its page retains 15 input blocks, 20 prose paragraphs,
+five outputs and nine figures at the reference dimensions.
+
+Historical late-field/pixel parity remains open. Matched native Fourier
+states and ETDRK4 factors demonstrate amplification of small arithmetic
+perturbations; no solver tolerance or equation was altered to fit the images.
+See `docs/gl_public_spin2_cpu_20261013.json` for exact run provenance,
+integration scope and hashes.
+
 ## Chebfun2 composition CI repair — 2026-10-13
 
 Array-valued outer Chebfuns now compose one scalar column at a time, as in
@@ -9,11 +35,11 @@ source guards and no surviving processes. The original CI predicate passes
 with its unchanged 1000-epsilon bound. See
 `docs/chebfun2_compose_array_cpu_20261013.json`.
 
-A second failure in preceding-main CI is now identified: unbounded logical
-inequality returns NaNs because logical equality rebuilds bounded pieces on
-an infinite domain. That source-based repair is in progress. Core shard3 also stopped on a runner shutdown signal (no assertion failure
-shown); the coverage dependency gate consequently failed. Current-main CI,
-full native assertion coverage, and complete page/figure parity remain open.
+The preceding-main unbounded logical inequality failure is addressed by the
+source eq/ne repair above. Core shard3 stopped on a runner shutdown signal
+(no assertion failure shown); the coverage dependency gate consequently failed.
+Current-main CI, full native assertion coverage, and complete page/figure
+parity remain open.
 
 ## Surface and complex phase rendering — 2026-10-13
 

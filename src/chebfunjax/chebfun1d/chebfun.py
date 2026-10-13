@@ -1413,9 +1413,11 @@ class Chebfun(eqx.Module):
         """Return a copy carrying explicit ``pointValues`` (MATLAB
         ``f.pointValues = values``).
 
-        The stored values must have one entry per breakpoint (an
+        Normally the stored values have one entry per breakpoint (an
         ``(n_ends,)`` vector, or ``(n_ends, n_cols)`` for an array-valued
-        Chebfun).  They are metadata: point evaluation away from the
+        Chebfun). The source ``@chebfun/ne.m`` singular-function path can
+        delete NaN entries and retain a shorter vector; this adapter preserves
+        that native result. They are metadata: point evaluation away from the
         breakpoints is unaffected; :meth:`abs` and :meth:`sign` propagate
         them element-wise (as MATLAB's ``abs``/``sign`` do).
 
@@ -5113,7 +5115,6 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.logical_ne, Chebfun.roots, Chebfun.sign
         """
-        import numpy as _np
         if self.isempty():
             return self
         if isinstance(other, Chebfun):
@@ -5130,46 +5131,24 @@ class Chebfun(eqx.Module):
             diff = self - float(other)
 
         h = diff.sign()
-        bps = _np.asarray(list(h.domain.breakpoints), dtype=float)
-        # A FUN that sign() left identically zero means f == g there.
-        consts = []
+        # Match @chebfun/eq.m: inspect each FUN's canonical right endpoint
+        # (rval-local), then replace its tech while preserving the FUN type.
+        # Physical midpoints are undefined on doubly-unbounded intervals, and
+        # rebuilding every piece as _Piece would discard Unbndfun mappings.
+        funs = []
         for piece in h.funs:
-            mid = 0.5 * (float(piece.interval[0]) + float(piece.interval[1]))
-            consts.append(1.0 if abs(float(piece(jnp.asarray(mid))))
-                          < 0.5 else 0.0)
-        # pointValues: sign(f-g) vanishes exactly at the roots that sign()
-        # broke the domain at, and MATLAB negates it (~0 == 1).
-        r = _np.asarray(diff.roots(nojump=True), dtype=float).ravel()
-        htol = 1e6 * float(_np.finfo(float).eps) * max(
-            abs(float(self.domain.a)), abs(float(self.domain.b)), 1.0)
-        pv = _np.array([
-            1.0 if (r.size and _np.min(_np.abs(r - t)) <= htol) else 0.0
-            for t in bps])
-        # Points inside an identically-equal FUN are equal too.
-        for k, c in enumerate(consts):
-            if c == 1.0:
-                pv[k] = 1.0
-                pv[k + 1] = 1.0
+            rval = piece.tech(jnp.asarray(1.0))
+            is_zero = bool(jnp.all(rval == 0))
+            funs.append(piece.with_tech(piece.tech * 0 + float(is_zero)))
 
-        # merge (MATLAB @chebfun/merge.m): drop an interior breakpoint when
-        # its pointValue matches the constant on at least one side.
-        keep_a, keep_c, keep_pv = [float(bps[0])], [consts[0]], [pv[0]]
-        for k in range(1, len(consts)):
-            same = consts[k] == keep_c[-1]
-            if same and pv[k] == consts[k]:
-                continue
-            keep_a.append(float(bps[k]))
-            keep_c.append(consts[k])
-            keep_pv.append(pv[k])
-        keep_a.append(float(bps[-1]))
-        keep_pv.append(pv[-1])
-
-        funs = [_Piece.from_coeffs(
-            jnp.asarray([c], dtype=jnp.float64), keep_a[k], keep_a[k + 1])
-            for k, c in enumerate(keep_c)]
-        out = Chebfun(funs=funs, domain=Domain(tuple(keep_a)))
-        return out.set_point_values(
-            jnp.asarray(_np.asarray(keep_pv), dtype=jnp.float64))
+        # Native logical negation preserves NaN pointValues; all other sign
+        # values are converted to their logical complement before merge.
+        point_values = h.point_values
+        point_values = jnp.where(
+            jnp.isnan(point_values), point_values,
+            jnp.logical_not(point_values).astype(point_values.dtype))
+        return Chebfun(funs=funs, domain=h.domain).set_point_values(
+            point_values).merge()
 
     def logical_ne(self, other) -> "Chebfun":
         """Pointwise not-equal indicator (MATLAB ``f ~= g``).
@@ -5193,7 +5172,26 @@ class Chebfun(eqx.Module):
             raise ValueError(
                 "CHEBFUN:CHEBFUN:ne:array: ~= does not support array-valued CHEBFUN objects."
             )
-        return 1.0 - self.logical_eq(other)
+        diff = (self - other if isinstance(other, Chebfun)
+                else self - float(other))
+        h = diff.sign()
+        # @chebfun/ne.m constructs the nonzero indicator directly rather than
+        # complementing eq: a singular endpoint can carry a NaN pointValue,
+        # which ne converts through MATLAB logical() instead of preserving as
+        # eq does.
+        funs = []
+        for piece in h.funs:
+            rval = piece.tech(jnp.asarray(1.0))
+            if bool(jnp.any(rval != 0)):
+                piece = piece.with_tech(piece.tech * 0 + 1.0)
+            funs.append(piece)
+        point_values = h.point_values
+        # Literal @chebfun/ne.m behavior: delete NaN entries before applying
+        # logical(), rather than preserving them as @chebfun/eq.m does.
+        point_values = point_values[~jnp.isnan(point_values)]
+        point_values = (point_values != 0).astype(h.point_values.dtype)
+        return Chebfun(funs=funs, domain=h.domain).set_point_values(
+            point_values).merge()
 
     def logical_not(self) -> "Chebfun":
         """Indicator of {f == 0} (MATLAB ~f)."""

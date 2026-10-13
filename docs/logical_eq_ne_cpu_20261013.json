@@ -1,0 +1,86 @@
+{
+  "candidate_head": "e73957d4626f47f0895ddd5d99f05bb4d4dc6da6",
+  "source_files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "32cffeb9eb34cfe5ad9377595b949a81281305fd54c3b271edebf7b5e8057812",
+    "tests/test_matlab_port/chebfun/test_ne_native_source.py": "014544a5fd2f2eac061d45fcb1d63094522b23f6507ad18c4af9319aec3daa42"
+  },
+  "patch_sha256": "5a0fd21b172566fb027945ce46eb8285d5f9067762b73f264ea5be4fd8dd251c",
+  "gates": {
+    "native_ne_all": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/run_native_ne/receipt.json",
+      "receipt_sha256": "1b90eaff0cc44fcec108ba65a06b5f98deda0cc9f34b5bbf7306f21cf35c3635",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2098080,
+      "wall_seconds": 37.02260775398463,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/guard_native_ne.json"
+    },
+    "eq_matlab": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/run_eqonly3/receipt.json",
+      "receipt_sha256": "654373f60cbf114831cff39f66ac87b83d40e1d05ef2987a16381e8935a24f72",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1459160,
+      "wall_seconds": 22.469507477711886,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/guard_eqonly3.json"
+    },
+    "logical_matlab": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/run_logical2/receipt.json",
+      "receipt_sha256": "191231aaac5a232b9fed929c930073995ab6c909c7ec3f0875e8439957583a2b",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3108296,
+      "wall_seconds": 61.897276708856225,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/guard_logical2.json"
+    },
+    "ne_matlab": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/run_ne_matlab/receipt.json",
+      "receipt_sha256": "fdeeb6124e088ed88100f4613c8483e5bbfb6975ce66c2dc83ea97c3c5caa616",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 935884,
+      "wall_seconds": 13.512791284825653,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/guard_ne_matlab.json"
+    },
+    "singular_eq_ne_controls": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/run_singular_controls/receipt.json",
+      "receipt_sha256": "de486208c0cb9f8241238e3920979d58eff50a5d4b5322c8aba3aea1cdb9cad9",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1277220,
+      "wall_seconds": 21.560757664963603,
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1d_unbounded_logic_candidate_20261013/gates/ne_clause/guard_singular_controls.json"
+    }
+  },
+  "scope": "Source eq/ne mapping and singular pointValue behavior. Focused gates, not whole suite or JIT malformed-pointValue parity.",
+  "publication_base": "f6a50aaa32aa150cab972ca2dbed071156701596",
+  "private_disjoint_tests_passed": 23,
+  "integration": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/logical_integration_20261013/supervision/receipt.json",
+    "receipt_sha256": "0ec3f682d87ec8342bf6a20bb2aa2b08c55f1dcea8797d57ee6d65ac05c71ed5",
+    "tests_passed": 12,
+    "inputs_stable": true,
+    "peak_rss_kib": 2081052,
+    "supervisor_exit_code": 0
+  },
+  "native_singular_capture": {
+    "source_chain": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/logical_singular_native_review_20261013/SOURCE_CHAIN.md",
+    "sha256": "f9bd4d3c96fd2f5589a94cedb32904e1fef13c886ce978f8c2c5aef5360da7c7",
+    "qualification": "Scientific values saved before MATLAB shutdown wall cap (exit124); not a clean terminal passing native gate."
+  }
+}

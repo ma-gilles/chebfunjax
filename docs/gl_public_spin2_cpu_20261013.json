@@ -1,0 +1,44 @@
+{
+  "candidate_base": "e73957d4 plus hash-verified14-path graphics overlay",
+  "publication_base": "f6a50aaa",
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gl_public_spin2_migration_20261013/full_page",
+  "source_migration": "Use existing public Spinop2/spin2 continuous multitime API; remove local restart/transpose wrapper.",
+  "example_sha256": "36af811b27e0423110c357d3f3410d0773cfeb360605f2fba7967cb2f3b725cc",
+  "artifacts": {
+    "QUALIFICATION.md": "b24a4ea91d841225867815da214aaa1c69d8a121afd168d9863484e7042e8b93",
+    "supervision/receipt.json": "37d0ea93d0898c33821c19992eea3b7ce524b2fe2681a594b7380aabad6b3e9c",
+    "run/guard.json": "2d09453161ea0eea178457cb94c6b7a7fa877a0db007caec7684e6c74150177d",
+    "figure_manifest.json": "4eb291144f4c5c19bf262448ec3ac3370af58e8a3fec89775008b3867dd9df27",
+    "page_stdout_clean.txt": "80a8b69bc46641b54999e4dc7ff454f2f75f52d974b3362d0e1cfd4003878dba",
+    "runtime_provenance.json": "4b9db2f525bdb75355d0cece747355d01a7b99a6c6322faa98738ed74ab512cb",
+    "GinzburgLandau_regenerated.md": "52c8b14abec2028e8f29ddfced2280a935602dd6e23133a7f99bebcbe78d4cd8"
+  },
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 119.73474081186578,
+    "sampled_peak_summed_rss_kib": 3714812,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "page_audit": {
+    "inputs": 15,
+    "prose_paragraphs": 20,
+    "outputs": 5,
+    "figures": 9,
+    "size_pixels": [
+      600,
+      270
+    ],
+    "pixel_identical_figures": 0
+  },
+  "source_integration_review": {
+    "different_library_files": [
+      "src/chebfunjax/chebfun2d/chebfun2.py"
+    ],
+    "explanation": "Only separately qualified Chebfun2.compose differs from the full-run candidate. For the nonperiodic analytic initial fields, the new per-axis False flags select the same constructor branch as the prior trig=False; the public solver and plotting sources are byte-identical. This is not a claim that the full run used the publication checkout."
+  },
+  "limits": [
+    "Historical late-field/pixel parity remains unresolved; matched native-state replay evidence is in docs/gl_evolution_roundoff_cpu_20261013.md.",
+    "Timings are observational, not a matched performance comparison."
+  ]
+}

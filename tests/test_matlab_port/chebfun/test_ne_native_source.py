@@ -71,3 +71,40 @@ def test_native_ne(clause):
             lambda x: x**2 * (1 - jnp.exp(-(x**2))), domain=(-jnp.inf, jnp.inf), exps=(2, 2)
         )
         assert not np.any(np.asarray(f.logical_ne(f)(x)))
+
+
+def test_native_eq_ne_unbounded_preserve_mapping():
+    """@chebfun/eq/ne retain each unbounded FUN's mapping when zeroing."""
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    f = cj.chebfun(
+        lambda x: x**2 * (1 - jnp.exp(-(x**2))),
+        domain=(-jnp.inf, jnp.inf), exps=(2, 2))
+    equal = f.logical_eq(f)
+    unequal = f.logical_ne(f)
+    zero = f.logical_eq(0.0)
+    assert all(isinstance(piece, Unbndfun) for piece in equal.funs)
+    assert all(isinstance(piece, Unbndfun) for piece in unequal.funs)
+    assert all(isinstance(piece, Unbndfun) for piece in zero.funs)
+    x = jnp.asarray([-100.0, -1.0, 0.0, 1.0, 100.0])
+    np.testing.assert_array_equal(np.asarray(equal(x)), np.ones(5))
+    np.testing.assert_array_equal(np.asarray(unequal(x)), np.zeros(5))
+    np.testing.assert_array_equal(np.asarray(zero(x)), np.zeros(5))
+
+
+def test_native_singular_eq_ne_pointvalues():
+    """Native eq preserves NaN PVs; ne deletes them before logical()."""
+    f = cj.chebfun(lambda x: -jnp.sin(x) / (x + 1), exps=(-1, 0))
+    zero = f - f
+    eq = f.logical_eq(f)
+    ne = f.logical_ne(f)
+    np.testing.assert_array_equal(
+        np.isnan(np.asarray(zero.sign().point_values)), [True, False])
+    np.testing.assert_array_equal(
+        np.isnan(np.asarray(eq.point_values)), [True, False])
+    assert np.asarray(eq.point_values)[1] == 1
+    np.testing.assert_array_equal(np.asarray(ne.point_values), [0.0])
+    # The pinned native result has a one-entry pointValues vector for two
+    # domain endpoints; querying the missing right-end entry raises likewise.
+    with pytest.raises(IndexError):
+        ne(1.0)
