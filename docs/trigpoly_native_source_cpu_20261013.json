@@ -1,0 +1,64 @@
+{
+  "scope": "Literal source trigpoly construction returns a periodic Chebfun with JAX coefficients, native negative-frequency indexing, row/column orientation, empty input, source ChebfunPref domain and source error identifiers; top-level export added.",
+  "compatibility": "Return type changes from sampled array to Chebfun; old phase convention corrected. Tests adapted to actual source API while retaining unit modulus, zero-degree, negative-conjugacy and coefficient-length checks.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "files": {
+    "src/chebfunjax/__init__.py": "e0619b4fc9e0b97944e01ad25fbf586812a717b52905e80d2773b8c84c1db102",
+    "src/chebfunjax/utils/trigutils.py": "84f1231b4818a51948d5bd549efcf0e4709f54d6b504856adad55503c7b9bd85",
+    "tests/test_utils/test_trigutils_coverage.py": "10b854536f8b3f52795c8179ffd1e4236f1a6f70f88175fe12184e4edf16eb48",
+    "tests/test_utils/test_trigpoly_native_fixture.py": "36fd3401d608fcd7b2285b64a717b79cf228ed76566518d7f9dbaed072c76751",
+    "tests/fixtures/trigpoly_native/capture.mat": "d2313f8df5d147df985e7de6d61163fcfa971aaa4beb003c4ac838c9560433d9",
+    "tests/fixtures/trigpoly_native/driver.m": "4ee7fa4ac4f047de99300607ccc94ae364204f535fc4281b4b19ae5bb3c6a588",
+    "tests/fixtures/trigpoly_native/README.md": "f78284faaf26becd25dac7212aba29bdbf6f7878b114643355ef356dafbc25af",
+    "tests/test_utils/test_missing_functions.py": "fd0bdf773506a0dac3d6f811e610584aa6fdb557ce2a67f9984cdd899bb8d57c"
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpoly_source_fix_20261013",
+  "native_review": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 135.3939572731033,
+    "sampled_peak_summed_rss_kib": 1442176,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "guard_entries_verified": 3436,
+    "mismatches": [],
+    "capture_sha256": "d2313f8df5d147df985e7de6d61163fcfa971aaa4beb003c4ac838c9560433d9",
+    "finding": "Native trigpoly returns periodic Chebfun; literal coefficient index gives negative-frequency sign despite positive-sign prose; six controls include vector orientation, nondefault domain and empty."
+  },
+  "candidate_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trigpoly_source_fix_final_regression_cpu_20261013/receipt.json",
+  "candidate_receipt_sha256": "96ec1afacca741d571376663a9816c4a4f281cf95188d9dcf3776c3f52651c87",
+  "candidate_stdout_sha256": "aec6fcb184902d87e74d119e029be7e1b3b03b13dbb9447c3c0ff3b83058ac9d",
+  "gate": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 16.100633413065225,
+    "sampled_peak_summed_rss_kib": 1158068,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "tests": "26 passed in 11.57s pytest; CPU JAX0.11.0 origin asserted. Ten final guarded inputs rehashed by root without mismatch.",
+  "native_comparison": {
+    "coefficient_arrays": "exact",
+    "nonempty_domain": "exact",
+    "sample_max_abs_errors": [
+      1.2412670766236366e-16,
+      2.2960341031410415e-16,
+      1.1102230246251565e-16
+    ],
+    "bound": "Supplemental 100eps sample comparison, not a native predicate. Native source has no acceptance assertion here.",
+    "empty": "Native isempty only; saved record.domain describes requested input, not empty returned object."
+  },
+  "review": "Only trigpoly function AST changed in module; NumPy attributes absent in this function. Native capture and driver match root guarded bytes exactly. Existing Bessel roots negative-count assertion on main preserved during test merge.",
+  "limitations": [
+    "Factory eager/static-shape, not qualified for traced degree/domain.",
+    "Malformed or higher-dimensional degree/domain inputs beyond documented vectors are not fully qualified.",
+    "diffbarytrig still uses NumPy pending separate migration; no whole-module JAX claim.",
+    "Full tests, pages, figures, performance and latest CI remain incomplete."
+  ],
+  "historical_report": "FINAL_REPORT.md now explicitly marks its earlier completion counts/claims and scope exclusions as superseded; historical body retained."
+}

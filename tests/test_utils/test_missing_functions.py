@@ -400,28 +400,21 @@ class TestPaduapts:
 # ===========================================================================
 
 class TestTrigpoly:
-    """Tests for trigpoly."""
+    """Tests for source-compatible trigpoly construction."""
 
-    def test_shape(self):
-        """trigpoly(n) returns a vector of the correct length."""
+    def test_returns_periodic_chebfun_with_source_sign(self):
+        import chebfunjax
         from chebfunjax.utils import trigpoly
-        for n in [1, 2, 5]:
-            vals = trigpoly(n)
-            assert vals.shape == (2 * n + 1,)
-
-    def test_unit_norm(self):
-        """exp(i*pi*n*x) has unit L2 norm on equispaced grid."""
-        from chebfunjax.utils import trigpoly
-        for n in [1, 3, 5]:
-            vals = trigpoly(n)
-            # L2 norm on equispaced grid: sum(|vals|^2) / N should be 1
-            norm2 = float(jnp.mean(jnp.abs(vals) ** 2))
-            npt.assert_allclose(norm2, 1.0, rtol=1e-13)
+        f = trigpoly(2)
+        assert chebfunjax.trigpoly is trigpoly
+        assert f.__class__.__name__ == "Chebfun"
+        npt.assert_array_equal(np.asarray(f.coeffs).reshape(-1), [1, 0, 0, 0, 0])
+        npt.assert_allclose(np.asarray(f(np.array([0.0, 0.25]))).reshape(-1),
+                            [1.0, -1.0j], atol=1e-14)
 
     def test_integer_only(self):
-        """trigpoly raises ValueError for non-integer n."""
         from chebfunjax.utils import trigpoly
-        with pytest.raises(ValueError, match="integers"):
+        with pytest.raises(ValueError, match="CHEBFUN:trigpoly:integern"):
             trigpoly(1.5)
 
 

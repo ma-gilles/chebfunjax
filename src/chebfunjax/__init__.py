@@ -97,7 +97,7 @@ from chebfunjax.utils.ratapprox import (  # noqa: E402
 )
 from chebfunjax.utils.remez import remez  # noqa: E402
 from chebfunjax.utils.trigrational import trigpade, trigremez  # noqa: E402
-from chebfunjax.utils.trigutils import trigBary  # noqa: E402
+from chebfunjax.utils.trigutils import trigBary, trigpoly  # noqa: E402
 
 # The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
 plot = plot_dispatch
@@ -357,6 +357,7 @@ __all__ = [
     "hermpoly",
     "lagpoly",
     "trigBary",
+    "trigpoly",
     "trigpade",
     "trigremez",
     "remez",

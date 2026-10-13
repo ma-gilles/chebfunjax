@@ -15,73 +15,105 @@ import numpy as np
 # ===========================================================================
 
 
-def trigpoly(
-    n: int | jnp.ndarray,
-    domain: tuple[float, float] = (-1.0, 1.0),
-) -> jnp.ndarray:
-    """Evaluate a trigonometric polynomial exp(i*pi*n*x) on a standard grid.
+def trigpoly(n: int | jnp.ndarray, domain=None):
+    """Construct Chebfun's periodic trigonometric polynomial(s).
 
-    TRIGPOLY(N) returns the degree-N trigonometric polynomial exp(i*pi*N*x)
-    evaluated at M = 2*|N|+1 equispaced points on [-1, 1).  N may be a
-    vector of integers, in which case the result has one column per entry.
+    The Fourier coefficient column for each degree ``n[k]`` has a one at
+    row ``max(abs(n)) - n[k]`` (zero based), following the literal
+    ``trigpoly.m`` coefficient indexing. Thus the default-domain function is
+    ``exp(-1j*pi*n*x)``. A column-shaped degree input marks the resulting
+    Chebfun transposed, matching MATLAB. The default domain follows ``ChebfunPref``.
 
-    The polynomial has period 2 (mapped from 2*pi).
+    Empty degree input returns ``Chebfun.empty()``. Coefficients are passed
+    directly to the trig constructor; no sampled-value fitting is performed.
+    This factory is eager because degree and domain checks and the maximum
+    degree are materialized to allocate the statically shaped coefficient
+    array; evaluation of the resulting Chebfun uses JAX.
 
     Parameters
     ----------
-    n : int or array_like of ints
-        Degree(s).  Must be integers.
-    domain : (a, b), default (-1, 1)
-        Interval.  The polynomial has period b-a.
+    n : integer scalar or array_like
+        Degree(s), arranged as a row or column vector.
+    domain : sequence, optional
+        Finite interval. Interior breakpoints and unbounded intervals follow
+        the MATLAB source errors.
 
     Returns
     -------
-    vals : jnp.ndarray, shape (M,) or (M, len(n))
-        Values of exp(i*pi*n*(x-a)*2/(b-a)) at M equispaced points.
-
-    Notes
-    -----
-    In MATLAB Chebfun, ``trigpoly(N)`` returns a chebfun object; here we
-    return the array of Fourier coefficients (a length-2N+1 zero vector with
-    a single 1 at position N) and the equispaced evaluation grid.
+    Chebfun
+        A periodic Chebfun containing the requested degree(s).
 
     Provenance
     ----------
     MATLAB source : trigpoly.m
     Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+    Original authors: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.
 
     See Also
     --------
     diffbarytrig
     """
-    # Check the original input for integer-ness before any truncating cast
-    n_float = np.asarray(n, dtype=np.float64).ravel()
-    if not np.all(n_float == np.round(n_float)):
-        raise ValueError("n must contain integers.")
-    n_arr = jnp.asarray(np.round(n_float).astype(np.int64)).ravel()
+    try:
+        n_input = jnp.asarray(n)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(
+            "CHEBFUN:trigpoly:integern: The first argument must be a vector of integers."
+        ) from exc
+    if jnp.iscomplexobj(n_input):
+        raise ValueError(
+            "CHEBFUN:trigpoly:integern: The first argument must be a vector of integers."
+        )
+    try:
+        n_float = jnp.asarray(n_input, dtype=jnp.float64)
+        valid_integer_input = bool(jnp.all(
+            jnp.isfinite(n_float) & (n_float == jnp.round(n_float))
+        ))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(
+            "CHEBFUN:trigpoly:integern: The first argument must be a vector of integers."
+        ) from exc
+    if not valid_integer_input:
+        raise ValueError(
+            "CHEBFUN:trigpoly:integern: The first argument must be a vector of integers."
+        )
+    degrees = jnp.ravel(jnp.round(n_float).astype(jnp.int64), order="F")
 
-    a, b = float(domain[0]), float(domain[1])
-    L = b - a
+    if domain is None:
+        from chebfunjax.chebpref import ChebfunPref
+        domain = ChebfunPref().domain
+    try:
+        d = jnp.ravel(jnp.asarray(domain, dtype=jnp.float64))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("domain must contain finite interval endpoints") from exc
+    if bool(jnp.any(jnp.isinf(d))):
+        raise ValueError(
+            "CHEBFUN:trigpoly:infdomain: Trigonometric polynomial construction "
+            "is not allowed on unbounded domain."
+        )
+    if d.size > 2:
+        raise ValueError(
+            "CHEBFUN:trigpoly:breakpoints: Trigonometric polynomials can not be "
+            "constructed on domains with break points."
+        )
 
-    N_max = int(jnp.max(jnp.abs(n_arr)))
-    M = 2 * N_max + 1  # number of evaluation points
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
-    # Equispaced points on [a, b)
-    x = jnp.linspace(a, b, M + 1, dtype=jnp.float64)[:-1]
+    if degrees.size == 0:
+        return Chebfun.empty()
+    if d.size < 2:
+        raise ValueError("domain must contain two endpoints")
 
-    # Angular frequency: exp(i * 2*pi/L * k * (x - a))
-    # For each degree k in n_arr, this is cos(2pi/L*k*x) + i*sin(...)
-    results = []
-    for k in np.array(n_arr):
-        freq = 2.0 * jnp.pi / L * float(k)
-        vals = jnp.exp(1j * freq * (x - a))
-        results.append(vals)
-
-    if len(results) == 1:
-        return results[0]
-    return jnp.stack(results, axis=1)
+    width = int(jnp.max(jnp.abs(degrees)))
+    rows = width - degrees
+    coeffs = jnp.zeros((2 * width + 1, degrees.size), dtype=jnp.float64)
+    coeffs = coeffs.at[rows, jnp.arange(degrees.size)].set(1.0)
+    result = chebfun(
+        coeffs, domain=(float(d[0]), float(d[-1])), coeffs=True, trig=True
+    )
+    if n_input.ndim >= 2 and n_input.shape[0] > 1:
+        return result.transpose()
+    return result
 
 
 # ===========================================================================

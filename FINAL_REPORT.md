@@ -1,5 +1,13 @@
 # chebfunjax — Final Verification Report (Workstream E)
 
+> **Historical report — superseded (2026-10-13).**
+> The completion claims and counts below describe an earlier campaign and do
+> not establish the current full-parity goal. See [STATUS.md](STATUS.md) and
+> [HANDOFF_CODEX.md](HANDOFF_CODEX.md) for the governing scope and subsequent
+> evidence. Full MATLAB test, example output, figure, performance and CI
+> qualification remains incomplete; the old “out of scope” list below does
+> not exclude those APIs from the current goal.
+
 *Compiled by Claude Opus 4.8. Companion to `HANDOFF.md` (narrative),
 `PARITY_MATRIX.md` (coverage matrix), and `STATUS.md` (module history).*
 

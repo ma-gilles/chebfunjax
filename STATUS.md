@@ -1,9 +1,15 @@
 # Current CPU parity checkpoint — 2026-10-13
 
-Main through `4f81fd28` is published; this checkpoint adds the packages below.
+Main through `c3fa9ec1` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- `trigpoly` now returns a periodic Chebfun with source Fourier coefficients,
+  phase, orientation and default-domain preferences. All six native captured
+  cases are covered; coefficients match exactly and sampled differences are
+  at most 2.30e-16. Twenty-six CPU checks pass. This corrects the old sampled-array
+  return API; see `docs/trigpoly_native_source_cpu_20261013.json`.
 
 - Public Bessel roots now use the existing JAX Piessens/McMahon kernel,
   removing duplicate NumPy execution. Native count validation and early return

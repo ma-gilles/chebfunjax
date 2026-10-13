@@ -38,31 +38,61 @@ def _fd(f, t, h=1e-6):
 # ---------------------------------------------------------------------------
 
 class TestTrigpolyMore:
-    def test_multi_degree_columns(self):
-        # A vector of degrees yields one column per degree, each exp(i pi n x).
-        out = np.asarray(trigpoly([0, 1, 2]))
-        assert out.shape == (5, 3)
-        # Column 0 is degree 0 -> all ones.
-        npt.assert_allclose(out[:, 0], np.ones(5), atol=1e-14)
-        # |exp(...)| == 1 everywhere.
-        npt.assert_allclose(np.abs(out), 1.0, atol=1e-14)
+    def test_multi_degree_coefficients_and_values(self):
+        f = trigpoly(np.array([[-1, 0, 2]]))
+        assert np.asarray(f.coeffs).shape == (5, 3)
+        npt.assert_array_equal(np.asarray(f.coeffs), np.eye(5)[:, [3, 2, 0]])
+        values = np.asarray(f(np.array([-1.0, 0.0, 1.0])))
+        expected = np.exp(-1j * np.pi * np.array([-1.0, 0.0, 1.0])[:, None]
+                          * np.array([-1, 0, 2])[None, :])
+        npt.assert_allclose(values, expected, atol=1e-14)
+        assert not f.is_transposed
 
     def test_degree_zero_is_constant_one(self):
-        out = np.asarray(trigpoly(0))
-        npt.assert_allclose(out, np.ones(1), atol=1e-14)
+        f = trigpoly(0)
+        values = np.asarray(f(np.linspace(-1.0, 1.0, 9))).reshape(-1)
+        npt.assert_allclose(values, np.ones(9), atol=1e-14)
 
-    def test_domain_scaling_period(self):
-        # exp(i*2pi/L*k*(x-a)) has unit modulus and correct grid length.
-        out = np.asarray(trigpoly(2, domain=(0.0, 4.0)))
-        assert out.shape == (5,)
-        npt.assert_allclose(np.abs(out), 1.0, atol=1e-14)
-        # First sample sits at x==a -> value exp(0) == 1.
-        npt.assert_allclose(out[0], 1.0 + 0.0j, atol=1e-14)
+    def test_unit_modulus_and_degree_based_representation_length(self):
+        points = np.linspace(-1.0, 1.0, 37)
+        for degree in [1, 2, 3, 5]:
+            f = trigpoly(degree)
+            assert f.coeffs.shape[0] == 2 * degree + 1
+            values = np.asarray(f(points)).reshape(-1)
+            npt.assert_allclose(np.abs(values), 1.0, atol=1e-14)
 
-    def test_negative_degree_conjugates(self):
-        pos = np.asarray(trigpoly(3))
-        neg = np.asarray(trigpoly(-3))
-        npt.assert_allclose(neg, np.conj(pos), atol=1e-13)
+    def test_negative_degree_is_conjugate(self):
+        points = np.linspace(-1.0, 1.0, 37)
+        positive = np.asarray(trigpoly(3)(points)).reshape(-1)
+        negative = np.asarray(trigpoly(-3)(points)).reshape(-1)
+        npt.assert_allclose(negative, np.conj(positive), atol=1e-14)
+
+    def test_column_input_transposes_and_empty_is_chebfun(self):
+        f = trigpoly(np.array([[-1], [0], [2]]))
+        assert f.is_transposed
+        assert f.__class__.__name__ == "Chebfun"
+        empty = trigpoly(np.array([]))
+        assert empty.isempty()
+        assert empty.__class__.__name__ == "Chebfun"
+
+    def test_default_domain_uses_chebfunpref_and_restores_defaults(self):
+        from chebfunjax.chebpref import ChebfunPref
+        saved = ChebfunPref()
+        try:
+            ChebfunPref.setDefaults("domain", (2.0, 5.0))
+            f = trigpoly(1)
+            npt.assert_array_equal(np.asarray(f.domain.breakpoints), [2.0, 5.0])
+        finally:
+            ChebfunPref.setDefaults(saved)
+
+    def test_domain_and_source_errors(self):
+        f = trigpoly(1, domain=(2.0, 5.0))
+        npt.assert_allclose(np.asarray(f([2.0, 3.5, 5.0])).reshape(-1),
+                            [-1, 1, -1], atol=1e-14)
+        with pytest.raises(ValueError, match="CHEBFUN:trigpoly:infdomain"):
+            trigpoly(1, domain=(-np.inf, np.inf))
+        with pytest.raises(ValueError, match="CHEBFUN:trigpoly:breakpoints"):
+            trigpoly(1, domain=(-1.0, 0.0, 1.0))
 
 
 # ---------------------------------------------------------------------------
