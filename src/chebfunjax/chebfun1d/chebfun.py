@@ -2068,7 +2068,8 @@ class Chebfun(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    def __call__(self, x: jax.Array, side: "str | None" = None) -> jax.Array:
+    def __call__(self, x: jax.Array, selector=OMITTED, *,
+                 side=OMITTED, columns=OMITTED) -> jax.Array:
         """Evaluate the Chebfun at point(s) x.
 
         If ``x`` is itself a Chebfun ``g``, returns the composition
@@ -2080,6 +2081,14 @@ class Chebfun(eqx.Module):
         right (MATLAB ``feval(f, x, 'left')`` etc.).  This matters only at
         interior breakpoints of a piecewise Chebfun, where the value may
         differ from either side.
+
+        A numeric second argument or ``columns=`` selects zero-based
+        components, with Python negative indices and slices. String second
+        arguments remain one-sided limits; explicit ``side=`` always means
+        a side, never a column index. Integer selectors drop the component
+        axis for scalar/vector queries; sequences retain it. Matrix queries
+        select complete packed component blocks. Selectors must be static.
+        ``columns=`` may be combined with ``side=``.
 
         For single-piece Chebfuns this is JIT-safe, grad-safe, and vmap-safe.
 
@@ -2122,6 +2131,19 @@ class Chebfun(eqx.Module):
         # Native feval returns [] before inspecting x or the optional side.
         if self.isempty():
             return jnp.empty((0,), dtype=jnp.float64)
+        if selector is not OMITTED and selector is not None:
+            if isinstance(selector, str):
+                if side is not OMITTED:
+                    raise TypeError("Side specified both positionally and by keyword.")
+                side = selector
+            else:
+                if columns is not OMITTED:
+                    raise TypeError("Columns specified both positionally and by keyword.")
+                columns = selector
+        if side is OMITTED:
+            side = None
+        if columns is not OMITTED and columns is not None:
+            return self._select_evaluation_columns(x, columns, side)
         from .linalg import Quasimatrix
         if isinstance(x, (Chebfun, Quasimatrix)):
             return self.compose_chebfun(x)
@@ -2396,6 +2418,72 @@ class Chebfun(eqx.Module):
                            + self.funs[index](jnp.asarray(breakpoint))) / 2)
         values.append(self.funs[-1](jnp.asarray(breaks[-1])))
         return jnp.stack(values)
+
+    def _select_evaluation_columns(self, x, columns, side):
+        """Select numeric evaluation blocks using static Python indices.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun/subsref.m (FEVAL then output-column selection).
+        Chebfun commit: 7574c77.
+        Python adaptation: zero-based/negative indices, slices, scalar/vector
+        component-axis conventions, and static selectors under JIT.
+        """
+        import operator
+
+        count = self.n_columns
+        scalar = False
+        if isinstance(columns, slice):
+            indices = list(range(count))[columns]
+        else:
+            if (isinstance(columns, (bool, jnp.bool_))
+                    or getattr(columns, "dtype", None) == jnp.bool_):
+                raise TypeError("Column indices must be integers, not booleans.")
+            if getattr(columns, "ndim", 0) > 1:
+                raise ValueError("Column indices must be a vector of integers.")
+            try:
+                index = operator.index(columns)
+            except TypeError:
+                try:
+                    entries = list(columns)
+                except TypeError as error:
+                    raise TypeError("Column indices must be integers or a slice.") from error
+                if any(isinstance(v, (bool, jnp.bool_))
+                       or getattr(v, "dtype", None) == jnp.bool_
+                       for v in entries):
+                    raise TypeError("Column indices must be integers, not booleans.")
+                indices = [operator.index(v) for v in entries]
+            else:
+                scalar = True
+                indices = [index]
+            indices = [i + count if i < 0 else i for i in indices]
+            if any(i < 0 or i >= count for i in indices):
+                raise IndexError("Column index exceeds Chebfun dimensions.")
+        if isinstance(x, (str, Chebfun)):
+            raise TypeError("Column selection requires numeric query points.")
+        query = jnp.asarray(x)
+        values = jnp.asarray(self._columns_base()(query, side=side))
+        rank = query.ndim
+        selected = jnp.asarray(indices, dtype=jnp.int32)
+        if rank < 2:
+            if query.size == 0:
+                values = jnp.zeros(query.shape + (count,), dtype=values.dtype)
+            elif count == 1:
+                values = values[..., None]
+            result = jnp.take(values, selected, axis=-1)
+            if scalar:
+                result = result[..., 0]
+            if self.is_transposed and rank == 1 and result.ndim == 2:
+                result = jnp.swapaxes(result, 0, 1)
+            return result
+        width = query.shape[1]
+        if query.size == 0:
+            values = jnp.zeros((query.shape[0], width * count)
+                               + query.shape[2:], dtype=values.dtype)
+        blocks = (selected[:, None] * width
+                  + jnp.arange(width, dtype=jnp.int32)[None, :]).reshape(-1)
+        result = jnp.take(values, blocks, axis=1)
+        return jnp.swapaxes(result, 0, 1) if self.is_transposed else result
 
     def _feval_side(self, x, side: str):
         """One-sided evaluation at ``x`` (see :meth:`__call__`).
@@ -6924,6 +7012,11 @@ class Chebfun(eqx.Module):
         """
         import numpy as _np
         n_cols = self.n_columns
+
+        def empty_selection():
+            empty = Chebfun(funs=[], domain=self.domain)
+            return Chebfun._as_transposed(empty, self.is_transposed)
+
         if isinstance(idx, tuple):
             # MATLAB f(:, cols) / f(rows, :): two-dimensional selection.
             if len(idx) != 2:
@@ -6942,7 +7035,7 @@ class Chebfun(eqx.Module):
             start, stop, step = idx.indices(n_cols)
             cols = list(range(start, stop, step))
             if not cols:
-                raise IndexError("slice results in empty selection.")
+                return empty_selection()
             if cols == list(range(n_cols)):
                 return self
         elif isinstance(idx, (list, tuple, _np.ndarray, jax.Array)):
@@ -6962,6 +7055,8 @@ class Chebfun(eqx.Module):
             return Chebfun._as_transposed(
                 self._columns_base().extract_columns(cols),
                 self.is_transposed)
+        if not cols:
+            return empty_selection()
         for c in (cols if isinstance(cols, list) else [cols]):
             if not 0 <= c < n_cols:
                 raise IndexError(

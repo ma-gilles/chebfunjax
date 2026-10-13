@@ -1,3 +1,16 @@
+## Numeric evaluation columns and empty column slices — 2026-10-14
+
+Added zero-based numeric component selection: f(x,1) or f(x,columns=1)
+selects the second component. Native pass12 uses exact equality on captured
+queries. Existing positional string/side keyword evaluation remains intact;
+public feval numeric side arguments still raise the original error. Static
+selectors, negative indices, sequences/slices, packed query shapes, complex
+values and JIT adapters are qualified. Dynamic traced selectors remain unsupported.
+Empty column slices/lists now return empty Chebfuns, with source23 and Python
+orientation/domain controls; integer out-of-range selection still raises.
+The merged54-test gate passes with stable hashes/no survivors. Evidence:
+`docs/subsref_columns_cpu_20261014.json`. Full source/API parity and CI remain open.
+
 ## Restore initial cumulative-integration source predicates — 2026-10-14
 
 Original cumsum1–9 now use native seed7681 probes and source bounds; added

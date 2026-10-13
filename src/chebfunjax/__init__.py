@@ -118,6 +118,9 @@ def feval(f, x, *args):
     MATLAB source : @chebfun/feval.m
     Chebfun commit: 7574c77
     """
+    # FEVAL's optional argument is a side, unlike numeric SUBSREF columns.
+    if isinstance(f, Chebfun) and len(args) == 1:
+        return f(x, side=args[0])
     return f(x, *args)
 
 

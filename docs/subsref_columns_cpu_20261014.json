@@ -1,0 +1,91 @@
+{
+  "scope": "Numeric evaluation column selection for Chebfun __call__, plus public feval argument distinction. No __getitem__ edits.",
+  "base": "df06e74e8c54fce58278580a5232d75d23cfd0b9 with delivered abs branch present",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_contract": "@chebfun/subsref.m evaluates full object then selects component blocks; original test_subsref pass12 uses exact isequal.",
+  "API": [
+    "f(x,1) and f(x,columns=1) select second component, zero-based.",
+    "Python negative indices, integer vectors, duplicates and slices supported.",
+    "Positional strings and explicit side keyword retain directional evaluation; side=1/[] remain errors.",
+    "cj.feval(f,x,numeric) retains native side error instead of acquiring subsref meaning.",
+    "Column selectors are static; dynamic traced selectors are unsupported.",
+    "Query remains first argument for row objects as established Python evaluation convention; row orientation restored after selection.",
+    "Scalar/vector integer selection drops component axis, list/slice retains it; matrix/ND selection keeps packed block widths.",
+    "Empty selectors produce numerical empties, preserving query dimensions and orientation; no dependency on empty Chebfun __getitem__ work."
+  ],
+  "science": "Only JAX gathers of the existing full evaluation. No coefficient reconstruction, new approximation, tolerance, or node changes.",
+  "tests": {
+    "final": "53 passed: 23 new controls plus30 existing publicfeval, native finite shape and previous subsref controls",
+    "native_pass12": "Captured seedRNG7681 query; literal Nx1 exact second column and Python rank1 exact scalar-selector adaptation.",
+    "guards": "Stable inputs and no surviving owned processes",
+    "wall_seconds": 44.98743034014478,
+    "sampled_peak_summed_rss_kib": 1736320,
+    "supervisor_exit_code": 0,
+    "retained_initial": "50 passed before explicit JAX bool-index rejection and complex/empty-query controls; source/test snapshots retained.",
+    "warning": "Existing installed cuda plugin0.11.2 mismatched jaxlib0.11.0 warning; CUDA visibility empty and CPU platform enforced."
+  },
+  "limits": [
+    "No dynamic selector JIT or arbitrary multidimensional selector arrays.",
+    "Selection with composition/endpoint string aliases is outside initial numeric query scope.",
+    "Empty-query selected shapes are explicitly Python adapter behavior; no claim of a new native empty-query predicate.",
+    "No full CI run or performance claim."
+  ],
+  "patch_validation": {
+    "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/subsref_numeric_candidate.patch",
+    "patch_sha256": "936b9edfcd3a106a6bd56c2783d23674376cd13e366ac18a90ce701e16e0effb",
+    "changed_paths": [
+      {
+        "path": "src/chebfunjax/chebfun1d/chebfun.py",
+        "sha256": "7aa442a15cb220113a5606a3d1db984e3cc0bf671d933145031bbe90337103f0",
+        "applied_sha256": "7aa442a15cb220113a5606a3d1db984e3cc0bf671d933145031bbe90337103f0"
+      },
+      {
+        "path": "src/chebfunjax/__init__.py",
+        "sha256": "e8fa362e5acac95d2b84bee26404b37929722315b380546f44bf2e3017c0003d",
+        "applied_sha256": "e8fa362e5acac95d2b84bee26404b37929722315b380546f44bf2e3017c0003d"
+      },
+      {
+        "path": "tests/test_matlab_port/chebfun/test_subsref_numeric_columns_source.py",
+        "sha256": "763ec6ad1d935db7cd33c6e0a0dc73a8861aaa55c96d2ec300b918e9687a8d28",
+        "applied_sha256": "763ec6ad1d935db7cd33c6e0a0dc73a8861aaa55c96d2ec300b918e9687a8d28"
+      }
+    ],
+    "validation_worktree": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_complex_patch_validation_sparse_20261014",
+    "validation_preimage": "Clean df06 sparse base plus previously validated abs_complex_candidate.patch; source preimage byte-equal to archived subsref_chebfun_before.py and subsref_init_before.py asserted.",
+    "git_apply_check": true,
+    "git_apply": true,
+    "hashes_match": true,
+    "git_diff_check": true,
+    "excluded": "Prior treevar RHS and abs patch changes excluded. Git no-index generates diff bodies/newline markers; only file header names normalized."
+  },
+  "receipt_sha256": "cf4219dc10e4335ba5db61d4bbbcebac972952a04561da140963c8a8f67e2408",
+  "static": "Ruff and git diff --check passed.",
+  "integration": "Apply only subsref_numeric_candidate.patch to preserve root abs/RHS and Luna __getitem__ changes. All delivered path hashes verified in sparse validation preimage.",
+  "empty_selection": {
+    "source": "Native test_subsref23 and @chebfun/extractColumns.m",
+    "change": "Empty slice/list returns empty Chebfun preserving Python domain/orientation; integer out-of-range remains error.",
+    "private_gate": "Two focused checks passed; baseline IndexError retained.",
+    "evidence": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/subsref_baseline/manifest_successor.json": "007cc880ffc37787150de51d4f954ec4faf8fa66e6d319f32b82ce5a2306737c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/subsref_baseline/HANDOFF_successor.md": "94d2798f5c3919303fa17eec7edafa9d05a0701e4fa770fe40c2ed93ef1ae156",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/mrdivide_singfun_ls_candidate_20261014/gates/subsref_baseline/subsref_only.patch": "2a54795bfc8180949e748aa3c8558258b00ddac0ad98b70e6885d71e5d9c6157"
+    }
+  },
+  "merged_gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 48.163646392989904,
+    "sampled_peak_summed_rss_kib": 1739396,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "tests": "54 passed:23 selector controls, existing publicfeval/finite shapes/subsref and new empty-slice source/control group."
+  },
+  "merged_evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subsref_publication_20261014/run/receipt.json": "a393a8d364bae661bf3c9c25324a170e46d557d27eacde9a3ea361e6785f94cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/SUBSREF_NUMERIC_DELIVERY.json": "ea19ae5890e59d57edc5b753fb1f9559f29d0d0c562d9cda616880820b1d1987",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/chebfun.py": "ded414627ded8643bca925f0811451a1297b6156a2392b08813e35ac1194a3da",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/__init__.py": "e8fa362e5acac95d2b84bee26404b37929722315b380546f44bf2e3017c0003d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_subsref_numeric_columns_source.py": "763ec6ad1d935db7cd33c6e0a0dc73a8861aaa55c96d2ec300b918e9687a8d28",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/test_subsref_matlab.py": "6561ae256e7dde822f3dc04366efb619bfa4d51f6e3a7d97c745daf57b341d86",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun/data/feval_seedRNG_7681_xr.mat": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b"
+  }
+}

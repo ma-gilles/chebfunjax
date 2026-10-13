@@ -16,6 +16,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 import chebfunjax as cj
 
@@ -23,6 +24,38 @@ jax.config.update("jax_enable_x64", True)
 
 
 class TestChebfunSubsref:
+    def test_native_empty_column_slice(self):
+        # Native pass(23) uses the default [-1, 1] domain. The second domain
+        # is a supplemental adapter check for domain preservation.
+        for domain in ((-1.0, 1.0), (-2.0, 3.0)):
+            f = cj.chebfun(lambda x: jnp.cos(x), domain=domain)
+
+            empty_column = f[:, 1:]
+            assert empty_column.isempty()
+            assert empty_column.domain == f.domain
+            assert not empty_column.is_transposed
+
+            # Empty explicit selectors use the same empty-column result.
+            empty_list_column = f[:, []]
+            assert empty_list_column.isempty()
+            assert empty_list_column.domain == f.domain
+            assert not empty_list_column.is_transposed
+
+            # Row subscripts are transposed back after source column selection.
+            empty_row = f.T[1:, :]
+            assert empty_row.isempty()
+            assert empty_row.domain == f.domain
+            assert empty_row.is_transposed
+
+            empty_list_row = f.T[[], :]
+            assert empty_list_row.isempty()
+            assert empty_list_row.domain == f.domain
+            assert empty_list_row.is_transposed
+
+            # Empty slices and out-of-range integer indices have distinct results.
+            with pytest.raises(IndexError, match="out of bounds"):
+                _ = f[:, 1]
+
     def test_evaluation_syntaxes(self):
         rng = np.random.RandomState(7681)
         xr = jnp.asarray(2 * rng.rand(1000) - 1)
