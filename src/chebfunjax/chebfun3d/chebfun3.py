@@ -41,6 +41,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.utils._matlab_twister import init_matlab_twister, matlab_rand_uniform
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.transforms import vals2coeffs
 
@@ -49,6 +50,32 @@ if TYPE_CHECKING:
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
+
+
+def _initialize_random_indices(ri: int, ni: int, restarts: int) -> np.ndarray:
+    """Return Chebfun3's source seeded randomized fiber indices.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebfun3/chebfun3f.m``,
+                    ``initializeIndexRandomly`` (lines 570-582).
+    Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``.
+    The source saves caller RNG state, resets Twister to
+    ``16051821+restarts``, draws ``randi(floor(ni/ri),1)`` once per fiber,
+    and restores caller state. The captured integer vectors match the
+    floor-map from native ``rand`` uniforms for the qualified bounds.
+    """
+    box = max(1, ni // ri)
+    seed = 16051821 + restarts
+    uniforms, _ = matlab_rand_uniform(
+        init_matlab_twister(seed), (ri,)
+    )
+    draws = jnp.floor(uniforms * box).astype(jnp.int64) + 1
+    vals = (jnp.arange(ri, dtype=jnp.int64) + 1) * box + draws
+    # Match the existing zero-based grid adapter, including its clipping.
+    vals = jnp.minimum(vals, ni) - 1
+    # ACA indexes NumPy-backed host arrays; convert only at that boundary.
+    return np.asarray(vals)
 
 
 # ============================================================================
@@ -752,24 +779,10 @@ class Chebfun3(eqx.Module):
         yp = grid_points(n[1], ya, yb)
         zp = grid_points(n[2], za, zb)
 
-        # Initialize random fiber indices exactly as MATLAB's
-        # initializeIndexRandomly: a FRESH rng(16051821+restarts,
-        # 'twister') per call (so J == K), one draw per subinterval via
-        # val = i*box + randi(box).  numpy's RandomState shares MT19937
-        # + init_genrand seeding with MATLAB 'twister', and
-        # floor(u*box)+1 reproduces randi's stream bit-exactly --
-        # verified against MATLAB R2025b (J=[3 6 7 9 12 13] for
-        # seed 16051821, r=6, n=17).
-        def _init_indices(ri: int, ni: int) -> np.ndarray:
-            box = max(1, ni // ri)
-            rs = np.random.RandomState(16051821 + _restarts)
-            draws = np.floor(rs.random_sample(ri) * box).astype(int) + 1
-            vals = [(i + 1) * box + int(d) for i, d in enumerate(draws)]
-            # 1-based MATLAB indices -> 0-based, clipped to the grid.
-            return np.array([min(v, ni) - 1 for v in vals], dtype=int)
-
-        J = _init_indices(r[1], n[1])
-        K = _init_indices(r[2], n[2])
+        # Native initializeIndexRandomly reseeds Twister for each call, so J
+        # and K use identical explicit uniform streams for a given restart.
+        J = _initialize_random_indices(r[1], n[1], _restarts)
+        K = _initialize_random_indices(r[2], n[2], _restarts)
 
         # Store the fiber indices found in each ACA round
         I_idx = np.arange(n[0], dtype=int)
@@ -863,8 +876,12 @@ class Chebfun3(eqx.Module):
                     xp = grid_points(n[0], xa, xb)
                     yp = grid_points(n[1], ya, yb)
                     zp = grid_points(n[2], za, zb)
-                    J = _init_indices(r[1] if _first_kind else max(r[1], 3), n[1])
-                    K = _init_indices(r[2] if _first_kind else max(r[2], 3), n[2])
+                    J = _initialize_random_indices(
+                        r[1] if _first_kind else max(r[1], 3), n[1], _restarts
+                    )
+                    K = _initialize_random_indices(
+                        r[2] if _first_kind else max(r[2], 3), n[2], _restarts
+                    )
                     need_refine = True
                     break
                 elif min(r) < 2:

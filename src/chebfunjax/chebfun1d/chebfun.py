@@ -970,7 +970,12 @@ def _divide_with_poles(num, den: "Chebfun", poles) -> "Chebfun":
     """
     import numpy as _np
 
+    from chebfunjax.chebfun1d._scalar_rdivide import bounded_scalar_quotient
     from chebfunjax.fun.singfun import Singfun
+
+    source_quotient = bounded_scalar_quotient(num, den)
+    if source_quotient is not None:
+        return source_quotient
 
     a0, b0 = float(den.domain.a), float(den.domain.b)
     tol = 1e-10 * max(b0 - a0, 1.0)
@@ -3192,7 +3197,8 @@ class Chebfun(eqx.Module):
                     "Division by CHEBFUN with identically zero FUN.")
         poles = _real_simple_roots(self)
         if poles.size:
-            return _divide_with_poles(other, self, poles)
+            return Chebfun._as_transposed(
+                _divide_with_poles(other, self, poles), self.is_transposed)
         new_funs = [
             piece._apply_unary(other / piece.tech)
             for piece in self.funs

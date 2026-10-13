@@ -1,0 +1,39 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "merged_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/division_rng_publication_20261014/run2",
+    "passed_tests": 84,
+    "receipt_sha256": "03e0e2b9800685fd92eedc3ef8d65a2ab87c9342e0ea8e63eac1366ab0c3e4e5",
+    "wall_seconds": 49.85815512761474,
+    "sampled_peak_summed_rss_kib": 1597464,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "limits": [
+    "Full main CI and full parity remain incomplete.",
+    "No generic randi/randn API parity; inherited host ACA remains."
+  ],
+  "scope": "Only Chebfun3 randomized index initializer moves from NumPyRandomState to JAX explicit uniform state.",
+  "native_cases": 10,
+  "exact_draw_and_full_state_mapping": true,
+  "native_index_vectors_exact": 8,
+  "existing_clipping_discrepancies": [
+    5,
+    9
+  ],
+  "clipping_detail": "Native initializer can exceed grid at captured(r=1,n=17,restart0) and(r=4,n=17,restart3). Existing clipping remains; no native parity claim for these vectors.",
+  "private_gate": "8pass11.45s,1,053,752KiB; matlab_uniform_consumer_audit_20261014/candidate_c87f5a6b/run/focused_gate_v5",
+  "merged_gate_scope": "Two new consumer tests pass in84-testgate; six MT helper tests already qualified privately and previously published.",
+  "root_raw_review": {
+    "raw_json_and_fixture_comparisons": 350,
+    "cases": 10,
+    "all_equal": true,
+    "raw_sha256": "364f7ac97907093f9397496098e09c1e4de8cb9d01be1b3345b45da35f87ad5a",
+    "limitation": "Native internal state equivalence is separately checked by private validator; this independent root check binds raw MAT fields to JSON and committed index fixture."
+  },
+  "raw_capture": "tests/fixtures/matlab_chebfun3_randi_capture_20261014.mat",
+  "source_math": "JAX floor/arange/minimum/int arithmetic; final np.asarray only at inherited host ACA index boundary.",
+  "delivery_report_sha256": "86a2f38b898c18ccbcb151657110b1f2c9bd99f684ef5c61d11a13e55891748e"
+}

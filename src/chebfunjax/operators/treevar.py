@@ -65,17 +65,29 @@ def _airy(x):
     return scipy.special.airy(x)[0]
 
 
+def _reciprocal_inverse_trig(x, cosine=False):
+    """Use the shared MATLAB real/complex ACSC/ASEC branch in JAX.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m unary method declarations,
+        tests/treeVar/test_univariate.m, commit7574c77.
+    """
+    from chebfunjax.chebfun1d.chebfun import _reciprocal_inverse_trig as evaluate
+    return evaluate(jnp.asarray(x), cosine=cosine)
+
+
 _UNARY_FNS_RAW = {
     "abs": np.abs, "acos": np.arccos,
     "acosd": lambda x: np.arccos(x) / _DEG,
     "acot": lambda x: np.arctan(1.0 / x),
     "acoth": lambda x: np.arctanh(1.0 / x),
-    "acsc": lambda x: np.arcsin(1.0 / x),
-    "acscd": lambda x: np.arcsin(1.0 / x) / _DEG,
+    "acsc": _reciprocal_inverse_trig,
+    "acscd": lambda x: _reciprocal_inverse_trig(x) / _DEG,
     "acsch": lambda x: np.arcsinh(1.0 / x),
     "airy": _airy,
-    "asec": lambda x: np.arccos(1.0 / x),
-    "asecd": lambda x: np.arccos(1.0 / x) / _DEG,
+    "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
+    "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
     "asech": lambda x: np.arccosh(1.0 / x),
     "asin": np.arcsin, "asind": lambda x: np.arcsin(x) / _DEG,
     "asinh": np.arcsinh, "atan": np.arctan,

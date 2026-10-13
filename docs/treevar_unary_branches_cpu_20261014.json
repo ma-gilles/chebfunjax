@@ -1,0 +1,282 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "merged_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/division_rng_publication_20261014/run2",
+    "passed_tests": 84,
+    "receipt_sha256": "03e0e2b9800685fd92eedc3ef8d65a2ab87c9342e0ea8e63eac1366ab0c3e4e5",
+    "wall_seconds": 49.85815512761474,
+    "sampled_peak_summed_rss_kib": 1597464,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "limits": [
+    "Full main CI and full parity remain incomplete.",
+    "Qualification is native real argument0.4 only; no new complex/zero/branch-point guarantee.",
+    "Native primitive residual max1.4210854715202004e-14, max0.71293eps*max(1,abs(value)); observed diagnostic, not fitted acceptance bound.",
+    "TreeVar broader host numerical operations remain."
+  ],
+  "scope": "All49 original TreeVar unary conversion expressions now use independently defined numeric references; four real-input inverse reciprocal branches fixed using existing JAX helper.",
+  "native_capture": {
+    "json": "tests/fixtures/treevar_unary_native_20261014.json",
+    "mat": "tests/fixtures/treevar_unary_native_20261014.mat",
+    "all49_pass": true,
+    "max_original_error": 4.440892098500626e-16
+  },
+  "baseline": "Correct native real branch reference makes acsc/acscd/asec/asecd fail on original NumPy fallback. Initial independent NumPy reference selected same wrong branch; its passing49gate and wrong-branch comparison retained as superseded.",
+  "test_semantics": "Native assertion compares converted expression with numeric primitive on same backend. Four newly JAX-backed functions use independently written JAX real-input formulas; no TreeVar/shared helper imported by reference. Bound remains10eps absolute.",
+  "cross_backend_diagnostic": {
+    "rows": [
+      {
+        "name": "abs",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "acos",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "acosd",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "acot",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "acoth",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "acsc",
+        "abs_error": 2.220446049250313e-16,
+        "scaled_eps_error": 0.4507312641362939
+      },
+      {
+        "name": "acscd",
+        "abs_error": 1.4210854715202004e-14,
+        "scaled_eps_error": 0.5034716544546921
+      },
+      {
+        "name": "acsch",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "airy",
+        "abs_error": 5.551115123125783e-17,
+        "scaled_eps_error": 0.25
+      },
+      {
+        "name": "asec",
+        "abs_error": 2.220446049250313e-16,
+        "scaled_eps_error": 0.6382438645632353
+      },
+      {
+        "name": "asecd",
+        "abs_error": 1.4210854715202004e-14,
+        "scaled_eps_error": 0.712925239505998
+      },
+      {
+        "name": "asech",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "asin",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "asind",
+        "abs_error": 3.552713678800501e-15,
+        "scaled_eps_error": 0.6785935569531844
+      },
+      {
+        "name": "asinh",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "atan",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "atand",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "atanh",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "conj",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cos",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cosd",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cosh",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cot",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cotd",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "coth",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "csc",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "cscd",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "csch",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "exp",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "expm1",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "imag",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "log",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "log10",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "log1p",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "log2",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "pow2",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "real",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sec",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "secd",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sech",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sin",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sind",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sinh",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "sqrt",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "tan",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "tand",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "tanh",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "uminus",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      },
+      {
+        "name": "uplus",
+        "abs_error": 0.0,
+        "scaled_eps_error": 0.0
+      }
+    ],
+    "max_abs_error": 1.4210854715202004e-14,
+    "max_scaled_eps_error": 0.712925239505998,
+    "scope": "Native primitive comparison diagnostic; original port bound remains on converted expression versus independent Python numeric reference."
+  },
+  "retained_degree_run": "Intermediate comparison with NumPy reference had two degree failures by2.842170943040401e-14. This was cross-backend elementary rounding, not source conversion predicate. No shared helper arithmetic/tolerance was tuned; Astra reviewed native builtin/source boundary."
+}

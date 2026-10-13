@@ -1,0 +1,72 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "merged_gate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/division_rng_publication_20261014/run2",
+    "passed_tests": 84,
+    "receipt_sha256": "03e0e2b9800685fd92eedc3ef8d65a2ab87c9342e0ea8e63eac1366ab0c3e4e5",
+    "wall_seconds": 49.85815512761474,
+    "sampled_peak_summed_rss_kib": 1597464,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "limits": [
+    "Full main CI and full parity remain incomplete."
+  ],
+  "scope": "Bounded scalar same-tech Chebyshev removable-root division and all remaining original division predicates.",
+  "private_qualification": {
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_remaining_candidate_20261013",
+    "base": "d78c19fce16b929da0394c93c880f0980504c887",
+    "frozen": true,
+    "integration": "Apply candidate.patch; do not overwrite publication chebfun.py from this older base. Eight changed paths; no linalg.py edits, no commit/push.",
+    "scientific_result": [
+      "Original valid clauses16\u201323 and later scalar-error24 already pass at baseline, unchanged source bounds. Grouping is6 pytest nodes for9 source predicates.",
+      "Confirmed independent defect: baseline x/x gives two negative-exponent Singfun pieces, pointValues[1,NaN,1] and NaN at0. New bounded scalar same-tech polynomial route yields smooth pieces and correct removable value.",
+      "Pinned MATLAB overwritten pass24 itself is false: g has10 pieces, mg=merge(g) has6. g retains one numerical endpoint Singfun[-1,0] and Inf at0. Literal assertion remains strict xfail; independent native merge metadata control does not replace it.",
+      "Numeric1/x.T previously loses orientation in pole branch. Existing _as_transposed now restores it, as the nonpole path already did."
+    ],
+    "source_algorithm": "For finite bounded scalar ordinary same-tech Chebtech1/2 FUNs without deltas: existing addBreaksAtRoots then overlap; native20eps*vscale endpoint extraction through existing Singfun/extractBoundaryRoots; existing Singfun division/cancel/simplify; native point-value division and100eps nearzero numerator fallback. No new root clustering tolerance or fitted multiplicity. Numeric reciprocal rows retain orientation.",
+    "qualification": {
+      "baseline_valid_source": {
+        "mixed_run": "3passed; clauses19\u201323 and later24",
+        "unbounded_baseline_run": "1passed clause17",
+        "periodic_baseline_run": "1passed clause18",
+        "singular_baseline_run": "1passed clause16"
+      },
+      "cancellation_candidate_run": "7passed real/complex interior/endpoint cancellation and retained true pole",
+      "removable_candidate_run": "1passed native merged metadata control +1strictxfail original overwritten24",
+      "final_small_run": "67passed: C1/C2 cancellation, exact native raw uniforms/transformed probe bits, prior zero-FUN/compatibility and original basic rdivide regressions",
+      "final_row_run": "11passed final source:10 cancellation/orientation controls and exact rawuniform/probe control",
+      "source_successors": "After67/removable gates, final source only adds explicit distribution fallback exclusion and restores numeric-pole row orientation; final11 gate qualifies that successor. Ruff import order changes are not arithmetic changes. Original16\u201323 were qualified at baseline; their retained fallback paths are unchanged, not claimed as a rerun on final source.",
+      "native": "R2025b pinned7574;116.997s supervised,1506576KiB sampled peak; stable/no survivors. See native/capture.mat, native/summary.json and fixture provenance.",
+      "runtime": "All runtimes observational; correctness runs may overlap disjoint-core root work, no performance comparison."
+    },
+    "probe_provenance": "Clause16 reseeds6178 and uses x=9*u16-2; clause17 consumes next100 and uses x=98*u17+2. Native capture retains raw uniforms plus directly transformed probes; final exact uint64-word control verifies all400 values. Intervening relevant singular constructor/sampleTest paths have no rand call; native primitive capture did not execute the highfrequency constructors between draws. No rounded abs probes reconstructed.",
+    "retained_failures": {
+      "removable_baseline_run": "Original overwritten source predicate fails, as native also does.",
+      "cancellation_baseline_run": "Diagnostic completes but records NaN at removable zero; no passing correctness claim.",
+      "row_baseline_run": "Numeric case genuinely fails is_transposed. Chebfun/Chebfun case preserved flag but supplemental test incorrectly expected rank1 vector to expand to2D. Archived row_controls_wrong_rank1_shape.py; corrected test uses native Nx1 query input and expects1xN. No library shape change or bound relaxation.",
+      "native_summary_conversion": "Initial metadata-only JSON conversion failed on nested ndarray; recursive serialization succeeded, scientific MAT unchanged."
+    },
+    "limits": [
+      "New cancellation route is finite bounded scalar ordinary same-tech C1/C2 only. Array-valued, trig, unbounded, initially singular, mixed C1/C2, and distribution objects retain earlier paths. Numeric reciprocal orientation fix applies to pole branch generally.",
+      "Existing Singfun arithmetic is reused; broader extrapolation/construction/backend rounding equivalence is not established by this package. No demand to remove the native numerical pole at0 in overwritten24.",
+      "Native source test failure is documented, not hidden by replacing g with mg or fitting a six-piece result.",
+      "New library helper uses JAX only; inherited NumPy root/adaptation plumbing in existing functions remains unchanged debt.",
+      "Map ownership is scoped to finite bounded equal-domain overlap: numerator FUN with_tech follows classicfun rdivide; no new claim for unbounded map or distribution metadata."
+    ],
+    "artifacts": {
+      "manifest": "CHANGED_PATHS.json",
+      "patch": "candidate.patch",
+      "receipts": "RECEIPTS.json",
+      "native_summary": "native/summary.json",
+      "native_capture_sha256": "6c7ce9c308aa3bc981a14a904adf26ebcc29184bc272f53ee48fb67fbad20c10",
+      "baseline_x_over_x": "cancellation_probe.json"
+    }
+  },
+  "source_coverage": "All28 distinct native predicate expressions represented;27 valid expressions qualified in scoped gates. Overwritten24 also fails in pinned MATLAB and remains strict xfail; not counted as passing. Original16\u201323/later24 baseline qualification is not a rerun on final merged source.",
+  "fix": "Native endpoint-root extraction/Singfun cancellation and point-value fallback; numeric reciprocal of a row function retains orientation.",
+  "merged_scope": "10 cancellation/row controls, exact native raw uniform/probe values and22 previously published division checks pass in84-test combined gate.",
+  "packaging": "Original delivered patch lacked EOF markers; root corrected last marker then copied exact frozen uniform JSON after first35testgate34pass/1JSONDecodeError. Candidate scientific files and all added fixtures match frozen hashes; failed receipt retained."
+}

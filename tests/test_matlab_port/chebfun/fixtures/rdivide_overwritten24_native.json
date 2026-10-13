@@ -1,0 +1,24 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/rdivide_remaining_review_20261013/native/capture.mat",
+  "capture_sha256": "6c7ce9c308aa3bc981a14a904adf26ebcc29184bc272f53ee48fb67fbad20c10",
+  "native_receipt_sha256": "ff6edd9fa034f6e13b581b20dcedfb860e1d4a66e22fb418fe269ddd79152822",
+  "native_release": "R2025b",
+  "observations": {
+    "original_overwritten_pass24": false,
+    "g_piece_count": 10,
+    "mg_piece_count": 6,
+    "g_origin_point_value": "Inf",
+    "g_remaining_exponents_at_origin_right": [
+      -1,
+      0
+    ]
+  },
+  "source_hashes": {
+    "tests/chebfun/test_rdivide.m": "66bb2ac902e7d2a6802bb570617f62e33fba103b2abb40278a9f7001756d90d4",
+    "@chebfun/rdivide.m": "d9cdb6ea90fd141d8e12b90625a7532af3f74ec014c497d2c9437d9dfed1011f",
+    "@classicfun/rdivide.m": "3191b564eb1f55be9e3236d59f31e45c139184e2d635a70cbbdad0d9a9081283",
+    "@fun/extractBoundaryRoots.m": "a259e908b4dc0b243c78f693301b4d19333e35d87c6a11c629b4ac7c08a76f81",
+    "@singfun/rdivide.m": "deecdc6dfd6ce9c3a0f102e1e590bd890288ba5e7b5ed66a8f8fd7b9618c3691"
+  }
+}

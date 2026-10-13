@@ -1,3 +1,25 @@
+## Division cancellation, native seeded indices and unary branches — 2026-10-14
+
+Merged CPU gate:84 tests pass in49.86seconds wall, sampled peak
+1,597,464KiB, stable guards/no survivors. Three scoped packages:
+
+- Bounded scalar division cancels removable roots correctly and preserves numeric
+  reciprocal row orientation. All28 original expressions are now represented;
+  27 valid expressions pass in scoped gates. Overwritten24 also fails in pinned
+  MATLAB and remains strict xfail, with a separate native merge control.
+- Chebfun3 index initialization now uses JAX MT uniform/floor/index arithmetic.
+  Ten native draw/state cases match;8 final index vectors match, while2 retain
+  the existing clipping discrepancy. Root verified350 raw-MAT/JSON/fixture fields.
+- TreeVar acsc/acscd/asec/asecd now use the correct real-input complex branch.
+  All49 source conversion predicates pass with independent references and original
+  bounds. Native primitive residuals are reported separately (max1.42e-14);
+  one-ULP backend differences are not hidden by tolerance changes.
+
+Evidence: `docs/rdivide_cancellation_source_cpu_20261014.json`,
+`docs/chebfun3_seeded_indices_cpu_20261014.json`, and
+`docs/treevar_unary_branches_cpu_20261014.json`. Raw native captures are retained
+in tests/fixtures. Full API, normal RNG, plots, speed and final-main CI remain open.
+
 ## Preserve leading coefficients in first-order conversion — 2026-10-14
 
 Fixed a source-backed numerical fault: a nonconstant quintic equal at five

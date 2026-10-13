@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "provenance": {
+    "matlab_release": "2025b",
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/chebfun3f.m",
+    "native_source_lines": "570-582",
+    "driver_sha256": "b10afa96b141f82a9caaef08dd663097d5dcdf36ad69f11fea2f044ff6e10092",
+    "capture_sha256": "364f7ac97907093f9397496098e09c1e4de8cb9d01be1b3345b45da35f87ad5a"
+  },
+  "cases": [
+    {
+      "restarts": 0,
+      "r": 6,
+      "maxVal": 17,
+      "native_indices_1based": [
+        3,
+        6,
+        7,
+        9,
+        12,
+        13
+      ]
+    },
+    {
+      "restarts": 0,
+      "r": 3,
+      "maxVal": 17,
+      "native_indices_1based": [
+        6,
+        14,
+        17
+      ]
+    },
+    {
+      "restarts": 0,
+      "r": 4,
+      "maxVal": 17,
+      "native_indices_1based": [
+        5,
+        12,
+        14,
+        17
+      ]
+    },
+    {
+      "restarts": 0,
+      "r": 6,
+      "maxVal": 7,
+      "native_indices_1based": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "restarts": 0,
+      "r": 1,
+      "maxVal": 17,
+      "native_indices_1based": [
+        19
+      ]
+    },
+    {
+      "restarts": 1,
+      "r": 6,
+      "maxVal": 17,
+      "native_indices_1based": [
+        4,
+        5,
+        7,
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "restarts": 1,
+      "r": 3,
+      "maxVal": 17,
+      "native_indices_1based": [
+        9,
+        12,
+        17
+      ]
+    },
+    {
+      "restarts": 1,
+      "r": 5,
+      "maxVal": 19,
+      "native_indices_1based": [
+        6,
+        8,
+        11,
+        13,
+        17
+      ]
+    },
+    {
+      "restarts": 3,
+      "r": 4,
+      "maxVal": 17,
+      "native_indices_1based": [
+        5,
+        9,
+        14,
+        20
+      ]
+    },
+    {
+      "restarts": 3,
+      "r": 6,
+      "maxVal": 7,
+      "native_indices_1based": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
+}
