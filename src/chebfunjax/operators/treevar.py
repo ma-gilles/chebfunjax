@@ -154,6 +154,40 @@ def _atanh_branch(x):
     return jnp.where(on_axis, axis_value, ordinary)
 
 
+def _sqrt_branch(x):
+    """Evaluate SQRT with MATLAB's nonnegative exact real-axis convention.
+
+    Either imaginary signed zero selects the positive imaginary square root
+    on the negative real axis. Elsewhere the principal complex kernel applies.
+    Zero is nonnegative, and an entirely zero imaginary result is stored real.
+    Dtype selection remains eager and value dependent.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m SQRT numeric dispatch.
+    Chebfun commit: 7574c77. MATLAB R2025b primitive branch capture:
+    treevar_rhs_jax_review_20261014/unary_boundary_native/capture.json.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    real = jnp.real(values)
+    on_axis = jnp.imag(values) == 0
+    negative = real < 0
+    nonnegative_zero = jnp.where(real == 0, jnp.zeros_like(real), real)
+    if bool(jnp.all(on_axis)) and not bool(jnp.any(negative)):
+        return jnp.sqrt(nonnegative_zero)
+    axis_real = jnp.sqrt(jnp.where(negative, 0., nonnegative_zero))
+    axis_imag = jnp.sqrt(jnp.where(negative, -real, 0.))
+    axis_value = lax.complex(axis_real, axis_imag)
+    if bool(jnp.all(on_axis)):
+        return axis_value
+    result = jnp.where(on_axis, axis_value, jnp.sqrt(values))
+    if bool(jnp.all(jnp.imag(result) == 0)):
+        return jnp.real(result)
+    return result
+
+
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: np.arccos(x) / _DEG,
@@ -184,7 +218,7 @@ _UNARY_FNS_RAW = {
     "secd": lambda x: 1.0 / np.cos(_DEG * x),
     "sech": lambda x: 1.0 / np.cosh(x),
     "sin": jnp.sin, "sind": lambda x: np.sin(_DEG * x),
-    "sinh": jnp.sinh, "sqrt": np.sqrt, "tan": jnp.tan,
+    "sinh": jnp.sinh, "sqrt": _sqrt_branch, "tan": jnp.tan,
     "tand": lambda x: np.tan(_DEG * x), "tanh": jnp.tanh,
     "uminus": lambda x: -x, "uplus": lambda x: +x,
 }
@@ -212,7 +246,7 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh")
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh", "sqrt")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 

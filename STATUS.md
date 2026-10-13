@@ -1,3 +1,14 @@
+## Native TreeVar sqrt signed-zero and storage branches — 2026-10-14
+
+Sqrt now follows the native positive imaginary branch on the negative real
+axis for either imaginary signed zero, normalizes zero, and retains native
+real storage when the result has zero imaginary part. Baseline10/38 boundary
+checks failed; private108 and merged211 checks pass after correction.
+Root independently verified36 compact records against the retained native
+capture. Original49 unary and98 first-order assertions/bounds are unchanged.
+Dynamic dtype selection remains eager; log and global Chebfun branch behavior
+remain separately unqualified. Evidence: `docs/treevar_sqrt_cpu_20261014.json`.
+
 ## Native TreeVar atanh branch and real-kernel accuracy — 2026-10-14
 
 Atanh now uses native real-axis branches and handles pure-imaginary values,
