@@ -115,6 +115,45 @@ def _inverse_trig_branch(x, cosine=False):
     return jnp.where(on_axis, axis_value, op(values))
 
 
+def _atanh_branch(x):
+    """Evaluate ATANH with MATLAB's exact real-axis branch using JAX.
+
+    Outside [-1, 1], the real-axis identity is atanh(1/x) plus
+    i*sign(x)*pi/2. Nonzero imaginary inputs use the complex kernel;
+    the pure-imaginary identity is atanh(i*y) = i*atan(y).
+    Output dtype selection remains eager and value dependent.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m ATANH numeric dispatch.
+    Chebfun commit: 7574c77. MATLAB R2025b primitive branch capture:
+    treevar_rhs_jax_review_20261014/unary_boundary_native/capture.json.
+    """
+    from jax import lax
+
+    def real_atanh(value):
+        # atanh(t) = sign(t)*log1p(2*abs(t)/(1-abs(t)))/2.
+        # This avoids subtracting two log1p evaluations and retains tiny t.
+        magnitude = jnp.abs(value)
+        return jnp.copysign(.5*jnp.log1p(2*magnitude/(1-magnitude)), value)
+
+    values = jnp.asarray(x)
+    real, imag = jnp.real(values), jnp.imag(values)
+    on_axis = imag == 0
+    outside = jnp.abs(real) > 1
+    if bool(jnp.all(on_axis)) and not bool(jnp.any(outside)):
+        return real_atanh(real)
+    axis_real = real_atanh(jnp.where(outside, 1/real, real))
+    axis_imag = jnp.where(outside, jnp.copysign(jnp.pi/2, real), 0.)
+    axis_value = lax.complex(axis_real, axis_imag)
+    if bool(jnp.all(on_axis)):
+        return axis_value
+    ordinary = jnp.arctanh(values)
+    imaginary_value = lax.complex(jnp.zeros_like(real), jnp.arctan(imag))
+    ordinary = jnp.where(real == 0, imaginary_value, ordinary)
+    return jnp.where(on_axis, axis_value, ordinary)
+
+
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: np.arccos(x) / _DEG,
@@ -130,7 +169,7 @@ _UNARY_FNS_RAW = {
     "asin": _inverse_trig_branch, "asind": lambda x: np.arcsin(x) / _DEG,
     "asinh": jnp.arcsinh, "atan": jnp.arctan,
     "atand": lambda x: np.arctan(x) / _DEG,
-    "atanh": np.arctanh, "conj": jnp.conj, "cos": jnp.cos,
+    "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
     "cosd": lambda x: np.cos(_DEG * x), "cosh": jnp.cosh,
     "cot": lambda x: 1.0 / np.tan(x),
     "cotd": lambda x: 1.0 / np.tan(_DEG * x),
@@ -173,7 +212,7 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos")
+_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in ("asin", "acos", "atanh")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
 

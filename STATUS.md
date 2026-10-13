@@ -1,3 +1,14 @@
+## Native TreeVar atanh branch and real-kernel accuracy — 2026-10-14
+
+Atanh now uses native real-axis branches and handles pure-imaginary values,
+signed zeros and nonfinite classifications from retained native captures.
+A standard single-log1p identity also fixes a real-kernel accuracy failure;
+the initial failing run and independent high-precision diagnosis are retained.
+Private118 and merged173 checks pass, including unchanged original unary and
+first-order bounds. Root independently verified all36 fixture records against
+raw native capture. Dtype selection remains eager; reciprocal wrappers and
+other branch cases remain separate. Evidence: `docs/treevar_atanh_cpu_20261014.json`.
+
 ## Direct column extraction metadata and bounds — 2026-10-14
 
 Direct extract_columns now handles empty selectors, retains row orientation and
