@@ -1,3 +1,12 @@
+## Direct column extraction metadata and bounds — 2026-10-14
+
+Direct extract_columns now handles empty selectors, retains row orientation and
+scalar stored point values, and rejects out-of-range indices instead of JAX's
+silent clipping. Python zero-based and valid negative indexing remain supported;
+noninteger/boolean selectors are rejected. Nine merged original/adapter tests
+pass; final exact-equivalence indexing regression also passes separately.
+No original bounds changed. Evidence: `docs/extract_columns_bounds_cpu_20261014.json`.
+
 ## Native inverse-trig branches and GL preset initialization — 2026-10-14
 
 TreeVar asin/acos now follow native real-axis branches, including signed zero

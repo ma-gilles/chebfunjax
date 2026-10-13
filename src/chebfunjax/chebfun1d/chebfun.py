@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import math
 import numbers
+import operator
 import struct
 from typing import TYPE_CHECKING, Callable
 
@@ -7838,24 +7839,49 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/extractColumns.m
         Chebfun commit: 7574c77
         """
-        single = isinstance(cols, int)
-        idx = [cols] if single else list(cols)
+        if self.isempty():
+            return self
+        if (isinstance(cols, bool)
+                or getattr(getattr(cols, "dtype", None), "kind", None) == "b"):
+            raise TypeError("column indices must be integers, not booleans")
+        try:
+            idx = [operator.index(cols)]
+            single = True
+        except TypeError:
+            idx = list(cols)
+            single = False
+            normalized = []
+            for value in idx:
+                if (isinstance(value, bool)
+                        or getattr(getattr(value, "dtype", None), "kind", None) == "b"):
+                    raise TypeError(
+                        "column indices must be integers, not booleans")
+                normalized.append(operator.index(value))
+            idx = normalized
+        n_columns = self.n_columns
+        if any(index < -n_columns or index >= n_columns for index in idx):
+            raise IndexError("column index out of range")
+        idx_array = (jnp.asarray([], dtype=jnp.int32) if not idx
+                     else jnp.asarray(idx))
         new_funs = []
         for piece in self.funs:
             t = piece.tech
             c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
-            block = c[:, jnp.asarray(idx)]
+            block = c[:, idx_array]
             if single:
                 block = block[:, 0]
             new_funs.append(piece.with_tech(
                 self._tech_with_coeffs(t, block, column_indices=idx)))
         out = Chebfun(funs=new_funs, domain=self.domain)
         _pv = getattr(self, "_point_values", None)
-        if _pv is not None and jnp.ndim(_pv) == 2:
-            _sl = _pv[:, jnp.asarray(idx)]
+        if _pv is not None:
+            _pv = jnp.asarray(_pv)
+            if _pv.ndim == 1:
+                _pv = _pv[:, None]
+            _sl = _pv[:, idx_array]
             object.__setattr__(out, "_point_values",
                                _sl[:, 0] if single else _sl)
-        return out
+        return Chebfun._as_transposed(out, self.is_transposed)
 
     def assign_columns(self, cols, g) -> "Chebfun":
         """Overwrite the 0-based columns ``cols`` with the columns of
