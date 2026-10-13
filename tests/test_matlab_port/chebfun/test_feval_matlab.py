@@ -245,7 +245,7 @@ class TestChebfunFeval:
                         dtype=jnp.uint32), jnp.float32)
         np.testing.assert_array_equal(
             np.asarray(jax.jit(lambda z: zero_f(z))(f32_queries[:2])),
-            np.asarray([2.0, 2.0]))
+            np.asarray([2.0, 1.0]))
         np.testing.assert_array_equal(
             np.asarray(jax.jit(lambda z: zero_f(z))(f32_queries[2:])),
             np.asarray([7.0, 7.0]))

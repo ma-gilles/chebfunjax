@@ -1,0 +1,285 @@
+{
+  "status": "Qualified final JAX revision in publication checkout; full goal remains incomplete",
+  "base": "bd1a5670445310260e0a0ba00761f0b717b20d24",
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_20261013",
+  "files": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_20261013/src/chebfunjax/chebfun1d/chebfun.py": "3fa43765c0086fd6765cced1d4660ce54e983bc26a9f7202d39feba5066a0bbc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_20261013/tests/test_matlab_port/chebfun/test_feval_matlab.py": "a2a9e60747062b5e58216d3d2a217e0dcb70bd85c721609368e3b9ee4c056b55",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_20261013/tests/test_matlab_port/chebfun/test_feval_ordered_routing.py": "a230971d75819ecf4bc8030cbe3f4b157a08b1973aa212b9de995aba26d729cc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_20261013/tests/test_matlab_port/chebfun/test_empty_feval_characterization.py": "40bb7399a7f451475de552b63bba89edb2adeb67acc09cc0187613dc9080d568"
+  },
+  "changes": [
+    "IEEE ordered routing uses split uint32 lexicographic keys before query promotion; signed zeros equal, NaNs unordered, complex routes by real input.",
+    "Eager and traced multi-piece masks follow native [-inf, interior breakpoints, inf) and zero initialization; exact pointValues still override afterwards.",
+    "Native nonfinite Clenshaw propagation restored at bounded-piece evaluation for eager and traced paths, including constants, linear and quadratic polynomials. Existing eager finite evaluator results remain unmodified.",
+    "Native empty-F check uses self.isempty() before query/side/composition handling, covering no-FUN and empty-first-FUN representations.",
+    "Documentation now describes existing bounded static-piece JIT evaluation accurately.",
+    "Replaced newly introduced NumPy finite masking and routing classification with cached JAX helpers. Existing NumPy concrete evaluator/indexing is pre-existing debt, not newly implemented numerical logic."
+  ],
+  "provenance": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "source": [
+      "@chebfun/feval.m (early empty return, columnFeval half-open routing and exact pointValues override)",
+      "@chebfun/isempty.m (first-FUN emptiness)",
+      "@chebtech/clenshaw.m (initial0*x forces NaN at nonfinite coordinates)",
+      "@bndfun/feval.m and @mapping/mapping.m (inverse-map order)"
+    ],
+    "method": "literal source-derived expectations; no new MATLAB execution or golden capture"
+  },
+  "corrected_old_test": "test_exact_breakpoint_equality_preserves_ieee_cases was a limited equality regression whose expected [2,2] encoded wrong negative float32 subnormal routing. Correct native result is [2,1] across zero. No tolerance change.",
+  "qualification": {
+    "baseline_final": "16 failures,2 passes,2 candidate-only comparator tests deselected at old bd1 source; tests cover public routing, empty F and nonfinite coordinates.",
+    "bounded_final": "56 passed in59.85s. Terminal stable receipt; before final self.isempty() refinement and added degree2/empty-constructor parameters. This predates the final JAX-only masking revision; do not describe it as a final-hash gate.",
+    "focused_final": "Superseded by jax_final:24 passed in8.89s at final JAX-only source hash; includes degree0/1/2 nonfinite and all empty-F representations.",
+    "LLVM": "Final JAX-only llvm_jax public fused probes pass[2,8,3] forfloat32/64. Routing retains integer comparisons; mapped finite classification remains fcmp one against+inf.",
+    "superseded_censored": "Initial broad historical feval run stopped at sampled2GiB RSS with2 failures; both diagnosed and corrected. Its65 progress dots are not a passing gate."
+  },
+  "remaining_limitations": [
+    "Value promotion x.astype(float64)/complex128 still flushes float32/complex64 subnormal components before polynomial evaluation. Routing is corrected separately. Guarded promotion_limitation.py demonstrates a narrow-domain value discrepancy; AD-safe exact value widening needs a separate change.",
+    "No new GPU or unbounded-domain qualification. Static bounded-piece numerical evaluation is qualified; dynamic construction/piece-count changes are not.",
+    "Pinned JAX/jaxlib0.11.0 CPU only; optimized compiler behavior is not guaranteed for future versions.",
+    "Warm eager scalar public evaluation has measured +~75us (~49%) overhead versus retained bd1 baseline for degree1/40. Finite output bits are identical in the bounded probe. Whole inverse/example impact remains unmeasured."
+  ],
+  "receipts": {
+    "baseline_final": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/baseline_final/receipt.json",
+      "sha256": "c3a1103c0b48d8dbd040d61d1364d62bdebfcb602a75dd609805c039c03d6e67",
+      "wall_seconds": 7.905651233159006,
+      "peak_rss_kib": 641016,
+      "exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "bounded_final": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/bounded_final/receipt.json",
+      "sha256": "5dd65ffae75f9f060aca8c86360a642163ee072d090b74e0c26a6468c5115344",
+      "wall_seconds": 63.1375825740397,
+      "peak_rss_kib": 1785172,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "focused_final": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/focused_final/receipt.json",
+      "sha256": "1c8e1591cfadc2accf1c4323386531cbae567a8b63efb09331c1d452901c5e9d",
+      "wall_seconds": 16.56576258968562,
+      "peak_rss_kib": 669484,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "llvm": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/llvm/receipt.json",
+      "sha256": "8624aa9feb93695bf6390f95f3015e17105aa84b31149ad2a55a596b9aba4538",
+      "wall_seconds": 8.169321105349809,
+      "peak_rss_kib": 462096,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "promotion": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/promotion/receipt.json",
+      "sha256": "402ad37fa958707ed1a80d60aad82b1ba0394dace87a4d5d68bcd7b5a4955b29",
+      "wall_seconds": 7.598253672011197,
+      "peak_rss_kib": 459432,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "final": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/final/receipt.json",
+      "sha256": "8c611ff111ee534be83a66bf11dc99366504ee6dab827119d694071936d4570f",
+      "wall_seconds": 102.83116943202913,
+      "peak_rss_kib": 2127848,
+      "exit_code": 137,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "jax_mask": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/jax_mask/receipt.json",
+      "sha256": "a97aaa049c2f3809da2b87df08f28739378f541ad75428838402a301b4a24813",
+      "wall_seconds": 11.541790605988353,
+      "peak_rss_kib": 682016,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "jax_final": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/jax_final/receipt.json",
+      "sha256": "2ee183d824153a8c9cb489aa0da5766895d85c389ccee88acca5a646bb6b4c62",
+      "wall_seconds": 11.743541786912829,
+      "peak_rss_kib": 694776,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "benchmark2": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/benchmark2/receipt.json",
+      "sha256": "afdca8f4f2515ead1dafb18f3f5b21f05cf0f085c8ad0054ca58b037cbf54b97",
+      "wall_seconds": 4.259391082916409,
+      "peak_rss_kib": 468100,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "llvm_jax": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/subnormal_routing_review_20261013/llvm_jax/receipt.json",
+      "sha256": "50b7485e3655e9ea45d80626a0d7a47a921bb8fb053620c965b81f787a668c10",
+      "wall_seconds": 4.599095796700567,
+      "peak_rss_kib": 461144,
+      "exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "promotion_probe": {
+    "remaining_issue": [
+      {
+        "dtype": "float32",
+        "input_real_words": [
+          1,
+          2147483649
+        ],
+        "expected_real": [
+          1.4012984643263504e-05,
+          -1.4012984643263504e-05
+        ],
+        "expected_imag": [
+          0.0,
+          0.0
+        ],
+        "eager_real": [
+          1.4012984643263504e-05,
+          -1.4012984643263504e-05
+        ],
+        "eager_imag": [
+          0.0,
+          0.0
+        ],
+        "jit_real": [
+          -2.0164258878709745e-17,
+          -2.0164258878709745e-17
+        ],
+        "jit_imag": [
+          0.0,
+          0.0
+        ],
+        "known_discrepancy": true
+      },
+      {
+        "dtype": "complex64",
+        "input_real_words": [
+          1,
+          2147483649
+        ],
+        "expected_real": [
+          1.4012984643207993e-05,
+          -1.4012984643207993e-05
+        ],
+        "expected_imag": [
+          1.4012984643248171e-05,
+          -1.4012984643248171e-05
+        ],
+        "eager_real": [
+          1.4012984643207993e-05,
+          -1.4012984643207993e-05
+        ],
+        "eager_imag": [
+          1.4012984643248171e-05,
+          -1.4012984643248171e-05
+        ],
+        "jit_real": [
+          0.0,
+          0.0
+        ],
+        "jit_imag": [
+          0.0,
+          0.0
+        ],
+        "known_discrepancy": true
+      }
+    ],
+    "existing_gradients": [
+      {
+        "domain_halfwidth": 1.0,
+        "float32_grad": 1.0
+      },
+      {
+        "domain_halfwidth": 1e-40,
+        "float32_grad": 1.0
+      }
+    ]
+  },
+  "performance": [
+    {
+      "degree": 1,
+      "finite_output_bits_identical": true,
+      "baseline_median_us": 151.99296874925494,
+      "candidate_median_us": 226.44861368462443,
+      "baseline_samples_us": [
+        157.18128066509962,
+        152.88179507479072,
+        151.99296874925494,
+        151.64997894316912,
+        151.25853940844536
+      ],
+      "candidate_samples_us": [
+        226.85267496854067,
+        226.44861368462443,
+        227.74149430915713,
+        226.21086798608303,
+        226.28581151366234
+      ],
+      "scope": "warm scalar public calls,200 calls per repeat,5 alternating repeats,CPU16-19;baseline bd1a5670 original before all routing edits"
+    },
+    {
+      "degree": 40,
+      "finite_output_bits_identical": true,
+      "baseline_median_us": 154.05760379508138,
+      "candidate_median_us": 228.5998547449708,
+      "baseline_samples_us": [
+        155.1350299268961,
+        153.4520648419857,
+        154.05760379508138,
+        154.51300889253616,
+        154.03170371428132
+      ],
+      "candidate_samples_us": [
+        228.73360896483064,
+        226.84370866045356,
+        229.07926002517343,
+        228.5998547449708,
+        228.07115921750665
+      ],
+      "scope": "warm scalar public calls,200 calls per repeat,5 alternating repeats,CPU16-19;baseline bd1a5670 original before all routing edits"
+    }
+  ],
+  "publication_base": "72be16f7685f6fe0b6c689893efeee538d04a565",
+  "publication_integration": {
+    "tests_passed": 83,
+    "pytest_seconds": 81.84,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/routing_final_integration_20261013/jax_run/receipt.json",
+    "sha256": "54d11ceb312d86eafc4cd6ef6472eef49f6baa6551aa1bb617fdc8030a46b736",
+    "wall_seconds": 84.59754144819453,
+    "peak_summed_rss_kib": 1967156,
+    "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/routing_final_integration_20261013/guard_jax.json",
+    "guard_sha256": "614e92ba89ba9470396bd79563b75b9f20f4f515e339b8a65e1395ac2f0e74ed",
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/routing_final_integration_20261013/static_jax.json",
+    "static_gate_sha256": "6c5a9d6201262bbee778560609ed23614b9f680dbf2e110269482b0a5651bed4"
+  },
+  "root_review": [
+    "Confirmed native half-open masks and nonfinite Clenshaw initialization in pinned MATLAB source. Expectations are source-derived, without a new native capture.",
+    "Rejected initial NumPy masking helper despite its 83-test pass. Final source uses JAX classification, masking and zero initialization; existing host indexing and legacy evaluation remain migration debt.",
+    "Final source and tests match the publication guard. Empty-test imports were sorted before this final run; test bodies match the agent candidate.",
+    "The narrow-domain float32/complex64 promotion discrepancy remains unresolved. Fixing value promotion must preserve automatic differentiation.",
+    "The 49% scalar microbenchmark regression is explicit; a prepared fresh whole-inverse benchmark has not yet executed."
+  ],
+  "publication_files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "3fa43765c0086fd6765cced1d4660ce54e983bc26a9f7202d39feba5066a0bbc",
+    "tests/test_matlab_port/chebfun/test_feval_matlab.py": "a2a9e60747062b5e58216d3d2a217e0dcb70bd85c721609368e3b9ee4c056b55",
+    "tests/test_matlab_port/chebfun/test_feval_ordered_routing.py": "a230971d75819ecf4bc8030cbe3f4b157a08b1973aa212b9de995aba26d729cc",
+    "tests/test_matlab_port/chebfun/test_empty_feval_characterization.py": "f084a07a6621b521c9d34782fdae6cf34f2663be4048a4a062bc5da5f75b9c3c"
+  }
+}

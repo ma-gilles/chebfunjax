@@ -1,3 +1,21 @@
+## Ordered CPU evaluation and empty functions — 2026-10-13
+
+The final JAX revision passed 83 tests together in the publication checkout.
+Traced piece selection now distinguishes subnormal queries and uses native
+half-open intervals. Empty Chebfuns return empty before query validation,
+including fixed-length-zero representations. Bounded nonfinite evaluation
+matches the native Clenshaw initialization for constants through quadratics;
+NaN and positive infinity select no piece in the multi-piece source masks.
+See `docs/feval_ordered_routing_cpu_20261013.json` for source evidence,
+compiler review, retained failed runs and final receipts.
+
+The JAX mask adds about 75 microseconds (49%) to the measured scalar calls;
+full inverse timing remains pending. Float32/complex64 value promotion can
+still flush subnormals on narrow domains; a concrete eager/JIT reproducer is
+retained. This is not full evaluation or performance parity. Older CI run
+38402535328 reached its 90-minute limit in core shard 0 after 23 other jobs
+passed; current-main CI and full parity remain unresolved.
+
 ## Public evaluation and quasimatrix source semantics — 2026-10-13
 
 Public `cj.feval` now supports documented evaluation syntax. Quasimatrices

@@ -107,6 +107,55 @@ def _ieee_float64_bits_equal(abits, bbits):
     return (((alo == blo) & (ahi == bhi)) | both_zero) & ~a_nan & ~b_nan
 
 
+def _real_float64_bits(value):
+    """Binary64 words of a real value, widening binary32 without flushing."""
+    if isinstance(value, numbers.Real):
+        return jnp.asarray(struct.unpack(">Q", struct.pack(">d", float(value)))[0],
+                           dtype=jnp.uint64)
+    value = jnp.asarray(value)
+    if value.dtype == jnp.float32:
+        return _float32_to_float64_bits(value)
+    return jax.lax.bitcast_convert_type(
+        jnp.asarray(value, dtype=jnp.float64), jnp.uint64)
+
+
+def _ieee_float64_bits_less(abits, bbits):
+    """Strict IEEE ordering using 32-bit integer words, including subnormals.
+
+    Reversing negative words and flipping the positive sign bit gives
+    lexicographically ordered keys. Signed zeros are equal; NaNs are
+    unordered. Comparing split words avoids CPU LLVM's rewrite of integer
+    magnitude comparisons into floating comparisons that flush subnormals.
+    """
+    alo, blo = abits.astype(jnp.uint32), bbits.astype(jnp.uint32)
+    ahi = (abits >> jnp.uint64(32)).astype(jnp.uint32)
+    bhi = (bbits >> jnp.uint64(32)).astype(jnp.uint32)
+    aneg, bneg = ahi >> jnp.uint32(31), bhi >> jnp.uint32(31)
+    amag, bmag = ahi & jnp.uint32(0x7fffffff), bhi & jnp.uint32(0x7fffffff)
+    both_zero = (amag == 0) & (bmag == 0) & (alo == 0) & (blo == 0)
+    a_nan = (amag > jnp.uint32(0x7ff00000)) | (
+        (amag == jnp.uint32(0x7ff00000)) & (alo != 0))
+    b_nan = (bmag > jnp.uint32(0x7ff00000)) | (
+        (bmag == jnp.uint32(0x7ff00000)) & (blo != 0))
+    akhi = jnp.where(aneg != 0, ~ahi, ahi ^ jnp.uint32(0x80000000))
+    bkhi = jnp.where(bneg != 0, ~bhi, bhi ^ jnp.uint32(0x80000000))
+    aklo, bklo = jnp.where(aneg != 0, ~alo, alo), jnp.where(bneg != 0, ~blo, blo)
+    less = (akhi < bkhi) | ((akhi == bkhi) & (aklo < bklo))
+    return less & ~both_zero & ~a_nan & ~b_nan
+
+
+def _exact_real_less(x, y):
+    """IEEE ``x < y`` without subnormal-flushing floating comparisons."""
+    return _ieee_float64_bits_less(_real_float64_bits(x), _real_float64_bits(y))
+
+
+def _exact_real_less_equal(x, y):
+    """IEEE ``x <= y`` without subnormal-flushing floating comparisons."""
+    abits, bbits = _real_float64_bits(x), _real_float64_bits(y)
+    return (_ieee_float64_bits_less(abits, bbits)
+            | _ieee_float64_bits_equal(abits, bbits))
+
+
 def _exact_breakpoint_equal(x, breakpoint):
     """Native numeric equality without XLA subnormal flush-to-zero compares."""
     x = jnp.asarray(x)
@@ -211,11 +260,36 @@ def _evaluate_piece_interval(tech, x, a, b, width):
 
     Provenance
     ----------
-    MATLAB source: @bndfun/feval.m and @mapping/mapping.m (linear InvHandle).
+    MATLAB source: @bndfun/feval.m, @mapping/mapping.m (linear InvHandle)
+    and @chebtech/clenshaw.m (nonfinite coordinate propagation).
     Chebfun commit: 7574c77. Width is computed once from the concrete interval;
     each division and subtraction follows the source inverse-map expression.
     """
-    return tech((x - a) / width - (b - x) / width)
+    mapped = (x - a) / width - (b - x) / width
+    return _preserve_nonfinite_piece_values(mapped, tech(mapped))
+
+
+@jax.jit
+def _preserve_nonfinite_piece_values(mapped, values):
+    """Preserve native Clenshaw NaNs without changing finite result words.
+
+    MATLAB source: @chebtech/clenshaw.m, Chebfun commit 7574c77. Shared by
+    eager and traced bounded-piece evaluation; all masking executes in JAX.
+    """
+    # Native Clenshaw starts with 0*mapped, so nonfinite coordinates yield
+    # NaN even for a constant polynomial. Preserve this when the compiled
+    # constant-tech shortcut would otherwise discard the coordinate.
+    finite = jnp.isfinite(mapped).reshape(
+        mapped.shape + (1,) * (values.ndim - mapped.ndim))
+    nan = complex(math.nan, math.nan) if jnp.issubdtype(
+        values.dtype, jnp.complexfloating) else math.nan
+    return jnp.where(finite, values, jnp.asarray(nan, dtype=values.dtype))
+
+
+@jax.jit
+def _native_piece_query_is_routed(real_query):
+    """Native half-open domain [-inf, inf) excludes NaN and positive inf."""
+    return real_query < jnp.inf
 
 
 class _Piece(eqx.Module):
@@ -1980,9 +2054,11 @@ class Chebfun(eqx.Module):
 
         For single-piece Chebfuns this is JIT-safe, grad-safe, and vmap-safe.
 
-        For multi-piece Chebfuns, Python-level dispatch is used to route each
-        point to the correct piece.  This is NOT JIT-safe across the full
-        dispatch logic, but the inner evaluation for each piece is.
+        Evaluation of an existing bounded multi-piece Chebfun is JIT-safe
+        when the pieces and intervals are static. The traced path evaluates
+        a fixed sweep of pieces and selects by the real part of each query.
+        Adaptive construction and changing the piece structure are separate
+        operations and are not covered by this evaluation contract.
 
         Parameters
         ----------
@@ -2000,19 +2076,23 @@ class Chebfun(eqx.Module):
 
         Raises
         ------
-        None — points outside the domain will return values from the nearest
-        endpoint piece (matching MATLAB behavior).
+        None — finite points outside the domain use the nearest endpoint
+        piece. For multiple pieces, NaN and positive infinity select no
+        piece and retain zero unless an exact domain pointValue applies.
 
         Notes
         -----
-        JIT contract: jit=yes for single-piece, jit=NO for multi-piece
-        (dynamic dispatch). vmap=yes for single-piece.
+        JIT contract: jit=yes for single-piece and existing bounded static
+        multi-piece evaluation. vmap=yes for single-piece.
 
         Provenance
         ----------
         MATLAB source : @chebfun/feval.m
         Chebfun commit: 7574c77
         """
+        # Native feval returns [] before inspecting x or the optional side.
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
         from .linalg import Quasimatrix
         if isinstance(x, (Chebfun, Quasimatrix)):
             return self.compose_chebfun(x)
@@ -2142,8 +2222,8 @@ class Chebfun(eqx.Module):
                     # take it.  Only the plain bounded piece uses this
                     # inline affine map — an Unbndfun piece owns its
                     # (nonlinear, infinite-interval) map.
-                    result = jnp.asarray(
-                        p.tech(_linear_inverse_map(xn, a_, b_)))
+                    tn = _linear_inverse_map(xn, a_, b_)
+                    result = _preserve_nonfinite_piece_values(tn, p.tech(tn))
                 else:
                     result = p(jnp.asarray(_np.atleast_1d(xn)))
                     if scalar_input:
@@ -2168,15 +2248,20 @@ class Chebfun(eqx.Module):
                 _np.iscomplexobj(xn)
                 or any(_np.iscomplexobj(_np.asarray(p.tech.coeffs))
                        for p in self.funs)) else _np.float64
-            out_np = _np.empty(xn.shape + cols_np, dtype=out_dtype)
-            for i in _np.unique(idx):
-                sel = idx == i
+            # Native masks cover [-inf, inf): NaN and +inf select no FUN.
+            # Exact domain endpoint pointValues are applied afterwards.
+            routed = _np.asarray(_native_piece_query_is_routed(xrn))
+            out_np = _np.array(jnp.zeros(xn.shape + cols_np, dtype=out_dtype),
+                               copy=True)
+            for i in _np.unique(idx[routed]):
+                sel = (idx == i) & routed
                 p = self.funs[int(i)]
                 a_, b_ = p.interval
                 if type(p) is _Piece and _np.isfinite(a_) \
                         and _np.isfinite(b_):
                     tn = _linear_inverse_map(xn[sel], a_, b_)
-                    out_np[sel] = _np.asarray(p.tech(tn))
+                    out_np[sel] = _np.asarray(_preserve_nonfinite_piece_values(
+                        tn, p.tech(tn)))
                 else:
                     # Unbndfun (or other) pieces own their map.
                     out_np[sel] = _np.asarray(p(jnp.asarray(xn[sel])))
@@ -2209,30 +2294,26 @@ class Chebfun(eqx.Module):
                 result = result[0]
             return self._format_feval_values(result, input_ndim)
 
-        # Multi-piece: Python dispatch.  Piece selection uses real(x) so a
+        # Multi-piece: static traced sweep. Piece selection uses real(x) so a
         # complex evaluation point is routed by its real part (MATLAB
         # xReal = real(x) in columnFeval).
         # (array-valued pieces add a trailing column axis to the output;
         # masks broadcast over it.  jnp.where promotes to complex when
         # a piece evaluates complex, as before.)
-        xr = jnp.real(x)
+        # Route from the original words: float32 promotion can itself flush
+        # subnormal inputs on CPU before any interval comparison happens.
+        xr = jnp.real(x_match)
         cols = self.funs[0].tech.coeffs.shape[1:]
-        out = jnp.full(x.shape + cols, jnp.nan, dtype=x.dtype)
+        out = jnp.zeros(x.shape + cols, dtype=x.dtype)
         n_pieces = len(self.funs)
         for i, piece in enumerate(self.funs):
             a, b = piece.interval
-            if i == 0:
-                # Left piece: include all x <= b
-                if n_pieces == 1:
-                    mask = jnp.ones(x.shape, dtype=bool)
-                else:
-                    mask = xr <= b
-            elif i == n_pieces - 1:
-                # Right piece: include all x >= a
-                mask = xr >= a
-            else:
-                # Interior piece: include a <= x <= b
-                mask = (xr >= a) & (xr <= b)
+            # Native columnFeval uses domInf=[-inf, interior breaks, inf]
+            # and half-open masks. NaNs are unordered and select no piece.
+            lower = -math.inf if i == 0 else a
+            upper = math.inf if i == n_pieces - 1 else b
+            mask = (_exact_real_less_equal(lower, xr)
+                    & _exact_real_less(xr, upper))
 
             # Evaluate masked points
             x_piece = jnp.where(mask, x, jnp.asarray(a, dtype=x.dtype))
