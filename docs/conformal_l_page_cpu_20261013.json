@@ -1,0 +1,198 @@
+{
+  "base_head": "0a312fa0fa1865a0947db21fd83c91fe41d7c1aa",
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013",
+  "example_run": {
+    "censored_limit": null,
+    "command_exit_code": 0,
+    "guarded_input_count": 311,
+    "inputs_stable": true,
+    "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_run_20261013/supervision/receipt.json",
+    "receipt_sha256": "1c557cdf7fdc7b1044016c200cbaee03ee9920556d1912597b69081f0a12431c",
+    "remaining_owned_pids": [],
+    "rss_cap_mib": 3072.0,
+    "runtime": {
+      "backend": "cpu",
+      "candidate_head": "0a312fa0fa1865a0947db21fd83c91fe41d7c1aa",
+      "chebfunjax_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013/src/chebfunjax/__init__.py",
+      "event": "runtime_provenance",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "x64": true
+    },
+    "sampled_peak_summed_rss_kib": 1741408,
+    "stdout": "boundary_err =\n   5.1268e-07\nnumber_of_poles_of_f =\n    46\nnumber_of_poles_of_finv =\n    67\nratios =\n    18.8115\n    3.9765\n    2.7747\n    2.5037\n    2.3872\n    2.2353\n    2.1073\n    1.9633\n    1.8047\n    1.7333\n    1.7002\n    1.6879\n    1.6591\n    1.6464\n    1.6367\n    1.6390\n    1.6298\n    1.6290\n    1.5899\n    1.5527\n    1.5267\n    1.5120\n    1.5070\n    1.5044\n    1.4865\n    1.4656\n    1.4449\n    1.4272\n    1.4166\n    1.4053\n    1.3941\n    1.3862\n    1.3835\n    1.3854\n    1.3913\n    1.4216\n    1.5656\ntotal_time_for_this_example =\n    20.4106\n",
+    "stdout_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_run_20261013/stdout/examples_complex_conformal_l.txt",
+    "stdout_sha256": "21c21af9f08ab4473f6d4e9daa5ed3d627ea738b9ae568101973249fcba4d30d",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 32.00465339003131
+  },
+  "helper_paths_installed_sha256": {
+    "src/chebfunjax/utils/_basic_lstsq.py": "819c863973dec4160f578cac7b135f43831be4292cd055af275ee6ad43fbcc59",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.json": "63687a7ee595d9ed52bff432a4e7a05072fa6c5a3aab6c97dbde52050ec4c48a",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.npz": "e8d189ef8de6ab77297b90d1cf3b3a720d365f4be6dc723a579ee195eaa833af",
+    "tests/test_utils/test_basic_lstsq.py": "cd84555bdc153cc10168e6cca4b75f8123a44915d169be0f1cd804f7e005575e"
+  },
+  "helper_paths_sha256_verified_against_review_manifest": {
+    "src/chebfunjax/utils/_basic_lstsq.py": "819c863973dec4160f578cac7b135f43831be4292cd055af275ee6ad43fbcc59",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.json": "63687a7ee595d9ed52bff432a4e7a05072fa6c5a3aab6c97dbde52050ec4c48a",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.npz": "e8d189ef8de6ab77297b90d1cf3b3a720d365f4be6dc723a579ee195eaa833af",
+    "tests/test_utils/test_basic_lstsq.py": "cd84555bdc153cc10168e6cca4b75f8123a44915d169be0f1cd804f7e005575e"
+  },
+  "limitations": [
+    "Only the full ConformalL example and page generator were run; no general AAA/page parity claim is made.",
+    "No new MATLAB execution was performed; fresh native values refer to conformal_native_stage_v2_20261013.",
+    "The example retains its existing NumPy arithmetic outside the narrow dense least-squares call."
+  ],
+  "outputs": {
+    "fresh_native_capture": {
+      "boundary_err": 5.126976502511926e-07,
+      "first_quadrant_forward_pole_count": 38,
+      "mat_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/native.mat",
+      "mat_sha256": "2ab35bd8530a10d2da6aba88170d195ffc1ddfe517099a8ab3e45655dd9ebccb",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_native_stage_v2_20261013/native.json",
+      "poles_f": 46,
+      "poles_finv": 69,
+      "sha256": "14f82ba18bd1778de5e742286470297f1dc677062290b245e0d4247ec7e850d8"
+    },
+    "live_cached_html_output_values": {
+      "note": "These are values in the page HTML when cached in this run, kept distinct from fresh native capture and current Python outputs.",
+      "poles_f": 27,
+      "poles_finv": 44
+    },
+    "python_current_run": {
+      "boundary_err": "5.1268e-07",
+      "poles_f": 46,
+      "poles_finv": 67,
+      "ratio_count": 37
+    }
+  },
+  "page_generation": {
+    "cached_reference_output_blocks": [
+      {
+        "first_line": "boundary_err =",
+        "line_count_nonempty": 2
+      },
+      {
+        "first_line": "number_of_poles_of_f =",
+        "line_count_nonempty": 2
+      },
+      {
+        "first_line": "number_of_poles_of_finv =",
+        "line_count_nonempty": 2
+      },
+      {
+        "first_line": "ratios =",
+        "line_count_nonempty": 20
+      },
+      {
+        "first_line": "total_time_for_this_example =",
+        "line_count_nonempty": 2
+      }
+    ],
+    "command_exit_code": 0,
+    "generated_image_slots": 3,
+    "generated_markdown_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013/docs/examples/complex/ConformalL.md",
+    "generated_markdown_sha256": "b30b03c25e5922be7a886ae26aed093629a72fc6a1fedf89db7e3faa28220c8f",
+    "generated_matlab_code_slots": 6,
+    "generated_output_block_count": 5,
+    "html_cache": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_run_20261013/html_cache/complex_ConformalL.html",
+      "sha256": "9316d53dc302e32a5036b3185c3829bf3f82a1581dc064ed9074ce0590ba5c82",
+      "source_first_lines": [
+        "boundary_err =",
+        "number_of_poles_of_f =",
+        "number_of_poles_of_finv =",
+        "ratios =",
+        "total_time_for_this_example ="
+      ],
+      "source_output_block_count": 5,
+      "url": "https://www.chebfun.org/examples/complex/ConformalL.html"
+    },
+    "inputs_stable": true,
+    "prose_markers_preserved": {
+      "Original MATLAB Chebfun example": true,
+      "Schwarz--Christoffel formula": true,
+      "exponential clustering": true,
+      "least-squares fitting": true
+    },
+    "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_run_20261013/pagegen_supervision/receipt.json",
+    "receipt_sha256": "9c91fcd0e8bbc0ec7b9e38f4a1ac4ce1b21a9f626c0ee6425be9d803d1d6c5e4",
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 19692,
+    "stdout": "complex/ConformalL: ok script=examples/complex/conformal_l.py figures=3\n1/1 pages written\n",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 1.0372438449412584
+  },
+  "page_source_sha256": "fc647d9d1b775d9a92646117d4c7b3d1cd1cef92d098a09c6d51253a40bbc98b",
+  "references": {
+    "generated_pngs": [
+      {
+        "mode": "RGBA",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013/docs/images/complex/ConformalL_01.png",
+        "sha256": "56432d12215ff98400bf1d961c27f65b9802bae23bfceb5e47482f94d78abd57",
+        "size_px": [
+          600,
+          270
+        ]
+      },
+      {
+        "mode": "RGBA",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013/docs/images/complex/ConformalL_02.png",
+        "sha256": "f5f07e00be0578c405245d43940916539952ac22efb0a1171d489fce87c52dfa",
+        "size_px": [
+          600,
+          270
+        ]
+      },
+      {
+        "mode": "RGBA",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_candidate_20261013/docs/images/complex/ConformalL_03.png",
+        "sha256": "e28ec28de9ac3316a0b610a3e1868dde0ca337d8a4e50bb479355ade5d277ce6",
+        "size_px": [
+          600,
+          270
+        ]
+      }
+    ],
+    "original_pngs": [
+      {
+        "mode": "RGB",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ref_retrieval_20261006/assets/complex/ConformalL_01.png",
+        "sha256": "305500acc8d06a80102e83ac56133c019eb3ce713517fed29d2b337b78043be5",
+        "size_px": [
+          600,
+          270
+        ]
+      },
+      {
+        "mode": "RGB",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ref_retrieval_20261006/assets/complex/ConformalL_02.png",
+        "sha256": "410603623382cfc6af742550dff1a5908fd0bf19358621e4057001f6235e2256",
+        "size_px": [
+          600,
+          270
+        ]
+      },
+      {
+        "mode": "RGB",
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ref_retrieval_20261006/assets/complex/ConformalL_03.png",
+        "sha256": "e6b3ceb905a46f3ab1580987b82ea538fe7384feff04878d983a63fbc6ddd229",
+        "size_px": [
+          600,
+          270
+        ]
+      }
+    ]
+  },
+  "remaining_observation": "The full current Python example reports 67 inverse poles versus 69 in the fresh native capture. The helper run was not altered to fit that count. Historical page-cache pole counts are 27/44.",
+  "visual_review": {
+    "figure_1": "Map and grid geometry align closely with the cached reference; current red pole glyphs are visibly oversized.",
+    "figure_2": "Disk geometry aligns; red inverse-pole glyphs are visibly larger and more crowded than the cached reference.",
+    "figure_3": "Current plot shows a longer set of distance points than the cached figure, consistent with cached source-output counts being stale relative to current native data; the native MAT contains 38 first-quadrant forward poles."
+  },
+  "audit_report": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_page_source_run_20261013/REPORT.md",
+    "sha256": "2f4c9be62491b966f470cfedf158ba9bb7f45edb4679bf871589ba1df7f11ece"
+  },
+  "integration": "All nine source/test/fixture/page/image files are byte-identical to qualified candidate; full CI unresolved."
+}

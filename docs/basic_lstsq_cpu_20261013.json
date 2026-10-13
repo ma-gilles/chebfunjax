@@ -1,0 +1,68 @@
+{
+  "scope": "Private eager JAX dense rectangular basic QR solver, replacing the ConformalL minimum-norm solver choice. No general square/sparse backslash or JIT/AD contract.",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "candidate_base": "1fe5d009b5dc9ebb0f46391058951e7917fb5e1f",
+  "native_backend": "R2025b Update 2 CPU",
+  "rank_rule": "Leading diagonal prefix abs(Rii) > max(m,n)*eps*abs(R11); no supplied rank. This differs from rank(A) SVD threshold.",
+  "qualification": {
+    "tests_passed": 24,
+    "independent_native_cases": 20,
+    "rank_and_nonbasic_zeros": "exact",
+    "small_native_solution_comparison": "32 eps fixed supplemental bound"
+  },
+  "exact_native_conformal": {
+    "derived_rank": 73,
+    "threshold": 1.959214733236474e-12,
+    "zero_indices": [
+      5,
+      7,
+      9,
+      11,
+      29,
+      31,
+      33,
+      35
+    ],
+    "boundary_residual": 5.126791791e-07,
+    "native_boundary_residual": 5.126976503e-07,
+    "coefficient_l2_difference": 4.47255069,
+    "recomputed_map_max_difference": 1.249241514e-10,
+    "interpretation": "Descriptive differences, not acceptance thresholds for ill-conditioned coefficients or full nonlinear map."
+  },
+  "receipts": {
+    "focused": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.858547111973166,
+      "sampled_peak_summed_rss_kib": 648004,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "exact_native_conformal": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 5.630083054769784,
+      "sampled_peak_summed_rss_kib": 524276,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "remaining": [
+    "Historical cached pole counts 27/44 versus fresh native 46/69",
+    "AAA greedy branch sensitive to complex magnitude rounding",
+    "Full page/figure parity",
+    "Inherited NumPy scientific arithmetic in example"
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/basic_lstsq_review_20261013/REPORT.md": "84a9ecd2b0348ae93e0aceb6554ff2a43ed9abc2ff9840dec2bde256ab0603c4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/basic_lstsq_review_20261013/changed_paths_manifest.json": "6ac513bd625c36ac4caab2fd1919dee13325c1c1f26c0283dbedb3595d03a81f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/basic_lstsq_review_20261013/focused/receipt.json": "6aca9e76c9fab031e70ef5f95d968f49d2826a12add10f06e2cdc4f2a30269b1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/basic_lstsq_review_20261013/conformal_replay/supervision/receipt.json": "ab1078de3984124569ce197db856763dc765fff036e8122eeedf722435314993",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_backslash_rank_controls_nonpower_run_20261013/CAPTURE_REPORT.md": "3d1dbe93aa7441cf4ef89cb73e96652f7ae02e21b70c09d69404a9e3a833835b"
+  },
+  "candidate_changed_paths": {
+    "src/chebfunjax/utils/_basic_lstsq.py": "819c863973dec4160f578cac7b135f43831be4292cd055af275ee6ad43fbcc59",
+    "tests/test_utils/test_basic_lstsq.py": "cd84555bdc153cc10168e6cca4b75f8123a44915d169be0f1cd804f7e005575e",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.npz": "e8d189ef8de6ab77297b90d1cf3b3a720d365f4be6dc723a579ee195eaa833af",
+    "tests/test_utils/data/basic_lstsq_native_r2025b.json": "63687a7ee595d9ed52bff432a4e7a05072fa6c5a3aab6c97dbde52050ec4c48a",
+    "examples/complex/conformal_l.py": "61361a555be281d5842bd94d831b35a8a5b38267fd6b8be3619d15630aa8d36f"
+  }
+}

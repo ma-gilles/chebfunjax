@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils._basic_lstsq import _basic_lstsq
 from chebfunjax.utils.aaa import aaa
 from chebfunjax.utils.quadrature import chebpts
 
@@ -44,8 +45,7 @@ def _chebpts_seg(n, a, b):
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"ConformalL_{FIG[0]:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"ConformalL_{FIG[0]:02d}.png"), layout="matlab")
     plt.close(fig)
 
 
@@ -72,7 +72,7 @@ def run():
         np.real(mZ[:, None] ** m2), np.imag(mZ[:, None] ** m2)])
     zc = -0.2 - 0.2j
     U = -np.log(np.abs(Z - zc))
-    c, *_ = np.linalg.lstsq(A, U, rcond=None)
+    c = np.asarray(_basic_lstsq(jnp.asarray(A), jnp.asarray(U)))
     boundary_err = np.max(np.abs(A @ c - U))
     print("boundary_err =")
     print(f"   {boundary_err:.4e}")
@@ -94,7 +94,7 @@ def run():
     ax.axis(list(1.1 * np.array([-1, 1, -1, 1])))
     ax.set_aspect("equal")
     ax.set_axis_off()
-    ax.plot(pol.real, pol.imag, '.r', ms=8)
+    ax.plot(pol.real, pol.imag, '.r', ms=10)
     ray = np.asarray(chebpts(100))
     ray = ray[ray >= 0]
     circ = np.exp(2j * np.pi * np.arange(0, 201) / 200)
@@ -114,7 +114,7 @@ def run():
     ax.axis(list(1.4 * np.array([-1, 1, -1, 1])))
     ax.set_aspect("equal")
     ax.set_axis_off()
-    ax.plot(polinv.real, polinv.imag, '.r', ms=8)
+    ax.plot(polinv.real, polinv.imag, '.r', ms=10)
     for th in 2 * np.pi * np.arange(1, 13) / 12:
         v = np.exp(1j * th) * ray
         ax.plot(v.real, v.imag, 'k', lw=0.5)
@@ -130,9 +130,9 @@ def run():
         pol[(pol.real > 0) & (pol.imag > 0)]))
     fig, ax = plt.subplots(figsize=(8.6, 5.4))
     ax.semilogy(np.arange(1, len(distances) + 1), distances, '.-',
-                ms=10, lw=0.5)
+                ms=12, lw=0.5)
     ax.grid(True)
-    ax.set_title("distances of poles to singularity", fontsize=12)
+    ax.set_title("distances of poles to singularity")
     _save(fig)
 
     ratios = distances[1:] / distances[:-1]

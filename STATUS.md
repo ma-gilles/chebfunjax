@@ -1,3 +1,19 @@
+## Rectangular basic least squares and ConformalL — 2026-10-13
+
+ConformalL now uses a JAX pivoted-QR basic solution for its rectangular fit,
+matching the native solver choice. Twenty independent MATLAB controls and
+four scope checks pass. Exact native inputs independently produce rank73
+and the same eight zero variables; no rank or tolerance was fitted.
+See `docs/basic_lstsq_cpu_20261013.json`.
+
+The full CPU page run completed cleanly in32.00s, with stable inputs and no
+survivors. All five output blocks and three600×270 figures were regenerated
+from actual output. Boundary error prints5.1268e-7, matching the historical
+page. Pole counts remain46/67 versus fresh native46/69 and historical27/44.
+Point glyph sizes, historical distance sequence and exact raster/output parity
+remain unresolved. Existing NumPy example arithmetic outside the solver call
+also remains. See `docs/conformal_l_page_cpu_20261013.json`. Full CI is pending.
+
 ## Nested technology preferences — 2026-10-13
 
 Nested provider defaults now resolve through the source preference contract.

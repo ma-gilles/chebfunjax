@@ -40,7 +40,7 @@ Here we apply this idea to a simple example of "Schwarz--Christoffel mapping wit
 
 ```text
 boundary_err =
-   5.2028e-07
+   5.1268e-07
 ```
 
 Here is a plot of the map. The red dots show the poles of the AAA approximation, which represents $f$ to about six digits of accuracy. There are also a few more poles off-scale.
@@ -100,12 +100,12 @@ ratios = distances(2:end)./distances(1:end-1)
 
 ```text
 ratios =
-    18.8106
-    3.9764
+    18.8115
+    3.9765
     2.7747
     2.5037
     2.3872
-    2.2352
+    2.2353
     2.1073
     1.9633
     1.8047
@@ -114,9 +114,9 @@ ratios =
     1.6879
     1.6591
     1.6464
-    1.6368
+    1.6367
     1.6390
-    1.6299
+    1.6298
     1.6290
     1.5899
     1.5527
@@ -127,16 +127,16 @@ ratios =
     1.4865
     1.4656
     1.4449
-    1.4273
+    1.4272
     1.4166
-    1.4054
-    1.3942
+    1.4053
+    1.3941
     1.3862
     1.3835
     1.3854
     1.3913
-    1.4215
-    1.5653
+    1.4216
+    1.5656
 ```
 
 For much more about numerical conformal mapping of regions with corners, see [4] and also the code `confmap` available at [5].
@@ -147,7 +147,7 @@ total_time_for_this_example = toc
 
 ```text
 total_time_for_this_example =
-    1.2556
+    20.4106
 ```
 
 [1] A. Gopal and L. N. Trefethen, Representation of conformal maps by rational functions, *Numer. Math.* 142 (2019), 359-382.

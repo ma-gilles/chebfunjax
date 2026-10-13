@@ -1,0 +1,156 @@
+{
+  "matlab": "R2025b Update2",
+  "provenance": [
+    {
+      "mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_backslash_rank_controls_run_20261013/output/controls.mat",
+      "sha256": "0bb6b49fb32212778d42268904a96a16345a884ddf6b647fffafa97dae1b15fb"
+    },
+    {
+      "mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_backslash_rank_controls_nonpower_run_20261013/output/controls_nonpower.mat",
+      "sha256": "0286ac09fd63f41bc768504fd55c3c7008679ab531fcfd29032fc143e3d2c7bb"
+    }
+  ],
+  "rank": "mldivide warning rank, otherwise full rank; not rank(A) substitution",
+  "records": [
+    {
+      "index": 0,
+      "label": "tall_real_full_1rhs",
+      "rows": 5,
+      "columns": 3,
+      "rank": 3
+    },
+    {
+      "index": 1,
+      "label": "tall_real_full_2rhs",
+      "rows": 5,
+      "columns": 3,
+      "rank": 3
+    },
+    {
+      "index": 2,
+      "label": "tall_real_rank_deficient_2rhs",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 3,
+      "label": "tall_real_zero_2rhs",
+      "rows": 4,
+      "columns": 3,
+      "rank": 0
+    },
+    {
+      "index": 4,
+      "label": "wide_real_full_row_rank_2rhs",
+      "rows": 3,
+      "columns": 5,
+      "rank": 3
+    },
+    {
+      "index": 5,
+      "label": "wide_real_rank_deficient_2rhs",
+      "rows": 3,
+      "columns": 5,
+      "rank": 2
+    },
+    {
+      "index": 6,
+      "label": "tall_complex_full_2rhs",
+      "rows": 4,
+      "columns": 2,
+      "rank": 2
+    },
+    {
+      "index": 7,
+      "label": "tall_real_complex_rhs_2rhs",
+      "rows": 5,
+      "columns": 3,
+      "rank": 3
+    },
+    {
+      "index": 8,
+      "label": "tall_diag_e-300_factor_0.5",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 9,
+      "label": "tall_diag_e-300_factor_1",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 10,
+      "label": "tall_diag_e-300_factor_2",
+      "rows": 5,
+      "columns": 4,
+      "rank": 4
+    },
+    {
+      "index": 11,
+      "label": "tall_diag_e+0_factor_0.5",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 12,
+      "label": "tall_diag_e+0_factor_1",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 13,
+      "label": "tall_diag_e+0_factor_2",
+      "rows": 5,
+      "columns": 4,
+      "rank": 4
+    },
+    {
+      "index": 14,
+      "label": "tall_diag_e+300_factor_0.5",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 15,
+      "label": "tall_diag_e+300_factor_1",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 16,
+      "label": "tall_diag_e+300_factor_2",
+      "rows": 5,
+      "columns": 4,
+      "rank": 4
+    },
+    {
+      "index": 17,
+      "label": "between_eps_and_product",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 18,
+      "label": "exact_product_threshold",
+      "rows": 5,
+      "columns": 4,
+      "rank": 3
+    },
+    {
+      "index": 19,
+      "label": "above_product_threshold",
+      "rows": 5,
+      "columns": 4,
+      "rank": 4
+    }
+  ]
+}
