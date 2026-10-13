@@ -1,16 +1,8 @@
-"""Port of MATLAB Chebfun tests/chebfun3t/test_feval.m (Fable 5).
+"""Literal port of all 17 MATLAB tests/chebfun3t/test_feval.m predicates.
 
-Point/array/meshgrid/ndgrid/tensor evaluation of a
-:class:`Chebfun3T` -- pure feval math, identical for the Tucker-backed
-chebfunjax wrapper and MATLAB's full-tensor variant, so exercised
-directly against :func:`chebfunjax.chebfun3d.chebfun3t`.
-
-MATLAB scales the tolerance by the stored ``f.vscale``; :class:`Chebfun3T`
-stores no vscale, so it is recomputed as max|f| over a sample grid (the
-quantity MATLAB's vscale estimates).  A lean but representative subset of
-the 17 MATLAB assertions is kept (each chebfun3t construction is a full
-3D adaptive solve): coordinate extraction on a non-symmetric domain,
-plus the four input layouts (flat arrays, meshgrid, ndgrid, 3D tensor).
+The source's functions, domains, vector lengths, meshgrid/ndgrid dimensions,
+random tensor shape, and tolerance multipliers are retained. ``vscale`` is the
+stored public field of native Chebfun3T.
 
 Provenance
 ----------
@@ -28,72 +20,78 @@ from chebfunjax.chebfun3d import chebfun3t
 
 EPS = float(np.finfo(np.float64).eps)
 TOL = 1e2 * EPS
-
-
-def _vscale(f, dom):
-    xs = np.linspace(dom[0], dom[1], 6)
-    ys = np.linspace(dom[2], dom[3], 6)
-    zs = np.linspace(dom[4], dom[5], 6)
-    xx, yy, zz = np.meshgrid(xs, ys, zs)
-    return float(np.max(np.abs(np.asarray(f(xx, yy, zz)))))
+_DOMAIN = (-1.0, 2.0, -np.pi / 2, np.pi, -3.0, 1.0)
 
 
 @pytest.mark.slow
 class TestChebfun3tFeval:
     def test_all_matlab_assertions(self):
-        dom = (-1.0, 2.0, -np.pi / 2, np.pi, -3.0, 1.0)
+        rng = np.random.RandomState(42)
 
-        # Coordinate extraction on a non-symmetric domain:
-        #   f = chebfun3t(@(x,y,z) x, dom);  f(pi/6,pi/12,-1) == pi/6
-        fx = chebfun3t(lambda x, y, z: x, dom)
-        vs = _vscale(fx, dom)
-        assert abs(float(fx(0.0, 0.0, 0.0))) < TOL * vs
-        assert abs(float(fx(np.pi / 6, np.pi / 12, -1.0)) - np.pi / 6) < TOL * vs
+        f = chebfun3t(lambda x, y, z: x, _DOMAIN)
+        assert abs(float(f(0, 0, 0))) < TOL * float(f.vscale)
+        assert abs(float(f(np.pi/6, np.pi/12, -1)) - np.pi/6) < TOL * float(f.vscale)
 
-        #   f = chebfun3t(@(x,y,z) z, dom);  f(pi/6,pi/12,-1) == -1
-        fz = chebfun3t(lambda x, y, z: z, dom)
-        vs = _vscale(fz, dom)
-        assert abs(float(fz(0.0, 0.0, 0.0))) < TOL * vs
-        assert abs(float(fz(np.pi / 6, np.pi / 12, -1.0)) + 1.0) < TOL * vs
+        f = chebfun3t(lambda x, y, z: y, _DOMAIN)
+        assert abs(float(f(0, 0, 0)) - 0.0) < TOL
+        assert abs(float(f(np.pi/6, np.pi/12, -1)) - np.pi/12) < TOL * float(f.vscale)
 
-        # Harder function; point + array evaluation:
-        #   f = cos(x) + sin(x.*y) + sin(z.*x);
+        f = chebfun3t(lambda x, y, z: z, _DOMAIN)
+        assert abs(float(f(0, 0, 0)) - 0.0) < TOL
+        assert abs(float(f(np.pi/6, np.pi/12, -1)) + 1.0) < TOL * float(f.vscale)
+
         def hard(x, y, z):
-            return jnp.cos(x) + jnp.sin(x * y) + jnp.sin(z * x)
+            return jnp.cos(x) + jnp.sin(x*y) + jnp.sin(z*x)
 
         g = chebfun3t(hard)
-        vs = _vscale(g, (-1, 1, -1, 1, -1, 1))
-        p = np.array([0.126986816, 0.632359246, -0.351283361])
-        exact_p = float(np.cos(p[0]) + np.sin(p[0] * p[1]) + np.sin(p[2] * p[0]))
-        assert abs(float(g(p[0], p[1], p[2])) - exact_p) < TOL * vs
-        r = np.array([0.1, 0.4, 0.7, -0.2, 0.9])
-        s = np.array([0.3, -0.5, 0.2, 0.8, -0.1])
-        t = np.array([-0.6, 0.1, 0.5, -0.9, 0.4])
-        assert np.max(np.abs(np.asarray(g(r, s, t)) - np.asarray(hard(r, s, t)))) \
-            < TOL * vs
+        pts = 2 * rng.rand(3, 1) - 1
+        assert abs(float(hard(*pts[:, 0])) - float(g(*pts[:, 0]))) < TOL * float(g.vscale)
 
-        # The four input layouts on sin(pi*(x+y+z)):
-        def ff(x, y, z):
-            return jnp.sin(np.pi * (x + y + z))
+        r = rng.rand(10, 1)
+        s = rng.rand(10, 1)
+        t = rng.rand(10, 1)
+        rr, ss, tt = np.meshgrid(r[:, 0], s[:, 0], t[:, 0])
+        assert np.max(np.abs(np.asarray(hard(r[:, 0], s[:, 0], t[:, 0]))
+                             - np.asarray(g(r[:, 0], s[:, 0], t[:, 0])))) < TOL * float(g.vscale)
+        assert np.max(np.abs(np.asarray(hard(rr, ss, tt))
+                             - np.asarray(g(rr, ss, tt)))) < TOL * float(g.vscale)
 
+        g = chebfun3t(hard, (-np.pi/6, np.pi/2, -np.pi/12, np.sqrt(3), -3, 1))
+        r0, s0, t0 = 0.126986816293506, 0.632359246225410, 0.351283361405006
+        assert abs(float(hard(r0, s0, t0)) - float(g(r0, s0, t0))) < TOL * float(g.vscale)
+        assert abs(float(hard(r0, s0, t0)) - float(g(r0, s0, t0))) < TOL * float(g.vscale)
+        assert np.max(np.abs(np.asarray(hard(rr, ss, tt))
+                             - np.asarray(g(rr, ss, tt)))) < TOL * float(g.vscale)
+
+        ff = lambda x, y, z: jnp.sin(jnp.pi * (x + y + z))
         f = chebfun3t(ff)
-        vs = _vscale(f, (-1, 1, -1, 1, -1, 1))
-        lin = np.linspace(-1, 1, 20)
-        # flat arrays
-        assert np.max(np.abs(np.asarray(f(lin, lin, lin))
-                             - np.asarray(ff(lin, lin, lin)))) < 1e2 * TOL * vs
-        # meshgrid
-        xx, yy, zz = np.meshgrid(lin, lin, lin)
-        assert np.max(np.abs(np.asarray(f(xx, yy, zz))
-                             - np.asarray(ff(xx, yy, zz)))) < 1e2 * TOL * vs
-        # ndgrid
-        xn, yn, zn = np.meshgrid(lin, lin, lin, indexing="ij")
-        assert np.max(np.abs(np.asarray(f(xn, yn, zn))
-                             - np.asarray(ff(xn, yn, zn)))) < 1e2 * TOL * vs
-        # 3D tensor of random points
-        rng = np.random.default_rng(42)
-        xr = rng.random((4, 5, 6))
-        yr = rng.random((4, 5, 6))
-        zr = rng.random((4, 5, 6))
-        assert np.max(np.abs(np.asarray(f(xr, yr, zr))
-                             - np.asarray(ff(xr, yr, zr)))) < 1e2 * TOL * vs
+        xx = np.linspace(-1, 1, 100)[:, None]
+        yy = np.linspace(-1, 1, 100)[:, None]
+        zz = np.linspace(-1, 1, 100)[:, None]
+        assert np.linalg.norm(np.asarray(f(xx, yy, zz)).ravel()
+                              - np.asarray(ff(xx, yy, zz)).ravel()) < 100 * TOL
+
+        ff = lambda x, y, z: jnp.sin(jnp.pi * (x + y + z))
+        f = chebfun3t(ff)
+        xx, yy, zz = rng.rand(100, 1), rng.rand(100, 1), rng.rand(100, 1)
+        assert np.linalg.norm(np.asarray(f(xx, yy, zz))
+                              - np.asarray(ff(xx, yy, zz))) < 100 * TOL
+
+        ff = lambda x, y, z: jnp.sin(jnp.pi * (x + y + z))
+        f = chebfun3t(ff)
+        grid = np.linspace(-1, 1, 100)
+        xx, yy, zz = np.meshgrid(grid, grid, grid)
+        assert np.linalg.norm(np.asarray(f(xx, yy, zz)).ravel()
+                              - np.asarray(ff(xx, yy, zz)).ravel()) < 100 * TOL
+
+        ff = lambda x, y, z: jnp.sin(jnp.pi * (x + y + z))
+        f = chebfun3t(ff)
+        xx, yy, zz = np.meshgrid(grid, grid, grid, indexing="ij")
+        assert np.linalg.norm(np.asarray(f(xx, yy, zz)).ravel()
+                              - np.asarray(ff(xx, yy, zz)).ravel()) < 100 * TOL
+
+        ff = lambda x, y, z: jnp.sin(jnp.pi * (x + y + z))
+        f = chebfun3t(ff)
+        xx, yy, zz = rng.rand(10, 20, 30), rng.rand(10, 20, 30), rng.rand(10, 20, 30)
+        assert np.linalg.norm(np.asarray(f(xx, yy, zz)).ravel()
+                              - np.asarray(ff(xx, yy, zz)).ravel()) < 100 * TOL

@@ -1,3 +1,21 @@
+## Dense Chebfun3T source representation — 2026-10-13
+
+Chebfun3T now stores the native full coefficient tensor and uses source adaptive
+construction, evaluation, integration and arithmetic. The prior callable path
+incorrectly delegated to low-rank Chebfun3. Original grids and bounds are restored:
+17 evaluation predicates, 9 composition predicates, all 40 battery functions,
+and get/ndf/sum3 pass. Nine of ten constructor predicates pass. A merged gate
+passes 16 tests with one strict expected failure; this is partial parity.
+
+The remaining original rational-constructor predicate fails at2.81e-14 against
+100eps=2.22e-14 (native8.33e-15). Identical samples isolate FFT-roundoff-sensitive
+source truncation; both full tensors pass, but the JAX-selected crop fails.
+The unchanged assertion executes as a strict expected failure, never counted
+as a pass. No tolerance/rank/cutoff fitting is used. Python Tucker bridge values,
+derivatives and factor roundtrips pass independently. See
+`docs/dense_chebfun3t_cpu_20261013.json` for immutable evidence and limitations.
+Full library/example/figure parity and green main CI remain unresolved.
+
 ## Scalar periodic source Newton and endpoint CI repair — 2026-10-13
 
 Supported scalar periodic trigcolloc problems now use continuous AD and the

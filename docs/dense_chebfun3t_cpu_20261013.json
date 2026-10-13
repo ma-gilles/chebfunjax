@@ -1,0 +1,201 @@
+{
+  "status": "Partial parity: native constructor predicate 7 remains unresolved; goal incomplete",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_main": "5071cd80b27fe645f21af04738622a9dcd42e213",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "x64": true,
+    "gpu_tests": false
+  },
+  "implementation": [
+    "Canonical full dense coefficient tensor, stored vscale and domain replace the incorrect Tucker-backed callable constructor.",
+    "Source two-phase adaptive grids, axis-summed happiness and Halton sample test; no fitted rank or cutoff.",
+    "Source-order dense evaluation and integration; arithmetic, norm, length and public tensor helpers.",
+    "Explicit Python Tucker bridge APIs retain factors without compression; tested against independent polynomial values and gradients."
+  ],
+  "qualified_sources": {
+    "src/chebfunjax/chebfun3d/chebfun3t.py": "f601b589889970287e27a20bf843a64d38e3584cb721a0a1366e0b689f6e77ac",
+    "src/chebfunjax/chebfun3d/_chebfun3t_arithmetic.py": "a12d75869d81381f3ab797eab2233da85da593e53f4202d31e4d1422718c915a",
+    "src/chebfunjax/chebfun3d/_chebfun3t_utilities.py": "7f3cd0c001d26a603db8dafe2e16e1d95c701ada4c5149abd19e236d1e8a35af"
+  },
+  "source_gates": [
+    {
+      "group": "utilities_arithmetic_empty",
+      "coverage": "12 pytest tests passed",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_final_utilities_v2/receipt.json",
+      "sha256": "8999c70491bb1f26b3931269125ed490507fbd7f92fea3dddd6d8b1d9887fd14",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.67264521913603,
+      "sampled_peak_summed_rss_kib": 856016,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "group": "constructor",
+      "coverage": "9 of 10 native predicates passed; predicate 7 failed unchanged",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_constructors_v1/receipt.json",
+      "sha256": "ffb6657845df8252e7e91157a185f566261617b8467f8f0607fef8b152a01324",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 49.496864983811975,
+      "sampled_peak_summed_rss_kib": 7273136,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "group": "get_ndf_sum3",
+      "coverage": "3 native test files passed",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_accessors_v1/receipt.json",
+      "sha256": "d7509e752b392f0ce7c21dbd16eb38133d5f47d9d9111452843becaf862d7173",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.962494584266096,
+      "sampled_peak_summed_rss_kib": 1123128,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "group": "feval",
+      "coverage": "17 native predicates passed",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_feval_v1/receipt.json",
+      "sha256": "769aea4b9327e271db3ea41278bdbedce2441d20ff58c77544b6c22129ea0d85",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.3406330938451,
+      "sampled_peak_summed_rss_kib": 897396,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "group": "compose",
+      "coverage": "9 native predicates passed",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_compose_v1/receipt.json",
+      "sha256": "39e7fdc7a85337d6b04ea36c6cba441d8c8659daa899dc2e6e19872b73377212",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 78.85373566905037,
+      "sampled_peak_summed_rss_kib": 3762240,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "group": "battery",
+      "coverage": "40 original function/integral pairs passed",
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/run_battery_v1/receipt.json",
+      "sha256": "e3df4e7c6e6d9c7d3896048252b0a17899c61e644420bce5bb5db07939289360",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 61.18629194190726,
+      "sampled_peak_summed_rss_kib": 2760544,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  ],
+  "merged_gate": {
+    "coverage": "16 passed, 1 strict expected failure; original failing predicate executes at unchanged bound",
+    "pytest_seconds": 47.71,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_publication_stage_20261013/integration_run/receipt.json",
+    "sha256": "92ec7aefde9c012a1b17748bd8fd20db80d6ac9c906bff2e0ee07e7036f77831",
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 59.496158516034484,
+    "sampled_peak_summed_rss_kib": 6967676,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "bridge_gate": {
+    "coverage": "One independent polynomial value/gradient and factor-roundtrip extension regression passed; not native Tucker representation parity",
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_tucker_compat_review_20261013/run/tucker_compat_gate_v4/receipt.json",
+    "sha256": "a8d4a6b6d07f966f5076faa1078fee8cc407ed421fedcc857d170d2253b18581",
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 8.54796056309715,
+    "sampled_peak_summed_rss_kib": 552284,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "open_constructor_predicate_7": {
+    "function": "1/(1+x^2*y^2*z^2)",
+    "domain": [
+      -2,
+      2,
+      -2,
+      2,
+      -2,
+      2
+    ],
+    "query_grid": [
+      100,
+      100,
+      100
+    ],
+    "bound": 2.220446049250313e-14,
+    "final_python_error": 2.808864252301646e-14,
+    "python_coefficient_shape": [
+      249,
+      257,
+      263
+    ],
+    "native_error": 8.326672684688674e-15,
+    "native_coefficient_shape": [
+      261,
+      265,
+      263
+    ],
+    "test_handling": "Separate strict xfail limited to AssertionError, unchanged original expression/grid/bound. It is unresolved, not a passing native predicate. An XPASS fails CI and requires review/removal.",
+    "diagnosis": "Identical native/JAX nodes and sampled tensor. Native envelopes or coefficients in JAX produce native cutoffs. JAX FFT coefficients differ by at most 1.11e-16; both full tensors satisfy original bound, while JAX-selected crop does not. No source-supported cutoff/FFT adjustment identified.",
+    "scope": "Matched-transform diagnosis used the earlier draft evaluation adapter; final source inverse-map arithmetic is remeasured by the unmarked constructor gate and merged strict-xfail gate."
+  },
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/REPORT_V2.md",
+      "sha256": "2be825172696423dd3aa9d707f2c8dbe2c4d97fb76bcdc575b1548b4457f160c"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/EVIDENCE_HASHES.json",
+      "sha256": "d712d4d1b0d6c81fd01696bc55863ddfec1be8d729b7581887bfbd5ea1505908"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/REPORT_v3.md",
+      "sha256": "55628585e4db43ac43dcee0cc049e0e6886e15069266f2c2619ba0a46d9241a2"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/DELIVERY_MANIFEST_v3.json",
+      "sha256": "cbbd35bc386c0127c1f37663b6d3631a18f1d42389258bb916e395576155c9ad"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_arithmetic_integration_20261013/FROZEN_SOURCE_V4.json",
+      "sha256": "37b6ebf34fcc26175ace1039e4d3e40a17b3722d4486d24a3566a9b85f9c77d9"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_pass7_native_20261013/capture.mat",
+      "sha256": "9a5cc0d1c44b3a0c8dc8725756f3f0a13ff7ee90e35c378ffa6e96fc37496671"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3t_tucker_compat_review_20261013/REPORT.md",
+      "sha256": "7246f042a6f7c184e7b4f9d28f90afd3a07f3e9ee3f4aa104023172d5c29bc2e"
+    }
+  ],
+  "limits": [
+    "Chebtech2 dense construction only; other technologies remain unsupported.",
+    "tand and display/plotting public API parity remain incomplete.",
+    "Python broadcasting and explicit Tucker bridges are extensions, not MATLAB shape/representation parity.",
+    "Empty arithmetic may return an empty Chebfun3T where MATLAB returns numeric [].",
+    "Norm deliberately follows native code sqrt(sum3(f.^2)), not the misleading abs-based help text.",
+    "No paired performance or full example-page parity claim. Full CI remains pending.",
+    "The initial pass7 diagnostic driver failed JSON serialization after calculating the failing value; it was not an assertion-failure receipt. The later unmarked literal constructor gate confirms the actual assertion failure.",
+    "Initial integration launcher failed Python-ABI preflight and is excluded. Bridge test initial y-gradient oracle was corrected before clean qualification."
+  ],
+  "durable_archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_dense_20261013/chebfunjax_dense_20261013.tar",
+    "bytes": 1681786880,
+    "sha256": "b138c2560ef28b63523afcf2302d66fd16d22cf51f02a8b1171633f5b9375f05",
+    "members": 133,
+    "manifest_path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_dense_20261013/ARCHIVE_MANIFEST.json",
+    "manifest_sha256": "8e0a9ee21b871836444d78b405220b9e1d7076b211b23dbd1d0994f887b049a5",
+    "verification": "All members verified against source hashes/sizes and exact membership by packaging agent; root independently verified archive and manifest SHA256."
+  }
+}

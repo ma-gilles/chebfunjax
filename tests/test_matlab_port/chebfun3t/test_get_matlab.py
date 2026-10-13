@@ -1,14 +1,7 @@
-"""Port of MATLAB Chebfun tests/chebfun3t/test_get.m (Fable 5).
+"""Literal port of MATLAB tests/chebfun3t/test_get.m.
 
-chebfunjax's :class:`Chebfun3T` is a Tucker-backed wrapper (cols/rows/
-tubes factors + core), not MATLAB's full-coefficient-tensor variant, but
-the get-accessor semantics tested here (domain, positive vertical scale,
-nonzero coefficients) are the same math and are exercised against it.
-
-The ``domain`` and coefficient (``core``) assertions are exact.  MATLAB's
-``f.vscale`` is a stored field; :class:`Chebfun3T` stores no vscale, so
-the vertical scale is recomputed as max|f| over a sample grid (the same
-quantity MATLAB's vscale estimates).
+The native class exposes dense ``coeffs``, stored ``vscale``, and ``domain``;
+this test checks those public fields directly.
 
 Provenance
 ----------
@@ -31,20 +24,9 @@ TOL = 1e2 * EPS
 @pytest.mark.slow
 class TestChebfun3tGet:
     def test_all_matlab_assertions(self):
-        # f = chebfun3t(@(x,y,z) cos(x.*y.*z));
         f = chebfun3t(lambda x, y, z: jnp.cos(x * y * z))
-
-        # pass(1) = norm([-1 1 -1 1 -1 1] - f.domain) < tol;
-        dom = np.asarray(f.domain, dtype=float)
-        assert np.linalg.norm(dom - np.array([-1, 1, -1, 1, -1, 1])) < TOL
-
-        # pass(2) = f.vscale > 0;
-        xs = np.linspace(-1, 1, 9)
-        xx, yy, zz = np.meshgrid(xs, xs, xs)
-        vscale = float(np.max(np.abs(np.asarray(f(xx, yy, zz)))))
-        assert vscale > 0
-
-        # pass(3) = norm(f.coeffs(:)) > 0;
-        # (Chebfun3T stores the Tucker core in place of a full coeff
-        # tensor; a nonzero core is the format-independent statement.)
-        assert float(np.linalg.norm(f.core_numpy().ravel())) > 0
+        assert np.linalg.norm(
+            np.array([-1, 1, -1, 1, -1, 1]) - np.asarray(f.domain)
+        ) < TOL
+        assert float(f.vscale) > 0
+        assert float(np.linalg.norm(np.asarray(f.coeffs).ravel())) > 0
