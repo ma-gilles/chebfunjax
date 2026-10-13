@@ -1,0 +1,181 @@
+{
+  "scope": "Native chebfun3double numeric ACA3D/nested ACA2D/BTD-to-Tucker route; JAX scientific algebra, eager rank decisions. No full spinop3/page run or performance claim.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "preimage": {
+    "publication_head": "74bcda9448dc9aa2ad8ed6c40d86040e75af6d5c",
+    "candidate_head": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+    "hashes": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun3d/chebfun3.py": "31751aac5388e74e7719f83a193c9123df67422e60285e4d8e6419957415d271",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/chebfun3double.m": "84fe029450c2a722c46abf16e167642f427cb4cae0795bc1ba962d552b8144bb",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/constructor.m": "c827ec7cc88f92385d7dd98af377978dee0852e5fb5d227fac3f212e96dafeb4"
+    }
+  },
+  "manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/MANIFEST.json",
+    "sha256": "500ef096ba7626d06577177221c93b548277512ec8e68aa9a09efe9e1f9c38a1"
+  },
+  "changes": [
+    "Dedicated numeric source constructor with F-order maxima, strict tolerance and diagonal bias, fixed first-slice 2D tolerance, nonconjugating rows, source residual order, BTD compression, full-length selected-tech factors.",
+    "from_values and numeric factory now preserve complex data and construct selected-tech fibers directly; default C2, C1, and trig dispatch. from_coeffs remains unchanged.",
+    "Numeric tensor addition now invokes one complex constructor instead of separate real/imaginary constructions.",
+    "Successful native coarse-tolerance zero-iteration path, zero rank and public length(1,1,1), while stored factor lengths remain input shape. Empty length tuple adapter unchanged."
+  ],
+  "baseline": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/baseline_run/stdout",
+    "old_default_C2_original_pass2": "Already passes lengths(10,15,5), ranks(5,7,5); this package does not claim that clause newly failed.",
+    "old_numeric_trig": "NotImplementedError for source input and complex rank1.",
+    "old_complex_from_values": "Dropped imaginary part; max grid error 2.5922479624283605 on captured complex tensor."
+  },
+  "qualification": {
+    "final": "25 passed, 1 warning, 47.40s pytest; includes original syntax pass2 unchanged, supplemental native cases, primitive order/tie/complex tests, singleton/zero/coarse controls, and existing numeric plus caller control.",
+    "native_fixture_count": 8,
+    "exact_metadata": "Ranks, input axis factor lengths, and selected factor classes match all eight nonzero captured tensors.",
+    "small_native_fields": "Maximum off-grid discrepancy <=8.89e-16 and grid discrepancy <=1.23e-15 in seven small/smooth non-scalar cases.",
+    "dense32": {
+      "rank": [
+        32,
+        32,
+        32
+      ],
+      "lengths": [
+        32,
+        32,
+        32
+      ],
+      "python_input_residual": 2.5757174171303632e-14,
+      "native_input_residual": 2.55351295663786e-14,
+      "native_grid_difference": 1.8540724511240114e-14,
+      "native_offgrid_difference": 9.547918011776346e-15,
+      "core_difference": 2.8362728832220796e-16
+    },
+    "comparison_bound": "Supplemental absolute100eps convention from native tests/chebfun3/test_constructor.m:7; not an original captured comparison predicate, not universal guarantee, and no prior bound loosened. Original syntax pass2 retains exact length equality.",
+    "coarse_native": "Nonzero constant2.75, shape5x4x3, eps1, C2/trig: native public rank0,length1; stored factors5,4,3 and scalar zero core. Both fresh controls pass.",
+    "plus_control": "Existing analytic numeric_values plus control, not a separately captured native plus assertion. Complex constructor itself independently native-qualified.",
+    "static": "Ruff all four Python paths clean; Git binary patch actually applied to clean minimal directory and six hashes compared, all match."
+  },
+  "negative_evidence": [
+    "Initial small gate11pass3fail was trigpts tuple-return adapter; source retained initial_failed_module.py, fixed by selecting axis output.",
+    "Initial native coefficient comparison used canonical trig coefficients against physical-domain native trigcoeffs; raw failure preserved native_comparison.json. Corrected source phase conversion uses existing trigcoeffs then native domain phase; corrected native_comparison_v2.json retained.",
+    "Source 10x15x5 core is sensitive: native scale657430.3142, absolute core difference0.0002368679 (relative3.602935e-10), despite factors/fields near1e-15. No fitted core matching.",
+    "Prior23-test source archived module_23pass.py before coarse-path successor; final25 gate binds final source.",
+    "First patch path normalization failed clean apply; preserved patch_before_path_normalization.patch. Corrected final binary patch clean-applies and byte-matches all paths."
+  ],
+  "limitations": [
+    "Native exact-zero tensor constructor errors at chebfun3double.m:56; Python retains supported zero construction explicitly as compatibility adaptation.",
+    "Native requested-trig scalar bypasses pref and returns C2; Python scalar-trig compatibility route remains Trigtech. Not claimed fixed.",
+    "Numeric selected C1 uses direct source technology; native fixture suite here qualifies C2/trig, not C1 numeric field parity.",
+    "Construction is eager rank-adaptive; no blanket JIT/AD claim. Existing from_coeffs HOSVD route unchanged.",
+    "NaN/Inf tensor input semantics not qualified; fixed-length callback adapter original clauses3-7 delegated to root.",
+    "Python rank uses existing iszero broader predicate; no unrelated rank-policy rewrite."
+  ],
+  "receipts": {
+    "small_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/small_run/receipt.json",
+      "sha256": "553b0796e4f443b13e08f342c18c46fe405537ffac45d002a235333e29f6f0d6",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 19.850198813248426,
+      "sampled_peak_summed_rss_kib": 1298644,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "small_v2_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/small_v2_run/receipt.json",
+      "sha256": "7fbcb47bafebd6205ce7185cec74e275ff43b8978157aa2992256f8dccb2de4a",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.111631588079035,
+      "sampled_peak_summed_rss_kib": 1546188,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "compare_native_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/compare_native_run/receipt.json",
+      "sha256": "c7770b68a1a664b084b6818a4c9907b818ab622f012fe988da797dc39d347cdc",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.412691633217037,
+      "sampled_peak_summed_rss_kib": 1927752,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "dense_compare_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/dense_compare_run/receipt.json",
+      "sha256": "9e239c0764029c5187ff2030509deb63b2d16f44ae7ae1203c4ff4a3bf978043",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.449257628060877,
+      "sampled_peak_summed_rss_kib": 767068,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "baseline_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/baseline_run/receipt.json",
+      "sha256": "016f8457960274d53933097202e5774827786560d49ae7d03ecaa616c903d538",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 6.842406315729022,
+      "sampled_peak_summed_rss_kib": 685504,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "final_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/final_run/receipt.json",
+      "sha256": "2dd1573eb13cf6e63ede3945f14d18fc08e10c9438786bc9c361301d6fe60321",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 49.69850565632805,
+      "sampled_peak_summed_rss_kib": 2665064,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "compare_native_v3_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/compare_native_v3_run/receipt.json",
+      "sha256": "66937ddb3429f93105f99ac5abae8ca3c1dfb5b7e73ca3efb5a5674a8787c4a6",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 29.197670210152864,
+      "sampled_peak_summed_rss_kib": 1975904,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "final_v2_run": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/final_v2_run/receipt.json",
+      "sha256": "01fde053a404ba15b8f961e9a1fae615f07eee90b041fb7029f9167da4727219",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 50.16542441723868,
+      "sampled_peak_summed_rss_kib": 2704356,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/native_comparison_v2.json": "e1d9e1b6eecbc644200b9d126334d26ad1746108ae2fe18b2572b58ee3088ce3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3double_review_20261014/dense_comparison.json": "ee5efae7c310abf3b82b3e488f1e39521c0628258fbb43e9db59cd46e5b5fbc8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_numeric_constructor_fixture_20261013/manifest.json": "93b51b6aaace868570242f4825052d60fcfdf67b2105b309224da507b8fde5cd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spinop3_numeric_constructor_fixture_20261013/CAPTURE_REPORT.md": "eabb5a481d087c2bb35c94f8a8e984aff4fa383c1378f5084c07539b9188533f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_constructor_syntax_native_capture_20261013/v2/capture_checkpoint.mat": "14330c78f2a6e7ab5d5e84d302133cef4e48d0d2bd1f484b48bbf01efc22551b"
+  },
+  "root_review": {
+    "merged_tests": 69,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/numeric_tensor_publication_20261014/run/receipt.json",
+    "receipt_sha256": "5da51cad0cba2d33635ed408a5b3709440403925bd5122b726402c3e7b178f33",
+    "wall_seconds": 72.21588339982554,
+    "sampled_peak_summed_rss_kib": 2277416,
+    "stable": true,
+    "survivors": [],
+    "native_fixture_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/numeric_tensor_publication_20261014/raw_fixture_review.json",
+    "native_fixture_review_sha256": "403df1780cfaa9b54963eff644d7d112f1c973bbb1a9320aef376810dca743a8",
+    "raw_fields": "All eight records /72 array fields and rank,length,domain,tech metadata exactly match retained MATLAB captures",
+    "static": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/numeric_tensor_publication_20261014/static.json"
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "provenance": "MATLAB R2025b, Chebfun7574c77 @chebfun3/chebfun3double.m, spinop3_numeric_constructor_fixture_20261013 v2/v3",
+  "records": [
+    {
+      "name": "complex_rank1_5x4x3",
+      "prefix": "case0",
+      "domain": [
+        -2.0,
+        3.0,
+        4.0,
+        10.0,
+        -7.0,
+        -1.0
+      ],
+      "rank": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        5,
+        4,
+        3
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 1.0429598422709816e-15,
+      "native_mat_sha256": "80145a8bac33507e0b8680707e277102efb31f948ee29b26993e5d2f61a790a9"
+    },
+    {
+      "name": "constant_5x4x3",
+      "prefix": "case1",
+      "domain": [
+        -2.0,
+        3.0,
+        4.0,
+        10.0,
+        -7.0,
+        -1.0
+      ],
+      "rank": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        5,
+        4,
+        3
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 0.0,
+      "native_mat_sha256": "ebdf254cf8fca72b7b508d8f73874a25b1602f0d64642ced31c0bd1b7fab9c94"
+    },
+    {
+      "name": "rank1_real_5x4x3",
+      "prefix": "case2",
+      "domain": [
+        -2.0,
+        3.0,
+        4.0,
+        10.0,
+        -7.0,
+        -1.0
+      ],
+      "rank": [
+        1,
+        1,
+        1
+      ],
+      "lengths": [
+        5,
+        4,
+        3
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 6.661338147750939e-16,
+      "native_mat_sha256": "c40aa6f176825cc31f72e826cebcb6f02c82e3dcb1f578f9e839945a94b61000"
+    },
+    {
+      "name": "rank2_real_5x4x3",
+      "prefix": "case3",
+      "domain": [
+        -2.0,
+        3.0,
+        4.0,
+        10.0,
+        -7.0,
+        -1.0
+      ],
+      "rank": [
+        2,
+        2,
+        2
+      ],
+      "lengths": [
+        5,
+        4,
+        3
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 6.661338147750939e-16,
+      "native_mat_sha256": "87607b7e0324ddc9a91a697eb664518878e1d503611c970cafae08217ee546b4"
+    },
+    {
+      "name": "smooth_lowrank_32x32x32",
+      "prefix": "case4",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        -3.141592653589793,
+        3.141592653589793,
+        3.0,
+        9.0
+      ],
+      "rank": [
+        3,
+        3,
+        3
+      ],
+      "lengths": [
+        32,
+        32,
+        32
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 1.7763568394002505e-15,
+      "native_mat_sha256": "c582467c6c79f661113dba8403c2ca0bdccc7c1d548b7429bc7fc26017db5999"
+    },
+    {
+      "name": "source_pass2_10x15x5_default_c2",
+      "prefix": "case5",
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "rank": [
+        5,
+        7,
+        5
+      ],
+      "lengths": [
+        10,
+        15,
+        5
+      ],
+      "tech": [
+        "chebtech2",
+        "chebtech2",
+        "chebtech2"
+      ],
+      "periodic": false,
+      "native_input_residual": 1.3877787807814457e-15,
+      "native_mat_sha256": "677b9c93a35d74cba6d3ab1513ad55d8e4d71a551d3d6ce794d354e38ab6ae36"
+    },
+    {
+      "name": "source_pass2_10x15x5_numeric_trig",
+      "prefix": "case6",
+      "domain": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "rank": [
+        5,
+        7,
+        5
+      ],
+      "lengths": [
+        10,
+        15,
+        5
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 1.4432899320127035e-15,
+      "native_mat_sha256": "c7a5d55a6d1a1e711863f115ecabfa0d5e625ffb24e4769b52d5371eec9ab30c"
+    },
+    {
+      "name": "dense_32x32x32",
+      "prefix": "case7",
+      "domain": [
+        0.0,
+        6.283185307179586,
+        -3.141592653589793,
+        3.141592653589793,
+        3.0,
+        9.0
+      ],
+      "rank": [
+        32,
+        32,
+        32
+      ],
+      "lengths": [
+        32,
+        32,
+        32
+      ],
+      "tech": [
+        "trigtech",
+        "trigtech",
+        "trigtech"
+      ],
+      "periodic": true,
+      "native_input_residual": 2.55351295663786e-14,
+      "native_mat_sha256": "6b034d95b5cf589c167090846e28aa5ccf170d1879d4274ce4126532fa3ad905"
+    }
+  ],
+  "npz_sha256": "820aeddc856a5228334058e823d2b577ce785cc9dd840ffdb78a89e95ff7eaa0",
+  "comparison_bound": "Supplemental100eps absolute finite-field control (tests/chebfun3/test_constructor.m:7 uses100eps); not an original native assertion, not universal rounding theorem. No original bound changed."
+}

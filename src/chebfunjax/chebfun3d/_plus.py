@@ -65,9 +65,8 @@ def _double_data(value):
 def _numeric_function(data, domain):
     """Native double-to-function dispatch through existing constructors.
 
-    Split complex numeric tensors because the inherited values constructor
-    casts real. This preserves the represented interpolant; it does not port
-    the native chebfun3double ACA algorithm.
+    Real and complex tensors use the same source chebfun3double ACA route.
+    No separate real/imaginary constructor or block assembly is applied.
     """
     from chebfunjax.chebfun3d.chebfun3 import Chebfun3
 
@@ -77,10 +76,6 @@ def _numeric_function(data, domain):
                                      domain=domain, tol=tol)
     shape = data.shape+(1,)*max(0, 3-data.ndim)
     data = data.reshape(shape)
-    if jnp.iscomplexobj(data):
-        real = Chebfun3.from_values(jnp.real(data), domain=domain, tol=tol)
-        imag = Chebfun3.from_values(jnp.imag(data), domain=domain, tol=tol)
-        return _assemble_components(real, imag*1j)
     return Chebfun3.from_values(data, domain=domain, tol=tol)
 
 

@@ -1,3 +1,16 @@
+## Numeric Chebfun3 source constructor — 2026-10-14
+
+Fixed numeric tensor construction now follows native complete ACA and block-term
+compression using JAX. Trig tensors are supported and complex values retain
+their imaginary parts. Eight native fixtures match ranks and stored lengths;
+dense32 grid difference is1.8541e-14. All72 fixture array fields independently
+match the raw MATLAB captures. Coarse-tolerance zero results retain stored
+factor lengths while reporting native public rank0 and length1. Private25
+and merged69 numeric/plus checks pass with stable inputs and no survivors.
+Exact-zero native constructor crashes and scalar requested-tech differences
+remain explicit compatibility gaps; C1 numeric fields are not yet qualified.
+Evidence: `docs/chebfun3_numeric_tensor_cpu_20261014.json`.
+
 ## Genuine Quasimatrix column assignment — 2026-10-14
 
 Added column replacement, repeated indices, deletion and zero-padded growth

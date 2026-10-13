@@ -1811,6 +1811,9 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/length.m
         Chebfun commit: 7574c77
         """
+        if not self.isempty() and self.iszero():
+            return (1, 1, 1)
+
         def _len(techs):
             return max((int(t.coeffs.shape[0]) for t in techs), default=0)
 
@@ -1949,20 +1952,21 @@ class Chebfun3(eqx.Module):
 
     @classmethod
     def from_values(cls, V, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
-                    tol: float = _EPS) -> "Chebfun3":
-        """Construct from a tensor of values on the tensor 2nd-kind
-        Chebyshev grid (MATLAB ``chebfun3(A)``).
+                    tol: float = _EPS, *, tech=Chebtech2) -> "Chebfun3":
+        """Construct fixed tensor data by native ACA and block-term compression.
+
+        Axes use the selected numeric technology's tensorGrid convention.
+        Numeric factors retain their input lengths; construction does not
+        resample a callback or apply HOSVD. Rank selection is eager.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/chebfun3.m (numeric input)
+        MATLAB source : @chebfun3/chebfun3double.m (numeric input)
         Chebfun commit: 7574c77
         """
-        V = np.asarray(V, dtype=float)
-        if V.ndim < 3:
-            V = V.reshape(V.shape + (1,) * (3 - V.ndim))
-        return cls.from_coeffs(cls.vals2coeffs(jnp.asarray(V)), domain=domain,
-                               tol=tol)
+        from chebfunjax.chebfun3d._chebfun3double import construct
+
+        return construct(V, domain, tol, tech=tech)
 
     @property
     def cols_quasi(self):
@@ -3483,12 +3487,15 @@ def chebfun3(
 ) -> Chebfun3:
     """Construct a Chebfun3 approximation of a trivariate function.
 
-    Convenience factory wrapping ``Chebfun3.from_function``.
+    Callable data use three-phase construction; numeric tensors use discrete
+    ACA followed by block-term-to-Tucker compression.
 
     Parameters
     ----------
-    f : callable
-        f(xx, yy, zz) accepting ndgrid-style 3D arrays.
+    f : callable or array_like
+        Function accepting ndgrid-style 3D arrays, or fixed tensor values in
+        ndgrid axis order on the selected technology's tensor grid. Numeric
+        factors retain the supplied axis lengths.
     domain : 6-tuple of floats, optional
         (xa, xb, ya, yb, za, zb).  Default is (-1, 1, -1, 1, -1, 1).
     tol : float, optional
@@ -3596,14 +3603,21 @@ def chebfun3(
     if (direct_periodic or direct_first_kind) and not callable(f):
         numeric = jnp.asarray(f)
         if numeric.size != 1:
-            raise NotImplementedError("Direct selected-tech Chebfun3 numeric tensor input is not yet supported")
+            from chebfunjax.tech.chebtech import Chebtech1
+            from chebfunjax.tech.trigtech import Trigtech
+
+            if coeffs:
+                raise NotImplementedError("Selected-tech numeric coefficient input is not yet supported")
+            selected = Trigtech if direct_periodic else Chebtech1
+            result = Chebfun3.from_values(numeric, domain=dv, tol=tol, tech=selected)
+            return result if rank is None else result.fix_the_rank(rank)
         constant = numeric.reshape(-1)[0]
         return Chebfun3.from_function(
             lambda x, y, z: jnp.full(x.shape, constant), domain=dv,
             tol=tol, max_rank=max_rank, min_samples=min_samples,
             **periodic_options)
     if not callable(f):
-        arr = np.asarray(f, dtype=float)
+        arr = jnp.asarray(f)
         if arr.ndim == 0 or arr.size == 1:
             c0 = float(arr.reshape(-1)[0])
             if coeffs:
@@ -3613,7 +3627,8 @@ def chebfun3(
                 tol=tol, **periodic_options)
         if coeffs:
             return Chebfun3.from_coeffs(jnp.asarray(arr), domain=dv)
-        return Chebfun3.from_values(jnp.asarray(arr), domain=dv)
+        result = Chebfun3.from_values(arr, domain=dv, tol=tol)
+        return result if rank is None else result.fix_the_rank(rank)
     # 'chebfun3f' selects the (default) three-phase Tucker constructor.
     del chebfun3f
     if fiberDim is not None and int(fiberDim) in (2, 3):
