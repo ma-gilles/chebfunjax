@@ -3981,11 +3981,23 @@ class Chebfun(eqx.Module):
         from chebfunjax.tech.chebtech import Chebtech1
         if self.isempty():
             return self
-        bounded_real = self.n_columns == 1 and all(
+        scalar_real = self.n_columns == 1 and all(
             isinstance(p.tech, (Chebtech1, Chebtech2))
-            and all(math.isfinite(float(v)) for v in p.interval)
             and bool(jnp.all(jnp.imag(p.tech.coeffs) == 0))
             for p in self.funs)
+        bounded_real = scalar_real and all(
+            all(math.isfinite(float(v)) for v in p.interval) for p in self.funs)
+        if scalar_real and not bounded_real:
+            # Native @chebfun/abs.m uses addBreaksAtRoots on unbounded domains
+            # too. Its hscale is 1, and addBreaks excludes infinite endpoints
+            # when computing breakpoint proximity. An infinite domain-length
+            # tolerance would erase every interior root instead.
+            restricted = self.addBreaksAtRoots()
+            out = Chebfun._as_transposed(Chebfun(
+                funs=[piece.abs() for piece in restricted.funs],
+                domain=restricted.domain), self.is_transposed)
+            out = out.set_point_values(jnp.abs(restricted.point_values))
+            return out.simplify()
         if bounded_real:
             # @chebfun/getRootsForBreaks.m uses exact-zero suppression;
             # small nonzero polynomials must retain their roots and scale.
@@ -5725,7 +5737,9 @@ class Chebfun(eqx.Module):
                     t = t.simplify(scaled)
                 except TypeError:
                     t = t.simplify()
-            new_funs.append(_Piece(tech=t, interval=piece.interval))
+            # Native simplify replaces the onefun while retaining its FUN
+            # family and physical map, including semi-infinite intervals.
+            new_funs.append(piece.with_tech(t))
         out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
         # Source simplify modifies FUNs while retaining pointValues.

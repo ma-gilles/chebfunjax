@@ -460,6 +460,25 @@ class Singfun(eqx.Module):
         """
         return self.smoothPart.vscale
 
+    def __abs__(self) -> "Singfun":
+        """Absolute value of the smooth factor, retaining endpoint powers.
+
+        As in native ``@singfun/abs.m``, this transforms only the smooth
+        factor and leaves the algebraic endpoint exponents unchanged. The
+        source method assumes the represented function has no roots on the
+        reference interval.
+
+        NOT JIT-safe (the smooth Tech absolute value may re-interpolate).
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/abs.m
+        Chebfun commit: 7574c77
+        """
+        if self.smoothPart.isempty():
+            return self
+        return Singfun(abs(self.smoothPart), self.exponents)
+
     @property
     def ishappy(self) -> bool:
         """Happiness of the smooth part (fun-level delegation)."""

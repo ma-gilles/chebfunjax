@@ -1,0 +1,86 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "integration_base": "d78c19fce16b929da0394c93c880f0980504c887",
+  "scope": "All44 distinct test_abs.m predicate expressions at factory preferences, including both overwritten pass7 assignments, plus scoped supplementary checks. Three modules hold original expressions; fourth holds two map controls.",
+  "changes": [
+    "Scalar-real unbounded abs uses native addBreaksAtRoots, per-FUN abs, pointValues transform and simplify. Infinite domain-length dedup tolerance previously discarded the interior root.",
+    "Chebfun.simplify uses existing piece.with_tech to preserve FUN family and nonlinear physical map rather than wrapping every scalar piece as bounded.",
+    "Singfun.__abs__ transforms only its smooth factor, preserving source endpoint exponents; repairs unbounded blow-up abs TypeError.",
+    "Remaining native abs inputs/reference callbacks/norms/bounds preserved; negative noninteger bases explicitly complex in JAX as MATLAB promotes them. Native quasi2cheb section6 is an identity for its array-valued inputs, documented test adapter."
+  ],
+  "merged_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_complete_publication_20261014/run/receipt.json",
+    "sha256": "83732b95feac3592e349f3866330cbe6404119e40eba0b8fa55ea0299b8efd5b",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 99.46926792198792,
+    "sampled_peak_summed_rss_kib": 3941944,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "tests_passed": 19,
+    "pytest_seconds": 89.09
+  },
+  "unbounded_metrics": {
+    "test_native_entire_unbounded_abs": {
+      "error": 3.3306690738754696e-16,
+      "bound": 1.416476912766335e-15,
+      "breaks": [
+        "-Inf",
+        -1.1102230246251565e-15,
+        "Inf"
+      ],
+      "pieces": [
+        "Unbndfun",
+        "Unbndfun"
+      ],
+      "point_values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "test_native_halfline_unbounded_abs": {
+      "error": 3.3306690738754696e-15,
+      "bound": 7.144396951866671e-15,
+      "breaks": [
+        0.0,
+        "Inf"
+      ],
+      "pieces": [
+        "Unbndfun"
+      ],
+      "point_values": [
+        0.75,
+        0.7500000000000246
+      ]
+    }
+  },
+  "prior_evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_unbounded_review_20261013/QUALIFICATION.md": "4d7e997a8b28bf362b4b3c4ab9ced8484f4a882831d4f76fa14583c96e716850",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_unbounded_review_20261013/RECEIPTS.json": "aa32e86bad298d97c929624d00458d6ca8a204fde74d4ad9ddf71ab0a04c159c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_unbounded_review_20261013/BASELINE_BINDING.json": "1ebc90715caa6ef5be8076d4320342087ec28a3af3c0be280d6016cb62c77555",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_remaining_candidate_20261013/HANDOFF.md": "e6f08733b9557ecbd9ad5691a577fccc1339518bb7b421fe8ba8e45035e77422",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/abs_remaining_native_capture_20261014/run1/receipt.json": "125300e1ed7a359f94d7d44347b578eb7a980e475d3941a9cc6d3e8853a07746"
+  },
+  "files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "16bd8b50285d620ad3176647b1e6a2b7c659495e22663e134cfca379de44a7fc",
+    "src/chebfunjax/fun/singfun.py": "e7991adeae58aa4d98af867aa2584fbf407a3988823af3070f38f794d19b6969",
+    "tests/test_matlab_port/chebfun/test_abs_matlab.py": "e06e718e8c4b470f7fae584ee4405e8d97504b5ee237c2964f75e533759ebbe7",
+    "tests/test_matlab_port/chebfun/test_abs_trig_source.py": "89bf81837606247190eb8502c08813564c196f61ec8b1032c8e81d4ee0cc2ea0",
+    "tests/test_matlab_port/chebfun/test_abs_remaining_matlab.py": "edff0df24fbffa58cf7d4720969459293d5310e25c83dd6175bd3eb94056b60a",
+    "tests/test_matlab_port/chebfun/test_abs_unbounded_maps.py": "31a321fb9cf3711eed5a90ecca60498062fbc925a66393161a222edd32184815",
+    "tests/test_matlab_port/chebfun/fixtures/abs_seed6178_native.json": "e987d8ca190426ac477891707566268247518fa1074fb55c77a32a9ee14be830",
+    "tests/test_matlab_port/chebfun/fixtures/abs_remaining_seed6178_native.json": "5284e9e57e696b3c98c5d942eef77c4e7cd81f78f1a92e270f352d857de0b6f6"
+  },
+  "preserved_failures": [
+    "Original wholeline error1.4335448744928758e-4 versus source bound1.416e-15; input f itself accurate.",
+    "Original blow-up unsupported abs(Singfun) TypeError.",
+    "Piecewise singular2GiB cap retained as resource censor;3GiB isolated successor passed.",
+    "Initial supplementary map oracle used unit scale; corrected from native fixed mapping scale15 without production arithmetic or tolerance change."
+  ],
+  "limits": [
+    "Qualifies this original native abs test at factory preferences, not every possible input/technology preference.",
+    "General complex/array unbounded roots and all-library native assertion coverage remain open.",
+    "Inherited NumPy root/restriction adapters remain; new numerical code JAX only.",
+    "No full-suite, page, figure, performance or final-main green CI claim."
+  ]
+}

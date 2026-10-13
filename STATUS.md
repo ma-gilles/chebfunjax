@@ -1,5 +1,20 @@
 ## Native absolute-value assertions and surface framing — 2026-10-13
 
+## Complete original abs expressions and unbounded fixes — 2026-10-14
+
+All44 distinct expressions in native `tests/chebfun/test_abs.m` now pass at
+factory preferences, including both overwritten pass7 assignments. Merged19-test
+CPU gate also covers scalar and map-ownership controls; 99.47seconds wall,
+sampled peak3,941,944KiB, stable guards/no survivors.
+Native random probes, reference operations, norms and bounds are unchanged.
+
+Fixed an infinite root-dedup tolerance that erased unbounded sign-change splits,
+preserved nonlinear FUN maps through simplify, and implemented native Singfun
+abs on the smooth factor. Wholeline error fell from1.43e-4 to3.33e-16 against
+unchanged1.416e-15 bound; halfline also passes. The blow-up TypeError is resolved.
+General unbounded complex/array behavior, broader native coverage and green main
+CI remain open. Evidence: `docs/chebfun_abs_complete_cpu_20261014.json`.
+
 ## Native uniform stream and captured feval inputs — 2026-10-14
 
 Added an explicit-state JAX MT19937 uniform helper, verified exactly against
