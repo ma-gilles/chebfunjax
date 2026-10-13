@@ -1,3 +1,14 @@
+## Complete original first-order conversion checks — 2026-10-14
+
+Restored all98 native treeVar/toFirstOrder expressions across19 problems and
+2 error cases, including omitted metadata/coefficient checks and the extra
+linear-index overwrite. Original5e-14 bounds replace old relaxed bounds;
+scalar-output slicing and dependent RHS references were removed.
+All21 tests pass with no library edits:30.68seconds wall, sampled peak
+1,637,248KiB, stable guards/no survivors. Inherited host numerical evaluation,
+general TreeVar behavior and main CI remain open.
+Evidence: `docs/treevar_firstorder_native_cpu_20261014.json`.
+
 ## Quasimatrix division and native error predicates — 2026-10-14
 
 Native rdivide8–12 and both13 assignments plus14–15 now pass with original

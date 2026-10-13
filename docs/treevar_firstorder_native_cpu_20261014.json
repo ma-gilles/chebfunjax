@@ -1,0 +1,35 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "c87f5a6b0b5da4a0b3cb371390caecfbc87f8013",
+  "native_source_sha256": "4a21cab313266a2f4697ff7cff571b5698c6e58ca1d11a6619a2bb02f7cc4089",
+  "test_sha256": "62af909dca28d2b088febabe39d99a49ead07c2654ba87f0d1bc73f094f40caa",
+  "scope": "All19 original problems with5 assertions each, extra problem5 linear-index overwritten expression, and2 error predicates:98 source expressions.",
+  "changes": [
+    "Restored omitted index, domain, leading-coefficient norm and derivative-order assertions.",
+    "Restored native5e-14 bound where old port used1e-9,1e-10 or1e-12.",
+    "Removed scalar output slicing that could hide an incorrect output size.",
+    "RHS reference uses independent source scalar formula rather than evaluating the constructed input function."
+  ],
+  "library_changed": false,
+  "gate": {
+    "tests_passed": 21,
+    "native_expressions": 98,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_firstorder_native_20261014/run",
+    "receipt_sha256": "621915c2efe0f363bd525237b9423a4bb45dc6c0c135b03577021f36bb471733",
+    "wall_seconds": 30.67765531456098,
+    "sampled_peak_summed_rss_kib": 1637248,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "mapping": {
+    "problems1_to19": "Each named method asserts value, index, domain, coefficient norm and order. cellarg_chebmatrix_syntax is native19; RHS breakpoint methods are17/18.",
+    "extra_problem5": "Retained np.all componentwise bound in addition to original norm test.",
+    "errors": "Exact TreeVarError identifiers retained."
+  },
+  "limits": [
+    "This closes original test predicate coverage only; broader TreeVar semantics are not established.",
+    "Inherited NumPy/scipy numerical evaluation and sampled coefficient constancy remain JAX/provenance debt; no new production implementation introduced.",
+    "Full main CI pending."
+  ]
+}
