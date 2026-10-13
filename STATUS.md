@@ -1,3 +1,38 @@
+## Unbounded sqrt and exact query promotion — 2026-10-13
+
+Root powers now retain unbounded FUN mappings and classify the principal
+branch at a canonical interior point. All eleven native sqrt clauses passed
+in the private candidate. The publication integration passed 17 checks,
+including the original CI sqrt failure, both infinite-tail controls and the
+new float32/complex64 JIT promotion tests. Full source bounds are unchanged.
+Exact primal widening preserves tiny input values; subnormal AD tangents and
+dynamic cotangents retain existing cast limitations. See
+`docs/promotion_sqrt_integration_cpu_20261013.json`,
+`docs/sqrt_unbounded_cpu_20261013.json` and
+`docs/exact_primal_promotion_cpu_20261013.md`.
+
+## Variable-coefficient MINRES comparison — 2026-10-13
+
+The Krylov source example now completes in Python with flag 0 and 22 iterations,
+as in MATLAB. Source L2 solution errors are 3.813e-13 and 2.907e-13 respectively.
+The normalized residual curves differ by at most 6.14e-14. Python runtime is
+still slow: the instrumented capture took 268.62s under its supervisor.
+Its numerical checkpoints completed before a final JSON-write harness error;
+the retained exit 1 is explicitly reported, not counted as a clean process gate.
+Coefficient counts/RHS values and full example/figure parity remain different
+or unqualified. See `docs/krylov_varcoeff_native_cpu_20261013.json`.
+
+## IVP first-solve comparison — 2026-10-13
+
+The first IVPCapabilities solve now returns one smooth piece in both current
+Python and pinned MATLAB, superseding the historical 16-piece Python result.
+MATLAB returns 3,765 coefficients (matching the cached page); Python returns
+3,881. The maximum difference on 5,001 common sample points is 1.526e-9.
+Both guarded CPU runs completed with stable inputs and no survivors.
+Representation, complete example outputs and figures remain unqualified;
+no acceptance threshold is inferred from these observations. See
+`docs/ivp_capabilities_first_solve_cpu_20261013.json`.
+
 ## Logical comparison CI repair — 2026-10-13
 
 Equality and inequality now follow their separate native source paths,

@@ -122,6 +122,42 @@ def test_native_sqrt(clause):
     assert error < bound
 
 
+def test_sqrt_keeps_unbounded_tail_mapping_after_root_split():
+    """Fractional root powers preserve the native unbounded FUN mapping."""
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    op = lambda x: 0.1 + jnp.sin(10 * x) / jnp.exp(x)
+    f = cj.chebfun(op, domain=(1.0, jnp.inf), splitting=True)
+    g = f.sqrt()
+    assert isinstance(g.funs[-1], Unbndfun)
+    assert g.funs[-1].mapping_type == "right_inf"
+    assert g.funs[-1].domain == f.funs[-1].domain
+    x = jnp.asarray([31.0, 42.0, 64.0, 98.0])
+    # The native clause immediately above owns the numerical error bound;
+    # this control isolates the unbounded-map failure mode.
+    assert np.all(np.isfinite(np.asarray(g(x))))
+
+
+def test_sqrt_negative_unbounded_root_split_uses_principal_branch():
+    """Exercise a negative left tail and interior root on an unbounded FUN."""
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    op = lambda x: x - 1.0
+    f = cj.chebfun(op, domain=(-jnp.inf, 3.0), splitting=True)
+    g = f.sqrt()
+    assert isinstance(g.funs[0], Unbndfun)
+    assert g.funs[0].mapping_type == "left_inf"
+    x = jnp.asarray([-100.0, -10.0, -1.0, 0.0, 0.5, 1.5, 2.0, 3.0])
+    actual = g(x)
+    expected = jnp.sqrt(op(x).astype(jnp.complex128))
+    # This is a branch/mapping control; the MATLAB sqrt suite has no negative
+    # whole-line tail predicate, so it deliberately adds no new error bound.
+    assert np.all(np.isfinite(np.asarray(actual)))
+    assert bool(jnp.all(jnp.imag(actual[:5]) > 0))
+    assert bool(jnp.all(jnp.real(actual[5:]) > 0))
+    print({"negative_unbounded_root_max_error": float(jnp.max(jnp.abs(actual - expected)))})
+
+
 class TestChebfunSqrt:
     def test_runge_reciprocal(self):
         f = cj.chebfun(lambda x: 1.0 / (1 + 25 * x**2), domain=(-2.0, 7.0))

@@ -1,0 +1,200 @@
+{
+  "base_head": "2f47429e30d7e992730be31ee8e8e064e650b31a",
+  "candidate_worktree": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013",
+  "initial_negative_tail_probe": "x*exp(-x^2) on whole real line hit the 180 s wall cap during construction/root search; terminal 124, stable inputs, no survivors; superseded by linear control.",
+  "native_predicate_results": {
+    "all_passed": true,
+    "clause34_35_sampling": "deterministic 101 point linspace on [-100,100]; formulas and native source bounds retained",
+    "clause34_error": 4.440892098500626e-16,
+    "clause34_source_bound": 3.7242926514416396e-14,
+    "clause35_error": 3.876630216836929e-08,
+    "clause35_source_bound": 2.7755575615659883e-07,
+    "sqrt_clauses": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ]
+  },
+  "negative_unbounded_control": {
+    "bound": "none; qualitative mapping/principal-branch regression only",
+    "domain": "[-inf, 3]",
+    "function": "x - 1",
+    "max_observed_error": 2.0650193649897363e-14
+  },
+  "point_values_followup": "Native @chebfun/power.m maps g.pointValues.^b after piecewise powers. The final real-root-split Python return does not set transformed point values. Current source clauses/control samples do not exercise an overridden non-root stored breakpoint value; no expansion made.",
+  "runs": [
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_1",
+      "peak_sum_rss_kib": 1069272,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause1/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_2",
+      "peak_sum_rss_kib": 1953184,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause2/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_3",
+      "peak_sum_rss_kib": 2800204,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause3/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_4",
+      "peak_sum_rss_kib": 2109992,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause4/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_5",
+      "peak_sum_rss_kib": 1439752,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause5/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_6",
+      "peak_sum_rss_kib": 2475592,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause6/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_7",
+      "peak_sum_rss_kib": 1293768,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause7/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_8",
+      "peak_sum_rss_kib": 1401828,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause8/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_9",
+      "peak_sum_rss_kib": 1037196,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause9/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause_11",
+      "peak_sum_rss_kib": 1320208,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/clause11/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "native_sqrt_clause10",
+      "peak_sum_rss_kib": 2709716,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/clause10/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "negative_unbounded_root_split",
+      "peak_sum_rss_kib": 2027588,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/negative_unbounded_linear/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "fractional_power_clause34",
+      "peak_sum_rss_kib": 1282516,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/fractional_power_20261013/clause34/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": null,
+      "command_exit": 0,
+      "name": "fractional_power_clause35",
+      "peak_sum_rss_kib": 1392144,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/fractional_power_20261013/clause35/run/receipt.json",
+      "stable": true,
+      "status": 0,
+      "survivors": []
+    },
+    {
+      "censored": "wall_timeout",
+      "command_exit": -15,
+      "name": "negative_unbounded_initial_timeout",
+      "peak_sum_rss_kib": 1447688,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/diagnostics/sqrt_remaining_20261013/negative_unbounded/run/receipt.json",
+      "stable": true,
+      "status": 124,
+      "survivors": []
+    }
+  ],
+  "runtime": {
+    "backend": "cpu",
+    "cpu_affinity": "12-15",
+    "jax": "0.11.0",
+    "python": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python3.12",
+    "x64": true
+  },
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/power.m": "80d1a1228717a63846cac28103e47aaaecb567601e30434eb6db5de72ef45843",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_power.m": "5824bb7ad1ac7b722ef3af5fa24bcd999fcc3c89646aa12dbd11b79ee69b3cb7",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_sqrt.m": "3bf1301e832222d7519c3f0d81594c50e92aa31293dfb415da646e3cb732762e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/delivery/sqrt_unbounded_mapping.patch": "8c1b95f03e7d6138edc7f13854131e3c7a13e418f874fa7dcf91702b33455945",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/src/chebfunjax/chebfun1d/chebfun.py": "62257c35196ff4e443a83ff20f52306fdd8c1742f436b14ea0ed981f2849e4f2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sqrt_clause10_candidate_20261013/tests/test_matlab_port/chebfun/test_sqrt_matlab.py": "98d35916f3747601c9c65448a83baed47df2300fed58448bcfe10de6971fe926"
+  }
+}

@@ -82,5 +82,11 @@
     "source_chain": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/logical_singular_native_review_20261013/SOURCE_CHAIN.md",
     "sha256": "f9bd4d3c96fd2f5589a94cedb32904e1fef13c886ce978f8c2c5aef5360da7c7",
     "qualification": "Scientific values saved before MATLAB shutdown wall cap (exit124); not a clean terminal passing native gate."
+  },
+  "supplemental_control_review": {
+    "change": "The added unbounded mapping control samples f==0 only at nonzero x. The old x=0 expectation was not backed by a native capture and is withdrawn. All original native clauses remain unchanged.",
+    "open_question": "Native equality/sign/root behavior at x=0 for x^2*(1-exp(-x^2)) on the whole real line needs direct qualification.",
+    "updated_test_sha256": "afa2292d682493b54792dbfb255d4a159871ba6c27eb14573645e1f7cf12f60c",
+    "verification": "The four remaining f==0 queries are a subset of the prior passing five-point control; no new numerical behavior is asserted."
   }
 }

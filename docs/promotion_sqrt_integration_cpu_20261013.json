@@ -1,0 +1,31 @@
+{
+  "base": "2f47429e30d7e992730be31ee8e8e064e650b31a",
+  "tests_passed": 17,
+  "groups": {
+    "exact_primal_promotion": 13,
+    "sqrt_and_logical_mapping": 4
+  },
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/promotion_sqrt_integration_20261013/supervision/receipt.json",
+  "receipt_sha256": "8182310bf3a4bbda7c229b49f29edab95485942371d3567ec656ea8b4b83b5ea",
+  "wall_seconds": 148.07063377508894,
+  "peak_summed_rss_kib": 2703908,
+  "exit_code": 0,
+  "inputs_stable": true,
+  "remaining_owned_pids": [],
+  "source_and_tests": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "3b46114c65ff476b66f09886775d97dfe89291bdfdcb6b5345c199e6fc39f5bf",
+    "tests/test_matlab_port/chebfun/test_feval_exact_promotion.py": "d39f841dcdff9d434818a457dc69af02e70aec2a3810faf6df1c0dcb4ad67e13",
+    "tests/test_matlab_port/chebfun/test_sqrt_matlab.py": "98d35916f3747601c9c65448a83baed47df2300fed58448bcfe10de6971fe926",
+    "tests/test_matlab_port/chebfun/test_ne_native_source.py": "afa2292d682493b54792dbfb255d4a159871ba6c27eb14573645e1f7cf12f60c"
+  },
+  "integration_notes": [
+    "Promotion functions are AST-identical to the qualified private candidate.",
+    "Sqrt canonical sign probe uses jnp.real directly instead of the private candidate NumPy real/asarray wrappers; merged positive/negative unbounded controls passed.",
+    "Supplemental logical mapping control excludes the unqualified x=0 equality expectation; all original native predicates unchanged."
+  ],
+  "limitations": [
+    "Focused qualification, not whole-suite or green-CI claim.",
+    "Subnormal JVP tangents and dynamic VJP cotangents retain existing cast-flushing limitations.",
+    "Root-split power pointValues and transpose override gap is being repaired separately."
+  ]
+}

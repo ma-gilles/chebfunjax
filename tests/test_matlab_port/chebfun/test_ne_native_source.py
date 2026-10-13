@@ -89,7 +89,10 @@ def test_native_eq_ne_unbounded_preserve_mapping():
     x = jnp.asarray([-100.0, -1.0, 0.0, 1.0, 100.0])
     np.testing.assert_array_equal(np.asarray(equal(x)), np.ones(5))
     np.testing.assert_array_equal(np.asarray(unequal(x)), np.zeros(5))
-    np.testing.assert_array_equal(np.asarray(zero(x)), np.zeros(5))
+    # This supplemental mapping control samples where the input is nonzero.
+    # The zero at x=0 needs its own native root/sign capture.
+    nonzero_x = jnp.asarray([-100.0, -1.0, 1.0, 100.0])
+    np.testing.assert_array_equal(np.asarray(zero(nonzero_x)), np.zeros(4))
 
 
 def test_native_singular_eq_ne_pointvalues():

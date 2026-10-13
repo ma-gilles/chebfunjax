@@ -1,0 +1,237 @@
+{
+  "base": "f6a50aaa32aa150cab972ca2dbed071156701596",
+  "candidate_source_sha256": "830fd3f3771302f9c2f026cc93e540dfa1fb30da7c1f4f2e7fd3a6e44907fe50",
+  "comparison": {
+    "functions": {
+      "diffusion_coefficient": {
+        "domain_equal": true,
+        "native_domain": [
+          -1,
+          1
+        ],
+        "piece_lengths_native": [
+          109
+        ],
+        "piece_lengths_python": [
+          109
+        ],
+        "point_value_max_abs_delta": 0.0,
+        "python_domain": [
+          -1.0,
+          1.0
+        ],
+        "sample_max_abs_delta": 2.6201263381153694e-14,
+        "sample_shape_native": [
+          2001
+        ],
+        "sample_shape_python": [
+          2001
+        ]
+      },
+      "exact": {
+        "domain_equal": true,
+        "native_domain": [
+          -1,
+          1
+        ],
+        "piece_lengths_native": [
+          184
+        ],
+        "piece_lengths_python": [
+          178
+        ],
+        "point_value_max_abs_delta": 0.0,
+        "python_domain": [
+          -1.0,
+          1.0
+        ],
+        "sample_max_abs_delta": 5.040412531798211e-14,
+        "sample_shape_native": [
+          2001
+        ],
+        "sample_shape_python": [
+          2001
+        ]
+      },
+      "minres": {
+        "domain_equal": true,
+        "native_domain": [
+          -1,
+          1
+        ],
+        "piece_lengths_native": [
+          178
+        ],
+        "piece_lengths_python": [
+          176
+        ],
+        "point_value_max_abs_delta": 1.0323343852460952e-14,
+        "python_domain": [
+          -1.0,
+          1.0
+        ],
+        "sample_max_abs_delta": 3.737010700888277e-13,
+        "sample_shape_native": [
+          2001
+        ],
+        "sample_shape_python": [
+          2001
+        ]
+      },
+      "potential_coefficient": {
+        "domain_equal": true,
+        "native_domain": [
+          -1,
+          1
+        ],
+        "piece_lengths_native": [
+          43
+        ],
+        "piece_lengths_python": [
+          43
+        ],
+        "point_value_max_abs_delta": 0.0,
+        "python_domain": [
+          -1.0,
+          1.0
+        ],
+        "sample_max_abs_delta": 4.440892098500626e-16,
+        "sample_shape_native": [
+          2001
+        ],
+        "sample_shape_python": [
+          2001
+        ]
+      },
+      "rhs": {
+        "domain_equal": true,
+        "native_domain": [
+          -1,
+          1
+        ],
+        "piece_lengths_native": [
+          254
+        ],
+        "piece_lengths_python": [
+          252
+        ],
+        "point_value_max_abs_delta": 2.193701220676303e-06,
+        "python_domain": [
+          -1.0,
+          1.0
+        ],
+        "sample_max_abs_delta": 2.193701220676303e-06,
+        "sample_shape_native": [
+          2001
+        ],
+        "sample_shape_python": [
+          2001
+        ]
+      }
+    },
+    "residual_curve": {
+      "native_len": 23,
+      "native_normalized": [
+        1.0,
+        0.22488852836151985,
+        0.06915043200149297,
+        0.019797136929708074,
+        0.005503543041312028,
+        0.0015250199313027015,
+        0.0004211549830581724,
+        0.00011547742166852142,
+        3.141366673390197e-05,
+        8.492984788862673e-06,
+        2.2870546783692274e-06,
+        6.144604517139418e-07,
+        1.6487910682291113e-07,
+        4.4212839586457805e-08,
+        1.1851711208456143e-08,
+        3.1764122489092822e-09,
+        8.512441375603485e-10,
+        2.2811450884124402e-10,
+        6.112850341801856e-11,
+        1.638069897187415e-11,
+        4.389572108138705e-12,
+        1.1762919055559895e-12,
+        5.492342405895134e-14
+      ],
+      "normalized_common_prefix_max_abs_delta": 6.139533326177116e-14,
+      "python_len": 23,
+      "python_normalized": [
+        1.0,
+        0.22488852836145845,
+        0.0691504320014764,
+        0.01979713692970708,
+        0.005503543041312318,
+        0.001525019931302718,
+        0.0004211549830581183,
+        0.0001154774216684878,
+        3.141366673388952e-05,
+        8.492984788859058e-06,
+        2.2870546783682165e-06,
+        6.144604517137437e-07,
+        1.6487910682284573e-07,
+        4.421283958647033e-08,
+        1.1851711208449838e-08,
+        3.176412248920869e-09,
+        8.512441375592529e-10,
+        2.2811450884698282e-10,
+        6.11285034187947e-11,
+        1.638069897435183e-11,
+        4.3895721099343905e-12,
+        1.1762919059687801e-12,
+        5.636681734988708e-14
+      ],
+      "same_length": true
+    }
+  },
+  "native_bound_status": "Native source gives recorded outputs but no numerical acceptance tolerance for this example; comparisons are observational.",
+  "note": "Reconstructed offline from successful `python_partial` checkpoints after wrapper postprocessing failed because the expected output subdirectory was not created. No numerical code rerun.",
+  "operator": "-diff((2+cos(21*pi*x))*diff(u,1),1)+u/(1+x^2)",
+  "quantities": {
+    "flag": 0,
+    "iteration": 22,
+    "minres_seconds": 248.75041694007814,
+    "native_source_error_l2": 2.906641162178389e-13,
+    "relres": 4.964088889735484e-16,
+    "resvec_length": 23,
+    "source_error_l2": 3.812663214459257e-13,
+    "source_error_minus_native": 9.060220522808681e-14
+  },
+  "runtime": {
+    "backend": "cpu",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/krylov_varcoeff_replaycapture_publication_f6a50_20261013/src/chebfunjax/__init__.py",
+    "python": "3.12.13",
+    "x64": true
+  },
+  "thresholds": {
+    "initial_residual_norm2": 299.50334183970904,
+    "native_normest_tolerance_formula": "tol * normest(g); Python records tol * sum(piece.tech.normest()) on this one-piece range function.",
+    "range_norm2": 299.50334183970904,
+    "tol": 5e-13,
+    "tolg": 3.317682561221162e-10
+  },
+  "timings": {
+    "minres_seconds": 248.75041694007814,
+    "operator_construction_seconds": 9.602712076157331,
+    "representation_capture_seconds": 0.10445276089012623
+  },
+  "receipt": {
+    "supervisor_exit_code": 1,
+    "command_exit_code": 1,
+    "wall_seconds": 268.62486244458705,
+    "sampled_peak_summed_rss_kib": 4879764,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "artifact_hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/krylov_varcoeff_replaycapture_run_20261013/RECONSTRUCTED_RESULT.json": "616beb75af3ba6acedb00777104a522ed31242e8cd62c8558fa8b8e50b2f5174",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/krylov_varcoeff_replaycapture_run_20261013/RECONSTRUCTED_RESULT.md": "a1877bfede062798b78d352be01a33246885b53bd8992095d45f32a94e31f6fb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/krylov_varcoeff_replaycapture_run_20261013/supervision/receipt.json": "5b469ee0c7fdc0661839b152d5c0c319781e82d3cc7983a0892319caf123b3a9",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/krylov_varcoeff_pair_stage_v2_20261013/RUN_EVIDENCE.json": "a8dfefce9f334968d321e96e83200a269a6f6507e61683f442f4d99ebb23ca9d"
+  },
+  "scope": "Successful numerical solve/checkpoints, followed by driver FileNotFoundError writing final JSON (missing out directory). Offline summary reconstruction; no clean terminal-success claim or invented acceptance bound. Instrumented timings are diagnostic, not an uninstrumented speed comparison."
+}

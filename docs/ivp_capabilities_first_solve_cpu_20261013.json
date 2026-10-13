@@ -1,0 +1,62 @@
+{
+  "scope": "First literal IVPCapabilities source solve only. No full-page, coefficient, error-bound or pixel parity claim.",
+  "python_head": "2f47429e30d7e992730be31ee8e8e064e650b31a",
+  "matlab_head": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "ode-nonlin/IVPCapabilities.m first solve: mu5, domain[0,50], initial state[0.1,0], default preferences",
+  "results": {
+    "native_pieces": 1,
+    "python_pieces": 1,
+    "native_lengths": [
+      3765
+    ],
+    "python_lengths": [
+      3881
+    ],
+    "common_sample_count": 5001,
+    "max_abs_sample_difference": 1.5258692087627423e-09,
+    "python_backend": "native_ode113",
+    "native_solve_seconds": 0.889216,
+    "python_solve_seconds": 23.026120604015887
+  },
+  "interpretation": [
+    "The historical 16-piece Python result is superseded: both current runs return one smooth piece.",
+    "Native length3765 matches the cached page; Python length3881 remains different.",
+    "The source example supplies no numerical assertion threshold; the sampled difference is reported without an invented acceptance tolerance.",
+    "Timings are single-run observations including each solve setup; focused work overlapped on disjoint CPU sets. No paired performance ratio or pristine cold-start claim.",
+    "Next numerical diagnosis should compare solver states/dense interpolation and representation chopping before altering solver options."
+  ],
+  "receipts": {
+    "native": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 82.36180132208392,
+      "sampled_peak_summed_rss_kib": 1477240,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "python": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 28.900087921880186,
+      "sampled_peak_summed_rss_kib": 1446528,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "artifacts_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native_capture/result.json": "adc927554d46d97f994a06d07a6a8af4669aeb9acaee8f1d15471ab0f11fc83a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native_capture/solution.mat": "8c02897459b1f05fab4e25fd6e495ff80c02122784ae89666abf223321c26c4a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native_capture/origin.json": "2224030f550fce178f9f9c294f72a90a65285ad140403cdc2a0642655d2b8979",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python_result.json": "84501cfc810bab115b6f51eaee4055820a5e35b9bd6689f345e600814c70c926",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python_solution.json": "60b128279e16f3b4e68cb4649b0ef88dd3295fdd891b3ca1c8ea5eb7fcb5be60",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python_origin.json": "d345d4909ad70dcca0fb37ecaa1f479e5125b4ac52bbc75debaae46ead89b9a7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native_supervision/receipt.json": "64ed418604abfc460d5b4ee76d808f1861928a7fdcc3e29cdf19c85d936b237b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python_supervision/receipt.json": "fdad8c59c9ced0d2397a9af78ca89feddf70e19bf26a94accdd79537e7b4f93f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native_guard.json": "ce6c5630f26aa5e4643cd4df8a60b726c274934d1ea60c52186968578bc329bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python_guard.json": "e0a0c8d364c8438c2f3462147d0b0b18f34e134808c8ddbb421615b83ef5472a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/native.m": "e4a7bad20c003d56034fd4fa8fb45ad20b39b9a0555e9ed291f0f48d550a7415",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ivp_capabilities_pair_20261013/python.py": "329966476ee2e6eb82b28d7c6d82362014f95ed03fa9b2d9e55254a9798884c5"
+  }
+}

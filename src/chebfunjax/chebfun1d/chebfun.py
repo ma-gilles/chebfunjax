@@ -84,6 +84,28 @@ def _float32_to_float64_bits(value):
     return sign | (out_exp << jnp.uint64(52)) | out_fraction
 
 
+@jax.custom_jvp
+def _widen_float32(value):
+    """Promote evaluation values without CPU denormal-flushing conversion.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/feval.m and @classicfun/feval.m, Chebfun commit
+    7574c77680d7e82b79626300bf255498271a72df. Binary32 arguments must retain
+    their values when evaluated using binary64 coefficients. Integer word
+    widening supplies the primal; the JVP retains the existing linear cast
+    derivative instead of differentiating through integer bit operations.
+    """
+    return jax.lax.bitcast_convert_type(_float32_to_float64_bits(value),
+                                       jnp.float64)
+
+
+@_widen_float32.defjvp
+def _widen_float32_jvp(primals, tangents):
+    (value,), (tangent,) = primals, tangents
+    return _widen_float32(value), tangent.astype(jnp.float64)
+
+
 def _ieee_float64_bits_equal(abits, bbits):
     """IEEE numeric equality for binary64 words; signed zeros compare equal.
 
@@ -2280,7 +2302,12 @@ class Chebfun(eqx.Module):
         x_match = jnp.asarray(x)
         input_ndim = x_match.ndim
         x = x_match
-        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+        if x.dtype == jnp.float32:
+            x = _widen_float32(x)
+        elif x.dtype == jnp.complex64:
+            x = jax.lax.complex(_widen_float32(jnp.real(x)),
+                                _widen_float32(jnp.imag(x)))
+        elif jnp.issubdtype(x.dtype, jnp.complexfloating):
             x = x.astype(jnp.complex128)
         else:
             x = x.astype(jnp.float64)
@@ -3879,9 +3906,10 @@ class Chebfun(eqx.Module):
             _neg = False
             if not jnp.iscomplexobj(getattr(tech, "coeffs", jnp.zeros(1))):
                 try:
-                    _mid = 0.5 * (p.interval[0] + p.interval[1])
-                    _neg = float(_np.real(_np.asarray(
-                        p(jnp.asarray(_mid))))) < 0
+                    # Classify sign in the FUN's canonical coordinate. A
+                    # physical midpoint is undefined on unbounded intervals,
+                    # and evaluating an Unbndfun at +/-Inf can return NaN.
+                    _neg = float(jnp.real(tech(jnp.asarray(0.0)))) < 0
                 except Exception:
                     _neg = False
             if _neg:
@@ -3897,7 +3925,9 @@ class Chebfun(eqx.Module):
             powered = sf.smoothPart if all(e == 0 for e in sf.exponents) else sf
             if _neg:
                 powered = powered * complex(_np.exp(1j * _np.pi * b))
-            new_funs.append(_Piece(tech=powered, interval=p.interval))
+            # Preserve the source FUN family: in particular a right/left
+            # infinite tail remains an Unbndfun with its nonlinear map.
+            new_funs.append(p.with_tech(powered))
         return Chebfun(funs=new_funs, domain=fbr.domain)
 
     def abs(self) -> Chebfun:
