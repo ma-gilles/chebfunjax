@@ -37,6 +37,14 @@ if TYPE_CHECKING:
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
 
+class FevalError(ValueError):
+    """Evaluation error carrying the native Chebfun identifier."""
+
+    def __init__(self, identifier, message):
+        self.identifier = identifier
+        super().__init__(f"{identifier}: {message}")
+
+
 def _delta_row(row):
     """Normalize a ``deltas`` row to ``(loc, mag, order)``.
 
@@ -1964,8 +1972,8 @@ class Chebfun(eqx.Module):
         ``f(g)`` as a new Chebfun (MATLAB f(g) semantics).
 
         The optional ``side`` selects a one-sided limit at a breakpoint:
-        ``'left'`` / ``'-'`` / ``'start'`` uses the piece to the left of
-        ``x``; ``'right'`` / ``'+'`` / ``'end'`` uses the piece to the
+        ``'left'`` / ``'-'`` uses the piece to the left of
+        ``x``; ``'right'`` / ``'+'`` uses the piece to the
         right (MATLAB ``feval(f, x, 'left')`` etc.).  This matters only at
         interior breakpoints of a piecewise Chebfun, where the value may
         differ from either side.
@@ -1983,7 +1991,12 @@ class Chebfun(eqx.Module):
 
         Returns
         -------
-        jax.Array, same shape as x
+        jax.Array
+            Scalar-valued evaluation preserves the input shape. For
+            array-valued Chebfuns, rank-two and higher inputs pack component
+            blocks along output dimension two, matching MATLAB ``feval``.
+            Scalar and rank-one inputs retain the Python component-last
+            convention.
 
         Raises
         ------
@@ -2003,6 +2016,12 @@ class Chebfun(eqx.Module):
         from .linalg import Quasimatrix
         if isinstance(x, (Chebfun, Quasimatrix)):
             return self.compose_chebfun(x)
+        # Native feval returns zeros(size(x)) before transpose or component
+        # packing. Empty matrices therefore keep their original shape.
+        if not isinstance(x, (str, numbers.Number)):
+            x_empty = jnp.asarray(x)
+            if x_empty.size == 0:
+                return jnp.zeros(x_empty.shape, dtype=jnp.float64)
         # MATLAB deltafun/feval: the value AT a (zeroth-order) delta
         # location is +-inf (sign of the magnitude); one-sided limits
         # ignore the delta.
@@ -2016,8 +2035,16 @@ class Chebfun(eqx.Module):
             _pv = getattr(self, "_point_values", None)
             if _pv is not None:
                 object.__setattr__(base, "_point_values", _pv)
-            res = _np.array(base(xq))
             xn = _np.asarray(xq, dtype=float)
+            if xn.ndim == 0:
+                res = _np.array(base(xq))
+            else:
+                # Evaluate a flattened vector so the recursive public call
+                # keeps its rank-one component layout. Restore raw input
+                # axes here, then format exactly once at this call boundary.
+                flat = xn.reshape(-1)
+                raw = _np.array(base(flat), copy=True)
+                res = raw.reshape(xn.shape + raw.shape[1:])
             for row in self.deltas:
                 loc, mag, order = _delta_row(row)
                 if order != 0:
@@ -2034,18 +2061,25 @@ class Chebfun(eqx.Module):
                         res[...] = val
                     else:
                         res[mask] = val
-            return jnp.asarray(res)
+            return self._format_feval_values(jnp.asarray(res), xn.ndim)
         if isinstance(x, str):
             # MATLAB feval(f, 'left'/'start'/'-') and
             # feval(f, 'right'/'end'/'+'): the value at an endpoint.
             key = x.lower()
             if key in ("left", "start", "-"):
-                return self(jnp.asarray(float(self.domain.a)))
-            if key in ("right", "end", "+"):
-                return self(jnp.asarray(float(self.domain.b)))
-            raise ValueError(
-                f"Chebfun evaluation point {x!r}: expected "
-                f"'left'/'start'/'-' or 'right'/'end'/'+'.")
+                index = 0
+            elif key in ("right", "end", "+"):
+                index = -1
+            else:
+                raise FevalError(
+                    "CHEBFUN:CHEBFUN:feval:strInput",
+                    f'Unknown input argument "{x}".')
+            value = jnp.asarray(self._breakpoint_values()[index])
+            # MATLAB endpoint aliases return stored pointValues directly; a
+            # transposed array-valued function therefore returns a column.
+            if self.is_transposed and value.ndim > 0:
+                return value.reshape((-1, 1))
+            return value
         if side is not None:
             _record_side_eval(x)
             return self._feval_side(x, side)
@@ -2057,8 +2091,18 @@ class Chebfun(eqx.Module):
             import numpy as _np
             base = Chebfun(funs=self.funs, domain=self.domain,
                            deltas=self.deltas)
-            res = _np.array(base(x))
             xn = _np.asarray(x)
+            input_ndim = xn.ndim
+            if input_ndim == 0:
+                res = _np.array(base(x))
+            else:
+                # Avoid reformatting an already-formatted rank-two result
+                # from base(x). Point-value replacement operates on raw
+                # component-last samples, so flatten, evaluate rank one,
+                # then restore the original input axes first.
+                flat = xn.reshape(-1)
+                raw = _np.array(base(flat), copy=True)
+                res = raw.reshape(xn.shape + raw.shape[1:])
             pvn = _np.asarray(_pv)
             if pvn.ndim == 1 and res.ndim == xn.ndim + 1:
                 pvn = pvn[:, None]
@@ -2071,7 +2115,7 @@ class Chebfun(eqx.Module):
                         res[...] = pvn[k]
                     else:
                         res[mask] = pvn[k]
-            return self._orient_values(jnp.asarray(res))
+            return self._format_feval_values(jnp.asarray(res), input_ndim)
         # Concrete input, concrete coefficients: stay in numpy end to end
         # (dtype promotion, affine maps, piece binning).  The jitted path
         # below pays per-call dispatch (~0.5 ms) that dominates ODE-marcher
@@ -2085,6 +2129,7 @@ class Chebfun(eqx.Module):
             xn = _np.asarray(x)
             xn = xn.astype(_np.complex128 if _np.iscomplexobj(xn)
                            else _np.float64)
+            input_ndim = xn.ndim
             scalar_input = xn.ndim == 0
 
             if len(self.funs) == 1:
@@ -2103,7 +2148,7 @@ class Chebfun(eqx.Module):
                     result = p(jnp.asarray(_np.atleast_1d(xn)))
                     if scalar_input:
                         result = result[0]
-                return self._orient_values(result)
+                return self._format_feval_values(result, input_ndim)
 
             xn = _np.atleast_1d(xn)
 
@@ -2139,13 +2184,14 @@ class Chebfun(eqx.Module):
             result = self._apply_point_values(result, jnp.asarray(xn))
             if scalar_input:
                 result = result[0]
-            return self._orient_values(result)
+            return self._format_feval_values(result, input_ndim)
 
         # Traced input (or traced coefficients): promote via jnp.
         # Preserve a complex argument (MATLAB feval evaluates a real
         # Chebfun at complex points, routing pieces by real(x));
         # everything else is promoted to float64.
         x_match = jnp.asarray(x)
+        input_ndim = x_match.ndim
         x = x_match
         if jnp.issubdtype(x.dtype, jnp.complexfloating):
             x = x.astype(jnp.complex128)
@@ -2161,7 +2207,7 @@ class Chebfun(eqx.Module):
             result = self._apply_point_values(result, x_match)
             if scalar_input:
                 result = result[0]
-            return self._orient_values(result)
+            return self._format_feval_values(result, input_ndim)
 
         # Multi-piece: Python dispatch.  Piece selection uses real(x) so a
         # complex evaluation point is routed by its real part (MATLAB
@@ -2197,7 +2243,7 @@ class Chebfun(eqx.Module):
         out = self._apply_point_values(out, x_match)
         if scalar_input:
             out = out[0]
-        return self._orient_values(out)
+        return self._format_feval_values(out, input_ndim)
 
     def _apply_point_values(self, values, x):
         """Apply stored breakpoint values in a traced evaluation.
@@ -2250,17 +2296,23 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         key = str(side).lower()
-        if key in ("left", "-", "start"):
+        if isinstance(side, str) and key in ("left", "-"):
             want_left = True
-        elif key in ("right", "+", "end"):
+        elif isinstance(side, str) and key in ("right", "+"):
             want_left = False
+        elif isinstance(side, str):
+            raise FevalError(
+                "CHEBFUN:CHEBFUN:feval:leftRightChar",
+                f'Unknown input argument "{side}".')
         else:
-            raise ValueError(
-                f"Chebfun side {side!r}: expected 'left'/'-'/'start' or "
-                f"'right'/'+'/'end'.")
+            raise FevalError(
+                "CHEBFUN:CHEBFUN:feval:leftRight",
+                "Unknown input argument.")
         xa = jnp.asarray(x, dtype=jnp.float64)
+        input_ndim = xa.ndim
+        input_shape = xa.shape
         scalar_input = xa.ndim == 0
-        xa = jnp.atleast_1d(xa)
+        xa = jnp.ravel(xa)
         tol = 1e-12 * max(1.0, abs(float(self.domain.b) - float(self.domain.a)))
         n_pieces = len(self.funs)
 
@@ -2288,23 +2340,37 @@ class Chebfun(eqx.Module):
         out = jnp.stack(vals)
         if scalar_input:
             out = out[0]
-        return self._orient_values(out)
+        else:
+            out = out.reshape(input_shape + out.shape[1:])
+        return self._format_feval_values(out, input_ndim)
 
-    def _orient_values(self, vals):
-        """Transpose an evaluation result for a row (transposed) Chebfun.
+    def _format_feval_values(self, values, input_ndim):
+        """Pack component values as MATLAB ``feval`` does for matrix inputs.
 
-        MATLAB ``feval(f.', x)`` returns ``feval(f, x).'``.  For an
-        array-valued row Chebfun the (n_points, n_cols) column result becomes
-        (n_cols, n_points).  A scalar-valued (1-D) result is unchanged (its
-        transpose is itself, matching MATLAB where a 1-by-m row stays 1-by-m).
-        Column Chebfuns (the default) are returned untouched.
+        Kernel and breakpoint values remain component-last.  For input rank
+        two or higher, complete component blocks are joined along output
+        dimension two. Scalar and rank-one Python inputs keep their existing
+        shape convention. A transposed Chebfun swaps the first two output
+        axes after packing (for rank-one inputs, the existing vector
+        transpose convention is retained).
+
+        MATLAB source : @chebfun/feval.m (RESHAPE FOR OUTPUT, row handling)
+        Chebfun commit: 7574c77
         """
+        values = jnp.asarray(values)
+        if input_ndim >= 2 and values.ndim > input_ndim:
+            shape = values.shape
+            component_count = math.prod(shape[input_ndim:])
+            axes = (0, input_ndim) + tuple(range(1, input_ndim))
+            values = jnp.transpose(values, axes).reshape(
+                (shape[0], shape[1] * component_count) + shape[2:input_ndim])
         if not self.is_transposed:
-            return vals
-        v = jnp.asarray(vals)
-        if v.ndim >= 2:
-            return jnp.swapaxes(v, -1, -2)
-        return v
+            return values
+        if input_ndim >= 2 and values.ndim >= 2:
+            return jnp.swapaxes(values, 0, 1)
+        if input_ndim == 1 and values.ndim >= 2:
+            return jnp.swapaxes(values, -1, -2)
+        return values
 
     # ------------------------------------------------------------------
     # Properties

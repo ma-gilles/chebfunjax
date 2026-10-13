@@ -1,3 +1,16 @@
+## Native feval matrix and tensor shapes — 2026-10-13
+
+All18 source cases1,14–30 now pass using captured MATLAB seedRNG(7681)
+queries and original bounds. Seven former shape failures are fixed: component
+blocks pack along the second axis, and transpose swaps the first two axes.
+The combined CPU gate passed37 tests, including the published JIT breakpoint
+fix and a new matrix point-value JIT control. Empty query shapes are preserved;
+endpoint orientation and native error identifiers are implemented. See
+`docs/feval_matrix_shapes_cpu_20261013.json` for receipts and compatibility.
+Python scalar/rank-one conventions remain explicit adapters. Sign callback
+semantics, exact one-sided selection and clauses31–35 remain open; full parity
+and current-main CI are not complete.
+
 ## CPU JIT breakpoint equality — 2026-10-13
 
 Stored point values now use exact IEEE comparisons under CPU JIT, including

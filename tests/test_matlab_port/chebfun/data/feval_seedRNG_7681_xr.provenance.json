@@ -1,0 +1,20 @@
+{
+  "artifact": "feval_seedRNG_7681_xr.mat",
+  "artifact_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+  "description": "Actual MATLAB seedRNG(7681); xr=2*rand(1000,1)-1 from native test_feval.m. No Python RNG regeneration.",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_source": "tests/chebfun/test_feval.m",
+  "matlab_source_sha256": "34f768d6b735df1482e4a396d9481a8735319a7a09f42ee99a32d0fd407cf619",
+  "seedRNG_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+  "driver": "feval_seedRNG_7681_capture.m",
+  "driver_sha256": "1d29f9db45c583ca3dd052b6516d739ebb77158c1145fe9d0931327a187407cd",
+  "native_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_finite_source_20261013/native/supervised_run/receipt.json",
+  "native_receipt_sha256": "7d9bed575a4f624be7c44b8600e286dfbac63682a140d3b9675ab6a21f9659fd",
+  "variable": "xr",
+  "shape": [
+    1000,
+    1
+  ],
+  "dtype": "float64",
+  "scope": "Source query vector only; not a fixture of computed Chebfun outputs."
+}
