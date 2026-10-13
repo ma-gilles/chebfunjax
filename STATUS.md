@@ -1,5 +1,18 @@
 ## Native absolute-value assertions and surface framing — 2026-10-13
 
+## Native uniform stream and captured feval inputs — 2026-10-14
+
+Added an explicit-state JAX MT19937 uniform helper, verified exactly against
+R2025b draws/state for four seeds and multiple twist cycles. Six private and
+six merged checks pass, including JIT/eager, empty and column-major shapes.
+Root independently verified all168 extracted fixture fields against raw MAT.
+The existing49-clause Chebfun3 feval port now loads native seed42 probes;
+all16 arrays/36,633 values equal its prior NumPy inputs bitwise, and all test
+predicate ASTs are unchanged. Seven affected source clauses pass privately on
+byte-identical production source. Normal random draws and production RNG
+consumers remain unchanged; full49 execution and main CI are not claimed.
+Evidence: `docs/matlab_twister_uniform_cpu_20261014.json`.
+
 ## Direct Chebtech1 preference construction — 2026-10-14
 
 Explicit/session Chebfun3 C1 preferences now follow native C2 sampling grids,

@@ -1,15 +1,17 @@
-# uses-numpy: test-only seeded input generation and MATLAB array-norm predicates
+# uses-numpy: native fixture decoding and MATLAB array-norm predicates
 """All 49 predicates of tests/chebfun3/test_feval.m.
 
-Seed 42 uses NumPy MT19937 uniforms in MATLAB column order. Native input
-capture is unavailable, so random-input identity remains unqualified. The
-pinned constructor restores RNG state after its internal seeded draws.
+Random inputs use captured MATLAB R2025b seed-42 values. The capture omits
+intervening Chebfun3 constructors because the pinned constructor saves and
+restores the incoming RNG state.
 
 Provenance
 ----------
 MATLAB source : tests/chebfun3/test_feval.m
 Chebfun commit: 7574c77
 """
+
+from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
@@ -24,6 +26,12 @@ from ._helpers import EPS
 TOL = 1e3 * EPS
 DOM = (-1, 2, -np.pi/2, np.pi, -3, 1)
 SECTION_DOM = (-1, 1, -4, -2, 6, 8)
+NATIVE_UNIFORM = np.load(
+    Path(__file__).parents[2]
+    / "fixtures"
+    / "matlab_twister_uniform_2025b"
+    / "native_uniform_v3.npz"
+)
 
 
 def array_norm(values):
@@ -34,13 +42,18 @@ def array_norm(values):
 
 @pytest.fixture(scope='module')
 def inputs():
-    rng = np.random.RandomState(42)
-    def rand(shape):
-        return jnp.asarray(rng.random_sample(np.prod(shape)).reshape(shape, order='F'))
-    return {'pts': 2*rand((3, 1))-1,
-            'vectors': tuple(rand((10, 1)) for _ in range(3)),
-            'random_vectors': [tuple(rand((100, 1)) for _ in range(3)) for _ in range(2)],
-            'random_tensors': [tuple(rand((10, 20, 30)) for _ in range(3)) for _ in range(2)]}
+    native = NATIVE_UNIFORM
+    return {'pts': jnp.asarray(native['feval42_pts']),
+            'vectors': tuple(jnp.asarray(native[f'feval42_{name}'])
+                             for name in ('r10', 's10', 't10')),
+            'random_vectors': [
+                tuple(jnp.asarray(native[f'feval42_vec100_group{group}_{item}'])
+                      for item in (1, 2, 3))
+                for group in (1, 2)],
+            'random_tensors': [
+                tuple(jnp.asarray(native[f'feval42_tensor_group{group}_{item}'])
+                      for item in (1, 2, 3))
+                for group in (1, 2)]}
 
 
 @pytest.mark.parametrize('clause', range(1, 7))

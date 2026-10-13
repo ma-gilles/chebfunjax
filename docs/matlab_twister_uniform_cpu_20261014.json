@@ -1,0 +1,80 @@
+{
+  "matlab_consumer_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "integration_base": "f9dfcd35f2f68f6eb1a56ede69cabe72f87ec747",
+  "scope": "Explicit-state JAX-only MT19937 binary64 uniform generator and native seed42 test fixture consumer; no existing production RNG consumer changed.",
+  "qualification": {
+    "uniform_private": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_twister_jax_candidate_20261014/run/uniform_v4/receipt.json",
+      "sha256": "0af0ba4cfd5297868c89734c96c6e873e3a8f488d71e6d45fefd87b234bfc108",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 13.238236535806209,
+      "sampled_peak_summed_rss_kib": 792004,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "uniform_merged": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_twister_publication_20261014/run/receipt.json",
+      "sha256": "b74633af74168f4fdf70317be43096b1a89ffa155780c6eac275ac184e2e50c4",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 13.370142051018775,
+      "sampled_peak_summed_rss_kib": 793296,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "feval_consumer_private": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_native_rng_fixture_candidate_20261014/run/random_feval_clauses_v3/receipt.json",
+      "sha256": "9af65917ab180f0f001830182a0af9fd8d14f9bfdc13dafa56a241bce2070582",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 21.305482322815806,
+      "sampled_peak_summed_rss_kib": 1244428,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/matlab_uniform_twister_capture_20261014/native_v3/supervision/receipt.json",
+      "sha256": "4d702f8f43a1c61375863f26ad289c0c8a8f67918734552df606de784b2eb29c",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 81.53020664397627,
+      "sampled_peak_summed_rss_kib": 1306980,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "tests": "6 private+6 merged helper tests;7 private source feval clauses7,8,9,16,17,28,29 on byte-identical production source. These are repeated controls, not19 distinct tests.",
+  "consumer_source_files_equal": 312,
+  "native_coverage": "Seeds0,6178,16051821,42;937 uniforms=1874 MTwords per sequence; chunked/monolithic state and output identity beyond two cycles, boundary crossing, empty shape, F-order tensors; exact eager/JIT results.",
+  "seed_mapping": "Native seed0 maps to MT seed5489; other three captured seeds initialize directly. Other uint32 seeds follow public recurrence but were not all captured.",
+  "fixture_review": {
+    "raw_mat_sha256": "151cff4a505a3500fdc2c9daa46ead6319b3e9a5198c9452acaefcb9f2c1f59a",
+    "fixture_sha256": "eb90e83fa2db70d8f7700a9f4b7be14c8ff4e1655f533e1245b613d24237c20b",
+    "converter_sha256": "5fdab8d11e99a44cb44f25ed332e3bada975072fe3b9d0b71213960444e8688d",
+    "arrays_verified": 168,
+    "nonempty_shapes_verified": true,
+    "native_empty_hdf5_dimensions_verified": true,
+    "conversion_equal": true
+  },
+  "consumer_identity": {
+    "predicate_function_ASTs_equal": 7,
+    "arrays": 16,
+    "values": 36633,
+    "comparison_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/feval_native_rng_fixture_candidate_20261014/evidence/old_numpy_native_identity.json",
+    "sha256": "d6c13b412406c985269c3a520492f223a49047a91f3581ac794360cbf8a32a97"
+  },
+  "files": {
+    "src/chebfunjax/utils/_matlab_twister.py": "9f515ed845611ed4b0bfcdbc46eca75d58dbae80ef41e4074b0f70ce693f51ac",
+    "tests/test_utils/test_matlab_twister_uniform.py": "979994202a819e4dee003b01e8eff0b414233ba113fcab5130286962796e56f2",
+    "tests/fixtures/matlab_twister_uniform_2025b/README.md": "f6115b7ee68437f5bcfffe3ad1b039890672840a8b7b36833967b27f578de869",
+    "tests/fixtures/matlab_twister_uniform_2025b/native_uniform_v3.npz": "eb90e83fa2db70d8f7700a9f4b7be14c8ff4e1655f533e1245b613d24237c20b",
+    "tests/fixtures/matlab_twister_uniform_2025b/capture.mat": "151cff4a505a3500fdc2c9daa46ead6319b3e9a5198c9452acaefcb9f2c1f59a",
+    "tests/fixtures/matlab_twister_uniform_2025b/capture.json": "12ba21d3a772eb8a4d3f60c315cf3d7b4aa312725bb6931c67c6db77fb98a9dd",
+    "tests/test_matlab_port/chebfun3/test_feval_matlab.py": "bab985037a17c85161638a32922284842959a1186430f8cfdf875a02d7279d32"
+  },
+  "provenance_correction": "Root changed helper docstrings from Python candidate commit to native consumer7574 pin; executable AST verified unchanged, then merged helper gate passed.",
+  "limits": [
+    "Uniform explicit state only; no randn/randi/randperm/global RNG parity claim.",
+    "The seed42 capture omits intervening constructors based on pinned source RNG restoration; full native test was not run.",
+    "Full49 feval predicates were preserved but only seven affected clauses rerun. Million-point clauses24\u201327 were not rerun for a fixture-only change.",
+    "Initial missing tempering and fixture-key errors retained in private receipts, not passing evidence.",
+    "Current main CI and full page/figure/RNG parity remain open."
+  ]
+}

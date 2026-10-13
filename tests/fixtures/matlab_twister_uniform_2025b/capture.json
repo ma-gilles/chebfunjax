@@ -1,0 +1,136 @@
+{
+  "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+  "matlab_release": "2025b",
+  "rng_implementation": "/usr/licensed/matlab-R2025b/toolbox/matlab/randfun/rng.m",
+  "rand_implementation": "built-in (/usr/licensed/matlab-R2025b/toolbox/matlab/randfun/rand)",
+  "seeds": [
+    0,
+    6178,
+    1.6051821E+7,
+    42
+  ],
+  "cycle_chunk_sizes": [
+    312,
+    1,
+    312,
+    312
+  ],
+  "cycle_total_uniforms": 937,
+  "cycle_total_mt_words": 1874,
+  "seed42_test_draw_shapes": [
+    [
+      3,
+      1
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      100,
+      1
+    ],
+    [
+      10,
+      20,
+      30
+    ],
+    [
+      10,
+      20,
+      30
+    ],
+    [
+      10,
+      20,
+      30
+    ],
+    [
+      10,
+      20,
+      30
+    ],
+    [
+      10,
+      20,
+      30
+    ],
+    [
+      10,
+      20,
+      30
+    ]
+  ],
+  "seed42_initial_state": {
+    "Type": "twister",
+    "Seed": 42,
+    "state_class": "uint32",
+    "state_shape": [
+      625,
+      1
+    ],
+    "state_numel": 625,
+    "state_first8": [
+      42,
+      3107752595,
+      1895908407,
+      3900362577,
+      3030691166,
+      4081230161,
+      2732361568,
+      1361238961
+    ],
+    "state_last": 624
+  },
+  "seed42_final_state": {
+    "Type": "twister",
+    "Seed": 42,
+    "state_class": "uint32",
+    "state_shape": [
+      625,
+      1
+    ],
+    "state_numel": 625,
+    "state_first8": [
+      3438156389,
+      4290529161,
+      2603027663,
+      1934346815,
+      4254198822,
+      2082089498,
+      3694362376,
+      2735933328
+    ],
+    "state_last": 258
+  },
+  "seed42_constructor_restore_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/chebfun3f.m",
+  "seed42_source_test": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_feval.m"
+}
