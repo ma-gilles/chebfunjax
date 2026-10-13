@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import warnings
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -318,15 +319,65 @@ class TestDST:
         npt.assert_allclose(lhs, rhs, rtol=0, atol=1e-12)
 
     def test_dst1_matches_definition(self):
-        # DST-I (standard factor-of-2 normalisation, as in scipy.fft.dst):
-        # X_k = 2 * sum_{n} x_n sin(pi (n+1)(k+1)/(N+1)).
+        # Literal @chebfun/dst.m source sine sum (without SciPy's factor 2).
         x = _rand(5, 90)
         N = len(x)
         n = np.arange(1, N + 1)
         k = np.arange(1, N + 1)
-        S = 2.0 * np.sin(np.pi * np.outer(k, n) / (N + 1))
+        S = np.sin(np.pi * np.outer(k, n) / (N + 1))
         npt.assert_allclose(np.asarray(T.dst(jnp.asarray(x), kind=1)), S @ x,
                             rtol=0, atol=1e-12)
+
+    @pytest.mark.parametrize("kind", range(1, 9))
+    def test_legacy_dst_matches_source_matrix(self, kind):
+        """Legacy entry point follows source formulas on native source inputs."""
+        from chebfunjax.utils.transforms import dst
+        from tests.test_matlab_port.chebfun.test_dct_dst_source import inputs, matrix
+
+        _r, real_columns, complex_column = inputs("dst")
+        native_matrix = np.asarray(matrix("dst", real_columns.shape[0], kind))
+        bound = 100 * np.finfo(float).eps * (1 if kind <= 3 else 10)
+        error = np.linalg.norm(np.asarray(dst(real_columns, kind))
+                               - native_matrix @ np.asarray(real_columns), ord=2)
+        assert error < bound
+        native_complex_matrix = np.asarray(matrix("dst", complex_column.shape[0], kind))
+        complex_error = np.linalg.norm(
+            np.asarray(dst(complex_column, kind))
+            - native_complex_matrix @ np.asarray(complex_column), ord=2)
+        assert complex_error < 100 * np.finfo(float).eps
+        if kind in (5, 8):
+            compiled = jax.jit(lambda values: dst(values, kind))(real_columns)
+            jit_error = np.linalg.norm(
+                np.asarray(compiled) - native_matrix @ np.asarray(real_columns), ord=2)
+            assert jit_error < bound
+
+    @pytest.mark.parametrize("kind", [5, 6, 7])
+    def test_legacy_idst_matches_source_matrix(self, kind):
+        """Inverse source sine matrices cover real/complex columns and JIT."""
+        from chebfunjax.utils.transforms import idst
+        from tests.test_matlab_port.chebfun.test_dct_dst_source import inputs, matrix
+
+        _r, real_columns, complex_column = inputs("dst")
+        source_matrix = np.asarray(matrix("dst", real_columns.shape[0], kind))
+        expected = np.linalg.solve(source_matrix, np.asarray(real_columns))
+        error = np.linalg.norm(np.asarray(idst(real_columns, kind)) - expected, ord=2)
+        bound = 100 * np.finfo(float).eps
+        assert error < bound
+        complex_matrix = np.asarray(matrix("dst", complex_column.shape[0], kind))
+        complex_expected = np.linalg.solve(complex_matrix, np.asarray(complex_column))
+        complex_error = np.linalg.norm(np.asarray(idst(complex_column, kind))
+                                       - complex_expected, ord=2)
+        assert complex_error < bound
+        if kind in (5, 7):
+            compiled = jax.jit(lambda values: idst(values, kind))(real_columns)
+            jit_error = np.linalg.norm(np.asarray(compiled) - expected, ord=2)
+            assert jit_error < bound
+
+    def test_legacy_idst8_keeps_native_unsupported_error(self):
+        from chebfunjax.utils.transforms import idst
+
+        with pytest.raises(ValueError, match="CHEBFUN:CHEBFUN:IDST:EIGHT: Not implemented"):
+            idst(jnp.ones(4), 8)
 
 
 # ---------------------------------------------------------------------------

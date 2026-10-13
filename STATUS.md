@@ -5,6 +5,12 @@ Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
 
+- Legacy `utils.transforms.dst/idst` now use the existing source JAX provider.
+  This corrects the former SciPy factor-two forward scaling, inverse scaling
+  and complex truncation; adds source DST V–VIII and IDST V–VII; and preserves
+  the native IDST VIII error. Final 61 focused checks pass, including all 32
+  native DST slots; 48 other transform definitions are unchanged. See
+  `docs/dst_wrapper_source_cpu_20261013.json` for compatibility and evidence.
 - Floquet periodic-matrix figure now uses measured native subplot positions,
   source font/stroke sizes and 72dpi at 600x270 pixels. All 16 saved curve
   coordinate arrays and data limits are unchanged. Tick selection and raster

@@ -120,23 +120,33 @@ class TestDst:
         u = jnp.array([1.0, 2.0, 3.0])
         n = len(u)
         v = dst(u, 1)
-        # DST-1 of DST-1 = 2*(n+1) * u
+        # Source Chebfun DST-I of DST-I = (n+1)/2 * u.
         u2 = dst(v, 1)
-        scale = 2.0 * (n + 1)
+        scale = (n + 1) / 2.0
         err = float(jnp.max(jnp.abs(u2 - scale * u)))
         assert err < 1e-10, f"DST-1 self-inverse error: {err:.2e}"
 
-    def test_matches_scipy(self):
-        """dst should match scipy.fft.dst."""
-        import scipy.fft
-
+    def test_matches_source_sine_sum(self):
+        """DST-I through IV match the literal Chebfun sine sums."""
         from chebfunjax.utils.transforms import dst
 
         rng = np.random.default_rng(7)
         u = jnp.array(rng.standard_normal(8))
         for kind in [1, 2, 3, 4]:
             our = np.array(dst(u, kind))
-            ref = scipy.fft.dst(np.array(u), type=kind)
+            n = len(u)
+            i = np.arange(n, dtype=float)
+            j = np.arange(n, dtype=float)
+            if kind == 1:
+                ref = np.sin(np.pi * np.outer(i + 1, j + 1) / (n + 1)) @ np.array(u)
+            elif kind == 2:
+                ref = np.sin(np.pi * np.outer(i + 1, j + .5) / n) @ np.array(u)
+            elif kind == 3:
+                ref = np.sin(np.pi * np.outer(i + .5, j + 1) / n)
+                ref[:, -1] *= .5
+                ref = ref @ np.array(u)
+            else:
+                ref = np.sin(np.pi * np.outer(i + .5, j + .5) / n) @ np.array(u)
             npt.assert_allclose(our, ref, atol=1e-12, err_msg=f"DST-{kind} mismatch")
 
     @pytest.mark.parametrize("kind", [1, 2, 3, 4])

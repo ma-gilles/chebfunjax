@@ -1,0 +1,134 @@
+{
+  "base_commit": "edba4f75862507339b07633088bba4f346d29a7e",
+  "native_source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Integrated reviewed source/tests; qualification CPU-only. Full parity remains open.",
+  "change": "Legacy utils.transforms dst/idst delegate to source-correct JAX fasttransforms. The NumPy import and uses-numpy exception are removed.",
+  "public_compatibility_change": "DST now follows Chebfun source scaling (legacy SciPy output was factor 2); IDST follows source inverse scaling; complex inputs remain complex; DST I-VIII and IDST I-VII are supported; IDST-VIII preserves source unsupported error.",
+  "baseline": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/baseline_gate/receipt.json",
+    "receipt_sha256": "4c60eee5cecbc90fae43b0bbc540b37c1cec043016ed28b910574a574912e601",
+    "guard_sha256": "15a3f275882b474e96c3089680bf449138ab367088c3c1412a8d5b1d2805c6a7",
+    "command_exit_code": 0,
+    "wall_seconds": 7.875330992974341,
+    "peak_summed_rss_kib": 465572,
+    "observed_max_abs_error": 6.453184117262088,
+    "executed_legacy_source": {
+      "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/transforms_baseline_legacy.py",
+      "sha256": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "recovered_from_commit": "edba4f75862507339b07633088bba4f346d29a7e"
+    },
+    "executed_oracle_source": {
+      "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_dct_dst_source_v1.py",
+      "sha256": "c56b77b77eabdd10b5e48f024d89251a2efeffb47d9b4816423b26e332cbc024"
+    },
+    "baseline_script": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/candidate/tools/dst_legacy_baseline.py",
+      "sha256": "f9931099eb9b7a11f63164e2af0cbf3e15133218c35da368fe3a5764d3314139"
+    },
+    "guard_correction": {
+      "status": "Original guard hashed candidate V1 transforms.py, but that was not the imported module. The receipt is retained and this limitation is explicit.",
+      "actual_loaded_module_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/transforms.py",
+      "basis": "The launch sourced pinned_cpu_env.sh and then prepended publication_checkout/src to PYTHONPATH; cwd candidate root and script directory candidate/tools do not expose candidate/src. The publication checkout was clean at the gated base commit. The archived base-commit source contains the SciPy implementation; baseline assertion and 6.453 error are inconsistent with importing candidate V1.",
+      "legacy_source_archive_sha256": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "correction_record": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/baseline_provenance_correction.md",
+      "rerun": "Not needed: launcher, base commit source archive, baseline script, output and receipt were retained."
+    },
+    "baseline_helper_scope": "Diagnostic scratch only; excluded from candidate.patch."
+  },
+  "candidate_gate_v1": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/candidate_gate/receipt.json",
+    "receipt_sha256": "57f6f4a2373276654a4d58d74a2cf993b2144057476843277dd14cd8c706988a",
+    "guard_sha256": "b3d8ee437127abf540051c63f287582372d5786b97f75d8be3db6b69884c104a",
+    "command_exit_code": 0,
+    "wall_seconds": 44.5190253239125,
+    "peak_summed_rss_kib": 1878748,
+    "result": "88 passed. Pytest -k dst matched the shared dct_dst source test name, so all64 DCT/DST slots ran; completed and retained."
+  },
+  "successor_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/successor_gate/receipt.json",
+    "receipt_sha256": "36ca6cc666c6c75510cf73177f6df735542d67ea5eb89b5a8268ece2063d0bc7",
+    "guard_sha256": "571285a42784e24a5e22eed245d97d69282c0e4700148c211c482fa09be18083",
+    "command_exit_code": 0,
+    "wall_seconds": 31.253797833807766,
+    "peak_summed_rss_kib": 1847436,
+    "result": "61 passed: legacy DST controls, legacy DST/IDST source-matrix controls, existing roundtrips, DST supplemental source tests, and exact explicit source DST slots 1-32 only."
+  },
+  "archives_and_receipt_rehash": {
+    "mapping": {
+      "src/chebfunjax/utils/transforms.py": {
+        "v1_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/transforms_v1.py",
+        "v1_sha256": "1f8127c00cc23892830ee9be3468da2fb02c21ad975a629d6bef6ed16db11a5f",
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/transforms_v2.py",
+        "successor_sha256": "9529f96e6ef88799eb4d9762f212e5401acc85ce621f7fe3da27d3a3a7c75eae"
+      },
+      "src/chebfunjax/utils/fasttransforms.py": {
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/fasttransforms_v2.py",
+        "successor_sha256": "638a4bef3f988278f0ea11f93960b99ac4e3b755f4e2ba130e1fbe8a8051f73f"
+      },
+      "tests/test_new_functions.py": {
+        "v1_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_new_functions_v1.py",
+        "v1_sha256": "4e57b520d14d58e4899605e880fc2598bf613e1aefdf5203e5f391c1478bdfaa",
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_new_functions_v2.py",
+        "successor_sha256": "4e57b520d14d58e4899605e880fc2598bf613e1aefdf5203e5f391c1478bdfaa"
+      },
+      "tests/test_utils/test_transforms_coverage.py": {
+        "v1_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_transforms_coverage_v1.py",
+        "v1_sha256": "040b3f867fe9db0abb9cea18b56adcfab3a958c8b36ca56d707b4f906f03b603",
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_transforms_coverage_v2.py",
+        "successor_sha256": "cfa3eae87e6fa4ecdd8d171d5a0538c01f6944051af06020cc85081840461c8a"
+      },
+      "tests/test_matlab_port/chebfun/test_dct_dst_source.py": {
+        "v1_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_dct_dst_source_v1.py",
+        "v1_sha256": "c56b77b77eabdd10b5e48f024d89251a2efeffb47d9b4816423b26e332cbc024",
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_dct_dst_source_v2.py",
+        "successor_sha256": "c56b77b77eabdd10b5e48f024d89251a2efeffb47d9b4816423b26e332cbc024"
+      },
+      "tests/test_matlab_port/chebfun/test_dst_matlab.py": {
+        "successor_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/test_dst_matlab_v2.py",
+        "successor_sha256": "c282ddaaf7039145ce324c48a10d084aa46b5dde275c98d51362c53930c15422"
+      }
+    },
+    "v1_archives_match_candidate_gate_guard": true,
+    "v2_archives_match_successor_gate_guard": true,
+    "baseline_legacy_source_sha256": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+    "patch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/candidate.patch",
+      "sha256": "1ebffae6a8afa5f07e19500b75e2533bcff22fdce6d99e4cb16fa468f7f7c231"
+    }
+  },
+  "scope_proof": {
+    "script": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/prove_non_dst_ast.py",
+    "sha256": "c19c31597e34f937dd69045f9c155a306ff5c721d7bfc0c60762ea24492e4ab8",
+    "result": "48 non-DST/IDST top-level functions AST-identical; NumPy import absent."
+  },
+  "modified_assertion_bound_audit": {
+    "preserved_existing": "Existing DST/IDST round-trip bounds (1e-10), source comparison bounds (1e-12), and coverage round-trip/linearity bounds (1e-12) unchanged.",
+    "corrected": "DST-I self-inverse scale changed from SciPy 2(n+1) to source (n+1)/2; SciPy comparisons replaced by literal source sine sums with atol still 1e-12.",
+    "added": "Forward source matrix 2-norm: <100 eps for I-III, <1000 eps for IV-VIII, matching native source slots; complex forward <100 eps. IDST V-VII real/complex and JIT bounds <100 eps; IDST-VIII checks native error string."
+  },
+  "qualification_limit": "Source matrices are evaluated independently on source-seeded inputs; docs/dct_dst_native_source_cpu_20261011.json records those arrays bitwise matching native captures. This does not compare against separately serialized native transform output vectors. No MATLAB rerun, full suite, commit, or push.",
+  "patch": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/candidate.patch",
+    "sha256": "9d0c86aeac9eba05e83ad3753ba9b1ba9e4c2fbb77528a8538e715018f92dd67",
+    "included_paths": [
+      "src/chebfunjax/utils/transforms.py",
+      "tests/test_new_functions.py",
+      "tests/test_utils/test_transforms_coverage.py"
+    ],
+    "baseline_helper_included": false
+  },
+  "root_review": {
+    "guard_inputs_verified": 14,
+    "baseline_provenance_correction": "Original baseline guard bound candidate file instead of imported publication source; root independent replay explicitly recorded loaded publication module path and hash before integration.",
+    "independent_baseline": {
+      "loaded_source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/transforms.py",
+      "source_sha256": "6bad41ce4db6a9563120c047b5fa04d5326bd8e2b868ae406abbd673a1696493",
+      "jax_version": "0.11.0",
+      "max_abs_native_sine_formula_difference": 6.453184117262088,
+      "scope": "Original publication module observed before integration; source-seeded inputs and independent literal sine sum."
+    },
+    "baseline_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dst_wrapper_source_20261013/root_baseline_transforms.py",
+    "non_dst_definitions_unchanged": 48,
+    "integration": "Only3reviewed source/testfiles copied; diagnostic helper remains scratch-only."
+  }
+}
