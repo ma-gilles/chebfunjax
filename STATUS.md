@@ -1,9 +1,15 @@
 # Current CPU parity checkpoint — 2026-10-13
 
-Main through `c3fa9ec1` is published; this checkpoint adds the packages below.
+Main through `e92fb991` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- Floquet periodic panels now use the native data range and compact tick
+  presentation. All 32 x/y tick sequences and labels match the fresh native
+  capture; y-limit differences are at most 6.56e-15. All 16 plotted arrays
+  remain byte-identical; rendering is 600x270. Glyph/raster parity remains open.
+  See `docs/floquet_periodic_ticks_cpu_20261013.json`.
 
 - `trigpoly` now returns a periodic Chebfun with source Fourier coefficients,
   phase, orientation and default-domain preferences. All six native captured

@@ -89,8 +89,11 @@ def _style_periodic_figure(fig, axs):
 
     R2024b CPU/Painters capture of the literal Floquet.m subplot loop;
     qualification: docs/floquet_periodic_layout_cpu_20261013.json.
-    Curve coordinates and data limits are left to the public plotting path.
+    Curve coordinates are supplied by the public plotting path. The native
+    compact axes use the plotted data range without Matplotlib padding.
     """
+    from matplotlib.ticker import FormatStrFormatter, MaxNLocator
+
     left = (0.13877659574468085, 0.34489361702127663,
             0.5510106382978723, 0.7571276595744681)
     bottom = (0.7907855436081243, 0.571699522102748,
@@ -99,6 +102,10 @@ def _style_periodic_figure(fig, axs):
         for j, ax in enumerate(row):
             ax.set_position((left[j], bottom[i],
                              0.1478723404255319, 0.1320489844684427))
+            ax.margins(y=0.0)
+            ax.xaxis.set_major_locator(MaxNLocator(nbins=3, steps=[1, 2, 5, 10]))
+            ax.yaxis.set_major_locator(MaxNLocator(nbins=4, steps=[1, 2, 5, 10]))
+            ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
             ax.tick_params(labelsize=10, pad=2, direction="in",
                            top=True, right=True, width=0.5, length=0.887234)
             for spine in ax.spines.values():

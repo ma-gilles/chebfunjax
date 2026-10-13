@@ -1,0 +1,30 @@
+{
+  "scope": "Periodic figure layout only, rendered from actual saved figure/curves. No solve or source data regeneration.",
+  "canvas": [
+    600,
+    270
+  ],
+  "dpi": 72,
+  "unchanged_line_arrays": 16,
+  "data_limits_unchanged": false,
+  "maximum_normalized_axes_position_difference": 1.1102230246251565e-16,
+  "native_axes_font_points": 10,
+  "native_title_font_points": 11,
+  "native_line_width_points": 2,
+  "limits": "Observed native renderer mapping at600x270 only; font glyphs and raster differences remain. All16 curve arrays unchanged; no ODE replay.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/ode-linear/floquet.py": "f9bb360ab6b269c87697cfdd96b6380b00b2bf1155015699dc0137e94fb61688",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_retained_suffix_20261011/actual_source_v4/periodic_before_render_figure.pickle": "1bcf9d832d2f9b073450d6b674a723c4ec6e34f5d916358fd553d34b57384003",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_native_graphics_20261011/native_v1/figure1_metadata.json": "6fcbecb79c5cd66d546a37ebccbbc7042f3d0bebd55273b256aa1de903ed36d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_tick_locator_20261013/render.py": "a16ecf07c53604ea9e13733958e5eec4498ab4e2a6a8e18e88f79249ddcf4be3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_tick_locator_20261013/Floquet_01.png": "d87d43161c9bd286778d749e654565c7117c4ca97c0e8054130d5775ad69b478"
+  },
+  "maximum_native_ylim_difference": 6.5503158452884236e-15,
+  "matching_tick_axes": 32,
+  "source_change": "Only _style_periodic_figure AST changed; all numerical and printing code unchanged. Data-derived zero margins, compact MaxNLocator and general numeric tick formatting reproduce native labels without copying curve values or tick tables.",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_tick_locator_20261013",
+  "tick_label_axes_matched": 32,
+  "verification": "Retained actual computed figure rendered twice; final owned exec73546 terminal0. All16 X/Y arrays byte-identical before/after; dimensions600x270. Root visually compared final/native PNG. No new ODE or MATLAB execution.",
+  "renderer_scope": "Scoped to this fixed-size example; does not redefine global plotting auto-limit policy or claim native pixel identity.",
+  "first_probe": "nbins3 for both axes with previous padding matched16x/6yexact; tight data range and nbins4y matchedall16ywithin1e-15. NaN line separators excluded in exploratory extrema probe. Finalactualrender uses matplotlib margins and actual plotdata."
+}
