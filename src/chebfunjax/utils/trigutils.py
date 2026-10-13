@@ -7,8 +7,10 @@ Developers.  See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
+from numbers import Real
+
 import jax.numpy as jnp
-import numpy as np
 
 # ===========================================================================
 # Trigonometric polynomial on [-1, 1]
@@ -120,57 +122,49 @@ def trigpoly(n: int | jnp.ndarray, domain=None):
 # Trigonometric barycentric differentiation
 # ===========================================================================
 
-# uses-numpy: iterative derivative polynomial computation
-
 def diffbarytrig(
     zz: jnp.ndarray,
     zj: jnp.ndarray,
     fj: jnp.ndarray,
     wj: jnp.ndarray,
-    N: int = 1,
-    form: str = "odd",
+    N: int | str = 1,
+    form: str | int = "odd",
 ) -> jnp.ndarray:
     """Derivative of a trigonometric rational function in barycentric form.
 
-    D = DIFFBARYTRIG(ZZ, ZJ, FJ, WJ) returns the first derivative of the
-    odd trigonometric barycentric rational function with support points ZJ,
-    function values FJ, and barycentric weights WJ, evaluated at ZZ.
-
-    D = DIFFBARYTRIG(ZZ, ZJ, FJ, WJ, N) computes the N-th derivative.
-
-    D = DIFFBARYTRIG(ZZ, ZJ, FJ, WJ, N, FORM) uses the basis FORM, where
-    FORM is 'odd' (default, uses csc) or 'even' (uses cot).
+    DIFFBARYTRIG(ZZ, ZJ, FJ, WJ) returns the first derivative of an odd
+    trigonometric barycentric rational function. ``N`` selects the derivative
+    order and ``form`` selects the odd (csc) or even (cot) basis. The two
+    optional arguments may be supplied in either order. Form matching is
+    case-insensitive and accepts the native ``even``/``odd`` prefixes.
 
     Parameters
     ----------
-    zz : jnp.ndarray
-        Evaluation points (any shape).
-    zj : jnp.ndarray, shape (m,)
-        Support points.
-    fj : jnp.ndarray, shape (m,)
-        Function values at support points.
-    wj : jnp.ndarray, shape (m,)
-        Barycentric weights.
+    zz : array_like
+        Evaluation points; output preserves this shape, including complex
+        points and imaginary infinity.
+    zj, fj, wj : array_like
+        Support points, sampled values, and barycentric weights.
     N : int, default 1
-        Order of derivative.
-    form : {'odd', 'even'}, default 'odd'
-        Barycentric basis type.
+        Static nonnegative derivative order. Zero raises the native
+        ``Use revaltrig.m for function evaluation`` message.
+    form : str, default ``"odd"``
+        ``"odd"``/``"even"`` kernel selection, case-insensitive and prefix
+        matched as in MATLAB.
 
     Returns
     -------
-    d : jnp.ndarray
-        Derivative values at ZZ (same shape as ZZ).
+    jax.Array
+        Complex derivative values with the same shape as ``zz``.
 
     Notes
     -----
-    The derivative is computed using the formula from Baddoo 2021 [1], which
-    extends the standard barycentric differentiation formula to periodic
-    rational functions.
-
-    References
-    ----------
-    .. [1] P. J. Baddoo, "The AAAtrig algorithm for rational approximation
-       of periodic functions", SIAM J. Sci. Comp. (2021).
+    Evaluation and support-point repair use the source formulas directly.
+    Python scalar derivative order and form must be static under JIT. Unknown
+    option strings are rejected instead of reproducing the native parser's
+    no-progress loop. The native parser's bare ``isinteger`` expression also
+    prints a value to MATLAB's command window; this array API intentionally
+    has no corresponding stdout side effect.
 
     Provenance
     ----------
@@ -178,164 +172,168 @@ def diffbarytrig(
     Chebfun commit: 7574c77
     Original authors: Copyright 2018 by The University of Oxford
         and The Chebfun Developers.
-
-    See Also
-    --------
-    trigpoly
     """
-    if N == 0:
-        raise ValueError("N=0: use revaltrig for function evaluation, not diffbarytrig.")
-
-    # Work in numpy for the iterative derivative computation
-    zz_np = np.array(zz, dtype=complex).ravel()
-    zj_np = np.array(zj, dtype=complex)
-    fj_np = np.array(fj, dtype=complex)
-    wj_np = np.array(wj, dtype=complex)
-
-    npts = len(zz_np)
-    m = len(zj_np)
-
-    # Project onto first period window
-    zvp = zz_np - 2 * np.pi * np.floor(np.real(zz_np / (2 * np.pi)))
-
-    # Basis functions
-    if form == "even":
-        def cst(z):
-            return 1.0 / np.tan(z)  # cot
+    # MATLAB accepts optional N and form in either order.
+    if isinstance(N, str):
+        if isinstance(form, str):
+            if form != "odd":
+                raise ValueError("diffbarytrig accepts at most one form and one derivative order")
+            form, N = N, 1
+        else:
+            form, N = N, form
+    if not isinstance(form, str):
+        raise ValueError("form must begin with 'odd' or 'even'")
+    form_key = form.casefold()
+    if form_key.startswith("even"):
+        normalized_form = "even"
+    elif form_key.startswith("odd"):
+        normalized_form = "odd"
     else:
-        def cst(z):
-            return 1.0 / np.sin(z)  # csc
+        raise ValueError("form must begin with 'odd' or 'even'")
+    try:
+        if N == 0:
+            raise ValueError("Use revaltrig.m for function evaluation")
+        if isinstance(N, bool) or not isinstance(N, Real):
+            raise TypeError
+        n_value = float(N)
+    except (TypeError, ValueError, OverflowError):
+        if N == 0:
+            raise ValueError("Use revaltrig.m for function evaluation") from None
+        raise ValueError("derivative order N must be a static integer") from None
+    if not math.isfinite(n_value) or n_value != round(n_value):
+        raise ValueError("derivative order N must be a static integer")
+    N = int(n_value)
+    if N < 0:
+        raise ValueError("derivative order N must be positive")
 
-    # Cauchy matrix: CC[i,j] = cst((zvp[i] - zj[j])/2)
-    diff_half = (zvp[:, None] - zj_np[None, :]) / 2.0
-    CC = cst(diff_half)  # (npts, m)
+    zz_arr = jnp.asarray(zz, dtype=jnp.complex128)
+    original_shape = zz_arr.shape
+    zj_arr = jnp.asarray(zj, dtype=jnp.complex128).reshape((-1,))
+    fj_arr = jnp.asarray(fj, dtype=jnp.complex128).reshape((-1,))
+    wj_arr = jnp.asarray(wj, dtype=jnp.complex128).reshape((-1,))
+    zv = zz_arr.reshape((-1,))
+    m = zj_arr.size
 
-    rpDen = CC @ wj_np  # denominator
-    rn = (CC @ (wj_np * fj_np)) / rpDen  # function values
+    # Projection onto the first period window, as in source lines 40-41.
+    zvp = zv - 2.0 * jnp.pi * jnp.floor(jnp.real(zv / (2.0 * jnp.pi)))
 
-    # Store results for each derivative order p=0..N
-    rp = np.zeros((npts, N + 1), dtype=complex)
-    rp[:, 0] = rn
-
-    # Differentiation matrix (m x m) for higher-order derivatives
-    D_list = [np.eye(m, dtype=complex)]  # D_list[p] = D^{(p)}
+    diff_half = (zvp[:, None] - zj_arr[None, :]) / 2.0
+    CC = _cst(diff_half, normalized_form)
+    rp_den = CC @ wj_arr
+    rn = (CC @ (wj_arr * fj_arr)) / rp_den
+    rp_values = [rn]
+    d_matrices = [jnp.eye(m, dtype=jnp.complex128)]
+    diff_zj = (zj_arr[:, None] - zj_arr[None, :]) / 2.0
+    cst_diff_zj = _cst(diff_zj, normalized_form)
 
     for p in range(1, N + 1):
-        # Derivative of rp[:, p-1] away from support points
-        DR = np.zeros((npts, m, p), dtype=complex)
+        dr_terms = []
         for q in range(p):
-            # Binomial coefficient C(p, q)
             binom = _binom(p, q)
-            dcst_vals = _diff_cst((zvp[:, None] - zj_np[None, :]) / 2.0, p - q, form)
-            fj_minus_rp = (fj_np[None, :] if q == 0 else 0.0) - rp[:, q:q + 1]
-            DR[:, :, q] = (
-                binom * (2.0 ** (q - p)) * dcst_vals * fj_minus_rp * wj_np[None, :]
+            dcst_vals = _diff_cst(diff_half, p - q, normalized_form)
+            fj_minus_rp = (fj_arr[None, :] if q == 0 else 0.0) - rp_values[q][:, None]
+            dr_terms.append(
+                binom * (2.0 ** (q - p)) * dcst_vals * fj_minus_rp * wj_arr[None, :]
             )
+        # Source sums first across supports and then across derivative terms.
+        dr_stack = jnp.stack(dr_terms, axis=-1)
+        rp_p = jnp.sum(jnp.sum(dr_stack, axis=1), axis=1) / rp_den
+        rp_values.append(rp_p)
 
-        rp[:, p] = np.sum(DR, axis=(1, 2)) / rpDen
-
-        # Differentiation matrix D^{(p)} (MATLAB diffbarytrig.m lines 69-83)
-        D_new = np.zeros((m, m), dtype=complex)
-        diff_zj = (zj_np[:, None] - zj_np[None, :]) / 2.0  # (m, m)
+        matrix_terms = []
         for q in range(1, p + 1):
             binom = _binom(p, q)
-            Dp_q = D_list[p - q]  # (m, m)
-            # MATLAB firstSum evaluates diffCstInv at ZERO ((zj - zj)/2),
-            # a scalar per q — not at the pairwise differences — and the
-            # weight ratio is wj.'./wj, i.e. entry (i,j) = wj[j]/wj[i].
-            dcst_inv_zero = complex(
-                np.asarray(_diff_cst_inv(np.zeros((1, 1)), q, form))[0, 0]
+            d_pq = d_matrices[p - q]
+            # Source firstSum uses wj.'./wj times the row diagonal of D^(p-q).
+            inv_at_zero = _diff_cst_inv(jnp.zeros((), dtype=jnp.float64), q, normalized_form)
+            source_diagonal_sum = jnp.sum(
+                jnp.eye(m, dtype=jnp.complex128) * d_pq, axis=1
             )
-            diag_Dpq = np.diag(Dp_q)  # (m,)
             first_sum = (
-                (wj_np[None, :] / wj_np[:, None])
-                * diag_Dpq[:, None]
+                (wj_arr[None, :] / wj_arr[:, None])
+                * source_diagonal_sum[:, None]
                 * (2.0 ** (-q))
-                * dcst_inv_zero
+                * inv_at_zero
             )
-            second_sum = Dp_q * (2.0 ** (-q)) * _diff_cst_inv(diff_zj, q, form)
+            second_sum = d_pq * (2.0 ** (-q)) * _diff_cst_inv(
+                diff_zj, q, normalized_form
+            )
+            matrix_terms.append(binom * (first_sum - second_sum))
 
-            with np.errstate(divide="ignore", invalid="ignore"):
-                contrib = cst(diff_zj) * binom * (first_sum - second_sum)
-            D_new += np.where(np.isfinite(contrib), contrib, 0.0)
+        # Keep MATLAB's cst(diff_zj) * sum_q(...) assembly order. Only the
+        # resulting diagonal is replaced; off-diagonal singularities persist.
+        d_new = cst_diff_zj * jnp.sum(jnp.stack(matrix_terms, axis=-1), axis=-1)
+        d_new = d_new.at[jnp.diag_indices(m)].set(0.0)
+        d_new = d_new - jnp.diag(jnp.sum(d_new, axis=1))
+        d_matrices.append(d_new)
 
-        np.fill_diagonal(D_new, 0.0)
-        D_new -= np.diag(np.sum(D_new, axis=1))
-        D_list.append(D_new)
+    derivative = rp_values[N]
+    dzj = d_matrices[N] @ fj_arr
+    support_match = zvp[:, None] == zj_arr[None, :]
+    has_match = jnp.any(support_match, axis=1)
+    first_match = jnp.argmax(support_match, axis=1)
+    at_support = dzj[first_match]
+    repair = jnp.isnan(derivative) & ~jnp.isnan(zvp) & has_match
+    derivative = jnp.where(repair, at_support, derivative)
 
-    d_np = rp[:, N].copy()
-
-    # Fix NaN at support points (0/0 case)
-    DZJ = D_list[N] @ fj_np
-    for ii in np.where(np.isnan(d_np))[0]:
-        if not np.isnan(zvp[ii]):
-            matches = np.where(zvp[ii] == zj_np)[0]
-            if len(matches) > 0:
-                d_np[ii] = DZJ[matches[0]]
-
-    # Values at imaginary infinity
-    inf_mask = np.isinf(np.real(zvp / 1j))
-    d_np[inf_mask] = 0.0
-
-    return jnp.array(d_np.reshape(np.array(zz).shape), dtype=jnp.complex128)
+    # Native source sets the derivative to zero at imaginary infinity.
+    imaginary_infinity = jnp.isinf(jnp.real(zvp / 1j))
+    derivative = jnp.where(imaginary_infinity, 0.0, derivative)
+    return derivative.reshape(original_shape)
 
 
 def _binom(n: int, k: int) -> float:
-    """Binomial coefficient C(n,k) as float."""
+    """Binomial coefficient C(n,k) as a Python scalar."""
     from math import comb
     return float(comb(n, k))
 
 
-def _diff_cot_scalar(t: np.ndarray, n: int) -> np.ndarray:
-    """N-th derivative of cot evaluated at array t."""
-    # Use the derivative polynomials recursion (vectorized)
-    x = np.tan(t + np.pi / 2)
-    orig_shape = x.shape
-    x_flat = x.ravel()
-    sz = len(x_flat)
-
-    P = np.zeros((sz, n + 1), dtype=complex)
-    P[:, 0] = -x_flat
+def _diff_cot_scalar(t: jnp.ndarray, n: int) -> jnp.ndarray:
+    """N-th cotangent derivative from the source derivative polynomials."""
+    x = jnp.tan(jnp.asarray(t) + jnp.pi / 2)
+    shape = x.shape
+    flat = x.reshape((-1,))
+    p_values = jnp.zeros((flat.size, n + 1), dtype=jnp.complex128)
+    p_values = p_values.at[:, 0].set(-flat)
 
     for k in range(n):
-        # P[k+1] = -sum_{l=0}^{k} C(k,l) P[l] * P[k-l] - delta_{k,0}
-        acc = np.zeros(sz, dtype=complex)
-        for l_idx in range(k + 1):
-            acc += _binom(k, l_idx) * P[:, l_idx] * P[:, k - l_idx]
-        P[:, k + 1] = -acc - (1.0 if k == 0 else 0.0)
-
-    return P[:, n].reshape(orig_shape)
+        acc = jnp.zeros((flat.size,), dtype=jnp.complex128)
+        for ell in range(k + 1):
+            acc = acc + _binom(k, ell) * p_values[:, ell] * p_values[:, k - ell]
+        p_values = p_values.at[:, k + 1].set(-acc - (1.0 if k == 0 else 0.0))
+    return p_values[:, n].reshape(shape)
 
 
-def _diff_csc(t: np.ndarray, n: int) -> np.ndarray:
-    """N-th derivative of csc(t)."""
+def _diff_csc(t: jnp.ndarray, n: int) -> jnp.ndarray:
+    """N-th cosecant derivative, matching native ``diffCsc``."""
     return (0.5 ** n) * _diff_cot_scalar(t / 2, n) - _diff_cot_scalar(t, n)
 
 
-def _diff_sin(t: np.ndarray, n: int) -> np.ndarray:
-    """N-th derivative of sin(t)."""
-    return np.sin(t + n * np.pi / 2)
+def _diff_sin(t: jnp.ndarray, n: int) -> jnp.ndarray:
+    """N-th sine derivative."""
+    return jnp.sin(t + n * jnp.pi / 2)
 
 
-def _diff_tan(t: np.ndarray, n: int) -> np.ndarray:
-    """N-th derivative of tan(t)."""
-    return -_diff_cot_scalar(t - np.pi / 2, n)
+def _diff_tan(t: jnp.ndarray, n: int) -> jnp.ndarray:
+    """N-th tangent derivative, matching native ``diffTan``."""
+    return -_diff_cot_scalar(t - jnp.pi / 2, n)
 
 
-def _diff_cst(t: np.ndarray, n: int, form: str) -> np.ndarray:
-    """N-th derivative of the basis function (cot or csc)."""
+def _diff_cst(t: jnp.ndarray, n: int, form: str) -> jnp.ndarray:
+    """N-th derivative of the cotangent or cosecant kernel."""
+    return _diff_cot_scalar(t, n) if form == "even" else _diff_csc(t, n)
+
+
+def _diff_cst_inv(t: jnp.ndarray, n: int, form: str) -> jnp.ndarray:
+    """N-th derivative of the tangent or sine inverse kernel."""
+    return _diff_tan(t, n) if form == "even" else _diff_sin(t, n)
+
+
+def _cst(t: jnp.ndarray, form: str) -> jnp.ndarray:
+    """Native cotangent (even) or cosecant (odd) kernel."""
     if form == "even":
-        return _diff_cot_scalar(t, n)
-    else:
-        return _diff_csc(t, n)
-
-
-def _diff_cst_inv(t: np.ndarray, n: int, form: str) -> np.ndarray:
-    """N-th derivative of the inverse basis function (tan or sin)."""
-    if form == "even":
-        return _diff_tan(t, n)
-    else:
-        return _diff_sin(t, n)
+        return 1.0 / jnp.tan(t)
+    return 1.0 / jnp.sin(t)
 
 
 def trigBaryWeights(xk):

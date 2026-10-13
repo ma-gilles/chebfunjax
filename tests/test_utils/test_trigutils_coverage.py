@@ -8,15 +8,16 @@ tan used by the barycentric formula.
 The individual derivative helpers are verified against closed-form
 derivatives / finite differences (all correct). ``diffbarytrig`` itself is
 exercised against analytic derivatives of an entire periodic function whose
-AAAtrig rational is accurate to machine precision; those tests are marked
-These document bugs that were fixed (previously off by a constant factor
-(see :class:`TestDiffBaryTrigBug`).
+AAAtrig rational is accurate to machine precision. The original MATLAB
+half-angle formula is covered by the analytic derivative checks in
+:class:`TestDiffBaryTrigAccuracy`.
 """
 
 from __future__ import annotations
 
 import warnings
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -168,17 +169,12 @@ class TestDiffBaryTrigValidation:
 
 
 # ---------------------------------------------------------------------------
-# Confirmed bug: diffbarytrig is off by a factor of 4**N.
-#
-# MATLAB diffbarytrig.m line 65 uses 2.^(q-p); the Python port wrote
-# 0.5 ** (q - p) (== 2 ** (p - q)), inverting the chain-rule half-angle
-# factor.  For a machine-precision AAAtrig rational of exp(sin z) the first
-# derivative comes out at exactly 4x the true value, the second at 16x, etc.
-# The tests below assert the mathematically correct derivative and run the
-# full assembly (so it stays covered); they xpass once the factor is fixed.
+# End-to-end derivative accuracy for the source half-angle formula.
+# The implementation uses the native 2**(q-p) coefficient. Keep these
+# analytic bounds unchanged while the kernel is migrated to JAX.
 # ---------------------------------------------------------------------------
 
-class TestDiffBaryTrigBug:
+class TestDiffBaryTrigAccuracy:
     def _build(self, form="odd"):
         Z = np.linspace(0, 2 * np.pi, 400, endpoint=False)
         with warnings.catch_warnings():
@@ -215,3 +211,28 @@ class TestDiffBaryTrigBug:
             warnings.simplefilter("ignore")
             d = np.asarray(diffbarytrig(jnp.asarray([zpt]), zj, fj, wj, 1, "odd")).real
         npt.assert_allclose(d, [true], rtol=0, atol=1e-6)
+
+
+class TestDiffBaryTrigJaxContract:
+    def test_native_form_prefixes_and_optional_argument_order(self):
+        zj = jnp.array([0.2, 1.1, 2.4, 4.6])
+        fj = jnp.array([1.0, -0.7, 0.4, 1.2])
+        wj = jnp.array([0.7, -1.2, 0.8, 0.3])
+        zz = jnp.array([0.35, 1.7, 3.1])
+        even = diffbarytrig(zz, zj, fj, wj, 2, "even")
+        for form in ("Even", "evening"):
+            npt.assert_allclose(diffbarytrig(zz, zj, fj, wj, form, 2), even,
+                                rtol=0, atol=0)
+        odd = diffbarytrig(zz, zj, fj, wj, 2, "odd")
+        npt.assert_allclose(diffbarytrig(zz, zj, fj, wj, "ODDtail", 2), odd,
+                            rtol=0, atol=0)
+
+    def test_static_order_form_jit_including_support_repair(self):
+        zj = jnp.array([0.2, 1.1, 2.4, 4.6])
+        fj = jnp.array([1 + 0.3j, -0.7 + 0.2j, 0.4 - 0.8j, 1.2])
+        wj = jnp.array([0.7, -1.2 + 0.1j, 0.8, 0.3 - 0.2j])
+        zz = jnp.array([0.35, 0.2, 3.1])
+        compiled = jax.jit(lambda x, y, f, w: diffbarytrig(x, y, f, w, 2, "odd"))
+        npt.assert_allclose(compiled(zz, zj, fj, wj),
+                            diffbarytrig(zz, zj, fj, wj, 2, "odd"),
+                            rtol=2e-13, atol=2e-13)

@@ -1,0 +1,166 @@
+{
+  "cases": [
+    {
+      "case": 1,
+      "order": 1,
+      "form": "odd",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 2,
+      "order": 1,
+      "form": "even",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 3,
+      "order": 2,
+      "form": "odd",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 4,
+      "order": 2,
+      "form": "even",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 5,
+      "order": 3,
+      "form": "odd",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 6,
+      "order": 3,
+      "form": "even",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 7,
+      "order": 1,
+      "form": "Even",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 8,
+      "order": 1,
+      "form": "evening",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 9,
+      "order": 1,
+      "form": "ODDtail",
+      "shape": [
+        2,
+        3
+      ],
+      "finite": 6,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 10,
+      "order": 1,
+      "form": "odd",
+      "shape": [
+        4
+      ],
+      "finite": 3,
+      "nan": 1,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 11,
+      "order": 1,
+      "form": "odd",
+      "shape": [
+        3
+      ],
+      "finite": 3,
+      "nan": 0,
+      "error": "",
+      "message": ""
+    },
+    {
+      "case": 12,
+      "order": 0,
+      "form": "odd",
+      "shape": [
+        0
+      ],
+      "finite": 0,
+      "nan": 0,
+      "error": "[]",
+      "message": "Use revaltrig.m for function evaluation"
+    }
+  ],
+  "guard_entries": 3436,
+  "mismatches": [],
+  "capture_sha256": "fbd0d3b103fff50d03c015ecfce6d8fac95092edd83d57e14f857eb5ad98947b",
+  "receipt": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 82.27997617796063,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}

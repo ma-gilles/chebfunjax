@@ -1,0 +1,10 @@
+{
+  "native_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/diffbarytrig.m",
+  "chebfun_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture_driver": "driver.m",
+  "capture_sha256": "fbd0d3b103fff50d03c015ecfce6d8fac95092edd83d57e14f857eb5ad98947b",
+  "native_capture_supervisor": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/diffbarytrig_native_contract_20261013/run/receipt.json",
+  "native_run_exit_code": 0,
+  "native_cases": 12,
+  "notes": "Fixture contains source output matrices, tested case metadata, and native order-zero error message."
+}

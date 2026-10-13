@@ -1,9 +1,15 @@
 # Current CPU parity checkpoint — 2026-10-13
 
-Main through `e92fb991` is published; this checkpoint adds the packages below.
+Main through `d8e079cb` is published; this checkpoint adds the packages below.
 Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
+
+- `diffbarytrig` now uses JAX recurrences and source option parsing. Twelve
+  native captured cases and unchanged analytic bounds are covered by 34 passing
+  CPU checks; static-argument JIT is covered. The trig utilities module no longer
+  imports NumPy. Exact duplicate support nodes and MATLAB interactive option
+  display remain unqualified. See `docs/diffbarytrig_jax_source_cpu_20261013.json`.
 
 - Floquet periodic panels now use the native data range and compact tick
   presentation. All 32 x/y tick sequences and labels match the fresh native
