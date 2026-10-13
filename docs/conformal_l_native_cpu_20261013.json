@@ -73,7 +73,7 @@
   },
   "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
   "python_head": "7f815cd3",
-  "scope": "ConformalL exact computational prefix before plotting, plus public Python AAA on exact native boundary data. Pole-count symptom not reproduced; no general numerical or page/figure parity claim.",
+  "scope": "ConformalL exact computational prefix before plotting, plus public Python AAA on exact native boundary data. Current pinned MATLAB/Python pole counts agree; historical cached output does not. No general numerical or page/figure parity claim.",
   "native": {
     "version": "25.2.0.3055257 (R2025b) Update 2",
     "origin": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/aaa.m",
@@ -130,5 +130,20 @@
     "Boundary least squares is ill-conditioned and the current example uses inherited NumPy scientific arithmetic; no fit-algorithm attribution or JAX-only qualification follows.",
     "Pole locations differ despite matching counts; reported assignment errors are observations, not relaxed tolerances.",
     "Historical cached figure/output match and fresh full-page rendering are not qualified."
-  ]
+  ],
+  "historical_cached_reference": {
+    "path": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/complex_ConformalL.html",
+    "sha256": "9316d53dc302e32a5036b3185c3829bf3f82a1581dc064ed9074ce0590ba5c82",
+    "source": "cached chebfun.org original, not a rerun of pinned MATLAB",
+    "forward_poles": 27,
+    "inverse_poles": 44,
+    "output_blocks": [
+      "boundary_err =\n   5.1268e-07\n",
+      "number_of_poles_of_f =\n    27\n",
+      "number_of_poles_of_finv =\n    44\n",
+      "ratios =\n    5.6939\n    2.4054\n    1.8590\n    1.6896\n    1.6297\n    1.5929\n    1.5440\n    1.5045\n    1.4706\n    1.4493\n    1.4325\n    1.4156\n    1.4033\n    1.3970\n    1.3973\n    1.4018\n    1.4266\n    1.5493\n    1.5900\n",
+      "total_time_for_this_example =\n    1.3084\n"
+    ],
+    "comparison": "Cached27/44 differ from fresh pinned native46/69 and current Python46/69. The handoff historical extra-pole symptom remains open against the original page."
+  }
 }

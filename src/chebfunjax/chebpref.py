@@ -53,8 +53,6 @@ def _factory_tech_prefs(tech="chebtech2") -> DotDict:
         supplied = provider()
         if not isinstance(supplied, dict):
             raise TypeError("Tech techPref() must return a mapping dict")
-        if any(isinstance(value, dict) for value in supplied.values()):
-            raise NotImplementedError("Nested Tech factory defaults require path-aware mutation")
         return DotDict.wrap(copy.deepcopy(supplied))
     key = (tech.__name__ if isinstance(tech, type) else str(tech)).lower().lstrip("@")
     if key not in {"chebtech", "chebtech1", "chebtech2", "trigtech", "trig", "periodic"}:
@@ -127,7 +125,10 @@ class _TechPrefView(DotDict):
 
     def __getitem__(self, key):
         self._ensure()
-        return dict.__getitem__(self, key)
+        value = dict.__getitem__(self, key)
+        if isinstance(value, dict):
+            return _TechPrefNestedView(self._owner, (key,))
+        return value
 
     def __iter__(self):
         self._ensure()
@@ -143,19 +144,17 @@ class _TechPrefView(DotDict):
 
     def get(self, key, default=None):
         self._ensure()
-        return dict.get(self, key, default)
+        return self[key] if key in self else default
 
     def keys(self):
         self._ensure()
         return dict.keys(self)
 
     def items(self):
-        self._ensure()
-        return dict.items(self)
+        return ((key, self[key]) for key in self)
 
     def values(self):
-        self._ensure()
-        return dict.values(self)
+        return (self[key] for key in self)
 
     def __eq__(self, other):
         self._ensure()
@@ -236,13 +235,147 @@ class _TechPrefView(DotDict):
         return self
 
     def copy(self):
-        return DotDict(dict(self))
+        return DotDict.wrap(copy.deepcopy({key: self[key] for key in self}))
 
     def __copy__(self):
         return self.copy()
 
     def __deepcopy__(self, memo):
-        return DotDict.wrap(copy.deepcopy(dict(self), memo))
+        return DotDict.wrap(copy.deepcopy({key: self[key] for key in self}, memo))
+
+
+class _TechPrefNestedView(DotDict):
+    """Path-aware view for nested tech preference structures.
+
+    Native ``chebfunpref/subsasgn`` writes nested fields into the raw
+    ``techPrefs`` structure, while ``subsref`` resolves the selected provider
+    defaults. Keep that value behavior without mutating a detached provider
+    result.
+    """
+
+    def __init__(self, owner, path):
+        object.__setattr__(self, "_owner", owner)
+        object.__setattr__(self, "_path", tuple(path))
+
+    def _value(self):
+        node = self._owner.techPrefs
+        node._ensure()
+        for key in self._path:
+            node = dict.__getitem__(node, key)
+        return node
+
+    def __getitem__(self, key):
+        value = self._value()[key]
+        if isinstance(value, dict):
+            return _TechPrefNestedView(self._owner, self._path + (key,))
+        return value
+
+    def __setitem__(self, key, value):
+        self._owner._set_tech_pref_path(self._path + (key,), value)
+
+    def __delitem__(self, key):
+        self._owner._delete_tech_pref_path(self._path + (key,))
+
+    def __iter__(self):
+        return iter(self._value())
+
+    def __len__(self):
+        return len(self._value())
+
+    def __contains__(self, key):
+        return key in self._value()
+
+    def __eq__(self, other):
+        return {key: self[key] for key in self} == other
+
+    def __ne__(self, other):
+        return not self == other
+
+    def get(self, key, default=None):
+        return self[key] if key in self else default
+
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self[key] = default
+        return self[key]
+
+    def pop(self, key, default=_MISSING):
+        if key not in self:
+            if default is _MISSING:
+                raise KeyError(key)
+            return default
+        value = self[key]
+        if isinstance(value, _TechPrefNestedView):
+            value = copy.deepcopy(value)
+        del self[key]
+        return value
+
+    def popitem(self):
+        keys = list(self)
+        if not keys:
+            raise KeyError("popitem(): dictionary is empty")
+        key = keys[-1]
+        return key, self.pop(key)
+
+    def clear(self):
+        for key in list(self):
+            del self[key]
+
+    def keys(self):
+        return self._value().keys()
+
+    def items(self):
+        return ((key, self[key]) for key in self)
+
+    def values(self):
+        return (self[key] for key in self)
+
+    def update(self, *args, **kwargs):
+        for key, value in dict(*args, **kwargs).items():
+            self[key] = value
+
+    def __or__(self, other):
+        if not isinstance(other, dict):
+            return NotImplemented
+        return DotDict.wrap({key: self[key] for key in self}) | other
+
+    def __ror__(self, other):
+        if not isinstance(other, dict):
+            return NotImplemented
+        return other | DotDict.wrap({key: self[key] for key in self})
+
+    def __ior__(self, other):
+        self.update(other)
+        return self
+
+    def copy(self):
+        return DotDict.wrap(copy.deepcopy({key: self[key] for key in self}))
+
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        try:
+            return self[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+
+    def __setattr__(self, name, value):
+        if name.startswith("_"):
+            object.__setattr__(self, name, value)
+        else:
+            self[name] = value
+
+    def __delattr__(self, name):
+        try:
+            del self[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+
+    def __repr__(self):
+        return repr(DotDict.wrap(copy.deepcopy({key: self[key] for key in self})))
+
+    def __deepcopy__(self, memo):
+        return DotDict.wrap(copy.deepcopy({key: self[key] for key in self}, memo))
 
 
 class ChebfunPref:
@@ -291,6 +424,41 @@ class ChebfunPref:
         # Raw writes must not call a possibly unsupported/custom provider.
         if self._tech_view is not None:
             object.__setattr__(self._tech_view, "_dirty", True)
+
+    def _set_tech_pref_path(self, path, value):
+        """Assign a nested field in raw provider overrides, as ``subsasgn``."""
+        root, *rest = path
+        if not rest:
+            self._tech_overrides[root] = (
+                DotDict.wrap(copy.deepcopy(value)) if isinstance(value, dict)
+                else copy.deepcopy(value))
+            self._refresh_view()
+            return
+        current = copy.deepcopy(self._tech_overrides.get(root, {}))
+        if not isinstance(current, dict):
+            raise TypeError(f"Technology preference {root!r} is not a mapping")
+        node = current
+        for key in rest[:-1]:
+            child = node.setdefault(key, DotDict())
+            if not isinstance(child, dict):
+                raise TypeError(f"Technology preference path {path!r} is not a mapping")
+            node = child
+        node[rest[-1]] = DotDict.wrap(copy.deepcopy(value)) if isinstance(value, dict) else copy.deepcopy(value)
+        self._tech_overrides[root] = DotDict.wrap(current)
+        self._refresh_view()
+
+    def _delete_tech_pref_path(self, path):
+        """Delete an explicit nested raw override; inherited defaults are read-only."""
+        root, *rest = path
+        if not rest:
+            del self._tech_overrides[root]
+            self._refresh_view()
+            return
+        node = self._tech_overrides[root]
+        for key in rest[:-1]:
+            node = node[key]
+        del node[rest[-1]]
+        self._refresh_view()
 
     def _absorb(self, d):
         # Source constructor merges substructures one level, not recursively.

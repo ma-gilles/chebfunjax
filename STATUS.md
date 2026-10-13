@@ -1,3 +1,12 @@
+## Nested technology preferences — 2026-10-13
+
+Nested provider defaults now resolve through the source preference contract.
+Nested writes update raw overrides while copied preferences remain independent.
+Held views refresh after writes, and existing nested dictionary operations
+preserve removed values. The final candidate passes 40 focused preference
+checks; both integrated files are byte-identical to the guarded candidate.
+See `docs/nested_techprefs_cpu_20261013.json`. Full CI remains pending.
+
 ## CPU truncation compilation reuse — 2026-10-13
 
 standard_chop now shares compiled kernels across nearby lengths while retaining
@@ -19,7 +28,8 @@ checks pass26/26; the two original failures pass in the publication checkout.
 See `docs/surface_color_ci_test_cpu_20261013.json`. Full CI remains unresolved.
 
 Fresh pinned MATLAB and current Python both return46 forward and69 inverse
-ConformalL poles, superseding the old extra-poles symptom. With exact MATLAB
+ConformalL poles. The cached original instead reports27/44, so historical
+extra-pole/output parity remains unresolved. With exact MATLAB
 boundary inputs, inverse poles agree to approximately3e-11 in absolute distance,
 but forward poles differ by up to0.093. The current example's ill-conditioned
 boundary fit also differs; matching counts do not establish full parity.

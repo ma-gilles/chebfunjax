@@ -1,0 +1,34 @@
+{
+  "scope": "Source nested technology-provider preferences and existing explicit nested mapping operations. Source top-level replacement semantics preserved; no broad custom technology guarantee.",
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_head": "1fe5d009",
+  "native_basis": [
+    "@chebfunpref/chebfunpref.m subsref/subsasgn and mergePrefStructs",
+    "tests/chebfunpref/test_chebfunpref.m predicates4\u20135"
+  ],
+  "qualified_changes": [
+    "Resolve nested factory defaults without rejecting the provider",
+    "Write nested raw paths; preserve value copies and selected technology/factory reset",
+    "Refresh held nested views and preserve pop/popitem/clear/setdefault on explicit nested overrides",
+    "Detach dict-valued removals before invalidating the owner path"
+  ],
+  "tests_passed": 40,
+  "receipt": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 6.4491107407957315,
+    "sampled_peak_summed_rss_kib": 392328,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "integration": "Both changed files are byte-identical to final guarded candidate; no independent full numerical suite claim.",
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/NESTED_TECHPREF_HANDOFF_REVIEW_V2.md": "f2c00e57b20024df2b6721657c05db6ea98f16166d9509fe595bcc8b7ba0c792",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/NESTED_TECHPREF_HANDOFF_REVIEW.md": "d21637a0c95639e234208d54ac6b225fe58c37ba3437e171db4b568524527cd3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/evidence/nested_techpref_review_successor.patch": "9e82007fe58ee9be8cfdaece392185c1af41f2c5504fb0bb2f26514c582c4c55",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/evidence/gate1/successor_run/receipt.json": "2b5a394c124b29c4a82b00e7d6c4ea0db4079e19672a9aa0c28318e297dbecbb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/evidence/gate1/successor_run/guard.json": "9e9e47e45e2bcd1a9e6a3e48a7bfe166668a2cd093028c79dee956b3565c1326",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/evidence/gate1/successor_run/stdout": "ff149b9d9024eda467251d353ec1b5054084a588be13072e078b5decea8a2e68",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/src/chebfunjax/chebpref.py": "41abc2ba4cdf645aa997d707eafd93e81d6287363ddb7afc24bfe0f67a462045",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebpref_nested_defaults_1fe5d009_20261013/tests/test_preference_nested_source.py": "4b97e1cee976780ca7f0b66f98241f6e4aac61f0bf501bdf83b24fa8b4f8cf24"
+  }
+}
