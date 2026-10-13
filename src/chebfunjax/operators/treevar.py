@@ -532,10 +532,19 @@ def split_tree(tree, max_order):
 
 
 def _leaf_eval(leaf, t):
-    """Evaluate a scalar/Chebfun leaf at time ``t``."""
-    if isinstance(leaf, (int, float, complex)):
+    """Evaluate a scalar numeric or callable leaf without discarding its dtype.
+
+    Numeric leaves remain constants; callable leaves retain their scalar
+    JAX value, including complex values and dependence on traced time.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/tree2infix.m, @treeVar/toRHS.m.
+    Chebfun commit: 7574c77.
+    """
+    if not callable(leaf):
         return leaf
-    return float(leaf(jnp.asarray(float(t))))
+    return jnp.asarray(leaf(jnp.asarray(t))).reshape(())
 
 
 def _compile(tree, index_start, is_coeff):
@@ -593,6 +602,13 @@ def to_first_order(fun_in, rhs, domain, num_args=None, cell_arg=False):
     the MATLAB test suite), ``problem_dom`` includes breakpoints from
     piecewise coefficients, ``coeffs`` are the leading-coefficient
     scalars/Chebfuns, and ``total_diff_orders`` the per-variable orders.
+
+    The returned RHS assembles a JAX column array without casting scalar
+    leaves to real Python floats. Dtype-stable expressions with traceable
+    leaves support JIT and differentiation with respect to time and state.
+    Tree construction remains eager. Existing unary fallback evaluators are
+    unchanged and are not generally traceable; real-to-complex promotion is
+    not forced merely to make an expression compile.
 
     Provenance
     ----------
@@ -715,16 +731,14 @@ def to_first_order(fun_in, rhs, domain, num_args=None, cell_arg=False):
     coeff_vals = list(coeffs)
 
     def fun_out(t, u):
-        u = np.asarray(u).ravel()
+        u = jnp.asarray(u).ravel()
         out = []
         for j in range(num_args):
             for m in range(total_orders_int[j] - 1):
                 out.append(u[int(index_start[j]) + m])
-            c = coeff_vals[j]
-            cv = c if isinstance(c, float) else float(
-                c(jnp.asarray(float(t))))
+            cv = jnp.asarray(_leaf_eval(coeff_vals[j], t))
             out.append(eq_funs[j](t, u) / cv)
-        return np.asarray(out).reshape(-1, 1)
+        return jnp.stack(out).reshape(-1, 1)
 
     return (fun_out, index_start, problem_dom, coeffs,
             total_orders_int)

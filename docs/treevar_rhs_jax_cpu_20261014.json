@@ -1,0 +1,67 @@
+{
+  "scope": "TreeVar runtime leaf evaluation and RHS assembly only; no unary-table or eager tree-analysis changes",
+  "base": "df06e74e8c54fce58278580a5232d75d23cfd0b9",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_sources": [
+    "@treeVar/toRHS.m",
+    "@treeVar/tree2infix.m",
+    "@treeVar/toFirstOrder.m"
+  ],
+  "fixes": [
+    "Static callable-versus-numeric coefficient dispatch accepts real, complex, and JAX scalar constants.",
+    "Callable scalar leaves preserve complex dtype and traced time dependence.",
+    "JAX state conversion, scalar division, and column stacking preserve traced state and output."
+  ],
+  "qualification": {
+    "baseline": "7 failed / 2 passed; separate direct AD baseline 2 failed / 4 dtype controls passed",
+    "final": "36 passed: 15 supplemental controls plus 21 unchanged original test nodes carrying 98 assertions",
+    "pytest_seconds": 34.89,
+    "supervisor_seconds": 41.281725930050015,
+    "native_bounds": "Original first-order TOL=5e-14 unchanged; supplemental checks use stated 10eps or exact algebraic comparisons.",
+    "controls": [
+      "numeric coefficient types",
+      "complex Chebfun RHS",
+      "polynomial JIT",
+      "state forward/reverse AD",
+      "time-dependent coefficient and RHS JIT/time derivative",
+      "complex polynomial JVP",
+      "float32/64 and complex64/128 eager output dtype"
+    ]
+  },
+  "compatibility": [
+    "RHS return type intentionally changes from NumPy ndarray to JAX array; column shape preserved.",
+    "Numeric leaves remain unchanged so literal integer exponents retain static integer semantics.",
+    "Double construction coefficients retain established float64/complex128 result promotion in tested cases."
+  ],
+  "limitations": [
+    "Tree construction remains eager.",
+    "Unchanged unary NumPy fallback evaluators and runtime real-to-complex branch selection are not generally JIT-compatible.",
+    "Arbitrary user callables are traceable only when their own implementation is traceable.",
+    "No forced complex promotion; no claim of all-TreeVar JIT support."
+  ],
+  "preserved_evidence": [
+    "baseline_tests_initial.py",
+    "treevar_baseline.py",
+    "candidate_source_before_scalar_divisor.py",
+    "candidate_tests_before_format.py"
+  ],
+  "integration": "Apply supplied Git-generated patch hunks; do not overwrite publication treevar.py because root unary and Airy changes are disjoint.",
+  "patch_validation": "PATCH_VALIDATION.json",
+  "receipts": "RECEIPTS.json",
+  "integration_gate": {
+    "wall_seconds": 19.849310280755162,
+    "sampled_peak_summed_rss_kib": 1090492,
+    "inputs_stable": true,
+    "command_exit_code": 0,
+    "remaining_owned_pids": [],
+    "tests": "64 passed: 15 focused RHS controls and all49 independent unary conversion predicates."
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_publication_20261014/run/receipt.json": "4cc88745ba211444bce41c875ce355f075812327ee7c68444e11309a6739b9cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/QUALIFICATION.json": "6fbdd27d18cec24f8e4c4861c1757c15e0187b421f4575b5b039e9d38e1ffe21",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/candidate.patch": "6bd8bec738a9ec6aacc2ae319b90bbd32ce457bb96efabaf95ef79d6a4c82c44",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_rhs_jax_review_20261014/PATCH_VALIDATION.json": "dfd8b070d856efd1c55a8fa8003bf9ca2ad81249f3fad05e731413cd3739c884",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/operators/treevar.py": "4e63b3e506b5ed2eff69b3dc5fc2eb84bb5ec0f55aa87fd9149515228f3ca82d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/treeVar/test_rhs_jax_source.py": "e1ec80ef6684a3c4ed28cbfa96695062ec3193e1edd111752ec3f2ebeaebb30a"
+  }
+}

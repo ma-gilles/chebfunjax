@@ -1,3 +1,14 @@
+## TreeVar scalar leaves and RHS assembly use JAX — 2026-10-14
+
+Preserved complex coefficients and RHS leaves, accepted JAX scalar coefficients,
+and removed host state/output conversions. The private36-test gate includes all98
+original first-order assertions. Merged64 checks pass in19.85seconds, sampled peak
+1,090,492KiB, stable inputs/no survivors:15 focused controls plus49 independent
+unary conversion predicates. Polynomial JIT/state AD and time-dependent leaves
+are qualified; eager construction and unary fallback tracing remain open.
+The RHS now returns a JAX column array. Evidence:
+`docs/treevar_rhs_jax_cpu_20261014.json`. Full parity and main CI remain unresolved.
+
 ## TreeVar Airy uses the existing JAX kernel — 2026-10-14
 
 Removed the TreeVar SciPy Airy runtime call in favor of the qualified JAX
