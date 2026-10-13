@@ -1,0 +1,30 @@
+{
+  "scope": "Native Chebfun3 numeric output for public spin3, shared scalar/system component helper",
+  "reference_commit": "7574c77",
+  "source": "@spinoperator/solvepde.m:429\u2013464 permute grid then fun(vOut,dom,trig)",
+  "baseline": "2failed: wrong output type and spurious imaginary Nyquist offgrid error0.99588084453764",
+  "verification": {
+    "passed": 11,
+    "pytest_seconds": 36.03,
+    "original_gl_convergence_error": 0.000114705082846384,
+    "original_bound": 0.01,
+    "source_seed_for_replay": 6178,
+    "wall_seconds": 43.47498636320233,
+    "peak_summed_rss_kib": 1442400,
+    "inputs_stable": true,
+    "survivors": []
+  },
+  "changes": "Replace host full-FFT callback with JAX native numeric Chebfun3; scalar solver output transpose now JAX",
+  "limitations": [
+    "System container remains Python adapter rather than full Chebmatrix",
+    "Underlying solver still has inherited host numerical paths; not blanket JAX/JIT qualification",
+    "Native normal stream and full PDE field parity not established"
+  ],
+  "artifacts": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_output_cpu_20261014/baseline/receipt.json": "846c691ca585e9fcad4ca2a86dc1d4ef33788a06f62cba8ab8eabf14d7050c51",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_output_cpu_20261014/baseline/stdout": "7a023bfbdad094cdeff3a5e193a6233324fa923bb601708314b605660ae963bb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_output_cpu_20261014/run/receipt.json": "cffef9c69b6483c39e892afaf922fbd02586018d6d84d2c53d2cef1ec3d10c5e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_output_cpu_20261014/run/stdout": "0e7822c2bdaa047b68bd7ef4365b5d755b859370f7c011ce8b21c72c2bd4c39d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_output_cpu_20261014/static.json": "23014264dd50eecee4924716719724374a1d4c791aafbd2b2b02326c326e7d67"
+  }
+}

@@ -330,45 +330,18 @@ class Spinop3:
 
 
 def _make_trig_interp(V, domain_triples):
-    """Build a callable periodic 3D trig interpolant reproducing the
-    value grid ``V`` at its nodes.
+    """Construct native numeric periodic Chebfun3 output from ndgrid values.
 
-    ``V`` samples the (generally complex) solution on the equispaced
-    periodic grid of the cube; the returned ``u(x, y, z)`` evaluates the
-    band-limited trigonometric interpolant
-
-        u = N^-3 sum_{p,q,r} C[p,q,r]
-              exp(i xi_p (x-a)) exp(i eta_q (y-b)) exp(i zeta_r (z-c))
-
-    with ``C = fftn(V)``.  Mirrors @spinoperator/reshapeData.m building
-    a ``chebfun3(..., 'trig')`` from the final value grid.
+    Provenance
+    ----------
+    MATLAB source: @spinoperator/solvepde.m, final output construction.
+    Chebfun commit: 7574c77.
+    Numeric trig factors retain the sampled grid and symmetric Nyquist mode.
     """
-    V = np.asarray(V)
-    N = V.shape[0]
-    C = np.fft.fftn(V)
-    ks = np.fft.fftfreq(N, d=1.0 / N)
-    (ax, bx), (ay, by), (az, bz) = domain_triples
-    xi = 2.0 * np.pi * ks / (bx - ax)
-    eta = 2.0 * np.pi * ks / (by - ay)
-    zeta = 2.0 * np.pi * ks / (bz - az)
-    scale = 1.0 / (N ** 3)
+    from chebfunjax.chebfun3d.chebfun3 import chebfun3
 
-    def ev(x, y, z):
-        x = np.asarray(x, dtype=float)
-        y = np.asarray(y, dtype=float)
-        z = np.asarray(z, dtype=float)
-        shape = np.broadcast_shapes(x.shape, y.shape, z.shape)
-        xf = np.broadcast_to(x, shape).reshape(-1)
-        yf = np.broadcast_to(y, shape).reshape(-1)
-        zf = np.broadcast_to(z, shape).reshape(-1)
-        Ex = np.exp(1j * (xf[:, None] - ax) * xi[None, :])    # (npts, N)
-        Ey = np.exp(1j * (yf[:, None] - ay) * eta[None, :])
-        Ez = np.exp(1j * (zf[:, None] - az) * zeta[None, :])
-        vals = np.einsum("np,pqr,nq,nr->n", Ex, C, Ey, Ez,
-                         optimize=True) * scale
-        return vals.reshape(shape)
-
-    return ev
+    domain = tuple(endpoint for interval in domain_triples for endpoint in interval)
+    return chebfun3(jnp.asarray(V), domain, trig=True)
 
 
 # ---------------------------------------------------------------------------
@@ -380,7 +353,7 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
     """Solve the 3D periodic PDE specified by ``S`` with ``N`` grid
     points per direction and time-step ``dt`` (MATLAB
     ``spin3(S, N, dt, 'plot', 'off')``); returns the solution at
-    ``tspan(end)`` as a callable periodic trig interpolant
+    ``tspan(end)`` as a periodic Chebfun3
     ``u(x, y, z)``.
 
     The heavy lifting is the golden-ref-tested ETDRK4 solver in
@@ -435,7 +408,7 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
     # interpolant builder takes ndgrid layout (x, y, z).  (Before this
     # transpose spin3's output was x/y-swapped relative to its initial
     # condition -- MATLAB's is not.)
-    return _make_trig_interp(np.transpose(np.asarray(u_final), (1, 0, 2)),
+    return _make_trig_interp(jnp.transpose(jnp.asarray(u_final), (1, 0, 2)),
                              [(ax, bx), (ay, by), (az, bz)])
 
 

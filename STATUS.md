@@ -1,3 +1,13 @@
+## Native spin3 numeric output and Nyquist correction — 2026-10-14
+
+Public spin3 now returns native numeric periodic Chebfun3 outputs through
+the shared component helper. This removes the host FFT callback, whose
+unsplit Nyquist mode produced spurious imaginary values for a real field
+(off-grid error0.99588 in the focused control). Both baseline failures are
+fixed;11 merged solver/output checks pass, including original GL convergence
+0.000114705<0.01. The system container and inherited solver host paths remain
+separate gaps. Evidence: `docs/spin3_native_output_cpu_20261014.json`.
+
 ## GL3 random initial field and native dealiasing default — 2026-10-14
 
 GL3 now constructs the source0.1*randn(32,32,32) numeric trig field using
