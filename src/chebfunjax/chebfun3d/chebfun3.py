@@ -565,6 +565,8 @@ class Chebfun3(eqx.Module):
         _r_init: tuple = (6, 6, 6),
         _n_init: tuple | None = None,
         _periodic: bool = False,
+        _first_kind: bool = False,
+        _running_abs_tol: float | None = None,
         _sample_test: bool = True,
         _session_tol: float = _EPS,
     ) -> "Chebfun3":
@@ -660,7 +662,7 @@ class Chebfun3(eqx.Module):
         zp_ = jnp.asarray([0.5 * (za + zb) + 0.25 * (zb - za)])
         if jnp.iscomplexobj(jnp.asarray(f(xp_, yp_, zp_))):
             kw = dict(domain=domain, tol=tol, max_rank=max_rank,
-                      min_samples=min_samples, _periodic=_periodic,
+                      min_samples=min_samples, _periodic=_periodic, _first_kind=_first_kind,
                       _sample_test=_sample_test, _session_tol=_session_tol)
             fre = cls.from_function(
                 lambda x, y, z: jnp.real(f(x, y, z)), **kw)
@@ -670,14 +672,17 @@ class Chebfun3(eqx.Module):
 
             return _assemble_components(fre, fim * 1j)
 
+        from chebfunjax.chebfun3d import _chebfun3f_source as source3f
         from chebfunjax.chebfun3d._chebfun3f_tech import (
             envelope_happiness,
             periodic_factors,
             periodic_points,
         )
+        from chebfunjax.tech.chebtech import Chebtech1
         from chebfunjax.tech.trigtech import Trigtech
 
-        grid_points = periodic_points if _periodic else _chebpts_phys_np
+        grid_points = (source3f.cosine_points if _first_kind else
+                       periodic_points if _periodic else _chebpts_phys_np)
         last_relative_tol = tol
 
         # ----------------------------------------------------------------
@@ -700,13 +705,13 @@ class Chebfun3(eqx.Module):
         def _get_abs_tol(M: np.ndarray, dom_diff: float, old_tol: float) -> float:
             """Compute absolute tolerance matching MATLAB's getTol."""
             nonlocal last_relative_tol
-            if _periodic:
+            if _periodic or _first_kind:
                 if M.size == 0:
                     return float(jnp.fmax(old_tol, tol))
                 values = jnp.asarray(M)
                 count = values.shape[0]
                 last_relative_tol = 2 * count ** (4 / 5) * tol
-                points = periodic_points(count, -1.0, 1.0)
+                points = grid_points(count, -1.0, 1.0)
                 gradient = jnp.max(jnp.abs(jnp.diff(values, axis=0) /
                                            jnp.diff(points)[:, None]))
                 scale = jnp.max(jnp.abs(values))
@@ -741,7 +746,7 @@ class Chebfun3(eqx.Module):
             n = [max(min_samples, 9)] * 3  # MATLAB tpref.minSamples = 17
         # Initial ranks for random initialization
         r = [int(v) for v in _r_init]
-        abs_tol_running = tol
+        abs_tol_running = (tol if _running_abs_tol is None else _running_abs_tol) if _first_kind else tol
 
         xp = grid_points(n[0], xa, xb)
         yp = grid_points(n[1], ya, yb)
@@ -774,7 +779,7 @@ class Chebfun3(eqx.Module):
         happy_phase1 = False
         phase1_iters = 0
 
-        while not happy_phase1 and phase1_iters < 20:
+        while not happy_phase1 and (_first_kind or phase1_iters < 20):
             phase1_iters += 1
             need_refine = False
 
@@ -789,35 +794,50 @@ class Chebfun3(eqx.Module):
                         f"on the grid over domain ({xa},{xb})x({ya},{yb})x({za},{zb})."
                     )
 
-                M1 = T1.reshape(n[0], len(J) * len(K))
+                M1 = source3f.unfold(T1, 0) if _first_kind else T1.reshape(n[0], len(J) * len(K))
                 abs_tol_running = _get_abs_tol(M1, xb - xa, abs_tol_running)
-                _, _, _, I_idx, col1 = _aca(M1, abs_tol_running, max_rank)
+                _, _, _, I_idx, col1 = (source3f.aca(M1, abs_tol_running, n[0]) if _first_kind
+                                                   else _aca(M1, abs_tol_running, max_rank))
                 r[0] = len(I_idx)
                 # Save which (j,k) pairs the selected columns correspond to
-                J_from1 = J[col1 // len(K)]
-                K_from1 = K[col1 % len(K)]
+                if _first_kind:
+                    pair1, pair2 = source3f.decode_columns(col1, len(J))
+                    J_from1, K_from1 = jnp.asarray(J)[pair1], jnp.asarray(K)[pair2]
+                else:
+                    J_from1 = J[col1 // len(K)]
+                    K_from1 = K[col1 % len(K)]
 
                 # ---- ACA on mode-2 unfolding ----
                 T2 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, np.arange(n[1]), K)
                 # mode-2 unfolding: permute to (n2, n1*n3)
-                M2 = T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
+                M2 = source3f.unfold(T2, 1) if _first_kind else T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
                 abs_tol_running = _get_abs_tol(M2, yb - ya, abs_tol_running)
-                _, _, _, J_idx, col2 = _aca(M2, abs_tol_running, max_rank)
+                _, _, _, J_idx, col2 = (source3f.aca(M2, abs_tol_running, n[1]) if _first_kind
+                                                   else _aca(M2, abs_tol_running, max_rank))
                 r[1] = len(J_idx)
-                I_from2 = I_idx[col2 // len(K)]
-                K_from2 = K[col2 % len(K)]
+                if _first_kind:
+                    pair1, pair2 = source3f.decode_columns(col2, len(I_idx))
+                    I_from2, K_from2 = jnp.asarray(I_idx)[pair1], jnp.asarray(K)[pair2]
+                else:
+                    I_from2 = I_idx[col2 // len(K)]
+                    K_from2 = K[col2 % len(K)]
 
                 # ---- ACA on mode-3 unfolding ----
                 T3 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, J_idx, np.arange(n[2]))
                 # mode-3 unfolding: permute to (n3, n1*n2)
-                M3 = T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
+                M3 = source3f.unfold(T3, 2) if _first_kind else T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
                 abs_tol_running = _get_abs_tol(M3, zb - za, abs_tol_running)
-                _, _, _, K_idx, col3 = _aca(M3, abs_tol_running, max_rank)
+                _, _, _, K_idx, col3 = (source3f.aca(M3, abs_tol_running, n[2]) if _first_kind
+                                                   else _aca(M3, abs_tol_running, max_rank))
                 r[2] = len(K_idx)
-                I_from3 = I_idx[col3 // len(J_idx)]
-                J_from3 = J_idx[col3 % len(J_idx)]
+                if _first_kind:
+                    pair1, pair2 = source3f.decode_columns(col3, len(I_idx))
+                    I_from3, J_from3 = jnp.asarray(I_idx)[pair1], jnp.asarray(J_idx)[pair2]
+                else:
+                    I_from3 = I_idx[col3 // len(J_idx)]
+                    J_from3 = J_idx[col3 % len(J_idx)]
 
                 # Update J, K for next ACA-1
                 J = J_idx
@@ -829,17 +849,22 @@ class Chebfun3(eqx.Module):
                 ref1 = r[1] * factor > n[1]
                 ref2 = r[2] * factor > n[2]
                 if ref0 or ref1 or ref2:
-                    if ref0:
-                        n[0] = _reffun(n[0])
-                    if ref1:
-                        n[1] = _reffun(n[1])
-                    if ref2:
-                        n[2] = _reffun(n[2])
+                    if _first_kind:
+                        for axis in range(3):
+                            while r[axis] * factor > n[axis]:
+                                n[axis] = _reffun(n[axis])
+                    else:
+                        if ref0:
+                            n[0] = _reffun(n[0])
+                        if ref1:
+                            n[1] = _reffun(n[1])
+                        if ref2:
+                            n[2] = _reffun(n[2])
                     xp = grid_points(n[0], xa, xb)
                     yp = grid_points(n[1], ya, yb)
                     zp = grid_points(n[2], za, zb)
-                    J = _init_indices(max(r[1], 3), n[1])
-                    K = _init_indices(max(r[2], 3), n[2])
+                    J = _init_indices(r[1] if _first_kind else max(r[1], 3), n[1])
+                    K = _init_indices(r[2] if _first_kind else max(r[2], 3), n[2])
                     need_refine = True
                     break
                 elif min(r) < 2:
@@ -850,7 +875,7 @@ class Chebfun3(eqx.Module):
 
         # Handle rank-zero function
         if r[0] == 0 or r[1] == 0 or r[2] == 0:
-            zero = (Trigtech if _periodic else Chebtech2).from_coeffs(
+            zero = (Chebtech1 if _first_kind else Trigtech if _periodic else Chebtech2).from_coeffs(
                 jnp.zeros(1, dtype=jnp.float64))
             return cls(
                 cols=[zero],
@@ -898,168 +923,181 @@ class Chebfun3(eqx.Module):
         # PHASE 2: Refine fiber grids until Chebyshev coefficients decay
         # ================================================================
 
-        m = list(n)
-        xp_f = grid_points(m[0], xa, xb)
-        yp_f = grid_points(m[1], ya, yb)
-        zp_f = grid_points(m[2], za, zb)
-
-        Uf = Uf_coarse.copy()
-        Vf = Vf_coarse.copy()
-        Wf = Wf_coarse.copy()
-
         phase2_relative_tol = last_relative_tol
-        def is_happy(values, absolute):
-            if _periodic:
-                return envelope_happiness(values, Trigtech, phase2_relative_tol)
-            return _is_happy_matrix(values, absolute)
-
-        # Refine if initial grid is already not enough.
-        # Phase 2 uses Chebtech2 doubling: 2*m - 1 (preserves nesting).
-        res_u = is_happy(Uf, abs_tol_running)
-        res_v = is_happy(Vf, abs_tol_running)
-        res_w = is_happy(Wf, abs_tol_running)
-
-        if not res_u:
-            m[0] = 2 * m[0] - (0 if _periodic else 1)
-        if not res_v:
-            m[1] = 2 * m[1] - (0 if _periodic else 1)
-        if not res_w:
-            m[2] = 2 * m[2] - (0 if _periodic else 1)
-
-        # Physical pivot locations (for Phase 2 fiber re-sampling)
-        xp[I_idx] if len(I_idx) > 0 else xp[[0]]  # not used for x-fibers
-        y_piv_u = yp[J_from1]  # y-locations used when sampling x-fibers
-        z_piv_u = zp[K_from1]  # z-locations used when sampling x-fibers
-
-        x_piv_v = xp[I_from2]  # x-locations used when sampling y-fibers
-        z_piv_v = zp[K_from2]  # z-locations used when sampling y-fibers
-
-        x_piv_w = xp[I_from3]  # x-locations used when sampling z-fibers
-        y_piv_w = yp[J_from3]  # y-locations used when sampling z-fibers
-
-        failure = False
-        max_samples = 2**14 + 1
-
-        while not (res_u and res_v and res_w) and not failure:
+        if _first_kind:
+            Uf, Vf, Wf, xp_f, yp_f, zp_f = source3f.refine_c1_fibers(
+                f, (Uf_coarse, Vf_coarse, Wf_coarse),
+                ((J_from1, K_from1), (I_from2, K_from2), (I_from3, J_from3)),
+                n, dom, phase2_relative_tol)
+        else:
+            m = list(n)
             xp_f = grid_points(m[0], xa, xb)
             yp_f = grid_points(m[1], ya, yb)
             zp_f = grid_points(m[2], za, zb)
 
-            if not res_u:
-                if m[0] > max_samples:
-                    warnings.warn(
-                        "Chebfun3.from_function: x-fibers not resolved "
-                        f"with {m[0]} points. Stopping.",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                    failure = True
-                    break
+            Uf = Uf_coarse.copy()
+            Vf = Vf_coarse.copy()
+            Wf = Wf_coarse.copy()
+
+            phase2_relative_tol = last_relative_tol
+            def is_happy(values, absolute):
                 if _periodic:
-                    added = jnp.stack([jnp.asarray(f(xp_f[1::2],jnp.full(m[0] // 2, float(y_piv_u[j])),jnp.full(m[0] // 2, float(z_piv_u[j]))))
-                                       for j in range(r1)], axis=1)
-                    refined = jnp.zeros((m[0], r1), dtype=added.dtype)
-                    Uf = refined.at[::2].set(jnp.asarray(Uf)).at[1::2].set(added)
-                else:
-                    Uf_new = np.zeros((m[0], r1))
-                    for j in range(r1):
-                        xx_j = jnp.full(m[0], float(y_piv_u[j]), dtype=jnp.float64)
-                        zz_j = jnp.full(m[0], float(z_piv_u[j]), dtype=jnp.float64)
-                        xx_phys = jnp.asarray(xp_f, dtype=jnp.float64)
-                        vals = np.array(
-                            f(xx_phys, xx_j, zz_j), dtype=np.float64
-                        )
-                        Uf_new[:, j] = vals
-                    Uf = Uf_new
+                    return envelope_happiness(values, Trigtech, phase2_relative_tol)
+                return _is_happy_matrix(values, absolute)
 
-            if not res_v:
-                if m[1] > max_samples:
-                    warnings.warn(
-                        "Chebfun3.from_function: y-fibers not resolved "
-                        f"with {m[1]} points. Stopping.",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                    failure = True
-                    break
-                if _periodic:
-                    added = jnp.stack([jnp.asarray(f(jnp.full(m[1] // 2, float(x_piv_v[j])),yp_f[1::2],jnp.full(m[1] // 2, float(z_piv_v[j]))))
-                                       for j in range(r2)], axis=1)
-                    refined = jnp.zeros((m[1], r2), dtype=added.dtype)
-                    Vf = refined.at[::2].set(jnp.asarray(Vf)).at[1::2].set(added)
-                else:
-                    Vf_new = np.zeros((m[1], r2))
-                    for j in range(r2):
-                        xx_j = jnp.full(m[1], float(x_piv_v[j]), dtype=jnp.float64)
-                        zz_j = jnp.full(m[1], float(z_piv_v[j]), dtype=jnp.float64)
-                        yy_phys = jnp.asarray(yp_f, dtype=jnp.float64)
-                        vals = np.array(
-                            f(xx_j, yy_phys, zz_j), dtype=np.float64
-                        )
-                        Vf_new[:, j] = vals
-                    Vf = Vf_new
-
-            if not res_w:
-                if m[2] > max_samples:
-                    warnings.warn(
-                        "Chebfun3.from_function: z-fibers not resolved "
-                        f"with {m[2]} points. Stopping.",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                    failure = True
-                    break
-                if _periodic:
-                    added = jnp.stack([jnp.asarray(f(jnp.full(m[2] // 2, float(x_piv_w[j])),jnp.full(m[2] // 2, float(y_piv_w[j])),zp_f[1::2]))
-                                       for j in range(r3)], axis=1)
-                    refined = jnp.zeros((m[2], r3), dtype=added.dtype)
-                    Wf = refined.at[::2].set(jnp.asarray(Wf)).at[1::2].set(added)
-                else:
-                    Wf_new = np.zeros((m[2], r3))
-                    for j in range(r3):
-                        xx_j = jnp.full(m[2], float(x_piv_w[j]), dtype=jnp.float64)
-                        yy_j = jnp.full(m[2], float(y_piv_w[j]), dtype=jnp.float64)
-                        zz_phys = jnp.asarray(zp_f, dtype=jnp.float64)
-                        vals = np.array(
-                            f(xx_j, yy_j, zz_phys), dtype=np.float64
-                        )
-                        Wf_new[:, j] = vals
-                    Wf = Wf_new
-
-            if not _periodic:
-                abs_tol_running = _get_abs_tol(Uf, xb - xa, abs_tol_running)
-                abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
-                abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
-
+            # Refine if initial grid is already not enough.
+            # Phase 2 uses Chebtech2 doubling: 2*m - 1 (preserves nesting).
             res_u = is_happy(Uf, abs_tol_running)
             res_v = is_happy(Vf, abs_tol_running)
             res_w = is_happy(Wf, abs_tol_running)
 
             if not res_u:
-                m[0] = 2 * m[0] - (0 if _periodic else 1)  # Chebtech2 doubling: 2*m - 1
+                m[0] = 2 * m[0] - (0 if _periodic else 1)
             if not res_v:
                 m[1] = 2 * m[1] - (0 if _periodic else 1)
             if not res_w:
                 m[2] = 2 * m[2] - (0 if _periodic else 1)
 
+            # Physical pivot locations (for Phase 2 fiber re-sampling)
+            xp[I_idx] if len(I_idx) > 0 else xp[[0]]  # not used for x-fibers
+            y_piv_u = yp[J_from1]  # y-locations used when sampling x-fibers
+            z_piv_u = zp[K_from1]  # z-locations used when sampling x-fibers
+
+            x_piv_v = xp[I_from2]  # x-locations used when sampling y-fibers
+            z_piv_v = zp[K_from2]  # z-locations used when sampling y-fibers
+
+            x_piv_w = xp[I_from3]  # x-locations used when sampling z-fibers
+            y_piv_w = yp[J_from3]  # y-locations used when sampling z-fibers
+
+            failure = False
+            max_samples = 2**14 + 1
+
+            while not (res_u and res_v and res_w) and not failure:
+                xp_f = grid_points(m[0], xa, xb)
+                yp_f = grid_points(m[1], ya, yb)
+                zp_f = grid_points(m[2], za, zb)
+
+                if not res_u:
+                    if m[0] > max_samples:
+                        warnings.warn(
+                            "Chebfun3.from_function: x-fibers not resolved "
+                            f"with {m[0]} points. Stopping.",
+                            RuntimeWarning,
+                            stacklevel=2,
+                        )
+                        failure = True
+                        break
+                    if _periodic:
+                        added = jnp.stack([jnp.asarray(f(xp_f[1::2],jnp.full(m[0] // 2, float(y_piv_u[j])),jnp.full(m[0] // 2, float(z_piv_u[j]))))
+                                           for j in range(r1)], axis=1)
+                        refined = jnp.zeros((m[0], r1), dtype=added.dtype)
+                        Uf = refined.at[::2].set(jnp.asarray(Uf)).at[1::2].set(added)
+                    else:
+                        Uf_new = np.zeros((m[0], r1))
+                        for j in range(r1):
+                            xx_j = jnp.full(m[0], float(y_piv_u[j]), dtype=jnp.float64)
+                            zz_j = jnp.full(m[0], float(z_piv_u[j]), dtype=jnp.float64)
+                            xx_phys = jnp.asarray(xp_f, dtype=jnp.float64)
+                            vals = np.array(
+                                f(xx_phys, xx_j, zz_j), dtype=np.float64
+                            )
+                            Uf_new[:, j] = vals
+                        Uf = Uf_new
+
+                if not res_v:
+                    if m[1] > max_samples:
+                        warnings.warn(
+                            "Chebfun3.from_function: y-fibers not resolved "
+                            f"with {m[1]} points. Stopping.",
+                            RuntimeWarning,
+                            stacklevel=2,
+                        )
+                        failure = True
+                        break
+                    if _periodic:
+                        added = jnp.stack([jnp.asarray(f(jnp.full(m[1] // 2, float(x_piv_v[j])),yp_f[1::2],jnp.full(m[1] // 2, float(z_piv_v[j]))))
+                                           for j in range(r2)], axis=1)
+                        refined = jnp.zeros((m[1], r2), dtype=added.dtype)
+                        Vf = refined.at[::2].set(jnp.asarray(Vf)).at[1::2].set(added)
+                    else:
+                        Vf_new = np.zeros((m[1], r2))
+                        for j in range(r2):
+                            xx_j = jnp.full(m[1], float(x_piv_v[j]), dtype=jnp.float64)
+                            zz_j = jnp.full(m[1], float(z_piv_v[j]), dtype=jnp.float64)
+                            yy_phys = jnp.asarray(yp_f, dtype=jnp.float64)
+                            vals = np.array(
+                                f(xx_j, yy_phys, zz_j), dtype=np.float64
+                            )
+                            Vf_new[:, j] = vals
+                        Vf = Vf_new
+
+                if not res_w:
+                    if m[2] > max_samples:
+                        warnings.warn(
+                            "Chebfun3.from_function: z-fibers not resolved "
+                            f"with {m[2]} points. Stopping.",
+                            RuntimeWarning,
+                            stacklevel=2,
+                        )
+                        failure = True
+                        break
+                    if _periodic:
+                        added = jnp.stack([jnp.asarray(f(jnp.full(m[2] // 2, float(x_piv_w[j])),jnp.full(m[2] // 2, float(y_piv_w[j])),zp_f[1::2]))
+                                           for j in range(r3)], axis=1)
+                        refined = jnp.zeros((m[2], r3), dtype=added.dtype)
+                        Wf = refined.at[::2].set(jnp.asarray(Wf)).at[1::2].set(added)
+                    else:
+                        Wf_new = np.zeros((m[2], r3))
+                        for j in range(r3):
+                            xx_j = jnp.full(m[2], float(x_piv_w[j]), dtype=jnp.float64)
+                            yy_j = jnp.full(m[2], float(y_piv_w[j]), dtype=jnp.float64)
+                            zz_phys = jnp.asarray(zp_f, dtype=jnp.float64)
+                            vals = np.array(
+                                f(xx_j, yy_j, zz_phys), dtype=np.float64
+                            )
+                            Wf_new[:, j] = vals
+                        Wf = Wf_new
+
+                if not _periodic:
+                    abs_tol_running = _get_abs_tol(Uf, xb - xa, abs_tol_running)
+                    abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
+                    abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
+
+                res_u = is_happy(Uf, abs_tol_running)
+                res_v = is_happy(Vf, abs_tol_running)
+                res_w = is_happy(Wf, abs_tol_running)
+
+                if not res_u:
+                    m[0] = 2 * m[0] - (0 if _periodic else 1)  # Chebtech2 doubling: 2*m - 1
+                if not res_v:
+                    m[1] = 2 * m[1] - (0 if _periodic else 1)
+                if not res_w:
+                    m[2] = 2 * m[2] - (0 if _periodic else 1)
+
         # ================================================================
         # PHASE 3: QR + DEIM, evaluate core, build Chebtech2 objects
         # ================================================================
 
-        if _periodic:
+        if _periodic or _first_kind:
             abs_tol_running = _get_abs_tol(Uf, xb - xa, abs_tol_running)
             abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
             abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
 
         # QR decompositions of fiber matrices
-        QU, RU = np.linalg.qr(Uf, mode='reduced')  # (m0, r1)
-        QV, RV = np.linalg.qr(Vf, mode='reduced')  # (m1, r2)
-        QW, RW = np.linalg.qr(Wf, mode='reduced')  # (m2, r3)
+        QU, RU = (jnp.linalg.qr(jnp.asarray(Uf), mode="reduced") if _first_kind
+                      else np.linalg.qr(Uf, mode='reduced'))  # (m0, r1)
+        QV, RV = (jnp.linalg.qr(jnp.asarray(Vf), mode="reduced") if _first_kind
+                      else np.linalg.qr(Vf, mode='reduced'))  # (m1, r2)
+        QW, RW = (jnp.linalg.qr(jnp.asarray(Wf), mode="reduced") if _first_kind
+                      else np.linalg.qr(Wf, mode='reduced'))  # (m2, r3)
+
+        choose_deim = source3f.deim if _first_kind else _deim
+        inverse_product = source3f.invtprod if _first_kind else _invtprod
 
         # DEIM interpolation points
-        I_deim, QUI = _deim(QU)  # I_deim: shape (r1,); QUI: (r1, r1)
-        J_deim, QVJ = _deim(QV)  # J_deim: shape (r2,); QVJ: (r2, r2)
-        K_deim, QWK = _deim(QW)  # K_deim: shape (r3,); QWK: (r3, r3)
+        I_deim, QUI = choose_deim(QU)  # I_deim: shape (r1,); QUI: (r1, r1)
+        J_deim, QVJ = choose_deim(QV)  # J_deim: shape (r2,); QVJ: (r2, r2)
+        K_deim, QWK = choose_deim(QW)  # K_deim: shape (r3,); QWK: (r3, r3)
 
         # Evaluate f at the DEIM interpolation points
         xp_deim = xp_f[I_deim]
@@ -1074,32 +1112,47 @@ class Chebfun3(eqx.Module):
         T_deim = np.array(f(xx_j, yy_j, zz_j), dtype=np.float64)
 
         # Tucker core: core = T_deim x_1 inv(QUI) x_2 inv(QVJ) x_3 inv(QWK)
-        core_np = _invtprod(T_deim, QUI, QVJ, QWK)
+        core_np = inverse_product(T_deim, QUI, QVJ, QWK)
 
         # Scaling: ensure factor matrices have decaying coefficients
         # col_scaling[i] = max over (j,k) of |core[i,j,k]|
-        eps_small = np.finfo(np.float64).tiny
-        col_scaling = np.maximum(np.max(np.abs(core_np), axis=(1, 2)), eps_small)
-        row_scaling = np.maximum(np.max(np.abs(core_np), axis=(0, 2)), eps_small)
-        tube_scaling = np.maximum(np.max(np.abs(core_np), axis=(0, 1)), eps_small)
+        if _first_kind:
+            col_scaling = jnp.max(jnp.abs(core_np), axis=(1, 2))
+            row_scaling = jnp.max(jnp.abs(core_np), axis=(0, 2))
+            tube_scaling = jnp.max(jnp.abs(core_np), axis=(0, 1))
+            QU_scaled = QU * col_scaling[None, :]
+            QV_scaled = QV * row_scaling[None, :]
+            QW_scaled = QW * tube_scaling[None, :]
+            core_scaled = inverse_product(core_np, jnp.diag(col_scaling),
+                                          jnp.diag(row_scaling), jnp.diag(tube_scaling))
+        else:
+            eps_small = np.finfo(np.float64).tiny
+            col_scaling = np.maximum(np.max(np.abs(core_np), axis=(1, 2)), eps_small)
+            row_scaling = np.maximum(np.max(np.abs(core_np), axis=(0, 2)), eps_small)
+            tube_scaling = np.maximum(np.max(np.abs(core_np), axis=(0, 1)), eps_small)
 
-        # Scale factor matrices
-        QU_scaled = QU * col_scaling[np.newaxis, :]    # (m0, r1)
-        QV_scaled = QV * row_scaling[np.newaxis, :]    # (m1, r2)
-        QW_scaled = QW * tube_scaling[np.newaxis, :]   # (m2, r3)
+            # Scale factor matrices
+            QU_scaled = QU * col_scaling[np.newaxis, :]    # (m0, r1)
+            QV_scaled = QV * row_scaling[np.newaxis, :]    # (m1, r2)
+            QW_scaled = QW * tube_scaling[np.newaxis, :]   # (m2, r3)
 
-        # Rescale core accordingly
-        core_scaled = _invtprod(
-            core_np,
-            np.diag(col_scaling),
-            np.diag(row_scaling),
-            np.diag(tube_scaling),
-        )
+            # Rescale core accordingly
+            core_scaled = inverse_product(
+                core_np,
+                np.diag(col_scaling),
+                np.diag(row_scaling),
+                np.diag(tube_scaling),
+            )
 
         # ----------------------------------------------------------------
         # Build Chebtech2 objects for each fiber
         # ----------------------------------------------------------------
-        if _periodic:
+        if _first_kind:
+            cols_list = source3f.c1_factors(QU_scaled, phase2_relative_tol, _session_tol)
+            rows_list = source3f.c1_factors(QV_scaled, phase2_relative_tol, _session_tol)
+            tubes_list = source3f.c1_factors(QW_scaled, phase2_relative_tol, _session_tol)
+            core_jax = jnp.asarray(core_scaled)
+        elif _periodic:
             cols_list = periodic_factors(QU_scaled, phase2_relative_tol, _session_tol)
             rows_list = periodic_factors(QV_scaled, phase2_relative_tol, _session_tol)
             tubes_list = periodic_factors(QW_scaled, phase2_relative_tol, _session_tol)
@@ -1178,11 +1231,11 @@ class Chebfun3(eqx.Module):
         if not _sample_test:
             return result
 
-        n_test = 20 if _periodic and vectorize else 30
+        n_test = 20 if (_periodic or _first_kind) and vectorize else 30
         x_t = xa + (xb - xa) * _halton_1d(n_test, 2)
         y_t = ya + (yb - ya) * _halton_1d(n_test, 3)
         z_t = za + (zb - za) * _halton_1d(n_test, 5)
-        if _periodic and vectorize:
+        if (_periodic or _first_kind) and vectorize:
             x_t, y_t, z_t = [axis.reshape(-1) for axis in jnp.meshgrid(
                 jnp.asarray(x_t), jnp.asarray(y_t), jnp.asarray(z_t), indexing="ij")]
         v_op = np.asarray(f(jnp.asarray(x_t), jnp.asarray(y_t),
@@ -1196,7 +1249,7 @@ class Chebfun3(eqx.Module):
         sx = 2.0 * (x_t - xa) / (xb - xa) - 1.0
         sy = 2.0 * (y_t - ya) / (yb - ya) - 1.0
         sz = 2.0 * (z_t - za) / (zb - za) - 1.0
-        if _periodic:
+        if _periodic or _first_kind:
             coordinates = (jnp.asarray(sx), jnp.asarray(sy), jnp.asarray(sz))
             matrices = [jnp.stack([factor(points) for factor in factors])
                         for factors, points in zip((cols_list, rows_list, tubes_list), coordinates)]
@@ -1217,6 +1270,7 @@ class Chebfun3(eqx.Module):
         max_restarts = 10
         if _restarts + 1 >= max_restarts:
             warnings.warn(
+                "chebfun3f: max number of restarts reached" if _first_kind else
                 "Chebfun3.from_function: max number of restarts "
                 f"reached (sample-test error {sample_err:.2e}).",
                 RuntimeWarning,
@@ -1232,7 +1286,7 @@ class Chebfun3(eqx.Module):
         )
         # Ensure r is large enough for (1, r, r)-type functions
         r_new = list(r)
-        if r[0] > 1 or r[1] > 1 or r[2] > 1:
+        if r[0] > 1 or r[1] > 1 or (r[1] if _first_kind else r[2]) > 1:
             if r[0] < 3:
                 r_new[1] = max(6, 2 * r[1])
                 r_new[2] = max(6, 2 * r[2])
@@ -1242,11 +1296,13 @@ class Chebfun3(eqx.Module):
             elif r[2] < 2:
                 r_new[0] = max(6, 2 * r[0])
                 r_new[1] = max(6, 2 * r[1])
-        r_new = tuple(max(v, 3) for v in r_new)
+        r_new = tuple(r_new) if _first_kind else tuple(max(v, 3) for v in r_new)
         return cls.from_function(
             f, domain=domain, tol=tol, max_rank=max_rank,
             min_samples=min_samples, _restarts=_restarts + 1,
-            _r_init=r_new, _n_init=n_new, _periodic=_periodic,
+            vectorize=vectorize if _first_kind else False,
+            _running_abs_tol=abs_tol_running if _first_kind else None,
+            _r_init=r_new, _n_init=n_new, _periodic=_periodic, _first_kind=_first_kind,
             _sample_test=_sample_test, _session_tol=_session_tol,
         )
 
@@ -3430,9 +3486,10 @@ def chebfun3(
     pref : ChebfunPref, optional
         Copied constructor preferences. Direct Fourier construction supports
         ``tech='trigtech'``, source epsilon, and ``cheb3Prefs.sampleTest``.
-        The native Chebtech1 preference construction and classic constructor
-        are not yet supported. The existing explicit ``tech='chebtech1'``
-        keyword retains its legacy factor-conversion behavior.
+        Explicit Chebtech1 preferences retain the native C2 sampling grids
+        and C1 transforms, including native warned approximations. The classic
+        constructor is unsupported. The existing ``tech='chebtech1'`` keyword
+        without an explicit preference retains legacy factor conversion.
 
     Returns
     -------
@@ -3502,8 +3559,8 @@ def chebfun3(
         # @chebfun3/constructor.m: existing objects return before construction
         # and fixed-rank processing; preserve their representation and domain.
         return f
-    if (pref is not None or tech is None) and key in ("chebtech1", "1", "1st") and not direct_periodic:
-        raise NotImplementedError("Native Chebfun3 Chebtech1 preference construction is not yet supported")
+    direct_first_kind = ((pref is not None or tech is None)
+                         and key in ("chebtech1", "1", "1st") and not direct_periodic)
     if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:
         raise NotImplementedError("Only the chebfun3f constructor is supported")
     if pref is not None and key not in ("chebtech", "chebtech2", "2", "2nd",
@@ -3511,17 +3568,18 @@ def chebfun3(
         raise NotImplementedError("Unsupported explicit Chebfun3 technology preference")
     if pref is not None and str(construction_pref.happinessCheck).lower() != "standard":
         raise NotImplementedError("Explicit Chebfun3 preferences currently support standard happiness only")
-    if direct_periodic and str(construction_pref.happinessCheck).lower() != "standard":
-        raise NotImplementedError("Direct trig Chebfun3 currently supports standard happiness only")
+    if (direct_periodic or direct_first_kind) and str(construction_pref.happinessCheck).lower() != "standard":
+        raise NotImplementedError("Direct selected-tech Chebfun3 currently supports standard happiness only")
     periodic_options = dict(
         _periodic=direct_periodic,
+        _first_kind=direct_first_kind,
         _sample_test=bool(construction_pref.cheb3Prefs.sampleTest),
         _session_tol=float(ChebfunPref().techPrefs.chebfuneps),
     )
-    if direct_periodic and not callable(f):
+    if (direct_periodic or direct_first_kind) and not callable(f):
         numeric = jnp.asarray(f)
         if numeric.size != 1:
-            raise NotImplementedError("Direct periodic Chebfun3 numeric tensor input is not yet supported")
+            raise NotImplementedError("Direct selected-tech Chebfun3 numeric tensor input is not yet supported")
         constant = numeric.reshape(-1)[0]
         return Chebfun3.from_function(
             lambda x, y, z: jnp.full(x.shape, constant), domain=dv,
@@ -3571,7 +3629,7 @@ def chebfun3(
         )
     if rank is not None:
         g = g.fix_the_rank(rank)
-    if not direct_periodic and tech is not None:
+    if not direct_periodic and not direct_first_kind and tech is not None:
         g = g.change_tech(tech)
     return g
 

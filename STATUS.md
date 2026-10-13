@@ -1,5 +1,23 @@
 ## Native absolute-value assertions and surface framing — 2026-10-13
 
+## Direct Chebtech1 preference construction — 2026-10-14
+
+Explicit/session Chebfun3 C1 preferences now follow native C2 sampling grids,
+C1 transforms, column-major ACA and nested refinement, JAX QR/DEIM/core solves,
+and the source ten-attempt restart/warning behavior. The original type/origin
+predicates pass in a guarded full diagnostic. Native factor lengths615/389/389
+and warning are reproduced; five off-grid values differ by at most3.12e-14.
+The native warned approximation itself has6.81e-6 analytic error; these results
+do not certify uniform accuracy. The original bound is unchanged.
+
+The merged35-check CPU gate passes in60.69seconds, sampled peak2,287,740KiB;
+original full diagnostic took161.21seconds/4,194,492KiB. New session nonstandard
+happiness rejection closes a root-review finding. Default C2/trig regression
+controls pass; legacy keyword conversion remains distinct. Inherited host
+sampling/RNG adapters, general complex/vectorize/all-preference parity,
+classic/numeric tensor routes and full CI remain open. Evidence:
+`docs/chebfun3_direct_c1_cpu_20261014.json`.
+
 ## Division source predicates and SVD CI repair — 2026-10-14
 
 Restored native rdivide predicates1–7 with exact captured seed6178 inputs and

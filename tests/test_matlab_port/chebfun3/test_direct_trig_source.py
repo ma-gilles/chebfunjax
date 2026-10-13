@@ -135,7 +135,6 @@ def test_constructor_preference_dispatch_and_identity():
 
 
 @pytest.mark.parametrize("field,value", [
-    ("tech", "chebtech1"),
     ("tech", "custom_unsupported_tech"),
     ("happinessCheck", "classic"),
 ])

@@ -1,0 +1,166 @@
+{
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "candidate_base": "29cacc104d89474ac5356b0cd648da7e950a6129",
+  "integration_base": "f6c9d1b84749f6daf9095940ed02092be17aeffc",
+  "scope": "Direct explicit/session Chebtech1 preference construction, real scalar-valued array-capable callbacks, native test_techs1\u20132 and independent retained query observations.",
+  "behavior": [
+    "Preserve native C2 grids with C1 transforms, including warned inaccurate field. No C2 postconversion or stored-factor core repair.",
+    "JAX source-order ACA/unfold, nested refinement, C1 envelope happiness, two source simplifications, QR/DEIM/square solves. C1-only activation; default/trig retain prior algorithms.",
+    "Carry source absolute tolerance across restarts, retain native rank condition, return with native warning after tenth failed attempt.",
+    "Reject nonstandard session C1 happiness explicitly; final dispatch gate qualifies correction found in root review."
+  ],
+  "observations": {
+    "constructor_seconds": 151.35273362323642,
+    "warnings": [
+      "chebfun3f: max number of restarts reached"
+    ],
+    "factor_types": [
+      "Chebtech1",
+      "Chebtech1",
+      "Chebtech1"
+    ],
+    "lengths": [
+      [
+        615,
+        615,
+        615,
+        615,
+        615,
+        615
+      ],
+      [
+        389,
+        389,
+        389,
+        389,
+        389,
+        389
+      ],
+      [
+        389,
+        389,
+        389,
+        389,
+        389,
+        389
+      ]
+    ],
+    "origin_error": 8.881784197001252e-16,
+    "original_bound": 2.220446049250313e-14,
+    "values": [
+      0.9894486141236679,
+      0.9999435271617633,
+      0.9999997317055351,
+      0.9997649898998914,
+      0.9829619208052399
+    ],
+    "native_values": [
+      0.9894486141236962,
+      0.9999435271617401,
+      0.9999997317055248,
+      0.9997649898999226,
+      0.9829619208052677
+    ],
+    "offgrid_native_delta": 3.11972669919669e-14,
+    "offgrid_analytic_error": 6.811706479536994e-06,
+    "source_predicates": [
+      true,
+      true
+    ]
+  },
+  "files": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "05046bbbebeea1c4fc88df33ee1cfb4b1e49441e53ff883dd9a3ec2347af00cd",
+    "src/chebfunjax/chebfun3d/_chebfun3f_source.py": "d59dcb94cb11cbdeb4dcc2680e364f178990358668963b5b3a479c4d820b7a2f",
+    "tests/test_matlab_port/chebfun3/test_source_aca.py": "f9bc7008908b85e3926c6153a65353b9601b80ff410b7fa2a3894d80914ce937",
+    "tests/test_matlab_port/chebfun3/test_direct_c1_source.py": "6c044330615223913b1abdac4fe90c5182d6681649e269260864655cc86eb1a3",
+    "tests/test_matlab_port/chebfun3/test_direct_trig_source.py": "e834c4599ff5c0015b5d011f37f3a1adf2ed76aa48bd248cfc2b8c031e4f62dd"
+  },
+  "agent_receipts": {
+    "primitive_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 6.306398569140583,
+      "sampled_peak_summed_rss_kib": 638260,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "sha256": "98654815654818652dccc82d88412be8e1472d8d635ba2da96c076f87714fe93"
+    },
+    "constructor_run": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 4.621403455734253,
+      "sampled_peak_summed_rss_kib": 172168,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "sha256": "702f3bdfb0a8b348b7fb527c5619b968c1cdf5e162e9c7fda79ce8153f389fd8"
+    },
+    "constructor_run_v2": {
+      "command_exit_code": -15,
+      "supervisor_exit_code": 124,
+      "wall_seconds": 121.74462770018727,
+      "sampled_peak_summed_rss_kib": 3980464,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": "wall_timeout",
+      "sha256": "587569afab9910fa977ecd3428c2d4df00f254fb1d6e42422cd6b0404347d881"
+    },
+    "constructor_run_v3": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 161.21298236679286,
+      "sampled_peak_summed_rss_kib": 4194492,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "sha256": "125af53e2684dfc8d28d31f3caa5bbfd2e511a5fff356b2325ca1a920654ace8"
+    },
+    "regression_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 61.6121193151921,
+      "sampled_peak_summed_rss_kib": 2357596,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "sha256": "020a4a09ec544cdcad9825a1c5b022f6f0a9085e97331507417191a601b78949"
+    },
+    "dispatch_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 7.364381395280361,
+      "sampled_peak_summed_rss_kib": 688632,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "sha256": "8e4ec99e73e60a96b7d8f697ef1ea75c76f2dcfbf0204fe683c196dbead186b7"
+    }
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/QUALIFICATION.md": "858afe30e9fb77aef4364b97b216e2451024d929bd7e62aa2286a50b39fe3c25",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/PLAN.md": "c6654f053f743f6589dd024b8943351bbe71b91c14822c076e526d4369ed8ea0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/constructor_probe.py": "dc2734b21ecd1dce4fd108f5459a87dd6514fc63665829906100c853006ca319",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/constructor_probe.json": "b8e33ff82d1d841f816aebd3b36f87da7164ca4baff3e9cb19d19dec4849bdd8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/constructor_coefficients.npz": "01306b74248e5daa2e2101cdff984146d33bdc7022e6a7acf9198ec8ef019b32",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3f_c1_review_20261013/DELIVERY_HASHES.json": "51545943ea841d3764d919bfe53c830f26edfe3b95baf94814fcd7c2d7528a3f"
+  },
+  "limits": [
+    "Native warning and original weak origin assertion do not imply accurate approximation; analytic off-grid error remains6.81e-6 as in MATLAB.",
+    "No fitted tolerance/count or bitwise QR identity claim.",
+    "Inherited host RNG, sampling and Halton adapters remain. New numerical helpers are JAX only; whole library is not yet JAX only.",
+    "General complex/vectorize behavior, all preferences, classic construction, numeric tensors and all-function C1 parity unqualified.",
+    "Persistent original1\u20132 pytest node added as slow; same computation/assertions passed guarded diagnostic, not rerun redundantly in small gate.",
+    "CPU observations overlap other independent control jobs; no paired performance claim. Full main CI remains required."
+  ],
+  "merged_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/direct_c1_publication_20261014/run/receipt.json",
+    "sha256": "27526f1ff63934ded700fdae902959d3fab2d38605800bbaea0a9d662812da22",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 60.69052788754925,
+    "sampled_peak_summed_rss_kib": 2287740,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "result": "35 passed,1 slow original node deselected. Source/helper files identical to final delivered hashes."
+  }
+}
