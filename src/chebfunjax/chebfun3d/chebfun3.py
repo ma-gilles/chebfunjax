@@ -3474,6 +3474,7 @@ def chebfun3(
     min_samples: int = 17,
     rank=None,
     *,
+    n=None,
     coeffs: bool = False,
     trig: bool = False,
     periodic: bool = False,
@@ -3488,7 +3489,10 @@ def chebfun3(
     """Construct a Chebfun3 approximation of a trivariate function.
 
     Callable data use three-phase construction; numeric tensors use discrete
-    ACA followed by block-term-to-Tucker compression.
+    ACA followed by block-term-to-Tucker compression. With ``n=(nx, ny, nz)``,
+    a callable is sampled once on the second-kind tensor grid before numeric
+    construction. Keywords use the final domain; MATLAB's positional
+    length-before-domain sampling quirk is not reproduced.
 
     Parameters
     ----------
@@ -3583,6 +3587,27 @@ def chebfun3(
         # @chebfun3/constructor.m: existing objects return before construction
         # and fixed-rank processing; preserve their representation and domain.
         return f
+    if n is not None:
+        import operator
+
+        from chebfunjax.utils.quadrature import chebpts3
+
+        try:
+            lengths = tuple(n)
+            if any(isinstance(k, bool) or
+                   getattr(getattr(k, "dtype", None), "kind", None) == "b"
+                   for k in lengths):
+                raise TypeError("boolean lengths are not supported")
+            lengths = tuple(operator.index(k) for k in lengths)
+        except TypeError as exc:
+            raise TypeError("n must contain three positive integers") from exc
+        if len(lengths) != 3 or any(k <= 0 for k in lengths):
+            raise ValueError("n must contain three positive integers")
+        if not callable(f):
+            raise TypeError("Fixed lengths require a callable or expression string")
+        # Native parseInputs samples once on chebpts3 before numeric dispatch.
+        # Python keywords use the final domain regardless of keyword order.
+        f = f(*chebpts3(*lengths, domain=dv))
     direct_first_kind = ((pref is not None or tech is None)
                          and key in ("chebtech1", "1", "1st") and not direct_periodic)
     if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:

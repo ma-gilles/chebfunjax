@@ -1,3 +1,12 @@
+## Fixed-length Chebfun3 callback construction — 2026-10-14
+
+Added n=(nx,ny,nz), sampling a callable once on the native second-kind
+tensor grid before numeric construction. Original syntax clauses3–7 exact
+length/domain predicates and six invalid-length controls pass; ten checks
+total. Python keyword order uses the final domain, so MATLAB positional
+length-before-domain sampling behavior remains an explicit parser difference.
+Evidence: `docs/chebfun3_fixed_lengths_cpu_20261014.json`.
+
 ## Quasimatrix numeric replacement domains — 2026-10-14
 
 Numeric replacement columns now use only the original domain endpoints, as

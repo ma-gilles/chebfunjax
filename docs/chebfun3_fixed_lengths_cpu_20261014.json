@@ -1,0 +1,23 @@
+{
+  "scope": "Fixed tensor lengths n=(nx,ny,nz) Python keyword adapter, original constructor syntax clauses3\u20137",
+  "reference_commit": "7574c77",
+  "source": "@chebfun3/constructor.m parseInputs calls chebpts3 then numeric constructor",
+  "tests": {
+    "passed": 10,
+    "pytest_seconds": 12.22,
+    "native_original_bounds": "Exact requested lengths and domains unchanged",
+    "baseline": "Two original length/domain groups failed unexpected keyword n",
+    "first_successor": "9pass/1fail: supplemental exact2 scalar assertion was unsupported because existing scalar numeric evaluation is1.9999999999999998. Replaced with exact equality against existing numeric scalar route; no scientific tolerance relaxed."
+  },
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fixed_lengths_cpu_20261014/successor_v2/receipt.json",
+  "receipt_sha256": "8594bfceffeaf51e2adae69a4ec34e0fdf89dc49cda38e5ef31b8591d6a8341b",
+  "wall_seconds": 18.012793126981705,
+  "peak_summed_rss_kib": 1118640,
+  "inputs_stable": true,
+  "survivors": [],
+  "limitations": [
+    "Python keyword order uses final domain. Native positional length-before-domain parser samples on prior/default domain and gives different field values; only original clauses3\u20137 length/domain predicates mapped.",
+    "Numeric selected-tech/scalar and general constructor syntax limitations remain separately tracked."
+  ],
+  "native_capture": "chebfun3_constructor_syntax_native_capture_20261013/v2, original literal14 alltrue in v1"
+}
