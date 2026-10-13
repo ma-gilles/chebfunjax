@@ -14,5 +14,20 @@
     "hostname": "della-mol.princeton.edu"
   },
   "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_fixture_packaging_20261013/run/receipt.json",
-  "log_sha256": "1464e2c7ee60e1c5b245e370f41be2d4d196215fd17e542c07437cc0ec05aa45"
+  "log_sha256": "1464e2c7ee60e1c5b245e370f41be2d4d196215fd17e542c07437cc0ec05aa45",
+  "pinned_followup": {
+    "reason": "Initial launcher replaced pinned PYTHONPATH; followup prepends repository source while preserving cached JAX/JAXlib0.11.0.",
+    "result": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "10",
+      "time": "10.288",
+      "timestamp": "2026-10-13T08:01:06.957703-04:00",
+      "hostname": "della-mol.princeton.edu"
+    },
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_fixture_packaging_20261013/run_pinned/receipt.json",
+    "source_change": "None"
+  }
 }
