@@ -1,0 +1,191 @@
+{
+  "title": "Matched public flower inverse benchmark",
+  "date": "2026-10-13",
+  "scope": "Paired formula, separately constructed forward representations; timings are after setup and include synchronized public inv calls, not pristine cold startup or exclusive-host measurements.",
+  "formula": "t on [0,1]; flower=exp(2i*pi*t)*(0.5*sin(8*pi*t)^2+0.5); speed=abs(diff(flower)); forward=cumsum(speed); derivative=diff(forward); six public inverse calls; x=(0:128)/128 forward/inverse roundtrip.",
+  "python": {
+    "head": "7c750029a54dea7c5e554dc99c502d34a157944d",
+    "source_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/__init__.py",
+    "jax_version": "0.11.0",
+    "backend": "cpu",
+    "x64": true,
+    "setup_seconds": 18.78604074008763,
+    "first_after_setup_seconds": 13.285500303376466,
+    "warm_call_seconds": [
+      0.5996110499836504,
+      0.6074752947315574,
+      0.6051325909793377,
+      0.609755122102797,
+      0.6065267608501017
+    ],
+    "warm_median_seconds": 0.6065267608501017,
+    "forward_length": 2092,
+    "inverse_length": 8878,
+    "roundtrip_error": 1.0547118733938987e-15,
+    "roundtrip_bound": 1e-10,
+    "repeat_identical": true,
+    "diagnostic_identical": true,
+    "all_six_same_output_identity": true,
+    "measurement_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/run_data/measurement.json",
+    "measurement_sha256": "4f6786a45fd8d366f785b88047e096321678501e3f9488b02351438e97c56c84",
+    "runtime_origins_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/run_data/runtime_origins.json",
+    "runtime_origins_sha256": "ae72006b9435883e67edfb317d9720081b9d4708986d97edd3ef8a3295aef5ac"
+  },
+  "native": {
+    "source_head": "7574c77680d7e82b79626300bf255498271a72df",
+    "chebfun_origin": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m",
+    "matlab_release": "2025b",
+    "setup_seconds": 0.838974,
+    "first_after_setup_seconds": 0.747594,
+    "warm_call_seconds": [
+      0.604327,
+      0.621545,
+      0.67578,
+      0.695184,
+      0.639917
+    ],
+    "warm_median_seconds": 0.639917,
+    "forward_length": 2016,
+    "inverse_length": 8706,
+    "roundtrip_error": 6.661338147750939e-16,
+    "roundtrip_bound": 1e-10,
+    "success": true,
+    "repeat_identical": true,
+    "diagnostic_identical": true,
+    "report_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/report.json",
+    "report_sha256": "050e6a90f704c69aab4e714b703fc0f60d8f3beb2ab544d0ce8a6b6920b27b3d",
+    "runtime_origins_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/runtime_origins.json",
+    "runtime_origins_sha256": "5f71f591969530ddea6859fab124fa5f28ed26fb4b802290b03fd80869a5eb87"
+  },
+  "ratios_python_over_native": {
+    "first_after_setup": 17.771009803953035,
+    "warm_median": 0.9478209843621934,
+    "setup": 22.391684057059727
+  },
+  "guard_audits": [
+    {
+      "label": "python",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/supervision/receipt.json",
+      "receipt_sha256": "37c2ef48dcbc23c8aecced51c6af440ac439796f6a166caa871f23853bc3de1f",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/guard.json",
+      "guard_sha256": "e7757d30755c65607f92edafeef7fd7a2d14168806911c23462cb3ac1b976d2a",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 44.80243164114654,
+      "sampled_peak_summed_rss_kib": 1628512,
+      "guard_input_count": 306,
+      "current_hash_mismatch_count": 0,
+      "head_bindings": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout": "7c750029a54dea7c5e554dc99c502d34a157944d"
+      },
+      "affinity": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "effective_overrides": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "JAX_PLATFORMS": "cpu"
+      }
+    },
+    {
+      "label": "native_v3",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/supervision/receipt.json",
+      "receipt_sha256": "68c2f069057f8265ff99feb57accf0dacb2fd0b3dfdbd710e4bb78ec76f2c3fb",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/guard.json",
+      "guard_sha256": "ed853d4213254decac0b7f6531e2c941a30d36b2f90b9a3f11041ed5d66a0e06",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 121.41647906508297,
+      "sampled_peak_summed_rss_kib": 1418276,
+      "guard_input_count": 3439,
+      "current_hash_mismatch_count": 0,
+      "head_bindings": {
+        "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref": "7574c77680d7e82b79626300bf255498271a72df"
+      },
+      "affinity": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "effective_overrides": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "JAX_PLATFORMS": "cpu"
+      }
+    }
+  ],
+  "excluded_failed_native_v2": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/native/supervision/receipt.json",
+    "receipt_sha256": "d0149dd41a8234aab782a6b454f57bf764b790039db523bdb8ae319c7b75d57e",
+    "command_exit_code": -9,
+    "censored_limit": "root_exited_with_live_descendants",
+    "remaining_owned_pids": [],
+    "failure": "MATLAB startup aborted before measurement: TEMPDIR name too long assertion. No timings used.",
+    "stderr_sha256": "988de6932c543f4f9e341412e82218e5bec693c7fd7b9bffe07eeeb350266b44",
+    "stderr_excerpt": "MATLAB: WebWindowManagerInitPlugin.cpp:112: std::shared_ptr<cef::transport::CEFTransportServer> {anonymous}::makeBinaryChannelServerAndListen(fl::ustring, std::shared_ptr<cef::transport::CEFServerTransportSession>&, std::shared_ptr<webwindow_util::ConnectionLifetimes>): Assertion `MATLAB cannot start because the TEMPDIR name is too long.' failed."
+  },
+  "limitations": [
+    "Python and MATLAB independently built the same analytic forward formula; the representations differ (Python forward/inverse lengths 2092/8878, MATLAB 2016/8706).",
+    "The setup phase and first public inverse invocation are reported separately. First-after-setup includes the first inv execution/compilation effects; imports, process startup and other runtime initialization are outside those timings.",
+    "Five subsequent uninstrumented calls provide a descriptive warm median only; no confidence interval or exclusive-host claim.",
+    "The paired run does not show a pristine cold-start inverse time, full inverse speed parity, or equivalent internal representations."
+  ],
+  "artifacts": {
+    "python_measurement": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/run_data/measurement.json",
+      "sha256": "4f6786a45fd8d366f785b88047e096321678501e3f9488b02351438e97c56c84"
+    },
+    "python_runtime_origins": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/run_data/runtime_origins.json",
+      "sha256": "ae72006b9435883e67edfb317d9720081b9d4708986d97edd3ef8a3295aef5ac"
+    },
+    "python_driver": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/measure.py",
+      "sha256": "f208661cc1bc0c514761585f02aeae21dc59c9badc201894c4dc7d87a30df1ea"
+    },
+    "python_launch": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/launch.sh",
+      "sha256": "b7d9c636d546792871f86214e4668d492bf8c38f04ad9275096ff4dcde39c3a4"
+    },
+    "python_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/python/supervision/receipt.json",
+      "sha256": "37c2ef48dcbc23c8aecced51c6af440ac439796f6a166caa871f23853bc3de1f"
+    },
+    "native_report": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/report.json",
+      "sha256": "050e6a90f704c69aab4e714b703fc0f60d8f3beb2ab544d0ce8a6b6920b27b3d"
+    },
+    "native_runtime_origins": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/runtime_origins.json",
+      "sha256": "5f71f591969530ddea6859fab124fa5f28ed26fb4b802290b03fd80869a5eb87"
+    },
+    "native_probe": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/probe_inverse.m",
+      "sha256": "f64316a2d6539461facbc75a4f7158d3f5929d59a6c5f6f9602d052ca88f946e"
+    },
+    "native_driver": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/driver.m",
+      "sha256": "295ddee1aa9caf7d971773534e90b53007865edf0aaeaf92ad43443768740d40"
+    },
+    "native_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_native_v3_20261013/supervision/receipt.json",
+      "sha256": "68c2f069057f8265ff99feb57accf0dacb2fd0b3dfdbd710e4bb78ec76f2c3fb"
+    },
+    "native_v2_failed_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/native/supervision/receipt.json",
+      "sha256": "d0149dd41a8234aab782a6b454f57bf764b790039db523bdb8ae319c7b75d57e"
+    },
+    "native_v2_failed_stderr": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_matched_public_rerun_v2_20261013/native/supervision/stderr",
+      "sha256": "988de6932c543f4f9e341412e82218e5bec693c7fd7b9bffe07eeeb350266b44"
+    }
+  }
+}

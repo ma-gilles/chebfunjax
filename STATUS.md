@@ -1,3 +1,21 @@
+## Fresh public inverse CPU measurements — 2026-10-13
+
+At 7c750029, Python and pinned MATLAB Chebfun independently constructed the
+same flower arc-length function, then made six public inverse calls. Warm
+medians were 0.6065s (Python) and 0.6399s (MATLAB). First calls after setup were
+13.2855s and 0.7476s; setup took 18.7860s and 0.8390s. The first-call/setup
+costs remain unresolved. These are descriptive paired CPU measurements,
+not pristine cold starts or identical internal representations.
+
+Both runs exited successfully with stable inputs and no surviving owned
+processes. All six results repeated identically within each implementation;
+129-point roundtrip errors were 1.05e-15 and 6.66e-16, below the unchanged
+1e-10 diagnostic bound. Forward/inverse lengths differ: Python 2092/8878,
+MATLAB 2016/8706. The initial MATLAB startup failure from a long temporary
+path is preserved and excluded. See
+`docs/inverse_public_cpu_benchmark_20261013.json` for timings, hashes and scope.
+Full inverse/example parity and current-main CI remain open.
+
 ## Core CI partition and progress diagnostics — 2026-10-13
 
 Core CI now uses eight shards instead of six. All 797 current core test files
