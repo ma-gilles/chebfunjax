@@ -98,15 +98,15 @@ def run(initial_conditions=None):
     lam, V = np.linalg.eig(B)
     invV = np.linalg.inv(V)
 
-    print("Exponents =")
+    print("Exponents =\n")
     for v in lam:
-        print(f"  {v.real:.15f} {'-' if v.imag < 0 else '+'} "
-              f"{abs(v.imag):.15f}i")
+        print(f"  {v.real:7.4f} {'-' if v.imag < 0 else '+'} "
+              f"{abs(v.imag):.4f}i")
     mult = np.exp(lam * T)
-    print("Multipliers =")
+    print("\nMultipliers =\n")
     for v in mult:
-        print(f"  {v.real:.15f} {'-' if v.imag < 0 else '+'} "
-              f"{abs(v.imag):.15f}i")
+        print(f"  {v.real:7.4f} {'-' if v.imag < 0 else '+'} "
+              f"{abs(v.imag):.4f}i")
 
     # Source matrix operations construct continuous Chebfuns, then each
     # product entry is rebuilt with the original periodic flag.

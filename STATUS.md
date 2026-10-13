@@ -5,6 +5,10 @@ Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
 
+- Floquet exponent and multiplier output now uses the source four-decimal
+  display. Both blocks match the actual native capture exactly when replayed
+  from retained computed eigenvalues; all non-print executable AST is unchanged.
+  See `docs/floquet_print_format_cpu_20261013.json`. Figures remain open.
 - Ten division tests now load packaged native MATLAB fixtures on CI instead
   of external scratch paths. All ten pass locally; assertions are unchanged.
   See `docs/rdivide_fixture_packaging_cpu_20261013.json`.

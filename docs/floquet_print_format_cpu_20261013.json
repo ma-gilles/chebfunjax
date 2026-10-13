@@ -1,0 +1,16 @@
+{
+  "scope": "Two source display blocks only; original computed eigenvalues retained. Source print statements replayed by AST, source multiplier exp expression unchanged. No ODE solve or figure change.",
+  "native_exact_text_match": [
+    "Exponents",
+    "Multipliers"
+  ],
+  "limits": "Historical RNG, figure and representation differences remain open.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/ode-linear/floquet.py": "c798ab2fec25ce4bce3e4691009535a54938237d38c61e2578e7d2b7cff767b0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_retained_suffix_20261011/actual_source_v4/periodic_before_render_matrix.npz": "20814804dbf5063ab10a57a12af7a2ec40eb51d1a9cb871b3fccbd2ce4d72990",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_native_math_rng_20261011/native_v1/supervision/stdout": "86a9b5875432dd53ea957481009345e487b63249d6f286626e7e88f00cf75f15",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_print_format_20261013/replay.py": "b4c1be230c279172d8a9cb5f518f8d8c311a287d0984c424d50a8aa4351288ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_print_format_20261013/source.stdout": "c42b197bfadba36333b1ec717ed91783dc64bdc97270265b37261adbdc67e830"
+  },
+  "non_print_executable_ast_identical_to": "960b97c5"
+}

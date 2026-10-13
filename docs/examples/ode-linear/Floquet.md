@@ -78,10 +78,11 @@ Exponents = diag(D)
 
 ```text
 Exponents =
-  0.000000000004850 - 0.268354690535319i
-  0.000000000004850 + 0.268354690535318i
-  -0.037475319730415 + 0.999999999999999i
-  0.037475319732383 + 1.000000000000000i
+
+   0.0000 - 0.2684i
+   0.0000 + 0.2684i
+  -0.0375 + 1.0000i
+   0.0375 + 1.0000i
 ```
 
 And the Floquet multipliers are given by the exponential of the Floquet exponents multiplied by the period T:
@@ -92,10 +93,11 @@ Multipliers = exp(diag(D)*T)
 
 ```text
 Multipliers =
-  0.665180257008788 - 0.746682814665099i
-  0.665180257008789 + 0.746682814665098i
-  -0.888934086927189 + 0.000000000000002i
-  -1.124942799148267 + 0.000000000000001i
+
+   0.6652 - 0.7467i
+   0.6652 + 0.7467i
+  -0.8889 + 0.0000i
+  -1.1249 + 0.0000i
 ```
 
 We can build the chebmatrix exponential $e^{-tB}$ and use this to find the periodic matrix $P(t)$:
