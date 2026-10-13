@@ -5,6 +5,10 @@ Full parity remains incomplete. Pushes work; qualification is CPU only.
 
 Recent verified changes:
 
+- Floquet periodic-matrix figure now uses measured native subplot positions,
+  source font/stroke sizes and 72dpi at 600x270 pixels. All 16 saved curve
+  coordinate arrays and data limits are unchanged. Tick selection and raster
+  differences remain open. See `docs/floquet_periodic_layout_cpu_20261013.json`.
 - Floquet exponent and multiplier output now uses the source four-decimal
   display. Both blocks match the actual native capture exactly when replayed
   from retained computed eigenvalues; all non-print executable AST is unchanged.

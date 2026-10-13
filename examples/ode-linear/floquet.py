@@ -84,6 +84,30 @@ def _source_logm(matrix):
     return logm(matrix)
 
 
+def _style_periodic_figure(fig, axs):
+    """Apply measured source subplot geometry at the 600x270 reference size.
+
+    R2024b CPU/Painters capture of the literal Floquet.m subplot loop;
+    qualification: docs/floquet_periodic_layout_cpu_20261013.json.
+    Curve coordinates and data limits are left to the public plotting path.
+    """
+    left = (0.13877659574468085, 0.34489361702127663,
+            0.5510106382978723, 0.7571276595744681)
+    bottom = (0.7907855436081243, 0.571699522102748,
+              0.35261350059737157, 0.13352747909199522)
+    for i, row in enumerate(axs):
+        for j, ax in enumerate(row):
+            ax.set_position((left[j], bottom[i],
+                             0.1478723404255319, 0.1320489844684427))
+            ax.tick_params(labelsize=10, pad=2, direction="in",
+                           top=True, right=True, width=0.5, length=0.887234)
+            for spine in ax.spines.values():
+                spine.set_linewidth(0.5)
+    fig.suptitle("Entries of the periodic matrix P(i,j)(t)",
+                 fontsize=11, fontweight="bold", x=310.5003 / 600,
+                 y=1 - 14.25 / 270, va="baseline")
+
+
 def run(initial_conditions=None):
     os.makedirs(_IMG, exist_ok=True)
 
@@ -124,12 +148,8 @@ def run(initial_conditions=None):
     for i in range(n):
         for j in range(n):
             matlab_plot(periodic[i][j].real(), ax=axs[i, j], linewidth=2.0)
-            axs[i, j].tick_params(labelsize=8, pad=1)
-    fig.suptitle("Entries of the periodic matrix P(i,j)(t)",
-                 fontsize=9, fontweight="bold", y=.99)
-    fig.subplots_adjust(left=.145, right=.905, bottom=.13, top=.92,
-                        wspace=.45, hspace=.65)
-    _savefig(fig, os.path.join(_IMG, "Floquet_01.png"), size=(600, 270))
+    _style_periodic_figure(fig, axs)
+    _savefig(fig, os.path.join(_IMG, "Floquet_01.png"), size=(600, 270), dpi=72)
     plt.close(fig)
 
     # Preserve the original ten-period construction and source summation order.

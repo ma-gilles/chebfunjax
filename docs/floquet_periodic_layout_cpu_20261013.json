@@ -1,0 +1,22 @@
+{
+  "scope": "Periodic figure layout only, rendered from actual saved figure/curves. No solve or source data regeneration.",
+  "canvas": [
+    600,
+    270
+  ],
+  "dpi": 72,
+  "unchanged_line_arrays": 16,
+  "data_limits_unchanged": true,
+  "maximum_normalized_axes_position_difference": 1.1102230246251565e-16,
+  "native_axes_font_points": 10,
+  "native_title_font_points": 11,
+  "native_line_width_points": 2,
+  "limits": "Ticks, font glyphs and rasterization remain unqualified. Source solution figure and historical RNG unchanged. No pixel-identity claim.",
+  "bindings": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/examples/ode-linear/floquet.py": "73bcfc401912e798a27503ac0e4a9daa77774a9f18924580731291cf608d4e6d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_retained_suffix_20261011/actual_source_v4/periodic_before_render_figure.pickle": "1bcf9d832d2f9b073450d6b674a723c4ec6e34f5d916358fd553d34b57384003",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_native_graphics_20261011/native_v1/figure1_metadata.json": "6fcbecb79c5cd66d546a37ebccbbc7042f3d0bebd55273b256aa1de903ed36d4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_periodic_layout_20261013/render.py": "a7050b176544b0d5b1b06e2171dc2c890340054008c5bac2e80010dd50d6f5e4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_periodic_layout_20261013/Floquet_01.png": "e4e3964bb55d3830fb75608953bb6b07f5f094bd30de7a6ccd179e2091d13cff"
+  }
+}
