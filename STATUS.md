@@ -1,3 +1,12 @@
+## 2026-10-15: 3D normal and pointwise division
+
+Chebfun3 normal now follows the source gradient and global-norm unit option.
+Scalar/vector pointwise division supports the source operand families, numeric
+empties, domain checks and scalar reciprocal sign checks. Eight supplemental
+controls and four existing division regression items pass. The latter all use
+Python `/`; distinct MATLAB matrix/left division APIs remain to be ported.
+See `docs/chebfun3_normal_rdivide_source_cpu_20261015.json`.
+
 ## 2026-10-14: source 3D simplification
 
 Chebfun3 now exposes factor simplification with the source global tolerance

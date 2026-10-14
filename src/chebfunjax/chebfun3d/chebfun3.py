@@ -53,6 +53,27 @@ if TYPE_CHECKING:
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
 
+def _source_scalar_operand(value):
+    """MATLAB-double scalar dispatch, including concrete JAX 0-D values."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float, complex)):
+        return jnp.asarray(value)
+    if (isinstance(value, jax.Array) and value.size == 1
+            and jnp.issubdtype(value.dtype, jnp.number)):
+        return value.reshape(())
+    return None
+
+
+def _source_isempty(value):
+    """MATLAB ``isempty`` dispatch for functions and numeric empty arrays."""
+    if hasattr(value, "isempty"):
+        return bool(value.isempty())
+    if isinstance(value, (list, tuple, str)):
+        return len(value) == 0
+    return getattr(value, "size", None) == 0
+
+
 def _initialize_random_indices(ri: int, ni: int, restarts: int) -> np.ndarray:
     """Return Chebfun3's source seeded randomized fiber indices.
 
@@ -1720,6 +1741,30 @@ class Chebfun3(eqx.Module):
         raise ValueError("CHEBFUN:CHEBFUN3:vertcat:badInputs: "
                          "Inputs must be either CHEBFUN3 or CHEBFUN3V objects.")
 
+    def normal(self, *options) -> "Chebfun3v":
+        """Gradient normal, optionally divided by its global vector norm.
+
+        MATLAB ``normal(F)`` returns ``grad(F)``.  The first option equal to
+        ``'unit'`` ignoring case requests ``grad(F) ./ norm(grad(F))``;
+        other option strings are ignored by the source method.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/normal.m, @chebfun3v/norm.m,
+                        @chebfun3v/rdivide.m
+        Chebfun commit: 7574c77
+        """
+        result = self.grad()
+        if options and isinstance(options[0], str) and options[0].lower() == "unit":
+            magnitude = result.norm()
+            # MATLAB norm(empty) returns []; `if [] == 0` takes the false
+            # branch, after which empty vector division remains empty.
+            if not result.isempty() and bool(magnitude == 0):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN3:normal:zeroNormal: Normal vector is zero")
+            result = result.rdivide(magnitude)
+        return result
+
     def jacobian(self, g: "Chebfun3", h: "Chebfun3"):
         """Jacobian determinant of three scalar functions.
 
@@ -2601,7 +2646,13 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/times.m, mtimes.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, (int, float, complex)):
+        scalar = _source_scalar_operand(other)
+        if scalar is not None:
+            scale = other if not isinstance(other, jax.Array) else scalar
+            return Chebfun3(cols=list(self.cols), rows=list(self.rows),
+                            tubes=list(self.tubes),
+                            core=self.core * scale, domain=self.domain)
+        if isinstance(other, bool):
             return Chebfun3(cols=list(self.cols), rows=list(self.rows),
                             tubes=list(self.tubes),
                             core=self.core * other, domain=self.domain)
@@ -2638,18 +2689,53 @@ class Chebfun3(eqx.Module):
         return self.mtimes(value)
 
     def __truediv__(self, other) -> "Chebfun3":
-        if isinstance(other, (int, float, complex)):
-            return self * (1.0 / other)
-        if isinstance(other, Chebfun3):
-            self._check_same_domain(other)
-            return Chebfun3.from_function(
-                lambda x, y, z: self(x, y, z) / other(x, y, z),
-                domain=self.domain)
-        return NotImplemented
+        return self.rdivide(other)
+
+    def rdivide(self, other) -> "Chebfun3":
+        """MATLAB ``rdivide`` dispatch for scalar and Chebfun3 operands."""
+        from chebfunjax.chebfun3d._power import _single_sign_test
+
+        if _source_isempty(self) or _source_isempty(other):
+            return Chebfun3.empty()
+        if isinstance(self, Chebfun3):
+            scalar = _source_scalar_operand(other)
+            if scalar is not None:
+                if bool(scalar == 0):
+                    raise ValueError(
+                        "CHEBFUN:CHEBFUN3:rdivide:divByZero: "
+                        "Division by zero or near zero.")
+                # Literal @chebfun3/rdivide.m scalar branch: f .* (1/g).
+                reciprocal = (1.0 / scalar if isinstance(other, jax.Array)
+                              else 1.0 / other)
+                return self * reciprocal
+            if isinstance(other, Chebfun3):
+                if not domainCheck(self, other):
+                    raise ValueError(
+                        "CHEBFUN:CHEBFUN3:rdivide:domains: Domains inconsistent.")
+                return Chebfun3.from_function(
+                    lambda x, y, z: self(x, y, z) / other(x, y, z),
+                    domain=self.domain)
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3:rdivide:badInputs: Unrecognised operation.")
+
+        scalar = _source_scalar_operand(self)
+        if scalar is not None and isinstance(other, Chebfun3):
+            if other.isempty():
+                return Chebfun3.empty()
+            single, has_zero, _ = _single_sign_test(other)
+            if single and not has_zero:
+                numerator = scalar if isinstance(self, jax.Array) else self
+                return Chebfun3.from_function(
+                    lambda x, y, z: numerator / other(x, y, z),
+                    domain=other.domain)
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3:rdivide:zero: "
+                "Attempting to invert a CHEBFUN3 with a root.")
+
+        raise ValueError("CHEBFUN:CHEBFUN3:rdivide:badInputs: Unrecognised operation.")
 
     def __rtruediv__(self, other) -> "Chebfun3":
-        return Chebfun3.from_function(
-            lambda x, y, z: other / self(x, y, z), domain=self.domain)
+        return Chebfun3.rdivide(other, self)
 
     def permute(self, order) -> "Chebfun3":
         """Permute the variables (MATLAB permute): permute(f, [2 1 3])

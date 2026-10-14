@@ -20,9 +20,14 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun3d.chebfun3 import (
+    Chebfun3,
+    _source_isempty,
+    _source_scalar_operand,
+)
 
 _INF = float("inf")
+
 
 
 class Chebfun3v(eqx.Module):
@@ -358,13 +363,61 @@ class Chebfun3v(eqx.Module):
         MATLAB source : @chebfun3v/rdivide.m, mrdivide.m
         Chebfun commit: 7574c77
         """
-        if self.isempty():
-            return self
-        if isinstance(other, (int, float, complex)):
-            return self._like([c / other for c in self.components])
-        if isinstance(other, Chebfun3):
-            return self._like([c / other for c in self.components])
-        return NotImplemented
+        if not (_source_isempty(self) or _source_isempty(other)) and not (
+                isinstance(other, (Chebfun3v, Chebfun3))
+                or _source_scalar_operand(other) is not None):
+            return NotImplemented
+        return self.rdivide(other)
+
+    def __rtruediv__(self, other):
+        return Chebfun3v.rdivide(other, self)
+
+    def rdivide(self, other) -> "Chebfun3v":
+        """Complete MATLAB ``rdivide(F,G)`` dispatch for Chebfun3v.
+
+        The pinned vector source assigns ``nG = F.nComponents`` in its
+        vector/vector branch. This mirrors that literal assignment, including
+        its unreachable unequal-size error and possible indexing failure when
+        the right operand has fewer components.
+        """
+        if _source_isempty(self) or _source_isempty(other):
+            return Chebfun3v()
+
+        if isinstance(self, Chebfun3v):
+            left = self
+            right = other
+            if isinstance(right, Chebfun3v):
+                n_f = left.n_components
+                n_g = left.n_components  # Literal source line: nG = F.nComponents.
+                if n_f != n_g:
+                    raise ValueError("CHEBFUN:CHEBFUN3V:rdivide:dim: Dimension mismatch.")
+                return left._like([
+                    Chebfun3.rdivide(left.components[j], right.components[j])
+                    for j in range(n_f)])
+            if isinstance(right, Chebfun3):
+                return left._like([
+                    Chebfun3.rdivide(component, right)
+                    for component in left.components])
+            scalar = _source_scalar_operand(right)
+            if scalar is not None:
+                return left._like([
+                    Chebfun3.rdivide(component, right)
+                    for component in left.components])
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3V:rdivide:inputs: Unrecognized input arguments.")
+
+        if isinstance(other, Chebfun3v):
+            if isinstance(self, Chebfun3):
+                return other._like([
+                    Chebfun3.rdivide(self, component)
+                    for component in other.components])
+            scalar = _source_scalar_operand(self)
+            if scalar is not None:
+                return other._like([
+                    Chebfun3.rdivide(self, component)
+                    for component in other.components])
+        raise ValueError(
+            "CHEBFUN:CHEBFUN3V:rdivide:inputs: Unrecognized input arguments.")
 
     def __pow__(self, p) -> "Chebfun3v":
         """Componentwise power ``F .^ p`` for a scalar ``p`` (MATLAB power)."""
