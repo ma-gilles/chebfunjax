@@ -1,3 +1,19 @@
+## 2026-10-15: source C2 factor simplification and smaller Laplacian
+
+The Chebtech2 three-dimensional constructor now retains the source relative
+tolerance, simplifies whole factor matrices with native global scaling, and
+keeps the source pre-simplification core. Frozen-matrix native replays confirm
+the old lengths [33,45,46] reduce to [15,14,15]. Twenty focused pytest items
+pass, including both original Laplacian predicates, strict composition28,
+the ported constructor test, and independent analytic controls.
+
+Instrumented cold Laplacian time falls further from 50.76 to 30.66 seconds
+(initially 165.23); construction-plus-Laplacian peak memory is 1,964,108 KiB.
+Output rank now matches native [7,8,12]. One output factor remains one
+coefficient longer than native, and sampled native differences reach5.40e-13.
+Full performance, representation and project parity remain incomplete. See
+`docs/chebfun3_c2_factor_source_cpu_20261015.json` for scope and retained failures.
+
 ## 2026-10-15: native Laplacian algorithm and measured cold improvement
 
 Chebfun3 Laplacian now follows the native single-constructor algorithm and

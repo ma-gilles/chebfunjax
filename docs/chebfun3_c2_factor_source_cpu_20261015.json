@@ -1,0 +1,247 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "f950a0031e740075914fe2dd102aba9666da8d67",
+  "scope": "Chebtech2 phase-3 constructor factor simplification and source core retention; CPU only",
+  "changes": [
+    "Preserve source getTol relative tolerance 2*n^(4/5)*pseudoLevel for Chebtech2 (previously retained machine epsilon).",
+    "Construct combined Chebtech2 factor panels, simplify using session tolerance, then simplify using native matrix-wide globaltol.",
+    "Retain the scaled core computed before simplification, as native phase 3 does; stop applying the extra stored-factor interpolation solve on this constructor path. The private helper remains for existing callers/tests."
+  ],
+  "diagnosis": {
+    "before_input_rank": [
+      6,
+      7,
+      12
+    ],
+    "native_input_rank": [
+      6,
+      7,
+      12
+    ],
+    "before_input_length": [
+      33,
+      45,
+      46
+    ],
+    "native_input_length": [
+      15,
+      14,
+      15
+    ],
+    "frozen_matrix_replay": {
+      "relative": 9.498969352824502e-15,
+      "native_relative": 9.498969352824502e-15,
+      "factors": [
+        {
+          "key": "QU_scaled",
+          "first_length": 33,
+          "native_first_length": 33,
+          "length": 15,
+          "native_length": 15,
+          "shape": [
+            15,
+            6
+          ],
+          "native_shape": [
+            15,
+            6
+          ],
+          "max_coefficient_difference": 4.03629865524377e-16
+        },
+        {
+          "key": "QV_scaled",
+          "first_length": 45,
+          "native_first_length": 45,
+          "length": 14,
+          "native_length": 14,
+          "shape": [
+            14,
+            7
+          ],
+          "native_shape": [
+            14,
+            7
+          ],
+          "max_coefficient_difference": 3.552713678800501e-15
+        },
+        {
+          "key": "QW_scaled",
+          "first_length": 46,
+          "native_first_length": 46,
+          "length": 15,
+          "native_length": 15,
+          "shape": [
+            15,
+            12
+          ],
+          "native_shape": [
+            15,
+            12
+          ],
+          "max_coefficient_difference": 7.105427357601002e-15
+        }
+      ]
+    },
+    "interpretation": "The same captured Python matrices reduce to native factor dimensions under the literal two-stage simplification. This isolates a semantic mismatch without fitting thresholds or changing original tolerances."
+  },
+  "performance": {
+    "laplacian_seconds": 30.66242070775479,
+    "calls": 186,
+    "kernel_seconds": 21.68246732465923,
+    "unique_signatures": 51,
+    "core": [
+      7,
+      8,
+      12
+    ],
+    "input_length": [
+      15,
+      14,
+      15
+    ],
+    "output_length": [
+      15,
+      14,
+      15
+    ],
+    "input_rank": [
+      6,
+      7,
+      12
+    ]
+  },
+  "sample_comparison": {
+    "rank": [
+      7,
+      8,
+      12
+    ],
+    "length": [
+      15,
+      14,
+      15
+    ],
+    "values": [
+      -0.1323174240385164,
+      -0.3969447156360467,
+      -0.49265203071937136,
+      -0.47483217497156816,
+      -0.3914481491214056,
+      -0.2805667391095915,
+      -0.17026475487484166,
+      -0.0798000565379833,
+      -0.021213841590902317,
+      -0.0007998999359400377,
+      -0.020099104710960363,
+      -0.07624677098599691,
+      -0.16163114571453885,
+      -0.2629380108747798,
+      -0.3597865245128933,
+      -0.42332805300436527,
+      -0.41539388123720544,
+      -0.28902797404006414,
+      0.008519530550428353
+    ],
+    "native_sample_max_difference": 5.397401275919478e-13,
+    "python_analytic_max_error": 2.4116542096663807e-12,
+    "native_analytic_max_error": 2.3807900095818013e-12,
+    "note": "Saved output reconstruction only; both original Laplacian pytest predicates passed separately in candidate_run."
+  },
+  "validation": {
+    "candidate_run": "15 pytest items pass in 97.62s: both original Laplacian norms, zero/empty controls, existing analytic constructor controls and Tucker reconstruction controls.",
+    "constructor_run": "5 items pass in 67.65s: 3 native frozen-matrix controls, original compose predicate 28 at its strict bound, and the existing ported constructor test. This does not assert that all native constructor options or assertions are covered.",
+    "source_replay_run": "Native replay v1 failed in harness before factor computations because captured grid sizes were int64; v2 explicitly converts the grid size to MATLAB double. Original failure retained.",
+    "fixture_tolerance": "Supplemental native factor dimensions exact; coefficient comparison <100*binary64eps*max(abs(native coefficients)), allowing FFT arithmetic differences. No original tolerance changed.",
+    "all_runs_cpu": true
+  },
+  "limitations": [
+    "Single instrumented cold measurements, not a repeated matched benchmark; native single-thread MATLAB timing ~0.249s remains much faster.",
+    "Output rank now matches [7,8,12]; output factor lengths [15,14,15] versus native [14,14,15], so representation parity remains incomplete.",
+    "Sampled native discrepancy ~5.40e-13 is not global numerical equality. Python/native analytic errors remain ~2.41e-12/~2.38e-12.",
+    "Phase-1/phase-2 Chebtech2 construction still has previously retained adaptations; this package does not claim complete constructor/JAX-only parity.",
+    "Earlier extra analytic assertion failure remains in the previous package. Both original Laplacian predicates now pass as actual pytest, superseding the earlier driver-only qualification.",
+    "Latest main CI, all example figures and full project parity remain unresolved."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_input_factors_20261015",
+  "runs": {
+    "native_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 82.72509968839586,
+      "sampled_peak_summed_rss_kib": 1328884,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "capture_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 12.245519139803946,
+      "sampled_peak_summed_rss_kib": 943232,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "replay_run": {
+      "command_exit_code": 1,
+      "wall_seconds": 78.78057204233482,
+      "sampled_peak_summed_rss_kib": 1253920,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "replay_v2_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 77.97450262121856,
+      "sampled_peak_summed_rss_kib": 1295748,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "python_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 4.411130682099611,
+      "sampled_peak_summed_rss_kib": 580900,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 105.16691150562838,
+      "sampled_peak_summed_rss_kib": 4003176,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "constructor_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 73.25002046488225,
+      "sampled_peak_summed_rss_kib": 7419404,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "performance_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 47.39294344885275,
+      "sampled_peak_summed_rss_kib": 1964108,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "saved_values_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 4.681214774958789,
+      "sampled_peak_summed_rss_kib": 543372,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "hashes": {
+    "native.m": "e96c9c5388e3c6f4095be39ef1933935c2dd07eba946e57030a773408f5ecbbf",
+    "native.json": "f95b3e6be525f7480acd46e61304bdafbea99b2591dda944a0b641cbfe37ea88",
+    "capture.py": "09888cc9c26935a4ce04b44f2a612f023636141cd16a96b5237aed0d54007811",
+    "capture_0.npz": "68155dc49d17fee1987ac63bf022da60dd445e07a6f21e7f028cb613996fda71",
+    "capture_0.mat": "1768dce6a24850c8a853f023205e0d1281f13b3262fd5259e2436cc18b4c2a0e",
+    "replay.m": "aaffe705182d7826162d741e1096c745ba5a0238d3ec88679c8d44519b0135af",
+    "replay_v2.m": "d92965c5ca5e35c551c94690dfcad1e77a2a076f6ea3143219e50243d4480488",
+    "replay_native.json": "7e525e31d4d01da25d33578cbcdc4a8576b02d5bcb409571a900a2902f511763",
+    "replay.py": "c10bae1cada13d58005fc9f64c72aa76d190354d76a9ce58578d3789921a5ed7",
+    "replay_python.json": "05f6d563d188735008248ba35f800ab3ffd8ca5eeb35d1562f86e3b092d714b4",
+    "summary.json": "4d3df952cd9e6528ddfd0ff86a5bb975e39fd317aec7bbb7c88f71a79fab1e60",
+    "input.npz": "e408809682e90693b38799ab852b8480028da3dfa281e45857e8bcd982e04aec",
+    "output.npz": "82e3a09a41aa924c5dc5570a324f546ae403d92ac5e45d43f27e83dc4acd438a",
+    "saved_values.json": "61580b251c86acf480f640673fbc7132920a5fa745e1c2b3f5cb70623c76eecf"
+  }
+}

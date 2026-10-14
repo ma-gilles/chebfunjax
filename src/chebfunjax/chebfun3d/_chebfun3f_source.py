@@ -128,6 +128,23 @@ def refine_c1_fibers(op, fibers, pairs, sizes, domain, relative_tol):
     return (*fibers, *grids)
 
 
+def c2_factors(values, relative_tol, session_tol):
+    """Apply both native numeric-factor simplifications using C2 tech.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun3/chebfun3f.m, phase3
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    combined = Chebtech2.from_values(jnp.asarray(values)).simplify(session_tol)
+    scales = jnp.max(jnp.abs(combined.values), axis=0)
+    tolerances = relative_tol * jnp.max(scales) / scales
+    combined = combined.simplify(tolerances)
+    return [Chebtech2.from_coeffs(combined.coeffs[:, k]) for k in range(values.shape[1])]
+
+
 def c1_factors(values, relative_tol, session_tol):
     """Apply the native two numeric-factor simplifications using C1 tech.
 

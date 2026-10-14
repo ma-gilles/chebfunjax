@@ -771,6 +771,7 @@ class Chebfun3(eqx.Module):
             if M.size == 0:
                 return float(jnp.fmax(old_tol, tol))
             rel_tol = 2.0 * n ** (4.0 / 5.0) * tol
+            last_relative_tol = rel_tol
             vscale = float(np.max(np.abs(M))) if M.size > 0 else 0.0
             if n > 1:
                 k = np.arange(n)
@@ -1197,48 +1198,11 @@ class Chebfun3(eqx.Module):
             tubes_list = periodic_factors(QW_scaled, phase2_relative_tol, _session_tol)
             core_jax = jnp.asarray(core_scaled)
         else:
-            cols_list = []
-            for i in range(r1):
-                v = jnp.asarray(QU_scaled[:, i], dtype=jnp.float64)
-                c = vals2coeffs(v)
-                vscale = float(jnp.max(jnp.abs(v)))
-                if vscale > 0:
-                    rel_tol = max(tol, _EPS)
-                    cutoff = standard_chop(c, rel_tol)
-                    c = c[:cutoff]
-                cols_list.append(Chebtech2.from_coeffs(c))
-
-            rows_list = []
-            for i in range(r2):
-                v = jnp.asarray(QV_scaled[:, i], dtype=jnp.float64)
-                c = vals2coeffs(v)
-                vscale = float(jnp.max(jnp.abs(v)))
-                if vscale > 0:
-                    rel_tol = max(tol, _EPS)
-                    cutoff = standard_chop(c, rel_tol)
-                    c = c[:cutoff]
-                rows_list.append(Chebtech2.from_coeffs(c))
-
-            tubes_list = []
-            for i in range(r3):
-                v = jnp.asarray(QW_scaled[:, i], dtype=jnp.float64)
-                c = vals2coeffs(v)
-                vscale = float(jnp.max(jnp.abs(v)))
-                if vscale > 0:
-                    rel_tol = max(tol, _EPS)
-                    cutoff = standard_chop(c, rel_tol)
-                    c = c[:cutoff]
-                tubes_list.append(Chebtech2.from_coeffs(c))
-
-            core_jax = _stored_factor_core(
-                T_deim,
-                (cols_list, rows_list, tubes_list),
-                (_phys_to_ref(jnp.asarray(xp_deim), xa, xb),
-                 _phys_to_ref(jnp.asarray(yp_deim), ya, yb),
-                 _phys_to_ref(jnp.asarray(zp_deim), za, zb)),
-                (col_scaling, row_scaling, tube_scaling),
-                core_scaled,
-            )
+            cols_list = source3f.c2_factors(QU_scaled, phase2_relative_tol, _session_tol)
+            rows_list = source3f.c2_factors(QV_scaled, phase2_relative_tol, _session_tol)
+            tubes_list = source3f.c2_factors(QW_scaled, phase2_relative_tol, _session_tol)
+            # Native phase 3 retains the pre-simplification scaled core.
+            core_jax = jnp.asarray(core_scaled)
         result = cls(
             cols=cols_list,
             rows=rows_list,
