@@ -1,0 +1,48 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source median of complex Spherefun representations created by scalar multiplication",
+  "confirmed_fault": "jnp.median rejects complex input. Captured MATLAB numeric median accepts it; @(spherefun)/median delegates to separableApprox fixed2049grid numeric median. Complex constructor input itself is discarded with a warning, so native qualification deliberately uses complex scalar multiplication of a real Spherefun.",
+  "implementation": "JAX lexsort by magnitude then phase on the odd source grid, selecting central value. Real median path unchanged. No host numeric operations introduced.",
+  "source_basis": [
+    "@spherefun/median.m",
+    "@separableApprox/median.m",
+    "MATLAB R2025b toolbox/matlab/datafun/median.m complex branch sorts numeric input"
+  ],
+  "native_gates": {
+    "numeric_and_constructor": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_complex_median_native_20261014/run/receipt.json",
+      "sha256": "42561a8e9ffc3fcfc40e5aa13d1630ce4762f9b656d0c6ba4b31b6f0c88f2509",
+      "command_exit_code": 0,
+      "wall_seconds": 88.81513046612963,
+      "sampled_peak_summed_rss_kib": 1330832,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "arithmetic_created_complex": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_complex_median_arithmetic_native_20261014/run/receipt.json",
+      "sha256": "9cd6bdde199dab1a6696108b2cc6fa02e69ed7fe0675374dbcfa07098b4caaec",
+      "command_exit_code": 0,
+      "wall_seconds": 83.56847263826057,
+      "sampled_peak_summed_rss_kib": 1499172,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "publication_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_complex_median_publication_20261014/run/receipt.json",
+    "sha256": "07f91973963f8cc09fb4bc3b153bfb0436e30b1a2e59c604a0eb039e0f51b994",
+    "command_exit_code": 0,
+    "wall_seconds": 23.65488499403,
+    "sampled_peak_summed_rss_kib": 1031696,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "pytest": "8 passed in21.23s:2exact numeric ordering,2complex public median,4existing real/empty controls",
+  "fixture": "tests/fixtures/spherefun_complex_median_native_20261014.json",
+  "bound": "Supplemental public comparison1000eps*max(1,max(abs(expected))) selected before candidatecomparison; numeric ordering exact. Not an original MATLAB test tolerance.",
+  "limits": [
+    "Only the source odd2049grid reduction is implemented by the new complex helper.",
+    "No full proof of every complex sort tie/nonfinite case or multidimension API.",
+    "Dimension>2 public construction, fullparity and finalgreenmainCI remain unresolved."
+  ]
+}

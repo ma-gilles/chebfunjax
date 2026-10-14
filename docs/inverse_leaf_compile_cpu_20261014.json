@@ -145,5 +145,6 @@
     "src/chebfunjax/tech/_roots_leaf_cpu.py": "3a148c78c8afd56441ade190b6882e7c849db068d9c58fd9649ca55c59c8c7db",
     "tests/test_tech/test_roots_cpu_leaf.py": "a4bcdb4ec659e0301ba60c488652219a9cebb5f73085e098212867200e1217af",
     "tests/test_tech/data/roots_cpu_leaf_inputs.npz": "341349d0679696a9b0a2239d09accc4b8b97a97b9c51c2208b408246f6fdfd8c"
-  }
+  },
+  "followup_original_tech_cases": "Previously deselected oscillatory and complex_recurse cases for both Tech classes now passed on publication CPU; see docs/roots_remaining_original_cpu_20261014.json. Historical gate inventory below remains unchanged."
 }

@@ -1,0 +1,49 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Four original chebtech roots cases omitted from recent inverse leaf-compile gate",
+  "source": "tests/chebtech/test_roots.m passes(n,2) and(n,8), n=1,2",
+  "gates": {
+    "complex_recurse_Chebtech1": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_remaining_original_cpu_20261014/complex_recurse_Chebtech1/run/receipt.json",
+      "sha256": "161a278de14344005a9a6b66e6a59f38ba833d6176b211c41cee972aada2b7be",
+      "pytest": "======================== 1 passed, 1 warning in 10.00s =========================",
+      "command_exit_code": 0,
+      "wall_seconds": 12.856562181841582,
+      "sampled_peak_summed_rss_kib": 953660,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "complex_recurse_Chebtech2": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_remaining_original_cpu_20261014/complex_recurse_Chebtech2/run/receipt.json",
+      "sha256": "ec6c072f9679b194322ef8528ad76529c4e266e0f445d5d28fe40135042ee1f0",
+      "pytest": "========================= 1 passed, 1 warning in 8.27s =========================",
+      "command_exit_code": 0,
+      "wall_seconds": 11.185732970014215,
+      "sampled_peak_summed_rss_kib": 750600,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "oscillatory_Chebtech1": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_remaining_original_cpu_20261014/oscillatory_Chebtech1/run/receipt.json",
+      "sha256": "49119df5ec7155da4e21909b78aaa7bb754bfacc46dac663e296b37375e156c1",
+      "pytest": "======================== 1 passed, 1 warning in 13.31s =========================",
+      "command_exit_code": 0,
+      "wall_seconds": 16.71263123396784,
+      "sampled_peak_summed_rss_kib": 1056512,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "oscillatory_Chebtech2": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_remaining_original_cpu_20261014/oscillatory_Chebtech2/run/receipt.json",
+      "sha256": "562c912e005a2a80ed3ed4a2379f02da870bdd21934b46863d5abd9f5d10f7e2",
+      "pytest": "======================== 1 passed, 1 warning in 13.03s =========================",
+      "command_exit_code": 0,
+      "wall_seconds": 16.04567826911807,
+      "sampled_peak_summed_rss_kib": 881500,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "method": "Each original test executes alone on CPU12\u201315 in pinnedJAX0.11.0/x64,3GiB240s cap. Exact source test formulas/counts/bounds unchanged.",
+  "interpretation": "All four pass. Together with the prior20 original tech tests in docs/inverse_leaf_compile_cpu_20261014.json, this closes its documented four-case exclusion. It does not establish every roots/inverse API, cold speed parity, pages or main CI."
+}

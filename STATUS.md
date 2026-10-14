@@ -1,3 +1,22 @@
+## 2026-10-14: complex median source behavior and remaining root gates
+
+Spherefun median now supports complex representations created by arithmetic.
+JAX's median rejected these inputs; the source orders complex samples by
+magnitude, then phase. The new reduction uses JAX on the fixed odd source
+grid. Two fresh MATLAB captures and eight publication tests qualify the
+numeric ordering, public complex medians, and retained real/empty controls.
+The public comparison bound was selected before comparing implementations.
+Evidence: `docs/sphere_complex_median_source_cpu_20261014.json`.
+
+The four oscillatory/complex-recursion Chebtech root cases omitted from the
+recent inverse optimization gate also passed, each in a fresh CPU process.
+This closes that gate's documented exclusions. Spherefun abs now uses its
+original continuous infinity norm and preference bound, with the previous
+sampled check retained as supplemental. Evidence:
+`docs/roots_remaining_original_cpu_20261014.json` and
+`docs/sphere_abs_original_predicate_cpu_20261014.json`.
+Full parity and final green main CI remain unresolved.
+
 ## 2026-10-14: correct core CI worker imbalance
 
 The older core-0 run reached its 90-minute limit after 1435/1489 tests.
