@@ -3312,19 +3312,19 @@ class Spherefun(eqx.Module):
             f = _spherefun_onediff(f, dim)
         return f
 
-    def grad(self) -> tuple:
-        r"""Surface gradient in Cartesian components.
+    def grad(self) -> "Spherefunv":
+        r"""Alias for :meth:`gradient`, returning a vector field.
 
-        Returns ``(fx, fy, fz)``, the three tangential Cartesian
-        derivatives ``diff(f, 1), diff(f, 2), diff(f, 3)`` of ``self``
-        (each a Spherefun), exactly as MATLAB's gradient.m.
+        MATLAB ``@spherefun/grad.m`` is a direct alias for ``gradient`` and
+        returns a Spherefunv, including for empty input. ``Spherefunv`` also
+        supports component iteration for existing Python tuple-unpacking use.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/gradient.m
+        MATLAB source : @spherefun/grad.m, @spherefun/gradient.m
         Chebfun commit: 7574c77
         """
-        return (self.diff(1), self.diff(2), self.diff(3))
+        return self.gradient()
 
     def gradient(self) -> "Spherefunv":
         r"""Surface gradient as a :class:`Spherefunv`.

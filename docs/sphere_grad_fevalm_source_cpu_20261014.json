@@ -1,0 +1,42 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Spherefun grad API and original grad/fevalm predicates",
+  "changes": {
+    "grad": "Literal alias for gradient returning Spherefunv including empty. Component iteration/length preserve existing Python unpacking/len usage.",
+    "grad_test": "All seven active native predicates; exact formulas and 100*cheb2eps with source 20x/10x multipliers; component isequal for alias equality. Energy and empty/iteration remain supplemental.",
+    "fevalm_test": "Three source predicates; source pass2 is a Chebfun2 on its default domain, not Spherefun. MATLAB Twister2016 six5x1 draws; source100*cheb2eps and matrix spectral2 norm restored (prior bound inflated100x)."
+  },
+  "gates": {
+    "grad": {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_grad_original_publication_20261014/run",
+      "receipt_sha256": "7bdf46bc548bcf8889f3bd3c388cc047e2ff5bea46eb06d4ba256eb00ed761f1",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 52.7972088358365,
+      "sampled_peak_summed_rss_kib": 2681708,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest": [
+        "3 passed, 1 warning in 47.04s"
+      ]
+    },
+    "fevalm": {
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_fevalm_original_publication_20261014/run",
+      "receipt_sha256": "12a5baa084f330e8d8adbea837f16c18715bbcc988dfed472ed6c60191959a7d",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.378207211848348,
+      "sampled_peak_summed_rss_kib": 1073020,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest": [
+        "1 passed, 1 warning in 11.18s"
+      ]
+    }
+  },
+  "review": "Rejected initial test-only gradient tuple-wrapper adaptation; corrected actual public API before qualification. Read source formulas and original predicates directly.",
+  "limitations": [
+    "Full original suite and all322 page/figure parity remain incomplete.",
+    "Final green main CI unresolved."
+  ]
+}

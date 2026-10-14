@@ -1,3 +1,16 @@
+## 2026-10-14: gradient API and original matrix-evaluation tests
+
+Spherefun.grad now returns Spherefunv through the native gradient alias,
+including empty inputs. Component iteration and length preserve existing Python
+unpacking. All seven original gradient predicates pass at source preference
+bounds, with two supplemental compatibility/energy checks. The three original
+fevalm predicates also pass, including the source Chebfun2 case, MATLAB random
+points, matrix spectral norm and removal of a 100x tolerance inflation.
+Guarded publication CPU runs: grad three pytest items, fevalm one item;
+inputs stable and no surviving processes. Evidence:
+`docs/sphere_grad_fevalm_source_cpu_20261014.json`.
+Full parity and final green main CI remain open.
+
 ## 2026-10-14: source Spherefun extrema and complete original empty commands
 
 Default real extrema now follow native CDR reconstruction, rank-one extrema,

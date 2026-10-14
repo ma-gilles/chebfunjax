@@ -87,6 +87,18 @@ class Spherefunv(eqx.Module):
         """
         return getattr(self, "_is_empty_object", False)
 
+    def __iter__(self):
+        """Iterate over components, preserving gradient tuple unpacking.
+
+        The empty Spherefunv has no components and therefore iterates as an
+        empty sequence.
+        """
+        return iter(()) if self.isempty() else iter(self.components)
+
+    def __len__(self) -> int:
+        """Number of components (zero for an empty Spherefunv)."""
+        return 0 if self.isempty() else len(self.components)
+
     components: list  # [fx, fy, fz] or [f, g]
 
     def __init__(self, *components: Spherefun) -> None:
