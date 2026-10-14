@@ -1,3 +1,19 @@
+## 2026-10-14: TreeVar Airy boundary and storage conventions
+
+TreeVar Ai now follows independently captured MATLAB NaN/infinity conventions
+and real/complex output storage. The original36 boundary records all pass,
+closing14 previous discrepancies. A new62-record native capture qualifies60
+records; two finite native-output differences at-2±2i remain strict expected
+failures under the unchanged8eps audit bound. An80-digit reference shows the
+JAX values are more accurate there (real error7.21e-16 versus native9.16e-15),
+so the finite kernel is unchanged. Those native-output differences remain open.
+Merged qualification:150passed,2strictxfails; guardsstable/no survivors.
+The now-unused generic NumPy retry was removed: all49 unary methods already
+select their explicit numeric primitives. This does not create a blanket
+JIT/AD contract. Evidence: `docs/treevar_airy_boundary_cpu_20261014.json`.
+The full49×36 boundary inventory is being refreshed; previous counts are stale.
+Full example/figure/library parity and final greenmainCI remain unresolved.
+
 ## 2026-10-14: restore native row extraction in the end-index test
 
 The source test translation now uses `g.extract_columns(2)` directly for

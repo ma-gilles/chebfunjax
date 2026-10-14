@@ -1,0 +1,2029 @@
+{
+  "release": "2025b",
+  "version": "25.2.0.3055257 (R2025b) Update 2",
+  "origin": "built-in (/usr/licensed/matlab-R2025b/toolbox/matlab/specfun/airy)",
+  "chebfun_origin": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m",
+  "records": [
+    {
+      "label": "real_1",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_2",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fcd1bafc57f31d2"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_3",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_4",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_5",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fa1e1935c04b5fd"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_6",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_7",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_1",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_2",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_3",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_4",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_5",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_6",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_1_7",
+      "input": {
+        "real_hex": [
+          "fff0000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_1",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_2",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "400b5de0203ae1cb"
+        ],
+        "imag_hex": [
+          "c003200e6da43370"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_3",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fcd1bafc57f31d2"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_4",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fcd1bafc57f31d2"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_5",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "400b5de0203ae1cb"
+        ],
+        "imag_hex": [
+          "4003200e6da43370"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_6",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_2_7",
+      "input": {
+        "real_hex": [
+          "c000000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_1",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_2",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfbc0fb443b12840"
+        ],
+        "imag_hex": [
+          "3fed2bb15ec1e31c"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_3",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_4",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_5",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfbc0fb443b12840"
+        ],
+        "imag_hex": [
+          "bfed2bb15ec1e31c"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_6",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_3_7",
+      "input": {
+        "real_hex": [
+          "8000000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_1",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_2",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfbc0fb443b12840"
+        ],
+        "imag_hex": [
+          "3fed2bb15ec1e31c"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_3",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_4",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fd6b8c7962715b8"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_5",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfbc0fb443b12840"
+        ],
+        "imag_hex": [
+          "bfed2bb15ec1e31c"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_6",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_4_7",
+      "input": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_1",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_2",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfb05fa1c9b72061"
+        ],
+        "imag_hex": [
+          "3f615f62b589eda8"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_3",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fa1e1935c04b5fd"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_4",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fa1e1935c04b5fd"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_5",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "bfb05fa1c9b72061"
+        ],
+        "imag_hex": [
+          "bf615f62b589eda8"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_6",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_5_7",
+      "input": {
+        "real_hex": [
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_1",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000"
+        ],
+        "imag_hex": [
+          "7ff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_2",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_3",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_4",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_5",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_6",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000"
+        ],
+        "imag_hex": [
+          "7ff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_6_7",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_1",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "fff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_2",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "c000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_3",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_4",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_5",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "4000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_6",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_7_7",
+      "input": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "fff8000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "real_mixed_nonfinite",
+      "input": {
+        "real_hex": [
+          "fff0000000000000",
+          "0000000000000000",
+          "7ff0000000000000",
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          4
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "7ff8000000000000",
+          "3fd6b8c7962715b8",
+          "0000000000000000",
+          "fff8000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          4
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_real_axis",
+      "input": {
+        "real_hex": [
+          "c000000000000000",
+          "0000000000000000",
+          "4000000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "3fcd1bafc57f31d2",
+          "3fd6b8c7962715b8",
+          "3fa1e1935c04b5fd"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_collapsing",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000",
+          "4000000000000000",
+          "3ff0000000000000"
+        ],
+        "imag_hex": [
+          "3ff0000000000000",
+          "0000000000000000",
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000",
+          "3fa1e1935c04b5fd",
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "complex_mixed",
+      "input": {
+        "real_hex": [
+          "7ff0000000000000",
+          "4000000000000000",
+          "3ff0000000000000"
+        ],
+        "imag_hex": [
+          "3ff0000000000000",
+          "3fd3333333333333",
+          "7ff0000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          "0000000000000000",
+          "3fa0471af9757015",
+          "7ff0000000000000"
+        ],
+        "imag_hex": [
+          "0000000000000000",
+          "bf8ff5933e1d538d",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ],
+        "isreal": false,
+        "class": "double"
+      }
+    },
+    {
+      "label": "empty_real",
+      "input": {
+        "real_hex": [
+          ""
+        ],
+        "imag_hex": [
+          ""
+        ],
+        "shape": [
+          0,
+          2
+        ],
+        "isreal": true,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          ""
+        ],
+        "imag_hex": [
+          ""
+        ],
+        "shape": [
+          0,
+          2
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    },
+    {
+      "label": "empty_complex",
+      "input": {
+        "real_hex": [
+          ""
+        ],
+        "imag_hex": [
+          ""
+        ],
+        "shape": [
+          0,
+          2
+        ],
+        "isreal": false,
+        "class": "double"
+      },
+      "ok": true,
+      "output": {
+        "real_hex": [
+          ""
+        ],
+        "imag_hex": [
+          ""
+        ],
+        "shape": [
+          0,
+          2
+        ],
+        "isreal": true,
+        "class": "double"
+      }
+    }
+  ],
+  "capture_sha256": "f9dfe5d35f6070cc38f4273f92ea53a7c19d159f358dd0dcc4902938b38eb215"
+}

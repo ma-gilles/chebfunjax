@@ -1,0 +1,149 @@
+{
+  "scope": "TreeVar Ai eager boundary/storage adapter only; general airy_all numerical kernel and nonfinite contract unchanged.",
+  "source": "@treeVar/treeVar.m numeric AIRY dispatch, Chebfun7574c77680d7e82b79626300bf255498271a72df. Native R2025b builtin internals opaque; boundary policy is independently captured, not claimed to be a mathematical complex-infinity limit.",
+  "baseline": "62 failed36passed across original36 plusnew62 records. Original14 failures were storage/nonfinite effects, no finite value failures under existing8eps convention.",
+  "policy": [
+    "Any NaN component returns realNaN.",
+    "Positive-real infinity with finite imaginary component returns real0; with imaginary infinity returns complexNaN+NaNi.",
+    "Negative-real infinity on real axis returns realNaN; off-axis returns real+Inf. Finite real with imaginary infinity returns real+Inf.",
+    "Exactly real finite inputs retain Ai real-axis reality; if all output imaginary components vanish, storage becomes real (including empty). Mixed genuinely complex output remains complex.",
+    "Bypass generic NaN-to-complex retry; do not reinterpret legitimate Ai(-Inf)=NaN as a branch-domain error."
+  ],
+  "qualification": "Firstcandidate gate171passed2failed: alloriginal36, allnonfinite/storage,49originalunary,capturedoriginalAi and23generalAiry pass. Finalfocused gate100passed2strictxfail; only test markers/style and two mathematical reference controls added after firstgate. Source unchanged.",
+  "finite_discrepancy": "New -2+/-2i native comparisons retain unchanged8eps bound as strictxfail. Baseline and candidate outputs bit-identical.80-digit mpmath Ai real error: native-9.1587011239954185e-15, JAX-7.210061368442288e-16; imag magnitude errors7.422818152052824e-15 vs3.1739079445182245e-16. No kernel alteration or rounding fit justified. Mathematical controls use same established8eps scaling, separately from unreplaced native assertions.",
+  "limits": [
+    "No blanket TreeVar JIT/AD or arbitrary-complex-infinity limit claim.",
+    "General airy_all retains allnonfinite\u2192NaN behavior, independently regression tested.",
+    "Native62 packet has60passing2strictxfail values; do not claim all62 numerical parity. Original36 Airy packet now allpasses."
+  ],
+  "raw_fixture_verification": {
+    "records": 62,
+    "fields_checked": 620,
+    "raw_mat_sha256": "84fdb11cbb29d63efadcb7a33dab1860bbb4b3c6b95a2ba521c32767a35d7e3c",
+    "fixture_sha256": "e94cfcabac1a3fad9bf8c311c1083c27b89819fbabcdd80a0964d064535c7179",
+    "all_exact": true,
+    "empty_char_adapter": "SciPy empty char array normalized to JSON empty string cell"
+  },
+  "receipts": {
+    "native/run": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 86.2024868298322,
+      "sampled_peak_summed_rss_kib": 1271788,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "8c29b3d961ddf98482032f5ed65198ace269956aa3ccbda0b8fac48688a24382"
+    },
+    "baseline_run": {
+      "supervisor_exit_code": 1,
+      "wall_seconds": 14.45490716630593,
+      "sampled_peak_summed_rss_kib": 807556,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "ad260dcbb8c453ba4894fea8f41d93a58407519049e4f2a3f2617571b4a20c3c"
+    },
+    "candidate_run": {
+      "supervisor_exit_code": 1,
+      "wall_seconds": 54.733005511108786,
+      "sampled_peak_summed_rss_kib": 1379684,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "434518e4a6c2b62b2f2c0d374c3e545f35379a3628b12a2f94e553a28bfaed05"
+    },
+    "accuracy_run": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 5.12303055729717,
+      "sampled_peak_summed_rss_kib": 598984,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "45feb1e7cb9b9253e01a5685099dbd8e0039570be2cdc61d41e443920dcee3a8"
+    },
+    "final_run": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 21.65600923122838,
+      "sampled_peak_summed_rss_kib": 1095672,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "51429d3a914f95b2be5e01e30d62780d91efc673d7e4c1c5d2d6034e2fa04a01"
+    }
+  },
+  "evidence": [
+    "NATIVE_MANIFEST.json",
+    "finite_accuracy_diagnosis.json",
+    "INDEPENDENT_VERIFY.md",
+    "test_before_native_markers.py"
+  ],
+  "merge_selection": [
+    "tests/test_matlab_port/treeVar/test_airy_boundary_source.py",
+    "tests/test_matlab_port/treeVar/test_univariate_matlab.py",
+    "tests/test_matlab_port/treeVar/test_univariate_airy_source.py"
+  ],
+  "merged_gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 42.84527609217912,
+    "sampled_peak_summed_rss_kib": 1103764,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "result": "150 passed,2 strict xfailed; original49unary+originalAi+98nativecases+adapter/highprecisioncontrols",
+    "receipt_sha256": "9ca30305b68d28320ef8b214c67c5c22e95c3fc88e3cffc285b03b81298178e2"
+  },
+  "dead_retry_removal": {
+    "all_unary_names": [
+      "abs",
+      "acos",
+      "acosd",
+      "acot",
+      "acoth",
+      "acsc",
+      "acscd",
+      "acsch",
+      "airy",
+      "asec",
+      "asecd",
+      "asech",
+      "asin",
+      "asind",
+      "asinh",
+      "atan",
+      "atand",
+      "atanh",
+      "conj",
+      "cos",
+      "cosd",
+      "cosh",
+      "cot",
+      "cotd",
+      "coth",
+      "csc",
+      "cscd",
+      "csch",
+      "exp",
+      "expm1",
+      "imag",
+      "log",
+      "log10",
+      "log1p",
+      "log2",
+      "pow2",
+      "real",
+      "sec",
+      "secd",
+      "sech",
+      "sin",
+      "sind",
+      "sinh",
+      "sqrt",
+      "tan",
+      "tand",
+      "tanh",
+      "uminus",
+      "uplus"
+    ],
+    "count": 49,
+    "remaining_generic_retry_names": [],
+    "before_sha256": "a8016751b89f5876cde0b574f9dc12d8d1f4a3e485cbba7e435a66f02aaec81d",
+    "after_sha256": "3554680652f731fa26c22cea4ddfa1da18f35ee1401ed6417ff95ad4cee70d8d",
+    "claim": "For all49 declared methods, prior conditional map returned rawfn directly afterAiry bypass; replacing with dict(raw) preserves exact function objects. Removed unreachable NumPy retry."
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_airy_boundary_review_20261014",
+  "publication_evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_airy_boundary_publication_20261014"
+}

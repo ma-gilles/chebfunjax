@@ -60,8 +60,45 @@ _UNIVARIATE = [
 
 
 def _airy(x):
+    """Ai with MATLAB's captured eager boundary and output-storage policy.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric AIRY dispatch.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Finite arithmetic reuses the existing JAX airy_all kernel. Nonfinite
+    conventions and storage collapse are qualified by R2025b captures;
+    opaque builtin internals are not known. In particular, real +Inf for
+    imaginary-infinite inputs is a builtin convention, not a complex limit.
+    The general airy_all nonfinite contract is unchanged. Eager complex
+    storage collapse is not a whole-function JIT or AD guarantee.
+    """
+    from jax import lax
+
     from chebfunjax.utils.airy_general import airy_all
-    return airy_all(jnp.asarray(x))[0]
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    values = jnp.asarray(x)
+    ai = airy_all(values)[0]
+    if not jnp.issubdtype(values.dtype, jnp.complexfloating):
+        return jnp.where(jnp.isposinf(values), 0., ai)
+    real, imag = jnp.real(values), jnp.imag(values)
+    on_axis = real_sign(imag) == 0
+    finite = jnp.isfinite(real) & jnp.isfinite(imag)
+    any_nan = jnp.isnan(real) | jnp.isnan(imag)
+    positive_real_inf = jnp.isposinf(real)
+    grows = (jnp.isinf(imag) | (jnp.isneginf(real) & ~on_axis))
+    grows = grows & ~positive_real_inf & ~any_nan
+    decays = positive_real_inf & jnp.isfinite(imag)
+    boundary_real = jnp.where(grows, jnp.inf, jnp.where(decays, 0., jnp.nan))
+    boundary_imag = jnp.where(positive_real_inf & jnp.isinf(imag), jnp.nan, 0.)
+    result_real = jnp.where(finite, jnp.real(ai), boundary_real)
+    # Ai is exactly real on the real axis, including signed imaginary zero.
+    finite_imag = jnp.where(on_axis, 0., jnp.imag(ai))
+    result_imag = jnp.where(finite, finite_imag, boundary_imag)
+    if bool(jnp.all(real_sign(result_imag) == 0)):
+        return result_real
+    return lax.complex(result_real, result_imag)
 
 
 def _pow2_branch(x):
@@ -647,34 +684,11 @@ _UNARY_FNS_RAW = {
 }
 
 
-def _complex_fallback(fn):
-    """MATLAB's elementary functions return complex values off the real
-    domain (acoth(0.4), sqrt(-1), ...); numpy returns nan.  Retry with a
-    complex argument so the recorded tree evaluates MATLAB-faithfully."""
-    def wrapped(x):
-        with np.errstate(all="ignore"):
-            r = fn(x)
-        if np.any(np.isnan(r)) and not np.any(np.isnan(x)):
-            with np.errstate(all="ignore"):
-                r = fn(np.asarray(x, dtype=complex))
-        return r
-    return wrapped
+# Each numeric primitive now implements its own branch and storage policy.
+# Some adapters choose real/complex storage eagerly; direct dispatch does not
+# imply that every unary method supports whole-function JIT or AD tracing.
+_UNARY_FNS = dict(_UNARY_FNS_RAW)
 
-
-# These primitives preserve real input dtype over their real domain and
-# have no value-dependent real-to-complex promotion. Native TreeVar records
-# their names and evaluates the corresponding numeric primitive directly.
-# Bypass the eager NaN/complex retry so numeric RHS tracing remains in JAX.
-# Other unary branches retain their existing eager promotion behavior.
-_DTYPE_STABLE_UNARY = frozenset(
-    "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
-    "asinh atan uminus uplus".split())
-# These branch/storage adapters retain captured output storage choices and
-# make no tracing guarantee.
-_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech sind cosd tand cotd cscd secd pow2".split())
-_UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
-              else _complex_fallback(fn)
-              for name, fn in _UNARY_FNS_RAW.items()}
 
 _BINARY_FNS = {
     "plus": lambda a, b: a + b,
