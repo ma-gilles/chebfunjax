@@ -1,0 +1,203 @@
+{
+  "scope": "TreeVar atan/atand exact-axis conventions and sinh imaginary-axis signed zero, CPU only. No general subnormal or all-function parity claim.",
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "atan_review": {
+    "scope": "Shared TreeVar atan/atand exact-axis value conventions; unchanged real arctan and retained off-axis JAX complex kernel.",
+    "provenance": {
+      "chebfun": "7574c77680d7e82b79626300bf255498271a72df",
+      "source": "@treeVar/treeVar.m and @chebfun/atan.m,atand.m dispatch to opaque numeric builtin",
+      "native": "R2025b independently captured198 records, not source implementation identity",
+      "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_branchcut_capture_20261014/native/capture.mat",
+      "capture_sha256": "e5f72a9be911420cebf3c390b7029d70cde916f5e73fd278435beef6d01bce6d",
+      "verification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_branchcut_capture_20261014/VERIFICATION.md"
+    },
+    "algorithm": [
+      "Exact IEEE real_sign detects the axes without classifying subnormal nonzero input as zero.",
+      "Exact imaginary axis: real+0 inside/on poles; real -sign(y)*pi/2 outside. Imaginary height uses stable atanh log1p identities, with correct signed pole infinities.",
+      "Exact real axis uses real arctan and +0 imaginary output, including NaN/Inf array entries.",
+      "Off-axis values retain JAX arctan. NaN imaginary values do not enter finite-axis identity.",
+      "Custom JVP preserves analytic dz/(1+z*z) at regular points, including transverse tangents on interior axes.",
+      "Shared eager storage adapter collapses exact-real concrete output; traced outputdtype stays static. Componentwise degree scaling unchanged."
+    ],
+    "mathematical_reference": {
+      "precision_digits": 80,
+      "independent_verification_digits": 500,
+      "verification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_highprecision_verify_20261014/REPORT.md",
+      "formula": "Re=.5*(atan2(x,1-y)+atan2(x,1+y)); Im=.5*(log(hypot(x,y+1))-log(hypot(x,y-1)))",
+      "tiny_pole": "At minsub+i, analytic imaginary372.5666095509706038; native177.09631960648744. No floor/roundoff fitting. Current off-axis JAX output also inaccurate (Inf), not repaired in this package."
+    },
+    "diagnosis": {
+      "native198": {
+        "baseline_failed": 52,
+        "candidate_failed": 28
+      },
+      "old_native72": {
+        "baseline_failed": 1,
+        "candidate_failed": 0
+      },
+      "expanded_atan28": {
+        "baseline_failed": 9,
+        "candidate_failed": 1
+      },
+      "offaxis_byte_check": {
+        "records": 168,
+        "identical": 166,
+        "exceptions": "Two atand(-minsub +/- i) realzero changes+0 to-0 because nonzero input no longer misclassified as exactpole; still strictxfails. No finite off-axis component changed."
+      }
+    },
+    "qualification": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_axis_review_20261014/focused_run/receipt.json",
+      "receipt_sha256": "a38de3c0802b383395e6c681dd1eff30e41bfc9e8f2f7f14f46181dd9a4eb407",
+      "passed": 1756,
+      "strict_xfailed": 88,
+      "pytest_seconds": 48.61,
+      "supervisor_seconds": 56.16978164808825,
+      "peak_summed_rss_kib": 1851308,
+      "stable_inputs": true,
+      "survivors": [],
+      "coverage": "Native198 +old72 +independentHP60 +new10JIT/ADcontrols +fullpreviousstoragemodule +unchanged49original and32runtimecontrols.",
+      "xfail_breakdown": "48 retained storage-packet arithmetic rows,28native198 tiny rows,12independentHP tiny rows; allassertions unchanged/no widenedbounds. Nine previouslydocumented atan storage-packet rows nowresolved and markersremoved."
+    },
+    "limitations": [
+      "No mathematical derivative parity is claimed on branch cuts or singularpoles; formal analytic JAX tangent convention retained.",
+      "No general subnormalcomplexatanrepair or all198nativeparity claim.",
+      "Native tiny-pole values themselves fail independent mathematicalreference; keeprawcaptureandstrictnativechecks.",
+      "Eager/traced dtype difference remains intentional.",
+      "No general shared Chebfun inverse-trig repair or blanket49methodJIT claim."
+    ],
+    "packaging": "Sevenpaths, cleanpreimage gitapplycheck+apply+allbytesverified, Ruffpassed. No P edits."
+  },
+  "sinh_review": {
+    "scope": "TreeVar complex SINH imaginary-axis real signed-zero correction; no tan/tanh edits.",
+    "provenance": {
+      "source": "@treeVar/treeVar.m numeric method and @chebfun/sinh.m compose(F,@sinh)",
+      "commit": "7574c77680d7e82b79626300bf255498271a72df",
+      "native": "R2025b opaque builtin capture, no internal source claim",
+      "diagnosis": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_signed_zero_diagnosis_20261014/REPORT.md",
+      "diagnosis_sha256": "00334f3f4aa75de4c5b8f3a256c8bcda277fcb90a93b09f2a504ab0cea42069d",
+      "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_signed_zero_capture_prepare_20261014/native/capture.mat",
+      "capture_sha256": "573d4561853bcacd6ce6212ce470cf62a59224e8a6eebc5f81aec4f6a8198338"
+    },
+    "algorithm": [
+      "Keep real input jnp.sinh unchanged.",
+      "For complex input compute existingjnp.sinh then correct only realcomponent at exactIEEEzero realinput and finiteimaginaryinput.",
+      "Signedzero sign follows signbit(x) XOR signbit(cos(y)) from Re sinh(x+iy)=sinh(x)cos(y).",
+      "Use typedcopysign/zero forcomplex64 andcomplex128; nohardcoded64bitoutputcast.",
+      "All imaginarycomponentbytes and non-axisrealcomponentbytes retained.",
+      "Custom JVP dz*cosh(z) preserves real/imaginary transverse derivatives; existingeagerstoragewrapper retainscollapse andtracedstaticdtype."
+    ],
+    "qualification": {
+      "combined": {
+        "passed": 1620,
+        "strict_xfailed": 40,
+        "pytest_seconds": 46.08,
+        "peak_rss_kib": 1949388,
+        "receipt": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_axis_review_20261014/run/receipt.json",
+          "sha256": "f400f89e5f519cf77c2702fa51aa44251f5429e15104c90a93de73163a2c1152",
+          "wall_seconds": 49.217973976861686,
+          "stable_inputs": true,
+          "survivors": []
+        }
+      },
+      "final_module_repository_layout": {
+        "passed": 157,
+        "strict_xfailed": 1,
+        "pytest_seconds": 12.26,
+        "peak_rss_kib": 1058584,
+        "receipt": {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_axis_review_20261014/layout_run/receipt.json",
+          "sha256": "69adb185f9bfd8f78328dd9b9fc3565940c2fcc1bc34d4f0e7dc9a59ee281932",
+          "wall_seconds": 16.977116260211915,
+          "stable_inputs": true,
+          "survivors": []
+        },
+        "collection": "158 nodes under tests/test_matlab_port/treeVar withpackageinit hierarchy and standalonefixturedecoder"
+      },
+      "native": "All64capturedSinhrows compared atunchanged8eps finitebound/exactstorage/sign/nonfinite/symmetriczeroclass;63pass1retainedtinyimagxfail.",
+      "JIT_AD": "complex64/128 signedzeroJIT,realandimaginarytransverseJVP includingbothcosinesigns,publicRHS andordinarycomplexcontrol; unchanged49original+32runtimechecks pass.",
+      "dtype": "Realfloat32/64 outputdtypeandbits unchanged.",
+      "metadata": "Remove9resolvedSinhstrictxfailrecords fromoldstoragefixture48\u219239, no assertion weakening.",
+      "harness_correction": "Initialflat-sibling-testimport workedprivatebutwouldfailpackagelayout; preservedpreimage, replacedwithstandaloneexactdecoder, collected/reranonlyaffected158nodes. Librarysource unchanged betweengates."
+    },
+    "limits": [
+      "Minimum-subnormal imaginaryarithmetic/storageloss remains strictxfail; no gradual-underflow repair.",
+      "Nonfinite imaginary-axis signs left untouched; no newgeneralnonfiniteADclaim.",
+      "Finite hugeargument cosine backendrounding not independently qualified bythiscapture; no allIEEEparityclaim.",
+      "No tan/tanh policy inferred."
+    ],
+    "packaging": "Threepaths, sourcepreimagefromatan-integratedP aee2f389; cleanpreimage gitapplycheck/apply andalloutputbytesverified; Ruffpass."
+  },
+  "root_gates": {
+    "atan": {
+      "receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_axis_publication_20261014/run_v2/receipt.json",
+        "sha256": "9a378520cb0497ef1d542637c6335b94e365c9069fda455f563c4272c8c32bac"
+      },
+      "guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_axis_publication_20261014/guard_v2.json",
+        "sha256": "994c746e3d0cde6b33a50eac5cc33c9f6575eb0e05828f13a92d526b0463173d"
+      },
+      "passed": 1756,
+      "strict_xfailed": 88,
+      "pytest_seconds": 135.55,
+      "wall_seconds": 138.51443307800218,
+      "sampled_peak_summed_rss_kib": 1102064,
+      "stable_inputs": true,
+      "survivors": []
+    },
+    "sinh_storage_original_runtime": {
+      "receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_axis_publication_20261014/run/receipt.json",
+        "sha256": "907627ec4b4a2d258e21623bc895207935512f04a36f51db9267ea0b88cbfee5"
+      },
+      "guard": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_axis_publication_20261014/guard.json",
+        "sha256": "b09bc9676cc7c09b7ac9b44b9b2e0b962b351ace025479e78342d234a318bab2"
+      },
+      "passed": 1622,
+      "strict_xfailed": 40,
+      "pytest_seconds": 140.83,
+      "wall_seconds": 144.01789242308587,
+      "sampled_peak_summed_rss_kib": 1172116,
+      "stable_inputs": true,
+      "survivors": []
+    }
+  },
+  "gate_reuse": {
+    "preimage_sha256": "aee2f389b835cc7f6782062a4a5a419fdc0a89458ac8a37e164b7a0b5372864e",
+    "candidate_sha256": "5c981d5182cf5ceaac55b6517230939b0715ba4e2fd3322644c14f0152c988e7",
+    "unchanged_prior_function_class_asts": 36,
+    "new_functions": [
+      "_sinh_branch",
+      "_sinh_complex",
+      "_sinh_complex_jvp"
+    ],
+    "atan_test_sha256": "97434c72e2a153c1b8693ab8011b25684db72fdddfd98e816c88c1617d0b5f42",
+    "atan_gate_reuse": "All prior function/class ASTs unchanged, including atan helpers; only raw sinh dispatch and added helpers change. Existing atan gate qualifies its unchanged code; merged sinh/storage/original/runtime gate qualifies changed dispatch."
+  },
+  "import_repair": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_axis_publication_20261014/import_repair.json",
+    "sha256": "4f4c19b62d6f9f2a32b3f16b99d00c8fded5110f3dfd7284d72125420a7c3ab2"
+  },
+  "initial_atan_collection_failure": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_axis_publication_20261014/run/receipt.json",
+    "sha256": "a0f7b9c5e9bb28d5ef26ec8d84865dca3897def2e271be96d0fba32817550a2b"
+  },
+  "independent_500_digit_atan": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_atan_highprecision_verify_20261014/verification.json",
+    "sha256": "d1e822cd309645b520fdf6fb25a32c24fdc50eff82b43979dc0470971af499cc"
+  },
+  "remaining": "Storage packet 39 strict expected failures after 18 resolved atan/sinh rows. Native198 atan retains28 tiny-input failures; highprecision60 retains12. These packets overlap. Sinh64 retains one tiny-imaginary failure. Separate Airy2 and degreeFTZ5 remain. Native minsub+i atan reference is inaccurate; no fitted floor or tolerance widening. Full library/examples/figures/performance and final green CI unresolved.",
+  "files": {
+    "src/chebfunjax/operators/treevar.py": "5c981d5182cf5ceaac55b6517230939b0715ba4e2fd3322644c14f0152c988e7",
+    "tests/test_matlab_port/treeVar/test_atan_axis_source.py": "f93a2653d5750e87eb6bfded965d44f9f4ea0d0cd9b94b2632b8cab95beb1fce",
+    "tests/test_matlab_port/treeVar/test_sinh_axis_source.py": "228e987b051fff7e4f6bbf93af8451004a007d12f43bf26f5764b24637080723"
+  },
+  "import_lint_repair": {
+    "change": "Move relative sibling import after absolute package imports; all non-import AST nodes unchanged.",
+    "preimage": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_sinh_axis_publication_20261014/atan_test_preimage_lint.py",
+    "source_gate_reuse": "No executable test predicate or imported object changed."
+  },
+  "runtime_warning": "Installed CUDA plugin0.11.2 is incompatible with pinnedJAXlib0.11.0 and was not used; CPU platform was explicit, no GPU execution."
+}

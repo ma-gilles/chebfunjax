@@ -1,0 +1,225 @@
+{
+  "scope": "Unchanged off-axis JAX subnormal arithmetic; native tiny-pole imaginary values also disagree with independent80/500digit references. No fittedclamp.",
+  "records": [
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_nhalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_phalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_n1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_neginf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_p1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_posinf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_nprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_pprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_ninf",
+      "flags": [
+        "real_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_nminsub_im_pinf",
+      "flags": [
+        "real_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_nhalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_phalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_n1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_neginf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_p1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_posinf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_nprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atan",
+      "label": "re_pminsub_im_pprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_nhalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_phalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_n1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_neginf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_p1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_posinf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_nprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_pprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_ninf",
+      "flags": [
+        "real_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_nminsub_im_pinf",
+      "flags": [
+        "real_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_nhalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_phalf",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_n1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_neginf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_p1",
+      "flags": [
+        "real_finite",
+        "real_zero_class",
+        "imag_posinf",
+        "imag_finite"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_nprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    },
+    {
+      "method": "atand",
+      "label": "re_pminsub_im_pprev1",
+      "flags": [
+        "real_zero_class"
+      ]
+    }
+  ]
+}

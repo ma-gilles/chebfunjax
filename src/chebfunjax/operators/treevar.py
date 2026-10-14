@@ -276,35 +276,111 @@ def _degrees_from_radians(value, *, divide=False):
     return scale(value)
 
 
-def _atand_radians(x):
-    """Eager atan kernel for TreeVar ``atand`` captured pole behavior.
-
-    The captured atand output has a positive zero real component and signed
-    infinite imaginary part at exactly +/-1j. Canonicalize that pole before
-    componentwise degree scaling; complex scaling can otherwise produce NaN
-    through a zero-times-infinity cross term. Neighboring inputs are unchanged. This value-dependent adapter is eager and makes no JIT
-    guarantee.
+@jax.custom_jvp
+def _sinh_complex(values):
+    """Complex sinh with the analytic signed zero on the imaginary axis.
 
     Provenance
     ----------
-    MATLAB source: @chebfun/atand.m delegates to the opaque MATLAB builtin;
-        @treeVar/univariate.m records its method name, commit 7574c77.
-        The pole values are from the existing R2025b raw36 capture.
+    MATLAB source: @treeVar/treeVar.m records SINH; @chebfun/sinh.m delegates
+    to the opaque numeric builtin. Chebfun commit:
+    7574c77680d7e82b79626300bf255498271a72df. Independent R2025b scalar and
+    array captures qualify the signs. The correction follows
+    Re(sinh(x+iy)) = sinh(x)*cos(y), without changing nonzero arithmetic.
     """
     from jax import lax
 
-    values = jnp.asarray(x)
-    if not jnp.issubdtype(values.dtype, jnp.complexfloating):
-        return jnp.arctan(values)
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    result = jnp.sinh(values)
     real, imag = jnp.real(values), jnp.imag(values)
-    exact_pole = (real == 0) & (jnp.abs(imag) == 1)
-    result = jnp.arctan(values)
-    pole = lax.complex(jnp.zeros_like(real),
-                       jnp.copysign(jnp.inf, imag))
-    result = jnp.where(exact_pole, pole, result)
-    if bool(jnp.all(jnp.imag(result) == 0)):
-        return jnp.real(result)
-    return result
+    on_axis = (real_sign(real) == 0) & jnp.isfinite(imag)
+    negative = jnp.signbit(real) ^ jnp.signbit(jnp.cos(imag))
+    signed_zero = jnp.copysign(jnp.zeros_like(real),
+                               jnp.where(negative, -jnp.ones_like(real),
+                                         jnp.ones_like(real)))
+    return lax.complex(jnp.where(on_axis, signed_zero, jnp.real(result)),
+                       jnp.imag(result))
+
+
+@_sinh_complex.defjvp
+def _sinh_complex_jvp(primals, tangents):
+    """Retain sinh's analytic transverse tangent at an imaginary-axis primal."""
+    (value,), (tangent,) = primals, tangents
+    return _sinh_complex(value), jnp.cosh(value)*tangent
+
+
+def _sinh_branch(x):
+    """Keep real sinh unchanged and correct the complex imaginary-axis sign."""
+    values = jnp.asarray(x)
+    if jnp.issubdtype(values.dtype, jnp.complexfloating):
+        return _sinh_complex(values)
+    return jnp.sinh(values)
+
+
+@jax.custom_jvp
+def _atan_complex(values):
+    """Complex atan with native exact-axis conventions and static output dtype.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric ATAN dispatch and @chebfun/atan.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df. Axis branches
+    and nonfinite storage are independently captured R2025b builtin behavior;
+    the builtin implementation is opaque. Off-axis values retain JAX's kernel.
+    """
+    from jax import lax
+
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    real, imag = jnp.real(values), jnp.imag(values)
+    on_real = real_sign(imag) == 0
+    on_imag = (real_sign(real) == 0) & ~jnp.isnan(imag)
+    magnitude = jnp.abs(imag)
+    # atanh(y) for |y|<1; atanh(1/y) for |y|>1. The quotient forms
+    # retain changes at the two representable neighbors of the branch point.
+    inside = .5*jnp.log1p(2*magnitude/(1-magnitude))
+    outside = .5*jnp.log1p(2/(magnitude-1))
+    height = jnp.copysign(jnp.where(magnitude <= 1, inside, outside), imag)
+    phase = jnp.where(magnitude <= 1, jnp.zeros_like(real),
+                      -jnp.copysign(jnp.full_like(real, jnp.pi/2), imag))
+    imaginary_axis = lax.complex(phase, height)
+    real_axis = lax.complex(jnp.arctan(real), jnp.zeros_like(imag))
+    result = jnp.where(on_imag, imaginary_axis, jnp.arctan(values))
+    return jnp.where(on_real, real_axis, result)
+
+
+@_atan_complex.defjvp
+def _atan_complex_jvp(primals, tangents):
+    """Retain analytic atan tangents at regular points, including interior axes.
+
+    Exact-axis value selection must not remove transverse imaginary/real
+    tangents. No derivative claim is made on branch cuts or singular poles;
+    the formal analytic expression there retains JAX's existing convention.
+    """
+    (value,), (tangent,) = primals, tangents
+    return _atan_complex(value), tangent/(1+value*value)
+
+
+def _atan_branch(x):
+    """Use real atan or the dtype-stable complex exact-axis adapter."""
+    values = jnp.asarray(x)
+    if jnp.issubdtype(values.dtype, jnp.complexfloating):
+        return _atan_complex(values)
+    return jnp.arctan(values)
+
+
+def _atand_radians(x):
+    """Reuse the qualified atan branch before independent component scaling.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun/atand.m and @treeVar/treeVar.m dispatch to the
+    opaque numeric builtin, Chebfun commit7574c77680d7e82b79626300bf255498271a72df.
+    R2025b independent ATAN/ATAND cross controls establish shared axis values.
+    Traced output dtype remains static; eager exact-real output may collapse.
+    """
+    return _eager_unary_storage(_atan_branch)(x)
 
 
 def _acot_branch(x):
@@ -661,7 +737,7 @@ _UNARY_FNS_RAW = {
     "asech": lambda x: _reciprocal_hyperbolic_branch(x, "asech"),
     "asin": _inverse_trig_branch,
     "asind": lambda x: _degrees_from_radians(_inverse_trig_branch(x)),
-    "asinh": jnp.arcsinh, "atan": jnp.arctan,
+    "asinh": jnp.arcsinh, "atan": _atan_branch,
     "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
     "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
     "cosd": lambda x: _direct_degree_branch(x, "cosd"), "cosh": jnp.cosh,
@@ -679,7 +755,7 @@ _UNARY_FNS_RAW = {
     "secd": lambda x: _direct_degree_branch(x, "secd"),
     "sech": lambda x: _reciprocal_direct_branch(x, "sech"),
     "sin": jnp.sin, "sind": lambda x: _direct_degree_branch(x, "sind"),
-    "sinh": jnp.sinh, "sqrt": _sqrt_branch, "tan": jnp.tan,
+    "sinh": _sinh_branch, "sqrt": _sqrt_branch, "tan": jnp.tan,
     "tand": lambda x: _direct_degree_branch(x, "tand"), "tanh": jnp.tanh,
     "uminus": lambda x: -x, "uplus": lambda x: +x,
 }

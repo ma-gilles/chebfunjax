@@ -1,3 +1,30 @@
+## 2026-10-14: atan branch axes and sinh signed zeros
+
+TreeVar atan/atand now follow independently captured exact-axis conventions,
+including poles and nonfinite real-axis lanes. Sinh corrects the real zero sign
+on the finite imaginary axis. Custom JVPs preserve analytic transverse tangents
+at regular points; eager storage and traced static dtype remain distinct.
+
+Root CPU gates: atan1756passed/88strictxfails; merged sinh, storage, original
+and runtime checks1622passed/40strictxfails. Inputs stayed guarded and no
+processes survived. All36 prior function/class ASTs remain unchanged by the
+sinh addition, supporting reuse of the completed atan gate. Nine atan and nine
+sinh storage-packet failures are resolved;39 remain. The expanded atan198
+packet retains28 tiny-input failures and independent60-point high-precision
+packet retains12; these overlap other cases and are not distinct bug counts.
+
+An independent500-digit check confirms MATLAB's tiny-pole atan output itself
+differs from the mathematical reference. The JAX off-axis primitive is also
+inaccurate there; neither discrepancy is hidden by fitting a constant or
+widening bounds. Evidence: `docs/treevar_atan_sinh_axis_cpu_20261014.json`.
+
+CI still fails native LU agreement. Retained operands/pivots match, with the
+first divergence in packed LU across CPU models. Independent100-digit checks
+find the failing worker more accurate than the passing MATLAB fixture; BLAS
+CPU dispatch is being tested as the cause. No solver or acceptance bound has
+been changed. Full library,322pages/figures, performance and green-main CI
+remain unresolved.
+
 ## 2026-10-14: native eager unary storage and shorter CI partitions
 
 Thirteen TreeVar primitives now return real storage for concrete outputs whose
