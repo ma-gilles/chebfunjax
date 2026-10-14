@@ -28,9 +28,59 @@
     "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_blas_dispatch_review_20261014/accuracy.json",
     "sha256": "69a5d9be1c051ff527a2ac27c174b875a8956783a4b344ec9c0a72d72810f567"
   },
-  "mechanism": "PackedLU first differs onAVX512-capable EPYC9V74 vs EPYC7763; same operands/pivots/library hashes. Upstream dynamic dispatch and architecture blocking predict differentGETRF order; actual worker core not yet captured, causality not yet confirmed.",
+  "mechanism": "Confirmed same-host defaultCooperlake vsZen reproduces retainedfailingworker/passingmanual all12stagehashes exactly. UpstreamGETRFblocking explains operation-order difference.",
   "local_validation": "DefaultZen/forcedZen/Haswell reproduce passing manual stages. New default/Zen harness reports noAVX512discrimination locally; all12stagehashes match.",
   "accuracy": "100digit exact-input solves find failingworker closer than passingnativefixture; both have small backwarderrors. No bound widening, xfail or CPU pin introduced.",
-  "CI_plan": "Dispatch one manual workflow onmain; default and safeZen freshprocesses on samehost, actual core log and allstagehashes. Native assertion remains separate/unchanged and runs even on diagnosticfailure. NonAVX512assignment is explicitly nondiscriminating; no queuechurn.",
-  "remaining": "Nativeagreement failure still open; finalgreenmainCI unresolved."
+  "CI_plan": "Completed one discriminating same-host run; no rerun needed.",
+  "remaining": "Nativeagreement failure still open; finalgreenmainCI unresolved.",
+  "controlled_CI": {
+    "run": 38504807568,
+    "head": "5918686489d9c79d365680e2d87418933d175ff5",
+    "url": "https://github.com/ma-gilles/chebfunjax/actions/runs/38504807568",
+    "conclusion": "failure: unchanged scientific assertion; diagnostic step succeeded",
+    "artifact": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_same_host_ci_publication_20261014/ci38504807568/dispatch-summary.json",
+      "sha256": "50514648f6e6e17152de48a62bab294269b81bc11faf84ed200ea3b8e3695eac"
+    },
+    "log": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_same_host_ci_publication_20261014/ci38504807568.log",
+      "sha256": "9dfe8bf699ec311d471f4b1148cff049c69da5bf2b71070049c9f9cc8cab0929"
+    },
+    "default_core": "Cooperlake",
+    "zen_core": "Zen",
+    "native_maxabs_default": 7.840950111415168e-14,
+    "native_maxabs_zen": 2.1649348980190553e-15,
+    "stage_verification": {
+      "default_vs_failingworker": {
+        "matrix": true,
+        "rhs": true,
+        "expected": true,
+        "scaled_matrix": true,
+        "scaled_rhs": true,
+        "solution": true,
+        "packed_lu": true,
+        "pivots": true,
+        "permutation": true,
+        "permuted_rhs": true,
+        "lower_result": true,
+        "staged_solution": true
+      },
+      "zen_vs_passingmanual": {
+        "matrix": true,
+        "rhs": true,
+        "expected": true,
+        "scaled_matrix": true,
+        "scaled_rhs": true,
+        "solution": true,
+        "packed_lu": true,
+        "pivots": true,
+        "permutation": true,
+        "permuted_rhs": true,
+        "lower_result": true,
+        "staged_solution": true
+      }
+    },
+    "conclusion_scope": "Controlled same-host fresh-process dispatch intervention reproduces both prior stage sequences exactly; firstdifferencepackedLU. Confirms CPU BLAS dispatch accounts for observed nativefixture disagreement.",
+    "remaining": "Backend-sensitive native agreement remains unresolved; more accurateCooperlake output not changed or pinned away, no bound widening."
+  }
 }

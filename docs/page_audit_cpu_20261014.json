@@ -1,0 +1,67 @@
+{
+  "audited_head": "5918686489d9c79d365680e2d87418933d175ff5",
+  "canonical_pages": 322,
+  "matched_matlab_code_blocks": 2408,
+  "matched_figure_slots_order_and_dimensions": 1305,
+  "prose_positional_differences_pages": 19,
+  "equation_positional_differences_pages": 15,
+  "prose_interpretation": "Source prose retained in order; normalized equation lists match ignoring local-prose insertionpositions. Positionaldifferences are not sourcecontentloss.",
+  "printed_output_block_counts": {
+    "html": 949,
+    "markdown": 949,
+    "differences": {
+      "approx/EightShades": [
+        3,
+        4
+      ],
+      "complex/ZetaZeros": [
+        4,
+        5
+      ],
+      "linalg/TransientGrowth": [
+        4,
+        3
+      ],
+      "ode-linear/Floquet": [
+        4,
+        3
+      ]
+    }
+  },
+  "raster_interpretation": "1305 comparableimagepairs, meanexactpixel fraction0.80994, meanchannelRMSE42.6757. Descriptivecachedimage metrics only; no rasterparity claim, no freshnumericalexampleexecution.",
+  "evidence": {
+    "MANIFEST.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/MANIFEST.json",
+      "sha256": "0c87fbb43fca2a9a3ede74ddf21409ef58fc33773a91b2660a808eb2020644c0"
+    },
+    "REPORT.md": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/REPORT.md",
+      "sha256": "5d2efba5c325bc0c98c3b0741370d3db5c46e605bb728cfaec5703559267ccec"
+    },
+    "METHOD.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/METHOD.json",
+      "sha256": "3044ee372b1c3f28b34dbe5f447a4a48d4e2e8b42c0554798772b307d7d91910"
+    },
+    "prose.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/prose.json",
+      "sha256": "0932a935145dfe7ab1cbec19568f7229d3855059f23351d8b6dd22dedcb34cb5"
+    },
+    "code_alignment.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/code_alignment.json",
+      "sha256": "836a0be907c16523aa32fc7c7dec883a1fd8365f82b1ba2e0746fb15119778fe"
+    },
+    "figures/report.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/figures/report.json",
+      "sha256": "2613c5990c3bde21cf1437cc737061921ebe7a4acbd94c6af9e6d35fcb54c8db"
+    },
+    "supervised_run3/receipt.json": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/supervised_run3/receipt.json",
+      "sha256": "b67ba0556ebce977ab8ce022eb5e28c7ce2f09a8b9db7721bb7fa0d99402a14d"
+    },
+    "TAN_TANH_SIGNED_ZERO.md": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/example_page_static_refresh_20261014/TAN_TANH_SIGNED_ZERO.md",
+      "sha256": "72df6924ebc1f843c0b8ec8bb45cde6818f59b57f9d372a21825b274dbed4650"
+    }
+  },
+  "remaining": "All322 numerical/output/figureparity remainsrequired; staticmatchdoesnotqualifyit. ConformalL,IVP,ZetaZeros,Random2D/RNG/camera andotherknownsourcegaps remain."
+}

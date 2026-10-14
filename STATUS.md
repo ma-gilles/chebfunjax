@@ -1,3 +1,22 @@
+## 2026-10-14: controlled LU cause and refreshed 322-page audit
+
+Manual CI38504807568 confirms the native-LU disagreement is caused by CPU
+BLAS dispatch: on the same host, default Cooperlake gives7.84e-14 native
+error and Zen gives2.16e-15. All12 stage hashes reproduce the prior failing
+worker and passing manual runs respectively; the first difference is packed
+LU. Diagnostic succeeded; the unchanged native assertion still failed.
+Independent high precision finds Cooperlake more accurate on this fixture.
+No production pin, numerical-bound change or parity waiver was introduced.
+Evidence: `docs/piecewise_lu_dispatch_cpu_20261014.json`.
+
+The full static audit at59186864 matches322 canonical pages,2408 MATLAB
+code blocks and1305 figure names/order/dimensions. Four printed-output block
+count differences remain;19 prose and15 equation positional-difference pages
+retain source prose order and normalized equation lists. Raster differences
+remain: matching dimensions and aggregate image metrics do not establish
+figure parity. No example computation was rerun for this audit. Evidence:
+`docs/page_audit_cpu_20261014.json`. Full parity and green-main CI remain open.
+
 ## 2026-10-14: same-host LU dispatch diagnostic
 
 The retained failing CI worker first differs at packed LU: operands, pivots,
