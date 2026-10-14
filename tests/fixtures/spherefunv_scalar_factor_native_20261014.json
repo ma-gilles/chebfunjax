@@ -1,0 +1,18 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab": "R2025b Update 2",
+  "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_scalar_native_probe_20261014/run2/stdout",
+  "capture_sha256": "e95c8f16fbc47271e970ade017487857844c34bd2b967fba8472f29a7f5b09bc",
+  "input_pivots": [
+    3.0355227320705427,
+    -1.4142135623730954
+  ],
+  "mrdivide_by_3": [
+    9.106568196211628,
+    -4.242640687119286
+  ],
+  "rdivide_by_3": [
+    9.10656819621163,
+    -4.2426406871192865
+  ]
+}

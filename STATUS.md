@@ -1,3 +1,18 @@
+## 2026-10-14: sphere-vector arithmetic and native scalar rounding
+
+Sphere-vector multiplication and division now follow the pinned operand,
+shape and transpose dispatch. Scalar division preserves separate native
+factor-update paths; a frozen MATLAB pivot fixture catches their one-ULP
+rounding difference. Shared ordered JAX division preserves that distinction.
+Zero multiplication retains native factor metadata, and empty scalar
+multiplication passes its existing original test.
+
+Root CPU qualification passed 37 tests, including three restored original
+continuous-norm arithmetic predicates at their unchanged preference bound.
+Earlier failed receipts are retained. Evidence:
+`docs/spherefunv_arithmetic_source_cpu_20261014.json`.
+Full parity and final green CI remain open.
+
 ## 2026-10-14: equality semantics, domain checks, and GPR discrimination
 
 Chebfun3 equality now compares the stored Tucker core and factors, as MATLAB

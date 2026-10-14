@@ -2784,17 +2784,14 @@ class Spherefun(eqx.Module):
         # every slice of the other via exact dealiased Trigtech
         # products.  Both avoid the adaptive re-approximation (and its
         # marginal-resolution retry cost) entirely.
-        if not isinstance(other, Spherefun) and np.isscalar(other):
-            s = complex(other) if isinstance(other, complex) \
-                else float(other)
-            if s == 0:
-                return self._binary(other, lambda a, b: a * b)
-            return Spherefun(
-                cols=self.cols, rows=self.rows,
-                pivots=self.pivots / s,
-                idx_plus=self.idx_plus, idx_minus=self.idx_minus,
-                pivot_locations=self.pivot_locations,
-                nonzero_poles=self.nonzero_poles)
+        if not isinstance(other, Spherefun):
+            try:
+                scalar_array = jnp.asarray(other)
+            except (TypeError, ValueError):
+                scalar_array = None
+            if (scalar_array is not None and scalar_array.size == 1
+                    and jnp.issubdtype(scalar_array.dtype, jnp.number)):
+                return self._times_scalar_source(scalar_array.reshape(()))
         if isinstance(other, Spherefun) and not self.isempty() \
                 and not other.isempty():
             # Only for WELL-RESOLVED operands: a marginal construction
@@ -2810,6 +2807,37 @@ class Spherefun(eqx.Module):
                 if len(other.pivots) == 1:
                     return _spherefun_mul_rank1(other, self)
         return self._binary(other, lambda a, b: a * b)
+
+    def _times_scalar_source(self, scalar):
+        """Pinned ``separableApprox/mtimes`` scalar factor operation.
+
+        MATLAB uses pivotValues ./ scalar for nonzero scalars.  Its zero
+        branch retains a rank-one zero representation with an infinite
+        pivot instead of adaptively reconstructing the function.
+        """
+        scalar = jnp.asarray(scalar).reshape(())
+        if bool(scalar != 0):
+            if self.isempty():
+                return self
+            from chebfunjax.utils._ordered_binary import binary
+            return Spherefun(
+                cols=self.cols, rows=self.rows,
+                pivots=binary(self.pivots, scalar, 3),
+                idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                pivot_locations=self.pivot_locations,
+                nonzero_poles=self.nonzero_poles)
+
+        pivot_locations = self.pivot_locations[:1]
+        return Spherefun(
+            cols=[0 * self.cols[0]], rows=[0 * self.rows[0]],
+            pivots=jnp.asarray([jnp.inf], dtype=self.pivots.dtype),
+            # MATLAB mutates cols, rows, pivots, and pivotLocations here but
+            # leaves idxPlus/idxMinus untouched. Preserve those source fields;
+            # evaluation of the zero factor uses its zero column/row and inf
+            # pivot and does not index through these stale selectors.
+            idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+            pivot_locations=pivot_locations,
+            nonzero_poles=self.nonzero_poles)
 
     __rmul__ = __mul__
 

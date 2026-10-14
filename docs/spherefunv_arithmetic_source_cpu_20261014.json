@@ -1,0 +1,32 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": [
+    "Spherefunv times, mtimes, mrdivide, rdivide, ldivide and mldivide source dispatch",
+    "Scalar factor updates and zero representation in Spherefun",
+    "Three original arithmetic continuous-norm predicates restored at unchanged preference bound"
+  ],
+  "original_times_divide_predicates": 10,
+  "validation": {
+    "supervisor_exit_code": 0,
+    "sampled_peak_summed_rss_kib": 2159076,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "root_pytest": "37 passed in 81.37s: times/divide, Spherefun times and emptyObjects, vector arithmetic",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_arithmetic_publication_v3_20261014/run/receipt.json",
+  "sha256": "7583d8b1d6c2d7dbd6683fd9a54a7f21b0218aaa101d6d29b9026321a6a09d65",
+  "native_captures": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_scalar_native_probe_20261014/run2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_zero_native_probe_20261014/run2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_native_dispatch_probe_20261014/run2"
+  ],
+  "review": [
+    "Frozen native pivot fixture first exposed 1-ULP source-division mismatch hidden by a JAX-derived expected value. Shared ordered binary64 division now prevents reciprocal rewriting; exact native fixture passes for Python, JAX scalar and 1x1 inputs.",
+    "Existing empty Spherefun times nonzero scalar predicate caught missing empty factor fields; returns empty as native.",
+    "Earlier supplemental expected value used same XLA division rewrite as implementation; replaced with independent NumPy binary64 division oracle. Native frozen fixture remains the primary rounding gate.",
+    "Failed root v1/v2 receipts retained; final v3 passed without changed original bounds.",
+    "Original vector arithmetic uses actual continuous Frobenius norms, not sampled maxima. Samples retained as supplemental."
+  ],
+  "remaining": "Full Spherefun/v and repository parity remain unresolved, including nonfinite/general division audit and final CI."
+}

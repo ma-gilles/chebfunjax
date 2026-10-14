@@ -45,6 +45,102 @@ def _sphere_xyz() -> tuple[Spherefun, Spherefun, Spherefun]:
     return x, y, z
 
 
+def _source_isempty(value) -> bool:
+    method = getattr(value, "isempty", None)
+    if callable(method):
+        return bool(method())
+    try:
+        return jnp.asarray(value).size == 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _source_scalar(value):
+    try:
+        array = jnp.asarray(value)
+    except (TypeError, ValueError):
+        return None
+    if array.size != 1 or not jnp.issubdtype(array.dtype, jnp.number):
+        return None
+    # All numeric size-one shapes use the same JAX factor arithmetic.
+    return array.reshape(())
+
+
+def _source_double_array(value):
+    """Return a numeric MATLAB-double analogue, excluding logical arrays."""
+    try:
+        array = jnp.asarray(value)
+    except (TypeError, ValueError):
+        return None
+    if jnp.issubdtype(array.dtype, jnp.number):
+        return array
+    return None
+
+
+def _source_linear_values(array):
+    """MATLAB linear indexing order for a numeric array."""
+    if array.ndim < 2:
+        return jnp.reshape(array, (-1,))
+    axes = tuple(range(array.ndim - 1, -1, -1))
+    return jnp.transpose(array, axes).reshape(-1)
+
+
+def _source_rdivide(left, right):
+    """Evaluate one source ``rdivide`` branch for numeric/Spherefun values."""
+    if isinstance(left, Spherefun):
+        return left / right
+    if isinstance(right, Spherefun):
+        return Spherefun.from_function(
+            lambda lam, th: jnp.asarray(left) / right(lam, th))
+    return jnp.asarray(left) / jnp.asarray(right)
+
+
+def _source_factor_rdivide(function, divisor):
+    """Spherefun ``rdivide`` by a scalar, retaining source factors.
+
+    The pinned separableApprox path is ``f .* (1/g)``.  Spherefun's scalar
+    ``times`` path updates pivots without reconstructing the function.
+    """
+    scalar = _source_scalar(divisor)
+    if scalar is None:
+        raise ValueError(
+            "MATLAB:dimagree: Matrix dimensions must agree.")
+    if scalar == 0:
+        raise ValueError(
+            "CHEBFUN:SEPARABLEAPPROX:rdivide:divByZero: "
+            "Division by zero or near zero.")
+    from chebfunjax.utils._ordered_binary import binary
+    return function * binary(jnp.asarray(1.0), scalar, 3)
+
+
+def _source_factor_mrdivide(function, divisor):
+    """Spherefun ``mrdivide``'s literal pivotValues *= divisor operation."""
+    return Spherefun(
+        cols=function.cols, rows=function.rows,
+        pivots=function.pivots * divisor,
+        idx_plus=function.idx_plus, idx_minus=function.idx_minus,
+        pivot_locations=function.pivot_locations,
+        nonzero_poles=function.nonzero_poles)
+
+
+def _source_vector_like(template, components):
+    """Build result components while preserving MATLAB isTransposed state."""
+    out = Spherefunv(*components)
+    if isinstance(template, Spherefunv):
+        object.__setattr__(out, "_row", getattr(template, "_row", False))
+    return out
+
+
+def _source_transpose_operand(value):
+    """MATLAB nonconjugating transpose for mtimes dispatch operands."""
+    if isinstance(value, Spherefunv):
+        return value.transpose()
+    try:
+        return jnp.transpose(jnp.asarray(value))
+    except (TypeError, ValueError):
+        return value.transpose()
+
+
 class Spherefunv(eqx.Module):
     """Vector field on the unit sphere with 2 or 3 scalar Spherefun components.
 
@@ -360,18 +456,41 @@ class Spherefunv(eqx.Module):
                             zip(self.components, other.components)])
 
     def times(self, other) -> "Spherefunv":
-        """Componentwise product with another Spherefunv, or scaling by
-        a scalar field / scalar (MATLAB times).
+        """MATLAB componentwise ``.*`` for vector and scalar operands.
 
         Provenance
         ----------
         MATLAB source : @spherefunv/times.m
         Chebfun commit: 7574c77
         """
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
+        if not isinstance(self, Spherefunv):
+            if isinstance(other, Spherefunv):
+                # Literal @spherefunv/times.m left-operand swap.
+                return other.times(self)
+            raise ValueError("SPHEREFUN:SPHEREFUNV:times:inputs: Unrecognized input arguments.")
         if isinstance(other, Spherefunv):
-            return Spherefunv(*[a * b for a, b in
-                                zip(self.components, other.components)])
-        return Spherefunv(*[a * other for a in self.components])
+            return _source_vector_like(
+                self, [a * b for a, b in zip(self.components, other.components)])
+        if isinstance(other, Spherefun):
+            return _source_vector_like(self, [a * other for a in self.components])
+        scalar = _source_scalar(other)
+        if scalar is not None:
+            return _source_vector_like(self, [a * scalar for a in self.components])
+        array = _source_double_array(other)
+        if array is not None:
+            row = getattr(self, "_row", False)
+            valid = ((array.ndim == 1 and array.shape[0] == 3)
+                     or (array.ndim >= 2 and array.shape[0] == 3)
+                     or (row and array.ndim >= 2 and array.shape[1] == 3))
+            if valid:
+                vals = _source_linear_values(array)
+                return _source_vector_like(
+                    self, [c * vals[j] for j, c in enumerate(self.components)])
+            raise ValueError(
+                "SPHEREFUN:SPHEREFUNV:times:double: SPHEREFUNV and double size mismatch.")
+        raise ValueError("SPHEREFUN:SPHEREFUNV:times:inputs: Unrecognized input arguments.")
 
     def power(self, n: int) -> "Spherefunv":
         """Componentwise power (MATLAB power).
@@ -382,6 +501,118 @@ class Spherefunv(eqx.Module):
         Chebfun commit: 7574c77
         """
         return Spherefunv(*[a ** n for a in self.components])
+
+    def mrdivide(self, other) -> "Spherefunv":
+        """MATLAB ``F/G`` for supported scalar numeric denominators.
+
+        Native accepts Chebfun2 denominators and delegates each component to
+        separable-approximation division after checking the separated domains.
+        """
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
+        if isinstance(other, (Spherefunv, Spherefun)):
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mrdivide:nonScalar: Division must be scalar valued.")
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if isinstance(other, Chebfun2):
+            expected = (-float(jnp.pi), float(jnp.pi),
+                        -float(jnp.pi), float(jnp.pi))
+            domain = tuple(float(v) for v in other.approx.domain)
+            def source_hscale(interval):
+                scale = max(abs(float(v)) for v in interval)
+                return 1.0 if scale == float("inf") else scale
+
+            domain_matches = len(domain) == 4
+            if domain_matches:
+                for first, last in ((0, 2), (2, 4)):
+                    tol = 1e-15 * max(
+                        source_hscale(expected[first:last]),
+                        source_hscale(domain[first:last]))
+                    if not all(abs(a - b) < tol for a, b in
+                               zip(domain[first:last], expected[first:last])):
+                        domain_matches = False
+                        break
+            if not domain_matches:
+                raise ValueError(
+                    "CHEBFUN:SEPARABLEAPPROX:rdivide:domains: Domains inconsistent.")
+            return _source_vector_like(self, [
+                Spherefun.from_function(
+                    lambda lam, th, c=c: c(lam, th) / other(lam, th))
+                for c in self.components
+            ])
+        divisor = _source_scalar(other)
+        if divisor is None:
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mrdivide:nonScalar: Division must be scalar valued.")
+        return _source_vector_like(
+            self, [_source_factor_mrdivide(c, divisor) for c in self.components])
+
+    def rdivide(self, other) -> "Spherefunv":
+        """MATLAB ``A./B`` componentwise right division."""
+        left, right = self, other
+        if _source_isempty(left) or _source_isempty(right):
+            return Spherefunv.empty()
+        if isinstance(left, Spherefunv):
+            if isinstance(right, Spherefunv):
+                return _source_vector_like(
+                    left, [a / b for a, b in zip(left.components, right.components)])
+            if isinstance(right, Spherefun):
+                return _source_vector_like(left, [a / right for a in left.components])
+            divisor = _source_double_array(right)
+            if divisor is not None:
+                scalar = _source_scalar(right)
+                if scalar is not None:
+                    return _source_vector_like(
+                        left, [_source_factor_rdivide(c, scalar)
+                               for c in left.components])
+                return _source_vector_like(left, [a / right for a in left.components])
+        elif isinstance(right, Spherefunv):
+            if isinstance(left, Spherefun):
+                return _source_vector_like(
+                    right, [_source_rdivide(left, b) for b in right.components])
+            numerator = _source_double_array(left)
+            if numerator is not None:
+                return _source_vector_like(
+                    right, [_source_rdivide(left, b) for b in right.components])
+        raise ValueError("SPHEREFUN:SPHEREFUNV:rdivide:inputs: Unrecognized input arguments.")
+
+    def ldivide(self, other) -> "Spherefunv":
+        r"""MATLAB ``A.\B`` componentwise left division (``B./A``)."""
+        left, right = self, other
+        if _source_isempty(left) or _source_isempty(right):
+            return Spherefunv.empty()
+        if isinstance(left, Spherefunv) and isinstance(right, Spherefunv):
+            return _source_vector_like(
+                left, [_source_rdivide(b, a)
+                       for a, b in zip(left.components, right.components)])
+        if isinstance(right, Spherefunv) and _source_double_array(left) is not None:
+            scalar = _source_scalar(left)
+            if scalar is not None:
+                return _source_vector_like(
+                    right, [_source_factor_rdivide(c, scalar)
+                            for c in right.components])
+            return _source_vector_like(
+                right, [_source_rdivide(c, left) for c in right.components])
+        if isinstance(left, Spherefunv) and _source_double_array(right) is not None:
+            scalar = _source_scalar(right)
+            if scalar is not None:
+                return _source_vector_like(
+                    left, [_source_factor_rdivide(c, scalar)
+                           for c in left.components])
+            return _source_vector_like(
+                left, [_source_rdivide(right, c) for c in left.components])
+        raise ValueError("SPHEREFUN:SPHEREFUNV:ldivide:inputs: Unrecognized input arguments.")
+
+    def mldivide(self, other) -> "Spherefunv":
+        r"""MATLAB ``A\B``: divide each component of ``B`` by scalar ``A``."""
+        left, right = self, other
+        if _source_isempty(left) or _source_isempty(right):
+            return Spherefunv.empty()
+        if not isinstance(right, Spherefunv):
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mldivide:inputs: Unrecognized input arguments.")
+        divisor = _source_double_array(left)
+        if divisor is None:
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mldivide:nonScalar: Division must be by a scalar.")
+        return _source_vector_like(
+            right, [_source_factor_rdivide(c, left) for c in right.components])
 
     def real(self) -> "Spherefunv":
         """Componentwise real part (MATLAB real).
@@ -432,18 +663,92 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/mtimes.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, Spherefunv):
-            return self.dot(other)
-        return self.__mul__(other)
+        return self.mtimes(other)
+
+    def mtimes(self, other):
+        """MATLAB ``*`` scalar scaling and one-row matrix contraction.
+
+        The pinned source's numeric-left multirow branch forms a cell array
+        of row contractions and passes it to ``spherefun(store)``. MATLAB
+        R2025b then errors because the constructor expects a function handle.
+        """
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
+        # Match the two transpose rewrites before considering operand types.
+        # MATLAB row/column orientation is part of the function object state.
+        if (isinstance(self, Spherefunv)
+                and not isinstance(other, Spherefunv)
+                and getattr(self, "_row", False)):
+            return Spherefunv.mtimes(_source_transpose_operand(other),
+                                     self.transpose())
+        if (isinstance(other, Spherefunv)
+                and not isinstance(self, Spherefunv)
+                and getattr(other, "_row", False)):
+            return Spherefunv.mtimes(
+                other.transpose(), _source_transpose_operand(self)).transpose()
+        if isinstance(self, Spherefunv):
+            if isinstance(other, Spherefunv):
+                if getattr(self, "_row", False) and not getattr(other, "_row", False):
+                    return self.dot(other)
+                raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:sizes: Dimensions mismatch.")
+            if isinstance(other, Spherefun):
+                # Native swaps operands and then reaches its unsupported-input
+                # branch for Spherefun * Spherefunv.
+                raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double")
+            value = _source_scalar(other)
+            if value is not None:
+                return _source_vector_like(self, [c * value for c in self.components])
+            try:
+                array = jnp.asarray(other)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double") from exc
+            if jnp.issubdtype(array.dtype, jnp.number) and array.size == 1:
+                value = array.reshape(())
+                return _source_vector_like(self, [c * value for c in self.components])
+            if jnp.issubdtype(array.dtype, jnp.number):
+                raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:double2: SPHEREFUNV and double size mismatch.")
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double")
+
+        # Numeric-left multiplication (MATLAB A*F). A scalar scales each
+        # component; a 1-by-3 matrix contracts to a scalar Spherefun.
+        if not isinstance(other, Spherefunv):
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double")
+        if isinstance(self, Spherefun):
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double")
+        value = _source_scalar(self)
+        if value is not None:
+            return _source_vector_like(other, [value * c for c in other.components])
+        try:
+            matrix = jnp.asarray(self)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:double1: Dimension mismatch.") from exc
+        if not jnp.issubdtype(matrix.dtype, jnp.number):
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:inputs: SPHEREFUNV can only mtimes to SPHEREFUNV or double")
+        if matrix.size == 1:
+            scalar = matrix.reshape(())
+            return _source_vector_like(other, [scalar * c for c in other.components])
+        if matrix.ndim != 2 or matrix.shape[1] != 3:
+            raise ValueError("SPHEREFUN:SPHEREFUNV:mtimes:double1: Dimension mismatch.")
+        if matrix.shape[0] == 1:
+            result = matrix[0, 0] * other.components[0]
+            for j in range(1, 3):
+                result = result + matrix[0, j] * other.components[j]
+            return result
+        raise ValueError(
+            "MATLAB:feval:argMustBeStringOrHandle: Function to evaluate must "
+            "be represented as a string scalar, character vector, or "
+            "function_handle object.")
 
     def __mul__(self, scalar: float) -> "Spherefunv":
         """Scalar multiplication (componentwise)."""
-        s = float(scalar)
-        return Spherefunv(*[c * s for c in self.components])
+        return self.mtimes(scalar)
 
-    def __rmul__(self, scalar: float) -> "Spherefunv":
-        """Right scalar multiplication."""
-        return self.__mul__(scalar)
+    def __rmul__(self, scalar: float):
+        """Dispatch reflected multiplication with MATLAB operand order."""
+        return Spherefunv.mtimes(scalar, self)
+
+    def __truediv__(self, other) -> "Spherefunv":
+        return self.mrdivide(other)
 
     def __neg__(self) -> "Spherefunv":
         """Negation."""

@@ -12,12 +12,12 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.spherefun.spherefun import Spherefun
 from chebfunjax.spherefun.spherefunv import Spherefunv
 
 jax.config.update("jax_enable_x64", True)
 
-TOL = 1e3 * 2.220446049250313e-16
 
 
 def _sph(fc):
@@ -61,6 +61,15 @@ class TestSpherefunvArithmetic:
             _sph(lambda x, y, z: f(x, y, z) * h(x, y, z)),
             _sph(lambda x, y, z: g(x, y, z) * f(x, y, z)),
             _sph(lambda x, y, z: h(x, y, z) * g(x, y, z)))
-        assert _vnorm(u + v - plus) < 10 * TOL  # pass(1)
-        assert _vnorm(u - v - minus) < 10 * TOL  # pass(2)
-        assert _vnorm(u.times(v) - mult) < 100 * TOL  # pass(3)
+        # Original MATLAB predicates: global continuous L2/Frobenius norm and
+        # the unchanged current cheb2 preference tolerance.
+        tol = 1e3 * ChebfunPref().cheb2Prefs.chebfun2eps
+        assert (u + v - plus).norm() < tol  # native pass(1)
+        assert (u - v - minus).norm() < tol  # native pass(2)
+        assert (u.times(v) - mult).norm() < tol  # native pass(3)
+
+        # Supplemental sampled infinity-norm controls from the earlier port;
+        # these are not counted as native MATLAB assertions.
+        assert _vnorm(u + v - plus) < 10 * tol
+        assert _vnorm(u - v - minus) < 10 * tol
+        assert _vnorm(u.times(v) - mult) < 100 * tol
