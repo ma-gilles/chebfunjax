@@ -22,5 +22,26 @@ def test_degree_adapter_preserves_supported_dtype_and_shape(method, dtype):
     assert np.all(np.isfinite(result))
 
 
-def test_raw_atan_dispatch_remains_jax_primitive():
-    assert _UNARY_FNS["atan"] is jnp.arctan
+@pytest.mark.parametrize("dtype", (jnp.float32, jnp.float64))
+def test_real_atan_preserves_jax_values_dtype_and_shape(dtype):
+    # The source-qualified atan adapter now also preserves MATLAB's whole-array
+    # complex-storage convention. Function-object identity would reject that
+    # required adapter without testing a numerical or public API contract.
+    values = jnp.asarray([[.25, -.5], [1., -2.]], dtype=dtype)
+    result = _UNARY_FNS["atan"](values)
+    assert result.shape == values.shape
+    assert result.dtype == values.dtype
+    np.testing.assert_array_equal(result, jnp.arctan(values))
+
+
+@pytest.mark.parametrize("dtype,real_dtype", [
+    (jnp.complex64, jnp.float32), (jnp.complex128, jnp.float64),
+])
+def test_atan_real_axis_complex_storage_matches_native(dtype, real_dtype):
+    # Captured native whole-array storage: a zero imaginary output is stored
+    # as real. Ordinary real-axis values must still agree with real atan.
+    values = jnp.asarray([.25+0j, -.5+0j], dtype=dtype)
+    result = _UNARY_FNS["atan"](values)
+    assert result.shape == values.shape
+    assert result.dtype == real_dtype
+    np.testing.assert_array_equal(result, jnp.arctan(jnp.real(values)))

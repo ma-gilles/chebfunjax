@@ -1,0 +1,155 @@
+{
+  "scope": "Nonempty real scalar Spherefun median dimensions1/2; literal fixed-grid algorithm, with six supplemental native cases. Also replaces obsolete supplemental atan function-identity assertion with exact semantic controls.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_mapping": [
+    "@spherefun/median.m delegates to @separableApprox/median.m.",
+    "sample(f,2049,2049), discrete median along requested dimension, column-major flatten.",
+    "Numeric Chebfun construction on longitude interval for dim1 and latitude interval otherwise; simplify with current global tolerance. Preserve numeric-value interpretation of sample grid.",
+    "Empty median output arity retained from earlier source port."
+  ],
+  "native": {
+    "version": "R2025b",
+    "preferences": {
+      "jax": "0.11.0",
+      "x64": true,
+      "backend": "cpu",
+      "native_tech": "chebtech2",
+      "native_tech_eps": 2.220446049250313e-16,
+      "native_cheb2_eps": 2.220446049250313e-16
+    },
+    "comparisons": [
+      {
+        "name": "constant",
+        "dim": 1,
+        "native_length": 1,
+        "python_length": 1,
+        "native_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "python_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "median_abs_error": 8.881784197001252e-16,
+        "value_abs_error": 2.220446049250313e-16,
+        "native_vscale": 1.0
+      },
+      {
+        "name": "constant",
+        "dim": 2,
+        "native_length": 1,
+        "python_length": 1,
+        "native_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "python_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "median_abs_error": 1.1102230246251565e-16,
+        "value_abs_error": 1.1102230246251565e-16,
+        "native_vscale": 1.0
+      },
+      {
+        "name": "z",
+        "dim": 1,
+        "native_length": 1,
+        "python_length": 1,
+        "native_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "python_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "median_abs_error": 3.0814879110195774e-32,
+        "value_abs_error": 1.8488927466117464e-32,
+        "native_vscale": 3.540961811029987e-17
+      },
+      {
+        "name": "z",
+        "dim": 2,
+        "native_length": 2,
+        "python_length": 2,
+        "native_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "python_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "median_abs_error": 3.3306690738754696e-16,
+        "value_abs_error": 3.3306690738754696e-16,
+        "native_vscale": 1.0
+      },
+      {
+        "name": "x_plus_2z",
+        "dim": 1,
+        "native_length": 2049,
+        "python_length": 2049,
+        "native_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "python_domain": [
+          -3.141592653589793,
+          3.141592653589793
+        ],
+        "median_abs_error": 1.1102230246251565e-15,
+        "value_abs_error": 1.3322676295501878e-15,
+        "native_vscale": 1.0000000000000007
+      },
+      {
+        "name": "x_plus_2z",
+        "dim": 2,
+        "native_length": 2049,
+        "python_length": 2049,
+        "native_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "python_domain": [
+          0.0,
+          3.141592653589793
+        ],
+        "median_abs_error": 6.661338147750939e-16,
+        "value_abs_error": 1.2212453270876722e-15,
+        "native_vscale": 2.0
+      }
+    ],
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/run/receipt.json"
+  },
+  "publication_gate": {
+    "summary": "16 passed in19.58s:4 median items (six native cases plus empty arity) and12 TreeVar dtype/atan semantic items",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_publication_gate_20261014/run/receipt.json",
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 862852
+  },
+  "atan_test_reason": "CI38507839253/job115672598691 failed obsolete _UNARY_FNS[atan] is jnp.arctan identity after source storage adapter. Test now checks exact JAX real values, shapes and dtypes plus native real-axis complex-storage convention. No library change or tolerance change.",
+  "limitations": [
+    "Six fresh native median cases are supplemental controls, not original MATLAB tests.",
+    "Complex median ordering and dimensions>2 are unqualified.",
+    "No median performance improvement is claimed; source uses2049 squared samples.",
+    "LU CI failure, full example and raster parity, other original predicates and final green CI remain open."
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_publication_gate_20261014/run/receipt.json": "4ea8bb2f51167e0ea59d9589b03f37d12451463242c7943fb969f7513a90cf4a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_publication_gate_20261014/guard.json": "dbff9143f73a6a758b734e15e86ff03e1374574bd3aa3425b50ce9ebd9f73236",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/run/receipt.json": "2e45580be62d31ab1b24de13b7d6a543c47530950d40237841de16471a466688",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/comparison_run/receipt.json": "3ee2d1a8ad09879de20664a234dfb47cb9ab5f99c7f72fab3c85ad5df75cf9ac",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/comparison.json": "2987c6f1a5167425cc1b801635b25d7a5a3d7fc0fbf59f61b760a7ac53248a5d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/probe.m": "b052e6179c2b554af84f1572eb866a8e098aaae99023d3f9c5bc8e900ff47057",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_median_native_20261014/native.mat": "fb81ca9477935e695dafecde0a9e8930d5d2dd6868dee822932a0ae4851fd218",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/spherefun/_median.py": "d6fe32c6f558a10a60f71f846b73995f4f6a28c22eeeff1e3ad80a9449021e31",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/spherefun/spherefun.py": "3a0aaa63e7b23b8997012c49a1ab4ddc6b56079013de8bf88b212588dde55478",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_median_source.py": "1610342b937c632da408fb5eaa34bdf0f887661ce7a02ddad5fad14cfee9916d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/spherefun_median_native_20261014.json": "dd6c9529b045048b0254c2cfc762e79048c6f9c6be968f0b83bdd116fbe35d5a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/treeVar/test_inverse_degree_dtype_controls.py": "717b687d3481bf08480ca62ad8e23bd206e913c70ad9bab21feaf454567d43f9"
+  }
+}

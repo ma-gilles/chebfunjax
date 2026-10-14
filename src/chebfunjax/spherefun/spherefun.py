@@ -1480,7 +1480,11 @@ class Spherefun(eqx.Module):
                 raise ValueError(
                     "MATLAB:unassignedOutputs: empty Spherefun median has no output")
             raise ValueError("MATLAB:TooManyOutputs: median has one output")
-        raise NotImplementedError("nonempty Spherefun median is not implemented")
+        if nargout not in (0, 1):
+            raise ValueError("MATLAB:TooManyOutputs: median has one output")
+        from ._median import source_median
+        result = source_median(self, dim)
+        return None if nargout == 0 else result
 
     def sum(self, dim: int = 1):
         """Integrate one coordinate, returning a Chebfun in the other.
