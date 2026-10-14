@@ -1,0 +1,28 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "conclusion": "Native/backend Cholesky accumulation differs on identical GPR K; no source-expression defect or generally native-equivalent replacement identified. Live optimizer discrepancy remains open.",
+  "controls": {
+    "native_independent_matrices": 24,
+    "historical_anchors": 7,
+    "native_cholesky_successes": 31,
+    "anchors_exact": true,
+    "rightlooking_exact_independent": 12,
+    "ordinary_jax_exact_independent": 3,
+    "maximum_scaled_backward_residual": 0.2123
+  },
+  "diagnosis": [
+    "Runtime JAX provider DPOTRF and DPOTF2 match JAX exactly on seven held matrices; recursive DPOTRF2 matches neither native nor JAX.",
+    "Native first differing pivot matches separately rounded sequential subtraction in all seven cases. High-precision local comparisons favor native5/JAX2; neither uniformly more accurate.",
+    "Generic right-looking matches first8columns of held n10 matrices but final2x2 differs. Independent n17/n33 controls first differ at column4; universal block8 prescription rejected.",
+    "Native runtime MKL2024.1/LAPACK3.11 with no backend override. Installed dispatch branches n<=16 to a small-kernel path.",
+    "No current adaptive optimizer rerun or selected-length claim. No provider pin, fitted kernel, tolerance relaxation, or jitter change."
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_lapack_dispatch_20261014/REPORT.md": "517e60b20af8650fb560e4a29cbeded70c5219603fda6914501f66c8a2286cdb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_lapack_dispatch_20261014/PIVOT_REPORT.md": "3d7fac6a87d7929955cbe20e55bcfd9bb84bf0245903f14f4037dc412fde8b59",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_lapack_dispatch_20261014/RIGHTLOOKING_REPORT.md": "46360ae9a243d5de06c278c8f51123a6fc97e0d661cabde8c08f67d4cff185cb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_native_chol_dimension_plan_20261014/REPORT.md": "d26bab58d80c8ce0a10776dc3cc4f454aba3837545fa6fb3b91a88f0b0133468",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_native_chol_dimension_plan_20261014/FINAL_MANIFEST.json": "78bb190fd15d1e612989fb9512ef55eff7bc4961449fe7841e7d584d1ebb9095"
+  },
+  "execution": "Native batch79.889s,1236776KiB,stable/no survivors. Comparison retained factor arrays before JSON metadata failure; report recovery read saved arrays without recomputing factors. Both receipts retained."
+}

@@ -25,6 +25,7 @@ from scipy.linalg import eigvals, logm, schur
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax import chebfun
+from chebfunjax.chebfun1d.chebfun import Chebfun
 from chebfunjax.operators.chebmatrix import ChebMatrix
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.plotting import chebfun_style, matlab_plot
@@ -52,12 +53,28 @@ def _solve(unit):
 
 
 def _exponential_matrix(eigenvalues, vectors, inverse_vectors, domain, sign):
-    """Source diagonal Chebfun exponential and two public matrix products."""
+    """Build exp(+-tB) with the source row/column concatenations."""
     t = chebfun(lambda t: t, domain=domain)
     n = len(eigenvalues)
-    diagonal = ChebMatrix([
-        [(sign*t*complex(eigenvalues[i])).exp() if i == j else 0
-         for j in range(n)] for i in range(n)], domain=domain)
+    def source_row(i):
+        return Chebfun.horzcat(
+            np.zeros((1, i)),
+            (sign*t*complex(eigenvalues[i])).exp(),
+            np.zeros((1, n-i-1)))
+
+    # The first vertical concat is the deprecated Chebfun operation in the
+    # MATLAB source and therefore owns its source warning. Later iterations
+    # are ChebMatrix.vertcat calls, as in MATLAB after the first promotion.
+    diagonal = source_row(0)
+    for i in range(1, n):
+        row = source_row(i)
+        if i == 1:
+            diagonal = Chebfun.vertcat(diagonal, row)
+        else:
+            # MATLAB @chebfun/vertcat promotes each array-valued row through
+            # num2cell before @chebmatrix/vertcat stacks it.
+            diagonal = ChebMatrix.vertcat(
+                diagonal, ChebMatrix.horzcat(*row.mat2cell()))
     left = ChebMatrix(vectors.tolist(), domain=domain)
     right = ChebMatrix(inverse_vectors.tolist(), domain=domain)
     return left * diagonal * right

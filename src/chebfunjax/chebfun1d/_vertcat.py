@@ -8,6 +8,21 @@ import warnings
 
 import jax.numpy as jnp
 
+_JOIN_WARNING_ENABLED = True
+_JOIN_WARNING_TEXT = (
+    "CHEBFUN:CHEBFUN:vertcat:join: "
+    "Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX\n"
+    "The V4 behaviour can be reproduced using the JOIN() method."
+)
+
+
+def _warn_join_once():
+    """Mirror @chebfun/vertcat.m warning ID and its process-wide disable."""
+    global _JOIN_WARNING_ENABLED
+    if _JOIN_WARNING_ENABLED:
+        warnings.warn(_JOIN_WARNING_TEXT, UserWarning, stacklevel=3)
+        _JOIN_WARNING_ENABLED = False
+
 
 def source_vertcat(operands):
     """Assemble scalar blocks or apply the native row concatenation branch.
@@ -75,10 +90,7 @@ def source_vertcat(operands):
             blocks.extend(
                 [[values[i, j] for j in range(values.shape[1])] for i in range(values.shape[0])]
             )
+    result = ChebMatrix(blocks, domain=_merged_domain(functions))
     if split:
-        warnings.warn(
-            "CHEBFUN:CHEBFUN:vertcat:join: Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX.",
-            UserWarning,
-            stacklevel=3,
-        )
-    return ChebMatrix(blocks, domain=_merged_domain(functions))
+        _warn_join_once()
+    return result

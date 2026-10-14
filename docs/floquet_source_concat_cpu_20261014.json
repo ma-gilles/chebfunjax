@@ -1,0 +1,50 @@
+{
+  "scope": "Private current-page candidate; no P edits.",
+  "base_commit": "da5831822cf9e794a9305bfc08a318d15b1b1d42",
+  "current_page_source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/examples/ode-linear/Floquet.md",
+  "current_page_source_sha256": "a4f373aecce0ad92922382a7580c772375cf4cc86e25ad5ccee5eb2e3cccc877",
+  "candidate_page": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/current_page_candidate/docs/examples/ode-linear/Floquet.md",
+  "candidate_page_sha256": "6f6b90e466533311147494aa2ad82aca226958073986f92c6593bc51c40e10de",
+  "page_patch_from_current": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/current_page_candidate.patch",
+  "candidate_base_example_sha256": "f9bb360ab6b269c87697cfdd96b6380b00b2bf1155015699dc0137e94fb61688",
+  "source_concat_patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/source_concat_v2.patch",
+  "source_concat_patch_sha256": "c47ff8b6fcad411da806331b9a568125fb454bab5c7c7d3146fb2d53abab0dc2",
+  "patched_example_sha256": "b3426fc04fd84bede1c8d040799d3486a144a3a8ae7d46a9889a4e29cd7643df",
+  "generator_script": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/scripts/generate_examples_ode_linear_t2.py",
+  "generator_script_sha256": "125d67cc125c9908ea68ae84ee06f2777c475ec479b2f237cbb75ffd006e0d1b",
+  "generator_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/output/handoff_generator_v6/receipt.json",
+  "generator_input_guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_source_vertcat_20261014/guard_candidate.json",
+  "text_output_count": 4,
+  "output_types": [
+    "existing logm warning",
+    "existing Exponents",
+    "existing Multipliers",
+    "captured vertcat warning"
+  ],
+  "captured_source_warning_events": {
+    "logm": 1,
+    "vertcat": 1
+  },
+  "images": {
+    "Floquet_01.png": {
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "d87d43161c9bd286778d749e654565c7117c4ca97c0e8054130d5775ad69b478"
+    },
+    "Floquet_02.png": {
+      "size": [
+        600,
+        270
+      ],
+      "sha256": "44583d742cce2e18f94011646c249ca245cecd70537edc40c418403775c1a69b"
+    }
+  },
+  "page_changes": "Only the source vertcat warning output block is inserted after the expmB vertical-concatenation operation. It uses the source warning body rendered with the existing Warning: convention; all current prose and four-decimal numerical blocks are preserved.",
+  "patch_reconstruction_check": "source_concat_v2.patch applied to current commit base files reconstructed the exact candidate Floquet example and overlay warning adapter.",
+  "page_patch_sha256": "922c8d706b5d0862e69ac9bb0d968a26792155d3308bd72f1f0a7d0ad7bed98e",
+  "remaining": "Four output slots match source count; ambient RNG and native pixel parity remain unresolved. Current formatted numeric blocks preserved.",
+  "review": "Stale first page template rejected because it reintroduced15decimal outputs and extra prose. Final candidate applies only real warning insertion against current page. Source patch reconstructed exact renderer inputs.",
+  "root_binding": "Every publication src Python file byte-identical to guarded source_snapshot plus _vertcat overlay; patched example and page hashes match report. Source test qualified privately with scoped warning state."
+}

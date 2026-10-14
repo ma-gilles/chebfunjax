@@ -1,3 +1,18 @@
+## 2026-10-14: Floquet source concatenation and GPR backend evidence
+
+Floquet now builds its exponential matrix using the original horizontal and
+vertical concatenations. The actual vertical operation emits the full source
+warning once per process. Its page now has four output blocks; existing prose
+and four-decimal numerical output are preserved. Both regenerated figures
+retain the reference 600×270 canvases. Ambient RNG and pixel parity remain
+open. See `docs/floquet_source_concat_cpu_20261014.json`.
+
+Independent Cholesky captures confirm backend-dependent arithmetic on identical
+matrices: 24 independent cases plus seven reproduced GPR anchors rule out a
+general replacement based on the observed small-matrix update order. No fitted
+kernel, tolerance change or provider pin was introduced. The live GPR optimizer
+mismatch remains open; see `docs/gpr_cholesky_provider_cpu_20261014.json`.
+
 ## 2026-10-14: original vector transpose, conjugation and cross tests
 
 Eight previously substituted predicates now use their original operands,

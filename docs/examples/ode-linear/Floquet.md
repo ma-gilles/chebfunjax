@@ -109,6 +109,14 @@ for i = 2:n
     expmB = [expmB ; zeros(1,i-1) exp(-t*D(i,i)) zeros(1,n-i)];
 end
 expmB = V*expmB*invV;
+```
+
+```text
+Warning: Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX
+The V4 behaviour can be reproduced using the JOIN() method.
+```
+
+```matlab
 
 P = zeros(n)*Phi;
 for i = 1:n
