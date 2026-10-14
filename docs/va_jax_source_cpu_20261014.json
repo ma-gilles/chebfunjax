@@ -1,0 +1,108 @@
+{
+  "scope": "JAX-only VAorthog/VAeval polynomial and rational Arnoldi basis, source derivative recurrence.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_files": [
+    "VAorthog.m",
+    "VAeval.m"
+  ],
+  "native_provenance": {
+    "repo": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "head": "7574c77680d7e82b79626300bf255498271a72df",
+    "files": {
+      "VAorthog.m": {
+        "sha256": "ca8a39cc8d74f2e6351a4d3450bee671be93796252cbab859ee92a87c090292f"
+      },
+      "VAeval.m": {
+        "sha256": "4d7dcc589cb9e160b9f39f7b582708396f4795428082dee2f8eb6d5af04aa2e9"
+      }
+    },
+    "status_for_files": "",
+    "diff_exit_code": 0,
+    "which_origins": [
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/VAorthog.m",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/VAeval.m"
+    ],
+    "capture_run_receipt": "native/run_system/receipt.json"
+  },
+  "manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/va_jax_source_port_integration_v1/manifest.json",
+    "sha256": "5350b2f1ff7c906b2ed9fdcf8249d872f77c8634258c0d08003743fab72d0dc1"
+  },
+  "integration": {
+    "manifest_sha256": "5350b2f1ff7c906b2ed9fdcf8249d872f77c8634258c0d08003743fab72d0dc1",
+    "omitted": "test_va_source.py duplicated two tests/helpers already in test_va_source_capture.py; unchanged frozen preimage/candidate remains preserved in integration package.",
+    "unique_new_tests": 3,
+    "native_guard_limit": "Source HEAD guarded, actual source hashes and clean diff verified after run; source file bytes were not independently guarded during MATLAB process."
+  },
+  "native_verification": {
+    "cases": 7,
+    "exact_field_comparisons": 300,
+    "errors": [],
+    "raw_mat_sha256": "38cd9162439bd594f7e242748b6174c3531ef3bde1563b5d79563f901008b4a9",
+    "json_sha256": "733b772fbe2c48755a11894780cc2088b5b78308a897ea29e47f4dfef52e963f",
+    "method": "Independent scipy loadmat field comparison against JSON: exact hex arrays, shape, storage, class, native metadata and all case fields."
+  },
+  "publication": {
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/va_jax_publication_20261014/run/receipt.json",
+      "sha256": "2e207cdf6976bfc98d7b4064c9a9cd5ed4ee95b24677b4d83343b35ab39df912"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/va_jax_publication_20261014/guard.json",
+      "sha256": "208378c0eebd4602204f49e02954707e57e94a747c599d586ecc1e6f74f3e2b8"
+    },
+    "passed": 7,
+    "strict_xfailed": 0,
+    "wall_seconds": 20.47967192204669,
+    "sampled_peak_summed_rss_kib": 747420,
+    "stable_inputs": true,
+    "survivors": []
+  },
+  "native_accuracy": "Seven native cases, largest absolute difference2.665e-15; max scaled difference1.643e-15. New native/analytic controls100eps; four pre-existing predicates unchanged.",
+  "independent_controls": "Power-basis polynomial and common-denominator rational values and quotient-rule derivatives; JAX autodiff and outerJIT; exact native shapes/classes/storage including real degree0 on complex points and0x0 empty pole blocks.",
+  "timing": {
+    "comparison": "candidate JAX CPU vs frozen publication HEAD NumPy baseline",
+    "publication_baseline_head": "5ef5fe50d2f734925af8cb7d4f99e2d6611c9365",
+    "degree": 30,
+    "full_eval_points": 2560,
+    "kept_orthog_points": 2202,
+    "rng": "numpy.default_rng(1); Step2tf drop construction",
+    "baseline_numPy_orthog_seconds": [
+      0.006775720976293087,
+      0.005592246074229479,
+      0.005470105912536383
+    ],
+    "baseline_numpy_eval_seconds": 0.00298138614743948,
+    "candidate_jax_cold_orthog_seconds": 2.7913748379796743,
+    "candidate_jax_warm_orthog_seconds": [
+      0.0028589661233127117,
+      0.0033301319926977158,
+      0.0030145281925797462
+    ],
+    "candidate_jax_cold_eval_seconds": 0.8140568579547107,
+    "candidate_jax_warm_eval_seconds": [
+      0.002236455213278532,
+      0.0016937842592597008,
+      0.0014382749795913696
+    ],
+    "candidate_jax_warm_orthog_median_seconds": 0.0030145281925797462,
+    "candidate_jax_warm_eval_median_seconds": 0.0016937842592597008,
+    "max_abs_H_difference": 1.2817197096787892e-12,
+    "max_abs_Q_difference": 7.576161920042068e-13,
+    "max_abs_eval_difference": 7.895906151134113e-13,
+    "baseline_source_sha256": "7725690d0839f53812fd73c53c0a425a38266fc2ca5f20b7a6671a9e54e84693"
+  },
+  "timing_limit": "Matched local frozenNumPy vs JAX implementation timings at degree30/2202training/2560eval points, not a freshMATLAB speed comparison. First-use compilation about3.6s is material; warmed orthog/eval about2x faster.",
+  "api": "Legacy no-Pol returns(Hmatrix,R); explicitPol returns(tupleHblocks,R). Optionalreturn_derivative returns(R0,R1). Pointinputs flattened as historicaladapter; degree and group sizes static forJIT.",
+  "limitations": [
+    "All native MATLAB tests and degree/conditioning domains are not yet exhaustive.",
+    "Original capture1 MAT was overwritten during private work and cannot be recovered. Qualification uses preserved capture2 only; reconstructed first-six results are not claimed as original raw evidence.",
+    "Native sourceHEAD guarded during capture2; actualsourcehashes and clean diff verified afterward, not independently guarded duringrun.",
+    "No float32/fullsubnormal/nonfinite/generalbreakdown qualification claim."
+  ],
+  "files": {
+    "src/chebfunjax/utils/va.py": "e5879f790b408a16379079b03e5ef768cae4eb954f902f2571ee36f4597cceac",
+    "tests/test_chebfun1d/test_va_source_capture.py": "9213614fb4b62c0391d8ee7a70479e0342c596c64eb316255c6f15bbdc64e63a",
+    "tests/test_chebfun1d/data/va_native_source.json": "733b772fbe2c48755a11894780cc2088b5b78308a897ea29e47f4dfef52e963f"
+  }
+}

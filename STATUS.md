@@ -1,3 +1,21 @@
+## 2026-10-14: JAX polynomial and rational Arnoldi basis
+
+VAorthog/VAeval now use JAX arithmetic, retaining the legacy polynomial API
+and adding source rational pole groups and derivative evaluation. Seven native
+MATLAB captures match values, shapes and storage, including complex degree-zero
+and empty pole blocks. Independent power-basis/quotient-rule derivative and
+JIT controls pass. Root merged gate:7passed, unchanged four existing predicates,
+stable guarded inputs/no survivors. Duplicate private tests were omitted.
+
+At the Step2tf degree30 shape, warm orthogonalization/evaluation were about2x
+faster than the frozen NumPy implementation. First-use JAX compilation cost
+about3.6s; this is a local implementation comparison, not MATLAB speed parity.
+Raw capture2 and300 independent MAT/JSON field comparisons are preserved.
+Capture1 raw MAT was overwritten in private work and is not used to qualify
+the final package. Evidence: `docs/va_jax_source_cpu_20261014.json`.
+Full source/test/example/figure parity, known performance gaps and green CI
+remain open; the native-LU CI comparison remains under diagnosis.
+
 ## 2026-10-14: atan branch axes and sinh signed zeros
 
 TreeVar atan/atand now follow independently captured exact-axis conventions,
