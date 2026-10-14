@@ -3526,7 +3526,7 @@ def chebfun3(
         ``tech='trigtech'``, source epsilon, and ``cheb3Prefs.sampleTest``.
         Explicit Chebtech1 preferences retain the native C2 sampling grids
         and C1 transforms, including native warned approximations. The classic
-        constructor is unsupported. The existing ``tech='chebtech1'`` keyword
+        selector uses adaptive MACA and block-term-to-Tucker construction. The existing ``tech='chebtech1'`` keyword
         without an explicit preference retains legacy factor conversion.
 
     Returns
@@ -3688,8 +3688,6 @@ def chebfun3(
             return result if rank is None else result.fix_the_rank(rank)
     direct_first_kind = ((pref is not None or tech is None or not callable(f))
                          and key in ("chebtech1", "1", "1st") and not direct_periodic)
-    if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:
-        raise NotImplementedError("Only the chebfun3f constructor is supported")
     if pref is not None and key not in ("chebtech", "chebtech2", "2", "2nd",
                                         "chebtech1", "1", "1st", "trig", "trigtech", "periodic") and not direct_periodic:
         raise NotImplementedError("Unsupported explicit Chebfun3 technology preference")
@@ -3725,6 +3723,23 @@ def chebfun3(
                 lambda x, y, z, _c=c0: jnp.full_like(x, _c), domain=dv,
                 tol=tol, **periodic_options)
         result = Chebfun3.from_values(arr, domain=dv, tol=tol)
+        return result if rank is None else result.fix_the_rank(rank)
+    if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:
+        from chebfunjax.chebfun3d._chebfun3classic import construct, vector_check
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
+
+        selected = Trigtech if direct_periodic else Chebtech1 if key in (
+            "chebtech1", "1", "1st") else Chebtech2
+        classic_pref = ChebfunPref(construction_pref)
+        classic_pref.tech = selected
+        classic_pref.cheb3Prefs.chebfun3eps = tol
+        if max_rank != 128:
+            classic_pref.cheb3Prefs.maxRank = max_rank
+        if not vectorize:
+            f, vectorize = vector_check(f, dv)
+        result = construct(f, dv, classic_pref, selected,
+                           vectorize=vectorize, fiber_dim=fiberDim)
         return result if rank is None else result.fix_the_rank(rank)
     # 'chebfun3f' selects the (default) three-phase Tucker constructor.
     del chebfun3f

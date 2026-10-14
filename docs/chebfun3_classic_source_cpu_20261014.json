@@ -1,0 +1,146 @@
+{
+  "scope": "Public callable classicChebfun3 selector: adaptive MACA, dimension clustering, two refinement phases, block-term-to-Tucker conversion and sample tests. CPU only.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/chebfun3classic.m": "e2643a69c6787fee4d02cb4a7f053da751c4eb9f45b5e1e2e18c9809836aeebb",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/constructor.m": "c827ec7cc88f92385d7dd98af377978dee0852e5fb5d227fac3f212e96dafeb4",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun3/private/sampleTest.m": "8df21ffb116a69cb25b71eeb77e2fbd26033008814961426bc562be952334922",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_constructor.m": "5626d4ab875bc283e0e32b18e3063da7a30089080bbd7bf3208a46395b1fdf03",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_constructor2.m": "4226ef8b397a3b4ec104de7dbe94a38b98170b530c5a713d28a7b5e302b4a3df",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun3/test_complex.m": "95d45bdd9eb82153d67ae2c22c2ca846f815884a2d3677ff6f0b986614c007b7"
+  },
+  "source_mapping": "# Classic Chebfun3 private source port\n\nCandidate: `src/chebfunjax/chebfun3d/_chebfun3classic.py` and the callable dispatch in `chebfun3.py`; review diff `classic_review.patch`. No publication checkout edits.\n\n## Source mapping\n\nPinned Chebfun commit `7574c77680d7e82b79626300bf255498271a72df`:\n\n- `@chebfun3/chebfun3classic.m:1\u2013447`: dimension clustering, Phase I finite-rank MACA, separate slice/fiber refinement, Phase II nested fiber/slice updates, BTD-to-Tucker conversion, common-scale factor simplification, sample-test retries and inverse permutation.\n- Lines449\u2013630 and1106\u20131279: BTD conversion and ACA2/ACA3. Reuses existing JAX complete-pivot subtraction and BTD kernels; adds finite-factor stops and both failure flags.\n- Lines632\u2013831: explicit-grid gradient tolerance, scalar evaluation order, grid refinement, modal-rank clustering and factor happiness. The explicit grid in tolerance can differ from the maximum tensor dimension after slice-only refinement.\n- `@chebfun3/constructor.m:117` vectorCheck: twice-probed callback, source automatic-vectorize warning, scalar expansion, Inf-before-NaN errors. Applied only to the newly supported callable classic branch; general 3f parser behavior remains outside this package.\n- `@chebfun3/private/sampleTest.m`: original30 paired Halton points, vectorized callback20\u00b3 grid, unchanged10*absTol predicate.\n\n## Preferences and failures\n\nThe classic source calls `tech.techPref()` without passing the selected preference. The port therefore uses factory minSamples/maxLength (C2/C1:17/65537, trig maxLength65536). It retains selected chebfun3 epsilon, maxRank, sampleTest, technology and fiberDim. The Python convenience max_rank overrides selected maxRank only when nondefault, matching the existing convenience API convention. Numeric construction dispatches before callable classic.\n\nPhase I retains separate 2D and3D failure flags and source363 grid ceiling. Exceeding selected maxRank warns; source then resets its failure flag before Phase II, which the port preserves. Phase II maxLength warns and sets failure; failed sample tests restart from refined Phase I grid unless failure terminates the outer loop. No fitted limits, length trimming or relaxed predicates.\n\nExisting explicit nonstandard happiness/unknown technology guards remain. This package does not claim those unsupported preference combinations or exact backend pivot equivalence.\n\n## Qualification binding\n\n- Seven native captured cases succeeded and saved exact MAT artifacts and effective factory preferences. The native driver later failed optional JSON export of complex Fourier coefficients; its overall exit1 is retained separately. Python conversion repaired serialization without repeating native work.\n- Seven-case comparison: cluster choices/public ranks all match, six length triples match, maximum point difference3.33e-15. Original `cos(x+z)+sin(x*y*z)` has lengths16/14/16 versus native15/14/15, despite2.22e-16 point difference; late residual pivots differ. Causal arithmetic stage remains open.\n- Original constructor predicates1\u201311 passed under explicitly traced classic selection before the vectorCheck adapter. Rational construction completed but its subsequent unchunked100\u00b3 paired evaluation exceeded the5GiB cap. That run does not qualify predicate12 or remaining assertions.\n- Archived exact source copies plus `algorithm_ast_proof.json` bind the pre-adapter algorithm to final helper: existing algorithm definitions unchanged, new vectorCheck only (imports/formatting excluded).\n- Final focused gate:11 tests passed, including source ACA flags, slice-only refinement, factory defaults, zero rank, numeric dispatch, vectorCheck and original epsilon/complex predicates. Stable guard,155.56s,1,916,924KiB sampled peak, no surviving owned processes.\n- Residual predicates12\u201317 passed from the exact unchanged test tail, with test-only bounded paired evaluation retaining all100\u00b3 points, coordinate order, norm and threshold. Core/factors were checkpointed before evaluation. The pytest test passed in277.59s; driver exit1 came afterward from an incorrect invocation-count assertion (5 versus actual7, including two numeric scalar recursive calls). `remaining_audit.json` binds the corrected count to original logs/source without numerical rerun. Generic paired-evaluation memory behavior is a separate gap; no generic evaluation implementation change is included.\n\nEarlier wrong-route harness and JSON-conversion failure are retained as unqualified evidence. See `review_manifest.json` for exact hashes and receipts.\n",
+  "qualification": {
+    "original_constructor_predicates": 17,
+    "binding": "Predicates1\u201311 passed before vectorCheck adapter; algorithm AST equivalence archived. Predicates12\u201317 passed on final source with all1000000 rational points, test-only32768-point chunks preserving order/max absolute error/bound.",
+    "focused_private": "11 tests:9 new source branches plus existing epsilon and complex original predicates",
+    "root_integration": {
+      "summary": "9 passed in21.01s",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/classic_publication_20261014/run/receipt.json",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1574348
+    },
+    "native": "Seven successful captures saved; all rank/cluster choices match, six factor-length triples match, largest sampled value difference3.33e-15. Final optional complex JSON export failed after MAT data saved; no whole-driver success claim.",
+    "failed_and_censored_runs": {
+      "smoke_supervision": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 38.4560884879902,
+        "sampled_peak_summed_rss_kib": 1244192,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "native_supervision": {
+        "command_exit_code": 1,
+        "supervisor_exit_code": 1,
+        "wall_seconds": 82.209323448129,
+        "sampled_peak_summed_rss_kib": 1491348,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "compare_supervision": {
+        "command_exit_code": 1,
+        "supervisor_exit_code": 1,
+        "wall_seconds": 2.983112092129886,
+        "sampled_peak_summed_rss_kib": 168272,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "compare_supervision_v2": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 78.28871322702616,
+        "sampled_peak_summed_rss_kib": 1523856,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "original_supervision": {
+        "command_exit_code": -15,
+        "supervisor_exit_code": 137,
+        "wall_seconds": 55.961737126111984,
+        "sampled_peak_summed_rss_kib": 6791740,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": "sampled_summed_RSS_cap"
+      },
+      "original_supervision_v2": {
+        "command_exit_code": -15,
+        "supervisor_exit_code": 137,
+        "wall_seconds": 415.011530963704,
+        "sampled_peak_summed_rss_kib": 5470956,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": "sampled_summed_RSS_cap"
+      },
+      "focused_supervision": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 155.55954680824652,
+        "sampled_peak_summed_rss_kib": 1916924,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "remaining_supervision": {
+        "command_exit_code": 1,
+        "supervisor_exit_code": 1,
+        "wall_seconds": 281.48811647994444,
+        "sampled_peak_summed_rss_kib": 4535352,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "residual_gate_audit": {
+      "scientific_predicates": "original constructor12\u201317 passed unchanged",
+      "actual_classic_calls": 7,
+      "expected_classic_calls": 7,
+      "explanation": "Five explicit callable constructions plus two numeric scalar calls recursively routed through callable construction with session defaults.",
+      "overall_driver_exit": 1,
+      "driver_failure": "Post-pytest expected-count assertion incorrectly5; native scalar recursion makes7.",
+      "receipt_sha256": "bdcd5374481f8e32b49f768557d6321f24fb9acb1efb5e0203effe6e5871d3eb",
+      "checkpoints": {
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_1.npz": "c2eb6998eb56e7651e2ca3d5536c19ba72c970e9335dbb2f2043557b560273c3",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_2.npz": "3a00afdfccc5ecd09fa91935283778045f6b66363318d2ef5e588286f0f92a87",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_3.npz": "3a00afdfccc5ecd09fa91935283778045f6b66363318d2ef5e588286f0f92a87",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_4.npz": "3a00afdfccc5ecd09fa91935283778045f6b66363318d2ef5e588286f0f92a87",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_5.npz": "3a00afdfccc5ecd09fa91935283778045f6b66363318d2ef5e588286f0f92a87",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_6.npz": "0a402b3dc5fbb2f45d87496c0ea64505de158566a84d1118ff3ba4da0d990b1f",
+        "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_checkpoints/constructor_7.npz": "5ddb1479099675ee2be82aae1252e281409706576b2a323c3d0a5583150f242e"
+      },
+      "inputs_stable": true,
+      "no_survivors": true,
+      "no_numerical_rerun": true
+    },
+    "root_import_format": "After successful gate, blank lines in test import block only were formatted; exact test preimage archived."
+  },
+  "limitations": [
+    "original_ff lengths16/14/16 vs native15/14/15; causal stage not isolated; no trimming or tolerance changes",
+    "generic million-point paired evaluation exceeded5GiB; test-only chunks preserve allpoints/order/reduction/bound",
+    "classic-only vectorCheck adapter; no claim of shared3f parser parity",
+    "existing explicit nonstandard happiness and unknown technology guards retained",
+    "No exact MATLAB rounded-output parity claim; originalff length difference remains.",
+    "No finalmain CI qualification or complete322 example/function/test/raster parity claim."
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/classic_source.patch": "9ddf34fb47b42fd04bde117d301eb33422ac6cf463343dc5f8ba8300ba46af14",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/DELIVERY.json": "8c4d0d0cc101470698b57328247d94214c570a6967e0070a77de014fae1f615f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/FINAL_MANIFEST.json": "5ff01de93db2645d2822a9bfe7942cd71c406e9d237bbdf13191018fd2aa1a6f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/REVIEW.md": "34cb2bde43c055d7602f13b84cdda9602e3850c9e532769b7b4e91483d92ddb1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/algorithm_ast_proof.json": "dae5ae1e5033b3359d2411db1e9410fb011e17579ffe345d921015a5d7d75370",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_tail_proof.json": "99bad89bdc744d4f83ec151e0a2f08b5a441196c457c497d5afff676c2666fa6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_source_20261014/remaining_audit.json": "a4dc9ff81d3713f46e6c0f46a94f3586e641debeea0c9d4e90707eeab8848ffe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/classic_publication_20261014/run/receipt.json": "535108a139196e7f7bf7ab6c312db9c19a1bcb95d1689a8ccf08d5e6a61d3624",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/classic_publication_20261014/guard.json": "55be2da6ee55bcf9340aab6ac476bf53098a6bbaaf71fdd9ab3a0fb5e4364507",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/classic_publication_20261014/test_classic_before_import_format.py": "9fdfb4d002bd41c9ea05b8278944d67ed8e8bd9ff2cea6b91241c7c1ec468c1c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun3d/_chebfun3classic.py": "b054c22404b871e5045c58cc74c91044091eb9562035e461139ed7a49985cb06",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun3d/chebfun3.py": "a6ee6b93229b52d6fe70c57fe85df1af7ae080e78577c20678e55c10b19d0715",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun3/test_classic_source.py": "1f2906bebac709cdaebfdbecab893bc52f3ee40aa86b1ccd53083df0c5720bd6"
+  }
+}
