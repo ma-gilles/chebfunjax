@@ -346,7 +346,77 @@ def _make_trig_interp(V, domain_triples):
 # ---------------------------------------------------------------------------
 
 
-def spin3(S: Spinop3, N: int, dt: float, *args, return_times=False, **kwargs):
+_SPIN3_PRESET_DEFAULTS = {
+    "GL": (32, 0.1, (-1.0, 1.0), 2, 64),
+    "GS": (32, 5.0, (0.25, 0.8, 0.0, 0.35), 10, 64),
+    "SCHNAK": (32, 0.5, (0.7, 1.7, 0.65, 1.05), 10, 64),
+    "SH": (32, 1.0, (-0.4, 0.5), 4, 64),
+}
+
+
+def _normalize_spin3_call(S, N, dt, args, kwargs):
+    """Normalize source-supported named and explicit ``spin3`` call forms.
+
+    The named forms are ``spin3(name)``, ``spin3(name,key,value)``, and
+    ``spin3(name,key,value,...)``. Explicit operators retain
+    ``spin3(S,N,dt[,pref-or-pairs...])``.
+
+    Provenance
+    ----------
+    MATLAB source: spin3.m input dispatch and local parseInputs.
+    Chebfun commit: 7574c77.
+    """
+    from chebfunjax.operators.spinpref import SpinPref3
+
+    if isinstance(S, str):
+        key = S.upper()
+        bare_preset = N is None and dt is None and not args and not kwargs
+        if key not in _SPIN3_PRESET_DEFAULTS:
+            if bare_preset:
+                try:
+                    Spinop3(S)
+                except Exception as error:
+                    raise ValueError(
+                        "Unrecognized PDE. See HELP/SPINSPHERE for the list of PDEs."
+                    ) from error
+            # Spinop3 owns the source-shaped unknown-preset diagnostic.
+            raise ValueError(
+                f"Unrecognized PDE {S!r}. Options: GL, GS, Schnak, SH."
+            )
+        n, step, clim, iterplot, nplot = _SPIN3_PRESET_DEFAULTS[key]
+        if N is None and dt is None:
+            pairs = args
+        elif N is not None and dt is not None:
+            pairs = (N, dt, *args)
+        else:
+            raise TypeError("Named spin3 calls require complete preference pairs.")
+        if len(pairs) % 2:
+            raise TypeError("Named spin3 calls require preference name/value pairs.")
+        pref = SpinPref3(Clim=clim, iterplot=iterplot, Nplot=nplot)
+        names = {name.lower(): name for name in pref._defaults}
+        for name, value in zip(pairs[::2], pairs[1::2]):
+            if not isinstance(name, str) or name.lower() not in names:
+                raise ValueError(f"Unrecognized spin3 preference: {name!r}")
+            setattr(pref, names[name.lower()], value)
+        for name, value in kwargs.items():
+            if name.lower() not in names:
+                raise ValueError(f"Unrecognized spin3 preference: {name!r}")
+            setattr(pref, names[name.lower()], value)
+        if bare_preset:
+            # Native spin3 validates the preset in its single-argument try
+            # block, then parseInputs constructs it again. This advances the
+            # JAX normal stream twice for GL and SH, matching that call path.
+            Spinop3(S)
+        S = Spinop3(S)
+        return S, n, step, (pref,), {}
+
+    if N is None or dt is None:
+        raise TypeError("Explicit spin3 calls require S, N, and dt.")
+    return S, N, dt, args, kwargs
+
+
+def spin3(S: Spinop3 | str, N: int | str | None = None,
+          dt: float | str | None = None, *args, return_times=False, **kwargs):
     """Solve a periodic 3D PDE with source checkpoint and output semantics.
 
     Scalar two-endpoint solves return the final periodic Chebfun3. Systems
@@ -367,4 +437,5 @@ def spin3(S: Spinop3, N: int, dt: float, *args, return_times=False, **kwargs):
     """
     from chebfunjax.operators._spin3_public import solve_public
 
+    S, N, dt, args, kwargs = _normalize_spin3_call(S, N, dt, args, kwargs)
     return solve_public(S, N, dt, args, kwargs, return_times=return_times)

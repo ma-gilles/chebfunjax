@@ -1,0 +1,23 @@
+{
+  "scope": "Source spin3 named-preset dispatch/defaults and Python keyword adapter",
+  "source": "spin3.m135-240 at7574c77",
+  "native_source_sha256": "39f67854019c08318b4ecfeae2eed8f8217356a4436440d9eea89bcaabfbc1be",
+  "candidate_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_named_preset_candidate_20261013/REPORT.md",
+  "candidate_report_sha256": "568656aa6970dcccad070a88bea132f22b9aad0246961e8b47cc62113dadf7c8",
+  "patch_sha256": "a58227b8dee19318011619fcbb8e6814e92f8d5901eb4a39a41d4ddb18475214",
+  "root_gate": {
+    "passed": 21,
+    "peak_kib": 1565092,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin3_named_publication_20261014/run/receipt.json",
+    "receipt_sha256": "4a7f4b6ac864c117c4b42c5d5a9b81ee205546800323ec94f92c09064a1f6231",
+    "stable": true,
+    "no_survivors": true
+  },
+  "source_review": "Defaults checked directly against source parseInputs. Pure named call preserves validation construction followed by second construction; keywordpreferences mapped to native name/value pairs construct once.",
+  "test_scope": "Eight intercepted solver-boundary controls plus13 actual native/time regression cases; no full default named trajectory or movie qualification.",
+  "limits": [
+    "MATLAB normal-stream identity unresolved",
+    "Movie rendering remains headless",
+    "Exact identifiers for Python malformed argument adapters not claimed"
+  ]
+}

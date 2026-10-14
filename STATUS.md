@@ -1,3 +1,13 @@
+## Source named spin3 call forms — 2026-10-14
+
+Added GL/GS/SCHNAK/SH named dispatch with native N/dt/display preferences,
+name/value and Python keyword adapters, retaining explicit operator calls.
+Bare preset calls preserve native validation construction followed by a second
+construction (and hence two normal-stream advances for GL/SH). Root21 parser
+and native/time solver checks pass with stable inputs/no survivors. Parser
+controls intercept the solver; no full default trajectory or movie parity is
+claimed. Evidence: `docs/spin3_named_presets_cpu_20261014.json`.
+
 ## Native inverse degree and cotangent branches — 2026-10-14
 
 TreeVar acosd/asind/atand/acot now use JAX with captured branch/storage/pole
