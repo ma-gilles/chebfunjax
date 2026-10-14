@@ -1,30 +1,26 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_diff.m (Opus 4.8).
+"""Literal predicates from MATLAB Chebfun tests/chebfun3/test_diff.m.
 
-Self-validating: MATLAB checks ``norm(diff(f,k,dim) - chebfun3(exact)) < tol``.
-Here the analytic exact is used directly and compared pointwise at the SAME
-tolerance ``tol = 1e6 * EPS`` (multiplied by the same factors the MATLAB file
-uses on the "different syntax" checks).
-
-MATLAB ``diff(f, k, dim)`` maps to chebfunjax ``f.diff(dim, k)``.
+Original source constructs each expected derivative as a Chebfun3 and uses
+its default continuous L2 norm. MATLAB argument order ``diff(f,k,dim)`` is
+mapped to Python's explicit ``f.diff(dim=dim,k=k)``; one-argument order
+forms use ``f.diff(k=k)``.
 
 Provenance
 ----------
 MATLAB source : tests/chebfun3/test_diff.m
 Chebfun commit: 7574c77
 """
-
 from __future__ import annotations
 
 import jax.numpy as jnp
 import pytest
 
 from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
-from ._helpers import EPS, grid, ninf
+TOL = 1e6 * ChebfunPref().cheb3Prefs.chebfun3eps
 
-TOL = 1e6 * EPS
-
-# Battery: functions and their exact df/dx, df/dy, df/dz.
+# Literal MATLAB ff, ffx, ffy, ffz lists and domains.
 FF = [
     lambda x, y, z: x,
     lambda x, y, z: jnp.cos(x) * jnp.exp(y) * jnp.sin(z),
@@ -55,65 +51,30 @@ DOMS = [
 ]
 
 
-@pytest.mark.parametrize("jj", range(4))
-@pytest.mark.parametrize("r", range(2))
-class TestChebfun3Diff:
-    def test_dx(self, jj, r):
-        dom = DOMS[r]
-        f = chebfun3(FF[jj], domain=dom)
-        X, Y, Z = grid(dom)
-        # diff(f, 1, 1) -> f.diff(dim=1, k=1)
-        err = ninf(f.diff(1, 1)(X, Y, Z) - FFX[jj](X, Y, Z))
-        assert err < TOL
-
-    def test_dy(self, jj, r):
-        dom = DOMS[r]
-        f = chebfun3(FF[jj], domain=dom)
-        X, Y, Z = grid(dom)
-        err = ninf(f.diff(2, 1)(X, Y, Z) - FFY[jj](X, Y, Z))
-        assert err < TOL
-
-    def test_dz(self, jj, r):
-        dom = DOMS[r]
-        f = chebfun3(FF[jj], domain=dom)
-        X, Y, Z = grid(dom)
-        err = ninf(f.diff(3, 1)(X, Y, Z) - FFZ[jj](X, Y, Z))
-        assert err < TOL
+@pytest.mark.parametrize("jj", range(4), ids=[f"fn{j}" for j in range(4)])
+@pytest.mark.parametrize("r", range(2), ids=[f"dom{r}" for r in range(2)])
+def test_original_first_derivatives(jj, r):
+    dom = DOMS[r]
+    f = chebfun3(FF[jj], domain=dom)
+    fx = chebfun3(FFX[jj], domain=dom)
+    fy = chebfun3(FFY[jj], domain=dom)
+    fz = chebfun3(FFZ[jj], domain=dom)
+    # MATLAB norm(diff(f,1,dim) - exactChebfun3) < tol, dim=1,2,3.
+    assert (f.diff(dim=1, k=1) - fx).norm() < TOL
+    assert (f.diff(dim=2, k=1) - fy).norm() < TOL
+    assert (f.diff(dim=3, k=1) - fz).norm() < TOL
 
 
-class TestChebfun3DiffSyntax:
-    """MATLAB "different syntax for diff" block (jj = 3, last domain)."""
-
+def test_original_diff_syntax_predicates():
+    # MATLAB's post-loop r=2, jj=3: f = cos(x*y*z) on the second domain.
     dom = DOMS[1]
-
-    def _f(self):
-        return chebfun3(FF[2], domain=self.dom)
-
-    def test_default_diff_is_dim1(self):
-        # norm(diff(f) - diff(f,1,1)) < tol
-        f = self._f()
-        X, Y, Z = grid(self.dom)
-        err = ninf(f.diff()(X, Y, Z) - f.diff(1, 1)(X, Y, Z))
-        assert err < TOL
-
-    def test_diff_order1_is_dim1(self):
-        # norm(diff(f,1) - diff(f,1,1)) < tol ; MATLAB diff(f,k=1) -> dim 1
-        f = self._f()
-        X, Y, Z = grid(self.dom)
-        err = ninf(f.diff(1, 1)(X, Y, Z) - f.diff(1, 1)(X, Y, Z))
-        assert err < TOL
-
-    def test_diff_order2_is_dim1(self):
-        # norm(diff(f,2) - diff(f,2,1)) < 100*tol ; MATLAB diff(f,k=2) -> dim 1
-        f = self._f()
-        X, Y, Z = grid(self.dom)
-        err = ninf(f.diff(1, 2)(X, Y, Z) - f.diff(1, 2)(X, Y, Z))
-        assert err < 100 * TOL
-
-    def test_second_deriv_dim2_equals_repeated(self):
-        # norm(diff(f,2,2) - diff(diff(f,1,2),1,2)) < 10*tol
-        f = self._f()
-        X, Y, Z = grid(self.dom)
-        lhs = f.diff(2, 2)(X, Y, Z)
-        rhs = f.diff(2, 1).diff(2, 1)(X, Y, Z)
-        assert ninf(lhs - rhs) < 10 * TOL
+    f = chebfun3(FF[2], domain=dom)
+    # Source pass 25: norm(diff(f) - diff(f,1,1)) < tol.
+    assert (f.diff() - f.diff(dim=1, k=1)).norm() < TOL
+    # Source pass 26: norm(diff(f,1) - diff(f,1,1)) < tol.
+    assert (f.diff(k=1) - f.diff(dim=1, k=1)).norm() < TOL
+    # Source pass 27: norm(diff(f,2) - diff(f,2,1)) < 100*tol.
+    assert (f.diff(k=2) - f.diff(dim=1, k=2)).norm() < 100 * TOL
+    # Source pass 28: norm(diff(f,2,2) - diff(diff(f,1,2),1,2)) < 10*tol.
+    assert (f.diff(dim=2, k=2)
+            - f.diff(dim=2, k=1).diff(dim=2, k=1)).norm() < 10 * TOL

@@ -1,0 +1,211 @@
+{
+  "source_commit": "7574c7768",
+  "base_checkout_commit": "ec8fc530",
+  "file": "tests/chebfun3/test_diff.m",
+  "python_port": "tests/test_matlab_port/chebfun3/test_diff_matlab.py",
+  "source_mapping": [
+    "MATLAB diff(f,k,dim) -> f.diff(dim=dim,k=k)",
+    "MATLAB diff(f) -> f.diff()",
+    "MATLAB diff(f,k) -> f.diff(k=k)",
+    "Source expected derivative operands are separately constructed Chebfun3 objects.",
+    "Source norm(F) defaults to continuous L2; Python Chebfun3.norm() defaults to source-equivalent continuous Frobenius/L2."
+  ],
+  "source_predicate_count": 28,
+  "predicate_breakdown": {
+    "battery": 24,
+    "syntax": 4
+  },
+  "qualification": {
+    "fresh_processes": 9,
+    "guard_input_count": 1029,
+    "guard_sha256": "204b389dbe0e0d1ac7082ec7fab4f5ea352d18d92653e3095dcf33cf109a7742",
+    "runs": [
+      {
+        "run": "run_source_fn0_dom0",
+        "pytest": "1 passed, 8 deselected in 7.11s ========================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 10.295927541796118,
+        "sampled_peak_summed_rss_kib": 880868,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "344d6e6fa2c08d968512191f8f0d3b3d0509b28547701f8384b1613361f87cbe",
+        "stdout_sha256": "eca6a7cd8e05ca4a16a0a3d995363a2cae0ee60a38a6653661b46de59b73f2ed"
+      },
+      {
+        "run": "run_source_fn0_dom1",
+        "pytest": "1 passed, 8 deselected in 7.12s ========================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 10.209612892009318,
+        "sampled_peak_summed_rss_kib": 879228,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "61cd0e8e99983de850a69081968cc16a220cfe9a648bed214446f2930e153f86",
+        "stdout_sha256": "9c0a8c8b9bdacfc73955d95a903210566ce722292307b1a478995b6227dc6681"
+      },
+      {
+        "run": "run_source_fn1_dom0",
+        "pytest": "1 passed, 8 deselected in 13.37s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 16.932832884136587,
+        "sampled_peak_summed_rss_kib": 1130724,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "716ba9cb38770703056386f400a28170c09efee90b1fab2fb18bcc974b18929b",
+        "stdout_sha256": "1d47f7d47dbee0d66974e1e4ab47832f0e66c133479c964da39e5198eb91fa5c"
+      },
+      {
+        "run": "run_source_fn1_dom1",
+        "pytest": "1 passed, 8 deselected in 14.37s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 17.84321161918342,
+        "sampled_peak_summed_rss_kib": 1174232,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "aa18479fc15975f3b2507c88b155e2188935c421067411499f98200e24a75eab",
+        "stdout_sha256": "bf1ebcecaba84352827b162ef9bc642d2c91b9296225ec8ec5dba9bfb1c42a37"
+      },
+      {
+        "run": "run_source_fn2_dom0",
+        "pytest": "1 passed, 8 deselected in 19.55s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 23.178234244231135,
+        "sampled_peak_summed_rss_kib": 1245220,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "6c1ce292c5e12b94a52ecac97fdb08dfa8555a4a852213c07747d5582987063d",
+        "stdout_sha256": "aee6823325db959d5bd0a588759bdbdd5de2a4ae50a3bbd19911c303fbdfb6d0"
+      },
+      {
+        "run": "run_source_fn2_dom1",
+        "pytest": "1 passed, 8 deselected in 49.40s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 54.22579998988658,
+        "sampled_peak_summed_rss_kib": 2128420,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "2bcd7a55c565a8d660c1a99c6deb8d8f6dedfcc0f8e1533c29b841d4ce78b1a4",
+        "stdout_sha256": "2c4555aa7f22697f401f84fde8aaca820583b27f70982e66a2c0bd7f021ae4ea"
+      },
+      {
+        "run": "run_source_fn3_dom0",
+        "pytest": "1 passed, 8 deselected in 11.67s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 14.208603758364916,
+        "sampled_peak_summed_rss_kib": 1066772,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "91e0bb6ecb2cc3912acea9709e1aa9ee7d09b8f9852ff78e4f457e4b5bed43bb",
+        "stdout_sha256": "4f00f32bc257cee313e25b9589907d2cfa8c5c7dd132235c23096867e07e30dc"
+      },
+      {
+        "run": "run_source_fn3_dom1",
+        "pytest": "1 passed, 8 deselected in 11.66s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 14.30024616792798,
+        "sampled_peak_summed_rss_kib": 1062948,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "50d2676679a891291ab06b1348f29129f72005f61bbd6c9c16b2b1254c994c4f",
+        "stdout_sha256": "da5251c66128958040210b745034af33a532be1b67005d601051edf998e13c61"
+      },
+      {
+        "run": "run_source_syntax",
+        "pytest": "1 passed, 8 deselected in 28.28s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 31.623269671108574,
+        "sampled_peak_summed_rss_kib": 1546388,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "7ba6f0e8a5165e5c744311721713ffb0ee10771f76c928cb9e665d7639d5450b",
+        "stdout_sha256": "44044d3d3885b5da5fb4c561fc7e0e122e28c04880e17f51492d4cf55916f54c"
+      }
+    ],
+    "all_pass": true
+  },
+  "ruff": "passed",
+  "patch": "chebfun3_diff_original_patch.diff",
+  "patch_sha256": "a0ba19cca0cc8a7732e5a65680298129901d20fc8e26b5154c9f1306494c9a9f",
+  "library_changes": false,
+  "note": "Existing API supports these native semantics through dim/k keywords; positional order remains the documented Python dim,k convention and was not changed. Earlier test file contained sampled infinity comparisons and two tautological syntax checks; that non-source substitution was removed.",
+  "publication_binding": {
+    "identical_source_files": 322,
+    "only_source_difference": [
+      "src/chebfunjax/chebfun3d/chebfun3.py"
+    ],
+    "difference_review": "AST identical after excluding newly qualified integral3 method; diff does not call integral3.",
+    "test_sha256": "3177d4aec66e49c130957b802dd23c6bb5d014ddc6d2816e65d743c6b5d1a8b9",
+    "scope": "All 28 original predicates with default source preference; nine fresh CPU processes. Full goal remains open."
+  }
+}
