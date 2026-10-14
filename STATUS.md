@@ -1,3 +1,13 @@
+## 2026-10-15: multiplication dispatch and zero factors
+
+Chebfun3 pointwise multiplication now follows source dispatch, including
+reconstructing zero factors for scalar zero. Numeric-left matrix multiplication
+is exposed, and vector products retain orientation. All nine original times
+predicates pass through their corresponding APIs, with unchanged bounds;
+the last ran in a fresh process after the combined run reached its memory
+cap. Two supplemental controls pass. See
+`docs/chebfun3_times_dispatch_source_cpu_20261015.json`.
+
 ## 2026-10-15: HOSVD threshold discrepancy resolved
 
 The exact-threshold simplification failure came from a missing source mapping

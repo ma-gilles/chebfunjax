@@ -2646,22 +2646,34 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/times.m, mtimes.m
         Chebfun commit: 7574c77
         """
-        scalar = _source_scalar_operand(other)
-        if scalar is not None:
-            scale = other if not isinstance(other, jax.Array) else scalar
-            return Chebfun3(cols=list(self.cols), rows=list(self.rows),
-                            tubes=list(self.tubes),
-                            core=self.core * scale, domain=self.domain)
-        if isinstance(other, bool):
-            return Chebfun3(cols=list(self.cols), rows=list(self.rows),
-                            tubes=list(self.tubes),
-                            core=self.core * other, domain=self.domain)
+        return self.times(other)
+
+    def times(self, other):
+        """Source pointwise multiplication, including zero reconstruction.
+
+        MATLAB source: @chebfun3/times.m, Chebfun7574c77.
+        """
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+
+        if not isinstance(self, Chebfun3):
+            if isinstance(other, Chebfun3):
+                return other.times(self)
+            raise ValueError("CHEBFUN:CHEBFUN3:times:unknown: Unsupported operands.")
         if isinstance(other, Chebfun3):
-            self._check_same_domain(other)
+            if not domainCheck(self, other):
+                raise ValueError("CHEBFUN:CHEBFUN3:times:domain: Inconsistent domains")
             return Chebfun3.from_function(
                 lambda x, y, z: self(x, y, z) * other(x, y, z),
                 domain=self.domain)
-        return NotImplemented
+        if isinstance(other, Chebfun3v):
+            return other._like([self.times(c) for c in other.components])
+        try:
+            numeric = jnp.asarray(other)
+        except (TypeError, ValueError):
+            numeric = None
+        if numeric is not None and numeric.dtype.kind in 'biufc':
+            return self.mtimes(numeric)
+        raise ValueError("CHEBFUN:CHEBFUN3:times:unknown: Unsupported operands.")
 
     __rmul__ = __mul__
 

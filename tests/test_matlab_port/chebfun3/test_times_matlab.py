@@ -10,7 +10,7 @@ Original functions, iteration counts, domains, norm predicates and bounds retain
 import jax.numpy as jnp
 import pytest
 
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.chebfun3d.chebfun3 import Chebfun3, chebfun3
 from chebfunjax.chebpref import ChebfunPref
 
 TOL = 1e4 * ChebfunPref().cheb3Prefs.chebfun3eps
@@ -25,15 +25,18 @@ def times_fields():
 @pytest.mark.parametrize('statement', range(1, 7))
 def test_native_times_first_six(times_fields, statement):
     f, h, k = times_fields
-    # Python * adapts native elementwise and scalar-matrix multiplication.
-    if statement in (1, 2):
-        error = f*2-h
-    elif statement in (3, 4):
-        error = 2*f-h
+    if statement == 1:
+        error = f.times(2)-h
+    elif statement == 2:
+        error = f.mtimes(2)-h
+    elif statement == 3:
+        error = Chebfun3.mtimes(2, f)-h
+    elif statement == 4:
+        error = Chebfun3.times(2, f)-h
     elif statement == 5:
         error = f**2-k
     else:
-        error = f*f-k
+        error = f.times(f)-k
     assert error.norm() < TOL
 
 @pytest.mark.parametrize('domain', [(-1., 1., -1., 1., -1., 1.),
@@ -44,4 +47,4 @@ def test_native_times_remaining_three(domain):
     gg = lambda x, y, z: x+y+z+x*y*z
     f, g = chebfun3(ff, domain=domain), chebfun3(gg, domain=domain)
     exact = chebfun3(lambda x, y, z: ff(x, y, z)*gg(x, y, z), domain=domain)
-    assert (f*g-exact).norm() < jnp.max(jnp.abs(jnp.asarray(domain)))*TOL
+    assert (f.times(g)-exact).norm() < jnp.max(jnp.abs(jnp.asarray(domain)))*TOL

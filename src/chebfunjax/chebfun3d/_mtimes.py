@@ -43,10 +43,14 @@ def source_mtimes(f, g):
     from chebfunjax.chebfun3d.chebfun3 import Chebfun3, chebfun3
     from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
 
+    if not isinstance(f, Chebfun3):
+        if isinstance(g, Chebfun3):
+            return source_mtimes(g, f)
+        raise ValueError('CHEBFUN:CHEBFUN3:mtimes:size: Sizes are inconsistent.')
     if isinstance(g, Chebfun3):
         raise ValueError('CHEBFUN:CHEBFUN3:mtimes: CHEBFUN3 does not support this operation.')
     if isinstance(g, Chebfun3v):
-        return Chebfun3v(components=[f*c for c in g.components])
+        return g._like([f.times(c) for c in g.components])
     if isinstance(g, (Chebfun, Chebfun2)):
         left = _panel(f.cols, tuple(f.domain[:2]))
         if isinstance(g, Chebfun):

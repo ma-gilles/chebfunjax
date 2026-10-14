@@ -1,0 +1,48 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "sources": [
+    "@chebfun3/times.m",
+    "@chebfun3/mtimes.m",
+    "tests/chebfun3/test_times.m"
+  ],
+  "changes": [
+    "Public times dispatch and scalar-left mtimes added; original scalar pointwise/matrix predicates now use distinct APIs.",
+    "Multiplication by zero delegates to source zero construction instead of retaining stale nonzero factors.",
+    "Scalar/vector pointwise and matrix branches retain vector orientation; domain mismatch uses source predicate/error."
+  ],
+  "results": "All nine original predicates passed: first eight reported pass before combined-process RSS censor; final predicate passed in a fresh process,55.09s. Two supplemental controls passed9.32s. No tolerance changed.",
+  "resource_qualification": "The combined process hit4GiB during the ninth test; retained receipt is not a whole-gate pass. Fresh ninth test peaked2,579,972KiB. No numerical assertion failed.",
+  "validation": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_times_dispatch_20261015/run/receipt.json",
+      "sha256": "a8ecf0611f45da4269ed4ac70f0aeff1bccdc06f6b2425f2014ed1b4784260a7",
+      "command_exit_code": -15,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 4195352,
+      "wall_seconds": 128.43155582714826
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_times_dispatch_20261015/last_run/receipt.json",
+      "sha256": "e1f0bd66d6177019fabca7c50e7ae985e66c44266c05d7076830ee57c4aa7a0b",
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2579972,
+      "wall_seconds": 59.88834359124303
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_times_dispatch_20261015/controls_run/receipt.json",
+      "sha256": "39fdfedb0d10d057cdfc00c17ba56db02f2f0a9bbf7b7a01b7ba6d2e02ce1151",
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 957036,
+      "wall_seconds": 11.074617170728743
+    }
+  ],
+  "remaining": "Full API/original-assertion coverage, page/figure parity, performance and latest main CI remain unresolved."
+}
