@@ -38,12 +38,98 @@
       "sampled_peak_summed_rss_kib": 970548
     }
   ],
-  "native_squeeze_confirmation": "Independent3case probe exceeded90s startup/driver wall cap without results; stable inputs/no survivors. Preserved S/sphere_squeeze_native_20261014/run. A separate instrumented retry is in progress; no native runtime squeeze claim from the censored probe.",
+  "native_squeeze_confirmation": {
+    "original_root_attempt": "90s wall timeout, empty stdout/stderr/no MAT; retained unchanged.",
+    "diagnostic_attempt1": "Separate instrumented probe reached constant squeeze, then script failed on undefined istrig. Corrected to pinned source isPeriodicTech.",
+    "successful_native_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/run/receipt.json",
+    "adaptive_comparison": {
+      "checkout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout",
+      "source_head": "225b0aa4d4fd8d0eeb41775e2fe75525e582425a",
+      "checkout_clean": true,
+      "native_fixture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/native.json",
+      "native_receipt": {
+        "wall_seconds": 80.40321999508888,
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 1442432,
+        "censored_limit": null
+      },
+      "runtime": "Pinned JAX/JAXLIB 0.11.0 CPU, x64 enabled; each case in fresh supervised process, CPU affinity 8-11, 180s wall cap, 3072 MiB RSS cap.",
+      "comparisons": [
+        {
+          "case": "constant",
+          "supervisor_exit_code": 0,
+          "command_exit_code": 0,
+          "wall_seconds": 7.526994992978871,
+          "sampled_peak_summed_rss_kib": 770576,
+          "inputs_stable": true,
+          "stdout_json": {
+            "bound": 5.551115123125783e-13,
+            "domain": [
+              -3.141592653589793,
+              3.141592653589793
+            ],
+            "is_trigtech": true,
+            "length": 1,
+            "max_abs_error": 0.0,
+            "name": "constant",
+            "native_output_class": "chebfun",
+            "python_output_class": "Chebfun",
+            "source_points": 19,
+            "transposed": true
+          },
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_constant/receipt.json"
+        },
+        {
+          "case": "z",
+          "supervisor_exit_code": 0,
+          "command_exit_code": 0,
+          "wall_seconds": 8.062205651775002,
+          "sampled_peak_summed_rss_kib": 806776,
+          "inputs_stable": true,
+          "stdout_json": {
+            "bound": 2.220446049250313e-13,
+            "domain": [
+              -3.141592653589793,
+              3.141592653589793
+            ],
+            "is_trigtech": true,
+            "length": 3,
+            "max_abs_error": 5.551115123125783e-17,
+            "name": "z",
+            "native_output_class": "chebfun",
+            "python_output_class": "Chebfun",
+            "source_points": 19,
+            "transposed": false
+          },
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_z/receipt.json"
+        },
+        {
+          "case": "x",
+          "supervisor_exit_code": 0,
+          "command_exit_code": 0,
+          "wall_seconds": 7.939689552877098,
+          "sampled_peak_summed_rss_kib": 767824,
+          "inputs_stable": true,
+          "stdout_json": {
+            "identity_preserved": true,
+            "name": "x",
+            "native_output_class": "spherefun",
+            "note": "Native returns Spherefun for x; captured native output has no 1D points.",
+            "python_output_class": "Spherefun"
+          },
+          "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_x/receipt.json"
+        }
+      ],
+      "fixtures_vs_adaptive": "Earlier `python_compare.py` used manually assembled low-rank CDR factors. These final comparisons instead call Spherefun.from_function with actual constant 2.5, z=cos(theta), and x=sin(theta)*cos(lambda), then squeeze and compare to exact native.json points for Chebfun outputs. The x output is a Spherefun in both runtimes; the native fixture contains no one-dimensional values for x, so this comparison asserts output class and Python identity preservation only.",
+      "bound": "For each one-dimensional output, assert max absolute sample error <= 1000 * float64 epsilon * max(1, Python result vscale)."
+    },
+    "qualification": "Actual adaptive constructors atP225b0aa4; evaluate at exact captured native points. Manual CDR fixture printout is not the final matched comparison."
+  },
   "limitations": [
     "Cartesian colon branches and traced off-sphere exceptions remain unqualified.",
     "Complex or single-precision Cartesian conversion is not qualified.",
     "No entire Spherefun/original MATLAB test suite parity claim.",
-    "Native squeeze supplemental runtime comparison is pending; source and coefficient controls qualify current implementation scope.",
     "Final main green CI, known LU numerical comparison, all322 computation/output/raster parity, broader library and performance gaps remain open."
   ],
   "sha256": {
@@ -71,6 +157,14 @@
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_sample_matlab.py": "102c4281006908544e17741ced72a8b0a773f9d2327483cbd56a47b404f2bd3a",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_times_literal_source.py": "dff82ff1bc957b7b8d94f091e36ee839a45a1e360018c346a9d6ed83b5496a90",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_feval_matlab.py": "ceea9d29cf0513a77b9e41a6102d4756b72acfafc07759c3510b3071d3a9193a",
-    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_norm_matlab.py": "8f81c5d14db8d3b1312e601c557ae83d259cfd6a4ee4ca1e79a5e4f7dd1afac4"
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_norm_matlab.py": "8f81c5d14db8d3b1312e601c557ae83d259cfd6a4ee4ca1e79a5e4f7dd1afac4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/report.json": "235ebf472f364e61cf41cdd5852bbd1f67dbdf8452506464ebf31c9a277c014b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/native.json": "21babbcb392c56879c9df74fe89e3db8066eab61f5e9445017bab051dab95c38",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/native.mat": "e9c9dbcd6a1dba6c088e17c692527ed5ccadfff2f074c1a2396ae3cc89a9b997",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/probe.m": "34153cc01371774fe0be86f64a6a25709222808565ae21f7864abe0f15e1db38",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_native_diag2_20261014/run/receipt.json": "6d4552a691ec2fe29c0ddd7521f722dcae89e0b7e513ae507212b83d46ce9588",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_constant/receipt.json": "174da52801ab4e8ebf8f4cd8b75cfa97288e8eabe3e37ba054d98a8cd0789faa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_z/receipt.json": "e73236890752f678528c251e0a2f153a94a1f14f20d42e962608b3f012ccddec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_squeeze_adaptive_compare_20261014/run_x/receipt.json": "759f06586e60008d4f2c0e46cec194438cbadfa291ce78c407b4a042f660ec5d"
   }
 }

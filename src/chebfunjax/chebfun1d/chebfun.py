@@ -2148,6 +2148,12 @@ class Chebfun(eqx.Module):
         from .linalg import Quasimatrix
         if isinstance(x, (Chebfun, Quasimatrix)):
             return self.compose_chebfun(x)
+        # MATLAB @chebfun/subsref dispatches F(SPHEREFUN) to spherefun
+        # composition. Keep this lazy import to avoid the chebfun/spherefun
+        # module cycle at import time.
+        from chebfunjax.spherefun.spherefun import Spherefun
+        if isinstance(x, Spherefun):
+            return x.compose(self)
         # Native feval returns zeros(size(x)) before transpose or component
         # packing. Empty matrices therefore keep their original shape.
         if not isinstance(x, (str, numbers.Number)):

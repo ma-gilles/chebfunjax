@@ -775,6 +775,12 @@ class Spherefun(eqx.Module):
     nonzero_poles: bool = eqx.field(static=True, default=False)
 
     @property
+    def domain(self):
+        """Physical source domain ``[-pi, pi] x [0, pi]``."""
+        return jnp.asarray([-jnp.pi, jnp.pi, 0.0, jnp.pi],
+                           dtype=jnp.float64)
+
+    @property
     def pivot_values(self):
         """The GE pivot values (MATLAB ``f.pivotValues``).
 
@@ -847,6 +853,22 @@ class Spherefun(eqx.Module):
         """
         import numpy as _np
         return self.slice_theta(float(_np.arccos(float(z))))
+
+    def slice_x(self, x):
+        """Return the trig Chebfun on the source Cartesian slice ``x=const``."""
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        x = float(x)
+        radius = jnp.sqrt(1.0 - x*x)
+        return _cf(lambda t: self(x, radius*jnp.cos(t), radius*jnp.sin(t)),
+                   domain=(-float(jnp.pi), float(jnp.pi)), trig=True)
+
+    def slice_y(self, y):
+        """Return the trig Chebfun on the source Cartesian slice ``y=const``."""
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        y = float(y)
+        radius = jnp.sqrt(1.0 - y*y)
+        return _cf(lambda t: self(radius*jnp.cos(t), y, radius*jnp.sin(t)),
+                   domain=(-float(jnp.pi), float(jnp.pi)), trig=True)
 
     def _center_pad(C, target):
         """Center-pad/truncate trig coefficient columns to length
@@ -2444,9 +2466,12 @@ class Spherefun(eqx.Module):
         reciprocal = jnp.asarray(1.0) / jnp.asarray(rounded, dtype=jnp.float64)
         return jnp.asarray(powered.sum2()) ** reciprocal
 
-    def _reapprox(self, op2) -> "Spherefun":
+    def _reapprox(self, op2, *, tol=None) -> "Spherefun":
+        if tol is None:
+            return Spherefun.from_function(
+                lambda lam, th: op2(self(lam, th)))
         return Spherefun.from_function(
-            lambda lam, th: op2(self(lam, th)))
+            lambda lam, th: op2(self(lam, th)), tol=tol)
 
     def _binary(self, other, op2) -> "Spherefun":
         """Re-approximate ``op2(self, other)`` as a new Spherefun.
@@ -2828,7 +2853,52 @@ class Spherefun(eqx.Module):
         MATLAB source : @spherefun/compose.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if isinstance(op, Chebfun):
+            if op.isempty():
+                return self
+            if self.isempty():
+                return op
+            if len(op.domain.breakpoints) > 2:
+                import warnings
+                warnings.warn(
+                    "CHEBFUN:SPHEREFUN:compose:pieces: composition of a "
+                    "piecewise Chebfun with a Spherefun may be inaccurate.",
+                    stacklevel=2)
+            vals = jnp.asarray(self.minandmax2est())
+            from chebfunjax.chebpref import ChebfunPref
+            tol = (100 * ChebfunPref().cheb2Prefs.chebfun2eps
+                   * max(self.vscale(), float(op.vscale))
+                   * float(jnp.linalg.norm(self.domain, ord=jnp.inf)))
+            if (float(vals[0]) < float(op.domain.a) - tol
+                    or float(vals[1]) > float(op.domain.b) + tol):
+                raise ValueError(
+                    "CHEBFUN:SPHEREFUN:COMPOSE:DomainMismatch: OP(F) is "
+                    "not defined because image(F) is outside OP.domain")
+            constructor_tol = ChebfunPref().cheb2Prefs.chebfun2eps
+            if op.n_columns == 1:
+                return self._reapprox(lambda value: op(value),
+                                      tol=constructor_tol)
+            if op.n_columns == 3:
+                from chebfunjax.spherefun.spherefunv import Spherefunv
+                components = op.mat2cell()
+                return Spherefunv(*[
+                    self._reapprox(lambda value, c=component: c(value),
+                                   tol=constructor_tol)
+                    for component in components])
+            raise ValueError(
+                "CHEBFUN:SPHEREFUN:COMPOSE:Columns: Chebfun operator must "
+                "have one or three columns")
+        # The generic empty wrapper cannot preserve compose's source order:
+        # an empty operator returns f, otherwise an empty f returns op.
+        is_empty_operator = getattr(op, "isempty", None)
+        if callable(is_empty_operator) and is_empty_operator():
+            return self
+        if isinstance(op, (list, tuple)) and not op:
+            return self
+        if self.isempty():
+            return op
         if isinstance(op, (list, tuple)):
             from chebfunjax.spherefun.spherefunv import Spherefunv
             return Spherefunv(*[self.compose(c) for c in op])
@@ -4179,7 +4249,7 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Spherefun, ['__mul__', '__rmul__', '__truediv__', '__pow__', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+make_empty_aware(Spherefun, ['__mul__', '__rmul__', '__truediv__', '__pow__', 'rotate', 'gaussfilt', 'laplacian', 'exp', 'sin', 'cos', 'sqrt'])
 
 
 # ----------------------------------------------------------------------

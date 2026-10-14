@@ -1,0 +1,52 @@
+{
+  "scope": "Spherefun Cartesian x/y circle slices, physical domain, Chebfun scalar/3column composition dispatch, and original subsref/diff assertion restoration.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_clauses": {
+    "subsref": 12,
+    "diff": 10,
+    "empty_regression": "All23 commands in original emptyObjects aggregate no-error predicate, plus existing supplemental controls."
+  },
+  "source_mapping": [
+    "slice_x/slice_y use source circle parametrizations on[-pi,pi] as trigChebfuns; numeric Cartesian evaluator added in225b0aa4.",
+    "Chebfun.__call__(Spherefun) delegates toSpherefun.compose. Chebfun operator domain estimate check, piecewise warning, scalar result or3column Spherefunv. Currentcheb2eps forwarded to construction.",
+    "Remove compose fromgeneric make_empty_aware: source emptyoperator returnsf first, otherwiseemptyf returnsop. Explicitbranches preserveChebfun andsupportedcallable/Chebfun2 ordering.",
+    "Subsref pass3/4 use single norm ofcombinedtwo-column differences; factorpass8/9 wrapexistingcoefficients via_as_fun, no adaptive refit.",
+    "Diff uses all10 exactfunctions/sourceformulas, trigpts12\u00d7linspace6 grid, infinitynorm of flattenederror, literal200*cheb2eps. Oldpointwisecheck retained as supplemental."
+  ],
+  "root_gate": {
+    "summary": "======================== 35 passed, 1 warning in 59.67s ========================",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_subsref_diff_publication_20261014/run/receipt.json",
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 3076812
+  },
+  "review_and_failed_attempts": [
+    "Initialprivate12claim rejected because separatecolumnnorms weaken combinedmatrixnorm andfactorcallbacks refitrepresentation; finalrootgate usescorrectedsourcepredicates.",
+    "Empty compositioncontrol firstused Pythonobjectidentity thenmisdiagnosedlinearChebfunempty. Guardedprobe confirmedlinearChebfun nonempty; genericemptywrapper wasactualcause. Failedreceipts retained underS/spherefun_subsref_strict_private_20261014.",
+    "Newslice arithmetic usesJAX; preexisting angularhostevaluation/otherhostpaths remain."
+  ],
+  "limitations": [
+    "ScalarvalidCartesian slices andscalar/3columnChebfun composition qualified; completecolon/subsref syntax andotheroperator compositionbranches remain broadergaps.",
+    "Existing range-estimate andnonfactoryconstructor behavior beyondexplicitpreferenceforwarding notexhaustivelyqualified.",
+    "Full322 numerical/prose/output/raster parity, remainingfunctions/tests/performance, LUcomparison andfinalgreenCI remainopen."
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_subsref_diff_publication_20261014/run/receipt.json": "d45dab686644b905e73ba4ff6896465b94358514c0105d5105c6b8f5e836335e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_subsref_diff_publication_20261014/guard.json": "cd76263a9110d00ca02409baebbd0e9fca2fa382758b07c991ad0e4a3ba2d46c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_subsref_original_12_private.patch": "2e811c148b8d8b2d6a44870bb4d10df369bcaf395c4b7a6670adfad33343f4b3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_diff_original10_cpu_20261014/test_diff_original10.patch": "17dc7904f95ee240f1dcef1fff7dd11d3835102aaacbb3ecbb80876ba23e7be2",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_diff_original10_cpu_20261014/report.json": "cec0eb4a52c513db4e18c576ea3c61bff50871f39278ccefabf098d91cf5fe81",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/spherefun/spherefun.py": "c90c09c9e45a6d84e13b85649d332695e4d90b139a4891b5c57a519c94702982",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun1d/chebfun.py": "9b107d88d20af148e557bf397783f921b69370b67df7a26cc0e0da6f3a77e5df",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_subsref_matlab.py": "7dfd2f1fdb5cf5645b160f0c6018b236ac05d9b42ddfdd495e6b9885e3737927",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_diff_matlab.py": "2f7d86894be863fcb34e58236c4c6d54559614c15fa7827c29b272ca62db1f60",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_emptyObjects_matlab.py": "8025e36279adbd0683e5d3c373ac710a40cb776dfc40cf0de8b23a41a76e82f9",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spherefun/compose.m": "c33b2ff61c9b4ee9afb911834f16283ae2e0d2a7e77b9af0316d092c0d1425cd",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spherefun/subsref.m": "8e603d9461cbf4018f175809ab3e1b814784b469e80ccb173e2f16f96b4f31e1",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@spherefun/feval.m": "20e5b0edc4448deb1bf9f1cc8de3c8d637629d9cf81332f572c84f19844003d7",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/subsref.m": "7f00f1f72f1d05d1f922bd7f1606245e04ee993b5e416e81e6cf67df2d85c18b",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_subsref.m": "f0eb6b587bbcd3e42002235c1535112d5793b4865179c3bd5746ad23bdb45972",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_diff.m": "10fe70d7263864af652777e49a27b8e22fbe4d7a352c3d9b30427594e85372aa"
+  }
+}

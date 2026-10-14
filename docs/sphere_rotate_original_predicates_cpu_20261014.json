@@ -1,0 +1,33 @@
+{
+  "scope": "Five deterministic original spherefun rotation clauses4\u20138; test restoration only.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "tests/spherefun/test_rotate.m",
+  "clauses": {
+    "4": "Integral of source analytic sin(...)^8 at original rotation angles.",
+    "5": "Original sphharm(21,0) withsqrt(2) zrotation, replacing degree3stand-in.",
+    "6": "Original sphharm(10,10), pi/5 rotation.",
+    "7-8": "Original sphharm(4,0)+sqrt(5/7)*sphharm(4,4), two successive(pi/2,pi/2,0) rotations."
+  },
+  "gate": {
+    "summary": "4 passed,1 supplemental deselected in43.97s",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_rotate_publication_20261014/run/receipt.json",
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 2634400
+  },
+  "tolerance": "Literal1000*ChebfunPref().cheb2Prefs.chebfun2eps, default continuous norm; integral absoluteerror forclause4.",
+  "limitations": [
+    "Originalrandomclauses1\u20132 andexplicitfeval/nufftmethodcomparison3 remainopen.",
+    "Preexisting finite-grid analytic roundtrip retained as supplemental and relabeled accurately.",
+    "Existing rotate path uses hostfinufft; JAX-only rotation remainsopen. Gate emitted4finufft contiguity-copy warnings.",
+    "No rotation performance or fullsphere parity claim."
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_rotate_publication_20261014/run/receipt.json": "c850971ac1a5599268ad288a85cba3598548b1106cd1841a5db082208b81237c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_rotate_publication_20261014/guard.json": "e47a148562ed8478e7494079baaedf384aa97f84122d640ab7c54ebf1fafd329",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_rotate_handoff_20261014/rotate_original_clauses4_8.patch": "21fc65ed716094a294b8979e19fd15b9da9fe0db196aace8b4e96f67cdff5a43",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_rotate_handoff_20261014/report.json": "def707a667315186beb195327652628ea17013c34c4baf83a78884dbbfc4d18b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_rotate_matlab.py": "4f0947026a6c9b464e2165176a6ea335799f4ee6247a2302682b6ba53f35f781"
+  }
+}
