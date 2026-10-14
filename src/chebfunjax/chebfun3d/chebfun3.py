@@ -2737,6 +2737,71 @@ class Chebfun3(eqx.Module):
     def __rtruediv__(self, other) -> "Chebfun3":
         return Chebfun3.rdivide(other, self)
 
+    def ldivide(self, other):
+        """Pointwise left division: @chebfun3/ldivide.m, Chebfun7574c77."""
+        return Chebfun3.rdivide(other, self)
+
+    def mldivide(self, other):
+        """Source left scalar division, including literal empty returns.
+
+        MATLAB source: @chebfun3/mldivide.m, Chebfun7574c77.
+        Call ``Chebfun3.mldivide(number, f)`` for a numeric left operand.
+        """
+        if _source_isempty(self):
+            return self
+        if _source_isempty(other):
+            return other
+        if _source_scalar_operand(self) is None:
+            raise ValueError("CHEBFUN:CHEBFUN3:mldivide:nonScalar: "
+                             "Division must be by a scalar.")
+        return Chebfun3.ldivide(self, other)
+
+    def mrdivide(self, other):
+        """Divide the Tucker core, preserving the source matrix operation.
+
+        MATLAB source: @chebfun3/mrdivide.m, Chebfun7574c77.
+        Python ``/`` continues to select pointwise ``rdivide``.
+        """
+        if _source_isempty(self) or _source_isempty(other):
+            return self
+        scalar = _source_scalar_operand(other)
+        if scalar is not None:
+            if bool(scalar == 0):
+                raise ValueError("CHEBFUN:CHEBFUN3:mrdivide:divisionByZero: "
+                                 "Division by zero.")
+            from chebfunjax.utils._ordered_binary import binary
+
+            core = binary(self.core, scalar, 3)
+        else:
+            try:
+                denominator = jnp.asarray(other)
+            except (TypeError, ValueError):
+                denominator = None
+            if denominator is None or denominator.dtype.kind not in 'iufc':
+                raise ValueError("CHEBFUN:CHEBFUN3:mrdivide:mrdivide: "
+                                 "Not supported. Did you mean ./ ?")
+            # MATLAB ignores trailing singleton tensor dimensions.
+            shape = list(self.core.shape)
+            while len(shape) > 2 and shape[-1] == 1:
+                shape.pop()
+            if len(shape) > 2 or denominator.ndim > 2:
+                raise ValueError("MATLAB:mrdivide:inputsMustBe2D: "
+                                 "Matrix division requires two-dimensional operands.")
+            matrix = self.core.reshape(tuple(shape))
+            denominator = jnp.atleast_2d(denominator)
+            if matrix.shape[1] != denominator.shape[1]:
+                raise ValueError("Matrix dimensions must agree.")
+            if denominator.shape[0] == denominator.shape[1]:
+                core = jnp.linalg.solve(denominator.T, matrix.T).T
+            else:
+                from chebfunjax.utils._basic_lstsq import _basic_lstsq
+
+                core = _basic_lstsq(denominator.T, matrix.T).T
+            if self.core.ndim == 3:
+                core = core[:, :, None]
+        return Chebfun3(list(self.cols), list(self.rows), list(self.tubes),
+                        core, self.domain)
+
     def permute(self, order) -> "Chebfun3":
         """Permute the variables (MATLAB permute): permute(f, [2 1 3])
         gives g(x,y,z) = f(y,x,z), with the domain permuted to match.

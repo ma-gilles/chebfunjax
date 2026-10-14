@@ -1,3 +1,11 @@
+## 2026-10-15: distinct 3D division APIs
+
+All four original division predicates now call their corresponding APIs:
+pointwise right/left and matrix right/left division. Original bounds pass.
+Matrix right division operates on the core directly; native captures confirm
+two matrix cases and the empty/error branches. Seven focused tests pass.
+See `docs/chebfun3_division_apis_source_cpu_20261015.json` for scope and limits.
+
 ## 2026-10-15: 3D normal and pointwise division
 
 Chebfun3 normal now follows the source gradient and global-norm unit option.
