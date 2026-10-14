@@ -1,3 +1,17 @@
+## TreeVar POW2 CPU boundary behavior — 2026-10-14
+
+One-argument numeric POW2 now uses JAX primitives and preserves captured
+real-axis storage. All 36 native boundary records pass, fixing 10 storage
+mismatches. Root merged gate: 752 passed in 81.72 seconds, with stable
+inputs and no survivors. Existing typed JIT contracts remain qualified;
+POW2 is an eager adapter. NaN payloads and extreme/subnormal arithmetic
+remain unqualified. Evidence: `docs/treevar_pow2_cpu_20261014.json`.
+
+C1 length diagnosis isolates same-input transform rounding: native chopping
+on Python coefficients gives the same length 56, while native transformation
+of Python samples gives length 54. The strict length xfail remains open;
+no tolerance or cutoff was fitted. Full parity and latest-main CI remain open.
+
 ## Numeric equispaced Chebfun3 and complex transforms — 2026-10-14
 
 Numeric equi construction now follows source ACA/BTD and matrix FUNQUI

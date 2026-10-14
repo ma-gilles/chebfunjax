@@ -64,6 +64,42 @@ def _airy(x):
     return airy_all(jnp.asarray(x))[0]
 
 
+def _pow2_branch(x):
+    """JAX numeric ``2**x`` with MATLAB's captured complex storage edges.
+
+    Real inputs use the JAX base-two primitive. Complex values on the real
+    axis return real storage, as MATLAB's numeric POW2 builtin does. Away
+    from that axis, evaluate the principal exponential in polar components;
+    this preserves the component classes in the R2025b boundary capture.
+
+    This is an eager TreeVar adapter, not a JIT contract. Native source
+    ``@chebfun/pow2.m`` delegates to ``power(2,f)``; the raw numeric values
+    are from built-in ``pow2`` in the retained TreeVar boundary fixture.
+    Provenance: Chebfun commit 7574c77, MATLAB R2025b.
+    """
+    from jax import lax
+
+    value = jnp.asarray(x)
+    if not jnp.issubdtype(value.dtype, jnp.complexfloating):
+        return jnp.exp2(value)
+    real, imag = jnp.real(value), jnp.imag(value)
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    on_real_axis = real_sign(imag) == 0
+    # Native numeric POW2 removes complex storage when the input is exactly
+    # real, including a negative-zero imaginary component.
+    if bool(jnp.all(on_real_axis)):
+        return jnp.exp2(real)
+    angle = imag * jnp.log(jnp.asarray(2., dtype=real.dtype))
+    scale = jnp.exp2(real)
+    real_part = scale * jnp.cos(angle)
+    imag_part = scale * jnp.sin(angle)
+
+    # The polar components also give the captured finite/Inf and NaN boundary
+    # classes without a complex EXP2 operation's Inf*trig contamination.
+    return lax.complex(real_part, imag_part)
+
+
 def _reciprocal_inverse_trig(x, cosine=False):
     """Compose reciprocal and principal ASIN/ACOS branches for ACSC/ASEC.
 
@@ -600,7 +636,7 @@ _UNARY_FNS_RAW = {
     "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
     "log": _log_branch, "log10": lambda x: _log_branch(x, base=10),
     "log1p": lambda x: _log_branch(x, increment=True),
-    "log2": lambda x: _log_branch(x, base=2), "pow2": lambda x: np.exp2(x), "real": jnp.real,
+    "log2": lambda x: _log_branch(x, base=2), "pow2": _pow2_branch, "real": jnp.real,
     "sec": lambda x: _reciprocal_direct_branch(x, "sec"),
     "secd": lambda x: _direct_degree_branch(x, "secd"),
     "sech": lambda x: _reciprocal_direct_branch(x, "sech"),
@@ -633,9 +669,9 @@ def _complex_fallback(fn):
 _DTYPE_STABLE_UNARY = frozenset(
     "abs conj real imag sin cos tan sinh cosh tanh exp expm1 "
     "asinh atan uminus uplus".split())
-# These value-dependent adapters retain captured output storage choices but
-# are eager and make no tracing guarantee.
-_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech sind cosd tand cotd cscd secd".split())
+# These branch/storage adapters retain captured output storage choices and
+# make no tracing guarantee.
+_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech sind cosd tand cotd cscd secd pow2".split())
 _UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}

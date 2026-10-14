@@ -1,0 +1,29 @@
+{
+  "scope": "TreeVar one-argument eager numeric pow2 JAX implementation",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "fixture_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+  "baseline_storage_mismatches": 10,
+  "captured_cases": 36,
+  "private_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_pow2_jax_candidate_20261014/pytest_run_v4/receipt.json",
+  "root_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_pow2_publication_20261014/run/receipt.json",
+  "limitations": [
+    "Eager adapter; no added JIT contract",
+    "NaN sign and payload unqualified",
+    "Subnormal control establishes storage classification only",
+    "Extreme finite complex overflow not qualified"
+  ],
+  "c1_length_diagnosis": {
+    "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_c1_diagnosis_20261014/C1_DIAGNOSIS.md",
+    "sha256": "9f5e6c8b9c47d9bd538a2eb6280280a2ec7b13d513eb0bc1a689e450820e1bd2",
+    "finding": "Same-input transform arithmetic changes length; strict length xfail retained; no tolerance fitting"
+  },
+  "root_result": {
+    "passed": 752,
+    "pytest_seconds": 81.72,
+    "wall_seconds": 86.82529049972072,
+    "sampled_peak_summed_rss_kib": 1180180,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "source_sha256": "f882a19d848218050989b71c0c4a5710f62a3bca05d4dfa9db2c7c0012b032c5"
+}
