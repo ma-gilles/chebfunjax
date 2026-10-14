@@ -1540,6 +1540,33 @@ class Chebfun3(eqx.Module):
             return jnp.empty((0,))
         return self._sum3_numeric()
 
+    def integral3(self, dom=None):
+        """Triple integral over this function or a contained cuboid.
+
+        With no ``dom``, this is ``sum3()``.  A six-entry domain restricts
+        the function first and integrates the restricted Chebfun3.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/integral3.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.empty((0,))
+        if dom is None:
+            return self.sum3()
+        try:
+            bounds = jnp.asarray(dom).reshape(-1, order="F")
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3:integral3:baddomain: "
+                "Domain should have six corners.") from exc
+        if bounds.size != 6:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3:integral3:baddomain: "
+                "Domain should have six corners.")
+        return self.restrict(tuple(float(v) for v in bounds)).sum3()
+
     @eqx.filter_jit
     def _sum3_numeric(self):
         xa, xb, ya, yb, za, zb = self.domain

@@ -1,0 +1,21 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Chebfun3.integral3 original two predicates plus three supplemental controls",
+  "change": "Implement missing integral3; empty first, default sum3, supplied cuboid restrict then sum3. Six bounds use MATLAB column-major ordering. JAX domain conversion.",
+  "source": "@chebfun3/integral3.m; tests/chebfun3/test_integral3.m",
+  "validation": {
+    "command_exit_code": 0,
+    "wall_seconds": 8.930456042289734,
+    "sampled_peak_summed_rss_kib": 810468,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_integral3_publication_20261014/run/receipt.json",
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/chebfun3d/chebfun3.py": "93fa625d41b512972e7ca4e6e09ea0a0d9d20a960c87864069294175108c745a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/chebfun3/test_integral3_matlab.py": "c3a356d6b84d272012603e475255faec41e289ca64b9085e1e727dbebc6d5967",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_integral3_publication_20261014/run/receipt.json": "0f98de70316684f4e7db9c6cfea43af6838da4c7a55351a599dba85ce6dc28d1"
+  },
+  "limits": "No claim of exhaustive invalid datatype or degenerate-cuboid parity. Full goal remains open."
+}
