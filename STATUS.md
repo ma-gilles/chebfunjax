@@ -1,3 +1,19 @@
+## 2026-10-14: same-host LU dispatch diagnostic
+
+The retained failing CI worker first differs at packed LU: operands, pivots,
+permutation and RHS match the passing manual run. Identical BLAS binaries run
+on different CPU models. Upstream dispatch/blocking predicts different operation
+orders, but the worker's selected kernel has not yet been observed.
+
+Independent100-digit exact-input solves find the failing worker closer to the
+true solution than either the passing manual output or MATLAB fixture; both
+factorizations have small backward errors. Production solves and scientific
+bounds remain unchanged. The manual CI diagnostic now runs default and safe
+Zen dispatch on one host, records actual selected kernels and stage hashes,
+and retains the original separate assertion. A local Zen/Zen harness passed
+and correctly reports no discriminating AVX512 comparison. Causal CI evidence
+is pending. See `docs/piecewise_lu_dispatch_cpu_20261014.json`.
+
 ## 2026-10-14: JAX polynomial and rational Arnoldi basis
 
 VAorthog/VAeval now use JAX arithmetic, retaining the legacy polynomial API

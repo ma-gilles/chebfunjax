@@ -1,0 +1,36 @@
+{
+  "scope": "Manual same-host CPU diagnostic; scientific assertions and production source unchanged.",
+  "files": {
+    ".github/workflows/piecewise-lu-diagnostic.yml": "861480764dfe0e114577d957a19884f1aee1beabdc3485a8e740c0585861960e",
+    "tests/piecewise_lu_dispatch_diagnostic.py": "b32479e0a5e62996374fc72e4d990e7c550dad13b4f3ff24b17db0e1f5f3e1b8"
+  },
+  "candidate_manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_same_host_ci_candidate_20261014/MANIFEST.json",
+    "sha256": "4f9ca07831d79159f9c120f6ddecb1943582766826344aeac392539034b7bc11"
+  },
+  "qualified_harness": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_same_host_ci_candidate_20261014/run/receipt.json",
+    "sha256": "8f7fc8a6d3ba8ba9efa59c93bbc6203bcd4a282d54eb232391e73fdc7c808148"
+  },
+  "post_gate_import_only_repair": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_same_host_ci_candidate_20261014/import_format_evidence.json",
+    "sha256": "59da48cc56723595cab31b19ac579bd5347721943d75e3cdd02b8ad3bc83837f"
+  },
+  "worker_first_divergence": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_extrema_runs_20261014/lu_diagnostic_run38500141489_core5/FULL_STAGE_REPORT.md",
+    "sha256": "29249b15c49c31d344f723a2d926953c1252f6bd3748b03457e806790fadb0e3"
+  },
+  "independent_accuracy_report": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_blas_dispatch_review_20261014/REPORT.md",
+    "sha256": "7e3da49ffe0281c2a96f5ac732ae3571aefd85ac408e8e294e79fd163f0aae11"
+  },
+  "highprecision": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_blas_dispatch_review_20261014/accuracy.json",
+    "sha256": "69a5d9be1c051ff527a2ac27c174b875a8956783a4b344ec9c0a72d72810f567"
+  },
+  "mechanism": "PackedLU first differs onAVX512-capable EPYC9V74 vs EPYC7763; same operands/pivots/library hashes. Upstream dynamic dispatch and architecture blocking predict differentGETRF order; actual worker core not yet captured, causality not yet confirmed.",
+  "local_validation": "DefaultZen/forcedZen/Haswell reproduce passing manual stages. New default/Zen harness reports noAVX512discrimination locally; all12stagehashes match.",
+  "accuracy": "100digit exact-input solves find failingworker closer than passingnativefixture; both have small backwarderrors. No bound widening, xfail or CPU pin introduced.",
+  "CI_plan": "Dispatch one manual workflow onmain; default and safeZen freshprocesses on samehost, actual core log and allstagehashes. Native assertion remains separate/unchanged and runs even on diagnosticfailure. NonAVX512assignment is explicitly nondiscriminating; no queuechurn.",
+  "remaining": "Nativeagreement failure still open; finalgreenmainCI unresolved."
+}
