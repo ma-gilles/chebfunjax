@@ -1591,6 +1591,27 @@ class Chebfun3(eqx.Module):
         core_xyz = jnp.tensordot(core_xy, iz, axes=((2,), (0,)))
         return jnp.reshape(core_xyz, ())
 
+    def diffx(self, k: int = 1) -> "Chebfun3":
+        """Partial derivative of order k in the x direction.
+
+        MATLAB source: @chebfun3/diffx.m, Chebfun7574c77.
+        """
+        return self.diff(dim=1, k=k)
+
+    def diffy(self, k: int = 1) -> "Chebfun3":
+        """Partial derivative of order k in the y direction.
+
+        MATLAB source: @chebfun3/diffy.m, Chebfun7574c77.
+        """
+        return self.diff(dim=2, k=k)
+
+    def diffz(self, k: int = 1) -> "Chebfun3":
+        """Partial derivative of order k in the z direction.
+
+        MATLAB source: @chebfun3/diffz.m, Chebfun7574c77.
+        """
+        return self.diff(dim=3, k=k)
+
     def diff(self, dim: int = 1, k: int = 1) -> "Chebfun3":
         """k-th partial derivative in the Cartesian direction dim.
 
@@ -1654,6 +1675,20 @@ class Chebfun3(eqx.Module):
     def grad(self) -> "Chebfun3v":
         """Alias for :meth:`gradient` (MATLAB @chebfun3/grad.m)."""
         return self.gradient()
+
+    def jacobian(self, g: "Chebfun3", h: "Chebfun3"):
+        """Jacobian determinant of three scalar functions.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/jacobian.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or g.isempty() or h.isempty():
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+
+        return Chebfun3v(self, g, h).jacobian()
 
     def laplacian(self) -> "Chebfun3":
         """Laplacian f_xx + f_yy + f_zz (MATLAB laplacian).

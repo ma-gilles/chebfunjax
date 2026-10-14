@@ -2,7 +2,7 @@
 
 Pinned source 7574c77. Functions, domains, construction order and thresholds
 are unchanged. MATLAB diffz(f, k) delegates diff(f, k, 3); the Python
-adapter is f.diff(dim=3, k=k). Qualification splits cases into serial
+public method is f.diffz(k). Qualification splits cases into serial
 fresh processes while retaining the native function/domain iteration order.
 """
 
@@ -45,7 +45,7 @@ def test_native_diffz(function_index, domain_index):
     f = chebfun3(FF[function_index], domain)
     first_reference = chebfun3(FD1[function_index], domain)
     second_reference = chebfun3(FD2[function_index], domain)
-    first = f.diff(dim=3, k=1)
-    second = f.diff(dim=3, k=2)
+    first = f.diffz(1)
+    second = f.diffz(2)
     assert (first-first_reference).norm() < TOL
     assert (second-second_reference).norm() < TOL

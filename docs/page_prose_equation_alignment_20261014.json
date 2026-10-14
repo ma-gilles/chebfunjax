@@ -1,0 +1,158 @@
+{
+  "title": "Cached source prose and equation alignment",
+  "checkout_head": "fb216adf46ba39c58b78a64329992096eb374c2a",
+  "comparison": "322 current Markdown example pages against cached native Chebfun HTML source captures",
+  "result": {
+    "source_prose_sequences_identical_and_in_order": true,
+    "equation_text_sequences_identical_after_removing_local_block_indices": true,
+    "pages_with_additional_local_notes": 19,
+    "additional_local_notes_total": 24,
+    "source_prose_or_equation_restoration_needed": false,
+    "whole_page_identity_claimed": false
+  },
+  "scope_note": "The comparison establishes only ordered source prose and equation text. Markdown contains local qualification or diagnostic notes; code, outputs, figures, execution behavior and whole-page identity are outside this result.",
+  "page_notes": [
+    {
+      "page": "applics/VanillaOptions",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx/AAAApprox",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx/EightShades",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx/Inpainting1D",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx/MinimaxSqrt",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx/Pushnitski",
+      "additional_notes": 4,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx2/Gibbs2D",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "approx2/Random2D",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "complex/ZetaZeros",
+      "additional_notes": 3,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "linalg/AnalyticSVD",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "linalg/EigLandscapes",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "ode-eig/Randfuneig",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "ode-nonlin/DelayDifferentialEquations",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "ode-random/RandomSwitching",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "opt/Needle",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "roots/RandomPolys",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "sphere/LaplaceBall",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "sphere/SphereHeatConduction",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    },
+    {
+      "page": "stats/ResamplingRandomVariables",
+      "additional_notes": 1,
+      "source_prose_unchanged_and_in_order": true,
+      "equation_text_and_order_match": true
+    }
+  ],
+  "counts_from_cached_page_audit": {
+    "pages": 322,
+    "prose_mismatch_pages": 19,
+    "prose_block_mismatch_count": 307,
+    "header_mismatch_pages": 0,
+    "equation_mismatch_pages": 15,
+    "equation_mismatch_count": 255,
+    "formatted_table_pre_mismatch_pages": 0,
+    "image_slot_mismatch_pages": 0,
+    "code_output_counts": {
+      "html_mcode_input_blocks": 2408,
+      "markdown_matlab_fences": 2408,
+      "html_mcode_output_blocks": 949,
+      "markdown_text_fences": 950,
+      "pages_with_input_count_mismatch": 0,
+      "pages_with_output_count_mismatch": 3
+    }
+  },
+  "provenance": {
+    "alignment_json_sha256": "ec00a43d987e21e1fae93dcfb88b73ab54275e96813ae171798868723a8120e5",
+    "prose_json_sha256": "d1b61f5519264d4b49f8dae1faff1c15c1f8e620515c91b69862aa98ac337ded",
+    "audit_scripts": [
+      "audit_prose.py",
+      "audit_alignment.py"
+    ],
+    "offline_no_example_runs": true
+  },
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_prose_audit_fb216adf_20261014"
+}

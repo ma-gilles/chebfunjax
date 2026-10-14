@@ -1,3 +1,19 @@
+## 2026-10-14: directional derivatives, Jacobian and scalar powers
+
+All 44 original directional-derivative predicates pass through the actual
+Chebfun3 `diffx/y/z` methods in fresh serial CPU groups. Scalar Jacobian is
+implemented; vector Jacobian follows the native cofactor evaluation order and
+empty/error branches. Sphere-vector scalar powers now support both operand
+orders and retain row orientation. Source bounds are unchanged. Evidence:
+`docs/chebfun3_directional_api_cpu_20261014.json`,
+`docs/chebfun3_jacobian_source_cpu_20261014.json`, and
+`docs/spherefunv_power_source_cpu_20261014.json`.
+
+The prose audit's apparent mismatches were local qualification notes and shifted
+equation block indices: all cached-source prose and equation text remain intact
+and in order. There are 24 added notes across 19 pages, so whole-page identity
+is not claimed. See `docs/page_prose_equation_alignment_20261014.json`.
+
 ## 2026-10-14: sphere-vector addition and subtraction dispatch
 
 Addition/subtraction now handle native scalar, three-value numeric array and

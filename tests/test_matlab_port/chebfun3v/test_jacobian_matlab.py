@@ -11,9 +11,9 @@ from __future__ import annotations
 import jax.numpy as jnp
 
 from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+from chebfunjax.chebpref import ChebfunPref
 
-EPS = 2.220446049250313e-16
-TOL = 100 * EPS
+TOL = 100 * ChebfunPref().cheb3Prefs.chebfun3eps
 
 
 class TestChebfun3vJacobian:

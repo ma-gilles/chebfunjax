@@ -652,7 +652,7 @@ class Chebfun3v(eqx.Module):
         """Alias for :meth:`laplacian` (MATLAB lap)."""
         return self.laplacian()
 
-    def jacobian(self) -> Chebfun3:
+    def jacobian(self) -> Chebfun3 | jax.Array:
         """Determinant of the Jacobian of a 3-component field (MATLAB
         jacobian).
 
@@ -662,17 +662,18 @@ class Chebfun3v(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return Chebfun3.empty()
+            return jnp.empty((0, 0), dtype=jnp.float64)
         if self.n_components != 3:
-            raise ValueError("Chebfun3v.jacobian: Jacobian is not square.")
+            raise ValueError("CHEBFUN:CHEBFUN3V:jacobian:notSquare: "
+                             "Jacobian matrix is not square.")
         f1, f2, f3 = self.components
         f1x, f1y, f1z = f1.diff(1), f1.diff(2), f1.diff(3)
         f2x, f2y, f2z = f2.diff(1), f2.diff(2), f2.diff(3)
         f3x, f3y, f3z = f3.diff(1), f3.diff(2), f3.diff(3)
         return (
             f1x * (f2y * f3z - f3y * f2z)
-            - f2x * (f1y * f3z - f3y * f1z)
-            + f3x * (f1y * f2z - f2y * f1z)
+            - f1y * (f2x * f3z - f2z * f3x)
+            + f1z * (f2x * f3y - f2y * f3x)
         )
 
     # ------------------------------------------------------------------

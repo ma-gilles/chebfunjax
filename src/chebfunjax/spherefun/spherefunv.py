@@ -540,17 +540,46 @@ class Spherefunv(eqx.Module):
                 "SPHEREFUN:SPHEREFUNV:times:double: SPHEREFUNV and double size mismatch.")
         raise ValueError("SPHEREFUN:SPHEREFUNV:times:inputs: Unrecognized input arguments.")
 
-    def power(self, n: int) -> "Spherefunv":
-        """Componentwise power (MATLAB power).
+    def power(self, other):
+        """MATLAB ``power`` dispatch for scalar/vector operands.
 
         Provenance
         ----------
         MATLAB source : @spherefunv/power.m
         Chebfun commit: 7574c77
         """
-        if self.isempty():
+        if _source_isempty(self) or _source_isempty(other):
             return Spherefunv.empty()
-        return Spherefunv(*[a ** n for a in self.components])
+        if isinstance(self, Spherefunv):
+            if isinstance(other, Spherefunv):
+                raise ValueError(
+                    "SPHEREFUN:SPHEREFUNV:power:size: SPHEREFUNV dimension mismatch.")
+            scalar = _source_scalar(other)
+            if scalar is not None:
+                return _source_vector_like(
+                    self, [component ** scalar for component in self.components])
+            if _source_double_array(other) is not None:
+                raise ValueError(
+                    "SPHEREFUN:SPHEREFUNV:power:double: "
+                    "SPHEREFUNV and double size mismatch.")
+            raise ValueError(
+                "SPHEREFUN:SPHEREFUNV:power:inputs: Unrecognized input arguments.")
+        if isinstance(other, Spherefunv):
+            scalar = _source_scalar(self)
+            if scalar is not None:
+                return _source_vector_like(
+                    other, [scalar ** component for component in other.components])
+            if _source_double_array(self) is not None:
+                raise ValueError(
+                    "SPHEREFUN:SPHEREFUNV:power:double: Dimension mismatch.")
+        raise ValueError(
+            "SPHEREFUN:SPHEREFUNV:power:inputs: Unrecognized input arguments.")
+
+    def __pow__(self, other):
+        return self.power(other)
+
+    def __rpow__(self, base):
+        return Spherefunv.power(base, self)
 
     def mrdivide(self, other) -> "Spherefunv":
         """MATLAB ``F/G`` for supported scalar numeric denominators.
