@@ -1,0 +1,25 @@
+{
+  "scope": "Fixed-length-scale empty prior sample error contract in mapping and tuple GPR APIs",
+  "source": "gpr.m at7574c77680d7e82b79626300bf255498271a72df accesses unset opts.sigmaf for empty data samples",
+  "native_error": "MATLAB:nonExistentField: Unrecognized field name \"sigmaf\".",
+  "python_error": "AttributeError with native message",
+  "qualification": {
+    "merged_passed": 4,
+    "pytest_seconds": 3.8,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_empty_samples_publication_20261014/run/receipt.json",
+    "receipt_sha256": "2d0bcb21a39f30a0c79b1d10c6c3cdc400d49cc4419b5a3a352efa6b8183b3c6",
+    "inputs_stable": true,
+    "survivors": [],
+    "peak_sampled_summed_rss_kib": 571460
+  },
+  "preserved": "Empty fixed-L zero-sample mean0 and variance sigma\u00b2 in trig and ordinary cases",
+  "fixture_sha256": "d7bd283deb3d71399122e4cbab56dca48c46f683ea2f69c64ad0d905d8ea0ba1",
+  "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_empty_samples_contract_20261014/PACKAGE_MANIFEST.md",
+  "manifest_sha256": "66a02cdfff05524459b1b1d3586c2fc8713b4129eba910c4eec43b5732ed1423",
+  "limitations": [
+    "Omitted length-scale empty parser error separately pending",
+    "No full GPR or global native parity claim",
+    "Final main CI remains unresolved"
+  ],
+  "source_sha256": "34d3fea551dc4912f27452d08544b705b624d3f3e320b7b894ead18bdd76b97f"
+}

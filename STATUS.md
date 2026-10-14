@@ -1,3 +1,12 @@
+## 2026-10-14: empty-prior GPR sample error
+
+Fixed-length-scale empty-prior sample requests now raise AttributeError with
+the captured native missing-sigmaf message in both public APIs. Zero-sample
+constant priors remain unchanged for trig/nontrig calls. Merged guarded CPU
+gate passes four tests in3.80s, stable inputs/no survivors. The omitted-L
+empty parser, optimizer parity and final main CI remain open. Evidence:
+`docs/gpr_empty_samples_cpu_20261014.json`.
+
 ## 2026-10-14: source GPR Chebfun construction
 
 Mean constructor preferences, conditional trig handling, raw variance at source

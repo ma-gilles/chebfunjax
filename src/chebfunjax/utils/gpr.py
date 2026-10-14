@@ -120,6 +120,8 @@ def gpr(
     m = 200
     x_grid = jnp.linspace(a, b, m, dtype=jnp.float64)
     if n == 0:
+        if n_samples > 0:
+            _raise_empty_sample_error()
         zeros = jnp.zeros((m,), dtype=jnp.float64)
         variance = jnp.full((m,), sigma_val**2, dtype=jnp.float64)
         samples = None if n_samples == 0 else jnp.zeros((m, int(n_samples)), dtype=jnp.float64)
@@ -205,6 +207,8 @@ def gpr_chebfun(x, y, **kwargs):
     trig = bool(kwargs.get("trig", False))
     noisy = float(kwargs.get("noise", 0.0)) != 0.0
     if "mean_fn" not in res:
+        if n_samples > 0:
+            _raise_empty_sample_error()
         f = chebfun(lambda t: jnp.zeros_like(t), domain=(a, b))
         fvar = chebfun(lambda t: jnp.full_like(t, res["sigma"] ** 2), domain=(a, b))
         return f, fvar, None
@@ -242,6 +246,16 @@ def gpr_chebfun(x, y, **kwargs):
         )
         fsamples = chebfun(ys, domain=(a, b))
     return f, fvar, fsamples
+
+
+def _raise_empty_sample_error():
+    """Preserve the empty-data sample error recorded by source gpr.m.
+
+    MATLAB's no-data sample branch dereferences the unset ``opts.sigmaf`` and
+    reports ``MATLAB:nonExistentField``. The Python API preserves that source
+    failure as ``AttributeError`` with its native message.
+    """
+    raise AttributeError('Unrecognized field name "sigmaf".')
 
 
 def _gpr_source_samples(x, y, result, options, rng, trig, count, *, mean_fun):
