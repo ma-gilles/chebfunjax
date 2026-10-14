@@ -1,3 +1,15 @@
+## 2026-10-14: CPU inverse leaf compilation reuse
+
+Exact-sized JAX eigensystems now reuse fixed-capacity matrix setup for eligible
+real float64 CPU leaves. Frozen-flower first inverse improves 14.142 to 11.900s
+(15.8%); warm median increases 0.614 to 0.652s (37.5ms, 6.1%). These timings
+exclude forward setup/imports; no fresh MATLAB speed comparison is claimed.
+All inverse output bytes and 107 leaf inputs/order remain identical. Private
+qualification passes 88 focused checks; the merged publication gate passes
+10 checks in 8.66s, guarded inputs unchanged and no surviving processes.
+Four expensive original root cases were not rerun; full parity and final main
+CI remain open. Evidence: `docs/inverse_leaf_compile_cpu_20261014.json`.
+
 ## 2026-10-14: source ConformalL node mapping and full page run
 
 The example now uses public JAX chebpts_ab for the native endpoint-product

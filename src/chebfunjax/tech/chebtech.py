@@ -1664,7 +1664,14 @@ def _roots_default_eigenvalues(c):
     from numpy.linalg import LinAlgError
 
     # Preserve non-array coercion while avoiding eager host-array conversion JITs.
+    host_c = c if isinstance(c, np.ndarray) else None
     c = jax.device_put(c) if isinstance(c, np.ndarray) else jnp.asarray(c)
+    if (host_c is not None and host_c.ndim == 1
+            and host_c.dtype == np.dtype('float64')
+            and 3 <= host_c.size <= 50 and jax.config.x64_enabled
+            and c.device.platform == 'cpu'):
+        from chebfunjax.tech._roots_leaf_cpu import _eigenvalues
+        return _eigenvalues(host_c, c.device, _roots_eigvals_jax)
     matrix_finite, roots, roots_finite, has_imaginary, real_roots = (
         _roots_matrix_eig_and_metadata_jax(c))
     if not bool(matrix_finite):

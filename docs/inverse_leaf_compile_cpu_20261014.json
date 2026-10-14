@@ -1,0 +1,149 @@
+{
+  "status": "Applied to publication checkout; root merged gate passed; final main CI remains open",
+  "recommended_change": "Fixed-capacity source matrix construction and eig-output classification; copy exact (n-1)-square active matrix into unchanged JAX eig. Do not pad the eigensystem or change root filtering, recursion or tolerances.",
+  "cold_scope": "First inv call on same retained forward coefficient and point-value bytes in separate fresh processes. Forward analytic setup, imports and process startup excluded. Source-dependent compilation is included. One serial pair plus final-dispatch confirmation, no confidence interval.",
+  "baseline": {
+    "first_inverse_seconds": 14.14174576010555,
+    "warm_median_seconds": 0.6143821403384209
+  },
+  "prototype": {
+    "first_inverse_seconds": 11.936746768653393,
+    "warm_median_seconds": 0.6394930379465222
+  },
+  "final_production": {
+    "first_inverse_seconds": 11.900367834139615,
+    "warm_median_seconds": 0.6518678921274841
+  },
+  "correctness": {
+    "all_inverse_coefficients_pointvalues_domains_lengths_identical": true,
+    "all_leaf_inputs_and_call_order_identical": true,
+    "leaves_per_call": 107,
+    "distinct_coefficient_counts": 25,
+    "inverse_length": 8878,
+    "roundtrip_error": 1.0547118733938987e-15,
+    "unchanged_roundtrip_bound": 1e-10,
+    "final_tests_passed": 88,
+    "tests_groups": {
+      "leaf_helper": 60,
+      "original_tech_roots": 20,
+      "selected_original_inverse": 8
+    },
+    "original_tech_roots_deselected": [
+      "oscillatory, both Tech classes",
+      "complex_recurse, both Tech classes"
+    ],
+    "matrix_synthetic_probe": "192 controls at coefficient counts3\u201350; exact matrix bytes and finite flags"
+  },
+  "risks_limits": [
+    "Warm cost increases from extra array transfers/dispatch; report measured tradeoff explicitly.",
+    "Remaining forward/setup and inverse compiler shapes persist; this does not turn approximately29-second combined setup+first call into12 seconds.",
+    "No full native roots/inv suite rerun, no fresh MATLAB speed comparison, no overall parity claim.",
+    "One earlier combined gate was censored at2GiB; independent final split gates pass under same cap.",
+    "New source adapter also affects eligible public roots callers;20 original tech predicates plus shared helper guards cover this scope, not every possible caller."
+  ],
+  "receipts": {
+    "final_leaf_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 28.48267611581832,
+      "sampled_peak_summed_rss_kib": 1294776,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.784302131272852,
+      "sampled_peak_summed_rss_kib": 689660,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "final_inverse_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 29.84061020705849,
+      "sampled_peak_summed_rss_kib": 1660700,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "final_roots_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 22.85706115188077,
+      "sampled_peak_summed_rss_kib": 1461348,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "full_production_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.51177625497803,
+      "sampled_peak_summed_rss_kib": 916572,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "full_candidate_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.31829761667177,
+      "sampled_peak_summed_rss_kib": 914224,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "supervision2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.893832694739103,
+      "sampled_peak_summed_rss_kib": 609476,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "full_baseline_supervision": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 19.605928939767182,
+      "sampled_peak_summed_rss_kib": 952968,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "gate_supervision": {
+      "command_exit_code": -15,
+      "supervisor_exit_code": 137,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 44.883497113361955,
+      "sampled_peak_summed_rss_kib": 2109352,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "next_steps": [
+    "Root review frozen review.patch and MANIFEST.json; source preimage must still match.",
+    "Apply two-source-file patch and proposed test, place exact guarded leaf_inputs.npz at tests/test_tech/data/roots_cpu_leaf_inputs.npz.",
+    "Run a bounded integration gate in publication checkout preserving original assertions; commit only reviewed explicit paths.",
+    "Continue separate setup profiling only if another performance package is authorized; old 20261011 subdivision attribution is stale after current adapters."
+  ],
+  "final_cold_seconds_saved": 2.241377925965935,
+  "final_warm_seconds_added": 0.037485751789063215,
+  "root_gate": {
+    "passed": 10,
+    "pytest_seconds": 8.66,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_eig_publication_20261014/run/receipt.json",
+    "sha256": "7a19da252e851ed99144daf5bcf9e7db4b2be49951d1cc6803410dea4e410d73",
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "source_hashes": {
+    "src/chebfunjax/tech/chebtech.py": "051a98cc8a6762ad4ac337c288d1be097bc5392234c2bc86c0a5a2ae8bdb6578",
+    "src/chebfunjax/tech/_roots_leaf_cpu.py": "3a148c78c8afd56441ade190b6882e7c849db068d9c58fd9649ca55c59c8c7db",
+    "tests/test_tech/test_roots_cpu_leaf.py": "a4bcdb4ec659e0301ba60c488652219a9cebb5f73085e098212867200e1217af",
+    "tests/test_tech/data/roots_cpu_leaf_inputs.npz": "341349d0679696a9b0a2239d09accc4b8b97a97b9c51c2208b408246f6fdfd8c"
+  }
+}
