@@ -1,3 +1,14 @@
+## Reciprocal circular inverse branches — 2026-10-14
+
+TreeVar acsc/acscd/asec/asecd now compose JAX reciprocal and qualified principal
+inverse branches, including signed-zero poles and the pure-imaginary axis.
+Componentwise degree division avoids nonfinite cross terms and preserves the
+original arithmetic order. Baseline58/144 native boundary mismatches are fixed;
+root418 merged captured/original/dtype/JIT/RHS checks pass32.57s, stable with
+no survivors. All144 compact records independently match retained raw capture.
+Global Chebfun reciprocal helper and extreme reciprocal underflow remain open.
+Evidence: `docs/treevar_reciprocal_circular_cpu_20261014.json`.
+
 ## Source named spin3 call forms — 2026-10-14
 
 Added GL/GS/SCHNAK/SH named dispatch with native N/dt/display preferences,

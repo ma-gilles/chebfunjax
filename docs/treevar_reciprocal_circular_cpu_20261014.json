@@ -1,0 +1,36 @@
+{
+  "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_circular_review_20261014/MANIFEST.json",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_circular_review_20261014/candidate.patch",
+  "patch_sha256": "1b60a26e9158705496b178b371283decea01f3cbf324dcf778c30a27723b85de",
+  "report_sha256": "70ed6eb8edf5b8b234df307b3a649b16b3b7816ee4a394c4672e237b4fa80d49",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_circular_review_20261014/final_v3_run/receipt.json",
+  "receipt_sha256": "34086b774373abe488ab23715de6d076652acea14ac7bf6a4dcb7bf37d98b772",
+  "wall_seconds": 23.757690712809563,
+  "peak_kib": 866260,
+  "stable": true,
+  "tests": 364,
+  "preimage_note": "P has doc-only atand correction after archived preimage. Patch is scoped and preserves that correction; see current-P apply check.",
+  "current_publication_apply_check": true,
+  "current_publication_applied_source_sha256": "3048f977c212b429c6ac73a06ee7097925592cd5eaec9f97fc4527570c2a7f1e",
+  "root_gate": {
+    "passed": 418,
+    "pytest_seconds": 32.57,
+    "peak_kib": 1029820,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_circular_publication_20261014/run/receipt.json",
+    "receipt_sha256": "f64b93d8638884920a2bd529fdf4b983992a59541d8fee34807f9a2381ba6e3b",
+    "stable": true,
+    "no_survivors": true
+  },
+  "root_raw_review": {
+    "inputs_exact": 36,
+    "outputs_exact": 144,
+    "methods": [
+      "acsc",
+      "acscd",
+      "asec",
+      "asecd"
+    ],
+    "fixture_sha256": "27664d6c9d4d88a561facfa719bcabc4e8bcd16fa80f5bbe75bd5e8f4f83126f"
+  },
+  "root_review": "Reviewed reciprocal signed-axis and pure-imaginary asinh identities; degree components divided separately by pi/180 preserve original arithmetic order. Doc correction from predecessor preserved. Global Chebfun helper remains separate."
+}

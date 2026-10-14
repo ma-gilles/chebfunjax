@@ -66,15 +66,36 @@ def _airy(x):
 
 
 def _reciprocal_inverse_trig(x, cosine=False):
-    """Use the shared MATLAB real/complex ACSC/ASEC branch in JAX.
+    """Compose reciprocal and principal ASIN/ACOS branches for ACSC/ASEC.
+
+    Exact real-axis reciprocals preserve signed zero and its infinite pole.
+    The qualified inverse branch assembles real and imaginary components
+    separately, avoiding complex 0*Inf contamination at zero inputs.
+    Storage collapse is eager; this adapter makes no whole-function JIT claim.
 
     Provenance
     ----------
-    MATLAB source: @treeVar/treeVar.m unary method declarations,
-        tests/treeVar/test_univariate.m, commit7574c77.
+    MATLAB source: @treeVar/treeVar.m unary declarations and
+        @chebfun/acsc.m, asec.m dispatch to opaque numeric builtins.
+    Chebfun commit: 7574c77. The reciprocal composition is mathematical;
+    real/complex branches are qualified by the retained R2025b raw36 packet.
     """
-    from chebfunjax.chebfun1d.chebfun import _reciprocal_inverse_trig as evaluate
-    return evaluate(jnp.asarray(x), cosine=cosine)
+    from jax import lax
+
+    values = jnp.asarray(x)
+    result = _inverse_trig_branch(_reciprocal_axis_value(values), cosine=cosine)
+    if jnp.issubdtype(values.dtype, jnp.complexfloating):
+        real, imag = jnp.real(values), jnp.imag(values)
+        pure_imaginary = (real == 0) & (imag != 0) & ~jnp.isnan(imag)
+        # asin(-i/y) = -i*asinh(1/y); acos(z) = pi/2-asin(z).
+        # The exact imaginary axis has a canonical zero real ACSC component.
+        height = jnp.arcsinh(1/imag)
+        axis = lax.complex(jnp.full_like(real, jnp.pi/2) if cosine
+                           else jnp.zeros_like(real), height if cosine else -height)
+        result = jnp.where(pure_imaginary, axis, result)
+    if bool(jnp.all(jnp.imag(result) == 0)):
+        return jnp.real(result)
+    return result
 
 
 def _inverse_trig_branch(x, cosine=False):
@@ -115,12 +136,13 @@ def _inverse_trig_branch(x, cosine=False):
     return jnp.where(on_axis, axis_value, op(values))
 
 
-def _degrees_from_radians(value):
+def _degrees_from_radians(value, *, divide=False):
     """Scale angular components independently for captured degree outputs.
 
     Separate component scaling is mathematically equivalent for finite angles
     and avoids ``0*Inf`` cross terms of complex multiplication. It matches the
-    captured native infinity classifications.
+    captured native infinity classifications. Reciprocal inverse-degree
+    methods retain their existing division by pi/180 operation order.
 
     Provenance
     ----------
@@ -131,12 +153,12 @@ def _degrees_from_radians(value):
         candidate, derived from the existing captured packet.
     """
     value = jnp.asarray(value)
-    factor = 180.0 / jnp.pi
+    scale = (lambda y: y / (jnp.pi / 180.0)) if divide else (
+        lambda y: y * (180.0 / jnp.pi))
     if jnp.issubdtype(value.dtype, jnp.complexfloating):
         from jax import lax
-        return lax.complex(jnp.real(value) * factor,
-                           jnp.imag(value) * factor)
-    return value * factor
+        return lax.complex(scale(jnp.real(value)), scale(jnp.imag(value)))
+    return scale(value)
 
 
 def _atand_radians(x):
@@ -426,11 +448,11 @@ _UNARY_FNS_RAW = {
     "acot": _acot_branch,
     "acoth": lambda x: _reciprocal_hyperbolic_branch(x, "acoth"),
     "acsc": _reciprocal_inverse_trig,
-    "acscd": lambda x: _reciprocal_inverse_trig(x) / _DEG,
+    "acscd": lambda x: _degrees_from_radians(_reciprocal_inverse_trig(x), divide=True),
     "acsch": lambda x: _reciprocal_hyperbolic_branch(x, "acsch"),
     "airy": _airy,
     "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),
-    "asecd": lambda x: _reciprocal_inverse_trig(x, cosine=True) / _DEG,
+    "asecd": lambda x: _degrees_from_radians(_reciprocal_inverse_trig(x, cosine=True), divide=True),
     "asech": lambda x: _reciprocal_hyperbolic_branch(x, "asech"),
     "asin": _inverse_trig_branch,
     "asind": lambda x: _degrees_from_radians(_inverse_trig_branch(x)),
@@ -482,7 +504,7 @@ _DTYPE_STABLE_UNARY = frozenset(
     "asinh atan uminus uplus".split())
 # These value-dependent adapters retain captured output storage choices but
 # are eager and make no tracing guarantee.
-_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot".split())
+_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd".split())
 _UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
