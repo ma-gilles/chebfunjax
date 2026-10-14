@@ -1,0 +1,254 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "b68b8c9ed4a938fc2ff5095d8d80803ff014e0b7",
+  "scope": "CPU-only source Laplacian algorithm; full parity incomplete",
+  "change": "Replace two successive additions with one constructor using sum of three source vscales, sum of three 51-cubed samples, and native condition-scaled tolerance. Preserve default-domain zero branch; source vscale empty branch restored.",
+  "baseline": {
+    "laplacian_seconds": 165.22798980399966,
+    "calls": 978,
+    "kernel_seconds": 113.94002046529204,
+    "unique_signatures": 232,
+    "core": [
+      8,
+      11,
+      15
+    ]
+  },
+  "candidate": {
+    "laplacian_seconds": 50.75811972236261,
+    "calls": 285,
+    "kernel_seconds": 36.74838607059792,
+    "unique_signatures": 81,
+    "core": [
+      8,
+      10,
+      15
+    ]
+  },
+  "native": {
+    "seconds": 0.24899,
+    "rank": [
+      7,
+      8,
+      12
+    ],
+    "length": [
+      14,
+      14,
+      15
+    ],
+    "x": [
+      -0.97,
+      -0.8644444444444445,
+      -0.7588888888888888,
+      -0.6533333333333333,
+      -0.5477777777777777,
+      -0.4422222222222222,
+      -0.33666666666666667,
+      -0.23111111111111116,
+      -0.12555555555555553,
+      -0.02000000000000013,
+      0.0855555555555556,
+      0.191111111111111,
+      0.29666666666666663,
+      0.40222222222222226,
+      0.5077777777777777,
+      0.6133333333333333,
+      0.7188888888888889,
+      0.8244444444444443,
+      0.93
+    ],
+    "y": [
+      0.89,
+      0.79,
+      0.69,
+      0.59,
+      0.49,
+      0.39,
+      0.2899999999999999,
+      0.19000000000000006,
+      0.08999999999999997,
+      -0.009999999999999898,
+      -0.10999999999999999,
+      -0.21000000000000008,
+      -0.31000000000000016,
+      -0.41000000000000003,
+      -0.5099999999999999,
+      -0.61,
+      -0.7100000000000001,
+      -0.8100000000000002,
+      -0.91
+    ],
+    "z": [
+      -0.83,
+      -0.7355555555555555,
+      -0.6411111111111111,
+      -0.5466666666666666,
+      -0.4522222222222222,
+      -0.35777777777777775,
+      -0.2633333333333333,
+      -0.16888888888888887,
+      -0.07444444444444442,
+      0.020000000000000018,
+      0.11444444444444446,
+      0.2088888888888888,
+      0.30333333333333334,
+      0.3977777777777777,
+      0.4922222222222222,
+      0.5866666666666668,
+      0.6811111111111111,
+      0.7755555555555554,
+      0.87
+    ],
+    "values": [
+      -0.13231742403854727,
+      -0.3969447156358083,
+      -0.49265203071885777,
+      -0.47483217497162755,
+      -0.39144814912164005,
+      -0.2805667391098458,
+      -0.17026475487476356,
+      -0.07980005653747045,
+      -0.02121384159060038,
+      -0.000799899935955251,
+      -0.020099104710974633,
+      -0.0762467709860342,
+      -0.16163114571457549,
+      -0.262938010874557,
+      -0.35978652451279425,
+      -0.4233280530045509,
+      -0.4153938812376376,
+      -0.28902797404039415,
+      0.008519530550968093
+    ],
+    "analytic": [
+      -0.13231742404092806,
+      -0.3969447156346714,
+      -0.4926520307194566,
+      -0.47483217497091007,
+      -0.39144814912169945,
+      -0.28056673910979457,
+      -0.1702647548748652,
+      -0.07980005653798673,
+      -0.02121384159085123,
+      -0.0007998999360006733,
+      -0.020099104711027424,
+      -0.07624677098627376,
+      -0.16163114571475082,
+      -0.26293801087493995,
+      -0.3597865245132589,
+      -0.42332805300414517,
+      -0.41539388123746807,
+      -0.28902797403887326,
+      0.008519530550638255
+    ],
+    "zero_domain": [
+      -1,
+      1,
+      -1,
+      1,
+      -1,
+      1
+    ],
+    "zero_value": 0
+  },
+  "sample_diagnostics": {
+    "rank": [
+      8,
+      10,
+      15
+    ],
+    "length": [
+      33,
+      46,
+      65
+    ],
+    "values": [
+      -0.13231742404164903,
+      -0.39694471563760186,
+      -0.49265203071957997,
+      -0.47483217497136776,
+      -0.3914481491216671,
+      -0.28056673910933455,
+      -0.17026475487470594,
+      -0.07980005653821425,
+      -0.021213841590758283,
+      -0.0007998999358894616,
+      -0.02009910471110898,
+      -0.07624677098610816,
+      -0.16163114571476303,
+      -0.2629380108745917,
+      -0.35978652451286824,
+      -0.4233280530044939,
+      -0.41539388123730864,
+      -0.2890279740420748,
+      0.008519530549528266
+    ],
+    "native_sample_max_difference": 3.101768841773378e-12,
+    "python_analytic_max_error": 3.201550136111564e-12,
+    "native_analytic_max_error": 2.3807900095818013e-12,
+    "original_norm_predicate_passed_before_supplemental_assertion": true,
+    "original_tolerance": 1.1102230246251565e-14,
+    "note": "Original norm numeric value was not persisted; traceback reaches subsequent analytic assertion. Saved output reconstruction only; no reconstruction of adaptive solve."
+  },
+  "validation": {
+    "case0": "Source-equivalent driver passed original norm < 50*cheb3eps (1.1102230246251565e-14); then failed an extra analytic assertion using that same inappropriate bound. Traceback proves execution passed the original assertion; actual norm value was not persisted. This is not a passing whole driver or pytest run.",
+    "case1_and_controls": "3 pytest items passed in 20.15 seconds; case0 deselected because already exercised by driver. Zero reset domain captured natively; empty control follows native diff/vscale/Laplacian source.",
+    "analytic_assertion_failure": "Retained unchanged failed driver/receipt. Native analytic error 2.38e-12 itself exceeds the extra bound. Analytic differences are diagnostic, not reclassified as a passing test or hidden by tolerance changes.",
+    "final_empty_fix": "Added only early empty return in _source_vscale after case0; nonempty body unchanged. Controls run covers empty and nonempty final source.",
+    "static": "Full static gate required before commit."
+  },
+  "limitations": [
+    "Timing is one instrumented cold pair, same pinned CPU environment and affinity; native uses single-thread MATLAB. Not a repeated matched benchmark.",
+    "232 baseline signatures versus 81 candidate signatures are input metadata signatures, not measured compiler events. Baseline first-signature time 113.718 seconds, repeated-signature time 0.222 seconds.",
+    "Full candidate receipt includes separate reference computation and diagnostic assertion, so peak RSS 5847116 KiB is not isolated Laplacian memory.",
+    "Candidate ranks [8,10,15], lengths [33,46,65] versus native [7,8,12], [14,14,15]. Representation and performance parity remain open.",
+    "Saved output is reconstructed from its actual core and Chebtech2 factors to compare identical native sample coordinates; no adaptive solve rerun.",
+    "Full main CI and broader goal remain unresolved."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_profile_20261015/summary.json": {
+      "sha256": "8e5fbd141ca5e8abd6b3083836b587486587958a45cce8f53cef7359f9d39ce9"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_profile_20261015/run/receipt.json": {
+      "sha256": "9044ad245ef9e8aa69a87a9ce9416e055d14fce08d029abcfbc7634b5025c98a"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/profile.py": {
+      "sha256": "bcb79ada4b7733c84610fe93729979be49ba3b71b00c0b406fa15ade2789763a"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/summary.json": {
+      "sha256": "ad5e1b1a06dbd99109bc01cefbbc932c1169a2a72010efa5eefcdc7f59063909"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/run/receipt.json": {
+      "sha256": "3d365b86cc66f9ee009d5c692a08c4d1e7399d60462c256e11ebeff00f7024ae"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/run/stderr": {
+      "sha256": "ad0b98423dcc9c9a914ad2e5d4a1121e71359830dff35052379720a83f935b85"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/controls_run/receipt.json": {
+      "sha256": "682ff0258e47e94bcbc8459988b7dde3f9d8a52fb7c61dd6981387cf2bc401c3"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/controls_run/stdout": {
+      "sha256": "842b5322b1cef9e5b41c18bb011455356b983e8773bdf84c05cd3d2dc91a1ed9"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/native.m": {
+      "sha256": "889b1b092b9df989516eb537b49a0c3e69ee57be8fe019c0393c62e318b388fc"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/native.json": {
+      "sha256": "8347ea108a4d48233fd77907f228a87fb3294005f0c7a878ed8feff595e0e218"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/native_run/receipt.json": {
+      "sha256": "5df0505816d8eed2bfa3ff81b403f1709eb3fc0670e01cc2de6fe7f82011c538"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/saved_values.json": {
+      "sha256": "ec6de01a33b7df577f17127235b458b08e3373e6a69f493c78eb38607e2eb553"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/saved_values_run/receipt.json": {
+      "sha256": "25b3553acdafefda4ed529a77bdafca98db1621e442697425373676f692f9d44"
+    },
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_source_20261015/output.npz": {
+      "sha256": "65ef983b17c4752a8375355983e1b29ab0b17c9fea24c1c2bff0f107fad10f12"
+    }
+  }
+}

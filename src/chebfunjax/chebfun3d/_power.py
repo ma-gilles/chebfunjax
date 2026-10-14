@@ -138,6 +138,8 @@ def _evaluate(f, x, y, z):
 
 def _source_vscale(f):
     """First-column technology chooses all three native coarse grids."""
+    if f.isempty():
+        return jnp.asarray(0., dtype=jnp.float64)
     tech = f.cols[0]
     counts = [min(max(n, 9), 41) for n in f.length()]
     grids = []

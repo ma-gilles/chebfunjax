@@ -1787,7 +1787,28 @@ class Chebfun3(eqx.Module):
         MATLAB source : @chebfun3/laplacian.m
         Chebfun commit: 7574c77
         """
-        return self.diff(1, 2) + self.diff(2, 2) + self.diff(3, 2)
+        from chebfunjax.chebfun3d._power import _evaluate, _source_vscale
+        from chebfunjax.chebpref import ChebfunPref
+
+        diff1 = self.diff(1, 2)
+        diff2 = self.diff(2, 2)
+        diff3 = self.diff(3, 2)
+        vscales = (_source_vscale(diff1) + _source_vscale(diff2)
+                   + _source_vscale(diff3))
+        if bool(vscales == 0):
+            # The source constructs zero on the default domain here.
+            return Chebfun3.from_function(lambda x, y, z: 0*x)
+        values = (diff1.sample(51, 51, 51) + diff2.sample(51, 51, 51)
+                  + diff3.sample(51, 51, 51))
+        kappa = vscales / jnp.max(jnp.abs(values))
+        tol = ChebfunPref().cheb3Prefs.chebfun3eps * kappa
+        # Native laplacian resamples all three derivatives in one constructor.
+        # Successive public additions use different intermediate tolerances.
+        return Chebfun3.from_function(
+            lambda x, y, z: (_evaluate(diff1, x, y, z)
+                            + _evaluate(diff2, x, y, z)
+                            + _evaluate(diff3, x, y, z)),
+            domain=self.domain, tol=float(tol))
 
     def lap(self) -> "Chebfun3":
         """Alias of :meth:`laplacian` (MATLAB lap).

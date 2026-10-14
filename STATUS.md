@@ -1,3 +1,18 @@
+## 2026-10-15: native Laplacian algorithm and measured cold improvement
+
+Chebfun3 Laplacian now follows the native single-constructor algorithm and
+condition-scaled tolerance, replacing two successive additions. The same
+instrumented cold case falls from 165.23 to 50.76 seconds. Both original norm
+predicates pass (case 0 in a staged driver, case 1 in pytest); two zero/empty
+controls pass. The driver subsequently failed an extra analytic-error bound
+that native MATLAB also exceeds; that failure is retained, not counted as a
+passing whole run. No original tolerance changed.
+
+Native/Python ranks and factor lengths still differ, and the sampled native
+value discrepancy reaches 3.10e-12. Full performance and representation parity
+remain open. See `docs/chebfun3_laplacian_source_cpu_20261015.json` for receipts,
+source scope, timing qualifications and the retained diagnostic failure.
+
 ## 2026-10-15: source dimensional reduction
 
 Chebfun3 squeeze now uses simplified factor lengths, Tucker ranks and core
