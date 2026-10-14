@@ -1,0 +1,148 @@
+{
+  "scope": "One seeded SphereHeat Gaussian initialization only; no claim of general RNG parity, native rendered-pixel parity, or full-trajectory parity.",
+  "matlab": {
+    "release": "R2025b Update 2",
+    "version": "25.2.0.3055257",
+    "generator": "twister",
+    "seed": 10,
+    "source_repository": "/scratch/gpfs/GILLES/mg6942/chebfun_examples",
+    "source_commit": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+    "source_path": "sphere/SphereHeatConduction.m",
+    "source_sha256": "1655a12876d3225eafe5e708c54d139fef0f1de13e862c01af78ccbd5dd90bc6",
+    "cached_html": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/sphere_SphereHeatConduction.html",
+    "cached_html_sha256": "da0e7af8b8c87fe579616e3d9576f7a247dbd8f89cd187aa1a38ec66443a69e4",
+    "draw_order": "For bumps 1 through 5, draw scalar rx=rand then ry=rand; x0=2*rx-1; y0=sqrt(1-x0^2)*(2*ry-1); z0=sqrt(1-x0^2-y0^2)."
+  },
+  "native_capture": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_rng10_capture_20261014/native_capture.json",
+    "sha256": "c36df6332bf85c9444663a4696aa69ac2ef4c537293922b5611abfc6b050a864",
+    "uniforms_bitwise_match": true,
+    "centers_bitwise_match": true,
+    "uniform_max_abs_difference": 0.0,
+    "center_max_abs_difference": 0.0,
+    "uniforms": [
+      [
+        0.771320643266746,
+        0.0207519493594015
+      ],
+      [
+        0.6336482349262754,
+        0.7488038825386119
+      ],
+      [
+        0.4985070123025904,
+        0.22479664553084766
+      ],
+      [
+        0.19806286475962398,
+        0.7605307121989587
+      ],
+      [
+        0.16911083656253545,
+        0.08833981417401027
+      ]
+    ],
+    "centers": [
+      [
+        0.542641286533492,
+        -0.8051027400519901,
+        0.2394786255807691
+      ],
+      [
+        0.26729646985255084,
+        0.47950197836924086,
+        0.8358411631071709
+      ],
+      [
+        -0.0029859753948191514,
+        -0.5504042552062258,
+        0.8348929511032066
+      ],
+      [
+        -0.603874270480752,
+        0.4153274241237254,
+        0.6803227147627003
+      ],
+      [
+        -0.6617783268749291,
+        -0.61724292905023,
+        0.42551217681296993
+      ]
+    ]
+  },
+  "python_comparison": {
+    "existing_implementation": "numpy.random.RandomState(10)",
+    "existing_uniforms_bitwise_match": true,
+    "existing_centers_bitwise_match": true,
+    "max_abs_difference": 0.0,
+    "runtime": "JAX/JAXlib 0.11.0, CPU, x64 enabled",
+    "source_head": "053d5c7a1724112401cbad9620a0de2bcbd4c30d",
+    "current_example_sha256_at_figure6_run": "b489601780e8c451fbd69e4e9f4cd09ef2cae3f98bb9f7e326873e03e138c151"
+  },
+  "initial_figure_evidence": {
+    "scope": "Current committed _gaussian_initial plus the existing cached-HTML rendering settings, figure 6 only; no solver steps.",
+    "supervisor_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_rng10_capture_20261014/current_render_supervisor/receipt.json",
+    "comparison": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_heat_rng10_capture_20261014/current_example_render.json",
+    "size_rgba": [
+      276,
+      610,
+      4
+    ],
+    "exact_pixel_fraction_vs_current_page_png": 1.0,
+    "rmse_vs_current_page_png": 0.0,
+    "warning": "The PNG is the current page artifact, not a separately captured native MATLAB render. This result does not establish native pixel parity."
+  },
+  "trajectory_evidence": {
+    "three_gibibyte_censored_attempt": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_addition_stages_source_20261009/J100_v2/supervision/receipt.json",
+      "outcome": "Censored by sampled summed RSS cap; not an assertion failure.",
+      "limit_mib": 3072,
+      "sampled_peak_rss_kib": 3146792,
+      "wall_seconds_before_censor": 94.79950816836208,
+      "last_completed_step": 38,
+      "last_completed_step_seconds": 72.00999898184091,
+      "last_completed_step_rss_kib": 3134384
+    },
+    "full_gaussian_100_step_completion": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_addition_stages_source_20261009/K100completion_v1/supervision/receipt.json",
+      "test": "K100completion_v1/test_original_full100_completion.py::test_original_full100_completion",
+      "asserted_after_steps": "0 through 100 inclusive",
+      "supervisor_wall_seconds": 175.88938114466146,
+      "sampled_peak_summed_rss_kib": 3731076,
+      "limit_mib": 6144,
+      "event_step100_seconds": 106.0693995570764,
+      "interpretation": "Previously completed full Gaussian trajectory with substantially more memory headroom. No cache-growth fix is required to finish this run; the 3-GiB censor was a resource limit."
+    },
+    "complete_page_run": {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_addition_stages_source_20261009/Pfullpage_title_v1/supervision/receipt.json",
+      "scope": "Both 100-step trajectories and ten reference-sized figures",
+      "supervisor_wall_seconds": 260.5858303257264,
+      "sampled_peak_summed_rss_kib": 4157544,
+      "interpretation": "Existing completion evidence; not a native numerical or visual parity claim."
+    },
+    "current_resource_observation": {
+      "observed": "2026-10-14",
+      "host_available_memory_gib": 942,
+      "host_total_memory_gib": 1024,
+      "host_load_average_1_5_15": "6.82 / 4.52 / 5.44",
+      "active_user_slurm_jobs_at_observation": 3,
+      "active_owned_jax_or_python_solver": false
+    },
+    "rerun_plan_if_current_head_completion_is_required": {
+      "scope": "Single Gaussian 100-step trajectory; serial; no comparison arm.",
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "sampled_rss_cap_mib": 6144,
+      "wall_cap_seconds": 300,
+      "basis": "Previous identical completion peaked at 3.56 GiB and finished in 176 s under 6 GiB/180 s. The longer wall cap adds time margin without raising the memory request."
+    }
+  }
+}

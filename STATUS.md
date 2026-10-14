@@ -1,3 +1,11 @@
+## 2026-10-14: scalar 3D vertical concatenation
+
+Chebfun3 now exposes the source vertical-concatenation method, including its
+single-input identity and vector-input branches. All four original predicates
+are restored through that API; the previous port bypassed it and constructed
+a vector in the single-input case. Three focused tests pass with unchanged
+source bounds. See `docs/chebfun3_vertcat_source_cpu_20261014.json`.
+
 ## 2026-10-14: vector unary state preservation
 
 Sphere-vector real, imaginary and conjugate operations now preserve row

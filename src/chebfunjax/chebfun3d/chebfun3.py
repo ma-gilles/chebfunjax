@@ -1676,6 +1676,34 @@ class Chebfun3(eqx.Module):
         """Alias for :meth:`gradient` (MATLAB @chebfun3/grad.m)."""
         return self.gradient()
 
+    def vertcat(self, *others):
+        """Source vertical concatenation into a Chebfun3v.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/vertcat.m
+        Chebfun commit: 7574c77
+        """
+        if not others:
+            return self
+        if len(others) > 2:
+            raise ValueError("CHEBFUN:CHEBFUN3:vertcat:tooManyInputs: "
+                             "Cannot vertically concatenate more than three objects.")
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+
+        second = others[0]
+        if isinstance(second, Chebfun3v):
+            if second.n_components > 2:
+                raise ValueError("CHEBFUN:CHEBFUN3:vertcat:tooManyComponents: "
+                                 "Only CHEBFUN3V objects with 2 or 3 components are valid.")
+            # Native reads the first two components; a third input is ignored
+            # in this branch, and shorter vectors fail at component indexing.
+            return Chebfun3v(self, second.components[0], second.components[1])
+        if isinstance(second, Chebfun3):
+            return Chebfun3v(self, *others)
+        raise ValueError("CHEBFUN:CHEBFUN3:vertcat:badInputs: "
+                         "Inputs must be either CHEBFUN3 or CHEBFUN3V objects.")
+
     def jacobian(self, g: "Chebfun3", h: "Chebfun3"):
         """Jacobian determinant of three scalar functions.
 

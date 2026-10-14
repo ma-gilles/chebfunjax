@@ -6,8 +6,9 @@ Source: Chebfun examples f4b9ea46cfc2f52f20a844627f4a74d0bb10098c.
 Copyright by The University of Oxford and The Chebfun Developers.
 Plot colors/limits follow the cached chebfun.org HTML, which differs from
 the example-repository .m file. Exact rendered visual parity remains open.
-The rng(10) adapter below uses NumPy MT19937 uniform draws; same-version
-MATLAB seed10 capture and complete page numerical/visual parity remain open.
+The seed-10 NumPy MT19937 draws reproduce MATLAB R2025b uniforms and five
+Gaussian center coordinates bit-for-bit. Complete trajectory numerical and
+visual parity remain open.
 """
 import os
 import sys
