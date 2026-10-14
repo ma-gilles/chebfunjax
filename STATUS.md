@@ -6,13 +6,17 @@ stages, plus CPU/configuration and BLAS binary identities. All 35 scientific
 assertions are unchanged; diagnostic errors preserve the original failure.
 Local user-site versus environment SciPy providers produce identical staged
 arrays, so that provider switch alone does not explain the CI difference.
-Fresh CI evidence is pending. See `docs/piecewise_lu_runtime_cpu_20261014.json`.
+Manual CI38497799164 passed: all12 arrays for both fixture origins and three
+BLAS/LAPACK binary hashes match the local conda control. The earlier full-shard
+failure remains unresolved without its CPU/stage metadata. See
+`docs/piecewise_lu_runtime_cpu_20261014.json`.
 
-Extrema evidence qualification: the ten original cases passed on private
-revisions, but exact early source preimages were not retained. The final153
-merged checks are verified; all ten original cases are being rerun serially on
-current publication source to close the revision-provenance gap. Their bounds
-are unchanged. Full parity and green CI remain unresolved.
+Extrema evidence qualification is now closed for current source: all ten
+original predicates passed in separate guarded CPU processes on 9f6e20d9,
+including the five slow-marked cases. Every source/test input stayed unchanged.
+The earlier private-revision runs and two launcher failures remain archived;
+current qualification uses the fresh successful runs. Exact original bounds
+are unchanged. See `docs/chebfun3_extrema_cpu_20261014.json`.
 
 ## 2026-10-14: trig factor coefficient extraction
 

@@ -36,5 +36,16 @@
   "next_decision": "Compare fresh CI vs failure-worker; use exact packed LU,pivots,permuted RHS,lower result to isolate first differing primitive. Do not change scientific tolerance or select backend merely to pass.",
   "root_assertions_unchanged": 35,
   "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_lu_ci_diagnostic_20261014",
-  "status": "Open diagnostic; no production solver or acceptance-bound change. Manual CI workflow dispatch pending."
+  "status": "Manual fresh CI passes; earlier full-shard discrepancy remains open.",
+  "manual_ci_result": {
+    "run": 38497799164,
+    "head": "9f6e20d9b11a1d067bba8eed6f5b0705a45895bd",
+    "conclusion": "success",
+    "native_error": 2.1649348980190553e-15,
+    "comparison": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_lu_ci_diagnostic_20261014/ci_run_38497799164/comparison.json",
+    "sha256": "5a8ae7be4bbe02d587ef60a9e6534d4b258a8e84d6cc8a053f9626ac07debaf3",
+    "all_arrays": "12/12 bit-identical for each of both fixture origins versus local conda provider",
+    "binary_identity": "OpenBLAS, JAX LAPACK and SciPy cython_lapack hashes identical",
+    "limitation": "Earlier fullworker failure remains unexplained; previous runner lacks CPU/stage evidence. Await same-run fresh+worker diagnostics, no bound or solver change."
+  }
 }

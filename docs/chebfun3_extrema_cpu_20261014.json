@@ -185,5 +185,94 @@
   "independent_fixture_review": [
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_capture_verification_20261014/REPORT.md",
     "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_native_lu_runtime_diagnosis_20261014/FMINSEARCH_FIXTURE_REPORT.md"
-  ]
+  ],
+  "current_source_original_gate": {
+    "head": "9f6e20d9b11a1d067bba8eed6f5b0705a45895bd",
+    "ten_original_cases": "10/10 pass individually with exact original combined bound, including explicit slow cases",
+    "receipts": [
+      {
+        "case": 1,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case1_v3/receipt.json",
+        "sha256": "9f09ac00ad344b90a17c73083ce2f2ddccabfc32edf94b8087194f13ccc1a55d",
+        "wall_seconds": 16.92731730034575,
+        "sampled_peak_summed_rss_kib": 1245048,
+        "inputs_stable": true
+      },
+      {
+        "case": 2,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case2_v3/receipt.json",
+        "sha256": "7a18a1c067d4ef1aefe8d7082c9861dcd1e779623269e23f4b926d0aae875636",
+        "wall_seconds": 17.47592470003292,
+        "sampled_peak_summed_rss_kib": 1251764,
+        "inputs_stable": true
+      },
+      {
+        "case": 3,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case3_v3/receipt.json",
+        "sha256": "917a6208e2b90a0ca5c96523642119d7e8a4d6dc8903092d016711fc907740df",
+        "wall_seconds": 18.47514698607847,
+        "sampled_peak_summed_rss_kib": 1318476,
+        "inputs_stable": true
+      },
+      {
+        "case": 4,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case4_v3/receipt.json",
+        "sha256": "37356c149cbea68c874fb88a563723314a78da93f60154fa19849d2ab58bd439",
+        "wall_seconds": 18.803469224832952,
+        "sampled_peak_summed_rss_kib": 1314152,
+        "inputs_stable": true
+      },
+      {
+        "case": 5,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case5_v3/receipt.json",
+        "sha256": "bb3f27b82a1224db9464ffc7623f895772f31a033645574a9efe772da078f6e9",
+        "wall_seconds": 18.139573635999113,
+        "sampled_peak_summed_rss_kib": 1284300,
+        "inputs_stable": true
+      },
+      {
+        "case": 6,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case6_v3/receipt.json",
+        "sha256": "59519f2eef53a120d581f8c4db8d07b2308b24ae21463c9ccf17edf4d74f94f0",
+        "wall_seconds": 20.274076451081783,
+        "sampled_peak_summed_rss_kib": 1399228,
+        "inputs_stable": true
+      },
+      {
+        "case": 7,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case7_v3/receipt.json",
+        "sha256": "ed83078b5867c35036c0b1731ad821316bf62f2522994049258ea3d8e22d5a2d",
+        "wall_seconds": 20.154732991941273,
+        "sampled_peak_summed_rss_kib": 1407260,
+        "inputs_stable": true
+      },
+      {
+        "case": 8,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case8_v3/receipt.json",
+        "sha256": "269dc389ca1c29150ab1a0bc259fb8ba77cecf52a55e7c602c324c68e22e1278",
+        "wall_seconds": 14.209901190828532,
+        "sampled_peak_summed_rss_kib": 1090896,
+        "inputs_stable": true
+      },
+      {
+        "case": 9,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case9_v3/receipt.json",
+        "sha256": "1593bff3adc6f731f545f8d7eca637d59abb9248533743ab052dfdd458bbceb6",
+        "wall_seconds": 9.653142931871116,
+        "sampled_peak_summed_rss_kib": 891784,
+        "inputs_stable": true
+      },
+      {
+        "case": 10,
+        "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_commit_reuse_audit_20261014/current_commit_runs/run_case10_v3/receipt.json",
+        "sha256": "0ce3ccafe123fa1aee0b7304f39b9e85031a06f81b86fcd681b0c90f3eb19b60",
+        "wall_seconds": 13.922214739955962,
+        "sampled_peak_summed_rss_kib": 1136692,
+        "inputs_stable": true
+      }
+    ],
+    "total_supervised_seconds": 168.03550015296787,
+    "peak_summed_rss_kib": 1407260,
+    "scope": "Closes missing early private source-preimage provenance. Current source/test inputs stable; explicit JAX/JAXlib0.11.0 CPU/x64/P origin in every output. Two earlier launcher-only failures preserved separately."
+  }
 }
