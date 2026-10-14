@@ -459,12 +459,49 @@ class Spherefunv(eqx.Module):
     # Arithmetic
     # ------------------------------------------------------------------
 
-    def __add__(self, other: "Spherefunv") -> "Spherefunv":
-        """Componentwise addition."""
+    def plus(self, other):
+        """MATLAB ``plus`` dispatch for vector, scalar, array, or Spherefun operands.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/plus.m
+        Chebfun commit: 7574c77
+        """
         if _source_isempty(self) or _source_isempty(other):
             return Spherefunv.empty()
-        return Spherefunv(*[a + b for a, b in
-                            zip(self.components, other.components)])
+        if not isinstance(self, Spherefunv):
+            if isinstance(other, Spherefunv):
+                return other.plus(self)
+            raise ValueError(
+                "SPHEREFUN:SPHEREFUNV:plus:type: Unrecognized input arguments.")
+        if isinstance(other, Spherefunv):
+            if getattr(self, "_row", False) != getattr(other, "_row", False):
+                raise ValueError(
+                    "SPHEREFUN:SPHEREFUNV:plus:transposed: Dimension mismatch.")
+            return _source_vector_like(
+                self, [a + b for a, b in zip(self.components, other.components)])
+        if isinstance(other, Spherefun):
+            return _source_vector_like(self, [a + other for a in self.components])
+        scalar = _source_scalar(other)
+        if scalar is not None:
+            return _source_vector_like(self, [a + scalar for a in self.components])
+        array = _source_double_array(other)
+        if array is not None:
+            if array.size == 3:
+                values = _source_linear_values(array)
+                return _source_vector_like(
+                    self, [component + values[j]
+                           for j, component in enumerate(self.components)])
+            raise ValueError(
+                "SPHEREFUN:SPHEREFUNV:plus:doubleSize: Dimension mismatch.")
+        raise ValueError(
+            "SPHEREFUN:SPHEREFUNV:plus:type: Unrecognized input arguments.")
+
+    def __add__(self, other) -> "Spherefunv":
+        return self.plus(other)
+
+    def __radd__(self, other) -> "Spherefunv":
+        return self.plus(other)
 
     def times(self, other) -> "Spherefunv":
         """MATLAB componentwise ``.*`` for vector and scalar operands.
@@ -767,13 +804,27 @@ class Spherefunv(eqx.Module):
         """Negation."""
         if self.isempty():
             return Spherefunv.empty()
-        return Spherefunv(*[-c for c in self.components])
+        return _source_vector_like(self, [-c for c in self.components])
 
-    def __sub__(self, other: "Spherefunv") -> "Spherefunv":
-        """Componentwise subtraction."""
+    def __sub__(self, other) -> "Spherefunv":
+        """MATLAB ``minus`` via ``plus(self, uminus(other))``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/minus.m
+        Chebfun commit: 7574c77
+        """
         if _source_isempty(self) or _source_isempty(other):
             return Spherefunv.empty()
-        return self.__add__(other.__neg__())
+        numeric_other = _source_double_array(other)
+        negated = -numeric_other if numeric_other is not None else -other
+        return self.plus(negated)
+
+    def __rsub__(self, other) -> "Spherefunv":
+        """Reflected subtraction follows MATLAB ``plus(other, -self)``."""
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
+        return (-self).plus(other)
 
     # ------------------------------------------------------------------
     # Plotting

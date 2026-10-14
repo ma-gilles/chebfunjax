@@ -1,3 +1,11 @@
+## 2026-10-14: sphere-vector addition and subtraction dispatch
+
+Addition/subtraction now handle native scalar, three-value numeric array and
+scalar Spherefun operands, including reflected operations. Row orientation is
+preserved and mixed row/column vectors raise the source mismatch error.
+Focused operand controls and unchanged original arithmetic/transpose tests pass.
+Evidence: `docs/spherefunv_plusminus_source_cpu_20261014.json`.
+
 ## 2026-10-14: public gradient API, squeeze control and page audit
 
 Scalar Chebfun3 `grad()` and `gradient()` now return the native vector type.
