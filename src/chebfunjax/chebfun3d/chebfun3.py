@@ -47,6 +47,7 @@ from chebfunjax.utils.transforms import vals2coeffs
 
 if TYPE_CHECKING:
     from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+    from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -1636,15 +1637,23 @@ class Chebfun3(eqx.Module):
                         tubes=new_tubes, core=self.core,
                         domain=self.domain)
 
-    def grad(self) -> tuple["Chebfun3", "Chebfun3", "Chebfun3"]:
-        """Cartesian gradient (f_x, f_y, f_z).
+    def gradient(self) -> "Chebfun3v":
+        """Cartesian gradient as a three-component Chebfun3v.
+
+        The result supports component indexing and tuple unpacking.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/grad.m
+        MATLAB source : @chebfun3/gradient.m
         Chebfun commit: 7574c77
         """
-        return self.diff(1), self.diff(2), self.diff(3)
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+
+        return Chebfun3v.gradient(self)
+
+    def grad(self) -> "Chebfun3v":
+        """Alias for :meth:`gradient` (MATLAB @chebfun3/grad.m)."""
+        return self.gradient()
 
     def laplacian(self) -> "Chebfun3":
         """Laplacian f_xx + f_yy + f_zz (MATLAB laplacian).

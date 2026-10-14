@@ -109,14 +109,6 @@ for i = 2:n
     expmB = [expmB ; zeros(1,i-1) exp(-t*D(i,i)) zeros(1,n-i)];
 end
 expmB = V*expmB*invV;
-```
-
-```text
-Warning: Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX
-The V4 behaviour can be reproduced using the JOIN() method.
-```
-
-```matlab
 
 P = zeros(n)*Phi;
 for i = 1:n
@@ -128,6 +120,11 @@ for i = 1:n
         P(i,j) = chebfun(@(t) temp(t), d, 'periodic');
     end
 end
+```
+
+```text
+Warning: Vertical concatenation of CHEBFUN objects now produces a CHEBMATRIX
+The V4 behaviour can be reproduced using the JOIN() method.
 ```
 
 The periodicity of $P(t)$ is numerically confirmed by the construction of entries $P(i,j)(t)$ with the `periodic` flag, which would otherwise fail. The entries of the periodic solution are plotted below:

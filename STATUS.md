@@ -1,3 +1,18 @@
+## 2026-10-14: public gradient API, squeeze control and page audit
+
+Scalar Chebfun3 `grad()` and `gradient()` now return the native vector type.
+Four original predicates exercise that public path; all six gradient checks
+pass. Seven squeeze controls pass after separating a guaranteed rank-one
+fixture from the retained backend-sensitive fixture. Rank still uses the
+native strict zero threshold; no production tolerance changed. Evidence:
+`docs/gradient_squeeze_source_cpu_20261014.json`.
+
+The cached-page audit covers all 322 pages and 1,305 figure slots: assets,
+ordering and dimensions match. Floquet now preserves its original 11 input
+cells and four output blocks. Three archival output-count discrepancies,
+19 prose and 15 equation mismatch pages, and pixel differences remain open.
+See `docs/page_audit_current_20261014.json`.
+
 ## 2026-10-14: empty sphere-vector operations and JAX state
 
 The original aggregate empty-object test now executes all 16 source operations.

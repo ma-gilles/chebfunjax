@@ -90,19 +90,40 @@ def test_two_coordinate_rank_one_and_rank_greater_than_one_are_unchanged():
     assert rank_two.squeeze() is rank_two
 
 
-def test_rank_one_with_multiple_constant_cdr_columns_still_squeezes():
-    # Stored CDR column count is not MATLAB length(cols): that is the
-    # maximum technology resolution. The duplicate row dependence leaves
-    # numerical rank one while both CDR columns are constant technologies.
-    f = Spherefun(
+def _multiple_constant_columns(pivots):
+    return Spherefun(
         cols=[_constant(2.0), _constant(3.0)],
         rows=[_cosine(), Trigtech.from_coeffs(
             jnp.asarray([1.0, 0.0, 1.0]), is_real=True)],
-        pivots=jnp.ones(2), idx_plus=(0, 1), idx_minus=())
+        pivots=jnp.asarray(pivots), idx_plus=(0, 1), idx_minus=())
+
+
+def test_rank_one_with_multiple_constant_cdr_columns_still_squeezes():
+    # A zero-weight second term makes the reduced core's second row exactly
+    # zero, independently of QR roundoff. Both stored CDR columns are still
+    # nonzero constant technologies; native length(cols) remains one.
+    f = _multiple_constant_columns([0.25, jnp.inf])
     assert int(f.numerical_rank()) == 1
     g = f.squeeze()
     _assert_chebfun(g, (-np.pi, np.pi), transposed=True,
                     expected=lambda x: 8.0 * jnp.cos(x))
+
+
+def test_dependent_nonzero_columns_follow_source_strict_spectral_rank():
+    # Preserve the prior fixture as a strict-rank branch control. Native
+    # rank defaults to tol=0, so a positive roundoff singular value counts.
+    # Mathematical rank one alone cannot require squeeze to run on all BLAS
+    # implementations (the CI fixture produced rank two).
+    f = _multiple_constant_columns([1.0, 1.0])
+    spectrum = np.asarray(f.svd())
+    source_rank = int(np.flatnonzero(spectrum / spectrum[0] > 0)[-1] + 1)
+    assert int(f.numerical_rank()) == source_rank
+    g = f.squeeze()
+    if source_rank == 1:
+        _assert_chebfun(g, (-np.pi, np.pi), transposed=True,
+                        expected=lambda x: 8.0 * jnp.cos(x))
+    else:
+        assert g is f
 
 
 def test_squeeze_uses_current_global_tolerance_preference():

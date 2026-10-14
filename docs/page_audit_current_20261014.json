@@ -1,0 +1,90 @@
+{
+  "head": "d964446cc293a2021f553d7ba3df9411e57c8215",
+  "cached_html_root": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html",
+  "run_kind": "offline cached HTML and current Markdown audit; no numerical examples run",
+  "counts": {
+    "pages": 322,
+    "prose_mismatch_pages": 19,
+    "prose_block_mismatches": 307,
+    "header_mismatch_pages": 0,
+    "equation_mismatch_pages": 15,
+    "equation_mismatch_count": 255,
+    "formatted_table_pre_mismatch_pages": 0,
+    "image_slot_mismatch_pages": 0,
+    "html_code_inputs": 2408,
+    "markdown_matlab_fences": 2409,
+    "html_printed_outputs": 949,
+    "markdown_text_fences": 950,
+    "input_count_mismatch_pages": 1,
+    "output_count_mismatch_pages": 3
+  },
+  "figure_slots": {
+    "html": 1305,
+    "markdown": 1305,
+    "slot_count_mismatch_pages": 0,
+    "name_order_mismatch_pages": 0,
+    "missing_images": 0,
+    "pixel_comparable": 1305,
+    "dimension_mismatch": 0,
+    "exact_pixel_fraction_mean": 0.8099439043769682,
+    "rmse_mean": 42.67566718361725
+  },
+  "remaining_output_count_pages": [
+    {
+      "page": "approx/EightShades",
+      "cached_html": 3,
+      "markdown": 4,
+      "assessment": "Historical cached output predates current source warnings; current Python run retained three warnings from real r3/t3/r3 calls, per qualification JSON. Do not suppress to match the old count."
+    },
+    {
+      "page": "complex/ZetaZeros",
+      "cached_html": 4,
+      "markdown": 5,
+      "assessment": "Extra Python fence is the actual warning from source operation ft=f(t), where t is complex. Pinned MATLAB @chebfun/compose.m has the same complex-inner warning and warning ID at lines 399-405, so this is not evidence of a missing/extra Python warning relative to pinned source; cached HTML is an older output capture."
+    },
+    {
+      "page": "linalg/TransientGrowth",
+      "cached_html": 4,
+      "markdown": 3,
+      "assessment": "Old cached HTML includes unresolved warning. Existing retained current Python full-run instrumentation and native R2024b outputs show no warning; source construction warning path remains implemented. Historical output is stale; do not synthesize."
+    }
+  ],
+  "remaining_input_count_page": {
+    "page": "ode-linear/Floquet",
+    "html": 11,
+    "markdown": 12,
+    "assessment": "Output count now matches (4/4); Markdown warning prose split an original HTML code cell into two fenced blocks, creating one input-fence count difference."
+  },
+  "source_causality_check": {
+    "native_example": "/scratch/gpfs/GILLES/mg6942/chebfun_examples/complex/ZetaZeros.m:73-74",
+    "python_example": "publication_checkout/examples/complex/zeta_zeros.py:130-131",
+    "matlab_compose": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/compose.m:399-405",
+    "python_compose": "publication_checkout/src/chebfunjax/chebfun1d/_composition.py:54-57",
+    "matlab_compose_sha256": "0ea795bc79fb1a0a00a36dd17718ae9838da91353033b74639de49dce18c4f32",
+    "python_compose_sha256": "38e6a3a0056c7c85e2161746dd3142266dde9fbe032a173d263004002a535f90",
+    "result": "Both source implementations warn when the inner Chebfun is nonreal; no warning text was fabricated."
+  },
+  "artifacts": {
+    "prose": "prose.json",
+    "code_alignment": "code_alignment.json",
+    "figures": "figures/report.json",
+    "scripts": [
+      "audit_prose.py",
+      "audit_alignment.py",
+      "audit_figures.py"
+    ]
+  },
+  "baseline_audit_sha256": "098fc9e3ec9bfc05d255058f0481bf3b76487ecf0b80dc3ac006cc7669c0d6f6",
+  "baseline_artifact_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/current322_page_audit_d964446c_20261014",
+  "subsequent_Floquet_cell_fix": {
+    "audit": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/floquet_input_cell_fix_20261014/audit.json",
+    "input_count": 11,
+    "output_count": 4,
+    "reason": "Output follows complete original published cell; preserves original inputblocks."
+  },
+  "current_count_delta": {
+    "markdown_matlab_fences": 2408,
+    "input_count_mismatch_pages": 0
+  },
+  "limits": "19prose/15equation mismatch pages stillneedparser/source review. Figure sizes/slots pass, pixelparity doesnot. Three archival outputcount discrepancies remain unresolved; real sourcewarnings notsuppressed."
+}

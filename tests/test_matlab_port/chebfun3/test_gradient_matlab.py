@@ -23,7 +23,7 @@ class TestChebfun3Gradient:
         exact = Chebfun3v.from_functions(lambda x, y, z: 1 + 0 * x,
                                          lambda x, y, z: 0 * x,
                                          lambda x, y, z: 0 * x)
-        assert float((exact - Chebfun3v.gradient(f)).norm()) < TOL
+        assert float((exact - f.grad()).norm()) < TOL
 
     def test_separable_trig(self):
         f = Chebfun3.from_function(
@@ -32,7 +32,7 @@ class TestChebfun3Gradient:
             lambda x, y, z: -jnp.sin(x) * jnp.exp(y) * jnp.sin(z),
             lambda x, y, z: jnp.cos(x) * jnp.exp(y) * jnp.sin(z),
             lambda x, y, z: jnp.cos(x) * jnp.exp(y) * jnp.cos(z))
-        assert float((exact - Chebfun3v.gradient(f)).norm()) < TOL
+        assert float((exact - f.grad()).norm()) < TOL
 
     def test_coupled(self):
         f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
@@ -40,7 +40,7 @@ class TestChebfun3Gradient:
             lambda x, y, z: -y * z * jnp.sin(x * y * z),
             lambda x, y, z: -x * z * jnp.sin(x * y * z),
             lambda x, y, z: -x * y * jnp.sin(x * y * z))
-        assert float((exact - Chebfun3v.gradient(f)).norm()) < TOL
+        assert float((exact - f.grad()).norm()) < TOL
 
     def test_polynomial(self):
         f = Chebfun3.from_function(
@@ -49,4 +49,4 @@ class TestChebfun3Gradient:
             lambda x, y, z: 2 * x + y ** 2 * z ** 3,
             lambda x, y, z: 2 * x * y * z ** 3,
             lambda x, y, z: 3 * x * y ** 2 * z ** 2)
-        assert float((exact - Chebfun3v.gradient(f)).norm()) < TOL
+        assert float((exact - f.grad()).norm()) < TOL
