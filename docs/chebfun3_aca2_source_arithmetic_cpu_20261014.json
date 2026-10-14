@@ -1,0 +1,195 @@
+{
+  "status": "Publication CPU qualification passed; final CI remains open",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca2_arithmetic_candidate_20261014/aca2_source_arithmetic.patch",
+  "patch_sha256": "3702cfa8ef8de753e4172aadfee8c2e661983e3d84bd2686c154aae5ce9a0edf",
+  "scope": "CPUfloat64 ACA2 direct division and separately rounded multiply/subtract; allotherdtype/backend expression unchanged. Shared unchanged binary helper moved to utils, PDE compatibility re-export retained, Diskfun import updated.",
+  "qualification": "40 controls passed:6 new ACA2 controls including105exactnative steps both direct/outerJIT;32 unchanged PDE arithmetic controls;2 unchanged Diskfun nine-stage controls. Original constructoraccuracy8 and numeric syntax2 predicates passed in baseline/candidate cold and warm constructions.",
+  "cost": {
+    "steps": 105,
+    "shapes": [
+      [
+        17,
+        17
+      ],
+      [
+        23,
+        23
+      ],
+      [
+        45,
+        43
+      ]
+    ],
+    "timings": {
+      "baseline": {
+        "cold_seconds": 0.1738767707720399,
+        "warm_seconds": [
+          0.0016302252188324928,
+          0.0015778071247041225,
+          0.0014270930550992489,
+          0.0013921470381319523,
+          0.0013882401399314404
+        ],
+        "warm_median_seconds": 0.0014270930550992489,
+        "native_max_error": 2.8362728832220796e-16,
+        "exact_steps": 0
+      },
+      "candidate": {
+        "cold_seconds": 0.42810934502631426,
+        "warm_seconds": [
+          0.0022634752094745636,
+          0.0020562163554131985,
+          0.002018625382333994,
+          0.0020282738842070103,
+          0.0019177859649062157
+        ],
+        "warm_median_seconds": 0.0020282738842070103,
+        "native_max_error": 0.0,
+        "exact_steps": 105
+      },
+      "warm_ratio": 1.4212625287185294
+    },
+    "compatibility_identity": true
+  },
+  "constructors": [
+    {
+      "case": "original_accuracy8",
+      "arm": "baseline",
+      "cold_seconds": 9.231968429870903,
+      "warm_seconds": 0.04949076101183891,
+      "rank": [
+        2,
+        2,
+        1
+      ],
+      "lengths": [
+        15,
+        14,
+        2
+      ]
+    },
+    {
+      "case": "original_accuracy8",
+      "arm": "candidate",
+      "cold_seconds": 9.35537923919037,
+      "warm_seconds": 0.049275216180831194,
+      "rank": [
+        2,
+        2,
+        1
+      ],
+      "lengths": [
+        15,
+        14,
+        2
+      ]
+    },
+    {
+      "case": "original_ff",
+      "arm": "baseline",
+      "cold_seconds": 18.179087181109935,
+      "warm_seconds": 0.4582848916761577,
+      "rank": [
+        7,
+        7,
+        7
+      ],
+      "lengths": [
+        16,
+        14,
+        16
+      ]
+    },
+    {
+      "case": "original_ff",
+      "arm": "candidate",
+      "cold_seconds": 18.432487436104566,
+      "warm_seconds": 0.4760392801836133,
+      "rank": [
+        7,
+        7,
+        7
+      ],
+      "lengths": [
+        16,
+        14,
+        16
+      ]
+    },
+    {
+      "case": "original_numeric_syntax2",
+      "arm": "baseline",
+      "cold_seconds": 4.378167511895299,
+      "warm_seconds": 0.07815306587144732,
+      "rank": [
+        5,
+        7,
+        5
+      ],
+      "lengths": [
+        10,
+        15,
+        5
+      ]
+    },
+    {
+      "case": "original_numeric_syntax2",
+      "arm": "candidate",
+      "cold_seconds": 4.52210991922766,
+      "warm_seconds": 0.07838705461472273,
+      "rank": [
+        5,
+        7,
+        5
+      ],
+      "lengths": [
+        10,
+        15,
+        5
+      ]
+    }
+  ],
+  "receipts": {
+    "benchmark": {
+      "command_exit_code": 0,
+      "wall_seconds": 3.7690271218307316,
+      "sampled_peak_summed_rss_kib": 496940,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "control": {
+      "command_exit_code": 0,
+      "wall_seconds": 25.502523988950998,
+      "sampled_peak_summed_rss_kib": 1175756,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "constructor": {
+      "command_exit_code": 0,
+      "wall_seconds": 78.33435085602105,
+      "sampled_peak_summed_rss_kib": 1583976,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "limitations": [
+    "original_ff lengths16/14/16 vs native15/14/15 remain open; no claim this patch resolves them.",
+    "Local diagnostic timing: one cold sweep,5 warm sweeps for105updates, one cold and one warm sample per constructor/arm. Small constructor changes may include scheduling noise.",
+    "No ACA3/GEMM changes; no rational reconstruction; no fitted threshold/chopping changes.",
+    "Native bit identity qualified CPUbinary64. Other backends/dtypes retain generic behavior; GPU not exercised."
+  ],
+  "patch_correction": "Original text/binary separator lacked newline; retained as aca2_source_arithmetic_initial_incomplete.patch. Corrected delimiter includes binary fixture; parent detected initial omission and copied exact fixture independently.",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca2_publication_20261014/run_v2/receipt.json",
+    "sha256": "c77f39d9904a3c2a890743ff2e49dfd79bff3eab96403ee0086c61fb75bcdc61",
+    "pytest": "40 passed in17.15s",
+    "command_exit_code": 0,
+    "wall_seconds": 20.431618911214173,
+    "sampled_peak_summed_rss_kib": 1179684,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "integration_repairs": "Initial patch joined closing JSON and binary diff without newline; git apply omitted NPZ. First root gate2FileNotFound/38pass retained in run/. Exact private NPZ copied after SHA verification e1707bc4da4f67bd7484a495701ebf12392c60f07938fc01974ddd62d6c8e376. Import blank line added for Ruff; all40 then passed in run_v2.",
+  "static_gate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/static_grad_aca2_v2_20261014.json"
+}

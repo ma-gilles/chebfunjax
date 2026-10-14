@@ -11,7 +11,7 @@ binary64 qualification uses retained MATLAB R2025b nine-stage inputs.
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.chebfun1d._pde_ndf.source_arithmetic import binary
+from chebfunjax.utils._ordered_binary import binary
 
 
 def _subtract_outer(matrix, left, right):

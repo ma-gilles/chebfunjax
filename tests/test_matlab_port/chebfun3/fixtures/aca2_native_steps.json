@@ -1,0 +1,10 @@
+{
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native": "MATLAB R2025b",
+  "source_file": "@chebfun3/chebfun3classic.m completeACA2D",
+  "capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_classic_ff_diagnosis_20261014/native_stages.mat",
+  "capture_sha256": "0041e324e0a79d27a567a591bfe0059cae95ad7d0bb9f577d7734313eb9c93c6",
+  "fixture_sha256": "e1707bc4da4f67bd7484a495701ebf12392c60f07938fc01974ddd62d6c8e376",
+  "steps": 105,
+  "construction": "Exact before/residual matrix pairs and zero-based pivot coordinates extracted from native MAT; no numerical transformations."
+}diff --git a/tests/test_matlab_port/chebfun3/fixtures/aca2_native_steps.npz b/tests/test_matlab_port/chebfun3/fixtures/aca2_native_steps.npz

@@ -1,3 +1,18 @@
+## 2026-10-14: literal CPU ACA2 arithmetic
+
+Chebfun3 ACA2 now preserves direct division and separately rounded product
+and subtraction on CPU float64. All 105 captured native update steps match
+bitwise, including under an outer JIT. The unchanged binary helper is shared
+with PDE and Diskfun arithmetic, with its old import retained. Publication
+qualification: 40 tests passed in 17.15s, stable inputs/no surviving processes;
+full static checks passed. Evidence and retained initial fixture-packaging
+failure: `docs/chebfun3_aca2_source_arithmetic_cpu_20261014.json`.
+
+Five warm local sweeps measured 1.43 to 2.03 ms per 105 updates; constructor
+cold/warm comparisons are recorded separately and are diagnostic timings.
+The classic original_ff factor-length gap (16/14/16 versus native 15/14/15)
+remains open. Full parity and final green main CI remain unresolved.
+
 ## 2026-10-14: gradient API and original matrix-evaluation tests
 
 Spherefun.grad now returns Spherefunv through the native gradient alias,

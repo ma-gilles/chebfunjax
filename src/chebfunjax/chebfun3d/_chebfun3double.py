@@ -13,6 +13,7 @@ import jax.numpy as jnp
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.tech.trigtech import Trigtech
+from chebfunjax.utils._ordered_binary import binary
 from chebfunjax.utils.quadrature import chebpts_ab, trigpts
 
 
@@ -80,9 +81,34 @@ def _pivot2(matrix, tolerance):
 
 @jax.jit
 def _subtract2(matrix, row, col):
-    divided_row = jax.lax.optimization_barrier(matrix[row, :]/matrix[row, col])
-    product = jax.lax.optimization_barrier(matrix[:, col, None]*divided_row[None, :])
-    return matrix-product
+    """Direct source division and separate product/subtraction on CPU float64.
+
+    Optimization barriers alone permit reciprocal multiplication and fused
+    multiply-subtract in this expression. Separate loop iterations preserve
+    native completeACA2D rounding, qualified against captured native inputs.
+    Other dtypes/backends retain the prior generic expression.
+    """
+    def generic(matrix, row, col):
+        divided_row = jax.lax.optimization_barrier(matrix[row, :] / matrix[row, col])
+        product = jax.lax.optimization_barrier(matrix[:, col, None] * divided_row[None, :])
+        return matrix - product
+
+    def ordered(matrix, row, col):
+        divided_row = binary(matrix[row, :], matrix[row, col], 3)
+
+        def step(index, state):
+            residual, product = state
+            return jax.lax.cond(
+                index == 0,
+                lambda: (residual, matrix[:, col, None] * divided_row[None, :]),
+                lambda: (residual - product, product),
+            )
+
+        return jax.lax.fori_loop(0, 2, step, (matrix, jnp.zeros_like(matrix)))[0]
+
+    if matrix.dtype != jnp.float64:
+        return generic(matrix, row, col)
+    return jax.lax.platform_dependent(matrix, row, col, cpu=ordered, default=generic)
 
 
 def complete_aca2(values, tolerance):
