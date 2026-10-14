@@ -1,3 +1,10 @@
+## 2026-10-14: continuous 3D size
+
+The missing Chebfun3 `size()` API now returns the source continuous dimensions,
+including for empty objects, and rejects invalid dimensions with the source
+error identifier. Two supplemental source controls pass. See
+`docs/chebfun3_size_source_cpu_20261014.json`.
+
 ## 2026-10-14: scalar 3D vertical concatenation
 
 Chebfun3 now exposes the source vertical-concatenation method, including its

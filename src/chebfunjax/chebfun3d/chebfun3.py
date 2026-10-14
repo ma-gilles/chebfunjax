@@ -1891,6 +1891,21 @@ class Chebfun3(eqx.Module):
     # Properties
     # ------------------------------------------------------------------
 
+    def size(self, dim=None):
+        """Continuous dimensions, including for an empty object.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/size.m
+        Chebfun commit: 7574c77
+        The three-output form is expressed by unpacking the returned tuple.
+        """
+        if dim is None:
+            return (float("inf"),) * 3
+        if dim in (1, 2, 3):
+            return float("inf")
+        raise ValueError("CHEBFUN:CHEBFUN3:size:outputs: Too many output arguments.")
+
     @property
     def rank(self) -> tuple[int, int, int]:
         """Native Tucker core dimensions, all zero when the core is zero.
