@@ -1,8 +1,4 @@
-"""Port of MATLAB Chebfun tests/chebfun3/test_integral.m (Fable 5).
-
-FIXED (Fable 5): Chebfun3.integral (line integral over a parametric
-curve) added in the audit.  The curve is supplied as a callable
-``t -> (x(t), y(t), z(t))`` together with its parameter interval.
+"""Literal Chebfun-curve source predicates from MATLAB test_integral.m.
 
 Provenance
 ----------
@@ -17,45 +13,41 @@ import numpy as np
 
 import chebfunjax as cj
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
-
-from ._helpers import EPS
-
-TOL = 1e3 * EPS
+from chebfunjax.chebpref import ChebfunPref
 
 
-class TestChebfun3Integral:
-    def test_all_matlab_assertions(self):
-        # pass(1)
-        f = Chebfun3.from_function(lambda x, y, z: 2 * x * y + 3 * z)
-        exact = 38 * np.sqrt(5)
-        val = f.integral(lambda t: (2 * t, 5 * t, 4 * t), domain=(0, 1))
-        assert abs(val - exact) / exact < TOL
+def _source_curve(components, interval):
+    return cj.chebfun(
+        lambda t: jnp.stack(components(t), axis=-1), domain=interval
+    )
 
-        # pass(2)
-        f = Chebfun3.from_function(lambda x, y, z: x ** 2 * z)
-        exact = 23 * np.sqrt(30) / 12
-        val = f.integral(lambda t: (-t, 6 + 2 * t, 2 + 5 * t),
-                         domain=(0, 1))
-        assert abs(val - exact) / exact < TOL
 
-        # pass(3): helix over an enlarged z-domain.
-        dom = (-1.0, 1.0, -1.0, 1.0, 0.0, 12 * np.pi)
-        f = Chebfun3.from_function(lambda x, y, z: x * y * z, domain=dom)
-        exact = -3 * np.sqrt(10) * np.pi
-        val = f.integral(
-            lambda t: (jnp.cos(t), jnp.sin(t), 3 * t),
-            domain=(0, 4 * np.pi))
-        assert abs(val - exact) / abs(exact) < TOL
+def test_original_integral_source_curve_1():
+    tol = 1e3 * ChebfunPref().cheb3Prefs.chebfun3eps
+    f = Chebfun3.from_function(lambda x, y, z: 2 * x * y + 3 * z)
+    curve = _source_curve(lambda t: (2 * t, 5 * t, 4 * t), [0, 1])
+    exact = 38 * np.sqrt(5)
+    assert abs(f.integral(curve) - exact) / exact < tol
 
-    def test_curve_as_arrayvalued_chebfun(self):
-        # MATLAB passes the curve as an Inf x 3 quasimatrix (a chebfun with
-        # three columns); mirror that here with an array-valued Chebfun.
-        # This path previously crashed (Domain not subscriptable).
-        dom = (-1.0, 1.0, -1.0, 1.0, 0.0, 12 * np.pi)
-        f = Chebfun3.from_function(lambda x, y, z: x * y * z, domain=dom)
-        exact = -3 * np.sqrt(10) * np.pi
-        curve = cj.chebfun(
-            lambda t: jnp.stack([jnp.cos(t), jnp.sin(t), 3 * t], axis=-1),
-            domain=[0, 4 * np.pi])
-        val = f.integral(curve)
-        assert abs(val - exact) / abs(exact) < TOL
+
+def test_original_integral_source_curve_2():
+    tol = 1e3 * ChebfunPref().cheb3Prefs.chebfun3eps
+    f = Chebfun3.from_function(lambda x, y, z: x**2 * z)
+    curve = _source_curve(lambda t: (-t, 6 + 2 * t, 2 + 5 * t), [0, 1])
+    exact = 23 * np.sqrt(30) / 12
+    assert abs(f.integral(curve) - exact) / exact < tol
+
+
+def test_original_integral_source_curve_3():
+    tol = 1e3 * ChebfunPref().cheb3Prefs.chebfun3eps
+    dom = (-1, 1, -1, 1, 0, 12 * np.pi)
+    f = Chebfun3.from_function(lambda x, y, z: x * y * z, domain=dom)
+    curve = _source_curve(
+        lambda t: (jnp.cos(t), jnp.sin(t), 3 * t), [0, 4 * np.pi]
+    )
+    exact = -3 * np.sqrt(10) * np.pi
+    value = f.integral(curve)
+    # Literal source pass(3) divides by the negative exact value.
+    assert abs(value - exact) / exact < tol
+    # Retain the stronger existing supplemental error control.
+    assert abs(value - exact) / abs(exact) < tol

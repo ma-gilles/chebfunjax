@@ -1,3 +1,28 @@
+## 2026-10-14: CPU grid reuse and original reduction predicates
+
+CPU second-kind grid generation now reuses compiled source arithmetic across
+fixed capacities while preserving exact active grid values and length. Root
+qualification passed 89 grid/root controls; eight selected original inverse
+checks passed privately. One serial paired CPU measurement reduced setup plus
+first inverse from 27.62s to 24.62s. Warm median increased from 646.8ms to
+662.6ms. All 34 captured arrays and five root input/output pairs were bitwise
+identical. This is a shared-host measurement, not full MATLAB speed parity.
+See `docs/c2_grid_compile_reuse_cpu_20261014.json`.
+
+Missing `Chebfun3.integral3` is implemented with its two original predicates
+and three supplemental controls passing. Source test restorations also cover
+28 derivative, 23 sum/sum2, two mean/mean2, eight std/std2, and four Spherefunv
+dot predicates. They preserve the source operands, function-object comparisons,
+continuous norms, and numerical bounds. The std2 expected constant uses the
+public Chebfun constructor's scalar expansion. Evidence is in the corresponding
+`docs/chebfun3_*_original_cpu_20261014.json` reports and
+`docs/spherefunv_dot_original_cpu_20261014.json`.
+
+Full parity remains open: page/figure differences, remaining source assertions,
+known numerical discrepancies, and final green main CI are unresolved. The
+latest active older CI still reproduces the documented backend-sensitive native
+LU comparison; no tolerance or backend was changed to hide it.
+
 ## 2026-10-14: original Laplacian/biharmonic gates and ACA3 correction
 
 The original Laplacian test now covers 79 harmonics with structural and

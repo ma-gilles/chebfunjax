@@ -1,0 +1,86 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std_source_20261014",
+  "snapshot_head": "91c9c42b34aacc20dbb156e8908ebb7c67471b44",
+  "publication_checkout_modified": false,
+  "source": {
+    "repository": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "test_std.m_sha256": "c9becd472cfc3333a3e8d865e4eb9691d5e4f0b0a453d238f7e78f6c5f14fdd1",
+    "test_std2.m_sha256": "5aa2a8b33ca40d4d376b3b39cb4e713dc4704a11e9090e60840cbe14f40d1b4b"
+  },
+  "restored_predicates": {
+    "std": "source f1/f2/f3 and h1=std(f1), h2=std(f1,[],1), h3=std(f2,[],2), h4=std(f3,[],3); exact Chebfun2 constant sqrt(4/45); all four `(h-exact).norm() < 1e3*ChebfunPref().cheb3Prefs.chebfun3eps`",
+    "std2": "source f1/f2/f3 and h1=std2(f1), h2=std2(f1,[],[1,2]), h3=std2(f2,[],[1,3]), h4=std2(f3,[],[3,2]); exact Chebfun constant sqrt(4/45) on [-1,1]; all four `(h-exact).norm() < 1e3*ChebfunPref().cheb3Prefs.chebfun3eps`",
+    "prior point-sample assertions": "retained in test_std_samples_supplemental.py and test_std2_samples_supplemental.py"
+  },
+  "gates": [
+    {
+      "id": "std_source",
+      "result": "PASS",
+      "pytest": "1 passed in 27.05s",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 31.100199189968407,
+      "sampled_peak_summed_rss_kib": 1869744,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "std2_source",
+      "result": "PASS",
+      "pytest": "1 passed in 21.20s",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.91810913896188,
+      "sampled_peak_summed_rss_kib": 1553348,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    }
+  ],
+  "ruff": "PASS on source predicates and retained supplemental tests",
+  "patch": "std_source.patch",
+  "guard": "guard.json",
+  "root_review": {
+    "source_predicates": 8,
+    "expected_callbacks": "Exact scalar callbacks sqrt(4/45); no ones_like broadcasting wrapper.",
+    "norms": "Continuous Chebfun2/Chebfun default norms, original 1e3*chebfun3eps bounds.",
+    "constructor_mapping": "std2 expected uses public chebfun(callback), matching MATLAB scalar expansion via vectorCheck. Lower-level Chebfun.from_function requires vectorized output and was an incorrect source mapping for this scalar callback.",
+    "supplemental_tests": "Prior sampled tests moved unchanged except explanatory docstrings; not requalified by root."
+  },
+  "root_gates": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std_publication_20261014/run/receipt.json",
+      "sha256": "d3c0163d32b110d1c86fcf10456332357a85b51f685486215eb36e180ad81adf",
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 37.43330504093319,
+      "sampled_peak_summed_rss_kib": 1863456
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_std_publication_source_v2_20261014/run/receipt.json",
+      "sha256": "2f237936312268b0ac49974591afab1b3efdba95fa8cfe263a306b047439badc",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 24.00554969580844,
+      "sampled_peak_summed_rss_kib": 1555520
+    }
+  ],
+  "root_gate_interpretation": "First script: std original4 passed; std2 failed before predicate because low-level factory skipped vectorCheck for scalar callback. Final script: corrected source API std2 original4 passed. First successful std test and all library source unchanged between scripts; guard proves this. Failure retained.",
+  "full_goal_complete": false
+}
