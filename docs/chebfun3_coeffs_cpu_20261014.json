@@ -1,0 +1,51 @@
+{
+  "scope": "Chebfun3 coefficient preprocessing and numeric selected technology",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_sources": [
+    "@chebfun3/constructor.m:92-106",
+    "@chebfun3/coeffs2vals.m",
+    "@chebfun3/chebfun3double.m"
+  ],
+  "changes": [
+    "Apply coefficient-to-values conversion after fixed-length sampling before numeric dispatch",
+    "Replace from_coeffs host float-cast HOSVD with JAX coefficient transform and source numeric constructor",
+    "Honor explicit Chebtech1 for numeric tensors while preserving existing callable keyword adapter"
+  ],
+  "candidate_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_coeffs_source_candidate_20261014/COEFFS_SOURCE_REPORT.md",
+  "candidate_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_coeffs_source_candidate_20261014/run/focused_v8/receipt.json",
+  "source_sha256": "e135cc4572dc12d170b0e05398fe06ee6d5e61fb3d3e1bd37dfe9284908dba7d",
+  "test_sha256": "092d526e56def2b5dec3632629f281b16f345ea9997274578943fc57471c58b5",
+  "limitations": [
+    "Seeded Python random controls preserve original shapes and tolerance, not native random stream",
+    "Rank>3 tensor behavior not qualified",
+    "Existing Chebfun3 object with coeffs=True early identity handling remains unqualified",
+    "C1 equispaced captured length54 versus56 remains strict xfail"
+  ],
+  "ci_historical_abs_recheck": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_abs_ci_review_20261014/REPORT.json",
+  "run": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_coeffs_publication_20261014/run/receipt.json",
+    "wall_seconds": 131.95159469684586,
+    "sampled_peak_summed_rss_kib": 3448780,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "original_run": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_coeffs_publication_20261014/original_run/receipt.json",
+    "wall_seconds": 47.64438485307619,
+    "sampled_peak_summed_rss_kib": 2554144,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "merged_result": {
+    "passed": 56,
+    "strict_xfailed": 1,
+    "slow_deselected": 4,
+    "pytest_seconds": 122.73
+  },
+  "original_constructor2_result": {
+    "passed_modules": 1,
+    "native_predicates_mapped": 19,
+    "pytest_seconds": 39.89,
+    "scope": "Existing source-port assertions unchanged; RNG samples use Python RandomState, not native stream."
+  }
+}

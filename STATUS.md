@@ -1,3 +1,16 @@
+## Chebfun3 coefficient constructor — 2026-10-14
+
+Coefficient input now transforms to values before native numeric dispatch;
+`from_coeffs` uses that path instead of host float-cast HOSVD. Complex values
+are retained, and explicit numeric Chebtech1 selection is honored.
+Root merged gate: 56 passed, one known strict C1 length xfail, four slow
+checks deselected. The unchanged constructor2 port also passes all 19 mapped
+predicates in 39.89 seconds. Guards remained stable with no survivors.
+Random inputs in that port use Python RandomState, not a native RNG capture.
+Existing-object coefficient flags and tensors above 3D remain unqualified.
+Evidence: `docs/chebfun3_coeffs_cpu_20261014.json`. Full parity and final CI
+remain open.
+
 ## TreeVar POW2 CPU boundary behavior — 2026-10-14
 
 One-argument numeric POW2 now uses JAX primitives and preserves captured

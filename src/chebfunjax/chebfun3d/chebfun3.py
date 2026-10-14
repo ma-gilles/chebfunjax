@@ -1927,34 +1927,25 @@ class Chebfun3(eqx.Module):
 
     @classmethod
     def from_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
-                    tol: float = _EPS) -> "Chebfun3":
-        """Construct from a coefficient tensor ``C[i, j, k]`` (MATLAB
-        ``chebfun3(C, 'coeffs')``) by a Tucker (HOSVD) compression.
+                    tol: float = _EPS, *, tech=Chebtech2) -> "Chebfun3":
+        """Construct from tensor coefficients through native numeric dispatch.
+
+        The coefficient tensor is transformed to values first, then sent
+        through the same numeric constructor used by ``chebfun3(...,
+        coeffs=True)``. This preserves complex values and selected technology.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/chebfun3.m ('coeffs' flag)
+        MATLAB source : @chebfun3/constructor.m; @chebfun3/coeffs2vals.m;
+            @chebfun3/chebfun3double.m
         Chebfun commit: 7574c77
         """
-        C = np.asarray(C, dtype=float)
+        C = jnp.asarray(C)
+        C = C.astype(jnp.result_type(C.dtype, jnp.float64))
         if C.ndim < 3:
             C = C.reshape(C.shape + (1,) * (3 - C.ndim))
-        factors = []
-        core = C
-        scale = max(float(np.max(np.abs(C))), 1.0)
-        for ax in range(3):
-            unf = np.moveaxis(C, ax, 0).reshape(C.shape[ax], -1)
-            U, sv, _ = np.linalg.svd(unf, full_matrices=False)
-            keep = int(np.sum(sv > 10 * np.finfo(float).eps * scale))
-            keep = max(keep, 1)
-            factors.append(U[:, :keep])
-        for ax, U in enumerate(factors):
-            core = np.asarray(cls.txm(core, U.T, ax + 1))
-        techs = [[Chebtech2.from_coeffs(jnp.asarray(U[:, j]))
-                  for j in range(U.shape[1])] for U in factors]
-        return cls(cols=techs[0], rows=techs[1], tubes=techs[2],
-                   core=jnp.asarray(core),
-                   domain=tuple(float(v) for v in domain))
+        values = cls.coeffs2vals(C)
+        return cls.from_values(values, domain, tol, tech=tech)
 
     @classmethod
     def from_values(cls, V, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
@@ -3547,10 +3538,16 @@ def chebfun3(
         # Native parseInputs samples once on chebpts3 before numeric dispatch.
         # Python keywords use the final domain regardless of keyword order.
         f = f(*chebpts3(*lengths, domain=dv))
-    if equi and coeffs:
-        # constructor.m applies coeffs2vals during parseInputs before the
-        # outer constructor validates/dispatches the equi numeric data.
-        f = Chebfun3.coeffs2vals(f)
+    if coeffs:
+        # constructor.m converts coefficients during parseInputs, after fixed
+        # length sampling and before equi validation or numeric dispatch.
+        coefficient_tensor = jnp.asarray(f)
+        if coefficient_tensor.ndim < 3:
+            coefficient_tensor = coefficient_tensor.reshape(
+                coefficient_tensor.shape + (1,) * (3 - coefficient_tensor.ndim)
+            )
+        f = Chebfun3.coeffs2vals(coefficient_tensor)
+        coeffs = False
     if equi and isinstance(f, Chebfun3):
         raise ValueError(
             "CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag is valid "
@@ -3588,7 +3585,7 @@ def chebfun3(
                 domain=dv,
             )
             return result if rank is None else result.fix_the_rank(rank)
-    direct_first_kind = ((pref is not None or tech is None)
+    direct_first_kind = ((pref is not None or tech is None or not callable(f))
                          and key in ("chebtech1", "1", "1st") and not direct_periodic)
     if str(construction_pref.cheb3Prefs.constructor).lower() == "classic" and not chebfun3f:
         raise NotImplementedError("Only the chebfun3f constructor is supported")
@@ -3611,8 +3608,6 @@ def chebfun3(
             from chebfunjax.tech.chebtech import Chebtech1
             from chebfunjax.tech.trigtech import Trigtech
 
-            if coeffs:
-                raise NotImplementedError("Selected-tech numeric coefficient input is not yet supported")
             selected = Trigtech if direct_periodic else Chebtech1
             result = Chebfun3.from_values(numeric, domain=dv, tol=tol, tech=selected)
             return result if rank is None else result.fix_the_rank(rank)
@@ -3625,13 +3620,9 @@ def chebfun3(
         arr = jnp.asarray(f)
         if arr.ndim == 0 or arr.size == 1:
             c0 = float(arr.reshape(-1)[0])
-            if coeffs:
-                return Chebfun3.from_coeffs(jnp.asarray([[[c0]]]), domain=dv)
             return Chebfun3.from_function(
                 lambda x, y, z, _c=c0: jnp.full_like(x, _c), domain=dv,
                 tol=tol, **periodic_options)
-        if coeffs:
-            return Chebfun3.from_coeffs(jnp.asarray(arr), domain=dv)
         result = Chebfun3.from_values(arr, domain=dv, tol=tol)
         return result if rank is None else result.fix_the_rank(rank)
     # 'chebfun3f' selects the (default) three-phase Tucker constructor.
