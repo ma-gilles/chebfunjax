@@ -1,0 +1,64 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": [
+    "Source 161-cubed Chebyshev root seed and vscale normalization",
+    "Source maximum9Newton updates and update-norm stop without clipping",
+    "Sized, default-length and low-rank-output chebpolyval3 via factor Chebyshev coefficients and session technology",
+    "Restore all6 literal native root predicates; retain separately labelled previous Python residual guards"
+  ],
+  "root_residuals": {
+    "guide_f_absolute_residual": 1.741300701203239e-16,
+    "guide_g_absolute_residual": 9.048120459445546e-18,
+    "guide_h_absolute_residual": 4.789971342676273e-16,
+    "trivial_root_max_distance_from_signed_0p1": 2.636779683484747e-16
+  },
+  "native_zero_dimension_binding": {
+    "raw_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_extrema_source_review_20261014/native_fallback/edge_checkpoint.mat",
+    "sha256": "3d9e5f98e2a3d1b169f849d5482229b22e41164b335da9d98ce11a1a6665af50",
+    "keys": [
+      "edge",
+      "meta"
+    ]
+  },
+  "root_ast_unchanged_after_lowrank_output_addition": true,
+  "source_sha256": "8c1c9e3c494210b5e40fe529b7a01a14bc6cf4d2d2921c718dd9726f3c015397",
+  "limitations": [
+    "No fresh MATLAB root-coordinate capture; root verified against pinned algorithm and original predicates",
+    "Singular-Jacobian and complex-root behavior not exhaustively qualified",
+    "Python empty-object output uses established empty-vector adapter",
+    "Negative requested dimensions are rejected by Python adapter; native negative-size behavior not captured",
+    "Final main CI and full parity remain open"
+  ],
+  "candidate_packet": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_root_source_candidate_20261014/HANDOFF_v3.md",
+  "run": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_root_publication_20261014/run/receipt.json",
+    "wall_seconds": 67.8963392493315,
+    "sampled_peak_summed_rss_kib": 3321340,
+    "inputs_stable": true
+  },
+  "supplemental_run": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_root_publication_20261014/supplemental_run/receipt.json",
+    "wall_seconds": 43.281112466938794,
+    "sampled_peak_summed_rss_kib": 2385328,
+    "inputs_stable": true
+  },
+  "original_transform_run": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_root_publication_20261014/original_transform_run/receipt.json",
+    "wall_seconds": 12.8792540919967,
+    "sampled_peak_summed_rss_kib": 878532,
+    "inputs_stable": true
+  },
+  "final_transform_run": {
+    "passed": 9,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_root_publication_20261014/final_transform_run/receipt.json",
+    "wall_seconds": 22.121102718170732,
+    "sampled_peak_summed_rss_kib": 1425772,
+    "inputs_stable": true
+  },
+  "qualification_sequence": [
+    "Initial merged13passed59.59s: literalroot6, sizedtransform controls, originalcoefficients modules and complexfactorcontrols",
+    "Zero-size support and supplementalrootobservations:9passed, original6retained",
+    "Originalchebpolyval3module passes2nativepredicates7.78s, existingPythonrandomdata unchanged",
+    "Final9transformtests pass including lowranktuple and zero-size; rootAST unchanged by output-optionaddition"
+  ]
+}

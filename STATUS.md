@@ -1,3 +1,16 @@
+## Source Chebfun3 root finder and tensor evaluation — 2026-10-14
+
+Root finding now uses the native 161³ Chebyshev seed, vscale normalization,
+update-norm stopping rule and nine-update limit with JAX arithmetic. All six
+original root predicates pass without the old tolerance widening. Maximum
+guide residual is 4.79e-16; separable-root location error is 2.64e-16.
+Sized/default tensor evaluation and low-rank outputs follow factor transforms.
+Fresh MATLAB capture confirms zero-sized grids; final transform gate passes
+nine tests, including the unchanged original module. Initial merged gate
+passed 13 checks; subsequent source changes and reuse are recorded explicitly.
+Evidence: `docs/chebfun3_root_cpu_20261014.json`. Full parity and final CI remain
+open; singular/complex root edge cases are not exhaustively qualified.
+
 ## Preserve complex Chebfun3 factor coefficients — 2026-10-14
 
 Removed the real cast in factor coefficient assembly. Exact complex

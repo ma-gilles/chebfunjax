@@ -1915,16 +1915,64 @@ class Chebfun3(eqx.Module):
         """Alias of :meth:`chebcoeffs3` (MATLAB ``coeffs3``)."""
         return self.chebcoeffs3(low_rank=low_rank)
 
-    def chebpolyval3(self):
-        """Values on the tensor Chebyshev grid of the representation's
-        length (MATLAB ``chebpolyval3``).
+    def chebpolyval3(self, m=None, n=None, p=None, *, low_rank=False):
+        """Values on a tensor Chebyshev grid (MATLAB ``chebpolyval3``).
+
+        With no dimensions, evaluate at the representation lengths. Supplying
+        all of ``m, n, p`` pads or truncates each Tucker factor's Chebyshev
+        coefficients to that length before applying the session tech's
+        coefficient-to-value transform, matching the native sized overload.
+        For nonempty objects, ``low_rank=True`` returns the core and three
+        factor value matrices, matching the native four-output form.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/chebpolyval3.m
+        MATLAB source : @chebfun3/chebpolyval3.m; @chebtech/chebcoeffs.m
         Chebfun commit: 7574c77
         """
-        return Chebfun3.coeffs2vals(self.chebcoeffs3())
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
+        if m is None and n is None and p is None:
+            m, n, p = self.length()
+        elif m is None or n is None or p is None:
+            raise TypeError("chebpolyval3 expects either no dimensions or all of m, n, p")
+
+        from operator import index
+        for q in (m, n, p):
+            if isinstance(q, bool) or jnp.issubdtype(jnp.asarray(q).dtype, jnp.bool_):
+                raise TypeError("chebpolyval3 dimensions must be nonnegative integers")
+        try:
+            dims = tuple(index(q) for q in (m, n, p))
+        except TypeError as exc:
+            raise TypeError("chebpolyval3 dimensions must be nonnegative integers") from exc
+        if any(q < 0 for q in dims):
+            raise ValueError("chebpolyval3 dimensions must be nonnegative")
+
+        from chebfunjax.chebpref import ChebfunPref
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
+
+        selected_tech = ChebfunPref().tech
+        tech_name = (selected_tech.__name__ if isinstance(selected_tech, type)
+                     else str(selected_tech)).lower().lstrip("@")
+        tech = {"chebtech": Chebtech2, "chebtech2": Chebtech2,
+                "chebtech1": Chebtech1, "trigtech": Trigtech,
+                "trig": Trigtech, "periodic": Trigtech}.get(tech_name)
+        if tech is None:
+            raise ValueError(f"Unsupported value-grid technology {selected_tech!r}")
+
+        def factor_values(factors, count):
+            coeffs = jnp.stack([jnp.asarray(t.chebcoeffs(count)) for t in factors], axis=1)
+            return tech.coeffs2vals(coeffs)
+
+        col_vals = factor_values(self.cols, dims[0])
+        row_vals = factor_values(self.rows, dims[1])
+        tube_vals = factor_values(self.tubes, dims[2])
+        if low_rank:
+            return self.core, col_vals, row_vals, tube_vals
+        values = Chebfun3.txm(self.core, col_vals, 1)
+        values = Chebfun3.txm(values, row_vals, 2)
+        return Chebfun3.txm(values, tube_vals, 3)
 
     @classmethod
     def from_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
@@ -2596,50 +2644,51 @@ class Chebfun3(eqx.Module):
 
     @staticmethod
     def root(f: "Chebfun3", g: "Chebfun3", h: "Chebfun3"):
-        """One common root of three chebfun3 objects (MATLAB root(f,g,h)).
+        """Find one common root of three ``Chebfun3`` objects.
 
-        Seeds Newton's method for the 3x3 system from the coarse-grid
-        minimizer of ``f^2 + g^2 + h^2``; the Jacobian uses the Tucker
-        partial derivatives.
+        The initial point minimizes the source 161-cubed Chebyshev-grid
+        objective after vscale normalization. Newton iteration follows the
+        native update limit and preference-based stopping rule; it does not
+        clip iterates to the domain.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/root.m
+        MATLAB source : @chebfun3/root.m; @chebfun3/chebpolyval3.m
         Chebfun commit: 7574c77
         """
-        # uses-numpy: Newton iteration on concrete samples
-        import numpy as _np
-        xa, xb, ya, yb, za, zb = f.domain
-        n = 21
-        xs = _np.linspace(xa, xb, n)
-        ys = _np.linspace(ya, yb, n)
-        zs = _np.linspace(za, zb, n)
-        XX, YY, ZZ = _np.meshgrid(xs, ys, zs, indexing="ij")
-        Xj = jnp.asarray(XX.ravel())
-        Yj = jnp.asarray(YY.ravel())
-        Zj = jnp.asarray(ZZ.ravel())
-        val = (_np.asarray(f(Xj, Yj, Zj)) ** 2
-               + _np.asarray(g(Xj, Yj, Zj)) ** 2
-               + _np.asarray(h(Xj, Yj, Zj)) ** 2)
-        i0 = int(_np.argmin(val))
-        r = _np.array([XX.ravel()[i0], YY.ravel()[i0], ZZ.ravel()[i0]])
+        from chebfunjax.chebpref import ChebfunPref
+        from chebfunjax.utils.quadrature import chebpts_ab
 
-        grads = [[q.diff(d, 1) for d in (1, 2, 3)] for q in (f, g, h)]
-        lo = _np.array([xa, ya, za])
-        hi = _np.array([xb, yb, zb])
-        for _ in range(50):
-            pt = [jnp.asarray(v) for v in r]
-            F = _np.array([float(q(*pt)) for q in (f, g, h)])
-            if _np.max(_np.abs(F)) < 1e-14:
-                break
-            J = _np.array([[float(gq(*pt)) for gq in row]
-                           for row in grads])
-            try:
-                step = _np.linalg.solve(J, F)
-            except _np.linalg.LinAlgError:
-                break
-            r = _np.clip(r - step, lo, hi)
-        return jnp.asarray(r)
+        m = n = p = 161
+        xa, xb, ya, yb, za, zb = f.domain
+        xs = chebpts_ab(m, xa, xb)
+        ys = chebpts_ab(n, ya, yb)
+        zs = chebpts_ab(p, za, zb)
+
+        scaled = tuple(q / q.vscale() for q in (f, g, h))
+        values = tuple(q.chebpolyval3(m, n, p) for q in scaled)
+        objective = values[0] ** 2 + values[1] ** 2 + values[2] ** 2
+        # MATLAB linear indexing is column-major: x varies fastest.
+        linear = jnp.argmin(jnp.transpose(jnp.abs(objective), (2, 1, 0)).reshape(-1))
+        ix = linear % m
+        iy = (linear // m) % n
+        iz = linear // (m * n)
+        r = jnp.stack((xs[ix], ys[iy], zs[iz]))
+
+        gradients = tuple(tuple(q.diff(axis, 1) for axis in (1, 2, 3)) for q in scaled)
+        tolerance = 10.0 * float(ChebfunPref().cheb3Prefs.chebfun3eps)
+        update_norm = jnp.asarray(1.0, dtype=jnp.float64)
+        iteration = 1
+        while float(update_norm) > tolerance and iteration < 10:
+            F = jnp.stack(tuple(q(*r) for q in scaled))
+            jacobian = jnp.stack(tuple(
+                jnp.stack(tuple(d(*r) for d in row)) for row in gradients
+            ))
+            update = jnp.linalg.solve(jacobian, F)
+            r = r - update
+            update_norm = jnp.linalg.norm(update)
+            iteration += 1
+        return r
 
     def norm(self, p="fro", *, return_location=False):
         """Continuous Frobenius, infinity, or even-order integral norm.
