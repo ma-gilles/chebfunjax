@@ -106,6 +106,17 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: latest
+      - name: Diagnose fixed LU inputs in a fresh process
+        if: matrix.part == 0
+        timeout-minutes: 3
+        continue-on-error: true
+        env:
+          CUDA_VISIBLE_DEVICES: ''
+          JAX_PLATFORMS: cpu
+          JAX_ENABLE_X64: 'true'
+        run: >-
+          pixi run python -m tests.piecewise_lu_diagnostic
+          --output .pytest-progress/core-0/lu-fresh-process.json
       - name: Run core shard with coverage
         env:
           PYTEST_PROGRESS_DIR: .pytest-progress/core-${{ matrix.part }}

@@ -384,6 +384,13 @@ def test_row_scaled_solve_matches_independent_native_lu(origin):
                 "numpy_version": np.__version__, "backend": jax.default_backend(),
                 "npz_base64": base64.b64encode(archive.getvalue()).decode("ascii"),
             }))
+            try:
+                from tests.piecewise_lu_diagnostic import capture
+                print("PIECEWISE_LU_STAGES " + json.dumps(capture(
+                    matrix, rhs, expected, solution=solution, origin=origin)))
+            except Exception as diagnostic_error:
+                # Diagnostic failures must not hide the original assertion.
+                print("PIECEWISE_LU_STAGES_ERROR " + repr(diagnostic_error))
             raise
         projected = _project_scalar_raw_solution(jnp.asarray(DOMAINS), BASE, solution)
         expected_values = reference["native_projection"] @ expected

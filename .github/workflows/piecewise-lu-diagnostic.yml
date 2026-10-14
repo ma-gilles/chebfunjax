@@ -1,0 +1,41 @@
+name: Piecewise LU diagnostic
+
+on:
+  workflow_dispatch:
+
+# Small independent diagnostic; never cancels or duplicates a full CI suite.
+concurrency:
+  group: piecewise-lu-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fixed-native-input:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      JAX_PLATFORMS: cpu
+      JAX_ENABLE_X64: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+      - name: Capture fresh-process LU stages
+        timeout-minutes: 3
+        run: >-
+          pixi run python -m tests.piecewise_lu_diagnostic
+          --output .pytest-progress/lu-manual/fresh-process.json
+      - name: Run unchanged native assertion in a separate process
+        timeout-minutes: 3
+        run: >-
+          pixi run python -m pytest -q -p no:cacheprovider
+          'tests/test_operators/test_piecewise_projected_assembly.py::test_row_scaled_solve_matches_independent_native_lu[native]'
+      - name: Preserve LU diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: piecewise-lu-diagnostic
+          path: .pytest-progress/lu-manual/**
+          include-hidden-files: true
+          if-no-files-found: warn

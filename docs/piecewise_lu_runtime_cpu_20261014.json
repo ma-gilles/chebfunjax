@@ -1,0 +1,40 @@
+{
+  "scope": "Diagnostic only; no production arithmetic, fixture or bound changes. Four scoped paths.",
+  "scientific_assertions_ast_identical": 35,
+  "validation": {
+    "run": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 6.041786928661168,
+      "sampled_peak_summed_rss_kib": 633560,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "ec472414eac941c287576319159c78ad05170856e93ec2474917e7bdea62d2d5"
+    },
+    "conda_provider_run": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 3.8266221969388425,
+      "sampled_peak_summed_rss_kib": 489440,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "f480e7c054f6e3e1bac6611f5aacde855040c3e5f5b31a25bdf5deabce352681"
+    }
+  },
+  "observations": [
+    "Both original parametrizations pass locally; staged LU factors/forward/backward substitution reproduce production exactly. Forced +1 output fails original assertion; both diagnostic success and forced diagnostic error preserve that original AssertionError.",
+    "Local default loads user-site SciPy bundled OpenBLAS plus env OpenBLAS. PYTHONNOUSERSITE=1 removes user-site provider and uses pinned conda SciPy; all12 arrays bit-identical for both native/JAX fixtures. Provider difference alone does not reproduce CI failure on AMD EPYC7413.",
+    "Native source U\\(L\\scaled_rhs(p)) agrees with JAX solve ordering. CPU JAX0.11 uses LAPACK getrf/trsm FFI. Current evidence does not distinguish CI CPU/provider combination from worker state."
+  ],
+  "workflow": "Manual workflow_dispatch, independent concurrency, same locked pixi Ubuntu CPU/x64. Capture fresh stages then run original [native] assertion in separate process; actual pytest outcome retained. Existing core0 preflight records only, followed unchanged shard; failing worker prints staged archive plus runtime identity then re-raises original assertion.",
+  "metadata": "Only selected environment variables; CPU model/flags, actual/distribution SciPy versions, module origins, JAX config, loaded BLAS paths/hashes streamed64KiB. No full environment capture.",
+  "qualification_limit": "Final additions after local gates are metadata fields/binary hashing plus workflow wiring; compile and Ruff checked. No repeat numerical gate solely for metadata. CI execution pending root publication/dispatch.",
+  "evidence": [
+    "fresh_local.json",
+    "fresh_conda_provider.json",
+    "failure_hook_validation.json",
+    "provider_binary_identity.json"
+  ],
+  "next_decision": "Compare fresh CI vs failure-worker; use exact packed LU,pivots,permuted RHS,lower result to isolate first differing primitive. Do not change scientific tolerance or select backend merely to pass.",
+  "root_assertions_unchanged": 35,
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/piecewise_lu_ci_diagnostic_20261014",
+  "status": "Open diagnostic; no production solver or acceptance-bound change. Manual CI workflow dispatch pending."
+}

@@ -1,3 +1,19 @@
+## 2026-10-14: isolate the remaining CI LU discrepancy
+
+Added a bounded manual CPU diagnostic and a fresh-process core-shard capture.
+A failing test worker also records LU factors, pivots and both triangular-solve
+stages, plus CPU/configuration and BLAS binary identities. All 35 scientific
+assertions are unchanged; diagnostic errors preserve the original failure.
+Local user-site versus environment SciPy providers produce identical staged
+arrays, so that provider switch alone does not explain the CI difference.
+Fresh CI evidence is pending. See `docs/piecewise_lu_runtime_cpu_20261014.json`.
+
+Extrema evidence qualification: the ten original cases passed on private
+revisions, but exact early source preimages were not retained. The final153
+merged checks are verified; all ten original cases are being rerun serially on
+current publication source to close the revision-provenance gap. Their bounds
+are unchanged. Full parity and green CI remain unresolved.
+
 ## 2026-10-14: trig factor coefficient extraction
 
 Chebfun3 now requests each factor's Chebyshev coefficients through its technology
