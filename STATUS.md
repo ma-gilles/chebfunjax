@@ -1,3 +1,11 @@
+## Repmat row orientation CI regression — 2026-10-14
+
+Removed a redundant transpose after row-preserving column extraction. Native
+R2025b confirms the existing CI assertion: array-row repmat produces a4x1
+ChebMatrix with four row blocks. Root31 merged repmat/mat2cell/vertcat checks
+pass with unchanged tests, stable guarded inputs and no survivors. Latest-main
+CI remains unresolved. Evidence: `docs/repmat_row_cpu_20261014.json`.
+
 ## FUNQUI cross-validation weight signs — 2026-10-14
 
 Restored native branch scope: only assembled absolute edge weights receive

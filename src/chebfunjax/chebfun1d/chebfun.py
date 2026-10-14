@@ -8115,7 +8115,9 @@ class Chebfun(eqx.Module):
         # a ChebMatrix, even when only one copy was requested.
         if self.is_transposed and self.n_columns > 1:
             from chebfunjax.operators.chebmatrix import ChebMatrix
-            rows = [self.extract_columns(i).transpose()
+            # ``extract_columns`` retains the source row orientation, as
+            # ``mat2cell`` does before @chebfun/vertcat promotes the result.
+            rows = [self.extract_columns(i)
                     for i in range(self.n_columns)]
             return ChebMatrix([[row] for _ in range(repeats) for row in rows],
                               domain=self.domain)

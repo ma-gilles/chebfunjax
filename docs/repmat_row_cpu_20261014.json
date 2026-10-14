@@ -1,0 +1,23 @@
+{
+  "change": "Preserve extracted row orientation in array-valued row repmat; remove redundant transpose.",
+  "source_revision": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_capture": "R2025b exact f=chebfun(@(x)[x,x.^2]);f=f.transpose;q=repmat(f,2,1) yields ChebMatrix4x1 with allfour row blocks.",
+  "ci_failure": "38485563434 Core tests(4), test_array_row_uses_source_chebmatrix_promotion. Existing test retained unchanged.",
+  "root_gate": {
+    "passed": 31,
+    "wall_seconds": 37.54076631786302,
+    "sampled_peak_summed_rss_kib": 1882324,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/repmat_row_publication_20261014/run/receipt.json": "a2bcbbb4806ff0c84fe5ae57f318f345d39f141ed05dc1f22cef2207ba6a763e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/repmat_row_publication_20261014/static.json": "d42e8d3f53c5d6a265877075f82eb2d0fce943503e21e6fe6ff75524b6dd5feb",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/repmat_root_review_20261014/native_review.json": "1a1bdb49dfd1f3a33de31b9babdaf3cdb73dfc1166b218a7b96020acd520e6b0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/repmat_row_native_capture_v3_20261014/capture.json": "f48ae0e385a18cbc3bed8c9b6a9cb77b58beefa7afe143da587c102c66042a95",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/repmat_row_fix_20261014/HANDOFF.json": "712f2d35bd92d6eb1f5fbc9296c3fb636c80310176dd68ff80fc4f5d0db4044e"
+  },
+  "limits": [
+    "Full latest-main CI still pending; nativev1/v2 harness failures separately retained."
+  ]
+}
