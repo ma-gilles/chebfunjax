@@ -1,3 +1,15 @@
+## 2026-10-14: source 3D simplification
+
+Chebfun3 now exposes factor simplification with the source global tolerance
+and absolute HOSVD rank truncation. Native polynomial and trigonometric
+fixtures pass 24 supplemental checks. One exact-threshold discrepancy remains
+a strict expected failure: native returns singular value 2, Python returns
+2.0000000000000013, so truncation at 2 differs. No tolerance was relaxed.
+See `docs/chebfun3_simplify_source_cpu_20261014.json`.
+
+CI run 38531338883 passed all shards on `fa0c8b2d`; this precedes the
+simplification addition. Full parity remains incomplete.
+
 ## 2026-10-14: continuous 3D size
 
 The missing Chebfun3 `size()` API now returns the source continuous dimensions,

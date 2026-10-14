@@ -1464,6 +1464,22 @@ class Chebfun3(eqx.Module):
 
         return source_hosvd(self, return_factors=return_factors)
 
+    def simplify(self, tol=None, *args) -> "Chebfun3":
+        """Simplify factor degrees, or truncate absolute HOSVD ranks.
+
+        ``simplify(tol, 'rank')`` retains modal singular values strictly
+        greater than ``tol``. Without the third argument, each factor
+        panel is chopped relative to its largest column scale.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/simplify.m, @chebfun/simplify.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun3d._simplify import source_simplify
+
+        return source_simplify(self, tol, *args)
+
     def _compress(self, tol: float | None = None) -> "Chebfun3":
         """Recompress the Tucker representation via truncated HOSVD.
 
