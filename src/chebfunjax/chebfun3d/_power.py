@@ -77,6 +77,15 @@ def _factor_values(f, axis, point):
     group = (f.cols, f.rows, f.tubes)[axis]
     a, b = f.domain[2*axis:2*axis+2]
     t = _linear_inverse_map(point, a, b)
+    first = group[0]
+    if (isinstance(first, (Chebtech1, Chebtech2)) and first.coeffs.ndim == 1
+            and first.coeffs.dtype == jnp.float64
+            and all(type(tech) is type(first)
+                    and tech.coeffs.shape == first.coeffs.shape
+                    and tech.coeffs.dtype == first.coeffs.dtype for tech in group)):
+        # A source factor panel shares its degree after global simplification.
+        # Evaluate the same recurrence for all columns in one loop body.
+        return _clenshaw(jnp.stack([tech.coeffs for tech in group], axis=1), t)
     return jnp.stack([_trig_eval(tech.coeffs, t, tech.is_real)
                       if isinstance(tech, Trigtech) else _clenshaw(tech.coeffs, t)
                       for tech in group], axis=-1)

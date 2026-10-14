@@ -1,0 +1,144 @@
+{
+  "base_commit": "7d2ad6abfe237b4ebbf7c5648bf3ce75fb065d65",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "CPU float64 polynomial factor-panel evaluation; no tolerance, grid or contraction-order changes",
+  "change": "For same-type C1/C2 factor columns with identical shapes and float64 dtype, stack coefficients and use the existing matrix Clenshaw recurrence. All other panels retain the previous per-column evaluation.",
+  "rejected_candidate": "Batching complex factors changed one complex vector result by 4.440892098500626e-16. Candidate source and failed comparison retained. Final path excludes complex and non-float64 factors.",
+  "baseline": {
+    "laplacian_seconds": 30.66242070775479,
+    "calls": 186,
+    "kernel_seconds": 21.68246732465923,
+    "unique_signatures": 51,
+    "core": [
+      7,
+      8,
+      12
+    ],
+    "input_length": [
+      15,
+      14,
+      15
+    ],
+    "output_length": [
+      15,
+      14,
+      15
+    ],
+    "input_rank": [
+      6,
+      7,
+      12
+    ]
+  },
+  "candidate": {
+    "laplacian_seconds": 18.180140610784292,
+    "calls": 186,
+    "kernel_seconds": 9.299834808334708,
+    "unique_signatures": 51,
+    "core": [
+      7,
+      8,
+      12
+    ],
+    "input_length": [
+      15,
+      14,
+      15
+    ],
+    "output_length": [
+      15,
+      14,
+      15
+    ],
+    "input_rank": [
+      6,
+      7,
+      12
+    ]
+  },
+  "representation_comparison": {
+    "input": {
+      "same_keys": true,
+      "different_arrays": []
+    },
+    "output": {
+      "same_keys": true,
+      "different_arrays": []
+    }
+  },
+  "validation": {
+    "scratch_comparison": "40 whole-kernel comparisons all byte-for-byte identical in final candidate: four grid patterns plus vector mode for each of eight cases.",
+    "permanent_tests": "11 items pass in tests_run (8 recurrence controls, both original Laplacian predicates, strict composition28); complex-core extra control passes; explicit stored float32 extra control passes. Total 13 distinct final checks.",
+    "float32_harness": "First extra run used from_coeffs, which promotes float32 to float64. Final selected float32 rerun constructs stored float32 data explicitly and asserts dtype. Both historical test snapshots retained. Other test bodies and production code unchanged across these additions.",
+    "adaptive_output": "Input and output core, domains, factor shapes/dtypes/bytes are identical to the saved prior source-correct constructor run.",
+    "tolerances": "No original tolerance changed; optimization comparisons use exact bytes."
+  },
+  "limits": [
+    "Single instrumented cold baseline/candidate measurements on same pinned JAX0.11.0 CPU12-15 environment, not repeated benchmark.",
+    "Same 186 calls and 51 metadata signatures; kernel time falls21.6825 to9.2998 seconds. Metadata signatures are not actual compiler-event counts.",
+    "Whole construction-plus-Laplacian peak1656816 KiB, prior1964108 KiB.",
+    "All prior representation and native numerical gaps are unchanged, including output length15vs14 and sampled discrepancy5.40e-13.",
+    "Native Laplacian remains about0.249s in diagnostic single-thread run; cold performance parity remains open.",
+    "Full CI and broader goal unresolved. Older run38645758784 still had four running jobs and tracked LU failure when checked; newer main CI queued."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/laplacian_batched_clenshaw_20261015",
+  "runs": {
+    "compare_run": {
+      "command_exit_code": 1,
+      "wall_seconds": 19.925439570099115,
+      "sampled_peak_summed_rss_kib": 862276,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "compare_v2_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 17.709350859746337,
+      "sampled_peak_summed_rss_kib": 867384,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "performance_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 30.912628640886396,
+      "sampled_peak_summed_rss_kib": 1656816,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "tests_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 76.69623113796115,
+      "sampled_peak_summed_rss_kib": 3116292,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "extra_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 5.376592007931322,
+      "sampled_peak_summed_rss_kib": 551188,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "extra_v2_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 4.4321490176953375,
+      "sampled_peak_summed_rss_kib": 517692,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "hashes": {
+    "legacy_power.py": "77ddd0c60273909209f9c829305f52e55a769555c4bd2d63a43d5076386e9d09",
+    "power_candidate_v1.py": "e27f32f80b03892b2619d0a2114978a86798b011ec8bd4fee63e76a91fa47ca1",
+    "compare.py": "18a171e9c155984b12344d76e2876a4b7ec59d97dc93e1ecb37095bf13516fbf",
+    "compare_v2.py": "de78c6208ff9696324eb7571e5b5e329d023bc0c852213f0892dc6e2d6ea0bf8",
+    "comparison.json": "9914112b7ed6f1557e78138fbff5c34270a107dc98f254d408b3923b38a60cfd",
+    "comparison_v2.json": "32f706fa55c64ec8141f8f87e17e73ba605fd22b92b60a8f81e73ae434202ad1",
+    "performance.py": "4c50c7c37977ea4d67160119d600594aea699db1b622fa4ee2d946ef8ba07506",
+    "summary.json": "5d4d1ccdee97b54e905e4815af5ed732ee1b64392720b5a61c811dd7188123d5",
+    "input.npz": "e408809682e90693b38799ab852b8480028da3dfa281e45857e8bcd982e04aec",
+    "output.npz": "82e3a09a41aa924c5dc5570a324f546ae403d92ac5e45d43f27e83dc4acd438a",
+    "representation_comparison.json": "ca64975e2ecec9531dedeeb8799d84a0aeaddd2a2d79dd72a4bfa525584cc54e",
+    "test_panel_v1.py": "b999e2917107330bcda5e15714ea599f5c0ce07adf9eb591ffc2437a0a2dfe8d",
+    "test_panel_v2.py": "69cce3bdf4dada711a0d99cb935cbfc1da0c324419037fc1132e3c9bce9b8e20"
+  }
+}

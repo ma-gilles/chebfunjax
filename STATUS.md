@@ -1,3 +1,18 @@
+## 2026-10-15: batched real-factor evaluation
+
+Uniform float64 polynomial factor panels now share one Clenshaw loop.
+Forty kernel comparisons and the complete saved Laplacian representation
+match the prior implementation byte for byte. Thirteen distinct focused
+checks pass, including both original Laplacian predicates and composition28.
+Complex and other dtypes retain the previous path; an initially tested
+complex batching variant changed rounding and was rejected.
+
+Instrumented cold Laplacian time falls from30.66 to18.18seconds (initially
+165.23), with unchanged ranks, factors and numerical discrepancies.
+Construction-plus-Laplacian peak memory is1,656,816KiB. Native performance
+and full project parity remain unresolved. See
+`docs/chebfun3_batched_clenshaw_cpu_20261015.json` for evidence and limits.
+
 ## 2026-10-15: source C2 factor simplification and smaller Laplacian
 
 The Chebtech2 three-dimensional constructor now retains the source relative
