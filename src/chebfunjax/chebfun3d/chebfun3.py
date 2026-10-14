@@ -87,7 +87,9 @@ def _initialize_random_indices(ri: int, ni: int, restarts: int) -> np.ndarray:
     and restores caller state. The captured integer vectors match the
     floor-map from native ``rand`` uniforms for the qualified bounds.
     """
-    box = max(1, ni // ri)
+    box = ni // ri
+    if box < 1:
+        raise ValueError("Random fiber initialization requires a positive integer sampling bound")
     seed = 16051821 + restarts
     uniforms, _ = matlab_rand_uniform(
         init_matlab_twister(seed), (ri,)
@@ -793,7 +795,9 @@ class Chebfun3(eqx.Module):
         if _n_init is not None:
             n = [int(v) for v in _n_init]
         else:
-            n = [max(min_samples, 9)] * 3  # MATLAB tpref.minSamples = 17
+            initial_samples = (min_samples if source_order
+                               else max(min_samples, 9))
+            n = [int(initial_samples)] * 3  # MATLAB n = [tpref.minSamples]*3
         # Initial ranks for random initialization
         r = [int(v) for v in _r_init]
         abs_tol_running = tol if _running_abs_tol is None else _running_abs_tol
@@ -3713,7 +3717,7 @@ def chebfun3(
     ),
     tol: float | None = None,
     max_rank: int = 128,
-    min_samples: int = 17,
+    min_samples: int | None = None,
     rank=None,
     n=None,
     coeffs: bool = False,
@@ -3753,7 +3757,9 @@ def chebfun3(
     max_rank : int, optional
         Maximum rank in each mode.  Default 128.
     min_samples : int, optional
-        Minimum grid points per direction in Phase 1.  Default 17, matching the native chebtech minimum sample count.
+        Minimum grid points per direction in Phase 1.  Defaults to the selected
+        technology preference ``pref.techPrefs.minSamples`` (17 for the
+        factory Chebtech2 preference).  An explicit value overrides it.
 
     pref : ChebfunPref, optional
         Copied constructor preferences. Direct Fourier construction supports
@@ -3808,6 +3814,8 @@ def chebfun3(
         chebfun3f = parsed.get("chebfun3f", chebfun3f)
 
     construction_pref = ChebfunPref() if pref is None else ChebfunPref(pref)
+    if min_samples is None:
+        min_samples = int(construction_pref.techPrefs.minSamples)
     selected_tech = tech if tech is not None else construction_pref.tech
     key = (selected_tech.__name__ if isinstance(selected_tech, type)
            else str(selected_tech)).lower().lstrip("@")

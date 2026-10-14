@@ -1,3 +1,18 @@
+## 2026-10-15: initial grid preference dispatch
+
+Public Chebfun3 construction now honors the selected minSamples preference,
+with explicit Python keyword precedence. Source polynomial grids retain
+valid counts below nine; counts below the initial rank preserve the native
+random-initialization error. Thirteen distinct focused checks pass across two
+runs. One initial test setup failure and its corrected rerun are retained.
+See `docs/chebfun3_min_samples_cpu_20261015.json`.
+
+A further source mismatch is confirmed and remains open: random fiber indices
+are clipped in Python, while MATLAB maps even indices beyond the nominal grid
+through its cosine formula. Correcting this requires both Phase 1 sampling
+and Phase 2 selected-fiber coordinate mapping. Its numerical impact has not
+yet been measured. Full project parity and main test CI remain incomplete.
+
 ## 2026-10-15: C2 constructor source order and restart semantics
 
 C2 construction now follows native ACA column and pivot order, nested fiber

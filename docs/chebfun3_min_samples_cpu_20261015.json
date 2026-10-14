@@ -1,0 +1,39 @@
+{
+  "base_commit": "93644e9ffd047b5d68ec324cdf1718f32a812773",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@chebfun3/chebfun3f.m lines36-50,74-75,570-582",
+  "changes": [
+    "Public min_samples defaults to selected construction_pref.techPrefs.minSamples; explicit Python keyword overrides.",
+    "Source polynomial initial grid uses selected count directly, removing artificial minimum9. Direct from_function default remains17.",
+    "Preserve native error for nonpositive randi bound when initial sample count is below rank6."
+  ],
+  "validation": "13 distinct checks pass across runs:8 preference/grid controls,2 native seed tests,2 phase1 integration checks, original C2 technology clauses3\u20134 in1item. Latest session preference check3.06s.",
+  "retained_failure": "Initial full gate12passed1failed: session test setup used nested raw setter absent in factory structure, raising KeyError before constructor. Changed setup to ChebfunPref.setDefaults(ChebfunPref(minSamples=25)); selected test rerun passes. Production unchanged between gates. Snapshot test_snapshot_v1.py retained.",
+  "limits": [
+    "Tests cover selected initial grid and preference precedence, not every nondefault configuration.",
+    "Generic periodic branch retains existing minimum9; broader source parity remains incomplete.",
+    "Existing random-index clipping remains a confirmed native-source mismatch to fix through phase1 and phase2 coordinate mapping. Cosine coordinates remain within the domain even when nominal grid indices are exceeded.",
+    "No claim of performance, figure, full JAX-only or green main CI parity."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/min_samples_preference_20261015",
+  "runs": {
+    "run": {
+      "command_exit_code": 1,
+      "wall_seconds": 24.835379547905177,
+      "sampled_peak_summed_rss_kib": 1599640,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "session_run": {
+      "command_exit_code": 0,
+      "wall_seconds": 4.5207876791246235,
+      "sampled_peak_summed_rss_kib": 557660,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "hashes": {
+    "src/chebfunjax/chebfun3d/chebfun3.py": "eaa2899e7e31c9086baa9a3a6f7885f6faaae1e2240276b4c9a472834d1dbe43",
+    "tests/test_chebfun3d/test_min_samples_preference.py": "dc20c6c317ea557f325c5fca566d6465e561790a1f0a8747b7133b6f4b3bbf9b"
+  }
+}
