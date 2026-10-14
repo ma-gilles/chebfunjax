@@ -2,10 +2,11 @@
 """Gaussian process regression.
 
 Translated from MATLAB Chebfun (commit 7574c77): gpr.m. The finite
-covariance and linear algebra path uses JAX arrays. The public convenience
-wrapper retains its dense 200-point grid and Python mapping/tuple results;
-it does not reproduce MATLAB's adaptive Chebfun fit or variance/sample query
-grid in this fixed-hyperparameter port.
+covariance and linear algebra path uses JAX arrays. The public mapping retains its
+historical dense 200-point grid. The tuple adapter follows the source mean type, variance Chebyshev grid, and nonempty
+sample grid and source mean constructor preferences (eps and splitting) while
+using package Chebfun constructors. Full native adaptive-fit, optimizer, and
+random-stream parity remains unqualified.
 
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 
@@ -181,30 +182,110 @@ def gpr(
 
 
 def gpr_chebfun(x, y, **kwargs):
-    """Return Chebfun adapters for the GPR convenience result.
+    """Construct MATLAB-style mean, variance, and sample Chebfuns.
 
-    Adaptive source fitting and MATLAB's native variance/sample node layout
-    are not implemented in this fixed-L numerical-core package.
+    The fixed-L numerical callbacks come from :func:`gpr`; this adapter follows
+    the source construction choices for mean type, variance nodes, and sample
+    nodes. It does not claim adaptive optimizer or RNG-stream parity.
 
     Provenance
     ----------
-    MATLAB source: gpr.m. Chebfun commit: 7574c77.
+    MATLAB source: gpr.m. Chebfun commit:
+    7574c77680d7e82b79626300bf255498271a72df.
     """
     from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.utils.quadrature import chebpts_ab
 
-    res = gpr(x, y, **kwargs)
+    n_samples = int(kwargs.get("n_samples", 0))
+    call_kwargs = dict(kwargs)
+    call_kwargs["n_samples"] = 0
+    rng = call_kwargs.pop("rng", None)
+    res = gpr(x, y, **call_kwargs)
     a, b = res["domain"]
     trig = bool(kwargs.get("trig", False))
+    noisy = float(kwargs.get("noise", 0.0)) != 0.0
     if "mean_fn" not in res:
         f = chebfun(lambda t: jnp.zeros_like(t), domain=(a, b))
         fvar = chebfun(lambda t: jnp.full_like(t, res["sigma"] ** 2), domain=(a, b))
         return f, fvar, None
-    f = chebfun(lambda t: jnp.asarray(res["mean_fn"](jnp.asarray(t))), domain=(a, b), trig=trig)
-    fvar = chebfun(lambda t: jnp.asarray(res["variance_fn"](jnp.asarray(t))), domain=(a, b), trig=trig)
+
+    f = chebfun(
+        lambda t: jnp.asarray(res["mean_fn"](jnp.asarray(t))),
+        domain=(a, b), trig=(trig and not noisy), eps=1e-12, splitting=True,
+    )
+    # Source gpr.m samples q=min(20*n,2000) Chebyshev points, constructs a
+    # non-trig Chebfun from those values, then simplifies it.
+    q = min(20 * int(jnp.asarray(x).size), 2000)
+    qnodes = chebpts_ab(q, a, b)
+    x_array = jnp.asarray(x, dtype=jnp.float64).reshape(-1)
+    y_array = jnp.asarray(y, dtype=jnp.float64).reshape(-1)
+    sigma_y = float(kwargs.get("noise", 0.0))
+    scale = (float(jnp.max(jnp.abs(y_array)))
+             if kwargs.get("sigma") is None and y_array.size
+             and float(jnp.max(jnp.abs(y_array))) > 0.0 else 1.0)
+    factor = _training_cholesky(
+        x_array, float(res["sigma"]), float(res["length_scale"]), sigma_y,
+        trig, b - a, scale,
+    )
+    # MATLAB takes spdiags(Kss-v'*v) directly. Preserve negative roundoff
+    # values rather than applying the convenience callback's nonnegative cap.
+    qvalues = _predictive_variance(
+        qnodes, x_array, factor, float(res["sigma"]),
+        float(res["length_scale"]), sigma_y, trig, b - a,
+    )
+    fvar = chebfun(jnp.asarray(qvalues), domain=(a, b)).simplify()
+
     fsamples = None
-    if res["samples"] is not None:
-        fsamples = chebfun(jnp.asarray(res["samples"]), domain=(a, b), equi=True)
+    if n_samples > 0:
+        xs, ys = _gpr_source_samples(
+            x, y, res, kwargs, rng, trig, n_samples, mean_fun=f
+        )
+        fsamples = chebfun(ys, domain=(a, b))
     return f, fvar, fsamples
+
+
+def _gpr_source_samples(x, y, result, options, rng, trig, count, *, mean_fun):
+    """Draw samples using source node layout and covariance jitter scaling.
+
+    MATLAB and JAX random streams differ; no sample identity claim is made.
+    """
+    import jax
+
+    x = jnp.asarray(x, dtype=jnp.float64).reshape(-1)
+    y = jnp.asarray(y, dtype=jnp.float64).reshape(-1)
+    a, b = result["domain"]
+    n = int(x.size)
+    q = min(20 * n, 2000)
+    from chebfunjax.utils.quadrature import chebpts_ab
+    xs = chebpts_ab(q, a, b)
+    if n == 0:
+        return xs, jnp.zeros((q, count), dtype=jnp.float64)
+
+    sigma = float(result["sigma"])
+    ell = float(result["length_scale"])
+    sigma_y = float(options.get("noise", 0.0))
+    trig = bool(trig)
+    period = b - a
+    K = _training_cholesky(
+        x, sigma, ell, sigma_y, trig, period,
+        (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None
+         and float(jnp.max(jnp.abs(y))) > 0.0 else 1.0),
+    )
+    # The source samples from f(xSample), where f is the fitted Chebfun mean.
+    mean = jnp.asarray(mean_fun(xs), dtype=jnp.float64).reshape(-1)
+    covariance = _predictive_covariance(xs, x, K, sigma, ell, sigma_y, trig, period)
+    scale = (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None
+             and float(jnp.max(jnp.abs(y))) > 0.0 else 1.0)
+    covariance = covariance + 1e-12 * scale**2 * n * jnp.eye(q, dtype=jnp.float64)
+    factor = _checked_cholesky(covariance)
+    if rng is None:
+        seed = secrets.randbits(32)
+        noise = jax.random.normal(
+            jax.random.PRNGKey(seed), (q, count), dtype=jnp.float64
+        )
+    else:
+        noise = jnp.asarray(rng.standard_normal((q, count)), dtype=jnp.float64)
+    return xs, mean[:, None] + factor @ noise
 
 
 def _base_covariance(xa, xb, sigma, ell, trig, period):

@@ -1,0 +1,60 @@
+{
+  "scope": "Source GPR Chebfun mean/variance and nonempty sample construction; full goal incomplete",
+  "source": "gpr.m Chebfun7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Mean eps1e-12 splitting, trig only when requested and noiseless",
+    "Variance at min(20n,2000) Chebpts using raw unclamped diagonal, ordinary Chebfun then simplify",
+    "Nonempty samples at same Chebpts for trig/nontrig, source fitted mean evaluated at nodes, source jitter, ordinary Chebfun representation",
+    "Preserve external standard_normal protocol and fresh default JAX seed"
+  ],
+  "root_gate": {
+    "passed": 6,
+    "pytest_seconds": 28.05,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_publication_20261014/run2/receipt.json",
+    "sha256": "094fdd5496be1d56b8e84f3c1c1cf03711b66b9ab1a2a97716e0cb8e179dc956",
+    "peak_sampled_summed_rss_kib": 1855520,
+    "inputs_stable": true,
+    "survivors": []
+  },
+  "private_gate": {
+    "passed": 22,
+    "pytest_seconds": 77.58,
+    "original_assertions": 21,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_source_20261014/evidence/run5/receipt.json",
+    "sha256": "c719e171a95916ebd9819e6236391837300534b7e358b4da5690557b71da6c24",
+    "scope_note": "One of22 tests contains21 originalassertions; noisycomparison test recordsmetrics without paritybound"
+  },
+  "native_noisy_metrics": {
+    "unique": {
+      "mean_max_abs": 1.6653345369377348e-16,
+      "variance_max_abs": 7.494005416219807e-16,
+      "mean_length": 33,
+      "variance_length": 100
+    },
+    "duplicate": {
+      "mean_max_abs": 1.1102230246251565e-16,
+      "variance_max_abs": 4.163336342344337e-16,
+      "mean_length": 31,
+      "variance_length": 100
+    }
+  },
+  "limitations": [
+    "Native noisy metrics are observations, not fitted acceptance thresholds",
+    "MATLAB RNG stream identity unresolved",
+    "Empty sampling native missing-sigmaf error not yet reproduced",
+    "Native adaptive length-scale optimizer separately in progress",
+    "Allzero/default-empty parser source behavior remains pending optimizer package",
+    "No full native or final main CI qualification"
+  ],
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_source_20261014/PACKAGE_MANIFEST.md": "9f0c34e4064c774c0d82a8309671973e3d382a0e42fad8ef21541b498e5ad258",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_source_20261014/evidence/noisy_wrapper_coefficients.json": "9bb1dc18f41a2784d0b4f6cd6ccd574ff97a4a4d81ffe131bbaae694f5f64cec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_source_20261014/evidence/doc_reflow_ast_proof.json": "cde96ed2f06891dff4bbff163a5b1b4a4d54645325c2259a16183c601479e561",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_wrapper_publication_20261014/core_ast_proof.json": "7d422604b85d59e2646c6d00f90256525b7c2028283d9e18b394698dcdd78780"
+  },
+  "source_sha256": "a88f8b05eac1d5c2c74be7959839f1cb78392e188be2f3cde51d8ea9fd8061ab",
+  "integration_notes": [
+    "Three test import ordering errors fixed before merged gate",
+    "Initial root launcher named nonexistent native test, collected0; failure receipt retained in run, corrected run2 above"
+  ]
+}

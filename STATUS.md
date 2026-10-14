@@ -1,3 +1,17 @@
+## 2026-10-14: source GPR Chebfun construction
+
+Mean constructor preferences, conditional trig handling, raw variance at source
+Chebyshev nodes plus simplify, and nonempty posterior sample construction now
+follow gpr.m. Samples use the fitted mean at those nodes; external draws retain
+the standard_normal protocol. Merged CPU gate: six passed in28.05s, stable
+inputs/no survivors. Private22-test gate includes21 original assertions.
+
+Retained native noisy fixtures now differ by at most7.50e-16 (mean/variance),
+with fitted mean lengths33/31 and variance length100. These are observations,
+not fitted acceptance bounds. Native optimizer/parser, empty-sample errors,
+MATLAB RNG identity and final main CI remain open. Evidence:
+`docs/gpr_wrapper_cpu_20261014.json`.
+
 ## 2026-10-14: JAX fixed-hyperparameter GPR core
 
 GPR kernel, covariance, Cholesky, triangular solves, predictions and sample
