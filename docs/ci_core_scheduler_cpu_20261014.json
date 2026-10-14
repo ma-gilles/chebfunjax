@@ -1,0 +1,80 @@
+{
+  "run_id": 38507839253,
+  "job_id": 115672598715,
+  "sha": "520b82278f42cb37c8351bc39348a5b0fef5732b",
+  "artifact_id": 11872485404,
+  "artifact_url": "https://github.com/ma-gilles/chebfunjax/actions/runs/38507839253/artifacts/11872485404",
+  "artifact_zip_sha256_from_log": "2f1eab4ea8113c92ff2ea19e79b2caada07791b47ffff555346ed72667100957",
+  "pytest_items_total": 1489,
+  "finished_items": 1435,
+  "started_items": 1436,
+  "not_started_items": 53,
+  "finished_percent": 96.37340496977838,
+  "active_test_at_cancellation": "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_randnfundisk_matlab]",
+  "active_seconds_at_cancellation": 150.73632788658142,
+  "worker0_idle_seconds": 2643.159445285797,
+  "completed_test_protocol_seconds_total": 7887.132466719002,
+  "ideal_two_worker_lower_bound_for_only_completed_work_minutes": 65.72610388932502,
+  "workers": {
+    "gw1": {
+      "starts": 279,
+      "finished": 278,
+      "finished_seconds": 5190.0348992809995,
+      "mirror_finished": 117,
+      "mirror_seconds": 4362.479344945,
+      "first_mirror": {
+        "event": "test-start",
+        "nodeid": "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.chebfun2.test_battery_matlab]",
+        "pid": 2557,
+        "time_unix": 1791951135.735987
+      },
+      "last_event": {
+        "event": "test-start",
+        "nodeid": "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_randnfundisk_matlab]",
+        "pid": 2557,
+        "time_unix": 1791955498.3082922
+      }
+    },
+    "controller": {
+      "starts": 0,
+      "finished": 0,
+      "finished_seconds": 0,
+      "mirror_finished": 0,
+      "mirror_seconds": 0,
+      "first_mirror": null,
+      "last_event": {
+        "event": "session-configured",
+        "nodeid": null,
+        "pid": 2549,
+        "time_unix": 1791950295.414474
+      }
+    },
+    "gw0": {
+      "starts": 1157,
+      "finished": 1157,
+      "finished_seconds": 2697.097567438003,
+      "mirror_finished": 0,
+      "mirror_seconds": 0,
+      "first_mirror": null,
+      "last_event": {
+        "duration_seconds": 0.03309434499988129,
+        "event": "test-finish",
+        "nodeid": "tests/test_utils/test_trigratinterp_outputs_source_contract.py::test_none_outputs_preserves_legacy_python_seven_tuple",
+        "pid": 2554,
+        "time_unix": 1791953005.8851748
+      }
+    }
+  },
+  "diagnosis": "Large contiguous xdist load-scheduler queues left all observed mirror cases on gw1. gw0 finishes while gw1 continues; last console91% line does not mean a stalled test. No single-test timeout or resource exhaustion is shown by these artifacts.",
+  "remedy": "Add --maxschedchunk=1 to core pytest command; installed xdist3.8.0 retains two initially queued items and refills one at a time. Same8shards/2workers/testinventory/testtimeouts/90minjobtimeout/coverage79gate.",
+  "validation": "AST identical after removing new CLI token; installed scheduler-only validation assigns and completes1489synthetic items once, max2pending perworker vs baseline initial186. No scientific tests, CI reruns, cancellations or workloads launched.",
+  "limitations": [
+    "No JUnit or finished coverage file uploaded; progress JSONL and pre-run inventory manifest are available.",
+    "Unknown runtime of53not-started tests prevents guarantee of completion within90minutes.",
+    "Finer scheduling may reduce fixture/cache locality; next normally triggered CI validates runtime.",
+    "Current head inventory836files still puts mirror file atindex224,part0; scheduler remedy remains relevant."
+  ],
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_core0_timeout_diagnosis_20261014/core_scheduler.patch",
+  "patch_sha256": "db739a0e80e5bd2da6a6783f1ecd50147cf5f5f7a2a688fa32233ef778f70b6a",
+  "publication_status": "Reviewed and integrated; normal next CI remains the runtime gate."
+}

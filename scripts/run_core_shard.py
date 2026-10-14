@@ -53,9 +53,11 @@ def main():
                 'files': selected, 'returncode': None}
     manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
     env = dict(os.environ, COVERAGE_FILE=f'.coverage.core-{args.part}')
+    # Limit queued ownership: large contiguous mirror batches stranded one
+    # worker for 44 minutes in run 38507839253 while the other worker was idle.
     command = [sys.executable, '-m', 'pytest', '-p', 'scripts.pytest_progress_plugin', *selected,
                '--ignore=tests/test_matlab_port', '-q', '--tb=short', '--timeout=600',
-               '-n', '2', '--cov=chebfunjax', '--cov-report=', '--cov-fail-under=0']
+               '-n', '2', '--maxschedchunk=1', '--cov=chebfunjax', '--cov-report=', '--cov-fail-under=0']
     print(f'Core shard {args.part+1}/{PARTS}: {len(selected)}/{len(files)} files', flush=True)
     result = subprocess.run(command, env=env)
     manifest['returncode'] = result.returncode

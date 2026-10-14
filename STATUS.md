@@ -1,3 +1,15 @@
+## 2026-10-14: correct core CI worker imbalance
+
+The older core-0 run reached its 90-minute limit after 1435/1489 tests.
+Progress artifacts show one worker idle for 44 minutes while the other
+processed a large assigned mirror-test batch. Core pytest now limits scheduler
+chunks with --maxschedchunk=1. All tests, two workers, eight shards, timeouts,
+and the aggregate coverage gate are preserved. Installed xdist scheduler
+validation confirms all 1489 synthetic items execute exactly once; the next
+normal CI run must establish runtime improvement. Evidence:
+`docs/ci_core_scheduler_cpu_20261014.json`.
+Full parity and final green main CI remain unresolved.
+
 ## 2026-10-14: all original spherical-harmonic predicates
 
 All 45 original sphharm predicates now pass: five formula/normalization checks
