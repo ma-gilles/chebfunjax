@@ -1,0 +1,96 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_domaincheck_source_20261014",
+  "snapshot_head": "91c9c42b34aacc20dbb156e8908ebb7c67471b44",
+  "publication_checkout_modified": false,
+  "source": {
+    "repository": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "@chebfun3/domainCheck.m_sha256": "8543c5d035bb2421483ee7c7c96ef6b58b9f48d889da3ae2e0fd0c033916334b",
+    "@chebfun/domainCheck.m_sha256": "3968cfab0943793e9db2c29f2386e52a0390f050802193e2a12481951039bf76",
+    "@chebfun/hscale.m_sha256": "6828ed247f032245a5d54a759ecd691651201da44c06b2fccc43bb4f454dd082",
+    "tests/chebfun3/test_domainChck.m_sha256": "9228a11b4aa2d89dc8e6ecf6b0b38de3b05a8b1044b38d4f0c4573bcd049304e"
+  },
+  "implementation": {
+    "default": "Both-empty=true and exactly-one-empty=false; for nonempty inputs, Tucker-decompose and compare first factor endpoints for cols/rows/tubes with existing Chebfun.domain_check, which implements strict 1e-15*max(hscale) endpoint comparison.",
+    "python_tol_extension": "Omitted tol selects native behavior. Explicit tol is documented as a relative multiplier on factor endpoint hscale and retains the prior inclusive <= behavior.",
+    "publication_checkout_modified": false
+  },
+  "tests": {
+    "original": "Existing two same-domain predicates unchanged and passing.",
+    "adversarial": "Added both-empty, one-empty both orders; close endpoints accepted under native 1e-15 hscale; a 5e-14 mismatch rejected by default (old 1e-12 default would accept it); explicit tol=1e-12 override accepted."
+  },
+  "gates": [
+    {
+      "id": "domain_native_v2",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 12.1637001670897,
+      "sampled_peak_summed_rss_kib": 936188,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "domain_empty_v2",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.777282066177577,
+      "sampled_peak_summed_rss_kib": 575448,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "domain_tolerance_v2",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 5.455776179675013,
+      "sampled_peak_summed_rss_kib": 614904,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    }
+  ],
+  "ruff": "PASS",
+  "patch": "domaincheck_source.patch",
+  "guard": "guard.json",
+  "root_review": {
+    "native_default": "Both-empty true, exactly-one-empty false, otherwise Tucker factor first columns use native 1D domain_check strict 1e-15*hscale.",
+    "explicit_tol_extension": "Root preserved original Python global max(1,max(abs(f.domain))) inclusive tolerance override; JAX implementation replaces prior NumPy. No source call uses this Python-only extension.",
+    "combined_gate": "9 tests pass: original domain/equality predicates plus adversarial controls.",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equality_domains_publication_20261014/run/receipt.json",
+    "receipt_sha256": "89a5bbdfd7ef998568a81a4532427cd866f00e65a70b8eb80020970a6c1b4d7b",
+    "gate": {
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 39.05594095075503,
+      "sampled_peak_summed_rss_kib": 1292548
+    },
+    "full_goal_complete": false
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_cumsum_source_20261014",
+  "snapshot_head": "91c9c42b34aacc20dbb156e8908ebb7c67471b44",
+  "publication_checkout_modified": false,
+  "source": {
+    "repository": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "test_cumsum.m_sha256": "00a4b84d4c8e88726b04dcb25a5ee7efdc30c4e829487b2ea506a78fc13b0b0c"
+  },
+  "restored_predicates": {
+    "count": 27,
+    "cube_domain": "All 12 original dimension/default-cumsum Chebfun3-object comparisons on [-1,1]^3; continuous Chebfun3 norm < 100*ChebfunPref().cheb3Prefs.chebfun3eps.",
+    "rectangular_domain": "All 12 source comparisons on [-1.1,2]x[-0.2,3]x[5,6]; original physical lower limits retained in analytic antiderivatives and same continuous norm/bound.",
+    "triple_cumsum": "Both source nested call sequences are retained as Chebfun3 operations, using `f = ((x-.1)*(y+.1)*(z+.1)).sin()`, compared continuously to f.cumsum3().",
+    "slice": "Source f=chebfun(exp(x)), f3=chebfun3(exp(x)); compare `g3(slice(None),0,.3)` with g using continuous norm and source bound.",
+    "prior sampled predicates": "Retained as test_cumsum_sampled_supplemental.py."
+  },
+  "gates": [
+    {
+      "id": "cumsum_cube",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.407042064704,
+      "sampled_peak_summed_rss_kib": 1659764,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "cumsum_box",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.318055374082178,
+      "sampled_peak_summed_rss_kib": 1666556,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "cumsum_triple",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 59.23706857301295,
+      "sampled_peak_summed_rss_kib": 3047340,
+      "rss_cap_mib": 3072,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    },
+    {
+      "id": "cumsum_slice",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.606335069052875,
+      "sampled_peak_summed_rss_kib": 869200,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "censored": false
+    }
+  ],
+  "ruff": "PASS",
+  "patch": "cumsum_source.patch",
+  "guard": "guard.json",
+  "library_faults": "None exposed by source-shaped predicates.",
+  "root_review": {
+    "unchanged_source_files": 323,
+    "only_source_difference": "Chebfun3.isequal method corrected separately; remaining file AST identical and cumulative-integral operations do not call isequal.",
+    "cube_api": "Uses actual cheb.xyz() with identical three constructor calls; fresh root cube12 gate passed.",
+    "root_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_cumsum_publication_20261014/run/receipt.json",
+    "root_receipt_sha256": "37c812f67fb3cefc0c67bbb5d82928a5dac78e4b919ae82393737c0078e917b0",
+    "root_gate": {
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 27.75872876588255,
+      "sampled_peak_summed_rss_kib": 1661052
+    },
+    "remaining15": "Private box12/triple2/slice1 gates retained, exact numerical test expressions unchanged.",
+    "full_goal_complete": false,
+    "later_source_change": "domainCheck updated in same publication batch. No library caller invokes module-level domainCheck; cumulative-integral source predicates are independent of this method and isequal."
+  }
+}

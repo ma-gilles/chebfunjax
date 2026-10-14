@@ -2422,31 +2422,24 @@ class Chebfun3(eqx.Module):
         return _source_iszero(self)
 
     def isequal(self, other: "Chebfun3") -> bool:
-        """True if f and g are the same function (MATLAB isequal).
-
-        Compares on the common domain by the L-infinity difference over a
-        dense lattice (down to a scaled machine-epsilon threshold), which is
-        robust to the non-unique Tucker representation of a given function.
+        """Compare the stored Tucker core and its one-dimensional factors.
 
         Provenance
         ----------
-        MATLAB source : @chebfun3/isequal.m
+        MATLAB source : @chebfun3/isequal.m, @chebfun/isequal.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
         if not isinstance(other, Chebfun3):
             return False
-        if tuple(self.domain) != tuple(other.domain):
+        if self.isempty() or other.isempty():
+            return self.isempty() and other.isempty()
+        fcore, *ffactors = self.tucker()
+        gcore, *gfactors = other.tucker()
+        if not bool(jnp.array_equal(fcore, gcore)):
             return False
-        d = self.domain
-        grids = [jnp.asarray(_np.linspace(d[2 * i], d[2 * i + 1], 13))
-                 for i in range(3)]
-        xx, yy, zz = jnp.meshgrid(*grids, indexing="ij")
-        a = self(xx, yy, zz)
-        b = other(xx, yy, zz)
-        scale = max(float(jnp.max(jnp.abs(a))),
-                    float(jnp.max(jnp.abs(b))), 1.0)
-        return float(jnp.max(jnp.abs(a - b))) <= 1e4 * _EPS * scale
+        return all(len(fs) == len(gs)
+                   and all(f.isequal(g) for f, g in zip(fs, gs))
+                   for fs, gs in zip(ffactors, gfactors))
 
     # ------------------------------------------------------------------
     # Arithmetic (MATLAB @chebfun3 plus/minus/times/rdivide/power)
@@ -3832,19 +3825,45 @@ def outer_prod(f, g, h) -> Chebfun3:
 Chebfun3.outer_prod = staticmethod(outer_prod)
 
 
-def domainCheck(f, g, tol: float = 1e-12) -> bool:
-    """True when two Chebfun3 objects share a domain (MATLAB
-    ``domainCheck``).
+def domainCheck(f, g, tol: float | None = None) -> bool:
+    """Compare Chebfun3 domains through their Tucker factor domains.
+
+    The default follows ``@chebfun3/domainCheck`` and delegates each Tucker
+    factor quasimatrix to the native one-dimensional endpoint check. An
+    explicit ``tol`` retains the Python extension: an inclusive comparison
+    scaled by max(1, max(abs(f.domain))). Omitting it uses the native rule.
+
+    Both empty objects compare equal; exactly one empty object compares false.
 
     Provenance
     ----------
-    MATLAB source : @chebfun3/domainCheck.m
+    MATLAB source : @chebfun3/domainCheck.m, @chebfun/domainCheck.m,
+                    @chebfun/hscale.m
     Chebfun commit: 7574c77
     """
-    a = np.asarray(f.domain, dtype=float)
-    b = np.asarray(g.domain, dtype=float)
-    hs = max(float(np.max(np.abs(a))), 1.0)
-    return bool(a.shape == b.shape and np.all(np.abs(a - b) <= tol * hs))
+    f_empty = f.isempty()
+    g_empty = g.isempty()
+    if f_empty or g_empty:
+        return f_empty and g_empty
+
+    if tol is not None:
+        a = jnp.asarray(f.domain)
+        b = jnp.asarray(g.domain)
+        hs = jnp.maximum(jnp.max(jnp.abs(a)), 1.0)
+        return bool(a.shape == b.shape
+                    and jnp.all(jnp.abs(a - b) <= tol * hs))
+
+    _, fcols, frows, ftubes = f.tucker()
+    _, gcols, grows, gtubes = g.tucker()
+    factor_pairs = ((fcols, gcols), (frows, grows), (ftubes, gtubes))
+    for left, right in factor_pairs:
+        if not left or not right:
+            return False
+        # Native domainCheck/hscale inspect the first column of each family.
+        if not left[0].domain_check(right[0]):
+            return False
+
+    return True
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402

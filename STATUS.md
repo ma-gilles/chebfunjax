@@ -1,3 +1,26 @@
+## 2026-10-14: equality semantics, domain checks, and GPR discrimination
+
+Chebfun3 equality now compares the stored Tucker core and factors, as MATLAB
+does. This rejects different representations and functions that previously
+aliased on the 13-point sampling grid. Domain checking now handles empty
+objects and uses the source factor-domain tolerance. The explicit Python
+`tol` override retains its previous behavior. Nine combined original and
+adversarial tests pass; see `docs/chebfun3_isequal_source_cpu_20261014.json`
+and `docs/chebfun3_domaincheck_source_cpu_20261014.json`.
+
+All 27 original cumulative-integral predicates are restored with continuous
+norms, object arithmetic and the source slice operation. The triple-integral
+group was qualified separately due to its approximately 2.91 GiB peak RSS.
+Evidence: `docs/chebfun3_cumsum_original_cpu_20261014.json`.
+
+GPR construction replayed all 1,009 callback requests from exact native
+samples without requesting missing points. It reproduced native domains and
+lengths, with selected length within 1.774e-13 of native. This places the large
+historical selected-length discrepancy upstream in the objective samples;
+it does not establish coefficient bit parity or qualify current live GPR.
+See `docs/gpr_frozen_native_samples_cpu_20261014.json`. Full parity and final
+green main CI remain unresolved.
+
 ## 2026-10-14: CPU grid reuse and original reduction predicates
 
 CPU second-kind grid generation now reuses compiled source arithmetic across

@@ -1,0 +1,44 @@
+{
+  "native_selected": 1.0012108407831877,
+  "native_final_transplant_max": [
+    1.0012108407831875,
+    5272.518537432887
+  ],
+  "frozen_native_premerge_python_max": [
+    0.7877181146448455,
+    22.068136691512137
+  ],
+  "frozen_native_premerge_python_merge_max": [
+    1.001210840783081,
+    5272.51853742823
+  ],
+  "frozen_native_callbacks_python_max": [
+    1.0012108407830103,
+    5272.518537426367
+  ],
+  "native_pre_pieces": 56,
+  "native_final_pieces": 18,
+  "callback_requests": 1009,
+  "native_callback_calls": 1009,
+  "unique_exact_points": 14713,
+  "missing_points": null,
+  "conflicts": [],
+  "same_merged_domains": true,
+  "same_merged_lengths": true,
+  "max_coefficient_difference": 1.1175870895385742e-08,
+  "identical_merged_pieces": 12,
+  "callback_final_domains_equal": true,
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_premerge_discrimination_20261014/REPORT.md": "2db09db2b110a1dc8f7ebb51fb48a73784467072eb7b6777d273c89c97da64fa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_premerge_discrimination_20261014/MANIFEST.json": "ff1d4e8bdd7715119efc22dbdf8c6f74ba77e0e5527960f900d9cf109a83a57f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_premerge_discrimination_20261014/instrumentation_proof.json": "e9cef98e987aeef85ffb4e64132d3a24e2ed98a924128fde3443d54017050cb0"
+  },
+  "interpretation": "Exact native callback samples reproduce native selected length within observed 1.774e-13. No new constructor/merge/max semantic defect identified; next isolate live objective sample arithmetic. This is not bitwise coefficient parity or a new acceptance bound.",
+  "limits": [
+    "Historical live Python L=1.017806468 was not rerun in this package.",
+    "Premerge maximum is Python evaluation of exact native coefficients, not separately observed native premerge maximum.",
+    "Callback replay final coefficients were not serialized; reproducible native callback inputs and consumer source are guarded.",
+    "Full GPR and goal parity remain unresolved."
+  ]
+}
