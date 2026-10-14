@@ -5,12 +5,9 @@ Provenance
 MATLAB source: tests/chebfun3/test_construnctorsyntax.m
 Chebfun commit: 7574c77
 
-The source's split-domain positional spelling ``chebfun3(f, [-1, 0],
-[2, 3])`` has no direct Python factory equivalent; Python's domain adapter is
-the six-value ``domain=`` keyword. Likewise, Python represents constructor
-preference selection with ``pref=`` rather than a positional character flag.
-Those syntax differences are kept explicit instead of being hidden by a
-different constructor test.
+This file retains explicit Python keyword adapters. Literal native positional
+forms, including source argument-order semantics, are covered separately in
+``test_constructor_positional_source.py``.
 """
 
 from __future__ import annotations

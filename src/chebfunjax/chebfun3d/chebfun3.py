@@ -3473,6 +3473,7 @@ class Chebfun3(eqx.Module):
 
 def chebfun3(
     f=None,
+    *args,
     domain: tuple[float, float, float, float, float, float] = (
         -1.0, 1.0, -1.0, 1.0, -1.0, 1.0,
     ),
@@ -3480,7 +3481,6 @@ def chebfun3(
     max_rank: int = 128,
     min_samples: int = 17,
     rank=None,
-    *,
     n=None,
     coeffs: bool = False,
     trig: bool = False,
@@ -3499,7 +3499,10 @@ def chebfun3(
     ACA followed by block-term-to-Tucker compression. With ``n=(nx, ny, nz)``,
     a callable is sampled once on the second-kind tensor grid before numeric
     construction. Keywords use the final domain; MATLAB's positional
-    length-before-domain sampling quirk is not reproduced.
+    length-before-domain sampling quirk applies only to positional arguments.
+    Positional arguments follow MATLAB's parser; Python-specific tolerance,
+    maximum rank and minimum sample count must be supplied by keyword.
+    In particular, a scalar positional value is not a Python tolerance.
 
     Parameters
     ----------
@@ -3554,6 +3557,22 @@ def chebfun3(
         return Chebfun3.empty()
     from chebfunjax.chebpref import ChebfunPref
 
+    positional_sampling = []
+    if args:
+        from chebfunjax.chebfun3d._constructor_inputs import parse_source_args
+
+        parsed, positional_sampling = parse_source_args(args, domain, pref)
+        domain = parsed.get("domain", domain)
+        pref = parsed.get("pref", pref)
+        rank = parsed.get("rank", rank)
+        eps = parsed.get("eps", eps)
+        fiberDim = parsed.get("fiberDim", fiberDim)
+        trig = parsed.get("trig", trig)
+        vectorize = parsed.get("vectorize", vectorize)
+        coeffs = parsed.get("coeffs", coeffs)
+        equi = parsed.get("equi", equi)
+        chebfun3f = parsed.get("chebfun3f", chebfun3f)
+
     construction_pref = ChebfunPref() if pref is None else ChebfunPref(pref)
     selected_tech = tech if tech is not None else construction_pref.tech
     key = (selected_tech.__name__ if isinstance(selected_tech, type)
@@ -3586,13 +3605,12 @@ def chebfun3(
         _op = matlab_expression(expr, ("x", "y", "z"))
         def f(x, y, z, _op=_op):
             return jnp.asarray(_op(x, y, z)) + 0.0 * x
-    if isinstance(f, Chebfun3) and n is None:
-        # constructor.m checks EQUI before the existing-object identity path.
-        if equi:
-            raise ValueError(
-                "CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag is valid "
-                "only when constructing from numeric data")
-        return f
+    for lengths, sampling_domain in positional_sampling:
+        from chebfunjax.utils.quadrature import chebpts3
+
+        # Source parseInputs evaluates each length vector immediately, using
+        # the domain seen so far, before later domain arguments are applied.
+        f = f(*chebpts3(*lengths, domain=sampling_domain))
     if n is not None:
         import operator
 
@@ -3624,6 +3642,13 @@ def chebfun3(
             )
         f = Chebfun3.coeffs2vals(coefficient_tensor)
         coeffs = False
+    if isinstance(f, Chebfun3) and n is None:
+        # constructor.m checks EQUI before the existing-object identity path.
+        if equi:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag is valid "
+                "only when constructing from numeric data")
+        return f
     if equi and isinstance(f, Chebfun3):
         raise ValueError(
             "CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag is valid "

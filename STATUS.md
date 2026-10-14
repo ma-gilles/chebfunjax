@@ -1,3 +1,20 @@
+## 2026-10-14: literal Chebfun3 positional constructor calls
+
+Positional lengths, domains, rank and constructor selectors now follow the
+pinned MATLAB parser. Fixed-length sampling uses the domain encountered at
+that argument position. The native test's two length-2 "split-domain" arrays
+are ignored by MATLAB; this behavior is preserved literally. Nine focused
+positional tests and ten existing keyword tests pass on guarded CPU runs.
+This restores literal syntax for clauses3–13 and the missing calls in1/14;
+other calls in the original test retain their earlier scoped qualifications.
+
+Compatibility: Python-specific tol/max_rank/min_samples must now use keywords;
+a scalar positional argument follows MATLAB's ignored-numeric behavior.
+Repository AST inspection found no existing calls with more than2 positional
+arguments. A fresh callable with 'classic' remains unsupported; the original
+existing-object selector checks are qualified. Full parity and final green CI
+remain open. Evidence: `docs/chebfun3_positional_source_cpu_20261014.json`.
+
 ## 2026-10-14: source GPR optimizer
 
 Default length-scale selection now follows MATLAB normalization, endpoint
