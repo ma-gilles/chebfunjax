@@ -1,0 +1,159 @@
+{
+  "source_commit": "7574c7768",
+  "base_checkout_commit": "359f5507",
+  "source_files": [
+    "tests/chebfun3/test_sum.m",
+    "tests/chebfun3/test_sum2.m"
+  ],
+  "python_files": [
+    "tests/test_matlab_port/chebfun3/test_sum_matlab.py",
+    "tests/test_matlab_port/chebfun3/test_sum2_matlab.py"
+  ],
+  "source_predicates": 23,
+  "mapping": {
+    "sum": "13 source predicates, retained each source integral dimension/order, physical domains, exact Chebfun2 operand, native continuous Chebfun2 norm, TOL=1e4*current cheb3eps",
+    "sum2": "10 source predicates, retained default and ordered dimension-pair calls including complex-valued clauses, exact Chebfun operand, native continuous Chebfun norm, TOL=1e5*current cheb3eps"
+  },
+  "supplements": "Previously useful simple sum/sum2 analytic controls retained in test_reductions_supplemental.py, clearly labeled supplemental; not rerun in this source-only gate.",
+  "qualification": {
+    "guard_input_count": 1032,
+    "guard_sha256": "261283953caf1ed92103f79af3f9db9153b1fc9965b18709d824ffe1f14ecb6c",
+    "runs": [
+      {
+        "run": "run_sum_base_v2",
+        "pytest": "1 passed, 3 deselected in 10.16s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 12.656860202085227,
+        "sampled_peak_summed_rss_kib": 1047244,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "17b353a15b85db1ed4baaff3d2f05cbe834ff0b44e4c777de3e27cc352b48d0f",
+        "stdout_sha256": "71f2750783c40b504d8c622469aaa16ff74d0f10e38db89bef51a9cf5e274c03"
+      },
+      {
+        "run": "run_sum_missing_x_v2",
+        "pytest": "1 passed, 3 deselected in 17.42s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 20.426781478803605,
+        "sampled_peak_summed_rss_kib": 1387388,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "5409e49665cb4b1526a4cdcd29dbd1d699caa214c20c01dac0320ed9d2598d32",
+        "stdout_sha256": "14dcf03814ca343819b74026a86a2c31e3c118443c472288edafa2d2ba6bdf15"
+      },
+      {
+        "run": "run_sum_missing_y_v2",
+        "pytest": "1 passed, 3 deselected in 16.33s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 19.25575875211507,
+        "sampled_peak_summed_rss_kib": 1349812,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "f1795e1bf64ad31d9a9b2d64014c299027db7462e56ac654425de3a7d0a4d4c4",
+        "stdout_sha256": "b14e7d932e05537ca3f822654ccf7c09bbd5718834a1d5d6963c1ae5041f2a94"
+      },
+      {
+        "run": "run_sum_missing_z_v2",
+        "pytest": "1 passed, 3 deselected in 17.21s =======================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 20.322225949261338,
+        "sampled_peak_summed_rss_kib": 1371848,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "98f8d7a91b71a95f582ec9ea0ae187bab3db2c79bb973c3326533b7c5bf4267a",
+        "stdout_sha256": "a4cebeccfa784fab735f263d50b7f41377d4dad2e21d40badcb944f23dab9f5a"
+      },
+      {
+        "run": "run_sum2_real_v2",
+        "pytest": "1 passed, 1 deselected in 7.50s ========================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 9.801051143091172,
+        "sampled_peak_summed_rss_kib": 890168,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "0cc79181413b98278d63182843fd5d63203874e2c87ee02bc9b009412bbb2912",
+        "stdout_sha256": "7e663041c840edddcf9030a4fcff9cc99b3ff71978655c12f7ede8996a24c57d"
+      },
+      {
+        "run": "run_sum2_complex_v2",
+        "pytest": "1 passed, 1 deselected in 8.09s ========================",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 10.416967738885432,
+        "sampled_peak_summed_rss_kib": 943148,
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "inputs_stable": true,
+        "guard_error": null,
+        "receipt_sha256": "32f1028672d5264a941eec3aae7a48a7e9f7985a15dbacacdc2cee1d90b1982f",
+        "stdout_sha256": "a858d32c9099179926d25c873eaed86991a853444e51ea7f38cb6e43cb2a65b3"
+      }
+    ],
+    "all_pass": true
+  },
+  "failed_attempts": "An earlier bounded run of sum pass(5) failed due to an incorrect operand in the newly written test (cos(x)+sin(z) was compared to the cos(y)+sin(z) exact result); this was corrected. No library fault was found; failed receipt is preserved as run_sum_missing_x. Diagnostic source-operand run is retained at run_diagnose_x_independent.",
+  "ruff": "passed for both source tests and supplemental test",
+  "patch": "sum_reductions_original_patch.diff",
+  "patch_sha256": "27b11fc9608d7141e0bfb230664a2e1cb4e9d327123cbd3a941be8e9cda2ea39",
+  "library_changes": false,
+  "root_review": {
+    "identical_source_files": 323,
+    "source_mapping": "13 sum and 10 sum2 original numerical predicates; first string polynomial represented as lambda, not a string-parser qualification. Bounds use default preferences captured at module import.",
+    "supplemental_patch_fix": "Patch omitted new untracked supplemental file; copied exact private bytes.",
+    "full_goal_complete": false
+  },
+  "root_supplemental_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_reduction_supplements_publication_20261014/run/receipt.json",
+    "bound": "Restored original supplemental 1e5*binary64 eps; agent copied file had substituted 1e-11.",
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "wall_seconds": 16.77031093277037,
+    "sampled_peak_summed_rss_kib": 1264068
+  }
+}
