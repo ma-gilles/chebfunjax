@@ -1,3 +1,12 @@
+## 2026-10-15: source dimensional reduction
+
+Chebfun3 squeeze now uses simplified factor lengths, Tucker ranks and core
+contractions, replacing sampled variation. All seven original norm predicates
+pass at the unchanged `10*cheb3eps` bound; four native-backed edge controls
+pass. Small dependencies remain intact and empty output has the correct type.
+Native captures also confirm the pinned reversed-domain and rank-one error
+branches. See `docs/chebfun3_squeeze_source_cpu_20261015.json`.
+
 ## 2026-10-15: original Laplacian predicates and open cost gap
 
 Both original Laplacian predicates now use continuous norms and unchanged

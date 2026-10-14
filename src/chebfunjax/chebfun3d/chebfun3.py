@@ -2866,56 +2866,16 @@ class Chebfun3(eqx.Module):
         return source_restrict(self, dom)
 
     def squeeze(self):
-        """Collapse constant dimensions (MATLAB squeeze):
-        returns a Chebfun (one active variable), Chebfun2 (two), or
-        self (all three active).
+        """Source dimensional reduction by factor lengths and Tucker ranks.
 
         Provenance
         ----------
         MATLAB source : @chebfun3/squeeze.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
+        from chebfunjax.chebfun3d._squeeze import source_squeeze
 
-        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
-        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
-        d = self.domain
-        grids = [jnp.asarray(_np.linspace(d[2 * i], d[2 * i + 1], 17))
-                 for i in range(3)]
-        xx, yy, zz = jnp.meshgrid(*grids, indexing="ij")
-        vals = self(xx, yy, zz)
-        vs = max(float(jnp.max(jnp.abs(vals))), 1.0)
-        tol = 1e5 * float(_np.finfo(float).eps) * vs
-        active = []
-        for i in range(3):
-            # variation ALONG axis i: range of values as x_i sweeps,
-            # for every fixed combination of the other coordinates
-            rng = vals.max(axis=i) - vals.min(axis=i)
-            if float(jnp.max(rng)) > tol:
-                active.append(i)
-        mids = [0.5 * (d[2 * i] + d[2 * i + 1]) for i in range(3)]
-        if len(active) == 3:
-            return self
-        if len(active) == 2:
-            i, j = active
-
-            def f2(s, t, i=i, j=j):
-                args = [jnp.full_like(s, mids[k]) for k in range(3)]
-                args[i], args[j] = s, t
-                return self(*args)
-
-            return Chebfun2.from_function(
-                f2, domain=(d[2 * i], d[2 * i + 1],
-                            d[2 * j], d[2 * j + 1]))
-        i = active[0] if active else 0
-
-        def f1(t, i=i):
-            args = [jnp.full_like(t, mids[k]) for k in range(3)]
-            args[i] = t
-            return self(*args)
-
-        return Chebfun.from_function(
-            f1, Domain((d[2 * i], d[2 * i + 1])))
+        return source_squeeze(self)
 
     def mean3(self) -> jax.Array:
         """Mean value over the box (MATLAB mean3; Fable 5)."""
@@ -4147,4 +4107,4 @@ def domainCheck(f, g, tol: float | None = None) -> bool:
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
-make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'permute', 'squeeze', 'restrict', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])
+make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'permute', 'restrict', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])

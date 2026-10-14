@@ -1,0 +1,151 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "sources": [
+    "@chebfun3/squeeze.m",
+    "@chebfun2/outerProduct.m",
+    "@chebfun2/constructor.m",
+    "tests/chebfun3/test_squeeze.m"
+  ],
+  "changes": "Replace17^3 sampled variation and1e5eps cutoff with source factor-globaltol simplification, Tucker ranks and core contractions. Restore seven original continuous-norm predicates at10cheb3eps (old sampled tests used1000eps). Empty result is Chebfun, not Chebfun3.",
+  "native_behaviors": [
+    "Constant rank-one input retains z interval. Zero core rank0 returns original Chebfun3.",
+    "Small1e-12 y dependence remains3D; the previous coarse criterion could drop it.",
+    "Nonsymmetric2D branch retains reversed outer-product domain because native chebfun2(existing,newdomain) ignoresnewdomain.",
+    "Rank-one input with no two constant factor panels raises native unassignedOutputs."
+  ],
+  "native_capture": {
+    "cases": [
+      {
+        "input_rank": [
+          0,
+          0,
+          0
+        ],
+        "ok": true,
+        "class": "chebfun3",
+        "domain": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6
+        ],
+        "value": 0
+      },
+      {
+        "input_rank": [
+          1,
+          1,
+          1
+        ],
+        "ok": true,
+        "class": "chebfun",
+        "domain": [
+          4,
+          6
+        ],
+        "value": 1.9999999999999978
+      },
+      {
+        "input_rank": [
+          1,
+          1,
+          1
+        ],
+        "ok": false,
+        "id": "MATLAB:unassignedOutputs",
+        "message": "Output argument \"g\" (and possibly others) not assigned a value in the execution with \"chebfun3/squeeze\" function."
+      },
+      {
+        "input_rank": [
+          1,
+          2,
+          2
+        ],
+        "ok": true,
+        "class": "chebfun2",
+        "domain": [
+          4,
+          6,
+          2,
+          3
+        ],
+        "value": 12.500000000000004
+      },
+      {
+        "input_rank": [
+          2,
+          2,
+          2
+        ],
+        "ok": true,
+        "class": "chebfun3",
+        "domain": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6
+        ],
+        "value": 5.500000000002502
+      }
+    ],
+    "empty": {
+      "class": "chebfun",
+      "empty": true
+    }
+  },
+  "results": "Seven original predicates pass29.81s. Four supplemental controls pass8.18s after removing the generic empty-aware squeeze wrapper. Source bounds unchanged; no tolerance fitting.",
+  "source_binding": "Original seven gate precedes removal of empty-only wrapper; all seven inputs are nonempty and numerical helper body is unchanged.",
+  "failed_evidence": "Initial supplemental gate caught real generic-wrapper empty-type bug. Initial native capture used domain(g), which caused capture metadata errors after squeeze succeeded; corrected capture uses stored g.domain. Original artifacts retained.",
+  "validation": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_squeeze_source_20261015/run/receipt.json",
+      "sha256": "19a52c36259e47e92378e12f4bf33a2f9fc8fdd572149d27084a928a0f67348c",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1993152,
+      "wall_seconds": 36.115914701949805
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_squeeze_source_20261015/controls_run/receipt.json",
+      "sha256": "eda93b1f2453743c6b47cfc0c960b993a7e1f41371f8a39bbca74e3075e4e714",
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 852060,
+      "wall_seconds": 9.103957290761173
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_squeeze_source_20261015/controls_v2_run/receipt.json",
+      "sha256": "a5bcfc8e7288c7bdee2545b5ec83e149164a1a3e343568c1de89ff12f9a07e2f",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 928448,
+      "wall_seconds": 10.103518231306225
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_squeeze_source_20261015/native_run/receipt.json",
+      "sha256": "7a9048c98489db32df260b5e4c310fe141255563d94cf91ff33d44fe2eec87d5",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1329684,
+      "wall_seconds": 81.3904653401114
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_squeeze_source_20261015/native_v2_run/receipt.json",
+      "sha256": "93d8dbcbe4a4fcc51e40a522047a616363b22b5991227576f4c88cfa3497bb84",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1328360,
+      "wall_seconds": 79.46298318030313
+    }
+  ],
+  "limits": "Qualifies original assertions and captured edge branches; no claim of arbitrary coefficient-level bit identity or complete library/page/CI parity."
+}
