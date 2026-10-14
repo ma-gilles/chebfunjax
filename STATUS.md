@@ -1,3 +1,13 @@
+## Direct reciprocal trigonometric and hyperbolic branches — 2026-10-14
+
+TreeVar cot/csc/sec/coth/csch/sech now use JAX real primitives and imaginary-axis
+identities with scaled complex reciprocals. They avoid the old NaN-to-complex
+retry artifacts. Baseline87/216 captured cases fail; all216 now pass unchanged,
+and root670 combined boundary/original/dtype/JIT/RHS checks pass with stable
+inputs/no survivors. Root independently verified every new native record.
+Degree variants and broad extreme-input qualification remain open.
+Evidence: `docs/treevar_reciprocal_direct_cpu_20261014.json`.
+
 ## Reciprocal circular inverse branches — 2026-10-14
 
 TreeVar acsc/acscd/asec/asecd now compose JAX reciprocal and qualified principal

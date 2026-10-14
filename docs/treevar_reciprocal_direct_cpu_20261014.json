@@ -1,0 +1,42 @@
+{
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_direct_review_20261014/candidate.patch",
+  "patch_sha256": "3f4b3c9b48a2cba247ba43b8e219b9fec77edc324ef6b3fb9ea67992a14beacf",
+  "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_direct_review_20261014/MANIFEST.json",
+  "report_sha256": "0dbe847684c593e7d4ab4817837cd37d4cae5abbdcb12ed06870749fd361b85f",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_direct_review_20261014/final_run/receipt.json",
+  "receipt_sha256": "9dc15ba2867c2d24b05db9d1c3b147ac22bfd46df69d90cf51bd0ff99005dca3",
+  "tests": 333,
+  "wall_seconds": 27.2047126730904,
+  "peak_kib": 840868,
+  "stable": true,
+  "baseline_failures": 87,
+  "current_publication_preimage_equal": true,
+  "scope": "JAX cot/csc/sec/coth/csch/sech native real/imaginary-axis and nonfinite branches",
+  "root_gate": {
+    "passed": 670,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_reciprocal_direct_publication_20261014/run/receipt.json",
+    "receipt_sha256": "f4a58d854b42af9e24e3073ee8252ac608bc042c53a6a0395d58b3b3ee947411",
+    "peak_kib": 1027276,
+    "stable": true,
+    "no_survivors": true
+  },
+  "root_raw_review": {
+    "inputs_exact": 36,
+    "outputs_exact": 216,
+    "methods": [
+      "cot",
+      "csc",
+      "sec",
+      "coth",
+      "csch",
+      "sech"
+    ],
+    "fixture_sha256": "1a64c486a93e3961678cee8e395dd3c8ab569d11107396232e84f77c9ef3eeb2"
+  },
+  "limits": [
+    "Value-dependent storage adapter is eager",
+    "Degree variants remain separate",
+    "Opaque MATLAB builtin internals are not inspected",
+    "Extreme overflow/subnormal domains not globally qualified"
+  ]
+}

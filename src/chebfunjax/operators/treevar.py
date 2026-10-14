@@ -136,6 +136,48 @@ def _inverse_trig_branch(x, cosine=False):
     return jnp.where(on_axis, axis_value, op(values))
 
 
+def _reciprocal_direct_branch(x, method):
+    """Evaluate plain reciprocal trig/hyperbolic functions using JAX.
+
+    Real axes use real primitives, including their poles and NaNs, without
+    retrying NaNs as complex inputs. Imaginary-axis identities preserve exact
+    zero components; off-axis reciprocals use scaled complex division.
+    Storage selection is eager and does not extend the stable JIT subset.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m and @chebfun/{cot,csc,sec,coth,csch,sech}.m
+    dispatch to opaque numeric builtins. Chebfun commit: 7574c77.
+    The reciprocal and imaginary-axis formulas are mathematical identities,
+    qualified against the retained R2025b primitive boundary packet.
+    """
+    from jax import lax
+
+    values = jnp.asarray(x)
+    real, imag = jnp.real(values), jnp.imag(values)
+    functions = {"cot": jnp.tan, "csc": jnp.sin, "sec": jnp.cos,
+                 "coth": jnp.tanh, "csch": jnp.sinh, "sech": jnp.cosh}
+    op = functions[method]
+    on_real = imag == 0
+    real_value = 1/op(real)
+    if bool(jnp.all(on_real)):
+        return real_value
+    result = _reciprocal_axis_value(op(values))
+    result = jnp.where(on_real, lax.complex(real_value, jnp.zeros_like(real)), result)
+    paired = {"cot": jnp.tanh, "csc": jnp.sinh, "sec": jnp.cosh,
+              "coth": jnp.tan, "csch": jnp.sin, "sech": jnp.cos}
+    axis_value = 1/paired[method](imag)
+    if method in ("sec", "sech"):
+        axis = lax.complex(axis_value, jnp.zeros_like(imag))
+    else:
+        axis = lax.complex(jnp.zeros_like(real), -axis_value)
+    on_imag = (real == 0) & (imag != 0) & ~jnp.isnan(imag)
+    result = jnp.where(on_imag, axis, result)
+    if bool(jnp.all(jnp.imag(result) == 0)):
+        return jnp.real(result)
+    return result
+
+
 def _degrees_from_radians(value, *, divide=False):
     """Scale angular components independently for captured degree outputs.
 
@@ -460,19 +502,19 @@ _UNARY_FNS_RAW = {
     "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
     "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
     "cosd": lambda x: np.cos(_DEG * x), "cosh": jnp.cosh,
-    "cot": lambda x: 1.0 / np.tan(x),
+    "cot": lambda x: _reciprocal_direct_branch(x, "cot"),
     "cotd": lambda x: 1.0 / np.tan(_DEG * x),
-    "coth": lambda x: 1.0 / np.tanh(x),
-    "csc": lambda x: 1.0 / np.sin(x),
+    "coth": lambda x: _reciprocal_direct_branch(x, "coth"),
+    "csc": lambda x: _reciprocal_direct_branch(x, "csc"),
     "cscd": lambda x: 1.0 / np.sin(_DEG * x),
-    "csch": lambda x: 1.0 / np.sinh(x),
+    "csch": lambda x: _reciprocal_direct_branch(x, "csch"),
     "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
     "log": _log_branch, "log10": lambda x: _log_branch(x, base=10),
     "log1p": lambda x: _log_branch(x, increment=True),
     "log2": lambda x: _log_branch(x, base=2), "pow2": lambda x: np.exp2(x), "real": jnp.real,
-    "sec": lambda x: 1.0 / np.cos(x),
+    "sec": lambda x: _reciprocal_direct_branch(x, "sec"),
     "secd": lambda x: 1.0 / np.cos(_DEG * x),
-    "sech": lambda x: 1.0 / np.cosh(x),
+    "sech": lambda x: _reciprocal_direct_branch(x, "sech"),
     "sin": jnp.sin, "sind": lambda x: np.sin(_DEG * x),
     "sinh": jnp.sinh, "sqrt": _sqrt_branch, "tan": jnp.tan,
     "tand": lambda x: np.tan(_DEG * x), "tanh": jnp.tanh,
@@ -504,7 +546,7 @@ _DTYPE_STABLE_UNARY = frozenset(
     "asinh atan uminus uplus".split())
 # These value-dependent adapters retain captured output storage choices but
 # are eager and make no tracing guarantee.
-_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd".split())
+_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech".split())
 _UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}
