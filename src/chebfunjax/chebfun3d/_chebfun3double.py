@@ -79,6 +79,19 @@ def _pivot2(matrix, tolerance):
     return row, col, magnitude
 
 
+def _subtract_outer(tensor, left, right):
+    """Round the source outer product before subtracting, without operand stacks."""
+    def step(index, state):
+        residual, product = state
+        return jax.lax.cond(
+            index == 0,
+            lambda: (residual, left[..., None] * right),
+            lambda: (residual - product, product),
+        )
+
+    return jax.lax.fori_loop(0, 2, step, (tensor, jnp.zeros_like(tensor)))[0]
+
+
 @jax.jit
 def _subtract2(matrix, row, col):
     """Direct source division and separate product/subtraction on CPU float64.
@@ -96,15 +109,7 @@ def _subtract2(matrix, row, col):
     def ordered(matrix, row, col):
         divided_row = binary(matrix[row, :], matrix[row, col], 3)
 
-        def step(index, state):
-            residual, product = state
-            return jax.lax.cond(
-                index == 0,
-                lambda: (residual, matrix[:, col, None] * divided_row[None, :]),
-                lambda: (residual - product, product),
-            )
-
-        return jax.lax.fori_loop(0, 2, step, (matrix, jnp.zeros_like(matrix)))[0]
+        return _subtract_outer(matrix, matrix[:, col], divided_row)
 
     if matrix.dtype != jnp.float64:
         return generic(matrix, row, col)
@@ -156,11 +161,34 @@ def _pivot3(tensor):
 
 @jax.jit
 def _subtract3(tensor, columns, pivots, rows, fiber, pivot):
-    scaled = jax.lax.optimization_barrier(columns @ jnp.diag(1/pivots))
-    matrix = jax.lax.optimization_barrier(scaled @ rows.T)
-    vector = jax.lax.optimization_barrier(fiber/pivot)
-    product = jax.lax.optimization_barrier(matrix[:, :, None]*vector[None, None, :])
-    return tensor-product
+    """Source direct fiber division and separate outer-product subtraction.
+
+    CPU binary64 intermediates are qualified against native completeACA3D.
+    Both matrix products retain the existing JAX implementation; their native
+    accumulation differences are independent of this arithmetic correction.
+    """
+    def generic(tensor, columns, pivots, rows, fiber, pivot):
+        scaled = jax.lax.optimization_barrier(columns @ jnp.diag(1 / pivots))
+        matrix = jax.lax.optimization_barrier(scaled @ rows.T)
+        vector = jax.lax.optimization_barrier(fiber / pivot)
+        product = jax.lax.optimization_barrier(matrix[:, :, None] * vector[None, None, :])
+        return tensor - product
+
+    def ordered(tensor, columns, pivots, rows, fiber, pivot):
+        scaled = jax.lax.optimization_barrier(columns @ jnp.diag(1 / pivots))
+        matrix = jax.lax.optimization_barrier(scaled @ rows.T)
+        vector = binary(fiber, pivot, 3)
+        return _subtract_outer(tensor, matrix, vector)
+
+    def cpu(*args):
+        finite = jnp.all(jnp.stack([jnp.all(jnp.isfinite(value)) for value in args]))
+        nonzero = jnp.all(args[2] != 0) & (args[5] != 0)
+        return jax.lax.cond(finite & nonzero, ordered, generic, *args)
+
+    args = (tensor, columns, pivots, rows, fiber, pivot)
+    if any(value.dtype != jnp.float64 for value in args):
+        return generic(*args)
+    return jax.lax.platform_dependent(*args, cpu=cpu, default=generic)
 
 
 def complete_aca3(values, axes, domain, epsilon, tolerance):

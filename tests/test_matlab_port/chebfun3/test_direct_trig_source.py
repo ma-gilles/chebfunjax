@@ -141,8 +141,10 @@ def test_constructor_preference_dispatch_and_identity():
     pref = ChebfunPref()
     pref.cheb3Prefs.constructor = "classic"
     ChebfunPref.setDefaults(pref)
-    with pytest.raises(NotImplementedError, match="chebfun3f"):
-        chebfun3(lambda x, y, z: x)
+    classic = chebfun3(lambda x, y, z: x)
+    points = jnp.asarray([-.7, 0., .8])
+    assert bool(jnp.all(jnp.abs(classic(points, 0*points, 0*points)-points)
+                        < 100*pref.cheb3Prefs.chebfun3eps))
     class Sampled(Exception):
         pass
     def stop(x, y, z):

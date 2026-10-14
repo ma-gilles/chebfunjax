@@ -1,0 +1,30 @@
+{
+  "scope": "Three obsolete supplemental CIexpectations updated after qualified sourceimplementations",
+  "ci_run": 38516652765,
+  "ci_head": "0cb8b97d",
+  "job_ids": [
+    115697178338,
+    115697178539
+  ],
+  "changes": [
+    "ClassicChebfun3 dispatch nowconstructs andcheckslinearvalues instead ofexpecting NotImplementedError.",
+    "EmptyGPRwith omittedL rejects sourceinvalidsearchdomain; suppliedL retains originalzero mean/sigma\u00b2priorassertions.",
+    "Defaultzero-dataGPR rejects sourceNaNlikelihood; domainendpointassertionsusevalidfixedL/positivenoisezero-datamodel."
+  ],
+  "source_evidence": [
+    "docs/gpr_optimizer_source_cpu_20261014.json",
+    "tests/test_utils/test_gpr_optimizer_source.py",
+    "docs/chebfun3_classic_source_cpu_20261014.json"
+  ],
+  "gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_gpr_classic_expectations_publication_20261014/run/receipt.json",
+    "sha256": "31dfa84187b2783127d419e3d958ddf183a4e48ec82d77025dd4c7f34fc1a6ed",
+    "pytest": "======================== 11 passed, 1 warning in 13.19s ========================",
+    "command_exit_code": 0,
+    "wall_seconds": 16.414121970068663,
+    "sampled_peak_summed_rss_kib": 1171364,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "limits": "No originalMATLABassertions removed and no numericalbounds relaxed. PendingnextCI; other correctness gaps remain."
+}

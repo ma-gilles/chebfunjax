@@ -103,10 +103,13 @@ class TestGpr:
         assert result["length_scale"] > 0.0
 
     def test_empty_data(self):
-        """Empty data returns zero mean and sigma^2 variance everywhere."""
+        """Source empty prior requires a supplied length scale."""
         from chebfunjax.utils.gpr import gpr
 
-        result = gpr(np.array([]), np.array([]), domain=(-1.0, 1.0), sigma=2.0)
+        with pytest.raises(ValueError, match="requires nonempty data"):
+            gpr(np.array([]), np.array([]), domain=(-1.0, 1.0), sigma=2.0)
+        result = gpr(np.array([]), np.array([]), domain=(-1.0, 1.0),
+                     sigma=2.0, length_scale=1.0)
         npt.assert_allclose(result["mean"], 0.0, atol=1e-15)
         npt.assert_allclose(result["variance"], 4.0, atol=1e-12)
 
@@ -154,7 +157,12 @@ class TestGpr:
 
         x = np.array([-2.0, 0.0, 3.0])
         y = np.zeros(3)
-        result = gpr(x, y)
+        # Native normalization rejects all-zero data in the default search.
+        # A fixed scale and positive noise give a valid zero-data model for
+        # the domain assertion; parser failure has its own source control.
+        with pytest.raises(ValueError, match="NaNs/Infs"):
+            gpr(x, y)
+        result = gpr(x, y, length_scale=1.0, noise=0.1)
         npt.assert_allclose(result["x_grid"][0], -2.0, atol=1e-12)
         npt.assert_allclose(result["x_grid"][-1], 3.0, atol=1e-12)
 

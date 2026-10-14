@@ -1,3 +1,24 @@
+## 2026-10-14: original Laplacian/biharmonic gates and ACA3 correction
+
+The original Laplacian test now covers 79 harmonics with structural and
+sampled-error checks (158 predicates), plus its Gaussian predicate. Biharmonic
+covers 16 modes with both checks (32 predicates). All pass at source bounds
+on the original 12×6 grid in serial fresh CPU processes. Review corrected
+expected-function scaling and evaluation order before accepting the gates.
+See `docs/sphere_laplacian_biharm_original_cpu_20261014.json`.
+
+ACA3 now preserves direct fiber division and separately rounded outer-product
+subtraction. All 14 captured native post-matrix-product updates match exactly;
+ACA2's 105-step regression remains exact. Root qualification: 15 tests passed
+in 4.00s. Both matrix products remain unchanged; the native factor-length gap
+remains open. Timings and limits:
+`docs/chebfun3_aca3_source_arithmetic_cpu_20261014.json`.
+
+Three obsolete supplemental CI expectations now reflect supported classic
+construction and captured GPR parser behavior. Original MATLAB assertions and
+numerical bounds are preserved. See `docs/ci_gpr_classic_expectations_cpu_20261014.json`.
+Full parity and final green main CI remain unresolved.
+
 ## 2026-10-14: complex median source behavior and remaining root gates
 
 Spherefun median now supports complex representations created by arithmetic.

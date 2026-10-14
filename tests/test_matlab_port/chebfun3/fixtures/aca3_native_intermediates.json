@@ -1,0 +1,15 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab": "R2025b",
+  "steps": 14,
+  "scope": "Exact native tensors, matrix products, raw fibers/pivots, divided fibers and residuals. These controls isolate division and outer-product subtraction; they do not qualify JAX matrix products as native-exact.",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_stage_diagnosis_20261014/native_stages.mat": "2d10b8185be6fdcd10c26ca4561d78a77cdfcd0db2e949e0fb7ce16931ef0eab",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_stage_diagnosis_20261014/instrumentation.diff": "0e6b178cc035c41ed2c17d8f41f3b6b9c8aba4a16c86a874b56b8d4d8adfa173",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_stage_diagnosis_20261014/instrumentation_proof.json": "ddeb847529ea3dcb62d829e1f4c03ece75815c86579dd65b8888602b58feec74",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_stage_diagnosis_20261014/native_validation.json": "cd5427f4bf52a856e37e7627935d67508cf1a016626508e593dec9793ca21ff7",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_stage_diagnosis_20261014/native_supervision/receipt.json": "4ee1b1b493f8b7a0b005ff3f3f8b9a57c36d09a723a846bc6ae7c47187daff25",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_arithmetic_candidate_20261014/benchmark.py": "3d08584ee5c2d4ddcc40d687ed56d7ad4696ade61a013d77cd5ef5cc8466a8b8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_aca3_arithmetic_candidate_20261014/aca3_native_intermediates.npz": "72f9b999a9c337d7d4130f12f661a0ca597b68f10416d716995aba2c6ec2919c"
+  }
+}

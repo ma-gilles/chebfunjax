@@ -1,0 +1,265 @@
+{
+  "package": "spherefun_laplacian_biharm_source_20261014",
+  "revision": "v3 expected values use callable meshgrid; approximation remains fevalm",
+  "source_provenance": {
+    "laplacian": "MATLAB tests/spherefun/test_laplacian.m, Chebfun 7574c77",
+    "biharmonic": "MATLAB tests/spherefun/test_biharm.m, Chebfun 7574c77"
+  },
+  "scope": "158 original harmonic Laplacian predicates (79modes \u00d72) plus unchanged Gaussian1 =159 total; biharmonic32 (16modes \u00d72).",
+  "guard_sha256": "12a01a89dbc0ac7f8515593415a969eeff30ebd4ae47cbb06e088e6d674de050",
+  "guard_input_count": 1029,
+  "patch": "laplacian_biharm_original_patch_v3.diff",
+  "patch_sha256": "ff6be11c350d7a875079e06d882d58219859ba5f70d300a67225b27a41cda36b",
+  "runs": [
+    {
+      "run": "run_v3_lap_ell_1",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 15.131001122295856,
+      "peak_tree_rss_kib": 1121672,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 11.12s",
+      "receipt_sha256": "21d24b8bce84b6fd385c14011da1b4c60ff48ff28e524cec55a8d3cd2e35aad5",
+      "stdout_sha256": "bc09049dccea1959093a774861a39046156ef08aafe107fd8ab067006ace59ed",
+      "manifest_sha256": "735dd935790f3f162cf7d43b293c4262361efe110e4d6ed12c70cd4a5dc115cb",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_1/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_2",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 20.17236299905926,
+      "peak_tree_rss_kib": 1362172,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 15.66s",
+      "receipt_sha256": "94f25ffc35e758d7cc1948ea787a5cdd19ca5bbabf70fdd05eec733b53d7e33d",
+      "stdout_sha256": "5d017a555944964f2e0458685dfb9a1d6e9051e3fcc0f8133ccb7806fbf1efa3",
+      "manifest_sha256": "c626f7faee5943d307ff9567d391e583152068afe11473424a1408fcc8183c88",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_2/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_4",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 27.577137439046055,
+      "peak_tree_rss_kib": 1696472,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 22.75s",
+      "receipt_sha256": "cdfe873fea9be139a7d5fcab39d1dfed74afe8b54adb9ec2e7f7e2422d52028c",
+      "stdout_sha256": "1a74cb32988cdf41a8f0b0eb9bb4e96c28799d31913a584b9386ff1b538f051b",
+      "manifest_sha256": "14d3068849d4dfadd60955930ed5cf27e9b91881ce1f40e68a51e4417d83f25f",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_4/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_5",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 31.665165268816054,
+      "peak_tree_rss_kib": 1892676,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 26.70s",
+      "receipt_sha256": "be1253f29b11a5d7317d70c51d0fdf5d310d70de6c2e7f4d9dbec1bb5f22de16",
+      "stdout_sha256": "13f9199501db96a4d40694370516e8922ba7c5ec844b47bca80a322384489bd6",
+      "manifest_sha256": "85aa1ece19576c0fd99228dcfd3cdaad727c1da62f5eb122d8f64c03f93462b2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_5/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_7",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 38.440701393876225,
+      "peak_tree_rss_kib": 2147640,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 32.82s",
+      "receipt_sha256": "5c9133795a1f343fd67e1168a9c6df792378c1921a4c7f59abd06b9358216f49",
+      "stdout_sha256": "b265033e58c84502acb2c18cb1eb01bd9203e6a3ee718389ffa42f4006c25cb4",
+      "manifest_sha256": "bc9c1f46587f1ec41c47e713389b2122c1ed62cdbb69b9a4eb5499d9bd3516e6",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_7/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_8",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 44.068483139853925,
+      "peak_tree_rss_kib": 2359040,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 38.28s",
+      "receipt_sha256": "68924a7bb98f6d473dc20c81df085653d0d7987dac50f34cf419d276745eaebc",
+      "stdout_sha256": "692e201388c5192b3996a2baf70263fd4d26fae8a9ddccb55befa7b85d05d956",
+      "manifest_sha256": "763e43601cf44526d8b6474858dac4d439efd88a790198ec48cab72ba2a3bc45",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_8/receipt.json"
+    },
+    {
+      "run": "run_v3_lap_ell_9",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 46.416317547205836,
+      "peak_tree_rss_kib": 2457560,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 11 deselected, 1 warning in 40.36s",
+      "receipt_sha256": "ccf1da5cdb2fc8d0beb3d1451e4ce1c102d508a25458e93098f44b0d8d388e8e",
+      "stdout_sha256": "91da928c4467879618b9b8655625b13935be52ea4fc78fc763d64fd394d8e165",
+      "manifest_sha256": "93bb56c9adcbbd4ae2d3400f02b13db22fbbaa7704bd008389cb7530317c43d2",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_lap_ell_9/receipt.json"
+    },
+    {
+      "run": "run_v3_bih_ell_1",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 15.470721771009266,
+      "peak_tree_rss_kib": 1136324,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 3 deselected, 1 warning in 11.25s",
+      "receipt_sha256": "9a3a2297087de32e4957840842cdc4c944878c30022f5e5e0705f7d781fd7998",
+      "stdout_sha256": "e7bdd0410122784dc90833aa680acff477d2d49a6099c720b256ea5858fe6c40",
+      "manifest_sha256": "677167b17a8397f840cb8e75cec5b1c2e759ca5c885bf3e486a5727b2b5f4175",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_bih_ell_1/receipt.json"
+    },
+    {
+      "run": "run_v3_bih_ell_2",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 19.368397023063153,
+      "peak_tree_rss_kib": 1338632,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 3 deselected, 1 warning in 14.84s",
+      "receipt_sha256": "af9da236ca74dee4c0713bef8b126e7f03fa0506cbcb58dfad9eca6174e6c98b",
+      "stdout_sha256": "733b98649767794d8591448c9bdf24bfb7a215a54546e082a4f2390b4ffac8ad",
+      "manifest_sha256": "0ab60257bc9d92c7bcc2358eb10d6555cc1b29c94b7afdf03554acde561aa67e",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_bih_ell_2/receipt.json"
+    },
+    {
+      "run": "run_v3_bih_ell_4",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 30.359522107988596,
+      "peak_tree_rss_kib": 1839124,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 3 deselected, 1 warning in 25.18s",
+      "receipt_sha256": "e816adc8bb5690472594965649cda043af2c4c68f94a48f5f44c192c773707a2",
+      "stdout_sha256": "7b8e50bb6b28ea0fe2c690cf7ea78f0416ee866cb9e937b716cfc796c0697dc3",
+      "manifest_sha256": "3afb2245fc8ac6588a6fc65a9f888207369b4ffdbefe265e88a61b082aded767",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_bih_ell_4/receipt.json"
+    },
+    {
+      "run": "run_v3_bih_ell_5",
+      "exit": 0,
+      "supervisor_exit": 0,
+      "censored": null,
+      "wall_s": 43.81719110207632,
+      "peak_tree_rss_kib": 2360280,
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "inputs_stable": true,
+      "guard_error": null,
+      "pytest": "1 passed, 3 deselected, 1 warning in 37.85s",
+      "receipt_sha256": "2261d387232073bfd8078250afdb0eb8d3c8f942e19ff10c4186de866f3afee3",
+      "stdout_sha256": "ebd9846a8986c4233c3f03ca9d924d8892eee209c395db1a2f11c7b56728c512",
+      "manifest_sha256": "f3f913cf8ee4419f3bbfa3b8c97b182781aa5f99702d470422b5419a5fe54419",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_v3_bih_ell_5/receipt.json"
+    }
+  ],
+  "supersedes": "report_v2.json is retained but superseded: it had correct pre-evaluation Spherefun scaling yet expected values were sampled with fevalm rather than MATLAB feval(h,L2,T2). report_pre_review.json is also retained.",
+  "static_check": "ruff check passed for both candidate test files.",
+  "gaussian_reused": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/run_lap_gaussian_retry/receipt.json",
+    "receipt_sha256": "ccd6fe89be86f4c0e87f4750869fd7db300c7d91fc936b5fefa25f13d94c548f",
+    "reason": "Gaussian callback/formula and its meshgrid evaluation, approximation fevalm, flattening and bound unchanged through allrevisions."
+  },
+  "publication_binding": {
+    "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_laplacian_biharm_source_20261014/publication_binding.json",
+    "sha256": "74bdfc5aa1b9e151ec85ab078bcf6accf832a16b906baea5363f40a2c45b2f17",
+    "matching_source_files": 320,
+    "unrelated_differences": [
+      "src/chebfunjax/utils/_ordered_binary.py",
+      "src/chebfunjax/chebfun3d/_chebfun3double.py",
+      "src/chebfunjax/spherefun/_median.py"
+    ],
+    "review": "Orderedbinary import blankline; ACA3 arithmetic; complexmedian. None on scalar sphericalharmonic/laplacian/biharmonic path.",
+    "reviewed_source_fidelity": "Expected harmonic is a scaled Spherefun, evaluated onmeshgrid; approximation usesfevalm. Both originalnorms and preferencebounds preserved. Earlierpointscaling/fevalmexpectedadaptations rejected; receipts retained."
+  }
+}
