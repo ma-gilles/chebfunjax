@@ -432,10 +432,11 @@ def funqui(vals: jnp.ndarray):
                 wr = wr[::-1]
                 mid = [wl[-1]] * max(0, n - 5 - 2 * d)
                 w = wl + mid + wr
+                # Source alternates only the assembled absolute edge weights.
+                # General fhBaryWts already contains its alternating signs.
+                w = jnp.asarray(w, dtype=jnp.float64).at[::2].multiply(-1)
             else:
                 w = _fh_bary_weights(x_rm, d)
-            for i in range(0, len(w), 2):
-                w[i] = -w[i]
             wj = jnp.asarray(w, dtype=jnp.float64)
             xj_at_rm = jnp.asarray([x[i] for i in rm], dtype=jnp.float64)
             yy = bary(xj_at_rm, fvals_rm, xj_rm, wj)

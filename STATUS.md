@@ -1,3 +1,14 @@
+## FUNQUI cross-validation weight signs — 2026-10-14
+
+Restored native branch scope: only assembled absolute edge weights receive
+alternating signs; general FH weights are already signed. Captured cubic errors
+fall from about1 to at most2.67e-15 and length4 is restored. Root67 merged
+interpolation/original-constructor checks pass38.74s, stable inputs/no survivors.
+Four compact native records independently verified. Native/JAX degree4/3
+roundoff tie remains explicit; no minimum rule or tolerance changed. Long Trig
+and 3D construction qualification remain open.
+Evidence: `docs/funqui_cv_cpu_20261014.json`.
+
 ## Direct reciprocal trigonometric and hyperbolic branches — 2026-10-14
 
 TreeVar cot/csc/sec/coth/csch/sech now use JAX real primitives and imaginary-axis

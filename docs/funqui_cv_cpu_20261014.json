@@ -1,0 +1,24 @@
+{
+  "scope": "FUNQUI cross-validation weight sign branch, native smoothfun.m at7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Alternate assembled absolute edge weights only; general FH weights already signed. JAX indexed multiplication.",
+  "root_gate": {
+    "passed": 67,
+    "pytest_seconds": 38.74,
+    "wall_seconds": 46.220648291986436,
+    "sampled_peak_summed_rss_kib": 2303400,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "raw_review": "Four input/query/output/domain/length/tech records exactly checked against retained native MAT captures.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/funqui_cv_publication_20261014/run/receipt.json": "b68c6ff907171e0f055a9901e73044db58537740e9b27b39aaee8b7232541283",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/funqui_cv_publication_20261014/raw_review.json": "79003187df98dcf62c957e02c9fe54888fdb6e6142bd6b15b2314801725c9066",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/funqui_cv_publication_20261014/static.json": "108f29c992f66614ba678c340b9e3907ecaa6484db9c25f789e93d5be711e41c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/funqui_cv_review_20261014/DELIVERY.json": "0413091a2c634bec8d44c65d72f4a7b462703228712275ce244c4c2ebcb27d1b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/funqui_cv_review_20261014/REPORT.md": "7b8f615fc6afef5a126691ffed1bb4e465a37cea7032f674ac353b35fdbae1e1"
+  },
+  "limits": [
+    "Native real cubic optimum degree4 versus JAX3 retained as roundoff-sensitive minimum; both reproduce cubic. No tie rule or tolerance fitting.",
+    "Inherited Python-float FH arithmetic remains. Long adaptive Trig and 3D constructors separately under qualification."
+  ]
+}
