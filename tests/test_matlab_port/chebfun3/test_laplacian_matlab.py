@@ -1,6 +1,6 @@
 """Port of MATLAB Chebfun tests/chebfun3/test_laplacian.m (Fable 5).
 
-FIXED (Fable 5): Chebfun3.laplacian / lap added in the audit.
+Both original continuous-norm predicates and source bounds are retained.
 
 Provenance
 ----------
@@ -11,26 +11,20 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
+import pytest
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebpref import ChebfunPref
 
-from ._helpers import EPS, maxdiff
-
-TOL = 50 * EPS
+TOL = 50 * ChebfunPref().cheb3Prefs.chebfun3eps
 
 
-class TestChebfun3Laplacian:
-    def test_all_matlab_assertions(self):
-        # pass(1): laplacian matches the sum of second partials.
-        F = Chebfun3.from_function(
-            lambda x, y, z: jnp.cos(x * z) + jnp.sin(y * z))
-        lapF = F.laplacian()
-        lapF1 = F.diff(1, 2) + F.diff(2, 2) + F.diff(3, 2)
-        assert maxdiff(lapF, lambda x, y, z: lapF1(x, y, z)) < TOL
-
-        # pass(2): second definition check.
-        F = Chebfun3.from_function(
-            lambda x, y, z: jnp.cos(x) + y * z + z ** 2)
-        lapF = F.laplacian()
-        lapF1 = F.diff(1, 2) + F.diff(2, 2) + F.diff(3, 2)
-        assert maxdiff(lapF, lambda x, y, z: lapF1(x, y, z)) < TOL
+@pytest.mark.parametrize("case", [0, 1])
+def test_original_laplacian(case):
+    if case == 0:
+        F = Chebfun3.from_function(lambda x, y, z: jnp.cos(x*z)+jnp.sin(y*z))
+    else:
+        F = Chebfun3.from_function(lambda x, y, z: jnp.cos(x)+y*z+z**2)
+    lapF = F.laplacian()
+    lapF1 = F.diff(dim=1, k=2) + F.diff(dim=2, k=2) + F.diff(dim=3, k=2)
+    assert (lapF1-lapF).norm() < TOL

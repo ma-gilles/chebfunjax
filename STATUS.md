@@ -1,3 +1,16 @@
+## 2026-10-15: original Laplacian predicates and open cost gap
+
+Both original Laplacian predicates now use continuous norms and unchanged
+source bounds. The first passes in a staged source-equivalent driver; the
+second passes as restored pytest. Earlier memory-censored attempts are retained.
+The first case requires about 5.25 GiB and 183 seconds cold. Its result has
+maximum Tucker rank 15 versus native 12; performance and representation parity
+remain open despite passing definition checks. See
+`docs/chebfun3_laplacian_original_cpu_20261015.json`.
+
+CI run 38645758784 reproduced the tracked native-LU comparison failure in
+Core tests (7), job 116132075425. Its tolerance remains unchanged.
+
 ## 2026-10-15: original 3D unary predicates
 
 All six original unary-plus/minus predicates now use their three source

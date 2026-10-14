@@ -1,0 +1,177 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "sources": [
+    "tests/chebfun3/test_laplacian.m",
+    "@chebfun3/laplacian.m",
+    "@chebfun3/rank.m"
+  ],
+  "restoration": "Both original continuous-norm predicates replace sampled maxdiff checks, unchanged50*cheb3eps.",
+  "qualification": {
+    "case0": "Source-equivalent staged driver completed/asserted same predicate with norm0,182.56s; pytest attempts were resource-censored. No claim that censored pytest passed.",
+    "case1": "Actual restored pytest case1 passed16.53s.",
+    "first_case_python_stages": [
+      {
+        "stage": "start",
+        "seconds": 1.843087375164032e-06,
+        "rss_kib": 167856,
+        "shape": null
+      },
+      {
+        "stage": "constructed",
+        "seconds": 7.645987406838685,
+        "rss_kib": 886064,
+        "shape": [
+          6,
+          7,
+          12
+        ]
+      },
+      {
+        "stage": "laplacian",
+        "seconds": 172.05875354306772,
+        "rss_kib": 5404084,
+        "shape": [
+          8,
+          11,
+          15
+        ]
+      },
+      {
+        "stage": "diff1",
+        "seconds": 172.0613081259653,
+        "rss_kib": 5404084,
+        "shape": [
+          6,
+          7,
+          12
+        ]
+      },
+      {
+        "stage": "diff2",
+        "seconds": 172.06375264190137,
+        "rss_kib": 5404084,
+        "shape": [
+          6,
+          7,
+          12
+        ]
+      },
+      {
+        "stage": "diff3",
+        "seconds": 172.0674056499265,
+        "rss_kib": 5404084,
+        "shape": [
+          6,
+          7,
+          12
+        ]
+      },
+      {
+        "stage": "sum12",
+        "seconds": 176.84846007311717,
+        "rss_kib": 5443748,
+        "shape": [
+          7,
+          8,
+          12
+        ]
+      },
+      {
+        "stage": "sum123",
+        "seconds": 178.4177239621058,
+        "rss_kib": 5446820,
+        "shape": [
+          8,
+          11,
+          15
+        ]
+      },
+      {
+        "stage": "difference",
+        "seconds": 181.66811834601685,
+        "rss_kib": 5504244,
+        "shape": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "stage": "norm",
+        "seconds": 182.56009025406092,
+        "rss_kib": 5505396,
+        "shape": null
+      }
+    ],
+    "native": {
+      "construct_seconds": 0.730187,
+      "rank": 12,
+      "lap_seconds": 0.249123,
+      "lap_rank": 12,
+      "reference_seconds": 0.146978,
+      "error": 0,
+      "norm_seconds": 0.167383,
+      "tolerance": 1.1102230246251565e-14
+    }
+  },
+  "validation": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_originals_20261015/laplacian_run/receipt.json",
+      "sha256": "44e5588c33c20aea4aeb21f067bbd09609d154077d7cfcf86537f8c098bb2b37",
+      "command_exit_code": -15,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3154636,
+      "wall_seconds": 86.52917388500646
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_originals_20261015/lap0_run/receipt.json",
+      "sha256": "707c6f964c1098dd26fb03b77a8747504c03af772627b411707eba6df533e20a",
+      "command_exit_code": -15,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 4201880,
+      "wall_seconds": 125.71469243755564
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_originals_20261015/lap_stages_run/receipt.json",
+      "sha256": "565530b4f001c36bb6e2d302ea75f1d647ea93dca033ef76f1be23757a2ce1a9",
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 5506496,
+      "wall_seconds": 189.53532468201593
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_originals_20261015/lap1_run/receipt.json",
+      "sha256": "77da929bc09348b5b45d18e9d301a1964f2dab96f105960cffd49db0a4565a86",
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1293340,
+      "wall_seconds": 19.352898721117526
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_unary_originals_20261015/native_lap_run/receipt.json",
+      "sha256": "782c11c09bf4406a4e5bacb09c88d604bbcef6662f1af52c2f19f9102922fe3a",
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1352308,
+      "wall_seconds": 79.80966810323298
+    }
+  ],
+  "resource_findings": "3GiB combined and4GiB isolated caps censored before laplacian completed. An8GiB diagnostic completed with5,506,496KiB sampled peak. Source construction7.65s, first laplacian164.41s, repeated reference sum6.36s. Compilation overhead is a supported hypothesis, not a fully profiled attribution.",
+  "open_gaps": [
+    "Native single-output rank is max(core dimensions); native Laplacian maxrank12 versus Python15.",
+    "Native laplacian0.249s and subsequent reference0.147s; Python is slower. Diagnostic timing only: native single-thread, Python affinity4CPUs; not a controlled benchmark.",
+    "Original definition predicates compare Laplacian against repeated differentiation/addition, not against native coefficients or analytic derivative accuracy.",
+    "Current CI nativeLU comparison failure remains open."
+  ],
+  "ci_failure_log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_core7_e7fd_20261015.log"
+}
