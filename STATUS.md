@@ -1,3 +1,18 @@
+## 2026-10-14: JAX fixed-hyperparameter GPR core
+
+GPR kernel, covariance, Cholesky, triangular solves, predictions and sample
+arithmetic now use JAX. Training/query noise terms follow the pinned source,
+including duplicate-point behavior. Diagonal variance avoids allocating the
+full query covariance. Merged CPU gate: 15 passed in 21.08s, stable inputs,
+no survivors. The original 21 assertions passed before the final eager
+exception adapter; unchanged function ASTs and valid-factor identity justify
+reuse. Ordinary/trig native values and empty constant prior are qualified.
+
+Noisy public Chebfun approximants, adaptive variance/sample grids, length-scale
+optimizer, empty error contracts and MATLAB RNG remain open. Fixture finiteness
+and retained native error metadata are not parity checks. Main CI remains
+unresolved. Evidence: `docs/gpr_fixed_core_cpu_20261014.json`.
+
 ## 2026-10-14: CPU inverse leaf compilation reuse
 
 Exact-sized JAX eigensystems now reuse fixed-capacity matrix setup for eligible

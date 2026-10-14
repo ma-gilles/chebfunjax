@@ -1,0 +1,3302 @@
+{
+  "schema": "chebfunjax.gpr.native-capture.hex.v1",
+  "native_source": "Chebfun gpr.m and tests/misc/test_gpr.m, pin 7574c77",
+  "capture": "R2025b fixed-L diagnostics; samples_n40 random paths are native-only and seeded for reproducible capture, not cross-language identity",
+  "cases": [
+    {
+      "case_id": "empty_defaultL",
+      "raw_mat": "empty_defaultL.mat",
+      "raw_mat_sha256": "67ab4d2016c300596101f07090d7f01ad9d300bf1318ca83d9e7fb6150a93b06",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "empty_defaultL"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            3,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "0x0.0p+0",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            4
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.8000000000000p+0"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            false
+          ]
+        },
+        "error_identifier": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "CHEBFUN:UNBNDFUN:unbndfun:domain"
+          ]
+        },
+        "error_message": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "Domain argument should be a row vector with two entries in increasing order."
+          ]
+        },
+        "error_stack": {
+          "matlab_class": "cell",
+          "shape": [
+            11,
+            1
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@unbndfun/unbndfun.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "unbndfun.unbndfun"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.5800000000000p+6"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@classicfun/classicfun.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "classicfun.constructor"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.9c00000000000p+6"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@fun/fun.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "fun.constructor"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.9800000000000p+5"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/constructor.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "getFun"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.1400000000000p+8"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/constructor.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "constructorSplit"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.5200000000000p+7"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/constructor.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "constructor"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.e800000000000p+5"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "chebfun.chebfun"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.b600000000000p+7"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/gpr.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "parseInputs"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.3500000000000p+8"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/gpr.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "gpr"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.5400000000000p+6"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_fixed_native_controls_20261014/run2/driver.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "driver"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.4000000000000p+5"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/usr/licensed/matlab-R2025b/toolbox/matlab/lang/run.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "run"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.c000000000000p+6"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "empty_fixedL_emptydomain",
+      "raw_mat": "empty_fixedL_emptydomain.mat",
+      "raw_mat_sha256": "b3f76e1210686f622d8625120d72b426ad89807e3c698f77649e75c2e338dd72",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "empty_fixedL_emptydomain"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.0000000000000p-2",
+            "0x1.0000000000000p-1",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            6
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                0,
+                0
+              ],
+              "order": "F",
+              "values": []
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.999999999999ap-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.8000000000000p+0"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0",
+            "0x0.0p+0",
+            "0x0.0p+0",
+            "0x0.0p+0"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.2000000000000p+1",
+            "0x1.2000000000000p+1",
+            "0x1.2000000000000p+1",
+            "0x1.2000000000000p+1"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        }
+      }
+    },
+    {
+      "case_id": "empty_fixedL_samples",
+      "raw_mat": "empty_fixedL_samples.mat",
+      "raw_mat_sha256": "b11b360f965cd5db868c8c4361aacee6bd1bff8b5345f7ccfdead22c05f697e8",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "empty_fixedL_samples"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            1
+          ],
+          "order": "F",
+          "values": []
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            3,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "0x0.0p+0",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            8
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.999999999999ap-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.8000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "samples"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.0000000000000p+0"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            false
+          ]
+        },
+        "error_identifier": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "MATLAB:nonExistentField"
+          ]
+        },
+        "error_message": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "Unrecognized field name \"sigmaf\"."
+          ]
+        },
+        "error_stack": {
+          "matlab_class": "cell",
+          "shape": [
+            3,
+            1
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/gpr.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "gpr"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.7e00000000000p+7"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_fixed_native_controls_20261014/run2/driver.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "driver"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.3000000000000p+5"
+                  ]
+                }
+              }
+            },
+            {
+              "matlab_class": "struct",
+              "fields": {
+                "file": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "/usr/licensed/matlab-R2025b/toolbox/matlab/lang/run.m"
+                  ]
+                },
+                "name": {
+                  "matlab_class": "char",
+                  "shape": [
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "run"
+                  ]
+                },
+                "line": {
+                  "matlab_class": "double",
+                  "numpy_dtype": "float64",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "order": "F",
+                  "values": [
+                    "0x1.c000000000000p+6"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "noise_duplicate",
+      "raw_mat": "noise_duplicate.mat",
+      "raw_mat_sha256": "a33a47213fa38c64461da6882f037d4192c426d5a5ddbc22882bb7f716322985",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "noise_duplicate"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.0000000000000p-2",
+            "-0x1.0000000000000p-2",
+            "0x1.999999999999ap-2",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.3333333333333p-2",
+            "-0x1.999999999999ap-4",
+            "-0x1.999999999999ap-4",
+            "0x1.0000000000000p-1",
+            "-0x1.999999999999ap-2"
+          ]
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p-2",
+            "-0x1.999999999999ap-4",
+            "0x1.999999999999ap-3",
+            "0x1.6666666666666p-1"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            8
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.999999999999ap-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.3333333333333p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "noise"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.999999999999ap-3"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.72821ef4cc81dp-4",
+            "0x1.1b2f22ccaaa3ap-5",
+            "0x1.976d8bf3fa654p-2",
+            "0x1.5e06aede90c68p-4"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.40f7319ccce74p-5",
+            "0x1.264cc75b7e6cap-3",
+            "0x1.b5d3d9240c9b2p-3",
+            "0x1.e85d6001a5aa8p-3"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.501c26dcb2808p-2",
+            "-0x1.72821ef4cc81dp-4",
+            "-0x1.72821ef4cc81dp-4",
+            "0x1.d58b443ca076bp-2",
+            "-0x1.cd5042e7d8f28p-2"
+          ]
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        }
+      }
+    },
+    {
+      "case_id": "noise_unique",
+      "raw_mat": "noise_unique.mat",
+      "raw_mat_sha256": "d7ac5f26c5b033955b6b7d467a09d07653134c39dacc6d4fcbf7bfec296957b0",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "noise_unique"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.ccccccccccccdp-2",
+            "0x1.999999999999ap-3",
+            "0x1.3333333333333p-1",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.3333333333333p-2",
+            "-0x1.999999999999ap-3",
+            "0x1.0000000000000p-1",
+            "0x1.999999999999ap-4",
+            "-0x1.999999999999ap-2"
+          ]
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            6,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.ccccccccccccdp-2",
+            "-0x1.999999999999ap-3",
+            "0x1.999999999999ap-3",
+            "0x1.999999999999ap-2",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            8
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.6666666666666p-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.4cccccccccccdp+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "noise"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.999999999999ap-3"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            6,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.4fe57171cea47p-2",
+            "-0x1.734fdc8ae6c0ap-3",
+            "0x1.935d9bef0d4c0p-7",
+            "0x1.e53ec323596d5p-2",
+            "0x1.8a43c84a0d71ap-2",
+            "-0x1.b9d2dad6499f2p-2"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            6,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.3fa1d743fb25ap-5",
+            "0x1.35e918648cfa0p-4",
+            "0x1.9978deb67b804p-2",
+            "0x1.32b4fd6987614p-4",
+            "0x1.c881e7f0f3866p-4",
+            "0x1.3d40fc5c727d2p-5"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.4fe57171cea47p-2",
+            "-0x1.734fdc8ae6c0ap-3",
+            "0x1.e53ec323596d5p-2",
+            "0x1.90c1c2e38f0b0p-4",
+            "-0x1.b9d2dad6499f2p-2"
+          ]
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        }
+      }
+    },
+    {
+      "case_id": "ordinary",
+      "raw_mat": "ordinary.mat",
+      "raw_mat_sha256": "afab497de222e366c12caffc67a85ad663546a8fc74f3917f1c742d5fd9a9044",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "ordinary"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.0000000000000p-1",
+            "0x1.999999999999ap-4",
+            "0x1.199999999999ap-1",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.999999999999ap-3",
+            "0x1.999999999999ap-2",
+            "0x1.999999999999ap-1",
+            "-0x1.999999999999ap-4",
+            "0x1.0000000000000p-1"
+          ]
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.8000000000000p-1",
+            "-0x1.999999999999ap-4",
+            "0x1.3333333333333p-2",
+            "0x1.ccccccccccccdp-1"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            6
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.6666666666666p-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.4cccccccccccdp+0"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.8f67429faba40p-6",
+            "0x1.d94d301a00cecp-1",
+            "0x1.5ddb4f9fed128p-2",
+            "0x1.5a5ab7e04e81cp-2"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.778a58bafc191p-3",
+            "0x1.a009b075ab1ccp-3",
+            "0x1.898547cb67f6ap-4",
+            "0x1.a859ddfb44eeep-5"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.9999999999978p-3",
+            "0x1.999999999995ap-2",
+            "0x1.9999999999982p-1",
+            "-0x1.999999999992ep-4",
+            "0x1.fffffffffffccp-2"
+          ]
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        }
+      }
+    },
+    {
+      "case_id": "samples_n40",
+      "raw_mat": "samples_n40.mat",
+      "raw_mat_sha256": "5311dee3259e635230f9ec039d521cf7cb0b4d483270b1a07dc32ed2fd3e6332",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "samples_n40"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            40,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.e5be5be5be5bep-1",
+            "-0x1.cb7cb7cb7cb7cp-1",
+            "-0x1.b13b13b13b13bp-1",
+            "-0x1.96f96f96f96f9p-1",
+            "-0x1.7cb7cb7cb7cb8p-1",
+            "-0x1.6276276276276p-1",
+            "-0x1.4834834834834p-1",
+            "-0x1.2df2df2df2df3p-1",
+            "-0x1.13b13b13b13b1p-1",
+            "-0x1.f2df2df2df2dfp-2",
+            "-0x1.be5be5be5be5cp-2",
+            "-0x1.89d89d89d89d8p-2",
+            "-0x1.5555555555555p-2",
+            "-0x1.20d20d20d20d2p-2",
+            "-0x1.d89d89d89d89dp-3",
+            "-0x1.6f96f96f96f97p-3",
+            "-0x1.0690690690690p-3",
+            "-0x1.3b13b13b13b14p-4",
+            "-0x1.a41a41a41a41ap-6",
+            "0x1.a41a41a41a41ap-6",
+            "0x1.3b13b13b13b14p-4",
+            "0x1.0690690690690p-3",
+            "0x1.6f96f96f96f97p-3",
+            "0x1.d89d89d89d89dp-3",
+            "0x1.20d20d20d20d2p-2",
+            "0x1.5555555555555p-2",
+            "0x1.89d89d89d89d8p-2",
+            "0x1.be5be5be5be5cp-2",
+            "0x1.f2df2df2df2dfp-2",
+            "0x1.13b13b13b13b1p-1",
+            "0x1.2df2df2df2df3p-1",
+            "0x1.4834834834834p-1",
+            "0x1.6276276276276p-1",
+            "0x1.7cb7cb7cb7cb8p-1",
+            "0x1.96f96f96f96f9p-1",
+            "0x1.b13b13b13b13bp-1",
+            "0x1.cb7cb7cb7cb7cp-1",
+            "0x1.e5be5be5be5bep-1",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            40,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.568a44dad4c12p-2",
+            "-0x1.77908d0fee93cp-2",
+            "-0x1.96f616c932cc3p-2",
+            "-0x1.b41eb205a3f8fp-2",
+            "-0x1.ce653cea7a48bp-2",
+            "-0x1.e51cf52c76f93p-2",
+            "-0x1.f79308ec49f15p-2",
+            "-0x1.0288342a7c867p-1",
+            "-0x1.066dec450b6acp-1",
+            "-0x1.071e23cdd1275p-1",
+            "-0x1.043db023946c1p-1",
+            "-0x1.fae85b4a19025p-2",
+            "-0x1.e4db0af169003p-2",
+            "-0x1.c5b71c68772a6p-2",
+            "-0x1.9cef890e8120ep-2",
+            "-0x1.6a0a30d1cd6b2p-2",
+            "-0x1.2ca3953cbb340p-2",
+            "-0x1.c8e5570dcac8ep-3",
+            "-0x1.2299753eccab0p-3",
+            "-0x1.9949c64c71b37p-5",
+            "0x1.aed3278010fe9p-5",
+            "0x1.52edf0ef0a920p-3",
+            "0x1.273825d535316p-2",
+            "0x1.ae7915234dec6p-2",
+            "0x1.1f30bed657abep-1",
+            "0x1.6af18ab93fb55p-1",
+            "0x1.b9dbbc82c431bp-1",
+            "0x1.0597a807396adp+0",
+            "0x1.2f077ce567857p+0",
+            "0x1.58c00661b1996p+0",
+            "0x1.823562f324565p+0",
+            "0x1.aacd8334d986ep+0",
+            "0x1.d1e0c35f0ad90p+0",
+            "0x1.f6bac56998d07p+0",
+            "0x1.0c4dc7e7c226ep+1",
+            "0x1.1b5c7a32c1ec6p+1",
+            "0x1.2820210af71f9p+1",
+            "0x1.322c21cc8064fp+1",
+            "0x1.3911c634dab06p+1",
+            "0x1.3c618a2274afdp+1"
+          ]
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.a8f5c28f5c28fp-1",
+            "-0x1.999999999999ap-3",
+            "0x1.6666666666666p-2",
+            "0x1.d1eb851eb851fp-1"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            8
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.0000000000000p+0",
+                "0x1.0000000000000p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.3333333333333p-2"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.3333333333333p+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "samples"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.0000000000000p+1"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.bcbd371e54de1p-2",
+            "-0x1.467b0caf912bfp-2",
+            "0x1.d41080f14f578p-1",
+            "0x1.342b922a85169p+1"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.0bef595864ed0p-45",
+            "0x1.581bb0787332cp-46",
+            "0x1.66ce82c691150p-46",
+            "0x1.da609e64a7308p-45"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            40,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.568a44db58397p-2",
+            "-0x1.77908d0bb8c2ap-2",
+            "-0x1.96f616d51f84fp-2",
+            "-0x1.b41eb1f66ad6bp-2",
+            "-0x1.ce653cec94343p-2",
+            "-0x1.e51cf53ce8467p-2",
+            "-0x1.f79308e346390p-2",
+            "-0x1.02883421a242cp-1",
+            "-0x1.066dec4ba43fap-1",
+            "-0x1.071e23d833a54p-1",
+            "-0x1.043db01b82e64p-1",
+            "-0x1.fae85b2fff906p-2",
+            "-0x1.e4db0b020ecf0p-2",
+            "-0x1.c5b71c893adb1p-2",
+            "-0x1.9cef890058819p-2",
+            "-0x1.6a0a30aaab4efp-2",
+            "-0x1.2ca39547d570ap-2",
+            "-0x1.c8e5577010d90p-3",
+            "-0x1.2299753b43c60p-3",
+            "-0x1.9949c4866b710p-5",
+            "0x1.aed327c9c5c20p-5",
+            "0x1.52edf06c41230p-3",
+            "0x1.273825bc65024p-2",
+            "0x1.ae79156c43c52p-2",
+            "0x1.1f30beec7bc90p-1",
+            "0x1.6af18a91d2cbcp-1",
+            "0x1.b9dbbc625d71bp-1",
+            "0x1.0597a81cd18abp+0",
+            "0x1.2f077cfa4162ep+0",
+            "0x1.58c00647bac93p+0",
+            "0x1.823562da60193p+0",
+            "0x1.aacd8357404d2p+0",
+            "0x1.d1e0c3765cc46p+0",
+            "0x1.f6bac537193c1p+0",
+            "0x1.0c4dc7e70e458p+1",
+            "0x1.1b5c7a56a330bp+1",
+            "0x1.282020e385c91p+1",
+            "0x1.322c21e2d6427p+1",
+            "0x1.3911c62e005ddp+1",
+            "0x1.3c618a239c000p+1"
+          ]
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.0000000000000p+1"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            4,
+            2
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.bcbc942c2832bp-2",
+            "-0x1.467c749c28288p-2",
+            "0x1.d4117d764e685p-1",
+            "0x1.342ba4b93f347p+1",
+            "-0x1.bcbd7306dc9d8p-2",
+            "-0x1.4679c59d0775fp-2",
+            "0x1.d4114731849efp-1",
+            "0x1.342bb16cfb32bp+1"
+          ]
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.9000000000000p+9"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            800,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.0000000000000p+0",
+            "-0x1.fffefca065684p-1",
+            "-0x1.fffbf2829c6b8p-1",
+            "-0x1.fff6e1a9b9688p-1",
+            "-0x1.ffefca1ade4f0p-1",
+            "-0x1.ffe6abdd3a9a9p-1",
+            "-0x1.ffdb86fa0b4b4p-1",
+            "-0x1.ffce5b7c9adc5p-1",
+            "-0x1.ffbf29724138dp-1",
+            "-0x1.ffadf0ea63adfp-1",
+            "-0x1.ff9ab1f674db9p-1",
+            "-0x1.ff856ca9f4a26p-1",
+            "-0x1.ff6e211a70106p-1",
+            "-0x1.ff54cf5f814aep-1",
+            "-0x1.ff397792cf76ap-1",
+            "-0x1.ff1c19d00e9ddp-1",
+            "-0x1.fefcb634ff940p-1",
+            "-0x1.fedb4ce16fd7fp-1",
+            "-0x1.feb7ddf739738p-1",
+            "-0x1.fe92699a42d92p-1",
+            "-0x1.fe6aeff07ebfcp-1",
+            "-0x1.fe417121ebfc1p-1",
+            "-0x1.fe15ed5895583p-1",
+            "-0x1.fde864c091690p-1",
+            "-0x1.fdb8d78802617p-1",
+            "-0x1.fd8745df15e3fp-1",
+            "-0x1.fd53aff804d15p-1",
+            "-0x1.fd1e160713163p-1",
+            "-0x1.fce678428f75cp-1",
+            "-0x1.fcacd6e2d3530p-1",
+            "-0x1.fc71322242777p-1",
+            "-0x1.fc338a3d4ad82p-1",
+            "-0x1.fbf3df7264583p-1",
+            "-0x1.fbb232021089bp-1",
+            "-0x1.fb6e822eda6c6p-1",
+            "-0x1.fb28d03d562a0p-1",
+            "-0x1.fae11c7420d11p-1",
+            "-0x1.fa97671be00d2p-1",
+            "-0x1.fa4bb07f41dd5p-1",
+            "-0x1.f9fdf8eafc489p-1",
+            "-0x1.f9ae40adcd0fep-1",
+            "-0x1.f95c8818795ecp-1",
+            "-0x1.f908cf7dcd791p-1",
+            "-0x1.f8b317329c676p-1",
+            "-0x1.f85b5f8dbfa0fp-1",
+            "-0x1.f801a8e816b3ap-1",
+            "-0x1.f7a5f39c86ea0p-1",
+            "-0x1.f7484007faef3p-1",
+            "-0x1.f6e88e896270bp-1",
+            "-0x1.f686df81b1be3p-1",
+            "-0x1.f6233353e1678p-1",
+            "-0x1.f5bd8a64edd81p-1",
+            "-0x1.f555e51bd6f09p-1",
+            "-0x1.f4ec43e19f9f0p-1",
+            "-0x1.f480a7214d73fp-1",
+            "-0x1.f4130f47e835fp-1",
+            "-0x1.f3a37cc47973ap-1",
+            "-0x1.f331f0080c12ap-1",
+            "-0x1.f2be6985abdd7p-1",
+            "-0x1.f248e9b2650e9p-1",
+            "-0x1.f1d1710543da4p-1",
+            "-0x1.f157fff753f57p-1",
+            "-0x1.f0dc9703a01bcp-1",
+            "-0x1.f05f36a73191fp-1",
+            "-0x1.efdfdf610fa82p-1",
+            "-0x1.ef5e91b23f38ap-1",
+            "-0x1.eedb4e1dc2252p-1",
+            "-0x1.ee56152896d24p-1",
+            "-0x1.edcee759b7a08p-1",
+            "-0x1.ed45c53a1a63fp-1",
+            "-0x1.ecbaaf54afd8fp-1",
+            "-0x1.ec2da6366317dp-1",
+            "-0x1.eb9eaa6e1905bp-1",
+            "-0x1.eb0dbc8cafc41p-1",
+            "-0x1.ea7add24fe1dap-1",
+            "-0x1.e9e60ccbd2f21p-1",
+            "-0x1.e94f4c17f49ebp-1",
+            "-0x1.e8b69ba220660p-1",
+            "-0x1.e81bfc0509d50p-1",
+            "-0x1.e77f6ddd5a262p-1",
+            "-0x1.e6e0f1c9afa2cp-1",
+            "-0x1.e640886a9d02cp-1",
+            "-0x1.e59e3262a8c91p-1",
+            "-0x1.e4f9f0564c9fdp-1",
+            "-0x1.e453c2ebf4b13p-1",
+            "-0x1.e3abaacbfeff0p-1",
+            "-0x1.e301a8a0bab80p-1",
+            "-0x1.e255bd16678b7p-1",
+            "-0x1.e1a7e8db34fa7p-1",
+            "-0x1.e0f82c9f41a7cp-1",
+            "-0x1.e04689149aa4ep-1",
+            "-0x1.df92feef3abe2p-1",
+            "-0x1.dedd8ee509c40p-1",
+            "-0x1.de2639addbd2fp-1",
+            "-0x1.dd6d000370991p-1",
+            "-0x1.dcb1e2a1729a1p-1",
+            "-0x1.dbf4e24576710p-1",
+            "-0x1.db35ffaefa104p-1",
+            "-0x1.da753b9f63ff4p-1",
+            "-0x1.d9b296da02972p-1",
+            "-0x1.d8ee12240b3c3p-1",
+            "-0x1.d827ae4499966p-1",
+            "-0x1.d75f6c04aec7cp-1",
+            "-0x1.d6954c2f30a06p-1",
+            "-0x1.d5c94f90e8d13p-1",
+            "-0x1.d4fb76f8841c4p-1",
+            "-0x1.d42bc33691837p-1",
+            "-0x1.d35a351d81751p-1",
+            "-0x1.d286cd81a4f6cp-1",
+            "-0x1.d1b18d392cce5p-1",
+            "-0x1.d0da751c28a8cp-1",
+            "-0x1.d0018604863f4p-1",
+            "-0x1.cf26c0ce107a5p-1",
+            "-0x1.ce4a26566e939p-1",
+            "-0x1.cd6bb77d23346p-1",
+            "-0x1.cc8b75238b942p-1",
+            "-0x1.cba9602cde938p-1",
+            "-0x1.cac5797e2bd67p-1",
+            "-0x1.c9dfc1fe5adbdp-1",
+            "-0x1.c8f83a962a13cp-1",
+            "-0x1.c80ee4302df3cp-1",
+            "-0x1.c723bfb8d0092p-1",
+            "-0x1.c636ce1e4e08ep-1",
+            "-0x1.c5481050b8df3p-1",
+            "-0x1.c4578741f3bbdp-1",
+            "-0x1.c36533e5b31cap-1",
+            "-0x1.c27117317bd74p-1",
+            "-0x1.c17b321ca2202p-1",
+            "-0x1.c08385a0488ffp-1",
+            "-0x1.bf8a12b75f26ep-1",
+            "-0x1.be8eda5ea24efp-1",
+            "-0x1.bd91dd9499db8p-1",
+            "-0x1.bc931d599807bp-1",
+            "-0x1.bb929aafb8722p-1",
+            "-0x1.ba90569adf184p-1",
+            "-0x1.b98c5220b74e7p-1",
+            "-0x1.b8868e48b2b6cp-1",
+            "-0x1.b77f0c1c08369p-1",
+            "-0x1.b675cca5b2e99p-1",
+            "-0x1.b56ad0f271133p-1",
+            "-0x1.b45e1a10c30e6p-1",
+            "-0x1.b34fa910ea3b9p-1",
+            "-0x1.b23f7f04e7ecfp-1",
+            "-0x1.b12d9d007c509p-1",
+            "-0x1.b01a041925592p-1",
+            "-0x1.af04b5661da4ep-1",
+            "-0x1.adedb2005b62bp-1",
+            "-0x1.acd4fb028f353p-1",
+            "-0x1.abba918923149p-1",
+            "-0x1.aa9e76b2392e6p-1",
+            "-0x1.a980ab9daac39p-1",
+            "-0x1.a861316d0704ep-1",
+            "-0x1.a740094391ed7p-1",
+            "-0x1.a61d3446431bcp-1",
+            "-0x1.a4f8b39bc4a8cp-1",
+            "-0x1.a3d2886c71fd4p-1",
+            "-0x1.a2aab3e256a5fp-1",
+            "-0x1.a18137292d24fp-1",
+            "-0x1.a056136e5dc29p-1",
+            "-0x1.9f2949e0fd5bbp-1",
+            "-0x1.9dfadbb1cc2edp-1",
+            "-0x1.9ccaca1334a73p-1",
+            "-0x1.9b9916394a266p-1",
+            "-0x1.9a65c159c7cc4p-1",
+            "-0x1.9930ccac0f3d0p-1",
+            "-0x1.97fa39692765cp-1",
+            "-0x1.96c208cbbb3f7p-1",
+            "-0x1.95883c10188fdp-1",
+            "-0x1.944cd4742ea95p-1",
+            "-0x1.930fd3378d286p-1",
+            "-0x1.91d1399b62b08p-1",
+            "-0x1.909108e27ba5ep-1",
+            "-0x1.8f4f425140e72p-1",
+            "-0x1.8e0be72db6841p-1",
+            "-0x1.8cc6f8bf7a73dp-1",
+            "-0x1.8b80784fc348bp-1",
+            "-0x1.8a3867295ee25p-1",
+            "-0x1.88eec698b11f4p-1",
+            "-0x1.87a397ebb28b6p-1",
+            "-0x1.8656dc71ef0e1p-1",
+            "-0x1.8508957c8495fp-1",
+            "-0x1.83b8c45e21c3ap-1",
+            "-0x1.82676a6b04923p-1",
+            "-0x1.811488f8f8febp-1",
+            "-0x1.7fc0215f57adbp-1",
+            "-0x1.7e6a34f7048fep-1",
+            "-0x1.7d12c51a6d83dp-1",
+            "-0x1.7bb9d32588f7ap-1",
+            "-0x1.7a5f6075d4884p-1",
+            "-0x1.79036e6a539f2p-1",
+            "-0x1.77a5fe638e0efp-1",
+            "-0x1.764711c38eadfp-1",
+            "-0x1.74e6a9ede1effp-1",
+            "-0x1.7384c847947d5p-1",
+            "-0x1.72216e3731c9dp-1",
+            "-0x1.70bc9d24c2a90p-1",
+            "-0x1.6f565679cbe1ap-1",
+            "-0x1.6dee9ba14cbf2p-1",
+            "-0x1.6c856e07bda24p-1",
+            "-0x1.6b1acf1b0e8f6p-1",
+            "-0x1.69aec04aa5bbdp-1",
+            "-0x1.684143075e19ep-1",
+            "-0x1.66d258c385e2bp-1",
+            "-0x1.656202f2dd1f8p-1",
+            "-0x1.63f0430a9430ap-1",
+            "-0x1.627d1a814a53bp-1",
+            "-0x1.61088acf0c27ap-1",
+            "-0x1.5f92956d52302p-1",
+            "-0x1.5e1b3bd6ff56fp-1",
+            "-0x1.5ca27f885f6c1p-1",
+            "-0x1.5b2861ff25a48p-1",
+            "-0x1.59ace4ba6b174p-1",
+            "-0x1.5830093aad39ap-1",
+            "-0x1.56b1d101cc594p-1",
+            "-0x1.55323d930a156p-1",
+            "-0x1.53b1507307d64p-1",
+            "-0x1.522f0b27c543fp-1",
+            "-0x1.50ab6f389eba7p-1",
+            "-0x1.4f267e2e4bbdap-1",
+            "-0x1.4da03992dd6b4p-1",
+            "-0x1.4c18a2f1bcebcp-1",
+            "-0x1.4a8fbbd7a9e18p-1",
+            "-0x1.490585d2b8d70p-1",
+            "-0x1.477a027251ab2p-1",
+            "-0x1.45ed33472dfd3p-1",
+            "-0x1.445f19e357964p-1",
+            "-0x1.42cfb7da26d23p-1",
+            "-0x1.413f0ec04106ep-1",
+            "-0x1.3fad202b96ea3p-1",
+            "-0x1.3e19edb362f6cp-1",
+            "-0x1.3c8578f027cf6p-1",
+            "-0x1.3aefc37baea15p-1",
+            "-0x1.3958cef105849p-1",
+            "-0x1.37c09cec7ddc0p-1",
+            "-0x1.36272f0baab33p-1",
+            "-0x1.348c86ed5f1bbp-1",
+            "-0x1.32f0a631ac888p-1",
+            "-0x1.31538e79e1289p-1",
+            "-0x1.2fb5416886403p-1",
+            "-0x1.2e15c0a15e80dp-1",
+            "-0x1.2c750dc9645f6p-1",
+            "-0x1.2ad32a86c86a9p-1",
+            "-0x1.29301880ef9e6p-1",
+            "-0x1.278bd96071b79p-1",
+            "-0x1.25e66ecf17853p-1",
+            "-0x1.243fda77d9394p-1",
+            "-0x1.22981e06dcb85p-1",
+            "-0x1.20ef3b2973e78p-1",
+            "-0x1.1f45338e1af98p-1",
+            "-0x1.1d9a08e476bacp-1",
+            "-0x1.1bedbcdd52db9p-1",
+            "-0x1.1a40512aa039fp-1",
+            "-0x1.1891c77f732a2p-1",
+            "-0x1.16e2219001bd4p-1",
+            "-0x1.15316111a207ep-1",
+            "-0x1.137f87bac866ap-1",
+            "-0x1.11cc974305c1ep-1",
+            "-0x1.1018916305d0ep-1",
+            "-0x1.0e6377d48d5a9p-1",
+            "-0x1.0cad4c527876ap-1",
+            "-0x1.0af61098b8cc7p-1",
+            "-0x1.093dc66453d13p-1",
+            "-0x1.07846f7361058p-1",
+            "-0x1.05ca0d850830cp-1",
+            "-0x1.040ea2597f9cap-1",
+            "-0x1.02522fb20a4ebp-1",
+            "-0x1.0094b750f6417p-1",
+            "-0x1.fdac75f335372p-2",
+            "-0x1.fa2d78e0abcecp-2",
+            "-0x1.f6ac7af5188fbp-2",
+            "-0x1.f3297fbd4b5b4p-2",
+            "-0x1.efa48ac818151p-2",
+            "-0x1.ec1d9fa653080p-2",
+            "-0x1.e894c1eacd49ep-2",
+            "-0x1.e509f52a511c1p-2",
+            "-0x1.e17d3cfb9e4aep-2",
+            "-0x1.ddee9cf7668abp-2",
+            "-0x1.da5e18b849d32p-2",
+            "-0x1.d6cbb3dad2b80p-2",
+            "-0x1.d33771fd72c12p-2",
+            "-0x1.cfa156c07ebf2p-2",
+            "-0x1.cc0965c62b1f5p-2",
+            "-0x1.c86fa2b2883cdp-2",
+            "-0x1.c4d4112b7eb08p-2",
+            "-0x1.c136b4d8cb9eep-2",
+            "-0x1.bd979163fd037p-2",
+            "-0x1.b9f6aa786dfb9p-2",
+            "-0x1.b65403c3430e3p-2",
+            "-0x1.b2afa0f366728p-2",
+            "-0x1.af0985b984546p-2",
+            "-0x1.ab61b5c80717cp-2",
+            "-0x1.a7b834d313990p-2",
+            "-0x1.a40d0690856d2p-2",
+            "-0x1.a0602eb7eb1ecp-2",
+            "-0x1.9cb1b102826a4p-2",
+            "-0x1.9901912b3477fp-2",
+            "-0x1.954fd2ee92148p-2",
+            "-0x1.919c7a0acfe83p-2",
+            "-0x1.8de78a3fc2ab7p-2",
+            "-0x1.8a31074edb5aap-2",
+            "-0x1.8678f4fb23683p-2",
+            "-0x1.82bf570938ec6p-2",
+            "-0x1.7f04313f4ad4ap-2",
+            "-0x1.7b47876515100p-2",
+            "-0x1.77895d43dcbaep-2",
+            "-0x1.73c9b6a66c494p-2",
+            "-0x1.700897590faebp-2",
+            "-0x1.6c46032990856p-2",
+            "-0x1.6881fde73233ep-2",
+            "-0x1.64bc8b62ae105p-2",
+            "-0x1.60f5af6e2f834p-2",
+            "-0x1.5d2d6ddd50289p-2",
+            "-0x1.5963ca8513eecp-2",
+            "-0x1.5598c93be5357p-2",
+            "-0x1.51cc6dd990e97p-2",
+            "-0x1.4dfebc3742a04p-2",
+            "-0x1.4a2fb82f80b21p-2",
+            "-0x1.465f659e2851fp-2",
+            "-0x1.428dc86069a55p-2",
+            "-0x1.3ebae454c3d93p-2",
+            "-0x1.3ae6bd5b01373p-2",
+            "-0x1.3711575433385p-2",
+            "-0x1.333ab622ae971p-2",
+            "-0x1.2f62ddaa075fap-2",
+            "-0x1.2b89d1cf0cff8p-2",
+            "-0x1.27af9677c653ap-2",
+            "-0x1.23d42f8b6db4cp-2",
+            "-0x1.1ff7a0f26d039p-2",
+            "-0x1.1c19ee9659b2bp-2",
+            "-0x1.183b1c61f0d00p-2",
+            "-0x1.145b2e41130d2p-2",
+            "-0x1.107a2820c0c58p-2",
+            "-0x1.0c980def1604cp-2",
+            "-0x1.08b4e39b468b5p-2",
+            "-0x1.04d0ad1599d19p-2",
+            "-0x1.00eb6e4f670a8p-2",
+            "-0x1.fa0a5676224a9p-3",
+            "-0x1.f23bcf98059a2p-3",
+            "-0x1.ea6b4fed54d1ap-3",
+            "-0x1.e298df60ec320p-3",
+            "-0x1.dac485df9f6a5p-3",
+            "-0x1.d2ee4b5831901p-3",
+            "-0x1.cb1637bb4d156p-3",
+            "-0x1.c33c52fb7bbdfp-3",
+            "-0x1.bb60a50d1e919p-3",
+            "-0x1.b38335e665cc7p-3",
+            "-0x1.aba40d7f48cf4p-3",
+            "-0x1.a3c333d17e0b1p-3",
+            "-0x1.9be0b0d872ed5p-3",
+            "-0x1.93fc8c9143c9bp-3",
+            "-0x1.8c16cefab3c17p-3",
+            "-0x1.842f801524aa2p-3",
+            "-0x1.7c46a7e28ef24p-3",
+            "-0x1.745c4e667983dp-3",
+            "-0x1.6c707ba5f1a67p-3",
+            "-0x1.648337a782de8p-3",
+            "-0x1.5c948a732ecc1p-3",
+            "-0x1.54a47c126507cp-3",
+            "-0x1.4cb3148ffafdep-3",
+            "-0x1.44c05bf823c8bp-3",
+            "-0x1.3ccc5a5868092p-3",
+            "-0x1.34d717bf9dbdcp-3",
+            "-0x1.2ce09c3de0195p-3",
+            "-0x1.24e8efe48756bp-3",
+            "-0x1.1cf01ac6208d2p-3",
+            "-0x1.14f624f66581cp-3",
+            "-0x1.0cfb168a34792p-3",
+            "-0x1.04fef7978806cp-3",
+            "-0x1.fa03a06addb85p-4",
+            "-0x1.ea0750f8072c2p-4",
+            "-0x1.da091108c9131p-4",
+            "-0x1.ca08f0d1571e5p-4",
+            "-0x1.ba070087cb9b9p-4",
+            "-0x1.aa0350641707cp-4",
+            "-0x1.99fdf09fefa16p-4",
+            "-0x1.89f6f176c0f70p-4",
+            "-0x1.79ee63259b75dp-4",
+            "-0x1.69e455eb23f55p-4",
+            "-0x1.59d8da0783422p-4",
+            "-0x1.49cbffbc55a6dp-4",
+            "-0x1.39bdd74c9a73ep-4",
+            "-0x1.29ae70fca3857p-4",
+            "-0x1.199ddd1204c7ep-4",
+            "-0x1.098c2bd383bc4p-4",
+            "-0x1.f2f2db120df30p-5",
+            "-0x1.d2cb64f70b5d3p-5",
+            "-0x1.b2a215e9ee43bp-5",
+            "-0x1.92770e8084616p-5",
+            "-0x1.724a6f52599a5p-5",
+            "-0x1.521c58f896f76p-5",
+            "-0x1.31ecec0de19e5p-5",
+            "-0x1.11bc492e39c9cp-5",
+            "-0x1.e31521edb37d7p-6",
+            "-0x1.a2afc80c29833p-6",
+            "-0x1.6248c5f66c136p-6",
+            "-0x1.21e05cecbf680p-6",
+            "-0x1.c2ed9c61a6d38p-7",
+            "-0x1.4218b60b0324ep-7",
+            "-0x1.828512ba2b379p-8",
+            "-0x1.01ae6382aacfap-9",
+            "0x1.01ae6382aacfap-9",
+            "0x1.828512ba2b379p-8",
+            "0x1.4218b60b0324ep-7",
+            "0x1.c2ed9c61a6d38p-7",
+            "0x1.21e05cecbf680p-6",
+            "0x1.6248c5f66c136p-6",
+            "0x1.a2afc80c29833p-6",
+            "0x1.e31521edb37d7p-6",
+            "0x1.11bc492e39c9cp-5",
+            "0x1.31ecec0de19e5p-5",
+            "0x1.521c58f896f76p-5",
+            "0x1.724a6f52599a5p-5",
+            "0x1.92770e8084616p-5",
+            "0x1.b2a215e9ee43bp-5",
+            "0x1.d2cb64f70b5d3p-5",
+            "0x1.f2f2db120df30p-5",
+            "0x1.098c2bd383bc4p-4",
+            "0x1.199ddd1204c7ep-4",
+            "0x1.29ae70fca3857p-4",
+            "0x1.39bdd74c9a73ep-4",
+            "0x1.49cbffbc55a6dp-4",
+            "0x1.59d8da0783422p-4",
+            "0x1.69e455eb23f55p-4",
+            "0x1.79ee63259b75dp-4",
+            "0x1.89f6f176c0f70p-4",
+            "0x1.99fdf09fefa16p-4",
+            "0x1.aa0350641707cp-4",
+            "0x1.ba070087cb9b9p-4",
+            "0x1.ca08f0d1571e5p-4",
+            "0x1.da091108c9131p-4",
+            "0x1.ea0750f8072c2p-4",
+            "0x1.fa03a06addb85p-4",
+            "0x1.04fef7978806cp-3",
+            "0x1.0cfb168a34792p-3",
+            "0x1.14f624f66581cp-3",
+            "0x1.1cf01ac6208d2p-3",
+            "0x1.24e8efe48756bp-3",
+            "0x1.2ce09c3de0195p-3",
+            "0x1.34d717bf9dbdcp-3",
+            "0x1.3ccc5a5868092p-3",
+            "0x1.44c05bf823c8bp-3",
+            "0x1.4cb3148ffafdep-3",
+            "0x1.54a47c126507cp-3",
+            "0x1.5c948a732ecc1p-3",
+            "0x1.648337a782de8p-3",
+            "0x1.6c707ba5f1a67p-3",
+            "0x1.745c4e667983dp-3",
+            "0x1.7c46a7e28ef24p-3",
+            "0x1.842f801524aa2p-3",
+            "0x1.8c16cefab3c17p-3",
+            "0x1.93fc8c9143c9bp-3",
+            "0x1.9be0b0d872ed5p-3",
+            "0x1.a3c333d17e0b1p-3",
+            "0x1.aba40d7f48cf4p-3",
+            "0x1.b38335e665cc7p-3",
+            "0x1.bb60a50d1e919p-3",
+            "0x1.c33c52fb7bbdfp-3",
+            "0x1.cb1637bb4d156p-3",
+            "0x1.d2ee4b5831901p-3",
+            "0x1.dac485df9f6a5p-3",
+            "0x1.e298df60ec320p-3",
+            "0x1.ea6b4fed54d1ap-3",
+            "0x1.f23bcf98059a2p-3",
+            "0x1.fa0a5676224a9p-3",
+            "0x1.00eb6e4f670a8p-2",
+            "0x1.04d0ad1599d19p-2",
+            "0x1.08b4e39b468b5p-2",
+            "0x1.0c980def1604cp-2",
+            "0x1.107a2820c0c58p-2",
+            "0x1.145b2e41130d2p-2",
+            "0x1.183b1c61f0d00p-2",
+            "0x1.1c19ee9659b2bp-2",
+            "0x1.1ff7a0f26d039p-2",
+            "0x1.23d42f8b6db4cp-2",
+            "0x1.27af9677c653ap-2",
+            "0x1.2b89d1cf0cff8p-2",
+            "0x1.2f62ddaa075fap-2",
+            "0x1.333ab622ae971p-2",
+            "0x1.3711575433385p-2",
+            "0x1.3ae6bd5b01373p-2",
+            "0x1.3ebae454c3d93p-2",
+            "0x1.428dc86069a55p-2",
+            "0x1.465f659e2851fp-2",
+            "0x1.4a2fb82f80b21p-2",
+            "0x1.4dfebc3742a04p-2",
+            "0x1.51cc6dd990e97p-2",
+            "0x1.5598c93be5357p-2",
+            "0x1.5963ca8513eecp-2",
+            "0x1.5d2d6ddd50289p-2",
+            "0x1.60f5af6e2f834p-2",
+            "0x1.64bc8b62ae105p-2",
+            "0x1.6881fde73233ep-2",
+            "0x1.6c46032990856p-2",
+            "0x1.700897590faebp-2",
+            "0x1.73c9b6a66c494p-2",
+            "0x1.77895d43dcbaep-2",
+            "0x1.7b47876515100p-2",
+            "0x1.7f04313f4ad4ap-2",
+            "0x1.82bf570938ec6p-2",
+            "0x1.8678f4fb23683p-2",
+            "0x1.8a31074edb5aap-2",
+            "0x1.8de78a3fc2ab7p-2",
+            "0x1.919c7a0acfe83p-2",
+            "0x1.954fd2ee92148p-2",
+            "0x1.9901912b3477fp-2",
+            "0x1.9cb1b102826a4p-2",
+            "0x1.a0602eb7eb1ecp-2",
+            "0x1.a40d0690856d2p-2",
+            "0x1.a7b834d313990p-2",
+            "0x1.ab61b5c80717cp-2",
+            "0x1.af0985b984546p-2",
+            "0x1.b2afa0f366728p-2",
+            "0x1.b65403c3430e3p-2",
+            "0x1.b9f6aa786dfb9p-2",
+            "0x1.bd979163fd037p-2",
+            "0x1.c136b4d8cb9eep-2",
+            "0x1.c4d4112b7eb08p-2",
+            "0x1.c86fa2b2883cdp-2",
+            "0x1.cc0965c62b1f5p-2",
+            "0x1.cfa156c07ebf2p-2",
+            "0x1.d33771fd72c12p-2",
+            "0x1.d6cbb3dad2b80p-2",
+            "0x1.da5e18b849d32p-2",
+            "0x1.ddee9cf7668abp-2",
+            "0x1.e17d3cfb9e4aep-2",
+            "0x1.e509f52a511c1p-2",
+            "0x1.e894c1eacd49ep-2",
+            "0x1.ec1d9fa653080p-2",
+            "0x1.efa48ac818151p-2",
+            "0x1.f3297fbd4b5b4p-2",
+            "0x1.f6ac7af5188fbp-2",
+            "0x1.fa2d78e0abcecp-2",
+            "0x1.fdac75f335372p-2",
+            "0x1.0094b750f6417p-1",
+            "0x1.02522fb20a4ebp-1",
+            "0x1.040ea2597f9cap-1",
+            "0x1.05ca0d850830cp-1",
+            "0x1.07846f7361058p-1",
+            "0x1.093dc66453d13p-1",
+            "0x1.0af61098b8cc7p-1",
+            "0x1.0cad4c527876ap-1",
+            "0x1.0e6377d48d5a9p-1",
+            "0x1.1018916305d0ep-1",
+            "0x1.11cc974305c1ep-1",
+            "0x1.137f87bac866ap-1",
+            "0x1.15316111a207ep-1",
+            "0x1.16e2219001bd4p-1",
+            "0x1.1891c77f732a2p-1",
+            "0x1.1a40512aa039fp-1",
+            "0x1.1bedbcdd52db9p-1",
+            "0x1.1d9a08e476bacp-1",
+            "0x1.1f45338e1af98p-1",
+            "0x1.20ef3b2973e78p-1",
+            "0x1.22981e06dcb85p-1",
+            "0x1.243fda77d9394p-1",
+            "0x1.25e66ecf17853p-1",
+            "0x1.278bd96071b79p-1",
+            "0x1.29301880ef9e6p-1",
+            "0x1.2ad32a86c86a9p-1",
+            "0x1.2c750dc9645f6p-1",
+            "0x1.2e15c0a15e80dp-1",
+            "0x1.2fb5416886403p-1",
+            "0x1.31538e79e1289p-1",
+            "0x1.32f0a631ac888p-1",
+            "0x1.348c86ed5f1bbp-1",
+            "0x1.36272f0baab33p-1",
+            "0x1.37c09cec7ddc0p-1",
+            "0x1.3958cef105849p-1",
+            "0x1.3aefc37baea15p-1",
+            "0x1.3c8578f027cf6p-1",
+            "0x1.3e19edb362f6cp-1",
+            "0x1.3fad202b96ea3p-1",
+            "0x1.413f0ec04106ep-1",
+            "0x1.42cfb7da26d23p-1",
+            "0x1.445f19e357964p-1",
+            "0x1.45ed33472dfd3p-1",
+            "0x1.477a027251ab2p-1",
+            "0x1.490585d2b8d70p-1",
+            "0x1.4a8fbbd7a9e18p-1",
+            "0x1.4c18a2f1bcebcp-1",
+            "0x1.4da03992dd6b4p-1",
+            "0x1.4f267e2e4bbdap-1",
+            "0x1.50ab6f389eba7p-1",
+            "0x1.522f0b27c543fp-1",
+            "0x1.53b1507307d64p-1",
+            "0x1.55323d930a156p-1",
+            "0x1.56b1d101cc594p-1",
+            "0x1.5830093aad39ap-1",
+            "0x1.59ace4ba6b174p-1",
+            "0x1.5b2861ff25a48p-1",
+            "0x1.5ca27f885f6c1p-1",
+            "0x1.5e1b3bd6ff56fp-1",
+            "0x1.5f92956d52302p-1",
+            "0x1.61088acf0c27ap-1",
+            "0x1.627d1a814a53bp-1",
+            "0x1.63f0430a9430ap-1",
+            "0x1.656202f2dd1f8p-1",
+            "0x1.66d258c385e2bp-1",
+            "0x1.684143075e19ep-1",
+            "0x1.69aec04aa5bbdp-1",
+            "0x1.6b1acf1b0e8f6p-1",
+            "0x1.6c856e07bda24p-1",
+            "0x1.6dee9ba14cbf2p-1",
+            "0x1.6f565679cbe1ap-1",
+            "0x1.70bc9d24c2a90p-1",
+            "0x1.72216e3731c9dp-1",
+            "0x1.7384c847947d5p-1",
+            "0x1.74e6a9ede1effp-1",
+            "0x1.764711c38eadfp-1",
+            "0x1.77a5fe638e0efp-1",
+            "0x1.79036e6a539f2p-1",
+            "0x1.7a5f6075d4884p-1",
+            "0x1.7bb9d32588f7ap-1",
+            "0x1.7d12c51a6d83dp-1",
+            "0x1.7e6a34f7048fep-1",
+            "0x1.7fc0215f57adbp-1",
+            "0x1.811488f8f8febp-1",
+            "0x1.82676a6b04923p-1",
+            "0x1.83b8c45e21c3ap-1",
+            "0x1.8508957c8495fp-1",
+            "0x1.8656dc71ef0e1p-1",
+            "0x1.87a397ebb28b6p-1",
+            "0x1.88eec698b11f4p-1",
+            "0x1.8a3867295ee25p-1",
+            "0x1.8b80784fc348bp-1",
+            "0x1.8cc6f8bf7a73dp-1",
+            "0x1.8e0be72db6841p-1",
+            "0x1.8f4f425140e72p-1",
+            "0x1.909108e27ba5ep-1",
+            "0x1.91d1399b62b08p-1",
+            "0x1.930fd3378d286p-1",
+            "0x1.944cd4742ea95p-1",
+            "0x1.95883c10188fdp-1",
+            "0x1.96c208cbbb3f7p-1",
+            "0x1.97fa39692765cp-1",
+            "0x1.9930ccac0f3d0p-1",
+            "0x1.9a65c159c7cc4p-1",
+            "0x1.9b9916394a266p-1",
+            "0x1.9ccaca1334a73p-1",
+            "0x1.9dfadbb1cc2edp-1",
+            "0x1.9f2949e0fd5bbp-1",
+            "0x1.a056136e5dc29p-1",
+            "0x1.a18137292d24fp-1",
+            "0x1.a2aab3e256a5fp-1",
+            "0x1.a3d2886c71fd4p-1",
+            "0x1.a4f8b39bc4a8cp-1",
+            "0x1.a61d3446431bcp-1",
+            "0x1.a740094391ed7p-1",
+            "0x1.a861316d0704ep-1",
+            "0x1.a980ab9daac39p-1",
+            "0x1.aa9e76b2392e6p-1",
+            "0x1.abba918923149p-1",
+            "0x1.acd4fb028f353p-1",
+            "0x1.adedb2005b62bp-1",
+            "0x1.af04b5661da4ep-1",
+            "0x1.b01a041925592p-1",
+            "0x1.b12d9d007c509p-1",
+            "0x1.b23f7f04e7ecfp-1",
+            "0x1.b34fa910ea3b9p-1",
+            "0x1.b45e1a10c30e6p-1",
+            "0x1.b56ad0f271133p-1",
+            "0x1.b675cca5b2e99p-1",
+            "0x1.b77f0c1c08369p-1",
+            "0x1.b8868e48b2b6cp-1",
+            "0x1.b98c5220b74e7p-1",
+            "0x1.ba90569adf184p-1",
+            "0x1.bb929aafb8722p-1",
+            "0x1.bc931d599807bp-1",
+            "0x1.bd91dd9499db8p-1",
+            "0x1.be8eda5ea24efp-1",
+            "0x1.bf8a12b75f26ep-1",
+            "0x1.c08385a0488ffp-1",
+            "0x1.c17b321ca2202p-1",
+            "0x1.c27117317bd74p-1",
+            "0x1.c36533e5b31cap-1",
+            "0x1.c4578741f3bbdp-1",
+            "0x1.c5481050b8df3p-1",
+            "0x1.c636ce1e4e08ep-1",
+            "0x1.c723bfb8d0092p-1",
+            "0x1.c80ee4302df3cp-1",
+            "0x1.c8f83a962a13cp-1",
+            "0x1.c9dfc1fe5adbdp-1",
+            "0x1.cac5797e2bd67p-1",
+            "0x1.cba9602cde938p-1",
+            "0x1.cc8b75238b942p-1",
+            "0x1.cd6bb77d23346p-1",
+            "0x1.ce4a26566e939p-1",
+            "0x1.cf26c0ce107a5p-1",
+            "0x1.d0018604863f4p-1",
+            "0x1.d0da751c28a8cp-1",
+            "0x1.d1b18d392cce5p-1",
+            "0x1.d286cd81a4f6cp-1",
+            "0x1.d35a351d81751p-1",
+            "0x1.d42bc33691837p-1",
+            "0x1.d4fb76f8841c4p-1",
+            "0x1.d5c94f90e8d13p-1",
+            "0x1.d6954c2f30a06p-1",
+            "0x1.d75f6c04aec7cp-1",
+            "0x1.d827ae4499966p-1",
+            "0x1.d8ee12240b3c3p-1",
+            "0x1.d9b296da02972p-1",
+            "0x1.da753b9f63ff4p-1",
+            "0x1.db35ffaefa104p-1",
+            "0x1.dbf4e24576710p-1",
+            "0x1.dcb1e2a1729a1p-1",
+            "0x1.dd6d000370991p-1",
+            "0x1.de2639addbd2fp-1",
+            "0x1.dedd8ee509c40p-1",
+            "0x1.df92feef3abe2p-1",
+            "0x1.e04689149aa4ep-1",
+            "0x1.e0f82c9f41a7cp-1",
+            "0x1.e1a7e8db34fa7p-1",
+            "0x1.e255bd16678b7p-1",
+            "0x1.e301a8a0bab80p-1",
+            "0x1.e3abaacbfeff0p-1",
+            "0x1.e453c2ebf4b13p-1",
+            "0x1.e4f9f0564c9fdp-1",
+            "0x1.e59e3262a8c91p-1",
+            "0x1.e640886a9d02cp-1",
+            "0x1.e6e0f1c9afa2cp-1",
+            "0x1.e77f6ddd5a262p-1",
+            "0x1.e81bfc0509d50p-1",
+            "0x1.e8b69ba220660p-1",
+            "0x1.e94f4c17f49ebp-1",
+            "0x1.e9e60ccbd2f21p-1",
+            "0x1.ea7add24fe1dap-1",
+            "0x1.eb0dbc8cafc41p-1",
+            "0x1.eb9eaa6e1905bp-1",
+            "0x1.ec2da6366317dp-1",
+            "0x1.ecbaaf54afd8fp-1",
+            "0x1.ed45c53a1a63fp-1",
+            "0x1.edcee759b7a08p-1",
+            "0x1.ee56152896d24p-1",
+            "0x1.eedb4e1dc2252p-1",
+            "0x1.ef5e91b23f38ap-1",
+            "0x1.efdfdf610fa82p-1",
+            "0x1.f05f36a73191fp-1",
+            "0x1.f0dc9703a01bcp-1",
+            "0x1.f157fff753f57p-1",
+            "0x1.f1d1710543da4p-1",
+            "0x1.f248e9b2650e9p-1",
+            "0x1.f2be6985abdd7p-1",
+            "0x1.f331f0080c12ap-1",
+            "0x1.f3a37cc47973ap-1",
+            "0x1.f4130f47e835fp-1",
+            "0x1.f480a7214d73fp-1",
+            "0x1.f4ec43e19f9f0p-1",
+            "0x1.f555e51bd6f09p-1",
+            "0x1.f5bd8a64edd81p-1",
+            "0x1.f6233353e1678p-1",
+            "0x1.f686df81b1be3p-1",
+            "0x1.f6e88e896270bp-1",
+            "0x1.f7484007faef3p-1",
+            "0x1.f7a5f39c86ea0p-1",
+            "0x1.f801a8e816b3ap-1",
+            "0x1.f85b5f8dbfa0fp-1",
+            "0x1.f8b317329c676p-1",
+            "0x1.f908cf7dcd791p-1",
+            "0x1.f95c8818795ecp-1",
+            "0x1.f9ae40adcd0fep-1",
+            "0x1.f9fdf8eafc489p-1",
+            "0x1.fa4bb07f41dd5p-1",
+            "0x1.fa97671be00d2p-1",
+            "0x1.fae11c7420d11p-1",
+            "0x1.fb28d03d562a0p-1",
+            "0x1.fb6e822eda6c6p-1",
+            "0x1.fbb232021089bp-1",
+            "0x1.fbf3df7264583p-1",
+            "0x1.fc338a3d4ad82p-1",
+            "0x1.fc71322242777p-1",
+            "0x1.fcacd6e2d3530p-1",
+            "0x1.fce678428f75cp-1",
+            "0x1.fd1e160713163p-1",
+            "0x1.fd53aff804d15p-1",
+            "0x1.fd8745df15e3fp-1",
+            "0x1.fdb8d78802617p-1",
+            "0x1.fde864c091690p-1",
+            "0x1.fe15ed5895583p-1",
+            "0x1.fe417121ebfc1p-1",
+            "0x1.fe6aeff07ebfcp-1",
+            "0x1.fe92699a42d92p-1",
+            "0x1.feb7ddf739738p-1",
+            "0x1.fedb4ce16fd7fp-1",
+            "0x1.fefcb634ff940p-1",
+            "0x1.ff1c19d00e9ddp-1",
+            "0x1.ff397792cf76ap-1",
+            "0x1.ff54cf5f814aep-1",
+            "0x1.ff6e211a70106p-1",
+            "0x1.ff856ca9f4a26p-1",
+            "0x1.ff9ab1f674db9p-1",
+            "0x1.ffadf0ea63adfp-1",
+            "0x1.ffbf29724138dp-1",
+            "0x1.ffce5b7c9adc5p-1",
+            "0x1.ffdb86fa0b4b4p-1",
+            "0x1.ffe6abdd3a9a9p-1",
+            "0x1.ffefca1ade4f0p-1",
+            "0x1.fff6e1a9b9688p-1",
+            "0x1.fffbf2829c6b8p-1",
+            "0x1.fffefca065684p-1",
+            "0x1.0000000000000p+0"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "trig",
+      "raw_mat": "trig.mat",
+      "raw_mat_sha256": "1a3405191b5062b033d416a64045b35d019292d989c43e2afeaa279502eb7d3c",
+      "variables": {
+        "case_id": {
+          "matlab_class": "char",
+          "shape": [
+            1
+          ],
+          "order": "F",
+          "values": [
+            "trig"
+          ]
+        },
+        "x": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.921fb54442d18p+1",
+            "-0x1.921fb54442d18p+0",
+            "0x0.0p+0",
+            "0x1.921fb54442d18p+0",
+            "0x1.921fb54442d18p+1"
+          ]
+        },
+        "y": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.0000000000000p+0",
+            "-0x1.0000000000000p+0",
+            "0x1.0000000000000p+0",
+            "-0x1.0000000000000p+0",
+            "0x1.0000000000000p+0"
+          ]
+        },
+        "query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "-0x1.921fb54442d18p+1",
+            "-0x1.0cccccccccccdp+1",
+            "-0x1.3333333333333p-2",
+            "0x1.6666666666666p+0",
+            "0x1.921fb54442d18p+1"
+          ]
+        },
+        "options": {
+          "matlab_class": "cell",
+          "shape": [
+            1,
+            7
+          ],
+          "order": "F",
+          "values": [
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "domain"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                2
+              ],
+              "order": "F",
+              "values": [
+                "-0x1.921fb54442d18p+1",
+                "0x1.921fb54442d18p+1"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "L"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.3333333333333p-1"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "sigma"
+              ]
+            },
+            {
+              "matlab_class": "double",
+              "numpy_dtype": "float64",
+              "shape": [
+                1,
+                1
+              ],
+              "order": "F",
+              "values": [
+                "0x1.199999999999ap+0"
+              ]
+            },
+            {
+              "matlab_class": "char",
+              "shape": [
+                1
+              ],
+              "order": "F",
+              "values": [
+                "trig"
+              ]
+            }
+          ]
+        },
+        "success": {
+          "matlab_class": "logical",
+          "numpy_dtype": "bool",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            true
+          ]
+        },
+        "mean_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.fffffffffffeap-1",
+            "-0x1.eabfc4b73786fp-2",
+            "0x1.a2953a4e68a65p-1",
+            "-0x1.e0d069d1bbdaap-1",
+            "0x1.fffffffffffebp-1"
+          ]
+        },
+        "variance_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.6fe0fd35ce60bp-49",
+            "0x1.2dca2abdcf745p-1",
+            "0x1.0608fde1db813p-2",
+            "0x1.76ba6144ad2eap-4",
+            "0x1.6f26f7043b207p-49"
+          ]
+        },
+        "mean_at_data": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            5,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x1.fffffffffffeap-1",
+            "-0x1.ffffffffffe8dp-1",
+            "0x1.ffffffffffe8ap-1",
+            "-0x1.ffffffffffe90p-1",
+            "0x1.fffffffffffebp-1"
+          ]
+        },
+        "sample_count": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "sample_at_query": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        },
+        "sample_size": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            1,
+            1
+          ],
+          "order": "F",
+          "values": [
+            "0x0.0p+0"
+          ]
+        },
+        "source_sample_points": {
+          "matlab_class": "double",
+          "numpy_dtype": "float64",
+          "shape": [
+            0,
+            0
+          ],
+          "order": "F",
+          "values": []
+        }
+      }
+    }
+  ]
+}

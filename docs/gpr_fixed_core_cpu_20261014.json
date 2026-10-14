@@ -1,0 +1,57 @@
+{
+  "scope": "Fixed-hyperparameter GPR numerical core ported to JAX; full MATLAB parity remains open",
+  "changes": [
+    "Source separate training, mean-hit and predictive-hit noise terms; noisy training Cholesky includes second noise-squared identity",
+    "JAX Cholesky, triangular solves, kernel and sample arithmetic; diagonal variance avoids quadratic query covariance",
+    "Preserve eager LinAlgError compatibility with raw JIT-compatible core",
+    "Explicit empty domain treated as unspecified; empty mapping includes domain"
+  ],
+  "qualification": {
+    "root": "15 passed in 21.08s",
+    "original": "21 unchanged MATLAB-backed assertions passed in pre-adapter aggregate gate; existing function ASTs except public gpr unchanged, valid factor adapter returns same object",
+    "native": "Ordinary and trig public means/variances pass rtol=atol=1e-12; full empty fixed-L constant prior checked",
+    "fixture_fields_verified": 96,
+    "not_parity_tests": "Noisy and n40 fixture tests check finite values only; empty sample error test checks captured metadata only"
+  },
+  "limitations": [
+    "Native Chebfun adaptive mean/variance/sample grid and simplification not yet ported",
+    "50-point convenience length-scale search remains unlike source optimizer; nonfinite objective maps to sentinel",
+    "Noisy native public approximants differ from direct callbacks; sample n40 mean differs up to4.5641e-10",
+    "No MATLAB normal-stream identity claim",
+    "Empty sample/default-length-scale native errors not reproduced; zero-data scaling unqualified",
+    "Final main CI unresolved"
+  ],
+  "receipts": {
+    "root": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_core_publication_20261014/run/receipt.json",
+      "sha256": "b9897b5338a0b2d63ca0d75e688cd4cac923ef63dc5dc7ca4e686bbe13cad466",
+      "inputs_stable": true,
+      "supervisor_exit_code": 0,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1023716
+    },
+    "original_assertions": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_fixed_jax_port_20261014/final_run4/receipt.json",
+      "sha256": "49f221c688c8c7c0785b75376ae60daec424d73a81caf2123f37746d4a9085e5",
+      "inputs_stable": true,
+      "supervisor_exit_code": 0,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 4056596
+    },
+    "final_private": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_fixed_jax_port_20261014/core_native_run4/receipt.json",
+      "sha256": "91e0e94bc48c4ebaf28cd0d951155fc8c367c90933b167a4ff5563c5d3fa0417",
+      "inputs_stable": true,
+      "supervisor_exit_code": 0,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1045132
+    }
+  },
+  "private_manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_fixed_jax_port_20261014/PACKAGE_MANIFEST.md",
+    "sha256": "fc789fab741abe13a06d6db6e832b02f98804756668e922ca748ffffeda80bd3"
+  },
+  "source_hash": "af5dd670ec0613fdeba9c6e7f0ca42256119a1172934c61e8db55dcec6bccd94",
+  "fixture_hash": "d7bd283deb3d71399122e4cbab56dca48c46f683ea2f69c64ad0d905d8ea0ba1",
+  "root_review": "Independently verified pre-adapter byte hash and all unchanged existing function ASTs; reviewed public factor-check-only delta."
+}

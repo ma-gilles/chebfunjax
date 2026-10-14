@@ -1,30 +1,33 @@
-# uses-numpy: GP kernel matrix construction and Cholesky solve are iterative/not JIT-safe
+# uses-numpy: exception class only; covariance and linear algebra are JAX.
 """Gaussian process regression.
 
-Translated from MATLAB Chebfun (commit 7574c77): gpr.m.
+Translated from MATLAB Chebfun (commit 7574c77): gpr.m. The finite
+covariance and linear algebra path uses JAX arrays. The public convenience
+wrapper retains its dense 200-point grid and Python mapping/tuple results;
+it does not reproduce MATLAB's adaptive Chebfun fit or variance/sample query
+grid in this fixed-hyperparameter port.
+
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
-See https://www.chebfun.org/ for Chebfun information.
 
-References
+Provenance
 ----------
-[1] C. E. Rasmussen & C. K. I. Williams, "Gaussian Processes for Machine
-    Learning", MIT Press, 2006.
+MATLAB source: ``gpr.m``. Chebfun commit:
+``7574c77680d7e82b79626300bf255498271a72df``.
 """
-
 from __future__ import annotations
 
+import secrets
 from typing import Optional
 
-import numpy as np
-
-# ===========================================================================
-# Public API
-# ===========================================================================
+import jax
+import jax.numpy as jnp
+from jax.scipy.linalg import solve_triangular
+from numpy.linalg import LinAlgError
 
 
 def gpr(
-    x: np.ndarray,
-    y: np.ndarray,
+    x,
+    y,
     *,
     domain: Optional[tuple[float, float]] = None,
     sigma: Optional[float] = None,
@@ -32,190 +35,137 @@ def gpr(
     noise: float = 0.0,
     trig: bool = False,
     n_samples: int = 0,
-    rng: Optional[np.random.Generator] = None,
+    rng=None,
 ) -> dict:
-    """Gaussian process regression.
+    """Gaussian process regression on a dense convenience grid.
 
-    Given data (x_i, y_i), compute the posterior mean and variance
-    as dense arrays evaluated on a fine grid, using a squared-exponential
-    (RBF) kernel.
+    Args:
+        x, y: One-dimensional training locations and values.
+        domain: Output interval. Defaults to the source GPR domain rules.
+        sigma: Signal standard deviation; defaults to ``max(abs(y))`` or 1
+            when that maximum is zero.
+        length_scale: RBF scale. If omitted, use the existing 50-point
+            log-spaced likelihood search; that search is not MATLAB optimizer
+            parity.
+        noise: Observation noise standard deviation.
+        trig: Select the periodic squared-exponential kernel.
+        n_samples: Number of posterior sample columns.
+        rng: Optional external object implementing ``standard_normal(shape)``.
+            If omitted, a host-generated seed initializes JAX's PRNG.
 
-    Parameters
-    ----------
-    x : array_like, shape (n,)
-        Input data locations.
-    y : array_like, shape (n,)
-        Observed function values at x.
-    domain : (float, float), optional
-        Domain [a, b] for the output grid.  Defaults to [min(x), max(x)].
-    sigma : float, optional
-        Signal standard deviation (prior amplitude).  Defaults to max(|y|).
-    length_scale : float, optional
-        RBF kernel length scale L.  If not given, L is chosen to maximise
-        the log marginal likelihood (eq. (2.30) from [1]).
-    noise : float, optional
-        i.i.d. observation noise standard deviation sigma_y (default 0).
-    trig : bool, optional
-        If True, use the periodic squared-exponential kernel
-        k(x, x') = sigma^2 * exp(-2/L^2 * sin^2(pi*(x-x')/P)),
-        where P = domain length (eq. (4.31) from [1]).
-    n_samples : int, optional
-        Number of posterior sample paths to draw (default 0).
-    rng : numpy.random.Generator, optional
-        Random number generator for sample paths.
+    Returns a mapping with the historical ``x_grid`` (200 uniform points),
+    ``mean``, nonnegative ``variance``, optional ``samples``, ``sigma`` and
+    ``length_scale``. When data are nonempty it also includes callable
+    ``mean_fn``/``variance_fn`` adapters and ``domain``. Numeric values are
+    JAX arrays; host-side domain/argument validation remains Python.
 
-    Returns
-    -------
-    result : dict with keys
-        ``"x_grid"``    — shape (M,) evaluation grid on the domain
-        ``"mean"``      — shape (M,) posterior mean
-        ``"variance"``  — shape (M,) posterior variance (>= 0)
-        ``"samples"``   — shape (M, n_samples) posterior samples, or None
-        ``"length_scale"`` — the length scale used (float)
-        ``"sigma"``     — the signal amplitude used (float)
-
-    Notes
-    -----
-    The implementation uses the Cholesky-based algorithm (Alg. 2.1 from [1]).
-    A small nugget 1e-15 * sigma^2 * n is added to the kernel matrix for
-    numerical stability when noise == 0.
+    MATLAB's fixed-L source path is ``gpr.m`` at Chebfun commit 7574c77.
+    This implementation preserves its separate training, mean-query, and
+    predictive covariance noise terms, including the source's second
+    ``sigmaY**2 * I`` in the noisy training Cholesky. It does not claim
+    adaptive Chebfun fit/grid parity.
 
     Provenance
     ----------
-    MATLAB source : gpr.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> rng = np.random.default_rng(1)
-    >>> x = rng.uniform(-2, 2, 10)
-    >>> y = np.sin(np.exp(x))
-    >>> result = gpr(x, y, domain=(-2.0, 2.0))
-    >>> result["mean"].shape
-    (200,)
-    >>> result["variance"].shape
-    (200,)
-
-    See Also
-    --------
-    aaa
+    MATLAB source: ``gpr.m``. Chebfun commit:
+    ``7574c77680d7e82b79626300bf255498271a72df``.
     """
-    x = np.asarray(x, dtype=float).ravel()
-    y = np.asarray(y, dtype=float).ravel()
-    if len(x) != len(y):
+    x = jnp.asarray(x, dtype=jnp.float64).reshape(-1)
+    y = jnp.asarray(y, dtype=jnp.float64).reshape(-1)
+    if x.shape[0] != y.shape[0]:
         raise ValueError("x and y must have the same length.")
 
-    if rng is None:
-        rng = np.random.default_rng()
-
-    # --- scaling ---
-    if len(y) > 0 and sigma is None:
-        scaling = np.max(np.abs(y)) if np.max(np.abs(y)) > 0 else 1.0
+    n = int(x.shape[0])
+    if n and sigma is None:
+        yscale = float(jnp.max(jnp.abs(y)))
+        scaling = yscale if yscale > 0.0 else 1.0
     else:
         scaling = 1.0
-
     sigma_val = scaling if sigma is None else float(sigma)
     sigma_y = float(noise)
 
-    # --- domain ---
+    if domain is not None and len(domain) == 0:
+        # MATLAB parseInputs treats an explicitly empty domain as unspecified.
+        domain = None
+
     if domain is None:
-        if len(x) == 0:
+        if n == 0:
             domain = (-1.0, 1.0)
-        elif len(x) == 1:
-            domain = (float(x[0]) - 1.0, float(x[0]) + 1.0)
+        elif n == 1:
+            x0 = float(x[0])
+            domain = (x0 - 1.0, x0 + 1.0)
         elif trig:
-            diff_ = (float(np.max(x)) - float(np.min(x))) / 10.0
-            domain = (float(np.min(x)), float(np.max(x)) + diff_)
+            xmin, xmax = float(jnp.min(x)), float(jnp.max(x))
+            domain = (xmin, xmax + (xmax - xmin) / 10.0)
         else:
-            domain = (float(np.min(x)), float(np.max(x)))
+            domain = (float(jnp.min(x)), float(jnp.max(x)))
     a, b = float(domain[0]), float(domain[1])
     period = b - a
 
-    # --- optimise length scale if not given ---
     if length_scale is None:
-        n = len(x)
         if n == 0:
             length_scale = period / 4.0
+        elif trig:
+            lo, hi = 1.0 / (2.0 * max(n, 1)), 10.0
         else:
-            if trig:
-                search_lo = 1.0 / (2.0 * max(n, 1))
-                search_hi = 10.0
-            else:
-                search_lo = period / (2.0 * np.pi * max(n, 1))
-                search_hi = 10.0 / np.pi * period
-            # MATLAB gpr.m: logML is evaluated with the UNSCALED data
-            # and sigma = max|y| (the scaled y would make the data term
-            # vanish against the log-determinant term).
-            length_scale = _optimise_length_scale(
-                x, y, sigma_val, sigma_y, trig, period,
-                search_lo, search_hi,
-            )
+            lo = period / (2.0 * jnp.pi * max(n, 1))
+            hi = 10.0 / jnp.pi * period
+        if n:
+            length_scale = float(_optimise_length_scale(
+                x, y, sigma_val, sigma_y, bool(trig), period, float(lo), float(hi)
+            ))
     length_scale = float(length_scale)
 
-    # --- output grid ---
-    M = 200
-    x_grid = np.linspace(a, b, M)
-
-    if len(x) == 0:
-        mean = np.zeros(M)
-        variance = np.full(M, sigma_val ** 2)
-        samples = None if n_samples == 0 else np.zeros((M, n_samples))
+    m = 200
+    x_grid = jnp.linspace(a, b, m, dtype=jnp.float64)
+    if n == 0:
+        zeros = jnp.zeros((m,), dtype=jnp.float64)
+        variance = jnp.full((m,), sigma_val**2, dtype=jnp.float64)
+        samples = None if n_samples == 0 else jnp.zeros((m, int(n_samples)), dtype=jnp.float64)
         return {
             "x_grid": x_grid,
-            "mean": mean,
+            "mean": zeros,
             "variance": variance,
             "samples": samples,
             "length_scale": length_scale,
             "sigma": sigma_val,
+            "domain": (a, b),
         }
 
-    n = len(x)
-    yn = y / scaling
+    L = _checked_factor(_training_cholesky(
+        x, sigma_val, length_scale, sigma_y, bool(trig), period, scaling
+    ))
+    alpha = _solve_cholesky(L, y)
 
-    # --- kernel matrix K(x, x) ---
-    K = _kernel(x, x, sigma_val, length_scale, sigma_y, trig, period)
-    if sigma_y == 0.0:
-        K += 1e-15 * scaling ** 2 * n * np.eye(n)
-    else:
-        K += sigma_y ** 2 * np.eye(n)
+    mean = _mean_at(x_grid, x, alpha, sigma_val, length_scale, sigma_y, bool(trig), period)
+    variance = jnp.maximum(_predictive_variance(
+        x_grid, x, L, sigma_val, length_scale, sigma_y, bool(trig), period
+    ), 0.0)
 
-    L = np.linalg.cholesky(K)
-    alpha = np.linalg.solve(L.T, np.linalg.solve(L, yn))
+    def mean_fn(xe):
+        query = jnp.asarray(xe, dtype=jnp.float64).reshape(-1)
+        return _mean_at(query, x, alpha, sigma_val, length_scale, sigma_y, bool(trig), period)
 
-    # --- posterior mean on grid ---
-    Ks = _kernel(x_grid, x, sigma_val, length_scale, sigma_y, trig, period)
-    mean = scaling * (Ks @ alpha)
-    # Callables of the posterior (MATLAB returns chebfuns built from
-    # these): mean and variance at arbitrary points.
-    def mean_fn(xe, _alpha=alpha, _scaling=scaling):
-        xe = np.atleast_1d(np.asarray(xe, dtype=float))
-        Ke = _kernel(xe, x, sigma_val, length_scale, sigma_y, trig, period)
-        return _scaling * (Ke @ _alpha)
+    def variance_fn(xe):
+        query = jnp.asarray(xe, dtype=jnp.float64).reshape(-1)
+        return jnp.maximum(_predictive_variance(
+            query, x, L, sigma_val, length_scale, sigma_y, bool(trig), period
+        ), 0.0)
 
-    def variance_fn(xe, _L=L):
-        xe = np.atleast_1d(np.asarray(xe, dtype=float))
-        Ke = _kernel(xe, x, sigma_val, length_scale, sigma_y, trig, period)
-        ve = np.linalg.solve(_L, Ke.T)
-        return np.maximum(sigma_val ** 2 - np.sum(ve ** 2, axis=0), 0.0)
-
-    # --- posterior variance on grid ---
-    Kss_diag = sigma_val ** 2 * np.ones(M)  # diagonal of K(x_grid, x_grid)
-    v = np.linalg.solve(L, Ks.T)           # L^{-1} * Ks^T
-    variance = Kss_diag - np.sum(v ** 2, axis=0)
-    variance = np.maximum(variance, 0.0)
-
-    # --- samples ---
     samples = None
     if n_samples > 0:
-        Kss_full = _kernel(x_grid, x_grid, sigma_val, length_scale, 0.0, trig, period)
-        Cov = Kss_full - v.T @ v
-        Cov += 1e-12 * sigma_val ** 2 * n * np.eye(M)
-        L_s = np.linalg.cholesky(Cov)
-        Z = rng.standard_normal((M, n_samples))
-        samples = scaling * (mean[:, None] / scaling + L_s @ Z)
+        covariance = _predictive_covariance(
+            x_grid, x, L, sigma_val, length_scale, sigma_y, bool(trig), period
+        )
+        cov_for_samples = covariance + (1e-12 * scaling**2 * n) * jnp.eye(m, dtype=jnp.float64)
+        Ls = _checked_cholesky(cov_for_samples)
+        shape = (m, int(n_samples))
+        if rng is None:
+            key = jax.random.PRNGKey(secrets.randbits(32))
+            z = jax.random.normal(key, shape, dtype=jnp.float64)
+        else:
+            z = jnp.asarray(rng.standard_normal(shape), dtype=jnp.float64)
+        samples = mean[:, None] + Ls @ z
 
     return {
         "x_grid": x_grid,
@@ -231,114 +181,139 @@ def gpr(
 
 
 def gpr_chebfun(x, y, **kwargs):
-    """MATLAB-style ``[f, fvar, fsamples] = gpr(x, y, ...)``: the
-    posterior mean and variance as chebfuns on the domain and the
-    sample paths as an array-valued chebfun (``None`` without
-    ``n_samples``).  Keyword arguments as for :func:`gpr`.
+    """Return Chebfun adapters for the GPR convenience result.
+
+    Adaptive source fitting and MATLAB's native variance/sample node layout
+    are not implemented in this fixed-L numerical-core package.
 
     Provenance
     ----------
-    MATLAB source : gpr.m
-    Chebfun commit: 7574c77
+    MATLAB source: gpr.m. Chebfun commit: 7574c77.
     """
-    import jax.numpy as jnp
-
     from chebfunjax.chebfun1d.chebfun import chebfun
+
     res = gpr(x, y, **kwargs)
     a, b = res["domain"]
     trig = bool(kwargs.get("trig", False))
     if "mean_fn" not in res:
         f = chebfun(lambda t: jnp.zeros_like(t), domain=(a, b))
-        fvar = chebfun(lambda t: jnp.full_like(t, res["sigma"] ** 2),
-                       domain=(a, b))
+        fvar = chebfun(lambda t: jnp.full_like(t, res["sigma"] ** 2), domain=(a, b))
         return f, fvar, None
-    f = chebfun(lambda t: jnp.asarray(res["mean_fn"](np.asarray(t))),
-                domain=(a, b), trig=trig)
-    fvar = chebfun(lambda t: jnp.asarray(res["variance_fn"](np.asarray(t))),
-                   domain=(a, b), trig=trig)
+    f = chebfun(lambda t: jnp.asarray(res["mean_fn"](jnp.asarray(t))), domain=(a, b), trig=trig)
+    fvar = chebfun(lambda t: jnp.asarray(res["variance_fn"](jnp.asarray(t))), domain=(a, b), trig=trig)
     fsamples = None
     if res["samples"] is not None:
-        # Sample paths are known on the equispaced grid: interpolate
-        # them (MATLAB builds the samples from the same grid).
-        fsamples = chebfun(jnp.asarray(res["samples"]), domain=(a, b),
-                           equi=True)
+        fsamples = chebfun(jnp.asarray(res["samples"]), domain=(a, b), equi=True)
     return f, fvar, fsamples
 
 
-# ===========================================================================
-# Private helpers
-# ===========================================================================
-
-
-def _kernel(
-    xa: np.ndarray,
-    xb: np.ndarray,
-    sigma: float,
-    ell: float,
-    sigma_y: float,
-    trig: bool,
-    period: float,
-) -> np.ndarray:
-    """Evaluate the (cross-)covariance matrix between xa and xb."""
-    xa = np.asarray(xa).ravel()
-    xb = np.asarray(xb).ravel()
-    # r_{ij} = xa_i - xb_j
-    R = xa[:, None] - xb[None, :]
+def _base_covariance(xa, xb, sigma, ell, trig, period):
+    """Signal-only covariance; no observation noise is applied here."""
+    xa = jnp.asarray(xa, dtype=jnp.float64).reshape(-1)
+    xb = jnp.asarray(xb, dtype=jnp.float64).reshape(-1)
+    r = xa[:, None] - xb[None, :]
     if trig:
-        K = sigma ** 2 * np.exp(
-            -2.0 / ell ** 2 * np.sin(np.pi / period * R) ** 2
-        )
+        return sigma**2 * jnp.exp(-2.0 / ell**2 * jnp.sin(jnp.pi / period * r) ** 2)
+    return sigma**2 * jnp.exp(-0.5 / ell**2 * r**2)
+
+
+def _training_covariance(x, sigma, ell, sigma_y, trig, period, scaling):
+    """Source training covariance before the separate Cholesky noise term."""
+    n = x.shape[0]
+    base = _base_covariance(x, x, sigma, ell, trig, period)
+    return base + sigma_y**2 * jnp.eye(n, dtype=jnp.float64)
+
+
+def _training_cholesky(x, sigma, ell, sigma_y, trig, period, scaling):
+    n = x.shape[0]
+    kernel = _training_covariance(x, sigma, ell, sigma_y, trig, period, scaling)
+    if sigma_y == 0.0:
+        kernel = kernel + 1e-15 * scaling**2 * n * jnp.eye(n, dtype=jnp.float64)
     else:
-        K = sigma ** 2 * np.exp(-0.5 / ell ** 2 * R ** 2)
-    # noise cross term (only when xa and xb share the same points)
+        # gpr.m forms K with sigmaY^2 I, then adds sigmaY^2 I again to chol.
+        kernel = kernel + sigma_y**2 * jnp.eye(n, dtype=jnp.float64)
+    return jnp.linalg.cholesky(kernel)
+
+
+def _solve_cholesky(L, rhs):
+    lower = solve_triangular(L, rhs, lower=True)
+    return solve_triangular(L.T, lower, lower=False)
+
+
+def _checked_cholesky(matrix):
+    """Eager adapter preserving NumPy's exception for failed factors."""
+    return _checked_factor(jnp.linalg.cholesky(matrix))
+
+
+def _checked_factor(factor):
+    """Check a computed factor outside the JIT-compatible numeric core."""
+    if not bool(jnp.all(jnp.isfinite(factor))):
+        raise LinAlgError("Matrix is not positive definite")
+    return factor
+
+
+def _coincidence_mask(xa, xb):
+    return xa.reshape(-1, 1) == xb.reshape(1, -1)
+
+
+def _mean_covariance(query, x, sigma, ell, sigma_y, trig, period):
+    # Source mean() uses sigmaY (not sigmaY^2) at exact training coincidences.
+    return _base_covariance(query, x, sigma, ell, trig, period) + sigma_y * _coincidence_mask(query, x)
+
+
+def _prediction_cross_covariance(query, x, sigma, ell, sigma_y, trig, period):
+    return _base_covariance(query, x, sigma, ell, trig, period) + sigma_y**2 * _coincidence_mask(query, x)
+
+
+def _prediction_self_covariance(query, x, sigma, ell, sigma_y, trig, period):
+    in_x = jnp.any(query.reshape(-1, 1) == x.reshape(1, -1), axis=1)
+    return _base_covariance(query, query, sigma, ell, trig, period) + sigma_y**2 * jnp.diag(in_x.astype(jnp.float64))
+
+
+def _mean_at(query, x, alpha, sigma, ell, sigma_y, trig, period):
+    return _mean_covariance(query, x, sigma, ell, sigma_y, trig, period) @ alpha
+
+
+def _predictive_variance(query, x, L, sigma, ell, sigma_y, trig, period):
+    """Predictive diagonal without allocating the full query covariance."""
+    cross = _prediction_cross_covariance(query, x, sigma, ell, sigma_y, trig, period)
+    v = solve_triangular(L, cross.T, lower=True)
+    in_x = jnp.any(query.reshape(-1, 1) == x.reshape(1, -1), axis=1)
+    prior_diag = sigma**2 + sigma_y**2 * in_x.astype(jnp.float64)
+    return prior_diag - jnp.sum(v**2, axis=0)
+
+
+def _predictive_covariance(query, x, L, sigma, ell, sigma_y, trig, period):
+    cross = _prediction_cross_covariance(query, x, sigma, ell, sigma_y, trig, period)
+    v = solve_triangular(L, cross.T, lower=True)
+    return _prediction_self_covariance(query, x, sigma, ell, sigma_y, trig, period) - v.T @ v
+
+
+def _log_marginal_likelihood(ell, x, y, sigma, sigma_y, trig, period, scaling):
+    # Preserve the current 50-grid objective: it adds one noise diagonal, and
+    # uses sigma^2 for its zero-noise nugget. It is not the source gpr.m
+    # training Cholesky, which adds the second noise diagonal in that branch.
+    n = x.shape[0]
+    kernel = _base_covariance(x, x, sigma, ell, trig, period)
     if sigma_y != 0.0:
-        K += sigma_y ** 2 * (R == 0).astype(float)
-    return K
+        kernel = kernel + sigma_y**2 * jnp.eye(n, dtype=jnp.float64)
+    else:
+        kernel = kernel + 1e-15 * n * sigma**2 * jnp.eye(n, dtype=jnp.float64)
+    L = jnp.linalg.cholesky(kernel)
+    alpha = _solve_cholesky(L, y)
+    log_det = 2.0 * jnp.sum(jnp.log(jnp.diag(L)))
+    value = -0.5 * y @ alpha - 0.5 * log_det - 0.5 * n * jnp.log(2.0 * jnp.pi)
+    return jnp.nan_to_num(value, nan=-1e30, posinf=-1e30, neginf=-1e30)
 
 
-def _log_marginal_likelihood(
-    ell: float,
-    x: np.ndarray,
-    yn: np.ndarray,
-    sigma: float,
-    sigma_y: float,
-    trig: bool,
-    period: float,
-) -> float:
-    """Log marginal likelihood for hyperparameter optimisation (eq. 2.30 from [1])."""
-    n = len(x)
-    K = _kernel(x, x, sigma, ell, 0.0, trig, period)
-    reg = (sigma_y ** 2 if sigma_y != 0.0 else 1e-15 * n * sigma ** 2)
-    K += reg * np.eye(n)
-    try:
-        L = np.linalg.cholesky(K)
-    except np.linalg.LinAlgError:
-        return -1e30
-    alpha = np.linalg.solve(L.T, np.linalg.solve(L, yn))
-    log_det = 2.0 * np.sum(np.log(np.diag(L)))
-    return float(-0.5 * yn @ alpha - 0.5 * log_det - 0.5 * n * np.log(2.0 * np.pi))
-
-
-def _optimise_length_scale(
-    x: np.ndarray,
-    yn: np.ndarray,
-    sigma: float,
-    sigma_y: float,
-    trig: bool,
-    period: float,
-    lo: float,
-    hi: float,
-    n_grid: int = 50,
-) -> float:
-    """Find the length scale that maximises the log marginal likelihood."""
-    if len(x) == 0:
-        return (lo + hi) / 2.0
-    # No absolute floor: MATLAB searches [domSize/(2 pi n), 10 domSize/pi]
-    # whatever the scale of the data (x ~ 1e-100 must work).
-    lo = max(lo, np.finfo(float).tiny)
-    ells = np.logspace(np.log10(lo), np.log10(max(hi, lo * 2)), n_grid)
-    lmls = np.array([
-        _log_marginal_likelihood(e, x, yn, sigma, sigma_y, trig, period)
-        for e in ells
-    ])
-    return float(ells[np.argmax(lmls)])
+def _optimise_length_scale(x, y, sigma, sigma_y, trig, period, lo, hi, n_grid=50):
+    """Retain the old 50-point search in JAX; no MATLAB optimizer parity claim."""
+    lo = max(float(lo), float(jnp.finfo(jnp.float64).tiny))
+    hi = max(float(hi), lo * 2.0)
+    ells = jnp.logspace(jnp.log10(lo), jnp.log10(hi), int(n_grid), dtype=jnp.float64)
+    scale = float(jnp.max(jnp.abs(y))) if y.shape[0] else 1.0
+    scale = scale if scale > 0.0 else 1.0
+    values = jax.vmap(lambda ell: _log_marginal_likelihood(
+        ell, x, y, sigma, sigma_y, trig, period, scale
+    ))(ells)
+    return ells[jnp.argmax(values)]
