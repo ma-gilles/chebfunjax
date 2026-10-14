@@ -1,0 +1,281 @@
+{
+  "base_head": "3d37d367",
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_nonempty": {
+    "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "sources": {
+      "@spherefun/minandmax2.m": "80d0a375f38d0ce5105b1ac9a1d2ed1644bc2ec6c93b2cc5f564ec4e9172439e",
+      "@spherefun/cdr.m": "68f53ad4b6e5d4e12d54d89bfb283b0082989f322b7cd86084c08d979c7506d5",
+      "@separableApprox/cdr.m": "532a752269bae41cf1d42dbc6b7b2d79f8860de98796baa2cd0da1751bf6645c",
+      "@chebfun2/outerProduct.m": "2ad3395c0aadd3c7af244c8251d8797b4c3bcc1f83557212c08e68edc9f82310",
+      "@separableApprox/iszero.m": "741fe054990dbf917de904858d33a268cf36e3546e9bdabb81c9fa718a8066e0",
+      "tests/spherefun/test_optimization.m": "a103a0c985d1211c6b5d1d3ed599f79b96b476a1b627dc2426a6d40bd7a67ee7"
+    },
+    "scope": "Default real nonempty Spherefun extrema; custom-grid and complex legacy path retained. Empty branch owned by separate agent.",
+    "source_operations": [
+      "C*D*R transpose via public mtimes; unit outer-product pivots, no recompression",
+      "Exact separable zero check on reconstructed function",
+      "Source signed reciprocal square-root pivot sharing (unit pivots here)",
+      "Continuous rank-one four-product extrema",
+      "Higher-rank original trig factor lengths with pi appended; first column-major extrema",
+      "Qualified source active-set and exception-driven sine-map fallback transaction",
+      "Literal BMC location remapping on negative first coordinate"
+    ],
+    "original_assertions": "7 battery value checks plus restored3 double-wrapping checks; unchanged5e4eps and1e-6 bounds",
+    "limitations": [
+      "No new native runtime comparison; source algorithm migration with original predicates",
+      "Shared active-set solver previously qualified; optimizer iterates may differ under backend rounding",
+      "Native complex extrema not migrated",
+      "Source BMC remapping is retained literally even where a different coordinate convention might seem natural"
+    ]
+  },
+  "native_empty": {
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "report_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_empty_native_probe_20261014/report.json",
+    "report_sha256": "685ccc08078cb274cb53d6789e02ba5b69b1d367090df9b297871e97a206f30f",
+    "supervisor_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_empty_native_probe_20261014/supervision3/receipt.json",
+    "all_23_no_output_operations_pass": true,
+    "output_contracts": {
+      "max2_nargout0": {
+        "ok": true,
+        "identifier": "",
+        "message": "",
+        "value_class": "double",
+        "value_size": [
+          0,
+          0
+        ]
+      },
+      "max2_nargout1": {
+        "ok": false,
+        "identifier": "MATLAB:unassignedOutputs",
+        "message": "Output argument \"Y\" (and possibly others) not assigned a value in the execution with \"separableApprox/max2\" function.",
+        "value_class": "",
+        "value_size": []
+      },
+      "max2_nargout2": {
+        "ok": false,
+        "identifier": "MATLAB:unassignedOutputs",
+        "message": "Output argument \"Y\" (and possibly others) not assigned a value in the execution with \"separableApprox/max2\" function.",
+        "value_class": "",
+        "value_size": []
+      },
+      "min2_nargout0": {
+        "ok": true,
+        "identifier": "",
+        "message": "",
+        "value_class": "double",
+        "value_size": [
+          0,
+          0
+        ]
+      },
+      "min2_nargout1": {
+        "ok": false,
+        "identifier": "MATLAB:unassignedOutputs",
+        "message": "Output argument \"Y\" (and possibly others) not assigned a value in the execution with \"separableApprox/min2\" function.",
+        "value_class": "",
+        "value_size": []
+      },
+      "min2_nargout2": {
+        "ok": false,
+        "identifier": "MATLAB:unassignedOutputs",
+        "message": "Output argument \"Y\" (and possibly others) not assigned a value in the execution with \"separableApprox/min2\" function.",
+        "value_class": "",
+        "value_size": []
+      },
+      "minandmax2_nargout0": {
+        "ok": true,
+        "identifier": "",
+        "message": "",
+        "value_class": "double",
+        "value_size": [
+          0,
+          0
+        ]
+      },
+      "minandmax2_nargout1": {
+        "ok": true,
+        "identifier": "",
+        "message": "",
+        "value_class": "double",
+        "value_size": [
+          0,
+          0
+        ]
+      },
+      "minandmax2_nargout2": {
+        "ok": true,
+        "identifier": "",
+        "message": "",
+        "value_class": "cell",
+        "value_size": [
+          1,
+          2
+        ]
+      }
+    }
+  },
+  "empty_api_mappings": [
+    [
+      "f+f",
+      "f + f"
+    ],
+    [
+      "2*f",
+      "2 * f"
+    ],
+    [
+      "f*2",
+      "f * 2"
+    ],
+    [
+      "f.^2",
+      "f ** 2"
+    ],
+    [
+      "2.^f",
+      "2 ** f via __rpow__"
+    ],
+    [
+      "f.^f",
+      "f ** f"
+    ],
+    [
+      "sqrt(f)",
+      "f.sqrt()"
+    ],
+    [
+      "sum(f)",
+      "f.sum()"
+    ],
+    [
+      "integral2(f)",
+      "f.integral2() -> f.sum2()"
+    ],
+    [
+      "norm(f)",
+      "f.norm()"
+    ],
+    [
+      "squeeze(f)",
+      "f.squeeze() -> empty Chebfun"
+    ],
+    [
+      "diff(f)",
+      "f.diff()"
+    ],
+    [
+      "cos(f)",
+      "f.cos()"
+    ],
+    [
+      "sin(f)",
+      "f.sin()"
+    ],
+    [
+      "sinh(f)",
+      "f.sinh()"
+    ],
+    [
+      "f.^f+f",
+      "f ** f + f"
+    ],
+    [
+      "diag(f)",
+      "f.diag() -> empty Chebfun"
+    ],
+    [
+      "trace(f)",
+      "f.trace() -> sum(diag(f))"
+    ],
+    [
+      "mean(f)",
+      "f.mean()"
+    ],
+    [
+      "minandmax2(f)",
+      "f.minandmax2()"
+    ],
+    [
+      "median(f)",
+      "f.median(nargout=0)"
+    ],
+    [
+      "flipud(f)",
+      "f.flipud()"
+    ],
+    [
+      "flipdim(f,1)",
+      "f.flipdim(1)"
+    ]
+  ],
+  "power_source": {
+    "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_power.m",
+    "matlab_head": "7574c77680d7e82b79626300bf255498271a72df",
+    "sha256": "1c7a691d39eccd057fbafed7dd21b6c99fdef07c8669cdf84c10d396833f10a1",
+    "source_bounds": "line 4 uses 1000*chebfunpref().cheb2Prefs.chebfun2eps; lines 8-9 use norm(matrix, inf); line 14 uses default norm(matrix)."
+  },
+  "power_corrections": [
+    "Tolerance now reads ChebfunPref().cheb2Prefs.chebfun2eps dynamically and multiplies by exactly 1000.",
+    "First assertion now uses np.linalg.norm(error_matrix, ord=np.inf), the maximum absolute row sum specified by the source.",
+    "Second assertion now uses np.linalg.norm(error_matrix, ord=2), MATLAB default matrix spectral norm.",
+    "Supplemental analytic control checks scalar-left power 2**f against 2**sample(f) for f=z, complementing the newly added __rpow__ path."
+  ],
+  "root_gates": {
+    "run": {
+      "command_exit_code": 0,
+      "wall_seconds": 57.5090533667244,
+      "sampled_peak_summed_rss_kib": 2863280,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_items": 33,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_extrema_empty_publication_20261014/run/receipt.json",
+      "receipt_sha256": "b8ae6d23f1586be86cd1db7bbd86c1659b3b6dd6a7153b9ca1632b93e918971f"
+    },
+    "power": {
+      "command_exit_code": 0,
+      "wall_seconds": 18.19307133089751,
+      "sampled_peak_summed_rss_kib": 1193316,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "pytest_items": 1,
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_extrema_empty_publication_20261014/power/receipt.json",
+      "receipt_sha256": "3db1f7856de073f429a07ba257486858ec6c95985bab44360747f7d3dc7be90b"
+    }
+  },
+  "integration": [
+    "Empty return precedes default source extrema dispatch.",
+    "Preserved the previous supplemental empty output/type assertions.",
+    "Omitted redundant second empty minandmax2 test file.",
+    "Fixed import ordering and one test semicolon before merged gates."
+  ],
+  "scope": [
+    "All10 original optimization predicates, including3 previously omitted wrapping checks.",
+    "All23 operations in original empty test (one original aggregate success predicate).",
+    "Both original power predicates at exact dynamic source tolerance and MATLAB matrix norms.",
+    "Supplemental zero/seed, empty output, exception and scalar-left power controls."
+  ],
+  "limitations": [
+    "Nonempty squeeze and median remain explicit NotImplementedError; assigned follow-up work.",
+    "No-output empty max2/min2 have no dedicated Python adapter; normal Python result requests map native unassigned-output errors.",
+    "Median requested-output error is source-derived; native runtime probe captures median only with no outputs.",
+    "Custom-grid and complex extrema retain legacy implementation; default real source path alone migrated.",
+    "No fresh MATLAB runtime optimizer comparison; source/original predicates used.",
+    "Native empty probe does not record full preference struct; no broad preference qualification claimed.",
+    "Remaining host numerical paths, full page/figure parity, other original tests and final green CI are unresolved."
+  ],
+  "private_handoffs": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_extrema_source_20261014/DELIVERY.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_empty_extrema_handoff_20261014/report_v2.json",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_power_predicate_handoff_20261014/report.json"
+  ],
+  "file_hashes": {
+    "src/chebfunjax/spherefun/spherefun.py": "c89e9e6629ffb91a007a6dc91b1265d1d5e9651189bee2f1aca2248328ce8397",
+    "src/chebfunjax/spherefun/_extrema_source.py": "728309b04135bc01afc4ec20a0fee45352bcdd3a733fbe92a7cf83bf3aa114c3",
+    "tests/test_matlab_port/spherefun/test_optimization_matlab.py": "cc54a8ca41619275d8fecd0b83a1f1f55f84f8c2c04215a61f24c4d0f27abd94",
+    "tests/test_matlab_port/spherefun/test_emptyObjects_matlab.py": "8025e36279adbd0683e5d3c373ac710a40cb776dfc40cf0de8b23a41a76e82f9",
+    "tests/test_matlab_port/spherefun/test_extrema_source.py": "c44bf0253bb35a72f3876499536409f71c282822e7987240701b9e8a92126b59",
+    "tests/test_matlab_port/spherefun/test_power_matlab.py": "d6efd0bf900e3e2b6c7a01e2a466e10cc44a5b171e53e22225c3ee44d055e465"
+  }
+}

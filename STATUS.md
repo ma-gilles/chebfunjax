@@ -1,3 +1,25 @@
+## 2026-10-14: source Spherefun extrema and complete original empty commands
+
+Default real extrema now follow native CDR reconstruction, rank-one extrema,
+trigonometric grid seeds, active-set/fallback refinement and BMC location mapping.
+All10 original optimization predicates pass, including3 previously omitted
+wrapping checks. Custom-grid and complex paths retain their legacy behavior.
+
+The original empty-object test now executes all23 commands. Fresh pinned
+MATLAB confirms all23 no-output calls succeed. Empty minandmax2 returns two
+empty arrays; max2/min2 output requests raise native unassigned-output errors,
+mapped to ValueError. The median no-output call uses explicit nargout=0;
+its requested-output error is source-derived. Nonempty squeeze/median remain
+unimplemented and tracked separately. Prior supplemental empty checks remain.
+
+Power tests restore the exact source1000*preference tolerance (removing an
+extra100 multiplier) and MATLAB matrix infinity/spectral norms. Both original
+predicates and a scalar-left-power control pass. Combined integration has33
+passing pytest items in54.62s; the power gate adds1 item in14.88s. Both guarded
+CPU processes have stable inputs and no survivors. Details, native probes and
+limits: `docs/sphere_extrema_empty_source_cpu_20261014.json`.
+Full parity and final green main CI remain open.
+
 ## 2026-10-14: literal Chebfun3 positional constructor calls
 
 Positional lengths, domains, rank and constructor selectors now follow the

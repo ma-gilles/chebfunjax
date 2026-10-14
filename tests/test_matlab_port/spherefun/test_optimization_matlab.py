@@ -1,7 +1,7 @@
 """Port of MATLAB Chebfun tests/spherefun/test_optimization.m (Fable 5).
 
-FIXED (Fable 5): Spherefun.minandmax2 / max2 / min2 added in the audit
-(grid seed + multi-start L-BFGS-B polish with exact JAX gradients).
+Includes all ten native predicates: seven value batteries and three
+double-wrapping checks. Original bounds are unchanged.
 
 Provenance
 ----------
@@ -70,3 +70,13 @@ class TestSpherefunOptimization:
             err = (abs(float(Y[0]) - MINI[jj])
                    + abs(float(Y[1]) - MAXI[jj]))
             assert err < TOL, f"battery[{jj + 1}] err={err:.3e}"
+
+    def test_double_wrapping(self):
+        f = Spherefun.from_function(lambda lam, th: jnp.exp(_xyz(lam, th)[0]))
+        _m, loc = f.max2()
+        assert abs(float(loc[0]) - 0) < TOL
+
+        f = Spherefun.from_function(lambda lam, th: jnp.exp(_xyz(lam, th)[0]))
+        m, loc = f.min2()
+        assert abs(float(loc[0]) % np.pi - 0) < TOL
+        assert abs(float(m) - np.exp(-1)) < 1e-6

@@ -1456,6 +1456,32 @@ class Spherefun(eqx.Module):
         # Literal source operation order: sum(d .* intRows .* intCols).
         return jnp.sum((inverse * int_rows) * int_cols, axis=0)
 
+    def integral2(self):
+        """MATLAB ``integral2(f)`` adapter; native source delegates to sum2."""
+        return self.sum2()
+
+    def squeeze(self):
+        """MATLAB separableApprox squeeze on an empty Spherefun."""
+        if self.isempty():
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            return Chebfun.empty()
+        raise NotImplementedError("nonempty Spherefun squeeze is not implemented")
+
+    def trace(self):
+        """MATLAB trace is sum(diag(f)); empty diag returns empty Chebfun."""
+        return self.diag().sum()
+
+    def median(self, dim: int = 1, *, nargout: int = 1):
+        """Median adapter, with explicit MATLAB-style empty output arity."""
+        if self.isempty():
+            if nargout == 0:
+                return None
+            if nargout == 1:
+                raise ValueError(
+                    "MATLAB:unassignedOutputs: empty Spherefun median has no output")
+            raise ValueError("MATLAB:TooManyOutputs: median has one output")
+        raise NotImplementedError("nonempty Spherefun median is not implemented")
+
     def sum(self, dim: int = 1):
         """Integrate one coordinate, returning a Chebfun in the other.
 
@@ -1694,6 +1720,8 @@ class Spherefun(eqx.Module):
 
     def sinh(self):
         """Hyperbolic sine, re-approximated (MATLAB sinh)."""
+        if self.isempty():
+            return self
         return self._reapprox(jnp.sinh)
 
     def tanh(self):
@@ -2174,6 +2202,9 @@ class Spherefun(eqx.Module):
         MATLAB source : @separableApprox/diag.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            return Chebfun.empty()
         from chebfunjax.chebfun1d.chebfun import chebfun as _cf
         c = float(c)
         a = max(-np.pi, 0.0 - c)
@@ -2197,6 +2228,8 @@ class Spherefun(eqx.Module):
         return self.transpose()
 
     def _flip_slices(self, which: str) -> "Spherefun":
+        if self.isempty():
+            return self
         cols = list(self.cols)
         rows = list(self.rows)
         if which == "cols":
@@ -2690,10 +2723,17 @@ class Spherefun(eqx.Module):
         return negate(self)
 
     def __pow__(self, p):
+        if self.isempty():
+            return self
         if isinstance(p, Spherefun):
             return Spherefun.from_function(
                 lambda lam, th: self(lam, th) ** p(lam, th))
         return self._reapprox(lambda v: v ** p)
+
+    def __rpow__(self, base):
+        if self.isempty():
+            return self
+        return Spherefun.from_function(lambda lam, th: base ** self(lam, th))
 
     def compose(self, op):
         """Re-approximate op(f) (MATLAB compose).
@@ -2831,21 +2871,26 @@ class Spherefun(eqx.Module):
     def minandmax2(self, n_lam: int = 128, n_th: int = 64, n_starts: int = 8):
         """Global minimum and maximum of the Spherefun over the sphere.
 
-        A tensor grid in ``(lambda, theta)`` seeds candidate extrema; the
-        ``n_starts`` deepest distinct grid candidates are polished with a
-        bound-constrained quasi-Newton step (``scipy`` L-BFGS-B) using the
-        exact JAX gradient of the evaluation, keeping the best.  The
-        multi-start guards against the oscillatory battery functions
-        (e.g. ``cos(2*pi*x)*cos(2*pi*y)``) whose deepest grid basin is not
-        the global one.  Returns ``(Y, X)`` with ``Y = [min, max]`` and
-        ``X`` the corresponding ``(lambda, theta)`` points, mirroring
-        MATLAB ``[Y, X] = minandmax2(F)``.
+        The default real path follows the native low-rank factor extrema,
+        trigonometric seed and active-set/fallback transaction. Nondefault
+        grid controls retain the Python multistart convenience path.
+
+        Returns ``(Y, X)`` with values [minimum, maximum] and their
+        corresponding (lambda, theta) locations. Empty input returns two
+        empty arrays before selecting any optimizer.
 
         Provenance
         ----------
-        MATLAB source : @separableApprox/minandmax2.m
+        MATLAB source : @spherefun/minandmax2.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            empty = jnp.empty((0,), dtype=jnp.float64)
+            return empty, empty
+        if (self.isreal()
+                and (n_lam, n_th, n_starts) == (128, 64, 8)):
+            from ._extrema_source import source_extrema
+            return source_extrema(self)
         import jax
         import numpy as _np
         from scipy.optimize import minimize
@@ -2889,13 +2934,32 @@ class Spherefun(eqx.Module):
         return (jnp.asarray([vmin, vmax], dtype=jnp.float64),
                 jnp.asarray([list(xmin), list(xmax)], dtype=jnp.float64))
 
+
     def max2(self):
-        """Global maximum (value, [lambda, theta]) -- MATLAB max2."""
+        """Global maximum (value, [lambda, theta]) -- MATLAB max2.
+
+        MATLAB source : @spherefun/max2.m delegates to
+        @separableApprox/max2.m; its empty branch returns without
+        assigning MATLAB output variables.
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            raise ValueError(
+                "MATLAB:unassignedOutputs: empty Spherefun max2 has no output")
         vals, locs = self.minandmax2()
         return vals[1], locs[1]
 
     def min2(self):
-        """Global minimum (value, [lambda, theta]) -- MATLAB min2."""
+        """Global minimum (value, [lambda, theta]) -- MATLAB min2.
+
+        MATLAB source : @spherefun/min2.m delegates to
+        @separableApprox/min2.m; its empty branch returns without
+        assigning MATLAB output variables.
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            raise ValueError(
+                "MATLAB:unassignedOutputs: empty Spherefun min2 has no output")
         vals, locs = self.minandmax2()
         return vals[0], locs[0]
 
@@ -3089,6 +3153,8 @@ class Spherefun(eqx.Module):
         BMC coefficient-space parity solve).
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if dim not in (1, 2, 3):
             raise ValueError("dim must be 1 (x), 2 (y), or 3 (z)")
         f = self
