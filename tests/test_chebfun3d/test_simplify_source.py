@@ -101,10 +101,6 @@ def test_strict_threshold_uses_computed_singular_values():
     assert empty.simplify() is empty
 
 
-@pytest.mark.xfail(
-    raises=AssertionError, strict=True,
-    reason='Native HOSVD sv=2; current JAX sv=2.0000000000000013 retains a mode at strict threshold2; parity remains open',
-)
 def test_native_exact_rank_threshold_two():
     test_native_absolute_rank(2, 2.)
 

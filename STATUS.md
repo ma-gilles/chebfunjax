@@ -1,3 +1,12 @@
+## 2026-10-15: HOSVD threshold discrepancy resolved
+
+The exact-threshold simplification failure came from a missing source mapping
+step in the two-point Legendre rule. Restoring that step fixes the downstream
+QR/HOSVD result without changing tolerances. Its expected-failure marker is
+removed. All 25 simplification controls, four eager/JIT mapping controls and
+two original trivial-rule tests pass. Native stage captures and retained
+failures are in `docs/legpts_two_hosvd_threshold_cpu_20261015.json`.
+
 ## 2026-10-15: distinct 3D division APIs
 
 All four original division predicates now call their corresponding APIs:

@@ -1,0 +1,171 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "legpts.m lines 118-124; @chebfun3/hosvd.m; @chebtech/qr.m",
+  "cause": "The n=2 public Legendre rule skipped the explicit source interval map on the canonical interval. Native maps x0 with (width/2)*(x0+1)+a even for [-1,1]. The positive node changes by one ULP. This changes weighted QR input and propagated the HOSVD strict-threshold discrepancy. It was not evidence of an unavoidable QR backend discrepancy.",
+  "before": {
+    "python_nodes": [
+      -0.5773502691896258,
+      0.5773502691896258
+    ],
+    "native_nodes": [
+      -0.5773502691896258,
+      0.5773502691896257
+    ],
+    "python_QR_R11": 1.0000000000000002,
+    "native_QR_R11": 1.0,
+    "python_largest_modal_value": 2.0000000000000013,
+    "native_largest_modal_value": 2.0
+  },
+  "diagnostic_replay": "Injecting native R reproduces modal singular values exactly; intermediate singular-vector entries still differ at ~6e-19. No injected values enter production.",
+  "fix": "Restore literal n=2 mapping with ordered JAX binary operations, including eager and JIT execution. Theta retains unmapped reference nodes. No tolerance change.",
+  "native_weighted_capture": {
+    "x": [
+      -1,
+      1
+    ],
+    "w": [
+      -0.5,
+      0.5
+    ],
+    "xl": [
+      -0.5773502691896258,
+      0.5773502691896257
+    ],
+    "wl": [
+      1,
+      1
+    ],
+    "vl": [
+      1,
+      -1
+    ],
+    "p": [
+      [
+        0.7886751345948129,
+        0.21132486540518708
+      ],
+      [
+        0.21132486540518713,
+        0.7886751345948128
+      ]
+    ],
+    "wp": [
+      [
+        0.7886751345948129,
+        0.21132486540518708
+      ],
+      [
+        0.21132486540518713,
+        0.7886751345948128
+      ]
+    ],
+    "v": [
+      [
+        1,
+        -1.7320508075688772
+      ],
+      [
+        1,
+        1.7320508075688772
+      ]
+    ],
+    "converted": [
+      [
+        1,
+        -1
+      ],
+      [
+        0.9999999999999999,
+        0.9999999999999998
+      ]
+    ],
+    "qd": [
+      [
+        -0.7071067811865477,
+        -0.7071067811865476
+      ],
+      [
+        -0.7071067811865476,
+        0.7071067811865475
+      ]
+    ],
+    "r": [
+      [
+        -1.414213562373095,
+        2.220446049250313e-16
+      ],
+      [
+        0,
+        1.414213562373095
+      ]
+    ]
+  },
+  "final_result": "31 passed in16.43s: all25 simplify controls (former strict xfail now ordinary passing test),4 mapping eager/JIT controls,2 original trivial-rule test items.",
+  "failed_candidate_explained": "The candidate gate returned failure solely because the strict expected failure became XPASS. Its receipt is retained.",
+  "validation": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/run/receipt.json",
+      "sha256": "5f016c086933b3523e2da9003c8c6947b1bffcca215adef29a65d8f2a1d035fa",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 599336,
+      "wall_seconds": 4.638883518986404
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/weighted_run/receipt.json",
+      "sha256": "afc4a8a60bd7dc14e537a4848a1b6a7df059ffe392acf69435b3c3f8e4efbb88",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 523280,
+      "wall_seconds": 3.405117840040475
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/native_run/receipt.json",
+      "sha256": "bf04128576a74cea6956a5a5d1eab81c806952d9ee5618f61e07d6cf08c2a3c2",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1288800,
+      "wall_seconds": 79.05914047406986
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/native_weighted_run/receipt.json",
+      "sha256": "5274e297aacf000d45beb37851e8b8ef5afb3040ebc5a7fb80b7ffc090be6268",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1254132,
+      "wall_seconds": 77.70783693902194
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/replay_run/receipt.json",
+      "sha256": "666dd1c0f2d3cc838349faa1d5b09b4fc17bb268b810ec3e36a57817b70f56eb",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 604424,
+      "wall_seconds": 4.575154022779316
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/candidate_run/receipt.json",
+      "sha256": "20547080d7506003944ae252e38c28527e14c895048e95fb5f424d13627f02f5",
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1331524,
+      "wall_seconds": 19.107873202767223
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hosvd_threshold_stages_20261015/final_run/receipt.json",
+      "sha256": "32cac41ed6686d60d366346a63fc6a2951d27f71bf4519856d3eae65a87661ba",
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1340152,
+      "wall_seconds": 19.491647323593497
+    }
+  ],
+  "limits": "Closes this exact HOSVD threshold fixture and source n=2 mapping bug; does not establish arbitrary QR/HOSVD backend identity or full project parity."
+}

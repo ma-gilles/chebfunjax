@@ -368,6 +368,22 @@ def _legpts_core(n: int, interval: tuple[float, float] | None = None,
             w = 0.5 * (b - a) * w
         return x, w
 
+    if n == 2:
+        from chebfunjax.utils._ordered_binary import binary
+        from chebfunjax.utils.legendre_rec import _legpts_rec
+
+        x0, w, _ = _legpts_rec(n)
+        a, b = (-1.0, 1.0) if interval is None else interval
+        # legpts.m's n=2 branch maps even the canonical interval. Omitting
+        # (x0+1)-1 changes its positive node and downstream continuous QR.
+        width = binary(jnp.asarray(b, dtype=jnp.float64),
+                       jnp.asarray(a, dtype=jnp.float64), 2)
+        half_width = binary(width, jnp.asarray(2.0), 3)
+        x = binary(binary(half_width, binary(x0, jnp.asarray(1.0), 1), 0),
+                   jnp.asarray(a, dtype=jnp.float64), 1)
+        w = binary(binary(w, width, 0), jnp.asarray(2.0), 3)
+        return x, w
+
     # Golub-Welsch builds an n x n matrix (O(n^2) memory) — it OOMs /
     # hangs for large n. Above a threshold, use an O(n)-memory
     # vectorized Newton iteration on the Legendre recurrence instead.
