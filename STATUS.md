@@ -1,3 +1,11 @@
+## 2026-10-15: original 3D unary predicates
+
+All six original unary-plus/minus predicates now use their three source
+domains, continuous norms and original bounds. Named unary APIs and Python
+unary plus are available; negation preserves empty objects. Seven test items
+pass in fresh serial groups. See `docs/chebfun3_unary_original_cpu_20261015.json`.
+The separate Laplacian norm restoration remains under investigation.
+
 ## 2026-10-15: multiplication dispatch and zero factors
 
 Chebfun3 pointwise multiplication now follows source dispatch, including

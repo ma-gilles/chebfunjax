@@ -2608,9 +2608,22 @@ class Chebfun3(eqx.Module):
                 f"{self.domain} vs {other.domain}")
 
     def __neg__(self) -> "Chebfun3":
+        if self.isempty():
+            return self
         return Chebfun3(cols=list(self.cols), rows=list(self.rows),
                         tubes=list(self.tubes), core=-self.core,
                         domain=self.domain)
+
+    def uminus(self) -> "Chebfun3":
+        """Negate the core: @chebfun3/uminus.m, Chebfun7574c77."""
+        return -self
+
+    def uplus(self) -> "Chebfun3":
+        """Return the input unchanged: @chebfun3/uplus.m, Chebfun7574c77."""
+        return self
+
+    def __pos__(self) -> "Chebfun3":
+        return self.uplus()
 
     def __add__(self, other) -> "Chebfun3":
         """Native active addition: condition-scaled adaptive resampling.
