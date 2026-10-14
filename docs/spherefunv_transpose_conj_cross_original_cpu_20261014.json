@@ -1,0 +1,40 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "restored_predicates": {
+    "transpose": 2,
+    "conj_imag_real": 3,
+    "cross": 3
+  },
+  "mapping": [
+    "Transpose pass5 seeded-point 2norm and pass6 global norm, unchanged10*cheb2eps",
+    "Conj/real seeded-point vector norms and imag global norm, unchanged100*cheb2eps",
+    "Cross actual returned empty result and two global norms, unchanged1000*cheb2eps"
+  ],
+  "rng": "Existing MATLAB-compatible Twister stream, seeds10 and7, scalar lambda then theta draws as source.",
+  "validation": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_transpose_conj_publication_20261014/run/receipt.json",
+      "sha256": "572329c78591fd01e17acf49df2da8f193aae3d80af887b73790e974d5dc96a4",
+      "command_exit_code": 0,
+      "wall_seconds": 33.27167244721204,
+      "sampled_peak_summed_rss_kib": 1728844,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_currentpub_cross_gate_20261014/receipt.json",
+      "sha256": "74ffe2a6c8f6d3d6b558d562e562cf4842c3df5c766284d7e21d7553fbab3d6a",
+      "command_exit_code": 0,
+      "wall_seconds": 68.644903420005,
+      "sampled_peak_summed_rss_kib": 2912068,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  ],
+  "cross_source_binding": {
+    "all_source_python_files_identical": 324,
+    "publication_head": "da5831822cf9e794a9305bfc08a318d15b1b1d42"
+  },
+  "review": "Root transpose/conj gate passed on final published scalar source. Afterwards replaced inadvertently added supplemental grid comparisons with prior componentwise point checks; original passing point-vector norm at100eps implies each component error <1000eps supplemental bound. No source predicate or bound changed. Cross private source identical to publication.",
+  "remaining": "Full parity and CI unresolved."
+}

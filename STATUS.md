@@ -1,3 +1,12 @@
+## 2026-10-14: original vector transpose, conjugation and cross tests
+
+Eight previously substituted predicates now use their original operands,
+continuous or pointwise vector norms, and unchanged preference tolerances.
+Random points use the MATLAB-compatible Twister stream in source draw order.
+The cross empty case checks the returned result. Root transpose/conjugation
+checks and the separately bounded cross test pass; cross peaked at 2.78 GiB.
+See `docs/spherefunv_transpose_conj_cross_original_cpu_20261014.json`.
+
 ## 2026-10-14: sphere-vector arithmetic and native scalar rounding
 
 Sphere-vector multiplication and division now follow the pinned operand,

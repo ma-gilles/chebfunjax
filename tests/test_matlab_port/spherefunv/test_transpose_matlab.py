@@ -12,12 +12,15 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.spherefun.spherefun import Spherefun
 from chebfunjax.spherefun.spherefunv import Spherefunv
+from chebfunjax.utils._matlab_twister import init_matlab_twister, matlab_rand_uniform
 
 jax.config.update("jax_enable_x64", True)
 
-TOL = 1e3 * 2.220446049250313e-16
+TOL = 10 * ChebfunPref().cheb2Prefs.chebfun2eps
+SUPPLEMENTAL_TOL = 1e3 * 2.220446049250313e-16
 
 
 def _sph(fc):
@@ -56,14 +59,21 @@ class TestSpherefunvTranspose:
         assert np.isinf(m) and np.isinf(n) and p == 3  # pass(4)
         # pass(5)/(6): u' - u.' vanishes for real fields; double
         # transpose is the identity.
-        w = [a - b for a, b in zip(u.ctranspose().components,
-                                   u.transpose().components)]
-        assert max(_norm_inf(c) for c in w) < TOL
+        w = u.ctranspose() - u.transpose()
+        state = init_matlab_twister(10)
+        lam0, state = matlab_rand_uniform(state, ())
+        th0, state = matlab_rand_uniform(state, ())
+        pointwise = w(lam0, th0)
+        assert float(jnp.sqrt(sum(value ** 2 for value in pointwise))) < TOL  # native pass(5)
+
         v = u.transpose()
+        assert (u - v.transpose()).norm() < TOL  # native pass(6)
+
+        # Supplemental sampled checks retained from the earlier port.
+        assert max(_norm_inf(c) for c in w.components) < SUPPLEMENTAL_TOL
         assert _vnorm(Spherefunv(*[
             a - b for a, b in zip(u.components,
-                                  v.transpose().components)])) < TOL
+                                  v.transpose().components)])) < SUPPLEMENTAL_TOL
         # pass(7): u' * u is a spherefun (the dot contraction).
-        from chebfunjax.spherefun.spherefun import Spherefun
         s = u.ctranspose() @ u
         assert isinstance(s, Spherefun)
