@@ -1,3 +1,10 @@
+## 2026-10-14: vector unary state preservation
+
+Sphere-vector real, imaginary and conjugate operations now preserve row
+orientation and empty results. Unary plus follows the source identity method.
+The original conjugation/transpose predicates and added state checks pass in
+three focused root tests. See `docs/spherefunv_unary_source_cpu_20261014.json`.
+
 ## 2026-10-14: directional derivatives, Jacobian and scalar powers
 
 All 44 original directional-derivative predicates pass through the actual

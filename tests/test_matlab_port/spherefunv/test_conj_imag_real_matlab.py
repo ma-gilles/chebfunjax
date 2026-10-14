@@ -14,6 +14,7 @@ import numpy as np
 
 from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.spherefun.spherefun import Spherefun
+from chebfunjax.spherefun.spherefunv import Spherefunv
 from chebfunjax.utils._matlab_twister import init_matlab_twister, matlab_rand_uniform
 
 jax.config.update("jax_enable_x64", True)
@@ -66,3 +67,23 @@ class TestSpherefunvConjImagReal:
             for cu, cv in zip(u.components, v.components):
                 assert abs(float(cu(lam0, th0)) - float(cv(lam0, th0))) < SUPPLEMENTAL_TOL
         assert _vnorm(w) < SUPPLEMENTAL_TOL
+
+    def test_unary_operations_preserve_row_and_empty_state(self):
+        f = _sph(lambda x, y, z: jnp.cos((x + 0.1) * y * z))
+        u = f.gradient().transpose()
+        lam = jnp.asarray(0.37)
+        th = jnp.asarray(1.11)
+        base = u(lam, th)
+        for result, transform in ((u.real(), jnp.real), (u.imag(), jnp.imag),
+                                  (u.conj(), jnp.conj), (-u, lambda x: -x)):
+            m, n, p = result.size
+            assert np.isinf(m) and np.isinf(n) and p == 3
+            np.testing.assert_allclose(
+                np.asarray(result(lam, th)),
+                np.asarray(tuple(transform(x) for x in base)),
+                rtol=0.0, atol=1e-14)
+        for operation in (lambda x: x.real(), lambda x: x.imag(),
+                          lambda x: x.conj(), lambda x: +x):
+            empty = Spherefunv.empty()
+            assert operation(empty).isempty()
+        assert (+u) is u  # @spherefunv/uplus.m has an empty body and returns F.

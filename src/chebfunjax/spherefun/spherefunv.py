@@ -701,7 +701,9 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/real.m
         Chebfun commit: 7574c77
         """
-        return Spherefunv(*[c.real() for c in self.components])
+        if self.isempty():
+            return self
+        return _source_vector_like(self, [c.real() for c in self.components])
 
     def imag(self) -> "Spherefunv":
         """Componentwise imaginary part (MATLAB imag).
@@ -711,7 +713,9 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/imag.m
         Chebfun commit: 7574c77
         """
-        return Spherefunv(*[c.imag() for c in self.components])
+        if self.isempty():
+            return self
+        return _source_vector_like(self, [c.imag() for c in self.components])
 
     def conj(self) -> "Spherefunv":
         """Componentwise complex conjugate (MATLAB conj).
@@ -721,7 +725,19 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/conj.m
         Chebfun commit: 7574c77
         """
-        return Spherefunv(*[c.conj() for c in self.components])
+        if self.isempty():
+            return self
+        return _source_vector_like(self, [c.conj() for c in self.components])
+
+    def __pos__(self) -> "Spherefunv":
+        """MATLAB ``uplus`` is the identity, including for empty vectors.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/uplus.m
+        Chebfun commit: 7574c77
+        """
+        return self
 
     def iszero(self) -> bool:
         """True iff every component is the zero function (MATLAB iszero).
