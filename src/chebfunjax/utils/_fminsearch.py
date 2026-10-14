@@ -1,4 +1,4 @@
-"""Real two-variable R2017a fminsearch fallback policy.
+"""Real two- and three-variable R2017a fminsearch fallback policy.
 
 This is the fallback dependency for pinned separableApprox.minandmax2, not an
 active-set implementation or an assertion about the historical page's branch.
@@ -11,6 +11,12 @@ Provenance
 ----------
 R2017a toolbox/matlab/optimfun/fminsearch.m, simplex and iteration sections.
 Caller: Chebfun @separableApprox/minandmax2.m at7574c77.
+
+
+Three-variable extension: the existing two-variable arithmetic path is
+preserved. New dimensions follow the same source formulas and native
+dimension-dependent limits. Qualification is scoped to real binary64
+finite-box controls; no full optimizer JIT/AD or arbitrary-dimension claim.
 """
 from typing import NamedTuple
 
@@ -59,9 +65,9 @@ def _checked_tolerance(value, name):
     return tolerance
 
 
-def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400,
+def fminsearch(fun, x0, *, max_iterations=None, max_evaluations=None,
                tol_x=None, tol_fun=None):
-    """Real 2D minimization; explicit caps correspond to native option values.
+    """Real 2D/3D minimization; default limits are200 times the dimension.
 
     The source checks limits only at loop entry, allowing a completed branch
     to cross the evaluation limit. Zero exitflag still returns the best point.
@@ -79,21 +85,24 @@ def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400,
     tol_x = _checked_tolerance(tol_x, "tol_x")
     tol_fun = _checked_tolerance(tol_fun, "tol_fun")
     x = jnp.asarray(x0, dtype=jnp.float64)
-    if x.shape != (2,):
-        raise ValueError('This source adapter requires a two-coordinate vector')
-    vertices = jnp.zeros((2, 3), dtype=jnp.float64).at[:, 0].set(x)
-    values = jnp.zeros(3, dtype=jnp.float64).at[0].set(fun(x))
-    for j in range(2):
+    if x.shape not in ((2,), (3,)):
+        raise ValueError('This source adapter requires a two- or three-coordinate vector')
+    n = x.size
+    max_iterations = 200*n if max_iterations is None else max_iterations
+    max_evaluations = 200*n if max_evaluations is None else max_evaluations
+    vertices = jnp.zeros((n, n+1), dtype=jnp.float64).at[:, 0].set(x)
+    values = jnp.zeros(n+1, dtype=jnp.float64).at[0].set(fun(x))
+    for j in range(n):
         y = x.at[j].set(jnp.where(x[j] != 0, (1+.05)*x[j], .00025))
         vertices = vertices.at[:, j+1].set(y)
         values = values.at[j+1].set(fun(y))
     order = jnp.argsort(values, stable=True)
     values, vertices = values[order], vertices[:, order]
-    iterations, evaluations = 1, 3
+    iterations, evaluations = 1, n+1
     while evaluations < max_evaluations and iterations < max_iterations:
         if _converged(vertices, values, tol_x=tol_x, tol_fun=tol_fun):
             break
-        centroid = jnp.sum(vertices[:, :2], axis=1)/2
+        centroid = jnp.sum(vertices[:, :n], axis=1)/n
         reflected = 2*centroid-vertices[:, -1]
         fr = fun(reflected)
         evaluations += 1
@@ -104,7 +113,7 @@ def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400,
             evaluations += 1
             point, value = (expanded, fe) if bool(fe < fr) else (reflected, fr)
             vertices, values = vertices.at[:, -1].set(point), values.at[-1].set(value)
-        elif bool(fr < values[1]):
+        elif bool(fr < values[-2]):
             vertices = vertices.at[:, -1].set(reflected)
             values = values.at[-1].set(fr)
         elif bool(fr < values[-1]):
@@ -126,11 +135,11 @@ def fminsearch(fun, x0, *, max_iterations=400, max_evaluations=400,
             else:
                 shrink = True
         if shrink:
-            for j in (1, 2):
+            for j in range(1, n+1):
                 point = vertices[:, 0]+.5*(vertices[:, j]-vertices[:, 0])
                 vertices = vertices.at[:, j].set(point)
                 values = values.at[j].set(fun(point))
-            evaluations += 2
+            evaluations += n
         order = jnp.argsort(values, stable=True)
         values, vertices = values[order], vertices[:, order]
         iterations += 1

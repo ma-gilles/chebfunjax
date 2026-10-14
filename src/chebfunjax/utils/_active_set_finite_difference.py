@@ -12,6 +12,12 @@ observed, not available as readable source. The separate Chebfun caller is
 Copyright 2017 The University of Oxford and The Chebfun Developers.
 Capture provenance is bound in tests/fixtures/active_set_fd_native.json.
 Fixed caller registration only; no arbitrary option, full JIT or AD contract.
+
+
+Three-variable extension: the existing two-variable arithmetic path is
+preserved. New dimensions follow the same source formulas and native
+dimension-dependent limits. Qualification is scoped to real binary64
+finite-box controls; no full optimizer JIT/AD or arbitrary-dimension claim.
 """
 import jax.numpy as jnp
 
@@ -19,7 +25,7 @@ from chebfunjax.utils._active_set_qp import _real64
 
 
 def _fixed_options(options):
-    """Reject options outside the existing two-variable native caller."""
+    """Reject options outside the fixed two-/three-variable native caller."""
     fixed = {'FinDiffType': 'forward', 'DiffMinChange': 0.,
              'DiffMaxChange': float('inf'), 'fwdFinDiff': True,
              'scaleObjConstr': False, 'chkFunEval': False,
@@ -30,7 +36,7 @@ def _fixed_options(options):
         raise ValueError('Unsupported native finite-difference options')
     relative = _real64(options['FinDiffRelStep'], 'FinDiffRelStep')
     typical = _real64(options['TypicalX'], 'TypicalX')
-    if (relative.shape != (2,) or typical.shape != (2,)
+    if (relative.shape not in ((2,), (3,)) or typical.shape != relative.shape
             or not bool(jnp.all(relative == jnp.sqrt(jnp.finfo(jnp.float64).eps)))
             or not bool(jnp.all(typical == 1))):
         raise ValueError('Unsupported native finite-difference step options')
@@ -63,7 +69,7 @@ def _bounded_step(x, lower, upper, step):
 def finite_difference(x, fun, lower, upper, base_value, options):
     """Return the binary64 gradient and number of extra objective calls.
 
-    Python's two-entry vector adapts the native caller's row-shaped callback.
+    Python's vector adapts the native caller's row-shaped callback.
     Coordinates are evaluated in order and restored between calls. With the
     fixed native check flags, NaN/Inf values propagate without retries and
     objective exceptions propagate immediately. NaN payload bits are not a
@@ -74,13 +80,14 @@ def finite_difference(x, fun, lower, upper, base_value, options):
     x = _real64(x, 'x')
     lower, upper = _real64(lower, 'lower'), _real64(upper, 'upper')
     base = _real64(base_value, 'base_value')
-    if any(v.shape != (2,) for v in (x, lower, upper)) or base.shape != ():
-        raise ValueError('Native finite differences require two variables and a scalar objective')
+    if (x.shape not in ((2,), (3,)) or any(v.shape != x.shape for v in (lower, upper))
+            or relative.shape != x.shape or base.shape != ()):
+        raise ValueError('Native finite differences require two or three variables and a scalar objective')
     if not bool(jnp.all(jnp.isfinite(x) & jnp.isfinite(lower) & jnp.isfinite(upper)
                         & (lower < upper))):
         raise ValueError('Native finite differences require finite points and finite positive-width bounds')
     gradients = []
-    for index in range(2):
+    for index in range(x.size):
         sign = jnp.where(x[index] < 0, -1., 1.)
         nominal = relative[index] * sign * jnp.maximum(jnp.abs(x[index]), typical[index])
         step = _bounded_step(x[index], lower[index], upper[index], nominal)
@@ -89,4 +96,4 @@ def finite_difference(x, fun, lower, upper, base_value, options):
         if value.shape != ():
             raise ValueError('Objective must be scalar')
         gradients.append((value-base)/step)
-    return jnp.stack(gradients), 2
+    return jnp.stack(gradients), x.size

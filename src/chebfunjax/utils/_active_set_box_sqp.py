@@ -1,9 +1,16 @@
-"""Draft literal R2017a nlconst finite-box SQP with unresolved FD injection.
+"""Literal R2017a nlconst finite-box SQP with a supplied FD provider.
 
 Source shared/optimlib/nlconst.m and fmincon.m, bound R2017a installation.
-No public registration. A finite_difference provider MUST supply the protected
+Used by the private Chebfun3 extrema adapter. A finite_difference provider
+MUST supply the protected
 native helper semantics; no default approximation or analytic substitution.
 Host-controlled JAX array arithmetic; no complete JIT/AD or MATLAB bit claim.
+
+
+Three-variable extension: the existing two-variable arithmetic path is
+preserved. New dimensions follow the same source formulas and native
+dimension-dependent limits. Qualification is scoped to real binary64
+finite-box controls; no full optimizer JIT/AD or arbitrary-dimension claim.
 """
 from typing import NamedTuple
 
@@ -16,6 +23,14 @@ from chebfunjax.utils._active_set_qp import (
     _real64,
     _scalar_matrix_divide,
 )
+
+
+def _dot(a, b):
+    return _dot2(a, b) if a.size == 2 else a @ b
+
+
+def _matvec(matrix, vector):
+    return _matvec2(matrix, vector) if vector.size == 2 else matrix @ vector
 
 
 class SQPResult(NamedTuple):
@@ -54,14 +69,19 @@ def _convergence(violation, step, a, gradient, active, residual, old_lambda,
     """nlconst.testConvergence: real box, no equalities/semifinite callback."""
     if not bool(violation < tolcon):
         return -2, old_lambda, old_error
-    multipliers = jnp.zeros(4)
+    multipliers = jnp.zeros(a.shape[0])
     if active:
         rows = a[jnp.asarray(active)]
         if len(active) == 1:
             # Native 2x1 backslash for a signed coordinate unit vector.
             values = -(rows@gradient)
-        elif len(active) == 2:
+        elif len(active) == gradient.size:
             values = jnp.linalg.solve(rows.T, -gradient)
+        elif gradient.size == 3 and len(active) == 2:
+            # Independent box faces are signed orthogonal coordinate rows.
+            if not bool(jnp.all(rows@rows.T == jnp.eye(2))):
+                raise RuntimeError("Dependent native convergence working set")
+            values = -(rows@gradient)
         else:
             raise RuntimeError('Unsupported dependent native convergence working set')
         multipliers = multipliers.at[jnp.asarray(active)].set(values)
@@ -78,18 +98,20 @@ def _convergence(violation, step, a, gradient, active, residual, old_lambda,
 
 def active_set_box(fun, initial, lower, upper, *, finite_difference,
                    native_randn=None, observer=None):
-    """Source caller options fixed: TolFun/TolFunValue/TolX=eps, box2D.
+    """Source caller options fixed: TolFun/TolFunValue/TolX=eps, box2D/3D.
 
     finite_difference(x, fun, lower, upper, base_value, options) returns
-    (gradient, num_extra_evaluations). This provider is presently unavailable;
-    injected scripted gradients in future controls do not qualify native FD.
+    (gradient, num_extra_evaluations). The native finite-difference adapter
+    is supplied explicitly by the extrema caller; analytic injection is only
+    a mechanics control and does not establish native finite differences.
     """
     if finite_difference is None:
         raise RuntimeError('Protected R2017a finite-difference provider is unavailable')
     x = _real64(initial, 'initial')
     lo, hi = _real64(lower, 'lower'), _real64(upper, 'upper')
-    if any(v.shape != (2,) for v in (x, lo, hi)):
-        raise ValueError('active_set_box requires two variables')
+    n = x.size
+    if n not in (2, 3) or any(v.shape != (n,) for v in (x, lo, hi)):
+        raise ValueError('active_set_box requires two or three variables')
     if not bool(jnp.all(jnp.isfinite(lo) & jnp.isfinite(hi) & (lo < hi))):
         raise ValueError('active_set_box requires finite positive-width bounds')
     # fmincon455: clamp only violated initial bound coordinates.
@@ -97,17 +119,17 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
     value = _real64(fun(x), 'objective')
     if value.shape != ():
         raise ValueError('Objective must be scalar')
-    a = jnp.concatenate((-jnp.eye(2), jnp.eye(2)))
+    a = jnp.concatenate((-jnp.eye(n), jnp.eye(n)))
     b = jnp.concatenate((-lo, hi))
     residual = a@x-b
     violation = jnp.max(residual)
-    h = jnp.eye(2)
-    lamb = jnp.zeros(4)
-    lambda_nlp = jnp.zeros(4)
-    old_a, old_g = jnp.zeros((4, 2)), jnp.zeros(2)
+    h = jnp.eye(n)
+    lamb = jnp.zeros(2*n)
+    lambda_nlp = jnp.zeros(2*n)
+    old_a, old_g = jnp.zeros((2*n, n)), jnp.zeros(n)
     old_x, old_c = x, residual
     matx, old_value = x, value
-    step = jnp.ones(2)
+    step = jnp.ones(n)
     steplength = jnp.asarray(1.)
     evaluations, gradients, iteration = 1, 1, 0
     best_value, best = jnp.inf, None
@@ -115,8 +137,8 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
     # nlconst.m284: iteration-zero optimality is empty; best restoration
     # must preserve that output state rather than invent scalar infinity.
     error = jnp.empty((0,), dtype=jnp.float64)
-    fd_options = {'FinDiffType': 'forward', 'FinDiffRelStep': jnp.full(2, jnp.sqrt(EPS)),
-                  'TypicalX': jnp.ones(2), 'DiffMinChange': 0., 'DiffMaxChange': jnp.inf,
+    fd_options = {'FinDiffType': 'forward', 'FinDiffRelStep': jnp.full(n, jnp.sqrt(EPS)),
+                  'TypicalX': jnp.ones(n), 'DiffMinChange': 0., 'DiffMaxChange': jnp.inf,
                   'fwdFinDiff': True, 'scaleObjConstr': False, 'chkFunEval': False,
                   'chkComplexObj': False, 'isGrad': True}
     tolcon = 1e-6
@@ -130,7 +152,7 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
     while not done:
         g, count = finite_difference(x, fun, lo, hi, value, fd_options)
         g = _real64(g, 'finite-difference gradient')
-        if g.shape != (2,) or not isinstance(count, int) or count < 0:
+        if g.shape != (n,) or not isinstance(count, int) or count < 0:
             raise ValueError('Invalid protected finite-difference provider result')
         evaluations += count
         if iteration > 0:
@@ -138,7 +160,7 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
             if bool(error < EPS) and bool(violation < tolcon):
                 flag, done = 1, True
             else:
-                if evaluations > 200:
+                if evaluations > 100*n:
                     x, value, g = matx, old_value, old_g
                     flag, done = 0, True
                 if iteration >= 400:
@@ -149,36 +171,36 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
         if gradients > 1:
             y = (g+a.T@lamb) - (old_g+old_a.T@lamb)
             displacement = x-old_x
-            if bool(_dot2(y, displacement) < steplength**2*1e-3):
-                while bool(_dot2(y, displacement) < -1e-5):
+            if bool(_dot(y, displacement) < steplength**2*1e-3):
+                while bool(_dot(y, displacement) < -1e-5):
                     index = int(jnp.argmin(y*displacement))
                     y = y.at[index].set(y[index]/2)
-                if bool(_dot2(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')):
+                if bool(_dot(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')):
                     factor = a.T@residual-old_a.T@old_c
                     factor = factor*(displacement*factor > 0)*(y*displacement <= EPS)
                     weight = jnp.asarray(1e-2)
                     if bool(jnp.max(jnp.abs(factor)) == 0):
                         factor = 1e-5*jnp.sign(displacement)
-                    while bool(_dot2(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')) and bool(weight < 1/EPS):
+                    while bool(_dot(y, displacement) < EPS*jnp.linalg.norm(h, ord='fro')) and bool(weight < 1/EPS):
                         y = y+weight*factor
                         weight = weight*2
-            if bool(_dot2(y, displacement) > EPS):
-                h = (h+_scalar_matrix_divide(jnp.outer(y, y), _dot2(y, displacement))
+            if bool(_dot(y, displacement) > EPS):
+                h = (h+_scalar_matrix_divide(jnp.outer(y, y), _dot(y, displacement))
                      -_scalar_matrix_divide(
-                         jnp.outer(_matvec2(h, displacement), _matvec2(h, displacement)),
-                         _dot2(_matvec2(h.T, displacement), displacement)))
+                         jnp.outer(_matvec(h, displacement), _matvec(h, displacement)),
+                         _dot(_matvec(h.T, displacement), displacement)))
             emit('bfgs', hessian=h, corrected_y=y, displacement=displacement)
         else:
-            old_lambda = jnp.full(4, EPS+g@g)/(jnp.sum(a.T*a.T, axis=0)+EPS)
+            old_lambda = jnp.full(2*n, EPS+g@g)/(jnp.sum(a.T*a.T, axis=0)+EPS)
             active = ()
         gradients += 1
         previous_lambda = lamb
         old_a, old_g, old_c, old_value, old_x = a, g, residual, value, x
         h = (h+h.T)*0.5
-        qp = box_qp(h, g, lo-x, hi-x, active=active, max_iterations=40,
+        qp = box_qp(h, g, lo-x, hi-x, active=active, max_iterations=20*n,
                     tolerance=tolcon, native_randn=native_randn)
         step, active = qp.x, qp.active
-        lambda_nlp = jnp.zeros(4).at[jnp.asarray(active, dtype=jnp.int32)].set(
+        lambda_nlp = jnp.zeros(2*n).at[jnp.asarray(active, dtype=jnp.int32)].set(
             qp.multipliers[jnp.asarray(active, dtype=jnp.int32)])
         lamb = qp.multipliers
         old_lambda = jnp.maximum(lamb, 0.5*(lamb+old_lambda))
@@ -193,7 +215,7 @@ def active_set_box(fun, initial, lower, upper, *, finite_difference,
         search = True
         trial = jnp.asarray(2.)
         emit('qp', result=qp, evaluations=evaluations)
-        while search and evaluations < 200:
+        while search and evaluations < 100*n:
             trial = trial/2
             if bool(trial < 1e-4):
                 trial = -trial

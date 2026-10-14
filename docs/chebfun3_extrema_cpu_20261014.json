@@ -1,0 +1,189 @@
+{
+  "package": "Source Chebfun3 minandmax3; seven source paths and nine test/fixture paths",
+  "base": "d749e191; rebased class preserves current root/chebpolyval3 methods",
+  "source": "Chebfun7574c77680d7e82b79626300bf255498271a72df @chebfun3/minandmax3.m and tests/chebfun3/test_optimization.m",
+  "mapping": [
+    "Factor-length Chebyshev2 seeds; ndf>50000 caps each dimension129; F-order first ties; mode-ordered contractions.",
+    "Default active-set branch extends readable R2017a optimizer formulas from2D to3D; actual native R2025b Optimization Toolbox branch independently captured.",
+    "Explicit fminsearch branch uses source sine mapping and600 default limits.",
+    "One paired Newton transaction; both skipped at boundary, both restored for singular nonfinite solve or either outside proposal. Mixed derivative ordering preserved."
+  ],
+  "original_tests": "All ten literal functions passed unchanged combined abs(min-error)+abs(max-error)<1000*pref.cheb3Prefs.chebfun3eps. Cases3..7 slowmarked but explicitly executed. Replaces five substitutes and separate weaker bounds.",
+  "focused_tests": "146 passed:127 existing controls (only two obsolete3D rejection assertions now reject4D),7new primitives,6native active-set,6transaction/grid. Additional6fallback controls passed. Successful Newton oracle checks independent rational locations +/-7/12 and cubic values +/-665/576.",
+  "active_native": "All6 flags/counts agree; cases1,2,3,6 full traces,x,values bit-identical. Cases4/5 retain roundoff; case5 xdelta2.61217e-11. No fitted location bound. R2017a overlay failed missing validateopts_UseParallel before objectives: NOT qualified.",
+  "fallback_native": "All5 first diverge at mapped evaluation row2 coordinate1 by5.551115123125783e-17. Case1 counts190/351 vsnative189/349; others agree. No trajectory parity claim. Exact analytical/native minima for2/3/6; supplemental squared-objective<eps for1/4. No angular or fitted iteration envelope. Capture primitive sin(t) is distinct from full physical mapping; separate public linear-function control exercises actual fallback dispatch.",
+  "adapters_limits": [
+    "Native successful Newton vals(:,1)/vals(:,2) expands initial2x1 values to2x2; Python retains length-two vector.",
+    "Native fallback catch can leave locs undefined; Python propagates optimizer errors.",
+    "Real finite-box binary64 qualification. New default rejects complex extrema ordering. Explicit ngrid/n_starts preserve legacy Python multi-start behavior.",
+    "Eager JAX arithmetic/control, no full optimizer JIT/AD claim.",
+    "Inherited singular-working-set RNG/dependent active-QR paths remain unsupported if reached.",
+    "Newton singularity uses nonfinite solve result, no fitted rank threshold; arbitrary near-singular native warning parity unqualified."
+  ],
+  "preserved_negatives": [
+    "regression_run125pass2fail old3D-reject assertions, corrected to4D scope.",
+    "probe_run MAT integerdtype harness failures corrected withfloat64 replay.",
+    "Six legacy native-overlay dependency failures retained."
+  ],
+  "final_changes": "After146gate: doc/error wording only. Fallback6gate includes error wording and shape/exception adapter docs; afterwards SQP docstring and test import whitespace only. All10 executed test science unchanged by later import/comment formatting.",
+  "evidence": [
+    "NATIVE_MANIFEST.json",
+    "optimizer_comparison.json",
+    "fallback_comparison.json",
+    "fallback_first_divergence.json",
+    "tests/optimizer3_native.json",
+    "tests/fminsearch3_native.json"
+  ],
+  "receipts": {
+    "final_small_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 33.981673285830766,
+      "sampled_peak_summed_rss_kib": 1840272,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "ba90282b3f28db4aa0f28191646cf61bb6d91114e2669ce45c3246855197d789"
+    },
+    "fallback_controls_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 12.604800820816308,
+      "sampled_peak_summed_rss_kib": 700440,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "55e2562d693e8c8e9665774743f4dc96960ae1ea9b8630c143ce74fe416c770d"
+    },
+    "probe_run_v2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.276888928376138,
+      "sampled_peak_summed_rss_kib": 929688,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "40a078948e33d2ffdb9e19ac819d3b7b31765191c130bccdfcfbe28f9eccfe9c"
+    },
+    "fallback_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 7.428152724169195,
+      "sampled_peak_summed_rss_kib": 551220,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "64996cd8bce80ca0fea32d398b591d14fa6c616e887d6cfaf9a4900e77afd4e4"
+    },
+    "native/run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 83.06503628194332,
+      "sampled_peak_summed_rss_kib": 1357296,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "f5f9ca8ce88c0d3bc5e781be4d8c71d050ac1a080493f12e7c1c2bacfe776425"
+    },
+    "native_fallback/run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 93.24885799596086,
+      "sampled_peak_summed_rss_kib": 1352068,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "83e63f655a3db014e4b0e428de709b2610725bbf9534bf226f1de8f6a2f34175"
+    },
+    "original_small_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.772874567192048,
+      "sampled_peak_summed_rss_kib": 1261032,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "0acf2543587a24a84af41872fd469ca9ec5c0d4b3aac823a887af76cbcbd1a6f"
+    },
+    "original_case1_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 18.004229893907905,
+      "sampled_peak_summed_rss_kib": 1248036,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "45834a48796a1dbe1627aaf0962176d968d75a9d0e846a382056d071b91d3bce"
+    },
+    "original_case2_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 18.26739694084972,
+      "sampled_peak_summed_rss_kib": 1252252,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "c6e57eec5fc20f829e113c9a46f8c5fe407a93f161d349233d2ae68ef2df301e"
+    },
+    "original_case3_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 19.960692888125777,
+      "sampled_peak_summed_rss_kib": 1319584,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "e55ff80b0c96b37ac641be444b9b74c44c4e27e99a44ca9e047a51dcd2bee726"
+    },
+    "original_case4_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 19.729468196164817,
+      "sampled_peak_summed_rss_kib": 1313512,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "294dd11a2a4b57a72627fae49a273658a377e3e706141af9b4a884686fcf6560"
+    },
+    "original_case5_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 19.16504500899464,
+      "sampled_peak_summed_rss_kib": 1280612,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "efffddf68717a0e457327225175318b7a079412b65a542cea1b37fbed46414f1"
+    },
+    "original_case6_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 22.12610496301204,
+      "sampled_peak_summed_rss_kib": 1402252,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "3fd8313a38a4aca3f1034f25a1a1917397d7f99ccc092323b6aa7bcfcd6ef4dd"
+    },
+    "original_case7_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 21.655497020110488,
+      "sampled_peak_summed_rss_kib": 1407200,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "b1b3b51fd5757acf0407a589d6d4f7b739d52b84d9542b85d4a245a30ca5a1eb"
+    },
+    "original_case8_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 15.890844054985791,
+      "sampled_peak_summed_rss_kib": 1088456,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sha256": "83c791a3b8f239e57e59e712cb7c0a5fc72208beaf2f4c75e58e626252fbd0a5"
+    }
+  },
+  "publication_gate": {
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "wall_seconds": 54.61475978419185,
+    "sampled_peak_summed_rss_kib": 2227312,
+    "remaining_owned_pids": [],
+    "tests": "153 passed,43.19s pytest; all source/native/shared controls plus preserved min3/max3 wrapper check",
+    "receipt_sha256": "34b30f5e187ec27f02def8c43900e5254deecc532174d6881e71033826940a38"
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_extrema_source_review_20261014",
+  "publication_evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_extrema_publication_20261014",
+  "independent_fixture_review": [
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/extrema_capture_verification_20261014/REPORT.md",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_native_lu_runtime_diagnosis_20261014/FMINSEARCH_FIXTURE_REPORT.md"
+  ]
+}

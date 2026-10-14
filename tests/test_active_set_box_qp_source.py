@@ -77,8 +77,8 @@ def test_qr_empty_insert_and_column_delete_source_order():
 
 def test_invalid_scope_is_explicit():
     with pytest.raises(ValueError):
-        box_qp(jnp.eye(3, dtype=jnp.float64), f64([0., 0., 0.]),
-               f64([-1., -1., -1.]), f64([1., 1., 1.]))
+        box_qp(jnp.eye(4, dtype=jnp.float64), f64([0., 0., 0., 0.]),
+               f64([-1., -1., -1., -1.]), f64([1., 1., 1., 1.]))
     with pytest.raises(ValueError):
         box_qp(jnp.eye(2, dtype=jnp.float64), f64([0., 0.]),
                f64([1., -1.]), f64([1., 1.]))

@@ -1,3 +1,22 @@
+## 2026-10-14: source 3D extrema and original optimization battery
+
+The default Chebfun3 extrema path now follows the pinned source seed grid,
+active-set optimizer and paired Newton update. All ten original MATLAB
+optimization predicates pass at their original combined bound, including the
+five previously omitted oscillatory cases. Source and shared optimizer checks
+pass on CPU: 153 merged checks, including preserved min3/max3 wrapper coverage.
+Native R2025b active-set controls agree in all six iteration/evaluation counts;
+four complete traces agree exactly. Two active-set trajectories and the
+explicit fminsearch fallback retain documented rounding differences. No bound
+was fitted to these differences. Python value-shape and exception adapters,
+complex ordering and inherited singular-working-set limitations remain explicit.
+Evidence: `docs/chebfun3_extrema_cpu_20261014.json`.
+
+Full parity remains open. Latest CI exposes the previously documented native-LU
+CPU-runtime discrepancy (7.84e-14 versus the unchanged 100eps bound); identical
+fixed/scaled inputs pass in an isolated pinned local process. CPU/compiler versus
+worker-state diagnosis is pending. Main CI is not yet qualified green.
+
 ## Source Chebfun3 root finder and tensor evaluation — 2026-10-14
 
 Root finding now uses the native 161³ Chebyshev seed, vscale normalization,

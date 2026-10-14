@@ -55,7 +55,7 @@ def test_direction(name, h, g, z, expected, kind):
         with pytest.raises(ValueError):
             compdir(f64([[1.]]), h, g)
         with pytest.raises(ValueError):
-            choltrap(jnp.eye(3, dtype=jnp.float64))
+            choltrap(jnp.eye(4, dtype=jnp.float64))
         with pytest.raises(TypeError):
             compdir(z.astype(jnp.complex128), h, g)
     elif name == 'projected':

@@ -1,11 +1,17 @@
-"""Draft R2017a qpsub finite-box path and its literal phase-I LP.
+"""R2017a qpsub finite-box path and its literal phase-I LP.
 
 Source: shared/optimlib/qpsub.m, matlab/matfun/{qrinsert,qrdelete,planerot}.m.
 Bound by native_box_active_set_source_20261009/SOURCE_BINDINGS_v1.json.
 Real float64 array arithmetic is JAX; dynamic working sets use host control.
-Not JIT/AD, not a complete SQP optimizer; never registered with public extrema.
-The only root constraints supported are the four finite two-dimensional box
-faces. Phase I is the native augmented three-dimensional five-constraint LP.
+Not JIT/AD or a complete SQP optimizer; used by the private extrema SQP driver.
+Root constraints are the finite2D/3D box faces. Phase I uses the native
+augmented3D/4D LP with5/7 constraints respectively.
+
+
+Three-variable extension: the existing two-variable arithmetic path is
+preserved. New dimensions follow the same source formulas and native
+dimension-dependent limits. Qualification is scoped to real binary64
+finite-box controls; no full optimizer JIT/AD or arbitrary-dimension claim.
 """
 from typing import NamedTuple
 
@@ -112,8 +118,8 @@ def _pinv_source(matrix):
 
 
 def box_qp(hessian, gradient, lower, upper, *, initial=None, active=(),
-           max_iterations=40, tolerance=1e-6, native_randn=None, observer=None):
-    """Native qpsub step for a finite 2D box; unqualified implementation draft.
+           max_iterations=None, tolerance=1e-6, native_randn=None, observer=None):
+    """Native qpsub step for a finite 2D or3D box.
 
     native_randn is an explicit native-stream dependency only if the source's
     singular-working-set branch is reached. Its absence raises, never replaces
@@ -122,14 +128,16 @@ def box_qp(hessian, gradient, lower, upper, *, initial=None, active=(),
     h = _real64(hessian, 'hessian')
     g = _real64(gradient, 'gradient')
     lo, hi = _real64(lower, 'lower'), _real64(upper, 'upper')
-    x = jnp.zeros(2, dtype=jnp.float64) if initial is None else _real64(initial, 'initial')
-    if h.shape != (2, 2) or any(v.shape != (2,) for v in (g, lo, hi, x)):
-        raise ValueError('box_qp requires two variables')
+    n = g.size
+    max_iterations = 20*n if max_iterations is None else max_iterations
+    x = jnp.zeros(n, dtype=jnp.float64) if initial is None else _real64(initial, 'initial')
+    if n not in (2, 3) or h.shape != (n, n) or any(v.shape != (n,) for v in (g, lo, hi, x)):
+        raise ValueError('box_qp requires two or three variables')
     if not bool(jnp.all(jnp.isfinite(lo) & jnp.isfinite(hi) & (lo < hi))):
         raise ValueError('box_qp requires finite positive-width bounds')
-    if len(set(active)) != len(active) or any(i not in range(4) for i in active):
+    if len(set(active)) != len(active) or any(i not in range(2*n) for i in active):
         raise ValueError('active indices must be distinct box-face indices')
-    a = jnp.concatenate((-jnp.eye(2), jnp.eye(2)))
+    a = jnp.concatenate((-jnp.eye(n), jnp.eye(n)))
     b = jnp.concatenate((-lo, hi))
     return _qpsub(h, g, a, b, x, list(active), max_iterations, tolerance,
                   False, native_randn, observer)
@@ -137,8 +145,8 @@ def box_qp(hessian, gradient, lower, upper, *, initial=None, active=(),
 
 def _qpsub(h, f, a, b, x, active, maxiter, tolcon, phase, randn, observer):
     n, nc = x.size, b.size
-    if (phase and (n, nc) != (3, 5)) or (not phase and (n, nc) != (2, 4)):
-        raise ValueError('Only root 2D box and native 3D phase-I LP are supported')
+    if (phase and (n, nc) not in ((3, 5), (4, 7))) or (not phase and (n, nc) not in ((2, 4), (3, 6))):
+        raise ValueError('Only root 2D/3D boxes and their native phase-I LPs are supported')
     is_qp = h is not None and bool(jnp.linalg.norm(h, ord=jnp.inf) != 0)
     normf = jnp.asarray(1.)
     if not phase and not is_qp:
@@ -175,12 +183,14 @@ def _qpsub(h, f, a, b, x, active, maxiter, tolcon, phase, randn, observer):
         aset = a[jnp.asarray(active)]
         q, r = jnp.linalg.qr(aset.T, mode='complete')
         z = q[:, len(active):]
-        delta = solve_triangular(r[:1, :1].T, b[jnp.asarray(active)]-aset@x, lower=True)
-        x = x + q[:, :1] @ delta
+        delta = solve_triangular(r[:len(active), :len(active)].T, b[jnp.asarray(active)]-aset@x, lower=True)
+        x = x + q[:, :len(active)] @ delta
         errors = a@x-b
         if bool(jnp.any(errors > EPS)):
-            coordinate = int(jnp.argmax(jnp.abs(aset[0])))
-            basic = jnp.zeros(n).at[coordinate].set(b[active[0]]/aset[0, coordinate])
+            basic = jnp.zeros(n)
+            for row, face in zip(aset, active):
+                coordinate = int(jnp.argmax(jnp.abs(row)))
+                basic = basic.at[coordinate].set(b[face]/row[coordinate])
             if bool(jnp.max(a@basic-b) < jnp.max(errors)):
                 x = basic
         emit('warm_start_projected', x=x)
@@ -197,8 +207,8 @@ def _qpsub(h, f, a, b, x, active, maxiter, tolcon, phase, randn, observer):
             raise ValueError('Phase-I initial feasibility invariant failed; nested dimension unsupported')
         emit('phase_one_enter', x=x, violation=violation)
         augmented = jnp.concatenate((jnp.column_stack((a, -jnp.ones(nc))),
-                                     jnp.asarray([[0., 0., -1.]])))
-        result = _qpsub(None, jnp.asarray([0., 0., 1.]), augmented,
+                                     jnp.concatenate((jnp.zeros(n), jnp.asarray([-1.])))[None, :]))
+        result = _qpsub(None, jnp.concatenate((jnp.zeros(n), jnp.asarray([1.]))), augmented,
                         jnp.concatenate((b, jnp.asarray([1e-5]))),
                         jnp.concatenate((x, (violation+1)[None])), [],
                         10*max(n, nc), tolcon, True, randn, observer)

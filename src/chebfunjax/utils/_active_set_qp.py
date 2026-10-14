@@ -4,9 +4,15 @@ Provenance: MATLAB R2017a shared/optimlib/compdir.m (including choltrap),
 qpsub.m977-1007. Source hashes: native_box_active_set_source_20261009/
 SOURCE_BINDINGS_v1.json. Caller target: Chebfun 7574c77680d7e82b79626300bf255498271a72df.
 
-Real binary64, ambient dimension two, projected dimension one or two.
+Real binary64, ambient dimension two or three, positive projected dimension.
 Finite inputs are the intended contract; no MATLAB nonfinite or bit parity
 claim. No finite differences, objective callback, fallback or public dispatch.
+
+
+Three-variable extension: the existing two-variable arithmetic path is
+preserved. New dimensions follow the same source formulas and native
+dimension-dependent limits. Qualification is scoped to real binary64
+finite-box controls; no full optimizer JIT/AD or arbitrary-dimension claim.
 """
 from typing import NamedTuple
 
@@ -36,17 +42,37 @@ def _real64(value, name):
 
 
 def choltrap(matrix):
-    """Literal local choltrap for 1x1/2x2; fixed-shape absent direction mask.
+    """Literal local choltrap through3x3; fixed-shape absent direction mask.
 
     Return (L, sneg, present); sneg is zero-filled when source returns [].
     The source updates the LOWER triangle; do not symmetrize that update.
     """
     a = _real64(matrix, 'matrix')
-    if a.shape not in ((1, 1), (2, 2)):
-        raise ValueError('choltrap supports projected dimensions one and two')
+    if a.shape not in ((1, 1), (2, 2), (3, 3)):
+        raise ValueError('choltrap supports projected dimensions one through three')
     n = a.shape[0]
     identity = jnp.eye(n, dtype=a.dtype)
     zero = jnp.zeros(n, dtype=a.dtype)
+    if n == 3:
+        # Literal choltrap lower-triangle updates; keep qualified1/2D paths.
+        ell, work, direction = identity, a, zero
+        present = jnp.asarray(False)
+        for k in range(n):
+            failed = work[k, k] <= 0
+            take = (~present) & failed
+            candidate = solve_triangular(ell.T, identity[:, k], lower=False)
+            direction = jnp.where(take, candidate, direction)
+            running = (~present) & (~failed)
+            pivot = jnp.sqrt(jnp.where(running, work[k, k], 1.))
+            updated = ell.at[k, k].set(pivot)
+            if k+1 < n:
+                column = work[k+1:, k]/pivot
+                updated = updated.at[k+1:, k].set(column)
+                tail = work[k+1:, k+1:]-jnp.tril(jnp.outer(column, column))
+                work = work.at[k+1:, k+1:].set(jnp.where(running, tail, work[k+1:, k+1:]))
+            ell = jnp.where(running, updated, ell)
+            present = present | failed
+        return ell, direction, present
     if n == 1:
         return jax.lax.cond(
             a[0, 0] <= 0,
@@ -91,6 +117,20 @@ def _scalar_matrix_divide(matrix, denominator):
 
 def _scalar_newton_substitution(upper, gradient):
     """Ordinary forward/back substitution, with eager scalar divisions."""
+    if upper.shape == (3, 3):
+        forward = jnp.zeros_like(gradient)
+        for i in range(3):
+            value = gradient[i]
+            for j in range(i):
+                value = value-upper[j, i]*forward[j]
+            forward = forward.at[i].set(value/upper[i, i])
+        result = jnp.zeros_like(gradient)
+        for i in range(2, -1, -1):
+            value = forward[i]
+            for j in range(i+1, 3):
+                value = value-upper[i, j]*result[j]
+            result = result.at[i].set(value/upper[i, i])
+        return result
     first = gradient[0]/upper[0, 0]
     if upper.shape == (1, 1):
         return jnp.stack((first/upper[0, 0],))
@@ -103,14 +143,15 @@ def _scalar_newton_substitution(upper, gradient):
 def compdir(z, hessian, gradient, *, scalar_arithmetic=False):
     """Native projected direction and kind; Z=I represents source scalar Z=1.
 
-    Z must have shape (2,1) or (2,2). Native chol reads the upper triangle;
+    Z has2 or3 rows and between1 and that many columns. Native chol reads the upper triangle;
     transpose before JAX lower Cholesky, without input symmetrization.
     """
     z = _real64(z, 'z')
     h = _real64(hessian, 'hessian')
     g = _real64(gradient, 'gradient')
-    if z.shape not in ((2, 1), (2, 2)) or h.shape != (2, 2) or g.shape != (2,):
-        raise ValueError('compdir requires ambient dimension two and projection one or two')
+    if (z.ndim != 2 or z.shape[0] not in (2, 3) or not 1 <= z.shape[1] <= z.shape[0]
+            or h.shape != (z.shape[0], z.shape[0]) or g.shape != (z.shape[0],)):
+        raise ValueError('compdir requires ambient dimension two or three and a valid projection')
     projected = (z.T @ h) @ z
     upper = jax.lax.linalg.cholesky(projected.T, symmetrize_input=False).T
     positive = jnp.all(jnp.isfinite(jnp.diag(upper))) & jnp.all(jnp.diag(upper) > 0)

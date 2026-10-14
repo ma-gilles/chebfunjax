@@ -2763,9 +2763,26 @@ class Chebfun3(eqx.Module):
             core = jnp.moveaxis(core, 0, axis)
         return jnp.linalg.norm(core.ravel())
 
-    def minandmax3(self, ngrid: int = 41, n_starts: int = 48):
-        """Global extrema via dense-grid seed + multi-start Newton polish
-        (MATLAB minandmax3).
+    def minandmax3(self, ngrid=None, n_starts=None, *, optimizer="active-set"):
+        """Native factor-grid extrema, selected optimizer and Newton polish.
+
+        Explicit legacy ``ngrid``/``n_starts`` options retain the previous
+        multi-start adapter. The default uses native active-set semantics.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/minandmax3.m
+        Chebfun commit: 7574c77
+        """
+        if ngrid is not None or n_starts is not None:
+            return self._minandmax3_legacy(
+                41 if ngrid is None else ngrid,
+                48 if n_starts is None else n_starts)
+        from chebfunjax.chebfun3d._extrema3_source import extrema
+        return extrema(self, optimizer=optimizer)
+
+    def _minandmax3_legacy(self, ngrid: int = 41, n_starts: int = 48):
+        """Legacy Python multi-start adapter, not the native minandmax3 path.
 
         A single projected-gradient descent from the best grid point is not
         robust for oscillatory functions: the coarse seed grid rarely lands
