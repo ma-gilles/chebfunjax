@@ -1,3 +1,19 @@
+## 2026-10-14: all original spherical-harmonic predicates
+
+All 45 original sphharm predicates now pass: five formula/normalization checks
+and 40 Laplacian eigenfunction checks with source norms and preference bounds.
+The prior two supplemental tests remain separate. Qualification uses eleven
+fresh CPU processes after the combined process exceeded its 3 GiB limit;
+all accepted receipts have stable inputs and no survivors. Root verified the
+source/test binding before reusing these gates. Details and rejected runs:
+`docs/sphere_sphharm_original_predicates_cpu_20261014.json`.
+
+Original rotate clause3 also passes: feval versus nufft at the exact source
+angles/operand using the continuous norm (17.24s, 1.21 GiB). Original random
+clauses1–2 and JAX-only rotation remain open. See
+`docs/sphere_rotate_original_predicates_cpu_20261014.json`.
+Full parity and final green main CI remain unresolved.
+
 ## 2026-10-14: literal CPU ACA2 arithmetic
 
 Chebfun3 ACA2 now preserves direct division and separately rounded product

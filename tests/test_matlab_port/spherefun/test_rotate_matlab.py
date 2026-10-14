@@ -1,8 +1,8 @@
 """Port of MATLAB Chebfun tests/spherefun/test_rotate.m (Fable 5).
 
-Original deterministic clauses4–8 use source operands and continuous norms.
+Original deterministic clauses3–8 use source operands and continuous norms.
 The retained analytic roundtrip is supplemental; original random clauses1–2
-and the feval/nufft method comparison in clause3 remain unqualified.
+remain unqualified.
 
 Provenance
 ----------
@@ -49,6 +49,15 @@ class TestSpherefunRotate:
         g = f.rotate(*ANGLS)
         h = g.rotate(-ANGLS[2], -ANGLS[1], -ANGLS[0])
         assert _maxdiff(h, f) < 10 * TOL
+
+    def test_original_clause3_feval_and_nufft_agree(self):
+        f = Spherefun.from_function(
+            lambda lam, th: jnp.sin(
+                jnp.cos(th) + jnp.cos(lam - 0.2) * jnp.sin(th)
+                + jnp.sin(lam + 0.4) * jnp.sin(th)) ** 8)
+        g = f.rotate(*ANGLS, method="feval")
+        h = f.rotate(*ANGLS, method="nufft")
+        assert float((g - h).norm()) < 10 * _source_tol()
 
     def test_original_clause4_integral_preserved(self):
         # Original deterministic pass(4): integral preserved under rotation.
