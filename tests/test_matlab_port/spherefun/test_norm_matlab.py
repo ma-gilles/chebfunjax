@@ -32,5 +32,6 @@ class TestSpherefunNorm:
         assert abs(float(f.norm(jnp.inf)) - np.sqrt(3)) < tol                  # pass(3)
 
     def test_norm_of_cos_theta(self):
+        """Supplemental analytic regression; not an original MATLAB clause."""
         f = Spherefun.from_function(lambda lam, th: jnp.cos(th))
         assert abs(float(f.norm()) - np.sqrt(4 * np.pi / 3)) < 1e-12

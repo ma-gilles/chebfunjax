@@ -1254,40 +1254,75 @@ class Spherefun(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
-    def __call__(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
-        """Evaluate the Spherefun at spherical coordinates (lam, theta).
+    def __call__(self, lam: jax.Array, theta: jax.Array,
+                 z: jax.Array | None = None) -> jax.Array:
+        """Evaluate at spherical ``(lambda, theta)`` or Cartesian ``(x,y,z)``.
 
-        Parameters
-        ----------
-        lam : jax.Array
-            Longitude(s) in [-pi, pi].
-        theta : jax.Array
-            Colatitude(s) in [0, pi]. Must broadcast with lam.
+        Two arguments are longitude and colatitude. Three arguments follow
+        MATLAB ``@spherefun/feval.m``: Cartesian coordinates are converted to
+        longitude and colatitude. The native ``if any(radius > 1 + 1e-8)``
+        check rejects exterior vector points; for matrices it rejects only
+        when every column contains an exterior point. Interior points are
+        accepted and evaluated by direction, as in the source.
 
-        Returns
-        -------
-        jax.Array
-            Function values at (lam, theta), same shape as broadcast(lam, theta).
-
-        Notes
-        -----
-        JIT-safe, vmap-safe, grad-safe.  Concrete inputs run the rank
-        loop eagerly (each Trigtech slice then evaluates via its numpy
-        Horner mirror): the jitted path compiles a fresh rank-sized XLA
-        program PER SPHEREFUN OBJECT, and object-heavy chains (e.g. the
-        curl of a rank-50 gradient field) exhaust the LLVM JIT code
-        arena ("Unable to allocate section memory").
+        Cartesian coordinate conversion uses JAX arithmetic. Concrete
+        angular evaluation delegates to the existing NumPy Horner mirror;
+        traced angular inputs use the JAX path. The source radius error is
+        checked for concrete Cartesian inputs.
 
         Provenance
         ----------
         MATLAB source : @spherefun/feval.m
         Chebfun commit: 7574c77
         """
+        if z is not None:
+            return self._eval_cartesian(lam, theta, z)
         if not isinstance(lam, jax.core.Tracer) and \
                 not isinstance(theta, jax.core.Tracer) and \
                 not isinstance(self.pivots, jax.core.Tracer):
             return self._eval_np(lam, theta)
         return self._call_traced(lam, theta)
+
+    def feval(self, *coords):
+        """Explicit MATLAB-style evaluation alias for 2D or 3D coordinates."""
+        if len(coords) == 2:
+            return self(coords[0], coords[1])
+        if len(coords) == 3:
+            return self(coords[0], coords[1], coords[2])
+        raise TypeError("Spherefun.feval expects (lambda, theta) or (x, y, z)")
+
+    def _eval_cartesian(self, x, y, z):
+        """Source ``cart2sph`` conversion followed by the angular evaluator."""
+        coordinates = tuple(jnp.asarray(value) for value in (x, y, z))
+        if any(value.dtype.kind not in "iuf" for value in coordinates):
+            raise TypeError("Cartesian coordinates must be real numeric values")
+        x, y, z = (value.astype(jnp.float64) for value in coordinates)
+
+        radius_xy = jnp.hypot(x, y)
+        # MATLAB R2025b cart2sph uses r = hypot(hypot(x, y), z).
+        radius = jnp.hypot(jnp.hypot(x, y), z)
+        concrete = not any(isinstance(value, jax.core.Tracer)
+                           for value in (x, y, z, self.pivots))
+        # Preserve the source expression `if any(rad > limit)`: MATLAB any
+        # reduces along the first nonsingleton dimension, and `if` treats a
+        # nonscalar condition as true only when every remaining entry is
+        # nonzero. This differs from a global reduction for matrix radii.
+        reduction_axis = next(
+            (axis for axis, size in enumerate(radius.shape) if size != 1),
+            None,
+        )
+        too_far_by_slice = (jnp.any(radius > 1.0 + 1e-8, axis=reduction_axis)
+                            if reduction_axis is not None
+                            else radius > 1.0 + 1e-8)
+        if concrete and bool(jnp.all(too_far_by_slice)):
+            raise ValueError(
+                "CHEBFUN:SPHEREFUN:FEVAL:pointsNotOnSphere: specified points "
+                "do not lie sufficiently close to the unit sphere")
+
+        lam = jnp.arctan2(y, x)
+        elevation = jnp.arctan2(z, radius_xy)
+        theta = jnp.pi/2 - elevation
+        return self(lam, theta)
 
     def _eval_np(self, lam, theta) -> jax.Array:
         """Concrete-input evaluation with ALL rank slices batched into a
@@ -1461,11 +1496,52 @@ class Spherefun(eqx.Module):
         return self.sum2()
 
     def squeeze(self):
-        """MATLAB separableApprox squeeze on an empty Spherefun."""
+        """Apply the native separableApprox squeeze transaction.
+
+        CDR factors are collated as trigonometric quasimatrices on their
+        source doubled domains, globally simplified, and combined with the
+        source CDR diagonal using Chebfun's orientation-aware algebra.
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
         if self.isempty():
-            from chebfunjax.chebfun1d.chebfun import Chebfun
             return Chebfun.empty()
-        raise NotImplementedError("nonempty Spherefun squeeze is not implemented")
+
+        if int(self.numerical_rank()) != 1:
+            return self
+
+        cols, diagonal, rows = self.cdr()
+        if not cols or not rows:
+            return self
+
+        from chebfunjax.chebfun2d._svd import _as_fun, _axis_panel
+        from chebfunjax.chebpref import ChebfunPref
+        tol = float(ChebfunPref().techPrefs.chebfuneps)
+        source_interval = (-jnp.pi, jnp.pi)
+        col_panel = _sphere_source_global_simplify(
+            _axis_panel(tuple(cols)), tol=tol)
+        row_panel = _sphere_source_global_simplify(
+            _axis_panel(tuple(rows)), tol=tol)
+        cfun = _as_fun(col_panel, source_interval)
+        rfun = _as_fun(row_panel, source_interval)
+
+        if col_panel.n == 1:
+            # Native: mean(cols) * D * rows.'; C is constant in theta.
+            result = cfun.mean() @ diagonal @ rfun.T
+        elif row_panel.n == 1:
+            # Native: cols * D * mean(rows); R is constant in longitude.
+            result = cfun @ diagonal @ rfun.mean()
+        else:
+            return self
+
+        if isinstance(result, Chebfun):
+            return result.simplify(tol=tol)
+        # MATLAB only applies the selected physical domain when arithmetic
+        # has reduced the result to a numeric scalar.
+        interval = ((float(self.domain[0]), float(self.domain[1]))
+                    if col_panel.n == 1 else
+                    (float(self.domain[2]), float(self.domain[3])))
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        return chebfun(result, interval)
 
     def trace(self):
         """MATLAB trace is sum(diag(f)); empty diag returns empty Chebfun."""
@@ -4507,7 +4583,7 @@ def _sphere_source_factor_matrix(factors, matrix):
     return Trigtech.from_coeffs(result)
 
 
-def _sphere_source_global_simplify(tech):
+def _sphere_source_global_simplify(tech, tol=None):
     """Apply global vertical scale when simplifying output channels.
 
     Provenance
@@ -4515,10 +4591,11 @@ def _sphere_source_global_simplify(tech):
     MATLAB Chebfun 7574c77680d7e82b79626300bf255498271a72df,
     @spherefun/sum.m and @chebfun/simplify.m ('globaltol').
     """
+    base_tol = _EPS if tol is None else float(tol)
     if tech.coeffs.ndim == 1:
-        return tech.simplify()
+        return tech.simplify(tol=base_tol)
     from chebfunjax.tech.trigtech import _trig_coeffs2vals_impl
     scales = jnp.max(jnp.abs(_trig_coeffs2vals_impl(tech.coeffs)), axis=0)
     global_scale = jnp.max(scales)
-    tol = _EPS * global_scale / scales
-    return tech.simplify(tol)
+    column_tolerances = base_tol * global_scale / scales
+    return tech.simplify(column_tolerances)

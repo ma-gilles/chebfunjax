@@ -1,0 +1,76 @@
+{
+  "scope": "Spherefun numeric Cartesian evaluation and nonempty squeeze; source predicate restoration for feval, plus and sample, with existing norm/sum2/times predicates retained.",
+  "matlab_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_predicates_in_gates": {
+    "feval": 9,
+    "plus": 8,
+    "norm": 3,
+    "sum2": 2,
+    "times": 3,
+    "sample": 14,
+    "total": 39
+  },
+  "count_note": "39 is the total source clauses covered by this package gates, not39 newly added clauses. Squeeze and matrix-radius controls are supplemental.",
+  "root_review_corrections": [
+    "Cartesian conversion uses installed R2025b nested hypot, atan2 and source colatitude conversion; numeric matrix error matches any over first nonsingleton axis then MATLAB if all semantics.",
+    "Concrete angular evaluation retains preexisting NumPy Horner path. Only conversion is new JAX arithmetic; no complete JAX-only claim.",
+    "Feval uses source rng9 draws, matrix infinity and row spectral norms, and g(theta,lambda) meshgrid order.",
+    "Plus restores8 clauses with numerical_rank rather than stored CDR term count. Source does not seed random draws: reproducible standalone factory rng0 supplies four draws, preserving two independent pairs and theta/lambda order. This is not the exact unseeded full-suite stream.",
+    "Squeeze uses numerical rank, actual Trigtech CDR coefficient panels on doubled[-pi,pi], technology length rather than stored column count, current global tolerance and Chebfun mean/matrix algebra. Output orientation/domain/coefficient and dependent stored-factor controls pass.",
+    "Sample restores all14 clauses at literal100*preference epsilon, removing prior100x tolerance inflation; direct sample and CDR reconstruction both compare to original angular F.",
+    "Two unused imports removed from feval test after successful gate; exact preimage/hash record preserved, assertions and implementation unchanged."
+  ],
+  "gates": [
+    {
+      "summary": "19 passed in63.89s;25 original clauses plus supplemental controls",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_cartesian_squeeze_publication_20261014/run/receipt.json",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3423268
+    },
+    {
+      "summary": "1 passed in10.23s;14 original sample clauses",
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_sample_publication_20261014/run/receipt.json",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 970548
+    }
+  ],
+  "native_squeeze_confirmation": "Independent3case probe exceeded90s startup/driver wall cap without results; stable inputs/no survivors. Preserved S/sphere_squeeze_native_20261014/run. A separate instrumented retry is in progress; no native runtime squeeze claim from the censored probe.",
+  "limitations": [
+    "Cartesian colon branches and traced off-sphere exceptions remain unqualified.",
+    "Complex or single-precision Cartesian conversion is not qualified.",
+    "No entire Spherefun/original MATLAB test suite parity claim.",
+    "Native squeeze supplemental runtime comparison is pending; source and coefficient controls qualify current implementation scope.",
+    "Final main green CI, known LU numerical comparison, all322 computation/output/raster parity, broader library and performance gaps remain open."
+  ],
+  "sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_cartesian_squeeze_publication_20261014/run/receipt.json": "a60e5ca60a54d95172d8cb86ba44d10852a252d1269d449bae5de1451760dd62",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_cartesian_squeeze_publication_20261014/guard.json": "e098b3cb31faba797c0d9dd66971db240abfa5559b152c3cedfc0f235aca2551",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_sample_publication_20261014/run/receipt.json": "a59c035147089a18fcdf0bb70d590cce79757028ed69aa0d5a930f63c182052e",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_sample_publication_20261014/guard.json": "dcbb1bcde7abbfa715a90a9d679ab9d9c4769f9887979f100a713ba4dd37629d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_sample_publication_20261014/import_cleanup.json": "5ac8889193e4dfbb278e42dcbcdbe815809a5419fa015d2e2f08472d481f2723",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_original_predicate_restore_20261014.patch": "83aa86e9323ee3004cc095136947e2b53b3750b5c0469a12f143c09ff83b71dd",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_original_predicate_restore_20261014_REPORT.md": "f2dd6591b4f02784c53086f63f35b0a54615033d73c6321dd1aa944cea42d333",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_squeeze_handoff_v3_20261014/report.json": "6802e7edf99dc3a718ee7b9f2ed93c7bed10655af0f56ad33291527a97a80156",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefun_sample_original_predicates_20261014_REPORT.md": "a816604acc418d2c9f0406509dcf5450a05ca34cf12eba482fea25f3debc0ea7",
+    "/usr/licensed/matlab-R2025b/toolbox/matlab/specfun/cart2sph.m": "879e40b78173e66b45dab40af8f67b771a720127840c02874541a2cae7ecb616",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_feval.m": "309b0c043c2a875a395b1cf3824d0eb2f2d7682222ed9678887b085277b1c841",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_plus.m": "81a82e626801ae25ba165d760bb9be51b1333b5800f5c450891c8966f5d17f2e",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_norm.m": "565312998c177a933d86f4bf7a5ecb06a0c740d22222ad37716bf1d39d0325ee",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_sum2.m": "26734aeeb0f69db4211a9a1ce1363678714e0c6bef5a001119bb55d72a602d30",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_sample.m": "d9b58edaed0d1eaf59dbe78a26120e0cd92ea9b346fc1b0c0191b3885adcab32",
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/spherefun/test_times.m": "6e2f4498bdef1b358699eb70e5083f53d7fa103adca8d64d2e58f07ea6656fb4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/spherefun/spherefun.py": "de6168d0d55e050899e9a1450f09cab69790344845c21f75c26845ed1e8fb24f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_sum2_original_source_assertions.py": "d8aa079898c5c98c81d9d798e568c9b8df05de172d538d4f83c1d4432fea51e8",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_squeeze_source.py": "3e702ff94a073e072ba8bd1be4c68220b750f3487212b852f9f6e88a27eccdc1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_sum2_matlab.py": "28990fb2d77e81da42e433dd9628c28623d8695be94be692ce8a4a7a43e57f1d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_plus_matlab.py": "29429a426ea39bde709c57bee8309c6b1a336fb6ed7dc30ba80705c87bb14b57",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_sample_matlab.py": "102c4281006908544e17741ced72a8b0a773f9d2327483cbd56a47b404f2bd3a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_times_literal_source.py": "dff82ff1bc957b7b8d94f091e36ee839a45a1e360018c346a9d6ed83b5496a90",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_feval_matlab.py": "ceea9d29cf0513a77b9e41a6102d4756b72acfafc07759c3510b3071d3a9193a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/spherefun/test_norm_matlab.py": "8f81c5d14db8d3b1312e601c557ae83d259cfd6a4ee4ca1e79a5e4f7dd1afac4"
+  }
+}
