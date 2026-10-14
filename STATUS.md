@@ -1,3 +1,12 @@
+## 2026-10-14: restore native row extraction in the end-index test
+
+The source test translation now uses `g.extract_columns(2)` directly for
+MATLAB `g(end,:)`. The former extra transpose undid the library's now-correct
+row orientation. All 12 existing predicates and their bounds are unchanged;
+the complete original test passes on pinned CPU in53.63s. No library change.
+Evidence: `docs/chebfun_end_orientation_cpu_20261014.json`. Main CI and full
+parity remain open.
+
 ## 2026-10-14: isolate the remaining CI LU discrepancy
 
 Added a bounded manual CPU diagnostic and a fresh-process core-shard capture.

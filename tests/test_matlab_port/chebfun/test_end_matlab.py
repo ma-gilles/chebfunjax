@@ -57,7 +57,9 @@ class TestChebfunEnd:
         x = chebfun(lambda t: t)
         assert _normest(out - x) < EPS                              # pass(8)
         g = f.T
-        out = g.extract_columns(2).T                                # g(end, :)
+        # Native extractColumns preserves row orientation: G = F(ROWIDX,:).
+        # The former extra transpose undid that source behavior.
+        out = g.extract_columns(2)                                  # g(end, :)
         assert _normest(out - x.T) < EPS                            # pass(9)
         out = np.asarray(g.end)                                     # g(:, end)
         assert out.shape == (3,) and np.max(np.abs(out - [0, -1, 1])) < EPS  # pass(10)

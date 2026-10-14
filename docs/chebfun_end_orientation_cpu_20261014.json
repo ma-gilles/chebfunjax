@@ -1,0 +1,17 @@
+{
+  "source": "tests/chebfun/test_end.m pass9 and @chebfun/extractColumns.m row-orientation contract, Chebfun7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Remove extra transpose from g.extract_columns(2) in source test translation. extract_columns already preserves orientation. No library change.",
+  "original_assertions_unchanged": 12,
+  "qualification": {
+    "pytest": "1 passed,12 mapped original predicates,53.63s",
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "wall_seconds": 62.04431601660326,
+    "sampled_peak_summed_rss_kib": 3056860,
+    "remaining_owned_pids": [],
+    "receipt_sha256": "6111dd58e48f23178f55dd567e2b825f3b987fa8de3b1673378342cb86951b13"
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun_end_orientation_publication_20261014",
+  "ci_failure": "38493045414/115624623333 on earlier9d7ad98c; source pass9 failed orientation before numeric assertion.",
+  "limits": "Existing Python flattened endpoint shape and NumPy normest RNG adapters preserved, not new native shape/random-stream parity claims. Fullparity and mainCI remainopen."
+}
