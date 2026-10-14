@@ -1,0 +1,32 @@
+{
+  "change": "Test-only independent JAX rad2deg(arccos/arcsin/arctan) references for source real argument0.4. No production helper or dispatch imported into oracle.",
+  "source_contract": "Native7574c77 tests/treeVar/test_univariate.m compares converted and manually written RHS using the same numeric method/backend, with10eps unchanged.",
+  "prior_mismatch": "Python used NumPy inverse trig and division bypi/180 whereas production uses JAX primitive and multiplication180/pi. Current helper AST identical to failed9d7 revision. Existing CI log only retains finalnorm2.84217e-14; precise failing primitive/runtime cause cannot be identified.",
+  "local_evidence": "At0.4 current local acosd stages all bit-identical to native. Scaling order alone does not explain retained CI failure. Asind native/local RHS differs7.105e-15, illustrating original10eps is not a universal cross-backend acceptance bound. Captured144native boundary comparisons remain separate/unchanged.",
+  "qualification": "194passed:49original predicates +144native boundary records +1negative packet-name control. No bound changes.",
+  "scientific_assertion_AST_unchanged": true,
+  "receipt": {
+    "supervisor_exit_code": 0,
+    "wall_seconds": 12.180356186348945,
+    "sampled_peak_summed_rss_kib": 880476,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "evidence": [
+    "stage_bits.json",
+    "probe_run/receipt.json",
+    "gate/receipt.json"
+  ],
+  "scope_limit": "Await current CI qualification; no claim of reproducing the old CI first-divergence locally.",
+  "publication_receipt": {
+    "wall_seconds": 15.979954603128135,
+    "sampled_peak_summed_rss_kib": 828508,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "supervisor_exit_code": 0
+  },
+  "publication_source_count": 317,
+  "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_inverse_degree_oracle_publication_20261014",
+  "private_evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_inverse_degree_oracle_review_20261014",
+  "candidate_sha256": "4157d8cc4ac5e5cec4bb2b746520834397f9feb229d4e0d58543bf499fcef9b1"
+}

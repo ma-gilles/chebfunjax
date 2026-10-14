@@ -48,7 +48,12 @@ def _numeric_reference(name, x):
         return direct[name](x)
     radians = np.pi / 180.0
     if name in ("acosd", "asind", "atand"):
-        return direct[name[:-1]](x) / radians
+        # Native test compares a hand-written RHS to TreeVar using the same
+        # numeric backend. Keep this independent of production dispatch and
+        # branch helpers; test the real in-domain source argument0.4 directly.
+        # Cross-backend MATLAB values remain in the native boundary fixture.
+        inverse = {"acosd": jnp.arccos, "asind": jnp.arcsin, "atand": jnp.arctan}
+        return jnp.rad2deg(inverse[name](jnp.asarray(x)))
     if name in ("cosd", "sind", "tand"):
         return direct[name[:-1]](radians * x)
     reciprocal = {

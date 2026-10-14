@@ -1,0 +1,274 @@
+{
+  "git_head": "882ac943920fd5802f7f555a26318bb7d15f65c7",
+  "treevar_source_sha256": "3554680652f731fa26c22cea4ddfa1da18f35ee1401ed6417ff95ad4cee70d8d",
+  "packet_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+  "compact_sha256": "a2cb5389171ae654920c7faa881d1a96beb32a43a1f6f77a98dcf6f2f4da2fa2",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "x64": true,
+    "cuda_visible_devices": "",
+    "jax_platforms": "cpu"
+  },
+  "total": 1764,
+  "passed": 1618,
+  "failed": 146,
+  "failure_categories": {
+    "storage_only": 98,
+    "storage_and_sign": 44,
+    "sign_only": 4
+  },
+  "all_methods_executed": true,
+  "native_expected_errors": 0,
+  "unexpected_python_exceptions": 0,
+  "method_summary": {
+    "abs": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acos": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acosd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acot": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acoth": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acsc": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acscd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "acsch": {
+      "pass": 36,
+      "fail": 0
+    },
+    "airy": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asec": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asecd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asech": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asin": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asind": {
+      "pass": 36,
+      "fail": 0
+    },
+    "asinh": {
+      "pass": 25,
+      "fail": 11,
+      "storage_only": 6,
+      "storage_and_sign": 5
+    },
+    "atan": {
+      "pass": 23,
+      "fail": 13,
+      "sign_only": 1,
+      "storage_and_sign": 10,
+      "storage_only": 2
+    },
+    "atand": {
+      "pass": 36,
+      "fail": 0
+    },
+    "atanh": {
+      "pass": 36,
+      "fail": 0
+    },
+    "conj": {
+      "pass": 26,
+      "fail": 10,
+      "storage_and_sign": 5,
+      "storage_only": 5
+    },
+    "cos": {
+      "pass": 22,
+      "fail": 14,
+      "storage_only": 10,
+      "storage_and_sign": 4
+    },
+    "cosd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "cosh": {
+      "pass": 22,
+      "fail": 14,
+      "storage_only": 14
+    },
+    "cot": {
+      "pass": 36,
+      "fail": 0
+    },
+    "cotd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "coth": {
+      "pass": 36,
+      "fail": 0
+    },
+    "csc": {
+      "pass": 36,
+      "fail": 0
+    },
+    "cscd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "csch": {
+      "pass": 36,
+      "fail": 0
+    },
+    "exp": {
+      "pass": 26,
+      "fail": 10,
+      "storage_only": 10
+    },
+    "expm1": {
+      "pass": 26,
+      "fail": 10,
+      "storage_only": 10
+    },
+    "imag": {
+      "pass": 36,
+      "fail": 0
+    },
+    "log": {
+      "pass": 36,
+      "fail": 0
+    },
+    "log10": {
+      "pass": 36,
+      "fail": 0
+    },
+    "log1p": {
+      "pass": 36,
+      "fail": 0
+    },
+    "log2": {
+      "pass": 36,
+      "fail": 0
+    },
+    "pow2": {
+      "pass": 36,
+      "fail": 0
+    },
+    "real": {
+      "pass": 36,
+      "fail": 0
+    },
+    "sec": {
+      "pass": 36,
+      "fail": 0
+    },
+    "secd": {
+      "pass": 36,
+      "fail": 0
+    },
+    "sech": {
+      "pass": 36,
+      "fail": 0
+    },
+    "sin": {
+      "pass": 26,
+      "fail": 10,
+      "storage_and_sign": 5,
+      "storage_only": 5
+    },
+    "sind": {
+      "pass": 36,
+      "fail": 0
+    },
+    "sinh": {
+      "pass": 25,
+      "fail": 11,
+      "sign_only": 1,
+      "storage_only": 10
+    },
+    "sqrt": {
+      "pass": 36,
+      "fail": 0
+    },
+    "tan": {
+      "pass": 25,
+      "fail": 11,
+      "storage_only": 5,
+      "storage_and_sign": 5,
+      "sign_only": 1
+    },
+    "tand": {
+      "pass": 36,
+      "fail": 0
+    },
+    "tanh": {
+      "pass": 24,
+      "fail": 12,
+      "sign_only": 1,
+      "storage_only": 11
+    },
+    "uminus": {
+      "pass": 26,
+      "fail": 10,
+      "storage_and_sign": 5,
+      "storage_only": 5
+    },
+    "uplus": {
+      "pass": 26,
+      "fail": 10,
+      "storage_only": 5,
+      "storage_and_sign": 5
+    }
+  },
+  "receipt": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "wall_seconds": 11.619729931931943,
+    "sampled_peak_summed_rss_kib": 861308,
+    "rss_limit_mib": 2048.0,
+    "wall_limit_seconds": 120.0
+  },
+  "artifact_hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/guard_current_v2.json": "4276dfbd8d2e9c893b4120618b81533e07487bae005b1b07e2e51a9ce1124e72",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/audit_current.py": "864ae922fdd0c5518d791296b3c5e3839ae05bd512833e98e343acb970acd72a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/audit_current_import_failed.py": "23b46ff3e2e95fba19fbf1eb30a388e29e0d824858ebf0293757c49c8a05b747",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/launch.sh": "c367835f51795de1af13dccfcbf08d549a42f22847ea2f35b1b3ab3d7561759d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/launch_import_failed.sh": "c367835f51795de1af13dccfcbf08d549a42f22847ea2f35b1b3ab3d7561759d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/results.json": "c80fd60682ea1414da6cb1388781b13b19db5c7ff3e583df19c1de3713d4ea86",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/all_records.json": "78106263679ced3f92ba5e471343ea6284b9ad90ad095675832ff4572d618a24",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/run_current_v2/receipt.json": "ae8c135f56687735380da6790c0bd566907b30d476b9f415c7a7afdccc9ead5f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/run_current_v2/stdout": "5d09577953c42b7c1692e9d2a1e6f7952fb994f01b53c2dd76bf3d1cdca331fc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/run_current_v2/stderr": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_current_boundary_audit_plan_20261014/run/receipt.json": "2444daad164c7f508a975bd6efd473f4e07ecb98571575860a19b0dbcc945969"
+  },
+  "criteria": "Existing audit8eps*max(1,abs(native component)); exactzero/sign/storage separate; NaN payload/sign excluded. Not a native assertion bound.",
+  "scope_limit": "Original49x36packet only. Separate62-caseAirypacket retains2strictxfails. Fullfunction/page/figure/CIparity remainsopen."
+}

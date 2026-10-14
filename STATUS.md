@@ -1,3 +1,23 @@
+## 2026-10-14: inverse-degree test reference and refreshed boundary inventory
+
+The original TreeVar test compares converted and handwritten RHS expressions
+using the same numeric backend. Its acosd/asind/atand references now use
+independent JAX inverse primitives and rad2deg, preserving the original10eps
+assertion. Production helpers and native comparison bounds are unchanged.
+All194 focused checks pass in the publication checkout under pinned CPU/x64;
+all317 library source files were guarded. The prior CI acosd divergence was
+not reproduced locally, so its first differing operation remains unknown.
+Evidence: `docs/treevar_inverse_degree_oracle_cpu_20261014.json`.
+
+The complete49×36 native boundary audit now matches1618/1764 records.
+The146 remaining failures comprise98 storage-only,44 storage plus signed-zero,
+and4 signed-zero-only differences across13methods. No finite-value, NaN/Inf
+classification, exact-zero-value or exception mismatch occurs under the
+existing audit criteria. This does not establish broader domain coverage.
+The separate Airy packet retains two strict expected failures. Evidence:
+`docs/treevar_unary_boundary_inventory_20261014.json`.
+Full library, example/figure, speed and green-main-CI qualification remain open.
+
 ## 2026-10-14: TreeVar Airy boundary and storage conventions
 
 TreeVar Ai now follows independently captured MATLAB NaN/infinity conventions
@@ -11,7 +31,7 @@ Merged qualification:150passed,2strictxfails; guardsstable/no survivors.
 The now-unused generic NumPy retry was removed: all49 unary methods already
 select their explicit numeric primitives. This does not create a blanket
 JIT/AD contract. Evidence: `docs/treevar_airy_boundary_cpu_20261014.json`.
-The full49×36 boundary inventory is being refreshed; previous counts are stale.
+The refreshed full49×36 inventory is recorded above; earlier counts are stale.
 Full example/figure/library parity and final greenmainCI remain unresolved.
 
 ## 2026-10-14: restore native row extraction in the end-index test
