@@ -1,3 +1,21 @@
+## 2026-10-14: source GPR optimizer
+
+Default length-scale selection now follows MATLAB normalization, endpoint
+contraction, adaptive likelihood approximation and maximization. Zero length
+uses the default search; empty/default-zero data preserve captured source
+failure branches. Fixed-length zero data with positive noise remain valid.
+The integrated candidate passes all21 original assertions and10 branch
+controls; eight persistent regression tests pass in the publication checkout.
+Root verified candidate bytes and guarded dependencies before reusing the
+original-test gate. CPU only, stable inputs and no surviving processes.
+
+Native optimum identity remains open: noiseless n10 selects1.017806468 in
+Python versus1.001210841 in MATLAB. Both fitted likelihoods substantially
+misrepresent their raw objectives. The independent full-interpolant sample
+check correction does not remove the gap. No acceptance bound was fitted.
+Details and native evidence: `docs/gpr_optimizer_source_cpu_20261014.json`.
+Full parity and final green CI remain unresolved.
+
 ## 2026-10-14: full-interpolant sample test and original Hermite gate
 
 Chebtech now evaluates the full interpolant in its off-grid sample test,

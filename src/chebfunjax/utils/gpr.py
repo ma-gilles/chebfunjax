@@ -43,11 +43,10 @@ def gpr(
     Args:
         x, y: One-dimensional training locations and values.
         domain: Output interval. Defaults to the source GPR domain rules.
-        sigma: Signal standard deviation; defaults to ``max(abs(y))`` or 1
-            when that maximum is zero.
-        length_scale: RBF scale. If omitted, use the existing 50-point
-            log-spaced likelihood search; that search is not MATLAB optimizer
-            parity.
+        sigma: Signal standard deviation; defaults to ``max(abs(y))``.
+            Zero data with omitted sigma follow source failure semantics.
+        length_scale: RBF scale. If omitted or zero, use the source
+            endpoint contraction and adaptive Chebfun likelihood maximum.
         noise: Observation noise standard deviation.
         trig: Select the periodic squared-exponential kernel.
         n_samples: Number of posterior sample columns.
@@ -79,7 +78,7 @@ def gpr(
     n = int(x.shape[0])
     if n and sigma is None:
         yscale = float(jnp.max(jnp.abs(y)))
-        scaling = yscale if yscale > 0.0 else 1.0
+        scaling = yscale
     else:
         scaling = 1.0
     sigma_val = scaling if sigma is None else float(sigma)
@@ -103,17 +102,22 @@ def gpr(
     a, b = float(domain[0]), float(domain[1])
     period = b - a
 
-    if length_scale is None:
+    if length_scale is None or length_scale == 0:
         if n == 0:
-            length_scale = period / 4.0
-        elif trig:
+            # gpr.m constructs searchDom with n=0, then rejects its domain.
+            raise ValueError("Default length-scale search requires nonempty data")
+        if sigma is None and scaling == 0.0:
+            # Source yn=y/0 is all NaN; its Chebfun likelihood fit rejects it.
+            raise ValueError("Too many NaNs/Infs to handle in normalized likelihood")
+        if trig:
             lo, hi = 1.0 / (2.0 * max(n, 1)), 10.0
         else:
             lo = period / (2.0 * jnp.pi * max(n, 1))
             hi = 10.0 / jnp.pi * period
         if n:
             length_scale = float(_optimise_length_scale(
-                x, y, sigma_val, sigma_y, bool(trig), period, float(lo), float(hi)
+                x, y / scaling, 1.0 if sigma is None else sigma_val,
+                sigma_y, bool(trig), period, float(lo), float(hi)
             ))
     length_scale = float(length_scale)
 
@@ -225,8 +229,7 @@ def gpr_chebfun(x, y, **kwargs):
     y_array = jnp.asarray(y, dtype=jnp.float64).reshape(-1)
     sigma_y = float(kwargs.get("noise", 0.0))
     scale = (float(jnp.max(jnp.abs(y_array)))
-             if kwargs.get("sigma") is None and y_array.size
-             and float(jnp.max(jnp.abs(y_array))) > 0.0 else 1.0)
+             if kwargs.get("sigma") is None and y_array.size else 1.0)
     factor = _training_cholesky(
         x_array, float(res["sigma"]), float(res["length_scale"]), sigma_y,
         trig, b - a, scale,
@@ -282,14 +285,12 @@ def _gpr_source_samples(x, y, result, options, rng, trig, count, *, mean_fun):
     period = b - a
     K = _training_cholesky(
         x, sigma, ell, sigma_y, trig, period,
-        (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None
-         and float(jnp.max(jnp.abs(y))) > 0.0 else 1.0),
+        (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None else 1.0),
     )
     # The source samples from f(xSample), where f is the fitted Chebfun mean.
     mean = jnp.asarray(mean_fun(xs), dtype=jnp.float64).reshape(-1)
     covariance = _predictive_covariance(xs, x, K, sigma, ell, sigma_y, trig, period)
-    scale = (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None
-             and float(jnp.max(jnp.abs(y))) > 0.0 else 1.0)
+    scale = (float(jnp.max(jnp.abs(y))) if options.get("sigma") is None else 1.0)
     covariance = covariance + 1e-12 * scale**2 * n * jnp.eye(q, dtype=jnp.float64)
     factor = _checked_cholesky(covariance)
     if rng is None:
@@ -385,9 +386,13 @@ def _predictive_covariance(query, x, L, sigma, ell, sigma_y, trig, period):
 
 
 def _log_marginal_likelihood(ell, x, y, sigma, sigma_y, trig, period, scaling):
-    # Preserve the current 50-grid objective: it adds one noise diagonal, and
-    # uses sigma^2 for its zero-noise nugget. It is not the source gpr.m
-    # training Cholesky, which adds the second noise diagonal in that branch.
+    return _log_marginal_likelihood_and_factor_status(
+        ell, x, y, sigma, sigma_y, trig, period, scaling
+    )[0]
+
+
+def _log_marginal_likelihood_and_factor_status(ell, x, y, sigma, sigma_y, trig, period, scaling):
+    # gpr.m/logML: one noise diagonal (distinct from posterior training).
     n = x.shape[0]
     kernel = _base_covariance(x, x, sigma, ell, trig, period)
     if sigma_y != 0.0:
@@ -398,17 +403,38 @@ def _log_marginal_likelihood(ell, x, y, sigma, sigma_y, trig, period, scaling):
     alpha = _solve_cholesky(L, y)
     log_det = 2.0 * jnp.sum(jnp.log(jnp.diag(L)))
     value = -0.5 * y @ alpha - 0.5 * log_det - 0.5 * n * jnp.log(2.0 * jnp.pi)
-    return jnp.nan_to_num(value, nan=-1e30, posinf=-1e30, neginf=-1e30)
+    return value, jnp.all(jnp.isfinite(L))
 
 
-def _optimise_length_scale(x, y, sigma, sigma_y, trig, period, lo, hi, n_grid=50):
-    """Retain the old 50-point search in JAX; no MATLAB optimizer parity claim."""
-    lo = max(float(lo), float(jnp.finfo(jnp.float64).tiny))
-    hi = max(float(hi), lo * 2.0)
-    ells = jnp.logspace(jnp.log10(lo), jnp.log10(hi), int(n_grid), dtype=jnp.float64)
-    scale = float(jnp.max(jnp.abs(y))) if y.shape[0] else 1.0
-    scale = scale if scale > 0.0 else 1.0
-    values = jax.vmap(lambda ell: _log_marginal_likelihood(
-        ell, x, y, sigma, sigma_y, trig, period, scale
-    ))(ells)
-    return ells[jnp.argmax(values)]
+def _optimise_length_scale(x, y, sigma, sigma_y, trig, period, lo, hi):
+    """Source parseInputs contraction and adaptive likelihood maximization.
+
+    Inputs y and sigma are the parser values: normalized y and unit sigma
+    when signal sigma was omitted; unscaled values when it was supplied.
+    Provenance: gpr.m/parseInputs and logML, Chebfun 7574c77.
+    """
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    # Keep vector evaluation JAX-native; constructor samples scalar or arrays.
+    evaluate_many = jax.jit(jax.vmap(lambda ell: _log_marginal_likelihood_and_factor_status(
+        ell, x, y, sigma, sigma_y, trig, period, 1.0
+    )))
+
+    def log_ml(ells):
+        points = jnp.asarray(ells, dtype=jnp.float64)
+        values, factors_valid = evaluate_many(points.reshape(-1))
+        if not bool(jnp.all(factors_valid)):
+            raise LinAlgError("Log marginal likelihood Cholesky failed")
+        return values.reshape(points.shape)
+
+    lo, hi = float(lo), float(hi)
+    flo, fhi = float(log_ml(lo)), float(log_ml(hi))
+    while flo > fhi and hi / lo > 1.0 + 1e-4:
+        new_bound = lo + (hi - lo) / 10.0
+        fnew = float(log_ml(new_bound))
+        if fnew > flo:
+            break
+        hi, fhi = new_bound, fnew
+    likelihood = chebfun(log_ml, domain=(lo, hi), eps=1e-6, splitting=True)
+    optimum, _ = likelihood.max()
+    return optimum

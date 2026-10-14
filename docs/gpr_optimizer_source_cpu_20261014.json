@@ -1,0 +1,96 @@
+{
+  "status": "source optimizer implementation ready for parent review/publication; native selected-L discrepancy remains documented",
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_optimizer_source_20261014/gpr_integrated_v3.py",
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_optimizer_source_20261014/optimizer_integrated.patch",
+  "source": "gpr.m at Chebfun7574c77680d7e82b79626300bf255498271a72df",
+  "algorithm": [
+    "normalize parser y and default sigma before optimization",
+    "source endpoint contraction",
+    "chebfun eps=1e-6 splitting=True then global max",
+    "zero length scale uses optimization",
+    "eager Cholesky failure adapter separates factor validity from objective finiteness"
+  ],
+  "unchanged_convenience_exceptions": [
+    "200-point mapping convenience grid retained; Chebfun adapter uses source layout"
+  ],
+  "evidence": {
+    "initial_source_smoke": "smoke_supervision2/receipt.json",
+    "original_input_core_controls": "controls_supervision/receipt.json",
+    "v2_factor_and_zero_length_controls": "smoke_v2_supervision/receipt.json",
+    "integrated_original_21": "integrated_gate_supervision/receipt.json",
+    "branch_controls": "branch_controls.json",
+    "corrected_sampletest_native_compare": "compare_corrected_supervision/receipt.json"
+  },
+  "limitations": [
+    "Source algorithm translated, native selected-L identity not established on ill-conditioned noiseless n10",
+    "Native chosenL1.0012108407831877 versus JAX1.0178064681932466; both fitted likelihoods severely misrepresent raw objective near maximum (native5272.52 vs9.3369; JAX2806.56 vs7.3858)",
+    "Native n5 selectedL within1ulp, noisy10 within1.34e-14 relative; no fitted acceptance bound imposed",
+    "Python random streams in original tests differ from MATLAB",
+    "Full sampleTest source mismatch corrected in dependencies; native selected-L gap unchanged afterward."
+  ],
+  "hashes": {
+    "gpr_integrated_v3.py": "f8ef563e929dbb73c39d07c61d18b4f00c52e5f1bcca4e279f659d6a3e66eea4",
+    "optimizer_integrated.patch": "53dac5df99826f721149fd7853b12612128c5ab6eb1f98a018a4eaf2e797bdcb",
+    "native_fit.mat": "069e25990f24f2576513de690bb74e85759a0bc8803b636223c80673ee007f42",
+    "native_fit_summary.json": "e5b44dafa33fa0a02a6d5762694af21f8cffbe27431bc29203293d31f87fd83c",
+    "native_compare_v3.json": "741a5ce31f29398e553a5011b18c7455bd6d625295728ba53918b24e970fd030",
+    "controls.json": "8460dd73605677c175b84fc7312c3a8648cb5264e8ab7413cafebfd61ce7c4e8",
+    "fit_diagnosis_v2.json": "44f96e975f82d75faa40dade1b0e9e07afb49df9f4c17e70f09d90a84ff774c8",
+    "native_instrumentation.patch": "f1269fb0484fcc6695a508a55973ed6acb29e1ec49e7a6443dc2d89f480315ff",
+    "fit_instrumentation.patch": "3a11b5898cf89963d52ffd0219aafdea29e672107a6c4ac778ef71f37b26376c",
+    "native_compare_corrected.json": "ea7fad88574b929df1c97c0220b7f68d6c3e0d3fa7afa49dcb56f414cda6fe4a",
+    "integrated_gate_supervision/receipt.json": "30443086ca3a11b911ad99acc0e8adcecf4e51448ebc94c63d06d8119aeb2994",
+    "compare_corrected_supervision/receipt.json": "b6ee6b65646c8f69f84a8144335b2e6103e8ee928363587a5af5820608d9521c",
+    "branch_controls.json": "81847004ca22ecf65286dfbba217c8e7eb660ff3ec54b8f086dc0ea3177a65f8",
+    "test_gpr_optimizer_source.py": "0730fd14410268c0507565c5f58d2edfe05b6ceb66fa5bf72916fda57fb0f724"
+  },
+  "native_results": {
+    "batch_receipt": "native_supervision2/receipt.json",
+    "matched_comparison": "native_compare_v3.json",
+    "full_fit_artifact": "native_fit.mat",
+    "full_fit_summary": "native_fit_summary.json",
+    "targeted_driver_receipt": "native_fit_supervision/receipt.json",
+    "targeted_driver_limitation": "full fit, raw likelihood, coefficients, kernels and factors saved before independent premerge constructor access failed (protected MATLAB method)",
+    "preferences_limitation": "MATLAB fresh-session defaults used; complete effective runtime preference struct not recorded"
+  },
+  "final_gate": {
+    "original_assertions": 21,
+    "passed": 21,
+    "branch_controls": 10,
+    "passed_branches": 10,
+    "supervisor_wall_seconds": 130.5774908438325,
+    "sampled_peak_summed_rss_kib": 3917444,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "warnings": [
+      "Function not resolved using6010pts preserved",
+      "pytest plugin assertion rewrite warning preserved",
+      "unused incompatible CUDAplugin warning preserved"
+    ],
+    "test_file": "publication_checkout/tests/test_matlab_port/misc/test_gpr_matlab.py",
+    "source_candidate": "gpr_integrated_v3.py",
+    "updated_dependency": "sampleTest full interpolant source correction, no change in n10 selected length"
+  },
+  "new_regression_tests": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_optimizer_source_20261014/test_gpr_optimizer_source.py",
+    "count": 8,
+    "status": "8 passed in publication checkout",
+    "publication_sha256": "31abc8e5a44a227de533dfa613c98f1f0f8e09fc50019e57838931c7d088b5d2"
+  },
+  "publication_base": "cb134b05",
+  "historical_candidate_base": "520b82278f42cb37c8351bc39348a5b0fef5732b",
+  "root_gate": {
+    "command_exit_code": 0,
+    "wall_seconds": 9.905942004173994,
+    "sampled_peak_summed_rss_kib": 847396,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "tests": 8,
+    "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_optimizer_publication_20261014/run/receipt.json"
+  },
+  "dependency_verification": {
+    "original_gate_dependencies_verified": 322,
+    "candidate_matches_published_bytes": true
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gpr_optimizer_source_20261014"
+}
