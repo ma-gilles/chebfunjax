@@ -1,0 +1,30 @@
+{
+  "scope": "TreeVar sind/cosd/tand/cotd/cscd/secd JAX degree branches",
+  "source_revision": "7574c77680d7e82b79626300bf255498271a72df",
+  "implementation": "Bounded quadrant reduction and complex component identities. Tangent/cotangent reuse qualified degree_tangent. Eager native storage classification uses subnormal-aware real_sign.",
+  "baseline_failures": {
+    "existing216": 90,
+    "additional372": 219
+  },
+  "root_gate": {
+    "passed": 967,
+    "pytest_seconds": 89.92,
+    "wall_seconds": 94.91651828493923,
+    "sampled_peak_summed_rss_kib": 1173540,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "raw_fixture_review": "All216old+372new records independently match rawMATLABcapture JSON; tangent tinybit regression protects retained native result.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_direct_degree_publication_20261014/run/receipt.json": "4c479e2ce554a1e49c15b256aa78e040074143013f1c8d721e45fd1a9bf381a3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_direct_degree_publication_20261014/static.json": "f1295bc7f472a338c34275595b088a4778ab13300c09086dd17e87d5d3d8f898",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_direct_degree_root_review_20261014/raw_review.json": "84395a5c3e72763da69106a0a5064eb2501ddb44eae35236e0a5cb8439dfa7ec",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_direct_degree_review_20261014/DELIVERY.json": "3ddea33a1837626fcacc8c1b515200df44cdd86e869ab6016ce98a5dac3b7d6f",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_direct_degree_review_20261014/native/capture.json": "a378c48a2adeb7793947bfaf3b19eba4000d4dd00cb7f05f8e301b15fc30f87e"
+  },
+  "limits": [
+    "No whole-adapter JIT/JVP expansion; existing typedcontracts verified.",
+    "Otherfive methods retain gradual-underflow/FTZ gaps; opaque MATLAB builtin operation order and universal bitidentity not claimed.",
+    "Latest-main full CI unresolved."
+  ]
+}

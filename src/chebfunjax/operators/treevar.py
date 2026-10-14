@@ -57,7 +57,6 @@ _UNIVARIATE = [
     "uplus",
 ]
 
-_DEG = np.pi / 180.0
 
 
 def _airy(x):
@@ -484,6 +483,96 @@ def _reciprocal_hyperbolic_branch(x, method):
     return result
 
 
+def _degree_sincos(real):
+    """Reduce finite degree arguments before evaluating bounded radians."""
+    angle = jnp.fmod(jnp.abs(real), 360.)
+    quadrant = jnp.floor(angle/90. + .5)
+    residual = angle - 90.*quadrant
+    radians = residual * (jnp.pi/180.)
+    sine, cosine = jnp.sin(radians), jnp.cos(radians)
+    q = jnp.fmod(quadrant, 4.)
+    s = jnp.where(q == 0, sine, jnp.where(q == 1, cosine,
+                  jnp.where(q == 2, -sine, -cosine)))
+    c = jnp.where(q == 0, cosine, jnp.where(q == 1, -sine,
+                  jnp.where(q == 2, -cosine, sine)))
+    # Exact quadrant zeros are canonical before the sine's odd symmetry.
+    s = jnp.where(s == 0, 0., s)
+    c = jnp.where(c == 0, 0., c)
+    return jnp.copysign(1., real)*s, c
+
+
+def _direct_degree_branch(x, method):
+    """Degree trigonometric functions with reduced real angles.
+
+    Periodicity and quadrant identities reduce the real part to at most
+    45 degrees before conversion to radians. Complex components use the
+    trigonometric/hyperbolic identities, avoiding complex angle products
+    that contaminate finite components at infinite imaginary arguments.
+    TAND/COTD reuse the qualified degree_tangent kernel, including captured
+    exact complex-pole behavior. Storage collapse is eager and adds no
+    whole-function JIT promise.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric degree-function dispatch.
+    Chebfun commit: 7574c77. Reduction and complex identities are mathematical
+    implementations, not asserted translations of opaque MATLAB builtins.
+    Native boundary and quadrant captures qualify output conventions.
+    """
+    from jax import lax
+
+    from chebfunjax.utils.numeric_sign import real_sign
+
+    values = jnp.asarray(x)
+    values = values.astype(jnp.result_type(values, 1.0))
+    real, imag = jnp.real(values), jnp.imag(values)
+    if method in ('tand', 'cotd'):
+        from chebfunjax.utils.degree_tangent import degree_tangent
+
+        if bool(jnp.all(real_sign(imag) == 0)):
+            result = degree_tangent(real).astype(real.dtype)
+            return result if method == 'tand' else 1/result
+        result = degree_tangent(values).astype(values.dtype)
+        if method == 'cotd':
+            result = _reciprocal_axis_value(result)
+        # Native's nonreal TAN imaginary-axis limit has a positive real zero.
+        result = lax.complex(jnp.where((real_sign(imag) != 0) & (real_sign(jnp.real(result)) == 0),
+                                      0., jnp.real(result)), jnp.imag(result))
+        if bool(jnp.all(real_sign(jnp.imag(result)) == 0)):
+            return jnp.real(result)
+        return result
+    sine, cosine = _degree_sincos(real)
+    on_axis = real_sign(imag) == 0
+    if method in ('sind', 'cscd'):
+        axis = sine if method == 'sind' else 1/sine
+    elif method in ('cosd', 'secd'):
+        axis = cosine if method == 'cosd' else 1/cosine
+    else:
+        axis = cosine/sine
+    if bool(jnp.all(on_axis)):
+        return axis
+    b = imag * (jnp.pi/180.)
+    # At an exact quadrant, a component is identically zero for every
+    # finite imaginary argument. Preserve that limiting zero at infinity
+    # instead of forming 0*Inf. Nonzero factors retain their ordinary signs.
+    sinh, cosh = jnp.sinh(b), jnp.cosh(b)
+    if method in ('sind', 'cscd'):
+        r = jnp.where(sine == 0, sine, sine*cosh)
+        i = jnp.where(cosine == 0, 0., cosine*sinh)
+    else:
+        r = jnp.where(cosine == 0, cosine, cosine*cosh)
+        i = jnp.where(sine == 0, 0., -sine*sinh)
+    result = lax.complex(r, i)
+    if method in ('cscd', 'secd'):
+        result = _reciprocal_axis_value(result)
+        result = jnp.where(real == 0, lax.complex(jnp.zeros_like(real),
+                           jnp.imag(result)), result) if method == 'cscd' else result
+    result = jnp.where(on_axis, lax.complex(axis, jnp.zeros_like(real)), result)
+    if bool(jnp.all(real_sign(jnp.imag(result)) == 0)):
+        return jnp.real(result)
+    return result
+
+
 _UNARY_FNS_RAW = {
     "abs": jnp.abs, "acos": lambda x: _inverse_trig_branch(x, cosine=True),
     "acosd": lambda x: _degrees_from_radians(_inverse_trig_branch(x, cosine=True)),
@@ -501,23 +590,23 @@ _UNARY_FNS_RAW = {
     "asinh": jnp.arcsinh, "atan": jnp.arctan,
     "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
     "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
-    "cosd": lambda x: np.cos(_DEG * x), "cosh": jnp.cosh,
+    "cosd": lambda x: _direct_degree_branch(x, "cosd"), "cosh": jnp.cosh,
     "cot": lambda x: _reciprocal_direct_branch(x, "cot"),
-    "cotd": lambda x: 1.0 / np.tan(_DEG * x),
+    "cotd": lambda x: _direct_degree_branch(x, "cotd"),
     "coth": lambda x: _reciprocal_direct_branch(x, "coth"),
     "csc": lambda x: _reciprocal_direct_branch(x, "csc"),
-    "cscd": lambda x: 1.0 / np.sin(_DEG * x),
+    "cscd": lambda x: _direct_degree_branch(x, "cscd"),
     "csch": lambda x: _reciprocal_direct_branch(x, "csch"),
     "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
     "log": _log_branch, "log10": lambda x: _log_branch(x, base=10),
     "log1p": lambda x: _log_branch(x, increment=True),
     "log2": lambda x: _log_branch(x, base=2), "pow2": lambda x: np.exp2(x), "real": jnp.real,
     "sec": lambda x: _reciprocal_direct_branch(x, "sec"),
-    "secd": lambda x: 1.0 / np.cos(_DEG * x),
+    "secd": lambda x: _direct_degree_branch(x, "secd"),
     "sech": lambda x: _reciprocal_direct_branch(x, "sech"),
-    "sin": jnp.sin, "sind": lambda x: np.sin(_DEG * x),
+    "sin": jnp.sin, "sind": lambda x: _direct_degree_branch(x, "sind"),
     "sinh": jnp.sinh, "sqrt": _sqrt_branch, "tan": jnp.tan,
-    "tand": lambda x: np.tan(_DEG * x), "tanh": jnp.tanh,
+    "tand": lambda x: _direct_degree_branch(x, "tand"), "tanh": jnp.tanh,
     "uminus": lambda x: -x, "uplus": lambda x: +x,
 }
 
@@ -546,7 +635,7 @@ _DTYPE_STABLE_UNARY = frozenset(
     "asinh atan uminus uplus".split())
 # These value-dependent adapters retain captured output storage choices but
 # are eager and make no tracing guarantee.
-_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech".split())
+_EAGER_BRANCH_UNARY = frozenset("acosd asind atand acot acsc acscd asec asecd cot csc sec coth csch sech sind cosd tand cotd cscd secd".split())
 _UNARY_FNS = {name: fn if name in _DTYPE_STABLE_UNARY or name in _EAGER_BRANCH_UNARY or name in ("asin", "acos", "atanh", "sqrt", "log", "log10", "log1p", "log2", "acoth", "acsch", "asech")
               else _complex_fallback(fn)
               for name, fn in _UNARY_FNS_RAW.items()}

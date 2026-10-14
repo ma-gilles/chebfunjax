@@ -1,3 +1,13 @@
+## Direct degree trigonometric branches — 2026-10-14
+
+TreeVar sind/cosd/tand/cotd/cscd/secd now use JAX degree reduction and
+componentwise complex identities, reusing the qualified tangent kernel.
+All588 retained native boundary records pass; root967 merged original,
+JIT/dtype/RHS and boundary checks pass89.92s, stable/no survivors. Exact-bit
+tiny tangent storage is protected. Other five gradual-underflow cases remain
+open; no broader eager-adapter JIT guarantee or builtin bitidentity claim.
+Evidence: `docs/treevar_direct_degree_cpu_20261014.json`.
+
 ## Repmat row orientation CI regression — 2026-10-14
 
 Removed a redundant transpose after row-preserving column extraction. Native
