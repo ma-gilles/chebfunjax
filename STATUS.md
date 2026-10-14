@@ -1,3 +1,15 @@
+## 2026-10-14: trig factor coefficient extraction
+
+Chebfun3 now requests each factor's Chebyshev coefficients through its technology
+method. Native chebcoeffs3 omits a count; Trigtech therefore raises its native
+no-count error instead of exposing Fourier storage as Chebyshev coefficients.
+Five merged CPU checks pass, including original coefficients and complex C1/C2
+controls; two private clean gates cover five further constructor/coefficients
+checks. The first combined private gate hit its memory cap after five passes;
+the merged gate cleanly qualifies those five. Source-derived error contract,
+not a new MATLAB numerical capture. Evidence:
+`docs/chebcoeffs3_trig_cpu_20261014.json`. Full parity and final green CI remain open.
+
 ## 2026-10-14: source 3D extrema and original optimization battery
 
 The default Chebfun3 extrema path now follows the pinned source seed grid,

@@ -1887,7 +1887,11 @@ class Chebfun3(eqx.Module):
             cols = []
             for t in techs:
                 # Native chebcoeffs preserves complex coefficient storage.
-                c = jnp.asarray(t.coeffs)
+                # Ask the technology for Chebyshev coefficients instead of
+                # reading its storage directly: Trigtech stores Fourier
+                # coefficients and its no-count chebcoeffs call is a source
+                # error (an explicit count performs the source conversion).
+                c = jnp.asarray(t.chebcoeffs())
                 cols.append(jnp.concatenate(
                     [c, jnp.zeros(n - c.shape[0], dtype=c.dtype)]))
             return jnp.stack(cols, axis=1)
@@ -1898,6 +1902,11 @@ class Chebfun3(eqx.Module):
         multiplying ``T_i(x) T_j(y) T_k(z)`` (MATLAB ``chebcoeffs3``);
         with ``low_rank=True`` returns the Tucker form ``(core,
         cols_coeffs, rows_coeffs, tubes_coeffs)``.
+
+        Factor coefficients are requested without a count, as in native
+        ``chebcoeffs3``. Consequently, Trigtech factors raise the native
+        no-count coefficient error; use an explicitly counted factor-level
+        ``chebcoeffs(N)`` call when a finite Chebyshev conversion is wanted.
 
         Provenance
         ----------
