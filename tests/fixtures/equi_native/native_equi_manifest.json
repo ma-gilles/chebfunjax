@@ -1,0 +1,680 @@
+{
+  "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "fixtures": [
+    {
+      "bytes": 2790,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "float64",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            7,
+            6,
+            5
+          ]
+        },
+        "length": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_01_real_poly_C2.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_01_real_poly_C2.mat",
+      "raw_sha256": "dc213edd8f8ded8c8d3d45d94ebb489ff650027f1b288ecac68f28eb1fef6e2f",
+      "sha256": "005786e7f0e8e9b304a4cfcc9bfb451ae036904c8a133723a259f58eaae3c37d"
+    },
+    {
+      "bytes": 3040,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "float64",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "complex128",
+          "shape": [
+            7,
+            6,
+            5
+          ]
+        },
+        "length": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "complex128",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_02_complex_poly_C2.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_02_complex_poly_C2.mat",
+      "raw_sha256": "5d426749f448a417fcc6304e3fc3517ad1f9100f6294371f78192c1bf3f4db23",
+      "sha256": "a4053a7beb8e221d7f43ad643ccd69af7aa09756c73a85480fe9790093e61888"
+    },
+    {
+      "bytes": 2790,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "float64",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            7,
+            6,
+            5
+          ]
+        },
+        "length": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_03_real_poly_C1.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_03_real_poly_C1.mat",
+      "raw_sha256": "43fdb1eb923bcd240fcc7bee95b66050bbae7e95413aaa1c60f8aad3ab436399",
+      "sha256": "904a78025a3f95718b191e4b9ef79e25217e2131b8b263f8863b4801b443e48e"
+    },
+    {
+      "bytes": 3184,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            9,
+            9,
+            9
+          ]
+        },
+        "length": {
+          "dtype": "uint16",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U8",
+          "shape": []
+        }
+      },
+      "file": "case_04_periodic_trig_equi.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_04_periodic_trig_equi.mat",
+      "raw_sha256": "672a097e1a66744c1b221db783b420e52944e9a0689e72deaf08d8b8ab8708b8",
+      "sha256": "4a9c7ab4ec6fc742d774e3e0a99087bf45195fff04691c8c2b4057df42137280"
+    },
+    {
+      "bytes": 1843,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "float64",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "length": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_05_scalar_equi_C2.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_05_scalar_equi_C2.mat",
+      "raw_sha256": "f2ca4d073d4064aa50d8151fc59b464e86a50c3ee007e8fb00e405805611142d",
+      "sha256": "6fa16865158259b115bfaaa137ce34fd586736c04e222c604e092269043bb55f"
+    },
+    {
+      "bytes": 1848,
+      "fields": {
+        "cols_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "domain": {
+          "dtype": "float64",
+          "shape": [
+            6
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "length": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            4
+          ]
+        },
+        "query_xyz": {
+          "dtype": "float64",
+          "shape": [
+            3,
+            4
+          ]
+        },
+        "rank": {
+          "dtype": "uint8",
+          "shape": [
+            3
+          ]
+        },
+        "rows_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "tubes_tech": {
+          "dtype": "<U8",
+          "shape": []
+        }
+      },
+      "file": "case_06_scalar_equi_trig.npz",
+      "group": "native3d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014/case_06_scalar_equi_trig.mat",
+      "raw_sha256": "a1fcb5a04bb6be1b2baed1e562b2b4fafb7216ff64c310980bd36d26fd7b90bd",
+      "sha256": "20caa1bbd7e4a17c31c191b63e620aea02bca723e6359ed15f2c9062d7b1f2d7"
+    },
+    {
+      "bytes": 1754,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            7,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_01_real_matrix_poly_C2.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_01_real_matrix_poly_C2.mat",
+      "raw_sha256": "4e35f9c8905eb3b9440b745cbc21b146227923b677af731b1b9e8d820bd6e895",
+      "sha256": "01415d07ce8544aadd06bb8d136aab67b8f27f83afa483cc5b0048dfd7557f3f"
+    },
+    {
+      "bytes": 1838,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "complex128",
+          "shape": [
+            7,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "complex128",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_02_complex_matrix_poly_C2.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_02_complex_matrix_poly_C2.mat",
+      "raw_sha256": "08832c308bbd4a55c585c14c5a7f078fd759a8bdc309d1ff6c1906bae69afd4e",
+      "sha256": "4b6388b285fbea902a1fd71c2fc23d7221836221a41bb35b306d8bcd09c87acb"
+    },
+    {
+      "bytes": 1754,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            7,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_03_real_matrix_poly_C1.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_03_real_matrix_poly_C1.mat",
+      "raw_sha256": "b3f8d495f8911edfd23237490f640021ab738a321e87dda19faae2607b12fc0d",
+      "sha256": "6899241f5813954b6f207f53a9475c373c965cdd0261392f6acb9b17fe1a2f0b"
+    },
+    {
+      "bytes": 1805,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            9,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U9",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U9",
+          "shape": []
+        }
+      },
+      "file": "case_04_periodic_matrix_samples_C2.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_04_periodic_matrix_samples_C2.mat",
+      "raw_sha256": "92e139a93371c3a8c465ca3330574cd9566d5e4982ffa8d29528bb905b5369ae",
+      "sha256": "9baf840538e1c337a321c2d99526492a4b02a4c6d61f992875dfbf019e36e3e5"
+    },
+    {
+      "bytes": 1812,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "float64",
+          "shape": [
+            9,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "float64",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U8",
+          "shape": []
+        }
+      },
+      "file": "case_05_periodic_matrix_samples_trig.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_05_periodic_matrix_samples_trig.mat",
+      "raw_sha256": "402f27bc604cc7ca2b6431fe8083b0bd7ad121e9face696c9ea4f6f616bf1f8e",
+      "sha256": "20d5aab60ebb5c6a0ac3dd1db4e07e6b32f5fe57178a47aba1b6bcd437ecdb5b"
+    },
+    {
+      "bytes": 1891,
+      "fields": {
+        "domain": {
+          "dtype": "int16",
+          "shape": [
+            2
+          ]
+        },
+        "input": {
+          "dtype": "complex128",
+          "shape": [
+            9,
+            2
+          ]
+        },
+        "length": {
+          "dtype": "int64",
+          "shape": []
+        },
+        "pref_chebfuneps": {
+          "dtype": "float64",
+          "shape": []
+        },
+        "pref_tech": {
+          "dtype": "<U8",
+          "shape": []
+        },
+        "query_points": {
+          "dtype": "float64",
+          "shape": [
+            5
+          ]
+        },
+        "query_values": {
+          "dtype": "complex128",
+          "shape": [
+            5,
+            2
+          ]
+        },
+        "tech_class": {
+          "dtype": "<U8",
+          "shape": []
+        }
+      },
+      "file": "case_06_complex_periodic_matrix_samples_trig.npz",
+      "group": "native1d",
+      "raw_capture": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014/case_06_complex_periodic_matrix_samples_trig.mat",
+      "raw_sha256": "ca5f2d676195dfb43d390a3bbf81a24004a0630f88060c6d59bf9d7714c6c6c4",
+      "sha256": "76a64fd2bb09d8c7769a815a7783211747f6767dbfcb91378c83368006fc02ec"
+    }
+  ],
+  "native_release": "MATLAB R2025b",
+  "source_drivers": {
+    "native1d": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun1_equi_native_capture_20261014",
+    "native3d": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_native_capture_20261014"
+  }
+}

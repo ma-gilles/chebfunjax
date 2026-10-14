@@ -1,0 +1,72 @@
+{
+  "scope": "Source numeric Chebfun3 equi construction and complex tensor transforms",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "changes": [
+    "Numeric equi follows ACA/BTD factor construction then per-factor matrix FUNQUI under selected technology. from_equidata uses same path; removed host resampling and65-point cap.",
+    "Preserves scalar factor vector shape; source fixed-length sampling and equi validation order, existingobject validation, explicit periodic and coefficient flags.",
+    "Both tensor values/coefficients transforms retain complex data.",
+    "First ACA slice tolerance uses selected-tech tensorGrid, including equispaced outer inputs."
+  ],
+  "root_merged": {
+    "passed": 62,
+    "strict_xfailed": 1,
+    "slow_deselected": 3,
+    "pytest_seconds": 124.94,
+    "wall_seconds": 132.15618519112468,
+    "sampled_peak_summed_rss_kib": 3874436,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "fixture_proof": "12compactfixtures,102fields independentlyexact against originalMATcaptures; rawhashes bound in manifest.",
+  "evidence": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_publication_20261014/run_v2/receipt.json": "0337d25aadbfa307ea0050e25d30242a8f5a03bee4eb00fb653a66649735088a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_publication_20261014/static.json": "13fa7cdbe3c0cfa811a2576b65cbbcdd36b0f4629f791dc2bf36a508785dcec1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_fixture_review_20261014/VERIFY.json": "3894518580623fef3e6a976b57bee8752971143403822b568e5f01c035ae28d6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_complex_transform_root_20261014/review.json": "f2ebbd5499a81d9fe0550fe57db5eeb349e135b2d83237f56af3794135b7ef98",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_c1_diagnosis_20261014/SLICE_DELIVERY.json": "de8fe5776548df35023b3171050bdf04f61ef9b27f7a44f7295c74a215754b93",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_candidate_20261014/run/final_public_long3d/supervision/receipt.json": "853ee98aa82ff40855c18f3b78a3a7e7d1ce19234c47cbef7f5895322d2f6813",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_publication_20261014/final_original_review.json": "7d62d57b37885152c9b411aa8f15a6716d3e70d6af8e1cf2fcf9a5003d9e38b1"
+  },
+  "limitations": [
+    "C1 nativefactorlength54 versusPython56 remains isolated strictxfail; independentqueryerror3.8e-15.",
+    "Exactzero nativeconstructor crash retains existingPythonadaptation.",
+    "LatestmainCI unresolved.",
+    "Firstrootlaunch collection-only badtestpath failure preserved separately; privateRSS-censored dispatch run also retained."
+  ],
+  "final_original_predicates": [
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_candidate_20261014/run/final_public_original/case01/supervision/receipt.json",
+      "wall_seconds": 21.50269301002845,
+      "sampled_peak_summed_rss_kib": 1369140
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_candidate_20261014/run/final_public_original/case02/supervision/receipt.json",
+      "wall_seconds": 22.59089919971302,
+      "sampled_peak_summed_rss_kib": 1353776
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_candidate_20261014/run/final_public_original/case03/supervision/receipt.json",
+      "wall_seconds": 25.988645914942026,
+      "sampled_peak_summed_rss_kib": 1492428
+    },
+    {
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_equi_candidate_20261014/run/final_public_original/case04/supervision/receipt.json",
+      "wall_seconds": 21.177442993968725,
+      "sampled_peak_summed_rss_kib": 1331132
+    }
+  ],
+  "final_3d_trig": {
+    "wall_seconds": 32.895534134004265,
+    "sampled_peak_summed_rss_kib": 1784376,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "retained_1d_long": {
+    "native_lengths": [
+      65536,
+      9871
+    ],
+    "query_controls": "Bothpassed unchanged1Dsource beforelosslessfixtureconversion; allusedfields verifiedexact.",
+    "warning": "Real65536 retains Function not resolved warning."
+  }
+}

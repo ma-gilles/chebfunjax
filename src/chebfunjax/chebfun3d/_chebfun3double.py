@@ -7,6 +7,7 @@ Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 Numerical arrays and algebra use JAX; rank decisions and list assembly are eager.
 """
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 
@@ -15,7 +16,7 @@ from chebfunjax.tech.trigtech import Trigtech
 from chebfunjax.utils.quadrature import chebpts_ab, trigpts
 
 
-def tensor_axes(shape, domain, tech):
+def tensor_axes(shape, domain, tech, *, equi=False):
     """Selected-tech tensorGrid axes, with native ndgrid orientation.
 
     Provenance
@@ -23,6 +24,9 @@ def tensor_axes(shape, domain, tech):
     MATLAB source: @chebtech1/tensorGrid.m, @chebtech2/tensorGrid.m,
         @trigtech/tensorGrid.m; Chebfun commit: 7574c77.
     """
+    if equi:
+        return [jnp.linspace(a, b, n, dtype=jnp.float64) for n, a, b in
+                zip(shape, domain[::2], domain[1::2])]
     if tech is Trigtech:
         return [trigpts(n, (a, b))[0] for n, a, b in
                 zip(shape, domain[::2], domain[1::2])]
@@ -211,7 +215,8 @@ def btd_to_tucker(blocks, pivots3, tolerance):
     return core, columns_tucker, rows_tucker
 
 
-def construct(values, domain, epsilon, tech=Chebtech2):
+def construct(values, domain, epsilon, tech=Chebtech2, *, equi=False,
+              pref=None):
     """Construct numeric Chebfun3 data, preserving selected-tech fiber lengths.
 
     Provenance
@@ -229,14 +234,52 @@ def construct(values, domain, epsilon, tech=Chebtech2):
     values = values.reshape(values.shape+(1,)*(3-values.ndim))
     if values.size == 0:
         return Chebfun3.empty()
-    axes = tensor_axes(values.shape, domain, tech)
+    axes = tensor_axes(values.shape, domain, tech, equi=equi)
     if bool(jnp.all(values == 0)):
         factors = [[tech.from_values(jnp.zeros(n, dtype=values.dtype))]
                    for n in values.shape]
         return Chebfun3(*factors, jnp.zeros((1, 1, 1), dtype=values.dtype), tuple(domain))
-    _, tolerance = tensor_tolerance(values, axes, domain, epsilon)
-    blocks, tubes, pivots, _ = complete_aca3(values, axes, domain, epsilon, tolerance)
+    relative_tolerance, tolerance = tensor_tolerance(
+        values, axes, domain, epsilon)
+    # Source completeACA3D uses the selected-tech tensorGrid for its first
+    # slice tolerance, including when the original samples are equispaced.
+    slice_axes = tensor_axes(values.shape[:2], domain[:4], tech) if equi else axes[:2]
+    blocks, tubes, pivots, _ = complete_aca3(values, slice_axes, domain, epsilon, tolerance)
     core, columns, rows = btd_to_tucker(blocks, pivots, tolerance)
-    factors = [[tech.from_values(matrix[:, k]) for k in range(matrix.shape[1])]
-               for matrix in (columns, rows, tubes)]
+    if equi:
+        # Native chebfun3double builds each factor matrix through the public
+        # 1D `chebfun(values, interval, 'equi', pref)` constructor. That path
+        # runs FUNQUI before the selected adaptive Tech, including Trigtech.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebpref import ChebfunPref
+
+        factor_pref = ChebfunPref() if pref is None else ChebfunPref(pref)
+        factor_pref.tech = tech
+        factor_pref.enableFunqui = True
+        factor_pref.chebfuneps = float(relative_tolerance)
+        factors = []
+        for matrix, (a, b) in zip(
+                (columns, rows, tubes),
+                zip(domain[::2], domain[1::2])):
+            represented = chebfun(matrix, domain=(a, b), pref=factor_pref)
+            group = []
+            for k in range(matrix.shape[1]):
+                tech_factor = represented[k].funs[0].tech
+                # A scalar Chebfun's source indexing returns itself, retaining
+                # its singleton value column in the Tech coefficients. Numeric
+                # Chebfun3 factors store each scalar Tech as a vector.
+                if matrix.shape[1] == 1:
+                    coefficients = tech_factor.coeffs
+                    if coefficients.ndim == 2 and coefficients.shape[1] == 1:
+                        tech_factor = eqx.tree_at(
+                            lambda item: item.coeffs,
+                            tech_factor,
+                            coefficients[:, 0],
+                        )
+                group.append(tech_factor)
+            factors.append(group)
+    else:
+        factors = [[tech.from_values(matrix[:, k])
+                    for k in range(matrix.shape[1])]
+                   for matrix in (columns, rows, tubes)]
     return Chebfun3(*factors, core, tuple(domain))

@@ -1,3 +1,17 @@
+## Numeric equispaced Chebfun3 and complex transforms — 2026-10-14
+
+Numeric equi construction now follows source ACA/BTD and matrix FUNQUI
+factor construction, with selected-tech first-slice tolerance. from_equidata
+uses that same path. Parser ordering, periodic/coefficient flags and scalar
+factor shapes are preserved; tensor transforms now retain complex values.
+Root62 merged checks pass; allfour original100³ predicates pass unchanged
+on finalsource, and final3DlongTrig passes. Both1Dlong captures also pass,
+including length65536 with its unresolved-function warning retained. All102
+compactfixture fields independently match rawcaptures. C1 factor length54
+versus56 remains one isolated strictxfail; captured values pass3.8e-15.
+Fullparity and latest-mainCI remain open.
+Evidence: `docs/chebfun3_equi_cpu_20261014.json`.
+
 ## Direct degree trigonometric branches — 2026-10-14
 
 TreeVar sind/cosd/tand/cotd/cscd/secd now use JAX degree reduction and
