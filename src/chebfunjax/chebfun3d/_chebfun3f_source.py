@@ -89,19 +89,17 @@ def cosine_points(n, a, b):
     return a + (-jnp.cos(angle) + 1) * (b - a) / 2
 
 
-def refine_c1_fibers(op, fibers, pairs, sizes, domain, relative_tol):
-    """Literal nested phase-2 sampling with C1 envelope happiness.
+def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tech):
+    """Literal nested phase-2 sampling with selected polynomial technology.
 
     Provenance
     ----------
     MATLAB source: @chebfun3/chebfun3f.m, phase2 and happinessCheck3
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    from chebfunjax.tech.chebtech import Chebtech1
-
     fibers = list(map(jnp.asarray, fibers))
     lengths = list(sizes)
-    resolved = [envelope_happiness(values, Chebtech1, relative_tol) for values in fibers]
+    resolved = [envelope_happiness(values, tech, relative_tol) for values in fibers]
     lengths = [n if happy else 2*n - 1 for n, happy in zip(lengths, resolved)]
     while not all(resolved):
         grids = [cosine_points(n, a, b) for n, a, b in
@@ -120,12 +118,26 @@ def refine_c1_fibers(op, fibers, pairs, sizes, domain, relative_tol):
             old = fibers[axis]
             refined = jnp.zeros((lengths[axis], old.shape[1]), dtype=old.dtype)
             fibers[axis] = refined.at[::2].set(old).at[1::2].set(added)
-            resolved[axis] = envelope_happiness(fibers[axis], Chebtech1, relative_tol)
+            resolved[axis] = envelope_happiness(fibers[axis], tech, relative_tol)
             if not resolved[axis]:
                 lengths[axis] = 2*lengths[axis] - 1
     grids = [cosine_points(n, a, b) for n, a, b in
              zip(lengths, domain[::2], domain[1::2])]
     return (*fibers, *grids)
+
+
+def refine_c1_fibers(op, fibers, pairs, sizes, domain, relative_tol):
+    """Retain the explicit C1 adapter for native polynomial fiber refinement.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun3/chebfun3f.m, phase2 and happinessCheck3
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import Chebtech1
+
+    return refine_polynomial_fibers(op, fibers, pairs, sizes, domain,
+                                   relative_tol, Chebtech1)
 
 
 def c2_factors(values, relative_tol, session_tol):

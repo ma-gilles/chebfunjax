@@ -1,3 +1,24 @@
+## 2026-10-15: C2 constructor source order and restart semantics
+
+C2 construction now follows native ACA column and pivot order, nested fiber
+sampling, repeated coarse-grid refinement, square DEIM solves, tensor solve
+order and restart tolerance/rank rules. New numerical paths use JAX. The
+scalar-only sample test uses the native Cartesian Halton set; polynomial
+sample evaluation uses the existing source-order vector evaluator.
+
+Eighteen pytest items pass: fourteen focused checks, the full constructor
+with all seventeen original logical default-preference predicates, and three
+technology cases covering original C1, C2 and trig clauses. No original
+acceptance tolerance changed. The C1 warned behavior remains covered.
+
+This corrects source semantics but regresses the instrumented cold Laplacian
+from 18.18 to 28.55 seconds. Output rank [7,8,13] differs from native [7,8,12],
+and output lengths [15,14,15] differ from native [14,14,15]. The sampled native
+difference is 1.16e-12. Full numerical, performance and JAX-only parity remain
+open, as do CI and custom minSamples preference dispatch. See
+`docs/chebfun3_c2_source_order_cpu_20261015.json` for immutable evidence,
+measurement limits and retained diagnostic failures.
+
 ## 2026-10-15: batched real-factor evaluation
 
 Uniform float64 polynomial factor panels now share one Clenshaw loop.

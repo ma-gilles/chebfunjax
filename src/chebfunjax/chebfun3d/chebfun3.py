@@ -722,6 +722,7 @@ class Chebfun3(eqx.Module):
             return _assemble_components(fre, fim * 1j)
 
         from chebfunjax.chebfun3d import _chebfun3f_source as source3f
+        source_order = _first_kind or not _periodic
         from chebfunjax.chebfun3d._chebfun3f_tech import (
             envelope_happiness,
             periodic_factors,
@@ -730,8 +731,7 @@ class Chebfun3(eqx.Module):
         from chebfunjax.tech.chebtech import Chebtech1
         from chebfunjax.tech.trigtech import Trigtech
 
-        grid_points = (source3f.cosine_points if _first_kind else
-                       periodic_points if _periodic else _chebpts_phys_np)
+        grid_points = source3f.cosine_points if source_order else periodic_points
         last_relative_tol = tol
 
         # ----------------------------------------------------------------
@@ -796,7 +796,7 @@ class Chebfun3(eqx.Module):
             n = [max(min_samples, 9)] * 3  # MATLAB tpref.minSamples = 17
         # Initial ranks for random initialization
         r = [int(v) for v in _r_init]
-        abs_tol_running = (tol if _running_abs_tol is None else _running_abs_tol) if _first_kind else tol
+        abs_tol_running = tol if _running_abs_tol is None else _running_abs_tol
 
         xp = grid_points(n[0], xa, xb)
         yp = grid_points(n[1], ya, yb)
@@ -815,7 +815,7 @@ class Chebfun3(eqx.Module):
         happy_phase1 = False
         phase1_iters = 0
 
-        while not happy_phase1 and (_first_kind or phase1_iters < 20):
+        while not happy_phase1 and (source_order or phase1_iters < 20):
             phase1_iters += 1
             need_refine = False
 
@@ -830,13 +830,13 @@ class Chebfun3(eqx.Module):
                         f"on the grid over domain ({xa},{xb})x({ya},{yb})x({za},{zb})."
                     )
 
-                M1 = source3f.unfold(T1, 0) if _first_kind else T1.reshape(n[0], len(J) * len(K))
+                M1 = source3f.unfold(T1, 0) if source_order else T1.reshape(n[0], len(J) * len(K))
                 abs_tol_running = _get_abs_tol(M1, xb - xa, abs_tol_running)
-                _, _, _, I_idx, col1 = (source3f.aca(M1, abs_tol_running, n[0]) if _first_kind
+                _, _, _, I_idx, col1 = (source3f.aca(M1, abs_tol_running, n[0]) if source_order
                                                    else _aca(M1, abs_tol_running, max_rank))
                 r[0] = len(I_idx)
                 # Save which (j,k) pairs the selected columns correspond to
-                if _first_kind:
+                if source_order:
                     pair1, pair2 = source3f.decode_columns(col1, len(J))
                     J_from1, K_from1 = jnp.asarray(J)[pair1], jnp.asarray(K)[pair2]
                 else:
@@ -847,12 +847,12 @@ class Chebfun3(eqx.Module):
                 T2 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, np.arange(n[1]), K)
                 # mode-2 unfolding: permute to (n2, n1*n3)
-                M2 = source3f.unfold(T2, 1) if _first_kind else T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
+                M2 = source3f.unfold(T2, 1) if source_order else T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
                 abs_tol_running = _get_abs_tol(M2, yb - ya, abs_tol_running)
-                _, _, _, J_idx, col2 = (source3f.aca(M2, abs_tol_running, n[1]) if _first_kind
+                _, _, _, J_idx, col2 = (source3f.aca(M2, abs_tol_running, n[1]) if source_order
                                                    else _aca(M2, abs_tol_running, max_rank))
                 r[1] = len(J_idx)
-                if _first_kind:
+                if source_order:
                     pair1, pair2 = source3f.decode_columns(col2, len(I_idx))
                     I_from2, K_from2 = jnp.asarray(I_idx)[pair1], jnp.asarray(K)[pair2]
                 else:
@@ -863,12 +863,12 @@ class Chebfun3(eqx.Module):
                 T3 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, J_idx, np.arange(n[2]))
                 # mode-3 unfolding: permute to (n3, n1*n2)
-                M3 = source3f.unfold(T3, 2) if _first_kind else T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
+                M3 = source3f.unfold(T3, 2) if source_order else T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
                 abs_tol_running = _get_abs_tol(M3, zb - za, abs_tol_running)
-                _, _, _, K_idx, col3 = (source3f.aca(M3, abs_tol_running, n[2]) if _first_kind
+                _, _, _, K_idx, col3 = (source3f.aca(M3, abs_tol_running, n[2]) if source_order
                                                    else _aca(M3, abs_tol_running, max_rank))
                 r[2] = len(K_idx)
-                if _first_kind:
+                if source_order:
                     pair1, pair2 = source3f.decode_columns(col3, len(I_idx))
                     I_from3, J_from3 = jnp.asarray(I_idx)[pair1], jnp.asarray(J_idx)[pair2]
                 else:
@@ -885,7 +885,7 @@ class Chebfun3(eqx.Module):
                 ref1 = r[1] * factor > n[1]
                 ref2 = r[2] * factor > n[2]
                 if ref0 or ref1 or ref2:
-                    if _first_kind:
+                    if source_order:
                         for axis in range(3):
                             while r[axis] * factor > n[axis]:
                                 n[axis] = _reffun(n[axis])
@@ -900,10 +900,10 @@ class Chebfun3(eqx.Module):
                     yp = grid_points(n[1], ya, yb)
                     zp = grid_points(n[2], za, zb)
                     J = _initialize_random_indices(
-                        r[1] if _first_kind else max(r[1], 3), n[1], _restarts
+                        r[1] if source_order else max(r[1], 3), n[1], _restarts
                     )
                     K = _initialize_random_indices(
-                        r[2] if _first_kind else max(r[2], 3), n[2], _restarts
+                        r[2] if source_order else max(r[2], 3), n[2], _restarts
                     )
                     need_refine = True
                     break
@@ -964,11 +964,12 @@ class Chebfun3(eqx.Module):
         # ================================================================
 
         phase2_relative_tol = last_relative_tol
-        if _first_kind:
-            Uf, Vf, Wf, xp_f, yp_f, zp_f = source3f.refine_c1_fibers(
+        if source_order:
+            Uf, Vf, Wf, xp_f, yp_f, zp_f = source3f.refine_polynomial_fibers(
                 f, (Uf_coarse, Vf_coarse, Wf_coarse),
                 ((J_from1, K_from1), (I_from2, K_from2), (I_from3, J_from3)),
-                n, dom, phase2_relative_tol)
+                n, dom, phase2_relative_tol,
+                Chebtech1 if _first_kind else Chebtech2)
         else:
             m = list(n)
             xp_f = grid_points(m[0], xa, xb)
@@ -1118,21 +1119,20 @@ class Chebfun3(eqx.Module):
         # PHASE 3: QR + DEIM, evaluate core, build Chebtech2 objects
         # ================================================================
 
-        if _periodic or _first_kind:
-            abs_tol_running = _get_abs_tol(Uf, xb - xa, abs_tol_running)
-            abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
-            abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
+        abs_tol_running = _get_abs_tol(Uf, xb - xa, abs_tol_running)
+        abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
+        abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
 
         # QR decompositions of fiber matrices
-        QU, RU = (jnp.linalg.qr(jnp.asarray(Uf), mode="reduced") if _first_kind
+        QU, RU = (jnp.linalg.qr(jnp.asarray(Uf), mode="reduced") if source_order
                       else np.linalg.qr(Uf, mode='reduced'))  # (m0, r1)
-        QV, RV = (jnp.linalg.qr(jnp.asarray(Vf), mode="reduced") if _first_kind
+        QV, RV = (jnp.linalg.qr(jnp.asarray(Vf), mode="reduced") if source_order
                       else np.linalg.qr(Vf, mode='reduced'))  # (m1, r2)
-        QW, RW = (jnp.linalg.qr(jnp.asarray(Wf), mode="reduced") if _first_kind
+        QW, RW = (jnp.linalg.qr(jnp.asarray(Wf), mode="reduced") if source_order
                       else np.linalg.qr(Wf, mode='reduced'))  # (m2, r3)
 
-        choose_deim = source3f.deim if _first_kind else _deim
-        inverse_product = source3f.invtprod if _first_kind else _invtprod
+        choose_deim = source3f.deim if source_order else _deim
+        inverse_product = source3f.invtprod if source_order else _invtprod
 
         # DEIM interpolation points
         I_deim, QUI = choose_deim(QU)  # I_deim: shape (r1,); QUI: (r1, r1)
@@ -1145,18 +1145,20 @@ class Chebfun3(eqx.Module):
         zp_deim = zp_f[K_deim]
 
         # Evaluate f on the (r1 x r2 x r3) grid of DEIM points
-        xx, yy, zz = np.meshgrid(xp_deim, yp_deim, zp_deim, indexing='ij')
+        meshgrid = jnp.meshgrid if source_order else np.meshgrid
+        xx, yy, zz = meshgrid(xp_deim, yp_deim, zp_deim, indexing='ij')
         xx_j = jnp.asarray(xx, dtype=jnp.float64)
         yy_j = jnp.asarray(yy, dtype=jnp.float64)
         zz_j = jnp.asarray(zz, dtype=jnp.float64)
-        T_deim = np.array(f(xx_j, yy_j, zz_j), dtype=np.float64)
+        T_deim = (jnp.asarray(f(xx_j, yy_j, zz_j), dtype=jnp.float64) if source_order
+                  else np.array(f(xx_j, yy_j, zz_j), dtype=np.float64))
 
         # Tucker core: core = T_deim x_1 inv(QUI) x_2 inv(QVJ) x_3 inv(QWK)
         core_np = inverse_product(T_deim, QUI, QVJ, QWK)
 
         # Scaling: ensure factor matrices have decaying coefficients
         # col_scaling[i] = max over (j,k) of |core[i,j,k]|
-        if _first_kind:
+        if source_order:
             col_scaling = jnp.max(jnp.abs(core_np), axis=(1, 2))
             row_scaling = jnp.max(jnp.abs(core_np), axis=(0, 2))
             tube_scaling = jnp.max(jnp.abs(core_np), axis=(0, 1))
@@ -1234,46 +1236,34 @@ class Chebfun3(eqx.Module):
         if not _sample_test:
             return result
 
-        n_test = 20 if (_periodic or _first_kind) and vectorize else 30
+        n_test = 20 if vectorize else 30
         x_t = xa + (xb - xa) * _halton_1d(n_test, 2)
         y_t = ya + (yb - ya) * _halton_1d(n_test, 3)
         z_t = za + (zb - za) * _halton_1d(n_test, 5)
-        if (_periodic or _first_kind) and vectorize:
+        if vectorize:
             x_t, y_t, z_t = [axis.reshape(-1) for axis in jnp.meshgrid(
                 jnp.asarray(x_t), jnp.asarray(y_t), jnp.asarray(z_t), indexing="ij")]
         v_op = np.asarray(f(jnp.asarray(x_t), jnp.asarray(y_t),
                             jnp.asarray(z_t)))
-        # Evaluate the Tucker representation in plain numpy: routing
-        # this through the jitted __call__ makes XLA trace/compile a
-        # graph unrolled over all 3*rank coefficient arrays, which for
-        # high-rank results costs minutes and tens of GB (observed:
-        # 295 s / 22 GB for rank 33 vs 0.02 s here).
-        from numpy.polynomial import chebyshev as _Cnp
-        sx = 2.0 * (x_t - xa) / (xb - xa) - 1.0
-        sy = 2.0 * (y_t - ya) / (yb - ya) - 1.0
-        sz = 2.0 * (z_t - za) / (zb - za) - 1.0
-        if _periodic or _first_kind:
-            coordinates = (jnp.asarray(sx), jnp.asarray(sy), jnp.asarray(sz))
+        if source_order:
+            # Native vectorCase contractions with batched factor recurrences.
+            from chebfunjax.chebfun3d._power import _evaluate_vector
+            v_fun = _evaluate_vector(result, tuple(jnp.asarray(axis)
+                                                   for axis in (x_t, y_t, z_t)))
+        else:
+            coordinates = tuple(jnp.asarray(2 * (axis - left) / (right - left) - 1)
+                                for axis, left, right in
+                                zip((x_t, y_t, z_t), dom[::2], dom[1::2]))
             matrices = [jnp.stack([factor(points) for factor in factors])
                         for factors, points in zip((cols_list, rows_list, tubes_list), coordinates)]
             v_fun = jnp.einsum("ijk,ip,jp,kp->p", core_jax, *matrices)
-            sample_err = float(jnp.max(jnp.abs(jnp.asarray(v_op) - v_fun)))
-        else:
-            Cv = np.stack([_Cnp.chebval(sx, np.asarray(c.coeffs))
-                           for c in cols_list])
-            Rv = np.stack([_Cnp.chebval(sy, np.asarray(c.coeffs))
-                           for c in rows_list])
-            Tv = np.stack([_Cnp.chebval(sz, np.asarray(c.coeffs))
-                           for c in tubes_list])
-            v_fun = np.einsum("ijk,ip,jp,kp->p",
-                              np.asarray(core_jax), Cv, Rv, Tv)
-            sample_err = float(np.max(np.abs(v_op - v_fun)))
+        sample_err = float(jnp.max(jnp.abs(jnp.asarray(v_op) - v_fun)))
         if sample_err <= 10.0 * abs_tol_running:
             return result
         max_restarts = 10
         if _restarts + 1 >= max_restarts:
             warnings.warn(
-                "chebfun3f: max number of restarts reached" if _first_kind else
+                "chebfun3f: max number of restarts reached" if source_order else
                 "Chebfun3.from_function: max number of restarts "
                 f"reached (sample-test error {sample_err:.2e}).",
                 RuntimeWarning,
@@ -1289,7 +1279,7 @@ class Chebfun3(eqx.Module):
         )
         # Ensure r is large enough for (1, r, r)-type functions
         r_new = list(r)
-        if r[0] > 1 or r[1] > 1 or (r[1] if _first_kind else r[2]) > 1:
+        if r[0] > 1 or r[1] > 1 or (r[1] if source_order else r[2]) > 1:
             if r[0] < 3:
                 r_new[1] = max(6, 2 * r[1])
                 r_new[2] = max(6, 2 * r[2])
@@ -1299,12 +1289,12 @@ class Chebfun3(eqx.Module):
             elif r[2] < 2:
                 r_new[0] = max(6, 2 * r[0])
                 r_new[1] = max(6, 2 * r[1])
-        r_new = tuple(r_new) if _first_kind else tuple(max(v, 3) for v in r_new)
+        r_new = tuple(r_new) if source_order else tuple(max(v, 3) for v in r_new)
         return cls.from_function(
             f, domain=domain, tol=tol, max_rank=max_rank,
             min_samples=min_samples, _restarts=_restarts + 1,
-            vectorize=vectorize if _first_kind else False,
-            _running_abs_tol=abs_tol_running if _first_kind else None,
+            vectorize=vectorize if source_order else False,
+            _running_abs_tol=abs_tol_running if source_order else None,
             _r_init=r_new, _n_init=n_new, _periodic=_periodic, _first_kind=_first_kind,
             _sample_test=_sample_test, _session_tol=_session_tol,
         )
