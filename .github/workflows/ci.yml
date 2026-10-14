@@ -206,7 +206,24 @@ jobs:
               tests/test_matlab_port/chebgui
               tests/test_matlab_port/adchebfun
               tests/test_matlab_port/treeVar
-          - name: techs
+          - name: techs-a
+            part: 0
+            parts: 2
+            paths: >-
+              tests/test_matlab_port/chebtech
+              tests/test_matlab_port/chebtech1
+              tests/test_matlab_port/chebtech2
+              tests/test_matlab_port/trigtech
+              tests/test_matlab_port/trigspec
+              tests/test_matlab_port/fun
+              tests/test_matlab_port/classicfun
+              tests/test_matlab_port/bndfun
+              tests/test_matlab_port/unbndfun
+              tests/test_matlab_port/singfun
+              tests/test_matlab_port/deltafun
+          - name: techs-b
+            part: 1
+            parts: 2
             paths: >-
               tests/test_matlab_port/chebtech
               tests/test_matlab_port/chebtech1

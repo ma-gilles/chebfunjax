@@ -1,0 +1,41 @@
+{
+  "reason": "Completed oldrun38493045414 techs was finalactivejob,2122tests passed in4844.23s(~81min) against90min cap. Split existing210files equally to shorten future criticalpath; no timeout/assertion changes. Actualspeedup awaitsCI.",
+  "paths": [
+    "tests/test_matlab_port/chebtech",
+    "tests/test_matlab_port/chebtech1",
+    "tests/test_matlab_port/chebtech2",
+    "tests/test_matlab_port/trigtech",
+    "tests/test_matlab_port/trigspec",
+    "tests/test_matlab_port/fun",
+    "tests/test_matlab_port/classicfun",
+    "tests/test_matlab_port/bndfun",
+    "tests/test_matlab_port/unbndfun",
+    "tests/test_matlab_port/singfun",
+    "tests/test_matlab_port/deltafun"
+  ],
+  "all_count": 210,
+  "partition_counts": [
+    105,
+    105
+  ],
+  "disjoint": true,
+  "exhaustive": true,
+  "runner_sha256": "76e41fe01bf700a14e5fe946b40693cfdfd3ff62189da1db7b6d4076cccbc206",
+  "workflow_before_sha256": "0b402926109485e762124e4d9f11e9ebdd3df5c61b17f0680a750b3fa146ecc2",
+  "workflow_after_sha256": "060ba42a2eedd6e3e34c0fa2bb03eaf00f3279ca10612c80276daca7cf1c3263",
+  "completed_job_log_sha256": "404bb9d38cc77e1ec87f9c5f98d1307a07b8d0646a1f1f383cb04d287f65bdbc",
+  "yaml_verification": {
+    "valid_yaml": true,
+    "job": "matlab-port",
+    "unchanged_steps": true,
+    "other_shards_unchanged": true,
+    "timeout_minutes": 90,
+    "parts": [
+      0,
+      1
+    ],
+    "partition_count": 2
+  },
+  "inventory_evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_techs_partition_20261014/inventory.json",
+  "inventory_sha256": "cd21e50bed322d2737de0548edfdf6aafe39329ac11b9bb05d34c32d004ada4f"
+}

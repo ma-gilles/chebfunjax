@@ -1,0 +1,511 @@
+{
+  "scope": "Unchanged primitive arithmetic, symmetric exact-zero classes plus unchanged8eps/sign/storage checks. Earlier asymmetric audit retained separately.",
+  "records": [
+    {
+      "packet": "unary_storage_native36.json",
+      "method": "atan",
+      "label": "imag_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native36.json",
+      "method": "sinh",
+      "label": "imag_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native36.json",
+      "method": "tan",
+      "label": "complex_1_inf",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native36.json",
+      "method": "tanh",
+      "label": "imag_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "asinh",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "asinh",
+      "label": "complex_c_nonfinite_zero_imag",
+      "failures": [
+        "storage",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "asinh",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "asinh",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_re_nzero_im_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_re_nzero_im_p1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_re_nzero_im_n2",
+      "failures": [
+        "real_finite"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_re_pzero_im_p2",
+      "failures": [
+        "real_finite"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_mixed",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_c_nonfinite_zero_imag",
+      "failures": [
+        "storage",
+        "real_nan",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_sign",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "real_nan",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_sign",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "atan",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "conj",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "conj",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "cos",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "cos",
+      "label": "complex_c_nonfinite_zero_imag",
+      "failures": [
+        "storage",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "cos",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "exp",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "expm1",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sin",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sin",
+      "label": "complex_c_nonfinite_zero_imag",
+      "failures": [
+        "storage",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_sign",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sin",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_sign",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sin",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_nzero_im_nzero",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_nzero_im_pzero",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_nzero_im_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_nzero_im_p1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_pzero_im_n2",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_re_pzero_im_p2",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_zero_axis_mixed",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_mixed",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "sinh",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_re_nzero_im_nzero",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_re_nzero_im_pzero",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_zero_axis_mixed",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_mixed",
+      "failures": [
+        "real_zero_sign",
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_c_nonfinite_zero_imag",
+      "failures": [
+        "storage",
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_nan",
+        "imag_finite",
+        "imag_zero",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "tan_cross_re_n1_im_pinf",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "tan_cross_re_p1_im_pinf",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "tan_cross_re_n2_im_pinf",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "tan_cross_re_p2_im_pinf",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tan",
+      "label": "tan_cross_grid_6by4",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tanh",
+      "label": "complex_re_nzero_im_n1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tanh",
+      "label": "complex_re_nzero_im_p1",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tanh",
+      "label": "complex_re_nzero_im_n2",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tanh",
+      "label": "complex_re_nzero_im_p2",
+      "failures": [
+        "real_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "tanh",
+      "label": "complex_min_subnormal_imag",
+      "failures": [
+        "storage",
+        "imag_zero_class"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "uminus",
+      "label": "complex_b_with_nonzero_imag",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    },
+    {
+      "packet": "unary_storage_native_arrays.json",
+      "method": "uminus",
+      "label": "complex_d_nonfinite_mixed",
+      "failures": [
+        "imag_zero_sign"
+      ]
+    }
+  ]
+}

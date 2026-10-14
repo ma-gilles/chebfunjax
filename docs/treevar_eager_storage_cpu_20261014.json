@@ -1,0 +1,419 @@
+{
+  "objective": "Source-backed eager unary storage normalization with unchanged primitive arithmetic and preserved traced JIT/AD dtype contracts.",
+  "source_mapping": {
+    "chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "caller": "@treeVar/treeVar.m numeric unary dispatch",
+    "builtin_scope": "R2025b independently captured conventions; no claim of access to builtin implementation."
+  },
+  "implementation": [
+    "Only13 direct JAX primitives wrapped at _UNARY_FNS mapping.",
+    "Primitive result returned unchanged under JAX tracing; no value-based Python bool in traced execution.",
+    "Concrete complex output collapses to real iff every imaginary component is exactly zero, using existing IEEE real_sign classification.",
+    "No changes to primitive arithmetic, tolerances, input domains, forced complex promotion, or other36 unary adapters."
+  ],
+  "native_capture": {
+    "rows": 236,
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_signed_zero_capture_prepare_20261014/native/capture.mat",
+    "sha256": "573d4561853bcacd6ce6212ce470cf62a59224e8a6eebc5f81aec4f6a8198338",
+    "verification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_signed_zero_capture_prepare_20261014/native/verification.json",
+    "controls": "signed-zero real axes; ordinary/mixed nonfinite arrays;2x2 complex;0x2 real/complex empties;minimum-subnormal imaginary;crossed signs foratan/sinh/tan/tanh",
+    "policy": "Across236records, native real storage iff all output imaginary words are signedzero. Mixed arrays stay complex. Tinyimag stays complex for11methods;cos/cosh rounds imaginary component tozero."
+  },
+  "diagnosis": {
+    "old_scalar_packet": {
+      "rows": 468,
+      "baseline_failures": 146,
+      "candidate_failures": 4,
+      "fixed_storage_rows": 142
+    },
+    "expanded_packet": {
+      "rows": 236,
+      "baseline_failures_symmetric_zero": 103,
+      "candidate_failures_symmetric_zero": 53
+    },
+    "comparison": "Existing8eps*max(1,abs(expected)) finitebound, exactnonfinite/sign/storage, plus newlycorrected symmetric zero-class assertion. No bounds widened.",
+    "old_verifier_gap": "Earlier diagnostic checked only targetzeros; corrected to require zero class in both directions. Earlier82 expandedbaselinecount also had emptycomplexdecoder losingdtype; correctedemptydtype baseline95, symmetriczero baseline103. Receipts and originaldriver retained.",
+    "components": "All704 inputs require identical raw/candidate real bytes; complex outputs preserve imagbytes; collapsed imagwords must be exactsignedzero.",
+    "open": "4oldrealzerosign cases plus53expandedrows retained as strictxfails innewcontrols. Includes8tinyimagFTZ arithmetic cases (baselinezero loss nowexplicit), complexNaN/Inf lanes, mixedimagzero signs, atanbranchcuts. Storage adapter doesnotrepair these."
+  },
+  "contracts": [
+    "Eager complex input may return real output; JIT/vmap/JVP retains complexdtype forsameinput. This intentional adapter difference preserves imaginary tangent atrealaxisprimal.",
+    "13axisimaginarytangent controls testdirect/jittedJVP,publicRHS andvmap.",
+    "Existing32realJIT/grad/jacfwd andcomplexJVP checks plus49originalunary assertions remainunchanged.",
+    "2classifier controls testidentity complex64/complex128 minimumsubnormal components without relyingonprimitivearithmetic."
+  ],
+  "qualification": {
+    "passed": 1447,
+    "strict_xfailed": 57,
+    "pytest_seconds": 35.75,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_eager_storage_review_20261014/final2_run/receipt.json",
+    "supervisor_wall_seconds": 49.4152146698907,
+    "rss_kib": 1551440,
+    "stable": true,
+    "survivors": []
+  },
+  "publication": {
+    "evidence_directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_eager_storage_publication_20261014",
+    "passed": 1447,
+    "strict_xfailed": 57,
+    "pytest_seconds": 103.37,
+    "receipt": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 106.38755200617015,
+      "sampled_peak_summed_rss_kib": 934952,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "source_ast_review": {
+      "existing_definition_count": 32,
+      "all_existing_definitions_unchanged": true,
+      "raw_dispatch_unchanged": true,
+      "added_definitions": [
+        "_eager_unary_storage"
+      ]
+    },
+    "fixture_verification": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_storage_fixture_audit_20261014/REPORT.json"
+  },
+  "fresh_full_49x36_audit": {
+    "all_records_sha256": "c5ca5c1b131f62e56b5e7b8f25a6c944ce94714cc94f02a6dc1b869a99eace49",
+    "compact_fixture_sha256": "a2cb5389171ae654920c7faa881d1a96beb32a43a1f6f77a98dcf6f2f4da2fa2",
+    "failed": 4,
+    "failure_reasons": {
+      "real_zero_sign": 4
+    },
+    "guard_preflight_after_run": "pass",
+    "guard_problems": [],
+    "guard_sha256": "028d54b3731f448e83fba02328944c61b68186cfde2dee13bf2e035a56949d22",
+    "packet_sha256": "0a0c14e486d3a86ef607a50931a2251743099d2560a4d0bef3ecf1b2c802d5b0",
+    "passed": 1760,
+    "per_method": {
+      "abs": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acos": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acosd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acot": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acoth": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acsc": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acscd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "acsch": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "airy": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asec": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asecd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asech": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asin": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asind": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "asinh": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "atan": {
+        "dispatch": "current direct unary map",
+        "failed": 1,
+        "passed": 35,
+        "reasons": {
+          "real_zero_sign": 1
+        }
+      },
+      "atand": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "atanh": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "conj": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cos": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cosd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cosh": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cot": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cotd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "coth": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "csc": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "cscd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "csch": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "exp": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "expm1": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "imag": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "log": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "log10": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "log1p": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "log2": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "pow2": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "real": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "sec": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "secd": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "sech": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "sin": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "sind": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "sinh": {
+        "dispatch": "current direct unary map",
+        "failed": 1,
+        "passed": 35,
+        "reasons": {
+          "real_zero_sign": 1
+        }
+      },
+      "sqrt": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "tan": {
+        "dispatch": "current direct unary map",
+        "failed": 1,
+        "passed": 35,
+        "reasons": {
+          "real_zero_sign": 1
+        }
+      },
+      "tand": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "tanh": {
+        "dispatch": "current direct unary map",
+        "failed": 1,
+        "passed": 35,
+        "reasons": {
+          "real_zero_sign": 1
+        }
+      },
+      "uminus": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      },
+      "uplus": {
+        "dispatch": "current direct unary map",
+        "failed": 0,
+        "passed": 36,
+        "reasons": {}
+      }
+    },
+    "publication_head": "8e5089fb0cb6a13157d5d593751764cf1c044fe3",
+    "python_sources_guarded": 317,
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 869748,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 16.003977486863732
+    },
+    "receipt_sha256": "112cd470496a286a39d2213d920524284eba5b54afed921c6573c86cc853d133",
+    "results_sha256": "1f10bf3a19e0c7646eabc26c72eb490fd260462a72bdafdaed065e7b4e5f7848",
+    "runtime": {
+      "backend": "cpu",
+      "cuda_visible_devices": "",
+      "jax": "0.11.0",
+      "jax_platforms": "cpu",
+      "jaxlib": "0.11.0",
+      "x64": true
+    },
+    "total": 1764,
+    "total_guarded_input_paths": 323,
+    "treevar_source_sha256": "08507a8ea6f09f41ab597e69dabc9cbd992b67eff5423e2806d2de79d9070242"
+  },
+  "scope_limit": "Original49x36packet1760matches4realzerosign failures; expanded236packet183matches53failures. Neither full numerical domain nor full suite/page/figure parity qualified. SeparateAiry62packet2strictxfails remain."
+}

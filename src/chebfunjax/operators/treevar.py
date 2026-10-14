@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import inspect
 
+import jax
 import jax.numpy as jnp
 import numpy as np  # uses-numpy: tree bookkeeping on concrete ID vectors
 
@@ -684,10 +685,41 @@ _UNARY_FNS_RAW = {
 }
 
 
-# Each numeric primitive now implements its own branch and storage policy.
-# Some adapters choose real/complex storage eagerly; direct dispatch does not
-# imply that every unary method supports whole-function JIT or AD tracing.
-_UNARY_FNS = dict(_UNARY_FNS_RAW)
+# Branch-specific adapters retain their own storage policy. The direct
+# primitives below normalize storage only for concrete eager outputs. This
+# does not imply whole-function JIT or AD support for every unary method.
+def _eager_unary_storage(fn):
+    """Preserve native exact-real eager output storage without changing tracing.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric unary dispatch, Chebfun commit
+    7574c77680d7e82b79626300bf255498271a72df. R2025b independent scalar and
+    array captures establish whole-array real storage when every output
+    imaginary component is exactly zero. Builtin arithmetic is opaque.
+    Traced outputs retain their static JAX dtype, including complex tangents
+    at real-axis primals; eager and traced output dtypes can therefore differ.
+    """
+    def evaluate(x):
+        result = fn(x)
+        if isinstance(result, jax.core.Tracer) or not jnp.iscomplexobj(result):
+            return result
+        from chebfunjax.utils.numeric_sign import real_sign
+
+        if bool(jnp.all(real_sign(jnp.imag(result)) == 0)):
+            return jnp.real(result)
+        return result
+
+    return evaluate
+
+
+_EAGER_STORAGE_UNARY = frozenset(
+    "asinh atan conj cos cosh exp expm1 sin sinh tan tanh uminus uplus".split()
+)
+_UNARY_FNS = {
+    name: _eager_unary_storage(fn) if name in _EAGER_STORAGE_UNARY else fn
+    for name, fn in _UNARY_FNS_RAW.items()
+}
 
 
 _BINARY_FNS = {

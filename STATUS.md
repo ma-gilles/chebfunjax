@@ -1,3 +1,33 @@
+## 2026-10-14: native eager unary storage and shorter CI partitions
+
+Thirteen TreeVar primitives now return real storage for concrete outputs whose
+imaginary components are all exactly zero. Independent MATLAB scalar and array
+captures support this convention. Traced outputs retain their static JAX dtype,
+including imaginary tangents at real-axis inputs; eager and traced dtypes may
+differ. Every existing primitive body and raw dispatch is unchanged.
+
+The fresh full49×36 audit matches1760/1764 records: all142 prior storage
+mismatches are resolved; four real signed-zero mismatches remain. A broader
+236-record capture exposes53 remaining arithmetic/sign/storage cases, including
+subnormal loss, nonfinite array lanes and atan branch cuts. Its newly added
+comparison checks zero classification in both directions; the finite8eps bound
+is unchanged. These gaps remain explicit, not claims of completed parity.
+
+Publication CPU gate:1447passed,57strictxfails,103.37s, stable guarded inputs
+and no survivors. This includes704 exact primitive-component preservation checks,
+all49 original predicates,32 existing JIT/AD checks and13 real-axis tangent
+controls. The separate Airy packet retains its two strict expected failures.
+Evidence: `docs/treevar_eager_storage_cpu_20261014.json`.
+
+The older full CI completed with the same three underlying issues: LU runtime,
+end-index orientation and inverse-degree test reference; the latter two are
+fixed on main and awaiting current CI. Its technology shard passed2122 tests
+but took81 minutes. Future technology runs are split into two disjoint105-file
+partitions with identical tests and limits; exhaustive coverage was verified.
+Actual speedup awaits CI. Evidence: `docs/ci_techs_partition_20261014.json`.
+Full library, examples/figures, known speed paths and final green-main CI remain
+unresolved. Next: captured atan/atand branch-cut behavior and LU worker evidence.
+
 ## 2026-10-14: inverse-degree test reference and refreshed boundary inventory
 
 The original TreeVar test compares converted and handwritten RHS expressions
