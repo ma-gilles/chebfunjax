@@ -77,7 +77,7 @@ The curves just plotted are the images under $f^{-1}$ of circles and radial line
 
 ```text
 number_of_poles_of_finv =
-    67
+    68
 ```
 
 ![ConformalL figure 02](../../images/complex/ConformalL_02.png)
@@ -147,7 +147,7 @@ total_time_for_this_example = toc
 
 ```text
 total_time_for_this_example =
-    18.8077
+    19.2419
 ```
 
 [1] A. Gopal and L. N. Trefethen, Representation of conformal maps by rational functions, *Numer. Math.* 142 (2019), 359-382.

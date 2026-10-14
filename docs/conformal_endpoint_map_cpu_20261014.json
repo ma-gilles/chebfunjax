@@ -1,0 +1,101 @@
+{
+  "scope": "ConformalL source endpoint-product node mapping via public JAX chebpts_ab; example, page and figures regenerated.",
+  "source": "Chebfun7574c77680d7e82b79626300bf255498271a72df chebpts.m local scaleNodes endpoint-product order.",
+  "diagnosis": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_inverse67_review_20261014/REPORT.md",
+    "sha256": "8a1c0ae0a59fb431ed5ce1fbf9af7cfa0a4579b54dd52a8429df19098629bf59"
+  },
+  "candidate": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_candidate_20261014/DELIVERY.md",
+    "sha256": "24cceb90df2c34969f58c43264cdc36ddbf196897344e0f581c1a1fdf1eb4dc8"
+  },
+  "candidate_manifest": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_candidate_20261014/MANIFEST.json",
+    "sha256": "6eaa6be6aa162d7f9b469ac855c4a401a21d4aac265e771e8c2b050eed5419fa"
+  },
+  "six_source_formula_controls": "Exact same-basennode arithmetic for actualcomplexsegments and independentasymmetricreal/complexsegments; native sinebackend identity notclaimed.",
+  "example_gate": {
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_publication_20261014/run/receipt.json",
+      "sha256": "169e3757bea87a853428c766699b01477d7879c70e69c2d430a30c03fbb5ac55"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_publication_20261014/guard.json",
+      "sha256": "b24a65f87f157e879eca6b00560be54d0129fcda08943fa7188ecb24549b0175"
+    },
+    "wall_seconds": 23.110809232108295,
+    "sampled_peak_summed_rss_kib": 1697464,
+    "stable": true,
+    "survivors": [],
+    "stdout": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_publication_20261014/stdout/examples_complex_conformal_l.txt",
+      "sha256": "df86c61a5e598ec43321a45b0db37b57fa3148f0109521d55f07f964c379fa30"
+    }
+  },
+  "pagegen": {
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_publication_20261014/pagegen_run_v2/receipt.json",
+      "sha256": "0a7499e90dfdda89d56015cb138e7bd0e5b905b5e7c385c2652cb5c54f1b08c3"
+    },
+    "initial_missing_stdout_receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/conformal_endpoint_map_publication_20261014/pagegen_run/receipt.json",
+      "sha256": "c554dbcb52ef9a17bfa6a3800aa0327c33dd996de06486d67bf27ef0748f86c2"
+    },
+    "repair": "Initialpagegen used rawstdoutfilename with examples_ prefix so createdplaceholders; preservedpreimage, supplied generator-relative complex_conformal_l.txt andregenerated. Allfiveoutputs thenverifiedexact."
+  },
+  "incremental_audit": {
+    "matlab_blocks": 6,
+    "output_blocks": 5,
+    "figure_slots": 3,
+    "non_output_page_content_identical": true,
+    "printed_output_exactly_matches_run": true,
+    "images": [
+      {
+        "path": "docs/images/complex/ConformalL_01.png",
+        "sha256": "7c47a64c7908f92ca19316ddaa96e921b0bec8a7564d5296b8e8062793600460",
+        "size": [
+          600,
+          270
+        ],
+        "changed_pixels_from_preimage": 38,
+        "reference_sha256": "305500acc8d06a80102e83ac56133c019eb3ce713517fed29d2b337b78043be5"
+      },
+      {
+        "path": "docs/images/complex/ConformalL_02.png",
+        "sha256": "3be7a6673c0be3e84ca5e253d17650cba8caece2faeca2598a3700716891a991",
+        "size": [
+          600,
+          270
+        ],
+        "changed_pixels_from_preimage": 335,
+        "reference_sha256": "410603623382cfc6af742550dff1a5908fd0bf19358621e4057001f6235e2256"
+      },
+      {
+        "path": "docs/images/complex/ConformalL_03.png",
+        "sha256": "2651cedd0056d37ed453c6d908a8677ed7438398c938df485c4a527bd463dee9",
+        "size": [
+          600,
+          270
+        ],
+        "changed_pixels_from_preimage": 0,
+        "reference_sha256": "e6b3ceb905a46f3ab1580987b82ea538fe7384feff04878d983a63fbc6ddd229"
+      }
+    ],
+    "scope": "Incremental audit after all322 audit at59186864. OnlyConformalL outputtext/images changed; source prose/code/slots unchanged. Whole-collection priorimageaggregate no longer claimed current."
+  },
+  "outputs": {
+    "forward_poles": 46,
+    "inverse_poles": 68,
+    "previous_inverse": 67,
+    "fresh_native_inverse": 69,
+    "cached_historical_forward_inverse": [
+      27,
+      44
+    ],
+    "boundary_error_printed": "5.1268e-07"
+  },
+  "visual_review": "Regenerated inverseplot hascompleteunitcircle/radialgrid andpolemarkers, no blank/truncatedoutput. Geometry differences/nativepolecount remain; no pixelparityclaim.",
+  "remaining": "Firstsupportdivergence stillsupport3. Inputconditioning in W explains greedytrajectory changes; no cleanup/eigensolver/countfitting. Inherited NumPy prefix/AAA arithmetic, fullnativecount/rasterparity remainopen.",
+  "source_sha256": "642c23f1143cdf81bd6913fa1107246f98fb5387b4eadd7a769de2ec83d97e59",
+  "page_sha256": "96a7eb400dfc2d9b40ecb9134da92c5a12763ea99d8ac2fa6603e427248230dc"
+}

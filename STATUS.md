@@ -1,3 +1,20 @@
+## 2026-10-14: source ConformalL node mapping and full page run
+
+The example now uses public JAX chebpts_ab for the native endpoint-product
+mapping order. Six exact mapping controls and the full CPU example pass,
+with guarded inputs/no survivors. Its page and three600×270 figures were
+regenerated; all prose, MATLAB code and figure slots are unchanged, and all
+five printed-output blocks match the run exactly.
+
+Inverse poles are68, versus prior67 and fresh native69; forward46 and printed
+boundary error5.1268e-7 are unchanged. The remaining count difference starts
+at greedy support3 because small upstream W perturbations are amplified by
+clustered boundary nodes. Cleanup/pole extraction are ruled out for this case;
+no count/rank/tolerance fitting was applied. Native counts and raster parity
+remain open. Evidence: `docs/conformal_endpoint_map_cpu_20261014.json`.
+The earlier322-page audit is supplemented by this exact incremental page
+check; its old aggregate image metrics are bound to its prior revision.
+
 ## 2026-10-14: controlled LU cause and refreshed 322-page audit
 
 Manual CI38504807568 confirms the native-LU disagreement is caused by CPU

@@ -28,7 +28,7 @@ from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils._basic_lstsq import _basic_lstsq
 from chebfunjax.utils.aaa import aaa
-from chebfunjax.utils.quadrature import chebpts
+from chebfunjax.utils.quadrature import chebpts, chebpts_ab
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,8 +38,7 @@ FIG = [0]
 
 
 def _chebpts_seg(n, a, b):
-    x = np.asarray(chebpts(n))
-    return a + (b - a) * (x + 1) / 2
+    return np.asarray(chebpts_ab(n, a, b))
 
 
 def _save(fig):
