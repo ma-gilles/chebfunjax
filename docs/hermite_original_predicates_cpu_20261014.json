@@ -1,0 +1,147 @@
+{
+  "scope": "Pinned original MATLAB test_hermpts.m predicates REC42 and ASY251 only; no small-ASY supplementation counted.",
+  "original_predicate_count": 15,
+  "counting_note": "MATLAB assigns the n=251 x-only size check to pass(11), then overwrites pass(11) with the barycentric-value check. The returned final pass vector has pass(1:15), so it contains 15 final clauses; the overwritten size assignment is not an additional native predicate.",
+  "predicate_mapping": [
+    {
+      "matlab": "pass(1)",
+      "meaning": "n=42 x output shape",
+      "pytest": "test_n42_moments_and_references"
+    },
+    {
+      "matlab": "pass(2)",
+      "meaning": "n=42 x/w/v output shapes",
+      "pytest": "test_barycentric"
+    },
+    {
+      "matlab": "pass(3)",
+      "meaning": "n=42 first/second moment clauses",
+      "pytest": "test_n42_moments_and_references"
+    },
+    {
+      "matlab": "pass(4)",
+      "meaning": "n=42 selected x[37] reference",
+      "pytest": "test_n42_moments_and_references"
+    },
+    {
+      "matlab": "pass(5)",
+      "meaning": "n=42 selected w[17] reference",
+      "pytest": "test_n42_moments_and_references"
+    },
+    {
+      "matlab": "pass(6)",
+      "meaning": "n=42 selected v[17] reference",
+      "pytest": "test_barycentric"
+    },
+    {
+      "matlab": "pass(7)",
+      "meaning": "n=251 x/w/v output shapes",
+      "pytest": "test_n251_moments"
+    },
+    {
+      "matlab": "pass(8)",
+      "meaning": "n=251 first/second moment clauses",
+      "pytest": "test_n251_moments"
+    },
+    {
+      "matlab": "pass(9)",
+      "meaning": "n=251 selected x[37] reference",
+      "pytest": "test_n251_moments"
+    },
+    {
+      "matlab": "pass(10)",
+      "meaning": "n=251 selected w[123] reference",
+      "pytest": "test_n251_moments"
+    },
+    {
+      "matlab": "pass(11), final assignment",
+      "meaning": "n=251 selected v[123] reference",
+      "pytest": "test_n251_moments"
+    },
+    {
+      "matlab": "pass(12)",
+      "meaning": "n=251 probabilists x scaling",
+      "pytest": "test_probabilist_scaling_and_explicit_phys"
+    },
+    {
+      "matlab": "pass(13)",
+      "meaning": "n=251 probabilists w scaling",
+      "pytest": "test_probabilist_scaling_and_explicit_phys"
+    },
+    {
+      "matlab": "pass(14)",
+      "meaning": "n=251 explicit physicists x exact equality",
+      "pytest": "test_probabilist_scaling_and_explicit_phys"
+    },
+    {
+      "matlab": "pass(15)",
+      "meaning": "n=251 explicit physicists w exact equality",
+      "pytest": "test_probabilist_scaling_and_explicit_phys"
+    }
+  ],
+  "supplemental_executed_checks_not_counted": [
+    "Python port also calls hermpts(251) for x-only and checks its shape; MATLAB writes this to pass(11), then overwrites it, so it does not survive in the original returned pass vector.",
+    "Python port checks v equality under probabilists scaling; original MATLAB test does not assert that v2 equals v.",
+    "Python assertion statements split some MATLAB conjunctions, but those do not create additional original predicates."
+  ],
+  "execution": {
+    "pytest_items": "4 passed; these items jointly cover the 15 final clauses above plus the listed supplemental checks.",
+    "pytest_summary": "4 passed, 1 warning in 4.05s",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "jax_enable_x64": true,
+    "numpy": "2.4.3",
+    "python": "3.12.13",
+    "hermpts_origin": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/quadrature.py",
+    "cpu_affinity": "taskset -c 20-23",
+    "wall_seconds": 10.091743004042655,
+    "sampled_peak_summed_rss_kib": 643232,
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "supervisor_error": null,
+    "warning": "A jax_cuda12_plugin 0.11.2 compatibility warning was emitted by installed plugin discovery; execution preflight confirmed JAX 0.11.0 CPU backend and CUDA_VISIBLE_DEVICES was blanked by supervisor."
+  },
+  "remaining_original_test_predicates_unverified_or_failing": 0,
+  "next_concrete_open_issue": "Explicit ASY n=2 and4..20 accepts native values but Python rejects below21; n=3 itself has a native concatenation failure. Existing private complex-branch candidate still has10 strict fixturefailures of38 checks; derivative normalization operation-order discrepancy is being investigated without tolerance changes.",
+  "existing_evidence_boundary": "REPORT_v3 and hermite_small_asy_bounds_erratum retract 28/38 as an original-test count. The hermite_full_cpu_20261010 record is an example page invocation, not this source-predicate gate.",
+  "source_context": {
+    "publication_head_at_run": "60c0a341fad8907fe0bb0aa0558ad2f90fa3dabf",
+    "head_is_guarded": false,
+    "guard_input_count": 17,
+    "guard_file_sha256": "915230d1c70e48a929e778b2d54168ed3abb22aec8d0f50049c70dca3a54396c",
+    "run_script_sha256": "6bb1402ec34bebbada61bf65e3eed029a4871371591597d96330970a637d6a08",
+    "stdout_sha256": "a3d1397514a4509395f7e8edd87cb6252443d9ba29449aa72f7fe04bf82d2a15",
+    "stderr_sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "supervisor_receipt_sha256": "7b323d487e74557c2cfdb5dd686f7cd9e40745b29cd3e7b1bbc95a6912db6554",
+    "supervisor_guard_sha256": "09a4cfd9c3e8e92ddbc75eab9ee35d3912b7e2e57fb4c080ae6c923d2edefe23",
+    "input_hashes": {
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pinned_cpu_env.sh": "b1e8b3566c8e7e95e99345cc0998c32f7a637bdf86bf852e5651305e88e57f87",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/cpu_owned_tree_supervisor_v2_20261010/supervise.py": "10c08683028bcd8f1d021cfde94e5b2d9125693a0c80a68140ea89cf8a14271e",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/pyproject.toml": "95f79ae45be4eebbf0885891020e9e206dc4b80f6dd0b1f9cd10d77c5fae957c",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_matlab_port/misc/test_hermpts_matlab.py": "64c1e53b7214ee62e41dd4cfa8f7e0bd18def0557ff509c57c3591851a4c8c66",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/quadrature.py": "8e2fdf0b16715e84c12440815d956b3970e2d9ed880253035197089a11a0ee5d",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/hermite_rec.py": "65a7a7660e5cd6c6d2b560413d0f3e529f93c812657c885b03538b97afa773cf",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/hermite_asy.py": "7d342d559e0fa4b056fc7c5d94e868f52c50977289aa369146c110c9779cd921",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/hermite_glr.py": "523c5e78bf302b80d3fe80d3ae4a31228771fd8293a6d831bcadd21b6125fb4f",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/airy.py": "009e8f0049e5bd5b44c09d58a727fe867ef3f99a43c89deb7a3e4accc7df5204",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/_gradual.py": "a078f23348f070aeaffaa434866a15eb209250584ae351e98ccfc912c5db736a",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/_signed_gradual.py": "aae2b4bfece9e8c6052b3ff393473108e8f710637b3525b33b94089459e3c97b",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/_binary64.py": "b2d9078307c9c1c2d2986d2d5b657a853f943979207df293b950b8886146fabd",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/utils/_fdlibm_sine.py": "298394b29f0fd159f8a557988b5c1626e9ab2099123084d149fa2689fc481cf5",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/domain.py": "ca21c9392357683a48c7d2fcff01434ecc67cedfb92f345c8df88c7fe076f431",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_hermpts.m": "0f4e02685d195b4480e94bbc2b5e46cb30fb3a24f17c5236715e9d68ceb15f83",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/hermpts.m": "c49970d3651efc71d9808598822f2dcc92201d1333db18267f42437135e3c430",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_original_predicates_20261014/run_native_predicates.py": "6bb1402ec34bebbada61bf65e3eed029a4871371591597d96330970a637d6a08"
+    }
+  },
+  "root_review": {
+    "original_report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_original_predicates_20261014/REPORT.json",
+    "sha256": "415e7767785ae3a1a306034c47a2f141f17b824d7377d85e6f268e17284d4c13",
+    "checked_native_source_predicates": 15,
+    "corrections": "pass3/pass8 test first and second moments; n3 is source error, not accepted smallASY value"
+  }
+}

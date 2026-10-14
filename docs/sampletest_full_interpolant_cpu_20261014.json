@@ -1,0 +1,56 @@
+{
+  "change": "Off-grid sampleTest evaluates full interpolant before applying cutoff, matching @chebtech/happinessCheck.m and sampleTest.m at7574c77",
+  "verification": {
+    "matching_publication_candidate_files": 324,
+    "source_sha256": "1bf6d9fef071719646a3cbb5cb52beb97b00edfdabf0237eddc521c85c0103d4",
+    "receipts": {
+      "happiness": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sampletest_fullinterp_happiness_pinned_cpu_20261014/receipt.json",
+        "sha256": "ddb3b6c84855b13d1bb27a2d72d3f42f558ec575026a276c1ae6dd715185ae82",
+        "guarded_input_count": 14,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 2636144,
+        "wall_seconds": 54.66362703591585
+      },
+      "preferences": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sampletest_fullinterp_preferences_pinned_cpu_20261014/receipt.json",
+        "sha256": "2ba41c7fe59b56a0b96ea0329ef48315ad6d633243d9989989633730dc559716",
+        "guarded_input_count": 331,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 1138988,
+        "wall_seconds": 16.491897536907345
+      },
+      "column_scales": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sampletest_fullinterp_column_scales_pinned_cpu_20261014/receipt.json",
+        "sha256": "b7341f969af754aeda263620e242f3bf1dca687f0b64960859070e73b8e76f61",
+        "guarded_input_count": 331,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 772772,
+        "wall_seconds": 9.488425272982568
+      }
+    },
+    "qualification": "Exact published source/dependency/test bytes match private candidate; reused18+5+7 focused controls, no duplicate root numerical run"
+  },
+  "source_controls": {
+    "original_happiness": 18,
+    "sample_preferences": 5,
+    "column_scales": 7
+  },
+  "evidence": {
+    "handoff": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sampletest_fullinterp_prepare_20261014/source_sampletest_handoff.json",
+    "sha256": "b1da67d3d000401e87b095b8baa96708e3cca47a2ed2e384a2e00f93165aff0a"
+  },
+  "limitations": [
+    "Full native/main CI remains unresolved",
+    "Not established as cause of GPR optimizer discrepancy; native likelihood approximation also has large error",
+    "Happiness run guarded14 selectedinputs; lattertwo guarded331inputs. Root separately verified324source/dependency/testfiles exact vsprivatecandidate",
+    "Initial combined run exceeded3GiB; splitgates completed",
+    "Directpublicationpixi runtime was alsoJAX0.11.0 and module/conftestenablex64; finalqualification uses explicitcachedpinnedruntime assertions, no claim preliminaryrun usedwrongprecision"
+  ]
+}

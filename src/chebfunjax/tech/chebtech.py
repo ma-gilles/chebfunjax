@@ -734,8 +734,10 @@ def _happiness_check_impl(
         xeval = jnp.array(
             [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
         )
-        keep = n if cutoff is None else max(1, min(int(cutoff), n))
-        f_test = tech_cls(coeffs=coeffs[:keep])
+        # MATLAB sampleTest checks the full interpolant ``f`` before the
+        # accepted cutoff is applied by the constructor. Testing the chopped
+        # series here can hide an off-grid discrepancy that is present in f.
+        f_test = tech_cls(coeffs=coeffs)
         v_fun = f_test(xeval)
         v_op = _as_fun_dtype(op(xeval))
         errors = jnp.max(jnp.abs(v_op - v_fun), axis=0)

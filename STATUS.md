@@ -1,3 +1,21 @@
+## 2026-10-14: full-interpolant sample test and original Hermite gate
+
+Chebtech now evaluates the full interpolant in its off-grid sample test,
+then applies the accepted cutoff, matching pinned MATLAB source. Thirty
+focused checks pass (18 original happiness,5 preference,7 column scaling)
+in separate CPU processes. Root verified324 candidate source/dependency/test
+files match publication bytes. First combined gate exceeded3GiB; split gates
+completed. Guard scopes and receipts: `docs/sampletest_full_interpolant_cpu_20261014.json`.
+This is a source correction, not a demonstrated fix for the GPR optimum gap.
+
+The original Hermite test file's15 final predicates now have a fresh pinned
+CPU qualification: four pytest items pass in4.05s, stable inputs/no survivors.
+This covers REC42, ASY251 and source scaling/explicit-physicist checks.
+Overwritten native pass(11) and extra Python checks are counted separately.
+Explicit small ASY n2 and4–20 remains a separate library gap; n3 itself errors
+in MATLAB. Evidence: `docs/hermite_original_predicates_cpu_20261014.json`.
+Full parity and final green main CI remain open.
+
 ## 2026-10-14: empty-prior GPR sample error
 
 Fixed-length-scale empty-prior sample requests now raise AttributeError with
