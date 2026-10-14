@@ -170,7 +170,9 @@ class Spherefunv(eqx.Module):
         Chebfun commit: 7574c77
         """
         obj = object.__new__(cls)
+        object.__setattr__(obj, "components", [])
         object.__setattr__(obj, "_is_empty_object", True)
+        object.__setattr__(obj, "_row", False)
         return obj
 
     def isempty(self) -> bool:
@@ -196,6 +198,8 @@ class Spherefunv(eqx.Module):
         return 0 if self.isempty() else len(self.components)
 
     components: list  # [fx, fy, fz] or [f, g]
+    _is_empty_object: bool = eqx.field(static=True, default=False)
+    _row: bool = eqx.field(static=True, default=False)
 
     def __init__(self, *components: Spherefun) -> None:
         """Create a Spherefunv from 2 or 3 Spherefun scalar components.
@@ -211,6 +215,8 @@ class Spherefunv(eqx.Module):
                 "Spherefunv takes 2 or 3 Spherefun components, got "
                 f"{len(components)}.")
         self.components = list(components)
+        self._is_empty_object = False
+        self._row = False
 
     # ------------------------------------------------------------------
     # Factory
@@ -258,10 +264,11 @@ class Spherefunv(eqx.Module):
     # ------------------------------------------------------------------
 
     @eqx.filter_jit
-    def __call__(self, lam: jax.Array, theta: jax.Array) -> tuple:
+    def __call__(self, lam: jax.Array, theta: jax.Array) -> tuple | jax.Array:
         """Evaluate every component at spherical coordinates (lam, theta).
 
         Returns a tuple with one entry per component (length 2 or 3).
+        An empty field returns the source-compatible empty ``(0, 0)`` array.
 
         Parameters
         ----------
@@ -270,6 +277,8 @@ class Spherefunv(eqx.Module):
         theta : jax.Array
             Colatitude(s) in [0, pi].
         """
+        if self.isempty():
+            return jnp.empty((0, 0), dtype=jnp.float64)
         return tuple(c(lam, theta) for c in self.components)
 
     # ------------------------------------------------------------------
@@ -452,6 +461,8 @@ class Spherefunv(eqx.Module):
 
     def __add__(self, other: "Spherefunv") -> "Spherefunv":
         """Componentwise addition."""
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
         return Spherefunv(*[a + b for a, b in
                             zip(self.components, other.components)])
 
@@ -500,6 +511,8 @@ class Spherefunv(eqx.Module):
         MATLAB source : @spherefunv/power.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Spherefunv.empty()
         return Spherefunv(*[a ** n for a in self.components])
 
     def mrdivide(self, other) -> "Spherefunv":
@@ -752,10 +765,14 @@ class Spherefunv(eqx.Module):
 
     def __neg__(self) -> "Spherefunv":
         """Negation."""
+        if self.isempty():
+            return Spherefunv.empty()
         return Spherefunv(*[-c for c in self.components])
 
     def __sub__(self, other: "Spherefunv") -> "Spherefunv":
         """Componentwise subtraction."""
+        if _source_isempty(self) or _source_isempty(other):
+            return Spherefunv.empty()
         return self.__add__(other.__neg__())
 
     # ------------------------------------------------------------------

@@ -1,3 +1,16 @@
+## 2026-10-14: empty sphere-vector operations and JAX state
+
+The original aggregate empty-object test now executes all 16 source operations.
+It exposed failures in evaluation, addition, subtraction and power. Those
+branches now return the source empty results. Empty state and row orientation
+are declared static Equinox fields, preserving them through nested JIT calls.
+Nine focused root tests pass, including existing scalar-factor regressions.
+See `docs/spherefunv_empty_source_cpu_20261014.json`.
+
+CI on earlier main7306901f passed sphere-vector and Core3, but sphere-scalar
+failed a supplemental squeeze fixture's assumed rank-one result. Its source
+rank uses a strict zero threshold; diagnosis of that fixture is ongoing.
+
 ## 2026-10-14: Floquet source concatenation and GPR backend evidence
 
 Floquet now builds its exponential matrix using the original horizontal and

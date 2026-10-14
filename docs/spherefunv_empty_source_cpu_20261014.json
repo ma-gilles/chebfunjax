@@ -1,0 +1,23 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_test": "tests/spherefunv/test_empty.m",
+  "original_predicates": 1,
+  "operation_count": 16,
+  "changes": [
+    "Empty evaluation returns native0x0 array before evaluating coordinates.",
+    "Declared static empty and row state survive Equinox tree reconstruction; empty components initialized. Existing JIT evaluation retained.",
+    "Empty plus, minus, negation and power follow source early returns."
+  ],
+  "root_tests": "9 passed: aggregate empty predicate, empty/nonempty and nestedJIT controls, scalar arithmetic and native pivot regression",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spherefunv_empty_publication_20261014/run/receipt.json",
+  "sha256": "e7eb3e4cd8d05f2e53921cd63ba1ecf8641705391f8f2145a613733bd2609668",
+  "validation": {
+    "command_exit_code": 0,
+    "wall_seconds": 41.48928979691118,
+    "sampled_peak_summed_rss_kib": 1998540,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "review": "Earlier fastreturn inside JIT failed because undeclared flag was dropped. Moving boundary alone would still fail under caller outerJIT. Final fix declares static state and verifies nestedJIT empty, nonempty evaluation and transposed shape. Failed private receipts retained.",
+  "remaining": "Other source branches and fullgoal/CI remain unresolved."
+}
