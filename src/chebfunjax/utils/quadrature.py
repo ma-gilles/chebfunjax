@@ -10,6 +10,7 @@ from __future__ import annotations
 import warnings
 from functools import partial
 from math import isinf
+from operator import index
 
 import jax
 import jax.numpy as jnp
@@ -20,7 +21,7 @@ from chebfunjax.utils._fdlibm_sine import _sin_cheb_angles
 
 
 @partial(jax.jit, static_argnames=("n", "kind"))
-def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
+def _chebpts_generic(n: int, kind: int = 2) -> jnp.ndarray:
     """Chebyshev points of the first or second kind on [-1, 1].
 
     CHEBPTS(N) returns N Chebyshev points of the 2nd kind in [-1, 1].
@@ -83,6 +84,26 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
 
     return x
+
+
+def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
+    # The concrete CPU boundary lets the expensive grid arithmetic share two
+    # capacities. Tracing preserves the existing static-shape JAX expression.
+    if (kind == 2 and 2 <= n <= 32768 and jax.config.x64_enabled
+            and jax.default_backend() == "cpu"
+            and not isinstance(jnp.asarray(0), jax.core.Tracer)):
+        from chebfunjax.utils._chebpts_cpu import points
+        n = index(n)
+        divisor = 2 * (n - 1)
+        k = divisor.bit_length() - 1
+        d = divisor << (52 - k)
+        capacity = 4096 if n <= 4096 else 32768
+        return points(jnp.asarray(n, jnp.int64), jnp.asarray(k, jnp.int64),
+                      jnp.asarray(d, jnp.uint64), capacity)[:n]
+    return _chebpts_generic(n, kind)
+
+
+chebpts.__doc__ = _chebpts_generic.__doc__
 
 
 def chebpts_ab(n: int, a: float, b: float, kind: int = 2) -> jnp.ndarray:

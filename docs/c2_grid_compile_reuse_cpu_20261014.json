@@ -1,0 +1,94 @@
+{
+  "patch": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/c2_grid_reuse.patch",
+  "patch_sha256": "b3cd369cbc2aed39504556285222424ed3af4a2ec2207eb4b3fa643671bc228a",
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/REPORT.md",
+  "manifest": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/MANIFEST.json",
+  "comparison": {
+    "all_array_hashes_identical": true,
+    "array_count": 34,
+    "grid_calls_identical": true,
+    "root_phases_identical": true,
+    "root_calls": 5,
+    "baseline_setup": 17.33850268786773,
+    "candidate_setup": 15.131943603977561,
+    "baseline_first": 10.277687740977854,
+    "candidate_first": 9.488688837271184,
+    "baseline_warm_median": 0.6467758240178227,
+    "candidate_warm_median": 0.6625740258023143,
+    "candidate_roundtrip": 1.0547118733938987e-15
+  },
+  "gates": {
+    "controls_supervision2": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 27.373886585235596,
+      "sampled_peak_summed_rss_kib": 1280576,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "final_controls_supervision": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.553871867712587,
+      "sampled_peak_summed_rss_kib": 1290280,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "baseline_supervision": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 33.100064736790955,
+      "sampled_peak_summed_rss_kib": 1562936,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_supervision": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 30.278600793797523,
+      "sampled_peak_summed_rss_kib": 1548032,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "inverse_supervision": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 34.402872500009835,
+      "sampled_peak_summed_rss_kib": 1735412,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "tests": {
+    "final_grid_source_and_regression": 89,
+    "original_inverse": 8
+  },
+  "publication_untouched": true,
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_gate": {
+    "tests_passed": 89,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c2_grid_reuse_publication_20261014/run/receipt.json",
+    "command_exit_code": 0,
+    "wall_seconds": 26.255751082208008,
+    "sampled_peak_summed_rss_kib": 1259824,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "change": "Extract unchanged binary64 normalized division and reuse CPU second-kind grid compilation in capacities 4096 and 32768; exact active output length. Traced callers, first-kind grids and noneligible inputs retain original JIT expression.",
+  "limitations": [
+    "One serial paired measurement on shared CPU host; not statistical speed guarantee.",
+    "Warm median regressed by 15.8 ms (2.44%); cold setup+first inverse improved by 2.996 s (10.85%).",
+    "No GPU qualification, no full cold MATLAB parity.",
+    "Former JIT-object introspection attributes on public chebpts not retained; repository has no callers of those attributes.",
+    "Final vs timed candidate adds operator.index normalization only; final 89 controls test that path, benchmark_final_binding.json proves all timed int counts unaffected."
+  ],
+  "publication_hashes": {
+    "src/chebfunjax/utils/_chebpts_cpu.py": "53240450dd8282247a37438ab29504863dc031761817062ade7c3528a75b0df5",
+    "src/chebfunjax/utils/quadrature.py": "f06a841bc0a8b71ab7f8c5cdea1c34b0bf26ab9fe477b5d9edba6d77caee2f7a",
+    "src/chebfunjax/tech/_roots_sampled_cpu.py": "84d67e8af34d39d08873feae81e013b0806074e28fa2a0b7404dc331152fb792",
+    "tests/test_utils/test_c2_grid_reuse.py": "d2ad214e2a5734143326457b0f29944ce971e812d9c7d1d19e2666037b91d810"
+  },
+  "evidence_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/REPORT.md": "4f2fad6e2e08f39d3775c9b9533fc6c6576c520584b3bcd03a8caf67400ff9b5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/MANIFEST.json": "159fa3c374ce62c9255f0aafe5c0f080a409d7a8345043026f13f0ec08323c7a",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/benchmark_final_binding.json": "e7eaf1732b735e87bf506ef3ce16a749b7292212e518c40a128ff3e3fe745b78",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_c2_grid_reuse_candidate_20261014/extraction_ast.json": "b9b881aca89034118b1ed3ee2b6620903dc8507456a9fa48750fe9646874ad6a"
+  },
+  "full_goal_complete": false
+}

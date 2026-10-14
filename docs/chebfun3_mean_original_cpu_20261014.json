@@ -1,0 +1,77 @@
+{
+  "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_mean_reductions_source_20261014",
+  "publication_checkout_head_snapshot": "359f5507822ec0aa39aa85ff8bf4365d95aff183",
+  "publication_checkout_modified": false,
+  "source": {
+    "repository": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "test_mean.m_sha256": "1a6acc145e1797a69cd9877c680f7e7ec2db30ae3990685cf594b0068c1afc60",
+    "test_mean2.m_sha256": "2f7fd4815f137e2ed63bb1695d24238ab6e781aab44724d5b73fee652bebb17e"
+  },
+  "source_predicates": {
+    "mean": "f=chebfun3(@(x,y,z) x.^2.*y.^4.*exp(z)); g=chebfun2(@(y,z) y.^4.*exp(z)/3); norm(mean(f)-g)<pref.cheb3Prefs.chebfun3eps",
+    "mean2": "f=chebfun3(@(x,y,z) x.^2.*y.^4.*exp(z)); g=chebfun(@(z) exp(z)/15); norm(mean2(f)-g)<pref.cheb3Prefs.chebfun3eps"
+  },
+  "python_mapping": {
+    "mean": "Chebfun3.from_function same expression; f.mean(); Chebfun2.from_function exact analytic g; (actual-g).norm() continuous Frobenius/L2",
+    "mean2": "Chebfun3.from_function same expression; f.mean2(); Chebfun.from_function exact analytic g on Domain((-1,1)); (actual-g).norm() continuous L2",
+    "tolerance": "float(ChebfunPref().cheb3Prefs.chebfun3eps), matching default MATLAB preference"
+  },
+  "private_gates": [
+    {
+      "id": "mean_source",
+      "result": "PASS",
+      "pytest": "1 passed in 10.24s",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 13.25105507997796,
+      "sampled_peak_summed_rss_kib": 993188,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "mean2_source_v2",
+      "result": "PASS",
+      "pytest": "1 passed",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.277950756251812,
+      "sampled_peak_summed_rss_kib": 882248,
+      "pinned_jax_jaxlib": "0.11.0",
+      "backend": "cpu",
+      "affinity": [
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "mean2_source_initial",
+      "result": "HARNESS_MAPPING_FAILURE",
+      "detail": "Chebfun.from_function requires an explicit Domain; corrected in v2 to source domain [-1,1]. This is not a library predicate failure."
+    }
+  ],
+  "ruff": "PASS for the two source tests and retained supplemental tests",
+  "patch": "mean_reductions_source.patch",
+  "guard": "guard.json",
+  "root_gate": {
+    "items_passed": 4,
+    "original_predicates": 2,
+    "supplemental_items": 2,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_mean_reductions_publication_20261014/run/receipt.json",
+    "receipt_sha256": "b42a98c15051f61d59f476c307704bf5a94c0ea98ade5f67c897d4531e0ca7fa",
+    "command_exit_code": 0,
+    "wall_seconds": 19.352743308991194,
+    "sampled_peak_summed_rss_kib": 1432636,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "root_review": "Source function, expected operands, default continuous norms and original eps bound verified. Fresh root gate includes new C2 grid adapter; source prose corrected to distinguish supplements.",
+  "full_goal_complete": false
+}
