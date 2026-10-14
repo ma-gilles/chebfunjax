@@ -1886,9 +1886,10 @@ class Chebfun3(eqx.Module):
             n = max(int(t.coeffs.shape[0]) for t in techs)
             cols = []
             for t in techs:
-                c = jnp.asarray(t.coeffs, dtype=jnp.float64)
+                # Native chebcoeffs preserves complex coefficient storage.
+                c = jnp.asarray(t.coeffs)
                 cols.append(jnp.concatenate(
-                    [c, jnp.zeros(n - c.shape[0], dtype=jnp.float64)]))
+                    [c, jnp.zeros(n - c.shape[0], dtype=c.dtype)]))
             return jnp.stack(cols, axis=1)
         return (_mat(self.cols), _mat(self.rows), _mat(self.tubes))
 

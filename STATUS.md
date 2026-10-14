@@ -1,3 +1,12 @@
+## Preserve complex Chebfun3 factor coefficients — 2026-10-14
+
+Removed the real cast in factor coefficient assembly. Exact complex
+polynomial controls pass for Chebtech1 and Chebtech2, and the complex numeric
+coefficient roundtrip passes the original constructor bound. Both original
+coefficient test modules also pass on this source. Three new controls pass
+in 5.18 seconds; initial test-setup failures remain recorded.
+Evidence: `docs/chebfun3_complex_factor_coefficients_cpu_20261014.json`.
+
 ## Restore original Chebfun3 trig test cases — 2026-10-14
 
 The fevalt and domainvolume ports now execute the original trigtech

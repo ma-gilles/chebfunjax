@@ -1,0 +1,25 @@
+{
+  "scope": "Preserve complex dtype in Chebfun3 Chebyshev factor coefficient matrices",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": "@chebfun3/chebcoeffs3.m calls chebcoeffs on each Tucker factor without real projection",
+  "source_sha256": "6e72d71158d3ec54d1ae05f406958f3667381c5c8c00226882ac789b7489729b",
+  "complex_controls": {
+    "passed": 3,
+    "pytest_seconds": 5.18,
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_complex_factor_coefficients_20261014/run_v2/receipt.json",
+    "scope": "Explicit Chebtech1/Chebtech2 rank-one complex coefficient tensors exact; source numeric coefficient roundtrip uses original constructor2 bound"
+  },
+  "original_modules": {
+    "passed": [
+      "test_chebcoeffs3_matlab.py",
+      "test_coefficients_matlab.py"
+    ],
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_complex_factor_coefficients_20261014/run/receipt.json",
+    "scope": "Both original modules passed unchanged on final library source. Overall initial gate failed because two new tests omitted required domain argument; failure retained, test constructor corrected, new controls rerun."
+  },
+  "limitations": [
+    "No new native runtime capture; direct polynomial coefficients provide independent exact oracle",
+    "Trigtech no-length chebcoeffs3 conversion semantics still unqualified",
+    "Full parity and latest main CI unresolved"
+  ]
+}
