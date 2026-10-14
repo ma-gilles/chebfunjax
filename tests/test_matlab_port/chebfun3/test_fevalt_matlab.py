@@ -4,10 +4,6 @@ FIXED (Fable 5, chebfun2/3 skip sweep): ``Chebfun3.fevalt()`` now
 evaluates on the tensor grid formed by its three coordinate vectors
 (as opposed to ``f(x, y, z)``, which broadcasts pointwise).
 
-MATLAB pass(3) builds a 'trig' Chebfun3; the trigonometric tech option
-is not wired into the constructor, so that case is ported without the
-flag -- fevalt's behaviour does not depend on the underlying tech.
-
 Provenance
 ----------
 MATLAB source : tests/chebfun3/test_fevalt.m
@@ -32,6 +28,10 @@ def _ff(x, y, z):
 
 def _ff_np(x, y, z):
     return np.cos(x) + np.sin(x * y) + np.sin(z * x)
+
+
+def _trig_ff(x, y, z):
+    return jnp.sin(jnp.pi * (x + y + z))
 
 
 def _check(f, x, y, z):
@@ -62,10 +62,14 @@ class TestChebfun3Fevalt:
         assert _check(f, x, y, z) < TOL * f.vscale()
 
     def test_equispaced_vector_inputs(self):
-        # pass(3): 20 equispaced points per direction.
-        f = chebfun3(_ff)
+        # pass(3): native trig constructor and 20 equispaced points per axis.
+        f = chebfun3(_trig_ff, trig=True)
         x = np.linspace(-1.0, 1.0, 20)
-        assert _check(f, x, x, x) < TOL * f.vscale()
+        F = np.asarray(f.fevalt(x, x, x))
+        xx, yy, zz = np.meshgrid(x, x, x, indexing="ij")
+        exact = np.sin(np.pi * (xx + yy + zz))
+        assert F.shape == exact.shape
+        assert float(np.linalg.norm((exact - F).ravel())) < TOL * f.vscale()
 
     def test_fevalt_matches_pointwise_eval_on_the_diagonal(self):
         # fevalt's diagonal entries are the pointwise evaluations.

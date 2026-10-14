@@ -1,0 +1,15 @@
+{
+  "scope": "Restore literal MATLAB fevalt pass3 and domainvolume pass3 trig constructor options and operands",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualified_head": "f53642ad4835d9b4edd0ded878683c35dcc3c5a0",
+  "test_sha256": {
+    "test_fevalt_matlab.py": "0b04ceffb2eb5a19d8d53966af22eee2e61eb871537fcd1c652e99555a30e5c5",
+    "test_domainvolume_matlab.py": "acfb989a90bd189c889f9390e9fb258d502c1db89f607b4f2856f7ca0274a157"
+  },
+  "report": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_source_test_corrections_20261014/evidence/REPORT.md",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebfun3_source_test_corrections_20261014/evidence/run_final_trig/receipt.json",
+  "passed": 2,
+  "pytest_seconds": 10.05,
+  "source_unchanged": true,
+  "root_review": "Native inputs, grid, flags and bounds inspected; integrated test file bytes equal qualified private files; no duplicate numerical run."
+}

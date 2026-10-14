@@ -1,3 +1,11 @@
+## Restore original Chebfun3 trig test cases — 2026-10-14
+
+The fevalt and domainvolume ports now execute the original trigtech
+constructors. Fevalt also restores the original sine operand and 20³ grid.
+Both corrected assertions pass on pinned CPU JAX 0.11 with unchanged native
+bounds, stable guarded inputs and no survivors. Library code is unchanged.
+Evidence: `docs/chebfun3_trig_test_coverage_cpu_20261014.json`.
+
 ## Chebfun3 coefficient constructor — 2026-10-14
 
 Coefficient input now transforms to values before native numeric dispatch;

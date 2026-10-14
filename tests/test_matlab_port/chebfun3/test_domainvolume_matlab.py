@@ -1,10 +1,8 @@
 """Port of MATLAB Chebfun tests/chebfun3/test_domainvolume.m (Fable 5).
 
 FIXED (Fable 5, chebfun2/3 skip sweep): ``Chebfun3.domainvolume()``
-now exists.  MATLAB pass(3) builds a 'trig' Chebfun3; the trigonometric
-tech option is not wired into the constructor, so that case is covered
-here on the same box without the flag (domainvolume depends only on the
-domain).
+now exists. The pass(3) constructor retains MATLAB's native ``'trig'``
+option on the periodic box.
 
 Provenance
 ----------
@@ -40,5 +38,5 @@ class TestChebfun3Domainvolume:
     def test_periodic_box(self):
         # pass(3): [-pi,pi]^3 has volume (2 pi)^3.
         dom = (-np.pi, np.pi, -np.pi, np.pi, -np.pi, np.pi)
-        f = chebfun3(_ff, domain=dom)
+        f = chebfun3(_ff, domain=dom, trig=True)
         assert abs(f.domainvolume() - (2 * np.pi) ** 3) < TOL
