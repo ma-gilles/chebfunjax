@@ -5,9 +5,8 @@ Provenance
 MATLAB source : tests/diskfun/test_sample.m
 Chebfun commit: 7574c77
 
-The MATLAB three-output low-rank form ``[U, D, V] = sample(f, ...)``
-(pass 5/7/9/11) is not exposed by chebfunjax's value-only ``sample`` and is
-omitted; the value-matrix assertions (pass 1-4, 6, 8, 10, 12-14) are ported.
+All fourteen native predicates are represented. The three-output form
+``[U, D, V] = sample(f, ...)`` uses the Python ``sample_cdr`` interface.
 """
 
 from __future__ import annotations
@@ -64,6 +63,10 @@ class TestDiskfunSample:
         F = np.asarray(f(jnp.asarray(tt), jnp.asarray(rr)))
         G = np.asarray(f.sample(m, ncols))
         assert np.linalg.norm(F.ravel() - G.ravel(), np.inf) < _TOL
+        # Native passes 5/7/9/11: all three sampled factors reconstruct F.
+        U, D, V = f.sample_cdr(m, ncols)
+        G = np.asarray((U @ D) @ V.T)
+        assert np.linalg.norm(F.ravel() - G.ravel(), np.inf) < _TOL
 
     def test_constant_all_ones(self):
         # pass(12): sample of the constant 1 is all ones.
@@ -74,7 +77,13 @@ class TestDiskfunSample:
     def test_bad_inputs_raise(self):
         # pass(13)/(14): non-positive sample counts raise.
         f = _df(lambda t, r: 1.0 + 0.0 * r)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="CHEBFUN:DISKFUN:sample:inputs"):
             f.sample(0, 20)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="CHEBFUN:DISKFUN:sample:inputs"):
             f.sample(20, 0)
+
+
+    def test_source_requires_both_dimensions(self):
+        f = _df(lambda t, r: 1.0 + 0.0*r)
+        with pytest.raises(ValueError, match="CHEBFUN:DISKFUN:sample:inputs"):
+            f.sample(20)

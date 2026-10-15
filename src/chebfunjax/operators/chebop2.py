@@ -890,7 +890,10 @@ class Chebop2:
 
     @property
     def coeffs(self):
-        """Constant-coefficient PDO matrix (MATLAB ``@chebop2`` layout).
+        """PDO coefficient matrix (MATLAB ``@chebop2`` layout).
+
+        Variable coefficients return nested lists (the Python cell-array
+        adapter), with Chebfun2 entries for coordinate-dependent terms.
 
         Returns an ``(xorder+1, yorder+1)`` array ``C`` where ``C[k, j]`` is
         the coefficient of ``∂^k/∂x^k ∂^j/∂y^j``.  This is the transpose of
@@ -908,10 +911,9 @@ class Chebop2:
                 return np.zeros((1, 1), dtype=np.float64)
             self._extract_coeffs()
         if self._var_terms is not None:
-            raise NotImplementedError(
-                "Chebop2.coeffs: the scalar coefficient matrix is only defined "
-                "for constant-coefficient operators; this operator has variable "
-                "coefficients.")
+            # Source variable coefficients are a cell matrix in the same
+            # x-order/y-order layout as the constant coefficient matrix.
+            return [list(row) for row in zip(*self.coeffs_cell())]
         return np.array(self._coeffs.T, dtype=np.float64)
 
     @property

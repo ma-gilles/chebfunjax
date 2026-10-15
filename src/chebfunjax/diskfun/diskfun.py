@@ -1555,64 +1555,44 @@ class Diskfun(eqx.Module):
         return bool(cols_zero or rows_zero)
 
     def sample(self, m: int | None = None, n: int | None = None) -> jax.Array:
-        """Sample the Diskfun on a Fourier--Chebyshev tensor grid.
-
-        ``X = sample(F)`` returns the ``n x m`` matrix of values of
-        ``f(theta, r)`` on a tensor product grid, where ``m`` and ``n`` are
-        the row/column lengths (see :meth:`length`).  ``sample(F, M, N)``
-        uses an ``M`` (angular) by ``N`` (radial) grid.
-
-        The angular nodes are the ``m`` equispaced Fourier points on
-        ``[-pi, pi)``; the radial nodes are the upper ``n`` of the
-        ``2n - 1`` second-kind Chebyshev points, i.e. ``n`` points in
-        ``[0, 1]``.  This mirrors MATLAB ``sample(f, cols, rows)`` on the
-        doubled-up disk grid.
-
-        Parameters
-        ----------
-        m : int, optional
-            Number of angular (Fourier) nodes.  Defaults to the row length.
-        n : int, optional
-            Number of radial (Chebyshev) nodes.  Defaults to the column
-            length.
-
-        Returns
-        -------
-        jax.Array, shape (n, m)
-            Values ``X[i, j] = f(theta[j], r[i])``.  Empty ``(0, 0)`` for
-            the empty Diskfun.
+        """Sample on the native radial-by-angular Fourier--Chebyshev grid.
 
         Provenance
         ----------
         MATLAB source : @diskfun/sample.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
-
-        See Also
-        --------
-        fevalm, length
+        Both dimensions are required when either is supplied. Use
+        :meth:`sample_cdr` for the source three-output factor representation.
         """
-        if self.isempty() or len(self.cols) == 0:
+        if self.isempty():
             return jnp.zeros((0, 0), dtype=jnp.float64)
-        if m is None or n is None:
-            lm, ln = self.length()
-            m = lm if m is None else m
-            n = ln if n is None else n
-        if m <= 0 or n <= 0:
-            raise ValueError("Diskfun.sample: number of samples must be positive.")
+        columns, diagonal, rows = self.sample_cdr(m, n)
+        return (columns @ diagonal) @ rows.T
 
-        # Angular Fourier nodes on [-pi, pi): theta_j = -pi + 2*pi*j/m.
-        theta = -jnp.pi + 2.0 * jnp.pi * jnp.arange(m, dtype=jnp.float64) / m
-        # Radial nodes: the upper n of the 2n-1 second-kind Chebyshev points,
-        # ascending in [0, 1] (matching MATLAB chebpts(2n-1) restricted to
-        # its non-negative half), r_j = cos(pi*(n-1-j)/(2n-2)), j = 0 .. n-1.
-        if n == 1:
-            r = jnp.zeros((1,), dtype=jnp.float64)
-        else:
-            j = jnp.arange(n, dtype=jnp.float64)
-            r = jnp.cos(jnp.pi * (n - 1 - j) / (2 * n - 2))
-        return self.fevalm(theta, r)
+    def sample_cdr(self, m: int | None = None, n: int | None = None):
+        """Return source sampled columns, diagonal and real angular rows.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/sample.m, @chebtech/sample.m,
+            @trigtech/sample.m, @separableApprox/cdr.m
+        Chebfun commit: 7574c77
+        Python adapter for MATLAB's three outputs. Empty input has only one
+        native output, so this interface raises an explicit adapter error.
+        """
+        if self.isempty():
+            raise ValueError("DISKFUN:sample:outputs: empty input has one output (Python adapter)")
+        if m is None and n is None:
+            m, n = self.length()
+        elif m is None or n is None:
+            raise ValueError("CHEBFUN:DISKFUN:sample:inputs Dimension not specified.")
+        if m <= 0 or n <= 0:
+            raise ValueError("CHEBFUN:DISKFUN:sample:inputs Number of sample points must be positive.")
+        cols, diagonal, rows = self.cdr()
+        columns = jnp.column_stack([col.sample(max(2*n-1, 1))[0] for col in cols])
+        columns = columns[n-1:, :]
+        angular = jnp.real(jnp.column_stack([row.sample(m)[0] for row in rows]))
+        return columns, diagonal, angular
 
     def minandmax2est(self, n: int = 33) -> jax.Array:
         """Estimate the min and max of the Diskfun on the disk.
