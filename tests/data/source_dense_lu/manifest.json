@@ -1,0 +1,461 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_active_slices_v3_20261015",
+  "source_sha256": {
+    "corpus1/inputs.json": "5f60b3647aacdec543ba07cc18fa637517c5d27c15aa43b2ac5620fd3351a889",
+    "corpus149/inputs.json": "0dcd2b690ad936ca464ea86301dc7e9bec8ee5f7e5c66929ba4c0847df313cc5",
+    "corpus150/inputs.json": "75167655a5aa5e3b7d381bf1e30a63ff9933c9605d755da1eab0c4a02720adc5",
+    "corpus151/inputs.json": "aa8edeb6722cf1155033a10975bbd939a7b91a8099fc8e50e6cd78bc0a56a9e9",
+    "corpus16/inputs.json": "a182ca9ee55e88e156c2ca494f3f0e8b95e8f7c075feaf2ba66f00c7d8472c99",
+    "corpus17/inputs.json": "8fc8f0fe352d97f628de4ab523b0f2757ec87e9268446811620010a08c90be87",
+    "corpus2/inputs.json": "2956b2615b3f2aee6bec563d07a8eae4985795b917ef139b94e01c3d2f5cc32e",
+    "corpus25/inputs.json": "ff581d3d7e5888af58bb17e89a268c1aad5f9811519543adf10c5254530e2e93",
+    "corpus33/inputs.json": "e2a61848ef67754e75263a630f01aafa3c3d6d5d2f2fb9dfe63198c9678800fc",
+    "corpus41/inputs.json": "53887f00140868f53dd879669be2a83e2e3e10a29a994a476cff6ae26aeadbb4",
+    "corpus42/inputs.json": "869455eec6f8e79e7452ee4956836448fdd74dbf79517ad88e29fd19ed93df70",
+    "corpus43/inputs.json": "8061c29e533521d6b2dd7a0e4d3077388457b2b136ff6153a0cbcffe36012fe9",
+    "corpus7/inputs.json": "48cefd84a15d67602dd1f4320597131313941ac0b4b58cf6804197bb53650e20",
+    "corpus8/inputs.json": "684940a518af4ee4b6719f19b71b421cc639a3882acd41fe483a2c97535739bf",
+    "n64/input.json": "079e5a14647855a8b723f25cb1f52b25c5771bdcc534636a395dfc7c14efb9e4",
+    "n129/input.json": "657d4cf5f322640f1d741e6b77c4f8c7bfeed01e6cab759bd762d844f4593b9a",
+    "native25/baseline_result.json": "4ba8eb6315d8b60cce1b4bacf9543f6eb00d4dea745355137cf31188e452038c",
+    "native25/events.jsonl": "1aa59d2ace538963795cea1ef4ae1c3152d609869c84d64b042d07d9111d10b5"
+  },
+  "cases": [
+    {
+      "key": "case000",
+      "name": "normal_dense_pivot1",
+      "n": 1,
+      "entries": 1,
+      "nan_entries": 0,
+      "source": "corpus1/inputs.json"
+    },
+    {
+      "key": "case001",
+      "name": "normal_sparse1",
+      "n": 1,
+      "entries": 1,
+      "nan_entries": 0,
+      "source": "corpus1/inputs.json"
+    },
+    {
+      "key": "case002",
+      "name": "transition_n149",
+      "n": 149,
+      "entries": 22201,
+      "nan_entries": 0,
+      "source": "corpus149/inputs.json"
+    },
+    {
+      "key": "case003",
+      "name": "transition_n150",
+      "n": 150,
+      "entries": 22500,
+      "nan_entries": 0,
+      "source": "corpus150/inputs.json"
+    },
+    {
+      "key": "case004",
+      "name": "transition_n151",
+      "n": 151,
+      "entries": 22801,
+      "nan_entries": 0,
+      "source": "corpus151/inputs.json"
+    },
+    {
+      "key": "case005",
+      "name": "normal_dense_pivot16",
+      "n": 16,
+      "entries": 256,
+      "nan_entries": 0,
+      "source": "corpus16/inputs.json"
+    },
+    {
+      "key": "case006",
+      "name": "normal_sparse16",
+      "n": 16,
+      "entries": 256,
+      "nan_entries": 0,
+      "source": "corpus16/inputs.json"
+    },
+    {
+      "key": "case007",
+      "name": "exception_normal_min",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case008",
+      "name": "exception_subnormal_pivot",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case009",
+      "name": "exception_min_subnormal_pivot",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case010",
+      "name": "exception_overflow_update",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case011",
+      "name": "exception_singular",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case012",
+      "name": "exception_infinite",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case013",
+      "name": "exception_nan",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 273,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case014",
+      "name": "exception_pivot_tie",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case015",
+      "name": "exception_negative_zero",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case016",
+      "name": "normal_dense_pivot17",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case017",
+      "name": "normal_sparse17",
+      "n": 17,
+      "entries": 289,
+      "nan_entries": 0,
+      "source": "corpus17/inputs.json"
+    },
+    {
+      "key": "case018",
+      "name": "exception_normal_min",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case019",
+      "name": "exception_subnormal_pivot",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case020",
+      "name": "exception_min_subnormal_pivot",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case021",
+      "name": "exception_overflow_update",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case022",
+      "name": "exception_singular",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case023",
+      "name": "exception_infinite",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case024",
+      "name": "exception_nan",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 3,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case025",
+      "name": "exception_pivot_tie",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case026",
+      "name": "exception_negative_zero",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case027",
+      "name": "normal_dense_pivot2",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case028",
+      "name": "normal_sparse2",
+      "n": 2,
+      "entries": 4,
+      "nan_entries": 0,
+      "source": "corpus2/inputs.json"
+    },
+    {
+      "key": "case029",
+      "name": "normal_dense_pivot25",
+      "n": 25,
+      "entries": 625,
+      "nan_entries": 0,
+      "source": "corpus25/inputs.json"
+    },
+    {
+      "key": "case030",
+      "name": "normal_sparse25",
+      "n": 25,
+      "entries": 625,
+      "nan_entries": 0,
+      "source": "corpus25/inputs.json"
+    },
+    {
+      "key": "case031",
+      "name": "original_jax25",
+      "n": 25,
+      "entries": 625,
+      "nan_entries": 0,
+      "source": "corpus25/inputs.json"
+    },
+    {
+      "key": "case032",
+      "name": "normal_dense_pivot33",
+      "n": 33,
+      "entries": 1089,
+      "nan_entries": 0,
+      "source": "corpus33/inputs.json"
+    },
+    {
+      "key": "case033",
+      "name": "normal_sparse33",
+      "n": 33,
+      "entries": 1089,
+      "nan_entries": 0,
+      "source": "corpus33/inputs.json"
+    },
+    {
+      "key": "case034",
+      "name": "transition_n41",
+      "n": 41,
+      "entries": 1681,
+      "nan_entries": 0,
+      "source": "corpus41/inputs.json"
+    },
+    {
+      "key": "case035",
+      "name": "transition_n42",
+      "n": 42,
+      "entries": 1764,
+      "nan_entries": 0,
+      "source": "corpus42/inputs.json"
+    },
+    {
+      "key": "case036",
+      "name": "transition_n43",
+      "n": 43,
+      "entries": 1849,
+      "nan_entries": 0,
+      "source": "corpus43/inputs.json"
+    },
+    {
+      "key": "case037",
+      "name": "normal_dense_pivot7",
+      "n": 7,
+      "entries": 49,
+      "nan_entries": 0,
+      "source": "corpus7/inputs.json"
+    },
+    {
+      "key": "case038",
+      "name": "normal_sparse7",
+      "n": 7,
+      "entries": 49,
+      "nan_entries": 0,
+      "source": "corpus7/inputs.json"
+    },
+    {
+      "key": "case039",
+      "name": "exception_normal_min",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case040",
+      "name": "exception_subnormal_pivot",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case041",
+      "name": "exception_min_subnormal_pivot",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case042",
+      "name": "exception_overflow_update",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case043",
+      "name": "exception_singular",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case044",
+      "name": "exception_infinite",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case045",
+      "name": "exception_nan",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 57,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case046",
+      "name": "exception_pivot_tie",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case047",
+      "name": "exception_negative_zero",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case048",
+      "name": "normal_dense_pivot8",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case049",
+      "name": "normal_sparse8",
+      "n": 8,
+      "entries": 64,
+      "nan_entries": 0,
+      "source": "corpus8/inputs.json"
+    },
+    {
+      "key": "case050",
+      "name": "transition_n64",
+      "n": 64,
+      "entries": 4096,
+      "nan_entries": 0,
+      "source": "n64/input.json"
+    },
+    {
+      "key": "case051",
+      "name": "transition_n129",
+      "n": 129,
+      "entries": 16641,
+      "nan_entries": 0,
+      "source": "n129/input.json"
+    },
+    {
+      "key": "case052",
+      "name": "fixture25_dgetrf_native",
+      "n": 25,
+      "entries": 625,
+      "nan_entries": 0,
+      "source": "native25/baseline_result.json"
+    },
+    {
+      "key": "case053",
+      "name": "fixture25_dgetrf_jax",
+      "n": 25,
+      "entries": 625,
+      "nan_entries": 0,
+      "source": "native25/baseline_result.json"
+    }
+  ],
+  "total_entries": 103375,
+  "npz_sha256": "61396edb5b174fb992ec3fc376f6b9644cb5ae04b78f2c2b85aba38df534e889",
+  "scope": "Finite and infinite entries bitwise; NaN classification, not arbitrary NaN payload promises. Native MATLAB controls and captured native dense LU transition controls."
+}

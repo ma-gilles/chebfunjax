@@ -186,6 +186,13 @@ def _piecewise_row_scaled_system(matrix, rhs):
 def _piecewise_row_scaled_solve(matrix, rhs):
     """Solve a square JAX system with source floor-one row scaling."""
     scaled_a, scaled_b = _piecewise_row_scaled_system(matrix, rhs)
+    if scaled_a.dtype == jnp.float64:
+        from chebfunjax.utils._source_lu_solve import solve_with_row_scaling
+
+        a = jnp.asarray(matrix, dtype=scaled_a.dtype)
+        b = jnp.asarray(rhs, dtype=scaled_a.dtype)
+        scale = 1.0 / jnp.maximum(1.0, jnp.max(jnp.abs(a), axis=1))
+        return solve_with_row_scaling(a, b, scaled_a, scale)
     return jnp.linalg.solve(scaled_a, scaled_b)
 
 
