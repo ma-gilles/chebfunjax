@@ -1,3 +1,19 @@
+## 2026-10-15: compile tensor-grid recognition as one helper
+
+Exact coordinate extraction and grid recognition now share a JAX compilation.
+The source axis-trial order, exact-zero predicate and contraction kernels remain
+unchanged. Thirty focused pytest items pass, along with 126 scratch predicate
+and twelve dispatch controls. Full constructor and Laplacian input/output
+arrays match the preceding main revision byte for byte. Source-equivalence
+and input-hash guards link the scratch candidate to the published helper.
+
+Cold Laplacian time was 26.44 seconds versus the preceding 27.80-second run;
+this is a single observation, not a repeatable speed benchmark. A separate
+profile found 670 backend compilations taking 20.27 of 30.35 seconds. The
+native rank/length discrepancies, broader numerical and page/figure gaps,
+and current-main CI remain unresolved. See
+`docs/chebfun3_grid_recognition_cpu_20261015.json` for qualification and limits.
+
 ## 2026-10-15: source indices, refinement snapshots and native grid defaults
 
 Polynomial construction now preserves native random indices beyond the nominal

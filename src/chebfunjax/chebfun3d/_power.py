@@ -10,7 +10,10 @@ Dispatch and numeric promotion are eager. New numerical operations use JAX;
 the adaptive constructor retains its existing host implementation.
 """
 
+from functools import partial
+
 import equinox as eqx
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.chebpref import ChebfunPref
@@ -117,6 +120,25 @@ def _evaluate_vector(f, points):
     return jnp.sum(result * panels[2], axis=1).reshape(points[0].shape)
 
 
+@partial(jax.jit, static_argnums=1)
+def _grid_vector(point, axis):
+    """Extract a candidate grid vector and test the source exact-zero rule.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun3/feval.m, tensorCase recognition
+    Chebfun commit: 7574c77
+
+    Keeping these shape-dependent operations together avoids compiling each
+    slice, reshape, subtraction and reduction separately on a cold call.
+    """
+    index = tuple(slice(None) if i == axis else 0 for i in range(3))
+    vector = point[index]
+    shape = tuple(vector.size if i == axis else 1 for i in range(3))
+    exact = jnp.max(jnp.abs(point-vector.reshape(shape))) == 0
+    return vector, exact
+
+
 def _evaluate(f, x, y, z):
     """Native tensor-grid recognition and sequential vector contractions.
 
@@ -134,10 +156,8 @@ def _evaluate(f, x, y, z):
                             ((1, 0, 2), (1, 0, 2))):
             vectors = []
             for point, axis in zip(points, axes):
-                index = tuple(slice(None) if i == axis else 0 for i in range(3))
-                vector = point[index]
-                shape = tuple(vector.size if i == axis else 1 for i in range(3))
-                if not bool(jnp.max(jnp.abs(point-vector.reshape(shape))) == 0):
+                vector, exact = _grid_vector(point, axis)
+                if not bool(exact):
                     break
                 vectors.append(vector)
             else:
