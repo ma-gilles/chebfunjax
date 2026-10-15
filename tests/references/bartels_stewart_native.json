@@ -1,0 +1,42 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "R2025b Update 2",
+  "source": "tests/chebop2/test_BartelsStewart.m",
+  "capture_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bartels_assertions_20261015_v2",
+  "capture_sha256": "64bd617a5851e611e9f550301f8b29f1f116fa127cb2fe5bdbc1992767d09ee4",
+  "npz_sha256": "192c6730804d73e93cc73d0b635c4d6e3a511fd3c43ebb47735f7ddad0fa9127",
+  "cases": {
+    "pass": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "errors": [
+      6.461266700382107e-13,
+      1.531001240635495e-11,
+      4.801316763922936e-09,
+      2.4243731516116416e-09
+    ],
+    "bounds": [
+      2.220446049250313e-12,
+      2.220446049250313e-11,
+      2.220446049250313e-08,
+      2.220446049250313e-08
+    ]
+  },
+  "guard": {
+    "input_hashes": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebop2/test_BartelsStewart.m": "76af13537b8d2d6faff676226b61c4d53d226b3ed839aadd8ddd7902ac5a0d20",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop2/bartelsStewart.m": "0a4a0127787d810e0639a66719c4382131f680bbd758bbbddfdc2fc443e642dc",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bartels_assertions_20261015_v2/capture_bartels.m": "649b0cf0f8150bfcfe45a264e23da986ddc17c4893cb2fd3a9afc4c92a169be4",
+      "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bartels_assertions_20261015_v2/launch.sh": "92cb7767c3e4b5b9b4d685c8468e6121a2b3f4adb8ae8cc3bae17d742579a9df"
+    },
+    "heads": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref": "7574c77680d7e82b79626300bf255498271a72df"
+    },
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": ""
+    }
+  }
+}

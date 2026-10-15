@@ -38,9 +38,12 @@ pp. 106-123.
 from __future__ import annotations
 
 import warnings
+from functools import partial
 from typing import Callable
 
+import jax
 import jax.numpy as jnp
+import jax.scipy.linalg
 import numpy as np
 
 from chebfunjax.utils.quadrature import chebpts
@@ -84,66 +87,32 @@ def _cheb2_pts_np(n: int, domain: tuple[float, float]) -> np.ndarray:
 
 
 def _qz_split(A, C):
-    """QZ of a pencil whose even and odd rows/columns decouple (MATLAB
-    ``qzsplit``/``reform`` in bartelsStewart.m): factor the two parity
-    sub-pencils and reassemble in scipy's ``A = Q P Z^T`` convention."""
-    import scipy.linalg
-    A = np.asarray(A)
-    C = np.asarray(C)
+    """Source parity split, reassembled in MATLAB left-Q convention."""
+    from chebfunjax.utils._generalized_schur import qz
+
+    A, C = jnp.asarray(A), jnp.asarray(C)
     n = A.shape[0]
-    A1, C1 = A[0::2, 0::2], C[0::2, 0::2]
-    A2, C2 = A[1::2, 1::2], C[1::2, 1::2]
-    P1, S1, Q1, Z1 = scipy.linalg.qz(A1, C1, output="real")
-    P2, S2, Q2, Z2 = scipy.linalg.qz(A2, C2, output="real")
+    P1, S1, Q1, Z1, info1, _ = qz(A[::2, ::2], C[::2, ::2])
+    P2, S2, Q2, Z2, info2, _ = qz(A[1::2, 1::2], C[1::2, 1::2])
     h1 = P1.shape[0]
-    P = np.zeros((n, n))
-    S = np.zeros((n, n))
-    Q = np.zeros((n, n))
-    Z = np.zeros((n, n))
-    P[:h1, :h1] = P1
-    P[h1:, h1:] = P2
-    S[:h1, :h1] = S1
-    S[h1:, h1:] = S2
-    Q[0::2, :h1] = Q1
-    Q[1::2, h1:] = Q2
-    Z[0::2, :h1] = Z1
-    Z[1::2, h1:] = Z2
-    return P, S, Q, Z
+    P = jnp.zeros((n, n), dtype=P1.dtype)
+    S = jnp.zeros_like(P)
+    Q = jnp.zeros_like(P)
+    Z = jnp.zeros_like(P)
+    P = P.at[:h1, :h1].set(P1).at[h1:, h1:].set(P2)
+    S = S.at[:h1, :h1].set(S1).at[h1:, h1:].set(S2)
+    Q = Q.at[:h1, ::2].set(Q1.conj().T).at[h1:, 1::2].set(Q2.conj().T)
+    Z = Z.at[::2, :h1].set(Z1).at[1::2, h1:].set(Z2)
+    info = jnp.where(info1 != 0, info1, info2)
+    return P, S, Q, Z, info
 
 
-def bartels_stewart(
-    A: np.ndarray,
-    B: np.ndarray,
-    C: np.ndarray,
-    D: np.ndarray,
-    E: np.ndarray,
-    xsplit: bool = False,
-    ysplit: bool = False,
-) -> np.ndarray:
-    """Solve the generalized Sylvester equation ``A X B^T + C X D^T = E``.
+@partial(jax.jit, static_argnames=("xsplit", "ysplit"))
+def bartels_stewart(A, B, C, D, E, xsplit=False, ysplit=False):
+    """Solve ``A X B.T + C X D.T = E`` using complex QZ and source substitution.
 
-    Uses the Bartels-Stewart algorithm via the QZ decomposition of (A, C) and
-    (D, B).
-
-    Parameters
-    ----------
-    A, C : np.ndarray, shape (m, m)
-        Coefficient matrices in the y-direction.
-    B, D : np.ndarray, shape (n, n)
-        Coefficient matrices in the x-direction.
-    E : np.ndarray, shape (m, n)
-        Right-hand side matrix.
-
-    Returns
-    -------
-    X : np.ndarray, shape (m, n)
-        Solution to A X B^T + C X D^T = E.
-
-    Notes
-    -----
-    This solver is NOT used by default in :class:`Chebop2` (which uses the
-    full Kronecker approach for correctness).  It is provided as a public
-    utility for users who need the Bartels-Stewart solver directly.
+    The transposes in the equation are non-conjugating, including for complex
+    coefficients. Parity flags split the corresponding coefficient pencils.
 
     Provenance
     ----------
@@ -151,100 +120,68 @@ def bartels_stewart(
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
-    Algorithm: J. D. Gardiner, A. J. Laub, J. J. Amato, & C. B. Moler,
-        "Solution of the Sylvester matrix equation AXB^T + CXD^T = E",
-        ACM TOMS, 18(2), 223-231 (1992).
-
-    See Also
-    --------
-    Chebop2.solve
+    Algorithm: Gardiner, Laub, Amato and Moler, ACM TOMS 18(2), 223-231 (1992).
     """
-    import scipy.linalg
+    from chebfunjax.utils._generalized_schur import qz
 
-    if np.linalg.norm(E) < 10 * _EPS:
-        return np.zeros_like(E)
+    A, B, C, D, E = (jnp.asarray(x) for x in (A, B, C, D, E))
+    m, n = E.shape
+    if A.shape != (m, m) or C.shape != (m, m) or B.shape != (n, n) or D.shape != (n, n):
+        raise ValueError("incompatible generalized Sylvester matrix dimensions")
+    if m == 0 or n == 0:
+        return jnp.zeros_like(E)
 
-    m = A.shape[0]
-    n = B.shape[0]
-
-    # QZ decomposition of (A, C): A = Q1 P Z1^T, C = Q1 S Z1^T (real orthogonal
-    # Q1, Z1).  P and S are quasi-triangular; do NOT force them upper triangular
-    # -- the column recursion below solves full m x m systems with them, so
-    # zeroing their 2x2-block subdiagonals corrupts the transformed pencil.
-    if ysplit:
-        P, S, Q1, Z1 = _qz_split(A, C)
-    else:
-        P, S, Q1, Z1 = scipy.linalg.qz(A, C, output="real")
-
-    # QZ decomposition of (D, B): D = Q2 T Z2^T, B = Q2 R Z2^T.  T is (quasi-)
-    # upper triangular and R is upper triangular, which is what enables the
-    # column-by-column back-substitution over the right pencil.
-    if xsplit:
-        T, R, Q2, Z2 = _qz_split(D, B)
-    else:
-        T, R, Q2, Z2 = scipy.linalg.qz(D, B, output="real")
-
-    # With Y = Z1^T X Z2 the equation reduces to P Y R^T + S Y T^T = F where the
-    # transformed RHS is F = Q1^T E Q2 (the solution is recovered as
-    # X = Z1 Y Z2^T below).
-    F = Q1.T @ E @ Q2
-
-    # Backward substitution: build solution Y column by column
-    Y = np.zeros((m, n), dtype=np.float64)
-    PY = np.zeros((m, n), dtype=np.float64)
-    SY = np.zeros((m, n), dtype=np.float64)
-
-    k = n - 1
-    while k >= 1:
-        t_off = T[k, k - 1]
-        t_diag = max(abs(T[k, k]), abs(T[k - 1, k - 1]), 1.0)
-        if abs(t_off) < _EPS * t_diag:
-            rhs = F[:, k].copy()
-            for jj in range(k + 1, n):
-                rhs -= R[k, jj] * PY[:, jj] + T[k, jj] * SY[:, jj]
-            Mkk = R[k, k] * P + T[k, k] * S
-            Y[:, k] = np.linalg.solve(Mkk, rhs)
-            PY[:, k] = P @ Y[:, k]
-            SY[:, k] = S @ Y[:, k]
-            k -= 1
+    def nonzero_rhs(_):
+        # The original equation defines derivatives. QZ iterations and pivot
+        # choices are implementation details of the primal/transpose solves.
+        Aa, Bb, Cc, Dd = (jax.lax.stop_gradient(x) for x in (A, B, C, D))
+        if ysplit:
+            P, S, Q1, Z1, info1 = _qz_split(Aa, Cc)
         else:
-            rhs1 = F[:, k - 1].copy()
-            rhs2 = F[:, k].copy()
-            for jj in range(k + 1, n):
-                Pyj = PY[:, jj]
-                Syj = SY[:, jj]
-                rhs1 -= R[k - 1, jj] * Pyj + T[k - 1, jj] * Syj
-                rhs2 -= R[k, jj] * Pyj + T[k, jj] * Syj
+            P, S, Q1, Z1, info1, _ = qz(Aa, Cc)
+            Q1 = Q1.conj().T
+        if xsplit:
+            T, R, Q2, Z2, info2 = _qz_split(Dd, Bb)
+        else:
+            T, R, Q2, Z2, info2, _ = qz(Dd, Bb)
+            Q2 = Q2.conj().T
 
-            M11 = R[k - 1, k - 1] * P + T[k - 1, k - 1] * S
-            M12 = R[k - 1, k] * P + T[k - 1, k] * S
-            M21 = R[k, k - 1] * P + T[k, k - 1] * S
-            M22 = R[k, k] * P + T[k, k] * S
+        def apply(rhs, transpose=False):
+            if transpose:
+                F = Z1.T @ rhs @ Z2
+                PP, SS, RR, TT = P.T, S.T, R.T, T.T
+            else:
+                F = Q1 @ rhs @ Q2.T
+                PP, SS, RR, TT = P, S, R, T
+            Y = jnp.zeros((m, n), dtype=F.dtype)
+            PY, SY = jnp.zeros_like(Y), jnp.zeros_like(Y)
 
-            SM = np.zeros((2 * m, 2 * m), dtype=np.float64)
-            SM[:m, :m] = M11
-            SM[:m, m:] = M12
-            SM[m:, :m] = M21
-            SM[m:, m:] = M22
+            def column(t, state):
+                Y, PY, SY = state
+                k = t if transpose else n - 1 - t
+                def subtract(j, rhs):
+                    return rhs - RR[k, j] * PY[:, j] - TT[k, j] * SY[:, j]
+                begin, end = (0, k) if transpose else (k + 1, n)
+                rhs = jax.lax.fori_loop(begin, end, subtract, F[:, k])
+                y = jax.scipy.linalg.solve_triangular(
+                    RR[k, k] * PP + TT[k, k] * SS, rhs, lower=transpose)
+                return Y.at[:, k].set(y), PY.at[:, k].set(PP @ y), SY.at[:, k].set(SS @ y)
 
-            sol = np.linalg.solve(SM, np.concatenate([rhs1, rhs2]))
-            Y[:, k - 1] = sol[:m]
-            Y[:, k] = sol[m:]
-            PY[:, k] = P @ Y[:, k]
-            PY[:, k - 1] = P @ Y[:, k - 1]
-            SY[:, k] = S @ Y[:, k]
-            SY[:, k - 1] = S @ Y[:, k - 1]
-            k -= 2
+            Y, _, _ = jax.lax.fori_loop(0, n, column, (Y, PY, SY))
+            X = Q1.T @ Y @ Q2 if transpose else Z1 @ Y @ Z2.T
+            # A nonconverged factorization never silently supplies a solution.
+            return jnp.where((info1 == 0) & (info2 == 0), X, jnp.nan)
 
-    if k == 0:
-        rhs = F[:, 0].copy()
-        for jj in range(1, n):
-            rhs -= R[0, jj] * PY[:, jj] + T[0, jj] * SY[:, jj]
-        M00 = R[0, 0] * P + T[0, 0] * S
-        Y[:, 0] = np.linalg.solve(M00, rhs)
+        return jax.lax.custom_linear_solve(
+            lambda x: A @ x @ B.T + C @ x @ D.T,
+            E.astype(jnp.result_type(P, S, E)),
+            solve=lambda _, rhs: apply(rhs),
+            transpose_solve=lambda _, rhs: apply(rhs, True),
+        )
 
-    X = Z1 @ Y @ Z2.T
-    return X
+    dtype = jnp.result_type(A, B, C, D, E, jnp.complex128)
+    return jax.lax.cond(jnp.linalg.norm(E, ord=2) < 10 * _EPS,
+                        lambda _: jnp.zeros((m, n), dtype=dtype), nonzero_rhs, None)
 
 
 # ===========================================================================
