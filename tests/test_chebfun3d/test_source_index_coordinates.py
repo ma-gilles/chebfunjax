@@ -58,8 +58,10 @@ def test_nested_phase2_indices_use_native_cosine_mapping_and_retain_old_rows(
     observed = []
     happiness_calls = 0
 
-    def happiness(values, tech, relative_tol):
+    def happiness(values, tech, relative_tol, happiness_check, pref):
         nonlocal happiness_calls
+        assert happiness_check == "standard"
+        assert pref is None
         happiness_calls += 1
         return happiness_calls != 1
 
