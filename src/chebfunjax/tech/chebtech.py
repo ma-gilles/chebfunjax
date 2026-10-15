@@ -4717,6 +4717,58 @@ class Chebtech2(eqx.Module):
 # ============================================================================
 
 
+@jax.jit
+def _chebtech1_forward_fft(values: jax.Array) -> jax.Array:
+    """Compiled mirrored IFFT stage; weighting remains outside this kernel."""
+    n = values.shape[0]
+    tmp = jnp.concatenate([values[::-1], values]).astype(jnp.complex128)
+    return jnp.fft.ifft(tmp, axis=0)[:n]
+
+
+@jax.jit
+def _chebtech1_forward_symmetry(
+    values: jax.Array, coeffs: jax.Array
+) -> jax.Array:
+    """Compiled exact symmetry correction, kept after eager scaling."""
+    n = values.shape[0]
+    vflip = values[::-1]
+    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
+    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
+    kk = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
+    sym = jnp.where((kk % 2 == 1) & is_even, 0.0, coeffs)
+    sym = jnp.where((kk % 2 == 0) & is_odd, 0.0, sym)
+    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
+    return coeffs + jax.lax.stop_gradient(delta)
+
+
+@jax.jit
+def _chebtech1_inverse_kernel(
+    coeffs: jax.Array, weights: jax.Array
+) -> jax.Array:
+    """Compiled real inverse body with weights formed by the eager caller."""
+    n = coeffs.shape[0]
+    w = weights
+    w = w.at[0].set(1.0)
+    w = w.at[n].set(0.0)
+    w = w.at[n + 1:].multiply(-1.0)
+    w = w.reshape((2 * n,) + (1,) * (coeffs.ndim - 1))
+    c_mirror = jnp.concatenate([
+        coeffs,
+        jnp.ones((1,) + coeffs.shape[1:], dtype=jnp.float64),
+        coeffs[-1:0:-1],
+    ]).astype(jnp.complex128)
+    c_weighted = c_mirror * w
+    values_complex = jnp.fft.fft(c_weighted, axis=0)
+    values = jnp.real(values_complex[n - 1::-1])
+    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0, initial=0.0) == 0
+    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0, initial=0.0) == 0
+    vflip = values[::-1]
+    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
+    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
+    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
+    return values + jax.lax.stop_gradient(delta)
+
+
 def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     r"""Convert values at 1st-kind Chebyshev points to Chebyshev coefficients.
 
@@ -4768,45 +4820,30 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
         # Source trivial transform is the identity, including complex values.
         return _as_fun_dtype(values)
 
-    # Weight vector: w = 2 * exp(i * k * pi / (2*n)), k = 0..n-1
-    # (trailing singleton axes broadcast over array-valued columns)
-    k = jnp.arange(n, dtype=jnp.float64)
-    w = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
-    w = w.reshape((n,) + (1,) * (values.ndim - 1))
-
     # Complex data: the FFT/DCT trick below assumes REAL values (the
     # final jnp.real would silently DROP the imaginary part -- Fable 5
     # audit, bug #6).  Split like MATLAB @chebtech1/vals2coeffs.m.
     if jnp.iscomplexobj(values):
         return (_chebtech1_vals2coeffs(jnp.real(values))
                 + 1j * _chebtech1_vals2coeffs(jnp.imag(values)))
-    # MATLAB vals2coeffs: tmp = [values(n:-1:1); values]
-    # values is ascending (left-to-right); values(n:-1:1) is descending.
-    # In Python (values ascending): tmp = [values[::-1], values]
-    # = [descending, ascending]
-    tmp = jnp.concatenate([values[::-1], values])
-    tmp = tmp.astype(jnp.complex128)
-    coeffs_complex = jnp.fft.ifft(tmp, axis=0)[:n] * w
+    # Preserve the tested source arithmetic boundaries: form weights eagerly,
+    # compile the mirrored IFFT, then multiply and scale c[0] eagerly before
+    # the separately compiled symmetry correction. The intended benefit is
+    # to limit fused compilation to these source-qualified arithmetic stages;
+    # compilation-cache impact has not been measured here.
+    k = jnp.arange(n, dtype=jnp.float64)
+    weights = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
+    weights = weights.reshape((n,) + (1,) * (values.ndim - 1))
+    coeffs_complex = _chebtech1_forward_fft(values) * weights
 
     # Scale the constant term (c_0 halved)
     coeffs_complex = coeffs_complex.at[0].multiply(0.5)
 
     coeffs = jnp.real(coeffs_complex)
 
-    # Enforce symmetries exactly (MATLAB @chebtech1/vals2coeffs.m
-    # lines 74-76): even values -> odd coeffs zero, odd values -> even
-    # coeffs zero.  Branch-free, JIT-safe; correction through
-    # stop_gradient so autodiff is not projected onto the symmetry
-    # manifold.
-    vflip = values[::-1]
-    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
-    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
-    kk = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
-    sym = jnp.where((kk % 2 == 1) & is_even, 0.0, coeffs)
-    sym = jnp.where((kk % 2 == 0) & is_odd, 0.0, sym)
-    # Guard non-finite entries: inf - inf would turn them into NaN.
-    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
-    return coeffs + jax.lax.stop_gradient(delta)
+    # MATLAB @chebtech1/vals2coeffs.m lines 74-76: enforce exact even/odd
+    # coefficient zeros, with correction stopped for autodiff parity.
+    return _chebtech1_forward_symmetry(values, coeffs)
 
 
 def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
@@ -4859,41 +4896,11 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     if n <= 1:
         return coeffs.astype(jnp.float64)
 
-    # Weight vector (length 2n): w_k = exp(-i*k*pi/(2*n))/2
-    # (trailing singleton axes broadcast over array-valued columns)
+    # Form weights eagerly and pass them into the compiled inverse body; this
+    # boundary preserves the source-qualified multiplication order.
     k = jnp.arange(2 * n, dtype=jnp.float64)
-    w = jnp.exp(-1j * k * jnp.pi / (2.0 * n)) / 2.0
-    # Special entries: w[0] = 2*w[0] = 1, w[n] = 0, w[n+1:] flipped sign
-    w = w.at[0].set(1.0)
-    w = w.at[n].set(0.0)
-    w = w.at[n + 1:].multiply(-1.0)
-    w = w.reshape((2 * n,) + (1,) * (coeffs.ndim - 1))
-
-    # Mirror: [c; 1; c_{n-1}, ..., c_1]   (MATLAB convention, descending coeffs)
-    c_mirror = jnp.concatenate([
-        coeffs,
-        jnp.ones((1,) + coeffs.shape[1:], dtype=jnp.float64),
-        coeffs[-1:0:-1],
-    ]).astype(jnp.complex128)
-
-    c_weighted = c_mirror * w
-    values_complex = jnp.fft.fft(c_weighted, axis=0)
-
-    # Truncate to n entries; MATLAB returns in descending order (flip to ascending)
-    values = jnp.real(values_complex[n - 1::-1])
-
-    # Enforce symmetries exactly (MATLAB @chebtech1/coeffs2vals.m
-    # lines 75-77): odd coeffs zero -> even values, even coeffs zero ->
-    # odd values.  Branch-free, JIT-safe; correction through
-    # stop_gradient (see _chebtech1_vals2coeffs).
-    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0, initial=0.0) == 0
-    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0, initial=0.0) == 0
-    vflip = values[::-1]
-    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
-    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
-    # Guard non-finite entries: inf - inf would turn them into NaN.
-    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
-    return values + jax.lax.stop_gradient(delta)
+    weights = jnp.exp(-1j * k * jnp.pi / (2.0 * n)) / 2.0
+    return _chebtech1_inverse_kernel(coeffs, weights)
 
 
 # ============================================================================

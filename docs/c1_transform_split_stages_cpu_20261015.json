@@ -1,0 +1,117 @@
+{
+  "candidate_base_commit": "40779727c292f44be15547480c1bf86c7dd66f88",
+  "environment": "Pinned CPU env, JAX 0.11.0, x64 enabled, CPU affinity 16-19, CUDA disabled; guard.json records exact env and dependency hashes.",
+  "gates": [
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_small",
+      "inputs_stable": true,
+      "receipt_sha256": "223202e8de2b5d1c8f0931b8f95623bb9c92d636650403f35a92b9000f4feb02",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 934600,
+      "stdout_sha256": "fd8976eefbf405605f592635e18b5fcb1f3750d7a9a8dbb08adccf02621e89d9",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 15.906712718773633
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_large_mid",
+      "inputs_stable": true,
+      "receipt_sha256": "4ffef50284358fd7551b94b86ff5497502741d1ce2c9e8bbb98fd5a06fb5375d",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 780292,
+      "stdout_sha256": "4b8dd170e79500b558aa71e30626579bd40c27cb5982900cae611a49d80a3a2a",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 7.915667009074241
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_23041_retry",
+      "inputs_stable": true,
+      "receipt_sha256": "1f7192a22e8513f42175a1e1fb517967964623b14b08f3d9d4878d24f801f8e6",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 622296,
+      "stdout_sha256": "f4ea8d88ef6b04e0634341dc7c25b7d5b2d1b6127e7d3b528645602c757d2bb7",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.886505092959851
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_23169",
+      "inputs_stable": true,
+      "receipt_sha256": "6c45408645f24394e4ef5c6f4ba328ac0a9db605b1f9a8a44bdbe8c31691a9ee",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 620636,
+      "stdout_sha256": "ca53386b93f29668044fb57bf01fa151061e0fda485b8a18f70b17bbd90d019e",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.863349379040301
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_jit_ad",
+      "inputs_stable": true,
+      "receipt_sha256": "75bd6b87cf1ef5d4822dffdc6697c7a91a02dc860c9138ea9bc4728cb5050763",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 751316,
+      "stdout_sha256": "e2345ddc41956e666693fcb6f6a30299b608a268e0be1459efdf08c7633b3d6f",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 7.991104256827384
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_source_tests",
+      "inputs_stable": true,
+      "receipt_sha256": "11686e22e82158a48d7904adc9541db0a39cb6567860b49a899971d714580640",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1291888,
+      "stdout_sha256": "7463a1e16d2ae606a3f4966374367ca01996420f9f0eb480c1719b168723069a",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 19.75353643205017
+    },
+    {
+      "command_exit_code": 0,
+      "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_full_transform_file",
+      "inputs_stable": true,
+      "receipt_sha256": "2dc22a1373ec9a6ccfaea97008415acd664d5b1812be18794a06bca89e7a08f6",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1696336,
+      "stdout_sha256": "48c87398778910054656e12b8221b4640ad35f67e178c7ba5a72fd82d32a29df",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.509987448807806
+    }
+  ],
+  "preserved_failed_attempt": {
+    "artifact": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_23041/launch_error.txt",
+    "cause": "Output directory was created before supervisor launch; supervisor requires a fresh path and exited with FileExistsError before starting pytest.",
+    "directory": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/qualification/supervision_23041"
+  },
+  "prior_gate_scope_note": "The only source difference between this prior hash and final source hash is a comment clarifying that cache impact was not measured; numerical code is unchanged.",
+  "prior_gate_source_sha256_before_comment_only_wording_update": "0634f7f8b5b8cd58723e1d6c23df910466e85c78d2908773aef8b6206a2fb14f",
+  "qualification": "C1 split transform arithmetic boundaries",
+  "result": "PASS",
+  "scope_limits": [
+    "No C1 constructor rerun or performance claim.",
+    "No native constructor-value parity claim.",
+    "No QR/core arithmetic change or qualification."
+  ],
+  "source_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/src/chebfunjax/tech/chebtech.py",
+  "source_sha256": "c6bf8c519477ed4d9718219100930189500cafe52e445b7a402e4a211e3f48f1",
+  "static_checks": {
+    "git_diff_check": "PASS",
+    "ruff_check_src_tests": "PASS"
+  },
+  "test_file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/c1_transform_split_candidate_20261015/tests/test_tech/test_chebtech1_split_transform_source.py",
+  "test_sha256": "d976d047d7faccd3b0d73ec2d00deade274a483d184176d4a513ef7a17136b4c",
+  "whole_new_test_file": {
+    "failed": 0,
+    "inputs_stable": true,
+    "passed": 16,
+    "pytest_reported_seconds": 21.99,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1696336,
+    "supervisor_wall_seconds": 24.509987448807806,
+    "wall_seconds": 21.99
+  },
+  "worktree_branch": "codex/c1-transform-split-20261015",
+  "integration": "Source and test hashes verified against all recorded qualification receipts before publication; no numerical modifications during integration."
+}

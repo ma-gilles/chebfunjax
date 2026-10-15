@@ -1,3 +1,17 @@
+## 2026-10-15: compile C1 transform stages separately
+
+C1 transforms now compile the mirrored FFT, symmetry correction and inverse
+body separately, retaining the qualified forward weighting order. The complete
+new test file passes in one process (16 tests, 21.99s, sampled summed peak RSS
+1,696,336 KiB), and 56 existing Chebtech1 source/reference tests pass. Bitwise
+controls cover real/complex inputs through length23,169; JIT and JVP controls
+also pass. No original tolerance changed.
+
+See `docs/c1_transform_split_stages_cpu_20261015.json` for exact source hashes
+and guarded CPU receipts. This package establishes the tested transform
+arithmetic; constructor speed and native constructor-value parity remain open.
+The native LU mismatch and green main CI also remain unresolved.
+
 ## 2026-10-15: repair the Chebfun3 scale test double
 
 CI exposed a supplemental grid-selection test whose mock lacked isempty().
