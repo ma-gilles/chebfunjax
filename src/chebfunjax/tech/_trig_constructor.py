@@ -207,8 +207,7 @@ def happiness(f, op=None, values=None, data=None, pref=None):
 
     pref = resolve_pref() if pref is None else pref
     data = parse_data(data)
-    data['vscale'] = jnp.maximum(jnp.asarray(data['vscale']),
-                                jnp.max(jnp.abs(_columns(_values(f))), axis=0))
+    data['vscale'] = jnp.maximum(jnp.asarray(data['vscale']), f.vscale_columns())
     check = pref['happinessCheck']
     name = check.lower() if isinstance(check, str) else None
     if name == 'standard':

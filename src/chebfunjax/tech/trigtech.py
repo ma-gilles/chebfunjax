@@ -1803,7 +1803,7 @@ class Trigtech(eqx.Module):
 
     @property
     def vscale(self) -> float:
-        """Aggregate vertical scale: max |f(x)| on the grid.
+        """Aggregate vertical scale reconstructed from the coefficients.
 
         Provenance
         ----------
@@ -1817,7 +1817,7 @@ class Trigtech(eqx.Module):
         if self.isempty():
             # MATLAB @trigtech/vscale.m returns zero when coeffs are empty.
             return 0.0
-        return float(jnp.max(jnp.abs(self.values)))
+        return float(jnp.max(self.vscale_columns()))
 
     def normest(self):
         """Native @trigtech/normest.m7574c77: max of column value scales."""
@@ -3076,8 +3076,13 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         if self.isempty():
-            return jnp.empty((0,), dtype=jnp.float64)
-        v = jnp.abs(self.values)
+            return jnp.asarray(0., dtype=jnp.float64)
+        # Native vscale reads coefficients, not the independently stored
+        # interpolation values or isReal flags. In particular, Chebfun3's
+        # happiness check replaces coefficients while retaining those fields.
+        values = (self.coeffs if self.coeffs.shape[0] == 1
+                  else _trig_coeffs2vals_impl(self.coeffs))
+        v = jnp.abs(values)
         if v.ndim == 1:
             return jnp.max(v, keepdims=True)
         return jnp.max(v, axis=0)

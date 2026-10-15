@@ -1,3 +1,20 @@
+## 2026-10-15: derive trig scale from coefficients
+
+Trigtech vertical scale now follows the native coefficient transform, including
+constant and empty cases. Independently cached sample values and realness no
+longer determine that scale. The happiness dispatcher combines the corrected
+per-column result with its supplied global scale. This matters when Chebfun3
+replaces a fiber's coefficients but retains its original sample cache.
+
+Five new regressions fail before the fix; 73 focused checks pass afterward.
+Four additional checks pass against fresh MATLAB even/odd multi-column fiber
+captures, for 77 distinct passing pytest items. Source bounds and cached data
+are preserved. The scalar property retains its existing aggregate Python
+adapter; per-column values are available through vscale_columns. See
+`docs/trig_vscale_coefficients_cpu_20261015.json` for evidence and limits.
+Full original assertion, numerical, page/figure and current-main CI parity
+remain unresolved.
+
 ## 2026-10-15: compile tensor-grid recognition as one helper
 
 Exact coordinate extraction and grid recognition now share a JAX compilation.
