@@ -160,7 +160,6 @@ def test_constructor_preference_dispatch_and_identity():
 
 @pytest.mark.parametrize("field,value", [
     ("tech", "custom_unsupported_tech"),
-    ("happinessCheck", "classic"),
 ])
 def test_explicit_unsupported_preferences(field, value):
     pref = ChebfunPref()

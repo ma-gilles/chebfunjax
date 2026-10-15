@@ -105,7 +105,10 @@ def cosine_coordinates(indices, n, a, b):
     return a + (-jnp.cos(angle) + 1) * (b - a) / 2
 
 
-def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tech):
+def refine_polynomial_fibers(
+    op, fibers, pairs, sizes, domain, relative_tol, tech,
+    happiness_check="standard", pref=None,
+):
     """Literal nested phase-2 sampling with selected polynomial technology.
 
     Provenance
@@ -115,7 +118,9 @@ def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tec
     """
     fibers = list(map(jnp.asarray, fibers))
     lengths = list(sizes)
-    resolved = [envelope_happiness(values, tech, relative_tol) for values in fibers]
+    resolved = [envelope_happiness(values, tech, relative_tol,
+                                   happiness_check, pref)
+                for values in fibers]
     lengths = [n if happy else 2*n - 1 for n, happy in zip(lengths, resolved)]
     while not all(resolved):
         # Native ff captures m once per pass; axis growth applies next pass.
@@ -138,7 +143,9 @@ def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tec
             old = fibers[axis]
             refined = jnp.zeros((lengths[axis], old.shape[1]), dtype=old.dtype)
             fibers[axis] = refined.at[::2].set(old).at[1::2].set(added)
-            resolved[axis] = envelope_happiness(fibers[axis], tech, relative_tol)
+            resolved[axis] = envelope_happiness(
+                fibers[axis], tech, relative_tol, happiness_check, pref
+            )
             if not resolved[axis]:
                 lengths[axis] = 2*lengths[axis] - 1
     grids = [cosine_points(n, a, b) for n, a, b in

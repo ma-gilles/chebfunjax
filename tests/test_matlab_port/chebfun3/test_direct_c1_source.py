@@ -85,13 +85,3 @@ def test_explicit_chebtech1_original_1_2(monkeypatch, record_property):
     values = f(q, q[::-1], q/3)
     record_property('offgrid_values', str(values.tolist()))
     record_property('factor_lengths', str(f.length()))
-
-
-@pytest.mark.parametrize("happiness", ["classic", "strict"])
-def test_session_first_kind_rejects_unsupported_happiness(happiness):
-    pref = ChebfunPref()
-    pref.tech = "chebtech1"
-    pref.happinessCheck = happiness
-    ChebfunPref.setDefaults(pref)
-    with pytest.raises(NotImplementedError, match="standard happiness"):
-        chebfun3(lambda x, y, z: 0*x)

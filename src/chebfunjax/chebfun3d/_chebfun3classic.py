@@ -251,17 +251,39 @@ def dim_cluster(op, domain, vectorize, tech):
     return max(indices, key=lambda axis: lengths[axis]) + 1
 
 
-def happy(values, tech, relative, pref):
-    coefficients = tech.vals2coeffs(jnp.asarray(values))
-    envelope = jnp.sum(jnp.abs(coefficients), axis=1)
-    scale = jnp.max(jnp.abs(tech.coeffs2vals(envelope)))
-    if tech is Trigtech:
-        return bool(tech.happiness_check(envelope, envelope, tol=relative, vscale=scale)[0])
-    return bool(
-        tech.happiness_check(
-            envelope, envelope, tol=relative, vscale=scale, check=pref.happinessCheck
-        )[0]
+def happy(values, tech, relative, pref, *, initial_vscale=None):
+    from chebfunjax.chebfun3d._chebfun3f_tech import envelope_happiness
+
+    return envelope_happiness(
+        values, tech, relative, pref.happinessCheck, pref,
+        initial_vscale=initial_vscale,
     )
+
+
+def happiness_btd(skeleton, tech, relative, pref):
+    """Initial BTD checks, returned in internal column/row/fiber order.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun3/chebfun3classic.m, happinessCheckBTD
+    Chebfun commit: 7574c77
+    """
+    columns, _, rows = skeleton.blocks[0]
+    slice_scale = jnp.maximum(
+        jnp.max(jnp.abs(columns)), jnp.max(jnp.abs(rows))
+    )
+    # Native evaluates fibers first. This order is observable by callbacks.
+    resolved_fibers = happy(
+        skeleton.fibers, tech, relative, pref,
+        initial_vscale=jnp.max(jnp.abs(skeleton.fibers[:, 0])),
+    )
+    resolved_columns = happy(
+        columns, tech, relative, pref, initial_vscale=slice_scale,
+    )
+    resolved_rows = happy(
+        rows, tech, relative, pref, initial_vscale=slice_scale,
+    )
+    return [resolved_columns, resolved_rows, resolved_fibers]
 
 
 def refine_skeleton(op, skeleton, axes, domain, tech, resolved, vectorize):
@@ -459,11 +481,7 @@ def construct(op, domain, pref, tech=Chebtech2, *, vectorize=False, fiber_dim=No
                 "CHEBFUN:CHEBFUN3:constructor:rank: Not a low-rank function.", RuntimeWarning
             )
             failure = True
-        resolved = [
-            happy(skeleton.blocks[0][0], tech, relative, pref),
-            happy(skeleton.blocks[0][2], tech, relative, pref),
-            happy(skeleton.fibers, tech, relative, pref),
-        ]
+        resolved = happiness_btd(skeleton, tech, relative, pref)
         is_happy = all(resolved)
         if skeleton.pivots.size == 1 and bool(skeleton.pivots[0] == 0):
             is_happy = True
@@ -474,7 +492,10 @@ def construct(op, domain, pref, tech=Chebtech2, *, vectorize=False, fiber_dim=No
             skeleton, axes = refine_skeleton(op, skeleton, axes, domain, tech, resolved, vectorize)
             matrices = (skeleton.blocks[0][0], skeleton.blocks[0][2], skeleton.fibers)
             resolved = [
-                old or happy(matrix, tech, relative, pref)
+                old or happy(
+                    matrix, tech, relative, pref,
+                    initial_vscale=jnp.max(jnp.abs(matrix)),
+                )
                 for old, matrix in zip(resolved, matrices)
             ]
             is_happy = all(resolved)

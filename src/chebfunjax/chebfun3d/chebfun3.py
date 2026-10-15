@@ -638,6 +638,8 @@ class Chebfun3(eqx.Module):
         _running_abs_tol: float | None = None,
         _sample_test: bool = True,
         _session_tol: float = _EPS,
+        _happiness_check: str | Callable = "standard",
+        _happiness_pref=None,
     ) -> "Chebfun3":
         """Construct a Chebfun3 from a callable f(x, y, z).
 
@@ -732,7 +734,9 @@ class Chebfun3(eqx.Module):
         if jnp.iscomplexobj(jnp.asarray(f(xp_, yp_, zp_))):
             kw = dict(domain=domain, tol=tol, max_rank=max_rank,
                       min_samples=min_samples, _periodic=_periodic, _first_kind=_first_kind,
-                      _sample_test=_sample_test, _session_tol=_session_tol)
+                      _sample_test=_sample_test, _session_tol=_session_tol,
+                      _happiness_check=_happiness_check,
+                      _happiness_pref=_happiness_pref)
             fre = cls.from_function(
                 lambda x, y, z: jnp.real(f(x, y, z)), **kw)
             fim = cls.from_function(
@@ -1004,7 +1008,8 @@ class Chebfun3(eqx.Module):
                 f, (Uf_coarse, Vf_coarse, Wf_coarse),
                 ((J_from1, K_from1), (I_from2, K_from2), (I_from3, J_from3)),
                 n, dom, phase2_relative_tol,
-                Chebtech1 if _first_kind else Chebtech2)
+                Chebtech1 if _first_kind else Chebtech2,
+                _happiness_check, _happiness_pref)
         else:
             m = list(n)
             xp_f = grid_points(m[0], xa, xb)
@@ -1018,7 +1023,9 @@ class Chebfun3(eqx.Module):
             phase2_relative_tol = last_relative_tol
             def is_happy(values, absolute):
                 if _periodic:
-                    return envelope_happiness(values, Trigtech, phase2_relative_tol)
+                    return envelope_happiness(
+                        values, Trigtech, phase2_relative_tol,
+                        _happiness_check, _happiness_pref)
                 return _is_happy_matrix(values, absolute)
 
             # Refine if initial grid is already not enough.
@@ -1331,6 +1338,8 @@ class Chebfun3(eqx.Module):
             _running_abs_tol=abs_tol_running if source_order else None,
             _r_init=r_new, _n_init=n_new, _periodic=_periodic, _first_kind=_first_kind,
             _sample_test=_sample_test, _session_tol=_session_tol,
+            _happiness_check=_happiness_check,
+            _happiness_pref=_happiness_pref,
         )
 
     # ------------------------------------------------------------------
@@ -3966,15 +3975,13 @@ def chebfun3(
     if pref is not None and key not in ("chebtech", "chebtech2", "2", "2nd",
                                         "chebtech1", "1", "1st", "trig", "trigtech", "periodic") and not direct_periodic:
         raise NotImplementedError("Unsupported explicit Chebfun3 technology preference")
-    if pref is not None and str(construction_pref.happinessCheck).lower() != "standard":
-        raise NotImplementedError("Explicit Chebfun3 preferences currently support standard happiness only")
-    if (direct_periodic or direct_first_kind) and str(construction_pref.happinessCheck).lower() != "standard":
-        raise NotImplementedError("Direct selected-tech Chebfun3 currently supports standard happiness only")
     periodic_options = dict(
         _periodic=direct_periodic,
         _first_kind=direct_first_kind,
         _sample_test=bool(construction_pref.cheb3Prefs.sampleTest),
         _session_tol=float(ChebfunPref().techPrefs.chebfuneps),
+        _happiness_check=construction_pref.happinessCheck,
+        _happiness_pref=construction_pref,
     )
     if (direct_periodic or direct_first_kind) and not callable(f):
         numeric = jnp.asarray(f)
