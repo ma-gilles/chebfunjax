@@ -7,6 +7,8 @@ Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 Algorithm source: LAPACK ZGGHRD and ZHGEQZ, version 3.2, Netlib complex16.
 https://www.netlib.org/lapack/complex16/zgghrd.f
 https://www.netlib.org/lapack/complex16/zhgeqz.f
+Shift calculation: LAPACK 3.12.1 ZHGEQZ lines 745-776.
+https://github.com/Reference-LAPACK/lapack/blob/v3.12.1/SRC/zhgeqz.f
 See the accompanying LAPACK_LICENSE.txt for the upstream license.
 This translation uses JAX arrays and rotations; it does not call host SciPy.
 """
@@ -140,14 +142,26 @@ def _qz_iteration(a, b):
             ad12 = asc * h[last - 1, last] / (bsc * t[last, last])
             ad22 = asc * h[last, last] / (bsc * t[last, last])
             abi22 = ad22 - u12 * ad21
-            t1 = 0.5 * (ad11 + abi22)
-            disc = jnp.sqrt(t1 * t1 + ad12 * ad21 - ad11 * ad22)
-            shift = jnp.where(jnp.real(jnp.conj(t1 - abi22) * disc) <= 0, t1 + disc, t1 - disc)
-            eshift = jnp.where(
-                it % 10 == 0,
-                eshift + jnp.conj(asc * h[last - 1, last] / (bsc * t[last - 1, last - 1])),
-                eshift,
+            # LAPACK 3.12.1 ZHGEQZ, lines 745-776: scaled Wilkinson
+            # shift avoids cancellation for nearly repeated eigenvalues.
+            abi12 = ad12 - u12 * ad11
+            ct = jnp.sqrt(abi12) * jnp.sqrt(ad21)
+            x = 0.5 * (ad11 - abi22)
+            xnorm = abs1(x)
+            scale = jnp.maximum(abs1(ct), xnorm)
+            safe_scale = jnp.where(scale != 0, scale, 1.0)
+            y = scale * jnp.sqrt((x / safe_scale) ** 2 + (ct / safe_scale) ** 2)
+            safe_xnorm = jnp.where(xnorm != 0, xnorm, 1.0)
+            direction = (x.real / safe_xnorm) * y.real + (x.imag / safe_xnorm) * y.imag
+            y = jnp.where(direction < 0, -y, y)
+            denominator = jnp.where(ct != 0, x + y, 1.0 + 0j)
+            shift = abi22 - ct * (ct / denominator)
+            exceptional = jnp.where(
+                (it % 20 == 0) & (bsc * abs1(t[last, last]) > tiny),
+                ad22,
+                ad21,
             )
+            eshift = jnp.where(it % 10 == 0, eshift + exceptional, eshift)
             shift = jnp.where(it % 10 == 0, eshift, shift)
 
             def choose(k, start):

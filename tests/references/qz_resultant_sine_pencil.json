@@ -1,0 +1,30 @@
+{
+  "provenance": "tests/chebfun2v/test_roots04.m, Chebfun commit 7574c77",
+  "capture": "Fourth generalized pencil from source-resultant sine comparison; input matrices only, not fitted outputs.",
+  "input_capture_sha256": "0b1a5609e7acdcd45701e1556a1dc8413f0f228dbfae7226f512dc8c8ea7b141",
+  "fixture_sha256": "2827730f1780394f310db75d9eef7369d2775c0fbd7f06f678544e654a80e7e2",
+  "shape": [
+    231,
+    231
+  ],
+  "old_qz": {
+    "status": 219,
+    "sweeps": 6930
+  },
+  "native_matlab": {
+    "elapsed": 0.183436,
+    "ra": 3.706067738580384e-15,
+    "rb": 4.107934282770911e-15,
+    "lower_h": 0.0,
+    "lower_t": 0.0
+  },
+  "candidate": {
+    "status": 0,
+    "steps": 584,
+    "seconds": 13.022928637918085,
+    "reconstruction_a": 1.2837141146371779e-14,
+    "reconstruction_b": 1.2454652925545078e-14,
+    "lower_h": 0.0,
+    "lower_t": 0.0
+  }
+}

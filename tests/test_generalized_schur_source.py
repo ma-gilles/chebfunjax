@@ -51,3 +51,21 @@ def test_zero_second_rotation_argument_preserves_first_exactly():
     np.testing.assert_array_equal(c, np.ones(values.shape))
     np.testing.assert_array_equal(s, np.zeros(values.shape))
     np.testing.assert_array_equal(np.asarray(r).view(np.uint64), values.view(np.uint64))
+
+
+def test_nearly_repeated_resultant_pencil_converges():
+    """Retain the original roots04 pencil that exhausted the old QZ shifts."""
+    from pathlib import Path
+
+    with np.load(Path(__file__).parent / "references/qz_resultant_sine_pencil.npz") as data:
+        a, b = data["a"], data["b"]
+    h, t, q, z, info, _ = qz(jnp.asarray(a), jnp.asarray(b))
+    h, t, q, z = map(np.asarray, (h, t, q, z))
+    assert int(info) == 0
+    # Same reconstruction bound as the existing dense-pencil controls.
+    bound = 128 * a.shape[0] * np.finfo(float).eps
+    assert np.linalg.norm(q @ h @ z.conj().T - a, 2) / np.linalg.norm(a, 2) < bound
+    assert np.linalg.norm(q @ t @ z.conj().T - b, 2) / np.linalg.norm(b, 2) < bound
+    assert np.linalg.norm(q.conj().T @ q - np.eye(a.shape[0]), 2) < bound
+    assert np.linalg.norm(z.conj().T @ z - np.eye(a.shape[0]), 2) < bound
+    assert np.count_nonzero(np.tril(h, -1)) == np.count_nonzero(np.tril(t, -1)) == 0
