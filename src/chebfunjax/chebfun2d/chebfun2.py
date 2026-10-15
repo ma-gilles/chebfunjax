@@ -2243,8 +2243,8 @@ class Chebfun2(eqx.Module):
 
         Parameters
         ----------
-        *others : Chebfun2
-            One or two further components sharing this Chebfun2's domain.
+        *others : Chebfun2 or Chebfun2v
+            Further components, or a two-component field to prepend to.
 
         Returns
         -------
@@ -2254,7 +2254,7 @@ class Chebfun2(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun2/vertcat.m
+        MATLAB source : @chebfun2/vertcat.m, @separableApprox/vertcat.m
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
@@ -2267,6 +2267,17 @@ class Chebfun2(eqx.Module):
             return self
         from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 
+        if isinstance(others[0], Chebfun2v):
+            field = others[0]
+            if field.n_components > 2:
+                raise ValueError(
+                    "CHEBFUN:SEPARABLEAPPROX:vertcat:tooManyComponents"
+                )
+            # The source dispatches through separableApprox and expands the
+            # two existing components before calling the vector constructor.
+            return Chebfun2v.from_functions(
+                self, field.components[0], field.components[1]
+            )
         return Chebfun2v([self.approx] + [g.approx for g in others])
 
     def minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
