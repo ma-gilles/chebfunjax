@@ -94,7 +94,7 @@ def test_domain_error_precedes_constructor(monkeypatch):
 
 def test_first_column_tech_selects_all_vscale_grids(monkeypatch):
     f = SimpleNamespace(cols=[Chebtech1.from_coeffs(jnp.ones(1))],
-                        domain=DOMAIN, length=lambda: (2, 20, 60))
+                        domain=DOMAIN, length=lambda: (2, 20, 60), isempty=lambda: False)
     counts = []
     def grid(n, a, b, *, kind):
         counts.append((n, a, b, kind))

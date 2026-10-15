@@ -1,0 +1,21 @@
+{
+  "scope": "Supplemental test double repair only; no library code or numerical assertion changed.",
+  "ci_run": 38652863712,
+  "ci_job": 116164390640,
+  "tested_commit": "452bb3e7f7a4db576f207b45efe2f35caa1500e1",
+  "ci_result": "1 failed,218 passed; mock lacked isempty while checking nonempty first-column technology grid selection.",
+  "change": "Add isempty=lambda:False to the existing SimpleNamespace. Keep all three grid/count/kind expectations and expected scale3 unchanged.",
+  "focused_test": "tests/test_matlab_port/chebfun3/test_power_source_controls.py::test_first_column_tech_selects_all_vscale_grids",
+  "focused_result": "passed",
+  "receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 3.6517280181869864,
+    "sampled_peak_summed_rss_kib": 473160,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "failure_log": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_chebfun3dc_452bb3_20261015.log",
+  "failure_log_sha256": "be84990c6b8bee88f33dfff703babedabce67e3326c7d94ff42f1784de19bdba",
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_vscale_mock_20261015",
+  "limitations": "Does not resolve nativeLU failure or establish green current-main CI."
+}

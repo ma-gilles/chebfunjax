@@ -1,3 +1,12 @@
+## 2026-10-15: repair the Chebfun3 scale test double
+
+CI exposed a supplemental grid-selection test whose mock lacked isempty().
+The mock now declares its intended nonempty state; its grid counts, technology
+and scale assertions are unchanged. The previously failing focused test passes.
+No library behavior or original numerical tolerance changed. See
+`docs/ci_chebfun3_vscale_mock_cpu_20261015.json`. Native LU and current-main
+CI remain unresolved.
+
 ## 2026-10-15: derive trig scale from coefficients
 
 Trigtech vertical scale now follows the native coefficient transform, including
