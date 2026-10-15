@@ -1212,6 +1212,9 @@ class Chebfun2(eqx.Module):
         --------
         diff, sum
         """
+        # Source @separableApprox/roots.m returns before inspecting operands.
+        if self.isempty():
+            return []
         from chebfunjax.chebfun2d.zerocurves import (
             common_zeros,
             zero_curves,
