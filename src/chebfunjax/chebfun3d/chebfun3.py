@@ -1158,13 +1158,12 @@ class Chebfun3(eqx.Module):
         abs_tol_running = _get_abs_tol(Vf, yb - ya, abs_tol_running)
         abs_tol_running = _get_abs_tol(Wf, zb - za, abs_tol_running)
 
-        # QR decompositions of fiber matrices
-        QU, RU = (jnp.linalg.qr(jnp.asarray(Uf), mode="reduced") if source_order
-                      else np.linalg.qr(Uf, mode='reduced'))  # (m0, r1)
-        QV, RV = (jnp.linalg.qr(jnp.asarray(Vf), mode="reduced") if source_order
-                      else np.linalg.qr(Vf, mode='reduced'))  # (m1, r2)
-        QW, RW = (jnp.linalg.qr(jnp.asarray(Wf), mode="reduced") if source_order
-                      else np.linalg.qr(Wf, mode='reduced'))  # (m2, r3)
+        # Preserve source QR arithmetic before DEIM chooses interpolation rows.
+        from chebfunjax.utils._source_qr import qr as source_qr
+
+        QU, RU = source_qr(Uf)
+        QV, RV = source_qr(Vf)
+        QW, RW = source_qr(Wf)
 
         choose_deim = source3f.deim if source_order else _deim
         inverse_product = source3f.invtprod if source_order else _invtprod

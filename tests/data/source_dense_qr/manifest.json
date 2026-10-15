@@ -1,0 +1,640 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+  "note": "Actual MATLAB R2025b qr(A,0) captures; source scripts included. No native factors are used as algorithm inputs.",
+  "cases": [
+    {
+      "index": 0,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 1,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 2,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 3,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 4,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 5,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 6,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 7,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 8,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 9,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 10,
+      "m": 19,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 11,
+      "m": 19,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 12,
+      "m": 19,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 13,
+      "m": 19,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 14,
+      "m": 19,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 15,
+      "m": 20,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 16,
+      "m": 20,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 17,
+      "m": 20,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 18,
+      "m": 20,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 19,
+      "m": 20,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 20,
+      "m": 21,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 21,
+      "m": 21,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 22,
+      "m": 21,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 23,
+      "m": 21,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 24,
+      "m": 21,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 25,
+      "m": 32,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 26,
+      "m": 32,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 27,
+      "m": 32,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 28,
+      "m": 32,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 29,
+      "m": 32,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 30,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 31,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 32,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 33,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 34,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 35,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 0
+    },
+    {
+      "index": 36,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -500
+    },
+    {
+      "index": 37,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": -1020
+    },
+    {
+      "index": 38,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 500
+    },
+    {
+      "index": 39,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real",
+      "exponent": 1010
+    },
+    {
+      "index": 40,
+      "m": 21,
+      "n": 3,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real_wide",
+      "exponent": 0
+    },
+    {
+      "index": 41,
+      "m": 21,
+      "n": 4,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real_wide",
+      "exponent": 0
+    },
+    {
+      "index": 42,
+      "m": 33,
+      "n": 7,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real_wide",
+      "exponent": 0
+    },
+    {
+      "index": 43,
+      "m": 129,
+      "n": 9,
+      "source": "qr_native_boundaries_extremes_20261015",
+      "kind": "real_wide",
+      "exponent": 0
+    },
+    {
+      "index": 44,
+      "m": 1,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 45,
+      "m": 1,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 46,
+      "m": 1,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 47,
+      "m": 1,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 48,
+      "m": 1,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 49,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 50,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 51,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 52,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 53,
+      "m": 2,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 54,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 55,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 56,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 57,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 58,
+      "m": 7,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 59,
+      "m": 17,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 60,
+      "m": 17,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 61,
+      "m": 17,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 62,
+      "m": 17,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 63,
+      "m": 17,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 64,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 65,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 66,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 67,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 68,
+      "m": 33,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 69,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 70,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 71,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 72,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 73,
+      "m": 129,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    },
+    {
+      "index": 74,
+      "m": 2049,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "1",
+      "exponent": 0
+    },
+    {
+      "index": 75,
+      "m": 2049,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "2",
+      "exponent": 0
+    },
+    {
+      "index": 76,
+      "m": 2049,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "3",
+      "exponent": 0
+    },
+    {
+      "index": 77,
+      "m": 2049,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "4",
+      "exponent": 0
+    },
+    {
+      "index": 78,
+      "m": 2049,
+      "n": 2,
+      "source": "qr_native_independent_controls_20261015",
+      "kind": "5",
+      "exponent": 0
+    }
+  ],
+  "archive_sha256": "65ac526564639162387455f7460d2b35d10c976047c35c3451d7d9dc7f10f056"
+}
