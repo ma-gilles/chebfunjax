@@ -1,0 +1,167 @@
+{
+  "base_commit": "eec3ac3d002be7a9aa0d18b401626ec52bbb685d",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "@chebfun3/chebfun3f.m initial indices, chebX/Y/Z, ACA coarse factors, phase2 ff capture and nested ref mapping",
+  "changes": [
+    "Polynomial random indices remain unclipped and use native cosine coordinates even beyond nominal grid bounds.",
+    "Phase1 and phase2 map selected indices directly; coarse fibers reuse final ACA selected columns.",
+    "Phase2 captures iteration grid lengths before per-axis growth, matching native anonymous ff capture.",
+    "Original constructor pass12 retains MATLAB meshgrid shape and same million coordinates and acceptance bound."
+  ],
+  "validation": "41 distinct pytest items qualified:18 unchanged source-focused checks,19 corrected preference/capture controls,3original technology cases,1constructor item containing17original logical predicates. No original acceptance bound changed.",
+  "retained_failures": [
+    "Earlier flattened and unflattened constructor runs censored by10GiB memory cap; neither yielded an assertion result.",
+    "Snapshot regression fails before fix: selected coordinate0.3826834323650896 instead of0.7071067811865477; passes after iteration snapshot correction."
+  ],
+  "runs": {
+    "constructor_final/run": {
+      "command_exit_code": 0,
+      "wall_seconds": 118.32247602008283,
+      "sampled_peak_summed_rss_kib": 3994144,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "tech_final": {
+      "command_exit_code": 0,
+      "wall_seconds": 178.57225279789418,
+      "sampled_peak_summed_rss_kib": 4323384,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "focused_final": {
+      "command_exit_code": 0,
+      "wall_seconds": 133.76253532618284,
+      "sampled_peak_summed_rss_kib": 4080904,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "performance_final": {
+      "command_exit_code": 0,
+      "wall_seconds": 57.92163083003834,
+      "sampled_peak_summed_rss_kib": 2964124,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "values_final": {
+      "command_exit_code": 0,
+      "wall_seconds": 3.56650473177433,
+      "sampled_peak_summed_rss_kib": 536024,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "performance": {
+    "laplacian_seconds": 27.80166352726519,
+    "calls": 50,
+    "kernel_seconds": 7.456260215956718,
+    "unique_signatures": 41,
+    "core": [
+      7,
+      8,
+      13
+    ],
+    "input_length": [
+      15,
+      14,
+      15
+    ],
+    "output_length": [
+      15,
+      14,
+      15
+    ],
+    "input_rank": [
+      6,
+      7,
+      12
+    ]
+  },
+  "saved_native_value_comparison": {
+    "rank": [
+      7,
+      8,
+      13
+    ],
+    "length": [
+      15,
+      14,
+      15
+    ],
+    "values": [
+      -0.13231742403970978,
+      -0.3969447156354606,
+      -0.49265203071946123,
+      -0.47483217497129543,
+      -0.39144814912163234,
+      -0.28056673910992497,
+      -0.17026475487470444,
+      -0.07980005653781673,
+      -0.021213841590891905,
+      -0.0007998999359168339,
+      -0.020099104710980958,
+      -0.07624677098617319,
+      -0.16163114571472323,
+      -0.2629380108749047,
+      -0.3597865245131883,
+      -0.42332805300452997,
+      -0.4153938812370752,
+      -0.28902797404004343,
+      0.00851953055035079
+    ],
+    "native_sample_max_difference": 1.1625145290850014e-12,
+    "python_analytic_max_error": 1.2182754804968e-12,
+    "native_analytic_max_error": 2.3807900095818013e-12,
+    "note": "Saved output reconstruction only; both original Laplacian pytest predicates passed separately in tests_run."
+  },
+  "native_reference": {
+    "seconds": 0.24899,
+    "rank": [
+      7,
+      8,
+      12
+    ],
+    "length": [
+      14,
+      14,
+      15
+    ]
+  },
+  "previous_published_instrumented_cold_laplacian_seconds": 28.5463,
+  "measurement_limits": "Single cold instrumented runs; not a repeated benchmark or all-function speed claim. Native timing is retained reference, not a matched same-process timing.",
+  "limits": [
+    "Generic periodic index clipping and other source differences remain; this package qualifies polynomial source mapping.",
+    "Full native representation, all examples/figures, JAX-only debt, nonstandard happiness preferences and green main CI remain unresolved.",
+    "Any native rank/length/value differences below remain explicit; passing original predicates does not imply bitwise parity."
+  ],
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015",
+  "source_hashes": {
+    "src/chebfunjax/chebfun3d/_chebfun3f_source.py": "7323fd9244af0a26d5900e5e5ba96f3ca93a2d1e3ec3b718f01daa1fa64bb366",
+    "src/chebfunjax/chebfun3d/chebfun3.py": "338ce02ff5063b840420ef07abce67297068bc58f8672ea0e4426d147ed84eb3",
+    "tests/test_chebfun3d/test_source_index_coordinates.py": "484547aae880bef1ebcec78ef9141a9806e3c6732b273060a1ee9f674a288243",
+    "tests/test_matlab_port/chebfun3/test_randi_seed_mapping_source.py": "4de02b7dbe10567d1d91571064e6debaf07eaf86f2e0fe0ad12a6c6a6fdd1b58",
+    "tests/test_matlab_port/chebfun3/test_constructor_matlab.py": "49e2d331fccca37203a1f6b90eed464c975965b8c24aa37169c5674c12c4d2cc"
+  },
+  "evidence_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/summary.json": "fd381177154805bb32193e3acdbb7760e395fc5a1f718ecbcaaded8e9f692afa",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/saved_values.json": "41c78fa4454caf34db07bfa9bcde84985f0ea6b7439675d61001c747b3d7db89",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/input.npz": "3fbaa20db095feded5d5e4113757d574912c9fe5bb720cccb013e2be42b968d3",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/output.npz": "ed00cf50bc2cc0258c95f12784709feb095d115604f9355f3e37f8773f3861e4",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/snapshot_regression/qualification.json": "9c11beec86ab11878f8d2635645a5ffc21c926958dd35baa8173c33a90477311",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/constructor_final/run/receipt.json": "89d9cfe93b161572579c23451d1f88a6c638c5e443dd220c6d881838cb421524",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/tech_final/receipt.json": "41eb4eb4fc262f629a1a9d5d88ee9c2210de2cf4b14b37b28a060be86339f8f0",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/focused_final/receipt.json": "089c12be1e676fc957e33d8ed4f2806dd3ac42ef27e53e548a58fd8457ca0f85",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/performance_final/receipt.json": "03d9808d1656d4a737aafe29edca9e15653d8d284c173065a1b9613f4400816c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/source_index_coordinates_20261015/values_final/receipt.json": "ed3ade973a4f6bafb56ad0a8e1fddfc7230dbe60268f16a5fff9a3c101f66cb2"
+  },
+  "preference_correction": "See chebfun3_min_samples_native_correction_cpu_20261015.json: built-in no-argument technology default17 is used; prior selected-pref interpretation superseded.",
+  "gate_reuse": {
+    "changed_top_level_definitions": [
+      "chebfun3"
+    ],
+    "only_executable_change": "public min_samples None fallback changed from selected pref field to literal17; docstring also corrected",
+    "all_other_function_class_asts_unchanged": 19,
+    "gate_scope": "Existing constructor/technology tests use factory minSamples17, so selected grid remains17; direct from_function performance and saved representations do not pass through changed public wrapper. Changed local/session preference behavior separately qualified.",
+    "before_sha256": "61c920a108b1ca1adfae928cdf5ff0adcc759aa802b1bfd7aee28731e837d32c",
+    "after_sha256": "338ce02ff5063b840420ef07abce67297068bc58f8672ea0e4426d147ed84eb3"
+  }
+}

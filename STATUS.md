@@ -1,3 +1,38 @@
+## 2026-10-15: source indices, refinement snapshots and native grid defaults
+
+Polynomial construction now preserves native random indices beyond the nominal
+finite grid, maps them directly through cosine coordinates, and reuses the
+coarse fibers returned by ACA. Refinement captures grid sizes once per pass,
+so later axes cannot accidentally use the next pass's larger grid. The original
+constructor test now retains MATLAB's meshgrid shape and unchanged error bound.
+
+Forty-one distinct pytest items are qualified across the recorded runs,
+including all seventeen original logical constructor predicates, C1/C2/trig
+technology cases, original Laplacian and composition checks, and nineteen
+preference/capture controls. Earlier memory-censored runs and the snapshot
+regression's fail-before/pass-after evidence are retained. The corrected full
+constructor passes in 111 seconds with about 3.8 GiB peak summed RSS.
+
+This also corrects the preceding minSamples preference interpretation:
+MATLAB reads the technology's no-argument default of 17, ignoring local/session
+techPrefs.minSamples in Phase 1. Four independent native captures confirm it.
+The explicit Python min_samples keyword remains a documented extension.
+See `docs/chebfun3_source_indices_cpu_20261015.json` and
+`docs/chebfun3_min_samples_native_correction_cpu_20261015.json` for scoped
+qualification, unchanged-code gate reuse and retained failures.
+
+The instrumented cold Laplacian takes 27.80 seconds versus the prior 28.55 seconds;
+these are single runs, not a repeated speed benchmark. Output rank [7, 8, 13]
+still differs from native [7, 8, 12], lengths [15, 14, 15] from [14, 14, 15], and sampled
+values by 1.16e-12. Full numerical, figure, JAX-only, performance and CI parity
+remain unresolved.
+
+Native LU diagnosis now reproduces both saved MATLAB factor arrays exactly
+using its observed GETRF/CNR_AUTO configuration. This establishes provider
+arithmetic differences, not a production correction. The original CI failure
+remains open; no backend pin, changed tolerance or fixture was introduced.
+See `docs/native_lu_provider_diagnosis_cpu_20261015.json`.
+
 ## 2026-10-15: initial grid preference dispatch
 
 Public Chebfun3 construction now honors the selected minSamples preference,

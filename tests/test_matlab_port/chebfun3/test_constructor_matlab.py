@@ -56,7 +56,7 @@ class TestChebfun3Constructor:
         ffch = chebfun3(lambda x, y, z: f(x, y, z), (-2, 2, -2, 2, -2, 2))
         xx = np.linspace(-2, 2, 100)
         XX, YY, ZZ = np.meshgrid(xx, xx, xx)
-        X, Y, Z = (jnp.asarray(a.ravel()) for a in (XX, YY, ZZ))
+        X, Y, Z = (jnp.asarray(a) for a in (XX, YY, ZZ))
         assert np.max(np.abs(np.asarray(f(X, Y, Z)) - np.asarray(ffch(X, Y, Z)))) < 1e5 * tol  # pass(12)
 
         f = chebfun3(lambda x, y, z: 1, vectorize=True)

@@ -85,7 +85,23 @@ def cosine_points(n, a, b):
     MATLAB source: @chebfun3/chebfun3f.m
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    angle = _grid_ratios(jnp.arange(n, dtype=jnp.float64) * jnp.pi, n - 1)
+    return cosine_coordinates(jnp.arange(n, dtype=jnp.int64), n, a, b)
+
+
+def cosine_coordinates(indices, n, a, b):
+    """Map arbitrary zero-based native Chebyshev indices to physical points.
+
+    The source random initializer can produce indices beyond ``n - 1``.
+    MATLAB evaluates those indices through its cosine formula rather than
+    clipping or indexing a finite point vector.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun3/chebfun3f.m, chebX/Y/Z and ref
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    indices = jnp.asarray(indices, dtype=jnp.float64)
+    angle = _grid_ratios(indices * jnp.pi, n - 1)
     return a + (-jnp.cos(angle) + 1) * (b - a) / 2
 
 
@@ -102,9 +118,11 @@ def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tec
     resolved = [envelope_happiness(values, tech, relative_tol) for values in fibers]
     lengths = [n if happy else 2*n - 1 for n, happy in zip(lengths, resolved)]
     while not all(resolved):
+        # Native ff captures m once per pass; axis growth applies next pass.
+        iteration_lengths = tuple(lengths)
         grids = [cosine_points(n, a, b) for n, a, b in
-                 zip(lengths, domain[::2], domain[1::2])]
-        factors = [(m-1)//(n-1) for m, n in zip(lengths, sizes)]
+                 zip(iteration_lengths, domain[::2], domain[1::2])]
+        factors = [(m-1)//(n-1) for m, n in zip(iteration_lengths, sizes)]
         for axis in range(3):
             if resolved[axis]:
                 continue
@@ -112,7 +130,9 @@ def refine_polynomial_fibers(op, fibers, pairs, sizes, domain, relative_tol, tec
             coordinates = [None, None, None]
             coordinates[axis] = grids[axis][1::2, None]
             for k, selected in zip(remaining, pairs[axis]):
-                coordinates[k] = grids[k][jnp.asarray(selected) * factors[k]][None, :]
+                coordinates[k] = cosine_coordinates(
+                    jnp.asarray(selected) * factors[k], iteration_lengths[k],
+                    domain[2*k], domain[2*k+1])[None, :]
             coordinates = jnp.broadcast_arrays(*coordinates)
             added = jnp.asarray(op(*coordinates))
             old = fibers[axis]

@@ -30,14 +30,9 @@ def test_native_initialize_index_randomly_vectors():
         actual = _initialize_random_indices(
             case["r"], case["maxVal"], case["restarts"]
         )
-        if np.any(native > case["maxVal"]):
-            # The literal source expression can exceed the grid for small r;
-            # retain the existing Python clipping adapter in those cases.
-            np.testing.assert_array_equal(
-                actual, np.minimum(native, case["maxVal"]) - 1
-            )
-        else:
-            np.testing.assert_array_equal(actual, native - 1)
+        # Keep raw zero-based native indices. MATLAB maps them through its
+        # cosine coordinate formula, including indices beyond maxVal.
+        np.testing.assert_array_equal(actual, native - 1)
         # Native J and K initialize independently but reseed to the same
         # restart seed, so the same input tuple must return the same indices.
         np.testing.assert_array_equal(

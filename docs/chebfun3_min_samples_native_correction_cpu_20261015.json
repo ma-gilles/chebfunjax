@@ -1,0 +1,373 @@
+{
+  "scope": "Corrects eec3ac3d interpretation of selected minSamples preferences; native phase1 uses no-argument tech defaults17.",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_capture": {
+    "sourceCommit": "7574c77680d7e82b79626300bf255498271a72df",
+    "matlabRelease": "2025b",
+    "cases": [
+      {
+        "caseName": "default",
+        "configuredMinSamples": 17,
+        "eventCount": 3,
+        "events": [
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              17,
+              6,
+              6
+            ],
+            "shapeY": [
+              17,
+              6,
+              6
+            ],
+            "shapeZ": [
+              17,
+              6,
+              6
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -0.9238795325112867,
+            "maxY": 0.7071067811865475,
+            "minZ": -0.9238795325112867,
+            "maxZ": 0.7071067811865475
+          }
+        ],
+        "constructionError": ""
+      },
+      {
+        "caseName": "local5",
+        "configuredMinSamples": 5,
+        "eventCount": 3,
+        "events": [
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              17,
+              6,
+              6
+            ],
+            "shapeY": [
+              17,
+              6,
+              6
+            ],
+            "shapeZ": [
+              17,
+              6,
+              6
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -0.9238795325112867,
+            "maxY": 0.7071067811865475,
+            "minZ": -0.9238795325112867,
+            "maxZ": 0.7071067811865475
+          }
+        ],
+        "constructionError": ""
+      },
+      {
+        "caseName": "local25",
+        "configuredMinSamples": 25,
+        "eventCount": 3,
+        "events": [
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              17,
+              6,
+              6
+            ],
+            "shapeY": [
+              17,
+              6,
+              6
+            ],
+            "shapeZ": [
+              17,
+              6,
+              6
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -0.9238795325112867,
+            "maxY": 0.7071067811865475,
+            "minZ": -0.9238795325112867,
+            "maxZ": 0.7071067811865475
+          }
+        ],
+        "constructionError": ""
+      },
+      {
+        "caseName": "session25",
+        "configuredMinSamples": 25,
+        "eventCount": 3,
+        "events": [
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              2,
+              2,
+              2
+            ],
+            "shapeY": [
+              2,
+              2,
+              2
+            ],
+            "shapeZ": [
+              2,
+              2,
+              2
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -1,
+            "maxY": 1,
+            "minZ": -1,
+            "maxZ": 1
+          },
+          {
+            "shapeX": [
+              17,
+              6,
+              6
+            ],
+            "shapeY": [
+              17,
+              6,
+              6
+            ],
+            "shapeZ": [
+              17,
+              6,
+              6
+            ],
+            "minX": -1,
+            "maxX": 1,
+            "minY": -0.9238795325112867,
+            "maxY": 0.7071067811865475,
+            "minZ": -0.9238795325112867,
+            "maxZ": 0.7071067811865475
+          }
+        ],
+        "constructionError": ""
+      }
+    ]
+  },
+  "source": "@chebfun3/chebfun3f.m36-50; @chebtech/techPref.m59-79; @trigtech/techPref.m65",
+  "validation": "15 public dispatch/explicit-keyword extension tests plus4 actual callback controls against independent native capture pass.",
+  "extension": "Explicit Python min_samples keyword remains a documented extension; it is separate from ignored native techPrefs.minSamples.",
+  "retained_failures": [
+    "First native capture failed before serialization because experimental nested setDefaults syntax encountered missing raw field; retried documented flat setter.",
+    "First retry setup omitted guarded proposal.md; preflight failed before native launch; copied input and rebuilt guard."
+  ],
+  "runs": {
+    "supervision": {
+      "command_exit_code": 1,
+      "wall_seconds": 83.6780885537155,
+      "sampled_peak_summed_rss_kib": 1310200,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "retry_v2/supervision": {
+      "command_exit_code": 0,
+      "wall_seconds": 80.8538348521106,
+      "sampled_peak_summed_rss_kib": 1305828,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "python_dispatch/run": {
+      "command_exit_code": 0,
+      "wall_seconds": 9.525273070205003,
+      "sampled_peak_summed_rss_kib": 751152,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "python_native/run": {
+      "command_exit_code": 0,
+      "wall_seconds": 6.485924229957163,
+      "sampled_peak_summed_rss_kib": 659568,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "gate_reuse": {
+    "changed_top_level_definitions": [
+      "chebfun3"
+    ],
+    "only_executable_change": "public min_samples None fallback changed from selected pref field to literal17; docstring also corrected",
+    "all_other_function_class_asts_unchanged": 19,
+    "gate_scope": "Existing constructor/technology tests use factory minSamples17, so selected grid remains17; direct from_function performance and saved representations do not pass through changed public wrapper. Changed local/session preference behavior separately qualified.",
+    "before_sha256": "61c920a108b1ca1adfae928cdf5ff0adcc759aa802b1bfd7aee28731e837d32c",
+    "after_sha256": "338ce02ff5063b840420ef07abce67297068bc58f8672ea0e4426d147ed84eb3"
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/S/min_samples_native_correction_20261015",
+  "hashes": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/S/min_samples_native_correction_20261015/retry_v2/capture.json": "b5a5118b03bb78e9b857c1616fdf1ac3bdf3620393e509638f0b261f8eae6dcc",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/S/min_samples_native_correction_20261015/retry_v2/capture_min_samples.m": "13709dcd700fc0be5fe2873f834d9d663f041e6dbcfcd834b1919dabdaa9ff00",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/S/min_samples_native_correction_20261015/source_gate_reuse.json": "8639d510f94e829ce2e66b4e89eda04e34b1e6345c7a6dd9f1e4f6b6dae3bd07",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/test_chebfun3d/test_min_samples_preference.py": "fde88d652789494d103727e237325a0f1a9895aaf59ad249f2ed30134fb6b6ca",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/tests/fixtures/chebfun3_min_samples_native_20261015.json": "b5a5118b03bb78e9b857c1616fdf1ac3bdf3620393e509638f0b261f8eae6dcc"
+  }
+}

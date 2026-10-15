@@ -1,0 +1,105 @@
+{
+  "scope": "CPU-only diagnostic of unresolved native LU comparison; no production solver correction or backend selection.",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "open_test": "tests/test_operators/test_piecewise_projected_assembly.py::test_row_scaled_solve_matches_independent_native_lu[native]",
+  "ci": {
+    "run": 38652863712,
+    "job": 116164390520,
+    "passed": 1502,
+    "failed": 1,
+    "mismatched_solution_elements": 17,
+    "max_solution_difference": 7.840950111415168e-14
+  },
+  "native_factor_reproduction": {
+    "dgetrf_native": {
+      "info": 0,
+      "permutation_matches_native": true,
+      "comparison": {
+        "different_entries": 0,
+        "exact_entries": 625,
+        "max_abs_difference": 0.0,
+        "first_columnwise": null,
+        "first_upper_rowwise": null
+      }
+    },
+    "dgetrf_jax": {
+      "info": 0,
+      "permutation_matches_native": true,
+      "comparison": {
+        "different_entries": 0,
+        "exact_entries": 625,
+        "max_abs_difference": 0.0,
+        "first_columnwise": null,
+        "first_upper_rowwise": null
+      }
+    }
+  },
+  "native_configuration": {
+    "requested_name": "MKL_CBWR_AUTO",
+    "requested_value": 2,
+    "set_status": 0,
+    "getter_branch": 2,
+    "getter_all": 2,
+    "auto_detected_branch": 2,
+    "constant_source": "Intel2024.1 documentation and installed Intel2024.2 headers"
+  },
+  "library": {
+    "library_path": "/usr/licensed/matlab-R2025b/bin/glnxa64/mkl.so",
+    "library_sha256": "d3c2403709ca39cda28f420aeaeebf1db114003590b6c2d44a83a1d395faaa29",
+    "version": "Intel(R) oneAPI Math Kernel Library Version 2024.1-Product Build 20240215 for Intel(R) 64 architecture applications"
+  },
+  "provider_replay": "Source-derived OpenBLAS v0.3.30 GETF2/Zen arithmetic reproduces both saved Zen factors625/625 with exact pivots. Native MKL GETRF with observed CNR_AUTO configuration reproduces both MATLAB factors625/625.",
+  "diagnosis": "Saved scaling and permutations agree; MATLAB cross-solving retained default factors retains dominant solution discrepancy. Provider arithmetic differs; no source-semantic bug established.",
+  "limitations": [
+    "Two captured25x25 inputs only; no general provider equality claim.",
+    "Native MKL internal GETRF operation/blocking order remains unknown.",
+    "No production MKL integration, provider pin, fixture change, tolerance widening or xfail introduced.",
+    "Original LU CI assertion remains unresolved."
+  ],
+  "receipt": {
+    "command_exit_code": 0,
+    "wall_seconds": 0.7228680532425642,
+    "sampled_peak_summed_rss_kib": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "memory_note": "0.1s sampling missed short-lived child; waited-child maxRSS25928KiB reported by diagnostic.",
+  "evidence_sha256": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_cnr_auto_20261015/RESULT.json": "c120208fcd25383272ddd5507503964e00e85935255b0661dbe9847e5b635179",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_cnr_auto_20261015/REPORT.md": "241982595be8b31bfdabe12739bde04142580ec3ce97b90d94fe2e70a1cf1fbe",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_cnr_auto_20261015/CONFIGURATION_BASIS.md": "0d88db9dfaad239b3656af854691c9adc42fae488f23f92390181a48c5a28662",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_cnr_auto_20261015/run/receipt.json": "2ae219b1ec2973427c03f3ede10a8a16e4b79555e14392c8ea58d4b2925d673d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_leftlooking_replay_20261015/RESULT.json": "bb87a30a621683fd864e6b4b75be92182a51f5099376b7b0be5438b7d4d2c1b5",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_leftlooking_replay_20261015/REPORT.md": "1bd48de70be83ccef9fb3919f1cef4e02e8ae4f8071e51a0c01ccf258a5ebb9d",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_native_factor_stages_20261015/RESULT.json": "5149d5d65a707cab71178f5e50d733d83e198f0323ff187d0a23a97dbafc10a6",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_core7_452bb3_20261015.log": "68c69edc5cde08d7398a681cd55b662218017400fe154de541bc8c031dc06a19",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_order_trace_20261015/events.jsonl": "51bf925777620e47fa22f64770eaa7e02d62cf7f52a69118eef5e2b4603f6589",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_mkl_order_trace_20261015/run/receipt.json": "c8d2820e8275044b6898572dd0c10b309c53f23320fc7ec040aab99b165d7a1f"
+  },
+  "observed_native_schedule": {
+    "scope": "Debugger trace of own native-exact saved-input GETRF/AUTO process; both final625factor entries and baseline bytes preserved.",
+    "ilaenv_ispec3": 1,
+    "ilaenv_ispec1_block": 8,
+    "panels": [
+      [
+        25,
+        8
+      ],
+      [
+        17,
+        8
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "leading_dimension": 25,
+    "events": 65,
+    "limits": "Observed schedule on these25x25inputs; not a general blocksize contract or completed portable arithmetic implementation."
+  }
+}

@@ -85,7 +85,8 @@ def _initialize_random_indices(ri: int, ni: int, restarts: int) -> np.ndarray:
     The source saves caller RNG state, resets Twister to
     ``16051821+restarts``, draws ``randi(floor(ni/ri),1)`` once per fiber,
     and restores caller state. The captured integer vectors match the
-    floor-map from native ``rand`` uniforms for the qualified bounds.
+    floor-map from native ``rand`` uniforms. No clipping is applied when
+    the source subinterval formula produces an index beyond ``ni``.
     """
     box = ni // ri
     if box < 1:
@@ -95,9 +96,9 @@ def _initialize_random_indices(ri: int, ni: int, restarts: int) -> np.ndarray:
         init_matlab_twister(seed), (ri,)
     )
     draws = jnp.floor(uniforms * box).astype(jnp.int64) + 1
-    vals = (jnp.arange(ri, dtype=jnp.int64) + 1) * box + draws
-    # Match the existing zero-based grid adapter, including its clipping.
-    vals = jnp.minimum(vals, ni) - 1
+    # Native values are 1-based i*box+randi(box); preserve the full range in
+    # zero-based form even when the final subinterval extends beyond ni.
+    vals = (jnp.arange(ri, dtype=jnp.int64) + 1) * box + draws - 1
     # ACA indexes NumPy-backed host arrays; convert only at that boundary.
     return np.asarray(vals)
 
@@ -441,6 +442,9 @@ def _eval_tensor(
     I: np.ndarray,  # noqa: E741
     J: np.ndarray,
     K: np.ndarray,
+    *,
+    source_sizes: tuple[int, int, int] | None = None,
+    source_domain: tuple[float, ...] | None = None,
 ) -> np.ndarray:
     """Evaluate f at the tensor product of selected physical points.
 
@@ -451,21 +455,35 @@ def _eval_tensor(
     x_pts, y_pts, z_pts : np.ndarray
         1D arrays of all available points in each direction.
     I, J, K : np.ndarray
-        1D int arrays of index subsets in x, y, z respectively.
+        1D int arrays of index subsets in x, y, z respectively.  With
+        ``source_sizes``, indices are mapped by the native cosine formula and
+        may extend beyond the nominal grid bounds.
 
     Returns
     -------
     T : np.ndarray, shape (len(I), len(J), len(K))
-        Tensor of function values T[i, j, k] = f(x_pts[I[i]], y_pts[J[j]], z_pts[K[k]]).
+        Tensor of function values on the selected physical points.
     """
-    xi = x_pts[I]
-    yj = y_pts[J]
-    zk = z_pts[K]
+    if source_sizes is None:
+        xi = x_pts[I]
+        yj = y_pts[J]
+        zk = z_pts[K]
+    else:
+        from chebfunjax.chebfun3d._chebfun3f_source import cosine_coordinates
+
+        if source_domain is None:
+            raise ValueError("source_domain is required with source_sizes")
+        xi = cosine_coordinates(I, source_sizes[0], *source_domain[0:2])
+        yj = cosine_coordinates(J, source_sizes[1], *source_domain[2:4])
+        zk = cosine_coordinates(K, source_sizes[2], *source_domain[4:6])
     # Build ndgrid-style meshgrid (indexing='ij')
     # Native evalTensor skips the callback for an empty Cartesian product.
     # Preserve its downstream tensor shape in the Python representation.
     if len(I) == 0 or len(J) == 0 or len(K) == 0:
         return jnp.empty((len(I), len(J), len(K)), dtype=jnp.float64)
+    if source_sizes is not None:
+        coordinates = jnp.meshgrid(xi, yj, zk, indexing="ij")
+        return jnp.asarray(f(*coordinates), dtype=jnp.float64)
     xx, yy, zz = np.meshgrid(xi, yj, zk, indexing='ij')
     xx_j = jnp.asarray(xx, dtype=jnp.float64)
     yy_j = jnp.asarray(yy, dtype=jnp.float64)
@@ -736,6 +754,12 @@ class Chebfun3(eqx.Module):
         grid_points = source3f.cosine_points if source_order else periodic_points
         last_relative_tol = tol
 
+        def initialize_indices(rank, count):
+            indices = _initialize_random_indices(rank, count, _restarts)
+            # Periodic sampling retains its existing finite-grid adapter;
+            # polynomial source order evaluates raw indices by cosine map.
+            return indices if source_order else jnp.minimum(indices, count - 1)
+
         # ----------------------------------------------------------------
         # Helper: sample f on full tensor grid (n1 x n2 x n3)
         # ----------------------------------------------------------------
@@ -808,8 +832,8 @@ class Chebfun3(eqx.Module):
 
         # Native initializeIndexRandomly reseeds Twister for each call, so J
         # and K use identical explicit uniform streams for a given restart.
-        J = _initialize_random_indices(r[1], n[1], _restarts)
-        K = _initialize_random_indices(r[2], n[2], _restarts)
+        J = initialize_indices(r[1], n[1])
+        K = initialize_indices(r[2], n[2])
 
         # Store the fiber indices found in each ACA round
         I_idx = np.arange(n[0], dtype=int)
@@ -826,7 +850,9 @@ class Chebfun3(eqx.Module):
             for _inner in range(2):
                 # ---- ACA on mode-1 unfolding ----
                 T1 = _eval_tensor(f, xp, yp, zp,
-                                  np.arange(n[0]), J, K)
+                                  np.arange(n[0]), J, K,
+                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                     if source_order else {}))
                 vscale_T1 = float(np.max(np.abs(T1))) if T1.size > 0 else 0.0
                 if not np.isfinite(vscale_T1):
                     raise ValueError(
@@ -836,8 +862,8 @@ class Chebfun3(eqx.Module):
 
                 M1 = source3f.unfold(T1, 0) if source_order else T1.reshape(n[0], len(J) * len(K))
                 abs_tol_running = _get_abs_tol(M1, xb - xa, abs_tol_running)
-                _, _, _, I_idx, col1 = (source3f.aca(M1, abs_tol_running, n[0]) if source_order
-                                                   else _aca(M1, abs_tol_running, max_rank))
+                Uc, _, _, I_idx, col1 = (source3f.aca(M1, abs_tol_running, n[0]) if source_order
+                                         else _aca(M1, abs_tol_running, max_rank))
                 r[0] = len(I_idx)
                 # Save which (j,k) pairs the selected columns correspond to
                 if source_order:
@@ -849,12 +875,14 @@ class Chebfun3(eqx.Module):
 
                 # ---- ACA on mode-2 unfolding ----
                 T2 = _eval_tensor(f, xp, yp, zp,
-                                  I_idx, np.arange(n[1]), K)
+                                  I_idx, np.arange(n[1]), K,
+                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                     if source_order else {}))
                 # mode-2 unfolding: permute to (n2, n1*n3)
                 M2 = source3f.unfold(T2, 1) if source_order else T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
                 abs_tol_running = _get_abs_tol(M2, yb - ya, abs_tol_running)
-                _, _, _, J_idx, col2 = (source3f.aca(M2, abs_tol_running, n[1]) if source_order
-                                                   else _aca(M2, abs_tol_running, max_rank))
+                Vc, _, _, J_idx, col2 = (source3f.aca(M2, abs_tol_running, n[1]) if source_order
+                                         else _aca(M2, abs_tol_running, max_rank))
                 r[1] = len(J_idx)
                 if source_order:
                     pair1, pair2 = source3f.decode_columns(col2, len(I_idx))
@@ -865,12 +893,14 @@ class Chebfun3(eqx.Module):
 
                 # ---- ACA on mode-3 unfolding ----
                 T3 = _eval_tensor(f, xp, yp, zp,
-                                  I_idx, J_idx, np.arange(n[2]))
+                                  I_idx, J_idx, np.arange(n[2]),
+                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                     if source_order else {}))
                 # mode-3 unfolding: permute to (n3, n1*n2)
                 M3 = source3f.unfold(T3, 2) if source_order else T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
                 abs_tol_running = _get_abs_tol(M3, zb - za, abs_tol_running)
-                _, _, _, K_idx, col3 = (source3f.aca(M3, abs_tol_running, n[2]) if source_order
-                                                   else _aca(M3, abs_tol_running, max_rank))
+                Wc, _, _, K_idx, col3 = (source3f.aca(M3, abs_tol_running, n[2]) if source_order
+                                         else _aca(M3, abs_tol_running, max_rank))
                 r[2] = len(K_idx)
                 if source_order:
                     pair1, pair2 = source3f.decode_columns(col3, len(I_idx))
@@ -903,12 +933,10 @@ class Chebfun3(eqx.Module):
                     xp = grid_points(n[0], xa, xb)
                     yp = grid_points(n[1], ya, yb)
                     zp = grid_points(n[2], za, zb)
-                    J = _initialize_random_indices(
-                        r[1] if source_order else max(r[1], 3), n[1], _restarts
-                    )
-                    K = _initialize_random_indices(
-                        r[2] if source_order else max(r[2], 3), n[2], _restarts
-                    )
+                    J = (initialize_indices(r[1], n[1]) if source_order else
+                         initialize_indices(max(r[1], 3), n[1]))
+                    K = (initialize_indices(r[2], n[2]) if source_order else
+                         initialize_indices(max(r[2], 3), n[2]))
                     need_refine = True
                     break
                 elif min(r) < 2:
@@ -935,33 +963,36 @@ class Chebfun3(eqx.Module):
         # The number of fibers = r[i] from each mode
         r1, r2, r3 = r
 
-        # Build fiber matrices at the coarse-grid resolution using the pivot
-        # fiber indices found in Phase 1.
-        # Uf[i, j] = f(x_pts[i], y_pts[J_from1[j]], z_pts[K_from1[j]])
-        # stored as n1 x r1 matrix
-        Uf_coarse = np.zeros((n[0], r1))
-        for j in range(r1):
-            T_col = _eval_tensor(f, xp, yp, zp,
-                                 np.arange(n[0]),
-                                 np.array([J_from1[j]]),
-                                 np.array([K_from1[j]]))
-            Uf_coarse[:, j] = T_col[:, 0, 0]
+        # Native ACA already returns the coarse factor matrices as its
+        # selected columns.  Reuse those source-order matrices directly so
+        # off-grid random indices retain their cosine-mapped coordinates.
+        if source_order:
+            Uf_coarse, Vf_coarse, Wf_coarse = Uc, Vc, Wc
+        else:
+            # Build generic-path fibers from the selected physical points.
+            Uf_coarse = np.zeros((n[0], r1))
+            for j in range(r1):
+                T_col = _eval_tensor(f, xp, yp, zp,
+                                     np.arange(n[0]),
+                                     np.array([J_from1[j]]),
+                                     np.array([K_from1[j]]))
+                Uf_coarse[:, j] = T_col[:, 0, 0]
 
-        Vf_coarse = np.zeros((n[1], r2))
-        for j in range(r2):
-            T_col = _eval_tensor(f, xp, yp, zp,
-                                 np.array([I_from2[j]]),
-                                 np.arange(n[1]),
-                                 np.array([K_from2[j]]))
-            Vf_coarse[:, j] = T_col[0, :, 0]
+            Vf_coarse = np.zeros((n[1], r2))
+            for j in range(r2):
+                T_col = _eval_tensor(f, xp, yp, zp,
+                                     np.array([I_from2[j]]),
+                                     np.arange(n[1]),
+                                     np.array([K_from2[j]]))
+                Vf_coarse[:, j] = T_col[0, :, 0]
 
-        Wf_coarse = np.zeros((n[2], r3))
-        for j in range(r3):
-            T_col = _eval_tensor(f, xp, yp, zp,
-                                 np.array([I_from3[j]]),
-                                 np.array([J_from3[j]]),
-                                 np.arange(n[2]))
-            Wf_coarse[:, j] = T_col[0, 0, :]
+            Wf_coarse = np.zeros((n[2], r3))
+            for j in range(r3):
+                T_col = _eval_tensor(f, xp, yp, zp,
+                                     np.array([I_from3[j]]),
+                                     np.array([J_from3[j]]),
+                                     np.arange(n[2]))
+                Wf_coarse[:, j] = T_col[0, 0, :]
 
         # ================================================================
         # PHASE 2: Refine fiber grids until Chebyshev coefficients decay
@@ -3757,9 +3788,10 @@ def chebfun3(
     max_rank : int, optional
         Maximum rank in each mode.  Default 128.
     min_samples : int, optional
-        Minimum grid points per direction in Phase 1.  Defaults to the selected
-        technology preference ``pref.techPrefs.minSamples`` (17 for the
-        factory Chebtech2 preference).  An explicit value overrides it.
+        Minimum grid points per direction in Phase 1. Defaults to 17, the
+        native no-argument technology default for all supported technologies.
+        Native Phase 1 ignores ``pref.techPrefs.minSamples``. An explicit
+        Python keyword value is an extension that overrides this grid size.
 
     pref : ChebfunPref, optional
         Copied constructor preferences. Direct Fourier construction supports
@@ -3815,7 +3847,9 @@ def chebfun3(
 
     construction_pref = ChebfunPref() if pref is None else ChebfunPref(pref)
     if min_samples is None:
-        min_samples = int(construction_pref.techPrefs.minSamples)
+        # Native chebfun3f reads tech.techPref without passing pref.techPrefs.
+        # All supported built-in technologies have a no-argument default of 17.
+        min_samples = 17
     selected_tech = tech if tech is not None else construction_pref.tech
     key = (selected_tech.__name__ if isinstance(selected_tech, type)
            else str(selected_tech)).lower().lstrip("@")
