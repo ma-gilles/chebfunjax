@@ -58,29 +58,38 @@ def test_source_floor_one_scaling_for_subunit_and_zero_rows(monkeypatch):
     npt.assert_array_equal(np.asarray(scaled_a), expected_a)
     npt.assert_array_equal(np.asarray(scaled_b), expected_b)
 
-    # Observe the actual operands at the general solve boundary as well.
+    # Observe the actual source-LU boundary: original A/RHS, scaled A and
+    # row multipliers. RHS scaling now occurs inside the implicit solve.
     solve_matrix = jnp.asarray([
         [0.25, -0.5, 0.0],
         [0.0, 0.125, 0.0],
         [2.0, -4.0, 2.0],
     ])
     solve_rhs = jnp.asarray([[1.0], [2.0], [3.0]])
+    from chebfunjax.utils import _source_lu_solve
+
     captured = {}
-    original_solve = jnp.linalg.solve
+    original_solve = _source_lu_solve.solve_with_row_scaling
 
-    def recording_solve(a, b):
-        captured["a"] = np.asarray(a)
-        captured["b"] = np.asarray(b)
-        return original_solve(a, b)
+    def recording_solve(a, b, scaled_a, scale):
+        captured["original_a"] = np.asarray(a)
+        captured["original_b"] = np.asarray(b)
+        captured["scaled_a"] = np.asarray(scaled_a)
+        captured["scale"] = np.asarray(scale)
+        return original_solve(a, b, scaled_a, scale)
 
-    monkeypatch.setattr(jnp.linalg, "solve", recording_solve)
-    _piecewise_row_scaled_solve(solve_matrix, solve_rhs)
+    monkeypatch.setattr(_source_lu_solve, "solve_with_row_scaling", recording_solve)
+    solution = _piecewise_row_scaled_solve(solve_matrix, solve_rhs)
     expected_solve_a = np.asarray(solve_matrix).copy()
     expected_solve_a[2] /= 4.0
-    expected_solve_b = np.asarray(solve_rhs).copy()
-    expected_solve_b[2] /= 4.0
-    npt.assert_array_equal(captured["a"], expected_solve_a)
-    npt.assert_array_equal(captured["b"], expected_solve_b)
+    npt.assert_array_equal(captured["original_a"], np.asarray(solve_matrix))
+    npt.assert_array_equal(captured["original_b"], np.asarray(solve_rhs))
+    npt.assert_array_equal(captured["scaled_a"], expected_solve_a)
+    npt.assert_array_equal(captured["scale"], [1.0, 1.0, 0.25])
+    # Independent exact solution also checks that the implicit solve applies
+    # the same scale to the RHS, rather than only scaling the matrix.
+    npt.assert_array_equal(np.asarray(solution), [[36.0], [16.0], [-2.5]])
+
 
 
 @pytest.mark.parametrize("tiny_row_factor", [1.0, 1.0e-12])
