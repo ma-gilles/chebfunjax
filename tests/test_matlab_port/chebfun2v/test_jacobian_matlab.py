@@ -1,36 +1,22 @@
-"""Port of MATLAB Chebfun tests/chebfun2v/test_jacobian.m (Fable 5).
-
-FIXED (Fable 5): Chebfun2v.jacobian() implemented
-(F1_x F2_y - F1_y F2_x, MATLAB @chebfun2v/jacobian.m).
+"""Original MATLAB function-norm assertions at source bounds.
 
 Provenance
 ----------
-MATLAB source : tests/chebfun2v/test_jacobian.m
+MATLAB source: tests/chebfun2v/test_jacobian.m
 Chebfun commit: 7574c77
 """
-
-from __future__ import annotations
-
 import jax.numpy as jnp
-import numpy as np
 
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+from chebfunjax.chebpref import ChebfunPref
 
-EPS = float(np.finfo(np.float64).eps)
+EPS = ChebfunPref().cheb2Prefs.chebfun2eps
 
 
-class TestChebfun2vJacobian:
-    def test_definition(self):
-        # pass(1): jacobian(F) == F1_x.*F2_y - F1_y.*F2_x,
-        # tol 100*cheb2eps.  F = [cos(x); sin(y)] gives
-        # jac = -sin(x) cos(y).
-        f1 = Chebfun2.from_function(lambda x, y: jnp.cos(x))
-        f2 = Chebfun2.from_function(lambda x, y: jnp.sin(y))
-        F = Chebfun2v([f1.approx, f2.approx])
-        jac = F.jacobian()
-        exact = Chebfun2.from_function(
-            lambda x, y: -jnp.sin(x) * jnp.cos(y))
-        xs = jnp.asarray(np.linspace(-0.9, 0.9, 8))
-        err = float(jnp.max(jnp.abs(jac(xs, xs) - exact(xs, xs))))
-        assert err < 100 * EPS
+def test_original_definition():
+    field = Chebfun2v.from_functions(lambda x, y: jnp.cos(x),
+                                    lambda x, y: jnp.sin(y))
+    f, g = [Chebfun2(approx=c) for c in field.components]
+    expected = f.diff(dim=2)*g.diff(dim=1)-g.diff(dim=2)*f.diff(dim=1)
+    assert float((expected-Chebfun2(approx=field.jacobian())).norm()) < 100*EPS

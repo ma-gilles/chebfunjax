@@ -24,7 +24,7 @@ class TestChebfun2vIntegral:
                                      lambda x, y: x + 0 * y)
         c = cj.chebfun(lambda t: jnp.exp(1j * t),
                        domain=[-np.pi, np.pi])
-        I = float(np.real(np.asarray(F.integral(c))))
+        I = F.integral(c)
         assert abs(I - 2 * np.pi) < TOL
 
     def test_quarter_circle(self):
@@ -33,5 +33,5 @@ class TestChebfun2vIntegral:
                                      lambda x, y: y + 0 * x)
         c = cj.chebfun(lambda t: jnp.exp(1j * t),
                        domain=[0.0, np.pi / 2])
-        I = float(np.real(np.asarray(F.integral(c))))
+        I = F.integral(c)
         assert abs(I - 1.0 / 6.0) < TOL
