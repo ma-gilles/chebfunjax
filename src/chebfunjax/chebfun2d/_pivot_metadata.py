@@ -72,3 +72,25 @@ def _scale(approx, scalar):
     return SeparableApprox(cols=list(approx.cols), rows=list(approx.rows),
         pivots=weights, pivot_values=raw, domain=approx.domain,
         techs=approx.techs, pivot_locations=approx.pivot_locations)
+
+
+def _divide(approx, scalar):
+    """Native matrix scalar division multiplies raw pivotValues by scalar.
+
+    Provenance
+    ----------
+    MATLAB source: @separableApprox/mrdivide.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+
+    raw = _retained_pivots(approx)
+    if raw is not None:
+        raw = raw * jnp.asarray(scalar)
+        weights = _cdr_weights(raw)
+    else:
+        # Legacy objects have no retained raw pivots; do not fabricate them.
+        weights = approx.pivots / jnp.asarray(scalar)
+    return SeparableApprox(cols=list(approx.cols), rows=list(approx.rows),
+        pivots=weights, pivot_values=raw, domain=approx.domain,
+        techs=approx.techs, pivot_locations=approx.pivot_locations)

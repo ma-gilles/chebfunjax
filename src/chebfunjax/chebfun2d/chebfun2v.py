@@ -618,9 +618,16 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/mrdivide.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, (int, float)):
-            return self.__mul__(1.0 / other)
-        return NotImplemented
+        if self.isempty():
+            return Chebfun2v.empty()
+        numeric = _component_numeric_array(other)
+        if numeric is None or numeric.size != 1:
+            return NotImplemented
+        from chebfunjax.chebfun2d._pivot_metadata import _divide
+
+        result = Chebfun2v([_divide(c, numeric.reshape(())) for c in self.components])
+        object.__setattr__(result, "_row", self.is_transposed)
+        return result
 
     # ------------------------------------------------------------------
     # Calculus
