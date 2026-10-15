@@ -46,8 +46,19 @@ def _ref_to_phys(t: jax.Array, a: float, b: float) -> jax.Array:
 
 
 def _phys_to_ref(x: jax.Array, a: float, b: float) -> jax.Array:
-    """Map physical coordinate x in [a, b] to reference coordinate in [-1, 1]."""
-    return (2.0 * x - (a + b)) / (b - a)
+    """Retain native bounded inverse-map arithmetic under tracing.
+
+    Provenance
+    ----------
+    MATLAB source: @mapping/mapping.m (linear InvHandle), @bndfun/feval.m
+    Chebfun commit: 7574c77
+    """
+    x = jnp.asarray(x)
+    barrier = jax.lax.optimization_barrier
+    width = barrier(jnp.broadcast_to(jnp.asarray(b-a, dtype=x.dtype), x.shape))
+    left = barrier(x-a)
+    right = barrier(b-x)
+    return barrier(left/width)-barrier(right/width)
 
 
 def _chebpts_phys(n: int, a: float, b: float) -> jax.Array:
@@ -985,8 +996,9 @@ class SeparableApprox(eqx.Module):
         xa, xb, ya, yb = self.domain
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
-        tx = (2.0 * x - (xa + xb)) / (xb - xa)
-        ty = (2.0 * y - (ya + yb)) / (yb - ya)
+        # Native bndfun uses two endpoint distances, including on [-1,1].
+        tx = (x-xa)/(xb-xa)-(xb-x)/(xb-xa)
+        ty = (y-ya)/(yb-ya)-(yb-y)/(yb-ya)
         bshape = np.broadcast_shapes(x.shape, y.shape)
         txf = np.broadcast_to(tx, bshape).ravel()
         tyf = np.broadcast_to(ty, bshape).ravel()
