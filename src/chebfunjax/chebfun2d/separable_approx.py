@@ -539,7 +539,7 @@ class SeparableApprox(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
         max_rank: int = 513,
-        min_samples: int = 9,
+        min_samples: int = 17,
         max_samples: int = 2**14 + 1,
         techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
@@ -637,7 +637,7 @@ class SeparableApprox(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
         max_rank: int = 513,
-        min_samples: int = 9,
+        min_samples: int = 17,
         max_samples: int = 2**14 + 1,
         techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
@@ -667,7 +667,7 @@ class SeparableApprox(eqx.Module):
             Maximum allowed rank. Default 512.
         min_samples : int, optional
             Minimum number of Chebyshev points per dimension in Phase 1.
-            Default 9 (= 2^3 + 1, matching Chebfun2 defaults).
+            Default 17, from the source technology preferences.
         max_samples : int, optional
             Maximum number of Chebyshev points per dimension. Default 2^14 + 1.
 
@@ -732,12 +732,20 @@ class SeparableApprox(eqx.Module):
                     else _std_check_trig(v, rel_tol, vscale))
 
         # Minimum grid size must be one plus a power of 2 for nesting
-        _grid_refine(min_samples - 1) if min_samples > 1 else min_samples
-        # Ensure it's at least 9 (2^3 + 1); trig grids are powers of 2
-        min_grid_x = max(9, min_samples) if tech_x == "cheb" else max(
-            16, min_samples)
-        min_grid_y = max(9, min_samples) if tech_y == "cheb" else max(
-            16, min_samples)
+        # @chebfun2/constructor.m rounds each technology's minSamples
+        # down to a power of two (trig), or one plus a power of two (cheb).
+        # Both native technology preferences start at 17, yielding 16/17.
+        def initial_grid(tech):
+            if int(min_samples) < 1:
+                raise ValueError("min_samples must be positive")
+            offset = int(tech == "cheb")
+            size = int(min_samples) - offset
+            if size == 0:
+                return offset
+            return (1 << (size.bit_length() - 1)) + offset
+
+        min_grid_x = initial_grid(tech_x)
+        min_grid_y = initial_grid(tech_y)
 
         # --- Helper: sample f on a tensor grid ---
         def _sample_grid(nx: int, ny: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
