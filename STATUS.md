@@ -1,3 +1,51 @@
+## 2026-10-16: current parity checklist and CPU LU compilation
+
+**Full parity remains incomplete.** Reference: Chebfun7574c77. CPU only.
+The checked items below qualify named packages, not entire modules.
+
+### Verified packages
+
+- [x] Vector power86a593fc:the missing nonempty source predicate is retained.
+- [x] Piecewise coefficient AD71e84a94:158checks pass,including coupled
+  equations,Newton callbacks,small coefficients and public controls.
+- [x] CPU projection/differentiation50af708e:81checks pass. Native D1/D2
+  match exactly at raw sizes34/66/130/258/514;projection5e-17bound is retained.
+- [x] Addition assertions1b0dcb2f:7Python tests and8returned native slots
+  pass. The overwritten cosine predicate is false in both implementations
+  (ranks7/6);the port preserves that intermediate result.
+- [x] This revision shares LU base kernels across panels:32candidate checks
+  and18production checks pass;54native factor cases and4certificate cases
+  are covered. At580,old/new factors,permutation and solution are bitwise
+  identical. Observed lowering+compile111.9->92.8s,peak RSSabout12%lower;
+  warm execution remains about0.81s. These are scoped CPU observations.
+  See `docs/lu_base_kernel_reuse_cpu_20261016.json`.
+
+Earlier verified QR/LU/QZ/Bartels–Stewart/root/vector packages are recorded
+in the working checklist and historical evidence;do not sum overlapping gates.
+
+### Remaining work
+
+- [ ] Every function and original MATLAB assertion:the1102-file mapping
+  does not establish assertion completeness.
+- [ ] Stiff Breakpoints default solve:Python still refines beyond native
+ 64/512. On identical native580matrix,solve error is2.6e-15;native sample
+ replay gives cutoffs39/2 and7.23e-12error. Assembly rounding is the next
+ target;the complete Python public solve has no passing verdict.
+- [ ] Vector division17vs18coefficients,Chebfun3Tpredicate7,and remaining
+ numerical/type/range issues and omitted assertions.
+- [ ] Remaining host numerical paths,provenance gaps,skips and xfails.
+- [ ] Actual computations,printed output,RNG and rendering for all322pages.
+ Cached prose/block/1305figure-slot structure is not runtime/figure parity.
+- [ ] Current dependency qualification of the12handoff examples.
+- [ ] Matched CPU performance for inverse,Hermite,large QR/LU/Bartels and
+ other known slow paths;the scoped LU result does not close speed parity.
+- [ ] Green latest-main CI and the final requirement-by-requirement audit.
+
+Detailed current checklist,guarded receipts and immutable archives:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`
+(`GOAL_CHECKLIST.md` and `CURRENT_GOAL_STATUS.md`). No defensible overall
+completion percentage is available.
+
 ## 2026-10-15: compile C1 transform stages separately
 
 C1 transforms now compile the mirrored FFT, symmetry correction and inverse

@@ -296,10 +296,12 @@ def general_factor(A):
         A, valid = region(A, valid, stop, n, stop + nc, end, False)
         return A, piv, valid
 
+    base_compiled = jax.jit(base, static_argnums=(2,))
+
     def factor(state, start, width):
         nb = block_size(width)
         if nb <= 1:
-            return base(state, start, width)
+            return base_compiled(state, jnp.asarray(start, dtype=jnp.int64), width)
         # Static source panel boundaries allow exact active-array slice shapes.
         for offset in range(start, start + width, nb):
             actual = min(nb, start + width - offset)

@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Current status (2026-10-16; takes precedence over older status sections)
+
+Full MATLAB/example/test/figure/speed parity is incomplete. Read the current
+checklist at the top of `STATUS.md` before historical package summaries.
+CPU only;heavy runs serially;at most two inexpensive agents for routine work.
+Direct-to-main pushes work. The original standing rules below still apply.
+
+Current evidence and detailed working checklist:
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/`
+(`CURRENT_GOAL_STATUS.md`,`GOAL_CHECKLIST.md`,qualified JSON/ZIP archives).
+
+Recent verified work includes source coefficient AD,CPU projection and
+differentiation,restored original vector/addition assertions,and this
+revision's LU kernel-sharing qualification. See STATUS.md for scoped counts
+and `docs/lu_base_kernel_reuse_cpu_20261016.json` for the matched580case.
+Default stiff Breakpoints convergence remains unresolved. Identical native
+580matrix solves and native-sample output replay pass;compare assembly
+arithmetic next. The isolated GEMM diagnostic is prepared in the evidence
+root;it has not yet run or established a production correction.
+Latest-main green CI,all original assertions,and full322-page numerical/
+output/figure and CPU performance parity remain open.
+
 ## 2026-10-15: compile C1 transform stages separately
 
 C1 transforms now compile the mirrored FFT, symmetry correction and inverse

@@ -1,0 +1,99 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "platform": "cpu",
+    "x64": true,
+    "affinity": [
+      20,
+      21,
+      22,
+      23
+    ],
+    "compilation_cache_enabled_for_pair": false
+  },
+  "source_sha256": "fc83dcda730637ae0aad35d6ee834f3edadbb5ab21125f35ba8a3152cf42f21f",
+  "change": "Share base LU bodies with static width and dynamic starting column; preserve arithmetic, recursion, updates and pivots.",
+  "candidate_controls": {
+    "pytest_items": 32,
+    "native_factor_cases": 54,
+    "failures": 0,
+    "skips": 0
+  },
+  "production_module_gate": {
+    "pytest_items": 18,
+    "failures": 0,
+    "skips": 0,
+    "junit_sha256": "d8396116b46e6e31a53cd05a86b24db5fb2066d164a32ea0cf9eff7e09160eed",
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "certificate_cases": 4,
+  "bitwise_paired_outputs_equal": {
+    "packed": true,
+    "permutation": true,
+    "raw": true
+  },
+  "baseline": {
+    "arm": "baseline",
+    "shape": [
+      580,
+      580
+    ],
+    "lower_seconds": 31.564862386789173,
+    "compile_seconds": 80.3335394533351,
+    "lower_plus_compile_seconds": 111.89840184012428,
+    "mlir_bytes": 35502720,
+    "first_execution_seconds": 0.8567655859515071,
+    "warm_seconds": [
+      0.8053754097782075,
+      0.8063087137416005,
+      0.8068293631076813
+    ],
+    "warm_median_seconds": 0.8063087137416005,
+    "process_peak_rss_kib": 4394968,
+    "native_comparison": {
+      "permutation_matches": true,
+      "L_numeric_max_error": 1.6653345369377348e-15,
+      "U_numeric_max_error": 1.5612511283791264e-15,
+      "L_nonzero_bit_mismatches": 47376,
+      "U_nonzero_bit_mismatches": 87871,
+      "raw_solution_max_error": 2.55351295663786e-15
+    }
+  },
+  "candidate": {
+    "arm": "candidate",
+    "shape": [
+      580,
+      580
+    ],
+    "lower_seconds": 17.494672023691237,
+    "compile_seconds": 75.32602259889245,
+    "lower_plus_compile_seconds": 92.82069462258369,
+    "mlir_bytes": 17544503,
+    "first_execution_seconds": 0.838575738016516,
+    "warm_seconds": [
+      0.8118786159902811,
+      0.8872064161114395,
+      0.809510032646358
+    ],
+    "warm_median_seconds": 0.8118786159902811,
+    "process_peak_rss_kib": 3859160,
+    "native_comparison": {
+      "permutation_matches": true,
+      "L_numeric_max_error": 1.6653345369377348e-15,
+      "U_numeric_max_error": 1.5612511283791264e-15,
+      "L_nonzero_bit_mismatches": 47376,
+      "U_nonzero_bit_mismatches": 87871,
+      "raw_solution_max_error": 2.55351295663786e-15
+    }
+  },
+  "paired_archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/lu_shared_base_paired580_qualified_20261016.zip",
+    "sha256": "1d517bd85e9ffebad17a8d197a3b26b2b4dc9bfd515b59fd890557e00e8aeba1"
+  },
+  "evidence_root": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005",
+  "qualification": "One cold observation per arm on the same frozen580matrix and hardware;3warm repetitions. Observed lowering+compile111.90->92.82seconds and process RSS4394968->3859160KiB. Warm median~0.81seconds both. No full BVP speed claim.",
+  "open": "Default Breakpoints adaptive correctness/matrix assembly, broader factor range and full CPU/MATLAB parity remain unresolved."
+}
