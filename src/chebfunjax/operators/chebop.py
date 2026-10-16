@@ -331,6 +331,90 @@ def _refine_projected_scalar_dirichlet(problem, initial_solution, initial_coeffi
     return Chebfun(funs=pieces, domain=Domain(tuple(bps)))
 
 
+
+def _ad_piecewise_coefficients(apply_op, zero_functions, orders, *, require_linear=True):
+    """Extract local differential coefficients from seeded function AD.
+
+    Invoke the supplied operator, including a Newton correction callback,
+    rather than reinterpreting the original Chebop at a different primal.
+    Coefficients are returned in ascending derivative order. Unsupported
+    nonlocal blocks raise so the caller can select its general solver.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/linearize.m, @linBlock/toCoeff.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.autodiff.adchebfun import ADChebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.operators.blocks import to_coeff, zeros_op
+    from chebfunjax.operators.chebmatrix import ChebMatrix
+
+    m = len(zero_functions)
+    domain = tuple(float(x) for x in zero_functions[0].domain.breakpoints)
+
+    def as_evaluator(value):
+        if isinstance(value, Chebfun):
+            value_domain = tuple(float(x) for x in value.domain.breakpoints)
+            if (value_domain[0] != domain[0] or value_domain[-1] != domain[-1]
+                    or any(x not in domain for x in value_domain[1:-1])):
+                raise ValueError("Coefficient breakpoints require domain reconciliation")
+
+            def evaluate(x):
+                xx = jnp.asarray(x)
+                result = jnp.asarray(value(xx))
+                # Each call samples one physical panel. At a shared endpoint
+                # use that panel's limit, rather than Chebfun's average.
+                if xx.ndim == 1 and xx.size > 1:
+                    result = result.at[0].set(value(xx[0], "right"))
+                    result = result.at[-1].set(value(xx[-1], "left"))
+                return result
+
+            return evaluate
+        scalar = jnp.asarray(value)
+        if scalar.ndim != 0:
+            raise TypeError("Local coefficient extraction requires scalar equations")
+        return lambda x: jnp.broadcast_to(scalar, jnp.shape(x))
+
+    seeded = [ADChebfun(u).seed(j + 1, m)
+              for j, u in enumerate(zero_functions)]
+    outputs = apply_op(seeded)
+    if not isinstance(outputs, (tuple, list)) or len(outputs) != m:
+        raise TypeError("Local coefficient extraction requires one equation per variable")
+    coefficients, affine = [], []
+    for output in outputs:
+        if isinstance(output, ADChebfun):
+            if require_linear and not output.is_linear:
+                raise ValueError("Nonlinear operator requires a Newton linearization")
+            affine.append(as_evaluator(output.func))
+            jac = output.jacobian
+            if m == 1 and isinstance(jac, OperatorBlock):
+                blocks = [jac]
+            elif (isinstance(jac, ChebMatrix) and len(jac.blocks) == 1
+                  and len(jac.blocks[0]) == m):
+                blocks = jac.blocks[0]
+            else:
+                raise TypeError("Unexpected function Jacobian block layout")
+        else:
+            affine.append(as_evaluator(output))
+            blocks = [zeros_op(domain) for _ in range(m)]
+        row = []
+        for block, order in zip(blocks, orders):
+            if not isinstance(block, OperatorBlock):
+                raise TypeError("Local coefficients require differential operator blocks")
+            values = list(reversed(to_coeff(block)))
+            for value in values[order + 1:]:
+                if not isinstance(value, Chebfun) or not all(
+                    bool(jnp.all(piece.tech.coeffs == 0)) for piece in value.funs
+                ):
+                    raise ValueError("Differential order exceeds the declared order")
+            values = values[:order + 1]
+            row.append([as_evaluator(value) for value in values]
+                       + [as_evaluator(0.) for _ in range(order + 1 - len(values))])
+        coefficients.append(row)
+    return coefficients, affine
+
+
 def _physical_monomial_cheb_coeffs(k: int, a: float, b: float):
     """Chebyshev coefficients of ``x**k / k!`` on ``[a, b]``.
 
@@ -4046,8 +4130,6 @@ class Chebop:
             @linop/continuity.m (interface rows)
         Chebfun commit: 7574c77
         """
-        import math as _math
-
         import numpy as _np
 
         from chebfunjax.utils.diffmat import diffmat as _diffmat
@@ -4060,72 +4142,19 @@ class Chebop:
         pts = [_np.asarray(xps[p]) for p in range(P)]
         A = _np.zeros((m * Pn, m * Pn))
 
-        # Operator block via monomial probes: place x^k/k! in variable
-        # `var` (zeros elsewhere), apply the op, and forward-substitute
-        # for the coefficient FUNCTIONS (kept as evaluable callables and
-        # cached across adaptive refinement levels — re-applying the op
-        # at every level costs seconds of chebfun arithmetic per call,
-        # while re-evaluating the extracted coefficients is millisecs).
+        # MATLAB linearize seeds AD directions and reads local coefficient
+        # blocks. Cache functions across adaptive grids; avoid subtracting
+        # nearly equal physical monomial outputs for small coefficients.
         cache_key = (m, tuple(bps), id(self.op),
                      id(self._lbc_raw), id(self._rbc_raw))
         cache = (getattr(self, "_pw_lin_cache", None)
                  if use_cache else None)
         fresh = cache is None or cache.get("key") != cache_key
         if fresh:
-            def _as_fun(o):
-                if isinstance(o, (int, float)):
-                    return (lambda x, _v=float(o):
-                            _np.full(_np.shape(x), _v))
-                if isinstance(o, complex):
-                    return (lambda x, _v=o:
-                            _np.full(_np.shape(x), _v,
-                                     dtype=_np.complex128))
-                return lambda x, _o=o: _np.asarray(_o(jnp.asarray(x)))
-
-            def _monomial_probe_funs(var, degree):
-                # MATLAB linearize seeds coefficient AD directions. This
-                # Python adapter uses the same x**degree/degree! polynomial
-                # probes, represented directly rather than via sampled
-                # values, independently on each physical panel.
-                from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-
-                probe_domain = Domain(tuple(bps))
-                us = []
-                for j in range(m):
-                    funs = []
-                    for aa, bb in ints:
-                        c = (_physical_monomial_cheb_coeffs(degree, aa, bb)
-                             if j == var else
-                             jnp.zeros((1,), dtype=jnp.float64))
-                        funs.append(_Piece.from_coeffs(c, aa, bb))
-                    us.append(Chebfun(funs=funs, domain=probe_domain))
-                return us
-
-            out0 = apply_op(to_funs(_np.zeros(m * Pn)))
-            op0_funs = [_as_fun(o) for o in out0]
-            c_funs = [[None] * m for _ in range(m)]   # [eq][var] -> list_k
-            for var in range(m):
-                kmax = orders[var] if orders else 0
-                outs = []
-                for k in range(kmax + 1):
-                    outs.append([_as_fun(o)
-                                 for o in apply_op(
-                                     _monomial_probe_funs(var, k))])
-                for eq in range(m):
-                    ck_list = []
-                    for k in range(kmax + 1):
-                        def _ck(x, _k=k, _eq=eq, _outs=outs,
-                                _prev=tuple(ck_list),
-                                _op0=op0_funs[eq]):
-                            v = _outs[_k][_eq](x) - _op0(x)
-                            xx = _np.asarray(x)
-                            for j, cj in enumerate(_prev):
-                                v = v - cj(x) * (
-                                    xx ** (_k - j)
-                                    / _math.factorial(_k - j))
-                            return v
-                        ck_list.append(_ck)
-                    c_funs[eq][var] = ck_list
+            c_funs, op0_funs = _ad_piecewise_coefficients(
+                apply_op, to_funs(_np.zeros(m * Pn)), orders,
+                require_linear=use_cache,
+            )
             cache = {"key": cache_key, "c_funs": c_funs,
                      "op0_funs": op0_funs}
             if use_cache:
@@ -4696,10 +4725,8 @@ class Chebop:
         # ---- Linear fast path -------------------------------------------
         # For a linear operator the residual is affine, R(U) = A U + R(0).
         # Build A directly instead of column-by-column finite differences:
-        # the operator block is recovered with (order+1) op applications
-        # per variable via monomial probes (L[x^k/k!] = sum_{j<=k}
-        # c_j(x) x^{k-j}/(k-j)!, forward-substituted for the coefficient
-        # functions c_j), continuity rows are barycentric-endpoint rows of
+        # the operator block is recovered by seeded function AD and local
+        # coefficient extraction; continuity rows are endpoint rows of
         # per-piece differentiation matrices, and boundary rows are probed
         # only over the endpoint pieces.  Affineness is verified against
         # residual() on a random vector; any mismatch (nonlinear op,
