@@ -19,8 +19,10 @@ Source projection sine is now corrected through pi;all five captured P
 sizes match native bits,and actual196/580matrices match native values.
 106distinct focused checks are verified across documented runs;the combined
 run was memory-censored and the7public controls passed separately.
-Default stiff Breakpoints public acceptance remains pending. See the newest
-STATUS.md section and docs/projection_sine_source_cpu_20261016.json.
+Default stiff Breakpoints ProblemA public acceptance now passes with unchanged
+bounds,dimensions64/512 and lengths39/2 matching native. See the newest
+STATUS.md section and docs/breakpoints_public_acceptance_cpu_20261016.json.
+Full Breakpoints page/figures,other problems,and matched speed remain open.
 Latest-main green CI,all original assertions,and full322-page numerical/
 output/figure and CPU performance parity remain open.
 

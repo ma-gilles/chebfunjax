@@ -1,3 +1,19 @@
+## 2026-10-16: stiff Breakpoints public acceptance passes
+
+The unchanged independent public Problem A regression now passes onfc451682.
+Default refinement stops at64/512 and returns39/2terms,matching native MATLAB.
+The actual test checks forward values,endpoints,value/derivative jumps and
+physical residuals at its original frozen bounds. Saved final-coefficient
+replay has7.23e-12forward error and1.78e-15difference from native probe values.
+
+Observed pytest time278.71seconds and sampled summed peak RSS7.61GiB leave
+CPU performance open;these are not a matched speed comparison. This closes
+the scoped default stiff-solve failure,not the whole Breakpoints example,
+all BVPs,or the322-page goal. See
+`docs/breakpoints_public_acceptance_cpu_20261016.json` for guarded terminal
+receipts,representation,native results and replay limits. Full project
+parity and green latest-main CI remain incomplete.
+
 ## 2026-10-16: source sine for complete projection rows
 
 CPU projection now uses source sine through pi before full-row normalization.
@@ -46,10 +62,10 @@ in the working checklist and historical evidence;do not sum overlapping gates.
 
 - [ ] Every function and original MATLAB assertion:the1102-file mapping
   does not establish assertion completeness.
-- [ ] Stiff Breakpoints default solve:Python still refines beyond native
- 64/512. On identical native580matrix,solve error is2.6e-15;native sample
- replay gives cutoffs39/2 and7.23e-12error. Projection rounding is corrected in the new section above;the complete
- Python public solve still has no passing verdict.
+- [x] Stiff Breakpoints ProblemA default solve:original frozen independent
+ public regression passes,dimensions64/512 and lengths39/2 match native.
+- [ ] Complete Breakpoints page,other problems/output/figures,and matched
+ CPU performance;the scoped ProblemA acceptance does not close those.
 - [ ] Vector division17vs18coefficients,Chebfun3Tpredicate7,and remaining
  numerical/type/range issues and omitted assertions.
 - [ ] Remaining host numerical paths,provenance gaps,skips and xfails.

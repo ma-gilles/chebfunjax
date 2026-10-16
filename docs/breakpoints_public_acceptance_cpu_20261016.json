@@ -1,0 +1,119 @@
+{
+  "source_head": "fc4516828baa1780262b45a1255e4973a5221366",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/breakpoints_public_acceptance_qualified_20261016.zip",
+  "sha256": "a113c73b55ada889294143ffd1ba0c6cfa723026f1595ca90a4e115250cc76a5",
+  "test": "tests/test_operators/test_breakpoints_public_projected.py",
+  "test_result": "1passed;original unchanged independent bounds;not a copied MATLAB assertion",
+  "test_seconds": 278.711,
+  "sampled_peak_summed_rss_kib": 7976176,
+  "dimensions": [
+    {
+      "dimensions": 32,
+      "seconds": 18.368646385148168
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "seconds": 30.313294772990048
+    },
+    {
+      "dimensions": [
+        64,
+        128
+      ],
+      "seconds": 42.22440181672573
+    },
+    {
+      "dimensions": [
+        64,
+        256
+      ],
+      "seconds": 63.73277335008606
+    },
+    {
+      "dimensions": [
+        64,
+        512
+      ],
+      "seconds": 109.83432691218331
+    }
+  ],
+  "representation": {
+    "lengths": [
+      39,
+      2
+    ],
+    "head": "fc4516828baa1780262b45a1255e4973a5221366"
+  },
+  "coefficient_replay_metrics": {
+    "scope": "Exact saved final coefficients; cached values rederived without a new solve. Original public test is the acceptance verdict.",
+    "lengths": [
+      39,
+      2
+    ],
+    "forward_error": 7.229550291754094e-12,
+    "native_probe_difference": 1.7763568394002505e-15,
+    "endpoint_error": 3.6238789746789735e-12,
+    "value_jump": -3.587574681773731e-12,
+    "derivative_jump": 1.1275522394882387e-05,
+    "residual_probe_max": 1.466933174680985e-05,
+    "native_lengths": [
+      39,
+      2
+    ],
+    "native_solve_seconds_unmatched": 1.584235,
+    "probe_values": [
+      0.11750309616624977,
+      0.7471603904506385,
+      0.9992897531183718,
+      0.9999997785110581,
+      0.9999996012572295,
+      0.9998626000584396,
+      0.9862996054836395,
+      0.8629996548036376,
+      0.4689998124036313,
+      0.08699996520362524
+    ]
+  },
+  "native": {
+    "solve_seconds": 1.584235,
+    "domain": [
+      0,
+      4e-07,
+      1
+    ],
+    "lengths": [
+      39,
+      2
+    ],
+    "probe_values": [
+      0.11750309616625065,
+      0.7471603904506391,
+      0.9992897531183735,
+      0.9999997785110587,
+      0.9999996012572289,
+      0.9998626000584383,
+      0.986299605483638,
+      0.8629996548036364,
+      0.468999812403631,
+      0.08699996520362568
+    ],
+    "probe_forward_error": 7.228884157939319e-12,
+    "endpoint_error": 3.6245451084937486e-12,
+    "value_jump": -3.587574681773731e-12,
+    "derivative_jump": 1.2284251520444656e-05,
+    "residual_probe_max": 1.3008773154991535e-05,
+    "version": "25.2.0.3055257 (R2025b) Update 2"
+  },
+  "bounds": {
+    "value": 1e-09,
+    "endpoint": 1e-09,
+    "value_jump": 1e-09,
+    "derivative_jump": 0.0005,
+    "residual": 0.001000000005
+  },
+  "scope": "Full default public ProblemA stiff solve passes and matches final native dimensions/lengths. Other Breakpoints problems/page outputs/plots,matched CPU performance,and latest-main CI remain open. Native1.584s and Python278.71s are unmatched single observations,not a paired speed qualification."
+}
