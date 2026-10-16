@@ -26,6 +26,23 @@ Full Breakpoints page/figures,other problems,and matched speed remain open.
 Latest-main green CI,all original assertions,and full322-page numerical/
 output/figure and CPU performance parity remain open.
 
+## 2026-10-16: reuse triangular LU panel kernels
+
+The triangular panel solve now shares JAX shape specializations without changing
+its arithmetic, pivoting, region updates or validity certificates. All 33 isolated
+checks and four exceptional-input certificate comparisons pass. Production
+integration passes 17 solve, derivative and row-scaling checks. The new
+nonsymmetric, pivoted matrix control checks the transpose adjoint independently.
+
+On the same frozen 580-by-580 matrix in serial fresh processes, observed cold
+lowering plus compilation decreases from 92.27 to 85.46 seconds; warm median
+remains about 0.804 seconds. Process peak RSS decreases about 3%. Packed factors,
+permutation and raw solution match the Python baseline bitwise. This is one
+cold observation per arm, not full BVP or MATLAB speed parity. Native factors
+remain numerically close rather than bitwise identical. See
+`docs/lu_triangular_kernel_reuse_cpu_20261016.json` for exact measurements,
+guarded receipts and archived sources. Full goal and latest-main CI remain open.
+
 ## 2026-10-15: compile C1 transform stages separately
 
 C1 transforms now compile the mirrored FFT, symmetry correction and inverse

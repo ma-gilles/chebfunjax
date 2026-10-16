@@ -48,6 +48,108 @@ def block_size(w):
     return min(32768, 1 << ((w - 1).bit_length() - 1))
 
 
+@jax.jit
+def _triangular_panel_update(L, X, valid):
+    """Apply the source triangular schedule with reusable shape specializations.
+
+    L/X shapes select specialization. Pivoting, slicing and trailing-region
+    updates remain in general_factor. No arithmetic or certificate change.
+    """
+    width = L.shape[0]
+    cols = X.shape[1]
+    paired_cols = cols - cols % 2
+
+    def pair(t, state):
+        X, valid = state
+        i = 2 * t
+        if paired_cols:
+            initial = jax.lax.dynamic_slice(X, (i, 0), (2, paired_cols))
+            lo = initial
+            hi = jnp.zeros_like(initial)
+
+            def prior(q, state):
+                lo, hi, valid = state
+                a = jax.lax.dynamic_slice(L, (i, q), (2, 1))
+                p, pv = multiply_normal(a, X[q, None, :paired_cols])
+                lane = jnp.where(q % 2 == 0, lo, hi)
+                out, ov = add_lane(lane, -p)
+                return (
+                    jnp.where(q % 2 == 0, out, lo),
+                    jnp.where(q % 2 == 1, out, hi),
+                    valid & jnp.all(pv & ov),
+                )
+
+            lo, hi, valid = jax.lax.fori_loop(0, i, prior, (lo, hi, valid))
+
+            def combine(st):
+                lo, hi, valid = st
+                out, v = add_lane(lo, hi)
+                return out, valid & jnp.all(v)
+
+            out, valid = jax.lax.cond(
+                i > 0, combine, lambda st: (st[0], st[2]), (lo, hi, valid)
+            )
+            second, v = sub(L[i + 1, i], out[0], out[1])
+            valid = valid & jnp.all(v)
+            X = X.at[i, :paired_cols].set(out[0]).at[i + 1, :paired_cols].set(second)
+        if cols % 2:
+            initial = jax.lax.dynamic_slice(X, (i, cols - 1), (2, 1))[:, 0]
+
+            def sequential(st):
+                z, valid = st
+
+                def step(q, st):
+                    z, valid = st
+                    av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
+                    out, v = sub(av, X[q, -1], z)
+                    return out, valid & jnp.all(v)
+
+                return jax.lax.fori_loop(0, i, step, (z, valid))
+
+            def grouped(st):
+                z, valid = st
+                four = jnp.array([z[0], 0.0, 0.0, 0.0])
+                two = jnp.array([z[1], 0.0])
+                boundary = (i // 8) * 8
+
+                def prior(q, st):
+                    four, two, valid = st
+                    av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
+                    p, pv = multiply_normal(av, X[q, -1])
+                    f, fv = add_lane(four[q % 4], -p[0])
+                    tw, tv = add_lane(two[q % 2], -p[1])
+                    return (
+                        four.at[q % 4].set(f),
+                        two.at[q % 2].set(tw),
+                        valid & jnp.all(pv) & fv & tv,
+                    )
+
+                four, two, valid = jax.lax.fori_loop(0, boundary, prior, (four, two, valid))
+                f0, v0 = add_lane(four[0], four[2])
+                f1, v1 = add_lane(four[1], four[3])
+                f, vf = add_lane(f0, f1)
+                tw, vt = add_lane(two[0], two[1])
+                out = jnp.array([f, tw])
+                valid = valid & v0 & v1 & vf & vt
+
+                def tail(q, st):
+                    out, valid = st
+                    av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
+                    z, v = sub(av, X[q, -1], out)
+                    return z, valid & jnp.all(v)
+
+                return jax.lax.fori_loop(boundary, i, tail, (out, valid))
+
+            out, valid = jax.lax.cond(i < 8, sequential, grouped, (initial, valid))
+            second, v = sub(L[i + 1, i], out[0], out[1])
+            valid = valid & v
+            X = X.at[i, -1].set(out[0]).at[i + 1, -1].set(second)
+        return X, valid
+
+    X, valid = jax.lax.fori_loop(0, width // 2, pair, (X, valid))
+    return X, valid
+
+
 def general_factor(A):
     n = A.shape[0]
     if A.ndim != 2 or A.shape[1] != n:
@@ -174,96 +276,7 @@ def general_factor(A):
         L = A[start:stop, start:stop]
         X = A[start:stop, stop:end]
         cols = end - stop
-        paired_cols = cols - cols % 2
-
-        def pair(t, state):
-            X, valid = state
-            i = 2 * t
-            if paired_cols:
-                initial = jax.lax.dynamic_slice(X, (i, 0), (2, paired_cols))
-                lo = initial
-                hi = jnp.zeros_like(initial)
-
-                def prior(q, state):
-                    lo, hi, valid = state
-                    a = jax.lax.dynamic_slice(L, (i, q), (2, 1))
-                    p, pv = multiply_normal(a, X[q, None, :paired_cols])
-                    lane = jnp.where(q % 2 == 0, lo, hi)
-                    out, ov = add_lane(lane, -p)
-                    return (
-                        jnp.where(q % 2 == 0, out, lo),
-                        jnp.where(q % 2 == 1, out, hi),
-                        valid & jnp.all(pv & ov),
-                    )
-
-                lo, hi, valid = jax.lax.fori_loop(0, i, prior, (lo, hi, valid))
-
-                def combine(st):
-                    lo, hi, valid = st
-                    out, v = add_lane(lo, hi)
-                    return out, valid & jnp.all(v)
-
-                out, valid = jax.lax.cond(
-                    i > 0, combine, lambda st: (st[0], st[2]), (lo, hi, valid)
-                )
-                second, v = sub(L[i + 1, i], out[0], out[1])
-                valid = valid & jnp.all(v)
-                X = X.at[i, :paired_cols].set(out[0]).at[i + 1, :paired_cols].set(second)
-            if cols % 2:
-                initial = jax.lax.dynamic_slice(X, (i, cols - 1), (2, 1))[:, 0]
-
-                def sequential(st):
-                    z, valid = st
-
-                    def step(q, st):
-                        z, valid = st
-                        av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
-                        out, v = sub(av, X[q, -1], z)
-                        return out, valid & jnp.all(v)
-
-                    return jax.lax.fori_loop(0, i, step, (z, valid))
-
-                def grouped(st):
-                    z, valid = st
-                    four = jnp.array([z[0], 0.0, 0.0, 0.0])
-                    two = jnp.array([z[1], 0.0])
-                    boundary = (i // 8) * 8
-
-                    def prior(q, st):
-                        four, two, valid = st
-                        av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
-                        p, pv = multiply_normal(av, X[q, -1])
-                        f, fv = add_lane(four[q % 4], -p[0])
-                        tw, tv = add_lane(two[q % 2], -p[1])
-                        return (
-                            four.at[q % 4].set(f),
-                            two.at[q % 2].set(tw),
-                            valid & jnp.all(pv) & fv & tv,
-                        )
-
-                    four, two, valid = jax.lax.fori_loop(0, boundary, prior, (four, two, valid))
-                    f0, v0 = add_lane(four[0], four[2])
-                    f1, v1 = add_lane(four[1], four[3])
-                    f, vf = add_lane(f0, f1)
-                    tw, vt = add_lane(two[0], two[1])
-                    out = jnp.array([f, tw])
-                    valid = valid & v0 & v1 & vf & vt
-
-                    def tail(q, st):
-                        out, valid = st
-                        av = jax.lax.dynamic_slice(L, (i, q), (2, 1))[:, 0]
-                        z, v = sub(av, X[q, -1], out)
-                        return z, valid & jnp.all(v)
-
-                    return jax.lax.fori_loop(boundary, i, tail, (out, valid))
-
-                out, valid = jax.lax.cond(i < 8, sequential, grouped, (initial, valid))
-                second, v = sub(L[i + 1, i], out[0], out[1])
-                valid = valid & v
-                X = X.at[i, -1].set(out[0]).at[i + 1, -1].set(second)
-            return X, valid
-
-        X, valid = jax.lax.fori_loop(0, width // 2, pair, (X, valid))
+        X, valid = _triangular_panel_update(L, X, valid)
         A = A.at[start:stop, stop:end].set(X)
         m = n - stop
         mr = (m // 12) * 12

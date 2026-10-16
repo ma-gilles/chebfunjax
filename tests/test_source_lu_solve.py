@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from chebfunjax.operators.chebop import _piecewise_row_scaled_solve as solve
+from chebfunjax.utils._source_lu_solve import _factors
 
 
 def _assert_close(actual, expected):
@@ -77,3 +78,39 @@ def test_empty_matrix_rhs_and_vmap():
     expected = np.stack([np.linalg.solve(np.asarray(x), np.asarray(b))
                          for x, b in zip(matrices, rhs)])
     _assert_close(jax.vmap(solve)(matrices, rhs), expected)
+
+
+def test_nonsymmetric_row_permutation_matrix_rhs_primal_jvp_vjp():
+    n, columns = 17, 3
+    i = np.arange(1, n + 1, dtype=float)
+    # Strong diagonal plus one-way coupling: nonsymmetry is deliberate.
+    unpermuted = np.diag(i + 3) + 0.2 * np.diag(np.ones(n - 1), 1)
+    order = np.roll(np.arange(n), 1)
+    a = unpermuted[order, :]
+    b = np.cos(i[:, None] + np.arange(columns)[None, :])
+    h = 0.02 * np.sin(i[:, None] + 2 * i[None, :])
+    db = 0.03 * np.sin(b)
+    g = np.arange(n * columns, dtype=float).reshape(n, columns) / (n * columns) + 0.2
+    aa, bb = jnp.asarray(a), jnp.asarray(b)
+
+    # Assert the control really exercises row permutations after the same
+    # max-row scaling convention used by the public piecewise solve.
+    row_scale = 1.0 / np.max(np.abs(a), axis=1)
+    _, permutation = _factors(jnp.asarray(a * row_scale[:, None]))
+    assert not np.array_equal(np.asarray(permutation), np.arange(n))
+    assert not np.array_equal(a, a.T)
+    adjoint = np.linalg.solve(a.T, g)
+    incorrect_forward = np.linalg.solve(a, g)
+    assert not np.allclose(adjoint, incorrect_forward, rtol=1e-12, atol=1e-13)
+
+    x = np.linalg.solve(a, b)
+    _assert_close(solve(aa, bb), x)
+    _assert_close(jax.jit(solve)(aa, bb), x)
+    primal, tangent = jax.jvp(solve, (aa, bb), (jnp.asarray(h), jnp.asarray(db)))
+    _assert_close(primal, x)
+    _assert_close(tangent, np.linalg.solve(a, db - h @ x))
+
+    _, pullback = jax.vjp(solve, aa, bb)
+    da, d_b = pullback(jnp.asarray(g))
+    _assert_close(da, -adjoint @ x.T)
+    _assert_close(d_b, adjoint)
