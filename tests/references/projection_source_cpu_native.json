@@ -1,0 +1,28 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_executable": "/usr/licensed/matlab-R2025b/bin/matlab",
+  "cpu_only": true,
+  "native_inputs": {
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bvp_primitives_v2_20261016/primitives_34.mat": "5c21fc96f264bab64eb6fac176a7276e7dfc3685ccd057bb17e0dd3f3ca8fa78",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bvp_primitives_v2_20261016/primitives_66.mat": "ad4ccd8918cea0a221f71fdadff096b597d0895d4c9edc64bc7de76aa680b775",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bvp_primitives_v2_20261016/primitives_130.mat": "0ca42354c835d78226aede2d2d53f9ebc18d3ff79520e0382fbc55c8485da6cf",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bvp_primitives_v2_20261016/primitives_258.mat": "11d840f6ab3bba111ebf3814a5fa06b813c989d79927aa7d85984328c48ff949",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/native_bvp_primitives_514_20261016/primitives_514.mat": "60f1dc755646545a047c2314aedb14985ba853b176143c0711c42a2331eee0c5"
+  },
+  "source_hashes": {
+    "barymat.m": "6f4917bc3998e944a38e727cf921efe98ed3c374d3f0fdd1ecfc96256276641d",
+    "@chebcolloc/baryDiffMat.m": "4369334afef87d09d15b1eefde768e3bedf55c6257552a951ed0e1e9d09961e3",
+    "@chebcolloc/reduce.m": "4cf65040ec33895eab6f6b5fcbd92e59a2021e70a987083a1afa9252ba055ffa",
+    "@chebtech1/angles.m": "08507fe620f8a1e510b394b33132c191a274aba9a128579d4102fad1e4786638",
+    "@chebtech2/angles.m": "921b27023cfd5a620b00168c827157dc122d0da1f757ac35cf7cc951e4cbe48a"
+  },
+  "raw_dimensions": [
+    34,
+    66,
+    130,
+    258,
+    514
+  ],
+  "fixture_sha256": "773b56ac0c7e4bb0bd87393533b6e5caf15a6fb428d7327fbeca2a6a51250811",
+  "qualification": "Direct native matrices/angles; no fitted or padded outputs. Differential matrices are canonical, not physically scaled. Projection base dimensions are raw_dimension-2."
+}

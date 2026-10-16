@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.utils.diffmat import _cheb1_angles, _cheb2_angles, _cheb2_barywts
@@ -65,6 +66,24 @@ def _panel_projection(
     raw_ref = chebpts(raw_n, kind=2)
     theta_eq = _cheb1_angles(base_n)
     theta_raw = _cheb2_angles(raw_n)
+    if jax.config.x64_enabled and base_n <= 512 and 1 < raw_n <= 514:
+        def source_cpu_angles(_s, _r):
+            from chebfunjax.utils._binary64 import _divide_binary64_by_positive_integer
+
+            return (
+                _divide_binary64_by_positive_integer(
+                    jnp.arange(base_n - 0.5, 0, -1, dtype=jnp.float64) * jnp.pi,
+                    base_n,
+                ),
+                _divide_binary64_by_positive_integer(
+                    jnp.arange(raw_n - 1, -1, -1, dtype=jnp.float64) * jnp.pi,
+                    raw_n - 1,
+                ),
+            )
+
+        theta_eq, theta_raw = jax.lax.platform_dependent(
+            theta_eq, theta_raw, cpu=source_cpu_angles, default=lambda s, r: (s, r),
+        )
     eq_x = _map_reference_nodes(a, b, eq_ref)
     raw_x = _map_reference_nodes(a, b, raw_ref)
     projection = barymat(

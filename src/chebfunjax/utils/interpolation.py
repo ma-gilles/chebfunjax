@@ -696,6 +696,35 @@ def barymat(y: jnp.ndarray,
     return _barymat_core(y, x, w)
 
 
+
+def _barymat_normalize(raw):
+    """Apply the size-dependent normalization in source barymat.m.
+
+    Provenance
+    ----------
+    MATLAB source : barymat.m
+    Chebfun commit: 7574c77
+    """
+    def generic(values):
+        return jnp.sum(values, axis=1)
+
+    def source_cpu(values):
+        return jax.lax.fori_loop(
+            0, values.shape[1], lambda k, total: total + values[:, k],
+            jnp.zeros((values.shape[0],), dtype=values.dtype),
+        )
+
+    m, n = raw.shape
+    if raw.dtype == jnp.float64 and m <= 512 and n <= 514:
+        sums = jax.lax.platform_dependent(raw, cpu=source_cpu, default=generic)
+    else:
+        sums = generic(raw)
+    if m >= 500 and n >= 1000:
+        return raw / sums[:, None]
+    reciprocal = jax.lax.optimization_barrier(1.0 / sums)
+    return raw * reciprocal[:, None]
+
+
 @jax.jit
 def _barymat_core(y: jnp.ndarray,
                   x: jnp.ndarray,
@@ -708,8 +737,7 @@ def _barymat_core(y: jnp.ndarray,
     B = w[None, :] / D
 
     # Normalise each row: B[j, :] /= sum(B[j, :])
-    row_sums = jnp.sum(B, axis=1, keepdims=True)
-    B = B / row_sums
+    B = _barymat_normalize(B)
 
     # Fix NaN rows (where y[j] == x[k], producing 0/0).
     # Replace entire NaN rows with the appropriate identity row.
@@ -741,13 +769,30 @@ def _barymat_angles_core(s: jnp.ndarray,
     Original authors: Copyright 2017 by The University of Oxford and
         The Chebfun Developers.
     """
-    differences = (
-        2.0 * jnp.sin((s[:, None] + r[None, :]) / 2.0)
-        * jnp.sin((r[None, :] - s[:, None]) / 2.0)
-    )
+    def differences_generic(s, r):
+        return (2.0 * jnp.sin((s[:, None] + r[None, :]) / 2.0)
+                * jnp.sin((r[None, :] - s[:, None]) / 2.0))
+
+    def differences_source_cpu(s, r):
+        from chebfunjax.utils._fdlibm_sine import _sin_cheb_angles
+
+        def sine(angle):
+            # Normalization uses the entire row before the flipping trick.
+            # Retain generic sine outside the provider's qualified interval.
+            return jnp.where(jnp.abs(angle) <= jnp.pi / 2,
+                             _sin_cheb_angles(angle), jnp.sin(angle))
+
+        return 2.0 * (sine((s[:, None] + r[None, :]) / 2.0)
+                      * sine((r[None, :] - s[:, None]) / 2.0))
+
+    if s.dtype == r.dtype == jnp.float64 and s.size <= 512 and r.size <= 514:
+        differences = jax.lax.platform_dependent(
+            s, r, cpu=differences_source_cpu, default=differences_generic,
+        )
+    else:
+        differences = differences_generic(s, r)
     raw = w[None, :] / differences
-    row_sums = jnp.sum(raw, axis=1, keepdims=True)
-    matrix = raw / row_sums
+    matrix = _barymat_normalize(raw)
 
     # At coincident nodes the normalized barycentric expression has a NaN at
     # its matching entry; the MATLAB source replaces those NaNs with one.

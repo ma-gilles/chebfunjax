@@ -338,9 +338,9 @@ def _square_cheb_diffmat(n: int, p: int = 1,
         w = _cheb2_barywts(n)
         def generic(x, w):
             return _bary_diffmat(x, w, p, _cheb2_angles(n))
-        if jax.config.x64_enabled and n <= 129:
-            # Bound the O(n^2) fdlibm operand stacks to the qualified small
-            # CPU matrix range; larger shapes keep the generic implementation.
+        if jax.config.x64_enabled and n <= 514:
+            # Bound the O(n^2) fdlibm operand stacks to the qualified CPU
+            # matrix range; larger shapes retain the generic implementation.
             def source_cpu(x, w):
                 angles = _divide_binary64_by_positive_integer(
                     jnp.arange(n - 1, -1, -1, dtype=jnp.float64) * jnp.pi, n - 1)
