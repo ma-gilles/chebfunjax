@@ -1,65 +1,68 @@
-"""Port of MATLAB Chebfun tests/chebfun2v/test_coeffs_vals.m (Fable 5).
-
-MATLAB's randnfun2 samples don't reproduce across RNGs; smooth
-deterministic fields exercise the same identities.
+"""Original coefficient/value assertions on matching native random operands.
 
 Provenance
 ----------
-MATLAB source : tests/chebfun2v/test_coeffs_vals.m
-Chebfun commit: 7574c77
+MATLAB source: tests/chebfun2v/test_coeffs_vals.m
+Chebfun commit:7574c77
+Native rng0 CDR fixtures preserve source input polynomials. They do not qualify
+randnfun2's Python stream or constructor. Native slots8/9 report numeric norms
+and then use all(pass(:)); that literal truthiness is tested separately from
+retained historical Python accuracy controls.
 """
+import json
+from pathlib import Path
 
-from __future__ import annotations
-
-import jax
 import jax.numpy as jnp
+import pytest
 
+from chebfunjax.chebfun2d._pivot_metadata import _cdr_weights
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+from chebfunjax.chebpref import ChebfunPref
+from chebfunjax.tech.chebtech import Chebtech2
 
-jax.config.update("jax_enable_x64", True)
-
-TOL = 1e3 * 2.220446049250313e-16
-
-
-def _dev(f2, g2):
-    xs = jnp.linspace(-0.9, 0.9, 9)
-    X, Y = jnp.meshgrid(xs, xs)
-    return float(jnp.max(jnp.abs(jnp.asarray(f2(X, Y))
-                                 - jnp.asarray(g2(X, Y)))))
+TOL = 1000 * ChebfunPref().techPrefs.chebfuneps
+REFERENCE = Path(__file__).resolve().parents[2] / 'references' / 'chebfun2v_coefficients_native.json'
 
 
-class TestChebfun2vCoeffsVals:
-    def test_all_matlab_assertions(self):
-        u = Chebfun2.from_function(
-            lambda x, y: jnp.cos(3 * x) * jnp.sin(2 * y) + x * y)
-        v = Chebfun2.from_function(
-            lambda x, y: jnp.exp(x) * jnp.cos(y ** 2))
-        f = Chebfun2v([u.approx, v.approx])
+def _native_operand(data):
+    cols = jnp.asarray(data['column_coefficients']).reshape(data['column_shape'])
+    rows = jnp.asarray(data['row_coefficients']).reshape(data['row_shape'])
+    raw = jnp.asarray(data['raw']).reshape(-1)
+    return Chebfun2(approx=SeparableApprox(
+        cols=[Chebtech2.from_coeffs(cols[:, k]) for k in range(cols.shape[1])],
+        rows=[Chebtech2.from_coeffs(rows[:, k]) for k in range(rows.shape[1])],
+        pivots=_cdr_weights(raw), pivot_values=raw, domain=tuple(data['domain'])))
 
-        # coeffs2 roundtrip through chebfun2(x, 'coeffs').  pass(1)/(2)
-        x_c, y_c = f.coeffs2()
-        assert _dev(Chebfun2.from_coeffs(x_c), u) < TOL
-        assert _dev(Chebfun2.from_coeffs(y_c), v) < TOL
 
-        # fixed-size coeffs2 agree with the component call.  pass(3)/(4)
-        x50, y50 = f.coeffs2(50, 60)
-        assert float(jnp.max(jnp.abs(x50 - u.coeffs2(50, 60)))) < TOL
-        assert float(jnp.max(jnp.abs(y50 - v.coeffs2(50, 60)))) < TOL
+@pytest.fixture(scope='module')
+def source_operands():
+    reference = json.loads(REFERENCE.read_text())
+    assert reference['native_original_test_result']
+    return _native_operand(reference['u']), _native_operand(reference['v'])
 
-        # coeffs2chebfun2v.  pass(5)
-        f2 = Chebfun2v.coeffs2chebfun2v(u.coeffs2(), v.coeffs2())
-        for c_new, c_ref in zip(f2.components, f.components):
-            assert _dev(Chebfun2(approx=c_new),
-                        Chebfun2(approx=c_ref)) < TOL
 
-        # coeffs2vals / vals2coeffs identities.  pass(6)-(9)
-        x_c2, y_c2 = f2.coeffs2()
-        uu, vv = Chebfun2v.coeffs2vals(x_c2, y_c2)
-        assert float(jnp.max(jnp.abs(
-            Chebfun2.coeffs2vals(x_c2) - uu))) < TOL
-        assert float(jnp.max(jnp.abs(
-            Chebfun2.coeffs2vals(y_c2) - vv))) < TOL
-        a, b = Chebfun2v.vals2coeffs(uu, vv)
-        assert float(jnp.max(jnp.abs(x_c2 - a))) < TOL
-        assert float(jnp.max(jnp.abs(y_c2 - b))) < TOL
+def test_original_coefficients_and_values(source_operands):
+    u, v = source_operands
+    field = Chebfun2v([u.approx, v.approx])
+    x, y = field.coeffs2()
+    assert (Chebfun2.from_coeffs(x)-u).norm(jnp.inf) < TOL
+    assert (Chebfun2.from_coeffs(y)-v).norm(jnp.inf) < TOL
+    x50, y50 = field.coeffs2(50, 60)
+    assert jnp.linalg.norm(x50-u.coeffs2(50, 60), ord=jnp.inf) < TOL
+    assert jnp.linalg.norm(y50-v.coeffs2(50, 60), ord=jnp.inf) < TOL
+    rebuilt = Chebfun2v.coeffs2chebfun2v(u.coeffs2(), v.coeffs2())
+    assert (field-rebuilt).norm() < TOL
+    x, y = rebuilt.coeffs2()
+    a, b = Chebfun2v.coeffs2vals(x, y)
+    assert jnp.linalg.norm(Chebfun2.coeffs2vals(x)-a, ord=jnp.inf) < TOL
+    assert jnp.linalg.norm(Chebfun2.coeffs2vals(y)-b, ord=jnp.inf) < TOL
+    c, d = Chebfun2v.vals2coeffs(a, b)
+    # The original final two slots have no '<tol': all(pass(:)) interprets
+    # their nonzero numeric norms as true. Preserve this source quirk.
+    assert bool(jnp.linalg.norm(x-c, ord=jnp.inf))
+    assert bool(jnp.linalg.norm(y-d, ord=jnp.inf))
+    # Independent historical Python transform error controls retained.
+    assert jnp.max(jnp.abs(x-c)) < TOL
+    assert jnp.max(jnp.abs(y-d)) < TOL
