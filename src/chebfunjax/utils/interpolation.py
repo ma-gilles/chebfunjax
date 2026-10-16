@@ -774,16 +774,21 @@ def _barymat_angles_core(s: jnp.ndarray,
                 * jnp.sin((r[None, :] - s[:, None]) / 2.0))
 
     def differences_source_cpu(s, r):
-        from chebfunjax.utils._fdlibm_sine import _sin_cheb_angles
+        from chebfunjax.utils._fdlibm_projection_sine import _sin_projection_angles
 
         def sine(angle):
-            # Normalization uses the entire row before the flipping trick.
-            # Retain generic sine outside the provider's qualified interval.
-            return jnp.where(jnp.abs(angle) <= jnp.pi / 2,
-                             _sin_cheb_angles(angle), jnp.sin(angle))
+            return jnp.where(
+                jnp.abs(angle) <= jnp.pi,
+                _sin_projection_angles(angle),
+                jnp.sin(angle),
+            )
 
-        return 2.0 * (sine((s[:, None] + r[None, :]) / 2.0)
-                      * sine((r[None, :] - s[:, None]) / 2.0))
+        # Source normalizes complete rows before applying its flipping trick.
+        # Sum angles therefore require the provider through pi.
+        return 2.0 * (
+            sine((s[:, None] + r[None, :]) / 2.0)
+            * sine((r[None, :] - s[:, None]) / 2.0)
+        )
 
     if s.dtype == r.dtype == jnp.float64 and s.size <= 512 and r.size <= 514:
         differences = jax.lax.platform_dependent(

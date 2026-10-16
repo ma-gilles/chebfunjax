@@ -1,0 +1,50 @@
+{
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/projection_sine_source_qualified_20261016.zip",
+  "sha256": "bad329f9398ece8ec140eed714563f21f2c8ee5d5a5b71da7140ad26c845478d",
+  "base": "cb7df40d572fd715b22317d1ed0fc818aa295988",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "unique_tests_passed": 106,
+  "gate_scope": "99 complete file-group pass observations preserved in resource-censored run;7 public controls rerun as a complete terminal passing gate. Do not sum overlapping observations.",
+  "combined_run_censor": "6GiB RSS,105passes before final control;stable inputs,no survivors",
+  "assembly": {
+    "68": {
+      "max_abs": 2.842170943040401e-14,
+      "unequal": 92,
+      "bitwise_mismatches": 109,
+      "rhs_max_abs": 0.0
+    },
+    "132": {
+      "max_abs": 4.547473508864641e-13,
+      "unequal": 406,
+      "bitwise_mismatches": 439,
+      "rhs_max_abs": 0.0
+    },
+    "196": {
+      "max_abs": 0.0,
+      "unequal": 0,
+      "bitwise_mismatches": 33,
+      "rhs_max_abs": 0.0
+    },
+    "580": {
+      "max_abs": 0.0,
+      "unequal": 0,
+      "bitwise_mismatches": 33,
+      "rhs_max_abs": 0.0
+    }
+  },
+  "extra_controls": {
+    "candidate": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fdlibm_pi_candidate_20261016/candidate_compact.py",
+    "native_count": 4127,
+    "bitwise_mismatches": 0,
+    "max_abs": 0.0,
+    "gradient_error": 4.440892098500626e-16,
+    "gradient_bound": 1.7763568394002505e-15,
+    "invalid_ok": true
+  },
+  "known_open": "Full stiff public BVP acceptance,next-main CI,full project parity and performance remain open.68/132ordinary GEMM rounding and signed-zero constraint differences are retained,not fitted away.",
+  "production_source_hashes": {
+    "src/chebfunjax/utils/_fdlibm_projection_sine.py": "ed7bbc50b30d46a64e32df924020e71f45bff4044c13bdd8151272158df895a9",
+    "src/chebfunjax/utils/interpolation.py": "5637a5833ec749f0b98727a9b1c1c0ddae745c9e7612adcdbc67b5085f5494e7"
+  },
+  "review": "Independent numerical review found no blocking bounds,reduction,AD or fallback issue; no custom JVP or host numerical provider."
+}

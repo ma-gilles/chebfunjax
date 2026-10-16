@@ -1,0 +1,14 @@
+{
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab": "R2025b Update2",
+  "capture_script": "% Independent bounded-source sine controls; actual MATLAB sine output.\nR='/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref';\n[status,rev]=system(sprintf('git -C \"%s\" rev-parse HEAD',R));\nassert(status==0 && startsWith(strtrim(rev),'7574c77'));\nD=fileparts(mfilename('fullpath'));\ntarget=fullfile(D,'native_extra.mat');assert(~isfile(target));\nknots=[pi/4 pi/2 3*pi/4 pi];\nneighbors=reshape(knots'+(-2:2).*eps(knots'),[],1);\nangles=unique([linspace(-pi,pi,4097)';neighbors;-neighbors;0;-0;realmin;-realmin]);\nangles=angles(abs(angles)<=pi);\nsines=sin(angles);cosines=cos(angles);\nsave(target,'angles','sines','cosines','rev','-v7');\n",
+  "capture_script_sha256": "1d43be624616c06d6d0642c0d417fffa638f72aebc2eebb10c383a0576417c39",
+  "capture_mat_sha256": "0aeaaec2ec05aff6b7762276ec770d29353e870b6719073910cadae2406757d6",
+  "fixture_sha256": "99c7d2f3436677582cc1ad161b7d661f9a3cc3e9139d48e74755ac14bf877cc4",
+  "netlib_source_sha256": {
+    "e_rem_pio2.c": "3a08dd4a38f9f9fc9478a33ca05cb81a6566f1010ab14412e97cae091bede16b",
+    "k_sin.c": "75d391f3c124806ce14893cd038ae5dd10663e40430ffa174d5fddcb33012167",
+    "s_sin.c": "4d5edb75368e4f8e0ac18682d3ae4b6944ba06801637cf0df6f378d6211f4c81"
+  },
+  "scope": "Dense and boundary binary64 angles in [-pi,pi]; native sine/cosine are test references only."
+}

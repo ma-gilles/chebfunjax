@@ -1,3 +1,22 @@
+## 2026-10-16: source sine for complete projection rows
+
+CPU projection now uses source sine through pi before full-row normalization.
+This corrects the first divergent stage identified in native captures; angles,
+weights and controlled downstream arithmetic were already exact.
+All five captured projection sizes34/66/130/258/514 now match native bits.
+4127dense/boundary sine values match native bits;JVPerror4.44e-16 is within
+8eps. Existing low-angle provider and general barymat fallbacks are preserved.
+
+106distinct focused tests are verified across retained complete file groups
+and a fresh7-test public-control run. The initial combined run hit its6GiB
+RSS cap after105passes;it is not reported as a completed106-test process.
+Actual production matrices196/580 equal native numerically,with33signed-zero
+constraint differences;operator rows match bitwise. Smaller68/132products
+retain ordinary GEMM rounding up to3.46e-16 row-scaled. No fitted native data
+or source GEMM substitution enters production. Full stiff Breakpoints public
+acceptance and latest-main CI remain pending. See
+`docs/projection_sine_source_cpu_20261016.json` for exact evidence and limits.
+
 ## 2026-10-16: current parity checklist and CPU LU compilation
 
 **Full parity remains incomplete.** Reference: Chebfun7574c77. CPU only.
@@ -29,8 +48,8 @@ in the working checklist and historical evidence;do not sum overlapping gates.
   does not establish assertion completeness.
 - [ ] Stiff Breakpoints default solve:Python still refines beyond native
  64/512. On identical native580matrix,solve error is2.6e-15;native sample
- replay gives cutoffs39/2 and7.23e-12error. Assembly rounding is the next
- target;the complete Python public solve has no passing verdict.
+ replay gives cutoffs39/2 and7.23e-12error. Projection rounding is corrected in the new section above;the complete
+ Python public solve still has no passing verdict.
 - [ ] Vector division17vs18coefficients,Chebfun3Tpredicate7,and remaining
  numerical/type/range issues and omitted assertions.
 - [ ] Remaining host numerical paths,provenance gaps,skips and xfails.

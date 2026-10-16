@@ -15,10 +15,12 @@ Recent verified work includes source coefficient AD,CPU projection and
 differentiation,restored original vector/addition assertions,and this
 revision's LU kernel-sharing qualification. See STATUS.md for scoped counts
 and `docs/lu_base_kernel_reuse_cpu_20261016.json` for the matched580case.
-Default stiff Breakpoints convergence remains unresolved. Identical native
-580matrix solves and native-sample output replay pass;compare assembly
-arithmetic next. The isolated GEMM diagnostic is prepared in the evidence
-root;it has not yet run or established a production correction.
+Source projection sine is now corrected through pi;all five captured P
+sizes match native bits,and actual196/580matrices match native values.
+106distinct focused checks are verified across documented runs;the combined
+run was memory-censored and the7public controls passed separately.
+Default stiff Breakpoints public acceptance remains pending. See the newest
+STATUS.md section and docs/projection_sine_source_cpu_20261016.json.
 Latest-main green CI,all original assertions,and full322-page numerical/
 output/figure and CPU performance parity remain open.
 
