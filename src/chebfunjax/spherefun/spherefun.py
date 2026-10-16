@@ -2934,7 +2934,7 @@ class Spherefun(eqx.Module):
             from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
             if isinstance(op, Chebfun2v):
                 from chebfunjax.spherefun.spherefunv import Spherefunv
-                return Spherefunv(*[self.compose(c)
+                return Spherefunv(*[self.compose(Chebfun2(approx=c))
                                     for c in op.components])
         except ImportError:
             pass

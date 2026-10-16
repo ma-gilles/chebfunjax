@@ -403,7 +403,7 @@ class Chebfun2v(eqx.Module):
     # ------------------------------------------------------------------
 
     def __call__(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
-        """Evaluate at points (x, y), or compose with a Chebfun2v argument.
+        """Evaluate at numeric points or compose with function coordinates.
 
         Parameters
         ----------
@@ -419,17 +419,42 @@ class Chebfun2v(eqx.Module):
 
         Notes
         -----
-        JIT-safe, vmap-safe.
+        Numeric evaluation is JIT-safe and vmap-safe. Function-object
+        inputs use the source typed composition dispatch.
 
         Provenance
         ----------
-        MATLAB source : @chebfun2v/feval.m
+        MATLAB source : @chebfun2v/feval.m, @chebfun2v/subsref.m
         Chebfun commit: 7574c77
         """
-        if y is None and isinstance(x, Chebfun2v):
-            return x.compose(self)
         if self.isempty():
             return jnp.zeros((0,))
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+        from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+        from chebfunjax.diskfun.diskfun import Diskfun
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+        from chebfunjax.spherefun.spherefun import Spherefun
+
+        if y is None:
+            if isinstance(x, Chebfun2):
+                return Chebfun2v([x.real().approx, x.imag().approx]).compose(self)
+            if isinstance(x, (Chebfun, Quasimatrix, Chebfun2v, Chebfun3,
+                              Chebfun3v, Diskfun, Diskfunv, Spherefun)):
+                return x.compose(self)
+        elif isinstance(x, Chebfun) and isinstance(y, Chebfun):
+            return Chebfun.horzcat(x, y).compose(self)
+        elif isinstance(x, Chebfun2) and isinstance(y, Chebfun2):
+            return x.vertcat(y).compose(self)
+        elif isinstance(x, Chebfun3) and isinstance(y, Chebfun3):
+            return x.vertcat(y).compose(self)
+        if y is not None:
+            function_types = (Chebfun, Quasimatrix, Chebfun2, Chebfun2v,
+                              Chebfun3, Chebfun3v, Diskfun, Diskfunv, Spherefun)
+            if isinstance(x, function_types) or isinstance(y, function_types):
+                raise ValueError("CHEBFUN:CHEBFUN2V:subsref:input: Unrecognized input.")
         vals = jnp.stack([c(x, y) for c in self.components], axis=-1)
         return vals
 
@@ -1074,6 +1099,26 @@ class Chebfun2v(eqx.Module):
         for c in self.components:
             box.extend(Chebfun2(approx=c).minandmax2est(N))
         return tuple(box)
+
+    def __getitem__(self, index):
+        """Return a scalar component using Python zero-based indexing.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/subsref.m (numeric component branch)
+        Chebfun commit: 7574c77
+        MATLAB component indices1:3 map to Python0:2.
+        """
+        import operator
+
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        index = operator.index(index)
+        if index < 0 or index >= self.n_components:
+            raise IndexError("CHEBFUN:CHEBFUN2V:subsref:index")
+        return Chebfun2(approx=self.components[index])
 
     def compose(self, g):
         """Compose a field with a scalar/vector field.
