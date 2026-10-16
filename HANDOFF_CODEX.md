@@ -26,6 +26,28 @@ Full Breakpoints page/figures,other problems,and matched speed remain open.
 Latest-main green CI,all original assertions,and full322-page numerical/
 output/figure and CPU performance parity remain open.
 
+## 2026-10-16: direct native FermiDirac comparison and immediate CI failures
+
+All four original minimax calls complete against clean Chebfun 7574c77 in
+MATLAB R2025b. Independent replay of the frozen Python weights on the actual
+native plotting and supplemental grids finds maximum curve differences of
+6.44e-15, 1.91e-13, 2.19e-11 and 7.96e-14. For L=1000,n=20, Python reports
+5 iterations versus native 6; other iteration counts match. Poles/references
+also differ. These are measured open parity gaps, not newly accepted bounds.
+See `docs/fermi_dirac_native_fit_comparison_cpu_20261016.json` for direct
+captures, matching method, original shapes, startup retry and timing scope.
+The existing Python qualification record now correctly includes its recorded
+runtime environment and supervisor wall time rather than null fields.
+
+CI now journals failed report phases and immediately prints each delivered
+failure's node, phase and traceback on the xdist controller. An intentional
+scratch-only two-worker failure confirms a single heading before the final
+summary and failure events in both journals. Assertions, timeouts and scheduling
+are unchanged. This preserves details when a runner later shuts down, but
+cannot recover a report lost before controller delivery. See
+`docs/pytest_failure_delivery_cpu_20261016.json`. Full parity and latest-main
+CI remain unresolved.
+
 ## 2026-10-16: fresh FermiDirac execution and roots CI spy repair
 
 All four FermiDirac fits and six figures complete on 18a09e00 with guarded CPU

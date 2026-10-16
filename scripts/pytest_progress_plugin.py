@@ -44,3 +44,16 @@ if pytest is not None:
             yield
         finally:
             _record("test-finish", item.nodeid, time.monotonic() - start)
+
+
+def pytest_runtest_logreport(report) -> None:
+    """Expose delivered failures before a runner shutdown can lose the summary."""
+    if not report.failed:
+        return
+    _record("test-failed", report.nodeid, report.duration)
+    if "PYTEST_XDIST_WORKER" not in os.environ:
+        print(
+            f"\nImmediate pytest failure ({report.when}): {report.nodeid}\n"
+            f"{report.longrepr}",
+            flush=True,
+        )

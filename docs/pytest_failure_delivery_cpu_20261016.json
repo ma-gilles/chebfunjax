@@ -1,0 +1,43 @@
+{
+  "purpose": "Intentional scratch-only pytest failure verifies controller delivery with two xdist workers. It is not a failing library regression.",
+  "controller_failure_heading_count": 1,
+  "heading_precedes_final_failure_summary": true,
+  "reported_failed_tests": 1,
+  "controller_and_worker_journal_events": [
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pytest_failure_delivery_smoke_20261016/progress/gw1.jsonl",
+      "failed_events": [],
+      "sha256": "c85171de396be1a4f6412aa31d5e400af0a51377c114a8a3ef3458803bfb76b8"
+    },
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pytest_failure_delivery_smoke_20261016/progress/controller.jsonl",
+      "failed_events": [
+        {
+          "duration_seconds": 0.00021722912788391113,
+          "event": "test-failed",
+          "nodeid": "test_expected_failure.py::test_expected_failure_delivery",
+          "pid": 527466,
+          "time_unix": 1792193236.9210489
+        }
+      ],
+      "sha256": "96af2a6138c042be233f9ebf0ebd8d7afedb484f08c0a56288c791bd7f8c5867"
+    },
+    {
+      "file": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/pytest_failure_delivery_smoke_20261016/progress/gw0.jsonl",
+      "failed_events": [
+        {
+          "duration_seconds": 0.00021722912788391113,
+          "event": "test-failed",
+          "nodeid": "test_expected_failure.py::test_expected_failure_delivery",
+          "pid": 527470,
+          "time_unix": 1792193236.9202497
+        }
+      ],
+      "sha256": "0bb947f5f24821b78ada2416edc5107b2f452f9778e1d89519b4e49d780f9583"
+    }
+  ],
+  "stdout_sha256": "48a67bf76ef02714c0abc4e00af0be1083c7b1b89c4b99a024e78cd28c8ba1b2",
+  "change": "Print node ID, phase and traceback on delivery of each failed report to the controller; journal failed phases in both controller and workers. No changes to assertions, timeouts or scheduling.",
+  "limitation": "A hard kill before report reaches controller can still lose failure details. Captured stdout/stderr remain in report sections rather than immediate traceback.",
+  "source_sha256": "2d8c794c67b198fbe1d3ed8e671ba26d2d87bb2d2acf616cc7d189840bdfeeec"
+}

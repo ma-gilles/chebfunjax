@@ -1,0 +1,250 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_execution_head": "18a09e00c6ab216c656f68db9cdc46dedc07c7d3",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_capture_complete": true,
+  "native_reference_clean_after": true,
+  "native_supervisor": {
+    "wall_seconds": 88.25901714200154,
+    "sampled_peak_summed_rss_kib": 1519592,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "fits": [
+    {
+      "L": 10,
+      "n": 10,
+      "python_iterations": 1,
+      "native_iterations": 1,
+      "original_grid_curve_max_difference": 6.439293542825908e-15,
+      "supplemental_grid_curve_max_difference": 6.439293542825908e-15,
+      "matched_pole_max_difference": 1.169333162758122e-08,
+      "status_comparison": {
+        "delta": {
+          "absolute_difference": 1.073412585165162e-15,
+          "exact_equal": false,
+          "native": 2.8731337023969777e-16,
+          "python": 1.3607259554048597e-15
+        },
+        "err": {
+          "absolute_difference": 5.668228479216673e-16,
+          "exact_equal": false,
+          "native": 4.4593544792899365e-08,
+          "python": 4.459354535972221e-08
+        },
+        "iterations": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 1,
+          "python": 1
+        },
+        "native_status_fields_in_json": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "native_status_fields_in_mat": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "success": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 1,
+          "python": true
+        }
+      }
+    },
+    {
+      "L": 100,
+      "n": 15,
+      "python_iterations": 12,
+      "native_iterations": 12,
+      "original_grid_curve_max_difference": 1.9087509350868004e-13,
+      "supplemental_grid_curve_max_difference": 1.9086121572087222e-13,
+      "matched_pole_max_difference": 8.895527798813418e-07,
+      "status_comparison": {
+        "delta": {
+          "absolute_difference": 1.5584126685960972e-13,
+          "exact_equal": false,
+          "native": 2.4012186704031487e-13,
+          "python": 8.428060018070516e-14
+        },
+        "err": {
+          "absolute_difference": 1.4381551505238122e-13,
+          "exact_equal": false,
+          "native": 3.868927064692995e-07,
+          "python": 3.8689256265378447e-07
+        },
+        "iterations": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 12,
+          "python": 12
+        },
+        "native_status_fields_in_json": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "native_status_fields_in_mat": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "success": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 1,
+          "python": true
+        }
+      }
+    },
+    {
+      "L": 1000,
+      "n": 20,
+      "python_iterations": 5,
+      "native_iterations": 6,
+      "original_grid_curve_max_difference": 2.183320191306848e-11,
+      "supplemental_grid_curve_max_difference": 2.187605652181901e-11,
+      "matched_pole_max_difference": 5.629074637870884e-07,
+      "status_comparison": {
+        "delta": {
+          "absolute_difference": 2.8253067694978063e-11,
+          "exact_equal": false,
+          "native": 4.109327412173231e-14,
+          "python": 2.8294160969099797e-11
+        },
+        "err": {
+          "absolute_difference": 2.064126647383091e-11,
+          "exact_equal": false,
+          "native": 2.136161721733032e-06,
+          "python": 2.136182362999506e-06
+        },
+        "iterations": {
+          "absolute_difference": 1.0,
+          "exact_equal": false,
+          "native": 6,
+          "python": 5
+        },
+        "native_status_fields_in_json": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "native_status_fields_in_mat": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "success": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 1,
+          "python": true
+        }
+      }
+    },
+    {
+      "L": 1000,
+      "n": 30,
+      "python_iterations": 6,
+      "native_iterations": 6,
+      "original_grid_curve_max_difference": 7.960299086562372e-14,
+      "supplemental_grid_curve_max_difference": 7.860379014346108e-14,
+      "matched_pole_max_difference": 3.6862883646237363e-06,
+      "status_comparison": {
+        "delta": {
+          "absolute_difference": 1.5619887795303383e-14,
+          "exact_equal": false,
+          "native": 5.450758285357559e-14,
+          "python": 3.8887695058272206e-14
+        },
+        "err": {
+          "absolute_difference": 7.771561172376096e-15,
+          "exact_equal": false,
+          "native": 6.759599546768413e-10,
+          "python": 6.75952183115669e-10
+        },
+        "iterations": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 6,
+          "python": 6
+        },
+        "native_status_fields_in_json": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "native_status_fields_in_mat": [
+          "delta",
+          "diffx",
+          "iter",
+          "pol",
+          "success",
+          "xk",
+          "zer"
+        ],
+        "success": {
+          "absolute_difference": 0.0,
+          "exact_equal": true,
+          "native": 1,
+          "python": true
+        }
+      }
+    }
+  ],
+  "comparison_method": "Independent NumPy replay of frozen Python barycentric weights at actual native 2000-point plotting grid and20001-point supplemental grid, compared to directly captured native evaluations. This is not a fresh JAX minimax solve. Pole sets matched with linear_sum_assignment; no fitted tolerance. Full arrays/shapes/status fields are archived.",
+  "audit_interpreter": "/usr/licensed/anaconda3/2024.2/bin/python",
+  "audit_dependencies": {
+    "h5py": "3.13.0",
+    "numpy": "1.26.4",
+    "scipy": "1.11.4"
+  },
+  "comparison_sha256": "1479109520efcd016c0e01da3c3695fe26c4de7d220063ec2e72dc3b7ae6db50",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/fermi_dirac_native_comparison_qualified_20261016.zip",
+    "sha256": "653612dad1699e28ffbe9796979c4c3c23ed19642ba1e6469416508a730b0460"
+  },
+  "scope": "Direct native comparison completed; numerical and representation differences remain explicitly open. Historical startup crash was before any fit and retried with shorter shared TMPDIR only. Native fit timings exclude plotting and differ in scope from Python page timings, so no paired speed ratio is claimed.",
+  "next": "Review source stopping/initialization semantics for L1000,n20; isolate first divergent reference/trial without changing original bounds or fitting output.",
+  "open": [
+    "n20iteration5 versusnative6",
+    "Native pole/zero/reference representation differences",
+    "All6 native rendering comparisons",
+    "fplot sampling",
+    "JAX-only minimax numerics",
+    "CPU performance",
+    "Full goal and latest-main CI"
+  ]
+}
