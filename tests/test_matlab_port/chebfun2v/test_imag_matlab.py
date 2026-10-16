@@ -28,12 +28,19 @@ def _v(fn):
 
 class TestChebfun2vImag:
     def test_imag_of_real_is_zero(self):
-        # pass(1): imag(F) == 0 for real F, tol 100*cheb2eps.
+        # pass(1): imag(F) == 0 for real F, tol 10*cheb2eps.
         F = _v(lambda x, y: jnp.cos(x * y))
-        assert float(F.imag().norm()) < 100 * EPS
+        assert float(F.imag().norm()) < 10 * EPS
 
     def test_imag_of_complex_sum(self):
-        # pass(2): imag(F1 + 1i*F2) == F2.
+        # pass(3): native bound is 1000*EPS; retain this stricter 100*EPS
+        # historical control, which also establishes the original predicate.
         F1 = _v(lambda x, y: jnp.cos(x * y))
         F2 = _v(lambda x, y: jnp.sin(x + y ** 2))
         assert float((F2 - (F1 + 1j * F2).imag()).norm()) < 100 * EPS
+
+
+    def test_imag_of_imaginary_field(self):
+        # Original pass(2), at 100*tol with tol=10*cheb2eps.
+        F = _v(lambda x, y: jnp.cos(x * y))
+        assert float((F - (1j * F).imag()).norm()) < 1000 * EPS

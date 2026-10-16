@@ -272,7 +272,7 @@ class Chebfun2v(eqx.Module):
 
     def transpose(self) -> "Chebfun2v":
         """MATLAB ``F.'``: the row form (chebfunjax keeps the same
-        components; orientation only affects display).
+        components; orientation affects dimensions, display and arithmetic).
 
         Provenance
         ----------
@@ -1166,10 +1166,39 @@ class Chebfun2v(eqx.Module):
                 return False
         return True
 
+    def size(self, dim=None):
+        """Continuous vector dimensions, respecting transpose orientation.
+
+        With no dimension, return a tuple for Python unpacking. Native empty
+        size returns an empty array before examining the requested dimension.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/size.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        infinity = float("inf")
+        dimensions = ((infinity, infinity, self.n_components)
+                      if self.is_transposed else
+                      (self.n_components, infinity, infinity))
+        if dim is None:
+            return dimensions
+        if dim in (1, 2, 3):
+            return dimensions[int(dim) - 1]
+        raise ValueError("CHEBFUN:CHEBFUN2V:size:dim: Unrecognised dimension.")
+
     @property
     def shape(self) -> tuple:
-        """MATLAB size(F): (n_components, inf, inf)."""
-        return (len(self.components), float("inf"), float("inf"))
+        """Tuple form of native vector dimensions, including row orientation.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/size.m
+        Chebfun commit: 7574c77
+        """
+        return tuple(self.size())
 
     def vertcat(self, other) -> "Chebfun2v":
         """Append a scalar or Chebfun2 using native component-domain promotion.
