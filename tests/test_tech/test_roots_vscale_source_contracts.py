@@ -140,8 +140,11 @@ def test_coefficient_only_and_resultant_compatibility(monkeypatch):
     observed, _ = _record_normalized(monkeypatch)
     c = jnp.asarray([1., 1.])
     direct = module._roots_colleague(c)
+    assert len(observed) == 1
+    assert bool(jnp.array_equal(observed[0], c))
+    # The independent resultant helper uses its source linear-root shortcut;
+    # it does not dispatch through the Tech normalization engine.
     resultant = jnp.asarray(_chebT1rts(jax.device_get(c)))
-    assert len(observed) == 2
-    assert all(bool(jnp.array_equal(value, c)) for value in observed)
+    assert len(observed) == 1
     assert bool(jnp.array_equal(direct, resultant))
     assert bool(jnp.array_equal(direct, jnp.asarray([-1.])))

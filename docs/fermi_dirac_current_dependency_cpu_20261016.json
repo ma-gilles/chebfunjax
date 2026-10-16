@@ -1,0 +1,311 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "execution_head": "18a09e00c6ab216c656f68db9cdc46dedc07c7d3",
+  "runtime": null,
+  "complete": true,
+  "fits": [
+    {
+      "L": 10,
+      "n": 10,
+      "complete": true,
+      "err": 4.459354535972221e-08,
+      "delta": 1.3607259554048597e-15,
+      "iterations": 1,
+      "success": true,
+      "observed_seconds": 30.60126873990521
+    },
+    {
+      "L": 100,
+      "n": 15,
+      "complete": true,
+      "err": 3.8689256265378447e-07,
+      "delta": 8.428060018070516e-14,
+      "iterations": 12,
+      "success": true,
+      "observed_seconds": 59.91103787207976
+    },
+    {
+      "L": 1000,
+      "n": 20,
+      "complete": true,
+      "err": 2.136182362999506e-06,
+      "delta": 2.8294160969099797e-11,
+      "iterations": 5,
+      "success": true,
+      "observed_seconds": 35.77222484583035
+    },
+    {
+      "L": 1000,
+      "n": 30,
+      "complete": true,
+      "err": 6.75952183115669e-10,
+      "delta": 3.8887695058272206e-14,
+      "iterations": 6,
+      "success": true,
+      "observed_seconds": 34.61203433806077
+    }
+  ],
+  "source_hashes_stable": true,
+  "reference_hashes_stable": true,
+  "supervisor": {
+    "supervisor_exit_code": 0,
+    "elapsed_seconds": null,
+    "sampled_peak_summed_rss_kib": 4542368,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "stdout_except_elapsed_exactly_matches_accepted": true,
+  "images": [
+    {
+      "name": "FermiDirac_01.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": true,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.0,
+          "rgb_pixel_max_difference_0_255": 0,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 3.719493827160494,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    },
+    {
+      "name": "FermiDirac_02.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": true,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.0,
+          "rgb_pixel_max_difference_0_255": 0,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 3.3130740740740743,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    },
+    {
+      "name": "FermiDirac_03.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": true,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.0,
+          "rgb_pixel_max_difference_0_255": 0,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 7.467008230452675,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    },
+    {
+      "name": "FermiDirac_04.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": true,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.0,
+          "rgb_pixel_max_difference_0_255": 0,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 7.673874485596708,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    },
+    {
+      "name": "FermiDirac_05.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": true,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.0,
+          "rgb_pixel_max_difference_0_255": 0,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 8.333843621399177,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    },
+    {
+      "name": "FermiDirac_06.png",
+      "dimensions": [
+        600,
+        270
+      ],
+      "byte_equal_to_accepted": false,
+      "comparison": {
+        "accepted_python": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGBA",
+          "rgb_pixel_mae_0_255": 0.000257201646090535,
+          "rgb_pixel_max_difference_0_255": 1,
+          "status": "compared"
+        },
+        "native": {
+          "dimensions_equal": true,
+          "reference_dimensions": [
+            600,
+            270
+          ],
+          "reference_mode": "RGB",
+          "rgb_pixel_mae_0_255": 8.29822633744856,
+          "rgb_pixel_max_difference_0_255": 255,
+          "status": "compared"
+        }
+      }
+    }
+  ],
+  "independent_numpy_replay": {
+    "purpose": "Supplemental independent coefficient replay on 20001 uniform plus 2000 Chebyshev plotting nodes and both support sets. Not a native coefficient comparison or a new acceptance tolerance. Negative barycentric ratio follows documented _reval_source convention.",
+    "script_sha256": "f75a1cce69b1523a92223521b9e4d76987217a9ca4b2627b31df15dd9a384028",
+    "fits": [
+      {
+        "L": 10,
+        "n": 10,
+        "points": 22016,
+        "baseline_sha256": "aeb92fa957886bcbc8ad459b4002ae09bedaeb1870f10424bff47103a5cdbffe",
+        "current_sha256": "776c79e58dc430f74034bd240a123343d2973de22a8687d18237ffc63034ee71",
+        "max_function_difference": 3.552713678800501e-15,
+        "baseline_sampled_error": 4.459354641106472e-08,
+        "current_sampled_error": 4.45935455228863e-08
+      },
+      {
+        "L": 100,
+        "n": 15,
+        "points": 22026,
+        "baseline_sha256": "1c08651fd358b85db2650d7f862d25b6656cf3917a5091562f8985e0883721c2",
+        "current_sha256": "bb996ab05d6e7fa76c815932198aeab1d955ea6c0bfcb60aeea545b56e816a67",
+        "max_function_difference": 1.1435297153639112e-14,
+        "baseline_sampled_error": 3.868924868255519e-07,
+        "current_sampled_error": 3.8689248527123965e-07
+      },
+      {
+        "L": 1000,
+        "n": 20,
+        "points": 22036,
+        "baseline_sha256": "c7fb06af6945618cc7962b1f6d1774d3dfd2aea3dc85b887b588254d3c1f8dcf",
+        "current_sha256": "1ccd9c247b828f4d8050f79d5ddf51dd35a71b61f00c450f1ebfc43911b51a3d",
+        "max_function_difference": 5.206945985491984e-14,
+        "baseline_sampled_error": 2.1361758721916146e-06,
+        "current_sampled_error": 2.1361758634208527e-06
+      },
+      {
+        "L": 1000,
+        "n": 30,
+        "points": 22056,
+        "baseline_sha256": "7b81e6663856d7656d10c18485d0aa1358f7dfa206ab1f863a78b1c8fcd53a34",
+        "current_sha256": "35b4931778b27f66003d3435ab77508e1f0e4c55db0e02cfd1eb531313375e87",
+        "max_function_difference": 8.149037000748649e-14,
+        "baseline_sampled_error": 6.759566240077675e-10,
+        "current_sampled_error": 6.759517390264591e-10
+      }
+    ]
+  },
+  "current_cf_exceptions_observed": [],
+  "historical_cf_note": "Previous qualification recorded rank-loss exceptions. None were captured in this execution; this does not alone prove complete initialization parity. comparison_report_v2 supersedes v1 historical-gap wording.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/fermi_dirac_requalification_qualified_20261016.zip",
+    "sha256": "30bbda2919ad1a6f2f215b91655a264d0a214a415f1117b43704de045fb6f13e"
+  },
+  "open": [
+    "Native fit coefficients/status/computed-data comparison",
+    "MATLAB fplot adaptive sampling; current adapter uses 2000 uniform points",
+    "Native rendering/pixel parity (MAE3.31\u20138.33 on 0\u2013255 scale)",
+    "JAX-only minimax and full CPU performance parity"
+  ],
+  "scope": "Fresh full Python page execution and accepted-payload comparison. Not full MATLAB page parity; per-fit observed timing is not a paired benchmark."
+}

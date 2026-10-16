@@ -81,7 +81,7 @@ tic, fermi(10,10), toc
 ```
 
 ```text
-Elapsed time is 33.375659 seconds.
+Elapsed time is 30.603611 seconds.
 ```
 
 ![FermiDirac figure 03](../../images/approx/FermiDirac_03.png)
@@ -93,7 +93,7 @@ tic, fermi(100,15), toc
 ```
 
 ```text
-Elapsed time is 20.693824 seconds.
+Elapsed time is 59.912423 seconds.
 ```
 
 ![FermiDirac figure 04](../../images/approx/FermiDirac_04.png)
@@ -107,7 +107,7 @@ tic, fermi(1000,20), toc
 ```text
 Trial interpolant too far from optimal...
 Trying AAA-Lawson-based initialization...
-Elapsed time is 20.451575 seconds.
+Elapsed time is 35.774265 seconds.
 ```
 
 ![FermiDirac figure 05](../../images/approx/FermiDirac_05.png)
@@ -121,7 +121,7 @@ tic, fermi(1000,30), toc
 ```text
 Trial interpolant too far from optimal...
 Trying AAA-Lawson-based initialization...
-Elapsed time is 11.155963 seconds.
+Elapsed time is 34.614632 seconds.
 ```
 
 ![FermiDirac figure 06](../../images/approx/FermiDirac_06.png)

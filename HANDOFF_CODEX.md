@@ -26,6 +26,25 @@ Full Breakpoints page/figures,other problems,and matched speed remain open.
 Latest-main green CI,all original assertions,and full322-page numerical/
 output/figure and CPU performance parity remain open.
 
+## 2026-10-16: fresh FermiDirac execution and roots CI spy repair
+
+All four FermiDirac fits and six figures complete on 18a09e00 with guarded CPU
+execution and stable source/reference hashes. Five PNGs are byte-identical to
+the accepted run; figure 6 differs by at most one RGB level. Printed output
+matches after excluding elapsed-time lines. Saved representations drift, but
+independent coefficient replay on more than 22,000 points per fit differs by
+at most 8.15e-14 in function values. This is dependency requalification, not
+native fit or rendering parity: native image MAE remains 3.31–8.33/255, and
+the explicit fplot adapter remains. The current run captures no CF exceptions;
+historical rank-loss observations do not describe this run. See
+`docs/fermi_dirac_current_dependency_cpu_20261016.json`.
+
+The historical Core7 CI failure reproduces as a stale normalization-call spy.
+The resultant helper uses its independent linear-root shortcut. The corrected
+spy retains both exact numerical predicates; all 21 module tests pass. No
+production behavior changed. See `docs/roots_resultant_spy_cpu_20261016.json`.
+Other CI failures and the full parity goal remain unresolved.
+
 ## 2026-10-16: reuse triangular LU panel kernels
 
 The triangular panel solve now shares JAX shape specializations without changing
