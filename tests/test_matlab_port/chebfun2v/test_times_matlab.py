@@ -17,6 +17,7 @@ import numpy as np
 
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+from chebfunjax.chebpref import ChebfunPref
 
 EPS = float(np.finfo(np.float64).eps)
 
@@ -39,8 +40,18 @@ class TestChebfun2vTimes:
         assert float(((F / 2) - H).norm()) < tol
         assert float(((0.5 * F) - H).norm()) < tol
 
+    def test_componentwise_power(self):
+        # Native test_times pass(9): norm(F.^2 - K) < tol.
+        # Source input is cos(x*y) on chebfun2's default domain.
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        F = Chebfun2v([f.approx, f.approx])
+        f_squared = f ** 2
+        K = Chebfun2v([f_squared.approx, f_squared.approx])
+        tol = 1e3 * ChebfunPref().cheb2Prefs.chebfun2eps
+        assert float(((F ** 2) - K).norm()) < tol
+
     def test_componentwise_product(self):
-        # pass(9): F.*F == K where K = [f.^2; f.^2].
+        # Native test_times pass(10): norm(F.*F - K) < tol.
         f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
         F = Chebfun2v([f.approx, f.approx])
         K = Chebfun2v([(f * f).approx, (f * f).approx])
