@@ -45,3 +45,24 @@ class TestChebfun2vSyntax:
         F1 = Chebfun2v.from_functions(f, g, domain=dom)
         F3 = Chebfun2v(components=[fcheb.approx, gcheb.approx])
         assert _maxdiff(F1, F3, dom) < TOL
+
+
+@pytest.mark.parametrize("dom", DOMS)
+def test_all_original_constructor_syntax_predicates(dom):
+    # Native trailing-domain syntax maps to the domain keyword; native cell
+    # syntax maps to a Python list accepted by the public constructor.
+    def f(x, y):
+        return jnp.cos(x) + jnp.sin(x * y)
+
+    def g(x, y):
+        return jnp.cos(x * y)
+
+    fc = Chebfun2.from_function(f, domain=dom)
+    gc = Chebfun2.from_function(g, domain=dom)
+    F1 = Chebfun2v.from_functions(f, g, domain=dom)
+    F2 = Chebfun2v.from_functions([f, g], domain=dom)
+    F3 = Chebfun2v.from_functions(fc, gc)
+    F4 = Chebfun2v.from_functions(fc, gc, domain=dom)
+    assert (F1 - F2).norm() < TOL
+    assert (F2 - F3).norm() < TOL
+    assert (F3 - F4).norm() < TOL
