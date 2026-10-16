@@ -1,0 +1,20 @@
+{
+  "original_pass": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "cosine_f_rank": 7,
+  "cosine_g_rank": 6,
+  "cosine_evaluated_predicate": false,
+  "version": "25.2.0.3055257 (R2025b) Update 2",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_sha256": "10acbaef314dc635c9a4d560b20558d8da79bfce53e72a4d161d93cab6cc1e1c",
+  "capture_sha256": "12b227d02c97046daac2446b22d35683b1c076f91608d57abad625aadead2e08",
+  "note": "Original cosine pass(5) evaluates false (ranks7 and6), then its slot is overwritten by the small-scale rank check. Preserve the intermediate evaluation and all8returned passing slots."
+}
