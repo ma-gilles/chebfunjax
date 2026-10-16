@@ -84,7 +84,7 @@ def _apple(x, y):
 
 
 class TestChebfun2vRoots04:
-    def test_all_matlab_assertions(self):
+    def test_original_sine_comparison(self):
         # sin(3(x+y)), sin(3(x-y)): ms and resultant must agree.
         f = chebfun2(lambda x, y: jnp.sin(3 * (x + y)))
         g = chebfun2(lambda x, y: jnp.sin(3 * (x - y)))
@@ -92,6 +92,7 @@ class TestChebfun2vRoots04:
         r2 = f.roots(g, method="resultant")
         assert match_points(r1, r2, TOL)
 
+    def test_original_face_and_apple_comparison(self):
         # Face-and-apple degree-18 stress test.
         f = chebfun2(_face)
         g = chebfun2(_apple)

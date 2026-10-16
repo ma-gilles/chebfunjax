@@ -19,13 +19,14 @@ from ._helpers import TOL, match_points
 
 
 class TestChebfun2vRoots09:
-    def test_all_matlab_assertions(self):
+    def test_original_first_comparison(self):
         f = chebfun2(lambda x, y: x ** 2 + y ** 2 - .9 ** 2)
         g = chebfun2(lambda x, y: jnp.sin(x * y))
         r1 = f.roots(g, method="ms")
         r2 = f.roots(g, method="resultant")
         assert match_points(r1, r2, TOL)
 
+    def test_original_second_comparison(self):
         f = chebfun2(lambda x, y: x ** 2 + y ** 2 - .49 ** 2)
         g = chebfun2(lambda x, y: (x - .1) * (x * y - .2))
         r1 = f.roots(g, method="ms")

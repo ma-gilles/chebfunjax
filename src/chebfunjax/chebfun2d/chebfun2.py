@@ -1165,7 +1165,7 @@ class Chebfun2(eqx.Module):
     # Root finding
     # ------------------------------------------------------------------
 
-    def roots(self, g=None, method="ms"):
+    def roots(self, g=None, method=None):
         """Zero curves of f, or common zeros of f and g.
 
         With no argument returns the zero curves of ``f`` as complex-valued
@@ -1174,11 +1174,12 @@ class Chebfun2(eqx.Module):
         array of ``[x, y]`` points.
 
         ``method`` selects the common-zero engine (MATLAB ``roots(f, g,
-        method)``): ``'ms'`` / ``'marchingsquares'`` (the default) traces the
+        method)``): ``'ms'`` / ``'marchingsquares'`` traces the
         zero curves and polishes with 2D Newton, while ``'resultant'`` uses the
         hidden-variable Bezout resultant of
         :func:`chebfunjax.chebfun2d.resultant.resultant_common_zeros`.  Both
-        return the same isolated common zeros to Newton accuracy.
+        seek isolated common zeros. With no method, the resultant method is
+        selected for maximum factor length at most 200, otherwise marching squares.
 
         Returns the zero level set of ``f`` as parametrized curves
         ``c(t) = x(t) + 1i*y(t)`` for ``t in [-1, 1]`` (MATLAB
@@ -1230,7 +1231,13 @@ class Chebfun2(eqx.Module):
         if g is not None:
             other = g.approx if isinstance(g, Chebfun2) else g
             other = Chebfun2(approx=other)
-            m = method.lower()
+            if method is None:
+                degree = max((len(t.coeffs) for h in (self, other)
+                              for factors in (h.approx.cols, h.approx.rows)
+                              for t in factors), default=0)
+                m = "resultant" if degree <= 200 else "ms"
+            else:
+                m = method.lower()
             if m in ("ms", "marchingsquares"):
                 return common_zeros(self, other)
             if m == "resultant":

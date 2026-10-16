@@ -14,12 +14,7 @@ from chebfunjax.chebfun2d import chebfun2
 
 from ._helpers import TOL, match_points
 
-# Both backends are implemented and AGREE on this case (measured errx=4.8e-16,
-# erry=4.3e-16, 93 common zeros).  It stays skipped only because the resultant
-# cross-check is genuinely slow: the ms pass takes ~40 s and the resultant pass
-# ~200 s locally (single-threaded CPU), too close to the 300 s per-test cap for
-# the default suite.  Remove the skip to run it manually.
-# (skip removed: the resultant scaling now follows MATLAB, f/abs(pivotValues(1)))
+# This original stress case runs serially in CPU qualification.
 
 
 class TestChebfun2vRootsSlow:

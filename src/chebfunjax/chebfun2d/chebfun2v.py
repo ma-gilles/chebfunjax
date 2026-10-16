@@ -1240,18 +1240,18 @@ class Chebfun2v(eqx.Module):
             total = total + jnp.sum(values**2)
         return jnp.sqrt(total)
 
-    def roots(self, method="ms"):
+    def roots(self, method=None):
         """Common zeros of the first two components (MATLAB
         ``chebfun2v/roots``).
 
         Returns an ``(m, 2)`` array whose rows are the ``[x, y]`` points
         where both ``F(1)`` and ``F(2)`` vanish.  ``method`` selects the
         engine (MATLAB ``roots(F, method)``): ``'ms'`` /
-        ``'marchingsquares'`` (default) seeds from the sign changes of the
+        ``'marchingsquares'`` seeds from the sign changes of the
         second component along the zero curves of the first, then 2D Newton
         with the exact Jacobian; ``'resultant'`` uses the hidden-variable
-        Bezout resultant.  Both return the same isolated zeros to Newton
-        accuracy.
+        Bezout resultant. The default selects resultant for maximum factor
+        length at most200 and marching squares for larger lengths.
 
         Provenance
         ----------
