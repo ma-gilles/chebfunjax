@@ -42,6 +42,6 @@ class TestChebfun2vPlotting:
         G = Chebfun2v.from_functions(lambda x, y: x, lambda x, y: y,
                                      lambda x, y: y)
         assert F.quiver() is not None
-        assert G.quiver3() is not None
+        assert F.quiver3() is not None
         assert G.surf() is not None
         plt.close("all")

@@ -1,0 +1,15 @@
+{
+  "source_head": "1153c06ec0f4bdcfc415d97aeedcbf1a049bbb45",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vector_arithmetic_plotting_restore_qualified_20261016.zip",
+  "sha256": "b69e91ea64dd4129562eacc0b06c5ea23db51bf1f9d74ad88e8ace2b933a27dc",
+  "python_tests": 2,
+  "python_seconds": 13.129,
+  "native_arithmetic_predicates": [
+    true,
+    true,
+    true
+  ],
+  "restoration": "Literal two-component cos(x),sin(y) fields and exact fields;continuous vector norms at1e3*ChebfunPref().cheb2Prefs.chebfun2eps. Plotting now calls F.quiver3() with source two-component(x,y),not G three-component(x,y,y).",
+  "known_open": "Native plotting ishold==0 semantic adapter is not implemented/claimed. Full plotting-slot/figure parity remains open. No library behavior changed."
+}

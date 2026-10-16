@@ -1,3 +1,19 @@
+## 2026-10-16: original vector arithmetic and plotting operands
+
+TwoPython tests pass after restoring all3native arithmetic predicates:
+source fields/exact answers,continuous vector norms and preference-derived
+original tolerance. All3original MATLAB arithmetic slots independently pass.
+The plotting port now calls quiver3 on the source2-component(x,y) field.
+Its separate native ishold assertion still needs a semantic adapter;no full
+plotting-slot or figure parity is claimed. No library code changes.
+See `docs/vector_arithmetic_plotting_assertions_cpu_20261016.json`.
+
+Named division's17vs18coefficient gap is localized to raw64/90backend FFT
+arithmetic on identical inputs. Packing,mirroring,stage boundaries and exact
+normalization variants do not correct it. No globalrealFFT,padding or cutoff
+change is adopted. See `docs/quotient_raw_fft_backend_cpu_20261016.json`.
+Full original-assertion,figure,speed and latest-main CI acceptance remains open.
+
 ## 2026-10-16: stiff Breakpoints public acceptance passes
 
 The unchanged independent public Problem A regression now passes onfc451682.

@@ -1,0 +1,262 @@
+{
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quotient_raw_fft_stage_diagnosis_qualified_v2_20261016.zip",
+  "sha256": "1fa7f2391b2186ddc751d3aeed1eee3a948aaab0542f6f689fd50a39d0d74184",
+  "diagnostic_only": true,
+  "source_head": "1153c06ec0f4bdcfc415d97aeedcbf1a049bbb45",
+  "native_reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "conclusion": "All mirrored inputs exact;first divergence is raw backend FFT in64IFFT,90FFT,90IFFT. Column/complexpacking/stage boundaries and exact normalization do not fix it. No mirror/postprocessing bug identified. Provider schedule diagnosis required;no production change,globalrealFFT,padding or cutoff fitting. Strict native18representation unresolved.",
+  "native_arithmetic": {
+    "pass": [
+      true,
+      true,
+      true
+    ],
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df"
+  },
+  "archive_build_note": "First empty ZIP retained after path mapping failed for external native source;v2 maps native_source explicitly. No numerical rerun.",
+  "raw_stage_errors": {
+    "ifft64": {
+      "max_abs": 2.7755575615628914e-17,
+      "real_bit_mismatches": 56,
+      "real_first_indices": [
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ],
+        [
+          7
+        ],
+        [
+          8
+        ],
+        [
+          9
+        ],
+        [
+          10
+        ],
+        [
+          11
+        ],
+        [
+          12
+        ],
+        [
+          13
+        ],
+        [
+          14
+        ],
+        [
+          15
+        ]
+      ],
+      "imag_bit_mismatches": 53,
+      "imag_first_indices": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ],
+        [
+          9
+        ],
+        [
+          10
+        ],
+        [
+          11
+        ],
+        [
+          12
+        ],
+        [
+          13
+        ],
+        [
+          14
+        ]
+      ]
+    },
+    "fft90": {
+      "max_abs": 2.2273153259577776e-16,
+      "real_bit_mismatches": 43,
+      "real_first_indices": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          12
+        ],
+        [
+          15
+        ],
+        [
+          16
+        ],
+        [
+          17
+        ],
+        [
+          19
+        ],
+        [
+          21
+        ],
+        [
+          24
+        ],
+        [
+          25
+        ],
+        [
+          27
+        ]
+      ],
+      "imag_bit_mismatches": 89,
+      "imag_first_indices": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ],
+        [
+          7
+        ],
+        [
+          8
+        ],
+        [
+          9
+        ],
+        [
+          10
+        ],
+        [
+          11
+        ],
+        [
+          12
+        ]
+      ]
+    },
+    "ifft90": {
+      "max_abs": 1.1102230246251565e-16,
+      "real_bit_mismatches": 90,
+      "real_first_indices": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ],
+        [
+          7
+        ],
+        [
+          8
+        ],
+        [
+          9
+        ],
+        [
+          10
+        ],
+        [
+          11
+        ]
+      ],
+      "imag_bit_mismatches": 89,
+      "imag_first_indices": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ],
+        [
+          7
+        ],
+        [
+          8
+        ],
+        [
+          9
+        ],
+        [
+          10
+        ],
+        [
+          11
+        ],
+        [
+          12
+        ]
+      ]
+    }
+  }
+}
