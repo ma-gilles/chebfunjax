@@ -1,3 +1,19 @@
+# Latest Lorenz warning slot and TransientGrowth diagnosis — 2026-10-17
+
+Full unchanged Lorenz numerical/plot operands run33.63s, all1381runtimefiles
+preguarded, stable/no survivors. Actual complex-plot warning now reaches stdout
+and the correct fourth page outputslot using explicit source markers. Four
+600x270figures complete;2PNGs changed from priorpublication, all4differ from
+referencepixels. Allfour rational records andPNGbytes equal preceding run;
+non-outputMarkdown exact. Native ODE/poles/numericstdout/rendering remainopen;
+warningterminalpunctuation differs fromcache. One formerlyblankslot closed;
+six other targetedblanks/three warning-countdifferences remain unresolved.
+TransientGrowth originalconstructor alone resolves28happyFUNs/2032coefficients
+with0actualwarnings; source362matchesparent, no forced native6050warning/library
+fix justified. This doesnot qualifyfullpage/energy/figures/freshnative behavior.
+Evidence: docs/lorenz_warning_cpu_20261017.json and
+ docs/transient_growth_constructor_cpu_20261017.json.
+
 # Latest output-slot and unresolved-test audit — 2026-10-17
 
 Parent reviewed72payloads and68unchanged per-file snapshot bindings for ten

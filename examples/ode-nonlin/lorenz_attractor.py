@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import warnings
 
 import matplotlib.pyplot as plt
 
@@ -131,11 +132,13 @@ def run():
     diffpoles = np.sort(np.column_stack([np.abs(poles1 - poles2),
                                          np.abs(poles1 - poles3),
                                          np.abs(poles2 - poles3)]), axis=0)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:1@@")
     print("   poles in x         poles in y         poles in z"
           "         max. difference")
     for row in zip(poles1, poles2, poles3, diffpoles[:, 0]):
         print("".join(_c(complex(v)) for v in row))
 
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:2@@")
     print("ans =")
     v = 0.5 * diffpoles[:, 0]
     for c0 in range(0, len(v), 7):
@@ -148,6 +151,7 @@ def run():
         u1, 221, 40, 444, None, 0.0, domain=D)
     p, q = _rat(a, b)
     poles = _msort(poles)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:3@@")
     print("poles =")
     for zp in poles:
         print(_c(complex(zp)))
@@ -158,7 +162,13 @@ def run():
     ax.set_xlabel('Re(t)')
     ax.set_ylabel('Im(t)')
     zr = np.asarray(p.roots(complex_roots=True))
-    matlab_plot(zr, 0, 'ok', markersize=12 * 0.6, markerfacecolor='none', ax=ax)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:4@@")
+    with warnings.catch_warnings(record=True) as events:
+        warnings.simplefilter("always")
+        matlab_plot(zr, 0, 'ok', markersize=12 * 0.6, markerfacecolor='none', ax=ax)
+    for event in events:
+        print(f"Warning: {event.message}")
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:0@@")
     ax.set_title('Poles and Zeros of the Rational Interpolant', fontsize=14)
     _save(fig)
 

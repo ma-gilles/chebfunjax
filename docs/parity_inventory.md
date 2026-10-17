@@ -235,3 +235,18 @@ records original constructor predicate 7 still failing at its unchanged
 `2.864375403532904e-14`; the bound is `2.220446049250313e-14`.
 The strict expected-failure marker remains. This negative result is attached
 to the constructor and original-test rows; no full-item status changes.
+
+## Lorenz warning capture and TransientGrowth constructor — 2026-10-17
+
+[Lorenz actual execution](lorenz_warning_cpu_20261017.json) closes its previously
+blank fourth output slot with the actual complex-plot warning. Explicit source
+slot markers prevent punctuation differences from misgrouping it. The unchanged
+numerical/plot operands run in 33.63 seconds with all 1,381 runtime files
+preguarded. Four reference-size figures complete; all four reference rasters
+still differ. Numerical stdout/native trajectory/pole parity remains open.
+
+[TransientGrowth constructor diagnosis](transient_growth_constructor_cpu_20261017.json)
+finds 28 happy pieces and zero warning attempts/emissions with original operands
+and preferences. The cached native unresolved warning remains different; no
+warning is synthesized and no full example/figure/energy parity is claimed.
+These two page rows now link scoped evidence; full-item statuses are unchanged.

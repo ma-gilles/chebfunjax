@@ -1,0 +1,108 @@
+{
+  "scope": "Full current CPU Lorenz script and honest final plot-warning transport/slot repair; not native numerical/figure parity",
+  "base_commit": "ece19ee0197df2ce14d83d6f79fbebc9fedd3f4b",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "actual_run": {
+    "seconds": 33.62621637992561,
+    "backend": "cpu",
+    "x64": true,
+    "figure_count": 4,
+    "rational_call_count": 4,
+    "cpu_affinity": [
+      40,
+      41,
+      42,
+      43
+    ]
+  },
+  "actual_stdout_warning": "Warning: Imaginary parts of complex X and/or Y arguments ignored.",
+  "original_numerical_plot_AST_preserved": true,
+  "runtime_files_all_preguarded": 1381,
+  "source_stable": true,
+  "no_surviving_processes": true,
+  "sampled_peak_summed_rss_kib": 1988356,
+  "four_rational_records_equal_to_first_run": true,
+  "page_audit": {
+    "nonoutput_Markdown_exactly_preserved": true,
+    "output_cells": 4,
+    "warning_in_cell": 4,
+    "source_markers_hidden": true,
+    "stdout_sha256": "5cd1305102fc4eccd9bf1da71b38b2199a1b6e4f7d2d560c60302a1d784d5faf"
+  },
+  "figure_audit": [
+    {
+      "local_png": "docs/images/ode-nonlin/LorenzAttractor_01.png",
+      "local_sha256": "23d6d94dd169d0639145df684fadfb2aa37470619488dbd8bdf08931d779c687",
+      "previous_published_sha256": "23d6d94dd169d0639145df684fadfb2aa37470619488dbd8bdf08931d779c687",
+      "reference_sha256": "e941577d47cd2e0622cbe9a55610b3ffe8f958328a06f98df25dad4f45840d93",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.30274074074074075,
+      "mean_absolute_channel_difference": 11.554231481481482
+    },
+    {
+      "local_png": "docs/images/ode-nonlin/LorenzAttractor_02.png",
+      "local_sha256": "a1ed25e80699fb46c23ee678a0c3083e05623743799942c74b28e711301715f9",
+      "previous_published_sha256": "a1ed25e80699fb46c23ee678a0c3083e05623743799942c74b28e711301715f9",
+      "reference_sha256": "a6050488bb5cd61654ccad2a13affa656e66b625617111366a827b2964202319",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.27028395061728394,
+      "mean_absolute_channel_difference": 14.718404320987654
+    },
+    {
+      "local_png": "docs/images/ode-nonlin/LorenzAttractor_03.png",
+      "local_sha256": "fb493d164aaee51c45917d86e40f08dd55aeb2026d053ea687fa93d617c24996",
+      "previous_published_sha256": "14118a4082769610ed09733b66b102d979ffe3c72dfaa31f1b7387acfdd88866",
+      "reference_sha256": "c2fd0f065d77ec73559d0d93e05cb8be6bac81b822c7927b3e6093c160195917",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.2813148148148148,
+      "mean_absolute_channel_difference": 23.41793364197531
+    },
+    {
+      "local_png": "docs/images/ode-nonlin/LorenzAttractor_04.png",
+      "local_sha256": "a33f235d45cb35e4ec2738a3be0c48645ef187f09e340d4a7d967868b800c290",
+      "previous_published_sha256": "7a1f0e9de2495d1ef9c75559ad682eb6be18e0dfae23219372f0a70def26f7fe",
+      "reference_sha256": "943c0a56e6472fcf1d1b0ac5d189e023933346e9d6eb1964c28874892ed12066",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.19596913580246914,
+      "mean_absolute_channel_difference": 12.888222222222222
+    }
+  ],
+  "source_bridge": {
+    "library_files": 362,
+    "all_library_bytes_equal_parent": true
+  },
+  "limits": [
+    "All four official reference rasters differ; rational coefficients/poles/ODE and full stdout numerical equality remain unqualified",
+    "Cached warning has different terminal punctuation; actual Python message retained unchanged",
+    "First run actualwarning transport succeeded but generator misgrouped it into prior poles cell; preserved misalignedpage, final explicit source slots qualify correct placement",
+    "No new MATLAB invocation or matched native performance claim",
+    "Fullgoal/latestCI/coverage remain open"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/lorenz_warning_cpu_20261017.tar.gz",
+    "sha256": "c2bbfd425b873060311b9b5352bc3103f626689702c719d99b2d6f47cb2d95bf",
+    "verified_payloads": 448
+  },
+  "transient_diagnostic": {
+    "verified_payloads": 37,
+    "all362libraryfiles_equal": true,
+    "archive_sha256": "e227b6e5e9e66fc3a62a95b4e38e79096893e4350c31479c068dadef4d976053",
+    "scope": "Constructor-only actual28happyFUNs/2032coefficients/zero warnings; no numerical/library fix justified, no fresh native/fullpage qualification"
+  }
+}

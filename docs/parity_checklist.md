@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Close Lorenz fourth blank outputslot with actual captured complex-plot warning and explicit source-slot markers. Full final33.63s/all1381runtimefiles preguarded, exact non-outputMarkdown, allfour600x270figures. [Evidence](lorenz_warning_cpu_20261017.json). Six other targeted blanks/three count differences and full numerical/raster parity remain open.
+- [x] Diagnose TransientGrowth originalconstructor warning:28happyFUNs/2032coefficients,0actualwarning attempts/emissions; no library fix or synthetic warning justified. [Evidence](transient_growth_constructor_cpu_20261017.json). Fullpage and freshnative warning difference remain unqualified.
+
+
 - [x] Review exact ten-page mapping of seven blank output slots and three count differences:72archive payloads/68snapshot files verified; no missing numerical print among these specific slots. Ten page ledger rows linked. [Evidence](output_slot_reconciliation_cpu_20261017.json).
 - [ ] Resolve those warning/environment/version differences with actual execution evidence; do not synthesize cached warning output.
 - [ ] Dense Chebfun3T original constructor7 still fails unchanged100eps after current shared transform changes; fresh error2.864e-14. [Current failure](chebfun3t_current_transform_cpu_20261017.json). Strict xfail retained.

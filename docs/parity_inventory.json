@@ -161,6 +161,11 @@
       "scope": "Chebfun legcoeffs simple piecewise global-coordinate projection and all-column padding; literal original predicates1-6",
       "sha256": "fe07adee58c2b892cbabfcb08b94e5f3a65cc12384f3e0b2a3b0c459df9a4cd2"
     },
+    "lorenz_warning_cpu_20261017": {
+      "path": "docs/lorenz_warning_cpu_20261017.json",
+      "scope": "Full current CPU script33.63s/all1381runtimefiles preguarded; actual complex-plotwarning in correct4th outputslot. Four600x270figures, all referencepixels differ. Numerical/native/fullpage parity remains open.",
+      "sha256": "6635f32bdc7efeb2f04140d28de51a2045b7a4f735c5d7bbf08dd5c122fd0bce"
+    },
     "lu_source_cpu_20261017": {
       "path": "docs/lu_source_cpu_20261017.json",
       "scope": "JAX LU source arithmetic, original eight default predicates and bounded controls; full-item statuses unchanged",
@@ -340,6 +345,11 @@
       "path": "docs/subspace_unbnd_inner_cpu_20261017.json",
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
       "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
+    },
+    "transient_growth_constructor_cpu_20261017": {
+      "path": "docs/transient_growth_constructor_cpu_20261017.json",
+      "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
+      "sha256": "fab0b310cac505fb489edb466917434796fa8beec2c583a63f2730ffdcd2bfd9"
     }
   },
   "example_pages": [
@@ -22641,6 +22651,11 @@
           "artifact": "output_slot_reconciliation_cpu_20261017",
           "dimension": "stdout",
           "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
+        },
+        {
+          "artifact": "transient_growth_constructor_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof."
         }
       ],
       "figure_content_status": "unverified",
@@ -30337,6 +30352,11 @@
           "artifact": "output_slot_reconciliation_cpu_20261017",
           "dimension": "stdout",
           "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
+        },
+        {
+          "artifact": "lorenz_warning_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Full current CPU script33.63s/all1381runtimefiles preguarded; actual complex-plotwarning in correct4th outputslot. Four600x270figures, all referencepixels differ. Numerical/native/fullpage parity remains open."
         }
       ],
       "figure_content_status": "unverified",
