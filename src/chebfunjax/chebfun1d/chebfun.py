@@ -7725,6 +7725,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/numColumns.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return 0
         c = self.funs[0].tech.coeffs
         return int(c.shape[1]) if c.ndim == 2 else 1
 
@@ -8107,6 +8109,17 @@ class Chebfun(eqx.Module):
             values = values[:, 0]
         out = Chebfun(funs=new_funs, domain=f2.domain).set_point_values(values)
         return Chebfun._as_transposed(out, self.is_transposed)
+
+    def cheb2quasi(self):
+        """Extract independent scalar columns; see the public conversion.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun/cheb2quasi.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        from ._quasimatrix import cheb2quasi
+        return cheb2quasi(self)
 
     def num2cell(self):
         """Return one cell per source column, retaining CellList orientation.

@@ -1,3 +1,13 @@
+# Latest scoped update — 2026-10-17
+
+Quasimatrix factory/conversion, row/empty-column metadata and Chebfun2 rectangle
+integration pass a joint 39-node CPU gate. Seventeen native factory comparisons,
+the original cell2quasi predicate and three original integral2 predicates have
+scoped evidence in `docs/quasimatrix_integral2_cpu_20261017.json`. Empty-domain
+representation and broader constructor/integration API remain open. Full parity
+and latest implementation CI/coverage remain incomplete. Earlier receipts below
+retain their original source scope.
+
 ## ComplexArcLength graphics adapters and tracking repair — 2026-10-17
 
 The example now applies existing MATLAB layout/equal-axis adapters at its final

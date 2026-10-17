@@ -27,6 +27,12 @@
       "sha256": "8931db63000c3da46710d25b7a9c504e364e0392bc5ec92e830a0ed136eadc37",
       "source_base": "92ac25e5b2603b60add753e48f65545d2f10b8e5"
     },
+    "chebgui_paired_originals_cpu_20261017": {
+      "path": "docs/chebgui_paired_originals_cpu_20261017.json",
+      "scope": "Four default native Chebgui exporter smoke predicates paired to four selected Python cohort tests; one extra Python fixture checksum test; 64 exact source demo fixture bytes.",
+      "sha256": "6b5ac4a65957ba5fb5e61a7a3f95e58ee08f3ae2fdc8794022f4eb2b7affbefd",
+      "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c"
+    },
     "chebtech_ndct_cpu_20261017": {
       "archive": {
         "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_integration_cpu_20261017.zip",
@@ -143,6 +149,11 @@
       "scope": "Four authored fixed-grid native comparison cases and24 Python controls; additional PDE options/spatial adaptation/full API remain unverified.",
       "sha256": "b4aecd023a82a43b6a86df1571d355965f30753168d45d5114847e2eb517c877",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
+    },
+    "quasimatrix_integral2_cpu_20261017": {
+      "path": "docs/quasimatrix_integral2_cpu_20261017.json",
+      "scope": "39 Python nodes; native factory ten branches/seven errors and original cell2quasi predicate; three original Chebfun2 integral2 predicates; inherited representation/API gaps open",
+      "sha256": "2a53ee2a03bb275968bb42cb86b259179daf4bc935e66395426de4456c17639d"
     },
     "reference_figure_dimensions_43e5_20261017": {
       "captured_audit_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/all_reference_figure_dimensions_43e5_20261017.json",
@@ -49524,7 +49535,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -53134,7 +53150,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -54533,7 +54554,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -56486,7 +56512,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -57346,7 +57377,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -79624,7 +79660,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -80300,7 +80341,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95489,7 +95535,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -100390,7 +100441,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_cell2quasi_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -100405,7 +100461,22 @@
       "sha256": "8674e382b56ffa85a0a4b55d160ab0999f8a16ceed59f7c20318cd492e504e7e",
       "source": "tests/chebfun/test_cell2quasi.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "quasimatrix_integral2_cpu_20261017",
+          "invocation": "test_cell2quasi()",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_source": "tests/test_matlab_port/chebfun/test_quasimatrix_factory_source.py",
+          "python_source_sha256": "03f40e336d7626b4ee5e9128d45e1d53568320faf3f199d4d3fd7a1be8a5af3c",
+          "qualification_limit": "Default invocation and stated predicates only; full constructor/integration API remains open.",
+          "scope_id": "native_default_cell2quasi_1",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -105369,7 +105440,12 @@
         "tests/test_matlab_port/chebfun3v/test_integral2_matlab.py",
         "tests/test_matlab_port/diskfun/test_integral2_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quasimatrix_integral2_cpu_20261017",
+          "scope": "Source-bound scope in linked report; broad item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -105384,7 +105460,22 @@
       "sha256": "8137913853de4ca71509bdd8ad3ca430d9b87a3ecf537dbd91f54cbcc7512100",
       "source": "tests/chebfun2/test_integral2.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "quasimatrix_integral2_cpu_20261017",
+          "invocation": "test_integral2()",
+          "original_ids": "1-3",
+          "predicates_native": 3,
+          "predicates_python_mapped": 3,
+          "python_source": "tests/test_matlab_port/chebfun2/test_integral2_matlab.py",
+          "python_source_sha256": "a4e08418172e67702f1ab4d3e18acd58b2cb80dc3ed9f4786f088299d8f7f934",
+          "qualification_limit": "Default invocation and stated predicates only; full constructor/integration API remains open.",
+          "scope_id": "native_default_integral2_3",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -110889,6 +110980,10 @@
         {
           "artifact": "chebgui_inventory_mapping_20261017",
           "scope": "Source mapping, 64 exact demo fixture files and five Python checks only; no native original paired invocation or full-file status promotion."
+        },
+        {
+          "artifact": "chebgui_paired_originals_cpu_20261017",
+          "scope": "One default native exporter smoke predicate paired to corresponding Python cohort; no full generated-text/API claim"
         }
       ],
       "functions": [
@@ -110914,7 +111009,22 @@
       "sha256": "5481e61e7ba041fe85224e3384a808f17bc9cb93084c8339cb11de4b933ad1d1",
       "source": "tests/chebgui/test_toFileBVP.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "chebgui_paired_originals_cpu_20261017",
+          "invocation": "test_toFileBVP()",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_source": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+          "python_source_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+          "qualification_limit": "Export completes without error for source demos; not generated-text equality or solved-output/full API parity.",
+          "scope_id": "test_toFileBVP_default_smoke",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -110926,6 +111036,10 @@
         {
           "artifact": "chebgui_inventory_mapping_20261017",
           "scope": "Source mapping, 64 exact demo fixture files and five Python checks only; no native original paired invocation or full-file status promotion."
+        },
+        {
+          "artifact": "chebgui_paired_originals_cpu_20261017",
+          "scope": "One default native exporter smoke predicate paired to corresponding Python cohort; no full generated-text/API claim"
         }
       ],
       "functions": [
@@ -110951,7 +111065,22 @@
       "sha256": "21379b98b57371a133e1a188609b7de1cf69c90b7c3c2f62f5a579494bf2e978",
       "source": "tests/chebgui/test_toFileEIG.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "chebgui_paired_originals_cpu_20261017",
+          "invocation": "test_toFileEIG()",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_source": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+          "python_source_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+          "qualification_limit": "Export completes without error for source demos; not generated-text equality or solved-output/full API parity.",
+          "scope_id": "test_toFileEIG_default_smoke",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -110963,6 +111092,10 @@
         {
           "artifact": "chebgui_inventory_mapping_20261017",
           "scope": "Source mapping, 64 exact demo fixture files and five Python checks only; no native original paired invocation or full-file status promotion."
+        },
+        {
+          "artifact": "chebgui_paired_originals_cpu_20261017",
+          "scope": "One default native exporter smoke predicate paired to corresponding Python cohort; no full generated-text/API claim"
         }
       ],
       "functions": [
@@ -110988,7 +111121,22 @@
       "sha256": "4df38cd3347621a5198e21ff14b59535d5fc3e434a34cb7976a79b0aa5f04e37",
       "source": "tests/chebgui/test_toFileIVP.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "chebgui_paired_originals_cpu_20261017",
+          "invocation": "test_toFileIVP()",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_source": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+          "python_source_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+          "qualification_limit": "Export completes without error for source demos; not generated-text equality or solved-output/full API parity.",
+          "scope_id": "test_toFileIVP_default_smoke",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -111000,6 +111148,10 @@
         {
           "artifact": "chebgui_inventory_mapping_20261017",
           "scope": "Source mapping, 64 exact demo fixture files and five Python checks only; no native original paired invocation or full-file status promotion."
+        },
+        {
+          "artifact": "chebgui_paired_originals_cpu_20261017",
+          "scope": "One default native exporter smoke predicate paired to corresponding Python cohort; no full generated-text/API claim"
         }
       ],
       "functions": [
@@ -111025,7 +111177,22 @@
       "sha256": "d0b6a602df0a22057e6a9ee1bd92433eb5dae2925d200aeb79426bb5596966b1",
       "source": "tests/chebgui/test_toFilePDE.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "chebgui_paired_originals_cpu_20261017",
+          "invocation": "test_toFilePDE()",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_source": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+          "python_source_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+          "qualification_limit": "Export completes without error for source demos; not generated-text equality or solved-output/full API parity.",
+          "scope_id": "test_toFilePDE_default_smoke",
+          "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

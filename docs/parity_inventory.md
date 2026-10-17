@@ -141,3 +141,12 @@ promoting full computation, graphics, API or matched-performance statuses.
 The packed Clenshaw and iteration-color package adds scoped source/performance evidence and a whole ComplexArcLength observation. Four dimensions match; axes/markers/raster and representation differences remain. See [review](inverse_packed_color_cpu_20261017.json). Full-item statuses are unchanged.
 
 A [manual source review](chebgui_inventory_mapping_20261017.json) maps the four grouped Chebgui exporter cohorts missed by basename matching. All 64 demo fixtures match pinned native bytes. This supplies navigation only; it adds no runtime or complete assertion qualification.
+
+Factory/conversion and rectangle integration now have source-bound evidence in
+[the joint CPU report](quasimatrix_integral2_cpu_20261017.json). Original
+cell2quasi predicate 1 and integral2 predicates 1–3 have paired native/Python
+scopes attached; broad API/item statuses remain unverified.
+
+The [paired exporter report](chebgui_paired_originals_cpu_20261017.json)
+adds four native/Python smoke scopes to the original Chebgui exporter rows.
+These qualify successful export, not full API or generated-text equality.

@@ -992,6 +992,8 @@ class Chebfun2(eqx.Module):
         --------
         sum, diff, norm
         """
+        if self.isempty():
+            return jnp.float64(0.0)
         xa, xb, ya, yb = self.domain
         r = self.approx.rank
         total = jnp.float64(0.0)
@@ -1002,9 +1004,12 @@ class Chebfun2(eqx.Module):
         return total
 
     def integral2(self, c=None):
-        """Double integral of f over its domain or over the region
-        enclosed by a complex curve (MATLAB ``integral2(f)`` /
-        ``integral2(f, c)``).
+        """Double integral over the domain, a rectangle, or a complex curve.
+
+        ``c`` may be a four-entry rectangle ``(a, b, c, d)`` describing
+        ``[a,b] x [c,d]``, or a closed complex-valued 1D Chebfun parametrizing
+        a boundary.  The rectangle is restricted in the represented function
+        before integration, matching MATLAB ``integral2(f, [a b c d])``.
 
         With a closed complex-valued 1D Chebfun ``c`` parametrizing the
         boundary, applies Green's theorem:
@@ -1016,9 +1021,47 @@ class Chebfun2(eqx.Module):
         MATLAB source : @chebfun2/integral2.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.float64(0.0)
         if c is None:
             return self.sum2()
+        # MATLAB accepts a numeric four-vector here.  Keep the dispatch on
+        # Python sequences/JAX arrays so this library path has no NumPy
+        # numerical dependency; Chebfun curve objects continue to the Green's
+        # theorem branch below.
+        if isinstance(c, (tuple, list)) or hasattr(c, "shape"):
+            try:
+                bounds = jnp.asarray(c)
+            except (TypeError, ValueError):
+                bounds = None
+            if bounds is not None and jnp.issubdtype(bounds.dtype, jnp.number):
+                if jnp.issubdtype(bounds.dtype, jnp.complexfloating):
+                    raise TypeError("integral2 rectangle bounds must be real")
+                matlab_length = max(bounds.shape, default=1)
+                if matlab_length != 4:
+                    raise ValueError("Domain should have four corners.")
+                if bounds.size != 4:
+                    raise ValueError("Domain not determined.")
+                a, b, c0, d = (float(v) for v in bounds.reshape((-1,)))
+                restricted = self.restrict((a, b, c0, d))
+                from chebfunjax.chebfun1d.chebfun import Chebfun
+
+                if isinstance(restricted, Chebfun):
+                    return restricted.sum()
+                if not isinstance(restricted, Chebfun2):
+                    # Native integral2 leaves I unassigned when restrict
+                    # collapses a rectangle to one point.
+                    raise UnboundLocalError(
+                        'MATLAB:unassignedOutputs: output "I" was not assigned')
+                return restricted.sum2()
         from chebfunjax.chebfun1d.chebfun import chebfun
+
+        if not hasattr(c, "isreal"):
+            raise TypeError("Too many input arguments.")
+        if c.isreal():
+            raise ValueError(
+                "CHEBFUN:SEPARABLEAPPROX:integral2:input: "
+                "Integration path must be complex-valued")
 
         F = self.cumsum(dim=2)  # indefinite integral in x
         dc = c.diff()
@@ -1029,6 +1072,31 @@ class Chebfun2(eqx.Module):
 
         a, b = float(c.domain.a), float(c.domain.b)
         return chebfun(h, domain=(a, b)).sum()
+
+    def quad2d(self, a, b, c, d, *args):
+        """Integrate over ``[a,b] x [c,d]`` (MATLAB ``quad2d``).
+
+        Extra positional options are accepted and ignored, matching the
+        pinned Chebfun ``@separableApprox/quad2d.m`` implementation.  The
+        source routine checks that each requested endpoint stays within the
+        represented domain before restricting and integrating.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/quad2d.m, @separableApprox/quad2d.m
+        Chebfun commit: 7574c77
+        """
+        del args
+        xa, xb, ya, yb = self.domain
+        if (a < xa) or (b > xb) or (c < ya) or (d > yb):
+            raise ValueError(
+                "Can only integrate within the SEPARABLEAPPROX's domain")
+        restricted = self.restrict((a, b, c, d))
+        if not isinstance(restricted, Chebfun2):
+            # The pinned wrapper passes collapsed restrictions to MATLAB's
+            # built-in integral2, which rejects them as non-function handles.
+            raise TypeError("First input argument must be a function handle.")
+        return restricted.integral2()
 
     def svd(self, full: bool = False):
         """Native continuous QR and small-core SVD (@separableApprox/svd.m).
@@ -3741,5 +3809,5 @@ make_empty_aware(Chebfun2, [
     "sqrt", "norm", "squeeze", "diff", "cos", "sin", "exp",
     "log", "tanh", "abs", "diag_fun", "trace", "mean2",
     "std2", "fliplr", "flipud",
-    "cumsum", "cumsum2", "sum2", "integral2", "restrict", "compose",
+    "cumsum", "cumsum2", "restrict", "compose",
 ])

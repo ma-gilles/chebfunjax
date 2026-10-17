@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-17",
+  "source_base": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Quasimatrix factory/conversion, orientation and empty-column metadata; Chebfun2 rectangle integral2/quad2d and empty integration",
+  "source_sha256": {
+    "src/chebfunjax/__init__.py": "fbdd05b4803e93170bb034e79c8eab6dfb3b176c1019fc113760b5c7e6bc740c",
+    "src/chebfunjax/chebfun1d/_quasimatrix.py": "aa72824c2ee1b7b76d771021be045842a997977320b690b96a87e5a028ab1413",
+    "src/chebfunjax/chebfun1d/chebfun.py": "919bd6fb8a5a4d555c1972b968bc934aca39ecae00e2602c255ecdf13dc452ec",
+    "src/chebfunjax/chebfun1d/linalg.py": "29365d0a7b4730fd3ff1c6b5328a45d413345f9b2a2812bf1ab758d18c327114",
+    "src/chebfunjax/chebfun2d/chebfun2.py": "8c89d9329b0b333a9ba3f0de5d247df84b5f2c8efa9029e8630862633987b84f",
+    "tests/test_matlab_port/chebfun/test_quasimatrix_factory_source.py": "03f40e336d7626b4ee5e9128d45e1d53568320faf3f199d4d3fd7a1be8a5af3c",
+    "tests/test_matlab_port/chebfun2/test_integral2_matlab.py": "a4e08418172e67702f1ab4d3e18acd58b2cb80dc3ed9f4786f088299d8f7f934"
+  },
+  "joint_gate": {
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_integral2_joint_gate_20261017_run001/receipt.json",
+    "receipt_sha256": "9889940e00234cf5a29d273cf6002aa71768d60355c7d8d6347da40fb24bd215",
+    "python_nodes": 39,
+    "pytest_seconds": 40.76,
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "peak_summed_rss_kib": 2006876,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/quasimatrix_factory_20261017/src/chebfunjax/__init__.py",
+      "cpu": true,
+      "x64": true,
+      "external_runtime": "Versions/source origin observed; external source files not exhaustively preguarded"
+    }
+  },
+  "native_factory": {
+    "report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/quasimatrix_factory_native_v3_20261017/REPORT.json",
+    "normal_cases": 10,
+    "error_controls": 7,
+    "comparison": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/quasimatrix_integral2_joint_gate_20261017/native_comparison.json",
+    "comparison_sha256": "c244bc8472fb2bb76579f5d16048fb7efbc833bad9ac6977dfa562ba2da9c2b4",
+    "original_test_cell2quasi": true,
+    "non_original_value_bounds": "Authored 100eps scale; native original domain predicate unchanged"
+  },
+  "integral2_component": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_integral2_rectangle_20261017/chebfun2_integral2_selected_evidence_20261017.zip",
+    "sha256": "b9a9282d7c4c548191ff18457fb83f2c575f255b8fd100f9f50779a76334c813",
+    "native_original_predicates": 3,
+    "component_python_nodes": 12,
+    "scope": "Literal default integral2 original predicates plus rectangle, collapse, empty and quad2d source controls; final joint gate includes integral2/integral modules"
+  },
+  "changes": [
+    "Public quasimatrix and cheb2quasi use existing Chebfun construction and independent columns without resampling",
+    "Report zero columns for empty Chebfuns and row shape for transposed quasimatrices",
+    "Restrict numeric integration rectangles and preserve native line/point-collapse behavior",
+    "Expose quad2d source wrapper and zero-valued empty integration"
+  ],
+  "limitations": [
+    "Full constructor grammar and every inherited constructor algorithm are not qualified; hscale remains unsupported by inherited builder",
+    "Canonical Python empty retains placeholder Domain(-1,1), native empty domain is []",
+    "Existing complex-curve integration algorithm is not qualified by this rectangle package",
+    "No full API, all-test, figure, performance or latest-main CI claim",
+    "External runtime versions and origins observed; no exhaustive external-runtime preguard"
+  ],
+  "failed_attempts": [
+    "Native factory first harness used deprecated preference construction",
+    "Native factory second harness used object-index syntax that evaluated the function and invalidated normal-case metadata; retained, not credited",
+    "Integral2 component archive retains failed preliminary attempts; intermediate preimages not all available, as reported by component review"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/quasimatrix_integral2_selected_evidence_20261017.zip",
+    "sha256": "48fc50a339c6bfc0526ce634df622e76f32909fba18b246c0c8365234ccf57ee",
+    "bytes": 2666484,
+    "payloads": 94,
+    "readback_verified": true
+  }
+}

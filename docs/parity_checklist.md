@@ -27,8 +27,13 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Four original MATLAB exporter smoke tests pass, paired to four Python cohorts plus a fixture checksum control. All 64 demo fixtures match native bytes. [Evidence](chebgui_paired_originals_cpu_20261017.json). Generated-text equality and full API parity remain open.
+
+- [x] Public quasimatrix/cheb2quasi and native row/empty-column metadata; rectangle integral2/quad2d and empty integration. Joint 39 Python nodes pass, 17 factory comparisons pass, original cell2quasi predicate and three original integral2 predicates paired. [Evidence](quasimatrix_integral2_cpu_20261017.json).
+- [ ] Inherited empty-domain representation, full constructor grammar and broader integration/curve API qualification.
+
 - [x] ComplexArcLength uses source layout/equal-axis/marker adapters. Full run 68.635s, actual 64-point P/Q groups captured, inverse arrays unchanged; four images retain 600×270 dimensions. Figure 4 comparison improves, with raster/marker/typography gaps still open. [Evidence](complex_arc_renderer_cpu_20261017.json).
-- [x] Repair the historical handoff-audit link and four grouped exporter navigation mappings. All 64 demo fixtures match native bytes; five Python controls pass. Native paired exporter invocation remains unqualified. [Evidence](chebgui_inventory_mapping_20261017.json).
+- [x] Repair the historical handoff-audit link and four grouped exporter navigation mappings. All 64 demo fixtures match native bytes; five Python controls pass. Fresh paired original smoke scope is now recorded below; generated-text and full API parity remain open. [Evidence](chebgui_inventory_mapping_20261017.json).
 
 - [x] Packed Clenshaw: 95 component controls, 59 retained native raw Brent states and four inverse output byte comparisons qualify unchanged arithmetic/outputs. Warm median 6.9312s to 2.2687s (3.055x); native 0.6536s remains faster. [Evidence](inverse_packed_color_cpu_20261017.json).
 - [x] Unchanged whole ComplexArcLength completes in 66.112s; input bytes match retained fixture; generated page uses actual stdout and four refreshed 600x270 figures.

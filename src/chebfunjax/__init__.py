@@ -8,6 +8,7 @@ import jax
 jax.config.update("jax_enable_x64", True)
 
 # Public API
+from chebfunjax.chebfun1d._quasimatrix import cheb2quasi, quasimatrix  # noqa: E402
 from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402  # noqa: E402
     Chebfun,
     cell2quasi,
@@ -423,6 +424,8 @@ __all__ = [
     "padeapprox",
     "ratinterp",
     "cell2quasi",
+    "cheb2quasi",
+    "quasimatrix",
     "overlap",
     "wronskian",
     "getValuesAtBreakpoints",

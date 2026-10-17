@@ -1,0 +1,879 @@
+{
+  "schema_version": 1,
+  "scope": "Four default native Chebgui exporter smoke predicates paired to four selected Python cohort tests; one extra Python fixture checksum test; 64 exact source demo fixture bytes.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_source_bridge": {
+    "from": "92ac25e5b2603b60add753e48f65545d2f10b8e5",
+    "to": "cc725df2585d0e56e7c5bb24225b75d9345e461c",
+    "changed_paths_under_src_tests_pyproject": []
+  },
+  "native": {
+    "runtime": "25.2.0.3055257 (R2025b) Update 2",
+    "max_threads": 1,
+    "run_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebgui_original_native_v2_20261017_run001",
+    "receipt_sha256": "7ef2eb1e936dea5d0352a31587382df0348153864dff97762e0b3827e12720bd",
+    "wall_seconds": 86.28104413114488,
+    "peak_rss_kib": 1429828,
+    "source_guard_stable": true,
+    "no_survivors": true,
+    "tests": [
+      {
+        "name": "test_toFileBVP",
+        "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebgui/test_toFileBVP.m",
+        "pass": 1,
+        "exception": "",
+        "seconds": 1.041693,
+        "warning": "",
+        "warning_id": ""
+      },
+      {
+        "name": "test_toFileIVP",
+        "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebgui/test_toFileIVP.m",
+        "pass": 1,
+        "exception": "",
+        "seconds": 0.523046,
+        "warning": "",
+        "warning_id": ""
+      },
+      {
+        "name": "test_toFileEIG",
+        "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebgui/test_toFileEIG.m",
+        "pass": 1,
+        "exception": "",
+        "seconds": 3.354734,
+        "warning": "",
+        "warning_id": ""
+      },
+      {
+        "name": "test_toFilePDE",
+        "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebgui/test_toFilePDE.m",
+        "pass": 1,
+        "exception": "",
+        "seconds": 2.34598,
+        "warning": "",
+        "warning_id": ""
+      }
+    ]
+  },
+  "python": {
+    "selectors": [
+      "test_to_file_bvp_matlab",
+      "test_to_file_ivp_matlab",
+      "test_to_file_eig_matlab",
+      "test_to_file_pde_matlab",
+      "test_original_demo_bytes_match_pinned_source_manifest"
+    ],
+    "passed": 5,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "backend": "cpu",
+      "x64": true,
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/__init__.py",
+      "external_runtime_scope": "Versions and source origin asserted; external dependency sources not exhaustively preguarded."
+    },
+    "run_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebgui_mapping_gate_20261017_run001",
+    "receipt_sha256": "ce5a6cd3439dad31116ea7003519bce3e05cf6fd5b9a2e4121882de6c2774d19",
+    "wall_seconds": 6.54290097206831,
+    "peak_rss_kib": 412424,
+    "source_guard_stable": true,
+    "no_survivors": true
+  },
+  "fixtures": {
+    "count": 64,
+    "manifest_sha256": "b9249dea2065f20fd86cc04195923bb258ec5c569b6db8c629806613fa066b0e",
+    "all_sha256_match": true,
+    "paths": [
+      "bvpdemos/advection_diffusion.guifile",
+      "bvpdemos/advection_diffusion_interior_cond.guifile",
+      "bvpdemos/advection_diffusion_jump.guifile",
+      "bvpdemos/advection_diffusion_periodic.guifile",
+      "bvpdemos/airy.guifile",
+      "bvpdemos/bessel.guifile",
+      "bvpdemos/blasius.guifile",
+      "bvpdemos/carrier.guifile",
+      "bvpdemos/carrier2.guifile",
+      "bvpdemos/coupled_system.guifile",
+      "bvpdemos/discont_coeff.guifile",
+      "bvpdemos/falkner_skan.guifile",
+      "bvpdemos/fisher_kpp.guifile",
+      "bvpdemos/fourth_order.guifile",
+      "bvpdemos/frank_kamenetskii.guifile",
+      "bvpdemos/interior_layers_linear.guifile",
+      "bvpdemos/interior_layers_nonlinear.guifile",
+      "bvpdemos/nonlinear_pendulum.guifile",
+      "bvpdemos/nonlinear_pendulum2.guifile",
+      "bvpdemos/nonlinear_pendulum3.guifile",
+      "bvpdemos/piecewise_forcing.guifile",
+      "bvpdemos/sawtooth.guifile",
+      "bvpdemos/system_coupled_bcs.guifile",
+      "bvpdemos/troesch.guifile",
+      "bvpdemos/water_droplet.guifile",
+      "eigdemos/advection_diffusion.guifile",
+      "eigdemos/advection_diffusion_periodic.guifile",
+      "eigdemos/airy.guifile",
+      "eigdemos/cross.guifile",
+      "eigdemos/davies.guifile",
+      "eigdemos/derivative.guifile",
+      "eigdemos/double_well.guifile",
+      "eigdemos/harmonic.guifile",
+      "eigdemos/harmonic_system.guifile",
+      "eigdemos/mathieu.guifile",
+      "eigdemos/orr_sommerfeld.guifile",
+      "eigdemos/variable_coeffs_system.guifile",
+      "ivpdemos/blowup.guifile",
+      "ivpdemos/homoclinic_orbit.guifile",
+      "ivpdemos/lane_emden.guifile",
+      "ivpdemos/linear_sawtooth.guifile",
+      "ivpdemos/linear_wave.guifile",
+      "ivpdemos/lorenz_chaotic.guifile",
+      "ivpdemos/lotka_volterra.guifile",
+      "ivpdemos/resonance.guifile",
+      "ivpdemos/rosslerAttractor.guifile",
+      "ivpdemos/sirModel.guifile",
+      "ivpdemos/van_der_pol.guifile",
+      "pdedemos/advection_diffusion.guifile",
+      "pdedemos/advection_diffusion2.guifile",
+      "pdedemos/allen_cahn.guifile",
+      "pdedemos/buckmaster.guifile",
+      "pdedemos/burgers.guifile",
+      "pdedemos/cahn_hilliard.guifile",
+      "pdedemos/coupled_pde_bvp.guifile",
+      "pdedemos/diffusion_three_chem.guifile",
+      "pdedemos/fisher_kpp.guifile",
+      "pdedemos/frank_kamenetskii.guifile",
+      "pdedemos/heat_eqn.guifile",
+      "pdedemos/heat_eqn2.guifile",
+      "pdedemos/integro_differential.guifile",
+      "pdedemos/ks.guifile",
+      "pdedemos/periodic_advection.guifile",
+      "pdedemos/wave_eqn.guifile"
+    ]
+  },
+  "preserved_initial_native_attempt": {
+    "run_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebgui_original_native_20261017_run001",
+    "command_exit_code": 1,
+    "supervisor_exit_code": 1,
+    "interpretation": "Harness capture error at records(j)=record (dissimilar MATLAB structures); this attempt establishes no predicate result and is retained beside corrected v2."
+  },
+  "limitations": [
+    "These native test functions check that demo export does not error; they do not solve generated problems.",
+    "Python gate covers four export cohorts and one fixture checksum selector, not full native generated-text equivalence or complete Chebgui API parity.",
+    "External runtime/source dependencies are not exhaustively embedded; guards and selected native/Python sources are included."
+  ],
+  "archive": {
+    "schema_version": 1,
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebgui_paired_scope_20261017/chebgui_paired_scope_20261017.zip",
+    "archive_sha256": "87462e7bace0aea2d3731dafa84ba71df9311730c7ea22ced1aa157e2c6059a1",
+    "archive_size": 1583945,
+    "payload_count": 140,
+    "payloads": [
+      {
+        "path": "REPORT.json",
+        "size": 6856,
+        "sha256": "a6910a432686507e7b84613353284edac68792782f658f73d8d309fb58edcbce"
+      },
+      {
+        "path": "native/@chebguiExporter/chebguiExporter.m",
+        "size": 9441,
+        "sha256": "3b0637917a4909759427c5ca224fe479e997273062e27c9394af1f07e625c17e"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/chebguiExporterBVP.m",
+        "size": 5224,
+        "sha256": "92563473b82adba446fda0f9189fcc8df69ec1d736ca83c961ff6a344b7d7330"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/exportInfo.m",
+        "size": 3777,
+        "sha256": "4aef980b28a5261f67de2e26e6909914fe0e42930035b88d250919ba6054e97d"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/printDescription.m",
+        "size": 1315,
+        "sha256": "63fa0e04573dc0c5e336b160b295ba2a729a09a842284ee1c986168e45630d40"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/printOptions.m",
+        "size": 2090,
+        "sha256": "86b8c8399ad3bdb00d5831cc491da08fbd0ea3b262f002e4e6b8065a32c4554f"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/printPostSolver.m",
+        "size": 1405,
+        "sha256": "4d7b0cf68e0138b3e4e5ef4939b91324550d0be612bdd7fd165e95b1bcfddd5c"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/printSetup.m",
+        "size": 4238,
+        "sha256": "bcd1aefcbc942396ba51f615ce7b647c07e61b6ae844d932e7b032c0e76469a9"
+      },
+      {
+        "path": "native/@chebguiExporterBVP/printSolver.m",
+        "size": 891,
+        "sha256": "b881cf79a9b492250a1fd5f4c5bc64a27c2a91ba3574a55a0ae3d677b8478d06"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/chebguiExporterEIG.m",
+        "size": 4399,
+        "sha256": "7fb1651ebc6349ad4c64e0a61b6e4a699a946d891353565c4a8dd0e240064618"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/exportInfo.m",
+        "size": 6260,
+        "sha256": "9f09f9efe1f96bfcab46d4c5179a413220991b6a6f03245be49985839355792a"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/printDescription.m",
+        "size": 1562,
+        "sha256": "0a1797494489ea1a256c8a4d44fffd7b73f24678407ca719788e7c828049a345"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/printOptions.m",
+        "size": 1274,
+        "sha256": "770cd687f0c75740ddaf3a91db8bb9bd8c0682f8ec27f86cb35d01c5adcaa153"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/printPostSolver.m",
+        "size": 1246,
+        "sha256": "aa8413dab67b49ba81cc074cf92269fd0067853ad986ea343de5ba09d6ceb98a"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/printSetup.m",
+        "size": 1589,
+        "sha256": "6de97e8eec83bc85077b581df3b7735f4b27647ab33118628975393a4b81174c"
+      },
+      {
+        "path": "native/@chebguiExporterEIG/printSolver.m",
+        "size": 1042,
+        "sha256": "fc290cee5afd0a02d0111b862352ef0c67667582aa0950d0fee24b4693200716"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/chebguiExporterIVP.m",
+        "size": 4960,
+        "sha256": "1c96d31a8082d3e7f74d6f7f84cd9c62253d692034e3b0199665e3cf62f61cb8"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/exportInfo.m",
+        "size": 3685,
+        "sha256": "62e5aa6b3fab4b2c38a47c3161c9bc9b58edbc071245009443fb709d3880a78d"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/printDescription.m",
+        "size": 1202,
+        "sha256": "a609a158997f455f539b94f33180bb2d428612d02b5e00b8f2a918e87c6883f2"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/printOptions.m",
+        "size": 2650,
+        "sha256": "92590de9ee8fd44e0b0166a9db5b54f834e7f713d3e031af47a1f553a0128722"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/printPostSolver.m",
+        "size": 1412,
+        "sha256": "bf3b2345b17ffc6b87fe6133a9fe03eef4d64b6c8e87888f9ae3c7ac9fd55869"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/printSetup.m",
+        "size": 4421,
+        "sha256": "7217b52136b558f8b28ce475b84c0da797e4c92fbb5d8ca7cfe86833310fecca"
+      },
+      {
+        "path": "native/@chebguiExporterIVP/printSolver.m",
+        "size": 895,
+        "sha256": "d872e6fa4475e507f2cfdb6461393f4e52908dd0dea47b2980e29be67d587c34"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/chebguiExporterPDE.m",
+        "size": 5599,
+        "sha256": "62ddcde5c059f748150b9e46a02a12a663351d82234cbf4132198477df8b40d9"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/exportInfo.m",
+        "size": 6213,
+        "sha256": "ebccb39b74eaee3e96fb3f3e0279808da94651260ea1d8fb7ce249dd73b4f60d"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/printDescription.m",
+        "size": 2992,
+        "sha256": "6699e086d100e82e6105ba5dd4059b91a4f0f3af01b57dade7c13f9c8b3cfa69"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/printOptions.m",
+        "size": 1446,
+        "sha256": "59b7ebc3929f0e56c18a192be3fe9c6467e6786d732b7a7792815ed838d22a4c"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/printPostSolver.m",
+        "size": 1240,
+        "sha256": "af0b69efdcd23dfa7d27397d64e36c66035699e3a34ce67a3283fdcf4316114f"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/printSetup.m",
+        "size": 4276,
+        "sha256": "addde6025f7f57452fe9bc0409f61fd34cf0cfef6df85c3efa6b3ea1dd35e216"
+      },
+      {
+        "path": "native/@chebguiExporterPDE/printSolver.m",
+        "size": 911,
+        "sha256": "42b0147f3429e1d150ded1bcc04c9edd04a196ec59f2958c7e1818894995775c"
+      },
+      {
+        "path": "native/failed_harness/guard.json",
+        "size": 511127,
+        "sha256": "badc331eefc735dbdf11e2d63aabf3c9063c3500a4bf9be1cab229f055234e8a"
+      },
+      {
+        "path": "native/failed_harness/launch.sh",
+        "size": 743,
+        "sha256": "d5066423353cd8d4e82b03bbba623d47487bd2d037fe2cdee757509d0282b82d"
+      },
+      {
+        "path": "native/failed_harness/probe_exporters.m",
+        "size": 1266,
+        "sha256": "7918dac49cd0c9949d84208b294a9e3dd439dd0d820da15f72de07de86604d82"
+      },
+      {
+        "path": "native/failed_harness/run001/guard.json",
+        "size": 511126,
+        "sha256": "ad25b4d8be61911709d7068f7b57210650faf2b5bec35baeb741ec41035ec6fc"
+      },
+      {
+        "path": "native/failed_harness/run001/manifest.json",
+        "size": 506,
+        "sha256": "a7ab8cd32ac15d55fe137b94706d8dec12b0945ca4756e6410e9fb3acf085cbb"
+      },
+      {
+        "path": "native/failed_harness/run001/receipt.json",
+        "size": 1039838,
+        "sha256": "eb17aab1791e47912ac46ca85b14883e51aa40ebaf67c0df6563c0d0dae88cca"
+      },
+      {
+        "path": "native/failed_harness/run001/samples.jsonl",
+        "size": 29104,
+        "sha256": "9c9be2703f8293204bf6f43cb1d79198807ac46ce562784df48ce278e3b7f939"
+      },
+      {
+        "path": "native/failed_harness/run001/stderr",
+        "size": 132,
+        "sha256": "bd9e3bbcf5665fd4ee8fe4c8f296f2291596081cbde8885e7b55452c1e6d2c1b"
+      },
+      {
+        "path": "native/failed_harness/run001/stdout",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "native/failed_harness/run001/supervise.py",
+        "size": 14936,
+        "sha256": "10c08683028bcd8f1d021cfde94e5b2d9125693a0c80a68140ea89cf8a14271e"
+      },
+      {
+        "path": "native/tests/chebgui/test_toFileBVP.m",
+        "size": 1668,
+        "sha256": "5481e61e7ba041fe85224e3384a808f17bc9cb93084c8339cb11de4b933ad1d1"
+      },
+      {
+        "path": "native/tests/chebgui/test_toFileEIG.m",
+        "size": 1907,
+        "sha256": "21379b98b57371a133e1a188609b7de1cf69c90b7c3c2f62f5a579494bf2e978"
+      },
+      {
+        "path": "native/tests/chebgui/test_toFileIVP.m",
+        "size": 1373,
+        "sha256": "4df38cd3347621a5198e21ff14b59535d5fc3e434a34cb7976a79b0aa5f04e37"
+      },
+      {
+        "path": "native/tests/chebgui/test_toFilePDE.m",
+        "size": 1664,
+        "sha256": "d0b6a602df0a22057e6a9ee1bd92433eb5dae2925d200aeb79426bb5596966b1"
+      },
+      {
+        "path": "native/v2/REPORT.json",
+        "size": 908,
+        "sha256": "f7916f1e96aa2b7146c457da5c56b38815553a904635aa75e98ad0d6bb84df9e"
+      },
+      {
+        "path": "native/v2/guard.json",
+        "size": 511133,
+        "sha256": "821ed4c9aee1b167274dd29edee5f89cfa1603281e409da8aaa3195239e138d9"
+      },
+      {
+        "path": "native/v2/launch.sh",
+        "size": 746,
+        "sha256": "af7cd6e36c144d084c2f7e0046df362312c8721c260f56a17e9e9b6fcaac2f8b"
+      },
+      {
+        "path": "native/v2/partial.json",
+        "size": 749,
+        "sha256": "17cbadd85188f17c6fa7fb5e110a755ea00b46f08e04473294c1ec83db4ffc17"
+      },
+      {
+        "path": "native/v2/probe_exporters.m",
+        "size": 1442,
+        "sha256": "43007f8ff965697048a70ae66a0b414d6d529e145b913289ab7ea10e187c0252"
+      },
+      {
+        "path": "native/v2/run001/guard.json",
+        "size": 511132,
+        "sha256": "62868c738de4e4b94b593533fedf45013168fbfcc07cdda41c1be8f4bb7c7f6c"
+      },
+      {
+        "path": "native/v2/run001/manifest.json",
+        "size": 506,
+        "sha256": "bcac54c0891496c119eada911fd810e1d4d00470a831fca4031e2ac5be1bb9e7"
+      },
+      {
+        "path": "native/v2/run001/receipt.json",
+        "size": 1040852,
+        "sha256": "7ef2eb1e936dea5d0352a31587382df0348153864dff97762e0b3827e12720bd"
+      },
+      {
+        "path": "native/v2/run001/samples.jsonl",
+        "size": 31281,
+        "sha256": "ae580dccf7ea8ce075d1730b6f89a9a0c32336e6146f89f85284fc1b727135b5"
+      },
+      {
+        "path": "native/v2/run001/stderr",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "native/v2/run001/stdout",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "native/v2/run001/supervise.py",
+        "size": 14936,
+        "sha256": "10c08683028bcd8f1d021cfde94e5b2d9125693a0c80a68140ea89cf8a14271e"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/advection_diffusion.guifile",
+        "size": 177,
+        "sha256": "655190eed66da802e16d243fb21dfbe9950ef971cb443c234051c033e2b6f758"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/advection_diffusion_interior_cond.guifile",
+        "size": 224,
+        "sha256": "81ce9ad274eee4b94e8ce4156d218ea7fe7af24fe47faebc1e3957086f91dbc6"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/advection_diffusion_jump.guifile",
+        "size": 243,
+        "sha256": "be5eef80e809d3646ae20c1bdc1a0dedf3bf1795ad55fb38c224db442ac12371"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/advection_diffusion_periodic.guifile",
+        "size": 202,
+        "sha256": "e0e122664085b1556c75c9ccf775fa3583928e867cfe3b7a8a0dca11e9e17785"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/airy.guifile",
+        "size": 161,
+        "sha256": "dcb99d176656f15828dfea61eda2c7489a860f42d149330fe37849bdc5ee9e7c"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/bessel.guifile",
+        "size": 178,
+        "sha256": "fbe750b43407b3d461fb874e00e0d1066ca6bf09427c80653adb01116ead6a42"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/blasius.guifile",
+        "size": 186,
+        "sha256": "04590042a953bbdc8886974e34fd2ad9ef8e975c9160f00290cb228bd09b5417"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/carrier.guifile",
+        "size": 204,
+        "sha256": "1b81d2c8254e197c46ac0e417736abb92d8826a89e674521f0e84a9c05eed4ea"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/carrier2.guifile",
+        "size": 224,
+        "sha256": "7f766373779e1dd9d3f7665dc0a01e427a6493f51b51652e109b71c6a37c5dfc"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/coupled_system.guifile",
+        "size": 270,
+        "sha256": "e6b44559795c12910ea7ebd9e9ce54324f257a3589bfa9e6e8f86020f4f8a7ca"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/discont_coeff.guifile",
+        "size": 206,
+        "sha256": "b9aa72d112ef877ed76083bde90f934586174d554b22b2759c0fb2ff1a043261"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/falkner_skan.guifile",
+        "size": 208,
+        "sha256": "a547b0310381848f69fc1ee807e44cb473f9cdc966f8c7894f4b1363941741e7"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/fisher_kpp.guifile",
+        "size": 162,
+        "sha256": "a91382fa4d157c2b737e6632ff6d2ea32cbebbb6063bc84b5fb51eaebec4bfa6"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/fourth_order.guifile",
+        "size": 206,
+        "sha256": "56e1bf960974ce4a80b2ec009c7bb8cde7cbd9a71527da5b0a3cabf610c63353"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/frank_kamenetskii.guifile",
+        "size": 178,
+        "sha256": "3804da854f0c7ac9ce042006b2feca88d6dec9eb2b06a170bf4aa5ad36a078dd"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/interior_layers_linear.guifile",
+        "size": 201,
+        "sha256": "74ba646f371273ef6b5deea588fcea2a2c6a98d5ff6e53f87718b081cf282adf"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/interior_layers_nonlinear.guifile",
+        "size": 173,
+        "sha256": "bda30da457d58d9f7b80ecadb1036fb86ca526309bbd1fb8501825719e7aa58e"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/nonlinear_pendulum.guifile",
+        "size": 181,
+        "sha256": "b1ead845d9bd61015b2a9b7367748707378ce8dbf431bf1157aa5cff10ccdf29"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/nonlinear_pendulum2.guifile",
+        "size": 198,
+        "sha256": "a157953f55acc424ee6ffa2ba49748e897fbb67cd7da30a6ba9e2c600fe846a5"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/nonlinear_pendulum3.guifile",
+        "size": 196,
+        "sha256": "4508f1ff8949ad5401bab87f52e2d0fb853827e78c902c5c03f76a3170d9c6d2"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/piecewise_forcing.guifile",
+        "size": 185,
+        "sha256": "223e44124c53e5559176803b9b714f733552f645074fafe0f961fa80c0e4401a"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/sawtooth.guifile",
+        "size": 169,
+        "sha256": "14c6213f84a2e09c229303313862fc8ed57ee93d9d5733e9697e6e96a25c35c4"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/system_coupled_bcs.guifile",
+        "size": 241,
+        "sha256": "6efafeef817510851d28d80ba3e3b332a93d3f3c181ed5bfd57c67088adff726"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/troesch.guifile",
+        "size": 172,
+        "sha256": "0fc43452a371465fb94e38ee49f55b7326471e5c1600f89f90123ae9b28cd388"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/bvpdemos/water_droplet.guifile",
+        "size": 168,
+        "sha256": "d62bfb114c00b485724c60118ff73d679c4e541448c375f0d19cf343fc7901e4"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/advection_diffusion.guifile",
+        "size": 222,
+        "sha256": "eed767930e74c3b4d4504f778d4531f52b9132982d6dc47715e686e804934558"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/advection_diffusion_periodic.guifile",
+        "size": 257,
+        "sha256": "c8cce6393c6d28cefa701cdce5d583c97dfd923e9899740954c766a27fd978d5"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/airy.guifile",
+        "size": 258,
+        "sha256": "bc078bcc026403436e62e417857212d37d3f174fe2f79af5e72db2a4aa2ae637"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/cross.guifile",
+        "size": 282,
+        "sha256": "7e27c562db2bb3c53b3d1a3485aebfb93611401b45b6a9446070461e9da28c21"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/davies.guifile",
+        "size": 253,
+        "sha256": "48ba09ffffb78ecde3971bbea8badd89ad88439caefea84554fbbc8c6e2763a2"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/derivative.guifile",
+        "size": 239,
+        "sha256": "8365949928265e2c51197203812c16f24f4c571f171d172ba47c43aa7ff2b779"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/double_well.guifile",
+        "size": 298,
+        "sha256": "135faf2be88b2208795a452900f5cb00bd5cf0e6e2d36b619ef4c5bbe9e6f5db"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/harmonic.guifile",
+        "size": 231,
+        "sha256": "ca6172b088f7d5210c9889733118482101bc7ad288dece714361ddfc68ca3f7d"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/harmonic_system.guifile",
+        "size": 329,
+        "sha256": "981ddcc17ad58ad2dac66eefcc45195cd0e3f4f3b0daaa08c6471095c8a05433"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/mathieu.guifile",
+        "size": 238,
+        "sha256": "8cdaf790eb04727e65d7c5727392588903d36bf2c6121fd0adc2080a84b341be"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/orr_sommerfeld.guifile",
+        "size": 443,
+        "sha256": "5f76fc308f54a2f49fa18ce013c1b6e87fac6f885d1d705f992dc1b1e60b3146"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/eigdemos/variable_coeffs_system.guifile",
+        "size": 358,
+        "sha256": "3aa0af3bc1167933464a762bd6bcd6a3384554df0d314dc944a11ca27c6f4917"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/blowup.guifile",
+        "size": 154,
+        "sha256": "5170d3c013b95389850cc90ca344ffbaebad2b51aa7b1fbcbe1b8bd8208e9539"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/homoclinic_orbit.guifile",
+        "size": 160,
+        "sha256": "027397899dd98391c1979e965b1a1fec18c63dbdbe3327498ea6327b0de9e728"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/lane_emden.guifile",
+        "size": 196,
+        "sha256": "ab3105bc88ca2f7154a694f3b1e8cc94b15a525f93808d53b1f50dee95f2d991"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/linear_sawtooth.guifile",
+        "size": 155,
+        "sha256": "5d4970027159bfe3cae7eea0d09bda96409df71af7459f2ac61547165be3f513"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/linear_wave.guifile",
+        "size": 162,
+        "sha256": "636cbc149a1b5f8e2ae9c290b377fd898ca3bf097ba8bd1f9e68ab3d38d635ac"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/lorenz_chaotic.guifile",
+        "size": 250,
+        "sha256": "faeb9634496b327f32ddfe315b2339ebfb37036660a9cc19fa3a4af40821a964"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/lotka_volterra.guifile",
+        "size": 180,
+        "sha256": "4bf6ae03f6d8e5b2a5bc6f09df3b82299f9d5dfcfbbc55816c5905da0c78184a"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/resonance.guifile",
+        "size": 164,
+        "sha256": "e65a29fc4aaef822c8abf7d2479a6a46c88ede45f438c8bd47d1c766cbd64635"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/rosslerAttractor.guifile",
+        "size": 183,
+        "sha256": "c67d5e5c295bb08a834409d0d10d1936d8e5cb321ee95ceedcf2682714ea3011"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/sirModel.guifile",
+        "size": 197,
+        "sha256": "cfb7c2bd139720006d260009792df7f42c214f14409bd70c242cf0878cc40676"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/ivpdemos/van_der_pol.guifile",
+        "size": 177,
+        "sha256": "ccbecb7d6a7e77fabf82747f85d2d4e943121b45f2a2de8b1ed0e9a93e26800e"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/advection_diffusion.guifile",
+        "size": 262,
+        "sha256": "9e339bea3d73f0163bd4d5f510eb716a6cb055302b03663a05e34765d51de488"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/advection_diffusion2.guifile",
+        "size": 252,
+        "sha256": "fae9f20e7adb96508f2519ce36135ce3c0454602f7c6bf37ba0e234fb04c1c9a"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/allen_cahn.guifile",
+        "size": 299,
+        "sha256": "744a11be41b949fe47e02ab106fd2508f35211a2b3a3c8ceaccf0126a4ea4ae9"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/buckmaster.guifile",
+        "size": 248,
+        "sha256": "e5083e0e062216528da1f5b1c9647511dee01543236cfc240f009b1a3fda4532"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/burgers.guifile",
+        "size": 259,
+        "sha256": "35522e7c3d3460c159d366c8dfc82532acc299bf1ded68f3d9130336a493abfa"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/cahn_hilliard.guifile",
+        "size": 303,
+        "sha256": "b71bead387422fcf3ae8274189ae87637980245ea011affae5c6b9bd21dcc960"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/coupled_pde_bvp.guifile",
+        "size": 285,
+        "sha256": "87c78187996e0fb4c80063011d685995a816b5aeec21210bb9daac426cbadbef"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/diffusion_three_chem.guifile",
+        "size": 376,
+        "sha256": "27e06fc6276777f398166505747b31173a336f2c11adbec8a88d6a20572876bf"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/fisher_kpp.guifile",
+        "size": 237,
+        "sha256": "5e53f783371e68c39d8c3ba942ebb5648ea99850fb5abb47b91febc2fcace11c"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/frank_kamenetskii.guifile",
+        "size": 248,
+        "sha256": "518b61c379b99cfb65532dc52f1cbdbfc528837f40ccbce241721bc7787e7540"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/heat_eqn.guifile",
+        "size": 267,
+        "sha256": "627c3046ce5bd526df869797797a67d50c9ea5bf2c11658cdf4cb0173f5a294c"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/heat_eqn2.guifile",
+        "size": 271,
+        "sha256": "14a785ba90b56744d26d7fe9d63c73650bdb5347155328b8b42b4dcaf1b328f4"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/integro_differential.guifile",
+        "size": 287,
+        "sha256": "14623a7263c10fd37913a7c5b30eb8845a310da4b502751ed5d86233b6e43a63"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/ks.guifile",
+        "size": 275,
+        "sha256": "f1fc2b353a77c5b1e9e4d94e5b61107c07351203f97cc6e044e1920ab41e4d2e"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/periodic_advection.guifile",
+        "size": 302,
+        "sha256": "9f7c7f75ec8b2648d491893784b0518adf1a111f1017538fdb692a2f0da1bffa"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/pdedemos/wave_eqn.guifile",
+        "size": 282,
+        "sha256": "d9a00b5ff22187475aeff370819abde0db3747ddc126071f47f3423fff33ea09"
+      },
+      {
+        "path": "python/fixtures/chebgui_demos/provenance.json",
+        "size": 9435,
+        "sha256": "b9249dea2065f20fd86cc04195923bb258ec5c569b6db8c629806613fa066b0e"
+      },
+      {
+        "path": "python/gate/guard.json",
+        "size": 88816,
+        "sha256": "cf0eddfa0c1dde088f543fcb92dcc555186593c7591f81b26a2f46f39fa412b7"
+      },
+      {
+        "path": "python/gate/junit.xml",
+        "size": 929,
+        "sha256": "07318abf1dc5dc0d1a7f2aa5c3ee2e67ec001435d57e88e6065ac97d4601fd87"
+      },
+      {
+        "path": "python/gate/launch.sh",
+        "size": 541,
+        "sha256": "cfa16cdafb821e3359333e73db9aa15cbd47443af945de34818cf3318ef86a1b"
+      },
+      {
+        "path": "python/gate/run001/guard.json",
+        "size": 88815,
+        "sha256": "a5aba7da861f4cae02cbbc93aa70b4749cd85447ed02ad1ce777ee1391199dcd"
+      },
+      {
+        "path": "python/gate/run001/manifest.json",
+        "size": 506,
+        "sha256": "4525a992e7839205046ce0f415bc7e62eb3317cad8b97dc0aa3d3c097930e961"
+      },
+      {
+        "path": "python/gate/run001/receipt.json",
+        "size": 181922,
+        "sha256": "ce5a6cd3439dad31116ea7003519bce3e05cf6fd5b9a2e4121882de6c2774d19"
+      },
+      {
+        "path": "python/gate/run001/samples.jsonl",
+        "size": 1730,
+        "sha256": "0ec31f56000081633dc4832b69a913260909a791e63fa01d1afaf7c40d5d9060"
+      },
+      {
+        "path": "python/gate/run001/stderr",
+        "size": 317,
+        "sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b"
+      },
+      {
+        "path": "python/gate/run001/stdout",
+        "size": 561,
+        "sha256": "36e2df1cd39a9db29456a89622a77d37a48177706ff6a735005b7ab5ba00d520"
+      },
+      {
+        "path": "python/gate/run001/supervise.py",
+        "size": 14936,
+        "sha256": "10c08683028bcd8f1d021cfde94e5b2d9125693a0c80a68140ea89cf8a14271e"
+      },
+      {
+        "path": "python/gate/runner.py",
+        "size": 982,
+        "sha256": "7cd40986c08cfd85043df9501d9116432683a0f2a22ffb5c980b271daa7a38c8"
+      },
+      {
+        "path": "python/gate/runtime.json",
+        "size": 331,
+        "sha256": "318e7b1c64433c01f7c14d6fb465d2fb89821f0b25533589ab456f4768e4c32f"
+      },
+      {
+        "path": "python/src/chebfunjax/utils/chebgui_data.py",
+        "size": 5399,
+        "sha256": "0093edc528473ee52bd0c4abd2cfcc2e7d1932b3dd5824e45f6964b3a13bffaf"
+      },
+      {
+        "path": "python/src/chebfunjax/utils/chebgui_exporters.py",
+        "size": 23859,
+        "sha256": "e9fe60d20f549d97ab9b02516e42f3ec9dd40477360237b284e01d08038ec015"
+      },
+      {
+        "path": "python/src/chebfunjax/utils/chebgui_fields.py",
+        "size": 10028,
+        "sha256": "2d9bc04fc471013c4bc08b5ef45e875be3211ecf3ff75d3cc3d241bb661a2061"
+      },
+      {
+        "path": "python/test_toFile_exporters_matlab.py",
+        "size": 7554,
+        "sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c"
+      },
+      {
+        "path": "reference/chebgui_inventory_mapping_20261017.json",
+        "size": 4424,
+        "sha256": "8931db63000c3da46710d25b7a9c504e364e0392bc5ec92e830a0ed136eadc37"
+      },
+      {
+        "path": "source_bridge.txt",
+        "size": 141,
+        "sha256": "4c1720da14283593cdd2613a2ebb03e550274082addf78e86125b7d672cda060"
+      },
+      {
+        "path": "PAYLOAD_MANIFEST.json",
+        "size": 25159,
+        "sha256": "6a90d3d3b04e2804deff2091de664bf7b8435a192124fec7e877395fb6304ef5"
+      }
+    ],
+    "readback_verified": true
+  },
+  "parent_review": {
+    "archive_payloads_verified": true,
+    "exporter_module_and_test_bytes_match_candidate": true,
+    "candidate_scope_limit": "Factory/integration changes are separately gated; this historical exporter qualification retains source-base cc725df and is not a fresh whole-package invocation."
+  }
+}

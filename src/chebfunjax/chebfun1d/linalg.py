@@ -173,9 +173,19 @@ class Quasimatrix:
         return len(self.cols)
 
     @property
-    def shape(self) -> tuple[str, int]:
-        """(inf, n_cols) analogous to numpy shape."""
-        return ("inf", self.n_cols)
+    def shape(self) -> tuple[str, int] | tuple[int, str]:
+        """Native orientation, using the existing string infinity adapter."""
+        return (self.n_cols, "inf") if self.is_transposed else ("inf", self.n_cols)
+
+    def cheb2quasi(self):
+        """Retain an existing collection, or its single scalar column.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun/cheb2quasi.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return self if self.n_cols > 1 else self.cols[0]
 
     # ------------------------------------------------------------------
     # Column access
