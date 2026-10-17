@@ -95772,7 +95772,16 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ratinterp_complex_stages_cpu_20261017",
+          "scope": "Retained first-fit transform/SVD amplification diagnosis; no correctness closure"
+        },
+        {
+          "artifact": "ratinterp_preifft_cpu_20261017",
+          "scope": "Matched product/mirror exact, normalized IFFT nonexact; native public-output neutrality for retained input only"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

@@ -178,3 +178,8 @@ component and current-source integration evidence. Full API remains open.
 [Complex-fit pre-IFFT follow-up](ratinterp_preifft_cpu_20261017.json)
 localizes same-input differences to transform/normalization arithmetic and
 proves public native capture neutrality for this input; no parity credit.
+
+Both complex-fit diagnostic scopes attach to native root-level `ratinterp.m`.
+Earlier attachment code incorrectly looked for `@chebfun/ratinterp.m`; that
+nonexistent target attached no row. The evidence register was present and is
+now linked to the actual source row; full-item status remains unverified.
