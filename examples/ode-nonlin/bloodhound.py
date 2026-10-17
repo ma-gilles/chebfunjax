@@ -47,7 +47,6 @@ def _save(fig):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     RocketStart = 11.0          # seconds
     MassOriginal = 6500.0       # kg
@@ -71,12 +70,14 @@ def run():
 
     N = Chebop(lambda t, v: cmass * v.diff() + dcmass * v - cthrust
                + (175 / 289) * v**2 + surfacedrag, domain=DOM)
-    # MATLAB writes N.bc = @(t,v) v(0); the equivalent left boundary
-    # condition routes to the piecewise solver, which places the
-    # breakpoint at the rocket ignition.
+    # MATLAB writes N.bc = @(t,v) v(0); this is the same left boundary value.
     N.lbc = 0.0
     N.init = chebfun(lambda t: t, domain=DOM)
-    u = N.solve(0.0)
+    with warnings.catch_warnings(record=True) as events:
+        warnings.simplefilter("always")
+        u = N.solve(0.0)
+    for event in events:
+        print(f"Warning: {event.message}")
 
     t1000 = float(np.asarray((u - 447.0).roots(), dtype=float)[0])
 

@@ -1,3 +1,18 @@
+# Latest Bloodhound scalar C2 corrections — 2026-10-17
+
+Coefficient-induced Jacobian breaks now use the existing JAX block correction;
+C2 RHS evaluates source equation points without rejecting tiny merged FUNs.
+Scalar callable RHS retains broadcast behavior. Original7joint controls passed
+before that narrow final branch; final4focused controls pass, with an explicit
+unchanged-vector-branch bridge to actual Bloodhound. Whole solve completes233s,
+7Newton iterations/error4.842e-11<1e-10, zero actual warnings and two figures.
+Cached native giveUp warning remains different; no native convergence/page or
+figure parity claim. Parent verifies148child payloads and361matching library
+files (unrelated Padé module differs), appends one core selector1079→1080while
+retaining every old owner;20protocol checks pass. Padé evidence attached to two
+inventory rows without changing any full-item statuses. Full static gates pass.
+Evidence: docs/bloodhound_parent_cpu_20261017.json.
+
 # Latest CPU Padé JAX port — 2026-10-17
 
 Padé array numerics now use JAX. Native original3predicates all true; final

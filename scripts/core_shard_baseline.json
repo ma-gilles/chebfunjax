@@ -241,7 +241,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_smoothie_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_curl_matlab]",
       "tests/test_utils/test_matlab_imaginary_literals.py",
-      "tests/test_utils/test_fft602_ordered.py"
+      "tests/test_utils/test_fft602_ordered.py",
+      "tests/test_scalar_newton_coefficient_breaks_source.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1105,6 +1106,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "9fb0323f0e9912b3d495b775d8454cc95532e977",
+  "last_update_parent": "ddc13586a7b5ad0ca15ba8bc80a147d3582c3b29",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

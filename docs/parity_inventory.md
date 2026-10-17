@@ -207,3 +207,12 @@ norm/extrema and nonfinite complex primitives remain open. Division's
 native failure remains uncredited. Neither its strict-xfail nor the 26 true
 final slots proves all 28 assigned expressions. No direct gamma-method
 qualification is inferred from string gamma input.
+
+## Padé source and original predicates — 2026-10-17
+
+The `padeapprox.m` and original `tests/misc/test_padeapprox.m` rows now link
+[published evidence](pade_jax_source_cpu_20261017.json): all three default
+native predicates and the corresponding Python tests pass. The final 17-check
+Python gate also covers ten existing authored tests and four new JAX/correctness
+contracts. Full function, API and alternate-parameter statuses remain unverified;
+this attachment preserves all prior item statuses and page records.

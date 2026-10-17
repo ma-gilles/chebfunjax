@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Fix coefficient-break scalar C2 Newton dispatch and merged-domain RHS sampling; preserve scalar callable broadcast. Child7joint controls and final4focused pass; actual Bloodhound233s/7iterations succeeds with zero actual warnings. Explicit source branch bridge retained. Parent20CI protocol checks preserve1079owners and append one selector. [Evidence](bloodhound_parent_cpu_20261017.json). Native convergence/warning, full API and page/figure parity remain open.
+
+
 - [x] Padé JAX FFT/Toeplitz/SVD/QR/roots/evaluation port; zero degree and tiny complex numerator repairs. Native original3true; final17checks pass, including four baseline failures and jit/complex-JVP evaluation. [Evidence](pade_jax_source_cpu_20261017.json). Full API, exact numerical and matched performance qualification remain open.
 
 

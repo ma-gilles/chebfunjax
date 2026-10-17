@@ -1,0 +1,152 @@
+{
+  "scope": "Two source-backed scalar C2 Newton correction faults and honest Bloodhound warning capture; not full chebop/page/native-output parity",
+  "base_commit": "ea116d6264407ad7de9b9a211b543e5d683c7011",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "src/chebfunjax/operators/scalar_newton.py",
+    "src/chebfunjax/operators/_second_kind_linear.py",
+    "examples/ode-nonlin/bloodhound.py",
+    "tests/test_scalar_newton_coefficient_breaks_source.py",
+    "docs/bloodhound_rhs_cpu_20261017.json"
+  ],
+  "new_core_selector": "tests/test_scalar_newton_coefficient_breaks_source.py",
+  "new_core_nodes": 4,
+  "root_owns_current_core_baseline_update": true,
+  "changes": {
+    "scalar_newton.py": "AD Jacobian with interior breaks routes through existing JAX interval-aware block correction; single-interval C2 fast path retained; no host piecewise fallback",
+    "_second_kind_linear.py": "C2 RHS directly samples continuous entries at source affine first-kind equation points; continuity values precede constraints; numeric constant behavior retained; scalar-valued callable broadcast retained",
+    "bloodhound.py": "Remove blanket ignore; catch and print actual solve warnings following existing Blasius adapter; all numerical and plotting AST unchanged"
+  },
+  "native_source_refs": [
+    "@linop/linsolve.m:83-98",
+    "@valsDiscretization/rhs.m:19-41",
+    "@domain/merge.m:38-47",
+    "@chebop/solvebvpNonlinear.m:232-244"
+  ],
+  "preserved_failures": [
+    {
+      "receipt": "baseline_run/receipt.json",
+      "result": "Unchanged actual Bloodhound TypeError33-vs99 before warnings or figures"
+    },
+    {
+      "receipt": "focused_finaltest_baseline_run/receipt.json",
+      "result": "1fail/2pass; generalBC manufactured correction17-vs34; LBC and smooth pass"
+    },
+    {
+      "receipt": "candidate_run/receipt.json",
+      "result": "After dispatch fix, actual merged-domain RHS rejects tiny residual FUN; no warnings or figures"
+    },
+    {
+      "receipt": "nearbreak_baseline_run/receipt.json",
+      "result": "Initial authored nonlinear fixture averaged near-break words; test assertion failed, not counted library fault"
+    },
+    {
+      "receipt": "nearbreak_exact_baseline_run/receipt.json",
+      "result": "Final exact authored C2 RHS test fails same restriction ValueError"
+    },
+    {
+      "receipt": "scalar_callable_baseline_run/receipt.json",
+      "result": "Pre-final C2 override scalar callback yields length3 RHS rather than18; final source restores scalar broadcast."
+    }
+  ],
+  "qualification": {
+    "final_joint_run": "Pre-scalar-broadcast source:7passed4authored +unchanged literal scalarODE C2/C1/ultraS3;85.05s, stable/no survivors. Final source bridge candidate2_final_source_bridge.json: added scalar-only branch is false for actual Chebfun RHS arrays; no heavy repeat.",
+    "whole_example": "candidate2_run:exit0,233.23s sampled terminal, peak4929108KiB, stable/no survivors, no censoring",
+    "newton": {
+      "counter": 7,
+      "success": true,
+      "give_up": 0,
+      "error": 4.841837493346047e-11,
+      "err_tol": 1e-10,
+      "max_iter": 25
+    },
+    "warnings": {
+      "attempted": 0,
+      "emitted": 0,
+      "captured": 0
+    },
+    "figure_count": 2,
+    "t1000": 27.353119804321906,
+    "actual_raw_AD_domain": [
+      0,
+      11,
+      11.000000000000135,
+      50
+    ],
+    "actual_capability_initial_domain": [
+      0,
+      11.000000000000135,
+      50
+    ],
+    "actual_merged_discretization_domain": [
+      0,
+      11,
+      50
+    ],
+    "actual_block_dimensions": [
+      [
+        32,
+        1448
+      ],
+      [
+        32,
+        1448
+      ],
+      [
+        32,
+        1448
+      ],
+      [
+        32,
+        2048
+      ],
+      [
+        32,
+        2048
+      ],
+      [
+        32,
+        512
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        32,
+        32
+      ]
+    ],
+    "final_focused_run": "Final bytes4authored controls passed53.06s, stable/no survivors, peak2551288KiB. Adds scalar callable broadcast check; near-break scalar-callback baseline failed exact same final test assertion before branch fix.",
+    "whole_example_source_bridge": "candidate2_final_source_bridge.json identifies qualified actual source hash vs final scalar-only branch hash and proves unchanged executed vector branch. No claim actual heavy run used final source bytes."
+  },
+  "original_defaults": {
+    "max_iter": 25,
+    "bvp_tol": 5e-13,
+    "error_stop": 1e-10,
+    "n_min": 32,
+    "n_max": 4096,
+    "fixed_n": null
+  },
+  "limitations": [
+    "Cached official output has native giveUp warning; candidate succeeds and emits none. No fresh native Bloodhound invocation or current native convergence parity proof. Do not fill page warning from cache.",
+    "No page/figure content parity, whole chebop API completion, full CI or matched performance claim. Figures are actual produced evidence only.",
+    "Existing alternate C1/ultraS RHS assembly unchanged; no expansion of true array RHS or unsupported technologies qualified.",
+    "Raw AD breakpoint union remains exact; existing tolerance-aware common-domain merge unchanged.",
+    "Existing scalar linearDimensions/discretization diagnostics retain only first panel dimension; actual block dimension evidence records both panels.",
+    "First focused candidate observer temporal edit incident preserved separately; supervisor endpoint hashes stable but no broad temporal immutability claim for that attempt. Final gates had frozen inputs.",
+    "Observers differ; runtime comparison is not performance evidence.",
+    "Native leaves numeric RHS blocks unchanged; this adapter retains prior scalar expansion via jnp.full. Mixed algebraic/numeric-vector RHS parity remains unqualified. Direct callable evaluation can differ from prior adaptive polynomial approximation/rounding and supports more function representations; this package qualifies actual Chebfun residuals and scalar callable broadcast only, with unchanged original3backend controls; no broad callable/technology API parity."
+  ],
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bloodhound_warning_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bloodhound_rhs_package_20261017.tar.gz",
+  "parent_bridge": "Parent later commits change ratapprox.py and unrelated tests/docs; publication paths here are isolated. No rerun credit for altered caller inputs."
+}

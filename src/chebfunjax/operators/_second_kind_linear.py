@@ -70,6 +70,27 @@ class SecondKindDiscretization(LinearDiscretization):
         if self.A.shape[0] != self.A.shape[1]:
             raise ValueError('CHEBFUN:LINOP:linsolve:notSquare -- Operator may not have the correct number of boundary conditions.')
 
+    def rhs(self, entries, constraint_values=None):
+        """Evaluate continuous RHS rows at the actual equation points.
+
+        Provenance: @valsDiscretization/rhs.m, Chebfun 7574c77. Continuity
+        values precede constraints; each function block then uses all panels.
+        A tolerance-merged domain need not retain every tiny RHS FUN.
+        """
+        entries = self.L._normalize_rhs(entries)
+        constraints = (self.constraint_values if constraint_values is None
+                       else constraint_values)
+        points = jnp.concatenate([
+            (b*(chebpts(n, kind=1)+1)+a*(1-chebpts(n, kind=1)))/2
+            for n, (a, b) in zip(self.dimensions, self.intervals)])
+        pieces = [jnp.asarray(constraints).reshape(-1)]
+        for entry in entries:
+            values = entry(points) if callable(entry) else jnp.full(points.shape, entry)
+            if jnp.ndim(values) == 0:
+                values = jnp.full(points.shape, values)
+            pieces.append(jnp.asarray(values).reshape(-1))
+        return jnp.concatenate(pieces)
+
     @property
     def is_factored(self):
         # Native valsDiscretization/isFactored counts function equation sizes

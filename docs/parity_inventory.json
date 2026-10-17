@@ -199,6 +199,12 @@
       "sha256": "0c2e9838b9662b78f05749aa5ae0ac39cabff67c0fba030ac6491e7da67977bd",
       "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d"
     },
+    "pade_jax_source_cpu_20261017": {
+      "path": "docs/pade_jax_source_cpu_20261017.json",
+      "published_commit": "ddc13586a7b5ad0ca15ba8bc80a147d3582c3b29",
+      "scope": "Three default native predicates plus 14 Python JAX/correctness/authored controls; full API/alternate parameters/exact FFT/SVD/performance remain open",
+      "sha256": "ae3b3bb80250ccf8f4b2ed192f38a913e8705142928ad559e025b63c1b85d189"
+    },
     "pde_color_whole_20261017": {
       "path": "docs/pde_color_whole_cpu_20261017.json",
       "scope": "Superseding four ThreeBody image observations; numerical artifacts equal prior Python observation, native high-degree discrepancy remains open.",
@@ -95814,11 +95820,31 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
-      "evidence": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/utils/ratapprox.py"
+      ],
+      "evidence": [
+        {
+          "artifact": "pade_jax_source_cpu_20261017",
+          "scope": "Default original predicates1-3 and source-backed zero/tiny-complex repairs; bounded scoped qualification only"
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "pade_jax_source_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3
+              ],
+              "native_source": "padeapprox.m",
+              "native_source_sha256": "1e677549f735e0be6bd056d14593b8731258e39d12cab76d03d5f3e75cd29259",
+              "scope": "Default original invocation; no full-function/API promotion",
+              "source_binding_ref": "docs/pade_jax_source_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -122497,10 +122523,28 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/misc/test_padeapprox_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "pade_jax_source_cpu_20261017",
+          "scope": "Default original predicates1-3 and source-backed zero/tiny-complex repairs; bounded scoped qualification only"
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "pade_jax_source_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3
+              ],
+              "native_source": "tests/misc/test_padeapprox.m",
+              "native_source_sha256": "3800c68bd99bc7ed8b5a055fc47ae7891bc5bbe76a685125ab398bf51d69cd68",
+              "scope": "Default original invocation; no full-function/API promotion",
+              "source_binding_ref": "docs/pade_jax_source_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -122512,7 +122556,26 @@
       "sha256": "3800c68bd99bc7ed8b5a055fc47ae7891bc5bbe76a685125ab398bf51d69cd68",
       "source": "tests/misc/test_padeapprox.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "current_source_revalidated": true,
+          "evidence": "pade_jax_source_cpu_20261017",
+          "library_source": "src/chebfunjax/utils/ratapprox.py",
+          "library_source_sha256": "eacbb34519293ed4198e9bfede1fdbbbcb1b5b7d582899d95a875614083ec2e3",
+          "native_source": "tests/misc/test_padeapprox.m",
+          "native_source_sha256": "3800c68bd99bc7ed8b5a055fc47ae7891bc5bbe76a685125ab398bf51d69cd68",
+          "original_ids": "1-3",
+          "predicates_native_final_slots": 3,
+          "predicates_python_mapped_final_slots": 3,
+          "python_source": "tests/test_matlab_port/misc/test_padeapprox_matlab.py",
+          "python_source_sha256": "bce91af4ecd412c294a3e0171748a0d78f20cdfc442035990d3f64d096663b21",
+          "qualification_limit": "Default invocation and recorded final source only; full API, parameter grammar, exact numerical and matched performance qualification open",
+          "scope_id": "padeapprox_default_original3_cpu_20261017",
+          "source_binding_ref": "docs/pade_jax_source_cpu_20261017.json",
+          "status": "source_bound_native_python_scoped_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

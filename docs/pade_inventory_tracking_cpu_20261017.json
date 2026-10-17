@@ -1,0 +1,16 @@
+{
+  "scope": "Documentation-only attachment of published Pad\u00e9 evidence to two inventory rows and their declarations",
+  "source_report": "docs/pade_jax_source_cpu_20261017.json",
+  "source_report_sha256": "ae3b3bb80250ccf8f4b2ed192f38a913e8705142928ad559e025b63c1b85d189",
+  "status_fields_preserved": 22035,
+  "counts_preserved": true,
+  "all322page_rows_unchanged": true,
+  "native_file_hashes_verified": 2,
+  "no_new_scientific_execution": true,
+  "paths": [
+    "docs/parity_inventory.json",
+    "docs/parity_inventory.md",
+    "docs/parity_inventory.sha256",
+    "docs/pade_inventory_tracking_cpu_20261017.json"
+  ]
+}

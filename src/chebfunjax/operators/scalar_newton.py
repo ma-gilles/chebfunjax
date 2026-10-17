@@ -333,7 +333,9 @@ def solve_scalar(op, f=0, n=None, max_iter=25, initial=None,
                 if happy or n is not None or size == schedule[-1]:
                     update = -output_function(vals, domain, backend, cutoff)
                     return [update], size, happy or n is not None
-        if backend != "chebcolloc2":
+        # Coefficients can introduce breaks absent from the declared domain.
+        # The one-interval projection cannot reduce their block Jacobian.
+        if backend != "chebcolloc2" or len(out.jacobian.domain) > 2:
             from chebfunjax.operators._linear_altdisc import solve_operator
             from chebfunjax.operators.blocklinop import BlockLinop
             from chebfunjax.operators.blocks import zero_functional

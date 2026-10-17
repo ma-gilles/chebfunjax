@@ -1,0 +1,63 @@
+{
+  "scope": "Parent verification of Bloodhound correction package, stable CI selector addition and Pad\u00e9 inventory evidence attachment; not full native convergence/page/figure parity",
+  "parent_commit": "ddc13586a7b5ad0ca15ba8bc80a147d3582c3b29",
+  "child_package": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bloodhound_rhs_package_20261017.tar.gz",
+    "sha256": "6e868ba750b10e53cb8bf61c93d537e5bae82ae5c348a616aabd8effb82d2896",
+    "verified_payloads": 148
+  },
+  "bridge": {
+    "archive_sha256": "6e868ba750b10e53cb8bf61c93d537e5bae82ae5c348a616aabd8effb82d2896",
+    "verified_child_payloads": 148,
+    "child_base": "ea116d6264407ad7de9b9a211b543e5d683c7011",
+    "parent_base": "ddc13586a7b5ad0ca15ba8bc80a147d3582c3b29",
+    "final_focused_guard_library_files_equal": 361,
+    "different_library_files": [
+      {
+        "path": "src/chebfunjax/utils/ratapprox.py",
+        "guarded_sha256": "27778d076155f8d54377fae0fe891b95df94cc258605833695879c2e180ae8b6",
+        "parent_sha256": "eacbb34519293ed4198e9bfede1fdbbbcb1b5b7d582899d95a875614083ec2e3"
+      }
+    ],
+    "source_bridge_limit": "Unrelated Pad\u00e9 port is a different module from the exact focused source. No new parent scientific run or full import qualification claimed. Actual whole-example source additionally uses archived scalar-only branch bridge.",
+    "core_baseline_before": 1079,
+    "core_baseline_after": 1080,
+    "existing_owners_retained": true,
+    "new_selector": "tests/test_scalar_newton_coefficient_breaks_source.py",
+    "new_owner": 2
+  },
+  "scientific_gates": "Child original C2/C1/US +4 authored=7 before final scalar branch; final4 focused pass including scalar-callable regression. Whole Bloodhound233.23s success on preserved pre-scalar-branch source, with explicit unchanged-vector-branch bridge. No new parent scientific gate claim.",
+  "protocol": {
+    "checks": 20,
+    "pytest_seconds": 1.74,
+    "stable": true,
+    "survivors": 0
+  },
+  "pade_inventory_attachment": {
+    "scope": "Documentation-only attachment of published Pad\u00e9 evidence to two inventory rows and their declarations",
+    "source_report": "docs/pade_jax_source_cpu_20261017.json",
+    "source_report_sha256": "ae3b3bb80250ccf8f4b2ed192f38a913e8705142928ad559e025b63c1b85d189",
+    "status_fields_preserved": 22035,
+    "counts_preserved": true,
+    "all322page_rows_unchanged": true,
+    "native_file_hashes_verified": 2,
+    "no_new_scientific_execution": true,
+    "paths": [
+      "docs/parity_inventory.json",
+      "docs/parity_inventory.md",
+      "docs/parity_inventory.sha256",
+      "docs/pade_inventory_tracking_cpu_20261017.json"
+    ]
+  },
+  "open": [
+    "Cached native Bloodhound giveUp warning vs actual candidate successful solve/zero warnings; no fresh native convergence comparison",
+    "Page/stdout/scientific figures not regenerated or certified by this package",
+    "Mixed algebraic and numeric-vector RHS semantics and wider callable/technology API remain open",
+    "Latest-main CI/coverage and matched native performance remain required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bloodhound_parent_cpu_20261017.tar.gz",
+    "sha256": "bae62a7885d3e580895d92813a1a81bfbc248baa430c696e9b9a911904780830",
+    "verified_payloads": 175
+  }
+}
