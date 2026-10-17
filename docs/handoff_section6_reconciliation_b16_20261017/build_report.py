@@ -1,44 +1,333 @@
-import hashlib,json,pathlib,subprocess
-S=pathlib.Path('/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005'); O=S/'handoff_section6_reconciliation_b16_20261017'; P=S/'publication_checkout'; B='b16ad79596449a1dfe56704f8656e41766b0f301'; U=f'https://github.com/ma-gilles/chebfunjax/blob/{B}/'
-items=[]
-def add(n,title,status,fixed,remaining,refs):
- items.append(dict(id=n,title=title,status=status,fixed_scope=fixed,remaining=remaining,references=refs))
-add(1,'Inverse','fixed_scope_remaining','Pointwise-bisection/default-roots prescription is stale: public default Brent plus selectable roots/Newton/etc. Retained-input ordered Clenshaw changes preserve inverse bytes.','Actual latest inverse remains 9052 coefficients vs earlier native 8706. Current retained-input cold20.302/warm6.892s is descriptive shared-host evidence; earlier public flower warm .607s vs native .640s uses separately constructed representations and is not a latest matched speed gate. Full actual ComplexArcLength/native correctness and performance closure open.',['src/chebfunjax/chebfun1d/chebfun.py','src/chebfunjax/chebfun1d/inverse.py','docs/clenshaw_instruction_inverse_cpu_20261017.json','docs/inverse_public_cpu_benchmark_20261013.json'])
-add(2,'Hermite quadrature','fixed_scope_remaining','GW-only/O(n^2) claim stale: REC/GLR/ASY/LAG implementations and default dispatch exist. Native original REC42/ASY251 final15 predicates covered by4 passing items; default/ASY 10000/100000 independently qualified.','Explicit ASY n2 and4..20 unsupported; n3 native concatenation failure must remain distinguished. Strict private small-ASY diagnostics have10 failures/38, not ten original MATLAB failures. Fast large-n matched CPU performance and full figure parity remain open.',['src/chebfunjax/utils/quadrature.py','src/chebfunjax/utils/hermite_asy.py','docs/hermite_original_predicates_cpu_20261014.json','docs/hermite_small_asy_bounds_erratum_20261011.json','docs/hermite_full_cpu_20261010.json','HANDOFF_CODEX.md'])
-add(3,'Complex ratinterp/poles','fixed_scope_remaining','Complex colleague coefficients retained and evaluator no longer discards imaginary input. JAX fitting gate25 retained+4 distinct backend cases; restored23 native clauses in15 focused cases.','General high-degree complex pole/residue matching, arbitrary-node symmetry sorting and near-multiple residue clustering unqualified. No fresh native execution in these gates; actual ThreeBodyProblem closure not established.',['src/chebfunjax/utils/ratapprox.py','docs/ratinterp_jax_cpu_20261010.json','docs/ratinterp_native_predicates_cpu_20261011.json'])
-add(4,'Complex periodic numeric Chebfun2','fixed_scope_remaining','O(1) construction failure superseded: four odd/even rectangular complex matrix native cases and four analytic controls pass; dense errors about5e-15.','Supplemental cases do not establish arbitrary matrix/native predicates or full GinzburgLandau evolution/pixel parity.',['src/chebfunjax/chebfun2d/chebfun2.py','docs/complex_trig_matrix_native_cpu_20261016.json','docs/gl_public_spin2_cpu_20261013.json'])
-add(5,'Indefinite and piecewise MINRES','fixed_scope_remaining','Earlier MINRES source ports and literal source operand restoration supersede stale recurrence diagnosis. Final piecewise block converges11 iterations, physical relative residual4.218264374610285e-12.','Full Krylov page/current native solution and performance comparison remains open. Direct70 comparison83.06s Python vs28.04s native is observational; endpoint physical residual is large in BOTH captures, so solver flag alone is insufficient.',['docs/krylov_indefinite_native_cpu_20261013.json','docs/krylov_varcoeff_native_cpu_20261013.json','docs/krylov_final_source_cpu_20261017.json','docs/krylov_direct70_comparison_cpu_20261017.json','docs/krylov_scalar_ad_route_cpu_20261017.json'])
-add(6,'Nonlinear Chebop/Carrier','fixed_scope_remaining','Finite scalar source Newton backend, session dimension/preference forwarding and iter text exist. Actual three Carrier solves completed; stale strict xfail removed without original predicate edits.','No fresh native all-three coefficient/output/table comparison; coupled/piecewise/display branches are not all covered. Legacy fallback still has refinement-history accumulation: do not declare every normDelta route repaired from scalar evidence.',['src/chebfunjax/operators/chebop.py','docs/carrier_xpass_cpu_20261010.json','docs/carrier_source_output_figures_cpu_20261011.json','docs/scalar_newton_display_cpu_20261011.json','docs/newton_dimension_preference_cpu_20261011.json'])
-add(7,'Splitting clustered breakpoints','fixed_scope_untested_examples','Bounded smooth constructorSplit now calls source-shaped _detect_edge_matlab with scales and source merge; stale _split_edge_fd helper has no call sites.','Source controls exist, but exact EdgeDetection/NoisyNonsmooth native breakpoint lists and full pages are not qualified by this audit. Source epsilon stopping alone is not proof of original example closure.',['src/chebfunjax/chebfun1d/chebfun.py','tests/test_chebfun1d/test_detect_edge_bounded_source_controls.py','tests/test_chebfun1d/test_constructor_split_scheduler_source_controls.py'])
-add(8,'Ill-conditioned quasimatrix backslash','remaining','Native array QR/SVD representations and consumer paths qualified on48 unique focused IDs including original mldivide5/6.','Degree80 VandermondeArnoldi actual-example accuracy/native comparison remains unresolved; degree8/focused QR gates do not close original vscale discrepancy.',['src/chebfunjax/chebfun1d/linalg.py','docs/chebtech_qr_reconstruction_cpu_20261010.json','HANDOFF_CODEX.md'])
-add(9,'IVP one-piece construction','fixed_scope_remaining','Literal first IVPCapabilities solve now one smooth piece in both Python and pinned native.','Python length3881 vs native3765 and max sampled difference1.5258692087627423e-9 on5001 sites remain. No native example assertion exists to turn that into a fabricated pass bound. Solver-state/dense-interpolation/chopping and full outputs/figures/performance remain open.',['docs/ivp_capabilities_first_solve_cpu_20261013.json','docs/ivp_capabilities_page_cpu_20261013.json'])
-add(10,'ConformalL AAA spurious poles','fixed_scope_remaining','Historical cached27/44 counts are not current pinned native46/69. Source-shaped least squares full Python page gives46/67, boundary error5.1268e-7 vs fresh native5.1269765e-7; earlier exact native-input capture matches counts.','Inverse count67 vs69 and pole locations/ill-conditioned arithmetic remain different; no general AAA or full pixel parity closure. Do not fit cleanup to obsolete cached counts.',['docs/conformal_l_native_cpu_20261013.json','docs/conformal_l_page_cpu_20261013.json','src/chebfunjax/utils/_basic_lstsq.py'])
-add(11,'randnfun duplicate implementations','fixed_scope_remaining','Public cj.randnfun, utils.random and chebfun1d.randfuns delegate one _randnfun JAX engine; legacy utils.randnfun intentionally retains periodic .2 defaults. Shared construction/big normalization49-test package qualified.','Native normal RNG identity and historical random-page migration remain open; original aggregate injects primitive draws and does not establish native RNG. Current state agreement alone does not establish equal normal values. Malformed-input/empty-domain scope also remains.',['src/chebfunjax/__init__.py','src/chebfunjax/utils/_randnfun.py','src/chebfunjax/utils/random.py','src/chebfunjax/utils/randnfun.py','src/chebfunjax/chebfun1d/randfuns.py','tests/test_utils/test_randnfun_source_construction.py','HANDOFF_CODEX.md'])
-add(12,'spin2 public API','fixed_scope_remaining','operators.spinop2.spin2 returns Chebfun2/Spin2SolutionMatrix with multitime and return_times; GL initialization uses randnfun2. Existing public API used by actual GinzburgLandau run.','Graphics are explicitly unimplemented; inherited numeric constructor has NumPy internals. Late evolution/native RNG/pixel parity unresolved. Separate spin.solver2d array API remains; namespace-specific contracts must be tested separately.',['src/chebfunjax/operators/spinop2.py','src/chebfunjax/operators/_spin2_public.py','src/chebfunjax/spin/solver2d.py','tests/test_spin/test_spin2_source_outputs.py','docs/gl_public_spin2_cpu_20261013.json','docs/gl_evolution_roundoff_cpu_20261013.md'])
-add(13,'Smaller issues','mixed_remaining_untested','__rpow__ exists; plotregion bounded Chebtech/Trigtech uses source data; complex Chebfun2 phase portrait exists; plotting combines function pieces into one line group.','See all eight subitems below; no blanket closure.',['src/chebfunjax/chebfun1d/chebfun.py','src/chebfunjax/plotting.py','tests/test_plotregion_source_controls.py','tests/test_trig_plotregion_source.py','tests/test_chebfun2_phase_plot_source.py','tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py'])
-items[-1]['subitems']=[
- dict(issue='Spherefun.max2 even-function antipode',status='untested_original_tie',detail='max2 delegates minandmax2 optimization. Empty/extrema coverage is not a captured even-function tie-location proof.',references=['src/chebfunjax/spherefun/spherefun.py','docs/sphere_extrema_empty_source_cpu_20261014.json']),
- dict(issue='Ball slices shading/depth',status='fixed_scope_remaining',detail='Shared triangle depth ordering, Cartesian normals/dull material/headlight ported; Gouraud/mean-depth approximations remain; native camera/Phong/depth-buffer pixels unqualified.',references=['src/chebfunjax/plotting.py','docs/ball_surface_rendering_cpu_20261011.json']),
- dict(issue='plotregion rho',status='fixed_scope_remaining',detail='Bounded scalar C1/C2 simplified-length radius and trig strips ported; singular/unbounded/array adapters not all source-backed.',references=['tests/test_plotregion_source_controls.py','tests/test_trig_plotregion_source.py']),
- dict(issue='complex ** Chebfun',status='source_present_original_requalification_open',detail='Chebfun.__rpow__ at3470; do not reimplement. This audit ran no predicate.',references=['src/chebfunjax/chebfun1d/chebfun.py']),
- dict(issue='Complex piecewise plot colors',status='fixed_scope_untested_original_complex',detail='One-function line grouping exists and real piecewise color-cycle control exists; original complex piecewise visual predicate not requalified here.',references=['tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py','src/chebfunjax/plotting.py']),
- dict(issue="roots ms ResultantMethod extras",status='remaining_original_example_untested',detail='21 source resultant/normalization controls passed after spy-only test correction; does not establish original multivariate ResultantMethod root-set parity.',references=['docs/roots_resultant_spy_cpu_20261016.json']),
- dict(issue='Disk Helmholtz k7',status='original_gate_present_runtime_unverified_here',detail='Original source wavenumber7 is active with disk L2 norm and original5e4*TOL, no xfail. Rank-cap controls are supplemental; ballfun shape-control evidence is unrelated. No exact current k7 result located by this audit.',references=['tests/test_matlab_port/diskfun/test_helmholtz_matlab.py','tests/test_diskfun/test_numeric_rank_capacity.py']),
- dict(issue='Complex Chebfun2 phase portrait',status='fixed_scope_remaining',detail='Public plotting phase CData route and independent source tests exist; whole-example raster parity unqualified.',references=['src/chebfunjax/chebfun2d/chebfun2.py','tests/test_chebfun2_phase_plot_source.py'])]
-next_tasks=[dict(priority=1,title='Finish explicit small Hermite ASY from native stages',source=['src/chebfunjax/utils/hermite_asy.py','src/chebfunjax/utils/quadrature.py'],data='Reuse preserved small-ASY native stage captures and failed38-case diagnostic; distinguish native n3 exception. Diagnose complex branch/derivative normalization operation order before any algorithm edit.',gate='Restore n2 and4..20 native outcomes without REC substitution, fixture fitting or original-bound changes. Retain ten failures and their historical non-original-bound erratum. Then run small strict controls plus original REC42/ASY251 gates under an approved bounded CPU plan.',why='Concrete unsupported public source branch with captured failing data; no need to repeat already qualified large-n fast implementation.'),dict(priority=2,title='Close inverse actual-example comparison before further optimization',source=['src/chebfunjax/chebfun1d/inverse.py','src/chebfunjax/tech/chebtech.py'],data='Freeze exact original ComplexArcLength formula/preferences and both native/current forward representations; separately replay identical retained forward coefficients. Capture construction/chopping lengths and 9052-vs-native representation divergence.',gate='Use original assertions where present and report raw errors otherwise. In fresh matched CPU processes separate setup, first inverse and warm medians; record host load, CPU affinity, backend, hashes and no survivors. Keep identical-input algorithm timing separate from literal-source end-to-end timing. No fitted degree or tolerance relaxation.',why='Latest speed evidence is descriptive and differs from earlier matched-formula warm benchmark; this distinguishes representation growth from compile/evaluation cost before spending effort on another optimization.')]
-refs=sorted(set(r for x in items for r in x['references'])|set(r for x in items for y in x.get('subitems',[]) for r in y['references']))
-manifest=[]
+import hashlib
+import json
+import pathlib
+import subprocess
+
+S = pathlib.Path("/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005")
+O = S / "handoff_section6_reconciliation_b16_20261017"
+P = S / "publication_checkout"
+B = "b16ad79596449a1dfe56704f8656e41766b0f301"
+U = f"https://github.com/ma-gilles/chebfunjax/blob/{B}/"
+items = []
+
+
+def add(n, title, status, fixed, remaining, refs):
+    items.append(
+        dict(
+            id=n,
+            title=title,
+            status=status,
+            fixed_scope=fixed,
+            remaining=remaining,
+            references=refs,
+        )
+    )
+
+
+add(
+    1,
+    "Inverse",
+    "fixed_scope_remaining",
+    "Pointwise-bisection/default-roots prescription is stale: public default Brent plus selectable roots/Newton/etc. Retained-input ordered Clenshaw changes preserve inverse bytes.",
+    "Actual latest inverse remains 9052 coefficients vs earlier native 8706. Current retained-input cold20.302/warm6.892s is descriptive shared-host evidence; earlier public flower warm .607s vs native .640s uses separately constructed representations and is not a latest matched speed gate. Full actual ComplexArcLength/native correctness and performance closure open.",
+    [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "src/chebfunjax/chebfun1d/inverse.py",
+        "docs/clenshaw_instruction_inverse_cpu_20261017.json",
+        "docs/inverse_public_cpu_benchmark_20261013.json",
+    ],
+)
+add(
+    2,
+    "Hermite quadrature",
+    "fixed_scope_remaining",
+    "GW-only/O(n^2) claim stale: REC/GLR/ASY/LAG implementations and default dispatch exist. Native original REC42/ASY251 final15 predicates covered by4 passing items; default/ASY 10000/100000 independently qualified.",
+    "Explicit ASY n2 and4..20 unsupported; n3 native concatenation failure must remain distinguished. Strict private small-ASY diagnostics have10 failures/38, not ten original MATLAB failures. Fast large-n matched CPU performance and full figure parity remain open.",
+    [
+        "src/chebfunjax/utils/quadrature.py",
+        "src/chebfunjax/utils/hermite_asy.py",
+        "docs/hermite_original_predicates_cpu_20261014.json",
+        "docs/hermite_small_asy_bounds_erratum_20261011.json",
+        "docs/hermite_full_cpu_20261010.json",
+        "HANDOFF_CODEX.md",
+    ],
+)
+add(
+    3,
+    "Complex ratinterp/poles",
+    "fixed_scope_remaining",
+    "Complex colleague coefficients retained and evaluator no longer discards imaginary input. JAX fitting gate25 retained+4 distinct backend cases; restored23 native clauses in15 focused cases.",
+    "General high-degree complex pole/residue matching, arbitrary-node symmetry sorting and near-multiple residue clustering unqualified. No fresh native execution in these gates; actual ThreeBodyProblem closure not established.",
+    [
+        "src/chebfunjax/utils/ratapprox.py",
+        "docs/ratinterp_jax_cpu_20261010.json",
+        "docs/ratinterp_native_predicates_cpu_20261011.json",
+    ],
+)
+add(
+    4,
+    "Complex periodic numeric Chebfun2",
+    "fixed_scope_remaining",
+    "O(1) construction failure superseded: four odd/even rectangular complex matrix native cases and four analytic controls pass; dense errors about5e-15.",
+    "Supplemental cases do not establish arbitrary matrix/native predicates or full GinzburgLandau evolution/pixel parity.",
+    [
+        "src/chebfunjax/chebfun2d/chebfun2.py",
+        "docs/complex_trig_matrix_native_cpu_20261016.json",
+        "docs/gl_public_spin2_cpu_20261013.json",
+    ],
+)
+add(
+    5,
+    "Indefinite and piecewise MINRES",
+    "fixed_scope_remaining",
+    "Earlier MINRES source ports and literal source operand restoration supersede stale recurrence diagnosis. Final piecewise block converges11 iterations, physical relative residual4.218264374610285e-12.",
+    "Full Krylov page/current native solution and performance comparison remains open. Direct70 comparison83.06s Python vs28.04s native is observational; endpoint physical residual is large in BOTH captures, so solver flag alone is insufficient.",
+    [
+        "docs/krylov_indefinite_native_cpu_20261013.json",
+        "docs/krylov_varcoeff_native_cpu_20261013.json",
+        "docs/krylov_final_source_cpu_20261017.json",
+        "docs/krylov_direct70_comparison_cpu_20261017.json",
+        "docs/krylov_scalar_ad_route_cpu_20261017.json",
+    ],
+)
+add(
+    6,
+    "Nonlinear Chebop/Carrier",
+    "fixed_scope_remaining",
+    "Finite scalar source Newton backend, session dimension/preference forwarding and iter text exist. Actual three Carrier solves completed; stale strict xfail removed without original predicate edits.",
+    "No fresh native all-three coefficient/output/table comparison; coupled/piecewise/display branches are not all covered. Legacy fallback still has refinement-history accumulation: do not declare every normDelta route repaired from scalar evidence.",
+    [
+        "src/chebfunjax/operators/chebop.py",
+        "docs/carrier_xpass_cpu_20261010.json",
+        "docs/carrier_source_output_figures_cpu_20261011.json",
+        "docs/scalar_newton_display_cpu_20261011.json",
+        "docs/newton_dimension_preference_cpu_20261011.json",
+    ],
+)
+add(
+    7,
+    "Splitting clustered breakpoints",
+    "fixed_scope_untested_examples",
+    "Bounded smooth constructorSplit now calls source-shaped _detect_edge_matlab with scales and source merge; stale _split_edge_fd helper has no call sites.",
+    "Source controls exist, but exact EdgeDetection/NoisyNonsmooth native breakpoint lists and full pages are not qualified by this audit. Source epsilon stopping alone is not proof of original example closure.",
+    [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "tests/test_chebfun1d/test_detect_edge_bounded_source_controls.py",
+        "tests/test_chebfun1d/test_constructor_split_scheduler_source_controls.py",
+    ],
+)
+add(
+    8,
+    "Ill-conditioned quasimatrix backslash",
+    "remaining",
+    "Native array QR/SVD representations and consumer paths qualified on48 unique focused IDs including original mldivide5/6.",
+    "Degree80 VandermondeArnoldi actual-example accuracy/native comparison remains unresolved; degree8/focused QR gates do not close original vscale discrepancy.",
+    [
+        "src/chebfunjax/chebfun1d/linalg.py",
+        "docs/chebtech_qr_reconstruction_cpu_20261010.json",
+        "HANDOFF_CODEX.md",
+    ],
+)
+add(
+    9,
+    "IVP one-piece construction",
+    "fixed_scope_remaining",
+    "Literal first IVPCapabilities solve now one smooth piece in both Python and pinned native.",
+    "Python length3881 vs native3765 and max sampled difference1.5258692087627423e-9 on5001 sites remain. No native example assertion exists to turn that into a fabricated pass bound. Solver-state/dense-interpolation/chopping and full outputs/figures/performance remain open.",
+    [
+        "docs/ivp_capabilities_first_solve_cpu_20261013.json",
+        "docs/ivp_capabilities_page_cpu_20261013.json",
+    ],
+)
+add(
+    10,
+    "ConformalL AAA spurious poles",
+    "fixed_scope_remaining",
+    "Historical cached27/44 counts are not current pinned native46/69. Source-shaped least squares full Python page gives46/67, boundary error5.1268e-7 vs fresh native5.1269765e-7; earlier exact native-input capture matches counts.",
+    "Inverse count67 vs69 and pole locations/ill-conditioned arithmetic remain different; no general AAA or full pixel parity closure. Do not fit cleanup to obsolete cached counts.",
+    [
+        "docs/conformal_l_native_cpu_20261013.json",
+        "docs/conformal_l_page_cpu_20261013.json",
+        "src/chebfunjax/utils/_basic_lstsq.py",
+    ],
+)
+add(
+    11,
+    "randnfun duplicate implementations",
+    "fixed_scope_remaining",
+    "Public cj.randnfun, utils.random and chebfun1d.randfuns delegate one _randnfun JAX engine; legacy utils.randnfun intentionally retains periodic .2 defaults. Shared construction/big normalization49-test package qualified.",
+    "Native normal RNG identity and historical random-page migration remain open; original aggregate injects primitive draws and does not establish native RNG. Current state agreement alone does not establish equal normal values. Malformed-input/empty-domain scope also remains.",
+    [
+        "src/chebfunjax/__init__.py",
+        "src/chebfunjax/utils/_randnfun.py",
+        "src/chebfunjax/utils/random.py",
+        "src/chebfunjax/utils/randnfun.py",
+        "src/chebfunjax/chebfun1d/randfuns.py",
+        "tests/test_utils/test_randnfun_source_construction.py",
+        "HANDOFF_CODEX.md",
+    ],
+)
+add(
+    12,
+    "spin2 public API",
+    "fixed_scope_remaining",
+    "operators.spinop2.spin2 returns Chebfun2/Spin2SolutionMatrix with multitime and return_times; GL initialization uses randnfun2. Existing public API used by actual GinzburgLandau run.",
+    "Graphics are explicitly unimplemented; inherited numeric constructor has NumPy internals. Late evolution/native RNG/pixel parity unresolved. Separate spin.solver2d array API remains; namespace-specific contracts must be tested separately.",
+    [
+        "src/chebfunjax/operators/spinop2.py",
+        "src/chebfunjax/operators/_spin2_public.py",
+        "src/chebfunjax/spin/solver2d.py",
+        "tests/test_spin/test_spin2_source_outputs.py",
+        "docs/gl_public_spin2_cpu_20261013.json",
+        "docs/gl_evolution_roundoff_cpu_20261013.md",
+    ],
+)
+add(
+    13,
+    "Smaller issues",
+    "mixed_remaining_untested",
+    "__rpow__ exists; plotregion bounded Chebtech/Trigtech uses source data; complex Chebfun2 phase portrait exists; plotting combines function pieces into one line group.",
+    "See all eight subitems below; no blanket closure.",
+    [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "src/chebfunjax/plotting.py",
+        "tests/test_plotregion_source_controls.py",
+        "tests/test_trig_plotregion_source.py",
+        "tests/test_chebfun2_phase_plot_source.py",
+        "tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py",
+    ],
+)
+items[-1]["subitems"] = [
+    dict(
+        issue="Spherefun.max2 even-function antipode",
+        status="untested_original_tie",
+        detail="max2 delegates minandmax2 optimization. Empty/extrema coverage is not a captured even-function tie-location proof.",
+        references=[
+            "src/chebfunjax/spherefun/spherefun.py",
+            "docs/sphere_extrema_empty_source_cpu_20261014.json",
+        ],
+    ),
+    dict(
+        issue="Ball slices shading/depth",
+        status="fixed_scope_remaining",
+        detail="Shared triangle depth ordering, Cartesian normals/dull material/headlight ported; Gouraud/mean-depth approximations remain; native camera/Phong/depth-buffer pixels unqualified.",
+        references=["src/chebfunjax/plotting.py", "docs/ball_surface_rendering_cpu_20261011.json"],
+    ),
+    dict(
+        issue="plotregion rho",
+        status="fixed_scope_remaining",
+        detail="Bounded scalar C1/C2 simplified-length radius and trig strips ported; singular/unbounded/array adapters not all source-backed.",
+        references=[
+            "tests/test_plotregion_source_controls.py",
+            "tests/test_trig_plotregion_source.py",
+        ],
+    ),
+    dict(
+        issue="complex ** Chebfun",
+        status="source_present_original_requalification_open",
+        detail="Chebfun.__rpow__ at3470; do not reimplement. This audit ran no predicate.",
+        references=["src/chebfunjax/chebfun1d/chebfun.py"],
+    ),
+    dict(
+        issue="Complex piecewise plot colors",
+        status="fixed_scope_untested_original_complex",
+        detail="One-function line grouping exists and real piecewise color-cycle control exists; original complex piecewise visual predicate not requalified here.",
+        references=[
+            "tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py",
+            "src/chebfunjax/plotting.py",
+        ],
+    ),
+    dict(
+        issue="roots ms ResultantMethod extras",
+        status="remaining_original_example_untested",
+        detail="21 source resultant/normalization controls passed after spy-only test correction; does not establish original multivariate ResultantMethod root-set parity.",
+        references=["docs/roots_resultant_spy_cpu_20261016.json"],
+    ),
+    dict(
+        issue="Disk Helmholtz k7",
+        status="original_gate_present_runtime_unverified_here",
+        detail="Original source wavenumber7 is active with disk L2 norm and original5e4*TOL, no xfail. Rank-cap controls are supplemental; ballfun shape-control evidence is unrelated. No exact current k7 result located by this audit.",
+        references=[
+            "tests/test_matlab_port/diskfun/test_helmholtz_matlab.py",
+            "tests/test_diskfun/test_numeric_rank_capacity.py",
+        ],
+    ),
+    dict(
+        issue="Complex Chebfun2 phase portrait",
+        status="fixed_scope_remaining",
+        detail="Public plotting phase CData route and independent source tests exist; whole-example raster parity unqualified.",
+        references=[
+            "src/chebfunjax/chebfun2d/chebfun2.py",
+            "tests/test_chebfun2_phase_plot_source.py",
+        ],
+    ),
+]
+next_tasks = [
+    dict(
+        priority=1,
+        title="Finish explicit small Hermite ASY from native stages",
+        source=["src/chebfunjax/utils/hermite_asy.py", "src/chebfunjax/utils/quadrature.py"],
+        data="Reuse preserved small-ASY native stage captures and failed38-case diagnostic; distinguish native n3 exception. Diagnose complex branch/derivative normalization operation order before any algorithm edit.",
+        gate="Restore n2 and4..20 native outcomes without REC substitution, fixture fitting or original-bound changes. Retain ten failures and their historical non-original-bound erratum. Then run small strict controls plus original REC42/ASY251 gates under an approved bounded CPU plan.",
+        why="Concrete unsupported public source branch with captured failing data; no need to repeat already qualified large-n fast implementation.",
+    ),
+    dict(
+        priority=2,
+        title="Close inverse actual-example comparison before further optimization",
+        source=["src/chebfunjax/chebfun1d/inverse.py", "src/chebfunjax/tech/chebtech.py"],
+        data="Freeze exact original ComplexArcLength formula/preferences and both native/current forward representations; separately replay identical retained forward coefficients. Capture construction/chopping lengths and 9052-vs-native representation divergence.",
+        gate="Use original assertions where present and report raw errors otherwise. In fresh matched CPU processes separate setup, first inverse and warm medians; record host load, CPU affinity, backend, hashes and no survivors. Keep identical-input algorithm timing separate from literal-source end-to-end timing. No fitted degree or tolerance relaxation.",
+        why="Latest speed evidence is descriptive and differs from earlier matched-formula warm benchmark; this distinguishes representation growth from compile/evaluation cost before spending effort on another optimization.",
+    ),
+]
+refs = sorted(
+    set(r for x in items for r in x["references"])
+    | set(r for x in items for y in x.get("subitems", []) for r in y["references"])
+)
+manifest = []
 for r in refs:
- b=subprocess.check_output(['git','show',B+':'+r],cwd=P)
- manifest.append(dict(path=r,url=U+r,git_blob=subprocess.check_output(['git','rev-parse',B+':'+r],cwd=P,text=True).strip(),sha256=hashlib.sha256(b).hexdigest()))
-report=dict(base_commit=B,native_pin='7574c77680d7e82b79626300bf255498271a72df',scope='Read-only source/evidence reconciliation, no tests/imports/native/numerical jobs. Historical qualification applies to recorded source versions, not a fresh b16 all-issues gate. Upcoming CI-only changes do not alter library.',classification='fixed_scope means only stated source/scientific scope; remaining and untested clauses are not closed',issues=items,next_two_tasks=next_tasks,immutable_references=manifest)
-(O/'REPORT.json').write_text(json.dumps(report,indent=2)+'\n')
-lines=['# Original HANDOFF §6 reconciliation',f'\nSource: `{B}`; MATLAB pin7574c77. Read-only audit; no numerical jobs. Scoped fixes do not imply full original-example closure.','\n## Checklist\n']
+    b = subprocess.check_output(["git", "show", B + ":" + r], cwd=P)
+    manifest.append(
+        dict(
+            path=r,
+            url=U + r,
+            git_blob=subprocess.check_output(
+                ["git", "rev-parse", B + ":" + r], cwd=P, text=True
+            ).strip(),
+            sha256=hashlib.sha256(b).hexdigest(),
+        )
+    )
+report = dict(
+    base_commit=B,
+    native_pin="7574c77680d7e82b79626300bf255498271a72df",
+    scope="Read-only source/evidence reconciliation, no tests/imports/native/numerical jobs. Historical qualification applies to recorded source versions, not a fresh b16 all-issues gate. Upcoming CI-only changes do not alter library.",
+    classification="fixed_scope means only stated source/scientific scope; remaining and untested clauses are not closed",
+    issues=items,
+    next_two_tasks=next_tasks,
+    immutable_references=manifest,
+)
+(O / "REPORT.json").write_text(json.dumps(report, indent=2) + "\n")
+lines = [
+    "# Original HANDOFF §6 reconciliation",
+    f"\nSource: `{B}`; MATLAB pin7574c77. Read-only audit; no numerical jobs. Scoped fixes do not imply full original-example closure.",
+    "\n## Checklist\n",
+]
 for x in items:
- lines += [f"- **{x['id']}. {x['title']} — {x['status']}**. {x['fixed_scope']} Remaining: {x['remaining']}", '  Evidence: '+', '.join(f'[{p}]({U+p})' for p in x['references'] if p.startswith('docs/'))+'.']
- for y in x.get('subitems',[]):lines +=[f"  - {y['issue']}: **{y['status']}**. {y['detail']}"]
-lines+=['\n## Next two packages\n']
-for t in next_tasks:lines += [f"{t['priority']}. **{t['title']}**. {t['why']} Data/source: {t['data']} Gate/benchmark: {t['gate']}"]
-lines+=['\nJSON includes exact Git blob IDs and SHA256 for every referenced source/evidence file. Historical evidence remains scoped to its recorded inputs. No full issue or goal completion claim.']
-(O/'REPORT.md').write_text('\n'.join(lines)+'\n')
-print(json.dumps(dict(issues=len(items),references=len(manifest),path=str(O))))
+    lines += [
+        f"- **{x['id']}. {x['title']} — {x['status']}**. {x['fixed_scope']} Remaining: {x['remaining']}",
+        "  Evidence: "
+        + ", ".join(f"[{p}]({U + p})" for p in x["references"] if p.startswith("docs/"))
+        + ".",
+    ]
+    for y in x.get("subitems", []):
+        lines += [f"  - {y['issue']}: **{y['status']}**. {y['detail']}"]
+lines += ["\n## Next two packages\n"]
+for t in next_tasks:
+    lines += [
+        f"{t['priority']}. **{t['title']}**. {t['why']} Data/source: {t['data']} Gate/benchmark: {t['gate']}"
+    ]
+lines += [
+    "\nJSON includes exact Git blob IDs and SHA256 for every referenced source/evidence file. Historical evidence remains scoped to its recorded inputs. No full issue or goal completion claim."
+]
+(O / "REPORT.md").write_text("\n".join(lines) + "\n")
+print(json.dumps(dict(issues=len(items), references=len(manifest), path=str(O))))
