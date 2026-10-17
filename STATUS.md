@@ -1,3 +1,17 @@
+## Native ode113 output callbacks — 2026-10-16
+
+Native ode113 now supports OutputFcn, one-based OutputSel and Refine, with JAX
+interpolation and eager callbacks. Captures cover nine backend and five public
+wrapper cases, including selected/reordered components, requested times, reverse
+integration, stop/event/exception lifecycle and source restart behavior.
+All76CPU integration tests pass (15new/61existing); guards stable/no survivors.
+A public replay initially used a rank-one query against a native row matrix;
+matching its exact input rank fixed the test without changing oracles or bounds.
+No numerical stepping or public restart/event policy changes. Source outside-
+interval errors after callback stop are preserved. Full solver options, general
+PDE systems and full parity/green latest-main CI remain open. Evidence:
+`docs/ode113_outputfcn_source_cpu_20261016.json`.
+
 ## Complex periodic matrix constructor native qualification — 2026-10-16
 
 Four odd/even rectangular complex numeric matrices now have direct captures from

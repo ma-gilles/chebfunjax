@@ -432,7 +432,8 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
 
     Produces the one-output solver structure consumed by public ODESOL.
     Unsupported options reject explicitly; this initial backend does not
-    implement mass/NonNegative/output callbacks. Native events use the Adams
+    implement mass/NonNegative. Output callbacks run in the eager controller;
+    their selected values use the same JAX Adams interpolant. Native events use the Adams
     interpolant and terminal-history rebasing. max_steps is
     a Python resource cap, not a MATLAB algorithm parameter. The adaptive
     driver is eager; each accepted/rejected step and dense evaluation are JAX.
@@ -448,7 +449,8 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
     if not jax.config.x64_enabled:
         raise ValueError("native ode113 port requires JAX x64")
     options = {} if options is None else dict(options)
-    known = {"RelTol", "AbsTol", "InitialStep", "MaxStep", "MinStep", "NormControl", "Events"}
+    known = {"RelTol", "AbsTol", "InitialStep", "MaxStep", "MinStep", "NormControl", "Events",
+             "OutputFcn", "OutputSel", "Refine"}
 
     def empty(v):
         return (
@@ -477,6 +479,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
     if y.ndim != 1 or y.size == 0 or not bool(jnp.all(jnp.isfinite(y))):
         raise ValueError("native ode113 requires a finite initial state vector")
     y = y.astype(jnp.complex128 if jnp.iscomplexobj(y) else jnp.float64)
+
 
     rhs = _prepare_rhs(odefun) if _prepared_rhs is None else _prepared_rhs
 
@@ -571,6 +574,28 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
         zero,
         jnp.asarray(False),
     )
+    output = opt("OutputFcn", None)
+    if output is not None and not callable(output):
+        raise ValueError("OutputFcn must be callable")
+    outputs = jnp.arange(y.size)
+    if output is not None and not empty(options.get("OutputSel")):
+        selection = jnp.asarray(options["OutputSel"]).reshape(-1, order="F")
+        if jnp.issubdtype(selection.dtype, jnp.bool_):
+            outputs = jnp.nonzero(selection)[0]
+        else:
+            if not bool(jnp.all(jnp.isfinite(selection) & (selection == jnp.floor(selection)))):
+                raise ValueError("OutputSel must contain integer indices")
+            if not bool(jnp.all((selection >= 1) & (selection <= y.size))):
+                raise ValueError("OutputSel index outside state vector")
+            outputs = selection.astype(jnp.int32) - 1
+        if not bool(jnp.all((outputs >= 0) & (outputs < y.size))):
+            raise ValueError("OutputSel index outside state vector")
+    # Source clamps Refine to at least one and uses (1:refine-1)/refine.
+    refine = max(1.0, float(opt("Refine", 1)))
+    if not bool(jnp.isfinite(refine)):
+        raise ValueError("Refine must be finite")
+    next_output = 1
+
     from chebfunjax.utils.native_ode_events import _event_values, locate_events
 
     event = opt("Events", None)
@@ -579,6 +604,10 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
         if not callable(event):
             raise ValueError("Events must be callable")
         event_value = _event_values(event, state.t, state.y)[0]
+    if output is not None:
+        # Native init has a row of endpoints and a selected initial column;
+        # its return value is deliberately ignored.
+        output(span[jnp.asarray([0, span.size - 1])][None, :], y[outputs, None], "init")
     history = [state]
     for _ in range(max_steps):
         previous = state
@@ -604,6 +633,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
             break
         if bool(invalid):
             raise RuntimeError("native ode113 encountered nonfinite RHS/state")
+        event_stopped = False
         if event is not None:
             te, ye, ie, event_value, stopped = locate_events(
                 event, event_value, previous.t, previous.y, state.t, state.y, t0,
@@ -614,11 +644,44 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
             event_indices.extend(ie)
             if stopped:
                 state = _truncate_at_event(previous, state, te[-1], ye[-1])
+                event_stopped = True
         history.append(state)
-        if bool(state.done):
+        output_stopped = False
+        if output is not None:
+            if span.size > 2:
+                requested = []
+                while next_output < span.size:
+                    if direction * float(state.t - span[next_output]) < 0:
+                        if event_stopped:
+                            requested.append(state.t)
+                        break
+                    requested.append(span[next_output])
+                    next_output += 1
+                output_times = jnp.stack(requested) if requested else jnp.empty(0)
+            elif refine > 1:
+                interior = previous.t + (state.t - previous.t) * (
+                    jnp.arange(1, int(refine), dtype=jnp.float64) / refine
+                )
+                output_times = jnp.concatenate((interior, state.t[None]))
+            else:
+                output_times = state.t[None]
+            if output_times.size:
+                output_values = _ntrp113(
+                    output_times, state.t, state.y, state.klast, state.phi, state.psi
+                )
+                output_values = jnp.where(
+                    (output_times == state.t)[None, :], state.y[:, None], output_values
+                )
+                stop = output(output_times[None, :], output_values[outputs, :], "")
+                output_stopped = False if empty(stop) else bool(jnp.all(jnp.asarray(stop)))
+        if bool(state.done) or output_stopped:
             break
     else:
         raise RuntimeError("native ode113 exceeded Python max_steps resource cap")
+    if output is not None:
+        # Source finalizes normal/stop/event/minimum-step returns, but does not
+        # synthesize a done callback when validation, RHS or user code raises.
+        output(jnp.empty((0, 0)), jnp.empty((0, 0)), "done")
     mesh, values, orders, phis, psis = _assemble_history(history)
 
     @partial(jax.jit, static_argnames=("return_derivative",))
@@ -680,7 +743,7 @@ def native_ode113(odefun, tspan, y0, options=None, *, max_steps=100000,
             "nfevals": int(state.nfev),
             "tfinal": float(mesh[-1]),
         },
-        "scope": "finite one-output native Adams; mass/nonnegative/output callbacks unported",
+        "scope": "finite one-output native Adams; mass/nonnegative unported",
     }
 
     if event is not None:

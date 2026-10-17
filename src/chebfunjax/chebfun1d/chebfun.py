@@ -12719,7 +12719,7 @@ def _ode_solve(method, odefun, tspan, y0, options=None, *, rtol=None,
     if native_selected:
         supported = {'RelTol', 'AbsTol', 'InitialStep', 'MaxStep', 'MinStep', 'NormControl'}
         if method == 'ode113':
-            supported.add('Events')
+            supported.update({'Events', 'OutputFcn', 'OutputSel', 'Refine'})
         for name, value in opts.items():
             if name not in supported | {'restartSolver', 'happinessCheck'} and not empty(value):
                 raise NotImplementedError(f'native {method} option {name} is not yet implemented')

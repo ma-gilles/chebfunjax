@@ -1,0 +1,93 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b Update2, CPU, singleCompThread",
+  "capture_sources": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "sources": [
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/ode113.m",
+        "sha256": "fca9a60183549a3850802007a6fbf9a47cab443110ae02d4944c17f610d54ec0"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/constructODEsol.m",
+        "sha256": "7243bc23ec7b322c111bfcfe9d1a366dabd85fcd3c0c51b71070bdd8d4f3d36f"
+      },
+      {
+        "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/ode113.m",
+        "sha256": "8b137fe3a836725e5503829bb3a9636c830919944f3b637ab826f194cdbcaee9"
+      },
+      {
+        "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/odeset.m",
+        "sha256": "a0a35ec47c4775ce501b11146ef657c709018406e5f623c992ba0a7da1dc7f4e"
+      },
+      {
+        "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odefinalize.m",
+        "sha256": "1fb9f2870c87102c42d172cb97efec5cb9c58799d13310416ea28c1ae8f2bd14"
+      },
+      {
+        "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odearguments.m",
+        "sha256": "453659846f9a461918f6a217bfb08abe2c3ecd0d07e17259a7019158184443f3"
+      },
+      {
+        "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp113.m",
+        "sha256": "69da58404189f03f3ae608f9cc02ac5c3ecc1593defd951714265f8e789fd560"
+      },
+      {
+        "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/odesol.m",
+        "sha256": "5c0dbb97b42d097f2b55322273265b80c78b6f2bb11e544e3da2ad916ccc9066"
+      }
+    ]
+  },
+  "raw_output_sha256": {
+    "refined_selected_callbacks.json": "a1b17cf7400b6cb432f745cf572abc4dc5fd082cad9ece8942057e19ae3ff5f4",
+    "wrapper_stop.mat": "661bf25e133f03ac4e898fe71c59fb4237780575dcb2d28d369da188561eadda",
+    "wrapper_stop.json": "35738a8293b755992752ac5d5cb889faed2608c7bac7da1ba5e5fdacb2da9586",
+    "wrapper_event_callbacks.json": "a81bd7c87d09f631e5a4fbfc6134837995f1080c5c4ea2a7d7aa073ebed4ee95",
+    "requested_stop.json": "70621d9e0750b98777825229e98e6d484e429cddb3653503e0f628d311bcc56d",
+    "event_requested_callbacks.json": "edad3826c4d52126da0c6b92143e348d30e797e18e93653921fad43ed112491e",
+    "refined_selected.json": "8a27004b7d516a32530839cd610ba51a567482e5832b07d5edb1137e9b0d6133",
+    "forward_callbacks.json": "7eb400d5b6993dc3fdcce2ebe439d911c3d568bb93d9ca82ecf558b9aa244867",
+    "wrapper_event.mat": "115b3aa6de6d0f95da4140668849fb773c3c3bc2a57665abfb22dea4a9f76b71",
+    "reverse_callbacks.json": "53470f555efb070d1e4495a5be498f42c618573ff6384d886621a6dc3fdca84f",
+    "init_return.json": "26696327714be9eb72e9e94f4f49adc112679505fb59d57c9d13ddb4204490ad",
+    "requested.json": "7b577d01b8a6fa02ea90c88cc4dd329a333586435ba227adbee4aa67a1215fcb",
+    "wrapper_event.json": "96039693a7e7a6f22b5a01483ab3fe98cc3df7e860b9268e7af0be6c0af05315",
+    "wrapper_normal_callbacks.json": "a1b17cf7400b6cb432f745cf572abc4dc5fd082cad9ece8942057e19ae3ff5f4",
+    "wrapper_normal.mat": "853e401fe800b99f8976dfb1e453f7cbb2d22e905374087bd67e6838918a3cac",
+    "wrapper_restart_stop_callbacks.json": "ea33c46978e0247e02d08cd78b6f91f1fb33c7c4b83e3f8e2a69c7d91447073f",
+    "requested_callbacks.json": "e3f9eec896774bd4a99d07436e23b49691f59331c21d3309f5a3589ce1c03aef",
+    "init_return.mat": "a50a829d284b949903f8fa03b8840ea7cc740ebb7d746c9ded0e6cdb7c3c1987",
+    "requested_stop_callbacks.json": "13f3ee075db2632a557b60ba2f10e4a3b9cd1112673a5efe6c1008896cac2701",
+    "reverse.json": "5d946fda3cce0b420d3d10be164e31d53828f83a02e60d5137631b3c6239668c",
+    "stop.mat": "ff49c6302340a3c74c3f0a705d4d161599046e2a28f57e266c80f12645180d88",
+    "throw.json": "03f0a6628d3801c043c3979a566a695fa97e0c52d3d3ec13f22b9e620a6eb05d",
+    "event_requested.mat": "1e3c782c4698c68210c8bc0e3e3b3e7c7c8205637746d010a2eb6944a0938bda",
+    "throw_callbacks.json": "ee0fa97d1147487380f1bfd5ef3b5267f9b7bf7e17e980dd6b742d6d019d4518",
+    "reverse.mat": "53929b1ce0b8ff22057227637ecbec8d8848a13883a43bc27b40de82456c27ab",
+    "requested_stop.mat": "28565286608befe9b10c81a452e730489488873699d991aeb32cedf66b43de0f",
+    "forward.json": "dd9389d064b4b277403de75e545d113f9e7b24ec4a140096af7a44589808bf5e",
+    "wrapper_no_restart_stop.mat": "15b637b5d14a6f5f3950b73813b99cb06e16a23b899e7523311df8974456dd76",
+    "wrapper_stop_callbacks.json": "435a64cc82a61fb06f332b38340ce929895342dbc42726f1f759db57de4697a1",
+    "wrapper_no_restart_stop.json": "3de37ea1daf6801e36a07a86042e9e5052823ece9a13cc99d15df2e5eacc3192",
+    "wrapper_normal.json": "5f2e90bed040696e1605b045222316500284fb30091c757917cc84dfcf9d96ca",
+    "wrapper_restart_stop.mat": "7bff82bb0936d115c75179144db048f5eb4dafe830d2f342b48990f4488f4055",
+    "init_return_callbacks.json": "1adec48998bd6bdbcec1f321161d913bdefff713589f1d30ae1e65349865bb21",
+    "refined_selected.mat": "4c8f08d1508eda02b52e5074031822d67f00323eaa9ed1ad36eac5d2bc51edd5",
+    "requested.mat": "856b8b9ae9e7cb2bfd99db5a956f50a75745fc8ce15707766e1b87ef2020f795",
+    "wrapper_restart_stop.json": "1aed8a56bd827dc98ffd9760c03f62e2bb72a6bb16bb7d0e7088658831fb1df1",
+    "wrapper_no_restart_stop_callbacks.json": "f0c601e04bc7e08654caf3c9c1ace569861d8f8e32f3cd1d94f82cfc5916661b",
+    "metadata.json": "cb49a93055814366e548f36511976039bf911a99a3bb44693d7484fb3d0a0f4e",
+    "forward.mat": "3b0260f64bd2582131542de944d5275e34e39b12f4fa8123d3a2e4ff0321bbca",
+    "throw.mat": "4992fb8d7ec1a499367f07c9ba56b41c62d1d0e08da5c5b8f51c83e5bc99db82",
+    "stop.json": "0addec139f7bfb17f0b2cdfb7b21290a5ae935dff7605428907b65f77a68f5b3",
+    "summary.json": "b82cbf8e4ac4994760abaa06d21edf882e561421b676bad18a47f79978c81230",
+    "event_requested.json": "5cd249b608a83fc7ffb6d939fb1c332ff15f5fb8a83cefc54173be3684bb5e0b",
+    "stop_callbacks.json": "2a906a7471051371f3b8e7a70d90c1eadb52000f54acea884e4064de7be10cee"
+  },
+  "cases": 14,
+  "backend_cases": 9,
+  "public_wrapper_cases": 5,
+  "native_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ode113_outputfcn_capture_run_20261016",
+  "replay": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ode113_outputfcn_integration_gate_v2_20261016",
+  "scope": "Supplemental callback semantics; not every ODE option or every ode113/native solver assertion. MATLAB row query has exact rank2 counterpart in Python tests."
+}
