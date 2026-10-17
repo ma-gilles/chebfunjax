@@ -1,0 +1,34 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "Diagnostic evidence only; correctness gaps remain open; no production fallback or tolerance change",
+  "pde": {
+    "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731",
+    "report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_initial_crossreplay_20261017/CAUSAL_REPORT.json",
+    "report_sha256": "6cf26aff32f41e1f601310a1ccf531363b0ae0909f3d78ec59343d12a52b3070",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_initial_transform_causal_20261017.tar.gz",
+    "archive_sha256": "3ce31419dec737df6054c3fa051164f7aa89f43db520ab7fc726eb9f58a3b24b",
+    "finding": "Same native-built initial coefficients succeed in both runtimes; same Python-built coefficients fail in both. Actual nodes and sin samples match bits,10of22coefficients differ\u22641.11e-16 after transform. Authored fixed48 CI assertion, not a literal original MATLAB test.",
+    "next_required_evidence": "Faithful general transform arithmetic or another evidenced source fault; native intermediate data remain diagnostic only, never production substitution."
+  },
+  "hermite": {
+    "review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_internal_provider_20261017/REVIEW.json",
+    "review_sha256": "ee254cae8c33d331acc40373378c98aca8c9c2e3e07e98dabb3821d35f28e8bf",
+    "finding": "Zero helper records inside stage labels; four public outputs remain bit-neutral. Callbacks discard other stages, so no internal provider attribution or oracle exists.",
+    "next_required_evidence": "Actual executed primitive route and unchanged source behavior; repeated formula sweeps have not supplied this."
+  },
+  "rational": {
+    "source_base": "d365d541fa85837910eef34bb802e11ad4df72cb",
+    "report": "docs/ratinterp_complex_stages_cpu_20261017.json",
+    "report_sha256": "99b61f25789a0da93f9af8dab38d10db1023d2821308c921d07e0b9129413d80",
+    "finding": "Exact same302nodes/samples; D differs\u22644.44e-16, assembledZ\u22641.69e-16, final pole delta\u22481.04e-4. Native-Z\u2192JAX SVD reduces aligned denominator delta1.37e-5\u21925.74e-12. Literal general-complex IFFT is not an improvement.",
+    "next_required_evidence": "If pursuing finer attribution, capture native diag(f)*D before IFFT; no current basis to rewrite fitting/roots or remove conjugacy handling.",
+    "limits": [
+      "Native uses an external exact pinned ratinterp copy with save-only checkpoints, not an independently repeated uninstrumented neutrality run.",
+      "Same native D does not certify full diag(f)*D product bit equality: native intermediate product was not captured. Next localization, if pursued, requires saved native product before IFFT, not a provider sweep.",
+      "Native selected source files and fixture are frozen; not all licensed runtime dependencies.",
+      "Crossfeed uses native intermediates diagnostically only, never as production fallback.",
+      "Only first six-output fit studied. Seven-output high-degree residues and actual forward ODE accuracy remain open.",
+      "Whole-matrix ts differs2e-28 despite exact complex samples; all robustification degree decisions agree."
+    ]
+  }
+}

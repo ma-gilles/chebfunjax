@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Pair all ten original sphere optimization predicates; four Python nodes include two bounded even-polynomial controls. Same maximum antipode in both captures, no code/tolerance change. [Evidence](sphere_extrema_tie_cpu_20261017.json). Historical unspecified operand remains unqualified.
+- [ ] Resolve transform-sensitive PDE, Hermite and complex-rational paths; [source-bound diagnosis](numerical_parity_gaps_20261017.md) records what is known and which evidence is missing.
+
 - [x] Repartition 3D CI from five to eight fresh-file shards after the prior90-minute cancellation. All155files and771collected nodes remain disjoint/exhaustive; six process-protocol controls pass. Job90-minute and per-test900-second limits unchanged. [Evidence](ci_3d_repartition_cpu_20261017.json).
 - [ ] Actual latest-main CI runtime, scientific assertions and coverage; collection alone does not qualify those.
 

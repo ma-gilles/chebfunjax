@@ -166,6 +166,11 @@
       "scope": "39 Python nodes; native factory ten branches/seven errors and original cell2quasi predicate; three original Chebfun2 integral2 predicates; inherited representation/API gaps open",
       "sha256": "2a53ee2a03bb275968bb42cb86b259179daf4bc935e66395426de4456c17639d"
     },
+    "ratinterp_complex_stages_cpu_20261017": {
+      "path": "docs/ratinterp_complex_stages_cpu_20261017.json",
+      "scope": "Same-input first-fit diagnosis only; no algorithm fix/whole-page or residue parity",
+      "sha256": "99b61f25789a0da93f9af8dab38d10db1023d2821308c921d07e0b9129413d80"
+    },
     "reference_figure_dimensions_43e5_20261017": {
       "captured_audit_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/all_reference_figure_dimensions_43e5_20261017.json",
       "dimensions_match": 1305,
@@ -199,6 +204,11 @@
       "recorded_source_commit": "43e5a5b7bf3e1daa7bf9b83034789dec247f58c4",
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
+    },
+    "sphere_extrema_tie_cpu_20261017": {
+      "path": "docs/sphere_extrema_tie_cpu_20261017.json",
+      "scope": "Ten original sphere optimization predicates and two bounded even-polynomial authored controls; no general antipode closure",
+      "sha256": "aac8ce2005c56808ead96332b59df98ce96aaa5fab1026c2e305b50724524593"
     },
     "spin_complex_integration_cpu_20261017": {
       "archive": {
@@ -83878,7 +83888,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sphere_extrema_tie_cpu_20261017",
+          "scope": "All10default original predicates and two bounded even-polynomial controls only; full API/tie behavior unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -83986,7 +84001,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sphere_extrema_tie_cpu_20261017",
+          "scope": "All10default original predicates and two bounded even-polynomial controls only; full API/tie behavior unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -84004,7 +84024,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sphere_extrema_tie_cpu_20261017",
+          "scope": "All10default original predicates and two bounded even-polynomial controls only; full API/tie behavior unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -123696,7 +123721,12 @@
         "tests/test_matlab_port/diskfun/test_optimization_matlab.py",
         "tests/test_matlab_port/spherefun/test_optimization_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sphere_extrema_tie_cpu_20261017",
+          "scope": "All10default original predicates and two bounded even-polynomial controls only; full API/tie behavior unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -123711,7 +123741,23 @@
       "sha256": "a103a0c985d1211c6b5d1d3ed599f79b96b476a1b627dc2426a6d40bd7a67ee7",
       "source": "tests/spherefun/test_optimization.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "sphere_extrema_tie_cpu_20261017",
+          "forward_bridge": "All production source and original module bytes equal at currentca97",
+          "invocation": "test_optimization()",
+          "original_ids": "1-10",
+          "predicates_native": 10,
+          "predicates_python_mapped": 10,
+          "python_source": "tests/test_matlab_port/spherefun/test_optimization_matlab.py",
+          "python_source_sha256": "cc54a8ca41619275d8fecd0b83a1f1f55f84f8c2c04215a61f24c4d0f27abd94",
+          "qualification_limit": "Default native preferences with Optimization Toolbox; ten originals only, not every extrema/tie/API case.",
+          "scope_id": "sphere_optimization_original_default_1_10",
+          "source_base": "d0b7ffe0da8cf19be0a356bf00898c19af87a227",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

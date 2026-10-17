@@ -1,0 +1,431 @@
+{
+  "source_head": "d365d541fa85837910eef34bb802e11ad4df72cb",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "case": "Exact retained first ThreeBody fit, m151/n150/tol1e-12, complex415coeff input; no ODE or whole-page rerun",
+  "comparison": {
+    "samples": {
+      "f": {
+        "shape": [
+          302
+        ],
+        "max_abs": 0.0,
+        "exact_elements": 302,
+        "elements": 302,
+        "bit_equal": true
+      },
+      "xi": {
+        "shape": [
+          302
+        ],
+        "max_abs": 0.0,
+        "exact_elements": 302,
+        "elements": 302,
+        "bit_equal": true
+      }
+    },
+    "assembly": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 1.6905735323061084e-16,
+      "exact_elements": 0,
+      "elements": 45602,
+      "bit_equal": false
+    },
+    "D": {
+      "shape": [
+        302,
+        302
+      ],
+      "max_abs": 4.440892098500626e-16,
+      "exact_elements": 36396,
+      "elements": 91204,
+      "bit_equal": false
+    },
+    "flags": {
+      "ts": {
+        "shape": [],
+        "max_abs": 2.0194839173657902e-28,
+        "exact_elements": 0,
+        "elements": 1,
+        "bit_equal": false
+      },
+      "fEven": {
+        "shape": [],
+        "max_abs": 0.0,
+        "exact_elements": 1,
+        "elements": 1,
+        "bit_equal": false
+      },
+      "fOdd": {
+        "shape": [],
+        "max_abs": 0.0,
+        "exact_elements": 1,
+        "elements": 1,
+        "bit_equal": false
+      }
+    },
+    "svd": [
+      {
+        "n": 10,
+        "singular_values": {
+          "shape": [
+            11
+          ],
+          "max_abs": 2.4200843033798632e-17,
+          "exact_elements": 0,
+          "elements": 11,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            11
+          ],
+          "max_abs": 2.3812685170668406e-05,
+          "exact_elements": 0,
+          "elements": 11,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 11,
+        "singular_values": {
+          "shape": [
+            12
+          ],
+          "max_abs": 2.1633664673662097e-17,
+          "exact_elements": 0,
+          "elements": 12,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            12
+          ],
+          "max_abs": 7.815776131977113e-05,
+          "exact_elements": 0,
+          "elements": 12,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 12,
+        "singular_values": {
+          "shape": [
+            13
+          ],
+          "max_abs": 3.025359489109005e-17,
+          "exact_elements": 0,
+          "elements": 13,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            13
+          ],
+          "max_abs": 5.904902024416152e-05,
+          "exact_elements": 0,
+          "elements": 13,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 14,
+        "singular_values": {
+          "shape": [
+            15
+          ],
+          "max_abs": 3.5692751322274343e-17,
+          "exact_elements": 0,
+          "elements": 15,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            15
+          ],
+          "max_abs": 0.00041100905920110045,
+          "exact_elements": 0,
+          "elements": 15,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 150,
+        "singular_values": {
+          "shape": [
+            150
+          ],
+          "max_abs": 5.551115123125783e-16,
+          "exact_elements": 0,
+          "elements": 150,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            151
+          ],
+          "max_abs": 0.19836775967099177,
+          "exact_elements": 0,
+          "elements": 151,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 17,
+        "singular_values": {
+          "shape": [
+            18
+          ],
+          "max_abs": 4.144799555689269e-17,
+          "exact_elements": 0,
+          "elements": 18,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            18
+          ],
+          "max_abs": 0.003993611444082561,
+          "exact_elements": 0,
+          "elements": 18,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 22,
+        "singular_values": {
+          "shape": [
+            23
+          ],
+          "max_abs": 3.2007761841900984e-17,
+          "exact_elements": 0,
+          "elements": 23,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            23
+          ],
+          "max_abs": 0.09106036299391741,
+          "exact_elements": 0,
+          "elements": 23,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 34,
+        "singular_values": {
+          "shape": [
+            35
+          ],
+          "max_abs": 4.220391249172274e-17,
+          "exact_elements": 0,
+          "elements": 35,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            35
+          ],
+          "max_abs": 0.07960159631319946,
+          "exact_elements": 0,
+          "elements": 35,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 68,
+        "singular_values": {
+          "shape": [
+            69
+          ],
+          "max_abs": 3.549692893568824e-17,
+          "exact_elements": 0,
+          "elements": 69,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            69
+          ],
+          "max_abs": 0.09595585579883487,
+          "exact_elements": 0,
+          "elements": 69,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 8,
+        "singular_values": {
+          "shape": [
+            9
+          ],
+          "max_abs": 3.4906236545143725e-17,
+          "exact_elements": 0,
+          "elements": 9,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            9
+          ],
+          "max_abs": 1.3720843632543558e-05,
+          "exact_elements": 0,
+          "elements": 9,
+          "bit_equal": false
+        }
+      },
+      {
+        "n": 9,
+        "singular_values": {
+          "shape": [
+            10
+          ],
+          "max_abs": 1.9703982133157963e-17,
+          "exact_elements": 0,
+          "elements": 10,
+          "bit_equal": false
+        },
+        "b_aligned": {
+          "shape": [
+            10
+          ],
+          "max_abs": 3.290773740667836e-05,
+          "exact_elements": 0,
+          "elements": 10,
+          "bit_equal": false
+        }
+      }
+    ],
+    "output": {
+      "mu": {
+        "shape": [],
+        "max_abs": 0.0,
+        "exact_elements": 1,
+        "elements": 1,
+        "bit_equal": true
+      },
+      "nu": {
+        "shape": [],
+        "max_abs": 0.0,
+        "exact_elements": 1,
+        "elements": 1,
+        "bit_equal": true
+      },
+      "pc": {
+        "shape": [
+          152
+        ],
+        "max_abs": 1.7403828178401233e-05,
+        "exact_elements": 0,
+        "elements": 152,
+        "bit_equal": false
+      },
+      "qc": {
+        "shape": [
+          9
+        ],
+        "max_abs": 1.7239871967520844e-05,
+        "exact_elements": 0,
+        "elements": 9,
+        "bit_equal": false
+      }
+    },
+    "normalized_q": {
+      "shape": [
+        9
+      ],
+      "max_abs": 0.0006189313586430461,
+      "exact_elements": 1,
+      "elements": 9,
+      "bit_equal": false
+    },
+    "matched_poles": {
+      "shape": [
+        8
+      ],
+      "max_abs": 0.00010411724173232625,
+      "exact_elements": 0,
+      "elements": 8,
+      "bit_equal": false
+    },
+    "native_degrees": [
+      151,
+      8
+    ]
+  },
+  "crossfeed": {
+    "native_Z_JAX_svd_aligned_b_max_abs": 5.738966033237563e-12,
+    "native_D_input_matrix_shape": [
+      302,
+      151
+    ],
+    "native_D_current_transform": {
+      "Z_max_abs": 1.6756531357041713e-16,
+      "aligned_b_max_abs": 1.6298927745385027e-05
+    },
+    "native_D_literal_complex_transform": {
+      "Z_max_abs": 1.6707197001897236e-16,
+      "aligned_b_max_abs": 1.8304613015871076e-05
+    }
+  },
+  "native_final_singular_values": [
+    9.86939902725299e-08,
+    8.268025432578367e-08,
+    5.4545486614542076e-08,
+    2.0351740282182266e-08,
+    1.3729776566845061e-09,
+    7.179416061848782e-10,
+    2.5413491075506638e-11,
+    1.4598282581245284e-12,
+    9.99272566470339e-13
+  ],
+  "native_ts": 1.0810170866324843e-12,
+  "gate_receipts": {
+    "native": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 78.72893803333864,
+      "sampled_peak_summed_rss_kib": 1309024,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "python": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.732549433130771,
+      "sampled_peak_summed_rss_kib": 926884,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "crossfeed": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 3.5483934320509434,
+      "sampled_peak_summed_rss_kib": 526712,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "decision": "No production change. Dominant same-input discrepancy arises before SVD in FFT-based matrix assembly. Existing source complex-conjugacy adapter is not sole cause: literal general-complex IFFT on native-D input fails to improve. Provider/operation fidelity remains open; no source branch fault established.",
+  "limitations": [
+    "Native uses an external exact pinned ratinterp copy with save-only checkpoints, not an independently repeated uninstrumented neutrality run.",
+    "Same native D does not certify full diag(f)*D product bit equality: native intermediate product was not captured. Next localization, if pursued, requires saved native product before IFFT, not a provider sweep.",
+    "Native selected source files and fixture are frozen; not all licensed runtime dependencies.",
+    "Crossfeed uses native intermediates diagnostically only, never as production fallback.",
+    "Only first six-output fit studied. Seven-output high-degree residues and actual forward ODE accuracy remain open.",
+    "Whole-matrix ts differs2e-28 despite exact complex samples; all robustification degree decisions agree."
+  ],
+  "prior_python_coefficient_byte_bridge": {
+    "pc": true,
+    "qc": true,
+    "note": "Complex JSON components assigned separately to preserve signed-zero component words."
+  },
+  "archive": {
+    "folder": "ratinterp_complex_stages_20261017",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_complex_stages_cpu_20261017.tar.gz",
+    "archive_sha256": "ec17604b63b43c07e32559fdaeb9bcae7568358740f97179ab9afb952bd057e4",
+    "manifest_sha256": "df24b9c7f922fd71898da8c853d27726ef2c4bdc25c330efe4d477065543562d",
+    "verified_payloads": 71
+  },
+  "parent_review_sha256": "f1abf7f38c5bcb3898ae06efdb4753a7daa2f39649db710bf753055901e7b841"
+}

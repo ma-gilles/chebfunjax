@@ -160,3 +160,9 @@ that result-only observation from supervised native qualification.
 records the public adapter fix and six original subspace predicates with the
 source distinct breakpoints and row case. The broader subspace API and its
 existing host numerical implementation remain open.
+
+[Sphere optimization evidence](sphere_extrema_tie_cpu_20261017.json) attaches
+ten original default predicates with a byte-identical forward source bridge.
+[Open numerical investigations](numerical_parity_gaps_20261017.md) separately
+record unresolved transform-sensitive PDE/Hermite/rational paths without
+promoting diagnostic observations into parity completion.

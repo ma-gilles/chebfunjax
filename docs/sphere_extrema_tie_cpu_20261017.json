@@ -1,0 +1,182 @@
+{
+  "source_head": "d0b7ffe0da8cf19be0a356bf00898c19af87a227",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "bounded_even_function_antipode_issue_not_reproduced",
+  "native_report": {
+    "x2": {
+      "values": [
+        -2.220446049250313e-16,
+        1
+      ],
+      "locations": [
+        [
+          1.570796326794898,
+          1.5707963267948966
+        ],
+        [
+          0,
+          1.5707963267948966
+        ]
+      ],
+      "reevaluated": [
+        0,
+        1
+      ],
+      "rank": 1,
+      "public_max_neutral": true
+    },
+    "rotated": {
+      "values": [
+        2.220446049250313e-16,
+        1.5799999999999987
+      ],
+      "locations": [
+        [
+          0.6300794851990128,
+          -0.6179675256698692
+        ],
+        [
+          0.2914568174251331,
+          -2.1614331652681895
+        ]
+      ],
+      "reevaluated": [
+        2.220446049250313e-16,
+        1.5799999999999987
+      ],
+      "rank": 3,
+      "public_max_neutral": true
+    },
+    "original_predicates": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "optim": true,
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df"
+  },
+  "python_report": {
+    "x2": {
+      "values": [
+        0.0,
+        0.9999999999999999
+      ],
+      "locations": [
+        [
+          1.5707963267948961,
+          3.141592653589793
+        ],
+        [
+          0.0,
+          1.570796326794898
+        ]
+      ],
+      "reevaluated": [
+        0.0,
+        0.9999999999999999
+      ],
+      "rank": 1
+    },
+    "rotated": {
+      "values": [
+        1.8078307675901742e-16,
+        1.5799999999999985
+      ],
+      "locations": [
+        [
+          0.6300794741347407,
+          -0.6179675240392069
+        ],
+        [
+          0.2914568143165357,
+          -2.1614331619236693
+        ]
+      ],
+      "reevaluated": [
+        2.1473593234736814e-16,
+        1.5799999999999987
+      ],
+      "rank": 3
+    }
+  },
+  "comparison": "COMPARISON.json",
+  "first_observed_difference": "As-built CDR factor coefficients differ up to5.89e-17. No different source branch or antipode choice found. Rotated discrete seeds exactly equal; pre-BMC optimizer locations differ at1.11e-8 max across min/max, while maximum coordinates differ3.35e-9.",
+  "decision": "No library tie/optimizer change. Existing native source has no universal canonical antipode rule; its chosen discretization and strict first min/max decide ties. Add scoped regression controls only.",
+  "original_predicates": "All10 native test_optimization predicates true; Python corresponding two original nodes run unchanged with two new authored controls.",
+  "example_audit": "Current examples/sphere/atmospherictemperature.py contains no max2/min2 invocation; no example change warranted.",
+  "limits": [
+    "Native and Python construct the same polynomial expressions independently; factor coefficients are not identical-word inputs. This does not isolate optimizer-provider rounding.",
+    "Rank-one x\u00b2 minimum is a continuum; different valid minima are not a failure.",
+    "The historical issue13 even-function operand was not specified in the handoff. These two cases do not prove every even-function tie agrees.",
+    "No prescribed antipode is added, no tolerance changed, and no exact rotated optimizer-coordinate parity claimed.",
+    "Only selected native source/driver files were preguarded, not the full licensed runtime. Python production source files preguarded; incidental test dependencies not claimed fully frozen."
+  ],
+  "gates": {
+    "native": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 78.9630826599896,
+      "sampled_peak_summed_rss_kib": 1414660,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "python": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 19.694481967948377,
+      "sampled_peak_summed_rss_kib": 1402316,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "tests": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 62.81952627375722,
+      "sampled_peak_summed_rss_kib": 2913812,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "test_delivery": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sphere_extrema_d0_20261017/tests/test_matlab_port/spherefun/test_even_extrema_tie_source.py",
+    "sha256": "7c7302dab51591194b4c3a69d626856d8464eeffcfd95128bcf5e9326a4f0504",
+    "changed_production_files": [],
+    "pytest_nodes": 4,
+    "original_predicates": 10,
+    "authored_controls": 2
+  },
+  "parent_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sphere_transform_parent_review_20261017.json",
+    "sha256": "f1abf7f38c5bcb3898ae06efdb4753a7daa2f39649db710bf753055901e7b841",
+    "all_manifest_payloads_verified": true,
+    "production_source_bytes_match_current_main": true,
+    "current_main": "ca97ff24c73a6acf8f5f5cd721ff96720d30b110",
+    "scope": {
+      "original_predicates": 10,
+      "python_nodes": 4,
+      "authored_controls": 2,
+      "production_source_byte_bridge": "Every source file unchanged d0b7\u2192currentca97; original optimization module unchanged",
+      "original_test_sha256": "cc54a8ca41619275d8fecd0b83a1f1f55f84f8c2c04215a61f24c4d0f27abd94",
+      "native_and_python_gate_receipts_checked": true,
+      "limitations": [
+        "Native and Python construct the same polynomial expressions independently; factor coefficients are not identical-word inputs. This does not isolate optimizer-provider rounding.",
+        "Rank-one x\u00b2 minimum is a continuum; different valid minima are not a failure.",
+        "The historical issue13 even-function operand was not specified in the handoff. These two cases do not prove every even-function tie agrees.",
+        "No prescribed antipode is added, no tolerance changed, and no exact rotated optimizer-coordinate parity claimed.",
+        "Only selected native source/driver files were preguarded, not the full licensed runtime. Python production source files preguarded; incidental test dependencies not claimed fully frozen."
+      ]
+    }
+  },
+  "archive": {
+    "folder": "sphere_extrema_tie_20261017",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sphere_extrema_tie_cpu_20261017.tar.gz",
+    "archive_sha256": "85916df4a0e680155f155e32f8dce621ceba1fd177d584d8886a2e6d40bb1448",
+    "manifest_sha256": "9490b10d2398b35feb1a2401d464dd1b3fb3734dba3d82d50ac12d6ae5eb9717",
+    "verified_payloads": 56
+  }
+}
