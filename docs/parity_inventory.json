@@ -231,6 +231,11 @@
       "scope": "Same-input first-fit diagnosis only; no algorithm fix/whole-page or residue parity",
       "sha256": "99b61f25789a0da93f9af8dab38d10db1023d2821308c921d07e0b9129413d80"
     },
+    "ratinterp_full602_cpu_20261017": {
+      "path": "docs/ratinterp_full602_cpu_20261017.json",
+      "scope": "Complete source-derived JAX inverse602diagnostic following native7x2x43 plan, plus outer2/7 stage qualification. No production library change.",
+      "sha256": "3b62a99cbfa567bf9635b9bfc71673a8d3dc8af270061df7cfec63a9e3dffe28"
+    },
     "ratinterp_preifft_cpu_20261017": {
       "path": "docs/ratinterp_preifft_cpu_20261017.json",
       "scope": "Retained same-input assembly diagnosis only: product/mirror exact, normalized IFFT nonexact and observer public-output neutrality. No parity completion.",
@@ -71165,6 +71170,10 @@
           ],
           "kind": "reviewed_scoped_cpu_evidence",
           "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure"
+        },
+        {
+          "artifact": "ratinterp_full602_cpu_20261017",
+          "scope": "Complete JAX602inverse diagnostic matches367220native outputwords; no production change/fullAPI/pole acceptance. Real D route remains open."
         }
       ],
       "functions": [
@@ -95988,6 +95997,10 @@
         {
           "artifact": "ratinterp_preifft_cpu_20261017",
           "scope": "Matched product/mirror exact, normalized IFFT nonexact; native public-output neutrality for retained input only"
+        },
+        {
+          "artifact": "ratinterp_full602_cpu_20261017",
+          "scope": "Complete JAX602inverse diagnostic matches367220native outputwords; no production change/fullAPI/pole acceptance. Real D route remains open."
         }
       ],
       "functions": [

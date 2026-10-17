@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Complete source-derived JAX602inverse diagnostic matches367220native outputwords across positive/actual/independent matrices; outer2/7stages match204distinct words, independent constants and division normalization. [Evidence](ratinterp_full602_cpu_20261017.json). No production patch/public pole claim; real D route remains open.
+
 - [x] Correct minimax original11test scalar extraction exposed by actualCI; original operand/degrees/scaling/bound unchanged, focused candidate passes on identical360production files. [Evidence](minimax_scalar_ci_cpu_20261017.json). LatestCI/fullAPI remain open.
 
 - [x] Restore all41literal default original power predicates and verify27actual native draw events; final24rerun plus17unchanged-node source/AST bridge, with360production files identical to publication. [Evidence](power_original41_cpu_20261017.json). Extra predicate33warning/fullAPI/preferences remain open.

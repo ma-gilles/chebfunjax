@@ -1,3 +1,14 @@
+# Latest complete complex602 inverse diagnosis — 2026-10-17
+
+Source-derived JAX7x2x43inverse matches367220native outputwords across positive,
+actual602x151and independent602x151inputs. Outer2/7stages match204distinctwords;
+static constants are independently generated, no captured-table/output lookup.
+Division by602 closes reciprocal-multiply rounding gap. Failed capture/aliased
+padding comparison and reciprocal candidate are preserved, not counted passing.
+Diagnostic only: real2x7x43D302route/public poles/API/speed remain open; no
+production transform change. Archive475payloadsverified, scope and receipts:
+docs/ratinterp_full602_cpu_20261017.json.
+
 # Latest minimax original11 CI adapter — 2026-10-17
 
 Actualdc3chebfun-c failed float(singleton rank1 JAX array) in original11.

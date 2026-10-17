@@ -1,0 +1,139 @@
+{
+  "scope": "Complete source-derived JAX inverse602diagnostic following native7x2x43 plan, plus outer2/7 stage qualification. No production library change.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_head": "deffa3d601033b04dd8cc444efc16d4050b00a09",
+  "components": {
+    "generic43": "Previously independently generated882constants/774outputword qualification retained; same arithmetic reused with native inverse pointer exchange expressed as real/imag swaps.",
+    "radix2_radix7": {
+      "native_captures": 12,
+      "distinct_output_words": 204,
+      "word_mismatches": 0,
+      "padding": "Three radix2tailcaptures alias two SIMD lanes via vs0; actual stores high thenlow, so onlylow survives. Expectedphysical outputs and addressaliasing asserted; duplicate words not counted distinct.",
+      "constants": "Six7-point trigonometric constants generated from100-digit Machin pi and convergentseries; all six match inspectednative words."
+    },
+    "twiddles": "Independent mode3octant folding/binary64angle generation; every captured outertwiddle word matches, no captured table enters candidate.",
+    "normalization": "Complete transform uses separately rounded division by602; earlier reciprocal-multiply candidate had523/27662/27564word mismatches and remains preserved. Native library static double divide graph retained; no claim that static instruction address was dynamically observed."
+  },
+  "full_transform": {
+    "rows": [
+      {
+        "name": "positive",
+        "shape": [
+          602,
+          3
+        ],
+        "output_words": 3612,
+        "word_mismatches": 0,
+        "max_abs": 0.0,
+        "first_mismatch_index": null
+      },
+      {
+        "name": "actual",
+        "shape": [
+          602,
+          151
+        ],
+        "output_words": 181804,
+        "word_mismatches": 0,
+        "max_abs": 0.0,
+        "first_mismatch_index": null
+      },
+      {
+        "name": "independent",
+        "shape": [
+          602,
+          151
+        ],
+        "output_words": 181804,
+        "word_mismatches": 0,
+        "max_abs": 0.0,
+        "first_mismatch_index": null
+      }
+    ],
+    "output_words": 367220,
+    "word_mismatches": 0
+  },
+  "receipts": {
+    "ratinterp_outer_capture_run001": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_capture_run001/receipt.json",
+      "command_exit_code": 1,
+      "wall_seconds": 80.14721509627998,
+      "stable": true,
+      "survivors": []
+    },
+    "ratinterp_outer_capture_run002": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_capture_run002/receipt.json",
+      "command_exit_code": 0,
+      "wall_seconds": 82.01061358302832,
+      "stable": true,
+      "survivors": []
+    },
+    "ratinterp_outer_python_run001": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_run001/receipt.json",
+      "command_exit_code": 1,
+      "wall_seconds": 4.036221788730472,
+      "stable": true,
+      "survivors": []
+    },
+    "ratinterp_outer_python_run002": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_run002/receipt.json",
+      "command_exit_code": 0,
+      "wall_seconds": 3.5571219930425286,
+      "stable": true,
+      "survivors": []
+    },
+    "ratinterp_full602_python_run001": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_full602_python_run001/receipt.json",
+      "command_exit_code": 0,
+      "wall_seconds": 7.079063952434808,
+      "stable": true,
+      "survivors": []
+    },
+    "ratinterp_full602_python_run002": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_full602_python_run002/receipt.json",
+      "command_exit_code": 0,
+      "wall_seconds": 6.870406146161258,
+      "stable": true,
+      "survivors": []
+    }
+  },
+  "preimage_bridges": [
+    {
+      "run": "ratinterp_outer_python_run001",
+      "original_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/compare.py",
+      "preimage_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/compare_attempt01.py",
+      "sha256": "f2ec208da872bf55d61876592a03b3d8d23f15dadadca74f91797f3a459aeb40"
+    },
+    {
+      "run": "ratinterp_outer_python_run001",
+      "original_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602.py",
+      "preimage_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602_reciprocal_attempt01.py",
+      "sha256": "bfc33ef1049847f92158e87cb7ead511216044ce40841b7798ac219367f85421"
+    },
+    {
+      "run": "ratinterp_outer_python_run002",
+      "original_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602.py",
+      "preimage_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602_reciprocal_attempt01.py",
+      "sha256": "bfc33ef1049847f92158e87cb7ead511216044ce40841b7798ac219367f85421"
+    },
+    {
+      "run": "ratinterp_full602_python_run001",
+      "original_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602.py",
+      "preimage_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_python_20261017/full602_reciprocal_attempt01.py",
+      "sha256": "bfc33ef1049847f92158e87cb7ead511216044ce40841b7798ac219367f85421"
+    }
+  ],
+  "production_ready": false,
+  "limits": [
+    "Diagnostic moderate finite CPU binary64 inputs only; fullAPI/extremes/AD/performance not qualified.",
+    "Real2x7x43 route constructing D302still differs up to4.44e-16; no public ratinterp coefficient/pole parity claim.",
+    "Exact native matched Z through JAXSVD still has retained~5.74e-12aligned denominator discrepancy; wider qualification remains.",
+    "No source-output/table lookup in candidate; test comparison reads retained operands/reference outputs only.",
+    "Latest-main CI/coverage>=79%, pages/figures, full JAX/API and speed acceptance remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_full602_review_20261017.tar.gz",
+    "sha256": "197a34e645f4459fd13778c0a3f78801958455c362221034ed07a80b1702cbcf",
+    "verified_payloads": 475
+  }
+}
