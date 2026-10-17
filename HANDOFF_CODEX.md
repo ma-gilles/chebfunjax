@@ -1,5 +1,21 @@
 ## JAX Airy gallery callbacks — 2026-10-17
 
+## Spherefun public evaluation checkpoint (2026-10-17; latest scoped update)
+
+Public angular/Cartesian numeric evaluation now uses JAX Horner/CDR kernels,
+with native two-distance physical mapping and genuine coefficient-length groups
+(no padded coefficients). Concrete grids/constant-coordinate lines evaluate
+factors only on their own nodes; traced coordinates retain arbitrary tangents.
+Source empty evaluation is restored, with Cartesian radius checking first.
+30 focused tests pass, including unchanged original9feval/3fevalm assertions,
+JIT/AD, zero pivots and actual plot resource-shape controls. Native CDR replay
+max difference6.67e-16 is diagnostic evaluation evidence, not constructor parity.
+First new empty control failure is preserved before correction. Details/archive:
+`docs/sphere_public_evaluation_jax_cpu_20261017.json`. Other Spherefun host paths,
+full performance, native representations and rendering remain open. Full goal
+incomplete; see the durable shared CURRENT_GOAL_STATUS.md/GOAL_CHECKLIST.md.
+
+
 The one-dimensional Airy gallery factory and gallery2 airyreal/airycomplex
 callbacks now use the existing JAX Airy primitive. Host NumPy/SciPy Airy
 numerics are removed from those callbacks. Native domains, operands,

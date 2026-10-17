@@ -1287,10 +1287,10 @@ class Spherefun(eqx.Module):
         when every column contains an exterior point. Interior points are
         accepted and evaluated by direction, as in the source.
 
-        Cartesian coordinate conversion uses JAX arithmetic. Concrete
-        angular evaluation delegates to the existing NumPy Horner mirror;
-        traced angular inputs use the JAX path. The source radius error is
-        checked for concrete Cartesian inputs.
+        Angular evaluation and Cartesian coordinate conversion use JAX
+        arithmetic. Concrete tensor grids evaluate each genuine factor
+        only on its own axis. Traced inputs retain pointwise derivatives.
+        The source radius error is checked for concrete Cartesian inputs.
 
         Provenance
         ----------
@@ -1299,11 +1299,45 @@ class Spherefun(eqx.Module):
         """
         if z is not None:
             return self._eval_cartesian(lam, theta, z)
-        if not isinstance(lam, jax.core.Tracer) and \
-                not isinstance(theta, jax.core.Tracer) and \
-                not isinstance(self.pivots, jax.core.Tracer):
-            return self._eval_np(lam, theta)
-        return self._call_traced(lam, theta)
+        from chebfunjax.chebfun2d.separable_approx import (
+            _cdr_meshgrid_kind,
+            _coordinate_array,
+        )
+        from chebfunjax.spherefun._cdr import inverse_pivots
+        from chebfunjax.spherefun._evaluation import (
+            factor_values,
+            grid_values,
+            point_values,
+        )
+
+        if self.isempty() or not self.cols:
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        lam, theta = _coordinate_array(lam), _coordinate_array(theta)
+        traced = any(isinstance(value, jax.core.Tracer) for value in
+                     (lam, theta, self.pivots,
+                      *(f.coeffs for f in (*self.cols, *self.rows))))
+        if not traced:
+            lb, tb = jnp.broadcast_arrays(lam, theta)
+            if lb.ndim == 2 and min(lb.shape) > 1:
+                kind = _cdr_meshgrid_kind(lb, tb)
+                if bool(kind == 1):
+                    return grid_values(factor_values(self.cols, tb[:, 0]),
+                                       factor_values(self.rows, lb[0, :]),
+                                       inverse_pivots(self.pivots))
+                if bool(kind == 2):
+                    return grid_values(factor_values(self.cols, tb[0, :]),
+                                       factor_values(self.rows, lb[:, 0]),
+                                       inverse_pivots(self.pivots)).T
+            if lb.size > 1:
+                weights = inverse_pivots(self.pivots)
+                if bool(jnp.all(lb == lb.reshape(-1)[0])):
+                    return point_values(factor_values(self.cols, tb),
+                                        factor_values(self.rows, lb.reshape(-1)[0]),
+                                        weights)
+                if bool(jnp.all(tb == tb.reshape(-1)[0])):
+                    return point_values(factor_values(self.cols, tb.reshape(-1)[0]),
+                                        factor_values(self.rows, lb), weights)
+        return self._eval_impl(lam, theta)
 
     def feval(self, *coords):
         """Explicit MATLAB-style evaluation alias for 2D or 3D coordinates."""
@@ -1324,7 +1358,7 @@ class Spherefun(eqx.Module):
         # MATLAB R2025b cart2sph uses r = hypot(hypot(x, y), z).
         radius = jnp.hypot(jnp.hypot(x, y), z)
         concrete = not any(isinstance(value, jax.core.Tracer)
-                           for value in (x, y, z, self.pivots))
+                           for value in (x, y, z, getattr(self, "pivots", None)))
         # Preserve the source expression `if any(rad > limit)`: MATLAB any
         # reduces along the first nonsingleton dimension, and `if` treats a
         # nonscalar condition as true only when every remaining entry is
@@ -1346,110 +1380,29 @@ class Spherefun(eqx.Module):
         theta = jnp.pi/2 - elevation
         return self(lam, theta)
 
-    def _eval_np(self, lam, theta) -> jax.Array:
-        """Concrete-input evaluation with ALL rank slices batched into a
-        single array-valued numpy Horner per direction.  The per-slice
-        loop cost ~7 ms x rank x calls (28k Trigtech evals = 194 s for
-        one rank-54 x rank-60 product re-approximation); batching makes
-        it one padded (n, r) Horner each way."""
-        from chebfunjax.tech.trigtech import _alias_trigtech, _trig_eval_np
-
-        if len(self.cols) == 0:
-            return self._eval_impl(lam, theta)
-        col_real = all(c.is_real for c in self.cols)
-        row_real = all(r.is_real for r in self.rows)
-        if (any(c.is_real != col_real for c in self.cols)
-                or any(r.is_real != row_real for r in self.rows)):
-            return self._eval_impl(lam, theta)
-
-        lam = np.asarray(lam, dtype=np.float64)
-        theta = np.asarray(theta, dtype=np.float64)
-        bshape = np.broadcast_shapes(lam.shape, theta.shape)
-
-        nc = max(int(np.asarray(c.coeffs).shape[0]) for c in self.cols)
-        nr = max(int(np.asarray(r.coeffs).shape[0]) for r in self.rows)
-        Cc = np.stack([np.asarray(_alias_trigtech(c.coeffs, nc))
-                       for c in self.cols], axis=1)          # (nc, r)
-        Rr = np.stack([np.asarray(_alias_trigtech(r.coeffs, nr))
-                       for r in self.rows], axis=1)          # (nr, r)
-        from chebfunjax.spherefun._cdr import inverse_pivots
-        piv = np.asarray(inverse_pivots(self.pivots))
-
-        # Tensor-grid detection: the adaptive constructor samples on
-        # meshgrids (lam varying along one axis, theta along the other).
-        # Evaluating each direction ONCE on its 1D point set and
-        # combining with a rank-sized matmul turns an
-        # O(npts * rank * degree) sweep into
-        # O((nth + nlam) * rank * degree + npts * rank).
-        lb = np.broadcast_to(lam, bshape)
-        tb = np.broadcast_to(theta, bshape)
-        if len(bshape) == 2 and bshape[0] > 1 and bshape[1] > 1:
-            lam_axis1 = np.all(lb == lb[:1, :])   # lam constant down cols
-            th_axis0 = np.all(tb == tb[:, :1])    # theta constant across
-            if lam_axis1 and th_axis0:
-                cv = np.asarray(_trig_eval_np(Cc, tb[:, 0] / np.pi,
-                                              is_real=col_real))
-                rv = np.asarray(_trig_eval_np(Rr, lb[0, :] / np.pi,
-                                              is_real=row_real))
-                return jnp.asarray((cv * piv) @ rv.T)
-            lam_axis0 = np.all(lb == lb[:, :1])
-            th_axis1 = np.all(tb == tb[:1, :])
-            if lam_axis0 and th_axis1:
-                cv = np.asarray(_trig_eval_np(Cc, tb[0, :] / np.pi,
-                                              is_real=col_real))
-                rv = np.asarray(_trig_eval_np(Rr, lb[:, 0] / np.pi,
-                                              is_real=row_real))
-                return jnp.asarray(rv @ (cv * piv).T)
-
-        lr = (lb / np.pi).ravel()
-        tr = (tb / np.pi).ravel()
-        # Constant-coordinate lines (phase-2 slice sampling).
-        if lr.size > 1 and np.all(lr == lr[0]):
-            rv = np.asarray(_trig_eval_np(Rr, lr[:1], is_real=row_real))
-            cv = np.asarray(_trig_eval_np(Cc, tr, is_real=col_real))
-            vals = (cv * piv) @ rv[0]
-            return jnp.asarray(vals.reshape(bshape))
-        if tr.size > 1 and np.all(tr == tr[0]):
-            cv = np.asarray(_trig_eval_np(Cc, tr[:1], is_real=col_real))
-            rv = np.asarray(_trig_eval_np(Rr, lr, is_real=row_real))
-            vals = (rv * piv) @ cv[0]
-            return jnp.asarray(vals.reshape(bshape))
-
-        cv = np.asarray(_trig_eval_np(Cc, tr, is_real=col_real))
-        rv = np.asarray(_trig_eval_np(Rr, lr, is_real=row_real))
-        vals = (cv * rv) @ piv
-        return jnp.asarray(vals.reshape(bshape))
-
-    @eqx.filter_jit
     def _call_traced(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
+        """Pointwise JAX extension, retaining arbitrary coordinate tangents."""
         return self._eval_impl(lam, theta)
 
     def _eval_impl(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
-        lam = jnp.asarray(lam, dtype=jnp.float64)
-        theta = jnp.asarray(theta, dtype=jnp.float64)
+        """Evaluate CDR factors without a host numerical evaluator.
 
-        # Map lam from [-pi, pi] to [-1, 1] for Trigtech evaluation
-        lam_ref = lam / jnp.pi
-        # Map theta from [0, pi] to [-1, 1] for Trigtech evaluation
-        # The column Trigtech is on the doubled domain [-pi, pi], mapped to [-1, 1]
-        # The col stores the doubled-up function; for theta in [0, pi], we use
-        # the mapping theta -> theta/pi in [0, 1] -> th_ref = theta/pi - 1/2...
-        # Actually the col Trigtech is on [-1, 1] corresponding to the full doubled
-        # domain [-pi, pi].  For theta in [0, pi]: th_ref = theta/pi - 1 maps to [-1, 0]
-        # but the Trigtech period is 2 (from -1 to 1) and the physical domain is [-pi, pi].
-        # Physical theta in [-pi, pi] maps to t in [-1, 1]: t = theta/pi.
-        # For colatitude theta in [0, pi], t = theta/pi in [0, 1].
-        th_ref = theta / jnp.pi
-
+        Provenance
+        ----------
+        MATLAB source: @spherefun/feval.m, @separableApprox/feval.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.separable_approx import _coordinate_array
         from chebfunjax.spherefun._cdr import inverse_pivots
-        weights = inverse_pivots(self.pivots)
-        result = jnp.zeros_like(jnp.broadcast_arrays(lam, theta)[0], dtype=jnp.float64)
-        for j in range(len(self.cols)):
-            cj_val = self.cols[j](th_ref)
-            rj_val = self.rows[j](lam_ref)
-            result = result + weights[j] * cj_val * rj_val
+        from chebfunjax.spherefun._evaluation import factor_values, point_values
 
-        return result
+        if self.isempty() or not self.cols:
+            return jnp.empty((0, 0), dtype=jnp.float64)
+        lam, theta = jnp.broadcast_arrays(_coordinate_array(lam),
+                                         _coordinate_array(theta))
+        cols = factor_values(self.cols, theta)
+        rows = factor_values(self.rows, lam)
+        return point_values(cols, rows, inverse_pivots(self.pivots))
 
     def fast_sphere_eval(self, lam, theta):
         """Fast, high-accuracy evaluation at scattered points (2D NUFFT).

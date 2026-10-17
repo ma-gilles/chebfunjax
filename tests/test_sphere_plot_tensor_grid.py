@@ -9,8 +9,8 @@ import numpy as np  # noqa: E402
 
 # uses-numpy: plotting fixtures/assertions
 from chebfunjax import plotting  # noqa: E402
+from chebfunjax.spherefun import _evaluation  # noqa: E402
 from chebfunjax.spherefun.spherefun import Spherefun  # noqa: E402
-from chebfunjax.tech import trigtech  # noqa: E402
 
 
 def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monkeypatch):
@@ -21,7 +21,7 @@ def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monke
     evaluated = []
     factor_point_counts = []
     original_call = Spherefun.__call__
-    original_factor = trigtech._trig_eval_np
+    original_factor = _evaluation.factor_values
 
     def evaluate(self, longitude, colatitude):
         values = original_call(self, longitude, colatitude)
@@ -29,12 +29,12 @@ def test_actual_sphere_plot_evaluates_source_tensor_without_repeated_nodes(monke
             evaluated.append((np.asarray(longitude), np.asarray(colatitude), np.asarray(values)))
         return values
 
-    def factor(coeffs, nodes, **kwargs):
+    def factor(factors, nodes):
         factor_point_counts.append(np.asarray(nodes).size)
-        return original_factor(coeffs, nodes, **kwargs)
+        return original_factor(factors, nodes)
 
     monkeypatch.setattr(Spherefun, "__call__", evaluate)
-    monkeypatch.setattr(trigtech, "_trig_eval_np", factor)
+    monkeypatch.setattr(_evaluation, "factor_values", factor)
     n_pts = 11
     fig, _ = plotting.plot_sphere(f, n_pts=n_pts)
     try:

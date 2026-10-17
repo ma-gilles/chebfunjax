@@ -1,0 +1,63 @@
+{
+  "base": "e0d522439d167a8f36daca895fadf10f1b83d98f",
+  "files": {
+    "src/chebfunjax/spherefun/_evaluation.py": "23c58300809003394592813190dc25e23fd8615e893d7d676e3312f0fd334318",
+    "src/chebfunjax/spherefun/spherefun.py": "e9ca5de1533b867c5bd89b3c2eb2ec70202d4c7fa0c889c2d473ded258d6efb9",
+    "tests/test_sphere_plot_tensor_grid.py": "1737ca9d89fa69d9e5c91832c0294cca16921629e073794697c95a6c3434e304",
+    "tests/test_spherefun/test_public_evaluation_jax_source.py": "83bb21b7c7a1604493e2ce727f725f8d795a9c2970ee4dd23401c777b99de37a"
+  },
+  "final_tests": 30,
+  "original_feval_assertions": 9,
+  "original_fevalm_assertions": 3,
+  "initial_tests": {
+    "passed": 26,
+    "failed": 1,
+    "cause": "New source-empty control exposed marker-only empty objects; production now checks isempty before factors."
+  },
+  "native_replay": {
+    "scope": "Diagnostic replay of captured native CDR coefficients and diagonal, not Python constructor parity; no reference data enters production",
+    "cases": [
+      {
+        "case_index": 1,
+        "matrix_max_abs_error": 4.440892098500626e-16,
+        "vector_max_abs_error": 6.661338147750939e-16,
+        "grid_max_abs_error": 5.551115123125783e-17,
+        "row_factor_max_abs_error": 1.1102230246251565e-16,
+        "outer_jit_max_difference": 0.0
+      },
+      {
+        "case_index": 2,
+        "matrix_max_abs_error": 1.1102230246251565e-16,
+        "vector_max_abs_error": 1.1102230246251565e-16,
+        "grid_max_abs_error": 2.220446049250313e-16,
+        "row_factor_max_abs_error": 5.551115123125783e-17,
+        "outer_jit_max_difference": 0.0
+      }
+    ]
+  },
+  "scope": "Public angular and Cartesian Spherefun numeric evaluation; genuine factor grouping, native physical map, JAX numerical kernels, source-empty behavior. Actual plot resource-shape hook retained with new evaluator observation.",
+  "limitations": [
+    "Not whole Spherefun JAX-only qualification: constructors, fast_sphere_eval and other host routes remain.",
+    "Native constructor discards imaginary values; capture does not qualify complex-valued Spherefun construction.",
+    "No broad speed or constructor/representation parity claim. Native CDR replay is diagnostic only; no saved reference enters production.",
+    "Traced arbitrary matrix/grid calls preserve pointwise coordinate tangents; concrete source meshgrid recognition uses physical10eps tolerance. Broadcasting and complex-factor Python extensions are not complete native API parity.",
+    "Actual plot warning about tight_layout retained; no raster acceptance claim."
+  ],
+  "evidence_archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/sphere_public_jax_cpu_20261017.tar.gz",
+    "sha256": "7f071f7fc8d8f1be02f5749a3ae9226e6a32d877d49bdccb5486dec9ed260e87",
+    "verified_payloads": 6499
+  },
+  "native_resources": {
+    "wall_seconds": 93.86184325022623,
+    "sampled_peak_summed_rss_kib": 1348240,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "final_resources": {
+    "wall_seconds": 63.32493069116026,
+    "sampled_peak_summed_rss_kib": 3339056,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}
