@@ -351,6 +351,11 @@
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
       "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
     },
+    "threeplanets_parent_cpu_20261017": {
+      "path": "docs/threeplanets_parent_cpu_20261017.json",
+      "scope": "Parent-reviewed actual ThreePlanets warning visibility, with preserved resource-receipt race label; no warning/native/trajectory/raster/JAXprovider parity claim",
+      "sha256": "e71beb67b0489dd3a48873a8b8573f3ecdc58125bdc24deae9d89088fc8c1ed5"
+    },
     "transient_growth_constructor_cpu_20261017": {
       "path": "docs/transient_growth_constructor_cpu_20261017.json",
       "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
@@ -31310,6 +31315,11 @@
           "artifact": "output_slot_reconciliation_cpu_20261017",
           "dimension": "stdout",
           "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
+        },
+        {
+          "artifact": "threeplanets_parent_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Actual219s warning visibility/4unchangedframes; rawresource observation-race label independently reconciled. Zero actualwarnings; cachedwarning/native/JAXprovider gaps remainopen."
         }
       ],
       "figure_content_status": "unverified",

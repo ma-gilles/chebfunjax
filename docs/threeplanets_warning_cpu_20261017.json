@@ -1,0 +1,106 @@
+{
+  "scope": "ThreePlanets full current CPU example warning visibility only; no native trajectory/output/figure/fullAPI parity claim",
+  "base_commit": "ece19ee0197df2ce14d83d6f79fbebc9fedd3f4b",
+  "publication_paths": [
+    "examples/ode-nonlin/three_planets.py",
+    "docs/threeplanets_warning_cpu_20261017.json"
+  ],
+  "change": "Remove blanket warning ignore; capture and print actual N.solve warnings in explicit slot1. OPERAND_BRIDGE.json verifies all numerical,RNG,plot/default AST unchanged; no library edits.",
+  "actual_application": {
+    "completed": true,
+    "command_exit_code": 0,
+    "seconds": 219.22412096802145,
+    "figure_count": 4,
+    "warning_attempts": 0,
+    "captured_solve_warnings": 0,
+    "stdout": "@@CHEBFUNJAX_OUTPUT_SLOT:1@@\n",
+    "outputs": [
+      {
+        "FUN_count": 256,
+        "total_length": 4229,
+        "happy_FUNs": 256
+      },
+      {
+        "FUN_count": 256,
+        "total_length": 4229,
+        "happy_FUNs": 256
+      },
+      {
+        "FUN_count": 256,
+        "total_length": 4229,
+        "happy_FUNs": 256
+      }
+    ]
+  },
+  "actual_IVP": {
+    "span": [
+      0.0,
+      100.0
+    ],
+    "method": "LSODA",
+    "rtol": 2.220446049250313e-14,
+    "atol": 2.220446049250313e-11,
+    "status": 0,
+    "success": true,
+    "nfev": 17207,
+    "message": "The solver successfully reached the end of the integration interval."
+  },
+  "provider_limit": "Existing highorder complex SciPy LSODA real/imaginary adapter and local256panel reconstruction remain outside fullJAX/native-ode113/provider qualification. No new numerical waiver or default/tolerance change.",
+  "guard": {
+    "declared_files": 2540,
+    "inputs_stable": true,
+    "observed_runtime_files": 1582,
+    "all_runtime_files_preguarded": true,
+    "affinity": [
+      36,
+      37,
+      38,
+      39
+    ],
+    "versions": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4"
+    },
+    "current_parent_bridge": "361library files byteequal; differing utils/ratapprox.py has all non-padeapprox top-level AST identical; publication_library_bridge.json binds actual/current sources; no heavy repeat for unrelated function."
+  },
+  "resource_receipt": {
+    "wall_seconds": 223.8626542771235,
+    "limits": {
+      "wall_seconds": 600,
+      "rss_mib": 6144
+    },
+    "peak_rss_kib": 1316540,
+    "raw_censored_limit": "root_exited_with_live_descendants",
+    "signals": [],
+    "events": [],
+    "remaining_owned_pids": [],
+    "reconciliation": "Raw flag retained. discover() snapshots root live before root.poll; root exits between calls. Only observed owned identity/root PID, final root-onlyRSS0, code0, no signals/events/remainingPIDs, complete RESULT/fourfigures/runtime before exit. Source/receipt audit attributes label to root-only observation race, not scientific/resource cutoff. No bare uncensored claim; see SUPERVISOR_RACE_REVIEW.json."
+  },
+  "page_and_figures": {
+    "actual_four_pngs_byteidentical_to_committed": true,
+    "all_dimensions": [
+      600,
+      270
+    ],
+    "star_data_bitidentical_across_frames": true,
+    "frame_positions": "frame_positions.json",
+    "actual_generated_page": "generated_page_actual_empty_slot.md",
+    "parent_decision": "Offline actual-stdout regeneration removed empty warning fence; exclude page change to preserve native warning slot pending user acceptance. Original page restored byteforbyte. No page/image patch; only script+report."
+  },
+  "native_warning_gap": {
+    "cached_warning": "Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'? \n",
+    "actual_python_warning_count": 0,
+    "source_caveat": "Pinned @chebfun/odesol.m105\u2013123 suppresses initial constructor:notResolved, then retries splitting and has distinct20000point warning if stillunhappy. Cached65537 text is not current-pin execution proof.",
+    "status": "Unresolved native warning/representation difference; no fresh native run or fabricated warning. Current allhappy per-piece status is not independent continuum accuracy proof."
+  },
+  "limits": [
+    "No fresh native trajectory/RNG-word/output/raster parity or independent chaotic integration/error bound.",
+    "Four PNG byteequalities compare current Python artifact to committed Python frames only.",
+    "No full repository CI,performance,coverage or wholeAPI completion claim.",
+    "Raw supervisor label preserved with independent reconciliation; do not silently replace receipt.",
+    "Generated page change deliberately excluded; unmatched native warning slot remains."
+  ],
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/threeplanets_warning_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/threeplanets_warning_package_20261017.tar.gz"
+}

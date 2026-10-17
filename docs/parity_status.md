@@ -1,3 +1,18 @@
+# Latest ThreePlanets actual warning visibility — 2026-10-17
+
+Blanket warning suppression removed; only actual solve warnings captured/printed
+with explicit slot1. Full actual application219.22s completes4frames equal to
+publishedPythonbytes,0warningattempts/captured,3outputs256happyFUNs/4229coeffs.
+All1582runtimefiles preguarded; originalnumerical/RNG/plotAST unchanged.
+Raw supervisor flagroot_exited_with_live_descendants preserved: parent source/
+sample/identity review attributes it to root-only exit-observation race (exit0,
+finalrootRSS0,nosignals/events/descendants/survivors,belowlimits). No bare
+uncensoredclaim. ExistingSciPycomplexhighorderLSODA provider remains JAX/native
+gap; no freshnative trajectory/warning/raster parity. Page/images unchanged;
+cached65537warning stillunmatched, no warning synthesized. Source361files equal
+currentparent; differingPadéfunction unrelated, allothermoduleAST equal.
+Evidence: docs/threeplanets_parent_cpu_20261017.json.
+
 # Latest Padé empty optional defaults — 2026-10-17
 
 Native isempty defaults restored for optional tolerance/radius/FFTlength.

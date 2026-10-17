@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] ThreePlanets actual warning visibility: globalignore removed, fullapplication219.22s/4unchangedframes/0warnings/all1582runtimefiles preguarded. Parent reconciles preserved root-only resource-observation race without changing rawreceipt. [Evidence](threeplanets_parent_cpu_20261017.json).
+- [ ] ThreePlanets cached65537warning/nativechaotictrajectory/raster and existing complex highorder SciPy LSODA provider remain unqualified; original page slot retained.
+
+
 - [x] Padé native empty optional defaults:None/emptylist/emptyJAXarray accepted; zero tolerance preserved. Six baseline failures fixed;23finalCPUchecks pass plus fresh pinnednative empty/default/zero controls. [Evidence](pade_optional_defaults_cpu_20261017.json). Wider API/numerical/performance/latestCI remains open.
 
 

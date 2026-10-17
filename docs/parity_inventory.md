@@ -258,3 +258,12 @@ the six repaired empty-argument cases and final 23-check Python gate to the
 Padé source/test entries. A fresh pinned MATLAB invocation confirms empty
 numeric/callable defaults and nonempty zero tolerance. Full-item statuses
 remain unverified; this is a source-bound grammar scope.
+
+## ThreePlanets actual warning visibility — 2026-10-17
+
+[Parent review](threeplanets_parent_cpu_20261017.json) links the full actual
+application, unchanged four Python frames and zero solve warnings. The raw
+resource receipt retains an independently diagnosed root-only exit race;
+no bare uncensored claim is made. The cached warning, native trajectory and
+existing SciPy highorder provider remain open. Page/figure files and full-item
+statuses are unchanged.

@@ -1,0 +1,42 @@
+{
+  "scope": "Parent-reviewed actual ThreePlanets warning visibility, with preserved resource-receipt race label; no warning/native/trajectory/raster/JAXprovider parity claim",
+  "parent_commit": "5973f7d67400ebe1d1fe1f865a93da5c1571ebe5",
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/threeplanets_warning_package_20261017.tar.gz",
+    "sha256": "08f9fa50517848eddb4a5444b8e8b6b9728e794ee20222b693da4b67064fa174",
+    "verified_payloads": 47
+  },
+  "application": {
+    "completed": true,
+    "seconds": 219.22412096802145,
+    "four_figures_equal_published_bytes": true,
+    "actual_warning_attempts": 0,
+    "actual_captured_solve_warnings": 0
+  },
+  "source_bridge": {
+    "numerical_RNG_plot_AST_equal": true,
+    "library_files_byte_equal": 361,
+    "only_differing_module": "src/chebfunjax/utils/ratapprox.py",
+    "all_nonpade_module_AST_equal": true,
+    "actual_runtime_files_preguarded": 1582
+  },
+  "resource_reconciliation": {
+    "raw_censored_limit_preserved": "root_exited_with_live_descendants",
+    "raw_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "only_owned_identity": 3048630,
+    "no_observed_descendants": true,
+    "last_root_sample_RSS_zero": true,
+    "no_sent_signals_events_or_survivors": true,
+    "wall_seconds": 223.8626542771235,
+    "peak_rss_kib": 1316540,
+    "limits_not_reached": true,
+    "cause": "discover snapshots root before root.poll; subsequent if live includes exited root. Parent independently read source and all samples/identities. Administrative falsepositive reconciled; rawreceipt unchanged, no bareuncensoredclaim."
+  },
+  "open": [
+    "Cached65537warning remains unmatched; original page deliberately unchanged, no warning synthesized",
+    "Existing complex highorder SciPy LSODA/256panel reconstruction remains JAX/nativeprovider gap; agent diagnosing replacement",
+    "No fresh native trajectory/RNG/scientificfigure/performance or fullAPI qualification",
+    "Latest-main CI/coverage and fullgoal remainrequired"
+  ]
+}

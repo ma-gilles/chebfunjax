@@ -64,7 +64,6 @@ def plotframe(x, y, z, title):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     x0, y0, z0 = 0.0, 3.0, 4j
     plotframe(x0, y0, z0, "t = 0")
@@ -81,7 +80,12 @@ def run():
     N = Chebop(planetfun, domain=(0, tmax))
     N.lbc = lambda x, y, z: [x - x0, y - y0, z - z0,
                              x.diff(), y.diff(), z.diff()]
-    x, y, z = N.solve(0.0)
+    with warnings.catch_warnings(record=True) as events:
+        warnings.simplefilter("always")
+        x, y, z = N.solve(0.0)
+    print("@@CHEBFUNJAX_OUTPUT_SLOT:1@@")
+    for event in events:
+        print(f"Warning: {event.message}")
 
     def at(t):
         tt = np.float64(t)
