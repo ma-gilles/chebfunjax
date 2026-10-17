@@ -86,7 +86,7 @@ def _conditions(op, seeds, flags, x):
         else:
             values = jnp.asarray(callback).reshape(-1)
             if len(values) != len(seeds):
-                raise ValueError('Numeric system boundary values require one entry per unknown')
+                raise ValueError('numeric system boundary conditions require one value per unknown')
             rows = [seed-v for seed, v in zip(seeds, values)]
         groups.append([row(point) if isinstance(_value(row), Chebfun) else row
                        for row in rows])

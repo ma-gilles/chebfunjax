@@ -1,3 +1,35 @@
+## CI local routing and boundary-error controls — 2026-10-17
+
+Scalar direct solves skip optional AD extraction when classification already
+knows the operator is local and only one boundary endpoint is present.
+That extraction cannot select the supported two-sided local source route.
+Two-sided capability checks and nonlocal extraction remain unchanged.
+Mixed-linear classification now uses the existing numeric-system boundary
+length-error wording: one value per unknown. Rejection criteria are unchanged.
+This is consistent Python API wording, not native error-string parity.
+
+Current17a baseline reproduces5pass/1fail in six unchanged metadata controls.
+Final candidate passes all14unchanged metadata/source-route controls and
+separately the existing numeric boundary vector/length-error regression.
+No original bounds, operands, degrees, tests or source discretization changed.
+An initial2GiB candidate run is censored by memory after six metadata controls;
+it is retained without complete gate credit. Fresh identical-source retry
+at3GiB passes, with sampled2.24GiB peak. No benchmark claim.
+
+All completed groups have stable guarded inputs, all actual imports pregated
+and no survivors. Full static checks pass without NumPy waiver. Archive,
+exact source hashes, olderCI source/test bridge and timings are recorded in
+docs/ci_routing_controls_cpu_20261017.json. OlderCI787 also has a3d-e runner
+shutdown143, which is separate from the captured test failures. Latest-main
+full CI/coverage remains required; no green aggregate claim.
+
+US and numeric-result recursion are separate frozen candidates. The root
+C2factor experiment remains unpublished: factor eligibility is corrected
+in that exploratory checkout, but a manufactured positive-order Newton case
+still does not converge. Native matched behavior/conditioning must be checked
+before calling that convergence a parity bug or changing solver policies.
+All broader tests/pages/figures/performance requirements remain open.
+
 ## Typed C1 parameter backend and numeric query types — 2026-10-17
 
 Natural nonlinear single-function C1 problems with explicitly seeded numeric

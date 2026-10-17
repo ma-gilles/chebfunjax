@@ -6724,6 +6724,10 @@ class Chebop:
         """
         if (self._n_vars() == 1 and len(self.domain) == 2
                 and not self._periodic and self._bc_general is None
+                # Local source routing below needs both endpoints. Avoid a
+                # second AD extraction whose result cannot select that route.
+                and (not _known_local or (self._lbc_raw is not None
+                                          and self._rbc_raw is not None))
                 and all(bool(jnp.isfinite(v)) for v in self.domain)):
             from chebfunjax.operators.chebop_altdisc import (
                 _linearize_scalar_ad,

@@ -1,0 +1,73 @@
+{
+  "base": "17a381884a37f6d38c4f675cbb7323ff4a70f4b3",
+  "scope": "Skip unusable redundant AD extraction for known-local one-sided scalar solves; align existing invalid numeric-system BC length error wording. Two-sided and nonlocal source routes preserved. Fifteen existing tests unchanged, not fifteen literal MATLAB predicates.",
+  "source_hashes": {
+    "src/chebfunjax/operators/chebop.py": "ebd1281dddca3ab3f507592f486fef130d8f74875c348dc43785cbc7451ca149",
+    "src/chebfunjax/operators/_mixed_linear.py": "45daa40d8f7b342be69be492a97c1fc6ed359b413051ec452cb78aa7b8ca01f6"
+  },
+  "gates": {
+    "baseline": {
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 55.89693108107895,
+      "sampled_peak_summed_rss_kib": 1340852,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_inputs": 8202,
+      "tests": 6,
+      "failures": 1,
+      "pytest_seconds": 44.421,
+      "actual_imports_all_preguarded": 1427
+    },
+    "candidate_censored": {
+      "supervisor_exit_code": 137,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 39.482435861602426,
+      "sampled_peak_summed_rss_kib": 2101844,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_inputs": 8202
+    },
+    "candidate": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 47.55790860904381,
+      "sampled_peak_summed_rss_kib": 2346712,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_inputs": 8202,
+      "tests": 14,
+      "failures": 0,
+      "pytest_seconds": 40.589,
+      "actual_imports_all_preguarded": 1435
+    },
+    "numeric_BC": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.46942601678893,
+      "sampled_peak_summed_rss_kib": 1585024,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_inputs": 8202,
+      "tests": 1,
+      "failures": 0,
+      "pytest_seconds": 21.562,
+      "actual_imports_all_preguarded": 1422
+    }
+  },
+  "native_source_scope": "Static pinned parseBC provenance only. No new native numerical run; error wording aligns established Python paths.",
+  "resource_scope": "CPU40\u201343, no matched performance claim. First 2GiB candidate cap censored; fresh identical-source retry3GiB justified by observed2.004GiB with margin. Censored attempt retains full guard/supervisor evidence, no complete gate credit.",
+  "remaining": "Latest-green CI/coverage, broader solver/API/original tests, pages/figures/performance remain open.",
+  "older_CI_source_bridge": {
+    "same_native_BC_failure_source_and_test_blobs_787_to17a": {
+      "src/chebfunjax/operators/_mixed_linear.py": "bbe77cf8341a52c0b72fa7bc7fb40b46f30bf5bf",
+      "tests/test_matlab_port/chebop/test_parameter_source_newton_matlab.py": "e79ec20f251d4a1a8b4b984856f61a88aea7abb6"
+    },
+    "scope": "Byte-identical invalid numeric boundary rejection helper and unchanged existing regression; older CI captures exact wording mismatch. Not a new current-baseline numeric solve."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_routing_controls_cpu_20261017.zip",
+    "sha256": "73cf345be5ed1e035bf57135013602c5a3ec719fe50587ae98457f6894ab606c",
+    "verified_payloads": 8148
+  }
+}

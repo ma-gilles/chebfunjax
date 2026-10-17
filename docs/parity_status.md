@@ -95,6 +95,13 @@ remaining-page count.
 - [ ] Natural ultraspherical parameter backend; broader C1 APIs and C2
   factor eligibility policy; numeric recursion and cell/property dispatch.
 
+- [x] Skip redundant scalar AD extraction for known-local one-sided solves;
+  two-sided source routing and nonlocal behavior retained. Fourteen unchanged
+  metadata/source-route controls pass, plus the existing numeric system BC
+  vector/length-error regression with consistent Python error text. Initial
+  memory censor preserved, no benchmark/native-message parity claim.
+  [CI routing evidence](ci_routing_controls_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted
