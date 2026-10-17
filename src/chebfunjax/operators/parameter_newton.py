@@ -46,7 +46,7 @@ def solve_parameter_fixed(op, f, n, max_iter, initial=None):
 
 
 def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
-                    bvp_tol=5e-13, n_min=32, n_max=4096):
+                    bvp_tol=5e-13, n_min=32, n_max=4096, backend="chebcolloc2"):
     """Damped Newton with adaptively resolved continuous Newton corrections.
 
     The dimension n counts equation/output points; the unknown function grid
@@ -67,6 +67,8 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
     from chebfunjax.chebpref import ChebopPref
     from chebfunjax.operators.chebop import SystemSolution
 
+    if backend not in ("chebcolloc2", "chebcolloc1"):
+        raise NotImplementedError("Typed parameter Newton supports C1/C2 values backends only")
     # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
     preferences = ChebopPref()
     lambda_min = preferences.lambdaMin
@@ -150,6 +152,35 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
                     else [start] + [d for d in dimensions if d > start])
         for size in schedule:
             grid_history.append(size)
+            if backend == "chebcolloc1":
+                from chebfunjax.operators._parameter_first_kind import (
+                    FirstKindParameterCorrection,
+                    to_function,
+                )
+                key = (backend, size)
+                if key not in cache:
+                    cache[key] = FirstKindParameterCorrection(out, bc, size, order, domain)
+                disc = cache[key]
+                discretization_history.append({'dimension': size,
+                                               'functionPoints': disc.unknown_size,
+                                               'equationPoints': size,
+                                               'diffOrder': order,
+                                               'backend': backend})
+                vector = disc.solve(residual, bc)
+                if not bool(jnp.all(jnp.isfinite(vector))):
+                    return None, size, False
+                projected, parameters = disc.project(vector)
+                full = to_function(projected, domain)
+                tech = full.funs[0].tech
+                happy, cutoff = Chebtech1.happiness_check(
+                    tech.coeffs, tech.values, tol=bvp_tol, vscale=vscale,
+                    sample_test=False)
+                if happy or n is not None or size == schedule[-1]:
+                    keep = cutoff if happy else size
+                    return [to_function(projected, domain, keep),
+                            *parameters.tolist()], size, happy or n is not None
+                vscale = max(vscale, float(full.vscale))
+                continue
             # Source dimension counts OUTPUT values. The function unknown
             # grid has dimAdjust=diffOrder additional second-kind points.
             unknown_size = size + order

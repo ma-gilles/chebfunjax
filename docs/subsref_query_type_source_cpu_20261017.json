@@ -1,0 +1,129 @@
+{
+  "base": "18823ffcd0d9d75cd40ca05544c0fd0b372bef0a + exact qualified incoming f5 helper/index tests/fixture",
+  "published_bridge": "7d488479d6580b811063eac498a27de57b6fb604 helper is exact preimage f5ccdc1f7814d99554e0e3ba2f7b93c996e14ae5ecc22ef3e3d859fb61c23c69",
+  "integrate_only": [
+    "src/chebfunjax/chebfun1d/_subsref.py",
+    "tests/test_subsref_record_query_types_source.py"
+  ],
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/_subsref.py": "3e5bbabd1bc554398555d47fbf6b7ea5d49f31e734cde0879ca47cb780e6fdb6",
+    "tests/test_subsref_record_query_types_source.py": "75e53b4abd58d103a0f02f048697e0c544f0aaa1d451a4fe2ca45ea0e2c85851"
+  },
+  "patch": "published_f5_delta.patch is the minimal helper delta against current published source",
+  "scope": "Record query ISNUMERIC classification and source dispatch order only; no direct Python evaluation changes.",
+  "source_reference": {
+    "commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "file": "@chebfun/subsref.m",
+    "lines": "59-93 selectors before query classification;96 numeric;114-117 registered function;119 exact colon;129-131 nonnumeric identifier"
+  },
+  "runs": [
+    {
+      "run": "subsref_query_type_baseline_20261017",
+      "tests": 48,
+      "failures": [
+        "test_source_nonnumeric_query_id[python_true]",
+        "test_source_nonnumeric_query_id[python_false]",
+        "test_source_nonnumeric_query_id[numpy_scalar_logical]",
+        "test_source_nonnumeric_query_id[jax_scalar_logical]",
+        "test_source_nonnumeric_query_id[numpy_logical_row]",
+        "test_source_nonnumeric_query_id[jax_logical_column]",
+        "test_source_nonnumeric_query_id[logical_matrix]",
+        "test_source_nonnumeric_query_id[empty_logical]",
+        "test_source_nonnumeric_query_id[logical_list]",
+        "test_source_nonnumeric_query_id[logical_nested_list]",
+        "test_source_nonnumeric_query_id[numpy_text]",
+        "test_source_nonnumeric_query_id[bytes]",
+        "test_source_nonnumeric_query_id[object_cell]",
+        "test_source_nonnumeric_query_id[dict]",
+        "test_source_nonnumeric_query_id[callable]",
+        "test_source_nonnumeric_query_id[none]",
+        "test_source_nonnumeric_query_id[array_conversion]",
+        "test_source_nonnumeric_query_id[jax_conversion]",
+        "test_source_nonnumeric_query_id[foreign_sequence]",
+        "test_traced_logical_query_rejects_source_id"
+      ],
+      "wall_seconds": 19.156624020077288,
+      "peak_kib": 1071400,
+      "runtime_files": 1409,
+      "guard_inputs": 8115,
+      "stable": true,
+      "no_survivors": true
+    },
+    {
+      "run": "subsref_query_type_candidate_20261017",
+      "tests": 48,
+      "failures": [],
+      "wall_seconds": 14.870300586801022,
+      "peak_kib": 1026692,
+      "runtime_files": 1409,
+      "guard_inputs": 8115,
+      "stable": true,
+      "no_survivors": true
+    },
+    {
+      "run": "subsref_query_type_records_20261017",
+      "tests": 15,
+      "failures": [],
+      "wall_seconds": 32.08205505181104,
+      "peak_kib": 1714800,
+      "runtime_files": 1419,
+      "guard_inputs": 8115,
+      "stable": true,
+      "no_survivors": true
+    },
+    {
+      "run": "subsref_query_type_legacy_20261017",
+      "tests": 39,
+      "failures": [],
+      "wall_seconds": 25.606959789060056,
+      "peak_kib": 1165704,
+      "runtime_files": 1484,
+      "guard_inputs": 8115,
+      "stable": true,
+      "no_survivors": true
+    },
+    {
+      "run": "subsref_query_type_packing_20261017",
+      "tests": 20,
+      "failures": [],
+      "wall_seconds": 17.806135984137654,
+      "peak_kib": 1186356,
+      "runtime_files": 1405,
+      "guard_inputs": 8115,
+      "stable": true,
+      "no_survivors": true
+    }
+  ],
+  "distinct_candidate_nodes": 122,
+  "new_authored_nodes": 48,
+  "repeated_affected_legacy_nodes": 74,
+  "baseline_failed": 20,
+  "baseline_passed": 28,
+  "static_pass": true,
+  "semantics": [
+    "Reject scalar/array logical, including empty/all-logical sequences, with source nonnumeric identifier.",
+    "Accept standard integer/real/complex numeric inputs; static dtype dispatch preserves traced numeric values and AD.",
+    "Selector errors retain source precedence; typed composition/colon unchanged.",
+    "Reject text/object arrays, callable/cell-like/foreign conversion-only objects without invoking arbitrary conversion hooks.",
+    "Direct Python f(bool) and FEVAL behavior remain byte-identical and regression-tested.",
+    "No production expected values, reference fixture injection, degree overrides, tolerance changes or NumPy numeric dispatch."
+  ],
+  "adapters": [
+    "Python nested numeric lists/tuples represent numeric arrays, including mixed numeric/logical arrays promoted to numeric. They do not establish MATLAB cell parity.",
+    "Python str models native char; exact colon is native char colon. Unicode arrays are rejected. No MATLAB string-class adapter is claimed.",
+    "NumPy ndarray adapter reads storage metadata without importing NumPy; standard JAX arrays/tracers are accepted by numeric dtype."
+  ],
+  "dependencies": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_index_packet_20261017/qualified_evidence.zip",
+      "sha256": "605af517c4a59cbc96cbf66c8eb82f039017cf2dafeeff134a0b40ecab1a4c4c",
+      "role": "Prior published source index correction/component evidence; no new native capture needed for explicit source ISNUMERIC branch."
+    }
+  ],
+  "limits": [
+    "Not full native type-system/API parity. Other15-group audit gaps stay open except previously narrowed index/packing and this query-classification subset.",
+    "Numeric/foreign recursive records, GET/hscale, cells/properties, empty receiver, higher-rank selectors and unqualified foreign subclasses/extended scalar types remain open.",
+    "Authored source-routing/analytic controls are not additional original MATLAB assertions; source32 originals remain prior component credit.",
+    "No native run in this package; existing native comparison fixture belongs to immutable prior native capture, not fresh full native-runtime qualification."
+  ]
+}

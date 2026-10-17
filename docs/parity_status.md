@@ -85,6 +85,16 @@ remaining-page count.
   constructor/output-bit parity. Remaining query-type/recursive/property
   gaps are explicit in [index evidence](subsref_record_indices_cpu_20261017.json).
 
+- [x] Natural adaptive first-kind numeric parameter backend: original C1
+  passes at unchanged5e-10; original C2 regression unchanged. Root C1
+  repeat44.028s, exact143runtime-source bridge into combined checkout.
+- [x] Source numeric query classification:122component controls and fresh
+  combined-source68integration controls pass19.075s. Logical/foreign
+  nonnumeric queries reject without conversion hooks; direct Python calls
+  retain their separate convention. [Combined evidence](c1_query_joint_cpu_20261017.json).
+- [ ] Natural ultraspherical parameter backend; broader C1 APIs and C2
+  factor eligibility policy; numeric recursion and cell/property dispatch.
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted

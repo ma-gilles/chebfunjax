@@ -5,6 +5,8 @@ stand for source rows); direct Python evaluation/index contracts are unchanged.
 Column selectors are static for JIT. Numeric query values remain traced.
 """
 
+import numbers
+
 import jax
 import jax.numpy as jnp
 
@@ -135,6 +137,35 @@ def _function_operand(x):
     return isinstance(x, (Chebfun, Quasimatrix, Chebfun2, Chebfun3, Diskfun, Spherefun))
 
 
+def _numeric_query(x):
+    # Native ISNUMERIC excludes logicals, cells and conversion-only objects.
+    # Lists/tuples are the Python numeric-array adapter, not MATLAB cells.
+    if isinstance(x, bool):
+        return False
+    if isinstance(x, numbers.Number):
+        return True
+    if isinstance(x, (list, tuple)):
+        def numeric_leaves(value):
+            if isinstance(value, (list, tuple)):
+                return all(numeric_leaves(item) for item in value)
+            return isinstance(value, numbers.Number)
+        if not numeric_leaves(x):
+            return False
+        try:
+            dtype = jnp.asarray(x).dtype
+        except (TypeError, ValueError):
+            return False
+    elif isinstance(x, (jax.Array, jax.core.Tracer)):
+        dtype = x.dtype
+    elif type(x).__module__ == 'numpy' and type(x).__name__ == 'ndarray':
+        # Inspect host-array metadata without importing NumPy or invoking an
+        # arbitrary object's __array__/__jax_array__ conversion protocol.
+        dtype = x.dtype
+    else:
+        return False
+    return jnp.issubdtype(dtype, jnp.number)
+
+
 def source_subsref(f, index):
     records = [index] if isinstance(index, dict) else list(index)
     if not records:
@@ -176,17 +207,17 @@ def source_subsref(f, index):
         x = args[0]
         with jax.ensure_compile_time_eval():
             columns, side = _source_columns(args[1] if len(args) == 2 else ':', obj.n_columns)
-        if _colon(x):
-            with jax.ensure_compile_time_eval():
-                positions = _colon_positions(columns, obj.n_columns)
-            out = obj if positions is None else obj[:, positions]
-        elif isinstance(x, str):
-            fail('nonnumeric', 'Cannot evaluate chebfun for non-numeric type.')
+        if _numeric_query(x):
+            out = _numeric_index(obj, x, columns, side)
         elif _function_operand(x):
             # Source ignores columnIndex in the typed composition branch.
             out = obj(x, side=side)
+        elif _colon(x):
+            with jax.ensure_compile_time_eval():
+                positions = _colon_positions(columns, obj.n_columns)
+            out = obj if positions is None else obj[:, positions]
         else:
-            out = _numeric_index(obj, x, columns, side)
+            fail('nonnumeric', 'Cannot evaluate chebfun for non-numeric type.')
         if transposed:
             out = out.T if hasattr(out, 'funs') else (
                 jnp.swapaxes(out, 0, 1) if out.ndim >= 2 else out)

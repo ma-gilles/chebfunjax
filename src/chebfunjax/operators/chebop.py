@@ -1192,6 +1192,17 @@ class Chebop:
                         solution = SystemSolution(solution)
                     return self._simplify_solution(solution)
         if selection in ("ultraS", "chebcolloc1"):
+            if (selection == "chebcolloc1" and length_dom == 2
+                    and not self._periodic
+                    and all(bool(jnp.isfinite(v)) for v in self.domain)
+                    and self._has_explicit_scalar_parameters()
+                    and not self._system_is_linear()):
+                # Preserve the native numeric parameter columns and source
+                # Newton policies on the explicitly requested C1 backend.
+                from chebfunjax.operators.parameter_newton import solve_parameter
+                return solve_parameter(self, f, n=n, max_iter=max_iter,
+                                       bvp_tol=tol, n_min=n_min, n_max=n_max,
+                                       backend=selection)
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
             from chebfunjax.operators.chebop_altdisc import (
                 solve_bvp_altdisc,

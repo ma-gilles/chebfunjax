@@ -1,0 +1,104 @@
+{
+  "scope": "Genuine first-kind typed scalar-parameter Newton correction; one literal original adaptive C1 predicate, authored controls and unchanged C2 regression, not full nonlinear/backend API or native output/timing parity.",
+  "base": "18823ffcd0d9d75cd40ca05544c0fd0b372bef0a",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "Scoped qualified candidate; parent integration/publication pending.",
+  "baseline_failure": "Literal natural adaptive C1 setup raises CHEBFUN:LINOP:linsolve:notSquare,matrix66x130 in legacy SystemDisc after values continuation. Genuine exception, not resource censor; no supplied a_derivative equation.",
+  "correction": "First-kind n+order function column, scalar coefficient columns on their own n-grid, leading native BC rows, row-scaled JAX LU, blockdiag(function_projection,scalar_identity), C1 toFunctionOut. No C2 reroute or values continuation seed.",
+  "initial_representation": "Retained; no wholesale conversion or supplied solved values/C2 seed.",
+  "factor_semantics": "Cache frozen assembly by(backend,size). Lazy LU obeys native output-dimension isFactored predicate: positive-order factor rows n+order+parameter_count do not equal n+parameter_count, so each solve refactors; order0 eligible case reuses. Immutable assembled matrices are retained for the frozen linearization.",
+  "candidate_distinct_nodes": 15,
+  "counts": {
+    "source_primitives_including4_independent_polynomial_matrix_actions": 12,
+    "complex_manufactured_numeric_parameter": 1,
+    "literal_original_natural_adaptive_C1": 1,
+    "unchanged_original_adaptive_C2": 1
+  },
+  "literal_C1": {
+    "signed_aggregate": 7.120248062109635e-11,
+    "bound": 5e-10,
+    "residual_L2": 5.7929653339400135e-11,
+    "numeric_parameter": -0.16960447912770055,
+    "equation_dimensions": [
+      32,
+      64
+    ],
+    "function_grid_sizes": [
+      34,
+      66
+    ],
+    "pytest_seconds": 42.41
+  },
+  "unchanged_C2": {
+    "residual_L2": 5.788634498470987e-11,
+    "numeric_parameter": -0.16960447912770057,
+    "pytest_seconds": 46.01,
+    "AST_bridge": "Existing default C2 body and outer Newton policies exactly AST-identical after removing only the added optional backend argument, backend validation and C1 branch."
+  },
+  "receipts": {
+    "baseline_literal_c1": {
+      "wall_seconds": 80.24367265589535,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 3009848,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 47261,
+      "pytest_nodes": 1,
+      "pytest_failures": 1
+    },
+    "primitive_c1": {
+      "wall_seconds": 38.06294853100553,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1508584,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 47262,
+      "pytest_nodes": 12,
+      "pytest_failures": 0
+    },
+    "manufactured_c1": {
+      "wall_seconds": 37.13524911412969,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1494360,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 47263,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "literal_c1": {
+      "wall_seconds": 89.65851760609075,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2419160,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 47264,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "original_c2": {
+      "wall_seconds": 73.07322798389941,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2504152,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 47265,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    }
+  },
+  "static_checks": "Full repo Ruff src/tests passes on final numerical v3 bytes. All5 library/test deliverables unchanged across review and numerical guards.",
+  "resource_scope": "Serial CPU36-39 groups: baseline/manufactured/C1/C2<=180s3GiB; primitives<=120s2GiB. Sampled RSS is not PSS or a guaranteed true peak. No matched performance ratio. Root later permitted a separate tiny2GiB API control onCPU32-35 during final C2; no benchmark claim.",
+  "no_bound_changes": "Original signed C1 aggregate5e-10, original C2 assertions, supplemental complex1e-10 bounds and original per-test timeouts retained. Primitive bounds are explicitly source-dimension/epsilon normwise floating budgets.",
+  "remaining": [
+    "ultraS natural/default adaptive scalar-parameter source setup remains unsupported/unqualified; legacy adapted pprime=0,n96,1e-7 mappings remain separate.",
+    "Full multi-function/parameter ordering, nonexplicit scalar seed, piecewise/nonlocal alternative backend and broader preference/API branches remain open.",
+    "C2 native factor-eligibility debt remains unchanged; no claim that passing original C2 closes all source schedules.",
+    "No new native stage/output capture, native FFT bit parity, matched timings or latest-main combined-source qualification claimed."
+  ]
+}

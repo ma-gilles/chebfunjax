@@ -1,3 +1,43 @@
+## Typed C1 parameter backend and numeric query types — 2026-10-17
+
+Natural nonlinear single-function C1 problems with explicitly seeded numeric
+scalar parameters now use first-kind corrections with n+order function
+unknowns and scalar columns on their own n-grid. Native leading BCs,
+row scaling, factor eligibility and projection/toFunctionOut are preserved.
+The existing Newton damping, adaptive schedules and C2 body are unchanged.
+No parameter differential equation, C2 solve/seed or fixed degree was added.
+Finite single-interval, nonperiodic scope only; ultraS remains open.
+
+Component15distinct nodes pass:12 primitives, complex manufactured1,
+literal adaptive original C1 and unchanged original C2. Original signed C1
+aggregate7.120248062109635e-11 passes unchanged5e-10. Root original C1
+repeat passes44.028s with8197stable inputs and1426observed imports all
+preguarded; sampled peak2.30GiB/no survivors. All143runtime source/test
+files match the combined checkout; the changed record helper was not
+imported by that C1 run. This is an exact runtime-source bridge, not a
+new C1 numerical rerun after the helper adjustment.
+
+Source Subsref now classifies numeric queries before typed composition and
+colon, excludes logicals and unsupported foreign conversion-only objects,
+and raises native nonnumeric without invoking conversion hooks. Python
+numeric list/tuple handling is an explicit array adapter, not native cells.
+Direct Python call conventions are unchanged. Query component122distinct
+controls pass (48new+74affected/legacy); baseline20of48new controls fail.
+Fresh combined-source root68controls pass19.075s,8199stable inputs,
+1411observed imports allpreguarded,1.49GiB sampled peak/no survivors.
+
+Parent verified C1 component146payloads and35pinned native static sources,
+283575guard edges through9598full-byte versions across9archives; query
+component7957payloads and40575guard edges. Root joint archive8119payloads
+verified. Full static checks pass without NumPy waiver. Evidence:
+docs/c1_query_joint_cpu_20261017.json and the two component documents.
+No native-output/timing/complete API parity claim.
+
+Remaining: natural ultraS backend, broader C1 APIs, preexisting C2 factor
+policy, numeric/foreign recursion and cell/property/higher selectors.
+All full-test/page/figure/performance/green-latest-CI requirements remain open.
+Older checkpoint sections below retain historical scope.
+
 ## Native record selector semantics — 2026-10-17
 
 Programmatic Chebfun.subsref records now preserve native column branch order
