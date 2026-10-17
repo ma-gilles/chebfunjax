@@ -1,3 +1,13 @@
+# Latest real Hermite ASY source order — 2026-10-17
+
+Derivative scale now divides by phi before multiplying dval, matching native
+hermpts.m const/const.*dval order.17current-source CPU checks pass:4existing
+mapped original nodes,3independent ASY251/1000/1001 and10normalization controls.
+No new native invocation, speed gain or raw-bit identity is claimed.
+The n<21 restriction remains; small complex ASY/Airy/free-trajectory parity
+and latest-main CI/coverage remain open. Evidence:
+`docs/hermite_derivative_order_cpu_20261017.json`.
+
 # Latest original minandmax scope — 2026-10-17
 
 All14default original minandmax predicates now retain native operands and

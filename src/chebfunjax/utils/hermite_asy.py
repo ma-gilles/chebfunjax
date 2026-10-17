@@ -107,7 +107,8 @@ def _hermite_asy_value_derivative(n: int, theta: jax.Array):
         a0 * phi**12 * v2 + a1 * phi**6 * v1 + a2 * v0
     ) / chi**3
     dval = dval + d1 * aip / musq**2
-    dval = jnp.sqrt(2.0 * jnp.pi) * musq ** (1.0 / 3.0) * dval / phi
+    derivative_scale = jnp.sqrt(2.0 * jnp.pi) * musq ** (1.0 / 3.0) / phi
+    dval = derivative_scale * dval
     return val, dval
 
 

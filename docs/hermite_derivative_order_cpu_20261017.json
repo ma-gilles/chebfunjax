@@ -1,0 +1,37 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "2c0218e2214558c968ffa9eab5728a013f49768e",
+  "scope": "Source derivative operation-order alignment in real Hermite ASY; n<21 guard remains unchanged.",
+  "change": "Compute sqrt(2*pi)*musq^(1/3)/phi first, then multiply dval, matching native const followed by const.*dval. Earlier JAX regrouped multiplication before division.",
+  "native_source": {
+    "path": "hermpts.m",
+    "sha256": "c49970d3651efc71d9808598822f2dcc92201d1333db18267f42437135e3c430",
+    "lines": [
+      462,
+      486
+    ],
+    "scope": "Static pinned source audit; no new native invocation."
+  },
+  "validation": {
+    "nodes": 17,
+    "scope": "Four existing mapped original Hermite nodes, three independent ASY251/1000/1001 controls, ten public normalization-routing controls. No new original-predicate-count claim.",
+    "wall_seconds": 23.3271164749749,
+    "sampled_peak_summed_rss_kib": 1607660,
+    "inputs_stable": true,
+    "survivors": [],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_order_parent_run001/receipt.json"
+  },
+  "source_sha256": "2b3e7b2d5934414c022706c06e7bfe20f9d649dddf6e6401c252bca454319361",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_order_parent_cpu_20261017.tar.gz",
+    "sha256": "c35ad0855ad0fc7a76e02f943c655be9f0d3e65775de15b2f349664c03dc400d",
+    "verified_payloads": 32
+  },
+  "limitations": [
+    "No measured speed improvement or new failing-default-test repair claimed.",
+    "No proof of arbitrary native bit identity or compiler operation ordering.",
+    "Small n<21 public ASY restriction, complex Airy branch and free-trajectory parity remain open.",
+    "Causal diagnostic native helper injection is separate and never production.",
+    "Full library/API/alternate preference parity and latest-main CI/coverage remain required."
+  ]
+}

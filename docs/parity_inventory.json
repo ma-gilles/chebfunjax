@@ -125,6 +125,11 @@
       "unique_full_byte_preimages": 8012,
       "verified_payloads": 19285
     },
+    "hermite_derivative_order_cpu_20261017": {
+      "path": "docs/hermite_derivative_order_cpu_20261017.json",
+      "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion",
+      "sha256": "8164e5f245a550bd70d36ba1b0eaeb6c53cee29384a6b9231c5c840dc78a5a8d"
+    },
     "inverse_packed_color_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_color_cpu_20261017.zip",
@@ -94484,7 +94489,15 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "hermite_derivative_order_cpu_20261017"
+          ],
+          "kind": "source_order_cpu_regression",
+          "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
