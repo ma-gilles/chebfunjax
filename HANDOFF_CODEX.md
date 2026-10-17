@@ -1,3 +1,36 @@
+## Source composition/error reporting and PDE scope — 2026-10-17
+
+C2 default nested composition now uses native prolonged-coefficient transforms,
+new-grid selection, old-sample reuse and initial endpoint NaN policy.38 focused
+checks pass:16quasimatrixpower,11newsource controls and11legacy mapped C2cases.
+Original cube error4.71e-15 now1.62e-16 at unchanged4.46e-15 bound; natural
+lengths remain31 versus20/31/21. The11legacy mapped cases use adapted grids/
+norms and do not qualify all44literal native compose predicates/preferences.
+Literal44 restoration remains required, including matrix row-sum norms and
+exact native error identifiers.
+
+Polynomial minimax returns native stored exchange errmin instead of overwriting
+it with a nonnative final-grid estimate.17 unchanged checks pass, including
+original14/15/20. No test/tolerance change. Combined8 cases pass with current
+C1/C2/minimax source; strict5042-input guard includes all1423 runtime modules,
+root configuration, stable inputs and no survivors. Repeats are not extra tests.
+
+PDE scope correction: the exact mapped original technology-session test passes
+unchanged (11outputs perC1/C2; Frobenius1.012498e-11<2.220446e-11). The separate
+authored CI advection control uses[-1,1],fixed48,.05,times0..4,rtol1e-9/atol1e-11
+and remains failing. Prior FFT/matched-input replay applies to that control;
+it does not establish failure of the original[-2.5,3],adaptive,.1/default1e-6test.
+
+Native dot15 probe confirms both DDE corners are visible, but contradicts four
+simple clipping hypotheses; no general fix or epsilon padding is justified.
+Full source/representation/page/figure/performance/JAX-only parity and latest
+CI remain incomplete. Evidence:docs/minimax_c2_integrated_cpu_20261017.json,
+docs/chebtech2_compose_source_cpu_20261017.json,
+docs/minimax_exchange_error_cpu_20261017.json,
+docs/pde_original_mapped_cpu_20261017.json,
+docs/pde_matched_input_native_cpu_20261017.json,
+docs/dde_dot_boundary_native_cpu_20261017.json.
+
 ## Composition sampling, tiny minimax and original parameter BC tests — 2026-10-17
 
 Chebtech1 composition now follows native coefficient prolongation/coeffs2vals

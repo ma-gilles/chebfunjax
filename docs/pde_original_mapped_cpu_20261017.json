@@ -1,0 +1,107 @@
+{
+  "status": "Original mapped PDE predicate passes",
+  "base_commit": "0b5efb98c34e98b90f3261a0432222f7cf1f6892",
+  "node": "tests/test_matlab_port/misc/test_pde15s_matlab.py::TestMiscPde15s::test_all_matlab_assertions",
+  "source_reference": "7574c77680d7e82b79626300bf255498271a72df/tests/misc/test_pde15s.m first predicate",
+  "predicate_passed": true,
+  "original_predicates_qualified": 1,
+  "public_calls": [
+    {
+      "index": 0,
+      "technology": "Chebtech1",
+      "domain": [
+        -2.5,
+        3.0
+      ],
+      "coefficient_shape": [
+        33
+      ],
+      "stored_endpoints_present": true,
+      "options": {
+        "lbc": "<function TestMiscPde15s.test_all_matlab_assertions.<locals>.<lambda> at 0x14e129336d40>",
+        "rbc": "0.0"
+      },
+      "returned_count": 11
+    },
+    {
+      "index": 1,
+      "technology": "Chebtech2",
+      "domain": [
+        -2.5,
+        3.0
+      ],
+      "coefficient_shape": [
+        33
+      ],
+      "stored_endpoints_present": true,
+      "options": {
+        "lbc": "<function TestMiscPde15s.test_all_matlab_assertions.<locals>.<lambda> at 0x14e1294e3740>",
+        "rbc": "0.0"
+      },
+      "returned_count": 11
+    }
+  ],
+  "source_operands": {
+    "callback": "sin(pi*x)",
+    "domain": [
+      -2.5,
+      3.0
+    ],
+    "tech_sessions": [
+      "Chebtech1",
+      "Chebtech2"
+    ],
+    "pde": ".1*u.diff(2)+u.diff()",
+    "output_times": "0:.1:1",
+    "bound": "Frobenius norm of11 output-column differences <1e5*ChebfunPref().chebfuneps",
+    "solver_options": "Default adaptive spatial grid and default1e-6 rtol/atol/spatial bounds. Only original lbc=lambda u:u.diff(), rbc=0.0 supplied."
+  },
+  "observer_scope": "One I/O-only wrapper on public pde15s. Copies existing input coefficients/domain/_point_values/times/options and returned count or exception. No extra callback, endpoint evaluation, numerical solve, global trace or solver override.",
+  "prior_evidence_scope": "Retained[-1,1]/fixed48/.05 diffusion/1e-9,1e-11 startup FFT/matched-native evidence concerns the separate authored stability control, not this mapped original adaptive predicate.",
+  "runs": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 41.92490211268887,
+    "sampled_peak_summed_rss_kib": 1844880,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "guarded_inputs": 7862,
+  "runtime_imports": {
+    "count": 1397,
+    "changed": {},
+    "unguarded": {}
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_original_mapped_20261017/src/chebfunjax/__init__.py",
+    "backend": "cpu",
+    "x64": true,
+    "affinity": [
+      32,
+      33,
+      34,
+      35
+    ]
+  },
+  "production_changes": [],
+  "test_or_bound_changes": false,
+  "scope_limits": [
+    "This single mapped original predicate is distinct from the authored advection-dominated stability test.",
+    "No new native capture, literal native bit/representation comparison, full PDE coverage, page or performance qualification.",
+    "Raw pytest warnings/stdout/stderr remain retained."
+  ],
+  "artifact_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_original_mapped_run_20261017",
+  "evidence_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_original_mapped_run_20261017/EVIDENCE.json",
+  "verified_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_original_mapped_run_20261017/qualified_evidence.zip",
+    "sha256": "6bb20c6135c0a0a5ff1e16f3bf9f0e688d2ee304f6fb7282890ed71911dc455a",
+    "verified_payloads": 7771,
+    "scope": "ExactmappedoriginalPDEtest at0b5efb98 passesunchanged; distinctauthoredfixed48CIcontrol remainsopen."
+  },
+  "scope_correction": "Original mapped technology-session test passes at0b5efb98 using documented Python list/boundary keyword/arange time-grid adapters. It is distinct from fixed48 authored CI control whose retained matched-input native replay fails. No fresh native original-time-grid or representation-bit claim."
+}

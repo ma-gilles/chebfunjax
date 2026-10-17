@@ -411,25 +411,12 @@ def minimax(
         xo = xk.copy()
         iter_count += 1
 
-    # Use best result over all iterations
+    # Native minimaxKernel returns the stored exchange error with pmin.
+    # Re-evaluating on an unrelated grid changes that output contract.
     if p_coeffs_min is not None:
         p_coeffs_final = p_coeffs_min
         err_final = err_min
         xk_final = xk_min
-        # Report the DENSE-GRID sup error of the returned coefficients.
-        # The in-loop err comes from the exchange's extremum search on
-        # the current reference; on a stalled reference (|x| at high n)
-        # it can undershoot the true global error by more than 1e-5
-        # relative, platform-dependently (observed on CI runners where
-        # the same run converges differently than on the dev machine).
-        xd = np.concatenate([
-            np.linspace(a, b, 20001),
-            0.5 * (a + b) + 0.5 * (b - a) * np.cos(
-                np.pi * np.arange(4097) / 4096),
-        ])
-        fd = np.asarray(f(jnp.array(xd)), dtype=np.float64).ravel()
-        pd = _eval_poly_bary(xd, p_coeffs_final, a, b)
-        err_final = float(np.max(np.abs(fd - pd)))
     else:
         # Loop never iterated -- compute from initial xk
         fk = np.asarray(f(jnp.array(xk)), dtype=np.float64).ravel()

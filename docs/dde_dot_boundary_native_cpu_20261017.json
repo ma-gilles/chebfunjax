@@ -1,0 +1,24 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dde_dot_boundary_native_20261017/qualified_evidence.zip",
+  "sha256": "3644adeb22ba82a9d41b6980717862c71bca418f731fe2260decf1a1b81bbf8b",
+  "verified_payloads": 3466,
+  "status": "Native dot15 diagnostic; general clipping rule unresolved, no source changes",
+  "actual_DDE_corners_visible": 2,
+  "boundary_cases": 188,
+  "visible_boundary_cases": 134,
+  "native_vertex_class": "single",
+  "native_clipping": "on/3dbox",
+  "requested_renderer": "painters",
+  "actual_renderer": "softwareWebGL/SwiftShader",
+  "hypothesis_mismatches": {
+    "strict_binary64_data": 84,
+    "raw_binary32_data": 44,
+    "normalized_binary64": 81,
+    "normalized_binary32": 24
+  },
+  "scope_limits": [
+    "SVG valid; native PNG black/white and unsuitable for marker inference.",
+    "Single vertices and translated origin shifts observed; actual model/view/DataSpace/export clip arithmetic not captured.",
+    "No universal rule follows; no epsilon padding or data movement accepted. Full DDE figure17 remains open."
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "scope": "Source Chebtech2 nested composition sampling correction; no full parity or latest-main CI claim.",
+  "base": "fc44a7d4b5f1cdbfa2236b939ba1d3dd3fd6b14d",
+  "native_source": "7574c77680d7e82b79626300bf255498271a72df",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech2_compose_source_cpu_20261017.tar.gz",
+  "archive_sha256": "ee79014a35e974e6cc03cf14ab235a5cdc60f81d70c757201a64e72f91724d13",
+  "verified_payload_files": 3979,
+  "guard_edges": 26509,
+  "runtime_postimport_edges": 13819,
+  "unique_blobs": 3859,
+  "tests": {
+    "distinct_passing": 38,
+    "quasimatrix_power": 16,
+    "new_source_controls": 11,
+    "initial_one_case_gate_is_subset": true,
+    "initial9newcontrols_are_subset": true,
+    "unchanged_mapped_C2_compose": 11
+  },
+  "baseline_error": 4.710766501834063e-15,
+  "baseline_bound": 4.4598851108163315e-15,
+  "candidate_error": 1.6217059355982333e-16,
+  "candidate_bound": 4.459885110816334e-15,
+  "rng": {
+    "numpy": "2.4.3",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "backend": "cpu",
+    "x64": true,
+    "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quasimatrix_power_source_20261017/checkout/src/chebfunjax/__init__.py",
+    "equal_bits": true,
+    "sites": 100,
+    "fixture_sha256": "c618cbe0aa29a90b2ecf65f83eebcf5bf260879d98e647d01eb646518d6ca24b"
+  },
+  "runs": {
+    "baseline": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 10.520848663989455,
+      "sampled_peak_summed_rss_kib": 809284,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "diagnostic": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 9.613714366685599,
+      "sampled_peak_summed_rss_kib": 820104,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "transforms": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.232523584738374,
+      "sampled_peak_summed_rss_kib": 743672,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "candidate": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.348067366052419,
+      "sampled_peak_summed_rss_kib": 849588,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "newcontrols": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 5.695964157115668,
+      "sampled_peak_summed_rss_kib": 580832,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "newcontrols_v2": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.424793893005699,
+      "sampled_peak_summed_rss_kib": 610796,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "original_c2": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.801232193131,
+      "sampled_peak_summed_rss_kib": 1105276,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "quasi_all": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 41.89621605491266,
+      "sampled_peak_summed_rss_kib": 2168524,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "candidate_diagnostic": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.258188227191567,
+      "sampled_peak_summed_rss_kib": 867112,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "finalcontrols": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.87494662264362,
+      "sampled_peak_summed_rss_kib": 740300,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    }
+  },
+  "source_scope": {
+    "base": "fc44a7d4b5f1cdbfa2236b939ba1d3dd3fd6b14d",
+    "only_modified_ast_node": "Chebtech2.compose",
+    "all_other_ast_nodes_equal": true,
+    "baseline_source_sha256": "e465e8cac62d0be0b36a206e83d58c2f53b4963cef2ddd6c2156ab92bc651555",
+    "candidate_source_sha256": "4fbac8a443f1d05d6f4b156721895671f0beb90dc7ac114addf15c3488553fd5",
+    "compose_method_sha256": "27f7005a166d00f58aa57d7cae6ad1cc1ab2f4ccd8bafc263d21c76239cd7d1f",
+    "published_Chebtech1_method_not_modified": "Deliver method hunk onto current main; do not replace entire fc44-based module."
+  },
+  "limitations": [
+    "No native execution in this package: algorithm is translated from pinned source; RNG uses an existing native fixture with exact100-site bit comparison.",
+    "Native FFT-provider bits and exact representations remain separate open gaps.",
+    "Only existing default nested composition API is corrected; broader native resampling/custom preference API variants are not newly exposed or qualified.",
+    "Other host NumPy/SciPy routes and full library/pages/performance/CI acceptance remain incomplete."
+  ],
+  "failed_attempts": [
+    "Original baseline source assertion failed at4.710766501834063e-15 versus4.4598851108163315e-15.",
+    "First authored nested-control assertion used prohibited JAX list indexing in the test itself; two cases failed before checking sentinel values. Corrected only the NumPy-view indexing syntax; original bounds and test contracts unchanged. Preimage retained."
+  ],
+  "mapped_test_scope_correction": "The11 unchanged legacy mapped default-C2 cases use several adapted norms/grids/shape comparisons and do not restore all literal native predicates. Matrix row-sum norms, retained native h/vscale, exact error identifiers and all4native preference rows remain separately required. Count is mapped controls, not11fullyrestoredoriginalassertions."
+}

@@ -3521,6 +3521,11 @@ class Chebtech2(eqx.Module):
         --------
         from_function, restrict
         """
+        def grid_values(tech, n, rows):
+            # @chebtech2/compose.m prolongs each operand and transforms its
+            # coefficients before selecting new nested-grid samples.
+            return tech.coeffs2vals(_prolong_coeffs(tech.coeffs, n))[rows]
+
         if isinstance(op, Chebtech2):
             # Compose two Chebtech2 objects: op(self(x))
             if self.coeffs.ndim == 2 and op.coeffs.ndim == 2:
@@ -3534,6 +3539,7 @@ class Chebtech2(eqx.Module):
                     "techs g(f) (MATLAB CHEBTECH:compose:arrval).")
             op_cheb = op
             composed_func = lambda x: op_cheb(self(x))  # noqa: E731
+            sample_n = lambda n, rows: op_cheb(grid_values(self, n, rows))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
         elif g is not None:
             # Binary operator: op(self(x), g(x)).  A scalar-valued
@@ -3544,15 +3550,40 @@ class Chebtech2(eqx.Module):
             g_cols = g.coeffs.ndim == 2
             if f_cols and not g_cols:
                 composed_func = lambda x: op(self(x), g(x)[..., None])  # noqa: E731
+                sample_n = lambda n, rows: op(grid_values(self, n, rows), grid_values(g, n, rows)[..., None])  # noqa: E731
             elif g_cols and not f_cols:
                 composed_func = lambda x: op(self(x)[..., None], g(x))  # noqa: E731
+                sample_n = lambda n, rows: op(grid_values(self, n, rows)[..., None], grid_values(g, n, rows))  # noqa: E731
             else:
                 composed_func = lambda x: op(self(x), g(x))  # noqa: E731
+                sample_n = lambda n, rows: op(grid_values(self, n, rows), grid_values(g, n, rows))  # noqa: E731
             min_n = max(self.n, g.n)
         else:
             # Unary operator: op(self(x))
             composed_func = lambda x: op(self(x))  # noqa: E731
+            sample_n = lambda n, rows: op(grid_values(self, n, rows))  # noqa: E731
             min_n = self.n
+
+        def refine_values(_function, values, pref):
+            initial = values is None or values.shape[0] == 0
+            n = (2 ** math.ceil(math.log2(pref["minSamples"] - 1)) + 1
+                 if initial else 2 * values.shape[0] - 1)
+            if n > pref["maxLength"]:
+                if not initial:
+                    return values, True
+                n = pref["maxLength"]
+            if initial:
+                if pref["extrapolate"]:
+                    interior = sample_n(n, slice(1, -1))
+                    nans = jnp.full((1,) + interior.shape[1:], jnp.nan,
+                                    dtype=interior.dtype)
+                    return jnp.concatenate((nans, interior, nans)), False
+                return sample_n(n, slice(None)), False
+            fresh = sample_n(n, slice(1, -1, 2))
+            result = jnp.empty((n,) + values.shape[1:],
+                               dtype=jnp.result_type(values, fresh))
+            result = result.at[::2].set(values)
+            return result.at[1:-1:2].set(fresh), False
 
         # Match MATLAB: minSamples = max(pref.minSamples, length(f))
         # Start from a power of 2 grid large enough to hold min_n points.
@@ -3568,6 +3599,7 @@ class Chebtech2(eqx.Module):
             # minSamples to cover every operand.
             sample_test=False,
             extrapolate=extrapolate,
+            refinement_function=refine_values,
         )
 
     # ------------------------------------------------------------------

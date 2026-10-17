@@ -1,0 +1,46 @@
+{
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "0b5efb98c34e98b90f3261a0432222f7cf1f6892",
+  "scope": "Combined8 are repeats of component gates, notadditionaldistincttests. Originalminimax14/15/20,tinyamplitude,quasicube,C1dyadiccube,C2complexbranchbothsigns.",
+  "records": {
+    "minimax_c2_integration_gate_20261017": {
+      "passed": 8,
+      "pytest_seconds": 53.09,
+      "owned_seconds": 60.04126073606312,
+      "peak_kib": 2922088,
+      "guarded_inputs": 3754,
+      "runtime_import_files": 1423,
+      "runtime_uncovered_count": 1284,
+      "runtime_changed": {},
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "minimax_c2_integration_gate_v2_20261017": {
+      "passed": 8,
+      "pytest_seconds": 54.079,
+      "owned_seconds": 61.16087360307574,
+      "peak_kib": 2924280,
+      "guarded_inputs": 5042,
+      "runtime_import_files": 1423,
+      "runtime_uncovered_count": 0,
+      "runtime_changed": {},
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "initial_scope_limit": "First8pass run froze source/tests/environment but omitted rootprojectconfig. Repeat same8/source also preguards rootconfigs and prior actual runtimeimports. Bothruns retained; final5042inputguard haszero uncovered actualimports.",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_c2_integration_cpu_20261017.tar.gz",
+  "sha256": "384e35d68e8b73e12b6dbf48fa728b4ade230dfdf505817038e442e15bdc4e55",
+  "verified_payloads": 4954,
+  "source_merge": {
+    "published_C1_compose_ast_unchanged": true,
+    "source_base": "0b5efb98c34e98b90f3261a0432222f7cf1f6892",
+    "minimax_patch": "Removeonlynonnativefixedgriderr_finaloverride;publishedQRhelperunchanged",
+    "docs_scope_correction": "LegacyC2mapped11casesnotallliteralnativepredicates"
+  },
+  "scope_limits": [
+    "Combined8 repeat component cases, not8additionaldistincttests.",
+    "C2component38checks include11legacy mappedcases with adaptedgrids/norms; literal44nativepref/norm/error predicates remain a separate required restoration.",
+    "Native representations, resampling/custom options, full pages/figures/performance and latest-main CI remain open."
+  ]
+}

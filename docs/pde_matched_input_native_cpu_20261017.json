@@ -21,7 +21,7 @@
     "scientific_source_control_succeeded": false
   },
   "causal_conclusion": "With actual initial state, mass and RHS bit-identical to Python, unmodified native ode15s fails at the same reported t=1.154227e-15 and hmin3.155444e-30 and returns one initial output. This demonstrates native cancellation sensitivity for these operands; no downstream DAE correction is supported by this case. It does not establish full DAE or literal-constructor parity.",
-  "prior_first_divergence": "Native/JAX grids and callback sine values match; inverseFFT arithmetic differs, coefficientmax1.1102230246251565e-16. Native literal constructor succeeds; default Python literal constructor remains failing.",
+  "prior_first_divergence": "For the fixed48 CI advection control, native/JAX grids and callback sine values match; inverseFFT arithmetic differs, coefficientmax1.1102230246251565e-16. Native integration using its literal initial constructor succeeds. Python integration fails after successful callback construction.",
   "runs": {
     "pde_python_input_native_replay_20261017": {
       "command_exit_code": 0,
@@ -43,12 +43,27 @@
     }
   },
   "first_run_caveat": "Original pde15s forcibly resets ODESolver, so first run has no startup observer assertions. It independently reproduces the same actual failure. V2 invokes its common unchanged pdeSolve core with observational wrapper, byte-asserts y0/M/f0 and forwards unmodified ode15s without changing any operand/options.",
-  "remaining": "Default literal-initialization PDE, same-provider FFT/native representation and full CI remain unresolved. No bound widened, degree forced, reference injection or AD Jacobian substituted in production.",
+  "remaining": "Fixed48 authored CI control integration, FFT/native representation and full CI remain unresolved. Original mapped PDE assertion is a separate qualification. No bound widened, degree forced, reference injection or AD Jacobian substituted in production.",
   "archive": {
     "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_python_input_native_replay_cpu_20261017.tar.gz",
     "sha256": "db268e1e45fe031d4f1dcea60b5ff47967e25fd52060dd789010da04b1c77621",
     "bytes": 4187845,
     "verified_payloads": 3473,
     "both_guards_reconstructable": true
-  }
+  },
+  "actual_control_parameters": {
+    "domain": [
+      -1.0,
+      1.0
+    ],
+    "PDE_diffusion": 0.05,
+    "PDE_advection": 1.0,
+    "requested_times": "linspace(0,4,9)",
+    "spatial_n": 48,
+    "rtol": 1e-09,
+    "atol": 1e-11,
+    "initial_callback": "sin(pi*x)",
+    "CI_test": "tests/test_coverage/test_v13_v18_utils.py::TestPde15s::test_pde15s_advection_dominated_stable"
+  },
+  "scope_correction_20261017": "This retained diagnostic matches the authored CI advection control. The original mapped MATLAB test uses domain[-2.5,3], adaptive constructors, diffusion0.1, times0:0.1:1 and default1e-6 PDE tolerances. Original mapped status requires separate execution; this replay does not determine it."
 }

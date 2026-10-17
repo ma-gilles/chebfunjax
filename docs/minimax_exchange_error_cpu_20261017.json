@@ -1,0 +1,73 @@
+{
+  "status": "Source exchange error reporting restored;17 unchanged focused tests pass",
+  "base_commit": "fc44a7d4b5f1cdbfa2236b939ba1d3dd3fd6b14d",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_change": "Remove non-native final fixed-grid max-error override. Return stored errmin together with pmin, matching minimaxKernel lines622\u2013628. No constructor, dispatch, trial polynomial, exchange, adaptive bounds or tolerances changed.",
+  "native_clause15": {
+    "success": true,
+    "errors": [
+      4.520551192688238e-05,
+      4.520551192688238e-05,
+      4.5205511926216246e-05
+    ],
+    "difference": 6.661338147750939e-16,
+    "pass": true,
+    "length": 15
+  },
+  "baseline_actual_reported_errors": {
+    "string": 4.5205511927048914e-05,
+    "callable": 4.5205511927048914e-05,
+    "chebfun": 4.52055119259942e-05
+  },
+  "baseline_actual_selected_exchange_errors": {
+    "string": 4.5205511927548514e-05,
+    "callable": 4.5205511927548514e-05,
+    "chebfun": 4.52055119279926e-05
+  },
+  "causal_bounds": {
+    "original_bound": 1e-15,
+    "baseline_reported_difference": 1.0547118733938987e-15,
+    "selected_exchange_difference": 4.440892098500626e-16
+  },
+  "qualified_tests": {
+    "total_distinct": 17,
+    "original_clauses": [
+      14,
+      15,
+      20
+    ],
+    "existing_equioscillation": 8,
+    "existing_global_error": 4,
+    "existing_domains": 2,
+    "assertions_or_bounds_changed": false
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_native15_20261017/src/chebfunjax/__init__.py",
+    "backend": "cpu",
+    "x64": true,
+    "affinity": [
+      32,
+      33,
+      34,
+      35
+    ]
+  },
+  "artifact_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_native15_fixed_20261017",
+  "evidence_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_native15_fixed_20261017/EVIDENCE.json",
+  "scope_limits": [
+    "Native returned errors, representations and reference points differ in final floating-point bits; no exact native representation/parity claim.",
+    "Baseline arrays and per-trial events are actual pre-fix execution. The correction only removes post-loop diagnostic computation; fixed execution qualification is the unchanged17-case gate.",
+    "Remaining minimax constructor/evaluation/algorithm/provider differences and broader CI/page/performance gaps remain open.",
+    "All17 cases run at inherited bounds. No fixed degree/tolerance fitting or diagnostic data injected into production."
+  ],
+  "verified_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_native15_fixed_20261017/qualified_evidence.zip",
+    "sha256": "bfa68ba3c208c328baaafc416cdf77ffa2a8ae667f2b25dceababb4f29e9efcb",
+    "verified_payloads": 7810,
+    "scope": "Native source errmin reporting restoration:17 unchanged tests, native3call capture, originalbounds retained."
+  }
+}
