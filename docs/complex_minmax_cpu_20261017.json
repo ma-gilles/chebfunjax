@@ -1,0 +1,230 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_base": "ca59f7537ef344871c6d3f3d0b758f276b742084",
+  "child_base": "10bc8a1e7129ce752ad2f7fee73b86031434b013",
+  "scope": "Complex Chebfun global minandmax stored values and breakpoint correction",
+  "changes": [
+    "Split array columns before scalar policy using JAX stacks.",
+    "For complex scalar Chebfun, form real(f)^2+imag(f)^2 and simplify at Chebfun level, preserving stored pointValues.",
+    "Evaluate f at modulus extrema; retain pinned100*eps(z) acceptance and left-then-right correction with x-/+eps(x).",
+    "Use existing IEEE scalar ulp metadata helper to retain eps(0); JAX handles all function arrays and squared-modulus numerics."
+  ],
+  "child_validation": {
+    "baseline_run2": "6failed,8.89s; final unchanged source-backed control bytes",
+    "candidate_run": "14passed,35.07s:6newcontrols+7existingminandmax+1originalLU node covering8unchangedpredicates",
+    "ruff": "source and newtest pass",
+    "native_original": "Exact pinned which assert;14true predicates, default invocation."
+  },
+  "native": {
+    "cases": [
+      {
+        "x": [
+          0.9999999999999998,
+          -1
+        ],
+        "yr": [
+          1,
+          1
+        ],
+        "yi": [
+          -2.220446049250313e-16,
+          -2
+        ],
+        "fxr": [
+          1,
+          1
+        ],
+        "fxi": [
+          -2.220446049250313e-16,
+          -2
+        ],
+        "xhex": [
+          "3feffffffffffffe",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          1.0000000000000002,
+          -1
+        ],
+        "yr": [
+          1,
+          2
+        ],
+        "yi": [
+          0,
+          -2
+        ],
+        "fxr": [
+          1,
+          2
+        ],
+        "fxi": [
+          2.220446049250313e-16,
+          -2
+        ],
+        "xhex": [
+          "3ff0000000000001",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          0,
+          -1
+        ],
+        "yr": [
+          1,
+          0
+        ],
+        "yi": [
+          0,
+          100
+        ],
+        "fxr": [
+          1,
+          0
+        ],
+        "fxi": [
+          0,
+          100
+        ],
+        "xhex": [
+          "0000000000000000",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          1,
+          -1
+        ],
+        "yr": [
+          0,
+          1
+        ],
+        "yi": [
+          0,
+          -1
+        ],
+        "fxr": [
+          0,
+          1
+        ],
+        "fxi": [
+          0,
+          -1
+        ],
+        "xhex": [
+          "3ff0000000000000",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "yr": [
+          1,
+          2
+        ],
+        "yi": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "fxr": [
+          1,
+          2
+        ],
+        "fxi": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "xhex": [
+          "bca0000000000000",
+          "3ff0000000000000"
+        ]
+      }
+    ],
+    "array": {
+      "x": [
+        [
+          0.9999999999999998,
+          1.0000000000000002
+        ],
+        [
+          -1,
+          -1
+        ]
+      ],
+      "yr": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "yi": [
+        [
+          -2.220446049250313e-16,
+          0
+        ],
+        [
+          -2,
+          -2
+        ]
+      ]
+    },
+    "original": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "original_count": 14
+  },
+  "parent_gate": {
+    "nodes": 30,
+    "wall_seconds": 69.660155297257,
+    "sampled_peak_summed_rss_kib": 2791440,
+    "inputs_stable": true,
+    "survivors": [],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_minmax_parent_run001/receipt.json",
+    "scope": "Six native-backed authored complex-extrema controls, seven existing minandmax regressions, original eight LU predicates, twelve LU controls and four Frobenius controls on current FFT/LU source."
+  },
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "6f4ae82b692b7e4568fab93d55fb74e667fb0df8e498d1ff51b349d37f6d325a",
+    "tests/test_matlab_port/chebfun/test_minandmax_complex_breakpoints.py": "ff5530a5c04062499e974e42d5c7a83f82d549740b60705dd9c90948eabe6f6e"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_minmax_parent_cpu_20261017.tar.gz",
+    "sha256": "7c17d8f3c7338ba15ec788fea292c520bc93a929796ae97285c6ad3952ec0f04",
+    "verified_payloads": 66
+  },
+  "limitations": [
+    "No complete minandmax or LU API/parity claim. Native original14 does not imply all14Python predicates have mapped coverage; Python gate includes7existingminandmax nodes.",
+    "Complex singular/unbounded functions, deltas, explicit warnings and every preference/technology are not covered by these6controls.",
+    "The zero-breakpoint native root is -1.1102230246251565e-16; its test uses2e-14 analytic location bound and sign, not exact bit parity. An earlier authored exact-subnormal test was scientifically unsupported and is retained as superseded_exact_zero_test.py with its failing receipt; it is not acceptance evidence. No original test operand or tolerance changed.",
+    "Native guard binds target source/test/script plus pinnedHEAD; not every native source/runtime dependency individually frozen.",
+    "Python guards bind all src files, test inputs and launch script plus isolated W/nativeHEAD. Full external runtime dependency freeze is not claimed.",
+    "This detached base predates LU integration. Root must apply source-local patch and combine qualification with its LU package; sealed LU evidence was untouched.",
+    "Original14Python predicate audit/port is underway separately; no complete original-test scope is credited here.",
+    "Existing scalar IEEE ulp metadata helper preserves eps(0); function arrays and squared-modulus arithmetic remain JAX.",
+    "Full parity and latest-main CI/coverage remain required."
+  ]
+}

@@ -6530,28 +6530,51 @@ class Chebfun(eqx.Module):
         if self.isempty():
             e = jnp.asarray([], dtype=jnp.float64)
             return (e, e), (e, e)
-        if any(p.tech.coeffs.ndim == 2 for p in self.funs):
-            # Array-valued: elementwise per-column comparison across
-            # pieces (MATLAB returns 2 x m values/positions).
-            import numpy as _np
-
-            gmin_x = gmin_v = gmax_x = gmax_v = None
-            for piece in self.funs:
-                (x_min, f_min), (x_max, f_max) = piece.minandmax()
-                x_min, f_min = _np.asarray(x_min), _np.asarray(f_min)
-                x_max, f_max = _np.asarray(x_max), _np.asarray(f_max)
-                if gmin_v is None:
-                    gmin_x, gmin_v = x_min, f_min
-                    gmax_x, gmax_v = x_max, f_max
-                else:
-                    take = f_min < gmin_v
-                    gmin_x = _np.where(take, x_min, gmin_x)
-                    gmin_v = _np.where(take, f_min, gmin_v)
-                    take = f_max > gmax_v
-                    gmax_x = _np.where(take, x_max, gmax_x)
-                    gmax_v = _np.where(take, f_max, gmax_v)
-            return ((jnp.asarray(gmin_x), jnp.asarray(gmin_v)),
-                    (jnp.asarray(gmax_x), jnp.asarray(gmax_v)))
+        if self.n_columns > 1:
+            # Native splits array-valued CHEBFUNs before the complex branch.
+            extrema = [column.minandmax() for column in self.mat2cell()]
+            return tuple(tuple(jnp.stack([jnp.asarray(e[k][j])
+                                          for e in extrema])
+                               for j in range(2)) for k in range(2))
+        if not self.isreal():
+            # @chebfun/minandmax.m locates extrema of the full squared
+            # modulus, including stored pointValues, before evaluating f.
+            realf, imagf = self.real(), self.imag()
+            squared = (realf*realf + imagf*imagf).simplify()
+            (xmin, zmin), (xmax, zmax) = squared.minandmax()
+            positions = [float(jnp.reshape(jnp.asarray(x), ()))
+                         for x in (xmin, xmax)]
+            magnitudes = jnp.sqrt(jnp.asarray([zmin, zmax]).reshape(2))
+            values = jnp.reshape(self(jnp.asarray(positions)), (2,))
+            result = []
+            failed = False
+            for k, position in enumerate(positions):
+                value = values[k]
+                # eps is scalar metadata. Host IEEE ulp preserves eps(0),
+                # which device arithmetic can flush to zero.
+                tolerance = 100 * _edge_eps(magnitudes[k])
+                def matches(v):
+                    return float(jnp.abs(jnp.abs(v) - magnitudes[k])) < tolerance
+                if not matches(value):
+                    left = jnp.reshape(self(position, side="left"), ())
+                    if matches(left):
+                        value = left
+                        position -= _edge_eps(position)
+                    else:
+                        right = jnp.reshape(self(position, side="right"), ())
+                        if matches(right):
+                            value = right
+                            position += _edge_eps(position)
+                        else:
+                            failed = True
+                result.append((position, value))
+            if failed:
+                import warnings
+                warnings.warn(
+                    "CHEBFUN:CHEBFUN:minandmax:complexFail: Something has "
+                    "gone wrong in locating complex-valued min/max.",
+                    RuntimeWarning, stacklevel=2)
+            return tuple(result)
 
         global_min_x = None
         global_min_val = float("inf")

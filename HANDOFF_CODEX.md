@@ -1,3 +1,14 @@
+# Latest complex extrema source scope — 2026-10-17
+
+Global complex minandmax now constructs and simplifies the full squared
+modulus, preserves stored isolated values and repairs breakpoint sides using
+native tolerance and order. Arrays split into scalar columns first.
+Six authored native-backed cases fail before and pass after; combined30 CPU
+checks pass with current LU/FFT and subspace source. Native original14 are true,
+but their full Python literal port is underway separately and is not credited
+by this package. Broader preferences/technologies/warnings/API and latest-main
+CI/coverage remain open. Evidence: `docs/complex_minmax_cpu_20261017.json`.
+
 # Latest scalar CPU transform / PDE scope — 2026-10-17
 
 Real float64 single-column33 transforms now use JAX butterflies following the

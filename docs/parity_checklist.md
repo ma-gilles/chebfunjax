@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Complex global extrema now preserve stored isolated point values and native left/right breakpoint repair; array columns follow scalar policy. Six baseline failures become passing; combined30 controls pass. [Evidence](complex_minmax_cpu_20261017.json).
+- [ ] Full original14 Python minandmax predicates, technology/preference/warning grammar and broader LU pivot fidelity.
+
 - [x] Scalar33 real float64 CPU Fourier arithmetic follows observed native plan; exact-word and algebraic controls pass. Unchanged authored fixed48 PDE CI regression passes without tolerance/integrator changes; combined21 parent checks pass. [Evidence](fft64_pde_cpu_20261017.json).
 - [ ] Broader batched/complex FFT plans, inverse/Hermite/rational coefficient gaps, cold/warm overhead and matched native performance.
 
