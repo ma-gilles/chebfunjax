@@ -14,7 +14,7 @@ from typing import Callable
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-import numpy as np  # uses-numpy: concrete-input eval fast path
+import numpy as np  # uses-numpy: host metadata, type checks and existing root numerics
 
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
@@ -100,7 +100,7 @@ def _defers_binary(other) -> bool:
     return type(other).__name__ == "Singfun"
 
 
-def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
+def _clenshaw_generic(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     """Evaluate a Chebyshev series at point(s) x via Clenshaw's algorithm.
 
     Computes  f(x) = c[0]*T_0(x) + c[1]*T_1(x) + ... + c[n-1]*T_{n-1}(x)
@@ -151,7 +151,8 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
 
     # Edge cases
     if n == 0:
-        return jnp.zeros_like(x, dtype=jnp.float64)
+        return jnp.zeros(x.shape[:-1] + coeffs.shape[1:] if multi else x.shape,
+                         dtype=jnp.float64)
     if n == 1:
         if multi:
             return jnp.broadcast_to(
@@ -186,6 +187,18 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
 
     # Final step: f(x) = c[0] + x*bk1 - bk2
     return coeffs[0] + x * bk1 - bk2
+
+
+@jax.jit
+def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
+    """Shared array-only cache; see ``_clenshaw_generic`` for the API/provenance."""
+    from chebfunjax.tech._source_clenshaw import source_clenshaw
+
+    coeffs, x = jnp.asarray(coeffs), jnp.asarray(x)
+    if coeffs.shape[0] < 2 or coeffs.dtype != jnp.float64 or x.dtype != jnp.float64:
+        return _clenshaw_generic(coeffs, x)
+    return jax.lax.platform_dependent(
+        coeffs, x, cpu=source_clenshaw, default=_clenshaw_generic)
 
 
 # ============================================================================
@@ -3068,57 +3081,18 @@ class Chebtech2(eqx.Module):
 
         Notes
         -----
-        This method is JIT-safe, grad-safe, and vmap-safe.  Concrete
-        inputs (with concrete coefficients) evaluate via numpy Clenshaw
-        (``np.polynomial.chebyshev.chebval``): the jitted path compiles
-        one XLA program per (coefficient length, point shape) pair, and
-        object-heavy pipelines -- rootfinding curve fits, adaptive
-        constructors -- otherwise accumulate thousands of compiles.
+        This method is JIT-safe, grad-safe, and vmap-safe. Eager and traced
+        calls share an array-only JAX kernel, specialized by coefficient and
+        query shapes. Real binary64 CPU evaluation preserves source operation
+        order; complex and other backends use the generic JAX recurrence.
 
         Provenance
         ----------
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
-        if not isinstance(x, jax.core.Tracer) and \
-                not isinstance(self.coeffs, jax.core.Tracer) and \
-                self.coeffs.shape[0] <= 4096:
-            # chebval loops once per coefficient in Python; past a few
-            # thousand coefficients the compiled Clenshaw is faster, and
-            # huge-length Chebtechs are rare enough not to threaten the
-            # JIT code arena.
-            import numpy.polynomial.chebyshev as _ncheb
-
-            xn = np.asarray(x)
-            xn = xn.astype(np.complex128 if np.iscomplexobj(xn)
-                           else np.float64)
-            c = np.asarray(self.coeffs)
-            if c.shape[0] == 0:
-                return jnp.zeros(xn.shape + c.shape[1:],
-                                 dtype=c.dtype if c.size else np.float64)
-            if xn.ndim == 0 and c.ndim == 1 and c.shape[0] <= 4096:
-                # Scalar point, 1-D coefficients: Clenshaw with Python
-                # scalars.  chebval's per-coefficient numpy scalar ops
-                # cost ~0.13 ms for a length-40 series — the ODE marcher
-                # evaluates coefficient chebfuns one scalar at a time.
-                cl = c.tolist()
-                xf = complex(xn) if (np.iscomplexobj(xn)
-                                     or np.iscomplexobj(c)) else float(xn)
-                x2 = 2.0 * xf
-                b1 = b2 = 0.0
-                for ck in cl[:0:-1]:
-                    b1, b2 = x2 * b1 - b2 + ck, b1
-                return jnp.asarray(xf * b1 - b2 + cl[0])
-            val = _ncheb.chebval(xn, c, tensor=True)
-            # chebval returns c.shape[1:] + x.shape; the traced path
-            # returns x.shape + c.shape[1:].
-            if c.ndim > 1:
-                val = np.moveaxis(val, range(c.ndim - 1),
-                                  range(-(c.ndim - 1), 0))
-            return jnp.asarray(val)
         return self._call_traced(x)
 
-    @eqx.filter_jit
     def _call_traced(self, x: jax.Array) -> jax.Array:
         # Preserve a complex argument (MATLAB evaluates a real Chebyshev
         # series at complex points via Clenshaw with a complex recurrence);

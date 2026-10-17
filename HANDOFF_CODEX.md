@@ -1,3 +1,23 @@
+## Shared JAX Clenshaw evaluator — 2026-10-17
+
+Concrete and traced Chebtech2 calls now share an array-only JAX kernel. Real
+binary64 CPU uses the source paired operation order; generic complex evaluation
+remains JAX. The concrete NumPy/Python evaluation path is removed. Other host
+root numerics remain open. All132tests pass across three completed groups,
+including26native real cases at13lengths,5complex controls, originalClenshaw
+predicates, derivatives, endpoint handling and chemical-prefix checks.
+
+Matched-input full chemical initialization now matches native state, boundary
+matrix and both offsets exactly. Outputs agree to6.1e-15 through t=.7, but
+later error1.25494e-7 exceeds the unchanged1e-7 bound. Actual constructor
+remains102versusnative101; its full error9.74885e-7 also fails. These failures
+are preserved. No tolerance, degree or production reference injection changed.
+
+Previous normest fix passes all four CI diagnostic runners (Intel/AMD), with
+exact native operator outputs and original assertions. Complete latest-main CI
+and full parity remain open. Source archives, measurements and limitations:
+`docs/clenshaw_source_cpu_20261017.json`.
+
 ## Bounded CPU PDE arithmetic and normest actions — 2026-10-17
 
 All 149 combined CPU checks pass at unchanged original bounds. Native controls

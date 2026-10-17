@@ -1,0 +1,9 @@
+{
+  "native_reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b",
+  "mat_sha256": "2c7a6ceb04c728883ebc24066192fac693961b2c59100ecb631b40be71784248",
+  "source": "@chebtech/clenshaw.m",
+  "capture_package": "clenshaw_native_corpus_capture_20261017",
+  "reader": "mat_dtype=False retains complex components",
+  "bounds": "real source bits; complex 10eps*max(1,source magnitude); original tests unchanged"
+}
