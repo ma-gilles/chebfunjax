@@ -62,6 +62,29 @@ def _phys_to_ref(x: jax.Array, a: float, b: float) -> jax.Array:
 
 
 
+def _coordinate_array(value):
+    """Promote numeric coordinates to double, retaining complex arguments."""
+    value = jnp.asarray(value)
+    return value.astype(jnp.result_type(value.dtype, jnp.float64))
+
+
+@jax.jit
+def _cdr_meshgrid_kind(x, y):
+    """Native physical-coordinate meshgrid recognition before mapping.
+
+    Provenance
+    ----------
+    MATLAB source: @separableApprox/feval.m, lines63-77
+    Chebfun commit: 7574c77
+    """
+    tol = 10 * jnp.finfo(jnp.float64).eps
+    xy = (jnp.max(jnp.abs(x - x[:1, :])) <= tol) & (
+        jnp.max(jnp.abs(y - y[:, :1])) <= tol)
+    yx = (jnp.max(jnp.abs(y - y[:1, :])) <= tol) & (
+        jnp.max(jnp.abs(x - x[:, :1])) <= tol)
+    return jnp.where(xy, 1, jnp.where(yx, 2, 0))
+
+
 @jax.jit
 def _cdr_coordinates(x, y, domain):
     """Array-only mapping cache; preserve the two-distance inverse map.
@@ -1008,102 +1031,53 @@ class SeparableApprox(eqx.Module):
     # ------------------------------------------------------------------
 
     def __call__(self, x: jax.Array, y: jax.Array) -> jax.Array:
-        """Evaluate f(x, y) using the low-rank representation.
+        """Evaluate point lists and tensor grids using JAX arithmetic.
 
-        Concrete inputs run a vectorised numpy Clenshaw over the stacked
-        rank slices: the jitted path compiles a fresh rank-sized XLA
-        program PER OBJECT, and object-heavy pipelines (rootfinding
-        Newton polish over dozens of derivative chebfun2s, spherefun
-        vorticity chains) exhaust the LLVM JIT code arena.  Tracers keep
-        the traceable path (JIT/vmap/grad-safe).
+        Concrete grids use the source CDR matrix product and its meshgrid
+        recognition tolerance. Traced calls retain pointwise differentiable
+        evaluation, including tangents that do not preserve a tensor grid.
+        No coefficient padding or host polynomial evaluator is used.
+
+        Provenance
+        ----------
+        MATLAB source: @separableApprox/feval.m, @separableApprox/cdr.m
+        Chebfun commit: 7574c77
         """
-        if not isinstance(x, jax.core.Tracer) and \
-                not isinstance(y, jax.core.Tracer) and \
-                not self._has_traced_leaves():
-            return self._eval_np(x, y)
-        return self._call_traced(x, y)
+        x, y = _coordinate_array(x), _coordinate_array(y)
+        if (isinstance(x, jax.core.Tracer) or isinstance(y, jax.core.Tracer)
+                or self._has_traced_leaves()):
+            return self._call_array_jax(x, y)
+        xb, yb = jnp.broadcast_arrays(x, y)
+        if self.cols and xb.ndim == 2 and min(xb.shape) > 1:
+            kind = _cdr_meshgrid_kind(xb, yb)
+            if bool(kind == 1):
+                return self._call_grid_jax(xb[0, :], yb[:, 0])
+            if bool(kind == 2):
+                return self._call_grid_jax(xb[:, 0], yb[0, :]).T
+        return self._call_array_jax(x, y)
 
     def _has_traced_leaves(self) -> bool:
-        """True when the object itself is being traced (e.g. under
-        jax.grad/vmap over the pytree): the numpy path cannot run."""
-        if isinstance(self.pivots, jax.core.Tracer):
-            return True
-        return any(isinstance(fn.coeffs, jax.core.Tracer)
-                   for fn in (*self.cols, *self.rows))
-
-    def _eval_np(self, x, y) -> jax.Array:
-        """numpy mirror of the CDR evaluation (kept in lockstep)."""
-        xa, xb, ya, yb = self.domain
-        x = np.asarray(x, dtype=np.float64)
-        y = np.asarray(y, dtype=np.float64)
-        # Native bndfun uses two endpoint distances, including on [-1,1].
-        tx = (x-xa)/(xb-xa)-(xb-x)/(xb-xa)
-        ty = (y-ya)/(yb-ya)-(yb-y)/(yb-ya)
-        bshape = np.broadcast_shapes(x.shape, y.shape)
-        txf = np.broadcast_to(tx, bshape).ravel()
-        tyf = np.broadcast_to(ty, bshape).ravel()
-        piv = np.asarray(self.pivots)
-        piv = piv.astype(np.complex128 if np.iscomplexobj(piv)
-                         else np.float64)
-
-        # Tensor-grid / constant-line detection (adaptive-constructor
-        # sampling patterns): evaluate each direction once on its 1D
-        # point set and combine with a rank matmul instead of sweeping
-        # all slices over every point (see Spherefun._eval_np).
-        txb = np.broadcast_to(tx, bshape)
-        tyb = np.broadcast_to(ty, bshape)
-        if len(bshape) == 2 and bshape[0] > 1 and bshape[1] > 1:
-            x_ax1 = np.all(txb == txb[:1, :])
-            y_ax0 = np.all(tyb == tyb[:, :1])
-            if x_ax1 and y_ax0:
-                cv = self._slice_vals_np(self.cols, tyb[:, 0])  # (r, ny)
-                rv = self._slice_vals_np(self.rows, txb[0, :])  # (r, nx)
-                return jnp.asarray((cv.T * piv) @ rv)
-            x_ax0 = np.all(txb == txb[:, :1])
-            y_ax1 = np.all(tyb == tyb[:1, :])
-            if x_ax0 and y_ax1:
-                cv = self._slice_vals_np(self.cols, tyb[0, :])
-                rv = self._slice_vals_np(self.rows, txb[:, 0])
-                return jnp.asarray((rv.T * piv) @ cv)
-        if txf.size > 1 and np.all(txf == txf[0]):
-            rv = self._slice_vals_np(self.rows, txf[:1])       # (r, 1)
-            cv = self._slice_vals_np(self.cols, tyf)           # (r, m)
-            return jnp.asarray(((cv.T * piv) @ rv[:, 0]).reshape(bshape))
-        if tyf.size > 1 and np.all(tyf == tyf[0]):
-            cv = self._slice_vals_np(self.cols, tyf[:1])
-            rv = self._slice_vals_np(self.rows, txf)
-            return jnp.asarray(((rv.T * piv) @ cv[:, 0]).reshape(bshape))
-
-        cv = self._slice_vals_np(self.cols, tyf)
-        rv = self._slice_vals_np(self.rows, txf)
-        vals = np.einsum("j,jm,jm->m", piv, cv, rv)
-        return jnp.asarray(vals.reshape(bshape))
+        """Detect tracing through coefficients or CDR weights."""
+        return isinstance(self.pivots, jax.core.Tracer) or any(
+            isinstance(fn.coeffs, jax.core.Tracer)
+            for fn in (*self.cols, *self.rows))
 
     @staticmethod
-    def _slice_vals_np(funs, t):
-        """Values of all 1D slices at reference points ``t`` -> (r, m)."""
-        from chebfunjax.tech.chebtech import _clenshaw
-        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+    def _slice_vals_jax(funs, t):
+        """Evaluate each genuine slice without padding or NumPy dispatch."""
+        from chebfunjax.tech.trigtech import Trigtech
 
-        if all(isinstance(fn, Trigtech) for fn in funs):
-            rows = [np.asarray(_trig_eval_np(np.asarray(fn.coeffs), t,
-                                             is_real=fn.is_real))
-                    for fn in funs]
-            return np.stack(rows)
-        # Chebtech slices: pad coefficients to a common length and
-        # evaluate all series in ONE vectorised Clenshaw.
-        coeffs = [np.asarray(fn.coeffs) for fn in funs]
-        nmax = max((c.shape[0] for c in coeffs), default=1)
-        dtype = np.result_type(np.float64, *coeffs) if coeffs \
-            else np.float64
-        C = np.zeros((nmax, len(funs)), dtype=dtype)
-        for j, cj in enumerate(coeffs):
-            C[: cj.shape[0], j] = cj
-        # MATLAB chebtech/feval dispatches to its paired Clenshaw for
-        # these slice grids. Reuse the library source recurrence rather
-        # than maintaining a second NumPy polynomial evaluator. Its
-        # multi-column result is (m, r), so transpose for this CDR adapter.
-        return np.asarray(_clenshaw(jnp.asarray(C), jnp.asarray(t))).T
+        # Trigtech's eager public call still has a host implementation. Its
+        # traced evaluator and Chebtech's shared evaluator both use JAX.
+        return jnp.stack([fn._call_traced(t) if isinstance(fn, Trigtech)
+                          else fn(t) for fn in funs], axis=-1)
+
+    def _call_grid_jax(self, x, y):
+        """Native C(y)*D*R(x).' with a nonconjugating transpose."""
+        tx, ty = _cdr_coordinates(x, y, jnp.asarray(self.domain))
+        cols = self._slice_vals_jax(self.cols, ty)
+        rows = self._slice_vals_jax(self.rows, tx)
+        return (cols * self.pivots) @ rows.T
 
     def _call_array_jax(self, x, y):
         """JAX point-list evaluation with array-only compilation reuse.
@@ -1128,7 +1102,7 @@ class SeparableApprox(eqx.Module):
             for family in families)
         if not supported:
             return self._call_traced(x, y)
-        x, y = jnp.asarray(x, dtype=jnp.float64), jnp.asarray(y, dtype=jnp.float64)
+        x, y = _coordinate_array(x), _coordinate_array(y)
         tx, ty = _cdr_coordinates(x, y, jnp.asarray(self.domain))
         cols = jnp.stack([f.coeffs for f in self.cols], axis=1)
         rows = jnp.stack([f.coeffs for f in self.rows], axis=1)
@@ -1168,15 +1142,16 @@ class SeparableApprox(eqx.Module):
         Chebfun commit: 7574c77
         """
         xa, xb, ya, yb = self.domain
-        x = jnp.asarray(x, dtype=jnp.float64)
-        y = jnp.asarray(y, dtype=jnp.float64)
+        x, y = _coordinate_array(x), _coordinate_array(y)
 
         # Map to reference interval
         tx = _phys_to_ref(x, xa, xb)
         ty = _phys_to_ref(y, ya, yb)
 
         # Accumulate: result = Σ_j  d_j * c_j(ty) * r_j(tx)
-        result = jnp.zeros_like(jnp.broadcast_arrays(x, y)[0], dtype=jnp.float64)
+        dtype = jnp.result_type(x, y, self.pivots,
+                                *[f.coeffs for f in (*self.cols, *self.rows)])
+        result = jnp.zeros(jnp.broadcast_shapes(x.shape, y.shape), dtype=dtype)
         for j in range(len(self.cols)):
             cj_val = self.cols[j](ty)
             rj_val = self.rows[j](tx)

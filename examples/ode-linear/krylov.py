@@ -16,7 +16,6 @@ import sys
 import time
 import warnings
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.sparse as sp
@@ -163,9 +162,8 @@ def run():
     u_colloc = L.solve(f)
     _long("error", float((u_minres - u_colloc).norm()))
 
-    a = cj.chebfun(lambda t: 2 + jnp.sign(jnp.cos(5 * t * np.pi)),
-                   splitting=True)
-    c = cj.chebfun(lambda t: -jnp.abs(t), splitting=True)
+    a = 2 + (5 * x * np.pi).cos().sign()
+    c = -x.abs()
     L = Chebop(lambda u: -(a * u.diff()).diff() + c * u, domain=(-1, 1))
     L.bc = 2
     f = -1e2 * (3 * np.pi * x).sin()

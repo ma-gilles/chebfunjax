@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "cfdc51560a93848e3ec429c999de71677242ce77",
+  "native_reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Remove NumPy evaluation/mapping/grid multiplication and padded coefficient stacks from public SeparableApprox and Chebfun2 numeric evaluation. Concrete grids use JAX CDR matrix products and native physical 10eps mesh recognition; point/traced calls use existing JAX kernels. Complex coordinate arguments remain complex.",
+  "qualification": {
+    "passed": 85,
+    "new_public_controls": 24,
+    "existing_cdr_controls": 10,
+    "existing_separable_controls": 23,
+    "existing_matlab_port_feval_predicates": 24,
+    "existing_fevalm_controls": 4,
+    "wall_seconds": 63.931456827092916,
+    "peak_rss_kib": 2511776,
+    "no_survivors": true,
+    "inputs_stable": true,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/jax_separable_evaluation_20261017/src/chebfunjax/__init__.py"
+    }
+  },
+  "oracles": "Independent low-degree monomial/trigonometric values and JVPs; tests forbid NumPy evaluation and eager Trigtech host dispatch. Existing source-port norm/size/bounds unchanged.",
+  "source_paths": [
+    "@separableApprox/feval.m",
+    "@separableApprox/cdr.m",
+    "@chebtech/clenshaw.m",
+    "@trigtech/feval.m"
+  ],
+  "files": {
+    "src/chebfunjax/chebfun2d/separable_approx.py": "beaa8efcef69b7f03e06c1186d6dcfa38aa9c95f05e1051d679594c768d0028c",
+    "src/chebfunjax/chebfun2d/chebfun2.py": "5d263dd86f8048b4955ef0805ff367998a5303d664a60ad679820f7caf85db2f",
+    "tests/test_chebfun2d/test_jax_separable_public_evaluation.py": "d02e5a6dd59085510f0d3d4d8ff624a68fb6a8c0dd76e5a0dd4a925dfa6ea8e4"
+  },
+  "limits": [
+    "Other constructor/arithmetic/root host numerical routes remain; not full JAX-only module parity.",
+    "Traced calls retain pointwise differentiable semantics; concrete grids follow source matrix-product dispatch. Bit equality between those different schedules is not claimed.",
+    "Existing source-port random probes are unchanged; no MATLAB random-stream identity claim.",
+    "No broad performance or all-example qualification. Unsupported/mixed slice families retain existing object-traced fallback compilation costs.",
+    "Complex coordinate controls are independent polynomial identities, not an additional native-bit corpus."
+  ],
+  "attempts": [
+    {
+      "run": "jax_separable_evaluation_gate_20261017",
+      "result": "77pass/8fail; six missing Chebtech1 private-method routes and two test callable-hashing errors; source/test preimages retained."
+    },
+    {
+      "run": "jax_separable_evaluation_gate_v2_20261017",
+      "result": "48pass/19fail/18error; new Trigtech type guard missed local import. NameError, not numerical failure; preimage retained."
+    },
+    {
+      "run": "jax_separable_evaluation_gate_v3_20261017",
+      "result": "85pass; corrected generic public Chebtech calls and Trigtech-only traced calls. Full Ruff passes."
+    }
+  ],
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/jax_separable_evaluation_gate_v3_20261017/run001/receipt.json",
+  "all_source_guard_files": 3294
+}

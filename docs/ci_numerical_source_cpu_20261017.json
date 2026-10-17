@@ -1,0 +1,415 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "b6b34946b2aa99fcba56b6631ebd64ff027aa861",
+  "native_chebfun_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b; pinned JAX/jaxlib0.11.0 CPU/x64",
+  "coupled": {
+    "status": "Original failing clause and bounded route controls pass; broader CI remains pending.",
+    "original_test": "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_02]",
+    "bound": 1e-10,
+    "baseline": {
+      "res": 7.986865761431993e-12,
+      "bc": [
+        -7.754514391722367e-11,
+        -1.0067913169820031e-10
+      ],
+      "lengths": [
+        14,
+        14
+      ],
+      "simplified_lengths": [
+        13,
+        14
+      ],
+      "simplified_bc": [
+        -7.754514391722367e-11,
+        -1.0067913169820031e-10
+      ]
+    },
+    "native": {
+      "bc": [
+        -1.1209e-12,
+        -2.4586e-13
+      ],
+      "residual": 2.0689e-13,
+      "lengths": [
+        15,
+        15
+      ],
+      "precision_note": "Rounded summary; full binary64 coefficients, probes and residuals are in capture.mat."
+    },
+    "candidate_direct": {
+      "converged": true,
+      "dimension_history": [
+        [
+          32
+        ]
+      ],
+      "lengths": [
+        16,
+        16
+      ],
+      "residual": 1.630383072595916e-14,
+      "bc": [
+        -2.1795065752172604e-14,
+        4.7406523151494184e-14
+      ],
+      "probe_error": 3.2429614549300823e-13
+    },
+    "cause": "Supported smooth local coupled chebcolloc2 problems still reached square endpoint-row replacement; source linearize/solvebvpLinear instead uses the shared rectangular discretization. Existing shared JAX path already implements the source algorithm.",
+    "change": "Extend existing finite-domain linear AD dispatch to two-sided coupled differential BVPs with equal equation/unknown count and ordinary function-valued unknowns. Preserve parameter/general-constraint/periodic/one-sided routes and existing piecewise nonlocal behavior. Retain source grid schedule, option forwarding and public SystemSolution for newly routed cases.",
+    "source_paths": [
+      "@chebop/solvebvpLinear.m",
+      "@linop/linsolve.m",
+      "@chebcolloc2/toFunctionOut.m"
+    ],
+    "representation_gap": "Native coupled outputs have15 coefficients; direct candidate16, and no exact representation parity claim.",
+    "rejected_hypothesis": "Simplifying the old output did not change either boundary residual. Public solve already simplifies. No simplification or size-tuning workaround was applied."
+  },
+  "pde": {
+    "status": "Original default advection test still fails; no PDE production or test changes.",
+    "original_test": "tests/test_coverage/test_v13_v18_utils.py::TestPde15s::test_pde15s_advection_dominated_stable",
+    "input": "sin(pi*x), [-1,1], t=linspace(0,4,9), .05*u_xx+u_x, left derivative0/right value0, fixedN48, RelTol1e-9/AbsTol1e-11. Native AdjustBCs preserves initial left derivative -pi.",
+    "baseline": {
+      "coupled": {
+        "res": 7.986865761431993e-12,
+        "bc": [
+          -7.754514391722367e-11,
+          -1.0067913169820031e-10
+        ],
+        "lengths": [
+          14,
+          14
+        ],
+        "simplified_lengths": [
+          13,
+          14
+        ],
+        "simplified_bc": [
+          -7.754514391722367e-11,
+          -1.0067913169820031e-10
+        ]
+      },
+      "terminal": {
+        "t": 1.1542271491795564e-15,
+        "h": 3.1554436208840472e-30,
+        "absh": 3.1554436208840472e-30,
+        "attempt_count": 2.0,
+        "reason": "IntegrationTolNotMet"
+      },
+      "warnings": [
+        "CHEBFUN:CHEBFUN:pde15s:BadIC: Initial state may not satisfy the boundary conditions.",
+        "MATLAB:ode15s:IntegrationTolNotMet: Failure at t=1.154227e-15. Unable to meet integration tolerances without reducing the step size below the smallest value allowed (3.155444e-30) at time t."
+      ],
+      "output_count": 1,
+      "traces": [
+        {
+          "n": 48,
+          "attempts": 2,
+          "decisions": [],
+          "accepted_times": [],
+          "restart_time": 0.0,
+          "next_length": 48,
+          "initial_reason": "initial_consistent"
+        }
+      ],
+      "maxima": [
+        0.9991889981715698
+      ]
+    },
+    "native": {
+      "success": true,
+      "output_count": 9,
+      "returned_times": [
+        0
+      ],
+      "warning": "CHEBFUN:CHEBFUN:pde15s:BadIC",
+      "maxima": [
+        0.9991889981715698,
+        0.78225679,
+        0.63146781,
+        0.69771059,
+        0.42608876,
+        0.22346241,
+        0.16822193,
+        0.15856119,
+        0.1572493
+      ],
+      "precision_note": "Full binary64 arrays in capture.mat and stages.mat. Native tt is scalar0 despite nine output columns; preserve source fixed-N bookkeeping verbatim."
+    },
+    "cause": "Tiny constructor coefficient differences change cancellation in endpoint finite differences and the source Jacobian-refinement branch. Both constructors produce22 coefficients; maxdifference1.11e-16. Literal initial nodal values differ3.33e-16. Native RHS on saved Python state/deltas reproduces the same finite-difference changes exactly. With retained native coefficients AND original endpoint values, Python initial state, mass and f0 match native, and the Jacobian inferred from observed native RHS calls/source acceptance is byte-identical to Python dense_numjac.",
+    "matched_state_replay": {
+      "python_tech": "Chebtech2",
+      "native_coeff_count": 22,
+      "python_coeff_count": 22,
+      "coeff_maxdiff": 1.1102230246251565e-16,
+      "literal": {
+        "initial_y_maxdiff_native": 3.3306690738754696e-16,
+        "rhs_maxdiff_native": 8.038014698286133e-14,
+        "jac_endpoint_error": [
+          11184.428955078412,
+          1786.0448085540793
+        ],
+        "fd_calls": 49,
+        "native_y_fd_calls": 50,
+        "native_y_jac_endpoint_error": [
+          4.486741898666964,
+          1786.0448085540793
+        ]
+      },
+      "matched_python_rhs_delta_maxdiff": 0.0,
+      "native_coeff": {
+        "initial_y_maxdiff_native": 0.0,
+        "rhs_maxdiff_native": 0.0,
+        "jac_endpoint_error": [
+          4.486741898666964,
+          1786.0448085540793
+        ],
+        "fd_calls": 50,
+        "native_y_fd_calls": 50,
+        "native_y_jac_endpoint_error": [
+          4.486741898666964,
+          1786.0448085540793
+        ]
+      }
+    },
+    "native_fd_decisions": {
+      "refinements": [
+        {
+          "column": 0,
+          "call_zero_based": 49,
+          "delta": 1.220703125e-15,
+          "old_norm": 0.0,
+          "new_norm": 7301.059667952359,
+          "accept": true
+        },
+        {
+          "column": 47,
+          "call_zero_based": 50,
+          "delta": -1.220703125e-15,
+          "old_norm": 5960.464477539206,
+          "new_norm": 7746.7120718210945,
+          "accept": false
+        }
+      ],
+      "native_observed_source_fd_vs_python_same_state_maxdiff": 0.0,
+      "raw_bits_equal": true
+    },
+    "diagnostic_ad": "Replacing only initial FD Jacobian with JAX exact derivative restores Newton convergence and reaches t=.544 after500 bounded attempts; attempt limit then stops. This is diagnostic only, not a completed integration or production change.",
+    "observational_capture": "Extra RHS calls before solver delegation are diagnostic only. The wrapper delegates to unmodified ode15s and records first200 actual RHS y/f/t calls. No private implementation was copied. Native function values and source metadata saved before delegation.",
+    "limits": "No full retained-native-polynomial integration was run. Initial-state/Jacobian equivalence is established; default literal callback path remains failing. No reference data injection, global sine replacement, initial-condition change, tolerance change, or AD replacement in production."
+  },
+  "qualification": {
+    "distinct_passes": 51,
+    "ids": [
+      "tests/test_coupled_native_ivp_source.py::test_one_array_call_and_options",
+      "tests/test_coupled_native_ivp_source.py::test_public_polynomial_analytic[False]",
+      "tests/test_coupled_native_ivp_source.py::test_public_polynomial_analytic[True]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_01]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_02]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_03]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_04]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_05]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_06]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_07]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_08]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_09]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_10]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_11]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_12]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_13]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_14]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_15]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_16]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_17]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_18]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_19]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_20]",
+      "tests/test_matlab_port/chebop/test_linearSystem1_matlab.py::test_literal_linear_system1[source_clause_21]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_01]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_02]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_03]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_04]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_05]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_06]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_07]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_08]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_09]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_10]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_11]",
+      "tests/test_matlab_port/chebop/test_linearSystem2_matlab.py::test_literal_linear_system2[source_clause_12]",
+      "tests/test_operators/test_coupled_parameter_routing.py::test_exact_parameter_columns_delegate_public_and_solver",
+      "tests/test_operators/test_coupled_parameter_routing.py::test_fewer_equation_parameter_uses_existing_solver",
+      "tests/test_operators/test_coupled_rectangular_source_dispatch.py::test_three_component_two_sided_bvp_preserves_boundary_rows",
+      "tests/test_operators/test_coupled_rectangular_source_dispatch.py::test_two_sided_coupled_bvp_uses_source_rectangular_solver[domain0-None]",
+      "tests/test_operators/test_coupled_rectangular_source_dispatch.py::test_two_sided_coupled_bvp_uses_source_rectangular_solver[domain0-chebcolloc2]",
+      "tests/test_operators/test_coupled_rectangular_source_dispatch.py::test_two_sided_coupled_bvp_uses_source_rectangular_solver[domain1-None]",
+      "tests/test_operators/test_coupled_rectangular_source_dispatch.py::test_two_sided_coupled_bvp_uses_source_rectangular_solver[domain1-chebcolloc2]",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_linear_system_uses_requested_backend_without_default_seed[chebcolloc1]",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_linear_system_uses_requested_backend_without_default_seed[ultraS]",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_native_product_linearity_depends_on_initial_state[None-False]",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_native_product_linearity_depends_on_initial_state[initial1-False]",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_nonlinear_operator_keeps_explicit_values_seed",
+      "tests/test_operators/test_linear_system1_source_controls.py::test_supplied_initial_state_used_for_linearization",
+      "tests/test_operators/test_nonlocal_system_route.py::test_local_and_delayed_routes[False]",
+      "tests/test_operators/test_nonlocal_system_route.py::test_local_and_delayed_routes[True]"
+    ],
+    "inventory_sha256": "49aa6891cdd7d4edbb4cf66922d7c5bb8283bd35e472ff4eedc69741b6b74f7b",
+    "groups": [
+      16,
+      21,
+      13,
+      1
+    ],
+    "scope": "33 unchanged original linearSystem1/2 clauses,5 added analytic smooth/piecewise default/explicit source dispatch/container controls including a three-component BVP,13 existing system/parameter/nonlocal/one-sided controls. All original bounds unchanged."
+  },
+  "files": {
+    "src/chebfunjax/operators/chebop.py": "2b839b96c0f08eda1bb83542d8bb4467cb5471df6300cebdb3c5fb3eb79604da",
+    "tests/test_operators/test_coupled_rectangular_source_dispatch.py": "a1d474c0628de5cd8157a8573ff34aa4ec462d2df702c311a15751c5ebdcb152"
+  },
+  "receipts": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/run",
+      "receipt_sha256": "2c0612170b4b003738b38eb0ae004546ff9f7e99c77d889fbda1f8052ac5fca6",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 83.48892729589716,
+      "sampled_peak_summed_rss_kib": 1392392,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/python_run",
+      "receipt_sha256": "9d312396660b7c1b11cf75f5ea9418fa2df5d78618d5b9320ea18f863073e288",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 31.975214934907854,
+      "sampled_peak_summed_rss_kib": 1591208,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/stages_run",
+      "receipt_sha256": "30a7492104042c47fd3b79614fb3df1ee573aa56c95abbe49163c0cbd26f08a3",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 26.855496193747967,
+      "sampled_peak_summed_rss_kib": 1323488,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_pde_stages_20261017/run",
+      "receipt_sha256": "0bfc27e7accf114c6177bb1e3745d11061c544eedda984e84ede09234d8e6fb9",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 81.56417712010443,
+      "sampled_peak_summed_rss_kib": 1355844,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_pde_stages_20261017/replay_run",
+      "receipt_sha256": "d2ecef7ed2fdaa3992b7b2b968e9e8c9ab42cc9203ba328949a38f93c5914751",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 13.163249620702118,
+      "sampled_peak_summed_rss_kib": 972244,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_pde_stages_20261017/replay_endpoints_run",
+      "receipt_sha256": "dc19c28daf107f23a3120fb6caea243ce501580949ca5823c5669b32dfdeea9b",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 13.484207657165825,
+      "sampled_peak_summed_rss_kib": 973700,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/coupled_run",
+      "receipt_sha256": "4726bc20cfb9523b086812c520ef2478992ac1c9ff8d1622ca80d73861988778",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.991796274203807,
+      "sampled_peak_summed_rss_kib": 1218876,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/gate1",
+      "receipt_sha256": "9f63fb1566d52dfbeed8e105c8e4ed3eb43ebd3bd9660ecb175906aa575e6dc5",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 54.44737170962617,
+      "sampled_peak_summed_rss_kib": 2343136,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/gate2",
+      "receipt_sha256": "fa313f01d61d63f058e9428e5cce098ced20ca5d083602037103b1392d1b1229",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 42.51004977663979,
+      "sampled_peak_summed_rss_kib": 1961032,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/gate3",
+      "receipt_sha256": "1cfbaa6afd9eb588636e4aa83c7200279d1f83a3679ddce72494cec37e2258d6",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 66.43684988934547,
+      "sampled_peak_summed_rss_kib": 2911200,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_native_20261017/gate4",
+      "receipt_sha256": "cbde35b65c4ee07c6aa42670c06447f2f13259d8297cf959f431a7b4eef4ccfc",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.54174257395789,
+      "sampled_peak_summed_rss_kib": 1181220,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    }
+  ],
+  "resource_scope": "Native CPU20-23 <=300s/4GiB. Initial JAX diagnoses CPU24-27 <=120s/2GiB; focused gates <=180s/3GiB. Full source/tests/input hashes guarded, no survivors. Private MATLAB preferences removed; no licensed runtime/preferences/keys archived.",
+  "retained_source_hashes": {
+    "@chebop/solvebvpLinear.m": "5e78ffdff8af7f87f1be960060816b885752e08b29e15d46ef44e31aa832e39a",
+    "@linop/linsolve.m": "22aab20f282c6e6a415f88bc72d3329cfba51f8e4e804e7839a3276b3675b673",
+    "@chebcolloc2/toFunctionOut.m": "52f6261550c8601eed5dbb21d620cd03bc60f2f064604e66a99697731051b562",
+    "@chebfun/pdeSolve.m": "17db32dd0029bc0680266824a43f56add281e5c9a42086ba541afb2fb2e2fe66"
+  },
+  "root_failure_receipt": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_numerical_repro_20261017/run001",
+    "receipt_sha256": "0cf0c1e80bce105962e6be7a21e1a02b24ba5ce46de223b27db4516b006c4ec8"
+  },
+  "current_kernel_integration": {
+    "base": "cfdc5156",
+    "passed": 17,
+    "scope": "All12 original linearSystem2 clauses plus five smooth/piecewise/default/explicit/three-component controls on the combined candidate with source077e0f2a Clenshaw and JAX2D changes. These IDs are a subset of51, not17 extra distinct tests.",
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/coupled_jax2d_combined_gate_20261017/run001/receipt.json",
+    "wall_seconds": 56.75916019640863,
+    "peak_rss_kib": 2442108,
+    "source_clenshaw_sha256": "bb204f9e8f317e8eb2b9d5c871d75dbc3bbcfb972f83e57799c275e0cc1b9281",
+    "stable_inputs": true,
+    "no_survivors": true
+  }
+}

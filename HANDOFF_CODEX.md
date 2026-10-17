@@ -1,3 +1,38 @@
+## Krylov final block checkpoint — 2026-10-17
+
+The final piecewise-coefficient example now applies the literal source
+sign/cos/abs expressions to the identity Chebfun, preserving splitting.
+No solver code changed. Default MINRES converges in11iterations with
+physical relative residual4.218264374610285e-12. Only this final output and
+figure03 (reference600x269) were refreshed; earlier page outputs remain
+historical. Evidence:`docs/krylov_final_source_cpu_20261017.json`.
+Full-page/native/raster/performance qualification remains open.
+
+## Coupled BVP and JAX 2D evaluation checkpoint — 2026-10-17
+
+Supported finite two-sided coupled differential BVPs now use the existing
+source rectangular JAX discretization instead of square endpoint-row
+replacement. The original failing right-boundary clause passes. All51scoped
+checks pass, including33original linearSystem1/2 clauses and2/3component
+controls;17selected cases also pass with the current Clenshaw/combinedsource.
+Native coupled outputs have15coefficients versus16in the direct candidate;
+exact representation parity remains open. Evidence:
+`docs/ci_numerical_source_cpu_20261017.json`.
+
+Public SeparableApprox/Chebfun2 point/grid evaluation now uses JAX for
+coordinates, genuine slice values and CDR products. The NumPy evaluator and
+padded coefficient stack are removed. All85focused tests pass, including
+24new public analytic/AD/no-host controls and existing source-port predicates
+at unchanged bounds. Other constructor/arithmetic/root host routes remain.
+Evidence:`docs/jax_separable_evaluation_cpu_20261017.json`.
+
+The default advection PDE still fails. Native spatial RHS and finite-difference
+Jacobian agree exactly on identical retained inputs; constructor ulps alter
+endpoint cancellation and refinement decisions. Native succeeds on its own
+initial data. No reference data, AD Jacobian or tuned tolerance is substituted
+in production. Full CI, native representations, pages/figures and performance
+qualification remain unresolved; the goal stays active.
+
 ## Ordered Clenshaw CPU instruction checkpoint — 2026-10-17
 
 The paired real CPU recurrence now executes one source arithmetic operation

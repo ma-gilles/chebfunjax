@@ -1147,13 +1147,18 @@ class Chebop:
             from chebfunjax.operators.periodic import solve_coefficients
             return self._simplify_solution(
                 solve_coefficients(self, f, n, n_max, tol, n_min=n_min))
-        if (selection == "chebcolloc2" and length_dom > 2
+        if (selection == "chebcolloc2"
+                and (length_dom > 2 or
+                     (self._lbc_raw is not None and self._rbc_raw is not None))
                 and self._n_vars() > 1 and not self._periodic
                 and self._n_equations() == self._n_vars()
                 and self._bc_general is None
                 and all(bool(jnp.isfinite(v)) for v in self.domain)):
-            # Native linearize -> solvebvpLinear retains nonlocal Jacobian
-            # blocks; local monomial coefficients cannot represent delays.
+            # Native linearize -> solvebvpLinear uses the rectangular source
+            # discretization for coupled BVPs, including local differential
+            # blocks. Square endpoint-row replacement loses derivative BC
+            # accuracy. Keep one-sided local IVPs on their marcher route and
+            # retain the existing piecewise nonlocal Jacobian path.
             from chebfunjax.operators.chebop_altdisc import (
                 _linear_system_by_ad,
                 _linearize_coupled_ad,
@@ -1172,11 +1177,20 @@ class Chebop:
                 parameters = differential and any(
                     all(row[j].isnotdiffint for row in rows)
                     for j in range(count))
-                if (not parameters and any(block._coeff_fn is None
-                                           for row in rows for block in row)):
-                    return self._simplify_solution(_solve_linear_system_ad(
+                nonlocal_blocks = any(block._coeff_fn is None
+                                      for row in rows for block in row)
+                two_sided_differential = (differential
+                                         and self._lbc_raw is not None
+                                         and self._rbc_raw is not None)
+                if not parameters and (nonlocal_blocks or two_sided_differential):
+                    solution = _solve_linear_system_ad(
                         self, rhs, dom, count, selection, n, n_min, n_max,
-                        tol, data=data))
+                        tol, data=data)
+                    if length_dom == 2 or not nonlocal_blocks:
+                        # Preserve the public container of the coupled BVP
+                        # routes now using this source discretization.
+                        solution = SystemSolution(solution)
+                    return self._simplify_solution(solution)
         if selection in ("ultraS", "chebcolloc1"):
             # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
             from chebfunjax.operators.chebop_altdisc import (

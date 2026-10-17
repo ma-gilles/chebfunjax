@@ -1,0 +1,379 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "cfdc51560a93848e3ec429c999de71677242ce77",
+  "scope": "Final piecewise-coefficient Krylov block only; no full-page run, fresh native comparison, pixel parity, or matched performance claim. No solver library changes.",
+  "causal_finding": "The example used callable sign(cos(...)) and abs constructors instead of operations on the existing identity Chebfun. This bypassed source splitting behavior. Restored the two literal source operand expressions; default MINRES converges. Original bug 5 is stale after earlier MINRES source ports; no additional recurrence correction is supported.",
+  "native_provenance": {
+    "library_head": "7574c77680d7e82b79626300bf255498271a72df",
+    "examples_head": "f4b9ea46cfc2f52f20a844627f4a74d0bb10098c",
+    "source_sha256": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebop/minres.m": "446fdaaf334cc0479b95894d550bee2aadf8492d99fa9bfb3051a9369078d946",
+      "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-linear/Krylov.m": "de5481b9867fe235f465e16fcb51ba6775ec632a4349c01703bdc95232fa2238"
+    },
+    "native_source_has_assertion_bound": false
+  },
+  "current_result": {
+    "runtime": {
+      "jax": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/__init__.py",
+      "affinity": [
+        24,
+        25,
+        26,
+        27
+      ]
+    },
+    "stages": {
+      "construction": 8.904718633275479,
+      "minres": 108.23884889716282,
+      "residual": 1.592958516906947
+    },
+    "a": {
+      "domain": [
+        -1.0,
+        -0.9000000000000001,
+        -0.7000000000000002,
+        -0.5000000000000007,
+        -0.30000000000000066,
+        -0.10000000000000003,
+        0.10000000000000003,
+        0.30000000000000004,
+        0.4999999999999995,
+        0.7000000000000002,
+        0.9000000000000015,
+        1.0
+      ],
+      "lengths": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "happy": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "c": {
+      "domain": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "lengths": [
+        2,
+        2
+      ],
+      "happy": [
+        true,
+        true
+      ]
+    },
+    "f": {
+      "domain": [
+        -1.0,
+        1.0
+      ],
+      "lengths": [
+        34
+      ],
+      "happy": [
+        true
+      ]
+    },
+    "solver": {
+      "flag": 0,
+      "relres": 2.0227187015534558e-13,
+      "iteration": 11,
+      "resvec": [
+        15.631724870363145,
+        5.761716132037415,
+        0.30134602125133236,
+        0.10668966114323614,
+        0.0012535195039702729,
+        0.0006224650497766598,
+        5.750465527023216e-05,
+        4.748056880489302e-06,
+        2.3830916890757585e-06,
+        8.597821364515152e-09,
+        3.6472663743272458e-09,
+        2.0227187015534558e-11
+      ]
+    },
+    "u": {
+      "domain": [
+        -1.0,
+        -0.9000000000000001,
+        -0.7000000000000002,
+        -0.5000000000000007,
+        -0.30000000000000066,
+        -0.10000000000000003,
+        0.0,
+        0.10000000000000003,
+        0.30000000000000004,
+        0.4999999999999995,
+        0.7000000000000002,
+        0.9000000000000015,
+        1.0
+      ],
+      "lengths": [
+        12,
+        15,
+        15,
+        15,
+        15,
+        13,
+        13,
+        15,
+        15,
+        15,
+        15,
+        13
+      ],
+      "happy": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "physical_relative_residual": 4.218264374610285e-12,
+    "residual": {
+      "domain": [
+        -1.0,
+        -0.9000000000000001,
+        -0.7000000000000002,
+        -0.5000000000000007,
+        -0.30000000000000066,
+        -0.10000000000000003,
+        0.0,
+        0.10000000000000003,
+        0.30000000000000004,
+        0.4999999999999995,
+        0.7000000000000002,
+        0.9000000000000015,
+        1.0
+      ],
+      "lengths": [
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34
+      ],
+      "happy": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "flux_jumps": [
+      -4.68070027181966e-13,
+      2.2078339156905713e-11,
+      1.5641266060129055e-11,
+      5.565325977840985e-12,
+      3.0254021510245366e-11,
+      2.149391775674303e-13,
+      -3.170974594013387e-11,
+      2.355449169044732e-12,
+      -3.2084113144037474e-11,
+      -7.423395231853647e-12,
+      2.8401281326750905e-11
+    ],
+    "boundary_values": [
+      2.0000000000000013,
+      2.00000000000002
+    ],
+    "flux": {
+      "domain": [
+        -1.0,
+        -0.9000000000000001,
+        -0.7000000000000002,
+        -0.5000000000000007,
+        -0.30000000000000066,
+        -0.10000000000000003,
+        0.0,
+        0.10000000000000003,
+        0.30000000000000004,
+        0.4999999999999995,
+        0.7000000000000002,
+        0.9000000000000015,
+        1.0
+      ],
+      "lengths": [
+        11,
+        14,
+        14,
+        14,
+        14,
+        12,
+        12,
+        14,
+        14,
+        14,
+        14,
+        12
+      ],
+      "happy": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "scope": "Current source final discontinuous-coefficient block only. Instrumented observation; not full page, native pixel or matched performance qualification. Native example has no assertion bound."
+  },
+  "qualification": {
+    "run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 125.34084582095966,
+      "sampled_peak_summed_rss_kib": 3904908,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "receipt_sha256": "66975914585ae214bb99cd1179e122bbe927caee71b32686ab4bbe03acfe3af2"
+    },
+    "render_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 6.977620595134795,
+      "sampled_peak_summed_rss_kib": 655984,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "receipt_sha256": "91bc5bf21fcae597233069b10fa4f59729ac7f97926c9642f307cc22cae73638"
+    }
+  },
+  "static_checks": {
+    "python_syntax": "pass",
+    "native_matlab_code_blocks_unchanged": true,
+    "source_operand_expressions_present": true,
+    "generator_only_added_source_managed_tuple": true
+  },
+  "retained_coefficients_sha256": "dd2fde9dafe1091d1452dfa29a8e8d2b47cb1bceffa659c30071c1b9246ed5a8",
+  "numerical_driver_sha256": "8be98bc247609effc6106c0b65c107eed3ac573bf6d29bab083d13cdd25b8238",
+  "render_driver_sha256": "7df3ccd00a2bc58a88d27086e9b4212f70eaefeec736c8c37a5dcacd393dd108",
+  "current_library_sha256": {
+    "src/chebfunjax/operators/krylov.py": "eeaa3690e4509f4ac68362e5ece27680f86d67d3120bcd9e4ded22ac65c97f75",
+    "src/chebfunjax/tech/chebtech.py": "e465e8cac62d0be0b36a206e83d58c2f53b4963cef2ddd6c2156ab92bc651555"
+  },
+  "guarded_input_count": 3213,
+  "profile": {
+    "instrumented_minres_seconds": 108.23884889716282,
+    "backend_compile_and_load_cumulative_seconds": 45.778,
+    "backend_compile_and_load_calls": 1852,
+    "interpretation": "Compilation is a substantial cost in this single instrumented cold process. Nested cumulative timings overlap. No optimization or matched performance conclusion."
+  },
+  "historical_evidence": [
+    {
+      "path": "docs/krylov_indefinite_native_cpu_20261013.json",
+      "status": "Successful retained numerical comparison; old kernel, not current qualification."
+    },
+    {
+      "path": "docs/krylov_varcoeff_native_cpu_20261013.json",
+      "status": "Successful numerical checkpoints; wrapper exit 1 from missing output directory. Not full-page or terminal-success qualification."
+    },
+    {
+      "path": "krylov_piecewise_minres_p65_v2_cpu.json",
+      "location": "shared goal directory",
+      "status": "Oct 5 source-correct final block already converged; correction had not reached example caller. Old MINRES/library execution."
+    }
+  ],
+  "publication": {
+    "updated": "Final residual and figure03 only. Earlier outputs/figures unchanged and historical. Source-managed generator tuple protects artifacts; no audit exclusions.",
+    "render": "600x269, visually inspected; restored saved a/u coefficients and point values; no solver rerun.",
+    "files": {
+      "examples/ode-linear/krylov.py": {
+        "before_sha256": "e4eb927e3cd1cdd1fdc7fd284e81a75e06cdd9c718486ee69b56bd5a8666fae9",
+        "after_sha256": "9d0a5d6a1c11485634edb28d5ad6d4bc84c82d46db1b5e2d8f41f191b07111a7"
+      },
+      "docs/examples/ode-linear/Krylov.md": {
+        "before_sha256": "a75d5be2508522c82c797c3fa89049f14998a7e344f523b1ee7050c06b337a7c",
+        "after_sha256": "662f031a8c869867a8ae3a1814e9fcde96458ffe61603d269bfc826293e20e6c"
+      },
+      "docs/images/ode-linear/Krylov_03.png": {
+        "before_sha256": "395776eff842086d424d5661822476d0dbfa857a371eebeaf9b7a589915a1493",
+        "after_sha256": "ef908e3642dc9ecba1bcfe5d54c0044af2bb26ac9c9fb6b22faf131ace3253ce"
+      },
+      "scripts/gen_example_pages.py": {
+        "before_sha256": "0d70d25165fa0e91188ce4e28ed473390536127dbb1a0519f4a7df533fdac685",
+        "after_sha256": "b914a37b3500a8cd0c47cf29aebd018ea07492a3402b3364a6f7bfcd580a4159"
+      }
+    },
+    "integration_note": "Parent removed the now-unused jax.numpy import after full Ruff caught F401. Executable AST is unchanged except import removal; original qualified script and hash remain in the evidence archive."
+  },
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_audit_20261017",
+  "current_evaluation_sha256": {
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/ballfun/ballfun.py": "3b40cd6f7cf84a54139f9d9e14c1ab6ee91ad1b89aded804812c4c4703a2b3f7",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/ballfun/_solharm.py": "d685c15076cb7a2cf00eeb1dadeda005b6186ada1f3a902648a1024cbcb4b1a6",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/diskfun/_svd.py": "f29a76277d93d1e164b7c5bf788389a4163e50fcd2c492976375f57820846e9c",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/chebfun2d/separable_approx.py": "ddc207d9ecf59f743f0203014a5b9c4390289fc3548dcb519250b9273dfb6f64",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/operators/_coordinates.py": "caeaf4bbd256db5f14f356a29309f3372e730292a129711e50aeea54c24b83bc",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/operators/_linear_altdisc.py": "96d5fab00343d320c458c102769d8b2991cd6c2c7cb8e7693e5a8ac185d128fd",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/quadrature.py": "9957b9de4e2ee86eb29096098572fd23fc7e12d8c5672f7f2872d418b4870dc5",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/polynomials.py": "75fc4c44afc5aca02ca30f690fcd431278d16af9aa72d192eaad0f4c977a2034",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/cfpade.py": "0e19aea4e44354570c854d0a1823817e2074ec7299acf41779f759cababc34b1",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/diffmat.py": "f07194ca11512c87fd99f2abbb5dbe229c49cd6f4ce07ee21ef233429ae281fa",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/_ratbary.py": "8092dd3ea0177aac6ba0697f53b57ffc1cb64369d1fca8f1c90c4f9fe812722f",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/bessel_roots_general.py": "61c5e22c3affb45f1928f38ecf777c10d7c463650fe3f45749a186e6adf9fda5",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/_cf_kernel.py": "6bf6497f39420cb8efd4de03bdf876d03ca12ff90ff454fe77fbf672fdd3a895",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/_cf_public.py": "c7e279d2a8441922a65ca13076c056d970b88b7bcbb8d0bc36d5e5922eafcd8f",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/utils/ratapprox.py": "cb416cf33ab2554119b576c5e7b2757a895a6171ff7955d73b6a4eb675c78c90",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/chebfun3d/chebfun3t.py": "81aaef38c2f15eb0c8af758f97ba6149f515433c71468f8f32a292a7f254d1a8",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/chebfun3d/_power.py": "022f708464fe92193ba20e9200c0013028a55ffff585b9a1146047b5d0e1c81d",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/tech/chebtech.py": "e465e8cac62d0be0b36a206e83d58c2f53b4963cef2ddd6c2156ab92bc651555",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/tech/trigtech.py": "0baa65a380be5ed5d6bdb6a55d30f6638a5977dcb287dd03097f37407f2889fa",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/tech/_source_clenshaw.py": "bb204f9e8f317e8eb2b9d5c871d75dbc3bbcfb972f83e57799c275e0cc1b9281",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minres_source_20261017/src/chebfunjax/chebfun1d/_polyfit_l1.py": "8e41175a717948d3888e993a73dbf236fcf668dab7066f8c56211d679bb9f71e"
+  }
+}

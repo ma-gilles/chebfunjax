@@ -516,10 +516,11 @@ class Chebfun2(eqx.Module):
         return self._eval_concrete(x, None)
 
     def _eval_concrete(self, x, y):
-        """Numeric evaluation: concrete inputs go straight to the
-        SeparableApprox numpy path (which detects meshgrid/tensor inputs
-        and evaluates the slices once per unique abscissa, MATLAB
-        feval's tensor-grid branch); tracers use the jitted path."""
+        """Numeric JAX evaluation with source tensor-grid dispatch.
+
+        Concrete grids evaluate each direction once before the CDR matrix
+        product. Point lists and traced inputs share the array-only kernels.
+        """
         if y is None:
             z = jnp.asarray(x)
             if not isinstance(z, jax.core.Tracer):
@@ -533,8 +534,8 @@ class Chebfun2(eqx.Module):
                     and not jnp.iscomplexobj(xa_) and not jnp.iscomplexobj(ya_)
                     and not jnp.iscomplexobj(self.approx.pivots)):
                 # Point lists: the jitted path (bit-identical to a jitted
-                # caller); tensor grids and complex data take the numpy
-                # path with its meshgrid detection.
+                # caller); tensor grids and complex data use the JAX
+                # CDR adapter with source meshgrid detection.
                 return self._eval_xy(xa_, ya_)
             return self.approx(xa_.astype(jnp.float64)
                                if not jnp.iscomplexobj(xa_) else xa_,
