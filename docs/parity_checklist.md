@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Split actual90minute MATLAB-port chebfun-a/b deadline failures:3→9lanes preserve390files/eightroots, oldlaneancestry, runner/steps,900second tests and90minute job limits. YAML/directorycoverage/exactinventory/source-byte checks pass. [Evidence](ci_port_deadline_cpu_20261017.json). Latest-main runtime/scientific assertions/coverage remain required.
+
+
 - [x] Restore reference prose after moving27implementation notes from21pages into preserved evidence documents. Fresh current-tree offlineaudit:322pages,0parser-normalizedprose/equation/header mismatches;2408exact MATLABinputblocks and1305figure-reference positions/interleaving agree. [Evidence](page_structure_prose_parent_cpu_20261017.json). Runtime/stdout/pixel/content qualification remains separate;7blank outputslots and3historicalwarning-count differences remain.
 
 

@@ -1,3 +1,13 @@
+# Latest MATLAB-port CI deadline split — 2026-10-17
+
+Actual olderCI chebfun-a/b hit90minute job limits (last reported40%/90%nodes).
+Split the same390port-test files across9lanes instead of3, preserving each
+oldlane as3disjoint descendants. Same8rootdirectories, no missing/duplicate
+files, unchanged runner/workflowsteps,900second test/90minute job limits and
+all scientific source/bounds. YAMLparse/directorycoverage/exactinventory checks
+pass; no elapsed/scientificpass claim until latestCIruns. No manualCIcancellation.
+Evidence: docs/ci_port_deadline_cpu_20261017.json.
+
 # Latest reference prose/structure cleanup — 2026-10-17
 
 Moved27implementation qualification-note blocks from21example pages to

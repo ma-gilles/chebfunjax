@@ -172,7 +172,7 @@ jobs:
         shard:
           - name: chebfun-a
             part: 0
-            parts: 3
+            parts: 9
             paths: >-
               tests/test_matlab_port/chebfun
               tests/test_matlab_port/misc
@@ -184,7 +184,7 @@ jobs:
               tests/test_matlab_port/treeVar
           - name: chebfun-b
             part: 1
-            parts: 3
+            parts: 9
             paths: >-
               tests/test_matlab_port/chebfun
               tests/test_matlab_port/misc
@@ -196,7 +196,79 @@ jobs:
               tests/test_matlab_port/treeVar
           - name: chebfun-c
             part: 2
-            parts: 3
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-d
+            part: 3
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-e
+            part: 4
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-f
+            part: 5
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-g
+            part: 6
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-h
+            part: 7
+            parts: 9
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: chebfun-i
+            part: 8
+            parts: 9
             paths: >-
               tests/test_matlab_port/chebfun
               tests/test_matlab_port/misc

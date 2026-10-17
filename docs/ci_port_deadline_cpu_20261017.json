@@ -1,0 +1,90 @@
+{
+  "scope": "CI deadline partition repair only; no test/library/predicate/tolerance/900second per-test or90minute job limits changed.",
+  "base": "e1419350b6df1874ad6530dc91969dc1dbfd65e1",
+  "baseline": {
+    "run": 39065923680,
+    "jobs": {
+      "chebfun-a": 117493488185,
+      "chebfun-b": 117493488157
+    },
+    "observed": "Both hit90minute job cancellation; A last reported40percent, B90percent. Logs frozen in archive."
+  },
+  "candidate": {
+    "old_lanes": 3,
+    "new_lanes": 9,
+    "test_files": 390,
+    "file_counts": [
+      {
+        "name": "chebfun-a",
+        "part": 0,
+        "parts": 9,
+        "files": 44
+      },
+      {
+        "name": "chebfun-b",
+        "part": 1,
+        "parts": 9,
+        "files": 44
+      },
+      {
+        "name": "chebfun-c",
+        "part": 2,
+        "parts": 9,
+        "files": 44
+      },
+      {
+        "name": "chebfun-d",
+        "part": 3,
+        "parts": 9,
+        "files": 43
+      },
+      {
+        "name": "chebfun-e",
+        "part": 4,
+        "parts": 9,
+        "files": 43
+      },
+      {
+        "name": "chebfun-f",
+        "part": 5,
+        "parts": 9,
+        "files": 43
+      },
+      {
+        "name": "chebfun-g",
+        "part": 6,
+        "parts": 9,
+        "files": 43
+      },
+      {
+        "name": "chebfun-h",
+        "part": 7,
+        "parts": 9,
+        "files": 43
+      },
+      {
+        "name": "chebfun-i",
+        "part": 8,
+        "parts": 9,
+        "files": 43
+      }
+    ],
+    "each_old_lane_is_disjoint_union_of_3_descendants": true,
+    "no_missing_or_duplicate_files": true,
+    "same8directoryroots": true,
+    "workflow_steps_runner_and_scientific_source_unchanged": true,
+    "unchanged_library_files": 362,
+    "unchanged_test_and_helper_bindings": 392,
+    "yaml_parser_checked": true,
+    "directory_coverage_check": "passed"
+  },
+  "limits": [
+    "Static exact-inventory/step/source checks, not actual elapsed/runtime/scientific pass qualification.",
+    "Latest-mainCIall9portlanes/allotherlanes andcoverage>=79% remain required. Existingruns not manuallycancelled/restarted."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_port_deadline_cpu_20261017.tar.gz",
+    "sha256": "c7df9cd55ef1fc5f0d18737eabd6888b414684fbc20e5c81cbfbe0f0cba5e1a4",
+    "verified_payloads": 11
+  }
+}
