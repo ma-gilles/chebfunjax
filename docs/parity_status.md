@@ -65,6 +65,12 @@ remaining-page count.
   audit, not new numerical or figure qualification. See
   [script dispositions](handoff_twelve_current_bindings_cpu_20261017.json).
 
+- [x] Native happinessCheck local DATA scale derives from the coefficient
+  representation, preserving independent supplied-value scales and running
+  constructor metadata. 153 component controls pass; 27 latest-source
+  integration controls pass in 30.48 seconds. Native FFT and inverse length
+  parity remain open. See [scale evidence](happiness_representation_vscale_joint_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted

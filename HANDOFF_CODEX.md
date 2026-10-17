@@ -1,3 +1,34 @@
+## Representation-based happinessCheck scale — 2026-10-17
+
+Native happinessCheck updates a local DATA.vscale copy from vscale(f), which
+recomputes the coefficient-grid values (or abs(coeffs) for a constant). The
+shared C1/C2 implementation now does the same. Supplied sample scales remain
+separate for standardCheck/sampleTest; running constructor sample metadata
+is unchanged. Matrix representation values are computed once before the
+existing standard column chop. No FFT/chop/epsilon/degree/bound adjustment.
+
+The frozen baseline fails14 of20 new source controls; the candidate passes
+all20. Unchanged happiness/adjacent61, original compose44 and power28 also
+pass:153 distinct pytest nodes, not153 original native predicates. Root27
+latest-source integration controls pass30.48s, including Subsref JIT/AD and
+the retained native inverse endpoint regression;8185stable inputs and1413
+observed imports all preguarded,1.38GiB sampled peak/no survivors. Full
+lint/F821/provenance pass. Parent independently verified the component124
+payloads, all8 pinned static native source blobs and121860 guard edges via
+9552 exact full-byte versions across7 archives. Component after-load
+readline/tinfo DSOs remain explicitly postobserved-only, never retroactive
+guards. Evidence:docs/happiness_representation_vscale_joint_cpu_20261017.json.
+
+At the retained native initial stage, the corrected effective tolerance is
+3cb0000000000001 instead of3cb0000000000000. The test-only native transform
+oracle and actual JAX replay are separate checks. No native FFT bit-parity
+claim, production oracle injection or full-inverse rerun/timing claim.
+Inverse9030vs8630 remains an unresolved transform-provider gap.
+
+Next: source nonlinear parameter dispatch and native record-index behavior.
+Full tests/APIs/pages/figures, matched CPU performance and latest-green CI
+remain open. Previous checkpoint sections retain historical source scope.
+
 ## Original Subsref predicates and JAX record adapter — 2026-10-17
 
 All32 original tests/chebfun/test_subsref.m predicates now have component

@@ -1,0 +1,92 @@
+{
+  "scope": "CPU-only source correction to shared C1/C2 happinessCheck representation vscale, separate from native FFT provider and inverse parity.",
+  "base": "4b5f8f9832d4e5dd5888fc5a777c442f9f850845",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "diagnosis": "Python substituted supplied-values maximum for native coefficient-grid vscale(f). Native updates a local DATA copy, independently of running constructor sample metadata and standard/sample local denominators.",
+  "baseline": "Same 20 authored controls:14 failed,6 passed. All original assertions/bounds preserved.",
+  "candidate_distinct_nodes": 153,
+  "node_scope": {
+    "new_source_controls": 20,
+    "mapped_happiness_and_adjacent": 61,
+    "original_compose_predicates": 44,
+    "integer_and_quasimatrix_power": 28
+  },
+  "receipts": {
+    "baseline_new": {
+      "wall_seconds": 26.746164361014962,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 687848,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 24370,
+      "pytest_nodes": 20,
+      "pytest_failures": 14,
+      "pytest_seconds": 3.5269999999999997
+    },
+    "candidate_new": {
+      "wall_seconds": 20.566309296991676,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 700216,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 24371,
+      "pytest_nodes": 20,
+      "pytest_failures": 0,
+      "pytest_seconds": 3.634
+    },
+    "original_happiness": {
+      "wall_seconds": 72.71532380022109,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2980540,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 24372,
+      "pytest_nodes": 61,
+      "pytest_failures": 0,
+      "pytest_seconds": 51.275000000000006
+    },
+    "original_compose": {
+      "wall_seconds": 57.72711363527924,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1474280,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 24373,
+      "pytest_nodes": 44,
+      "pytest_failures": 0,
+      "pytest_seconds": 39.55199999999999
+    },
+    "original_power": {
+      "wall_seconds": 65.0462050079368,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2687356,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 24374,
+      "pytest_nodes": 28,
+      "pytest_failures": 0,
+      "pytest_seconds": 44.58100000000002
+    }
+  },
+  "native_initial_stage": {
+    "representation_scale_hex": "3fefffffffffffff",
+    "sampled_scale_hex": "3feffffffffffffe",
+    "native_and_candidate_effective_tolerance_hex": "3cb0000000000001",
+    "baseline_tolerance_hex": "3cb0000000000000",
+    "oracle_distinction": [
+      "Retained native stage coefficients/grid injected only as a coeffs2vals kernel oracle; isolates the known FFT provider difference.",
+      "Direct JAX transform of retained native coefficients independently checks source formula; no native FFT bit parity claim."
+    ]
+  },
+  "static_check": "Scoped Ruff source/new test passes; no formatting changes after numerical freeze.",
+  "remaining": [
+    "Native inverse9030 vs8630 transform-provider coefficient/chop sensitivity remains unresolved; no full inverse run or length claim.",
+    "No FFT/chop/eps/degree/bound changes, REC substitution, native rerun or performance claim.",
+    "153 distinct pytest nodes are not153 literal native predicates; supplemental controls are explicitly counted."
+  ]
+}

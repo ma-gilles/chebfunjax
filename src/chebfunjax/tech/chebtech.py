@@ -685,10 +685,15 @@ def _happiness_check_impl(
         tol = _EPS
 
     n = coeffs.shape[0]
-    # MATLAB standardCheck/sampleTest scale each column independently.
-    # Keep the sample axis when updating a running piecewise/global scale.
+    # StandardCheck/sampleTest use supplied sample scales independently
+    # of the coefficient-grid DATA update in native happinessCheck.
     local_scales = jnp.max(jnp.abs(values), axis=0)
-    global_scales = jnp.maximum(jnp.asarray(vscale), local_scales)
+    # Native happinessCheck updates its local DATA copy from vscale(f).
+    # Populate's running sampled scale is passed in separately and is not
+    # mutated by this representation-grid estimate.
+    representation_scales = (jnp.abs(coeffs[0]) if n == 1 else
+                             jnp.max(jnp.abs(tech_cls.coeffs2vals(coeffs)), axis=0))
+    global_scales = jnp.maximum(jnp.asarray(vscale), representation_scales)
     column_count = 1 if coeffs.ndim == 1 else coeffs.shape[1]
     tolerances = jnp.atleast_1d(jnp.asarray(tol))
     if tolerances.size != column_count:
@@ -709,16 +714,25 @@ def _happiness_check_impl(
             )
     elif coeffs.ndim == 2:
         scales = jnp.broadcast_to(global_scales, (column_count,))
-        results = [
-            _happiness_check_impl(
-                tech_cls, kind, coeffs[:, column], values[:, column], None,
-                float(tolerances[column]), float(scales[column]), hscale,
-                check, sample_test=False,
+        if check != "standard":
+            raise ValueError(
+                f"unknown happiness check {check!r} "
+                "(expected 'standard', 'strict', 'classic', or 'plateau')"
             )
-            for column in range(column_count)
-        ]
-        ishappy = all(result[0] for result in results)
-        cutoff = max(result[1] for result in results)
+        # vscale(f) is computed once on the full matrix, before the native
+        # standardCheck column loop. Retain the scalar tolerance operations
+        # without recursively transforming each coefficient column again.
+        scaled_tolerances = []
+        for column in range(column_count):
+            local = float(local_scales[column])
+            scale = float(scales[column])
+            scalar_tol = float(tolerances[column])
+            scaled_tolerances.append(
+                scalar_tol * max(hscale, scale / local) if local > 0
+                else scalar_tol * hscale
+            )
+        cutoff = _chop_columns(coeffs, jnp.asarray(scaled_tolerances))
+        ishappy = cutoff < n
     else:
         vscale_local = float(local_scales)
         vscale = float(global_scales)
@@ -3841,7 +3855,8 @@ class Chebtech2(eqx.Module):
             Target relative tolerance. Default: machine epsilon.
         vscale : float, default 0.0
             Global vertical scale (possibly from a larger approximation
-            interval). Updated to ``max(vscale, max(|values|))``.
+            interval). Updated locally to at least the coefficient-grid
+            scale ``vscale(f)``, as in native ``happinessCheck``.
         hscale : float, default 1.0
             Horizontal scale factor.
         check : {'standard', 'strict', 'classic'}, default 'standard'

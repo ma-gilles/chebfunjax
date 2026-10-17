@@ -1,0 +1,287 @@
+{
+  "base": "af5f3828c38062008663e9ea588093d4a47a2300",
+  "scope": "Root latest-source integration27 repeated controls:20 new happiness/source controls,6 published Subsref record controls and1 retained native inverse endpoint regression. No additional distinct component credit.",
+  "component": {
+    "scope": "CPU-only source correction to shared C1/C2 happinessCheck representation vscale, separate from native FFT provider and inverse parity.",
+    "base": "4b5f8f9832d4e5dd5888fc5a777c442f9f850845",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "diagnosis": "Python substituted supplied-values maximum for native coefficient-grid vscale(f). Native updates a local DATA copy, independently of running constructor sample metadata and standard/sample local denominators.",
+    "baseline": "Same 20 authored controls:14 failed,6 passed. All original assertions/bounds preserved.",
+    "candidate_distinct_nodes": 153,
+    "node_scope": {
+      "new_source_controls": 20,
+      "mapped_happiness_and_adjacent": 61,
+      "original_compose_predicates": 44,
+      "integer_and_quasimatrix_power": 28
+    },
+    "receipts": {
+      "baseline_new": {
+        "wall_seconds": 26.746164361014962,
+        "supervisor_exit_code": 1,
+        "sampled_peak_summed_rss_kib": 687848,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 24370,
+        "pytest_nodes": 20,
+        "pytest_failures": 14,
+        "pytest_seconds": 3.5269999999999997
+      },
+      "candidate_new": {
+        "wall_seconds": 20.566309296991676,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 700216,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 24371,
+        "pytest_nodes": 20,
+        "pytest_failures": 0,
+        "pytest_seconds": 3.634
+      },
+      "original_happiness": {
+        "wall_seconds": 72.71532380022109,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 2980540,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 24372,
+        "pytest_nodes": 61,
+        "pytest_failures": 0,
+        "pytest_seconds": 51.275000000000006
+      },
+      "original_compose": {
+        "wall_seconds": 57.72711363527924,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 1474280,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 24373,
+        "pytest_nodes": 44,
+        "pytest_failures": 0,
+        "pytest_seconds": 39.55199999999999
+      },
+      "original_power": {
+        "wall_seconds": 65.0462050079368,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 2687356,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 24374,
+        "pytest_nodes": 28,
+        "pytest_failures": 0,
+        "pytest_seconds": 44.58100000000002
+      }
+    },
+    "native_initial_stage": {
+      "representation_scale_hex": "3fefffffffffffff",
+      "sampled_scale_hex": "3feffffffffffffe",
+      "native_and_candidate_effective_tolerance_hex": "3cb0000000000001",
+      "baseline_tolerance_hex": "3cb0000000000000",
+      "oracle_distinction": [
+        "Retained native stage coefficients/grid injected only as a coeffs2vals kernel oracle; isolates the known FFT provider difference.",
+        "Direct JAX transform of retained native coefficients independently checks source formula; no native FFT bit parity claim."
+      ]
+    },
+    "static_check": "Scoped Ruff source/new test passes; no formatting changes after numerical freeze.",
+    "remaining": [
+      "Native inverse9030 vs8630 transform-provider coefficient/chop sensitivity remains unresolved; no full inverse run or length claim.",
+      "No FFT/chop/eps/degree/bound changes, REC substitution, native rerun or performance claim.",
+      "153 distinct pytest nodes are not153 literal native predicates; supplemental controls are explicitly counted."
+    ],
+    "source_hashes": {
+      "src/chebfunjax/tech/chebtech.py": "d9150fdfa2ffdbb51b6be59c6fcc21a9ad5bb5a25fd28ac71fe8d2b29cf3efe8",
+      "tests/test_tech/test_happiness_representation_vscale_source.py": "5f8a92d3b61b929f448e84f49ca10780db9d8a78f2eb252b536df74538678a84",
+      "tests/test_tech/fixtures/happiness_native_initial_scale_7574c77.json": "412257a16eeefaa98317236e132d4d529111975d193e28cb6becbb2ad59ec903"
+    }
+  },
+  "component_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/happiness_representation_vscale_cpu_20261017.tar.gz",
+  "component_archive_sha256": "e5be226d4c13b126a7d53722fba90f6473b3749ec982a7c1213756e5fefd68a6",
+  "parent_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/happiness_representation_vscale_cpu_20261017.tar.gz",
+    "sha256": "e5be226d4c13b126a7d53722fba90f6473b3749ec982a7c1213756e5fefd68a6",
+    "verified_payloads": 124,
+    "native_static_sources_verified": {
+      "@chebtech/happinessCheck.m": "4cf85c4e5d65f191a9238c5d155caf5fa71cf6d73c62bc328ea10f6de282de21",
+      "@chebtech/vscale.m": "baceb1448c3ab44bbbe3fd9c55cb7b5eb77db48effc66ec3abc476d28c1bb399",
+      "@chebtech/populate.m": "78f3d04420a48395a33dee2999f29438b74454ba858c0537bd466a213ef90d8a",
+      "@chebtech/parseDataInputs.m": "8be14912fc08a8590752a4dc314802dbc45de70f385c7506aa57bfadf9a15eea",
+      "@chebtech/standardCheck.m": "28e0366344e03d44199e59d5b3a7850ec661074fd6821cea489ae4080d3c52d2",
+      "@chebtech/strictCheck.m": "cd585e31d9d7da3fbfde932764a4f88f5af3b36cb4e5a89512d62a310af33603",
+      "@chebtech/classicCheck.m": "5d56a84e1f93c976a31b21d0bf4f7253c44289581ca661b76d6145bae8773321",
+      "@chebtech/sampleTest.m": "c2e6660a81dede1c4987a9d372ff2b6d00ee414815a4f4fbe19c7e0791ee97ee"
+    },
+    "scope": "Independent payload and pinned native static source verification. Dependency guard-edge/runtime verification and latest-source integration remain separate."
+  },
+  "parent_guard_edges_review": {
+    "guard_edges": 121860,
+    "unique_guarded_versions": 9552,
+    "verified_preimage_versions": 9552,
+    "archives": 7,
+    "scope": "Every guarded edge resolves to full SHA-verified bytes from exact archive versions; no numerical rerun."
+  },
+  "integration": {
+    "cases": [
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_strict_ignores_supplied_values_scale[1-Chebtech1]",
+        "time": "1.090"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_strict_ignores_supplied_values_scale[1-Chebtech2]",
+        "time": "0.092"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_strict_ignores_supplied_values_scale[2-Chebtech1]",
+        "time": "0.573"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_strict_ignores_supplied_values_scale[2-Chebtech2]",
+        "time": "0.073"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_explicit_data_column_scales_and_input_copy[Chebtech1]",
+        "time": "0.039"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_explicit_data_column_scales_and_input_copy[Chebtech2]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[0.25-0.375-True-Chebtech1]",
+        "time": "0.674"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[0.25-0.375-True-Chebtech2]",
+        "time": "0.126"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[8.0-0.75-True-Chebtech1]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[8.0-0.75-True-Chebtech2]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[8.0-1.25-False-Chebtech1]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_sample_test_uses_representation_and_horizontal_scales[8.0-1.25-False-Chebtech2]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_supplied_values_do_not_replace_data_scale[Chebtech1]",
+        "time": "0.082"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_supplied_values_do_not_replace_data_scale[Chebtech2]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_same_shape_new_coefficients_recompute_representation_scale[Chebtech1]",
+        "time": "0.006"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_same_shape_new_coefficients_recompute_representation_scale[Chebtech2]",
+        "time": "0.005"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_array_representation_grid_is_evaluated_once[Chebtech1]",
+        "time": "0.045"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_array_representation_grid_is_evaluated_once[Chebtech2]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_actual_native_one_ulp_scale_with_native_kernel_oracle",
+        "time": "0.420"
+      },
+      {
+        "classname": "tests.test_tech.test_happiness_representation_vscale_source",
+        "name": "test_actual_native_stage_direct_jax_scale_replay",
+        "time": "0.132"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_numeric_records_one_based_columns_and_orientation[False]",
+        "time": "3.235"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_numeric_records_one_based_columns_and_orientation[True]",
+        "time": "0.049"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_direct_subsref_and_explicit_feval_distinct_identifiers[X]",
+        "time": "0.608"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_direct_subsref_and_explicit_feval_distinct_identifiers[???]",
+        "time": "0.007"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_brace_record_follows_native_nonrecursive_branch",
+        "time": "0.067"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_traced_record_transpose_stays_on_jax_device",
+        "time": "2.325"
+      },
+      {
+        "classname": "tests.test_chebfun1d.test_inverse_raw_endpoint_source",
+        "name": "test_retained_polynomial_native_inverse_endpoint_bits",
+        "time": "20.581"
+      }
+    ],
+    "pytest_summary": "======================== 27 passed, 1 warning in 30.48s ========================",
+    "guarded_inputs": 8185,
+    "observed_runtime_imports": 1413,
+    "all_runtime_imports_preguarded": true,
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 36.23418464837596,
+      "sampled_peak_summed_rss_kib": 1452216,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/happiness_subsref_root_integration_cpu_20261017.zip",
+  "archive_sha256": "4c41b735b248ed9f00b06cdd1620aba86333e410df63543e8dd9c4d12e95ff0f",
+  "verified_payloads": 8082,
+  "remaining_gaps": [
+    "Native inverse FFT coefficient/length and matched CPU performance parity",
+    "Component records after-load readline/tinfo DSOs as postobserved-only, not retroactively guarded; full bytes retained",
+    "No full-inverse timing or degree claim; native kernel oracle is isolated test-only fixture, direct JAX replay separately qualified",
+    "Full API/library/test/page/figure/performance parity and latest green CI remain open"
+  ]
+}
