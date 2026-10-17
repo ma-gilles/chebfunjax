@@ -1,10 +1,29 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated2026-10-17. **Active, incomplete; CPU only.** Integration source basec7b54411; reference7574c77.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest verified implementation: `b85e3731`; MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
 Checked items certify only their stated scope.
+
+## At a glance
+
+| Workstream | Verified so far | Still required |
+|---|---|---|
+| Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
+| Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
+| Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
+| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
+| CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
+| Final acceptance | Latest implementation pushed as `b85e3731`; documentation deployment passed | Latest implementation CI run 39046105289 is in progress at this update; coverage ≥79%, final provenance/lint and full objective audit |
+
+### Active work, not yet credited as complete
+
+- **Spincomp / public 1D spin JAX port:** candidate gates passed 34 and 2 controls. Root review found a short-horizon startup/checkpoint mismatch in 1D; fix and affected qualification are pending. Full native API/graphics/performance remain open.
+- **Chebfun3 complex std3 memory:** isolated diagnostic exceeded its 4 GiB cap after 97.93 seconds, before the original assertion. Source-level diagnosis is underway; this is not a numerical test failure or a proven explanation for the earlier CI runner shutdown.
+- **Evidence reconciliation:** historical passing scopes must still be attached to individual inventory rows. Candidate path mappings and passing subsets do not establish full-file parity.
+
+There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
 
@@ -26,7 +45,7 @@ Checked items certify only their stated scope.
 
 - [x] Public nonperiodic preference propagation52scopedcontrols and exactlyrealcomplexAiry dispatch correction published717f057f; joint12+8existingintegrations pass.
 
-## Current pending package
+## Recent integration packages
 
 - [x] Qualify combined GET/plotregion/complex plotting/point-quiver package:135integration checks pass, all1421actualimports preguarded; wholeThreeBody completes with unchanged retained numerical bytes.
 - [x] Review residue scan exact-case bridge and105regressions; optimizedHLO barrier limitation explicit.
@@ -36,7 +55,7 @@ Checked items certify only their stated scope.
 - [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
 - [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
 - [x] Review/publish authored Spinop2 bound repair45c04b29; fresh actual-process1500imports preguarded, focused test passes. Native incidental prior-guard preimage gap explicitly scoped.
-- [ ] Latest-main CI after45c04b29; green CI/coverage acceptance remains open. Earlier pending main runs were superseded automatically.
+- [ ] Green latest implementation CI (`b85e3731`) and coverage acceptance. Historical runs remain evidence for their own source only.
 
 ## Next integration
 
