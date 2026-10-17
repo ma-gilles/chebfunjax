@@ -1,0 +1,184 @@
+{
+  "base": "601f9da27b5f1455890efed2a2584c850459fe95",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_source_20261017",
+  "scope": "Explicit native output-count rational interpolation adapter and missing arbitrary-node symmetry branch; default Python tuple remains a compatibility adapter.",
+  "source_files": {
+    "src/chebfunjax/utils/ratapprox.py": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_source_20261017/src/chebfunjax/utils/ratapprox.py",
+      "sha256": "5fb36f6ab49095a61316c63d2d65cceced78fb05547edfdd8272d2bae530296a"
+    },
+    "tests/test_matlab_port/misc/test_ratinterp_output_source.py": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_source_20261017/tests/test_matlab_port/misc/test_ratinterp_output_source.py",
+      "sha256": "76169ed947cd84e828dd705b1da862f945b4a327c6bd03054692e23819ad4b23"
+    }
+  },
+  "gates": [
+    {
+      "name": "ratinterp_candidate_outputs_20261017",
+      "input_count": 8204,
+      "runtime_import_count": 1411,
+      "runtime_missing_or_mismatched": {},
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "30",
+        "time": "25.502",
+        "timestamp": "2026-10-17T08:33:59.946631-04:00",
+        "hostname": "della-mol.princeton.edu"
+      },
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_candidate_outputs_20261017_supervision/receipt.json",
+      "receipt_sha256": "20c44f663047959e6acbbb63f332c986b5259e04f415216d9592af4eb8039a85",
+      "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_outputs_20261017/guard.json",
+      "guard_sha256": "18a93c11bb506f08e6dbf74de7f3d0044dd01e2ace077b3e0e7ee26b89a438e7",
+      "runtime": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_outputs_20261017/runtime_primitive.json",
+      "runtime_sha256": "afe1e6f77e540f06b3c9dcacf6f087c78c64789843cda5e5bf924a89c39e2962"
+    },
+    {
+      "name": "ratinterp_candidate_originals_20261017",
+      "input_count": 8204,
+      "runtime_import_count": 1428,
+      "runtime_missing_or_mismatched": {},
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "36.683",
+        "timestamp": "2026-10-17T08:35:05.698456-04:00",
+        "hostname": "della-mol.princeton.edu"
+      },
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_candidate_originals_20261017_supervision/receipt.json",
+      "receipt_sha256": "28bd60b45b564c99876068591d1aa76e79ef83d4c1a38b21031d2d78308add0c",
+      "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_originals_20261017/guard.json",
+      "guard_sha256": "5112d19e03a5dbde3a883d9b10c560c50339d1ae1c7de611d57c6a533b18463d",
+      "runtime": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_originals_20261017/runtime_primitive.json",
+      "runtime_sha256": "d146e5017f8707f36dcdf8aa01c50386ea5bfda86ca13b966f820675111855eb"
+    },
+    {
+      "name": "ratinterp_candidate_complex_20261017",
+      "input_count": 8204,
+      "runtime_import_count": 1381,
+      "runtime_missing_or_mismatched": {},
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "4.688",
+        "timestamp": "2026-10-17T08:36:21.098198-04:00",
+        "hostname": "della-mol.princeton.edu"
+      },
+      "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_candidate_complex_20261017_supervision/receipt.json",
+      "receipt_sha256": "890d4f8eaaa68ac87a872942ed8b66c5fead21f078296966384b8bf15e93efb1",
+      "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_complex_20261017/guard.json",
+      "guard_sha256": "6115e07b7cd5c5d026050b16d2adb2236dfe3a9cfb26a81f796e9500c2d62f2b",
+      "runtime": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_candidate_complex_20261017/runtime_primitive.json",
+      "runtime_sha256": "fa503c7839a8f1a5d25dc1cca97d55a3541b69a678eaee1223a4e694081e07fd"
+    }
+  ],
+  "baseline": {
+    "name": "ratinterp_diagnosis2_20261017",
+    "input_count": 8204,
+    "runtime_import_count": 1430,
+    "runtime_missing_or_mismatched": {},
+    "junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "16",
+      "time": "46.173",
+      "timestamp": "2026-10-17T08:28:13.661506-04:00",
+      "hostname": "della-mol.princeton.edu"
+    },
+    "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ratinterp_diagnosis2_20261017_supervision/receipt.json",
+    "receipt_sha256": "e762eccb289725b34c74a00a7130a79d9ea5b4646094521697e75c16864969e2",
+    "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_diagnosis2_20261017/guard.json",
+    "guard_sha256": "da3f3bfedb892f6c85de3651472d2293d4dd69f50b76b8c8791b19f38cf67c5f",
+    "runtime": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_diagnosis2_20261017/runtime_primitive.json",
+    "runtime_sha256": "21b3c8a543e5efcd7d07378472c54b8fac967d9a6e63e04f3e090cf1fbf622f6"
+  },
+  "native": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_native2_20261017",
+      "guard_sha256": "f4f608283f9f61a4a11a2679434799e024943b87e8256aa4190c7983e85a6d4b",
+      "result_sha256": "43228e63875940d628a2a37be300ae58ac8d89b838b23aa2f39add1218d15155",
+      "receipt_sha256": "d81afc9317ecdb29188c7c8b1b905c2fbfba06cc5f20fdeb60aba733a15c6d02"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_native3_20261017",
+      "guard_sha256": "132f4570ad02019a99e38606d07a2c1e424a3032c687f4997d3688a9a3692640",
+      "result_sha256": "c5f5e811a90744fb20a24b87b542a660112a3ae40416a33061cacf6103dde669",
+      "receipt_sha256": "a68cb3c94a48e892d6944d0d783c8341f9f640e3787ab8751e6347a2e714253d"
+    }
+  ],
+  "limits": [
+    "No full ThreeBodyProblem, high-degree poles/residues, native coefficient-bit parity, performance or full-module parity claim.",
+    "Existing default Python tuple numerical pole/residue behavior remains its compatibility adapter; native six/seven branches require explicit outputs.",
+    "Existing Python domain calling convention remains; this does not add all MATLAB positional/domain inference APIs.",
+    "JAX arrays retain their own dtype through source sort; native raw-real fitting can canonicalize zero imaginary storage differently. Captured sorting respects real versus explicitly complex storage and signed negative zero; no blanket real coercion.",
+    "Licensed MATLAB numeric .m/runtime/preference contents were not fully preguarded; native driver, all pinned Chebfun .m sources and executable launchers were guarded with full-byte preimages. No retroactive licensed-runtime guard claim.",
+    "Timing observations are not performance comparisons; initial malformed Python diagnostic and reduced native startup briefly overlapped CPU36\u201339.",
+    "First native batch was censored without checkpoints; its exact phase is unknown. Python analogous malformed input exposed nonprogress and was explicitly terminated. Neither is counted as a scientific pass or a diagnosed native library bug."
+  ],
+  "preserved_failures": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_native_20261017",
+      "status": "wall_timeout180s, inputs stable, no survivors, no completed capture"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_diagnosis_20261017",
+      "status": "supervisor_signal_15, inputs stable, no survivors; first3diagnostics durable; first15original nodes observed only, not complete gate"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_diagnosis_20261017/setup_failure.txt",
+      "status": "pre-child output-root setup rejection"
+    }
+  ],
+  "first_divergence": {
+    "case": "near2",
+    "operands": "1/polyval([1,-2.0001,1.0001],x), m=0,n=2,domain[-2,3],tol=0",
+    "physical_poly_p": [
+      0.1910128630283504
+    ],
+    "physical_poly_q": [
+      0.19101286302835077,
+      -0.38204482734300427,
+      0.19103196431465336
+    ],
+    "comparison": "Stored native/Python physical coefficients equal binary64 values; normalize scalar versus length-one JSON shape only.",
+    "native_seven_poles": [
+      1.0000499999999997,
+      1.0000499999999997
+    ],
+    "native_seven_residues": [
+      0.0,
+      0.0
+    ],
+    "native_direct_residues": [
+      0.0,
+      0.9999999999999981
+    ],
+    "baseline_behavior": "Colleague poles remain separated and derivative residues approximately +9999.998,-9999.998.",
+    "cause": "Output branch dispatch bypassed physical polyops.residue grouping and native sequential first-residue copy. Complex2/3 upstream fitting roundoff is separate and unlocalized."
+  },
+  "distinct_counts": {
+    "candidate_nodes": 57,
+    "original_matlab_clauses": 23,
+    "original_clause_pytest_nodes": 15,
+    "new_authored_controls": 30,
+    "retained_complex_controls": 12,
+    "native_fitting_cases": 4,
+    "native_sort_vectors": 4,
+    "baseline_capture_only_node": 1
+  },
+  "static_gate": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_static_final_20261017.json",
+    "sha256": "561ba36d3a463bf4f9c5a887ff2831c1e63bfcc551c5a2f5e5c28e1d47628966"
+  }
+}

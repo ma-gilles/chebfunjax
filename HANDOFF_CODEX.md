@@ -1,3 +1,43 @@
+## Interpolation, GET properties and rational output counts — 2026-10-17
+
+Interpolation now normalizes row/vector samples, accepts Chebfun-valued Y,
+and dispatches polynomial, linear, trigonometric/periodic and existing spline
+methods through JAX arithmetic. All35 literal original predicates pass at
+unchanged spectral/vector norms, domains, counts and bounds. Seed6178 retains
+the two explicit MATLAB-uniform draws. Final component59distinct controls
+include35 originals,13 authored and11 supplemental; baseline27pass/8fail,
+failed intermediate shape controls and their full inputs remain archived.
+
+GET fixes bounded/unbounded hscale, stored pointValues, nonempty happiness,
+finite C1/C2 per-column scales, coefficient-sum endpoints, physical points,
+source numeric simplification and ragged row-cell orientation. Component120
+controls include33 literal originals,45 authored and42 supplements. Original31
+(ragged quasimatrix deltas),35–38 (Gamma/exponent cells), other family/type/
+empty/cell APIs remain open. C1/C2 tech.values recomputes coeffs2vals; it is
+not a cached interpolation field. No full GET claim.
+
+Explicit ratinterp outputs=1..7 follows native prefixes p,q,r,mu,nu,poles,
+residues (one returns r); default Python tuple remains its established adapter.
+Six uses q.roots(all); seven uses physical polynomial residue grouping, source
+sort and sequential equal-pole residue copying. Missing arbitrary-node symmetry
+is restored.57distinct controls pass, including nodes covering all23 original
+clauses. Native exact physical degree2 coefficients demonstrate dispatch/copy
+semantics; upstream complex fitting roundoff and high-degree actual ThreeBody
+remain unqualified. Licensed native runtime/prefs exclusions remain explicit.
+
+Latest-source root integration passes48interpolation/78GET/57rational checks
+in26.607/17.048/70.274s, respectively. All8228 guarded inputs stay stable,
+all1417/1407/1430 observed imports are preguarded, no survivors; maximum sampled
+summedRSS2.80GiB. Component full-byte archives and root8164payload archive are
+independently verified. Full static checks pass without NumPy waiver. Timings
+are observations, not matched performance claims. Evidence:
+docs/interp_get_rat_joint_cpu_20261017.json.
+
+Remaining: every original function/assertion, unresolved correctness/API gaps,
+all322 actual computations/stdout/reference-size figures, all12 interrupted
+examples, matched CPU benchmarks and green latest-main CI/coverage. The earlier
+CI787 run failed;4d CI is running at this checkpoint. No full parity claim.
+
 ## Typed ultraspherical corrections and numeric recursion — 2026-10-17
 
 Natural finite single-interval nonlinear problems with one function and

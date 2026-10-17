@@ -296,6 +296,8 @@ def ratinterp(
     xi=None,
     tol: float = 1e-14,
     domain: tuple[float, float] = (-1.0, 1.0),
+    *,
+    outputs: int | None = None,
 ):
     """Robust rational interpolation or least-squares approximation.
 
@@ -329,6 +331,12 @@ def ratinterp(
         Set to 0 to disable.
     domain : (float, float), optional
         Physical domain.  Default: ``(-1, 1)``.
+
+    outputs : int or None, optional
+        With ``None``, retain the Python coefficient tuple below. Explicit
+        counts follow MATLAB: one returns the evaluator; two through seven
+        return prefixes of ``(p, q, r, mu, nu, poles, residues)``. Six uses
+        denominator roots; seven uses physical polynomial partial fractions.
 
     Returns
     -------
@@ -401,6 +409,11 @@ def ratinterp(
     # MATLAB ratinterp.m:184-190 converts its supported DOMAIN object before
     # using endpoint arithmetic. This is eager input metadata, not fitting math.
     from chebfunjax.domain import Domain
+
+    if outputs is not None:
+        outputs = _trigrat_nonnegative_integer(outputs, "outputs")
+        if not 1 <= outputs <= 7:
+            raise ValueError("outputs must be between 1 and 7")
 
     if isinstance(domain, Domain):
         domain = domain.breakpoints
@@ -505,6 +518,14 @@ def ratinterp(
         R_qr=R_qr, Q_qr=Q_qr,
     )
 
+    if outputs is not None:
+        # Source trims in the fitting basis, before constructing p and q.
+        # The established Python tuple retains its coefficient adapter below.
+        a_source, b_source = _trim_coeffs(a_coeffs, b_coeffs, tol, ts)
+        return _ratinterp_source_outputs(
+            a_source, b_source, xi_type, R_qr, a_dom, b_dom, outputs
+        )
+
     # ------------------------------------------------------------------
     # 7b.  For ARBITRARY/EQUI nodes, convert QR-basis coefficients back to
     #      the Chebyshev basis via R_qr^{-1}.
@@ -579,6 +600,81 @@ def ratinterp(
 # ---------------------------------------------------------------------------
 
 
+def _ratinterp_source_sort_order(values):
+    """Native sort: real signed order, complex magnitude then signed phase.
+
+    Preserve raw complex storage and the phase of negative imaginary zero.
+    MATLAB sort does not identify -pi with +pi for the phase tie breaker.
+    """
+    values = jnp.asarray(values)
+    if jnp.iscomplexobj(values):
+        return jnp.lexsort((jnp.angle(values), jnp.abs(values)))
+    return jnp.argsort(values, stable=True)
+
+
+def _ratinterp_source_outputs(a, b, xi_type, R, left, right, outputs):
+    """Pinned ratinterp constructRatApprox and nargout branches (7574c77)."""
+    from jax.scipy.linalg import solve_triangular
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2, _chebtech1_coeffs2vals
+    from chebfunjax.utils.polyops import residue
+
+    domain = (left, right)
+    mu, nu = len(a) - 1, len(b) - 1
+
+    def polynomial(coefficients):
+        size = len(coefficients)
+        if xi_type == "TYPE2":
+            return chebfun(coefficients, domain=domain, coeffs=True)
+        if xi_type == "TYPE1":
+            return chebfun(_chebtech1_coeffs2vals(coefficients),
+                           domain=domain, tech=Chebtech1)
+        nodes = chebpts(size)
+        if xi_type == "TYPE0":
+            values = coefficients[-1] * jnp.ones(size)
+            for k in range(size - 2, -1, -1):
+                values = coefficients[k] + nodes * values
+        else:
+            # constructRatApproxArb forms C/R before multiplying by the
+            # coefficients in the QR basis. Keep that source operation order.
+            basis = jnp.ones((size, size), dtype=jnp.result_type(R, coefficients))
+            if size > 1:
+                basis = basis.at[:, 1].set(nodes)
+            for k in range(2, size):
+                basis = basis.at[:, k].set(
+                    2 * nodes * basis[:, k - 1] - basis[:, k - 2])
+            basis = solve_triangular(R[:size, :size].T, basis.T, lower=True).T
+            values = basis @ coefficients
+        return chebfun(values, domain=domain, tech=Chebtech2)
+
+    p, q = polynomial(a), polynomial(b)
+    if not xi_type.startswith("TYPE"):
+        def evaluator(x):
+            return p(x) / q(x)
+    elif nu == 0 and xi_type != "TYPE0":
+        def evaluator(x):
+            return p(x) / b[0]
+    else:
+        evaluator = _construct_rat_approx(xi_type, R, a, b, mu, nu, left, right)
+    if outputs == 1:
+        return evaluator
+    base = (p, q, evaluator, mu, nu)
+    if outputs <= 5:
+        return base[:outputs]
+    if outputs == 6:
+        return base + (q.roots(all_roots=True),)
+    residues, poles, _ = residue(p, q)
+    order = _ratinterp_source_sort_order(poles)
+    poles, residues = poles[order], residues[order]
+    # Native updates sequentially: a triple copies the first coefficient
+    # to both subsequent entries, not the original second coefficient.
+    for index in range(1, len(poles)):
+        if bool(poles[index] == poles[index - 1]):
+            residues = residues.at[index].set(residues[index - 1])
+    return base + (poles, residues)
+
+
 def _check_symmetries(f, xi, xi_type, ts):
     """Check if the data is approximately even or odd."""
     fEven = False
@@ -601,6 +697,17 @@ def _check_symmetries(f, xi, xi_type, ts):
             fr = f[-1:N1 - M - 1:-1]
             fEven = jnp.linalg.norm(fl - fr, jnp.inf) < ts
             fOdd = jnp.linalg.norm(fl + fr, jnp.inf) < ts
+    else:
+        order = _ratinterp_source_sort_order(xi)
+        xs = jnp.asarray(xi)[order]
+        M = N // 2
+        if jnp.linalg.norm(xs[:M + 1] + xs[::-1][:M + 1], jnp.inf) < ts:
+            ordered_f = jnp.asarray(f)[order]
+            M = (N + 1) // 2
+            fl, fr = ordered_f[:M], ordered_f[::-1][:M]
+            # Native norm([], inf) is zero.
+            fEven = jnp.max(jnp.abs(fl - fr), initial=0) < ts
+            fOdd = jnp.max(jnp.abs(fl + fr), initial=0) < ts
     return bool(fEven), bool(fOdd)
 
 

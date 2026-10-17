@@ -139,3 +139,15 @@ remaining-page count.
 
 Do not mark the goal complete while any required test, page, figure,
 correctness, performance or CI requirement is unresolved.
+
+## Interpolation / GET / rational output integration (2026-10-17)
+
+- [x] All35 literal interp1 original predicates plus13authored/11supplemental controls; row/Y-Chebfun/trig JAX source paths.
+- [x] Scoped GET120controls,33literal originals; root78repeat.
+- [x] Rational explicit output-count/symmetry57controls, covering23original clauses; native dispatch/copy diagnosis and root57repeat.
+- [x] Combined-source root48/78/57 allpass, stable8228inputs/allimports pregated/no survivors; fullstatic and archives reviewed.
+- [ ] GET originals31/35–38 and broader cells/types/empty/family APIs.
+- [ ] Actual high-degree ThreeBody/conformal computations, figures and remaining fitting/provider differences.
+- [ ] Complete original function/test inventory, all322scientific/output/figure gates, CPU performance and green latest-main CI/coverage.
+
+See [joint evidence](interp_get_rat_joint_cpu_20261017.json). Older open interpolation/GET/rational entries are superseded only within the scoped qualifications above.

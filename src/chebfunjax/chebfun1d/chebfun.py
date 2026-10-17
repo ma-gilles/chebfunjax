@@ -7267,10 +7267,10 @@ class Chebfun(eqx.Module):
         ----------
         x : array_like, shape (n,)
             Interpolation sites (sorted internally).
-        y : array_like, shape (n,) or (n, m)
-            Function values at the sites; columns are interpolated
-            independently.
-        method : {'poly', 'linear'} or None, optional
+        y : array_like or Chebfun
+            Function values at the sites, or a Chebfun evaluated there.
+            Matrix columns are interpolated independently.
+        method : {'poly', 'linear', 'trig', 'periodic', 'spline', 'pchip', 'cubic'} or None, optional
             Interpolation method.  ``None`` (default) means ``'poly'``.  A
             non-string value is taken as ``domain``, matching MATLAB's
             ``interp1(x, y, dom)`` syntax.
@@ -7296,37 +7296,9 @@ class Chebfun(eqx.Module):
             subfunctions)
         Chebfun commit: 7574c77
         """
-        if method is not None and not isinstance(method, str):
-            # MATLAB interp1(x, y, dom): a non-char third argument is the
-            # domain, not a method name.
-            method, domain = None, method
-        method = "poly" if method is None else str(method).lower()
-        x = jnp.asarray(x, dtype=jnp.float64)
-        y = jnp.asarray(y)
-        # Sort nodes
-        order = jnp.argsort(x)
-        x = x[order]
-        y = y[order]
-        xa, xb = float(x[0]), float(x[-1])
-        if domain is None:
-            domain = (xa, xb)
-        dom = Domain(domain)
+        from ._interp1 import interp1
 
-        if method == "linear":
-            return Chebfun._interp1_linear(x, y, domain)
-        if method != "poly":
-            raise ValueError(f"interp1: unknown method {method!r}.")
-
-        from chebfunjax.utils.interpolation import bary, bary_weights
-
-        weights = bary_weights(x)
-
-        def interpolant(z):
-            return bary(jnp.atleast_1d(z), y, x, weights)
-
-        # interp1Poly constructs exactly length(x) samples, not an adaptive
-        # approximation of the barycentric callback.
-        return chebfun(interpolant, domain=dom.breakpoints, n=x.shape[0])
+        return interp1(x, y, method, domain)
 
     @staticmethod
     def _interp1_linear(x, y, domain) -> Chebfun:
@@ -7342,30 +7314,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/interp1.m (interp1Linear subfunction)
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        x_np = _np.asarray(x, dtype=float)
-        y_np = _np.asarray(y, dtype=float)
-        dom_vals = [float(v) for v in domain]
-        # MATLAB builds on unique([dom; x]) and then restricts to dom;
-        # dropping the out-of-domain sites up front is equivalent and keeps
-        # every piece at its full two-point length.
-        lo, hi = dom_vals[0], dom_vals[-1]
-        breaks = _np.unique(_np.concatenate(
-            [_np.asarray([lo, hi]), x_np[(x_np >= lo) & (x_np <= hi)]]))
+        from ._interp1 import linear
 
-        def op(t):
-            tn = _np.atleast_1d(_np.asarray(t, dtype=float))
-            outside = (tn < x_np[0]) | (tn > x_np[-1])
-            if y_np.ndim == 2:
-                cols = [_np.where(outside, _np.nan,
-                                  _np.interp(tn, x_np, y_np[:, j]))
-                        for j in range(y_np.shape[1])]
-                return jnp.asarray(_np.stack(cols, axis=-1))
-            return jnp.asarray(
-                _np.where(outside, _np.nan, _np.interp(tn, x_np, y_np)))
-
-        return Chebfun.from_function(
-            op, Domain(tuple(float(v) for v in breaks)), n=2)
+        return linear(x, y, domain)
 
     @staticmethod
     def spline(
@@ -7799,9 +7750,19 @@ class Chebfun(eqx.Module):
         if prop == "vscale":
             return float(self.vscale)
         if prop == "hscale":
-            return float(max(abs(float(self.domain.breakpoints[0])),
-                             abs(float(self.domain.breakpoints[-1])),
-                             1.0))
+            scale = max(abs(float(self.domain.breakpoints[0])),
+                        abs(float(self.domain.breakpoints[-1])))
+            return 1.0 if math.isinf(scale) else scale
+        if prop == "pointValues":
+            if self.isempty():
+                return jnp.empty((0, 0), dtype=jnp.float64)
+            return jnp.asarray(self.point_values).reshape(
+                (len(self.domain.breakpoints), -1))
+        if prop == "ishappy":
+            if self.isempty():
+                raise NotImplementedError(
+                    "Native empty ishappy output/error is not qualified.")
+            return all(bool(jnp.all(piece.tech.ishappy)) for piece in self.funs)
         if prop == "funs":
             return list(self.funs)
         if prop == "lval":
@@ -7840,20 +7801,47 @@ class Chebfun(eqx.Module):
                 return jnp.asarray(
                     [[float(e[0]), float(e[1])]], dtype=jnp.float64)
             if prop == "vscale-local":
-                v = jnp.max(jnp.abs(jnp.asarray(tech.values)))
-                return jnp.asarray([[float(v)]])
+                values = jnp.asarray(tech.values)
+                values = values[:, None] if values.ndim == 1 else values
+                return jnp.max(jnp.abs(values), axis=0, keepdims=True)[:, col:col + 1]
             if prop in ("lval-local", "rval-local"):
-                vals = jnp.asarray(tech.values)
-                if vals.ndim == 1:
-                    vals = vals[:, None]
-                row = vals[0] if prop == "lval-local" else vals[-1]
-                return jnp.asarray([[float(row[col])]])
-            arr = jnp.asarray(getattr(tech, prop) if prop != "points"
-                              else tech.points)
+                from chebfunjax.tech.chebtech import Chebtech1
+
+                if isinstance(tech, (Chebtech1, Chebtech2)):
+                    # @chebtech/lval.m and rval.m sum the coefficients;
+                    # first-kind grid values do not include the endpoints.
+                    coeffs = jnp.asarray(tech.coeffs)
+                    coeffs = coeffs[:, None] if coeffs.ndim == 1 else coeffs
+                    if prop == "lval-local":
+                        coeffs = jnp.where(
+                            (jnp.arange(coeffs.shape[0]) % 2)[:, None],
+                            -coeffs, coeffs)
+                    row = jnp.sum(coeffs, axis=0, keepdims=True)
+                else:
+                    endpoint = -1.0 if prop == "lval-local" else 1.0
+                    row = jnp.asarray(tech(endpoint)).reshape((1, -1))
+                return row[:, col:col + 1]
+            if prop == "points":
+                from chebfunjax.tech.chebtech import Chebtech1
+                from chebfunjax.utils.quadrature import chebpts
+
+                # @chebtech/points.m: f.chebpts(length(f)).
+                if isinstance(tech, (Chebtech1, Chebtech2)):
+                    kind = 1 if isinstance(tech, Chebtech1) else 2
+                    arr = chebpts(len(tech), kind=kind)
+                else:
+                    arr = jnp.asarray(tech.points)
+            else:
+                arr = jnp.asarray(getattr(tech, prop))
             if arr.ndim == 1:
                 arr = arr[:, None]
             if prop == "points":
-                return arr[:, :1]
+                # @classicfun/get.m maps the ONEFUN grid to its domain.
+                if hasattr(piece, "forward_map"):
+                    return piece.forward_map(arr[:, :1])
+                from chebfunjax.domain import _linear_forward_map
+
+                return _linear_forward_map(arr[:, :1], *piece.interval)
             return arr[:, col:col + 1]
 
         # Level 0: list over columns of lists over pieces.
@@ -7871,13 +7859,30 @@ class Chebfun(eqx.Module):
         if exps_like and ncols == 1:
             out = jnp.concatenate([c[0] for c in out1], axis=0)
             return out.T if self.is_transposed else out
-        if len(self.funs) == 1:
-            rows = {int(c.shape[0]) for c in out1[0]}
-            if len(rows) == 1:
-                out = jnp.concatenate(out1[0], axis=1)
+        if not exps_like:
+            out = self._get_simple_numeric(out1)
+            if out is not None:
                 return out.T if self.is_transposed else out
         return (self._transpose_cell(out1)
                 if self.is_transposed else out1)
+
+    @staticmethod
+    def _get_simple_numeric(cell):
+        """@chebfun/get.m simplifySimpleNumericCell, pin 7574c77.
+
+        Called only for its simple numeric property whitelist: a single
+        piece permits equal-height leaves; multiple pieces require every
+        leaf to have one row. Other cell properties retain their structure.
+        """
+        if not cell or not cell[0]:
+            return None
+        if len(cell) == 1:
+            if len({int(leaf.shape[0]) for leaf in cell[0]}) != 1:
+                return None
+        elif any(leaf.shape[0] != 1 for row in cell for leaf in row):
+            return None
+        return jnp.concatenate(
+            [jnp.concatenate(row, axis=1) for row in cell], axis=0)
 
     @staticmethod
     def _transpose_cell(cell):
@@ -10179,7 +10184,9 @@ def get(f, prop: str, simplevel: int = 2):
         return out0
     counts = {len(entry) for entry in out0}
     if len(counts) > 1:
-        return out0
+        # simplifyCell leaves ragged columns nested, then get.m transposes
+        # just that outer cell array for a row quasimatrix.
+        return [[column] for column in out0] if transposed else out0
     nfuns = counts.pop()
     out1 = [[out0[j][k] for j in range(len(cols))]
             for k in range(nfuns)]
@@ -10189,10 +10196,10 @@ def get(f, prop: str, simplevel: int = 2):
     if exps_like and len(cols) == 1:
         out = jnp.concatenate([row[0] for row in out1], axis=0)
         return out.T if transposed else out
-    if nfuns == 1:
-        rows = {int(c.shape[0]) for c in out1[0]}
-        if len(rows) == 1:
-            out = jnp.concatenate(out1[0], axis=1)
+    if prop in ("coeffs", "values", "points", "vscale-local",
+                "lval-local", "rval-local"):
+        out = Chebfun._get_simple_numeric(out1)
+        if out is not None:
             return out.T if transposed else out
     return Chebfun._transpose_cell(out1) if transposed else out1
 

@@ -1,0 +1,151 @@
+{
+  "base": "4d4c22598620486c527ff467ba3909a420bca61e",
+  "scope": "Original35 interpolation method/input semantics; scoped finite C1/C2 GET properties/cells; explicit native rational output-count dispatch and arbitrary-node symmetry. Full parity remains incomplete.",
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "ef2079acfd5075b361b8907ad58c02907d7ec0f9aeb7f885f38b38e32f0baa37",
+    "src/chebfunjax/chebfun1d/_interp1.py": "8dd6e71da5b8cc96b58a602f228fe918595d74f4f2e5828ba58d7903ab6afb91",
+    "tests/test_chebfun1d/test_interp1_source_api.py": "5c32c35dbe360234b263b7eeb328677126b54384f2613b04e363a834f0eeda8f",
+    "tests/test_matlab_port/chebfun/test_interp1_original35_source.py": "1a2975fae3fdbe98b7273b06dfe1424d428cde05f3fc23318ad4b81d506dd241",
+    "tests/test_chebfun_get_original_source.py": "1a4cacf6587e0e8a63516fa135a72bba3fd68373c877120a45bcbf4d085e35de",
+    "tests/test_chebfun_get_values_source.py": "9dee5f065a2830f59c7b829714bca49859e235cafeca7a7f2b7b13e3d9235a04",
+    "src/chebfunjax/utils/ratapprox.py": "5fb36f6ab49095a61316c63d2d65cceced78fb05547edfdd8272d2bae530296a",
+    "tests/test_matlab_port/misc/test_ratinterp_output_source.py": "76169ed947cd84e828dd705b1da862f945b4a327c6bd03054692e23819ad4b23",
+    "docs/ratinterp_output_counts_cpu_20261017.json": "77302b5e7235041fe63bccdee2f0725cb38881ca405b0d02109100da79d07e55"
+  },
+  "source_bridge": {
+    "base": "4d4c22598620486c527ff467ba3909a420bca61e",
+    "source_sha256": {
+      "src/chebfunjax/chebfun1d/chebfun.py": "ef2079acfd5075b361b8907ad58c02907d7ec0f9aeb7f885f38b38e32f0baa37",
+      "src/chebfunjax/chebfun1d/_interp1.py": "8dd6e71da5b8cc96b58a602f228fe918595d74f4f2e5828ba58d7903ab6afb91",
+      "tests/test_chebfun1d/test_interp1_source_api.py": "5c32c35dbe360234b263b7eeb328677126b54384f2613b04e363a834f0eeda8f",
+      "tests/test_matlab_port/chebfun/test_interp1_original35_source.py": "1a2975fae3fdbe98b7273b06dfe1424d428cde05f3fc23318ad4b81d506dd241",
+      "tests/test_chebfun_get_original_source.py": "1a4cacf6587e0e8a63516fa135a72bba3fd68373c877120a45bcbf4d085e35de",
+      "tests/test_chebfun_get_values_source.py": "9dee5f065a2830f59c7b829714bca49859e235cafeca7a7f2b7b13e3d9235a04",
+      "src/chebfunjax/utils/ratapprox.py": "5fb36f6ab49095a61316c63d2d65cceced78fb05547edfdd8272d2bae530296a",
+      "tests/test_matlab_port/misc/test_ratinterp_output_source.py": "76169ed947cd84e828dd705b1da862f945b4a327c6bd03054692e23819ad4b23",
+      "docs/ratinterp_output_counts_cpu_20261017.json": "77302b5e7235041fe63bccdee2f0725cb38881ca405b0d02109100da79d07e55"
+    },
+    "interp_get_method_ast_bridge": true,
+    "get_vscale_review": "C1/C2 tech.values is a coeffs2vals property, not cached interpolation data; pinned @chebtech/vscale matches.",
+    "changed_existing_functions": [
+      "get",
+      "Chebfun.interp1",
+      "Chebfun._interp1_linear",
+      "Chebfun.get",
+      "Chebfun._get_local"
+    ],
+    "added_functions": [
+      "Chebfun._get_simple_numeric"
+    ],
+    "all_other_chebfun_function_AST_unchanged": true,
+    "interp_helper_executable_AST_unchanged_docstring_provenance_added": true
+  },
+  "root_gates": {
+    "interp": {
+      "tests": 48,
+      "pytest_seconds": 26.607,
+      "wall_seconds": 34.20153764728457,
+      "sampled_peak_summed_rss_kib": 1348848,
+      "guarded_inputs": 8228,
+      "observed_imports_all_preguarded": 1417,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "get": {
+      "tests": 78,
+      "pytest_seconds": 17.048,
+      "wall_seconds": 23.840025034267455,
+      "sampled_peak_summed_rss_kib": 1404020,
+      "guarded_inputs": 8228,
+      "observed_imports_all_preguarded": 1407,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "rat": {
+      "tests": 57,
+      "pytest_seconds": 70.274,
+      "wall_seconds": 78.98546712379903,
+      "sampled_peak_summed_rss_kib": 2926992,
+      "guarded_inputs": 8228,
+      "observed_imports_all_preguarded": 1430,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "component_reviews": {
+    "chebfun_get_packet_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun_get_packet_20261017/qualified_evidence.zip",
+      "sha256": "ae01c1182b803e42c565d2187954bb48282677651c315d4fba347fb891455ab5",
+      "verified_payloads": 8359,
+      "guard_edges_verified": 253301,
+      "full_preimage_versions_verified": 7933,
+      "guard_sets_verified": 31,
+      "source_sha256": {
+        "src/chebfunjax/chebfun1d/chebfun.py": "401ecfa948bdf22a37adbd1390033fba02039ee773375e6aaf7b7c45844160c9",
+        "tests/test_chebfun_get_original_source.py": "1a4cacf6587e0e8a63516fa135a72bba3fd68373c877120a45bcbf4d085e35de",
+        "tests/test_chebfun_get_values_source.py": "9dee5f065a2830f59c7b829714bca49859e235cafeca7a7f2b7b13e3d9235a04"
+      },
+      "distinct_candidate_nodes": 120,
+      "scope": "Independent all payload/hash and complete guard-edge/full-preimage review. Prepared/unlaunched guards and setup-error attempts remain uncredited as reported; latest-source root integrations separate."
+    },
+    "ratinterp_parent_packet_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_output_counts_cpu_20261017.tar.gz",
+      "sha256": "fff1b5d7c3aca3fc6a2f3f32a1a63722ae1a41e8310c883ae890af7fb9e0f0bc",
+      "verified_payloads": 11672,
+      "exact_guard_sets": 10,
+      "guard_edges_verified": 62997,
+      "full_preimage_versions_verified": 11540,
+      "native_pinned_source_blobs_verified": 3435,
+      "scope": "Independent streaming all-payload review, exact declared guard sets/full preimages and all guarded native Chebfun files pinned. Prepared/setup/censored/partial groups remain uncredited; licensed native runtime omissions are not retroactively qualified."
+    },
+    "interp1_packet_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/interp1_original35_packet_20261017/qualified_evidence.zip",
+      "sha256": "3d768e97c66ddf4423ea2008e81f09838bf1853cce8cd792609f76c5a8dd5e39",
+      "verified_payloads": 8215,
+      "guard_edges_verified": 41117,
+      "full_preimage_versions_verified": 8112,
+      "guard_sets_verified": 5,
+      "source_sha256": {
+        "src/chebfunjax/chebfun1d/chebfun.py": "9531d9c920478fdb46baf1485f2413ba7cb52a4c5f20a0c0468dba7c9fbcffe7",
+        "src/chebfunjax/chebfun1d/_interp1.py": "f63f7c34180a2d44cd8a001f0ae61525f8ba78411820cdb63bbc162efae66c09",
+        "tests/test_chebfun1d/test_interp1_source_api.py": "5c32c35dbe360234b263b7eeb328677126b54384f2613b04e363a834f0eeda8f",
+        "tests/test_matlab_port/chebfun/test_interp1_original35_source.py": "1a2975fae3fdbe98b7273b06dfe1424d428cde05f3fc23318ad4b81d506dd241"
+      },
+      "distinct_candidate_nodes": 59,
+      "scope": "Independent all payload/hash and complete guard-edge/full-preimage review. Prepared/unlaunched guards and setup-error attempts remain uncredited as reported; latest-source root integrations separate."
+    }
+  },
+  "remaining": [
+    "GET original31 and35\u201338 plus broader cells/types/empty/family APIs",
+    "Full interpolation invalid-input/domain and remaining API semantics",
+    "High-degree actual ThreeBody/conformal poles/residues and upstream numerical differences",
+    "Full original function/assertion inventory, known correctness issues, all322 computations/stdout/reference figures, matched CPU benchmarks and green latest-main CI/coverage"
+  ],
+  "component_counts": {
+    "interp1": {
+      "original_predicates": 35,
+      "authored": 13,
+      "supplemental": 11,
+      "distinct_final_nodes": 59
+    },
+    "GET": {
+      "original_predicates": 33,
+      "authored": 45,
+      "supplemental": 42,
+      "distinct_final_nodes": 120
+    },
+    "ratinterp": {
+      "original_clauses": 23,
+      "original_clause_nodes": 15,
+      "authored": 30,
+      "retained_complex": 12,
+      "distinct_final_nodes": 57
+    }
+  },
+  "native_scope": "Interp1 and GET literal source predicates retain original operands/norms/bounds with declared vector/cell/quasimatrix adapters. Rational native captures bind output dispatch, physical polynomial grouping and sort semantics, not high-degree/full constructor/provider bit parity. Licensed runtime/preferences exclusions remain explicit in component reports.",
+  "root_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/interp_get_rat_joint_root_cpu_20261017.zip",
+    "sha256": "fc9566e2d8d0f9d7d24626a706298a8d432950fd925c3f42e7f4f56c10ad2115",
+    "verified_payloads": 8164
+  }
+}
