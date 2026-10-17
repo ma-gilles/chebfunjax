@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Repartition 3D CI from five to eight fresh-file shards after the prior90-minute cancellation. All155files and771collected nodes remain disjoint/exhaustive; six process-protocol controls pass. Job90-minute and per-test900-second limits unchanged. [Evidence](ci_3d_repartition_cpu_20261017.json).
+- [ ] Actual latest-main CI runtime, scientific assertions and coverage; collection alone does not qualify those.
+
 - [x] Repair spin3 named-preset mock signature for explicit timing flag; eight unchanged parser scenarios pass, now asserting defaultFalse timing as well. [Evidence](spin3_parser_mock_cpu_20261017.json).
 - [ ] Latest-main CI/coverage and separate fixed48 PDE FFT/coefficient fidelity; parser checks do not qualify solver trajectories.
 

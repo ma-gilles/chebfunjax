@@ -1,3 +1,12 @@
+# Latest CI scheduling scope — 2026-10-17
+
+3D port files now use eight partitions after a90-minute job cancellation.
+The same155files and771collected nodes are scheduled exactly once; fresh-file
+processes,900-second per-test limits and90-minute job limits remain unchanged.
+Six protocol controls pass. See `docs/ci_3d_repartition_cpu_20261017.json`.
+Actual latest-main CI/runtime/coverage and full parity remain required. Local
+full-repository lint uses `ruff check .`, including executable audit artifacts.
+
 # Latest CPU indexing/source-test scope — 2026-10-17
 
 Public Chebfun ND evaluation now flattens before strict raw-tech evaluation.
