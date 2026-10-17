@@ -1,0 +1,534 @@
+{
+  "base": "18823ffcd0d9d75cd40ca05544c0fd0b372bef0a",
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/_subsref.py": "f5ccdc1f7814d99554e0e3ba2f7b93c996e14ae5ecc22ef3e3d859fb61c23c69",
+    "tests/test_subsref_record_indices_source.py": "5aac86bd95356328e9c69ca0dc405f053b034fb24f99924f3d003ea750b5dc36",
+    "tests/references/subsref_record_indices_native_20261017.json": "036c88ca4f6f664813419a49fa0ca183666d79ba37ce923c33402d9f1016dfc9"
+  },
+  "scope": "Native record-selector max/if branch ordering, raw logical/complex colon extraction and computed numeric-query outCols, followed by actual-index validation. Numeric fullFEVAL evaluated once; source query row/column packing and static-selector JIT/AD preserved. Direct Python indexing unchanged.",
+  "component": {
+    "base": "787922f8f579495a70be5d1e0107f47f64cb1a3b",
+    "latest_main_bridge": "18823ffcd0d9d75cd40ca05544c0fd0b372bef0a changes nonlinear Chebop, no Subsref overlap",
+    "scope": "Native record index branching, validation of computed indices, full-FEVAL packing and raw colon extraction; direct Python indexing unchanged.",
+    "source_files": {
+      "src/chebfunjax/chebfun1d/_subsref.py": "f5ccdc1f7814d99554e0e3ba2f7b93c996e14ae5ecc22ef3e3d859fb61c23c69",
+      "tests/test_subsref_record_indices_source.py": "5aac86bd95356328e9c69ca0dc405f053b034fb24f99924f3d003ea750b5dc36",
+      "tests/references/subsref_record_indices_native_20261017.json": "036c88ca4f6f664813419a49fa0ca183666d79ba37ce923c33402d9f1016dfc9"
+    },
+    "runs": [
+      {
+        "run": "subsref_index_baseline_colon_20261017",
+        "tests": 24,
+        "failures": 16,
+        "wall_seconds": 10.515807427931577,
+        "peak_kib": 740656,
+        "runtime_files": 1387,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_baseline_numeric_20261017",
+        "tests": 24,
+        "failures": 14,
+        "wall_seconds": 10.61024209111929,
+        "peak_kib": 773176,
+        "runtime_files": 1398,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_colon_20261017",
+        "tests": 24,
+        "failures": 0,
+        "wall_seconds": 11.901521367952228,
+        "peak_kib": 931684,
+        "runtime_files": 1387,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_jit_20261017",
+        "tests": 4,
+        "failures": 0,
+        "wall_seconds": 14.078106789849699,
+        "peak_kib": 957232,
+        "runtime_files": 1398,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_legacy_20261017",
+        "tests": 39,
+        "failures": 0,
+        "wall_seconds": 25.42173669114709,
+        "peak_kib": 1171416,
+        "runtime_files": 1484,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_numeric_20261017",
+        "tests": 24,
+        "failures": 0,
+        "wall_seconds": 11.957158794160932,
+        "peak_kib": 941284,
+        "runtime_files": 1398,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_records_20261017",
+        "tests": 15,
+        "failures": 0,
+        "wall_seconds": 31.828822260722518,
+        "peak_kib": 1714048,
+        "runtime_files": 1419,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      },
+      {
+        "run": "subsref_index_candidate_shapes_20261017",
+        "tests": 10,
+        "failures": 0,
+        "wall_seconds": 11.225082440301776,
+        "peak_kib": 841640,
+        "runtime_files": 1398,
+        "inputs": 8113,
+        "stable": true,
+        "no_survivors": true
+      }
+    ],
+    "distinct_candidate_nodes": 116,
+    "new_nodes": 62,
+    "repeated_affected_legacy_nodes": 54,
+    "baseline_failures": 30,
+    "baseline_passes": 18,
+    "static_pass": true,
+    "source_reference": {
+      "commit": "7574c77680d7e82b79626300bf255498271a72df",
+      "file": "@chebfun/subsref.m",
+      "lines": "59-84 branch order;96-112 full-FEVAL/outCols;119-127 raw column extraction;135-137 row orientation"
+    },
+    "semantics": [
+      "Validate computed outCols only after source arithmetic; width2 raw1.5 legitimately selects columns2,3, width1 rejects.",
+      "Preserve native logical, complex-storage, NaN/default and matrix conditional behavior, actual error identifiers.",
+      "Empty evaluation uses actual full-FEVAL output shape.",
+      "Static selectors support JIT/AD with dynamic numeric query; no NumPy numerical dispatch."
+    ],
+    "dependencies": [
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_record_indices_native_cpu_20261017.zip",
+        "sha256": "0c372b64372632e4f578e08d2ba2d9d73482fa4e9e8ab2d53e3c027e9a8c1029",
+        "role": "Actual48 native captured outcomes; immutable source/driver/inputs/actual.mat provenance. Licensed runtime and private preferences omitted: not full native-runtime qualification."
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_jax_packet_20261017/qualified_evidence.zip",
+        "sha256": "cfa01b295325e7ead5ce0147951398b73dd635795a509f8534f6ab289c88293b",
+        "role": "Published prior JAX-only API component; unaffected typed dispatch/other original gates retained."
+      }
+    ],
+    "limitations": [
+      "Not full Chebfun.subsref parity; remaining_branch_audit.json15 groups remain, partially narrowing its index/packing groups only.",
+      "Higher-rank selectors explicitly unqualified; broad MATLAB MAX/Unicode/large integer behavior not established.",
+      "Logical/cell/callable first-argument classification, GET/hscale, numeric/foreign recursive records, empty receiver and other audited branches remain open.",
+      "Native fixture used by tests only; no expected-output injection, degree overrides or tolerance changes in production."
+    ]
+  },
+  "component_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_index_packet_20261017/qualified_evidence.zip",
+  "component_archive_sha256": "605af517c4a59cbc96cbf66c8eb82f039017cf2dafeeff134a0b40ecab1a4c4c",
+  "integration": {
+    "cases": [
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-one]",
+        "time": "3.055"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-reorder_repeat]",
+        "time": "0.494"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-column_vector]",
+        "time": "0.475"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-empty]",
+        "time": "0.210"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-fractional]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-zero]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-negative]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-mixed_fractional]",
+        "time": "0.037"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-logical_true]",
+        "time": "0.099"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-logical_false]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-logical_mask]",
+        "time": "0.113"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-logical_true_true]",
+        "time": "0.006"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-complex_nonreal]",
+        "time": "0.488"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-complex_zero_imag]",
+        "time": "0.006"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-mixed_complex]",
+        "time": "0.443"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-nan]",
+        "time": "0.030"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-mixed_nan]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-positive_inf]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-negative_inf]",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-matrix_inside]",
+        "time": "0.087"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-matrix_outside]",
+        "time": "0.022"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-matrix_mixed]",
+        "time": "0.005"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-unknown_char]",
+        "time": "0.092"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[numeric-alias_left]",
+        "time": "0.266"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-one]",
+        "time": "0.473"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-reorder_repeat]",
+        "time": "0.161"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-column_vector]",
+        "time": "0.176"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-empty]",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-fractional]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-zero]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-negative]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-mixed_fractional]",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-logical_true]",
+        "time": "0.350"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-logical_false]",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-logical_mask]",
+        "time": "0.252"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-logical_true_true]",
+        "time": "0.146"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-complex_nonreal]",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-complex_zero_imag]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-mixed_complex]",
+        "time": "0.025"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-nan]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-mixed_nan]",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-positive_inf]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-negative_inf]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-matrix_inside]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-matrix_outside]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-matrix_mixed]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-unknown_char]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_actual_native_probe[colon-alias_left]",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape0-column0-blocks0-None]",
+        "time": "0.321"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape1-column1-blocks1-None]",
+        "time": "0.025"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape2-1.5-blocks2-None]",
+        "time": "0.152"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape3-1.5-blocks3-None]",
+        "time": "0.502"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape4-column4-blocks4-None]",
+        "time": "0.765"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape5-1.5-blocks5-None]",
+        "time": "0.045"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape6-0.0-blocks6-None]",
+        "time": "0.020"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape7-1.0-blocks7-None]",
+        "time": "0.027"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape8-2.0-None-MATLAB:badsubscript]",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_source_computed_outcols_shapes[shape9-1.5-None-MATLAB:badsubscript]",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_static_record_selection_jit_ad[column0-expected_columns0]",
+        "time": "2.276"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_static_record_selection_jit_ad[(1+0j)-expected_columns1]",
+        "time": "1.289"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_static_record_selection_jit_ad[nan-expected_columns2]",
+        "time": "0.292"
+      },
+      {
+        "classname": "tests.test_subsref_record_indices_source",
+        "name": "test_static_record_selection_jit_ad[column3-expected_columns3]",
+        "time": "0.373"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_numeric_records_one_based_columns_and_orientation[False]",
+        "time": "1.785"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_numeric_records_one_based_columns_and_orientation[True]",
+        "time": "0.051"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_direct_subsref_and_explicit_feval_distinct_identifiers[X]",
+        "time": "0.832"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_direct_subsref_and_explicit_feval_distinct_identifiers[???]",
+        "time": "0.007"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_brace_record_follows_native_nonrecursive_branch",
+        "time": "0.015"
+      },
+      {
+        "classname": "tests.test_subsref_record_api_source",
+        "name": "test_traced_record_transpose_stays_on_jax_device",
+        "time": "2.317"
+      }
+    ],
+    "pytest_summary": "======================== 68 passed, 1 warning in 18.89s ========================",
+    "guarded_inputs": 8193,
+    "observed_runtime_imports": 1406,
+    "all_runtime_imports_preguarded": true,
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.697931197937578,
+      "sampled_peak_summed_rss_kib": 1613736,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_index_latest_root_cpu_20261017.zip",
+  "archive_sha256": "3848063284dc465d86d0cac96bf46d61332d5e2669129be2f28fcee8237ce068",
+  "verified_payloads": 8090,
+  "parent_component_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_index_packet_20261017/qualified_evidence.zip",
+    "sha256": "605af517c4a59cbc96cbf66c8eb82f039017cf2dafeeff134a0b40ecab1a4c4c",
+    "independently_verified_payloads": 7996,
+    "native_archive_review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_native48_parent_archive_review_20261017.json",
+    "scope": "All local payloads independently SHA-verified; native dependency already independently reviewed. Latest-source integration separate."
+  },
+  "parent_native_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_record_indices_native_cpu_20261017.zip",
+    "sha256": "0c372b64372632e4f578e08d2ba2d9d73482fa4e9e8ab2d53e3c027e9a8c1029",
+    "independently_verified_payloads": 3454,
+    "scope": "Native record-index source/driver/output archive verified. Licensed executable hashes only; full licensed runtime and preference preimages omitted, no full native-runtime qualification."
+  },
+  "limitations": [
+    "116fresh component nodes comprise62new and54affected/legacy; root68 is a repeated integration, not184distinct controls or originalMATLABpredicates.",
+    "Native48 probe supplies errorIDs, shapes and selected-column patterns; actual numeric values are compared with public candidateFEVAL selected columns. Does not establish native constructor/coefficient/output-bit parity.",
+    "Native archive retains source/driver/executablehashes and outputs; full licensed-runtime/preference preimages omitted, no full native-runtime qualification.",
+    "Higher-rank selectors, numeric/foreign result recursion, cell/property groups and logical/foreign query classification remain gaps. Query classification follow-up prepared separately.",
+    "Full function/API/test/page/figure/performance parity and latestgreenCI remain unresolved."
+  ],
+  "parent_guard_edge_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_index_packet_20261017/qualified_evidence.zip",
+    "sha256": "605af517c4a59cbc96cbf66c8eb82f039017cf2dafeeff134a0b40ecab1a4c4c",
+    "independently_resolved_guard_edges": 64904,
+    "guard_files": 8,
+    "local_verified_blob_versions": 7867,
+    "scope": "Each guard input hash resolves to full CAS bytes verified in independent payload review; native dependency scope remains licensed-runtime limited."
+  }
+}

@@ -1,3 +1,38 @@
+## Native record selector semantics — 2026-10-17
+
+Programmatic Chebfun.subsref records now preserve native column branch order
+before indexing. Matrix-outside selectors raise source badsubscript before
+matrix-shape checks; mixed condition vectors and scalarNaN retain defaults.
+Colon extraction preserves raw logical masks and complex-storage rejection.
+Numeric queries evaluate fullFEVAL once, form native outCols and validate the
+actual resulting indices before conversion. Fractional selectors can produce
+valid integer outCols for width2 queries; they are not rejected prematurely.
+Scalar/rank-one/empty/multidimensional query packing follows source records.
+Column metadata is static for JIT; numeric query data stays traced on JAX.
+Direct Python column conventions are unchanged.
+
+Fresh component116controls pass:48native selector/error/shape comparisons,
+10source packing,4JIT/AD and54affected/legacy controls. The frozen baseline
+has30fail/18pass in the48native comparisons. Root latest-source68 integration
+passes18.89s with8193stable inputs, all observed imports preguarded and no
+survivors,1.54GiB sampled peak. Full static checks pass without NumPy waiver.
+Parent verified7996component payloads plus manifest and64904guard edges to
+7867full-byte input versions; native dependency3454payloads plus manifest.
+See docs/subsref_record_indices_cpu_20261017.json.
+
+Native48 provides error IDs, output shapes and selected-column patterns;
+values compare exactly with public candidateFEVAL selected columns. This
+is not native constructor/coefficient/output-bit parity. Native archive
+retains source/driver/executable hashes and outputs; full licensed runtime
+and preference preimages are omitted, not retroactively qualified.
+
+Remaining: logical/foreign query classification, numeric/foreign recursive
+results, cell/property dispatch, higher-rank selectors and the broader15-group
+API audit. Query classification is a separate fresh candidate; source uses
+isnumeric(X), so logical queries must reject even though direct Python f(bool)
+remains a compatibility adapter. Full tests/pages/figures/performance and
+latest greenCI remain open. C1 typed-parameter backend work is separate.
+
 ## Natural nonlinear parameter dispatch — 2026-10-17
 
 Chebop now computes its existing system AD classification once before the

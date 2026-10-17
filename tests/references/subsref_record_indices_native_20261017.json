@@ -1,0 +1,451 @@
+{
+  "native_archive_sha256": "0c372b64372632e4f578e08d2ba2d9d73482fa4e9e8ab2d53e3c027e9a8c1029",
+  "actual_mat_sha256": "66ef9e7ce63d8bfc0effe386ef66210ef970cafdbe5e53fb9c3616617bbdb97e",
+  "source": "@chebfun/subsref.m at7574c77; actual48 diagnostic calls, NOT original MATLAB test clauses",
+  "columns_derived_by": "Exact matching of saved native output columns to actual native full FEVAL/coefficient columns; no candidate values used",
+  "cases": [
+    {
+      "label": "one",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "one",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "reorder_repeat",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        3
+      ],
+      "selected_columns": [
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "label": "reorder_repeat",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        3
+      ],
+      "selected_columns": [
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "label": "column_vector",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        2
+      ],
+      "selected_columns": [
+        1,
+        0
+      ]
+    },
+    {
+      "label": "column_vector",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        2
+      ],
+      "selected_columns": [
+        1,
+        0
+      ]
+    },
+    {
+      "label": "empty",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        0
+      ],
+      "selected_columns": []
+    },
+    {
+      "label": "empty",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        0
+      ],
+      "selected_columns": []
+    },
+    {
+      "label": "fractional",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "fractional",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "zero",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "zero",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "negative",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "negative",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "mixed_fractional",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "mixed_fractional",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "logical_true",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "logical_true",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "logical_false",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "logical_false",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        0
+      ],
+      "selected_columns": []
+    },
+    {
+      "label": "logical_mask",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "logical_mask",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "logical_true_true",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        2
+      ],
+      "selected_columns": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "logical_true_true",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "complex_nonreal",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "complex_nonreal",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "complex_zero_imag",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        1
+      ],
+      "selected_columns": [
+        0
+      ]
+    },
+    {
+      "label": "complex_zero_imag",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "mixed_complex",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "mixed_complex",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "nan",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "nan",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "mixed_nan",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "mixed_nan",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "positive_inf",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "positive_inf",
+      "mode": "colon",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "negative_inf",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "negative_inf",
+      "mode": "colon",
+      "success": false,
+      "identifier": "MATLAB:badsubscript"
+    },
+    {
+      "label": "matrix_inside",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:colidx"
+    },
+    {
+      "label": "matrix_inside",
+      "mode": "colon",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:colidx"
+    },
+    {
+      "label": "matrix_outside",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "matrix_outside",
+      "mode": "colon",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "matrix_mixed",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "matrix_mixed",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "unknown_char",
+      "mode": "numeric",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "unknown_char",
+      "mode": "colon",
+      "success": false,
+      "identifier": "CHEBFUN:CHEBFUN:subsref:badsubscript"
+    },
+    {
+      "label": "alias_left",
+      "mode": "numeric",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        2,
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "alias_left",
+      "mode": "colon",
+      "success": true,
+      "identifier": "",
+      "output_shape": [
+        "Inf",
+        2
+      ],
+      "selected_columns": [
+        0,
+        1
+      ]
+    }
+  ]
+}

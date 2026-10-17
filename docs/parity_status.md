@@ -78,6 +78,13 @@ remaining-page count.
   routing11 and original-adaptive1 pass separately; C1/US remain open. See
   [nonlinear dispatch evidence](nonlinear_parameter_dispatch_joint_cpu_20261017.json).
 
+- [x] Native programmatic record column selection now preserves max/if
+  ordering, logical/complex/NaN quirks and computed outCols validation.
+  Component116 controls pass; latest-source68 integration controls pass in
+  18.89 seconds. Native48 comparisons qualify selectors/errors/shapes, not
+  constructor/output-bit parity. Remaining query-type/recursive/property
+  gaps are explicit in [index evidence](subsref_record_indices_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted
