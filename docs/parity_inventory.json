@@ -295,6 +295,11 @@
       "scope": "Native breakpoint-root grammar, JAX getRootsForBreaks, NaN-padded quasimatrix roots, numeric MATLAB imaginary suffixes, all19default original roots predicates.",
       "sha256": "23f68f5ff7078bec05115554fecc27dc9832b4163b3c8631a8926caf994d1fe2"
     },
+    "scoped_originals_inventory_reconciliation_20261017": {
+      "path": "docs/scoped_originals_inventory_reconciliation_20261017.json",
+      "scope": "Reconcile five already published scoped reports into precise original-test/function rows and stale power33warning note; no new scientific execution/full-item status promotion.",
+      "sha256": "19be96fab0c3822175e6618036f6f12d111ff57a47ddeefdf06cb001e2291afa"
+    },
     "sphere_extrema_tie_cpu_20261017": {
       "path": "docs/sphere_extrema_tie_cpu_20261017.json",
       "scope": "Ten original sphere optimization predicates and two bounded even-polynomial authored controls; no general antipode closure",
@@ -48932,17 +48937,29 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifact": "roots_original19_joint_cpu_20261017",
           "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
-          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+          "scope": "Source-bound breakpoint helper/consumer grammar controls within the139combined parent gate; original19count belongs to test_roots.m, not a complete helper/method/API assertion audit."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/addBreaksAtRoots.m",
+              "native_source_sha256": "385533405073e68181485661e917557ecfdbb216cd72fc4c05ceea0fba3174b9",
+              "scope": "Bounded helper consumer controls and retained addBreaksAtRoots test only; original roots19count belongs to test_roots, not this method.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -48950,7 +48967,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "35",
+              "native_source": "@chebfun/addBreaksAtRoots.m",
+              "native_source_sha256": "385533405073e68181485661e917557ecfdbb216cd72fc4c05ceea0fba3174b9",
+              "scope": "Exercised integer-map helper insertion with native nobreaks grammar; full method/preferences unverified.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "35",
@@ -51478,7 +51505,9 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifacts": [
@@ -51490,7 +51519,7 @@
         {
           "artifact": "roots_original19_joint_cpu_20261017",
           "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
-          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+          "scope": "Source-bound breakpoint helper/consumer grammar controls within the139combined parent gate; original19count belongs to test_roots.m, not a complete helper/method/API assertion audit."
         },
         {
           "artifact": "rdivide_scalar_column_cpu_20261017",
@@ -51499,7 +51528,26 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/getRootsForBreaks.m",
+              "native_source_sha256": "12e1ae140716344c676ccc383a81e248350ba1e6f319875a006bcc2af49ce0aa",
+              "scope": "JAX discovery follows roots(nozerofun,nojump,nobreaks), NaN filtering, sorting/close filtering; genuine continuous breakpoint roots retained.66parent helper/consumer controls are a combined cohort, not66helper-only assertions.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            },
+            {
+              "artifact": "rdivide_scalar_column_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/getRootsForBreaks.m",
+              "native_source_sha256": "12e1ae140716344c676ccc383a81e248350ba1e6f319875a006bcc2af49ce0aa",
+              "scope": "Genuine scalar coefficients(n,1) accepted by effective-column count, preserving root operands/words; true multicolumn discovery remains excluded.",
+              "source_binding_ref": "docs/rdivide_scalar_column_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -52797,7 +52845,9 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifacts": [
@@ -52827,7 +52877,17 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minmax_original14_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/minandmax.m",
+              "native_source_sha256": "5b82f79412977bfac11dde31a0968e42710ffd6da8a5e67180189de309fcfca3",
+              "scope": "All14default original predicates: empty/smooth/cells/stored points/arrays/singular/unbounded/gamma; no full technology/API claim.",
+              "source_binding_ref": "docs/minmax_original14_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -52835,7 +52895,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minmax_original14_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "142",
+              "native_source": "@chebfun/minandmax.m",
+              "native_source_sha256": "5b82f79412977bfac11dde31a0968e42710ffd6da8a5e67180189de309fcfca3",
+              "scope": "Original7,10,11local scalar/array values, locations and NaN masks at original bounds only.",
+              "source_binding_ref": "docs/minmax_original14_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "142",
@@ -54067,11 +54137,13 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifact": "power_original41_cpu_20261017",
-          "scope": "All41default original numerical predicates,27actual source draw events verified; extra predicate33warning/fullAPI/preferences unqualified."
+          "scope": "All41default numerical predicates;27actual source draw events. Historical predicate33extra warning is superseded in the bounded fractional-power path by power_zero_preflight_cpu_20261017; fullAPI/preferences/generalRNG and standalone norm remain unverified."
         },
         {
           "artifact": "power_zero_preflight_cpu_20261017",
@@ -54080,7 +54152,17 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "power_original41_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/power.m",
+              "native_source_sha256": "80d1a1228717a63846cac28103e47aaaecb567601e30434eb6db5de72ef45843",
+              "scope": "Default41numerical predicates with actual seeded operands,24rerun+17bridged; no fullAPI/preferences/generalRNG claim.",
+              "source_binding_ref": "docs/power_original41_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54088,7 +54170,26 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "power_original41_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "140",
+              "native_source": "@chebfun/power.m",
+              "native_source_sha256": "80d1a1228717a63846cac28103e47aaaecb567601e30434eb6db5de72ef45843",
+              "scope": "Exercised default41column power routes, not a full local-function/API audit.",
+              "source_binding_ref": "docs/power_original41_cpu_20261017.json"
+            },
+            {
+              "artifact": "power_zero_preflight_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "140",
+              "native_source": "@chebfun/power.m",
+              "native_source_sha256": "80d1a1228717a63846cac28103e47aaaecb567601e30434eb6db5de72ef45843",
+              "scope": "Native columnPower has no normpreflight; Python supported boundedC1/C2/Singfun checks exact smoothcoefficients plus storedpointValues.18controls include tiny/zero/isolatedPV/singular/array/fallback. NaN/Inf cannot falsely satisfy exactzero. Norm/endpoint primitive not repaired.",
+              "source_binding_ref": "docs/power_zero_preflight_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "140",
@@ -54236,7 +54337,9 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifact": "roots_original19_joint_cpu_20261017",
@@ -54250,7 +54353,17 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "rdivide_scalar_column_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/rdivide.m",
+              "native_source_sha256": "d9cdb6ea90fd141d8e12b90625a7532af3f74ec014c497d2c9437d9dfed1011f",
+              "scope": "Default26finalslots/28assignments distinguished; singleton scalar storage fixes and68parent controls. Native overwritten24failure uncredited.",
+              "source_binding_ref": "docs/rdivide_scalar_column_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54258,7 +54371,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "rdivide_scalar_column_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "144",
+              "native_source": "@chebfun/rdivide.m",
+              "native_source_sha256": "d9cdb6ea90fd141d8e12b90625a7532af3f74ec014c497d2c9437d9dfed1011f",
+              "scope": "Existing bounded scalar quotient route losslessly removes only singleton axes, preserving metadata/coefficient/value/PV words; true multicolumn and broad singular rewrite excluded.",
+              "source_binding_ref": "docs/rdivide_scalar_column_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "144",
@@ -54488,7 +54611,9 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/chebfun1d/chebfun.py"
+      ],
       "evidence": [
         {
           "artifact": "roots_original19_joint_cpu_20261017",
@@ -54498,7 +54623,17 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "1",
+              "native_source": "@chebfun/roots.m",
+              "native_source_sha256": "8ced1ba214f409e2dbae07df6d36ef7f50cd3230575dc3b239df4ab36d5b774c",
+              "scope": "Default19predicate dispatch/quasimatrix NaN padding; remaining host roots and fullAPI open.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54506,7 +54641,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "79",
+              "native_source": "@chebfun/roots.m",
+              "native_source_sha256": "8ced1ba214f409e2dbae07df6d36ef7f50cd3230575dc3b239df4ab36d5b774c",
+              "scope": "Default19scalar routes plus bounded jump/pointValue/zero-FUN grammar controls; no general raw-root algorithm qualification.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "79",
@@ -54514,7 +54659,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "current_source_revalidated": false,
+              "native_declaration_line": "139",
+              "native_source": "@chebfun/roots.m",
+              "native_source_sha256": "8ced1ba214f409e2dbae07df6d36ef7f50cd3230575dc3b239df4ab36d5b774c",
+              "scope": "Exercised nozerofun/nojump/nobreaks flags in retained bounded same-operand controls; alternate flags/preferences/invalid-input grammar open.",
+              "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "139",
@@ -103149,6 +103304,7 @@
       "assertion_coverage_status": "unverified",
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_minandmax_matlab.py",
+        "tests/test_matlab_port/chebfun/test_minandmax_original14.py",
         "tests/test_matlab_port/chebtech/test_minandmax_matlab.py",
         "tests/test_matlab_port/classicfun/test_minandmax_matlab.py",
         "tests/test_matlab_port/deltafun/test_minandmax_matlab.py",
@@ -103170,7 +103326,29 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minmax_original14_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14
+              ],
+              "scope": "All14default exact operands/bounds;parent37 and later combined original14reruns linked separately. Full technology/preference/warning grammar, standalone singular complex norm, host algorithms/fullAPI remain open.",
+              "scope_id": "published_default_chebfun_minandmax_14_predicates_20261017"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -103182,7 +103360,26 @@
       "sha256": "9291224115eb0406672fc1cd69fd2f9b30c3e853b866bdfdae21ad148d66bb9d",
       "source": "tests/chebfun/test_minandmax.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "current_source_revalidated": false,
+          "evidence": "minmax_original14_cpu_20261017",
+          "native_source": "tests/chebfun/test_minandmax.m",
+          "native_source_sha256": "9291224115eb0406672fc1cd69fd2f9b30c3e853b866bdfdae21ad148d66bb9d",
+          "original_ids": "1-14",
+          "predicate_mapping_ref": "docs/minmax_original14_cpu_20261017.json#/predicate_mapping",
+          "predicates_native_final_slots": 14,
+          "predicates_python_mapped_final_slots": 14,
+          "python_source": "tests/test_matlab_port/chebfun/test_minandmax_original14.py",
+          "python_source_sha256": "9901798f338c98ce00d9b7a5fc06766c8a5bb3ae3c83234c8b63214112eab1a7",
+          "qualification_limit": "All14default exact operands/bounds;parent37 and later combined original14reruns linked separately. Full technology/preference/warning grammar, standalone singular complex norm, host algorithms/fullAPI remain open.",
+          "scope_id": "published_default_chebfun_minandmax_14_predicates_20261017",
+          "source_binding_note": "Published report and archive bind their recorded source; this documentation-only reconciliation performs no new numerical execution or carry-forward qualification.",
+          "source_binding_ref": "docs/minmax_original14_cpu_20261017.json",
+          "status": "source_bound_native_python_scoped_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -103888,18 +104085,86 @@
         "tests/test_matlab_port/ballfun/test_power_matlab.py",
         "tests/test_matlab_port/ballfunv/test_power_matlab.py",
         "tests/test_matlab_port/chebfun/test_power_matlab.py",
+        "tests/test_matlab_port/chebfun/test_power_original41.py",
         "tests/test_matlab_port/diskfun/test_power_matlab.py",
         "tests/test_matlab_port/spherefun/test_power_matlab.py"
       ],
       "evidence": [
         {
           "artifact": "power_original41_cpu_20261017",
-          "scope": "All41default original numerical predicates,27actual source draw events verified; extra predicate33warning/fullAPI/preferences unqualified."
+          "scope": "All41default numerical predicates;27actual source draw events. Historical predicate33extra warning is superseded in the bounded fractional-power path by power_zero_preflight_cpu_20261017; fullAPI/preferences/generalRNG and standalone norm remain unverified."
+        },
+        {
+          "artifact": "power_zero_preflight_cpu_20261017",
+          "native_predicates": [
+            33
+          ],
+          "python_source": "tests/test_chebfun1d/test_root_power_zero_preflight.py",
+          "python_source_sha256": "a2f34ea0ed8ae754f4bb55da414ee69d817ee60b9fe6391a4d67a424e9604faa",
+          "scope": "Unchanged original33operand/1000epsbound passes without non-native normpreflight or extra complex-extrema warning;18bounded controls and source bridge only, not a new full41run. Standalone norm/extrema/nonfinite primitive and unsupported fallback remain open."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "power_original41_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41
+              ],
+              "scope": "41numerical predicates via24finalreruns plus17unchanged-node bridges, not a single final41run. Native41true and27actual draw events. Predicate33 warning at this historical gate is superseded only by bounded powerzero scope; general RNG, fullAPI/alternate preferences/standalone norm remain open.",
+              "scope_id": "published_default_chebfun_power_41_predicates_20261017"
+            },
+            {
+              "artifact": "power_zero_preflight_cpu_20261017",
+              "native_predicates": [
+                33
+              ],
+              "python_source": "tests/test_chebfun1d/test_root_power_zero_preflight.py",
+              "python_source_sha256": "a2f34ea0ed8ae754f4bb55da414ee69d817ee60b9fe6391a4d67a424e9604faa",
+              "scope": "Unchanged original33operand/1000epsbound passes without non-native normpreflight or extra complex-extrema warning;18bounded controls and source bridge only, not a new full41run. Standalone norm/extrema/nonfinite primitive and unsupported fallback remain open."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -103907,7 +104172,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "power_original41_cpu_20261017",
+              "scope": "Source-reconstructed local normest helper and actual seeded sampling words retained for original predicate evaluation; no general RNG/native stream equivalence or helper-wide API claim."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "406",
@@ -103919,7 +104189,29 @@
       "sha256": "5824bb7ad1ac7b722ef3af5fa24bcd999fcc3c89646aa12dbd11b79ee69b3cb7",
       "source": "tests/chebfun/test_power.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "current_source_revalidated": false,
+          "evidence": "power_original41_cpu_20261017",
+          "native_source": "tests/chebfun/test_power.m",
+          "native_source_sha256": "5824bb7ad1ac7b722ef3af5fa24bcd999fcc3c89646aa12dbd11b79ee69b3cb7",
+          "original_ids": "1-41",
+          "predicate_mapping_ref": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_evidence_20261017/predicate_mapping.json",
+          "predicates_native_final_slots": 41,
+          "predicates_python_mapped_final_slots": 41,
+          "python_final_rerun_predicates": 24,
+          "python_source": "tests/test_matlab_port/chebfun/test_power_original41.py",
+          "python_source_sha256": "b7bb3297141b29548d7354aaf19eb3032d5be2a63fa2e64a2358e9565e725ada",
+          "python_unchanged_predicates_bridged": 17,
+          "qualification_limit": "41numerical predicates via24finalreruns plus17unchanged-node bridges, not a single final41run. Native41true and27actual draw events. Predicate33 warning at this historical gate is superseded only by bounded powerzero scope; general RNG, fullAPI/alternate preferences/standalone norm remain open.",
+          "scope_id": "published_default_chebfun_power_41_predicates_20261017",
+          "source_binding_note": "Published report and archive bind their recorded source; this documentation-only reconciliation performs no new numerical execution or carry-forward qualification.",
+          "source_binding_ref": "docs/power_original41_cpu_20261017.json",
+          "status": "source_bound_native_python_scoped_pass",
+          "warning_followup_evidence": "power_zero_preflight_cpu_20261017"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -104021,7 +104313,41 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "rdivide_scalar_column_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26
+              ],
+              "scope": "26final slots true,28assigned expressions audited; overwritten13 and24 distinguished. Overwritten24fails native and remains uncredited strict-xfail, not parity success. Parent68 plus child116distinct separately bound; fullAPI/preferences/multicolumn and host paths remain open.",
+              "scope_id": "published_default_chebfun_rdivide_26_predicates_20261017"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -104033,7 +104359,34 @@
       "sha256": "66bb2ac902e7d2a6802bb570617f62e33fba103b2abb40278a9f7001756d90d4",
       "source": "tests/chebfun/test_rdivide.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "assigned_expressions": 28,
+          "current_source_revalidated": false,
+          "evidence": "rdivide_scalar_column_cpu_20261017",
+          "native_source": "tests/chebfun/test_rdivide.m",
+          "native_source_sha256": "66bb2ac902e7d2a6802bb570617f62e33fba103b2abb40278a9f7001756d90d4",
+          "original_ids": "1-26",
+          "overwritten_slots": [
+            13,
+            24
+          ],
+          "predicate_mapping_ref": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/rdivide_scalar_parent_gate_20261017/rdivide_original26_evidence_20261017/predicate_mapping.json",
+          "predicates_native_final_slots": 26,
+          "predicates_python_mapped_final_slots": 26,
+          "python_source": "tests/test_matlab_port/chebfun/test_rdivide_matlab.py",
+          "python_source_sha256": "3aa5c86baada0df7f4a1b3ac42223a387951f6ebe30778ffa65422095fcb0711",
+          "qualification_limit": "26final slots true,28assigned expressions audited; overwritten13 and24 distinguished. Overwritten24fails native and remains uncredited strict-xfail, not parity success. Parent68 plus child116distinct separately bound; fullAPI/preferences/multicolumn and host paths remain open.",
+          "scope_id": "published_default_chebfun_rdivide_26_predicates_20261017",
+          "source_binding_note": "Published report and archive bind their recorded source; this documentation-only reconciliation performs no new numerical execution or carry-forward qualification.",
+          "source_binding_ref": "docs/rdivide_scalar_column_cpu_20261017.json",
+          "status": "source_bound_native_python_scoped_pass",
+          "uncredited_native_failed_overwritten_slots": [
+            24
+          ]
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -104224,6 +104577,7 @@
       "assertion_coverage_status": "unverified",
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_roots_matlab.py",
+        "tests/test_matlab_port/chebfun/test_roots_original19.py",
         "tests/test_matlab_port/chebfun2/test_roots_matlab.py",
         "tests/test_matlab_port/chebtech/test_roots_matlab.py",
         "tests/test_matlab_port/classicfun/test_roots_matlab.py",
@@ -104241,7 +104595,34 @@
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_original19_joint_cpu_20261017",
+              "native_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19
+              ],
+              "scope": "All19default original predicates;139parent controls include66helper/consumer controls and all14minandmax. Remaining host algorithms, complex/all-root early return, alternate preferences/fullAPI/latestCI remain open.",
+              "scope_id": "published_default_chebfun_roots_19_predicates_20261017"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -104253,7 +104634,26 @@
       "sha256": "6d2a4735fdb1abc2c9fff64efca450a53e08a7250316893ee9f4e55dd8830dd4",
       "source": "tests/chebfun/test_roots.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "current_source_revalidated": false,
+          "evidence": "roots_original19_joint_cpu_20261017",
+          "native_source": "tests/chebfun/test_roots.m",
+          "native_source_sha256": "6d2a4735fdb1abc2c9fff64efca450a53e08a7250316893ee9f4e55dd8830dd4",
+          "original_ids": "1-19",
+          "predicate_mapping_ref": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "predicates_native_final_slots": 19,
+          "predicates_python_mapped_final_slots": 19,
+          "python_source": "tests/test_matlab_port/chebfun/test_roots_original19.py",
+          "python_source_sha256": "2d14008d7e3b82c6182f21d30998d49996429cd15442d79ce31f1201bb7e6be8",
+          "qualification_limit": "All19default original predicates;139parent controls include66helper/consumer controls and all14minandmax. Remaining host algorithms, complex/all-root early return, alternate preferences/fullAPI/latestCI remain open.",
+          "scope_id": "published_default_chebfun_roots_19_predicates_20261017",
+          "source_binding_note": "Published report and archive bind their recorded source; this documentation-only reconciliation performs no new numerical execution or carry-forward qualification.",
+          "source_binding_ref": "docs/roots_original19_joint_cpu_20261017.json",
+          "status": "source_bound_native_python_scoped_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

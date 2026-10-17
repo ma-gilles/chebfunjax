@@ -1,0 +1,106 @@
+{
+  "base": "8fd11a42",
+  "changed_rows": [
+    {
+      "scope_id": "published_default_chebfun_roots_19_predicates_20261017",
+      "section": "original_tests",
+      "source": "tests/chebfun/test_roots.m"
+    },
+    {
+      "scope_id": "published_default_chebfun_power_41_predicates_20261017",
+      "section": "original_tests",
+      "source": "tests/chebfun/test_power.m"
+    },
+    {
+      "scope_id": "published_default_chebfun_minandmax_14_predicates_20261017",
+      "section": "original_tests",
+      "source": "tests/chebfun/test_minandmax.m"
+    },
+    {
+      "scope_id": "published_default_chebfun_rdivide_26_predicates_20261017",
+      "section": "original_tests",
+      "source": "tests/chebfun/test_rdivide.m"
+    },
+    {
+      "functions": [
+        "roots",
+        "columnRoots",
+        "parseInputs"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/roots.m"
+    },
+    {
+      "functions": [
+        "getRootsForBreaks",
+        "getRootsForBreaks"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/getRootsForBreaks.m"
+    },
+    {
+      "functions": [
+        "addBreaksAtRoots",
+        "columnAddBreaksAtRoots"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/addBreaksAtRoots.m"
+    },
+    {
+      "functions": [
+        "minandmax",
+        "localMinAndMax"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/minandmax.m"
+    },
+    {
+      "functions": [
+        "power",
+        "columnPower",
+        "columnPower"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/power.m"
+    },
+    {
+      "functions": [
+        "rdivide",
+        "columnRdivide"
+      ],
+      "section": "library_sources",
+      "source": "@chebfun/rdivide.m"
+    }
+  ],
+  "limits": [
+    "All existing full-item/function status fields remain identical.",
+    "Source bindings describe the reports recorded source, not latest-main numerical revalidation.",
+    "No direct gamma-method evidence inferred: literal14uses string numeric gamma, not necessarily @chebfun/gamma dispatch.",
+    "No new fullPOWER41run from18preflightcontrols; native overwritten division24strict-xfail remains uncredited.",
+    "Pending unpublished normalizer/ratinterp23 packages excluded."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "published_reports": {
+    "minmax_original14_cpu_20261017": {
+      "path": "docs/minmax_original14_cpu_20261017.json",
+      "sha256": "7f7ea075b44e5a07f364a32d0fb11a0c790f8d14baa8d6ed8f9dc5c2624f2bc6"
+    },
+    "power_original41_cpu_20261017": {
+      "path": "docs/power_original41_cpu_20261017.json",
+      "sha256": "00abf51eabaf23a045fb4d7866707bc794f81381435215e3d47821e4566745db"
+    },
+    "power_zero_preflight_cpu_20261017": {
+      "path": "docs/power_zero_preflight_cpu_20261017.json",
+      "sha256": "bd2b8f35f9ff7bc7e9ae88971d78c482c72d2a7a03be69809bfb690fef043d23"
+    },
+    "rdivide_scalar_column_cpu_20261017": {
+      "path": "docs/rdivide_scalar_column_cpu_20261017.json",
+      "sha256": "ab464d05db1a32e9678d7b5bd766d71423e8bf3b7c85918ebfa49e458ad353a6"
+    },
+    "roots_original19_joint_cpu_20261017": {
+      "path": "docs/roots_original19_joint_cpu_20261017.json",
+      "sha256": "23f68f5ff7078bec05115554fecc27dc9832b4163b3c8631a8926caf994d1fe2"
+    }
+  },
+  "scope": "Reconcile five already published scoped reports into precise original-test/function rows and stale power33warning note; no new scientific execution/full-item status promotion."
+}

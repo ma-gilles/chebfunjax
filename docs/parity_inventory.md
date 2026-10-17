@@ -188,3 +188,22 @@ now linked to the actual source row; full-item status remains unverified.
 records native-matched values/errors and preserves the unrelated moving-HEAD
 guard failure. Exact tested function/source bridges carry the scoped Python
 gates; broader API and near-rank quantitative fidelity remain open.
+
+## Published roots, power, extrema and division scopes — 2026-10-17
+
+[Scoped reconciliation](scoped_originals_inventory_reconciliation_20261017.json)
+adds precise function evidence and original-test `verified_scopes` for roots
+(19 predicates), power (41), minandmax (14), and rdivide (26 final slots).
+Literal test navigation paths are attached without removing historical
+basename hints. Every full-item and function status remains unchanged and
+unverified. Source hashes and bindings refer to the published reports,
+not a new execution against the latest main branch.
+
+Power retains its 24 final reruns / 17 unchanged-node bridge distinction.
+The later 18-control zero-preflight report supersedes predicate 33's extra
+warning only for the supported bounded fractional-power path; standalone
+norm/extrema and nonfinite complex primitives remain open. Division's
+28 assignments include overwritten slots 13 and 24. The overwritten slot 24
+native failure remains uncredited. Neither its strict-xfail nor the 26 true
+final slots proves all 28 assigned expressions. No direct gamma-method
+qualification is inferred from string gamma input.

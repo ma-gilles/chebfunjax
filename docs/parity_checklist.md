@@ -21,7 +21,7 @@ Checked items certify only their stated scope.
 
 - **Spin API follow-up:** scoped JAX comparison/checkpoint behavior is published below; full native API, scheme matrix, long examples, graphics and matched performance remain open.
 - **Chebfun3 follow-up:** default complex C2 construction now passes the seven-control gate below 3 GiB; C1/periodic paths, broader original tests and complete runtime audit remain open. The earlier CI shutdown cause is unproven.
-- **Evidence reconciliation:** historical passing scopes must still be attached to individual inventory rows. Candidate path mappings and passing subsets do not establish full-file parity.
+- **Evidence reconciliation:** roots (19 predicates), power (41) plus bounded zero preflight, minandmax (14), and rdivide (26 final slots / 28 assignments) now have precise original-test/function entries with source references and limitations. [Reconciliation](scoped_originals_inventory_reconciliation_20261017.json). Remaining historical scopes still require review; candidate paths and passing subsets do not establish full-file parity.
 
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
@@ -35,7 +35,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 - [x] Correct minimax original11test scalar extraction exposed by actualCI; original operand/degrees/scaling/bound unchanged, focused candidate passes on identical360production files. [Evidence](minimax_scalar_ci_cpu_20261017.json). LatestCI/fullAPI remain open.
 
-- [x] Restore all41literal default original power predicates and verify27actual native draw events; final24rerun plus17unchanged-node source/AST bridge, with360production files identical to publication. [Evidence](power_original41_cpu_20261017.json). Extra predicate33warning/fullAPI/preferences remain open.
+- [x] Restore all41literal default original power predicates and verify27actual native draw events; final24rerun plus17unchanged-node source/AST bridge, with360production files identical to publication. [Evidence](power_original41_cpu_20261017.json). The historical predicate 33 extra warning is superseded for supported bounded fractional powers by [the 18-control preflight follow-up](power_zero_preflight_cpu_20261017.json); standalone norm/extrema/nonfinite primitives and full API/preferences remain open.
 
 - [x] Restore native scalar(n,1)denominator root insertion and lossless singleton quotient layout; actual constructors08-12/literal18 retained.68combined parent checks pass; child116pass and native26finalslots true are separately bound. [Evidence](rdivide_scalar_column_cpu_20261017.json). Overwritten native24/full API/preferences remain unqualified.
 
