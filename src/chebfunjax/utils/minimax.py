@@ -1586,6 +1586,21 @@ def _compute_trial_rational_fallback(
     return _make_reval(xsupport, wN, wD), h, True, xsupport, wN, wD
 
 
+@jax.jit
+def _lawson_svd(matrix):
+    """Economy QR SVD for the source AAA/Lawson least-squares problems.
+
+    MATLAB source: minimax.m, aaamn_lawson's three ``svd(...,0)`` calls.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    The drivers differ in tiny right-vector components of mixed-scale Lawson
+    matrices; divide-and-conquer can round components used as weights to zero.
+    """
+    return jax.lax.linalg.svd(
+        jnp.asarray(matrix), full_matrices=False,
+        algorithm=jax.lax.linalg.SvdAlgorithm.QR,
+    )
+
+
 def _aaamn_lawson(
     f: Callable,
     Z: np.ndarray,
@@ -1632,10 +1647,10 @@ def _aaamn_lawson(
         if mn > min(nmax, mmax):
             q = fa if mmax < nmax else np.ones(len(z))
             Q = _orthspace(zc, mn - min(mmax, nmax), q)
-            _, _, Vh = np.linalg.svd(A[J, :] @ Q, full_matrices=False)
+            Vh = np.asarray(_lawson_svd(A[J, :] @ Q)[2])
             w = Q @ Vh[-1, :]
         else:
-            _, _, Vh = np.linalg.svd(A[J, :], full_matrices=False)
+            Vh = np.asarray(_lawson_svd(A[J, :])[2])
             w = Vh[mn - 1, :]
         N = C @ (w * fa)
         D = C @ w
@@ -1668,7 +1683,7 @@ def _aaamn_lawson(
         if np.linalg.norm(weiold - wei) / np.linalg.norm(wei) < tol_lawson:
             break
         Dw = np.sqrt(wei)[:, None]
-        _, _, Vh = np.linalg.svd(Dw * Amat[J, :], full_matrices=False)
+        Vh = np.asarray(_lawson_svd(Dw * Amat[J, :])[2])
         V = Vh.T
         if mn > min(nmax, mmax):
             if mn > nmax:

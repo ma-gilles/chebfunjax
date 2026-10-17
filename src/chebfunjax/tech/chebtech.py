@@ -6259,23 +6259,45 @@ class Chebtech1(eqx.Module):
         """
         import math
 
+        def grid_values(tech, n):
+            # Native composeResample prolongs coefficients, then transforms
+            # them to values. Pointwise Clenshaw has a different roundoff path.
+            return tech.coeffs2vals(_prolong_coeffs(tech.coeffs, n))
+
         if isinstance(op, Chebtech1):
             op_cheb = op
             composed_func = lambda x: op_cheb(self(x))  # noqa: E731
+            sample_n = lambda n: op_cheb(grid_values(self, n))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
         elif g is not None:
             f_cols = self.coeffs.ndim == 2
             g_cols = g.coeffs.ndim == 2
             if f_cols and not g_cols:
                 composed_func = lambda x: op(self(x), g(x)[..., None])  # noqa: E731
+                sample_n = lambda n: op(grid_values(self, n), grid_values(g, n)[..., None])  # noqa: E731
             elif g_cols and not f_cols:
                 composed_func = lambda x: op(self(x)[..., None], g(x))  # noqa: E731
+                sample_n = lambda n: op(grid_values(self, n)[..., None], grid_values(g, n))  # noqa: E731
             else:
                 composed_func = lambda x: op(self(x), g(x))  # noqa: E731
+                sample_n = lambda n: op(grid_values(self, n), grid_values(g, n))  # noqa: E731
             min_n = max(self.n, g.n)
         else:
             composed_func = lambda x: op(self(x))  # noqa: E731
+            sample_n = lambda n: op(grid_values(self, n))  # noqa: E731
             min_n = self.n
+
+        def refine_values(_function, values, pref):
+            initial = values is None or values.shape[0] == 0
+            n = (_initial_resampling_n(pref['minSamples']) if initial
+                 else _next_resampling_n(values.shape[0]))
+            if n > pref['maxLength']:
+                if not initial:
+                    return values, True
+                n = pref['maxLength']
+            if not initial and n <= values.shape[0]:
+                return values, True
+            return sample_n(n), False
 
         start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
         return Chebtech1._adaptive_construct(
@@ -6283,7 +6305,7 @@ class Chebtech1(eqx.Module):
             maxpow2=maxpow2,
             start_pow2=start_pow2,
             # MATLAB @chebtech1/compose.m uses complete-grid resampling.
-            refinement_function="resampling",
+            refinement_function=refine_values,
             sample_test=False,
             extrapolate=extrapolate,
         )

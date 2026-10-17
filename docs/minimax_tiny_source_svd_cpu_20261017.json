@@ -1,0 +1,158 @@
+{
+  "scope": "Tiny-amplitude rational minimax CPU correction; not full parity or full CI qualification.",
+  "base": "e95d3bf27a7a0a02f682136a1c82e774ea8b5f24",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_tiny_source_svd_cpu_20261017.tar.gz",
+  "archive_sha256": "9e2d00e04d63c608f88f0a11b814ab8e4835576ea2e98818945b344ed8d57f98",
+  "archive_file_count": 162,
+  "passing_distinct_tests": 19,
+  "production_files": [
+    "src/chebfunjax/utils/minimax.py"
+  ],
+  "new_tests": [
+    "tests/test_utils/test_minimax_lawson_jax_svd.py"
+  ],
+  "source_sha256": "67da2e765251c6f53455bfe30f168c889d023fbe69c5bd5451439faac71aa593",
+  "test_sha256": "9f35c748a3913931b60bb2324d0c99dc3c8a9d22452f2f631a16b7bd9122a47a",
+  "runs": {
+    "baseline": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 29.872508951928467,
+      "sampled_peak_summed_rss_kib": 1803088,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "diagnostic": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 21.43418698105961,
+      "sampled_peak_summed_rss_kib": 1104380,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "svd_diagnostic": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 29.617172400001436,
+      "sampled_peak_summed_rss_kib": 1832292,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "candidate": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 26.515426872763783,
+      "sampled_peak_summed_rss_kib": 1717552,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "candidate_v2": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 39.21548231691122,
+      "sampled_peak_summed_rss_kib": 1908456,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "controls": {
+      "command_exit_code": 4,
+      "censored_limit": null,
+      "wall_seconds": 4.533130614086986,
+      "sampled_peak_summed_rss_kib": 411884,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "controls_v2": {
+      "command_exit_code": -15,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 59.492199117317796,
+      "sampled_peak_summed_rss_kib": 3164812,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "finalcontrols": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.390621588099748,
+      "sampled_peak_summed_rss_kib": 470896,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "native11": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 32.2600713390857,
+      "sampled_peak_summed_rss_kib": 1942780,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "adjacent": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 58.11691800272092,
+      "sampled_peak_summed_rss_kib": 3000196,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "native_run": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 143.25233650300652,
+      "sampled_peak_summed_rss_kib": 1334360,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "native_v2": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 85.75569944502786,
+      "sampled_peak_summed_rss_kib": 1346632,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "native_svd": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 79.19276432320476,
+      "sampled_peak_summed_rss_kib": 1227204,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    }
+  },
+  "limitations": [
+    "No native bits or exact representation agreement claimed.",
+    "Existing divide-by-zero intermediate warning in Lawson remains; successful original controls retained.",
+    "Only bounded CPU scopes qualified; other host NumPy/SciPy minimax operations remain.",
+    "Original chebfun-c minimax clause15, Chebtech1 cube and quasimatrix cube CI gaps are separate."
+  ],
+  "failed_attempts": [
+    "Baseline original test: preserved UnsupportedCFBranch failure.",
+    "First JAX candidate leaked JAX arrays into host list-indexing code; fixed only conversion at existing host boundary; candidate_v1_failed.py retained.",
+    "First native capture reached normal solve but failed JSON serialization of complex status; full corrected native capture retained.",
+    "First adjacent collection selected nonexistent test name; exit4 retained.",
+    "New supplementary component-relative tiny nullspace criteria were unsupported by normwise SVD guarantees and failed3cases; tests/preimage retained. Replaced only those new controls with explicit32*max(matrix.shape)*eps normwise reconstruction/orthogonality and analytic uniformly-scaled singular-value budgets. No original predicate changed.",
+    "Combined adjacent process reached3GiB and was censored while native11 ran; all intended adjacent tests completed in fresh bounded processes."
+  ],
+  "guard_reconstruction_supplement": {
+    "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/minimax_tiny_guard_reconstruction_supplement_20261017.tar.gz",
+    "sha256": "c1d65ca287afa8899dbe759b482ac2cfe65840f6c7daa30e14c5da249b3f610c",
+    "verified_payloads": 6062,
+    "guard_edges": 36751,
+    "scope": "Exact guarded inputs and failed preimages reconstructed; historical sys.modules unavailable, retrospective runtime path hashes are post-run only."
+  },
+  "root_combined_check": "Originaltiny +4primitivecontrols pass22.919s, stable/no survivors, archived with C1source evidence; repeated subset of19."
+}

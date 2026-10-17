@@ -1,0 +1,81 @@
+{
+  "base": "fc44a7d4b5f1cdbfa2236b939ba1d3dd3fd6b14d",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "records": {
+    "baseline": {
+      "testcases": 8,
+      "failed": 1,
+      "pytest_seconds": 14.966,
+      "supervisor_seconds": 21.504911138210446,
+      "peak_kib": 1032860,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "runtime_files_archived": 1377
+    },
+    "candidate": {
+      "testcases": 8,
+      "failed": 0,
+      "pytest_seconds": 13.115,
+      "supervisor_seconds": 17.732463432941586,
+      "peak_kib": 1024844,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "runtime_files_archived": 1377
+    },
+    "controls": {
+      "testcases": 31,
+      "failed": 0,
+      "pytest_seconds": 28.145,
+      "supervisor_seconds": 33.405539045110345,
+      "peak_kib": 1538596,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "runtime_files_archived": 1382
+    },
+    "combined": {
+      "testcases": 5,
+      "failed": 0,
+      "pytest_seconds": 22.919,
+      "supervisor_seconds": 28.15858265105635,
+      "peak_kib": 1703784,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "runtime_files_archived": 1400
+    },
+    "native15": {
+      "testcases": 1,
+      "failed": 1,
+      "pytest_seconds": 13.016,
+      "supervisor_seconds": 17.75795785104856,
+      "peak_kib": 1087612,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "runtime_files_archived": 1389
+    }
+  },
+  "C1_distinct_passes": 41,
+  "breakdown": "8 unchanged analytic power +6 new no-point-sampling analytic controls +3 unchanged sampling contract controls +22 unchanged mapped composition checks. Mapped checks do not certify all native preference/RNG/diagnostic variants.",
+  "combined_minimax_passes": 5,
+  "combined_overlap": "These5 are subsets of agent19 minimax checks; not additional distinct tests.",
+  "unresolved": "Original minimax native15 still fails unchanged 1.0547118733938987e-15 versus1e-15; no whole-goal/CI claim.",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech1_compose_source_cpu_20261017.tar.gz",
+  "archive_sha256": "ece69ff3c057769e36ddff05a134589f92a4611f4a379c77e942a99d0270fe92",
+  "verified_payloads": 4994,
+  "change": "Chebtech1 composition now uses native composeResample1/2 coefficient prolongation and coeffs2vals sampling, replacing pointwise Clenshaw at grid nodes. Source sampling schedule, original operands, bounds and adaptive happiness remain unchanged.",
+  "scope_limits": [
+    "Only Chebtech1 compose sampling changed, not the Clenshaw primitive, source chopping thresholds or power degree.",
+    "No native bit, complete original preference/diagnostic coverage, full page, performance or CI claim.",
+    "All guarded inputs stable before/after; imported runtime files were hashed after import and retained as immutable blobs. No retroactive pre-import guard claim."
+  ],
+  "complex_supplement": {
+    "passed": 2,
+    "deselected_unchanged_C2": 2,
+    "scope": "Existing independent principal-sqrt branch controls, both signs, include exact endpoint and near-endpoint physical samples. Supplemental100eps bound unchanged.",
+    "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech1_compose_complex_cpu_20261017.tar.gz",
+    "sha256": "72da1f1a068eab9f867fdb6c2f8733283825362f7d156e21e8960fbe353f8515",
+    "verified_payloads": 14,
+    "peak_kib": 900640,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  }
+}

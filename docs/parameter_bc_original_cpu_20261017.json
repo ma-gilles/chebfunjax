@@ -1,0 +1,69 @@
+{
+  "status": "Four original parameter-in-BC predicates restored and pass at source bound",
+  "base_commit": "fc44a7d4b5f1cdbfa2236b939ba1d3dd3fd6b14d",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "mapped_test": "tests/test_matlab_port/chebop/test_paramODE_inBCs_matlab.py",
+  "original_predicates": 4,
+  "source_tolerance": "10*ChebopPref().bvpTol =5e-12",
+  "actual_errors": [
+    2.3567849548479343e-12,
+    2.5015514823391938e-15,
+    2.5015514823391938e-15,
+    1.8475207583664887e-15
+  ],
+  "actual_parameter_types": [
+    "float",
+    "float",
+    "float",
+    "float"
+  ],
+  "original_source_contract": [
+    "Case1 exact second-order natural parameter equation on[0,1], original3BC callback, residual2-norm plus numeric BC2-norm.",
+    "Cases2/3/4 exact natural first-order parameter problems and endpoint data; norm(u-chebfun([0;2])) plus norm(p-2/1). The reference line is constructed from the literal two sampled data values, not a callable or solver override.",
+    "All solves use omitted adaptive solver settings; no fixed n/tolerance/discretization or artificial parameter derivative."
+  ],
+  "legacy_companion": {
+    "path": "tests/test_matlab_port/chebop/test_paramODE_inBCs_legacy_controls.py",
+    "sha256": "3bc7df137492f1af6cfd4a87b55d25a892fa73cc7387048db8a38d16ab3a91b5",
+    "byte_identical_to_base_mapped_file": true,
+    "scope": "Four inherited fixedn24/1e-9 supplemental controls retained; not rerun or counted as the4original predicates."
+  },
+  "library_changes": false,
+  "qualified_run": {
+    "predicates_passed": 4,
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 25.535960217006505,
+    "sampled_peak_summed_rss_kib": 1447888,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "guarded_inputs": 7860,
+    "imported_files": 1420,
+    "uncovered_imports": [],
+    "changed_imports": {}
+  },
+  "initial_run_scope": "All4scientific predicates passed with identical errors. One standard-library JUnit encoding file was outside the initial input inventory. That run and its incomplete import inventory are preserved; final run closes it with preguarded encodings, no source/predicate/bound changes.",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_bc_original_20261017/src/chebfunjax/__init__.py",
+    "backend": "cpu",
+    "x64": true,
+    "affinity": [
+      32,
+      33,
+      34,
+      35
+    ]
+  },
+  "artifact_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_bc_original_run_v2_20261017",
+  "evidence_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_bc_original_run_v2_20261017/EVIDENCE.json",
+  "scope_limits": [
+    "Only4neworiginal predicates qualified; no wholelibrary/page/native bits/performance claim.",
+    "Pytest reporting/import warnings and CPU-plugin warning remain raw in captured stdout/stderr.",
+    "No production code edits, commit or push."
+  ]
+}

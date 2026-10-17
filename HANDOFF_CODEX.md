@@ -1,3 +1,28 @@
+## Composition sampling, tiny minimax and original parameter BC tests — 2026-10-17
+
+Chebtech1 composition now follows native coefficient prolongation/coeffs2vals
+sampling rather than Clenshaw at grid nodes.41 focused checks pass, including
+all8 unchanged dyadic power controls (prior scalar cube length117 versus97),
+6new analytic sampling controls,3sampling contracts,22mapped checks and
+2existing complex endpoint branch controls.
+Original tests, adaptive happiness and tolerances are unchanged.
+
+AAA/Lawson's three economy SVD calls now use JAX QR SVD, avoiding erased tiny
+weights that caused the original tiny-amplitude minimax test to fail.19 distinct
+focused checks pass; combined5 are repeated subsets. Native tiny solves succeed,
+but native singular-vector bits differ; full minimax/JAX-only parity stays open.
+
+Four original parameter-in-BC predicates now pass their source5e-12 bound with
+default adaptive solves and natural numeric parameters. Old fixed-grid controls
+are retained as a byte-identical supplemental companion. Evidence:
+docs/chebtech1_compose_source_cpu_20261017.json,
+docs/minimax_tiny_source_svd_cpu_20261017.json,
+docs/parameter_bc_original_cpu_20261017.json.
+
+Minimax native15 still fails1.054711873e-15 versus1e-15; quasimatrix cube and
+other known correctness/pages/figures/performance/latest-main CI remain open.
+Full goal incomplete. Failed baselines and bounded-run evidence are preserved.
+
 ## Original parameter ODEs and scalar source routing — 2026-10-17
 
 Natural mixed linear ODEs now retain genuine numeric scalar columns, native AD
