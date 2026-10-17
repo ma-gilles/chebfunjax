@@ -1,3 +1,31 @@
+## Original Tech composition predicates and current checklist — 2026-10-17
+
+All 44 literal tests/chebtech/test_compose.m predicates pass across C1,
+C2 nested, C2 resampling and resampling+extrapolate. Preserve native row-sum
+matrix norms, retained h/vscale, sampled-data construction, unpadded shapes,
+default-pref reset in clauses7–11 and exact arrval error identifier.
+Six genuine one-column controls fail before and pass after the source fix.
+The former22 adapted controls are preserved byte-identically as a supplemental
+legacy file, not counted among the44. Full pref/data/custom-refiner and
+cross-technology APIs remain unqualified. Public nonperiodic preference
+forwarding and missing Bndfun.compose are separate open work.
+
+Source changes add C2 resampling selection and interpret actual column counts
+for same-kind g(f), without changing public evaluation conventions. Eight
+existing minimax/power/endpoint integration checks pass in50.53s with8054stable
+guarded inputs/all1423runtime imports preguarded and no survivors. Repeated
+checks are not extra unique tests. Full lint/F821/provenance gates pass.
+
+Evidence: docs/chebtech_compose_original44_cpu_20261017.json and
+docs/chebtech_compose_original44_integration_cpu_20261017.json.
+The concise completed/remaining list is docs/parity_status.md. The original13
+issues plus8subitems are reconciled in
+docs/handoff_issue_reconciliation_cpu_20261017.md; old descriptions of inverse,
+Hermite, complex ratinterp, randnfun and spin2 are partly stale, but scoped fixes
+do not close the actual examples. Next: small explicit Hermite ASY and matched
+actual-example inverse qualification. Full parity and latest green CI remain
+unresolved.
+
 ## CI deadline repartition — 2026-10-17
 
 Historical Core6 exceeded90minutes during its9th12-unit child batch;93% was

@@ -1,41 +1,11 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_compose.m (Opus 4.8; marker
-audit Fable 5).
+"""All44 literal predicates from native tests/chebtech/test_compose.m.
 
-Self-validating: each composition is checked against the analytic composite
-at the SAME tolerance MATLAB uses (multiples of vscale(h)*eps).  The MATLAB
-file loops ``for n = 1:4``: n=1 is chebtech1(); n=2,3,4 are all chebtech2()
-with only preference variants (n=3 sets ``refinementFunction='resampling'``,
-n=4 sets ``extrapolate=true``).  chebfunjax has no such refinement/extrapolate
-preferences, so n=3 and n=4 collapse into the single Chebtech2 parametrization
-(their assertions are otherwise identical to n=2).
-
-``compose`` now exists on BOTH tech classes in chebfunjax, so every method
-is exercised on Chebtech1 and Chebtech2 (MATLAB's ``for n = 1:2`` loop).
-MATLAB mapping:
-- ``compose(f, @sin)``          -> ``f.compose(jnp.sin)``          (op(f(x)))
-- ``compose(f1, @plus, f2)``    -> ``f1.compose(op, f2)``          (op(f(x), g(x)))
-- ``compose(f, g)`` (g a tech)  -> ``f.compose(g)``               (g(f(x)))
-
-Every MATLAB assertion (pass 1-11) is ported on BOTH tech kinds; there are no
-gaps:
-
-- Array-valued composition (pass 2, 3, 4, 6, 8, 9) is supported: Chebtech
-  coefficients may be an (n, m) matrix (one function per column), and
-  ``compose`` acts column-wise.
-- pass 11: binary compose of an array-valued f with a scalar-valued g now
-  broadcasts, matching modern MATLAB (>= R2016b) semantics, i.e. the
-  non-error branch of the MATLAB test.
-- pass 10: composing two array-valued techs as g(f) is genuinely unsupported
-  and raises.  chebfunjax has no MATLAB error identifiers
-  (``CHEBFUN:CHEBTECH:compose:arrval``), so the ported test asserts only that
-  an exception is raised.
-
-Provenance
-----------
-MATLAB source : tests/chebtech/test_compose.m
-Chebfun commit: 7574c77
+Four preference rows persist resampling into row4; only clauses1--6 pass
+those preferences. Clauses7--11 omit pref and use default compose settings.
+Clauses3/4 retain h and its vscale from clause2. Numeric matrix infinity
+norms are row-sum norms. Old adapted22 controls remain in the legacy companion.
+Chebfun source7574c77680d7e82b79626300bf255498271a72df.
 """
-
 from __future__ import annotations
 
 import jax.numpy as jnp
@@ -45,153 +15,118 @@ import pytest
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.utils.quadrature import chebpts
 
-EPS = float(np.finfo(np.float64).eps)
-# Dense deterministic test grid (analytic checks hold at any point).
-X = jnp.asarray(np.linspace(-1.0, 1.0, 200))
+EPS = np.finfo(float).eps
 
 
-def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+def _columns(*values):
+    return jnp.column_stack(values)
 
 
-@pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
-class TestChebtechCompose:
-    def test_compose_scalar_sin(self, Tech):
-        # pass(n, 1): compose(f=x, @sin) has the coeffs of sin.
-        f = Tech.from_function(lambda x: x)
-        g = f.compose(jnp.sin)
-        h = Tech.from_function(jnp.sin)
-        n = max(g.n, h.n)
-        gc = np.zeros(n)
-        gc[: g.n] = np.asarray(g.coeffs)
-        hc = np.zeros(n)
-        hc[: h.n] = np.asarray(h.coeffs)
-        assert _ninf(gc - hc) < 10 * h.vscale * EPS
+def _scale(h):
+    return float(jnp.max(h.vscale_columns))
 
-    def test_compose_array_sin_2col(self, Tech):
-        # pass(n, 2): compose([x x], @sin) has the coeffs of [sin sin].
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        f = Tech.from_function(lambda x: jnp.stack([x, x], axis=-1))
-        g = f.compose(jnp.sin)
-        h = Tech.from_function(
-            lambda x: jnp.stack([jnp.sin(x), jnp.sin(x)], axis=-1)
-        )
-        n = max(g.n, h.n)
-        gc = np.zeros((n, g.coeffs.shape[1]))
-        gc[: g.n] = np.asarray(g.coeffs)
-        hc = np.zeros((n, h.coeffs.shape[1]))
-        hc[: h.n] = np.asarray(h.coeffs)
-        # MATLAB: 10*max(vscale(h)*eps) with vscale(h) the scalar global max.
-        assert _ninf(gc - hc) < 10 * h.vscale * EPS
 
-    def test_compose_array_sin_x_x2(self, Tech):
-        # pass(n, 3): compose([x x^2], @sin) == sin([x x^2]) at the grid.
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
-        g = f.compose(jnp.sin)
-        # chebfunjax has no g.points(); the Chebtech2 grid is chebpts(g.n, 2).
-        xc = chebpts(g.n, 2)
-        values = Chebtech2.coeffs2vals(g.coeffs)
-        ref = jnp.stack([jnp.sin(xc), jnp.sin(xc**2)], axis=-1)
-        assert _ninf(ref - values) < 1e2 * g.vscale * EPS
+@pytest.fixture(scope='module', params=[1, 2, 3, 4], ids=lambda n: f'native_row{n}')
+def source_row(request):
+    row = request.param
+    Tech = Chebtech1 if row == 1 else Chebtech2
+    kind = 1 if row == 1 else 2
+    prefs = {} if row < 3 else {'refinement_function': 'resampling'}
+    if row == 4:
+        prefs['extrapolate'] = True
+    out = {}
 
-    def test_compose_array_sin_3col(self, Tech):
-        # pass(n, 4): compose([x x x^2], @sin) == sin([x x x^2]) at the grid.
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        f = Tech.from_function(lambda x: jnp.stack([x, x, x**2], axis=-1))
-        g = f.compose(jnp.sin)
-        xc = chebpts(g.n, 2)
-        values = Chebtech2.coeffs2vals(g.coeffs)
-        ref = jnp.stack([jnp.sin(xc), jnp.sin(xc), jnp.sin(xc**2)], axis=-1)
-        assert _ninf(ref - values) < 1e2 * g.vscale * EPS
+    def compare(clause, actual, expected, bound):
+        out[clause] = dict(actual=actual, expected=expected, bound=bound)
 
-    def test_compose_binary_plus(self, Tech):
-        # pass(n, 5): compose(sin, @plus, cos) == sin + cos.
-        f1 = Tech.from_function(jnp.sin)
-        f2 = Tech.from_function(jnp.cos)
-        g = f1.compose(lambda a, b: a + b, f2)
-        ref = jnp.sin(X) + jnp.cos(X)
-        vs = float(jnp.max(jnp.abs(ref)))
-        assert _ninf(g(X) - ref) < 10 * vs * EPS
+    f = Tech.from_function(lambda x: x)
+    g = f.compose(jnp.sin, **prefs)
+    h = Tech.from_function(jnp.sin)
+    compare(1, h.coeffs, g.coeffs, 10 * _scale(h) * EPS)
 
-    def test_compose_binary_times_array(self, Tech):
-        # pass(n, 6): compose([sin cos], @times, [cos exp]) == [sin*cos cos*exp].
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        f1 = Tech.from_function(
-            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
-        )
-        f2 = Tech.from_function(
-            lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1)
-        )
-        g = f1.compose(lambda a, b: a * b, f2)
-        h = Tech.from_function(
-            lambda x: jnp.stack(
-                [jnp.sin(x) * jnp.cos(x), jnp.cos(x) * jnp.exp(x)], axis=-1
-            )
-        )
-        hvalues = Chebtech2.coeffs2vals(h.coeffs)
-        gvalues = Chebtech2.coeffs2vals(g.coeffs)
-        # MATLAB: 10*max(10*vscale(h)*eps) == 100*vscale(h)*eps.
-        assert _ninf(hvalues - gvalues) < 100 * h.vscale * EPS
+    f = Tech.from_function(lambda x: _columns(x, x))
+    g = f.compose(jnp.sin, **prefs)
+    h = Tech.from_function(lambda x: _columns(jnp.sin(x), jnp.sin(x)))
+    compare(2, h.coeffs, g.coeffs, 10 * _scale(h) * EPS)
+    retained_h = h
 
-    def test_compose_gof_scalar(self, Tech):
-        # pass(n, 7): compose(f=x^2, g=sin) == sin(x^2).
-        f = Tech.from_function(lambda x: x**2)
-        g = Tech.from_function(jnp.sin)
-        h = f.compose(g)
-        ref = jnp.sin(X**2)
-        vs = float(jnp.max(jnp.abs(ref)))
-        assert _ninf(h(X) - ref) < 10 * vs * EPS
+    f = Tech.from_function(lambda x: _columns(x, x**2))
+    g = f.compose(jnp.sin, **prefs)
+    x = chebpts(g.n, kind)
+    compare(3, jnp.sin(_columns(x, x**2)), g.coeffs2vals(g.coeffs),
+            1e2 * _scale(retained_h) * EPS)
 
-    def test_compose_gof_array_g(self, Tech):
-        # pass(n, 8): compose(f=x^2, g=[sin cos]) == [sin(x^2) cos(x^2)].
-        # FIXED (Fable 5, Big-Three array-valued epic): array-valued g.
-        f = Tech.from_function(lambda x: x**2)
-        g = Tech.from_function(
-            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
-        )
-        h = f.compose(g)
-        xc = chebpts(h.n, 2)
-        hvalues = Chebtech2.coeffs2vals(h.coeffs)
-        ref = jnp.stack([jnp.sin(xc**2), jnp.cos(xc**2)], axis=-1)
-        assert _ninf(hvalues - ref) < 10 * h.vscale * EPS
+    f = Tech.from_function(lambda x: _columns(x, x, x**2))
+    g = f.compose(jnp.sin, **prefs)
+    x = chebpts(g.n, kind)
+    compare(4, jnp.sin(_columns(x, x, x**2)), g.coeffs2vals(g.coeffs),
+            1e2 * _scale(retained_h) * EPS)
 
-    def test_compose_gof_array_f(self, Tech):
-        # pass(n, 9): compose(f=[x x^2], g=sin) == [sin(x) sin(x^2)].
-        # FIXED (Fable 5, Big-Three array-valued epic): array-valued f.
-        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
-        g = Tech.from_function(jnp.sin)
-        h = f.compose(g)
-        xc = chebpts(h.n, 2)
-        hvalues = Chebtech2.coeffs2vals(h.coeffs)
-        ref = jnp.stack([jnp.sin(xc), jnp.sin(xc**2)], axis=-1)
-        assert _ninf(hvalues - ref) < 10 * h.vscale * EPS
+    f1, f2 = Tech.from_function(jnp.sin), Tech.from_function(jnp.cos)
+    g = f1.compose(jnp.add, f2, **prefs)
+    x = chebpts(g.n, kind)
+    h = Tech.from_values(jnp.sin(x) + jnp.cos(x))
+    compare(5, h.coeffs2vals(h.coeffs), g.coeffs2vals(g.coeffs), 10 * _scale(h) * EPS)
 
-    def test_compose_arrval_error(self, Tech):
-        # pass(n, 10): compose two array-valued techs f(g) is unsupported.
-        # FIXED (Fable 5, Big-Three array-valued epic): array-valued techs now
-        # exist, and composing two of them as g(f) is genuinely unsupported --
-        # it raises. chebfunjax has no MATLAB 'CHEBFUN:CHEBTECH:compose:arrval'
-        # error identifier, so we assert only that it raises.
-        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
-        g = Tech.from_function(
-            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
-        )
-        with pytest.raises(Exception):
-            f.compose(g)
+    f1 = Tech.from_function(lambda x: _columns(jnp.sin(x), jnp.cos(x)))
+    f2 = Tech.from_function(lambda x: _columns(jnp.cos(x), jnp.exp(x)))
+    g = f1.compose(jnp.multiply, f2, **prefs)
+    h = Tech.from_function(lambda x: _columns(jnp.sin(x)*jnp.cos(x), jnp.cos(x)*jnp.exp(x)))
+    compare(6, h.coeffs2vals(h.coeffs), g.coeffs2vals(g.coeffs),
+            10 * float(jnp.max(10 * h.vscale_columns * EPS)))
 
-    def test_compose_dim_error(self, Tech):
-        # pass(n, 11): compose(f=[x x^2], @plus, g=sin).
-        # FIXED (Fable 5, Big-Three array-valued epic): binary compose
-        # now broadcasts a scalar-valued operand against an array-valued
-        # one (modern MATLAB >= R2016b semantics -- the test's non-error
-        # branch).
-        f = Tech.from_function(
-            lambda x: jnp.stack([x, x ** 2], axis=-1))
-        g = Tech.from_function(lambda x: jnp.sin(x))
-        h = f.compose(lambda a, b: a + b, g)
-        xs = jnp.asarray(np.linspace(-1.0, 1.0, 30))
-        exact = jnp.stack(
-            [xs + jnp.sin(xs), xs ** 2 + jnp.sin(xs)], axis=-1)
-        assert float(jnp.max(jnp.abs(h(xs) - exact))) \
-            < 10 * h.vscale * EPS
+    # Native omits PREF for all remaining calls, regardless of outer row.
+    f, g = Tech.from_function(lambda x: x**2), Tech.from_function(jnp.sin)
+    h = f.compose(g)
+    x = chebpts(h.n, kind)
+    compare(7, h.coeffs2vals(h.coeffs), jnp.sin(x**2), 10 * _scale(h) * EPS)
+
+    f = Tech.from_function(lambda x: x**2)
+    g = Tech.from_function(lambda x: _columns(jnp.sin(x), jnp.cos(x)))
+    h = f.compose(g)
+    x = chebpts(h.n, kind)
+    compare(8, h.coeffs2vals(h.coeffs), _columns(jnp.sin(x**2), jnp.cos(x**2)),
+            10 * _scale(h) * EPS)
+
+    f = Tech.from_function(lambda x: _columns(x, x**2))
+    g = Tech.from_function(jnp.sin)
+    h = f.compose(g)
+    x = chebpts(h.n, kind)
+    compare(9, h.coeffs2vals(h.coeffs), _columns(jnp.sin(x), jnp.sin(x**2)),
+            10 * _scale(h) * EPS)
+
+    f = Tech.from_function(lambda x: _columns(x, x**2))
+    g = Tech.from_function(lambda x: _columns(jnp.sin(x), jnp.cos(x)))
+    try:
+        f.compose(g)
+        out[10] = dict(identifier=None)
+    except Exception as error:
+        out[10] = dict(identifier=getattr(error, 'identifier', None), exception=repr(error))
+
+    f = Tech.from_function(lambda x: _columns(x, x**2))
+    g = Tech.from_function(jnp.sin)
+    try:
+        f.compose(jnp.add, g)
+        out[11] = dict(completed=True)
+    except Exception as error:
+        out[11] = dict(completed=False, exception=repr(error))
+    return out
+
+
+@pytest.mark.parametrize('clause', range(1, 12), ids=lambda n: f'clause{n:02d}')
+def test_matlab_clause(source_row, clause, record_property):
+    result = source_row[clause]
+    if clause == 10:
+        record_property('source_identifier', str(result['identifier']))
+        assert result['identifier'] == 'CHEBFUN:CHEBTECH:compose:arrval'
+    elif clause == 11:
+        assert result['completed'], result
+    else:
+        actual, expected = np.asarray(result['actual']), np.asarray(result['expected'])
+        record_property('actual_shape', str(actual.shape))
+        record_property('expected_shape', str(expected.shape))
+        assert actual.shape == expected.shape
+        error = float(np.linalg.norm(actual - expected, ord=np.inf))
+        record_property('source_error', error)
+        record_property('source_bound', result['bound'])
+        assert error < result['bound']

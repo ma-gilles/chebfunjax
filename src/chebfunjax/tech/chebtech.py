@@ -2367,6 +2367,18 @@ class _TechOperationError(ValueError):
         self.identifier = identifier
 
 
+def _compose_column_count(tech):
+    """Native size(f,2), with Python rank-one scalar coefficient storage."""
+    return tech.coeffs.shape[1] if tech.coeffs.ndim == 2 else 1
+
+
+def _compose_scalar_column(tech, values):
+    """One column is scalar in native g(f), regardless of storage rank."""
+    if tech.coeffs.ndim == 2 and _compose_column_count(tech) == 1:
+        return values[..., 0]
+    return values
+
+
 def _numeric_array(value):
     """Convert Python numeric literals as MATLAB doubles, preserving typed arrays."""
     try:
@@ -3465,6 +3477,7 @@ class Chebtech2(eqx.Module):
         maxpow2: int = 16,
         extrapolate: bool = False,
         tol: float | None = None,
+        refinement_function: str = "nested",
     ) -> "Chebtech2":
         """Compose an operator with this Chebtech2.
 
@@ -3488,6 +3501,10 @@ class Chebtech2(eqx.Module):
         extrapolate : bool, default False
             Apply MATLAB's extrapolation policy while populating samples.
             The default preserves the existing compose behavior.
+
+        refinement_function : {"nested", "resampling"}, optional
+            Native coefficient-grid nested insertion or full-grid resampling.
+            User-defined refinement callbacks are not exposed by this adapter.
 
         Returns
         -------
@@ -3521,6 +3538,9 @@ class Chebtech2(eqx.Module):
         --------
         from_function, restrict
         """
+        if refinement_function not in ("nested", "resampling"):
+            raise ValueError("compose refinement_function must be nested or resampling")
+
         def grid_values(tech, n, rows):
             # @chebtech2/compose.m prolongs each operand and transforms its
             # coefficients before selecting new nested-grid samples.
@@ -3528,18 +3548,18 @@ class Chebtech2(eqx.Module):
 
         if isinstance(op, Chebtech2):
             # Compose two Chebtech2 objects: op(self(x))
-            if self.coeffs.ndim == 2 and op.coeffs.ndim == 2:
-                # MATLAB @chebtech/compose.m: composing two array-valued
-                # techs g(f) is unsupported ('CHEBTECH:compose:arrval').
-                # Previously this failed incidentally inside the traced
-                # evaluation; the numpy eval path broadcasts instead, so
-                # enforce the contract explicitly.
-                raise ValueError(
-                    "Chebtech2.compose: cannot compose two array-valued "
-                    "techs g(f) (MATLAB CHEBTECH:compose:arrval).")
+            if (_compose_column_count(self) > 1
+                    and _compose_column_count(op) > 1):
+                raise _TechOperationError(
+                    "CHEBFUN:CHEBTECH:compose:arrval",
+                    "Cannot compose two array-valued CHEBTECH objects.")
             op_cheb = op
-            composed_func = lambda x: op_cheb(self(x))  # noqa: E731
-            sample_n = lambda n, rows: op_cheb(grid_values(self, n, rows))  # noqa: E731
+
+            def apply_outer(values):
+                values = _compose_scalar_column(self, values)
+                return _compose_scalar_column(op_cheb, op_cheb(values))
+            composed_func = lambda x: apply_outer(self(x))  # noqa: E731
+            sample_n = lambda n, rows: apply_outer(grid_values(self, n, rows))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
         elif g is not None:
             # Binary operator: op(self(x), g(x)).  A scalar-valued
@@ -3566,13 +3586,15 @@ class Chebtech2(eqx.Module):
 
         def refine_values(_function, values, pref):
             initial = values is None or values.shape[0] == 0
-            n = (2 ** math.ceil(math.log2(pref["minSamples"] - 1)) + 1
-                 if initial else 2 * values.shape[0] - 1)
+            n = (_initial_resampling_n(pref["minSamples"]) if initial
+                 else _next_resampling_n(values.shape[0])
+                 if refinement_function == "resampling"
+                 else 2 * values.shape[0] - 1)
             if n > pref["maxLength"]:
                 if not initial:
                     return values, True
                 n = pref["maxLength"]
-            if initial:
+            if initial or refinement_function == "resampling":
                 if pref["extrapolate"]:
                     interior = sample_n(n, slice(1, -1))
                     nans = jnp.full((1,) + interior.shape[1:], jnp.nan,
@@ -6297,9 +6319,18 @@ class Chebtech1(eqx.Module):
             return tech.coeffs2vals(_prolong_coeffs(tech.coeffs, n))
 
         if isinstance(op, Chebtech1):
+            if (_compose_column_count(self) > 1
+                    and _compose_column_count(op) > 1):
+                raise _TechOperationError(
+                    "CHEBFUN:CHEBTECH:compose:arrval",
+                    "Cannot compose two array-valued CHEBTECH objects.")
             op_cheb = op
-            composed_func = lambda x: op_cheb(self(x))  # noqa: E731
-            sample_n = lambda n: op_cheb(grid_values(self, n))  # noqa: E731
+
+            def apply_outer(values):
+                values = _compose_scalar_column(self, values)
+                return _compose_scalar_column(op_cheb, op_cheb(values))
+            composed_func = lambda x: apply_outer(self(x))  # noqa: E731
+            sample_n = lambda n: apply_outer(grid_values(self, n))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
         elif g is not None:
             f_cols = self.coeffs.ndim == 2

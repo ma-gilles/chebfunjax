@@ -1,0 +1,75 @@
+{
+  "base": "78f2aab1ec568d6d6dac0c6456755472824a0174",
+  "scope": "Integration repeat of8 existing minimax/power/endpoint predicates with original44 compose source changes; not8 additional unique tests.",
+  "cases": [
+    {
+      "classname": "tests.test_utils.test_minimax.TestMinimaxRational",
+      "name": "test_scale_invariance_tiny_amplitude",
+      "time": "21.716"
+    },
+    {
+      "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+      "name": "test_matlab_clause[native_14]",
+      "time": "5.517"
+    },
+    {
+      "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+      "name": "test_matlab_clause[native_15]",
+      "time": "2.523"
+    },
+    {
+      "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+      "name": "test_matlab_clause[native_20]",
+      "time": "0.324"
+    },
+    {
+      "classname": "tests.test_chebfun1d.test_quasimatrix_power_source.TestQuasimatrixPowerSourceCases",
+      "name": "test_source_pass12_quasimatrix_cube",
+      "time": "6.071"
+    },
+    {
+      "classname": "tests.test_tech.test_integer_power_source_coefficients",
+      "name": "test_nonvanishing_dyadic_chebyshev_power[False-3-Chebtech1]",
+      "time": "3.728"
+    },
+    {
+      "classname": "tests.test_tech.test_power_near_endpoint_branch_controls",
+      "name": "test_one_sided_endpoint_principal_sqrt[1.0-Chebtech2]",
+      "time": "10.326"
+    },
+    {
+      "classname": "tests.test_tech.test_power_near_endpoint_branch_controls",
+      "name": "test_one_sided_endpoint_principal_sqrt[-1.0-Chebtech2]",
+      "time": "0.042"
+    }
+  ],
+  "guarded_inputs": 8054,
+  "runtime_imports": 1423,
+  "runtime_imports_all_preguarded": true,
+  "receipt": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 60.513474707026035,
+    "sampled_peak_summed_rss_kib": 2924420,
+    "remaining_owned_pids": [],
+    "inputs_stable": true,
+    "error": null,
+    "write_errors": [],
+    "guard_file_sha256": "7b381c25bbdc841fc9d20d7a4d7aaef5c0279be1ac929975d1c730a0815365d5",
+    "resource_scope": "Sampled sum of live owned process RSS; shared pages double counted; not true peak or PSS. rusage maxrss is a waited-child highwater, not simultaneous tree total."
+  },
+  "source_bridge": {
+    "src/chebfunjax/tech/chebtech.py": "0392c75000a6f452566b727e1ee139b200752a6dbb56625e84e2c09ef6b5412b",
+    "tests/test_matlab_port/chebtech/test_compose_matlab.py": "2616747ed4b17db5b4a8df488c4804237498c73a9c51c43d4e2c49b48d44b4b4",
+    "tests/test_matlab_port/chebtech/test_compose_legacy_controls.py": "80bd1bef95d35131e1b6155e43bc219013f59b80e922cf02a0ced3a6dc8a4624",
+    "tests/test_tech_compose_scalar_columns.py": "60458d4355922549511335e3e76a9863b40528fad1090023bd910843c929e3e7",
+    "docs/chebtech_compose_original44_cpu_20261017.json": "33810c95201489f87cda391e1e0ef9dbfe8436e4dd1ae1b2b896f0ed55314237"
+  },
+  "component_parent_review": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose44_parent_review_20261017.json",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/compose44_integration_cpu_20261017.zip",
+  "archive_sha256": "1d04352b98a2f6133d0db94e59538c2268bd4d0633ffba95b26578db61d8a73a",
+  "verified_payloads": 7949,
+  "full_receipt_in_archive": "supervision/receipt.json",
+  "full_receipt_sha256": "d602581ac1ec3bbdccac16a1ab55a0e1f49e1a5f090b2c31b90adb120449c779"
+}

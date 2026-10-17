@@ -1,0 +1,55 @@
+# MATLAB Chebfun parity checklist
+
+Updated 2026-10-17. **Active and incomplete; CPU only.** Reference:
+`7574c77680d7e82b79626300bf255498271a72df`. Checked entries certify only the
+scope stated. There is no verified overall completion percentage or current
+remaining-page count.
+
+## Completed, scoped work
+
+- [x] Pinned JAX/JAXlib 0.11.0 CPU/x64 environment and direct-main publication.
+- [x] C1/C2 source coefficient-grid composition; all 44 original Tech compose
+  predicates and six one-column controls now pass. The former 22 adapted
+  controls remain supplemental. See [composition evidence](chebtech_compose_original44_cpu_20261017.json).
+- [x] Minimax QR SVD and native exchange-error reporting; eight combined
+  minimax/power/endpoint regression checks pass with the composition changes.
+  See [integration evidence](chebtech_compose_original44_integration_cpu_20261017.json).
+- [x] Scoped mixed linear-system, source AD, parameter boundary-condition,
+  derivative-order, roots, Airy, public Trigtech and Spherefun corrections.
+  These are not whole-module completion claims; see HANDOFF_CODEX.md.
+- [x] Original mapped PDE technology-session predicate passes unchanged;
+  this differs from the still-failing authored fixed-48 advection control.
+- [x] Cached structure for 322 pages, 2,408 code blocks and 1,305 figure slots
+  aligned. This does not qualify computations, printed output or image pixels.
+- [x] All 13 original handoff issues and eight smaller subitems reconciled
+  against source/evidence: [issue-by-issue list](handoff_issue_reconciliation_cpu_20261017.md).
+- [x] CI timeout repartition preserves test membership and existing gates;
+  actual latest-head runtime and success remain unverified.
+
+## Correctness and original test parity
+
+- [ ] Every original function and test predicate; remaining omissions, adapted
+  assertions, skips, strict xfails and host NumPy/SciPy numerical routes.
+- [ ] Public nonperiodic composition preference forwarding and missing
+  Bndfun.compose API; full Tech preference/custom-refiner support.
+- [ ] Authored fixed-48 advection control and chemical PDE accuracy.
+- [ ] Small explicit Hermite ASY, nonlinear parameter/backend cases,
+  interpolation norms/grids, remaining Subsref clauses and Chebfun3T predicate.
+- [ ] Strict composition/division representations, general rational poles,
+  conformal inverse counts, IVP representation, QR/LU/QZ and other API gaps.
+- [ ] Native normal RNG values and production integration/draw ordering.
+
+## Pages, figures and speed
+
+- [ ] All 322 actual computations and printed outputs; all 12 handoff scripts
+  on the final affected source. Historical 295/322 and 27-page counts are stale.
+- [ ] Current complete Tricky/Krylov qualification; DDE meshes/output/clipping.
+- [ ] Every figure's data, RNG, cameras, axes, markers, fonts and raster at
+  reference sizes; final regeneration and full audits.
+- [ ] Matched native CPU inverse, Hermite, QR/LU, BVP, Bartels-Stewart and
+  roots performance. Historical speed improvements are scoped observations.
+- [ ] Green latest-main CI with coverage at least 79%, final JAX-only,
+  provenance/lint checks and requirement-by-requirement acceptance audit.
+
+Do not mark the goal complete while any required test, page, figure,
+correctness, performance or CI requirement is unresolved.

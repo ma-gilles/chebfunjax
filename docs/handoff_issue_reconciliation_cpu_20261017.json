@@ -1,0 +1,621 @@
+{
+  "base_commit": "b16ad79596449a1dfe56704f8656e41766b0f301",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Read-only source/evidence reconciliation, no tests/imports/native/numerical jobs. Historical qualification applies to recorded source versions, not a fresh b16 all-issues gate. Upcoming CI-only changes do not alter library.",
+  "classification": "fixed_scope means only stated source/scientific scope; remaining and untested clauses are not closed",
+  "issues": [
+    {
+      "id": 1,
+      "title": "Inverse",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Pointwise-bisection/default-roots prescription is stale: public default Brent plus selectable roots/Newton/etc. Retained-input ordered Clenshaw changes preserve inverse bytes.",
+      "remaining": "Actual latest inverse remains 9052 coefficients vs earlier native 8706. Current retained-input cold20.302/warm6.892s is descriptive shared-host evidence; earlier public flower warm .607s vs native .640s uses separately constructed representations and is not a latest matched speed gate. Full actual ComplexArcLength/native correctness and performance closure open.",
+      "references": [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "src/chebfunjax/chebfun1d/inverse.py",
+        "docs/clenshaw_instruction_inverse_cpu_20261017.json",
+        "docs/inverse_public_cpu_benchmark_20261013.json"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Hermite quadrature",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "GW-only/O(n^2) claim stale: REC/GLR/ASY/LAG implementations and default dispatch exist. Native original REC42/ASY251 final15 predicates covered by4 passing items; default/ASY 10000/100000 independently qualified.",
+      "remaining": "Explicit ASY n2 and4..20 unsupported; n3 native concatenation failure must remain distinguished. Strict private small-ASY diagnostics have10 failures/38, not ten original MATLAB failures. Fast large-n matched CPU performance and full figure parity remain open.",
+      "references": [
+        "src/chebfunjax/utils/quadrature.py",
+        "src/chebfunjax/utils/hermite_asy.py",
+        "docs/hermite_original_predicates_cpu_20261014.json",
+        "docs/hermite_small_asy_bounds_erratum_20261011.json",
+        "docs/hermite_full_cpu_20261010.json",
+        "HANDOFF_CODEX.md"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Complex ratinterp/poles",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Complex colleague coefficients retained and evaluator no longer discards imaginary input. JAX fitting gate25 retained+4 distinct backend cases; restored23 native clauses in15 focused cases.",
+      "remaining": "General high-degree complex pole/residue matching, arbitrary-node symmetry sorting and near-multiple residue clustering unqualified. No fresh native execution in these gates; actual ThreeBodyProblem closure not established.",
+      "references": [
+        "src/chebfunjax/utils/ratapprox.py",
+        "docs/ratinterp_jax_cpu_20261010.json",
+        "docs/ratinterp_native_predicates_cpu_20261011.json"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Complex periodic numeric Chebfun2",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "O(1) construction failure superseded: four odd/even rectangular complex matrix native cases and four analytic controls pass; dense errors about5e-15.",
+      "remaining": "Supplemental cases do not establish arbitrary matrix/native predicates or full GinzburgLandau evolution/pixel parity.",
+      "references": [
+        "src/chebfunjax/chebfun2d/chebfun2.py",
+        "docs/complex_trig_matrix_native_cpu_20261016.json",
+        "docs/gl_public_spin2_cpu_20261013.json"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Indefinite and piecewise MINRES",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Earlier MINRES source ports and literal source operand restoration supersede stale recurrence diagnosis. Final piecewise block converges11 iterations, physical relative residual4.218264374610285e-12.",
+      "remaining": "Full Krylov page/current native solution and performance comparison remains open. Direct70 comparison83.06s Python vs28.04s native is observational; endpoint physical residual is large in BOTH captures, so solver flag alone is insufficient.",
+      "references": [
+        "docs/krylov_indefinite_native_cpu_20261013.json",
+        "docs/krylov_varcoeff_native_cpu_20261013.json",
+        "docs/krylov_final_source_cpu_20261017.json",
+        "docs/krylov_direct70_comparison_cpu_20261017.json",
+        "docs/krylov_scalar_ad_route_cpu_20261017.json"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Nonlinear Chebop/Carrier",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Finite scalar source Newton backend, session dimension/preference forwarding and iter text exist. Actual three Carrier solves completed; stale strict xfail removed without original predicate edits.",
+      "remaining": "No fresh native all-three coefficient/output/table comparison; coupled/piecewise/display branches are not all covered. Legacy fallback still has refinement-history accumulation: do not declare every normDelta route repaired from scalar evidence.",
+      "references": [
+        "src/chebfunjax/operators/chebop.py",
+        "docs/carrier_xpass_cpu_20261010.json",
+        "docs/carrier_source_output_figures_cpu_20261011.json",
+        "docs/scalar_newton_display_cpu_20261011.json",
+        "docs/newton_dimension_preference_cpu_20261011.json"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Splitting clustered breakpoints",
+      "status": "fixed_scope_untested_examples",
+      "fixed_scope": "Bounded smooth constructorSplit now calls source-shaped _detect_edge_matlab with scales and source merge; stale _split_edge_fd helper has no call sites.",
+      "remaining": "Source controls exist, but exact EdgeDetection/NoisyNonsmooth native breakpoint lists and full pages are not qualified by this audit. Source epsilon stopping alone is not proof of original example closure.",
+      "references": [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "tests/test_chebfun1d/test_detect_edge_bounded_source_controls.py",
+        "tests/test_chebfun1d/test_constructor_split_scheduler_source_controls.py"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Ill-conditioned quasimatrix backslash",
+      "status": "remaining",
+      "fixed_scope": "Native array QR/SVD representations and consumer paths qualified on48 unique focused IDs including original mldivide5/6.",
+      "remaining": "Degree80 VandermondeArnoldi actual-example accuracy/native comparison remains unresolved; degree8/focused QR gates do not close original vscale discrepancy.",
+      "references": [
+        "src/chebfunjax/chebfun1d/linalg.py",
+        "docs/chebtech_qr_reconstruction_cpu_20261010.json",
+        "HANDOFF_CODEX.md"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "IVP one-piece construction",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Literal first IVPCapabilities solve now one smooth piece in both Python and pinned native.",
+      "remaining": "Python length3881 vs native3765 and max sampled difference1.5258692087627423e-9 on5001 sites remain. No native example assertion exists to turn that into a fabricated pass bound. Solver-state/dense-interpolation/chopping and full outputs/figures/performance remain open.",
+      "references": [
+        "docs/ivp_capabilities_first_solve_cpu_20261013.json",
+        "docs/ivp_capabilities_page_cpu_20261013.json"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "ConformalL AAA spurious poles",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Historical cached27/44 counts are not current pinned native46/69. Source-shaped least squares full Python page gives46/67, boundary error5.1268e-7 vs fresh native5.1269765e-7; earlier exact native-input capture matches counts.",
+      "remaining": "Inverse count67 vs69 and pole locations/ill-conditioned arithmetic remain different; no general AAA or full pixel parity closure. Do not fit cleanup to obsolete cached counts.",
+      "references": [
+        "docs/conformal_l_native_cpu_20261013.json",
+        "docs/conformal_l_page_cpu_20261013.json",
+        "src/chebfunjax/utils/_basic_lstsq.py"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "randnfun duplicate implementations",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "Public cj.randnfun, utils.random and chebfun1d.randfuns delegate one _randnfun JAX engine; legacy utils.randnfun intentionally retains periodic .2 defaults. Shared construction/big normalization49-test package qualified.",
+      "remaining": "Native normal RNG identity and historical random-page migration remain open; original aggregate injects primitive draws and does not establish native RNG. Current state agreement alone does not establish equal normal values. Malformed-input/empty-domain scope also remains.",
+      "references": [
+        "src/chebfunjax/__init__.py",
+        "src/chebfunjax/utils/_randnfun.py",
+        "src/chebfunjax/utils/random.py",
+        "src/chebfunjax/utils/randnfun.py",
+        "src/chebfunjax/chebfun1d/randfuns.py",
+        "tests/test_utils/test_randnfun_source_construction.py",
+        "HANDOFF_CODEX.md"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "spin2 public API",
+      "status": "fixed_scope_remaining",
+      "fixed_scope": "operators.spinop2.spin2 returns Chebfun2/Spin2SolutionMatrix with multitime and return_times; GL initialization uses randnfun2. Existing public API used by actual GinzburgLandau run.",
+      "remaining": "Graphics are explicitly unimplemented; inherited numeric constructor has NumPy internals. Late evolution/native RNG/pixel parity unresolved. Separate spin.solver2d array API remains; namespace-specific contracts must be tested separately.",
+      "references": [
+        "src/chebfunjax/operators/spinop2.py",
+        "src/chebfunjax/operators/_spin2_public.py",
+        "src/chebfunjax/spin/solver2d.py",
+        "tests/test_spin/test_spin2_source_outputs.py",
+        "docs/gl_public_spin2_cpu_20261013.json",
+        "docs/gl_evolution_roundoff_cpu_20261013.md"
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Smaller issues",
+      "status": "mixed_remaining_untested",
+      "fixed_scope": "__rpow__ exists; plotregion bounded Chebtech/Trigtech uses source data; complex Chebfun2 phase portrait exists; plotting combines function pieces into one line group.",
+      "remaining": "See all eight subitems below; no blanket closure.",
+      "references": [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "src/chebfunjax/plotting.py",
+        "tests/test_plotregion_source_controls.py",
+        "tests/test_trig_plotregion_source.py",
+        "tests/test_chebfun2_phase_plot_source.py",
+        "tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py"
+      ],
+      "subitems": [
+        {
+          "issue": "Spherefun.max2 even-function antipode",
+          "status": "untested_original_tie",
+          "detail": "max2 delegates minandmax2 optimization. Empty/extrema coverage is not a captured even-function tie-location proof.",
+          "references": [
+            "src/chebfunjax/spherefun/spherefun.py",
+            "docs/sphere_extrema_empty_source_cpu_20261014.json"
+          ]
+        },
+        {
+          "issue": "Ball slices shading/depth",
+          "status": "fixed_scope_remaining",
+          "detail": "Shared triangle depth ordering, Cartesian normals/dull material/headlight ported; Gouraud/mean-depth approximations remain; native camera/Phong/depth-buffer pixels unqualified.",
+          "references": [
+            "src/chebfunjax/plotting.py",
+            "docs/ball_surface_rendering_cpu_20261011.json"
+          ]
+        },
+        {
+          "issue": "plotregion rho",
+          "status": "fixed_scope_remaining",
+          "detail": "Bounded scalar C1/C2 simplified-length radius and trig strips ported; singular/unbounded/array adapters not all source-backed.",
+          "references": [
+            "tests/test_plotregion_source_controls.py",
+            "tests/test_trig_plotregion_source.py"
+          ]
+        },
+        {
+          "issue": "complex ** Chebfun",
+          "status": "source_present_original_requalification_open",
+          "detail": "Chebfun.__rpow__ at3470; do not reimplement. This audit ran no predicate.",
+          "references": [
+            "src/chebfunjax/chebfun1d/chebfun.py"
+          ]
+        },
+        {
+          "issue": "Complex piecewise plot colors",
+          "status": "fixed_scope_untested_original_complex",
+          "detail": "One-function line grouping exists and real piecewise color-cycle control exists; original complex piecewise visual predicate not requalified here.",
+          "references": [
+            "tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py",
+            "src/chebfunjax/plotting.py"
+          ]
+        },
+        {
+          "issue": "roots ms ResultantMethod extras",
+          "status": "remaining_original_example_untested",
+          "detail": "21 source resultant/normalization controls passed after spy-only test correction; does not establish original multivariate ResultantMethod root-set parity.",
+          "references": [
+            "docs/roots_resultant_spy_cpu_20261016.json"
+          ]
+        },
+        {
+          "issue": "Disk Helmholtz k7",
+          "status": "original_gate_present_runtime_unverified_here",
+          "detail": "Original source wavenumber7 is active with disk L2 norm and original5e4*TOL, no xfail. Rank-cap controls are supplemental; ballfun shape-control evidence is unrelated. No exact current k7 result located by this audit.",
+          "references": [
+            "tests/test_matlab_port/diskfun/test_helmholtz_matlab.py",
+            "tests/test_diskfun/test_numeric_rank_capacity.py"
+          ]
+        },
+        {
+          "issue": "Complex Chebfun2 phase portrait",
+          "status": "fixed_scope_remaining",
+          "detail": "Public plotting phase CData route and independent source tests exist; whole-example raster parity unqualified.",
+          "references": [
+            "src/chebfunjax/chebfun2d/chebfun2.py",
+            "tests/test_chebfun2_phase_plot_source.py"
+          ]
+        }
+      ]
+    }
+  ],
+  "next_two_tasks": [
+    {
+      "priority": 1,
+      "title": "Finish explicit small Hermite ASY from native stages",
+      "source": [
+        "src/chebfunjax/utils/hermite_asy.py",
+        "src/chebfunjax/utils/quadrature.py"
+      ],
+      "data": "Reuse preserved small-ASY native stage captures and failed38-case diagnostic; distinguish native n3 exception. Diagnose complex branch/derivative normalization operation order before any algorithm edit.",
+      "gate": "Restore n2 and4..20 native outcomes without REC substitution, fixture fitting or original-bound changes. Retain ten failures and their historical non-original-bound erratum. Then run small strict controls plus original REC42/ASY251 gates under an approved bounded CPU plan.",
+      "why": "Concrete unsupported public source branch with captured failing data; no need to repeat already qualified large-n fast implementation."
+    },
+    {
+      "priority": 2,
+      "title": "Close inverse actual-example comparison before further optimization",
+      "source": [
+        "src/chebfunjax/chebfun1d/inverse.py",
+        "src/chebfunjax/tech/chebtech.py"
+      ],
+      "data": "Freeze exact original ComplexArcLength formula/preferences and both native/current forward representations; separately replay identical retained forward coefficients. Capture construction/chopping lengths and 9052-vs-native representation divergence.",
+      "gate": "Use original assertions where present and report raw errors otherwise. In fresh matched CPU processes separate setup, first inverse and warm medians; record host load, CPU affinity, backend, hashes and no survivors. Keep identical-input algorithm timing separate from literal-source end-to-end timing. No fitted degree or tolerance relaxation.",
+      "why": "Latest speed evidence is descriptive and differs from earlier matched-formula warm benchmark; this distinguishes representation growth from compile/evaluation cost before spending effort on another optimization."
+    }
+  ],
+  "immutable_references": [
+    {
+      "path": "HANDOFF_CODEX.md",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/HANDOFF_CODEX.md",
+      "git_blob": "90a74625662e82154e90e175f286811071b17b3e",
+      "sha256": "9c7f0b8c62b4a79f6d3dbe071092220bd403efb4674594a3f100a8539549383b"
+    },
+    {
+      "path": "docs/ball_surface_rendering_cpu_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/ball_surface_rendering_cpu_20261011.json",
+      "git_blob": "849e88d037dce05a067fb2b49351ef6427d0a357",
+      "sha256": "06382bb1b1e1643e482816372543d4e907e0b26886a5de3f4354ad2b3bd4c010"
+    },
+    {
+      "path": "docs/carrier_source_output_figures_cpu_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/carrier_source_output_figures_cpu_20261011.json",
+      "git_blob": "b42ae768f2a24e9654167d75e9d886f05cc00640",
+      "sha256": "8e50c99ce8030cf3a3fe1b2f0c1491f19c44bd0ecb7e69d19f1e08ebe7fb61ae"
+    },
+    {
+      "path": "docs/carrier_xpass_cpu_20261010.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/carrier_xpass_cpu_20261010.json",
+      "git_blob": "234699cc17736ae6ab7d7fe0e2a1ce890fe19a4f",
+      "sha256": "6be505de020d7ea1eca1ff8c36dc595e52aaf81883f021b02fbd64c5b09d798a"
+    },
+    {
+      "path": "docs/chebtech_qr_reconstruction_cpu_20261010.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/chebtech_qr_reconstruction_cpu_20261010.json",
+      "git_blob": "17feff69d81eea0bfd2c4057363cbb48470f5554",
+      "sha256": "973fecd1de2d2a409e79d7b5869ad9152fa1cd50bca464858a4387d0868e8b0e"
+    },
+    {
+      "path": "docs/clenshaw_instruction_inverse_cpu_20261017.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/clenshaw_instruction_inverse_cpu_20261017.json",
+      "git_blob": "a4d9d4e80d2b28c324ef7481137abe3013ed0c54",
+      "sha256": "07dc5ab936818bb80fd6babfa0d9016d3cb0a6ae82e604a4c370496370b9eb40"
+    },
+    {
+      "path": "docs/complex_trig_matrix_native_cpu_20261016.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/complex_trig_matrix_native_cpu_20261016.json",
+      "git_blob": "fa8b1357f41bc611973a643bffada86bb354aa1f",
+      "sha256": "9aacea8d1c4f1e38493e4022dbfebf00078e9335184c06f22f16c81d53301ca6"
+    },
+    {
+      "path": "docs/conformal_l_native_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/conformal_l_native_cpu_20261013.json",
+      "git_blob": "a9e94a870597e227202e743b57131a0beebfe06a",
+      "sha256": "df40a8d2de971f02b5d43ba64ba649c41a1753fb1d1f73697aa4cbf27ce3395e"
+    },
+    {
+      "path": "docs/conformal_l_page_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/conformal_l_page_cpu_20261013.json",
+      "git_blob": "ddc357492bdd998c057bef7b7278085615b36b1a",
+      "sha256": "a12ef02c168e3efe9f542f6463b3f1de26b6e032f36ba79fe4bb87f068688b5e"
+    },
+    {
+      "path": "docs/gl_evolution_roundoff_cpu_20261013.md",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/gl_evolution_roundoff_cpu_20261013.md",
+      "git_blob": "9d9dcb81de37b56e15440d6f7663def76c6ae138",
+      "sha256": "dca75052293cf517d939fce2cdf150800c6535eb4be5c89efc3c3f9c5f35648d"
+    },
+    {
+      "path": "docs/gl_public_spin2_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/gl_public_spin2_cpu_20261013.json",
+      "git_blob": "240c3fc85d349a37d94886a9974dc063baadeb80",
+      "sha256": "8408a398e921d4482803ae7da89105f667ae7356e05c7e96bc728c0d9136e114"
+    },
+    {
+      "path": "docs/hermite_full_cpu_20261010.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/hermite_full_cpu_20261010.json",
+      "git_blob": "27484d4a05f7fb59ab912fe029c31f175a94cc87",
+      "sha256": "1b19ef2748ebe18c911ce9e0ed5f278a1d95ab173880f986965cc2f87ca9ac05"
+    },
+    {
+      "path": "docs/hermite_original_predicates_cpu_20261014.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/hermite_original_predicates_cpu_20261014.json",
+      "git_blob": "c54c0eec133fc7753f73b4e3e1173ee7d510a619",
+      "sha256": "13cc069700786238fbc9a1c3b87ec245a3347bb84e9f864dcb75bde1e5e8e684"
+    },
+    {
+      "path": "docs/hermite_small_asy_bounds_erratum_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/hermite_small_asy_bounds_erratum_20261011.json",
+      "git_blob": "74e31f1ae22935091495ab350e5299c1d54fc5a7",
+      "sha256": "7cd84a62e94bc8dcbb40152b69ce801d6c0bda23723585f5c5a603027b47144d"
+    },
+    {
+      "path": "docs/inverse_public_cpu_benchmark_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/inverse_public_cpu_benchmark_20261013.json",
+      "git_blob": "ab036632d9a11b0f8d5ca259289edf0506f7a09f",
+      "sha256": "adfd51b6206e852fd33eb68262edef1d8b2cf1e16d229c0015a148b1900b1fd8"
+    },
+    {
+      "path": "docs/ivp_capabilities_first_solve_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/ivp_capabilities_first_solve_cpu_20261013.json",
+      "git_blob": "a333ef45f8433a021543c033d35f811d6cfb6c3b",
+      "sha256": "b555f0cba3a21bc2f276daadd5ed7065dde004bd210402e156c32dc3e16c8bff"
+    },
+    {
+      "path": "docs/ivp_capabilities_page_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/ivp_capabilities_page_cpu_20261013.json",
+      "git_blob": "1a1dd2c955f983cd09604e697f9ce45e5bd38e39",
+      "sha256": "b5f39ac91fe6c7d1196cc8d1e460d4077d4c9af05ef42978fa8842ea700f6948"
+    },
+    {
+      "path": "docs/krylov_direct70_comparison_cpu_20261017.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/krylov_direct70_comparison_cpu_20261017.json",
+      "git_blob": "50e4fa2821efaf3f7f6905b79e09f12e811b93d0",
+      "sha256": "374121592db118aae2f7841d79b878b31f5ad6d037455d9f2c1d11786991f69b"
+    },
+    {
+      "path": "docs/krylov_final_source_cpu_20261017.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/krylov_final_source_cpu_20261017.json",
+      "git_blob": "ae7f5c15ee325a8982ca218abab568c53ac4a0c6",
+      "sha256": "25906c6e9fffeb97437c5cdbb43b70f12c78368fe6234602a9161e8cb92d9abc"
+    },
+    {
+      "path": "docs/krylov_indefinite_native_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/krylov_indefinite_native_cpu_20261013.json",
+      "git_blob": "24f957ebd4f00f042624b5bb48c4e882ae7aaf1f",
+      "sha256": "63e83b4d779fe73009fc4c11f568b01e84c227b570e348eada0fd03fde07518a"
+    },
+    {
+      "path": "docs/krylov_scalar_ad_route_cpu_20261017.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/krylov_scalar_ad_route_cpu_20261017.json",
+      "git_blob": "b7ff3f7dbb48806e6581b97aa6703eb8b1e0cb0a",
+      "sha256": "c8da1e0f9bff1f090398f362c938e5873c467e489ba5999ce9afe01f88b26724"
+    },
+    {
+      "path": "docs/krylov_varcoeff_native_cpu_20261013.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/krylov_varcoeff_native_cpu_20261013.json",
+      "git_blob": "22958b194792417aef92884da39c0dcfcf273331",
+      "sha256": "b650b19d52966421ca0486ccf01fdd105627df809272c1c3f6ed25717e16720a"
+    },
+    {
+      "path": "docs/newton_dimension_preference_cpu_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/newton_dimension_preference_cpu_20261011.json",
+      "git_blob": "44d1ab3293c16fa6a6493e667967b7130c6b15d2",
+      "sha256": "e3b7468b97676fa3621a914407e567bdb7a47e91a947265b0c955fac308dc251"
+    },
+    {
+      "path": "docs/ratinterp_jax_cpu_20261010.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/ratinterp_jax_cpu_20261010.json",
+      "git_blob": "c1ff8090b74eebd9c4749ff5b241cf9cd2b6c2ea",
+      "sha256": "2ec32df9331db9e9be21b12c750e3f5c52be9aba15f03cfd3503e3744de242ff"
+    },
+    {
+      "path": "docs/ratinterp_native_predicates_cpu_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/ratinterp_native_predicates_cpu_20261011.json",
+      "git_blob": "5345d683fc41fdc2b1ccd94e23b1380eeefc2025",
+      "sha256": "ccc4f8c277a254bc040e3877d6a2c04afe129fa51f848d8443ea8709b34b840f"
+    },
+    {
+      "path": "docs/roots_resultant_spy_cpu_20261016.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/roots_resultant_spy_cpu_20261016.json",
+      "git_blob": "4b4bbfb022a22531d9a1d7c59fdcd28c1d8bff5c",
+      "sha256": "f6c12b7177ac783b065cbab2d13b8a24986d762ad121a8b5a5a806eaf8e740be"
+    },
+    {
+      "path": "docs/scalar_newton_display_cpu_20261011.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/scalar_newton_display_cpu_20261011.json",
+      "git_blob": "b0586cdb5bc9be241e886268072b18062a506388",
+      "sha256": "5114b00a0d8e4808931ce51fece7d974389645856ef58465ca801fc943dc7076"
+    },
+    {
+      "path": "docs/sphere_extrema_empty_source_cpu_20261014.json",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/docs/sphere_extrema_empty_source_cpu_20261014.json",
+      "git_blob": "000c2a6087a78818e5ff6a94ba928ca4b921f3bb",
+      "sha256": "6fbf1ca7dbf56c3a1a7d4173d0a9f3b6b93f5f55113adc256252482c268066a4"
+    },
+    {
+      "path": "src/chebfunjax/__init__.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/__init__.py",
+      "git_blob": "b4c56b66a73e1b382a59d8c4a325767992dfaf15",
+      "sha256": "e8fa362e5acac95d2b84bee26404b37929722315b380546f44bf2e3017c0003d"
+    },
+    {
+      "path": "src/chebfunjax/chebfun1d/chebfun.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/chebfun1d/chebfun.py",
+      "git_blob": "a01e15afdfdd8960f1918e5a2e2a187cd47d4ec5",
+      "sha256": "4fa97873f76840690cb1a00fc9e10271263c666ea8deb04c369d92036bc1117d"
+    },
+    {
+      "path": "src/chebfunjax/chebfun1d/inverse.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/chebfun1d/inverse.py",
+      "git_blob": "d7a1046bb39bcc56101ab4d05e4610de19299220",
+      "sha256": "da3337b9f163a1ce2e40db5c714b4d2ebb387dc3de00e4a37c73c56237b8cf3b"
+    },
+    {
+      "path": "src/chebfunjax/chebfun1d/linalg.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/chebfun1d/linalg.py",
+      "git_blob": "df701d5da56f0934e862a72c19d090d9f7b31479",
+      "sha256": "0ac7e0d60aa6fcd4ddc88717869f765405ffa28f3ff0cfbcae0b9d2f854d3625"
+    },
+    {
+      "path": "src/chebfunjax/chebfun1d/randfuns.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/chebfun1d/randfuns.py",
+      "git_blob": "af8850aed641404616cb9bb3927347fd182551d1",
+      "sha256": "1a642384e5743170fdcd2fb71c9587405e6e8e96830a5f3ecaff672f712d7bce"
+    },
+    {
+      "path": "src/chebfunjax/chebfun2d/chebfun2.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/chebfun2d/chebfun2.py",
+      "git_blob": "1192826082c044e4eaae457d9ef3fea00d2fe359",
+      "sha256": "5d263dd86f8048b4955ef0805ff367998a5303d664a60ad679820f7caf85db2f"
+    },
+    {
+      "path": "src/chebfunjax/operators/_spin2_public.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/operators/_spin2_public.py",
+      "git_blob": "1a34ae3739d0d6cabb65e8de4c87bf339df25943",
+      "sha256": "77cc76bbc5bfea30e902fcc304421bf73a0ffd107deab2ae52bd47346775fde7"
+    },
+    {
+      "path": "src/chebfunjax/operators/chebop.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/operators/chebop.py",
+      "git_blob": "9c6c9e084c24c9c66d9cfa28109d8bcf94d56fa5",
+      "sha256": "470fd9b184af244186ba7a3040e579ff3b6dbead12c4efe2494b537dd6b25a1c"
+    },
+    {
+      "path": "src/chebfunjax/operators/spinop2.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/operators/spinop2.py",
+      "git_blob": "72a8c61cce96f301b1787629343a156e646d1d76",
+      "sha256": "bb2e6936b50e610860f1b0a7e3fa9bcf53e484880f85e60e4577e9f25c3ac4a0"
+    },
+    {
+      "path": "src/chebfunjax/plotting.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/plotting.py",
+      "git_blob": "1034ca0bf34433d8318cf02b98acc56073f10840",
+      "sha256": "63f19f303c7193a22b8518f6f5dae6f2a64b984793bd84f50537ee3405b7d0ab"
+    },
+    {
+      "path": "src/chebfunjax/spherefun/spherefun.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/spherefun/spherefun.py",
+      "git_blob": "b2f7fd7cc3e470fda794d6fd59c2c86caf621018",
+      "sha256": "e9ca5de1533b867c5bd89b3c2eb2ec70202d4c7fa0c889c2d473ded258d6efb9"
+    },
+    {
+      "path": "src/chebfunjax/spin/solver2d.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/spin/solver2d.py",
+      "git_blob": "7a6d2a87861c2559ed273920918584883c492675",
+      "sha256": "7ec7b8ff45132930417b532d2d2fbb571d5e80f6cb36a27b3ced37f48636aa9b"
+    },
+    {
+      "path": "src/chebfunjax/utils/_basic_lstsq.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/_basic_lstsq.py",
+      "git_blob": "d10f8de5fe85b1fc723b8721c6e09f5209b1801b",
+      "sha256": "819c863973dec4160f578cac7b135f43831be4292cd055af275ee6ad43fbcc59"
+    },
+    {
+      "path": "src/chebfunjax/utils/_randnfun.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/_randnfun.py",
+      "git_blob": "a38fa7ed9ccd57d1e54240a5fe107199aa3ae183",
+      "sha256": "93f61ce595b042d702f241cf53fd3dfa8e6a24d92afe5c254f6d49b9dde1f131"
+    },
+    {
+      "path": "src/chebfunjax/utils/hermite_asy.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/hermite_asy.py",
+      "git_blob": "1f0ecdeadb3a274d0e23dc327eb74d4a2a2f1fdf",
+      "sha256": "7d342d559e0fa4b056fc7c5d94e868f52c50977289aa369146c110c9779cd921"
+    },
+    {
+      "path": "src/chebfunjax/utils/quadrature.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/quadrature.py",
+      "git_blob": "a04462c7d51d01b8c8be7bcc094b9e733f862436",
+      "sha256": "9957b9de4e2ee86eb29096098572fd23fc7e12d8c5672f7f2872d418b4870dc5"
+    },
+    {
+      "path": "src/chebfunjax/utils/randnfun.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/randnfun.py",
+      "git_blob": "291f79295e9ee0bc3cf2774371f0d10c588520d4",
+      "sha256": "7f2428b022fae32afd8917d5f7d0273969910fc673b82dcb4c0f42a26ba9b2d9"
+    },
+    {
+      "path": "src/chebfunjax/utils/random.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/random.py",
+      "git_blob": "50f12ae381c9a890513b1fbb003f0c8248d248ce",
+      "sha256": "7f255fb42777e95f1d2b7cac6d08de2e920b138fdd2a6f4f589875f7aa280924"
+    },
+    {
+      "path": "src/chebfunjax/utils/ratapprox.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/src/chebfunjax/utils/ratapprox.py",
+      "git_blob": "dd1a6012a17871c0424561976aceaae0c6eeea01",
+      "sha256": "cb416cf33ab2554119b576c5e7b2757a895a6171ff7955d73b6a4eb675c78c90"
+    },
+    {
+      "path": "tests/test_chebfun1d/test_constructor_split_scheduler_source_controls.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_chebfun1d/test_constructor_split_scheduler_source_controls.py",
+      "git_blob": "7e7e30d35f865056fb0e39270ec0762d6a8d4244",
+      "sha256": "ab12b9f03900d18b419bca4d983e1de92aba602faccb61bf5bd75548db3ae14b"
+    },
+    {
+      "path": "tests/test_chebfun1d/test_detect_edge_bounded_source_controls.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_chebfun1d/test_detect_edge_bounded_source_controls.py",
+      "git_blob": "666e5cd8b00319549635116cae422eb0bd13da29",
+      "sha256": "ca7b62b55361e1820a9231a8b9f78eb5e96498f764bb0872fdcde5e588969803"
+    },
+    {
+      "path": "tests/test_chebfun2_phase_plot_source.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_chebfun2_phase_plot_source.py",
+      "git_blob": "00e4ba870bb976db6f884e26dc823bb5f95680a2",
+      "sha256": "fb3600d5449431a4d07d2127c079af8a499c8915bf55ac4773c590fbec7265bc"
+    },
+    {
+      "path": "tests/test_diskfun/test_numeric_rank_capacity.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_diskfun/test_numeric_rank_capacity.py",
+      "git_blob": "0afa90995e25717bdb720caf50a553c9cb375273",
+      "sha256": "af168a7de02f8d406a15fa0ece218b1a128bc5378acdd5bd4c1c395a83bd5e32"
+    },
+    {
+      "path": "tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_matlab_port/chebfun/test_plot_grid_color_source_controls.py",
+      "git_blob": "b2b8f6a8cd522a76fe5c8ec159513da45ab78b46",
+      "sha256": "d182de667ccde21997a617f26074852dd390a6aae7cfcf34dc56a6b2792726fd"
+    },
+    {
+      "path": "tests/test_matlab_port/diskfun/test_helmholtz_matlab.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_matlab_port/diskfun/test_helmholtz_matlab.py",
+      "git_blob": "cf690fadea1a5abd7b9ab4da8a6350eaf55117c8",
+      "sha256": "8d28b99b1289c9d4b83cb07e1bb6fdbd32e8aaa61a5436968782d9d783cb1204"
+    },
+    {
+      "path": "tests/test_plotregion_source_controls.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_plotregion_source_controls.py",
+      "git_blob": "4bb081e36b950cc86041afccce2754f5f2ce593a",
+      "sha256": "dc04d9fb127b843623bad6f0b882dd42322aaa17cff2abded0311180e436767a"
+    },
+    {
+      "path": "tests/test_spin/test_spin2_source_outputs.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_spin/test_spin2_source_outputs.py",
+      "git_blob": "fd518e3c8fb6084756b87772508b747683b82dc6",
+      "sha256": "80e2d791ddde142d3afd5999038bce865e07cfc8c00c464457a9bdb0a529a0f8"
+    },
+    {
+      "path": "tests/test_trig_plotregion_source.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_trig_plotregion_source.py",
+      "git_blob": "5ca923b5c39412a38249f313771ec682bd01bdd1",
+      "sha256": "4987e14abe1aac57061c237464cfa5690d64e2ef4332f863f66e11cec26f977e"
+    },
+    {
+      "path": "tests/test_utils/test_randnfun_source_construction.py",
+      "url": "https://github.com/ma-gilles/chebfunjax/blob/b16ad79596449a1dfe56704f8656e41766b0f301/tests/test_utils/test_randnfun_source_construction.py",
+      "git_blob": "275d2dc15731bef8c873f20c6868916a988ea68e",
+      "sha256": "9b5f428c8441208fbc33759067e9debb5c9fd2e1c4a11728cec7063d99abdc32"
+    }
+  ]
+}

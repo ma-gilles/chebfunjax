@@ -1,0 +1,156 @@
+{
+  "status": "All44 original Chebtech compose predicates and6scalar-column controls pass",
+  "base_commit": "b16ad79596449a1dfe56704f8656e41766b0f301",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": "tests/chebtech/test_compose.m",
+  "original_predicates": 44,
+  "new_analytic_scalar_column_controls": 6,
+  "total_qualified": 50,
+  "source_rows": [
+    {
+      "row": 1,
+      "technology": "Chebtech1",
+      "passed_preferences": "default; class-native resampling"
+    },
+    {
+      "row": 2,
+      "technology": "Chebtech2",
+      "passed_preferences": "default nested"
+    },
+    {
+      "row": 3,
+      "technology": "Chebtech2",
+      "passed_preferences": "resampling"
+    },
+    {
+      "row": 4,
+      "technology": "Chebtech2",
+      "passed_preferences": "resampling persists plus extrapolate=true"
+    }
+  ],
+  "literal_contracts": [
+    "Only clauses1\u20136 receive outer row preferences. Clauses7\u201311 call compose without preferences and use class defaults, matching source nargs handling.",
+    "Clauses3/4 retain h from clause2 and its two-sin per-column vscale; no g-scale substitution.",
+    "Numeric matrix infinity norms use maximum row-sum, with exact unpadded coefficient/value shapes. Scalar/vector infinity norm uses maximum absolute value.",
+    "Clauses3\u20139 use native-kind chebpts and corresponding tech.coeffs2vals. Clause5 h is constructed from literal sin(x)+cos(x) sampled-data values.",
+    "Clause10 requires exact CHEBFUN:CHEBTECH:compose:arrval identifier. Clause11 is successful completion on modern MATLAB, without an invented extra numeric predicate."
+  ],
+  "production_changes": [
+    "C2.compose exposes documented nested/resampling selection. Resampling uses existing source initial/sqrt2 schedule and full coefficient-grid values; extrapolate samples interior and retains NaN endpoint sentinels as source. Default nested algorithm is preserved.",
+    "Both same-class g(f) branches test actual column counts, raise existing _TechOperationError with exact native identifier, and interpret genuine one-column storage as scalar locally. Public evaluation conventions/kernels are unchanged."
+  ],
+  "baseline": "Six new genuine one-column API controls failed before the source correction: C2 rejected valid scalar-column inputs, C1 created spurious singleton axes and failed happiness scale conversion. Frozen failed source/inputs/tests/runtime/output preserved.",
+  "legacy_companion": {
+    "path": "tests/test_matlab_port/chebtech/test_compose_legacy_controls.py",
+    "sha256": "80bd1bef95d35131e1b6155e43bc219013f59b80e922cf02a0ced3a6dc8a4624",
+    "byte_identical_to_base_mapped_test": true,
+    "adapted_controls_preserved": 22,
+    "rerun": false,
+    "counted_in_50": false,
+    "scope": "Inherited dense/adapted-grid/max-entry/padded-coefficient/generic-exception controls remain supplemental; their old docstring is preserved as a preimage, not a literal44 coverage claim."
+  },
+  "assertions_or_bounds_changed_during_qualification": false,
+  "runs": {
+    "baseline": {
+      "cases": 6,
+      "failures": [
+        "test_scalar_column_composition[inner_singleton-Chebtech1-1]",
+        "test_scalar_column_composition[inner_singleton-Chebtech2-2]",
+        "test_scalar_column_composition[outer_singleton-Chebtech1-1]",
+        "test_scalar_column_composition[outer_singleton-Chebtech2-2]",
+        "test_scalar_column_composition[both_singleton-Chebtech1-1]",
+        "test_scalar_column_composition[both_singleton-Chebtech2-2]"
+      ],
+      "pytest_summary": "========================= 6 failed, 1 warning in 9.67s =========================",
+      "guarded_inputs": 7864,
+      "runtime_imports": 1377,
+      "runtime_changed": {},
+      "runtime_unguarded": {},
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 15.760492131114006,
+      "sampled_peak_summed_rss_kib": 892456,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "row1": {
+      "cases": 17,
+      "failures": [],
+      "pytest_summary": "=============== 17 passed, 33 deselected, 12 warnings in 24.32s ================",
+      "guarded_inputs": 7865,
+      "runtime_imports": 1381,
+      "runtime_changed": {},
+      "runtime_unguarded": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 31.326055562123656,
+      "sampled_peak_summed_rss_kib": 1468116,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "row2": {
+      "cases": 11,
+      "failures": [],
+      "pytest_summary": "=============== 11 passed, 33 deselected, 12 warnings in 13.27s ================",
+      "guarded_inputs": 7865,
+      "runtime_imports": 1380,
+      "runtime_changed": {},
+      "runtime_unguarded": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 19.95669103320688,
+      "sampled_peak_summed_rss_kib": 1087080,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "row3": {
+      "cases": 11,
+      "failures": [],
+      "pytest_summary": "=============== 11 passed, 33 deselected, 12 warnings in 13.09s ================",
+      "guarded_inputs": 7865,
+      "runtime_imports": 1380,
+      "runtime_changed": {},
+      "runtime_unguarded": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 19.818390571977943,
+      "sampled_peak_summed_rss_kib": 1072508,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "row4": {
+      "cases": 11,
+      "failures": [],
+      "pytest_summary": "=============== 11 passed, 33 deselected, 12 warnings in 17.55s ================",
+      "guarded_inputs": 7865,
+      "runtime_imports": 1380,
+      "runtime_changed": {},
+      "runtime_unguarded": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 24.226265431381762,
+      "sampled_peak_summed_rss_kib": 1340300,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "artifact_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/compose_original44_packet_20261017",
+  "evidence_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/compose_original44_packet_20261017/EVIDENCE.json",
+  "scope_limits": [
+    "The new refinement keyword exposes nested/resampling only. Full native pref/data structs and user-defined compose refinement callbacks are not exposed or qualified.",
+    "Cross-technology composition and other untested preferences are outside this package.",
+    "No native runtime capture, exact MATLAB representations, full library/CI/page/performance parity claim.",
+    "Raw pytest import and JUnit record_property warnings remain in stdout/stderr."
+  ],
+  "source_files": [
+    "src/chebfunjax/tech/chebtech.py",
+    "tests/test_matlab_port/chebtech/test_compose_matlab.py",
+    "tests/test_matlab_port/chebtech/test_compose_legacy_controls.py",
+    "tests/test_tech_compose_scalar_columns.py"
+  ]
+}
