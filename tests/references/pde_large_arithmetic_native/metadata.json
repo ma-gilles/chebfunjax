@@ -1,0 +1,11 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b CPU",
+  "fixture_sha256": "f8e76744ae115be842eaef51ad504e559fca32fca88365abe39965b08be34476",
+  "capture_harness_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/pde_normest_cpu_qualified_20261017.zip",
+  "archive_sha256": "37d24781f07c94fcd3aa72ab53a97c5117f8ca79b66641c877a25f3c3c780778",
+  "archive_harness": "evidence/pde_large_arithmetic_native_prepare_20261017/capture_large_arithmetic.m",
+  "capture_manifest": "evidence/pde_large_arithmetic_native_prepare_20261017/CAPTURE_MANIFEST.json",
+  "input_scope": "15 dense shapes x2 variants, four actual B/P actions, one labeled source-formula n102 B action; sums1..514 and source cosine/row stages",
+  "notes": "No numerical tolerance changes. Source-formula n102 is not an internal native pdeSolve capture."
+}

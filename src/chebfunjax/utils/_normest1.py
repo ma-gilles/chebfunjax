@@ -10,9 +10,9 @@ Numerical actions and random draws use JAX; adaptive control is eager.
 
 import jax
 import jax.numpy as jnp
-import jax.scipy.linalg as jl
 
 from ._matlab_uniform_stream import default_uniform_stream
+from ._normest_triangular import triangular_solve
 from ._source_lu_factor import general_factor
 
 
@@ -178,17 +178,17 @@ def condest_real(a, *, stream=None):
         return float("inf")
 
     def action(x):
-        return jl.solve_triangular(
-            upper, jl.solve_triangular(lower, x, lower=True, unit_diagonal=True), lower=False
+        return triangular_solve(
+            upper, triangular_solve(lower, x, lower=True, unit=True), lower=False
         )
 
     def transpose(x):
-        return jl.solve_triangular(
+        return triangular_solve(
             lower,
-            jl.solve_triangular(upper, x, lower=False, trans="T"),
+            triangular_solve(upper, x, lower=False, transpose=True),
             lower=True,
-            unit_diagonal=True,
-            trans="T",
+            unit=True,
+            transpose=True,
         )
 
     estimated = normest1_real(action, transpose, n, stream=stream)

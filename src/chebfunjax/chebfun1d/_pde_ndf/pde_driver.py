@@ -226,7 +226,7 @@ def solve(
                 matrix = jnp.column_stack(
                     [jnp.broadcast_to(v.vals if isinstance(v, Values) else v, (n,)) for v in answer]
                 )
-                rhs = projection @ jnp.reshape(matrix, (-1,), order="F")
+                rhs = matvec(projection, jnp.reshape(matrix, (-1,), order="F"))
                 rhs = rhs.at[: len(linear)].set(matvec(boundary_matrix, y) - linear_rhs)
                 row = len(linear)
                 for (side, spec), count in zip(nonlinear, boundary_counts):

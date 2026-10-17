@@ -4,7 +4,7 @@ JAX-only adapter of native binary operations and the qualified MATLAB R2025b
 oneMKL 2024.1 default DGEMV path, Chebfun pin 7574c77.
 The native chebdouble.diff source scales the result of D*values.
 General Chebfun coefficient differentiation does
-not use this module. Qualification is CPU binary64 finite small matrices.
+not use this module. Qualification is CPU binary64 finite matrices up to514rows/columns.
 
 Provenance
 ----------
@@ -47,8 +47,8 @@ def matvec(matrix, vector):
         or matrix.shape[1] != vector.size
         or matrix.dtype != jnp.float64
         or vector.dtype != jnp.float64
-        or not 2 <= matrix.shape[0] <= 258
-        or not 2 <= vector.size <= 258
+        or not 2 <= matrix.shape[0] <= 514
+        or not 2 <= vector.size <= 514
     ):
         return generic(matrix, vector)
 

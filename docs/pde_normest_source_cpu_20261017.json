@@ -1,0 +1,84 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_base": "af5b392c507013f82ca0856697f2378c3d562701",
+  "candidate_base": "2a77f02da9d2f77b96d8dc54419b5ead8bd127af",
+  "cpu_only": true,
+  "jax": "0.11.0",
+  "binary64": true,
+  "changes": [
+    "Ordered endpoint angles and bounded fdlibm cosine; finite CPU endpoint sum four-lane schedule scoped to lengths44..514, prior serial fallback elsewhere",
+    "PDE finite CPU float64 matvec scope2..514 and system projection uses qualified provider",
+    "Owned finite CPU float64 normest triangular solves n<=10 with source zero-RHS skip and masked implicit JVP/VJP; generic JAX fallback elsewhere"
+  ],
+  "verification": {
+    "passed": 149,
+    "distinct": 149,
+    "pytest_seconds": 251.47,
+    "supervisor_seconds": 262.53149768989533,
+    "sampled_peak_summed_rss_kib": 4981480,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_large_arithmetic_combined_gate_20261017"
+  },
+  "native_controls": {
+    "cosine_binary64_values": 139783,
+    "sums": 2054,
+    "matrix_vector_actions": 35,
+    "boundary_rows": 26,
+    "fixtures_unchanged": true,
+    "native_arithmetic_fixture_sha256": "f8e76744ae115be842eaef51ad504e559fca32fca88365abe39965b08be34476"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/pde_normest_cpu_qualified_20261017.zip",
+    "sha256": "37d24781f07c94fcd3aa72ab53a97c5117f8ca79b66641c877a25f3c3c780778",
+    "entries": 3318,
+    "bytes": 40884900,
+    "verified": true,
+    "licensed_runtime_excluded": true,
+    "source_hashes": {
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78",
+      "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "7fda160043c081c783d9b0128d4e4c56e5022a1d4763b60e7e49469574d8c855",
+      "src/chebfunjax/chebfun1d/_pde_ndf/source_arithmetic.py": "717c2faaf19cdab064a0dc1333f52db550fbcf40eed3a3aeaf5086e5df6a28f3",
+      "src/chebfunjax/utils/_normest1.py": "5dec172c0adf019e100a2cbf0a59ac34a34ce7b3662bdaf6856fb27516042f99",
+      "tests/test_chebfun/test_pde_cpu_source_arithmetic.py": "fd90154e1527132f3ceb329f7fa3e2c7ed649fe9836af89645e8c421b3915093",
+      "tests/test_utils/test_normest1_native_source.py": "2685fddebd0bbd87a3e755dac41ae8b1e4b44c8f9d122255d2a89fb2f6b2962d",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "49961b21a7312b3ea2121c0e1b8d1442616bdb23c390322e52328ff32ddcba08",
+      "src/chebfunjax/utils/_normest_triangular.py": "ac967c3b47564f69bf772f347155c921f05ed3087a98ae58f39889ac630761a1",
+      "tests/references/pde_large_arithmetic_native/native_arithmetic_corpus.mat": "f8e76744ae115be842eaef51ad504e559fca32fca88365abe39965b08be34476",
+      "tests/test_utils/test_normest_triangular.py": "bd7fbb5251c52a490758cce13c0c1683178e28590aa1819b48111e0c612b4616",
+      "tests/test_utils/test_pde_large_arithmetic_native.py": "3b872b82cbc3d7a0714ebae263ca2a8685e68fa133d5a6252e5e33da41a3e566"
+    }
+  },
+  "ci_fault_attribution": {
+    "diagnostic_run": 39000330388,
+    "captured_lu_failed_replicates": [
+      2,
+      4
+    ],
+    "exact_native_tape_passed_replicates": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "candidate_cross_runner_qualification": "pending after publication"
+  },
+  "review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_normest_combined_review_20261017/REVIEW.json",
+  "full_chemical_forward": {
+    "literal_input_error": 9.9023295e-07,
+    "matched_input_diagnostic_error": 3.68654699e-07,
+    "unchanged_bound": 1e-07,
+    "passes": false,
+    "boundary_matrix_and_same_input_offset": "exact native",
+    "constructor_length_python": 102,
+    "constructor_length_native": 101
+  },
+  "tolerances_widened": false,
+  "production_host_numerics_added": false,
+  "full_goal_complete": false,
+  "open": [
+    "CI hardware verification and green latest-main CI",
+    "Full adaptive chemical model forward parity and constructor/initial evaluation representation",
+    "All library/assertion/page/figure/JAX-only/performance acceptance in GOAL_CHECKLIST.md"
+  ]
+}

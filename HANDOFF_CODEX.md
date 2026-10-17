@@ -1,3 +1,20 @@
+## Bounded CPU PDE arithmetic and normest actions — 2026-10-17
+
+All 149 combined CPU checks pass at unchanged original bounds. Native controls
+match bits for 139783 cosine values, 2054 sums, 35 matrix-vector actions and
+26 endpoint rows. The PDE matvec provider is qualified through514; the new
+endpoint sum schedule is bounded to44..514. Owned finite binary64 normest
+triangular actions are scoped to n<=10, with implicit AD and generic JAX
+fallbacks. A four-run CI diagnostic isolated external-solve rounding; the
+candidate still needs cross-runner CI qualification after publication.
+
+Full adaptive chemical parity remains open: literal-input forward error
+9.90233e-7 and matched-input diagnostic3.68655e-7 exceed the unchanged1e-7
+bound. Boundary matrix and same-input offset now match exactly. No constructor
+length adjustment or production reference injection was used. Full goal and
+green latest-main CI remain unresolved. Evidence and verified source archive:
+`docs/pde_normest_source_cpu_20261017.json`.
+
 ## Native ode113 output callbacks — 2026-10-16
 
 Native ode113 now supports OutputFcn, one-based OutputSel and Refine, with JAX

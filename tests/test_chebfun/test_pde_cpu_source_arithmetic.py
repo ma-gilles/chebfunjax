@@ -77,7 +77,7 @@ def test_generic_dtype_fallback(dtype):
     np.testing.assert_array_equal(matvec(a, x), a @ x)
 
 
-@pytest.mark.parametrize("shape", [(1, 33), (259, 2), (2, 259)])
+@pytest.mark.parametrize("shape", [(1, 33), (515, 2), (2, 515)])
 def test_generic_shape_fallback(shape):
     a = jnp.arange(shape[0] * shape[1], dtype=jnp.float64).reshape(shape) / 13
     x = jnp.linspace(-1.0, 1.0, shape[1])

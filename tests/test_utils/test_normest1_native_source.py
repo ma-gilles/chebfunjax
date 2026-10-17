@@ -7,7 +7,6 @@ including full 625-word RNG states and operator traces, are the oracles.
 from pathlib import Path
 
 import jax.numpy as jnp
-import jax.scipy.linalg as jl
 import numpy as np
 import pytest
 from scipy.io import loadmat
@@ -16,6 +15,7 @@ from chebfunjax.utils import _normest1 as normest_module
 from chebfunjax.utils._matlab_twister import MatlabTwisterState
 from chebfunjax.utils._matlab_uniform_stream import MatlabUniformStream
 from chebfunjax.utils._normest1 import normest1_real
+from chebfunjax.utils._normest_triangular import triangular_solve
 
 NATIVE_DIR = Path(__file__).resolve().parents[1] / "references" / "pde_condest_native"
 EPS = np.finfo(np.float64).eps
@@ -95,15 +95,15 @@ def _lu_actions(lower, upper, trace):
 
     def forward(x):
         x = jnp.asarray(x, dtype=jnp.float64)
-        y = jl.solve_triangular(lower, x, lower=True, unit_diagonal=True)
-        y = jl.solve_triangular(upper, y, lower=False)
+        y = triangular_solve(lower, x, lower=True, unit=True)
+        y = triangular_solve(upper, y, lower=False)
         trace.append(("notransp", np.asarray(x).copy(), np.asarray(y).copy()))
         return y
 
     def transpose(x):
         x = jnp.asarray(x, dtype=jnp.float64)
-        y = jl.solve_triangular(upper, x, lower=False, trans="T")
-        y = jl.solve_triangular(lower, y, lower=True, unit_diagonal=True, trans="T")
+        y = triangular_solve(upper, x, lower=False, transpose=True)
+        y = triangular_solve(lower, y, lower=True, unit=True, transpose=True)
         trace.append(("transp", np.asarray(x).copy(), np.asarray(y).copy()))
         return y
 
