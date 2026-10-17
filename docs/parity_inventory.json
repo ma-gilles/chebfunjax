@@ -241,6 +241,11 @@
       "scope": "Retained same-input assembly diagnosis only: product/mirror exact, normalized IFFT nonexact and observer public-output neutrality. No parity completion.",
       "sha256": "844b069cee3b72d40ed4ec9944fbed0ce96e5ef7ff37c99fdd2e114900f1b8d3"
     },
+    "ratinterp_real602_cpu_20261017": {
+      "path": "docs/ratinterp_real602_cpu_20261017.json",
+      "scope": "Complete source-derived real602forward transform diagnostic and nativeD302source reconstruction. No production change.",
+      "sha256": "172df8b393e92bc2a0ea2a9cbaeb9ac0fa92efdaaeff9ae5793d80df1e317d22"
+    },
     "rdivide_scalar_column_cpu_20261017": {
       "path": "docs/rdivide_scalar_column_cpu_20261017.json",
       "scope": "Restore singleton-column denominator roots and lossless bounded scalar quotient layout; restore original public constructors08-12 and literal18 string.",
@@ -70989,7 +70994,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ratinterp_real602_cpu_20261017",
+          "scope": "Real602FFT diagnostic exact275424nonredundant words and sourceD302exact91204words; no production/fullAPI/pole acceptance."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -96001,6 +96011,10 @@
         {
           "artifact": "ratinterp_full602_cpu_20261017",
           "scope": "Complete JAX602inverse diagnostic matches367220native outputwords; no production change/fullAPI/pole acceptance. Real D route remains open."
+        },
+        {
+          "artifact": "ratinterp_real602_cpu_20261017",
+          "scope": "Real602FFT diagnostic exact275424nonredundant words and sourceD302exact91204words; no production/fullAPI/pole acceptance."
         }
       ],
       "functions": [

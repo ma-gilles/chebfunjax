@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Real602forward diagnostic matches275424native nonredundant FFT words; sourceD302reconstruction matches all91204words. All690captured stage words and independent constants match. [Evidence](ratinterp_real602_cpu_20261017.json). Production integration/public poles/API remain open.
+
 - [x] Complete source-derived JAX602inverse diagnostic matches367220native outputwords across positive/actual/independent matrices; outer2/7stages match204distinct words, independent constants and division normalization. [Evidence](ratinterp_full602_cpu_20261017.json). No production patch/public pole claim; real D route remains open.
 
 - [x] Correct minimax original11test scalar extraction exposed by actualCI; original operand/degrees/scaling/bound unchanged, focused candidate passes on identical360production files. [Evidence](minimax_scalar_ci_cpu_20261017.json). LatestCI/fullAPI remain open.

@@ -1,0 +1,102 @@
+{
+  "scope": "Complete source-derived real602forward transform diagnostic and nativeD302source reconstruction. No production change.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_head": "7782bf31cb1b2f00ea178027e05a42050e9ba242",
+  "native": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "planner": "estimate",
+    "all_public_fft_before_after_bits": true,
+    "D_retained_bits": true,
+    "D_reconstructed_bits": true,
+    "which_coeffs2vals": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech2/coeffs2vals.m",
+    "which_probe": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_capture_20261017/probe.m"
+  },
+  "stage_validation": {
+    "captures": 18,
+    "distinct_output_words": 690,
+    "word_mismatches": 0,
+    "captured_twiddle_word_mismatches": 0,
+    "scope": "Generic43forward, forward7and real half-complex2postprocessing across positive/actual/independent inputs; one aliased forward7tail lane survives native stores."
+  },
+  "whole_validation": {
+    "rows": [
+      {
+        "name": "positive",
+        "shape": [
+          302,
+          3,
+          2
+        ],
+        "words": 1812,
+        "word_mismatches": 0,
+        "max_abs": 0.0
+      },
+      {
+        "name": "actual",
+        "shape": [
+          302,
+          302,
+          2
+        ],
+        "words": 182408,
+        "word_mismatches": 0,
+        "max_abs": 0.0
+      },
+      {
+        "name": "D302",
+        "shape": [
+          302,
+          302
+        ],
+        "words": 91204,
+        "word_mismatches": 0,
+        "max_abs": 0.0
+      },
+      {
+        "name": "independent",
+        "shape": [
+          302,
+          151,
+          2
+        ],
+        "words": 91204,
+        "word_mismatches": 0,
+        "max_abs": 0.0
+      }
+    ],
+    "fft_output_words_nonredundant": 275424,
+    "D302_words": 91204,
+    "word_mismatches": 0,
+    "scope": "All302nonredundant complex frequencies for each602real FFT; Dderived from actual source identity302scale/mirror/FFT/flip/parity operation graph."
+  },
+  "candidate": "JAX array arithmetic; independently generated static phase constants and100-digit trigonometric constants; no native table/result lookup.",
+  "receipts": {
+    "ratinterp_real602_capture_run001": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_capture_run001/receipt.json",
+      "wall_seconds": 82.22388535924256,
+      "inputs_stable": true,
+      "survivors": [],
+      "command_exit_code": 0
+    },
+    "ratinterp_real602_python_run001": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_python_run001/receipt.json",
+      "wall_seconds": 11.619789268821478,
+      "inputs_stable": true,
+      "survivors": [],
+      "command_exit_code": 0
+    }
+  },
+  "source_bridge": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_review_20261017/publication_source_bridge.json",
+  "production_ready": false,
+  "limits": [
+    "Diagnostic moderate finite CPU binary64 arrays only; fullAPI/extremes/AD/performance not qualified.",
+    "Production realDandcomplexIFFT are still unchanged; public ratinterp coefficients/poles remain unverified.",
+    "Next: integrate qualified real/complex source transforms, remove the non-native complex orientation adapter on this source route, verify exact assembly and public rational coefficients/poles.",
+    "Latest-main CI/coverage>=79%, pages/figures and fullobjective acceptance remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_review_20261017.tar.gz",
+    "sha256": "0b42bc350af6f544cc197611f9606c6df6f16215e552ac5b432723f7eb1035b1",
+    "verified_payloads": 50
+  }
+}

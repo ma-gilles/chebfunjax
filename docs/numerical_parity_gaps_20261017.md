@@ -6,7 +6,7 @@ function or example parity. Native reference is Chebfun 7574c77.
 | Path | Evidence | Next decision |
 |---|---|---|
 | Fixed48 PDE | Published scalar33 real CPU transform repair makes the unchanged authored fixed48 test pass;21parent controls qualify that scope. [Evidence](fft64_pde_cpu_20261017.json). | Broader FFT/PDE plans and latest-main CI remain required. |
-| Complex rational fit | Production poles still differ about1.04e-4. New complete JAX602inverse diagnostic matches367220native words; production transform is unchanged. [Evidence](ratinterp_full602_cpu_20261017.json). | Qualify real2x7x43D302 construction, integrate source transforms, and verify public coefficients/poles plus independent controls. |
+| Complex rational fit | Production poles still differ about1.04e-4. New complete JAX602inverse diagnostic matches367220native words; production transform is unchanged. [Evidence](ratinterp_full602_cpu_20261017.json). | Real602diagnostic now reproduces D302exactly; integrate both source transforms and verify public coefficients/poles plus independent controls. |
 | Small Hermite ASY | Later executed-route diagnostics qualify initializer/power/atan and Airy product/sqrt arithmetic. Free n2 improves to x8.98e-9/v4.18e-8 but still fails. [Sealed diagnostic review](/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_airy_step8_review_20261017/REVIEW.json). | Resolve same-theta step9 geometry and remaining free trajectory; no guard removal or production Airy patch yet. |
 
 [Detailed bindings and limitations](transform_sensitive_diagnostics_cpu_20261017.json)
@@ -31,6 +31,16 @@ The complete JAX7x2x43inverse now matches all367220native outputwords across
 positive, actual602x151 and independently generated602x151 matrices. Outer
 radix2/7arithmetic and independent static constants are qualified; normalization
 must divide by602 rather than multiply by its rounded reciprocal. This is a
-diagnostic component, with no production patch or full pole acceptance. The
-real2x7x43route constructing D302still differs up to4.44e-16 and is next.
+diagnostic component, with no production patch or full pole acceptance. The production
+real2x7x43route constructing D302still differs up to4.44e-16; later diagnostic
+qualification below reproduces it exactly, with integration still required.
 [Full evidence and preserved failed attempts](ratinterp_full602_cpu_20261017.json).
+
+## Real602 and D302 diagnostic — later 2026-10-17
+
+The source-derived real602FFT matches275424nonredundant native outputwords
+across positive, actual and independent arrays. All690captured stagewords
+match, and sourceD302construction matches all91204words. Both real and complex
+transform diagnostics are now qualified on these inputs. Production integration,
+exact final assembly/public poles and independent API/AD/performance controls
+remain required. [Evidence](ratinterp_real602_cpu_20261017.json).

@@ -1,3 +1,16 @@
+# Latest real602 and D302 diagnosis — 2026-10-17
+
+Complete source-derived real602FFT diagnostic matches275424native nonredundant
+outputwords across positive/actual/independent inputs. All690captured generic43,
+forward7and half-complex2stage outputwords match. Source scale/mirror/FFT/flip/
+parity reconstructs all91204D302words exactly. Public native FFT before/after,
+retainedDand reconstructedDare bit-neutral. Static constants independently
+generated; no native table/result lookup. Diagnostic only; production source
+transforms/orientation adapter are unchanged. Next integrate both qualified
+real/complex routes and verify exact assembly/public rational coefficients/poles.
+Archive50payloadsverified with360sourcefilebridge to prior frozen archive:
+docs/ratinterp_real602_cpu_20261017.json.
+
 # Latest complete complex602 inverse diagnosis — 2026-10-17
 
 Source-derived JAX7x2x43inverse matches367220native outputwords across positive,
