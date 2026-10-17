@@ -1,0 +1,261 @@
+{
+  "head": "4b5f8f9832d4e5dd5888fc5a777c442f9f850845",
+  "scope": "Source revision/evidence reconciliation only. No new script execution, scientific output or image parity credit.",
+  "scripts": [
+    {
+      "script": "examples/approx/best_approx.py",
+      "current_sha256": "08af4919fea63ff04f159fe183de3f22b03cba7cc4c441cb74d8fc0336281d13",
+      "oct11_sha256": "08af4919fea63ff04f159fe183de3f22b03cba7cc4c441cb74d8fc0336281d13",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bestapprox_page_root_acceptance_20261008.json",
+          "exists": true,
+          "sha256": "5413405383f058aad2de0a975a8a27a1a0884e1546dc6b1cf8c3f5568ac068bf"
+        }
+      ],
+      "newest_script_commit": "fd0832588ab5cd187ce585f72ff152b5c5676fe3",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/approx/fermi_dirac.py",
+      "current_sha256": "7ad4985a10e584f2c72708983b39ed04742c18c20775e7effbc0e7c249058012",
+      "oct11_sha256": "7ad4985a10e584f2c72708983b39ed04742c18c20775e7effbc0e7c249058012",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fermi_dirac_root_acceptance_20261008.json",
+          "exists": true,
+          "sha256": "785480e58257fed64ab607ac54a6781a3e3a697335002775dd012a95656c3dab"
+        }
+      ],
+      "newest_script_commit": "eabdbfa0f28329ba73915dac42031c9ba3cea7fd",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/approx2/localization.py",
+      "current_sha256": "91ad3afce704fe721ae5dad931e0d0a96aaf31fdc18271e8fd471124e460343c",
+      "oct11_sha256": "91ad3afce704fe721ae5dad931e0d0a96aaf31fdc18271e8fd471124e460343c",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/localization_p123_historical_page_v8_cpu_20261007/postrun_audit.json",
+          "exists": true,
+          "sha256": "ee4f598c532c623f2d0109bff5dfe12b17fb2ce7ef6a247dd130caaeb83771d1"
+        }
+      ],
+      "newest_script_commit": "b287e2b8a0052324c94aab8554c5fca63d550113",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/fourier/fourier_based_chebfuns.py",
+      "current_sha256": "b0f6bb037974306a349332387d9c38890418f1fc51e76072c0465ac1b95c4bfc",
+      "oct11_sha256": "b0f6bb037974306a349332387d9c38890418f1fc51e76072c0465ac1b95c4bfc",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fourier_page_root_acceptance_20261008.json",
+          "exists": true,
+          "sha256": "70216b52c71e4aad7c050d52ca8e167234ad5dbf5eb3fa7a689062f0364297a0"
+        }
+      ],
+      "newest_script_commit": "73690e8955b6ddcd0940af7d3bc6502a37ad67da",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/linalg/vandermonde_arnoldi.py",
+      "current_sha256": "e0ca9709a7549a5011529fde0e5d372fa1fff6010cbbf822d0d8240569cc338d",
+      "oct11_sha256": "e0ca9709a7549a5011529fde0e5d372fa1fff6010cbbf822d0d8240569cc338d",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement matches execution review",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vandermonde_full80_root_source_review_20261009.json",
+          "exists": true,
+          "sha256": "0dd10c9a5c536b6450ccdf38aa749cfd07b5737e6053b91cfa182e594d20d83d"
+        }
+      ],
+      "newest_script_commit": "32bc63d9fe8f7a64eaccc53f0335a20c6dfd261c",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/ode-nonlin/delay_differential_equations.py",
+      "current_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+      "oct11_sha256": "8505ef630c499740864b4b5b2788d0aa1478046f3a426c4c265b73a529cd1fbe",
+      "oct11_same_bytes": false,
+      "previous_status": "partial; full page source execution and parity unresolved",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [],
+      "newest_script_commit": "b9a7ba3488773d64bc8adbbaf09fc5736d2237cf",
+      "later_full_execution": {
+        "doc": "docs/dde_full_current_cpu_20261017.json",
+        "doc_sha256": "471de861e01227f6c69f28d0ae29f629d2f8b4cff16e82e58b2c8057f4824084",
+        "recorded_library_commit": "9888b5d5e4a46b64daba98d24f10dfd3834c271d",
+        "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dde_current_run_20261017/supervision/receipt.json",
+        "receipt_sha256": "76b4a4707e44b54e5aa4bd7816527459bb98220057d1fddfd53e6358b7e66c3e",
+        "script_seconds": 390.8559341309592,
+        "slots": 23,
+        "figures": 24,
+        "source_script_exact": true,
+        "limits": [
+          "Full native printed output and pixel parity remain incomplete.",
+          "Native replays are descriptive comparisons, not new acceptance bounds.",
+          "Current script unchanged; qualification applies to recorded current library commit.",
+          "MATLAB startup not repeated; pinned existing captures reused.",
+          "Figure17 boundary marker visibility remains a presentation gap; unchanged renderer clips computed centers outside axes."
+        ]
+      },
+      "source_disposition": "Current script bytes bound to completed historical full execution; latest library, printed output and image parity remain open."
+    },
+    {
+      "script": "examples/ode-random/randomswitching.py",
+      "current_sha256": "8dde1c9a53837e73c1da1ab1265c38af6159af9a5f0a119f83cd75eaf9158e39",
+      "oct11_sha256": "8dde1c9a53837e73c1da1ab1265c38af6159af9a5f0a119f83cd75eaf9158e39",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged since reviewed commit",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/randomswitching_page_cpu_20261010.json",
+          "exists": true,
+          "sha256": "fe1446ace6ff3d1313f78381ab063417281bb7a2452ae38e877d2b3b6f932533"
+        }
+      ],
+      "newest_script_commit": "2c70a67b6eb8d48d0274106a263ebe2ba8880156",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/pde/trapezoideigs.py",
+      "current_sha256": "ab8ea8978cd03cf3fbf60a2e14c6e118a78d47a0cfbbfd67a84a40bb6dff7c03",
+      "oct11_sha256": "ab8ea8978cd03cf3fbf60a2e14c6e118a78d47a0cfbbfd67a84a40bb6dff7c03",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement matches execution review",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trapezoid_root_integration_20261009.json",
+          "exists": true,
+          "sha256": "d61794b59df4ac6d732c73c56e8b08d5bb94a2e652daae6ebb6d00265c7cd42c"
+        }
+      ],
+      "newest_script_commit": "5d1673d60f8c4016823e6dc3621eb213b78afdc6",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/roots/marching_squares.py",
+      "current_sha256": "80534b3ddf1482092e08e44dc7bfc0de6a5f900af5b5100d26a3139dad53ae7a",
+      "oct11_sha256": "80534b3ddf1482092e08e44dc7bfc0de6a5f900af5b5100d26a3139dad53ae7a",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement unchanged",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marchingsquares_v9_terminal_page_publication_review_20261008/review.json",
+          "exists": true,
+          "sha256": "ad2eab07972a23c1a3ead3eb706c874fb01fb76a279f564d9195908771e40712"
+        }
+      ],
+      "newest_script_commit": "2f05c1cfaa5e09ac76b9aa833e0c19922255be5e",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/sphere/atmospherictemperature.py",
+      "current_sha256": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+      "oct11_sha256": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+      "oct11_same_bytes": true,
+      "previous_status": "accepted source replacement; full executed script plus separately qualified frame-only delta",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_fullpage_root_runtime_review_20261010.json",
+          "exists": true,
+          "sha256": "bf22458532fe9efaff29d5d7da71839ac6a5e7a44664ff5d1e58d701aec5a695"
+        },
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/atmospheric_frame_style_cpu_20261010.json",
+          "exists": true,
+          "sha256": "67e9ddb5061dd0daf2591cd45432b5ee01817bbd01c5e8737c0273f4aaa9ef04"
+        }
+      ],
+      "newest_script_commit": "e8e7128982b590187d830c8f2ae67361597b0ab5",
+      "source_disposition": "Current script bytes unchanged from accepted historical source replacement; latest-library numerical/output/image parity not reverified."
+    },
+    {
+      "script": "examples/sphere/laplaceball.py",
+      "current_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+      "oct11_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+      "oct11_same_bytes": true,
+      "previous_status": "partial; full page source execution and parity unresolved",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [],
+      "newest_script_commit": "da399f1da474411070f5dfc06b289056499a3da7",
+      "source_disposition": "Numerical run/input functions AST-identical to completed historical run; renderer deltas separately qualified. No combined current-library full execution claim.",
+      "later_full_execution": {
+        "doc": "docs/laplaceball_full_cpu_20261010.json",
+        "doc_sha256": "b4069054f02bf7711ce3f3c587880304d4c6ec0d3ada910a675156d8e6f408f8",
+        "source_snapshot_script_sha256": "0e13d39d775728c8d48293a23a48b007ec3c2e6150e6467bcfd8de1ba08040be",
+        "receipt_sha256": "c51940d0d06aea7185a7d44e5c9139e272cddb6aac3a5d14ee3b19bec7a7e413",
+        "run_and_input_function_AST_identical": true,
+        "changed_renderer_functions": [
+          "_render",
+          "_save",
+          "_sphere_layout"
+        ],
+        "palette_doc_sha256": "4257d67f136a487dd46337f26abc13bee2e4ff6f474e44b07f55f24d43164e17",
+        "current_script_bound_to_palette_record": true,
+        "limits": [
+          "Boundary representation length65\u00d765 versus native65\u00d763.",
+          "Captured-input agreement does not implement general MATLAB random streams.",
+          "Scalar printed differences do not establish full solution/error-norm parity.",
+          "Source Cartesian Spherefun overload remains absent; page uses equivalent angular point.",
+          "Renderer lighting, framing, and pixel parity remain open.",
+          "Actual startup plugin/tight_layout warnings retained in evidence."
+        ]
+      }
+    },
+    {
+      "script": "examples/stats/resampling_random_variables.py",
+      "current_sha256": "02e8c9397139bf970c6be341b6dbc13d0121ac994dec315b7e06cc95f11a2d0b",
+      "oct11_sha256": "e0309884f0da23e2fd21be5ae1a073fba1c2994c0086db02fdce22c3be86a16d",
+      "oct11_same_bytes": false,
+      "previous_status": "accepted source replacement matches execution review",
+      "final_current_library_science_verified": false,
+      "prior_evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/resampling_page_v2_root_integration_20261009.json",
+          "exists": true,
+          "sha256": "5d199c4f8786246d8b1ce1f1c788706e7b91fff133e67c30cc8f84bdf19290b9"
+        }
+      ],
+      "newest_script_commit": "f3e8123e4698e0624cf2aecfeacb1ad791f397d3",
+      "source_disposition": "Historical full numeric execution plus separately qualified source splitting/warning adapter. No fresh current full-script execution claim.",
+      "later_adapter": {
+        "doc": "docs/resampling_source_toggles_cpu_20261011.json",
+        "doc_sha256": "b3789875c0ba5e86b74270766776adfa1a915a0424169b54c1fd9ae572044497",
+        "run_AST_identical_after_removing_exact_two_toggle_calls": true,
+        "source_toggles": [
+          "off",
+          "on"
+        ]
+      }
+    }
+  ],
+  "current_script_count": 12,
+  "exact_oct11_script_bytes": 10,
+  "historical_DDE_full_execution_now_bound": true,
+  "LaplaceBall_numerical_AST_bridge_verified": true,
+  "Resampling_two_toggle_AST_bridge_verified": true,
+  "original_home_checkout_modified": false,
+  "full_parity_claim": false,
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/handoff_twelve_current_bindings_cpu_20261017.zip",
+  "archive_sha256": "93e36138aacc924c9c564715e6219e51d5f57c967eaf6e1d4b9c51ca405989b4"
+}

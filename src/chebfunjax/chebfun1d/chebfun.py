@@ -2081,8 +2081,38 @@ class Chebfun(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
+    def subsref(self, index):
+        """Apply native indexing records (``type`` and ``subs`` fields).
+
+        Numeric column indices in records are one-based; direct Python
+        indexing and evaluation retain their zero-based selectors.
+        MATLAB source: @chebfun/subsref.m, commit 7574c77.
+        """
+        from ._subsref import source_subsref
+        return source_subsref(self, index)
+
     def __call__(self, x: jax.Array, selector=OMITTED, *,
                  side=OMITTED, columns=OMITTED) -> jax.Array:
+        """Evaluate at numeric points or compose with a function object.
+
+        Numeric selectors are zero-based columns. ``side`` selects a
+        breakpoint limit; endpoint string aliases remain supported.
+        Native indexing records are available through :meth:`subsref`.
+        """
+        # Keep endpoint aliases supported by the Python evaluation API.
+        # Other strings belong to SUBSREF, whose error differs from FEVAL.
+        if isinstance(x, str) and not self.isempty():
+            if x == ":":
+                if columns is OMITTED and selector is not OMITTED and not isinstance(selector, str):
+                    columns = selector
+                return self if columns is OMITTED or columns is None else self[columns]
+            if x.lower() not in ("left", "start", "-", "right", "end", "+"):
+                raise FevalError("CHEBFUN:CHEBFUN:subsref:nonnumeric",
+                                 "Cannot evaluate chebfun for non-numeric type.")
+        return self._feval(x, selector, side=side, columns=columns)
+
+    def _feval(self, x: jax.Array, selector=OMITTED, *,
+               side=OMITTED, columns=OMITTED) -> jax.Array:
         """Evaluate the Chebfun at point(s) x.
 
         If ``x`` is itself a Chebfun ``g``, returns the composition
@@ -2163,8 +2193,11 @@ class Chebfun(eqx.Module):
         # MATLAB @chebfun/subsref dispatches F(SPHEREFUN) to spherefun
         # composition. Keep this lazy import to avoid the chebfun/spherefun
         # module cycle at import time.
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+        from chebfunjax.diskfun.diskfun import Diskfun
         from chebfunjax.spherefun.spherefun import Spherefun
-        if isinstance(x, Spherefun):
+        if isinstance(x, (Chebfun2, Chebfun3, Diskfun, Spherefun)):
             return x.compose(self)
         # Native feval returns zeros(size(x)) before transpose or component
         # packing. Empty matrices therefore keep their original shape.

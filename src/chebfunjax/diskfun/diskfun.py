@@ -2688,8 +2688,18 @@ class Diskfun(eqx.Module):
         from chebfunjax.diskfun.diskfunv import Diskfunv
 
         if isinstance(op, Chebfun):
-            # op(f) with a single-column CHEBFUN.
-            return Diskfun.from_function(lambda t, r: op(self(t, r)))
+            # Native @diskfun/compose.m extracts two CHEBFUN columns before
+            # scalar construction; packed array FEVAL is not a disk sample.
+            if op.n_columns == 1:
+                return Diskfun.from_function(lambda t, r: op(self(t, r)))
+            if op.n_columns == 2:
+                first, second = op[0], op[1]
+                return Diskfunv(
+                    Diskfun.from_function(lambda t, r: first(self(t, r))),
+                    Diskfun.from_function(lambda t, r: second(self(t, r))),
+                )
+            raise ValueError("CHEBFUN:DISKFUN:COMPOSE:Columns: "
+                             "The CHEBFUN object must have 1 or 2 columns.")
 
         if isinstance(op, Quasimatrix):
             ncol = op.shape[1] if hasattr(op, "shape") else len(op.cols)

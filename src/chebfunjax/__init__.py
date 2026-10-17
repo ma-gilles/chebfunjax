@@ -119,8 +119,10 @@ def feval(f, x, *args):
     Chebfun commit: 7574c77
     """
     # FEVAL's optional argument is a side, unlike numeric SUBSREF columns.
-    if isinstance(f, Chebfun) and len(args) == 1:
-        return f(x, side=args[0])
+    if isinstance(f, Chebfun):
+        if len(args) == 1:
+            return f._feval(x, side=args[0])
+        return f._feval(x, *args)
     return f(x, *args)
 
 

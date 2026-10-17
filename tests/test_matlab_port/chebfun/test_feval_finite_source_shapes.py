@@ -164,7 +164,7 @@ class TestFevalNativeFiniteShapes:
 @pytest.mark.parametrize(
     ("call", "identifier"),
     [
-        pytest.param(lambda f: f("???"),
+        pytest.param(lambda f: cj.feval(f, "???"),
                      "CHEBFUN:CHEBFUN:feval:strInput", id="endpoint-string"),
         pytest.param(lambda f: f(0.0, side="???"),
                      "CHEBFUN:CHEBFUN:feval:leftRightChar", id="side-string"),

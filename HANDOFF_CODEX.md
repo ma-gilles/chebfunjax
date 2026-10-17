@@ -1,3 +1,37 @@
+## Original Subsref predicates and JAX record adapter — 2026-10-17
+
+All32 original tests/chebfun/test_subsref.m predicates now have component
+coverage. Native type/subs records support brace restriction, colon and
+column selection, property access and function-object composition. Record
+columns are one-based; direct Python columns remain zero-based. Explicit
+cj.feval retains its native string error identifier separately from subsref.
+Chebfun2/Chebfun3/Diskfun/Spherefun dispatch precedes numeric conversion;
+Diskfun composition extracts native two-column Chebfun outputs as Diskfunv.
+
+The first candidate helper used new NumPy numerical dispatch and was rejected.
+The corrected helper uses JAX. Its54 fresh controls pass, including JIT/AD;
+exact unchanged typed-dispatch/test bytes retain the other component evidence.
+88 distinct controls span both components, not87+54; repeats add no credit.
+Root12 latest-main integration controls pass13.58s, with8180stable inputs,
+all observed runtime imports preguarded and no survivors. Full static checks
+pass without a new NumPy waiver. Both component archives and their exact
+source bridge were independently verified. See docs/subsref_jax_source_cpu_20261017.json.
+
+This is original-test coverage, not full record API parity. Numeric/foreign
+recursive records remain unsupported; invalid numeric/logical/NaN/complex
+column branch and builtin-index semantics require a separate native capture.
+Current casts must not be claimed native-correct; follow-up is in progress.
+
+The original12 interrupted example scripts also have current source/evidence
+bindings reconciled. Ten match the October11 scripts; DDE and Resampling bind
+to their later qualified revisions. LaplaceBall computation AST remains bound
+to retained full-run evidence with separate render changes. No new numerical
+or figure credit: all12 final affected-library checks remain open. See
+docs/handoff_twelve_current_bindings_cpu_20261017.json.
+
+Full tests/APIs/pages/figures, FFT/inverse representations and matched CPU
+performance remain unresolved. Latest-main CI success is still required.
+
 ## Poisson large-rank CDR evaluation — 2026-10-17
 
 All nine original tests/chebfun2/test_poisson.m assertions pass in 193.16

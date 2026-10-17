@@ -55,6 +55,16 @@ remaining-page count.
   All 26 authored value/AD/fallback controls pass. See
   [Poisson evidence](poisson_grid_chunk_cpu_20261017.json).
 
+- [x] All 32 original Chebfun Subsref predicates covered through frozen
+  component gates and an exact source bridge. Corrected JAX-only record
+  helper passes 54 current controls; total 88 distinct component controls.
+  Root 12 latest-source integration controls pass in 13.58 seconds.
+  [Evidence and remaining record API gaps](subsref_jax_source_cpu_20261017.json).
+- [x] Current source bindings for the original 12 interrupted scripts
+  reconciled with their retained acceptance evidence. This is a source-only
+  audit, not new numerical or figure qualification. See
+  [script dispositions](handoff_twelve_current_bindings_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted
@@ -63,7 +73,7 @@ remaining-page count.
   gaps; remaining invalid-input and future JAX list-DATA behavior.
 - [ ] Authored fixed-48 advection control and chemical PDE accuracy.
 - [ ] Small explicit Hermite ASY, nonlinear parameter/backend cases,
-  interpolation norms/grids, remaining Subsref clauses and Chebfun3T predicate.
+  interpolation norms/grids, broader Subsref records and Chebfun3T predicate.
 - [ ] Strict composition/division representations, general rational poles,
   conformal inverse counts, IVP representation, QR/LU/QZ and other API gaps.
 - [ ] Native normal RNG values and production integration/draw ordering.

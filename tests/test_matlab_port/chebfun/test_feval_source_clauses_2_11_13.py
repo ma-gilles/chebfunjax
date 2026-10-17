@@ -63,7 +63,7 @@ def test_clause_4_bad_endpoint_source_identifier():
     f = cj.chebfun(lambda x: jnp.asarray(erf(np.asarray(x))),
                    domain=[-1.0, 1.0], splitting=False)
     with pytest.raises(Exception) as caught:
-        f("???")
+        cj.feval(f, "???")
     assert _source_identifier(caught.value) == "CHEBFUN:CHEBFUN:feval:strInput"
 
 
