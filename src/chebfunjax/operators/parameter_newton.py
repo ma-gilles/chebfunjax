@@ -67,8 +67,8 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
     from chebfunjax.chebpref import ChebopPref
     from chebfunjax.operators.chebop import SystemSolution
 
-    if backend not in ("chebcolloc2", "chebcolloc1"):
-        raise NotImplementedError("Typed parameter Newton supports C1/C2 values backends only")
+    if backend not in ("chebcolloc2", "chebcolloc1", "ultraS"):
+        raise NotImplementedError("Typed parameter Newton supports C1/C2/ultraS backends only")
     # Native solvebvpNonlinear.m33-36,75 captures preferences once per solve.
     preferences = ChebopPref()
     lambda_min = preferences.lambdaMin
@@ -96,6 +96,9 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
                 powers.append(p)
             p += .5
     dimensions = [int(math.floor(2 ** p + .5)) for p in powers]
+    if backend == "ultraS":
+        from chebfunjax.operators._linear_altdisc import _dimension_values
+        dimensions = _dimension_values(n_min, n_max, backend)
     if callable(f) and not isinstance(f, Chebfun):
         f = chebfun(f, domain=domain)
     grid_history = []
@@ -152,6 +155,36 @@ def solve_parameter(op, f=0, n=None, max_iter=25, initial=None,
                     else [start] + [d for d in dimensions if d > start])
         for size in schedule:
             grid_history.append(size)
+            if backend == "ultraS":
+                from chebfunjax.operators._parameter_ultras import (
+                    UltrasParameterCorrection,
+                    to_function,
+                )
+                key = (backend, size)
+                if key not in cache:
+                    cache[key] = UltrasParameterCorrection(out, bc, size, order, domain)
+                disc = cache[key]
+                discretization_history.append({'dimension': size,
+                                               'functionCoefficients': disc.unknown_size,
+                                               'equationCoefficients': size,
+                                               'diffOrder': order,
+                                               'outputSpace': disc.output_space,
+                                               'backend': backend})
+                vector = disc.solve(residual, bc)
+                if not bool(jnp.all(jnp.isfinite(vector))):
+                    return None, size, False
+                coefficients, parameters = disc.project(vector)
+                full = to_function(coefficients, domain)
+                tech = full.funs[0].tech
+                happy, cutoff = Chebtech2.happiness_check(
+                    tech.coeffs, tech.values, tol=bvp_tol, vscale=vscale,
+                    sample_test=False)
+                if happy or n is not None or size == schedule[-1]:
+                    keep = cutoff if happy else size
+                    return [to_function(coefficients, domain, keep),
+                            *parameters.tolist()], size, happy or n is not None
+                vscale = max(vscale, float(full.vscale))
+                continue
             if backend == "chebcolloc1":
                 from chebfunjax.operators._parameter_first_kind import (
                     FirstKindParameterCorrection,

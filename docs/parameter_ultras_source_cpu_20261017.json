@@ -1,0 +1,309 @@
+{
+  "scope": "Genuine ultraS typed numeric-parameter correction for one finite single-interval field, unchanged outer Newton policies; literal original adaptive predicate plus controls and C1/C2 regressions. Not full nonlinear/backend API, native-provider bits or performance parity.",
+  "base": "17a381884a37f6d38c4f675cbb7323ff4a70f4b3",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "Scoped qualified candidate; parent integration/publication pending.",
+  "baseline_failure": "Literal natural adaptive US setup reaches legacy SystemDisc and raises CHEBFUN:LINOP:linsolve:notSquare,matrix66x130; genuine exception, not resource censor.",
+  "correction": {
+    "unknowns": "n+K Chebyshev function coefficients plus numeric scalar entries; n equation coefficients and leading BC rows. Scalar columns and RHS Tcoeffs truncate/prolong to n BEFORE inclusive order conversion.",
+    "field": "Source ascending derivative assembly at m=n+K via convertmat(m,j,K-1)@multmat(m,c_j,j)@physical_diffmat, then first n equation rows. Inclusive upper conversion index K-1 denotes actual C^K.",
+    "boundary": "Native C2 functional coefficient representation via rot90/coeffs2vals/inverse rot90; numeric scalar BC entries untouched. This source representation bridge does not call a C2 solver or use a C2 seed.",
+    "solve": "Plain unscaled JAX solve every RHS, no reusable factors; native isFactored=false. Frozen assembly cached by backend and size. Native sparse-backslash/provider bit or pivot equivalence not claimed.",
+    "output": "Project first n function coefficients, retain numeric scalar coordinates, source happiness and direct C2 coefficient construction. Native powers-of-two US adaptive schedule; no forced original dimension."
+  },
+  "initial_representation": "Original x and numeric-1 retained; no parameter differential equation, supplied solved seed or C1/C2 reroute.",
+  "candidate_distinct_nodes": 15,
+  "counts": {
+    "independent_primitives": 11,
+    "complex_manufactured_numeric_parameter": 1,
+    "literal_original_natural_adaptive_US": 1,
+    "unchanged_original_adaptive_C1": 1,
+    "unchanged_original_adaptive_C2": 1
+  },
+  "literal_US": {
+    "signed_aggregate": 7.077761529128585e-11,
+    "bound": 5e-10,
+    "residual_L2": 5.7669101017234164e-11,
+    "numeric_parameter": -0.16960447912769622,
+    "linear_discretizations": [
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 64,
+        "functionCoefficients": 66,
+        "equationCoefficients": 64,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      },
+      {
+        "dimension": 32,
+        "functionCoefficients": 34,
+        "equationCoefficients": 32,
+        "diffOrder": 2,
+        "outputSpace": 1,
+        "backend": "ultraS"
+      }
+    ],
+    "full_metadata_reference": "supervision_literal_us/stdout, captured stdout line Native US predicate"
+  },
+  "receipts": {
+    "baseline_literal_us": {
+      "wall_seconds": 85.1364540043287,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 3012952,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60368,
+      "pytest_nodes": 1,
+      "pytest_failures": 1
+    },
+    "primitive_us": {
+      "wall_seconds": 39.83218506211415,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1585668,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60369,
+      "pytest_nodes": 11,
+      "pytest_failures": 0
+    },
+    "manufactured_us": {
+      "wall_seconds": 40.88196546304971,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1649488,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60370,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "literal_us": {
+      "wall_seconds": 62.92797491932288,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2443428,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60371,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "original_c1": {
+      "wall_seconds": 64.70191827788949,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2415228,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60372,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "original_c2": {
+      "wall_seconds": 67.62069397233427,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2499076,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 60373,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    }
+  },
+  "runtime_counts": {
+    "baseline_literal_us": {
+      "modules": {
+        "preguarded": 1427,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    },
+    "primitive_us": {
+      "modules": {
+        "preguarded": 1427,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    },
+    "manufactured_us": {
+      "modules": {
+        "preguarded": 1426,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    },
+    "literal_us": {
+      "modules": {
+        "preguarded": 1431,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    },
+    "original_c1": {
+      "modules": {
+        "preguarded": 1426,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    },
+    "original_c2": {
+      "modules": {
+        "preguarded": 1425,
+        "postobserved_only": 0
+      },
+      "linked_dsos_before": {
+        "preguarded": 153,
+        "postobserved_only": 0
+      },
+      "linked_dsos_after": {
+        "preguarded": 159,
+        "postobserved_only": 0
+      }
+    }
+  },
+  "bounds": "Original source US signed aggregate<1e3*5e-13, unchanged C1/C2 original predicates, supplemental complex1e-10 bounds, and original pertesttimeouts retained. Authored primitive budgets use explicit source dimension and float64 epsilon normwise backward/action residuals.",
+  "static_review": "Full repository Ruff src/tests passed. Existing C1/C2/outer Newton bodies AST-identical after removing only new US branches and backend validation; C1 helper and existing original/adapted test files byte-identical to17a. Source/test hashes unchanged across review and all numerical groups.",
+  "resource_scope": "CPU36-39 serial bounded groups: primitives<=120s2GiB, others<=180s3GiB; sampled RSS is not PSS or a guaranteed true peak. No matched performance ratio or heavy example rerun. Parent ran separate tiny metadata/API controls on disjoint cores during some preparation; no performance qualification.",
+  "native_evidence": "Exact pinned tracked source snapshots from sealed US architecture audit, no new native numerical run in this package.",
+  "remaining": [
+    "Broader piecewise/nonlocal/multi-field or arbitrary parameter ordering, nonexplicit scalar seed, custom preference and generic high-order nonconstant ultraspherical multiplication branches are not qualified.",
+    "Existing JAX lambda>=2 nonconstant multiplication recurrence lacks the native tiny-tail stop; original highest-derivative coefficient is constant .1 and does not exercise that branch.",
+    "Existing adapted US mapping with parameter derivative equation,n96,1e-7 remains unchanged and carries separate scope.",
+    "Frozen17a C2 factor-policy debt remains unchanged; parent owns a separate unpublished correction. Passing C2 regression does not close that policy.",
+    "No native sparse solve/pivot/FFT bit parity, matched speed, full issue/global parity or latest-main combined integration claim."
+  ]
+}

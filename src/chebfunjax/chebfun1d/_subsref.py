@@ -225,7 +225,17 @@ def source_subsref(f, index):
         fail('unexpectedType', 'Unexpected index.type of ' + kind)
 
     if len(records) > 1 and kind in ('()', '.'):
-        if not hasattr(out, 'subsref'):
-            raise NotImplementedError('Recursive indexing of numeric results is unsupported.')
-        return out.subsref(records[1:])
+        if hasattr(out, 'subsref'):
+            return out.subsref(records[1:])
+        # GET's public Python tuple/vector conventions are preserved. Only
+        # the native record boundary restores their source numeric shapes;
+        # FUNS and unresolved local-property lists remain cells/objects.
+        if kind == '.' and subs in ('domain', 'ends'):
+            out = jnp.asarray(out).reshape(1, -1)
+        elif kind == '.' and subs in ('lval', 'rval') and jnp.ndim(out) <= 1:
+            out = jnp.asarray(out).reshape((-1, 1) if f.is_transposed else (1, -1))
+        if isinstance(out, (numbers.Number, bool, jax.Array, jax.core.Tracer)):
+            from ._numeric_subsref import source_numeric_subsref
+            return source_numeric_subsref(out, records[1:])
+        raise NotImplementedError('Recursive indexing of cell/foreign results is unsupported.')
     return out

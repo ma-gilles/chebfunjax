@@ -92,8 +92,8 @@ remaining-page count.
   combined-source68integration controls pass19.075s. Logical/foreign
   nonnumeric queries reject without conversion hooks; direct Python calls
   retain their separate convention. [Combined evidence](c1_query_joint_cpu_20261017.json).
-- [ ] Natural ultraspherical parameter backend; broader C1 APIs and C2
-  factor eligibility policy; numeric recursion and cell/property dispatch.
+- [ ] Broader parameter/C1/US APIs, C2 factor eligibility policy, GET values
+  and cell/foreign/property dispatch beyond qualified numeric recursion.
 
 - [x] Skip redundant scalar AD extraction for known-local one-sided solves;
   two-sided source routing and nonlocal behavior retained. Fourteen unchanged
@@ -101,6 +101,16 @@ remaining-page count.
   vector/length-error regression with consistent Python error text. Initial
   memory censor preserved, no benchmark/native-message parity claim.
   [CI routing evidence](ci_routing_controls_cpu_20261017.json).
+
+- [x] Natural typed ultraspherical scalar-parameter backend: literal adaptive
+  originalUS and unchanged C1/C2 regressions pass, with native tolerances and
+  schedules. Latest-source originalUS repeat41.351s; classification6repeat
+  passes19.167s, preserving601 CI fixes.
+- [x] Source builtin numeric-result recursion:194distinct component controls,
+  native65API capture and fresh latest-source72controls pass15.955s. Native
+  public patterns are scoped to errors/shapes/selection; constructor bits,
+  cell/foreign recursion and GET values remain open.
+  [Combined qualification](ultras_recursion_joint_cpu_20261017.json).
 
 ## Correctness and original test parity
 

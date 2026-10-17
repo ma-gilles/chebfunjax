@@ -1,0 +1,200 @@
+{
+  "base": "601f9da27b5f1455890efed2a2584c850459fe95",
+  "scope": "Natural typed ultraspherical numeric-parameter solve and builtin numeric-result Subsref recursion, with latest-source original US,72numeric API controls and6classification controls. Not full library/test/page/figure/performance parity.",
+  "source_hashes": {
+    "src/chebfunjax/operators/chebop.py": "4dddadce510b3ca7417ebe96e2b074b0dbbd01e746cd1547b68a972211cb642d",
+    "src/chebfunjax/operators/parameter_newton.py": "5b8fca92803dccdb82cd8a5ab46f8788436685ba867986b377793a030366a905",
+    "src/chebfunjax/operators/_parameter_ultras.py": "f3c3a44f308c6ca437dd0c55d89e19725b1ef6ea44498ea120be83b5ac15b943",
+    "tests/test_matlab_port/chebop/test_parameter_ultras_source_matlab.py": "f100c505a4596c2437d1696632abe5be2370aec1fe207b9c214a68dcdc0152c4",
+    "tests/test_operators/test_parameter_ultras_source_controls.py": "2e4efd3cd266b0ac9202228eb4b5166121950eb304b5bc7d37fb02519416c93f",
+    "src/chebfunjax/chebfun1d/_subsref.py": "d1237c3249c54c1b5d8240ea2c788a225f87e98d3e9e4d9437d5a1ee1af415d2",
+    "src/chebfunjax/chebfun1d/_numeric_subsref.py": "43487a63e02706689417e9fc9646652c1a5223a0e792588e76a0390a54587c93",
+    "tests/references/subsref_numeric_recursion_native_20261017.json": "09d268226cc3f5e75b02bc26ba502d8d1788d2d126a3357cde2eac562cac73bf",
+    "tests/test_subsref_numeric_recursion_edge_controls.py": "e4d5ffa11c1c4f48d6b7ffc7f141671b3bcdd16b67cf9426dca935b6051782f0",
+    "tests/test_subsref_numeric_recursion_source.py": "9507933c6e3fe24e6457b13226d54c29654d07253457295e4f4ef628dc0b8e46"
+  },
+  "source_bridge": {
+    "base": "601f9da27b5f1455890efed2a2584c850459fe95",
+    "files": {
+      "src/chebfunjax/operators/chebop.py": "4dddadce510b3ca7417ebe96e2b074b0dbbd01e746cd1547b68a972211cb642d",
+      "src/chebfunjax/operators/parameter_newton.py": "5b8fca92803dccdb82cd8a5ab46f8788436685ba867986b377793a030366a905",
+      "src/chebfunjax/operators/_parameter_ultras.py": "f3c3a44f308c6ca437dd0c55d89e19725b1ef6ea44498ea120be83b5ac15b943",
+      "tests/test_matlab_port/chebop/test_parameter_ultras_source_matlab.py": "f100c505a4596c2437d1696632abe5be2370aec1fe207b9c214a68dcdc0152c4",
+      "tests/test_operators/test_parameter_ultras_source_controls.py": "2e4efd3cd266b0ac9202228eb4b5166121950eb304b5bc7d37fb02519416c93f",
+      "src/chebfunjax/chebfun1d/_subsref.py": "d1237c3249c54c1b5d8240ea2c788a225f87e98d3e9e4d9437d5a1ee1af415d2",
+      "src/chebfunjax/chebfun1d/_numeric_subsref.py": "43487a63e02706689417e9fc9646652c1a5223a0e792588e76a0390a54587c93",
+      "tests/references/subsref_numeric_recursion_native_20261017.json": "09d268226cc3f5e75b02bc26ba502d8d1788d2d126a3357cde2eac562cac73bf",
+      "tests/test_subsref_numeric_recursion_edge_controls.py": "e4d5ffa11c1c4f48d6b7ffc7f141671b3bcdd16b67cf9426dca935b6051782f0",
+      "tests/test_subsref_numeric_recursion_source.py": "9507933c6e3fe24e6457b13226d54c29654d07253457295e4f4ef628dc0b8e46"
+    },
+    "component_source_hashes": {
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_20261017/candidate_17a/src/chebfunjax/operators/chebop.py": "295bfb475006b1cff9fc62eb4fd4874b9b641dc76edfa4fb6d9dce144e4ab000",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_20261017/candidate_17a/src/chebfunjax/operators/parameter_newton.py": "5b8fca92803dccdb82cd8a5ab46f8788436685ba867986b377793a030366a905",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_20261017/candidate_17a/src/chebfunjax/operators/_parameter_ultras.py": "f3c3a44f308c6ca437dd0c55d89e19725b1ef6ea44498ea120be83b5ac15b943",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_20261017/candidate_17a/tests/test_matlab_port/chebop/test_parameter_ultras_source_matlab.py": "f100c505a4596c2437d1696632abe5be2370aec1fe207b9c214a68dcdc0152c4",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_20261017/candidate_17a/tests/test_operators/test_parameter_ultras_source_controls.py": "2e4efd3cd266b0ac9202228eb4b5166121950eb304b5bc7d37fb02519416c93f",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_source_20261017/src/chebfunjax/chebfun1d/_subsref.py": "d1237c3249c54c1b5d8240ea2c788a225f87e98d3e9e4d9437d5a1ee1af415d2",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_source_20261017/src/chebfunjax/chebfun1d/_numeric_subsref.py": "43487a63e02706689417e9fc9646652c1a5223a0e792588e76a0390a54587c93",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_source_20261017/tests/references/subsref_numeric_recursion_native_20261017.json": "09d268226cc3f5e75b02bc26ba502d8d1788d2d126a3357cde2eac562cac73bf",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_source_20261017/tests/test_subsref_numeric_recursion_edge_controls.py": "e4d5ffa11c1c4f48d6b7ffc7f141671b3bcdd16b67cf9426dca935b6051782f0",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_source_20261017/tests/test_subsref_numeric_recursion_source.py": "9507933c6e3fe24e6457b13226d54c29654d07253457295e4f4ef628dc0b8e46"
+    },
+    "preserved_601_CI_fixes": {
+      "_solve_linear_AST_identical": true,
+      "_mixed_linear_file_identical": true
+    },
+    "US_chebop_AST_identical_except_preserved_601_solve_linear": true,
+    "numeric_final_sealed_source_hashes_verified": {
+      "src/chebfunjax/chebfun1d/_subsref.py": "d1237c3249c54c1b5d8240ea2c788a225f87e98d3e9e4d9437d5a1ee1af415d2",
+      "src/chebfunjax/chebfun1d/_numeric_subsref.py": "43487a63e02706689417e9fc9646652c1a5223a0e792588e76a0390a54587c93",
+      "tests/test_subsref_numeric_recursion_source.py": "9507933c6e3fe24e6457b13226d54c29654d07253457295e4f4ef628dc0b8e46",
+      "tests/test_subsref_numeric_recursion_edge_controls.py": "e4d5ffa11c1c4f48d6b7ffc7f141671b3bcdd16b67cf9426dca935b6051782f0",
+      "tests/references/subsref_numeric_recursion_native_20261017.json": "09d268226cc3f5e75b02bc26ba502d8d1788d2d126a3357cde2eac562cac73bf"
+    }
+  },
+  "root_gates": {
+    "query": {
+      "tests": 72,
+      "pytest_seconds": 15.955,
+      "wall_seconds": 21.540779897011817,
+      "sampled_peak_summed_rss_kib": 1584284,
+      "guarded_inputs": 8210,
+      "observed_imports_all_preguarded": 1400,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "us": {
+      "tests": 1,
+      "pytest_seconds": 41.351,
+      "wall_seconds": 48.15432346891612,
+      "sampled_peak_summed_rss_kib": 2437616,
+      "guarded_inputs": 8210,
+      "observed_imports_all_preguarded": 1431,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "metadata": {
+      "tests": 6,
+      "pytest_seconds": 19.167,
+      "wall_seconds": 24.636125524062663,
+      "sampled_peak_summed_rss_kib": 1562704,
+      "guarded_inputs": 8210,
+      "observed_imports_all_preguarded": 1428,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "component_reviews": {
+    "ultras_parent_package_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_ultras_source_cpu_20261017.tar.gz",
+      "sha256": "21b79147f336caf7a985bb1cef6efad0030448c39bf5d14208be0af08574c825",
+      "verified_payloads": 173,
+      "pinned_native_static_sources_verified": {
+        "tests/chebop/test_paramODE_nonlin_US.m": "c807958d2793cf03acc093f65ff56a5cd155cdd5032edfb6d8006160cfca353e",
+        "@linop/linsolve.m": "22aab20f282c6e6a415f88bc72d3329cfba51f8e4e804e7839a3276b3675b673",
+        "@chebop/solvebvp.m": "83538b9af421eba0e90427ae7fb648ab52b863c2d2f79fc4864f3eaee7cc62b7",
+        "@chebop/solvebvpNonlinear.m": "aa238e4608c839a164403e4233bdae960c733c2c5cdca1b6bac8be053d6ccaa0",
+        "@coeffsDiscretization/coeffsDiscretization.m": "ec828ac34ba815c6a5616cacec92bca5a49ad08bc68975bf374126bf80433a6f",
+        "@coeffsDiscretization/instantiate.m": "ec3211136a25f984ae65ecb45a831a88fa871342efaa2a35290c9183da9c7d0b",
+        "@coeffsDiscretization/scale.m": "08be968202ff89620f1a4c7133b34d1416de1f1d5fd0a71b2959aaff2865804e",
+        "@coeffsDiscretization/getCoeffs.m": "c70352d8f3eba62a09fdc349dada4375a8eda17747ea897a809be99222750535",
+        "@coeffsDiscretization/getOutputSpace.m": "d8615c5eafd816fe9afac3776142137c8e8e9a799e6ccd8cde19a6339c9f617d",
+        "@coeffsDiscretization/extractBlock.m": "09fbbacda676a30984c4d301908dd8050eaa1ce2e9f5a92cdf3654ce1f1d7e40",
+        "@opDiscretization/getConstraints.m": "5f33a1ffc5700a6e7e4740098d332f475f630e34e69c942997e6d71d91da23a7",
+        "@opDiscretization/getProjOrder.m": "4d8a3c41ade69ec0bf8df51a45b8907982800964ea45c5cd8ee9fb864fea0168",
+        "@opDiscretization/matrix.m": "17ced714b338f12181e85170b439d42fb8909d1acb0da941a398c7bebdf39ba8",
+        "@opDiscretization/extractBlock.m": "1e9cbae06e93753dbbcc9a4e135e2f9b7a4edaa449bb9af69cca862c98fafdac",
+        "@opDiscretization/opDiscretization.m": "de8d8ba6e9c028c660a9b216c2306bceebb367bb47f1dd6f1942d7511b95cc13",
+        "@opDiscretization/testConvergence.m": "b11d1cbfc2eee48f4f14c2d856315657411dab9c0868c5723183786ce99f5fd4",
+        "@opDiscretization/mat2fun.m": "70051e42bd424c573670f78c65437c75c9a978e98793b386540228c9234c5570",
+        "@opDiscretization/partition.m": "5907746c907f20066498d2edf7d3be1a5eea6ecb3725f08aed50611111b8d50e",
+        "@opDiscretization/getDimAdjust.m": "f73324b0e5a80df099828c73e96c7934a031cbe3985e815a04c075b1a1481b64",
+        "@ultraS/ultraS.m": "304fc379fea6ad49ae20cfaba6821b7321e0b994c3a5d82dc92dbe6490bd3f6b",
+        "@ultraS/quasi2diffmat.m": "90beb4ae1eda1e7626b28fb97e358a89f833b0bff750ab3e5db2ae97e76dda0d",
+        "@ultraS/toFunctionOut.m": "bf6b8e6da582ed42fcbbcad18644328bae850a35d1cfbf32b38858d082248739",
+        "@ultraS/convert.m": "d50d75d4fc356456ff8a7fab1b2cde29e6ef6c6f0ba431ebe34d8e75d2c84715",
+        "@ultraS/spconvert.m": "8b4a5a17749b21129c7687127b45342f72136733a83a999e9bd8378e94acfb19",
+        "@ultraS/convertmat.m": "1a3d8bc19da6bed50e649e1cadf3129ecb261e76aa0e07b376b5d820ca1808fd",
+        "@ultraS/toFunctionIn.m": "e41aefa7b546dba94273ec5a5a4fc7eae08b98c2ecae627d83dfc82a2a4dfeb4",
+        "@ultraS/multmat.m": "e28f3d75b7c114aedee49ff89fd239631da67c2c56c169b663d8a5cb649c758d",
+        "@ultraS/rhs.m": "853e2e4d5ba47ad73b0634496a704b7acb47cb700780b47ca3cbd4b301ee1168",
+        "@ultraS/reduce.m": "e8e0a0265364ecce5223f46774833d4be1840ef8346b14cd5527aa6f3cefef10",
+        "@ultraS/toValues.m": "9b65864b855f87e30acf4725a01450500aaf6434aede28eab98adfe89703862b",
+        "@ultraS/diff.m": "f6105da02d7db148d3f5df8e4469fc42661a7437c032049ccf5336fe960d536e",
+        "@ultraS/diffmat.m": "a5a577ba572f81d620d0320b1de34864c416c0c804d68f5b9c755d94b984b730",
+        "@ultraS/mult.m": "3ca9cfa00f72cce2451a7e46e91258fac9b7e858e21924fb0d1805c3d1c90d78"
+      },
+      "guard_edges_verified": 422590,
+      "exact_guard_sets_reconciled": 7,
+      "unique_guarded_versions": 9625,
+      "new_full_byte_blobs_verified": 27,
+      "previously_parent_verified_versions": 9598,
+      "previous_parent_guard_review": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/c1_parent_guard_edges_review_20261017.json",
+        "sha256": "0f32121382bd6a434ae99af894bb0dfdf7ce800f58fb609af34656e7711256e8",
+        "bound_exact_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parameter_first_kind_source_cpu_20261017.tar.gz",
+        "archive_sha256": "a35283545f239e0cb8fbef702d7f3d032d3b6bb34d80683294b077e8c37673bd"
+      },
+      "dependency_archive_hashes_verified": 9,
+      "scope": "Independent streaming payload/native-source review and compositional guard-edge verification. Every current edge maps to a freshly verified own blob or an exact C1-archive input version already independently verified by this parent; dependency archive hashes rechecked. No duplicate dependency numerical run or new native numerical claim."
+    },
+    "numeric_recursion_packet_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_packet_20261017/qualified_evidence.zip",
+      "sha256": "26501c47fbebdf2e2d30f4f140a890d1eda14ef9df8e65424d5cb41c7f9da163",
+      "verified_payloads": 8108,
+      "guard_edges_verified": 129952,
+      "full_preimage_versions_verified": 7882,
+      "guard_sets_verified": 16,
+      "source_sha256": {
+        "src/chebfunjax/chebfun1d/_subsref.py": "d1237c3249c54c1b5d8240ea2c788a225f87e98d3e9e4d9437d5a1ee1af415d2",
+        "src/chebfunjax/chebfun1d/_numeric_subsref.py": "43487a63e02706689417e9fc9646652c1a5223a0e792588e76a0390a54587c93",
+        "tests/test_subsref_numeric_recursion_source.py": "9507933c6e3fe24e6457b13226d54c29654d07253457295e4f4ef628dc0b8e46",
+        "tests/test_subsref_numeric_recursion_edge_controls.py": "e4d5ffa11c1c4f48d6b7ffc7f141671b3bcdd16b67cf9426dca935b6051782f0",
+        "tests/references/subsref_numeric_recursion_native_20261017.json": "09d268226cc3f5e75b02bc26ba502d8d1788d2d126a3357cde2eac562cac73bf"
+      },
+      "distinct_candidate_nodes": 194,
+      "scope": "Independent all payload/hash and complete guard-edge/full-preimage review. Prepared/unlaunched guards and setup-error attempts remain uncredited as reported; latest-source root integrations separate."
+    },
+    "numeric_recursion_native_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_numeric_recursion_native_cpu_20261017.zip",
+      "sha256": "535b4c62aff574323377222bb3093a801822de670da337281c8890d8d36edc54",
+      "verified_payloads": 3466,
+      "archived_guard_edges": 3441,
+      "external_hashes_checked_in_place": 2,
+      "pinned_native_source_files_verified": 3435,
+      "native_report": {
+        "kind": "Single native API batch, no solver/example or source/preference override",
+        "cases": 65,
+        "successes": 47,
+        "errors": 18,
+        "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+        "actual_mat_sha256": "a293d00128471d2d5da09fe4069b5a447d9f5d7460f79fcbdb97f12656bb0c5e",
+        "native_version": "25.2.0.3055257 (R2025b) Update 2",
+        "wall_seconds": 95.06114438129589,
+        "peak_kib": 1304716,
+        "stable": true,
+        "no_survivors": true,
+        "scope": "MATLAB source/driver/inputs guarded and payloads retained; selected installed launcher/executable checked in place. Licensed runtime/private preferences omitted: NOT full native-runtime qualification.",
+        "prelaunch": "Generated draft had empty struct initializer corrected before first launch; actual guarded driver authoritative. Draft guard/blob and generator retained, no native failed/censored attempt.",
+        "parsing": "Compressed MAT primitive storage types differ from MATLAB class. Parser combines mat_dtype=True class/logical metadata with mat_dtype=False raw complex storage; initial parser syntax/storage drafts retained and uncredited.",
+        "external_guarded_inputs": {
+          "/usr/licensed/matlab-R2025b/bin/matlab": "38720305861f7f4044b5045f51ae63b9920a95c6c4f3bfe433b165f412517efe",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/MATLAB": "7311b1d15cdeabd43e725cd459d0c674bba20a9e2ae3cd249432aacd403d7065"
+        }
+      },
+      "scope": "Independent payload, guarded preimage, selected installed executable hash and pinned native source verification. Full licensed runtime and preferences are not archived or retroactively qualified."
+    }
+  },
+  "remaining": [
+    "Broader parameter backends/piecewise/nonlocal APIs and C2 factor policy",
+    "GET property values, cells and foreign recursion/higher selectors",
+    "Full original test/function inventory and known scientific gaps",
+    "All322 computations/stdout/reference figures, matched CPU benchmarks and latest-green CI/coverage"
+  ],
+  "native_numeric_scope": "53 builtin cases compare retained actual numeric inputs/outputs/errors/dtypes exactly. Twelve public recursive cases bind native selection/error/shape patterns to candidate public FEVAL/GET arrays; this is not native constructor/coefficient/output-bit parity. Native licensed runtime/prefs exclusions remain explicit.",
+  "root_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_recursion_joint_root_cpu_20261017.zip",
+    "sha256": "0f51c326ef8125a8b804caf9d761e0738f7022dac35093d9316f202bff9e1ee0",
+    "verified_payloads": 8149
+  }
+}

@@ -1,0 +1,6403 @@
+{
+  "actual_mat_sha256": "a293d00128471d2d5da09fe4069b5a447d9f5d7460f79fcbdb97f12656bb0c5e",
+  "input": {
+    "kind": "cell",
+    "shape": [
+      1,
+      1
+    ],
+    "data": [
+      {
+        "domain": {
+          "kind": "array",
+          "shape": [
+            1,
+            2
+          ],
+          "dtype": "float64",
+          "real": [
+            -2,
+            3
+          ],
+          "imag": null
+        },
+        "coeffs": {
+          "kind": "array",
+          "shape": [
+            3,
+            2
+          ],
+          "dtype": "float64",
+          "real": [
+            0.5,
+            2.5,
+            1.3877787807814457e-17,
+            3.375,
+            2.5,
+            3.125
+          ],
+          "imag": null
+        },
+        "pointValues": {
+          "kind": "array",
+          "shape": [
+            2,
+            2
+          ],
+          "dtype": "float64",
+          "real": [
+            -2,
+            3,
+            4,
+            9
+          ],
+          "imag": null
+        },
+        "length": {
+          "kind": "array",
+          "shape": [
+            1,
+            1
+          ],
+          "dtype": "float64",
+          "real": [
+            3
+          ],
+          "imag": null
+        },
+        "isTransposed": {
+          "kind": "array",
+          "shape": [
+            1,
+            1
+          ],
+          "dtype": "float64",
+          "real": [
+            0
+          ],
+          "imag": null
+        }
+      }
+    ]
+  },
+  "records": [
+    {
+      "number": 1,
+      "label": "matrix_row",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    3
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    6,
+                    2,
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          6,
+          2,
+          2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        3
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 2,
+      "label": "matrix_column",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    3,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    6,
+                    2,
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          3,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          6,
+          2,
+          2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        3,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 3,
+      "label": "matrix_index_shape",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 4,
+      "label": "row_column_index",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          6
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    3,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    6,
+                    2,
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        6
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          6,
+          2,
+          2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        3
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 5,
+      "label": "column_row_index",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    3
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    6,
+                    2,
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        6,
+        1
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          3,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          6,
+          2,
+          2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        3,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 6,
+      "label": "row_matrix_index",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          6
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        6
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 7,
+      "label": "matrix_colon",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        6,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 8,
+      "label": "row_colon",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          6
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        6
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        6,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 9,
+      "label": "column_colon",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        6,
+        1
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        6,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 10,
+      "label": "unsigned_index",
+      "group": "linear_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "uint8",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          2,
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 11,
+      "label": "matrix_logical_row",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    3
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 12,
+      "label": "matrix_logical_column",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    3,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 13,
+      "label": "row_logical_column",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          6
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    3,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        6
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 14,
+      "label": "column_logical_row",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    3
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        6,
+        1
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 15,
+      "label": "matrix_logical_mask",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    3
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          3,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          4,
+          5
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        3,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 16,
+      "label": "logical_false",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        0,
+        0
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 17,
+      "label": "logical_true",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 18,
+      "label": "short_logical",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 19,
+      "label": "overlong_false_tail",
+      "group": "logical_shape_bounds",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    7
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 20,
+      "label": "overlong_true_tail",
+      "group": "logical_shape_bounds",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "The logical indices contain a true value outside of the array bounds.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    7
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 21,
+      "label": "zero",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 22,
+      "label": "negative",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    -1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 23,
+      "label": "fraction",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1.5
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 24,
+      "label": "nan",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    NaN
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 25,
+      "label": "positive_inf",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    Infinity
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 26,
+      "label": "out_of_bounds",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Index exceeds the number of array elements. Index must not exceed 6.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    7
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 27,
+      "label": "complex_nonreal",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1.0
+                  ],
+                  "imag": [
+                    1.0
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 28,
+      "label": "complex_zero_imag",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1.0
+                  ],
+                  "imag": [
+                    0.0
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 29,
+      "label": "complex_vector_zero_imag",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1.0,
+                    2.0
+                  ],
+                  "imag": [
+                    0.0,
+                    0.0
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 30,
+      "label": "char_index",
+      "group": "builtin_index_type_error",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": "\u0001"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 31,
+      "label": "string_index",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:matrix:unableToUseTypeAsIndex",
+      "message": "Unable to use a value of type string as an index.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "opaque",
+                  "shape": [
+                    1
+                  ],
+                  "dtype": "[('s0', 'O'), ('s1', 'O'), ('s2', 'O'), ('arr', 'O')]"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 32,
+      "label": "cell_index",
+      "group": "builtin_index_type_error",
+      "success": false,
+      "identifier": "MATLAB:matrix:unableToUseTypeAsIndex",
+      "message": "Unable to use a value of type cell as an index.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "cell",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "data": [
+                    {
+                      "kind": "array",
+                      "shape": [
+                        1,
+                        1
+                      ],
+                      "dtype": "float64",
+                      "real": [
+                        1
+                      ],
+                      "imag": null
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 33,
+      "label": "folded_scalar",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    5
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          10
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 34,
+      "label": "folded_colons",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          12
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        12
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 35,
+      "label": "folded_rectangular",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    12
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          2,
+          1,
+          24,
+          23
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 36,
+      "label": "three_dimensions",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                3
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    4
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          3,
+          21
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 3
+    },
+    {
+      "number": 37,
+      "label": "trailing_one",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                4
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    3
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    4
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          24
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 38,
+      "label": "trailing_out_of_bounds",
+      "group": "multidim_collapse_cartesian",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Index in position 4 exceeds array bounds. Index must not exceed 1.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                4
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    3
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    4
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 39,
+      "label": "scalar_axes_retained",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                3
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    3
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    4
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          3,
+          5,
+          21,
+          23
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 3
+    },
+    {
+      "number": 40,
+      "label": "matrix_index_cartesian",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1,
+                    2,
+                    2,
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    3,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          4,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          5,
+          6,
+          6,
+          5,
+          1,
+          2,
+          2,
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        4,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 41,
+      "label": "logical_dimension",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                3
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          1,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          7,
+          8,
+          13,
+          14,
+          19,
+          20
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        1,
+        4
+      ],
+      "isreal": true,
+      "ndims": 3
+    },
+    {
+      "number": 42,
+      "label": "logical_pages",
+      "group": "multidim_collapse_cartesian",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                3
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    4
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0,
+                    1,
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        3,
+        2
+      ],
+      "isreal": true,
+      "ndims": 3
+    },
+    {
+      "number": 43,
+      "label": "invalid_first_dimension",
+      "group": "multidim_collapse_cartesian",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Index in position 1 is invalid. Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    0
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    9
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 44,
+      "label": "invalid_second_dimension",
+      "group": "multidim_collapse_cartesian",
+      "success": false,
+      "identifier": "MATLAB:badsubscript",
+      "message": "Index in position 2 is invalid. Array indices must be positive integers or logical values.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 45,
+      "label": "empty_index",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    0,
+                    0
+                  ],
+                  "dtype": "float64",
+                  "real": [],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        0,
+        0
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 46,
+      "label": "empty_column_index",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          6
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    0,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        6
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        0
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 47,
+      "label": "empty_row_index",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          6,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    0
+                  ],
+                  "dtype": "float64",
+                  "real": [],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        6,
+        1
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          1
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        0,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 48,
+      "label": "empty_source_colon",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          0,
+          3
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        0,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          1
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        0,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 49,
+      "label": "empty_middle_axis",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3,
+          4
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                3
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    0,
+                    0
+                  ],
+                  "dtype": "float64",
+                  "real": [],
+                  "imag": null
+                },
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3,
+        4
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          0,
+          4
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        0,
+        4
+      ],
+      "isreal": true,
+      "ndims": 3
+    },
+    {
+      "number": 50,
+      "label": "empty_parentheses",
+      "group": "empty_shape",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                0,
+                0
+              ],
+              "data": []
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        3
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 51,
+      "label": "numeric_dot",
+      "group": "result_kind",
+      "success": false,
+      "identifier": "MATLAB:structRefFromNonStruct",
+      "message": "Dot indexing is not supported for variables of this type.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                1
+              ],
+              "text": "."
+            },
+            "subs": {
+              "kind": "char",
+              "shape": [
+                1,
+                3
+              ],
+              "text": "foo"
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 52,
+      "label": "numeric_brace",
+      "group": "result_kind",
+      "success": false,
+      "identifier": "MATLAB:cellRefFromNonCell",
+      "message": "Brace indexing is not supported for variables of this type.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "{}"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 53,
+      "label": "logical_result",
+      "group": "result_kind",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          3
+        ],
+        "dtype": "bool",
+        "real": [
+          1,
+          0,
+          1
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "logical",
+      "pre_size": [
+        1,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "bool",
+        "real": [
+          0,
+          1
+        ],
+        "imag": null
+      },
+      "output_class": "logical",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 54,
+      "label": "feval_linear",
+      "group": "literal_feval_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          9.71445146547012e-17,
+          0.5,
+          0.0,
+          0.25
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          0.5
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 55,
+      "label": "feval_column",
+      "group": "literal_feval_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          9.71445146547012e-17,
+          0.5,
+          0.0,
+          0.25
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    4,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          0.25,
+          9.71445146547012e-17
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 56,
+      "label": "feval_cartesian",
+      "group": "literal_feval_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          9.71445146547012e-17,
+          0.5,
+          0.0,
+          0.25
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          0.25,
+          0.0,
+          0.5,
+          9.71445146547012e-17
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 57,
+      "label": "feval_nd_fold",
+      "group": "literal_feval_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          4,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          -0.75,
+          -0.5357142857142856,
+          -0.3214285714285713,
+          -0.10714285714285722,
+          0.5625,
+          0.2869897959183674,
+          0.10331632653061229,
+          0.011479591836734748,
+          0.1071428571428573,
+          0.32142857142857106,
+          0.5357142857142856,
+          0.7500000000000001,
+          0.011479591836734748,
+          0.10331632653061185,
+          0.2869897959183674,
+          0.5625
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        4,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          8
+        ],
+        "dtype": "float64",
+        "real": [
+          -0.75,
+          -0.5357142857142856,
+          -0.3214285714285713,
+          -0.10714285714285722,
+          0.5625,
+          0.2869897959183674,
+          0.10331632653061229,
+          0.011479591836734748,
+          0.1071428571428573,
+          0.32142857142857106,
+          0.5357142857142856,
+          0.7500000000000001,
+          0.011479591836734748,
+          0.10331632653061185,
+          0.2869897959183674,
+          0.5625
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        8
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 58,
+      "label": "row_feval",
+      "group": "literal_feval_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          3
+        ],
+        "dtype": "float64",
+        "real": [
+          9.71445146547012e-17,
+          0.0,
+          0.2499999999999999,
+          0.0625,
+          0.5,
+          0.25
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "char",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "text": ":"
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    3,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        3
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          0.5,
+          0.25,
+          9.71445146547012e-17,
+          0.0
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        2,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 59,
+      "label": "three_record_chain",
+      "group": "literal_feval_recursion",
+      "success": false,
+      "identifier": "MATLAB:subsDotMustFollow",
+      "message": "Only a dot field name can follow ()'s.",
+      "input": {
+        "kind": "array",
+        "shape": [
+          2,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          9.71445146547012e-17,
+          0.5,
+          0.0,
+          0.25
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          2
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          },
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    3
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        2,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          0,
+          0
+        ],
+        "dtype": "float64",
+        "real": [],
+        "imag": null
+      },
+      "output_class": "",
+      "output_size": [],
+      "isreal": true,
+      "ndims": 0
+    },
+    {
+      "number": 60,
+      "label": "domain_linear",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          -2,
+          3
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 61,
+      "label": "ends_logical",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          -2,
+          3
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    1
+                  ],
+                  "dtype": "bool",
+                  "real": [
+                    1,
+                    0
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          -2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 62,
+      "label": "domain_column_index",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          -2,
+          3
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    2,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          3,
+          -2
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 63,
+      "label": "lval_linear",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          -2,
+          4
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          4
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 64,
+      "label": "rval_permutation",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          3,
+          9
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                2
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                },
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    2
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    2,
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        2
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "float64",
+        "real": [
+          9,
+          3
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        2
+      ],
+      "isreal": true,
+      "ndims": 2
+    },
+    {
+      "number": 65,
+      "label": "vscale_scalar",
+      "group": "literal_get_recursion",
+      "success": true,
+      "identifier": "",
+      "message": "",
+      "input": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          9
+        ],
+        "imag": null
+      },
+      "indices": {
+        "kind": "cell",
+        "shape": [
+          1,
+          1
+        ],
+        "data": [
+          {
+            "type": {
+              "kind": "char",
+              "shape": [
+                1,
+                2
+              ],
+              "text": "()"
+            },
+            "subs": {
+              "kind": "cell",
+              "shape": [
+                1,
+                1
+              ],
+              "data": [
+                {
+                  "kind": "array",
+                  "shape": [
+                    1,
+                    1
+                  ],
+                  "dtype": "float64",
+                  "real": [
+                    1
+                  ],
+                  "imag": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "pre_class": "double",
+      "pre_size": [
+        1,
+        1
+      ],
+      "output": {
+        "kind": "array",
+        "shape": [
+          1,
+          1
+        ],
+        "dtype": "float64",
+        "real": [
+          9
+        ],
+        "imag": null
+      },
+      "output_class": "double",
+      "output_size": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "ndims": 2
+    }
+  ],
+  "source_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "storage_decode": "Native class flags decoded via mat_dtype=True; complex storage/data retained separately via mat_dtype=False. Numeric storage compression must not be confused with MATLAB logical class."
+}

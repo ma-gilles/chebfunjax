@@ -1,3 +1,53 @@
+## Typed ultraspherical corrections and numeric recursion — 2026-10-17
+
+Natural finite single-interval nonlinear problems with one function and
+explicit numeric scalar parameters now retain coefficient-space ultraS.
+The field has n+order Chebyshev coefficients, scalar columns and RHS truncate
+to n before inclusive ultraspherical conversion, and leading BC functionals
+use the native values-to-coefficients representation bridge. Plain unscaled
+JAX solve runs per RHS; no reusable factors or C1/C2 solve/seed. Native
+adaptive powers-of-two and outer Newton policies remain unchanged.
+
+Component15nodes pass:11 primitives, complex manufactured1, literal adaptive
+originalUS and unchanged originalC1/C2. US signed7.077761529128585e-11
+passes unchanged5e-10; equation dimensions32/64, fieldcoefficients34/66.
+Root latest-source originalUS passes41.351s on combined601 source. Existing
+C1/C2/outer policies preserve their component AST; root also repeats the
+six classification controls19.167s, retaining the601routing/message fixes.
+
+Numeric/logical results from source FEVAL/GET now delegate following records
+to a JAX builtin-array helper: one-based F-order selection, native shape
+rules, trailing dimension folding, logical masks, raw complex rejection and
+record-chain errors. Native65capture binds53 builtin arrays and12 public
+recursion patterns; native constructor/coefficient/output-bit parity is not
+claimed. Python tuple domain/ends and endpoint vector orientation adapt at
+the record boundary; genuine cells/foreign results remain unsupported.
+
+Final numeric component194distinct controls pass:65captured API cases,
+7authored controls and122unchanged regressions. Baseline12genuine failures
+retained; initial fixture setup errors are uncredited. A final unsupported
+index metadata guard and3edge controls were freshly qualified;191earlier
+controls are not added to the final194. Root fresh combined-source72controls
+pass15.955s. All three root gates have8210stable inputs, all1400/1431/1428
+observed imports pregated and no survivors; maximum sampledRSS2.33GiB.
+No matched performance claim.
+
+Parent verifies173US payloads,33pinned native sources and422590guardedges
+through9625full-byte versions (27new,9598already parent-verified exactC1
+versions; dependency archive hashes rechecked). Numeric packet8108payloads
+plusmanifest and129952edges verified. Native dependency3466payloads plus
+manifest,3441archivededges,2installedexecutablehashes and3435pinned source
+files verified; licensed runtime/privateprefs are explicitly not archived.
+Root joint8149payloads verified; fullstatic passes without NumPy waiver.
+See docs/ultras_recursion_joint_cpu_20261017.json and component documents.
+
+Remaining: broader parameter APIs/piecewise/nonlocal systems, C2factor
+policy, GET value/type gaps, cells/foreign recursion/higher selectors, all
+full-test/page/figure/performance/green-latest-CI requirements. C2manufactured
+convergence diagnostic is not yet a confirmed native discrepancy. Older
+checkpoint sections below retain historical scope; their originalC1/US and
+numeric-recursion gaps are superseded by this scoped qualification.
+
 ## CI local routing and boundary-error controls — 2026-10-17
 
 Scalar direct solves skip optional AD extraction when classification already
