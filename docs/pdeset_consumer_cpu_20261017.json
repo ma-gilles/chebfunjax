@@ -1,0 +1,219 @@
+{
+  "base_commit": "c7b54411bb72d22ce284571e30973eef37aa4489",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/pde15s.py": "e986e07f993d5c38a0655d21d950a8860fcbb2ad577c6288e89fd0c9286c1ecd",
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "f2f16a01bf4d38247e68238cfd2161b356bf1414eeb5351c041d6e55d55e6b71",
+    "tests/test_pdeset_consumer.py": "cf00ba2d023bc3f5886b61f03d56744e471ededd64b1b441f931d33adec9484b"
+  },
+  "runs": {
+    "python_v1": {
+      "wall_seconds": 44.7450858913362,
+      "sampled_peak_summed_rss_kib": 2148424,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guard_inputs": 9276,
+      "actual_imports_all_preguarded": 1411,
+      "tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "23",
+        "time": "35.859",
+        "timestamp": "2026-10-17T11:05:18.446257-04:00",
+        "hostname": "della-mol.princeton.edu"
+      }
+    },
+    "python_final": {
+      "wall_seconds": 43.830983637832105,
+      "sampled_peak_summed_rss_kib": 2156344,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guard_inputs": 9277,
+      "actual_imports_all_preguarded": 1411,
+      "tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "24",
+        "time": "36.715",
+        "timestamp": "2026-10-17T11:10:25.932662-04:00",
+        "hostname": "della-mol.princeton.edu"
+      }
+    },
+    "native_observer_v1": {
+      "wall_seconds": 79.51859609317034,
+      "sampled_peak_summed_rss_kib": 1324216,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guard_inputs": 3759
+    },
+    "native_observer_v2": {
+      "wall_seconds": 79.1723264688626,
+      "sampled_peak_summed_rss_kib": 1325848,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guard_inputs": 3759
+    },
+    "native_final": {
+      "wall_seconds": 82.07032306538895,
+      "sampled_peak_summed_rss_kib": 1520096,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guard_inputs": 3760
+    }
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pdeset_consumer_complete_cpu_20261017.zip",
+  "sha256": "8f77434c86ea331fe8be53066648ab0420b5faa05265234a41d283b11ec5dcea",
+  "verified_payloads": 12958,
+  "guard_edges": 29831,
+  "unique_full_byte_preimages": 12890,
+  "native_observations": [
+    {
+      "case_index": 1,
+      "release": "2025b",
+      "success": true,
+      "warning": "",
+      "warning_id": "",
+      "output_count": 3,
+      "endpoint_values": [
+        [
+          6.123233995736766e-17,
+          4.5072815173398563e-17,
+          1.010710011422612e-16
+        ],
+        [
+          6.123233995736766e-17,
+          5.2504701848533144e-17,
+          9.602204781073703e-17
+        ]
+      ],
+      "max_analytic_error": 1.098066526594721e-09
+    },
+    {
+      "case_index": 2,
+      "release": "2025b",
+      "success": true,
+      "warning": "",
+      "warning_id": "",
+      "output_count": 3,
+      "endpoint_values": [
+        [
+          6.123233995736766e-17,
+          1.6765545088463926e-19,
+          1.1638779455107477e-16
+        ],
+        [
+          6.123233995736766e-17,
+          -1.0640368698430015e-18,
+          1.222673496946818e-16
+        ]
+      ],
+      "max_analytic_error": 1.2063434584597132e-08
+    },
+    {
+      "case_index": 3,
+      "release": "2025b",
+      "success": true,
+      "warning": "",
+      "warning_id": "",
+      "output_count": 3,
+      "endpoint_values": [
+        [
+          0.5,
+          -1.0703677521376402e-17,
+          1.4621887211222967e-17
+        ],
+        [
+          0.5,
+          -3.1248170290234585e-17,
+          -2.4189547866933917e-17
+        ]
+      ],
+      "max_nominal_boundary_error": 3.1248170290234585e-17
+    },
+    {
+      "case_index": 4,
+      "release": "2025b",
+      "success": true,
+      "warning": "",
+      "warning_id": "",
+      "output_count": 3,
+      "endpoint_values": [
+        [
+          6.123233995736766e-17,
+          4.5072815173398563e-17,
+          1.010710011422612e-16
+        ],
+        [
+          6.123233995736766e-17,
+          5.2504701848533144e-17,
+          9.602204781073703e-17
+        ]
+      ],
+      "max_analytic_error": 1.098066526594721e-09
+    }
+  ],
+  "numeric_colororder": {
+    "property_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0,
+        0,
+        1
+      ],
+      "afterPlotIndex": 2,
+      "nextDefaultColor": [
+        0.866,
+        0.329,
+        0
+      ],
+      "afterNextIndex": 3
+    },
+    "linespec_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0,
+        0,
+        1
+      ],
+      "afterPlotIndex": 1,
+      "nextDefaultColor": [
+        0.066,
+        0.443,
+        0.745
+      ],
+      "afterNextIndex": 2
+    },
+    "default_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0.066,
+        0.443,
+        0.745
+      ],
+      "afterPlotIndex": 2,
+      "nextDefaultColor": [
+        0.866,
+        0.329,
+        0
+      ],
+      "afterNextIndex": 3
+    }
+  },
+  "scope": "PDE options Eps, N, AbsTol scalar/vector, RelTol, AdjustBCs; wrapper ODESolver override; sixth-argument spatial-size precedence. Four authored numerical option controls plus seventeen factory controls and three unchanged heat/Neumann/Robin regressions.",
+  "limits": [
+    "Not full pdeset consumer coverage: Plot=on, additional ODE controls, periodic/complex/variable-mass PDEs and native output grammar remain open.",
+    "Native guards cover the pinned Chebfun source tree, funfun sources and selected executable/ELF identities, not the complete licensed MATLAB runtime.",
+    "Native observer v1 failed at nonexistent coeffs accessor; v2 failed at row-query shape interpretation. Their raw outputs and guards are retained without passing-gate credit. Final observer changes only accessor/query shape and adds numeric graphics metadata.",
+    "Python v1 passed23 controls before adding scalar/vector tolerance coercion; only final24 qualifies current source. Prelaunch guard-preparation/environment rejections launched no numerical children and are recorded separately.",
+    "No bounds widened, reference coefficients injected, FFT changes or fixed-48 advection repair. Full correctness, performance, page and latest-main CI gates remain open."
+  ]
+}

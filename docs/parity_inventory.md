@@ -71,6 +71,11 @@ all prose, computation, stdout, figure content, figure size, and performance
 statuses remain `unverified`. The reference binding and image measurements do
 not establish computation or raster parity.
 
+The newest ThreeBody color-cycle rerun is linked separately, with unchanged
+retained numerical artifacts and new hashes for images 2 and 4. Basic PDE
+consumer and scoped color-cycle evidence is also attached to native source
+rows; full-item statuses remain unverified.
+
 The evidence register in `parity_inventory.json` records artifact paths,
 SHA-256 values, source commits and scope limitations, including the current
 ThreeBody image observation. The original global dimension/pixel artifacts

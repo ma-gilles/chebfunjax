@@ -1,0 +1,90 @@
+{
+  "base_commit": "c7b54411bb72d22ce284571e30973eef37aa4489",
+  "qualified_tests": 21,
+  "actual_imports_all_preguarded": 1393,
+  "guard_edges": 9113,
+  "verified_unique_cas_blobs": 8634,
+  "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/colororder_gate_20261017_run007/guard.json",
+  "guard_sha256": "5f595ebb645a157481839fae8010b92c917548dbe44a3d3d9318941fe42fe914",
+  "cas": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/colororder_python_20261017/colororder_preimage_cas_run007.tar.gz",
+  "cas_sha256": "a65219449650ddb77e120a8ca9fb4776d93f2b428528d02be01a4dcb59cbfe66",
+  "receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/colororder_gate_20261017_run007/receipt.json",
+  "receipt_sha256": "9ba63d1cfea3c13e2f3091d237e23fefd451bf70084d1f9b13af10c78d6e2ccf",
+  "wall_seconds": 16.835245134774595,
+  "sampled_peak_summed_rss_kib": 1051332,
+  "inputs_stable": true,
+  "survivors": [],
+  "source_hashes": {
+    "src/chebfunjax/plotting.py": "17cb73d5b21086f2cd3a5a603930374857d8499ada55d54c1cc314f563e22d63",
+    "examples/ode-nonlin/three_body_problem.py": "8f1394b36550c679875f0f4160c6bd28273b1774c295e5a4bb0c42dfeb61699e",
+    "tests/test_matlab_color_order_state.py": "f8e500f64cc17951774b76de8bfd8051c6ae2bd08b1f6adcf40f2af57603db0f"
+  },
+  "tested_plotting_source_sha256": "97f76d1756a590ff96b2873c4a2af3ba907c3eaabf52893919d2bbef9d0cfce7",
+  "current_source_executable_ast_identical": true,
+  "reconstructed_preimage": [
+    {
+      "method": "reconstructed only prior explanatory comment; byte hash equals original guard",
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/colororder_python_20261017/src/chebfunjax/plotting.py",
+      "sha256": "97f76d1756a590ff96b2873c4a2af3ba907c3eaabf52893919d2bbef9d0cfce7"
+    }
+  ],
+  "native_dependency": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pdeset_consumer_complete_cpu_20261017.zip",
+    "parent_review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pdeset_consumer_parent_review_20261017.json",
+    "sha256": "8f77434c86ea331fe8be53066648ab0420b5faa05265234a41d283b11ec5dcea"
+  },
+  "numeric_colororder": {
+    "property_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0,
+        0,
+        1
+      ],
+      "afterPlotIndex": 2,
+      "nextDefaultColor": [
+        0.866,
+        0.329,
+        0
+      ],
+      "afterNextIndex": 3
+    },
+    "linespec_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0,
+        0,
+        1
+      ],
+      "afterPlotIndex": 1,
+      "nextDefaultColor": [
+        0.066,
+        0.443,
+        0.745
+      ],
+      "afterNextIndex": 2
+    },
+    "default_color": {
+      "initialIndex": 1,
+      "firstArtistColor": [
+        0.066,
+        0.443,
+        0.745
+      ],
+      "afterPlotIndex": 2,
+      "nextDefaultColor": [
+        0.866,
+        0.329,
+        0
+      ],
+      "afterNextIndex": 3
+    }
+  },
+  "limits": [
+    "Final source has a comment-only change from the tested bytes; executable AST independently matches. A prior comment preimage was reconstructed and matches its frozen guard SHA exactly.",
+    "Both final and prior dependency archives remain external, identified by SHA. No claim that the five-entry supplemental packet contains all full-byte inputs.",
+    "Prior run002 input instability and uppercase Color alias failure are preserved in earlier delivery packets and receive no final qualification credit.",
+    "Uppercase Python Color alias, complete native grammar/style/cycle behavior, figure pixels and whole-page parity remain open.",
+    "Native evidence covers selected licensed runtime/source identities; the whole runtime is not claimed."
+  ]
+}

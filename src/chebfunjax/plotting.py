@@ -4555,10 +4555,28 @@ def _join_plot_pieces(pieces):
 
 def _plot_curve(ax, xs, ys, fmt, kw):
     """ax.plot with an optional MATLAB linespec (matplotlib-compatible)."""
+    from matplotlib.cbook import normalize_kwargs
+    from matplotlib.lines import Line2D
+
+    # @chebfun/plot.m consumes a ColorOrder entry after each source line for
+    # an explicit Color property only when the LineSpec has no color.
+    # Matplotlib skips its property cycle whenever a color property is given,
+    # so reproduce MATLAB's distinction here.
+    explicit_color = normalize_kwargs(dict(kw), Line2D).get("color") is not None
+    # MATLAB's Chebfun wrapper passes the LineSpec in the plot data list and
+    # applies named properties afterward. A color in that LineSpec already
+    # selects its own color and suppresses ColorOrderIndex advancement, even
+    # when the later Color property changes the rendered color.
+    from matplotlib.axes._base import _process_plot_format
+    fmt_color = _process_plot_format(fmt)[2] if fmt else None
     if fmt:
-        ax.plot(xs, ys, fmt, **kw)
+        artists = ax.plot(xs, ys, fmt, **kw)
     else:
-        ax.plot(xs, ys, **kw)
+        artists = ax.plot(xs, ys, **kw)
+    if explicit_color and fmt_color is None:
+        for _ in artists:
+            ax._get_lines.get_next_color()
+    return artists
 
 
 def _source_point_pieces(f):
@@ -4730,6 +4748,8 @@ def _source_plot_line_and_points(
         _process_plot_format(fmt) if fmt else ("-", "None", None)
     )
     props = normalize_kwargs(dict(kw), Line2D)
+    explicit_color = props.get("color") is not None
+    fmt_color = _process_plot_format(fmt)[2] if fmt else None
     line_style = props.pop("linestyle", fmt_line)
     marker = props.pop("marker", fmt_marker)
     color = props.pop("color", fmt_color)
@@ -4795,6 +4815,11 @@ def _source_plot_line_and_points(
             if label is not None and j > 0:
                 column_kw["label"] = "_nolegend_"
             line_artists.extend(ax.plot(lx, ly, **column_kw))
+        if explicit_color and fmt_color is None:
+            # The separate representation-marker artists below inherit the
+            # line colors and do not consume additional source color entries.
+            for _ in line_artists:
+                ax._get_lines.get_next_color()
         if draw_points:
             # Match each marker series to its line without advancing the color
             # cycle a second time. Each line is drawn per array column, as

@@ -1,3 +1,39 @@
+## PDE option consumers and source color cycle — 2026-10-17
+
+Basic pdeset options now reach polynomial pde15s: Eps, N, scalar/vector AbsTol,
+RelTol and AdjustBCs. The sixth positional grid size overrides options.N;
+the wrapper overrides options.ODESolver as native pde15s does. Explicit Python
+keywords retain precedence. Unsupported active options raise explicitly;
+Plot='on', other ODE controls, periodic/complex/mass and native output grammar
+remain open. No fixed-48 advection workaround or existing-bound change is made.
+Four authored numerical controls, 17 factory controls and three unchanged
+heat/Neumann/Robin regressions pass. Four native fixed-grid controls also pass;
+heat errors are 1.10e-9 / 1.21e-8 and nominal boundary error with AdjustBCs=False
+is 3.12e-17. Spatial Eps forwarding is source-reviewed; full adaptive option
+behavior is not qualified by these fixed-grid controls.
+
+Plotting now distinguishes a named Color property from a color in LineSpec.
+Only the former consumes a color entry when LineSpec has no color; source
+marker/jump artists do not add entries. Native Chebfun and numeric probes
+confirm the distinction. The 21-check render/API gate passes; one subsequent
+comment-only edit has an independently verified executable-AST bridge. The
+exact prior comment preimage was recovered and matches its original guard SHA.
+Uppercase Python Color alias and full native graphics grammar remain open.
+
+ThreeBody's two numeric blue-root plots now use the public adapter. Its whole
+CPU run passes in 94.311 seconds with stable inputs, all 1,290 actual imports
+preguarded and no survivors. All retained rational/pole/residue/grouping
+artifacts equal the prior Python run byte-for-byte. Figures 2 and 4 now use
+the source orange ellipse; all four remain 600 × 270 and differ in decoded
+pixels. MATLAB accuracy, fonts/axes/subplot layout, performance and latest-main
+CI/coverage acceptance remain open. The inventory preserves prior figure
+observations and adds the new hashes without promoting full-page statuses.
+
+Evidence: [PDE consumer](docs/pdeset_consumer_cpu_20261017.json),
+[color cycle](docs/colororder_cpu_20261017.json),
+[whole example](docs/pde_color_whole_cpu_20261017.json).
+Earlier entries retain their historical source/evidence scope.
+
 ## Latest CPU integration and complete figure references — 2026-10-17
 
 The ThreeBody example now calls the public six/seven-output rational API,

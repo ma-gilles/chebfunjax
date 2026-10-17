@@ -131,8 +131,8 @@ def run():
 
     fig, ax = plt.subplots()
     zq = np.asarray(q.roots(all_roots=True))
-    ax.plot(zq.real, zq.imag, "o", markersize=4, color="b",
-            markerfacecolor="b")
+    matlab_plot(zq.real, zq.imag, "o", ax=ax, markersize=4, color="b",
+                markerfacecolor="b")
     zp = np.asarray(p.roots(complex_roots=True))
     ax.plot(zp.real, zp.imag, "ok", markersize=5, markerfacecolor="none")
     ax.set_aspect("equal")
@@ -165,8 +165,8 @@ def run():
     fig, ax = plt.subplots()
     ax.plot([0, 4 * np.pi], [np.finfo(float).eps] * 2, "-r")
     zq = np.asarray(q.roots(complex_roots=True))
-    ax.plot(zq.real, zq.imag, "o", markersize=4, color="b",
-            markerfacecolor="b")
+    matlab_plot(zq.real, zq.imag, "o", ax=ax, markersize=4, color="b",
+                markerfacecolor="b")
     zp = np.asarray(p.roots(complex_roots=True))
     ax.plot(zp.real, zp.imag, "ok", markersize=5, markerfacecolor="none")
     ax.set_aspect("equal")

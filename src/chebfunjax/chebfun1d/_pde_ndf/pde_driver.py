@@ -129,6 +129,7 @@ def solve(
     spatial_tol=1e-6,
     max_attempts=None,
     fixed_n=None,
+    adjust_bcs=True,
     record_trace=True,
 ):
     times = jnp.asarray(times, dtype=jnp.float64)
@@ -161,7 +162,7 @@ def solve(
     current_time = float(times[0])
     outputs = [current]
     traces = []
-    throw_bc_warning = True
+    throw_bc_warning = adjust_bcs
     linear, nonlinear = _split_endpoint_specs(lbc, rbc, size, system)
     ordered = linear + nonlinear
     while current_time < float(times[-1]):
@@ -269,7 +270,10 @@ def solve(
                 stacklevel=2,
             )
             throw_bc_warning = False
-        offset = initial_raw[:order] - boundary_rhs
+        offset = (
+            initial_raw[:order] - boundary_rhs
+            if adjust_bcs else jnp.zeros_like(initial_raw[:order])
+        )
 
         def fun(t, y):
             return raw(t, y).at[:order].add(-offset)

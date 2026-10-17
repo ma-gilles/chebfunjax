@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated2026-10-17. **Active, incomplete; CPU only.** Integration source base43e5a5b7; reference7574c77.
+Updated2026-10-17. **Active, incomplete; CPU only.** Integration source basec7b54411; reference7574c77.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -30,7 +30,8 @@ Checked items certify only their stated scope.
 
 - [x] Qualify combined GET/plotregion/complex plotting/point-quiver package:135integration checks pass, all1421actualimports preguarded; wholeThreeBody completes with unchanged retained numerical bytes.
 - [x] Review residue scan exact-case bridge and105regressions; optimizedHLO barrier limitation explicit.
-- [ ] Resolve remaining native automatic-axis/color-cycle/subplot/renderer differences; latest-main CI still required.
+- [x] Correct supported Color-property versus LineSpec cycle semantics;21render/API checks plus native Chebfun/numeric metadata, comment-only AST bridge verified. [Evidence](colororder_cpu_20261017.json).
+- [ ] Complete native automatic axes, broader graphics grammar/cycles, subplot and renderer behavior; latest-main CI still required.
 - [x] Qualify affine polynomial conversion optimization; identical retained coefficient bytes,105 component regressions and43 root integration checks pass.
 - [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
 - [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
@@ -46,7 +47,8 @@ Checked items certify only their stated scope.
 - [x] Restore and qualify GET originals31/35–38; all38original predicates plus45value controls and1singleton control pass. [Evidence](get_remaining_cpu_20261017.json).
 - [ ] Broader GET cell/type behavior and empty/API cases.
 - [x] Publish pdeset factory/native metadata qualification and recursive 3D selector fixes f3285a81; combined20 checks pass.
-- [ ] Integrate pdeset with PDE solver consumers; spincomp remains unimplemented.
+- [x] Integrate basic pdeset fixed-grid consumers: Eps/N/AbsTol scalar-vector/RelTol/AdjustBCs and native ODESolver override;24checks and4native comparisons pass. [Evidence](pdeset_consumer_cpu_20261017.json).
+- [ ] Complete remaining PDE options/plots, adaptive-option qualification and native output grammar; spincomp is a separate unpublished candidate.
 - [x] Run combined ThreeBody adapter alone: exit0/94.622s,1290imports preguarded, finite6/7output poles/residues,4figures600×270; saved numerical artifacts byte-identical to prior Python observation. [Evidence](residue_render_joint_cpu_20261017.json).
 - [ ] Close ThreeBody MATLAB accuracy/stdout/figure-content and raster differences.
 
@@ -91,6 +93,7 @@ Checked items certify only their stated scope.
 
 ## Pages, output and figures
 
+- [x] Rerun ThreeBody with public numeric plot adapter:94.311s,1290actualimports covered, unchanged retained numerical bytes; orange ellipse corrected in figures2/4. [Evidence](pde_color_whole_cpu_20261017.json).
 - [x] Cache/archive all322officialHTML and1305referencePNGs; HTML matches cached target. [Receipt](official_example_figures_cpu_20261017.json).
 - [x] Audit all1305committed figure dimensions at43e5a5b7: allmatch. All1305decoded pixels differ; no content/parity credit. New4ThreeBody images separately audited.
 - [ ] Qualify all322actual computations/stdout and all12handoff example scripts on final affected source.
