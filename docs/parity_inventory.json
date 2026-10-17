@@ -68,6 +68,16 @@
       "retrieval_scope": "Direct currently served official HTML and PNG assets, recorded response headers and bytes. Hash matches bind current HTML to cached target; no historical asset timestamp claim beyond response headers. Reference acquisition alone is not computation or raster parity.",
       "sha256": "8a32c51811837a1df68014f796b5730f82605a520402547bb41436862e3f17fa"
     },
+    "original_five_paired_predicates_20261017": {
+      "baseline_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_original_five_baseline_cpu_20261017.zip",
+      "baseline_archive_sha256": "5d889a5a2c1ab47686f9e054f3c2b41cb01ce986562023ee9b2fd1ee855c450e",
+      "native_predicates": 141,
+      "path": "docs/original_five_predicates_cpu_20261017.json",
+      "python_nodes": 133,
+      "scope": "Five default native original test invocations paired with mapped Python nodes; full API and alternate-preference coverage remain open.",
+      "sha256": "0c2e9838b9662b78f05749aa5ae0ac39cabff67c0fba030ac6491e7da67977bd",
+      "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d"
+    },
     "pde_color_whole_20261017": {
       "path": "docs/pde_color_whole_cpu_20261017.json",
       "scope": "Superseding four ThreeBody image observations; numerical artifacts equal prior Python observation, native high-degree discrepancy remains open.",
@@ -115,14 +125,14 @@
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
     },
     "spin_complex_integration_cpu_20261017": {
-      "path": "docs/spin_complex_integration_cpu_20261017.json",
-      "sha256": "4863087e1ad61f2521afb10e25815f6ba2ced9f715163f93201f3a1681d6b0bd",
-      "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea",
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_cpu_20261017.zip",
         "sha256": "553bb294e2ddfdb2c914695ca4868fa77ceac4eb9aaca80da1e57818b7f8d282"
       },
-      "scope": "Scoped spincomp/JAX spin/checkpoint and complex default C2 Chebfun3 controls; seven complex scientific tests pass but wrapper runtime auditor exits4; no whole-file/function/API status promotion."
+      "path": "docs/spin_complex_integration_cpu_20261017.json",
+      "scope": "Scoped spincomp/JAX spin/checkpoint and complex default C2 Chebfun3 controls; seven complex scientific tests pass but wrapper runtime auditor exits4; no whole-file/function/API status promotion.",
+      "sha256": "4863087e1ad61f2521afb10e25815f6ba2ced9f715163f93201f3a1681d6b0bd",
+      "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea"
     }
   },
   "example_pages": [
@@ -101486,7 +101496,24 @@
       "sha256": "bf4b44d5f2b564cf5057176dad76c1cbb8dfbb3f376059f0688c41775f98a041",
       "source": "tests/chebfun/test_get.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "original_five_paired_predicates_20261017",
+          "invocation": "test_get()",
+          "native_result_ref": "native_gate.first_four_results",
+          "original_ids": "1-38",
+          "predicates_native": 38,
+          "predicates_python_mapped": 38,
+          "python_junit_ref": "python_gate.per_module_junit[module=1]",
+          "python_source": "tests/test_chebfun_get_original_source.py",
+          "python_source_sha256": "0cbfa66a5152498cb338acaf04a4ddb09d4e1644f2f55dffc4e0b11651a36b02",
+          "qualification_limit": "Default invocation and these 38 original predicates only; broader GET API/family/type/invalid-input coverage remains open.",
+          "scope_id": "native_default_original_test_get_38_predicates",
+          "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -101703,7 +101730,24 @@
       "sha256": "08c3c9a9ab78d79ffda4bd8077b7d07484ad9ef094b99e10156f1f887d6088df",
       "source": "tests/chebfun/test_interp1.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "original_five_paired_predicates_20261017",
+          "invocation": "test_interp1()",
+          "native_result_ref": "native_gate.first_four_results",
+          "original_ids": "1-35",
+          "predicates_native": 35,
+          "predicates_python_mapped": 35,
+          "python_junit_ref": "python_gate.per_module_junit[module=2]",
+          "python_source": "tests/test_matlab_port/chebfun/test_interp1_original35_source.py",
+          "python_source_sha256": "1a2975fae3fdbe98b7273b06dfe1424d428cde05f3fc23318ad4b81d506dd241",
+          "qualification_limit": "Default invocation at the pinned MATLAB version only; interpolation API edge cases outside these assertions remain open.",
+          "scope_id": "native_default_original_test_interp1_35_predicates",
+          "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -108993,7 +109037,24 @@
       "sha256": "a9673644577ea43415efa66a53981783ee67aae13d10c52a6f9ebe79ea67cdc4",
       "source": "tests/chebfun3/test_std3.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "original_five_paired_predicates_20261017",
+          "invocation": "test_std3()",
+          "native_result_ref": "native_gate.std3_result",
+          "original_ids": "1",
+          "predicates_native": 1,
+          "predicates_python_mapped": 1,
+          "python_junit_ref": "python_gate.per_module_junit[module=5]",
+          "python_source": "tests/test_matlab_port/chebfun3/test_std3_matlab.py",
+          "python_source_sha256": "cfcb39a8f3bd64afbdaceb962234f7c1591c6d436e646b10db58df3c0eb108e1",
+          "qualification_limit": "The sole default constant predicate only; std3 over nonconstant or alternate preference inputs and broader Chebfun3 parity remain open.",
+          "scope_id": "native_default_original_test_std3_constant_1_predicate",
+          "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -114378,7 +114439,24 @@
       "sha256": "d0e340175e076e77feb44dc58dfc75a0e1d98240fcd26d601ae6ef0f745df1ca",
       "source": "tests/chebtech/test_compose.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "original_five_paired_predicates_20261017",
+          "invocation": "test_compose()",
+          "native_result_ref": "native_gate.first_four_results",
+          "original_ids": "rows 1-4, clauses 1-11",
+          "predicates_native": 44,
+          "predicates_python_mapped": 44,
+          "python_junit_ref": "python_gate.per_module_junit[module=4]",
+          "python_source": "tests/test_matlab_port/chebtech/test_compose_matlab.py",
+          "python_source_sha256": "2616747ed4b17db5b4a8df488c4804237498c73a9c51c43d4e2c49b48d44b4b4",
+          "qualification_limit": "Default invocation and MATLAB R2025b branch only; broader compose preferences/callback APIs and legacy-MATLAB clause-11 branch remain open.",
+          "scope_id": "native_default_original_test_compose_44_predicates",
+          "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -121177,7 +121255,25 @@
       "sha256": "81df4ba9abe26813009114b1e598fabd5fb3a3207fba7076b4e93008599e7c50",
       "source": "tests/misc/test_ratinterp.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "original_five_paired_predicates_20261017",
+          "invocation": "test_ratinterp()",
+          "native_result_ref": "native_gate.first_four_results",
+          "original_ids": "1-23",
+          "predicates_native": 23,
+          "predicates_python_mapped": 23,
+          "python_junit_ref": "python_gate.per_module_junit[module=3]",
+          "python_nodes": 15,
+          "python_source": "tests/test_matlab_port/misc/test_ratinterp_matlab.py",
+          "python_source_sha256": "f074a384d9a585677d7cddf133aecde08dc9457b201f0057ecedbabd864ab364",
+          "qualification_limit": "The 23 original clauses only; focused lower-level native captures and omitted authored complex controls are separate evidence. No high-degree/full rational API or performance claim.",
+          "scope_id": "native_default_original_test_ratinterp_23_predicates",
+          "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

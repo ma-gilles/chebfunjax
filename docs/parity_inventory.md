@@ -106,3 +106,16 @@ source rows and the std3 original predicate. Seven complex scientific controls
 pass, while the final runtime auditor reports one unpreguarded dynamic file;
 full runtime closure and full-item parity are not claimed. See
 [review](spin_complex_integration_cpu_20261017.json).
+
+## Paired original test invocations — 2026-10-17
+
+Five default original MATLAB test invocations pass all **141 predicates**;
+the matching current-source Python selection passes **133 nodes**, with no
+failures or skips. The scopes are GET (38), interp1 (35), ratinterp (23),
+Chebtech compose (44), and the sole constant std3 predicate (1). Rational
+clauses are grouped into 15 Python nodes. Each original-test inventory row
+now has a `verified_scopes` entry bound to source hashes and
+[paired evidence](original_five_predicates_cpu_20261017.json). Full-file and
+API statuses remain unverified: alternate preferences, unsupported inputs,
+and broader semantics are outside these invocations. This gate observes
+external runtime origins without claiming every dependency was preguarded.

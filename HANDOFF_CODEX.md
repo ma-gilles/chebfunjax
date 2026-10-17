@@ -1,3 +1,19 @@
+## Paired original test scopes — 2026-10-17
+
+At source c0a1bca9, five default MATLAB original-test invocations pass all
+141 predicates, paired with 133 passing mapped Python nodes: GET38,
+interp135, ratinterp23 (15 nodes), Chebtech compose44 and std3one.
+Source-bound verified scopes are now attached to individual inventory rows.
+Original inputs/bounds are unchanged; full API and alternate-preference
+coverage remain open. The fresh std3 predicate gate exits0; this supersedes
+the earlier auditor-exit4 observation for that predicate only. External
+runtime origins were observed, without a full prelaunch dependency freeze.
+
+Evidence: [paired review](docs/original_five_predicates_cpu_20261017.json).
+BestApprox profiling independently identified missing native NDCT dispatch
+when both coefficient and query counts exceed4000. A source candidate is
+in progress; no speed or whole-page closure is claimed.
+
 ## JAX spin comparison and complex C2 construction — 2026-10-17
 
 Public `spincomp` now compares 1D/2D/3D schemes with source sampling,

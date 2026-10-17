@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Previous implementation: `b85e3731`; this update adds the scoped spin/complex-constructor package below. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest implementation: `c0a1bca9`; the paired original-test scopes below are now reconciled. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -15,7 +15,7 @@ Checked items certify only their stated scope.
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
 | Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
-| Final acceptance | Previous implementation `b85e3731` pushed; documentation deployment passed | Previous implementation CI run 39046105289 is in progress at this update; new publication also requires CI; coverage ≥79%, final provenance/lint and full objective audit |
+| Final acceptance | Implementation `c0a1bca9` pushed; documentation deployment passed | Latest implementation CI run 39047694207 is pending at this update; coverage ≥79%, final provenance/lint and full objective audit |
 
 ### Active work, not yet credited as complete
 
@@ -26,6 +26,8 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Pair five default original MATLAB invocations (141 predicates) with 133 passing Python nodes at c0a1bca9; attach source-bound scopes to individual inventory rows. GET38/interp135/ratinterp23/compose44/std3one. [Evidence](original_five_predicates_cpu_20261017.json). Full API and alternate preferences remain open.
 
 - [x] Public JAX spincomp and 1D spin engine; native short/nonaligned checkpoint and timed-output error behavior. Final 39 + 4 component controls and six root adapter/render controls pass; six native output cases captured. [Evidence](spin_complex_integration_cpu_20261017.json).
 - [x] Native complex default C2 Chebfun3 construction: seven scientific controls pass, with source-stable inputs. Final runtime auditor exits 4 for one dynamic JAX file outside preguard; no full runtime closure claim. [Evidence](spin_complex_integration_cpu_20261017.json).
@@ -59,7 +61,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
 - [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
 - [x] Review/publish authored Spinop2 bound repair45c04b29; fresh actual-process1500imports preguarded, focused test passes. Native incidental prior-guard preimage gap explicitly scoped.
-- [ ] Green latest implementation CI (`b85e3731`) and coverage acceptance. Historical runs remain evidence for their own source only.
+- [ ] Green latest implementation CI (`c0a1bca9`) and coverage acceptance. Historical runs remain evidence for their own source only.
 
 ## Next integration
 
