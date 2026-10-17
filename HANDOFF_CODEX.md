@@ -1,3 +1,15 @@
+# Latest original roots and breakpoint grammar — 2026-10-17
+
+All19default original roots predicates are ported with original operands and
+bounds. Public quasimatrix roots now return native NaN-padded matrices; numeric
+imaginary suffixes such as1i parse. Native pointValues/nobreaks grammar and JAX
+getRootsForBreaks are shared by denominator discovery and addBreaksAtRoots.
+Combined parent controls include original14minandmax, gamma, LU, authored roots,
+parser/quasimatrix and CI ownership tests; counts and immutable evidence:
+docs/roots_original19_joint_cpu_20261017.json.
+Full ROOTS APIs/alternate preferences, existing host algorithms, page/figure,
+performance and latest-main CI/coverage remain open.
+
 # Latest stable core CI ownership — 2026-10-17
 
 Recorded11lane ownership preserves all1072current selectors. A simulated new

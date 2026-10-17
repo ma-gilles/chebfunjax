@@ -16,6 +16,7 @@ Original authors: Copyright 2017 by The University of Oxford
 from __future__ import annotations
 
 import ast
+import re
 
 import jax
 import jax.numpy as jnp
@@ -162,6 +163,10 @@ def matlab_expression(expr: str, var_names: tuple[str, ...], *, raw_mtimes=False
     of ``var_names`` (elementwise operators translated)."""
     s = expr.replace(".*", " @ ").replace("./", "/")
     s = s.replace(".^", "**").replace("^", "**")
+    # MATLAB numeric imaginary suffixes (1i, .5i, 2e-3i) are literals.
+    # Leave variable names containing i/j and explicit variable operands alone.
+    s = re.sub(r"(?<![\w.])((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)[ij]\b",
+               r"\1j", s)
     ns = {"__builtins__": {}}
     ns.update(_FUNS)
     ns.update(_source_multiply=_source_multiply, _source_mtimes=_source_mtimes,

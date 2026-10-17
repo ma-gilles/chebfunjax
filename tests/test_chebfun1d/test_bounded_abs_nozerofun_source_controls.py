@@ -43,9 +43,15 @@ def test_nozerofun_suppresses_only_exact_zero_array_column():
     f = Chebfun.from_coeffs(jnp.asarray([[0.0, -ALPHA / 4],
                                            [0.0, ALPHA]]))
     roots = np.asarray(f.roots(nozerofun=True))
-    assert roots.shape == (1, 2)
-    assert np.isnan(roots[0, 0])
+    # Native roots.m suppresses zero FUN midpoint roots, but still includes
+    # stored zero endpoint values at the nonzero array's global vscale.
+    # Exact same coefficient matrix: zero_array_native.json (2026-10-17).
+    assert roots.shape == (2, 2)
+    np.testing.assert_array_equal(roots[:, 0], [-1.0, 1.0])
+    assert np.isnan(roots[1, 1])
     np.testing.assert_allclose(roots[0, 1], 0.25, rtol=0, atol=100 * EPS)
+    np.testing.assert_allclose(f.roots(nozerofun=True, nobreaks=True),
+                               [[-1.0, 0.25]], rtol=0, atol=100 * EPS)
 
 
 def test_exact_zero_absolute_value_does_not_add_breakpoint():

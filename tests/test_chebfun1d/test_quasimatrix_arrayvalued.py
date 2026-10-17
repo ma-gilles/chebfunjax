@@ -63,8 +63,10 @@ class TestQuasimatrixArrayValued:
         R = Q.horzcat(cj.chebfun(lambda x: x)).fliplr()
         assert len(R) == 4
         r = R.roots()
-        assert len(r) == 4
-        npt.assert_allclose(np.asarray(r[0]).ravel(), [0.0], atol=1e-12)
+        assert r.shape == (1, 4)
+        npt.assert_allclose(np.asarray(r[:, 0]).ravel(), [0.0], atol=1e-12)
+        assert np.all(np.isnan(np.asarray(r[:, 1:3])))
+        npt.assert_allclose(np.asarray(r[:, 3]).ravel(), [0.0], atol=1e-12)
 
     def test_complex_columns(self):
         Q = Quasimatrix([cj.chebfun(lambda x: jnp.exp(1j * np.pi * x)),

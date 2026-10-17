@@ -961,25 +961,22 @@ class _Piece(eqx.Module):
 def _real_simple_roots(den: "Chebfun"):
     """Interior real roots of a denominator chebfun (pole locations).
 
-    Returns a sorted numpy array of the roots of ``den`` strictly
-    inside its domain; endpoint roots are kept too (they become
-    endpoint poles of the quotient). Public ROOTS determines real zeros,
-    including complex-valued denominators and complex storage of real data.
+    Returns a sorted JAX array of real roots, including endpoint roots
+    (which become endpoint poles of the quotient). Breakpoint impulses,
+    jump sign changes and identically zero pieces follow getRootsForBreaks.
 
     Provenance
     ----------
-    MATLAB source: @chebfun/rdivide.m, @chebfun/addBreaksAtRoots.m
+    MATLAB source: @chebfun/rdivide.m, @chebfun/getRootsForBreaks.m
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    import numpy as _np
     try:
-        # getRootsForBreaks excludes jump sign changes and zero FUNs.
-        r = _np.asarray(den.roots(nojump=True, nozerofun=True))
+        r, raw = den.getRootsForBreaks(return_all=True)
+        if raw.ndim != 1:
+            return jnp.empty((0,), dtype=jnp.float64)
     except Exception:
-        return _np.zeros(0)
-    if r.ndim != 1:
-        return _np.zeros(0)
-    return _np.sort(_np.real(r))
+        return jnp.empty((0,), dtype=jnp.float64)
+    return jnp.sort(jnp.real(r))
 
 
 def _divide_with_poles(num, den: "Chebfun", poles) -> "Chebfun":
@@ -4744,6 +4741,33 @@ class Chebfun(eqx.Module):
         # intervals and can round a root by one ulp, losing its zero impulse.
         return self.restrict(pts)
 
+    def getRootsForBreaks(self, tol: float = 0.0, *, return_all=False):
+        """Roots polished for breakpoint insertion, optionally with raw roots.
+
+        ``return_all=True`` returns ``(breaks, raw_roots)`` as MATLAB's
+        two-output call does. The neighbor filter uses the preceding sorted
+        root before deletion, including for chains of close roots.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/getRootsForBreaks.m
+        Chebfun commit: 7574c77
+        """
+        raw = self.roots(nojump=True, nozerofun=True, nobreaks=True)
+        roots = jnp.sort(jnp.ravel(raw))
+        roots = roots[~jnp.isnan(roots)]
+        if not roots.size:
+            return (roots, raw) if return_all else roots
+        hs = max(abs(float(self.domain.a)), abs(float(self.domain.b)))
+        if not math.isfinite(hs):
+            hs = 1.0
+        root_tol = jnp.maximum(jnp.finfo(jnp.float64).eps * hs, tol)
+        if roots.size:
+            keep = jnp.concatenate((jnp.array([True]),
+                                    jnp.diff(roots) >= root_tol))
+            roots = roots[keep]
+        return (roots, raw) if return_all else roots
+
     def addBreaksAtRoots(self, tol: float = 0.0) -> "Chebfun":
         """Introduce breakpoints at the interior roots of f
         (MATLAB addBreaksAtRoots).
@@ -4753,19 +4777,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/addBreaksAtRoots.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        r_all = jnp.asarray(self.roots(nojump=True, nozerofun=True))
-        r = _np.asarray(r_all, dtype=float).ravel()
-        # getRootsForBreaks.m discards NaNs and adjacent roots closer
-        # than eps*hscale; addBreaks handles proximity to existing breaks.
-        a, b = float(self.domain.a), float(self.domain.b)
-        hscale = max(abs(a), abs(b))
-        if not _np.isfinite(hscale):
-            hscale = 1.0
-        gap = max(tol, float(_np.finfo(float).eps) * hscale)
-        r = _np.sort(r[~_np.isnan(r)])
-        if len(r):
-            r = r[_np.r_[True, _np.diff(r) >= gap]]
+        r, r_all = self.getRootsForBreaks(tol, return_all=True)
         if len(r) == 0:
             return self
         out = self.addBreaks(r, tol)
@@ -6297,7 +6309,8 @@ class Chebfun(eqx.Module):
               all_roots: bool = False,
               nojump: bool = False,
               nozerofun: bool = False,
-              norecursion: bool = False) -> jax.Array:
+              norecursion: bool = False,
+              nobreaks: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
 
         With ``complex_roots=True`` returns the complex roots of the
@@ -6323,6 +6336,10 @@ class Chebfun(eqx.Module):
             MATLAB's ``'nojump'``: suppress the roots reported at
             breakpoints where the Chebfun changes sign through a jump
             discontinuity.
+        nobreaks : bool, optional
+            Suppress roots contributed by stored point values after each
+            piece. Genuine piece endpoint roots and the initial left point
+            value test remain, matching MATLAB's ``'nobreaks'`` flag.
         norecursion : bool, optional
             Disable Chebtech colleague root subdivision while retaining
             complex-root Bernstein-ellipse pruning, as MATLAB
@@ -6398,6 +6415,32 @@ class Chebfun(eqx.Module):
                 [[True], _np.diff(combined) > dedup_tol])
             return combined[mask]
 
+        def _break_roots(column=None):
+            # roots.m columnRoots tests the left point value unconditionally;
+            # breakRoot gates only the test after each FUN. In particular,
+            # nobreaks must not remove actual roots of adjacent FUNs.
+            if not self.funs:
+                return jnp.empty((0,), dtype=jnp.float64)
+            values = jnp.asarray(self.point_values)
+            if values.ndim == 2:
+                values = values[:, 0 if column is None else column]
+            vtol = self.vscale * jnp.finfo(jnp.float64).eps
+            indices = jnp.abs(values) < vtol
+            if nobreaks:
+                indices = indices.at[1:].set(False)
+            points = jnp.asarray(self.domain.breakpoints)
+            result = [points[indices]]
+            if not nojump and self.isreal():
+                for k in range(len(self.funs) - 1):
+                    bp = points[k + 1]
+                    left = jnp.ravel(self.funs[k](bp))
+                    right = jnp.ravel(self.funs[k + 1](bp))
+                    j = 0 if column is None else column
+                    lv, rv = left[min(j, left.size-1)], right[min(j, right.size-1)]
+                    if bool(lv * rv <= 0):
+                        result.append(jnp.reshape(bp, (1,)))
+            return jnp.concatenate(result)
+
         if any(p.tech.coeffs.ndim == 2 for p in self.funs):
             # Array-valued: per-column collection, NaN-padded to equal
             # length (MATLAB @chebfun/roots.m convention).
@@ -6436,8 +6479,8 @@ class Chebfun(eqx.Module):
                         r = _np.asarray(piece.roots(norecursion=norecursion))
                         col = r[:, j] if r.ndim == 2 else r
                     rj.append(col[_np.isfinite(col)])
-                combined = (_np.sort(_np.concatenate(rj))
-                            if rj else _np.zeros(0))
+                rj.append(_break_roots(j))
+                combined = jnp.sort(jnp.concatenate(rj))
                 cols.append(_dedup(combined))
             nmax = max((len(c) for c in cols), default=0)
             out = _np.full((nmax, m), _np.nan)
@@ -6460,33 +6503,9 @@ class Chebfun(eqx.Module):
             [_np.asarray(r) for r in all_roots]))
             if all_roots else _np.zeros(0))
 
-        # Jump roots (@chebfun/roots.m, jumpRoot default on): an
-        # interior breakpoint is a root when the one-sided values
-        # rval(fun_k) * lval(fun_{k+1}) <= 0 (sign change through a
-        # jump; a pole flip gives -inf and qualifies), unless it is
-        # already within tolerance of a computed root.
-        if not nojump and len(self.funs) > 1:
-            htol = dedup_tol
-            jumps = []
-            with _np.errstate(all="ignore"):
-                for k in range(len(self.funs) - 1):
-                    bp = float(self.funs[k].interval[1])
-                    lv = float(_np.real(_np.asarray(
-                        self.funs[k](jnp.asarray(bp)))))
-                    rv = float(_np.real(_np.asarray(
-                        self.funs[k + 1](jnp.asarray(bp)))))
-                    if _np.isnan(lv) or _np.isnan(rv):
-                        continue
-                    if lv * rv <= 0 or (_np.isinf(lv) and
-                                        _np.isinf(rv) and
-                                        _np.sign(lv) != _np.sign(rv)):
-                        if (combined.size == 0
-                                or _np.min(_np.abs(combined - bp))
-                                > htol):
-                            jumps.append(bp)
-            if jumps:
-                combined = _np.sort(_np.concatenate(
-                    [combined, _np.asarray(jumps)]))
+        breakpoint_roots = _break_roots()
+        combined = jnp.sort(jnp.concatenate((jnp.asarray(combined),
+                                            breakpoint_roots)))
         if combined.size == 0:
             return jnp.array([], dtype=jnp.float64)
 

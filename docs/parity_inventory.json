@@ -260,6 +260,11 @@
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
     },
+    "roots_original19_joint_cpu_20261017": {
+      "path": "docs/roots_original19_joint_cpu_20261017.json",
+      "scope": "Native breakpoint-root grammar, JAX getRootsForBreaks, NaN-padded quasimatrix roots, numeric MATLAB imaginary suffixes, all19default original roots predicates.",
+      "sha256": "23f68f5ff7078bec05115554fecc27dc9832b4163b3c8631a8926caf994d1fe2"
+    },
     "sphere_extrema_tie_cpu_20261017": {
       "path": "docs/sphere_extrema_tie_cpu_20261017.json",
       "scope": "Ten original sphere optimization predicates and two bounded even-polynomial authored controls; no general antipode closure",
@@ -48898,7 +48903,13 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -51445,6 +51456,11 @@
           ],
           "kind": "reviewed_original_predicates_cpu",
           "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
+        },
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
         }
       ],
       "functions": [
@@ -52769,6 +52785,10 @@
           ],
           "kind": "reviewed_original_predicates_cpu",
           "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
+        },
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "scope": "Combined-source rerun of all14default original minandmax predicates; original source/mapping/native capture in minmax_original14_cpu_20261017. Full alternate preferences/API remain unverified."
         }
       ],
       "functions": [
@@ -54174,7 +54194,13 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -54416,7 +54442,13 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -103046,6 +103078,10 @@
           ],
           "kind": "reviewed_original_predicates_cpu",
           "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
+        },
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "scope": "Combined-source rerun of all14default original minandmax predicates; original source/mapping/native capture in minmax_original14_cpu_20261017. Full alternate preferences/API remain unverified."
         }
       ],
       "functions": [
@@ -104102,7 +104138,13 @@
         "tests/test_matlab_port/spherefun/test_roots_matlab.py",
         "tests/test_matlab_port/trigtech/test_roots_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "roots_original19_joint_cpu_20261017",
+          "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
+          "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

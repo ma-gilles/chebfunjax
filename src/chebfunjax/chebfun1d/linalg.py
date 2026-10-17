@@ -1071,9 +1071,21 @@ class Quasimatrix:
             vs.append(float(v))
         return jnp.asarray(xs), jnp.asarray(vs)
 
-    def roots(self) -> list:
-        """List of per-column root arrays (MATLAB pads with NaN)."""
-        return [c.roots() for c in self.cols]
+    def roots(self, **options) -> jnp.ndarray:
+        """Sorted per-column roots, padded with NaNs as MATLAB ROOTS does.
+
+        Provenance
+        ----------
+        MATLAB source: @chebfun/roots.m (quasimatrix column loop).
+        Chebfun commit: 7574c77.
+        """
+        columns = [jnp.ravel(c.roots(**options)) for c in self.cols]
+        nrows = max((column.size for column in columns), default=0)
+        dtype = jnp.result_type(jnp.float64, *(c.dtype for c in columns))
+        result = jnp.full((nrows, len(columns)), jnp.nan, dtype=dtype)
+        for k, column in enumerate(columns):
+            result = result.at[:column.size, k].set(column)
+        return result
 
     def real(self) -> "Quasimatrix":
         return self._map(lambda c: c.real())

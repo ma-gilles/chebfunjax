@@ -186,7 +186,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.linop.test_svds_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_gpr_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_randnfunsphere_matlab]",
-      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_coeffs2vals_vals2coeffs_matlab]"
+      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_coeffs2vals_vals2coeffs_matlab]",
+      "tests/test_chebfun1d/test_get_roots_for_breaks_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -236,7 +237,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_blowup_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_minimax_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_smoothie_matlab]",
-      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_curl_matlab]"
+      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_curl_matlab]",
+      "tests/test_utils/test_matlab_imaginary_literals.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1098,6 +1100,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "e650390926379fb066d6ad1bdb3a20540728322c",
+  "last_update_parent": "4b0eae9b93f5f1effe2aac8942db110c23175de3",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

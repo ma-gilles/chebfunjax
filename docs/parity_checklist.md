@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest updates cover subspace JAX/source behavior and complex unbounded inner products; scoped evidence is recorded below. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest updates cover original roots/minandmax predicates, native breakpoint grammar, Hermite arithmetic and stable CI ownership; scoped evidence is recorded below. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -27,12 +27,15 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Restore all19default original roots predicates and native breakpoint/pointValue grammar; JAX getRootsForBreaks, NaN-padded quasimatrix roots and numeric imaginary suffixes. Combined parent 139controls pass with original14minandmax and LU controls retained. [Evidence](roots_original19_joint_cpu_20261017.json).
+- [ ] Full ROOTS APIs/alternate preferences, inherited host numerical paths and latest-main CI/coverage.
+
 - [x] Preserve measured core CI lane ownership as tests are added; all1072current selections retain their lanes, simulated new roots file moves0existing selections versus1004previously.20protocol checks pass. [Evidence](ci_stable_core_cpu_20261017.json). Latest-main execution and coverage remain open.
 
 - [x] Hermite ASY derivative forms native scale before multiplying dval;17existing mapped, independent and normalization controls pass. [Evidence](hermite_derivative_order_cpu_20261017.json). Small-order complex ASY remains open.
 
 - [x] Restore all14default original minandmax predicates with exact source operands/bounds, retaining authored tests separately. Fix string gamma native real-pole convention and denominator jump-root discovery. Parent37 checks pass on current FFT source. [Evidence](minmax_original14_cpu_20261017.json).
-- [ ] Native nobreaks/root pointValues grammar, inherited host root filtering and full minandmax/gamma/division APIs/alternate preferences.
+- [ ] Remaining host root algorithms and full minandmax/gamma/division APIs/alternate preferences; native breakpoint grammar and JAX filtering are qualified above.
 
 - [x] Split Core1/2 at unchanged process boundaries after observed90minute cancellations;9to11lanes preserve all1072selectors, priorCore8 and scientific/coverage limits.17protocol checks pass. [Evidence](ci_core_deadline_cpu_20261017.json).
 - [ ] Actual latest-main core/3D runtime, scientific assertions and coverage>=79%.
