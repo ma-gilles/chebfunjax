@@ -1,0 +1,51 @@
+name: Native normest diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: normest-native-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-tape:
+    name: Native normest (${{ matrix.replicate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [1, 2, 3, 4]
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      JAX_PLATFORMS: cpu
+      JAX_ENABLE_X64: 'true'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+      - name: Capture LU and native-tape decisions
+        timeout-minutes: 3
+        run: >-
+          pixi run python scripts/diagnose_normest_native.py
+          --output .pytest-progress/normest-native
+      - name: Run unchanged original fixture assertion
+        if: always()
+        timeout-minutes: 3
+        run: >-
+          pixi run python -m pytest -q -p no:cacheprovider
+          'tests/test_utils/test_normest1_native_source.py::test_native_normest1_full_trace_and_final_state[positive_inverse6]'
+      - name: Preserve decision evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: normest-native-${{ matrix.replicate }}
+          path: .pytest-progress/normest-native/**
+          include-hidden-files: true
+          if-no-files-found: warn
