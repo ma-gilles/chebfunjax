@@ -1,3 +1,23 @@
+## Running parity checklist and complete source inventory — 2026-10-17
+
+Tracking now has a repository [completed/to-complete checklist](parity_checklist.md),
+a [scope/method summary](parity_inventory.md), and machine-readable
+parity_inventory.json with2333native library .m sources,1102original test files,
+and322cached example pages.3707library/1256test regex declaration counts are
+not public API counts. Every full-item parity status begins unverified; candidate
+path mappings never confer qualification. Historical scoped evidence is linked
+for selected original tests and the ThreeBody observation; other evidence needs
+reconciliation into rows. The source-only generator records source pins/hashes,
+requires clean mapping inputs, separates MATLAB/Python script paths and refuses
+to overwrite the live ledger. Existing checked scopes remain in the checklist.
+
+ThreeBody's optimized whole run now completes131.896s/3.75GiB withboth6/7output
+calls and4figures600x270, stable inputs/no survivors. This is an observation,
+not page/native parity: cached first8poles differ1.26814e-5 and one actual
+stdlib runpy.py import was not preguarded. Native rendering must replace its
+local plotregion; highdegree correctness, printed output and pixel parity
+remain open. Evidence:three_body_optimized_observation_cpu_20261017.json.
+
 ## Spinop2 GL authored test repair
 
 Identical-input MATLAB and JAX normalized norm reevaluations both reject the

@@ -1,0 +1,103 @@
+# Full MATLAB Chebfun parity — checklist
+
+Updated2026-10-17. **Active, incomplete; CPU only.** Main45c04b29; reference7574c77.
+[Repository status and evidence](parity_status.md).
+[Full source/test/page inventory](parity_inventory.md).
+Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
+Checked items certify only their stated scope.
+
+## Completed scoped work
+
+- [x] Working pinned JAX/JAXlib0.11.0 CPU/x64 environment and shared writable checkouts.
+- [x] Explicit-path staging, ordinary direct-main pushes, source hashes and delta-bundle verification.
+- [x] C1compose41focusedchecks; C2defaultnested38focusedchecks (11legacy mapped, not44literalnative).
+- [x] Tiny rational minimax JAXQR19checks; native errmin reporting17unchangedchecks; combined8subset with all1423runtimefiles preguarded.
+- [x] Mixed linear numeric/function columns49checks; scalar source-AD route73checks; combined14subset.
+- [x] Original parameter predicates:16linearization+2aggregate+4parameterBC, defaultadaptive solves/unchanged source bounds; natural C1/US original predicates additionally qualified/published17a/4d.
+- [x] Subsref39focused checks;12original clauses restored, existing12/23 separately credited.
+- [x] Nested derivative order54; sampledroots17; realnegativeAiry165passes/2existing strictxfails.
+- [x] Public Trigtech128checks (14originalfeval clauses), Spherefun30, JAX2D85, galleryAiry29.
+- [x] Earlier Clenshaw79/shared1D132, finite-difference100, PDEarithmetic149, coupledrectangular51 and other historical scoped packages.
+- [x] Original roots stress e95 passes both native clauses within900s; latest/full native performance still open.
+- [x] Original mapped PDE technology-session predicate at0b5 passes unchanged; documented adapters retained.
+- [x] Full DDE23outputs/24figures and Tricky12outputs/9figures captured/published at their recorded older source heads; selected Airy cells corrected later.
+- [x] Cached322page prose/equations/2408blocks and1305figure slot/order/size structural alignment.
+- [x] CIdeadline repartition collection/protocol qualification:12943core+affectedportnodes same union,17protocolchecks; scientific/time/coverage gates unchanged.
+
+- [x] Public nonperiodic preference propagation52scopedcontrols and exactlyrealcomplexAiry dispatch correction published717f057f; joint12+8existingintegrations pass.
+
+## Current pending package
+
+- [x] Qualify affine polynomial conversion optimization; identical retained coefficient bytes,105 component regressions and43 root integration checks pass.
+- [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
+- [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
+- [x] Review/publish authored Spinop2 bound repair45c04b29; fresh actual-process1500imports preguarded, focused test passes. Native incidental prior-guard preimage gap explicitly scoped.
+- [ ] Latest-main CI after45c04b29; green CI/coverage acceptance remains open. Earlier pending main runs were superseded automatically.
+
+## Next integration
+
+- [x] Isolated interp1 candidate passes all35 literal original predicates; baseline27pass/8fail retained. This is candidate qualification, not publication.
+- [x] Finish24 additional interp1 controls, archive/review, integrate and publish5105d431; root48repeatpass26.607s.
+- [x] GET candidate qualification:120distinct controls/33original predicates. Rational output candidate:57distinct controls/all23original clauses; rational parent archive review passes.
+- [x] Complete GET source/archive review and fresh combined interp1/GET/rational integration; publish5105d431. Root48/78/57allpass; fullstatic/remote/clean/bundleverified.
+- [ ] GET remaining originals31/35–38, broader cell/type behavior and empty/API cases.
+- [x] Publish pdeset factory/native metadata qualification and recursive 3D selector fixes f3285a81; combined20 checks pass.
+- [ ] Integrate pdeset with PDE solver consumers; spincomp remains unimplemented.
+- [ ] Run actual ThreeBody adapter alone after library publication; verify outputs/figures against available native evidence.
+
+
+- [x] Review/archive/publish all44literal compose predicates +6scalarcolumn controls and source-supported resampling/error/shape corrections (main66bb7dea). Root8integration repeats pass; fullpublicpref/API scope remains open.
+- [x] Reconcile all13 original handoff issues plus8 smaller subitems against current source/evidence. [Detailed audit](handoff_section6_reconciliation_b16_20261017/REPORT.md). Next: small Hermite ASY and matched actual-example inverse qualification.
+- [x] Review public Bndfun.compose/DATA and cross-kind C1/C2 candidates; combined81 controls pass on frozen source (unpublished).
+- [x] Archive/final review/publish Bndfun + cross-kind package9a22b851; combined81pass, fullstatic/cleanremote/bundleverified.
+- [x] Diagnose exact-input inverse rawBrent: all59 raw states match native; source-incorrect global endpoint override identified.
+- [x] Qualify/publish endpoint correction f45269ec:52testnodes plus7rootintegration repeats.
+- [ ] Resolve remaining9030vs8630 transform-coefficient gap; identicalsamples/chop crossreplay now identify first divergence.
+- [x] Qualify/publish real-valued2D output dtype fix f45269ec:20distinct controls including all3CI failures; root12repeat.
+- [x] PublishPoisson900sfix4b5f8f98:26controls plusall9originalassertions193.16s underunchanged900s; originaltestbyteunchanged,8082archivepayloads verified. LatestCI stillrequired.
+- [x] Publish corrected JAX-only Subsref candidate af5f3828: all32 original predicates covered across component gates/exact bridge; parent archives verified; latest-source12integration13.58s/fullstatic pass. Broader record API gaps remain open.
+- [x] Publish representation-based happiness/vscale correction787922f8:153componentcontrols; root27integration30.48s,8185stableinputs/all1413runtimeimports pregated, fullstatic/remote/bundleverified. No FFT/inverse length or performance closure.
+- [ ] Obtain green latest-head CI/runtime/coverage after published fixes. Prior3D runner shutdowns remain separate; latest run must be checked live, no manual cancellation.
+
+- [x] Publish nonlinear AD classification-before-linear-prepare18823ffc:13componentnodes including literaladaptiveC2 original, rootrouting11+adaptive1 repeatpassed46.55s at unchanged5e-10bound; original C1/US/defaultbackend cases remainopen.
+
+- [x] Publish native record selector/index semantics7d488479:116component controls, root68latest-source controls pass18.89s; native48 error/shape/column comparisons; full static/clean remote/archive verification.
+- [x] Publish typed-parameter C1 backend17a38188: literal adaptive C1 and unchanged C2 pass; independent root C1 passes44.03s. Final146payload/35pinned source/283575guard-edge review and combined integration passed. Ultraspherical not closed.
+- [x] Publish numeric-query type correction17a38188:122distinct component controls pass; fresh combined-source root68 integration passes19.075s. Numeric recursion remains open.
+
+## Correctness and full test parity
+
+- [ ] Audit every original function/assertion; mapped-file counts and passing subsets are insufficient.
+- [x] Publish CI local-classification AD-skip and numericBC wording correction601f9da2:15unchangedtests pass,8148archivepayloads verified, fullstatic/cleanremote/bundleverified. Older3d-e runner shutdown tracked separately.
+- [x] Publish naturalUS backend4d4c2259:15componentnodes including unchangedliteralUS/C1/C2 originals, rootlatestUS1pass41.351s;173payloads/33pinnednativesources/422590guardedges independentlyreviewed. BroaderbackendAPIs open.
+- [x] Publish numeric-result recursion4d4c2259:194distinctcontrols, rootlatest72pass15.955s andmetadata6pass19.167s;8108payloads/129952guardedges reviewed. No cell/GET-value/nativeconstructorbit closure.
+- [ ] Remaining GET original31/35–38 plus broader cells/types/empty/family behavior; scoped metadata/localvalues are published5105d431.
+- [x] Publish rational explicit six/seven output source semantics and arbitrary-node symmetry5105d431; unchanged original23 clauses covered.
+- [ ] High-degree complex fitting/poles/residue accuracy and actualThreeBody scientific parity.
+- [ ] C2 factor eligibility and newly retained positive-order manufactured Newton convergence failure (unpublished diagnostic; native behavior not yet compared, not a confirmed parity bug).
+- [ ] Authored fixed48CIadvection integration failure (distinct from passing mapped original PDE); FFT/provider/source representation.
+- [ ] ChemicalPDE lateaccuracy/constructor/LU differences.
+- [ ] Broader nonlinear parameter/default setup APIs and original predicates beyond the qualified C1/US/C2 cases; interpolation invalid/API semantics and broader Subsref record behavior.
+- [ ] Composition/division strict shape/length candidates; reassess after source sampling fixes.
+- [ ] Chebfun3T original predicate7; smallHermiteASY/complexAiry strictxfails and broader specialfunctions.
+- [ ] Broader QR/LU/QZ/AD/rational/conformal/ODE/periodic/sphere/TreeVar/API omissions/skips/xfails.
+- [ ] Exact normalRNG constants/generation/production integration and example draw ordering.
+- [ ] Repository-wide JAX-only numerical implementation; remaining host NumPy/SciPy paths.
+
+## Pages, output and figures
+
+- [ ] Qualify all322actual computations/stdout and all12handoff example scripts on final affected source.
+- [ ] Complete current Tricky/Krylov execution and native scientific/representation parity.
+- [ ] DDE exactDDESDmesh/stdout and figure17clipping; no unprovedepsilon fix.
+- [ ] All figuredata/RNG/cameras/axes/markers/fonts/raster at reference sizes; cached structure alone does not prove this.
+- [ ] Fresh affected regeneration and complete final page/figure audits; historical27page list is not current count.
+
+## CPU performance and final acceptance
+
+- [ ] Matched native CPU inverse setup/warm throughput and representations; historical improvement not full parity.
+- [ ] Hermite fast/small methods and scale; QR compilation/memory, LU throughput/tracing, BVP coldsolve.
+- [ ] Bartels–Stewart largeheat, roots end-to-end and known slow paths; heavy examples serial.
+- [ ] Green latest-main CI and actual coverage≥79%; no upstream-failure substitute.
+- [ ] Final provenance/lint, clean publication and requirement-by-requirement audit of the full original objective.
+
+Do not mark complete while required tests/pages/figures/correctness/performance/CI remain unresolved.

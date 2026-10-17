@@ -1,0 +1,107 @@
+{
+  "source_head": "5bbf557c2d70aac41f6e56fbbd856b3701ee11b0",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/three_body_optimized_observation_cpu_20261017.zip",
+  "sha256": "93b10fd9f39091cfc3848229ecdf1049a4a2282e66bd458b0c276d6d2827a839",
+  "verified_payloads": 8607,
+  "execution_exit": 0,
+  "wall_seconds": 131.89578298991546,
+  "peak_rss_kib": 3932944,
+  "guard_inputs": 8721,
+  "inputs_stable": true,
+  "survivors": [],
+  "actual_imports": 1287,
+  "actual_unpreguarded_runtime": {
+    "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/runpy.py": "81e07da29bb2235111079bb64efea7d291639c5d2cf163e7af187d6a38cef389"
+  },
+  "qualification": "Successful observed full computation, not fully preguarded-runtime qualification or scientific/native page parity",
+  "rational_outputs": [
+    {
+      "outputs": 6,
+      "mu": 151,
+      "nu": 8,
+      "poles_finite": true,
+      "residues_finite": null
+    },
+    {
+      "outputs": 7,
+      "mu": 157,
+      "nu": 156,
+      "poles_finite": true,
+      "residues_finite": true
+    }
+  ],
+  "figures": [
+    {
+      "name": "ThreeBodyProblem_01.png",
+      "pixels": [
+        600,
+        270
+      ],
+      "axes": 1,
+      "sha256": "f064cb75c4d2b441015e9c65da52ccc3934d7e1a8d69ebf745b715a45be24761"
+    },
+    {
+      "name": "ThreeBodyProblem_02.png",
+      "pixels": [
+        600,
+        270
+      ],
+      "axes": 1,
+      "sha256": "47d47e2181526dc5958c8f94d1ae0073425ff426db0b633f58db97726f493c4b"
+    },
+    {
+      "name": "ThreeBodyProblem_03.png",
+      "pixels": [
+        600,
+        270
+      ],
+      "axes": 4,
+      "sha256": "062e89559774deaec1d5589ed356fe7bd189b14b318e202038c7ae49c112adf9"
+    },
+    {
+      "name": "ThreeBodyProblem_04.png",
+      "pixels": [
+        600,
+        270
+      ],
+      "axes": 1,
+      "sha256": "c82c4d6e44c7d8c0b84da91a20075e1f8658006d2e563d76a39f92fd5ac009f8"
+    }
+  ],
+  "cached_html_sha256": "925e76d6aacdc386d179fdb33805a7b8a9a5ef1f76e1d83c749d6143ae646e0a",
+  "cached_web_first8_poles_max_abs_delta": 1.2681419089315754e-05,
+  "phase_seconds": {
+    "chebfunjax.utils.polyops.poly": {
+      "calls": 2,
+      "first": 21.878047833684832,
+      "sum": 32.489566227886826
+    },
+    "chebfunjax.utils._residue_source._divide": {
+      "calls": 1,
+      "first": 0.32806133199483156,
+      "sum": 0.32806133199483156
+    },
+    "chebfunjax.utils._residue_source._mpoles": {
+      "calls": 1,
+      "first": 4.511449760757387,
+      "sum": 4.511449760757387
+    },
+    "chebfunjax.utils._residue_source._poly": {
+      "calls": 156,
+      "first": 25.076509009115398,
+      "sum": 40.94522332260385
+    },
+    "chebfunjax.utils.polyops.residue": {
+      "calls": 1,
+      "first": 84.47492160508409,
+      "sum": 84.47492160508409
+    }
+  },
+  "remaining": [
+    "Final actual-runtime guard must preinclude runpy.py; current observation is explicitly not full runtime-qualified.",
+    "Cached-web numeric output and actual poles differ; native highdegree/source constructor/provider accuracy remain open.",
+    "Local ThreeBody plotregion duplicates library and must be replaced after native library artist rendering is corrected.",
+    "Exact cached four reference PNGs unavailable; no pixel equality claim.",
+    "Final full script/renderer audit after modifications and original12/all322 completion remain open."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "generation_source_head": "45c04b294107ee1b4b5155650b39fa760a63af70",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "counts": {
+    "cached_example_pages": 322,
+    "native_library_function_entries": 3707,
+    "native_library_m_files": 2333,
+    "original_test_function_entries": 1256,
+    "original_test_m_files": 1102
+  },
+  "two_fresh_baselines_byte_identical": true,
+  "live_ledger_matches_baseline_except_reviewed_scoped_evidence_and_tracking_links": true,
+  "refuses_existing_output_without_mutation": true,
+  "function_declaration_kinds": "first/subsequent detected, no scope or public API inference",
+  "source_sha256": "c8f5934e7dc0a161d27a09124f223bafebaef91fd32cb7d662c53c5a2c405ead",
+  "ledger_sha256": "04b8142220b9e541606c90bf56ecc325de08384f307f4e72ca6afbb67655136b",
+  "limits": [
+    "Baseline statuses unverified; historical scoped evidence is not full-item parity.",
+    "Regex declaration detection can miss multiline/unusual declarations; library inventory is not public API denominator.",
+    "Basename mappings are navigation hints and can be ambiguous/incomplete."
+  ]
+}
