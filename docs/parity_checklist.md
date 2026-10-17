@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Repair spin3 named-preset mock signature for explicit timing flag; eight unchanged parser scenarios pass, now asserting defaultFalse timing as well. [Evidence](spin3_parser_mock_cpu_20261017.json).
+- [ ] Latest-main CI/coverage and separate fixed48 PDE FFT/coefficient fidelity; parser checks do not qualify solver trajectories.
+
 - [x] Public Chebfun tensor-query adapter fixes six CI indexing failures while preserving raw Chebtech dimensional errors; combined30 controls pass. Original subspace distinct-breakpoint and row predicates1–6 now pass with native terminal evidence. [Evidence](ndarray_subspace_cpu_20261017.json).
 - [ ] Full subspace JAX/source algorithm and array-valued API, broader ND evaluation, latest-main CI/coverage.
 

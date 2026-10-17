@@ -28,9 +28,11 @@ def _fixed_test_random_stream(monkeypatch):
 def _capture_solver(monkeypatch):
     seen = {}
 
-    def capture(S, N, dt, args, kwargs, *, return_times=False):
+    def capture(S, N, dt, args, kwargs, *, return_times=False,
+                return_computing_time=False):
         seen.update(S=S, N=N, dt=dt, args=args, kwargs=kwargs,
-                    return_times=return_times)
+                    return_times=return_times,
+                    return_computing_time=return_computing_time)
         return "captured"
 
     monkeypatch.setattr(_spin3_public, "solve_public", capture)
@@ -46,6 +48,7 @@ def test_named_preset_defaults_reach_solver_without_running_trajectory(monkeypat
     assert seen["N"] == n
     assert seen["dt"] == dt
     assert seen["return_times"] is True
+    assert seen["return_computing_time"] is False
     assert len(seen["args"]) == 1
     pref = seen["args"][0]
     assert isinstance(pref, SpinPref3)
@@ -83,7 +86,7 @@ def test_explicit_operator_forms_are_forwarded_unchanged(monkeypatch):
     spin3(S, 12, 0.025, pref, return_times=True)
     assert seen == {
         "S": S, "N": 12, "dt": 0.025, "args": (pref,), "kwargs": {},
-        "return_times": True,
+        "return_times": True, "return_computing_time": False,
     }
 
     spin3(S, 9, 0.05, "scheme", "krogstad")
@@ -124,4 +127,5 @@ def test_bare_preset_matches_native_two_constructor_path(monkeypatch):
     assert spin3("GL", return_times=True) == "captured"
     assert constructions == ["GL", "GL"]
     assert seen["return_times"] is True
+    assert seen["return_computing_time"] is False
     assert seen["S"].domain == (0.0, 50.0, 0.0, 50.0, 0.0, 50.0)

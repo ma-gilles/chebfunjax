@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-17",
+  "source_base": "b5c6e6b04a407f09bf7011d53fdb4881b2ce9a4f",
+  "scope": "Authored spin3 named-preset parser-test mock accepts explicit return_computing_time keyword and asserts defaultFalse",
+  "test": "tests/test_spin/test_spin3_named_preset_source.py",
+  "test_sha256": "4a95f0cfeb3673d021505410f82dc8a124ab002b4ad76c084c22c042e0f59649",
+  "change": "Mock signature tracks solve_public explicit timing flag; existing call assertions retain all parser/preset requirements and add defaultFalse timing assertions; no arbitrary keyword acceptance and no production/tolerance change",
+  "gate": {
+    "python_nodes": 8,
+    "pytest_seconds": 17.22,
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin3_mock_gate_20261017_run001/receipt.json",
+    "receipt_sha256": "86a3b3123b02fad1691094efc0e768c4fb7d517f00125769f5c84e93f54de181",
+    "inputs_stable": true,
+    "exit_code": 0,
+    "remaining_owned_pids": [],
+    "peak_summed_rss_kib": 706408,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_root_20261017/src/chebfunjax/__init__.py",
+      "cpu": true,
+      "x64": true,
+      "external_runtime": "Versions/origin observed, not exhaustively preguarded"
+    }
+  },
+  "ci_reconciliation": {
+    "older_run": 39052459304,
+    "core5": "Three trigremez color failures addressed by earlier92ac25e5 package; final latest-main CI still required",
+    "core7": "Eight stale mock-signature errors corrected here; separate fixed48 PDE integration failure remains open",
+    "chebfun_c": "Six ND query errors addressed byb5c6e6b0",
+    "coverage": "Aggregate failed immediately because core shard result was failure; no fresh coverage percentage produced",
+    "still_active_at_review": "chebfun3d-d; do not cancel/restart"
+  },
+  "limitations": [
+    "Parser mock controls do not execute a PDE trajectory or establish spin3 numerical/native parity",
+    "Fixed48 PDE failure, broader API, performance, full CI and coverage remain unresolved",
+    "External runtime sources not exhaustively preguarded"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin3_mock_selected_evidence_20261017.zip",
+    "sha256": "22121e9b73a16d7cec69a4c259000dd06278ac654c5cf70e9eba23981070da07",
+    "payloads": 19,
+    "bytes": 142891,
+    "readback_verified": true
+  }
+}
