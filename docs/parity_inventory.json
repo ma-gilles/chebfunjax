@@ -231,6 +231,11 @@
       "scope": "Retained same-input assembly diagnosis only: product/mirror exact, normalized IFFT nonexact and observer public-output neutrality. No parity completion.",
       "sha256": "844b069cee3b72d40ed4ec9944fbed0ce96e5ef7ff37c99fdd2e114900f1b8d3"
     },
+    "rdivide_scalar_column_cpu_20261017": {
+      "path": "docs/rdivide_scalar_column_cpu_20261017.json",
+      "scope": "Restore singleton-column denominator roots and lossless bounded scalar quotient layout; restore original public constructors08-12 and literal18 string.",
+      "sha256": "ab464d05db1a32e9678d7b5bd766d71423e8bf3b7c85918ebfa49e458ad353a6"
+    },
     "reference_figure_dimensions_43e5_20261017": {
       "captured_audit_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/all_reference_figure_dimensions_43e5_20261017.json",
       "dimensions_match": 1305,
@@ -51466,6 +51471,10 @@
           "artifact": "roots_original19_joint_cpu_20261017",
           "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
           "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        },
+        {
+          "artifact": "rdivide_scalar_column_cpu_20261017",
+          "scope": "Singleton scalar storage/root insertion and default26finalslots/28assigned-expression audit; overwritten24unresolved, full API/preferences unverified."
         }
       ],
       "functions": [
@@ -54204,6 +54213,10 @@
           "artifact": "roots_original19_joint_cpu_20261017",
           "mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_joint_parent_gate_20261017/roots_original19_literal_evidence_20261017/predicate_mapping.json",
           "scope": "All19default original ROOTS predicates and source-bound breakpoint helper controls; full API/alternate preferences remain unverified."
+        },
+        {
+          "artifact": "rdivide_scalar_column_cpu_20261017",
+          "scope": "Singleton scalar storage/root insertion and default26finalslots/28assigned-expression audit; overwritten24unresolved, full API/preferences unverified."
         }
       ],
       "functions": [
@@ -103939,7 +103952,12 @@
         "tests/test_matlab_port/singfun/test_rdivide_matlab.py",
         "tests/test_matlab_port/trigtech/test_rdivide_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "rdivide_scalar_column_cpu_20261017",
+          "scope": "Singleton scalar storage/root insertion and default26finalslots/28assigned-expression audit; overwritten24unresolved, full API/preferences unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

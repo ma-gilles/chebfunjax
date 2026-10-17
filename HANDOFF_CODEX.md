@@ -1,3 +1,15 @@
+# Latest singleton scalar division repair — 2026-10-17
+
+Actual scalar string-denominator roots had shape(5,1)but helper returned[].
+Root discovery now accepts one effective column, and existing bounded quotient
+layout removes only singleton coefficient axes with coefficient/value/pointValue
+words and metadata preserved. Actual public constructor08-12/literal18 operands
+restored.68combined parent checks pass after current Fourier coefficient fix;
+child116pass/native26finalslots true are retained separately. Source has28
+assigned expressions; overwritten24fails in native and remains uncredited.
+Full API/preferences, host paths, pages/figures/speed and latestCI remain open.
+Evidence: docs/rdivide_scalar_column_cpu_20261017.json.
+
 # Latest periodic scalar coefficient repair — 2026-10-17
 
 Actualdc3Core6failed quantumstates because(n,1)coefficient samples broadcast

@@ -43,6 +43,13 @@ def bounded_scalar_quotient(numerator, denominator):
             return None
     if len({type(p.tech) for f in objects for p in f.funs}) != 1:
         return None
+    # Native scalar FUNs use (n,1) coefficient matrices. Python Singfun
+    # operations use scalar smooth factors; remove only the singleton axis,
+    # retaining coefficient/value bits, point values and column provenance.
+    # The guards above exclude genuine multicolumn inputs from this route.
+    denominator = _scalar_column_layout(denominator)
+    if isinstance(numerator, Chebfun):
+        numerator = _scalar_column_layout(numerator)
     g = denominator.addBreaksAtRoots()
     if isinstance(numerator, Chebfun):
         f, g = Chebfun._overlap(numerator, g)
@@ -76,3 +83,18 @@ def bounded_scalar_quotient(numerator, denominator):
                        + out._feval_side(nodes, "right"))/2
             pv = jnp.where(fallback, average, pv)
     return out.set_point_values(pv)
+
+
+def _scalar_column_layout(f):
+    """Collapse a singleton coefficient axis, retaining source value words.
+
+    The bounded scalar route validates the one-column Chebyshev contract
+    before calling this adapter. extract_columns retains the tech, cached
+    values and column provenance. Snapshot point values before changing rank,
+    including when they were implicit, so endpoint reductions are not repeated.
+    """
+    if not any(p.tech.coeffs.ndim == 2 for p in f.funs):
+        return f
+    values = f.point_values
+    result = f.extract_columns(0)
+    return result.set_point_values(values[:, 0] if values.ndim == 2 else values)

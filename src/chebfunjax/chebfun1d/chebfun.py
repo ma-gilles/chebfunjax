@@ -971,8 +971,9 @@ def _real_simple_roots(den: "Chebfun"):
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
     try:
-        r, raw = den.getRootsForBreaks(return_all=True)
-        if raw.ndim != 1:
+        r = den.getRootsForBreaks()
+        # A scalar CHEBFUN may retain native (n,1) coefficient storage.
+        if den.n_columns != 1:
             return jnp.empty((0,), dtype=jnp.float64)
     except Exception:
         return jnp.empty((0,), dtype=jnp.float64)

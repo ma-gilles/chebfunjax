@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Restore native scalar(n,1)denominator root insertion and lossless singleton quotient layout; actual constructors08-12/literal18 retained.68combined parent checks pass; child116pass and native26finalslots true are separately bound. [Evidence](rdivide_scalar_column_cpu_20261017.json). Overwritten native24/full API/preferences remain unqualified.
+
 - [x] Fix actualCIperiodic quantumstates column-coefficient shape failure with JAX diagonal scaling. Seven baseline layout failures become passing;12scientific checks and20CIprotocol checks pass, source bytes bridged to publication. [Evidence](quantum_periodic_column_cpu_20261017.json). Full backend JAX conversion/native API/latestCI remain open.
 
 - [x] Restore all19default original roots predicates and native breakpoint/pointValue grammar; JAX getRootsForBreaks, NaN-padded quasimatrix roots and numeric imaginary suffixes. Combined parent 139controls pass with original14minandmax and LU controls retained. [Evidence](roots_original19_joint_cpu_20261017.json).
