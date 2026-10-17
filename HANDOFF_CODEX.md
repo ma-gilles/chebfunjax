@@ -1,3 +1,45 @@
+## PDE option factory and recursive 3D selectors — 2026-10-17
+
+Public pdeset and explicit show_pdeset_options now expose all23inheritedODE
+and9PDE fields, native field order, empty None adapter, exact-case old mapping
+merge, complete case-insensitive option names and source-ordered display.
+Plot/HoldPlot logical conversion preserves native NaN/complex error IDs and
+Inf handling. Conversion visits all entries before the if/all reduction, so
+a leadingzero cannot hide a later invalid entry; it runs during the native
+pre-parser before odd-pair or unknown-property errors. These two ordering
+corrections were added during parent review and freshly qualified together.
+Ordinary Python scalar/vector/mapping adapters are explicit. MATLAB cells,
+string/object classes and full invalid-input grammar are not fully qualified.
+PDE solver option consumption remains unimplemented; no full PDE API claim.
+
+The recursive3D adapter translates Python full slices to native ':' records
+before delegation. The authored one-brace control now expects pinned native
+badDomain; operands unchanged. Exact5105baseline reproduces both CI failures;
+final42adapter controls pass. Parent independently verifies8124payloads,
+32769guardedges/8068full-byte versions and4pinned native source snapshots.
+
+Factory component17checks and selected licensed MATLAB metadata captures
+are archived. Parent verifies16228payload files,49085guardedges/8061fullbyte
+versions, pinnedpdeset and actualR2025bodeset. Licensed runtime image remains
+explicitly outside selectedsource/executable preimages. Initial15snapshot
+and all nonqualifying guard/startup attempts remain preserved; counts are
+not added across snapshots. Display length1228 matches native metadata.
+
+Fresh combined-source20nodes pass23.004s:17factory controls including parent
+new edge operands, original3D6–11 in one node, and2recursive controls. All8236
+inputs stable/all1440imports pregated/no survivors; sampled1.47GiBRSS.
+A separate attempt at all18original3D clauses hit3GiBRSS during first1–5
+section; it is retained without complete gate credit. Original1–5/12–18 latest
+qualification remains open. Root8154payload archive/fullstatic verified.
+Evidence:docs/pdeset_core4_joint_cpu_20261017.json.
+
+Remaining: PDE consumers/spincomp, broader record/cell/types and every original
+function/assertion, known numerical issues, all322computations/stdout/figures,
+matchedCPU performance and greenlatestmainCI/coverage. ActualThreeBody native
+seven-output residue path has a retained4GiBRSS-censored whole run; cold
+physical polynomial conversion is confirmedslow and is being optimized with
+bit-level intermediate comparisons. No final ThreeBody/page parity claim.
+
 ## Interpolation, GET properties and rational output counts — 2026-10-17
 
 Interpolation now normalizes row/vector samples, accepts Chebfun-valued Y,

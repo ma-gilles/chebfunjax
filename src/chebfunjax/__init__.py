@@ -25,6 +25,11 @@ from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402  # noqa: 
     overlap,
     wronskian,
 )
+from chebfunjax.chebfun1d.pdeset import (  # noqa: E402
+    PdeSetError,
+    pdeset,
+    show_pdeset_options,
+)
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
 # Plotting — importable as cj.plot(f), cj.surf(g), etc.
@@ -337,6 +342,9 @@ __all__ = [
     "ode45",
     "ode113",
     "ode15s",
+    "pdeset",
+    "show_pdeset_options",
+    "PdeSetError",
     "Chebfun2",
     "chebfun2",
     # Special functions

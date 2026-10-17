@@ -151,3 +151,14 @@ correctness, performance or CI requirement is unresolved.
 - [ ] Complete original function/test inventory, all322scientific/output/figure gates, CPU performance and green latest-main CI/coverage.
 
 See [joint evidence](interp_get_rat_joint_cpu_20261017.json). Older open interpolation/GET/rational entries are superseded only within the scoped qualifications above.
+
+## PDE option factory / recursive3D adapter (2026-10-17)
+
+- [x] Public32field pdeset/display factory,17scopedcontrols; captured native NaN/complex/Inf metadata and per-function provenance. Parent fixes whole-vector conversion and pre-parser error order.
+- [x] 3D full-slice token translation at recursive delegation; exact pinned badDomain authored expectation;42controls pass after two baseline failures.
+- [x] Latest combined20nodes pass23.004s,8236stableinputs/all1440imports pregated/no survivors; fullstatic and completearchive reviews pass.
+- [ ] PDE solver mapping consumption and fullfactory invalid MATLAB class/grammar behavior.
+- [ ] Original3D1–5/12–18 latest qualification (whole-module attempt censored3GiB, no completedgate credit).
+- [ ] Full originaltest/function/page/figure/performance/greenlatestCI requirements remain.
+
+See [joint evidence](pdeset_core4_joint_cpu_20261017.json).

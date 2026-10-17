@@ -3,7 +3,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-from chebfunjax.chebfun1d.chebfun import Chebfun
+from chebfunjax.chebfun1d.chebfun import Chebfun, FevalError
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
@@ -78,9 +78,13 @@ def test_factor_recursion():
     assert jnp.max(jnp.abs(value-.25)) < 1e-15
 
 
-def test_unsupported_cell_recursion_visible():
-    with pytest.raises(NotImplementedError, match='Recursive factor indexing'):
+def test_cell_recursion_matches_native_bad_domain_error():
+    with pytest.raises(
+        FevalError,
+        match=r'CHEBFUN:CHEBFUN:subsref:badDomain: Invalid domain syntax\.',
+    ) as error:
         field().subsref([{'type': '.', 'subs': 'cols'}, {'type': '{}', 'subs': (1,)}])
+    assert error.value.identifier == 'CHEBFUN:CHEBFUN:subsref:badDomain'
 
 
 @pytest.mark.parametrize('kind,subs', [('()', (.1, .2, .3)), ('{}', (.1, .1, .2, .2, .3, .3))])

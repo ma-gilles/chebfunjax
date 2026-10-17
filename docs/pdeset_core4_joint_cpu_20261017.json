@@ -1,0 +1,95 @@
+{
+  "base": "5105d43139295a07b81ef36b3d5144c3f1b127eb",
+  "scope": "Public32field pdeset factory/display adapters and recursive3D full-slice/native-error wiring; no PDEconsumer integration or fullfamily parity.",
+  "source_hashes": {
+    "src/chebfunjax/chebfun3d/_subsref.py": "8920ba58da8fa0c28e2b36bcd08e24576411e430f3a5a9ffd2b2ecb4a869b67a",
+    "tests/test_chebfun3d/test_subsref_contract_controls.py": "2b02a03b453e55e8588de50f3ba21a8b03efb2d415b12406720d29d5866fa3ff",
+    "src/chebfunjax/chebfun1d/pdeset.py": "f1d0e7306a7c4413ef7ca15c9ac07c811f8b6609fc33dff2edd0d28c6a6a019b",
+    "src/chebfunjax/chebfun1d/__init__.py": "97680396571bb915c4efdad7661bb31af83b57760fadc56e01b8c67cda327e96",
+    "src/chebfunjax/__init__.py": "9812a40c3b080642af85a4326a4d3eb3861aa6fe27f036a01020c8501f07d9ac",
+    "tests/test_pdeset_factory.py": "903a5e86f1f0d54a9959def199608df6ebd2b6111c85eb1471f5ed0595202e23"
+  },
+  "parent_corrections": [
+    "Convert all vector elements before all()/if so leadingfalse cannot hide invalid NaN/complex data",
+    "Perform onoff during PDE pre-parser before odeset and unknown-property errors"
+  ],
+  "limits": [
+    "Python mapping/None/vector/display adapters explicit; no MATLAB cell/string/object full parity",
+    "PDE solver options consumption unimplemented",
+    "Original3D1\u20135 fresh root attempt censored3GiB, no scientific gate credit; next scope6\u201311+twoadapter controls",
+    "Native MATLAB selectedsource/executable preimages only; fulllicensedruntime unarchived.",
+    "Full latestmainCI/coverage and completefunction/originaltest/page/figure/performance parity remain open."
+  ],
+  "root_gates": {
+    "joint": {
+      "supervisor_exit": 0,
+      "wall_seconds": 28.840870136860758,
+      "sampled_peak_summed_rss_kib": 1541868,
+      "inputs": 8236,
+      "stable": true,
+      "no_survivors": true,
+      "censored_limit": null,
+      "nodes": 20,
+      "pytest_seconds": 23.004,
+      "all_imports_preguarded": 1440,
+      "scope": "17factorycontrols with parent new error-priority operands; one native test node covers original3D6\u201311; tworecursiveadaptercontrols. Not all18original3D."
+    },
+    "original18_censored": {
+      "supervisor_exit": 137,
+      "wall_seconds": 66.69566553505138,
+      "sampled_peak_summed_rss_kib": 3157172,
+      "inputs": 8232,
+      "stable": true,
+      "no_survivors": true,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "scope": "Attempting whole original18module hit3GiB RSS cap during first native1\u20135section; no completedgroup credit, no final actual-import manifest. Remainingoriginal1\u20135/12\u201318 latestgate unqualified."
+    }
+  },
+  "component_reviews": {
+    "ci_core4_packet_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_core4_recursive_selector_20261017/SEALED_PACKET.tar.gz",
+      "sha256": "86840767ec161d7bc7d3769fb6e2739c0181e3128152d5a19a8db0afcbd98039",
+      "verified_file_payloads": 8124,
+      "guard_sets": 4,
+      "guard_edges": 32769,
+      "fullbyte_preimages": 8068,
+      "pinned_native_files": 4,
+      "scope": "All archived payload hashes independently streamed; every declared guard edge resolves to full-byte CAS, including nonqualifying attempts. Scientific credit only final42 candidate controls, baseline2 failures. Root original18 separate."
+    },
+    "pdeset_packet_parent_review_20261017.json": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pdeset_factory_complete_20261017.tar.gz",
+      "sha256": "ce8120fd077001c02ed9995474bb10db7ab75f86986ea4b82c7052a16630f2ff",
+      "manifest_sha256": "6a88a6263532c06d7735bd1f8277cabea406ddced871de5c953dfb6a3cbb28f7",
+      "verified_payloads": 16228,
+      "regular_file_members": 8199,
+      "internal_hardlink_members": 8031,
+      "guard_sets_seen": 9,
+      "guard_edges_seen": 49085,
+      "unique_full_byte_preimages": 8061,
+      "missing_preimages_by_guard": {},
+      "native_pdeset_pinned": true,
+      "actual_R2025b_odeset_verified": true,
+      "scope": "17 component tests; root corrections for full-array conversion/error ordering require fresh joint gate. Native executable/selected source preimages only; no complete licensed runtime snapshot."
+    }
+  },
+  "component_counts": {
+    "recursive_selector": {
+      "candidate_nodes": 42,
+      "baseline_failures": 2
+    },
+    "pdeset": {
+      "prior_snapshot_nodes": 15,
+      "final_component_snapshot_nodes": 17,
+      "fresh_root_corrected_factory_nodes": 17,
+      "not_additive": true,
+      "factory_fields": 32,
+      "display_characters": 1228,
+      "consumer_integration": false
+    }
+  },
+  "root_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pdeset_core4_joint_root_cpu_20261017.zip",
+    "sha256": "6c773cd4c695f42b2ebecee5d1edd5c83f5132dc0f8f140c87656865bfea8dc8",
+    "verified_payloads": 8154
+  }
+}

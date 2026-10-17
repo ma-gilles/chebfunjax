@@ -89,11 +89,25 @@ def _numeric_subsref(value, subs):
     return a[jnp.ix_(*[_native_indices(v, n) for v, n in zip(subs, shape)])]
 
 
+def _source_records(records):
+    """Translate Python full slices to the native ':' record token."""
+    def source_subs(subs):
+        if isinstance(subs, slice) and subs == slice(None):
+            return ':'
+        if isinstance(subs, tuple):
+            return tuple(source_subs(value) for value in subs)
+        if isinstance(subs, list):
+            return [source_subs(value) for value in subs]
+        return subs
+
+    return [dict(record, subs=source_subs(record['subs'])) for record in records]
+
+
 def _following(value, records):
     for position, record in enumerate(records):
         kind, subs = record['type'], record['subs']
         if hasattr(value, 'subsref'):
-            return value.subsref(records[position:])
+            return value.subsref(_source_records(records[position:]))
         if isinstance(value, (Chebfun, Quasimatrix)):
             if kind == '()':
                 if len(subs) == 1 and _numeric(subs[0]):

@@ -15,6 +15,7 @@ from chebfunjax.chebfun1d.chebfun import (
 from chebfunjax.chebfun1d.ode import bvp, bvp4c, bvp5c, eigs, ivp
 from chebfunjax.chebfun1d.pde15s import pde15s
 from chebfunjax.chebfun1d.pde_solve import pdeSolve
+from chebfunjax.chebfun1d.pdeset import PdeSetError, pdeset, show_pdeset_options
 
 __all__ = [
     "Chebfun",
@@ -32,6 +33,9 @@ __all__ = [
     "ode113",
     "pde15s",
     "pdeSolve",
+    "pdeset",
+    "show_pdeset_options",
+    "PdeSetError",
     "quantumstates",
     "subspace",
 ]
