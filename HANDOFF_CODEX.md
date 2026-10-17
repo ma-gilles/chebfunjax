@@ -1,3 +1,15 @@
+## Current DDE CPU execution checkpoint — 2026-10-17
+
+The unchanged DDE script completed against library9888b5d5 and pinned
+JAX/JAXlib0.11.0 CPU/x64:401.85s owned wall,5.97GiB sampled peak,
+all23output slots and24figures600x270. Actual printed outputs and changed
+images are refreshed together. Independent stored-coefficient replay and
+selected native sample comparisons are recorded in
+`docs/dde_full_current_cpu_20261017.json`. Full native stdout/pixel parity,
+DDESD natural meshes and figure17 boundary markers remain unresolved.
+This qualifies execution; the full parity goal is incomplete. The prior
+CDR/CI checkpoint below remains applicable to library source.
+
 ## CPU CDR and CI process checkpoint — 2026-10-17
 
 This section supersedes older current-status summaries below. Full parity is

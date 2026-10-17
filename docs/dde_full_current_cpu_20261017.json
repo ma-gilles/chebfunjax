@@ -1,0 +1,94 @@
+{
+  "commit": "9888b5d5e4a46b64daba98d24f10dfd3834c271d",
+  "script_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "backend": "cpu",
+    "x64": true
+  },
+  "receipt": {
+    "wall_seconds": 401.8505099811591,
+    "sampled_peak_summed_rss_kib": 6263924,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "command_exit_code": 0,
+    "censored_limit": null
+  },
+  "terminal": {
+    "script_seconds": 390.8559341309592
+  },
+  "slots": 23,
+  "figures": 24,
+  "same_previous_outputs": 0,
+  "same_reference_outputs": 0,
+  "same_prior_figures": 19,
+  "reference_MAE_range": [
+    1.1484279835390947,
+    2.947372427983539
+  ],
+  "max_prior_representation_curve_difference": 1.3145040611561853e-13,
+  "native_replays": [
+    {
+      "figure": 16,
+      "name": "y",
+      "native_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddp1/solution.mat",
+      "native_sha256": "934eaed312c1474de1e547a44875f3d04b107b30f72f0cb3f05d1e9b0442da23",
+      "lengths": [
+        21,
+        21
+      ],
+      "max_sample_difference": 4.440892098500626e-16,
+      "max_coefficient_difference": 2.220446049250313e-16,
+      "scope": "Independent NumPy Chebyshev replay on actual native capture points; observed differences, no new bound."
+    },
+    {
+      "figure": 18,
+      "name": "y",
+      "native_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddc1/solution.mat",
+      "native_sha256": "1b1557eefca66472618b64039f2003b3b1d6f023d256cbfec2dd513d48cd9ee1",
+      "lengths": [
+        4,
+        4
+      ],
+      "max_sample_difference": 6.661338147750939e-16,
+      "max_coefficient_difference": 1.6653345369377348e-16,
+      "scope": "Independent NumPy Chebyshev replay on actual native capture points; observed differences, no new bound."
+    },
+    {
+      "figure": 22,
+      "name": "u20",
+      "native_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ddib1/solution.mat",
+      "native_sha256": "565088b7c6f65c30b2a5ab9a3222788f390475be5add9974eb15d657e03762b1",
+      "lengths": [
+        11,
+        11
+      ],
+      "max_sample_difference": 3.3306690738754696e-16,
+      "max_coefficient_difference": 2.220446049250313e-16,
+      "scope": "Independent NumPy Chebyshev replay on actual native capture points; observed differences, no new bound."
+    }
+  ],
+  "limits": [
+    "Full native printed output and pixel parity remain incomplete.",
+    "Native replays are descriptive comparisons, not new acceptance bounds.",
+    "Current script unchanged; qualification applies to recorded current library commit.",
+    "MATLAB startup not repeated; pinned existing captures reused.",
+    "Figure17 boundary marker visibility remains a presentation gap; unchanged renderer clips computed centers outside axes."
+  ],
+  "all_output_labels_match_native": true,
+  "figure_capture_count": 24,
+  "reference_dimensions_order": "24 ordered source image names, all600x270; per-capture slot map and PNGhash checked",
+  "prior_comparison_scope": "177 common stored Chebfun representations independently replayed at1001 points per piece; polynomial values only, endpoint overrides excluded from prior comparison. Selected native replay applies stored endpoint overrides.",
+  "visual_review": "Current/reference figures12and17 inspected: figure12top-left marker now present. Figure17reference has boundary markers at t=0 while current component endpoint roundoff omits boundary glyphs; fonts/raster differ. No pixelparity claim.",
+  "markdown_output_normalization": "Trailing spaces removed only within rendered output fences; rawactualstdout and JSONoutputcomparison unchanged. Originalprose/MATLABcells/figureorder independently verified unchanged.",
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dde_current_run_20261017",
+  "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dde_current_run_20261017/supervision/receipt.json",
+  "report_sha256": "10d876ef934e66c4e75f41fb67f2f6fd0eb7a4790921065e736b0318c0a23e90",
+  "guard_sha256": "046d18850e65e1553fea147acf6d8f6689f8824535da80d41745ecb9f59a8ede",
+  "guard_count": 6527,
+  "source_change": false,
+  "notes": "All actual output fences and images updated together after terminal stable receipt; existing detailed historical scoped limitations retained. No numerical acceptance bounds introduced or changed."
+}

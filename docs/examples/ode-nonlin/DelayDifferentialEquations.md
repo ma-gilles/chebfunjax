@@ -7,7 +7,9 @@
 Python translation: [`examples/ode-nonlin/delay_differential_equations.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/delay_differential_equations.py)
 
 
-CPU output has been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 7, 8, and 9, the public Volterra solve in slot 11, and the self-composition solve in slot 14, and the nonlinear pantograph solution in slot 15, and the coupled pantograph system in slot 16, and the cubic state-dependent delay in slot 17, and the vanishing-delay solve in slot 18, and the continuous/pantograph integral solve in slot 19, and the second-order pantograph solve in slot 20, and the interval-boundary solve in slot 21, and the three-variable discrete-delay system in slot 22, and the final state-dependent system in slot 23 (23 of 23 output blocks). Slot 15 stdout was reconstructed from byte-verified saved solution data after an observer failure; Python warning capture is unavailable. All output blocks have scoped CPU execution qualification; exact native output and full page parity remain unverified. Figure 07 uses the qualified two-interval solution; corresponding sample differences are at most 3.56e-15 (captured grid coordinates differ by at most 1.12e-16). Figures 07 and 24 now draw complete boundary glyphs according to the documented MATLAB marker-center clipping policy. Saved-data renders preserve the numerical results; historical raster parity remains unverified. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Figure 16 uses the qualified nonlinear pantograph solution; native sample differences are at most 7.77e-16. Figure 17 uses the qualified two-component system solution and native plotting styles; observed sample differences are at most 1.36e-14. Figure 18 uses the qualified cubic solution; observed sample differences are at most 4.45e-16. Figure 19 uses the qualified vanishing-delay solution; observed sample differences are at most 1.28e-13. Figure 20 uses the qualified continuous/pantograph solution; observed sample differences are at most 3.56e-15. Figure 21 uses the qualified second-order pantograph solution; observed sample differences are at most 1.39e-15. Figure 22 uses the qualified interval-boundary solution; observed sample differences are at most 1.12e-16. Figure 24 uses the qualified source-default state-dependent system. Its public vector L2 error is 5.513309591751702e-14; corresponding native sample differences are at most 1.12e-15. Source nonlinear finalization preserves component lengths 32/34, matching the native capture. The stdout and figure were reconstructed from saved coefficients after finalization, without a new solve. Fonts and raster differences remain; exact output and full figure parity are unverified. Figure 23 overlays the qualified Chebop components and captured DDESD result. Python uses 910 natural-mesh points versus native 914; the source numeric-vector error norms are 6.722355950030367e-13 and 4.720800063436232e-12, respectively. Native-grid interpolated state differences are at most 6.19e-13. The DDESD adapter covers forward finite real binary64 equations with positive constant delays and the source tolerance options; events, functional delays, continuation histories, output callbacks/refinement, norm control, and single/complex arithmetic are unsupported. Natural mesh, stdout, fonts, dash patterns, and raster parity remain unverified. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
+> Current CPU execution qualification (2026-10-17): the unchanged published script completed all 23 output slots and 24 figures against library commit 9888b5d5 with pinned JAX/JAXlib 0.11.0 in CPU binary64 mode. Outputs and images below are from that single actual execution. Independent saved-coefficient replay and selected pinned MATLAB captures are documented in `docs/dde_full_current_cpu_20261017.json`. Printed numerical values, DDESD natural meshes, fonts and raster pixels still differ from the native reference; full page parity remains incomplete. Historical scoped findings follow.
+
+Historical qualification before the full current execution: CPU output had been verified for the explicit discretizations, the first two pantograph solves, the hand-written Newton iteration, and the constant-delay solves in output slots 7, 8, and 9, the public Volterra solve in slot 11, and the self-composition solve in slot 14, and the nonlinear pantograph solution in slot 15, and the coupled pantograph system in slot 16, and the cubic state-dependent delay in slot 17, and the vanishing-delay solve in slot 18, and the continuous/pantograph integral solve in slot 19, and the second-order pantograph solve in slot 20, and the interval-boundary solve in slot 21, and the three-variable discrete-delay system in slot 22, and the final state-dependent system in slot 23 (23 of 23 output blocks). Slot 15 stdout was reconstructed from byte-verified saved solution data after an observer failure; Python warning capture is unavailable. All output blocks have scoped CPU execution qualification; exact native output and full page parity remain unverified. Figure 07 uses the qualified two-interval solution; corresponding sample differences are at most 3.56e-15 (captured grid coordinates differ by at most 1.12e-16). Figures 07 and 24 now draw complete boundary glyphs according to the documented MATLAB marker-center clipping policy. Saved-data renders preserve the numerical results; historical raster parity remains unverified. Figures 08 and 10 were rendered from qualified saved solutions and compared with the native reference style; Figures 09 and 11 now show the computed operator sparsity matrices. Both match the native nonzero patterns (1241 and 4011 nonzeros). Full matrix entries still differ by up to 2.75e-11. Markers now use the historical physical-size and dot-diameter policy; raster and font differences remain. Figure 13 uses the qualified Volterra solution and historical dot-diameter policy; font and raster differences remain. Figure 15 overlays the qualified hand-Newton data and public self-composition solution. Figure 16 uses the qualified nonlinear pantograph solution; native sample differences are at most 7.77e-16. Figure 17 uses the qualified two-component system solution and native plotting styles; observed sample differences are at most 1.36e-14. Figure 18 uses the qualified cubic solution; observed sample differences are at most 4.45e-16. Figure 19 uses the qualified vanishing-delay solution; observed sample differences are at most 1.28e-13. Figure 20 uses the qualified continuous/pantograph solution; observed sample differences are at most 3.56e-15. Figure 21 uses the qualified second-order pantograph solution; observed sample differences are at most 1.39e-15. Figure 22 uses the qualified interval-boundary solution; observed sample differences are at most 1.12e-16. Figure 24 uses the qualified source-default state-dependent system. Its public vector L2 error is 5.513309591751702e-14; corresponding native sample differences are at most 1.12e-15. Source nonlinear finalization preserves component lengths 32/34, matching the native capture. The stdout and figure were reconstructed from saved coefficients after finalization, without a new solve. Fonts and raster differences remain; exact output and full figure parity are unverified. Figure 23 overlays the qualified Chebop components and captured DDESD result. Python uses 910 natural-mesh points versus native 914; the source numeric-vector error norms are 6.722355950030367e-13 and 4.720800063436232e-12, respectively. Native-grid interpolated state differences are at most 6.19e-13. The DDESD adapter covers forward finite real binary64 equations with positive constant delays and the source tolerance options; events, functional delays, continuation histories, output callbacks/refinement, norm control, and single/complex arithmetic are unsupported. Natural mesh, stdout, fonts, dash patterns, and raster parity remain unverified. Other figures retain their existing assets and remain unqualified. The whole page is incomplete.
 
 ## Introduction
 
@@ -51,7 +53,7 @@ plot(t, sol, '-', t, x, '.', MS, 15)
 
 ```text
 err =
-     1.780238379185612e-14
+     1.253913231335657e-14
 ```
 
 ![DelayDifferentialEquations figure 01](../../images/ode-nonlin/DelayDifferentialEquations_01.png)
@@ -75,7 +77,7 @@ plot(tt, sol(tt), '-', t, x, '.', MS, 15)
 
 ```text
 err =
-     1.699478337281812e-14
+     8.508634565397837e-15
 ```
 
 ![DelayDifferentialEquations figure 02](../../images/ode-nonlin/DelayDifferentialEquations_02.png)
@@ -98,7 +100,7 @@ x =
 [       0,       1]        4         1        1
 vertical scale =   1
 err =
-     7.100427943065948e-16
+     1.439166456239122e-15
 ```
 
 ![DelayDifferentialEquations figure 03](../../images/ode-nonlin/DelayDifferentialEquations_03.png)
@@ -123,7 +125,7 @@ x =
 [       0,       1]       11         1     0.61
 vertical scale =   1
 res =
-     1.039917790493470e-13
+     1.044950190483596e-13
 ```
 
 ![DelayDifferentialEquations figure 04](../../images/ode-nonlin/DelayDifferentialEquations_04.png)
@@ -160,7 +162,7 @@ plot(tt, sol(tt), '-', t, x, '.', MS, 15)
 
 ```text
 err =
-     2.841325139494241e-14
+     5.606791156540193e-14
 ```
 
 ![DelayDifferentialEquations figure 05](../../images/ode-nonlin/DelayDifferentialEquations_05.png)
@@ -183,7 +185,7 @@ err = norm(x - sol)
 
 ```text
 err =
-     7.560121544895368e-15
+     1.159744732000032e-14
 ```
 
 ![DelayDifferentialEquations figure 06](../../images/ode-nonlin/DelayDifferentialEquations_06.png)
@@ -208,7 +210,7 @@ x =
 [     0.5,       1]        3       1.5      2.1
 vertical scale = 2.1    Total length = 5
 err =
-     8.161151581927840e-16
+     2.828097644515128e-15
 ```
 
 ![DelayDifferentialEquations figure 07](../../images/ode-nonlin/DelayDifferentialEquations_07.png)
@@ -236,7 +238,7 @@ x =
 [     2.5,       3]        7       6.1      8.7
 vertical scale = 8.7    Total length = 27
 res =
-     8.488274281704468e-14
+     8.539352615383045e-14
 ```
 
 ![DelayDifferentialEquations figure 08](../../images/ode-nonlin/DelayDifferentialEquations_08.png)
@@ -278,7 +280,7 @@ x =
 [     1.8,       2]        9        38       53
 vertical scale =  53    Total length = 92
 res =
-     3.588109555827821e-11
+     3.588677460854531e-11
 ```
 
 ![DelayDifferentialEquations figure 10](../../images/ode-nonlin/DelayDifferentialEquations_10.png)
@@ -316,7 +318,7 @@ err = norm(x - sol(t))
 
 ```text
 err =
-     3.122471417077495e-15
+     1.070660311629829e-15
 ```
 
 ![DelayDifferentialEquations figure 12](../../images/ode-nonlin/DelayDifferentialEquations_12.png)
@@ -339,7 +341,7 @@ x =
 [       0,       1]       13         1     0.89
 vertical scale =   1
 err =
-     2.269573399399602e-15
+     2.124472181902572e-15
 ```
 
 ![DelayDifferentialEquations figure 13](../../images/ode-nonlin/DelayDifferentialEquations_13.png)
@@ -378,17 +380,17 @@ plot(t, x), shg
 
 ```text
 ndu =
-   2.30960247147036
+   2.30960247147035
 ndu =
-   0.631236336901686
+   0.631236336901691
 ndu =
-   0.0994971908120973
+   0.0994971908120969
 ndu =
-   0.000357774713549831
+   0.000357774713550565
 ndu =
-   2.79143041040969e-08
+   2.79143038546825e-08
 ndu =
-   6.20026836750792e-16
+   8.43450153182003e-16
 ```
 
 ![DelayDifferentialEquations figure 14](../../images/ode-nonlin/DelayDifferentialEquations_14.png)
@@ -402,7 +404,7 @@ res = norm(diff(x) + x(x))
 
 ```text
 res =
-     3.385547094559416e-15
+     3.949008399883968e-15
 ```
 
 Again, the same problem can be easily solved in Chebfun:
@@ -423,7 +425,7 @@ x =
 [       0,       1]       13         1      0.4
 vertical scale =   1
 res =
-     1.337617196572124e-12
+     1.337650461027927e-12
 ```
 
 ![DelayDifferentialEquations figure 15](../../images/ode-nonlin/DelayDifferentialEquations_15.png)
@@ -454,7 +456,7 @@ y =
 [       0,       1]       21         1      0.5
 vertical scale =   1
 err =
-     2.373433831204616e-14
+     2.373398600325746e-14
 ```
 
 ![DelayDifferentialEquations figure 16](../../images/ode-nonlin/DelayDifferentialEquations_16.png)
@@ -490,7 +492,7 @@ sol =
     {'chebfun'}
 
 err =
-     2.604404253571972e-15
+     2.730818972200382e-15
 ```
 
 ![DelayDifferentialEquations figure 17](../../images/ode-nonlin/DelayDifferentialEquations_17.png)
@@ -514,10 +516,10 @@ err = norm(y - sol)
 y =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,       1]        4  -6.1e-15        1
+[       0,       1]        4    -6e-15        1
 vertical scale =   1
 err =
-     1.434821005191519e-14
+     1.401987356699611e-14
 ```
 
 ![DelayDifferentialEquations figure 18](../../images/ode-nonlin/DelayDifferentialEquations_18.png)
@@ -558,7 +560,7 @@ y =
 [     4.4,     4.7]        8        26       31
 vertical scale =  31    Total length = 110
 res =
-     2.266007192433954e-11
+     2.263097394267666e-11
 ```
 
 ![DelayDifferentialEquations figure 19](../../images/ode-nonlin/DelayDifferentialEquations_19.png)
@@ -584,7 +586,7 @@ u =
 [       0,      20]       14      0.37      2.7
 vertical scale = 2.7
 err =
-     1.164954010270043e-14
+     1.146738138635501e-14
 ```
 
 ![DelayDifferentialEquations figure 20](../../images/ode-nonlin/DelayDifferentialEquations_20.png)
@@ -610,7 +612,7 @@ y =
 [       0,       1]       14         1     0.14
 vertical scale =   1
 err =
-     1.015472188115499e-15
+     1.133257161144986e-15
 ```
 
 ![DelayDifferentialEquations figure 21](../../images/ode-nonlin/DelayDifferentialEquations_21.png)
@@ -636,7 +638,7 @@ u =
 [       0,    0.33]       11      0.27     0.27
 vertical scale = 0.27
 res =
-     3.429978914484737e-13
+     3.429854419383213e-13
 ```
 
 ![DelayDifferentialEquations figure 22](../../images/ode-nonlin/DelayDifferentialEquations_22.png)
@@ -678,7 +680,7 @@ x =
 [     1.8,       2]        8       3.1      3.5
 vertical scale = 3.5    Total length = 65
 err =
-     7.217669777424007e-13
+     7.060627054696615e-13
 ```
 
 ![DelayDifferentialEquations figure 23](../../images/ode-nonlin/DelayDifferentialEquations_23.png)
@@ -705,7 +707,7 @@ ans =
 [       1,       5]       32  -1.5e-14      1.6
 vertical scale = 1.6
 err =
-     5.513756138639666e-14
+     5.516193144186712e-14
 ```
 
 ![DelayDifferentialEquations figure 24](../../images/ode-nonlin/DelayDifferentialEquations_24.png)
