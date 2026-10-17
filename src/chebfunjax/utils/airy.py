@@ -53,6 +53,28 @@ def _airy_taylor_table():
     return table
 
 
+def _airy_oscillatory_sums(inverse_zeta):
+    """Shared 20-term DLMF 9.7.E2/E9--E12 coefficient sums."""
+    # DLMF 9.7.E2: u_k/u_(k-1) = (6k-5)(6k-1)/(72k),
+    # v_k = (6k+1)/(1-6k) u_k. Powers are accumulated without large u_k.
+    initial = (jnp.ones_like(inverse_zeta), jnp.ones_like(inverse_zeta), jnp.zeros_like(inverse_zeta),
+               jnp.ones_like(inverse_zeta), jnp.zeros_like(inverse_zeta))
+
+    def asymptotic_term(k, state):
+        term, ue, uo, ve, vo = state
+        term = term * ((6.0 * k - 5.0) * (6.0 * k - 1.0) / (72.0 * k)) * inverse_zeta
+        vterm = term * ((6.0 * k + 1.0) / (1.0 - 6.0 * k))
+        sign = jnp.where((k // 2) % 2, -1.0, 1.0)
+        even = k % 2 == 0
+        return (term, ue + jnp.where(even, sign * term, 0.0),
+                uo + jnp.where(even, 0.0, sign * term),
+                ve + jnp.where(even, sign * vterm, 0.0),
+                vo + jnp.where(even, 0.0, sign * vterm))
+
+    _, ue, uo, ve, vo = lax.fori_loop(1, 20, asymptotic_term, initial)
+    return ue, uo, ve, vo
+
+
 @jax.jit
 def _airy_negative(x):
     """Return Ai(x) and Ai'(x) for real x <= 0, using binary64 JAX arrays.
@@ -81,23 +103,7 @@ def _airy_negative(x):
     t = jnp.maximum(-x, 16.0)
     zeta = (2.0 / 3.0) * t * jnp.sqrt(t)
     inverse_zeta = 1.0 / zeta
-    # DLMF 9.7.E2: u_k/u_(k-1) = (6k-5)(6k-1)/(72k),
-    # v_k = (6k+1)/(1-6k) u_k. Powers are accumulated without large u_k.
-    initial = (jnp.ones_like(x), jnp.ones_like(x), jnp.zeros_like(x),
-               jnp.ones_like(x), jnp.zeros_like(x))
-
-    def asymptotic_term(k, state):
-        term, ue, uo, ve, vo = state
-        term = term * ((6.0 * k - 5.0) * (6.0 * k - 1.0) / (72.0 * k)) * inverse_zeta
-        vterm = term * ((6.0 * k + 1.0) / (1.0 - 6.0 * k))
-        sign = jnp.where((k // 2) % 2, -1.0, 1.0)
-        even = k % 2 == 0
-        return (term, ue + jnp.where(even, sign * term, 0.0),
-                uo + jnp.where(even, 0.0, sign * term),
-                ve + jnp.where(even, sign * vterm, 0.0),
-                vo + jnp.where(even, 0.0, sign * vterm))
-
-    _, ue, uo, ve, vo = lax.fori_loop(1, 20, asymptotic_term, initial)
+    ue, uo, ve, vo = _airy_oscillatory_sums(inverse_zeta)
     phase = zeta - jnp.pi / 4.0
     sine, cosine = jnp.sin(phase), jnp.cos(phase)
     amplitude = t**0.25

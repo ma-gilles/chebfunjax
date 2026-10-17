@@ -1,5 +1,27 @@
 ## JAX Airy gallery callbacks — 2026-10-17
 
+## Numerical correction checkpoint (2026-10-17; latest scoped update)
+
+- Scalar composed derivative orders: `u.diff().diff()` now reports2 while
+  independent branches retain independent depths.54focused checks pass,
+  including44unchanged assembly/composition/quiver tests. Literal70pi metadata
+  selects source projected assembly; complete Krylov/performance still open.
+- Sampled roots helper now follows the current ordered Clenshaw recurrence,
+  odd remainder and epilogue.17checks pass, including all three reproduced CI
+  exact-bit failures. Original assertions/bounds unchanged; full stress/CI open.
+- Real-negative Airy phase uses independently implemented compensated JAX
+  arithmetic and existing coefficient sums.165passes/2existing strict xfails;
+  native/AD/gallery tests retain original bounds. Actual Tricky cells6/7 retain
+  printed integrals, lengths415/121 and byte-identical figure4. Mathematical
+  large-negative accuracy improves; exact native builtin parity remains open.
+
+Evidence: `docs/scalar_operator_order_cpu_20261017.json`,
+`docs/roots_sampled_source_order_cpu_20261017.json`,
+`docs/airy_compensated_real_cpu_20261017.json`. Failed baselines are preserved.
+CPU only. Full goal, original omissions/xfails, pages/figures/performance and
+latest-main CI remain incomplete; this checkpoint certifies only these scopes.
+
+
 ## Spherefun public evaluation checkpoint (2026-10-17; latest scoped update)
 
 Public angular/Cartesian numeric evaluation now uses JAX Horner/CDR kernels,

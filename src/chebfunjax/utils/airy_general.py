@@ -14,6 +14,8 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
+from ._airy_phase import _phase_words
+from .airy import _airy_oscillatory_sums
 from .airy_contour_nodes import NODES, WEIGHTS
 
 
@@ -97,6 +99,22 @@ def _asymptotic_ai(z):
             jnp.where(outside, -omega**2*upper_d-jnp.conj(omega)**2*lower_d, direct_d))
 
 
+def _real_oscillatory(t):
+    """DLMF 9.7.E9--E12 with a compensated real phase."""
+    high, low, zeta_high, zeta_low, *_ = _phase_words(t)
+    sine_high, cosine_high = jnp.sin(high), jnp.cos(high)
+    sine_low, cosine_low = jnp.sin(low), jnp.cos(low)
+    sine = sine_high*cosine_low + cosine_high*sine_low
+    cosine = cosine_high*cosine_low - sine_high*sine_low
+    ue, uo, ve, vo = _airy_oscillatory_sums(1/(zeta_high+zeta_low))
+    amplitude = jnp.sqrt(jnp.sqrt(t))
+    root_pi = jnp.sqrt(jnp.pi)
+    return ((cosine*ue+sine*uo)/(root_pi*amplitude),
+            (sine*ve-cosine*vo)*amplitude/root_pi,
+            (-sine*ue+cosine*uo)/(root_pi*amplitude),
+            (cosine*ve+sine*vo)*amplitude/root_pi)
+
+
 @jax.jit
 def _airy_all_impl(x):
     """Return Ai, Ai', Bi, Bi' for real or complex JAX arrays.
@@ -131,7 +149,18 @@ def _airy_all_impl(x):
     values = (jnp.where(large, fai, ai), jnp.where(large, faip, aip),
               jnp.where(large, fbi, bi), jnp.where(large, fbip, bip))
     values = tuple(jnp.where(finite, v, complex(float("nan"), float("nan"))) for v in values)
-    return tuple(jnp.real(v) for v in values) if real_input else values
+    if real_input:
+        values = tuple(jnp.real(v) for v in values)
+        # Preserve existing overflow/nonfinite results. Real negative values
+        # otherwise avoid the complex rotations and their phase roundoff.
+        t = jnp.maximum(-x, 24.)
+        finite_values = jnp.all(jnp.stack([jnp.isfinite(v) for v in values]), axis=0)
+        oscillatory = (jnp.isfinite(x) & (x < -24.) & finite_values
+                       & jnp.isfinite(t*jnp.sqrt(t)))
+        real_values = _real_oscillatory(jnp.where(oscillatory, t, 24.))
+        values = tuple(jnp.where(oscillatory, a, b)
+                       for a, b in zip(real_values, values))
+    return values
 
 
 @jax.custom_jvp

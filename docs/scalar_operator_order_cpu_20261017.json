@@ -1,0 +1,43 @@
+{
+  "status": "Scalar composed derivative-order correction focused qualification",
+  "base_commit": "e0d522439d167a8f36daca895fadf10f1b83d98f",
+  "scope": [
+    "src/chebfunjax/operators/chebop.py:_OrderSniffer",
+    "tests/test_operators/test_scalar_order_sniffer.py"
+  ],
+  "source_semantics": {
+    "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "adchebfun.diff": "@adchebfun/adchebfun.m:672 composes operatorBlock.diff with current Jacobian",
+    "operatorBlock.mtimes": "@operatorBlock/operatorBlock.m:186 adds differential orders",
+    "operatorBlock.plus": "@operatorBlock/operatorBlock.m:219 takes maximum"
+  },
+  "baseline": {
+    "failed": 8,
+    "passed": 2,
+    "original_source_unchanged": true,
+    "archive_sha256": "bf8fd70e4a0d08a811eeb0ccdadce2dd14a8f8b28e02a229412c25656aecff1a"
+  },
+  "execution": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 59.60385212209076,
+    "sampled_peak_summed_rss_kib": 2526292,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "focused_gate": {
+    "passed": 54,
+    "new": 10,
+    "existing_unchanged": 44,
+    "original_assembly_relative_bound": 1e-09,
+    "original_validation_relative_bound": 1e-06
+  },
+  "correction": "Separate expression depth from shared observed maximum: compose derivative orders additively; combine independent branches by maximum without mutating the root expression depth.",
+  "remaining": "No direct70 complete solve or full Krylov execution claimed. No solver tolerance, resolution schedule, source example operand, or output/page/figure changed. Native representations/raster/performance unqualified.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/krylov_scalar_order_gates_20261017/qualified_evidence.zip",
+    "sha256": "1397489189543a88a7a4c940a64dc42aa79306128b1d2823f656396a60bee85b",
+    "verified_payloads": 6569
+  }
+}

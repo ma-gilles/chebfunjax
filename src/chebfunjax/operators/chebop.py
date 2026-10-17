@@ -8901,7 +8901,13 @@ class _IVPProxy:
 
 
 class _OrderSniffer:
-    """Records the highest derivative order requested from an operator.
+    """Records the highest composed derivative order in a scalar operator.
+
+    Each expression has its own derivative depth.  The shared maximum lets
+    the original probe read the result without mutating the depth of ``u``:
+    ``u.diff().diff()`` has order two, while separate uses of ``u.diff()``
+    still have order one.  Native adchebfun.diff composes its Jacobian with
+    a differentiation operator; operatorBlock.mtimes adds those orders.
 
     Elementwise callables (``sin``, ``cos``, ``exp``, ...) are absorbed
     via ``__getattr__`` and leave the recorded order unchanged, as in
@@ -8910,14 +8916,22 @@ class _OrderSniffer:
     AttributeError instead of reporting order 2.
     """
 
-    def __init__(self):
-        self.order = 0
+    def __init__(self, _depth=0, _orders=None):
+        self._depth = _depth
+        self._orders = [0] if _orders is None else _orders
+
+    @property
+    def order(self):
+        return self._orders[0]
 
     def diff(self, j: int = 1):
-        self.order = max(self.order, j)
-        return self
+        depth = self._depth + j
+        self._orders[0] = max(self.order, depth)
+        return _OrderSniffer(depth, self._orders)
 
     def __add__(self, o):
+        if isinstance(o, _OrderSniffer):
+            return _OrderSniffer(max(self._depth, o._depth), self._orders)
         return self
 
     __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__

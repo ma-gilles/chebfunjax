@@ -1,0 +1,191 @@
+{
+  "base": "e0d522439d167a8f36daca895fadf10f1b83d98f",
+  "scope": [
+    "src/chebfunjax/tech/_roots_sampled_cpu.py",
+    "tests/test_tech/test_roots_sampled_source_order.py"
+  ],
+  "cause": "The generic sampled recurrence/odd remainder/epilogue retained arithmetic eligible for contraction while the original provider now dispatches to ordered real CPU source_clenshaw. Active-grid raw bits already matched. Matching its six instruction scan and ordered binary epilogue restores all retained output coefficient bits on the same backend.",
+  "native_source": "Chebfun7574c77 @chebtech/roots.m lines354-374 calls Clenshaw before separate vals2coeffs; @chebtech/clenshaw.m paired scalar loop lines99-117 has multiply/add/subtract order and half-times-doubled epilogue.",
+  "gates": [
+    {
+      "name": "baseline",
+      "distinct_count": 11,
+      "passed": 8,
+      "failed": 3,
+      "testIDs": [
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[528]",
+          "failed": true
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[539]",
+          "failed": true
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[2091]",
+          "failed": true
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[complex]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[float32]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[device]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[ndct]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_nonfinite_sampled_storage_keeps_generic_path",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[528]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[539]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[2091]",
+          "failed": false
+        }
+      ],
+      "wall_seconds": 9.17227788316086,
+      "peak_rss_kib": 641732,
+      "stable_inputs": true,
+      "no_survivors": true
+    },
+    {
+      "name": "candidate",
+      "distinct_count": 17,
+      "passed": 17,
+      "failed": 0,
+      "testIDs": [
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[528]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[539]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_retained_sampled_results[2091]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[complex]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[float32]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[device]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_ineligible_sampled_storage_keeps_generic_path[ndct]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_nonfinite_sampled_storage_keeps_generic_path",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[528]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[539]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_cpu",
+          "name": "test_original_active_grid_raw_bits[2091]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[3]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[4]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[17]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[18]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[39]",
+          "failed": false
+        },
+        {
+          "classname": "tests.test_tech.test_roots_sampled_source_order",
+          "name": "test_dynamic_states_and_finish_match_source_provider[40]",
+          "failed": false
+        }
+      ],
+      "wall_seconds": 12.784558089915663,
+      "peak_rss_kib": 764420,
+      "stable_inputs": true,
+      "no_survivors": true
+    }
+  ],
+  "preflight": "First candidate supervisor launch rejected PATH guard mismatch before launching a scientific process; exact mismatch and original guards retained. The successful gate rebinds ambient environment and retains all same input hashes.",
+  "validation": [
+    "Full Ruff src/tests/scripts/examples passed",
+    "Full F821 src/tests/scripts/examples passed",
+    "git diff --check passed",
+    "all source/provenance and NumPy policy passed"
+  ],
+  "limitations": [
+    "Focused CPU correction only; no broad root stress, whole-library qualification, fresh remote CI or performance qualification performed.",
+    "Baseline runtime helper hash verified against retained preimage; all other guarded/runtime files verified directly."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_sampled_source_order_20261017_evidence.tar.gz",
+    "sha256": "e7d12b79a756c3fd2a570418998d5ca35cc30efe43aee8c79f0903129dd1db8b",
+    "verified_payloads": 4943
+  }
+}
